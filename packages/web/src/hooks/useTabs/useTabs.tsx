@@ -13,13 +13,13 @@ import {
   createRef
 } from 'react'
 
+import { useInstanceVar } from '@audius/common'
 import { disableBodyScroll, clearAllBodyScrollLocks } from 'body-scroll-lock'
 import cn from 'classnames'
 import { throttle } from 'lodash'
 import { animated, useTransition, useSpring } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 
-import useInstanceVar from 'common/hooks/useInstanceVar'
 import Tooltip from 'components/tooltip/Tooltip'
 
 import styles from './TabStyles.module.css'
@@ -29,6 +29,7 @@ type TabHeader = {
   text: string
   label: string
   disabled?: boolean
+  disabledTooltipText?: string
 }
 
 type TabProps = {
@@ -122,7 +123,7 @@ const TabBar = memo(
     }))
 
     const resizeTabs = useCallback(() => {
-      const tabRef = refsArr.current[activeIndex].current
+      const tabRef = refsArr.current[activeIndex]?.current
       if (!tabRef) return
       const {
         clientWidth: width,
@@ -233,10 +234,11 @@ const TabBar = memo(
         />
         {tabs.map((e, i) => {
           const isActive = activeIndex === i
-          const tooltipActive = !!disabledTabTooltipText && e.disabled
+          const tooltipActive =
+            (!!disabledTabTooltipText || !!e.disabledTooltipText) && e.disabled
           return (
             <Tooltip
-              text={disabledTabTooltipText}
+              text={e.disabledTooltipText || disabledTabTooltipText}
               placement='bottom'
               disabled={!tooltipActive}
               key={i}

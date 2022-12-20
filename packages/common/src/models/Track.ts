@@ -1,19 +1,23 @@
-import { Favorite } from 'models/Favorite'
-import { CID, ID, UID } from 'models/Identifiers'
-import { CoverArtSizes } from 'models/ImageSizes'
-import { Repost } from 'models/Repost'
-import { User, UserMetadata } from 'models/User'
-import { Nullable } from 'utils/typeUtils'
+import { Nullable } from '../utils/typeUtils'
 
+import { Chain } from './Chain'
+import type { License } from './CreativeCommons'
+import { Favorite } from './Favorite'
+import { CID, ID, UID } from './Identifiers'
+import { CoverArtSizes } from './ImageSizes'
+import { Repost } from './Repost'
 import { StemCategory } from './Stems'
 import { Timestamped } from './Timestamped'
+import { User, UserMetadata } from './User'
+
+type EpochTimeStamp = number
 
 export interface TrackSegment {
   duration: string
   multihash: CID
 }
 
-interface Followee extends User {
+export interface Followee extends User {
   is_delete: boolean
   repost_item_id: string
   repost_type: string
@@ -49,6 +53,31 @@ export type RemixOf = {
   tracks: Remix[]
 }
 
+type TokenStandard = 'ERC721' | 'ERC1155'
+
+type PremiumConditionsEthNFTCollection = {
+  chain: Chain.Eth
+  standard: TokenStandard
+  address: string
+}
+
+type PremiumConditionsSolNFTCollection = {
+  chain: Chain.Sol
+  address: string
+}
+
+export type PremiumConditions = {
+  nft_collection?:
+    | PremiumConditionsEthNFTCollection
+    | PremiumConditionsSolNFTCollection
+  follow_user_id?: number
+}
+
+export type PremiumContentSignature = {
+  data: string
+  signature: string
+}
+
 export type TrackMetadata = {
   blocknumber: number
   activity_timestamp?: string
@@ -65,7 +94,7 @@ export type TrackMetadata = {
   has_current_user_reposted: boolean
   has_current_user_saved: boolean
   download: Nullable<Download>
-  license: Nullable<string>
+  license: Nullable<License>
   mood: Nullable<string>
   play_count: number
   owner_id: ID
@@ -79,11 +108,15 @@ export type TrackMetadata = {
   cover_art_sizes: Nullable<CID>
   is_unlisted: boolean
   is_available: boolean
+  is_premium: boolean
+  premium_conditions: Nullable<PremiumConditions>
+  premium_content_signature: Nullable<PremiumContentSignature>
   field_visibility?: FieldVisibility
   listenCount?: number
   permalink: string
 
   // Optional Fields
+  is_playlist_upload?: boolean
   is_invalid?: boolean
   stem_of?: {
     parent_track_id: ID
@@ -94,7 +127,21 @@ export type TrackMetadata = {
   // Added fields
   dateListened?: string
   duration: number
+
+  offline?: OfflineTrackMetadata
 } & Timestamped
+
+export type DownloadReason = {
+  is_from_favorites?: boolean
+  collection_id?: string
+}
+
+// This is available on mobile for offline tracks
+export type OfflineTrackMetadata = {
+  reasons_for_download: DownloadReason[]
+  download_completed_time: EpochTimeStamp
+  last_verified_time: EpochTimeStamp
+}
 
 export type Stem = {
   track_id: ID

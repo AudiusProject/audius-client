@@ -1,11 +1,25 @@
-import { memo, useState, useCallback, useEffect } from 'react'
+import {
+  memo,
+  useState,
+  useCallback,
+  useEffect,
+  MouseEvent,
+  useRef,
+  MouseEventHandler
+} from 'react'
 
 import {
   UID,
   ID,
   ShareSource,
   RepostSource,
-  FavoriteSource
+  FavoriteSource,
+  accountSelectors,
+  cacheTracksSelectors,
+  cacheUsersSelectors,
+  tracksSocialActions,
+  shareModalUIActions,
+  playerSelectors
 } from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
@@ -13,16 +27,6 @@ import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
-import { getUserHandle } from 'common/store/account/selectors'
-import { getTrack } from 'common/store/cache/tracks/selectors'
-import { getUserFromTrack } from 'common/store/cache/users/selectors'
-import {
-  saveTrack,
-  unsaveTrack,
-  repostTrack,
-  undoRepostTrack
-} from 'common/store/social/tracks/actions'
-import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import Draggable from 'components/dragndrop/Draggable'
 import Menu from 'components/menu/Menu'
@@ -37,8 +41,8 @@ import {
   UserListType,
   UserListEntityType
 } from 'store/application/ui/userListModal/types'
-import { getUid, getPlaying, getBuffering } from 'store/player/selectors'
 import { AppState } from 'store/types'
+import { isDescendantElementOf } from 'utils/domUtils'
 import { fullTrackPage, profilePage } from 'utils/route'
 import { isDarkMode, isMatrix } from 'utils/theme/theme'
 
@@ -49,6 +53,13 @@ import styles from './ConnectedTrackTile.module.css'
 import TrackTile from './TrackTile'
 import Stats from './stats/Stats'
 import { Flavor } from './stats/StatsText'
+const { getUid, getPlaying, getBuffering } = playerSelectors
+const { requestOpen: requestOpenShareModal } = shareModalUIActions
+const { getTrack } = cacheTracksSelectors
+const { getUserFromTrack } = cacheUsersSelectors
+const { saveTrack, unsaveTrack, repostTrack, undoRepostTrack } =
+  tracksSocialActions
+const getUserHandle = accountSelectors.getUserHandle
 
 type OwnProps = {
   uid: UID
@@ -130,6 +141,8 @@ const ConnectedTrackTile = memo(
     const isOwner = handle === userHandle
     const isArtistPick = showArtistPick && _artist_pick === trackId
 
+    const menuRef = useRef<HTMLDivElement>(null)
+
     const onClickStatRepost = () => {
       setRepostUsers(trackId)
       setModalVisibility()
@@ -158,7 +171,8 @@ const ConnectedTrackTile = memo(
         artworkIconClassName: styles.artworkIcon,
         showArtworkIcon: !isLoading,
         showSkeleton: isLoading,
-        callback: () => setArtworkLoaded(true)
+        callback: () => setArtworkLoaded(true),
+        label: `${title} by ${name}`
       }
       return <TrackArtwork {...artworkProps} />
     }
@@ -189,7 +203,7 @@ const ConnectedTrackTile = memo(
       return (
         <Menu menu={menu}>
           {(ref, triggerPopup) => (
-            <div className={styles.menuContainer}>
+            <div className={styles.menuContainer} ref={menuRef}>
               <div
                 className={cn(styles.menuKebabContainer, {
                   [styles.small]: size === TrackTileSize.SMALL,
@@ -208,16 +222,18 @@ const ConnectedTrackTile = memo(
       )
     }
 
-    const onClickArtistName = useCallback(
+    const onClickArtistName: MouseEventHandler = useCallback(
       (e) => {
+        e.preventDefault()
         e.stopPropagation()
         if (goToRoute) goToRoute(profilePage(handle))
       },
       [handle, goToRoute]
     )
 
-    const onClickTitle = useCallback(
+    const onClickTitle: MouseEventHandler = useCallback(
       (e) => {
+        e.preventDefault()
         e.stopPropagation()
         if (goToRoute) goToRoute(permalink)
       },
@@ -228,14 +244,15 @@ const ConnectedTrackTile = memo(
       return (
         <div className={styles.userName}>
           <ArtistPopover handle={handle}>
-            <span
+            <a
               className={cn(styles.name, {
                 [styles.artistNameLink]: onClickArtistName
               })}
               onClick={onClickArtistName}
+              href={profilePage(handle)}
             >
               {name}
-            </span>
+            </a>
           </ArtistPopover>
           <UserBadges
             userId={user?.user_id ?? 0}
@@ -292,9 +309,23 @@ const ConnectedTrackTile = memo(
       shareTrack(trackId)
     }, [shareTrack, trackId])
 
-    const onTogglePlay = useCallback(() => {
-      togglePlay(uid, trackId)
-    }, [togglePlay, uid, trackId])
+    const onTogglePlay = useCallback(
+      (e?: MouseEvent /* click event within TrackTile */) => {
+        // Skip toggle play if click event happened within track menu container
+        // because clicking on it should not affect corresponding track.
+        // We have to do this instead of stopping the event propagation
+        // because we need it to bubble up to the document to allow
+        // the document click listener to close other track/playlist tile menus
+        // that are already open.
+        const shouldSkipTogglePlay = isDescendantElementOf(
+          e?.target,
+          menuRef.current
+        )
+        if (shouldSkipTogglePlay) return
+        togglePlay(uid, trackId)
+      },
+      [togglePlay, uid, trackId]
+    )
 
     if (is_delete || user?.is_deactivated) return null
 
@@ -349,6 +380,7 @@ const ConnectedTrackTile = memo(
           onTogglePlay={onTogglePlay}
           isTrending={isTrending}
           showRankIcon={showRankIcon}
+          permalink={permalink}
         />
       </Draggable>
     )

@@ -1,10 +1,14 @@
-import { ID, FollowSource, ShareSource } from '@audius/common'
+import {
+  ID,
+  FollowSource,
+  ShareSource,
+  usersSocialActions as socialActions
+} from '@audius/common'
 import { PopupMenuItem } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import * as socialActions from 'common/store/social/users/actions'
 import { profilePage } from 'utils/route'
 
 export type OwnProps = {
@@ -66,7 +70,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
     followUser: (userId: ID) =>
       dispatch(socialActions.followUser(userId, FollowSource.OVERFLOW)),
     unFollowUser: (userId: ID) =>
-      dispatch(socialActions.followUser(userId, FollowSource.OVERFLOW))
+      dispatch(socialActions.unfollowUser(userId, FollowSource.OVERFLOW))
   }
 }
 

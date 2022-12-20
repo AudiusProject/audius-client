@@ -1,6 +1,20 @@
 import { useCallback, useEffect, useContext, useMemo } from 'react'
 
 import {
+  fillString,
+  formatNumberCommas,
+  accountSelectors,
+  challengesSelectors,
+  audioRewardsPageActions,
+  ChallengeRewardsModalType,
+  ClaimStatus,
+  CognitoFlowStatus,
+  audioRewardsPageSelectors,
+  getAAOErrorEmojis,
+  musicConfettiActions,
+  challengeRewardsConfig
+} from '@audius/common'
+import {
   Button,
   ButtonType,
   ProgressBar,
@@ -16,32 +30,13 @@ import { ReactComponent as IconCopy } from 'assets/img/iconCopy.svg'
 import { ReactComponent as IconValidationCheck } from 'assets/img/iconValidationCheck.svg'
 import QRCode from 'assets/img/imageQR.png'
 import { useModalState } from 'common/hooks/useModalState'
-import { getUserHandle } from 'common/store/account/selectors'
-import { getOptimisticUserChallenges } from 'common/store/challenges/selectors/optimistic-challenges'
-import { getCompletionStages } from 'common/store/challenges/selectors/profile-progress'
-import {
-  getChallengeRewardsModalType,
-  getClaimStatus,
-  getCognitoFlowStatus
-} from 'common/store/pages/audio-rewards/selectors'
-import {
-  ChallengeRewardsModalType,
-  setChallengeRewardsModalType,
-  ClaimStatus,
-  resetAndCancelClaimReward,
-  CognitoFlowStatus,
-  claimChallengeReward
-} from 'common/store/pages/audio-rewards/slice'
-import { fillString } from 'common/utils/fillString'
-import { formatNumberCommas } from 'common/utils/formatUtil'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
-import { show as showConfetti } from 'components/music-confetti/store/slice'
 import Toast from 'components/toast/Toast'
 import { ToastContext } from 'components/toast/ToastContext'
 import Tooltip from 'components/tooltip/Tooltip'
 import { ComponentPlacement, MountPlacement } from 'components/types'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
-import { challengeRewardsConfig } from 'pages/audio-rewards-page/config'
+import { getChallengeConfig } from 'pages/audio-rewards-page/config'
 import { isMobile } from 'utils/clientUtil'
 import { copyToClipboard, getCopyableLink } from 'utils/clipboardUtil'
 import { CLAIM_REWARD_TOAST_TIMEOUT_MILLIS } from 'utils/constants'
@@ -51,6 +46,21 @@ import PurpleBox from '../PurpleBox'
 
 import styles from './ChallengeRewards.module.css'
 import ModalDrawer from './ModalDrawer'
+const { show: showConfetti } = musicConfettiActions
+const {
+  getCognitoFlowStatus,
+  getAAOErrorCode,
+  getChallengeRewardsModalType,
+  getClaimStatus
+} = audioRewardsPageSelectors
+const {
+  setChallengeRewardsModalType,
+  resetAndCancelClaimReward,
+  claimChallengeReward
+} = audioRewardsPageActions
+const { getOptimisticUserChallenges } = challengesSelectors
+const { getCompletionStages } = challengesSelectors
+const getUserHandle = accountSelectors.getUserHandle
 
 export const useRewardsModalType = (): [
   ChallengeRewardsModalType,
@@ -77,7 +87,9 @@ const messages = {
   rewardClaimed: 'Reward claimed successfully!',
   rewardAlreadyClaimed: 'Reward already claimed!',
   claimError:
-    'Something has gone wrong, not all your rewards were claimed. Please try again.',
+    'Something has gone wrong, not all your rewards were claimed. Please try again or contact support@audius.co.',
+  claimErrorAAO:
+    'Your account is unable to claim rewards at this time. Please try again later or contact support@audius.co. ',
   claimYourReward: 'Claim Your Reward',
   twitterShare: (modalType: 'referrals' | 'ref-v') =>
     `Share Invite With Your ${modalType === 'referrals' ? 'Friends' : 'Fans'}`,
@@ -201,8 +213,9 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   const userChallenges = useSelector(getOptimisticUserChallenges)
   const challenge = userChallenges[modalType]
 
-  const { fullDescription, progressLabel, modalButtonInfo, verifiedChallenge } =
+  const { fullDescription, progressLabel, isVerifiedChallenge } =
     challengeRewardsConfig[modalType]
+  const { modalButtonInfo } = getChallengeConfig(modalType)
 
   const currentStepCount = challenge?.current_step_count || 0
 
@@ -214,7 +227,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   } else {
     linkType = 'incomplete'
   }
-  const buttonInfo = modalButtonInfo[linkType]
+  const buttonInfo = modalButtonInfo?.[linkType] ?? null
   const buttonLink = buttonInfo?.link(userHandle)
 
   const goToRoute = useCallback(() => {
@@ -226,7 +239,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
   const progressDescription = (
     <div className={wm(styles.progressDescription)}>
       <h3>
-        {verifiedChallenge ? (
+        {isVerifiedChallenge ? (
           <div className={styles.verifiedChallenge}>
             <IconVerified />
             {messages.verifiedChallenge}
@@ -235,7 +248,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
           'Task'
         )}
       </h3>
-      <p>{fullDescription(challenge)}</p>
+      <p>{fullDescription?.(challenge)}</p>
     </div>
   )
 
@@ -263,7 +276,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
         challenge?.state === 'disbursed') && (
         <h3 className={styles.complete}>Complete</h3>
       )}
-      {challenge?.state === 'in_progress' && (
+      {challenge?.state === 'in_progress' && progressLabel && (
         <h3 className={styles.inProgress}>
           {fillString(
             progressLabel,
@@ -277,6 +290,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
 
   const { toast } = useContext(ToastContext)
   const claimStatus = useSelector(getClaimStatus)
+  const aaoErrorCode = useSelector(getAAOErrorCode)
   const claimInProgress =
     claimStatus === ClaimStatus.CLAIMING ||
     claimStatus === ClaimStatus.WAITING_FOR_RETRY
@@ -335,6 +349,18 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
     () => (userHandle ? fillString(messages.inviteLink, userHandle) : ''),
     [userHandle]
   )
+
+  const getErrorMessage = () => {
+    if (aaoErrorCode !== undefined) {
+      return (
+        <>
+          {messages.claimErrorAAO}
+          {getAAOErrorEmojis(aaoErrorCode)}
+        </>
+      )
+    }
+    return <>{messages.claimError}</>
+  }
 
   return (
     <div className={wm(styles.container)}>
@@ -442,7 +468,7 @@ const ChallengeRewardsBody = ({ dismissModal }: BodyProps) => {
         ) : null}
       </div>
       {claimStatus === ClaimStatus.ERROR && (
-        <div className={styles.claimError}>{messages.claimError}</div>
+        <div className={styles.claimError}>{getErrorMessage()}</div>
       )}
     </div>
   )
@@ -461,7 +487,7 @@ export const ChallengeRewardsModal = () => {
   const [isHCaptchaModalOpen] = useModalState('HCaptcha')
   const cognitoFlowStatus = useSelector(getCognitoFlowStatus)
 
-  const { icon, title } = challengeRewardsConfig[modalType]
+  const { title, icon } = getChallengeConfig(modalType)
 
   return (
     <ModalDrawer

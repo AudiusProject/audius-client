@@ -1,17 +1,19 @@
-import { CoverArtSizes, SquareSizes } from '@audius/common'
+import {
+  CoverArtSizes,
+  SquareSizes,
+  useImageSize,
+  cacheTracksActions,
+  imageBlank as imageEmpty
+} from '@audius/common'
 import { useDispatch } from 'react-redux'
 
-import imageEmpty from 'common/assets/img/imageBlank2x.png'
-import { useImageSize } from 'common/hooks/useImageSize'
-import { fetchCoverArt } from 'common/store/cache/tracks/actions'
+const { fetchCoverArt } = cacheTracksActions
 
 export const useTrackCoverArt = (
   trackId: number | null | string | undefined,
   coverArtSizes: CoverArtSizes | null,
   size: SquareSizes,
-  defaultImage: string = imageEmpty as string,
-  onDemand = false,
-  load = true
+  defaultImage: string = imageEmpty as string
 ) => {
   const dispatch = useDispatch()
   return useImageSize({
@@ -20,8 +22,6 @@ export const useTrackCoverArt = (
     sizes: coverArtSizes,
     size,
     action: fetchCoverArt,
-    defaultImage,
-    onDemand,
-    load
+    defaultImage
   })
 }

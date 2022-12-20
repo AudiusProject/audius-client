@@ -49,7 +49,6 @@
 
 .badges {
   display: inline;
-  margin-left: 4px;
 }
 
 .badges svg {
@@ -129,7 +128,7 @@
 .chain {
   position: absolute;
   bottom: var(--unit-3);
-  right: var(--unit-3);
+  left: var(--unit-3);
   height: var(--unit-6);
   width: var(--unit-6);
   display: flex;

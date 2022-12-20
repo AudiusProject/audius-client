@@ -1,14 +1,19 @@
 import { useCallback, useMemo } from 'react'
 
-import { FeedFilter, Name } from '@audius/common'
-import { setFeedFilter } from 'audius-client/src/common/store/pages/feed/actions'
-import { feedActions } from 'audius-client/src/common/store/pages/feed/lineup/actions'
+import {
+  FeedFilter,
+  Name,
+  feedPageLineupActions as feedActions,
+  feedPageActions
+} from '@audius/common'
 import { Text } from 'react-native'
+import { useDispatch } from 'react-redux'
 
 import ActionDrawer from 'app/components/action-drawer'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
+import { make, track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
-import { make, track } from 'app/utils/analytics'
+
+const { setFeedFilter } = feedPageActions
 
 const MODAL_NAME = 'FeedFilter'
 
@@ -30,22 +35,22 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
 }))
 
 export const FeedFilterDrawer = () => {
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
 
   const styles = useStyles()
 
   const handleSelectFilter = useCallback(
     (filter: FeedFilter) => {
-      dispatchWeb(setFeedFilter(filter))
+      dispatch(setFeedFilter(filter))
       // Clear the lineup
-      dispatchWeb(feedActions.reset())
+      dispatch(feedActions.reset())
       // Tell the store that the feed is still in view so it can be refetched
-      dispatchWeb(feedActions.setInView(true))
+      dispatch(feedActions.setInView(true))
       // Force a refresh for at least 10 tiles
-      dispatchWeb(feedActions.refreshInView(true, 10))
+      dispatch(feedActions.refreshInView(true, null, 10))
       track(make({ eventName: Name.FEED_CHANGE_VIEW, view: filter }))
     },
-    [dispatchWeb]
+    [dispatch]
   )
 
   const rows = useMemo(

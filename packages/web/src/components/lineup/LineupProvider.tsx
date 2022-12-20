@@ -7,7 +7,9 @@ import {
   Name,
   PlaybackSource,
   Lineup,
-  Status
+  Status,
+  LineupBaseActions,
+  tippingSelectors
 } from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
@@ -16,8 +18,7 @@ import { connect } from 'react-redux'
 import { Transition } from 'react-spring/renderprops'
 import { Dispatch } from 'redux'
 
-import { LineupActions } from 'common/store/lineup/actions'
-import { getShowTip } from 'common/store/tipping/selectors'
+import { TrackEvent, make } from 'common/store/analytics/actions'
 import { FeedTipTile } from 'components/tipping/feed-tip-tile/FeedTipTile'
 import {
   TrackTileProps,
@@ -25,13 +26,13 @@ import {
   TrackTileSize,
   TileProps
 } from 'components/track/types'
-import { TrackEvent, make } from 'store/analytics/actions'
 import { AppState } from 'store/types'
 import { isMobile } from 'utils/clientUtil'
 
 import styles from './Lineup.module.css'
 import { delineateByTime, delineateByFeatured } from './delineate'
 import { LineupVariant } from './types'
+const { getShowTip } = tippingSelectors
 
 // The max number of tiles to load
 const MAX_TILES_COUNT = 1000
@@ -189,7 +190,7 @@ export interface LineupProviderProps {
   setInView?: (inView: boolean) => void
   playingSource: string | null
   emptyElement?: JSX.Element
-  actions: LineupActions
+  actions: LineupBaseActions
   delayLoad?: boolean
   /** How many rows to show for a loading playlist tile. Defaults to 0 */
   numPlaylistSkeletonRows?: number

@@ -6,7 +6,10 @@ import {
   CoverPhotoSizes,
   ProfilePictureSizes,
   WidthSizes,
-  SquareSizes
+  SquareSizes,
+  formatCount,
+  squashNewLines,
+  imageCoverPhotoBlank
 } from '@audius/common'
 import {
   Button,
@@ -22,8 +25,7 @@ import cn from 'classnames'
 import Linkify from 'linkifyjs/react'
 
 import { ReactComponent as BadgeArtist } from 'assets/img/badgeArtist.svg'
-import imageCoverPhotoBlank from 'common/assets/img/imageCoverPhotoBlank.jpg'
-import { formatCount, squashNewLines } from 'common/utils/formatUtil'
+import { make, useRecord } from 'common/store/analytics/actions'
 import { ArtistRecommendationsDropdown } from 'components/artist-recommendations/ArtistRecommendationsDropdown'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import FollowButton from 'components/follow-button/FollowButton'
@@ -34,7 +36,6 @@ import ProfilePageBadge from 'components/user-badges/ProfilePageBadge'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserCoverPhoto } from 'hooks/useUserCoverPhoto'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
-import { make, useRecord } from 'store/analytics/actions'
 import { FOLLOWING_USERS_ROUTE, FOLLOWERS_USERS_ROUTE } from 'utils/route'
 
 import GrowingCoverPhoto from './GrowingCoverPhoto'
@@ -168,7 +169,7 @@ const ProfileHeader = ({
   const bioRef = useRef<HTMLElement | null>(null)
   const isEditing = mode === 'editing'
 
-  const bioRefCb = useCallback((node) => {
+  const bioRefCb = useCallback((node: HTMLParagraphElement) => {
     if (node !== null) {
       const ellipsisActive = isEllipsisActive(node)
       if (ellipsisActive) {
@@ -252,7 +253,7 @@ const ProfileHeader = ({
   }, [record, tikTokHandle, handle])
 
   const onExternalLinkClick = useCallback(
-    (event) => {
+    (event: { target: { href: string } }) => {
       record(
         make(Name.LINK_CLICKING, {
           url: event.target.href,
@@ -289,7 +290,7 @@ const ProfileHeader = ({
   }
 
   const onDonationLinkClick = useCallback(
-    (event) => {
+    (event: { target: { href: string } }) => {
       record(
         make(Name.PROFILE_PAGE_CLICK_DONATION, {
           handle,
@@ -350,7 +351,7 @@ const ProfileHeader = ({
                 </h1>
               </div>
               <div className={styles.artistHandleWrapper}>
-                <h2 className={styles.artistHandle}>{handle}</h2>
+                <div className={styles.artistHandle}>{handle}</div>
                 {doesFollowCurrentUser ? <FollowsYouBadge /> : null}
               </div>
             </div>
@@ -443,14 +444,14 @@ const ProfileHeader = ({
             // https://github.com/Soapbox/linkifyjs/issues/292
             // @ts-ignore
             <Linkify options={{ attributes: { onClick: onExternalLinkClick } }}>
-              <div
+              <p
                 ref={bioRefCb}
                 className={cn(styles.bio, {
                   [styles.bioExpanded]: hasEllipsis && !isDescriptionMinimized
                 })}
               >
                 {squashNewLines(bio)}
-              </div>
+              </p>
             </Linkify>
           ) : null}
           {hasEllipsis && !isDescriptionMinimized && (website || donation) && (

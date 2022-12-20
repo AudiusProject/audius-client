@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 
-import type { Modals } from 'audius-client/src/common/store/ui/modals/slice'
+import type { Modals } from '@audius/common'
 
 import { AddToPlaylistDrawer } from 'app/components/add-to-playlist-drawer'
 import { ApiRewardsDrawer } from 'app/components/api-rewards-drawer/ApiRewardsDrawer'
@@ -17,7 +17,6 @@ import { EditCollectiblesDrawer } from 'app/components/edit-collectibles-drawer'
 import { EnablePushNotificationsDrawer } from 'app/components/enable-push-notifications-drawer'
 import { FeedFilterDrawer } from 'app/components/feed-filter-drawer'
 import { ForgotPasswordDrawer } from 'app/components/forgot-password-drawer'
-import { MobileUploadDrawer } from 'app/components/mobile-upload-drawer'
 import { OverflowMenuDrawer } from 'app/components/overflow-menu-drawer'
 import { ShareDrawer } from 'app/components/share-drawer'
 import { ShareToTikTokDrawer } from 'app/components/share-to-tiktok-drawer'
@@ -26,8 +25,10 @@ import { TransferAudioMobileDrawer } from 'app/components/transfer-audio-mobile-
 import { TrendingRewardsDrawer } from 'app/components/trending-rewards-drawer'
 import { TrendingFilterDrawer } from 'app/screens/trending-screen'
 
-import { DiscordDrawer } from './components/discord-drawer'
 import { useDrawerState } from './components/drawer'
+import { DeleteConfirmationDrawer } from './components/drawers/DeleteConfirmationDrawer'
+import { ShareToStoryProgressDrawer } from './components/share-drawer/useShareToStory'
+import { VipDiscordDrawer } from './components/vip-discord-drawer'
 import { useDrawer } from './hooks/useDrawer'
 import type { Drawer } from './store/drawers/slice'
 
@@ -55,7 +56,10 @@ type NativeDrawerProps = {
 /*
  * Conditionally renders the drawers hooked up to native store/drawers slice
  */
-const NativeDrawer = ({ drawer: Drawer, drawerName }: NativeDrawerProps) => {
+export const NativeDrawer = ({
+  drawer: Drawer,
+  drawerName
+}: NativeDrawerProps) => {
   const { visibleState } = useDrawer(drawerName)
 
   if (visibleState === false) return null
@@ -78,18 +82,20 @@ const commonDrawersMap: { [Modal in Modals]?: ComponentType } = {
   Cognito: CognitoDrawer,
   FeedFilter: FeedFilterDrawer,
   TrendingGenreSelection: TrendingFilterDrawer,
-  MobileUpload: MobileUploadDrawer,
   Overflow: OverflowMenuDrawer,
   SignOutConfirmation: SignOutConfirmationDrawer,
   AddToPlaylist: AddToPlaylistDrawer,
   AudioBreakdown: AudioBreakdownDrawer,
-  DeletePlaylistConfirmation: DeletePlaylistConfirmationDrawer
+  DeletePlaylistConfirmation: DeletePlaylistConfirmationDrawer,
+  VipDiscord: VipDiscordDrawer
 }
 
 const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
   EnablePushNotifications: EnablePushNotificationsDrawer,
   DownloadTrackProgress: DownloadTrackProgressDrawer,
-  ForgotPassword: ForgotPasswordDrawer
+  ForgotPassword: ForgotPasswordDrawer,
+  DeleteConfirmation: DeleteConfirmationDrawer,
+  ShareToStoryProgress: ShareToStoryProgressDrawer
 }
 
 const commonDrawers = Object.entries(commonDrawersMap) as [
@@ -117,7 +123,6 @@ export const Drawers = () => {
           drawer={Drawer}
         />
       ))}
-      <DiscordDrawer />
     </>
   )
 }

@@ -1,61 +1,99 @@
-import { IntKeys } from '@audius/common'
+import {
+  IntKeys,
+  accountSelectors,
+  walletActions,
+  doEvery,
+  waitForValue
+} from '@audius/common'
 import { each } from 'lodash'
 import moment from 'moment'
-import { all, call, put, take, takeEvery } from 'redux-saga/effects'
+import { all, call, put, take, takeEvery, getContext } from 'redux-saga/effects'
 
-import { getAccountUser } from 'common/store/account/selectors'
 import { retrieveUserTracks } from 'common/store/pages/profile/lineups/tracks/retrieveUserTracks'
-import { getBalance } from 'common/store/wallet/slice'
-import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
-import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
-import { waitForBackendSetup } from 'store/backend/sagas'
+import { requiresAccount } from 'common/utils/requiresAccount'
 import { DASHBOARD_PAGE } from 'utils/route'
-import { doEvery, requiresAccount, waitForValue } from 'utils/sagaHelpers'
+import { waitForRead } from 'utils/sagaHelpers'
 
 import * as dashboardActions from './actions'
+const { getBalance } = walletActions
+const getAccountUser = accountSelectors.getAccountUser
 
-function* fetchDashboardAsync(action) {
-  yield call(waitForBackendSetup)
-
+function* fetchDashboardTracksAsync(action) {
   const account = yield call(waitForValue, getAccountUser)
+  const { offset, limit } = action
 
-  const [tracks, playlists] = yield all([
-    call(retrieveUserTracks, {
+  try {
+    const tracks = yield call(retrieveUserTracks, {
       handle: account.handle,
       currentUserId: account.user_id,
-      // TODO: This only supports up to 500, we need to redesign / paginate
-      // the dashboard
+      offset,
+      limit,
       getUnlisted: true
-    }),
-    call(audiusBackendInstance.getPlaylists, account.user_id, [])
-  ])
-  const listedTracks = tracks.filter((t) => t.is_unlisted === false)
-  const unlistedTracks = tracks.filter((t) => t.is_unlisted === true)
+    })
+    const listedTracks = tracks.filter((t) => t.is_unlisted === false)
+    const unlistedTracks = tracks.filter((t) => t.is_unlisted === true)
 
-  const trackIds = listedTracks.map((t) => t.track_id)
-  const now = moment()
-
-  yield call(fetchDashboardListenDataAsync, {
-    trackIds,
-    start: now.clone().subtract(1, 'years').toISOString(),
-    end: now.toISOString(),
-    period: 'month'
-  })
-
-  if (
-    listedTracks.length > 0 ||
-    playlists.length > 0 ||
-    unlistedTracks.length > 0
-  ) {
     yield put(
-      dashboardActions.fetchDashboardSucceeded(
+      dashboardActions.fetchDashboardTracksSucceeded(
         listedTracks,
-        playlists,
         unlistedTracks
       )
     )
-    yield call(pollForBalance)
-  } else {
+  } catch (error) {
+    console.error(error)
+    yield put(dashboardActions.fetchDashboardTracksFailed())
+  }
+}
+
+function* fetchDashboardAsync(action) {
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  yield call(waitForRead)
+
+  const account = yield call(waitForValue, getAccountUser)
+  const { offset, limit } = action
+
+  try {
+    const [tracks, playlists] = yield all([
+      call(retrieveUserTracks, {
+        handle: account.handle,
+        currentUserId: account.user_id,
+        offset,
+        limit,
+        getUnlisted: true
+      }),
+      call(audiusBackendInstance.getPlaylists, account.user_id, [])
+    ])
+    const listedTracks = tracks.filter((t) => t.is_unlisted === false)
+    const unlistedTracks = tracks.filter((t) => t.is_unlisted === true)
+
+    const trackIds = listedTracks.map((t) => t.track_id)
+    const now = moment()
+
+    yield call(fetchDashboardListenDataAsync, {
+      trackIds,
+      start: now.clone().subtract(1, 'years').toISOString(),
+      end: now.toISOString(),
+      period: 'month'
+    })
+
+    if (
+      listedTracks.length > 0 ||
+      playlists.length > 0 ||
+      unlistedTracks.length > 0
+    ) {
+      yield put(
+        dashboardActions.fetchDashboardSucceeded(
+          listedTracks,
+          playlists,
+          unlistedTracks
+        )
+      )
+      yield call(pollForBalance)
+    } else {
+      yield put(dashboardActions.fetchDashboardFailed())
+    }
+  } catch (error) {
+    console.error(error)
     yield put(dashboardActions.fetchDashboardFailed())
   }
 }
@@ -63,14 +101,14 @@ function* fetchDashboardAsync(action) {
 const formatMonth = (date) => moment.utc(date).format('MMM').toUpperCase()
 
 function* fetchDashboardListenDataAsync(action) {
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  const account = yield call(waitForValue, getAccountUser)
   const listenData = yield call(
-    audiusBackendInstance.getTrackListens,
-    action.period,
-    action.trackIds,
+    audiusBackendInstance.getUserListenCountsMonthly,
+    account.user_id,
     action.start,
     action.end
   )
-
   const labels = []
   const labelIndexMap = {}
   const startDate = moment.utc(action.start)
@@ -114,6 +152,7 @@ function* fetchDashboardListenDataAsync(action) {
 }
 
 function* pollForBalance() {
+  const remoteConfigInstance = yield getContext('remoteConfigInstance')
   const pollingFreq = remoteConfigInstance.getRemoteVar(
     IntKeys.DASHBOARD_WALLET_BALANCE_POLLING_FREQ_MS
   )
@@ -122,6 +161,13 @@ function* pollForBalance() {
   })
   yield take(dashboardActions.RESET_DASHBOARD)
   chan.close()
+}
+
+function* watchFetchDashboardTracks() {
+  yield takeEvery(
+    dashboardActions.FETCH_DASHBOARD_TRACKS,
+    requiresAccount(fetchDashboardTracksAsync, DASHBOARD_PAGE)
+  )
 }
 
 function* watchFetchDashboard() {
@@ -139,5 +185,9 @@ function* watchFetchDashboardListenData() {
 }
 
 export default function sagas() {
-  return [watchFetchDashboard, watchFetchDashboardListenData]
+  return [
+    watchFetchDashboard,
+    watchFetchDashboardTracks,
+    watchFetchDashboardListenData
+  ]
 }

@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 
 import type { User } from '@audius/common'
-import { profilePage } from 'audius-client/src/utils/route'
 import { View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
@@ -39,8 +38,8 @@ const useStyles = makeStyles(({ spacing, typography }) => ({
     fontSize: typography.fontSize.small,
     fontFamily: typography.fontByWeight.demiBold
   },
-  textUnderline: {
-    textDecorationLine: 'underline'
+  pressed: {
+    opacity: 0.2
   }
 }))
 
@@ -53,10 +52,7 @@ export const ReceiverDetails = ({ receiver }: ReceiverDetailsProps) => {
   const navigation = useNavigation()
 
   const goToReceiverProfile = useCallback(() => {
-    navigation.navigate({
-      native: { screen: 'Profile', params: { handle: receiver.handle } },
-      web: { route: profilePage(receiver.handle) }
-    })
+    navigation.navigate('Profile', { handle: receiver.handle })
   }, [navigation, receiver])
 
   return (
@@ -68,10 +64,7 @@ export const ReceiverDetails = ({ receiver }: ReceiverDetailsProps) => {
         <PressableText onPress={goToReceiverProfile}>
           {({ pressed }) => (
             <Text
-              style={[
-                styles.receiverNameContainer,
-                pressed && styles.textUnderline
-              ]}
+              style={[styles.receiverNameContainer, pressed && styles.pressed]}
             >
               <Text variant='h3' style={styles.receiverName}>
                 {receiver.name}
@@ -84,7 +77,7 @@ export const ReceiverDetails = ({ receiver }: ReceiverDetailsProps) => {
           {({ pressed }) => (
             <Text
               variant='h4'
-              style={[styles.receiverHandle, pressed && styles.textUnderline]}
+              style={[styles.receiverHandle, pressed && styles.pressed]}
             >
               @{receiver.handle}
             </Text>

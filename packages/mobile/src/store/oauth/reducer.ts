@@ -1,8 +1,5 @@
-import type { MessageType } from 'app/message'
-
 import type { OAuthActions } from './actions'
 import {
-  OPEN_POPUP,
   NATIVE_OPEN_POPUP,
   CLOSE_POPUP,
   SET_TWITTER_INFO,
@@ -11,6 +8,7 @@ import {
   SET_INSTAGRAM_ERROR,
   RESET_OAUTH_STATE
 } from './actions'
+import type { AUTH_RESPONSE_MESSAGE_TYPE } from './types'
 
 type TwitterInfo = {
   uuid: any
@@ -33,13 +31,15 @@ export type OAuthState = {
   isOpen: boolean
   // Incoming message id to reply back to with OAuth results
   messageId: string | null
-  messageType: MessageType | null
+  messageType: typeof AUTH_RESPONSE_MESSAGE_TYPE | null
   url: string | null
   provider: Provider | null
   twitterInfo: TwitterInfo | null
   twitterError: any
   instagramInfo: InstagramInfo | null
   instagramError: any
+  // Whether the user canceled out of the oauth flow
+  abandoned: boolean
 }
 
 export enum Provider {
@@ -57,7 +57,8 @@ const initialState: OAuthState = {
   twitterInfo: null,
   twitterError: null,
   instagramInfo: null,
-  instagramError: null
+  instagramError: null,
+  abandoned: false
 }
 
 const reducer = (
@@ -65,21 +66,13 @@ const reducer = (
   action: OAuthActions
 ): OAuthState => {
   switch (action.type) {
-    case OPEN_POPUP:
-      return {
-        ...state,
-        isOpen: true,
-        messageId: action.message.id,
-        messageType: action.message.type as MessageType,
-        url: action.message.authURL,
-        provider: action.provider
-      }
     case NATIVE_OPEN_POPUP:
       return {
         ...state,
         isOpen: true,
         url: action.url,
-        provider: action.provider
+        provider: action.provider,
+        abandoned: false
       }
     case CLOSE_POPUP:
       return {
@@ -88,7 +81,8 @@ const reducer = (
         messageId: null,
         messageType: null,
         url: null,
-        provider: null
+        provider: null,
+        abandoned: action.abandoned
       }
     case SET_TWITTER_INFO:
       return {

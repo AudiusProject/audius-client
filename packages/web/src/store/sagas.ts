@@ -1,92 +1,97 @@
+import {
+  castSagas,
+  remoteConfigSagas,
+  deletePlaylistConfirmationModalUISagas as deletePlaylistConfirmationModalSagas,
+  mobileOverflowMenuUISagas as overflowMenuSagas,
+  shareModalUISagas as shareModalSagas,
+  toastSagas,
+  vipDiscordModalSagas
+} from '@audius/common'
 import { all, fork } from 'redux-saga/effects'
 
+import accountSagas from 'common/store/account/sagas'
+import addToPlaylistSagas from 'common/store/add-to-playlist/sagas'
+import analyticsSagas from 'common/store/analytics/sagas'
+import backendSagas, { setupBackend } from 'common/store/backend/sagas'
 import collectionsSagas from 'common/store/cache/collections/sagas'
 import coreCacheSagas from 'common/store/cache/sagas'
 import tracksSagas from 'common/store/cache/tracks/sagas'
 import usersSagas from 'common/store/cache/users/sagas'
-import { sagas as castSagas } from 'common/store/cast/sagas'
-import errorSagas from 'common/store/errors/sagas'
+import changePasswordSagas from 'common/store/change-password/sagas'
+import confirmerSagas from 'common/store/confirmer/sagas'
+import notificationSagas from 'common/store/notifications/sagas'
+import rewardsPageSagas from 'common/store/pages/audio-rewards/sagas'
+import transactionsPageSagas from 'common/store/pages/audio-transactions/sagas'
+import collectionSagas from 'common/store/pages/collection/sagas'
+import deactivateAccountSagas from 'common/store/pages/deactivate-account/sagas'
 import exploreCollectionsPageSagas from 'common/store/pages/explore/exploreCollections/sagas'
 import explorePageSagas from 'common/store/pages/explore/sagas'
-import reachabilitySagas from 'common/store/reachability/sagas'
+import feedPageSagas from 'common/store/pages/feed/sagas'
+import historySagas from 'common/store/pages/history/sagas'
+import remixesSagas from 'common/store/pages/remixes-page/sagas'
+import savedSagas from 'common/store/pages/saved/sagas'
+import searchResultsSagas from 'common/store/pages/search-page/sagas'
+import signOnSaga from 'common/store/pages/signon/sagas'
+import trackPageSagas from 'common/store/pages/track/sagas'
+import trendingPlaylistSagas from 'common/store/pages/trending-playlists/sagas'
+import trendingUndergroundSagas from 'common/store/pages/trending-underground/sagas'
+import trendingPageSagas from 'common/store/pages/trending/sagas'
+import playerSagas from 'common/store/player/sagas'
+import playlistLibrarySagas from 'common/store/playlist-library/sagas'
+import premiumContentSagas from 'common/store/premiumContent/sagas'
+import profileSagas from 'common/store/profile/sagas'
+import queueSagas from 'common/store/queue/sagas'
 import recoveryEmailSagas from 'common/store/recovery-email/sagas'
-import remoteConfigSagas from 'common/store/remote-config/sagas'
-import signOutSagas from 'common/store/sign-out/sagas'
+import remixSettingsSagas from 'common/store/remix-settings/sagas'
+import searchBarSagas from 'common/store/search-bar/sagas'
+import serviceSelectionSagas from 'common/store/service-selection/sagas'
+import smartCollectionPageSagas from 'common/store/smart-collection/sagas'
+import socialSagas from 'common/store/social/sagas'
+import tippingSagas from 'common/store/tipping/sagas'
 import artistRecommendationsSagas from 'common/store/ui/artist-recommendations/sagas'
-import deletePlaylistConfirmationModalSagas from 'common/store/ui/delete-playlist-confirmation-modal/sagas'
-import overflowMenuSagas from 'common/store/ui/mobile-overflow-menu/sagas'
 import reactionSagas from 'common/store/ui/reactions/sagas'
-import shareModalSagas from 'common/store/ui/share-modal/sagas'
-import toastSagas from 'common/store/ui/toast/sagas'
+import uploadSagas from 'common/store/upload/sagas'
+import favoritePageSagas from 'common/store/user-list/favorites/sagas'
+import followersPageSagas from 'common/store/user-list/followers/sagas'
+import followingPageSagas from 'common/store/user-list/following/sagas'
+import mutualsPageSagas from 'common/store/user-list/mutuals/sagas'
 import notificationUsersPageSagas from 'common/store/user-list/notifications/sagas'
-import addToPlaylistSagas from 'components/add-to-playlist/store/sagas'
-import changePasswordSagas from 'components/change-password/store/sagas'
+import repostPageSagas from 'common/store/user-list/reposts/sagas'
+import supportingPageSagas from 'common/store/user-list/supporting/sagas'
+import topSupportersPageSagas from 'common/store/user-list/top-supporters/sagas'
+import walletSagas from 'common/store/wallet/sagas'
 import firstUploadModalSagas from 'components/first-upload-modal/store/sagas'
-import notificationSagas from 'components/notification/store/sagas'
 import passwordResetSagas from 'components/password-reset/store/sagas'
-import remixSettingsModalSagas from 'components/remix-settings-modal/store/sagas'
-import searchBarSagas from 'components/search-bar/store/sagas'
-import serviceSelectionSagas from 'components/service-selection/store/sagas'
 import shareSoundToTikTokModalSagas from 'components/share-sound-to-tiktok-modal/store/sagas'
 import dashboardSagas from 'pages/artist-dashboard-page/store/sagas'
-import rewardsPageSagas from 'pages/audio-rewards-page/store/sagas'
-import collectionSagas from 'pages/collection-page/store/sagas'
-import deactivateAccountSagas from 'pages/deactivate-account-page/store/sagas'
 import deletedSagas from 'pages/deleted-page/store/sagas'
-import favoritePageSagas from 'pages/favorites-page/sagas'
-import feedPageSagas from 'pages/feed-page/store/sagas'
-import followersPageSagas from 'pages/followers-page/sagas'
-import followingPageSagas from 'pages/following-page/sagas'
-import historySagas from 'pages/history-page/store/sagas'
-import mutualsPageSagas from 'pages/mutuals-page/sagas'
-import profileSagas from 'pages/profile-page/sagas'
-import remixesSagas from 'pages/remixes-page/store/sagas'
-import repostPageSagas from 'pages/reposts-page/sagas'
-import savedSagas from 'pages/saved-page/store/sagas'
-import searchPageSagas from 'pages/search-page/store/sagas'
 import settingsSagas from 'pages/settings-page/store/sagas'
-import signOnSaga from 'pages/sign-on/store/sagas'
-import smartCollectionPageSagas from 'pages/smart-collection/store/sagas'
-import supportingPageSagas from 'pages/supporting-page/sagas'
-import topSupportersPageSagas from 'pages/top-supporters-page/sagas'
-import trackSagas from 'pages/track-page/store/sagas'
-import trendingPageSagas from 'pages/trending-page/store/sagas'
-import trendingPlaylistSagas from 'pages/trending-playlists/store/sagas'
-import trendingUndergroundSagas from 'pages/trending-underground/store/sagas'
-import uploadSagas from 'pages/upload-page/store/sagas'
-import { initInterface } from 'services/native-mobile-interface/helpers'
-import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
-import accountSagas from 'store/account/sagas'
-import analyticsSagas from 'store/analytics/sagas'
+import webAnalyticsSagas from 'store/analytics/sagas'
+import buyAudioSagas from 'store/application/ui/buy-audio/sagas'
 import cookieBannerSagas from 'store/application/ui/cookieBanner/sagas'
 import scrollLockSagas from 'store/application/ui/scrollLock/sagas'
 import stemUploadSagas from 'store/application/ui/stemsUpload/sagas'
 import themeSagas from 'store/application/ui/theme/sagas'
 import userListModalSagas from 'store/application/ui/userListModal/sagas'
-import backendSagas, { setupBackend } from 'store/backend/sagas'
-import confirmerSagas from 'store/confirmer/sagas'
-import oauthSagas from 'store/oauth/sagas'
-import playerSagas from 'store/player/sagas'
-import playlistLibrarySagas from 'store/playlist-library/sagas'
-import queueSagas from 'store/queue/sagas'
+import errorSagas from 'store/errors/sagas'
+import reachabilitySagas from 'store/reachability/sagas'
 import routingSagas from 'store/routing/sagas'
-import socialSagas from 'store/social/sagas'
+import signOutSagas from 'store/sign-out/sagas'
 import solanaSagas from 'store/solana/sagas'
-import tippingSagas from 'store/tipping/sagas'
 import tokenDashboardSagas from 'store/token-dashboard/sagas'
-import walletSagas from 'store/wallet/sagas'
 
-import { webStoreContext } from './storeContext'
-
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+import notificationSagasWeb from './notifications/sagas'
 
 export default function* rootSaga() {
   yield fork(setupBackend)
   const sagas = ([] as (() => Generator<any, void, any>)[]).concat(
     // Config
     analyticsSagas(),
+    webAnalyticsSagas(),
     backendSagas(),
     confirmerSagas(),
+    searchBarSagas(),
+
     cookieBannerSagas(),
     reachabilitySagas(),
     routingSagas(),
@@ -105,18 +110,19 @@ export default function* rootSaga() {
     feedPageSagas(),
     historySagas(),
     notificationSagas(),
+    notificationSagasWeb(),
     passwordResetSagas(),
     profileSagas(),
     reactionSagas(),
     rewardsPageSagas(),
+    transactionsPageSagas(),
     savedSagas(),
-    searchBarSagas(),
-    searchPageSagas(),
+    searchResultsSagas(),
     serviceSelectionSagas(),
     settingsSagas(),
     signOnSaga(),
     socialSagas(),
-    trackSagas(),
+    trackPageSagas(),
     trendingPageSagas(),
     trendingPlaylistSagas(),
     trendingUndergroundSagas(),
@@ -136,11 +142,12 @@ export default function* rootSaga() {
     walletSagas(),
 
     // Cast
-    castSagas(webStoreContext),
+    castSagas(),
 
     // Application
     addToPlaylistSagas(),
     artistRecommendationsSagas(),
+    buyAudioSagas(),
     changePasswordSagas(),
     deactivateAccountSagas(),
     deletedSagas(),
@@ -154,7 +161,7 @@ export default function* rootSaga() {
     mutualsPageSagas(),
     notificationUsersPageSagas(),
     remixesSagas(),
-    remixSettingsModalSagas(),
+    remixSettingsSagas(),
     repostPageSagas(),
     scrollLockSagas(),
     shareModalSagas(),
@@ -166,10 +173,10 @@ export default function* rootSaga() {
     themeSagas(),
     tokenDashboardSagas(),
     userListModalSagas(),
-    oauthSagas(),
+    vipDiscordModalSagas(),
 
     // Remote config
-    remoteConfigSagas(remoteConfigInstance),
+    remoteConfigSagas(),
 
     // Solana
     solanaSagas(),
@@ -177,11 +184,11 @@ export default function* rootSaga() {
     // Tipping
     tippingSagas(),
 
+    // Premium content
+    premiumContentSagas(),
+
     // Error
     errorSagas()
   )
-  if (NATIVE_MOBILE) {
-    sagas.push(initInterface)
-  }
   yield all(sagas.map(fork))
 }

@@ -1,23 +1,33 @@
 import { useCallback } from 'react'
 
 import type { ID, UID } from '@audius/common'
-import { Status, Name, PlaybackSource } from '@audius/common'
-import { makeGetTableMetadatas } from 'audius-client/src/common/store/lineup/selectors'
-import { tracksActions } from 'audius-client/src/common/store/pages/history-page/lineups/tracks/actions'
-import { getHistoryTracksLineup } from 'audius-client/src/common/store/pages/history-page/selectors'
-import { useSelector } from 'react-redux'
+import {
+  playerSelectors,
+  Status,
+  Name,
+  PlaybackSource,
+  lineupSelectors,
+  historyPageTracksLineupActions as tracksActions,
+  historyPageSelectors,
+  useProxySelector
+} from '@audius/common'
+import { useFocusEffect } from '@react-navigation/native'
+import { useDispatch, useSelector } from 'react-redux'
 
+import IconListeningHistory from 'app/assets/images/iconListeningHistory.svg'
 import { Screen, Tile, VirtualizedScrollView } from 'app/components/core'
+import { EmptyTileCTA } from 'app/components/empty-tile-cta'
 import { TrackList } from 'app/components/track-list'
 import { WithLoader } from 'app/components/with-loader/WithLoader'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { getPlaying, getPlayingUid } from 'app/store/audio/selectors'
+import { make, track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
-import { make, track } from 'app/utils/analytics'
+const { getPlaying, getUid } = playerSelectors
+const { getHistoryTracksLineup } = historyPageSelectors
+const { makeGetTableMetadatas } = lineupSelectors
 
 const messages = {
-  title: 'Listening History'
+  title: 'Listening History',
+  noHistoryMessage: "You haven't listened to any tracks yet"
 }
 const getTracks = makeGetTableMetadatas(getHistoryTracksLineup)
 
@@ -36,18 +46,23 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
 
 export const ListeningHistoryScreen = () => {
   const styles = useStyles()
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
   const isPlaying = useSelector(getPlaying)
-  const playingUid = useSelector(getPlayingUid)
-  const historyTracks = useSelectorWeb(getTracks)
+  const playingUid = useSelector(getUid)
 
-  const status = historyTracks.status
+  const fetchListeningHistory = useCallback(() => {
+    dispatch(tracksActions.fetchLineupMetadatas())
+  }, [dispatch])
+
+  useFocusEffect(fetchListeningHistory)
+
+  const { status, entries } = useProxySelector(getTracks, [])
 
   const togglePlay = useCallback(
     (uid: UID, id: ID) => {
       const isTrackPlaying = uid === playingUid && isPlaying
       if (!isTrackPlaying) {
-        dispatchWeb(tracksActions.play(uid))
+        dispatch(tracksActions.play(uid))
         track(
           make({
             eventName: Name.PLAYBACK_PLAY,
@@ -56,7 +71,7 @@ export const ListeningHistoryScreen = () => {
           })
         )
       } else {
-        dispatchWeb(tracksActions.pause())
+        dispatch(tracksActions.pause())
         track(
           make({
             eventName: Name.PLAYBACK_PAUSE,
@@ -66,27 +81,36 @@ export const ListeningHistoryScreen = () => {
         )
       }
     },
-    [dispatchWeb, isPlaying, playingUid]
+    [dispatch, isPlaying, playingUid]
   )
 
   return (
-    <Screen title={messages.title} topbarRight={null} variant='secondary'>
+    <Screen
+      title={messages.title}
+      icon={IconListeningHistory}
+      topbarRight={null}
+      variant='secondary'
+    >
       <WithLoader loading={status === Status.LOADING}>
-        <VirtualizedScrollView listKey='listening-history-screen'>
-          <Tile
-            styles={{
-              root: styles.container,
-              tile: styles.trackListContainer
-            }}
-          >
-            <TrackList
-              tracks={historyTracks.entries}
-              showDivider
-              togglePlay={togglePlay}
-              trackItemAction='overflow'
-            />
-          </Tile>
-        </VirtualizedScrollView>
+        {status === Status.SUCCESS && entries.length === 0 ? (
+          <EmptyTileCTA message={messages.noHistoryMessage} />
+        ) : (
+          <VirtualizedScrollView listKey='listening-history-screen'>
+            <Tile
+              styles={{
+                root: styles.container,
+                tile: styles.trackListContainer
+              }}
+            >
+              <TrackList
+                tracks={entries}
+                showDivider
+                togglePlay={togglePlay}
+                trackItemAction='overflow'
+              />
+            </Tile>
+          </VirtualizedScrollView>
+        )}
       </WithLoader>
     </Screen>
   )

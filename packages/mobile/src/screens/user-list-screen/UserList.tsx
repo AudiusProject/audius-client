@@ -1,30 +1,24 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { FeatureFlags } from '@audius/common'
-import type { ID, User } from '@audius/common'
-import { useFocusEffect, useIsFocused } from '@react-navigation/native'
-import type { CommonState } from 'audius-client/src/common/store'
-import { getUserId } from 'audius-client/src/common/store/account/selectors'
-import { getUsers } from 'audius-client/src/common/store/cache/users/selectors'
+import type { ID, User, UserListStoreState, CommonState } from '@audius/common'
 import {
-  loadMore,
-  reset,
-  setLoading
-} from 'audius-client/src/common/store/user-list/actions'
-import { makeGetOptimisticUserIdsIfNeeded } from 'audius-client/src/common/store/user-list/selectors'
-import type { UserListStoreState } from 'audius-client/src/common/store/user-list/types'
+  cacheUsersSelectors,
+  userListActions,
+  userListSelectors
+} from '@audius/common'
+import { useFocusEffect, useIsFocused } from '@react-navigation/native'
 import { View } from 'react-native'
 import type { Selector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { Divider, FlatList } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 
-import { UserChip } from './UserChip'
 import { UserListItem } from './UserListItem'
+const { makeGetOptimisticUserIdsIfNeeded } = userListSelectors
+const { loadMore, reset, setLoading } = userListActions
+const { getUsers } = cacheUsersSelectors
 
 const useStyles = makeStyles(({ spacing }) => ({
   spinner: {
@@ -65,18 +59,16 @@ export const UserList = (props: UserListProps) => {
   const isFocused = useIsFocused()
   const styles = useStyles()
   const cachedUsers = useRef<User[]>([])
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
   const [isRefreshing, setIsRefreshing] = useState(true)
-  const { hasMore, userIds, loading } = useSelectorWeb(userSelector, isEqual)
+  const { hasMore, userIds, loading } = useSelector(userSelector)
   const getOptimisticUserIds = makeGetOptimisticUserIdsIfNeeded({
     userIds,
     tag
   })
-  const optimisticUserIds: ID[] = useSelectorWeb(getOptimisticUserIds)
-  const currentUserId = useSelectorWeb(getUserId)
-  const usersMap = useSelectorWeb(
-    (state) => getUsers(state, { ids: optimisticUserIds }),
-    isEqual
+  const optimisticUserIds: ID[] = useSelector(getOptimisticUserIds)
+  const usersMap = useSelector((state) =>
+    getUsers(state, { ids: optimisticUserIds })
   )
   const users: User[] = useMemo(
     () =>
@@ -86,21 +78,17 @@ export const UserList = (props: UserListProps) => {
     [usersMap, optimisticUserIds]
   )
 
-  const { isEnabled: isTippingEnabled } = useFeatureFlag(
-    FeatureFlags.TIPPING_ENABLED
-  )
-
   useFocusEffect(
     useCallback(() => {
       setIsRefreshing(true)
       setUserList()
-      dispatchWeb(setLoading(tag, true))
-      dispatchWeb(loadMore(tag))
+      dispatch(setLoading(tag, true))
+      dispatch(loadMore(tag))
 
       return () => {
-        dispatchWeb(reset(tag))
+        dispatch(reset(tag))
       }
-    }, [dispatchWeb, setUserList, tag])
+    }, [dispatch, setUserList, tag])
   )
 
   const isEmpty = users.length === 0
@@ -120,10 +108,10 @@ export const UserList = (props: UserListProps) => {
 
   const handleEndReached = useCallback(() => {
     if (hasMore && isFocused) {
-      dispatchWeb(setLoading(tag, true))
-      dispatchWeb(loadMore(tag))
+      dispatch(setLoading(tag, true))
+      dispatch(loadMore(tag))
     }
-  }, [hasMore, isFocused, dispatchWeb, tag])
+  }, [hasMore, isFocused, dispatch, tag])
 
   const data =
     isEmpty || isRefreshing || loading || !isFocused
@@ -146,15 +134,9 @@ export const UserList = (props: UserListProps) => {
     <FlatList
       style={styles.list}
       data={data}
-      renderItem={({ item }) =>
-        isTippingEnabled ? (
-          <UserListItem user={item} tag={tag} />
-        ) : (
-          <UserChip user={item} currentUserId={currentUserId} />
-        )
-      }
+      renderItem={({ item }) => <UserListItem user={item} tag={tag} />}
       keyExtractor={(item) => item.user_id.toString()}
-      ItemSeparatorComponent={isTippingEnabled ? Divider : undefined}
+      ItemSeparatorComponent={Divider}
       onEndReached={handleEndReached}
       ListFooterComponent={loading || isRefreshing ? loadingSpinner : footer}
     />

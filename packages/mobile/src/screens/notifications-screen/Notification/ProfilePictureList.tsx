@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 
 import type { User } from '@audius/common'
-import { formatCount } from 'audius-client/src/common/utils/formatUtil'
-import type { StyleProp, ViewStyle } from 'react-native'
+import { formatCount } from '@audius/common'
+import type { ImageStyle, StyleProp, ViewStyle } from 'react-native'
 import { View, Text } from 'react-native'
 
 import { makeStyles } from 'app/styles'
@@ -20,7 +20,9 @@ const USER_LENGTH_LIMIT = 9
  */
 const defaultImageDimensions = { width: 38, height: 38 }
 
-const useStyles = makeStyles(
+type MakeStylesProps = { imageDimensions: { height: number; width: number } }
+
+const useStyles = makeStyles<MakeStylesProps>(
   ({ spacing, palette, typography }, { imageDimensions }) => ({
     root: {
       flexDirection: 'row'
@@ -34,13 +36,23 @@ const useStyles = makeStyles(
       justifyContent: 'center',
       alignItems: 'center'
     },
+    imageExtraDim: {
+      marginLeft: spacing(2.5) - imageDimensions.width,
+      backgroundColor: 'rgba(0,0,0,0.1)',
+      borderRadius: 15,
+      width: 24,
+      height: 24
+    },
     imageCount: {
       width: imageDimensions.width,
-      marginLeft: spacing(2) - imageDimensions.width,
+      marginLeft: spacing(0.5) - imageDimensions.width,
       textAlign: 'center',
       color: palette.staticWhite,
       fontSize: typography.fontSize.small,
-      fontFamily: typography.fontByWeight.bold
+      fontFamily: typography.fontByWeight.bold,
+      textShadowColor: 'rgba(0,0,0,0.25)',
+      textShadowOffset: { width: 0, height: 2 },
+      textShadowRadius: 1
     }
   })
 )
@@ -53,8 +65,8 @@ type ProfilePictureListProps = {
   navigationType?: 'push' | 'navigate'
   interactive?: boolean
   imageStyles?: {
-    width?: number | string | undefined
-    height?: number | string | undefined
+    width?: number
+    height?: number
   }
 }
 
@@ -70,7 +82,10 @@ export const ProfilePictureList = (props: ProfilePictureListProps) => {
   } = props
   const stylesConfig = useMemo(
     () => ({
-      imageDimensions: imageStyles || defaultImageDimensions
+      imageDimensions: {
+        width: imageStyles?.width ?? defaultImageDimensions.width,
+        height: imageStyles?.height ?? defaultImageDimensions.height
+      }
     }),
     [imageStyles]
   )
@@ -99,7 +114,7 @@ export const ProfilePictureList = (props: ProfilePictureListProps) => {
           <ProfilePicture
             profile={user}
             key={user.user_id}
-            style={{ ...styles.image, ...imageStyles }}
+            style={{ ...(styles.image as ImageStyle), ...imageStyles }}
             navigationType={navigationType}
             interactive={interactive}
           />
@@ -108,10 +123,11 @@ export const ProfilePictureList = (props: ProfilePictureListProps) => {
         <View style={styles.imageExtraRoot}>
           <ProfilePicture
             profile={users[limit - 1]}
-            style={{ ...styles.image, ...imageStyles }}
+            style={{ ...(styles.image as ImageStyle), ...imageStyles }}
             navigationType={navigationType}
             interactive={interactive}
           />
+          <View style={styles.imageExtraDim} />
           <Text style={styles.imageCount}>
             {`+${formatCount(remainingUsersCount)}`}
           </Text>

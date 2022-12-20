@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 
+import { accountSelectors } from '@audius/common'
 import { replace as replaceRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
-import { getHasAccount } from 'common/store/account/selectors'
-import { Pages } from 'pages/sign-on/store/types'
+import * as signOnAction from 'common/store/pages/signon/actions'
+import { getPage } from 'common/store/pages/signon/selectors'
+import { Pages } from 'common/store/pages/signon/types'
 import { AppState } from 'store/types'
 import { isMobile } from 'utils/clientUtil'
 import { TRENDING_PAGE } from 'utils/route'
@@ -14,10 +16,8 @@ import { TRENDING_PAGE } from 'utils/route'
 import SignOnProvider from './SignOnProvider'
 import SignOnDesktopPage from './components/desktop/SignOnPage'
 import SignOnMobilePage from './components/mobile/SignOnPage'
-import * as signOnAction from './store/actions'
-import { getPage } from './store/selectors'
 
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+const getHasAccount = accountSelectors.getHasAccount
 
 type OwnProps = {
   signIn: boolean
@@ -59,7 +59,7 @@ const SignOn = ({
     }
   }, [isInitialRender, hasAccount, location, fetchReferrer, replaceRoute])
 
-  return !NATIVE_MOBILE ? (
+  return (
     <SignOnProvider
       isMobile={isMobile}
       signIn={signIn}
@@ -68,7 +68,7 @@ const SignOn = ({
     >
       {content}
     </SignOnProvider>
-  ) : null
+  )
 }
 
 function mapStateToProps(state: AppState) {

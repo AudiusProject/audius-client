@@ -6,7 +6,9 @@ import {
   ProfilePictureSizes,
   SquareSizes,
   Status,
-  BooleanKeys
+  BooleanKeys,
+  InstagramProfile,
+  TwitterProfile
 } from '@audius/common'
 import {
   Button,
@@ -17,14 +19,13 @@ import {
 } from '@audius/stems'
 import cn from 'classnames'
 
-import { InstagramProfile, TwitterProfile } from 'common/store/account/reducer'
+import { useRecord, make, TrackEvent } from 'common/store/analytics/actions'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Page from 'components/page/Page'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
-import { useRecord, make, TrackEvent } from 'store/analytics/actions'
 import { profilePage } from 'utils/route'
 
 import InstagramAccountVerification from '../InstagramAccountVerified'

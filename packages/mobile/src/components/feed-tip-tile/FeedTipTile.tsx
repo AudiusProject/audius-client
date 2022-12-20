@@ -1,35 +1,37 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 
 import type { User } from '@audius/common'
-import { FeatureFlags } from '@audius/common'
-import { getAccountUser } from 'audius-client/src/common/store/account/selectors'
-import { getUsers } from 'audius-client/src/common/store/cache/users/selectors'
 import {
-  getShowTip,
-  getTipToDisplay
-} from 'audius-client/src/common/store/tipping/selectors'
-import { hideTip } from 'audius-client/src/common/store/tipping/slice'
-import { View } from 'react-native'
-
-import IconRemove from 'app/assets/images/iconRemove.svg'
-import { Tile } from 'app/components/core'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { MessageType } from 'app/message/types'
+  accountSelectors,
+  cacheUsersSelectors,
+  tippingSelectors,
+  tippingActions,
+  useProxySelector
+} from '@audius/common'
 import {
   dismissRecentTip,
   getRecentTipsStorage
-} from 'app/store/tipping/storageUtils'
+} from 'audius-client/src/common/store/tipping/storageUtils'
+import { View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
+import { useAsync } from 'react-use'
+
+import IconRemove from 'app/assets/images/iconRemove.svg'
+import { Tile } from 'app/components/core'
+import { make, track } from 'app/services/analytics'
+import { localStorage } from 'app/services/local-storage'
 import { makeStyles } from 'app/styles'
 import { EventNames } from 'app/types/analytics'
-import { make, track } from 'app/utils/analytics'
 
-import { LineupTileSkeleton } from '../lineup-tile'
-
+import { FeedTipTileSkeleton } from './FeedTipTileSkeleton'
 import { ReceiverDetails } from './ReceiverDetails'
 import { SendTipButton } from './SendTipButton'
 import { SenderDetails } from './SenderDetails'
+
+const { hideTip, fetchRecentTips } = tippingActions
+const { getShowTip, getTipToDisplay } = tippingSelectors
+const { getUsers } = cacheUsersSelectors
+const { getAccountUser } = accountSelectors
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
   tile: {
@@ -46,7 +48,6 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     justifyContent: 'space-between'
   },
   skeleton: {
-    padding: 12,
     paddingBottom: 0
   },
   iconRemove: {
@@ -58,38 +59,30 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
 
 export const FeedTipTile = () => {
   const styles = useStyles()
-  const dispatchWeb = useDispatchWeb()
-  const account = useSelectorWeb(getAccountUser)
-  const showTip = useSelectorWeb(getShowTip)
-  const tipToDisplay = useSelectorWeb(getTipToDisplay)
-  const tipperIds = tipToDisplay
-    ? [
-        tipToDisplay.sender_id,
-        tipToDisplay.receiver_id,
-        ...tipToDisplay.followee_supporter_ids
-      ]
-    : []
-  const usersMap = useSelectorWeb((state) =>
-    getUsers(state, { ids: tipToDisplay ? tipperIds : [] })
-  )
-  const { isEnabled: isTippingEnabled } = useFeatureFlag(
-    FeatureFlags.TIPPING_ENABLED
-  )
+  const dispatch = useDispatch()
+  const account = useSelector(getAccountUser)
 
-  useEffect(() => {
-    const fetchRecentTipsAsync = async () => {
-      const storage = await getRecentTipsStorage()
-      dispatchWeb({
-        type: MessageType.FETCH_RECENT_TIPS,
-        storage
-      })
+  const showTip = useSelector(getShowTip)
+
+  const { tipToDisplay, usersMap, tipperIds } = useProxySelector((state) => {
+    const tipToDisplay = getTipToDisplay(state)
+    if (!tipToDisplay) {
+      return { tipToDisplay: null, usersMap: {}, tipperIds: [] }
     }
-    fetchRecentTipsAsync()
-  }, [dispatchWeb])
+    const { sender_id, receiver_id, followee_supporter_ids } = tipToDisplay
+    const tipperIds = [sender_id, receiver_id, ...followee_supporter_ids]
+    const usersMap = getUsers(state, { ids: tipperIds })
+    return { tipToDisplay, usersMap, tipperIds }
+  }, [])
 
-  const handlePressClose = useCallback(() => {
-    dismissRecentTip()
-    dispatchWeb(hideTip())
+  useAsync(async () => {
+    const storage = await getRecentTipsStorage(localStorage)
+    dispatch(fetchRecentTips({ storage }))
+  }, [dispatch])
+
+  const handlePressClose = useCallback(async () => {
+    await dismissRecentTip(localStorage)
+    dispatch(hideTip())
     if (account && tipToDisplay) {
       track(
         make({
@@ -100,15 +93,15 @@ export const FeedTipTile = () => {
         })
       )
     }
-  }, [dispatchWeb, account, tipToDisplay])
+  }, [dispatch, account, tipToDisplay])
 
-  if (!isTippingEnabled || !showTip) {
+  if (!showTip) {
     return null
   }
 
   return !tipToDisplay || Object.keys(usersMap).length !== tipperIds.length ? (
     <View style={styles.skeleton}>
-      <LineupTileSkeleton />
+      <FeedTipTileSkeleton />
     </View>
   ) : (
     <Tile styles={{ tile: styles.tile }}>

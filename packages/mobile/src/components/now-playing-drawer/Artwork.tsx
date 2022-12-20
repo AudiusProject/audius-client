@@ -1,62 +1,52 @@
-import React from 'react'
-
-import type { Track } from '@audius/common'
-import { SquareSizes } from '@audius/common'
-import { getDominantColorsByTrack } from 'audius-client/src/common/store/average-color/slice'
-import { Dimensions, StyleSheet, View } from 'react-native'
+import type { CommonState, Nullable, Track } from '@audius/common'
+import { averageColorSelectors } from '@audius/common'
+import { Dimensions, View } from 'react-native'
 import { Shadow } from 'react-native-shadow-2'
+import { useSelector } from 'react-redux'
 
-import { DynamicImage } from 'app/components/core'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
-import type { ThemeColors } from 'app/utils/theme'
+import { TrackImage } from 'app/components/image/TrackImage'
+import { makeStyles } from 'app/styles'
+const { getDominantColorsByTrack } = averageColorSelectors
 
 const dimensions = Dimensions.get('window')
 const spacing = 24
 
-const createStyles = (themeColors: ThemeColors) =>
-  StyleSheet.create({
-    root: {
-      marginLeft: spacing,
-      marginRight: spacing,
-      maxHeight: dimensions.width - spacing * 2,
-      alignSelf: 'center'
-    },
-    shadow: {
-      alignSelf: 'flex-start'
-    },
-    image: {
-      alignSelf: 'center',
-      borderRadius: 8,
-      borderColor: themeColors.white,
-      borderWidth: 2,
-      overflow: 'hidden',
-      height: '100%',
-      width: '100%',
-      aspectRatio: 1
-    }
-  })
+const useStyles = makeStyles(({ palette }) => ({
+  root: {
+    marginLeft: spacing,
+    marginRight: spacing,
+    maxHeight: dimensions.width - spacing * 2,
+    alignSelf: 'center'
+  },
+  shadow: {
+    alignSelf: 'flex-start'
+  },
+  image: {
+    alignSelf: 'center',
+    borderRadius: 8,
+    borderColor: palette.white,
+    borderWidth: 2,
+    overflow: 'hidden',
+    height: '100%',
+    width: '100%',
+    aspectRatio: 1
+  }
+}))
 
 type ArtworkProps = {
-  track: Track
+  track: Nullable<Track>
 }
 
 export const Artwork = ({ track }: ArtworkProps) => {
-  const styles = useThemedStyles(createStyles)
-  const image = useTrackCoverArt({
-    id: track.track_id,
-    sizes: track._cover_art_sizes,
-    size: SquareSizes.SIZE_1000_BY_1000
-  })
+  const styles = useStyles()
 
-  const dominantColors = useSelectorWeb((state) =>
+  const dominantColors = useSelector((state: CommonState) =>
     getDominantColorsByTrack(state, {
       track
     })
   )
 
-  let shadowColor = 'rgba(0,0,0,0)'
+  let shadowColor = 'rgba(0,0,0,0.05)'
   const dominantColor = dominantColors ? dominantColors[0] : null
   if (dominantColor) {
     const { r, g, b } = dominantColor
@@ -73,7 +63,7 @@ export const Artwork = ({ track }: ArtworkProps) => {
         startColor={shadowColor}
       >
         <View style={styles.image}>
-          <DynamicImage uri={image} />
+          <TrackImage track={track} />
         </View>
       </Shadow>
     </View>

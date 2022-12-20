@@ -1,29 +1,40 @@
-import { Collection, Status } from '@audius/common'
-import { takeEvery, call, put } from 'typed-redux-saga/macro'
+import {
+  Collection,
+  explorePageCollectionsActions,
+  ExploreCollectionsVariant,
+  getContext
+} from '@audius/common'
+import { takeEvery, call, put } from 'typed-redux-saga'
 
-import { getAccountStatus } from 'common/store/account/selectors'
 import { processAndCacheCollections } from 'common/store/cache/collections/utils'
-import Explore from 'services/audius-backend/Explore'
-import { waitForBackendSetup } from 'store/backend/sagas'
+import { requiresAccount } from 'common/utils/requiresAccount'
 import { EXPLORE_PAGE } from 'utils/route'
-import { waitForValue, requiresAccount } from 'utils/sagaHelpers'
-
-import { ExploreCollectionsVariant } from '../types'
-
-import { fetch, fetchSucceeded } from './slice'
+import { waitForRead } from 'utils/sagaHelpers'
+const { fetch, fetchSucceeded } = explorePageCollectionsActions
 
 function* fetchLetThemDJ() {
-  const collections = yield* call(Explore.getTopCollections, 'playlist', true)
+  const explore = yield* getContext('explore')
+  const collections = yield* call(
+    [explore, 'getTopCollections'],
+    'playlist',
+    true
+  )
   return collections
 }
 
 function* fetchTopAlbums() {
-  const collections = yield* call(Explore.getTopCollections, 'album', false)
+  const explore = yield* getContext('explore')
+  const collections = yield* call(
+    [explore, 'getTopCollections'],
+    'album',
+    false
+  )
   return collections
 }
 
 function* fetchMoodPlaylists(moods: string[]) {
-  const collections = yield* call(Explore.getTopPlaylistsForMood, moods)
+  const explore = yield* getContext('explore')
+  const collections = yield* call([explore, 'getTopPlaylistsForMood'], moods)
   return collections
 }
 
@@ -38,13 +49,7 @@ const fetchMap = {
 
 function* watchFetch() {
   yield* takeEvery(fetch.type, function* (action: ReturnType<typeof fetch>) {
-    yield* call(waitForBackendSetup)
-    yield* call(
-      waitForValue,
-      getAccountStatus,
-      {},
-      (status) => status !== Status.LOADING
-    )
+    yield* waitForRead()
 
     const { variant, moods } = action.payload
 
@@ -57,7 +62,7 @@ function* watchFetch() {
     } else if (variant === ExploreCollectionsVariant.DIRECT_LINK) {
       // no-op
     } else {
-      collections = yield* call(fetchMap[variant])
+      collections = yield* call(fetchMap[variant]) as any
     }
     if (!collections) return
 

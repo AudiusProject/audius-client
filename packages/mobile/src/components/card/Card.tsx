@@ -1,18 +1,14 @@
-import type {
-  ID,
-  CoverArtSizes,
-  ProfilePictureSizes,
-  User
-} from '@audius/common'
-import { SquareSizes } from '@audius/common'
+import type { ReactNode } from 'react'
+
+import type { User } from '@audius/common'
 import type { StyleProp, ViewStyle } from 'react-native'
 import { Text, View } from 'react-native'
 
-import { DynamicImage, Tile } from 'app/components/core'
+import { Tile } from 'app/components/core'
 import UserBadges from 'app/components/user-badges/UserBadges'
-import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
-import { useUserProfilePicture } from 'app/hooks/useUserProfilePicture'
-import { makeStyles } from 'app/styles'
+import { flexRowCentered, makeStyles } from 'app/styles'
+
+import { DownloadStatusIndicator } from '../offline-downloads'
 
 export type CardType = 'user' | 'collection'
 
@@ -46,45 +42,32 @@ const useStyles = makeStyles(({ palette, typography, spacing }) => ({
   secondaryText: {
     ...typography.body2,
     color: palette.neutral,
+    marginHorizontal: spacing(1),
     textAlign: 'center'
+  },
+  secondaryTextContainer: {
+    ...flexRowCentered(),
+    justifyContent: 'center'
   }
 }))
 
 export type CardProps = {
-  id: ID
-  imageSize: ProfilePictureSizes | CoverArtSizes | null
+  id?: string
   onPress: () => void
   primaryText: string
+  renderImage: () => ReactNode
   secondaryText?: string
   style?: StyleProp<ViewStyle>
   type?: CardType
   user: User
 }
 
-type CardImageProps = {
-  id: ID
-  imageSize: ProfilePictureSizes | CoverArtSizes | null
-  type: CardType
-}
-
-const CardImage = ({ id, type, imageSize }: CardImageProps) => {
-  const useImage =
-    type === 'user' ? useUserProfilePicture : useCollectionCoverArt
-  const image = useImage({
-    id,
-    sizes: imageSize,
-    size: SquareSizes.SIZE_150_BY_150
-  })
-
-  return <DynamicImage uri={image} />
-}
-
 export const Card = (props: CardProps) => {
   const {
     id,
-    imageSize,
     onPress,
     primaryText,
+    renderImage,
     secondaryText,
     style,
     type = 'user',
@@ -100,7 +83,7 @@ export const Card = (props: CardProps) => {
     >
       <View style={styles.imgContainer}>
         <View style={[styles.cardImg, type === 'user' && styles.userImg]}>
-          <CardImage imageSize={imageSize} type={type} id={id} />
+          {renderImage()}
         </View>
       </View>
       <View style={styles.textContainer}>
@@ -110,9 +93,14 @@ export const Card = (props: CardProps) => {
             <UserBadges user={user} badgeSize={12} hideName />
           ) : null}
         </Text>
-        <Text numberOfLines={1} style={styles.secondaryText}>
-          {secondaryText}
-        </Text>
+        <View style={styles.secondaryTextContainer}>
+          <Text numberOfLines={1} style={styles.secondaryText}>
+            {secondaryText}
+          </Text>
+          {type === 'collection' ? (
+            <DownloadStatusIndicator size={18} collectionId={id} />
+          ) : null}
+        </View>
       </View>
     </Tile>
   )

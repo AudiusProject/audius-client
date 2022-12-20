@@ -1,12 +1,10 @@
 module.exports = {
   dependencies: {
-    'react-native-video': {
+    'react-native-threads': {
       platforms: {
-        android: {
-          sourceDir: '../node_modules/react-native-video/android-exoplayer',
-        },
-      },
-    },
+        android: null // disable Android platform, other platforms will still autolink if provided
+      }
+    }
   },
   assets: ['./src/assets/fonts']
-};
+}

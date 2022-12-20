@@ -1,21 +1,28 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
-import { deactivateAccount } from 'audius-client/src/pages/deactivate-account-page/store/slice'
+import {
+  deactivateAccountActions,
+  deactivateAccountSelectors,
+  Status
+} from '@audius/common'
 import { View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
+import LoadingSpinner from 'app/components/loading-spinner'
 import { makeStyles } from 'app/styles'
 
 import { Button, Text } from '../core'
 import { AppDrawer, useDrawerState } from '../drawer'
+const { deactivateAccount } = deactivateAccountActions
+const { getDeactivateAccountStatus } = deactivateAccountSelectors
 
 const MODAL_NAME = 'DeactivateAccountConfirmation'
 const messages = {
-  confirmTitle: 'Deactivate Account',
-  areYouSureText: 'Are you sure you want to deactivate your account?',
+  confirmTitle: 'Delete Account',
+  areYouSureText: 'Are you sure you want to delete your account?',
   doubleCheckText:
     'There is no going back. This will remove all of your tracks, albums, and playlists. You will not be able to re-register with the same email or handle',
-  confirmText: 'Deactivate',
+  confirmText: 'Delete',
   cancelText: 'Take me back to safety'
 }
 
@@ -34,14 +41,21 @@ const useStyles = makeStyles(({ spacing }) => ({
 }))
 
 export const DeactivateAccountConfirmationDrawer = () => {
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
   const styles = useStyles()
+  const status = useSelector(getDeactivateAccountStatus)
 
   const { onClose } = useDrawerState(MODAL_NAME)
 
+  useEffect(() => {
+    if (status === Status.SUCCESS) {
+      onClose()
+    }
+  }, [status, onClose])
+
   const handleConfirmation = useCallback(() => {
-    dispatchWeb(deactivateAccount)
-  }, [dispatchWeb])
+    dispatch(deactivateAccount())
+  }, [dispatch])
 
   return (
     <AppDrawer modalName={MODAL_NAME} title={messages.confirmTitle}>
@@ -60,6 +74,7 @@ export const DeactivateAccountConfirmationDrawer = () => {
             text: { textTransform: 'uppercase' }
           }}
           onPress={onClose}
+          disabled={status !== Status.IDLE}
         />
         <Button
           title={messages.confirmText}
@@ -70,6 +85,8 @@ export const DeactivateAccountConfirmationDrawer = () => {
           }}
           variant='destructive'
           onPress={handleConfirmation}
+          icon={status === Status.LOADING ? LoadingSpinner : undefined}
+          disabled={status !== Status.IDLE}
         />
       </View>
     </AppDrawer>

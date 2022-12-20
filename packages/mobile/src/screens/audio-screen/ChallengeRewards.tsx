@@ -1,28 +1,34 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
-import type { ChallengeRewardID } from '@audius/common'
-import { removeNullable, StringKeys } from '@audius/common'
-import { getOptimisticUserChallenges } from 'audius-client/src/common/store/challenges/selectors/optimistic-challenges'
+import type {
+  ChallengeRewardID,
+  ChallengeRewardsModalType,
+  CommonState
+} from '@audius/common'
 import {
-  getUserChallenges,
-  getUserChallengesLoading
-} from 'audius-client/src/common/store/pages/audio-rewards/selectors'
-import type { ChallengeRewardsModalType } from 'audius-client/src/common/store/pages/audio-rewards/slice'
-import {
-  fetchUserChallenges,
-  setChallengeRewardsModalType
-} from 'audius-client/src/common/store/pages/audio-rewards/slice'
-import { setVisibility } from 'audius-client/src/common/store/ui/modals/slice'
+  removeNullable,
+  StringKeys,
+  challengesSelectors,
+  audioRewardsPageActions,
+  audioRewardsPageSelectors,
+  modalsActions
+} from '@audius/common'
+import { useFocusEffect } from '@react-navigation/native'
 import { View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import LoadingSpinner from 'app/components/loading-spinner'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useRemoteVar } from 'app/hooks/useRemoteConfig'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
-import { challengesConfig } from 'app/utils/challenges'
+import { getChallengeConfig } from 'app/utils/challenges'
 
 import { Panel } from './Panel'
+const { setVisibility } = modalsActions
+const { getUserChallenges, getUserChallengesLoading } =
+  audioRewardsPageSelectors
+const { fetchUserChallenges, setChallengeRewardsModalType } =
+  audioRewardsPageActions
+const { getOptimisticUserChallenges } = challengesSelectors
 
 const validRewardIds: Set<ChallengeRewardID> = new Set([
   'track-upload',
@@ -52,17 +58,23 @@ const useRewardIds = (
 
 const useStyles = makeStyles(({ spacing }) => ({
   root: {
-    width: '100%'
+    width: '100%',
+    alignItems: 'stretch'
+  },
+  loading: {
+    marginVertical: spacing(2)
   }
 }))
 
 export const ChallengeRewards = () => {
   const styles = useStyles()
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
 
-  const userChallengesLoading = useSelectorWeb(getUserChallengesLoading)
-  const userChallenges = useSelectorWeb(getUserChallenges)
-  const optimisticUserChallenges = useSelectorWeb(getOptimisticUserChallenges)
+  const userChallengesLoading = useSelector(getUserChallengesLoading)
+  const userChallenges = useSelector(getUserChallenges)
+  const optimisticUserChallenges = useSelector((state: CommonState) =>
+    getOptimisticUserChallenges(state, true)
+  )
   const [haveChallengesLoaded, setHaveChallengesLoaded] = useState(false)
 
   // The referred challenge only needs a tile if the user was referred
@@ -75,14 +87,15 @@ export const ChallengeRewards = () => {
     }
   }, [userChallengesLoading, haveChallengesLoaded])
 
-  useEffect(() => {
-    // Refresh user challenges on load
-    dispatchWeb(fetchUserChallenges())
-  }, [dispatchWeb])
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(fetchUserChallenges())
+    }, [dispatch])
+  )
 
   const openModal = (modalType: ChallengeRewardsModalType) => {
-    dispatchWeb(setChallengeRewardsModalType({ modalType }))
-    dispatchWeb(
+    dispatch(setChallengeRewardsModalType({ modalType }))
+    dispatch(
       setVisibility({ modal: 'ChallengeRewardsExplainer', visible: true })
     )
   }
@@ -92,7 +105,7 @@ export const ChallengeRewards = () => {
     .map((id) => userChallenges[id]?.challenge_id)
     .filter(removeNullable)
     .map((id) => {
-      const props = challengesConfig[id]
+      const props = getChallengeConfig(id)
       return (
         <Panel
           {...props}
@@ -106,7 +119,7 @@ export const ChallengeRewards = () => {
   return (
     <View style={styles.root}>
       {userChallengesLoading && !haveChallengesLoaded ? (
-        <LoadingSpinner />
+        <LoadingSpinner style={styles.loading} />
       ) : (
         rewardsPanels
       )}

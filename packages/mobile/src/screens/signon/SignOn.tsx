@@ -1,8 +1,15 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 
+import { accountSelectors } from '@audius/common'
 import Clipboard from '@react-native-clipboard/clipboard'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
-import * as signOnActionsWeb from 'audius-client/src/pages/sign-on/store/actions'
+import * as signOnActions from 'common/store/pages/signon/actions'
+import {
+  getPasswordField,
+  getEmailField,
+  getStatus
+} from 'common/store/pages/signon/selectors'
+import type { EditableField } from 'common/store/pages/signon/types'
 import querystring from 'query-string'
 import {
   Animated,
@@ -11,7 +18,6 @@ import {
   Image,
   ImageBackground,
   Keyboard,
-  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -20,6 +26,7 @@ import {
   View
 } from 'react-native'
 import RadialGradient from 'react-native-radial-gradient'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSelector, useDispatch } from 'react-redux'
 
 import backgImage from 'app/assets/images/DJportrait.jpg'
@@ -31,27 +38,15 @@ import Button from 'app/components/button'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { remindUserToTurnOnNotifications } from 'app/components/notification-reminder/NotificationReminder'
 import useAppState from 'app/hooks/useAppState'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { MessageType } from 'app/message/types'
+import { screen, track, make } from 'app/services/analytics'
 import { setVisibility } from 'app/store/drawers/slice'
-import { getIsKeyboardOpen } from 'app/store/keyboard/selectors'
-import { getIsSignedIn, getDappLoaded } from 'app/store/lifecycle/selectors'
-import * as signonActions from 'app/store/signon/actions'
-import {
-  getEmailIsAvailable,
-  getEmailIsValid,
-  getEmailStatus,
-  getIsSigninError
-} from 'app/store/signon/selectors'
 import { EventNames } from 'app/types/analytics'
-import { track, make } from 'app/utils/analytics'
 import { useThemeColors } from 'app/utils/theme'
 
 import type { SignOnStackParamList } from './types'
 
-const isAndroid = Platform.OS === 'android'
+const { getAccountUser } = accountSelectors
 const image = backgImage
-const windowWidth = Dimensions.get('window').width
 const defaultBorderColor = '#F2F2F4'
 
 const styles = StyleSheet.create({
@@ -60,37 +55,22 @@ const styles = StyleSheet.create({
     height: '100%',
     zIndex: 2,
     backgroundColor: 'white',
-    justifyContent: 'space-evenly'
+    justifyContent: 'space-between'
   },
   containerForm: {
-    position: 'absolute',
     transform: [
       {
         translateY: 0
       }
     ],
-    top: 0,
-    left: 0,
     width: '100%',
     zIndex: 5,
     backgroundColor: 'white',
-    alignItems: 'center',
     borderBottomRightRadius: 40,
     borderBottomLeftRadius: 40,
-    padding: 28,
-    paddingBottom: 38,
-    paddingTop: 80
+    padding: 50
   },
-
-  containerCTA: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    width: '100%',
-    zIndex: 4,
-    alignItems: 'center',
-    paddingBottom: 20
-  },
+  drawerContent: { width: '100%', alignItems: 'center' },
   containerBack: {
     flex: 1,
     position: 'absolute',
@@ -135,14 +115,26 @@ const styles = StyleSheet.create({
     height: 51,
     marginTop: 24
   },
+  containerCTA: {
+    zIndex: 4,
+    flexGrow: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-between'
+  },
   signupCTAContainer: {
-    flex: 1,
-    marginTop: 16
+    flexGrow: 1
   },
   signupCTA: {
+    marginTop: 32,
+    marginBottom: 16,
     resizeMode: 'contain',
-    flex: 1,
-    width: windowWidth - 64
+    width: undefined,
+    height: undefined,
+    flex: 1
+  },
+  bottomButtons: {
+    marginTop: 16,
+    height: 80
   },
   input: {
     height: 42,
@@ -168,8 +160,9 @@ const styles = StyleSheet.create({
     borderColor: defaultBorderColor,
     backgroundColor: '#FCFCFC',
     borderRadius: 4,
+    textAlignVertical: 'center',
+    justifyContent: 'center',
     marginTop: 16,
-    padding: 10,
     color: '#858199',
     fontFamily: 'AvenirNextLTPro-DemiBold',
     fontSize: 16
@@ -204,8 +197,7 @@ const styles = StyleSheet.create({
   },
   switchFormBtn: {
     width: '100%',
-    alignItems: 'center',
-    marginTop: 16
+    alignItems: 'center'
   },
   switchFormBtnTitle: {
     color: 'white',
@@ -215,8 +207,7 @@ const styles = StyleSheet.create({
   forgotPasswordButton: {
     padding: 6,
     alignItems: 'center',
-    marginTop: 16,
-    marginBottom: 32
+    marginTop: 16
   },
   forgotPasswordButtonTitle: {
     color: 'white',
@@ -276,7 +267,6 @@ const errorMessages = {
   default: 'Invalid Credentials'
 }
 
-let formContainerHeight = 0
 let lastIsSignin = false
 let errorOpacity = new Animated.Value(0)
 
@@ -319,7 +309,6 @@ const isValidEmailString = (email: string) => {
 
 type SignOnProps = NativeStackScreenProps<SignOnStackParamList, 'SignOn'>
 const SignOn = ({ navigation }: SignOnProps) => {
-  const dispatchWeb = useDispatchWeb()
   const dispatch = useDispatch()
 
   const [isWorking, setIsWorking] = useState(false)
@@ -329,20 +318,21 @@ const SignOn = ({ navigation }: SignOnProps) => {
   const [emailBorderColor, setEmailBorderColor] = useState(defaultBorderColor)
   const [passBorderColor, setPassBorderColor] = useState(defaultBorderColor)
   const [formButtonMarginTop, setFormButtonMarginTop] = useState(28)
-  const [cpaContainerHeight, setcpaContainerHeight] = useState(0)
   const [attemptedEmail, setAttemptedEmail] = useState(false)
   const [attemptedPassword, setAttemptedPassword] = useState(false)
   const [showInvalidEmailError, setShowInvalidEmailError] = useState(false)
   const [showEmptyPasswordError, setShowEmptyPasswordError] = useState(false)
   const [showDefaultError, setShowDefaultError] = useState(false)
 
-  const isSigninError = useSelector(getIsSigninError)
-  const dappLoaded = useSelector(getDappLoaded)
-  const signedIn = useSelector(getIsSignedIn)
-  const emailIsAvailable = useSelector(getEmailIsAvailable)
-  const emailIsValid = useSelector(getEmailIsValid)
-  const emailStatus = useSelector(getEmailStatus)
-  const isKeyboardOpen = useSelector(getIsKeyboardOpen)
+  const signOnStatus = useSelector(getStatus)
+  const passwordField: EditableField = useSelector(getPasswordField)
+  const emailField: EditableField = useSelector(getEmailField)
+  const accountUser = useSelector(getAccountUser)
+
+  const signedIn = signOnStatus === 'success'
+  const isSigninError = passwordField.error
+  const emailIsAvailable = emailField.error !== 'inUse'
+  const emailIsValid = emailField.error !== 'characters'
 
   const topDrawer = useRef(new Animated.Value(-800)).current
   const animateDrawer = useCallback(() => {
@@ -365,6 +355,13 @@ const SignOn = ({ navigation }: SignOnProps) => {
     }).start()
   }, [opacityCTA])
 
+  // Record screen view
+  useEffect(() => {
+    screen({
+      route: `/${isSignin ? 'signin' : 'signup'}`
+    })
+  }, [isSignin])
+
   useEffect(() => {
     setShowInvalidEmailError(attemptedEmail && !emailIsValid)
   }, [attemptedEmail, emailIsValid])
@@ -380,21 +377,27 @@ const SignOn = ({ navigation }: SignOnProps) => {
   }, [isSigninError, isWorking])
 
   useEffect(() => {
-    if (signedIn) {
+    if (signedIn && accountUser) {
       setIsWorking(false)
-      setEmail('')
-      setPassword('')
+
+      // Debounce resetting state
+      const timeout = setTimeout(() => {
+        setEmail('')
+        setPassword('')
+      }, 1000)
 
       remindUserToTurnOnNotifications(dispatch)
+
+      return () => {
+        clearTimeout(timeout)
+      }
     }
-  }, [signedIn, dispatch])
+  }, [signedIn, accountUser, dispatch])
 
   useEffect(() => {
-    if (dappLoaded) {
-      animateDrawer()
-      fadeCTA()
-    }
-  }, [dappLoaded, animateDrawer, fadeCTA])
+    animateDrawer()
+    fadeCTA()
+  }, [animateDrawer, fadeCTA])
 
   useEffect(() => {
     if (
@@ -430,11 +433,11 @@ const SignOn = ({ navigation }: SignOnProps) => {
         const parsed = querystring.parseUrl(contents)
         const handle = parsed.query?.ref as string
         if (handle) {
-          dispatchWeb(signOnActionsWeb.fetchReferrer(handle))
+          dispatch(signOnActions.fetchReferrer(handle))
         }
       }
     }
-  }, [dispatchWeb])
+  }, [dispatch])
 
   useEffect(() => {
     processReferrerFromClipboard()
@@ -561,12 +564,11 @@ const SignOn = ({ navigation }: SignOnProps) => {
       setShowEmptyPasswordError(false)
       setAttemptedPassword(false)
       setisSignIn(!isSignin)
-      dispatch(signonActions.signinFailedReset())
       Keyboard.dismiss()
     }
   }
 
-  const passwordField = () => {
+  const passwordInputField = () => {
     if (isSignin) {
       return (
         <TextInput
@@ -585,6 +587,7 @@ const SignOn = ({ navigation }: SignOnProps) => {
             setAttemptedPassword(true)
             setShowDefaultError(false)
             setPassword(newText)
+            dispatch(signOnActions.setValueField('password', newText))
           }}
           onFocus={() => {
             setPassBorderColor('#7E1BCC')
@@ -636,10 +639,28 @@ const SignOn = ({ navigation }: SignOnProps) => {
                   // in case email is what was wrong with the credentials
                   setShowDefaultError(true)
                 }
-              } else if (emailIsAvailable && emailStatus === 'done') {
-                dispatch(signonActions.signinFailedReset())
-                setIsWorking(false)
-                navigation.replace('CreatePassword', { email })
+              } else {
+                setIsWorking(true)
+                dispatch(
+                  signOnActions.checkEmail(
+                    email,
+                    () => {
+                      // On available email, move to create password
+                      navigation.replace('CreatePassword')
+                      setIsWorking(false)
+                    },
+                    () => {
+                      // On unavailable email (e.g. user exists with that email),
+                      // Switch to the sign in form
+                      switchForm(true)
+                      setIsWorking(false)
+                    },
+                    () => {
+                      // On any unknown error, do nothing, but let the user try again
+                      setIsWorking(false)
+                    }
+                  )
+                )
               }
             } else {
               setShowInvalidEmailError(true)
@@ -665,24 +686,16 @@ const SignOn = ({ navigation }: SignOnProps) => {
   }
 
   const validateEmail = (email: string) => {
-    dispatch(signonActions.setEmailStatus('editing'))
-    dispatchWeb({
-      type: MessageType.SIGN_UP_VALIDATE_AND_CHECK_EMAIL,
-      email,
-      isAction: true
-    })
+    dispatch(signOnActions.setValueField('email', email))
+    dispatch(signOnActions.validateEmail(email))
   }
 
   const signIn = () => {
     setIsWorking(true)
-    dispatch(signonActions.signinFailedReset())
-    dispatchWeb({
-      type: MessageType.SUBMIT_SIGNIN,
-      email,
-      password,
-      isAction: true
-    })
+    dispatch(signOnActions.signIn(email, password))
   }
+
+  const insets = useSafeAreaInsets()
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -710,93 +723,89 @@ const SignOn = ({ navigation }: SignOnProps) => {
               styles.containerForm,
               { transform: [{ translateY: topDrawer }] }
             ]}
-            onLayout={(event: any) => {
-              formContainerHeight = event.nativeEvent.layout.height
-              setcpaContainerHeight(
-                Dimensions.get('window').height - formContainerHeight
-              )
-            }}
           >
-            <Image
-              source={audiusLogoHorizontal}
-              style={styles.audiusLogoHorizontal}
-            />
-            <FormTitle isSignin={isSignin} />
-            <TextInput
-              style={[styles.input, { borderColor: emailBorderColor }]}
-              placeholderTextColor='#C2C0CC'
-              underlineColorAndroid='transparent'
-              placeholder='Email'
-              keyboardType='email-address'
-              autoComplete='off'
-              autoCorrect={false}
-              autoCapitalize='none'
-              enablesReturnKeyAutomatically={true}
-              maxLength={100}
-              textContentType='emailAddress'
-              onChangeText={(newText) => {
-                setShowDefaultError(false)
-                const newEmail = newText.trim()
-                setEmail(newEmail)
-                if (newEmail !== '') {
-                  validateEmail(newEmail)
-                }
-              }}
-              onFocus={() => {
-                setEmailBorderColor('#7E1BCC')
-              }}
-              onBlur={() => {
-                setEmailBorderColor(defaultBorderColor)
-                if (email !== '') {
-                  setShowInvalidEmailError(!isValidEmailString(email))
-                  // wait a bit for email validation to come back
-                  setTimeout(() => setAttemptedEmail(true), 1000)
-                }
-              }}
-            />
-            {passwordField()}
-            {errorView()}
-            <MainButton isWorking={isWorking} isSignin={isSignin} />
+            <View style={styles.drawerContent}>
+              <Image
+                source={audiusLogoHorizontal}
+                style={styles.audiusLogoHorizontal}
+              />
+              <FormTitle isSignin={isSignin} />
+              <TextInput
+                style={[styles.input, { borderColor: emailBorderColor }]}
+                placeholderTextColor='#C2C0CC'
+                underlineColorAndroid='transparent'
+                placeholder='Email'
+                keyboardType='email-address'
+                autoComplete='off'
+                autoCorrect={false}
+                autoCapitalize='none'
+                enablesReturnKeyAutomatically={true}
+                maxLength={100}
+                textContentType='emailAddress'
+                onChangeText={(newText) => {
+                  setShowDefaultError(false)
+                  const newEmail = newText.trim()
+                  setEmail(newEmail)
+                  if (newEmail !== '') {
+                    validateEmail(newEmail)
+                  }
+                }}
+                onFocus={() => {
+                  setEmailBorderColor('#7E1BCC')
+                }}
+                onBlur={() => {
+                  setEmailBorderColor(defaultBorderColor)
+                  if (email !== '') {
+                    setShowInvalidEmailError(!isValidEmailString(email))
+                    // wait a bit for email validation to come back
+                    setTimeout(() => setAttemptedEmail(true), 1000)
+                  }
+                }}
+              />
+              {passwordInputField()}
+              {errorView()}
+              <MainButton isWorking={isWorking} isSignin={isSignin} />
+            </View>
           </Animated.View>
         </TouchableWithoutFeedback>
         <Animated.View
           style={[
             styles.containerCTA,
-            { height: cpaContainerHeight, opacity: opacityCTA }
+            {
+              opacity: opacityCTA
+            }
           ]}
         >
           {Dimensions.get('window').height < 720 ? (
             <></>
-          ) : isAndroid && isKeyboardOpen ? (
-            // on android, if keyboard is showing and user is navigating away to the next screen
-            // the image below shows up above the keyboard and causes a weird transition */
-            <View style={styles.signupCTAContainer} />
           ) : (
             <View style={styles.signupCTAContainer}>
               <Image source={signupCTA} style={styles.signupCTA} />
             </View>
           )}
 
-          <TouchableOpacity
-            style={styles.switchFormBtn}
-            activeOpacity={0.6}
-            onPress={() => {
-              switchForm()
-            }}
-          >
-            {renderFormSwitchButton()}
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.forgotPasswordButton}
-            activeOpacity={0.6}
-            onPress={() => {
-              dispatch(
-                setVisibility({ drawer: 'ForgotPassword', visible: true })
-              )
-            }}
-          >
-            {renderForgotPasswordButton()}
-          </TouchableOpacity>
+          <View style={[styles.bottomButtons, { marginBottom: insets.bottom }]}>
+            <TouchableOpacity
+              style={styles.switchFormBtn}
+              activeOpacity={0.6}
+              onPress={() => {
+                switchForm()
+              }}
+            >
+              {renderFormSwitchButton()}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.forgotPasswordButton}
+              activeOpacity={0.6}
+              onPress={() => {
+                dispatch(
+                  setVisibility({ drawer: 'ForgotPassword', visible: true })
+                )
+              }}
+            >
+              {renderForgotPasswordButton()}
+            </TouchableOpacity>
+          </View>
         </Animated.View>
       </View>
     </TouchableWithoutFeedback>

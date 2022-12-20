@@ -1,64 +1,69 @@
 import { useCallback, useMemo } from 'react'
 
-import type { Collection, Track, User } from '@audius/common'
+import type {
+  Collection,
+  Track,
+  User,
+  EnhancedCollectionTrack,
+  CommonState
+} from '@audius/common'
 import {
+  removeNullable,
+  useProxySelector,
+  playerSelectors,
   FavoriteSource,
   PlaybackSource,
   RepostSource,
   ShareSource,
   FavoriteType,
-  SquareSizes
-} from '@audius/common'
-import { getUserId } from 'audius-client/src/common/store/account/selectors'
-import type { EnhancedCollectionTrack } from 'audius-client/src/common/store/cache/collections/selectors'
-import {
-  getCollection,
-  getTracksFromCollection
-} from 'audius-client/src/common/store/cache/collections/selectors'
-import { getUserFromCollection } from 'audius-client/src/common/store/cache/users/selectors'
-import {
-  repostCollection,
-  saveCollection,
-  undoRepostCollection,
-  unsaveCollection
-} from 'audius-client/src/common/store/social/collections/actions'
-import {
+  accountSelectors,
+  cacheCollectionsSelectors,
+  cacheUsersSelectors,
+  collectionsSocialActions,
   OverflowAction,
-  OverflowSource
-} from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
-import { requestOpen as requestOpenShareModal } from 'audius-client/src/common/store/ui/share-modal/slice'
-import { RepostType } from 'audius-client/src/common/store/user-list/reposts/types'
-import { albumPage, playlistPage } from 'audius-client/src/utils/route'
-import { open as openOverflowMenu } from 'common/store/ui/mobile-overflow-menu/slice'
-import { useSelector } from 'react-redux'
+  OverflowSource,
+  mobileOverflowMenuUIActions,
+  shareModalUIActions,
+  RepostType
+} from '@audius/common'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
+import type { DynamicImageProps } from 'app/components/core/DynamicImage'
+import { CollectionImage } from 'app/components/image/CollectionImage'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import type { AppState } from 'app/store'
-import { getPlayingUid } from 'app/store/audio/selectors'
 
 import { CollectionTileTrackList } from './CollectionTileTrackList'
 import { LineupTile } from './LineupTile'
 import type { LineupItemProps } from './types'
+const { getUid } = playerSelectors
+const { requestOpen: requestOpenShareModal } = shareModalUIActions
+const { open: openOverflowMenu } = mobileOverflowMenuUIActions
+const {
+  repostCollection,
+  saveCollection,
+  undoRepostCollection,
+  unsaveCollection
+} = collectionsSocialActions
+const { getUserFromCollection } = cacheUsersSelectors
+const { getCollection, getTracksFromCollection } = cacheCollectionsSelectors
+const getUserId = accountSelectors.getUserId
 
 export const CollectionTile = (props: LineupItemProps) => {
   const { uid } = props
 
-  const collection = useSelectorWeb(
+  const collection = useProxySelector(
     (state) => getCollection(state, { uid }),
-    isEqual
+    [uid]
   )
 
-  const tracks = useSelectorWeb(
+  const tracks = useProxySelector(
     (state) => getTracksFromCollection(state, { uid }),
-    isEqual
+    [uid]
   )
 
-  const user = useSelectorWeb(
+  const user = useProxySelector(
     (state) => getUserFromCollection(state, { uid }),
-    isEqual
+    [uid]
   )
 
   if (!collection || !tracks || !user) {
@@ -95,20 +100,19 @@ const CollectionTileComponent = ({
   user,
   ...lineupTileProps
 }: CollectionTileProps) => {
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
   const navigation = useNavigation()
-  const currentUserId = useSelectorWeb(getUserId)
-  const currentTrack = useSelector((state: AppState) => {
-    const uid = getPlayingUid(state)
+  const currentUserId = useSelector(getUserId)
+  const currentTrack = useSelector((state: CommonState) => {
+    const uid = getUid(state)
     return tracks.find((track) => track.uid === uid) ?? null
   })
-  const isPlayingUid = useSelector((state: AppState) => {
-    const uid = getPlayingUid(state)
+  const isPlayingUid = useSelector((state: CommonState) => {
+    const uid = getUid(state)
     return tracks.some((track) => track.uid === uid)
   })
 
   const {
-    _cover_art_sizes,
     has_current_user_reposted,
     has_current_user_saved,
     is_album,
@@ -119,43 +123,26 @@ const CollectionTileComponent = ({
 
   const isOwner = playlist_owner_id === currentUserId
 
-  const imageUrl = useCollectionCoverArt({
-    id: playlist_id,
-    sizes: _cover_art_sizes,
-    size: SquareSizes.SIZE_150_BY_150
-  })
-
-  const routeWeb = useMemo(() => {
-    return collection.is_album
-      ? albumPage(user.handle, collection.playlist_name, collection.playlist_id)
-      : playlistPage(
-          user.handle,
-          collection.playlist_name,
-          collection.playlist_id
-        )
-  }, [collection, user])
-
-  const handlePress = useCallback(
-    ({ isPlaying }) => {
-      if (!tracks.length) return
-
-      togglePlay({
-        uid: currentTrack?.uid ?? tracks[0]?.uid ?? null,
-        id: currentTrack?.track_id ?? tracks[0]?.track_id ?? null,
-        source: PlaybackSource.PLAYLIST_TILE_TRACK,
-        isPlaying,
-        isPlayingUid
-      })
-    },
-    [isPlayingUid, currentTrack, togglePlay, tracks]
+  const renderImage = useCallback(
+    (props: DynamicImageProps) => (
+      <CollectionImage collection={collection} {...props} />
+    ),
+    [collection]
   )
 
-  const handlePressTitle = useCallback(() => {
-    navigation.push({
-      native: { screen: 'Collection', params: { id: playlist_id } },
-      web: { route: routeWeb }
+  const handlePress = useCallback(() => {
+    if (!tracks.length) return
+
+    togglePlay({
+      uid: currentTrack?.uid ?? tracks[0]?.uid ?? null,
+      id: currentTrack?.track_id ?? tracks[0]?.track_id ?? null,
+      source: PlaybackSource.PLAYLIST_TILE_TRACK
     })
-  }, [playlist_id, routeWeb, navigation])
+  }, [currentTrack, togglePlay, tracks])
+
+  const handlePressTitle = useCallback(() => {
+    navigation.push('Collection', { id: playlist_id })
+  }, [playlist_id, navigation])
 
   const duration = useMemo(() => {
     return tracks.reduce(
@@ -169,70 +156,57 @@ const CollectionTileComponent = ({
       return
     }
     const overflowActions = [
-      has_current_user_reposted
-        ? OverflowAction.UNREPOST
-        : OverflowAction.REPOST,
-      has_current_user_saved
-        ? OverflowAction.UNFAVORITE
-        : OverflowAction.FAVORITE,
       is_album
         ? OverflowAction.VIEW_ALBUM_PAGE
         : OverflowAction.VIEW_PLAYLIST_PAGE,
       isOwner && !is_album ? OverflowAction.PUBLISH_PLAYLIST : null,
       isOwner && !is_album ? OverflowAction.DELETE_PLAYLIST : null,
       OverflowAction.VIEW_ARTIST_PAGE
-    ].filter(Boolean) as OverflowAction[]
+    ].filter(removeNullable)
 
-    dispatchWeb(
+    dispatch(
       openOverflowMenu({
         source: OverflowSource.COLLECTIONS,
         id: playlist_id,
         overflowActions
       })
     )
-  }, [
-    playlist_id,
-    dispatchWeb,
-    isOwner,
-    has_current_user_reposted,
-    has_current_user_saved,
-    is_album
-  ])
+  }, [playlist_id, dispatch, isOwner, is_album])
 
   const handlePressShare = useCallback(() => {
     if (playlist_id === undefined) {
       return
     }
-    dispatchWeb(
+    dispatch(
       requestOpenShareModal({
         type: 'collection',
         collectionId: playlist_id,
         source: ShareSource.TILE
       })
     )
-  }, [dispatchWeb, playlist_id])
+  }, [dispatch, playlist_id])
 
   const handlePressSave = useCallback(() => {
     if (playlist_id === undefined) {
       return
     }
     if (has_current_user_saved) {
-      dispatchWeb(unsaveCollection(playlist_id, FavoriteSource.TILE))
+      dispatch(unsaveCollection(playlist_id, FavoriteSource.TILE))
     } else {
-      dispatchWeb(saveCollection(playlist_id, FavoriteSource.TILE))
+      dispatch(saveCollection(playlist_id, FavoriteSource.TILE))
     }
-  }, [playlist_id, dispatchWeb, has_current_user_saved])
+  }, [playlist_id, dispatch, has_current_user_saved])
 
   const handlePressRepost = useCallback(() => {
     if (playlist_id === undefined) {
       return
     }
     if (has_current_user_reposted) {
-      dispatchWeb(undoRepostCollection(playlist_id, RepostSource.TILE))
+      dispatch(undoRepostCollection(playlist_id, RepostSource.TILE))
     } else {
-      dispatchWeb(repostCollection(playlist_id, RepostSource.TILE))
+      dispatch(repostCollection(playlist_id, RepostSource.TILE))
     }
-  }, [playlist_id, dispatchWeb, has_current_user_reposted])
+  }, [playlist_id, dispatch, has_current_user_reposted])
 
   return (
     <LineupTile
@@ -241,7 +215,7 @@ const CollectionTileComponent = ({
       favoriteType={FavoriteType.PLAYLIST}
       repostType={RepostType.COLLECTION}
       id={playlist_id}
-      imageUrl={imageUrl}
+      renderImage={renderImage}
       isPlayingUid={isPlayingUid}
       onPress={handlePress}
       onPressOverflow={handlePressOverflow}

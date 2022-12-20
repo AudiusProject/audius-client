@@ -1,14 +1,18 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { Chain, Collectible, CollectibleMediaType } from '@audius/common'
+import {
+  Chain,
+  Collectible,
+  CollectibleMediaType,
+  profilePageSelectors,
+  collectibleDetailsUIActions
+} from '@audius/common'
 import { LogoEth, LogoSol } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconPlay } from 'assets/img/pbIconPlay.svg'
 import { useModalState } from 'common/hooks/useModalState'
-import { getProfileUserHandle } from 'common/store/pages/profile/selectors'
-import { setCollectible } from 'common/store/ui/collectible-details/slice'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import PerspectiveCard from 'components/perspective-card/PerspectiveCard'
 import PreloadImage from 'components/preload-image/PreloadImage'
@@ -17,8 +21,9 @@ import { getHash } from 'utils/route'
 
 import { getFrameFromGif } from '../ethCollectibleHelpers'
 
-import { collectibleMessages } from './CollectiblesPage'
 import styles from './CollectiblesPage.module.css'
+const { setCollectible } = collectibleDetailsUIActions
+const { getProfileUserHandle } = profilePageSelectors
 
 type CollectibleDetailsProps = {
   collectible: Collectible
@@ -113,17 +118,6 @@ const CollectibleDetails = (props: CollectibleDetailsProps) => {
                     className={styles.media}
                   />
                   <IconPlay className={styles.playIcon} />
-                  <div className={styles.stamp}>
-                    {collectible.isOwned ? (
-                      <span className={styles.owned}>
-                        {collectibleMessages.owned}
-                      </span>
-                    ) : (
-                      <span className={styles.created}>
-                        {collectibleMessages.created}
-                      </span>
-                    )}
-                  </div>
                   {collectibleChainElement}
                 </div>
               )}
@@ -134,17 +128,6 @@ const CollectibleDetails = (props: CollectibleDetailsProps) => {
                     style={{ height: '100%', width: '100%' }}
                     src={`${videoUrl}#t=0.1`}
                   />
-                  <div className={styles.stamp}>
-                    {collectible.isOwned ? (
-                      <span className={styles.owned}>
-                        {collectibleMessages.owned}
-                      </span>
-                    ) : (
-                      <span className={styles.created}>
-                        {collectibleMessages.created}
-                      </span>
-                    )}
-                  </div>
                   {collectibleChainElement}
                 </div>
               )}
@@ -157,17 +140,6 @@ const CollectibleDetails = (props: CollectibleDetailsProps) => {
                     preloaded={true}
                     className={styles.media}
                   />
-                  <div className={styles.stamp}>
-                    {collectible.isOwned ? (
-                      <span className={styles.owned}>
-                        {collectibleMessages.owned}
-                      </span>
-                    ) : (
-                      <span className={styles.created}>
-                        {collectibleMessages.created}
-                      </span>
-                    )}
-                  </div>
                   {collectibleChainElement}
                 </div>
               )}

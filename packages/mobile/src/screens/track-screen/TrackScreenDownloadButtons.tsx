@@ -1,25 +1,28 @@
 import { useCallback } from 'react'
 
-import type { CID, ID, User } from '@audius/common'
-import { Name } from '@audius/common'
-import type { ButtonType as DownloadButtonType } from 'audius-client/src/common/hooks/useDownloadTrackButtons'
+import type {
+  CID,
+  ID,
+  User,
+  ButtonType as DownloadButtonType
+} from '@audius/common'
 import {
+  Name,
   ButtonState,
-  useDownloadTrackButtons
-} from 'audius-client/src/common/hooks/useDownloadTrackButtons'
-import { downloadTrack } from 'audius-client/src/common/store/social/tracks/actions'
+  useDownloadTrackButtons,
+  tracksSocialActions
+} from '@audius/common'
 import { View } from 'react-native'
-import type { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconDownload from 'app/assets/images/iconDownload.svg'
 import { Button } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { useToast } from 'app/hooks/useToast'
+import { make, track } from 'app/services/analytics'
 import type { SearchUser } from 'app/store/search/types'
 import { makeStyles } from 'app/styles/makeStyles'
-import { make, track } from 'app/utils/analytics'
+const { downloadTrack } = tracksSocialActions
 
 export type DownloadButtonProps = {
   state: ButtonState
@@ -33,7 +36,7 @@ export const messages = {
   addDownloadPrefix: (label: string) => `Download ${label}`
 }
 
-const useStyles = makeStyles(({ palette }) => ({
+const useStyles = makeStyles(() => ({
   buttonContainer: {
     alignSelf: 'center',
     marginBottom: 6
@@ -96,15 +99,15 @@ export const TrackScreenDownloadButtons = ({
   trackId,
   user
 }: TrackScreenDownloadButtonsProps) => {
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
 
-  const onDownload = useCallback(
+  const handleDownload = useCallback(
     (id: ID, cid: CID, category?: string, parentTrackId?: ID) => {
       const { creator_node_endpoint } = user
       if (!creator_node_endpoint) {
         return
       }
-      dispatchWeb(downloadTrack(id, cid, creator_node_endpoint, category))
+      dispatch(downloadTrack(id, cid, creator_node_endpoint, category))
       track(
         make({
           eventName: Name.TRACK_PAGE_DOWNLOAD,
@@ -114,15 +117,15 @@ export const TrackScreenDownloadButtons = ({
         })
       )
     },
-    [dispatchWeb, user]
+    [dispatch, user]
   )
 
   const buttons = useDownloadTrackButtons({
     trackId,
-    onDownload,
+    onDownload: handleDownload,
     isOwner,
     following,
-    useSelector: useSelectorWeb as typeof useSelector
+    useSelector
   })
 
   const shouldHide = buttons.length === 0

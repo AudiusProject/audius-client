@@ -1,9 +1,15 @@
-import { ID, UserCollection, Track, UserTrackMetadata } from '@audius/common'
+import {
+  ID,
+  UserCollection,
+  Track,
+  UserTrackMetadata,
+  getContext
+} from '@audius/common'
 import { all } from 'redux-saga/effects'
 
 import { processAndCacheCollections } from 'common/store/cache/collections/utils'
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
+import { waitForRead } from 'utils/sagaHelpers'
 
 const getTracksAndCollections = (
   feed: (UserTrackMetadata | UserCollection)[]
@@ -35,6 +41,8 @@ export function* retrieveUserReposts({
   offset,
   limit
 }: RetrieveUserRepostsArgs): Generator<any, Track[], any> {
+  yield* waitForRead()
+  const apiClient = yield* getContext('apiClient')
   const reposts = yield apiClient.getUserRepostsByHandle({
     handle,
     currentUserId,

@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 
 import type { ID, UID } from '@audius/common'
+import { playerSelectors } from '@audius/common'
 import type { FlatListProps } from 'react-native'
 import { FlatList, View } from 'react-native'
 import type { DraggableFlatListProps } from 'react-native-draggable-flatlist'
@@ -8,13 +9,13 @@ import DraggableFlatList from 'react-native-draggable-flatlist'
 import { useSelector } from 'react-redux'
 
 import * as haptics from 'app/haptics'
-import { getPlaying, getPlayingUid } from 'app/store/audio/selectors'
 import { makeStyles } from 'app/styles'
 
 import type { TrackItemAction } from './TrackListItem'
 import { TrackListItem } from './TrackListItem'
 import { TrackListItemSkeleton } from './TrackListItemSkeleton'
 import type { TrackMetadata, TracksMetadata } from './types'
+const { getPlaying, getUid } = playerSelectors
 
 type TrackListProps = {
   hideArt?: boolean
@@ -72,7 +73,7 @@ export const TrackList = ({
   const styles = useStyles()
 
   const isPlaying = useSelector(getPlaying)
-  const playingUid = useSelector(getPlayingUid)
+  const playingUid = useSelector(getUid)
 
   const renderSkeletonTrack = ({ index }) => (
     <View>
@@ -86,7 +87,7 @@ export const TrackList = ({
   )
 
   const renderDraggableTrack: DraggableFlatListProps<TrackMetadata>['renderItem'] =
-    ({ item: track, index = -1, drag, isActive: isDragActive }) => {
+    ({ item: track, index = -1, drag }) => {
       const isActive = track.uid !== undefined && track.uid === playingUid
 
       // The dividers above and belove the active track should be hidden
@@ -108,7 +109,6 @@ export const TrackList = ({
             drag={drag}
             hideArt={hideArt}
             isActive={isActive}
-            isDragging={isDragActive}
             isPlaying={isPlaying}
             isReorderable={isReorderable}
             track={track}

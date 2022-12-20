@@ -141,22 +141,11 @@
     </script>
     <!-- end Optimizely -->
 
-    <script>
-      const fetchBItems = async () => {
-        const bItemsUrl = '%REACT_APP_B_ITEMS_URL%'
-        if (bItemsUrl) {
-          try {
-            window.bItems = new Set((await (await fetch(bItemsUrl)).json()).i)
-          } catch (e) {
-            window.bItems = new Set()
-          }
-        } else {
-          window.bItems = new Set()
-        }
-        window.dispatchEvent(new CustomEvent('B_ITEMS_LOADED'))
-      }
-      fetchBItems()
-    </script>
+    <!-- start Stripe -->
+    <!-- TODO: Replace with npm packages when Stripe publishes -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script type="text/javascript" src="https://crypto-js.stripe.com/crypto-onramp-outer.js"></script>
+    <!-- end Stripe -->
 
     <!-- TODO: Remove this when we compute average colors on the backend -->
     <link href="/scripts/jimp.min.js" as="script">

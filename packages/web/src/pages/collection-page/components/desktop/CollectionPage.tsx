@@ -1,4 +1,4 @@
-import { ChangeEvent } from 'react'
+import { ChangeEvent, useMemo } from 'react'
 
 import {
   ID,
@@ -6,18 +6,19 @@ import {
   SmartCollection,
   Variant,
   Status,
-  User
+  User,
+  CollectionTrack,
+  CollectionPageTrackRecord,
+  CollectionsPageType
 } from '@audius/common'
 
 import {
-  CollectionTrack,
-  TrackRecord,
-  CollectionsPageType
-} from 'common/store/pages/collection/types'
+  CollectiblesPlaylistTableColumn,
+  CollectiblesPlaylistTable
+} from 'components/collectibles-playlist-table/CollectiblesPlaylistTable'
 import CollectionHeader from 'components/collection/desktop/CollectionHeader'
-import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Page from 'components/page/Page'
-import TracksTable from 'components/tracks-table/TracksTable'
+import { TracksTable, TracksTableColumn } from 'components/tracks-table'
 import { computeCollectionMetadataProps } from 'pages/collection-page/store/utils'
 
 import styles from './CollectionPage.module.css'
@@ -50,6 +51,7 @@ export type CollectionPageProps = {
   title: string
   description: string
   canonicalUrl: string
+  structuredData?: Object
   playlistId: ID
   playing: boolean
   getPlayingUid: () => string | null
@@ -68,20 +70,22 @@ export type CollectionPageProps = {
   userPlaylists?: any
   isQueued: () => boolean
   onHeroTrackClickArtistName: () => void
-  onPlay: (record: TrackRecord) => void
-  onHeroTrackShare: (record: TrackRecord) => void
-  onHeroTrackSave?: (record: TrackRecord) => void
-  onClickRow: (record: TrackRecord, index: number) => void
-  onClickSave?: (record: TrackRecord) => void
+  onPlay: (record: CollectionPageTrackRecord) => void
+  onHeroTrackShare: (record: CollectionPageTrackRecord) => void
+  onHeroTrackSave?: (record: CollectionPageTrackRecord) => void
+  onClickRow: (record: CollectionPageTrackRecord, index: number) => void
+  onClickSave?: (record: CollectionPageTrackRecord) => void
   allowReordering: boolean
-  getFilteredData: (trackMetadata: CollectionTrack[]) => [TrackRecord[], number]
+  getFilteredData: (
+    trackMetadata: CollectionTrack[]
+  ) => [CollectionPageTrackRecord[], number]
   onFilterChange: (evt: ChangeEvent<HTMLInputElement>) => void
   onHeroTrackEdit: () => void
   onPublish: () => void
   onHeroTrackRepost?: any
-  onClickTrackName: (record: TrackRecord) => void
-  onClickArtistName: (record: TrackRecord) => void
-  onClickRepostTrack: (record: TrackRecord) => void
+  onClickTrackName: (record: CollectionPageTrackRecord) => void
+  onClickArtistName: (record: CollectionPageTrackRecord) => void
+  onClickRepostTrack: (record: CollectionPageTrackRecord) => void
   onSortTracks: (sorters: any) => void
   onReorderTracks: (source: number, destination: number) => void
   onClickRemove: (
@@ -101,6 +105,7 @@ const CollectionPage = ({
   title,
   description: pageDescription,
   canonicalUrl,
+  structuredData,
   playlistId,
   allowReordering,
   playing,
@@ -173,8 +178,9 @@ const CollectionPage = ({
   const customEmptyText =
     metadata?.variant === Variant.SMART ? metadata?.customEmptyText : null
 
+  const isNftPlaylist = typeTitle === 'Audio NFT Playlist'
+
   const {
-    trackCount,
     isEmpty,
     lastModified,
     playlistName,
@@ -191,9 +197,7 @@ const CollectionPage = ({
     <CollectionHeader
       collectionId={playlistId}
       userId={playlistOwnerId}
-      loading={
-        typeTitle === 'Audio NFT Playlist' ? tracksLoading : collectionLoading
-      }
+      loading={isNftPlaylist ? tracksLoading : collectionLoading}
       tracksLoading={tracksLoading}
       type={typeTitle}
       title={playlistName}
@@ -203,7 +207,7 @@ const CollectionPage = ({
       description={description}
       isOwner={isOwner}
       isAlbum={isAlbum}
-      numTracks={dataSource.length}
+      numTracks={tracks.entries.length}
       modified={lastModified}
       duration={duration}
       isPublished={!isPrivate}
@@ -236,11 +240,34 @@ const CollectionPage = ({
     />
   )
 
+  const TableComponent = useMemo(() => {
+    return isNftPlaylist ? CollectiblesPlaylistTable : TracksTable
+  }, [isNftPlaylist])
+
+  const tracksTableColumns = useMemo<
+    (TracksTableColumn | CollectiblesPlaylistTableColumn)[]
+  >(
+    () =>
+      isNftPlaylist
+        ? ['playButton', 'collectibleName', 'chain', 'length', 'spacer']
+        : [
+            'playButton',
+            'trackName',
+            'artistName',
+            'date',
+            'length',
+            'plays',
+            'overflowActions'
+          ],
+    [isNftPlaylist]
+  )
+
   return (
     <Page
       title={title}
       description={pageDescription}
       canonicalUrl={canonicalUrl}
+      structuredData={structuredData}
       containerClassName={styles.pageContainer}
       scrollableSearch
     >
@@ -250,36 +277,34 @@ const CollectionPage = ({
           <EmptyPage isOwner={isOwner} text={customEmptyText} />
         ) : (
           <div className={styles.tableWrapper}>
-            <TracksTable
+            <TableComponent
+              // @ts-ignore
+              columns={tracksTableColumns}
+              wrapperClassName={styles.tracksTableWrapper}
               key={playlistName}
-              loading={tracksLoading}
-              loadingRowsCount={trackCount}
-              columns={columns}
+              loading={isNftPlaylist ? collectionLoading : tracksLoading}
               userId={userId}
               playing={playing}
               playingIndex={playingIndex}
-              dataSource={dataSource}
-              allowReordering={
+              data={dataSource}
+              onClickRow={onClickRow}
+              onClickFavorite={onClickSave}
+              onClickTrackName={onClickTrackName}
+              onClickArtistName={onClickArtistName}
+              onClickRemove={isOwner ? onClickRemove : undefined}
+              onClickRepost={onClickRepostTrack}
+              onReorderTracks={onReorderTracks}
+              onSortTracks={onSortTracks}
+              isReorderable={
                 userId !== null &&
                 userId === playlistOwnerId &&
                 allowReordering &&
                 !isAlbum
               }
-              onClickRow={onClickRow}
-              onClickFavorite={onClickSave}
-              onClickTrackName={onClickTrackName}
-              onClickArtistName={onClickArtistName}
-              onClickRepost={onClickRepostTrack}
-              onSortTracks={onSortTracks}
-              onReorderTracks={onReorderTracks}
-              onClickRemove={isOwner ? onClickRemove : null}
               removeText={`${messages.remove} ${
                 isAlbum ? messages.type.album : messages.type.playlist
               }`}
             />
-            {collectionLoading && typeTitle === 'Audio NFT Playlist' ? (
-              <LoadingSpinner className={styles.spinner} />
-            ) : null}
           </div>
         )}
       </div>

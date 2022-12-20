@@ -3,8 +3,8 @@ import { useCallback } from 'react'
 import { Name } from '@audius/common'
 import { IconTrending } from '@audius/stems'
 
+import { make, useRecord } from 'common/store/analytics/actions'
 import Tag from 'components/track/Tag'
-import { make, useRecord } from 'store/analytics/actions'
 import { searchResultsPage } from 'utils/route'
 
 import styles from './ProfileTags.module.css'
@@ -22,7 +22,7 @@ export const ProfileTags = (props: ProfileTagsProps) => {
   const { tags, goToRoute } = props
   const record = useRecord()
   const onClickTag = useCallback(
-    (tag) => {
+    (tag: string) => {
       goToRoute(searchResultsPage(`#${tag}`))
       record(make(Name.TAG_CLICKING, { tag, source: 'profile page' }))
     },

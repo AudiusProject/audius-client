@@ -6,7 +6,10 @@ import {
   ProfilePictureSizes,
   SquareSizes,
   Status,
-  BooleanKeys
+  BooleanKeys,
+  TwitterProfile,
+  InstagramProfile,
+  musicConfettiActions
 } from '@audius/common'
 import { Modal, Button, ButtonType, IconNote, ButtonSize } from '@audius/stems'
 import cn from 'classnames'
@@ -14,20 +17,19 @@ import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconValidationX } from 'assets/img/iconValidationX.svg'
 import { ReactComponent as IconVerified } from 'assets/img/iconVerified.svg'
-import { TwitterProfile, InstagramProfile } from 'common/store/account/reducer'
+import { useRecord, make, TrackEvent } from 'common/store/analytics/actions'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
-import { show as showMusicConfetti } from 'components/music-confetti/store/slice'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
-import { useRecord, make, TrackEvent } from 'store/analytics/actions'
 import { profilePage } from 'utils/route'
 
 import InstagramAccountVerification from '../InstagramAccountVerified'
 import TwitterAccountVerification from '../TwitterAccountVerified'
 
 import styles from './VerificationModal.module.css'
+const { show: showMusicConfetti } = musicConfettiActions
 
 const messages = {
   title: 'Verification',

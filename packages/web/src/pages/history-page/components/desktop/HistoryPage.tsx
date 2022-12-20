@@ -1,4 +1,4 @@
-import { ChangeEvent, memo } from 'react'
+import { ChangeEvent, memo, useMemo } from 'react'
 
 import { ID } from '@audius/common'
 import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
@@ -7,8 +7,9 @@ import FilterInput from 'components/filter-input/FilterInput'
 import Header from 'components/header/desktop/Header'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Page from 'components/page/Page'
+import { dateSorter } from 'components/table'
+import { TracksTable } from 'components/tracks-table'
 import EmptyTable from 'components/tracks-table/EmptyTable'
-import TracksTable from 'components/tracks-table/TracksTable'
 
 import styles from './HistoryPage.module.css'
 
@@ -97,6 +98,8 @@ const HistoryPage = ({
     />
   )
 
+  const defaultSorter = useMemo(() => dateSorter('dateListened'), [])
+
   return (
     <Page
       title={title}
@@ -115,17 +118,16 @@ const HistoryPage = ({
             onClick={() => goToRoute('/trending')}
           />
         ) : (
-          <div className={styles.tableWrapper}>
-            <TracksTable
-              userId={userId}
-              loading={tableLoading}
-              loadingRowsCount={entries.length}
-              playing={queuedAndPlaying}
-              playingIndex={playingIndex}
-              dataSource={dataSource}
-              {...trackTableActions}
-            />
-          </div>
+          <TracksTable
+            key='history'
+            data={dataSource}
+            userId={userId}
+            loading={tableLoading}
+            playing={queuedAndPlaying}
+            playingIndex={playingIndex}
+            defaultSorter={defaultSorter}
+            {...trackTableActions}
+          />
         )}
       </div>
     </Page>

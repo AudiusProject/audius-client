@@ -1,18 +1,20 @@
 import { useCallback, useState } from 'react'
 
+import {
+  accountSelectors,
+  explorePageActions,
+  ExplorePageTabs
+} from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
-import { getUserHandle } from 'common/store/account/selectors'
-import { setTab } from 'common/store/pages/explore/slice'
-import { Tabs } from 'common/store/pages/explore/types'
-import BottomBar from 'components/bottom-bar/BottomBar'
 import {
   openSignOn,
   showRequiresAccountModal
-} from 'pages/sign-on/store/actions'
+} from 'common/store/pages/signon/actions'
+import BottomBar from 'components/bottom-bar/BottomBar'
 import { AppState } from 'store/types'
 import {
   FEED_PAGE,
@@ -23,8 +25,8 @@ import {
   getPathname
 } from 'utils/route'
 import { isDarkMode, isMatrix } from 'utils/theme/theme'
-
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+const { setTab } = explorePageActions
+const { getUserHandle } = accountSelectors
 
 type ConnectedBottomBarProps = ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps> &
@@ -53,17 +55,6 @@ const ConnectedNavBar = ({
     // If the current route isn't what we memoized, check if it's a nav route
     // and update the current route if so
     if (navRoutes.has(currentRoute)) {
-      setNavRoute(currentRoute)
-    }
-
-    // If we are in native mobile and we entered the app via notification directly,
-    // update the current route to the current page so that none of the
-    // nav bar items are highlighted
-    if (
-      NATIVE_MOBILE &&
-      // @ts-ignore
-      history.location.state?.fromNativeNotifications
-    ) {
       setNavRoute(currentRoute)
     }
   }
@@ -134,7 +125,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(showRequiresAccountModal())
     },
     resetExploreTab: () => {
-      dispatch(setTab({ tab: Tabs.FOR_YOU }))
+      dispatch(setTab({ tab: ExplorePageTabs.FOR_YOU }))
     }
   }
 }

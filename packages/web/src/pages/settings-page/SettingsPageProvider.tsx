@@ -1,38 +1,30 @@
 import { ComponentType, PureComponent } from 'react'
 
-import { Name, Theme } from '@audius/common'
+import {
+  Name,
+  Theme,
+  accountSelectors,
+  InstagramProfile,
+  settingsPageSelectors,
+  BrowserNotificationSetting,
+  EmailFrequency,
+  PushNotificationSetting,
+  settingsPageActions as settingPageActions,
+  makeGetTierAndVerifiedForUser,
+  modalsActions,
+  themeSelectors,
+  themeActions,
+  accountActions,
+  TwitterProfile,
+  signOutActions,
+  musicConfettiActions
+} from '@audius/common'
 import { push as pushRoute, goBack } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import * as accountActions from 'common/store/account/reducer'
-import {
-  getAccountVerified,
-  getAccountHasTracks,
-  getAccountProfilePictureSizes,
-  getUserId,
-  getUserHandle,
-  getUserName
-} from 'common/store/account/selectors'
-import { getMethod as getCastMethod } from 'common/store/cast/selectors'
-import { CastMethod, updateMethod } from 'common/store/cast/slice'
-import * as settingPageActions from 'common/store/pages/settings/actions'
-import {
-  getBrowserNotificationSettings,
-  getPushNotificationSettings,
-  getEmailFrequency
-} from 'common/store/pages/settings/selectors'
-import {
-  BrowserNotificationSetting,
-  EmailFrequency,
-  PushNotificationSetting
-} from 'common/store/pages/settings/types'
-import { setVisibility } from 'common/store/ui/modals/slice'
-import { setTheme } from 'common/store/ui/theme/actions'
-import { getTheme } from 'common/store/ui/theme/selectors'
-import { makeGetTierAndVerifiedForUser } from 'common/store/wallet/utils'
-import { show } from 'components/music-confetti/store/slice'
-import { make, TrackEvent } from 'store/analytics/actions'
+import { make, TrackEvent } from 'common/store/analytics/actions'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { AppState } from 'store/types'
 import {
   isPushManagerAvailable,
@@ -48,6 +40,26 @@ import {
   SettingsPageProps as MobileSettingsPageProps,
   SubPage
 } from './components/mobile/SettingsPage'
+const { show } = musicConfettiActions
+
+const { signOut } = signOutActions
+const { setTheme } = themeActions
+const { getTheme } = themeSelectors
+const { setVisibility } = modalsActions
+const {
+  getBrowserNotificationSettings,
+  getPushNotificationSettings,
+  getEmailFrequency
+} = settingsPageSelectors
+
+const {
+  getAccountVerified,
+  getAccountHasTracks,
+  getAccountProfilePictureSizes,
+  getUserId,
+  getUserHandle,
+  getUserName
+} = accountSelectors
 
 const isStaging = process.env.REACT_APP_ENVIRONMENT === 'staging'
 
@@ -117,7 +129,9 @@ class SettingsPage extends PureComponent<
           this.props.subscribeBrowserPushNotifications()
         } else {
           const getSafariPermission = async () => {
-            const permissionData = await subscribeSafariPushBrowser()
+            const permissionData = await subscribeSafariPushBrowser(
+              audiusBackendInstance
+            )
             if (
               permissionData &&
               permissionData.permission === Permission.GRANTED
@@ -151,19 +165,18 @@ class SettingsPage extends PureComponent<
       pushNotificationSettings,
       getNotificationSettings,
       getPushNotificationSettings,
-      castMethod,
       onTwitterLogin,
       onInstagramLogin,
       toggleNotificationSetting,
       togglePushNotificationSetting,
       updateEmailFrequency,
-      updateCastMethod,
       goToRoute,
       goBack,
       recordSignOut,
       recordAccountRecovery,
       recordDownloadDesktopApp,
-      tier
+      tier,
+      signOut
     } = this.props
 
     const showMatrix = tier === 'gold' || tier === 'platinum' || isStaging
@@ -196,14 +209,11 @@ class SettingsPage extends PureComponent<
       recordDownloadDesktopApp,
       goToRoute,
       goBack,
-      showMatrix
+      showMatrix,
+      signOut
     }
 
-    const mobileProps = {
-      subPage,
-      castMethod,
-      updateCastMethod
-    }
+    const mobileProps = { subPage }
 
     return <this.props.children {...childProps} {...mobileProps} />
   }
@@ -225,7 +235,6 @@ function makeMapStateToProps() {
       emailFrequency: getEmailFrequency(state),
       notificationSettings: getBrowserNotificationSettings(state),
       pushNotificationSettings: getPushNotificationSettings(state),
-      castMethod: getCastMethod(state),
       tier: getTier(state, { userId }).tier
     }
   }
@@ -233,17 +242,15 @@ function makeMapStateToProps() {
 
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
-    setTheme: (theme: any) => dispatch(setTheme(theme)),
+    setTheme: (theme: any) => dispatch(setTheme({ theme })),
     getNotificationSettings: () =>
       dispatch(settingPageActions.getNotificationSettings()),
     getPushNotificationSettings: () =>
       dispatch(settingPageActions.getPushNotificationSettings()),
-    onTwitterLogin: (uuid: string, profile: object) =>
+    onTwitterLogin: (uuid: string, profile: TwitterProfile) =>
       dispatch(accountActions.twitterLogin({ uuid, profile })),
-    onInstagramLogin: (
-      uuid: string,
-      profile: accountActions.InstagramProfile
-    ) => dispatch(accountActions.instagramLogin({ uuid, profile })),
+    onInstagramLogin: (uuid: string, profile: InstagramProfile) =>
+      dispatch(accountActions.instagramLogin({ uuid, profile })),
     subscribeBrowserPushNotifications: () =>
       dispatch(accountActions.subscribeBrowserPushNotifications()),
     setBrowserNotificationSettingsOn: () =>
@@ -279,9 +286,6 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(settingPageActions.updateEmailFrequency(frequency)),
     goToRoute: (route: string) => dispatch(pushRoute(route)),
     goBack: () => dispatch(goBack()),
-    updateCastMethod: (castMethod: CastMethod) => {
-      dispatch(updateMethod({ method: castMethod }))
-    },
     recordThemeChange: (themeSettings: string) => {
       const theme =
         themeSettings === Theme.DEFAULT
@@ -310,6 +314,9 @@ function mapDispatchToProps(dispatch: Dispatch) {
     },
     showMatrixConfetti: () => {
       dispatch(show())
+    },
+    signOut: () => {
+      dispatch(signOut())
     }
   }
 }

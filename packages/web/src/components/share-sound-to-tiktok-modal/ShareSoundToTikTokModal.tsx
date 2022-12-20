@@ -1,6 +1,11 @@
 import { useCallback, useMemo } from 'react'
 
-import { Nullable } from '@audius/common'
+import {
+  Nullable,
+  ShareSoundToTiktokModalStatus,
+  shareSoundToTiktokModalActions,
+  shareSoundToTiktokModalSelectors
+} from '@audius/common'
 import {
   Button,
   Modal,
@@ -12,24 +17,14 @@ import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
-import {
-  getStatus,
-  getTrack
-} from 'common/store/ui/share-sound-to-tiktok-modal/selectors'
-import {
-  authenticated,
-  setStatus,
-  share
-} from 'common/store/ui/share-sound-to-tiktok-modal/slice'
-import { Status } from 'common/store/ui/share-sound-to-tiktok-modal/types'
 import Drawer from 'components/drawer/Drawer'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useTikTokAuth } from 'hooks/useTikTokAuth'
 import { isMobile } from 'utils/clientUtil'
 
 import styles from './ShareSoundToTikTokModal.module.css'
-
-const IS_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+const { getStatus, getTrack } = shareSoundToTiktokModalSelectors
+const { authenticated, setStatus, share } = shareSoundToTiktokModalActions
 
 enum FileRequirementError {
   MIN_LENGTH,
@@ -63,7 +58,8 @@ const ShareSoundToTikTokModal = () => {
   const status = useSelector(getStatus)
 
   const withTikTokAuth = useTikTokAuth({
-    onError: () => dispatch(setStatus({ status: Status.SHARE_ERROR }))
+    onError: () =>
+      dispatch(setStatus({ status: ShareSoundToTiktokModalStatus.SHARE_ERROR }))
   })
 
   const fileRequirementError: Nullable<FileRequirementError> = useMemo(() => {
@@ -94,18 +90,19 @@ const ShareSoundToTikTokModal = () => {
 
   const renderMessage = () => {
     const hasError =
-      fileRequirementError !== null || status === Status.SHARE_ERROR
+      fileRequirementError !== null ||
+      status === ShareSoundToTiktokModalStatus.SHARE_ERROR
 
     const rawMessage = {
-      [Status.SHARE_STARTED]: messages.inProgress,
-      [Status.SHARE_SUCCESS]: messages.success,
-      [Status.SHARE_ERROR]: messages.error,
-      [Status.SHARE_UNINITIALIZED]: messages.confirmation
-    }[status as Status]
+      [ShareSoundToTiktokModalStatus.SHARE_STARTED]: messages.inProgress,
+      [ShareSoundToTiktokModalStatus.SHARE_SUCCESS]: messages.success,
+      [ShareSoundToTiktokModalStatus.SHARE_ERROR]: messages.error,
+      [ShareSoundToTiktokModalStatus.SHARE_UNINITIALIZED]: messages.confirmation
+    }[status as ShareSoundToTiktokModalStatus]
 
     if (hasError) {
       const errorMessage =
-        status === Status.SHARE_ERROR
+        status === ShareSoundToTiktokModalStatus.SHARE_ERROR
           ? messages.error
           : fileRequirementErrorMessages[fileRequirementError!]
 
@@ -124,7 +121,7 @@ const ShareSoundToTikTokModal = () => {
   }
 
   const renderButton = () => {
-    if (status === Status.SHARE_SUCCESS) {
+    if (status === ShareSoundToTiktokModalStatus.SHARE_SUCCESS) {
       return (
         <Button
           className={styles.button}
@@ -152,29 +149,29 @@ const ShareSoundToTikTokModal = () => {
   }
 
   return mobile ? (
-    !IS_NATIVE_MOBILE ? (
-      <Drawer onClose={handleClose} isOpen={isOpen}>
-        <div className={cn(styles.modalContent, styles.mobile)}>
-          <div className={cn(styles.modalHeader, styles.mobile)}>
-            <div className={cn(styles.titleContainer, styles.mobile)}>
-              <IconTikTok />
-              <div>{messages.title}</div>
-            </div>
+    <Drawer onClose={handleClose} isOpen={isOpen}>
+      <div className={cn(styles.modalContent, styles.mobile)}>
+        <div className={cn(styles.modalHeader, styles.mobile)}>
+          <div className={cn(styles.titleContainer, styles.mobile)}>
+            <IconTikTok />
+            <div>{messages.title}</div>
           </div>
-          {renderMessage()}
-          {status === Status.SHARE_STARTED ? (
-            <LoadingSpinner />
-          ) : (
-            renderButton()
-          )}
         </div>
-      </Drawer>
-    ) : null
+        {renderMessage()}
+        {status === ShareSoundToTiktokModalStatus.SHARE_STARTED ? (
+          <LoadingSpinner />
+        ) : (
+          renderButton()
+        )}
+      </div>
+    </Drawer>
   ) : (
     <Modal
       allowScroll={false}
       bodyClassName={styles.modalBody}
-      dismissOnClickOutside={status !== Status.SHARE_STARTED}
+      dismissOnClickOutside={
+        status !== ShareSoundToTiktokModalStatus.SHARE_STARTED
+      }
       headerContainerClassName={styles.modalHeader}
       isOpen={isOpen}
       onClose={handleClose}
@@ -189,7 +186,11 @@ const ShareSoundToTikTokModal = () => {
     >
       <div className={styles.modalContent}>
         {renderMessage()}
-        {status === Status.SHARE_STARTED ? <LoadingSpinner /> : renderButton()}
+        {status === ShareSoundToTiktokModalStatus.SHARE_STARTED ? (
+          <LoadingSpinner />
+        ) : (
+          renderButton()
+        )}
       </div>
     </Modal>
   )

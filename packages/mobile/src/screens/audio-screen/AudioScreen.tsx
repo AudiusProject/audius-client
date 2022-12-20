@@ -1,22 +1,24 @@
 import { useCallback } from 'react'
 
-import type { BNWei, StringWei, Nullable } from '@audius/common'
-import { useFocusEffect } from '@react-navigation/native'
-import { getHasAssociatedWallets } from 'audius-client/src/common/store/pages/token-dashboard/selectors'
+import type { BNWei, StringWei, Nullable, CommonState } from '@audius/common'
 import {
-  setModalState,
-  setModalVisibility
-} from 'audius-client/src/common/store/pages/token-dashboard/slice'
-import { setVisibility } from 'audius-client/src/common/store/ui/modals/slice'
-import { getAccountTotalBalance } from 'audius-client/src/common/store/wallet/selectors'
-import { getBalance } from 'audius-client/src/common/store/wallet/slice'
-import { getTierAndNumberForBalance } from 'audius-client/src/common/store/wallet/utils'
-import { formatWei } from 'audius-client/src/common/utils/wallet'
+  vipDiscordModalActions,
+  formatWei,
+  tokenDashboardPageSelectors,
+  walletSelectors,
+  walletActions,
+  getTierAndNumberForBalance,
+  modalsActions,
+  FeatureFlags
+} from '@audius/common'
+import { useFocusEffect } from '@react-navigation/native'
 import BN from 'bn.js'
 import { Image, Linking, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import LinearGradient from 'react-native-linear-gradient'
+import { useDispatch, useSelector } from 'react-redux'
 
+import IconCrown from 'app/assets/images/iconCrown.svg'
 import IconDiscord from 'app/assets/images/iconDiscord.svg'
 import IconInfo from 'app/assets/images/iconInfo.svg'
 import IconReceive from 'app/assets/images/iconReceive.svg'
@@ -34,15 +36,19 @@ import {
   Text,
   Tile
 } from 'app/components/core'
-import { Header } from 'app/components/header'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { useNavigation } from 'app/hooks/useNavigation'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
 import { ChallengeRewards } from './ChallengeRewards'
 import { Tier } from './Tier'
 import { TrendingRewards } from './TrendingRewards'
+const { setVisibility } = modalsActions
+const { getBalance } = walletActions
+const { getAccountTotalBalance } = walletSelectors
+const { getHasAssociatedWallets } = tokenDashboardPageSelectors
+const { pressDiscord } = vipDiscordModalActions
 
 const LEARN_MORE_LINK = 'https://blog.audius.co/article/community-meet-audio'
 
@@ -52,7 +58,7 @@ const messages = {
   totalAudio: 'Total $AUDIO',
   send: 'Send $AUDIO',
   receive: 'Receive $AUDIO',
-  connect: 'Connect Other Wallets',
+  connect: 'Connect Wallets',
   rewards: '$AUDIO Rewards',
   rewardsBody1: 'Complete tasks to earn $AUDIO tokens!',
   rewardsBody2:
@@ -88,14 +94,14 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     alignItems: 'center'
   },
   tileHeader: {
-    fontFamiy: typography.fontByWeight.heavy,
+    fontFamily: typography.fontByWeight.heavy,
     fontSize: typography.fontSize.xxxxl,
     textTransform: 'uppercase',
     textAlign: 'center',
     marginBottom: 16
   },
   tileSubheader: {
-    fontFamiy: typography.fontByWeight.regular,
+    fontFamily: typography.fontByWeight.regular,
     fontSize: typography.fontSize.xs,
     lineHeight: spacing(5),
     textAlign: 'center'
@@ -158,26 +164,31 @@ export const AudioScreen = () => {
   const styles = useStyles()
   const { pageHeaderGradientColor1, pageHeaderGradientColor2 } =
     useThemeColors()
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
+  const navigation = useNavigation()
+  const { isEnabled: isMobileWalletConnectEnabled } = useFeatureFlag(
+    FeatureFlags.MOBILE_WALLET_CONNECT
+  )
 
   const totalBalance: Nullable<BNWei> =
-    useSelectorWeb(getAccountTotalBalance) ?? null
+    useSelector(getAccountTotalBalance) ?? null
 
   const totalBalanceWei =
-    useSelectorWeb((state) => state.wallet.totalBalance) ?? ('0' as StringWei)
+    useSelector((state: CommonState) => state.wallet.totalBalance) ??
+    ('0' as StringWei)
 
   const { tierNumber } = getTierAndNumberForBalance(totalBalanceWei)
 
-  const hasMultipleWallets = useSelectorWeb(getHasAssociatedWallets)
+  const hasMultipleWallets = useSelector(getHasAssociatedWallets)
 
-  const onPressWalletInfo = useCallback(() => {
-    dispatchWeb(setVisibility({ modal: 'AudioBreakdown', visible: true }))
-  }, [dispatchWeb])
+  const handlePressWalletInfo = useCallback(() => {
+    dispatch(setVisibility({ modal: 'AudioBreakdown', visible: true }))
+  }, [dispatch])
 
   useFocusEffect(
     useCallback(() => {
-      dispatchWeb(getBalance())
-    }, [dispatchWeb])
+      dispatch(getBalance())
+    }, [dispatch])
   )
 
   const renderAudioTile = () => {
@@ -192,6 +203,7 @@ export const AudioScreen = () => {
           tile: styles.tile,
           content: styles.tileContent
         }}
+        onPress={hasMultipleWallets ? handlePressWalletInfo : undefined}
       >
         <Text style={styles.audioAmount}>
           {formatWei((totalBalance || new BN(0)) as BNWei, true, 0)}{' '}
@@ -200,17 +212,7 @@ export const AudioScreen = () => {
           {hasMultipleWallets ? (
             <>
               <Text style={styles.audioText}>{messages.totalAudio}</Text>
-              <TouchableOpacity
-                hitSlop={{ left: 4, top: 4, bottom: 4, right: 4 }}
-                onPress={onPressWalletInfo}
-                activeOpacity={0.7}
-              >
-                <IconInfo
-                  height={16}
-                  width={16}
-                  fill={'rgba(255,255,255,0.5)'}
-                />
-              </TouchableOpacity>
+              <IconInfo height={16} width={16} fill={'rgba(255,255,255,0.5)'} />
             </>
           ) : (
             <Text style={styles.audioText}>{messages.audio}</Text>
@@ -220,23 +222,27 @@ export const AudioScreen = () => {
     )
   }
 
-  const onPressSend = useCallback(() => {
-    dispatchWeb(
+  const handlePressSend = useCallback(() => {
+    dispatch(
       setVisibility({ modal: 'TransferAudioMobileWarning', visible: true })
     )
-  }, [dispatchWeb])
+  }, [dispatch])
 
-  const onPressReceive = useCallback(() => {
-    dispatchWeb(
+  const handlePressReceive = useCallback(() => {
+    dispatch(
       setVisibility({ modal: 'TransferAudioMobileWarning', visible: true })
     )
-  }, [dispatchWeb])
+  }, [dispatch])
 
-  const onPressConnectWallets = useCallback(() => {
-    dispatchWeb(
-      setVisibility({ modal: 'MobileConnectWalletsDrawer', visible: true })
-    )
-  }, [dispatchWeb])
+  const handlePressConnectWallets = useCallback(() => {
+    if (isMobileWalletConnectEnabled) {
+      navigation.navigate('WalletConnect')
+    } else {
+      dispatch(
+        setVisibility({ modal: 'MobileConnectWalletsDrawer', visible: true })
+      )
+    }
+  }, [isMobileWalletConnectEnabled, dispatch, navigation])
 
   const renderWalletTile = () => {
     return (
@@ -258,7 +264,7 @@ export const AudioScreen = () => {
           iconPosition='left'
           size='medium'
           icon={IconSend}
-          onPress={onPressSend}
+          onPress={handlePressSend}
         />
         <Button
           title={messages.receive}
@@ -271,7 +277,7 @@ export const AudioScreen = () => {
           iconPosition='left'
           size='medium'
           icon={IconReceive}
-          onPress={onPressReceive}
+          onPress={handlePressReceive}
         />
         <Button
           title={messages.connect}
@@ -282,7 +288,7 @@ export const AudioScreen = () => {
           }}
           variant='commonAlt'
           size='medium'
-          onPress={onPressConnectWallets}
+          onPress={handlePressConnectWallets}
         />
       </Tile>
     )
@@ -326,9 +332,8 @@ export const AudioScreen = () => {
   }
 
   const onPressLaunchDiscord = useCallback(() => {
-    dispatchWeb(setModalState({ modalState: { stage: 'DISCORD_CODE' } }))
-    dispatchWeb(setModalVisibility({ isVisible: true }))
-  }, [dispatchWeb])
+    dispatch(pressDiscord())
+  }, [dispatch])
 
   const renderTierTile = () => {
     return (
@@ -428,8 +433,12 @@ export const AudioScreen = () => {
   }
 
   return (
-    <Screen>
-      <Header text={messages.title} />
+    <Screen
+      url='/audio'
+      variant='secondary'
+      icon={IconCrown}
+      title={messages.title}
+    >
       <ScrollView style={styles.tiles}>
         {renderAudioTile()}
         {renderWalletTile()}

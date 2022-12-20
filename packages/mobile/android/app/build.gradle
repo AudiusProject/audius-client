@@ -76,7 +76,8 @@ import com.android.build.OutputFile
  */
 
 project.ext.react = [
-    entryFile: "index.js"
+    entryFile: "index.js",
+    enableHermes: true
 ]
 
 project.ext.envConfigFiles = [
@@ -123,7 +124,7 @@ def jscFlavor = 'org.webkit:android-jsc:+'
  * on project.ext.react, JavaScript will not be compiled to Hermes Bytecode
  * and the benefits of using Hermes will therefore be sharply reduced.
  */
-def enableHermes = project.ext.react.get("enableHermes", false);
+def enableHermes = project.ext.react.get("enableHermes", true);
 
 /**
  * Architectures to build native code for in debug.
@@ -143,6 +144,13 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     flavorDimensions "default"
 
+    packagingOptions {
+        pickFirst 'lib/x86/libc++_shared.so'
+        pickFirst 'lib/x86_64/libc++_shared.so'
+        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+        pickFirst 'lib/arm64-v8a/libc++_shared.so'
+    }
+    
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -229,10 +237,6 @@ android {
 
         }
     }
-
-    sourceSets { 
-        main { assets.srcDirs = ['src/main/assets', '../../web-app'] } 
-    }    
 }
 
 dependencies {
@@ -246,6 +250,8 @@ dependencies {
     implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.google.firebase:firebase-perf:19.0.5'
+    implementation 'androidx.core:core-splashscreen:1.0.0'
+    implementation "androidx.appcompat:appcompat:1.0.0"
 
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";
@@ -254,6 +260,8 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+    compile project(':react-native-video')
+    compile project(':react-native-threads')
 }
 
 // Run this once to be able to run the application with BUCK

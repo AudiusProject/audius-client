@@ -1,15 +1,13 @@
 import { useCallback } from 'react'
 
 import { useModalState } from 'common/hooks/useModalState'
-import { useProfileTier } from 'common/hooks/wallet'
 import Drawer from 'components/drawer/Drawer'
+import { useProfileTier } from 'hooks/wallet'
 import {
   audioTierMapPng,
   TierLevel,
   TierNumber
 } from 'pages/audio-rewards-page/Tiers'
-import { getKeyboardVisibility } from 'store/application/ui/mobileKeyboard/selectors'
-import { useSelector } from 'utils/reducer'
 
 import { BadgeTierText } from './ProfilePageBadge'
 import styles from './TierExplainerDrawer.module.css'
@@ -17,7 +15,6 @@ import { messages } from './TierExplainerModal'
 
 const TierExplainerDrawer = () => {
   const [isOpen, setIsOpen] = useModalState('TiersExplainer')
-  const keyboardVisible = useSelector(getKeyboardVisibility)
 
   const onClose = useCallback(() => {
     setIsOpen(false)
@@ -26,7 +23,7 @@ const TierExplainerDrawer = () => {
   const tier = useProfileTier()
 
   return (
-    <Drawer isOpen={isOpen} keyboardVisible={keyboardVisible} onClose={onClose}>
+    <Drawer isOpen={isOpen} onClose={onClose}>
       <div className={styles.drawer}>
         <div className={styles.top}>
           {audioTierMapPng[tier]}

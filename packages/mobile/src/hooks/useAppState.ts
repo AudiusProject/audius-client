@@ -13,14 +13,14 @@ import { AppState } from 'react-native'
  * and during periods of inactivity such as entering the Multitasking view or in the event of an incoming call
  */
 
-type OnEnterForeground = () => void | null
-type OnEnterBackground = () => void | null
+type OnEnterForeground = () => any
+type OnEnterBackground = () => any
 
 const NotActive = /inactive|background/g
 
 export const useAppState = (
-  onEnterForeground: OnEnterForeground,
-  onEnterBackground: OnEnterBackground
+  onEnterForeground: OnEnterForeground | null,
+  onEnterBackground: OnEnterBackground | null
 ) => {
   const [appState, setAppState] = useState<AppStateStatus>(
     AppState.currentState
@@ -57,6 +57,14 @@ export const useAppState = (
   }, [handleAppStateChange])
 
   return appState
+}
+
+export const useEnterForeground = (onEnterForeground: OnEnterForeground) => {
+  return useAppState(onEnterForeground, null)
+}
+
+export const useEnterBackground = (onEnterBackground: OnEnterBackground) => {
+  return useAppState(null, onEnterBackground)
 }
 
 export default useAppState

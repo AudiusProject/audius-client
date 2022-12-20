@@ -1,96 +1,58 @@
-import { useCallback, useState } from 'react'
+import type { User, Track, Nullable } from '@audius/common'
+import { cacheUsersSelectors } from '@audius/common'
+import { useSelector } from 'react-redux'
 
-import type { TrackImage as TrackImageType } from 'app/models/Track'
-import type { UserMultihash } from 'app/models/User'
+import imageEmpty from 'app/assets/images/imageBlank2x.png'
+import type { DynamicImageProps } from 'app/components/core'
+import { DynamicImage } from 'app/components/core'
+import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
+import { useLocalTrackImage } from 'app/hooks/useLocalImage'
 
-import ImageLoader from './ImageLoader'
-import { gateways, publicGateways } from './utils'
+const { getUser } = cacheUsersSelectors
 
-const getTrackImageUrl = (track: TrackImageType, cNode: string) => {
-  if (track.cover_art_sizes) {
-    return `${cNode}/ipfs/${track.cover_art_sizes}/150x150.jpg`
-  }
-  if (track.cover_art) {
-    return `${cNode}/ipfs/${track.cover_art}`
-  }
-  return null
-}
+export const DEFAULT_IMAGE_URL =
+  'https://download.audius.co/static-resources/preview-image.jpg'
 
-const getHasImage = (track: TrackImageType) => {
-  return !!(track.cover_art_sizes || track.cover_art)
-}
+export const useTrackImage = (
+  track: Nullable<
+    Pick<Track, 'track_id' | 'cover_art_sizes' | 'cover_art' | 'owner_id'>
+  >,
+  user?: Pick<User, 'creator_node_endpoint'>
+) => {
+  const cid = track ? track.cover_art_sizes || track.cover_art : null
 
-const useTrackImage = (track: TrackImageType, user: UserMultihash) => {
-  const cNodes =
-    user.creator_node_endpoint !== null
-      ? user.creator_node_endpoint.split(',').filter(Boolean)
-      : gateways
-  const [didError, setDidError] = useState(
-    cNodes.length === 0 || !getHasImage(track)
+  const selectedUser = useSelector((state) =>
+    getUser(state, { id: track?.owner_id })
   )
-  const [source, setSource] = useState(
-    didError ? null : { uri: getTrackImageUrl(track, cNodes[0]) }
+  const { value: localSource, loading } = useLocalTrackImage(
+    track?.track_id.toString()
   )
-  const onError = useCallback(() => {
-    if (didError) return
-    const nodes =
-      user.creator_node_endpoint !== null
-        ? user.creator_node_endpoint.split(',').filter(Boolean)
-        : gateways
-    const numNodes = nodes.length
-    const currInd = nodes.findIndex(
-      (cn: string) => (source?.uri ?? '') === getTrackImageUrl(track, cn)
-    )
-    if (currInd !== 1 && currInd < numNodes - 1) {
-      setSource({ uri: getTrackImageUrl(track, nodes[currInd + 1]) })
-    } else {
-      // Legacy fallback for image formats (no dir cid)
-      const legacyUrls = (user.creator_node_endpoint ?? '')
-        .split(',')
-        .filter(Boolean)
-        .concat(gateways)
-        .concat(publicGateways)
-        .map((gateway) => `${gateway}/ipfs/${track.cover_art_sizes}`)
-      const legacyIdx = legacyUrls.findIndex(
-        (route: string) => (source?.uri ?? '') === route
-      )
-      if (
-        track.cover_art_sizes &&
-        source?.uri?.endsWith('.jpg') &&
-        legacyUrls.length > 0
-      ) {
-        setSource({ uri: legacyUrls[0] })
-      } else if (legacyIdx !== -1 && legacyIdx < legacyUrls.length - 1) {
-        setSource({ uri: legacyUrls[legacyIdx + 1] })
-      } else {
-        setDidError(true)
-      }
-    }
-  }, [user, track, source, didError])
-  return { source, didError, onError }
+
+  const contentNodeSource = useContentNodeImage({
+    cid,
+    user: user ?? selectedUser,
+    fallbackImageSource: imageEmpty,
+    localSource
+  })
+
+  return loading ? null : contentNodeSource
 }
 
-const TrackImage = ({
-  track,
-  user,
-  imageStyle
-}: {
-  track: TrackImageType
-  user: UserMultihash
-  imageStyle?: Record<string, any>
-}) => {
-  const { source, onError, didError } = useTrackImage(track, user)
-  return (
-    <ImageLoader
-      style={imageStyle}
-      source={
-        didError || source === null
-          ? require('app/assets/images/imageBlank2x.png')
-          : source
-      }
-      onError={onError}
+type TrackImageProps = {
+  track: Parameters<typeof useTrackImage>[0]
+  user?: Parameters<typeof useTrackImage>[1]
+} & DynamicImageProps
+
+export const TrackImage = (props: TrackImageProps) => {
+  const { track, user, ...imageProps } = props
+
+  const trackImageSource = useTrackImage(track, user)
+
+  return trackImageSource ? (
+    <DynamicImage
+      {...imageProps}
+      source={trackImageSource.source}
+      onError={trackImageSource.handleError}
     />
-  )
+  ) : null
 }
-
-export default TrackImage

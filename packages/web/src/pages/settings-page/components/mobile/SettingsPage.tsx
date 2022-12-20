@@ -1,18 +1,21 @@
 import { useContext, useEffect, useCallback, FC } from 'react'
 
-import { ID, SquareSizes, ProfilePictureSizes, Theme } from '@audius/common'
-import cn from 'classnames'
-
-import horizontalLogo from 'assets/img/settingsPageLogo.png'
-import { InstagramProfile, TwitterProfile } from 'common/store/account/reducer'
-import { CastMethod } from 'common/store/cast/slice'
 import {
+  ID,
+  SquareSizes,
+  ProfilePictureSizes,
+  Theme,
+  InstagramProfile,
+  TwitterProfile,
   Notifications,
   EmailFrequency,
   BrowserNotificationSetting,
   PushNotificationSetting,
   PushNotifications
-} from 'common/store/pages/settings/types'
+} from '@audius/common'
+import cn from 'classnames'
+
+import horizontalLogo from 'assets/img/settingsPageLogo.png'
 import TabSlider from 'components/data-entry/TabSlider'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import GroupableList from 'components/groupable-list/GroupableList'
@@ -22,7 +25,6 @@ import NavContext, { LeftPreset } from 'components/nav/store/context'
 import Page from 'components/page/Page'
 import useScrollToTop from 'hooks/useScrollToTop'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
-import { getIsIOS } from 'utils/browser'
 import {
   ACCOUNT_SETTINGS_PAGE,
   HISTORY_PAGE,
@@ -37,8 +39,6 @@ import { ChangePasswordPage } from './ChangePasswordPage'
 import NotificationsSettingsPage from './NotificationsSettingsPage'
 import styles from './SettingsPage.module.css'
 import VerificationPage from './VerificationPage'
-
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 export enum SubPage {
   ACCOUNT = 'account',
@@ -79,7 +79,6 @@ type OwnProps = {
   notificationSettings: Notifications
   emailFrequency: EmailFrequency
   pushNotificationSettings: PushNotifications
-  castMethod: CastMethod
 
   getNotificationSettings: () => void
   getPushNotificationSettings: () => void
@@ -92,7 +91,6 @@ type OwnProps = {
     isOn: boolean
   ) => void
   updateEmailFrequency: (frequency: EmailFrequency) => void
-  updateCastMethod: (castMethod: CastMethod) => void
   recordSignOut: (callback?: () => void) => void
   showMatrix: boolean
 }
@@ -117,8 +115,6 @@ const SettingsPage = (props: SettingsPageProps) => {
     theme,
     toggleTheme,
     goToRoute,
-    castMethod,
-    updateCastMethod,
     getNotificationSettings,
     getPushNotificationSettings,
     showMatrix
@@ -168,7 +164,6 @@ const SettingsPage = (props: SettingsPageProps) => {
     const SubPageComponent = SubPages[subPage]
     return <SubPageComponent {...props} />
   }
-  const isIOS = getIsIOS()
 
   const renderThemeSlider = () => {
     const options = [
@@ -251,34 +246,6 @@ const SettingsPage = (props: SettingsPageProps) => {
             >
               {renderThemeSlider()}
             </Row>
-            {isIOS && NATIVE_MOBILE && (
-              <Row
-                prefix={
-                  <i className='emoji small speaker-with-three-sound-waves' />
-                }
-                title='Cast to Devices'
-                body={messages.cast}
-              >
-                <TabSlider
-                  isMobile
-                  fullWidth
-                  options={[
-                    {
-                      key: 'airplay',
-                      text: 'Airplay'
-                    },
-                    {
-                      key: 'chromecast',
-                      text: 'Chromecast'
-                    }
-                  ]}
-                  selected={castMethod}
-                  onSelectOption={(method: CastMethod) => {
-                    updateCastMethod(method)
-                  }}
-                />
-              </Row>
-            )}
           </Grouping>
           <Grouping>
             <Row

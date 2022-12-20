@@ -6,6 +6,7 @@
  */
 
 #import "AppDelegate.h"
+#import "RNBootSplash.h"
 
 #import <GoogleCast/GoogleCast.h>
 #import <React/RCTBridge.h>
@@ -33,12 +34,11 @@
     return [hexString copy];
 }
 
-
-- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url
-  sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+- (BOOL)application:(UIApplication *)application
+   openURL:(NSURL *)url
+   options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
 {
-  return [RCTLinkingManager application:application openURL:url
-                      sourceApplication:sourceApplication annotation:annotation];
+  return [RCTLinkingManager application:application openURL:url options:options];
 }
 
 // Only if your app is using [Universal Links](https://developer.apple.com/library/prerelease/ios/documentation/General/Conceptual/AppSearch/UniversalLinks.html).
@@ -69,10 +69,7 @@
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
 
-  // https://facebook.github.io/react-native/docs/running-on-device.html#3-build-app-for-release
-  UIView* launchScreenView = [[[NSBundle mainBundle] loadNibNamed:@"LaunchScreen" owner:self options:nil] objectAtIndex:0];
-  launchScreenView.frame = self.window.bounds;
-  rootView.loadingView = launchScreenView;
+  [RNBootSplash initWithStoryboard:@"BootSplash" rootView:rootView];
 
   [FIRApp configure];
 

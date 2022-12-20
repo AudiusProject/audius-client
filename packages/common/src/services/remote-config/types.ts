@@ -117,7 +117,32 @@ export enum IntKeys {
   /**
    * The interval between polls to DN for updates to the challenge being claimed to check if it has been indexed as complete.
    */
-  CHALLENGE_CLAIM_COMPLETION_POLL_FREQUENCY_MS = 'CHALLENGE_CLAIM_COMPLETION_POLL_FREQUENCY_MS'
+  CHALLENGE_CLAIM_COMPLETION_POLL_FREQUENCY_MS = 'CHALLENGE_CLAIM_COMPLETION_POLL_FREQUENCY_MS',
+
+  /**
+   * Minimum AUDIO required to purchase in the BuyAudio modal
+   */
+  MIN_AUDIO_PURCHASE_AMOUNT = 'MIN_AUDIO_PURCHASE_AMOUNT',
+
+  /**
+   * Maximum AUDIO required to purchase in the BuyAudio modal
+   */
+  MAX_AUDIO_PURCHASE_AMOUNT = 'MAX_AUDIO_PURCHASE_AMOUNT',
+
+  /**
+   * The time to delay between polls of the user wallet when performing a purchase of $AUDIO
+   */
+  BUY_AUDIO_WALLET_POLL_DELAY_MS = 'BUY_AUDIO_WALLET_POLL_DELAY_MS',
+
+  /**
+   * The maximum amount of times to poll the user wallet before giving up on an $AUDIO purchase
+   */
+  BUY_AUDIO_WALLET_POLL_MAX_RETRIES = 'BUY_AUDIO_WALLET_POLL_MAX_RETRIES',
+
+  /**
+   * The allowed slippage percentage/padding percentage for the BuyAudio Modal
+   */
+  BUY_AUDIO_SLIPPAGE = 'BUY_AUDIO_SLIPPAGE'
 }
 
 export enum BooleanKeys {
@@ -258,7 +283,22 @@ export enum StringKeys {
   REWARDS_ATTESTATION_ENDPOINTS = 'REWARDS_ATTESTATION_ENDPOINTS',
 
   /** Minimum required version for the app */
-  MIN_APP_VERSION = 'MIN_APP_VERSION'
+  MIN_APP_VERSION = 'MIN_APP_VERSION',
+
+  /** Preset amounts for the Buy Audio modal */
+  BUY_AUDIO_PRESET_AMOUNTS = 'BUY_AUDIO_PRESET_AMOUNTS',
+
+  /** Allowed Countries for Coinbase Pay */
+  COINBASE_PAY_ALLOWED_COUNTRIES = 'COINBASE_PAY_ALLOWED_COUNTRIES',
+
+  /** Denied Regions for Coinbase Pay */
+  COINBASE_PAY_DENIED_REGIONS = 'COINBASE_PAY_DENIED_REGIONS',
+
+  /** Allowed Countries for Link by Stripe */
+  STRIPE_ALLOWED_COUNTRIES = 'STRIPE_ALLOWED_COUNTRIES',
+
+  /** Denied Regions for Link by Stripe */
+  STRIPE_DENIED_REGIONS = 'STRIPE_DENIED_REGIONS'
 }
 
 export type AllRemoteConfigKeys =

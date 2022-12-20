@@ -1,16 +1,12 @@
 import { useCallback } from 'react'
 
-import {
-  getNotificationEntities,
-  getNotificationUser
-} from 'audius-client/src/common/store/notifications/selectors'
-import type { UserSubscription } from 'audius-client/src/common/store/notifications/types'
-import { Entity } from 'audius-client/src/common/store/notifications/types'
-import { profilePage } from 'audius-client/src/utils/route'
+import type { UserSubscriptionNotification as UserSubscriptionNotificationType } from '@audius/common'
+import { useProxySelector, notificationsSelectors } from '@audius/common'
 import { View } from 'react-native'
+import { useSelector } from 'react-redux'
 
 import IconStars from 'app/assets/images/iconStars.svg'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { useNotificationNavigation } from 'app/hooks/useNotificationNavigation'
 
 import {
   NotificationHeader,
@@ -21,8 +17,7 @@ import {
   UserNameLink,
   ProfilePicture
 } from '../Notification'
-import { getEntityRoute, getEntityScreen } from '../Notification/utils'
-import { useDrawerNavigation } from '../useDrawerNavigation'
+const { getNotificationEntities, getNotificationUser } = notificationsSelectors
 
 const messages = {
   title: 'New Release',
@@ -31,7 +26,7 @@ const messages = {
 }
 
 type UserSubscriptionNotificationProps = {
-  notification: UserSubscription
+  notification: UserSubscriptionNotificationType
 }
 
 export const UserSubscriptionNotification = (
@@ -39,41 +34,19 @@ export const UserSubscriptionNotification = (
 ) => {
   const { notification } = props
   const { entityType } = notification
-  const navigation = useDrawerNavigation()
-  const user = useSelectorWeb((state) =>
-    getNotificationUser(state, notification)
-  )
-  const entities = useSelectorWeb(
+  const navigation = useNotificationNavigation()
+  const user = useSelector((state) => getNotificationUser(state, notification))
+  const entities = useProxySelector(
     (state) => getNotificationEntities(state, notification),
-    isEqual
+    [notification]
   )
 
   const uploadCount = entities?.length ?? 0
   const isSingleUpload = uploadCount === 1
 
   const handlePress = useCallback(() => {
-    if (entityType === Entity.Track && !isSingleUpload) {
-      if (user) {
-        navigation.navigate({
-          native: {
-            screen: 'Profile',
-            params: { handle: user.handle, fromNotifications: true }
-          },
-          web: {
-            route: profilePage(user.handle)
-          }
-        })
-      }
-    } else {
-      if (entities) {
-        const [entity] = entities
-        navigation.navigate({
-          native: getEntityScreen(entity),
-          web: { route: getEntityRoute(entity) }
-        })
-      }
-    }
-  }, [entityType, isSingleUpload, navigation, user, entities])
+    navigation.navigate(notification)
+  }, [navigation, notification])
 
   if (!user || !entities) return null
 

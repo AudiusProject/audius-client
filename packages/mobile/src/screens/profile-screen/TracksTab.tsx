@@ -1,50 +1,68 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
-import type { RouteProp } from '@react-navigation/core'
-import { useRoute } from '@react-navigation/core'
-import { tracksActions } from 'audius-client/src/common/store/pages/profile/lineups/tracks/actions'
 import {
-  getProfileTracksLineup,
-  getProfileUserHandle
-} from 'audius-client/src/common/store/pages/profile/selectors'
+  profilePageSelectors,
+  profilePageTracksLineupActions as tracksActions,
+  useProxySelector
+} from '@audius/common'
+import { useDispatch } from 'react-redux'
 
 import { Lineup } from 'app/components/lineup'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
 import { EmptyProfileTile } from './EmptyProfileTile'
-import { getIsOwner, useSelectProfile } from './selectors'
+import { useIsProfileLoaded, useSelectProfile } from './selectors'
+const { getProfileTracksLineup } = profilePageSelectors
 
 export const TracksTab = () => {
-  const { params } =
-    useRoute<RouteProp<{ Tracks: { handle: string } }, 'Tracks'>>()
-  const lineup = useSelectorWeb(getProfileTracksLineup, isEqual)
-  const dispatchWeb = useDispatchWeb()
+  const isProfileLoaded = useIsProfileLoaded()
+  const dispatch = useDispatch()
 
-  const profileHandle = useSelectorWeb(getProfileUserHandle)
-  const isOwner = useSelectorWeb(getIsOwner)
-
-  const isProfileLoaded =
-    profileHandle === params?.handle ||
-    (params?.handle === 'accountUser' && isOwner)
-
-  const { user_id, track_count, _artist_pick } = useSelectProfile([
+  const { handle, user_id, track_count, _artist_pick } = useSelectProfile([
+    'handle',
     'user_id',
     'track_count',
     '_artist_pick'
   ])
 
-  // TODO: use fetchPayload (or change Remixes page)
+  const handleLower = handle.toLowerCase()
+
+  const lineup = useProxySelector(
+    (state) => getProfileTracksLineup(state, handleLower),
+    [handleLower]
+  )
+
+  useEffect(() => {
+    if (isProfileLoaded) {
+      dispatch(
+        tracksActions.fetchLineupMetadatas(
+          undefined,
+          undefined,
+          undefined,
+          { userId: user_id },
+          { handle: handleLower }
+        )
+      )
+    }
+  }, [dispatch, isProfileLoaded, user_id, handleLower])
+
   const loadMore = useCallback(
     (offset: number, limit: number) => {
-      dispatchWeb(
-        tracksActions.fetchLineupMetadatas(offset, limit, false, {
-          userId: user_id
-        })
+      dispatch(
+        tracksActions.fetchLineupMetadatas(
+          offset,
+          limit,
+          false,
+          {
+            userId: user_id
+          },
+          { handle }
+        )
       )
     },
-    [dispatchWeb, user_id]
+    [dispatch, user_id, handle]
   )
+
+  if (!lineup) return null
 
   /**
    * If the profile isn't loaded yet, pass the lineup an empty entries
@@ -55,7 +73,7 @@ export const TracksTab = () => {
       leadingElementId={_artist_pick}
       listKey='profile-tracks'
       actions={tracksActions}
-      lineup={isProfileLoaded ? lineup : { ...lineup, entries: [] }}
+      lineup={lineup}
       limit={track_count}
       loadMore={loadMore}
       disableTopTabScroll

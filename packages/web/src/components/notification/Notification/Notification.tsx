@@ -1,16 +1,11 @@
+import {
+  notificationsSelectors,
+  Notification as Notifications,
+  NotificationType,
+  CommonState
+} from '@audius/common'
 import { useSelector } from 'react-redux'
 
-import { CommonState } from 'common/store'
-import {
-  getNotificationEntities,
-  getNotificationEntity,
-  getNotificationUser,
-  getNotificationUsers
-} from 'common/store/notifications/selectors'
-import {
-  Notification as Notifications,
-  NotificationType
-} from 'common/store/notifications/types'
 import ErrorWrapper from 'components/error-wrapper/ErrorWrapper'
 
 import { AddTrackToPlaylistNotification } from './AddTrackToPlaylistNotification'
@@ -22,6 +17,7 @@ import { MilestoneNotification } from './MilestoneNotification'
 import { RemixCosignNotification } from './RemixCosignNotification'
 import { RemixCreateNotification } from './RemixCreateNotification'
 import { RepostNotification } from './RepostNotification'
+import { SupporterDethronedNotification } from './SupporterDethronedNotification'
 import { TierChangeNotification } from './TierChangeNotification'
 import { TipReactionNotification } from './TipReactionNotification'
 import { TipReceivedNotification } from './TipReceivedNotification'
@@ -31,6 +27,12 @@ import { TopSupportingNotification } from './TopSupportingNotification'
 import { TrendingTrackNotification } from './TrendingTrackNotification'
 import { UserSubscriptionNotification } from './UserSubscriptionNotification'
 import { USER_LENGTH_LIMIT } from './utils'
+const {
+  getNotificationEntities,
+  getNotificationEntity,
+  getNotificationUser,
+  getNotificationUsers
+} = notificationsSelectors
 
 type NotificationProps = {
   notification: Notifications
@@ -116,6 +118,10 @@ export const Notification = (props: NotificationProps) => {
       }
       case NotificationType.AddTrackToPlaylist: {
         return <AddTrackToPlaylistNotification notification={notification} />
+      }
+
+      case NotificationType.SupporterDethroned: {
+        return <SupporterDethronedNotification notification={notification} />
       }
       default: {
         return null

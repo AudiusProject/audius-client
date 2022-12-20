@@ -1,6 +1,27 @@
 import { ReactElement, useRef } from 'react'
 
 import {
+  cacheUsersSelectors,
+  profilePageSelectors,
+  topSupportersUserListSelectors,
+  UserListStoreState,
+  supportingUserListSelectors,
+  repostsUserListSelectors,
+  notificationsUserListSelectors,
+  NOTIFICATIONS_USER_LIST_TAG as NOTIFICATION_TAG,
+  mutualsUserListSelectors,
+  MUTUALS_USER_LIST_TAG as MUTUALS_TAG,
+  followingUserListSelectors,
+  followersUserListSelectors,
+  favoritesUserListSelectors,
+  FAVORITES_USER_LIST_TAG as FAVORITES_TAG,
+  FOLLOWERS_USER_LIST_TAG as FOLLOWER_TAG,
+  FOLLOWING_USER_LIST_TAG as FOLLOWING_TAG,
+  REPOSTS_USER_LIST_TAG as REPOST_TAG,
+  SUPPORTING_USER_LIST_TAG as SUPPORTING_TAG,
+  TOP_SUPPORTERS_USER_LIST_TAG as SUPPORTER_TAG
+} from '@audius/common'
+import {
   Modal,
   IconTrophy,
   IconFollowing,
@@ -10,36 +31,23 @@ import {
 
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
 import { useSelector } from 'common/hooks/useSelector'
-import { getUser } from 'common/store/cache/users/selectors'
-import { getProfileUser } from 'common/store/pages/profile/selectors'
-import { getUserList as favoritesSelector } from 'common/store/user-list/favorites/selectors'
-import { getUserList as followersSelector } from 'common/store/user-list/followers/selectors'
-import { getUserList as followingSelector } from 'common/store/user-list/following/selectors'
-import { getUserList as mutualsSelector } from 'common/store/user-list/mutuals/selectors'
-import { USER_LIST_TAG as MUTUALS_TAG } from 'common/store/user-list/mutuals/types'
-import {
-  getPageTitle,
-  getUserList as notificationSelector
-} from 'common/store/user-list/notifications/selectors'
-import { USER_LIST_TAG as NOTIFICATION_TAG } from 'common/store/user-list/notifications/types'
-import { getUserList as repostsSelector } from 'common/store/user-list/reposts/selectors'
-import { getUserList as supportingSelector } from 'common/store/user-list/supporting/selectors'
-import {
-  getUserList as topSupportersSelector,
-  getId as getSupportersId
-} from 'common/store/user-list/top-supporters/selectors'
-import { UserListStoreState } from 'common/store/user-list/types'
 import UserList from 'components/user-list/UserList'
-import { USER_LIST_TAG as FAVORITES_TAG } from 'pages/favorites-page/sagas'
-import { USER_LIST_TAG as FOLLOWER_TAG } from 'pages/followers-page/sagas'
-import { USER_LIST_TAG as FOLLOWING_TAG } from 'pages/following-page/sagas'
-import { USER_LIST_TAG as REPOST_TAG } from 'pages/reposts-page/sagas'
-import { USER_LIST_TAG as SUPPORTING_TAG } from 'pages/supporting-page/sagas'
-import { USER_LIST_TAG as SUPPORTER_TAG } from 'pages/top-supporters-page/sagas'
 import { UserListType } from 'store/application/ui/userListModal/types'
 import { AppState } from 'store/types'
 
 import styles from './UserListModal.module.css'
+const { getUserList: favoritesSelector } = favoritesUserListSelectors
+const { getUserList: followersSelector } = followersUserListSelectors
+const { getUserList: followingSelector } = followingUserListSelectors
+const { getUserList: mutualsSelector } = mutualsUserListSelectors
+const { getPageTitle, getUserList: notificationSelector } =
+  notificationsUserListSelectors
+const { getUserList: repostsSelector } = repostsUserListSelectors
+const { getUserList: supportingSelector } = supportingUserListSelectors
+const { getUserList: topSupportersSelector, getId: getSupportersId } =
+  topSupportersUserListSelectors
+const { getUser } = cacheUsersSelectors
+const { getProfileUser } = profilePageSelectors
 
 type UserListModalProps = {
   userListType: UserListType

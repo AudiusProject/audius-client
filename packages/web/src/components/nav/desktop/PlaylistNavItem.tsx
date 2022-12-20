@@ -1,11 +1,10 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useState, MouseEvent } from 'react'
 
-import { ID, SmartCollectionVariant } from '@audius/common'
+import { ID, SmartCollectionVariant, AccountCollection } from '@audius/common'
 import { IconKebabHorizontal, IconButton } from '@audius/stems'
 import cn from 'classnames'
 import { NavLink, NavLinkProps } from 'react-router-dom'
 
-import { AccountCollection } from 'common/store/account/reducer'
 import Draggable from 'components/dragndrop/Draggable'
 import Droppable from 'components/dragndrop/Droppable'
 import Tooltip from 'components/tooltip/Tooltip'
@@ -182,7 +181,7 @@ export const PlaylistNavItem = ({
                 [styles.hidden]: !isHovering || dragging
               })}
               icon={<IconKebabHorizontal height={11} width={11} />}
-              onClick={(event) => {
+              onClick={(event: MouseEvent) => {
                 event.preventDefault()
                 event.stopPropagation()
                 onClickEdit(id)

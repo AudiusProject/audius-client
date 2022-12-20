@@ -1,25 +1,32 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { Name, Status, BooleanKeys } from '@audius/common'
+import {
+  Name,
+  Status,
+  BooleanKeys,
+  accountSelectors,
+  TwitterProfile,
+  InstagramProfile,
+  accountActions
+} from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconValidationX } from 'assets/img/iconValidationX.svg'
 import { useModalState } from 'common/hooks/useModalState'
-import {
-  TwitterProfile,
-  InstagramProfile,
-  instagramLogin as instagramLoginAction,
-  twitterLogin as twitterLoginAction
-} from 'common/store/account/reducer'
-import { getUserHandle } from 'common/store/account/selectors'
+import { make, TrackEvent, useRecord } from 'common/store/analytics/actions'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 import ModalDrawer from 'pages/audio-rewards-page/components/modals/ModalDrawer'
 import InstagramAccountVerification from 'pages/settings-page/components/InstagramAccountVerified'
 import TwitterAccountVerification from 'pages/settings-page/components/TwitterAccountVerified'
-import { make, TrackEvent, useRecord } from 'store/analytics/actions'
 
 import styles from './SocialProof.module.css'
+
+const {
+  instagramLogin: instagramLoginAction,
+  twitterLogin: twitterLoginAction
+} = accountActions
+const getUserHandle = accountSelectors.getUserHandle
 
 const messages = {
   modalTitle: 'Confirm Your Identity',

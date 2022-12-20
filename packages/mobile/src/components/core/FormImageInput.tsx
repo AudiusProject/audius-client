@@ -1,8 +1,9 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { useField } from 'formik'
 import type { ImageStyle, ViewStyle } from 'react-native'
 import { Animated, Pressable, View } from 'react-native'
+import type { Asset } from 'react-native-image-picker'
 
 import IconUpload from 'app/assets/images/iconUpload.svg'
 import { DynamicImage } from 'app/components/core'
@@ -71,14 +72,27 @@ export const FormImageInput = ({
   const { scale, handlePressIn, handlePressOut } = usePressScaleAnimation(0.9)
 
   const handlePress = useCallback(() => {
-    const handleImageSelected = (image: Image) => {
-      setValue(image)
+    const handleImageSelected = (_image: Image, rawResponse: Asset) => {
+      setValue({
+        url: rawResponse.uri,
+        file: {
+          uri: rawResponse.uri,
+          name: rawResponse.fileName,
+          type: rawResponse.type
+        },
+        source: 'original'
+      })
       setIsLoading(true)
     }
     launchSelectImageActionSheet(handleImageSelected, styles.shareSheet.color)
   }, [setValue, styles.shareSheet.color])
 
   const isDefaultImage = /imageCoverPhotoBlank/.test(url)
+
+  const source = useMemo(
+    () => ({ uri: isDefaultImage ? `https://audius.co/${url}` : url }),
+    [isDefaultImage, url]
+  )
 
   return (
     <Pressable
@@ -88,7 +102,7 @@ export const FormImageInput = ({
       onPressOut={handlePressOut}
     >
       <DynamicImage
-        uri={isDefaultImage ? `https://audius.co/${url}` : url}
+        source={source}
         styles={{
           root: [styles.imageContainer, stylesProp?.imageContainer],
           image: [styles.image, stylesProp?.image]

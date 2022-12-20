@@ -1,7 +1,6 @@
-import { ID, Track } from '@audius/common'
+import { ID, Track, getContext } from '@audius/common'
 
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
 
 type RetrieveUserTracksArgs = {
   handle: string
@@ -24,6 +23,7 @@ export function* retrieveUserTracks({
   limit,
   getUnlisted = false
 }: RetrieveUserTracksArgs): Generator<any, Track[], any> {
+  const apiClient = yield* getContext('apiClient')
   const apiTracks = yield apiClient.getUserTracksByHandle({
     handle,
     currentUserId,

@@ -1,21 +1,35 @@
-import { Suspense, Component, useMemo, ReactNode } from 'react'
+import React, {
+  Suspense,
+  Component,
+  useMemo,
+  ReactNode,
+  useCallback,
+  useState
+} from 'react'
 
-import { ID, Status, Theme, Track, User } from '@audius/common'
+import {
+  ID,
+  Status,
+  Theme,
+  Track,
+  User,
+  formatCount,
+  themeSelectors
+} from '@audius/common'
+import { IconFilter, IconNote, IconHidden } from '@audius/stems'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { each } from 'lodash'
 import moment, { Moment } from 'moment'
-import { connect } from 'react-redux'
+import { connect, useDispatch, useSelector } from 'react-redux'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
-import { getTheme } from 'common/store/ui/theme/selectors'
-import { formatCount } from 'common/utils/formatUtil'
 import Header from 'components/header/desktop/Header'
+import { Input } from 'components/input'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Page from 'components/page/Page'
-import TableOptionsButton from 'components/tracks-table/TableOptionsButton'
-import TracksTable, { alphaSortFn } from 'components/tracks-table/TracksTable'
+import { TracksTable, TracksTableColumn } from 'components/tracks-table'
 import useTabs, { useTabRecalculator } from 'hooks/useTabs/useTabs'
 import { AppState } from 'store/types'
 import lazyWithPreload from 'utils/lazyWithPreload'
@@ -27,13 +41,16 @@ import ArtistProfile from './components/ArtistProfile'
 import {
   fetchDashboard,
   fetchDashboardListenData,
+  fetchDashboardTracks,
   resetDashboard
 } from './store/actions'
 import {
   getDashboardListenData,
   getDashboardStatus,
+  getDashboardTracksStatus,
   makeGetDashboard
 } from './store/selectors'
+const { getTheme } = themeSelectors
 
 const TotalPlaysChart = lazyWithPreload(
   () => import('./components/TotalPlaysChart')
@@ -46,19 +63,6 @@ const StatTile = (props: { title: string; value: any }) => {
       <span className={styles.statTitle}>{props.title}</span>
     </div>
   )
-}
-
-const getNumericColumn = (field: any, overrideTitle?: string) => {
-  const title = field.charAt(0).toUpperCase() + field.slice(1).toLowerCase()
-  return {
-    title: overrideTitle || title,
-    dataIndex: field,
-    key: field,
-    className: cn(styles.numericColumn, `col${title}`),
-    width: 63,
-    sorter: (a: any, b: any) => a[field] - b[field],
-    render: (val: any) => formatCount(val)
-  }
 }
 
 type DataSourceTrack = Track & {
@@ -81,77 +85,22 @@ type TracksTableProps = {
 export const messages = {
   publicTracksTabTitle: 'PUBLIC TRACKS',
   unlistedTracksTabTitle: 'HIDDEN TRACKS',
+  filterInputPlacehoder: 'Filter Tracks',
   thisYear: 'This Year'
 }
 
-const makeColumns = (account: User, isUnlisted: boolean) => {
-  let columns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      width: 350,
-      className: cn(styles.col, 'colName'),
-      sorter: (a: any, b: any) => alphaSortFn(a.name, b.name),
-      render: (val: string, record: DataSourceTrack) => (
-        <div className={styles.trackName}>
-          {val}
-          {record.is_delete ? ' [Deleted By Artist]' : ''}
-        </div>
-      )
-    },
-    {
-      title: 'Date',
-      dataIndex: 'date',
-      key: 'date',
-      width: 50,
-      className: cn(styles.col, 'colDate'),
-      render: (val: any) => moment(val).format('M/D/YY'),
-      sorter: (a: any, b: any) => moment(a.date).diff(moment(b.date))
-    },
-    getNumericColumn('plays')
-  ]
+const tableColumns: TracksTableColumn[] = [
+  'spacer',
+  'trackName',
+  'releaseDate',
+  'length',
+  'plays',
+  'reposts',
+  'overflowMenu'
+]
 
-  if (!isUnlisted) {
-    columns = [
-      ...columns,
-      getNumericColumn('saves', 'favorites'),
-      getNumericColumn('reposts')
-    ]
-  }
-
-  const overflowColumn = {
-    title: '',
-    key: 'optionsButton',
-    className: styles.overflowContainer,
-    render: (val: any, record: any, index: number) => {
-      return (
-        <div className={styles.overflowAdjustment}>
-          <TableOptionsButton
-            isDeleted={record.is_delete}
-            includeEdit={false}
-            handle={account.handle}
-            onClick={(e: any) => e.stopPropagation()}
-            trackId={val.track_id}
-            isFavorited={val.has_current_user_saved}
-            isOwner
-            isArtistPick={account._artist_pick === val.track_id}
-            isUnlisted={record.is_unlisted}
-            index={index}
-            trackTitle={val.name}
-            trackPermalink={val.permalink}
-            hiddenUntilHover={false}
-            includeEmbed={!isUnlisted && !record.is_delete}
-            includeAddToPlaylist={!isUnlisted}
-            includeArtistPick={!isUnlisted}
-          />
-        </div>
-      )
-    }
-  }
-
-  return [...columns, overflowColumn]
-}
+// Pagination Constants
+const tablePageSize = 50
 
 const TracksTableContainer = ({
   onClickRow,
@@ -159,20 +108,47 @@ const TracksTableContainer = ({
   unlistedDataSource,
   account
 }: TracksTableProps) => {
+  const [filterText, setFilterText] = useState('')
+  const dispatch = useDispatch()
+  const tracksStatus = useSelector(getDashboardTracksStatus)
   const tabRecalculator = useTabRecalculator()
 
   const tabHeaders = useMemo(
     () => [
       {
         text: messages.publicTracksTabTitle,
+        icon: <IconNote />,
         label: messages.publicTracksTabTitle
       },
       {
         text: messages.unlistedTracksTabTitle,
-        label: messages.unlistedTracksTabTitle
+        icon: <IconHidden />,
+        label: messages.unlistedTracksTabTitle,
+        disabled: !unlistedDataSource.length,
+        disabledTooltipText: 'You have no hidden tracks'
       }
     ],
-    []
+    [unlistedDataSource]
+  )
+
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+    setFilterText(val)
+  }
+
+  const filteredListedData = listedDataSource.filter((data) =>
+    data.title.toLowerCase().includes(filterText.toLowerCase())
+  )
+
+  const filteredUnlistedData = unlistedDataSource.filter((data) =>
+    data.title.toLowerCase().includes(filterText.toLowerCase())
+  )
+
+  const handleFetchPage = useCallback(
+    (page: number) => {
+      dispatch(fetchDashboardTracks(page * tablePageSize, tablePageSize))
+    },
+    [dispatch]
   )
 
   const tabElements = useMemo(
@@ -182,14 +158,19 @@ const TracksTableContainer = ({
         className={cn(styles.sectionContainer, styles.tabBodyWrapper)}
       >
         <TracksTable
-          dataSource={listedDataSource}
-          limit={5}
-          columns={makeColumns(account, false)}
+          data={filteredListedData}
+          disabledTrackEdit
+          columns={tableColumns}
           onClickRow={onClickRow}
-          didToggleShowTracks={() => {
-            tabRecalculator.recalculate()
-          }}
-          animateTransitions={false}
+          onClickTrackName={onClickRow}
+          loading={tracksStatus === Status.LOADING}
+          fetchPage={handleFetchPage}
+          pageSize={tablePageSize}
+          userId={account.user_id}
+          showMoreLimit={5}
+          onShowMoreToggle={tabRecalculator.recalculate}
+          totalRowCount={account.track_count}
+          isPaginated
         />
       </div>,
       <div
@@ -197,16 +178,31 @@ const TracksTableContainer = ({
         className={cn(styles.sectionContainer, styles.tabBodyWrapper)}
       >
         <TracksTable
-          dataSource={unlistedDataSource}
-          limit={5}
-          columns={makeColumns(account, true)}
+          data={filteredUnlistedData}
+          disabledTrackEdit
+          columns={tableColumns}
           onClickRow={onClickRow}
-          didToggleShowTracks={() => tabRecalculator.recalculate()}
-          animateTransitions={false}
+          onClickTrackName={onClickRow}
+          loading={tracksStatus === Status.LOADING}
+          fetchPage={handleFetchPage}
+          pageSize={tablePageSize}
+          showMoreLimit={5}
+          userId={account.user_id}
+          onShowMoreToggle={tabRecalculator.recalculate}
+          totalRowCount={account.track_count}
+          isPaginated
         />
       </div>
     ],
-    [account, listedDataSource, onClickRow, unlistedDataSource, tabRecalculator]
+    [
+      account,
+      filteredListedData,
+      filteredUnlistedData,
+      handleFetchPage,
+      onClickRow,
+      tabRecalculator,
+      tracksStatus
+    ]
   )
 
   const { tabs, body } = useTabs({
@@ -220,6 +216,16 @@ const TracksTableContainer = ({
   return (
     <div className={styles.tableContainer}>
       <div className={styles.tabBorderProvider}>
+        <div className={styles.filterInputContainer}>
+          <Input
+            placeholder={messages.filterInputPlacehoder}
+            prefix={<IconFilter />}
+            onChange={handleFilterChange}
+            value={filterText}
+            size='small'
+            variant='bordered'
+          />
+        </div>
         <div className={styles.tabContainer}>{tabs}</div>
       </div>
       {body}
@@ -244,14 +250,17 @@ export class ArtistDashboardPage extends Component<
   }
 
   componentDidMount() {
-    this.props.fetchDashboard()
+    this.props.fetchDashboard(0, tablePageSize)
     TotalPlaysChart.preload()
   }
 
   componentDidUpdate() {
-    const trackCount = this.props.account?.track_count || 0
-    if (!(trackCount > 0)) {
-      this.props.goToRoute(TRENDING_PAGE)
+    const { account } = this.props
+    if (account) {
+      const { track_count = 0 } = account
+      if (!(track_count > 0)) {
+        this.props.goToRoute(TRENDING_PAGE)
+      }
     }
   }
 
@@ -408,7 +417,8 @@ const makeMapStateToProps = () => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  fetchDashboard: () => dispatch(fetchDashboard()),
+  fetchDashboard: (offset?: number, limit?: number) =>
+    dispatch(fetchDashboard(offset, limit)),
   fetchDashboardListenData: (trackIds: ID[], start: string, end: string) =>
     dispatch(fetchDashboardListenData(trackIds, start, end, 'month')),
   resetDashboard: () => dispatch(resetDashboard()),

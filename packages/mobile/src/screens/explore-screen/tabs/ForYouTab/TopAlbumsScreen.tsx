@@ -1,31 +1,39 @@
-import { Status } from '@audius/common'
+import { useEffect } from 'react'
+
 import {
-  getCollections,
-  getStatus
-} from 'audius-client/src/common/store/pages/explore/exploreCollections/selectors'
-import { ExploreCollectionsVariant } from 'audius-client/src/common/store/pages/explore/types'
+  Status,
+  ExploreCollectionsVariant,
+  explorePageCollectionsSelectors,
+  explorePageCollectionsActions
+} from '@audius/common'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { CollectionList } from 'app/components/collection-list'
-import { Screen } from 'app/components/core'
-import { Header } from 'app/components/header'
+import { Screen, ScreenHeader } from 'app/components/core'
 import { WithLoader } from 'app/components/with-loader/WithLoader'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
 import { TOP_ALBUMS } from '../../collections'
+const { getCollections, getStatus } = explorePageCollectionsSelectors
+const { fetch } = explorePageCollectionsActions
 
 export const TopAlbumsScreen = () => {
-  const status = useSelectorWeb(
-    (state) =>
-      getStatus(state, { variant: ExploreCollectionsVariant.TOP_ALBUMS }),
-    isEqual
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch(fetch({ variant: ExploreCollectionsVariant.TOP_ALBUMS }))
+  }, [dispatch])
+
+  const status = useSelector((state) =>
+    getStatus(state, { variant: ExploreCollectionsVariant.TOP_ALBUMS })
   )
-  const exploreData = useSelectorWeb((state) =>
+
+  const exploreData = useSelector((state) =>
     getCollections(state, { variant: ExploreCollectionsVariant.TOP_ALBUMS })
   )
 
   return (
     <Screen>
-      <Header text={TOP_ALBUMS.title} />
+      <ScreenHeader text={TOP_ALBUMS.title} />
       <WithLoader loading={status === Status.LOADING}>
         <CollectionList collection={exploreData} />
       </WithLoader>

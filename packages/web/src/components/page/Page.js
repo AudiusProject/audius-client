@@ -66,6 +66,7 @@ const HeaderContainer = ({ header, containerRef }) => {
           // Need to set a different gradient for
           // browsers that don't support the
           // backdrop-filter frosted glass effect.
+          paddingLeft: `${scrollBarWidth}px`,
           background: isChromeOrSafari
             ? 'linear-gradient(180deg, var(--page-header-gradient-1) 0%, var(--page-header-gradient-1) 20%, var(--page-header-gradient-2) 65%)'
             : 'linear-gradient(180deg, var(--page-header-gradient-1) 0%, var(--page-header-gradient-1) 40%, var(--page-header-gradient-2-alt) 85%)'
@@ -109,7 +110,7 @@ export const Page = (props) => {
             [props.containerClassName]: !!props.containerClassName
           })}
         >
-          <Helmet>
+          <Helmet encodeSpecialCharacters={false}>
             {props.title ? (
               <title>{`${props.title} ${messages.dotAudius}`}</title>
             ) : (
@@ -120,6 +121,11 @@ export const Page = (props) => {
             ) : null}
             {props.canonicalUrl && (
               <link rel='canonical' href={props.canonicalUrl} />
+            )}
+            {props.structuredData && (
+              <script type='application/ld+json'>
+                {JSON.stringify(props.structuredData)}
+              </script>
             )}
           </Helmet>
           {props.header && (
@@ -167,6 +173,7 @@ Page.propTypes = {
   title: PropTypes.string,
   description: PropTypes.string,
   canonicalUrl: PropTypes.string,
+  structuredData: PropTypes.object,
   variant: PropTypes.oneOf(['inset', 'flush']),
   size: PropTypes.oneOf(['medium', 'large']),
   containerRef: PropTypes.node,

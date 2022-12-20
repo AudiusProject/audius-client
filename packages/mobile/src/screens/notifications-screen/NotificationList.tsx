@@ -1,28 +1,31 @@
 import { useCallback, useContext, useEffect, useState } from 'react'
 
-import { Status } from '@audius/common'
+import type { Notification } from '@audius/common'
 import {
-  fetchNotifications,
-  refreshNotifications
-} from 'audius-client/src/common/store/notifications/actions'
-import {
-  getNotificationHasMore,
-  getNotificationStatus,
-  makeGetAllNotifications
-} from 'audius-client/src/common/store/notifications/selectors'
-import type { Notification } from 'audius-client/src/common/store/notifications/types'
+  useProxySelector,
+  Status,
+  notificationsSelectors,
+  notificationsActions
+} from '@audius/common'
+import { useIsFocused } from '@react-navigation/native'
 import type { ViewToken } from 'react-native'
 import { View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { FlatList } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
+
+import { AppDrawerContext } from '../app-drawer-screen'
 
 import { EmptyNotifications } from './EmptyNotifications'
 import { NotificationListItem } from './NotificationListItem'
-import { NotificationsDrawerNavigationContext } from './NotificationsDrawerNavigationContext'
+const { fetchNotifications, refreshNotifications } = notificationsActions
+const {
+  getNotificationHasMore,
+  getNotificationStatus,
+  makeGetAllNotifications
+} = notificationsSelectors
 
 const NOTIFICATION_PAGE_SIZE = 10
 
@@ -56,6 +59,7 @@ const getNotifications = makeGetAllNotifications()
  * Returns a function to check the visibility for an index, and a callback for the Flatlist.
  */
 const useIsViewable = () => {
+  const isFocused = useIsFocused()
   const [viewableMap, setViewableMap] = useState<{ [index: number]: boolean }>(
     {}
   )
@@ -94,25 +98,25 @@ const useIsViewable = () => {
   )
 
   return [
-    (index: number) => viewableMap[index] !== undefined,
+    (index: number) => isFocused && viewableMap[index] !== undefined,
     onViewableItemsChanged
   ] as [(index: number) => boolean, typeof onViewableItemsChanged]
 }
 
 export const NotificationList = () => {
   const styles = useStyles()
-  const dispatchWeb = useDispatchWeb()
-  const notifications = useSelectorWeb(getNotifications, isEqual)
-  const status = useSelectorWeb(getNotificationStatus)
-  const hasMore = useSelectorWeb(getNotificationHasMore)
+  const dispatch = useDispatch()
+  const notifications = useProxySelector(getNotifications, [])
+  const status = useSelector(getNotificationStatus)
+  const hasMore = useSelector(getNotificationHasMore)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
-  const { gesturesDisabled } = useContext(NotificationsDrawerNavigationContext)
+  const { gesturesDisabled } = useContext(AppDrawerContext)
 
   const handleRefresh = useCallback(() => {
     setIsRefreshing(true)
-    dispatchWeb(refreshNotifications())
-  }, [dispatchWeb])
+    dispatch(refreshNotifications())
+  }, [dispatch])
 
   useEffect(() => {
     if (status !== Status.LOADING) {
@@ -122,9 +126,9 @@ export const NotificationList = () => {
 
   const handleEndReached = useCallback(() => {
     if (status !== Status.LOADING && hasMore) {
-      dispatchWeb(fetchNotifications(NOTIFICATION_PAGE_SIZE))
+      dispatch(fetchNotifications(NOTIFICATION_PAGE_SIZE))
     }
-  }, [status, dispatchWeb, hasMore])
+  }, [status, dispatch, hasMore])
 
   const [isVisible, visibilityCallback] = useIsViewable()
 

@@ -1,6 +1,17 @@
 import { PureComponent } from 'react'
 
-import { Name, TimeRange } from '@audius/common'
+import {
+  Name,
+  TimeRange,
+  GENRES,
+  accountSelectors,
+  lineupSelectors,
+  trendingPageLineupActions,
+  trendingPageSelectors,
+  trendingPageActions,
+  playerSelectors,
+  queueSelectors
+} from '@audius/common'
 import {
   push as pushRoute,
   replace as replaceRoute
@@ -8,34 +19,37 @@ import {
 import { connect } from 'react-redux'
 import { matchPath, withRouter } from 'react-router-dom'
 
-import { getHasAccount } from 'common/store/account/selectors'
-import { makeGetLineupMetadatas } from 'common/store/lineup/selectors'
-import * as trendingPageActions from 'common/store/pages/trending/actions'
-import {
-  trendingActions,
-  trendingAllTimeActions,
-  trendingMonthActions,
-  trendingWeekActions
-} from 'common/store/pages/trending/lineup/actions'
-import {
+import { make } from 'common/store/analytics/actions'
+import { openSignOn } from 'common/store/pages/signon/actions'
+import { isMobile } from 'utils/clientUtil'
+import { getPathname, TRENDING_GENRES } from 'utils/route'
+import { createSeoDescription } from 'utils/seo'
+const { makeGetCurrent } = queueSelectors
+
+const { getBuffering, getPlaying } = playerSelectors
+const {
   getDiscoverTrendingAllTimeLineup,
   getDiscoverTrendingMonthLineup,
   getDiscoverTrendingWeekLineup,
   getLastFetchedTrendingGenre,
   getTrendingGenre,
   getTrendingTimeRange
-} from 'common/store/pages/trending/selectors'
-import { makeGetCurrent } from 'common/store/queue/selectors'
-import { GENRES } from 'common/utils/genres'
-import { openSignOn } from 'pages/sign-on/store/actions'
-import { make } from 'store/analytics/actions'
-import { getBuffering, getPlaying } from 'store/player/selectors'
-import { isMobile } from 'utils/clientUtil'
-import { getPathname, TRENDING_GENRES } from 'utils/route'
+} = trendingPageSelectors
+const {
+  trendingActions,
+  trendingAllTimeActions,
+  trendingMonthActions,
+  trendingWeekActions
+} = trendingPageLineupActions
+const { makeGetLineupMetadatas } = lineupSelectors
+const getHasAccount = accountSelectors.getHasAccount
 
 const messages = {
   trendingTitle: 'Trending',
-  trendingDescription: "Listen to what's trending on the Audius platform"
+  pageTitle: "Listen to what's trending on the Audius platform",
+  trendingDescription: createSeoDescription(
+    "Listen to what's trending on the Audius platform"
+  )
 }
 
 // Dynamically dispatch call to a lineup action based on a timeRange
@@ -168,6 +182,7 @@ class TrendingPageProvider extends PureComponent {
   render() {
     const childProps = {
       trendingTitle: messages.trendingTitle,
+      pageTitle: messages.pageTitle,
       trendingDescription: messages.trendingDescription,
       trending: this.props.trending,
       trendingWeek: this.props.trendingWeek,

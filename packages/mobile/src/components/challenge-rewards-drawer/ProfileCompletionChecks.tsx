@@ -1,19 +1,20 @@
 import { useCallback } from 'react'
 
-import { getAccountUser } from 'audius-client/src/common/store/account/selectors'
-import { getCompletionStages } from 'audius-client/src/common/store/challenges/selectors/profile-progress'
+import { accountSelectors, challengesSelectors } from '@audius/common'
 import { StyleSheet, View } from 'react-native'
+import { useSelector } from 'react-redux'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import IconValidationCheck from 'app/assets/images/iconValidationCheck.svg'
 import Text from 'app/components/text'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import type { ProfileTabScreenParamList } from 'app/screens/app-screen/ProfileTabScreen'
 import type { ThemeColors } from 'app/utils/theme'
 
 import Button, { ButtonType } from '../button'
+const { getCompletionStages } = challengesSelectors
+const { getAccountUser } = accountSelectors
 
 const messages = {
   profileCheckNameAndHandle: 'Name & Handle',
@@ -63,8 +64,8 @@ export const ProfileCompletionChecks = ({
   isComplete: boolean
   onClose: () => void
 }) => {
-  const currentUser = useSelectorWeb(getAccountUser)
-  const completionStages = useSelectorWeb(getCompletionStages)
+  const currentUser = useSelector(getAccountUser)
+  const completionStages = useSelector(getCompletionStages)
   const styles = useThemedStyles(createStyles)
   const navigation = useNavigation<ProfileTabScreenParamList>()
   const goToProfile = useCallback(() => {

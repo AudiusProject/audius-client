@@ -1,18 +1,21 @@
 import { useCallback } from 'react'
 
+import {
+  formatNumberCommas,
+  accountSelectors,
+  tippingSelectors
+} from '@audius/common'
 import { useNavigation } from '@react-navigation/native'
-import { getAccountUser } from 'audius-client/src/common/store/account/selectors'
-import { getSendTipData } from 'audius-client/src/common/store/tipping/selectors'
-import { formatNumberCommas } from 'audius-client/src/common/utils/formatUtil'
+import { Platform } from 'react-native'
+import { useSelector } from 'react-redux'
 
 import IconCheck from 'app/assets/images/iconCheck.svg'
 import IconRemove from 'app/assets/images/iconRemove.svg'
 import { TextButton } from 'app/components/core'
 import { TwitterButton } from 'app/components/twitter-button'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { make } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 import { EventNames } from 'app/types/analytics'
-import { make } from 'app/utils/analytics'
 
 import { TopBarIconButton } from '../app-screen'
 
@@ -20,13 +23,19 @@ import { DescriptionText } from './DescriptionText'
 import { ReceiverDetails } from './ReceiverDetails'
 import { TipHeader } from './TipHeader'
 import { TipScreen } from './TipScreen'
+const { getSendTipData } = tippingSelectors
+const getAccountUser = accountSelectors.getAccountUser
 
 const messages = {
   title: 'Tip Sent',
+  // NOTE: Send tip -> Send $AUDIO change
+  titleAlt: '$AUDIO Sent', // iOS only
   description: 'Share your support on Twitter!',
   done: 'Done',
   twitterCopyPrefix: 'I just tipped ',
-  twitterCopySuffix: ' $AUDIO on @AudiusProject #Audius #AUDIOTip'
+  twitterCopyPrefixAlt: 'I just sent ', // iOS only
+  twitterCopySuffix: ' $AUDIO on @AudiusProject #Audius #AUDIOTip',
+  twitterCopySuffixAlt: ' $AUDIO on @AudiusProject #Audius #AUDIO' // iOS only
 }
 
 const useStyles = makeStyles(({ spacing }) => ({
@@ -39,12 +48,12 @@ const useStyles = makeStyles(({ spacing }) => ({
 }))
 
 export const TipSentScreen = () => {
-  const account = useSelectorWeb(getAccountUser)
+  const account = useSelector(getAccountUser)
   const {
     user: recipient,
     amount: sendAmount,
     source
-  } = useSelectorWeb(getSendTipData)
+  } = useSelector(getSendTipData)
   const styles = useStyles()
   const navigation = useNavigation()
 
@@ -55,7 +64,15 @@ export const TipSentScreen = () => {
       if (recipient.twitter_handle) {
         recipientAndAmount = `@${recipient.twitter_handle} ${formattedSendAmount}`
       }
-      return `${messages.twitterCopyPrefix}${recipientAndAmount}${messages.twitterCopySuffix}`
+      return `${
+        Platform.OS === 'ios'
+          ? messages.twitterCopyPrefixAlt
+          : messages.twitterCopyPrefix
+      }${recipientAndAmount}${
+        Platform.OS === 'ios'
+          ? messages.twitterCopySuffixAlt
+          : messages.twitterCopySuffix
+      }`
     }
     return ''
   }
@@ -66,7 +83,7 @@ export const TipSentScreen = () => {
 
   return (
     <TipScreen
-      title={messages.title}
+      title={Platform.OS === 'ios' ? messages.titleAlt : messages.title}
       topbarLeft={<TopBarIconButton icon={IconRemove} onPress={handleClose} />}
     >
       <TipHeader status='sent' />

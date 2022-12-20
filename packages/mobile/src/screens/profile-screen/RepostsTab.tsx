@@ -1,29 +1,46 @@
-import { makeGetLineupMetadatas } from 'audius-client/src/common/store/lineup/selectors'
-import { feedActions } from 'audius-client/src/common/store/pages/profile/lineups/feed/actions'
-import { getProfileFeedLineup } from 'audius-client/src/common/store/pages/profile/selectors'
+import { useMemo } from 'react'
+
+import {
+  profilePageSelectors,
+  profilePageFeedLineupActions as feedActions,
+  useProxySelector
+} from '@audius/common'
 
 import { Lineup } from 'app/components/lineup'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
 import { EmptyProfileTile } from './EmptyProfileTile'
 import { useSelectProfile } from './selectors'
 
-const getUserFeedMetadatas = makeGetLineupMetadatas(getProfileFeedLineup)
+const { getProfileFeedLineup } = profilePageSelectors
 
 export const RepostsTab = () => {
-  const lineup = useSelectorWeb(getUserFeedMetadatas, isEqual)
+  const { handle } = useSelectProfile(['handle'])
+  const handleLower = handle.toLowerCase()
+
+  const lineup = useProxySelector(
+    (state) => getProfileFeedLineup(state, handleLower),
+    [handleLower]
+  )
   const { repost_count } = useSelectProfile(['repost_count'])
+
+  const extraFetchOptions = useMemo(
+    () => ({ handle: handleLower }),
+    [handleLower]
+  )
+
+  if (!lineup) return null
 
   return (
     <Lineup
       listKey='profile-reposts'
+      selfLoad
       actions={feedActions}
       lineup={lineup}
-      selfLoad
       limit={repost_count}
       disableTopTabScroll
       ListEmptyComponent={<EmptyProfileTile tab='reposts' />}
       showsVerticalScrollIndicator={false}
+      extraFetchOptions={extraFetchOptions}
     />
   )
 }

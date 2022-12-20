@@ -1,4 +1,4 @@
-import type { ShareType } from 'audius-client/src/common/store/ui/share-modal/types'
+import type { ShareType } from '@audius/common'
 
 const shareTypeMap: Record<ShareType, string> = {
   track: 'Track',
@@ -11,8 +11,10 @@ const shareTypeMap: Record<ShareType, string> = {
 export const messages = {
   modalTitle: (asset: ShareType) => `Share ${shareTypeMap[asset]}`,
   twitter: 'Share to Twitter',
+  instagramStory: 'Share to Instagram Story',
   tikTok: 'Share Sound to TikTok',
   copyLink: (asset: ShareType) => `Copy Link to ${shareTypeMap[asset]}`,
+  shareToStoryError: 'Sorry, something went wrong.',
   shareSheet: (asset: ShareType) => `Share ${asset} via...`,
   toast: (asset: ShareType) => `Copied Link to ${shareTypeMap[asset]}`,
   trackShareText: (title: string, handle: string) =>
@@ -23,5 +25,8 @@ export const messages = {
     `Check out ${albumName} by ${handle} @AudiusProject #Audius`,
   playlistShareText: (playlistName: string, handle: string) =>
     `Check out ${playlistName} by ${handle} @AudiusProject #Audius`,
+  loadingStoryModalTitle: 'Generating Story',
+  loadingInstagramStorySubtitle: 'Preparing to open Instagram',
+  cancel: 'Cancel',
   nftPlaylistShareText: ''
 }

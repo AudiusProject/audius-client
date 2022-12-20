@@ -1,13 +1,15 @@
-import { call, select } from 'typed-redux-saga/macro'
+import { accountSelectors } from '@audius/common'
+import { call, select } from 'typed-redux-saga'
 
-import { getUserId } from 'common/store/account/selectors'
+import { LineupSagas } from 'common/store/lineup/sagas'
 import { retrieveUserTracks } from 'common/store/pages/profile/lineups/tracks/retrieveUserTracks'
 import {
   PREFIX,
   moreByActions
 } from 'pages/deleted-page/store/lineups/more-by/actions'
 import { getLineup } from 'pages/deleted-page/store/selectors'
-import { LineupSagas } from 'store/lineup/sagas'
+import { waitForRead } from 'utils/sagaHelpers'
+const getUserId = accountSelectors.getUserId
 
 function* getTracks({
   payload
@@ -17,6 +19,8 @@ function* getTracks({
   payload: { handle: string }
 }) {
   const { handle } = payload
+
+  yield* waitForRead()
   const currentUserId = yield* select(getUserId)
   const processed = yield* call(retrieveUserTracks, {
     handle,

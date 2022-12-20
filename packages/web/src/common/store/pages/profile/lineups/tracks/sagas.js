@@ -1,32 +1,43 @@
-import { Kind } from '@audius/common'
-import { all, call, select, takeEvery, put } from 'redux-saga/effects'
+import {
+  Kind,
+  accountSelectors,
+  cacheTracksActions,
+  cacheTracksSelectors,
+  cacheUsersSelectors,
+  profilePageSelectors,
+  TracksSortMode,
+  profilePageTracksLineupActions as tracksActions,
+  profilePageTracksLineupActions as lineupActions,
+  tracksSocialActions,
+  waitForValue,
+  FeatureFlags
+} from '@audius/common'
+import {
+  all,
+  call,
+  select,
+  takeEvery,
+  put,
+  getContext
+} from 'redux-saga/effects'
 
-import { getUserId } from 'common/store/account/selectors'
-import { DELETE_TRACK } from 'common/store/cache/tracks/actions'
-import { getTrack } from 'common/store/cache/tracks/selectors'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
-import { getUser } from 'common/store/cache/users/selectors'
-import {
-  PREFIX,
-  tracksActions,
-  tracksActions as lineupActions
-} from 'common/store/pages/profile/lineups/tracks/actions'
-import {
-  getProfileUserId,
-  getProfileTracksLineup,
-  getProfileUserHandle
-} from 'common/store/pages/profile/selectors'
-import { SET_ARTIST_PICK } from 'common/store/social/tracks/actions'
-import { LineupSagas } from 'store/lineup/sagas'
-import { waitForValue } from 'utils/sagaHelpers'
-
-import { TracksSortMode } from '../../types'
+import { LineupSagas } from 'common/store/lineup/sagas'
+import { waitForRead } from 'utils/sagaHelpers'
 
 import { retrieveUserTracks } from './retrieveUserTracks'
+const { SET_ARTIST_PICK } = tracksSocialActions
+const { getProfileUserId, getProfileTracksLineup } = profilePageSelectors
+const { getUser } = cacheUsersSelectors
+const { getTrack } = cacheTracksSelectors
+const { DELETE_TRACK } = cacheTracksActions
+const { getUserId, getUserHandle } = accountSelectors
+const PREFIX = tracksActions.prefix
 
-function* getTracks({ offset, limit, payload }) {
-  const handle = yield select(getProfileUserHandle)
+function* getTracks({ offset, limit, payload, handle }) {
+  yield waitForRead()
   const currentUserId = yield select(getUserId)
+  const profileHandle = handle.toLowerCase()
 
   // Wait for user to receive social handles
   // We need to know ahead of time whether we want to request
@@ -35,19 +46,22 @@ function* getTracks({ offset, limit, payload }) {
   const user = yield call(
     waitForValue,
     getUser,
-    {
-      handle: handle.toLowerCase()
-    },
+    { handle: profileHandle },
     (user) => 'twitter_handle' in user
   )
-  const sort = payload.sort === TracksSortMode.POPULAR ? 'plays' : 'date'
+  const sort = payload?.sort === TracksSortMode.POPULAR ? 'plays' : 'date'
   const getUnlisted = true
+  const getFeatureEnabled = yield getContext('getFeatureEnabled')
+  const readArtistPickFromDiscoveryEnabled = yield call(
+    getFeatureEnabled,
+    FeatureFlags.READ_ARTIST_PICK_FROM_DISCOVERY
+  ) ?? false
 
-  if (user._artist_pick) {
+  if (!readArtistPickFromDiscoveryEnabled && user._artist_pick) {
     let [pinnedTrack, processed] = yield all([
       call(retrieveTracks, { trackIds: [user._artist_pick] }),
       call(retrieveUserTracks, {
-        handle,
+        handle: profileHandle,
         currentUserId,
         sort,
         limit,
@@ -90,7 +104,7 @@ function* getTracks({ offset, limit, payload }) {
     }
   } else {
     const processed = yield call(retrieveUserTracks, {
-      handle,
+      handle: profileHandle,
       currentUserId,
       sort,
       limit,
@@ -101,7 +115,8 @@ function* getTracks({ offset, limit, payload }) {
   }
 }
 
-const sourceSelector = (state) => `${PREFIX}:${getProfileUserId(state)}`
+const sourceSelector = (state, handle) =>
+  `${PREFIX}:${getProfileUserId(state, handle)}`
 
 class TracksSagas extends LineupSagas {
   constructor() {
@@ -119,7 +134,10 @@ class TracksSagas extends LineupSagas {
 
 function* watchSetArtistPick() {
   yield takeEvery(SET_ARTIST_PICK, function* (action) {
-    const lineup = yield select(getProfileTracksLineup)
+    const accountHandle = yield select(getUserHandle)
+    const lineup = yield select((state) =>
+      getProfileTracksLineup(state, accountHandle)
+    )
     const updatedOrderUid = []
     for (const [entryUid, order] of Object.entries(lineup.order)) {
       const track = yield select(getTrack, { uid: entryUid })
@@ -131,19 +149,26 @@ function* watchSetArtistPick() {
     updatedOrderUid.sort((a, b) => a.order - b.order)
     const updatedLineupOrder = updatedOrderUid.map(({ uid }) => uid)
 
-    yield put(lineupActions.updateLineupOrder(updatedLineupOrder))
+    yield put(
+      lineupActions.updateLineupOrder(updatedLineupOrder, accountHandle)
+    )
   })
 }
 
 function* watchDeleteTrack() {
   yield takeEvery(DELETE_TRACK, function* (action) {
     const { trackId } = action
-    const lineup = yield select(getProfileTracksLineup)
+    const accountHandle = yield select(getUserHandle)
+    const lineup = yield select((state) =>
+      getProfileTracksLineup(state, accountHandle)
+    )
     const trackLineupEntry = lineup.entries.find(
       (entry) => entry.id === trackId
     )
     if (trackLineupEntry) {
-      yield put(tracksActions.remove(Kind.TRACKS, trackLineupEntry.uid))
+      yield put(
+        tracksActions.remove(Kind.TRACKS, trackLineupEntry.uid, accountHandle)
+      )
     }
   })
 }

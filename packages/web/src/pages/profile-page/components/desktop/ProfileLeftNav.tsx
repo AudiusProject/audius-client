@@ -1,11 +1,11 @@
 import { useCallback } from 'react'
 
-import { ID, Name, FeatureFlags } from '@audius/common'
+import { ID, Name, accountSelectors } from '@audius/common'
 import cn from 'classnames'
 import { animated } from 'react-spring'
 
 import { useSelector } from 'common/hooks/useSelector'
-import { getAccountUser } from 'common/store/account/selectors'
+import { make, useRecord } from 'common/store/analytics/actions'
 import Input from 'components/data-entry/Input'
 import TextArea from 'components/data-entry/TextArea'
 import { SupportingList } from 'components/tipping/support/SupportingList'
@@ -17,13 +17,12 @@ import ProfilePageBadge from 'components/user-badges/ProfilePageBadge'
 import { Type } from 'pages/profile-page/components/SocialLink'
 import SocialLinkInput from 'pages/profile-page/components/SocialLinkInput'
 import { ProfileTags } from 'pages/profile-page/components/desktop/ProfileTags'
-import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
-import { make, useRecord } from 'store/analytics/actions'
 import { UPLOAD_PAGE } from 'utils/route'
 
 import { ProfileBio } from './ProfileBio'
 import { ProfileMutuals } from './ProfileMutuals'
 import styles from './ProfilePage.module.css'
+const getAccountUser = accountSelectors.getAccountUser
 
 const messages = {
   aboutYou: 'About You',
@@ -94,7 +93,6 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
   } = props
 
   const record = useRecord()
-  const isTippingEnabled = getFeatureEnabled(FeatureFlags.TIPPING_ENABLED)
   const accountUser = useSelector(getAccountUser)
 
   const onClickUploadChip = useCallback(() => {
@@ -201,14 +199,13 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
           instagramHandle={instagramHandle}
           tikTokHandle={tikTokHandle}
         />
-        {isTippingEnabled &&
-        (!accountUser || accountUser.user_id !== userId) ? (
+        {!accountUser || accountUser.user_id !== userId ? (
           <OpacityTransition render={renderTipAudioButton} />
         ) : null}
-        {isTippingEnabled && <SupportingList />}
-        {isTippingEnabled && <TopSupporters />}
-        {isArtist ? <ProfileTags goToRoute={goToRoute} tags={tags} /> : null}
+        <SupportingList />
+        <TopSupporters />
         <ProfileMutuals />
+        {isArtist ? <ProfileTags goToRoute={goToRoute} tags={tags} /> : null}
         {isOwner && !isArtist && (
           <UploadChip type='track' variant='nav' onClick={onClickUploadChip} />
         )}

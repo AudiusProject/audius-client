@@ -1,38 +1,49 @@
-import { DefaultSizes, Kind, Status } from '@audius/common'
-import { mergeWith } from 'lodash'
-import { call, put, race, select, take, takeEvery } from 'redux-saga/effects'
-
-import { getAccountUser, getUserId } from 'common/store/account/selectors'
-import * as cacheActions from 'common/store/cache/actions'
-import { retrieveCollections } from 'common/store/cache/collections/utils'
-import { mergeCustomizer } from 'common/store/cache/reducer'
-import { retrieve } from 'common/store/cache/sagas'
-import * as userActions from 'common/store/cache/users/actions'
 import {
-  getUser,
-  getUsers,
-  getUserTimestamps
-} from 'common/store/cache/users/selectors'
-import { removePlaylistLibraryTempPlaylists } from 'common/store/playlist-library/helpers'
+  DefaultSizes,
+  Kind,
+  Status,
+  accountSelectors,
+  cacheActions,
+  cacheUsersSelectors,
+  cacheReducer,
+  cacheUsersActions as userActions,
+  waitForValue,
+  waitForAccount,
+  playlistLibraryHelpers,
+  FeatureFlags
+} from '@audius/common'
+import { mergeWith } from 'lodash'
+import {
+  call,
+  put,
+  race,
+  select,
+  take,
+  takeEvery,
+  getContext
+} from 'redux-saga/effects'
+
+import { retrieveCollections } from 'common/store/cache/collections/utils'
+import { retrieve } from 'common/store/cache/sagas'
 import {
   getSelectedServices,
   getStatus
-} from 'components/service-selection/store/selectors'
-import { fetchServicesFailed } from 'components/service-selection/store/slice'
-import {
-  getAudiusAccountUser,
-  setAudiusAccountUser
-} from 'services/LocalStorage'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
-import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
-import { waitForValue } from 'utils/sagaHelpers'
+} from 'common/store/service-selection/selectors'
+import { fetchServicesFailed } from 'common/store/service-selection/slice'
+import { waitForWrite, waitForRead } from 'utils/sagaHelpers'
 
 import { pruneBlobValues, reformat } from './utils'
+const { removePlaylistLibraryTempPlaylists } = playlistLibraryHelpers
+const { mergeCustomizer } = cacheReducer
+const { getUser, getUsers, getUserTimestamps } = cacheUsersSelectors
+const { getAccountUser, getUserId } = accountSelectors
 
 /**
  * If the user is not a creator, upgrade the user to a creator node.
  */
 export function* upgradeToCreator() {
+  yield waitForWrite()
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const user = yield select(getAccountUser)
 
   // If user already has creator_node_endpoint, do not reselect replica set
@@ -89,6 +100,7 @@ export function* fetchUsers(
   requiredFields = new Set(),
   forceRetrieveFromSource = false
 ) {
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
   return yield call(retrieve, {
     ids: userIds,
     selectFromCache: function* (ids) {
@@ -105,14 +117,17 @@ export function* fetchUsers(
   })
 }
 
-function* retrieveUserByHandle(handle) {
+function* retrieveUserByHandle(handle, retry) {
+  yield waitForRead()
+  const apiClient = yield getContext('apiClient')
   const userId = yield select(getUserId)
   if (Array.isArray(handle)) {
     handle = handle[0]
   }
   const user = yield apiClient.getUserByHandle({
     handle,
-    currentUserId: userId
+    currentUserId: userId,
+    retry
   })
   return user
 }
@@ -122,8 +137,11 @@ export function* fetchUserByHandle(
   requiredFields,
   forceRetrieveFromSource = false,
   shouldSetLoading = true,
-  deleteExistingEntry = false
+  deleteExistingEntry = false,
+  retry = true
 ) {
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  const retrieveFromSource = (handle) => retrieveUserByHandle(handle, retry)
   const { entries: users } = yield call(retrieve, {
     ids: [handle],
     selectFromCache: function* (handles) {
@@ -132,9 +150,9 @@ export function* fetchUserByHandle(
     getEntriesTimestamp: function* (handles) {
       return yield select(getUserTimestamps, { handles })
     },
-    retrieveFromSource: retrieveUserByHandle,
+    retrieveFromSource,
     onBeforeAddToCache: function (users) {
-      return users.map(reformat)
+      return users.map((user) => reformat(user, audiusBackendInstance))
     },
     kind: Kind.USERS,
     idField: 'user_id',
@@ -150,6 +168,7 @@ export function* fetchUserByHandle(
  * @param {number} userId target user id
  */
 export function* fetchUserCollections(userId) {
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
   // Get playlists.
   const playlists = yield call(audiusBackendInstance.getPlaylists, userId)
   const playlistIds = playlists.map((p) => p.playlist_id)
@@ -192,7 +211,9 @@ function* watchAdd() {
 // We use the same mergeCustomizer we use in cacheSagas to merge
 // with the local state.
 function* watchSyncLocalStorageUser() {
+  const localStorage = yield getContext('localStorage')
   function* syncLocalStorageUser(action) {
+    yield waitForAccount()
     const currentUser = yield select(getAccountUser)
     if (!currentUser) return
     const currentId = currentUser.user_id
@@ -203,7 +224,7 @@ function* watchSyncLocalStorageUser() {
     ) {
       const addedUser = action.entries[0].metadata
       // Get existing locally stored user
-      const existing = getAudiusAccountUser()
+      const existing = yield call([localStorage, 'getAudiusAccountUser'])
       // Merge with the new metadata
       const merged = mergeWith({}, existing, addedUser, mergeCustomizer)
       // Remove blob urls if any - blob urls only last for the session so we don't want to store those
@@ -217,7 +238,7 @@ function* watchSyncLocalStorageUser() {
           ? cleaned.playlist_library
           : removePlaylistLibraryTempPlaylists(cleaned.playlist_library)
       // Set user back to local storage
-      setAudiusAccountUser(cleaned)
+      yield call([localStorage, 'setAudiusAccountUser'], cleaned)
     }
   }
   yield takeEvery(cacheActions.ADD_SUCCEEDED, syncLocalStorageUser)
@@ -240,6 +261,7 @@ export function* adjustUserField({ user, fieldName, delta }) {
 }
 
 function* watchFetchProfilePicture() {
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const inProgress = new Set()
   yield takeEvery(
     userActions.FETCH_PROFILE_PICTURE,
@@ -312,6 +334,7 @@ function* watchFetchProfilePicture() {
 }
 
 function* watchFetchCoverPhoto() {
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const inProgress = new Set()
   yield takeEvery(userActions.FETCH_COVER_PHOTO, function* ({ userId, size }) {
     // Unique on id and size
@@ -373,11 +396,24 @@ function* watchFetchCoverPhoto() {
 }
 
 export function* fetchUserSocials({ handle }) {
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const user = yield call(waitForValue, getUser, { handle })
   const socials = yield call(
     audiusBackendInstance.getCreatorSocialHandle,
     user.handle
   )
+
+  // If reading the artist pick from discovery, set _artist_pick on
+  // the user to the value from discovery (set in artist_pick_track_id
+  // on the user).
+  // TODO after migration is complete: replace all usages of
+  // _artist_pick with artist_pick_track_id
+  const getFeatureEnabled = yield getContext('getFeatureEnabled')
+  const readArtistPickFromDiscoveryEnabled = yield call(
+    getFeatureEnabled,
+    FeatureFlags.READ_ARTIST_PICK_FROM_DISCOVERY
+  ) ?? false
+
   yield put(
     cacheActions.update(Kind.USERS, [
       {
@@ -388,7 +424,14 @@ export function* fetchUserSocials({ handle }) {
           tiktok_handle: socials.tikTokHandle || null,
           website: socials.website || null,
           donation: socials.donation || null,
-          _artist_pick: socials.pinnedTrackId || null
+          _artist_pick:
+            (readArtistPickFromDiscoveryEnabled
+              ? user.artist_pick_track_id
+              : socials.pinnedTrackId) || null,
+          artist_pick_track_id:
+            (readArtistPickFromDiscoveryEnabled
+              ? user.artist_pick_track_id
+              : socials.pinnedTrackId) || null
         }
       }
     ])

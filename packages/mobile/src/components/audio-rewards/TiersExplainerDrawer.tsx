@@ -1,16 +1,19 @@
-import { getProfileUserId } from 'audius-client/src/common/store/pages/profile/selectors'
-import type { BadgeTierInfo } from 'audius-client/src/common/store/wallet/utils'
-import { badgeTiers } from 'audius-client/src/common/store/wallet/utils'
+import {
+  profilePageSelectors,
+  badgeTiers,
+  useSelectTierInfo
+} from '@audius/common'
+import type { BadgeTierInfo } from '@audius/common'
 import { Text, View } from 'react-native'
+import { useSelector } from 'react-redux'
 
-import { useSelectTierInfo } from 'app/hooks/useSelectTierInfo'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 
 import { AppDrawer } from '../drawer/AppDrawer'
 
 import { IconAudioBadge } from './IconAudioBadge'
 import { TierText } from './TierText'
+const { getProfileUserId } = profilePageSelectors
 
 export const MODAL_NAME = 'TiersExplainer'
 
@@ -64,8 +67,8 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
 export const TiersExplainerDrawer = () => {
   const styles = useStyles()
 
-  const profileId = useSelectorWeb(getProfileUserId)
-  const { tier, tierNumber } = useSelectTierInfo(profileId)
+  const profileId = useSelector(getProfileUserId)
+  const { tier, tierNumber } = useSelectTierInfo(profileId!)
 
   const { minAudio } = badgeTiers.find(
     (tierReq) => tierReq.tier === tier

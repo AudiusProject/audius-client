@@ -1,9 +1,11 @@
-type Location = {
+export type Location = {
   asn: string
   city: string
   continent_code: string
   country: string
   country_calling_code: string
+  country_code: string
+  country_code_iso3: string
   country_name: string
   currency: string
   in_eu: boolean
@@ -19,10 +21,19 @@ type Location = {
   utc_offset: string
 }
 
+let cachedLocation: Location | null = null
 export const getLocation = async (): Promise<Location | null> => {
   try {
+    if (cachedLocation) {
+      return cachedLocation
+    }
     const res = await fetch('https://ipapi.co/json/')
-    return res.json()
+    const json = await res.json()
+    if (json.error) {
+      throw new Error(json.reason)
+    }
+    cachedLocation = json
+    return json
   } catch (e) {
     console.error(
       `Got error during getLocation call: ${e} | Error message is: ${

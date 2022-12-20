@@ -1,22 +1,29 @@
 import { Component } from 'react'
 
-import { Name, SquareSizes } from '@audius/common'
+import {
+  Name,
+  SquareSizes,
+  getTierForUser,
+  imageBlank as placeholderArt,
+  imageProfilePicEmpty as profilePicEmpty
+} from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { has } from 'lodash'
 import { connect } from 'react-redux'
 import { matchPath } from 'react-router'
 import { withRouter } from 'react-router-dom'
 
-import placeholderArt from 'common/assets/img/imageBlank2x.png'
-import profilePicEmpty from 'common/assets/img/imageProfilePicEmpty2X.png'
-import { getTierForUser } from 'common/store/wallet/utils'
-import { getSearch } from 'components/search-bar/store/selectors'
+import { make } from 'common/store/analytics/actions'
+import {
+  fetchSearch,
+  cancelFetchSearch,
+  clearSearch
+} from 'common/store/search-bar/actions'
+import { getSearch } from 'common/store/search-bar/selectors'
 import Bar from 'components/search/SearchBar'
-import { make } from 'store/analytics/actions'
 import { albumPage, playlistPage, profilePage, getPathname } from 'utils/route'
 
 import styles from './ConnectedSearchBar.module.css'
-import { fetchSearch, cancelFetchSearch, clearSearch } from './store/actions'
 
 class ConnectedSearchBar extends Component {
   state = {

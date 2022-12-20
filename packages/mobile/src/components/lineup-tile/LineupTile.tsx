@@ -1,12 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
-import { getUserId } from 'audius-client/src/common/store/account/selectors'
+import { accountSelectors } from '@audius/common'
 import { Animated, Easing } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import type { LineupTileProps } from 'app/components/lineup-tile/types'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { getPlaying } from 'app/store/audio/selectors'
 
 import { LineupTileActionButtons } from './LineupTileActionButtons'
 import {
@@ -18,6 +16,7 @@ import { LineupTileMetadata } from './LineupTileMetadata'
 import { LineupTileRoot } from './LineupTileRoot'
 import { LineupTileStats } from './LineupTileStats'
 import { LineupTileTopRight } from './LineupTileTopRight'
+const { getUserId } = accountSelectors
 
 export const LineupTile = ({
   children,
@@ -27,9 +26,7 @@ export const LineupTile = ({
   hidePlays,
   hideShare,
   id,
-  imageUrl,
   index,
-  isPlayingUid,
   isTrending,
   isUnlisted,
   onLoad,
@@ -40,13 +37,16 @@ export const LineupTile = ({
   onPressShare,
   onPressTitle,
   playCount,
+  renderImage,
   repostType,
   showArtistPick,
   showRankIcon,
   title,
   item,
   uid,
-  user
+  user,
+  isPlayingUid,
+  TileProps
 }: LineupTileProps) => {
   const {
     has_current_user_reposted,
@@ -55,8 +55,8 @@ export const LineupTile = ({
     save_count
   } = item
   const { _artist_pick, name, user_id } = user
-  const isPlaying = useSelector(getPlaying)
-  const currentUserId = useSelectorWeb(getUserId)
+  const currentUserId = useSelector(getUserId)
+  const isCollection = 'playlist_id' in item
 
   const [artworkLoaded, setArtworkLoaded] = useState(false)
 
@@ -75,14 +75,10 @@ export const LineupTile = ({
         useNativeDriver: true
       }).start()
     }
-  }, [onLoad, isLoaded, index, opacity])
-
-  const handlePress = useCallback(() => {
-    onPress?.({ isPlaying })
-  }, [isPlaying, onPress])
+  }, [onLoad, isLoaded, index, opacity, title])
 
   return (
-    <LineupTileRoot onPress={handlePress}>
+    <LineupTileRoot onPress={onPress} {...TileProps}>
       {showArtistPick && _artist_pick === id ? (
         <LineupTileBannerIcon type={LineupTileBannerIconType.STAR} />
       ) : null}
@@ -99,12 +95,13 @@ export const LineupTile = ({
         <LineupTileMetadata
           artistName={name}
           coSign={coSign}
-          imageUrl={imageUrl}
+          renderImage={renderImage}
           onPressTitle={onPressTitle}
-          isPlaying={isPlayingUid && isPlaying}
           setArtworkLoaded={setArtworkLoaded}
+          uid={uid}
           title={title}
           user={user}
+          isPlayingUid={isPlayingUid}
         />
         {coSign ? <LineupTileCoSign coSign={coSign} /> : null}
         <LineupTileStats
@@ -113,6 +110,7 @@ export const LineupTile = ({
           hidePlays={hidePlays}
           id={id}
           index={index}
+          isCollection={isCollection}
           isTrending={isTrending}
           isUnlisted={isUnlisted}
           playCount={playCount}

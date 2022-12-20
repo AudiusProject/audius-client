@@ -1,18 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import HCaptcha from '@hcaptcha/react-native-hcaptcha'
-import { getHCaptchaStatus } from 'audius-client/src/common/store/pages/audio-rewards/selectors'
-import { HCaptchaStatus } from 'audius-client/src/common/store/pages/audio-rewards/slice'
 import {
-  getModalVisibility,
-  setVisibility
-} from 'audius-client/src/common/store/ui/modals/slice'
+  HCaptchaStatus,
+  audioRewardsPageSelectors,
+  audioRewardsPageActions,
+  modalsActions,
+  modalsSelectors
+} from '@audius/common'
+import HCaptcha from '@hcaptcha/react-native-hcaptcha'
 import type { NativeSyntheticEvent } from 'react-native'
 import Config from 'react-native-config'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { MessageType } from 'app/message/types'
+const { setVisibility } = modalsActions
+const { getModalVisibility } = modalsSelectors
+const { getHCaptchaStatus } = audioRewardsPageSelectors
+const { updateHCaptchaScore } = audioRewardsPageActions
 
 type HCaptchaMessage = {
   data: string
@@ -36,11 +39,11 @@ const REWARD_MODAL_NAME = 'ChallengeRewardsExplainer'
 let hasMessageFired = false
 
 const HCaptchaModal = () => {
-  const dispatchWeb = useDispatchWeb()
-  const isOpen = useSelectorWeb((state) =>
+  const dispatch = useDispatch()
+  const isOpen = useSelector((state) =>
     getModalVisibility(state, HCAPTCHA_MODAL_NAME)
   )
-  const hCaptchaStatus = useSelectorWeb(getHCaptchaStatus)
+  const hCaptchaStatus = useSelector(getHCaptchaStatus)
   const ref = useRef<HCaptchaRef>(null)
   const [hasCode, setHasCode] = useState(false)
 
@@ -62,9 +65,9 @@ const HCaptchaModal = () => {
 
   const handleClose = useCallback(() => {
     hideHCaptcha()
-    dispatchWeb(setVisibility({ modal: HCAPTCHA_MODAL_NAME, visible: false }))
-    dispatchWeb(setVisibility({ modal: REWARD_MODAL_NAME, visible: true }))
-  }, [dispatchWeb, hideHCaptcha])
+    dispatch(setVisibility({ modal: HCAPTCHA_MODAL_NAME, visible: false }))
+    dispatch(setVisibility({ modal: REWARD_MODAL_NAME, visible: true }))
+  }, [dispatch, hideHCaptcha])
 
   useEffect(() => {
     if (hCaptchaStatus === HCaptchaStatus.NONE) {
@@ -85,16 +88,12 @@ const HCaptchaModal = () => {
           if (['cancel', 'error', 'expired'].includes(code)) {
             handleClose()
           } else {
-            dispatchWeb({
-              type: MessageType.UPDATE_HCAPTCHA_SCORE,
-              token: code,
-              isAction: true
-            })
+            dispatch(updateHCaptchaScore({ token: code }))
           }
         }
       }
     },
-    [hasCode, handleClose, dispatchWeb]
+    [hasCode, handleClose, dispatch]
   )
 
   return isOpen ? (

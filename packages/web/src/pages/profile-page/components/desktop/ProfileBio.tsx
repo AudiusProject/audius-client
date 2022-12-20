@@ -1,17 +1,17 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
-import { Name } from '@audius/common'
+import { Name, squashNewLines } from '@audius/common'
+import { ResizeObserver } from '@juggle/resize-observer'
 import cn from 'classnames'
 import { Options } from 'linkifyjs'
 import Linkify from 'linkifyjs/react'
 import { animated } from 'react-spring'
+import useMeasure from 'react-use-measure'
 
 import { ReactComponent as IconCaretDownLine } from 'assets/img/iconCaretDownLine.svg'
 import { ReactComponent as IconCaretUpLine } from 'assets/img/iconCaretUpLine.svg'
-import { squashNewLines } from 'common/utils/formatUtil'
+import { make, useRecord } from 'common/store/analytics/actions'
 import { OpacityTransition } from 'components/transition-container/OpacityTransition'
-import { useSize } from 'hooks/useSize'
-import { make, useRecord } from 'store/analytics/actions'
 
 import SocialLink, { Type } from '../SocialLink'
 
@@ -48,10 +48,11 @@ export const ProfileBio = ({
   instagramHandle,
   tikTokHandle
 }: ProfileBioProps) => {
-  const bioRef = useRef<HTMLDivElement>(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isCollapsible, setIsCollapsible] = useState(false)
-  const bioSize = useSize({ ref: bioRef })
+  const [bioRef, { height: bioSize }] = useMeasure({
+    polyfill: ResizeObserver
+  })
 
   const linkCount = [
     website,
@@ -92,7 +93,7 @@ export const ProfileBio = ({
   const record = useRecord()
 
   const onExternalLinkClick = useCallback(
-    (event) => {
+    (event: { target: { href: string } }) => {
       record(
         make(Name.LINK_CLICKING, {
           url: event.target.href,
@@ -136,7 +137,7 @@ export const ProfileBio = ({
     )
   }, [record, handle, website])
   const onClickDonation = useCallback(
-    (event) => {
+    (event: { target: { href: string } }) => {
       record(
         make(Name.PROFILE_PAGE_CLICK_DONATION, {
           handle: handle.replace('@', ''),

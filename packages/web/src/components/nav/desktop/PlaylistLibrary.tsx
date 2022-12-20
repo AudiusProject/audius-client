@@ -7,42 +7,28 @@ import {
   PlaylistLibrary as PlaylistLibraryType,
   PlaylistLibraryFolder,
   SmartCollectionVariant,
-  FeatureFlags
+  accountSelectors,
+  cacheCollectionsActions,
+  notificationsSelectors,
+  collectionsSocialActions,
+  playlistLibraryActions,
+  playlistLibraryHelpers
 } from '@audius/common'
 import cn from 'classnames'
 import { isEmpty } from 'lodash'
 import { useDispatch } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
-import {
-  getAccountCollectibles,
-  getAccountNavigationPlaylists,
-  getAccountUser,
-  getPlaylistLibrary
-} from 'common/store/account/selectors'
-import { addTrackToPlaylist } from 'common/store/cache/collections/actions'
-import { getPlaylistUpdates } from 'common/store/notifications/selectors'
-import {
-  addPlaylistToFolder,
-  containsTempPlaylist,
-  findInPlaylistLibrary,
-  getPlaylistsNotInLibrary,
-  isInsideFolder,
-  reorderPlaylistLibrary
-} from 'common/store/playlist-library/helpers'
-import { saveSmartCollection } from 'common/store/social/collections/actions'
-import Droppable from 'components/dragndrop/Droppable'
-import { ToastContext } from 'components/toast/ToastContext'
-import { useFlag } from 'hooks/useRemoteConfig'
+import { make, useRecord } from 'common/store/analytics/actions'
 import {
   AUDIO_NFT_PLAYLIST,
   SMART_COLLECTION_MAP
-} from 'pages/smart-collection/smartCollections'
-import { make, useRecord } from 'store/analytics/actions'
+} from 'common/store/smart-collection/smartCollections'
+import Droppable from 'components/dragndrop/Droppable'
+import { ToastContext } from 'components/toast/ToastContext'
 import { setFolderId as setEditFolderModalFolderId } from 'store/application/ui/editFolderModal/slice'
 import { open as openEditPlaylistModal } from 'store/application/ui/editPlaylistModal/slice'
 import { getIsDragging } from 'store/dragndrop/selectors'
-import { update } from 'store/playlist-library/slice'
 import { useSelector } from 'utils/reducer'
 import { audioNftPlaylistPage, getPathname, playlistPage } from 'utils/route'
 
@@ -50,6 +36,24 @@ import navColumnStyles from './NavColumn.module.css'
 import { PlaylistFolderNavItem } from './PlaylistFolderNavItem'
 import styles from './PlaylistLibrary.module.css'
 import { PlaylistNavItem, PlaylistNavLink } from './PlaylistNavItem'
+const { update } = playlistLibraryActions
+const {
+  addPlaylistToFolder,
+  containsTempPlaylist,
+  findInPlaylistLibrary,
+  getPlaylistsNotInLibrary,
+  isInsideFolder,
+  reorderPlaylistLibrary
+} = playlistLibraryHelpers
+const { saveSmartCollection } = collectionsSocialActions
+const { getPlaylistUpdates } = notificationsSelectors
+const { addTrackToPlaylist } = cacheCollectionsActions
+const {
+  getAccountCollectibles,
+  getAccountNavigationPlaylists,
+  getAccountUser,
+  getPlaylistLibrary
+} = accountSelectors
 
 type PlaylistLibraryProps = {
   onClickNavLinkWithAccount: () => void
@@ -113,9 +117,6 @@ const PlaylistLibrary = ({
   const updatesSet = new Set(updates)
   const { dragging, kind: draggingKind } = useSelector(getIsDragging)
   const dispatch = useDispatch()
-  const { isEnabled: isPlaylistFoldersEnabled } = useFlag(
-    FeatureFlags.PLAYLIST_FOLDERS
-  )
   const { toast } = useContext(ToastContext)
   const record = useRecord()
   const [, setIsEditFolderModalOpen] = useModalState('EditFolder')
@@ -150,7 +151,7 @@ const PlaylistLibrary = ({
   }, [audioCollectibles, library, dispatch])
 
   const handleClickEditFolder = useCallback(
-    (folderId) => {
+    (folderId: string) => {
       dispatch(setEditFolderModalFolderId(folderId))
       setIsEditFolderModalOpen(true)
       record(make(Name.FOLDER_OPEN_EDIT, {}))
@@ -159,7 +160,7 @@ const PlaylistLibrary = ({
   )
 
   const handleClickEditPlaylist = useCallback(
-    (playlistId) => {
+    (playlistId: number) => {
       dispatch(openEditPlaylistModal(playlistId))
       record(make(Name.PLAYLIST_OPEN_EDIT_FROM_LIBRARY, {}))
     },
@@ -302,11 +303,7 @@ const PlaylistLibrary = ({
         dragging={dragging}
         draggingKind={draggingKind}
         onClickPlaylist={onClickPlaylist}
-        onClickEdit={
-          isOwner && isPlaylistFoldersEnabled
-            ? handleClickEditPlaylist
-            : undefined
-        }
+        onClickEdit={isOwner ? handleClickEditPlaylist : undefined}
       />
     )
   }

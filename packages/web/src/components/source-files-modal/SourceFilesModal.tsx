@@ -19,11 +19,11 @@ import cn from 'classnames'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Dropdown from 'components/navigation/Dropdown'
 import Switch from 'components/switch/Switch'
-import Dropzone from 'components/upload/Dropzone'
+import { Dropzone } from 'components/upload/Dropzone'
 
 import styles from './SourceFilesModal.module.css'
 
-const MAX_ROWS = 5
+const MAX_ROWS = 10
 
 const messages = {
   title: 'DOWNLOADS & SOURCE FILES',
@@ -32,7 +32,7 @@ const messages = {
   allowDownloads: 'Allow Downloads',
   requireFollowToDownload: 'Require Follow to Download',
   done: 'DONE',
-  maxCapacity: 'Reached upload limit of 5 files.'
+  maxCapacity: 'Reached upload limit of 10 files.'
 }
 
 const defaultDownloadSettings: Download = {
@@ -232,7 +232,7 @@ const SourceFilesView = ({
           [styles.dropzoneDisabled]: atCapacity
         })}
         textAboveIcon={messages.sourceFiles}
-        onDrop={onAdd}
+        onDropAccepted={onAdd}
         type='stem'
         subtitle={atCapacity ? messages.maxCapacity : undefined}
         disableClick={atCapacity}

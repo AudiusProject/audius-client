@@ -6,10 +6,10 @@ import {
   ComponentPropsWithoutRef
 } from 'react'
 
+import { useInstanceVar } from '@audius/common'
 import cn from 'classnames'
 
 import transparentPlaceholderImg from 'assets/img/1x1-transparent.png'
-import useInstanceVar from 'common/hooks/useInstanceVar'
 import Skeleton from 'components/skeleton/Skeleton'
 
 import styles from './DynamicImage.module.css'
@@ -151,9 +151,8 @@ const DynamicImage = (props: DynamicImageProps) => {
     setIsFirstActive,
     immediate
   ])
-
   return (
-    <div className={cn(styles.wrapper, wrapperClassName)} {...other}>
+    <div className={cn(styles.wrapper, wrapperClassName)} {...other} role='img'>
       {useSkeleton && displayImage === placeholder ? (
         <Skeleton className={cn(styles.skeleton, skeletonClassName)} />
       ) : null}

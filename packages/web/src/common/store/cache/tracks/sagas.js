@@ -4,43 +4,41 @@ import {
   SquareSizes,
   Kind,
   Status,
-  makeKindId
+  makeKindId,
+  squashNewLines,
+  formatUrlName,
+  accountSelectors,
+  averageColorActions,
+  cacheTracksSelectors,
+  cacheTracksActions as trackActions,
+  cacheUsersSelectors,
+  cacheActions,
+  waitForAccount,
+  waitForValue
 } from '@audius/common'
 import {
-  all,
   call,
   fork,
+  getContext,
   put,
   select,
   takeEvery,
   takeLatest
 } from 'redux-saga/effects'
 
-import {
-  getAccountUser,
-  getUserId,
-  getUserHandle
-} from 'common/store/account/selectors'
-import { setDominantColors } from 'common/store/average-color/slice'
-import * as cacheActions from 'common/store/cache/actions'
-import * as trackActions from 'common/store/cache/tracks/actions'
-import { getTrack } from 'common/store/cache/tracks/selectors'
+import { make } from 'common/store/analytics/actions'
 import { fetchUsers } from 'common/store/cache/users/sagas'
-import { getUser } from 'common/store/cache/users/selectors'
-import { squashNewLines, formatUrlName } from 'common/utils/formatUtil'
-import * as signOnActions from 'pages/sign-on/store/actions'
-import { fetchCID } from 'services/AudiusBackend'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
-import TrackDownload from 'services/audius-backend/TrackDownload'
-import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
-import { make } from 'store/analytics/actions'
-import { waitForBackendSetup } from 'store/backend/sagas'
-import * as confirmerActions from 'store/confirmer/actions'
-import { confirmTransaction } from 'store/confirmer/sagas'
+import * as confirmerActions from 'common/store/confirmer/actions'
+import { confirmTransaction } from 'common/store/confirmer/sagas'
+import * as signOnActions from 'common/store/pages/signon/actions'
+import { updateProfileAsync } from 'common/store/profile/sagas'
 import { dominantColor } from 'utils/imageProcessingUtil'
-import { waitForValue } from 'utils/sagaHelpers'
+import { waitForWrite } from 'utils/sagaHelpers'
 
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+const { getUser } = cacheUsersSelectors
+const { getTrack } = cacheTracksSelectors
+const setDominantColors = averageColorActions.setDominantColors
+const { getAccountUser, getUserId, getUserHandle } = accountSelectors
 
 function* fetchRepostInfo(entries) {
   const userIds = []
@@ -54,52 +52,6 @@ function* fetchRepostInfo(entries) {
 
   if (userIds.length) {
     yield call(fetchUsers, userIds)
-  }
-}
-
-function* fetchSegment(metadata) {
-  const user = yield call(waitForValue, getUser, { id: metadata.owner_id })
-  const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
-    user.creator_node_endpoint
-  )
-  if (!metadata.track_segments[0]) return
-  const cid = metadata.track_segments[0].multihash
-  return yield call(fetchCID, cid, gateways, /* cache */ false)
-}
-
-// TODO(AUD-1837) -- we should not rely on this logic anymore of fetching first
-// segments, particularly to flag unauthorized content, but it should probably
-// just be removed altogether since first segment fetch is usually fast.
-function* fetchFirstSegments(entries) {
-  // Segments aren't part of the critical path so let them resolve later.
-  try {
-    const firstSegments = yield all(
-      entries.map((e) => call(fetchSegment, e.metadata))
-    )
-
-    yield put(
-      cacheActions.update(
-        Kind.TRACKS,
-        firstSegments.map((s, i) => {
-          if (s === 'Unauthorized') {
-            return {
-              id: entries[i].id,
-              metadata: {
-                is_delete: true,
-                _blocked: true,
-                _marked_deleted: true
-              }
-            }
-          }
-          return {
-            id: entries[i].id,
-            metadata: { _first_segment: s }
-          }
-        })
-      )
-    )
-  } catch (err) {
-    console.error(err)
   }
 }
 
@@ -117,15 +69,16 @@ function* watchAdd() {
             }))
         )
       )
-      if (!NATIVE_MOBILE) {
+      const isNativeMobile = yield getContext('isNativeMobile')
+      if (!isNativeMobile) {
         yield fork(fetchRepostInfo, action.entries)
-        yield fork(fetchFirstSegments, action.entries)
       }
     }
   })
 }
 
 export function* trackNewRemixEvent(remixTrack) {
+  yield waitForAccount()
   const account = yield select(getAccountUser)
   const remixParentTrack = remixTrack.remix_of.tracks[0]
   const parentTrack = yield select(getTrack, {
@@ -147,7 +100,7 @@ export function* trackNewRemixEvent(remixTrack) {
 }
 
 function* editTrackAsync(action) {
-  yield call(waitForBackendSetup)
+  yield call(waitForWrite)
   action.formFields.description = squashNewLines(action.formFields.description)
 
   const currentTrack = yield select(getTrack, { id: action.trackId })
@@ -216,6 +169,9 @@ function* confirmEditTrack(
   isNowListed,
   currentTrack
 ) {
+  yield waitForWrite()
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  const apiClient = yield getContext('apiClient')
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.TRACKS, trackId),
@@ -237,6 +193,7 @@ function* confirmEditTrack(
           )
         }
 
+        yield waitForAccount()
         // Need to poll with the new track name in case it changed
         const userId = yield select(getUserId)
         const handle = yield select(getUserHandle)
@@ -298,7 +255,8 @@ function* watchEditTrack() {
 }
 
 function* deleteTrackAsync(action) {
-  yield call(waitForBackendSetup)
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  yield waitForWrite()
   const userId = yield select(getUserId)
   if (!userId) {
     yield put(signOnActions.openSignOn(false))
@@ -312,15 +270,24 @@ function* deleteTrackAsync(action) {
     handle
   )
   if (socials.pinnedTrackId === action.trackId) {
-    yield call(audiusBackendInstance.setArtistPick)
+    // Dual write to the artist_pick_track_id field in the
+    // users table in the discovery DB. Part of the migration
+    // of the artist pick feature from the identity service
+    // to the entity manager in discovery.
     yield put(
       cacheActions.update(Kind.USERS, [
         {
           id: userId,
-          metadata: { _artist_pick: null }
+          metadata: {
+            artist_pick_track_id: null,
+            _artist_pick: null
+          }
         }
       ])
     )
+    yield call(audiusBackendInstance.setArtistPick)
+    const user = yield call(waitForValue, getUser, { id: userId })
+    yield fork(updateProfileAsync, { metadata: user })
   }
 
   const track = yield select(getTrack, { id: action.trackId })
@@ -334,6 +301,9 @@ function* deleteTrackAsync(action) {
 }
 
 function* confirmDeleteTrack(trackId) {
+  yield waitForWrite()
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  const apiClient = yield getContext('apiClient')
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.TRACKS, trackId),
@@ -352,6 +322,7 @@ function* confirmDeleteTrack(trackId) {
 
         const track = yield select(getTrack, { id: trackId })
         const handle = yield select(getUserHandle)
+        yield waitForAccount()
         const userId = yield select(getUserId)
 
         return yield apiClient.getTrack(
@@ -402,6 +373,9 @@ function* watchDeleteTrack() {
 }
 
 function* watchFetchCoverArt() {
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  const isNativeMobile = yield getContext('isNativeMobile')
+
   const inProgress = new Set()
   yield takeEvery(trackActions.FETCH_COVER_ART, function* ({ trackId, size }) {
     // Unique on id and size
@@ -443,14 +417,19 @@ function* watchFetchCoverArt() {
           gateways
         )
       }
-      const dominantColors = yield call(dominantColor, smallImageUrl)
 
-      yield put(
-        setDominantColors({
-          multihash,
-          colors: dominantColors
-        })
-      )
+      if (!isNativeMobile) {
+        // Disabling dominant color fetch on mobile because it requires WebWorker
+        // Can revisit this when doing glass morphism on NowPlaying
+        const dominantColors = yield call(dominantColor, smallImageUrl)
+
+        yield put(
+          setDominantColors({
+            multihash,
+            colors: dominantColors
+          })
+        )
+      }
     } catch (e) {
       console.error(`Unable to fetch cover art for track ${trackId}`)
     } finally {
@@ -461,6 +440,7 @@ function* watchFetchCoverArt() {
 
 function* watchCheckIsDownloadable() {
   yield takeLatest(trackActions.CHECK_IS_DOWNLOADABLE, function* (action) {
+    const trackDownload = yield getContext('trackDownload')
     const track = yield select(getTrack, { id: action.trackId })
     if (!track) return
 
@@ -469,7 +449,7 @@ function* watchCheckIsDownloadable() {
     if (!user.creator_node_endpoint) return
 
     const cid = yield call(
-      TrackDownload.checkIfDownloadAvailable,
+      [trackDownload, 'checkIfDownloadAvailable'],
       track.track_id,
       user.creator_node_endpoint
     )
@@ -491,10 +471,11 @@ function* watchCheckIsDownloadable() {
       ])
     )
 
+    yield waitForAccount()
     const currentUserId = yield select(getUserId)
     if (currentUserId === user.user_id) {
       yield call(
-        TrackDownload.updateTrackDownloadCID,
+        [trackDownload, 'updateTrackDownloadCID'],
         track.track_id,
         track,
         cid

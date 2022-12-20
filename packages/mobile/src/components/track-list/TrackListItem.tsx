@@ -1,29 +1,30 @@
 import { useCallback, useMemo, useState } from 'react'
 
-import type { ID } from '@audius/common'
-import { getUserId } from 'audius-client/src/common/store/account/selectors'
+import type { ID, Track } from '@audius/common'
 import {
+  removeNullable,
   OverflowAction,
-  OverflowSource
-} from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
-import { open as openOverflowMenu } from 'common/store/ui/mobile-overflow-menu/slice'
+  OverflowSource,
+  mobileOverflowMenuUIActions
+} from '@audius/common'
 import type { NativeSyntheticEvent, NativeTouchEvent } from 'react-native'
 import { Text, TouchableOpacity, View } from 'react-native'
+import { useDispatch } from 'react-redux'
 
 import IconDrag from 'app/assets/images/iconDrag.svg'
 import IconHeart from 'app/assets/images/iconHeart.svg'
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconRemoveTrack from 'app/assets/images/iconRemoveTrack.svg'
 import { IconButton } from 'app/components/core'
+import { DownloadStatusIndicator } from 'app/components/offline-downloads'
 import UserBadges from 'app/components/user-badges'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { font, makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
 import { TablePlayButton } from './TablePlayButton'
 import { TrackArtwork } from './TrackArtwork'
 import type { TrackMetadata } from './types'
+const { open: openOverflowMenu } = mobileOverflowMenuUIActions
 
 export type TrackItemAction = 'save' | 'overflow' | 'remove'
 
@@ -49,17 +50,26 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     paddingHorizontal: spacing(6)
   },
   nameArtistContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    overflow: 'hidden',
-    height: '100%'
+    flexShrink: 1,
+    flexBasis: '100%',
+    height: '100%',
+    justifyContent: 'center'
+  },
+  topLine: {
+    flexDirection: 'row'
   },
   trackTitle: {
-    flexDirection: 'row'
+    flexDirection: 'row',
+    flexShrink: 1,
+    alignItems: 'center'
   },
   trackTitleText: {
     ...font('demiBold'),
     color: palette.neutral
+  },
+  downloadIndicator: {
+    marginTop: -3,
+    marginLeft: spacing(1)
   },
   artistName: {
     ...font('medium'),
@@ -89,10 +99,7 @@ export type TrackListItemProps = {
   hideArt?: boolean
   index: number
   isActive?: boolean
-  isDragging?: boolean
-  isLoading?: boolean
   isPlaying?: boolean
-  isRemoveActive?: boolean
   isReorderable?: boolean
   onRemove?: (index: number) => void
   onSave?: (isSaved: boolean, trackId: ID) => void
@@ -106,10 +113,7 @@ export const TrackListItem = ({
   hideArt,
   index,
   isActive,
-  isDragging = false,
-  isRemoveActive = false,
   isReorderable = false,
-  isLoading = false,
   isPlaying = false,
   onRemove,
   onSave,
@@ -118,23 +122,20 @@ export const TrackListItem = ({
   trackItemAction
 }: TrackListItemProps) => {
   const {
-    _cover_art_sizes,
-    has_current_user_reposted,
     has_current_user_saved,
     is_delete,
     is_unlisted,
     title,
     track_id,
     uid,
-    user: { name, is_deactivated, user_id }
+    user: { name, is_deactivated }
   } = track
   const isDeleted = is_delete || !!is_deactivated || is_unlisted
 
   const messages = getMessages({ isDeleted })
   const styles = useStyles()
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
   const themeColors = useThemeColors()
-  const currentUserId = useSelectorWeb(getUserId)
   const [titleWidth, setTitleWidth] = useState(0)
 
   const deletedTextWidth = useMemo(
@@ -149,39 +150,20 @@ export const TrackListItem = ({
   }
 
   const handleOpenOverflowMenu = useCallback(() => {
-    const isOwner = currentUserId === user_id
-
     const overflowActions = [
-      !isOwner
-        ? has_current_user_reposted
-          ? OverflowAction.UNREPOST
-          : OverflowAction.REPOST
-        : null,
-      !isOwner
-        ? has_current_user_saved
-          ? OverflowAction.UNFAVORITE
-          : OverflowAction.FAVORITE
-        : null,
       OverflowAction.ADD_TO_PLAYLIST,
       OverflowAction.VIEW_TRACK_PAGE,
       OverflowAction.VIEW_ARTIST_PAGE
-    ].filter(Boolean) as OverflowAction[]
+    ].filter(removeNullable)
 
-    dispatchWeb(
+    dispatch(
       openOverflowMenu({
         source: OverflowSource.TRACKS,
         id: track_id,
         overflowActions
       })
     )
-  }, [
-    currentUserId,
-    user_id,
-    has_current_user_reposted,
-    has_current_user_saved,
-    dispatchWeb,
-    track_id
-  ])
+  }, [dispatch, track_id])
 
   const handlePressSave = (e: NativeSyntheticEvent<NativeTouchEvent>) => {
     e.stopPropagation()
@@ -216,10 +198,8 @@ export const TrackListItem = ({
       >
         {!hideArt ? (
           <TrackArtwork
-            trackId={track_id}
-            coverArtSizes={_cover_art_sizes}
+            track={track as Track}
             isActive={isActive}
-            isLoading={isLoading}
             isPlaying={isPlaying}
           />
         ) : isActive && !isDeleted ? (
@@ -234,27 +214,35 @@ export const TrackListItem = ({
         ) : null}
         {isReorderable && <IconDrag style={styles.dragIcon} />}
         <View style={styles.nameArtistContainer}>
-          <View
-            style={styles.trackTitle}
-            onLayout={(e) => setTitleWidth(e.nativeEvent.layout.width)}
-          >
-            <Text
-              numberOfLines={1}
-              style={[
-                styles.trackTitleText,
-                {
-                  maxWidth: titleWidth ? titleWidth - deletedTextWidth : '100%'
-                }
-              ]}
+          <View style={styles.topLine}>
+            <View
+              style={styles.trackTitle}
+              onLayout={(e) => setTitleWidth(e.nativeEvent.layout.width)}
             >
-              {title}
-            </Text>
-            <Text
-              numberOfLines={1}
-              style={[styles.trackTitleText, { flexBasis: deletedTextWidth }]}
-            >
-              {messages.deleted}
-            </Text>
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.trackTitleText,
+                  {
+                    maxWidth: titleWidth
+                      ? titleWidth - deletedTextWidth
+                      : '100%'
+                  }
+                ]}
+              >
+                {title}
+              </Text>
+              <Text
+                numberOfLines={1}
+                style={[styles.trackTitleText, { flexBasis: deletedTextWidth }]}
+              >
+                {messages.deleted}
+              </Text>
+            </View>
+
+            <View style={styles.downloadIndicator}>
+              <DownloadStatusIndicator trackId={track_id} size={18} />
+            </View>
           </View>
           <Text numberOfLines={1} style={styles.artistName}>
             {name}

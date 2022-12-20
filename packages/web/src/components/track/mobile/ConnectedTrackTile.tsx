@@ -5,33 +5,26 @@ import {
   FavoriteSource,
   RepostSource,
   ShareSource,
-  FavoriteType
+  FavoriteType,
+  accountSelectors,
+  cacheTracksSelectors,
+  cacheUsersSelectors,
+  tracksSocialActions,
+  OverflowAction,
+  OverflowSource,
+  mobileOverflowMenuUIActions,
+  shareModalUIActions,
+  themeSelectors,
+  RepostType,
+  repostsUserListActions,
+  favoritesUserListActions,
+  playerSelectors
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { getUserId } from 'common/store/account/selectors'
-import { getTrack } from 'common/store/cache/tracks/selectors'
-import { getUserFromTrack } from 'common/store/cache/users/selectors'
-import {
-  saveTrack,
-  unsaveTrack,
-  repostTrack,
-  undoRepostTrack
-} from 'common/store/social/tracks/actions'
-import { open } from 'common/store/ui/mobile-overflow-menu/slice'
-import {
-  OverflowAction,
-  OverflowSource
-} from 'common/store/ui/mobile-overflow-menu/types'
-import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
-import { getTheme } from 'common/store/ui/theme/selectors'
-import { setFavorite } from 'common/store/user-list/favorites/actions'
-import { setRepost } from 'common/store/user-list/reposts/actions'
-import { RepostType } from 'common/store/user-list/reposts/types'
 import { TrackTileProps } from 'components/track/types'
-import { getUid, getPlaying, getBuffering } from 'store/player/selectors'
 import { AppState } from 'store/types'
 import {
   profilePage,
@@ -43,6 +36,17 @@ import { isMatrix, shouldShowDark } from 'utils/theme/theme'
 import { getTrackWithFallback, getUserWithFallback } from '../helpers'
 
 import TrackTile from './TrackTile'
+const { getUid, getPlaying, getBuffering } = playerSelectors
+const { setFavorite } = favoritesUserListActions
+const { setRepost } = repostsUserListActions
+const { getTheme } = themeSelectors
+const { requestOpen: requestOpenShareModal } = shareModalUIActions
+const { open } = mobileOverflowMenuUIActions
+const { getTrack } = cacheTracksSelectors
+const { getUserFromTrack } = cacheUsersSelectors
+const { saveTrack, unsaveTrack, repostTrack, undoRepostTrack } =
+  tracksSocialActions
+const getUserId = accountSelectors.getUserId
 
 type ConnectedTrackTileProps = TrackTileProps &
   ReturnType<typeof mapStateToProps> &
@@ -120,11 +124,13 @@ const ConnectedTrackTile = memo(
     }
 
     const goToTrackPage = (e: MouseEvent<HTMLElement>) => {
+      e.preventDefault()
       e.stopPropagation()
       goToRoute(permalink)
     }
 
     const goToArtistPage = (e: MouseEvent<HTMLElement>) => {
+      e.preventDefault()
       e.stopPropagation()
       goToRoute(profilePage(handle))
     }
@@ -202,6 +208,7 @@ const ConnectedTrackTile = memo(
         artistName={name}
         artistIsVerified={is_verified}
         // Playback
+        permalink={permalink}
         togglePlay={togglePlay}
         isActive={uid === playingUid}
         isLoading={isBuffering}

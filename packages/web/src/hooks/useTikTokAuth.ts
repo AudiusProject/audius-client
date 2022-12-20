@@ -2,15 +2,15 @@
 import 'whatwg-fetch'
 import 'url-search-params-polyfill'
 
-import { Name } from '@audius/common'
-
 import {
+  Name,
   Credentials,
   UseTikTokAuthArguments,
   createUseTikTokAuthHook
-} from 'common/hooks/useTikTokAuth'
+} from '@audius/common'
+
+import { useRecord, make } from 'common/store/analytics/actions'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
-import { useRecord, make } from 'store/analytics/actions'
 
 /**
  * A hook that returns a withAuth function that can be passed a function which will
@@ -117,9 +117,7 @@ export const useTikTokAuth = (args: UseTikTokAuthArguments) => {
     }
 
     const {
-      data: {
-        data: { access_token, open_id, expires_in }
-      }
+      data: { access_token, open_id, expires_in }
     } = await response.json()
 
     record(make(Name.TIKTOK_COMPLETE_OAUTH, {}))

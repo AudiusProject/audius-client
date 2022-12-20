@@ -4,23 +4,26 @@ import {
   CollectionMetadata,
   UserCollectionMetadata,
   Kind,
-  Track,
-  makeUid
+  makeUid,
+  accountSelectors,
+  cacheCollectionsSelectors,
+  cacheSelectors,
+  CommonState,
+  getContext
 } from '@audius/common'
-import { call, select } from 'redux-saga/effects'
+import { chunk } from 'lodash'
+import { all, call, select } from 'typed-redux-saga'
 
-import { CommonState } from 'common/store'
-import { getUserId } from 'common/store/account/selectors'
-import { getCollections } from 'common/store/cache/collections/selectors'
 import { retrieve } from 'common/store/cache/sagas'
-import { getEntryTimestamp } from 'common/store/cache/selectors'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
-import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
+import { waitForRead } from 'utils/sagaHelpers'
 
 import { addTracksFromCollections } from './addTracksFromCollections'
 import { addUsersFromCollections } from './addUsersFromCollections'
 import { reformat } from './reformat'
+const { getEntryTimestamp } = cacheSelectors
+const { getCollections } = cacheCollectionsSelectors
+const getUserId = accountSelectors.getUserId
 
 function* markCollectionDeleted(
   collectionMetadatas: CollectionMetadata[]
@@ -48,9 +51,15 @@ export function* retrieveTracksForCollections(
   const filteredTrackIds = [
     ...new Set(allTrackIds.filter((id) => !excludedTrackIdSet.has(id)))
   ]
-  const tracks: Track[] = yield call(retrieveTracks, {
-    trackIds: filteredTrackIds
-  })
+  const chunkedTracks = yield* all(
+    chunk(filteredTrackIds, 200).map((chunkedTrackIds) =>
+      call(retrieveTracks, {
+        trackIds: chunkedTrackIds
+      })
+    )
+  )
+
+  const tracks = chunkedTracks.flat(1)
 
   // If any tracks failed to be retrieved for some reason,
   // remove them from their collection.
@@ -84,11 +93,12 @@ export function* retrieveTracksForCollections(
 
 /**
  * Retrieves a single collection via API client
- * @param playlistId
  */
 export function* retrieveCollection(playlistId: ID) {
-  const userId: ReturnType<typeof getUserId> = yield select(getUserId)
-  const playlists: UserCollectionMetadata[] = yield apiClient.getPlaylist({
+  yield* waitForRead()
+  const apiClient = yield* getContext('apiClient')
+  const userId = yield* select(getUserId)
+  const playlists = yield* call([apiClient, 'getPlaylist'], {
     playlistId,
     currentUserId: userId
   })
@@ -97,17 +107,17 @@ export function* retrieveCollection(playlistId: ID) {
 
 /**
  * Retrieves collections from the cache or from source
- * @param userId optional owner of collections to fetch (TODO: to be removed)
- * @param collectionIds ids to retrieve
- * @param fetchTracks whether or not to fetch the tracks inside the playlist
- * @param requiresAllTracks whether or not fetching this collection requires it to have all its tracks.
- * In the case where a collection is already cached with partial tracks, use this flag to refetch from source.
- * @returns
  */
 export function* retrieveCollections(
+  // optional owner of collections to fetch (TODO: to be removed)
   userId: ID | null,
+  // ids to retrieve
   collectionIds: ID[],
+  // whether or not to fetch the tracks inside the playlist
   fetchTracks = false,
+  /**  whether or not fetching this collection requires it to have all its tracks.
+   * In the case where a collection is already cached with partial tracks, use this flag to refetch from source.
+   */
   requiresAllTracks = false
 ) {
   // @ts-ignore retrieve should be refactored to ts first
@@ -140,6 +150,7 @@ export function* retrieveCollections(
       return selected
     },
     retrieveFromSource: function* (ids: ID[]) {
+      const audiusBackendInstance = yield* getContext('audiusBackendInstance')
       let metadatas: UserCollectionMetadata[]
 
       if (ids.length === 1) {
@@ -158,6 +169,7 @@ export function* retrieveCollections(
       return metadatasWithDeleted
     },
     onBeforeAddToCache: function* (metadatas: UserCollectionMetadata[]) {
+      const audiusBackendInstance = yield* getContext('audiusBackendInstance')
       yield addUsersFromCollections(metadatas)
       yield addTracksFromCollections(metadatas)
 
@@ -165,7 +177,9 @@ export function* retrieveCollections(
         yield call(retrieveTracksForCollections, metadatas, new Set())
       }
 
-      const reformattedCollections = metadatas.map((c) => reformat(c))
+      const reformattedCollections = metadatas.map((c) =>
+        reformat(c, audiusBackendInstance)
+      )
 
       return reformattedCollections
     },

@@ -1,87 +1,92 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 
-import { Name } from '@audius/common'
-import { makeGetLineupMetadatas } from 'audius-client/src/common/store/lineup/selectors'
-import { feedActions } from 'audius-client/src/common/store/pages/feed/lineup/actions'
 import {
-  getDiscoverFeedLineup,
-  getFeedFilter
-} from 'audius-client/src/common/store/pages/feed/selectors'
-import { setVisibility } from 'audius-client/src/common/store/ui/modals/slice'
-import { omit } from 'lodash'
-import { useSelector } from 'react-redux'
+  Name,
+  lineupSelectors,
+  feedPageLineupActions as feedActions,
+  feedPageActions,
+  feedPageSelectors
+} from '@audius/common'
+import type { FollowArtists } from 'audius-client/src/common/store/pages/signon/types'
+import * as signOnActions from 'common/store/pages/signon/actions'
+import { getFollowArtists } from 'common/store/pages/signon/selectors'
+import { Dimensions, View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { Screen } from 'app/components/core'
-import { Header } from 'app/components/header'
+import IconFeed from 'app/assets/images/iconFeed.svg'
+import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
 import { Lineup } from 'app/components/lineup'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
-import { useSelectorWeb, isEqual } from 'app/hooks/useSelectorWeb'
-import { getIsSignedIn } from 'app/store/lifecycle/selectors'
-import { make, track } from 'app/utils/analytics'
+import { OnlineOnly } from 'app/components/offline-placeholder/OnlineOnly'
+import { SuggestedFollows } from 'app/components/suggested-follows'
+import { useAppTabScreen } from 'app/hooks/useAppTabScreen'
+import { make, track } from 'app/services/analytics'
 
 import { FeedFilterButton } from './FeedFilterButton'
+const { getDiscoverFeedLineup } = feedPageSelectors
+const { makeGetLineupMetadatas } = lineupSelectors
 
 const getFeedLineup = makeGetLineupMetadatas(getDiscoverFeedLineup)
 
+const dimensions = Dimensions.get('window')
+
 const messages = {
-  header: 'Your Feed'
+  header: 'Your Feed',
+  emptyFeed: `Oops! There's nothing here.`
 }
 
 export const FeedScreen = () => {
-  usePopToTopOnDrawerOpen()
+  useAppTabScreen()
 
-  const dispatchWeb = useDispatchWeb()
-  const feedLineup = useSelectorWeb(getFeedLineup, (a, b) => {
-    const omitUneeded = <T extends object>(o: T) => omit(o, ['inView'])
-    return isEqual(omitUneeded(a), omitUneeded(b))
-  })
-  const signedIn = useSelector(getIsSignedIn)
-  const feedFilter = useSelectorWeb(getFeedFilter)
-  const [isRefreshing, setIsRefreshing] = useState(false)
+  const dispatch = useDispatch()
 
   const loadMore = useCallback(
     (offset: number, limit: number, overwrite: boolean) => {
-      dispatchWeb(feedActions.fetchLineupMetadatas(offset, limit, overwrite))
+      dispatch(feedActions.fetchLineupMetadatas(offset, limit, overwrite))
       track(make({ eventName: Name.FEED_PAGINATE, offset, limit }))
     },
-    [dispatchWeb]
+    [dispatch]
   )
 
-  useEffect(() => {
-    if (!feedLineup.isMetadataLoading) {
-      setIsRefreshing(false)
-    }
-  }, [feedLineup.isMetadataLoading])
-
-  const handleRefresh = useCallback(() => {
-    setIsRefreshing(true)
-    dispatchWeb(feedActions.refreshInView(true))
-  }, [dispatchWeb])
-
-  const handleFilterButtonPress = useCallback(() => {
-    dispatchWeb(setVisibility({ modal: 'FeedFilter', visible: true }))
-  }, [dispatchWeb])
+  const followArtists: FollowArtists = useSelector(getFollowArtists)
+  const onPressFollow = () => {
+    // Set eager users and refetch lineup
+    dispatch(signOnActions.followArtists(followArtists.selectedUserIds))
+    dispatch(feedActions.fetchLineupMetadatas())
+    // Async go follow users
+    dispatch(feedPageActions.followUsers(followArtists.selectedUserIds))
+  }
 
   return (
     <Screen>
-      <Header text={messages.header}>
-        <FeedFilterButton
-          onPress={handleFilterButtonPress}
-          currentFilter={feedFilter}
+      <ScreenHeader
+        text={messages.header}
+        icon={IconFeed}
+        styles={{ icon: { marginLeft: 2 } }}
+      >
+        <OnlineOnly>
+          <FeedFilterButton />
+        </OnlineOnly>
+      </ScreenHeader>
+      <ScreenContent>
+        <Lineup
+          isFeed
+          pullToRefresh
+          delineate
+          selfLoad
+          LineupEmptyComponent={
+            <View style={{ height: dimensions.height - 200 }}>
+              <SuggestedFollows
+                title={messages.emptyFeed}
+                onPress={onPressFollow}
+              />
+            </View>
+          }
+          actions={feedActions}
+          lineupSelector={getFeedLineup}
+          loadMore={loadMore}
+          showsVerticalScrollIndicator={false}
         />
-      </Header>
-      <Lineup
-        actions={feedActions}
-        delineate
-        lineup={feedLineup}
-        loadMore={loadMore}
-        refresh={handleRefresh}
-        refreshing={isRefreshing}
-        selfLoad={!!signedIn}
-        showsVerticalScrollIndicator={false}
-        isFeed
-      />
+      </ScreenContent>
     </Screen>
   )
 }

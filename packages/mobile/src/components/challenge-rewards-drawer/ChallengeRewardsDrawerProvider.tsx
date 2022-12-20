@@ -1,25 +1,20 @@
 import { useCallback, useContext, useEffect } from 'react'
 
-import type { Maybe } from '@audius/common'
-import { IntKeys, StringKeys } from '@audius/common'
-import { getOptimisticUserChallenges } from 'audius-client/src/common/store/challenges/selectors/optimistic-challenges'
+import type { Maybe, CommonState } from '@audius/common'
 import {
-  getChallengeRewardsModalType,
-  getClaimStatus
-} from 'audius-client/src/common/store/pages/audio-rewards/selectors'
-import {
-  claimChallengeReward,
+  IntKeys,
+  StringKeys,
+  challengesSelectors,
+  audioRewardsPageActions,
   ClaimStatus,
-  resetAndCancelClaimReward
-} from 'audius-client/src/common/store/pages/audio-rewards/slice'
-import { setVisibility } from 'audius-client/src/common/store/ui/modals/slice'
+  audioRewardsPageSelectors
+} from '@audius/common'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRemoteVar } from 'app/hooks/useRemoteConfig'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import type { ChallengesParamList } from 'app/utils/challenges'
-import { challengesConfig } from 'app/utils/challenges'
+import { getChallengeConfig } from 'app/utils/challenges'
 
 import Button, { ButtonType } from '../button'
 import { useDrawerState } from '../drawer/AppDrawer'
@@ -28,6 +23,11 @@ import { ToastContext } from '../toast/ToastContext'
 import { ChallengeRewardsDrawer } from './ChallengeRewardsDrawer'
 import { ProfileCompletionChecks } from './ProfileCompletionChecks'
 import { ReferralRewardContents } from './ReferralRewardContents'
+const { getChallengeRewardsModalType, getClaimStatus, getAAOErrorCode } =
+  audioRewardsPageSelectors
+const { claimChallengeReward, resetAndCancelClaimReward } =
+  audioRewardsPageActions
+const { getOptimisticUserChallenges } = challengesSelectors
 
 const messages = {
   // Claim success toast
@@ -43,22 +43,25 @@ const styles = {
 }
 
 export const ChallengeRewardsDrawerProvider = () => {
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
   const { onClose } = useDrawerState(MODAL_NAME)
-  const modalType = useSelectorWeb(getChallengeRewardsModalType)
-  const userChallenges = useSelectorWeb(getOptimisticUserChallenges, isEqual)
+  const modalType = useSelector(getChallengeRewardsModalType)
+  const userChallenges = useSelector((state: CommonState) =>
+    getOptimisticUserChallenges(state, true)
+  )
 
   const handleClose = useCallback(() => {
-    dispatchWeb(resetAndCancelClaimReward())
+    dispatch(resetAndCancelClaimReward())
     onClose()
-  }, [dispatchWeb, onClose])
+  }, [dispatch, onClose])
 
-  const claimStatus = useSelectorWeb(getClaimStatus)
+  const claimStatus = useSelector(getClaimStatus)
+  const aaoErrorCode = useSelector(getAAOErrorCode)
 
   const { toast } = useContext(ToastContext)
 
   const challenge = userChallenges ? userChallenges[modalType] : null
-  const config = challengesConfig[modalType]
+  const config = getChallengeConfig(modalType)
   const hasChallengeCompleted =
     challenge?.state === 'completed' || challenge?.state === 'disbursed'
 
@@ -83,15 +86,16 @@ export const ChallengeRewardsDrawerProvider = () => {
 
   const handleNavigation = useCallback(() => {
     if (config.buttonInfo?.navigation) {
-      navigate(config.buttonInfo.navigation)
+      const { screen, params } = config.buttonInfo.navigation
+      navigate(screen, params)
       handleClose()
     }
   }, [navigate, config, handleClose])
 
   const openUploadModal = useCallback(() => {
     handleClose()
-    dispatchWeb(setVisibility({ modal: 'MobileUpload', visible: true }))
-  }, [dispatchWeb, handleClose])
+    navigate('Upload')
+  }, [handleClose, navigate])
 
   // Claim rewards button config
   const quorumSize = useRemoteVar(IntKeys.ATTESTATION_QUORUM_SIZE)
@@ -99,7 +103,7 @@ export const ChallengeRewardsDrawerProvider = () => {
   const AAOEndpoint = useRemoteVar(StringKeys.ORACLE_ENDPOINT)
   const hasConfig = (oracleEthAddress && AAOEndpoint && quorumSize > 0) || true
   const onClaim = useCallback(() => {
-    dispatchWeb(
+    dispatch(
       claimChallengeReward({
         claim: {
           challengeId: modalType,
@@ -109,7 +113,7 @@ export const ChallengeRewardsDrawerProvider = () => {
         retryOnFailure: true
       })
     )
-  }, [dispatchWeb, modalType, challenge])
+  }, [dispatch, modalType, challenge])
 
   useEffect(() => {
     if (claimStatus === ClaimStatus.SUCCESS) {
@@ -130,7 +134,7 @@ export const ChallengeRewardsDrawerProvider = () => {
       contents = config?.buttonInfo && (
         <Button
           containerStyle={styles.button}
-          title={config.buttonInfo.label}
+          title={config.panelButtonText}
           renderIcon={config.buttonInfo.renderIcon}
           iconPosition='right'
           type={
@@ -154,7 +158,7 @@ export const ChallengeRewardsDrawerProvider = () => {
       contents = config?.buttonInfo && (
         <Button
           containerStyle={styles.button}
-          title={config.buttonInfo.label}
+          title={config.panelButtonText}
           renderIcon={config.buttonInfo.renderIcon}
           iconPosition={config.buttonInfo.iconPosition}
           type={hasChallengeCompleted ? ButtonType.COMMON : ButtonType.PRIMARY}
@@ -173,7 +177,7 @@ export const ChallengeRewardsDrawerProvider = () => {
       onClose={handleClose}
       title={config.title}
       titleIcon={config.icon}
-      description={config.description}
+      description={config.description(challenge)}
       progressLabel={config.progressLabel ?? 'Completed'}
       amount={challenge.totalAmount}
       challengeState={challenge.state}
@@ -182,6 +186,7 @@ export const ChallengeRewardsDrawerProvider = () => {
       claimableAmount={audioToClaim}
       claimedAmount={audioClaimedSoFar}
       claimStatus={claimStatus}
+      aaoErrorCode={aaoErrorCode}
       onClaim={hasConfig ? onClaim : undefined}
       isVerifiedChallenge={!!config.isVerifiedChallenge}
       showProgressBar={

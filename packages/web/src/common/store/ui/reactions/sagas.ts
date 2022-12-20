@@ -1,21 +1,46 @@
-import { removeNullable } from '@audius/common'
-import { call, takeEvery, all, put, select } from 'typed-redux-saga/macro'
-
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
-import { submitReaction } from 'services/audius-backend/Reactions'
-
 import {
-  fetchReactionValues,
+  removeNullable,
   getReactionFromRawValue,
-  makeGetReactionForSignature,
   reactionsMap,
-  setLocalReactionValues,
-  writeReactionValue
-} from './slice'
+  reactionsUIActions,
+  reactionsUISelectors,
+  getContext,
+  AudiusBackend,
+  getErrorMessage
+} from '@audius/common'
+import { call, takeEvery, all, put, select } from 'typed-redux-saga'
+
+const { fetchReactionValues, setLocalReactionValues, writeReactionValue } =
+  reactionsUIActions
+const { makeGetReactionForSignature } = reactionsUISelectors
+
+type SubmitReactionConfig = {
+  reactedTo: string
+  reactionValue: number
+  audiusBackend: AudiusBackend
+}
+
+type SubmitReactionResponse = { success: boolean; error: any }
+
+const submitReaction = async ({
+  reactedTo,
+  reactionValue,
+  audiusBackend
+}: SubmitReactionConfig): Promise<SubmitReactionResponse> => {
+  try {
+    const libs = await audiusBackend.getAudiusLibs()
+    return libs.Reactions.submitReaction({ reactedTo, reactionValue })
+  } catch (err) {
+    const errorMessage = getErrorMessage(err)
+    console.error(errorMessage)
+    return { success: false, error: errorMessage }
+  }
+}
 
 function* fetchReactionValuesAsync({
   payload
 }: ReturnType<typeof fetchReactionValues>) {
+  const apiClient = yield* getContext('apiClient')
   // Fetch reactions
   // TODO: [PAY-305] This endpoint should be fixed to properly allow multiple reaction fetches
   const reactions = yield* all(
@@ -56,9 +81,12 @@ function* writeReactionValueAsync({
     })
   )
 
-  yield call(submitReaction, {
+  const audiusBackend = yield* getContext('audiusBackendInstance')
+
+  yield* call(submitReaction, {
     reactedTo: entityId,
-    reactionValue: newReactionValue ? reactionsMap[newReactionValue] : 0
+    reactionValue: newReactionValue ? reactionsMap[newReactionValue] : 0,
+    audiusBackend
   })
 }
 

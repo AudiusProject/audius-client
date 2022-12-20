@@ -1,43 +1,55 @@
-import { useRef, useEffect } from 'react'
+import { useState } from 'react'
 
 import { PortalProvider } from '@gorhom/portal'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Sentry from '@sentry/react-native'
-import { Platform } from 'react-native'
+import { Platform, UIManager } from 'react-native'
 import Config from 'react-native-config'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
-import type WebView from 'react-native-webview'
+import {
+  SafeAreaProvider,
+  initialWindowMetrics
+} from 'react-native-safe-area-context'
 import { Provider } from 'react-redux'
+import { useAsync, useEffectOnce } from 'react-use'
 
-import Audio from 'app/components/audio/Audio'
+import { Audio } from 'app/components/audio/Audio'
 import HCaptcha from 'app/components/hcaptcha'
 import NavigationContainer from 'app/components/navigation-container'
 import OAuth from 'app/components/oauth/OAuth'
-import { ReachabilityBar } from 'app/components/reachability-bar'
-import { ThemeProvider } from 'app/components/theme/ThemeContext'
 import { ToastContextProvider } from 'app/components/toast/ToastContext'
-import { WebRefContextProvider } from 'app/components/web/WebRef'
-import useConnectivity from 'app/components/web/useConnectivity'
+import { WebAppAccountSync } from 'app/components/web-app-account-sync'
 import { incrementSessionCount } from 'app/hooks/useSessionCount'
-import PushNotifications from 'app/notifications'
 import { RootScreen } from 'app/screens/root-screen'
-import createStore from 'app/store'
-import { setup as setupAnalytics } from 'app/utils/analytics'
+import { store } from 'app/store'
+import { ENTROPY_KEY } from 'app/store/account/sagas'
+import {
+  forceRefreshConnectivity,
+  subscribeToNetworkStatusUpdates
+} from 'app/utils/reachability'
 
 import { Drawers } from './Drawers'
 import ErrorBoundary from './ErrorBoundary'
-import { WebAppManager } from './WebAppManager'
+import { NotificationReminder } from './components/notification-reminder/NotificationReminder'
+import { OfflineDownloader } from './components/offline-downloads/OfflineDownloader'
+import { useEnterForeground } from './hooks/useAppState'
+import { WalletConnectProvider } from './screens/wallet-connect'
+import { setLibs } from './services/libs'
 
 Sentry.init({
   dsn: Config.SENTRY_DSN
 })
 
-const store = createStore()
-export const dispatch = store.dispatch
-
 const Airplay = Platform.select({
   ios: () => require('./components/audio/Airplay').default,
   android: () => () => null
 })?.()
+
+// Need to enable this flag for LayoutAnimation to work on Android
+if (Platform.OS === 'android') {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true)
+  }
+}
 
 // Increment the session count when the App.tsx code is first run
 incrementSessionCount()
@@ -47,47 +59,53 @@ const Modals = () => {
 }
 
 const App = () => {
-  // Track the web view as a top-level ref so that any children can use it
-  // to send messages to the dapp
-  const webRef = useRef<WebView>(null)
+  // Reset libs so that we get a clean app start
+  useEffectOnce(() => {
+    setLibs(null)
+  })
 
-  // Broadcast connectivity to the wrapped dapp
-  useConnectivity({ webRef })
+  const [isReadyToSetupBackend, setIsReadyToSetupBackend] = useState(false)
 
-  // Configure push notifications so that it has access to the web view
-  // and can message pass to it
-  useEffect(() => {
-    PushNotifications.setWebRef(webRef)
-  }, [webRef])
-
-  useEffect(() => {
-    setupAnalytics()
+  useAsync(async () => {
+    // Require entropy to exist before setting up backend
+    const entropy = await AsyncStorage.getItem(ENTROPY_KEY)
+    setIsReadyToSetupBackend(!!entropy)
   }, [])
 
+  useEffectOnce(() => {
+    subscribeToNetworkStatusUpdates()
+  })
+
+  useEnterForeground(() => {
+    forceRefreshConnectivity()
+  })
+
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <Provider store={store}>
-        <PortalProvider>
-          <ToastContextProvider>
-            <ErrorBoundary>
-              <WebRefContextProvider>
-                <WebAppManager webRef={webRef}>
-                  <ThemeProvider>
-                    <NavigationContainer>
-                      <Airplay />
-                      <ReachabilityBar />
-                      <RootScreen />
-                      <Drawers />
-                      <Modals />
-                      <Audio webRef={webRef} />
-                      <OAuth webRef={webRef} />
-                    </NavigationContainer>
-                  </ThemeProvider>
-                </WebAppManager>
-              </WebRefContextProvider>
-            </ErrorBoundary>
-          </ToastContextProvider>
-        </PortalProvider>
+        <WalletConnectProvider>
+          <PortalProvider>
+            <ToastContextProvider>
+              <ErrorBoundary>
+                <NavigationContainer>
+                  {!isReadyToSetupBackend ? (
+                    <WebAppAccountSync
+                      setIsReadyToSetupBackend={setIsReadyToSetupBackend}
+                    />
+                  ) : null}
+                  <Airplay />
+                  <RootScreen isReadyToSetupBackend={isReadyToSetupBackend} />
+                  <Drawers />
+                  <Modals />
+                  <Audio />
+                  <OAuth />
+                  <NotificationReminder />
+                  <OfflineDownloader />
+                </NavigationContainer>
+              </ErrorBoundary>
+            </ToastContextProvider>
+          </PortalProvider>
+        </WalletConnectProvider>
       </Provider>
     </SafeAreaProvider>
   )

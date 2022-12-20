@@ -1,9 +1,14 @@
-import { getNotificationUsers } from 'audius-client/src/common/store/notifications/selectors'
-import type { Follow } from 'common/store/notifications/types'
-import { formatCount } from 'common/utils/formatUtil'
+import { useCallback } from 'react'
+
+import type { FollowNotification as FollowNotificationType } from '@audius/common'
+import {
+  useProxySelector,
+  formatCount,
+  notificationsSelectors
+} from '@audius/common'
 
 import IconUser from 'app/assets/images/iconUser.svg'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { useNotificationNavigation } from 'app/hooks/useNotificationNavigation'
 
 import {
   NotificationHeader,
@@ -14,7 +19,7 @@ import {
   NotificationText
 } from '../Notification'
 
-import { useSocialActionHandler } from './useSocialActionHandler'
+const { getNotificationUsers } = notificationsSelectors
 
 const messages = {
   others: (userCount: number) =>
@@ -23,20 +28,24 @@ const messages = {
 }
 
 type FollowNotificationProps = {
-  notification: Follow
+  notification: FollowNotificationType
 }
 
 export const FollowNotification = (props: FollowNotificationProps) => {
   const { notification } = props
   const { userIds } = notification
-  const users = useSelectorWeb(
+  const navigation = useNotificationNavigation()
+
+  const users = useProxySelector(
     (state) => getNotificationUsers(state, notification, USER_LENGTH_LIMIT),
-    isEqual
+    [notification]
   )
   const firstUser = users?.[0]
   const otherUsersCount = userIds.length - 1
 
-  const handlePress = useSocialActionHandler(notification, users)
+  const handlePress = useCallback(() => {
+    navigation.navigate(notification)
+  }, [navigation, notification])
 
   if (!users || !firstUser) return null
 

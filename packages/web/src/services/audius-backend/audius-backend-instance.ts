@@ -1,9 +1,25 @@
-import { audiusBackend } from 'services/AudiusBackend'
-import { LIBS_INITTED_EVENT } from 'services/audius-backend/eagerLoadUtils'
+import { audiusBackend } from '@audius/common'
+import type { AudiusLibs } from '@audius/sdk'
+
+import { track } from 'services/analytics'
+import {
+  LIBS_INITTED_EVENT,
+  waitForLibsInit,
+  withEagerOption
+} from 'services/audius-backend/eagerLoadUtils'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
-import { track } from 'store/analytics/providers'
+import { monitoringCallbacks } from 'services/serviceMonitoring'
+import { reportToSentry } from 'store/errors/reportToSentry'
 import { isElectron, isMobile } from 'utils/clientUtil'
+
+import { env } from '../env'
+
+declare global {
+  interface Window {
+    audiusLibs: any
+  }
+}
 
 /**
  * audiusBackend initialized for a web environment
@@ -11,20 +27,18 @@ import { isElectron, isMobile } from 'utils/clientUtil'
 export const audiusBackendInstance = audiusBackend({
   claimDistributionContractAddress:
     process.env.REACT_APP_CLAIM_DISTRIBUTION_CONTRACT_ADDRESS,
+  env,
   ethOwnerWallet: process.env.REACT_APP_ETH_OWNER_WALLET,
   ethProviderUrls: (process.env.REACT_APP_ETH_PROVIDER_URL || '').split(','),
   ethRegistryAddress: process.env.REACT_APP_ETH_REGISTRY_ADDRESS,
   ethTokenAddress: process.env.REACT_APP_ETH_TOKEN_ADDRESS,
   getFeatureEnabled,
-  getHostUrl: () => {
-    const nativeMobile = process.env.REACT_APP_NATIVE_MOBILE === 'true'
-    return nativeMobile && process.env.REACT_APP_ENVIRONMENT === 'production'
-      ? `${process.env.REACT_APP_PUBLIC_PROTOCOL}//${process.env.REACT_APP_PUBLIC_HOSTNAME}`
-      : window.location.origin
-  },
+  getHostUrl: () => window.location.origin,
+  getLibs: () => import('@audius/sdk/dist/legacy'),
   getWeb3Config: async (
     libs,
     registryAddress,
+    entityManagerAddress,
     web3ProviderUrls,
     web3NetworkId
   ) => {
@@ -33,41 +47,55 @@ export const audiusBackendInstance = audiusBackend({
       ? JSON.parse(useMetaMaskSerialized)
       : false
 
-    if (useMetaMask && window.web3) {
+    if (useMetaMask && window.Web3) {
       try {
         return {
           error: false,
           web3Config: await libs.configExternalWeb3(
             registryAddress,
-            window.web3.currentProvider,
-            web3NetworkId
+            window.Web3.currentProvider,
+            web3NetworkId,
+            entityManagerAddress
           )
         }
       } catch (e) {
         return {
           error: true,
-          web3Config: libs.configInternalWeb3(registryAddress, web3ProviderUrls)
+          web3Config: libs.configInternalWeb3(
+            registryAddress,
+            web3ProviderUrls,
+            null,
+            entityManagerAddress
+          )
         }
       }
     }
     return {
       error: false,
-      web3Config: libs.configInternalWeb3(registryAddress, web3ProviderUrls)
+      web3Config: libs.configInternalWeb3(
+        registryAddress,
+        web3ProviderUrls,
+        null,
+        entityManagerAddress
+      )
     }
   },
   identityServiceUrl: process.env.REACT_APP_IDENTITY_SERVICE,
   isElectron: isElectron(),
   isMobile: isMobile(),
   legacyUserNodeUrl: process.env.REACT_APP_LEGACY_USER_NODE,
-  nativeMobile: process.env.REACT_APP_NATIVE_MOBILE === 'true',
-  onLibsInit: (libs: any) => {
+  monitoringCallbacks,
+  nativeMobile: false,
+  onLibsInit: (libs: AudiusLibs) => {
     window.audiusLibs = libs
     const event = new CustomEvent(LIBS_INITTED_EVENT)
     window.dispatchEvent(event)
   },
   recaptchaSiteKey: process.env.REACT_APP_RECAPTCHA_SITE_KEY,
   recordAnalytics: track,
+  reportError: reportToSentry,
   registryAddress: process.env.REACT_APP_REGISTRY_ADDRESS,
+  entityManagerAddress: process.env.REACT_APP_ENTITY_MANAGER_ADDRESS,
   remoteConfigInstance,
   setLocalStorageItem: async (key, value) =>
     window.localStorage.setItem(key, value),
@@ -89,6 +117,7 @@ export const audiusBackendInstance = audiusBackend({
   userNodeUrl: process.env.REACT_APP_USER_NODE,
   web3NetworkId: process.env.REACT_APP_WEB3_NETWORK_ID,
   web3ProviderUrls: (process.env.REACT_APP_WEB3_PROVIDER_URL || '').split(','),
+  waitForLibsInit,
   waitForWeb3: async () => {
     if (!window.web3Loaded) {
       await new Promise<void>((resolve) => {
@@ -100,6 +129,8 @@ export const audiusBackendInstance = audiusBackend({
       })
     }
   },
+
+  withEagerOption,
   wormholeConfig: {
     ethBridgeAddress: process.env.REACT_APP_ETH_BRIDGE_ADDRESS,
     ethTokenBridgeAddress: process.env.REACT_APP_ETH_TOKEN_BRIDGE_ADDRESS,

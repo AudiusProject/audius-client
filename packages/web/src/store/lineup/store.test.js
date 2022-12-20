@@ -1,24 +1,26 @@
-import { Kind } from '@audius/common'
+import {
+  Kind,
+  cacheReducer,
+  LineupBaseActions,
+  lineupReducer,
+  queueReducer,
+  initialQueueState,
+  playerReducer,
+  initialPlayerState
+} from '@audius/common'
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 import * as matchers from 'redux-saga-test-plan/matchers'
 import { all } from 'redux-saga/effects'
 
-import { asCache, initialCacheState } from 'common/store/cache/reducer'
+import { waitForBackendSetup } from 'common/store/backend/sagas'
 import cacheSagas from 'common/store/cache/sagas'
 import { fetchUsers } from 'common/store/cache/users/sagas'
-import { LineupActions } from 'common/store/lineup/actions'
-import { asLineup, initialLineupState } from 'common/store/lineup/reducer'
-import queueReducer, {
-  initialState as initialQueueState
-} from 'common/store/queue/slice'
-import { waitForBackendSetup } from 'store/backend/sagas'
-import { initialState as initialConfirmerState } from 'store/confirmer/reducer'
-import { LineupSagas } from 'store/lineup/sagas'
-import playerReducer, {
-  initialState as initialPlayerState
-} from 'store/player/slice'
+import { initialState as initialConfirmerState } from 'common/store/confirmer/reducer'
+import { LineupSagas } from 'common/store/lineup/sagas'
 import { noopReducer, allSagas } from 'store/testHelper'
+const { asLineup, initialLineupState } = lineupReducer
+const { asCache, initialCacheState } = cacheReducer
 
 const PREFIX = 'tracks'
 const MOCK_TIMESTAMP = 1479427200000
@@ -49,7 +51,7 @@ function* getTracks() {
   return tracks
 }
 
-class Actions extends LineupActions {
+class Actions extends LineupBaseActions {
   constructor() {
     super(PREFIX)
   }

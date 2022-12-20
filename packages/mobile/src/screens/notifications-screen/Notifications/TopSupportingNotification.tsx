@@ -1,27 +1,32 @@
 import { useCallback } from 'react'
 
-import { getNotificationUser } from 'audius-client/src/common/store/notifications/selectors'
-import type { SupportingRankUp } from 'common/store/notifications/types'
+import type { SupportingRankUpNotification } from '@audius/common'
+import { notificationsSelectors } from '@audius/common'
+import { Platform } from 'react-native'
+import { useSelector } from 'react-redux'
 
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { useNotificationNavigation } from 'app/hooks/useNotificationNavigation'
+import { make } from 'app/services/analytics'
 import { EventNames } from 'app/types/analytics'
-import { make } from 'app/utils/analytics'
 
 import { NotificationTile, NotificationTwitterButton } from '../Notification'
 
 import { SupporterAndSupportingNotificationContent } from './SupporterAndSupportingNotificationContent'
-import { useGoToProfile } from './useGoToProfile'
+const { getNotificationUser } = notificationsSelectors
 
 const messages = {
   title: 'Top Supporter',
   supporterChange: "You're now their",
   supporter: 'Top Supporter',
-  twitterShare: (handle: string, rank: number) =>
-    `I'm now ${handle}'s #${rank} Top Supporter on @AudiusProject #Audius $AUDIO #AUDIOTip`
+  // NOTE: Send tip -> Send $AUDIO change
+  twitterShare: (handle: string, rank: number, ios: boolean) =>
+    `I'm now ${handle}'s #${rank} Top Supporter on @AudiusProject #Audius $AUDIO${
+      ios ? '' : ' #AUDIOTip'
+    }`
 }
 
 type TopSupportingNotificationProps = {
-  notification: SupportingRankUp
+  notification: SupportingRankUpNotification
 }
 
 export const TopSupportingNotification = (
@@ -29,17 +34,21 @@ export const TopSupportingNotification = (
 ) => {
   const { notification } = props
   const { rank } = notification
+  const navigation = useNotificationNavigation()
 
-  const user = useSelectorWeb(
-    (state) => getNotificationUser(state, notification),
-    isEqual
-  )
+  const user = useSelector((state) => getNotificationUser(state, notification))
 
-  const handlePress = useGoToProfile(user)
+  const handlePress = useCallback(() => {
+    navigation.navigate(notification)
+  }, [navigation, notification])
 
   const handleTwitterShare = useCallback(
     (handle: string) => {
-      const shareText = messages.twitterShare(handle, rank)
+      const shareText = messages.twitterShare(
+        handle,
+        rank,
+        Platform.OS === 'ios'
+      )
       return {
         shareText,
         analytics: make({

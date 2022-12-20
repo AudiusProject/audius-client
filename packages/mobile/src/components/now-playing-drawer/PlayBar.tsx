@@ -1,29 +1,27 @@
 import { useCallback } from 'react'
 
-import type { Track, User } from '@audius/common'
-import { FavoriteSource, SquareSizes } from '@audius/common'
-import {
-  saveTrack,
-  unsaveTrack
-} from 'audius-client/src/common/store/social/tracks/actions'
+import type { Nullable, Track, User } from '@audius/common'
+import { FavoriteSource, tracksSocialActions } from '@audius/common'
 import { TouchableOpacity, Animated, View, Dimensions } from 'react-native'
+import { useDispatch } from 'react-redux'
 
-import { DynamicImage } from 'app/components/core'
 import { FavoriteButton } from 'app/components/favorite-button'
+import { TrackImage } from 'app/components/image/TrackImage'
 import Text from 'app/components/text'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
 import { makeStyles } from 'app/styles'
+import { zIndex } from 'app/utils/zIndex'
 
 import { PlayButton } from './PlayButton'
 import { TrackingBar } from './TrackingBar'
 import { NOW_PLAYING_HEIGHT, PLAY_BAR_HEIGHT } from './constants'
+const { saveTrack, unsaveTrack } = tracksSocialActions
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   root: {
     width: '100%',
     height: PLAY_BAR_HEIGHT,
-    alignItems: 'center'
+    alignItems: 'center',
+    zIndex: zIndex.PLAY_BAR
   },
   container: {
     height: '100%',
@@ -81,19 +79,10 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
 }))
 
 type PlayBarProps = {
-  track: Track
-  user: User
+  track: Nullable<Track>
+  user: Nullable<User>
   onPress: () => void
   translationAnim: Animated.Value
-}
-
-const PlayBarArtwork = ({ track }: { track: Track }) => {
-  const image = useTrackCoverArt({
-    id: track.track_id,
-    sizes: track._cover_art_sizes,
-    size: SquareSizes.SIZE_150_BY_150
-  })
-  return <DynamicImage uri={image} />
 }
 
 export const PlayBar = ({
@@ -103,17 +92,17 @@ export const PlayBar = ({
   translationAnim
 }: PlayBarProps) => {
   const styles = useStyles()
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
 
   const onPressFavoriteButton = useCallback(() => {
     if (track) {
       if (track.has_current_user_saved) {
-        dispatchWeb(unsaveTrack(track.track_id, FavoriteSource.PLAYBAR))
+        dispatch(unsaveTrack(track.track_id, FavoriteSource.PLAYBAR))
       } else {
-        dispatchWeb(saveTrack(track.track_id, FavoriteSource.PLAYBAR))
+        dispatch(saveTrack(track.track_id, FavoriteSource.PLAYBAR))
       }
     }
-  }, [dispatchWeb, track])
+  }, [dispatch, track])
 
   const renderFavoriteButton = () => {
     return (
@@ -153,7 +142,7 @@ export const PlayBar = ({
           onPress={onPress}
         >
           <View style={styles.artwork}>
-            {track && <PlayBarArtwork track={track} />}
+            {track && <TrackImage track={track} />}
           </View>
           <View style={styles.trackText}>
             <Text numberOfLines={1} weight='bold' style={styles.title}>

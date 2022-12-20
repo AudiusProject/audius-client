@@ -1,17 +1,19 @@
 import { useState, useCallback, useRef, useContext } from 'react'
 
-import { RandomImage } from '@audius/common'
+import {
+  RandomImage,
+  accountSelectors,
+  badgeTiers,
+  useSelectTierInfo
+} from '@audius/common'
 import { Button, ButtonType, Popup } from '@audius/stems'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
 
 import { ReactComponent as IconSearch } from 'assets/img/iconSearch.svg'
-import { useSelectTierInfo } from 'common/hooks/wallet'
-import { getAccountUser } from 'common/store/account/selectors'
-import { badgeTiers } from 'common/store/wallet/utils'
 import TabSlider from 'components/data-entry/TabSlider'
-import Dropzone from 'components/upload/Dropzone'
+import { Dropzone } from 'components/upload/Dropzone'
 import InvalidFileType from 'components/upload/InvalidFileType'
 import { MainContentContext } from 'pages/MainContentContext'
 import { MIN_COLLECTIBLES_TIER } from 'pages/profile-page/ProfilePageProvider'
@@ -19,6 +21,7 @@ import zIndex from 'utils/zIndex'
 
 import styles from './ImageSelectionPopup.module.css'
 import { ImageSelectionProps, ImageSelectionDefaults } from './PropTypes'
+const getAccountUser = accountSelectors.getAccountUser
 
 const COLLECTIBLES_PER_PAGE = 15
 const POPULAR_TERMS = ['neon', 'space', 'beach', 'nature', 'abstract']
@@ -46,7 +49,7 @@ const DropzonePage = ({ error, onSelect }) => {
         className={styles.dropzone}
         iconClassName={styles.dropzoneIcon}
         allowMultiple={false}
-        onDrop={onDropzoneSelect}
+        onDropAccepted={onDropzoneSelect}
       />
       {error ? <InvalidFileType className={styles.invalidFileType} /> : null}
     </div>

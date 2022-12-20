@@ -1,57 +1,67 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { fetchSearch } from 'audius-client/src/common/store/search-bar/actions'
+import { getSearchBarText } from 'audius-client/src/common/store/search-bar/selectors'
+import debounce from 'lodash/debounce'
 import { useDispatch, useSelector } from 'react-redux'
+import { useTimeoutFn } from 'react-use'
 
 import type { TextInputRef } from 'app/components/core'
 import { TextInput } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { MessageType } from 'app/message'
 import { updateQuery } from 'app/store/search/actions'
-import {
-  getSearchQuery,
-  getSearchResultQuery
-} from 'app/store/search/selectors'
-import { getTagSearchRoute } from 'app/utils/routes'
+import { getSearchQuery } from 'app/store/search/selectors'
+
+// Amount of time to wait before focusing TextInput
+// after the SearchBar renders
+const TEXT_INPUT_FOCUS_DELAY = 350
 
 export const SearchBar = () => {
   const query = useSelector(getSearchQuery)
+  const searchResultQuery = useSelector(getSearchBarText)
   const dispatch = useDispatch()
-  const dispatchWeb = useDispatchWeb()
   const navigation = useNavigation()
   const [clearable, setClearable] = useState(query !== '')
   const inputRef = useRef<TextInputRef>(null)
 
+  // Wait to focus TextInput to prevent keyboard animation
+  // from causing UI stutter as the screen transitions in
+  useTimeoutFn(() => inputRef.current?.focus(), TEXT_INPUT_FOCUS_DELAY)
+
+  // Ignore rule because eslint complains that it can't determine the dependencies of the callback since it's not inline.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const fetchSearchDebounced = useCallback(
+    debounce((text: string) => {
+      // Do nothing for tag search (no autocomplete)
+      if (!text.startsWith('#')) {
+        dispatch(fetchSearch(text))
+      }
+    }, 250),
+    [dispatch]
+  )
   const handleChangeText = useCallback(
     (text: string) => {
       dispatch(updateQuery(text))
-      // Do nothing for tag search (no autocomplete)
-      if (!text.startsWith('#')) {
-        dispatchWeb({
-          type: MessageType.UPDATE_SEARCH_QUERY,
-          query: text
-        })
-      }
+      fetchSearchDebounced(text)
       if (text !== '') {
         setClearable(true)
       } else {
         setClearable(false)
       }
     },
-    [dispatch, dispatchWeb, setClearable]
+    [dispatch, fetchSearchDebounced, setClearable]
   )
+
+  useEffect(() => {
+    if (query !== searchResultQuery && searchResultQuery !== '') {
+      handleChangeText(query)
+    }
+  }, [searchResultQuery, query, handleChangeText])
 
   const handleSubmit = useCallback(() => {
     if (query.startsWith('#')) {
-      const route = getTagSearchRoute(query)
-      navigation.push({
-        native: {
-          screen: 'TagSearch',
-          params: { query }
-        },
-        web: { route, fromPage: 'search' }
-      })
+      navigation.push('TagSearch', { query })
     }
   }, [query, navigation])
 
@@ -61,7 +71,6 @@ export const SearchBar = () => {
     inputRef.current?.focus()
   }, [dispatch, setClearable])
 
-  const searchResultQuery = useSelector(getSearchResultQuery)
   const isTagSearch = query.startsWith('#')
   const hasText = query !== ''
   const isLoading = !isTagSearch && hasText && searchResultQuery !== query
@@ -69,7 +78,6 @@ export const SearchBar = () => {
 
   return (
     <TextInput
-      autoFocus
       ref={inputRef}
       value={query}
       onChangeText={handleChangeText}
@@ -77,6 +85,7 @@ export const SearchBar = () => {
       clearable={!isLoading && clearable}
       onClear={onClear}
       onSubmitEditing={handleSubmit}
+      returnKeyType='search'
     />
   )
 }

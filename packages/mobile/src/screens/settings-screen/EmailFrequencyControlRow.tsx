@@ -1,16 +1,19 @@
 import { useCallback } from 'react'
 
-import { updateEmailFrequency } from 'audius-client/src/common/store/pages/settings/actions'
-import { getEmailFrequency } from 'audius-client/src/common/store/pages/settings/selectors'
-import { EmailFrequency } from 'audius-client/src/common/store/pages/settings/types'
+import {
+  settingsPageActions,
+  settingsPageSelectors,
+  EmailFrequency
+} from '@audius/common'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { SegmentedControl } from 'app/components/core'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
 import { SettingsRowLabel } from './SettingRowLabel'
 import { SettingsRow } from './SettingsRow'
 import { SettingsRowContent } from './SettingsRowContent'
+const { getEmailFrequency } = settingsPageSelectors
+const { updateEmailFrequency } = settingsPageActions
 
 const messages = {
   emailFrequency: "'What You Missed' Email Frequency",
@@ -28,14 +31,14 @@ const emailFrequencyOptions = [
 ]
 
 export const EmailFrequencyControlRow = () => {
-  const dispatchWeb = useDispatchWeb()
-  const emailFrequency = useSelectorWeb(getEmailFrequency)
+  const dispatch = useDispatch()
+  const emailFrequency = useSelector(getEmailFrequency)
 
   const handleSelectOption = useCallback(
     (option: EmailFrequency) => {
-      dispatchWeb(updateEmailFrequency(option))
+      dispatch(updateEmailFrequency(option))
     },
-    [dispatchWeb]
+    [dispatch]
   )
 
   return (

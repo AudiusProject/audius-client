@@ -1,12 +1,12 @@
-import { useContext, useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 
 import { isEqual } from 'lodash'
+import hash from 'object-hash'
 import type { TextStyle, ViewStyle, ImageStyle } from 'react-native'
 import { StyleSheet } from 'react-native'
 
-import { ThemeContext } from '../components/theme/ThemeContext'
-import type { ThemeColors } from '../utils/theme'
-import { Theme as ThemeType, useThemeColors } from '../utils/theme'
+import type { ThemeColors, Theme as ThemeType } from '../utils/theme'
+import { useThemeVariant, useThemeColors } from '../utils/theme'
 
 import { spacing } from './spacing'
 import { typography } from './typography'
@@ -43,36 +43,45 @@ type Theme = {
   type: ThemeType
 }
 
+// TODO: This doesn't cover style props for icons
 type NamedStyles<T> = { [P in keyof T]: ViewStyle | TextStyle | ImageStyle }
 
 type Styles<T extends NamedStyles<T>, PropsT> = (
   theme: Theme,
-  props?: PropsT
+  props: PropsT
 ) => T | NamedStyles<T>
 
-export const makeStyles = <PropsT, T extends NamedStyles<T> = NamedStyles<any>>(
+type UseStyles<T, PropsT> = PropsT extends undefined
+  ? () => T
+  : (props: PropsT) => T
+
+const styleCache = {}
+
+export const makeStyles = <
+  PropsT = undefined,
+  T extends NamedStyles<T> = NamedStyles<any>
+>(
   styles: Styles<T, PropsT>
-) => {
-  const useStyles = (props?: PropsT): T => {
-    const { theme: themeType, isSystemDarkMode } = useContext(ThemeContext)
-    const type =
-      themeType === ThemeType.AUTO
-        ? isSystemDarkMode
-          ? ThemeType.DARK
-          : ThemeType.DEFAULT
-        : themeType
+): UseStyles<T, PropsT> => {
+  return ((props?: PropsT): T => {
+    const themeVariant = useThemeVariant()
     const palette = useThemeColors()
 
     const memoizedProps = useMemoCompare<PropsT | undefined>(props, isEqual)
 
     const stylesheet = useMemo(() => {
-      const theme = { palette, typography, spacing, type }
-      const namedStyles = styles(theme, memoizedProps)
-      return StyleSheet.create(namedStyles)
-    }, [palette, type, memoizedProps])
+      const theme = { palette, typography, spacing, type: themeVariant }
+      const namedStyles = styles(theme, memoizedProps!)
+      const namedStylesHash = hash(namedStyles)
+      const cachedStyle = styleCache[namedStylesHash]
+      if (cachedStyle) {
+        return cachedStyle
+      }
+      const stylesheet = StyleSheet.create(namedStyles)
+      styleCache[namedStylesHash] = stylesheet
+      return stylesheet
+    }, [palette, themeVariant, memoizedProps])
 
     return stylesheet
-  }
-
-  return useStyles
+  }) as UseStyles<T, PropsT>
 }

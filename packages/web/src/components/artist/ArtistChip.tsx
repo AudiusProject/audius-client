@@ -1,6 +1,12 @@
 import { ComponentPropsWithoutRef } from 'react'
 
-import { ID, SquareSizes, User } from '@audius/common'
+import {
+  ID,
+  SquareSizes,
+  User,
+  SUPPORTING_USER_LIST_TAG,
+  TOP_SUPPORTERS_USER_LIST_TAG
+} from '@audius/common'
 import cn from 'classnames'
 
 import { ArtistPopover } from 'components/artist/ArtistPopover'
@@ -8,8 +14,6 @@ import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { MountPlacement } from 'components/types'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
-import { USER_LIST_TAG as SUPPORTING_USER_LIST_TAG } from 'pages/supporting-page/sagas'
-import { USER_LIST_TAG as TOP_SUPPORTERS_USER_LIST_TAG } from 'pages/top-supporters-page/sagas'
 
 import styles from './ArtistChip.module.css'
 import { ArtistChipFollowers } from './ArtistChipFollowers'
@@ -49,7 +53,7 @@ const ArtistIdentifier = ({
           <UserBadges
             userId={userId}
             className={cn(styles.badge)}
-            badgeSize={10}
+            badgeSize={14}
             inline
           />
         </div>
@@ -70,7 +74,7 @@ const ArtistIdentifier = ({
         <UserBadges
           userId={userId}
           className={cn(styles.badge)}
-          badgeSize={10}
+          badgeSize={14}
           inline
         />
       </div>

@@ -1,31 +1,56 @@
-import { cloneElement, useCallback, useEffect, useState } from 'react'
+import {
+  cloneElement,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState
+} from 'react'
 
-import { BadgeTier, BNWei, StringAudio, StringWei } from '@audius/common'
-import { Format, IconTrophy, TokenValueInput } from '@audius/stems'
+import {
+  BadgeTier,
+  BNWei,
+  StringAudio,
+  StringWei,
+  formatWei,
+  stringWeiToBN,
+  weiToString,
+  accountSelectors,
+  tippingSelectors,
+  tippingActions,
+  walletSelectors,
+  getTierAndNumberForBalance,
+  useGetFirstOrTopSupporter,
+  OnRampProvider,
+  buyAudioActions,
+  FeatureFlags
+} from '@audius/common'
+import {
+  IconTrophy,
+  TokenAmountInput,
+  TokenAmountInputChangeHandler
+} from '@audius/stems'
 import BN from 'bn.js'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconQuestionCircle } from 'assets/img/iconQuestionCircle.svg'
 import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
-import { getAccountUser } from 'common/store/account/selectors'
-import {
-  getOptimisticSupporters,
-  getOptimisticSupporting,
-  getSendUser
-} from 'common/store/tipping/selectors'
-import { fetchUserSupporter, sendTip } from 'common/store/tipping/slice'
-import { getAccountBalance } from 'common/store/wallet/selectors'
-import { getTierAndNumberForBalance } from 'common/store/wallet/utils'
-import { formatWei, stringWeiToBN, weiToString } from 'common/utils/wallet'
+import { OnRampButton } from 'components/on-ramp-button'
 import Tooltip from 'components/tooltip/Tooltip'
 import { audioTierMapPng } from 'components/user-badges/UserBadges'
-import { useGetFirstOrTopSupporter } from 'hooks/useGetFirstOrTopSupporter'
+import { useFlag } from 'hooks/useRemoteConfig'
 import ButtonWithArrow from 'pages/audio-rewards-page/components/ButtonWithArrow'
 
 import { ProfileInfo } from '../../profile-info/ProfileInfo'
 
 import styles from './TipAudio.module.css'
+
+const { getAccountBalance } = walletSelectors
+const { getOptimisticSupporters, getOptimisticSupporting, getSendUser } =
+  tippingSelectors
+const { beginTip, resetSend, fetchUserSupporter, sendTip } = tippingActions
+const { startBuyAudioFlow } = buyAudioActions
+const getAccountUser = accountSelectors.getAccountUser
 
 const messages = {
   availableToSend: 'AVAILABLE TO SEND',
@@ -33,10 +58,21 @@ const messages = {
   enterAnAmount: 'Enter an amount',
   insufficientBalance: 'Insufficient Balance',
   tooltip: '$AUDIO held in linked wallets cannot be used for tipping',
-  becomeTopSupporterPrefix: 'Tip ',
-  becomeTopSupporterSuffix: ' $AUDIO To Become Their Top Supporter',
-  becomeFirstSupporter: 'Tip To Become Their First Supporter'
+  becomeTopSupporterPrefix: 'Send ',
+  becomeTopSupporterSuffix: ' $AUDIO To Become Top Supporter',
+  becomeFirstSupporter: 'Send A Tip To Become Their First Supporter',
+  inputLabel: 'Amount of audio to tip',
+  inputPlaceholder: 'Enter an amount',
+  inputTokenLabel: '$AUDIO',
+  buyAudioPrefix: 'Buy $AUDIO using '
 }
+
+const TopBanner = ({ icon, text }: { icon?: ReactNode; text: ReactNode }) => (
+  <div className={styles.topBanner}>
+    {icon ? <span className={styles.topBannerIcon}>{icon}</span> : null}
+    <span className={styles.topBannerText}>{text}</span>
+  </div>
+)
 
 export const SendTip = () => {
   const dispatch = useDispatch()
@@ -70,6 +106,10 @@ export const SendTip = () => {
     supportersMap
   })
 
+  const { isEnabled: isStripeBuyAudioEnabled } = useFlag(
+    FeatureFlags.BUY_AUDIO_STRIPE_ENABLED
+  )
+
   useEffect(() => {
     if (shouldFetchUserSupporter && account && receiver) {
       dispatch(
@@ -87,8 +127,8 @@ export const SendTip = () => {
     setIsDisabled(hasInsufficientBalance || tipAmountWei.lte(zeroWei))
   }, [hasInsufficientBalance, tipAmountWei])
 
-  const handleTipAmountChange = useCallback(
-    (value: string) => {
+  const handleTipAmountChange = useCallback<TokenAmountInputChangeHandler>(
+    (value) => {
       setTipAmount(value as StringAudio)
     },
     [setTipAmount]
@@ -98,24 +138,17 @@ export const SendTip = () => {
     dispatch(sendTip({ amount: tipAmount }))
   }, [dispatch, tipAmount])
 
-  const renderBecomeFirstSupporter = () => (
-    <div className={cn(styles.flexCenter, styles.becomeTopSupporter)}>
-      <IconTrophy className={styles.becomeTopSupporterTrophy} />
-      <span>{messages.becomeFirstSupporter}</span>
-    </div>
-  )
-
-  const renderBecomeTopSupporter = () =>
-    amountToTipToBecomeTopSupporter ? (
-      <div className={cn(styles.flexCenter, styles.becomeTopSupporter)}>
-        <IconTrophy className={styles.becomeTopSupporterTrophy} />
-        <span>
-          {messages.becomeTopSupporterPrefix}
-          {formatWei(amountToTipToBecomeTopSupporter, true, 0)}
-          {messages.becomeTopSupporterSuffix}
-        </span>
-      </div>
-    ) : null
+  const handleBuyWithStripeClicked = useCallback(() => {
+    dispatch(
+      startBuyAudioFlow({
+        provider: OnRampProvider.STRIPE,
+        onSuccess: {
+          action: beginTip({ user: receiver, source: 'buyAudio' })
+        }
+      })
+    )
+    dispatch(resetSend())
+  }, [dispatch, receiver])
 
   const renderAvailableAmount = () => (
     <div className={styles.amountAvailableContainer}>
@@ -147,25 +180,60 @@ export const SendTip = () => {
     </div>
   )
 
+  const topBanner =
+    !hasInsufficientBalance && isFirstSupporter ? (
+      <TopBanner icon={<IconTrophy />} text={messages.becomeFirstSupporter} />
+    ) : !hasInsufficientBalance && amountToTipToBecomeTopSupporter ? (
+      <TopBanner
+        icon={<IconTrophy />}
+        text={
+          <>
+            {messages.becomeTopSupporterPrefix}
+            <span className={styles.amount}>
+              {formatWei(
+                amountToTipToBecomeTopSupporter ?? new BN('0'),
+                true,
+                0
+              )}
+            </span>
+            {messages.becomeTopSupporterSuffix}
+          </>
+        }
+      />
+    ) : isStripeBuyAudioEnabled ? (
+      <div>
+        <OnRampButton
+          buttonPrefix={messages.buyAudioPrefix}
+          provider={OnRampProvider.STRIPE}
+          className={styles.buyAudioButton}
+          textClassName={styles.buyAudioButtonText}
+          onClick={handleBuyWithStripeClicked}
+        />
+      </div>
+    ) : null
+
   return receiver ? (
-    <div className={styles.container}>
+    <div
+      className={cn(
+        styles.container,
+        {
+          [styles.containerFill]: !!topBanner
+        },
+        {
+          [styles.containerDense]:
+            hasInsufficientBalance && isStripeBuyAudioEnabled
+        }
+      )}
+    >
+      {topBanner}
+      {topBanner !== null ? <div className={styles.divider}></div> : null}
       <ProfileInfo user={receiver} />
-      {!hasInsufficientBalance && isFirstSupporter
-        ? renderBecomeFirstSupporter()
-        : null}
-      {!hasInsufficientBalance && amountToTipToBecomeTopSupporter
-        ? renderBecomeTopSupporter()
-        : null}
       <div className={styles.amountToSend}>
-        <TokenValueInput
-          className={styles.inputContainer}
-          rightLabelClassName={styles.rightLabel}
-          inputClassName={styles.input}
-          format={Format.INPUT}
-          placeholder={'Enter an amount'}
-          rightLabel={'$AUDIO'}
+        <TokenAmountInput
+          aria-label={messages.inputLabel}
+          placeholder={messages.inputPlaceholder}
+          tokenLabel={messages.inputTokenLabel}
           value={tipAmount}
-          isNumeric={true}
           isWhole={true}
           onChange={handleTipAmountChange}
         />

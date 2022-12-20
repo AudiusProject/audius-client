@@ -7,7 +7,21 @@ import {
   PlaybackSource,
   Name,
   ShareSource,
-  SquareSizes
+  SquareSizes,
+  Genre,
+  accountSelectors,
+  averageColorSelectors,
+  queueActions,
+  RepeatMode,
+  tracksSocialActions,
+  OverflowAction,
+  OverflowActionCallbacks,
+  OverflowSource,
+  mobileOverflowMenuUIActions,
+  shareModalUIActions,
+  playerActions,
+  playerSelectors,
+  queueSelectors
 } from '@audius/common'
 import { Scrubber } from '@audius/stems'
 import cn from 'classnames'
@@ -15,33 +29,7 @@ import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { ReactComponent as IconCaret } from 'assets/img/iconCaretRight.svg'
-import { getUserId } from 'common/store/account/selectors'
-import { getDominantColorsByTrack } from 'common/store/average-color/slice'
-import { getIsCasting, getMethod } from 'common/store/cast/selectors'
-import { makeGetCurrent } from 'common/store/queue/selectors'
-import {
-  next,
-  pause,
-  play,
-  previous,
-  repeat,
-  shuffle
-} from 'common/store/queue/slice'
-import { RepeatMode } from 'common/store/queue/types'
-import {
-  saveTrack,
-  unsaveTrack,
-  repostTrack,
-  undoRepostTrack
-} from 'common/store/social/tracks/actions'
-import { open } from 'common/store/ui/mobile-overflow-menu/slice'
-import {
-  OverflowAction,
-  OverflowActionCallbacks,
-  OverflowSource
-} from 'common/store/ui/mobile-overflow-menu/types'
-import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
-import { Genre } from 'common/utils/genres'
+import { useRecord, make } from 'common/store/analytics/actions'
 import CoSign, { Size } from 'components/co-sign/CoSign'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import PlayButton from 'components/play-bar/PlayButton'
@@ -52,16 +40,7 @@ import ShuffleButtonProvider from 'components/play-bar/shuffle-button/ShuffleBut
 import { PlayButtonStatus } from 'components/play-bar/types'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
-import { HapticFeedbackMessage } from 'services/native-mobile-interface/haptics'
-import { useRecord, make } from 'store/analytics/actions'
-import {
-  getAudio,
-  getBuffering,
-  getCounter,
-  getPlaying
-} from 'store/player/selectors'
-import { seek, reset } from 'store/player/slice'
-import { AudioState } from 'store/player/types'
+import { audioPlayer } from 'services/audio-player'
 import { AppState } from 'store/types'
 import {
   pushUniqueRoute as pushRoute,
@@ -73,12 +52,20 @@ import { withNullGuard } from 'utils/withNullGuard'
 
 import styles from './NowPlaying.module.css'
 import ActionsBar from './components/ActionsBar'
+const { makeGetCurrent } = queueSelectors
+const { getBuffering, getCounter, getPlaying } = playerSelectors
 
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+const { seek, reset } = playerActions
+const { requestOpen: requestOpenShareModal } = shareModalUIActions
+const { open } = mobileOverflowMenuUIActions
+const { saveTrack, unsaveTrack, repostTrack, undoRepostTrack } =
+  tracksSocialActions
+const { next, pause, play, previous, repeat, shuffle } = queueActions
+const getDominantColorsByTrack = averageColorSelectors.getDominantColorsByTrack
+const getUserId = accountSelectors.getUserId
 
 type OwnProps = {
   onClose: () => void
-  audio: AudioState
 }
 
 type NowPlayingProps = OwnProps &
@@ -114,7 +101,6 @@ const NowPlaying = g(
     currentQueueItem,
     currentUserId,
     playCounter,
-    audio,
     isPlaying,
     isBuffering,
     play,
@@ -132,8 +118,6 @@ const NowPlaying = g(
     undoRepost,
     clickOverflow,
     goToRoute,
-    isCasting,
-    castMethod,
     dominantColors
   }) => {
     const { uid, track, user, collectible } = currentQueueItem
@@ -161,12 +145,12 @@ const NowPlaying = g(
     const startSeeking = useCallback(() => {
       clearInterval(seekInterval.current)
       seekInterval.current = window.setInterval(async () => {
-        if (!audio) return
-        const position = await audio.getPosition()
-        const duration = await audio.getDuration()
+        if (!audioPlayer) return
+        const position = await audioPlayer.getPosition()
+        const duration = await audioPlayer.getDuration()
         setTiming({ position, duration })
       }, SEEK_INTERVAL)
-    }, [audio, setTiming])
+    }, [setTiming])
 
     // Clean up
     useEffect(() => {
@@ -242,8 +226,6 @@ const NowPlaying = g(
     }
 
     const togglePlay = () => {
-      const message = new HapticFeedbackMessage()
-      message.send()
       if (isPlaying) {
         pause()
         record(
@@ -377,11 +359,7 @@ const NowPlaying = g(
     const darkMode = isDarkMode()
 
     return (
-      <div
-        className={cn(styles.nowPlaying, {
-          [styles.native]: NATIVE_MOBILE
-        })}
-      >
+      <div className={styles.nowPlaying}>
         <div className={styles.header}>
           <div className={styles.caretContainer} onClick={onClose}>
             <IconCaret className={styles.iconCaret} />
@@ -483,11 +461,9 @@ const NowPlaying = g(
         </div>
         <div className={styles.actions}>
           <ActionsBar
-            castMethod={castMethod}
             isOwner={currentUserId === owner_id}
             hasReposted={has_current_user_reposted}
             hasFavorited={has_current_user_saved}
-            isCasting={isCasting}
             isCollectible={!!collectible}
             onToggleRepost={toggleRepost}
             onToggleFavorite={toggleFavorite}
@@ -511,11 +487,8 @@ function makeMapStateToProps() {
       currentQueueItem,
       currentUserId: getUserId(state),
       playCounter: getCounter(state),
-      audio: getAudio(state),
       isPlaying: getPlaying(state),
       isBuffering: getBuffering(state),
-      isCasting: getIsCasting(state),
-      castMethod: getMethod(state),
       dominantColors: getDominantColorsByTrack(state, {
         track: currentQueueItem.track
       })
@@ -536,7 +509,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(next({ skip: true }))
     },
     previous: () => {
-      dispatch(previous({}))
+      dispatch(previous())
     },
     reset: (shouldAutoplay: boolean) => {
       dispatch(reset({ shouldAutoplay }))

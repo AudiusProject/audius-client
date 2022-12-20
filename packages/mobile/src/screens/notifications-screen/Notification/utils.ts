@@ -1,4 +1,4 @@
-import type { EntityType } from 'audius-client/src/common/store/notifications/types'
+import type { EntityType } from '@audius/common'
 
 import { getCollectionRoute, getTrackRoute } from 'app/utils/routes'
 
@@ -14,13 +14,10 @@ export const getEntityRoute = (entity: EntityType, fullUrl = false) => {
 
 export const getEntityScreen = (entity: EntityType) => {
   if ('track_id' in entity) {
-    return {
-      screen: 'Track' as const,
-      params: { id: entity.track_id, fromNotifications: true }
-    }
+    return ['Track', { id: entity.track_id, fromNotifications: true }] as const
   }
-  return {
-    screen: 'Collection' as const,
-    params: { id: entity.playlist_id, fromNotifications: true }
-  }
+  return [
+    'Collection',
+    { id: entity.playlist_id, fromNotifications: true }
+  ] as const
 }

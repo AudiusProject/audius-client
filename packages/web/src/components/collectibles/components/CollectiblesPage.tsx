@@ -7,7 +7,14 @@ import {
   useState
 } from 'react'
 
-import { Collectible, CollectiblesMetadata } from '@audius/common'
+import {
+  Collectible,
+  CollectiblesMetadata,
+  useInstanceVar,
+  ProfileUser,
+  collectibleDetailsUISelectors,
+  collectibleDetailsUIActions
+} from '@audius/common'
 import {
   Button,
   ButtonSize,
@@ -30,11 +37,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconGradientCollectibles } from 'assets/img/iconGradientCollectibles.svg'
-import useInstanceVar from 'common/hooks/useInstanceVar'
 import { useModalState } from 'common/hooks/useModalState'
-import { ProfileUser } from 'common/store/pages/profile/types'
-import { getCollectible } from 'common/store/ui/collectible-details/selectors'
-import { setCollectible } from 'common/store/ui/collectible-details/slice'
 import CollectibleDetails from 'components/collectibles/components/CollectibleDetails'
 import {
   HiddenCollectibleRow,
@@ -57,14 +60,14 @@ import {
 import zIndex from 'utils/zIndex'
 
 import styles from './CollectiblesPage.module.css'
+const { getCollectible } = collectibleDetailsUISelectors
+const { setCollectible } = collectibleDetailsUIActions
 
 export const editTableContainerClass = 'editTableContainer'
 
 const BASE_EMBED_URL = `${BASE_GA_URL}/embed`
 
 const VISIBLE_COLLECTIBLES_DROPPABLE_ID = 'visible-collectibles-droppable'
-
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 export const collectibleMessages = {
   title: 'COLLECTIBLES',
@@ -528,7 +531,7 @@ const CollectiblesPage = (props: CollectiblesPageProps) => {
                 <UserBadges
                   className={styles.badges}
                   userId={userId}
-                  badgeSize={12}
+                  badgeSize={14}
                 />
               )}
             </div>
@@ -754,23 +757,20 @@ const CollectiblesPage = (props: CollectiblesPageProps) => {
           </div>
         </div>
       </Modal>
-
-      {!NATIVE_MOBILE ? (
-        <Drawer
-          isOpen={showUseDesktopDrawer}
-          onClose={() => setShowUseDesktopDrawer(false)}
-        >
-          <div className={styles.editDrawer}>
-            <IconGradientCollectibles className={styles.editDrawerIcon} />
-            <div className={styles.editDrawerTitle}>
-              {collectibleMessages.editCollectibles}
-            </div>
-            <div className={styles.editDrawerContent}>
-              {collectibleMessages.editInBrowser}
-            </div>
+      <Drawer
+        isOpen={showUseDesktopDrawer}
+        onClose={() => setShowUseDesktopDrawer(false)}
+      >
+        <div className={styles.editDrawer}>
+          <IconGradientCollectibles className={styles.editDrawerIcon} />
+          <div className={styles.editDrawerTitle}>
+            {collectibleMessages.editCollectibles}
           </div>
-        </Drawer>
-      ) : null}
+          <div className={styles.editDrawerContent}>
+            {collectibleMessages.editInBrowser}
+          </div>
+        </div>
+      </Drawer>
     </div>
   )
 }

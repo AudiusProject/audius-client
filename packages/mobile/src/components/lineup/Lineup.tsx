@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import type { ID, UID } from '@audius/common'
-import { Name, PlaybackSource, Kind, Status } from '@audius/common'
-import { getShowTip } from 'audius-client/src/common/store/tipping/selectors'
+import type { ID, UID, PlaybackSource } from '@audius/common'
+import { Kind, Status, tippingSelectors } from '@audius/common'
+import { useFocusEffect } from '@react-navigation/native'
 import { range } from 'lodash'
 import type { SectionList as RNSectionList } from 'react-native'
 import { Dimensions, StyleSheet, View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { SectionList } from 'app/components/core'
 import {
@@ -13,10 +14,7 @@ import {
   TrackTile,
   LineupTileSkeleton
 } from 'app/components/lineup-tile'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useScrollToTop } from 'app/hooks/useScrollToTop'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { make, track } from 'app/utils/analytics'
 
 import { FeedTipTile } from '../feed-tip-tile/FeedTipTile'
 
@@ -24,11 +22,20 @@ import { Delineator } from './Delineator'
 import { delineateByTime } from './delineate'
 import type {
   FeedTipLineupItem,
-  LineupItem,
   LineupProps,
-  LoadingLineupItem
+  LoadingLineupItem,
+  LineupItem,
+  LineupItemTileProps,
+  LineupTileViewProps
 } from './types'
 import { LineupVariant } from './types'
+const { getShowTip } = tippingSelectors
+
+type TogglePlayConfig = {
+  uid: UID
+  id: ID
+  source: PlaybackSource
+}
 
 // The max number of tiles to load
 const MAX_TILES_COUNT = 1000
@@ -89,6 +96,8 @@ const useItemCounts = (variant: LineupVariant) =>
     [variant]
   )
 
+const fallbackLineupSelector = (() => {}) as any
+
 const styles = StyleSheet.create({
   root: {
     flex: 1
@@ -106,6 +115,89 @@ type Section = {
   data: Array<LineupItem | LoadingLineupItem | FeedTipLineupItem>
 }
 
+const getLineupTileComponent = (item: LineupItem) => {
+  if (item.kind === Kind.TRACKS || item.track_id) {
+    if (item._marked_deleted) {
+      return null
+    }
+    return TrackTile
+  } else if (item.kind === Kind.COLLECTIONS || item.playlist_id) {
+    return CollectionTile
+  }
+  return null
+}
+
+const SkeletonTrackTileView = memo(function SkeletonTrackTileView() {
+  return (
+    <View style={styles.item}>
+      <LineupTileSkeleton />
+    </View>
+  )
+})
+
+const LineupTileView = memo(function LineupTileView({
+  item,
+  index,
+  isTrending,
+  showLeadingElementArtistPick,
+  leadingElementId,
+  rankIconCount,
+  togglePlay
+}: LineupTileViewProps) {
+  const LineupTile = getLineupTileComponent(item)
+
+  if (LineupTile) {
+    return (
+      <View style={styles.item}>
+        <LineupTile
+          {...item}
+          index={index}
+          isTrending={isTrending}
+          showArtistPick={showLeadingElementArtistPick && !!leadingElementId}
+          showRankIcon={index < rankIconCount}
+          togglePlay={togglePlay}
+          uid={item.uid}
+        />
+      </View>
+    )
+  } else {
+    return null
+  }
+})
+
+const LineupItemTile = memo(function LineupItemTile({
+  item,
+  index,
+  isTrending,
+  showLeadingElementArtistPick,
+  leadingElementId,
+  rankIconCount,
+  togglePlay
+}: LineupItemTileProps) {
+  if (!item) return null
+
+  if ('_feedTip' in item) {
+    return <FeedTipTile />
+  } else if ('_loading' in item) {
+    if (item._loading) {
+      return <SkeletonTrackTileView />
+    }
+  } else {
+    return (
+      <LineupTileView
+        item={item}
+        index={index}
+        isTrending={isTrending}
+        showLeadingElementArtistPick={showLeadingElementArtistPick}
+        leadingElementId={leadingElementId}
+        rankIconCount={rankIconCount}
+        togglePlay={togglePlay}
+      />
+    )
+  }
+  return null
+})
+
 /** `Lineup` encapsulates the logic for displaying a list of items such as Tracks (e.g. prefetching items
  * displaying loading states, etc).
  */
@@ -116,15 +208,18 @@ export const Lineup = ({
   disableTopTabScroll,
   fetchPayload,
   header,
+  LineupEmptyComponent,
   isTrending,
   isFeed,
   leadingElementId,
   leadingElementDelineator,
-  lineup,
+  lineup: lineupProp,
+  lineupSelector = fallbackLineupSelector,
   loadMore,
+  pullToRefresh,
   rankIconCount = 0,
-  refresh,
-  refreshing,
+  refresh: refreshProp,
+  refreshing: refreshingProp,
   showLeadingElementArtistPick = true,
   start = 0,
   variant = LineupVariant.MAIN,
@@ -132,12 +227,32 @@ export const Lineup = ({
   selfLoad,
   includeLineupStatus,
   limit = Infinity,
+  extraFetchOptions,
   ...listProps
 }: LineupProps) => {
-  const showTip = useSelectorWeb(getShowTip)
-  const dispatchWeb = useDispatchWeb()
+  const showTip = useSelector(getShowTip)
+  const dispatch = useDispatch()
   const ref = useRef<RNSectionList>(null)
   const [isPastLoadThreshold, setIsPastLoadThreshold] = useState(false)
+  const [refreshing, setRefreshing] = useState(refreshingProp)
+  const selectedLineup = useSelector(lineupSelector)
+  const lineup = selectedLineup ?? lineupProp
+  const { status, entries } = lineup
+  const lineupLength = entries.length
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true)
+    dispatch(actions.refreshInView(true))
+  }, [dispatch, actions])
+
+  useEffect(() => {
+    if (status !== Status.LOADING) {
+      setRefreshing(false)
+    }
+  }, [status])
+
+  const refresh = refreshProp ?? handleRefresh
+
   useScrollToTop(() => {
     ref.current?.scrollToLocation({
       sectionIndex: 0,
@@ -145,6 +260,12 @@ export const Lineup = ({
       animated: true
     })
   }, disableTopTabScroll)
+
+  const handleInView = useCallback(() => {
+    dispatch(actions.setInView(true))
+  }, [dispatch, actions])
+
+  useFocusEffect(handleInView)
 
   const itemCounts = useItemCounts(variant)
 
@@ -165,7 +286,6 @@ export const Lineup = ({
       status
     } = lineup
 
-    const lineupLength = entries.length
     const offset = lineupLength + deleted + nullCount
 
     const shouldLoadMore =
@@ -181,7 +301,7 @@ export const Lineup = ({
     if (shouldLoadMore) {
       const itemLoadCount = itemCounts.initial + page * itemCounts.loadMore
 
-      dispatchWeb(actions.setPage(page + 1))
+      dispatch(actions.setPage(page + 1))
 
       const limit =
         Math.min(itemLoadCount, Math.max(countOrDefault, itemCounts.minimum)) -
@@ -190,133 +310,82 @@ export const Lineup = ({
       if (loadMore) {
         loadMore(offset, limit, page === 0)
       } else {
-        dispatchWeb(
-          actions.fetchLineupMetadatas(offset, limit, page === 0, fetchPayload)
+        dispatch(
+          actions.fetchLineupMetadatas(
+            offset,
+            limit,
+            page === 0,
+            fetchPayload,
+            extraFetchOptions
+          )
         )
       }
     }
   }, [
     actions,
     countOrDefault,
-    dispatchWeb,
+    dispatch,
     fetchPayload,
     includeLineupStatus,
     itemCounts,
     limit,
     lineup,
+    lineupLength,
     loadMore,
-    pageItemCount
+    pageItemCount,
+    extraFetchOptions
   ])
 
   // When scrolled past the end threshold of the lineup and the lineup is not loading,
   // trigger another load
   useEffect(() => {
-    if (isPastLoadThreshold && lineup.status !== Status.LOADING) {
+    if (isPastLoadThreshold && status !== Status.LOADING) {
+      setIsPastLoadThreshold(false)
       handleLoadMore()
     }
-  }, [isPastLoadThreshold, lineup.status, handleLoadMore])
+  }, [isPastLoadThreshold, status, handleLoadMore])
 
   useEffect(() => {
-    if (selfLoad && lineup.entries.length === 0) {
+    if (selfLoad && lineupLength === 0 && status !== Status.LOADING) {
       handleLoadMore()
     }
-  }, [handleLoadMore, selfLoad, lineup])
+  }, [handleLoadMore, selfLoad, lineupLength, status])
 
   const togglePlay = useCallback(
-    ({
-      uid,
-      id,
-      source,
-      isPlayingUid,
-      isPlaying
-    }: {
-      uid: UID
-      id: ID
-      source: PlaybackSource
-      isPlayingUid: boolean
-      isPlaying: boolean
-    }) => {
-      // setImmediate prevents this cpu-intensive callback from firing until
-      // the lineup-tile press animation finishes. This may not be needed when
-      // we remove the web-view.
-      setImmediate(() => {
-        if (!isPlayingUid || !isPlaying) {
-          dispatchWeb(actions.play(uid))
-          track(
-            make({
-              eventName: Name.PLAYBACK_PLAY,
-              id: `${id}`,
-              source: source || PlaybackSource.TRACK_TILE
-            })
-          )
-        } else {
-          dispatchWeb(actions.pause())
-          track(
-            make({
-              eventName: Name.PLAYBACK_PAUSE,
-              id: `${id}`,
-              source: source || PlaybackSource.TRACK_TILE
-            })
-          )
-        }
-      })
+    ({ uid, id, source }: TogglePlayConfig) => {
+      dispatch(actions.togglePlay(uid, id, source))
     },
-    [actions, dispatchWeb]
+    [actions, dispatch]
   )
 
-  const getLineupTileComponent = (item: LineupItem) => {
-    if (item.kind === Kind.TRACKS || item.track_id) {
-      if (item._marked_deleted) {
-        return null
-      }
-      return TrackTile
-    } else if (item.kind === Kind.COLLECTIONS || item.playlist_id) {
-      return CollectionTile
-    }
-    return null
-  }
-
-  const renderItem = ({
-    index,
-    item
-  }: {
-    index: number
-    item: LineupItem | LoadingLineupItem | FeedTipLineupItem
-  }) => {
-    if (!item) return null
-
-    if ('_feedTip' in item) {
-      return <FeedTipTile />
-    } else if ('_loading' in item) {
-      if (item._loading) {
-        return (
-          <View style={styles.item}>
-            <LineupTileSkeleton />
-          </View>
-        )
-      }
-    } else {
-      const LineupTile = getLineupTileComponent(item)
-      if (LineupTile) {
-        return (
-          <View style={styles.item}>
-            <LineupTile
-              {...item}
-              index={index}
-              isTrending={isTrending}
-              showArtistPick={
-                showLeadingElementArtistPick && !!leadingElementId
-              }
-              showRankIcon={index < rankIconCount}
-              togglePlay={togglePlay}
-              uid={item.uid}
-            />
-          </View>
-        )
-      }
-    }
-    return null
-  }
+  const renderItem = useCallback(
+    ({
+      index,
+      item
+    }: {
+      index: number
+      item: LineupItem | LoadingLineupItem | FeedTipLineupItem
+    }) => {
+      return (
+        <LineupItemTile
+          index={index}
+          item={item}
+          isTrending={isTrending}
+          leadingElementId={leadingElementId}
+          rankIconCount={rankIconCount}
+          showLeadingElementArtistPick={showLeadingElementArtistPick}
+          togglePlay={togglePlay}
+        />
+      )
+    },
+    [
+      isTrending,
+      leadingElementId,
+      rankIconCount,
+      showLeadingElementArtistPick,
+      togglePlay
+    ]
+  )
 
   // Calculate the sections of data to provide to SectionList
   const sections: Section[] = useMemo(() => {
@@ -389,12 +458,9 @@ export const Lineup = ({
     const data = [...items, ...skeletonItems]
 
     if (data.length === 0) {
-      return [
-        {
-          delineate: false,
-          data: prependFeedTipTileIfNeeded([])
-        }
-      ]
+      const data = prependFeedTipTileIfNeeded([])
+      if (data.length === 0) return []
+      return [{ delineate: false, data }]
     }
 
     return [
@@ -437,18 +503,21 @@ export const Lineup = ({
     [isPastLoadThreshold]
   )
 
+  const pullToRefreshProps =
+    pullToRefresh || refreshProp ? { onRefresh: refresh, refreshing } : {}
+
   return (
     <View style={styles.root}>
       <SectionList
         {...listProps}
+        {...pullToRefreshProps}
         ref={ref}
         onScroll={handleScroll}
         ListHeaderComponent={header}
         ListFooterComponent={<View style={{ height: 16 }} />}
+        ListEmptyComponent={LineupEmptyComponent}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={LOAD_MORE_THRESHOLD}
-        onRefresh={refresh}
-        refreshing={refreshing}
         sections={sections}
         stickySectionHeadersEnabled={false}
         keyExtractor={(item, index) => `${item?.id}  ${index}`}

@@ -1,17 +1,20 @@
 import { useCallback } from 'react'
 
-import { useUIAudio } from 'audius-client/src/common/hooks/useUIAudio'
-import { getNotificationUser } from 'audius-client/src/common/store/notifications/selectors'
-import type { Reaction } from 'audius-client/src/common/store/notifications/types'
-import { getReactionFromRawValue } from 'audius-client/src/common/store/ui/reactions/slice'
-import { View } from 'react-native'
+import type { ReactionNotification } from '@audius/common'
+import {
+  useUIAudio,
+  notificationsSelectors,
+  getReactionFromRawValue
+} from '@audius/common'
+import { Platform, View } from 'react-native'
+import { useSelector } from 'react-redux'
 
 import IconTip from 'app/assets/images/iconTip.svg'
 import UserBadges from 'app/components/user-badges'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { useNotificationNavigation } from 'app/hooks/useNotificationNavigation'
+import { make } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 import { EventNames } from 'app/types/analytics'
-import { make } from 'app/utils/analytics'
 
 import {
   NotificationHeader,
@@ -25,13 +28,19 @@ import {
 } from '../Notification'
 import { reactionMap } from '../Reaction'
 
-import { useGoToProfile } from './useGoToProfile'
+const { getNotificationUser } = notificationsSelectors
 
 const messages = {
   reacted: 'reacted',
+  // NOTE: Send tip -> Send $AUDIO change
   react: 'reacted to your tip of ',
-  twitterShare: (handle: string) =>
-    `I got a thanks from ${handle} for tipping them $AUDIO on @audiusproject! #Audius #AUDIOTip`
+  reactAltPrefix: 'reacted to the ', // iOS only
+  reactAltSuffix: ' you sent them', // iOS only
+  // NOTE: Send tip -> Send $AUDIO change
+  twitterShare: (handle: string, ios: boolean) =>
+    `I got a thanks from ${handle} for ${
+      ios ? 'sending' : 'tipping'
+    } them $AUDIO on @audiusproject! #Audius ${ios ? '#AUDIO' : '#AUDIOTip'}`
 }
 
 const useStyles = makeStyles(() => ({
@@ -56,7 +65,7 @@ const useStyles = makeStyles(() => ({
 }))
 
 type TipReactionNotificationProps = {
-  notification: Reaction
+  notification: ReactionNotification
   isVisible: boolean
 }
 
@@ -70,18 +79,18 @@ export const TipReactionNotification = (
     reactedToEntity: { amount }
   } = notification
 
+  const navigation = useNotificationNavigation()
   const uiAmount = useUIAudio(amount)
   const styles = useStyles()
 
-  const user = useSelectorWeb(
-    (state) => getNotificationUser(state, notification),
-    isEqual
-  )
+  const user = useSelector((state) => getNotificationUser(state, notification))
 
-  const handlePress = useGoToProfile(user)
+  const handlePress = useCallback(() => {
+    navigation.navigate(notification)
+  }, [navigation, notification])
 
   const handleTwitterShare = useCallback((handle: string) => {
-    const shareText = messages.twitterShare(handle)
+    const shareText = messages.twitterShare(handle, Platform.OS === 'ios')
     return {
       shareText,
       analytics: make({
@@ -115,8 +124,9 @@ export const TipReactionNotification = (
             <UserBadges user={user} hideName />
           </View>
           <NotificationText>
-            {messages.react}
+            {Platform.OS === 'ios' ? messages.reactAltPrefix : messages.react}
             <TipText value={uiAmount} />
+            {Platform.OS === 'ios' ? messages.reactAltSuffix : ''}
           </NotificationText>
         </View>
       </View>

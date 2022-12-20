@@ -1,20 +1,18 @@
 import { useCallback } from 'react'
 
-import type { Nullable } from '@audius/common'
-import {
-  getNotificationEntities,
-  getNotificationUser
-} from 'audius-client/src/common/store/notifications/selectors'
 import type {
-  RemixCosign,
+  Nullable,
+  RemixCosignNotification as RemixCosignNotificationType,
   TrackEntity
-} from 'audius-client/src/common/store/notifications/types'
+} from '@audius/common'
+import { useProxySelector, notificationsSelectors } from '@audius/common'
 import { View } from 'react-native'
+import { useSelector } from 'react-redux'
 
 import IconRemix from 'app/assets/images/iconRemix.svg'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { useNotificationNavigation } from 'app/hooks/useNotificationNavigation'
+import { make } from 'app/services/analytics'
 import { EventNames } from 'app/types/analytics'
-import { make } from 'app/utils/analytics'
 import { getTrackRoute } from 'app/utils/routes'
 
 import {
@@ -27,7 +25,7 @@ import {
   ProfilePicture,
   NotificationTwitterButton
 } from '../Notification'
-import { useDrawerNavigation } from '../useDrawerNavigation'
+const { getNotificationEntities, getNotificationUser } = notificationsSelectors
 
 const messages = {
   title: 'Remix Co-sign',
@@ -37,23 +35,21 @@ const messages = {
 }
 
 type RemixCosignNotificationProps = {
-  notification: RemixCosign
+  notification: RemixCosignNotificationType
 }
 
 export const RemixCosignNotification = (
   props: RemixCosignNotificationProps
 ) => {
   const { notification } = props
-  const navigation = useDrawerNavigation()
+  const navigation = useNotificationNavigation()
   const { childTrackId, parentTrackUserId } = notification
-  const user = useSelectorWeb((state) =>
-    getNotificationUser(state, notification)
-  )
+  const user = useSelector((state) => getNotificationUser(state, notification))
   // TODO: casting from EntityType to TrackEntity here, but
   // getNotificationEntities should be smart enough based on notif type
-  const tracks = useSelectorWeb(
+  const tracks = useProxySelector(
     (state) => getNotificationEntities(state, notification),
-    isEqual
+    [notification]
   ) as Nullable<TrackEntity[]>
 
   const childTrack = tracks?.find(({ track_id }) => track_id === childTrackId)
@@ -64,17 +60,9 @@ export const RemixCosignNotification = (
 
   const handlePress = useCallback(() => {
     if (childTrack) {
-      navigation.navigate({
-        native: {
-          screen: 'Track',
-          params: { id: childTrack.track_id, fromNotifications: true }
-        },
-        web: {
-          route: getTrackRoute(childTrack)
-        }
-      })
+      navigation.navigate(notification)
     }
-  }, [childTrack, navigation])
+  }, [childTrack, navigation, notification])
 
   const handleTwitterShareData = useCallback(
     (handle: string | undefined) => {

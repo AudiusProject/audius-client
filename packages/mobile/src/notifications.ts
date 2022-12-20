@@ -1,5 +1,3 @@
-import type { RefObject } from 'react'
-
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import type { PushNotificationPermissions } from 'react-native'
 import { Platform } from 'react-native'
@@ -7,21 +5,18 @@ import Config from 'react-native-config'
 // https://dev.to/edmondso006/react-native-local-ios-and-android-notifications-2c58
 import PushNotification from 'react-native-push-notification'
 
-import { dispatch } from 'app/App'
-import { open } from 'app/store/notifications/actions'
-import type { MessagePostingWebView } from 'app/types/MessagePostingWebView'
+import { track, make } from 'app/services/analytics'
 import { EventNames } from 'app/types/analytics'
-import { track, make } from 'app/utils/analytics'
 
 type Token = {
   token: string
   os: string
 }
 
+type NotificationNavigation = { navigate: (notification: any) => void }
+
 // Set to true while the push notification service is registering with the os
 let isRegistering = false
-// Reference to hold the web ref to push routes to
-let webRef: RefObject<MessagePostingWebView>
 
 const getPlatformConfiguration = () => {
   if (Platform.OS === 'android') {
@@ -50,6 +45,7 @@ const getPlatformConfiguration = () => {
 class PushNotifications {
   lastId: number
   token: Token | null
+  navigation: NotificationNavigation | null
 
   // onNotification is a function passed in that is to be called when a
   // notification is to be emitted.
@@ -57,35 +53,47 @@ class PushNotifications {
     this.configure()
     this.lastId = 0
     this.token = null
+    this.navigation = null
   }
 
-  setWebRef(w: RefObject<MessagePostingWebView>) {
-    webRef = w
+  setNavigation = (navigation: NotificationNavigation) => {
+    this.navigation = navigation
   }
 
-  onNotification(notification: any) {
+  onNotification = (notification: any) => {
     console.info(`Received notification ${JSON.stringify(notification)}`)
-    if (notification.userInteraction || Platform.OS === 'android') {
+    if (
+      Platform.OS === 'android' ||
+      notification.userInteration ||
+      !notification.foreground
+    ) {
       track(
         make({
           eventName: EventNames.NOTIFICATIONS_OPEN_PUSH_NOTIFICATION,
           ...(notification.message
             ? {
-                title: notification.message.title,
-                body: notification.message.body
+                title: notification.message.title ?? notification.title,
+                body: notification.message.body ?? notification.message
               }
             : {})
         })
       )
 
-      if (!webRef || !webRef.current) return
-
-      dispatch(open())
+      this.navigation?.navigate(notification.data.data)
     }
   }
 
+  // Method used to open the push notification that the user pressed while the app was closed
+  openInitialNotification = () => {
+    PushNotification.popInitialNotification((notification) => {
+      if (notification) {
+        console.log('Opening initial notification')
+        this.onNotification(notification)
+      }
+    })
+  }
+
   async onRegister(token: Token) {
-    console.log('REGISTER DEVICE TOKEN', token)
     this.token = token
     await AsyncStorage.setItem('@device_token', JSON.stringify(token))
     isRegistering = false

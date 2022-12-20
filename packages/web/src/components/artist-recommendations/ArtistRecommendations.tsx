@@ -3,8 +3,7 @@ import {
   MutableRefObject,
   ReactNode,
   useCallback,
-  useEffect,
-  useMemo
+  useEffect
 } from 'react'
 
 import {
@@ -13,17 +12,18 @@ import {
   Name,
   ProfilePictureSizes,
   SquareSizes,
-  User
+  User,
+  artistRecommendationsUISelectors,
+  artistRecommendationsUIActions,
+  usersSocialActions as socialActions,
+  CommonState
 } from '@audius/common'
 import cn from 'classnames'
 import { push } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconClose } from 'assets/img/iconRemove.svg'
-import { CommonState } from 'common/store'
-import * as socialActions from 'common/store/social/users/actions'
-import { makeGetRelatedArtists } from 'common/store/ui/artist-recommendations/selectors'
-import { fetchRelatedArtists } from 'common/store/ui/artist-recommendations/slice'
+import { make, useRecord } from 'common/store/analytics/actions'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import FollowButton from 'components/follow-button/FollowButton'
@@ -31,11 +31,12 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { MountPlacement } from 'components/types'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
-import { make, useRecord } from 'store/analytics/actions'
 import { useIsMobile } from 'utils/clientUtil'
 import { profilePage } from 'utils/route'
 
 import styles from './ArtistRecommendations.module.css'
+const { getRelatedArtists } = artistRecommendationsUISelectors
+const { fetchRelatedArtists } = artistRecommendationsUIActions
 
 export type ArtistRecommendationsProps = {
   ref?: MutableRefObject<HTMLDivElement>
@@ -145,14 +146,12 @@ export const ArtistRecommendations = forwardRef(
       )
     }, [dispatch, artistId])
 
-    // Get the related artists
-    const getRelatedArtists = useMemo(makeGetRelatedArtists, [artistId])
     const suggestedArtists = useSelector<CommonState, User[]>((state) =>
       getRelatedArtists(state, { id: artistId })
     )
 
     // Follow/Unfollow listeners
-    const onFollowAllClicked = useCallback(() => {
+    const handleFollowAll = useCallback(() => {
       suggestedArtists.forEach((a) => {
         dispatch(
           socialActions.followUser(
@@ -162,7 +161,8 @@ export const ArtistRecommendations = forwardRef(
         )
       })
     }, [dispatch, suggestedArtists])
-    const onUnfollowAllClicked = useCallback(() => {
+
+    const handleUnfollowAll = useCallback(() => {
       suggestedArtists.forEach((a) => {
         dispatch(
           socialActions.unfollowUser(
@@ -175,7 +175,7 @@ export const ArtistRecommendations = forwardRef(
 
     // Navigate to profile pages on artist links
     const onArtistNameClicked = useCallback(
-      (handle) => {
+      (handle: string) => {
         dispatch(push(profilePage(handle)))
       },
       [dispatch]
@@ -261,8 +261,8 @@ export const ArtistRecommendations = forwardRef(
             invertedColor={true}
             messages={messages}
             size='full'
-            onFollow={onFollowAllClicked}
-            onUnfollow={onUnfollowAllClicked}
+            onFollow={handleFollowAll}
+            onUnfollow={handleUnfollowAll}
           />
         </div>
       </div>

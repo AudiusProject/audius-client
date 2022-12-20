@@ -10,7 +10,12 @@ import {
   WalletAddress,
   Nullable,
   FeatureFlags,
-  IntKeys
+  IntKeys,
+  parseAudioInputToWei,
+  stringAudioToBN,
+  stringWeiToBN,
+  weiToAudio,
+  MIN_TRANSFERRABLE_WEI
 } from '@audius/common'
 import {
   Button,
@@ -21,15 +26,8 @@ import {
 } from '@audius/stems'
 
 import { ReactComponent as IconGoldBadgeSVG } from 'assets/img/IconGoldBadge.svg'
-import {
-  parseAudioInputToWei,
-  stringAudioToBN,
-  stringWeiToBN,
-  weiToAudio
-} from 'common/utils/wallet'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
-import { MIN_TRANSFERRABLE_WEI } from 'services/wallet-client/WalletClient'
 
 import { ModalBodyTitle, ModalBodyWrapper } from '../WalletModal'
 

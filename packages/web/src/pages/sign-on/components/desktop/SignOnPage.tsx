@@ -1,6 +1,15 @@
 import { Suspense, useEffect } from 'react'
 
-import { ID, Status, User } from '@audius/common'
+import {
+  ID,
+  Status,
+  User,
+  accountSelectors,
+  AccountImage,
+  InstagramProfile,
+  TwitterProfile,
+  TikTokProfile
+} from '@audius/common'
 import cn from 'classnames'
 import { animated } from 'react-spring'
 import { Transition } from 'react-spring/renderprops'
@@ -11,32 +20,27 @@ import imageSignUp3 from 'assets/img/4-Conductor-4-3.jpg'
 import { ReactComponent as IconRemove } from 'assets/img/iconRemove.svg'
 import imagePhone from 'assets/img/imagePhone.png'
 import CTAImage from 'assets/img/signUpCTA.png'
-import {
-  AccountImage,
-  InstagramProfile,
-  TwitterProfile
-} from 'common/store/account/reducer'
-import { getAccountStatus } from 'common/store/account/selectors'
+import { getStatus } from 'common/store/pages/signon/selectors'
+import { Pages, FollowArtistsCategory } from 'common/store/pages/signon/types'
 import BackgroundWaves from 'components/background-animations/BackgroundWaves'
 import Page from 'components/page/Page'
 import SignOnModal from 'components/sign-on/SignOnModal'
 import Toast from 'components/toast/Toast'
 import { ComponentPlacement, MountPlacement } from 'components/types'
 import LoadingPage from 'pages/sign-on/components/LoadingPage'
+import ProfilePage from 'pages/sign-on/components/ProfilePage'
 import { EmailPage } from 'pages/sign-on/components/desktop/EmailPage'
 import FollowPage from 'pages/sign-on/components/desktop/FollowPage'
 import PasswordPage from 'pages/sign-on/components/desktop/PasswordPage'
-import ProfilePage from 'pages/sign-on/components/desktop/ProfilePage'
 import { SignInPage } from 'pages/sign-on/components/desktop/SignInPage'
 import StartPlatformPage from 'pages/sign-on/components/desktop/StartPlatformPage'
-import { getStatus } from 'pages/sign-on/store/selectors'
-import { Pages, FollowArtistsCategory } from 'pages/sign-on/store/types'
 import lazyWithPreload from 'utils/lazyWithPreload'
 import { useSelector } from 'utils/reducer'
 import { BASE_URL, SIGN_UP_PAGE } from 'utils/route'
 
 import AppCTA from './AppCTA'
 import styles from './SignOn.module.css'
+const getAccountStatus = accountSelectors.getAccountStatus
 
 const MetaMaskModal = lazyWithPreload(
   () => import('pages/sign-on/components/desktop/MetaMaskModal'),
@@ -82,6 +86,12 @@ export type SignOnProps = {
   setInstagramProfile: (
     uuid: string,
     profile: InstagramProfile,
+    profileImg?: AccountImage,
+    skipEdit?: boolean
+  ) => void
+  setTikTokProfile: (
+    uuid: string,
+    profile: TikTokProfile,
     profileImg?: AccountImage,
     skipEdit?: boolean
   ) => void
@@ -134,7 +144,7 @@ const animatedStyle = {
  * TODO: When the user selects the metamask option, set the localStorage key 'useMetaMask' to true
  * Reference the setup function in Audius backend. A new instance of Audiusbackend will have to be created
  */
-const SignOnProvider = ({
+const SignOnPage = ({
   title,
   description,
   page,
@@ -154,6 +164,7 @@ const SignOnProvider = ({
   onSetProfileImage,
   setTwitterProfile,
   setInstagramProfile,
+  setTikTokProfile,
   validateHandle,
   onAddFollows,
   onRemoveFollows,
@@ -268,20 +279,21 @@ const SignOnProvider = ({
         }}
       >
         <ProfilePage
-          name={name}
           handle={handle}
           isVerified={verified}
-          twitterId={twitterId}
+          name={name}
           onHandleChange={onHandleChange}
           onNameChange={onNameChange}
-          profileImage={profileImage}
-          setProfileImage={onSetProfileImage}
-          setTwitterProfile={setTwitterProfile}
-          setInstagramProfile={setInstagramProfile}
-          validateHandle={validateHandle}
-          recordTwitterStart={recordTwitterStart}
-          recordInstagramStart={recordInstagramStart}
           onNextPage={onNextPage}
+          profileImage={profileImage}
+          recordInstagramStart={recordInstagramStart}
+          recordTwitterStart={recordTwitterStart}
+          setInstagramProfile={setInstagramProfile}
+          setProfileImage={onSetProfileImage}
+          setTikTokProfile={setTikTokProfile}
+          setTwitterProfile={setTwitterProfile}
+          twitterId={twitterId}
+          validateHandle={validateHandle}
         />
       </animated.div>
     ),
@@ -486,4 +498,4 @@ const SignOnProvider = ({
   )
 }
 
-export default SignOnProvider
+export default SignOnPage

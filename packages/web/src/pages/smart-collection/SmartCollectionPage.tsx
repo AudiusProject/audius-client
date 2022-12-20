@@ -1,15 +1,21 @@
 import { useEffect } from 'react'
 
-import { SmartCollectionVariant } from '@audius/common'
+import {
+  SmartCollectionVariant,
+  accountSelectors,
+  smartCollectionPageSelectors,
+  smartCollectionPageActions,
+  playlistLibraryHelpers
+} from '@audius/common'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { getPlaylistLibrary } from 'common/store/account/selectors'
-import { getCollection } from 'common/store/pages/smart-collection/selectors'
-import { fetchSmartCollection } from 'common/store/pages/smart-collection/slice'
-import { findInPlaylistLibrary } from 'common/store/playlist-library/helpers'
 import CollectionPage from 'pages/collection-page/CollectionPage'
 import { AppState } from 'store/types'
+const { fetchSmartCollection } = smartCollectionPageActions
+const { getCollection } = smartCollectionPageSelectors
+const { getPlaylistLibrary } = accountSelectors
+const { findInPlaylistLibrary } = playlistLibraryHelpers
 
 type OwnProps = {
   variant: SmartCollectionVariant

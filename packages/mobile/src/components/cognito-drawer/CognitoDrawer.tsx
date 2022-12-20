@@ -1,25 +1,22 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { Status } from '@audius/common'
 import {
-  getCognitoFlowUrl,
-  getCognitoFlowUrlStatus
-} from 'audius-client/src/common/store/pages/audio-rewards/selectors'
-import {
+  Status,
+  audioRewardsPageActions,
   CognitoFlowStatus,
-  fetchCognitoFlowUrl,
-  setCognitoFlowStatus
-} from 'audius-client/src/common/store/pages/audio-rewards/slice'
+  audioRewardsPageSelectors
+} from '@audius/common'
 import { StyleSheet, View } from 'react-native'
 import WebView from 'react-native-webview'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { AppDrawer, useDrawerState } from 'app/components/drawer'
 import LoadingSpinner from 'app/components/loading-spinner'
 import Text from 'app/components/text'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
 import type { ThemeColors } from 'app/utils/theme'
+const { getCognitoFlowUrl, getCognitoFlowUrlStatus } = audioRewardsPageSelectors
+const { fetchCognitoFlowUrl, setCognitoFlowStatus } = audioRewardsPageActions
 
 const MODAL_NAME = 'Cognito'
 
@@ -57,15 +54,15 @@ const createStyles = (themeColors: ThemeColors) =>
 
 export const CognitoDrawer = () => {
   const styles = useThemedStyles(createStyles)
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
   const { isOpen } = useDrawerState(MODAL_NAME)
-  const uri = useSelectorWeb(getCognitoFlowUrl)
-  const uriStatus = useSelectorWeb(getCognitoFlowUrlStatus)
+  const uri = useSelector(getCognitoFlowUrl)
+  const uriStatus = useSelector(getCognitoFlowUrlStatus)
   const [key, setKey] = useState(0)
 
   const handleClose = useCallback(() => {
-    dispatchWeb(setCognitoFlowStatus({ status: CognitoFlowStatus.CLOSED }))
-  }, [dispatchWeb])
+    dispatch(setCognitoFlowStatus({ status: CognitoFlowStatus.CLOSED }))
+  }, [dispatch])
 
   const reload = useCallback(() => {
     setKey((key) => key + 1)
@@ -74,11 +71,11 @@ export const CognitoDrawer = () => {
   // On open, fetch the cognito flow url if don't already have one, otherwise refresh
   useEffect(() => {
     if (isOpen && !uri) {
-      dispatchWeb(fetchCognitoFlowUrl())
+      dispatch(fetchCognitoFlowUrl())
     } else if (isOpen) {
       reload()
     }
-  }, [dispatchWeb, reload, isOpen, uri])
+  }, [dispatch, reload, isOpen, uri])
 
   return (
     <AppDrawer

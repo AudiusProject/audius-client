@@ -1,13 +1,15 @@
 import { useCallback, useRef, useState } from 'react'
 
-import { Name, Status, TimeRange } from '@audius/common'
-
 import {
-  trendingAllTimeActions,
-  trendingMonthActions,
-  trendingWeekActions
-} from 'common/store/pages/trending/lineup/actions'
-import { ELECTRONIC_PREFIX, TRENDING_GENRES } from 'common/utils/genres'
+  Name,
+  Status,
+  TimeRange,
+  ELECTRONIC_PREFIX,
+  TRENDING_GENRES,
+  trendingPageLineupActions
+} from '@audius/common'
+
+import { make, useRecord } from 'common/store/analytics/actions'
 import Header from 'components/header/desktop/Header'
 import EndOfLineup from 'components/lineup/EndOfLineup'
 import Lineup from 'components/lineup/Lineup'
@@ -15,13 +17,14 @@ import { LineupVariant } from 'components/lineup/types'
 import Page from 'components/page/Page'
 import useTabs from 'hooks/useTabs/useTabs'
 import { TrendingPageContentProps } from 'pages/trending-page/types'
-import { make, useRecord } from 'store/analytics/actions'
 
 import RewardsBanner from '../RewardsBanner'
 
 import GenreSelectionModal from './GenreSelectionModal'
 import TrendingGenreFilters from './TrendingGenreFilters'
 import styles from './TrendingPageContent.module.css'
+const { trendingAllTimeActions, trendingMonthActions, trendingWeekActions } =
+  trendingPageLineupActions
 
 const messages = {
   thisWeek: 'THIS WEEK',
@@ -65,6 +68,7 @@ const getRangesToDisable = (timeRange: TimeRange) => {
 const TrendingPageContent = (props: TrendingPageContentProps) => {
   const {
     trendingTitle,
+    pageTitle,
     trendingDescription,
     trendingWeek,
     trendingMonth,
@@ -352,7 +356,7 @@ const TrendingPageContent = (props: TrendingPageContentProps) => {
   return (
     <>
       <Page
-        title={trendingTitle}
+        title={pageTitle}
         description={trendingDescription}
         size='large'
         header={header}

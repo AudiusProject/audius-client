@@ -1,14 +1,12 @@
 import { useCallback, useContext, useRef, useState } from 'react'
 
-import type { Nullable } from '@audius/common'
-import type { ReactionTypes } from 'audius-client/src/common/store/ui/reactions/slice'
-import { reactionOrder } from 'audius-client/src/common/store/ui/reactions/slice'
+import { reactionOrder } from '@audius/common'
+import type { Nullable, ReactionTypes } from '@audius/common'
 import type { PanResponderGestureState } from 'react-native'
 import { View, PanResponder } from 'react-native'
 
+import { AppDrawerContext } from 'app/screens/app-drawer-screen'
 import { makeStyles } from 'app/styles'
-
-import { NotificationsDrawerNavigationContext } from '../NotificationsDrawerNavigationContext'
 
 import { reactionMap } from './reactions'
 
@@ -50,9 +48,7 @@ export const ReactionList = (props: ReactionListProps) => {
   // The current reaction the user is interacting with.
   // Note this needs to be a ref since the guesture handler is also a ref
   const interactingReactionRef = useRef<ReactionTypes | null>(null)
-  const { setGesturesDisabled } = useContext(
-    NotificationsDrawerNavigationContext
-  )
+  const { setGesturesDisabled } = useContext(AppDrawerContext)
   // Whether or not the user is currently interacting with the reactions
   const [interacting, setInteracting] = useState<ReactionTypes | null>(null)
   const positions = useRef<Positions>(initialPositions)

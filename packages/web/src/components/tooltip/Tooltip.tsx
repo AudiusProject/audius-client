@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useCallback, useRef, CSSProperties } from 'react'
 
 import AntTooltip from 'antd/lib/tooltip'
 import cn from 'classnames'
@@ -8,14 +8,13 @@ import { getCurrentThemeColors } from 'utils/theme/theme'
 import styles from './Tooltip.module.css'
 import { TooltipProps } from './types'
 
-const themeColors = getCurrentThemeColors()
-
 export const Tooltip = ({
   children,
   className = '',
-  color = themeColors['--secondary-transparent'],
+  color = '--secondary-transparent',
   disabled = false,
   mount = 'parent',
+  getPopupContainer,
   mouseEnterDelay = 0.5,
   mouseLeaveDelay = 0,
   placement = 'top',
@@ -23,16 +22,45 @@ export const Tooltip = ({
   shouldWrapContent = true,
   text = ''
 }: TooltipProps) => {
-  const [hideTooltip, setHideTooltip] = useState(false)
+  // This is part of the render cycle so that when the theme changes the new
+  // color is applied
+  const themedColor = getCurrentThemeColors()[color]
 
-  useEffect(() => {
-    if (hideTooltip) {
-      const hideTooltipTimeout = setTimeout(() => {
-        setHideTooltip(false)
-      }, 2500)
-      return () => clearTimeout(hideTooltipTimeout)
+  // Keep track of a hidden state ourselves so we can dismiss the tooltip on click
+  const [isHiddenOverride, setIsHiddenOverride] = useState(false)
+
+  // Keep track of whether we are hovering over the tooltip to know when to
+  // allow it to become visible again
+  const mousedOver = useRef(false)
+
+  const onClick = useCallback(() => {
+    if (shouldDismissOnClick) {
+      setIsHiddenOverride(true)
     }
-  }, [hideTooltip])
+  }, [shouldDismissOnClick, setIsHiddenOverride])
+
+  const onMouseOut = useCallback(() => {
+    mousedOver.current = false
+    // Reset the hidden override if we are mousing
+    // out from the tooltip so that it can be used to
+    // hide the tooltip on the next hover.
+    setIsHiddenOverride(false)
+  }, [mousedOver, setIsHiddenOverride])
+
+  const onMouseOver = useCallback(() => {
+    mousedOver.current = true
+  }, [mousedOver])
+
+  const onVisibleChange = useCallback(
+    (visible: boolean) => {
+      // Reset the hidden override if we are becoming invisible or
+      // the mouse is not overtop the tooltip
+      if (!visible || !mousedOver.current) {
+        setIsHiddenOverride(false)
+      }
+    },
+    [setIsHiddenOverride]
+  )
 
   let popupContainer
   const page = document.getElementById('page')
@@ -47,22 +75,33 @@ export const Tooltip = ({
     }
   }
 
-  const visibleProps = disabled || hideTooltip ? { visible: false } : {}
+  // Keep track of visibility to override antd's native visibility.
+  // Use an empty object when visible as to not trigger the antd component to update
+  const visibleProps = disabled || isHiddenOverride ? { visible: false } : {}
+  // Use a css property so that when we change visibility on click the tooltip
+  // immediately disappears instead of animating out.
+  const overlayStyle = {
+    visibility: isHiddenOverride ? 'hidden' : 'visible'
+  } as CSSProperties
 
   return (
     <AntTooltip
       {...visibleProps}
+      overlayStyle={overlayStyle}
       placement={placement}
       title={text}
-      color={color}
+      color={themedColor}
       // @ts-ignore
-      getPopupContainer={popupContainer}
+      getPopupContainer={getPopupContainer || popupContainer}
       overlayClassName={cn(styles.tooltip, className, {
         [styles.nonWrappingTooltip]: !shouldWrapContent
       })}
       mouseEnterDelay={mouseEnterDelay}
       mouseLeaveDelay={mouseLeaveDelay}
-      onClick={() => shouldDismissOnClick && setHideTooltip(true)}
+      onClick={onClick}
+      onMouseOut={onMouseOut}
+      onMouseOver={onMouseOver}
+      onVisibleChange={onVisibleChange}
     >
       {children}
     </AntTooltip>

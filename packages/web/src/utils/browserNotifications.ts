@@ -1,4 +1,5 @@
-import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
+import { AudiusBackend } from '@audius/common'
+
 import { isElectron } from 'utils/clientUtil'
 
 export enum Permission {
@@ -34,23 +35,15 @@ declare global {
  *
  */
 
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 const basename = process.env.PUBLIC_URL
 
 const fcmWebPushPublicKey = process.env.REACT_APP_FCM_PUSH_PUBLIC_KEY as string
 const safariWebPushID = process.env.REACT_APP_SAFARI_WEB_PUSH_ID
-const webServiceUrl = `${audiusBackendInstance.identityServiceUrl}/push_notifications/safari`
 const applicationServerPublicKey = fcmWebPushPublicKey
 export const isPushManagerAvailable =
-  !isElectron() &&
-  !NATIVE_MOBILE &&
-  'serviceWorker' in navigator &&
-  'PushManager' in window
+  !isElectron() && 'serviceWorker' in navigator && 'PushManager' in window
 export const isSafariPushAvailable =
-  !isElectron() &&
-  !NATIVE_MOBILE &&
-  'safari' in window &&
-  'pushNotification' in window.safari
+  !isElectron() && 'safari' in window && 'pushNotification' in window.safari
 export const isBrowserPushAvailable =
   isPushManagerAvailable || isSafariPushAvailable
 
@@ -98,25 +91,27 @@ type SafariPermissionData =
   | { permission: Permission.DENIED }
   | { permission: Permission.GRANTED; deviceToken: string }
 
-export const subscribeSafariPushBrowser =
-  async (): Promise<SafariPermissionData | null> => {
-    try {
-      if (isSafariPushAvailable) {
-        const subscription = await new Promise((resolve) => {
-          window.safari.pushNotification.requestPermission(
-            webServiceUrl, // The web service URL.
-            safariWebPushID, // The Website Push ID.
-            {}, // Data that you choose to send to your server to help you identify the user.
-            resolve // The callback function.
-          )
-        })
-        return subscription as SafariPermissionData
-      }
-    } catch (err) {
-      console.warn('Unable to subscribe safari push browser')
+export const subscribeSafariPushBrowser = async (
+  audiusBackendInstance: AudiusBackend
+): Promise<SafariPermissionData | null> => {
+  const webServiceUrl = `${audiusBackendInstance.identityServiceUrl}/push_notifications/safari`
+  try {
+    if (isSafariPushAvailable) {
+      const subscription = await new Promise((resolve) => {
+        window.safari.pushNotification.requestPermission(
+          webServiceUrl, // The web service URL.
+          safariWebPushID, // The Website Push ID.
+          {}, // Data that you choose to send to your server to help you identify the user.
+          resolve // The callback function.
+        )
+      })
+      return subscription as SafariPermissionData
     }
-    return null
+  } catch (err) {
+    console.warn('Unable to subscribe safari push browser')
   }
+  return null
+}
 
 export const unsubscribePushManagerBrowser = async () => {
   try {

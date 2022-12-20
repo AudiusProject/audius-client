@@ -1,6 +1,16 @@
 import { Component, ComponentType } from 'react'
 
-import { ID, Name, User } from '@audius/common'
+import {
+  ID,
+  Name,
+  User,
+  accountSelectors,
+  InstagramProfile,
+  AccountImage,
+  TwitterProfile,
+  accountActions,
+  TikTokProfile
+} from '@audius/common'
 import {
   push as pushRoute,
   replace as replaceRoute,
@@ -12,15 +22,16 @@ import { connect } from 'react-redux'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
+import { make, TrackEvent } from 'common/store/analytics/actions'
+import * as signOnAction from 'common/store/pages/signon/actions'
 import {
-  InstagramProfile,
-  AccountImage,
-  showPushNotificationConfirmation,
-  TwitterProfile
-} from 'common/store/account/reducer'
-import { getHasAccount } from 'common/store/account/selectors'
-import { Pages, FollowArtistsCategory } from 'pages/sign-on/store/types'
-import { make, TrackEvent } from 'store/analytics/actions'
+  getSignOn,
+  getIsMobileSignOnVisible,
+  getToastText,
+  makeGetFollowArtists,
+  getRouteOnExit
+} from 'common/store/pages/signon/selectors'
+import { Pages, FollowArtistsCategory } from 'common/store/pages/signon/types'
 import { AppState } from 'store/types'
 import { isElectron } from 'utils/clientUtil'
 import { setupHotkeys, removeHotkeys } from 'utils/hotkeyUtil'
@@ -40,14 +51,9 @@ import {
   SignOnProps as MobileSignOnProps,
   MobilePages
 } from './components/mobile/SignOnPage'
-import * as signOnAction from './store/actions'
-import {
-  getSignOn,
-  getIsMobileSignOnVisible,
-  getToastText,
-  makeGetFollowArtists,
-  getRouteOnExit
-} from './store/selectors'
+
+const { showPushNotificationConfirmation } = accountActions
+const getHasAccount = accountSelectors.getHasAccount
 
 const messages = {
   title: 'Sign Up',
@@ -258,8 +264,6 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
   }
 
   finishSignup = () => {
-    const { sendWelcomeEmail, fields } = this.props
-    sendWelcomeEmail(fields.name.value)
     // Remove the route hash if it's present
     if (this.hasRouteHash()) {
       this.removeRouteHash()
@@ -383,6 +387,18 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
     }
   }
 
+  setTikTokProfile = (
+    tikTokId: string,
+    profile: TikTokProfile,
+    profileImg?: AccountImage,
+    skipEdit?: boolean
+  ) => {
+    this.props.setTikTokProfile(tikTokId, profile, profileImg)
+    if (skipEdit) {
+      this.onNextPage()
+    }
+  }
+
   onMetaMaskSignIn = () => {
     this.props.goToRoute(FEED_PAGE)
     window.location.reload()
@@ -444,6 +460,7 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
       onViewSignUp: this.onViewSignUp,
       setTwitterProfile: this.setTwitterProfile,
       setInstagramProfile: this.setInstagramProfile,
+      setTikTokProfile: this.setTikTokProfile,
       validateHandle: this.props.validateHandle,
       onMetaMaskSignIn: this.onMetaMaskSignIn,
       recordTwitterStart: this.onRecordTwitterStart,
@@ -504,8 +521,12 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(
         signOnAction.setInstagramProfile(instagramId, profile, profileImage)
       ),
-    sendWelcomeEmail: (name: string) =>
-      dispatch(signOnAction.sendWelcomeEmail(name)),
+    setTikTokProfile: (
+      tikTokId: string,
+      profile: TikTokProfile,
+      profileImage?: AccountImage
+    ) =>
+      dispatch(signOnAction.setTikTokProfile(tikTokId, profile, profileImage)),
     validateEmail: (email: string) =>
       dispatch(signOnAction.validateEmail(email)),
     validateHandle: (

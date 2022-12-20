@@ -1,21 +1,24 @@
-import { useCallback, useContext, useRef } from 'react'
+import { useCallback, useContext, useMemo, useRef } from 'react'
 
+import type { Collectible } from '@audius/common'
+import { accountSelectors, useProxySelector } from '@audius/common'
 import Clipboard from '@react-native-clipboard/clipboard'
-import { getUserId } from 'audius-client/src/common/store/account/selectors'
 import type { FlatList as RNFlatList } from 'react-native'
 import { View, Text } from 'react-native'
+import { useSelector } from 'react-redux'
 
 import IconShare from 'app/assets/images/iconShare.svg'
 import { Tile, GradientText, FlatList, Button } from 'app/components/core'
+import LoadingSpinner from 'app/components/loading-spinner'
 import { ToastContext } from 'app/components/toast/ToastContext'
 import UserBadges from 'app/components/user-badges'
 import { useScrollToTop } from 'app/hooks/useScrollToTop'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 import { getCollectiblesRoute } from 'app/utils/routes'
 
 import { CollectiblesCard } from './CollectiblesCard'
-import { getProfile } from './selectors'
+import { getProfile, useSelectProfile } from './selectors'
+const getUserId = accountSelectors.getUserId
 
 const messages = {
   title: 'Collectibles',
@@ -63,13 +66,23 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   collectibleListItem: {
     marginHorizontal: spacing(4),
     paddingVertical: spacing(2)
+  },
+  loadingSpinner: {
+    marginTop: spacing(4),
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 }))
 
 export const CollectiblesTab = () => {
   const styles = useStyles()
-  const { profile } = useSelectorWeb(getProfile)
-  const accountId = useSelectorWeb(getUserId)
+  const { handle } = useSelectProfile(['handle'])
+  const { profile } = useProxySelector(
+    (state) => getProfile(state, handle),
+    [handle]
+  )
+  const accountId = useSelector(getUserId)
   const isOwner = profile?.user_id === accountId
   const { toast } = useContext(ToastContext)
   const ref = useRef<RNFlatList>(null)
@@ -89,11 +102,30 @@ export const CollectiblesTab = () => {
     }
   }, [profile, toast])
 
+  const collectibles = useMemo(() => {
+    if (!profile) return []
+
+    const { collectibleList = [], solanaCollectibleList = [] } = profile
+    const allCollectibles = [...collectibleList, ...solanaCollectibleList]
+
+    if (!profile?.collectibles?.order) {
+      return allCollectibles
+    }
+
+    const collectibleMap: {
+      [key: string]: Collectible
+    } = allCollectibles.reduce((acc, curr) => ({ ...acc, [curr.id]: curr }), {})
+
+    const collectibleKeySet = new Set(Object.keys(collectibleMap))
+
+    const visible = profile.collectibles.order
+      .filter((id) => collectibleKeySet.has(id))
+      .map((id) => collectibleMap[id])
+
+    return visible || []
+  }, [profile])
+
   if (!profile) return null
-
-  const { collectibleList = [], solanaCollectibleList = [], user_id } = profile
-
-  const collectibles = [...collectibleList, ...solanaCollectibleList]
 
   return (
     <FlatList
@@ -123,9 +155,14 @@ export const CollectiblesTab = () => {
         </Tile>
       }
       data={collectibles}
+      ListEmptyComponent={
+        <View style={styles.loadingSpinner}>
+          <LoadingSpinner />
+        </View>
+      }
       renderItem={({ item }) => (
         <View style={styles.collectibleListItem}>
-          <CollectiblesCard collectible={item} ownerId={user_id} />
+          <CollectiblesCard collectible={item} ownerId={profile.user_id} />
         </View>
       )}
     />

@@ -1,12 +1,15 @@
-import { getProfileAlbums } from 'audius-client/src/common/store/pages/profile/selectors'
+import { profilePageSelectors } from '@audius/common'
+import { useSelector } from 'react-redux'
 
 import { CollectionList } from 'app/components/collection-list/CollectionList'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
 import { useEmptyProfileText } from './EmptyProfileTile'
+import { useSelectProfile } from './selectors'
+const { getProfileAlbums } = profilePageSelectors
 
 export const AlbumsTab = () => {
-  const albums = useSelectorWeb(getProfileAlbums)
+  const { handle } = useSelectProfile(['handle'])
+  const albums = useSelector((state) => getProfileAlbums(state, handle))
 
   const emptyListText = useEmptyProfileText('albums')
 
@@ -16,7 +19,6 @@ export const AlbumsTab = () => {
       collection={albums}
       emptyListText={emptyListText}
       disableTopTabScroll
-      fromPage='profile'
       showsVerticalScrollIndicator={false}
     />
   )

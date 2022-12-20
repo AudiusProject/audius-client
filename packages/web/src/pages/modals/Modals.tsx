@@ -1,11 +1,13 @@
 import { ComponentType } from 'react'
 
 import { Client } from '@audius/common'
+import type { Modals as ModalTypes } from '@audius/common'
 
-import type { Modals as ModalTypes } from 'common/store/ui/modals/slice'
 import AddToPlaylistModal from 'components/add-to-playlist/desktop/AddToPlaylistModal'
 import AppCTAModal from 'components/app-cta-modal/AppCTAModal'
 import BrowserPushConfirmationModal from 'components/browser-push-confirmation-modal/BrowserPushConfirmationModal'
+import { BuyAudioModal } from 'components/buy-audio-modal/BuyAudioModal'
+import { BuyAudioRecoveryModal } from 'components/buy-audio-modal/BuyAudioRecoveryModal'
 import CollectibleDetailsModal from 'components/collectibles/components/CollectibleDetailsModal'
 import DeletePlaylistConfirmationModal from 'components/delete-playlist-confirmation-modal/DeletePlaylistConfirmationModal'
 import EditFolderModal from 'components/edit-folder-modal/EditFolderModal'
@@ -18,24 +20,24 @@ import PasswordResetModal from 'components/password-reset/PasswordResetModal'
 import ServiceSelectionModal from 'components/service-selection/ServiceSelectionModal'
 import { ShareModal } from 'components/share-modal/ShareModal'
 import ShareSoundToTikTokModal from 'components/share-sound-to-tiktok-modal/ShareSoundToTikTokModal'
+import { StripeOnRampModal } from 'components/stripe-on-ramp-modal'
 import { TipAudioModal } from 'components/tipping/tip-audio/TipAudioModal'
 import ConnectedMobileOverflowModal from 'components/track-overflow-modal/ConnectedMobileOverflowModal'
+import { TransactionDetailsModal } from 'components/transaction-details-modal'
 import UnfollowConfirmationModal from 'components/unfollow-confirmation-modal/UnfollowConfirmationModal'
 import UnloadDialog from 'components/unload-dialog/UnloadDialog'
 import TierExplainerModal from 'components/user-badges/TierExplainerModal'
 import ConnectedUserListModal from 'components/user-list-modal/ConnectedUserListModal'
 import AudioBreakdownModal from 'pages/audio-rewards-page/components/modals/AudioBreakdownModal'
 import RewardsModals from 'pages/audio-rewards-page/components/modals/RewardsModals'
+import { VipDiscordModal } from 'pages/audio-rewards-page/components/modals/VipDiscordModal'
 import { getClient } from 'utils/clientUtil'
 
 import { AppModal } from './AppModal'
 
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
-const NATIVE_NAVIGATION_ENABLED =
-  process.env.REACT_APP_NATIVE_NAVIGATION_ENABLED === 'true'
-
 const appModalsMap = {
-  Share: ShareModal
+  Share: ShareModal,
+  VipDiscord: VipDiscordModal
 }
 
 const appModals = Object.entries(appModalsMap) as [ModalTypes, ComponentType][]
@@ -43,8 +45,6 @@ const appModals = Object.entries(appModalsMap) as [ModalTypes, ComponentType][]
 const Modals = () => {
   const client = getClient()
   const isMobileClient = client === Client.MOBILE
-
-  if (NATIVE_NAVIGATION_ENABLED) return null
 
   return (
     <>
@@ -63,9 +63,7 @@ const Modals = () => {
       <AudioBreakdownModal />
       <CollectibleDetailsModal />
 
-      {!NATIVE_MOBILE && client !== Client.ELECTRON && (
-        <BrowserPushConfirmationModal />
-      )}
+      {client !== Client.ELECTRON && <BrowserPushConfirmationModal />}
 
       {!isMobileClient && (
         <>
@@ -82,13 +80,17 @@ const Modals = () => {
 
       {isMobileClient && (
         <>
-          {!NATIVE_MOBILE && <ConnectedMobileOverflowModal />}
+          <ConnectedMobileOverflowModal />
           <UnfollowConfirmationModal />
           <DeletePlaylistConfirmationModal />
         </>
       )}
 
-      {!NATIVE_MOBILE && <TipAudioModal />}
+      <TipAudioModal />
+      <BuyAudioModal />
+      <TransactionDetailsModal />
+      <StripeOnRampModal />
+      <BuyAudioRecoveryModal />
     </>
   )
 }

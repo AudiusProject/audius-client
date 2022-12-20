@@ -1,16 +1,20 @@
-import { Name, Track, User } from '@audius/common'
+import {
+  Name,
+  Track,
+  User,
+  cacheTracksSelectors,
+  cacheUsersSelectors,
+  stemsUploadActions
+} from '@audius/common'
 import { takeEvery, put, call, select } from 'redux-saga/effects'
 
-import { getTrack } from 'common/store/cache/tracks/selectors'
+import { make } from 'common/store/analytics/actions'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
-import { getUser } from 'common/store/cache/users/selectors'
-import {
-  startStemUploads,
-  stemUploadsSucceeded
-} from 'common/store/stems-upload/slice'
-import { handleUploads } from 'pages/upload-page/store/sagas'
+import { handleUploads } from 'common/store/upload/sagas'
 import { createStemMetadata } from 'pages/upload-page/store/utils/stems'
-import { make } from 'store/analytics/actions'
+const { getUser } = cacheUsersSelectors
+const { startStemUploads, stemUploadsSucceeded } = stemsUploadActions
+const { getTrack } = cacheTracksSelectors
 
 function* watchUploadStems() {
   yield takeEvery(

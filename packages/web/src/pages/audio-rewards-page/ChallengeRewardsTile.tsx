@@ -4,25 +4,19 @@ import {
   ChallengeRewardID,
   OptimisticUserChallenge,
   removeNullable,
-  StringKeys
+  StringKeys,
+  fillString,
+  formatNumberCommas,
+  challengesSelectors,
+  audioRewardsPageActions,
+  ChallengeRewardsModalType,
+  audioRewardsPageSelectors
 } from '@audius/common'
 import { ProgressBar } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useSetVisibility } from 'common/hooks/useModalState'
-import { getOptimisticUserChallenges } from 'common/store/challenges/selectors/optimistic-challenges'
-import {
-  getUserChallenges,
-  getUserChallengesLoading
-} from 'common/store/pages/audio-rewards/selectors'
-import {
-  ChallengeRewardsModalType,
-  fetchUserChallenges,
-  setChallengeRewardsModalType
-} from 'common/store/pages/audio-rewards/slice'
-import { fillString } from 'common/utils/fillString'
-import { formatNumberCommas } from 'common/utils/formatUtil'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
@@ -30,7 +24,12 @@ import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import styles from './RewardsTile.module.css'
 import ButtonWithArrow from './components/ButtonWithArrow'
 import { Tile } from './components/ExplainerTile'
-import { challengeRewardsConfig } from './config'
+import { getChallengeConfig } from './config'
+const { getUserChallenges, getUserChallengesLoading } =
+  audioRewardsPageSelectors
+const { fetchUserChallenges, setChallengeRewardsModalType } =
+  audioRewardsPageActions
+const { getOptimisticUserChallenges } = challengesSelectors
 
 const messages = {
   title: '$AUDIO REWARDS',
@@ -46,7 +45,7 @@ type RewardPanelProps = {
   icon: ReactNode
   description: (challenge?: OptimisticUserChallenge) => string
   panelButtonText: string
-  progressLabel: string
+  progressLabel?: string
   remainingLabel?: string
   openModal: (modalType: ChallengeRewardsModalType) => void
   id: ChallengeRewardID
@@ -90,11 +89,13 @@ const RewardPanel = ({
     )
   } else {
     // Count up
-    progressLabelFilled = fillString(
-      progressLabel,
-      formatNumberCommas(challenge?.current_step_count?.toString() ?? ''),
-      formatNumberCommas(challenge?.max_steps?.toString() ?? '')
-    )
+    progressLabelFilled = progressLabel
+      ? fillString(
+          progressLabel,
+          formatNumberCommas(challenge?.current_step_count?.toString() ?? ''),
+          formatNumberCommas(challenge?.max_steps?.toString() ?? '')
+        )
+      : ''
   }
 
   return (
@@ -194,7 +195,7 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
     .map((id) => userChallenges[id]?.challenge_id)
     .filter(removeNullable)
     .map((id) => {
-      const props = challengeRewardsConfig[id]
+      const props = getChallengeConfig(id)
       return <RewardPanel {...props} openModal={openModal} key={props.id} />
     })
 

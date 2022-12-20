@@ -1,26 +1,26 @@
-import { makeGetLineupMetadatas } from 'audius-client/src/common/store/lineup/selectors'
-import { tracksActions } from 'audius-client/src/common/store/pages/track/lineup/actions'
+import { useCallback } from 'react'
+
 import {
-  getLineup,
-  getRemixParentTrack,
-  getTrack,
-  getUser
-} from 'audius-client/src/common/store/pages/track/selectors'
-import { trackRemixesPage } from 'audius-client/src/utils/route'
-import { omit } from 'lodash'
+  trackPageLineupActions,
+  trackPageActions,
+  trackPageSelectors,
+  useProxySelector
+} from '@audius/common'
+import { useFocusEffect } from '@react-navigation/native'
 import { Text, View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import { Button, Screen } from 'app/components/core'
 import { Lineup } from 'app/components/lineup'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 
 import { TrackScreenMainContent } from './TrackScreenMainContent'
-
-const getMoreByArtistLineup = makeGetLineupMetadatas(getLineup)
+const { fetchTrack } = trackPageActions
+const { tracksActions } = trackPageLineupActions
+const { getLineup, getRemixParentTrack, getTrack, getUser } = trackPageSelectors
 
 const messages = {
   moreBy: 'More By',
@@ -51,37 +51,38 @@ export const TrackScreen = () => {
   const styles = useStyles()
   const navigation = useNavigation()
   const { params } = useRoute<'Track'>()
+  const dispatch = useDispatch()
 
   // params is incorrectly typed and can sometimes be undefined
-  const { searchTrack } = params ?? {}
+  const { searchTrack, id, canBeUnlisted = true, handle, slug } = params ?? {}
 
-  const cachedTrack = useSelectorWeb(
-    (state) => getTrack(state, params),
-    // Omitting uneeded fields from the equality check because they are
-    // causing extra renders when added to the `track` object
-    (a, b) => {
-      const omitUneeded = <T extends object | null>(o: T) =>
-        omit(o, ['_stems', '_remix_parents'])
-      return isEqual(omitUneeded(a), omitUneeded(b))
-    }
-  )
+  const cachedTrack = useSelector((state) => getTrack(state, params))
 
   const track = cachedTrack ?? searchTrack
 
-  const cachedUser = useSelectorWeb(
-    (state) => getUser(state, { id: track?.owner_id }),
-    isEqual
+  const cachedUser = useSelector((state) =>
+    getUser(state, { id: track?.owner_id })
   )
 
   const user = cachedUser ?? searchTrack?.user
 
-  const lineup = useSelectorWeb(
-    getMoreByArtistLineup,
-    // Checking for equality between the entries themselves, because
-    // lineup reset state changes cause extra renders
-    (a, b) => (!a.entries && !b.entries) || isEqual(a.entries, b.entries)
-  )
-  const remixParentTrack = useSelectorWeb(getRemixParentTrack)
+  const lineup = useSelector(getLineup)
+
+  const remixParentTrack = useProxySelector(getRemixParentTrack, [])
+
+  const handleFetchTrack = useCallback(() => {
+    dispatch(tracksActions.reset())
+    dispatch(
+      fetchTrack(
+        id,
+        decodeURIComponent(slug ?? ''),
+        handle ?? user?.handle,
+        canBeUnlisted
+      )
+    )
+  }, [dispatch, canBeUnlisted, id, slug, handle, user?.handle])
+
+  useFocusEffect(handleFetchTrack)
 
   if (!track || !user) {
     console.warn(
@@ -94,13 +95,7 @@ export const TrackScreen = () => {
     if (!remixParentTrack) {
       return
     }
-    navigation.push({
-      native: {
-        screen: 'TrackRemixes',
-        params: { id: remixParentTrack.track_id }
-      },
-      web: { route: trackRemixesPage(remixParentTrack.permalink) }
-    })
+    navigation.push('TrackRemixes', { id: remixParentTrack.track_id })
   }
 
   const remixParentTrackId = track.remix_of?.tracks?.[0]?.parent_track_id
@@ -125,7 +120,7 @@ export const TrackScreen = () => {
   )
 
   return (
-    <Screen>
+    <Screen url={track?.permalink}>
       <Lineup
         actions={tracksActions}
         count={6}

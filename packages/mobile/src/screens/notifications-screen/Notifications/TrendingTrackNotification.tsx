@@ -1,15 +1,15 @@
 import { useCallback } from 'react'
 
-import type { Nullable } from '@audius/common'
-import { getNotificationEntity } from 'audius-client/src/common/store/notifications/selectors'
 import type {
+  Nullable,
   TrackEntity,
-  TrendingTrack
-} from 'audius-client/src/common/store/notifications/types'
+  TrendingTrackNotification as TrendingTrackNotificationType
+} from '@audius/common'
+import { notificationsSelectors } from '@audius/common'
+import { useSelector } from 'react-redux'
 
 import IconTrending from 'app/assets/images/iconTrending.svg'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { getTrackRoute } from 'app/utils/routes'
+import { useNotificationNavigation } from 'app/hooks/useNotificationNavigation'
 
 import {
   EntityLink,
@@ -18,7 +18,7 @@ import {
   NotificationTile,
   NotificationTitle
 } from '../Notification'
-import { useDrawerNavigation } from '../useDrawerNavigation'
+const { getNotificationEntity } = notificationsSelectors
 
 const getRankSuffix = (rank: number) => {
   if (rank === 1) return 'st'
@@ -35,7 +35,7 @@ const messages = {
 }
 
 type TrendingTrackNotificationProps = {
-  notification: TrendingTrack
+  notification: TrendingTrackNotificationType
 }
 
 export const TrendingTrackNotification = (
@@ -44,20 +44,16 @@ export const TrendingTrackNotification = (
   const { notification } = props
   const { rank } = notification
   const rankSuffix = getRankSuffix(rank)
-  const track = useSelectorWeb(
-    (state) => getNotificationEntity(state, notification),
-    isEqual
+  const track = useSelector((state) =>
+    getNotificationEntity(state, notification)
   ) as Nullable<TrackEntity>
-  const navigation = useDrawerNavigation()
+  const navigation = useNotificationNavigation()
 
   const handlePress = useCallback(() => {
     if (track) {
-      navigation.navigate({
-        native: { screen: 'Track', params: { id: track.track_id } },
-        web: { route: getTrackRoute(track) }
-      })
+      navigation.navigate(notification)
     }
-  }, [navigation, track])
+  }, [navigation, notification, track])
 
   if (!track) return null
 

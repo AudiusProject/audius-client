@@ -7,7 +7,17 @@ import {
   useState
 } from 'react'
 
-import { Chain, Collectible, CollectibleMediaType } from '@audius/common'
+import {
+  Chain,
+  Collectible,
+  CollectibleMediaType,
+  formatDateWithTimezoneOffset,
+  accountSelectors,
+  badgeTiers,
+  collectibleDetailsUISelectors,
+  collectibleDetailsUIActions,
+  useSelectTierInfo
+} from '@audius/common'
 import {
   Button,
   ButtonSize,
@@ -26,15 +36,6 @@ import { ReactComponent as IconEmbed } from 'assets/img/iconEmbed.svg'
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
 import { ReactComponent as IconMute } from 'assets/img/iconVolume0.svg'
 import { useModalState } from 'common/hooks/useModalState'
-import { useSelectTierInfo } from 'common/hooks/wallet'
-import { getAccountUser } from 'common/store/account/selectors'
-import {
-  getCollectibleDetails,
-  getCollectible
-} from 'common/store/ui/collectible-details/selectors'
-import { setCollectible } from 'common/store/ui/collectible-details/slice'
-import { badgeTiers } from 'common/store/wallet/utils'
-import { formatDateWithTimezoneOffset } from 'common/utils/timeUtil'
 import Drawer from 'components/drawer/Drawer'
 import Toast from 'components/toast/Toast'
 import { ToastContext } from 'components/toast/ToastContext'
@@ -49,8 +50,9 @@ import zIndex from 'utils/zIndex'
 
 import { collectibleMessages } from './CollectiblesPage'
 import styles from './CollectiblesPage.module.css'
-
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+const { setCollectible } = collectibleDetailsUIActions
+const { getCollectibleDetails, getCollectible } = collectibleDetailsUISelectors
+const getAccountUser = accountSelectors.getAccountUser
 
 const MODEL_VIEWER_SCRIPT_URL =
   'https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js'
@@ -414,7 +416,7 @@ const CollectibleDetailsModal = ({
       </Modal>
 
       <Drawer
-        isOpen={isModalOpen && isMobile && !NATIVE_MOBILE}
+        isOpen={isModalOpen && isMobile}
         onClose={handleClose}
         isFullscreen
       >

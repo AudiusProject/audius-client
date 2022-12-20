@@ -1,41 +1,67 @@
-import { ID, UID, Lineup, Status, User } from '@audius/common'
+import { useContext } from 'react'
+
+import {
+  ID,
+  UID,
+  Lineup,
+  Status,
+  User,
+  SavedPageTabs as ProfileTabs,
+  TrackRecord,
+  savedPageSelectors,
+  SavedPageTrack,
+  SavedPageCollection,
+  QueueItem
+} from '@audius/common'
 import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
+import { useSelector } from 'react-redux'
 
 import { ReactComponent as IconAlbum } from 'assets/img/iconAlbum.svg'
 import { ReactComponent as IconNote } from 'assets/img/iconNote.svg'
-import {
-  Tabs as ProfileTabs,
-  TrackRecord,
-  SavedPageTrack,
-  SavedPageCollection
-} from 'common/store/pages/saved-page/types'
-import { QueueItem } from 'common/store/queue/types'
 import Card from 'components/card/desktop/Card'
 import FilterInput from 'components/filter-input/FilterInput'
 import Header from 'components/header/desktop/Header'
 import CardLineup from 'components/lineup/CardLineup'
 import Page from 'components/page/Page'
+import { dateSorter } from 'components/table'
+import { TracksTable, TracksTableColumn } from 'components/tracks-table'
 import EmptyTable from 'components/tracks-table/EmptyTable'
-import TracksTable from 'components/tracks-table/TracksTable'
 import { useOrderedLoad } from 'hooks/useOrderedLoad'
 import useTabs from 'hooks/useTabs/useTabs'
+import { MainContentContext } from 'pages/MainContentContext'
 import { albumPage } from 'utils/route'
 
 import styles from './SavedPage.module.css'
+
+const { getInitialFetchStatus } = savedPageSelectors
 
 const messages = {
   filterPlaceholder: 'Filter Tracks'
 }
 
+const tableColumns: TracksTableColumn[] = [
+  'playButton',
+  'trackName',
+  'artistName',
+  'releaseDate',
+  'addedDate',
+  'length',
+  'plays',
+  'reposts',
+  'overflowActions'
+]
+
 export type SavedPageProps = {
   title: string
   description: string
   onFilterChange: (e: any) => void
+  onSortChange: (method: string, direction: string) => void
   isQueued: boolean
   playingUid: UID | null
   getFilteredData: (
     trackMetadatas: SavedPageTrack[]
   ) => [SavedPageTrack[], number]
+  fetchMoreTracks: (offset?: number, limit?: number) => void
   onClickRow: (record: TrackRecord) => void
   onClickSave: (record: TrackRecord) => void
   onClickTrackName: (record: TrackRecord) => void
@@ -45,6 +71,7 @@ export type SavedPageProps = {
   onSortTracks: (sorters: any) => void
   onChangeTab: (tab: ProfileTabs) => void
   formatCardSecondaryText: (saves: number, tracks: number) => string
+  allTracksFetched: boolean
   filterText: string
   initialOrder: UID[] | null
   currentTab: ProfileTabs
@@ -77,9 +104,12 @@ const SavedPage = ({
   playing,
   currentTab,
   isQueued,
+  fetchMoreTracks,
   getFilteredData,
   onPlay,
   onFilterChange,
+  onSortChange,
+  allTracksFetched,
   filterText,
   formatCardSecondaryText,
   onChangeTab,
@@ -92,12 +122,19 @@ const SavedPage = ({
   onSortTracks,
   onReorderTracks
 }: SavedPageProps) => {
+  const { mainContentRef } = useContext(MainContentContext)
+  const initFetch = useSelector(getInitialFetchStatus)
   const [dataSource, playingIndex] =
-    status === Status.SUCCESS ? getFilteredData(entries) : [[], -1]
+    status === Status.SUCCESS || entries.length
+      ? getFilteredData(entries)
+      : [[], -1]
   const { isLoading: isLoadingAlbums, setDidLoad: setDidLoadAlbums } =
     useOrderedLoad(account ? account.albums.length : 0)
-  const isEmpty = entries.length === 0
-  const tracksLoading = status === Status.LOADING
+  const isEmpty =
+    entries.length === 0 ||
+    !entries.some((entry: SavedPageTrack) => Boolean(entry.track_id))
+  const tracksLoading =
+    (status === Status.IDLE || status === Status.LOADING) && isEmpty
   const queuedAndPlaying = playing && isQueued
 
   // Setup play button
@@ -207,27 +244,32 @@ const SavedPage = ({
           onClick={() => goToRoute('/trending')}
         />
       ) : (
-        <div className={styles.tableWrapper}>
-          <TracksTable
-            key='favorites'
-            userId={account ? account.user_id : 0}
-            loading={tracksLoading}
-            loadingRowsCount={account ? account.track_save_count : 0}
-            playing={queuedAndPlaying}
-            playingIndex={playingIndex}
-            dataSource={dataSource}
-            onClickRow={onClickRow}
-            onClickFavorite={onClickSave}
-            onClickTrackName={onClickTrackName}
-            onClickArtistName={onClickArtistName}
-            onClickRepost={onClickRepost}
-            onClickRemove={onClickRemove}
-            onSortTracks={onSortTracks}
-            onReorderTracks={onReorderTracks}
-          />
-        </div>
+        <TracksTable
+          columns={tableColumns}
+          data={dataSource}
+          defaultSorter={dateSorter('dateSaved')}
+          fetchMoreTracks={fetchMoreTracks}
+          isVirtualized
+          key='favorites'
+          loading={tracksLoading || initFetch}
+          onClickArtistName={onClickArtistName}
+          onClickFavorite={onClickSave}
+          onClickRepost={onClickRepost}
+          onClickRow={onClickRow}
+          onClickTrackName={onClickTrackName}
+          onSortTracks={allTracksFetched ? onSortTracks : onSortChange}
+          playing={queuedAndPlaying}
+          playingIndex={playingIndex}
+          scrollRef={mainContentRef}
+          useLocalSort={allTracksFetched}
+          totalRowCount={Math.min(
+            dataSource.length,
+            account?.track_save_count ?? Infinity
+          )}
+          userId={account ? account.user_id : 0}
+        />
       ),
-      <div key='albums'>
+      <div className={styles.albumsWrapper} key='albums'>
         {account && account.albums.length > 0 ? (
           <CardLineup cards={cards} cardsClassName={styles.cardsContainer} />
         ) : (

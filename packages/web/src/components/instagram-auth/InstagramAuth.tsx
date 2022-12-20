@@ -1,15 +1,13 @@
 import { MouseEvent, ReactNode, useCallback } from 'react'
 
-import { StringKeys } from '@audius/common'
+import { StringKeys, InstagramProfile } from '@audius/common'
 import * as Sentry from '@sentry/browser'
 import cn from 'classnames'
-import 'url-search-params-polyfill'
 
-import { InstagramProfile } from 'common/store/account/reducer'
-import { RequestInstagramAuthMessage } from 'services/native-mobile-interface/oauth'
+import { getIGUserUrl } from 'common/store/pages/signon/sagas'
+import 'url-search-params-polyfill'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 const HOSTNAME = process.env.REACT_APP_PUBLIC_HOSTNAME
 const INSTAGRAM_APP_ID = process.env.REACT_APP_INSTAGRAM_APP_ID
 const INSTAGRAM_REDIRECT_URL =
@@ -17,12 +15,6 @@ const INSTAGRAM_REDIRECT_URL =
 const INSTAGRAM_AUTHORIZE_URL = `https://api.instagram.com/oauth/authorize?client_id=${INSTAGRAM_APP_ID}&redirect_uri=${encodeURIComponent(
   INSTAGRAM_REDIRECT_URL
 )}&scope=user_profile,user_media&response_type=code`
-
-// Route to fetch instagram user data w/ the username
-export const getIGUserUrl = (endpoint: string, username: string) => {
-  const url = endpoint.replace('$USERNAME$', username)
-  return url
-}
 
 // Instagram User profile fields to capture
 const igUserFields = [
@@ -41,12 +33,12 @@ const igUserFields = [
   'edge_follow'
 ]
 
-type InstagramAuthProps = {
+export type InstagramAuthProps = {
   dialogWidth?: number
   dialogHeight?: number
   setProfileUrl: string
   getUserUrl: string
-  onClick: () => void
+  onClick?: () => void
   onSuccess: (uuid: string, profile: any) => void
   onFailure: (error: any) => void
   style?: object
@@ -92,7 +84,7 @@ const InstagramAuth = ({
   }, [dialogWidth, dialogHeight])
 
   const getProfile = useCallback(
-    async (code) => {
+    async (code: string) => {
       try {
         // Fetch the profile from the graph API
         const profileResp = await window.fetch(getUserUrl, {
@@ -225,23 +217,7 @@ const InstagramAuth = ({
     }
   }, [openPopup, polling, onFailure])
 
-  const onNativeVerification = useCallback(async () => {
-    try {
-      if (onClick) onClick()
-      const message = new RequestInstagramAuthMessage(INSTAGRAM_AUTHORIZE_URL)
-      message.send()
-      const response = await message.receive()
-      if (response.code) {
-        return await getProfile(response.code)
-      } else {
-        onFailure(new Error('Unable to retrieve information'))
-      }
-    } catch (error) {
-      onFailure(error)
-    }
-  }, [onClick, onFailure, getProfile])
-
-  const onButtonClick = useCallback(
+  const handleClick = useCallback(
     (e: MouseEvent) => {
       e.preventDefault()
       if (onClick) onClick()
@@ -254,7 +230,7 @@ const InstagramAuth = ({
 
   return (
     <div
-      onClick={NATIVE_MOBILE ? onNativeVerification : onButtonClick}
+      onClick={handleClick}
       style={style}
       className={cn({
         [className!]: !!className,

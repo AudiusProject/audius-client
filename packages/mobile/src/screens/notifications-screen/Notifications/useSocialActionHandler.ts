@@ -1,59 +1,47 @@
 import { useCallback } from 'react'
 
-import type { User, Nullable } from '@audius/common'
 import type {
-  Favorite,
-  Follow,
-  Repost
-} from 'audius-client/src/common/store/notifications/types'
-import { setNotificationId } from 'audius-client/src/common/store/user-list/notifications/actions'
-import { NOTIFICATION_PAGE } from 'audius-client/src/utils/route'
+  User,
+  Nullable,
+  FavoriteNotification,
+  FollowNotification,
+  RepostNotification
+} from '@audius/common'
+import { notificationsUserListActions } from '@audius/common'
+import { useDispatch } from 'react-redux'
 
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { getUserRoute } from 'app/utils/routes'
+import { useNavigation } from 'app/hooks/useNavigation'
 
-import { useDrawerNavigation } from '../useDrawerNavigation'
+const { setNotificationId } = notificationsUserListActions
 
 /**
  * onPress handler for social notifications that opens user-lists when notification
  * has multiple users, and opens user profile when just one.
  */
 export const useSocialActionHandler = (
-  notification: Follow | Repost | Favorite,
+  notification: FollowNotification | RepostNotification | FavoriteNotification,
   users: Nullable<User[]>
 ) => {
   const { id, type, userIds } = notification
   const firstUser = users?.[0]
   const isMultiUser = userIds.length > 1
-  const dispatchWeb = useDispatchWeb()
-  const navigation = useDrawerNavigation()
+  const dispatch = useDispatch()
+  const navigation = useNavigation()
 
   return useCallback(() => {
     if (isMultiUser) {
-      dispatchWeb(setNotificationId(id))
-      navigation.navigate({
-        native: {
-          screen: 'NotificationUsers',
-          params: {
-            id,
-            notificationType: type,
-            count: userIds.length,
-            fromNotifications: true
-          }
-        },
-        web: {
-          route: `/notification/${id}/users`,
-          fromPage: NOTIFICATION_PAGE
-        }
+      dispatch(setNotificationId(id))
+      navigation.navigate('NotificationUsers', {
+        id,
+        notificationType: type,
+        count: userIds.length,
+        fromNotifications: true
       })
     } else if (firstUser) {
-      navigation.navigate({
-        native: {
-          screen: 'Profile',
-          params: { handle: firstUser.handle, fromNotifications: true }
-        },
-        web: { route: getUserRoute(firstUser), fromPage: NOTIFICATION_PAGE }
+      navigation.navigate('Profile', {
+        handle: firstUser.handle,
+        fromNotifications: true
       })
     }
-  }, [isMultiUser, id, type, userIds, dispatchWeb, navigation, firstUser])
+  }, [isMultiUser, id, type, userIds, dispatch, navigation, firstUser])
 }

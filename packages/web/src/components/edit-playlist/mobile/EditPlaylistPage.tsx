@@ -6,28 +6,20 @@ import {
   Collection,
   SquareSizes,
   Nullable,
-  RandomImage
+  RandomImage,
+  accountSelectors,
+  cacheCollectionsActions,
+  collectionPageLineupActions as tracksActions,
+  createPlaylistModalUISelectors,
+  createPlaylistModalUIActions as createPlaylistActions,
+  imageBlank as placeholderCoverArt,
+  newCollectionMetadata
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { ReactComponent as IconCamera } from 'assets/img/iconCamera.svg'
-import placeholderCoverArt from 'common/assets/img/imageBlank2x.png'
-import * as schemas from 'common/schemas'
-import { getAccountUser } from 'common/store/account/selectors'
-import {
-  createPlaylist,
-  editPlaylist,
-  orderPlaylist,
-  removeTrackFromPlaylist
-} from 'common/store/cache/collections/actions'
-import { tracksActions } from 'common/store/pages/collection/lineup/actions'
-import * as createPlaylistActions from 'common/store/ui/createPlaylistModal/actions'
-import {
-  getMetadata,
-  getTracks
-} from 'common/store/ui/createPlaylistModal/selectors'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import EditableRow, { Format } from 'components/groupable-list/EditableRow'
 import GroupableList from 'components/groupable-list/GroupableList'
@@ -42,12 +34,15 @@ import UploadStub from 'pages/profile-page/components/mobile/UploadStub'
 import { AppState } from 'store/types'
 import { resizeImage } from 'utils/imageProcessingUtil'
 import { playlistPage } from 'utils/route'
+import { getTempPlaylistId } from 'utils/tempPlaylistId'
 import { withNullGuard } from 'utils/withNullGuard'
 
 import styles from './EditPlaylistPage.module.css'
 import RemovePlaylistTrackDrawer from './RemovePlaylistTrackDrawer'
-
-const IS_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+const { getMetadata, getTracks } = createPlaylistModalUISelectors
+const { createPlaylist, editPlaylist, orderPlaylist, removeTrackFromPlaylist } =
+  cacheCollectionsActions
+const getAccountUser = accountSelectors.getAccountUser
 
 const messages = {
   createPlaylist: 'Create Playlist',
@@ -60,7 +55,7 @@ const messages = {
 
 const initialFormFields = {
   artwork: {},
-  ...schemas.newCollectionMetadata()
+  ...newCollectionMetadata()
 }
 
 type EditPlaylistPageProps = ReturnType<typeof mapStateToProps> &
@@ -241,7 +236,7 @@ const EditPlaylistPage = g(
         close()
       } else {
         // Create new playlist
-        const tempId = `${Date.now()}`
+        const tempId = getTempPlaylistId()
         createPlaylist(tempId, formFields)
         toast(messages.toast)
         close()
@@ -414,10 +409,7 @@ const EditPlaylistPage = g(
                 maxLength={256}
               />
             </Grouping>
-            {/** Don't render tracklist on native mobile. Errors
-             * get thrown because of the null renderer
-             */}
-            {!IS_NATIVE_MOBILE && trackList && trackList.length > 0 && (
+            {trackList && trackList.length > 0 && (
               <Grouping>
                 <TrackList
                   tracks={trackList}
@@ -453,7 +445,7 @@ function mapStateToProps(state: AppState) {
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
     close: () => dispatch(createPlaylistActions.close()),
-    createPlaylist: (tempId: string, metadata: Collection) =>
+    createPlaylist: (tempId: number, metadata: Collection) =>
       dispatch(
         createPlaylist(tempId, metadata, CreatePlaylistSource.CREATE_PAGE)
       ),

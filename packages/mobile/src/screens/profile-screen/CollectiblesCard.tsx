@@ -1,24 +1,25 @@
-import { useCallback, useMemo } from 'react'
+import type { ReactNode } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 
 import type { ID, Collectible } from '@audius/common'
-import { getUserId } from 'audius-client/src/common/store/account/selectors'
-import { setCollectible } from 'audius-client/src/common/store/ui/collectible-details/slice'
-import { setVisibility } from 'audius-client/src/common/store/ui/modals/slice'
-import type { StyleProp, ViewStyle } from 'react-native'
+import {
+  accountSelectors,
+  collectibleDetailsUIActions,
+  modalsActions
+} from '@audius/common'
+import type { ImageStyle, StyleProp, ViewStyle } from 'react-native'
 import { ImageBackground, Text, View } from 'react-native'
+import { SvgUri } from 'react-native-svg'
+import { useDispatch, useSelector } from 'react-redux'
 
 import LogoEth from 'app/assets/images/logoEth.svg'
 import LogoSol from 'app/assets/images/logoSol.svg'
 import IconPlay from 'app/assets/images/pbIconPlay.svg'
 import { Tile } from 'app/components/core'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles, shadow } from 'app/styles'
-
-const messages = {
-  ownedStamp: 'owned',
-  createdStamp: 'created'
-}
+const { setVisibility } = modalsActions
+const { setCollectible } = collectibleDetailsUIActions
+const getUserId = accountSelectors.getUserId
 
 type UseStyleConfig = {
   isOwned: boolean
@@ -53,7 +54,7 @@ const useStyles = makeStyles(
     chain: {
       position: 'absolute',
       bottom: spacing(3),
-      right: spacing(3),
+      left: spacing(3),
       height: spacing(6),
       width: spacing(6),
       borderRadius: 30,
@@ -63,22 +64,6 @@ const useStyles = makeStyles(
       alignItems: 'center',
       justifyContent: 'center',
       ...shadow()
-    },
-    stamp: {
-      position: 'absolute',
-      bottom: spacing(3),
-      left: spacing(3),
-      paddingVertical: spacing(1),
-      paddingHorizontal: spacing(2),
-      borderRadius: 11,
-      overflow: 'hidden',
-      borderColor: palette.white,
-      borderWidth: 1,
-      backgroundColor: isOwned ? palette.secondary : palette.primary,
-      fontSize: 10,
-      fontFamily: typography.fontByWeight.bold,
-      textTransform: 'uppercase',
-      color: palette.white
     }
   })
 )
@@ -89,6 +74,45 @@ type CollectiblesCardProps = {
   style?: StyleProp<ViewStyle>
 }
 
+type CollectibleImageProps = {
+  uri: string
+  style: StyleProp<ImageStyle>
+  children?: ReactNode
+}
+
+const CollectibleImage = (props: CollectibleImageProps) => {
+  const { children, style, uri } = props
+
+  const isSvg = uri.match(/.*\.svg$/)
+  const [size, setSize] = useState(0)
+
+  return isSvg ? (
+    <View
+      onLayout={(e) => {
+        setSize(e.nativeEvent.layout.width)
+      }}
+    >
+      <SvgUri
+        height={size}
+        width={size}
+        uri={uri}
+        style={{ borderRadius: 8, overflow: 'hidden' }}
+      >
+        {children}
+      </SvgUri>
+    </View>
+  ) : (
+    <ImageBackground
+      style={style}
+      source={{
+        uri
+      }}
+    >
+      {children}
+    </ImageBackground>
+  )
+}
+
 export const CollectiblesCard = (props: CollectiblesCardProps) => {
   const { collectible, style, ownerId } = props
   const { name, frameUrl, isOwned, mediaType, gifUrl, chain } = collectible
@@ -96,19 +120,19 @@ export const CollectiblesCard = (props: CollectiblesCardProps) => {
   const stylesConfig = useMemo(() => ({ isOwned }), [isOwned])
   const styles = useStyles(stylesConfig)
 
-  const dispatchWeb = useDispatchWeb()
-  const accountId = useSelectorWeb(getUserId)
+  const dispatch = useDispatch()
+  const accountId = useSelector(getUserId)
 
   const handlePress = useCallback(() => {
-    dispatchWeb(
+    dispatch(
       setCollectible({
         collectible,
         ownerId,
         isUserOnTheirProfile: accountId === ownerId
       })
     )
-    dispatchWeb(setVisibility({ modal: 'CollectibleDetails', visible: true }))
-  }, [dispatchWeb, collectible, accountId, ownerId])
+    dispatch(setVisibility({ modal: 'CollectibleDetails', visible: true }))
+  }, [dispatch, collectible, accountId, ownerId])
 
   const url = frameUrl ?? gifUrl
 
@@ -119,7 +143,7 @@ export const CollectiblesCard = (props: CollectiblesCardProps) => {
     >
       {url ? (
         <View>
-          <ImageBackground style={styles.image} source={{ uri: url }}>
+          <CollectibleImage style={styles.image} uri={url}>
             {mediaType === 'VIDEO' ? (
               <View style={styles.iconPlay}>
                 <IconPlay
@@ -130,17 +154,14 @@ export const CollectiblesCard = (props: CollectiblesCardProps) => {
                 />
               </View>
             ) : null}
-            <Text style={styles.stamp}>
-              {isOwned ? messages.ownedStamp : messages.createdStamp}
-            </Text>
             <View style={styles.chain}>
-              {chain !== 'eth' ? (
+              {chain === 'eth' ? (
                 <LogoEth height={18} />
               ) : (
                 <LogoSol height={16} />
               )}
             </View>
-          </ImageBackground>
+          </CollectibleImage>
         </View>
       ) : null}
       <Text style={styles.title}>{name}</Text>

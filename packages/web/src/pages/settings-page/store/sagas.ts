@@ -1,13 +1,15 @@
-import { Name } from '@audius/common'
+import {
+  Name,
+  getErrorMessage,
+  settingsPageActions as actions,
+  settingsPageSelectors,
+  BrowserNotificationSetting,
+  getContext
+} from '@audius/common'
 import { select, call, put, takeEvery } from 'typed-redux-saga'
 
-import * as actions from 'common/store/pages/settings/actions'
-import { getBrowserNotificationSettings } from 'common/store/pages/settings/selectors'
-import { BrowserNotificationSetting } from 'common/store/pages/settings/types'
-import { getErrorMessage } from 'common/utils/error'
-import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
-import { make } from 'store/analytics/actions'
-import { waitForBackendSetup } from 'store/backend/sagas'
+import { make } from 'common/store/analytics/actions'
+import commonSettingsSagas from 'common/store/pages/settings/sagas'
 import {
   Permission,
   isPushManagerAvailable,
@@ -19,31 +21,19 @@ import {
 } from 'utils/browserNotifications'
 import { isElectron } from 'utils/clientUtil'
 
-import errorSagas from './errorSagas'
-import mobileSagas from './mobileSagas'
-
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+const { getBrowserNotificationSettings } = settingsPageSelectors
 
 function* watchGetSettings() {
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* takeEvery(actions.GET_NOTIFICATION_SETTINGS, function* () {
     try {
-      yield* call(waitForBackendSetup)
-      const emailSettings = yield* call(
-        audiusBackendInstance.getEmailNotificationSettings
-      )
-      yield* put(
-        actions.updateEmailFrequency(
-          emailSettings.settings.emailFrequency,
-          false
-        )
-      )
       if (!isBrowserPushAvailable) return
       const settings = yield* call(
         audiusBackendInstance.getBrowserPushNotificationSettings
       )
       // If settings exist, set them in the store, else leave it at the defaults.
       if (settings) yield* put(actions.setNotificationSettings(settings))
-      if (!isElectron() && !NATIVE_MOBILE) {
+      if (!isElectron()) {
         if (isPushManagerAvailable) {
           const permission = yield* call(getPushManagerPermission)
           if (permission) {
@@ -80,6 +70,7 @@ function* watchGetSettings() {
 }
 
 function* watchToogleBrowserPushNotification() {
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* takeEvery(
     actions.SET_BROWSER_NOTIFICATION_ENABLED,
     function* (action: actions.SetBrowserNotificationEnabled) {
@@ -146,6 +137,7 @@ function* watchToogleBrowserPushNotification() {
 }
 
 function* watchSetBrowserNotificationSettingsOn() {
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* takeEvery(
     actions.SET_BROWSER_NOTIFICATION_SETTINGS_ON,
     function* (action: actions.SetBrowserNotificationSettingsOn) {
@@ -172,6 +164,7 @@ function* watchSetBrowserNotificationSettingsOn() {
 }
 
 function* watchUpdateNotificationSettings() {
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* takeEvery(
     actions.TOGGLE_NOTIFICATION_SETTING,
     function* (action: actions.ToggleNotificationSetting) {
@@ -202,28 +195,12 @@ function* watchUpdateNotificationSettings() {
   )
 }
 
-function* watchUpdateEmailFrequency() {
-  yield* takeEvery(
-    actions.UPDATE_EMAIL_FREQUENCY,
-    function* (action: actions.UpdateEmailFrequency) {
-      if (action.updateServer) {
-        yield* call(
-          audiusBackendInstance.updateEmailNotificationSettings,
-          action.frequency
-        )
-      }
-    }
-  )
-}
-
 export default function sagas() {
-  const sagas = [
+  return [
+    ...commonSettingsSagas(),
     watchGetSettings,
     watchSetBrowserNotificationSettingsOn,
     watchToogleBrowserPushNotification,
-    watchUpdateNotificationSettings,
-    watchUpdateEmailFrequency,
-    errorSagas
+    watchUpdateNotificationSettings
   ]
-  return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
 }

@@ -1,14 +1,17 @@
 import { useCallback } from 'react'
 
-import { ID } from '@audius/common'
+import {
+  ID,
+  stringWeiToBN,
+  profilePageSelectors,
+  tippingSelectors,
+  MAX_PROFILE_SUPPORTING_TILES
+} from '@audius/common'
 import { IconArrow } from '@audius/stems'
 import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
 import { useSelector } from 'common/hooks/useSelector'
-import { getProfileUser } from 'common/store/pages/profile/selectors'
-import { getOptimisticSupporting } from 'common/store/tipping/selectors'
-import { stringWeiToBN } from 'common/utils/wallet'
 import { ProfilePageNavSectionTitle } from 'components/profile-page-nav-section-title/ProfilePageNavSectionTitle'
 import {
   setUsers,
@@ -18,10 +21,11 @@ import {
   UserListEntityType,
   UserListType
 } from 'store/application/ui/userListModal/types'
-import { MAX_PROFILE_SUPPORTING_TILES } from 'utils/constants'
 
 import styles from './SupportingList.module.css'
 import { SupportingTile } from './SupportingTile'
+const { getOptimisticSupporting } = tippingSelectors
+const { getProfileUser } = profilePageSelectors
 
 const messages = {
   supporting: 'Supporting',

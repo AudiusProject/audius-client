@@ -1,24 +1,27 @@
 import { useCallback, useMemo } from 'react'
 
-import { deletePlaylist } from 'common/store/cache/collections/actions'
-import { getPlaylistId } from 'common/store/ui/delete-playlist-confirmation-modal/selectors'
+import {
+  cacheCollectionsActions,
+  deletePlaylistConfirmationModalUISelectors
+} from '@audius/common'
+import { useDispatch, useSelector } from 'react-redux'
 
 import ActionDrawer from 'app/components/action-drawer'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+const { getPlaylistId } = deletePlaylistConfirmationModalUISelectors
+const { deletePlaylist } = cacheCollectionsActions
 
 export const DeletePlaylistConfirmationDrawer = () => {
-  const playlistId = useSelectorWeb(getPlaylistId)
-  const dispatchWeb = useDispatchWeb()
+  const playlistId = useSelector(getPlaylistId)
+  const dispatch = useDispatch()
   const navigation = useNavigation()
 
   const handleDelete = useCallback(() => {
     if (playlistId) {
-      dispatchWeb(deletePlaylist(playlistId))
+      dispatch(deletePlaylist(playlistId))
       navigation.goBack()
     }
-  }, [dispatchWeb, playlistId, navigation])
+  }, [dispatch, playlistId, navigation])
 
   const rows = useMemo(
     () => [

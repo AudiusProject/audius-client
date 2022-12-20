@@ -1,31 +1,43 @@
 import { MouseEventHandler, useCallback, useEffect, useState } from 'react'
 
-import { SquareSizes, User } from '@audius/common'
+import {
+  SquareSizes,
+  User,
+  notificationsSelectors,
+  notificationsActions
+} from '@audius/common'
 import cn from 'classnames'
 import { push } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { toggleNotificationPanel } from 'common/store/notifications/actions'
-import { getNotificationPanelIsOpen } from 'common/store/notifications/selectors'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 
 import styles from './ProfilePicture.module.css'
+const { toggleNotificationPanel } = notificationsActions
+const { getNotificationPanelIsOpen } = notificationsSelectors
 
 const imageLoadDelay = 250
 
 type ProfilePictureProps = {
   user: User
   className?: string
+  innerClassName?: string
   disablePopover?: boolean
   disableClick?: boolean
   stopPropagation?: boolean
 }
 
 export const ProfilePicture = (props: ProfilePictureProps) => {
-  const { user, className, disablePopover, disableClick, stopPropagation } =
-    props
+  const {
+    user,
+    className,
+    innerClassName,
+    disablePopover,
+    disableClick,
+    stopPropagation
+  } = props
   const { user_id, _profile_picture_sizes, handle } = user
   const [loadImage, setLoadImage] = useState(false)
   const dispatch = useDispatch()
@@ -33,7 +45,6 @@ export const ProfilePicture = (props: ProfilePictureProps) => {
     user_id,
     _profile_picture_sizes,
     SquareSizes.SIZE_150_BY_150,
-    undefined,
     undefined,
     loadImage
   )
@@ -72,7 +83,7 @@ export const ProfilePicture = (props: ProfilePictureProps) => {
       onClick={handleClick}
       wrapperClassName={cn(styles.profilePictureWrapper, className)}
       skeletonClassName={styles.profilePictureSkeleton}
-      className={styles.profilePicture}
+      className={cn(styles.profilePicture, innerClassName)}
       image={profilePicture}
     />
   )

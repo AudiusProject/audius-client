@@ -1,13 +1,13 @@
-import { getSendAmount } from 'audius-client/src/common/store/tipping/selectors'
-import { formatNumberCommas } from 'audius-client/src/common/utils/formatUtil'
+import { formatNumberCommas, tippingSelectors } from '@audius/common'
 import { View } from 'react-native'
+import { useSelector } from 'react-redux'
 
 import IconCheck from 'app/assets/images/iconCheck.svg'
 import IconSend from 'app/assets/images/iconSend.svg'
 import { Text, AudioText } from 'app/components/core'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
+const { getSendAmount } = tippingSelectors
 
 const messages = {
   sending: 'Sending',
@@ -32,7 +32,7 @@ type TipHeaderProps = {
 
 export const TipHeader = (props: TipHeaderProps) => {
   const { status } = props
-  const sendAmount = useSelectorWeb(getSendAmount)
+  const sendAmount = useSelector(getSendAmount)
   const styles = useStyles()
   const { neutralLight4 } = useThemeColors()
   const Icon = status === 'confirm' ? IconSend : IconCheck

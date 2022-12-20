@@ -7,17 +7,19 @@ import {
   SquareSizes,
   CoverArtSizes,
   FieldVisibility,
-  Remix
+  Remix,
+  squashNewLines,
+  getCanonicalName,
+  formatSeconds,
+  formatDate,
+  OverflowAction,
+  imageBlank as placeholderArt
 } from '@audius/common'
 import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
 import cn from 'classnames'
 import Linkify from 'linkifyjs/react'
 
-import placeholderArt from 'common/assets/img/imageBlank2x.png'
-import { OverflowAction } from 'common/store/ui/mobile-overflow-menu/types'
-import { squashNewLines } from 'common/utils/formatUtil'
-import { getCanonicalName } from 'common/utils/genres'
-import { formatSeconds, formatDate } from 'common/utils/timeUtil'
+import { make, useRecord } from 'common/store/analytics/actions'
 import CoSign from 'components/co-sign/CoSign'
 import HoverInfo from 'components/co-sign/HoverInfo'
 import { Size } from 'components/co-sign/types'
@@ -25,7 +27,6 @@ import DownloadButtons from 'components/download-buttons/DownloadButtons'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
-import { make, useRecord } from 'store/analytics/actions'
 import { moodMap } from 'utils/moods'
 import { isDarkMode } from 'utils/theme/theme'
 
@@ -181,7 +182,7 @@ const TrackHeader = ({
 
   const record = useRecord()
   const onExternalLinkClick = useCallback(
-    (event) => {
+    (event: { target: { href: string } }) => {
       record(
         make(Name.LINK_CLICKING, {
           url: event.target.href,
@@ -251,8 +252,8 @@ const TrackHeader = ({
     return trackLabels.map((infoFact) => {
       return (
         <div key={infoFact.label} className={styles.infoFact}>
-          <h2 className={styles.infoLabel}>{infoFact.label}</h2>
-          <h2 className={styles.infoValue}>{infoFact.value}</h2>
+          <div className={styles.infoLabel}>{infoFact.label}</div>
+          <div className={styles.infoValue}>{infoFact.value}</div>
         </div>
       )
     })

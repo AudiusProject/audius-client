@@ -7,14 +7,12 @@ import {
   Variant,
   SmartCollectionVariant,
   Status,
-  User
+  User,
+  CollectionsPageType,
+  CollectionTrack,
+  OverflowAction
 } from '@audius/common'
 
-import {
-  CollectionsPageType,
-  CollectionTrack
-} from 'common/store/pages/collection/types'
-import { OverflowAction } from 'common/store/ui/mobile-overflow-menu/types'
 import CollectionHeader from 'components/collection/mobile/CollectionHeader'
 import { HeaderContext } from 'components/header/mobile/HeaderContextProvider'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
@@ -50,6 +48,7 @@ export type CollectionPageProps = {
   title: string
   description: string
   canonicalUrl: string
+  structuredData?: Object
   playlistId: ID | SmartCollectionVariant
   playing: boolean
   getPlayingUid: () => string | null
@@ -86,6 +85,7 @@ const CollectionPage = ({
   title,
   description: pageDescription,
   canonicalUrl,
+  structuredData,
   playlistId,
   getPlayingUid,
   playing,
@@ -228,6 +228,7 @@ const CollectionPage = ({
         title={title}
         description={pageDescription}
         canonicalUrl={canonicalUrl}
+        structuredData={structuredData}
       >
         <div className={styles.collectionContent}>
           <div>

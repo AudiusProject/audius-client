@@ -1,13 +1,15 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
-import { signOut } from 'audius-client/src/common/store/sign-out/slice'
+import { signOutActions } from '@audius/common'
 import { View } from 'react-native'
+import { useDispatch } from 'react-redux'
 
 import { Button, Text } from 'app/components/core'
 import { AppDrawer, useDrawerState } from 'app/components/drawer/AppDrawer'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import useSearchHistory from 'app/store/search/hooks'
 import { makeStyles } from 'app/styles'
+
+import { WebAppAccountClear } from '../web-app-account-sync'
+const { signOut } = signOutActions
 
 const MODAL_NAME = 'SignOutConfirmation'
 
@@ -36,17 +38,16 @@ const useStyles = makeStyles(({ spacing }) => ({
 
 export const SignOutConfirmationDrawer = () => {
   const styles = useStyles()
-  const dispatchWeb = useDispatchWeb()
-  const { clearHistory } = useSearchHistory()
+  const dispatch = useDispatch()
+  const [clearWebApp, setClearWebApp] = useState(false)
 
   const { onClose } = useDrawerState(MODAL_NAME)
 
   const handleSignOut = useCallback(() => {
-    dispatchWeb(signOut)
-    // TODO: move to the sign-out saga when store migrated to react-native
-    clearHistory()
+    setClearWebApp(true)
+    dispatch(signOut())
     onClose()
-  }, [dispatchWeb, clearHistory, onClose])
+  }, [dispatch, onClose, setClearWebApp])
 
   return (
     <AppDrawer modalName={MODAL_NAME} title={messages.drawerTitle}>
@@ -77,6 +78,7 @@ export const SignOutConfirmationDrawer = () => {
           onPress={handleSignOut}
         />
       </View>
+      <WebAppAccountClear shouldClear={clearWebApp} />
     </AppDrawer>
   )
 }

@@ -1,21 +1,19 @@
 import { useCallback, useContext } from 'react'
 
-import { ID, CreatePlaylistSource, Collection } from '@audius/common'
+import {
+  ID,
+  CreatePlaylistSource,
+  Collection,
+  accountSelectors,
+  cacheCollectionsActions,
+  addToPlaylistUIActions,
+  addToPlaylistUISelectors,
+  newCollectionMetadata
+} from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { newCollectionMetadata } from 'common/schemas'
-import { getAccountWithOwnPlaylists } from 'common/store/account/selectors'
-import {
-  addTrackToPlaylist,
-  createPlaylist
-} from 'common/store/cache/collections/actions'
-import { close } from 'common/store/ui/add-to-playlist/actions'
-import {
-  getTrackId,
-  getTrackTitle
-} from 'common/store/ui/add-to-playlist/selectors'
 import Card from 'components/card/mobile/Card'
 import CardLineup from 'components/lineup/CardLineup'
 import MobilePageContainer from 'components/mobile-page-container/MobilePageContainer'
@@ -26,9 +24,14 @@ import useHasChangedRoute from 'hooks/useHasChangedRoute'
 import NewPlaylistButton from 'pages/saved-page/components/mobile/NewPlaylistButton'
 import { AppState } from 'store/types'
 import { playlistPage } from 'utils/route'
+import { getTempPlaylistId } from 'utils/tempPlaylistId'
 import { withNullGuard } from 'utils/withNullGuard'
 
 import styles from './AddToPlaylist.module.css'
+const { getTrackId, getTrackTitle } = addToPlaylistUISelectors
+const { close } = addToPlaylistUIActions
+const { addTrackToPlaylist, createPlaylist } = cacheCollectionsActions
+const { getAccountWithOwnPlaylists } = accountSelectors
 
 const messages = {
   title: 'Add To Playlist',
@@ -99,7 +102,7 @@ const AddToPlaylist = g(
         playlist_name: trackTitle,
         is_private: false
       })
-      const tempId = `${Date.now()}`
+      const tempId = getTempPlaylistId()
       createPlaylist(tempId, metadata, trackId!)
       addTrackToPlaylist(trackId!, tempId)
       toast(messages.createdToast)
@@ -142,7 +145,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
     goToRoute: (route: string) => dispatch(pushRoute(route)),
     addTrackToPlaylist: (trackId: ID, playlistId: ID | string) =>
       dispatch(addTrackToPlaylist(trackId, playlistId)),
-    createPlaylist: (tempId: string, metadata: Collection, trackId: ID) =>
+    createPlaylist: (tempId: number, metadata: Collection, trackId: ID) =>
       dispatch(
         createPlaylist(
           tempId,

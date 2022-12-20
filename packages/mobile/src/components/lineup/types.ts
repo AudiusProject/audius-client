@@ -1,8 +1,17 @@
 import type { ReactElement } from 'react'
 
-import type { ID, UID, Kind, Lineup as LineupData, Maybe } from '@audius/common'
-import type { LineupActions } from 'audius-client/src/common/store/lineup/actions'
+import type {
+  ID,
+  UID,
+  Kind,
+  Lineup as LineupData,
+  Maybe,
+  LineupBaseActions,
+  CommonState
+} from '@audius/common'
 import type { SectionListProps } from 'react-native'
+
+import type { PlaybackSource } from 'app/types/analytics'
 
 export enum LineupVariant {
   MAIN = 'main',
@@ -29,7 +38,7 @@ export type FeedTipLineupItem = {
 
 export type LineupProps = {
   /** Object containing lineup actions such as setPage */
-  actions: LineupActions
+  actions: LineupBaseActions
 
   /** The maximum number of total tracks to fetch */
   count?: number
@@ -50,10 +59,21 @@ export type LineupProps = {
   fetchPayload?: any
 
   /**
+   * Extra fetch payload (merged in with fetch action) used to pass extra information to lineup actions/reducers/sagas
+   */
+  extraFetchOptions?: Record<string, unknown>
+
+  /**
    * A header to display at the top of the lineup,
    * will scroll with the rest of the content
    */
   header?: SectionListProps<unknown>['ListHeaderComponent']
+
+  /**
+   * An optional component to render when the lineup has no contents
+   * in it.
+   */
+  LineupEmptyComponent?: SectionListProps<unknown>['ListEmptyComponent']
 
   /** Are we in a trending lineup? Allows tiles to specialize their rendering */
   isTrending?: boolean
@@ -78,7 +98,12 @@ export type LineupProps = {
   /**
    * The Lineup object containing entries
    */
-  lineup: LineupData<LineupItem>
+  lineup?: LineupData<LineupItem>
+
+  /**
+   * The Lineup selector, allowing the lineup to select lineup itself
+   */
+  lineupSelector?: (state: CommonState) => LineupData<LineupItem>
 
   /**
    * Function called to load more entries
@@ -133,7 +158,31 @@ export type LineupProps = {
    * This helps prevent collisions with any in-flight loading from web-app
    */
   includeLineupStatus?: boolean
+  /**
+   * When `true`, add pull-to-refresh capability
+   */
+  pullToRefresh?: boolean
 } & Pick<
   SectionListProps<unknown>,
   'showsVerticalScrollIndicator' | 'ListEmptyComponent'
 >
+
+export type TogglePlayConfig = {
+  uid: UID
+  id: ID
+  source: PlaybackSource
+}
+
+export type LineupItemTileProps = Pick<
+  LineupProps,
+  'isTrending' | 'showLeadingElementArtistPick' | 'leadingElementId'
+> & {
+  rankIconCount: number
+  item: LineupItem | LoadingLineupItem | FeedTipLineupItem
+  index: number
+  togglePlay: ({ uid, id, source }: TogglePlayConfig) => void
+}
+
+export type LineupTileViewProps = Omit<LineupItemTileProps, 'item'> & {
+  item: LineupItem
+}

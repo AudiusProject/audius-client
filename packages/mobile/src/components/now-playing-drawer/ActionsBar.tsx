@@ -1,40 +1,39 @@
 import { useCallback, useLayoutEffect } from 'react'
 
-import type { Track } from '@audius/common'
-import { FavoriteSource, RepostSource, ShareSource } from '@audius/common'
-import { updateMethod } from 'audius-client/src/common/store/cast/slice'
+import type { Nullable, Track } from '@audius/common'
 import {
-  repostTrack,
-  saveTrack,
-  undoRepostTrack,
-  unsaveTrack
-} from 'audius-client/src/common/store/social/tracks/actions'
-import { getUserId } from 'common/store/account/selectors'
-import {
-  getMethod as getCastMethod,
-  getIsCasting
-} from 'common/store/cast/selectors'
-import { open as openOverflowMenu } from 'common/store/ui/mobile-overflow-menu/slice'
-import {
+  removeNullable,
+  FavoriteSource,
+  RepostSource,
+  ShareSource,
+  castSelectors,
+  castActions,
+  tracksSocialActions,
   OverflowAction,
-  OverflowSource
-} from 'common/store/ui/mobile-overflow-menu/types'
-import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
+  OverflowSource,
+  mobileOverflowMenuUIActions,
+  shareModalUIActions
+} from '@audius/common'
 import { View, Platform } from 'react-native'
 import { CastButton } from 'react-native-google-cast'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconAirplay from 'app/assets/images/iconAirplay.svg'
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconShare from 'app/assets/images/iconShare.svg'
 import { useAirplay } from 'app/components/audio/Airplay'
 import { IconButton } from 'app/components/core'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
 import { FavoriteButton } from './FavoriteButton'
 import { RepostButton } from './RepostButton'
+const { requestOpen: requestOpenShareModal } = shareModalUIActions
+const { open: openOverflowMenu } = mobileOverflowMenuUIActions
+const { repostTrack, saveTrack, undoRepostTrack, unsaveTrack } =
+  tracksSocialActions
+const { updateMethod } = castActions
+const { getMethod: getCastMethod, getIsCasting } = castSelectors
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   container: {
@@ -61,46 +60,45 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
 }))
 
 type ActionsBarProps = {
-  track: Track
+  track: Nullable<Track>
 }
 
 export const ActionsBar = ({ track }: ActionsBarProps) => {
   const styles = useStyles()
-  const currentUserId = useSelectorWeb(getUserId)
-  const castMethod = useSelectorWeb(getCastMethod)
-  const isCasting = useSelectorWeb(getIsCasting)
+  const castMethod = useSelector(getCastMethod)
+  const isCasting = useSelector(getIsCasting)
   const { neutral, primary } = useThemeColors()
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
 
   useLayoutEffect(() => {
     if (Platform.OS === 'android' && castMethod === 'airplay') {
-      dispatchWeb(updateMethod({ method: 'chromecast' }))
+      dispatch(updateMethod({ method: 'chromecast' }))
     }
-  }, [castMethod, dispatchWeb])
+  }, [castMethod, dispatch])
 
-  const onToggleFavorite = useCallback(() => {
+  const handleFavorite = useCallback(() => {
     if (track) {
       if (track.has_current_user_saved) {
-        dispatchWeb(unsaveTrack(track.track_id, FavoriteSource.NOW_PLAYING))
+        dispatch(unsaveTrack(track.track_id, FavoriteSource.NOW_PLAYING))
       } else {
-        dispatchWeb(saveTrack(track.track_id, FavoriteSource.NOW_PLAYING))
+        dispatch(saveTrack(track.track_id, FavoriteSource.NOW_PLAYING))
       }
     }
-  }, [dispatchWeb, track])
+  }, [dispatch, track])
 
-  const onToggleRepost = useCallback(() => {
+  const handleRepost = useCallback(() => {
     if (track) {
       if (track.has_current_user_reposted) {
-        dispatchWeb(undoRepostTrack(track.track_id, RepostSource.NOW_PLAYING))
+        dispatch(undoRepostTrack(track.track_id, RepostSource.NOW_PLAYING))
       } else {
-        dispatchWeb(repostTrack(track.track_id, RepostSource.NOW_PLAYING))
+        dispatch(repostTrack(track.track_id, RepostSource.NOW_PLAYING))
       }
     }
-  }, [dispatchWeb, track])
+  }, [dispatch, track])
 
-  const onPressShare = useCallback(() => {
+  const handleShare = useCallback(() => {
     if (track) {
-      dispatchWeb(
+      dispatch(
         requestOpenShareModal({
           type: 'track',
           trackId: track.track_id,
@@ -108,29 +106,17 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
         })
       )
     }
-  }, [dispatchWeb, track])
+  }, [dispatch, track])
 
   const onPressOverflow = useCallback(() => {
     if (track) {
-      const isOwner = currentUserId === track.owner_id
       const overflowActions = [
-        !isOwner
-          ? track.has_current_user_reposted
-            ? OverflowAction.UNREPOST
-            : OverflowAction.REPOST
-          : null,
-        !isOwner
-          ? track.has_current_user_saved
-            ? OverflowAction.UNFAVORITE
-            : OverflowAction.FAVORITE
-          : null,
-        OverflowAction.SHARE,
         OverflowAction.ADD_TO_PLAYLIST,
         OverflowAction.VIEW_TRACK_PAGE,
         OverflowAction.VIEW_ARTIST_PAGE
-      ].filter(Boolean) as OverflowAction[]
+      ].filter(removeNullable)
 
-      dispatchWeb(
+      dispatch(
         openOverflowMenu({
           source: OverflowSource.TRACKS,
           id: track.track_id,
@@ -138,7 +124,7 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
         })
       )
     }
-  }, [track, currentUserId, dispatchWeb])
+  }, [track, dispatch])
 
   const { openAirplayDialog } = useAirplay()
 
@@ -167,8 +153,8 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
   const renderRepostButton = () => {
     return (
       <RepostButton
-        iconIndex={track.has_current_user_reposted ? 1 : 0}
-        onPress={onToggleRepost}
+        iconIndex={track?.has_current_user_reposted ? 1 : 0}
+        onPress={handleRepost}
         style={styles.button}
         wrapperStyle={styles.animatedIcon}
       />
@@ -178,8 +164,8 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
   const renderFavoriteButton = () => {
     return (
       <FavoriteButton
-        iconIndex={track.has_current_user_saved ? 1 : 0}
-        onPress={onToggleFavorite}
+        iconIndex={track?.has_current_user_saved ? 1 : 0}
+        onPress={handleFavorite}
         style={styles.button}
         wrapperStyle={styles.animatedIcon}
       />
@@ -191,7 +177,7 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
       <IconButton
         icon={IconShare}
         styles={{ icon: styles.icon, root: styles.button }}
-        onPress={onPressShare}
+        onPress={handleShare}
       />
     )
   }

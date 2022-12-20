@@ -1,9 +1,7 @@
-import { ID } from '@audius/common'
+import { ID, encodeUrlName } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { Location as HistoryLocation } from 'history'
 import { matchPath } from 'react-router'
-
-import { encodeUrlName } from 'common/utils/formatUtil'
 
 /**
  * Generate a short base36 hash for a given string.
@@ -69,6 +67,7 @@ export const FAVORITES_PAGE = '/favorites'
 export const HISTORY_PAGE = '/history'
 export const DASHBOARD_PAGE = '/dashboard'
 export const AUDIO_PAGE = '/audio'
+export const AUDIO_TRANSACTIONS_PAGE = '/audio/transactions'
 export const UPLOAD_PAGE = '/upload'
 export const UPLOAD_ALBUM_PAGE = '/upload/album'
 export const UPLOAD_PLAYLIST_PAGE = '/upload/playlist'
@@ -189,6 +188,7 @@ export const orderedRoutes = [
   HISTORY_PAGE,
   DASHBOARD_PAGE,
   AUDIO_PAGE,
+  AUDIO_TRANSACTIONS_PAGE,
   SETTINGS_PAGE,
   ACCOUNT_SETTINGS_PAGE,
   NOTIFICATION_SETTINGS_PAGE,
@@ -218,6 +218,7 @@ export const staticRoutes = new Set([
   HISTORY_PAGE,
   DASHBOARD_PAGE,
   AUDIO_PAGE,
+  AUDIO_TRANSACTIONS_PAGE,
   UPLOAD_PAGE,
   UPLOAD_ALBUM_PAGE,
   UPLOAD_PLAYLIST_PAGE,

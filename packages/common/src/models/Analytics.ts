@@ -6,6 +6,13 @@ import { SolanaWalletAddress, StringAudio, WalletAddress } from 'models/Wallet'
 
 const ANALYTICS_TRACK_EVENT = 'ANALYTICS/TRACK_EVENT'
 
+type JsonMap = Record<string, unknown>
+
+export type AnalyticsEvent = {
+  eventName: string
+  properties?: JsonMap
+}
+
 export enum Name {
   SESSION_START = 'Session Start',
   // Account creation
@@ -33,6 +40,8 @@ export enum Name {
   CREATE_ACCOUNT_FINISH = 'Create Account: Finish',
   // When the user gets rate limited during signup auth
   CREATE_ACCOUNT_RATE_LIMIT = 'Create Account: Rate Limit',
+  // When the user gets blocked by AAO during the signup path
+  CREATE_ACCOUNT_BLOCKED = 'Create Account: Blocked',
 
   // Sign in
   SIGN_IN_OPEN = 'Sign In: Open',
@@ -109,18 +118,23 @@ export enum Name {
   EMBED_OPEN = 'Embed: Open modal',
   EMBED_COPY = 'Embed: Copy',
 
-  // Upload
+  // Upload funnel / conversion
   TRACK_UPLOAD_OPEN = 'Track Upload: Open',
   TRACK_UPLOAD_START_UPLOADING = 'Track Upload: Start Upload',
   TRACK_UPLOAD_TRACK_UPLOADING = 'Track Upload: Track Uploading',
+  // Note that upload is considered complete if it is explicitly rejected
+  // by the node receiving the file (HTTP 403).
   TRACK_UPLOAD_COMPLETE_UPLOAD = 'Track Upload: Complete Upload',
   TRACK_UPLOAD_COPY_LINK = 'Track Upload: Copy Link',
   TRACK_UPLOAD_SHARE_WITH_FANS = 'Track Upload: Share with your fans',
   TRACK_UPLOAD_SHARE_SOUND_TO_TIKTOK = 'Track Upload: Share sound to TikTok',
   TRACK_UPLOAD_VIEW_TRACK_PAGE = 'Track Upload: View Track page',
+  TWEET_FIRST_UPLOAD = 'Tweet First Upload',
+
+  // Upload success tracking
   TRACK_UPLOAD_SUCCESS = 'Track Upload: Success',
   TRACK_UPLOAD_FAILURE = 'Track Upload: Failure',
-  TWEET_FIRST_UPLOAD = 'Tweet First Upload',
+  TRACK_UPLOAD_REJECTED = 'Track Upload: Rejected',
 
   // Trending
   TRENDING_CHANGE_VIEW = 'Trending: Change view',
@@ -139,6 +153,7 @@ export enum Name {
   NOTIFICATIONS_CLICK_TIP_REACTION_TWITTER_SHARE = 'Notifications: Clicked Tip Reaction Twitter Share',
   NOTIFICATIONS_CLICK_TIP_RECEIVED_TWITTER_SHARE = 'Notifications: Clicked Tip Received Twitter Share',
   NOTIFICATIONS_CLICK_TIP_SENT_TWITTER_SHARE = 'Notifications: Clicked Tip Sent Twitter Share',
+  NOTIFICATIONS_CLICK_DETHRONED_TWITTER_SHARE = 'Notifications: Clicked Dethroned Twitter Share',
   NOTIFICATIONS_CLICK_SUPPORTER_RANK_UP_TWITTER_SHARE = 'Notifications: Clicked Supporter Rank Up Twitter Share',
   NOTIFICATIONS_CLICK_SUPPORTING_RANK_UP_TWITTER_SHARE = 'Notifications: Clicked Supporting Rank Up Twitter Share',
   NOTIFICATIONS_CLICK_ADD_TRACK_TO_PLAYLIST_TWITTER_SHARE = 'Notifications: Clicked Add Track to Playlist Twitter Share',
@@ -256,7 +271,19 @@ export enum Name {
   // Social Proof
   SOCIAL_PROOF_OPEN = 'Social Proof: Open',
   SOCIAL_PROOF_SUCCESS = 'Social Proof: Success',
-  SOCIAL_PROOF_ERROR = 'Social Proof: Error'
+  SOCIAL_PROOF_ERROR = 'Social Proof: Error',
+
+  // Buy Audio
+  BUY_AUDIO_ON_RAMP_OPENED = 'Buy Audio: On Ramp Opened',
+  BUY_AUDIO_ON_RAMP_CANCELED = 'Buy Audio: On Ramp Canceled',
+  BUY_AUDIO_ON_RAMP_SUCCESS = 'Buy Audio: On Ramp Success',
+  BUY_AUDIO_SUCCESS = 'Buy Audio: Success',
+  BUY_AUDIO_FAILURE = 'Buy Audio: Failure',
+
+  // Buy Audio Recovery
+  BUY_AUDIO_RECOVERY_OPENED = 'Buy Audio Recovery: Opened',
+  BUY_AUDIO_RECOVERY_SUCCESS = 'Buy Audio Recovery: Success',
+  BUY_AUDIO_RECOVERY_FAILURE = 'Buy Audio Recovery: Failure'
 }
 
 type PageView = {
@@ -652,6 +679,9 @@ type TrackUploadTrackUploading = {
   genre: string
   mood: string
   downloadable: 'yes' | 'no' | 'follow'
+  size: number
+  type: string
+  name: string
 }
 type TrackUploadCompleteUpload = {
   eventName: Name.TRACK_UPLOAD_COMPLETE_UPLOAD
@@ -667,6 +697,13 @@ type TrackUploadSuccess = {
 
 type TrackUploadFailure = {
   eventName: Name.TRACK_UPLOAD_FAILURE
+  endpoint: string
+  kind: 'single_track' | 'multi_track' | 'album' | 'playlist'
+  error?: string
+}
+
+type TrackUploadRejected = {
+  eventName: Name.TRACK_UPLOAD_REJECTED
   endpoint: string
   kind: 'single_track' | 'multi_track' | 'album' | 'playlist'
   error?: string
@@ -745,6 +782,10 @@ type NotificationsClickTipReceived = {
 }
 type NotificationsClickTipSent = {
   eventName: Name.NOTIFICATIONS_CLICK_TIP_SENT_TWITTER_SHARE
+  text: string
+}
+type NotificationsClickDethroned = {
+  eventName: Name.NOTIFICATIONS_CLICK_DETHRONED_TWITTER_SHARE
   text: string
 }
 type NotificationsClickSupporterRankUp = {
@@ -1152,6 +1193,8 @@ type RewardsClaimUnknown = {
   error: string
 }
 
+export type TipSource = 'profile' | 'feed' | 'dethroned' | 'buyAudio'
+
 type TipAudioRequest = {
   eventName: Name.TIP_AUDIO_REQUEST
   amount: StringAudio
@@ -1159,7 +1202,7 @@ type TipAudioRequest = {
   recipientWallet: SolanaWalletAddress
   senderHandle: string
   recipientHandle: string
-  source: 'profile' | 'feed'
+  source: TipSource
   device: 'web' | 'native'
 }
 
@@ -1170,7 +1213,7 @@ type TipAudioSuccess = {
   recipientWallet: SolanaWalletAddress
   senderHandle: string
   recipientHandle: string
-  source: 'profile' | 'feed'
+  source: TipSource
   device: 'web' | 'native'
 }
 
@@ -1182,7 +1225,7 @@ type TipAudioFailure = {
   senderHandle: string
   recipientHandle: string
   error: string
-  source: 'profile' | 'feed'
+  source: TipSource
   device: 'web' | 'native'
 }
 
@@ -1193,7 +1236,7 @@ type TipAudioTwitterShare = {
   recipientWallet: SolanaWalletAddress
   senderHandle: string
   recipientHandle: string
-  source: 'profile' | 'feed'
+  source: TipSource
   device: 'web' | 'native'
 }
 
@@ -1245,6 +1288,69 @@ type AudiusOauthError = {
   eventName: Name.AUDIUS_OAUTH_ERROR
   isUserError: boolean
   error: string
+}
+
+type BuyAudioOnRampOpened = {
+  eventName: Name.BUY_AUDIO_ON_RAMP_OPENED
+  provider: string
+}
+
+type BuyAudioOnRampCanceled = {
+  eventName: Name.BUY_AUDIO_ON_RAMP_CANCELED
+  provider: string
+}
+
+type BuyAudioOnRampSuccess = {
+  eventName: Name.BUY_AUDIO_ON_RAMP_SUCCESS
+  provider: string
+}
+
+type BuyAudioSuccess = {
+  eventName: Name.BUY_AUDIO_SUCCESS
+  provider: string
+  requestedAudio: number
+  actualAudio: number
+  surplusAudio: number
+}
+
+type BuyAudioFailure = {
+  eventName: Name.BUY_AUDIO_FAILURE
+  provider: string
+  requestedAudio: number
+  stage: string
+  error: string
+}
+
+type BuyAudioRecoveryOpened = {
+  eventName: Name.BUY_AUDIO_RECOVERY_OPENED
+  provider: string
+  trigger: string
+  balance: string
+}
+
+type BuyAudioRecoverySuccess = {
+  eventName: Name.BUY_AUDIO_RECOVERY_SUCCESS
+  provider: string
+  audioRecovered: number
+}
+
+type BuyAudioRecoveryFailure = {
+  eventName: Name.BUY_AUDIO_RECOVERY_FAILURE
+  provider: string
+  stage: string
+  error: string
+}
+
+type RewardsClaimStartCognitoFlow = {
+  eventName: Name.REWARDS_CLAIM_START_COGNITO_FLOW
+  handle: string | null
+  source: string
+}
+
+type RewardsClaimFinishCognitoFlow = {
+  eventName: Name.REWARDS_CLAIM_FINISH_COGNITO_FLOW
+  handle: string | null
+  source: string
 }
 
 export type BaseAnalyticsEvent = { type: typeof ANALYTICS_TRACK_EVENT }
@@ -1308,6 +1414,7 @@ export type AllTrackingEvents =
   | TrackUploadCompleteUpload
   | TrackUploadSuccess
   | TrackUploadFailure
+  | TrackUploadRejected
   | TrackUploadCopyLink
   | TrackUploadShareWithFans
   | TrackUploadShareSoundToTikTok
@@ -1324,6 +1431,7 @@ export type AllTrackingEvents =
   | NotificationsClickTipReaction
   | NotificationsClickTipReceived
   | NotificationsClickTipSent
+  | NotificationsClickDethroned
   | NotificationsClickSupporterRankUp
   | NotificationsClickSupportingRankUp
   | NotificationsClickAddTrackToPlaylist
@@ -1415,3 +1523,13 @@ export type AllTrackingEvents =
   | AudiusOauthComplete
   | AudiusOauthSubmit
   | AudiusOauthError
+  | BuyAudioOnRampOpened
+  | BuyAudioOnRampSuccess
+  | BuyAudioOnRampCanceled
+  | BuyAudioSuccess
+  | BuyAudioFailure
+  | BuyAudioRecoveryOpened
+  | BuyAudioRecoverySuccess
+  | BuyAudioRecoveryFailure
+  | RewardsClaimStartCognitoFlow
+  | RewardsClaimFinishCognitoFlow

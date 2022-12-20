@@ -7,14 +7,14 @@ import {
   MouseEvent
 } from 'react'
 
+import { useInstanceVar } from '@audius/common'
 import cn from 'classnames'
 import Lottie from 'react-lottie'
-
-import useInstanceVar from 'common/hooks/useInstanceVar'
 
 import styles from './AnimatedButtonProvider.module.css'
 
 export type BaseAnimatedButtonProps = {
+  href?: string
   onClick: ((e: MouseEvent) => void) | (() => void)
   uniqueKey: string
   isActive: boolean
@@ -40,6 +40,7 @@ type AnimatedButtonProps = {
 const AnimatedButton = ({
   iconJSON,
   onClick,
+  href,
   isActive,
   isMatrix,
   uniqueKey,
@@ -80,6 +81,7 @@ const AnimatedButton = ({
 
   const handleClick = useCallback(
     (e: MouseEvent) => {
+      e.preventDefault()
       if (stopPropagation) {
         e.stopPropagation()
       }
@@ -103,7 +105,8 @@ const AnimatedButton = ({
   ]
 
   return (
-    <button
+    <a
+      href={href}
       onClick={handleClick}
       className={cn(
         [styles.baseStyle],
@@ -129,7 +132,7 @@ const AnimatedButton = ({
           eventListeners={isDisabled ? [] : eventListeners}
         />
       </div>
-    </button>
+    </a>
   )
 }
 

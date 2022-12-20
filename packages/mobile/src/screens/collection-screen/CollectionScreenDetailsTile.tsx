@@ -1,26 +1,47 @@
 import { useCallback, useMemo } from 'react'
 
-import type { ID, UID } from '@audius/common'
-import { Status, Name, PlaybackSource } from '@audius/common'
-import { makeGetTableMetadatas } from 'audius-client/src/common/store/lineup/selectors'
-import { tracksActions } from 'audius-client/src/common/store/pages/collection/lineup/actions'
-import { getCollectionTracksLineup } from 'audius-client/src/common/store/pages/collection/selectors'
-import { formatSecondsAsText } from 'audius-client/src/common/utils/timeUtil'
-import { Text, View } from 'react-native'
-import { useSelector } from 'react-redux'
+import type { Collection, ID, Maybe, UID } from '@audius/common'
+import {
+  useProxySelector,
+  collectionPageActions,
+  playerSelectors,
+  Status,
+  Name,
+  PlaybackSource,
+  formatSecondsAsText,
+  lineupSelectors,
+  collectionPageLineupActions as tracksActions,
+  collectionPageSelectors
+} from '@audius/common'
+import { useFocusEffect } from '@react-navigation/native'
+import { View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
+import type { DynamicImageProps } from 'app/components/core'
+import { Text } from 'app/components/core'
 import { DetailsTile } from 'app/components/details-tile'
 import type {
   DetailsTileDetail,
   DetailsTileProps
 } from 'app/components/details-tile/types'
+import { CollectionImage } from 'app/components/image/CollectionImage'
+import { DownloadToggle } from 'app/components/offline-downloads'
 import { TrackList } from 'app/components/track-list'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { getPlaying, getPlayingUid, getTrack } from 'app/store/audio/selectors'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
+import { useOfflineCollectionLineup } from 'app/hooks/useLoadOfflineTracks'
+import { make, track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
-import { make, track } from 'app/utils/analytics'
 import { formatCount } from 'app/utils/format'
+const {
+  getCollection,
+  getCollectionTracksLineup,
+  getCollectionId,
+  getCollectionUid,
+  getUserUid
+} = collectionPageSelectors
+const { resetCollection } = collectionPageActions
+const { makeGetTableMetadatas } = lineupSelectors
+const { getPlaying, getUid, getCurrentTrack } = playerSelectors
 
 const messages = {
   album: 'Album',
@@ -57,7 +78,7 @@ type CollectionScreenDetailsTileProps = {
 
 const getTracksLineup = makeGetTableMetadatas(getCollectionTracksLineup)
 
-const recordPlay = (id, play = true) => {
+const recordPlay = (id: Maybe<number>, play = true) => {
   track(
     make({
       eventName: play ? Name.PLAYBACK_PLAY : Name.PLAYBACK_PAUSE,
@@ -73,15 +94,32 @@ export const CollectionScreenDetailsTile = ({
   isAlbum,
   isPrivate,
   isPublishing,
+  renderImage: renderCustomImage,
   ...detailsTileProps
 }: CollectionScreenDetailsTileProps) => {
   const styles = useStyles()
-  const dispatchWeb = useDispatchWeb()
-  const tracksLineup = useSelectorWeb(getTracksLineup)
-  const tracksLoading = tracksLineup.status === Status.LOADING
-  const numTracks = tracksLineup.entries.length
+  const dispatch = useDispatch()
 
-  const duration = tracksLineup.entries?.reduce(
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
+
+  const collection = useSelector(getCollection)
+  const collectionUid = useSelector(getCollectionUid)
+  const collectionId = useSelector(getCollectionId)
+  const userUid = useSelector(getUserUid)
+  const { entries, status } = useProxySelector(getTracksLineup, [])
+  const tracksLoading = status === Status.LOADING
+  const numTracks = entries.length
+
+  const resetCollectionLineup = useCallback(() => {
+    dispatch(resetCollection(collectionUid, userUid))
+    dispatch(tracksActions.fetchLineupMetadatas(0, 200, false, undefined))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch])
+
+  useFocusEffect(resetCollectionLineup)
+  useOfflineCollectionLineup(collectionId?.toString())
+
+  const duration = entries?.reduce(
     (duration, entry) => duration + entry.duration,
     0
   )
@@ -106,41 +144,46 @@ export const CollectionScreenDetailsTile = ({
   }, [tracksLoading, numTracks, duration, extraDetails])
 
   const isPlaying = useSelector(getPlaying)
-  const playingUid = useSelector(getPlayingUid)
-  const playingTrack = useSelector(getTrack)
-  const trackId = playingTrack?.trackId
+  const playingUid = useSelector(getUid)
+  const playingTrack = useSelector(getCurrentTrack)
+  const trackId = playingTrack?.track_id
 
-  const isQueued = tracksLineup.entries.some(
-    (entry) => playingUid === entry.uid
+  const isQueued = entries.some((entry) => playingUid === entry.uid)
+
+  const renderImage = useCallback(
+    (props: DynamicImageProps) => (
+      <CollectionImage collection={collection as Collection} {...props} />
+    ),
+    [collection]
   )
 
   const handlePressPlay = useCallback(() => {
     if (isPlaying && isQueued) {
-      dispatchWeb(tracksActions.pause())
+      dispatch(tracksActions.pause())
       recordPlay(trackId, false)
     } else if (!isPlaying && isQueued) {
-      dispatchWeb(tracksActions.play())
+      dispatch(tracksActions.play())
       recordPlay(trackId)
-    } else if (tracksLineup.entries.length > 0) {
-      dispatchWeb(tracksActions.play(tracksLineup.entries[0].uid))
-      recordPlay(tracksLineup.entries[0].track_id)
+    } else if (entries.length > 0) {
+      dispatch(tracksActions.play(entries[0].uid))
+      recordPlay(entries[0].track_id)
     }
-  }, [dispatchWeb, isPlaying, trackId, tracksLineup, isQueued])
+  }, [dispatch, isPlaying, trackId, entries, isQueued])
 
   const handlePressTrackListItemPlay = useCallback(
     (uid: UID, id: ID) => {
       if (isPlaying && playingUid === uid) {
-        dispatchWeb(tracksActions.pause())
+        dispatch(tracksActions.pause())
         recordPlay(id, false)
       } else if (playingUid !== uid) {
-        dispatchWeb(tracksActions.play(uid))
+        dispatch(tracksActions.play(uid))
         recordPlay(id)
       } else {
-        dispatchWeb(tracksActions.play())
+        dispatch(tracksActions.play())
         recordPlay(id)
       }
     },
-    [dispatchWeb, isPlaying, playingUid]
+    [dispatch, isPlaying, playingUid]
   )
 
   const headerText = useMemo(() => {
@@ -159,6 +202,28 @@ export const CollectionScreenDetailsTile = ({
     return messages.playlist
   }, [isAlbum, isPrivate, isPublishing])
 
+  const tracksForDownload = useMemo(
+    () =>
+      entries.map((track) => ({
+        trackId: track.track_id,
+        downloadReason: {
+          is_from_favorites: false,
+          collection_id: collectionId?.toString()
+        }
+      })),
+    [collectionId, entries]
+  )
+
+  const renderHeader = useCallback(() => {
+    return collectionId ? (
+      <DownloadToggle
+        collectionId={collectionId}
+        tracksForDownload={tracksForDownload}
+        labelText={headerText}
+      />
+    ) : null
+  }, [collectionId, headerText, tracksForDownload])
+
   const renderTrackList = () => {
     if (tracksLoading)
       return (
@@ -168,7 +233,7 @@ export const CollectionScreenDetailsTile = ({
         </>
       )
 
-    return tracksLineup.entries.length === 0 ? (
+    return entries.length === 0 ? (
       <Text style={styles.empty}>{messages.empty}</Text>
     ) : (
       <>
@@ -177,7 +242,7 @@ export const CollectionScreenDetailsTile = ({
           hideArt
           showDivider
           togglePlay={handlePressTrackListItemPlay}
-          tracks={tracksLineup.entries}
+          tracks={entries}
         />
       </>
     )
@@ -189,10 +254,12 @@ export const CollectionScreenDetailsTile = ({
       description={description}
       descriptionLinkPressSource='collection page'
       details={details}
-      headerText={headerText}
       hideListenCount={true}
       isPlaying={isPlaying && isQueued}
       renderBottomContent={renderTrackList}
+      headerText={!isOfflineModeEnabled ? headerText : undefined}
+      renderHeader={isOfflineModeEnabled ? renderHeader : undefined}
+      renderImage={renderCustomImage ?? renderImage}
       onPressPlay={handlePressPlay}
     />
   )

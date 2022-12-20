@@ -6,6 +6,8 @@ import type { TextStyle } from 'react-native'
 import type { SearchUser } from 'app/store/search/types'
 import type { GestureResponderHandler } from 'app/types/gesture'
 
+import type { DynamicImageProps } from '../core'
+
 export type DetailsTileDetail = {
   icon?: ReactNode
   isHidden?: boolean
@@ -34,7 +36,7 @@ export type DetailsTileProps = {
   hasSaved?: boolean
 
   /** Label to be displayed at the top of the tile */
-  headerText: string
+  headerText?: string
 
   /** Hide the favorite button */
   hideFavorite?: boolean
@@ -56,9 +58,6 @@ export type DetailsTileProps = {
 
   /** Hide the share button */
   hideShare?: boolean
-
-  /** Url of the image */
-  imageUrl?: string
 
   /** Is the item playing */
   isPlaying?: boolean
@@ -94,7 +93,7 @@ export type DetailsTileProps = {
   renderHeader?: () => ReactNode
 
   /** Render function for the image */
-  renderImage?: () => ReactNode
+  renderImage: (props: DynamicImageProps) => ReactNode
 
   /** Amount of reposts on this item */
   repostCount?: number

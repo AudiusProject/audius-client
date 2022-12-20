@@ -1,11 +1,14 @@
 import { Component } from 'react'
 
-import { Status } from '@audius/common'
+import {
+  Status,
+  formatCount,
+  searchResultsPageTracksLineupActions as tracksActions,
+  SearchKind
+} from '@audius/common'
 import { Redirect } from 'react-router'
 
 import { ReactComponent as IconBigSearch } from 'assets/img/iconBigSearch.svg'
-import { tracksActions } from 'common/store/pages/search-results/lineup/tracks/actions'
-import { formatCount } from 'common/utils/formatUtil'
 import Card from 'components/card/desktop/Card'
 import CategoryHeader from 'components/header/desktop/CategoryHeader'
 import Header from 'components/header/desktop/Header'
@@ -144,6 +147,7 @@ class SearchPageContent extends Component {
           open={cardToast[toastId] && cardToast[toastId].open}
           placement='bottom'
           fillParent={false}
+          firesOnClick={false}
         >
           <Card
             id={artist.user_id}
@@ -202,6 +206,7 @@ class SearchPageContent extends Component {
             playlist.playlist_id
           )}
           primaryText={playlist.playlist_name}
+          firesOnClick={false}
         >
           <Card
             size={'small'}
@@ -264,6 +269,7 @@ class SearchPageContent extends Component {
             album.playlist_id
           )}
           primaryText={album.playlist_name}
+          firesOnClick={false}
         >
           <Card
             size={'small'}
@@ -328,11 +334,15 @@ class SearchPageContent extends Component {
               playing={playing}
               buffering={buffering}
               scrollParent={this.props.containerRef}
-              loadMore={(offset, limit) =>
+              loadMore={(offset, limit) => {
                 this.props.dispatch(
-                  tracksActions.fetchLineupMetadatas(offset, limit)
+                  tracksActions.fetchLineupMetadatas(offset, limit, false, {
+                    category: searchResultsCategory,
+                    query: searchText,
+                    isTagSearch
+                  })
                 )
-              }
+              }}
               playTrack={(uid) => this.props.dispatch(tracksActions.play(uid))}
               pauseTrack={() => this.props.dispatch(tracksActions.pause())}
               actions={tracksActions}
@@ -413,7 +423,11 @@ class SearchPageContent extends Component {
                 }
                 loadMore={(offset, limit) =>
                   this.props.dispatch(
-                    tracksActions.fetchLineupMetadatas(offset, limit)
+                    tracksActions.fetchLineupMetadatas(offset, limit, false, {
+                      category: SearchKind.ALL,
+                      query: searchText,
+                      isTagSearch
+                    })
                   )
                 }
                 playTrack={(uid) =>

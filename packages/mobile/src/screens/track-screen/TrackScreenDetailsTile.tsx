@@ -2,60 +2,54 @@ import { useCallback } from 'react'
 
 import type { UID, Track, User } from '@audius/common'
 import {
+  removeNullable,
+  playerSelectors,
   FavoriteSource,
   RepostSource,
   ShareSource,
   Name,
   PlaybackSource,
   FavoriteType,
-  SquareSizes
-} from '@audius/common'
-import { getUserId } from 'audius-client/src/common/store/account/selectors'
-import { tracksActions } from 'audius-client/src/common/store/pages/track/lineup/actions'
-import {
-  repostTrack,
-  saveTrack,
-  undoRepostTrack,
-  unsaveTrack
-} from 'audius-client/src/common/store/social/tracks/actions'
-import {
-  OverflowAction,
-  OverflowSource
-} from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
-import { requestOpen as requestOpenShareModal } from 'audius-client/src/common/store/ui/share-modal/slice'
-import { setFavorite } from 'audius-client/src/common/store/user-list/favorites/actions'
-import { setRepost } from 'audius-client/src/common/store/user-list/reposts/actions'
-import { RepostType } from 'audius-client/src/common/store/user-list/reposts/types'
-import { getCanonicalName } from 'audius-client/src/common/utils/genres'
-import {
+  getCanonicalName,
   formatSeconds,
-  formatDate
-} from 'audius-client/src/common/utils/timeUtil'
-import {
-  FAVORITING_USERS_ROUTE,
-  REPOSTING_USERS_ROUTE
-} from 'audius-client/src/utils/route'
-import { open as openOverflowMenu } from 'common/store/ui/mobile-overflow-menu/slice'
-import { Image, Pressable, View } from 'react-native'
-import { useSelector } from 'react-redux'
+  formatDate,
+  accountSelectors,
+  trackPageLineupActions,
+  tracksSocialActions,
+  OverflowAction,
+  OverflowSource,
+  mobileOverflowMenuUIActions,
+  shareModalUIActions,
+  RepostType,
+  repostsUserListActions,
+  favoritesUserListActions
+} from '@audius/common'
+import { Image, View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconHidden from 'app/assets/images/iconHidden.svg'
-import { Text } from 'app/components/core'
+import type { DynamicImageProps } from 'app/components/core'
+import { Tag, Text } from 'app/components/core'
 import { DetailsTile } from 'app/components/details-tile'
 import type { DetailsTileDetail } from 'app/components/details-tile/types'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
+import { TrackImage } from 'app/components/image/TrackImage'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
-import { getPlaying, getPlayingUid } from 'app/store/audio/selectors'
+import { make, track as record } from 'app/services/analytics'
 import type { SearchTrack, SearchUser } from 'app/store/search/types'
 import { flexRowCentered, makeStyles } from 'app/styles'
-import { make, track as record } from 'app/utils/analytics'
 import { moodMap } from 'app/utils/moods'
-import { getTagSearchRoute } from 'app/utils/routes'
 import { useThemeColors } from 'app/utils/theme'
 
 import { TrackScreenDownloadButtons } from './TrackScreenDownloadButtons'
+const { getPlaying, getTrackId } = playerSelectors
+const { setFavorite } = favoritesUserListActions
+const { setRepost } = repostsUserListActions
+const { requestOpen: requestOpenShareModal } = shareModalUIActions
+const { open: openOverflowMenu } = mobileOverflowMenuUIActions
+const { repostTrack, saveTrack, undoRepostTrack, unsaveTrack } =
+  tracksSocialActions
+const { tracksActions } = trackPageLineupActions
+const { getUserId } = accountSelectors
 
 const messages = {
   track: 'track',
@@ -91,17 +85,6 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     paddingVertical: spacing(4)
   },
 
-  tag: {
-    margin: spacing(1),
-    borderRadius: 2,
-    backgroundColor: palette.neutralLight4,
-    paddingVertical: spacing(1),
-    paddingHorizontal: spacing(2),
-    color: palette.white,
-    textTransform: 'uppercase',
-    overflow: 'hidden'
-  },
-
   moodEmoji: {
     marginLeft: spacing(1),
     width: 20,
@@ -110,6 +93,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
 
   hiddenDetailsTileWrapper: {
     ...flexRowCentered(),
+    justifyContent: 'center',
     marginBottom: spacing(4)
   },
 
@@ -138,15 +122,14 @@ export const TrackScreenDetailsTile = ({
   const navigation = useNavigation()
   const { accentOrange } = useThemeColors()
 
-  const currentUserId = useSelectorWeb(getUserId)
-  const dispatchWeb = useDispatchWeb()
-  const playingUid = useSelector(getPlayingUid)
+  const currentUserId = useSelector(getUserId)
+  const dispatch = useDispatch()
+  const playingId = useSelector(getTrackId)
   const isPlaying = useSelector(getPlaying)
-  const isPlayingUid = playingUid === uid
+  const isPlayingId = playingId === track.track_id
 
   const {
     _co_sign,
-    _cover_art_sizes,
     created_at,
     credits_splits,
     description,
@@ -168,12 +151,6 @@ export const TrackScreenDetailsTile = ({
     track_id
   } = track
 
-  const imageUrl = useTrackCoverArt({
-    id: track_id,
-    sizes: _cover_art_sizes,
-    size: SquareSizes.SIZE_480_BY_480
-  })
-
   const isOwner = owner_id === currentUserId
 
   const remixParentTrackId = remix_of?.tracks?.[0]?.parent_track_id
@@ -191,7 +168,9 @@ export const TrackScreenDetailsTile = ({
     {
       isHidden: is_unlisted,
       label: 'Released',
-      value: formatDate(release_date || created_at)
+      value: release_date
+        ? formatDate(release_date, 'ddd MMM DD YYYY HH:mm:ss')
+        : formatDate(created_at, 'YYYY-MM-DD HH:mm:ss')
     },
     {
       icon:
@@ -206,53 +185,42 @@ export const TrackScreenDetailsTile = ({
     { label: 'Credit', value: credits_splits }
   ].filter(({ isHidden, value }) => !isHidden && !!value)
 
+  const renderImage = useCallback(
+    (props: DynamicImageProps) => <TrackImage track={track} {...props} />,
+    [track]
+  )
+
   const handlePressPlay = useCallback(() => {
     if (isLineupLoading) return
 
-    if (isPlaying && isPlayingUid) {
-      dispatchWeb(tracksActions.pause())
+    if (isPlaying && isPlayingId) {
+      dispatch(tracksActions.pause())
       recordPlay(track_id, false)
-    } else if (!isPlayingUid) {
-      dispatchWeb(tracksActions.play(uid))
+    } else if (!isPlayingId) {
+      dispatch(tracksActions.play(uid))
       recordPlay(track_id)
     } else {
-      dispatchWeb(tracksActions.play())
+      dispatch(tracksActions.play())
       recordPlay(track_id)
     }
-  }, [track_id, uid, isPlayingUid, dispatchWeb, isPlaying, isLineupLoading])
+  }, [track_id, uid, isPlayingId, dispatch, isPlaying, isLineupLoading])
 
   const handlePressFavorites = useCallback(() => {
-    dispatchWeb(setFavorite(track_id, FavoriteType.TRACK))
-    navigation.push({
-      native: {
-        screen: 'Favorited',
-        params: { id: track_id, favoriteType: FavoriteType.TRACK }
-      },
-      web: { route: FAVORITING_USERS_ROUTE }
+    dispatch(setFavorite(track_id, FavoriteType.TRACK))
+    navigation.push('Favorited', {
+      id: track_id,
+      favoriteType: FavoriteType.TRACK
     })
-  }, [dispatchWeb, track_id, navigation])
+  }, [dispatch, track_id, navigation])
 
   const handlePressReposts = useCallback(() => {
-    dispatchWeb(setRepost(track_id, RepostType.TRACK))
-    navigation.push({
-      native: {
-        screen: 'Reposts',
-        params: { id: track_id, repostType: RepostType.TRACK }
-      },
-      web: { route: REPOSTING_USERS_ROUTE }
-    })
-  }, [dispatchWeb, track_id, navigation])
+    dispatch(setRepost(track_id, RepostType.TRACK))
+    navigation.push('Reposts', { id: track_id, repostType: RepostType.TRACK })
+  }, [dispatch, track_id, navigation])
 
   const handlePressTag = useCallback(
     (tag: string) => {
-      const route = getTagSearchRoute(tag)
-      navigation.push({
-        native: {
-          screen: 'TagSearch',
-          params: { query: tag }
-        },
-        web: { route, fromPage: 'search' }
-      })
+      navigation.push('TagSearch', { query: tag })
     },
     [navigation]
   )
@@ -260,9 +228,9 @@ export const TrackScreenDetailsTile = ({
   const handlePressSave = () => {
     if (!isOwner) {
       if (has_current_user_saved) {
-        dispatchWeb(unsaveTrack(track_id, FavoriteSource.TRACK_PAGE))
+        dispatch(unsaveTrack(track_id, FavoriteSource.TRACK_PAGE))
       } else {
-        dispatchWeb(saveTrack(track_id, FavoriteSource.TRACK_PAGE))
+        dispatch(saveTrack(track_id, FavoriteSource.TRACK_PAGE))
       }
     }
   }
@@ -270,15 +238,15 @@ export const TrackScreenDetailsTile = ({
   const handlePressRepost = () => {
     if (!isOwner) {
       if (has_current_user_reposted) {
-        dispatchWeb(undoRepostTrack(track_id, RepostSource.TRACK_PAGE))
+        dispatch(undoRepostTrack(track_id, RepostSource.TRACK_PAGE))
       } else {
-        dispatchWeb(repostTrack(track_id, RepostSource.TRACK_PAGE))
+        dispatch(repostTrack(track_id, RepostSource.TRACK_PAGE))
       }
     }
   }
 
   const handlePressShare = () => {
-    dispatchWeb(
+    dispatch(
       requestOpenShareModal({
         type: 'track',
         trackId: track_id,
@@ -286,26 +254,19 @@ export const TrackScreenDetailsTile = ({
       })
     )
   }
+
   const handlePressOverflow = () => {
     const overflowActions = [
-      isOwner || is_unlisted
-        ? null
-        : has_current_user_reposted
-        ? OverflowAction.UNREPOST
-        : OverflowAction.REPOST,
-      isOwner || is_unlisted
-        ? null
-        : has_current_user_saved
-        ? OverflowAction.UNFAVORITE
-        : OverflowAction.FAVORITE,
       OverflowAction.ADD_TO_PLAYLIST,
       user.does_current_user_follow
         ? OverflowAction.UNFOLLOW_ARTIST
         : OverflowAction.FOLLOW_ARTIST,
-      OverflowAction.VIEW_ARTIST_PAGE
-    ].filter(Boolean) as OverflowAction[]
+      OverflowAction.VIEW_ARTIST_PAGE,
+      isOwner ? OverflowAction.EDIT_TRACK : null,
+      isOwner ? OverflowAction.DELETE_TRACK : null
+    ].filter(removeNullable)
 
-    dispatchWeb(
+    dispatch(
       openOverflowMenu({
         source: OverflowSource.TRACKS,
         id: track_id,
@@ -331,11 +292,9 @@ export const TrackScreenDetailsTile = ({
     return filteredTags.length > 0 ? (
       <View style={styles.tags}>
         {filteredTags.map((tag) => (
-          <Pressable key={tag} onPress={() => handlePressTag(tag)}>
-            <Text style={styles.tag} variant='label'>
-              {tag}
-            </Text>
-          </Pressable>
+          <Tag key={tag} onPress={() => handlePressTag(tag)}>
+            {tag}
+          </Tag>
         ))}
       </View>
     ) : null
@@ -369,7 +328,6 @@ export const TrackScreenDetailsTile = ({
       details={details}
       hasReposted={has_current_user_reposted}
       hasSaved={has_current_user_saved}
-      imageUrl={imageUrl}
       user={user}
       renderBottomContent={renderBottomContent}
       renderHeader={is_unlisted ? renderHiddenHeader : undefined}
@@ -380,7 +338,7 @@ export const TrackScreenDetailsTile = ({
       hideFavoriteCount={is_unlisted}
       hideListenCount={is_unlisted && !field_visibility?.play_count}
       hideRepostCount={is_unlisted}
-      isPlaying={isPlaying && isPlayingUid}
+      isPlaying={isPlaying && isPlayingId}
       onPressFavorites={handlePressFavorites}
       onPressOverflow={handlePressOverflow}
       onPressPlay={handlePressPlay}
@@ -389,6 +347,7 @@ export const TrackScreenDetailsTile = ({
       onPressSave={handlePressSave}
       onPressShare={handlePressShare}
       playCount={play_count}
+      renderImage={renderImage}
       repostCount={repost_count}
       saveCount={save_count}
       title={title}

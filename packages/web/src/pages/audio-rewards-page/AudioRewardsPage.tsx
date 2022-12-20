@@ -1,10 +1,12 @@
 import { ReactNode, useContext, useEffect } from 'react'
 
-import { FeatureFlags } from '@audius/common'
+import {
+  FeatureFlags,
+  tokenDashboardPageActions,
+  walletActions
+} from '@audius/common'
 import { useDispatch } from 'react-redux'
 
-import { preloadWalletProviders } from 'common/store/pages/token-dashboard/slice'
-import { getBalance } from 'common/store/wallet/slice'
 import Header from 'components/header/desktop/Header'
 import { useMobileHeader } from 'components/header/mobile/hooks'
 import MobilePageContainer from 'components/mobile-page-container/MobilePageContainer'
@@ -26,25 +28,47 @@ import { BalanceTile, WalletTile } from './Tiles'
 import TrendingRewardsTile from './TrendingRewardsTile'
 import WalletModal from './WalletModal'
 import ExplainerTile from './components/ExplainerTile'
+import { WalletManagementTile } from './components/WalletManagementTile'
+const { getBalance } = walletActions
+const { preloadWalletProviders } = tokenDashboardPageActions
 
-export const messages = {
+const messages = {
   title: '$AUDIO & Rewards',
   description: 'Complete tasks to earn $AUDIO tokens!'
 }
 
-export const RewardsContent = () => {
+const RewardsContent = () => {
   const wm = useWithMobileStyle(styles.mobile)
+
   const { isEnabled: isChallengeRewardsEnabled } = useFlag(
     FeatureFlags.CHALLENGE_REWARDS_UI
   )
+
+  const { isEnabled: isCoinbaseEnabled } = useFlag(
+    FeatureFlags.BUY_AUDIO_COINBASE_ENABLED
+  )
+
+  const { isEnabled: isStripeEnabled } = useFlag(
+    FeatureFlags.BUY_AUDIO_STRIPE_ENABLED
+  )
+
+  const isBuyAudioEnabled = isCoinbaseEnabled || isStripeEnabled
+
   useRequiresAccount(TRENDING_PAGE)
+
   return (
     <>
       <WalletModal />
-      <div className={wm(styles.cryptoContentContainer)}>
-        <BalanceTile className={wm(styles.balanceTile)} />
-        <WalletTile className={styles.walletTile} />
-      </div>
+      {isBuyAudioEnabled ? (
+        <WalletManagementTile />
+      ) : (
+        <>
+          <div className={wm(styles.cryptoContentContainer)}>
+            <BalanceTile className={wm(styles.balanceTile)} />
+            <WalletTile className={styles.walletTile} />
+          </div>
+        </>
+      )}
       {isChallengeRewardsEnabled && (
         <ChallengeRewardsTile className={styles.mobile} />
       )}
@@ -55,7 +79,7 @@ export const RewardsContent = () => {
   )
 }
 
-export const DesktopPage = ({ children }: { children: ReactNode }) => {
+const DesktopPage = ({ children }: { children: ReactNode }) => {
   const dispatch = useDispatch()
   useEffect(() => {
     dispatch(preloadWalletProviders())
@@ -82,7 +106,7 @@ const useMobileNavContext = () => {
   }, [setLeft, setRight])
 }
 
-export const MobilePage = ({ children }: { children: ReactNode }) => {
+const MobilePage = ({ children }: { children: ReactNode }) => {
   useMobileNavContext()
   return (
     <MobilePageContainer
@@ -109,5 +133,3 @@ export const AudioRewardsPage = () => {
     </Page>
   )
 }
-
-export default AudioRewardsPage

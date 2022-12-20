@@ -1,24 +1,20 @@
-import { Name } from '@audius/common'
-import { takeLatest, put } from 'redux-saga/effects'
+import { Name, getContext, recoveryEmailActions } from '@audius/common'
+import { takeLatest, put, call } from 'typed-redux-saga'
 
-import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
-import { make } from 'store/analytics/actions'
+import { make } from 'common/store/analytics/actions'
 
-import { resendRecoveryEmail as resendRecoveryEmailAction } from './slice'
-
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+const { resendRecoveryEmail, resendSuccess, resendError } = recoveryEmailActions
 
 function* watchResendRecoveryEmail() {
-  yield takeLatest(resendRecoveryEmailAction.type, function* () {
-    if (NATIVE_MOBILE) {
-      yield put(make(Name.SETTINGS_RESEND_ACCOUNT_RECOVERY, {}))
-      audiusBackendInstance.sendRecoveryEmail()
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+
+  yield* takeLatest(resendRecoveryEmail.type, function* () {
+    const response = yield* call(audiusBackendInstance.sendRecoveryEmail)
+    if (response?.status) {
+      yield* put(resendSuccess())
+      yield* put(make(Name.SETTINGS_RESEND_ACCOUNT_RECOVERY, {}))
     } else {
-      yield put(
-        make(Name.SETTINGS_RESEND_ACCOUNT_RECOVERY, {
-          callback: audiusBackendInstance.sendRecoveryEmail
-        })
-      )
+      yield* put(resendError())
     }
   })
 }

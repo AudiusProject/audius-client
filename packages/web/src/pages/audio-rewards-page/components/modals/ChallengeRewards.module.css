@@ -380,12 +380,14 @@
 .twitterButton .twitterIcon {
   margin-right: 8px !important;
 }
+.twitterButton .twitterIcon path {
+  fill: var(--static-white);
+}
 .twitterButton .twitterIcon svg {
   width: 24px;
   height: 18px;
   fill: var(--static-white);
 }
-
 .buttonSpacer {
   width: 10px;
 }

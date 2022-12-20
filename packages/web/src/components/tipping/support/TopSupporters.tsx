@@ -1,12 +1,16 @@
 import { useCallback } from 'react'
 
-import { ID, User } from '@audius/common'
+import {
+  ID,
+  User,
+  cacheUsersSelectors,
+  profilePageSelectors,
+  tippingSelectors,
+  MAX_PROFILE_TOP_SUPPORTERS
+} from '@audius/common'
 import { IconTrophy } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { getUsers } from 'common/store/cache/users/selectors'
-import { getProfileUser } from 'common/store/pages/profile/selectors'
-import { getOptimisticSupporters } from 'common/store/tipping/selectors'
 import { ProfilePageNavSectionTitle } from 'components/profile-page-nav-section-title/ProfilePageNavSectionTitle'
 import { ProfilePictureListTile } from 'components/profile-picture-list-tile/ProfilePictureListTile'
 import {
@@ -18,9 +22,11 @@ import {
   UserListType
 } from 'store/application/ui/userListModal/types'
 import { AppState } from 'store/types'
-import { MAX_PROFILE_TOP_SUPPORTERS } from 'utils/constants'
 
 import styles from './TopSupporters.module.css'
+const { getOptimisticSupporters } = tippingSelectors
+const { getUsers } = cacheUsersSelectors
+const { getProfileUser } = profilePageSelectors
 
 const messages = {
   topSupporters: 'Top Supporters'

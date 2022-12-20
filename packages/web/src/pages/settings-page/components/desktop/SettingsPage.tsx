@@ -1,6 +1,16 @@
 import { Component } from 'react'
 
-import { ID, ProfilePictureSizes, OS, Theme } from '@audius/common'
+import {
+  ID,
+  ProfilePictureSizes,
+  OS,
+  Theme,
+  InstagramProfile,
+  TwitterProfile,
+  Notifications,
+  BrowserNotificationSetting,
+  EmailFrequency
+} from '@audius/common'
 import {
   Modal,
   Button,
@@ -13,12 +23,6 @@ import {
 import cn from 'classnames'
 
 import audiusIcon from 'assets/img/audiusIcon.png'
-import { InstagramProfile } from 'common/store/account/reducer'
-import {
-  Notifications,
-  BrowserNotificationSetting,
-  EmailFrequency
-} from 'common/store/pages/settings/types'
 import { ChangePasswordModal } from 'components/change-password/ChangePasswordModal'
 import ConfirmationBox from 'components/confirmation-box/ConfirmationBox'
 import TabSlider from 'components/data-entry/TabSlider'
@@ -31,7 +35,6 @@ import { audiusBackendInstance } from 'services/audius-backend/audius-backend-in
 import DownloadApp from 'services/download-app/DownloadApp'
 import { isMobile, isElectron, getOS } from 'utils/clientUtil'
 import { COPYRIGHT_TEXT } from 'utils/copyright'
-import { signOut } from 'utils/signOut'
 
 import packageInfo from '../../../../../package.json'
 
@@ -39,6 +42,7 @@ import NotificationSettings from './NotificationSettings'
 import SettingsCard from './SettingsCard'
 import styles from './SettingsPage.module.css'
 import VerificationModal from './VerificationModal'
+
 const { version } = packageInfo
 
 const SIGN_OUT_MODAL_TEXT = `
@@ -67,7 +71,6 @@ type OwnProps = {
   title: string
   description: string
   isVerified: boolean
-  hasTracks: boolean
   userId: ID
   handle: string
   name: string
@@ -78,7 +81,7 @@ type OwnProps = {
   notificationSettings: Notifications
   getNotificationSettings: () => void
   onInstagramLogin: (uuid: string, profile: InstagramProfile) => void
-  onTwitterLogin: (uuid: string, profile: Record<string, any>) => void
+  onTwitterLogin: (uuid: string, profile: TwitterProfile) => void
   toggleBrowserPushNotificationPermissions: (
     notificationType: BrowserNotificationSetting,
     isOn: boolean
@@ -93,6 +96,7 @@ type OwnProps = {
   recordAccountRecovery: () => void
   recordDownloadDesktopApp: () => void
   showMatrix: boolean
+  signOut: () => void
 }
 
 export type SettingsPageProps = OwnProps
@@ -133,7 +137,9 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
   }
 
   onSignOut = () => {
-    this.props.recordSignOut(signOut)
+    const { recordSignOut, signOut } = this.props
+
+    recordSignOut(signOut)
   }
 
   showEmailToast = async () => {
@@ -204,7 +210,6 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
       title,
       description,
       isVerified,
-      hasTracks,
       userId,
       handle,
       name,
@@ -331,7 +336,7 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
           <span>{messages.copyright}</span>
         </div>
         <div className={styles.selectedServices}>
-          {hasTracks && <SelectedServices variant='lighter' />}
+          <SelectedServices variant='lighter' />
         </div>
         <Modal
           title={

@@ -13,44 +13,34 @@ import {
   FavoriteType,
   Status,
   Track,
-  Uid
+  Uid,
+  formatDate,
+  accountSelectors,
+  cacheTracksActions as cacheTrackActions,
+  lineupSelectors,
+  trackPageActions,
+  trackPageSelectors,
+  trackPageLineupActions,
+  OverflowAction,
+  OverflowSource,
+  mobileOverflowMenuUIActions,
+  shareModalUIActions,
+  RepostType,
+  repostsUserListActions,
+  favoritesUserListActions,
+  tracksSocialActions as socialTracksActions,
+  usersSocialActions as socialUsersActions,
+  playerSelectors,
+  queueSelectors
 } from '@audius/common'
 import { push as pushRoute, replace } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { getUserId } from 'common/store/account/selectors'
-import * as cacheTrackActions from 'common/store/cache/tracks/actions'
-import { makeGetLineupMetadatas } from 'common/store/lineup/selectors'
-import * as trackPageActions from 'common/store/pages/track/actions'
-import { tracksActions } from 'common/store/pages/track/lineup/actions'
-import {
-  getUser,
-  getLineup,
-  getTrackRank,
-  getTrack,
-  getRemixParentTrack,
-  getStatus,
-  getSourceSelector,
-  getTrackPermalink
-} from 'common/store/pages/track/selectors'
-import { makeGetCurrent } from 'common/store/queue/selectors'
-import * as socialTracksActions from 'common/store/social/tracks/actions'
-import * as socialUsersActions from 'common/store/social/users/actions'
-import { open } from 'common/store/ui/mobile-overflow-menu/slice'
-import {
-  OverflowAction,
-  OverflowSource
-} from 'common/store/ui/mobile-overflow-menu/types'
-import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
-import { setFavorite } from 'common/store/user-list/favorites/actions'
-import { setRepost } from 'common/store/user-list/reposts/actions'
-import { RepostType } from 'common/store/user-list/reposts/types'
-import { getCanonicalName } from 'common/utils/genres'
-import { formatSeconds, formatDate } from 'common/utils/timeUtil'
+import { TrackEvent, make } from 'common/store/analytics/actions'
+import { TRENDING_BADGE_LIMIT } from 'common/store/pages/track/sagas'
 import * as unfollowConfirmationActions from 'components/unfollow-confirmation-modal/store/actions'
 import DeletedPage from 'pages/deleted-page/DeletedPage'
-import { TrackEvent, make } from 'store/analytics/actions'
 import {
   setUsers,
   setVisibility
@@ -59,7 +49,6 @@ import {
   UserListType,
   UserListEntityType
 } from 'store/application/ui/userListModal/types'
-import { getPlaying, getBuffering } from 'store/player/selectors'
 import { getLocationPathname } from 'store/routing/selectors'
 import { AppState } from 'store/types'
 import { isMobile } from 'utils/clientUtil'
@@ -70,16 +59,33 @@ import {
   FEED_PAGE,
   FAVORITING_USERS_ROUTE,
   REPOSTING_USERS_ROUTE,
-  fullTrackPage,
   trackRemixesPage
 } from 'utils/route'
 import { parseTrackRoute, TrackRouteParams } from 'utils/route/trackRouteParser'
-import { getTrackPageTitle, getTrackPageDescription } from 'utils/seo'
+import { getTrackPageSEOFields } from 'utils/seo'
 
 import StemsSEOHint from './components/StemsSEOHint'
 import { OwnProps as DesktopTrackPageProps } from './components/desktop/TrackPage'
 import { OwnProps as MobileTrackPageProps } from './components/mobile/TrackPage'
-import { TRENDING_BADGE_LIMIT } from './store/sagas'
+const { makeGetCurrent } = queueSelectors
+const { getPlaying, getBuffering } = playerSelectors
+const { setFavorite } = favoritesUserListActions
+const { setRepost } = repostsUserListActions
+const { requestOpen: requestOpenShareModal } = shareModalUIActions
+const { open } = mobileOverflowMenuUIActions
+const { tracksActions } = trackPageLineupActions
+const {
+  getUser,
+  getLineup,
+  getTrackRank,
+  getTrack,
+  getRemixParentTrack,
+  getStatus,
+  getSourceSelector,
+  getTrackPermalink
+} = trackPageSelectors
+const { makeGetLineupMetadatas } = lineupSelectors
+const getUserId = accountSelectors.getUserId
 
 const getRemixParentTrackId = (track: Track | null) =>
   track?.remix_of?.tracks?.[0]?.parent_track_id
@@ -406,22 +412,18 @@ class TrackPageProvider extends Component<
       onClickReposts: this.onClickReposts,
       onClickFavorites: this.onClickFavorites
     }
-
-    const title = getTrackPageTitle({
-      title: track ? track.title : '',
-      handle: user ? user.handle : ''
-    })
-
     const releaseDate = track ? track.release_date || track.created_at : ''
-    const description = getTrackPageDescription({
-      releaseDate: releaseDate ? formatDate(releaseDate) : '',
-      description: track?.description ?? '',
-      mood: track?.mood ?? '',
-      genre: track ? getCanonicalName(track.genre) : '',
-      duration: track ? formatSeconds(track.duration) : '',
-      tags: track ? (track.tags || '').split(',').filter(Boolean) : []
+    const {
+      title = '',
+      description = '',
+      canonicalUrl = '',
+      structuredData
+    } = getTrackPageSEOFields({
+      title: track?.title,
+      permalink: track?.permalink,
+      userName: user?.name,
+      releaseDate: releaseDate ? formatDate(releaseDate) : ''
     })
-    const canonicalUrl = user && track ? fullTrackPage(track.permalink) : ''
 
     // If the track has a remix parent and it's not deleted and the original's owner is not deactivated.
     const hasValidRemixParent =
@@ -440,6 +442,7 @@ class TrackPageProvider extends Component<
           title={title}
           description={description}
           canonicalUrl={canonicalUrl}
+          structuredData={structuredData}
           playable={{ metadata: track, type: PlayableType.TRACK }}
           user={user}
           deletedByArtist={deletedByArtist}
@@ -451,6 +454,7 @@ class TrackPageProvider extends Component<
       title,
       description,
       canonicalUrl,
+      structuredData,
       heroTrack: track,
       hasValidRemixParent,
       user,

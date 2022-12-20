@@ -1,26 +1,23 @@
 import { useCallback, useContext, useEffect, MouseEvent } from 'react'
 
-import { Chain, BNWei, FeatureFlags } from '@audius/common'
+import {
+  Chain,
+  BNWei,
+  shortenEthAddress,
+  shortenSPLAddress,
+  tokenDashboardPageActions,
+  tokenDashboardPageSelectors
+} from '@audius/common'
 import { LogoEth, LogoSol } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconCopy } from 'assets/img/iconCopy.svg'
 import { ReactComponent as IconRemove } from 'assets/img/iconRemoveTrack.svg'
-import {
-  getAssociatedWallets,
-  getRemoveWallet
-} from 'common/store/pages/token-dashboard/selectors'
-import {
-  requestRemoveWallet,
-  resetStatus
-} from 'common/store/pages/token-dashboard/slice'
-import { shortenEthAddress, shortenSPLAddress } from 'common/utils/wallet'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Toast from 'components/toast/Toast'
 import { ToastContext } from 'components/toast/ToastContext'
 import { ComponentPlacement, MountPlacement } from 'components/types'
-import { useFlag } from 'hooks/useRemoteConfig'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import { useIsMobile } from 'utils/clientUtil'
 import { copyToClipboard } from 'utils/clipboardUtil'
@@ -29,6 +26,8 @@ import { useSelector } from 'utils/reducer'
 
 import DisplayAudio from './DisplayAudio'
 import styles from './WalletsTable.module.css'
+const { getAssociatedWallets, getRemoveWallet } = tokenDashboardPageSelectors
+const { requestRemoveWallet, resetStatus } = tokenDashboardPageActions
 
 const COPIED_TOAST_TIMEOUT = 2000
 
@@ -64,10 +63,6 @@ const Wallet = ({
   hasActions,
   hideCollectibles
 }: WalletProps) => {
-  const { isEnabled: solWalletAudioEnabled } = useFlag(
-    FeatureFlags.SOL_WALLET_AUDIO_ENABLED
-  )
-
   const isMobile = useIsMobile()
   const dispatch = useDispatch()
   const onRequestRemoveWallet = useCallback(
@@ -118,14 +113,12 @@ const Wallet = ({
         </div>
       )}
       <div className={cn(styles.audioBalance, styles.walletText)}>
-        {(chain === Chain.Eth || solWalletAudioEnabled) && (
-          <DisplayAudio
-            showLabel={false}
-            amount={audioBalance}
-            className={styles.balanceContainer}
-            tokenClassName={styles.balance}
-          />
-        )}
+        <DisplayAudio
+          showLabel={false}
+          amount={audioBalance}
+          className={styles.balanceContainer}
+          tokenClassName={styles.balance}
+        />
       </div>
       {hasActions && (isConfirmAdding || isConfirmRemoving) && (
         <LoadingSpinner className={styles.loading}></LoadingSpinner>

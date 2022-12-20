@@ -1,5 +1,9 @@
 import { useEffect } from 'react'
 
+import {
+  trendingUndergroundPageLineupActions,
+  trendingUndergroundPageLineupSelectors
+} from '@audius/common'
 import { useDispatch } from 'react-redux'
 
 import DesktopHeader from 'components/header/desktop/Header'
@@ -12,15 +16,14 @@ import Page from 'components/page/Page'
 import RewardsBanner from 'pages/trending-page/components/RewardsBanner'
 import { isMobile } from 'utils/clientUtil'
 import { BASE_URL, TRENDING_UNDERGROUND_PAGE } from 'utils/route'
-
-import { trendingUndergroundLineupActions } from '../../common/store/pages/trending-underground/lineup/actions'
-import { getLineup } from '../../common/store/pages/trending-underground/lineup/selectors'
+import { createSeoDescription } from 'utils/seo'
 
 import styles from './TrendingUndergroundPage.module.css'
+const { getLineup } = trendingUndergroundPageLineupSelectors
 
 const useTrendingUndergroundLineup = (containerRef: HTMLElement) => {
   return useLineupProps({
-    actions: trendingUndergroundLineupActions,
+    actions: trendingUndergroundPageLineupActions,
     getLineupSelector: getLineup,
     variant: LineupVariant.MAIN,
     scrollParent: containerRef,
@@ -32,7 +35,9 @@ const useTrendingUndergroundLineup = (containerRef: HTMLElement) => {
 
 const messages = {
   trendingUndergroundTitle: 'Underground Trending',
-  description: "Listen to what's trending on the Audius platform"
+  description: createSeoDescription(
+    "Listen to what's trending on the Audius platform"
+  )
 }
 
 type TrendingUndergroundPageProps = {
@@ -89,7 +94,7 @@ const useLineupReset = () => {
   const dispatch = useDispatch()
   useEffect(() => {
     return () => {
-      dispatch(trendingUndergroundLineupActions.reset())
+      dispatch(trendingUndergroundPageLineupActions.reset())
     }
   }, [dispatch])
 }

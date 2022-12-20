@@ -1,32 +1,29 @@
 import { useCallback } from 'react'
 
-import type { Modals } from 'audius-client/src/common/store/ui/modals/slice'
-import {
-  getModalVisibility,
-  setVisibility
-} from 'audius-client/src/common/store/ui/modals/slice'
+import { modalsActions, modalsSelectors } from '@audius/common'
+import type { Modals } from '@audius/common'
+import { useDispatch, useSelector } from 'react-redux'
 import type { SetOptional } from 'type-fest'
-
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
 import type { DrawerProps } from './Drawer'
 import { Drawer } from './Drawer'
+const { setVisibility } = modalsActions
+const { getModalVisibility } = modalsSelectors
 
 export const useDrawerState = (modalName: Modals) => {
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
 
-  const modalState = useSelectorWeb((state) =>
+  const modalState = useSelector((state) =>
     getModalVisibility(state, modalName)
   )
 
   const handleClose = useCallback(() => {
-    dispatchWeb(setVisibility({ modal: modalName, visible: 'closing' }))
-  }, [dispatchWeb, modalName])
+    dispatch(setVisibility({ modal: modalName, visible: 'closing' }))
+  }, [dispatch, modalName])
 
   const handleClosed = useCallback(() => {
-    dispatchWeb(setVisibility({ modal: modalName, visible: false }))
-  }, [dispatchWeb, modalName])
+    dispatch(setVisibility({ modal: modalName, visible: false }))
+  }, [dispatch, modalName])
 
   return {
     isOpen: modalState === true,

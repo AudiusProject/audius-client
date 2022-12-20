@@ -6,42 +6,27 @@ import {
   StringWei,
   WalletAddress,
   Nullable,
-  FeatureFlags
+  FeatureFlags,
+  stringWeiToBN,
+  weiToString,
+  accountSelectors,
+  tokenDashboardPageActions,
+  TokenDashboardPageModalState,
+  tokenDashboardPageSelectors,
+  walletSelectors
 } from '@audius/common'
-import { IconDiscord } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconReceive } from 'assets/img/iconReceive.svg'
 import { ReactComponent as IconSend } from 'assets/img/iconSend.svg'
-import { getAccountUser } from 'common/store/account/selectors'
-import {
-  getHasAssociatedWallets,
-  getAssociatedWallets,
-  getDiscordCode,
-  getModalState,
-  getModalVisible,
-  getRemoveWallet,
-  getSendData
-} from 'common/store/pages/token-dashboard/selectors'
-import {
-  confirmSend,
-  inputSendData,
-  setModalVisibility
-} from 'common/store/pages/token-dashboard/slice'
-import { ModalState } from 'common/store/pages/token-dashboard/types'
-import { getAccountBalance } from 'common/store/wallet/selectors'
-import { stringWeiToBN, weiToString } from 'common/utils/wallet'
 import SocialProof from 'components/social-proof/SocialProof'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
-import { isMobile } from 'utils/clientUtil'
 import { useSelector } from 'utils/reducer'
-import { AUDIUS_DISCORD_LINK } from 'utils/route'
 
 import styles from './WalletModal.module.css'
 import ConnectWalletsBody from './components/ConnectWalletsBody'
-import DiscordModalBody from './components/DiscordModalBody'
 import ErrorBody from './components/ErrorBody'
 import MigrationModalBody from './components/MigrationModalBody'
 import ReceiveBody from './components/ReceiveBody'
@@ -51,6 +36,18 @@ import SendInputConfirmation from './components/SendInputConfirmation'
 import SendInputSuccess from './components/SendInputSuccess'
 import SendingModalBody from './components/SendingModalBody'
 import ModalDrawer from './components/modals/ModalDrawer'
+const { getAccountBalance } = walletSelectors
+const {
+  getHasAssociatedWallets,
+  getAssociatedWallets,
+  getModalState,
+  getModalVisible,
+  getRemoveWallet,
+  getSendData
+} = tokenDashboardPageSelectors
+const { confirmSend, inputSendData, setModalVisibility } =
+  tokenDashboardPageActions
+const getAccountUser = accountSelectors.getAccountUser
 
 const messages = {
   receive: 'Receive $AUDIO',
@@ -60,14 +57,13 @@ const messages = {
   sending: 'Your $AUDIO is Sending',
   sent: 'Your $AUDIO Has Been Sent',
   sendError: 'Uh oh! Something went wrong sending your $AUDIO.',
-  discord: 'Launch the VIP Discord',
   connectOtherWallets: 'Connect Other Wallets',
   manageWallets: 'Manage Wallets',
   removeWallets: 'Remove Wallet',
   awaitConvertingEthToSolAudio: 'Hold On a Moment'
 }
 
-const TitleWrapper = ({
+export const TitleWrapper = ({
   children,
   label
 }: {
@@ -137,18 +133,10 @@ const titlesMap = {
       </TitleWrapper>
     ),
     ERROR: () => messages.sendError
-  },
-  DISCORD: () =>
-    isMobile() ? (
-      <div className={styles.discordDrawerTitle}>{messages.discord}</div>
-    ) : (
-      <TitleWrapper label={messages.discord}>
-        <IconDiscord />
-      </TitleWrapper>
-    )
+  }
 }
 
-const getTitle = (state: ModalState) => {
+const getTitle = (state: TokenDashboardPageModalState) => {
   if (!state?.stage) return ''
   switch (state.stage) {
     case 'CONNECT_WALLETS':
@@ -157,8 +145,6 @@ const getTitle = (state: ModalState) => {
       return titlesMap.RECEIVE[state.flowState.stage]()
     case 'SEND':
       return titlesMap.SEND[state.flowState.stage]()
-    case 'DISCORD_CODE':
-      return titlesMap.DISCORD()
   }
 }
 
@@ -184,25 +170,22 @@ export const ModalBodyWrapper = ({
 }
 
 type ModalContentProps = {
-  modalState: ModalState
+  modalState: TokenDashboardPageModalState
   onInputSendData: (amount: BNWei, wallet: WalletAddress, chain: Chain) => void
   onConfirmSend: () => void
   onClose: () => void
-  onLaunchDiscord: () => void
 }
 
 const ModalContent = ({
   modalState,
   onInputSendData,
   onConfirmSend,
-  onClose,
-  onLaunchDiscord
+  onClose
 }: ModalContentProps) => {
   const balance: BNWei =
     useSelector(getAccountBalance) ?? stringWeiToBN('0' as StringWei)
   const account = useSelector(getAccountUser)
   const amountPendingTransfer = useSelector(getSendData)
-  const discordCode = useSelector(getDiscordCode)
   const useSolSPLAudio = getFeatureEnabled(
     FeatureFlags.ENABLE_SPL_AUDIO
   ) as boolean
@@ -291,20 +274,13 @@ const ModalContent = ({
       }
       break
     }
-    case 'DISCORD_CODE': {
-      ret = (
-        <DiscordModalBody
-          discordCode={discordCode}
-          onClickLaunch={onLaunchDiscord}
-        />
-      )
-      break
-    }
   }
   return ret
 }
 
-const shouldAllowDismiss = (modalState: Nullable<ModalState>) => {
+const shouldAllowDismiss = (
+  modalState: Nullable<TokenDashboardPageModalState>
+) => {
   // Do not allow dismiss while
   // 1. In the process of sending tokens
   // 2. In the process of removing a connected wallet
@@ -352,10 +328,6 @@ const WalletModal = () => {
     dispatch(confirmSend())
   }
 
-  const onLaunchDiscord = () => {
-    window.open(AUDIUS_DISCORD_LINK, '_blank')
-  }
-
   const { status } = useSelector(getAssociatedWallets)
   const removeWallets = useSelector(getRemoveWallet)
   const isWalletConfirming =
@@ -396,7 +368,6 @@ const WalletModal = () => {
             onInputSendData={onInputSendData}
             onConfirmSend={onConfirmSend}
             onClose={onClose}
-            onLaunchDiscord={onLaunchDiscord}
           />
         </div>
       </ModalDrawer>

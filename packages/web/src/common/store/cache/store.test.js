@@ -1,19 +1,24 @@
 /* eslint-disable no-import-assign */
-import { Kind, makeKindId, Status } from '@audius/common'
+import {
+  cacheActions as actions,
+  cacheReducer,
+  Kind,
+  makeKindId,
+  Status,
+  cacheConfig as config
+} from '@audius/common'
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 
-import * as actions from 'common/store/cache/actions'
-import * as config from 'common/store/cache/config'
-import { asCache, initialCacheState } from 'common/store/cache/reducer'
 import sagas from 'common/store/cache/sagas'
-import { initialState as initialConfirmerState } from 'store/confirmer/reducer'
+import { initialState as initialConfirmerState } from 'common/store/confirmer/reducer'
 import {
   allSagas,
   noopReducer,
   takeEverySaga,
   takeSaga
 } from 'store/testHelper'
+const { asCache, initialCacheState } = cacheReducer
 
 const MOCK_TIMESTAMP = 1479427200000
 

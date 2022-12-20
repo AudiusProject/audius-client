@@ -1,86 +1,108 @@
-import { useRef, useState, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
-import LottieView from 'lottie-react-native'
-import { StyleSheet, Animated } from 'react-native'
-import { useSelector } from 'react-redux'
+import { Animated, Platform, StatusBar, StyleSheet } from 'react-native'
+import * as BootSplash from 'react-native-bootsplash'
 
-import { getDappLoaded } from 'app/store/lifecycle/selectors'
+import SplashLogo from 'app/assets/images/bootsplash_logo.svg'
+import { makeStyles } from 'app/styles'
+import { useColor } from 'app/utils/theme'
+import { zIndex } from 'app/utils/zIndex'
 
-const SCALE_TO = 1.2
-const ANIM_DURATION_MS = 2000
-const LOTTIE_HEIGHT = 1350
-const BACKGROUND_COLOR = '#7E1BCC'
+/**
+ * Assets for this splash screen are generated with
+ * npx react-native generate-bootsplash \
+ *  src/assets/images/bootsplash_logo.png \
+ *  --background-color=7E1BCC \
+ *  --logo-width=150 \
+ *  --assets-path=src/assets/images
+ */
 
-export const SplashScreen = () => {
-  const dappLoaded = useSelector(getDappLoaded)
-  const [animationFinished, setAnimationFinished] = useState(false)
+// Extra larger render width so when we scale it up,
+// resolution is maintained.
+const RENDER_WIDTH = 1000
+const START_SIZE = 0.15
+const END_SIZE = 1
 
-  useEffect(() => {
-    if (dappLoaded) {
-      if (animationRef.current) {
-        animationRef.current.play()
-      }
+const useStyles = makeStyles(({ palette }) => {
+  return {
+    splash: {
+      zIndex: zIndex.SPLASH_SCREEN,
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: palette.secondary
+    },
+    logo: {
+      width: RENDER_WIDTH
     }
-  }, [dappLoaded])
-
-  const [scaleAnim] = useState(new Animated.Value(1))
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(scaleAnim, {
-          toValue: SCALE_TO,
-          duration: ANIM_DURATION_MS,
-          useNativeDriver: true
-        }),
-        Animated.timing(scaleAnim, {
-          toValue: 1,
-          duration: ANIM_DURATION_MS,
-          useNativeDriver: true
-        })
-      ])
-    ).start()
-  }, [scaleAnim])
-
-  const onAnimationFinish = useCallback(() => {
-    setAnimationFinished(true)
-  }, [setAnimationFinished])
-
-  const animationRef = useRef<LottieView | null>(null)
-
-  return animationFinished ? null : (
-    <Animated.View
-      style={{
-        ...styles.container,
-        transform: [{ scale: scaleAnim }]
-      }}
-    >
-      <LottieView
-        source={require('app/assets/animations/splashscreen.json')}
-        ref={(animation) => {
-          animationRef.current = animation
-        }}
-        autoPlay={false}
-        loop={false}
-        onAnimationFinish={onAnimationFinish}
-        style={{
-          height: LOTTIE_HEIGHT
-        }}
-      />
-    </Animated.View>
-  )
-}
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: BACKGROUND_COLOR,
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 10,
-    alignItems: 'center',
-    justifyContent: 'center'
   }
 })
+
+type SplashScreenProps = {
+  canDismiss: boolean
+}
+
+export const SplashScreen = ({ canDismiss }: SplashScreenProps) => {
+  const styles = useStyles()
+  const opacity = useRef(new Animated.Value(1)).current
+  const scale = useRef(new Animated.Value(START_SIZE)).current
+  const [isShowing, setIsShowing] = useState(true)
+
+  const secondary = useColor('secondary')
+  const statusBarColor = useColor('white')
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      StatusBar.setBackgroundColor(secondary)
+    }
+  }, [secondary])
+
+  useEffect(() => {
+    if (canDismiss) {
+      // Hide the system splash screen
+      BootSplash.hide()
+
+      // Animate smaller, then bigger with a fade out at the same time
+      Animated.spring(scale, {
+        useNativeDriver: true,
+        tension: 10,
+        friction: 200,
+        toValue: START_SIZE * 0.8
+      }).start(() => {
+        if (Platform.OS === 'android') {
+          StatusBar.setBackgroundColor(statusBarColor, true)
+        }
+        Animated.parallel([
+          Animated.spring(scale, {
+            useNativeDriver: true,
+            tension: 100,
+            friction: 50,
+            toValue: END_SIZE
+          }),
+          Animated.spring(opacity, {
+            useNativeDriver: true,
+            tension: 100,
+            friction: 50,
+            toValue: 0
+          })
+        ]).start(() => {
+          setIsShowing(false)
+        })
+      })
+    }
+  }, [canDismiss, scale, opacity, statusBarColor])
+
+  return isShowing ? (
+    <Animated.View
+      style={[StyleSheet.absoluteFill, styles.splash, { opacity }]}
+    >
+      <Animated.View
+        style={[
+          styles.logo,
+          { transform: [{ scaleX: scale }, { scaleY: scale }] }
+        ]}
+      >
+        <SplashLogo />
+      </Animated.View>
+    </Animated.View>
+  ) : null
+}

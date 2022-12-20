@@ -1,15 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { playerActions } from '@audius/common'
 import moment from 'moment'
 import { StyleSheet, View } from 'react-native'
 import { useDispatch } from 'react-redux'
 
 import Text from 'app/components/text'
 import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import { SEEK, seek } from 'app/store/audio/actions'
 import type { ThemeColors } from 'app/utils/theme'
 
 import { Slider } from './Slider'
+
+const { seek } = playerActions
 
 const SEEK_INTERVAL = 200
 
@@ -99,7 +101,7 @@ export const Scrubber = ({
       if (global.progress) {
         if (duration) {
           setTimestampStart(formatSeconds(percentComplete * duration))
-          dispatch(seek({ type: SEEK, seconds: percentComplete * duration }))
+          dispatch(seek({ seconds: percentComplete * duration }))
         }
       }
       onPressOut()
@@ -134,10 +136,10 @@ export const Scrubber = ({
     if (!isDragging) {
       seekInterval.current = setInterval(() => {
         if (isPlaying && global.progress) {
-          const { currentTime, seekableDuration } = global.progress
-          if (seekableDuration !== undefined) {
+          const { currentTime, duration } = global.progress
+          if (duration !== undefined) {
             setTimestampStart(formatSeconds(currentTime))
-            setTimestampEnd(formatSeconds(seekableDuration))
+            setTimestampEnd(formatSeconds(duration))
           }
         }
       }, SEEK_INTERVAL)
@@ -149,6 +151,8 @@ export const Scrubber = ({
     }
   }, [mediaKey, isPlaying, seekInterval, isDragging])
 
+  // TODO: disable scrubber animation when now playing is closed
+  // Disable tracking bar animation when now playing bar is open
   return (
     <View style={styles.root}>
       <Text

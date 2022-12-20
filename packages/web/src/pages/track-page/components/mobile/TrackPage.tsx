@@ -1,10 +1,16 @@
 import { useEffect, useContext } from 'react'
 
-import { CID, ID, LineupState, Track, User } from '@audius/common'
+import {
+  CID,
+  ID,
+  LineupState,
+  Track,
+  User,
+  trackPageLineupActions,
+  QueueItem,
+  OverflowAction
+} from '@audius/common'
 
-import { tracksActions } from 'common/store/pages/track/lineup/actions'
-import { QueueItem } from 'common/store/queue/types'
-import { OverflowAction } from 'common/store/ui/mobile-overflow-menu/types'
 import { HeaderContext } from 'components/header/mobile/HeaderContextProvider'
 import Lineup from 'components/lineup/Lineup'
 import { LineupVariant } from 'components/lineup/types'
@@ -21,6 +27,7 @@ import { getTrackDefaults, emptyStringGuard } from 'pages/track-page/utils'
 import Remixes from './Remixes'
 import TrackPageHeader from './TrackHeader'
 import styles from './TrackPage.module.css'
+const { tracksActions } = trackPageLineupActions
 
 const messages = {
   moreBy: 'More By',
@@ -32,6 +39,7 @@ export type OwnProps = {
   title: string
   description: string
   canonicalUrl: string
+  structuredData?: Object
   hasValidRemixParent: boolean
   // Hero Track Props
   heroTrack: Track | null
@@ -73,6 +81,7 @@ const TrackPage = ({
   title,
   description,
   canonicalUrl,
+  structuredData,
   hasValidRemixParent,
   // Hero Track Props
   heroTrack,
@@ -172,6 +181,7 @@ const TrackPage = ({
         title={title}
         description={description}
         canonicalUrl={canonicalUrl}
+        structuredData={structuredData}
       >
         <div className={styles.trackContent}>
           <TrackPageHeader

@@ -1,33 +1,34 @@
 import { Component } from 'react'
 
-import { Name } from '@audius/common'
+import {
+  Name,
+  accountSelectors,
+  queueActions,
+  newCollectionMetadata,
+  uploadActions,
+  UploadType
+} from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 import { Spring } from 'react-spring/renderprops'
 
-import * as schemas from 'common/schemas'
-import { getAccountUser } from 'common/store/account/selectors'
-import { pause as pauseQueue } from 'common/store/queue/slice'
+import { make } from 'common/store/analytics/actions'
 import { openWithDelay } from 'components/first-upload-modal/store/slice'
 import Header from 'components/header/desktop/Header'
 import Page from 'components/page/Page'
 import { dropdownRows as stemRows } from 'components/source-files-modal/SourceFilesModal'
 import { processFiles } from 'pages/upload-page/store/utils/processFiles'
-import { make } from 'store/analytics/actions'
 import { playlistPage, albumPage, profilePage } from 'utils/route'
 
 import styles from './UploadPage.module.css'
 import EditPage from './components/EditPage'
 import FinishPage from './components/FinishPage'
 import SelectPage from './components/SelectPage'
-import UploadType from './components/uploadType'
-import {
-  uploadTracks,
-  reset,
-  undoResetState,
-  toggleMultiTrackNotification
-} from './store/actions'
+const { pause: pauseQueue } = queueActions
+const { uploadTracks, reset, undoResetState, toggleMultiTrackNotification } =
+  uploadActions
+const { getAccountUser } = accountSelectors
 
 const Pages = Object.freeze({
   SELECT: 0,
@@ -70,7 +71,7 @@ class Upload extends Component {
     // Contains metadata related to the upload itself, e.g. playlist vs. track.
     metadata: this.props.upload.metadata
       ? this.props.upload.metadata
-      : schemas.newCollectionMetadata({ artwork: { file: null, url: '' } }),
+      : newCollectionMetadata({ artwork: { file: null, url: '' } }),
 
     // An array of array of tracks representing stems per track.
     stems: [],
@@ -135,11 +136,7 @@ class Upload extends Component {
       return true
     })
 
-    const processedFiles = processFiles(
-      selectedFiles,
-      false,
-      this.invalidAudioFile
-    )
+    const processedFiles = processFiles(selectedFiles, this.invalidAudioFile)
     const tracks = (await Promise.all(processedFiles)).filter(Boolean)
     if (tracks.length === processedFiles.length) {
       this.setState({ uploadTrackerror: null })
@@ -160,11 +157,7 @@ class Upload extends Component {
   }
 
   onAddStemsToTrack = async (selectedStems, trackIndex) => {
-    const processedFiles = processFiles(
-      selectedStems,
-      true,
-      this.invalidAudioFile
-    )
+    const processedFiles = processFiles(selectedStems, this.invalidAudioFile)
     const stems = (await Promise.all(processedFiles))
       .filter(Boolean)
       .map((s) => ({
@@ -250,8 +243,17 @@ class Upload extends Component {
   }
 
   publish = () => {
+    // Set the premium content fields for the tracks
+    // so that libs track metadata validation passes.
+    // This will change once we introduce premium content UI
+    // in the track upload flow.
+    const tracks = [...this.state.tracks]
+    tracks.forEach((track) => {
+      track.metadata.is_premium = false
+      track.metadata.premium_conditions = null
+    })
     this.props.uploadTracks(
-      this.state.tracks,
+      tracks,
       this.state.metadata,
       this.state.uploadType,
       this.state.stems
@@ -266,7 +268,7 @@ class Upload extends Component {
       preview: null,
       previewIndex: -1,
       uploadType: UploadType.INDIVIDUAL_TRACK,
-      metadata: schemas.newCollectionMetadata({
+      metadata: newCollectionMetadata({
         artwork: { file: null, url: '' }
       }),
       uploadTrackerror: null

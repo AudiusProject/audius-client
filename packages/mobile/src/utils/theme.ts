@@ -1,8 +1,9 @@
-import { useContext } from 'react'
+import type { SystemAppearance, Nullable } from '@audius/common'
+import { themeSelectors } from '@audius/common'
+import { Platform, StatusBar } from 'react-native'
+import { useSelector } from 'react-redux'
 
-import { StatusBar } from 'react-native'
-
-import { ThemeContext } from 'app/components/theme/ThemeContext'
+const { getTheme, getSystemAppearance } = themeSelectors
 
 export enum Theme {
   DEFAULT = 'default',
@@ -11,29 +12,45 @@ export enum Theme {
   MATRIX = 'matrix'
 }
 
-export const handleThemeChange = (theme: Theme) => {
+/**
+ * Set status bar theme in a cross-platform way
+ */
+export const setStatusBarTheme = (theme: 'light' | 'dark') => {
+  if (theme === 'light') {
+    StatusBar.setBarStyle('dark-content')
+
+    if (Platform.OS === 'android') {
+      StatusBar.setBackgroundColor(defaultTheme.white)
+    }
+  } else {
+    StatusBar.setBarStyle('light-content')
+
+    if (Platform.OS === 'android') {
+      StatusBar.setBackgroundColor(darkTheme.white)
+    }
+  }
+}
+
+export const updateStatusBarTheme = (
+  theme: Nullable<Theme>,
+  systemAppearance: Nullable<SystemAppearance>
+) => {
   switch (theme) {
     case Theme.DEFAULT: {
-      StatusBar.setBarStyle('dark-content')
+      setStatusBarTheme('light')
       break
     }
     case Theme.DARK: {
-      StatusBar.setBarStyle('light-content')
+      setStatusBarTheme('dark')
       break
     }
     case Theme.AUTO: {
-      StatusBar.setBarStyle('default')
+      if (systemAppearance) {
+        setStatusBarTheme(systemAppearance)
+      }
       break
     }
   }
-
-  // Fade in status bar after we
-  // get our first update, after a
-  // slight delay to allow Splash Screen
-  // to animate out.
-  setTimeout(() => {
-    StatusBar.setHidden(false, 'fade')
-  }, 500)
 }
 
 export const defaultTheme = {
@@ -77,6 +94,8 @@ export const defaultTheme = {
   shadow: '#E3E3E3',
   staticTwitterBlue: '#1BA1F1',
   staticWhite: '#FFFFFF',
+  staticNeutral: '#858199',
+  staticNeutralLight2: '#AAA7B8',
   staticNeutralLight8: '#F2F2F4',
   staticAccentGreenLight1: '#23AD1A',
   pageHeaderGradientColor1: '#5B23E1',
@@ -84,7 +103,8 @@ export const defaultTheme = {
   actionSheetText: '#7E1BCC',
   skeleton: '#F7F7F9',
   skeletonHighlight: '#F2F2F4',
-  statTileText: '#C675FF'
+  statTileText: '#C675FF',
+  progressBackground: '#D9D9D9'
 }
 
 export const darkTheme = {
@@ -128,6 +148,8 @@ export const darkTheme = {
   shadow: '#35364F',
   staticTwitterBlue: '#1BA1F1',
   staticWhite: '#FFFFFF',
+  staticNeutral: '#858199',
+  staticNeutralLight2: '#AAA7B8',
   staticNeutralLight8: '#F2F2F4',
   staticAccentGreenLight1: '#23AD1A',
   pageHeaderGradientColor1: '#7652CC',
@@ -135,7 +157,8 @@ export const darkTheme = {
   actionSheetText: '#9147CC',
   skeleton: '#393A54',
   skeletonHighlight: '#3F415B',
-  statTileText: '#C675FF'
+  statTileText: '#C675FF',
+  progressBackground: '#D9D9D9'
 }
 
 export const matrixTheme = {
@@ -170,6 +193,9 @@ export const matrixTheme = {
   white: '#1F211F',
   staticTwitterBlue: '#1BA1F1',
   staticWhite: '#FFFFFF',
+  staticNeutral: '#858199',
+  staticNeutralLight2: '#AAA7B8',
+  staticNeutralLight8: '#F2F2F4',
   accentGreen: '#23AD1A',
   staticAccentGreenLight1: '#23AD1A',
   pageHeaderGradientColor1: '#4FF069',
@@ -179,7 +205,8 @@ export const matrixTheme = {
   accentOrange: '#EFA947',
   skeleton: '#1B3714',
   skeletonHighlight: '#1C5610',
-  statTileText: '#184F17'
+  statTileText: '#184F17',
+  progressBackground: '#D9D9D9'
 }
 
 export type ThemeColors = {
@@ -223,6 +250,8 @@ export type ThemeColors = {
   shadow: string
   staticTwitterBlue: string
   staticWhite: string
+  staticNeutral: string
+  staticNeutralLight2: string
   staticNeutralLight8: string
   staticAccentGreenLight1: string
   pageHeaderGradientColor1: string
@@ -231,6 +260,7 @@ export type ThemeColors = {
   skeleton: string
   skeletonHighlight: string
   statTileText: string
+  progressBackground: string
 }
 
 const themeColorsByThemeVariant: Record<
@@ -243,10 +273,11 @@ const themeColorsByThemeVariant: Record<
 }
 
 export const useThemeVariant = (): keyof typeof themeColorsByThemeVariant => {
-  const { isSystemDarkMode, theme } = useContext(ThemeContext)
+  const theme = useSelector(getTheme)
+  const systemAppearance = useSelector(getSystemAppearance)
 
-  const systemTheme = isSystemDarkMode ? Theme.DARK : Theme.DEFAULT
-  return theme === Theme.AUTO ? systemTheme : theme
+  const systemTheme = systemAppearance === 'dark' ? Theme.DARK : Theme.DEFAULT
+  return theme === Theme.AUTO ? systemTheme : theme ?? Theme.DEFAULT
 }
 
 export const useThemeColors = () => {
@@ -261,7 +292,7 @@ export const useColor = (color: string) => {
 
 // Uses normalColor when in light/dark mode, but "special color" when in other mode
 export const useSpecialColor = (normalColor: string, specialColor: string) => {
-  const { theme } = useContext(ThemeContext)
+  const theme = useSelector(getTheme)
   const themeVariant = useThemeColors()
   if (theme === Theme.MATRIX) {
     return (themeVariant as any)[specialColor]

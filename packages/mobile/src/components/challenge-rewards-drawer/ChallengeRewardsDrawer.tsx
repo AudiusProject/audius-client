@@ -1,11 +1,14 @@
 import React from 'react'
 
 import type { UserChallengeState } from '@audius/common'
-import { ClaimStatus } from 'audius-client/src/common/store/pages/audio-rewards/slice'
-import { fillString } from 'audius-client/src/common/utils/fillString'
-import { formatNumberCommas } from 'audius-client/src/common/utils/formatUtil'
+import {
+  fillString,
+  formatNumberCommas,
+  ClaimStatus,
+  getAAOErrorEmojis
+} from '@audius/common'
 import type { ImageSourcePropType } from 'react-native'
-import { StyleSheet, View } from 'react-native'
+import { View } from 'react-native'
 
 import IconCheck from 'app/assets/images/iconCheck.svg'
 import IconVerified from 'app/assets/images/iconVerified.svg'
@@ -15,9 +18,7 @@ import { AppDrawer } from 'app/components/drawer'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { ProgressBar } from 'app/components/progress-bar'
 import Text from 'app/components/text'
-import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import { flexRowCentered } from 'app/styles'
-import type { ThemeColors } from 'app/utils/theme'
+import { flexRowCentered, makeStyles } from 'app/styles'
 
 const messages = {
   task: 'Task',
@@ -30,116 +31,117 @@ const messages = {
   claim: 'Claim Your Reward',
   claimErrorMessage:
     'Something has gone wrong, not all your rewards were claimed. Please try again.',
+  claimErrorMessageAAO:
+    'Your account is unable to claim rewards at this time. Please try again later or contact @support@audius.co. ',
   claimableLabel: '$AUDIO available to claim',
   claimedLabel: '$AUDIO claimed so far'
 }
 
-const createStyles = (themeColors: ThemeColors) =>
-  StyleSheet.create({
-    content: {
-      padding: 16,
-      alignItems: 'center'
-    },
-    subheader: {
-      textAlign: 'left',
-      color: themeColors.neutralLight4,
-      fontSize: 16,
-      textTransform: 'uppercase',
-      marginBottom: 12
-    },
-    subheaderIcon: {
-      marginBottom: 12,
-      marginRight: 10
-    },
-    task: {
-      width: '100%',
-      padding: 24,
-      paddingTop: 0
-    },
-    taskHeaderVerified: {
-      ...flexRowCentered()
-    },
-    taskText: {
-      fontSize: 16
-    },
-    statusGrid: {
-      borderRadius: 16,
-      borderColor: themeColors.neutralLight8,
-      borderWidth: 1,
-      width: '100%',
-      marginBottom: 24,
-      flexDirection: 'column'
-    },
-    statusGridColumns: {
-      padding: 16,
-      flexDirection: 'row',
-      justifyContent: 'center'
-    },
-    rewardCell: {
-      paddingRight: 16
-    },
-    progressCell: {
-      flex: 1,
-      paddingLeft: 16,
-      borderLeftWidth: 1,
-      borderColor: themeColors.neutralLight8
-    },
-    statusCell: {
-      alignItems: 'center',
-      paddingLeft: 32,
-      paddingRight: 32,
-      paddingTop: 12,
-      backgroundColor: themeColors.neutralLight9,
-      borderBottomLeftRadius: 16,
-      borderBottomRightRadius: 16
-    },
-    statusCellComplete: {
-      backgroundColor: themeColors.staticAccentGreenLight1
-    },
-    statusTextInProgress: {
-      color: themeColors.secondaryLight1
-    },
-    statusTextComplete: {
-      color: themeColors.staticWhite
-    },
-    audioAmount: {
-      textAlign: 'center',
-      fontSize: 34
-    },
-    audioLabel: {
-      textAlign: 'center',
-      fontSize: 12,
-      color: themeColors.neutralLight4
-    },
-    claimRewardsContainer: {
-      marginTop: 16,
-      width: '100%'
-    },
-    claimRewardsError: {
-      textAlign: 'center',
-      color: themeColors.accentRed,
-      fontSize: 16,
-      marginTop: 24
-    },
-    claimButtonContainer: {
-      width: '100%'
-    },
-    claimButton: {
-      paddingVertical: 12
-    },
-    claimableAmount: {
-      marginVertical: 16,
-      textAlign: 'center',
-      textTransform: 'uppercase',
-      color: themeColors.staticAccentGreenLight1
-    },
-    claimedAmount: {
-      marginTop: 16,
-      textAlign: 'center',
-      textTransform: 'uppercase',
-      color: themeColors.neutralLight4
-    }
-  })
+const useStyles = makeStyles(({ palette, spacing }) => ({
+  content: {
+    padding: spacing(4),
+    alignItems: 'center'
+  },
+  subheader: {
+    textAlign: 'left',
+    color: palette.neutralLight4,
+    fontSize: spacing(4),
+    textTransform: 'uppercase',
+    marginBottom: spacing(3)
+  },
+  subheaderIcon: {
+    marginBottom: spacing(3),
+    marginRight: 10
+  },
+  task: {
+    width: '100%',
+    padding: spacing(6),
+    paddingTop: 0
+  },
+  taskHeaderVerified: {
+    ...flexRowCentered()
+  },
+  taskText: {
+    fontSize: spacing(4)
+  },
+  statusGrid: {
+    borderRadius: spacing(4),
+    borderColor: palette.neutralLight8,
+    borderWidth: 1,
+    width: '100%',
+    marginBottom: spacing(6),
+    flexDirection: 'column'
+  },
+  statusGridColumns: {
+    padding: spacing(4),
+    flexDirection: 'row',
+    justifyContent: 'center'
+  },
+  rewardCell: {
+    paddingRight: spacing(4)
+  },
+  progressCell: {
+    flex: 1,
+    paddingLeft: spacing(4),
+    borderLeftWidth: 1,
+    borderColor: palette.neutralLight8
+  },
+  statusCell: {
+    alignItems: 'center',
+    paddingLeft: 32,
+    paddingRight: 32,
+    paddingTop: spacing(3),
+    backgroundColor: palette.neutralLight9,
+    borderBottomLeftRadius: spacing(4),
+    borderBottomRightRadius: spacing(4)
+  },
+  statusCellComplete: {
+    backgroundColor: palette.staticAccentGreenLight1
+  },
+  statusTextInProgress: {
+    color: palette.secondaryLight1
+  },
+  statusTextComplete: {
+    color: palette.staticWhite
+  },
+  audioAmount: {
+    textAlign: 'center',
+    fontSize: 34
+  },
+  audioLabel: {
+    textAlign: 'center',
+    fontSize: spacing(3),
+    color: palette.neutralLight4
+  },
+  claimRewardsContainer: {
+    marginTop: spacing(4),
+    width: '100%'
+  },
+  claimRewardsError: {
+    textAlign: 'center',
+    color: palette.accentRed,
+    fontSize: spacing(4),
+    marginTop: spacing(6)
+  },
+  claimButtonContainer: {
+    width: '100%'
+  },
+  claimButton: {
+    paddingVertical: spacing(3)
+  },
+  claimableAmount: {
+    marginVertical: spacing(4),
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    color: palette.staticAccentGreenLight1
+  },
+  claimedAmount: {
+    marginTop: spacing(4),
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    color: palette.neutralLight4
+  }
+}))
 
 type ChallengeRewardsDrawerProps = {
   /** Callback for when the drawer gets closed */
@@ -165,6 +167,8 @@ type ChallengeRewardsDrawerProps = {
   claimedAmount: number
   /** The status of the rewards being claimed */
   claimStatus: ClaimStatus
+  /** Error code from AAO in the case of AAO rejection */
+  aaoErrorCode?: number
   /** Callback that runs on the claim rewards button being clicked */
   onClaim?: () => void
   /** Whether the challenge is for verified users only */
@@ -173,6 +177,7 @@ type ChallengeRewardsDrawerProps = {
   showProgressBar: boolean
   children?: React.ReactChild
 }
+
 export const ChallengeRewardsDrawer = ({
   onClose,
   title,
@@ -186,12 +191,13 @@ export const ChallengeRewardsDrawer = ({
   claimableAmount,
   claimedAmount,
   claimStatus,
+  aaoErrorCode,
   onClaim,
   isVerifiedChallenge,
   showProgressBar,
   children
 }: ChallengeRewardsDrawerProps) => {
-  const styles = useThemedStyles(createStyles)
+  const styles = useStyles()
   const isInProgress = challengeState === 'in_progress'
   const claimInProgress =
     claimStatus === ClaimStatus.CLAIMING ||
@@ -217,6 +223,21 @@ export const ChallengeRewardsDrawer = ({
     messages.claimableLabel
   }`
 
+  const getErrorMessage = () => {
+    if (aaoErrorCode === undefined) {
+      return (
+        <Text style={styles.claimRewardsError} weight='bold'>
+          {messages.claimErrorMessage}
+        </Text>
+      )
+    }
+    return (
+      <Text style={styles.claimRewardsError} weight='bold'>
+        {messages.claimErrorMessageAAO}
+        {getAAOErrorEmojis(aaoErrorCode)}
+      </Text>
+    )
+  }
   return (
     <AppDrawer
       modalName='ChallengeRewardsExplainer'
@@ -321,11 +342,7 @@ export const ChallengeRewardsDrawer = ({
               {claimedAmountText}
             </Text>
           ) : null}
-          {claimError ? (
-            <Text style={styles.claimRewardsError} weight='bold'>
-              {messages.claimErrorMessage}
-            </Text>
-          ) : null}
+          {claimError ? getErrorMessage() : null}
         </View>
       </View>
     </AppDrawer>

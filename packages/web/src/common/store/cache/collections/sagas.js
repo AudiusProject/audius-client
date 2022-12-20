@@ -1,4 +1,21 @@
-import { Name, DefaultSizes, Kind, makeKindId, makeUid } from '@audius/common'
+import {
+  Name,
+  DefaultSizes,
+  Kind,
+  makeKindId,
+  makeUid,
+  squashNewLines,
+  accountSelectors,
+  accountActions,
+  cacheCollectionsSelectors,
+  cacheCollectionsActions as collectionActions,
+  PlaylistOperations,
+  cacheTracksSelectors,
+  cacheUsersSelectors,
+  cacheActions,
+  getContext,
+  audioRewardsPageActions
+} from '@audius/common'
 import { isEqual } from 'lodash'
 import {
   all,
@@ -10,31 +27,24 @@ import {
   takeLatest
 } from 'redux-saga/effects'
 
-import * as accountActions from 'common/store/account/reducer'
-import { getAccountUser, getUserId } from 'common/store/account/selectors'
-import * as cacheActions from 'common/store/cache/actions'
-import * as collectionActions from 'common/store/cache/collections/actions'
-import { getCollection } from 'common/store/cache/collections/selectors'
-import { getTrack } from 'common/store/cache/tracks/selectors'
+import { make } from 'common/store/analytics/actions'
+import watchTrackErrors from 'common/store/cache/collections/errorSagas'
 import { fetchUsers } from 'common/store/cache/users/sagas'
-import { getUser } from 'common/store/cache/users/selectors'
-import { squashNewLines } from 'common/utils/formatUtil'
-import * as signOnActions from 'pages/sign-on/store/actions'
-import apiClient from 'services/audius-api-client/AudiusAPIClient'
-import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
-import { make } from 'store/analytics/actions'
-import { waitForBackendSetup } from 'store/backend/sagas'
-import * as confirmerActions from 'store/confirmer/actions'
-import { confirmTransaction } from 'store/confirmer/sagas'
-import { dataURLtoFile } from 'utils/fileUtils'
+import * as confirmerActions from 'common/store/confirmer/actions'
+import { confirmTransaction } from 'common/store/confirmer/sagas'
+import * as signOnActions from 'common/store/pages/signon/actions'
+import { waitForWrite } from 'utils/sagaHelpers'
 
-import watchTrackErrors from './errorSagas'
-import { PlaylistOperations } from './types'
 import { reformat } from './utils'
 import {
   retrieveCollection,
   retrieveCollections
 } from './utils/retrieveCollections'
+const { getUser } = cacheUsersSelectors
+const { getTrack } = cacheTracksSelectors
+const { getCollection } = cacheCollectionsSelectors
+const { getAccountUser, getUserId } = accountSelectors
+const { setOptimisticChallengeCompleted } = audioRewardsPageActions
 
 /** Counts instances of trackId in a playlist. */
 const countTrackIds = (playlistContents, trackId) => {
@@ -53,6 +63,7 @@ function* watchCreatePlaylist() {
 }
 
 function* createPlaylistAsync(action) {
+  yield waitForWrite()
   // Potentially grab artwork from the initializing track.
   if (action.initTrackId) {
     const track = yield select(getTrack, { id: action.initTrackId })
@@ -60,21 +71,15 @@ function* createPlaylistAsync(action) {
     action.formFields.cover_art_sizes = track.cover_art_sizes
   }
 
-  yield call(waitForBackendSetup)
   const userId = yield select(getUserId)
-  const uid = action.tempId
+  const uid = action.playlistId
   if (!userId) {
     yield put(signOnActions.openSignOn(false))
     return
   }
   yield put(collectionActions.createPlaylistRequested())
 
-  const playlist = { ...action.formFields }
-
-  // For base64 images (coming from native), convert to a blob
-  if (playlist.artwork?.type === 'base64') {
-    playlist.artwork.file = dataURLtoFile(playlist.artwork.file)
-  }
+  const playlist = { playlist_id: uid, ...action.formFields }
 
   const event = make(Name.PLAYLIST_START_CREATE, {
     source: action.source,
@@ -99,7 +104,7 @@ function* createPlaylistAsync(action) {
       [DefaultSizes.OVERRIDE]: playlist.artwork.url
     }
   }
-  playlist._temp = true
+  playlist._temp = false
 
   const subscribedUid = yield makeUid(Kind.COLLECTIONS, uid, 'account')
   yield put(
@@ -141,13 +146,15 @@ function* createPlaylistAsync(action) {
 }
 
 function* confirmCreatePlaylist(uid, userId, formFields, source) {
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
+
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, uid),
       function* () {
         const { blockHash, blockNumber, playlistId, error } = yield call(
           audiusBackendInstance.createPlaylist,
-          userId,
+          uid,
           formFields
         )
 
@@ -182,7 +189,7 @@ function* confirmCreatePlaylist(uid, userId, formFields, source) {
         // The reformatted playlist is the combination of the results we get back
         // from the confirmation, plus any writes that may be in the confirmer still.
         const reformattedPlaylist = {
-          ...reformat(confirmedPlaylist),
+          ...reformat(confirmedPlaylist, audiusBackendInstance),
           ...movedCollection,
           playlist_id: confirmedPlaylist.playlist_id,
           _temp: false
@@ -210,11 +217,6 @@ function* confirmCreatePlaylist(uid, userId, formFields, source) {
                   .concat(confirmedPlaylist.playlist_id)
               }
             }
-          ])
-        )
-        yield put(
-          cacheActions.update(Kind.COLLECTIONS, [
-            { id: uid, metadata: { _moved: subscribedUid } }
           ])
         )
         yield put(accountActions.removeAccountPlaylist({ collectionId: uid }))
@@ -265,7 +267,7 @@ function* watchEditPlaylist() {
 }
 
 function* editPlaylistAsync(action) {
-  yield call(waitForBackendSetup)
+  yield waitForWrite()
   action.formFields.description = squashNewLines(action.formFields.description)
 
   const userId = yield select(getUserId)
@@ -283,11 +285,6 @@ function* editPlaylistAsync(action) {
   )
 
   const playlist = { ...action.formFields }
-
-  // For base64 images (coming from native), convert to a blob
-  if (playlist.artwork?.type === 'base64') {
-    playlist.artwork.file = dataURLtoFile(playlist.artwork.file)
-  }
 
   yield call(confirmEditPlaylist, action.playlistId, userId, playlist)
 
@@ -312,13 +309,13 @@ function* editPlaylistAsync(action) {
 }
 
 function* confirmEditPlaylist(playlistId, userId, formFields) {
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
       function* (confirmedPlaylistId) {
         const { blockHash, blockNumber, error } = yield call(
           audiusBackendInstance.updatePlaylist,
-          confirmedPlaylistId,
           {
             ...formFields
           }
@@ -334,7 +331,7 @@ function* confirmEditPlaylist(playlistId, userId, formFields) {
         }
 
         return (yield call(audiusBackendInstance.getPlaylists, userId, [
-          confirmedPlaylistId
+          playlistId
         ]))[0]
       },
       function* (confirmedPlaylist) {
@@ -343,7 +340,10 @@ function* confirmEditPlaylist(playlistId, userId, formFields) {
           cacheActions.update(Kind.COLLECTIONS, [
             {
               id: confirmedPlaylist.playlist_id,
-              metadata: { ...reformat(confirmedPlaylist), artwork: {} }
+              metadata: {
+                ...reformat(confirmedPlaylist, audiusBackendInstance),
+                artwork: {}
+              }
             }
           ])
         )
@@ -372,12 +372,14 @@ function* watchAddTrackToPlaylist() {
 }
 
 function* addTrackToPlaylistAsync(action) {
-  yield call(waitForBackendSetup)
+  yield waitForWrite()
   const userId = yield select(getUserId)
   if (!userId) {
     yield put(signOnActions.openSignOn(false))
     return
   }
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  const web3 = yield call(audiusBackendInstance.getWeb3)
 
   // Retrieve tracks with the the collection so we confirm with the
   // most up-to-date information.
@@ -394,10 +396,13 @@ function* addTrackToPlaylistAsync(action) {
     action.trackId,
     `collection:${action.playlistId}`
   )
+  const currentBlockNumber = yield web3.eth.getBlockNumber()
+  const currentBlock = yield web3.eth.getBlock(currentBlockNumber)
+
   playlist.playlist_contents = {
     track_ids: playlist.playlist_contents.track_ids.concat({
       track: action.trackId,
-      time: Math.round(Date.now() / 1000),
+      metadata_time: currentBlock.timestamp,
       uid: trackUid
     })
   }
@@ -414,7 +419,8 @@ function* addTrackToPlaylistAsync(action) {
     userId,
     action.playlistId,
     action.trackId,
-    count
+    count,
+    playlist
   )
   yield put(
     cacheActions.update(Kind.COLLECTIONS, [
@@ -429,17 +435,30 @@ function* addTrackToPlaylistAsync(action) {
   yield put(
     cacheActions.subscribe(Kind.TRACKS, [{ uid: trackUid, id: action.trackId }])
   )
+  yield put(
+    setOptimisticChallengeCompleted({
+      challengeId: 'first-playlist',
+      specifier: userId
+    })
+  )
 }
 
-function* confirmAddTrackToPlaylist(userId, playlistId, trackId, count) {
+function* confirmAddTrackToPlaylist(
+  userId,
+  playlistId,
+  trackId,
+  count,
+  playlist
+) {
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
+
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
       function* (confirmedPlaylistId) {
         const { blockHash, blockNumber, error } = yield call(
           audiusBackendInstance.addPlaylistTrack,
-          confirmedPlaylistId,
-          trackId
+          playlist
         )
         if (error) throw error
 
@@ -449,7 +468,7 @@ function* confirmAddTrackToPlaylist(userId, playlistId, trackId, count) {
             `Could not confirm add playlist track for playlist id ${playlistId} and track id ${trackId}`
           )
         }
-        return confirmedPlaylistId
+        return playlistId
       },
       function* (confirmedPlaylistId) {
         const confirmedPlaylist = (yield call(
@@ -509,8 +528,9 @@ function* confirmAddTrackToPlaylist(userId, playlistId, trackId, count) {
       undefined,
       {
         operationId: PlaylistOperations.ADD_TRACK,
-        parallelizable: true,
-        useOnlyLastSuccessCall: true
+        parallelizable: false,
+        useOnlyLastSuccessCall: false,
+        squashable: true
       }
     )
   )
@@ -526,7 +546,7 @@ function* watchRemoveTrackFromPlaylist() {
 }
 
 function* removeTrackFromPlaylistAsync(action) {
-  yield call(waitForBackendSetup)
+  yield waitForWrite()
   const userId = yield select(getUserId)
   if (!userId) {
     yield put(signOnActions.openSignOn(false))
@@ -536,9 +556,26 @@ function* removeTrackFromPlaylistAsync(action) {
   const playlist = yield select(getCollection, { id: action.playlistId })
 
   // Find the index of the track based on the track's id and timestamp
-  const index = playlist.playlist_contents.track_ids.findIndex(
-    (t) => t.time === action.timestamp && t.track === action.trackId
-  )
+  const index = playlist.playlist_contents.track_ids.findIndex((t) => {
+    if (t.track !== action.trackId) {
+      return false
+    }
+
+    if (t.metadata_time) {
+      if (t.metadata_time === action.timestamp) {
+        // entity manager is enabled
+        return true
+      } else {
+        return false
+      }
+    }
+
+    if (t.time !== action.timestamp) {
+      return false
+    }
+
+    return true
+  })
   if (index === -1) {
     console.error('Could not find the index of to-be-deleted track')
     return
@@ -554,7 +591,8 @@ function* removeTrackFromPlaylistAsync(action) {
     action.playlistId,
     action.trackId,
     track.time,
-    count
+    count,
+    playlist
   )
   yield put(
     cacheActions.update(Kind.COLLECTIONS, [
@@ -570,7 +608,9 @@ function* removeTrackFromPlaylistAsync(action) {
 
 // Removes the invalid track ids from the playlist by calling `dangerouslySetPlaylistOrder`
 function* fixInvalidTracksInPlaylist(playlistId, userId, invalidTrackIds) {
-  yield call(waitForBackendSetup)
+  yield waitForWrite()
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  const apiClient = yield getContext('apiClient')
   const removedTrackIds = new Set(invalidTrackIds)
 
   const playlist = yield select(getCollection, { id: playlistId })
@@ -598,8 +638,11 @@ function* confirmRemoveTrackFromPlaylist(
   playlistId,
   trackId,
   timestamp,
-  count
+  count,
+  playlist
 ) {
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
+
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
@@ -608,10 +651,11 @@ function* confirmRemoveTrackFromPlaylist(
         // if it fails, check if the playlist is in a corrupted state and if so fix it before re-attempting to delete track from playlist
         let { blockHash, blockNumber, error } = yield call(
           audiusBackendInstance.deletePlaylistTrack,
-          confirmedPlaylistId,
+          playlistId,
           trackId,
           timestamp,
-          0
+          0,
+          playlist
         )
         if (error) {
           const {
@@ -682,8 +726,9 @@ function* confirmRemoveTrackFromPlaylist(
       undefined,
       {
         operationId: PlaylistOperations.REMOVE_TRACK,
-        parallelizable: true,
-        useOnlyLastSuccessCall: true
+        parallelizable: false,
+        useOnlyLastSuccessCall: false,
+        squashable: true
       }
     )
   )
@@ -696,7 +741,7 @@ function* watchOrderPlaylist() {
 }
 
 function* orderPlaylistAsync(action) {
-  yield call(waitForBackendSetup)
+  yield waitForWrite()
   const userId = yield select(getUserId)
   if (!userId) {
     yield put(signOnActions.openSignOn(false))
@@ -717,7 +762,13 @@ function* orderPlaylistAsync(action) {
     }
   }
 
-  yield call(confirmOrderPlaylist, userId, action.playlistId, trackIds)
+  yield call(
+    confirmOrderPlaylist,
+    userId,
+    action.playlistId,
+    trackIds,
+    updatedPlaylist
+  )
   yield put(
     cacheActions.update(Kind.COLLECTIONS, [
       {
@@ -728,7 +779,8 @@ function* orderPlaylistAsync(action) {
   )
 }
 
-function* confirmOrderPlaylist(userId, playlistId, trackIds) {
+function* confirmOrderPlaylist(userId, playlistId, trackIds, playlist) {
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
@@ -737,9 +789,7 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds) {
         // if it fails, check if the playlist is in a corrupted state and if so fix it before re-attempting to order playlist
         let { blockHash, blockNumber, error } = yield call(
           audiusBackendInstance.orderPlaylist,
-          confirmedPlaylistId,
-          trackIds,
-          0
+          playlist
         )
         if (error) {
           const { error, isValid, invalidTrackIds } = yield call(
@@ -757,9 +807,9 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds) {
             const invalidIds = new Set(invalidTrackIds)
             trackIds = trackIds.filter((id) => !invalidIds.has(id))
           }
+          // TODO fix validation which relies on legacy contract
           const response = yield call(
             audiusBackendInstance.orderPlaylist,
-            confirmedPlaylistId,
             trackIds
           )
           if (response.error) {
@@ -777,7 +827,7 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds) {
           )
         }
 
-        return confirmedPlaylistId
+        return playlistId
       },
       function* (confirmedPlaylistId) {
         const confirmedPlaylist = (yield call(
@@ -818,7 +868,7 @@ function* watchPublishPlaylist() {
 }
 
 function* publishPlaylistAsync(action) {
-  yield call(waitForBackendSetup)
+  yield waitForWrite()
   const userId = yield select(getUserId)
   if (!userId) {
     yield put(signOnActions.openSignOn(false))
@@ -839,17 +889,18 @@ function* publishPlaylistAsync(action) {
     ])
   )
 
-  yield call(confirmPublishPlaylist, userId, action.playlistId)
+  yield call(confirmPublishPlaylist, userId, action.playlistId, playlist)
 }
 
-function* confirmPublishPlaylist(userId, playlistId) {
+function* confirmPublishPlaylist(userId, playlistId, playlist) {
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
       function* (confirmedPlaylistId) {
         const { blockHash, blockNumber, error } = yield call(
           audiusBackendInstance.publishPlaylist,
-          confirmedPlaylistId
+          playlist
         )
         if (error) throw error
 
@@ -860,7 +911,7 @@ function* confirmPublishPlaylist(userId, playlistId) {
           )
         }
         return (yield call(audiusBackendInstance.getPlaylists, userId, [
-          confirmedPlaylistId
+          playlistId
         ]))[0]
       },
       function* (confirmedPlaylist) {
@@ -897,7 +948,7 @@ function* watchDeletePlaylist() {
 }
 
 function* deletePlaylistAsync(action) {
-  yield call(waitForBackendSetup)
+  yield waitForWrite()
   const userId = yield select(getUserId)
   if (!userId) {
     yield put(signOnActions.openSignOn(false))
@@ -953,6 +1004,7 @@ function* deletePlaylistAsync(action) {
 }
 
 function* confirmDeleteAlbum(playlistId, trackIds, userId) {
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
@@ -1050,6 +1102,7 @@ function* confirmDeleteAlbum(playlistId, trackIds, userId) {
 }
 
 function* confirmDeletePlaylist(userId, playlistId) {
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
@@ -1059,7 +1112,7 @@ function* confirmDeletePlaylist(userId, playlistId) {
           put(
             cacheActions.update(Kind.COLLECTIONS, [
               {
-                id: confirmedPlaylistId,
+                id: playlistId,
                 metadata: { _marked_deleted: true }
               }
             ])
@@ -1071,7 +1124,7 @@ function* confirmDeletePlaylist(userId, playlistId) {
 
         const { blockHash, blockNumber, error } = yield call(
           audiusBackendInstance.deletePlaylist,
-          confirmedPlaylistId
+          playlistId
         )
         if (error) throw error
 
@@ -1081,7 +1134,7 @@ function* confirmDeletePlaylist(userId, playlistId) {
             `Could not confirm delete playlist track for playlist id ${playlistId}`
           )
         }
-        return confirmedPlaylistId
+        return playlistId
       },
       function* () {
         console.debug(`Successfully deleted playlist ${playlistId}`)
@@ -1171,6 +1224,7 @@ function* watchAdd() {
 }
 
 function* watchFetchCoverArt() {
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const inProgress = new Set()
   yield takeEvery(
     collectionActions.FETCH_COVER_ART,
@@ -1214,7 +1268,8 @@ function* watchFetchCoverArt() {
         )
       } catch (e) {
         console.error(
-          `Unable to fetch cover art for collection ${collectionId}`
+          `Unable to fetch cover art for collection ${collectionId}`,
+          e
         )
       } finally {
         inProgress.delete(key)

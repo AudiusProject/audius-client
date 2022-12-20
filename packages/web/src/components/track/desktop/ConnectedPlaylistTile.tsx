@@ -5,7 +5,9 @@ import {
   useState,
   useEffect,
   useCallback,
-  ReactChildren
+  ReactChildren,
+  useRef,
+  MouseEventHandler
 } from 'react'
 
 import {
@@ -16,7 +18,13 @@ import {
   FavoriteSource,
   PlaybackSource,
   Name,
-  Track
+  Track,
+  accountSelectors,
+  cacheCollectionsSelectors,
+  cacheUsersSelectors,
+  collectionsSocialActions,
+  shareModalUIActions,
+  playerSelectors
 } from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
@@ -25,19 +33,7 @@ import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
-import { getUserHandle } from 'common/store/account/selectors'
-import {
-  getCollection,
-  getTracksFromCollection
-} from 'common/store/cache/collections/selectors'
-import { getUserFromCollection } from 'common/store/cache/users/selectors'
-import {
-  saveCollection,
-  unsaveCollection,
-  repostCollection,
-  undoRepostCollection
-} from 'common/store/social/collections/actions'
-import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
+import { TrackEvent, make } from 'common/store/analytics/actions'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import Draggable from 'components/dragndrop/Draggable'
 import { OwnProps as CollectionkMenuProps } from 'components/menu/CollectionMenu'
@@ -45,7 +41,6 @@ import Menu from 'components/menu/Menu'
 import { CollectionArtwork } from 'components/track/desktop/Artwork'
 import { TrackTileSize } from 'components/track/types'
 import UserBadges from 'components/user-badges/UserBadges'
-import { TrackEvent, make } from 'store/analytics/actions'
 import {
   setUsers,
   setVisibility
@@ -54,8 +49,8 @@ import {
   UserListType,
   UserListEntityType
 } from 'store/application/ui/userListModal/types'
-import { getUid, getBuffering, getPlaying } from 'store/player/selectors'
 import { AppState } from 'store/types'
+import { isDescendantElementOf } from 'utils/domUtils'
 import {
   albumPage,
   fullAlbumPage,
@@ -73,6 +68,17 @@ import PlaylistTile from './PlaylistTile'
 import TrackListItem from './TrackListItem'
 import Stats from './stats/Stats'
 import { Flavor } from './stats/StatsText'
+const { getUid, getBuffering, getPlaying } = playerSelectors
+const { requestOpen: requestOpenShareModal } = shareModalUIActions
+const { getUserFromCollection } = cacheUsersSelectors
+const {
+  saveCollection,
+  unsaveCollection,
+  repostCollection,
+  undoRepostCollection
+} = collectionsSocialActions
+const { getCollection, getTracksFromCollection } = cacheCollectionsSelectors
+const getUserHandle = accountSelectors.getUserHandle
 
 type OwnProps = {
   uid: UID
@@ -152,70 +158,85 @@ const ConnectedPlaylistTile = memo(
     } = getUserWithFallback(user)
     const isOwner = handle === userHandle
 
+    const menuRef = useRef<HTMLDivElement>(null)
+
     const isActive = useMemo(() => {
       return tracks.some((track: any) => track.uid === playingUid)
     }, [tracks, playingUid])
 
-    const onTogglePlay = useCallback(() => {
-      if (isUploading) return
-      if (!isActive || !isPlaying) {
-        if (isActive) {
-          playTrack(playingUid!)
+    const onTogglePlay = useCallback(
+      (e?: MouseEvent /* click event within TrackTile */) => {
+        // Skip playing / pausing track if click event happened within track menu container
+        // because clicking on it should not affect corresponding playlist track.
+        // We have to do this instead of stopping the event propagation
+        // because we need it to bubble up to the document to allow
+        // the document click listener to close other track/playlist tile menus
+        // that are already open.
+        const shouldSkipTogglePlay = isDescendantElementOf(
+          e?.target,
+          menuRef.current
+        )
+        if (shouldSkipTogglePlay) return
+        if (isUploading) return
+        if (!isActive || !isPlaying) {
+          if (isActive) {
+            playTrack(playingUid!)
+            if (record) {
+              record(
+                make(Name.PLAYBACK_PLAY, {
+                  id: `${playingTrackId}`,
+                  source: PlaybackSource.PLAYLIST_TILE_TRACK
+                })
+              )
+            }
+          } else {
+            const trackUid = tracks[0] ? tracks[0].uid : null
+            const trackId = tracks[0] ? tracks[0].track_id : null
+            if (!trackUid || !trackId) return
+            playTrack(trackUid)
+            if (record) {
+              record(
+                make(Name.PLAYBACK_PLAY, {
+                  id: `${trackId}`,
+                  source: PlaybackSource.PLAYLIST_TILE_TRACK
+                })
+              )
+            }
+          }
+        } else {
+          pauseTrack()
           if (record) {
             record(
-              make(Name.PLAYBACK_PLAY, {
+              make(Name.PLAYBACK_PAUSE, {
                 id: `${playingTrackId}`,
                 source: PlaybackSource.PLAYLIST_TILE_TRACK
               })
             )
           }
-        } else {
-          const trackUid = tracks[0] ? tracks[0].uid : null
-          const trackId = tracks[0] ? tracks[0].track_id : null
-          if (!trackUid || !trackId) return
-          playTrack(trackUid)
-          if (record) {
-            record(
-              make(Name.PLAYBACK_PLAY, {
-                id: `${trackId}`,
-                source: PlaybackSource.PLAYLIST_TILE_TRACK
-              })
-            )
-          }
         }
-      } else {
-        pauseTrack()
-        if (record) {
-          record(
-            make(Name.PLAYBACK_PAUSE, {
-              id: `${playingTrackId}`,
-              source: PlaybackSource.PLAYLIST_TILE_TRACK
-            })
-          )
-        }
-      }
-    }, [
-      isPlaying,
-      tracks,
-      playTrack,
-      pauseTrack,
-      isActive,
-      playingUid,
-      playingTrackId,
-      isUploading,
-      record
-    ])
+      },
+      [
+        isPlaying,
+        tracks,
+        playTrack,
+        pauseTrack,
+        isActive,
+        playingUid,
+        playingTrackId,
+        isUploading,
+        record
+      ]
+    )
+    const href = isAlbum
+      ? albumPage(handle, title, id)
+      : playlistPage(handle, title, id)
 
     const onClickTitle = useCallback(
       (e: MouseEvent) => {
         e.stopPropagation()
-        goToRoute(
-          isAlbum
-            ? albumPage(handle, title, id)
-            : playlistPage(handle, title, id)
-        )
+        goToRoute(href)
       },
-      [goToRoute, isAlbum, handle, title, id]
+      [goToRoute, href]
     )
 
     const [artworkLoaded, setArtworkLoaded] = useState(false)
@@ -269,7 +290,7 @@ const ConnectedPlaylistTile = memo(
       return (
         <Menu menu={menu}>
           {(ref, triggerPopup) => (
-            <div className={styles.menuContainer}>
+            <div className={styles.menuContainer} ref={menuRef}>
               <div className={styles.menuKebabContainer} onClick={triggerPopup}>
                 <IconKebabHorizontal
                   className={cn(styles.iconKebabHorizontal)}
@@ -281,7 +302,7 @@ const ConnectedPlaylistTile = memo(
         </Menu>
       )
     }
-    const onClickArtistName = useCallback(
+    const onClickArtistName: MouseEventHandler = useCallback(
       (e) => {
         e.stopPropagation()
         if (goToRoute) goToRoute(profilePage(handle))
@@ -513,6 +534,7 @@ const ConnectedPlaylistTile = memo(
         trackCount={trackCount}
         isTrending={isTrending}
         showRankIcon={showRankIcon}
+        href={href}
       />
     )
   }

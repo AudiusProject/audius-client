@@ -1,10 +1,15 @@
 import { useContext, useEffect, useCallback } from 'react'
 
-import { FeedFilter, Name, Status } from '@audius/common'
+import {
+  FeedFilter,
+  Name,
+  Status,
+  feedPageLineupActions as feedActions
+} from '@audius/common'
 import cn from 'classnames'
 
 import { useModalState } from 'common/hooks/useModalState'
-import { feedActions } from 'common/store/pages/feed/lineup/actions'
+import { make, useRecord } from 'common/store/analytics/actions'
 import Header from 'components/header/mobile/Header'
 import { HeaderContext } from 'components/header/mobile/HeaderContextProvider'
 import Lineup from 'components/lineup/Lineup'
@@ -13,14 +18,11 @@ import { useMainPageHeader } from 'components/nav/store/context'
 import PullToRefresh from 'components/pull-to-refresh/PullToRefresh'
 import useAsyncPoll from 'hooks/useAsyncPoll'
 import { FeedPageContentProps } from 'pages/feed-page/types'
-import { make, useRecord } from 'store/analytics/actions'
 import { BASE_URL, FEED_PAGE } from 'utils/route'
 
 import Filters from './FeedFilterButton'
 import FeedFilterDrawer from './FeedFilterDrawer'
 import styles from './FeedPageContent.module.css'
-
-const IS_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 const messages = {
   title: 'Your Feed'
@@ -102,13 +104,11 @@ const FeedPageMobileContent = ({
       canonicalUrl={`${BASE_URL}${FEED_PAGE}`}
       hasDefaultHeader
     >
-      {IS_NATIVE_MOBILE ? null : (
-        <FeedFilterDrawer
-          isOpen={modalIsOpen}
-          onSelectFilter={handleSelectFilter}
-          onClose={() => setModalIsOpen(false)}
-        />
-      )}
+      <FeedFilterDrawer
+        isOpen={modalIsOpen}
+        onSelectFilter={handleSelectFilter}
+        onClose={() => setModalIsOpen(false)}
+      />
       <div
         className={cn(styles.lineupContainer, {
           [styles.playing]: !!lineupProps.playingUid

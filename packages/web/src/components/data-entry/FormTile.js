@@ -1,16 +1,17 @@
 import { Component, useState, useCallback } from 'react'
 
+import {
+  GENRES,
+  ELECTRONIC_PREFIX,
+  getCanonicalName,
+  createRemixOfMetadata,
+  creativeCommons
+} from '@audius/common'
 import { Button, ButtonType, IconDownload, IconIndent } from '@audius/stems'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 
-import { createRemixOfMetadata } from 'common/schemas'
-import {
-  GENRES,
-  ELECTRONIC_PREFIX,
-  getCanonicalName
-} from 'common/utils/genres'
 import DatePicker from 'components/data-entry/DatePicker'
 import DropdownInput from 'components/data-entry/DropdownInput'
 import Input from 'components/data-entry/Input'
@@ -25,16 +26,16 @@ import Switch from 'components/switch/Switch'
 import UnlistedTrackModal from 'components/unlisted-track-modal/UnlistedTrackModal'
 import PreviewButton from 'components/upload/PreviewButton'
 import UploadArtwork from 'components/upload/UploadArtwork'
-import {
-  ALL_RIGHTS_RESERVED_TYPE,
-  computeLicense,
-  computeLicenseVariables,
-  getDescriptionForType
-} from 'utils/creativeCommonsUtil'
 import { resizeImage } from 'utils/imageProcessingUtil'
 import { moodMap } from 'utils/moods'
 
 import styles from './FormTile.module.css'
+const {
+  ALL_RIGHTS_RESERVED_TYPE,
+  computeLicense,
+  computeLicenseVariables,
+  getDescriptionForType
+} = creativeCommons
 
 const MOODS = Object.keys(moodMap).map((k) => ({ text: k, el: moodMap[k] }))
 

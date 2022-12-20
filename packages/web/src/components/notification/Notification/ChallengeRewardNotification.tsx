@@ -1,12 +1,16 @@
 import { useCallback } from 'react'
 
-import { Name } from '@audius/common'
+import {
+  Name,
+  ChallengeRewardNotification as ChallengeRewardNotificationType,
+  audioRewardsPageSelectors
+} from '@audius/common'
 import { push } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 
-import { ChallengeReward } from 'common/store/notifications/types'
-import { challengeRewardsConfig } from 'pages/audio-rewards-page/config'
-import { make, useRecord } from 'store/analytics/actions'
+import { useSelector } from 'common/hooks/useSelector'
+import { make, useRecord } from 'common/store/analytics/actions'
+import { getChallengeConfig } from 'pages/audio-rewards-page/config'
 import { AUDIO_PAGE } from 'utils/route'
 
 import { NotificationBody } from './components/NotificationBody'
@@ -16,6 +20,8 @@ import { NotificationTile } from './components/NotificationTile'
 import { NotificationTitle } from './components/NotificationTitle'
 import { TwitterShareButton } from './components/TwitterShareButton'
 import { IconRewards } from './components/icons'
+
+const { getUserChallenge } = audioRewardsPageSelectors
 
 const messages = {
   amountEarned: (amount: number) => `You've earned ${amount} $AUDIO`,
@@ -29,7 +35,7 @@ const messages = {
 }
 
 type ChallengeRewardNotificationProps = {
-  notification: ChallengeReward
+  notification: ChallengeRewardNotificationType
 }
 
 export const ChallengeRewardNotification = (
@@ -40,11 +46,10 @@ export const ChallengeRewardNotification = (
   const dispatch = useDispatch()
   const record = useRecord()
 
-  const {
-    amount: rewardAmount,
-    title,
-    icon
-  } = challengeRewardsConfig[challengeId]
+  const { title, icon } = getChallengeConfig(challengeId)
+  const { amount } = useSelector((state) =>
+    getUserChallenge(state, { challengeId })
+  )
 
   const handleClick = useCallback(() => {
     dispatch(push(AUDIO_PAGE))
@@ -59,7 +64,7 @@ export const ChallengeRewardNotification = (
         <NotificationTitle>{title}</NotificationTitle>
       </NotificationHeader>
       <NotificationBody>
-        {messages.amountEarned(rewardAmount)}
+        {messages.amountEarned(amount)}
         {challengeId === 'referred'
           ? messages.referredText
           : messages.challengeCompleteText}

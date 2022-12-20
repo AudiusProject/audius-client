@@ -1,4 +1,4 @@
-import { useEffect, useContext, ReactNode } from 'react'
+import { useEffect, useContext, MouseEvent, ReactNode } from 'react'
 
 import {
   ID,
@@ -8,7 +8,13 @@ import {
   ProfilePictureSizes,
   LineupState,
   Status,
-  User
+  User,
+  ProfilePageTabs,
+  ProfileUser,
+  profilePageTracksLineupActions as tracksActions,
+  profilePageFeedLineupActions as feedActions,
+  badgeTiers,
+  useSelectTierInfo
 } from '@audius/common'
 import cn from 'classnames'
 
@@ -17,11 +23,6 @@ import { ReactComponent as IconCollectibles } from 'assets/img/iconCollectibles.
 import { ReactComponent as IconNote } from 'assets/img/iconNote.svg'
 import { ReactComponent as IconPlaylists } from 'assets/img/iconPlaylists.svg'
 import { ReactComponent as IconReposts } from 'assets/img/iconRepost.svg'
-import { useSelectTierInfo } from 'common/hooks/wallet'
-import { feedActions } from 'common/store/pages/profile/lineups/feed/actions'
-import { tracksActions } from 'common/store/pages/profile/lineups/tracks/actions'
-import { Tabs, ProfileUser } from 'common/store/pages/profile/types'
-import { badgeTiers } from 'common/store/wallet/utils'
 import Card from 'components/card/mobile/Card'
 import CollectiblesPage from 'components/collectibles/components/CollectiblesPage'
 import { HeaderContext } from 'components/header/mobile/HeaderContextProvider'
@@ -39,7 +40,8 @@ import TierExplainerDrawer from 'components/user-badges/TierExplainerDrawer'
 import useAsyncPoll from 'hooks/useAsyncPoll'
 import useTabs from 'hooks/useTabs/useTabs'
 import { MIN_COLLECTIBLES_TIER } from 'pages/profile-page/ProfilePageProvider'
-import { albumPage, playlistPage, fullProfilePage } from 'utils/route'
+import { albumPage, playlistPage } from 'utils/route'
+import { getUserPageSEOFields } from 'utils/seo'
 import { withNullGuard } from 'utils/withNullGuard'
 
 import { DeactivatedProfileTombstone } from '../DeactivatedProfileTombstone'
@@ -75,7 +77,7 @@ export type ProfilePageProps = {
   followersLoading: boolean
   setFollowingUserId: (userId: ID) => void
   setFollowersUserId: (userId: ID) => void
-  activeTab: Tabs | null
+  activeTab: ProfilePageTabs | null
   following: boolean
   isSubscribed: boolean
   mode: string
@@ -106,7 +108,7 @@ export type ProfilePageProps = {
   updatedProfilePicture: { file: File; url: string } | null
 
   // Methods
-  changeTab: (tab: Tabs) => void
+  changeTab: (tab: ProfilePageTabs) => void
   getLineupProps: (lineup: any) => any
   loadMoreArtistTracks: (offset: number, limit: number) => void
   loadMoreUserFeed: (offset: number, limit: number) => void
@@ -149,13 +151,17 @@ export const EmptyTab = (props: EmptyTabProps) => {
 }
 
 const artistTabs = [
-  { icon: <IconNote />, text: 'Tracks', label: Tabs.TRACKS },
-  { icon: <IconAlbum />, text: 'Albums', label: Tabs.ALBUMS },
-  { icon: <IconPlaylists />, text: 'Playlists', label: Tabs.PLAYLISTS },
+  { icon: <IconNote />, text: 'Tracks', label: ProfilePageTabs.TRACKS },
+  { icon: <IconAlbum />, text: 'Albums', label: ProfilePageTabs.ALBUMS },
+  {
+    icon: <IconPlaylists />,
+    text: 'Playlists',
+    label: ProfilePageTabs.PLAYLISTS
+  },
   {
     icon: <IconReposts className={styles.iconReposts} />,
     text: 'Reposts',
-    label: Tabs.REPOSTS
+    label: ProfilePageTabs.REPOSTS
   }
 ]
 
@@ -163,15 +169,19 @@ const userTabs = [
   {
     icon: <IconReposts className={styles.iconReposts} />,
     text: 'Reposts',
-    label: Tabs.REPOSTS
+    label: ProfilePageTabs.REPOSTS
   },
-  { icon: <IconPlaylists />, text: 'Playlists', label: Tabs.PLAYLISTS }
+  {
+    icon: <IconPlaylists />,
+    text: 'Playlists',
+    label: ProfilePageTabs.PLAYLISTS
+  }
 ]
 
 const collectiblesTab = {
   icon: <IconCollectibles />,
   text: 'Collectibles',
-  label: Tabs.COLLECTIBLES
+  label: ProfilePageTabs.COLLECTIBLES
 }
 
 const artistTabsWithCollectibles = [...artistTabs, collectiblesTab]
@@ -380,7 +390,13 @@ const ProfilePage = g(
             playlist.playlist_contents.track_ids.length,
             playlist.is_private
           )}
-          onClick={() =>
+          href={playlistPage(
+            profile.handle,
+            playlist.playlist_name,
+            playlist.playlist_id
+          )}
+          onClick={(e: MouseEvent) => {
+            e.preventDefault()
             goToRoute(
               playlistPage(
                 profile.handle,
@@ -388,7 +404,7 @@ const ProfilePage = g(
                 playlist.playlist_id
               )
             )
-          }
+          }}
         />
       ))
       if (isArtist) {
@@ -403,7 +419,13 @@ const ProfilePage = g(
               album.save_count,
               album.playlist_contents.track_ids.length
             )}
-            onClick={() =>
+            href={albumPage(
+              profile.handle,
+              album.playlist_name,
+              album.playlist_id
+            )}
+            onClick={(e: MouseEvent) => {
+              e.preventDefault()
               goToRoute(
                 albumPage(
                   profile.handle,
@@ -411,7 +433,7 @@ const ProfilePage = g(
                   album.playlist_id
                 )
               )
-            }
+            }}
           />
         ))
 
@@ -606,6 +628,12 @@ const ProfilePage = g(
       variable: status,
       value: Status.SUCCESS
     })
+    const {
+      title = '',
+      description = '',
+      canonicalUrl = '',
+      structuredData
+    } = getUserPageSEOFields({ handle, userName: name, bio })
 
     return (
       <>
@@ -614,9 +642,10 @@ const ProfilePage = g(
           onDidRegainConnectivity={asyncRefresh}
         >
           <MobilePageContainer
-            title={name && handle ? `${name} (${handle})` : ''}
-            description={bio}
-            canonicalUrl={fullProfilePage(handle)}
+            title={title}
+            description={description}
+            canonicalUrl={canonicalUrl}
+            structuredData={structuredData}
             containerClassName={styles.container}
           >
             <PullToRefresh

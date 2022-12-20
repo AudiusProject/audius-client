@@ -1,15 +1,15 @@
-import { ReactNode } from 'react'
+import React, { MouseEvent, ReactNode } from 'react'
 
 import {
   ID,
   ProfilePictureSizes,
   SquareSizes,
-  CoverArtSizes
+  CoverArtSizes,
+  pluralize,
+  imageBlank as placeholderArt
 } from '@audius/common'
 import cn from 'classnames'
 
-import placeholderArt from 'common/assets/img/imageBlank2x.png'
-import { pluralize } from 'common/utils/formatUtil'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import RepostFavoritesStats, {
   Size
@@ -64,8 +64,9 @@ type CardProps = {
   favorites?: number
   onClickReposts?: () => void
   onClickFavorites?: () => void
-  onClick: () => void
+  onClick: (e: MouseEvent) => void
   updateDot?: boolean
+  href?: string
 }
 
 const Card = ({
@@ -82,16 +83,22 @@ const Card = ({
   onClickReposts,
   onClickFavorites,
   onClick,
-  updateDot
+  updateDot,
+  href
 }: CardProps) => {
   const showRepostFavoriteStats =
     !isUser && reposts && favorites && onClickReposts && onClickFavorites
+  const onClickWrapper = (e: React.MouseEvent) => {
+    e.preventDefault()
+    onClick(e)
+  }
   return (
-    <div
+    <a
       className={cn(styles.cardContainer, {
         [className!]: !!className
       })}
-      onClick={onClick}
+      href={href}
+      onClick={onClickWrapper}
     >
       {updateDot && <UpdateDot />}
       <div className={styles.tileCoverArtContainer}>
@@ -132,7 +139,7 @@ const Card = ({
           </div>
         )}
       </div>
-    </div>
+    </a>
   )
 }
 

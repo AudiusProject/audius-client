@@ -1,18 +1,18 @@
 import type { User } from '@audius/common'
-import { getOptimisticSupporting } from 'audius-client/src/common/store/tipping/selectors'
-import { getId as getSupportingId } from 'common/store/user-list/supporting/selectors'
-
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { tippingSelectors, supportingUserListSelectors } from '@audius/common'
+import { useSelector } from 'react-redux'
 
 import { Tip } from './Tip'
+const { getId: getSupportingId } = supportingUserListSelectors
+const { getOptimisticSupporting } = tippingSelectors
 
 type SupportingInfoProps = {
   user: User
 }
 
 export const SupportingInfo = (props: SupportingInfoProps) => {
-  const supportingMap = useSelectorWeb(getOptimisticSupporting)
-  const supportingId = useSelectorWeb(getSupportingId)
+  const supportingMap = useSelector(getOptimisticSupporting)
+  const supportingId = useSelector(getSupportingId)
   const supportingForUser = supportingId
     ? supportingMap[supportingId] ?? null
     : null

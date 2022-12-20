@@ -1,10 +1,10 @@
 import { useCallback, MouseEvent } from 'react'
 
+import { pluralize, formatCount } from '@audius/common'
 import cn from 'classnames'
 
 import { ReactComponent as IconFavorite } from 'assets/img/iconHeart.svg'
 import { ReactComponent as IconRepost } from 'assets/img/iconRepost.svg'
-import { pluralize, formatCount } from 'common/utils/formatUtil'
 
 import styles from './RepostFavoritesStats.module.css'
 
@@ -41,6 +41,7 @@ const RepostFavoritesStats = ({
 }: RepostFavoritesStatsProps) => {
   const handleOnClickReposts = useCallback(
     (e: MouseEvent) => {
+      e.preventDefault()
       e.stopPropagation()
       onClickReposts()
     },
@@ -48,6 +49,7 @@ const RepostFavoritesStats = ({
   )
   const handleOnClickFavorites = useCallback(
     (e: MouseEvent) => {
+      e.preventDefault()
       e.stopPropagation()
       onClickFavorites()
     },

@@ -1,48 +1,53 @@
-import type { ID } from '@audius/common'
-import { FavoriteSource, RepostSource, ShareSource } from '@audius/common'
-import type { CommonState } from 'audius-client/src/common/store'
-import { publishPlaylist } from 'audius-client/src/common/store/cache/collections/actions'
-import { getCollection } from 'audius-client/src/common/store/cache/collections/selectors'
-import { getUser } from 'audius-client/src/common/store/cache/users/selectors'
-// Importing directly from audius-client for now, this will be removed
-// when the profile page is implemented in RN
+import { useContext } from 'react'
+
+import type { ID, OverflowActionCallbacks } from '@audius/common'
 import {
+  FavoriteSource,
+  RepostSource,
+  ShareSource,
+  cacheCollectionsActions,
+  cacheCollectionsSelectors,
+  cacheUsersSelectors,
+  collectionsSocialActions,
+  createPlaylistModalUIActions,
+  deletePlaylistConfirmationModalUIActions,
+  OverflowAction,
+  mobileOverflowMenuUISelectors
+} from '@audius/common'
+import { useDispatch, useSelector } from 'react-redux'
+
+import { useNavigation } from 'app/hooks/useNavigation'
+import { AppTabNavigationContext } from 'app/screens/app-screen'
+
+const { getMobileOverflowModal } = mobileOverflowMenuUISelectors
+const { requestOpen: openDeletePlaylist } =
+  deletePlaylistConfirmationModalUIActions
+const { open: openEditPlaylist } = createPlaylistModalUIActions
+const {
   repostCollection,
   undoRepostCollection,
   saveCollection,
   unsaveCollection,
   shareCollection
-} from 'audius-client/src/common/store/social/collections/actions'
-import { open as openEditPlaylist } from 'audius-client/src/common/store/ui/createPlaylistModal/actions'
-import { requestOpen as openDeletePlaylist } from 'audius-client/src/common/store/ui/delete-playlist-confirmation-modal/slice'
-import { getMobileOverflowModal } from 'audius-client/src/common/store/ui/mobile-overflow-menu/selectors'
-import type { OverflowActionCallbacks } from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
-import { OverflowAction } from 'audius-client/src/common/store/ui/mobile-overflow-menu/types'
-import {
-  profilePage,
-  playlistPage,
-  albumPage
-} from 'audius-client/src/utils/route'
-
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useNavigation } from 'app/hooks/useNavigation'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+} = collectionsSocialActions
+const { getUser } = cacheUsersSelectors
+const { getCollection } = cacheCollectionsSelectors
+const { publishPlaylist } = cacheCollectionsActions
 
 type Props = {
   render: (callbacks: OverflowActionCallbacks) => React.ReactNode
 }
 
 const CollectionOverflowMenuDrawer = ({ render }: Props) => {
-  const dispatchWeb = useDispatchWeb()
-  const navigation = useNavigation()
-  const { id: modalId } = useSelectorWeb(getMobileOverflowModal)
+  const dispatch = useDispatch()
+  const { navigation: contextNavigation } = useContext(AppTabNavigationContext)
+  const navigation = useNavigation({ customNavigation: contextNavigation })
+  const { id: modalId } = useSelector(getMobileOverflowModal)
   const id = modalId as ID
 
-  const playlist = useSelectorWeb((state: CommonState) =>
-    getCollection(state, { id })
-  )
+  const playlist = useSelector((state) => getCollection(state, { id }))
 
-  const user = useSelectorWeb((state: CommonState) =>
+  const user = useSelector((state) =>
     getUser(state, { id: playlist?.playlist_owner_id })
   )
 
@@ -58,43 +63,32 @@ const CollectionOverflowMenuDrawer = ({ render }: Props) => {
 
   const callbacks = {
     [OverflowAction.REPOST]: () =>
-      dispatchWeb(repostCollection(id, RepostSource.OVERFLOW)),
+      dispatch(repostCollection(id, RepostSource.OVERFLOW)),
     [OverflowAction.UNREPOST]: () =>
-      dispatchWeb(undoRepostCollection(id, RepostSource.OVERFLOW)),
+      dispatch(undoRepostCollection(id, RepostSource.OVERFLOW)),
     [OverflowAction.FAVORITE]: () =>
-      dispatchWeb(saveCollection(id, FavoriteSource.OVERFLOW)),
+      dispatch(saveCollection(id, FavoriteSource.OVERFLOW)),
     [OverflowAction.UNFAVORITE]: () =>
-      dispatchWeb(unsaveCollection(id, FavoriteSource.OVERFLOW)),
+      dispatch(unsaveCollection(id, FavoriteSource.OVERFLOW)),
     [OverflowAction.SHARE]: () =>
-      dispatchWeb(shareCollection(id, ShareSource.OVERFLOW)),
+      dispatch(shareCollection(id, ShareSource.OVERFLOW)),
     [OverflowAction.VIEW_ALBUM_PAGE]: () => {
-      navigation.navigate({
-        native: { screen: 'Collection', params: { id } },
-        web: {
-          route: (is_album ? albumPage : playlistPage)(
-            handle,
-            playlist_name,
-            id
-          )
-        }
-      })
+      navigation?.push('Collection', { id })
+    },
+    [OverflowAction.VIEW_PLAYLIST_PAGE]: () => {
+      navigation?.push('Collection', { id })
     },
     [OverflowAction.VIEW_ARTIST_PAGE]: () => {
-      navigation.navigate({
-        native: { screen: 'Profile', params: { handle } },
-        web: { route: profilePage(handle) }
-      })
+      navigation?.push('Profile', { handle })
     },
     [OverflowAction.EDIT_PLAYLIST]: () => {
-      navigation.navigate({
-        native: { screen: 'EditPlaylist', params: { id } }
-      })
-      dispatchWeb(openEditPlaylist(id))
+      navigation?.push('EditPlaylist', { id })
+      dispatch(openEditPlaylist(id))
     },
     [OverflowAction.DELETE_PLAYLIST]: () =>
-      dispatchWeb(openDeletePlaylist({ playlistId: id })),
+      dispatch(openDeletePlaylist({ playlistId: id })),
     [OverflowAction.PUBLISH_PLAYLIST]: () =>
-      is_album ? () => {} : dispatchWeb(publishPlaylist(Number(id)))
+      is_album ? () => {} : dispatch(publishPlaylist(Number(id)))
   }
 
   return render(callbacks)

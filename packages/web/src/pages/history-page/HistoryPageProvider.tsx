@@ -14,27 +14,33 @@ import {
   FavoriteSource,
   Name,
   PlaybackSource,
-  Status
+  Status,
+  accountSelectors,
+  lineupSelectors,
+  historyPageTracksLineupActions as tracksActions,
+  historyPageSelectors,
+  tracksSocialActions as socialActions,
+  playerSelectors,
+  queueSelectors
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
+import { isEqual } from 'lodash'
 import { connect } from 'react-redux'
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
-import { getUserId } from 'common/store/account/selectors'
-import { makeGetTableMetadatas } from 'common/store/lineup/selectors'
-import { tracksActions } from 'common/store/pages/history-page/lineups/tracks/actions'
-import { getHistoryTracksLineup } from 'common/store/pages/history-page/selectors'
-import { makeGetCurrent } from 'common/store/queue/selectors'
-import * as socialActions from 'common/store/social/tracks/actions'
-import { useRecord, make } from 'store/analytics/actions'
-import { getPlaying, getBuffering } from 'store/player/selectors'
+import { useRecord, make } from 'common/store/analytics/actions'
 import { AppState } from 'store/types'
 import { profilePage } from 'utils/route'
 import { withNullGuard } from 'utils/withNullGuard'
 
 import { HistoryPageProps as DesktopHistoryPageProps } from './components/desktop/HistoryPage'
 import { HistoryPageProps as MobileHistoryPageProps } from './components/mobile/HistoryPage'
+const { makeGetCurrent } = queueSelectors
+const { getPlaying, getBuffering } = playerSelectors
+const { getHistoryTracksLineup } = historyPageSelectors
+const { makeGetTableMetadatas } = lineupSelectors
+const getUserId = accountSelectors.getUserId
 
 const messages = {
   title: 'History',
@@ -111,7 +117,7 @@ const HistoryPage = g((props) => {
       const filteredIndex = filteredMetadata.findIndex(
         (metadata: any) => metadata.uid === currentQueueItem.uid
       )
-      return [filteredMetadata, filteredIndex]
+      return [filteredMetadata, filteredIndex] as const
     },
     [currentQueueItem, filterText]
   )
@@ -153,7 +159,7 @@ const HistoryPage = g((props) => {
   )
 
   const onClickSave = useCallback(
-    (record) => {
+    (record: any) => {
       if (!record.has_current_user_saved) {
         saveTrack(record.track_id)
       } else {
@@ -198,21 +204,21 @@ const HistoryPage = g((props) => {
   )
 
   const onClickTrackName = useCallback(
-    (record) => {
+    (record: any) => {
       goToRoute(record.permalink)
     },
     [goToRoute]
   )
 
   const onClickArtistName = useCallback(
-    (record) => {
+    (record: any) => {
       goToRoute(profilePage(record.handle))
     },
     [goToRoute]
   )
 
   const onClickRepost = useCallback(
-    (record) => {
+    (record: any) => {
       if (!record.has_current_user_reposted) {
         repostTrack(record.track_id)
       } else {
@@ -312,16 +318,29 @@ const HistoryPage = g((props) => {
   )
 })
 
+type LineupData = ReturnType<ReturnType<typeof makeGetTableMetadatas>>
+let tracksRef: LineupData
+
 const makeMapStateToProps = () => {
   const getLineupMetadatas = makeGetTableMetadatas(getHistoryTracksLineup)
   const getCurrentQueueItem = makeGetCurrent()
-  const mapStateToProps = (state: AppState) => ({
-    userId: getUserId(state),
-    tracks: getLineupMetadatas(state),
-    currentQueueItem: getCurrentQueueItem(state),
-    playing: getPlaying(state),
-    buffering: getBuffering(state)
-  })
+  const mapStateToProps = (state: AppState) => {
+    const tracks = getLineupMetadatas(state)
+
+    if (!isEqual(tracksRef, tracks)) {
+      tracksRef = tracks
+    }
+
+    const output = {
+      userId: getUserId(state),
+      tracks: tracksRef,
+      currentQueueItem: getCurrentQueueItem(state),
+      playing: getPlaying(state),
+      buffering: getBuffering(state)
+    }
+
+    return output
+  }
   return mapStateToProps
 }
 

@@ -1,11 +1,16 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import type { UserMetadata } from '@audius/common'
-import { SquareSizes, WidthSizes } from '@audius/common'
-import { updateProfile } from 'audius-client/src/common/store/pages/profile/actions'
+import {
+  accountSelectors,
+  profilePageActions,
+  profilePageSelectors,
+  Status
+} from '@audius/common'
 import type { FormikProps } from 'formik'
 import { Formik } from 'formik'
 import { View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconDonate from 'app/assets/images/iconDonate.svg'
 import IconInstagram from 'app/assets/images/iconInstagram.svg'
@@ -14,15 +19,16 @@ import IconTikTokInverted from 'app/assets/images/iconTikTokInverted.svg'
 import IconTwitterBird from 'app/assets/images/iconTwitterBird.svg'
 import { FormTextInput, FormImageInput } from 'app/components/core'
 import { FormScreen } from 'app/components/form-screen'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { useUserCoverPhoto } from 'app/hooks/useUserCoverPhoto'
-import { useUserProfilePicture } from 'app/hooks/useUserProfilePicture'
+import { useUserCoverImage } from 'app/components/image/UserCoverImage'
+import { useUserImage } from 'app/components/image/UserImage'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
 
-import { getProfile } from '../profile-screen/selectors'
-
 import type { ProfileValues, UpdatedProfile } from './types'
+
+const { getAccountUser, getUserHandle } = accountSelectors
+const { updateProfile } = profilePageActions
+const { getProfileEditStatus } = profilePageSelectors
 
 const useStyles = makeStyles(({ palette }) => ({
   coverPhoto: {
@@ -56,14 +62,20 @@ const useStyles = makeStyles(({ palette }) => ({
 const EditProfileForm = (props: FormikProps<ProfileValues>) => {
   const { handleSubmit, handleReset } = props
   const styles = useStyles()
+  const accountHandle = useSelector(getUserHandle)
+  const navigation = useNavigation()
+  const editStatus = useSelector((state) =>
+    getProfileEditStatus(state, accountHandle!)
+  )
+  useEffect(() => {
+    // Ensure we kick off the edit action before returning to profile screen
+    if (editStatus === Status.LOADING) {
+      navigation.goBack()
+    }
+  }, [editStatus, navigation])
 
   return (
-    <FormScreen
-      variant='secondary'
-      onReset={handleReset}
-      onSubmit={handleSubmit}
-      goBackOnSubmit
-    >
+    <FormScreen variant='white' onReset={handleReset} onSubmit={handleSubmit}>
       <FormImageInput
         name='cover_photo'
         styles={{ imageContainer: styles.coverPhoto }}
@@ -106,20 +118,13 @@ const EditProfileForm = (props: FormikProps<ProfileValues>) => {
 }
 
 export const EditProfileScreen = () => {
-  const { profile } = useSelectorWeb(getProfile)
-  const dispatchWeb = useDispatchWeb()
+  const profile = useSelector(getAccountUser)
 
-  const coverPhoto = useUserCoverPhoto({
-    id: profile?.user_id ?? null,
-    sizes: profile?._cover_photo_sizes ?? null,
-    size: WidthSizes.SIZE_2000
-  })
+  const dispatch = useDispatch()
 
-  const profilePicture = useUserProfilePicture({
-    id: profile?.user_id ?? null,
-    sizes: profile?._profile_picture_sizes ?? null,
-    size: SquareSizes.SIZE_150_BY_150
-  })
+  const { source: coverPhotoSource } = useUserCoverImage(profile)
+
+  const { source: imageSource } = useUserImage(profile)
 
   const handleSubmit = useCallback(
     (values: ProfileValues) => {
@@ -138,9 +143,9 @@ export const EditProfileScreen = () => {
       if (profile_picture.file) {
         newProfile.updatedProfilePicture = profile_picture
       }
-      dispatchWeb(updateProfile(newProfile as UserMetadata))
+      dispatch(updateProfile(newProfile as UserMetadata))
     },
-    [dispatchWeb, profile]
+    [dispatch, profile]
   )
 
   if (!profile) return null
@@ -167,8 +172,8 @@ export const EditProfileScreen = () => {
     tiktok_handle,
     website,
     donation,
-    cover_photo: { url: coverPhoto },
-    profile_picture: { url: profilePicture }
+    cover_photo: { url: coverPhotoSource[1]?.uri },
+    profile_picture: { url: imageSource[2]?.uri }
   }
 
   return (

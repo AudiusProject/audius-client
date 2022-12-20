@@ -1,12 +1,11 @@
 import { memo, MouseEvent, useCallback } from 'react'
 
+import { formatCount, pluralize, formatSeconds } from '@audius/common'
 import { IconCrown, IconHidden } from '@audius/stems'
 import cn from 'classnames'
 
 import { ReactComponent as IconStar } from 'assets/img/iconStar.svg'
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
-import { formatCount, pluralize } from 'common/utils/formatUtil'
-import { formatSeconds } from 'common/utils/timeUtil'
 import FavoriteButton from 'components/alt-button/FavoriteButton'
 import RepostButton from 'components/alt-button/RepostButton'
 import ShareButton from 'components/alt-button/ShareButton'
@@ -88,12 +87,21 @@ const TrackTile = memo(
     onClickFavorite,
     onClickShare,
     onTogglePlay,
-    showRankIcon
+    showRankIcon,
+    permalink
   }: TrackTileProps) => {
     const hasOrdering = order !== undefined
     const onStopPropagation = useCallback(
       (e: MouseEvent) => e.stopPropagation(),
       []
+    )
+    const onClickTitleWrapper = useCallback(
+      (e: MouseEvent) => {
+        e.stopPropagation()
+        e.preventDefault()
+        onClickTitle(e)
+      },
+      [onClickTitle]
     )
     const hideShare: boolean = fieldVisibility
       ? fieldVisibility.share === false
@@ -107,7 +115,8 @@ const TrackTile = memo(
         <Tooltip
           text={'Share'}
           disabled={isDisabled || hideShare}
-          placement={'bottom'}
+          placement='top'
+          mount='page'
         >
           <div
             className={cn(styles.iconButtonContainer, {
@@ -188,12 +197,16 @@ const TrackTile = memo(
               {isLoading ? (
                 <Skeleton width='80%' className={styles.skeleton} />
               ) : (
-                <span className={styles.title} onClick={onClickTitle}>
+                <a
+                  href={permalink}
+                  className={styles.title}
+                  onClick={onClickTitleWrapper}
+                >
                   {title}
                   {isActive ? (
                     <IconVolume className={styles.volumeIcon} />
                   ) : null}
-                </span>
+                </a>
               )}
             </div>
             <div className={styles.creatorRow}>
@@ -256,7 +269,8 @@ const TrackTile = memo(
                 <Tooltip
                   text={repostLabel}
                   disabled={isDisabled || isOwner}
-                  placement={'bottom'}
+                  placement='top'
+                  mount='page'
                 >
                   <div
                     className={cn(styles.iconButtonContainer, {
@@ -278,7 +292,8 @@ const TrackTile = memo(
                 <Tooltip
                   text={isFavorited ? 'Unfavorite' : 'Favorite'}
                   disabled={isDisabled || isOwner}
-                  placement={'bottom'}
+                  placement='top'
+                  mount='page'
                 >
                   <div
                     className={cn(styles.iconButtonContainer, {
@@ -299,9 +314,7 @@ const TrackTile = memo(
                 {renderShareButton()}
               </div>
             )}
-            {!isLoading && (
-              <div onClick={onStopPropagation}>{rightActions}</div>
-            )}
+            {!isLoading && <div>{rightActions}</div>}
           </div>
         </div>
       </div>

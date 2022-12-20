@@ -1,6 +1,17 @@
 import { ReactNode, useCallback, useEffect, useContext } from 'react'
 
-import { ID, UID, Name, Lineup, Status, User } from '@audius/common'
+import {
+  ID,
+  UID,
+  Name,
+  Lineup,
+  Status,
+  User,
+  SavedPageTabs,
+  SavedPageTrack,
+  SavedPageCollection,
+  QueueItem
+} from '@audius/common'
 import { Button, ButtonType } from '@audius/stems'
 import cn from 'classnames'
 
@@ -8,12 +19,7 @@ import { ReactComponent as IconAlbum } from 'assets/img/iconAlbum.svg'
 import { ReactComponent as IconFilter } from 'assets/img/iconFilter.svg'
 import { ReactComponent as IconNote } from 'assets/img/iconNote.svg'
 import { ReactComponent as IconPlaylists } from 'assets/img/iconPlaylists.svg'
-import {
-  Tabs,
-  SavedPageTrack,
-  SavedPageCollection
-} from 'common/store/pages/saved-page/types'
-import { QueueItem } from 'common/store/queue/types'
+import { make, useRecord } from 'common/store/analytics/actions'
 import Card from 'components/card/mobile/Card'
 import Header from 'components/header/mobile/Header'
 import { HeaderContext } from 'components/header/mobile/HeaderContextProvider'
@@ -24,7 +30,6 @@ import { useMainPageHeader } from 'components/nav/store/context'
 import TrackList from 'components/track/mobile/TrackList'
 import { TrackItemAction } from 'components/track/mobile/TrackListItem'
 import useTabs from 'hooks/useTabs/useTabs'
-import { make, useRecord } from 'store/analytics/actions'
 import { albumPage, TRENDING_PAGE, playlistPage } from 'utils/route'
 
 import NewPlaylistButton from './NewPlaylistButton'
@@ -67,7 +72,7 @@ const SCROLL_HEIGHT = 88
  */
 const useOffsetScroll = () => {
   // Set the child's height base on it's content vs window height
-  const contentRefCallback = useCallback((node) => {
+  const contentRefCallback = useCallback((node: HTMLDivElement) => {
     if (node !== null) {
       const contentHeight = (window as any).innerHeight - OFFSET_HEIGHT
       const useContentHeight = contentHeight > node.scrollHeight
@@ -357,9 +362,13 @@ const messages = {
 }
 
 const tabHeaders = [
-  { icon: <IconNote />, text: messages.tracks, label: Tabs.TRACKS },
-  { icon: <IconAlbum />, text: messages.albums, label: Tabs.ALBUMS },
-  { icon: <IconPlaylists />, text: messages.playlists, label: Tabs.PLAYLISTS }
+  { icon: <IconNote />, text: messages.tracks, label: SavedPageTabs.TRACKS },
+  { icon: <IconAlbum />, text: messages.albums, label: SavedPageTabs.ALBUMS },
+  {
+    icon: <IconPlaylists />,
+    text: messages.playlists,
+    label: SavedPageTabs.PLAYLISTS
+  }
 ]
 
 export type SavedPageProps = {

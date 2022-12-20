@@ -15,7 +15,17 @@ import {
   SmartCollection,
   SmartCollectionVariant,
   Status,
-  User
+  User,
+  formatSeconds,
+  cacheUsersSelectors,
+  profilePageActions,
+  CollectionTrack,
+  CollectionPageTrackRecord,
+  queueActions,
+  QueueSource,
+  collectibleDetailsUIActions,
+  shareModalUIActions,
+  playerSelectors
 } from '@audius/common'
 import cn from 'classnames'
 import { push } from 'connected-react-router'
@@ -23,20 +33,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { matchPath } from 'react-router-dom'
 
 import { useModalState } from 'common/hooks/useModalState'
-import { getUser } from 'common/store/cache/users/selectors'
-import {
-  CollectionTrack,
-  TrackRecord
-} from 'common/store/pages/collection/types'
-import { fetchProfile } from 'common/store/pages/profile/actions'
-import { add, clear, pause, play } from 'common/store/queue/slice'
-import { Source } from 'common/store/queue/types'
-import { setCollectible } from 'common/store/ui/collectible-details/slice'
-import { requestOpen as requestOpenShareModal } from 'common/store/ui/share-modal/slice'
-import { formatSeconds } from 'common/utils/timeUtil'
-import TablePlayButton from 'components/tracks-table/TablePlayButton'
-import { AUDIO_NFT_PLAYLIST } from 'pages/smart-collection/smartCollections'
-import { getPlaying, makeGetCurrent } from 'store/player/selectors'
+import { AUDIO_NFT_PLAYLIST } from 'common/store/smart-collection/smartCollections'
+import { TablePlayButton } from 'components/table/components/TablePlayButton'
 import { getLocationPathname } from 'store/routing/selectors'
 import { AppState } from 'store/types'
 import { getHash, AUDIO_NFT_PLAYLIST_PAGE, profilePage } from 'utils/route'
@@ -45,6 +43,12 @@ import { CollectionPageProps as DesktopCollectionPageProps } from '../collection
 import { CollectionPageProps as MobileCollectionPageProps } from '../collection-page/components/mobile/CollectionPage'
 
 import styles from './CollectiblesPlaylistPage.module.css'
+const { getPlaying, makeGetCurrent } = playerSelectors
+const { requestOpen: requestOpenShareModal } = shareModalUIActions
+const { setCollectible } = collectibleDetailsUIActions
+const { add, clear, pause, play } = queueActions
+const { fetchProfile } = profilePageActions
+const { getUser } = cacheUsersSelectors
 
 declare global {
   interface HTMLMediaElement {
@@ -261,7 +265,7 @@ export const CollectiblesPlaylistPageProvider = ({
       artistId: user?.user_id,
       collectible,
       title: collectible.name,
-      source: Source.COLLECTIBLE_PLAYLIST_TRACKS
+      source: QueueSource.COLLECTIBLE_PLAYLIST_TRACKS
     }))
 
   const onClickRow = (collectible: Collectible, index: number) => {
@@ -322,7 +326,7 @@ export const CollectiblesPlaylistPageProvider = ({
   }, [currentPlayerItem])
 
   const formatMetadata = useCallback(
-    (trackMetadatas: CollectionTrack[]): TrackRecord[] => {
+    (trackMetadatas: CollectionTrack[]): CollectionPageTrackRecord[] => {
       return trackMetadatas.map((metadata, i) => ({
         ...metadata,
         ...metadata.collectible,

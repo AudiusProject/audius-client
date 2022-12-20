@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 
+import { imageBlank as placeholderArt } from '@audius/common'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 
-import placeholderArt from 'common/assets/img/imageBlank2x.png'
 import ImageSelectionButton from 'components/image-selection/ImageSelectionButton'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Toast from 'components/toast/Toast'
@@ -51,24 +51,24 @@ const UploadArtwork = (props) => {
         {processing ? <LoadingSpinner className={styles.overlay} /> : null}
       </div>
       <div className={styles.button}>
-        <ImageSelectionButton
-          imageName={messages.imageName}
-          hasImage={!!props.artworkUrl}
-          error={props.imageProcessingError}
-          onOpenPopup={props.onOpenPopup}
-          onClosePopup={props.onClosePopup}
-          onSelect={onDrop}
-          source='UploadArtwork'
-        />
-      </div>
-      <div className={styles.toast}>
         <Toast
           text='No artwork? Pick from our library instead!'
-          placement='bottom'
+          placement='top'
           fireOnClick={false}
+          fillParent={false}
           mount='parent'
           open={showTip}
-        />
+        >
+          <ImageSelectionButton
+            imageName={messages.imageName}
+            hasImage={!!props.artworkUrl}
+            error={props.imageProcessingError}
+            onOpenPopup={props.onOpenPopup}
+            onClosePopup={props.onClosePopup}
+            onSelect={onDrop}
+            source='UploadArtwork'
+          />
+        </Toast>
       </div>
     </div>
   )

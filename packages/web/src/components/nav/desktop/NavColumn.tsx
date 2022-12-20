@@ -1,4 +1,10 @@
-import { MouseEvent, useCallback, useRef, useState } from 'react'
+import {
+  MouseEvent,
+  useCallback,
+  useRef,
+  useState,
+  MouseEventHandler
+} from 'react'
 
 import {
   CreatePlaylistSource,
@@ -7,7 +13,21 @@ import {
   SquareSizes,
   PlaylistLibrary as PlaylistLibraryType,
   Status,
-  FeatureFlags
+  accountSelectors,
+  averageColorSelectors,
+  cacheCollectionsActions,
+  notificationsSelectors,
+  notificationsActions,
+  collectionsSocialActions,
+  tracksSocialActions,
+  createPlaylistModalUISelectors,
+  createPlaylistModalUIActions as createPlaylistModalActions,
+  imageProfilePicEmpty,
+  playerSelectors,
+  queueSelectors,
+  playlistLibraryActions,
+  playlistLibraryHelpers,
+  uploadActions
 } from '@audius/common'
 import { Scrollbar } from '@audius/stems'
 import { ResizeObserver } from '@juggle/resize-observer'
@@ -23,38 +43,10 @@ import {
 import useMeasure from 'react-use-measure'
 import { Dispatch } from 'redux'
 
-import imageProfilePicEmpty from 'common/assets/img/imageProfilePicEmpty2X.png'
-import {
-  getAccountStatus,
-  getAccountUser,
-  getPlaylistLibrary
-} from 'common/store/account/selectors'
-import { getDominantColorsByTrack } from 'common/store/average-color/slice'
-import {
-  addTrackToPlaylist,
-  createPlaylist
-} from 'common/store/cache/collections/actions'
-import {
-  toggleNotificationPanel,
-  updatePlaylistLastViewedAt
-} from 'common/store/notifications/actions'
-import {
-  getNotificationPanelIsOpen,
-  getNotificationUnviewedCount
-} from 'common/store/notifications/selectors'
-import {
-  addFolderToLibrary,
-  constructPlaylistFolder
-} from 'common/store/playlist-library/helpers'
-import { makeGetCurrent } from 'common/store/queue/selectors'
-import { saveCollection } from 'common/store/social/collections/actions'
-import { saveTrack } from 'common/store/social/tracks/actions'
-import * as createPlaylistModalActions from 'common/store/ui/createPlaylistModal/actions'
-import {
-  getHideFolderTab,
-  getIsOpen
-} from 'common/store/ui/createPlaylistModal/selectors'
+import { make, useRecord } from 'common/store/analytics/actions'
+import * as signOnActions from 'common/store/pages/signon/actions'
 import CreatePlaylistModal from 'components/create-playlist/CreatePlaylistModal'
+import { PlaylistFormFields } from 'components/create-playlist/PlaylistForm'
 import { DragAutoscroller } from 'components/drag-autoscroller/DragAutoscroller'
 import Droppable from 'components/dragndrop/Droppable'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
@@ -65,16 +57,10 @@ import Pill from 'components/pill/Pill'
 import ConnectedProfileCompletionPane from 'components/profile-progress/ConnectedProfileCompletionPane'
 import Tooltip from 'components/tooltip/Tooltip'
 import UserBadges from 'components/user-badges/UserBadges'
-import { useFlag } from 'hooks/useRemoteConfig'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
-import * as signOnActions from 'pages/sign-on/store/actions'
-import { resetState as resetUploadState } from 'pages/upload-page/store/actions'
 import { NO_VISUALIZER_ROUTES } from 'pages/visualizer/Visualizer'
 import { openVisualizer } from 'pages/visualizer/store/slice'
-import { make, useRecord } from 'store/analytics/actions'
 import { getIsDragging } from 'store/dragndrop/selectors'
-import { makeGetCurrent as makeGetCurrentPlayer } from 'store/player/selectors'
-import { update as updatePlaylistLibrary } from 'store/playlist-library/slice'
 import { AppState } from 'store/types'
 import {
   DASHBOARD_PAGE,
@@ -88,15 +74,32 @@ import {
   TRENDING_PAGE,
   UPLOAD_PAGE
 } from 'utils/route'
+import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
 import NavAudio from './NavAudio'
 import styles from './NavColumn.module.css'
 import NavHeader from './NavHeader'
 import PlaylistLibrary from './PlaylistLibrary'
 
+const { resetState: resetUploadState } = uploadActions
+const { update: updatePlaylistLibrary } = playlistLibraryActions
+const { addFolderToLibrary, constructPlaylistFolder } = playlistLibraryHelpers
+const { makeGetCurrent } = queueSelectors
+const { makeGetCurrent: makeGetCurrentPlayer } = playerSelectors
+const { getHideFolderTab, getIsOpen } = createPlaylistModalUISelectors
+const { saveTrack } = tracksSocialActions
+const { saveCollection } = collectionsSocialActions
+const { toggleNotificationPanel, updatePlaylistLastViewedAt } =
+  notificationsActions
+const { addTrackToPlaylist, createPlaylist } = cacheCollectionsActions
+const { getNotificationPanelIsOpen, getNotificationUnviewedCount } =
+  notificationsSelectors
+const getDominantColorsByTrack = averageColorSelectors.getDominantColorsByTrack
+const { getAccountStatus, getAccountUser, getPlaylistLibrary } =
+  accountSelectors
+
 const messages = {
-  newPlaylistOrFolderTooltip: 'New Playlist or Folder',
-  newPlaylistTooltip: 'New Playlist'
+  newPlaylistOrFolderTooltip: 'New Playlist or Folder'
 }
 
 type OwnProps = {
@@ -145,21 +148,22 @@ const NavColumn = ({
     polyfill: ResizeObserver
   })
   const scrollbarRef = useRef<HTMLElement | null>(null)
-  const [dragScrollingDirection, setDragScrollingDirection] =
-    useState(undefined)
-  const handleChangeDragScrollingDirection = useCallback((newDirection) => {
-    setDragScrollingDirection(newDirection)
-  }, [])
+  const [dragScrollingDirection, setDragScrollingDirection] = useState<
+    'up' | 'down' | undefined
+  >(undefined)
+  const handleChangeDragScrollingDirection = useCallback(
+    (newDirection: 'up' | 'down' | undefined) => {
+      setDragScrollingDirection(newDirection)
+    },
+    []
+  )
 
   const goToSignUp = useCallback(
-    (source) => {
+    (source: string) => {
       routeToSignup()
       record(make(Name.CREATE_ACCOUNT_OPEN, { source }))
     },
     [record, routeToSignup]
-  )
-  const { isEnabled: isPlaylistFoldersEnabled } = useFlag(
-    FeatureFlags.PLAYLIST_FOLDERS
   )
 
   const onClickNavProfile = useCallback(() => goToSignIn(), [goToSignIn])
@@ -181,8 +185,8 @@ const NavColumn = ({
   }, [notificationPanelIsOpen, toggleNotificationPanel, record])
 
   const onCreatePlaylist = useCallback(
-    (metadata) => {
-      const tempId = `${Date.now()}`
+    (metadata: PlaylistFormFields) => {
+      const tempId = getTempPlaylistId()
       createPlaylist(tempId, metadata)
       closeCreatePlaylistModal()
       if (account) {
@@ -193,7 +197,7 @@ const NavColumn = ({
   )
 
   const onCreateFolder = useCallback(
-    (folderName) => {
+    (folderName: string) => {
       const newLibrary = addFolderToLibrary(
         library,
         constructPlaylistFolder(folderName)
@@ -235,7 +239,7 @@ const NavColumn = ({
     [account, goToSignUp, showActionRequiresAccount, updatePlaylistLastViewedAt]
   )
 
-  const updateScrollTopPosition = useCallback((difference) => {
+  const updateScrollTopPosition = useCallback((difference: number) => {
     if (scrollbarRef != null && scrollbarRef.current !== null) {
       scrollbarRef.current.scrollTop =
         scrollbarRef.current.scrollTop + difference
@@ -260,7 +264,7 @@ const NavColumn = ({
     if (route) goToRoute(route)
   }, [goToRoute, getTrackPageLink])
 
-  const onShowVisualizer = useCallback(
+  const onShowVisualizer: MouseEventHandler = useCallback(
     (e) => {
       if (NO_VISUALIZER_ROUTES.has(pathname)) return
       showVisualizer()
@@ -464,12 +468,10 @@ const NavColumn = ({
                     Playlists
                     <div className={styles.newPlaylist}>
                       <Tooltip
-                        text={
-                          isPlaylistFoldersEnabled
-                            ? messages.newPlaylistOrFolderTooltip
-                            : messages.newPlaylistTooltip
+                        text={messages.newPlaylistOrFolderTooltip}
+                        getPopupContainer={() =>
+                          scrollbarRef.current?.parentNode
                         }
-                        mount='parent'
                       >
                         <span>
                           <Pill
@@ -555,7 +557,7 @@ const mapStateToProps = (state: AppState) => {
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   resetUploadState: () => dispatch(resetUploadState()),
-  createPlaylist: (tempId: string, metadata: Record<string, unknown>) =>
+  createPlaylist: (tempId: number, metadata: Record<string, unknown>) =>
     dispatch(createPlaylist(tempId, metadata, CreatePlaylistSource.NAV)),
   goToRoute: (route: string) => dispatch(pushRoute(route)),
   saveTrack: (trackId: number) =>

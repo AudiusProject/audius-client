@@ -1,9 +1,12 @@
+import { accountSelectors } from '@audius/common'
 import { createSelector } from 'reselect'
 
-import { getAccountUser } from 'common/store/account/selectors'
 import { AppState } from 'store/types'
+const getAccountUser = accountSelectors.getAccountUser
 
 // Dashboard selectors
+export const getDashboardTracksStatus = (state: AppState) =>
+  state.dashboard.tracksStatus
 export const getDashboardStatus = (state: AppState) => state.dashboard.status
 export const getDashboardTracks = (state: AppState) => state.dashboard.tracks
 export const getUnlistedDashboardTracks = (state: AppState) =>

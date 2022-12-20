@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
 import type { User } from '@audius/common'
-import { View } from 'react-native'
+import { Platform, View } from 'react-native'
 
 import IconTip from 'app/assets/images/iconTip.svg'
 import { Text } from 'app/components/core'
@@ -15,6 +15,8 @@ import { NUM_FEED_TIPPERS_DISPLAYED } from './constants'
 
 const messages = {
   wasTippedBy: 'Was Tipped By',
+  // NOTE: Send tip -> Send $AUDIO change
+  receivedAudioFrom: 'Received $AUDIO From', // iOS only
   andOthers: (num: number) => `& ${num} ${num > 1 ? 'others' : 'other'}`
 }
 
@@ -53,7 +55,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     flexShrink: 1
   },
   pressedText: {
-    textDecorationLine: 'underline'
+    opacity: 0.2
   },
   andOthers: {
     marginLeft: spacing(1)
@@ -71,18 +73,20 @@ export const SenderDetails = ({ senders, receiver }: SenderDetailsProps) => {
   const navigation = useNavigation()
 
   const handlePressTippers = useCallback(() => {
-    navigation.push({
-      native: {
-        screen: 'TopSupporters',
-        params: { userId: receiver.user_id, source: 'feed' }
-      }
+    navigation.push('TopSupporters', {
+      userId: receiver.user_id,
+      source: 'feed'
     })
   }, [navigation, receiver])
 
   return (
     <View style={styles.wasTippedByContainer}>
       <IconTip fill={neutralLight4} height={16} width={16} />
-      <Text style={styles.wasTippedBy}>{messages.wasTippedBy}</Text>
+      <Text style={styles.wasTippedBy}>
+        {Platform.OS === 'ios'
+          ? messages.receivedAudioFrom
+          : messages.wasTippedBy}
+      </Text>
       <PressableText style={styles.tippers} onPress={handlePressTippers}>
         {({ pressed }) => {
           const textStyle = [styles.tipperText, pressed && styles.pressedText]

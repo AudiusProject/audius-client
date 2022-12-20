@@ -1,33 +1,29 @@
 import { useCallback } from 'react'
 
 import type { Collection } from '@audius/common'
-import { SquareSizes } from '@audius/common'
 import {
-  editPlaylist,
-  orderPlaylist,
-  removeTrackFromPlaylist
-} from 'common/store/cache/collections/actions'
-import { tracksActions } from 'common/store/pages/collection/lineup/actions'
-import {
-  getMetadata,
-  getTracks
-} from 'common/store/ui/createPlaylistModal/selectors'
+  cacheCollectionsActions,
+  collectionPageLineupActions as tracksActions,
+  createPlaylistModalUISelectors
+} from '@audius/common'
 import type { FormikProps } from 'formik'
 import { Formik } from 'formik'
 import { isEqual } from 'lodash'
 import { View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { FormScreen } from 'app/components/form-screen'
+import { useCollectionImage } from 'app/components/image/CollectionImage'
 import { TrackList } from 'app/components/track-list'
-import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 
 import { PlaylistDescriptionInput } from './PlaylistDescriptionInput'
 import { PlaylistImageInput } from './PlaylistImageInput'
 import { PlaylistNameInput } from './PlaylistNameInput'
 import type { PlaylistValues } from './types'
+const { getMetadata, getTracks } = createPlaylistModalUISelectors
+const { editPlaylist, orderPlaylist, removeTrackFromPlaylist } =
+  cacheCollectionsActions
 
 const useStyles = makeStyles(({ spacing }) => ({
   footer: {
@@ -107,39 +103,35 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
 }
 
 export const EditPlaylistScreen = () => {
-  const playlist = useSelectorWeb(getMetadata)
-  const dispatchWeb = useDispatchWeb()
-  const tracks = useSelectorWeb(getTracks)
+  const playlist = useSelector(getMetadata)
+  const dispatch = useDispatch()
+  const tracks = useSelector(getTracks)
 
-  const coverArt = useCollectionCoverArt({
-    id: playlist?.playlist_id,
-    sizes: playlist?._cover_art_sizes ?? null,
-    size: SquareSizes.SIZE_1000_BY_1000
-  })
+  const collectionImageSource = useCollectionImage(playlist)
 
   const handleSubmit = useCallback(
     (values: PlaylistValues) => {
       if (playlist) {
         values.removedTracks.forEach(({ trackId, timestamp }) => {
-          dispatchWeb(
+          dispatch(
             removeTrackFromPlaylist(trackId, playlist.playlist_id, timestamp)
           )
         })
         if (!isEqual(playlist?.playlist_contents.track_ids, values.track_ids)) {
-          dispatchWeb(
+          dispatch(
             orderPlaylist(
               playlist?.playlist_id,
               values.track_ids.map(({ track, time }) => ({ id: track, time }))
             )
           )
         }
-        dispatchWeb(
+        dispatch(
           editPlaylist(playlist.playlist_id, values as unknown as Collection)
         )
-        dispatchWeb(tracksActions.fetchLineupMetadatas())
+        dispatch(tracksActions.fetchLineupMetadatas())
       }
     },
-    [dispatchWeb, playlist]
+    [dispatch, playlist]
   )
 
   if (!playlist) return null
@@ -149,7 +141,7 @@ export const EditPlaylistScreen = () => {
   const initialValues = {
     playlist_name,
     description,
-    artwork: { url: coverArt ?? '' },
+    artwork: { url: collectionImageSource?.source[0].uri ?? '' },
     removedTracks: [],
     tracks,
     track_ids: playlist.playlist_contents.track_ids
