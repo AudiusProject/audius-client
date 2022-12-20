@@ -1,19 +1,20 @@
-import type { Track } from '@audius/common'
+import type { Track, UserTrackMetadata } from '@audius/common'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 
-export type OfflineDownloadsState = typeof initialState
+type LineupTrack = Track & UserTrackMetadata & { uid: string }
 
-type State = {
+export type OfflineDownloadsState = {
   downloadStatus: {
     [key: string]: OfflineTrackDownloadStatus
   }
   tracks: {
-    [key: string]: Track
+    [key: string]: LineupTrack
   }
   collections: {
     [key: string]: boolean
   }
+  isDoneLoadingFromDisk: boolean
 }
 
 export enum OfflineTrackDownloadStatus {
@@ -22,10 +23,11 @@ export enum OfflineTrackDownloadStatus {
   ERROR = 'ERROR'
 }
 
-const initialState: State = {
+const initialState: OfflineDownloadsState = {
   downloadStatus: {},
   tracks: {},
-  collections: {}
+  collections: {},
+  isDoneLoadingFromDisk: false
 }
 
 const slice = createSlice({
@@ -64,14 +66,14 @@ const slice = createSlice({
     ) => {
       state.collections[collectionId] = false
     },
-    loadTracks: (state, { payload: tracks }: PayloadAction<Track[]>) => {
+    loadTracks: (state, { payload: tracks }: PayloadAction<LineupTrack[]>) => {
       tracks.forEach((track) => {
         const trackIdStr = track.track_id.toString()
         state.tracks[trackIdStr] = track
         state.downloadStatus[trackIdStr] = OfflineTrackDownloadStatus.SUCCESS
       })
     },
-    loadTrack: (state, { payload: track }: PayloadAction<Track>) => {
+    loadTrack: (state, { payload: track }: PayloadAction<LineupTrack>) => {
       const trackIdStr = track.track_id.toString()
       state.tracks[trackIdStr] = track
       state.downloadStatus[trackIdStr] = OfflineTrackDownloadStatus.SUCCESS
@@ -79,6 +81,9 @@ const slice = createSlice({
     unloadTrack: (state, { payload: trackId }: PayloadAction<string>) => {
       delete state.tracks[trackId]
       delete state.downloadStatus[trackId]
+    },
+    doneLoadingFromDisk: (state) => {
+      state.isDoneLoadingFromDisk = true
     }
   }
 })
@@ -93,7 +98,8 @@ export const {
   removeCollection,
   loadTracks,
   loadTrack,
-  unloadTrack
+  unloadTrack,
+  doneLoadingFromDisk
 } = slice.actions
 
 export default slice.reducer

@@ -63,7 +63,7 @@ type PremiumConditionsEthNFTCollection = {
 
 type PremiumConditionsSolNFTCollection = {
   chain: Chain.Sol
-  name: string
+  address: string
 }
 
 export type PremiumConditions = {
@@ -116,6 +116,7 @@ export type TrackMetadata = {
   permalink: string
 
   // Optional Fields
+  is_playlist_upload?: boolean
   is_invalid?: boolean
   stem_of?: {
     parent_track_id: ID
@@ -130,9 +131,14 @@ export type TrackMetadata = {
   offline?: OfflineTrackMetadata
 } & Timestamped
 
+export type DownloadReason = {
+  is_from_favorites?: boolean
+  collection_id?: string
+}
+
 // This is available on mobile for offline tracks
 export type OfflineTrackMetadata = {
-  downloaded_from_collection: string[]
+  reasons_for_download: DownloadReason[]
   download_completed_time: EpochTimeStamp
   last_verified_time: EpochTimeStamp
 }

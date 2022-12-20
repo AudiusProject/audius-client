@@ -405,7 +405,10 @@ export function* handleUploads({
     const request = {
       id,
       track: value.track,
-      metadata: value.metadata,
+      metadata: {
+        is_playlist_upload: isCollection,
+        ...value.metadata
+      },
       index: value.index,
       artwork: isCollection ? null : value.artwork,
       isCollection,
@@ -707,7 +710,6 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
         const { blockHash, blockNumber, playlistId, error } = yield call(
           audiusBackendInstance.createPlaylist,
           tempPlaylistId,
-          userId,
           collectionMetadata,
           isAlbum,
           trackIds,

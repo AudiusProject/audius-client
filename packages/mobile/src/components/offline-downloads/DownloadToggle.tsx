@@ -1,11 +1,14 @@
 import { useCallback, useMemo } from 'react'
 
+import type { DownloadReason } from '@audius/common'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import { Switch, Text } from 'app/components/core'
 import {
-  downloadCollection,
+  batchDownloadTrack,
+  downloadCollectionById,
+  DOWNLOAD_REASON_FAVORITES,
   removeCollectionDownload
 } from 'app/services/offline-downloader'
 import {
@@ -17,10 +20,16 @@ import { makeStyles } from 'app/styles'
 
 import { DownloadStatusIndicator } from './DownloadStatusIndicator'
 
+export type TrackForDownload = {
+  trackId: number
+  downloadReason: DownloadReason
+}
+
 type DownloadToggleProps = {
-  collection?: string
+  tracksForDownload: TrackForDownload[]
   labelText?: string
-  trackIds: number[]
+  collectionId?: number
+  isFavoritesDownload?: boolean
 }
 
 const messages = {
@@ -79,37 +88,43 @@ const useStyles = makeStyles<{ labelText?: string }>(
 )
 
 export const DownloadToggle = ({
-  trackIds,
-  collection,
-  labelText
+  tracksForDownload,
+  collectionId,
+  labelText,
+  isFavoritesDownload
 }: DownloadToggleProps) => {
   const styles = useStyles({ labelText })
+  const collectionIdStr = isFavoritesDownload
+    ? DOWNLOAD_REASON_FAVORITES
+    : collectionId?.toString()
 
   const offlineDownloadStatus = useSelector(getOfflineDownloadStatus)
   const isAnyDownloadInProgress = useMemo(
     () =>
-      trackIds.some((trackId: number) => {
+      tracksForDownload.some(({ trackId }) => {
         const status = offlineDownloadStatus[trackId.toString()]
         return status === OfflineDownloadStatus.LOADING
       }),
-    [offlineDownloadStatus, trackIds]
+    [offlineDownloadStatus, tracksForDownload]
   )
   const isCollectionMarkedForDownload = useSelector(
-    getIsCollectionMarkedForDownload(collection)
+    getIsCollectionMarkedForDownload(collectionIdStr)
   )
   const handleToggleDownload = useCallback(
     (isDownloadEnabled: boolean) => {
-      if (!collection) return
+      if (!collectionId && !isFavoritesDownload) return
       if (isDownloadEnabled) {
-        downloadCollection(collection, trackIds)
+        downloadCollectionById(collectionId, isFavoritesDownload)
+        batchDownloadTrack(tracksForDownload)
       } else {
-        removeCollectionDownload(collection, trackIds)
+        collectionIdStr &&
+          removeCollectionDownload(collectionIdStr, tracksForDownload)
       }
     },
-    [collection, trackIds]
+    [collectionId, collectionIdStr, isFavoritesDownload, tracksForDownload]
   )
 
-  if (!collection) return null
+  if (!collectionId && !isFavoritesDownload) return null
   return (
     <View style={styles.root}>
       {labelText && <View style={styles.flex1} />}

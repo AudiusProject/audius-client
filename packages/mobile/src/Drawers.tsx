@@ -17,7 +17,6 @@ import { EditCollectiblesDrawer } from 'app/components/edit-collectibles-drawer'
 import { EnablePushNotificationsDrawer } from 'app/components/enable-push-notifications-drawer'
 import { FeedFilterDrawer } from 'app/components/feed-filter-drawer'
 import { ForgotPasswordDrawer } from 'app/components/forgot-password-drawer'
-import { MobileUploadDrawer } from 'app/components/mobile-upload-drawer'
 import { OverflowMenuDrawer } from 'app/components/overflow-menu-drawer'
 import { ShareDrawer } from 'app/components/share-drawer'
 import { ShareToTikTokDrawer } from 'app/components/share-to-tiktok-drawer'
@@ -26,7 +25,6 @@ import { TransferAudioMobileDrawer } from 'app/components/transfer-audio-mobile-
 import { TrendingRewardsDrawer } from 'app/components/trending-rewards-drawer'
 import { TrendingFilterDrawer } from 'app/screens/trending-screen'
 
-import { ConfirmRemoveWalletDrawer } from './components/confirm-remove-wallet-drawer'
 import { useDrawerState } from './components/drawer'
 import { DeleteConfirmationDrawer } from './components/drawers/DeleteConfirmationDrawer'
 import { ShareToStoryProgressDrawer } from './components/share-drawer/useShareToStory'
@@ -84,7 +82,6 @@ const commonDrawersMap: { [Modal in Modals]?: ComponentType } = {
   Cognito: CognitoDrawer,
   FeedFilter: FeedFilterDrawer,
   TrendingGenreSelection: TrendingFilterDrawer,
-  MobileUpload: MobileUploadDrawer,
   Overflow: OverflowMenuDrawer,
   SignOutConfirmation: SignOutConfirmationDrawer,
   AddToPlaylist: AddToPlaylistDrawer,
@@ -98,7 +95,6 @@ const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
   DownloadTrackProgress: DownloadTrackProgressDrawer,
   ForgotPassword: ForgotPasswordDrawer,
   DeleteConfirmation: DeleteConfirmationDrawer,
-  ConfirmRemoveWallet: ConfirmRemoveWalletDrawer,
   ShareToStoryProgress: ShareToStoryProgressDrawer
 }
 

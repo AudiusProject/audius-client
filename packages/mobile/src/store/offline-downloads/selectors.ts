@@ -1,5 +1,7 @@
 import type { AppState } from 'app/store'
 
+import type { OfflineDownloadsState } from './slice'
+
 export const getOfflineDownloadStatus = (state: AppState) =>
   state.offlineDownloads.downloadStatus
 
@@ -11,5 +13,13 @@ export const getIsCollectionMarkedForDownload =
   (collection?: string) => (state: AppState) =>
     !!(collection && state.offlineDownloads.collections[collection])
 
-export const getOfflineTracks = (state: AppState) =>
-  state.offlineDownloads.tracks
+export const getOfflineTracks = (
+  state: AppState
+): OfflineDownloadsState['tracks'] => state.offlineDownloads.tracks
+
+export const getOfflineCollections = (
+  state: AppState
+): OfflineDownloadsState['collections'] => state.offlineDownloads.collections
+
+export const getIsDoneLoadingFromDisk = (state: AppState): boolean =>
+  state.offlineDownloads.isDoneLoadingFromDisk
