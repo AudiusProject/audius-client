@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import type { DownloadReason } from '@audius/common'
 import { View } from 'react-native'
@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux'
 import { Switch, Text } from 'app/components/core'
 import {
   batchDownloadTrack,
+  cancelQueuedDownloads,
   downloadCollectionById,
   DOWNLOAD_REASON_FAVORITES,
   removeCollectionDownload
@@ -28,7 +29,7 @@ export type TrackForDownload = {
 type DownloadToggleProps = {
   tracksForDownload: TrackForDownload[]
   labelText?: string
-  collectionId?: number
+  collectionId?: number | null
   isFavoritesDownload?: boolean
 }
 
@@ -94,6 +95,7 @@ export const DownloadToggle = ({
   isFavoritesDownload
 }: DownloadToggleProps) => {
   const styles = useStyles({ labelText })
+  const [disabled, setDisabled] = useState(false)
   const collectionIdStr = isFavoritesDownload
     ? DOWNLOAD_REASON_FAVORITES
     : collectionId?.toString()
@@ -117,14 +119,16 @@ export const DownloadToggle = ({
         downloadCollectionById(collectionId, isFavoritesDownload)
         batchDownloadTrack(tracksForDownload)
       } else {
-        collectionIdStr &&
-          removeCollectionDownload(collectionIdStr, tracksForDownload)
+        if (!collectionIdStr) return
+        cancelQueuedDownloads(tracksForDownload)
+        removeCollectionDownload(collectionIdStr, tracksForDownload)
       }
+      setDisabled(true)
+      setTimeout(() => setDisabled(false), 1000)
     },
     [collectionId, collectionIdStr, isFavoritesDownload, tracksForDownload]
   )
 
-  if (!collectionId && !isFavoritesDownload) return null
   return (
     <View style={styles.root}>
       {labelText && <View style={styles.flex1} />}
@@ -154,7 +158,7 @@ export const DownloadToggle = ({
         <Switch
           value={isCollectionMarkedForDownload}
           onValueChange={handleToggleDownload}
-          disabled={isAnyDownloadInProgress}
+          disabled={!collectionId || disabled}
         />
       </View>
     </View>
