@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Switch, Text } from 'app/components/core'
 import {
   batchDownloadTrack,
-  cancelQueuedDownloads,
   downloadCollectionById,
   DOWNLOAD_REASON_FAVORITES
 } from 'app/services/offline-downloader'
