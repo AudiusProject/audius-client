@@ -28,6 +28,7 @@ import {
   getOfflineCollections,
   getTrackJson,
   listTracks,
+  purgeDownloadedCollection,
   verifyTrack
 } from '../services/offline-downloader/offline-storage'
 
@@ -67,6 +68,7 @@ export const useLoadOfflineTracks = () => {
         }
       } catch (e) {
         console.warn('Failed to load offline collection', collectionId)
+        purgeDownloadedCollection(collectionId)
       }
     }
     dispatch(cacheActions.add(Kind.COLLECTIONS, cacheCollections, false, true))
