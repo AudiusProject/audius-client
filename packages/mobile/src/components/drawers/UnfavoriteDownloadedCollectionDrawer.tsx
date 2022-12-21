@@ -11,8 +11,10 @@ import { ConfirmationDrawer } from './ConfirmationDrawer'
 
 const messages = {
   header: 'Are You Sure?',
-  description:
-    'Unfavoriting this playlist will also remove it from your device',
+  description: (isAlbum: boolean) =>
+    `Unfavoriting this ${
+      isAlbum ? 'album' : 'playlist'
+    } will also remove it from your device`,
   confirm: 'Unfavorite and Remove'
 }
 
@@ -24,6 +26,10 @@ export const UnfavoriteDownloadedCollectionDrawer = () => {
   const dispatch = useDispatch()
   const { collectionId } = data
   const collectionIdStr = collectionId.toString()
+  const isAlbum = useSelector(
+    (state: CommonState) =>
+      state.collections.entries[collectionId]?.metadata.is_album
+  )
 
   const tracksForDownload = useSelector((state: CommonState) => {
     const collection = state.collections.entries[collectionId]
@@ -45,12 +51,12 @@ export const UnfavoriteDownloadedCollectionDrawer = () => {
   const handleConfirm = useCallback(() => {
     dispatch(unsaveCollection(collectionId, FavoriteSource.COLLECTION_PAGE))
     removeCollectionDownload(collectionIdStr, tracksForDownload)
-  }, [collectionId, tracksForDownload, dispatch])
+  }, [collectionId, collectionIdStr, tracksForDownload, dispatch])
 
   return (
     <ConfirmationDrawer
       drawerName={drawerName}
-      messages={messages}
+      messages={{ ...messages, description: messages.description(isAlbum) }}
       onConfirm={handleConfirm}
     />
   )
