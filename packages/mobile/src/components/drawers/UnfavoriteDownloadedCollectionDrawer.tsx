@@ -37,15 +37,22 @@ export const UnfavoriteDownloadedCollectionDrawer = () => {
     const { tracks } = collection.metadata
     if (!tracks) return []
 
-    const downloadReason = {
-      is_from_favorites: false,
-      collection_id: collectionIdStr
-    }
-
-    return tracks.map(({ track_id }) => ({
-      trackId: track_id,
-      downloadReason
-    }))
+    return tracks.flatMap(({ track_id }) => [
+      {
+        trackId: track_id,
+        downloadReason: {
+          is_from_favorites: false,
+          collection_id: collectionIdStr
+        }
+      },
+      {
+        trackId: track_id,
+        downloadReason: {
+          is_from_favorites: false,
+          collection_id: collectionIdStr
+        }
+      }
+    ])
   })
 
   const handleConfirm = useCallback(() => {
