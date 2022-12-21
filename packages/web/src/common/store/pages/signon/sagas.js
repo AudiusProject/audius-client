@@ -216,7 +216,7 @@ function* validateHandle(action) {
         call(audiusBackendInstance.twitterHandle, handle),
         call(audiusBackendInstance.instagramHandle, handle),
         remoteConfigInstance.getFeatureEnabled(
-          FeatureFlags.COMPLETE_PROFILE_WITH_TIKTOK
+          FeatureFlags.VERIFY_HANDLE_WITH_TIKTOK
         )
           ? call(audiusBackendInstance.tiktokHandle, handle)
           : null
