@@ -9,12 +9,14 @@ import type {
   UserTrackMetadata
 } from '@audius/common'
 import {
+  FavoriteSource,
   cacheCollectionsSelectors,
   Kind,
   makeUid,
   encodeHashId,
   accountSelectors,
-  cacheUsersSelectors
+  cacheUsersSelectors,
+  collectionsSocialActions
 } from '@audius/common'
 import { uniq, isEqual } from 'lodash'
 import RNFS, { exists } from 'react-native-fs'
@@ -48,6 +50,8 @@ import {
   purgeDownloadedCollection,
   getLocalCollectionCoverArtDestination
 } from './offline-storage'
+
+const { saveCollection } = collectionsSocialActions
 const { getUserId } = accountSelectors
 const { getCollection } = cacheCollectionsSelectors
 const { getUserFromCollection } = cacheUsersSelectors
@@ -97,6 +101,9 @@ export const downloadCollection = async (
     })
   } else {
     if (!collection || !user) return
+    store.dispatch(
+      saveCollection(collection.playlist_id, FavoriteSource.OFFLINE_DOWNLOAD)
+    )
     collection = await populateCoverArtSizes({
       ...collection,
       user
