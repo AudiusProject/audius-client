@@ -34,7 +34,10 @@ import { populateCoverArtSizes } from 'app/utils/populateCoverArtSizes'
 
 import { apiClient } from '../audius-api-client'
 
-import { enqueueTrackDownload } from './offline-download-queue'
+import {
+  cancelQueuedDownloads,
+  enqueueTrackDownload
+} from './offline-download-queue'
 import {
   getLocalAudioPath,
   getLocalTrackCoverArtDestination,
@@ -207,6 +210,7 @@ export const removeCollectionDownload = async (
 export const batchRemoveTrackDownload = async (
   tracksForDownload: TrackForDownload[]
 ) => {
+  cancelQueuedDownloads(tracksForDownload)
   tracksForDownload.forEach(async ({ trackId, downloadReason }) => {
     try {
       const trackIdStr = trackId.toString()
