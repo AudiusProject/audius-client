@@ -115,7 +115,7 @@ const dateAndMetadataBlocks = (transactionDetails: TransactionDetails) => {
             className={styles.header}
             header={messages.challengeRewardHeader}
           >
-            <div>{challengeConfig.icon}</div>
+            <div className={styles.challengeIcon}>{challengeConfig.icon}</div>
             {challengeConfig.title}
           </Block>
           <Block header={messages.dateEarned}>{transactionDetails.date}</Block>
@@ -193,7 +193,9 @@ export const TransactionDetailsContent = ({
   return (
     <>
       {isLoading ? (
-        <LoadingSpinner className={styles.spinner} />
+        <div className={styles.spinnerContainer}>
+          <LoadingSpinner className={styles.spinner} />
+        </div>
       ) : (
         <BlockContainer>
           <div className={styles.flexHorizontal}>
