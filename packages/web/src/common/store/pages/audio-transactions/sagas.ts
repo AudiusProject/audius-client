@@ -109,7 +109,10 @@ function* fetchAudioTransactionsAsync() {
       ])
       const sdk = yield* call(audiusSdk)
       const response = yield* call(
-        [sdk, sdk.full.transactions.getAudioTransactionHistory],
+        [
+          sdk.full.transactions,
+          sdk.full.transactions.getAudioTransactionHistory
+        ],
         {
           encodedDataMessage: data,
           encodedDataSignature: signature,
@@ -177,7 +180,10 @@ function* fetchTransactionsCount() {
     ])
     const sdk = yield* call(audiusSdk)
     const response = yield* call(
-      [sdk, sdk.full.transactions.getAudioTransactionHistoryCount],
+      [
+        sdk.full.transactions,
+        sdk.full.transactions.getAudioTransactionHistoryCount
+      ],
       {
         encodedDataMessage: data,
         encodedDataSignature: signature
