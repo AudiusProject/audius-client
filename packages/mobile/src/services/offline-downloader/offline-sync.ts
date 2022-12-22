@@ -10,11 +10,11 @@ import {
   accountSelectors,
   cacheTracksSelectors
 } from '@audius/common'
-import { fetchAllFavoritedTracks } from 'app/hooks/useFetchAllFavoritedTracks'
 import moment from 'moment'
 import queue from 'react-native-job-queue'
 
 import type { TrackForDownload } from 'app/components/offline-downloads'
+import { fetchAllFavoritedTracks } from 'app/hooks/useFetchAllFavoritedTracks'
 import { store } from 'app/store'
 import { getOfflineCollections } from 'app/store/offline-downloads/selectors'
 import { populateCoverArtSizes } from 'app/utils/populateCoverArtSizes'

@@ -3,7 +3,6 @@ import path from 'path'
 import type {
   Collection,
   CommonState,
-  DownloadReason,
   Track,
   UserMetadata,
   UserTrackMetadata
@@ -43,7 +42,6 @@ import {
 import {
   getLocalAudioPath,
   getLocalTrackCoverArtDestination,
-  getLocalTrackJsonPath,
   purgeDownloadedTrack,
   getTrackJson,
   verifyTrack,
