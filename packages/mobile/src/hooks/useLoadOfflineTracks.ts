@@ -4,16 +4,15 @@ import type {
   CollectionMetadata,
   Track,
   UserMetadata,
-  UserTrackMetadata
+  lineupActions
 } from '@audius/common'
 import {
   Kind,
   makeUid,
   cacheActions,
+  cacheCollectionsSelectors,
   reachabilitySelectors
 } from '@audius/common'
-import { getCollection } from '@audius/common/dist/store/cache/collections/selectors'
-import type { LineupActions } from '@audius/common/dist/store/lineup/actions'
 import { useDispatch, useSelector } from 'react-redux'
 import { useAsync } from 'react-use'
 
@@ -35,6 +34,7 @@ import {
 } from '../services/offline-downloader/offline-storage'
 
 import { useIsOfflineModeEnabled } from './useIsOfflineModeEnabled'
+const { getCollection } = cacheCollectionsSelectors
 const { getIsReachable } = reachabilitySelectors
 
 export const useLoadOfflineTracks = () => {
@@ -131,7 +131,7 @@ export const useLoadOfflineTracks = () => {
 export const useOfflineCollectionLineup = (
   collectionId: typeof DOWNLOAD_REASON_FAVORITES | number | null,
   fetchOnlineContent: () => void,
-  lineupActions: LineupActions
+  lineupActions: lineupActions.LineupActions
 ) => {
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const isReachable = useSelector(getIsReachable)
