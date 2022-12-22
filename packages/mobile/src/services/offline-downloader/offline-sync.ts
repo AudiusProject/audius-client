@@ -10,11 +10,11 @@ import {
   accountSelectors,
   cacheTracksSelectors
 } from '@audius/common'
+import { fetchAllFavoritedTracks } from 'app/hooks/useFetchAllFavoritedTracks'
 import moment from 'moment'
 import queue from 'react-native-job-queue'
 
 import type { TrackForDownload } from 'app/components/offline-downloads'
-import { fetchAllFavoritedTrackIds } from 'app/hooks/useFetchAllFavoritedTrackIds'
 import { store } from 'app/store'
 import { getOfflineCollections } from 'app/store/offline-downloads/selectors'
 import { populateCoverArtSizes } from 'app/utils/populateCoverArtSizes'
@@ -80,7 +80,7 @@ const syncFavorites = async () => {
   const currentUserId = getUserId(state as unknown as CommonState)
   if (!currentUserId) return
 
-  const favoritedTrackIds = await fetchAllFavoritedTrackIds(currentUserId)
+  const favoritedTracks = await fetchAllFavoritedTracks(currentUserId)
   const cacheTracks = getTracks(state, {})
 
   const isTrackFavoriteReason = (downloadReason: DownloadReason) =>
@@ -99,15 +99,15 @@ const syncFavorites = async () => {
     .map(([id, track]) => track.track_id)
 
   const oldTrackIds = new Set([...queuedTracks, ...cachedFavoritedTrackIds])
-  const newTrackIds = new Set(favoritedTrackIds.map(({ trackId }) => trackId))
-  const addedTrackIds = [...favoritedTrackIds].filter(
+  const newTrackIds = new Set(favoritedTracks.map(({ trackId }) => trackId))
+  const addedTracks = [...favoritedTracks].filter(
     ({ trackId }) => !oldTrackIds.has(trackId)
   )
   const removedTrackIds = [...oldTrackIds].filter(
     (trackId) => !newTrackIds.has(trackId)
   )
 
-  const tracksForDownload: TrackForDownload[] = addedTrackIds.map(
+  const tracksForDownload: TrackForDownload[] = addedTracks.map(
     (addedTrack) => ({
       trackId: addedTrack.trackId,
       downloadReason: {

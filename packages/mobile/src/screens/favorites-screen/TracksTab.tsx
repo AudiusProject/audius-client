@@ -76,8 +76,7 @@ export const TracksTab = () => {
   useOfflineCollectionLineup(
     DOWNLOAD_REASON_FAVORITES,
     handleFetchSaves,
-    tracksActions,
-    isReachable
+    tracksActions
   )
 
   const [filterValue, setFilterValue] = useState('')

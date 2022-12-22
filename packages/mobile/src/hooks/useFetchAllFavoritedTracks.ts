@@ -9,9 +9,8 @@ import { useIsOfflineModeEnabled } from './useIsOfflineModeEnabled'
 
 const { getUserId } = accountSelectors
 
-export const fetchAllFavoritedTrackIds = async (currentUserId: number) => {
-  let tracksAndTimestamps: Array<{ trackId: ID; favoriteCreatedAt: string }> =
-    []
+export const fetchAllFavoritedTracks = async (currentUserId: number) => {
+  let tracksAndTimestamps: { trackId: ID; favoriteCreatedAt: string }[] = []
   let loadMore = true
   let offset = 0
   // TODO: store results in state to avoid duplicate fetching
@@ -42,11 +41,11 @@ export const fetchAllFavoritedTrackIds = async (currentUserId: number) => {
   return tracksAndTimestamps
 }
 
-export const useFetchAllFavoritedTrackIds = () => {
+export const useFetchAllFavoritedTracks = () => {
   const currentUserId = useSelector(getUserId)
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
   return useAsync(async () => {
     if (!isOfflineModeEnabled || !currentUserId) return
-    return fetchAllFavoritedTrackIds(currentUserId)
+    return fetchAllFavoritedTracks(currentUserId)
   }, [currentUserId])
 }

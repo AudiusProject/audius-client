@@ -4,7 +4,8 @@ import type {
   CollectionMetadata,
   Track,
   UserMetadata,
-  lineupActions
+  lineupActions,
+  UserTrackMetadata
 } from '@audius/common'
 import {
   Kind,
@@ -13,6 +14,7 @@ import {
   cacheCollectionsSelectors,
   reachabilitySelectors
 } from '@audius/common'
+import { orderBy } from 'lodash'
 import { useDispatch, useSelector } from 'react-redux'
 import { useAsync } from 'react-use'
 
@@ -165,17 +167,11 @@ export const useOfflineCollectionLineup = (
 
       if (collectionId === DOWNLOAD_REASON_FAVORITES) {
         // Reorder lineup tracks accorinding to favorite time
-        const sortedTracks = lineupTracks.sort((a, b) => {
-          const bTime = b.offline?.favorite_created_at
-          const aTime = a.offline?.favorite_created_at
-          if (aTime && bTime) {
-            if (aTime > bTime) {
-              return -1
-            }
-            return 1
-          }
-          return 0
-        })
+        const sortedTracks = orderBy(
+          lineupTracks,
+          (track) => track.offline?.favorite_created_at,
+          ['desc']
+        )
         dispatch(
           lineupActions.fetchLineupMetadatasSucceeded(
             sortedTracks,
@@ -218,6 +214,7 @@ export const useOfflineCollectionLineup = (
   useEffect(() => {
     if (isReachable && hasGoneOffline) {
       fetchOnlineContent()
+      setHasGoneOffline(false)
     }
   }, [dispatch, isReachable, hasGoneOffline, fetchOnlineContent])
 }

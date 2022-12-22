@@ -124,12 +124,7 @@ export const CollectionScreenDetailsTile = ({
   }, [dispatch, handleFetchLineup])
 
   useFocusEffect(handleFetchCollectionLineup)
-  useOfflineCollectionLineup(
-    collectionId,
-    handleFetchLineup,
-    tracksActions,
-    isReachable
-  )
+  useOfflineCollectionLineup(collectionId, handleFetchLineup, tracksActions)
 
   const duration = entries?.reduce(
     (duration, entry) => duration + entry.duration,
