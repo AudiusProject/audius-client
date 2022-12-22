@@ -99,9 +99,9 @@ const syncFavorites = async () => {
     .map(([id, track]) => track.track_id)
 
   const oldTrackIds = new Set([...queuedTracks, ...cachedFavoritedTrackIds])
-  const newTrackIds = new Set(favoritedTrackIds)
-  const addedTrackIds = [...newTrackIds].filter(
-    (trackId) => !oldTrackIds.has(trackId)
+  const newTrackIds = new Set(favoritedTrackIds.map(({ trackId }) => trackId))
+  const addedTrackIds = [...favoritedTrackIds].filter(
+    ({ trackId }) => !oldTrackIds.has(trackId)
   )
   const removedTrackIds = [...oldTrackIds].filter(
     (trackId) => !newTrackIds.has(trackId)
@@ -109,11 +109,12 @@ const syncFavorites = async () => {
 
   const tracksForDownload: TrackForDownload[] = addedTrackIds.map(
     (addedTrack) => ({
-      trackId: addedTrack,
+      trackId: addedTrack.trackId,
       downloadReason: {
         is_from_favorites: true,
         collection_id: DOWNLOAD_REASON_FAVORITES
-      }
+      },
+      favoriteCreatedAt: addedTrack.favoriteCreatedAt
     })
   )
   batchDownloadTrack(tracksForDownload)
@@ -242,14 +243,16 @@ const syncStaleTracks = () => {
     }
 
     // TODO: re-download the mp3 if it's changed
-    writeTrackJson(updatedTrack.track_id.toString(), {
+    const trackToWrite = {
       ...updatedTrack,
       offline: {
         download_completed_time:
           staleTrack.offline?.download_completed_time ?? Date.now(),
         reasons_for_download: staleTrack.offline?.reasons_for_download ?? [],
-        last_verified_time: Date.now()
+        last_verified_time: Date.now(),
+        favorite_created_at: staleTrack.offline?.favorite_created_at
       }
-    })
+    }
+    writeTrackJson(updatedTrack.track_id.toString(), trackToWrite)
   })
 }

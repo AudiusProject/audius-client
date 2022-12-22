@@ -1,4 +1,4 @@
-import type { APIFavorite } from '@audius/common'
+import type { APIFavorite, ID } from '@audius/common'
 import { decodeHashId, encodeHashId, accountSelectors } from '@audius/common'
 import { useSelector } from 'react-redux'
 import { useAsync } from 'react-use'
@@ -10,7 +10,8 @@ import { useIsOfflineModeEnabled } from './useIsOfflineModeEnabled'
 const { getUserId } = accountSelectors
 
 export const fetchAllFavoritedTrackIds = async (currentUserId: number) => {
-  let trackIds: number[] = []
+  let tracksAndTimestamps: Array<{ trackId: ID; favoriteCreatedAt: string }> =
+    []
   let loadMore = true
   let offset = 0
   // TODO: store results in state to avoid duplicate fetching
@@ -29,15 +30,16 @@ export const fetchAllFavoritedTrackIds = async (currentUserId: number) => {
 
     loadMore = result.length > 0
     offset += result.length
-    trackIds = trackIds.concat(
+    tracksAndTimestamps = tracksAndTimestamps.concat(
       result
         .filter((trackSave) => trackSave.favorite_type === 'SaveType.track')
-        .map((trackSave: APIFavorite) =>
-          decodeHashId(trackSave.favorite_item_id)
-        )
+        .map((trackSave: APIFavorite) => ({
+          trackId: decodeHashId(trackSave.favorite_item_id),
+          favoriteCreatedAt: trackSave.created_at
+        }))
     )
   }
-  return trackIds
+  return tracksAndTimestamps
 }
 
 export const useFetchAllFavoritedTrackIds = () => {

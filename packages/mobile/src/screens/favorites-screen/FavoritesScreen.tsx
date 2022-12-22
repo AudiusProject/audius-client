@@ -65,11 +65,12 @@ export const FavoritesScreen = () => {
   const tracksForDownload: TrackForDownload[] = useMemo(() => {
     const trackFavoritesToDownload: TrackForDownload[] = (
       allFavoritedTrackIds ?? []
-    ).map((trackId) => ({
+    ).map(({ trackId, favoriteCreatedAt }) => ({
       trackId,
       downloadReason: {
         is_from_favorites: true,
-        collection_id: DOWNLOAD_REASON_FAVORITES
+        collection_id: DOWNLOAD_REASON_FAVORITES,
+        favorite_created_at: favoriteCreatedAt
       }
     }))
     const collectionFavoritesToDownload: TrackForDownload[] =
@@ -80,6 +81,7 @@ export const FavoritesScreen = () => {
             is_from_favorites: true,
             collection_id: collection.playlist_id.toString()
           }
+          // TODO: include a favorite_created_at timestamp for sorting offline collections
         }))
       )
 
