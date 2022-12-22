@@ -49,7 +49,6 @@ export const useLoadOfflineTracks = () => {
       uid: string
       metadata: CollectionMetadata
     }[] = []
-    console.log('okay adding collection for some reason...', offlineCollections)
     for (const collectionId of offlineCollections) {
       try {
         if (collectionId === DOWNLOAD_REASON_FAVORITES) continue

@@ -221,7 +221,6 @@ export const verifyTrack = async (
 }
 
 export const purgeAllDownloads = async (withLogs?: boolean) => {
-  const trackIds = await listTracks()
   if (withLogs) {
     console.log(`Before purge:`)
   }
@@ -232,7 +231,6 @@ export const purgeAllDownloads = async (withLogs?: boolean) => {
     console.log(`After purge:`)
   }
   await readDirRec(downloadsRoot)
-  store.dispatch(unloadTracks(trackIds))
 }
 
 export const purgeDownloadedTrack = async (trackId: string) => {
