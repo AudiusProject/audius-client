@@ -60,6 +60,8 @@ import initKeyboardEvents from './keyboard/sagas'
 import mobileUiSagas from './mobileUi/sagas'
 import notificationsSagas from './notifications/sagas'
 import oauthSagas from './oauth/sagas'
+import offlineDownloadSagas from './offline-downloads/sagas'
+import rateCtaSagas from './rate-cta/sagas'
 import settingsSagas from './settings/sagas'
 import signOutSagas from './sign-out/sagas'
 import themeSagas from './theme/sagas'
@@ -135,6 +137,7 @@ export default function* rootSaga() {
     ...changePasswordSagas(),
     ...smartCollectionPageSagas(),
     ...overflowMenuSagas(),
+    ...rateCtaSagas(),
     ...deactivateAccountSagas(),
     ...deletePlaylistConfirmationModalSagas(),
     ...shareModalSagas(),
@@ -144,6 +147,7 @@ export default function* rootSaga() {
     ...mobileUiSagas(),
     ...uploadSagas(),
     ...remixSettingsSagas(),
+    ...offlineDownloadSagas(),
 
     initKeyboardEvents,
     ...remoteConfig(),

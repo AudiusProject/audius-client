@@ -36,7 +36,7 @@ const initSdk = async () => {
   inProgress = true
   await waitForRemoteConfig()
   const audiusSdk = sdk({
-    appName: 'Audius',
+    appName: 'audius-client',
     discoveryProviderConfig: {
       blacklist: discoveryNodeBlockList ?? undefined,
       reselectTimeout:

@@ -2,6 +2,7 @@ import path from 'path'
 
 import type {
   Collection,
+  Track,
   User,
   UserMetadata,
   UserTrackMetadata
@@ -171,7 +172,7 @@ export const listTracks = async (): Promise<string[]> => {
 
 export const getTrackJson = async (
   trackId: string
-): Promise<UserTrackMetadata> => {
+): Promise<Track & UserTrackMetadata> => {
   try {
     const trackJson = await readFile(getLocalTrackJsonPath(trackId))
     return JSON.parse(trackJson)
@@ -219,18 +220,17 @@ export const verifyTrack = async (
   return booleanResults.every((result) => result)
 }
 
-/** Debugging method to clear all downloaded content */
-export const purgeAllDownloads = async () => {
-  const trackIds = await listTracks()
-  console.log(`Before purge:`)
+export const purgeAllDownloads = async (withLogs?: boolean) => {
+  if (withLogs) {
+    console.log(`Before purge:`)
+  }
   await readDirRec(downloadsRoot)
   await RNFS.unlink(downloadsRoot)
   await RNFS.mkdir(downloadsRoot)
-  console.log(`After purge:`)
+  if (withLogs) {
+    console.log(`After purge:`)
+  }
   await readDirRec(downloadsRoot)
-  trackIds.forEach((trackId) => {
-    store.dispatch(unloadTrack(trackId))
-  })
 }
 
 export const purgeDownloadedTrack = async (trackId: string) => {

@@ -18,6 +18,7 @@ import { EnablePushNotificationsDrawer } from 'app/components/enable-push-notifi
 import { FeedFilterDrawer } from 'app/components/feed-filter-drawer'
 import { ForgotPasswordDrawer } from 'app/components/forgot-password-drawer'
 import { OverflowMenuDrawer } from 'app/components/overflow-menu-drawer'
+import { RateCtaDrawer } from 'app/components/rate-cta-drawer'
 import { ShareDrawer } from 'app/components/share-drawer'
 import { ShareToTikTokDrawer } from 'app/components/share-to-tiktok-drawer'
 import { SignOutConfirmationDrawer } from 'app/components/sign-out-confirmation-drawer'
@@ -26,7 +27,12 @@ import { TrendingRewardsDrawer } from 'app/components/trending-rewards-drawer'
 import { TrendingFilterDrawer } from 'app/screens/trending-screen'
 
 import { useDrawerState } from './components/drawer'
-import { DeleteConfirmationDrawer } from './components/drawers/DeleteConfirmationDrawer'
+import {
+  RemoveDownloadedCollectionDrawer,
+  RemoveDownloadedFavoritesDrawer,
+  UnfavoriteDownloadedCollectionDrawer,
+  DeleteConfirmationDrawer
+} from './components/drawers'
 import { ShareToStoryProgressDrawer } from './components/share-drawer/useShareToStory'
 import { VipDiscordDrawer } from './components/vip-discord-drawer'
 import { useDrawer } from './hooks/useDrawer'
@@ -95,7 +101,11 @@ const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
   DownloadTrackProgress: DownloadTrackProgressDrawer,
   ForgotPassword: ForgotPasswordDrawer,
   DeleteConfirmation: DeleteConfirmationDrawer,
-  ShareToStoryProgress: ShareToStoryProgressDrawer
+  ShareToStoryProgress: ShareToStoryProgressDrawer,
+  RateCallToAction: RateCtaDrawer,
+  RemoveDownloadedCollection: RemoveDownloadedCollectionDrawer,
+  RemoveDownloadedFavorites: RemoveDownloadedFavoritesDrawer,
+  UnfavoriteDownloadedCollection: UnfavoriteDownloadedCollectionDrawer
 }
 
 const commonDrawers = Object.entries(commonDrawersMap) as [

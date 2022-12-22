@@ -2,7 +2,9 @@ import type { Nullable } from '@audius/common'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 
-export type DrawerData = Record<string, unknown>
+import type { TrackForDownload } from 'app/components/offline-downloads'
+
+export type BaseDrawerData = Record<string, unknown>
 
 export type Drawer =
   | 'EnablePushNotifications'
@@ -15,9 +17,38 @@ export type Drawer =
   | 'ConnectWallets'
   | 'ConfirmRemoveWallet'
   | 'ShareToStoryProgress'
+  | 'RemoveDownloadedCollection'
+  | 'RemoveDownloadedFavorites'
+  | 'UnfavoriteDownloadedCollection'
+  | 'RateCallToAction'
+
+export type DrawerData = {
+  EnablePushNotifications: undefined
+  DeactivateAccountConfirmation: undefined
+  DownloadTrackProgress: undefined
+  ForgotPassword: undefined
+  NowPlaying: undefined
+  CancelEditTrack: undefined
+  RateCallToAction: undefined
+  DeleteConfirmation: {
+    trackId: number
+  }
+  ConnectWallets: { uri: string }
+  ConfirmRemoveWallet: undefined
+  ShareToStoryProgress: undefined
+  UnfavoriteDownloadedCollection: { collectionId: number }
+  RemoveDownloadedFavorites: {
+    collectionId: string
+    tracksForDownload: TrackForDownload[]
+  }
+  RemoveDownloadedCollection: {
+    collectionId: string
+    tracksForDownload: TrackForDownload[]
+  }
+}
 
 export type DrawersState = { [drawer in Drawer]: boolean | 'closing' } & {
-  data: Nullable<DrawerData>
+  data: Nullable<BaseDrawerData>
 }
 
 const initialState: DrawersState = {
@@ -31,13 +62,17 @@ const initialState: DrawersState = {
   ConnectWallets: false,
   ConfirmRemoveWallet: false,
   ShareToStoryProgress: false,
+  RemoveDownloadedCollection: false,
+  RemoveDownloadedFavorites: false,
+  UnfavoriteDownloadedCollection: false,
+  RateCallToAction: false,
   data: null
 }
 
 type SetVisibilityAction = PayloadAction<{
   drawer: Drawer
   visible: boolean | 'closing'
-  data?: DrawerData
+  data?: DrawerData[Drawer]
 }>
 
 const slice = createSlice({
