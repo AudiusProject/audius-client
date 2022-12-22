@@ -11,9 +11,9 @@ import type { EditableField } from 'common/store/pages/signon/types'
 import { Animated, View, TouchableOpacity, SafeAreaView } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import GradientSave from 'app/assets/images/gradientSave.svg'
 import IconImage from 'app/assets/images/iconImage.svg'
 import IconInstagram from 'app/assets/images/iconInstagram.svg'
+import IconTikTok from 'app/assets/images/iconTikTokInverted.svg'
 import IconTwitter from 'app/assets/images/iconTwitterBird.svg'
 import IconUser from 'app/assets/images/iconUser.svg'
 import IconVerified from 'app/assets/images/iconVerified.svg'
@@ -36,22 +36,24 @@ import SignupHeader from './SignupHeader'
 import type { SignOnStackParamList } from './types'
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
-  container: {
+  screen: {
     width: '100%',
     height: '100%',
-    backgroundColor: palette.staticWhite,
-    paddingTop: spacing(10)
+    backgroundColor: palette.staticWhite
   },
-  containerForm: {
+  container: {
     alignItems: 'center',
-    padding: spacing(7)
+    padding: spacing(7),
+    height: '100%'
   },
   header: {
     color: palette.secondary,
     textAlign: 'center',
-    paddingBottom: spacing(3)
+    paddingBottom: spacing(2)
   },
-  socialButtonContainer: {},
+  socialButtonContainer: {
+    marginBottom: spacing(2)
+  },
   socialButton: {
     padding: spacing(3),
     height: 64
@@ -66,7 +68,6 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     borderColor: palette.neutralLight7,
     borderRadius: 8,
     padding: spacing(4),
-    paddingBottom: spacing(6),
     marginBottom: spacing(6)
   },
   tileHeader: { marginBottom: spacing(1), textTransform: 'uppercase' },
@@ -76,7 +77,8 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     alignItems: 'center'
   },
   tileListItemText: {
-    flex: 1
+    flex: 1,
+    lineHeight: 21
   },
   tileListItemIconCircle: {
     marginRight: spacing(2),
@@ -89,6 +91,10 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   },
   verifiedIcon: {
     marginRight: spacing(4)
+  },
+  manualButton: {
+    marginTop: 'auto',
+    marginBottom: spacing(7)
   },
   manualButtonText: {
     color: palette.secondaryLight2
@@ -135,48 +141,6 @@ const FormTitle = () => {
         {messages.header}
       </Text>
     </Animated.View>
-  )
-}
-
-const TwitterButton = ({ onPress }: { onPress: () => void }) => {
-  const styles = useStyles()
-  return (
-    <View style={styles.socialButtonContainer}>
-      <Button
-        icon={IconTwitter}
-        iconPosition={'left'}
-        title={messages.twitterButton}
-        onPress={onPress}
-        color={'#1BA1F1'}
-        fullWidth
-        styles={{
-          icon: { height: 20, width: 20, marginRight: 12 },
-          button: [styles.socialButton],
-          root: styles.socialButtonContainer,
-          text: styles.buttonText
-        }}
-      />
-    </View>
-  )
-}
-
-const InstagramButton = ({ onPress }: { onPress: () => void }) => {
-  const styles = useStyles()
-  return (
-    <View style={styles.socialButtonContainer}>
-      <Button
-        icon={IconInstagram}
-        iconPosition={'left'}
-        title={messages.instagramButton}
-        onPress={onPress}
-        styles={{
-          icon: { height: 20, width: 20, marginRight: 12 },
-          button: [styles.socialButton],
-          root: styles.socialButtonContainer,
-          text: styles.buttonText
-        }}
-      />
-    </View>
   )
 }
 
@@ -379,7 +343,7 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
     }
   }, [instagramError])
 
-  const onTwitterPress = () => {
+  const handleTwitterPress = () => {
     setIsLoading(true)
     dispatch(oauthActions.setTwitterError(null))
     dispatch(oauthActions.twitterAuth())
@@ -391,7 +355,7 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
     )
   }
 
-  const onInstagramPress = () => {
+  const handleInstagramPress = () => {
     setIsLoading(true)
     dispatch(oauthActions.setInstagramError(null))
     dispatch(oauthActions.instagramAuth())
@@ -403,83 +367,125 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
     )
   }
 
+  const handleTikTokPress = () => {
+    setIsLoading(true)
+    dispatch(oauthActions.setTikTokError(null))
+    dispatch(oauthActions.tikTokAuth())
+    track(
+      make({
+        eventName: EventNames.CREATE_ACCOUNT_START_TIKTOK,
+        emailAddress: emailField.value
+      })
+    )
+  }
+
   useEffect(() => {
     if (abandoned) {
       setIsLoading(false)
     }
   }, [abandoned])
 
+  const socialButtonStyles = {
+    icon: { height: 20, width: 20, marginRight: 12 },
+    button: [styles.socialButton],
+    root: styles.socialButtonContainer,
+    text: styles.buttonText
+  }
+
   return (
-    <SafeAreaView style={{ backgroundColor: 'white' }}>
+    <SafeAreaView style={styles.screen}>
       <SignupHeader />
-      <View style={styles.container}>
-        {isLoading ? (
-          <View style={(styles.containerForm, { flex: 0.75 })}>
-            <FormTitle />
-            <View style={styles.loadingIcon}>
-              <LoadingSpinner fill={neutralLight4} />
+      {isLoading ? (
+        <View style={(styles.container, { flex: 0.75 })}>
+          <FormTitle />
+          <View style={styles.loadingIcon}>
+            <LoadingSpinner fill={neutralLight4} />
+          </View>
+        </View>
+      ) : (
+        <View style={styles.container}>
+          <FormTitle />
+
+          <View style={styles.tile}>
+            <Text variant={'h3'} style={styles.tileHeader}>
+              {messages.importTileHeader}
+            </Text>
+            <View style={[styles.tileListItem]}>
+              <View style={styles.tileListItemIconCircle}>
+                <IconUser fill={staticWhite} height={16} width={16} />
+              </View>
+              <Text variant={'h4'} noGutter style={styles.tileListItemText}>
+                {messages.importTileItemHandle}
+              </Text>
+            </View>
+            <View style={[styles.tileListItem]}>
+              <View style={styles.tileListItemIconCircle}>
+                <IconImage fill={staticWhite} height={16} width={16} />
+              </View>
+              <Text variant={'h4'} noGutter style={styles.tileListItemText}>
+                {messages.importTileItemPicture}
+              </Text>
             </View>
           </View>
-        ) : (
-          <View style={styles.containerForm}>
-            <FormTitle />
 
-            <View style={styles.tile}>
-              <Text variant={'h3'} style={styles.tileHeader}>
-                {messages.importTileHeader}
+          <Button
+            color={'#1BA1F1'}
+            fullWidth
+            icon={IconTwitter}
+            iconPosition={'left'}
+            onPress={handleTwitterPress}
+            styles={socialButtonStyles}
+            title={messages.twitterButton}
+          />
+          <Button
+            fullWidth
+            icon={IconInstagram}
+            iconPosition={'left'}
+            onPress={handleInstagramPress}
+            styles={socialButtonStyles}
+            title={messages.instagramButton}
+          />
+          <Button
+            color={'#FE2C55'}
+            fullWidth
+            icon={IconTikTok}
+            iconPosition={'left'}
+            onPress={handleTikTokPress}
+            styles={socialButtonStyles}
+            title={messages.tiktokButton}
+          />
+
+          <View style={[styles.tile, { marginTop: 16 }]}>
+            <Text variant={'h3'} style={styles.tileHeader}>
+              {messages.verifiedTileHeader}
+            </Text>
+            <View style={[styles.tileListItem]}>
+              <IconVerified
+                height={24}
+                width={24}
+                style={styles.verifiedIcon}
+              />
+              <Text variant={'h4'} noGutter style={styles.tileListItemText}>
+                {messages.verifiedTileContent}
               </Text>
-              <View style={[styles.tileListItem]}>
-                <View style={styles.tileListItemIconCircle}>
-                  <IconUser fill={staticWhite} height={16} width={16} />
-                </View>
-                <Text variant={'h4'} noGutter style={styles.tileListItemText}>
-                  {messages.importTileItemHandle}
-                </Text>
-              </View>
-              <View style={[styles.tileListItem]}>
-                <View style={styles.tileListItemIconCircle}>
-                  <IconImage fill={staticWhite} height={16} width={16} />
-                </View>
-                <Text variant={'h4'} noGutter style={styles.tileListItemText}>
-                  {messages.importTileItemPicture}
-                </Text>
-              </View>
             </View>
+          </View>
 
-            <TwitterButton onPress={onTwitterPress} />
-            <InstagramButton onPress={onInstagramPress} />
-
-            <View style={styles.tile}>
-              <Text variant={'h3'} style={styles.tileHeader}>
-                {messages.verifiedTileHeader}
-              </Text>
-              <View style={[styles.tileListItem]}>
-                <IconVerified
-                  height={24}
-                  width={24}
-                  style={styles.verifiedIcon}
-                />
-                <Text variant={'h4'} noGutter style={styles.tileListItemText}>
-                  {messages.verifiedTileContent}
-                </Text>
-              </View>
-            </View>
-
-            <TouchableOpacity
-              activeOpacity={0.6}
-              onPress={() => goTo('ProfileManual')}
+          <TouchableOpacity
+            activeOpacity={0.6}
+            onPress={() => goTo('ProfileManual')}
+            style={styles.manualButton}
+          >
+            <Text
+              fontSize='medium'
+              weight='medium'
+              style={styles.manualButtonText}
             >
-              <Text
-                fontSize='medium'
-                weight='medium'
-                style={styles.manualButtonText}
-              >
-                {messages.manual}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
+              {messages.manual}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </SafeAreaView>
   )
 }
