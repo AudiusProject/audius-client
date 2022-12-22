@@ -1,8 +1,4 @@
-import type { TypedCommsResponse } from '@audius/sdk/dist/sdk/api/chats/clientTypes'
-import type {
-  UserChat,
-  ChatMessage
-} from '@audius/sdk/dist/sdk/api/chats/serverTypes'
+import type { TypedCommsResponse, UserChat, ChatMessage } from '@audius/sdk'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 import { Status } from 'models'

@@ -7,7 +7,7 @@ import {
   decodeHashId,
   cacheUsersSelectors
 } from '@audius/common'
-import type { ChatMessage } from '@audius/sdk/dist/sdk/api/chats/serverTypes'
+import type { ChatMessage } from '@audius/sdk/dist/core'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
