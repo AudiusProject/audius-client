@@ -131,7 +131,9 @@ class FinishPage extends Component {
       disableActions: true,
       uploading: true,
       showSkeleton: false,
-      onClickTitle: () => {inProgress ? undefined : onContinue()}
+      onClickTitle: () => {
+        return inProgress ? undefined : onContinue()
+      }
     }
 
     const erroredTrackSet = new Set(erroredTracks)
