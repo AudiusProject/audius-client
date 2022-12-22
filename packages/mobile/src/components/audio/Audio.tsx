@@ -13,7 +13,8 @@ import {
   RepeatMode,
   FeatureFlags,
   encodeHashId,
-  Genre
+  Genre,
+  tracksSocialActions
 } from '@audius/common'
 import TrackPlayer, {
   AppKilledPlaybackBehavior,
@@ -32,7 +33,6 @@ import {
   DEFAULT_IMAGE_URL,
   useTrackImage
 } from 'app/components/image/TrackImage'
-import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useOfflineTrackUri } from 'app/hooks/useOfflineTrackUri'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { apiClient } from 'app/services/audius-api-client'
@@ -139,7 +139,6 @@ export const Audio = () => {
   const trackImageSource = useTrackImage(track, trackOwner ?? undefined)
   const currentUserId = useSelector(getUserId)
   const isReachable = useSelector(getIsReachable)
-  const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
   // Queue things
   const queueIndex = useSelector(getIndex)
@@ -269,12 +268,16 @@ export const Audio = () => {
     const duration = await TrackPlayer.getDuration()
     const position = await TrackPlayer.getPosition()
 
-    if (position > RECORD_LISTEN_SECONDS && !listenLoggedForTrack) {
-      // Debounce logging a listen, update the state variable appropriately onSuccess and onFailure
+    // Debounce logging a listen, update the state variable appropriately onSuccess and onFailure
+    if (
+      position > RECORD_LISTEN_SECONDS &&
+      !listenLoggedForTrack &&
+      isReachable
+    ) {
       setListenLoggedForTrack(true)
-      )
-        dispatch(recordListen(trackId))
+      dispatch(recordListen(trackId))
     }
+
     if (!isCasting) {
       // If we aren't casting, update the progress
       global.progress = { duration, currentTime: position }
@@ -286,7 +289,6 @@ export const Audio = () => {
   }, [
     currentUserId,
     isCasting,
-    isOfflineModeEnabled,
     isReachable,
     listenLoggedForTrack,
     trackId,
