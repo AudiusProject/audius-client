@@ -12,8 +12,7 @@ import RNFS, { exists, readDir, readFile } from 'react-native-fs'
 import { store } from 'app/store'
 import {
   removeCollection,
-  unloadTrack,
-  unloadTracks
+  unloadTrack
 } from 'app/store/offline-downloads/slice'
 
 import { DOWNLOAD_REASON_FAVORITES } from './offline-downloader'
