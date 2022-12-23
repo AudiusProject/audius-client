@@ -253,16 +253,6 @@ export const Lineup = ({
 
   const refresh = refreshProp ?? handleRefresh
 
-  useScrollToTop(() => {
-    if (lineupLength > 0) {
-      ref.current?.scrollToLocation({
-        sectionIndex: 0,
-        itemIndex: 0,
-        animated: true
-      })
-    }
-  }, disableTopTabScroll)
-
   const handleInView = useCallback(() => {
     dispatch(actions.setInView(true))
   }, [dispatch, actions])
@@ -485,6 +475,22 @@ export const Lineup = ({
     isFeed,
     showTip
   ])
+
+  const areSectionsEmpty = sections.every(
+    (section) => section.data.length === 0
+  )
+
+  const scrollToTop = useCallback(() => {
+    if (!areSectionsEmpty) {
+      ref.current?.scrollToLocation({
+        sectionIndex: 0,
+        itemIndex: 0,
+        animated: true
+      })
+    }
+  }, [areSectionsEmpty])
+
+  useScrollToTop(scrollToTop, disableTopTabScroll)
 
   const handleScroll = useCallback(
     ({ nativeEvent }) => {
