@@ -254,11 +254,13 @@ export const Lineup = ({
   const refresh = refreshProp ?? handleRefresh
 
   useScrollToTop(() => {
-    ref.current?.scrollToLocation({
-      sectionIndex: 0,
-      itemIndex: 0,
-      animated: true
-    })
+    if (lineupLength > 0) {
+      ref.current?.scrollToLocation({
+        sectionIndex: 0,
+        itemIndex: 0,
+        animated: true
+      })
+    }
   }, disableTopTabScroll)
 
   const handleInView = useCallback(() => {
