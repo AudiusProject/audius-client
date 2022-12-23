@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
+import { formatTikTokProfile } from '@audius/common'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import {
@@ -19,6 +20,7 @@ import IconUser from 'app/assets/images/iconUser.svg'
 import IconVerified from 'app/assets/images/iconVerified.svg'
 import { Button, Text } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
+import { useTikTokAuth } from 'app/hooks/useTikTokAuth'
 import { track, make } from 'app/services/analytics'
 import * as oauthActions from 'app/store/oauth/actions'
 import {
@@ -159,6 +161,11 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
   const abandoned = useSelector(getAbandoned)
   const handleField: EditableField = useSelector(getHandleField)
   const emailField: EditableField = useSelector(getEmailField)
+  const withTikTokAuth = useTikTokAuth({
+    onError: (error) => {
+      dispatch(oauthActions.setInstagramError(error))
+    }
+  })
 
   const [isLoading, setIsLoading] = useState(false)
   const [hasNavigatedAway, setHasNavigatedAway] = useState(false)
@@ -345,6 +352,7 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
 
   const handleTwitterPress = () => {
     setIsLoading(true)
+
     dispatch(oauthActions.setTwitterError(null))
     dispatch(oauthActions.twitterAuth())
     track(
@@ -369,8 +377,46 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
 
   const handleTikTokPress = () => {
     setIsLoading(true)
-    dispatch(oauthActions.setTikTokError(null))
-    dispatch(oauthActions.tikTokAuth())
+
+    withTikTokAuth(async (accessToken: string) => {
+      try {
+        // Using TikTok v1 api because v2 does not have CORS headers set
+        const result = await fetch(
+          `https://open-api.tiktok.com/user/info/?access_token=${accessToken}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              fields: [
+                'open_id',
+                'display_name',
+                'avatar_url',
+                'avatar_large_url',
+                'profile_deep_link',
+                'is_verified'
+              ]
+            })
+          }
+        )
+
+        const resultJson = await result.json()
+        const tikTokProfile = resultJson.data.user
+
+        const { profile, profileImage, requiresUserReview } =
+          await formatTikTokProfile(tikTokProfile, async (image: File) => image)
+
+        dispatch(
+          oauthActions.setTikTokInfo(
+            tikTokProfile.open_id,
+            profile,
+            profileImage,
+            requiresUserReview
+          )
+        )
+      } catch (e) {
+        console.log(e)
+      }
+    })
+
     track(
       make({
         eventName: EventNames.CREATE_ACCOUNT_START_TIKTOK,
@@ -395,97 +441,96 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
   return (
     <SafeAreaView style={styles.screen}>
       <SignupHeader />
-      {isLoading ? (
-        <View style={(styles.container, { flex: 0.75 })}>
-          <FormTitle />
+      <View style={styles.container}>
+        {isLoading ? (
           <View style={styles.loadingIcon}>
             <LoadingSpinner fill={neutralLight4} />
           </View>
-        </View>
-      ) : (
-        <View style={styles.container}>
-          <FormTitle />
+        ) : (
+          <>
+            <FormTitle />
 
-          <View style={styles.tile}>
-            <Text variant={'h3'} style={styles.tileHeader}>
-              {messages.importTileHeader}
-            </Text>
-            <View style={[styles.tileListItem]}>
-              <View style={styles.tileListItemIconCircle}>
-                <IconUser fill={staticWhite} height={16} width={16} />
+            <View style={styles.tile}>
+              <Text variant={'h3'} style={styles.tileHeader}>
+                {messages.importTileHeader}
+              </Text>
+              <View style={[styles.tileListItem]}>
+                <View style={styles.tileListItemIconCircle}>
+                  <IconUser fill={staticWhite} height={16} width={16} />
+                </View>
+                <Text variant={'h4'} noGutter style={styles.tileListItemText}>
+                  {messages.importTileItemHandle}
+                </Text>
               </View>
-              <Text variant={'h4'} noGutter style={styles.tileListItemText}>
-                {messages.importTileItemHandle}
-              </Text>
-            </View>
-            <View style={[styles.tileListItem]}>
-              <View style={styles.tileListItemIconCircle}>
-                <IconImage fill={staticWhite} height={16} width={16} />
+              <View style={[styles.tileListItem]}>
+                <View style={styles.tileListItemIconCircle}>
+                  <IconImage fill={staticWhite} height={16} width={16} />
+                </View>
+                <Text variant={'h4'} noGutter style={styles.tileListItemText}>
+                  {messages.importTileItemPicture}
+                </Text>
               </View>
-              <Text variant={'h4'} noGutter style={styles.tileListItemText}>
-                {messages.importTileItemPicture}
-              </Text>
             </View>
-          </View>
 
-          <Button
-            color={'#1BA1F1'}
-            fullWidth
-            icon={IconTwitter}
-            iconPosition={'left'}
-            onPress={handleTwitterPress}
-            styles={socialButtonStyles}
-            title={messages.twitterButton}
-          />
-          <Button
-            fullWidth
-            icon={IconInstagram}
-            iconPosition={'left'}
-            onPress={handleInstagramPress}
-            styles={socialButtonStyles}
-            title={messages.instagramButton}
-          />
-          <Button
-            color={'#FE2C55'}
-            fullWidth
-            icon={IconTikTok}
-            iconPosition={'left'}
-            onPress={handleTikTokPress}
-            styles={socialButtonStyles}
-            title={messages.tiktokButton}
-          />
+            <Button
+              color={'#1BA1F1'}
+              fullWidth
+              icon={IconTwitter}
+              iconPosition={'left'}
+              onPress={handleTwitterPress}
+              styles={socialButtonStyles}
+              title={messages.twitterButton}
+            />
+            <Button
+              fullWidth
+              icon={IconInstagram}
+              iconPosition={'left'}
+              onPress={handleInstagramPress}
+              styles={socialButtonStyles}
+              title={messages.instagramButton}
+            />
+            <Button
+              color={'#FE2C55'}
+              fullWidth
+              icon={IconTikTok}
+              iconPosition={'left'}
+              onPress={handleTikTokPress}
+              styles={socialButtonStyles}
+              title={messages.tiktokButton}
+            />
 
-          <View style={[styles.tile, { marginTop: 16 }]}>
-            <Text variant={'h3'} style={styles.tileHeader}>
-              {messages.verifiedTileHeader}
-            </Text>
-            <View style={[styles.tileListItem]}>
-              <IconVerified
-                height={24}
-                width={24}
-                style={styles.verifiedIcon}
-              />
-              <Text variant={'h4'} noGutter style={styles.tileListItemText}>
-                {messages.verifiedTileContent}
+            <View style={[styles.tile, { marginTop: 16 }]}>
+              <Text variant={'h3'} style={styles.tileHeader}>
+                {messages.verifiedTileHeader}
               </Text>
+              <View style={[styles.tileListItem]}>
+                <IconVerified
+                  height={24}
+                  width={24}
+                  style={styles.verifiedIcon}
+                />
+                <Text variant={'h4'} noGutter style={styles.tileListItemText}>
+                  {messages.verifiedTileContent}
+                </Text>
+              </View>
             </View>
-          </View>
 
-          <TouchableOpacity
-            activeOpacity={0.6}
-            onPress={() => goTo('ProfileManual')}
-            style={styles.manualButton}
-          >
-            <Text
-              fontSize='medium'
-              weight='medium'
-              style={styles.manualButtonText}
+            <TouchableOpacity
+              activeOpacity={0.6}
+              onPress={() => goTo('ProfileManual')}
+              style={styles.manualButton}
             >
-              {messages.manual}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
+              <Text
+                fontSize='medium'
+                weight='medium'
+                style={styles.manualButtonText}
+              >
+                {messages.manual}
+              </Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </View>
     </SafeAreaView>
   )
 }

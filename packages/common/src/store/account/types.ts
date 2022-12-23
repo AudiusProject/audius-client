@@ -55,7 +55,7 @@ export type TikTokProfile = {
   is_verified: string
 }
 
-export type AccountImage = { url: string; file: any }
+export type AccountImage = { url: string; file: any } | undefined
 
 export type NativeAccountImage = {
   uri: string
