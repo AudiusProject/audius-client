@@ -275,10 +275,10 @@ export const Audio = () => {
 
     if (position > RECORD_LISTEN_SECONDS && !listenLoggedForTrack) {
       setListenLoggedForTrack(true)
-      if (isOfflineModeEnabled && !isReachable) {
-        queue.addJob<PlayCountWorkerPayload>(PLAY_COUNTER_WORKER, { trackId })
-      } else if (isReachable) {
+      if (isReachable) {
         dispatch(recordListen(trackId))
+      } else if (isOfflineModeEnabled && !isReachable) {
+        queue.addJob<PlayCountWorkerPayload>(PLAY_COUNTER_WORKER, { trackId })
       }
     }
 
