@@ -71,6 +71,7 @@ export type PremiumConditions = {
     | PremiumConditionsEthNFTCollection
     | PremiumConditionsSolNFTCollection
   follow_user_id?: number
+  tip_user_id?: number
 }
 
 export type PremiumContentSignature = {
