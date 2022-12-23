@@ -268,7 +268,6 @@ export const Audio = () => {
     const duration = await TrackPlayer.getDuration()
     const position = await TrackPlayer.getPosition()
 
-    // Debounce logging a listen, update the state variable appropriately onSuccess and onFailure
     if (
       position > RECORD_LISTEN_SECONDS &&
       !listenLoggedForTrack &&
