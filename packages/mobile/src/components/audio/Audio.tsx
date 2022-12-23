@@ -16,6 +16,7 @@ import {
   Genre,
   tracksSocialActions
 } from '@audius/common'
+import queue from 'react-native-job-queue'
 import TrackPlayer, {
   AppKilledPlaybackBehavior,
   Capability,
@@ -33,10 +34,13 @@ import {
   DEFAULT_IMAGE_URL,
   useTrackImage
 } from 'app/components/image/TrackImage'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useOfflineTrackUri } from 'app/hooks/useOfflineTrackUri'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { apiClient } from 'app/services/audius-api-client'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
+import type { PlayCountWorkerPayload } from 'app/services/offline-downloader/workers/playCounterWorker'
+import { PLAY_COUNTER_WORKER } from 'app/services/offline-downloader/workers/playCounterWorker'
 
 import { useChromecast } from './GoogleCast'
 
@@ -139,6 +143,7 @@ export const Audio = () => {
   const trackImageSource = useTrackImage(track, trackOwner ?? undefined)
   const currentUserId = useSelector(getUserId)
   const isReachable = useSelector(getIsReachable)
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
   // Queue things
   const queueIndex = useSelector(getIndex)
@@ -274,7 +279,11 @@ export const Audio = () => {
       isReachable
     ) {
       setListenLoggedForTrack(true)
-      dispatch(recordListen(trackId))
+      if (isOfflineModeEnabled && !isReachable) {
+        queue.addJob<PlayCountWorkerPayload>(PLAY_COUNTER_WORKER, { trackId })
+      } else if (isReachable) {
+        dispatch(recordListen(trackId))
+      }
     }
 
     if (!isCasting) {
@@ -291,7 +300,8 @@ export const Audio = () => {
     isReachable,
     listenLoggedForTrack,
     trackId,
-    dispatch
+    dispatch,
+    isOfflineModeEnabled
   ])
 
   useEffect(() => {

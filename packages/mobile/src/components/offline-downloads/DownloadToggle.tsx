@@ -186,7 +186,11 @@ export const DownloadToggle = ({
         <Switch
           value={isCollectionMarkedForDownload}
           onValueChange={handleToggleDownload}
+<<<<<<< HEAD
           disabled={disabled}
+=======
+          disabled={(!collectionId && !isFavoritesDownload) || disabled}
+>>>>>>> e36e24f8c ([C-1083] Add offline play count recording)
         />
       </View>
     </View>
