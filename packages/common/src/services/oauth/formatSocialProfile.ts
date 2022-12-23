@@ -110,7 +110,10 @@ export const formatInstagramProfile = async (
   ) {
     requiresUserReview = true
     if (instagramProfile.full_name) {
-      instagramProfile.full_name.slice(0, MAX_DISPLAY_NAME_LENGTH)
+      instagramProfile.full_name = instagramProfile.full_name.slice(
+        0,
+        MAX_DISPLAY_NAME_LENGTH
+      )
     }
   }
 
