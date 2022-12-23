@@ -2,7 +2,7 @@ import { times, random } from 'lodash'
 import { View } from 'react-native'
 
 import { Screen, Tile, Text, Divider } from 'app/components/core'
-import Skeleton from 'app/components/skeleton/Skeleton'
+import Skeleton, { StaticSkeleton } from 'app/components/skeleton/Skeleton'
 import { makeStyles } from 'app/styles'
 
 const messages = {
@@ -111,25 +111,25 @@ export const TrackScreenSkeleton = () => {
             {messages.heading}
           </Text>
           <Skeleton style={styles.trackArtwork} />
-          <Skeleton style={styles.trackTitle} />
-          <Skeleton style={styles.artistName} />
-          <Skeleton style={styles.playButton} />
+          <StaticSkeleton style={styles.trackTitle} />
+          <StaticSkeleton style={styles.artistName} />
+          <StaticSkeleton style={styles.playButton} />
           <View style={styles.socialActions}>
-            <Skeleton style={styles.socialAction} />
-            <Skeleton style={styles.socialAction} />
-            <Skeleton style={styles.socialAction} />
-            <Skeleton style={styles.socialAction} />
+            <StaticSkeleton style={styles.socialAction} />
+            <StaticSkeleton style={styles.socialAction} />
+            <StaticSkeleton style={styles.socialAction} />
+            <StaticSkeleton style={styles.socialAction} />
           </View>
           <Divider style={styles.divider} />
           <View style={styles.metrics}>
-            <Skeleton style={styles.metric} />
-            <Skeleton style={styles.metric} />
-            <Skeleton style={styles.metric} />
+            <StaticSkeleton style={styles.metric} />
+            <StaticSkeleton style={styles.metric} />
+            <StaticSkeleton style={styles.metric} />
           </View>
           <View style={styles.description}>
             {times(random(5, 15), () => random(20, 100)).map(
               (elementWidth: number, i) => (
-                <Skeleton
+                <StaticSkeleton
                   key={i}
                   noShimmer
                   style={[styles.descriptionText, { width: elementWidth }]}
@@ -139,9 +139,9 @@ export const TrackScreenSkeleton = () => {
           </View>
           <Divider style={styles.divider} />
           <View style={styles.metadataSection}>
-            <Skeleton style={styles.metadata} />
-            <Skeleton style={styles.metadata} />
-            <Skeleton style={styles.metadata} />
+            <StaticSkeleton style={styles.metadata} />
+            <StaticSkeleton style={styles.metadata} />
+            <StaticSkeleton style={styles.metadata} />
           </View>
         </View>
       </Tile>
