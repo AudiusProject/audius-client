@@ -44,7 +44,7 @@ const removeExistingWorkers = () => {
 export const startDownloadWorker = async () => {
   queue.stop()
   queue.configure({
-    concurrency: 10,
+    concurrency: 1,
     updateInterval: 10
   })
 
