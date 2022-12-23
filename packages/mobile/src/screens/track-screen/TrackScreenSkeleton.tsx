@@ -131,7 +131,6 @@ export const TrackScreenSkeleton = () => {
               (elementWidth: number, i) => (
                 <StaticSkeleton
                   key={i}
-                  noShimmer
                   style={[styles.descriptionText, { width: elementWidth }]}
                 />
               )
