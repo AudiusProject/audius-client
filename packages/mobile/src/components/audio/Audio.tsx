@@ -273,11 +273,7 @@ export const Audio = () => {
     const duration = await TrackPlayer.getDuration()
     const position = await TrackPlayer.getPosition()
 
-    if (
-      position > RECORD_LISTEN_SECONDS &&
-      !listenLoggedForTrack &&
-      isReachable
-    ) {
+    if (position > RECORD_LISTEN_SECONDS && !listenLoggedForTrack) {
       setListenLoggedForTrack(true)
       if (isOfflineModeEnabled && !isReachable) {
         queue.addJob<PlayCountWorkerPayload>(PLAY_COUNTER_WORKER, { trackId })
