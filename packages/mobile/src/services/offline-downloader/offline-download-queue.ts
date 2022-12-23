@@ -28,7 +28,7 @@ export const enqueueTrackDownload = async (
     {
       attempts: 3,
       priority: 1,
-      timeout: 30000 // TODO: what's a reasonable timeout?
+      timeout: 30 * 60 * 1000
     }
   )
 }
