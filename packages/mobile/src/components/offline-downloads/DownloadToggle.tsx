@@ -186,7 +186,7 @@ export const DownloadToggle = ({
         <Switch
           value={isCollectionMarkedForDownload}
           onValueChange={handleToggleDownload}
-          disabled={(!collectionId && !isFavoritesDownload) || disabled}
+          disabled={disabled}
         />
       </View>
     </View>
