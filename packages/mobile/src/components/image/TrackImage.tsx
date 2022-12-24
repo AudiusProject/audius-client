@@ -1,5 +1,5 @@
 /**
- * TODO: with usLocalTrackImage, useTrackImage becomes an async-like hook where contentNodeSource is null until
+ * TODO: with useLocalTrackImage, useTrackImage becomes an async-like hook where contentNodeSource is null until
  * localSource returns. This ended up degrading background track-player tasks where new tracks would not
  * display their artwork.
  **/
