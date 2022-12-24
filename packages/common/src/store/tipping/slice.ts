@@ -145,12 +145,6 @@ const slice = createSlice({
         storage: Nullable<RecentTipsStorage>
       }>
     ) => {},
-    setRecentTips: (
-      state,
-      action: PayloadAction<{ recentTips: UserTip[] }>
-    ) => {
-      state.recentTips = action.payload.recentTips
-    },
     fetchUserSupporter: (
       _state,
       _action: PayloadAction<{
@@ -186,7 +180,6 @@ export const {
   sendTipFailed,
   resetSend,
   fetchRecentTips,
-  setRecentTips,
   fetchUserSupporter,
   setTipToDisplay,
   hideTip

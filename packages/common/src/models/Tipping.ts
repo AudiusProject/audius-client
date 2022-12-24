@@ -27,6 +27,5 @@ export type UserTip = {
 
 export type RecentTipsStorage = {
   dismissed: boolean
-  minSlot: number
   lastDismissalTimestamp: Nullable<number>
 }

@@ -1551,7 +1551,17 @@ export class AudiusAPIClient {
 
     const response: Nullable<APIResponse<GetTipsResponse[]>> =
       await this._getResponse(FULL_ENDPOINT_MAP.getTips, params)
-    return response ? response.data : null
+    if (response && response.data) {
+      return response.data.map((u) => ({
+        ...u,
+        sender: adapter.makeUser(u.sender),
+        receiver: adapter.makeUser(u.receiver),
+        followee_supporter_ids: u.followee_supporters.map(({ user_id }) =>
+          decodeHashId(user_id)
+        )
+      }))
+    }
+    return null
   }
 
   async getPremiumContentSignatures({
