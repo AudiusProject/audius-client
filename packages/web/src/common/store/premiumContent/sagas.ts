@@ -170,7 +170,7 @@ function* updateNewPremiumContentSignatures({
  * Halts if not all nfts have been fetched yet. Similarly, does not proceed if no tracks are in the cache yet.
  * Skips tracks whose signatures have already been previously obtained.
  */
-function* updateNFTGatedTrackAccess(
+async function* updateNFTGatedTrackAccess(
   action:
     | ReturnType<typeof ethNFTsFetched>
     | ReturnType<typeof solNFTsFetched>
@@ -239,6 +239,7 @@ function* updateNFTGatedTrackAccess(
   // request premium content signatures for the relevant nft-gated tracks
   // which the client believes the user should have access to
   const apiClient = yield* getContext('apiClient')
+
   const premiumContentSignatureMap = yield* call(
     [apiClient, apiClient.getPremiumContentSignatures],
     {

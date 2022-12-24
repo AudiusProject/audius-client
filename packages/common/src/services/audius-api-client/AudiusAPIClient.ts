@@ -1,6 +1,6 @@
 import type { AudiusLibs } from '@audius/sdk/dist/native-libs'
 
-import { ID, TimeRange, StemTrackMetadata, Chain } from '../../models'
+import { ID, TimeRange, StemTrackMetadata } from '../../models'
 import { SearchKind } from '../../store/pages/search-results/types'
 import { decodeHashId, encodeHashId } from '../../utils/hashIds'
 import { Nullable, removeNullable } from '../../utils/typeUtils'
@@ -292,7 +292,7 @@ type GetRemixingArgs = {
 }
 
 type GetSearchArgs = {
-  currentUserId: ID
+  currentUserId: Nullable<ID>
   query: string
   kind?: SearchKind
   limit?: number
@@ -425,10 +425,7 @@ export type GetTipsArgs = {
 export type GetPremiumContentSignaturesArgs = {
   userId: ID
   trackMap: {
-    [id: ID]: {
-      chain: Chain
-      tokenIds?: string[]
-    }
+    [id: ID]: string[]
   }
 }
 
