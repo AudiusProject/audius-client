@@ -131,6 +131,7 @@ PODS:
     - nanopb/encode (= 2.30908.0)
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
+  - OpenSSL-Universal (1.1.1501)
   - Permission-Notifications (3.0.5):
     - RNPermissions
   - PromisesObjC (2.0.0)
@@ -367,6 +368,11 @@ PODS:
     - React-Core
   - react-native-pager-view (5.4.6):
     - React-Core
+  - react-native-quick-crypto (0.5.0):
+    - OpenSSL-Universal
+    - React
+    - React-callinvoker
+    - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
   - react-native-safe-area-context (3.3.2):
@@ -553,6 +559,7 @@ DEPENDENCIES:
   - "react-native-keep-awake (from `../node_modules/@sayem314/react-native-keep-awake`)"
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
+  - react-native-quick-crypto (from `../node_modules/react-native-quick-crypto`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-static-server (from `../node_modules/react-native-static-server`)
@@ -617,6 +624,7 @@ SPEC REPOS:
     - GoogleDataTransport
     - GoogleUtilities
     - nanopb
+    - OpenSSL-Universal
     - PromisesObjC
     - Protobuf
     - Sentry
@@ -693,6 +701,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-pager-view:
     :path: "../node_modules/react-native-pager-view"
+  react-native-quick-crypto:
+    :path: "../node_modules/react-native-quick-crypto"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
@@ -811,6 +821,7 @@ SPEC CHECKSUMS:
   lottie-ios: c058aeafa76daa4cf64d773554bccc8385d0150e
   lottie-react-native: b561920bba7ec727ec94a473b683cffba00faece
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
+  OpenSSL-Universal: ae9e1b40b870a8eab5aabdf02cde11db89f73f96
   Permission-Notifications: 2662b6885535a98892b8e48da04b74fc898d70f8
   PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
   Protobuf: 235750e4696ff59fb07d949a9dbbc92b3c0700fe
@@ -838,6 +849,7 @@ SPEC CHECKSUMS:
   react-native-keep-awake: 16f22b2dc09f7ede9f46e3b187a824a1841f1ddf
   react-native-netinfo: f473620bc118d6f44ce65669dd4810a7cfb36a7d
   react-native-pager-view: a9ba7d4218dcff32c0cdb41237c62fb487f013dd
+  react-native-quick-crypto: a903ff39ac8fea78bb9d37cccc5cc0596afc9670
   react-native-randombytes: 5fc412efe7b5c55b9002c0004d75fe5fabcaa507
   react-native-safe-area-context: 5cf05f49df9d17261e40e518481f2e334c6cd4b5
   react-native-static-server: 201b2a945a35096be3ae7f43e367c65bcbd61343
@@ -888,4 +900,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 86c7e909196d7920299e68babc12fcaf4882d3e8
 
-COCOAPODS: 1.11.2
+COCOAPODS: 1.11.3
