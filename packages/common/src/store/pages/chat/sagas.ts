@@ -1,12 +1,11 @@
-import {
-  getContext,
-  chatSelectors,
-  chatActions,
-  decodeHashId
-} from '@audius/common'
+// import { fetchUsers } from 'common/store/cache/users/sagas'
 import { call, put, select, takeEvery } from 'typed-redux-saga'
 
-import { fetchUsers } from 'common/store/cache/users/sagas'
+import { decodeHashId } from '../../../utils'
+import { getContext } from '../../effects'
+
+import * as chatSelectors from './selectors'
+import { actions as chatActions } from './slice'
 
 const {
   fetchMoreChats,
@@ -30,10 +29,10 @@ function* doFetchMoreChats() {
     const userIds = new Set<number>([])
     for (const chat of response.data) {
       for (const member of chat.chat_members) {
-        userIds.add(decodeHashId(member.user_id))
+        userIds.add(decodeHashId(member.user_id)!)
       }
     }
-    yield* call(fetchUsers, Array.from(userIds.values()))
+    // yield* call(fetchUsers, Array.from(userIds.values()))
     yield* put(fetchMoreChatsSucceeded(response))
   } catch (e) {
     console.error('fetchMoreChatsFailed', e)
@@ -69,6 +68,6 @@ function* watchFetchChatMessages() {
   yield takeEvery(fetchNewChatMessages, doFetchChatMessages)
 }
 
-export default function sagas() {
+export const sagas = () => {
   return [watchFetchChats, watchFetchChatMessages]
 }

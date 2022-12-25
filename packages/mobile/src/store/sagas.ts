@@ -1,5 +1,6 @@
 import {
   castSagas,
+  chatSagas,
   remoteConfigSagas as remoteConfig,
   deletePlaylistConfirmationModalUISagas as deletePlaylistConfirmationModalSagas,
   mobileOverflowMenuUISagas as overflowMenuSagas,
@@ -104,6 +105,7 @@ export default function* rootSaga() {
 
     // Pages
     ...trackPageSagas(),
+    ...chatSagas(),
     ...collectionPageSagas(),
     ...feedPageSagas(),
     ...exploreCollectionsPageSagas(),
