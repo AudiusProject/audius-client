@@ -69,7 +69,10 @@ module.exports = (async () => {
         child_process: emptyPolyfill,
         fs: resolveModule('react-native-fs'),
         net: emptyPolyfill,
-        tls: resolveModule('tls-browserify')
+        tls: resolveModule('tls-browserify'),
+        crypto: resolveModule('react-native-quick-crypto'),
+        stream: resolveModule('stream-browserify'),
+        buffer: resolveModule('@craftzdog/react-native-buffer')
       }
     },
     maxWorkers: 2
