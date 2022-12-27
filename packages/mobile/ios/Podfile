@@ -1,5 +1,7 @@
 source 'https://cdn.cocoapods.org/'
-platform :ios, '12.0'
+platform :ios, '12.4'
+install! 'cocoapods', :deterministic_uuids => false
+
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
@@ -50,10 +52,16 @@ target 'AudiusReactNative' do
   pod 'ffmpeg-kit-react-native', :subspecs => ['https-gpl-lts'], :podspec => '../node_modules/ffmpeg-kit-react-native/ffmpeg-kit-react-native.podspec'
 
   config = use_native_modules!
+
+  flags = get_default_flags()
+
   use_react_native!(
     :path => config[:reactNativePath],
     # Do NOT commit local changes (including corresponding Podfile.lock changes) to this value!:
-    :hermes_enabled => false
+    :hermes_enabled => true,
+    :fabric_enabled => flags[:fabric_enabled],
+    :flipper_configuration => FlipperConfiguration.enabled(["Debug"], { "Flipper-DoubleConversion" => "1.1.7"}),
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
 
