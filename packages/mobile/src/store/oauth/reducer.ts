@@ -34,9 +34,8 @@ type InstagramInfo = {
 type TikTokInfo = {
   uuid: string
   profile: TikTokProfile
-  profileImage: any
-  requiresUserReview: any
-  instagramId?: any
+  profileImage: { url: string; file: File } | undefined
+  requiresUserReview: boolean
 }
 
 export type OAuthState = {
