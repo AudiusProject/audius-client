@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { FeatureFlags, formatTikTokProfile } from '@audius/common'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
@@ -194,7 +194,7 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
   )
 
   const trackOAuthComplete = useCallback(
-    (eventName: typeof EventNames, handle: string, isVerified: boolean) => {
+    (eventName: string, handle: string, isVerified: boolean) => {
       track(
         make({
           eventName,
@@ -275,7 +275,7 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
       verified,
       requiresUserReview
     }: {
-      completeEvent: typeof EventNames
+      completeEvent: string
       handle: string
       verified: boolean
       requiresUserReview: boolean
@@ -432,12 +432,15 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
     }
   }, [abandoned])
 
-  const socialButtonStyles = {
-    icon: { height: 20, width: 20, marginRight: 12 },
-    button: [styles.socialButton],
-    root: styles.socialButtonContainer,
-    text: styles.buttonText
-  }
+  const socialButtonStyles = useMemo(
+    () => ({
+      icon: { height: 20, width: 20, marginRight: 12 },
+      button: [styles.socialButton],
+      root: styles.socialButtonContainer,
+      text: styles.buttonText
+    }),
+    [styles]
+  )
 
   return (
     <SafeAreaView style={styles.screen}>

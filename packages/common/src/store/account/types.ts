@@ -17,11 +17,6 @@ export type InstagramAccountPayload = {
   profile: InstagramProfile
 }
 
-export type TikTokAccountPayload = {
-  uuid: string
-  profile: TikTokProfile
-}
-
 export type InstagramProfile = {
   id: string
   username: string
@@ -50,9 +45,7 @@ export type TikTokProfile = {
   open_id: string
   username: string
   display_name: string
-  avatar_url?: string
   avatar_large_url?: string
-  profile_deep_link: string
   is_verified: string
 }
 

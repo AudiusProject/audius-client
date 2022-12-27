@@ -1,9 +1,8 @@
 import type {
   AccountImage,
   InstagramAccountPayload,
-  TwitterAccountPayload,
-  TikTokAccountPayload,
-  TwitterProfile
+  TwitterProfile,
+  TikTokProfile
 } from '@audius/common'
 
 import type { Provider } from './reducer'
@@ -86,7 +85,7 @@ type SetInstagramErrorAction = {
 type SetTikTokInfoAction = {
   type: typeof SET_TIKTOK_INFO
   uuid: any
-  profile: TikTokAccountPayload
+  profile: TikTokProfile
   profileImage: AccountImage
   requiresUserReview: any
 }
