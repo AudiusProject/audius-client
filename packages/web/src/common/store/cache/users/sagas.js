@@ -442,13 +442,21 @@ function* watchFetchUserSocials() {
   yield takeEvery(userActions.FETCH_USER_SOCIALS, fetchUserSocials)
 }
 
+function* watchFetchUsers() {
+  yield takeEvery(userActions.fetchUsers, function* (action) {
+    const { userIds, requiredFields, forceRetrieveFromSource } = action.payload
+    yield call(fetchUsers, userIds, requiredFields, forceRetrieveFromSource)
+  })
+}
+
 const sagas = () => {
   return [
     watchAdd,
     watchFetchProfilePicture,
     watchFetchCoverPhoto,
     watchSyncLocalStorageUser,
-    watchFetchUserSocials
+    watchFetchUserSocials,
+    watchFetchUsers
   ]
 }
 

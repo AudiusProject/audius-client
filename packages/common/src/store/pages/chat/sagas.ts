@@ -1,7 +1,7 @@
-// import { fetchUsers } from 'common/store/cache/users/sagas'
 import { call, put, select, takeEvery } from 'typed-redux-saga'
 
 import { decodeHashId } from '../../../utils'
+import { cacheUsersActions } from '../../cache'
 import { getContext } from '../../effects'
 
 import * as chatSelectors from './selectors'
@@ -32,7 +32,11 @@ function* doFetchMoreChats() {
         userIds.add(decodeHashId(member.user_id)!)
       }
     }
-    // yield* call(fetchUsers, Array.from(userIds.values()))
+    yield* put(
+      cacheUsersActions.fetchUsers({
+        userIds: Array.from(userIds.values())
+      })
+    )
     yield* put(fetchMoreChatsSucceeded(response))
   } catch (e) {
     console.error('fetchMoreChatsFailed', e)
