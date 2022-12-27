@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { formatTikTokProfile } from '@audius/common'
+import { FeatureFlags, formatTikTokProfile } from '@audius/common'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import {
@@ -20,6 +20,7 @@ import IconUser from 'app/assets/images/iconUser.svg'
 import IconVerified from 'app/assets/images/iconVerified.svg'
 import { Button, Text } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { useTikTokAuth } from 'app/hooks/useTikTokAuth'
 import { track, make } from 'app/services/analytics'
 import * as oauthActions from 'app/store/oauth/actions'
@@ -165,6 +166,9 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
   const abandoned = useSelector(getAbandoned)
   const handleField: EditableField = useSelector(getHandleField)
   const emailField: EditableField = useSelector(getEmailField)
+  const { isEnabled: isTikTokEnabled } = useFeatureFlag(
+    FeatureFlags.COMPLETE_PROFILE_WITH_TIKTOK
+  )
   const withTikTokAuth = useTikTokAuth({
     onError: (error) => {
       dispatch(oauthActions.setTikTokError(error))
@@ -486,15 +490,17 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
               styles={socialButtonStyles}
               title={messages.instagramButton}
             />
-            <Button
-              color={'#FE2C55'}
-              fullWidth
-              icon={IconTikTok}
-              iconPosition={'left'}
-              onPress={handleTikTokPress}
-              styles={socialButtonStyles}
-              title={messages.tiktokButton}
-            />
+            {isTikTokEnabled ? (
+              <Button
+                color={'#FE2C55'}
+                fullWidth
+                icon={IconTikTok}
+                iconPosition={'left'}
+                onPress={handleTikTokPress}
+                styles={socialButtonStyles}
+                title={messages.tiktokButton}
+              />
+            ) : null}
 
             <View style={[styles.tile, { marginTop: 16 }]}>
               <Text variant={'h3'} style={styles.tileHeader}>
