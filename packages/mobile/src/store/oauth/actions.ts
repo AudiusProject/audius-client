@@ -198,7 +198,7 @@ export const setInstagramError = (error: any): SetInstagramErrorAction => ({
 
 export const setTikTokInfo = (
   uuid: string,
-  profile: TikTokAccountPayload,
+  profile: TikTokProfile,
   profileImage: AccountImage,
   requiresUserReview: boolean
 ): SetTikTokInfoAction => ({

@@ -46,7 +46,7 @@ export type TikTokProfile = {
   username: string
   display_name: string
   avatar_large_url?: string
-  is_verified: string
+  is_verified: boolean
 }
 
 export type AccountImage = { url: string; file: any } | undefined
