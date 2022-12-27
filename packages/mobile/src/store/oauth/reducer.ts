@@ -50,7 +50,7 @@ export type OAuthState = {
   twitterError: any
   instagramInfo: InstagramInfo | null
   instagramError: any
-  tikTokInfo: InstagramInfo | null
+  tikTokInfo: TikTokInfo | null
   tikTokError: any
   // Whether the user canceled out of the oauth flow
   abandoned: boolean

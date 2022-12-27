@@ -134,16 +134,20 @@ export const formatTikTokProfile = async (
   ) => Promise<File>
 ) => {
   const getProfilePicture = async () => {
-    if (tikTokProfile.avatar_large_url) {
-      const imageBlob = await fetch(tikTokProfile.avatar_large_url).then((r) =>
-        r.blob()
-      )
-      const artworkFile = new File([imageBlob], 'Artwork', {
-        type: 'image/jpeg'
-      })
-      const file = await resizeImage(artworkFile)
-      const url = URL.createObjectURL(file)
-      return { url, file }
+    try {
+      if (tikTokProfile.avatar_large_url) {
+        const imageBlob = await fetch(tikTokProfile.avatar_large_url).then(
+          (r) => r.blob()
+        )
+        const artworkFile = new File([imageBlob], 'Artwork', {
+          type: 'image/jpeg'
+        })
+        const file = await resizeImage(artworkFile)
+        const url = URL.createObjectURL(file)
+        return { url, file }
+      }
+    } catch (e) {
+      console.error('Failed to fetch avatar_large_url', e)
     }
 
     return undefined

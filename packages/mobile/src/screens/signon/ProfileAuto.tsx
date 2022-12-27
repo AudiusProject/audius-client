@@ -26,6 +26,8 @@ import * as oauthActions from 'app/store/oauth/actions'
 import {
   getInstagramError,
   getInstagramInfo,
+  getTikTokError,
+  getTikTokInfo,
   getTwitterError,
   getTwitterInfo,
   getAbandoned
@@ -158,12 +160,14 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
   const twitterError = useSelector(getTwitterError)
   const instagramInfo = useSelector(getInstagramInfo)
   const instagramError = useSelector(getInstagramError)
+  const tikTokInfo = useSelector(getTikTokInfo)
+  const tikTokError = useSelector(getTikTokError)
   const abandoned = useSelector(getAbandoned)
   const handleField: EditableField = useSelector(getHandleField)
   const emailField: EditableField = useSelector(getEmailField)
   const withTikTokAuth = useTikTokAuth({
     onError: (error) => {
-      dispatch(oauthActions.setInstagramError(error))
+      dispatch(oauthActions.setTikTokError(error))
     }
   })
 
@@ -179,36 +183,14 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
   )
 
   const validateHandle = useCallback(
-    (type: 'twitter' | 'instagram') => {
-      const info = type === 'twitter' ? twitterInfo : instagramInfo
-      if (!info) {
-        return
-      }
-      const { profile } = info
-      const handle = type === 'twitter' ? profile.screen_name : profile.username
-      const verified =
-        type === 'twitter' ? profile.verified : profile.is_verified
+    (handle: string, verified: boolean) => {
       dispatch(signOnActions.validateHandle(handle, verified))
     },
-    [dispatch, twitterInfo, instagramInfo]
+    [dispatch]
   )
 
   const trackOAuthComplete = useCallback(
-    (type: 'twitter' | 'instagram') => {
-      const info = type === 'twitter' ? twitterInfo : instagramInfo
-      if (!info) {
-        return
-      }
-      const { profile } = info
-
-      const handle = type === 'twitter' ? profile.screen_name : profile.username
-      const isVerified =
-        type === 'twitter' ? profile.verified : profile.is_verified
-      const eventName =
-        type === 'twitter'
-          ? EventNames.CREATE_ACCOUNT_COMPLETE_TWITTER
-          : EventNames.CREATE_ACCOUNT_COMPLETE_INSTAGRAM
-
+    (eventName: typeof EventNames, handle: string, isVerified: boolean) => {
       track(
         make({
           eventName,
@@ -218,7 +200,7 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
         })
       )
     },
-    [twitterInfo, instagramInfo, emailField]
+    [emailField]
   )
 
   const setOAuthInfo = useCallback(() => {
@@ -261,94 +243,110 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
             : null
         )
       )
+    } else if (tikTokInfo) {
+      dispatch(
+        signOnActions.setTikTokProfile(
+          tikTokInfo.uuid,
+          tikTokInfo.profile,
+          tikTokInfo.profile.avatar_large_url
+            ? {
+                uri: tikTokInfo.profile.avatar_large_url,
+                name: 'ProfileImage',
+                type: 'image/jpeg'
+              }
+            : null
+        )
+      )
     }
-  }, [dispatch, twitterInfo, instagramInfo])
+  }, [dispatch, twitterInfo, instagramInfo, tikTokInfo])
 
   const signUp = useCallback(() => {
     dispatch(signOnActions.signUp())
   }, [dispatch])
 
-  useEffect(() => {
-    if (!hasNavigatedAway && twitterInfo) {
+  const handleProfileSet = useCallback(
+    ({
+      completeEvent,
+      handle,
+      verified,
+      requiresUserReview
+    }: {
+      completeEvent: typeof EventNames
+      handle: string
+      verified: boolean
+      requiresUserReview: boolean
+    }) => {
       if (handleField.status !== EditingStatus.SUCCESS && !didValidateHandle) {
-        validateHandle('twitter')
+        validateHandle(handle, verified)
         setDidValidateHandle(true)
       } else if (
         handleField.status === EditingStatus.FAILURE ||
-        twitterInfo.requiresUserReview
+        requiresUserReview
       ) {
-        trackOAuthComplete('twitter')
+        trackOAuthComplete(completeEvent, handle, verified)
         setOAuthInfo()
         goTo('ProfileManual')
         setHasNavigatedAway(true)
         setIsLoading(false)
       } else if (handleField.status === EditingStatus.SUCCESS) {
-        trackOAuthComplete('twitter')
+        trackOAuthComplete(completeEvent, handle, verified)
         setOAuthInfo()
         signUp()
         goTo('FirstFollows')
         setHasNavigatedAway(true)
         setIsLoading(false)
+      }
+    },
+    [
+      handleField,
+      didValidateHandle,
+      validateHandle,
+      setOAuthInfo,
+      signUp,
+      goTo,
+      trackOAuthComplete
+    ]
+  )
+
+  useEffect(() => {
+    if (!hasNavigatedAway) {
+      if (twitterInfo) {
+        handleProfileSet({
+          completeEvent: EventNames.CREATE_ACCOUNT_COMPLETE_TWITTER,
+          handle: twitterInfo.profile.screen_name,
+          verified: twitterInfo.profile.verified,
+          requiresUserReview: twitterInfo.requiresUserReview
+        })
+      } else if (instagramInfo) {
+        handleProfileSet({
+          completeEvent: EventNames.CREATE_ACCOUNT_COMPLETE_INSTAGRAM,
+          handle: instagramInfo.profile.username,
+          verified: instagramInfo.profile.is_verified,
+          requiresUserReview: instagramInfo.requiresUserReview
+        })
+      } else if (tikTokInfo) {
+        handleProfileSet({
+          completeEvent: EventNames.CREATE_ACCOUNT_COMPLETE_TIKTOK,
+          handle: tikTokInfo.profile.username,
+          verified: tikTokInfo.profile.is_verified,
+          requiresUserReview: tikTokInfo.requiresUserReview
+        })
       }
     }
   }, [
     hasNavigatedAway,
     twitterInfo,
-    handleField,
-    didValidateHandle,
-    validateHandle,
-    setOAuthInfo,
-    signUp,
-    goTo,
-    trackOAuthComplete
-  ])
-
-  useEffect(() => {
-    if (twitterError) {
-      setIsLoading(false)
-    }
-  }, [twitterError])
-
-  useEffect(() => {
-    if (!hasNavigatedAway && instagramInfo) {
-      if (handleField.status !== EditingStatus.SUCCESS && !didValidateHandle) {
-        validateHandle('instagram')
-        setDidValidateHandle(true)
-      } else if (
-        handleField.status === EditingStatus.FAILURE ||
-        instagramInfo.requiresUserReview
-      ) {
-        trackOAuthComplete('instagram')
-        setOAuthInfo()
-        goTo('ProfileManual')
-        setHasNavigatedAway(true)
-        setIsLoading(false)
-      } else if (handleField.status === EditingStatus.SUCCESS) {
-        trackOAuthComplete('instagram')
-        setOAuthInfo()
-        signUp()
-        goTo('FirstFollows')
-        setHasNavigatedAway(true)
-        setIsLoading(false)
-      }
-    }
-  }, [
-    hasNavigatedAway,
     instagramInfo,
-    handleField,
-    didValidateHandle,
-    validateHandle,
-    signUp,
-    setOAuthInfo,
-    goTo,
-    trackOAuthComplete
+    tikTokInfo,
+    handleProfileSet
   ])
 
   useEffect(() => {
-    if (instagramError) {
+    if (twitterError | instagramError | tikTokError) {
       setIsLoading(false)
+      // TODO: sk - show an error message?
     }
-  }, [instagramError])
+  }, [twitterError, instagramError, tikTokError])
 
   const handleTwitterPress = () => {
     setIsLoading(true)
@@ -388,10 +386,9 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
             body: JSON.stringify({
               fields: [
                 'open_id',
+                'username',
                 'display_name',
-                'avatar_url',
                 'avatar_large_url',
-                'profile_deep_link',
                 'is_verified'
               ]
             })
