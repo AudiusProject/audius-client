@@ -165,6 +165,7 @@ const WrappedLeftNavDrawer = () => {
         to='Profile'
         params={{ handle: 'accountUser' }}
       />
+      <LeftNavLink icon={IconUser} label={'Messages'} to='Chats' params={{}} />
       <LeftNavLink
         icon={IconCrown}
         label={messages.audio}

@@ -443,7 +443,7 @@ function* watchFetchUserSocials() {
 }
 
 function* watchFetchUsers() {
-  yield takeEvery(userActions.fetchUsers, function* (action) {
+  yield takeEvery(userActions.FETCH_USERS, function* (action) {
     const { userIds, requiredFields, forceRetrieveFromSource } = action.payload
     yield call(fetchUsers, userIds, requiredFields, forceRetrieveFromSource)
   })
