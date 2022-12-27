@@ -1,16 +1,16 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import type { DownloadReason } from '@audius/common'
 import { View } from 'react-native'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { Switch, Text } from 'app/components/core'
 import {
   batchDownloadTrack,
   downloadCollectionById,
-  DOWNLOAD_REASON_FAVORITES,
-  removeCollectionDownload
+  DOWNLOAD_REASON_FAVORITES
 } from 'app/services/offline-downloader'
+import { setVisibility } from 'app/store/drawers/slice'
 import {
   getOfflineDownloadStatus,
   getIsCollectionMarkedForDownload
@@ -23,12 +23,15 @@ import { DownloadStatusIndicator } from './DownloadStatusIndicator'
 export type TrackForDownload = {
   trackId: number
   downloadReason: DownloadReason
+  // Timestamp associated with when this track was favorited if the reason
+  // is favorites.
+  favoriteCreatedAt?: string
 }
 
 type DownloadToggleProps = {
   tracksForDownload: TrackForDownload[]
   labelText?: string
-  collectionId?: number
+  collectionId?: number | null
   isFavoritesDownload?: boolean
 }
 
@@ -93,7 +96,10 @@ export const DownloadToggle = ({
   labelText,
   isFavoritesDownload
 }: DownloadToggleProps) => {
-  const styles = useStyles({ labelText })
+  const styleProps = useMemo(() => ({ labelText }), [labelText])
+  const styles = useStyles(styleProps)
+  const dispatch = useDispatch()
+  const [disabled, setDisabled] = useState(false)
   const collectionIdStr = isFavoritesDownload
     ? DOWNLOAD_REASON_FAVORITES
     : collectionId?.toString()
@@ -110,6 +116,7 @@ export const DownloadToggle = ({
   const isCollectionMarkedForDownload = useSelector(
     getIsCollectionMarkedForDownload(collectionIdStr)
   )
+
   const handleToggleDownload = useCallback(
     (isDownloadEnabled: boolean) => {
       if (!collectionId && !isFavoritesDownload) return
@@ -117,14 +124,39 @@ export const DownloadToggle = ({
         downloadCollectionById(collectionId, isFavoritesDownload)
         batchDownloadTrack(tracksForDownload)
       } else {
-        collectionIdStr &&
-          removeCollectionDownload(collectionIdStr, tracksForDownload)
+        if (!isFavoritesDownload && collectionIdStr) {
+          // we are trying to remove download from a collection page
+          dispatch(
+            setVisibility({
+              drawer: 'RemoveDownloadedCollection',
+              visible: true,
+              data: { collectionId: collectionIdStr, tracksForDownload }
+            })
+          )
+        } else if (collectionIdStr) {
+          dispatch(
+            setVisibility({
+              drawer: 'RemoveDownloadedFavorites',
+              visible: true,
+              data: { collectionId: collectionIdStr, tracksForDownload }
+            })
+          )
+        }
       }
+      setDisabled(true)
+      setTimeout(() => setDisabled(false), 1000)
     },
-    [collectionId, collectionIdStr, isFavoritesDownload, tracksForDownload]
+    [
+      collectionId,
+      collectionIdStr,
+      dispatch,
+      isFavoritesDownload,
+      tracksForDownload
+    ]
   )
 
   if (!collectionId && !isFavoritesDownload) return null
+
   return (
     <View style={styles.root}>
       {labelText && <View style={styles.flex1} />}
@@ -154,7 +186,7 @@ export const DownloadToggle = ({
         <Switch
           value={isCollectionMarkedForDownload}
           onValueChange={handleToggleDownload}
-          disabled={isAnyDownloadInProgress}
+          disabled={disabled}
         />
       </View>
     </View>

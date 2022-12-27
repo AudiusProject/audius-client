@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import type { CommonState } from '@audius/common'
 import { accountActions } from '@audius/common'
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffectOnce } from 'react-use'
 
@@ -14,8 +15,12 @@ import type { TrackForDownload } from 'app/components/offline-downloads'
 import { DownloadToggle } from 'app/components/offline-downloads'
 import { TopTabNavigator } from 'app/components/top-tab-bar'
 import { useAppTabScreen } from 'app/hooks/useAppTabScreen'
-import { useFetchAllFavoritedTrackIds } from 'app/hooks/useFetchAllFavoritedTrackIds'
-import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
+import { useFetchAllFavoritedTracks } from 'app/hooks/useFetchAllFavoritedTracks'
+import {
+  toggleLocalOfflineModeOverride,
+  useIsOfflineModeEnabled,
+  useReadOfflineOverride
+} from 'app/hooks/useIsOfflineModeEnabled'
 import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 
 import { AlbumsTab } from './AlbumsTab'
@@ -49,9 +54,20 @@ const favoritesScreens = [
 export const FavoritesScreen = () => {
   useAppTabScreen()
   const dispatch = useDispatch()
+  const [clickCount, setClickCount] = useState(0)
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
-  const { value: allFavoritedTrackIds } = useFetchAllFavoritedTrackIds()
+  const { value: allFavoritedTrackIds } = useFetchAllFavoritedTracks()
+
+  useReadOfflineOverride()
+  const handleHeaderClick = useCallback(() => {
+    if (clickCount >= 10) {
+      toggleLocalOfflineModeOverride()
+      setClickCount(0)
+    } else {
+      setClickCount(clickCount + 1)
+    }
+  }, [clickCount])
 
   useEffectOnce(() => {
     dispatch(fetchSavedPlaylists())
@@ -65,11 +81,12 @@ export const FavoritesScreen = () => {
   const tracksForDownload: TrackForDownload[] = useMemo(() => {
     const trackFavoritesToDownload: TrackForDownload[] = (
       allFavoritedTrackIds ?? []
-    ).map((trackId) => ({
+    ).map(({ trackId, favoriteCreatedAt }) => ({
       trackId,
       downloadReason: {
         is_from_favorites: true,
-        collection_id: DOWNLOAD_REASON_FAVORITES
+        collection_id: DOWNLOAD_REASON_FAVORITES,
+        favorite_created_at: favoriteCreatedAt
       }
     }))
     const collectionFavoritesToDownload: TrackForDownload[] =
@@ -80,6 +97,7 @@ export const FavoritesScreen = () => {
             is_from_favorites: true,
             collection_id: collection.playlist_id.toString()
           }
+          // TODO: include a favorite_created_at timestamp for sorting offline collections
         }))
       )
 
@@ -88,18 +106,20 @@ export const FavoritesScreen = () => {
 
   return (
     <Screen>
-      <ScreenHeader
-        text={messages.header}
-        icon={IconFavorite}
-        styles={{ icon: { marginLeft: 3 } }}
-      >
-        {isOfflineModeEnabled && (
-          <DownloadToggle
-            tracksForDownload={tracksForDownload}
-            isFavoritesDownload
-          />
-        )}
-      </ScreenHeader>
+      <TouchableWithoutFeedback onPress={handleHeaderClick}>
+        <ScreenHeader
+          text={messages.header}
+          icon={IconFavorite}
+          styles={{ icon: { marginLeft: 3 } }}
+        >
+          {isOfflineModeEnabled && (
+            <DownloadToggle
+              tracksForDownload={tracksForDownload}
+              isFavoritesDownload
+            />
+          )}
+        </ScreenHeader>
+      </TouchableWithoutFeedback>
       {
         // ScreenContent handles the offline indicator.
         // Show favorites screen anyway when offline so users can see their downloads

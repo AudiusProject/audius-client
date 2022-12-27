@@ -287,7 +287,12 @@ export enum Name {
   // Buy Audio Recovery
   BUY_AUDIO_RECOVERY_OPENED = 'Buy Audio Recovery: Opened',
   BUY_AUDIO_RECOVERY_SUCCESS = 'Buy Audio Recovery: Success',
-  BUY_AUDIO_RECOVERY_FAILURE = 'Buy Audio Recovery: Failure'
+  BUY_AUDIO_RECOVERY_FAILURE = 'Buy Audio Recovery: Failure',
+
+  // Rate & Review CTA
+  RATE_CTA_DISPLAYED = 'Rate CTA: Displayed',
+  RATE_CTA_RESPONSE_YES = 'Rate CTA: User Responded Yes',
+  RATE_CTA_RESPONSE_NO = 'Rate CTA: User Responded No'
 }
 
 type PageView = {
@@ -506,6 +511,7 @@ export enum FavoriteSource {
   OVERFLOW = 'overflow',
   TRACK_LIST = 'track list',
   SIGN_UP = 'sign up',
+  OFFLINE_DOWNLOAD = 'offline download',
   // Favorite triggered by some implicit action, e.g.
   // you had a smart collection and it was favorited so it
   // shows in your left-nav.
@@ -1345,6 +1351,18 @@ type BuyAudioRecoveryFailure = {
   error: string
 }
 
+type RateCtaDisplayed = {
+  eventName: Name.RATE_CTA_DISPLAYED
+}
+
+type RateCtaResponseNo = {
+  eventName: Name.RATE_CTA_RESPONSE_NO
+}
+
+type RateCtaResponseYes = {
+  eventName: Name.RATE_CTA_RESPONSE_YES
+}
+
 type RewardsClaimStartCognitoFlow = {
   eventName: Name.REWARDS_CLAIM_START_COGNITO_FLOW
   handle: string | null
@@ -1535,5 +1553,8 @@ export type AllTrackingEvents =
   | BuyAudioRecoveryOpened
   | BuyAudioRecoverySuccess
   | BuyAudioRecoveryFailure
+  | RateCtaDisplayed
+  | RateCtaResponseNo
+  | RateCtaResponseYes
   | RewardsClaimStartCognitoFlow
   | RewardsClaimFinishCognitoFlow
