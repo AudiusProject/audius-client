@@ -701,7 +701,8 @@ const SignOn = ({ navigation }: SignOnProps) => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
         <View style={styles.containerBack}>
-          <RadialGradient
+          {/* TODO: Replace react-native-radial-gradient */}
+          {/* <RadialGradient
             style={styles.gradient}
             colors={[
               'rgba(91, 35, 225, 0.8)',
@@ -710,7 +711,7 @@ const SignOn = ({ navigation }: SignOnProps) => {
             ]}
             stops={[0.1, 0.67, 1]}
             radius={Dimensions.get('window').width / 1.2}
-          />
+          /> */}
           <ImageBackground
             source={image}
             resizeMode='cover'
