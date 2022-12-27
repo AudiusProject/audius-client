@@ -141,7 +141,6 @@ const NavigationContainer = (props: NavigationContainerProps) => {
       }
     },
     getStateFromPath: (path, options) => {
-      console.log('hmmm', path)
       // Add leading slash if it is missing
       if (path[0] !== '/') path = `/${path}`
 
@@ -194,13 +193,11 @@ const NavigationContainer = (props: NavigationContainerProps) => {
 
         if (path.match(/^\/[^/]+\/playlist\/[^/]+$/)) {
           // set the path as `collection`
-          console.log('playlist')
           path = path.replace(
             /(^\/[^/]+\/)(playlist)(\/[^/]+$)/,
             '$1collection$3'
           )
           path = `${path}?collectionType=playlist`
-          console.log('path!', path)
         } else if (path.match(/^\/[^/]+\/album\/[^/]+$/)) {
           // set the path as `collection`
           path = path.replace(/(^\/[^/]+\/)(album)(\/[^/]+$)/, '$1collection$3')
