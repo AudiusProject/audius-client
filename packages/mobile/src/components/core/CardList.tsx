@@ -11,13 +11,11 @@ import { View } from 'react-native'
 import { useScrollToTop } from 'app/hooks/useScrollToTop'
 import { makeStyles } from 'app/styles'
 
-import { EmptyTile } from './EmptyTile'
 import { FlatList } from './FlatList'
 
 export type CardListProps<ItemT> = FlatListProps<ItemT> & {
   isLoading?: boolean
   LoadingCardComponent?: ComponentType
-  emptyListText?: string
   disableTopTabScroll?: boolean
 }
 
@@ -46,7 +44,6 @@ const useStyles = makeStyles(({ spacing }) => ({
 export const CardList = <ItemT,>(props: CardListProps<ItemT>) => {
   const {
     renderItem,
-    emptyListText,
     disableTopTabScroll,
     data: dataProp,
     isLoading: isLoadingProp,
@@ -102,9 +99,6 @@ export const CardList = <ItemT,>(props: CardListProps<ItemT>) => {
       data={data}
       renderItem={handleRenderItem}
       numColumns={2}
-      ListEmptyComponent={
-        emptyListText ? <EmptyTile message={emptyListText} /> : undefined
-      }
       {...other}
     />
   )
