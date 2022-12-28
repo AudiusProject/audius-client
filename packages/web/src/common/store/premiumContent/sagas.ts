@@ -170,7 +170,7 @@ function* updateNewPremiumContentSignatures({
  * Halts if not all nfts have been fetched yet. Similarly, does not proceed if no tracks are in the cache yet.
  * Skips tracks whose signatures have already been previously obtained.
  */
-async function* updateNFTGatedTrackAccess(
+function* updateNFTGatedTrackAccess(
   action:
     | ReturnType<typeof ethNFTsFetched>
     | ReturnType<typeof solNFTsFetched>

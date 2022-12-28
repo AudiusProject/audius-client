@@ -9,7 +9,7 @@ import { getSearch } from './selectors'
 
 const getUserId = accountSelectors.getUserId
 
-export async function* getSearchResults(searchText: string) {
+export function* getSearchResults(searchText: string) {
   yield* waitForRead()
 
   const apiClient = yield* getContext('apiClient')
