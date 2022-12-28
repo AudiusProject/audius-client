@@ -10,6 +10,7 @@ const { getProfilePlaylists } = profilePageSelectors
 export const PlaylistsTab = () => {
   const { handle } = useSelectProfile(['handle'])
   const playlists = useSelector((state) => getProfilePlaylists(state, handle))
+  console.log('playlists?', playlists)
 
   const emptyListText = useEmptyProfileText('playlists')
 
