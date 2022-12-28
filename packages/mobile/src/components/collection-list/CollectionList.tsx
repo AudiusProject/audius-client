@@ -1,4 +1,4 @@
-import type { UserCollection } from '@audius/common'
+import type { Collection, UserCollection } from '@audius/common'
 
 import type { CardListProps } from 'app/components/core'
 import { CardList } from 'app/components/core'
@@ -9,7 +9,7 @@ import { CollectionCardSkeleton } from './CollectionCardSkeleton'
 type ListProps = Omit<CardListProps<UserCollection>, 'data' | 'renderItem'>
 
 type CollectionListProps = {
-  collection: UserCollection[] | undefined
+  collection: Collection[] | undefined
 } & ListProps
 
 export const CollectionList = (props: CollectionListProps) => {

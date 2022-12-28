@@ -1,4 +1,3 @@
-import type { UserCollection } from '@audius/common'
 import { Status, explorePageSelectors, useProxySelector } from '@audius/common'
 import { useSelector } from 'react-redux'
 
@@ -19,7 +18,7 @@ export const PlaylistsTab = () => {
     <CollectionList
       isLoading={exploreStatus === Status.LOADING}
       ListHeaderComponent={<TabInfo header={messages.infoHeader} />}
-      collection={playlists as UserCollection[]}
+      collection={playlists}
     />
   )
 }

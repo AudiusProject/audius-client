@@ -9,6 +9,7 @@ import type {
 import { View } from 'react-native'
 
 import { useScrollToTop } from 'app/hooks/useScrollToTop'
+import { makeStyles } from 'app/styles'
 
 import { EmptyTile } from './EmptyTile'
 import { FlatList } from './FlatList'
@@ -25,6 +26,23 @@ const skeletonData: LoadingCard[] = Array(5).fill({ _loading: true })
 
 const DefaultLoadingCard = () => null
 
+const useStyles = makeStyles(({ spacing }) => ({
+  card: {
+    paddingTop: spacing(3),
+    paddingHorizontal: spacing(3) / 2,
+    width: '50%'
+  },
+  bottomCard: {
+    paddingBottom: spacing(3)
+  },
+  leftCard: {
+    paddingLeft: spacing(3)
+  },
+  rightCard: {
+    paddingRight: spacing(3)
+  }
+}))
+
 export const CardList = <ItemT,>(props: CardListProps<ItemT>) => {
   const {
     renderItem,
@@ -36,8 +54,8 @@ export const CardList = <ItemT,>(props: CardListProps<ItemT>) => {
     ...other
   } = props
 
+  const styles = useStyles()
   const ref = useRef<RNFlatList>(null)
-
   const isLoading = isLoadingProp ?? !dataProp
 
   useScrollToTop(() => {
@@ -59,24 +77,23 @@ export const CardList = <ItemT,>(props: CardListProps<ItemT>) => {
       const { item, index } = info
       const isInLeftColumn = !(index % 2)
       const isLastRow = index + 2 > dataLength
-      const style = {
-        paddingTop: 12,
-        paddingBottom: isLastRow ? 12 : 0,
-        paddingHorizontal: 6,
-        [`padding${isInLeftColumn ? 'Left' : 'Right'}`]: 12,
-        width: '50%'
-      }
-      return (
-        <View style={style}>
-          {'_loading' in (item as LoadingCard) ? (
-            <LoadingCardComponent />
-          ) : (
-            renderItem?.(info)
-          )}
-        </View>
-      )
+
+      const style = [
+        styles.card,
+        isLastRow && styles.bottomCard,
+        isInLeftColumn ? styles.leftCard : styles.rightCard
+      ]
+
+      const itemElement =
+        '_loading' in (item as LoadingCard) ? (
+          <LoadingCardComponent />
+        ) : (
+          renderItem?.(info) ?? null
+        )
+
+      return <View style={style}>{itemElement}</View>
     },
-    [renderItem, dataLength, LoadingCardComponent]
+    [renderItem, dataLength, LoadingCardComponent, styles]
   )
 
   return (
