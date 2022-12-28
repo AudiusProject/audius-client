@@ -3,7 +3,8 @@ import type { User } from '@audius/common'
 import type { CardListProps } from 'app/components/core'
 import { CardList } from 'app/components/core'
 
-import { ArtistCard, ArtistCardSkeleton } from '../artist-card'
+import { ProfileCard } from './ProfileCard'
+import { ProfileCardSkeleton } from './ProfileCardSkeleton'
 
 type ListProps = Omit<CardListProps<User>, 'data' | 'renderItem'>
 
@@ -16,8 +17,8 @@ export const ProfileList = (props: ProfileListProps) => {
   return (
     <CardList
       data={profiles}
-      renderItem={({ item }) => <ArtistCard artist={item} />}
-      LoadingCardComponent={ArtistCardSkeleton}
+      renderItem={({ item }) => <ProfileCard profile={item} />}
+      LoadingCardComponent={ProfileCardSkeleton}
       {...other}
     />
   )

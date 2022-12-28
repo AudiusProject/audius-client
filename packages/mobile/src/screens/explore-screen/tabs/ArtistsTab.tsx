@@ -1,7 +1,7 @@
 import { explorePageSelectors, Status, useProxySelector } from '@audius/common'
 import { useSelector } from 'react-redux'
 
-import { ProfileList } from 'app/components/profile-list/ProfileList'
+import { ProfileList } from 'app/components/profile-list'
 
 import { TabInfo } from '../components/TabInfo'
 const { getExploreArtists, getExploreStatus } = explorePageSelectors

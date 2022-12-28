@@ -35,7 +35,7 @@ const useStyles = makeStyles(({ spacing }) => ({
   }
 }))
 
-export const ArtistCardSkeleton = () => {
+export const ProfileCardSkeleton = () => {
   const styles = useStyles()
   return (
     <Tile styles={{ tile: styles.root, content: styles.cardContent }}>

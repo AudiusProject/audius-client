@@ -6,7 +6,7 @@ import {
   useProxySelector
 } from '@audius/common'
 
-import { ProfileList } from 'app/components/profile-list/ProfileList'
+import { ProfileList } from 'app/components/profile-list'
 
 import { EmptyResults } from '../EmptyResults'
 
