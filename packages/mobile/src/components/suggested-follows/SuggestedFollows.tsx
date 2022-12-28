@@ -27,11 +27,15 @@ import { useEffectOnce } from 'react-use'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import IconWand from 'app/assets/images/iconWand.svg'
-import Button from 'app/components/button'
-import { UserImage } from 'app/components/image/UserImage'
+import { Button, TextButton } from 'app/components/core'
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
+import { useThemeColors } from 'app/utils/theme'
 
 import UserBadges from '../../components/user-badges/UserBadges'
+import { ProfilePicture } from '../user'
+
+import { ArtistCategoryButton } from './ArtistCategory'
+import { PickArtistsForMeButton } from './PickArtistsForMeButton'
 
 const styles = StyleSheet.create({
   container: {
@@ -106,6 +110,9 @@ const styles = StyleSheet.create({
     marginTop: 24,
     width: '100%'
   },
+  buttonContainer2: {
+    marginTop: 24
+  },
   button: {
     padding: 12
   },
@@ -151,8 +158,6 @@ const styles = StyleSheet.create({
   pillsContainer: {
     marginBottom: 16,
     flexDirection: 'row',
-    width: '100%',
-    alignItems: 'center',
     justifyContent: 'center',
     flexWrap: 'wrap'
   },
@@ -240,16 +245,7 @@ const styles = StyleSheet.create({
   cardImage: {
     height: 120,
     width: 120,
-    borderRadius: 60,
-    borderWidth: 2,
-    borderColor: '#F7F7F9',
     marginBottom: 14
-  },
-  userImage: {
-    borderRadius: 60,
-    height: '100%',
-    width: '100%',
-    marginRight: 12
   }
 })
 
@@ -287,25 +283,6 @@ const FormTitle = ({ title }: { title: string }) => {
   )
 }
 
-const ContinueButton = ({
-  onPress,
-  disabled
-}: {
-  onPress: () => void
-  disabled: boolean
-}) => {
-  return (
-    <Button
-      title={messages.continue}
-      containerStyle={styles.buttonContainer}
-      style={styles.button}
-      onPress={onPress}
-      disabled={disabled}
-      icon={<IconArrow style={styles.arrowIcon} fill='white' />}
-    />
-  )
-}
-
 const PickForMeButton = ({ active }: { active: boolean }) => {
   return (
     <View style={styles.formButtonTitleContainer}>
@@ -322,6 +299,26 @@ const PickForMeButton = ({ active }: { active: boolean }) => {
   )
 }
 
+const ContinueButton = ({
+  onPress,
+  disabled
+}: {
+  onPress: () => void
+  disabled: boolean
+}) => {
+  return (
+    <Button
+      title={messages.continue}
+      style={styles.buttonContainer2}
+      size='large'
+      fullWidth
+      onPress={onPress}
+      disabled={disabled}
+      icon={IconArrow}
+    />
+  )
+}
+
 export const FollowArtistCard = ({
   user,
   isSelected
@@ -335,12 +332,7 @@ export const FollowArtistCard = ({
         colors={isSelected ? ['#9849d6', '#6516a3'] : ['white', 'white']}
         style={styles.card}
       >
-        <View style={styles.cardImage}>
-          <UserImage
-            user={user}
-            styles={{ image: styles.userImage, root: styles.userImage }}
-          />
-        </View>
+        <ProfilePicture profile={user} style={styles.cardImage} />
         <UserBadges
           style={styles.cardNameContainer}
           nameStyle={[styles.cardName, isSelected ? styles.cardTextActive : {}]}
@@ -383,7 +375,8 @@ export const SuggestedFollows = ({ onPress, title }: SuggestedFollowsProps) => {
   const [isDisabled, setIsDisabled] = useState(false)
   const [isPickForMeActive, setIsPickForMeActive] = useState(false)
   const pickForMeScale = useRef(new Animated.Value(1)).current
-  const cardOpacity = useRef(new Animated.Value(1)).current
+  const cardOpacityRef = useRef(new Animated.Value(1))
+  const cardOpacity = cardOpacityRef.current
 
   useEffectOnce(() => {
     dispatch(signOnActions.fetchAllFollowArtists())
@@ -447,44 +440,6 @@ export const SuggestedFollows = ({ onPress, title }: SuggestedFollowsProps) => {
     addFollowedArtists(followUsers)
   }
 
-  const Pill = ({ category }: { category: FollowArtistsCategory }) => {
-    const dispatch = useDispatch()
-    const isActive = selectedCategory === category
-    const { scale, handlePressIn, handlePressOut } = usePressScaleAnimation(0.9)
-
-    const updateSelectedCategory = useCallback(async () => {
-      if (!isActive) {
-        Animated.timing(cardOpacity, {
-          toValue: 0,
-          duration: 0,
-          useNativeDriver: true
-        }).start(() =>
-          dispatch(signOnActions.setFollowAristsCategory(category))
-        )
-      }
-    }, [isActive, category, dispatch])
-
-    return (
-      <Animated.View
-        style={[styles.animatedPillView, { transform: [{ scale }] }]}
-      >
-        <TouchableOpacity
-          style={[styles.pill, isActive ? styles.pillActive : {}]}
-          activeOpacity={1}
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-          onPress={updateSelectedCategory}
-        >
-          <Text
-            style={[styles.pillText, isActive ? styles.pillTextActive : {}]}
-          >
-            {category}
-          </Text>
-        </TouchableOpacity>
-      </Animated.View>
-    )
-  }
-
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -494,38 +449,17 @@ export const SuggestedFollows = ({ onPress, title }: SuggestedFollowsProps) => {
             <Text style={styles.instruction}>{messages.subTitle}</Text>
             <View style={styles.pillsContainer}>
               {artistCategories.map((category) => (
-                <Pill key={category} category={category} />
+                <ArtistCategoryButton
+                  key={category}
+                  category={category}
+                  isSelected={category === selectedCategory}
+                />
               ))}
             </View>
           </View>
+
           <View style={styles.cardsArea}>
-            <TouchableOpacity
-              style={styles.wandBtn}
-              activeOpacity={0.6}
-              onPress={onPickForMe}
-              onPressIn={() => {
-                setIsPickForMeActive(true)
-                Animated.timing(pickForMeScale, {
-                  toValue: 1.03,
-                  duration: 100,
-                  delay: 0,
-                  useNativeDriver: true
-                }).start()
-              }}
-              onPressOut={() => {
-                setIsPickForMeActive(false)
-                Animated.timing(pickForMeScale, {
-                  toValue: 1,
-                  duration: 100,
-                  delay: 0,
-                  useNativeDriver: true
-                }).start()
-              }}
-            >
-              <Animated.View style={{ transform: [{ scale: pickForMeScale }] }}>
-                <PickForMeButton active={isPickForMeActive} />
-              </Animated.View>
-            </TouchableOpacity>
+            <PickArtistsForMeButton />
             <View style={styles.containerCards}>
               {(categories[selectedCategory] || [])
                 .filter((artistId) => suggestedFollowArtistsMap[artistId])
