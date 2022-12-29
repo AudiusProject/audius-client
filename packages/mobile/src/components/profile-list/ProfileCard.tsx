@@ -16,11 +16,14 @@ const formatProfileCardSecondaryText = (followers: number) => {
 type ProfileCardProps = {
   profile: User
   style?: StyleProp<ViewStyle>
+  onPress?: () => void
 }
 
-export const ProfileCard = ({ profile, style }: ProfileCardProps) => {
+export const ProfileCard = (props: ProfileCardProps) => {
+  const { profile, style, onPress } = props
   const { handle } = profile
   const navigation = useNavigation()
+
   const handlePress = useCallback(() => {
     navigation.push('Profile', { handle })
   }, [navigation, handle])
@@ -33,7 +36,7 @@ export const ProfileCard = ({ profile, style }: ProfileCardProps) => {
       renderImage={renderImage}
       primaryText={profile.name}
       secondaryText={formatProfileCardSecondaryText(profile.follower_count)}
-      onPress={handlePress}
+      onPress={onPress ?? handlePress}
       type='user'
       user={profile}
     />

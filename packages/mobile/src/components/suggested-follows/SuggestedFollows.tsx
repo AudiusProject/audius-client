@@ -7,12 +7,8 @@ import {
   getFollowArtists,
   makeGetFollowArtists
 } from 'common/store/pages/signon/selectors'
-import type {
-  FollowArtists,
-  FollowArtistsCategory
-} from 'common/store/pages/signon/types'
+import type { FollowArtists } from 'common/store/pages/signon/types'
 import { artistCategories } from 'common/store/pages/signon/types'
-import { sampleSize } from 'lodash'
 import {
   Animated,
   ScrollView,
@@ -26,10 +22,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useEffectOnce } from 'react-use'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
-import IconWand from 'app/assets/images/iconWand.svg'
-import { Button, TextButton } from 'app/components/core'
-import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
-import { useThemeColors } from 'app/utils/theme'
+import { Button } from 'app/components/core'
 
 import UserBadges from '../../components/user-badges/UserBadges'
 import { ProfilePicture } from '../user'
@@ -107,10 +100,6 @@ const styles = StyleSheet.create({
     paddingLeft: 10
   },
   buttonContainer: {
-    marginTop: 24,
-    width: '100%'
-  },
-  buttonContainer2: {
     marginTop: 24
   },
   button: {
@@ -261,62 +250,7 @@ const messages = {
 const MINIMUM_FOLLOWER_COUNT = 3
 
 const FormTitle = ({ title }: { title: string }) => {
-  const [didAnimation, setDidAnimation] = useState(false)
-  const opacity = useRef(new Animated.Value(0)).current
-
-  useEffect(() => {
-    if (!didAnimation) {
-      Animated.timing(opacity, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true
-      }).start(() => {
-        setDidAnimation(true)
-      })
-    }
-  }, [didAnimation, opacity])
-
-  return (
-    <Animated.View style={{ opacity }}>
-      <Text style={styles.title}>{title}</Text>
-    </Animated.View>
-  )
-}
-
-const PickForMeButton = ({ active }: { active: boolean }) => {
-  return (
-    <View style={styles.formButtonTitleContainer}>
-      <IconWand
-        style={styles.wandIcon}
-        fill={'#858199'}
-        width={16}
-        height={16}
-      />
-      <Text style={[styles.wandButtonTitle, active ? styles.underline : {}]}>
-        {messages.pickForMe}
-      </Text>
-    </View>
-  )
-}
-
-const ContinueButton = ({
-  onPress,
-  disabled
-}: {
-  onPress: () => void
-  disabled: boolean
-}) => {
-  return (
-    <Button
-      title={messages.continue}
-      style={styles.buttonContainer2}
-      size='large'
-      fullWidth
-      onPress={onPress}
-      disabled={disabled}
-      icon={IconArrow}
-    />
-  )
+  return <Text style={styles.title}>{title}</Text>
 }
 
 export const FollowArtistCard = ({
@@ -373,8 +307,6 @@ export const SuggestedFollows = ({ onPress, title }: SuggestedFollowsProps) => {
     selectedUserIds: followedArtistIds
   } = followArtists
   const [isDisabled, setIsDisabled] = useState(false)
-  const [isPickForMeActive, setIsPickForMeActive] = useState(false)
-  const pickForMeScale = useRef(new Animated.Value(1)).current
   const cardOpacityRef = useRef(new Animated.Value(1))
   const cardOpacity = cardOpacityRef.current
 
@@ -406,40 +338,6 @@ export const SuggestedFollows = ({ onPress, title }: SuggestedFollowsProps) => {
     [followedArtistIds, dispatch]
   )
 
-  const addFollowedArtists = useCallback(
-    (userIds: number[]) => {
-      const newUserIds = userIds.filter(
-        (userId) => !followedArtistIds.includes(userId)
-      )
-      dispatch(signOnActions.addFollowArtists(newUserIds))
-    },
-    [followedArtistIds, dispatch]
-  )
-
-  // The autoselect or 'pick for me'
-  // Selects the first three aritsts in the current category along with 2 additinal
-  // random artist from the top 10
-  const onPickForMe = () => {
-    const selectedIds = new Set(followedArtistIds)
-
-    const toUnselectedUserIds = (users: any[]) =>
-      users
-        .map((user: any) => user.user_id)
-        .filter((userId: number) => !selectedIds.has(userId))
-
-    const firstThreeUserIds = toUnselectedUserIds(
-      suggestedFollowArtists.slice(0, 3)
-    )
-    const suggestedUserIds = toUnselectedUserIds(
-      suggestedFollowArtists.slice(3, 10)
-    )
-
-    const followUsers = firstThreeUserIds.concat(
-      sampleSize(suggestedUserIds, 2)
-    )
-    addFollowedArtists(followUsers)
-  }
-
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -457,7 +355,6 @@ export const SuggestedFollows = ({ onPress, title }: SuggestedFollowsProps) => {
               ))}
             </View>
           </View>
-
           <View style={styles.cardsArea}>
             <PickArtistsForMeButton />
             <View style={styles.containerCards}>
@@ -485,7 +382,15 @@ export const SuggestedFollows = ({ onPress, title }: SuggestedFollowsProps) => {
       </ScrollView>
 
       <View style={styles.containerButton}>
-        <ContinueButton onPress={onPress} disabled={isDisabled} />
+        <Button
+          title={messages.continue}
+          style={styles.buttonContainer2}
+          size='large'
+          fullWidth
+          onPress={onPress}
+          disabled={isDisabled}
+          icon={IconArrow}
+        />
         <Text style={styles.followCounter}>
           {`${messages.following} ${
             followedArtistIds.length > MINIMUM_FOLLOWER_COUNT
