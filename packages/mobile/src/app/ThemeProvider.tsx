@@ -4,12 +4,12 @@ import { useEffect } from 'react'
 import type { Nullable } from '@audius/common'
 import { SystemAppearance, Theme, themeActions } from '@audius/common'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useAppState } from '@react-native-community/hooks'
 import { useDarkMode } from 'react-native-dynamic'
 import { useDispatch } from 'react-redux'
 import { useAsync } from 'react-use'
 
 import { THEME_STORAGE_KEY } from 'app/constants/storage-keys'
-import useAppState from 'app/hooks/useAppState'
 
 const { setTheme, setSystemAppearance } = themeActions
 
@@ -21,6 +21,7 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
   const { children } = props
   const isDarkMode = useDarkMode()
   const dispatch = useDispatch()
+  const appState = useAppState()
 
   useAsync(async () => {
     const savedTheme = (await AsyncStorage.getItem(
@@ -30,15 +31,21 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
     dispatch(setTheme({ theme: savedTheme ?? Theme.DEFAULT }))
   }, [dispatch])
 
+  console.log({ isDarkMode })
+
   useEffect(() => {
-    dispatch(
-      setSystemAppearance({
-        systemAppearance: isDarkMode
-          ? SystemAppearance.DARK
-          : SystemAppearance.LIGHT
-      })
-    )
-  }, [isDarkMode, dispatch])
+    // react-native-dynamic incorrectly sets dark-mode when in background
+    if (appState === 'active') {
+      console.log('setting system appearance!')
+      dispatch(
+        setSystemAppearance({
+          systemAppearance: isDarkMode
+            ? SystemAppearance.DARK
+            : SystemAppearance.LIGHT
+        })
+      )
+    }
+  }, [isDarkMode, dispatch, appState])
 
   return <>{children}</>
 }
