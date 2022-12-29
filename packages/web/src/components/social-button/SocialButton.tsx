@@ -3,15 +3,7 @@ import cn from 'classnames'
 
 import socialButtonStyles from './SocialButton.module.css'
 
-export type SocialButtonProps = Pick<
-  ButtonProps,
-  | 'text'
-  | 'onClick'
-  | 'leftIcon'
-  | 'className'
-  | 'textClassName'
-  | 'iconClassName'
->
+export type SocialButtonProps = ButtonProps
 
 export const SocialButton = (props: SocialButtonProps) => {
   return (
