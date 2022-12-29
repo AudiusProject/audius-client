@@ -20,7 +20,6 @@ import OAuth from 'app/components/oauth/OAuth'
 import { OfflineDownloader } from 'app/components/offline-downloads/OfflineDownloader'
 import { RateCtaReminder } from 'app/components/rate-cta-drawer/RateCtaReminder'
 import { ToastContextProvider } from 'app/components/toast/ToastContext'
-import { WebAppAccountSync } from 'app/components/web-app-account-sync'
 import { ENTROPY_KEY } from 'app/constants/storage-keys'
 import { useEnterForeground } from 'app/hooks/useAppState'
 import { incrementSessionCount } from 'app/hooks/useSessionCount'
@@ -91,11 +90,6 @@ const App = () => {
               <ToastContextProvider>
                 <ErrorBoundary>
                   <NavigationContainer>
-                    {!isReadyToSetupBackend ? (
-                      <WebAppAccountSync
-                        setIsReadyToSetupBackend={setIsReadyToSetupBackend}
-                      />
-                    ) : null}
                     <Airplay />
                     <RootScreen isReadyToSetupBackend={isReadyToSetupBackend} />
                     <Drawers />
