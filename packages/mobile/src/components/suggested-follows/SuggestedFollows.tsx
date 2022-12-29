@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import type { User } from '@audius/common'
-import { formatCount } from '@audius/common'
+import { formatCount, removeNullable } from '@audius/common'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import {
   getFollowArtists,
@@ -22,13 +22,16 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useEffectOnce } from 'react-use'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
-import { Button } from 'app/components/core'
+import { Button, CardList } from 'app/components/core'
+import { useThemeColors } from 'app/utils/theme'
 
 import UserBadges from '../../components/user-badges/UserBadges'
+import { ProfileCard } from '../profile-list/ProfileCard'
 import { ProfilePicture } from '../user'
 
 import { ArtistCategoryButton } from './ArtistCategory'
 import { PickArtistsForMeButton } from './PickArtistsForMeButton'
+import { SuggestedArtistsList } from './SuggestedArtistsList'
 
 const styles = StyleSheet.create({
   container: {
@@ -307,8 +310,6 @@ export const SuggestedFollows = ({ onPress, title }: SuggestedFollowsProps) => {
     selectedUserIds: followedArtistIds
   } = followArtists
   const [isDisabled, setIsDisabled] = useState(false)
-  const cardOpacityRef = useRef(new Animated.Value(1))
-  const cardOpacity = cardOpacityRef.current
 
   useEffectOnce(() => {
     dispatch(signOnActions.fetchAllFollowArtists())
@@ -318,13 +319,8 @@ export const SuggestedFollows = ({ onPress, title }: SuggestedFollowsProps) => {
     setIsDisabled(followedArtistIds.length < MINIMUM_FOLLOWER_COUNT)
   }, [followedArtistIds])
 
-  useEffect(() => {
-    Animated.timing(cardOpacity, {
-      toValue: 1,
-      duration: 0,
-      useNativeDriver: true
-    }).start()
-  }, [selectedCategory, cardOpacity])
+  const { pageHeaderGradientColor1, pageHeaderGradientColor2 } =
+    useThemeColors()
 
   const toggleFollowedArtist = useCallback(
     (userId: number) => {
@@ -337,6 +333,9 @@ export const SuggestedFollows = ({ onPress, title }: SuggestedFollowsProps) => {
     },
     [followedArtistIds, dispatch]
   )
+  const data = categories[selectedCategory]
+    ?.map((artistId) => suggestedFollowArtistsMap[artistId])
+    .filter(removeNullable)
 
   return (
     <View style={styles.container}>
@@ -358,24 +357,7 @@ export const SuggestedFollows = ({ onPress, title }: SuggestedFollowsProps) => {
           <View style={styles.cardsArea}>
             <PickArtistsForMeButton />
             <View style={styles.containerCards}>
-              {(categories[selectedCategory] || [])
-                .filter((artistId) => suggestedFollowArtistsMap[artistId])
-                .map((artistId) => (
-                  <Animated.View
-                    style={{ opacity: cardOpacity }}
-                    key={`${selectedCategory}-${artistId}`}
-                  >
-                    <TouchableOpacity
-                      activeOpacity={1}
-                      onPress={() => toggleFollowedArtist(artistId)}
-                    >
-                      <FollowArtistCard
-                        user={suggestedFollowArtistsMap[artistId]}
-                        isSelected={followedArtistIds.includes(artistId)}
-                      />
-                    </TouchableOpacity>
-                  </Animated.View>
-                ))}
+              <SuggestedArtistsList />
             </View>
           </View>
         </View>
@@ -384,7 +366,7 @@ export const SuggestedFollows = ({ onPress, title }: SuggestedFollowsProps) => {
       <View style={styles.containerButton}>
         <Button
           title={messages.continue}
-          style={styles.buttonContainer2}
+          style={styles.buttonContainer}
           size='large'
           fullWidth
           onPress={onPress}
@@ -392,11 +374,10 @@ export const SuggestedFollows = ({ onPress, title }: SuggestedFollowsProps) => {
           icon={IconArrow}
         />
         <Text style={styles.followCounter}>
-          {`${messages.following} ${
-            followedArtistIds.length > MINIMUM_FOLLOWER_COUNT
-              ? followedArtistIds.length
-              : `${followedArtistIds.length}/${MINIMUM_FOLLOWER_COUNT}`
-          }`}
+          {messages.following}{' '}
+          {followedArtistIds.length > MINIMUM_FOLLOWER_COUNT
+            ? followedArtistIds.length
+            : `${followedArtistIds.length}/${MINIMUM_FOLLOWER_COUNT}`}
         </Text>
       </View>
     </View>
