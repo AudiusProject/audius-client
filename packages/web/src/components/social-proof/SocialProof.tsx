@@ -281,12 +281,12 @@ const SocialProof = ({ onSuccess }: SocialProofProps) => {
 
   return (
     <ModalDrawer
-      bodyClassName={styles.modalBody}
-      isOpen={true}
+      isOpen={isOpen}
       onClose={() => setIsOpen(false)}
       title={messages.modalTitle}
       showTitleHeader
       useGradientTitle={false}
+      bodyClassName={styles.modalBodyStyle}
     >
       {body}
     </ModalDrawer>
