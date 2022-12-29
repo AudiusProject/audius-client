@@ -140,7 +140,7 @@ type TrackAvailabilitySelectionProps = {
 const PublicAvailability = ({ selected }: TrackAvailabilitySelectionProps) => {
   return (
     <div className={styles.availabilityRowContent}>
-      <div className={styles.availabilityRowTitle}>
+      <div className={cn(styles.availabilityRowTitle, { [styles.selected]: selected })}>
         <IconVisibilityPublic className={styles.availabilityRowIcon} />
         <span>{messages.public}</span>
       </div>
@@ -157,7 +157,7 @@ const SpecialAccessAvailability = ({
 }: TrackAvailabilitySelectionProps) => {
   return (
     <div className={styles.availabilityRowContent}>
-      <div className={styles.availabilityRowTitle}>
+      <div className={cn(styles.availabilityRowTitle, { [styles.selected]: selected })}>
         <IconSpecialAccess className={styles.availabilityRowIcon} />
         <span>{messages.specialAccess}</span>
       </div>
@@ -180,7 +180,7 @@ const CollectibleGatedAvailability = ({
 }: TrackAvailabilitySelectionProps) => {
   return (
     <div className={styles.availabilityRowContent}>
-      <div className={styles.availabilityRowTitle}>
+      <div className={cn(styles.availabilityRowTitle, { [styles.selected]: selected })}>
         <IconCollectible className={styles.availabilityRowIcon} />
         <span>{messages.collectibleGated}</span>
       </div>
@@ -199,7 +199,7 @@ const HiddenAvailability = ({
 }: TrackAvailabilitySelectionProps) => {
   return (
     <div className={styles.availabilityRowContent}>
-      <div className={styles.availabilityRowTitle}>
+      <div className={cn(styles.availabilityRowTitle, { [styles.selected]: selected })}>
         <IconHidden className={styles.availabilityRowIcon} />
         <span>{messages.hidden}</span>
       </div>

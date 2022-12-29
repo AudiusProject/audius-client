@@ -114,3 +114,11 @@
 .doneButton {
   font-size: var(--font-l) !important;
 }
+
+.selected {
+  color: var(--secondary);
+}
+
+.selected path {
+  fill: var(--secondary);
+}
