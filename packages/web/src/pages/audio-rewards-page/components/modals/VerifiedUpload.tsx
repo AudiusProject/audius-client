@@ -9,8 +9,7 @@ import {
 } from '@audius/stems'
 
 import { useModalState } from 'common/hooks/useModalState'
-import { InstagramButton } from 'components/instagram-button/InstagramButton'
-import TwitterButton from 'components/twitter-button/TwitterButton'
+import { InstagramButton, TwitterButton } from 'components/social-button'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 import { isMobile } from 'utils/clientUtil'

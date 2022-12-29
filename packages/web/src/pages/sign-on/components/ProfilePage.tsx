@@ -115,8 +115,10 @@ const ProfilePage = (props: ProfilePageProps) => {
     if (getProfileValid()) onNextPage()
   }, [getProfileValid, onNextPage])
 
-  const onTwitterLogin = async (twitterProfileRes: Body) => {
-    const { uuid, profile: twitterProfile } = await twitterProfileRes.json()
+  const onTwitterLogin = async (
+    uuid: string,
+    twitterProfile: TwitterProfile
+  ) => {
     try {
       const { profile, profileImage, profileBanner, requiresUserReview } =
         await formatTwitterProfile(twitterProfile, resizeImage)
