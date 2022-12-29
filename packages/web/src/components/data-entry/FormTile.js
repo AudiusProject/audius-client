@@ -399,7 +399,7 @@ const AdvancedForm = (props) => {
     } else if (availabilityState.is_premium) {
       if (
         availabilityState.premium_conditions &&
-        availabilityState.premium_conditions.nft_collection
+        'nft_collection' in availabilityState.premium_conditions
       ) {
         availabilityButtonTitle = messages.collectibleGated
       } else {

@@ -1,11 +1,12 @@
 import cn from 'classnames'
+import { MouseEventHandler } from 'react'
 
 import styles from './Switch.module.css'
 
 type SwitchProps = {
   isOn: boolean
   isDisabled?: boolean
-  handleToggle: () => void
+  handleToggle: MouseEventHandler<Element>
 }
 
 const Switch = ({ isOn, handleToggle, isDisabled = false }: SwitchProps) => {

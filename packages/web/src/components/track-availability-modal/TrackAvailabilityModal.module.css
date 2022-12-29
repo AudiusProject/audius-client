@@ -60,6 +60,10 @@
   margin-bottom: 24px;
 }
 
+.availabilityRowContent:hover {
+  cursor: pointer;
+}
+
 .availabilityRowContent:not(:first-child) {
   padding-top: 24px;
   border-top: 1px solid var(--neutral-light-7);
