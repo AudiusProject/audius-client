@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import IconInstagram from 'app/assets/images/iconInstagram.svg'
 import IconLink from 'app/assets/images/iconLink.svg'
 import IconShare from 'app/assets/images/iconShare.svg'
+import IconSnapchat from 'app/assets/images/iconSnapchat.svg'
 import IconTikTok from 'app/assets/images/iconTikTok.svg'
 import IconTikTokInverted from 'app/assets/images/iconTikTokInverted.svg'
 import IconTwitterBird from 'app/assets/images/iconTwitterBird.svg'
@@ -57,6 +58,9 @@ const useStyles = makeStyles(({ palette }) => ({
   shareToInstagramStoryAction: {
     color: palette.primary
   },
+  shareToSnapchatAction: {
+    color: 'black'
+  },
   title: {
     display: 'flex',
     flexDirection: 'row',
@@ -96,6 +100,10 @@ export const ShareDrawer = () => {
     FeatureFlags.SHARE_TO_STORY
   )
 
+  const { isEnabled: isShareToSnapchatEnabled } = useFeatureFlag(
+    FeatureFlags.SHARE_TO_SNAPCHAT
+  )
+
   const { primary, secondary, neutralLight2, staticTwitterBlue } =
     useThemeColors()
   const themeVariant = useThemeVariant()
@@ -131,6 +139,7 @@ export const ShareDrawer = () => {
   const {
     handleShareToStoryStickerLoad,
     handleShareToInstagramStory,
+    handleShareToSnapchat,
     shouldRenderShareToStorySticker
   } = useShareToStory({ content, viewShotRef })
 
@@ -176,6 +185,14 @@ export const ShareDrawer = () => {
       !content.track.is_delete
   )
 
+  const shouldIncludeSnapchatAction = Boolean(
+    isShareToSnapchatEnabled &&
+      content?.type === 'track' &&
+      !content.track.is_unlisted &&
+      !content.track.is_invalid &&
+      !content.track.is_delete
+  )
+
   const getRows = useCallback(() => {
     const shareToTwitterAction = {
       icon: <IconTwitterBird fill={staticTwitterBlue} height={20} width={26} />,
@@ -209,6 +226,13 @@ export const ShareDrawer = () => {
       callback: handleOpenShareSheet
     }
 
+    const shareToSnapchatAction = {
+      text: messages.snapchat,
+      icon: <IconSnapchat height={26} width={26} />,
+      style: styles.shareToSnapchatAction,
+      callback: handleShareToSnapchat
+    }
+
     const shareToInstagramStoriesAction = {
       text: messages.instagramStory,
       icon: <IconInstagram fill={primary} height={26} width={26} />,
@@ -230,6 +254,10 @@ export const ShareDrawer = () => {
       result.push(shareToInstagramStoriesAction)
     }
 
+    if (shouldIncludeSnapchatAction) {
+      result.push(shareToSnapchatAction)
+    }
+
     result.push(copyLinkAction, shareSheetAction)
 
     return result
@@ -240,6 +268,7 @@ export const ShareDrawer = () => {
     styles.shareToTikTokActionDark,
     styles.copyLinkAction,
     styles.shareToInstagramStoryAction,
+    styles.shareToSnapchatAction,
     handleShareToTwitter,
     isLightMode,
     handleShareToTikTok,
@@ -248,9 +277,11 @@ export const ShareDrawer = () => {
     handleCopyLink,
     handleOpenShareSheet,
     primary,
+    handleShareToSnapchat,
     handleShareToInstagramStory,
     shouldIncludeTikTokAction,
-    shouldIncludeInstagramStoryAction
+    shouldIncludeInstagramStoryAction,
+    shouldIncludeSnapchatAction
   ])
 
   return (

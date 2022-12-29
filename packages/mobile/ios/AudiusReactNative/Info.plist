@@ -42,7 +42,15 @@
 			<string>instagram-stories</string>
 			<string>instagram</string>
 			<string>itms-apps</string>
+      <string>snapchat</string>
+      <string>itms-apps</string>
+      <string>bitmoji-sdk</string>
 		</array>
+    <key>SCSDKClientId</key>
+    <string>6f90a744-e5d0-4115-ad14-fb1a356085cd</string>
+    <key>SCSDKRedirectUrl</key>
+	  <string>audius://snap-kit/oauth2</string>
+    
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
 		<key>LSSupportsOpeningDocumentsInPlace</key>

@@ -385,6 +385,9 @@
 				"${PODS_ROOT}/ffmpeg-kit-ios-https-gpl/libswresample.framework",
 				"${PODS_ROOT}/ffmpeg-kit-ios-https-gpl/libswscale.framework",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/FingerprintPro/FingerprintPro.framework/FingerprintPro",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/SnapSDK/SCSDKCoreKit/SCSDKCoreKit.framework/SCSDKCoreKit",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/SnapSDK/SCSDKCreativeKit/SCSDKCreativeKit.framework/SCSDKCreativeKit",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/SnapSDK/SCSDKLoginKit/SCSDKLoginKit.framework/SCSDKLoginKit",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -397,6 +400,9 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libswresample.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libswscale.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FingerprintPro.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SCSDKCoreKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SCSDKCreativeKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SCSDKLoginKit.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
