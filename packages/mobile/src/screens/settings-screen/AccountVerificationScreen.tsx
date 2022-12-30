@@ -11,18 +11,23 @@ import { useDispatch, useSelector } from 'react-redux'
 import PartyFace from 'app/assets/images/emojis/face-with-party-horn-and-party-hat.png'
 import IconInstagram from 'app/assets/images/iconInstagram.svg'
 import IconNote from 'app/assets/images/iconNote.svg'
+import IconTikTok from 'app/assets/images/iconTikTokInverted.svg'
 import IconTwitter from 'app/assets/images/iconTwitterBird.svg'
 import { Button, Screen, Text } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
+import { SocialButton } from 'app/components/social-button'
 import { StatusMessage } from 'app/components/status-message'
+import { TikTokAuthButton } from 'app/components/tiktok-auth'
 import { ProfilePicture } from 'app/components/user'
 import UserBadges from 'app/components/user-badges'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { track, make } from 'app/services/analytics'
 import * as oauthActions from 'app/store/oauth/actions'
 import {
   getInstagramError,
   getInstagramInfo,
+  getTikTokError,
   getTwitterError,
   getTwitterInfo
 } from 'app/store/oauth/selectors'
@@ -39,6 +44,7 @@ const messages = {
   verified: "You're verified!",
   verifyTwitter: 'Verify with Twitter',
   verifyInstagram: 'Verify with Instagram',
+  verifyTikTok: 'Verify with TikTok',
   backButtonText: 'Back To The Music',
   failureText: 'Sorry, unable to retrieve information'
 }
@@ -62,23 +68,8 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     textAlign: 'center',
     fontFamily: typography.fontByWeight.heavy
   },
-  buttonContainer: {
-    marginTop: spacing(3),
-    marginBottom: spacing(3),
-    height: 64,
-    minWidth: 300
-  },
-  twitterButton: {
-    backgroundColor: palette.staticTwitterBlue
-  },
-  button: {
-    paddingHorizontal: spacing(4)
-  },
-  buttonText: {
-    fontSize: 18
-  },
-  buttonIcon: {
-    marginRight: spacing(3)
+  socialButtonContainer: {
+    marginBottom: spacing(2)
   },
   profileContainer: {
     marginTop: spacing(12),
@@ -114,6 +105,11 @@ export const AccountVerificationScreen = () => {
   const twitterError = useSelector(getTwitterError)
   const instagramInfo = useSelector(getInstagramInfo)
   const instagramError = useSelector(getInstagramError)
+  const tikTokError = useSelector(getTikTokError)
+
+  const { isEnabled: isTikTokEnabled } = useFeatureFlag(
+    useFeatureFlag.COMPLETE_PROFILE_WITH_TIKTOK
+  )
 
   const handleField: EditableField = useSelector(getHandleField)
 
@@ -196,8 +192,10 @@ export const AccountVerificationScreen = () => {
   ])
 
   useEffect(() => {
-    if (twitterError) onVerifyFailure()
-  }, [onVerifyFailure, twitterError])
+    if (twitterError | instagramError | tikTokError) {
+      onVerifyFailure()
+    }
+  }, [onVerifyFailure, twitterError, instagramError, tikTokError])
 
   useEffect(() => {
     if (instagramInfo) {
@@ -224,7 +222,7 @@ export const AccountVerificationScreen = () => {
     if (instagramError) onVerifyFailure()
   }, [instagramError, onVerifyFailure])
 
-  const onTwitterPress = () => {
+  const handleTwitterPress = () => {
     if (!handle) return
     onVerifyButtonPress()
     dispatch(oauthActions.setTwitterError(null))
@@ -237,7 +235,7 @@ export const AccountVerificationScreen = () => {
     )
   }
 
-  const onInstagramPress = () => {
+  const handleInstagramPress = () => {
     if (!handle) return
     onVerifyButtonPress()
     dispatch(oauthActions.setInstagramError(null))
@@ -245,6 +243,19 @@ export const AccountVerificationScreen = () => {
     track(
       make({
         eventName: EventNames.SETTINGS_START_INSTAGRAM_OAUTH,
+        handle
+      })
+    )
+  }
+
+  const handleTikTokPress = () => {
+    if (!handle) return
+    onVerifyButtonPress()
+    dispatch(oauthActions.setTikTokError(null))
+    dispatch(oauthActions.tikTokAuth())
+    track(
+      make({
+        eventName: EventNames.SETTINGS_START_TIKTOK_OAUTH,
         handle
       })
     )
@@ -265,29 +276,26 @@ export const AccountVerificationScreen = () => {
     <View style={styles.contentContainer}>
       <Text style={styles.text}>{messages.gettingVerified}</Text>
       <Text style={styles.text}>{messages.handleMatch}</Text>
-      <Button
-        title={messages.verifyTwitter}
-        styles={{
-          root: [styles.buttonContainer, styles.twitterButton],
-          text: styles.buttonText,
-          icon: styles.buttonIcon,
-          button: styles.button
-        }}
-        onPress={onTwitterPress}
+      <SocialButton
+        color={'#1BA1F1'}
+        fullWidth
         icon={IconTwitter}
-        iconPosition='left'
+        onPress={handleTwitterPress}
+        styles={{ root: styles.socialButtonContainer }}
+        title={messages.verifyTwitter}
       />
-      <Button
-        title={messages.verifyInstagram}
-        styles={{
-          root: [styles.buttonContainer],
-          text: styles.buttonText,
-          icon: styles.buttonIcon,
-          button: styles.button
-        }}
-        onPress={onInstagramPress}
+      <SocialButton
+        fullWidth
         icon={IconInstagram}
-        iconPosition='left'
+        onPress={handleInstagramPress}
+        styles={{ root: styles.socialButtonContainer }}
+        title={messages.verifyInstagram}
+      />
+
+      <TikTokAuthButton
+        onPress={handleTikTokPress}
+        styles={{ root: styles.socialButtonContainer }}
+        title={messages.verifyTikTok}
       />
       {error ? (
         <StatusMessage
