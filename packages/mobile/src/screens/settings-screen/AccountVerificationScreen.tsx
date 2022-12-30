@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { Status, accountSelectors } from '@audius/common'
+import { Status, accountSelectors, FeatureFlags } from '@audius/common'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import { getHandleField } from 'common/store/pages/signon/selectors'
 import type { EditableField } from 'common/store/pages/signon/types'
@@ -11,7 +11,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import PartyFace from 'app/assets/images/emojis/face-with-party-horn-and-party-hat.png'
 import IconInstagram from 'app/assets/images/iconInstagram.svg'
 import IconNote from 'app/assets/images/iconNote.svg'
-import IconTikTok from 'app/assets/images/iconTikTokInverted.svg'
 import IconTwitter from 'app/assets/images/iconTwitterBird.svg'
 import { Button, Screen, Text } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
@@ -25,6 +24,7 @@ import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { track, make } from 'app/services/analytics'
 import * as oauthActions from 'app/store/oauth/actions'
 import {
+  getAbandoned,
   getInstagramError,
   getInstagramInfo,
   getTikTokError,
@@ -90,6 +90,24 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     width: 48,
     alignSelf: 'center',
     marginBottom: spacing(2)
+  },
+  buttonContainer: {
+    marginTop: spacing(3),
+    marginBottom: spacing(3),
+    height: 64,
+    minWidth: 300
+  },
+  twitterButton: {
+    backgroundColor: palette.staticTwitterBlue
+  },
+  button: {
+    paddingHorizontal: spacing(4)
+  },
+  buttonText: {
+    fontSize: 18
+  },
+  buttonIcon: {
+    marginRight: spacing(3)
   }
 }))
 
@@ -106,9 +124,10 @@ export const AccountVerificationScreen = () => {
   const instagramInfo = useSelector(getInstagramInfo)
   const instagramError = useSelector(getInstagramError)
   const tikTokError = useSelector(getTikTokError)
+  const abandoned = useSelector(getAbandoned)
 
   const { isEnabled: isTikTokEnabled } = useFeatureFlag(
-    useFeatureFlag.COMPLETE_PROFILE_WITH_TIKTOK
+    FeatureFlags.COMPLETE_PROFILE_WITH_TIKTOK
   )
 
   const handleField: EditableField = useSelector(getHandleField)
@@ -218,10 +237,6 @@ export const AccountVerificationScreen = () => {
     trackOAuthComplete
   ])
 
-  useEffect(() => {
-    if (instagramError) onVerifyFailure()
-  }, [instagramError, onVerifyFailure])
-
   const handleTwitterPress = () => {
     if (!handle) return
     onVerifyButtonPress()
@@ -261,6 +276,12 @@ export const AccountVerificationScreen = () => {
     )
   }
 
+  useEffect(() => {
+    if (abandoned) {
+      setStatus('')
+    }
+  }, [abandoned])
+
   const goBacktoProfile = useCallback(() => {
     if (!handle) return
     navigation.navigate('Profile', { handle })
@@ -292,11 +313,13 @@ export const AccountVerificationScreen = () => {
         title={messages.verifyInstagram}
       />
 
-      <TikTokAuthButton
-        onPress={handleTikTokPress}
-        styles={{ root: styles.socialButtonContainer }}
-        title={messages.verifyTikTok}
-      />
+      {isTikTokEnabled ? (
+        <TikTokAuthButton
+          onPress={handleTikTokPress}
+          styles={{ root: styles.socialButtonContainer }}
+          title={messages.verifyTikTok}
+        />
+      ) : null}
       {error ? (
         <StatusMessage
           style={{ alignSelf: 'center' }}
