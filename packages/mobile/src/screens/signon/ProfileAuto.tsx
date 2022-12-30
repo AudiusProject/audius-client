@@ -14,7 +14,6 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import IconImage from 'app/assets/images/iconImage.svg'
 import IconInstagram from 'app/assets/images/iconInstagram.svg'
-import IconTikTok from 'app/assets/images/iconTikTokInverted.svg'
 import IconTwitter from 'app/assets/images/iconTwitterBird.svg'
 import IconUser from 'app/assets/images/iconUser.svg'
 import IconVerified from 'app/assets/images/iconVerified.svg'
