@@ -1,4 +1,7 @@
+import { Fragment } from 'react'
+
 import { fetchAllFollowArtists } from 'common/store/pages/signon/actions'
+import type { StyleProp, ViewStyle } from 'react-native'
 import { FlatList, ScrollView, View } from 'react-native'
 import { useDispatch } from 'react-redux'
 import { useEffectOnce } from 'react-use'
@@ -13,8 +16,7 @@ import { SuggestedArtistsList } from './SuggestedArtistsList'
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
   root: {
-    flex: 1,
-    justifyContent: 'space-between'
+    flex: 1
   },
   header: {
     paddingHorizontal: spacing(4),
@@ -41,13 +43,14 @@ const messages = {
 }
 
 type SuggestedFollowsProps = {
-  onPress: () => void
+  style?: StyleProp<ViewStyle>
+  onArtistsSelected: () => void
   title: string
   screen: 'sign-on' | 'feed'
 }
 
 export const SuggestedFollows = (props: SuggestedFollowsProps) => {
-  const { onPress, title, screen } = props
+  const { style, onArtistsSelected, title, screen } = props
   const styles = useStyles()
   const dispatch = useDispatch()
 
@@ -72,16 +75,18 @@ export const SuggestedFollows = (props: SuggestedFollowsProps) => {
     </>
   )
 
-  // const InnerComponent = screen === 'sign-on' ? View : ScrollView
+  const InnerComponent = screen === 'sign-on' ? Fragment : ScrollView
 
   return (
-    <View style={styles.root}>
-      {screen === 'feed' ? headerElement : null}
-      <SuggestedArtistsList
-        FlatListComponent={FlatList}
-        ListHeaderComponent={screen === 'sign-on' ? headerElement : null}
-      />
-      <ContinueButton onPress={onPress} />
+    <View style={[styles.root, style]}>
+      <InnerComponent>
+        {screen === 'feed' ? headerElement : null}
+        <SuggestedArtistsList
+          FlatListComponent={FlatList}
+          ListHeaderComponent={screen === 'sign-on' ? headerElement : null}
+        />
+      </InnerComponent>
+      <ContinueButton onPress={onArtistsSelected} />
     </View>
   )
 }

@@ -17,7 +17,8 @@ const messages = {
 const useStyles = makeStyles(({ spacing, palette }) => ({
   root: {
     paddingHorizontal: spacing(6),
-    backgroundColor: palette.white
+    backgroundColor: palette.white,
+    paddingBottom: spacing(3)
   },
   button: {
     marginTop: spacing(4)
