@@ -38,6 +38,7 @@
 
         <meta-data android:name="com.dieam.reactnativepushnotification.notification_channel_name" android:value="Activity"/>
         <meta-data android:name="com.dieam.reactnativepushnotification.notification_channel_description" android:value="Your activity on Audius"/>
+        <meta-data android:name="com.snapchat.kit.sdk.clientId" android:value="6f90a744-e5d0-4115-ad14-fb1a356085cd" />
         <!-- Change the resource name to your App's accent color - or any other color you want -->
         <meta-data android:name="com.dieam.reactnativepushnotification.notification_color" android:resource="@android:color/white"/>
 
@@ -70,6 +71,16 @@
         </service>
         <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@mipmap/ic_notification" />
 
+        <provider
+            android:authorities="${applicationId}.fileprovider"
+            android:name="androidx.core.content.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"
+            />
+        </provider>
     </application>
 
     <queries>

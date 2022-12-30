@@ -599,6 +599,7 @@ DEPENDENCIES:
   - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
+  - "snap-kit-react-native (from `../node_modules/@snapchat/snap-kit-react-native`)"
   - SRSRadialGradient (from `../node_modules/react-native-radial-gradient/ios`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -779,6 +780,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-share"
   RNSVG:
     :path: "../node_modules/react-native-svg"
+  snap-kit-react-native:
+    :path: "../node_modules/@snapchat/snap-kit-react-native"
   SRSRadialGradient:
     :path: "../node_modules/react-native-radial-gradient/ios"
   Yoga:
