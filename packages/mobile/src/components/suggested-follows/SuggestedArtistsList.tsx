@@ -9,6 +9,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient'
 import { useDispatch, useSelector } from 'react-redux'
 
+import type { ProfileListProps } from 'app/components/profile-list'
 import { ProfileCard, ProfileList } from 'app/components/profile-list'
 import type { AppState } from 'app/store'
 import { makeStyles } from 'app/styles'
@@ -20,7 +21,9 @@ const useStyles = makeStyles(({ palette }) => ({
   }
 }))
 
-export const SuggestedArtistsList = () => {
+type SuggestedArtistsListProps = Partial<ProfileListProps>
+
+export const SuggestedArtistsList = (props: SuggestedArtistsListProps) => {
   const styles = useStyles()
   const { secondaryLight2, secondaryDark2, white } = useThemeColors()
   const dispatch = useDispatch()
@@ -79,6 +82,7 @@ export const SuggestedArtistsList = () => {
           />
         )
       }}
+      {...props}
     />
   )
 }

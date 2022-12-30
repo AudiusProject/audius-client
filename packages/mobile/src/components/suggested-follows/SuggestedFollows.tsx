@@ -1,5 +1,5 @@
 import { fetchAllFollowArtists } from 'common/store/pages/signon/actions'
-import { ScrollView, View } from 'react-native'
+import { FlatList, ScrollView, View } from 'react-native'
 import { useDispatch } from 'react-redux'
 import { useEffectOnce } from 'react-use'
 
@@ -13,7 +13,8 @@ import { SuggestedArtistsList } from './SuggestedArtistsList'
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
   root: {
-    flex: 1
+    flex: 1,
+    justifyContent: 'space-between'
   },
   header: {
     paddingHorizontal: spacing(4),
@@ -42,10 +43,11 @@ const messages = {
 type SuggestedFollowsProps = {
   onPress: () => void
   title: string
+  screen: 'sign-on' | 'feed'
 }
 
 export const SuggestedFollows = (props: SuggestedFollowsProps) => {
-  const { onPress, title } = props
+  const { onPress, title, screen } = props
   const styles = useStyles()
   const dispatch = useDispatch()
 
@@ -53,23 +55,32 @@ export const SuggestedFollows = (props: SuggestedFollowsProps) => {
     dispatch(fetchAllFollowArtists())
   })
 
+  const headerElement = (
+    <>
+      <View style={styles.header}>
+        {title ? (
+          <Text variant='h1' color='secondary' style={styles.title}>
+            {title}
+          </Text>
+        ) : null}
+        <Text variant='body1' style={styles.instruction}>
+          {messages.instruction}
+        </Text>
+        <SelectArtistCategoryButtons />
+      </View>
+      <PickArtistsForMeButton />
+    </>
+  )
+
+  // const InnerComponent = screen === 'sign-on' ? View : ScrollView
+
   return (
     <View style={styles.root}>
-      <ScrollView>
-        <View style={styles.header}>
-          {title ? (
-            <Text variant='h1' color='secondary' style={styles.title}>
-              {title}
-            </Text>
-          ) : null}
-          <Text variant='body1' style={styles.instruction}>
-            {messages.instruction}
-          </Text>
-          <SelectArtistCategoryButtons />
-        </View>
-        <PickArtistsForMeButton />
-        <SuggestedArtistsList />
-      </ScrollView>
+      {screen === 'feed' ? headerElement : null}
+      <SuggestedArtistsList
+        FlatListComponent={FlatList}
+        ListHeaderComponent={screen === 'sign-on' ? headerElement : null}
+      />
       <ContinueButton onPress={onPress} />
     </View>
   )

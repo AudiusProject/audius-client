@@ -8,7 +8,7 @@ import { ProfileCardSkeleton } from './ProfileCardSkeleton'
 
 type ListProps = Omit<CardListProps<User>, 'data'>
 
-type ProfileListProps = {
+export type ProfileListProps = {
   profiles: User[] | undefined
 } & Partial<ListProps>
 

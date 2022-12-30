@@ -9,7 +9,7 @@ import type {
   FollowArtists,
   EditableField
 } from 'common/store/pages/signon/types'
-import { SafeAreaView } from 'react-native'
+import { SafeAreaView, View, Text } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { SuggestedFollows } from 'app/components/suggested-follows'
@@ -51,8 +51,12 @@ const FirstFollows = ({ navigation }: FirstFollowsProps) => {
   }
 
   return (
-    <SafeAreaView style={{ backgroundColor: 'white' }}>
-      <SuggestedFollows title={messages.title} onPress={onPressContinue} />
+    <SafeAreaView style={{ backgroundColor: 'white', flex: 1 }}>
+      <SuggestedFollows
+        title={messages.title}
+        onPress={onPressContinue}
+        screen='sign-on'
+      />
     </SafeAreaView>
   )
 }
