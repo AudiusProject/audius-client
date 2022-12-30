@@ -115,7 +115,7 @@ export const AccountVerificationScreen = () => {
   const styles = useStyles()
   const dispatch = useDispatch()
   const [error, setError] = useState('')
-  const [status, setStatus] = useState('')
+  const [status, setStatus] = useState<Status>(Status.IDLE)
   const [didValidateHandle, setDidValidateHandle] = useState(false)
   const accountUser = useSelector(getAccountUser)
   const navigation = useNavigation()
@@ -196,7 +196,7 @@ export const AccountVerificationScreen = () => {
         setDidValidateHandle(true)
       } else if (handleField.error || twitterInfo.requiresUserReview) {
         trackOAuthComplete('twitter')
-        setStatus('')
+        setStatus(Status.IDLE)
       } else if (handleField.status === EditingStatus.SUCCESS) {
         trackOAuthComplete('twitter')
         setStatus(Status.SUCCESS)
@@ -223,7 +223,7 @@ export const AccountVerificationScreen = () => {
         setDidValidateHandle(true)
       } else if (handleField.error || instagramInfo.requiresUserReview) {
         trackOAuthComplete('instagram')
-        setStatus('')
+        setStatus(Status.IDLE)
       } else if (handleField.status === EditingStatus.SUCCESS) {
         trackOAuthComplete('instagram')
         setStatus(Status.SUCCESS)
@@ -278,7 +278,7 @@ export const AccountVerificationScreen = () => {
 
   useEffect(() => {
     if (abandoned) {
-      setStatus('')
+      setStatus(Status.IDLE)
     }
   }, [abandoned])
 
@@ -364,7 +364,7 @@ export const AccountVerificationScreen = () => {
 
   const getPageContent = () => {
     switch (status) {
-      case '':
+      case Status.IDLE:
       case Status.ERROR:
         return verifyView
       case Status.LOADING:
