@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, MouseEvent } from 'react'
 
 import { TikTokProfile } from '@audius/common'
 
@@ -21,7 +21,7 @@ export const TikTokAuthButton = (props: TikTokAuthButtonProps) => {
   })
 
   const handleClick = useCallback(
-    (e: any) => {
+    (e: MouseEvent<HTMLButtonElement>) => {
       onClick?.(e)
       withTikTokAuth(async (accessToken: string) => {
         try {

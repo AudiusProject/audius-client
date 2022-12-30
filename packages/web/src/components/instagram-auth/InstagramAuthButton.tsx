@@ -23,6 +23,7 @@ export const InstagramAuthButton = (props: InstagramAuthButtonProps) => {
     disabled = false,
     ...buttonProps
   } = props
+
   return (
     <InstagramAuth
       className={containerClassName}
