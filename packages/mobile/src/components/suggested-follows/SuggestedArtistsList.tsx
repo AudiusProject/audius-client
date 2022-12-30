@@ -58,7 +58,7 @@ export const SuggestedArtistsList = () => {
       renderItem={({ item: artist }) => {
         const { user_id } = artist
         const isSelected = selectedArtistIds.includes(user_id)
-        console.log({ isSelected })
+
         const gradientColors = isSelected
           ? [secondaryLight2, secondaryDark2]
           : [white, white]

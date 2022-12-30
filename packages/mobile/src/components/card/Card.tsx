@@ -1,9 +1,9 @@
-import type { ReactNode } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 
 import type { User } from '@audius/common'
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native'
 import { Text, View } from 'react-native'
-import type LinearGradient from 'react-native-linear-gradient'
+import type { LinearGradientProps } from 'react-native-linear-gradient'
 
 import type { TileProps } from 'app/components/core'
 import { Tile } from 'app/components/core'
@@ -60,7 +60,7 @@ type BaseCardProps = {
   primaryText: string
   renderImage: () => ReactNode
   secondaryText?: string
-  TileProps?: Omit<TileProps<typeof LinearGradient>, 'children'>
+  TileProps?: Omit<TileProps<ComponentType<LinearGradientProps>>, 'children'>
   style?: StyleProp<ViewStyle>
   styles?: StylesProp<{
     primaryText: TextStyle
@@ -88,7 +88,7 @@ export const Card = (props: CardProps) => {
     secondaryText,
     style,
     styles: stylesProp,
-    ...other
+    TileProps = {}
   } = props
 
   const styles = useStyles()
@@ -97,7 +97,7 @@ export const Card = (props: CardProps) => {
     <Tile
       onPress={onPress}
       styles={{ root: style, content: styles.cardContent }}
-      {...other}
+      {...TileProps}
     >
       <View style={styles.imgContainer}>
         <View style={[styles.cardImg, props.type === 'user' && styles.userImg]}>
