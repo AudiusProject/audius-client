@@ -5,71 +5,78 @@
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
-#import <React/RCTLinkingManager.h>
-#import <RNCPushNotificationIOS.h>
+#import <React/RCTAppSetupUtils.h>
+// #import <React/RCTLinkingManager.h>
+// #import <RNCPushNotificationIOS.h>
 
-#ifdef FB_SONARKIT_ENABLED
-#import <FlipperKit/FlipperClient.h>
-#import <FlipperKitLayoutPlugin/FlipperKitLayoutPlugin.h>
-#import <FlipperKitUserDefaultsPlugin/FKUserDefaultsPlugin.h>
-#import <FlipperKitNetworkPlugin/FlipperKitNetworkPlugin.h>
-#import <SKIOSNetworkPlugin/SKIOSNetworkAdapter.h>
-#import <FlipperKitReactPlugin/FlipperKitReactPlugin.h>
-static void InitializeFlipper(UIApplication *application) {
-  FlipperClient *client = [FlipperClient sharedClient];
-  SKDescriptorMapper *layoutDescriptorMapper = [[SKDescriptorMapper alloc] initWithDefaults];
-  [client addPlugin:[[FlipperKitLayoutPlugin alloc] initWithRootNode:application withDescriptorMapper:layoutDescriptorMapper]];
-  [client addPlugin:[[FKUserDefaultsPlugin alloc] initWithSuiteName:nil]];
-  [client addPlugin:[FlipperKitReactPlugin new]];
-  [client addPlugin:[[FlipperKitNetworkPlugin alloc] initWithNetworkAdapter:[SKIOSNetworkAdapter new]]];
-  [client start];
+#if RCT_NEW_ARCH_ENABLED
+#import <React/CoreModulesPlugins.h>
+#import <React/RCTCxxBridgeDelegate.h>
+#import <React/RCTFabricSurfaceHostingProxyRootView.h>
+#import <React/RCTSurfacePresenter.h>
+#import <React/RCTSurfacePresenterBridgeAdapter.h>
+#import <ReactCommon/RCTTurboModuleManager.h>
+
+#import <react/config/ReactNativeConfig.h>
+
+@interface AppDelegate () <RCTCxxBridgeDelegate, RCTTurboModuleManagerDelegate> {
+  RCTTurboModuleManager *_turboModuleManager;
+  RCTSurfacePresenterBridgeAdapter *_bridgeAdapter;
+  std::shared_ptr<const facebook::react::ReactNativeConfig> _reactNativeConfig;
+  facebook::react::ContextContainer::Shared _contextContainer;
 }
+@end
 #endif
 
-@import Firebase;
+// @import Firebase;
 
 @implementation AppDelegate
 
 //decipher the deviceToken
-+ (NSString *)stringFromDeviceToken:(NSData *)deviceToken {
-    NSUInteger length = deviceToken.length;
-    if (length == 0) {
-        return nil;
-    }
-    const unsigned char *buffer = deviceToken.bytes;
-    NSMutableString *hexString  = [NSMutableString stringWithCapacity:(length * 2)];
-    for (int i = 0; i < length; ++i) {
-        [hexString appendFormat:@"%02x", buffer[i]];
-    }
-    return [hexString copy];
-}
+// + (NSString *)stringFromDeviceToken:(NSData *)deviceToken {
+//     NSUInteger length = deviceToken.length;
+//     if (length == 0) {
+//         return nil;
+//     }
+//     const unsigned char *buffer = deviceToken.bytes;
+//     NSMutableString *hexString  = [NSMutableString stringWithCapacity:(length * 2)];
+//     for (int i = 0; i < length; ++i) {
+//         [hexString appendFormat:@"%02x", buffer[i]];
+//     }
+//     return [hexString copy];
+// }
 
-- (BOOL)application:(UIApplication *)application
-   openURL:(NSURL *)url
-   options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
-{
-  return [RCTLinkingManager application:application openURL:url options:options];
-}
+// - (BOOL)application:(UIApplication *)application
+//    openURL:(NSURL *)url
+//    options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
+// {
+//   return [RCTLinkingManager application:application openURL:url options:options];
+// }
 
-// Only if your app is using [Universal Links](https://developer.apple.com/library/prerelease/ios/documentation/General/Conceptual/AppSearch/UniversalLinks.html).
-- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity
- restorationHandler:(void (^)(NSArray * _Nullable))restorationHandler
-{
- return [RCTLinkingManager application:application
-                  continueUserActivity:userActivity
-                    restorationHandler:restorationHandler];
-}
+// // Only if your app is using [Universal Links](https://developer.apple.com/library/prerelease/ios/documentation/General/Conceptual/AppSearch/UniversalLinks.html).
+// - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity
+//  restorationHandler:(void (^)(NSArray * _Nullable))restorationHandler
+// {
+//  return [RCTLinkingManager application:application
+//                   continueUserActivity:userActivity
+//                     restorationHandler:restorationHandler];
+// }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-#ifdef FB_SONARKIT_ENABLED
-  InitializeFlipper(application);
-#endif
+  RCTAppSetupPrepareApp(application);
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
-  RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
-                                                   moduleName:@"AudiusReactNative"
-                                            initialProperties:nil];
+
+#if RCT_NEW_ARCH_ENABLED
+  _contextContainer = std::make_shared<facebook::react::ContextContainer const>();
+  _reactNativeConfig = std::make_shared<facebook::react::EmptyReactNativeConfig const>();
+  _contextContainer->insert("ReactNativeConfig", _reactNativeConfig);
+  _bridgeAdapter = [[RCTSurfacePresenterBridgeAdapter alloc] initWithBridge:bridge contextContainer:_contextContainer];
+  bridge.surfacePresenter = _bridgeAdapter.surfacePresenter;
+#endif
+
+  UIView *rootView = RCTAppSetupDefaultRootView(bridge, @"AudiusReactNative", nil);
 
   if (@available(iOS 13.0, *)) {
       rootView.backgroundColor = [UIColor systemBackgroundColor];
@@ -85,7 +92,7 @@ static void InitializeFlipper(UIApplication *application) {
 
   [RNBootSplash initWithStoryboard:@"BootSplash" rootView:rootView];
 
-  [FIRApp configure];
+  // [FIRApp configure];
 
   GCKDiscoveryCriteria *criteria = [[GCKDiscoveryCriteria alloc] initWithApplicationID:@"222B31C8"];
   GCKCastOptions* options = [[GCKCastOptions alloc] initWithDiscoveryCriteria:criteria];
@@ -101,39 +108,78 @@ static void InitializeFlipper(UIApplication *application) {
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
 {
 #if DEBUG
-  return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
+  return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
 #else
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #endif
 }
 
-// Required to register for notifications
-- (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
+// // Required to register for notifications
+// - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
+// {
+//   [RNCPushNotificationIOS didRegisterUserNotificationSettings:notificationSettings];
+// }
+// // Required for the register event.
+// - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+// {
+//   NSString *newToken = [AppDelegate stringFromDeviceToken:(deviceToken)];
+//   NSLog(@"new token %@", newToken);
+//   [RNCPushNotificationIOS didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+// }
+// // Required for the notification event. You must call the completion handler after handling the remote notification.
+// - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
+// fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+// {
+//   [RNCPushNotificationIOS didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+// }
+// // Required for the registrationError event.
+// - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
+// {
+//   [RNCPushNotificationIOS didFailToRegisterForRemoteNotificationsWithError:error];
+// }
+// // Required for the localNotification event.
+// - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
+// {
+//   [RNCPushNotificationIOS didReceiveLocalNotification:notification];
+// }
+
+#if RCT_NEW_ARCH_ENABLED
+
+#pragma mark - RCTCxxBridgeDelegate
+
+- (std::unique_ptr<facebook::react::JSExecutorFactory>)jsExecutorFactoryForBridge:(RCTBridge *)bridge
 {
-  [RNCPushNotificationIOS didRegisterUserNotificationSettings:notificationSettings];
+  _turboModuleManager = [[RCTTurboModuleManager alloc] initWithBridge:bridge
+                                                             delegate:self
+                                                            jsInvoker:bridge.jsCallInvoker];
+  return RCTAppSetupDefaultJsExecutorFactory(bridge, _turboModuleManager);
 }
-// Required for the register event.
-- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+
+#pragma mark RCTTurboModuleManagerDelegate
+
+- (Class)getModuleClassFromName:(const char *)name
 {
-  NSString *newToken = [AppDelegate stringFromDeviceToken:(deviceToken)];
-  NSLog(@"new token %@", newToken);
-  [RNCPushNotificationIOS didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+  return RCTCoreModulesClassProvider(name);
 }
-// Required for the notification event. You must call the completion handler after handling the remote notification.
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
-fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const std::string &)name
+                                                      jsInvoker:(std::shared_ptr<facebook::react::CallInvoker>)jsInvoker
 {
-  [RNCPushNotificationIOS didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+  return nullptr;
 }
-// Required for the registrationError event.
-- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
+
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const std::string &)name
+                                                     initParams:
+                                                         (const facebook::react::ObjCTurboModule::InitParams &)params
 {
-  [RNCPushNotificationIOS didFailToRegisterForRemoteNotificationsWithError:error];
+  return nullptr;
 }
-// Required for the localNotification event.
-- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
+
+- (id<RCTTurboModule>)getModuleInstanceFromClass:(Class)moduleClass
 {
-  [RNCPushNotificationIOS didReceiveLocalNotification:notification];
+  return RCTAppSetupDefaultModuleFromClass(moduleClass);
 }
+
+#endif
 
 @end
