@@ -3,7 +3,6 @@
 
 
 #import <Firebase.h>
-#import <GoogleCast/GoogleCast.h>
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
@@ -65,7 +64,8 @@
   bridge.surfacePresenter = _bridgeAdapter.surfacePresenter;
 #endif
 
-  UIView *rootView = RCTAppSetupDefaultRootView(bridge, @"AudiusReactNative", nil);
+  NSDictionary *initProps = [self prepareInitialProps];
+  UIView *rootView = RCTAppSetupDefaultRootView(bridge, @"AudiusReactNative", initProps);
 
   if (@available(iOS 13.0, *)) {
       rootView.backgroundColor = [UIColor systemBackgroundColor];
@@ -87,16 +87,28 @@
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
 
-  GCKDiscoveryCriteria *criteria = [[GCKDiscoveryCriteria alloc] initWithApplicationID:@"222B31C8"];
-  GCKCastOptions* options = [[GCKCastOptions alloc] initWithDiscoveryCriteria:criteria];
-  // Allow our app to control chromecast volume
-  options.physicalVolumeButtonsWillControlDeviceVolume = YES;
-  // Prevent backgrounding from suspending sessions
-  options.suspendSessionsWhenBackgrounded = NO;
-  [GCKCastContext setSharedInstanceWithOptions:options];
-
   return YES;
 }
+
+/// This method controls whether the `concurrentRoot`feature of React18 is turned on or off.
+///
+/// @see: https://reactjs.org/blog/2022/03/29/react-v18.html
+/// @note: This requires to be rendering on Fabric (i.e. on the New Architecture).
+/// @return: `true` if the `concurrentRoot` feture is enabled. Otherwise, it returns `false`.
+- (BOOL)concurrentRootEnabled
+{
+  // Switch this bool to turn on and off the concurrent root
+  return true;
+}
+- (NSDictionary *)prepareInitialProps
+{
+  NSMutableDictionary *initProps = [NSMutableDictionary new];
+#ifdef RCT_NEW_ARCH_ENABLED
+  initProps[kRNConcurrentRoot] = @([self concurrentRootEnabled]);
+#endif
+  return initProps;
+}
+
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
 {
