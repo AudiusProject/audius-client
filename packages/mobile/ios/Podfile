@@ -25,10 +25,13 @@ target 'AudiusReactNative' do
   # Flags change depending on the env values.
   flags = get_default_flags()
 
+  # Use env variables to turn it on/off.
+  fabric_enabled = ENV['USE_FABRIC']
+
   use_react_native!(
     :path => config[:reactNativePath],
     :hermes_enabled => true,
-    :fabric_enabled => flags[:fabric_enabled],
+    :fabric_enabled => fabric_enabled,
     # Enables Flipper.
     #
     # Note that if you have use_frameworks! enabled, Flipper will not work and
