@@ -413,6 +413,8 @@ PODS:
     - React-Core
   - react-native-document-picker (8.1.2):
     - React-Core
+  - react-native-fast-crypto (2.2.0):
+    - React
   - react-native-get-random-values (1.8.0):
     - React-Core
   - react-native-google-cast (4.2.4):
@@ -657,6 +659,7 @@ DEPENDENCIES:
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-config (from `../node_modules/react-native-config`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
+  - react-native-fast-crypto (from `../node_modules/react-native-fast-crypto`)
   - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-google-cast (from `../node_modules/react-native-google-cast/ios`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
@@ -800,6 +803,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-config"
   react-native-document-picker:
     :path: "../node_modules/react-native-document-picker"
+  react-native-fast-crypto:
+    :path: "../node_modules/react-native-fast-crypto"
   react-native-get-random-values:
     :path: "../node_modules/react-native-get-random-values"
   react-native-google-cast:
@@ -957,6 +962,7 @@ SPEC CHECKSUMS:
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-config: 6502b1879f97ed5ac570a029961fc35ea606cd14
   react-native-document-picker: 4a959cd4d8d0a18b906e7bbff649a25fadea8df2
+  react-native-fast-crypto: 60892c93813b88d865e2792944ef975a81359bc5
   react-native-get-random-values: a6ea6a8a65dc93e96e24a11105b1a9c8cfe1d72a
   react-native-google-cast: 553c31d49840e2f357fde9a3dd0977fbe28d79ba
   react-native-image-picker: bd579f59ff1cd14c78d6a041dbe2dbec858a9141
