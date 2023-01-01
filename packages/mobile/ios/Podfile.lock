@@ -556,13 +556,36 @@ PODS:
     - React-Core
   - RNReactNativeHapticFeedback (1.11.0):
     - React-Core
-  - RNReanimated (1.13.4):
+  - RNReanimated (2.13.0):
+    - DoubleConversion
+    - FBLazyVector
+    - FBReactNativeSpec
+    - glog
+    - RCT-Folly
+    - RCTRequired
+    - RCTTypeSafety
+    - React-callinvoker
     - React-Core
+    - React-Core/DevSupport
+    - React-Core/RCTWebSocket
+    - React-CoreModules
+    - React-cxxreact
+    - React-jsi
+    - React-jsiexecutor
+    - React-jsinspector
+    - React-RCTActionSheet
+    - React-RCTAnimation
+    - React-RCTBlob
+    - React-RCTImage
+    - React-RCTLinking
+    - React-RCTNetwork
+    - React-RCTSettings
+    - React-RCTText
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RNScreens (3.17.0):
     - React-Core
     - React-RCTImage
-  - RNScrypt (1.2.1):
-    - React
   - RNSentry (3.2.8):
     - React-Core
     - Sentry (= 7.5.4)
@@ -574,7 +597,7 @@ PODS:
     - Sentry/Core (= 7.5.4)
   - Sentry/Core (7.5.4)
   - SocketRocket (0.6.0)
-  - SRSRadialGradient (1.0.8):
+  - SRSRadialGradient (1.1.2):
     - React
   - SwiftAudioEx (0.15.3)
   - Yoga (1.14.0)
@@ -678,7 +701,6 @@ DEPENDENCIES:
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
-  - RNScrypt (from `../node_modules/react-native-scrypt`)
   - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
@@ -866,8 +888,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
-  RNScrypt:
-    :path: "../node_modules/react-native-scrypt"
   RNSentry:
     :path: "../node_modules/@sentry/react-native"
   RNShare:
@@ -979,15 +999,14 @@ SPEC CHECKSUMS:
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNPermissions: 3e5bb8afd93c787681bbacbf54d586a6272ecc92
   RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
-  RNReanimated: c1b56d030d1616239861534d9adb531f8cffab68
+  RNReanimated: b21b362b4b8ca921932e8b1718e88cf3a36f157e
   RNScreens: 0df01424e9e0ed7827200d6ed1087ddd06c493f9
-  RNScrypt: 5090216bbf2ebb7baea2f42fdd26011dc2c4c7b1
   RNSentry: fe878ca3982d7871e502ccbb90072fe764c8d07d
   RNShare: 36aa3e6958373a0ad1c95a1c960adef589da3794
   RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
   Sentry: 5c5dd4005f3b7b9765d5a8871232cddbd0d888b7
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
-  SRSRadialGradient: 71378a83e52b616c40367c37ee7cb6865f9f7c6e
+  SRSRadialGradient: f88dfa41215854bfb721dfe926bd9bf09338a602
   SwiftAudioEx: 83eabba2940924fc1c0d5cb0896049921365229c
   Yoga: c4d61225a466f250c35c1ee78d2d0b3d41fe661c
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a

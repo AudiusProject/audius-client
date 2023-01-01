@@ -3,7 +3,7 @@ import * as nativeLibs from '@audius/sdk/dist/native-libs'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Image } from 'react-native'
 import Config from 'react-native-config'
-import scrypt from 'react-native-scrypt'
+// import scrypt from 'react-native-scrypt'
 
 import { track } from 'app/services/analytics'
 import { reportToSentry } from 'app/utils/reportToSentry'
@@ -40,16 +40,16 @@ const createKey = async (encryptStr: string, ivHex: string) => {
   const encryptStrBuffer = Buffer.from(encryptStr)
   const ivBuffer = Buffer.from(ivHex)
 
-  const derivedKey = await scrypt(
-    encryptStrBuffer,
-    ivBuffer,
-    N,
-    r,
-    p,
-    dkLen,
-    'buffer'
-  )
-  const keyHex = derivedKey.toString('hex')
+  // const derivedKey = await scrypt(
+  //   encryptStrBuffer,
+  //   ivBuffer,
+  //   N,
+  //   r,
+  //   p,
+  //   dkLen,
+  //   'buffer'
+  // )
+  const keyHex = ''
 
   // This is the private key
   const keyBuffer = bufferFromHexString(keyHex)

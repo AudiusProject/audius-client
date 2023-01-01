@@ -6,7 +6,7 @@ import {
 import { View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import type { Node } from 'react-native-reanimated'
-import Animated from 'react-native-reanimated'
+import { interpolateNode } from 'react-native-reanimated'
 import { useSelector } from 'react-redux'
 
 import { ProfilePicture } from 'app/components/user'
@@ -50,7 +50,7 @@ export const AccountPictureHeader = (props: AccountPictureHeaderProps) => {
   const challengeRewardIds = useRemoteVar(StringKeys.CHALLENGE_REWARD_IDS)
   const hasClaimableRewards = useAccountHasClaimableRewards(challengeRewardIds)
 
-  const opacity = Animated.interpolate(drawerProgress, {
+  const opacity = interpolateNode(drawerProgress, {
     inputRange: [0, 1],
     outputRange: [1, 0]
   })
