@@ -1,13 +1,17 @@
 #import "AppDelegate.h"
 #import "RNBootSplash.h"
 
+
+#import <Firebase.h>
 #import <GoogleCast/GoogleCast.h>
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
 #import <React/RCTAppSetupUtils.h>
-// #import <React/RCTLinkingManager.h>
-// #import <RNCPushNotificationIOS.h>
+#import <React/RCTLinkingManager.h>
+
+#import <UserNotifications/UserNotifications.h>
+#import <RNCPushNotificationIOS.h>
 
 #if RCT_NEW_ARCH_ENABLED
 #import <React/CoreModulesPlugins.h>
@@ -28,39 +32,24 @@
 @end
 #endif
 
-// @import Firebase;
 
 @implementation AppDelegate
 
-//decipher the deviceToken
-// + (NSString *)stringFromDeviceToken:(NSData *)deviceToken {
-//     NSUInteger length = deviceToken.length;
-//     if (length == 0) {
-//         return nil;
-//     }
-//     const unsigned char *buffer = deviceToken.bytes;
-//     NSMutableString *hexString  = [NSMutableString stringWithCapacity:(length * 2)];
-//     for (int i = 0; i < length; ++i) {
-//         [hexString appendFormat:@"%02x", buffer[i]];
-//     }
-//     return [hexString copy];
-// }
+- (BOOL)application:(UIApplication *)application
+   openURL:(NSURL *)url
+   options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
+{
+  return [RCTLinkingManager application:application openURL:url options:options];
+}
 
-// - (BOOL)application:(UIApplication *)application
-//    openURL:(NSURL *)url
-//    options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
-// {
-//   return [RCTLinkingManager application:application openURL:url options:options];
-// }
-
-// // Only if your app is using [Universal Links](https://developer.apple.com/library/prerelease/ios/documentation/General/Conceptual/AppSearch/UniversalLinks.html).
-// - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity
-//  restorationHandler:(void (^)(NSArray * _Nullable))restorationHandler
-// {
-//  return [RCTLinkingManager application:application
-//                   continueUserActivity:userActivity
-//                     restorationHandler:restorationHandler];
-// }
+// Only if your app is using [Universal Links](https://developer.apple.com/library/prerelease/ios/documentation/General/Conceptual/AppSearch/UniversalLinks.html).
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity
+ restorationHandler:(void (^)(NSArray * _Nullable))restorationHandler
+{
+ return [RCTLinkingManager application:application
+                  continueUserActivity:userActivity
+                    restorationHandler:restorationHandler];
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -92,7 +81,11 @@
 
   [RNBootSplash initWithStoryboard:@"BootSplash" rootView:rootView];
 
-  // [FIRApp configure];
+  [FIRApp configure];
+
+  // Define UNUserNotificationCenter
+  UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+  center.delegate = self;
 
   GCKDiscoveryCriteria *criteria = [[GCKDiscoveryCriteria alloc] initWithApplicationID:@"222B31C8"];
   GCKCastOptions* options = [[GCKCastOptions alloc] initWithDiscoveryCriteria:criteria];
@@ -114,34 +107,36 @@
 #endif
 }
 
-// // Required to register for notifications
-// - (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
-// {
-//   [RNCPushNotificationIOS didRegisterUserNotificationSettings:notificationSettings];
-// }
-// // Required for the register event.
-// - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
-// {
-//   NSString *newToken = [AppDelegate stringFromDeviceToken:(deviceToken)];
-//   NSLog(@"new token %@", newToken);
-//   [RNCPushNotificationIOS didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-// }
-// // Required for the notification event. You must call the completion handler after handling the remote notification.
-// - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
-// fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
-// {
-//   [RNCPushNotificationIOS didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
-// }
-// // Required for the registrationError event.
-// - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
-// {
-//   [RNCPushNotificationIOS didFailToRegisterForRemoteNotificationsWithError:error];
-// }
-// // Required for the localNotification event.
-// - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
-// {
-//   [RNCPushNotificationIOS didReceiveLocalNotification:notification];
-// }
+//Called when a notification is delivered to a foreground app.
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
+{
+  completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
+}
+
+// Required for the register event.
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+  [RNCPushNotificationIOS didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+}
+
+// Required for the notification event. You must call the completion handler after handling the remote notification.
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
+fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+{
+  [RNCPushNotificationIOS didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+}
+// Required for the registrationError event.
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
+{
+  [RNCPushNotificationIOS didFailToRegisterForRemoteNotificationsWithError:error];
+}
+// Required for localNotification event
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+didReceiveNotificationResponse:(UNNotificationResponse *)response
+         withCompletionHandler:(void (^)(void))completionHandler
+{
+  [RNCPushNotificationIOS didReceiveNotificationResponse:response];
+}
 
 #if RCT_NEW_ARCH_ENABLED
 
