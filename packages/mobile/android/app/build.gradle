@@ -212,77 +212,54 @@ android {
             // If you wish to add a custom TurboModule or component locally,
             // you should uncomment this line.
             // preBuild.dependsOn("generateCodegenArtifactsFromSchema")
-            preDebugBuild.dependsOn(packageReactNdkDebugLibs)
-            preReleaseBuild.dependsOn(packageReactNdkReleaseLibs)
-            // Due to a bug inside AGP, we have to explicitly set a dependency
-            // between configureCMakeDebug* tasks and the preBuild tasks.
-            // This can be removed once this is solved: https://issuetracker.google.com/issues/207403732
-            configureCMakeRelWithDebInfo.dependsOn(preReleaseBuild)
-            configureCMakeDebug.dependsOn(preDebugBuild)
-            reactNativeArchitectures().each { architecture ->
-                tasks.findByName("configureCMakeDebug[${architecture}]")?.configure {
-                    dependsOn("preDebugBuild")
+            android.applicationVariants.all { def variant ->
+                def variantName = variant.name.capitalize()
+                def preVariantBuild = tasks.findByName("pre${variantName}Build")
+
+                println variantName
+                println preVariantBuild.name
+
+                if (variantName.endsWith('Debug')) {
+                    preVariantBuild.dependsOn(packageReactNdkDebugLibs)
+                    configureCMakeDebug.dependsOn(preVariantBuild)
+                    reactNativeArchitectures().each { architecture ->
+                        tasks.findByName("configureCMakeDebug[${architecture}]")?.configure {
+                            dependsOn(preVariantBuild.name)
+                        }
+                    }
                 }
-                tasks.findByName("configureCMakeRelWithDebInfo[${architecture}]")?.configure {
-                    dependsOn("preReleaseBuild")
+
+                if (variantName.endsWith('Release')) {
+                    preVariantBuild.dependsOn(packageReactNdkReleaseLibs)
+                    configureCMakeRelWithDebInfo.dependsOn(preVariantBuild)
+                    reactNativeArchitectures().each { architecture ->
+                        tasks.findByName("configureCMakeRelWithDebInfo[${architecture}]")?.configure {
+                            dependsOn(preVariantBuild.name)
+                        }
+                    }
                 }
             }
         }
-        // afterEvaluate {
-        //         // If you wish to add a custom TurboModule or component locally,
-        //         // you should uncomment this line.
-        //         // preBuild.dependsOn("generateCodegenArtifactsFromSchema")
-
-
-        //     android.applicationVariants.all { def variant ->
-        //         def variantName = variant.name.capitalize()
-        //         def preVariantBuild = tasks.findByName("pre${variantName}Build")
-
-        //         println variantName
-        //         println preVariantBuild.name
-
-        //         if (variantName.endsWith('Debug')) {
-        //             preVariantBuild.dependsOn(packageReactNdkDebugLibs)
-        //             configureCMakeDebug.dependsOn(preVariantBuild)
-        //             reactNativeArchitectures().each { architecture ->
-        //                 tasks.findByName("configureCMakeDebug[${architecture}]")?.configure {
-        //                     dependsOn(preVariantBuild.name)
-        //                 }
-        //             }
-        //         }
-
-        //         if (variantName.endsWith('Release')) {
-        //             preVariantBuild.dependsOn(packageReactNdkReleaseLibs)
-        //             configureCMakeRelWithDebInfo.dependsOn(preVariantBuild)
-        //             reactNativeArchitectures().each { architecture ->
-        //                 tasks.findByName("configureCMakeRelWithDebInfo[${architecture}]")?.configure {
-        //                     dependsOn(preVariantBuild.name)
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
 
         packagingOptions {
             pickFirst '**/libhermes.so'
             pickFirst '**/libjsc.so'
         }
     }
-
-    // productFlavors {
-    //     prod {
-    //         manifestPlaceholders = [
-    //             appIcon: "@mipmap/ic_launcher"
-    //         ]
-    //     }
-    //     bounce {
-    //         // Pre-compile run ENVFILE=.env.stage
-    //         applicationIdSuffix ".bounce"
-    //         manifestPlaceholders = [
-    //             appIcon: "@mipmap/ic_launcher_bounce"
-    //         ]
-    //     }
-    // }
+    productFlavors { 
+        prod {
+            manifestPlaceholders = [
+                appIcon: "@mipmap/ic_launcher"
+            ]
+        }
+        bounce {
+            // Pre-compile run ENVFILE=.env.stage
+            applicationIdSuffix ".bounce"
+            manifestPlaceholders = [
+                appIcon: "@mipmap/ic_launcher_bounce"
+            ]
+        }
+    }
     splits {
         abi {
             reset()
