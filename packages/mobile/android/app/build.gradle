@@ -177,7 +177,7 @@ android {
         releaseCandidate {
             applicationIdSuffix ".releasecandidate"
             manifestPlaceholders = [
-                appIcon: "@mipmap/ic_launcher"
+                appIcon: "@mipmap/ic_launcher_releasecandidate"
             ]
         }
         bounce {
