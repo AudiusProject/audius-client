@@ -51,6 +51,7 @@ const messages = {
   errorHandle: 'Sorry, your handle does not match',
   errorVerifiedTwitter: 'Your Twitter account isn’t verified',
   errorVerifiedInstagram: 'Your Instagram account isn’t verified',
+  errorVerifiedTikTok: 'Your TikTok account isn’t verified',
   backToMusic: 'Back To The Music',
   verified: "YOU'RE VERIFIED!",
   twitterVerify: 'Verify with Twitter',
@@ -221,7 +222,8 @@ const VerificationPage = ({
   profilePictureSizes,
   goToRoute,
   onTwitterLogin,
-  onInstagramLogin
+  onInstagramLogin,
+  onTikTokLogin
 }: SettingsPageProps) => {
   const [error, setError] = useState('')
   const [status, setStatus] = useState('')
@@ -278,6 +280,29 @@ const VerificationPage = ({
     },
     [handle, onTwitterLogin, setError, record]
   )
+
+  const tikTokLogin = useCallback(
+    (uuid: string, profile: TikTokProfile) => {
+      if (!profile.is_verified) {
+        setError(messages.errorVerifiedTikTok)
+        setStatus(Status.ERROR)
+      } else if (profile.username.toLowerCase() !== handle.toLowerCase()) {
+        setError(messages.errorHandle)
+        setStatus(Status.ERROR)
+      } else {
+        onTikTokLogin(uuid, profile)
+        setStatus(Status.SUCCESS)
+      }
+      const trackEvent: TrackEvent = make(Name.SETTINGS_COMPLETE_TIKTOK_OAUTH, {
+        is_verified: profile.is_verified,
+        handle,
+        username: profile.username
+      })
+      record(trackEvent)
+    },
+    [handle, onTikTokLogin, setError, record]
+  )
+
   let body
   if (status === Status.LOADING) {
     body = <LoadingBody />
@@ -289,6 +314,7 @@ const VerificationPage = ({
         onFailure={onFailure}
         onInstagramLogin={instagramLogin}
         onTwitterLogin={twitterLogin}
+        onTikTokLogin={tikTokLogin}
         error={error}
       />
     )
