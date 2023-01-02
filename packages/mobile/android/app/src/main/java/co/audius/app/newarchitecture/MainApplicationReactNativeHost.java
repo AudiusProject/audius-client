@@ -2,6 +2,7 @@ package co.audius.app.newarchitecture;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
+import com.brentvatne.react.ReactVideoPackage;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
@@ -51,6 +52,7 @@ public class MainApplicationReactNativeHost extends ReactNativeHost {
     // Packages that cannot be autolinked yet can be added manually here, for
     // example:
     // packages.add(new MyReactNativePackage());
+    packages.add(new ReactVideoPackage());
     // TurboModules must also be loaded here providing a valid TurboReactPackage
     // implementation:
     // packages.add(new TurboReactPackage() { ... });

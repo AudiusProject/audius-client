@@ -209,25 +209,38 @@ android {
             into("$buildDir/react-ndk/exported")
         }
         afterEvaluate {
-            // If you wish to add a custom TurboModule or component locally,
-            // you should uncomment this line.
-            // preBuild.dependsOn("generateCodegenArtifactsFromSchema")
-            preDebugBuild.dependsOn(packageReactNdkDebugLibs)
-            preReleaseBuild.dependsOn(packageReactNdkReleaseLibs)
+                // If you wish to add a custom TurboModule or component locally,
+                // you should uncomment this line.
+                // preBuild.dependsOn("generateCodegenArtifactsFromSchema")
+                android.applicationVariants.all { def variant ->
+                    def variantName = variant.name.capitalize()
+                    def preVariantBuildTask = tasks.findByName("pre${variantName}Build")
 
-            // Due to a bug inside AGP, we have to explicitly set a dependency
-            // between configureCMakeDebug* tasks and the preBuild tasks.
-            // This can be removed once this is solved: https://issuetracker.google.com/issues/207403732
-            configureCMakeRelWithDebInfo.dependsOn(preReleaseBuild)
-            configureCMakeDebug.dependsOn(preDebugBuild)
-            reactNativeArchitectures().each { architecture ->
-                tasks.findByName("configureCMakeDebug[${architecture}]")?.configure {
-                    dependsOn("preDebugBuild")
-                }
-                tasks.findByName("configureCMakeRelWithDebInfo[${architecture}]")?.configure {
-                    dependsOn("preReleaseBuild")
-                }
-            }
+                    // Due to a bug inside AGP, we have to explicitly set a dependency
+                    // between configureCMakeDebug* tasks and the preBuild tasks.
+                    // This can be removed once this is solved: https://issuetracker.google.com/issues/207403732
+                    if (variantName.endsWith("Debug")) {
+                        preVariantBuildTask.dependsOn(packageReactNdkDebugLibs)
+                        reactNativeArchitectures().each { architecture ->
+                            tasks.findByName("configureCMakeDebug[${architecture}]")?.configure {
+                                dependsOn(preVariantBuildTask.name)
+                            }
+                        }
+                    }
+                    if (variantName.endsWith("Release")) {
+                        preVariantBuildTask.dependsOn(packageReactNdkReleaseLibs)
+                        reactNativeArchitectures().each { architecture ->
+                            tasks.findByName("configureCMakeRelWithDebInfo[${architecture}]")?.configure {
+                                dependsOn(preVariantBuildTask.name)
+                            }
+                        }
+                    }
+    }
+}
+
+        packagingOptions {
+            pickFirst '**/libhermes.so'
+            pickFirst '**/libjsc.so'
         }
     }
 
