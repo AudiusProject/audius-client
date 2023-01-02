@@ -132,8 +132,8 @@ mobile-build-upload-staging-android:
   steps:
     - mobile-build-android:
         build-directory: 'build-mobile-staging'
-        build-type: 'bundleBounceRelease'
-        bundle-id: 'co.audius.app.bounce'
+        build-type: 'bundleStagingRelease'
+        bundle-id: 'co.audius.app.staging'
         track: 'alpha'
         remote-directory: 'audius-mobile-staging'
     - when:
@@ -141,7 +141,7 @@ mobile-build-upload-staging-android:
           matches: { pattern: '^main$', value: << pipeline.git.branch >> }
         steps:
           - mobile-upload-android:
-              upload-type: 'bounce'
+              upload-type: 'staging'
 
 mobile-build-upload-releasecandidate-android:
   working_directory: ~/audius-client

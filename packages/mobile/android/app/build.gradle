@@ -82,7 +82,7 @@ project.ext.react = [
 
 project.ext.envConfigFiles = [
     release: ".env.prod",
-    bouncerelease: ".env.stage",
+    stagingrelease: ".env.stage",
     releasecandidaterelease: ".env.prod"
 ]
 
@@ -180,11 +180,11 @@ android {
                 appIcon: "@mipmap/ic_launcher_releasecandidate"
             ]
         }
-        bounce {
+        staging {
             // Pre-compile run ENVFILE=.env.stage
-            applicationIdSuffix ".bounce"
+            applicationIdSuffix ".staging"
             manifestPlaceholders = [
-                appIcon: "@mipmap/ic_launcher_bounce"
+                appIcon: "@mipmap/ic_launcher_staging"
             ]
         }
     }

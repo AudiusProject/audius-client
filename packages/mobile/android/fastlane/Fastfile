@@ -29,11 +29,11 @@ platform :android do
     )
   end
 
-  lane :bounce do
+  lane :staging do
     upload_to_play_store(
       track: "alpha",
-      package_name: "co.audius.app.bounce",
-      aab: "./app/build/outputs/bundle/bounceRelease/app-bounce-release.aab",
+      package_name: "co.audius.app.staging",
+      aab: "./app/build/outputs/bundle/stagingRelease/app-staging-release.aab",
       skip_upload_metadata: true,
       skip_upload_changelogs: true,
       skip_upload_images: true,
