@@ -65,5 +65,10 @@ target 'AudiusReactNative' do
       end
     end
 
+    # https://github.com/facebook/react-native/issues/33764
+    system('rm -f Pods/Flipper-Folly/folly/SharedMutex.cpp Pods/Flipper-Folly/folly/SharedMutex.h')
+    system('cp Pods/RCT-Folly/folly/SharedMutex.cpp Pods/Flipper-Folly/folly/')
+    system('cp Pods/RCT-Folly/folly/SharedMutex.h Pods/Flipper-Folly/folly/')
+
   end
 end
