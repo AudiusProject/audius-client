@@ -21,7 +21,7 @@ platform :android do
     upload_to_play_store(
       track: "alpha",
       package_name: "co.audius.app.releasecandidate",
-      aab: "./app/build/outputs/bundle/bounceRelease/app-releasecandidate-release.aab",
+      aab: "./app/build/outputs/bundle/releaseCandidateRelease/app-releasecandidate-release.aab",
       skip_upload_metadata: true,
       skip_upload_changelogs: true,
       skip_upload_images: true,
