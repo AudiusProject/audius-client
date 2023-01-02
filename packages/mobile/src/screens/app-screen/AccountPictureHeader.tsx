@@ -50,7 +50,7 @@ export const AccountPictureHeader = (props: AccountPictureHeaderProps) => {
   const challengeRewardIds = useRemoteVar(StringKeys.CHALLENGE_REWARD_IDS)
   const hasClaimableRewards = useAccountHasClaimableRewards(challengeRewardIds)
 
-  const opacity = Animated.interpolate(drawerProgress, {
+  const opacity = Animated.interpolateNode(drawerProgress, {
     inputRange: [0, 1],
     outputRange: [1, 0]
   })
