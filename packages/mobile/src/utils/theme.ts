@@ -1,6 +1,6 @@
 import type { SystemAppearance, Nullable } from '@audius/common'
 import { themeSelectors } from '@audius/common'
-import { StatusBar } from 'react-native'
+import { Platform, StatusBar } from 'react-native'
 import { useSelector } from 'react-redux'
 
 const { getTheme, getSystemAppearance } = themeSelectors
@@ -18,10 +18,16 @@ export enum Theme {
 export const setStatusBarTheme = (theme: 'light' | 'dark') => {
   if (theme === 'light') {
     StatusBar.setBarStyle('dark-content')
-    StatusBar.setBackgroundColor(defaultTheme.white)
+
+    if (Platform.OS === 'android') {
+      StatusBar.setBackgroundColor(defaultTheme.white)
+    }
   } else {
     StatusBar.setBarStyle('light-content')
-    StatusBar.setBackgroundColor(darkTheme.white)
+
+    if (Platform.OS === 'android') {
+      StatusBar.setBackgroundColor(darkTheme.white)
+    }
   }
 }
 
@@ -88,6 +94,8 @@ export const defaultTheme = {
   shadow: '#E3E3E3',
   staticTwitterBlue: '#1BA1F1',
   staticWhite: '#FFFFFF',
+  staticNeutral: '#858199',
+  staticNeutralLight2: '#AAA7B8',
   staticNeutralLight8: '#F2F2F4',
   staticAccentGreenLight1: '#23AD1A',
   pageHeaderGradientColor1: '#5B23E1',
@@ -140,6 +148,8 @@ export const darkTheme = {
   shadow: '#35364F',
   staticTwitterBlue: '#1BA1F1',
   staticWhite: '#FFFFFF',
+  staticNeutral: '#858199',
+  staticNeutralLight2: '#AAA7B8',
   staticNeutralLight8: '#F2F2F4',
   staticAccentGreenLight1: '#23AD1A',
   pageHeaderGradientColor1: '#7652CC',
@@ -183,6 +193,9 @@ export const matrixTheme = {
   white: '#1F211F',
   staticTwitterBlue: '#1BA1F1',
   staticWhite: '#FFFFFF',
+  staticNeutral: '#858199',
+  staticNeutralLight2: '#AAA7B8',
+  staticNeutralLight8: '#F2F2F4',
   accentGreen: '#23AD1A',
   staticAccentGreenLight1: '#23AD1A',
   pageHeaderGradientColor1: '#4FF069',
@@ -237,6 +250,8 @@ export type ThemeColors = {
   shadow: string
   staticTwitterBlue: string
   staticWhite: string
+  staticNeutral: string
+  staticNeutralLight2: string
   staticNeutralLight8: string
   staticAccentGreenLight1: string
   pageHeaderGradientColor1: string

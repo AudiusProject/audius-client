@@ -6,6 +6,7 @@ import { AppState } from 'react-native'
 
 import { env } from 'app/services/env'
 import { dispatch } from 'app/store'
+import { storeContext } from 'app/store/storeContext'
 
 const REACHABILITY_URL = env.REACHABILITY_URL
 
@@ -23,7 +24,7 @@ export const checkNetInfoReachability = (netInfo: NetInfoState | null) => {
 const isResponseValid = (response: Response | undefined) =>
   response && response.ok
 
-const pingTest = async () => {
+export const pingTest = async () => {
   // If there's no reachability url available, consider ourselves reachable
   if (!REACHABILITY_URL) {
     console.warn('No reachability url provided')
@@ -64,6 +65,7 @@ const updateReachability = async (netInfoState: NetInfoState) => {
     // Supercede the setUnreachable debounce if necessary
     setUnreachable(false)
     dispatch(reachabilityActions.setReachable())
+    storeContext.apiClient.setIsReachable(true)
   }
 }
 
@@ -72,6 +74,7 @@ const setUnreachable = debounce(
   (isUnreachable: boolean) => {
     if (isUnreachable) {
       dispatch(reachabilityActions.setUnreachable())
+      storeContext.apiClient.setIsReachable(false)
     }
   },
   2500,

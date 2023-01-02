@@ -2,13 +2,13 @@ import { useCallback } from 'react'
 
 import type { Track, User, CommonState } from '@audius/common'
 import {
+  accountSelectors,
   removeNullable,
   PlaybackSource,
   FavoriteSource,
   RepostSource,
   ShareSource,
   FavoriteType,
-  SquareSizes,
   cacheTracksSelectors,
   cacheUsersSelectors,
   tracksSocialActions,
@@ -22,9 +22,11 @@ import {
 import { useNavigationState } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { TrackImage } from 'app/components/image/TrackImage'
 import type { LineupItemProps } from 'app/components/lineup-tile/types'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
+
+import type { DynamicImageProps, TileProps } from '../core'
 
 import { LineupTile } from './LineupTile'
 
@@ -35,6 +37,7 @@ const { repostTrack, saveTrack, undoRepostTrack, unsaveTrack } =
   tracksSocialActions
 const { getUserFromTrack } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
+const { getUserId } = accountSelectors
 
 export const TrackTile = (props: LineupItemProps) => {
   const { uid } = props
@@ -58,9 +61,10 @@ export const TrackTile = (props: LineupItemProps) => {
 type TrackTileProps = LineupItemProps & {
   track: Track
   user: User
+  TileProps?: Partial<TileProps>
 }
 
-const TrackTileComponent = ({
+export const TrackTileComponent = ({
   togglePlay,
   track,
   user,
@@ -68,13 +72,19 @@ const TrackTileComponent = ({
 }: TrackTileProps) => {
   const dispatch = useDispatch()
   const navigation = useNavigation()
-  const currentScreen = useNavigationState((state) => state.history?.[0])
+  const isOnArtistsTracksTab = useNavigationState((state) => {
+    // @ts-expect-error -- history returning unknown[]
+    const currentScreen = state.history?.[0].key
+    return currentScreen?.includes('Tracks')
+  })
   const isPlayingUid = useSelector(
     (state: CommonState) => getUid(state) === lineupTileProps.uid
   )
 
+  const currentUserId = useSelector(getUserId)
+  const isOwner = currentUserId === track.owner_id
+
   const {
-    _cover_art_sizes,
     duration,
     field_visibility,
     is_unlisted,
@@ -85,14 +95,10 @@ const TrackTileComponent = ({
     track_id
   } = track
 
-  // @ts-expect-error -- history returning unknown[]
-  const isOnArtistsTracksTab = currentScreen?.key.includes('Tracks')
-
-  const imageUrl = useTrackCoverArt({
-    id: track_id,
-    sizes: _cover_art_sizes,
-    size: SquareSizes.SIZE_150_BY_150
-  })
+  const renderImage = useCallback(
+    (props: DynamicImageProps) => <TrackImage track={track} {...props} />,
+    [track]
+  )
 
   const handlePress = useCallback(() => {
     togglePlay({
@@ -113,7 +119,9 @@ const TrackTileComponent = ({
     const overflowActions = [
       OverflowAction.ADD_TO_PLAYLIST,
       OverflowAction.VIEW_TRACK_PAGE,
-      isOnArtistsTracksTab ? null : OverflowAction.VIEW_ARTIST_PAGE
+      isOnArtistsTracksTab ? null : OverflowAction.VIEW_ARTIST_PAGE,
+      isOwner ? OverflowAction.EDIT_TRACK : null,
+      isOwner ? OverflowAction.DELETE_TRACK : null
     ].filter(removeNullable)
 
     dispatch(
@@ -123,7 +131,7 @@ const TrackTileComponent = ({
         overflowActions
       })
     )
-  }, [track_id, dispatch, isOnArtistsTracksTab])
+  }, [track_id, dispatch, isOnArtistsTracksTab, isOwner])
 
   const handlePressShare = useCallback(() => {
     if (track_id === undefined) {
@@ -173,7 +181,7 @@ const TrackTileComponent = ({
       hideShare={hideShare}
       hidePlays={hidePlays}
       id={track_id}
-      imageUrl={imageUrl}
+      renderImage={renderImage}
       isUnlisted={is_unlisted}
       onPress={handlePress}
       onPressOverflow={handlePressOverflow}

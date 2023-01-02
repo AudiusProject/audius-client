@@ -40,11 +40,14 @@ import {
 } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
 import { fetchUsers } from 'common/store/cache/users/sagas'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import {
+  subscribeToUserAsync,
+  unsubscribeFromUserAsync
+} from 'common/store/social/users/sagas'
+import { waitForRead, waitForWrite } from 'utils/sagaHelpers'
 
 import { watchNotificationError } from './errorSagas'
 const { fetchReactionValues } = reactionsUIActions
@@ -191,7 +194,7 @@ export function* fetchNotifications(action: FetchNotifications) {
 export function* parseAndProcessNotifications(
   notifications: Notification[]
 ): Generator<any, Notification[], any> {
-  yield* waitForBackendAndAccount()
+  yield* waitForRead()
   /**
    * Parse through the notifications & collect user /track / collection IDs
    * that the notification references to fetch
@@ -392,16 +395,26 @@ export function* fetchNotificationUsers(action: FetchNotificationUsers) {
 
 export function* subscribeUserSettings(action: SubscribeUser) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+
   yield* call(audiusBackendInstance.updateUserSubscription, action.userId, true)
+
+  // Dual write to discovery. Part of the migration of subscriptions
+  // from identity to discovery.
+  yield* fork(subscribeToUserAsync, action.userId)
 }
 
 export function* unsubscribeUserSettings(action: UnsubscribeUser) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+
   yield* call(
     audiusBackendInstance.updateUserSubscription,
     action.userId,
     false
   )
+
+  // Dual write to discovery. Part of the migration of subscriptions
+  // from identity to discovery.
+  yield* fork(unsubscribeFromUserAsync, action.userId)
 }
 
 export function* updatePlaylistLastViewedAt(
@@ -503,16 +516,15 @@ export function* getNotifications(isFirstFetch: boolean) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
   const getFeatureEnabled = yield* getContext('getFeatureEnabled')
+
   try {
-    const isOpen: ReturnType<typeof getNotificationPanelIsOpen> = yield* select(
-      getNotificationPanelIsOpen
-    )
-    const status: ReturnType<typeof getNotificationStatus> = yield* select(
-      getNotificationStatus
-    )
+    const isOpen = yield* select(getNotificationPanelIsOpen)
+    const status = yield* select(getNotificationStatus)
+    const isReachable = yield* select(getIsReachable)
     if (
       (!isOpen || isFirstFetch) &&
-      (status !== Status.LOADING || isFirstFetch)
+      (status !== Status.LOADING || isFirstFetch) &&
+      isReachable
     ) {
       isFirstFetch = false
       const limit = NOTIFICATION_LIMIT_DEFAULT
@@ -540,18 +552,13 @@ export function* getNotifications(isFirstFetch: boolean) {
         ('error' in notificationsResponse &&
           'isRequestError' in notificationsResponse)
       ) {
-        const isReachable: ReturnType<typeof getIsReachable> = yield* select(
-          getIsReachable
-        )
-        if (isReachable) {
-          yield* put(
-            notificationActions.fetchNotificationsFailed(
-              `Error in notification polling daemon, server returned error: ${
-                notificationsResponse?.error?.message ?? 'no error defined'
-              }`
-            )
+        yield* put(
+          notificationActions.fetchNotificationsFailed(
+            `Error in notification polling daemon, server returned error: ${
+              notificationsResponse?.error?.message ?? 'no error defined'
+            }`
           )
-        }
+        )
         yield* delay(getPollingIntervalMs(remoteConfigInstance))
         return
       }
@@ -608,13 +615,13 @@ export function* getNotifications(isFirstFetch: boolean) {
 
 export function* markAllNotificationsViewed() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  yield* call(waitForBackendSetup)
+  yield* call(waitForWrite)
   yield* call(audiusBackendInstance.markAllNotificationAsViewed)
   yield* put(notificationActions.markedAllAsViewed())
 }
 
 function* watchTogglePanel() {
-  yield* call(waitForBackendSetup)
+  yield* call(waitForWrite)
   yield* takeEvery(notificationActions.TOGGLE_NOTIFICATION_PANEL, function* () {
     const isOpen = yield* select(getNotificationPanelIsOpen)
     if (isOpen) {

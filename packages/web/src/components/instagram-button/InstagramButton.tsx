@@ -4,27 +4,17 @@ import cn from 'classnames'
 import { ReactComponent as IconInstagram } from 'assets/img/iconInstagram.svg'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 
-import InstagramAuth from '../instagram-auth/InstagramAuth'
+import InstagramAuth, {
+  InstagramAuthProps
+} from '../instagram-auth/InstagramAuth'
 
 import styles from './InstagramButton.module.css'
 
-type InstagramAuthButtonProps = {
-  onSuccess?: (uuid: string, profile: any) => void
-  onFailure?: (error: any) => void
-  style?: object
-  disabled?: boolean
-  /**
-   * Whether or not the success of this instagram auth
-   * depends on fetching metadata or not.
-   * Generally speaking, fetching metadata is not reliable,
-   * so if the purpose of this auth is just verification
-   * that the user has OAuthed, not to pull specific data,
-   * set this flag to false.
-   * Without metadata, instagram gives you very few fields:
-   * https://developers.facebook.com/docs/instagram-basic-display-api/reference/user
-   */
-  requiresProfileMetadata?: boolean
-} & InstagramButtonProps
+type InstagramAuthButtonProps = Pick<
+  InstagramAuthProps,
+  'onSuccess' | 'onFailure' | 'style' | 'disabled'
+> &
+  InstagramButtonProps
 
 type InstagramButtonProps = {
   text?: string
@@ -62,8 +52,7 @@ const InstagramAuthButton = ({
   onSuccess,
   onFailure,
   disabled = false,
-  text,
-  requiresProfileMetadata = true
+  text
 }: InstagramAuthButtonProps) => {
   return (
     <InstagramAuth
@@ -72,8 +61,6 @@ const InstagramAuthButton = ({
       onFailure={onFailure || (() => {})}
       onSuccess={onSuccess || (() => {})}
       getUserUrl={`${audiusBackendInstance.identityServiceUrl}/instagram`}
-      setProfileUrl={`${audiusBackendInstance.identityServiceUrl}/instagram/profile`}
-      requiresProfileMetadata={requiresProfileMetadata}
     >
       <InstagramButton
         className={className}

@@ -1,65 +1,194 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
-import type { Track } from '@audius/common'
+import type { DownloadReason } from '@audius/common'
 import { View } from 'react-native'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
+import { Switch, Text } from 'app/components/core'
 import {
-  downloadTrack,
-  purgeAllDownloads
+  batchDownloadTrack,
+  downloadCollectionById,
+  DOWNLOAD_REASON_FAVORITES
 } from 'app/services/offline-downloader'
-import type { AppState } from 'app/store'
-import { getOfflineDownloadStatus } from 'app/store/offline-downloads/selectors'
-import { TrackDownloadStatus } from 'app/store/offline-downloads/slice'
+import { setVisibility } from 'app/store/drawers/slice'
+import {
+  getOfflineDownloadStatus,
+  getIsCollectionMarkedForDownload
+} from 'app/store/offline-downloads/selectors'
+import { OfflineTrackDownloadStatus as OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
 
-import IconDownload from '../../assets/images/iconDownloadPurple.svg'
-import IconNotDownloaded from '../../assets/images/iconNotDownloaded.svg'
-import { Switch } from '../core/Switch'
+import { DownloadStatusIndicator } from './DownloadStatusIndicator'
 
-type DownloadToggleProps = {
-  collection: string
-  tracks: Track[]
+export type TrackForDownload = {
+  trackId: number
+  downloadReason: DownloadReason
+  // Timestamp associated with when this track was favorited if the reason
+  // is favorites.
+  favoriteCreatedAt?: string
 }
 
-const useStyles = makeStyles(() => ({
-  root: {
-    flexDirection: 'row',
-    alignItems: 'center'
-  }
-}))
+type DownloadToggleProps = {
+  tracksForDownload: TrackForDownload[]
+  labelText?: string
+  collectionId?: number | null
+  isFavoritesDownload?: boolean
+}
 
-export const DownloadToggle = ({ tracks, collection }: DownloadToggleProps) => {
-  const styles = useStyles()
-  const isToggleOn = useSelector((state: AppState) => {
-    const offlineDownloadStatus = getOfflineDownloadStatus(state)
-    return tracks.some((track: Track) => {
-      const status = offlineDownloadStatus[track.track_id.toString()]
-      return (
-        status === TrackDownloadStatus.LOADING ||
-        status === TrackDownloadStatus.SUCCESS
-      )
-    })
+const messages = {
+  downloading: 'Downloading'
+}
+
+const useStyles = makeStyles<{ labelText?: string }>(
+  ({ palette, spacing }, props) => ({
+    root: props.labelText
+      ? {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          width: '100%',
+          marginBottom: spacing(1)
+        }
+      : {
+          flexDirection: 'row',
+          alignItems: 'center'
+        },
+    flex1: props.labelText
+      ? {
+          flex: 1
+        }
+      : {},
+    iconTitle: props.labelText
+      ? {
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginLeft: 'auto',
+          justifyContent: 'center'
+        }
+      : {},
+    labelText: props.labelText
+      ? {
+          color: palette.neutralLight4,
+          fontSize: 14,
+          letterSpacing: 2,
+          textAlign: 'center',
+          textTransform: 'uppercase',
+          paddingLeft: spacing(1),
+          flexBasis: 'auto'
+        }
+      : {},
+    toggleContainer: props.labelText
+      ? {
+          flexDirection: 'row',
+          justifyContent: 'flex-end'
+        }
+      : {},
+    purple: props.labelText
+      ? {
+          color: palette.secondary
+        }
+      : {}
   })
+)
+
+export const DownloadToggle = ({
+  tracksForDownload,
+  collectionId,
+  labelText,
+  isFavoritesDownload
+}: DownloadToggleProps) => {
+  const styleProps = useMemo(() => ({ labelText }), [labelText])
+  const styles = useStyles(styleProps)
+  const dispatch = useDispatch()
+  const [disabled, setDisabled] = useState(false)
+  const collectionIdStr = isFavoritesDownload
+    ? DOWNLOAD_REASON_FAVORITES
+    : collectionId?.toString()
+
+  const offlineDownloadStatus = useSelector(getOfflineDownloadStatus)
+  const isAnyDownloadInProgress = useMemo(
+    () =>
+      tracksForDownload.some(({ trackId }) => {
+        const status = offlineDownloadStatus[trackId.toString()]
+        return status === OfflineDownloadStatus.LOADING
+      }),
+    [offlineDownloadStatus, tracksForDownload]
+  )
+  const isCollectionMarkedForDownload = useSelector(
+    getIsCollectionMarkedForDownload(collectionIdStr)
+  )
 
   const handleToggleDownload = useCallback(
     (isDownloadEnabled: boolean) => {
+      if (!collectionId && !isFavoritesDownload) return
       if (isDownloadEnabled) {
-        tracks.forEach((track) => {
-          downloadTrack(track.track_id, collection)
-        })
+        downloadCollectionById(collectionId, isFavoritesDownload)
+        batchDownloadTrack(tracksForDownload)
       } else {
-        // TODO: remove only downloads associated with this collection
-        purgeAllDownloads()
+        if (!isFavoritesDownload && collectionIdStr) {
+          // we are trying to remove download from a collection page
+          dispatch(
+            setVisibility({
+              drawer: 'RemoveDownloadedCollection',
+              visible: true,
+              data: { collectionId: collectionIdStr, tracksForDownload }
+            })
+          )
+        } else if (collectionIdStr) {
+          dispatch(
+            setVisibility({
+              drawer: 'RemoveDownloadedFavorites',
+              visible: true,
+              data: { collectionId: collectionIdStr, tracksForDownload }
+            })
+          )
+        }
       }
+      setDisabled(true)
+      setTimeout(() => setDisabled(false), 1000)
     },
-    [collection, tracks]
+    [
+      collectionId,
+      collectionIdStr,
+      dispatch,
+      isFavoritesDownload,
+      tracksForDownload
+    ]
   )
+
+  if (!collectionId && !isFavoritesDownload) return null
 
   return (
     <View style={styles.root}>
-      {isToggleOn ? <IconDownload /> : <IconNotDownloaded />}
-      <Switch value={isToggleOn} onValueChange={handleToggleDownload} />
+      {labelText && <View style={styles.flex1} />}
+      <View style={[styles.iconTitle]}>
+        <DownloadStatusIndicator
+          statusOverride={
+            isCollectionMarkedForDownload
+              ? isAnyDownloadInProgress
+                ? OfflineDownloadStatus.LOADING
+                : OfflineDownloadStatus.SUCCESS
+              : null
+          }
+          showNotDownloaded
+        />
+        {labelText ? (
+          <Text
+            style={[
+              styles.labelText,
+              isCollectionMarkedForDownload && styles.purple
+            ]}
+          >
+            {isAnyDownloadInProgress ? messages.downloading : labelText}
+          </Text>
+        ) : null}
+      </View>
+      <View style={[styles.flex1, styles.toggleContainer]}>
+        <Switch
+          value={isCollectionMarkedForDownload}
+          onValueChange={handleToggleDownload}
+          disabled={disabled}
+        />
+      </View>
     </View>
   )
 }

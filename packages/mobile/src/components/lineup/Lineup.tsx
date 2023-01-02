@@ -127,7 +127,7 @@ const getLineupTileComponent = (item: LineupItem) => {
   return null
 }
 
-const SkeletonTrackTileView = memo(function BaseTrackTileView() {
+const SkeletonTrackTileView = memo(function SkeletonTrackTileView() {
   return (
     <View style={styles.item}>
       <LineupTileSkeleton />
@@ -135,7 +135,7 @@ const SkeletonTrackTileView = memo(function BaseTrackTileView() {
   )
 })
 
-const LineupTileView = memo(function BaseLineupTileView({
+const LineupTileView = memo(function LineupTileView({
   item,
   index,
   isTrending,
@@ -165,7 +165,7 @@ const LineupTileView = memo(function BaseLineupTileView({
   }
 })
 
-const LineupItemTile = memo(function BaseLineupItem({
+const LineupItemTile = memo(function LineupItemTile({
   item,
   index,
   isTrending,
@@ -208,6 +208,7 @@ export const Lineup = ({
   disableTopTabScroll,
   fetchPayload,
   header,
+  LineupEmptyComponent,
   isTrending,
   isFeed,
   leadingElementId,
@@ -251,14 +252,6 @@ export const Lineup = ({
   }, [status])
 
   const refresh = refreshProp ?? handleRefresh
-
-  useScrollToTop(() => {
-    ref.current?.scrollToLocation({
-      sectionIndex: 0,
-      itemIndex: 0,
-      animated: true
-    })
-  }, disableTopTabScroll)
 
   const handleInView = useCallback(() => {
     dispatch(actions.setInView(true))
@@ -483,6 +476,22 @@ export const Lineup = ({
     showTip
   ])
 
+  const areSectionsEmpty = sections.every(
+    (section) => section.data.length === 0
+  )
+
+  const scrollToTop = useCallback(() => {
+    if (!areSectionsEmpty) {
+      ref.current?.scrollToLocation({
+        sectionIndex: 0,
+        itemIndex: 0,
+        animated: true
+      })
+    }
+  }, [areSectionsEmpty])
+
+  useScrollToTop(scrollToTop, disableTopTabScroll)
+
   const handleScroll = useCallback(
     ({ nativeEvent }) => {
       const { layoutMeasurement, contentOffset, contentSize } = nativeEvent
@@ -514,6 +523,7 @@ export const Lineup = ({
         onScroll={handleScroll}
         ListHeaderComponent={header}
         ListFooterComponent={<View style={{ height: 16 }} />}
+        ListEmptyComponent={LineupEmptyComponent}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={LOAD_MORE_THRESHOLD}
         sections={sections}

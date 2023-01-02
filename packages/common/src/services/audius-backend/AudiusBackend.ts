@@ -1,4 +1,4 @@
-import { IdentityAPI, DiscoveryAPI } from '@audius/sdk/dist/core'
+import { DiscoveryAPI } from '@audius/sdk/dist/core'
 import type { HedgehogConfig } from '@audius/sdk/dist/services/hedgehog'
 import type { LocalStorage } from '@audius/sdk/dist/utils/localStorage'
 import { ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token'
@@ -62,8 +62,10 @@ import {
   uuid,
   Maybe,
   encodeHashId,
+  decodeHashId,
   Timer
 } from '../../utils'
+import { APIUser } from '../audius-api-client/types'
 
 import { MonitoringCallbacks } from './types'
 
@@ -229,6 +231,7 @@ type AudiusBackendParams = {
     createKey: HedgehogConfig['createKey']
   }
   identityServiceUrl: Maybe<string>
+  generalAdmissionUrl: Maybe<string>
   isElectron: Maybe<boolean>
   isMobile: Maybe<boolean>
   legacyUserNodeUrl: Maybe<string>
@@ -272,6 +275,7 @@ export const audiusBackend = ({
   getWeb3Config,
   hedgehogConfig,
   identityServiceUrl,
+  generalAdmissionUrl,
   isElectron,
   isMobile,
   legacyUserNodeUrl,
@@ -510,7 +514,11 @@ export const audiusBackend = ({
     }
   }
 
-  async function getImageUrl(cid: CID, size: string, gateways: string[]) {
+  async function getImageUrl(
+    cid: Nullable<CID>,
+    size: Nullable<string>,
+    gateways: string[]
+  ) {
     if (!cid) return ''
     try {
       return size
@@ -522,7 +530,7 @@ export const audiusBackend = ({
     }
   }
 
-  function getTrackImages(track: TrackMetadata) {
+  function getTrackImages(track: TrackMetadata): Track {
     const coverArtSizes: CoverArtSizes = {}
     if (!track.cover_art_sizes && !track.cover_art) {
       coverArtSizes[DefaultSizes.OVERRIDE] = placeholderCoverArt as string
@@ -694,8 +702,10 @@ export const audiusBackend = ({
             IntKeys.DISCOVERY_NODE_SELECTION_REQUEST_RETRIES
           ),
           unhealthySlotDiffPlays: getRemoteVar(
-            IntKeys.DISCOVERY_NODE_MAX_SLOT_DIFF_PLAYS
-          ),
+            BooleanKeys.ENABLE_DISCOVERY_NODE_MAX_SLOT_DIFF_PLAYS
+          )
+            ? getRemoteVar(IntKeys.DISCOVERY_NODE_MAX_SLOT_DIFF_PLAYS)
+            : null,
           unhealthyBlockDiff: getRemoteVar(
             IntKeys.DISCOVERY_NODE_MAX_BLOCK_DIFF
           )
@@ -861,18 +871,11 @@ export const audiusBackend = ({
     )
   }
 
-  async function getAccount(fromSource = false) {
+  async function getAccount() {
     await waitForLibsInit()
     try {
-      let account
-      if (fromSource) {
-        const wallet = audiusLibs.Account.getCurrentUser().wallet
-        account = await audiusLibs.discoveryProvider.getUserAccount(wallet)
-        audiusLibs.userStateManager.setCurrentUser(account)
-      } else {
-        account = audiusLibs.Account.getCurrentUser()
-        if (!account) return null
-      }
+      const account = audiusLibs.Account.getCurrentUser()
+      if (!account) return null
 
       // If reading the artist pick from discovery, set _artist_pick on
       // the user to the value from discovery (set in artist_pick_track_id
@@ -1146,31 +1149,6 @@ export const audiusBackend = ({
     }
   }
 
-  // trackIds, start, end, period
-  async function getTrackListens(
-    ...args: Parameters<typeof IdentityAPI.getTrackListens>
-  ) {
-    const [period, trackIds, start, end] = args
-    if (trackIds?.length === 0) return []
-    try {
-      return withEagerOption(
-        {
-          normal: (libs) => libs.Track.getTrackListens,
-          eager: IdentityAPI.getTrackListens,
-          endpoint: identityServiceUrl
-        },
-        period,
-        trackIds,
-        start,
-        end,
-        trackIds?.length
-      )
-    } catch (err) {
-      console.error(getErrorMessage(err))
-      return []
-    }
-  }
-
   // userId, start, end
   async function getUserListenCountsMonthly(
     currentUserId: number,
@@ -1209,14 +1187,7 @@ export const audiusBackend = ({
 
   async function repostTrack(trackId: ID) {
     try {
-      const socialFeatureEntityManagerEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
-        )) ?? false
-      if (socialFeatureEntityManagerEnabled) {
-        return await audiusLibs.EntityManager.repostTrack(trackId)
-      }
-      return audiusLibs.Track.addTrackRepost(trackId)
+      return await audiusLibs.EntityManager.repostTrack(trackId)
     } catch (err) {
       console.error(getErrorMessage(err))
       throw err
@@ -1225,15 +1196,7 @@ export const audiusBackend = ({
 
   async function undoRepostTrack(trackId: ID) {
     try {
-      const socialFeatureEntityManagerEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
-        )) ?? false
-
-      if (socialFeatureEntityManagerEnabled) {
-        return await audiusLibs.EntityManager.unrepostTrack(trackId)
-      }
-      return audiusLibs.Track.deleteTrackRepost(trackId)
+      return await audiusLibs.EntityManager.unrepostTrack(trackId)
     } catch (err) {
       console.error(getErrorMessage(err))
       throw err
@@ -1242,16 +1205,7 @@ export const audiusBackend = ({
 
   async function repostCollection(playlistId: ID) {
     try {
-      const socialFeatureEntityManagerEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
-        )) ?? false
-
-      if (socialFeatureEntityManagerEnabled) {
-        return audiusLibs.EntityManager.repostPlaylist(playlistId)
-      }
-
-      return audiusLibs.Playlist.addPlaylistRepost(playlistId)
+      return audiusLibs.EntityManager.repostPlaylist(playlistId)
     } catch (err) {
       console.error(getErrorMessage(err))
       throw err
@@ -1260,15 +1214,7 @@ export const audiusBackend = ({
 
   async function undoRepostCollection(playlistId: ID) {
     try {
-      const socialFeatureEntityManagerEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
-        )) ?? false
-
-      if (socialFeatureEntityManagerEnabled) {
-        return audiusLibs.EntityManager.unrepostPlaylist(playlistId)
-      }
-      return audiusLibs.Playlist.deletePlaylistRepost(playlistId)
+      return audiusLibs.EntityManager.unrepostPlaylist(playlistId)
     } catch (err) {
       console.error(getErrorMessage(err))
       throw err
@@ -1291,16 +1237,12 @@ export const audiusBackend = ({
     metadata: TrackMetadata,
     onProgress: (loaded: number, total: number) => void
   ) {
-    const trackEntityManagerIsEnabled =
-      (await getFeatureEnabled(FeatureFlags.TRACK_ENTITY_MANAGER_ENABLED)) ??
-      false
-
     return await audiusLibs.Track.uploadTrack(
       trackFile,
       coverArtFile,
       metadata,
       onProgress,
-      trackEntityManagerIsEnabled
+      true
     )
   }
 
@@ -1334,13 +1276,7 @@ export const audiusBackend = ({
   async function registerUploadedTracks(
     uploadedTracks: { metadataMultihash: string; metadataFileUUID: string }[]
   ) {
-    const trackEntityManagerIsEnabled =
-      (await getFeatureEnabled(FeatureFlags.TRACK_ENTITY_MANAGER_ENABLED)) ??
-      false
-    return audiusLibs.Track.addTracksToChainAndCnode(
-      uploadedTracks,
-      trackEntityManagerIsEnabled
-    )
+    return audiusLibs.Track.addTracksToChainAndCnode(uploadedTracks, true)
   }
 
   async function uploadImage(file: File) {
@@ -1357,14 +1293,8 @@ export const audiusBackend = ({
       const resp = await audiusLibs.File.uploadImage(metadata.artwork.file)
       cleanedMetadata.cover_art_sizes = resp.dirCID
     }
-    const trackEntityManagerIsEnabled =
-      (await getFeatureEnabled(FeatureFlags.TRACK_ENTITY_MANAGER_ENABLED)) ??
-      false
 
-    return await audiusLibs.Track.updateTrack(
-      cleanedMetadata,
-      trackEntityManagerIsEnabled
-    )
+    return await audiusLibs.Track.updateTrack(cleanedMetadata, true)
   }
 
   async function getCreators(ids: ID[]) {
@@ -1396,11 +1326,25 @@ export const audiusBackend = ({
     try {
       const res = await fetch(
         `${identityServiceUrl}/social_handles?handle=${handle}`
-      ).then((res) => res.json())
-      return res
+      )
+      const json = await res.json()
+      return json
     } catch (e) {
       console.error(e)
       return {}
+    }
+  }
+
+  async function getEntityManagerReplicaSetEnabled() {
+    try {
+      const res = await fetch(
+        `${identityServiceUrl}/health_check/entity_manager_replica_set_enabled`
+      )
+      const json = await res.json()
+      return json.entityManagerReplicaSetEnabled
+    } catch (e) {
+      console.error(e)
+      return false
     }
   }
 
@@ -1522,9 +1466,7 @@ export const audiusBackend = ({
       }
 
       newMetadata = schemas.newUserMetadata(newMetadata, true)
-      const userEntityManagerEnabled =
-        (await getFeatureEnabled(FeatureFlags.USER_ENTITY_MANAGER_ENABLED)) ??
-        false
+      const userEntityManagerEnabled = await getEntityManagerReplicaSetEnabled()
       const { blockHash, blockNumber, userId } =
         await audiusLibs.User.updateCreator(
           newMetadata.user_id,
@@ -1602,16 +1544,7 @@ export const audiusBackend = ({
 
   async function followUser(followeeUserId: ID) {
     try {
-      const socialFeatureEntityManagerEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
-        )) ?? false
-
-      if (socialFeatureEntityManagerEnabled) {
-        return await audiusLibs.EntityManager.followUser(followeeUserId)
-      }
-
-      return await audiusLibs.User.addUserFollow(followeeUserId)
+      return await audiusLibs.EntityManager.followUser(followeeUserId)
     } catch (err) {
       console.log(getErrorMessage(err))
       throw err
@@ -1620,16 +1553,7 @@ export const audiusBackend = ({
 
   async function unfollowUser(followeeUserId: ID) {
     try {
-      const socialFeatureEntityManagerEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
-        )) ?? false
-
-      if (socialFeatureEntityManagerEnabled) {
-        return await audiusLibs.EntityManager.unfollowUser(followeeUserId)
-      }
-
-      return await audiusLibs.User.deleteUserFollow(followeeUserId)
+      return await audiusLibs.EntityManager.unfollowUser(followeeUserId)
     } catch (err) {
       console.log(getErrorMessage(err))
       throw err
@@ -1679,93 +1603,33 @@ export const audiusBackend = ({
 
   async function createPlaylist(
     playlistId: ID,
-    userId: ID,
     metadata: Collection,
     isAlbum = false,
     trackIds = [],
     isPrivate = true
   ) {
-    const playlistName = metadata.playlist_name
-    const coverArt = metadata.artwork ? metadata.artwork.file : null
-    const description = metadata.description
     // Creating an album is automatically public.
     if (isAlbum) isPrivate = false
 
     try {
-      const playlistEntityManagerIsEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-        )) ?? false
-
       let response
-      if (playlistEntityManagerIsEnabled) {
-        const web3 = await audiusLibs.web3Manager.getWeb3()
-        const currentBlockNumber = await web3.eth.getBlockNumber()
-        const currentBlock = await web3.eth.getBlock(currentBlockNumber)
-        const playlistTracks = trackIds.map((trackId) => ({
-          track: trackId,
-          metadata_time: currentBlock.timestamp
-        }))
-        response = await audiusLibs.EntityManager.createPlaylist({
-          ...metadata,
-          playlist_id: playlistId,
-          playlist_contents: { track_ids: playlistTracks },
-          is_album: isAlbum,
-          is_private: isPrivate
-        })
-        const { blockHash, blockNumber, error } = response
-        if (error) return { playlistId, error }
-        return { blockHash, blockNumber, playlistId }
-      } else {
-        const response = await audiusLibs.Playlist.createPlaylist(
-          userId,
-          playlistName,
-          isPrivate,
-          isAlbum,
-          trackIds
-        )
-        let { blockHash, blockNumber, playlistId, error } = response
-
-        if (error) return { playlistId, error }
-
-        const updatePromises: Promise<any>[] = []
-
-        // If this playlist is being created from an existing cover art, use it.
-        if (metadata.cover_art_sizes) {
-          updatePromises.push(
-            audiusLibs.contracts.PlaylistFactoryClient.updatePlaylistCoverPhoto(
-              playlistId,
-              BackendUtils.formatOptionalMultihash(metadata.cover_art_sizes)
-            )
-          )
-        } else if (coverArt) {
-          updatePromises.push(
-            audiusLibs.Playlist.updatePlaylistCoverPhoto(playlistId, coverArt)
-          )
-        }
-        if (description) {
-          updatePromises.push(
-            audiusLibs.Playlist.updatePlaylistDescription(
-              playlistId,
-              description
-            )
-          )
-        }
-
-        /**
-         * find the latest transaction i.e. latest block number among the return transaction receipts
-         * and return that block number along with its corresponding block hash
-         */
-        if (updatePromises.length > 0) {
-          const latestReceipt = getLatestTxReceipt(
-            await Promise.all(updatePromises)
-          ) as TransactionReceipt
-          blockHash = latestReceipt.blockHash
-          blockNumber = latestReceipt.blockNumber
-        }
-
-        return { blockHash, blockNumber, playlistId }
-      }
+      const web3 = await audiusLibs.web3Manager.getWeb3()
+      const currentBlockNumber = await web3.eth.getBlockNumber()
+      const currentBlock = await web3.eth.getBlock(currentBlockNumber)
+      const playlistTracks = trackIds.map((trackId) => ({
+        track: trackId,
+        metadata_time: currentBlock.timestamp
+      }))
+      response = await audiusLibs.EntityManager.createPlaylist({
+        ...metadata,
+        playlist_id: playlistId,
+        playlist_contents: { track_ids: playlistTracks },
+        is_album: isAlbum,
+        is_private: isPrivate
+      })
+      const { blockHash, blockNumber, error } = response
+      if (error) return { playlistId, error }
+      return { blockHash, blockNumber, playlistId }
     } catch (err) {
       // This code path should never execute
       console.debug('Reached client createPlaylist catch block')
@@ -1774,163 +1638,60 @@ export const audiusBackend = ({
     }
   }
 
-  async function updatePlaylist(playlistId: ID, metadata: Collection) {
-    const playlistName = metadata.playlist_name
-    const coverPhoto = metadata.artwork?.file
-    const description = metadata.description
-
+  async function updatePlaylist(metadata: Collection) {
     try {
-      const playlistEntityManagerIsEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-        )) ?? false
-      if (playlistEntityManagerIsEnabled) {
-        const { blockHash, blockNumber } =
-          await audiusLibs.EntityManager.updatePlaylist(metadata)
+      const { blockHash, blockNumber } =
+        await audiusLibs.EntityManager.updatePlaylist(metadata)
 
-        return { blockHash, blockNumber }
-      } else {
-        let blockHash, blockNumber
-        const promises: Promise<any>[] = []
-        if (playlistName) {
-          promises.push(
-            audiusLibs.Playlist.updatePlaylistName(playlistId, playlistName)
-          )
-        }
-        if (coverPhoto) {
-          promises.push(
-            audiusLibs.Playlist.updatePlaylistCoverPhoto(playlistId, coverPhoto)
-          )
-        }
-        if (description) {
-          promises.push(
-            audiusLibs.Playlist.updatePlaylistDescription(
-              playlistId,
-              description
-            )
-          )
-        }
-
-        /**
-         * find the latest transaction i.e. latest block number among the return transaction receipts
-         * and return that block number along with its corresponding block hash
-         */
-        if (promises.length > 0) {
-          const latestReceipt = getLatestTxReceipt(await Promise.all(promises))
-          blockHash = latestReceipt.blockHash
-          blockNumber = latestReceipt.blockNumber
-        }
-        return { blockHash, blockNumber }
-      }
+      return { blockHash, blockNumber }
     } catch (error) {
       console.error(getErrorMessage(error))
       return { error }
     }
   }
 
-  async function orderPlaylist(
-    playlistId: ID,
-    trackIds: PlaylistTrackId[],
-    retries: number,
-    playlist: any
-  ) {
+  async function orderPlaylist(playlist: any) {
     try {
-      const playlistEntityManagerIsEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-        )) ?? false
-      if (playlistEntityManagerIsEnabled) {
-        const { blockHash, blockNumber } =
-          await audiusLibs.EntityManager.updatePlaylist(playlist)
-        return { blockHash, blockNumber }
-      } else {
-        const { blockHash, blockNumber } =
-          await audiusLibs.Playlist.orderPlaylistTracks(
-            playlistId,
-            trackIds,
-            retries
-          )
-        return { blockHash, blockNumber }
-      }
+      const { blockHash, blockNumber } =
+        await audiusLibs.EntityManager.updatePlaylist(playlist)
+      return { blockHash, blockNumber }
     } catch (error) {
       console.error(getErrorMessage(error))
       return { error }
     }
   }
 
-  async function publishPlaylist(playlistId: ID, playlist: Collection) {
+  async function publishPlaylist(playlist: Collection) {
     try {
-      const playlistEntityManagerIsEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-        )) ?? false
-      if (playlistEntityManagerIsEnabled) {
-        playlist.is_private = false
-        const { blockHash, blockNumber } =
-          await audiusLibs.EntityManager.updatePlaylist({
-            ...playlist,
-            is_private: false
-          })
-        return { blockHash, blockNumber }
-      } else {
-        const { blockHash, blockNumber } =
-          await audiusLibs.Playlist.updatePlaylistPrivacy(playlistId, false)
-        return { blockHash, blockNumber }
-      }
+      playlist.is_private = false
+      const { blockHash, blockNumber } =
+        await audiusLibs.EntityManager.updatePlaylist({
+          ...playlist,
+          is_private: false
+        })
+      return { blockHash, blockNumber }
     } catch (error) {
       console.error(getErrorMessage(error))
       return { error }
     }
   }
 
-  async function addPlaylistTrack(
-    playlistId: ID,
-    trackId: ID,
-    playlist: Collection
-  ) {
+  async function addPlaylistTrack(playlist: Collection) {
     try {
-      const playlistEntityManagerIsEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-        )) ?? false
-      if (playlistEntityManagerIsEnabled) {
-        const { blockHash, blockNumber } =
-          await audiusLibs.EntityManager.updatePlaylist(playlist)
-        return { blockHash, blockNumber }
-      } else {
-        const { blockHash, blockNumber } =
-          await audiusLibs.Playlist.addPlaylistTrack(playlistId, trackId)
-        return { blockHash, blockNumber }
-      }
+      const { blockHash, blockNumber } =
+        await audiusLibs.EntityManager.updatePlaylist(playlist)
+      return { blockHash, blockNumber }
     } catch (error) {
       console.error(getErrorMessage(error))
       return { error }
     }
   }
 
-  async function deletePlaylistTrack(
-    playlistId: ID,
-    trackId: ID,
-    timestamp: string,
-    retries: number,
-    playlist: Collection,
-    playlistEntityManagerIsEnabled = false
-  ) {
+  async function deletePlaylistTrack(playlist: Collection) {
     try {
-      if (playlistEntityManagerIsEnabled) {
-        const { blockHash, blockNumber } =
-          await audiusLibs.EntityManager.updatePlaylist(playlist)
-        return { blockHash, blockNumber }
-      } else {
-        const { blockHash, blockNumber } =
-          await audiusLibs.Playlist.deletePlaylistTrack(
-            playlistId,
-            trackId,
-            timestamp,
-            retries
-          )
-        return { blockHash, blockNumber }
-      }
+      const { blockHash, blockNumber } =
+        await audiusLibs.EntityManager.updatePlaylist(playlist)
+      return { blockHash, blockNumber }
     } catch (error) {
       console.error(getErrorMessage(error))
       return { error }
@@ -1969,16 +1730,9 @@ export const audiusBackend = ({
 
   async function deletePlaylist(playlistId: ID) {
     try {
-      const playlistEntityManagerIsEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-        )) ?? false
-      let txReceipt
-      if (playlistEntityManagerIsEnabled) {
-        txReceipt = await audiusLibs.EntityManager.deletePlaylist(playlistId)
-      } else {
-        txReceipt = await audiusLibs.Playlist.deletePlaylist(playlistId)
-      }
+      const txReceipt = await audiusLibs.EntityManager.deletePlaylist(
+        playlistId
+      )
       return {
         blockHash: txReceipt.blockHash,
         blockNumber: txReceipt.blockNumber
@@ -1996,24 +1750,12 @@ export const audiusBackend = ({
           trackIds.map((t) => t.track)
         )}`
       )
-      const trackEntityManagerIsEnabled =
-        (await getFeatureEnabled(FeatureFlags.TRACK_ENTITY_MANAGER_ENABLED)) ??
-        false
 
       const trackDeletionPromises = trackIds.map((t) =>
-        audiusLibs.Track.deleteTrack(t.track, trackEntityManagerIsEnabled)
+        audiusLibs.Track.deleteTrack(t.track, true)
       )
-      const playlistEntityManagerIsEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.PLAYLIST_ENTITY_MANAGER_ENABLED
-        )) ?? false
-      let playlistDeletionPromise
-      if (playlistEntityManagerIsEnabled) {
-        playlistDeletionPromise =
-          audiusLibs.EntityManager.deletePlaylist(playlistId)
-      } else {
-        playlistDeletionPromise = audiusLibs.Playlist.deletePlaylist(playlistId)
-      }
+      const playlistDeletionPromise =
+        audiusLibs.EntityManager.deletePlaylist(playlistId)
       const results = await Promise.all(
         trackDeletionPromises.concat(playlistDeletionPromise)
       )
@@ -2082,16 +1824,7 @@ export const audiusBackend = ({
   // Favoriting a track
   async function saveTrack(trackId: ID) {
     try {
-      const socialFeatureEntityManagerEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
-        )) ?? false
-
-      if (socialFeatureEntityManagerEnabled) {
-        return await audiusLibs.EntityManager.saveTrack(trackId)
-      }
-
-      return await audiusLibs.Track.addTrackSave(trackId)
+      return await audiusLibs.EntityManager.saveTrack(trackId)
     } catch (err) {
       console.log(getErrorMessage(err))
       throw err
@@ -2100,14 +1833,7 @@ export const audiusBackend = ({
 
   async function deleteTrack(trackId: ID) {
     try {
-      const trackEntityManagerIsEnabled =
-        (await getFeatureEnabled(FeatureFlags.TRACK_ENTITY_MANAGER_ENABLED)) ??
-        false
-
-      const { txReceipt } = await audiusLibs.Track.deleteTrack(
-        trackId,
-        trackEntityManagerIsEnabled
-      )
+      const { txReceipt } = await audiusLibs.Track.deleteTrack(trackId, true)
       return {
         blockHash: txReceipt.blockHash,
         blockNumber: txReceipt.blockNumber
@@ -2121,15 +1847,7 @@ export const audiusBackend = ({
   // Favorite a playlist
   async function saveCollection(playlistId: ID) {
     try {
-      const socialFeatureEntityManagerEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
-        )) ?? false
-
-      if (socialFeatureEntityManagerEnabled) {
-        return await audiusLibs.EntityManager.savePlaylist(playlistId)
-      }
-      return await audiusLibs.Playlist.addPlaylistSave(playlistId)
+      return await audiusLibs.EntityManager.savePlaylist(playlistId)
     } catch (err) {
       console.log(getErrorMessage(err))
       throw err
@@ -2139,16 +1857,7 @@ export const audiusBackend = ({
   // Unfavoriting a track
   async function unsaveTrack(trackId: ID) {
     try {
-      const socialFeatureEntityManagerEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
-        )) ?? false
-
-      if (socialFeatureEntityManagerEnabled) {
-        return await audiusLibs.EntityManager.unsaveTrack(trackId)
-      }
-
-      return await audiusLibs.Track.deleteTrackSave(trackId)
+      return await audiusLibs.EntityManager.unsaveTrack(trackId)
     } catch (err) {
       console.log(getErrorMessage(err))
       throw err
@@ -2158,15 +1867,7 @@ export const audiusBackend = ({
   // Unfavorite a playlist
   async function unsaveCollection(playlistId: ID) {
     try {
-      const socialFeatureEntityManagerEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.SOCIAL_FEATURE_ENTITY_MANAGER_ENABLED
-        )) ?? false
-
-      if (socialFeatureEntityManagerEnabled) {
-        return await audiusLibs.EntityManager.unsavePlaylist(playlistId)
-      }
-      return await audiusLibs.Playlist.deletePlaylistSave(playlistId)
+      return await audiusLibs.EntityManager.unsavePlaylist(playlistId)
     } catch (err) {
       console.log(getErrorMessage(err))
       throw err
@@ -2265,9 +1966,7 @@ export const audiusBackend = ({
     }
 
     // Returns { userId, error, phase }
-    const userEntityManagerEnabled =
-      (await getFeatureEnabled(FeatureFlags.USER_ENTITY_MANAGER_ENABLED)) ??
-      false
+    const userEntityManagerEnabled = await getEntityManagerReplicaSetEnabled()
 
     return audiusLibs.Account.signUp(
       email,
@@ -2358,6 +2057,30 @@ export const audiusBackend = ({
     }
   }
 
+  async function instagramHandle(handle: string) {
+    try {
+      const res = await fetch(
+        `${generalAdmissionUrl}/social/instagram/${handle}`
+      )
+      const json = await res.json()
+      return json
+    } catch (error) {
+      console.error(error)
+      return null
+    }
+  }
+
+  async function tiktokHandle(handle: string) {
+    try {
+      const res = await fetch(`${generalAdmissionUrl}/social/tiktok/${handle}`)
+      const json = await res.json()
+      return json
+    } catch (error) {
+      console.error(error)
+      return null
+    }
+  }
+
   async function associateTwitterAccount(
     twitterId: string,
     userId: ID,
@@ -2385,6 +2108,21 @@ export const audiusBackend = ({
         userId,
         handle
       )
+      return { success: true }
+    } catch (error) {
+      console.error(getErrorMessage(error))
+      return { success: false, error }
+    }
+  }
+
+  async function associateTikTokAccount(
+    tikTokId: string,
+    userId: ID,
+    handle: string
+  ) {
+    await waitForLibsInit()
+    try {
+      await audiusLibs.Account.associateTikTokAccount(tikTokId, userId, handle)
       return { success: true }
     } catch (error) {
       console.error(getErrorMessage(error))
@@ -2775,29 +2513,55 @@ export const audiusBackend = ({
     }
   }
 
+  /**
+   * Returns whether the current user is subscribed to userId.
+   */
   async function getUserSubscribed(userId: ID) {
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
     if (!account) return
-    try {
-      const { data, signature } = await signData()
-      return await fetch(
-        `${identityServiceUrl}/notifications/subscription?userId=${userId}`,
-        {
-          headers: {
-            [AuthHeaders.Message]: data,
-            [AuthHeaders.Signature]: signature
-          }
-        }
-      )
-        .then((res) => res.json())
-        .then((res) =>
-          res.users && res.users[userId.toString()]
-            ? res.users[userId.toString()].isSubscribed
-            : false
+
+    const isreadSubscribersFromDiscoveryEnabled =
+      (await getFeatureEnabled(
+        FeatureFlags.READ_SUBSCRIBERS_FROM_DISCOVERY_ENABLED
+      )) ?? false
+
+    if (isreadSubscribersFromDiscoveryEnabled) {
+      // Read subscribers from discovery
+      try {
+        const subscribers: APIUser[] = await audiusLibs.User.getUserSubscribers(
+          encodeHashId(userId)
         )
-    } catch (e) {
-      console.error(e)
+        const subscriberIds = subscribers.map((subscriber) =>
+          decodeHashId(subscriber.id)
+        )
+        return subscriberIds.includes(account.user_id)
+      } catch (e) {
+        console.error(getErrorMessage(e))
+        return false
+      }
+    } else {
+      // Read subscribers from identity
+      try {
+        const { data, signature } = await signData()
+        return await fetch(
+          `${identityServiceUrl}/notifications/subscription?userId=${userId}`,
+          {
+            headers: {
+              [AuthHeaders.Message]: data,
+              [AuthHeaders.Signature]: signature
+            }
+          }
+        )
+          .then((res) => res.json())
+          .then((res) =>
+            res.users && res.users[userId.toString()]
+              ? res.users[userId.toString()].isSubscribed
+              : false
+          )
+      } catch (e) {
+        console.error(e)
+      }
     }
   }
 
@@ -2845,6 +2609,30 @@ export const audiusBackend = ({
       }).then((res) => res.json())
     } catch (e) {
       console.error(e)
+    }
+  }
+
+  async function subscribeToUser(userId: ID) {
+    try {
+      await waitForLibsInit()
+      const account = audiusLibs.Account.getCurrentUser()
+      if (!account) return
+      return await audiusLibs.User.addUserSubscribe(userId)
+    } catch (err) {
+      console.error(getErrorMessage(err))
+      throw err
+    }
+  }
+
+  async function unsubscribeFromUser(userId: ID) {
+    try {
+      await waitForLibsInit()
+      const account = audiusLibs.Account.getCurrentUser()
+      if (!account) return
+      return await audiusLibs.User.deleteUserSubscribe(userId)
+    } catch (err) {
+      console.error(getErrorMessage(err))
+      throw err
     }
   }
 
@@ -3250,6 +3038,26 @@ export const audiusBackend = ({
     return waudioBalance
   }
 
+  async function getAudioTransactionsCount() {
+    try {
+      const { data, signature } = await signDiscoveryNodeRequest()
+      const res = await fetch(
+        `${currentDiscoveryProvider}/v1/full/transactions`,
+        {
+          headers: {
+            encodedDataMessage: data,
+            encodedDataSignature: signature
+          }
+        }
+      )
+      const json = await res.json()
+      return json
+    } catch (e) {
+      console.error(e)
+      return 0
+    }
+  }
+
   /**
    * Aggregate, submit, and evaluate attestations for a given challenge for a user
    */
@@ -3362,6 +3170,7 @@ export const audiusBackend = ({
     associateAudiusUserForAuth,
     associateInstagramAccount,
     associateTwitterAccount,
+    associateTikTokAccount,
     autoSelectCreatorNodes,
     changePassword,
     clearNotificationBadges,
@@ -3387,6 +3196,7 @@ export const audiusBackend = ({
     getAccount,
     getAddressTotalStakedBalance,
     getAddressWAudioBalance,
+    getAudioTransactionsCount,
     getAddressSolBalance,
     getAssociatedTokenAccountInfo,
     getAllTracks,
@@ -3417,7 +3227,6 @@ export const audiusBackend = ({
     getSignature,
     getSocialFeed,
     getTrackImages,
-    getTrackListens,
     getTracksIncludingUnlisted,
     getUserEmail,
     getUserFeed,
@@ -3462,6 +3271,8 @@ export const audiusBackend = ({
     submitAndEvaluateAttestations,
     transferAudioToWAudio,
     twitterHandle,
+    instagramHandle,
+    tiktokHandle,
     undoRepostCollection,
     undoRepostTrack,
     unfollowUser,
@@ -3481,6 +3292,8 @@ export const audiusBackend = ({
     updateUserEvent,
     updateUserLocationTimezone,
     updateUserSubscription,
+    subscribeToUser,
+    unsubscribeFromUser,
     upgradeToCreator,
     uploadImage,
     uploadTrack,

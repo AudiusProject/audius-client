@@ -10,7 +10,6 @@ import {
   Name,
   PlaybackSource,
   FavoriteType,
-  SquareSizes,
   getCanonicalName,
   formatSeconds,
   formatDate,
@@ -29,11 +28,12 @@ import { Image, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconHidden from 'app/assets/images/iconHidden.svg'
+import type { DynamicImageProps } from 'app/components/core'
 import { Tag, Text } from 'app/components/core'
 import { DetailsTile } from 'app/components/details-tile'
 import type { DetailsTileDetail } from 'app/components/details-tile/types'
+import { TrackImage } from 'app/components/image/TrackImage'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
 import { make, track as record } from 'app/services/analytics'
 import type { SearchTrack, SearchUser } from 'app/store/search/types'
 import { flexRowCentered, makeStyles } from 'app/styles'
@@ -93,6 +93,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
 
   hiddenDetailsTileWrapper: {
     ...flexRowCentered(),
+    justifyContent: 'center',
     marginBottom: spacing(4)
   },
 
@@ -129,7 +130,6 @@ export const TrackScreenDetailsTile = ({
 
   const {
     _co_sign,
-    _cover_art_sizes,
     created_at,
     credits_splits,
     description,
@@ -150,12 +150,6 @@ export const TrackScreenDetailsTile = ({
     title,
     track_id
   } = track
-
-  const imageUrl = useTrackCoverArt({
-    id: track_id,
-    sizes: _cover_art_sizes,
-    size: SquareSizes.SIZE_480_BY_480
-  })
 
   const isOwner = owner_id === currentUserId
 
@@ -190,6 +184,11 @@ export const TrackScreenDetailsTile = ({
     },
     { label: 'Credit', value: credits_splits }
   ].filter(({ isHidden, value }) => !isHidden && !!value)
+
+  const renderImage = useCallback(
+    (props: DynamicImageProps) => <TrackImage track={track} {...props} />,
+    [track]
+  )
 
   const handlePressPlay = useCallback(() => {
     if (isLineupLoading) return
@@ -262,7 +261,9 @@ export const TrackScreenDetailsTile = ({
       user.does_current_user_follow
         ? OverflowAction.UNFOLLOW_ARTIST
         : OverflowAction.FOLLOW_ARTIST,
-      OverflowAction.VIEW_ARTIST_PAGE
+      OverflowAction.VIEW_ARTIST_PAGE,
+      isOwner ? OverflowAction.EDIT_TRACK : null,
+      isOwner ? OverflowAction.DELETE_TRACK : null
     ].filter(removeNullable)
 
     dispatch(
@@ -327,7 +328,6 @@ export const TrackScreenDetailsTile = ({
       details={details}
       hasReposted={has_current_user_reposted}
       hasSaved={has_current_user_saved}
-      imageUrl={imageUrl}
       user={user}
       renderBottomContent={renderBottomContent}
       renderHeader={is_unlisted ? renderHiddenHeader : undefined}
@@ -347,6 +347,7 @@ export const TrackScreenDetailsTile = ({
       onPressSave={handlePressSave}
       onPressShare={handlePressShare}
       playCount={play_count}
+      renderImage={renderImage}
       repostCount={repost_count}
       saveCount={save_count}
       title={title}

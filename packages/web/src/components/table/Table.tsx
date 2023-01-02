@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  CSSProperties,
+  MouseEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState
+} from 'react'
 
 import { ID, Kind } from '@audius/common'
 import cn from 'classnames'
@@ -9,7 +16,9 @@ import {
   useSortBy,
   useResizeColumns,
   useFlexLayout,
-  Cell
+  Cell,
+  Row,
+  TableRowProps
 } from 'react-table'
 import {
   AutoSizer,
@@ -61,7 +70,8 @@ export const dateSorter = (accessor: string) => (rowA: any, rowB: any) => {
   return 0
 }
 
-const isEmptyRow = (row: any) => {
+// Used in TracksTable, CollectiblesPlaylistTable
+const isEmptyRowDefault = (row: any) => {
   return Boolean(!row?.original?.uid || row?.original?.kind === Kind.EMPTY)
 }
 
@@ -80,10 +90,15 @@ type TableProps = {
   isTracksTable?: boolean
   isVirtualized?: boolean
   loading?: boolean
-  onClickRow?: (e: any, rowInfo: any, index: number) => void
+  onClickRow?: (
+    e: MouseEvent<HTMLTableRowElement>,
+    rowInfo: any,
+    index: number
+  ) => void
   onReorder?: (source: number, destination: number) => void
   onShowMoreToggle?: (setting: boolean) => void
   onSort?: (...props: any[]) => void
+  isEmptyRow?: (row: any) => boolean
   pageSize?: number
   scrollRef?: React.MutableRefObject<HTMLDivElement | undefined>
   showMoreLimit?: number
@@ -112,6 +127,7 @@ export const Table = ({
   onReorder,
   onShowMoreToggle,
   onSort,
+  isEmptyRow = isEmptyRowDefault,
   pageSize = 50,
   scrollRef,
   showMoreLimit,
@@ -204,7 +220,7 @@ export const Table = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => handleSortChange(), [sortBy])
 
-  const renderTableHeader = useCallback((column) => {
+  const renderTableHeader = useCallback((column: any) => {
     return (
       <th
         className={cn(styles.tableHeader, {
@@ -314,7 +330,7 @@ export const Table = ({
   )
 
   const renderTableRow = useCallback(
-    (row, key, props, className = '') => {
+    (row: Row, key: string, props: TableRowProps, className = '') => {
       const cells = row.cells.filter(
         (cell: Cell) =>
           cell.column.id !== 'trackActions' && cell.column.id !== 'overflowMenu'
@@ -337,7 +353,9 @@ export const Table = ({
           )}
           {...props}
           key={key}
-          onClick={(e: MouseEvent) => onClickRow?.(e, row, row.index)}
+          onClick={(e: MouseEvent<HTMLTableRowElement>) =>
+            onClickRow?.(e, row, row.index)
+          }
         >
           <div className={styles.cellSection}>{cells.map(renderCell)}</div>
           {endCells.length ? (
@@ -356,7 +374,7 @@ export const Table = ({
   )
 
   const renderSkeletonRow = useCallback(
-    (row, key, props, className = '') => {
+    (row: Row, key: string, props: TableRowProps, className = '') => {
       return (
         <tr
           className={cn(
@@ -379,7 +397,7 @@ export const Table = ({
   )
 
   const onDragEnd = useCallback(
-    ({ source, destination }) => {
+    ({ source, destination }: { source: number; destination: number }) => {
       if (source === destination) return
       onReorder?.(source, source < destination ? destination - 1 : destination)
     },
@@ -387,7 +405,7 @@ export const Table = ({
   )
 
   const renderDraggableRow = useCallback(
-    (row, key, props, className = '') => {
+    (row: any, key: string, props: TableRowProps, className = '') => {
       return (
         <Droppable
           key={row.index}
@@ -420,7 +438,15 @@ export const Table = ({
   )
 
   const renderRow = useCallback(
-    ({ index, key, style }) => {
+    ({
+      index,
+      key,
+      style
+    }: {
+      index: number
+      key: string
+      style: CSSProperties
+    }) => {
       const row = rows[index]
       prepareRow(row)
 
@@ -438,7 +464,8 @@ export const Table = ({
       renderSkeletonRow,
       isReorderable,
       renderDraggableRow,
-      renderTableRow
+      renderTableRow,
+      isEmptyRow
     ]
   )
 
@@ -462,7 +489,13 @@ export const Table = ({
   // TODO: This is supposed to return a promise that resolves when the row data has been fetched.
   // It currently does not, but there are no issues with this currently so will fix if issues pop up
   const loadMoreRows = useCallback(
-    async ({ startIndex, stopIndex }) => {
+    async ({
+      startIndex,
+      stopIndex
+    }: {
+      startIndex: number
+      stopIndex: number
+    }) => {
       if (!debouncedFetchMore) return null
       const offset = startIndex
       const limit = stopIndex - startIndex + 1
@@ -473,8 +506,8 @@ export const Table = ({
   )
 
   const isRowLoaded = useCallback(
-    ({ index }) => !isEmptyRow(rows[index]),
-    [rows]
+    ({ index }: { index: number }) => !isEmptyRow(rows[index]),
+    [rows, isEmptyRow]
   )
 
   // Pagination Functions

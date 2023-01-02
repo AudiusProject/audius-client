@@ -1,5 +1,5 @@
-import type { ViewStyle } from 'react-native'
 import { View } from 'react-native'
+import type { ViewStyle } from 'react-native'
 
 import type { StylesProps } from 'app/styles'
 import { makeStyles } from 'app/styles'
@@ -13,12 +13,23 @@ const useStyles = makeStyles(({ palette }) => ({
     alignItems: 'center',
     justifyContent: 'center'
   },
-  outerInactive: { backgroundColor: palette.neutralLight4 },
+  outerInactive: { backgroundColor: palette.neutralLight1 },
   outerActive: {
     backgroundColor: palette.secondary
   },
-  inner: {},
-  innerInactive: {},
+  innerInactive: {
+    backgroundColor: palette.neutralLight6,
+    borderRadius: spacing(5.6),
+    height: 22.5,
+    width: 22.5,
+    position: 'absolute',
+    right: 0.15,
+    bottom: 0.15,
+    shadowColor: palette.neutralLight6,
+    shadowOpacity: 0.75,
+    shadowRadius: 1,
+    shadowOffset: { height: -1, width: -1 }
+  },
   innerActive: {
     height: spacing(3.5),
     width: spacing(3.5),
@@ -43,12 +54,7 @@ export const RadioButton = (props: RadioButtonProps) => {
         style
       ]}
     >
-      <View
-        style={[
-          styles.inner,
-          checked ? styles.innerActive : styles.innerInactive
-        ]}
-      />
+      <View style={checked ? styles.innerActive : styles.innerInactive} />
     </View>
   )
 }

@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 
-import type { ID } from '@audius/common'
+import type { ID, Track } from '@audius/common'
 import {
   removeNullable,
   OverflowAction,
@@ -16,11 +16,10 @@ import IconHeart from 'app/assets/images/iconHeart.svg'
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconRemoveTrack from 'app/assets/images/iconRemoveTrack.svg'
 import { IconButton } from 'app/components/core'
+import { DownloadStatusIndicator } from 'app/components/offline-downloads'
 import UserBadges from 'app/components/user-badges'
 import { font, makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
-
-import { TrackDownloadIndicator } from '../offline-downloads/TrackDownloadIndicator'
 
 import { TablePlayButton } from './TablePlayButton'
 import { TrackArtwork } from './TrackArtwork'
@@ -51,17 +50,26 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     paddingHorizontal: spacing(6)
   },
   nameArtistContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    overflow: 'hidden',
-    height: '100%'
+    flexShrink: 1,
+    flexBasis: '100%',
+    height: '100%',
+    justifyContent: 'center'
+  },
+  topLine: {
+    flexDirection: 'row'
   },
   trackTitle: {
-    flexDirection: 'row'
+    flexDirection: 'row',
+    flexShrink: 1,
+    alignItems: 'center'
   },
   trackTitleText: {
     ...font('demiBold'),
     color: palette.neutral
+  },
+  downloadIndicator: {
+    marginTop: -3,
+    marginLeft: spacing(1)
   },
   artistName: {
     ...font('medium'),
@@ -114,7 +122,6 @@ export const TrackListItem = ({
   trackItemAction
 }: TrackListItemProps) => {
   const {
-    _cover_art_sizes,
     has_current_user_saved,
     is_delete,
     is_unlisted,
@@ -191,8 +198,7 @@ export const TrackListItem = ({
       >
         {!hideArt ? (
           <TrackArtwork
-            trackId={track_id}
-            coverArtSizes={_cover_art_sizes}
+            track={track as Track}
             isActive={isActive}
             isPlaying={isPlaying}
           />
@@ -208,34 +214,41 @@ export const TrackListItem = ({
         ) : null}
         {isReorderable && <IconDrag style={styles.dragIcon} />}
         <View style={styles.nameArtistContainer}>
-          <View
-            style={styles.trackTitle}
-            onLayout={(e) => setTitleWidth(e.nativeEvent.layout.width)}
-          >
-            <Text
-              numberOfLines={1}
-              style={[
-                styles.trackTitleText,
-                {
-                  maxWidth: titleWidth ? titleWidth - deletedTextWidth : '100%'
-                }
-              ]}
+          <View style={styles.topLine}>
+            <View
+              style={styles.trackTitle}
+              onLayout={(e) => setTitleWidth(e.nativeEvent.layout.width)}
             >
-              {title}
-            </Text>
-            <Text
-              numberOfLines={1}
-              style={[styles.trackTitleText, { flexBasis: deletedTextWidth }]}
-            >
-              {messages.deleted}
-            </Text>
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.trackTitleText,
+                  {
+                    maxWidth: titleWidth
+                      ? titleWidth - deletedTextWidth
+                      : '100%'
+                  }
+                ]}
+              >
+                {title}
+              </Text>
+              <Text
+                numberOfLines={1}
+                style={[styles.trackTitleText, { flexBasis: deletedTextWidth }]}
+              >
+                {messages.deleted}
+              </Text>
+            </View>
+
+            <View style={styles.downloadIndicator}>
+              <DownloadStatusIndicator trackId={track_id} size={18} />
+            </View>
           </View>
           <Text numberOfLines={1} style={styles.artistName}>
             {name}
             <UserBadges user={track.user} badgeSize={12} hideName />
           </Text>
         </View>
-        <TrackDownloadIndicator trackId={track_id} />
         {trackItemAction === 'save' ? (
           <IconButton
             icon={IconHeart}

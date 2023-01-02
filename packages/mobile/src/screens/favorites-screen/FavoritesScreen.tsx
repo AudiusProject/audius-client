@@ -1,29 +1,33 @@
-import {
-  useProxySelector,
-  savedPageSelectors,
-  lineupSelectors,
-  FeatureFlags
-} from '@audius/common'
+import { useCallback, useMemo, useState } from 'react'
+
+import type { CommonState } from '@audius/common'
+import { accountActions } from '@audius/common'
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
+import { useDispatch, useSelector } from 'react-redux'
+import { useEffectOnce } from 'react-use'
 
 import IconAlbum from 'app/assets/images/iconAlbum.svg'
 import IconFavorite from 'app/assets/images/iconFavorite.svg'
 import IconNote from 'app/assets/images/iconNote.svg'
 import IconPlaylists from 'app/assets/images/iconPlaylists.svg'
 import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
-import { DownloadToggle } from 'app/components/offline-downloads/DownloadToggle'
+import type { TrackForDownload } from 'app/components/offline-downloads'
+import { DownloadToggle } from 'app/components/offline-downloads'
 import { TopTabNavigator } from 'app/components/top-tab-bar'
-import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+import { useAppTabScreen } from 'app/hooks/useAppTabScreen'
+import { useFetchAllFavoritedTracks } from 'app/hooks/useFetchAllFavoritedTracks'
+import {
+  toggleLocalOfflineModeOverride,
+  useIsOfflineModeEnabled,
+  useReadOfflineOverride
+} from 'app/hooks/useIsOfflineModeEnabled'
 import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 
 import { AlbumsTab } from './AlbumsTab'
 import { PlaylistsTab } from './PlaylistsTab'
 import { TracksTab } from './TracksTab'
-const { makeGetTableMetadatas } = lineupSelectors
-
-const { getSavedTracksLineup } = savedPageSelectors
-
-const getTracks = makeGetTableMetadatas(getSavedTracksLineup)
+import { getAccountCollections } from './selectors'
+const { fetchSavedPlaylists, fetchSavedAlbums } = accountActions
 
 const messages = {
   header: 'Favorites'
@@ -48,27 +52,74 @@ const favoritesScreens = [
 ]
 
 export const FavoritesScreen = () => {
-  usePopToTopOnDrawerOpen()
-  const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
-    FeatureFlags.OFFLINE_MODE_ENABLED
+  useAppTabScreen()
+  const dispatch = useDispatch()
+  const [clickCount, setClickCount] = useState(0)
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
+
+  const { value: allFavoritedTrackIds } = useFetchAllFavoritedTracks()
+
+  useReadOfflineOverride()
+  const handleHeaderClick = useCallback(() => {
+    if (clickCount >= 10) {
+      toggleLocalOfflineModeOverride()
+      setClickCount(0)
+    } else {
+      setClickCount(clickCount + 1)
+    }
+  }, [clickCount])
+
+  useEffectOnce(() => {
+    dispatch(fetchSavedPlaylists())
+    dispatch(fetchSavedAlbums())
+  })
+
+  const userCollections = useSelector((state: CommonState) =>
+    getAccountCollections(state, '')
   )
 
-  const savedTracks = useProxySelector(getTracks, [])
+  const tracksForDownload: TrackForDownload[] = useMemo(() => {
+    const trackFavoritesToDownload: TrackForDownload[] = (
+      allFavoritedTrackIds ?? []
+    ).map(({ trackId, favoriteCreatedAt }) => ({
+      trackId,
+      downloadReason: {
+        is_from_favorites: true,
+        collection_id: DOWNLOAD_REASON_FAVORITES,
+        favorite_created_at: favoriteCreatedAt
+      }
+    }))
+    const collectionFavoritesToDownload: TrackForDownload[] =
+      userCollections.flatMap((collection) =>
+        collection.playlist_contents.track_ids.map(({ track: trackId }) => ({
+          trackId,
+          downloadReason: {
+            is_from_favorites: true,
+            collection_id: collection.playlist_id.toString()
+          }
+          // TODO: include a favorite_created_at timestamp for sorting offline collections
+        }))
+      )
+
+    return trackFavoritesToDownload.concat(collectionFavoritesToDownload)
+  }, [allFavoritedTrackIds, userCollections])
 
   return (
     <Screen>
-      <ScreenHeader
-        text={messages.header}
-        icon={IconFavorite}
-        styles={{ icon: { marginLeft: 3 } }}
-      >
-        {isOfflineModeEnabled && (
-          <DownloadToggle
-            collection={DOWNLOAD_REASON_FAVORITES}
-            tracks={savedTracks.entries}
-          />
-        )}
-      </ScreenHeader>
+      <TouchableWithoutFeedback onPress={handleHeaderClick}>
+        <ScreenHeader
+          text={messages.header}
+          icon={IconFavorite}
+          styles={{ icon: { marginLeft: 3 } }}
+        >
+          {isOfflineModeEnabled && (
+            <DownloadToggle
+              tracksForDownload={tracksForDownload}
+              isFavoritesDownload
+            />
+          )}
+        </ScreenHeader>
+      </TouchableWithoutFeedback>
       {
         // ScreenContent handles the offline indicator.
         // Show favorites screen anyway when offline so users can see their downloads

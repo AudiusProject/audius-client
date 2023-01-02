@@ -21,7 +21,7 @@ import { identify } from 'common/store/analytics/actions'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { addPlaylistsNotInLibrary } from 'common/store/playlist-library/sagas'
 import { updateProfileAsync } from 'common/store/profile/sagas'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import { waitForWrite, waitForRead } from 'utils/sagaHelpers'
 
 import disconnectedWallets from './disconnected_wallet_fix.json'
 
@@ -40,7 +40,6 @@ const {
 
 const {
   signedIn,
-  unsubscribeBrowserPushNotifications,
   showPushNotificationConfirmation,
   fetchAccountSucceeded,
   fetchAccountFailed,
@@ -182,34 +181,30 @@ function* onSignedIn({ payload: { account, isSignUp = false } }) {
   }
 }
 
-export function* fetchAccountAsync({ fromSource = false, isSignUp = false }) {
+export function* fetchAccountAsync({ isSignUp = false }) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const remoteConfigInstance = yield getContext('remoteConfigInstance')
-  const localStorage = yield getContext('localStorage')
   const isNativeMobile = yield getContext('isNativeMobile')
   const isElectron = yield getContext('isElectron')
   const fingerprintClient = yield getContext('fingerprintClient')
 
   yield put(accountActions.fetchAccountRequested())
 
-  if (!fromSource) {
-    yield fetchLocalAccountAsync()
-  }
-
-  const account = yield call(audiusBackendInstance.getAccount, fromSource)
-  if (!account || account.is_deactivated) {
+  const account = yield call(audiusBackendInstance.getAccount)
+  if (!account) {
     yield put(
       fetchAccountFailed({
-        reason: account ? 'ACCOUNT_DEACTIVATED' : 'ACCOUNT_NOT_FOUND'
+        reason: 'ACCOUNT_NOT_FOUND'
       })
     )
-    // Clear local storage users if present
-    yield call([localStorage, 'clearAudiusAccount'])
-    yield call([localStorage, 'clearAudiusAccountUser'])
-
-    // If the user is not signed in
-    // Remove browser has requested push notifications.
-    yield put(unsubscribeBrowserPushNotifications())
+    return
+  }
+  if (account.is_deactivated) {
+    yield put(
+      fetchAccountFailed({
+        reason: 'ACCOUNT_DEACTIVATED'
+      })
+    )
     return
   }
 
@@ -245,7 +240,6 @@ export function* fetchLocalAccountAsync() {
       cachedAccountUser,
       cachedAccountUser.orderedPlaylists
     )
-    yield put(fetchAccountSucceeded(cachedAccount))
   } else if (!currentUserExists) {
     yield put(fetchAccountFailed({ reason: 'ACCOUNT_NOT_FOUND' }))
   }
@@ -284,7 +278,7 @@ export function* reCacheAccount() {
 
 function* associateTwitterAccount(action) {
   const { uuid, profile } = action.payload
-  yield waitForBackendAndAccount()
+  yield waitForWrite()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   try {
     const userId = yield select(getUserId)
@@ -338,7 +332,7 @@ function* associateInstagramAccount(action) {
 }
 
 function* fetchSavedAlbumsAsync() {
-  yield waitForBackendAndAccount()
+  yield waitForRead()
   const cachedSavedAlbums = yield select(getAccountAlbumIds)
   if (cachedSavedAlbums.length > 0) {
     yield call(retrieveCollections, null, cachedSavedAlbums)
@@ -346,7 +340,7 @@ function* fetchSavedAlbumsAsync() {
 }
 
 function* fetchSavedPlaylistsAsync() {
-  yield waitForBackendAndAccount()
+  yield waitForRead()
 
   // Fetch other people's playlists you've saved
   yield fork(function* () {

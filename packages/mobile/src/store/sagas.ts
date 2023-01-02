@@ -36,6 +36,7 @@ import playlistLibrarySagas from 'common/store/playlist-library/sagas'
 import profileSagas from 'common/store/profile/sagas'
 import queueSagas from 'common/store/queue/sagas'
 import recoveryEmailSagas from 'common/store/recovery-email/sagas'
+import remixSettingsSagas from 'common/store/remix-settings/sagas'
 import searchBarSagas from 'common/store/search-bar/sagas'
 import smartCollectionPageSagas from 'common/store/smart-collection/sagas'
 import socialSagas from 'common/store/social/sagas'
@@ -59,9 +60,12 @@ import initKeyboardEvents from './keyboard/sagas'
 import mobileUiSagas from './mobileUi/sagas'
 import notificationsSagas from './notifications/sagas'
 import oauthSagas from './oauth/sagas'
+import offlineDownloadSagas from './offline-downloads/sagas'
+import rateCtaSagas from './rate-cta/sagas'
 import settingsSagas from './settings/sagas'
 import signOutSagas from './sign-out/sagas'
 import themeSagas from './theme/sagas'
+import walletsSagas from './wallet-connect/sagas'
 
 export default function* rootSaga() {
   const sagas = [
@@ -73,7 +77,6 @@ export default function* rootSaga() {
     ...searchResultsSagas(),
 
     // Account
-
     ...accountSagas(),
     ...recoveryEmailSagas(),
     ...playlistLibrarySagas(),
@@ -123,7 +126,6 @@ export default function* rootSaga() {
     ...historySagas(),
     ...rewardsPageSagas(),
     ...settingsSagas(),
-    ...signOutSagas(),
 
     // Cast
     ...castSagas(),
@@ -135,6 +137,7 @@ export default function* rootSaga() {
     ...changePasswordSagas(),
     ...smartCollectionPageSagas(),
     ...overflowMenuSagas(),
+    ...rateCtaSagas(),
     ...deactivateAccountSagas(),
     ...deletePlaylistConfirmationModalSagas(),
     ...shareModalSagas(),
@@ -143,10 +146,13 @@ export default function* rootSaga() {
     ...tokenDashboardSagas(),
     ...mobileUiSagas(),
     ...uploadSagas(),
+    ...remixSettingsSagas(),
+    ...offlineDownloadSagas(),
 
     initKeyboardEvents,
     ...remoteConfig(),
-    ...oauthSagas()
+    ...oauthSagas(),
+    ...walletsSagas()
   ]
 
   yield* all(sagas.map(fork))

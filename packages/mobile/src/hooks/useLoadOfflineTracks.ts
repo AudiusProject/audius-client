@@ -1,92 +1,220 @@
-import type { Track, UserMetadata, UserTrackMetadata } from '@audius/common'
+import { useEffect, useState } from 'react'
+
+import type {
+  CollectionMetadata,
+  Track,
+  UserMetadata,
+  lineupActions,
+  UserTrackMetadata
+} from '@audius/common'
 import {
-  FeatureFlags,
   Kind,
   makeUid,
   cacheActions,
-  savedPageTracksLineupActions
+  cacheCollectionsSelectors,
+  reachabilitySelectors
 } from '@audius/common'
-import moment from 'moment'
-import { useDispatch } from 'react-redux'
+import { orderBy } from 'lodash'
+import { useDispatch, useSelector } from 'react-redux'
 import { useAsync } from 'react-use'
 
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
-import { loadTracks } from 'app/store/offline-downloads/slice'
+import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
+import { getOfflineTracks } from 'app/store/offline-downloads/selectors'
+import {
+  addCollection,
+  doneLoadingFromDisk,
+  loadTracks
+} from 'app/store/offline-downloads/slice'
 
 import {
+  getCollectionJson,
+  getOfflineCollections,
   getTrackJson,
   listTracks,
+  purgeDownloadedCollection,
   verifyTrack
 } from '../services/offline-downloader/offline-storage'
 
-export const useLoadOfflineTracks = (collection: string) => {
-  const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
-    FeatureFlags.OFFLINE_MODE_ENABLED
-  )
+import { useIsOfflineModeEnabled } from './useIsOfflineModeEnabled'
+const { getCollection } = cacheCollectionsSelectors
+const { getIsReachable } = reachabilitySelectors
+
+export const useLoadOfflineTracks = () => {
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const dispatch = useDispatch()
+  const cacheUsers: { uid: string; id: number; metadata: UserMetadata }[] = []
 
   useAsync(async () => {
     if (!isOfflineModeEnabled) return
 
-    const trackIds = await listTracks()
-    const savesLineupTracks: (Track & UserTrackMetadata & { uid: string })[] =
-      []
-    const cacheTracks: { uid: string; id: number; metadata: Track }[] = []
-    const cacheUsers: { uid: string; id: number; metadata: UserMetadata }[] = []
-
-    for (const trackId of trackIds) {
+    const offlineCollections = await getOfflineCollections()
+    const cacheCollections: {
+      id: string
+      uid: string
+      metadata: CollectionMetadata
+    }[] = []
+    for (const collectionId of offlineCollections) {
       try {
-        const verified = await verifyTrack(trackId)
-        if (!verified) continue
-        getTrackJson(trackId)
-          .then((track: Track & UserTrackMetadata) => {
-            const lineupTrack = {
-              uid: makeUid(Kind.TRACKS, track.track_id),
-              ...track
-            }
-            cacheTracks.push({
-              id: track.track_id,
-              uid: lineupTrack.uid,
-              metadata: track
-            })
-            if (track.user) {
-              cacheUsers.push({
-                id: track.user.user_id,
-                uid: makeUid(Kind.USERS, track.user.user_id),
-                metadata: track.user
-              })
-            }
-            if (
-              track.offline &&
-              track.offline.downloaded_from_collection.includes(collection)
-            ) {
-              savesLineupTracks.push(lineupTrack)
-            }
+        dispatch(addCollection(collectionId))
+        if (collectionId === DOWNLOAD_REASON_FAVORITES) continue
+        const collection = await getCollectionJson(collectionId)
+        cacheCollections.push({
+          id: collectionId,
+          uid: makeUid(Kind.COLLECTIONS, collectionId),
+          metadata: collection
+        })
+        if (collection.user) {
+          cacheUsers.push({
+            id: collection.user.user_id,
+            uid: makeUid(Kind.USERS, collection.user.user_id),
+            metadata: collection.user
           })
-          .catch(() => console.warn('Failed to load track from disk', trackId))
+        }
       } catch (e) {
-        console.warn('Error verifying track', trackId, e)
+        console.warn('Failed to load offline collection', collectionId)
+        purgeDownloadedCollection(collectionId)
       }
     }
+    dispatch(cacheActions.add(Kind.COLLECTIONS, cacheCollections, false, true))
+
+    const trackIds = await listTracks()
+    const cacheTracks: { uid: string; id: number; metadata: Track }[] = []
+    const lineupTracks: (Track & UserTrackMetadata & { uid: string })[] = []
+    await Promise.all(
+      trackIds.map(async (trackId) => {
+        try {
+          const verified = await verifyTrack(trackId, true)
+          if (!verified) return
+        } catch (e) {
+          console.warn('Error verifying track', trackId, e)
+        }
+        try {
+          const track: Track & UserTrackMetadata = await getTrackJson(trackId)
+          const lineupTrack = {
+            uid: makeUid(Kind.TRACKS, track.track_id),
+            kind: Kind.TRACKS,
+            ...track
+          }
+          cacheTracks.push({
+            id: track.track_id,
+            uid: lineupTrack.uid,
+            metadata: track
+          })
+          if (track.user) {
+            cacheUsers.push({
+              id: track.user.user_id,
+              uid: makeUid(Kind.USERS, track.user.user_id),
+              metadata: track.user
+            })
+          }
+          lineupTracks.push(lineupTrack)
+        } catch (e) {
+          console.warn('Failed to load track from disk', trackId, e)
+        }
+      })
+    )
 
     dispatch(cacheActions.add(Kind.TRACKS, cacheTracks, false, true))
     dispatch(cacheActions.add(Kind.USERS, cacheUsers, false, true))
-    dispatch(loadTracks(savesLineupTracks))
+    dispatch(loadTracks(lineupTracks))
+    dispatch(doneLoadingFromDisk())
+  }, [isOfflineModeEnabled])
+}
 
-    // TODO: support for collection lineups
-    dispatch(
-      savedPageTracksLineupActions.fetchLineupMetadatasSucceeded(
-        savesLineupTracks.map((track) => ({
-          uid: track.uid,
-          kind: Kind.TRACKS,
-          id: track.track_id,
-          dateSaved: moment()
-        })),
-        0,
-        savesLineupTracks.length,
-        false,
-        false
+/**
+ * A helper hook that can substitute out the contents of a lineup for the
+ * equivalent "offline" version
+ * @param collectionId either the numeric collection id or DOWNLOAD_REASON_FAVORITES
+ * @param fetchOnlineContent a callback that can be used to refetch the online content
+ *  if reachability is established. This is normally what you would call inside
+ *  `useFocusEffect` on mount of the lineup
+ * @param lineupActions the actions instance for the lineup
+ */
+export const useOfflineCollectionLineup = (
+  collectionId: typeof DOWNLOAD_REASON_FAVORITES | number | null,
+  fetchOnlineContent: () => void,
+  lineupActions: lineupActions.LineupActions
+) => {
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
+  const isReachable = useSelector(getIsReachable)
+  const offlineTracks = useSelector(getOfflineTracks)
+  const collection = useSelector((state) => {
+    if (collectionId !== DOWNLOAD_REASON_FAVORITES) {
+      return getCollection(state, { id: collectionId as number })
+    }
+  })
+  const [hasGoneOffline, setHasGoneOffline] = useState(false)
+
+  const dispatch = useDispatch()
+
+  // Record if we have gone offline so that when we come
+  // back online we can refetch fresh content
+  useEffect(() => {
+    if (!isReachable) {
+      setHasGoneOffline(true)
+    }
+  }, [isReachable, setHasGoneOffline])
+
+  // If we go offline, set lineup into a success state with
+  // offline data
+  useEffect(() => {
+    if (isOfflineModeEnabled && collectionId && !isReachable) {
+      const lineupTracks = Object.values(offlineTracks).filter((track) =>
+        track.offline?.reasons_for_download.some(
+          (reason) => reason.collection_id === collectionId.toString()
+        )
       )
-    )
-  }, [isOfflineModeEnabled, loadTracks])
+
+      if (collectionId === DOWNLOAD_REASON_FAVORITES) {
+        // Reorder lineup tracks accorinding to favorite time
+        const sortedTracks = orderBy(
+          lineupTracks,
+          (track) => track.offline?.favorite_created_at,
+          ['desc']
+        )
+        dispatch(
+          lineupActions.fetchLineupMetadatasSucceeded(
+            sortedTracks,
+            0,
+            lineupTracks.length,
+            false,
+            false
+          )
+        )
+      } else {
+        // Reorder lineup tracks according to the collection
+        // TODO: This may have issues for playlists with duplicate tracks
+        const sortedTracks = collection?.playlist_contents.track_ids.map(
+          ({ track: trackId }) =>
+            lineupTracks.find((track) => trackId === track.track_id)
+        )
+        dispatch(
+          lineupActions.fetchLineupMetadatasSucceeded(
+            sortedTracks,
+            0,
+            lineupTracks.length,
+            false,
+            false
+          )
+        )
+      }
+    }
+  }, [
+    dispatch,
+    offlineTracks,
+    isOfflineModeEnabled,
+    lineupActions,
+    isReachable,
+    collectionId,
+    setHasGoneOffline,
+    collection?.playlist_contents.track_ids
+  ])
+
+  // If we go back online, trigger a refetch of the original content
+  useEffect(() => {
+    if (isReachable && hasGoneOffline) {
+      fetchOnlineContent()
+      setHasGoneOffline(false)
+    }
+  }, [dispatch, isReachable, hasGoneOffline, fetchOnlineContent])
 }

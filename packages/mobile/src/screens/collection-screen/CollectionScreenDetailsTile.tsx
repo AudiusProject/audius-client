@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
-import type { ID, Maybe, UID } from '@audius/common'
+import type { Collection, ID, Maybe, UID } from '@audius/common'
 import {
   useProxySelector,
   collectionPageActions,
@@ -11,26 +11,39 @@ import {
   formatSecondsAsText,
   lineupSelectors,
   collectionPageLineupActions as tracksActions,
-  collectionPageSelectors
+  collectionPageSelectors,
+  reachabilitySelectors
 } from '@audius/common'
 import { useFocusEffect } from '@react-navigation/native'
-import { Text, View } from 'react-native'
+import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
+import type { DynamicImageProps } from 'app/components/core'
+import { Text } from 'app/components/core'
 import { DetailsTile } from 'app/components/details-tile'
 import type {
   DetailsTileDetail,
   DetailsTileProps
 } from 'app/components/details-tile/types'
+import { CollectionImage } from 'app/components/image/CollectionImage'
+import { DownloadToggle } from 'app/components/offline-downloads'
 import { TrackList } from 'app/components/track-list'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
+import { useOfflineCollectionLineup } from 'app/hooks/useLoadOfflineTracks'
 import { make, track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 import { formatCount } from 'app/utils/format'
-const { getCollectionTracksLineup, getCollectionUid, getUserUid } =
-  collectionPageSelectors
+const {
+  getCollection,
+  getCollectionTracksLineup,
+  getCollectionId,
+  getCollectionUid,
+  getUserUid
+} = collectionPageSelectors
 const { resetCollection } = collectionPageActions
 const { makeGetTableMetadatas } = lineupSelectors
 const { getPlaying, getUid, getCurrentTrack } = playerSelectors
+const { getIsReachable } = reachabilitySelectors
 
 const messages = {
   album: 'Album',
@@ -83,24 +96,35 @@ export const CollectionScreenDetailsTile = ({
   isAlbum,
   isPrivate,
   isPublishing,
+  renderImage: renderCustomImage,
   ...detailsTileProps
 }: CollectionScreenDetailsTileProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
 
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
+  const isReachable = useSelector(getIsReachable)
+
+  const collection = useSelector(getCollection)
   const collectionUid = useSelector(getCollectionUid)
+  const collectionId = useSelector(getCollectionId)
   const userUid = useSelector(getUserUid)
-  const { entries, status } = useProxySelector(getTracksLineup, [])
+  const { entries, status } = useProxySelector(getTracksLineup, [isReachable])
   const tracksLoading = status === Status.LOADING
   const numTracks = entries.length
 
-  const resetCollectionLineup = useCallback(() => {
-    dispatch(resetCollection(collectionUid, userUid))
+  const handleFetchLineup = useCallback(() => {
     dispatch(tracksActions.fetchLineupMetadatas(0, 200, false, undefined))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch])
 
-  useFocusEffect(resetCollectionLineup)
+  const handleFetchCollectionLineup = useCallback(() => {
+    dispatch(resetCollection(collectionUid, userUid))
+    handleFetchLineup()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, handleFetchLineup])
+
+  useFocusEffect(handleFetchCollectionLineup)
+  useOfflineCollectionLineup(collectionId, handleFetchLineup, tracksActions)
 
   const duration = entries?.reduce(
     (duration, entry) => duration + entry.duration,
@@ -132,6 +156,13 @@ export const CollectionScreenDetailsTile = ({
   const trackId = playingTrack?.track_id
 
   const isQueued = entries.some((entry) => playingUid === entry.uid)
+
+  const renderImage = useCallback(
+    (props: DynamicImageProps) => (
+      <CollectionImage collection={collection as Collection} {...props} />
+    ),
+    [collection]
+  )
 
   const handlePressPlay = useCallback(() => {
     if (isPlaying && isQueued) {
@@ -178,6 +209,29 @@ export const CollectionScreenDetailsTile = ({
     return messages.playlist
   }, [isAlbum, isPrivate, isPublishing])
 
+  const tracksForDownload = useMemo(
+    () =>
+      entries.map((track) => ({
+        trackId: track.track_id,
+        downloadReason: {
+          is_from_favorites: false,
+          collection_id: collectionId?.toString()
+        }
+      })),
+    [collectionId, entries]
+  )
+
+  const renderHeader = useCallback(
+    () => (
+      <DownloadToggle
+        collectionId={collectionId}
+        tracksForDownload={tracksForDownload}
+        labelText={headerText}
+      />
+    ),
+    [collectionId, headerText, tracksForDownload]
+  )
+
   const renderTrackList = () => {
     if (tracksLoading)
       return (
@@ -208,10 +262,12 @@ export const CollectionScreenDetailsTile = ({
       description={description}
       descriptionLinkPressSource='collection page'
       details={details}
-      headerText={headerText}
       hideListenCount={true}
       isPlaying={isPlaying && isQueued}
       renderBottomContent={renderTrackList}
+      headerText={!isOfflineModeEnabled ? headerText : undefined}
+      renderHeader={isOfflineModeEnabled ? renderHeader : undefined}
+      renderImage={renderCustomImage ?? renderImage}
       onPressPlay={handlePressPlay}
     />
   )

@@ -8,6 +8,8 @@ import PushNotification from 'react-native-push-notification'
 import { track, make } from 'app/services/analytics'
 import { EventNames } from 'app/types/analytics'
 
+import { DEVICE_TOKEN } from './constants/storage-keys'
+
 type Token = {
   token: string
   os: string
@@ -62,7 +64,11 @@ class PushNotifications {
 
   onNotification = (notification: any) => {
     console.info(`Received notification ${JSON.stringify(notification)}`)
-    if (notification.userInteraction || Platform.OS === 'android') {
+    if (
+      Platform.OS === 'android' ||
+      notification.userInteration ||
+      !notification.foreground
+    ) {
       track(
         make({
           eventName: EventNames.NOTIFICATIONS_OPEN_PUSH_NOTIFICATION,
@@ -79,14 +85,24 @@ class PushNotifications {
     }
   }
 
+  // Method used to open the push notification that the user pressed while the app was closed
+  openInitialNotification = () => {
+    PushNotification.popInitialNotification((notification) => {
+      if (notification) {
+        console.log('Opening initial notification')
+        this.onNotification(notification)
+      }
+    })
+  }
+
   async onRegister(token: Token) {
     this.token = token
-    await AsyncStorage.setItem('@device_token', JSON.stringify(token))
+    await AsyncStorage.setItem(DEVICE_TOKEN, JSON.stringify(token))
     isRegistering = false
   }
 
   deregister() {
-    AsyncStorage.removeItem('@device_token')
+    AsyncStorage.removeItem(DEVICE_TOKEN)
   }
 
   async configure() {
@@ -99,7 +115,7 @@ class PushNotifications {
     })
 
     try {
-      const token = await AsyncStorage.getItem('@device_token')
+      const token = await AsyncStorage.getItem(DEVICE_TOKEN)
       if (token) {
         this.token = JSON.parse(token)
       } else {
@@ -140,7 +156,7 @@ class PushNotifications {
     while (isRegistering) {
       await new Promise((resolve) => setTimeout(resolve, 100))
     }
-    const token = await AsyncStorage.getItem('@device_token')
+    const token = await AsyncStorage.getItem(DEVICE_TOKEN)
     if (token) {
       return JSON.parse(token)
     }

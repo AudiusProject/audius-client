@@ -1,27 +1,33 @@
-import type { Track } from '@audius/common'
+import type { Track, UserTrackMetadata } from '@audius/common'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 
-export type OfflineDownloadsState = typeof initialState
+type LineupTrack = Track & UserTrackMetadata & { uid: string }
 
-type State = {
+export type OfflineDownloadsState = {
   downloadStatus: {
-    [key: string]: TrackDownloadStatus
+    [key: string]: OfflineTrackDownloadStatus
   }
   tracks: {
-    [key: string]: Track
+    [key: string]: LineupTrack
   }
+  collections: {
+    [key: string]: boolean
+  }
+  isDoneLoadingFromDisk: boolean
 }
 
-export enum TrackDownloadStatus {
+export enum OfflineTrackDownloadStatus {
   LOADING = 'LOADING',
   SUCCESS = 'SUCCESS',
   ERROR = 'ERROR'
 }
 
-const initialState: State = {
+const initialState: OfflineDownloadsState = {
   downloadStatus: {},
-  tracks: {}
+  tracks: {},
+  collections: {},
+  isDoneLoadingFromDisk: false
 }
 
 const slice = createSlice({
@@ -29,40 +35,85 @@ const slice = createSlice({
   initialState,
   reducers: {
     startDownload: (state, { payload: trackId }: PayloadAction<string>) => {
-      state.downloadStatus[trackId] = TrackDownloadStatus.LOADING
+      state.downloadStatus[trackId] = OfflineTrackDownloadStatus.LOADING
+    },
+    batchStartDownload: (
+      state,
+      { payload: trackIds }: PayloadAction<string[]>
+    ) => {
+      trackIds.forEach((trackId) => {
+        state.downloadStatus[trackId] = OfflineTrackDownloadStatus.LOADING
+      })
     },
     completeDownload: (state, { payload: trackId }: PayloadAction<string>) => {
-      state.downloadStatus[trackId] = TrackDownloadStatus.SUCCESS
+      state.downloadStatus[trackId] = OfflineTrackDownloadStatus.SUCCESS
     },
     errorDownload: (state, { payload: trackId }: PayloadAction<string>) => {
-      state.downloadStatus[trackId] = TrackDownloadStatus.ERROR
+      state.downloadStatus[trackId] = OfflineTrackDownloadStatus.ERROR
     },
-    loadTracks: (state, { payload: tracks }: PayloadAction<Track[]>) => {
+    removeDownload: (state, { payload: trackId }: PayloadAction<string>) => {
+      delete state.downloadStatus[trackId]
+    },
+    addCollection: (
+      state,
+      { payload: collectionId }: PayloadAction<string>
+    ) => {
+      state.collections[collectionId] = true
+    },
+    removeCollection: (
+      state,
+      { payload: collectionId }: PayloadAction<string>
+    ) => {
+      state.collections[collectionId] = false
+    },
+    loadTracks: (state, { payload: tracks }: PayloadAction<LineupTrack[]>) => {
       tracks.forEach((track) => {
         const trackIdStr = track.track_id.toString()
         state.tracks[trackIdStr] = track
-        state.downloadStatus[trackIdStr] = TrackDownloadStatus.SUCCESS
+        state.downloadStatus[trackIdStr] = OfflineTrackDownloadStatus.SUCCESS
       })
     },
-    loadTrack: (state, { payload: track }: PayloadAction<Track>) => {
+    loadTrack: (state, { payload: track }: PayloadAction<LineupTrack>) => {
       const trackIdStr = track.track_id.toString()
       state.tracks[trackIdStr] = track
-      state.downloadStatus[trackIdStr] = TrackDownloadStatus.SUCCESS
+      state.downloadStatus[trackIdStr] = OfflineTrackDownloadStatus.SUCCESS
     },
     unloadTrack: (state, { payload: trackId }: PayloadAction<string>) => {
       delete state.tracks[trackId]
       delete state.downloadStatus[trackId]
+    },
+    unloadTracks: (state, { payload: trackIds }: PayloadAction<string[]>) => {
+      trackIds.forEach((trackId) => {
+        delete state.tracks[trackId]
+        delete state.downloadStatus[trackId]
+      })
+    },
+    doneLoadingFromDisk: (state) => {
+      state.isDoneLoadingFromDisk = true
+    },
+    clearOfflineDownloads: (state) => {
+      state.collections = initialState.collections
+      state.tracks = initialState.tracks
+      state.downloadStatus = initialState.downloadStatus
+      state.isDoneLoadingFromDisk = initialState.isDoneLoadingFromDisk
     }
   }
 })
 
 export const {
   startDownload,
+  batchStartDownload,
   completeDownload,
   errorDownload,
+  removeDownload,
+  addCollection,
+  removeCollection,
   loadTracks,
   loadTrack,
-  unloadTrack
+  unloadTrack,
+  unloadTracks,
+  doneLoadingFromDisk,
+  clearOfflineDownloads
 } = slice.actions
 
 export default slice.reducer

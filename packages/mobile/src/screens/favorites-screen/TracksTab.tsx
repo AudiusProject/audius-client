@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react'
 
 import type { ID, UID } from '@audius/common'
 import {
-  FeatureFlags,
   useProxySelector,
   savedPageActions,
   playerSelectors,
@@ -24,11 +23,10 @@ import { EmptyTileCTA } from 'app/components/empty-tile-cta'
 import { TrackList } from 'app/components/track-list'
 import type { TrackMetadata } from 'app/components/track-list/types'
 import { WithLoader } from 'app/components/with-loader/WithLoader'
-import { useLoadOfflineTracks } from 'app/hooks/useLoadOfflineTracks'
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
+import { useOfflineCollectionLineup } from 'app/hooks/useLoadOfflineTracks'
 import { make, track } from 'app/services/analytics'
 import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
-import { getOfflineTracks } from 'app/store/offline-downloads/selectors'
 import { makeStyles } from 'app/styles'
 
 import { FilterInput } from './FilterInput'
@@ -68,22 +66,24 @@ export const TracksTab = () => {
   const dispatch = useDispatch()
   const styles = useStyles()
   const isReachable = useSelector(getIsReachable)
-  const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
-    FeatureFlags.OFFLINE_MODE_ENABLED
-  )
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
+
   const handleFetchSaves = useCallback(() => {
     dispatch(fetchSaves())
   }, [dispatch])
 
   useFocusEffect(handleFetchSaves)
-  useLoadOfflineTracks(DOWNLOAD_REASON_FAVORITES)
+  useOfflineCollectionLineup(
+    DOWNLOAD_REASON_FAVORITES,
+    handleFetchSaves,
+    tracksActions
+  )
 
   const [filterValue, setFilterValue] = useState('')
   const isPlaying = useSelector(getPlaying)
   const playingUid = useSelector(getUid)
   const savedTracksStatus = useSelector(getSavedTracksStatus)
   const savedTracks = useProxySelector(getTracks, [])
-  const offlineTracks = useSelector(getOfflineTracks)
 
   const filterTrack = (track: TrackMetadata) => {
     const matchValue = filterValue?.toLowerCase()
@@ -131,10 +131,7 @@ export const TracksTab = () => {
   )
 
   const isLoading = savedTracksStatus !== Status.SUCCESS
-  const tracks =
-    !isReachable && isOfflineModeEnabled
-      ? Object.values(offlineTracks)
-      : savedTracks.entries
+  const tracks = savedTracks.entries
   const hasNoFavorites = tracks.length === 0
 
   return (

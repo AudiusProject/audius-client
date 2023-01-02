@@ -1,34 +1,40 @@
-import { useCallback, useContext } from 'react'
+import React, { useCallback, useContext, useRef } from 'react'
 
 import {
-  FeatureFlags,
   accountSelectors,
   collectionsSocialActions,
-  tracksSocialActions,
-  usersSocialActions,
+  FeatureFlags,
   shareModalUISelectors,
-  shareSoundToTiktokModalActions
+  shareSoundToTiktokModalActions,
+  tracksSocialActions,
+  usersSocialActions
 } from '@audius/common'
 import Clipboard from '@react-native-clipboard/clipboard'
 import { Linking, View } from 'react-native'
+import ViewShot from 'react-native-view-shot'
 import { useDispatch, useSelector } from 'react-redux'
 
+import IconInstagram from 'app/assets/images/iconInstagram.svg'
 import IconLink from 'app/assets/images/iconLink.svg'
 import IconShare from 'app/assets/images/iconShare.svg'
 import IconTikTok from 'app/assets/images/iconTikTok.svg'
 import IconTikTokInverted from 'app/assets/images/iconTikTokInverted.svg'
 import IconTwitterBird from 'app/assets/images/iconTwitterBird.svg'
-import Text from 'app/components/text'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { makeStyles } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
 import { Theme, useThemeColors, useThemeVariant } from 'app/utils/theme'
 
 import ActionDrawer from '../action-drawer'
+import { Text } from '../core'
 import { ToastContext } from '../toast/ToastContext'
 
+import { ShareToStorySticker } from './ShareToStorySticker'
 import { messages } from './messages'
+import { useShareToStory } from './useShareToStory'
 import { getContentUrl, getTwitterShareUrl } from './utils'
-const { getShareState } = shareModalUISelectors
+
+const { getShareContent, getShareSource } = shareModalUISelectors
 const { requestOpen: requestOpenTikTokModal } = shareSoundToTiktokModalActions
 const { shareUser } = usersSocialActions
 const { shareTrack } = tracksSocialActions
@@ -48,6 +54,9 @@ const useStyles = makeStyles(({ palette }) => ({
   copyLinkAction: {
     color: palette.secondary
   },
+  shareToInstagramStoryAction: {
+    color: palette.primary
+  },
   title: {
     display: 'flex',
     flexDirection: 'row',
@@ -57,10 +66,10 @@ const useStyles = makeStyles(({ palette }) => ({
     paddingBottom: 16
   },
   titleText: {
-    fontSize: 18
+    textTransform: 'uppercase'
   },
   titleIcon: {
-    marginRight: 8
+    marginRight: spacing(3)
   },
   row: {
     flexDirection: 'row',
@@ -68,19 +77,32 @@ const useStyles = makeStyles(({ palette }) => ({
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 24
+  },
+  viewShot: {
+    position: 'absolute',
+    // Position the container off-screen (264px is the width of the whole thing)
+    right: -264 - 5
   }
 }))
 
 export const ShareDrawer = () => {
   const styles = useStyles()
+  const viewShotRef = useRef() as React.RefObject<ViewShot>
+
   const { isEnabled: isShareToTikTokEnabled } = useFeatureFlag(
     FeatureFlags.SHARE_SOUND_TO_TIKTOK
   )
-  const { secondary, neutral, staticTwitterBlue } = useThemeColors()
+  const { isEnabled: isShareToInstagramStoryEnabled } = useFeatureFlag(
+    FeatureFlags.SHARE_TO_STORY
+  )
+
+  const { primary, secondary, neutralLight2, staticTwitterBlue } =
+    useThemeColors()
   const themeVariant = useThemeVariant()
   const isLightMode = themeVariant === Theme.DEFAULT
   const dispatch = useDispatch()
-  const { content, source } = useSelector(getShareState)
+  const content = useSelector(getShareContent)
+  const source = useSelector(getShareSource)
   const account = useSelector(getAccountUser)
   const { toast } = useContext(ToastContext)
   const isOwner =
@@ -105,6 +127,12 @@ export const ShareDrawer = () => {
       dispatch(requestOpenTikTokModal({ id: content.track.track_id }))
     }
   }, [content, dispatch])
+
+  const {
+    handleShareToStoryStickerLoad,
+    handleShareToInstagramStory,
+    shouldRenderShareToStorySticker
+  } = useShareToStory({ content, viewShotRef })
 
   const handleCopyLink = useCallback(() => {
     if (!content) return
@@ -135,6 +163,14 @@ export const ShareDrawer = () => {
     isShareToTikTokEnabled &&
       content?.type === 'track' &&
       isOwner &&
+      !content.track.is_unlisted &&
+      !content.track.is_invalid &&
+      !content.track.is_delete
+  )
+
+  const shouldIncludeInstagramStoryAction = Boolean(
+    isShareToInstagramStoryEnabled &&
+      content?.type === 'track' &&
       !content.track.is_unlisted &&
       !content.track.is_invalid &&
       !content.track.is_delete
@@ -173,45 +209,89 @@ export const ShareDrawer = () => {
       callback: handleOpenShareSheet
     }
 
-    return shouldIncludeTikTokAction
-      ? [
-          shareToTwitterAction,
-          shareToTikTokAction,
-          copyLinkAction,
-          shareSheetAction
-        ]
-      : [shareToTwitterAction, copyLinkAction, shareSheetAction]
+    const shareToInstagramStoriesAction = {
+      text: messages.instagramStory,
+      icon: <IconInstagram fill={primary} height={26} width={26} />,
+      style: styles.shareToInstagramStoryAction,
+      callback: handleShareToInstagramStory
+    }
+
+    const result: {
+      text: string
+      icon: React.ReactElement
+      style: Record<string, string>
+      callback: (() => void) | (() => Promise<void>)
+    }[] = [shareToTwitterAction]
+
+    if (shouldIncludeTikTokAction) {
+      result.push(shareToTikTokAction)
+    }
+    if (shouldIncludeInstagramStoryAction) {
+      result.push(shareToInstagramStoriesAction)
+    }
+
+    result.push(copyLinkAction, shareSheetAction)
+
+    return result
   }, [
     staticTwitterBlue,
-    styles,
+    styles.shareToTwitterAction,
+    styles.shareToTikTokAction,
+    styles.shareToTikTokActionDark,
+    styles.copyLinkAction,
+    styles.shareToInstagramStoryAction,
     handleShareToTwitter,
     isLightMode,
     handleShareToTikTok,
+    shareType,
     secondary,
     handleCopyLink,
     handleOpenShareSheet,
+    primary,
+    handleShareToInstagramStory,
     shouldIncludeTikTokAction,
-    shareType
+    shouldIncludeInstagramStoryAction
   ])
 
   return (
-    <ActionDrawer
-      modalName='Share'
-      rows={getRows()}
-      renderTitle={() => (
-        <View style={styles.title}>
-          <IconShare
-            style={styles.titleIcon}
-            fill={neutral}
-            height={18}
-            width={20}
+    <>
+      {/* Redundant `content?.type === 'track'` needed to make TS happy */}
+      {content?.type === 'track' && shouldRenderShareToStorySticker ? (
+        <ViewShot
+          style={styles.viewShot}
+          ref={viewShotRef}
+          options={{ format: 'png' }}
+        >
+          <ShareToStorySticker
+            onLoad={handleShareToStoryStickerLoad}
+            track={content?.track}
+            artist={content?.artist}
           />
-          <Text weight='bold' style={styles.titleText}>
-            {messages.modalTitle(shareType)}
-          </Text>
-        </View>
-      )}
-      styles={{ row: styles.row }}
-    />
+        </ViewShot>
+      ) : null}
+      <ActionDrawer
+        modalName='Share'
+        rows={getRows()}
+        renderTitle={() => (
+          <View style={styles.title}>
+            <IconShare
+              style={styles.titleIcon}
+              fill={neutralLight2}
+              height={18}
+              width={20}
+            />
+            <Text
+              weight='heavy'
+              color='neutralLight2'
+              fontSize='xl'
+              style={styles.titleText}
+            >
+              {messages.modalTitle(shareType)}
+            </Text>
+          </View>
+        )}
+        styles={{ row: styles.row }}
+      />
+    </>
   )
 }

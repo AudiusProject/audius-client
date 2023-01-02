@@ -1,4 +1,10 @@
-import { MouseEvent, useCallback, useRef, useState } from 'react'
+import {
+  MouseEvent,
+  useCallback,
+  useRef,
+  useState,
+  MouseEventHandler
+} from 'react'
 
 import {
   CreatePlaylistSource,
@@ -7,7 +13,6 @@ import {
   SquareSizes,
   PlaylistLibrary as PlaylistLibraryType,
   Status,
-  FeatureFlags,
   accountSelectors,
   averageColorSelectors,
   cacheCollectionsActions,
@@ -41,6 +46,7 @@ import { Dispatch } from 'redux'
 import { make, useRecord } from 'common/store/analytics/actions'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import CreatePlaylistModal from 'components/create-playlist/CreatePlaylistModal'
+import { PlaylistFormFields } from 'components/create-playlist/PlaylistForm'
 import { DragAutoscroller } from 'components/drag-autoscroller/DragAutoscroller'
 import Droppable from 'components/dragndrop/Droppable'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
@@ -51,7 +57,6 @@ import Pill from 'components/pill/Pill'
 import ConnectedProfileCompletionPane from 'components/profile-progress/ConnectedProfileCompletionPane'
 import Tooltip from 'components/tooltip/Tooltip'
 import UserBadges from 'components/user-badges/UserBadges'
-import { useFlag } from 'hooks/useRemoteConfig'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import { NO_VISUALIZER_ROUTES } from 'pages/visualizer/Visualizer'
 import { openVisualizer } from 'pages/visualizer/store/slice'
@@ -94,8 +99,7 @@ const { getAccountStatus, getAccountUser, getPlaylistLibrary } =
   accountSelectors
 
 const messages = {
-  newPlaylistOrFolderTooltip: 'New Playlist or Folder',
-  newPlaylistTooltip: 'New Playlist'
+  newPlaylistOrFolderTooltip: 'New Playlist or Folder'
 }
 
 type OwnProps = {
@@ -144,21 +148,22 @@ const NavColumn = ({
     polyfill: ResizeObserver
   })
   const scrollbarRef = useRef<HTMLElement | null>(null)
-  const [dragScrollingDirection, setDragScrollingDirection] =
-    useState(undefined)
-  const handleChangeDragScrollingDirection = useCallback((newDirection) => {
-    setDragScrollingDirection(newDirection)
-  }, [])
+  const [dragScrollingDirection, setDragScrollingDirection] = useState<
+    'up' | 'down' | undefined
+  >(undefined)
+  const handleChangeDragScrollingDirection = useCallback(
+    (newDirection: 'up' | 'down' | undefined) => {
+      setDragScrollingDirection(newDirection)
+    },
+    []
+  )
 
   const goToSignUp = useCallback(
-    (source) => {
+    (source: string) => {
       routeToSignup()
       record(make(Name.CREATE_ACCOUNT_OPEN, { source }))
     },
     [record, routeToSignup]
-  )
-  const { isEnabled: isPlaylistFoldersEnabled } = useFlag(
-    FeatureFlags.PLAYLIST_FOLDERS
   )
 
   const onClickNavProfile = useCallback(() => goToSignIn(), [goToSignIn])
@@ -180,7 +185,7 @@ const NavColumn = ({
   }, [notificationPanelIsOpen, toggleNotificationPanel, record])
 
   const onCreatePlaylist = useCallback(
-    (metadata) => {
+    (metadata: PlaylistFormFields) => {
       const tempId = getTempPlaylistId()
       createPlaylist(tempId, metadata)
       closeCreatePlaylistModal()
@@ -192,7 +197,7 @@ const NavColumn = ({
   )
 
   const onCreateFolder = useCallback(
-    (folderName) => {
+    (folderName: string) => {
       const newLibrary = addFolderToLibrary(
         library,
         constructPlaylistFolder(folderName)
@@ -234,7 +239,7 @@ const NavColumn = ({
     [account, goToSignUp, showActionRequiresAccount, updatePlaylistLastViewedAt]
   )
 
-  const updateScrollTopPosition = useCallback((difference) => {
+  const updateScrollTopPosition = useCallback((difference: number) => {
     if (scrollbarRef != null && scrollbarRef.current !== null) {
       scrollbarRef.current.scrollTop =
         scrollbarRef.current.scrollTop + difference
@@ -259,7 +264,7 @@ const NavColumn = ({
     if (route) goToRoute(route)
   }, [goToRoute, getTrackPageLink])
 
-  const onShowVisualizer = useCallback(
+  const onShowVisualizer: MouseEventHandler = useCallback(
     (e) => {
       if (NO_VISUALIZER_ROUTES.has(pathname)) return
       showVisualizer()
@@ -463,11 +468,7 @@ const NavColumn = ({
                     Playlists
                     <div className={styles.newPlaylist}>
                       <Tooltip
-                        text={
-                          isPlaylistFoldersEnabled
-                            ? messages.newPlaylistOrFolderTooltip
-                            : messages.newPlaylistTooltip
-                        }
+                        text={messages.newPlaylistOrFolderTooltip}
                         getPopupContainer={() =>
                           scrollbarRef.current?.parentNode
                         }

@@ -1,5 +1,7 @@
 import { Nullable } from '../utils/typeUtils'
 
+import { Chain } from './Chain'
+import type { License } from './CreativeCommons'
 import { Favorite } from './Favorite'
 import { CID, ID, UID } from './Identifiers'
 import { CoverArtSizes } from './ImageSizes'
@@ -51,8 +53,23 @@ export type RemixOf = {
   tracks: Remix[]
 }
 
+type TokenStandard = 'ERC721' | 'ERC1155'
+
+type PremiumConditionsEthNFTCollection = {
+  chain: Chain.Eth
+  standard: TokenStandard
+  address: string
+}
+
+type PremiumConditionsSolNFTCollection = {
+  chain: Chain.Sol
+  address: string
+}
+
 export type PremiumConditions = {
-  nft_collection?: string
+  nft_collection?:
+    | PremiumConditionsEthNFTCollection
+    | PremiumConditionsSolNFTCollection
   follow_user_id?: number
 }
 
@@ -77,7 +94,7 @@ export type TrackMetadata = {
   has_current_user_reposted: boolean
   has_current_user_saved: boolean
   download: Nullable<Download>
-  license: Nullable<string>
+  license: Nullable<License>
   mood: Nullable<string>
   play_count: number
   owner_id: ID
@@ -99,6 +116,7 @@ export type TrackMetadata = {
   permalink: string
 
   // Optional Fields
+  is_playlist_upload?: boolean
   is_invalid?: boolean
   stem_of?: {
     parent_track_id: ID
@@ -113,11 +131,17 @@ export type TrackMetadata = {
   offline?: OfflineTrackMetadata
 } & Timestamped
 
+export type DownloadReason = {
+  is_from_favorites?: boolean
+  collection_id?: string
+}
+
 // This is available on mobile for offline tracks
 export type OfflineTrackMetadata = {
-  downloaded_from_collection: string[]
+  reasons_for_download: DownloadReason[]
   download_completed_time: EpochTimeStamp
   last_verified_time: EpochTimeStamp
+  favorite_created_at?: string
 }
 
 export type Stem = {

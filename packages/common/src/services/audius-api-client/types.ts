@@ -14,9 +14,11 @@ import {
   Supporting,
   UserTip,
   PremiumConditions,
-  PremiumContentSignature
-} from 'models'
-import { Nullable } from 'utils'
+  PremiumContentSignature,
+  ID,
+  License
+} from '../../models'
+import { Nullable } from '../../utils'
 
 export type OpaqueID = string
 
@@ -80,6 +82,7 @@ export type APIFavorite = {
   favorite_item_id: string
   favorite_type: FavoriteType
   user_id: string
+  created_at: string
 }
 
 export type APIRemix = {
@@ -113,7 +116,7 @@ export type APITrack = {
   cover_art_sizes: string
   download: Download
   isrc: Nullable<string>
-  license: Nullable<string>
+  license: Nullable<License>
   iswc: Nullable<string>
   field_visibility: FieldVisibility
   followee_reposts: APIRepost[]
@@ -251,4 +254,8 @@ export type GetTipsResponse = Omit<UserTip, UserTipOmitIds> & {
   sender: APIUser
   receiver: APIUser
   followee_supporters: APIUser[]
+}
+
+export type GetPremiumContentSignaturesResponse = {
+  [id: ID]: PremiumContentSignature
 }

@@ -1,6 +1,5 @@
 import type { RemoteConfigInstance } from '@audius/common'
 import {
-  StringKeys,
   getContext,
   formatInstagramProfile,
   formatTwitterProfile
@@ -8,16 +7,13 @@ import {
 import * as Sentry from '@sentry/react-native'
 import { takeEvery, put, takeLatest, call } from 'redux-saga/effects'
 
-import type { SetCredentialsAction } from './actions'
 import * as oauthActions from './actions'
+import type {
+  RequestNativeOpenPopupAction,
+  SetCredentialsAction
+} from './actions'
 import { Provider } from './reducer'
 import type { TwitterCredentials, InstagramCredentials } from './types'
-
-// Route to fetch instagram user data w/ the username
-const getIGUserUrl = (endpoint: string, username: string) => {
-  const url = endpoint.replace('$USERNAME$', username)
-  return url
-}
 
 // Instagram User profile fields to capture
 const igUserFields = [
@@ -185,11 +181,7 @@ type InstagramNativeMobileAuthProps = {
   remoteConfigInstance: RemoteConfigInstance
 }
 
-const getProfile = async (
-  code: string,
-  remoteConfigInstance: RemoteConfigInstance,
-  identityService: string
-) => {
+const getProfile = async (code: string, identityService: string) => {
   try {
     const profileResp = await fetch(`${identityService}/instagram`, {
       method: 'POST',
@@ -200,36 +192,10 @@ const getProfile = async (
     if (!profileRespJson.username) {
       throw new Error('Unable to fetch information')
     }
-    const profileEndpoint =
-      remoteConfigInstance.getRemoteVar(StringKeys.INSTAGRAM_API_PROFILE_URL) ||
-      'https://instagram.com/$USERNAME$/?__a=1'
-    const fetchIGUserUrl = getIGUserUrl(
-      profileEndpoint,
-      profileRespJson.username
-    )
-    const igProfile = await fetch(fetchIGUserUrl)
-    const igProfileJson = await igProfile.json()
-    if (!igProfileJson.graphql || !igProfileJson.graphql.user) {
-      throw new Error('Unable to fetch information')
-    }
     const igUserProfile = igUserFields.reduce((profile: any, field) => {
-      profile[field] = igProfileJson.graphql.user[field]
+      profile[field] = profileRespJson[field]
       return profile
     }, {})
-
-    const setProfileResponse = await fetch(
-      `${identityService}/instagram/profile`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profile: igUserProfile })
-      }
-    )
-
-    if (!setProfileResponse.ok) {
-      throw new Error('Unable to fetch information')
-    }
-
     return { username: igUserProfile.username, igUserProfile }
   } catch (error) {
     Sentry.captureException(`Instagram getProfile failed with ${error}`)
@@ -239,8 +205,7 @@ const getProfile = async (
 
 function* doInstagramAuth({
   onSuccess,
-  onFailure,
-  remoteConfigInstance
+  onFailure
 }: InstagramNativeMobileAuthProps) {
   const instagramAppId = yield getContext('instagramAppId')
   const instagramRedirectUrl = yield getContext('instagramRedirectUrl')
@@ -264,7 +229,6 @@ function* doInstagramAuth({
               const { username, igUserProfile } = yield call(
                 getProfile,
                 code,
-                remoteConfigInstance,
                 IDENTITY_SERVICE
               )
               yield call(onSuccess, username, igUserProfile)
@@ -322,8 +286,36 @@ function* watchInstagramAuth() {
   })
 }
 
+/**
+ * Used in conjunction with the useTikTokAuth hook
+ */
+function* watchRequestNativeOpenPopup() {
+  yield takeLatest(
+    oauthActions.REQUEST_NATIVE_OPEN_POPUP,
+    function* ({
+      resolve,
+      reject,
+      url,
+      provider
+    }: RequestNativeOpenPopupAction) {
+      yield put(oauthActions.nativeOpenPopup(url, provider))
+
+      yield takeLatest(
+        oauthActions.SET_CREDENTIALS,
+        function* ({ credentials }: SetCredentialsAction) {
+          if (!credentials.error) {
+            resolve(credentials)
+          } else {
+            reject(new Error(credentials.error))
+          }
+        }
+      )
+    }
+  )
+}
+
 const sagas = () => {
-  return [watchTwitterAuth, watchInstagramAuth]
+  return [watchTwitterAuth, watchInstagramAuth, watchRequestNativeOpenPopup]
 }
 
 export default sagas

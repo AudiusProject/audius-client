@@ -18,6 +18,7 @@ import musicConfettiReducer, {
 } from './music-confetti/slice'
 import notifications from './notifications/reducer'
 import audioRewardsSlice from './pages/audio-rewards/slice'
+import audioTransactionsSlice from './pages/audio-transactions/slice'
 import collection from './pages/collection/reducer'
 import { CollectionsPageState } from './pages/collection/types'
 import {
@@ -50,10 +51,14 @@ import {
   playlistLibraryReducer,
   PlaylistLibraryState
 } from './playlist-library'
+import premiumContentReducer from './premium-content/reducer'
 import queue from './queue/slice'
 import reachability from './reachability/reducer'
 import { ReachabilityState } from './reachability/types'
 import { recoveryEmailReducer, RecoveryEmailState } from './recovery-email'
+import remixSettingsReducer, {
+  RemixSettingsState
+} from './remix-settings/slice'
 import solanaReducer from './solana/slice'
 import stemsUpload from './stems-upload/slice'
 import tippingReducer from './tipping/slice'
@@ -154,6 +159,7 @@ export const reducers = () => ({
     musicConfetti: musicConfettiReducer,
     nowPlaying: nowPlayingReducer,
     reactions: reactionsReducer,
+    remixSettings: remixSettingsReducer,
     shareSoundToTikTokModal: shareSoundToTikTokModalReducer,
     shareModal: shareModalReducer,
     toast: toastReducer,
@@ -176,6 +182,7 @@ export const reducers = () => ({
   // Pages
   pages: combineReducers({
     audioRewards: audioRewardsSlice.reducer,
+    audioTransactions: audioTransactionsSlice.reducer,
     collection,
     deactivateAccount: deactivateAccountReducer,
     feed,
@@ -203,6 +210,9 @@ export const reducers = () => ({
 
   // Tipping
   tipping: tippingReducer,
+
+  // Premium content
+  premiumContent: premiumContentReducer,
 
   upload
 })
@@ -253,6 +263,7 @@ export type CommonState = {
     musicConfetti: MusicConfettiState
     nowPlaying: NowPlayingState
     reactions: ReactionsState
+    remixSettings: RemixSettingsState
     shareSoundToTikTokModal: ShareSoundToTikTokModalState
     shareModal: ShareModalState
     toast: ToastState
@@ -274,6 +285,7 @@ export type CommonState = {
 
   pages: {
     audioRewards: ReturnType<typeof audioRewardsSlice.reducer>
+    audioTransactions: ReturnType<typeof audioTransactionsSlice.reducer>
     collection: CollectionsPageState
     deactivateAccount: DeactivateAccountState
     feed: FeedPageState
@@ -299,6 +311,9 @@ export type CommonState = {
 
   // Tipping
   tipping: ReturnType<typeof tippingReducer>
+
+  // Premium content
+  premiumContent: ReturnType<typeof premiumContentReducer>
 
   upload: UploadState
 }

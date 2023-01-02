@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react'
+import { useCallback, useContext, useEffect } from 'react'
 
 import type {
   ID,
@@ -7,13 +7,10 @@ import type {
   NotificationType,
   RepostType
 } from '@audius/common'
-import { FeatureFlags } from '@audius/common'
 import type { EventArg, NavigationState } from '@react-navigation/native'
 import type { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import { useDrawer } from 'app/hooks/useDrawer'
-import type { ContextualParams } from 'app/hooks/useNavigation'
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { CollectionScreen } from 'app/screens/collection-screen/CollectionScreen'
 import { ProfileScreen } from 'app/screens/profile-screen'
 import {
@@ -38,8 +35,6 @@ import { AppDrawerContext } from '../app-drawer-screen'
 import { AudioScreen } from '../audio-screen'
 import { EditPlaylistScreen } from '../edit-playlist-screen/EditPlaylistScreen'
 import { EditProfileScreen } from '../edit-profile-screen'
-import type { ListSelectionParams } from '../list-selection-screen'
-import { ListSelectionScreen } from '../list-selection-screen'
 import {
   AboutScreen,
   AccountSettingsScreen,
@@ -49,10 +44,7 @@ import {
   NotificationSettingsScreen,
   SettingsScreen
 } from '../settings-screen'
-import { TipArtistModal } from '../tip-artist-screen'
 import { TrackRemixesScreen } from '../track-screen/TrackRemixesScreen'
-import type { UploadParamList } from '../upload-screen'
-import { uploadScreens } from '../upload-screen'
 
 import { useAppScreenOptions } from './useAppScreenOptions'
 
@@ -70,6 +62,7 @@ export type AppTabScreenParamList = {
     id?: ID
     collectionName?: string
     searchCollection?: SearchPlaylist
+    collectionType?: 'playlist' | 'album'
   }
   EditPlaylist: { id: ID }
   Favorited: { id: ID; favoriteType: FavoriteType }
@@ -96,8 +89,10 @@ export type AppTabScreenParamList = {
   ChangePasswordScreen: undefined
   NotificationSettingsScreen: undefined
   AudioScreen: undefined
-  ListSelection: ListSelectionParams
-} & UploadParamList
+  Upload: undefined
+  EditTrack: { id: ID }
+  WalletConnect: undefined
+}
 
 const forFade = ({ current }) => ({
   cardStyle: {
@@ -126,8 +121,21 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
   const screenOptions = useAppScreenOptions()
   const { drawerNavigation } = useContext(AppDrawerContext)
   const { isOpen: isNowPlayingDrawerOpen } = useDrawer('NowPlaying')
-  const { isEnabled: isNavOverhaulEnabled } = useFeatureFlag(
-    FeatureFlags.MOBILE_NAV_OVERHAUL
+
+  const handleChangeState = useCallback(
+    (event: NavigationStateEvent) => {
+      const stackRoutes = event?.data?.state?.routes
+      const isStackUnopened = stackRoutes.length === 1
+      const isStackOpened = stackRoutes.length === 2
+
+      if (isStackUnopened) {
+        drawerNavigation?.setOptions({ swipeEnabled: true })
+      }
+      if (isStackOpened) {
+        drawerNavigation?.setOptions({ swipeEnabled: false })
+      }
+    },
+    [drawerNavigation]
   )
 
   useEffect(() => {
@@ -137,28 +145,7 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
   return (
     <Stack.Navigator
       screenOptions={screenOptions}
-      screenListeners={{
-        state: (e: NavigationStateEvent) => {
-          const stackRoutes = e?.data?.state?.routes
-          const isStackOpen = stackRoutes.length > 1
-          if (isStackOpen) {
-            const isFromNotifs =
-              !isNavOverhaulEnabled &&
-              stackRoutes.length === 2 &&
-              (stackRoutes[1].params as ContextualParams)?.fromNotifications
-
-            // If coming from notifs allow swipe to open notifs drawer
-            drawerNavigation?.setOptions({ swipeEnabled: !!isFromNotifs })
-          } else {
-            // If on the first tab (or the first stack screen isn't a tab navigator),
-            // enable the drawer
-            const isOnFirstTab = !e?.data?.state.routes[0].state?.index
-            drawerNavigation?.setOptions({
-              swipeEnabled: isOnFirstTab
-            })
-          }
-        }
-      }}
+      screenListeners={{ state: handleChangeState }}
     >
       {baseScreen(Stack)}
       <Stack.Screen
@@ -239,14 +226,6 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
         options={screenOptions}
       />
       <Stack.Screen
-        name='TipArtist'
-        component={TipArtistModal}
-        options={{
-          headerShown: false,
-          presentation: 'fullScreenModal'
-        }}
-      />
-      <Stack.Screen
         name='TopSupporters'
         component={TopSupportersScreen}
         options={screenOptions}
@@ -283,8 +262,6 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
           component={ChangePasswordScreen}
         />
       </Stack.Group>
-      <Stack.Screen name='ListSelection' component={ListSelectionScreen} />
-      {uploadScreens(Stack)}
     </Stack.Navigator>
   )
 }

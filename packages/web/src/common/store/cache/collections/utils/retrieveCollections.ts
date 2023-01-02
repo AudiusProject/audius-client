@@ -4,7 +4,6 @@ import {
   CollectionMetadata,
   UserCollectionMetadata,
   Kind,
-  Track,
   makeUid,
   accountSelectors,
   cacheCollectionsSelectors,
@@ -12,11 +11,12 @@ import {
   CommonState,
   getContext
 } from '@audius/common'
-import { call, select } from 'typed-redux-saga'
+import { chunk } from 'lodash'
+import { all, call, select } from 'typed-redux-saga'
 
 import { retrieve } from 'common/store/cache/sagas'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import { waitForRead } from 'utils/sagaHelpers'
 
 import { addTracksFromCollections } from './addTracksFromCollections'
 import { addUsersFromCollections } from './addUsersFromCollections'
@@ -51,9 +51,15 @@ export function* retrieveTracksForCollections(
   const filteredTrackIds = [
     ...new Set(allTrackIds.filter((id) => !excludedTrackIdSet.has(id)))
   ]
-  const tracks: Track[] = yield call(retrieveTracks, {
-    trackIds: filteredTrackIds
-  })
+  const chunkedTracks = yield* all(
+    chunk(filteredTrackIds, 200).map((chunkedTrackIds) =>
+      call(retrieveTracks, {
+        trackIds: chunkedTrackIds
+      })
+    )
+  )
+
+  const tracks = chunkedTracks.flat(1)
 
   // If any tracks failed to be retrieved for some reason,
   // remove them from their collection.
@@ -89,7 +95,7 @@ export function* retrieveTracksForCollections(
  * Retrieves a single collection via API client
  */
 export function* retrieveCollection(playlistId: ID) {
-  yield* waitForBackendAndAccount()
+  yield* waitForRead()
   const apiClient = yield* getContext('apiClient')
   const userId = yield* select(getUserId)
   const playlists = yield* call([apiClient, 'getPlaylist'], {

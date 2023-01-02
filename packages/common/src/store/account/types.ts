@@ -41,7 +41,15 @@ export type TwitterProfile = {
   profile_banner_url?: string
 }
 
-export type AccountImage = { url: string; file: any }
+export type TikTokProfile = {
+  open_id: string
+  username: string
+  display_name: string
+  avatar_large_url?: string
+  is_verified: boolean
+}
+
+export type AccountImage = { url: string; file: any } | undefined
 
 export type NativeAccountImage = {
   uri: string

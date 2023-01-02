@@ -1,13 +1,13 @@
 import { useCallback, useState } from 'react'
 
-import type { CommonState, UserCollection } from '@audius/common'
-import { accountActions, useProxySelector } from '@audius/common'
-import { useDispatch } from 'react-redux'
-import { useEffectOnce } from 'react-use'
+import type { CommonState } from '@audius/common'
+import { useProxySelector, reachabilitySelectors } from '@audius/common'
+import { useSelector } from 'react-redux'
 
 import { CollectionList } from 'app/components/collection-list'
 import { VirtualizedScrollView, Button } from 'app/components/core'
 import { EmptyTileCTA } from 'app/components/empty-tile-cta'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 
 import type { FavoritesTabScreenParamList } from '../app-screen/FavoritesTabScreen'
@@ -15,7 +15,7 @@ import type { FavoritesTabScreenParamList } from '../app-screen/FavoritesTabScre
 import { FilterInput } from './FilterInput'
 import { getAccountCollections } from './selectors'
 
-const { fetchSavedPlaylists } = accountActions
+const { getIsReachable } = reachabilitySelectors
 
 const messages = {
   emptyTabText: "You haven't favorited any playlists yet.",
@@ -25,13 +25,8 @@ const messages = {
 export const PlaylistsTab = () => {
   const navigation = useNavigation<FavoritesTabScreenParamList>()
   const [filterValue, setFilterValue] = useState('')
-  const dispatch = useDispatch()
-
-  const handleFetchSavedPlaylists = useCallback(() => {
-    dispatch(fetchSavedPlaylists())
-  }, [dispatch])
-
-  useEffectOnce(handleFetchSavedPlaylists)
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
+  const isReachable = useSelector(getIsReachable)
 
   const userPlaylists = useProxySelector(
     (state: CommonState) =>
@@ -56,15 +51,19 @@ export const PlaylistsTab = () => {
           onChangeText={setFilterValue}
         />
       )}
-      <Button
-        title='Create a New Playlist'
-        variant='commonAlt'
-        onPress={handleNavigateToNewPlaylist}
-      />
+      <>
+        {!isReachable && isOfflineModeEnabled ? null : (
+          <Button
+            title='Create a New Playlist'
+            variant='commonAlt'
+            onPress={handleNavigateToNewPlaylist}
+          />
+        )}
+      </>
       <CollectionList
         listKey='favorites-playlists'
         scrollEnabled={false}
-        collection={(userPlaylists as UserCollection[]) ?? []}
+        collection={userPlaylists}
       />
     </VirtualizedScrollView>
   )

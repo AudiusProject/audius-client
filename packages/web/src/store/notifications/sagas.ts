@@ -2,20 +2,18 @@ import { accountSelectors, getContext, waitForValue } from '@audius/common'
 import { eventChannel } from 'redux-saga'
 import { call, delay, fork, take } from 'typed-redux-saga'
 
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import {
   getNotifications,
   getPollingIntervalMs
 } from 'common/store/notifications/sagas'
 import { isElectron } from 'utils/clientUtil'
+import { waitForRead } from 'utils/sagaHelpers'
 const { getHasAccount } = accountSelectors
 
 function* notificationPollingDaemon() {
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
-  yield* call(waitForBackendSetup)
+  yield* call(waitForRead)
   yield* call(waitForValue, getHasAccount, {})
-  yield* call(audiusBackendInstance.getEmailNotificationSettings)
 
   // Set up daemon that will watch for browser into focus and refetch notifications
   // as soon as it goes into focus

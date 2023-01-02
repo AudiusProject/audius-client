@@ -63,6 +63,7 @@ import {
 import { JupiterSingleton } from 'services/audius-backend/Jupiter'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { reportToSentry } from 'store/errors/reportToSentry'
+import { waitForWrite } from 'utils/sagaHelpers'
 
 const {
   calculateAudioPurchaseInfo,
@@ -134,6 +135,17 @@ const defaultBuyAudioLocalStorageState: BuyAudioLocalStorageState = {
     purchasedAudioWei: ''
   },
   provider: OnRampProvider.UNKNOWN
+}
+
+function* getLocalStorageStateWithFallback() {
+  const localStorage = yield* getContext('localStorage')
+  const state =
+    (yield* call(
+      (val: string) =>
+        localStorage.getJSONValue<BuyAudioLocalStorageState>(val),
+      BUY_AUDIO_LOCAL_STORAGE_KEY
+    )) ?? defaultBuyAudioLocalStorageState
+  return state
 }
 
 /**
@@ -238,7 +250,9 @@ function* getTransactionFees({
           [transaction, transaction.getEstimatedFee],
           connection
         )
-        console.debug(`Fee for "${names[i]}" transaction: ${fee} Lamports`)
+        console.debug(
+          `Fee for "${names[i]}" transaction: ${fee ?? 5000} Lamports`
+        )
         transactionFees += fee ?? 5000 // For some reason, swap transactions don't have fee estimates??
       }
       i++
@@ -445,12 +459,7 @@ Total: ${estimatedLamports.toNumber() / LAMPORTS_PER_SOL} SOL ($${
 
 function* populateAndSaveTransactionDetails() {
   // Get transaction details from local storage
-  const localStorage = yield* getContext('localStorage')
-  const localStorageState: BuyAudioLocalStorageState =
-    (yield* call(
-      [localStorage, localStorage.getJSONValue],
-      BUY_AUDIO_LOCAL_STORAGE_KEY
-    )) ?? defaultBuyAudioLocalStorageState
+  const localStorageState = yield* getLocalStorageStateWithFallback()
   const {
     purchaseTransactionId,
     setupTransactionId,
@@ -519,10 +528,10 @@ function* populateAndSaveTransactionDetails() {
   })
 
   // Clear local storage
+  console.debug('Clearing BUY_AUDIO_LOCAL_STORAGE...')
   yield* call(
-    [localStorage, localStorage.setJSONValue],
-    BUY_AUDIO_LOCAL_STORAGE_KEY,
-    {}
+    [localStorage, localStorage.removeItem],
+    BUY_AUDIO_LOCAL_STORAGE_KEY
   )
 }
 
@@ -603,12 +612,7 @@ function* purchaseStep({
     )
   }
 
-  const localStorage = yield* getContext('localStorage')
-  const localStorageState: BuyAudioLocalStorageState =
-    (yield* call(
-      [localStorage, localStorage.getJSONValue],
-      BUY_AUDIO_LOCAL_STORAGE_KEY
-    )) ?? defaultBuyAudioLocalStorageState
+  const localStorageState = yield* getLocalStorageStateWithFallback()
   localStorageState.transactionDetailsArgs.purchaseTransactionId =
     purchaseTransactionId
   localStorageState.transactionDetailsArgs.purchasedLamports =
@@ -695,12 +699,7 @@ function* swapStep({
     })
 
   // Write transaction details to local storage
-  const localStorage = yield* getContext('localStorage')
-  const localStorageState: BuyAudioLocalStorageState =
-    (yield* call(
-      [localStorage, localStorage.getJSONValue],
-      BUY_AUDIO_LOCAL_STORAGE_KEY
-    )) ?? defaultBuyAudioLocalStorageState
+  const localStorageState = yield* getLocalStorageStateWithFallback()
   localStorageState.transactionDetailsArgs.setupTransactionId =
     setupTransactionId ?? undefined
   localStorageState.transactionDetailsArgs.swapTransactionId =
@@ -762,22 +761,19 @@ function* transferStep({
     {
       instructions: transferTransaction.instructions,
       feePayerOverride: rootAccount.publicKey,
-      skipPreflight: true
+      skipPreflight: false
     }
   )
   if (transferError) {
-    console.debug(`Transfer transaction stringified: ${transferTransaction}`)
+    console.debug(
+      `Transfer transaction stringified: ${JSON.stringify(transferTransaction)}`
+    )
     throw new Error(`Transfer transaction failed: ${transferError}`)
   }
   const audioTransferredWei = convertWAudioToWei(transferAmount)
 
   // Write transaction details to local storage
-  const localStorage = yield* getContext('localStorage')
-  const localStorageState: BuyAudioLocalStorageState =
-    (yield* call(
-      [localStorage, localStorage.getJSONValue],
-      BUY_AUDIO_LOCAL_STORAGE_KEY
-    )) ?? defaultBuyAudioLocalStorageState
+  const localStorageState = yield* getLocalStorageStateWithFallback()
   localStorageState.transactionDetailsArgs.transferTransactionId =
     transferTransactionId ?? undefined
   localStorageState.transactionDetailsArgs.purchasedAudioWei =
@@ -839,7 +835,7 @@ function* doBuyAudio({
       connection,
       useRelay: false,
       feePayerKeypairs: [rootAccount],
-      skipPreflight: true
+      skipPreflight: false
     })
     userRootWallet = rootAccount.publicKey.toString()
 
@@ -928,13 +924,13 @@ function* doBuyAudio({
       error: e as Error,
       additionalInfo: { stage, userRootWallet }
     })
-    console.error('BuyAudio failed')
     yield* put(buyAudioFlowFailed())
     yield* put(
       make(Name.BUY_AUDIO_FAILURE, {
         provider,
         stage,
         requestedAudio: desiredAudioAmount.uiAmount,
+        name: 'BuyAudio failed',
         error: (e as Error).message
       })
     )
@@ -956,8 +952,15 @@ function* recoverPurchaseIfNecessary() {
   let recoveredAudio: null | number = null
   try {
     // Bail if not enabled
+    yield* call(waitForWrite)
     const getFeatureEnabled = yield* getContext('getFeatureEnabled')
-    if (!getFeatureEnabled(FeatureFlags.BUY_AUDIO_ENABLED)) {
+
+    if (
+      !(
+        getFeatureEnabled(FeatureFlags.BUY_AUDIO_COINBASE_ENABLED) ||
+        getFeatureEnabled(FeatureFlags.BUY_AUDIO_STRIPE_ENABLED)
+      )
+    ) {
       return
     }
 
@@ -968,23 +971,22 @@ function* recoverPurchaseIfNecessary() {
       connection,
       useRelay: false,
       feePayerKeypairs: [rootAccount],
-      skipPreflight: true
+      skipPreflight: false
     })
     userRootWallet = rootAccount.publicKey.toString()
 
     // Restore local storage state, lightly sanitizing
     const localStorage = yield* getContext('localStorage')
-    const savedLocalStorageState: BuyAudioLocalStorageState =
-      (yield* call(
-        [localStorage, localStorage.getJSONValue],
-        BUY_AUDIO_LOCAL_STORAGE_KEY
-      )) ?? {}
+    const savedLocalStorageState = (yield* call(
+      (val) => localStorage.getJSONValue<BuyAudioLocalStorageState>(val),
+      BUY_AUDIO_LOCAL_STORAGE_KEY
+    )) ?? { transactionDetailsArgs: {} }
     const localStorageState: BuyAudioLocalStorageState = {
       ...defaultBuyAudioLocalStorageState,
       ...savedLocalStorageState,
       transactionDetailsArgs: {
         ...defaultBuyAudioLocalStorageState.transactionDetailsArgs,
-        ...savedLocalStorageState.transactionDetailsArgs
+        ...savedLocalStorageState?.transactionDetailsArgs
       }
     }
     yield* call(
@@ -1013,11 +1015,28 @@ function* recoverPurchaseIfNecessary() {
       inputAmount: existingBalance / LAMPORTS_PER_SOL,
       slippage
     })
-    const { totalFees } = yield* call(getSwapFees, { route: quote.route })
+    const { totalFees, rootAccountMinBalance } = yield* call(getSwapFees, {
+      route: quote.route
+    })
 
-    // Check if we have an exchangable amount of SOL, and if so, exchange it to AUDIO
+    // Subtract fees and rent to see how much SOL is available to exchange
     const exchangableBalance = new BN(existingBalance).sub(totalFees)
-    if (exchangableBalance.gt(new BN(0))) {
+
+    // Use proportion to guesstimate an $AUDIO quote for the exchangeable balance
+    const estimatedAudio =
+      existingBalance > 0
+        ? exchangableBalance
+            .mul(new BN(quote.outputAmount.amountString))
+            .div(new BN(existingBalance))
+        : new BN(0)
+
+    // Check if there's a non-zero exchangeble amount of SOL and at least one $AUDIO would be output
+    // Should only occur as the result of a previously failed Swap
+    if (
+      exchangableBalance.gt(new BN(0)) &&
+      // $AUDIO has 8 decimals
+      estimatedAudio.gt(new BN('1'.padEnd(9, '0')))
+    ) {
       yield* put(
         make(Name.BUY_AUDIO_RECOVERY_OPENED, {
           provider,
@@ -1030,7 +1049,7 @@ function* recoverPurchaseIfNecessary() {
           existingBalance / LAMPORTS_PER_SOL
         } SOL, converting ${
           exchangableBalance.toNumber() / LAMPORTS_PER_SOL
-        } SOL to AUDIO...`
+        } SOL to AUDIO... (~${estimatedAudio.toString()} $AUDIO SPL)`
       )
 
       yield* put(setVisibility({ modal: 'BuyAudioRecovery', visible: true }))
@@ -1064,42 +1083,61 @@ function* recoverPurchaseIfNecessary() {
         tokenAccount
       })
       const audioBalance = audioAccountInfo?.amount ?? new BN(0)
+
+      // If the user's root wallet has $AUDIO, that usually indicates a failed transfer
       if (audioBalance.gt(new BN(0))) {
-        yield* put(
-          make(Name.BUY_AUDIO_RECOVERY_OPENED, {
-            provider,
-            trigger: '$AUDIO',
-            balance: audioBalance.toString()
-          })
-        )
-        console.debug(
-          `Found existing $AUDIO balance of ${audioBalance}, transferring to user bank...`
-        )
-
-        yield* put(setVisibility({ modal: 'BuyAudioRecovery', visible: true }))
-        yield* put(setVisibility({ modal: 'BuyAudio', visible: false }))
-        didNeedRecovery = true
-
-        const { audioTransferredWei } = yield* call(transferStep, {
-          transferAmount: audioBalance,
-          rootAccount,
-          transactionHandler,
-          provider: localStorageState.provider ?? OnRampProvider.UNKNOWN
-        })
-        recoveredAudio = parseFloat(
-          formatWei(audioTransferredWei).replaceAll(',', '')
-        )
-        yield* call(populateAndSaveTransactionDetails)
-      } else {
-        // If we only failed to save the metadata, try that again
-        if (localStorageState?.transactionDetailsArgs?.transferTransactionId) {
-          const metadata = yield* call(
-            getUserBankTransactionMetadata,
-            localStorageState.transactionDetailsArgs.transferTransactionId
+        // Check we can afford to transfer
+        if (
+          new BN(existingBalance)
+            .sub(new BN(rootAccountMinBalance))
+            .gt(new BN(0))
+        ) {
+          yield* put(
+            make(Name.BUY_AUDIO_RECOVERY_OPENED, {
+              provider,
+              trigger: '$AUDIO',
+              balance: audioBalance.toString()
+            })
           )
-          if (!metadata) {
-            yield* call(populateAndSaveTransactionDetails)
-          }
+          console.debug(
+            `Found existing $AUDIO balance of ${audioBalance}, transferring to user bank...`
+          )
+
+          yield* put(
+            setVisibility({ modal: 'BuyAudioRecovery', visible: true })
+          )
+          yield* put(setVisibility({ modal: 'BuyAudio', visible: false }))
+          didNeedRecovery = true
+
+          const { audioTransferredWei } = yield* call(transferStep, {
+            transferAmount: audioBalance,
+            rootAccount,
+            transactionHandler,
+            provider: localStorageState.provider ?? OnRampProvider.UNKNOWN
+          })
+          recoveredAudio = parseFloat(
+            formatWei(audioTransferredWei).replaceAll(',', '')
+          )
+          yield* call(populateAndSaveTransactionDetails)
+        } else {
+          // User can't afford to transfer their $AUDIO
+          console.debug(
+            `OWNED: ${audioBalance.toString()} $AUDIO (spl wei) ${existingBalance.toString()} SOL (lamports)\n` +
+              `NEED: ${totalFees.toString()} SOL (lamports)`
+          )
+          throw new Error(`User is bricked`)
+        }
+      } else if (
+        localStorageState?.transactionDetailsArgs?.transferTransactionId
+      ) {
+        // If we previously just failed to save the metadata, try that again
+        console.debug('Only need to resend metadata...')
+        const metadata = yield* call(
+          getUserBankTransactionMetadata,
+          localStorageState.transactionDetailsArgs.transferTransactionId
+        )
+        if (!metadata) {
+          yield* call(populateAndSaveTransactionDetails)
         }
       }
     }
@@ -1118,9 +1156,9 @@ function* recoverPurchaseIfNecessary() {
     }
   } catch (e) {
     const stage = yield* select(getBuyAudioFlowStage)
-    console.error('BuyAudioRecovery failed')
     yield* call(reportToSentry, {
       level: ErrorLevel.Error,
+      name: 'BuyAudioRecovery failed',
       error: e as Error,
       additionalInfo: { stage, didNeedRecovery, userRootWallet }
     })
@@ -1168,8 +1206,8 @@ function* watchRecovery() {
  */
 function* recoverOnPageLoad() {
   const localStorage = yield* getContext('localStorage')
-  const savedLocalStorageState: BuyAudioLocalStorageState | null = yield* call(
-    [localStorage, localStorage.getJSONValue],
+  const savedLocalStorageState = yield* call(
+    (val) => localStorage.getJSONValue<BuyAudioLocalStorageState>(val),
     BUY_AUDIO_LOCAL_STORAGE_KEY
   )
   if (savedLocalStorageState !== null && !isMobileWeb()) {

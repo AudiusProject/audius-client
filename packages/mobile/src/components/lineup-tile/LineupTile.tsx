@@ -16,7 +16,7 @@ import { LineupTileMetadata } from './LineupTileMetadata'
 import { LineupTileRoot } from './LineupTileRoot'
 import { LineupTileStats } from './LineupTileStats'
 import { LineupTileTopRight } from './LineupTileTopRight'
-const getUserId = accountSelectors.getUserId
+const { getUserId } = accountSelectors
 
 export const LineupTile = ({
   children,
@@ -26,7 +26,6 @@ export const LineupTile = ({
   hidePlays,
   hideShare,
   id,
-  imageUrl,
   index,
   isTrending,
   isUnlisted,
@@ -38,6 +37,7 @@ export const LineupTile = ({
   onPressShare,
   onPressTitle,
   playCount,
+  renderImage,
   repostType,
   showArtistPick,
   showRankIcon,
@@ -45,7 +45,8 @@ export const LineupTile = ({
   item,
   uid,
   user,
-  isPlayingUid
+  isPlayingUid,
+  TileProps
 }: LineupTileProps) => {
   const {
     has_current_user_reposted,
@@ -55,6 +56,7 @@ export const LineupTile = ({
   } = item
   const { _artist_pick, name, user_id } = user
   const currentUserId = useSelector(getUserId)
+  const isCollection = 'playlist_id' in item
 
   const [artworkLoaded, setArtworkLoaded] = useState(false)
 
@@ -76,7 +78,7 @@ export const LineupTile = ({
   }, [onLoad, isLoaded, index, opacity, title])
 
   return (
-    <LineupTileRoot onPress={onPress}>
+    <LineupTileRoot onPress={onPress} {...TileProps}>
       {showArtistPick && _artist_pick === id ? (
         <LineupTileBannerIcon type={LineupTileBannerIconType.STAR} />
       ) : null}
@@ -93,7 +95,7 @@ export const LineupTile = ({
         <LineupTileMetadata
           artistName={name}
           coSign={coSign}
-          imageUrl={imageUrl}
+          renderImage={renderImage}
           onPressTitle={onPressTitle}
           setArtworkLoaded={setArtworkLoaded}
           uid={uid}
@@ -108,6 +110,7 @@ export const LineupTile = ({
           hidePlays={hidePlays}
           id={id}
           index={index}
+          isCollection={isCollection}
           isTrending={isTrending}
           isUnlisted={isUnlisted}
           playCount={playCount}

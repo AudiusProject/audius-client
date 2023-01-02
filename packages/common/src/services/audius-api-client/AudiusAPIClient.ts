@@ -1,20 +1,15 @@
 import type { AudiusLibs } from '@audius/sdk/dist/native-libs'
 
-import { ID, TimeRange, StemTrackMetadata } from 'models'
-import { AuthHeaders } from 'services/audius-backend'
-import {
-  IntKeys,
-  StringKeys,
-  RemoteConfigInstance
-} from 'services/remote-config'
-import { SearchKind } from 'store/pages/search-results/types'
-import { decodeHashId, encodeHashId } from 'utils/hashIds'
-import { Nullable, removeNullable } from 'utils/typeUtils'
-
+import { ID, TimeRange, StemTrackMetadata } from '../../models'
+import { SearchKind } from '../../store/pages/search-results/types'
+import { decodeHashId, encodeHashId } from '../../utils/hashIds'
+import { Nullable, removeNullable } from '../../utils/typeUtils'
+import { AuthHeaders } from '../audius-backend'
 import type { AudiusBackend } from '../audius-backend'
 import { getEagerDiscprov } from '../audius-backend/eagerLoadUtils'
 import { Env } from '../env'
 import { LocalStorage } from '../local-storage'
+import { IntKeys, StringKeys, RemoteConfigInstance } from '../remote-config'
 
 import * as adapter from './ResponseAdapter'
 import { processSearchResults } from './helper'
@@ -28,6 +23,7 @@ import {
   APIStem,
   APITrack,
   APIUser,
+  GetPremiumContentSignaturesResponse,
   GetTipsResponse,
   OpaqueID,
   SupporterResponse,
@@ -100,7 +96,9 @@ const FULL_ENDPOINT_MAP = {
   getReaction: '/reactions',
   getSupporting: (userId: OpaqueID) => `/users/${userId}/supporting`,
   getSupporters: (userId: OpaqueID) => `/users/${userId}/supporters`,
-  getTips: '/tips'
+  getTips: '/tips',
+  getPremiumContentSignatures: (userId: OpaqueID) =>
+    `/tracks/${userId}/nft-gated-signatures`
 }
 
 const ENDPOINT_MAP = {
@@ -112,7 +110,7 @@ const ENDPOINT_MAP = {
 
 const TRENDING_LIMIT = 100
 
-type QueryParams = {
+export type QueryParams = {
   [key: string]: string | number | undefined | boolean | string[] | null
 }
 
@@ -294,7 +292,7 @@ type GetRemixingArgs = {
 }
 
 type GetSearchArgs = {
-  currentUserId: ID
+  currentUserId: Nullable<ID>
   query: string
   kind?: SearchKind
   limit?: number
@@ -424,6 +422,13 @@ export type GetTipsArgs = {
   txSignatures?: string[]
 }
 
+export type GetPremiumContentSignaturesArgs = {
+  userId: ID
+  trackMap: {
+    [id: ID]: string[]
+  }
+}
+
 type InitializationState =
   | { state: 'uninitialized' }
   | {
@@ -460,7 +465,7 @@ type GetUserSupporterArgs = {
 
 type AudiusAPIClientConfig = {
   audiusBackendInstance: AudiusBackend
-  getAudiusLibs: () => AudiusLibs
+  getAudiusLibs: () => Nullable<AudiusLibs>
   overrideEndpoint?: string
   remoteConfigInstance: RemoteConfigInstance
   localStorage: LocalStorage
@@ -473,11 +478,12 @@ export class AudiusAPIClient {
   }
 
   audiusBackendInstance: AudiusBackend
-  getAudiusLibs: () => AudiusLibs
+  getAudiusLibs: () => Nullable<AudiusLibs>
   overrideEndpoint?: string
   remoteConfigInstance: RemoteConfigInstance
   localStorage: LocalStorage
   env: Env
+  isReachable?: boolean = true
 
   constructor({
     audiusBackendInstance,
@@ -493,6 +499,10 @@ export class AudiusAPIClient {
     this.remoteConfigInstance = remoteConfigInstance
     this.localStorage = localStorage
     this.env = env
+  }
+
+  setIsReachable(isReachable: boolean) {
+    this.isReachable = isReachable
   }
 
   async getTrending({
@@ -1544,6 +1554,43 @@ export class AudiusAPIClient {
     return response ? response.data : null
   }
 
+  async getPremiumContentSignatures({
+    userId,
+    trackMap
+  }: GetPremiumContentSignaturesArgs) {
+    if (!Object.keys(trackMap).length) return null
+
+    const encodedUserId = this._encodeOrThrow(userId)
+    this._assertInitialized()
+
+    // To avoid making a POST request and thereby introducing a new pattern in the DN,
+    // we build a param string that represents the info we need to verify nft collection ownership.
+    // The trackMap is a map of track ids -> token ids.
+    // If the nft collection is not ERC1155, then there are no token ids.
+    // We append the track ids and token ids as query params, making sure they're the same length
+    // so that DN knows which token ids belong to which track ids.
+    // Example:
+    // trackMap: { 1: [1, 2], 2: [], 3: [1]}
+    // query params: '?track_ids=1&token_ids=1-2&track_ids=2&token_ids=&track_ids=3&token_ids=1'
+    const trackIdParams: string[] = []
+    const tokenIdParams: string[] = []
+    Object.keys(trackMap).forEach((trackId) => {
+      trackIdParams.push(trackId)
+      tokenIdParams.push(trackMap[trackId].join('-'))
+    })
+    const params = {
+      track_ids: trackIdParams,
+      token_ids: tokenIdParams
+    }
+
+    const response: Nullable<APIResponse<GetPremiumContentSignaturesResponse>> =
+      await this._getResponse(
+        FULL_ENDPOINT_MAP.getPremiumContentSignatures(encodedUserId),
+        params
+      )
+    return response ? response.data : null
+  }
+
   async init() {
     if (this.initializationState.state === 'initialized') return
 
@@ -1615,7 +1662,13 @@ export class AudiusAPIClient {
     splitArrayParams = false
   ): Promise<Nullable<T>> {
     if (this.initializationState.state !== 'initialized')
-      throw new Error('_constructURL called uninitialized')
+      throw new Error('_getResponse called uninitialized')
+
+    // If not reachable, abort
+    if (!this.isReachable) {
+      console.debug(`APIClient: Not reachable, aborting request`)
+      return null
+    }
 
     // If a param has a null value, remove it
     const sanitizedParams = Object.keys(params).reduce((acc, cur) => {

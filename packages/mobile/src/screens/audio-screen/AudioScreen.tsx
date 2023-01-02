@@ -2,14 +2,14 @@ import { useCallback } from 'react'
 
 import type { BNWei, StringWei, Nullable, CommonState } from '@audius/common'
 import {
-  FeatureFlags,
   vipDiscordModalActions,
   formatWei,
   tokenDashboardPageSelectors,
   walletSelectors,
   walletActions,
   getTierAndNumberForBalance,
-  modalsActions
+  modalsActions,
+  FeatureFlags
 } from '@audius/common'
 import { useFocusEffect } from '@react-navigation/native'
 import BN from 'bn.js'
@@ -34,9 +34,9 @@ import {
   Button,
   GradientText,
   Text,
-  Tile,
-  ScreenHeader
+  Tile
 } from 'app/components/core'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
@@ -58,7 +58,7 @@ const messages = {
   totalAudio: 'Total $AUDIO',
   send: 'Send $AUDIO',
   receive: 'Receive $AUDIO',
-  connect: 'Connect Other Wallets',
+  connect: 'Connect Wallets',
   rewards: '$AUDIO Rewards',
   rewardsBody1: 'Complete tasks to earn $AUDIO tokens!',
   rewardsBody2:
@@ -165,8 +165,9 @@ export const AudioScreen = () => {
   const { pageHeaderGradientColor1, pageHeaderGradientColor2 } =
     useThemeColors()
   const dispatch = useDispatch()
-  const { isEnabled: isNavOverhaulEnabled } = useFeatureFlag(
-    FeatureFlags.MOBILE_NAV_OVERHAUL
+  const navigation = useNavigation()
+  const { isEnabled: isMobileWalletConnectEnabled } = useFeatureFlag(
+    FeatureFlags.MOBILE_WALLET_CONNECT
   )
 
   const totalBalance: Nullable<BNWei> =
@@ -180,7 +181,7 @@ export const AudioScreen = () => {
 
   const hasMultipleWallets = useSelector(getHasAssociatedWallets)
 
-  const onPressWalletInfo = useCallback(() => {
+  const handlePressWalletInfo = useCallback(() => {
     dispatch(setVisibility({ modal: 'AudioBreakdown', visible: true }))
   }, [dispatch])
 
@@ -202,25 +203,16 @@ export const AudioScreen = () => {
           tile: styles.tile,
           content: styles.tileContent
         }}
+        onPress={hasMultipleWallets ? handlePressWalletInfo : undefined}
       >
         <Text style={styles.audioAmount}>
           {formatWei((totalBalance || new BN(0)) as BNWei, true, 0)}{' '}
         </Text>
         <View style={styles.audioInfo}>
-          {!hasMultipleWallets ? (
+          {hasMultipleWallets ? (
             <>
               <Text style={styles.audioText}>{messages.totalAudio}</Text>
-              <TouchableOpacity
-                hitSlop={{ left: 4, top: 4, bottom: 4, right: 4 }}
-                onPress={onPressWalletInfo}
-                activeOpacity={0.7}
-              >
-                <IconInfo
-                  height={16}
-                  width={16}
-                  fill={'rgba(255,255,255,0.5)'}
-                />
-              </TouchableOpacity>
+              <IconInfo height={16} width={16} fill={'rgba(255,255,255,0.5)'} />
             </>
           ) : (
             <Text style={styles.audioText}>{messages.audio}</Text>
@@ -243,10 +235,14 @@ export const AudioScreen = () => {
   }, [dispatch])
 
   const handlePressConnectWallets = useCallback(() => {
-    dispatch(
-      setVisibility({ modal: 'MobileConnectWalletsDrawer', visible: true })
-    )
-  }, [dispatch])
+    if (isMobileWalletConnectEnabled) {
+      navigation.navigate('WalletConnect')
+    } else {
+      dispatch(
+        setVisibility({ modal: 'MobileConnectWalletsDrawer', visible: true })
+      )
+    }
+  }, [isMobileWalletConnectEnabled, dispatch, navigation])
 
   const renderWalletTile = () => {
     return (
@@ -443,7 +439,6 @@ export const AudioScreen = () => {
       icon={IconCrown}
       title={messages.title}
     >
-      {isNavOverhaulEnabled ? null : <ScreenHeader text={messages.title} />}
       <ScrollView style={styles.tiles}>
         {renderAudioTile()}
         {renderWalletTile()}

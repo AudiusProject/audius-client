@@ -3,9 +3,9 @@ import { useRef } from 'react'
 
 import { accountSelectors } from '@audius/common'
 import {
-  useNavigationContainerRef,
   getStateFromPath,
-  NavigationContainer as RNNavigationContainer
+  NavigationContainer as RNNavigationContainer,
+  createNavigationContainerRef
 } from '@react-navigation/native'
 import { useSelector } from 'react-redux'
 
@@ -20,6 +20,9 @@ const { getAccountUser } = accountSelectors
 type NavigationContainerProps = {
   children: ReactNode
 }
+
+export const navigationRef = createNavigationContainerRef()
+
 /**
  * NavigationContainer contains the react-navigation context
  * and configures linking
@@ -29,7 +32,6 @@ const NavigationContainer = (props: NavigationContainerProps) => {
   const theme = useThemeVariant()
   const account = useSelector(getAccountUser)
 
-  const navigationRef = useNavigationContainerRef()
   const routeNameRef = useRef<string>()
 
   const linking = {
@@ -37,9 +39,13 @@ const NavigationContainer = (props: NavigationContainerProps) => {
       'audius://',
       'https://audius.co',
       'http://audius.co',
+      'https://redirect.audius.co',
+      'http://redirect.audius.co',
       'audius-staging://',
       'https://staging.audius.co',
-      'http://staging.audius.co'
+      'http://staging.audius.co',
+      'https://redirect.staging.audius.co',
+      'http://redirect.staging.audius.co'
     ],
     // configuration for matching screens with paths
     config: {
@@ -48,71 +54,84 @@ const NavigationContainer = (props: NavigationContainerProps) => {
           screens: {
             App: {
               screens: {
-                feed: {
-                  initialRouteName: 'Feed',
+                AppTabs: {
                   screens: {
-                    Feed: 'feed',
-                    Collection: ':handle/collection/:collectionName',
-                    Track: 'track/:handle/:slug',
-                    Profile: {
-                      path: ':handle',
+                    feed: {
+                      initialRouteName: 'Feed',
                       screens: {
-                        Tracks: 'tracks',
-                        Albums: 'albums',
-                        Playlists: 'playlists',
-                        Reposts: 'reposts',
-                        Collectibles: 'collectibles'
-                      }
-                    } as any // Nested navigator typing with own params is broken, see: https://github.com/react-navigation/react-navigation/issues/9897
-                  }
-                },
-                trending: {
-                  initialRouteName: 'Trending',
-                  screens: {
-                    Trending: 'trending'
-                  }
-                },
-                explore: {
-                  initialRouteName: 'Explore',
-                  screens: {
-                    Explore: 'explore',
-                    TrendingPlaylists: 'explore/playlists',
-                    TrendingUnderground: 'explore/underground',
-                    LetThemDJ: 'explore/let-them-dj',
-                    TopAlbums: 'explore/top-albums',
-                    UnderTheRadar: 'explore/under-the-radar',
-                    BestNewReleases: 'explore/best-new-releases',
-                    Remixables: 'explore/remixables',
-                    MostLoved: 'explore/most-loved',
-                    FeelingLucky: 'explore/feeling-lucky',
-                    HeavyRotation: 'explore/heavy-rotation',
-                    ChillPlaylists: 'explore/chill',
-                    IntensePlaylists: 'explore/intense',
-                    IntimatePlaylists: 'explore/intimate',
-                    ProvokingPlaylists: 'explore/provoking',
-                    UpbeatPlaylists: 'explore/upbeat'
-                  }
-                },
-                favorites: {
-                  screens: {
-                    Favorites: 'favorites'
-                  }
-                },
-                profile: {
-                  screens: {
-                    UserProfile: {
-                      path: 'profile',
-                      screens: {
-                        Tracks: 'tracks',
-                        Albums: 'albums',
-                        Playlists: 'playlists',
-                        Reposts: 'reposts',
-                        Collectibles: 'collectibles'
+                        Feed: 'feed',
+                        Collection: ':handle/collection/:collectionName',
+                        Track: 'track/:handle/:slug',
+                        Profile: {
+                          path: ':handle',
+                          screens: {
+                            Tracks: 'tracks',
+                            Albums: 'albums',
+                            Playlists: 'playlists',
+                            Reposts: 'reposts',
+                            Collectibles: 'collectibles'
+                          }
+                        } as any // Nested navigator typing with own params is broken, see: https://github.com/react-navigation/react-navigation/issues/9897
                       }
                     },
-                    SettingsScreen: {
-                      path: 'settings'
+                    trending: {
+                      initialRouteName: 'Trending',
+                      screens: {
+                        Trending: 'trending'
+                      }
+                    },
+                    explore: {
+                      initialRouteName: 'Explore',
+                      screens: {
+                        Explore: 'explore',
+                        TrendingPlaylists: 'explore/playlists',
+                        TrendingUnderground: 'explore/underground',
+                        LetThemDJ: 'explore/let-them-dj',
+                        TopAlbums: 'explore/top-albums',
+                        UnderTheRadar: 'explore/under-the-radar',
+                        BestNewReleases: 'explore/best-new-releases',
+                        Remixables: 'explore/remixables',
+                        MostLoved: 'explore/most-loved',
+                        FeelingLucky: 'explore/feeling-lucky',
+                        HeavyRotation: 'explore/heavy-rotation',
+                        ChillPlaylists: 'explore/chill',
+                        IntensePlaylists: 'explore/intense',
+                        IntimatePlaylists: 'explore/intimate',
+                        ProvokingPlaylists: 'explore/provoking',
+                        UpbeatPlaylists: 'explore/upbeat'
+                      }
+                    },
+                    favorites: {
+                      screens: {
+                        Favorites: 'favorites'
+                      }
+                    },
+                    profile: {
+                      screens: {
+                        UserProfile: {
+                          path: 'profile',
+                          screens: {
+                            Tracks: 'tracks',
+                            Albums: 'albums',
+                            Playlists: 'playlists',
+                            Reposts: 'reposts',
+                            Collectibles: 'collectibles'
+                          }
+                        },
+                        SettingsScreen: {
+                          path: 'settings'
+                        }
+                      }
                     }
+                  }
+                },
+                Upload: {
+                  path: 'upload'
+                },
+                WalletConnect: {
+                  initialRouteName: 'Wallets',
+                  screens: {
+                    Wallets: 'wallets'
                   }
                 }
               }
@@ -122,6 +141,30 @@ const NavigationContainer = (props: NavigationContainerProps) => {
       }
     },
     getStateFromPath: (path, options) => {
+      // Add leading slash if it is missing
+      if (path[0] !== '/') path = `/${path}`
+
+      const walletConnectPath = /^\/(wallet-connect)/
+      if (path.match(walletConnectPath)) {
+        path = `${path.replace(
+          walletConnectPath,
+          '/wallets'
+        )}&path=wallet-connect`
+      }
+
+      const walletSignPath = /^\/(wallet-sign-message)/
+      if (path.match(walletSignPath)) {
+        path = `${path.replace(
+          walletSignPath,
+          '/wallets'
+        )}&path=wallet-sign-message`
+      }
+
+      if (path.match(`^/app-redirect`)) {
+        // Remove the app-redirect prefix if present
+        path = path.replace(`/app-redirect`, '')
+      }
+
       // Strip the trending query param because `/trending` will
       // always go to ThisWeek
       if (path.match(/^\/trending/)) {
@@ -148,13 +191,17 @@ const NavigationContainer = (props: NavigationContainerProps) => {
           }
         }
 
-        // If the path is a playlist or album
-        if (path.match(/^\/[^/]+\/(playlist|album)\/[^/]+$/)) {
+        if (path.match(/^\/[^/]+\/playlist\/[^/]+$/)) {
           // set the path as `collection`
           path = path.replace(
-            /(^\/[^/]+\/)(playlist|album)(\/[^/]+$)/,
+            /(^\/[^/]+\/)(playlist)(\/[^/]+$)/,
             '$1collection$3'
           )
+          path = `${path}?collectionType=playlist`
+        } else if (path.match(/^\/[^/]+\/album\/[^/]+$/)) {
+          // set the path as `collection`
+          path = path.replace(/(^\/[^/]+\/)(album)(\/[^/]+$)/, '$1collection$3')
+          path = `${path}?collectionType=album`
         }
       }
 

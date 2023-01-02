@@ -44,7 +44,7 @@ import { PlayBar } from './PlayBar'
 import { TitleBar } from './TitleBar'
 import { TrackInfo } from './TrackInfo'
 import { PLAY_BAR_HEIGHT } from './constants'
-const { seek } = playerActions
+const { seek, reset } = playerActions
 
 const { getPlaying, getCurrentTrack, getCounter } = playerSelectors
 const { next, previous } = queueActions
@@ -52,6 +52,8 @@ const { getUser } = cacheUsersSelectors
 
 const STATUS_BAR_FADE_CUTOFF = 0.6
 const SKIP_DURATION_SEC = 15
+const RESTART_THRESHOLD_SEC = 3
+
 // If the top screen inset is greater than this,
 // the status bar will be hidden when the drawer is open
 const INSET_STATUS_BAR_HIDE_THRESHOLD = 20
@@ -107,7 +109,8 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
   const insets = useSafeAreaInsets()
   const androidNavigationBarHeight = useSelector(getAndroidNavigationBarHeight)
   const staticTopInset = useRef(insets.top)
-  const bottomBarHeight = BOTTOM_BAR_HEIGHT + insets.bottom
+  const bottomBarHeight =
+    BOTTOM_BAR_HEIGHT + (Platform.OS === 'ios' ? insets.bottom : 0)
   const styles = useStyles()
 
   const { isOpen, onOpen, onClose } = useDrawer('NowPlaying')
@@ -233,8 +236,14 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
         dispatch(seek({ seconds: Math.max(0, newPosition) }))
       }
     } else {
-      dispatch(previous())
-      setMediaKey((mediaKey) => mediaKey + 1)
+      const shouldGoToPrevious =
+        global.progress?.currentTime < RESTART_THRESHOLD_SEC
+      if (shouldGoToPrevious) {
+        dispatch(previous())
+        setMediaKey((mediaKey) => mediaKey + 1)
+      } else {
+        dispatch(reset({ shouldAutoplay: true }))
+      }
     }
   }, [dispatch, setMediaKey, track])
 

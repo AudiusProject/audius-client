@@ -37,7 +37,7 @@ import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import { updateAndFlattenStems } from 'pages/upload-page/store/utils/stems'
 import { ERROR_PAGE } from 'utils/route'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import { waitForWrite } from 'utils/sagaHelpers'
 import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
 import { watchUploadErrors } from './errorSagas'
@@ -405,7 +405,10 @@ export function* handleUploads({
     const request = {
       id,
       track: value.track,
-      metadata: value.metadata,
+      metadata: {
+        is_playlist_upload: isCollection,
+        ...value.metadata
+      },
       index: value.index,
       artwork: isCollection ? null : value.artwork,
       isCollection,
@@ -707,7 +710,6 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
         const { blockHash, blockNumber, playlistId, error } = yield call(
           audiusBackendInstance.createPlaylist,
           tempPlaylistId,
-          userId,
           collectionMetadata,
           isAlbum,
           trackIds,
@@ -829,7 +831,7 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
 }
 
 function* uploadSingleTrack(track) {
-  yield waitForBackendAndAccount()
+  yield waitForWrite()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const apiClient = yield getContext('apiClient')
   // Need an object to hold phase error info that
@@ -888,7 +890,7 @@ function* uploadSingleTrack(track) {
           throw new Error(error)
         }
 
-        yield waitForBackendAndAccount()
+        yield waitForWrite()
         const userId = yield select(getUserId)
         const handle = yield select(getUserHandle)
         const confirmed = yield call(confirmTransaction, blockHash, blockNumber)
@@ -1093,7 +1095,7 @@ function* uploadMultipleTracks(tracks) {
 }
 
 function* uploadTracksAsync(action) {
-  yield waitForBackendAndAccount()
+  yield waitForWrite()
   const user = yield select(getAccountUser)
   yield put(
     uploadActions.uploadTracksRequested(
