@@ -186,7 +186,6 @@
     "jetifier": "1.6.8",
     "metro-react-native-babel-preset": "0.67.0",
     "patch-package": "6.4.7",
-    "react-devtools-core": "4.14.0",
     "react-test-renderer": "16.9.0",
     "redux-devtools-extension": "2.13.9",
     "replace-in-file": "6.3.5",
