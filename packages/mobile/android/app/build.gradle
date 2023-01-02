@@ -83,6 +83,7 @@ project.ext.react = [
 project.ext.envConfigFiles = [
     release: ".env.prod",
     stagingrelease: ".env.stage",
+    stagingreleasecandidaterelease: ".env.prod",
     releasecandidaterelease: ".env.prod"
 ]
 
@@ -185,6 +186,12 @@ android {
             applicationIdSuffix ".staging"
             manifestPlaceholders = [
                 appIcon: "@mipmap/ic_launcher_staging"
+            ]
+        }
+        stagingReleaseCandidate {
+            applicationIdSuffix ".staging.releasecandidate"
+            manifestPlaceholders = [
+                appIcon: "@mipmap/ic_launcher_staging_releasecandidate"
             ]
         }
     }

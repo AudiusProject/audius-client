@@ -41,6 +41,18 @@ platform :android do
     )
   end
 
+  lane :stagingReleaseCandidate do
+    upload_to_play_store(
+      track: "alpha",
+      package_name: "co.audius.app.staging.releasecandidate",
+      aab: "./app/build/outputs/bundle/stagingRelease/app-staging-releasecandidate-release.aab",
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+
   lane :alpha do
     upload_to_play_store(
       track: "alpha",
