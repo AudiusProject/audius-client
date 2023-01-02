@@ -19,7 +19,7 @@ platform :android do
   desc "Upload a new version to the Google Play"
   lane :releaseCandidate do
     upload_to_play_store(
-      track: "alpha",
+      track: options[:track],
       package_name: "co.audius.app.releasecandidate",
       aab: "./app/build/outputs/bundle/releaseCandidateRelease/app-releaseCandidate-release.aab",
       skip_upload_metadata: true,
@@ -31,7 +31,7 @@ platform :android do
 
   lane :staging do
     upload_to_play_store(
-      track: "alpha",
+      track: options[:track],
       package_name: "co.audius.app.staging",
       aab: "./app/build/outputs/bundle/stagingRelease/app-staging-release.aab",
       skip_upload_metadata: true,
@@ -43,7 +43,7 @@ platform :android do
 
   lane :stagingReleaseCandidate do
     upload_to_play_store(
-      track: "alpha",
+      track: options[:track],
       package_name: "co.audius.app.staging.releasecandidate",
       aab: "./app/build/outputs/bundle/stagingReleaseCandidateRelease/app-staging-releasecandidate-release.aab",
       skip_upload_metadata: true,
@@ -53,9 +53,9 @@ platform :android do
     )
   end
 
-  lane :alpha do
+  lane :prod do
     upload_to_play_store(
-      track: "alpha",
+      track: options[:track],
       aab: "./app/build/outputs/bundle/prodRelease/app-prod-release.aab",
       skip_upload_metadata: true,
       skip_upload_changelogs: true,

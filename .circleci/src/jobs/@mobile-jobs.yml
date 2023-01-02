@@ -134,7 +134,7 @@ mobile-build-upload-staging-android:
         build-directory: 'build-mobile-staging'
         build-type: 'bundleStagingRelease'
         bundle-id: 'co.audius.app.staging'
-        track: 'alpha'
+        track: 'internal'
         remote-directory: 'audius-mobile-staging'
     - when:
         condition:
@@ -153,7 +153,7 @@ mobile-build-upload-staging-releasecandidate-android:
         build-directory: 'build-mobile-staging-releasecandidate'
         build-type: 'bundleStagingReleaseCandidateRelease'
         bundle-id: 'co.audius.app.staging.releasecandidate'
-        track: 'alpha'
+        track: 'internal'
         remote-directory: 'audius-mobile-staging-releasecandidate'
     - mobile-upload-android:
         upload-type: 'stagingReleaseCandidate'
@@ -174,7 +174,7 @@ mobile-build-upload-releasecandidate-android:
         build-directory: 'build-mobile-releasecandidate'
         build-type: 'bundleReleaseCandidateRelease'
         bundle-id: 'co.audius.app.releasecandidate'
-        track: 'alpha'
+        track: 'internal'
         remote-directory: 'audius-mobile-releasecandidate'
     - mobile-upload-android:
         upload-type: 'releaseCandidate'
@@ -202,4 +202,4 @@ mobile-build-upload-production-android:
           matches: { pattern: '^release.*$', value: << pipeline.git.branch >> }
         steps:
           - mobile-upload-android:
-              upload-type: 'alpha'
+              upload-type: 'prod'

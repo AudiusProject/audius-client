@@ -76,7 +76,7 @@ mobile-build-android:
       default: 'co.audius.app'
       type: string
     track:
-      default: 'beta'
+      default: 'alpha'
       type: string
     remote-directory:
       default: 'audius-mobile'
@@ -123,7 +123,7 @@ mobile-build-android:
 mobile-upload-android:
   parameters:
     upload-type:
-      default: 'alpha'
+      default: 'staging'
       type: string
   steps:
     - run:
