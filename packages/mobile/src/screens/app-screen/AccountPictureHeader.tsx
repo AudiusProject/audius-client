@@ -12,6 +12,7 @@ import { useSelector } from 'react-redux'
 import { ProfilePicture } from 'app/components/user'
 import { useRemoteVar } from 'app/hooks/useRemoteConfig'
 import { makeStyles } from 'app/styles'
+import { useDrawerProgress } from '@react-navigation/drawer'
 const { getAccountUser } = accountSelectors
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
@@ -40,16 +41,17 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
 
 type AccountPictureHeaderProps = {
   onPress: () => void
-  drawerProgress: Node<number>
 }
 
 export const AccountPictureHeader = (props: AccountPictureHeaderProps) => {
-  const { onPress, drawerProgress } = props
+  const { onPress } = props
+  const drawerProgress = useDrawerProgress()
   const styles = useStyles()
   const accountUser = useSelector(getAccountUser)
   const challengeRewardIds = useRemoteVar(StringKeys.CHALLENGE_REWARD_IDS)
   const hasClaimableRewards = useAccountHasClaimableRewards(challengeRewardIds)
 
+  // @ts-expect-error type incorrect until we stop using legacy reanimated
   const opacity = Animated.interpolateNode(drawerProgress, {
     inputRange: [0, 1],
     outputRange: [1, 0]
