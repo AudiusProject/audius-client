@@ -9,12 +9,14 @@ import {
   ModalTitle,
   IconHidden,
   ButtonType,
-  Button
+  Button,
+  IconInfo
 } from '@audius/stems'
 import cn from 'classnames'
 
 import { useFlag } from 'hooks/useRemoteConfig'
 import { MouseEvent, useCallback } from 'react'
+import Tooltip from 'components/tooltip/Tooltip'
 
 import Switch from '../switch/Switch'
 
@@ -43,6 +45,7 @@ const messages = {
   showTags: 'Show Tags',
   showShareButton: 'Show Share Button',
   showPlayCount: 'Show Play Count',
+  supportersInfo: 'Supporters are users who have sent you a tip',
   done: "Done"
 }
 
@@ -188,7 +191,16 @@ const SpecialAccessAvailability = ({
       {selected && (
         <div className={styles.availabilityRowSelection}>
           <div>{messages.followersOnly}</div>
-          <div>{messages.supportersOnly}</div>
+          <div>
+            {messages.supportersOnly}
+            <Tooltip
+              text={messages.supportersInfo}
+              mouseEnterDelay={0.1}
+              mount='body'
+            >
+              <IconInfo className={styles.supportersInfo} />
+            </Tooltip>
+        </div>
         </div>
       )}
     </div>
@@ -279,7 +291,7 @@ const TrackAvailabilityModal = ({
   )
 
   let availability = AvailabilityType.PUBLIC
-  if (metadataState.unlisted){
+  if (metadataState.unlisted) {
     availability = AvailabilityType.HIDDEN
   } else if (metadataState.is_premium && metadataState.premium_conditions && 'nft_collection' in metadataState.premium_conditions) {
     availability = AvailabilityType.COLLECTIBLE_GATED
@@ -353,7 +365,7 @@ const TrackAvailabilityModal = ({
             metadataState={metadataState}
             handleSelection={handleSelection}
             updatePremiumContentFields={updatePremiumContentFields}
-            />
+          />
         )}
         {isNFTGateEnabled && (
           <CollectibleGatedAvailability

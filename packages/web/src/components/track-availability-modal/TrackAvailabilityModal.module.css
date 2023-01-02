@@ -126,3 +126,7 @@
 .selected path {
   fill: var(--secondary);
 }
+
+.supportersInfo {
+  margin-left: 8px;
+}
