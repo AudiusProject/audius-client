@@ -524,10 +524,7 @@ export const Lineup = ({
         onScroll={handleScroll}
         ListHeaderComponent={header}
         ListFooterComponent={
-          <>
-            {ListFooterComponent}
-            <View style={{ height: 16 }} />
-          </>
+          lineup.hasMore ? <View style={{ height: 16 }} /> : ListFooterComponent
         }
         ListEmptyComponent={LineupEmptyComponent}
         onEndReached={handleLoadMore}
