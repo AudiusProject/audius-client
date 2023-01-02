@@ -25,7 +25,7 @@ import { useCanConnectNewWallet } from '../useCanConnectNewWallet'
 
 import { EthWalletConnectOption } from './EthWalletConnectOption'
 import { PhantomWalletConnectOption } from './PhantomWalletConnectOption'
-import { SolanaPhoneOption } from './SolanaPhoneOption'
+// import { SolanaPhoneOption } from './SolanaPhoneOption'
 
 const { getError } = tokenDashboardPageSelectors
 
@@ -107,9 +107,9 @@ export const WalletConnectDrawer = () => {
           ) : null}
         </View>
         <View style={styles.walletConnectionList}>
-          {Platform.OS === 'android' && isSolPhoneEnabled ? (
+          {/* {Platform.OS === 'android' && isSolPhoneEnabled ? (
             <SolanaPhoneOption />
-          ) : null}
+          ) : null} */}
           <PhantomWalletConnectOption />
           {supportedWalletServices?.map((walletService: WalletService) => {
             return (
