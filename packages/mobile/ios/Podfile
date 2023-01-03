@@ -3,8 +3,6 @@ install! 'cocoapods', :deterministic_uuids => false
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-production = ENV["PRODUCTION"] == "1"
-
 project 'AudiusReactNative',
 'Staging.Debug' => :debug,
 'Staging.Release' => :release,
@@ -29,7 +27,6 @@ target 'AudiusReactNative' do
 
   use_react_native!(
     :path => config[:reactNativePath],
-    :production => production,
     :hermes_enabled => true,
     :fabric_enabled => flags[:fabric_enabled],
     :flipper_configuration => FlipperConfiguration.enabled,
