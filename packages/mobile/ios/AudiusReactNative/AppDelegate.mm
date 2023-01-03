@@ -64,7 +64,6 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   RCTAppSetupPrepareApp(application);
-  RCTEnableTurboModule(YES);
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
 
@@ -183,7 +182,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 - (std::unique_ptr<facebook::react::JSExecutorFactory>)jsExecutorFactoryForBridge:(RCTBridge *)bridge
 {
   // Add these lines to create a TurboModuleManager
-  if (RCTTurboModuleEnabled()) {
+  if (RCTTurboModuleEnabled()) {  
     _turboModuleManager = [[RCTTurboModuleManager alloc] initWithBridge:bridge
                                                                delegate:self
                                                               jsInvoker:bridge.jsCallInvoker];
