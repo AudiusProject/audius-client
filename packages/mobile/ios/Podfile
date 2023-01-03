@@ -27,11 +27,9 @@ target 'AudiusReactNative' do
 
   # Use env variables to turn it on/off.
   fabric_enabled = ENV['USE_FABRIC']
-  production = ENV['PRODUCTION']
 
   use_react_native!(
     :path => config[:reactNativePath],
-    :production => production,
     :hermes_enabled => true,
     :fabric_enabled => fabric_enabled,
     # Enables Flipper.

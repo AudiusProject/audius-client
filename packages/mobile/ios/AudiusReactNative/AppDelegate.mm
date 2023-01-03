@@ -3,6 +3,7 @@
 
 
 #import <Firebase.h>
+#import <GoogleCast/GoogleCast.h>
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
@@ -103,6 +104,15 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
 
+  NSString *receiverAppID = @"222B31C8";
+  GCKDiscoveryCriteria *criteria = [[GCKDiscoveryCriteria alloc] initWithApplicationID:receiverAppID];
+  GCKCastOptions* options = [[GCKCastOptions alloc] initWithDiscoveryCriteria:criteria];
+  // Allow our app to control chromecast volume
+  options.physicalVolumeButtonsWillControlDeviceVolume = YES;
+  // Prevent backgrounding from suspending sessions
+  options.suspendSessionsWhenBackgrounded = NO;
+  [GCKCastContext setSharedInstanceWithOptions:options];
+
   return YES;
 }
 
@@ -119,7 +129,6 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 - (NSDictionary *)prepareInitialProps
 {
   NSMutableDictionary *initProps = [NSMutableDictionary new];
-  
 #ifdef RCT_NEW_ARCH_ENABLED
   initProps[kRNConcurrentRoot] = @([self concurrentRootEnabled]);
 #endif

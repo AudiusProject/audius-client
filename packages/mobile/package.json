@@ -1,6 +1,6 @@
 {
   "name": "audius-mobile-client",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "private": true,
   "scripts": {
     "jetifier": "jetifier",
@@ -31,14 +31,13 @@
     "typecheck": "tsc",
     "typecheck:watch": "tsc --watch",
     "typecheck:trace": "tsc --generateTrace tsc_trace",
-    "enable-hermes:ios": "node enableHermesiOS.js",
     "disable-hermes:ios": "node disableHermesiOS.js",
     "preinstall": "npm-force-resolutions",
     "postinstall": "patch-package"
   },
   "dependencies": {
     "@amplitude/react-native": "2.6.0",
-    "@audius/common": "1.5.3",
+    "@audius/common": "1.5.4",
     "@audius/sdk": "1.0.27",
     "@fingerprintjs/fingerprintjs-pro-react-native": "2.0.0-test.2",
     "@gorhom/portal": "1.0.9",
@@ -67,7 +66,7 @@
     "@svgr/core": "5.5.0",
     "@walletconnect/react-native-dapp": "1.8.0",
     "array.prototype.flat": "1.2.5",
-    "audius-client": "1.5.3",
+    "audius-client": "1.5.4",
     "big-integer": "1.6.51",
     "bn.js": "5.2.0",
     "bs58": "5.0.0",
@@ -182,7 +181,6 @@
     "jetifier": "1.6.8",
     "metro-react-native-babel-preset": "0.72.3",
     "patch-package": "6.4.7",
-    "react-devtools-core": "4.14.0",
     "react-test-renderer": "16.9.0",
     "redux-devtools-extension": "2.13.9",
     "replace-in-file": "6.3.5",
