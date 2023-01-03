@@ -17,7 +17,7 @@ default_platform(:android)
 
 platform :android do
   desc "Upload a new version to the Google Play"
-  lane :releaseCandidate do
+  lane :releaseCandidate do |options|
     upload_to_play_store(
       track: options[:track],
       package_name: "co.audius.app.releasecandidate",
@@ -29,7 +29,7 @@ platform :android do
     )
   end
 
-  lane :staging do
+  lane :staging do |options|
     upload_to_play_store(
       track: options[:track],
       package_name: "co.audius.app.staging",
@@ -41,7 +41,7 @@ platform :android do
     )
   end
 
-  lane :stagingReleaseCandidate do
+  lane :stagingReleaseCandidate do |options|
     upload_to_play_store(
       track: options[:track],
       package_name: "co.audius.app.staging.releasecandidate",
@@ -53,7 +53,7 @@ platform :android do
     )
   end
 
-  lane :prod do
+  lane :prod do |options|
     upload_to_play_store(
       track: options[:track],
       aab: "./app/build/outputs/bundle/prodRelease/app-prod-release.aab",
