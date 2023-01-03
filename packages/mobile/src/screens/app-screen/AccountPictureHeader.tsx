@@ -51,8 +51,6 @@ export const AccountPictureHeader = (props: AccountPictureHeaderProps) => {
   const challengeRewardIds = useRemoteVar(StringKeys.CHALLENGE_REWARD_IDS)
   const hasClaimableRewards = useAccountHasClaimableRewards(challengeRewardIds)
 
-<<<<<<< HEAD
-=======
   const opacity = Animated.interpolateNode(
     drawerProgress as Adaptable<number>,
     {
@@ -61,9 +59,8 @@ export const AccountPictureHeader = (props: AccountPictureHeaderProps) => {
     }
   )
 
->>>>>>> main
   return (
-    <Animated.View>
+    <Animated.View style={{ opacity }}>
       <TouchableOpacity onPress={onPress}>
         <ProfilePicture
           profile={accountUser}
