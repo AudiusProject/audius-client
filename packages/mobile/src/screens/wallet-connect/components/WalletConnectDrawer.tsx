@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { tokenDashboardPageSelectors } from '@audius/common'
+import { FeatureFlags, tokenDashboardPageSelectors } from '@audius/common'
 import type {
   RenderQrcodeModalProps,
   WalletService
@@ -9,14 +9,14 @@ import {
   useWalletConnect,
   useWalletConnectContext
 } from '@walletconnect/react-native-dapp'
-import { View } from 'react-native'
+import { Platform, View } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import { Text } from 'app/components/core'
 import { NativeDrawer } from 'app/components/drawer'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { useDrawer } from 'app/hooks/useDrawer'
-// import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import type { AppState } from 'app/store'
 import { getData } from 'app/store/drawers/selectors'
 import { makeStyles } from 'app/styles'
@@ -25,7 +25,7 @@ import { useCanConnectNewWallet } from '../useCanConnectNewWallet'
 
 import { EthWalletConnectOption } from './EthWalletConnectOption'
 import { PhantomWalletConnectOption } from './PhantomWalletConnectOption'
-// import { SolanaPhoneOption } from './SolanaPhoneOption'
+import { SolanaPhoneOption } from './SolanaPhoneOption'
 
 const { getError } = tokenDashboardPageSelectors
 
@@ -74,9 +74,9 @@ export const WalletConnectDrawer = () => {
   const styles = useStyles()
   const { walletServices } = useWalletConnectContext()
   const canConnectNewWallet = useCanConnectNewWallet()
-  // const { isEnabled: isSolPhoneEnabled } = useFeatureFlag(
-  //   FeatureFlags.SOLANA_PHONE_WALLET_CONNECT
-  // )
+  const { isEnabled: isSolPhoneEnabled } = useFeatureFlag(
+    FeatureFlags.SOLANA_PHONE_WALLET_CONNECT
+  )
 
   const supportedWalletServices = walletServices?.filter((service) =>
     SUPPORTED_SERVICES.has(service.name)
@@ -109,9 +109,9 @@ export const WalletConnectDrawer = () => {
           ) : null}
         </View>
         <View style={styles.walletConnectionList}>
-          {/* {Platform.OS === 'android' && isSolPhoneEnabled ? (
+          {Platform.OS === 'android' && isSolPhoneEnabled ? (
             <SolanaPhoneOption />
-          ) : null} */}
+          ) : null}
           <PhantomWalletConnectOption />
           {supportedWalletServices?.map((walletService: WalletService) => {
             return (
