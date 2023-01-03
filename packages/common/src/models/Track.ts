@@ -59,11 +59,14 @@ type PremiumConditionsEthNFTCollection = {
   chain: Chain.Eth
   standard: TokenStandard
   address: string
+  name: string
+  slug: string
 }
 
 type PremiumConditionsSolNFTCollection = {
   chain: Chain.Sol
   address: string
+  name: string
 }
 
 export type PremiumConditions = {
