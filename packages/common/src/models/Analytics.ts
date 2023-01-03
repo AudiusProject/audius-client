@@ -30,6 +30,10 @@ export enum Name {
   CREATE_ACCOUNT_START_INSTAGRAM = 'Create Account: Start Instagram',
   // When the user continues past the "instagram connection page"
   CREATE_ACCOUNT_COMPLETE_INSTAGRAM = 'Create Account: Complete Instagram',
+  // When the user starts integrating with tiktok
+  CREATE_ACCOUNT_START_TIKTOK = 'Create Account: Start TikTok',
+  // When the user continues past the "tiktok connection page"
+  CREATE_ACCOUNT_COMPLETE_TIKTOK = 'Create Account: Complete TikTok',
   // When the user continues past the "profile info page"
   CREATE_ACCOUNT_COMPLETE_PROFILE = 'Create Account: Complete Profile',
   // When the user continues past the follow page
@@ -54,6 +58,8 @@ export enum Name {
   SETTINGS_COMPLETE_TWITTER_OAUTH = 'Settings: Complete Twitter OAuth',
   SETTINGS_START_INSTAGRAM_OAUTH = 'Settings: Start Instagram OAuth',
   SETTINGS_COMPLETE_INSTAGRAM_OAUTH = 'Settings: Complete Instagram OAuth',
+  SETTINGS_START_TIKTOK_OAUTH = 'Settings: Start TikTok OAuth',
+  SETTINGS_COMPLETE_TIKTOK_OAUTH = 'Settings: Complete TikTok OAuth',
   SETTINGS_RESEND_ACCOUNT_RECOVERY = 'Settings: Resend Account Recovery',
   SETTINGS_START_CHANGE_PASSWORD = 'Settings: Start Change Password',
   SETTINGS_COMPLETE_CHANGE_PASSWORD = 'Settings: Complete Change Password',
@@ -283,7 +289,12 @@ export enum Name {
   // Buy Audio Recovery
   BUY_AUDIO_RECOVERY_OPENED = 'Buy Audio Recovery: Opened',
   BUY_AUDIO_RECOVERY_SUCCESS = 'Buy Audio Recovery: Success',
-  BUY_AUDIO_RECOVERY_FAILURE = 'Buy Audio Recovery: Failure'
+  BUY_AUDIO_RECOVERY_FAILURE = 'Buy Audio Recovery: Failure',
+
+  // Rate & Review CTA
+  RATE_CTA_DISPLAYED = 'Rate CTA: Displayed',
+  RATE_CTA_RESPONSE_YES = 'Rate CTA: User Responded Yes',
+  RATE_CTA_RESPONSE_NO = 'Rate CTA: User Responded No'
 }
 
 type PageView = {
@@ -1342,6 +1353,18 @@ type BuyAudioRecoveryFailure = {
   error: string
 }
 
+type RateCtaDisplayed = {
+  eventName: Name.RATE_CTA_DISPLAYED
+}
+
+type RateCtaResponseNo = {
+  eventName: Name.RATE_CTA_RESPONSE_NO
+}
+
+type RateCtaResponseYes = {
+  eventName: Name.RATE_CTA_RESPONSE_YES
+}
+
 type RewardsClaimStartCognitoFlow = {
   eventName: Name.REWARDS_CLAIM_START_COGNITO_FLOW
   handle: string | null
@@ -1532,5 +1555,8 @@ export type AllTrackingEvents =
   | BuyAudioRecoveryOpened
   | BuyAudioRecoverySuccess
   | BuyAudioRecoveryFailure
+  | RateCtaDisplayed
+  | RateCtaResponseNo
+  | RateCtaResponseYes
   | RewardsClaimStartCognitoFlow
   | RewardsClaimFinishCognitoFlow

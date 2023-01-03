@@ -15,7 +15,10 @@ import { DownloadToggle } from 'app/components/offline-downloads'
 import { TopTabNavigator } from 'app/components/top-tab-bar'
 import { useAppTabScreen } from 'app/hooks/useAppTabScreen'
 import { useFetchAllFavoritedTracks } from 'app/hooks/useFetchAllFavoritedTracks'
-import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
+import {
+  useIsOfflineModeEnabled,
+  useReadOfflineOverride
+} from 'app/hooks/useIsOfflineModeEnabled'
 import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 
 import { AlbumsTab } from './AlbumsTab'
@@ -52,6 +55,8 @@ export const FavoritesScreen = () => {
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
   const { value: allFavoritedTrackIds } = useFetchAllFavoritedTracks()
+
+  useReadOfflineOverride()
 
   useEffectOnce(() => {
     dispatch(fetchSavedPlaylists())

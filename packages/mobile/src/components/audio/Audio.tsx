@@ -13,8 +13,10 @@ import {
   RepeatMode,
   FeatureFlags,
   encodeHashId,
-  Genre
+  Genre,
+  tracksSocialActions
 } from '@audius/common'
+import queue from 'react-native-job-queue'
 import TrackPlayer, {
   AppKilledPlaybackBehavior,
   Capability,
@@ -28,22 +30,22 @@ import TrackPlayer, {
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffectOnce } from 'react-use'
 
-import {
-  DEFAULT_IMAGE_URL,
-  useTrackImage
-} from 'app/components/image/TrackImage'
+import { DEFAULT_IMAGE_URL } from 'app/components/image/TrackImage'
+import { getImageSourceOptimistic } from 'app/hooks/useContentNodeImage'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useOfflineTrackUri } from 'app/hooks/useOfflineTrackUri'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { apiClient } from 'app/services/audius-api-client'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
+import type { PlayCountWorkerPayload } from 'app/services/offline-downloader/workers/playCounterWorker'
+import { PLAY_COUNTER_WORKER } from 'app/services/offline-downloader/workers/playCounterWorker'
 
 import { useChromecast } from './GoogleCast'
-import { logListen } from './listens'
 
 const { getUser } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
 const { getPlaying, getSeek, getCurrentTrack, getCounter } = playerSelectors
+const { recordListen } = tracksSocialActions
 const {
   getIndex,
   getOrder,
@@ -136,7 +138,6 @@ export const Audio = () => {
   const trackOwner = useSelector((state) =>
     getUser(state, { id: track?.owner_id })
   )
-  const trackImageSource = useTrackImage(track, trackOwner ?? undefined)
   const currentUserId = useSelector(getUserId)
   const isReachable = useSelector(getIsReachable)
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
@@ -157,10 +158,6 @@ export const Audio = () => {
   )
   const nextTrackOwner = useSelector((state) =>
     getUser(state, { id: nextTrack?.owner_id })
-  )
-  const nextTrackImageSource = useTrackImage(
-    nextTrack,
-    nextTrackOwner ?? undefined
   )
 
   const { isCasting } = useChromecast()
@@ -252,13 +249,19 @@ export const Audio = () => {
 
     // TODO: Hacky solution to playing next. This should be changed when we update to use track player's queue properly
     if (event.type === Event.PlaybackTrackChanged) {
+      const queue = await TrackPlayer.getQueue()
       const currentTrackIndex = await TrackPlayer.getCurrentTrack()
-      if (currentTrackIndex && currentTrackIndex > 0) await autoPlayNext()
+      // If we are at the last track in the queue, we should auto play the next track
+      if (currentTrackIndex && currentTrackIndex === queue.length - 1) {
+        await autoPlayNext()
+      }
     }
   })
 
+  const trackId = track?.track_id
+
   const onProgress = useCallback(async () => {
-    if (!track || !currentUserId) return
+    if (!trackId || !currentUserId) return
     if (progressInvalidator.current) {
       progressInvalidator.current = false
       return
@@ -267,21 +270,15 @@ export const Audio = () => {
     const duration = await TrackPlayer.getDuration()
     const position = await TrackPlayer.getPosition()
 
-    // Replicates logic in dapp.
-    // TODO: REMOVE THIS ONCE BACKEND SUPPORTS THIS FEATURE
-    if (
-      position > RECORD_LISTEN_SECONDS &&
-      (track.owner_id !== currentUserId || track.play_count < 10) &&
-      !listenLoggedForTrack &&
-      // TODO: log listens for offline plays when reconnected
-      (!isOfflineModeEnabled || isReachable)
-    ) {
-      // Debounce logging a listen, update the state variable appropriately onSuccess and onFailure
+    if (position > RECORD_LISTEN_SECONDS && !listenLoggedForTrack) {
       setListenLoggedForTrack(true)
-      logListen(track.track_id, currentUserId, () =>
-        setListenLoggedForTrack(false)
-      )
+      if (isReachable) {
+        dispatch(recordListen(trackId))
+      } else if (isOfflineModeEnabled && !isReachable) {
+        queue.addJob<PlayCountWorkerPayload>(PLAY_COUNTER_WORKER, { trackId })
+      }
     }
+
     if (!isCasting) {
       // If we aren't casting, update the progress
       global.progress = { duration, currentTime: position }
@@ -293,10 +290,11 @@ export const Audio = () => {
   }, [
     currentUserId,
     isCasting,
-    isOfflineModeEnabled,
     isReachable,
     listenLoggedForTrack,
-    track
+    trackId,
+    dispatch,
+    isOfflineModeEnabled
   ])
 
   useEffect(() => {
@@ -328,14 +326,26 @@ export const Audio = () => {
     }
   }, [seek, setSeekPosition])
 
+  // Keep track of the track index the last time counter was updated
+  const counterTrackIndex = useRef<number | null>(null)
+
+  const resetPositionForSameTrack = useCallback(() => {
+    // NOTE: Make sure that we only set seek position to 0 when we are restarting a track
+    const trackIndex = queueShuffle ? queueShuffleIndex : queueIndex
+    if (trackIndex === counterTrackIndex.current) setSeekPosition(0)
+    counterTrackIndex.current = trackIndex
+  }, [queueIndex, queueShuffle, queueShuffleIndex, setSeekPosition])
+
+  const counterRef = useRef<number | null>(null)
+
   // Restart (counter) handler
   useEffect(() => {
-    setSeekPosition(0)
-  }, [counter, setSeekPosition])
-
-  useEffect(() => {
+    if (counter !== counterRef.current) {
+      counterRef.current = counter
+      resetPositionForSameTrack()
+    }
     setListenLoggedForTrack(false)
-  }, [track, setListenLoggedForTrack])
+  }, [counter, resetPositionForSameTrack])
 
   const { loading: loadingOfflineTrack, value: offlineTrackUri } =
     useOfflineTrackUri(track?.track_id.toString())
@@ -440,15 +450,27 @@ export const Audio = () => {
       loadingOfflineTrack ||
       loadingNextOfflineTrack ||
       currentUriRef.current === newUri
-    )
+    ) {
       return
+    }
 
     currentUriRef.current = newUri
-    const imageUrl = trackImageSource?.source?.[2]?.uri ?? DEFAULT_IMAGE_URL
-    const nextImageUrl =
-      nextTrackImageSource?.source?.[2]?.uri ?? DEFAULT_IMAGE_URL
+    const imageUrl =
+      getImageSourceOptimistic({
+        cid: track ? track.cover_art_sizes || track.cover_art : null,
+        user: trackOwner
+        // localSource
+      })?.[2]?.uri ?? DEFAULT_IMAGE_URL
 
-    await TrackPlayer.reset()
+    const nextImageUrl =
+      getImageSourceOptimistic({
+        cid: nextTrack
+          ? nextTrack.cover_art_sizes || nextTrack.cover_art
+          : null,
+        user: nextTrackOwner
+        // localSource
+      })?.[2]?.uri ?? DEFAULT_IMAGE_URL
+
     // NOTE: Adding two tracks into the queue to make sure that android has a next button on the lock screen and notification controls
     // This should be removed when the track player queue is used properly
     await TrackPlayer.add([
@@ -474,6 +496,13 @@ export const Audio = () => {
       }
     ])
 
+    // NOTE: Skipping to the proper track index within the queue
+    // Should be the second to last track in the queue
+    // This is a hacky solution to fix background reset calls breaking the app.
+    // Plz remove when we update track player to use the queue properly
+    const queue = await TrackPlayer.getQueue()
+    await TrackPlayer.skip(queue.length - 2)
+
     if (playing) await TrackPlayer.play()
 
     const isPodcast = track?.genre === Genre.PODCASTS
@@ -486,13 +515,11 @@ export const Audio = () => {
     loadingOfflineTrack,
     nextSource,
     nextTrack,
-    nextTrackImageSource?.source,
-    nextTrackOwner?.name,
+    nextTrackOwner,
     playing,
     source,
     track,
-    trackImageSource?.source,
-    trackOwner?.name
+    trackOwner
   ])
 
   const handleTogglePlay = useCallback(

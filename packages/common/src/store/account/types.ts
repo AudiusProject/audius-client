@@ -7,15 +7,14 @@ export type AccountCollection = {
   user: { id: ID; handle: string }
 }
 
-export type TwitterAccountPayload = {
+type AccountPayload<Profile> = {
   uuid: string
-  profile: TwitterProfile
+  profile: Profile
 }
 
-export type InstagramAccountPayload = {
-  uuid: string
-  profile: InstagramProfile
-}
+export type TwitterAccountPayload = AccountPayload<TwitterProfile>
+export type InstagramAccountPayload = AccountPayload<InstagramProfile>
+export type TikTokAccountPayload = AccountPayload<TikTokProfile>
 
 export type InstagramProfile = {
   id: string
@@ -43,14 +42,13 @@ export type TwitterProfile = {
 
 export type TikTokProfile = {
   open_id: string
+  username: string
   display_name: string
-  avatar_url?: string
   avatar_large_url?: string
-  profile_deep_link: string
-  is_verified: string
+  is_verified: boolean
 }
 
-export type AccountImage = { url: string; file: any }
+export type AccountImage = { url: string; file: any } | undefined
 
 export type NativeAccountImage = {
   uri: string

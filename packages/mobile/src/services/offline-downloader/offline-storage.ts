@@ -215,22 +215,27 @@ export const verifyTrack = async (
     !audioExists && console.warn(`Missing audio for ${trackId}`)
     !jsonExists && console.warn(`Missing json for ${trackId}`)
     !artExists?.length && console.warn(`Missing art for ${trackId}`)
+    !audioExists && alert(`Missing audio for ${trackId}`)
+    !jsonExists && alert(`Missing json for ${trackId}`)
+    !artExists?.length && alert(`Missing art for ${trackId}`)
   }
 
   return booleanResults.every((result) => result)
 }
 
 export const purgeAllDownloads = async (withLogs?: boolean) => {
-  if (withLogs) {
-    console.log(`Before purge:`)
+  if (await exists(downloadsRoot)) {
+    if (withLogs) {
+      console.log(`Before purge:`)
+    }
+    await readDirRec(downloadsRoot)
+    await RNFS.unlink(downloadsRoot)
+    await RNFS.mkdir(downloadsRoot)
+    if (withLogs) {
+      console.log(`After purge:`)
+    }
+    await readDirRec(downloadsRoot)
   }
-  await readDirRec(downloadsRoot)
-  await RNFS.unlink(downloadsRoot)
-  await RNFS.mkdir(downloadsRoot)
-  if (withLogs) {
-    console.log(`After purge:`)
-  }
-  await readDirRec(downloadsRoot)
 }
 
 export const purgeDownloadedTrack = async (trackId: string) => {

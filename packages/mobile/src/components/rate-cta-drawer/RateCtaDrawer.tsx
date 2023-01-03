@@ -1,3 +1,4 @@
+import { Name } from '@audius/common'
 import { View } from 'react-native'
 import InAppReview from 'react-native-in-app-review'
 
@@ -6,11 +7,11 @@ import IconThumbsDown from 'app/assets/images/iconThumbsDown.svg'
 import IconThumbsUp from 'app/assets/images/iconThumbsUp.svg'
 import { Button, Text } from 'app/components/core'
 import { NativeDrawer } from 'app/components/drawer'
+import { RATE_CTA_STORAGE_KEY } from 'app/constants/storage-keys'
 import { useAsyncStorage } from 'app/hooks/useAsyncStorage'
+import { make, track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
-
-import { RATE_CTA_STORAGE_KEY } from './constants'
 
 const DRAWER_NAME = 'RateCallToAction'
 
@@ -52,6 +53,9 @@ const useStyles = makeStyles(({ palette, typography, spacing }) => ({
     width: 18,
     marginRight: spacing(2)
   },
+  buttonText: {
+    fontSize: typography.fontSize.large
+  },
   text: {
     textAlign: 'center',
     fontSize: typography.fontSize.large
@@ -73,6 +77,7 @@ export const RateCtaDrawer = () => {
       InAppReview.RequestInAppReview()
         .then((hasFlowFinishedSuccessfully) => {
           setUserRateResponse('YES')
+          track(make({ eventName: Name.RATE_CTA_RESPONSE_YES }))
         })
         .catch((error) => {
           console.log(error)
@@ -81,6 +86,7 @@ export const RateCtaDrawer = () => {
   }
 
   const handleReviewDeny = () => {
+    track(make({ eventName: Name.RATE_CTA_RESPONSE_NO }))
     setUserRateResponse('NO')
   }
 
@@ -117,7 +123,11 @@ export const RateCtaDrawer = () => {
               icon={IconThumbsUp}
               iconPosition='left'
               fullWidth
-              styles={{ root: styles.buttonRoot, icon: styles.buttonIcon }}
+              styles={{
+                root: styles.buttonRoot,
+                icon: styles.buttonIcon,
+                text: styles.buttonText
+              }}
               variant='common'
               onPress={handleReviewConfirm}
             />
@@ -126,7 +136,11 @@ export const RateCtaDrawer = () => {
               icon={IconThumbsDown}
               iconPosition='left'
               fullWidth
-              styles={{ root: styles.buttonRoot, icon: styles.buttonIcon }}
+              styles={{
+                root: styles.buttonRoot,
+                icon: styles.buttonIcon,
+                text: styles.buttonText
+              }}
               variant='common'
               onPress={handleReviewDeny}
             />

@@ -53,12 +53,11 @@ export const TrackScreen = () => {
   const { params } = useRoute<'Track'>()
   const dispatch = useDispatch()
 
-  // params is incorrectly typed and can sometimes be undefined
   const { searchTrack, id, canBeUnlisted = true, handle, slug } = params ?? {}
 
   const cachedTrack = useSelector((state) => getTrack(state, params))
 
-  const track = cachedTrack ?? searchTrack
+  const track = cachedTrack?.track_id ? cachedTrack : searchTrack
 
   const cachedUser = useSelector((state) =>
     getUser(state, { id: track?.owner_id })

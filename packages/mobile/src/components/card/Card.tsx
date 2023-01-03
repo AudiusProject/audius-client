@@ -1,11 +1,14 @@
-import type { ReactNode } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 
 import type { User } from '@audius/common'
-import type { StyleProp, ViewStyle } from 'react-native'
+import type { StyleProp, TextStyle, ViewStyle } from 'react-native'
 import { Text, View } from 'react-native'
+import type { LinearGradientProps } from 'react-native-linear-gradient'
 
+import type { TileProps } from 'app/components/core'
 import { Tile } from 'app/components/core'
 import UserBadges from 'app/components/user-badges/UserBadges'
+import type { StylesProp } from 'app/styles'
 import { flexRowCentered, makeStyles } from 'app/styles'
 
 import { DownloadStatusIndicator } from '../offline-downloads'
@@ -51,16 +54,30 @@ const useStyles = makeStyles(({ palette, typography, spacing }) => ({
   }
 }))
 
-export type CardProps = {
+type BaseCardProps = {
   id?: string
   onPress: () => void
   primaryText: string
   renderImage: () => ReactNode
   secondaryText?: string
+  TileProps?: Omit<TileProps<ComponentType<LinearGradientProps>>, 'children'>
   style?: StyleProp<ViewStyle>
-  type?: CardType
+  styles?: StylesProp<{
+    primaryText: TextStyle
+    secondaryText: TextStyle
+  }>
+}
+
+type ProfileCardProps = {
+  type: 'user'
   user: User
 }
+
+type CollectionCardProps = {
+  type: 'collection'
+}
+
+export type CardProps = BaseCardProps & (ProfileCardProps | CollectionCardProps)
 
 export const Card = (props: CardProps) => {
   const {
@@ -70,8 +87,8 @@ export const Card = (props: CardProps) => {
     renderImage,
     secondaryText,
     style,
-    type = 'user',
-    user
+    styles: stylesProp,
+    TileProps = {}
   } = props
 
   const styles = useStyles()
@@ -80,24 +97,31 @@ export const Card = (props: CardProps) => {
     <Tile
       onPress={onPress}
       styles={{ root: style, content: styles.cardContent }}
+      {...TileProps}
     >
       <View style={styles.imgContainer}>
-        <View style={[styles.cardImg, type === 'user' && styles.userImg]}>
+        <View style={[styles.cardImg, props.type === 'user' && styles.userImg]}>
           {renderImage()}
         </View>
       </View>
       <View style={styles.textContainer}>
-        <Text numberOfLines={1} style={styles.primaryText}>
+        <Text
+          numberOfLines={1}
+          style={[styles.primaryText, stylesProp?.primaryText]}
+        >
           {primaryText}
-          {type === 'user' ? (
-            <UserBadges user={user} badgeSize={12} hideName />
+          {props.type === 'user' ? (
+            <UserBadges user={props.user} badgeSize={12} hideName />
           ) : null}
         </Text>
         <View style={styles.secondaryTextContainer}>
-          <Text numberOfLines={1} style={styles.secondaryText}>
+          <Text
+            numberOfLines={1}
+            style={[styles.secondaryText, stylesProp?.secondaryText]}
+          >
             {secondaryText}
           </Text>
-          {type === 'collection' ? (
+          {props.type === 'collection' ? (
             <DownloadStatusIndicator size={18} collectionId={id} />
           ) : null}
         </View>

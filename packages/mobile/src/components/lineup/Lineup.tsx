@@ -228,6 +228,7 @@ export const Lineup = ({
   includeLineupStatus,
   limit = Infinity,
   extraFetchOptions,
+  ListFooterComponent,
   ...listProps
 }: LineupProps) => {
   const showTip = useSelector(getShowTip)
@@ -252,14 +253,6 @@ export const Lineup = ({
   }, [status])
 
   const refresh = refreshProp ?? handleRefresh
-
-  useScrollToTop(() => {
-    ref.current?.scrollToLocation({
-      sectionIndex: 0,
-      itemIndex: 0,
-      animated: true
-    })
-  }, disableTopTabScroll)
 
   const handleInView = useCallback(() => {
     dispatch(actions.setInView(true))
@@ -484,6 +477,22 @@ export const Lineup = ({
     showTip
   ])
 
+  const areSectionsEmpty = sections.every(
+    (section) => section.data.length === 0
+  )
+
+  const scrollToTop = useCallback(() => {
+    if (!areSectionsEmpty) {
+      ref.current?.scrollToLocation({
+        sectionIndex: 0,
+        itemIndex: 0,
+        animated: true
+      })
+    }
+  }, [areSectionsEmpty])
+
+  useScrollToTop(scrollToTop, disableTopTabScroll)
+
   const handleScroll = useCallback(
     ({ nativeEvent }) => {
       const { layoutMeasurement, contentOffset, contentSize } = nativeEvent
@@ -514,7 +523,9 @@ export const Lineup = ({
         ref={ref}
         onScroll={handleScroll}
         ListHeaderComponent={header}
-        ListFooterComponent={<View style={{ height: 16 }} />}
+        ListFooterComponent={
+          lineup.hasMore ? <View style={{ height: 16 }} /> : ListFooterComponent
+        }
         ListEmptyComponent={LineupEmptyComponent}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={LOAD_MORE_THRESHOLD}

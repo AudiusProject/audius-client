@@ -2,7 +2,6 @@ import type {
   Collection,
   CommonState,
   DownloadReason,
-  UserTrackMetadata,
   UserCollectionMetadata
 } from '@audius/common'
 import {
@@ -23,8 +22,6 @@ import { isAvailableForPlay } from 'app/utils/trackUtils'
 
 import { apiClient } from '../audius-api-client'
 
-import type { TrackDownloadWorkerPayload } from './offline-download-queue'
-import { TRACK_DOWNLOAD_WORKER } from './offline-download-queue'
 import {
   batchDownloadTrack,
   batchRemoveTrackDownload,
@@ -35,6 +32,8 @@ import {
   removeCollectionDownload
 } from './offline-downloader'
 import { purgeDownloadedTrack, writeTrackJson } from './offline-storage'
+import type { TrackDownloadWorkerPayload } from './workers/trackDownloadWorker'
+import { TRACK_DOWNLOAD_WORKER } from './workers/trackDownloadWorker'
 
 const { getCollections } = cacheCollectionsSelectors
 const { getTracks } = cacheTracksSelectors
@@ -223,10 +222,12 @@ const syncStaleTracks = () => {
     .map(([id, track]) => track)
 
   staleCachedTracks.forEach(async (staleTrack) => {
-    const updatedTrack: UserTrackMetadata = await apiClient.getTrack({
+    const updatedTrack = await apiClient.getTrack({
       id: staleTrack.track_id,
       currentUserId
     })
+
+    if (!updatedTrack) return
 
     // If track should not be available
     if (!isAvailableForPlay(updatedTrack, currentUserId)) {
