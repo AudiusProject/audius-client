@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { FeatureFlags, tokenDashboardPageSelectors } from '@audius/common'
+import { tokenDashboardPageSelectors } from '@audius/common'
 import type {
   RenderQrcodeModalProps,
   WalletService
@@ -9,14 +9,14 @@ import {
   useWalletConnect,
   useWalletConnectContext
 } from '@walletconnect/react-native-dapp'
-import { Platform, View } from 'react-native'
+import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import { Text } from 'app/components/core'
 import { NativeDrawer } from 'app/components/drawer'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { useDrawer } from 'app/hooks/useDrawer'
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+// import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import type { AppState } from 'app/store'
 import { getData } from 'app/store/drawers/selectors'
 import { makeStyles } from 'app/styles'
@@ -74,9 +74,9 @@ export const WalletConnectDrawer = () => {
   const styles = useStyles()
   const { walletServices } = useWalletConnectContext()
   const canConnectNewWallet = useCanConnectNewWallet()
-  const { isEnabled: isSolPhoneEnabled } = useFeatureFlag(
-    FeatureFlags.SOLANA_PHONE_WALLET_CONNECT
-  )
+  // const { isEnabled: isSolPhoneEnabled } = useFeatureFlag(
+  //   FeatureFlags.SOLANA_PHONE_WALLET_CONNECT
+  // )
 
   const supportedWalletServices = walletServices?.filter((service) =>
     SUPPORTED_SERVICES.has(service.name)
