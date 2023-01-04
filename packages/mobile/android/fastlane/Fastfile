@@ -45,7 +45,7 @@ platform :android do
     upload_to_play_store(
       track: options[:track],
       package_name: "co.audius.app.staging.releasecandidate",
-      aab: "./app/build/outputs/bundle/stagingReleaseCandidateRelease/app-staging-releaseCandidate-release.aab",
+      aab: "./app/build/outputs/bundle/stagingReleaseCandidateRelease/app-stagingReleaseCandidate-release.aab",
       skip_upload_metadata: true,
       skip_upload_changelogs: true,
       skip_upload_images: true,
