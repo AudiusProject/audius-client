@@ -1,6 +1,9 @@
+import { EventEmitter } from 'events'
+
 import { StringKeys, IntKeys } from '@audius/common'
 import { keccak_256 } from '@noble/hashes/sha3'
 import * as secp from '@noble/secp256k1'
+import Config from 'react-native-config'
 
 import { sdk } from '@audius/sdk'
 
@@ -25,11 +28,21 @@ const discoveryNodeBlockList = getBlockList(
 )
 let inProgress = false
 const SDK_LOADED_EVENT_NAME = 'AUDIUS_SDK_LOADED'
-let sdkInstance: ReturnType<typeof sdk>
+const sdkEventEmitter = new EventEmitter()
+let sdkInstance: any // ReturnType<typeof sdk>
 
 const initSdk = async () => {
   inProgress = true
   await waitForRemoteConfig()
+  const ethWeb3Config = {
+    tokenAddress: Config.ETH_TOKEN_ADDRESS ?? '',
+    registryAddress: Config.ETH_REGISTRY_ADDRESS ?? '',
+    providers: (Config.ETH_PROVIDER_URL || '').split(','),
+    ownerWallet: Config.ETH_OWNER_WALLET,
+    claimDistributionContractAddress:
+      Config.CLAIM_DISTRIBUTION_CONTRACT_ADDRESS ?? '',
+    wormholeContractAddress: Config.WORMHOLE_ADDRESS ?? ''
+  }
   const audiusSdk = sdk({
     appName: 'audius-mobile-client',
     discoveryProviderConfig: {
@@ -49,23 +62,15 @@ const initSdk = async () => {
         getRemoteVar(IntKeys.DISCOVERY_NODE_MAX_BLOCK_DIFF) ?? undefined
     },
     ethContractsConfig: {
-      tokenContractAddress: process.env.REACT_APP_ETH_TOKEN_ADDRESS ?? '',
-      registryAddress: process.env.REACT_APP_ETH_REGISTRY_ADDRESS ?? '',
+      tokenContractAddress: Config.ETH_TOKEN_ADDRESS ?? '',
+      registryAddress: Config.ETH_REGISTRY_ADDRESS ?? '',
       claimDistributionContractAddress:
-        process.env.REACT_APP_CLAIM_DISTRIBUTION_CONTRACT_ADDRESS ?? '',
-      wormholeContractAddress: process.env.REACT_APP_WORMHOLE_ADDRESS ?? ''
+        Config.CLAIM_DISTRIBUTION_CONTRACT_ADDRESS ?? '',
+      wormholeContractAddress: Config.WORMHOLE_ADDRESS ?? ''
     },
-    ethWeb3Config: {
-      tokenAddress: process.env.REACT_APP_ETH_TOKEN_ADDRESS ?? '',
-      registryAddress: process.env.REACT_APP_ETH_REGISTRY_ADDRESS ?? '',
-      providers: (process.env.REACT_APP_ETH_PROVIDER_URL || '').split(','),
-      ownerWallet: process.env.REACT_APP_ETH_OWNER_WALLET,
-      claimDistributionContractAddress:
-        process.env.REACT_APP_CLAIM_DISTRIBUTION_CONTRACT_ADDRESS ?? '',
-      wormholeContractAddress: process.env.REACT_APP_WORMHOLE_ADDRESS ?? ''
-    },
+    ethWeb3Config,
     identityServiceConfig: {
-      identityServiceEndpoint: process.env.REACT_APP_IDENTITY_SERVICE!
+      identityServiceEndpoint: Config.IDENTITY_SERVICE!
     },
     walletApi: {
       sign: async (data: string) => {
@@ -91,17 +96,22 @@ const initSdk = async () => {
   })
   sdkInstance = audiusSdk
   inProgress = false
-  window.dispatchEvent(new CustomEvent(SDK_LOADED_EVENT_NAME))
+  sdkEventEmitter.emit(SDK_LOADED_EVENT_NAME)
   return audiusSdk
 }
 
 export const audiusSdk = async () => {
   if (inProgress) {
+    console.log('SDK in progress...')
     await new Promise((resolve) => {
-      window.addEventListener(SDK_LOADED_EVENT_NAME, resolve)
+      sdkEventEmitter.addListener(SDK_LOADED_EVENT_NAME, resolve)
     })
+    console.log('SDK progress finished')
+    return await sdkInstance
   } else if (!sdkInstance) {
+    console.log('Making SDK')
     return await initSdk()
   }
+  console.log('found sdk')
   return sdkInstance
 }
