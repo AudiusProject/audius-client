@@ -30,10 +30,8 @@ import TrackPlayer, {
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffectOnce } from 'react-use'
 
-import {
-  DEFAULT_IMAGE_URL,
-  useTrackImage
-} from 'app/components/image/TrackImage'
+import { DEFAULT_IMAGE_URL } from 'app/components/image/TrackImage'
+import { getImageSourceOptimistic } from 'app/hooks/useContentNodeImage'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useOfflineTrackUri } from 'app/hooks/useOfflineTrackUri'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
@@ -140,7 +138,6 @@ export const Audio = () => {
   const trackOwner = useSelector((state) =>
     getUser(state, { id: track?.owner_id })
   )
-  const trackImageSource = useTrackImage(track, trackOwner ?? undefined)
   const currentUserId = useSelector(getUserId)
   const isReachable = useSelector(getIsReachable)
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
@@ -161,10 +158,6 @@ export const Audio = () => {
   )
   const nextTrackOwner = useSelector((state) =>
     getUser(state, { id: nextTrack?.owner_id })
-  )
-  const nextTrackImageSource = useTrackImage(
-    nextTrack,
-    nextTrackOwner ?? undefined
   )
 
   const { isCasting } = useChromecast()
@@ -333,11 +326,26 @@ export const Audio = () => {
     }
   }, [seek, setSeekPosition])
 
+  // Keep track of the track index the last time counter was updated
+  const counterTrackIndex = useRef<number | null>(null)
+
+  const resetPositionForSameTrack = useCallback(() => {
+    // NOTE: Make sure that we only set seek position to 0 when we are restarting a track
+    const trackIndex = queueShuffle ? queueShuffleIndex : queueIndex
+    if (trackIndex === counterTrackIndex.current) setSeekPosition(0)
+    counterTrackIndex.current = trackIndex
+  }, [queueIndex, queueShuffle, queueShuffleIndex, setSeekPosition])
+
+  const counterRef = useRef<number | null>(null)
+
   // Restart (counter) handler
   useEffect(() => {
-    setSeekPosition(0)
+    if (counter !== counterRef.current) {
+      counterRef.current = counter
+      resetPositionForSameTrack()
+    }
     setListenLoggedForTrack(false)
-  }, [counter, setSeekPosition])
+  }, [counter, resetPositionForSameTrack])
 
   const { loading: loadingOfflineTrack, value: offlineTrackUri } =
     useOfflineTrackUri(track?.track_id.toString())
@@ -447,9 +455,21 @@ export const Audio = () => {
     }
 
     currentUriRef.current = newUri
-    const imageUrl = trackImageSource?.source?.[2]?.uri ?? DEFAULT_IMAGE_URL
+    const imageUrl =
+      getImageSourceOptimistic({
+        cid: track ? track.cover_art_sizes || track.cover_art : null,
+        user: trackOwner
+        // localSource
+      })?.[2]?.uri ?? DEFAULT_IMAGE_URL
+
     const nextImageUrl =
-      nextTrackImageSource?.source?.[2]?.uri ?? DEFAULT_IMAGE_URL
+      getImageSourceOptimistic({
+        cid: nextTrack
+          ? nextTrack.cover_art_sizes || nextTrack.cover_art
+          : null,
+        user: nextTrackOwner
+        // localSource
+      })?.[2]?.uri ?? DEFAULT_IMAGE_URL
 
     // NOTE: Adding two tracks into the queue to make sure that android has a next button on the lock screen and notification controls
     // This should be removed when the track player queue is used properly
@@ -495,13 +515,11 @@ export const Audio = () => {
     loadingOfflineTrack,
     nextSource,
     nextTrack,
-    nextTrackImageSource?.source,
-    nextTrackOwner?.name,
+    nextTrackOwner,
     playing,
     source,
     track,
-    trackImageSource?.source,
-    trackOwner?.name
+    trackOwner
   ])
 
   const handleTogglePlay = useCallback(

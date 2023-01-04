@@ -8,10 +8,13 @@ import type { BackendState } from 'audius-client/src/common/store/backend/types'
 import confirmer from 'audius-client/src/common/store/confirmer/reducer'
 import type { ConfirmerState } from 'audius-client/src/common/store/confirmer/types'
 import signOnReducer from 'audius-client/src/common/store/pages/signon/reducer'
+import type {
+  SignOnPageState,
+  SignOnPageReducer
+} from 'audius-client/src/common/store/pages/signon/types'
 import searchBar from 'audius-client/src/common/store/search-bar/reducer'
 import type SearchBarState from 'audius-client/src/common/store/search-bar/types'
 import { createStore, combineReducers, applyMiddleware } from 'redux'
-import { composeWithDevTools } from 'redux-devtools-extension'
 import createSagaMiddleware from 'redux-saga'
 
 import type { DownloadState } from './download/slice'
@@ -37,7 +40,7 @@ import walletConnect from './wallet-connect/slice'
 
 export type AppState = {
   // These also belong in CommonState but are here until we move them to the @audius/common package:
-  signOn: ReturnType<typeof signOnReducer>
+  signOn: SignOnPageState
   backend: BackendState
   confirmer: ConfirmerState
   searchBar: SearchBarState
@@ -62,7 +65,7 @@ const createRootReducer = () =>
     // These also belong in common store reducers but are here until we move them to the @audius/common package:
     backend,
     confirmer,
-    signOn: signOnReducer,
+    signOn: signOnReducer as SignOnPageReducer,
     searchBar,
 
     drawers,
@@ -78,11 +81,17 @@ const createRootReducer = () =>
   })
 
 const sagaMiddleware = createSagaMiddleware({ context: storeContext })
-const middlewares = applyMiddleware(sagaMiddleware)
-const composeEnhancers = composeWithDevTools({ trace: true, traceLimit: 250 })
+
+const middlewares = [sagaMiddleware]
+
+if (__DEV__) {
+  const createDebugger = require('redux-flipper').default
+  middlewares.push(createDebugger())
+}
+
 export const store = createStore(
   createRootReducer(),
-  composeEnhancers(middlewares)
+  applyMiddleware(...middlewares)
 )
 sagaMiddleware.run(rootSaga)
 
