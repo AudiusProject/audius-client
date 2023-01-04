@@ -125,7 +125,10 @@ mobile-upload-android:
     upload-type:
       default: 'staging'
       type: string
+    track:
+      default: 'alpha'
+      type: string
   steps:
     - run:
         name: Upload to Play Store
-        command: cd packages/mobile/android && bundle exec fastlane <<parameters.upload-type>>
+        command: cd packages/mobile/android && bundle exec fastlane <<parameters.upload-type>> track:<<parameters.track>>
