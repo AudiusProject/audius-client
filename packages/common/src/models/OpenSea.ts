@@ -30,6 +30,7 @@ type AssetCollection = {
   name: string
   description: string
   external_url: string
+  image_url: string
 }
 
 type AssetPerson = {

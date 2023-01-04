@@ -75,6 +75,9 @@ import buyAudioReducer from './ui/buy-audio/slice'
 import collectibleDetailsReducer, {
   CollectibleDetailsState
 } from './ui/collectible-details/slice'
+import collectiblesReducer, {
+  CollectiblesState,
+} from './collectibles/reducer'
 import createPlaylistModalReducer from './ui/createPlaylistModal/reducer'
 import { CreatePlaylistModalState } from './ui/createPlaylistModal/types'
 import deletePlaylistConfirmationReducer from './ui/delete-playlist-confirmation-modal/slice'
@@ -217,6 +220,9 @@ export const reducers = () => ({
   // Premium content
   premiumContent: premiumContentReducer,
 
+  // Collectibles
+  collectibles: collectiblesReducer,
+
   upload
 })
 
@@ -318,6 +324,9 @@ export type CommonState = {
 
   // Premium content
   premiumContent: ReturnType<typeof premiumContentReducer>
+
+  // Collectibles
+  collectibles: CollectiblesState
 
   upload: UploadState
 }

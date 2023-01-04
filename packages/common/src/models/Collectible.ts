@@ -41,6 +41,8 @@ export type Collectible = {
   // ethereum nfts
   assetContractAddress: Nullable<string>
   collectionSlug: Nullable<string>
+  collectionName: Nullable<string>
+  collectionImageUrl: Nullable<string>
 
   // solana nfts
   solanaChainMetadata: Nullable<Metadata>

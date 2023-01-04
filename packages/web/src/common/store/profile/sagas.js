@@ -54,7 +54,7 @@ const { getProfileUserId, getProfileFollowers, getProfileUser } =
 
 const { getUserId, getAccountUser } = accountSelectors
 
-const { ethCollectiblesFetched, solCollectiblesFetched } = collectiblesActions
+const { ethCollectiblesFetched, solCollectiblesFetched, updateUserEthCollectibles, updateUserSolCollectibles } = collectiblesActions
 
 function* watchFetchProfile() {
   yield takeEvery(profileActions.FETCH_PROFILE, fetchProfileAsync)
@@ -119,6 +119,7 @@ export function* fetchOpenSeaAssets(user) {
   ])
 
   const collectibleList = Object.values(collectiblesMap).flat()
+  console.log({collectibleList})
   if (!collectibleList.length) {
     console.log('profile has no assets in OpenSea')
   }
@@ -133,7 +134,7 @@ export function* fetchOpenSeaAssets(user) {
       }
     ])
   )
-
+  yield put(updateUserEthCollectibles(user.user_id, collectibleList))
   yield put(ethCollectiblesFetched(user.user_id))
 }
 
@@ -157,6 +158,7 @@ export function* fetchSolanaCollectibles(user) {
   )
 
   const solanaCollectibleList = Object.values(collectiblesMap).flat()
+  console.log({solanaCollectibleList})
   if (!solanaCollectibleList.length) {
     console.log('profile has no Solana NFTs')
   }
@@ -169,8 +171,8 @@ export function* fetchSolanaCollectibles(user) {
       }
     ])
   )
-
   yield put(solCollectiblesFetched(user.user_id))
+  yield put(updateUserSolCollectibles(user.user_id, solanaCollectibleList))
 }
 
 function* fetchSupportersAndSupporting(userId) {

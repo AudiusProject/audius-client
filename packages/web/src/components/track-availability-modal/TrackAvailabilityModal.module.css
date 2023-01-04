@@ -92,6 +92,10 @@
   font-size: var(--font-l);
 }
 
+.collectibleGated {
+  padding: 0;
+}
+
 .hiddenSection {
   display: flex;
 }
@@ -130,4 +134,41 @@
 
 .supportersInfo {
   margin-left: 8px;
+}
+
+.dropdownInput {
+  height: 72px !important;
+}
+
+.dropdownInput :global(.ant-select-selection-item), .dropdownInput :global(.ant-select-selection-placeholder) > div {
+  display: flex;
+  align-items: center;
+}
+
+.dropdown :global(.ant-select-item) {
+  padding: 16px;
+  height: unset !important;
+}
+
+.dropdownRow {
+  display: flex;
+  align-items: center;
+}
+
+.dropdownRow > span {
+  margin-left: 8px;
+  font-weight: var(--font-demi-bold);
+  font-size: var(--font-l);
+}
+
+:global(.ant-select-selection-item) .dropdownRow > img {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+:global(.ant-select-item) .dropdownRow > img {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
 }

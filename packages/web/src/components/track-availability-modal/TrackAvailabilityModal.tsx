@@ -1,6 +1,15 @@
 import { MouseEvent, useCallback } from 'react'
 
-import { FeatureFlags, Nullable, PremiumConditions } from '@audius/common'
+import {
+  CommonState,
+  FeatureFlags,
+  Nullable,
+  PremiumConditions,
+  collectiblesSelectors,
+  Collectible,
+  accountSelectors,
+  Chain
+} from '@audius/common'
 import {
   IconSpecialAccess,
   IconCollectible,
@@ -22,6 +31,12 @@ import { useFlag } from 'hooks/useRemoteConfig'
 import Switch from '../switch/Switch'
 
 import styles from './TrackAvailabilityModal.module.css'
+import DropdownInput from 'components/data-entry/DropdownInput'
+import { useSelector } from 'react-redux'
+import IconUSDSrc from 'assets/img/iconUSD.png'
+
+const { getUserId } = accountSelectors
+const { getUserCollectibles } = collectiblesSelectors
 
 const messages = {
   title: 'AVAILABILITY',
@@ -47,7 +62,8 @@ const messages = {
   showShareButton: 'Show Share Button',
   showPlayCount: 'Show Play Count',
   supportersInfo: 'Supporters are users who have sent you a tip',
-  done: 'Done'
+  pickACollection: "Pick a Collection",
+  done: "Done"
 }
 
 const defaultAvailabilityFields = {
@@ -221,11 +237,38 @@ const SpecialAccessAvailability = ({
   )
 }
 
+const defaultCollectibles = { [Chain.Eth]: [], [Chain.Sol]: [] }
+
 const CollectibleGatedAvailability = ({
   selected,
   handleSelection,
   updatePremiumContentFields
 }: TrackAvailabilitySelectionProps) => {
+  const accountUserId = useSelector(getUserId)
+  const collectibles = accountUserId
+    ? useSelector(
+      (state: CommonState) => getUserCollectibles(state, { id: accountUserId })
+    ) ?? defaultCollectibles
+    : defaultCollectibles
+  console.log({ collectibles })
+  const ethCollectibleItems = (collectibles[Chain.Eth] ?? [])
+    .map((c: Collectible, i: number) => ({
+      text: `${c.collectionName}-${i}`,
+      el: <div className={styles.dropdownRow}>
+          <img src={(c.collectionImageUrl ?? c.imageUrl)!} alt={c.name ?? 'Collectible'} />
+          <span>{c.collectionName ?? c.name}</span>
+        </div>
+    }))
+  const solCollectibleItems = (collectibles[Chain.Sol] ?? [])
+    .map((c: Collectible, i: number) => ({
+      text: `${c.collectionName}-${i}`,
+      el: <div className={styles.dropdownRow}>
+          <img src={(c.collectionImageUrl ?? c.imageUrl)!} alt={c.name ?? 'Collectible'} />
+          <span>{c.collectionName ?? c.name}</span>
+        </div>
+    }))
+  const menuItems = [...ethCollectibleItems, ...solCollectibleItems]
+
   return (
     <div
       className={styles.availabilityRowContent}
@@ -242,7 +285,23 @@ const CollectibleGatedAvailability = ({
       <div className={styles.availabilityRowDescription}>
         {messages.collectibleGatedSubtitle}
       </div>
-      {selected && <div className={styles.availabilityRowSelection}>yolo</div>}
+      {selected && <div className={cn(styles.availabilityRowSelection, styles.collectibleGated)}>
+        <DropdownInput
+          aria-label={messages.pickACollection}
+          placeholder={messages.pickACollection}
+          mount='parent'
+          menu={{ items: menuItems }}
+          // defaultValue={getCanonicalName(props.defaultFields.genre) || ''}
+          // isRequired={props.requiredFields.genre}
+          // error={props.invalidFields.genre}
+          onSelect={(value: any) => {
+            
+          }}
+          size='large'
+          dropdownStyle={styles.dropdown}
+          dropdownInputStyle={styles.dropdownInput}
+        />
+      </div>}
     </div>
   )
 }

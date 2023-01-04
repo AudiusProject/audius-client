@@ -314,6 +314,8 @@ export const assetToCollectible = async (
     permaLink: asset.permalink,
     assetContractAddress: asset.asset_contract?.address ?? null,
     collectionSlug: asset.collection?.slug ?? null,
+    collectionName: asset.collection?.name ?? null,
+    collectionImageUrl: asset.collection?.image_url ?? null,
     chain: Chain.Eth,
     wallet: asset.wallet,
     solanaChainMetadata: null
