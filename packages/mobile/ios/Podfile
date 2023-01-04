@@ -1,13 +1,21 @@
-platform :ios, '12.4'
-install! 'cocoapods', :deterministic_uuids => false
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+
+platform :ios, '12.4'
+install! 'cocoapods', :deterministic_uuids => false
 
 project 'AudiusReactNative',
 'Staging.Debug' => :debug,
 'Staging.Release' => :release,
 'Prod.Debug' => :debug,
 'Prod.Release' => :release
+
+
+def add_flipper_pods!(versions = {})
+  pod 'react-native-flipper', :path => '../node_modules/react-native-flipper', :configuration => 'Debug'
+end
+
+
 
 target 'AudiusReactNative' do
   permissions_path = '../node_modules/react-native-permissions/ios'
@@ -40,6 +48,8 @@ target 'AudiusReactNative' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
+  add_flipper_pods!()
+
   post_install do |installer|
    react_native_post_install(
       installer,
@@ -48,10 +58,7 @@ target 'AudiusReactNative' do
       :mac_catalyst_enabled => false
     )
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
-
-    installer.pods_project.build_configurations.each do |config|
-      config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
-    end
+    # flipper_post_install(installer)
 
     # https://github.com/CocoaPods/CocoaPods/issues/11402#issuecomment-1201464693
     installer.pods_project.targets.each do |target|
@@ -61,11 +68,5 @@ target 'AudiusReactNative' do
         end
       end
     end
-
-    # https://github.com/facebook/react-native/issues/33764
-    system('rm -f Pods/Flipper-Folly/folly/SharedMutex.cpp Pods/Flipper-Folly/folly/SharedMutex.h')
-    system('cp Pods/RCT-Folly/folly/SharedMutex.cpp Pods/Flipper-Folly/folly/')
-    system('cp Pods/RCT-Folly/folly/SharedMutex.h Pods/Flipper-Folly/folly/')
-
   end
 end

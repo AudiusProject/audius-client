@@ -430,7 +430,7 @@ PODS:
     - React-Core
   - react-native-fast-crypto (2.2.0):
     - React
-  - react-native-flipper (0.176.1):
+  - react-native-flipper (0.125.0):
     - React-Core
   - react-native-get-random-values (1.8.0):
     - React-Core
@@ -469,10 +469,10 @@ PODS:
     - SwiftAudioEx (= 0.15.3)
   - react-native-version-number (0.3.6):
     - React
-  - react-native-video (5.2.1):
+  - react-native-video (5.2.0):
     - React-Core
-    - react-native-video/Video (= 5.2.1)
-  - react-native-video/Video (5.2.1):
+    - react-native-video/Video (= 5.2.0)
+  - react-native-video/Video (5.2.0):
     - React-Core
   - react-native-view-shot (3.4.0):
     - React-Core
@@ -997,7 +997,7 @@ SPEC CHECKSUMS:
   react-native-config: 6502b1879f97ed5ac570a029961fc35ea606cd14
   react-native-document-picker: 4a959cd4d8d0a18b906e7bbff649a25fadea8df2
   react-native-fast-crypto: 60892c93813b88d865e2792944ef975a81359bc5
-  react-native-flipper: 7e4b1c3fe1a2eecbe7304e5ff6b89231b3ec61dc
+  react-native-flipper: 3d9e214b412b3ce81e0d73bdcdc8097c0b0e8578
   react-native-get-random-values: a6ea6a8a65dc93e96e24a11105b1a9c8cfe1d72a
   react-native-google-cast: f621202a36e6e82ac7e86aac721cadb05b45c231
   react-native-image-picker: bd579f59ff1cd14c78d6a041dbe2dbec858a9141
@@ -1010,7 +1010,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: ec0d85aca8110dae9327430a9541fec165352dab
   react-native-track-player: 86649137952f7beeed18b4be7974be1d431d967f
   react-native-version-number: 15563dc4145a94aabfc1faab2a9af10174a4204e
-  react-native-video: 79a186e378d327b6c08bc3982c17ef455c6bd75c
+  react-native-video: 77ce22be7abff9e373527ca10106a99dea3ba56c
   react-native-view-shot: a021cdada3371efd6e28776b0931ba58ebe6ba72
   react-native-webview: d8de2d8d2f7226d56b23fcb45a7da60c52ed0312
   React-perflogger: 8c79399b0500a30ee8152d0f9f11beae7fc36595
@@ -1052,6 +1052,6 @@ SPEC CHECKSUMS:
   Yoga: 99caf8d5ab45e9d637ee6e0174ec16fbbb01bcfc
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: ca3e9c429318e8b4e9cdd5a90ac6334f8c351fa6
+PODFILE CHECKSUM: 334685a60264c819666ecc7745f866b360e82ef1
 
 COCOAPODS: 1.11.3
