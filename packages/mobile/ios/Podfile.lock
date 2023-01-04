@@ -420,8 +420,8 @@ PODS:
     - glog
   - react-native-android-navbar-height (0.1.0):
     - React-Core
-  - react-native-blur (0.8.0):
-    - React
+  - react-native-blur (4.3.0):
+    - React-Core
   - react-native-config (1.4.5):
     - react-native-config/App (= 1.4.5)
   - react-native-config/App (1.4.5):
@@ -993,7 +993,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 60769e5a0a6d4b32294a2456077f59d0266f9a8b
   React-logger: 1623c216abaa88974afce404dc8f479406bbc3a0
   react-native-android-navbar-height: f975207ac8c2a5cfa885a01447851bf3b491c951
-  react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
+  react-native-blur: 236379a22d731b860e7791eb2db3fd6087ff7b7b
   react-native-config: 6502b1879f97ed5ac570a029961fc35ea606cd14
   react-native-document-picker: 4a959cd4d8d0a18b906e7bbff649a25fadea8df2
   react-native-fast-crypto: 60892c93813b88d865e2792944ef975a81359bc5
