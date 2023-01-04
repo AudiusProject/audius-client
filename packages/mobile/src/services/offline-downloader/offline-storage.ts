@@ -7,7 +7,7 @@ import type {
   UserMetadata,
   UserTrackMetadata
 } from '@audius/common'
-import { SquareSizes } from '@audius/common'
+import { allSettled, SquareSizes } from '@audius/common'
 import RNFS, { exists, readDir, readFile } from 'react-native-fs'
 
 import { store } from 'app/store'
@@ -205,7 +205,7 @@ export const verifyTrack = async (
     exists(path.join(getLocalTrackDir(trackId), `${size}.jpg`))
   )
 
-  const results = await Promise.allSettled([audioFile, jsonFile, ...artFiles])
+  const results = await allSettled([audioFile, jsonFile, ...artFiles])
   const booleanResults = results.map(
     (result) => result.status === 'fulfilled' && !!result.value
   )
@@ -215,9 +215,6 @@ export const verifyTrack = async (
     !audioExists && console.warn(`Missing audio for ${trackId}`)
     !jsonExists && console.warn(`Missing json for ${trackId}`)
     !artExists?.length && console.warn(`Missing art for ${trackId}`)
-    !audioExists && alert(`Missing audio for ${trackId}`)
-    !jsonExists && alert(`Missing json for ${trackId}`)
-    !artExists?.length && alert(`Missing art for ${trackId}`)
   }
 
   return booleanResults.every((result) => result)
