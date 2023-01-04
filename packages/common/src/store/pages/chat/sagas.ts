@@ -59,7 +59,7 @@ function* doFetchChatMessages(action: ReturnType<typeof fetchNewChatMessages>) {
     })
     yield* put(fetchNewChatMessagesSucceeded({ chatId, response }))
   } catch (e) {
-    console.error('fetchnewChatMessagesFailed', e)
+    console.error('fetchNewChatMessagesFailed', e)
     yield* put(fetchNewChatMessagesFailed({ chatId }))
   }
 }
