@@ -82,7 +82,10 @@ function* getTokenIdMap({
     if (collection?.verified) {
       // Weirdly enough, sometimes the key is a string, and other times it's a PublicKey
       // even though the @metaplex-foundation collection type defines it as a web3.PublicKey
-      const mintKey = typeof collection.key === 'string' ? collection.key : collection.key.toBase58()
+      const mintKey =
+        typeof collection.key === 'string'
+          ? collection.key
+          : collection.key.toBase58()
       solCollectionMintSet.add(mintKey)
     }
   })
