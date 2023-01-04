@@ -1,3 +1,5 @@
+import { MouseEvent, useCallback } from 'react'
+
 import { FeatureFlags, Nullable, PremiumConditions } from '@audius/common'
 import {
   IconSpecialAccess,
@@ -14,9 +16,8 @@ import {
 } from '@audius/stems'
 import cn from 'classnames'
 
-import { useFlag } from 'hooks/useRemoteConfig'
-import { MouseEvent, useCallback } from 'react'
 import Tooltip from 'components/tooltip/Tooltip'
+import { useFlag } from 'hooks/useRemoteConfig'
 
 import Switch from '../switch/Switch'
 
@@ -46,7 +47,7 @@ const messages = {
   showShareButton: 'Show Share Button',
   showPlayCount: 'Show Play Count',
   supportersInfo: 'Supporters are users who have sent you a tip',
-  done: "Done"
+  done: 'Done'
 }
 
 const defaultAvailabilityFields = {
@@ -125,9 +126,7 @@ const TrackMetadataSection = ({
   didSet
 }: TrackMetadataSectionProps) => {
   return (
-    <div
-      className={styles.section}
-    >
+    <div className={styles.section}>
       <span className={styles.sectionTitleClassname}>{title}</span>
       <div className={styles.switchContainer}>
         <Switch
@@ -155,15 +154,23 @@ type TrackAvailabilitySelectionProps = {
   metadataState: TrackMetadataState
   handleSelection: (availability: AvailabilityType) => void
   updateHiddenField?: (field: string) => (visible: boolean) => void
-  updatePremiumContentFields?: (
-    premiumConditions: PremiumConditions
-  ) => void
+  updatePremiumContentFields?: (premiumConditions: PremiumConditions) => void
 }
 
-const PublicAvailability = ({ selected, handleSelection }: TrackAvailabilitySelectionProps) => {
+const PublicAvailability = ({
+  selected,
+  handleSelection
+}: TrackAvailabilitySelectionProps) => {
   return (
-    <div className={styles.availabilityRowContent} onClick={() => handleSelection(AvailabilityType.PUBLIC)}>
-      <div className={cn(styles.availabilityRowTitle, { [styles.selected]: selected })}>
+    <div
+      className={styles.availabilityRowContent}
+      onClick={() => handleSelection(AvailabilityType.PUBLIC)}
+    >
+      <div
+        className={cn(styles.availabilityRowTitle, {
+          [styles.selected]: selected
+        })}
+      >
         <IconVisibilityPublic className={styles.availabilityRowIcon} />
         <span>{messages.public}</span>
       </div>
@@ -180,8 +187,15 @@ const SpecialAccessAvailability = ({
   updatePremiumContentFields
 }: TrackAvailabilitySelectionProps) => {
   return (
-    <div className={styles.availabilityRowContent} onClick={() => handleSelection(AvailabilityType.SPECIAL_ACCESS)}>
-      <div className={cn(styles.availabilityRowTitle, { [styles.selected]: selected })}>
+    <div
+      className={styles.availabilityRowContent}
+      onClick={() => handleSelection(AvailabilityType.SPECIAL_ACCESS)}
+    >
+      <div
+        className={cn(styles.availabilityRowTitle, {
+          [styles.selected]: selected
+        })}
+      >
         <IconSpecialAccess className={styles.availabilityRowIcon} />
         <span>{messages.specialAccess}</span>
       </div>
@@ -200,7 +214,7 @@ const SpecialAccessAvailability = ({
             >
               <IconInfo className={styles.supportersInfo} />
             </Tooltip>
-        </div>
+          </div>
         </div>
       )}
     </div>
@@ -213,8 +227,15 @@ const CollectibleGatedAvailability = ({
   updatePremiumContentFields
 }: TrackAvailabilitySelectionProps) => {
   return (
-    <div className={styles.availabilityRowContent} onClick={() => handleSelection(AvailabilityType.COLLECTIBLE_GATED)}>
-      <div className={cn(styles.availabilityRowTitle, { [styles.selected]: selected })}>
+    <div
+      className={styles.availabilityRowContent}
+      onClick={() => handleSelection(AvailabilityType.COLLECTIBLE_GATED)}
+    >
+      <div
+        className={cn(styles.availabilityRowTitle, {
+          [styles.selected]: selected
+        })}
+      >
         <IconCollectible className={styles.availabilityRowIcon} />
         <span>{messages.collectibleGated}</span>
       </div>
@@ -233,8 +254,15 @@ const HiddenAvailability = ({
   updateHiddenField
 }: TrackAvailabilitySelectionProps) => {
   return (
-    <div className={styles.availabilityRowContent} onClick={() => handleSelection(AvailabilityType.HIDDEN)}>
-      <div className={cn(styles.availabilityRowTitle, { [styles.selected]: selected })}>
+    <div
+      className={styles.availabilityRowContent}
+      onClick={() => handleSelection(AvailabilityType.HIDDEN)}
+    >
+      <div
+        className={cn(styles.availabilityRowTitle, {
+          [styles.selected]: selected
+        })}
+      >
         <IconHidden className={styles.availabilityRowIcon} />
         <span>{messages.hidden}</span>
       </div>
@@ -293,47 +321,60 @@ const TrackAvailabilityModal = ({
   let availability = AvailabilityType.PUBLIC
   if (metadataState.unlisted) {
     availability = AvailabilityType.HIDDEN
-  } else if (metadataState.is_premium && metadataState.premium_conditions && 'nft_collection' in metadataState.premium_conditions) {
+  } else if (
+    metadataState.is_premium &&
+    metadataState.premium_conditions &&
+    'nft_collection' in metadataState.premium_conditions
+  ) {
     availability = AvailabilityType.COLLECTIBLE_GATED
   } else if (metadataState.is_premium) {
     availability = AvailabilityType.SPECIAL_ACCESS
   }
 
-  const handleSelection = useCallback((availability: AvailabilityType) => {
-    if (availability === AvailabilityType.PUBLIC) {
-      didUpdateState({ ...defaultAvailabilityFields })
-    } else if (availability === AvailabilityType.SPECIAL_ACCESS) {
-      didUpdateState({
-        ...defaultAvailabilityFields,
-        is_premium: true
-      })
-    } else if (availability === AvailabilityType.COLLECTIBLE_GATED) {
-      didUpdateState({
-        ...defaultAvailabilityFields,
-        is_premium: true,
-        premium_conditions: { nft_collection: undefined }
-      })
-    } else {
-      didUpdateState({
-        ...defaultAvailabilityFields,
-        unlisted: true
-      })
-    }
-  }, [didUpdateState])
+  const handleSelection = useCallback(
+    (availability: AvailabilityType) => {
+      if (availability === AvailabilityType.PUBLIC) {
+        didUpdateState({ ...defaultAvailabilityFields })
+      } else if (availability === AvailabilityType.SPECIAL_ACCESS) {
+        didUpdateState({
+          ...defaultAvailabilityFields,
+          is_premium: true
+        })
+      } else if (availability === AvailabilityType.COLLECTIBLE_GATED) {
+        didUpdateState({
+          ...defaultAvailabilityFields,
+          is_premium: true,
+          premium_conditions: { nft_collection: undefined }
+        })
+      } else {
+        didUpdateState({
+          ...defaultAvailabilityFields,
+          unlisted: true
+        })
+      }
+    },
+    [didUpdateState]
+  )
 
-  const updateHiddenField = useCallback((field: string) => (visible: boolean) => {
-    didUpdateState({
-      ...metadataState,
-      [field]: visible
-    })
-  }, [didUpdateState])
+  const updateHiddenField = useCallback(
+    (field: string) => (visible: boolean) => {
+      didUpdateState({
+        ...metadataState,
+        [field]: visible
+      })
+    },
+    [didUpdateState]
+  )
 
-  const updatePremiumContentFields = useCallback((premiumConditions: PremiumConditions) => {
-    didUpdateState({
-      ...metadataState,
-      premium_conditions: premiumConditions
-    })
-  }, [didUpdateState])
+  const updatePremiumContentFields = useCallback(
+    (premiumConditions: PremiumConditions) => {
+      didUpdateState({
+        ...metadataState,
+        premium_conditions: premiumConditions
+      })
+    },
+    [didUpdateState]
+  )
 
   return (
     <Modal

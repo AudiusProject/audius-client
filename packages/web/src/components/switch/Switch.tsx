@@ -1,5 +1,6 @@
-import cn from 'classnames'
 import { MouseEventHandler } from 'react'
+
+import cn from 'classnames'
 
 import styles from './Switch.module.css'
 

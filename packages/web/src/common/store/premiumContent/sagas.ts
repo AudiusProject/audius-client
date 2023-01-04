@@ -194,8 +194,12 @@ function* updateNFTGatedTrackAccess(
   const account = yield* select(getAccountUser)
 
   // Halt if nfts fetched are not for logged in account
-  const areNFTsFetched = [ETH_COLLECTIBLES_FETCHED, SOL_COLLECTIBLES_FETCHED].includes(action.type)
-  const userIdForNFTs = areNFTsFetched && 'userId' in action ? action.userId : null
+  const areNFTsFetched = [
+    ETH_COLLECTIBLES_FETCHED,
+    SOL_COLLECTIBLES_FETCHED
+  ].includes(action.type)
+  const userIdForNFTs =
+    areNFTsFetched && 'userId' in action ? action.userId : null
   if (userIdForNFTs && account?.user_id !== userIdForNFTs) return
 
   // get tracks for which we already previously got the signatures
