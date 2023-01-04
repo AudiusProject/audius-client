@@ -407,7 +407,6 @@ const AdvancedForm = (props) => {
       }
     }
   }
-  console.log({ availabilityState, showAvailability, availabilityButtonTitle })
 
   const [isAvailabilityModalOpen, setIsAvailabilityModalOpen] = useState(false)
   const [hideRemixes, setHideRemixes] = useState(

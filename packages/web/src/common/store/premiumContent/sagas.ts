@@ -195,7 +195,6 @@ function* updateNFTGatedTrackAccess(
 
   // Halt if nfts fetched are not for logged in account
   const areNFTsFetched = [ETH_COLLECTIBLES_FETCHED, SOL_COLLECTIBLES_FETCHED].includes(action.type)
-  console.log({areNFTsFetched, action})
   const userIdForNFTs = areNFTsFetched && 'userId' in action ? action.userId : null
   if (userIdForNFTs && account?.user_id !== userIdForNFTs) return
 

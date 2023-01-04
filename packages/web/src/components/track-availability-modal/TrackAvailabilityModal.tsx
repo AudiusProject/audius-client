@@ -299,8 +299,6 @@ const TrackAvailabilityModal = ({
     availability = AvailabilityType.SPECIAL_ACCESS
   }
 
-  console.log({ metadataState })
-
   const handleSelection = useCallback((availability: AvailabilityType) => {
     if (availability === AvailabilityType.PUBLIC) {
       didUpdateState({ ...defaultAvailabilityFields })
