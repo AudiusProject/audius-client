@@ -43,24 +43,6 @@ const { shareCollection } = collectionsSocialActions
 const { getAccountUser } = accountSelectors
 
 const useStyles = makeStyles(({ palette }) => ({
-  shareToTwitterAction: {
-    color: palette.staticTwitterBlue
-  },
-  shareToTikTokAction: {
-    color: 'black'
-  },
-  shareToTikTokActionDark: {
-    color: palette.staticWhite
-  },
-  copyLinkAction: {
-    color: palette.secondary
-  },
-  shareToInstagramStoryAction: {
-    color: palette.primary
-  },
-  shareToSnapchatAction: {
-    color: 'black'
-  },
   title: {
     display: 'flex',
     flexDirection: 'row',
@@ -104,8 +86,7 @@ export const ShareDrawer = () => {
     FeatureFlags.SHARE_TO_SNAPCHAT
   )
 
-  const { primary, secondary, neutralLight2, staticTwitterBlue } =
-    useThemeColors()
+  const { secondary, neutralLight2 } = useThemeColors()
   const themeVariant = useThemeVariant()
   const isLightMode = themeVariant === Theme.DEFAULT
   const dispatch = useDispatch()
@@ -195,9 +176,8 @@ export const ShareDrawer = () => {
 
   const getRows = useCallback(() => {
     const shareToTwitterAction = {
-      icon: <IconTwitterBird fill={staticTwitterBlue} height={20} width={26} />,
+      icon: <IconTwitterBird fill={secondary} height={20} width={26} />,
       text: messages.twitter,
-      style: styles.shareToTwitterAction,
       callback: handleShareToTwitter
     }
 
@@ -206,44 +186,37 @@ export const ShareDrawer = () => {
     const shareToTikTokAction = {
       text: messages.tikTok,
       icon: <TikTokIcon height={26} width={26} />,
-      style: isLightMode
-        ? styles.shareToTikTokAction
-        : styles.shareToTikTokActionDark,
       callback: handleShareToTikTok
     }
 
     const copyLinkAction = {
       text: messages.copyLink(shareType),
       icon: <IconLink height={26} width={26} fill={secondary} />,
-      style: styles.copyLinkAction,
       callback: handleCopyLink
     }
 
     const shareSheetAction = {
       text: messages.shareSheet(shareType),
       icon: <IconShare height={26} width={26} fill={secondary} />,
-      style: styles.copyLinkAction,
       callback: handleOpenShareSheet
     }
 
     const shareToSnapchatAction = {
       text: messages.snapchat,
-      icon: <IconSnapchat height={26} width={26} />,
-      style: styles.shareToSnapchatAction,
+      icon: <IconSnapchat fill={secondary} height={26} width={26} />,
       callback: handleShareToSnapchat
     }
 
     const shareToInstagramStoriesAction = {
       text: messages.instagramStory,
-      icon: <IconInstagram fill={primary} height={26} width={26} />,
-      style: styles.shareToInstagramStoryAction,
+      icon: <IconInstagram fill={secondary} height={26} width={26} />,
       callback: handleShareToInstagramStory
     }
 
     const result: {
       text: string
       icon: React.ReactElement
-      style: Record<string, string>
+      style?: Record<string, string>
       callback: (() => void) | (() => Promise<void>)
     }[] = [shareToTwitterAction]
 
@@ -262,13 +235,6 @@ export const ShareDrawer = () => {
 
     return result
   }, [
-    staticTwitterBlue,
-    styles.shareToTwitterAction,
-    styles.shareToTikTokAction,
-    styles.shareToTikTokActionDark,
-    styles.copyLinkAction,
-    styles.shareToInstagramStoryAction,
-    styles.shareToSnapchatAction,
     handleShareToTwitter,
     isLightMode,
     handleShareToTikTok,
@@ -276,7 +242,6 @@ export const ShareDrawer = () => {
     secondary,
     handleCopyLink,
     handleOpenShareSheet,
-    primary,
     handleShareToSnapchat,
     handleShareToInstagramStory,
     shouldIncludeTikTokAction,
