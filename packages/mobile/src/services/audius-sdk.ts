@@ -1,11 +1,10 @@
 import { EventEmitter } from 'events'
 
 import { StringKeys, IntKeys } from '@audius/common'
+import { sdk } from '@audius/sdk'
 import { keccak_256 } from '@noble/hashes/sha3'
 import * as secp from '@noble/secp256k1'
 import Config from 'react-native-config'
-
-import { sdk } from '@audius/sdk'
 
 import { audiusLibs, waitForLibsInit } from './libs'
 import { remoteConfigInstance } from './remote-config/remote-config-instance'
