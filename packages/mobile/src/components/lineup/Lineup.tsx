@@ -473,8 +473,7 @@ export const Lineup = ({
     showLeadingElementArtistPick,
     start,
     limit,
-    isFeed,
-    showTip
+    isFeed
   ])
 
   const areSectionsEmpty = sections.every(

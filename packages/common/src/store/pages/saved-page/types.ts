@@ -6,8 +6,7 @@ import {
   Collection,
   Favorite,
   LineupState,
-  LineupTrack,
-  Status
+  LineupTrack
 } from '../../../models'
 
 export interface SavedPageState {
@@ -15,7 +14,7 @@ export interface SavedPageState {
   tracks: LineupState<LineupTrack & { id: ID; dateSaved: string }>
   saves: Favorite[]
   hasReachedEnd: boolean
-  initialFetch: Status
+  initialFetch: boolean
 }
 
 export enum SavedPageTabs {
