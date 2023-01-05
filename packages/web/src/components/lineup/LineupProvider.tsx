@@ -479,7 +479,6 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
       numPlaylistSkeletonRows,
       isTrending = false,
       isFeed = false,
-      showTip,
       rankIconCount = 0
     } = this.props
     const status = lineup.status

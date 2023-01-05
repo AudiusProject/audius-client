@@ -1,4 +1,10 @@
-import { User, Kind, makeUid, getContext, cacheActions, UserMetadata } from '@audius/common'
+import {
+  Kind,
+  makeUid,
+  getContext,
+  cacheActions,
+  UserMetadata
+} from '@audius/common'
 import { put } from 'typed-redux-saga'
 
 import { waitForRead } from 'utils/sagaHelpers'
