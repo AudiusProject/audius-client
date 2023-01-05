@@ -1,8 +1,9 @@
-import { chatSelectors } from '@audius/common'
+import { chatSelectors, FeatureFlags } from '@audius/common'
 import { useSelector } from 'react-redux'
 
 import Header from 'components/header/desktop/Header'
 import Page from 'components/page/Page'
+import { useFlag } from 'hooks/useRemoteConfig'
 
 import styles from './ChatPage.module.css'
 import { ChatComposer } from './components/ChatComposer'
@@ -16,6 +17,10 @@ const messages = {
 }
 export const ChatPage = () => {
   const chatId = useSelector(chatSelectors.getCurrentChatId)
+  const { isEnabled: isChatEnabled } = useFlag(FeatureFlags.CHAT_ENABLED)
+  if (!isChatEnabled) {
+    return null
+  }
   return (
     <Page
       containerClassName={styles.page}
