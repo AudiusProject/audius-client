@@ -156,15 +156,13 @@ mobile-build-upload-staging-releasecandidate-android:
         bundle-id: 'co.audius.app.staging.releasecandidate'
         track: 'internal'
         remote-directory: 'audius-mobile-staging-releasecandidate'
-    - mobile-upload-android:
-        upload-type: 'stagingReleaseCandidate'
-        track: 'internal'
-    # - when:
-    #     condition:
-    #       matches: { pattern: '^release.*$', value: << pipeline.git.branch >> }
-    #     steps:
-    #       - mobile-upload-android:
-    #           upload-type: 'stagingReleaseCandidate'
+    - when:
+        condition:
+          matches: { pattern: '^release.*$', value: << pipeline.git.branch >> }
+        steps:
+          - mobile-upload-android:
+              upload-type: 'stagingReleaseCandidate'
+              track: 'internal'
 
 mobile-build-upload-releasecandidate-android:
   working_directory: ~/audius-client
@@ -178,15 +176,13 @@ mobile-build-upload-releasecandidate-android:
         bundle-id: 'co.audius.app.releasecandidate'
         track: 'internal'
         remote-directory: 'audius-mobile-releasecandidate'
-    - mobile-upload-android:
-        upload-type: 'releaseCandidate'
-        track: 'internal'
-    # - when:
-    #     condition:
-    #       matches: { pattern: '^release.*$', value: << pipeline.git.branch >> }
-    #     steps:
-    #       - mobile-upload-android:
-    #           upload-type: 'releaseCandidate'
+    - when:
+        condition:
+          matches: { pattern: '^release.*$', value: << pipeline.git.branch >> }
+        steps:
+          - mobile-upload-android:
+              upload-type: 'releaseCandidate'
+              track: 'internal'
 
 mobile-build-upload-production-android:
   working_directory: ~/audius-client
