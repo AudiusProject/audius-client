@@ -70,7 +70,7 @@ const createAllImageSources = ({
   localSource
 }: {
   cid: Nullable<CID>
-  user?: Nullable<{ creator_node_endpoint: string }>
+  user?: Nullable<{ creator_node_endpoint: Nullable<string> }>
   endpoints?: string[]
   sizes?: typeof SquareSizes | typeof WidthSizes
   localSource?: ImageURISource[] | null
