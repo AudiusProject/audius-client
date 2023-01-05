@@ -1556,9 +1556,13 @@ export class AudiusAPIClient {
         ...u,
         sender: adapter.makeUser(u.sender),
         receiver: adapter.makeUser(u.receiver),
-        followee_supporter_ids: u.followee_supporters.map(({ user_id }) =>
-          decodeHashId(user_id)
-        )
+        // Hack alert:
+        // Don't show followee supporters yet, because they take too
+        // long to load in (requires a subsequent call to DN)
+        // followee_supporter_ids: u.followee_supporters.map(({ user_id }) =>
+        //   decodeHashId(user_id)
+        // )
+        followee_supporter_ids: []
       }))
     }
     return null

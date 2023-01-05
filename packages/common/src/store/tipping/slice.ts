@@ -1,10 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { Nullable } from 'utils/typeUtils'
-
 import { TipSource } from '../../models/Analytics'
 import { ID } from '../../models/Identifiers'
-import { RecentTipsStorage, UserTip } from '../../models/Tipping'
+import { UserTip } from '../../models/Tipping'
 import { User } from '../../models/User'
 
 import {
@@ -26,10 +24,8 @@ const initialState: TippingState = {
     error: null,
     source: 'profile'
   },
-  recentTips: [],
-  storage: null,
   tipToDisplay: null,
-  showTip: true
+  showTip: false
 }
 
 const slice = createSlice({
@@ -139,12 +135,7 @@ const slice = createSlice({
       state.send.amount = '0'
       state.send.error = null
     },
-    fetchRecentTips: (
-      _state,
-      _action: PayloadAction<{
-        storage: Nullable<RecentTipsStorage>
-      }>
-    ) => {},
+    fetchRecentTips: (_state) => {},
     fetchUserSupporter: (
       _state,
       _action: PayloadAction<{
@@ -159,8 +150,8 @@ const slice = createSlice({
     ) => {
       state.tipToDisplay = action.payload.tipToDisplay
     },
-    hideTip: (state) => {
-      state.showTip = false
+    setShowTip: (state, action: PayloadAction<{ show: boolean }>) => {
+      state.showTip = action.payload.show
     }
   }
 })
@@ -182,7 +173,7 @@ export const {
   fetchRecentTips,
   fetchUserSupporter,
   setTipToDisplay,
-  hideTip
+  setShowTip
 } = slice.actions
 
 export const actions = slice.actions

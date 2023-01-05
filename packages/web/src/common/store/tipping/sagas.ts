@@ -25,13 +25,16 @@ import {
   GetSupportingArgs,
   GetSupportersArgs,
   MAX_ARTIST_HOVER_TOP_SUPPORTING,
-  MAX_PROFILE_TOP_SUPPORTERS
+  MAX_PROFILE_TOP_SUPPORTERS,
+  LastDismissedTip,
+  LocalStorage
 } from '@audius/common'
 import BN from 'bn.js'
 import {
   call,
   delay,
   put,
+  all,
   select,
   takeEvery,
   fork,
@@ -44,7 +47,6 @@ import { waitForWrite, waitForRead } from 'utils/sagaHelpers'
 
 import { processAndCacheUsers } from '../cache/users/utils'
 
-import { updateTipsStorage } from './storageUtils'
 const { decreaseBalance } = walletActions
 const { getAccountBalance } = walletSelectors
 const {
@@ -58,7 +60,7 @@ const {
   setTipToDisplay,
   setSupportersForUser,
   setSupportingForUser,
-  hideTip,
+  setShowTip,
   setSupportingOverridesForUser,
   setSupportersOverridesForUser,
   fetchUserSupporter
@@ -73,7 +75,19 @@ const {
 const { update } = cacheActions
 const getAccountUser = accountSelectors.getAccountUser
 
-export const FEED_TIP_DISMISSAL_TIME_LIMIT = 30 * 24 * 60 * 60 * 1000 // 30 days
+export const FEED_TIP_DISMISSAL_TIME_LIMIT_SEC = 30 * 24 * 60 * 60 // 30 days
+const DISMISSED_TIP_KEY = 'dismissed-tips'
+
+export const storeDismissedTipInfo = async (
+  localStorage: LocalStorage,
+  receiverId: ID
+) => {
+  localStorage.setExpiringJSONValue(
+    DISMISSED_TIP_KEY,
+    { receiver_id: receiverId },
+    FEED_TIP_DISMISSAL_TIME_LIMIT_SEC
+  )
+}
 
 function* overrideSupportingForUser({
   amountBN,
@@ -449,22 +463,26 @@ function* fetchSupportingForUserAsync({
   )
 }
 
-function* fetchRecentTipsAsync(action: ReturnType<typeof fetchRecentTips>) {
+// Display logic is a bit nuanced here -
+// there are 3 cases: 1 tip not dismissed, show tip,  2 tip dismissed, but show new tip, 3 tip dismissed, don't show any tip
+// the trick is to start with an empty state, NOT a loading state:
+// in case 1, we detect no/expired local storage and show loading state
+// in case 2, we initally show nothing and then directly snap to the tip tile, with no loading state, to avoid 3 states.
+// in case 3, we never show anything
+function* fetchRecentTipsAsync() {
   const apiClient = yield* getContext('apiClient')
   const localStorage = yield* getContext('localStorage')
-  const { storage } = action.payload
-
-  // Check if we're dismissed
-  if (
-    storage &&
-    storage.dismissed &&
-    storage.lastDismissalTimeStamp + FEED_TIP_DISMISSAL_TIME_LIMIT > Date.now()
-  ) {
-    yield put(hideTip())
-    return
-  }
 
   const account: User = yield* call(waitForValue, getAccountUser)
+
+  // Get dismissal info
+  const lastDismissedTip = yield* call(() =>
+    localStorage.getExpiringJSONValue<LastDismissedTip>(DISMISSED_TIP_KEY)
+  )
+  // If no dismissal, show loading state
+  if (!lastDismissedTip) {
+    yield put(setShowTip({ show: true }))
+  }
 
   const params: GetTipsArgs = {
     userId: account.user_id,
@@ -476,7 +494,7 @@ function* fetchRecentTipsAsync(action: ReturnType<typeof fetchRecentTips>) {
   const userTips = yield* call([apiClient, apiClient.getTips], params)
 
   if (!(userTips && userTips.length)) {
-    yield put(hideTip())
+    yield put(setShowTip({ show: false }))
     return
   }
 
@@ -486,16 +504,21 @@ function* fetchRecentTipsAsync(action: ReturnType<typeof fetchRecentTips>) {
     receiver_id: userTips[0].receiver.user_id
   }
 
-  const lastTipState = {
-    dismissed: false,
-    minSlot: recentTip.slot,
-    lastDismissalTimestamp: null
+  // If there exists a non-expired tip dismissal
+  // and the receiver is same as current receiver, don't show the same tip
+  if (lastDismissedTip?.receiver_id === recentTip.receiver_id) {
+    yield put(setShowTip({ show: false }))
+    return
   }
-  updateTipsStorage(lastTipState, localStorage)
 
-  const userIds = [...new Set([...recentTip.followee_supporter_ids])]
+  // Otherwise, we're going to show a tip so clear out any dismissed tip state
+  yield* call(() => localStorage.removeItem(DISMISSED_TIP_KEY))
+
   yield call(processAndCacheUsers, [recentTip.sender, recentTip.receiver])
-  yield call(fetchUsers, userIds)
+
+  // Hack: no longer showing followee supporters, too slow
+  // const userIds = [...new Set([...recentTip.followee_supporter_ids])]
+  // yield call(fetchUsers, userIds)
 
   /**
    * We need to get supporting data for logged in user and
@@ -514,7 +537,11 @@ function* fetchRecentTipsAsync(action: ReturnType<typeof fetchRecentTips>) {
       supportersLimit: MAX_PROFILE_TOP_SUPPORTERS + 1
     })
   )
-  yield put(setTipToDisplay({ tipToDisplay: recentTip }))
+
+  yield all([
+    put(setShowTip({ show: true })),
+    put(setTipToDisplay({ tipToDisplay: recentTip }))
+  ])
 }
 
 function* fetchUserSupporterAsync(
