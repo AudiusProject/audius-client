@@ -469,10 +469,10 @@ PODS:
     - SwiftAudioEx (= 0.15.3)
   - react-native-version-number (0.3.6):
     - React
-  - react-native-video (5.2.0):
+  - react-native-video (5.2.1):
     - React-Core
-    - react-native-video/Video (= 5.2.0)
-  - react-native-video/Video (5.2.0):
+    - react-native-video/Video (= 5.2.1)
+  - react-native-video/Video (5.2.1):
     - React-Core
   - react-native-view-shot (3.4.0):
     - React-Core
@@ -1010,7 +1010,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: ec0d85aca8110dae9327430a9541fec165352dab
   react-native-track-player: 86649137952f7beeed18b4be7974be1d431d967f
   react-native-version-number: 15563dc4145a94aabfc1faab2a9af10174a4204e
-  react-native-video: 77ce22be7abff9e373527ca10106a99dea3ba56c
+  react-native-video: 79a186e378d327b6c08bc3982c17ef455c6bd75c
   react-native-view-shot: a021cdada3371efd6e28776b0931ba58ebe6ba72
   react-native-webview: d8de2d8d2f7226d56b23fcb45a7da60c52ed0312
   React-perflogger: 8c79399b0500a30ee8152d0f9f11beae7fc36595
