@@ -28,7 +28,7 @@ const ChatListItem = (props: ChatListItemProps) => {
   )
   const user = useSelector((state) =>
     cacheUsersSelectors.getUser(state, {
-      id: member ? decodeHashId(member.user_id) : ''
+      id: member ? decodeHashId(member.user_id) ?? -1 : -1
     })
   )
   const currentChatId = useSelector(chatSelectors.getCurrentChatId)
