@@ -8,7 +8,7 @@ import {
   tippingActions,
   useProxySelector
 } from '@audius/common'
-import { dismissRecentTip } from 'audius-client/src/common/store/tipping/storageUtils'
+import { storeDismissedTipInfo } from 'common/store/tipping/sagas'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -76,7 +76,7 @@ export const FeedTipTile = () => {
   }, [dispatch])
 
   const handlePressClose = useCallback(async () => {
-    await dismissRecentTip(localStorage)
+    await storeDismissedTipInfo(localStorage, tipToDisplay?.receiver_id || -1)
     dispatch(setShowTip({ show: false }))
     if (account && tipToDisplay) {
       track(
