@@ -8,6 +8,11 @@ PODS:
   - BVLinearGradient (2.6.2):
     - React-Core
   - CocoaAsyncSocket (7.6.5)
+  - CodePush (7.0.5):
+    - Base64 (~> 1.1)
+    - JWT (~> 3.0.0-beta.12)
+    - React-Core
+    - SSZipArchive (~> 2.2.2)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.70.6)
   - FBReactNativeSpec (0.70.6):
@@ -178,6 +183,8 @@ PODS:
   - GoogleUtilities/UserDefaults (7.10.0):
     - GoogleUtilities/Logger
   - hermes-engine (0.70.6)
+  - JWT (3.0.0-beta.14):
+    - Base64 (~> 1.1.2)
   - libevent (2.1.12)
   - lottie-ios (3.4.4)
   - lottie-react-native (5.1.4):
@@ -765,6 +772,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - Amplitude
+    - Base64
     - CocoaAsyncSocket
     - ffmpeg-kit-ios-https-gpl
     - FingerprintPro
@@ -788,6 +796,7 @@ SPEC REPOS:
     - GoogleAppMeasurement
     - GoogleDataTransport
     - GoogleUtilities
+    - JWT
     - libevent
     - lottie-ios
     - nanopb
@@ -797,6 +806,7 @@ SPEC REPOS:
     - Sentry
     - SnapSDK
     - SocketRocket
+    - SSZipArchive
     - SwiftAudioEx
     - YogaKit
 
@@ -1009,6 +1019,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: 1c8145da7117bd68bbbed00cf304edb6a24de00f
   GoogleUtilities: bad72cb363809015b1f7f19beb1f1cd23c589f95
   hermes-engine: 2af7b7a59128f250adfd86f15aa1d5a2ecd39995
+  JWT: ef71dfb03e1f842081e64dc42eef0e164f35d251
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: 8f97d3271e155c2d688875c29cd3c74908aef5f8
   lottie-react-native: b702fab740cdb952a8e2354713d3beda63ff97b0
@@ -1093,6 +1104,7 @@ SPEC CHECKSUMS:
   SnapSDK: 1e68aad748e080f49e3802559b3b76026666ef62
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   SRSRadialGradient: f88dfa41215854bfb721dfe926bd9bf09338a602
+  SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
   SwiftAudioEx: 83eabba2940924fc1c0d5cb0896049921365229c
   Yoga: 99caf8d5ab45e9d637ee6e0174ec16fbbb01bcfc
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
