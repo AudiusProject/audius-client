@@ -23,6 +23,7 @@ import RNFS, { exists } from 'react-native-fs'
 import type { TrackForDownload } from 'app/components/offline-downloads'
 import { getAccountCollections } from 'app/screens/favorites-screen/selectors'
 import { store } from 'app/store'
+import { getOfflineCollections } from 'app/store/offline-downloads/selectors'
 import {
   addCollection,
   batchStartDownload,
@@ -138,6 +139,20 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
   // @ts-ignore mismatch in an irrelevant part of state
   const state = store.getState() as CommonState
   const currentUserId = getUserId(state)
+  const offlineCollections = getOfflineCollections(state)
+  if (
+    (downloadReason.is_from_favorites &&
+      !offlineCollections[DOWNLOAD_REASON_FAVORITES]) ||
+    (!downloadReason.is_from_favorites &&
+      !offlineCollections[downloadReason.collection_id])
+  ) {
+    console.log(
+      `Skip cancelled download`,
+      trackIdStr,
+      downloadReason.collection_id
+    )
+    return
+  }
 
   const trackFromApi = await apiClient.getTrack({
     id: trackId,
@@ -200,6 +215,19 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
       }
     }
     await writeTrackJson(trackIdStr, trackToWrite)
+    if (
+      (downloadReason.is_from_favorites &&
+        !offlineCollections[DOWNLOAD_REASON_FAVORITES]) ||
+      (!downloadReason.is_from_favorites &&
+        !offlineCollections[downloadReason.collection_id])
+    ) {
+      console.log(
+        `Skip cancelled completed download`,
+        trackIdStr,
+        downloadReason.collection_id
+      )
+      return
+    }
     const verified = await verifyTrack(trackIdStr, true)
     if (verified) {
       const lineupTrack = {
