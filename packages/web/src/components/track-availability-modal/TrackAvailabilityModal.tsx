@@ -1,4 +1,4 @@
-import { MouseEvent, useCallback } from 'react'
+import { MouseEvent, useCallback, useState } from 'react'
 
 import {
   CommonState,
@@ -207,6 +207,10 @@ const SpecialAccessAvailability = ({
   handleSelection,
   updatePremiumContentFields
 }: TrackAvailabilitySelectionProps) => {
+  const accountUserId = useSelector(getUserId)
+
+  const [specialAccessSelection, setSpecialAccessSelection] = useState('follower')
+
   return (
     <label className={cn(styles.radioItem, { [styles.selected]: selected })}>
       <input
@@ -229,17 +233,45 @@ const SpecialAccessAvailability = ({
         </div>
         {selected && (
           <div className={styles.availabilityRowSelection}>
-            <div>{messages.followersOnly}</div>
-            <div>
-              {messages.supportersOnly}
-              <Tooltip
-                text={messages.supportersInfo}
-                mouseEnterDelay={0.1}
-                mount='body'
-              >
-                <IconInfo className={styles.supportersInfo} />
-              </Tooltip>
-            </div>
+            <label className={cn(styles.radioItem, styles.specialAccessRadioItem, { [styles.selected]: specialAccessSelection === 'follower' })}>
+              <input
+                className={styles.radioInput}
+                type='radio'
+                name='special-access'
+                value='follower'
+                onClick={(e: MouseEvent) => {
+                  e.stopPropagation()
+                  setSpecialAccessSelection('follower')
+                  if (!updatePremiumContentFields || !accountUserId) return
+                  updatePremiumContentFields({ follow_user_id: accountUserId })
+                }}
+              />
+              <div>{messages.followersOnly}</div>
+            </label>
+            <label className={cn(styles.radioItem, styles.specialAccessRadioItem, { [styles.selected]: specialAccessSelection === 'supporter' })}>
+              <input
+                className={styles.radioInput}
+                type='radio'
+                name='special-access'
+                value='supporter'
+                onClick={(e: MouseEvent) => {
+                  e.stopPropagation()
+                  setSpecialAccessSelection('supporter')
+                  if (!updatePremiumContentFields || !accountUserId) return
+                  updatePremiumContentFields({ tip_user_id: accountUserId })
+                }}
+              />
+              <div>
+                {messages.supportersOnly}
+                <Tooltip
+                  text={messages.supportersInfo}
+                  mouseEnterDelay={0.1}
+                  mount='body'
+                >
+                  <IconInfo className={styles.supportersInfo} />
+                </Tooltip>
+              </div>
+            </label>
           </div>
         )}
       </div>
@@ -520,15 +552,15 @@ const TrackAvailabilityModal = ({
       } else if (availability === AvailabilityType.SPECIAL_ACCESS) {
         didUpdateState({
           ...defaultAvailabilityFields,
-          is_premium: true
+          is_premium: true,
+          premium_conditions: metadataState?.premium_conditions ?? null
         })
       } else if (availability === AvailabilityType.COLLECTIBLE_GATED) {
         didUpdateState({
           ...defaultAvailabilityFields,
           is_premium: true,
-          premium_conditions: {
-            nft_collection:
-              metadataState.premium_conditions?.nft_collection ?? undefined
+          premium_conditions: metadataState.premium_conditions ?? {
+            nft_collection: undefined
           }
         })
       } else {
