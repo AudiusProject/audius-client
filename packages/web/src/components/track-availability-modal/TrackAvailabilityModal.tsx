@@ -178,22 +178,27 @@ const PublicAvailability = ({
   handleSelection
 }: TrackAvailabilitySelectionProps) => {
   return (
-    <div
-      className={styles.availabilityRowContent}
-      onClick={() => handleSelection(AvailabilityType.PUBLIC)}
-    >
+    <label className={cn(styles.radioItem, { [styles.selected]: selected })}>
+      <input
+        className={styles.radioInput}
+        type='radio'
+        name='availability'
+        value='public'
+        checked={selected}
+      />
       <div
-        className={cn(styles.availabilityRowTitle, {
-          [styles.selected]: selected
-        })}
+        className={styles.availabilityRowContent}
+        onClick={() => handleSelection(AvailabilityType.PUBLIC)}
       >
-        <IconVisibilityPublic className={styles.availabilityRowIcon} />
-        <span>{messages.public}</span>
+        <div className={styles.availabilityRowTitle}>
+          <IconVisibilityPublic className={styles.availabilityRowIcon} />
+          <span>{messages.public}</span>
+        </div>
+        <div className={styles.availabilityRowDescription}>
+          {messages.publicSubtitle}
+        </div>
       </div>
-      <div className={styles.availabilityRowDescription}>
-        {messages.publicSubtitle}
-      </div>
-    </div>
+    </label>
   )
 }
 
@@ -203,37 +208,42 @@ const SpecialAccessAvailability = ({
   updatePremiumContentFields
 }: TrackAvailabilitySelectionProps) => {
   return (
-    <div
-      className={styles.availabilityRowContent}
-      onClick={() => handleSelection(AvailabilityType.SPECIAL_ACCESS)}
-    >
+    <label className={cn(styles.radioItem, { [styles.selected]: selected })}>
+      <input
+        className={styles.radioInput}
+        type='radio'
+        name='availability'
+        value='special-access'
+        checked={selected}
+      />
       <div
-        className={cn(styles.availabilityRowTitle, {
-          [styles.selected]: selected
-        })}
+        className={styles.availabilityRowContent}
+        onClick={() => handleSelection(AvailabilityType.SPECIAL_ACCESS)}
       >
-        <IconSpecialAccess className={styles.availabilityRowIcon} />
-        <span>{messages.specialAccess}</span>
-      </div>
-      <div className={styles.availabilityRowDescription}>
-        {messages.specialAccessSubtitle}
-      </div>
-      {selected && (
-        <div className={styles.availabilityRowSelection}>
-          <div>{messages.followersOnly}</div>
-          <div>
-            {messages.supportersOnly}
-            <Tooltip
-              text={messages.supportersInfo}
-              mouseEnterDelay={0.1}
-              mount='body'
-            >
-              <IconInfo className={styles.supportersInfo} />
-            </Tooltip>
-          </div>
+        <div className={styles.availabilityRowTitle}>
+          <IconSpecialAccess className={styles.availabilityRowIcon} />
+          <span>{messages.specialAccess}</span>
         </div>
-      )}
-    </div>
+        <div className={styles.availabilityRowDescription}>
+          {messages.specialAccessSubtitle}
+        </div>
+        {selected && (
+          <div className={styles.availabilityRowSelection}>
+            <div>{messages.followersOnly}</div>
+            <div>
+              {messages.supportersOnly}
+              <Tooltip
+                text={messages.supportersInfo}
+                mouseEnterDelay={0.1}
+                mount='body'
+              >
+                <IconInfo className={styles.supportersInfo} />
+              </Tooltip>
+            </div>
+          </div>
+        )}
+      </div>
+    </label>
   )
 }
 
@@ -341,68 +351,73 @@ const CollectibleGatedAvailability = ({
   const menuItems = [...ethCollectibleItems, ...solCollectibleItems]
 
   return (
-    <div
-      className={styles.availabilityRowContent}
-      onClick={() => handleSelection(AvailabilityType.COLLECTIBLE_GATED)}
-    >
+    <label className={cn(styles.radioItem, { [styles.selected]: selected })}>
+      <input
+        className={styles.radioInput}
+        type='radio'
+        name='availability'
+        value='collectible-gated'
+        checked={selected}
+      />
       <div
-        className={cn(styles.availabilityRowTitle, {
-          [styles.selected]: selected
-        })}
+        className={styles.availabilityRowContent}
+        onClick={() => handleSelection(AvailabilityType.COLLECTIBLE_GATED)}
       >
-        <IconCollectible className={styles.availabilityRowIcon} />
-        <span>{messages.collectibleGated}</span>
-      </div>
-      <div className={styles.availabilityRowDescription}>
-        {messages.collectibleGatedSubtitle}
-      </div>
-      {selected && (
-        <div
-          className={cn(
-            styles.availabilityRowSelection,
-            styles.collectibleGated
-          )}
-        >
-          <DropdownInput
-            aria-label={messages.pickACollection}
-            placeholder={messages.pickACollection}
-            mount='parent'
-            menu={{ items: menuItems }}
-            defaultValue={
-              metadataState.premium_conditions?.nft_collection?.name ?? ''
-            }
-            // isRequired={props.requiredFields.genre}
-            // error={props.invalidFields.genre}
-            onSelect={(value: string) => {
-              if (!updatePremiumContentFields) return
-
-              if (ethCollectionMap[value]) {
-                updatePremiumContentFields({
-                  nft_collection: {
-                    chain: Chain.Eth,
-                    standard: ethCollectionMap[value].standard,
-                    address: ethCollectionMap[value].address,
-                    name: ethCollectionMap[value].name,
-                    slug: value
-                  }
-                })
-              } else if (solCollectionMap[value]) {
-                updatePremiumContentFields({
-                  nft_collection: {
-                    chain: Chain.Sol,
-                    address: value,
-                    name: solCollectionMap[value].name
-                  }
-                })
-              }
-            }}
-            size='large'
-            dropdownStyle={styles.dropdown}
-            dropdownInputStyle={styles.dropdownInput}
-          />
+        <div className={styles.availabilityRowTitle}>
+          <IconCollectible className={styles.availabilityRowIcon} />
+          <span>{messages.collectibleGated}</span>
         </div>
-      )}
-    </div>
+        <div className={styles.availabilityRowDescription}>
+          {messages.collectibleGatedSubtitle}
+        </div>
+        {selected && (
+          <div
+            className={cn(
+              styles.availabilityRowSelection,
+              styles.collectibleGated
+            )}
+          >
+            <DropdownInput
+              aria-label={messages.pickACollection}
+              placeholder={messages.pickACollection}
+              mount='parent'
+              menu={{ items: menuItems }}
+              defaultValue={
+                metadataState.premium_conditions?.nft_collection?.name ?? ''
+              }
+              // isRequired={props.requiredFields.genre}
+              // error={props.invalidFields.genre}
+              onSelect={(value: string) => {
+                if (!updatePremiumContentFields) return
+
+                if (ethCollectionMap[value]) {
+                  updatePremiumContentFields({
+                    nft_collection: {
+                      chain: Chain.Eth,
+                      standard: ethCollectionMap[value].standard,
+                      address: ethCollectionMap[value].address,
+                      name: ethCollectionMap[value].name,
+                      slug: value
+                    }
+                  })
+                } else if (solCollectionMap[value]) {
+                  updatePremiumContentFields({
+                    nft_collection: {
+                      chain: Chain.Sol,
+                      address: value,
+                      name: solCollectionMap[value].name
+                    }
+                  })
+                }
+              }}
+              size='large'
+              dropdownStyle={styles.dropdown}
+              dropdownInputStyle={styles.dropdownInput}
+            />
+          </div>
+        )}
+      </div>
+    </label>
   )
 }
 
@@ -413,54 +428,62 @@ const HiddenAvailability = ({
   updateHiddenField
 }: TrackAvailabilitySelectionProps) => {
   return (
-    <div
-      className={styles.availabilityRowContent}
-      onClick={() => handleSelection(AvailabilityType.HIDDEN)}
-    >
+    <label className={cn(styles.radioItem, { [styles.selected]: selected })}>
+      <input
+        className={styles.radioInput}
+        type='radio'
+        name='availability'
+        value='hidden'
+        checked={selected}
+      />
       <div
-        className={cn(styles.availabilityRowTitle, {
-          [styles.selected]: selected
-        })}
+        className={styles.availabilityRowContent}
+        onClick={() => handleSelection(AvailabilityType.HIDDEN)}
       >
-        <IconHidden className={styles.availabilityRowIcon} />
-        <span>{messages.hidden}</span>
-      </div>
-      <div className={styles.availabilityRowDescription}>
-        {messages.hiddenSubtitle}
-      </div>
-      {selected && (
-        <div
-          className={cn(styles.availabilityRowSelection, styles.hiddenSection)}
-        >
-          <div>
-            {unlistedTrackMetadataOrder.slice(0, 3).map((label, i) => {
-              return (
-                <TrackMetadataSection
-                  key={i}
-                  isDisabled={false}
-                  isVisible={metadataState[label]}
-                  title={hiddenTrackMetadataMap[label]}
-                  didSet={updateHiddenField!(label)}
-                />
-              )
-            })}
-          </div>
-          <div>
-            {unlistedTrackMetadataOrder.slice(3).map((label, i) => {
-              return (
-                <TrackMetadataSection
-                  key={i}
-                  isDisabled={false}
-                  isVisible={metadataState[label]}
-                  title={hiddenTrackMetadataMap[label]}
-                  didSet={updateHiddenField!(label)}
-                />
-              )
-            })}
-          </div>
+        <div className={styles.availabilityRowTitle}>
+          <IconHidden className={styles.availabilityRowIcon} />
+          <span>{messages.hidden}</span>
         </div>
-      )}
-    </div>
+        <div className={styles.availabilityRowDescription}>
+          {messages.hiddenSubtitle}
+        </div>
+        {selected && (
+          <div
+            className={cn(
+              styles.availabilityRowSelection,
+              styles.hiddenSection
+            )}
+          >
+            <div>
+              {unlistedTrackMetadataOrder.slice(0, 3).map((label, i) => {
+                return (
+                  <TrackMetadataSection
+                    key={i}
+                    isDisabled={false}
+                    isVisible={metadataState[label]}
+                    title={hiddenTrackMetadataMap[label]}
+                    didSet={updateHiddenField!(label)}
+                  />
+                )
+              })}
+            </div>
+            <div>
+              {unlistedTrackMetadataOrder.slice(3).map((label, i) => {
+                return (
+                  <TrackMetadataSection
+                    key={i}
+                    isDisabled={false}
+                    isVisible={metadataState[label]}
+                    title={hiddenTrackMetadataMap[label]}
+                    didSet={updateHiddenField!(label)}
+                  />
+                )
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </label>
   )
 }
 
