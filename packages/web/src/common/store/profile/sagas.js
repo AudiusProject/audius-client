@@ -22,6 +22,7 @@ import {
 } from '@audius/common'
 import { merge } from 'lodash'
 import {
+  all,
   call,
   delay,
   fork,
@@ -54,7 +55,13 @@ const { getProfileUserId, getProfileFollowers, getProfileUser } =
 
 const { getUserId, getAccountUser } = accountSelectors
 
-const { ethCollectiblesFetched, solCollectiblesFetched, updateUserEthCollectibles, updateUserSolCollectibles } = collectiblesActions
+const {
+  ethCollectiblesFetched,
+  solCollectiblesFetched,
+  updateUserEthCollectibles,
+  updateUserSolCollectibles,
+  updateSolCollections
+} = collectiblesActions
 
 function* watchFetchProfile() {
   yield takeEvery(profileActions.FETCH_PROFILE, fetchProfileAsync)
@@ -119,7 +126,6 @@ export function* fetchOpenSeaAssets(user) {
   ])
 
   const collectibleList = Object.values(collectiblesMap).flat()
-  console.log({collectibleList})
   if (!collectibleList.length) {
     console.log('profile has no assets in OpenSea')
   }
@@ -147,6 +153,7 @@ export function* fetchSolanaCollectiblesForWallets(wallets) {
 
 export function* fetchSolanaCollectibles(user) {
   const apiClient = yield getContext('apiClient')
+  const solanaClient = yield getContext('solanaClient')
   const { waitForRemoteConfig } = yield getContext('remoteConfigInstance')
   yield call(waitForRemoteConfig)
   const { sol_wallets: solWallets } = yield apiClient.getAssociatedWallets({
@@ -158,7 +165,6 @@ export function* fetchSolanaCollectibles(user) {
   )
 
   const solanaCollectibleList = Object.values(collectiblesMap).flat()
-  console.log({solanaCollectibleList})
   if (!solanaCollectibleList.length) {
     console.log('profile has no Solana NFTs')
   }
@@ -173,6 +179,35 @@ export function* fetchSolanaCollectibles(user) {
   )
   yield put(solCollectiblesFetched(user.user_id))
   yield put(updateUserSolCollectibles(user.user_id, solanaCollectibleList))
+
+  const validSolCollectionMints = [
+    ...new Set(
+      solanaCollectibleList
+        .filter(
+          (collectible) =>
+            !!collectible.solanaChainMetadata?.collection?.verified
+        )
+        .map((collectible) => {
+          const key = collectible.solanaChainMetadata.collection.key
+          return typeof key === 'string' ? key : key.toBase58()
+        })
+    )
+  ]
+  const collectionMetadatas = yield all(
+    validSolCollectionMints.map((mint) =>
+      call(solanaClient.getNFTMetadataFromMint, mint)
+    )
+  )
+  const collectionMetadatasMap = {}
+  collectionMetadatas.forEach((cm, i) => {
+    if (!cm) return
+    const { metadata, imageUrl } = cm
+    collectionMetadatasMap[validSolCollectionMints[i]] = {
+      ...metadata.pretty(),
+      imageUrl
+    }
+  })
+  yield put(updateSolCollections(collectionMetadatasMap))
 }
 
 function* fetchSupportersAndSupporting(userId) {

@@ -184,4 +184,33 @@ export class SolanaClient {
       return null
     }
   }
+
+  getNFTMetadataFromMint = async (mintAddress: string) => {
+    if (this.connection === null) return
+
+    try {
+      const programAddress = (
+        await PublicKey.findProgramAddress(
+          [
+            Buffer.from('metadata'),
+            this.metadataProgramIdPublicKey.toBytes(),
+            new PublicKey(mintAddress).toBytes()
+          ],
+          this.metadataProgramIdPublicKey
+        )
+      )[0]
+      const metadata = await Metadata.fromAccountAddress(
+        this.connection,
+        programAddress
+      )
+      const result = (await (await fetch(metadata.data.uri)).json()) ?? {}
+      const imageUrl = result?.image
+      return {
+        metadata,
+        imageUrl
+      }
+    } catch (e) {
+      return null
+    }
+  }
 }

@@ -24,19 +24,18 @@ import {
   IconInfo
 } from '@audius/stems'
 import cn from 'classnames'
+import { useSelector } from 'react-redux'
 
+import DropdownInput from 'components/data-entry/DropdownInput'
 import Tooltip from 'components/tooltip/Tooltip'
 import { useFlag } from 'hooks/useRemoteConfig'
 
 import Switch from '../switch/Switch'
 
 import styles from './TrackAvailabilityModal.module.css'
-import DropdownInput from 'components/data-entry/DropdownInput'
-import { useSelector } from 'react-redux'
-import IconUSDSrc from 'assets/img/iconUSD.png'
 
 const { getUserId } = accountSelectors
-const { getUserCollectibles } = collectiblesSelectors
+const { getUserCollectibles, getSolCollections } = collectiblesSelectors
 
 const messages = {
   title: 'AVAILABILITY',
@@ -62,8 +61,8 @@ const messages = {
   showShareButton: 'Show Share Button',
   showPlayCount: 'Show Play Count',
   supportersInfo: 'Supporters are users who have sent you a tip',
-  pickACollection: "Pick a Collection",
-  done: "Done"
+  pickACollection: 'Pick a Collection',
+  done: 'Done'
 }
 
 const defaultAvailabilityFields = {
@@ -245,28 +244,77 @@ const CollectibleGatedAvailability = ({
   updatePremiumContentFields
 }: TrackAvailabilitySelectionProps) => {
   const accountUserId = useSelector(getUserId)
-  const collectibles = accountUserId
-    ? useSelector(
-      (state: CommonState) => getUserCollectibles(state, { id: accountUserId })
-    ) ?? defaultCollectibles
-    : defaultCollectibles
-  console.log({ collectibles })
-  const ethCollectibleItems = (collectibles[Chain.Eth] ?? [])
-    .map((c: Collectible, i: number) => ({
-      text: `${c.collectionName}-${i}`,
-      el: <div className={styles.dropdownRow}>
-          <img src={(c.collectionImageUrl ?? c.imageUrl)!} alt={c.name ?? 'Collectible'} />
-          <span>{c.collectionName ?? c.name}</span>
-        </div>
-    }))
-  const solCollectibleItems = (collectibles[Chain.Sol] ?? [])
-    .map((c: Collectible, i: number) => ({
-      text: `${c.collectionName}-${i}`,
-      el: <div className={styles.dropdownRow}>
-          <img src={(c.collectionImageUrl ?? c.imageUrl)!} alt={c.name ?? 'Collectible'} />
-          <span>{c.collectionName ?? c.name}</span>
-        </div>
-    }))
+  const collectibles =
+    useSelector((state: CommonState) => {
+      if (!accountUserId) return defaultCollectibles
+      return getUserCollectibles(state, { id: accountUserId })
+    }) ?? defaultCollectibles
+
+  // Ethereum collections
+  const ethCollectionMap: { [slug: string]: { name: string; img: string } } = {}
+  collectibles[Chain.Eth].forEach((collectible) => {
+    const { collectionSlug, collectionImageUrl } = collectible
+    if (
+      !collectionImageUrl ||
+      !collectionSlug ||
+      ethCollectionMap[collectionSlug]
+    )
+      return
+    ethCollectionMap[collectionSlug] = {
+      name: collectionSlug,
+      img: collectionImageUrl
+    }
+  })
+  const ethCollectibleItems = Object.keys(ethCollectionMap).map((slug) => ({
+    text: ethCollectionMap[slug].name,
+    el: (
+      <div className={styles.dropdownRow}>
+        <img
+          src={ethCollectionMap[slug].img}
+          alt={ethCollectionMap[slug].name}
+        />
+        <span>{ethCollectionMap[slug].name}</span>
+      </div>
+    )
+  }))
+
+  // Solana collections
+  const solCollections = useSelector(getSolCollections)
+  const validSolCollectionMints = [
+    ...new Set(
+      (collectibles[Chain.Sol] ?? [])
+        .filter(
+          (collectible: Collectible) =>
+            !!collectible.solanaChainMetadata?.collection?.verified
+        )
+        .map((collectible: Collectible) => {
+          const key = collectible.solanaChainMetadata!.collection!.key
+          return typeof key === 'string' ? key : key.toBase58()
+        })
+    )
+  ]
+  const solCollectionMap: { [mint: string]: { name: string; img: string } } = {}
+  validSolCollectionMints.forEach((mint) => {
+    const { data, imageUrl } = solCollections[mint] ?? {}
+    if (!data?.name || solCollectionMap[data.name]) return
+    solCollectionMap[mint] = {
+      name: data.name.replaceAll('\x00', ''),
+      img: imageUrl
+    }
+  })
+  const solCollectibleItems = Object.keys(solCollectionMap).map((mint) => ({
+    text: solCollectionMap[mint].name,
+    el: (
+      <div className={styles.dropdownRow}>
+        <img
+          src={solCollectionMap[mint].img}
+          alt={solCollectionMap[mint].name}
+        />
+        <span>{solCollectionMap[mint].name}</span>
+      </div>
+    )
+  }))
+
   const menuItems = [...ethCollectibleItems, ...solCollectibleItems]
 
   return (
@@ -285,23 +333,28 @@ const CollectibleGatedAvailability = ({
       <div className={styles.availabilityRowDescription}>
         {messages.collectibleGatedSubtitle}
       </div>
-      {selected && <div className={cn(styles.availabilityRowSelection, styles.collectibleGated)}>
-        <DropdownInput
-          aria-label={messages.pickACollection}
-          placeholder={messages.pickACollection}
-          mount='parent'
-          menu={{ items: menuItems }}
-          // defaultValue={getCanonicalName(props.defaultFields.genre) || ''}
-          // isRequired={props.requiredFields.genre}
-          // error={props.invalidFields.genre}
-          onSelect={(value: any) => {
-            
-          }}
-          size='large'
-          dropdownStyle={styles.dropdown}
-          dropdownInputStyle={styles.dropdownInput}
-        />
-      </div>}
+      {selected && (
+        <div
+          className={cn(
+            styles.availabilityRowSelection,
+            styles.collectibleGated
+          )}
+        >
+          <DropdownInput
+            aria-label={messages.pickACollection}
+            placeholder={messages.pickACollection}
+            mount='parent'
+            menu={{ items: menuItems }}
+            // defaultValue={getCanonicalName(props.defaultFields.genre) || ''}
+            // isRequired={props.requiredFields.genre}
+            // error={props.invalidFields.genre}
+            onSelect={(value: any) => {}}
+            size='large'
+            dropdownStyle={styles.dropdown}
+            dropdownInputStyle={styles.dropdownInput}
+          />
+        </div>
+      )}
     </div>
   )
 }
@@ -422,7 +475,7 @@ const TrackAvailabilityModal = ({
         [field]: visible
       })
     },
-    [didUpdateState]
+    [didUpdateState, metadataState]
   )
 
   const updatePremiumContentFields = useCallback(
@@ -432,7 +485,7 @@ const TrackAvailabilityModal = ({
         premium_conditions: premiumConditions
       })
     },
-    [didUpdateState]
+    [didUpdateState, metadataState]
   )
 
   return (

@@ -140,7 +140,8 @@
   height: 72px !important;
 }
 
-.dropdownInput :global(.ant-select-selection-item), .dropdownInput :global(.ant-select-selection-placeholder) > div {
+.dropdownInput :global(.ant-select-selection-item),
+.dropdownInput :global(.ant-select-selection-placeholder) > div {
   display: flex;
   align-items: center;
 }
