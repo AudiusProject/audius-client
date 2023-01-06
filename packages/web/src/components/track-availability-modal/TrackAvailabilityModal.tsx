@@ -1,4 +1,4 @@
-import { MouseEvent, useCallback, useState } from 'react'
+import { MouseEvent, useCallback, useMemo, useState } from 'react'
 
 import {
   CommonState,
@@ -204,12 +204,11 @@ const PublicAvailability = ({
 
 const SpecialAccessAvailability = ({
   selected,
+  metadataState,
   handleSelection,
   updatePremiumContentFields
 }: TrackAvailabilitySelectionProps) => {
   const accountUserId = useSelector(getUserId)
-
-  const [specialAccessSelection, setSpecialAccessSelection] = useState('follower')
 
   return (
     <label className={cn(styles.radioItem, { [styles.selected]: selected })}>
@@ -233,7 +232,12 @@ const SpecialAccessAvailability = ({
         </div>
         {selected && (
           <div className={styles.availabilityRowSelection}>
-            <label className={cn(styles.radioItem, styles.specialAccessRadioItem, { [styles.selected]: specialAccessSelection === 'follower' })}>
+            <label
+              className={cn(styles.radioItem, styles.specialAccessRadioItem, {
+                [styles.selected]:
+                  !!metadataState.premium_conditions?.follow_user_id
+              })}
+            >
               <input
                 className={styles.radioInput}
                 type='radio'
@@ -241,14 +245,18 @@ const SpecialAccessAvailability = ({
                 value='follower'
                 onClick={(e: MouseEvent) => {
                   e.stopPropagation()
-                  setSpecialAccessSelection('follower')
                   if (!updatePremiumContentFields || !accountUserId) return
                   updatePremiumContentFields({ follow_user_id: accountUserId })
                 }}
               />
               <div>{messages.followersOnly}</div>
             </label>
-            <label className={cn(styles.radioItem, styles.specialAccessRadioItem, { [styles.selected]: specialAccessSelection === 'supporter' })}>
+            <label
+              className={cn(styles.radioItem, styles.specialAccessRadioItem, {
+                [styles.selected]:
+                  !!metadataState.premium_conditions?.tip_user_id
+              })}
+            >
               <input
                 className={styles.radioInput}
                 type='radio'
@@ -256,7 +264,6 @@ const SpecialAccessAvailability = ({
                 value='supporter'
                 onClick={(e: MouseEvent) => {
                   e.stopPropagation()
-                  setSpecialAccessSelection('supporter')
                   if (!updatePremiumContentFields || !accountUserId) return
                   updatePremiumContentFields({ tip_user_id: accountUserId })
                 }}
@@ -532,6 +539,9 @@ const TrackAvailabilityModal = ({
     FeatureFlags.SPECIAL_ACCESS_GATE_ENABLED
   )
 
+  const accountUserId = useSelector(getUserId)
+  const defaultSpecialAccess = useMemo(() => accountUserId ? { follow_user_id: accountUserId } : null, [accountUserId])
+
   let availability = AvailabilityType.PUBLIC
   if (metadataState.unlisted) {
     availability = AvailabilityType.HIDDEN
@@ -553,15 +563,16 @@ const TrackAvailabilityModal = ({
         didUpdateState({
           ...defaultAvailabilityFields,
           is_premium: true,
-          premium_conditions: metadataState?.premium_conditions ?? null
+          premium_conditions:
+            'nft_collection' in (metadataState.premium_conditions ?? {})
+              ? defaultSpecialAccess
+              : metadataState?.premium_conditions ?? defaultSpecialAccess
         })
       } else if (availability === AvailabilityType.COLLECTIBLE_GATED) {
         didUpdateState({
           ...defaultAvailabilityFields,
           is_premium: true,
-          premium_conditions: metadataState.premium_conditions ?? {
-            nft_collection: undefined
-          }
+          premium_conditions: { nft_collection: undefined }
         })
       } else {
         didUpdateState({
@@ -570,7 +581,7 @@ const TrackAvailabilityModal = ({
         })
       }
     },
-    [didUpdateState, metadataState]
+    [didUpdateState, metadataState, accountUserId]
   )
 
   const updateHiddenField = useCallback(
