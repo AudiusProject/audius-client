@@ -141,6 +141,7 @@
 
 .collectibleGated {
   padding: 0;
+  margin-top: 16px;
 }
 
 .hiddenSection {
@@ -185,6 +186,20 @@
 
 .supportersInfo path {
   fill: var(--neutral-light-7);
+}
+
+.learnMore {
+  display: flex;
+  align-items: center;
+  margin: 16px 6px 0 8px;
+  color: var(--secondary);
+  font-weight: var(--font-bold);
+  font-size: var(--font-s);
+}
+
+.learnMoreArrow {
+  width: 16px;
+  height: 16px;
 }
 
 .dropdownInput {

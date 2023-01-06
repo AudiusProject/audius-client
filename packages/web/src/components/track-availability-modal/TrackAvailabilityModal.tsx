@@ -22,7 +22,9 @@ import {
   IconHidden,
   ButtonType,
   Button,
-  IconInfo
+  IconInfo,
+  IconArrow,
+  ButtonSize
 } from '@audius/stems'
 import cn from 'classnames'
 import { useSelector } from 'react-redux'
@@ -37,6 +39,8 @@ import styles from './TrackAvailabilityModal.module.css'
 
 const { getUserId } = accountSelectors
 const { getUserCollectibles, getSolCollections } = collectiblesSelectors
+
+const LEARN_MORE_URL = ''
 
 const messages = {
   title: 'AVAILABILITY',
@@ -62,6 +66,7 @@ const messages = {
   showShareButton: 'Show Share Button',
   showPlayCount: 'Show Play Count',
   supportersInfo: 'Supporters are users who have sent you a tip',
+  learnMore: 'Learn More',
   pickACollection: 'Pick a Collection',
   done: 'Done'
 }
@@ -387,6 +392,10 @@ const CollectibleGatedAvailability = ({
         </div>
         <div className={styles.availabilityRowDescription}>
           {messages.collectibleGatedSubtitle}
+        </div>
+        <div className={styles.learnMore} onClick={() => window.open(LEARN_MORE_URL, '_blank')}>
+          <span>{messages.learnMore}</span>
+          <IconArrow className={styles.learnMoreArrow} />
         </div>
         {selected && (
           <div
