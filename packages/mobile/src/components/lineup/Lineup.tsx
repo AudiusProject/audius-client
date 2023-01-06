@@ -254,6 +254,36 @@ export const Lineup = ({
 
   const itemCounts = useItemCounts(variant)
 
+  useBecomeReachable(
+    useCallback(() => {
+      const countOrDefault = count !== undefined ? count : MAX_TILES_COUNT
+      const limit = Math.min(
+        itemCounts.initial,
+        Math.max(countOrDefault, itemCounts.minimum)
+      )
+      loadMore
+        ? loadMore(0, limit, true)
+        : dispatch(
+            actions.fetchLineupMetadatas(
+              0,
+              limit,
+              true,
+              fetchPayload,
+              extraFetchOptions
+            )
+          )
+    }, [
+      actions,
+      count,
+      dispatch,
+      extraFetchOptions,
+      fetchPayload,
+      itemCounts.initial,
+      itemCounts.minimum,
+      loadMore
+    ])
+  )
+
   // Item count based on the current page
   const pageItemCount =
     itemCounts.initial + (lineup.page - 1) * itemCounts.loadMore
