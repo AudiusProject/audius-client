@@ -8,7 +8,8 @@ import {
   collectiblesSelectors,
   Collectible,
   accountSelectors,
-  Chain
+  Chain,
+  TokenStandard
 } from '@audius/common'
 import {
   IconSpecialAccess,
@@ -240,6 +241,7 @@ const defaultCollectibles = { [Chain.Eth]: [], [Chain.Sol]: [] }
 
 const CollectibleGatedAvailability = ({
   selected,
+  metadataState,
   handleSelection,
   updatePremiumContentFields
 }: TrackAvailabilitySelectionProps) => {
@@ -251,18 +253,37 @@ const CollectibleGatedAvailability = ({
     }) ?? defaultCollectibles
 
   // Ethereum collections
-  const ethCollectionMap: { [slug: string]: { name: string; img: string } } = {}
+  const ethCollectionMap: {
+    [slug: string]: {
+      name: string
+      img: string
+      address: string
+      standard: TokenStandard
+    }
+  } = {}
   collectibles[Chain.Eth].forEach((collectible) => {
-    const { collectionSlug, collectionImageUrl } = collectible
+    const {
+      collectionSlug,
+      collectionName,
+      collectionImageUrl,
+      assetContractAddress,
+      standard
+    } = collectible
     if (
-      !collectionImageUrl ||
+      !collectionName ||
       !collectionSlug ||
+      !collectionImageUrl ||
+      !assetContractAddress ||
+      !standard ||
       ethCollectionMap[collectionSlug]
-    )
+    ) {
       return
+    }
     ethCollectionMap[collectionSlug] = {
-      name: collectionSlug,
-      img: collectionImageUrl
+      name: collectionName,
+      img: collectionImageUrl,
+      address: assetContractAddress,
+      standard
     }
   })
   const ethCollectibleItems = Object.keys(ethCollectionMap).map((slug) => ({
@@ -275,7 +296,8 @@ const CollectibleGatedAvailability = ({
         />
         <span>{ethCollectionMap[slug].name}</span>
       </div>
-    )
+    ),
+    value: slug
   }))
 
   // Solana collections
@@ -312,7 +334,8 @@ const CollectibleGatedAvailability = ({
         />
         <span>{solCollectionMap[mint].name}</span>
       </div>
-    )
+    ),
+    value: mint
   }))
 
   const menuItems = [...ethCollectibleItems, ...solCollectibleItems]
@@ -345,10 +368,34 @@ const CollectibleGatedAvailability = ({
             placeholder={messages.pickACollection}
             mount='parent'
             menu={{ items: menuItems }}
-            // defaultValue={getCanonicalName(props.defaultFields.genre) || ''}
+            defaultValue={
+              metadataState.premium_conditions?.nft_collection?.name ?? ''
+            }
             // isRequired={props.requiredFields.genre}
             // error={props.invalidFields.genre}
-            onSelect={(value: any) => {}}
+            onSelect={(value: string) => {
+              if (!updatePremiumContentFields) return
+
+              if (ethCollectionMap[value]) {
+                updatePremiumContentFields({
+                  nft_collection: {
+                    chain: Chain.Eth,
+                    standard: ethCollectionMap[value].standard,
+                    address: ethCollectionMap[value].address,
+                    name: ethCollectionMap[value].name,
+                    slug: value
+                  }
+                })
+              } else if (solCollectionMap[value]) {
+                updatePremiumContentFields({
+                  nft_collection: {
+                    chain: Chain.Sol,
+                    address: value,
+                    name: solCollectionMap[value].name
+                  }
+                })
+              }
+            }}
             size='large'
             dropdownStyle={styles.dropdown}
             dropdownInputStyle={styles.dropdownInput}
@@ -456,7 +503,10 @@ const TrackAvailabilityModal = ({
         didUpdateState({
           ...defaultAvailabilityFields,
           is_premium: true,
-          premium_conditions: { nft_collection: undefined }
+          premium_conditions: {
+            nft_collection:
+              metadataState.premium_conditions?.nft_collection ?? undefined
+          }
         })
       } else {
         didUpdateState({
@@ -465,7 +515,7 @@ const TrackAvailabilityModal = ({
         })
       }
     },
-    [didUpdateState]
+    [didUpdateState, metadataState]
   )
 
   const updateHiddenField = useCallback(

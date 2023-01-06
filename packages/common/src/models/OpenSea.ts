@@ -1,4 +1,5 @@
 import { Nullable } from '../utils/typeUtils'
+import { TokenStandard } from './Track'
 
 type AssetContract = {
   address: Nullable<string>
@@ -8,7 +9,7 @@ type AssetContract = {
   nft_version: string
   opensea_version: Nullable<string>
   owner: Nullable<number>
-  schema_name: string
+  schema_name: TokenStandard
   symbol: string
   total_supply: number
   description: Nullable<string>

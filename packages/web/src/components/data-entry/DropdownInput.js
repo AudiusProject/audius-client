@@ -74,7 +74,7 @@ class DropdownInput extends Component {
         return (
           <Option
             key={item.text}
-            value={item.text}
+            value={item.value || item.text}
             query={item.text}
             role='option'
           >
@@ -144,6 +144,7 @@ class DropdownInput extends Component {
             notFoundContent={''}
             getPopupContainer={popupContainer}
             onDropdownVisibleChange={this.onVisibleChange}
+            onClick={(e) => e.stopPropagation()}
           >
             {options}
           </Select>
