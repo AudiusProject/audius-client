@@ -12,64 +12,16 @@ index e207e74..eb41a50 100644
  const TAGS = {
      challenge: 'BIP0340/challenge',
 diff --git a/node_modules/@noble/secp256k1/package.json b/node_modules/@noble/secp256k1/package.json
-index 4564e50..78b501e 100644
+index ea9e97d..8706f1b 100644
 --- a/node_modules/@noble/secp256k1/package.json
 +++ b/node_modules/@noble/secp256k1/package.json
-@@ -1,27 +1,34 @@
- {
--  "_from": "https://registry.npmjs.org/@noble/secp256k1/-/secp256k1-1.7.0.tgz",
-+  "_args": [
-+    [
-+      "@noble/secp256k1@1.7.0",
-+      "/Users/marcuspasell/audius-client-2/audius-client/packages/mobile"
-+    ]
-+  ],
-+  "_from": "@noble/secp256k1@1.7.0",
-   "_id": "@noble/secp256k1@1.7.0",
-   "_inBundle": false,
-   "_integrity": "sha512-kbacwGSsH/CTout0ZnZWxnW1B+jH/7r/WAAKLBtrRJ/+CUH7lgmQzl3GTrQua3SGKWNSDsS6lmjnDpIJ5Dxyaw==",
-   "_location": "/@noble/secp256k1",
-   "_phantomChildren": {},
-   "_requested": {
--    "type": "remote",
--    "raw": "@noble/secp256k1@https://registry.npmjs.org/@noble/secp256k1/-/secp256k1-1.7.0.tgz",
-+    "type": "version",
-+    "registry": true,
-+    "raw": "@noble/secp256k1@1.7.0",
-     "name": "@noble/secp256k1",
-     "escapedName": "@noble%2fsecp256k1",
-     "scope": "@noble",
--    "rawSpec": "https://registry.npmjs.org/@noble/secp256k1/-/secp256k1-1.7.0.tgz",
--    "saveSpec": "https://registry.npmjs.org/@noble/secp256k1/-/secp256k1-1.7.0.tgz",
--    "fetchSpec": "https://registry.npmjs.org/@noble/secp256k1/-/secp256k1-1.7.0.tgz"
-+    "rawSpec": "1.7.0",
-+    "saveSpec": null,
-+    "fetchSpec": "1.7.0"
-   },
-   "_requiredBy": [
--    "/"
-+    "/",
-+    "/@audius/sdk"
-   ],
-   "_resolved": "https://registry.npmjs.org/@noble/secp256k1/-/secp256k1-1.7.0.tgz",
--  "_shasum": "d15357f7c227e751d90aa06b05a0e5cf993ba8c1",
--  "_spec": "@noble/secp256k1@https://registry.npmjs.org/@noble/secp256k1/-/secp256k1-1.7.0.tgz",
--  "_where": "/private/var/folders/x9/3v0gl7751ql2b8dbs3tftqlh0000gn/T/tmp-57382wIT65KRMSVW6",
-+  "_spec": "1.7.0",
-+  "_where": "/Users/marcuspasell/audius-client-2/audius-client/packages/mobile",
-   "author": {
-     "name": "Paul Miller",
-     "url": "https://paulmillr.com"
-@@ -29,11 +36,10 @@
+@@ -29,6 +29,9 @@
    "browser": {
      "crypto": false
    },
-+  "react-native": { "crypto": "crypto" },
++  "react-native": {
++    "crypto": "crypto"
++  },
    "bugs": {
      "url": "https://github.com/paulmillr/noble-secp256k1/issues"
    },
--  "bundleDependencies": false,
--  "deprecated": false,
-   "description": "Fastest JS implementation of secp256k1. Independently audited, high-security, 0-dependency ECDSA & Schnorr signatures",
-   "devDependencies": {
-     "@noble/hashes": "1.1.2",

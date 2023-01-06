@@ -24,50 +24,7 @@ diff --git a/node_modules/micro-aes-gcm/package.json b/node_modules/micro-aes-gc
 index c9f8ade..7bdd3f4 100644
 --- a/node_modules/micro-aes-gcm/package.json
 +++ b/node_modules/micro-aes-gcm/package.json
-@@ -1,26 +1,32 @@
- {
--  "_from": "https://registry.npmjs.org/micro-aes-gcm/-/micro-aes-gcm-0.3.3.tgz",
-+  "_args": [
-+    [
-+      "micro-aes-gcm@0.3.3",
-+      "/Users/marcuspasell/audius-client-2/audius-client/packages/mobile"
-+    ]
-+  ],
-+  "_from": "micro-aes-gcm@0.3.3",
-   "_id": "micro-aes-gcm@0.3.3",
-   "_inBundle": false,
-   "_integrity": "sha512-wetPK288r0FyTzrWKkX9fNAKlJE+//bdQWpucWwx1Ei/MyFgBgN/0Ex1G3sTm4WR+2ATReGKzDQBYVpuwhho/A==",
-   "_location": "/micro-aes-gcm",
-   "_phantomChildren": {},
-   "_requested": {
--    "type": "remote",
--    "raw": "micro-aes-gcm@https://registry.npmjs.org/micro-aes-gcm/-/micro-aes-gcm-0.3.3.tgz",
-+    "type": "version",
-+    "registry": true,
-+    "raw": "micro-aes-gcm@0.3.3",
-     "name": "micro-aes-gcm",
-     "escapedName": "micro-aes-gcm",
--    "rawSpec": "https://registry.npmjs.org/micro-aes-gcm/-/micro-aes-gcm-0.3.3.tgz",
--    "saveSpec": "https://registry.npmjs.org/micro-aes-gcm/-/micro-aes-gcm-0.3.3.tgz",
--    "fetchSpec": "https://registry.npmjs.org/micro-aes-gcm/-/micro-aes-gcm-0.3.3.tgz"
-+    "rawSpec": "0.3.3",
-+    "saveSpec": null,
-+    "fetchSpec": "0.3.3"
-   },
-   "_requiredBy": [
--    "/"
-+    "/@audius/sdk"
-   ],
-   "_resolved": "https://registry.npmjs.org/micro-aes-gcm/-/micro-aes-gcm-0.3.3.tgz",
--  "_shasum": "14844e8df1a238658b76922c5fa8569a14c8c7a5",
--  "_spec": "micro-aes-gcm@https://registry.npmjs.org/micro-aes-gcm/-/micro-aes-gcm-0.3.3.tgz",
--  "_where": "/private/var/folders/x9/3v0gl7751ql2b8dbs3tftqlh0000gn/T/tmp-56502uG3HXgdbJxrj",
-+  "_spec": "0.3.3",
-+  "_where": "/Users/marcuspasell/audius-client-2/audius-client/packages/mobile",
-   "author": {
-     "name": "Paul Miller",
-     "url": "https://paulmillr.com"
-@@ -28,11 +34,12 @@
+@@ -28,6 +28,9 @@
    "browser": {
      "crypto": false
    },
@@ -77,8 +34,3 @@ index c9f8ade..7bdd3f4 100644
    "bugs": {
      "url": "https://github.com/paulmillr/micro-aes-gcm/issues"
    },
--  "bundleDependencies": false,
--  "deprecated": false,
-   "description": "Simple 0-dep wrapper over node.js/browser AES-GCM.",
-   "devDependencies": {
-     "@types/node": "18.0.0",
