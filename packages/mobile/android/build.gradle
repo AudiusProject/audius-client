@@ -11,7 +11,7 @@ buildscript {
         ffmpegKitPackage = "https-gpl-lts"
 
         // The correct property is `kotlin_version` but 
-        // snap-kit-react-native` depends on `kotlinVersion`
+        // snap-kit-react-native depends on `kotlinVersion`
         kotlinVersion = "1.6.0"
     }
     repositories {
