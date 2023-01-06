@@ -3,7 +3,6 @@ import { useRef, useCallback } from 'react'
 
 import { Pressable, View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
-import type { RiveRef } from 'rive-react-native'
 import Rive from 'rive-react-native'
 
 import { makeStyles } from 'app/styles'
@@ -45,7 +44,6 @@ export const BottomTabBarButton = (props: BottomTabBarRiveButtonProps) => {
   const { name, routeKey, isActive, onPress, onLongPress, children } = props
   const styles = useStyles()
   const { neutralLight8, neutralLight10 } = useThemeColors()
-  const riveRef = useRef<RiveRef>(null)
 
   const handlePress = useCallback(() => {
     onPress(isActive, name, routeKey)
@@ -73,7 +71,6 @@ export const BottomTabBarButton = (props: BottomTabBarRiveButtonProps) => {
               <Rive
                 style={styles.iconWrapper}
                 resourceName={name}
-                ref={riveRef}
                 autoplay={isActive}
               />
               {children}
