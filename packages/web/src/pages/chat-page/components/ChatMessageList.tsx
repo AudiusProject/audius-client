@@ -9,8 +9,9 @@ import {
 } from '@audius/common'
 import type { ChatMessage } from '@audius/sdk'
 import cn from 'classnames'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
+import { useSelector } from 'common/hooks/useSelector'
 import { ProfilePicture } from 'components/notification/Notification/components/ProfilePicture'
 
 import styles from './ChatMessageList.module.css'
