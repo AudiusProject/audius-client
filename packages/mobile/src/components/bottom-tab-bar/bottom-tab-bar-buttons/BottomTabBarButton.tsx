@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { useRef, useCallback } from 'react'
+import { useCallback } from 'react'
 
 import { Pressable, View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
