@@ -33,6 +33,7 @@ import { fetchUsers } from 'common/store/cache/users/sagas'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
+import { addPlaylistsNotInLibrary } from 'common/store/playlist-library/sagas'
 import { waitForWrite } from 'utils/sagaHelpers'
 
 import { reformat } from './utils'
@@ -233,6 +234,9 @@ function* confirmCreatePlaylist(uid, userId, formFields, source) {
             }
           })
         )
+
+        // Write out the new playlist to the playlist library
+        yield call(addPlaylistsNotInLibrary)
 
         const event = make(Name.PLAYLIST_COMPLETE_CREATE, {
           source,
