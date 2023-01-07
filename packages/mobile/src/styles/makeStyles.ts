@@ -25,12 +25,13 @@ type NamedStyles<T> = { [P in keyof T]: ViewStyle | TextStyle | ImageStyle }
 export const makeStyles = <T extends NamedStyles<T> | NamedStyles<any>>(
   styles: (options: StylesOptions) => T | NamedStyles<T>
 ) => {
+  const baseOptions = { spacing, typography }
+
   const defaultStylesheet = StyleSheet.create(
     styles({
       type: Theme.DEFAULT,
       palette: defaultTheme,
-      spacing,
-      typography
+      ...baseOptions
     })
   )
 
@@ -38,8 +39,7 @@ export const makeStyles = <T extends NamedStyles<T> | NamedStyles<any>>(
     styles({
       type: Theme.DARK,
       palette: darkTheme,
-      spacing,
-      typography
+      ...baseOptions
     })
   )
 
@@ -47,8 +47,7 @@ export const makeStyles = <T extends NamedStyles<T> | NamedStyles<any>>(
     styles({
       type: Theme.MATRIX,
       palette: matrixTheme,
-      spacing,
-      typography
+      ...baseOptions
     })
   )
 
