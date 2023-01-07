@@ -611,7 +611,7 @@ function* removeTrackFromPlaylistAsync(action) {
 }
 
 // Removes the invalid track ids from the playlist by calling `dangerouslySetPlaylistOrder`
-function* fixInvalidTracksInPlaylist(playlistId, userId, invalidTrackIds) {
+function* fixInvalidTracksInPlaylist(playlistId, invalidTrackIds) {
   yield waitForWrite()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const apiClient = yield getContext('apiClient')
@@ -671,7 +671,6 @@ function* confirmRemoveTrackFromPlaylist(
             const updatedPlaylist = yield call(
               fixInvalidTracksInPlaylist,
               confirmedPlaylistId,
-              userId,
               invalidTrackIds
             )
             const isTrackRemoved =
@@ -801,7 +800,6 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds, playlist) {
             yield call(
               fixInvalidTracksInPlaylist,
               confirmedPlaylistId,
-              userId,
               invalidTrackIds
             )
             const invalidIds = new Set(invalidTrackIds)
