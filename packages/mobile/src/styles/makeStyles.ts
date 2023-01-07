@@ -58,7 +58,7 @@ export const makeStyles = <T extends NamedStyles<T> | NamedStyles<any>>(
     [Theme.MATRIX]: matrixStylesheet
   }
 
-  return () => {
+  return function useStyles() {
     const themeVariant = useThemeVariant()
     return themedStylesheets[themeVariant]
   }
