@@ -39,56 +39,44 @@ const messages = {
   downloading: 'Downloading'
 }
 
-const useStyles = makeStyles<{ labelText?: string }>(
-  ({ palette, spacing }, props) => ({
-    root: props.labelText
-      ? {
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          width: '100%',
-          marginBottom: spacing(1)
-        }
-      : {
-          flexDirection: 'row',
-          alignItems: 'center'
-        },
-    flex1: props.labelText
-      ? {
-          flex: 1
-        }
-      : {},
-    iconTitle: props.labelText
-      ? {
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginLeft: 'auto',
-          justifyContent: 'center'
-        }
-      : {},
-    labelText: props.labelText
-      ? {
-          color: palette.neutralLight4,
-          fontSize: 14,
-          letterSpacing: 2,
-          textAlign: 'center',
-          textTransform: 'uppercase',
-          paddingLeft: spacing(1),
-          flexBasis: 'auto'
-        }
-      : {},
-    toggleContainer: props.labelText
-      ? {
-          flexDirection: 'row',
-          justifyContent: 'flex-end'
-        }
-      : {},
-    purple: props.labelText
-      ? {
-          color: palette.secondary
-        }
-      : {}
-  })
-)
+const useStyles = makeStyles(({ palette, spacing }) => ({
+  root: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  rootWithLabel: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: spacing(1)
+  },
+  flex1: {
+    flex: 1
+  },
+  iconTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 'auto',
+    justifyContent: 'center'
+  },
+  labelText: {
+    color: palette.neutralLight4,
+    fontSize: 14,
+    letterSpacing: 2,
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    paddingLeft: spacing(1),
+    flexBasis: 'auto'
+  },
+  toggleContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end'
+  },
+  purple: {
+    color: palette.secondary
+  }
+}))
 
 export const DownloadToggle = ({
   tracksForDownload,
@@ -96,8 +84,7 @@ export const DownloadToggle = ({
   labelText,
   isFavoritesDownload
 }: DownloadToggleProps) => {
-  const styleProps = useMemo(() => ({ labelText }), [labelText])
-  const styles = useStyles(styleProps)
+  const styles = useStyles()
   const dispatch = useDispatch()
   const [disabled, setDisabled] = useState(false)
   const collectionIdStr = isFavoritesDownload
@@ -158,9 +145,9 @@ export const DownloadToggle = ({
   if (!collectionId && !isFavoritesDownload) return null
 
   return (
-    <View style={styles.root}>
-      {labelText && <View style={styles.flex1} />}
-      <View style={[styles.iconTitle]}>
+    <View style={labelText ? styles.rootWithLabel : styles.root}>
+      {labelText ? <View style={styles.flex1} /> : null}
+      <View style={labelText ? styles.iconTitle : null}>
         <DownloadStatusIndicator
           statusOverride={
             isCollectionMarkedForDownload
@@ -182,7 +169,7 @@ export const DownloadToggle = ({
           </Text>
         ) : null}
       </View>
-      <View style={[styles.flex1, styles.toggleContainer]}>
+      <View style={labelText ? styles.toggleContainer : null}>
         <Switch
           value={isCollectionMarkedForDownload}
           onValueChange={handleToggleDownload}
