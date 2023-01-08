@@ -144,8 +144,7 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
   const state = store.getState() as CommonState
   const currentUserId = getUserId(state)
   const offlineTracks = getOfflineTracks(state)
-  // Short-circuit download if the associated collection has been disabled
-  if (shouldAbortDownload(trackIdStr, downloadReason)) {
+  if (shouldAbortDownload(downloadReason)) {
     if (!offlineTracks[trackId]) {
       store.dispatch(removeDownload(trackIdStr))
     }
@@ -189,8 +188,8 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
         }
       }
 
-      if (shouldAbortDownload(trackIdStr, downloadReason)) {
-        // Don't dispatch removeDownlaod here, since it's already downloaded as part of another collection
+      if (shouldAbortDownload(downloadReason)) {
+        // Don't dispatch removeDownlaod in this case, since it's already downloaded as part of another collection
         return
       }
 
@@ -219,8 +218,7 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
       }
     }
 
-    // Short-circuit download if the associated collection has been disabled
-    if (shouldAbortDownload(trackIdStr, downloadReason)) {
+    if (shouldAbortDownload(downloadReason)) {
       store.dispatch(removeDownload(trackIdStr))
       return
     }
@@ -245,11 +243,8 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
   }
 }
 
-// Short-circuit download if the associated collection has been disabled
-const shouldAbortDownload = (
-  trackIdStr: string,
-  downloadReason: DownloadReason
-) => {
+// Util to check if we should short-circuit download in case the associated collection download has been cancelled
+const shouldAbortDownload = (downloadReason: DownloadReason) => {
   const state = store.getState()
   const offlineCollections = getOfflineCollections(state)
   return (
