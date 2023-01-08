@@ -141,7 +141,7 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
     return new Error(message)
   }
 
-  const state = store.getState() as CommonState
+  const state = store.getState()
   const currentUserId = getUserId(state)
   const offlineTracks = getOfflineTracks(state)
   if (shouldAbortDownload(downloadReason)) {
@@ -251,6 +251,7 @@ const shouldAbortDownload = (downloadReason: DownloadReason) => {
     (downloadReason.is_from_favorites &&
       !offlineCollections[DOWNLOAD_REASON_FAVORITES]) ||
     (!downloadReason.is_from_favorites &&
+      downloadReason.collection_id &&
       !offlineCollections[downloadReason.collection_id])
   )
 }
