@@ -23,14 +23,18 @@ import RNFS, { exists } from 'react-native-fs'
 import type { TrackForDownload } from 'app/components/offline-downloads'
 import { getAccountCollections } from 'app/screens/favorites-screen/selectors'
 import { store } from 'app/store'
-import { getOfflineCollections } from 'app/store/offline-downloads/selectors'
+import {
+  getOfflineCollections,
+  getOfflineTracks
+} from 'app/store/offline-downloads/selectors'
 import {
   addCollection,
   batchStartDownload,
   startDownload,
   completeDownload,
   errorDownload,
-  loadTrack
+  loadTrack,
+  removeDownload
 } from 'app/store/offline-downloads/slice'
 import { populateCoverArtSizes } from 'app/utils/populateCoverArtSizes'
 
@@ -136,21 +140,20 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
     return new Error(message)
   }
 
-  // @ts-ignore mismatch in an irrelevant part of state
   const state = store.getState() as CommonState
   const currentUserId = getUserId(state)
   const offlineCollections = getOfflineCollections(state)
+  const offlineTracks = getOfflineTracks(state)
+  // Short-circuit download if the associated collection has been disabled
   if (
     (downloadReason.is_from_favorites &&
       !offlineCollections[DOWNLOAD_REASON_FAVORITES]) ||
     (!downloadReason.is_from_favorites &&
       !offlineCollections[downloadReason.collection_id])
   ) {
-    console.log(
-      `Skip cancelled download`,
-      trackIdStr,
-      downloadReason.collection_id
-    )
+    if (!offlineTracks[trackId]) {
+      store.dispatch(removeDownload(trackIdStr))
+    }
     return
   }
 
@@ -190,6 +193,19 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
           favorite_created_at: trackJson.offline?.favorite_created_at
         }
       }
+
+      // Short-circuit download if the associated collection has been disabled
+      const state = store.getState()
+      const offlineCollections = getOfflineCollections(state)
+      if (
+        (downloadReason.is_from_favorites &&
+          !offlineCollections[DOWNLOAD_REASON_FAVORITES]) ||
+        (!downloadReason.is_from_favorites &&
+          !offlineCollections[downloadReason.collection_id])
+      ) {
+        return
+      }
+
       await writeTrackJson(trackIdStr, trackToWrite)
       const lineupTrack = {
         uid: makeUid(Kind.TRACKS, track.track_id),
@@ -214,20 +230,21 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
         favorite_created_at: favoriteCreatedAt
       }
     }
-    await writeTrackJson(trackIdStr, trackToWrite)
+
+    // Short-circuit download if the associated collection has been disabled
+    const state = store.getState()
+    const offlineCollections = getOfflineCollections(state)
     if (
       (downloadReason.is_from_favorites &&
         !offlineCollections[DOWNLOAD_REASON_FAVORITES]) ||
       (!downloadReason.is_from_favorites &&
         !offlineCollections[downloadReason.collection_id])
     ) {
-      console.log(
-        `Skip cancelled completed download`,
-        trackIdStr,
-        downloadReason.collection_id
-      )
+      store.dispatch(removeDownload(trackIdStr))
       return
     }
+
+    await writeTrackJson(trackIdStr, trackToWrite)
     const verified = await verifyTrack(trackIdStr, true)
     if (verified) {
       const lineupTrack = {
