@@ -3,6 +3,7 @@ import path from 'path'
 import type {
   Collection,
   CommonState,
+  DownloadReason,
   Track,
   UserMetadata,
   UserTrackMetadata
@@ -142,15 +143,9 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
 
   const state = store.getState() as CommonState
   const currentUserId = getUserId(state)
-  const offlineCollections = getOfflineCollections(state)
   const offlineTracks = getOfflineTracks(state)
   // Short-circuit download if the associated collection has been disabled
-  if (
-    (downloadReason.is_from_favorites &&
-      !offlineCollections[DOWNLOAD_REASON_FAVORITES]) ||
-    (!downloadReason.is_from_favorites &&
-      !offlineCollections[downloadReason.collection_id])
-  ) {
+  if (shouldAbortDownload(trackIdStr, downloadReason)) {
     if (!offlineTracks[trackId]) {
       store.dispatch(removeDownload(trackIdStr))
     }
@@ -194,15 +189,8 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
         }
       }
 
-      // Short-circuit download if the associated collection has been disabled
-      const state = store.getState()
-      const offlineCollections = getOfflineCollections(state)
-      if (
-        (downloadReason.is_from_favorites &&
-          !offlineCollections[DOWNLOAD_REASON_FAVORITES]) ||
-        (!downloadReason.is_from_favorites &&
-          !offlineCollections[downloadReason.collection_id])
-      ) {
+      if (shouldAbortDownload(trackIdStr, downloadReason)) {
+        // Don't dispatch removeDownlaod here, since it's already downloaded as part of another collection
         return
       }
 
@@ -232,14 +220,7 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
     }
 
     // Short-circuit download if the associated collection has been disabled
-    const state = store.getState()
-    const offlineCollections = getOfflineCollections(state)
-    if (
-      (downloadReason.is_from_favorites &&
-        !offlineCollections[DOWNLOAD_REASON_FAVORITES]) ||
-      (!downloadReason.is_from_favorites &&
-        !offlineCollections[downloadReason.collection_id])
-    ) {
+    if (shouldAbortDownload(trackIdStr, downloadReason)) {
       store.dispatch(removeDownload(trackIdStr))
       return
     }
@@ -262,6 +243,21 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
   } catch (e) {
     throw failJob(e.message)
   }
+}
+
+// Short-circuit download if the associated collection has been disabled
+const shouldAbortDownload = (
+  trackIdStr: string,
+  downloadReason: DownloadReason
+) => {
+  const state = store.getState()
+  const offlineCollections = getOfflineCollections(state)
+  return (
+    (downloadReason.is_from_favorites &&
+      !offlineCollections[DOWNLOAD_REASON_FAVORITES]) ||
+    (!downloadReason.is_from_favorites &&
+      !offlineCollections[downloadReason.collection_id])
+  )
 }
 
 export const removeCollectionDownload = async (
