@@ -116,5 +116,3 @@ export const cancelQueuedDownloads = async (
   })
   queue.start()
 }
-
-global.queue = queue
