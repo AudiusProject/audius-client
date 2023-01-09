@@ -1,7 +1,7 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-platform :ios, '12.4'
+platform :ios, '14.0'
 install! 'cocoapods', :deterministic_uuids => false
 
 project 'AudiusReactNative',
@@ -22,7 +22,6 @@ target 'AudiusReactNative' do
   pod 'boost', :podspec => '../node_modules/react-native/third-party-podspecs/boost.podspec'
   pod 'ffmpeg-kit-react-native', :subspecs => ['https-gpl-lts'], :podspec => '../node_modules/ffmpeg-kit-react-native/ffmpeg-kit-react-native.podspec'
   pod 'react-native-flipper', :path => '../node_modules/react-native-flipper', :configuration => ['Debug', 'Staging.Debug']
-
 
   config = use_native_modules!
 
