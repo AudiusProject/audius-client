@@ -184,8 +184,8 @@
   font-weight: var(--font-demi-bold);
 }
 
-.trackAvailabilityButton {
-  height: 35px !important;
+.release .trackAvailabilityButton {
+  height: 35px;
 }
 
 .trackAvailabilityButton .trackAvailabilityButtonText {

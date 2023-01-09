@@ -115,8 +115,8 @@
   justify-content: center;
 }
 
-.doneButton {
-  font-size: var(--font-l) !important;
+.doneButtonContainer .doneButton {
+  font-size: var(--font-l);
 }
 
 .selected {
