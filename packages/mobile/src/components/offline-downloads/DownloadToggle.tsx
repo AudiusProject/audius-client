@@ -155,8 +155,6 @@ export const DownloadToggle = ({
     ]
   )
 
-  if (!collectionId && !isFavoritesDownload) return null
-
   return (
     <View style={styles.root}>
       {labelText && <View style={styles.flex1} />}
