@@ -16,6 +16,8 @@ import {
   INCREMENT
 } from './actions'
 
+const DEFAULT_ENTRY_TTL = 5 /* min */ * 60 /* seconds */ * 1000 /* ms */
+
 /**
  * The cache is implemented as primarily a map of ids to metadata (track, playlist, collection).
  * Each entry can have N number of uids that point to it, e.g. a track may appear
@@ -55,7 +57,7 @@ const unwrapEntry = (entry: { metadata: any }) => {
   if (entry && entry.metadata) {
     return entry.metadata
   }
-  return {}
+  return null
 }
 
 // These are fields we never want to merge -
@@ -137,52 +139,53 @@ const actionsMap = {
       subscribers: any
       idsToPrune: any
     },
-    action: { entries: any[]; replace: any }
+    action: { entries: any[]; replace?: boolean; merge?: boolean }
   ) {
     const newEntries = { ...state.entries }
     const newUids = { ...state.uids }
     const newSubscribers = { ...state.subscribers }
     const newIdsToPrune = new Set([...state.idsToPrune])
 
-    action.entries.forEach(
-      (e: {
-        id: string
-        metadata: { blocknumber: number }
-        uid: string | number
-      }) => {
-        // Don't add if block number is < existing
-        const existing = unwrapEntry(newEntries[e.id])
-        if (
-          existing &&
-          existing.blocknumber &&
-          e.metadata.blocknumber &&
-          existing.blocknumber > e.metadata.blocknumber
-        ) {
-          return
-        }
+    const now = Date.now()
 
-        if (action.replace) newEntries[e.id] = wrapEntry(e.metadata)
-        else {
-          newEntries[e.id] = wrapEntry(
-            mergeWith(
-              {},
-              { ...unwrapEntry(state.entries[e.id]) },
-              e.metadata,
-              mergeCustomizer
-            )
-          )
-        }
+    for (let i = 0; i < action.entries.length; i++) {
+      const e = action.entries[i]
+      // Don't add if block number is < existing
 
-        newUids[e.uid] = e.id
-        if (e.id in newSubscribers) {
-          newSubscribers[e.id].add(e.uid)
-        } else {
-          newSubscribers[e.id] = new Set([e.uid])
-        }
+      const { metadata: existing, _timestamp } = newEntries[e.id] ?? {}
 
-        newIdsToPrune.delete(e.id)
+      if (
+        existing &&
+        existing.blocknumber &&
+        e.metadata.blocknumber &&
+        existing.blocknumber > e.metadata.blocknumber
+      ) {
+        continue
       }
-    )
+
+      if (action.replace) {
+        newEntries[e.id] = wrapEntry(e.metadata)
+      } else if (existing && _timestamp + DEFAULT_ENTRY_TTL < now) {
+        continue
+        // } else {
+        //   newEntries[e.id] = { _timestamp: e.timestamp, metadata: e.metadata }
+      } else if (existing) {
+        newEntries[e.id] = wrapEntry(
+          mergeWith({}, existing, e.metadata, mergeCustomizer)
+        )
+      } else {
+        newEntries[e.id] = { _timestamp: e.timestamp, metadata: e.metadata }
+      }
+
+      newUids[e.uid] = e.id
+      if (e.id in newSubscribers) {
+        newSubscribers[e.id].add(e.uid)
+      } else {
+        newSubscribers[e.id] = new Set([e.uid])
+      }
+
+      newIdsToPrune.delete(e.id)
+    }
 
     return {
       ...state,
@@ -199,16 +202,13 @@ const actionsMap = {
     const newEntries = { ...state.entries }
     const newSubscriptions = { ...state.subscriptions }
 
-    action.entries.forEach((e: { id: string | number; metadata: any }) => {
-      newEntries[e.id] = wrapEntry(
-        mergeWith(
-          {},
-          { ...unwrapEntry(state.entries[e.id]) },
-          e.metadata,
-          mergeCustomizer
-        )
-      )
-    })
+    for (let i = 0; i < action.entries.length; i++) {
+      const e = action.entries[i]
+      newEntries[e.id] = wrapEntry({
+        ...unwrapEntry(state.entries[e.id]),
+        ...e.metadata
+      })
+    }
 
     action.subscriptions.forEach((s: { id: any; kind: any; uids: any }) => {
       const { id, kind, uids } = s
