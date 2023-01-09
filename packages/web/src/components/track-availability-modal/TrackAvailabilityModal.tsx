@@ -178,14 +178,7 @@ const PublicAvailability = ({
   handleSelection
 }: TrackAvailabilitySelectionProps) => {
   return (
-    <label className={cn(styles.radioItem, { [styles.selected]: selected })}>
-      <input
-        className={styles.radioInput}
-        type='radio'
-        name='availability'
-        value='public'
-        checked={selected}
-      />
+    <div className={cn(styles.radioItem, { [styles.selected]: selected })}>
       <div
         className={styles.availabilityRowContent}
         onClick={() => handleSelection(AvailabilityType.PUBLIC)}
@@ -198,7 +191,7 @@ const PublicAvailability = ({
           {messages.publicSubtitle}
         </div>
       </div>
-    </label>
+    </div>
   )
 }
 
@@ -211,14 +204,7 @@ const SpecialAccessAvailability = ({
   const accountUserId = useSelector(getUserId)
 
   return (
-    <label className={cn(styles.radioItem, { [styles.selected]: selected })}>
-      <input
-        className={styles.radioInput}
-        type='radio'
-        name='availability'
-        value='special-access'
-        checked={selected}
-      />
+    <div className={cn(styles.radioItem, { [styles.selected]: selected })}>
       <div
         className={styles.availabilityRowContent}
         onClick={() => handleSelection(AvailabilityType.SPECIAL_ACCESS)}
@@ -282,7 +268,7 @@ const SpecialAccessAvailability = ({
           </div>
         )}
       </div>
-    </label>
+    </div>
   )
 }
 
@@ -390,14 +376,7 @@ const CollectibleGatedAvailability = ({
   const menuItems = [...ethCollectibleItems, ...solCollectibleItems]
 
   return (
-    <label className={cn(styles.radioItem, { [styles.selected]: selected })}>
-      <input
-        className={styles.radioInput}
-        type='radio'
-        name='availability'
-        value='collectible-gated'
-        checked={selected}
-      />
+    <div className={cn(styles.radioItem, { [styles.selected]: selected })}>
       <div
         className={styles.availabilityRowContent}
         onClick={() => handleSelection(AvailabilityType.COLLECTIBLE_GATED)}
@@ -456,7 +435,7 @@ const CollectibleGatedAvailability = ({
           </div>
         )}
       </div>
-    </label>
+    </div>
   )
 }
 
@@ -467,14 +446,7 @@ const HiddenAvailability = ({
   updateHiddenField
 }: TrackAvailabilitySelectionProps) => {
   return (
-    <label className={cn(styles.radioItem, { [styles.selected]: selected })}>
-      <input
-        className={styles.radioInput}
-        type='radio'
-        name='availability'
-        value='hidden'
-        checked={selected}
-      />
+    <div className={cn(styles.radioItem, { [styles.selected]: selected })}>
       <div
         className={styles.availabilityRowContent}
         onClick={() => handleSelection(AvailabilityType.HIDDEN)}
@@ -522,7 +494,7 @@ const HiddenAvailability = ({
           </div>
         )}
       </div>
-    </label>
+    </div>
   )
 }
 
