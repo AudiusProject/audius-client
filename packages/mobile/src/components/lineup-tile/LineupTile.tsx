@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react'
+import { useCallback } from 'react'
 
 import { accountSelectors } from '@audius/common'
-import { Animated, Easing } from 'react-native'
+import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import type { LineupTileProps } from 'app/components/lineup-tile/types'
@@ -58,24 +58,11 @@ export const LineupTile = ({
   const currentUserId = useSelector(getUserId)
   const isCollection = 'playlist_id' in item
 
-  const [artworkLoaded, setArtworkLoaded] = useState(false)
-
-  const opacity = useRef(new Animated.Value(0.5)).current
-
   const isOwner = user_id === currentUserId
-  const isLoaded = artworkLoaded
-  const fadeIn = { opacity }
 
-  useEffect(() => {
-    if (isLoaded) {
-      onLoad?.(index)
-      Animated.timing(opacity, {
-        toValue: 1,
-        easing: Easing.ease,
-        useNativeDriver: true
-      }).start()
-    }
-  }, [onLoad, isLoaded, index, opacity, title])
+  const handleLoad = useCallback(() => {
+    onLoad?.(index)
+  }, [onLoad, index])
 
   return (
     <LineupTileRoot onPress={onPress} {...TileProps}>
@@ -85,7 +72,7 @@ export const LineupTile = ({
       {isUnlisted ? (
         <LineupTileBannerIcon type={LineupTileBannerIconType.HIDDEN} />
       ) : null}
-      <Animated.View style={fadeIn}>
+      <View>
         <LineupTileTopRight
           duration={duration}
           isArtistPick={_artist_pick === id}
@@ -97,7 +84,7 @@ export const LineupTile = ({
           coSign={coSign}
           renderImage={renderImage}
           onPressTitle={onPressTitle}
-          setArtworkLoaded={setArtworkLoaded}
+          setArtworkLoaded={handleLoad}
           uid={uid}
           title={title}
           user={user}
@@ -118,7 +105,7 @@ export const LineupTile = ({
           saveCount={save_count}
           showRankIcon={showRankIcon}
         />
-      </Animated.View>
+      </View>
       {children}
       <LineupTileActionButtons
         hasReposted={has_current_user_reposted}
