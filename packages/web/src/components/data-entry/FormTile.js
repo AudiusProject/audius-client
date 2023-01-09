@@ -66,6 +66,8 @@ const Divider = (props) => {
   )
 }
 
+// This is temporary. Will be removed along with feature flag after launch.
+// https://linear.app/audius/issue/PAY-813/remove-premium-content-feature-flags-after-launch
 const TrackAvailabilityButton = (props) => {
   const { isEnabled: isPremiumContentEnabled } = useFlag(
     FeatureFlags.PREMIUM_CONTENT_ENABLED
@@ -102,6 +104,8 @@ const TrackAvailabilityButton = (props) => {
   )
 }
 
+// This is temporary. Will be removed along with feature flag after launch.
+// https://linear.app/audius/issue/PAY-813/remove-premium-content-feature-flags-after-launch
 const TrackAvailabilityModalContainer = (props) => {
   const { isEnabled: isPremiumContentEnabled } = useFlag(
     FeatureFlags.PREMIUM_CONTENT_ENABLED
