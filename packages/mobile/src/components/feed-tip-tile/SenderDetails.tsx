@@ -26,7 +26,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     alignItems: 'center',
     flex: 1,
     flexWrap: 'wrap',
-    overflow: 'hidden',
     marginLeft: spacing(1)
   },
   wasTippedBy: {
