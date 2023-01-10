@@ -195,7 +195,7 @@ function* updateCollectibleGatedTrackAccess(
     updateUserSolCollectibles.type
   ].includes(action.type)
   const userIdForCollectibles =
-    areCollectiblesFetched && 'userId' in action ? action.userId : null
+    areCollectiblesFetched && 'payload' in action ? action.payload.userId : null
   if (userIdForCollectibles && account?.user_id !== userIdForCollectibles)
     return
 
