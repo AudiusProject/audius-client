@@ -23,10 +23,10 @@ import { waitForWrite } from 'utils/sagaHelpers'
 const { updatePremiumContentSignatures } = premiumContentActions
 
 const {
-  ethCollectiblesFetched,
-  solCollectiblesFetched,
-  ETH_COLLECTIBLES_FETCHED,
-  SOL_COLLECTIBLES_FETCHED
+  updateUserEthCollectibles,
+  updateUserSolCollectibles,
+  UPDATE_USER_ETH_COLLECTIBLES,
+  UPDATE_USER_SOL_COLLECTIBLES
 } = collectiblesActions
 
 const { getPremiumTrackSignatureMap } = premiumContentSelectors
@@ -180,8 +180,8 @@ function* updateNewPremiumContentSignatures({
  */
 function* updateCollectibleGatedTrackAccess(
   action:
-    | ReturnType<typeof ethCollectiblesFetched>
-    | ReturnType<typeof solCollectiblesFetched>
+    | ReturnType<typeof updateUserEthCollectibles>
+    | ReturnType<typeof updateUserSolCollectibles>
     | ReturnType<typeof cacheActions.add>
 ) {
   // Halt if premium content not enabled
@@ -195,8 +195,8 @@ function* updateCollectibleGatedTrackAccess(
 
   // Halt if nfts fetched are not for logged in account
   const areCollectiblesFetched = [
-    ETH_COLLECTIBLES_FETCHED,
-    SOL_COLLECTIBLES_FETCHED
+    UPDATE_USER_ETH_COLLECTIBLES,
+    UPDATE_USER_SOL_COLLECTIBLES
   ].includes(action.type)
   const userIdForCollectibles =
     areCollectiblesFetched && 'userId' in action ? action.userId : null
@@ -292,7 +292,7 @@ function* updateCollectibleGatedTrackAccess(
 
 function* watchCollectibleGatedTracks() {
   yield takeLatest(
-    [cacheActions.ADD, ETH_COLLECTIBLES_FETCHED, SOL_COLLECTIBLES_FETCHED],
+    [cacheActions.ADD, UPDATE_USER_ETH_COLLECTIBLES, UPDATE_USER_SOL_COLLECTIBLES],
     updateCollectibleGatedTrackAccess
   )
 }

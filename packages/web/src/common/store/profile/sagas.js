@@ -56,8 +56,6 @@ const { getProfileUserId, getProfileFollowers, getProfileUser } =
 const { getUserId, getAccountUser } = accountSelectors
 
 const {
-  ethCollectiblesFetched,
-  solCollectiblesFetched,
   updateUserEthCollectibles,
   updateUserSolCollectibles,
   updateSolCollections
@@ -141,7 +139,6 @@ export function* fetchOpenSeaAssets(user) {
     ])
   )
   yield put(updateUserEthCollectibles(user.user_id, collectibleList))
-  yield put(ethCollectiblesFetched(user.user_id))
 }
 
 export function* fetchSolanaCollectiblesForWallets(wallets) {
@@ -177,7 +174,6 @@ export function* fetchSolanaCollectibles(user) {
       }
     ])
   )
-  yield put(solCollectiblesFetched(user.user_id))
   yield put(updateUserSolCollectibles(user.user_id, solanaCollectibleList))
 
   const validSolCollectionMints = [
