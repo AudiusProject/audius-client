@@ -106,17 +106,25 @@ function* watchSetupBackend() {
   yield* takeEvery(backendActions.SETUP, setupBackend)
 }
 
-// Watch for changes to reachability and if not fully set up, re set-up the backend
-function* watchReachabilityChange() {
-  yield* call(waitForValue, (state) => !getIsReachable(state))
+// If not fully set up, re set-up the backend
+export function* setupBackendIfNotSetUp() {
+  console.log('SetupBackendSaga called')
+  yield* put(backendActions.setupBackend())
+
   const isSetup = yield* select(getIsSetup)
   if (!isSetup) {
-    yield* call(waitForValue, (state) => getIsReachable(state))
     // Try to set up again, which should block further actions until completed
+    console.log('SetupBackendSaga action dispatched')
     yield* put(backendActions.setupBackend())
+  } else {
+    console.log('SetupBackendSaga already set up')
   }
 }
 
+function* watchSetReachable() {
+  yield* takeEvery(reachabilityActions.SET_REACHABLE, setupBackendIfNotSetUp)
+}
+
 export default function sagas() {
-  return [watchSetupBackend, watchBackendErrors, watchReachabilityChange]
+  return [watchSetupBackend, watchBackendErrors, watchSetReachable]
 }
