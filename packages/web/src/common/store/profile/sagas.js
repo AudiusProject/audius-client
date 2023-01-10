@@ -176,6 +176,8 @@ export function* fetchSolanaCollectibles(user) {
   )
   yield put(updateUserSolCollectibles(user.user_id, solanaCollectibleList))
 
+  // Get verified sol collections from the sol collectibles
+  // and save their metadata in the redux store.
   const validSolCollectionMints = [
     ...new Set(
       solanaCollectibleList

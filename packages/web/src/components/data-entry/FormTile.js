@@ -429,6 +429,8 @@ const AdvancedForm = (props) => {
       remixes: !hideRemixes
     })
     props.onChangeField('is_premium', newState.is_premium)
+    // Check whether the field is invalid if premium track is collectible-gated
+    // so that the user cannot proceed until they pick an nft collection.
     const isInvalidNFTCollection = ('nft_collection' in (newState.premium_conditions ?? {})) && !newState.premium_conditions?.nft_collection
     props.onChangeField('premium_conditions', newState.premium_conditions, isInvalidNFTCollection)
   }
