@@ -49,7 +49,7 @@ export function* waitForBackendSetup() {
 export function* awaitReachability() {
   const isNativeMobile = yield* getContext('isNativeMobile')
   const isReachable = yield* select(getIsReachable)
-  if (isReachable === true || !isNativeMobile) return true
+  if (isReachable || !isNativeMobile) return true
   const { action } = yield* race({
     action: take(reachabilityActions.SET_REACHABLE),
     delay: delay(REACHABILITY_LONG_TIMEOUT)
