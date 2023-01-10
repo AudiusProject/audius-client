@@ -25,7 +25,7 @@ import {
   TouchableWithoutFeedback,
   View
 } from 'react-native'
-import { RadialGradient } from 'react-native-radial-gradient'
+import RadialGradient from 'react-native-radial-gradient'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSelector, useDispatch } from 'react-redux'
 
