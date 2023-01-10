@@ -200,7 +200,8 @@ function* updateCollectibleGatedTrackAccess(
   ].includes(action.type)
   const userIdForCollectibles =
     areCollectiblesFetched && 'userId' in action ? action.userId : null
-  if (userIdForCollectibles && account?.user_id !== userIdForCollectibles) return
+  if (userIdForCollectibles && account?.user_id !== userIdForCollectibles)
+    return
 
   // get tracks for which we already previously got the signatures
   // filter out those tracks from the ones that need to be passed in to the DN request
@@ -292,7 +293,11 @@ function* updateCollectibleGatedTrackAccess(
 
 function* watchCollectibleGatedTracks() {
   yield takeLatest(
-    [cacheActions.ADD, UPDATE_USER_ETH_COLLECTIBLES, UPDATE_USER_SOL_COLLECTIBLES],
+    [
+      cacheActions.ADD,
+      UPDATE_USER_ETH_COLLECTIBLES,
+      UPDATE_USER_SOL_COLLECTIBLES
+    ],
     updateCollectibleGatedTrackAccess
   )
 }

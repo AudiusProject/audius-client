@@ -1,4 +1,4 @@
-import { MouseEvent, useCallback, useMemo, useState } from 'react'
+import { MouseEvent, useCallback, useMemo } from 'react'
 
 import {
   CommonState,
@@ -23,8 +23,7 @@ import {
   ButtonType,
   Button,
   IconInfo,
-  IconArrow,
-  ButtonSize
+  IconArrow
 } from '@audius/stems'
 import cn from 'classnames'
 import { useSelector } from 'react-redux'
@@ -355,7 +354,9 @@ const CollectibleGatedAvailability = ({
         })
     )
   ]
-  const solCollectionMap: { [mint: string]: { name: string; img: string } } = {}
+  const solCollectionMap: {
+    [mint: string]: { name: string; img: Nullable<string> }
+  } = {}
   validSolCollectionMints.forEach((mint) => {
     const { data, imageUrl } = solCollections[mint] ?? {}
     if (!data?.name || solCollectionMap[data.name]) return
@@ -369,7 +370,7 @@ const CollectibleGatedAvailability = ({
     el: (
       <div className={styles.dropdownRow}>
         <img
-          src={solCollectionMap[mint].img}
+          src={solCollectionMap[mint].img ?? undefined}
           alt={solCollectionMap[mint].name}
         />
         <span>{solCollectionMap[mint].name}</span>
@@ -393,7 +394,10 @@ const CollectibleGatedAvailability = ({
         <div className={styles.availabilityRowDescription}>
           {messages.collectibleGatedSubtitle}
         </div>
-        <div className={styles.learnMore} onClick={() => window.open(LEARN_MORE_URL, '_blank')}>
+        <div
+          className={styles.learnMore}
+          onClick={() => window.open(LEARN_MORE_URL, '_blank')}
+        >
           <span>{messages.learnMore}</span>
           <IconArrow className={styles.learnMoreArrow} />
         </div>
@@ -521,7 +525,10 @@ const TrackAvailabilityModal = ({
   )
 
   const accountUserId = useSelector(getUserId)
-  const defaultSpecialAccess = useMemo(() => accountUserId ? { follow_user_id: accountUserId } : null, [accountUserId])
+  const defaultSpecialAccess = useMemo(
+    () => (accountUserId ? { follow_user_id: accountUserId } : null),
+    [accountUserId]
+  )
 
   let availability = AvailabilityType.PUBLIC
   if (metadataState.unlisted) {
@@ -562,7 +569,7 @@ const TrackAvailabilityModal = ({
         })
       }
     },
-    [didUpdateState, metadataState, accountUserId]
+    [didUpdateState, metadataState, defaultSpecialAccess]
   )
 
   const updateHiddenField = useCallback(
