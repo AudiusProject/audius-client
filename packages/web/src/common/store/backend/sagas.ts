@@ -2,26 +2,25 @@ import {
   reachabilityActions,
   reachabilitySelectors,
   getContext,
-  accountActions,
-  waitForValue
+  accountActions
 } from '@audius/common'
 import {
   put,
   all,
-  delay,
   take,
   takeEvery,
   select,
   call,
-  race
+  race,
+  delay
 } from 'typed-redux-saga'
+
+import { REACHABILITY_LONG_TIMEOUT } from 'store/reachability/sagas'
 
 import * as backendActions from './actions'
 import { watchBackendErrors } from './errorSagas'
 import { getIsSetup } from './selectors'
 const { getIsReachable } = reachabilitySelectors
-
-const REACHABILITY_TIMEOUT_MS = 8 * 1000
 
 /**
  * Waits for the backend to be setup. Can be used as a blocking call in another saga,
@@ -46,20 +45,14 @@ export function* waitForBackendSetup() {
   }
 }
 
-export function* waitForReachability() {
-  const isReachable = yield* select(getIsReachable)
-  if (!isReachable) {
-    yield* all([take(reachabilityActions.SET_REACHABLE)])
-  }
-}
-
-function* awaitReachability() {
+// This is specific to setupBackend. See utils in reachability sagas for general use
+export function* awaitReachability() {
   const isNativeMobile = yield* getContext('isNativeMobile')
   const isReachable = yield* select(getIsReachable)
   if (isReachable === true || !isNativeMobile) return true
   const { action } = yield* race({
     action: take(reachabilityActions.SET_REACHABLE),
-    delay: delay(REACHABILITY_TIMEOUT_MS)
+    delay: delay(REACHABILITY_LONG_TIMEOUT)
   })
   return !!action
 }
