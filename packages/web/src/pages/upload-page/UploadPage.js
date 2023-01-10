@@ -248,10 +248,6 @@ class Upload extends Component {
     // This will change once we introduce premium content UI
     // in the track upload flow.
     const tracks = [...this.state.tracks]
-    tracks.forEach((track) => {
-      track.metadata.is_premium = false
-      track.metadata.premium_conditions = null
-    })
     this.props.uploadTracks(
       tracks,
       this.state.metadata,

@@ -429,7 +429,8 @@ const AdvancedForm = (props) => {
       remixes: !hideRemixes
     })
     props.onChangeField('is_premium', newState.is_premium)
-    props.onChangeField('premium_conditions', newState.premium_conditions)
+    const isInvalidNFTCollection = ('nft_collection' in (newState.premium_conditions ?? {})) && !newState.premium_conditions?.nft_collection
+    props.onChangeField('premium_conditions', newState.premium_conditions, isInvalidNFTCollection)
   }
 
   const didToggleHideRemixesState = () => {
