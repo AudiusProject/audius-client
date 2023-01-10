@@ -1,19 +1,11 @@
 import { MouseEvent, useCallback, useMemo } from 'react'
 
 import {
-  CommonState,
   FeatureFlags,
-  Nullable,
   PremiumConditions,
-  collectiblesSelectors,
-  Collectible,
   accountSelectors,
-  Chain,
-  TokenStandard
 } from '@audius/common'
 import {
-  IconSpecialAccess,
-  IconCollectible,
   IconVisibilityPublic,
   Modal,
   ModalContent,
@@ -21,14 +13,11 @@ import {
   ModalTitle,
   IconHidden,
   ButtonType,
-  Button,
-  IconInfo,
-  IconArrow
+  Button
 } from '@audius/stems'
 import cn from 'classnames'
 import { useSelector } from 'react-redux'
 
-import Tooltip from 'components/tooltip/Tooltip'
 import { useFlag } from 'hooks/useRemoteConfig'
 
 import Switch from '../switch/Switch'
@@ -36,6 +25,7 @@ import { AvailabilityType, TrackAvailabilitySelectionProps, TrackMetadataState, 
 
 import styles from './TrackAvailabilityModal.module.css'
 import { CollectibleGatedAvailability } from './CollectibleGatedAvailability'
+import { SpecialAccessAvailability } from './SpecialAccessAvailability'
 
 const { getUserId } = accountSelectors
 
@@ -45,21 +35,15 @@ const messages = {
   public: 'Public (Default)',
   publicSubtitle:
     'Public uploads will appear throughout Audius and will be visible to all users.',
-  specialAccess: 'Special Access',
-  specialAccessSubtitle:
-    'Special Access content is only available to users who meet your pre-specified criteria.',
   hidden: 'Hidden',
   hiddenSubtitle:
     "Hidden tracks won't be visible to your followers. Only you will see them on your profile. Anyone who has the link will be able to listen.",
-  followersOnly: 'Available to Followers Only',
-  supportersOnly: 'Available to Supporters Only',
   showUnlisted: 'Show Unlisted',
   showGenre: 'Show Genre',
   showMood: 'Show Mood',
   showTags: 'Show Tags',
   showShareButton: 'Show Share Button',
   showPlayCount: 'Show Play Count',
-  supportersInfo: 'Supporters are users who have sent you a tip',
   done: 'Done'
 }
 
@@ -147,83 +131,6 @@ const PublicAvailability = ({
         <div className={styles.availabilityRowDescription}>
           {messages.publicSubtitle}
         </div>
-      </div>
-    </div>
-  )
-}
-
-const SpecialAccessAvailability = ({
-  selected,
-  metadataState,
-  handleSelection,
-  updatePremiumContentFields
-}: TrackAvailabilitySelectionProps) => {
-  const accountUserId = useSelector(getUserId)
-
-  return (
-    <div className={cn(styles.radioItem, { [styles.selected]: selected })}>
-      <div
-        className={styles.availabilityRowContent}
-        onClick={() => handleSelection(AvailabilityType.SPECIAL_ACCESS)}
-      >
-        <div className={styles.availabilityRowTitle}>
-          <IconSpecialAccess className={styles.availabilityRowIcon} />
-          <span>{messages.specialAccess}</span>
-        </div>
-        <div className={styles.availabilityRowDescription}>
-          {messages.specialAccessSubtitle}
-        </div>
-        {selected && (
-          <div className={styles.availabilityRowSelection}>
-            <label
-              className={cn(styles.radioItem, styles.specialAccessRadioItem, {
-                [styles.selected]:
-                  !!metadataState.premium_conditions?.follow_user_id
-              })}
-            >
-              <input
-                className={styles.radioInput}
-                type='radio'
-                name='special-access'
-                value='follower'
-                onClick={(e: MouseEvent) => {
-                  e.stopPropagation()
-                  if (!updatePremiumContentFields || !accountUserId) return
-                  updatePremiumContentFields({ follow_user_id: accountUserId })
-                }}
-              />
-              <div>{messages.followersOnly}</div>
-            </label>
-            <label
-              className={cn(styles.radioItem, styles.specialAccessRadioItem, {
-                [styles.selected]:
-                  !!metadataState.premium_conditions?.tip_user_id
-              })}
-            >
-              <input
-                className={styles.radioInput}
-                type='radio'
-                name='special-access'
-                value='supporter'
-                onClick={(e: MouseEvent) => {
-                  e.stopPropagation()
-                  if (!updatePremiumContentFields || !accountUserId) return
-                  updatePremiumContentFields({ tip_user_id: accountUserId })
-                }}
-              />
-              <div>
-                {messages.supportersOnly}
-                <Tooltip
-                  text={messages.supportersInfo}
-                  mouseEnterDelay={0.1}
-                  mount='body'
-                >
-                  <IconInfo className={styles.supportersInfo} />
-                </Tooltip>
-              </div>
-            </label>
-          </div>
-        )}
       </div>
     </div>
   )
