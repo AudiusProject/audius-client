@@ -56,7 +56,7 @@ export function* waitForReachability() {
 function* awaitReachability() {
   const isNativeMobile = yield* getContext('isNativeMobile')
   const isReachable = yield* select(getIsReachable)
-  if (isReachable || !isNativeMobile) return true
+  if (isReachable === true || !isNativeMobile) return true
   const { action } = yield* race({
     action: take(reachabilityActions.SET_REACHABLE),
     delay: delay(REACHABILITY_TIMEOUT_MS)
@@ -68,6 +68,11 @@ export function* setupBackend() {
   // Optimistically fetch account, then do it again later when we're sure we're connected
   // This ensures we always get the cached account when starting offline if available
   yield* put(accountActions.fetchLocalAccount())
+
+  // Init APICLient
+  const apiClient = yield* getContext('apiClient')
+  apiClient.init()
+
   const establishedReachability = yield* call(awaitReachability)
   // If we couldn't connect, show the error page
   // and just sit here waiting for reachability.
@@ -78,12 +83,9 @@ export function* setupBackend() {
     console.info('Reconnected')
   }
 
-  const apiClient = yield* getContext('apiClient')
   const fingerprintClient = yield* getContext('fingerprintClient')
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
 
-  // Init APICLient
-  apiClient.init()
   // Fire-and-forget init fp
   fingerprintClient.init()
   yield* put(accountActions.fetchAccount())
