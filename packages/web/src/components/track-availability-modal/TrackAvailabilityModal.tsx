@@ -1,4 +1,4 @@
-import { MouseEvent, useCallback, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import {
   FeatureFlags,
@@ -20,12 +20,12 @@ import { useSelector } from 'react-redux'
 
 import { useFlag } from 'hooks/useRemoteConfig'
 
-import Switch from '../switch/Switch'
 import { AvailabilityType, TrackAvailabilitySelectionProps, TrackMetadataState, UnlistedTrackMetadataField } from './types'
 
 import styles from './TrackAvailabilityModal.module.css'
 import { CollectibleGatedAvailability } from './CollectibleGatedAvailability'
 import { SpecialAccessAvailability } from './SpecialAccessAvailability'
+import { HiddenAvailability } from './HiddenAvailability'
 
 const { getUserId } = accountSelectors
 
@@ -35,15 +35,6 @@ const messages = {
   public: 'Public (Default)',
   publicSubtitle:
     'Public uploads will appear throughout Audius and will be visible to all users.',
-  hidden: 'Hidden',
-  hiddenSubtitle:
-    "Hidden tracks won't be visible to your followers. Only you will see them on your profile. Anyone who has the link will be able to listen.",
-  showUnlisted: 'Show Unlisted',
-  showGenre: 'Show Genre',
-  showMood: 'Show Mood',
-  showTags: 'Show Tags',
-  showShareButton: 'Show Share Button',
-  showPlayCount: 'Show Play Count',
   done: 'Done'
 }
 
@@ -56,55 +47,6 @@ const defaultAvailabilityFields = {
   tags: true,
   plays: false,
   share: false
-}
-
-// The order of toggles in the modal
-const unlistedTrackMetadataOrder = [
-  UnlistedTrackMetadataField.GENRE,
-  UnlistedTrackMetadataField.MOOD,
-  UnlistedTrackMetadataField.TAGS,
-  UnlistedTrackMetadataField.SHARE,
-  UnlistedTrackMetadataField.PLAYS
-]
-
-const hiddenTrackMetadataMap = {
-  [UnlistedTrackMetadataField.UNLISTED]: '',
-  [UnlistedTrackMetadataField.GENRE]: messages.showGenre,
-  [UnlistedTrackMetadataField.MOOD]: messages.showMood,
-  [UnlistedTrackMetadataField.TAGS]: messages.showTags,
-  [UnlistedTrackMetadataField.SHARE]: messages.showShareButton,
-  [UnlistedTrackMetadataField.PLAYS]: messages.showPlayCount
-}
-
-type TrackMetadataSectionProps = {
-  title: string
-  isVisible: boolean
-  isDisabled: boolean
-  didSet: (enabled: boolean) => void
-}
-
-// Individual section of the modal.
-const TrackMetadataSection = ({
-  title,
-  isVisible,
-  isDisabled,
-  didSet
-}: TrackMetadataSectionProps) => {
-  return (
-    <div className={styles.section}>
-      <span className={styles.sectionTitleClassname}>{title}</span>
-      <div className={styles.switchContainer}>
-        <Switch
-          isOn={isVisible}
-          handleToggle={(e: MouseEvent) => {
-            e.stopPropagation()
-            didSet(!isVisible)
-          }}
-          isDisabled={isDisabled}
-        />
-      </div>
-    </div>
-  )
 }
 
 type TrackAvailabilityModalProps = {
@@ -131,65 +73,6 @@ const PublicAvailability = ({
         <div className={styles.availabilityRowDescription}>
           {messages.publicSubtitle}
         </div>
-      </div>
-    </div>
-  )
-}
-
-const HiddenAvailability = ({
-  selected,
-  metadataState,
-  handleSelection,
-  updateHiddenField
-}: TrackAvailabilitySelectionProps) => {
-  return (
-    <div className={cn(styles.radioItem, { [styles.selected]: selected })}>
-      <div
-        className={styles.availabilityRowContent}
-        onClick={() => handleSelection(AvailabilityType.HIDDEN)}
-      >
-        <div className={styles.availabilityRowTitle}>
-          <IconHidden className={styles.availabilityRowIcon} />
-          <span>{messages.hidden}</span>
-        </div>
-        <div className={styles.availabilityRowDescription}>
-          {messages.hiddenSubtitle}
-        </div>
-        {selected && (
-          <div
-            className={cn(
-              styles.availabilityRowSelection,
-              styles.hiddenSection
-            )}
-          >
-            <div>
-              {unlistedTrackMetadataOrder.slice(0, 3).map((label, i) => {
-                return (
-                  <TrackMetadataSection
-                    key={i}
-                    isDisabled={false}
-                    isVisible={metadataState[label]}
-                    title={hiddenTrackMetadataMap[label]}
-                    didSet={updateHiddenField!(label)}
-                  />
-                )
-              })}
-            </div>
-            <div>
-              {unlistedTrackMetadataOrder.slice(3).map((label, i) => {
-                return (
-                  <TrackMetadataSection
-                    key={i}
-                    isDisabled={false}
-                    isVisible={metadataState[label]}
-                    title={hiddenTrackMetadataMap[label]}
-                    didSet={updateHiddenField!(label)}
-                  />
-                )
-              })}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )
