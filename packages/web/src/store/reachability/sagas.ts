@@ -50,7 +50,7 @@ export function* waitForReachability() {
   yield* all([take(reachabilityActions.SET_REACHABLE)])
 }
 
-// Wait until reachability is either true. 'unconfirmed' is not good enough
+// Wait until reachability is true. 'unconfirmed' is not good enough
 export function* waitForConfirmedReachability() {
   const isReachable = yield* select(getIsReachable)
   if (isReachable === true) return
