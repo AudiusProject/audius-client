@@ -8,12 +8,10 @@ import {
   defaultTheme
 } from 'app/utils/theme'
 
-type AnimationJson = any
-
 type AnimationCreatorConfig = { palette: ThemeColors; type: Theme }
 
-export const makeAnimations = (
-  animationCreator: (config: AnimationCreatorConfig) => AnimationJson[]
+export const makeAnimations = <TReturn>(
+  animationCreator: (config: AnimationCreatorConfig) => TReturn
 ) => {
   const themedAnimations = {
     [Theme.DEFAULT]: animationCreator({
@@ -30,7 +28,7 @@ export const makeAnimations = (
     })
   }
 
-  return function useAnimations() {
+  return function useAnimations(): TReturn {
     const themeVariant = useThemeVariant()
     return themedAnimations[themeVariant]
   }
