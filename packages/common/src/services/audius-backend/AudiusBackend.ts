@@ -2189,7 +2189,7 @@ export const audiusBackend = ({
         await audiusLibs.Notifications.viewNotification({})
       }
     } catch (err) {
-      console.error(e)
+      console.error(err)
     }
     return notificationsReadResponse
   }
