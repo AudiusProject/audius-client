@@ -178,6 +178,7 @@ const actionsMap = {
         _timestamp + DEFAULT_ENTRY_TTL > now &&
         cacheType === 'fast'
       ) {
+        // do nothing
       } else if (existing) {
         const newMetadata = mergeWith(
           {},
