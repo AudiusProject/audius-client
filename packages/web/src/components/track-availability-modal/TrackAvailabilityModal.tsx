@@ -28,18 +28,16 @@ import {
 import cn from 'classnames'
 import { useSelector } from 'react-redux'
 
-import DropdownInput from 'components/data-entry/DropdownInput'
 import Tooltip from 'components/tooltip/Tooltip'
 import { useFlag } from 'hooks/useRemoteConfig'
 
 import Switch from '../switch/Switch'
+import { AvailabilityType, TrackAvailabilitySelectionProps, TrackMetadataState, UnlistedTrackMetadataField } from './types'
 
 import styles from './TrackAvailabilityModal.module.css'
+import { CollectibleGatedAvailability } from './CollectibleGatedAvailability'
 
 const { getUserId } = accountSelectors
-const { getUserCollectibles, getSolCollections } = collectiblesSelectors
-
-const LEARN_MORE_URL = ''
 
 const messages = {
   title: 'AVAILABILITY',
@@ -50,9 +48,6 @@ const messages = {
   specialAccess: 'Special Access',
   specialAccessSubtitle:
     'Special Access content is only available to users who meet your pre-specified criteria.',
-  collectibleGated: 'Collectible Gated',
-  collectibleGatedSubtitle:
-    'Collectible gated content can only be accessed by users with linked wallets containing a collectible from the specified collection. These tracks do not appear on trending or in user feeds.',
   hidden: 'Hidden',
   hiddenSubtitle:
     "Hidden tracks won't be visible to your followers. Only you will see them on your profile. Anyone who has the link will be able to listen.",
@@ -65,8 +60,6 @@ const messages = {
   showShareButton: 'Show Share Button',
   showPlayCount: 'Show Play Count',
   supportersInfo: 'Supporters are users who have sent you a tip',
-  learnMore: 'Learn More',
-  pickACollection: 'Pick a Collection',
   done: 'Done'
 }
 
@@ -79,27 +72,6 @@ const defaultAvailabilityFields = {
   tags: true,
   plays: false,
   share: false
-}
-
-enum AvailabilityType {
-  PUBLIC = 'PUBLIC',
-  SPECIAL_ACCESS = 'SPECIAL_ACCESS',
-  COLLECTIBLE_GATED = 'COLLECTIBLE_GATED',
-  HIDDEN = 'HIDDEN'
-}
-
-enum PremiumTrackMetadataField {
-  IS_PREMIUM = 'is_premium',
-  PREMIUM_CONDITIONS = 'premium_conditions'
-}
-
-enum UnlistedTrackMetadataField {
-  UNLISTED = 'unlisted',
-  GENRE = 'genre',
-  MOOD = 'mood',
-  TAGS = 'tags',
-  SHARE = 'share',
-  PLAYS = 'plays'
 }
 
 // The order of toggles in the modal
@@ -118,17 +90,6 @@ const hiddenTrackMetadataMap = {
   [UnlistedTrackMetadataField.TAGS]: messages.showTags,
   [UnlistedTrackMetadataField.SHARE]: messages.showShareButton,
   [UnlistedTrackMetadataField.PLAYS]: messages.showPlayCount
-}
-
-type TrackMetadataState = {
-  [PremiumTrackMetadataField.IS_PREMIUM]: boolean
-  [PremiumTrackMetadataField.PREMIUM_CONDITIONS]: Nullable<PremiumConditions>
-  [UnlistedTrackMetadataField.UNLISTED]: boolean
-  [UnlistedTrackMetadataField.GENRE]: boolean
-  [UnlistedTrackMetadataField.MOOD]: boolean
-  [UnlistedTrackMetadataField.TAGS]: boolean
-  [UnlistedTrackMetadataField.SHARE]: boolean
-  [UnlistedTrackMetadataField.PLAYS]: boolean
 }
 
 type TrackMetadataSectionProps = {
@@ -167,14 +128,6 @@ type TrackAvailabilityModalProps = {
   metadataState: TrackMetadataState
   didUpdateState: (newState: TrackMetadataState) => void
   onClose: () => void
-}
-
-type TrackAvailabilitySelectionProps = {
-  selected: boolean
-  metadataState: TrackMetadataState
-  handleSelection: (availability: AvailabilityType) => void
-  updateHiddenField?: (field: string) => (visible: boolean) => void
-  updatePremiumContentFields?: (premiumConditions: PremiumConditions) => void
 }
 
 const PublicAvailability = ({
@@ -269,182 +222,6 @@ const SpecialAccessAvailability = ({
                 </Tooltip>
               </div>
             </label>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-const defaultCollectibles = { [Chain.Eth]: [], [Chain.Sol]: [] }
-
-const CollectibleGatedAvailability = ({
-  selected,
-  metadataState,
-  handleSelection,
-  updatePremiumContentFields
-}: TrackAvailabilitySelectionProps) => {
-  const accountUserId = useSelector(getUserId)
-  const collectibles =
-    useSelector((state: CommonState) => {
-      if (!accountUserId) return defaultCollectibles
-      return getUserCollectibles(state, { id: accountUserId })
-    }) ?? defaultCollectibles
-
-  // Ethereum collections
-  const ethCollectionMap: {
-    [slug: string]: {
-      name: string
-      img: string
-      address: string
-      standard: TokenStandard
-    }
-  } = {}
-  collectibles[Chain.Eth].forEach((collectible) => {
-    const {
-      collectionSlug,
-      collectionName,
-      collectionImageUrl,
-      assetContractAddress,
-      standard
-    } = collectible
-    if (
-      !collectionName ||
-      !collectionSlug ||
-      !collectionImageUrl ||
-      !assetContractAddress ||
-      !standard ||
-      ethCollectionMap[collectionSlug]
-    ) {
-      return
-    }
-    ethCollectionMap[collectionSlug] = {
-      name: collectionName,
-      img: collectionImageUrl,
-      address: assetContractAddress,
-      standard
-    }
-  })
-  const ethCollectibleItems = Object.keys(ethCollectionMap).map((slug) => ({
-    text: ethCollectionMap[slug].name,
-    el: (
-      <div className={styles.dropdownRow}>
-        <img
-          src={ethCollectionMap[slug].img}
-          alt={ethCollectionMap[slug].name}
-        />
-        <span>{ethCollectionMap[slug].name}</span>
-      </div>
-    ),
-    value: slug
-  }))
-
-  // Solana collections
-  const solCollections = useSelector(getSolCollections)
-  const validSolCollectionMints = [
-    ...new Set(
-      (collectibles[Chain.Sol] ?? [])
-        .filter(
-          (collectible: Collectible) =>
-            !!collectible.solanaChainMetadata?.collection?.verified
-        )
-        .map((collectible: Collectible) => {
-          const key = collectible.solanaChainMetadata!.collection!.key
-          return typeof key === 'string' ? key : key.toBase58()
-        })
-    )
-  ]
-  const solCollectionMap: {
-    [mint: string]: { name: string; img: Nullable<string> }
-  } = {}
-  validSolCollectionMints.forEach((mint) => {
-    const { data, imageUrl } = solCollections[mint] ?? {}
-    if (!data?.name || solCollectionMap[data.name]) return
-    solCollectionMap[mint] = {
-      name: data.name.replaceAll('\x00', ''),
-      img: imageUrl
-    }
-  })
-  const solCollectibleItems = Object.keys(solCollectionMap).map((mint) => ({
-    text: solCollectionMap[mint].name,
-    el: (
-      <div className={styles.dropdownRow}>
-        <img
-          src={solCollectionMap[mint].img ?? undefined}
-          alt={solCollectionMap[mint].name}
-        />
-        <span>{solCollectionMap[mint].name}</span>
-      </div>
-    ),
-    value: mint
-  }))
-
-  const menuItems = [...ethCollectibleItems, ...solCollectibleItems]
-
-  return (
-    <div className={cn(styles.radioItem, { [styles.selected]: selected })}>
-      <div
-        className={styles.availabilityRowContent}
-        onClick={() => handleSelection(AvailabilityType.COLLECTIBLE_GATED)}
-      >
-        <div className={styles.availabilityRowTitle}>
-          <IconCollectible className={styles.availabilityRowIcon} />
-          <span>{messages.collectibleGated}</span>
-        </div>
-        <div className={styles.availabilityRowDescription}>
-          {messages.collectibleGatedSubtitle}
-        </div>
-        <div
-          className={styles.learnMore}
-          onClick={() => window.open(LEARN_MORE_URL, '_blank')}
-        >
-          <span>{messages.learnMore}</span>
-          <IconArrow className={styles.learnMoreArrow} />
-        </div>
-        {selected && (
-          <div
-            className={cn(
-              styles.availabilityRowSelection,
-              styles.collectibleGated
-            )}
-          >
-            <DropdownInput
-              aria-label={messages.pickACollection}
-              placeholder={messages.pickACollection}
-              mount='parent'
-              menu={{ items: menuItems }}
-              defaultValue={
-                metadataState.premium_conditions?.nft_collection?.name ?? ''
-              }
-              // isRequired={props.requiredFields.genre}
-              // error={props.invalidFields.genre}
-              onSelect={(value: string) => {
-                if (!updatePremiumContentFields) return
-
-                if (ethCollectionMap[value]) {
-                  updatePremiumContentFields({
-                    nft_collection: {
-                      chain: Chain.Eth,
-                      standard: ethCollectionMap[value].standard,
-                      address: ethCollectionMap[value].address,
-                      name: ethCollectionMap[value].name,
-                      slug: value
-                    }
-                  })
-                } else if (solCollectionMap[value]) {
-                  updatePremiumContentFields({
-                    nft_collection: {
-                      chain: Chain.Sol,
-                      address: value,
-                      name: solCollectionMap[value].name
-                    }
-                  })
-                }
-              }}
-              size='large'
-              dropdownStyle={styles.dropdown}
-              dropdownInputStyle={styles.dropdownInput}
-            />
           </div>
         )}
       </div>
