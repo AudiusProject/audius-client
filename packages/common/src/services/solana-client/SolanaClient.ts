@@ -157,34 +157,6 @@ export class SolanaClient {
     }
   }
 
-  isCollectionNFT = async (mintAddress: string) => {
-    if (this.connection === null) return
-
-    try {
-      const programAddress = (
-        await PublicKey.findProgramAddress(
-          [
-            Buffer.from('metadata'),
-            this.metadataProgramIdPublicKey.toBytes(),
-            new PublicKey(mintAddress).toBytes()
-          ],
-          this.metadataProgramIdPublicKey
-        )
-      )[0]
-      const { collectionDetails } = await Metadata.fromAccountAddress(
-        this.connection,
-        programAddress
-      )
-
-      // "If the CollectionDetails field is set, it means the NFT is a Collection NFT
-      // and additional attributes can be found inside this field."
-      // https://docs.metaplex.com/programs/token-metadata/certified-collections#differentiating-regular-nfts-from-collection-nfts
-      return !!collectionDetails
-    } catch (e) {
-      return null
-    }
-  }
-
   getNFTMetadataFromMint = async (mintAddress: string) => {
     if (this.connection === null) return
 
