@@ -21,12 +21,11 @@ import { useThemeColors } from 'app/utils/theme'
 const PULL_DISTANCE = 75
 const DEBOUNCE_TIME_MS = 0
 
-const useStyles = makeStyles((_, topOffset: number) => ({
+const useStyles = makeStyles(() => ({
   root: {
     width: '100%',
     position: 'absolute',
     height: 20,
-    top: topOffset,
     zIndex: 10
   }
 }))
@@ -188,7 +187,7 @@ export const PullToRefresh = ({
   yOffsetDisappearance = 0,
   color
 }: PullToRefreshProps) => {
-  const styles = useStyles(topOffset)
+  const styles = useStyles()
   const { neutralLight4 } = useThemeColors()
 
   const wasRefreshing = usePrevious(isRefreshing)
@@ -199,10 +198,17 @@ export const PullToRefresh = ({
   const [shouldShowSpinner, setShouldShowSpinner] = useState(false)
   const animationRef = useRef<LottieView | null>()
 
-  const icon = shouldShowSpinner ? IconRefreshSpin : IconRefreshPull
-  const colorizedIcon = useMemo(
+  const colorizedIconRefreshSpin = useMemo(
     () =>
-      colorize(icon, {
+      colorize(IconRefreshSpin, {
+        'assets.0.layers.0.shapes.0.it.1.ck': color || neutralLight4
+      }),
+    [color, neutralLight4]
+  )
+
+  const colorizedIconRefreshPull = useMemo(
+    () =>
+      colorize(IconRefreshPull, {
         // arrow Outlines 4.Group 1.Stroke 1
         'assets.0.layers.0.shapes.0.it.1.c.k': color || neutralLight4,
         // arrow Outlines 2.Group 3.Stroke 1
@@ -212,8 +218,12 @@ export const PullToRefresh = ({
         // arrow Outlines.Group 2.Stroke 1
         'layers.2.shapes.1.it.1.c.k': color || neutralLight4
       }),
-    [icon, color, neutralLight4]
+    [color, neutralLight4]
   )
+
+  const colorizedIcon = shouldShowSpinner
+    ? colorizedIconRefreshSpin
+    : colorizedIconRefreshPull
 
   const handleAnimationFinish = useCallback(
     (isCancelled: boolean) => {
@@ -272,6 +282,7 @@ export const PullToRefresh = ({
       style={[
         styles.root,
         {
+          top: topOffset,
           transform: [
             {
               translateY: interpolateTranslateY(scrollAnim)
