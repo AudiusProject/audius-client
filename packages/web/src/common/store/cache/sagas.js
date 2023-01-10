@@ -337,8 +337,6 @@ function* initializeCacheType() {
     FeatureFlags.SAFE_FAST_CACHE
   )
 
-  console.log('hello', fastCache, safeFastCache)
-
   if (fastCache) {
     yield put(cacheActions.setCacheType({ cacheType: 'fast' }))
   } else if (safeFastCache) {
