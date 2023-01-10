@@ -328,16 +328,16 @@ function* watchRemove() {
 function* initializeCacheType() {
   const remoteConfig = yield getContext('remoteConfigInstance')
   yield call(remoteConfig.waitForRemoteConfig)
-  const fastCache = call(
+  const fastCache = yield call(
     remoteConfig.getFeatureEnabled,
     FeatureFlags.FAST_CACHE
   )
-  const safeFastCache = call(
+  const safeFastCache = yield call(
     remoteConfig.getFeatureEnabled,
     FeatureFlags.SAFE_FAST_CACHE
   )
 
-  console.log('so whats up', fastCache, safeFastCache)
+  console.log('hello', fastCache, safeFastCache)
 
   if (fastCache) {
     yield put(cacheActions.setCacheType({ cacheType: 'fast' }))
