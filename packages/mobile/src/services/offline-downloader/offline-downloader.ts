@@ -3,6 +3,7 @@ import path from 'path'
 import type {
   Collection,
   CommonState,
+  DownloadReason,
   Track,
   UserMetadata,
   UserTrackMetadata
@@ -24,12 +25,17 @@ import type { TrackForDownload } from 'app/components/offline-downloads'
 import { getAccountCollections } from 'app/screens/favorites-screen/selectors'
 import { store } from 'app/store'
 import {
+  getOfflineCollections,
+  getOfflineTracks
+} from 'app/store/offline-downloads/selectors'
+import {
   addCollection,
   batchStartDownload,
   startDownload,
   completeDownload,
   errorDownload,
-  loadTrack
+  loadTrack,
+  removeDownload
 } from 'app/store/offline-downloads/slice'
 import { populateCoverArtSizes } from 'app/utils/populateCoverArtSizes'
 
@@ -128,6 +134,7 @@ export const batchDownloadTrack = (tracksForDownload: TrackForDownload[]) => {
 export const downloadTrack = async (trackForDownload: TrackForDownload) => {
   const { trackId, downloadReason, favoriteCreatedAt } = trackForDownload
   const trackIdStr = trackId.toString()
+  store.dispatch(startDownload(trackIdStr))
 
   // Throw this
   const failJob = (message?: string) => {
@@ -135,9 +142,15 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
     return new Error(message)
   }
 
-  // @ts-ignore mismatch in an irrelevant part of state
-  const state = store.getState() as CommonState
+  const state = store.getState()
   const currentUserId = getUserId(state)
+  const offlineTracks = getOfflineTracks(state)
+  if (shouldAbortDownload(downloadReason)) {
+    if (!offlineTracks[trackId]) {
+      store.dispatch(removeDownload(trackIdStr))
+    }
+    return
+  }
 
   const trackFromApi = await apiClient.getTrack({
     id: trackId,
@@ -157,11 +170,23 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
   const track = await populateCoverArtSizes(trackFromApi)
 
   try {
-    store.dispatch(startDownload(trackIdStr))
     if (await verifyTrack(trackIdStr, false)) {
       // Track is already downloaded, so rewrite the json
       // to include this collection in the reasons_for_download list
       const trackJson = await getTrackJson(trackIdStr)
+
+      // Skip if duplicate download reason
+      if (
+        trackJson.offline?.reasons_for_download.some(
+          (existingReason) =>
+            existingReason.collection_id === downloadReason.collection_id &&
+            existingReason.is_from_favorites ===
+              downloadReason.is_from_favorites
+        )
+      ) {
+        store.dispatch(completeDownload(trackIdStr))
+        return
+      }
       const trackToWrite: Track & UserTrackMetadata = {
         ...trackJson,
         offline: {
@@ -175,6 +200,12 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
           favorite_created_at: trackJson.offline?.favorite_created_at
         }
       }
+
+      if (shouldAbortDownload(downloadReason)) {
+        // Don't dispatch removeDownlaod in this case, since it's already downloaded as part of another collection
+        return
+      }
+
       await writeTrackJson(trackIdStr, trackToWrite)
       const lineupTrack = {
         uid: makeUid(Kind.TRACKS, track.track_id),
@@ -199,6 +230,12 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
         favorite_created_at: favoriteCreatedAt
       }
     }
+
+    if (shouldAbortDownload(downloadReason)) {
+      store.dispatch(removeDownload(trackIdStr))
+      return
+    }
+
     await writeTrackJson(trackIdStr, trackToWrite)
     const verified = await verifyTrack(trackIdStr, true)
     if (verified) {
@@ -217,6 +254,19 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
   } catch (e) {
     throw failJob(e.message)
   }
+}
+
+// Util to check if we should short-circuit download in case the associated collection download has been cancelled
+const shouldAbortDownload = (downloadReason: DownloadReason) => {
+  const state = store.getState()
+  const offlineCollections = getOfflineCollections(state)
+  return (
+    (downloadReason.is_from_favorites &&
+      !offlineCollections[DOWNLOAD_REASON_FAVORITES]) ||
+    (!downloadReason.is_from_favorites &&
+      downloadReason.collection_id &&
+      !offlineCollections[downloadReason.collection_id])
+  )
 }
 
 export const removeCollectionDownload = async (

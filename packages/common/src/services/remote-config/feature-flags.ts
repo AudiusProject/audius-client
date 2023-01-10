@@ -20,6 +20,8 @@ export enum FeatureFlags {
   BUY_AUDIO_STRIPE_ENABLED = 'buy_audio_stripe_enabled',
   OFFLINE_MODE_ENABLED = 'offline_mode_enabled',
   PREMIUM_CONTENT_ENABLED = 'premium_content_enabled',
+  NFT_GATE_ENABLED = 'nft_gate_enabled',
+  SPECIAL_ACCESS_GATE_ENABLED = 'special_access_gate_enabled',
   AUTO_SUBSCRIBE_ON_FOLLOW = 'auto_subscribe_on_follow',
   STREAM_MP3 = 'stream_mp3',
   READ_ARTIST_PICK_FROM_DISCOVERY = 'read_artist_pick_from_discovery',
@@ -30,8 +32,9 @@ export enum FeatureFlags {
   VERIFY_HANDLE_WITH_TIKTOK = 'verify_handle_with_tiktok',
   SOLANA_PHONE_WALLET_CONNECT = 'solana_phone_wallet_connect',
   AUDIO_TRANSACTIONS_HISTORY = 'audio_transactions_history',
-  RATE_CTA_ENABLED = 'rate_cta_enabled',
-  SHARE_TO_SNAPCHAT = 'share_to_snapchat'
+  RATE_CTA_ENABLED = 'rate_cta_enabled_v2',
+  SHARE_TO_SNAPCHAT = 'share_to_snapchat',
+  CHAT_ENABLED = 'chat_enabled'
 }
 
 type FlagDefaults = Record<FeatureFlags, boolean>
@@ -67,6 +70,8 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.BUY_AUDIO_STRIPE_ENABLED]: false,
   [FeatureFlags.OFFLINE_MODE_ENABLED]: false,
   [FeatureFlags.PREMIUM_CONTENT_ENABLED]: false,
+  [FeatureFlags.NFT_GATE_ENABLED]: false,
+  [FeatureFlags.SPECIAL_ACCESS_GATE_ENABLED]: false,
   [FeatureFlags.AUTO_SUBSCRIBE_ON_FOLLOW]: false,
   [FeatureFlags.STREAM_MP3]: false,
   [FeatureFlags.READ_ARTIST_PICK_FROM_DISCOVERY]: false,
@@ -78,5 +83,6 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.SOLANA_PHONE_WALLET_CONNECT]: false,
   [FeatureFlags.AUDIO_TRANSACTIONS_HISTORY]: false,
   [FeatureFlags.RATE_CTA_ENABLED]: false,
-  [FeatureFlags.SHARE_TO_SNAPCHAT]: false
+  [FeatureFlags.SHARE_TO_SNAPCHAT]: false,
+  [FeatureFlags.CHAT_ENABLED]: false
 }

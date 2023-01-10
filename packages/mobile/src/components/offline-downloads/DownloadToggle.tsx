@@ -1,10 +1,11 @@
 import { useCallback, useMemo, useState } from 'react'
 
-import type { DownloadReason } from '@audius/common'
+import type { CommonState, DownloadReason } from '@audius/common'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Switch, Text } from 'app/components/core'
+import { getAccountCollections } from 'app/screens/favorites-screen/selectors'
 import {
   batchDownloadTrack,
   downloadCollectionById,
@@ -39,56 +40,45 @@ const messages = {
   downloading: 'Downloading'
 }
 
-const useStyles = makeStyles<{ labelText?: string }>(
-  ({ palette, spacing }, props) => ({
-    root: props.labelText
-      ? {
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          width: '100%',
-          marginBottom: spacing(1)
-        }
-      : {
-          flexDirection: 'row',
-          alignItems: 'center'
-        },
-    flex1: props.labelText
-      ? {
-          flex: 1
-        }
-      : {},
-    iconTitle: props.labelText
-      ? {
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginLeft: 'auto',
-          justifyContent: 'center'
-        }
-      : {},
-    labelText: props.labelText
-      ? {
-          color: palette.neutralLight4,
-          fontSize: 14,
-          letterSpacing: 2,
-          textAlign: 'center',
-          textTransform: 'uppercase',
-          paddingLeft: spacing(1),
-          flexBasis: 'auto'
-        }
-      : {},
-    toggleContainer: props.labelText
-      ? {
-          flexDirection: 'row',
-          justifyContent: 'flex-end'
-        }
-      : {},
-    purple: props.labelText
-      ? {
-          color: palette.secondary
-        }
-      : {}
-  })
-)
+const useStyles = makeStyles(({ palette, spacing }) => ({
+  root: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  rootWithLabel: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    height: spacing(8),
+    marginBottom: spacing(1)
+  },
+  flex1: {
+    flex: 1
+  },
+  iconTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 'auto',
+    justifyContent: 'center'
+  },
+  labelText: {
+    color: palette.neutralLight4,
+    fontSize: 14,
+    letterSpacing: 2,
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    paddingLeft: spacing(1),
+    flexBasis: 'auto'
+  },
+  toggleContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end'
+  },
+  purple: {
+    color: palette.secondary
+  }
+}))
 
 export const DownloadToggle = ({
   tracksForDownload,
@@ -96,8 +86,7 @@ export const DownloadToggle = ({
   labelText,
   isFavoritesDownload
 }: DownloadToggleProps) => {
-  const styleProps = useMemo(() => ({ labelText }), [labelText])
-  const styles = useStyles(styleProps)
+  const styles = useStyles()
   const dispatch = useDispatch()
   const [disabled, setDisabled] = useState(false)
   const collectionIdStr = isFavoritesDownload
@@ -115,6 +104,24 @@ export const DownloadToggle = ({
   )
   const isCollectionMarkedForDownload = useSelector(
     getIsCollectionMarkedForDownload(collectionIdStr)
+  )
+
+  const userCollections = useSelector((state: CommonState) =>
+    getAccountCollections(state, '')
+  )
+  const isFavoritesMarkedForDownload = useSelector(
+    getIsCollectionMarkedForDownload(DOWNLOAD_REASON_FAVORITES)
+  )
+  const isThisFavoritedCollectionDownload = useMemo(
+    () =>
+      !!(
+        collectionId &&
+        isFavoritesMarkedForDownload &&
+        userCollections.some(
+          (collection) => collection.playlist_id === collectionId
+        )
+      ),
+    [collectionId, isFavoritesMarkedForDownload, userCollections]
   )
 
   const handleToggleDownload = useCallback(
@@ -155,22 +162,22 @@ export const DownloadToggle = ({
     ]
   )
 
-  if (!collectionId && !isFavoritesDownload) return null
-
   return (
-    <View style={styles.root}>
-      {labelText && <View style={styles.flex1} />}
-      <View style={[styles.iconTitle]}>
-        <DownloadStatusIndicator
-          statusOverride={
-            isCollectionMarkedForDownload
-              ? isAnyDownloadInProgress
-                ? OfflineDownloadStatus.LOADING
-                : OfflineDownloadStatus.SUCCESS
-              : null
-          }
-          showNotDownloaded
-        />
+    <View style={labelText ? styles.rootWithLabel : styles.root}>
+      {labelText ? <View style={styles.flex1} /> : null}
+      <View style={labelText ? styles.iconTitle : null}>
+        {collectionId || isFavoritesDownload ? (
+          <DownloadStatusIndicator
+            statusOverride={
+              isCollectionMarkedForDownload || isThisFavoritedCollectionDownload
+                ? isAnyDownloadInProgress
+                  ? OfflineDownloadStatus.LOADING
+                  : OfflineDownloadStatus.SUCCESS
+                : null
+            }
+            showNotDownloaded
+          />
+        ) : null}
         {labelText ? (
           <Text
             style={[
@@ -182,12 +189,16 @@ export const DownloadToggle = ({
           </Text>
         ) : null}
       </View>
-      <View style={[styles.flex1, styles.toggleContainer]}>
-        <Switch
-          value={isCollectionMarkedForDownload}
-          onValueChange={handleToggleDownload}
-          disabled={disabled}
-        />
+      <View style={labelText ? styles.toggleContainer : null}>
+        {collectionId || isFavoritesDownload ? (
+          <Switch
+            value={
+              isCollectionMarkedForDownload || isThisFavoritedCollectionDownload
+            }
+            onValueChange={handleToggleDownload}
+            disabled={disabled || isThisFavoritedCollectionDownload}
+          />
+        ) : null}
       </View>
     </View>
   )
