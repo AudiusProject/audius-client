@@ -6,7 +6,6 @@ import {
   accountSelectors,
 } from '@audius/common'
 import {
-  IconVisibilityPublic,
   Modal,
   ModalContent,
   ModalHeader,
@@ -20,21 +19,19 @@ import { useSelector } from 'react-redux'
 
 import { useFlag } from 'hooks/useRemoteConfig'
 
-import { AvailabilityType, TrackAvailabilitySelectionProps, TrackMetadataState, UnlistedTrackMetadataField } from './types'
+import { AvailabilityType, TrackMetadataState } from './types'
 
 import styles from './TrackAvailabilityModal.module.css'
 import { CollectibleGatedAvailability } from './CollectibleGatedAvailability'
 import { SpecialAccessAvailability } from './SpecialAccessAvailability'
 import { HiddenAvailability } from './HiddenAvailability'
+import { PublicAvailability } from './PublicAvailability'
 
 const { getUserId } = accountSelectors
 
 const messages = {
   title: 'AVAILABILITY',
   hideTrack: 'Hide Track',
-  public: 'Public (Default)',
-  publicSubtitle:
-    'Public uploads will appear throughout Audius and will be visible to all users.',
   done: 'Done'
 }
 
@@ -56,30 +53,8 @@ type TrackAvailabilityModalProps = {
   onClose: () => void
 }
 
-const PublicAvailability = ({
-  selected,
-  handleSelection
-}: TrackAvailabilitySelectionProps) => {
-  return (
-    <div className={cn(styles.radioItem, { [styles.selected]: selected })}>
-      <div
-        className={styles.availabilityRowContent}
-        onClick={() => handleSelection(AvailabilityType.PUBLIC)}
-      >
-        <div className={styles.availabilityRowTitle}>
-          <IconVisibilityPublic className={styles.availabilityRowIcon} />
-          <span>{messages.public}</span>
-        </div>
-        <div className={styles.availabilityRowDescription}>
-          {messages.publicSubtitle}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// A modal that allows you to toggle a track to unlisted, as
-// well as toggle individual metadata field visibility.
+// A modal that allows you to set a track as collectible-gated, special access, or unlisted,
+// as well as toggle individual unlisted metadata field visibility.
 const TrackAvailabilityModal = ({
   isOpen,
   metadataState,
