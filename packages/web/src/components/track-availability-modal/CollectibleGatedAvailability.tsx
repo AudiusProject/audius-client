@@ -1,11 +1,20 @@
-import { Chain, TokenStandard, accountSelectors, collectiblesSelectors, CommonState, Collectible, Nullable } from '@audius/common'
-import { AvailabilityType, TrackAvailabilitySelectionProps, TrackMetadataState, UnlistedTrackMetadataField } from './types'
-import { useSelector } from 'react-redux'
-import DropdownInput from 'components/data-entry/DropdownInput'
+import {
+  Chain,
+  TokenStandard,
+  accountSelectors,
+  collectiblesSelectors,
+  CommonState,
+  Collectible,
+  Nullable
+} from '@audius/common'
+import { IconArrow, IconCollectible } from '@audius/stems'
 import cn from 'classnames'
+import { useSelector } from 'react-redux'
+
+import DropdownInput from 'components/data-entry/DropdownInput'
 
 import styles from './TrackAvailabilityModal.module.css'
-import { IconArrow, IconCollectible } from '@audius/stems'
+import { AvailabilityType, TrackAvailabilitySelectionProps } from './types'
 
 const { getUserId } = accountSelectors
 const { getUserCollectibles, getSolCollections } = collectiblesSelectors

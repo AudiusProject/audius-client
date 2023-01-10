@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react'
 import {
   FeatureFlags,
   PremiumConditions,
-  accountSelectors,
+  accountSelectors
 } from '@audius/common'
 import {
   Modal,
@@ -19,13 +19,12 @@ import { useSelector } from 'react-redux'
 
 import { useFlag } from 'hooks/useRemoteConfig'
 
-import { AvailabilityType, TrackMetadataState } from './types'
-
-import styles from './TrackAvailabilityModal.module.css'
 import { CollectibleGatedAvailability } from './CollectibleGatedAvailability'
-import { SpecialAccessAvailability } from './SpecialAccessAvailability'
 import { HiddenAvailability } from './HiddenAvailability'
 import { PublicAvailability } from './PublicAvailability'
+import { SpecialAccessAvailability } from './SpecialAccessAvailability'
+import styles from './TrackAvailabilityModal.module.css'
+import { AvailabilityType, TrackMetadataState } from './types'
 
 const { getUserId } = accountSelectors
 

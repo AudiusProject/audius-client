@@ -1,9 +1,14 @@
-import { AvailabilityType, TrackAvailabilitySelectionProps, UnlistedTrackMetadataField } from "./types"
+import { IconHidden } from '@audius/stems'
 import cn from 'classnames'
-import { IconHidden } from "@audius/stems"
+
 import Switch from '../switch/Switch'
 
 import styles from './TrackAvailabilityModal.module.css'
+import {
+  AvailabilityType,
+  TrackAvailabilitySelectionProps,
+  UnlistedTrackMetadataField
+} from './types'
 
 const messages = {
   hidden: 'Hidden',

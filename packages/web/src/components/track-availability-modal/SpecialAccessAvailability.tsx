@@ -1,11 +1,12 @@
-import { accountSelectors, } from '@audius/common'
-import { IconInfo, IconSpecialAccess } from "@audius/stems"
+import { accountSelectors } from '@audius/common'
+import { IconInfo, IconSpecialAccess } from '@audius/stems'
 import cn from 'classnames'
 import { useSelector } from 'react-redux'
 
-import styles from './TrackAvailabilityModal.module.css'
-import { AvailabilityType, TrackAvailabilitySelectionProps } from "./types"
 import Tooltip from 'components/tooltip/Tooltip'
+
+import styles from './TrackAvailabilityModal.module.css'
+import { AvailabilityType, TrackAvailabilitySelectionProps } from './types'
 
 const { getUserId } = accountSelectors
 

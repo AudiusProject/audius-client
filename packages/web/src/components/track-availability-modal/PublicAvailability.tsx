@@ -1,13 +1,13 @@
-import { AvailabilityType, TrackAvailabilitySelectionProps } from "./types"
+import { IconVisibilityPublic } from '@audius/stems'
 import cn from 'classnames'
-import { IconVisibilityPublic } from "@audius/stems"
 
 import styles from './TrackAvailabilityModal.module.css'
+import { AvailabilityType, TrackAvailabilitySelectionProps } from './types'
 
 const messages = {
   public: 'Public (Default)',
   publicSubtitle:
-    'Public uploads will appear throughout Audius and will be visible to all users.',
+    'Public uploads will appear throughout Audius and will be visible to all users.'
 }
 
 export const PublicAvailability = ({
