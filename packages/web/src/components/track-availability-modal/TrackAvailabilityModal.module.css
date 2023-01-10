@@ -202,8 +202,8 @@
   height: 16px;
 }
 
-.dropdownInput {
-  height: 72px !important;
+.collectibleGated .dropdownInput:has(:global(.ant-select)) {
+  height: 72px;
 }
 
 .dropdownInput :global(.ant-select-selection-item),
@@ -212,9 +212,9 @@
   align-items: center;
 }
 
-.dropdown :global(.ant-select-item) {
+.collectibleGated .dropdown :global(.ant-select-item) {
   padding: 16px;
-  height: unset !important;
+  height: unset;
 }
 
 .dropdownRow {
