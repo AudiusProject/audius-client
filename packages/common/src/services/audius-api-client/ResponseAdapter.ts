@@ -269,8 +269,7 @@ export const makeTrack = (
     downloadable: undefined,
     favorite_count: undefined,
     is_streamable: undefined,
-    track_cid: undefined,
-    track_segments: []
+    track_cid: undefined
   }
 
   delete marshalled.id

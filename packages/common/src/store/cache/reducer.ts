@@ -1,6 +1,7 @@
-// @ts-nocheck
-// TODO(nkang) - convert to typescript
-import { mergeWith, add } from 'lodash'
+import { mergeWith, add, isEqual } from 'lodash'
+
+import { ID, UID } from 'models/Identifiers'
+import { Status } from 'models/Status'
 
 import { Kind } from '../../models/Kind'
 
@@ -13,10 +14,24 @@ import {
   SUBSCRIBE,
   UNSUBSCRIBE_SUCCEEDED,
   SET_EXPIRED,
-  INCREMENT
+  INCREMENT,
+  AddSuccededAction,
+  CacheType,
+  SET_CACHE_TYPE,
+  SetCacheTypeAction
 } from './actions'
 
 const DEFAULT_ENTRY_TTL = 5 /* min */ * 60 /* seconds */ * 1000 /* ms */
+
+type CacheState = {
+  entries: Record<ID, { _timestamp: number; metadata: Record<string, unknown> }>
+  statuses: Record<ID, Status>
+  uids: Record<UID, ID>
+  subscribers: Record<ID, Set<UID>>
+  subscriptions: Record<ID, Set<UID>>
+  idsToPrune: Set<ID>
+  cacheType: CacheType
+}
 
 /**
  * The cache is implemented as primarily a map of ids to metadata (track, playlist, collection).
@@ -31,7 +46,7 @@ const DEFAULT_ENTRY_TTL = 5 /* min */ * 60 /* seconds */ * 1000 /* ms */
  *
  * See the test.js for more detailed examples of usage.
  */
-export const initialCacheState = {
+export const initialCacheState: CacheState = {
   // id => entry
   entries: {},
   // id => status
@@ -43,13 +58,14 @@ export const initialCacheState = {
   // id => Set({kind, uid})
   subscriptions: {}, // things this id is subscribing to,
   // Set { id }
-  idsToPrune: new Set()
+  idsToPrune: new Set(),
+  cacheType: 'normal'
 }
 
 // Wraps a metadata into a cache entry
-const wrapEntry = (metadata: any) => ({
+const wrapEntry = (metadata: any, _timestamp?: number) => ({
   metadata,
-  _timestamp: Date.now()
+  _timestamp: _timestamp ?? Date.now()
 })
 
 // Unwraps a cache entry into its public metadata
@@ -72,11 +88,7 @@ const forceUpdateKeys = new Set([
 // Customize lodash recursive merge to never merge
 // the forceUpdateKeys, and special-case
 // playlist_contents
-export const mergeCustomizer = (
-  objValue: boolean,
-  srcValue: boolean,
-  key: string
-) => {
+export const mergeCustomizer = (objValue: any, srcValue: any, key: string) => {
   if (forceUpdateKeys.has(key)) {
     return srcValue
   }
@@ -132,59 +144,68 @@ export const mergeCustomizer = (
 }
 
 const actionsMap = {
-  [ADD_SUCCEEDED](
-    state: {
-      entries: { [x: string]: any }
-      uids: any
-      subscribers: any
-      idsToPrune: any
-    },
-    action: { entries: any[]; replace?: boolean; merge?: boolean }
-  ) {
+  [SET_CACHE_TYPE](state: CacheState, action: SetCacheTypeAction) {
+    return {
+      ...state,
+      cacheType: action.cacheType
+    }
+  },
+  [ADD_SUCCEEDED](state: CacheState, action: AddSuccededAction) {
+    const { entries, replace } = action
+    const { cacheType } = state
     const newEntries = { ...state.entries }
     const newUids = { ...state.uids }
     const newSubscribers = { ...state.subscribers }
     const newIdsToPrune = new Set([...state.idsToPrune])
-
     const now = Date.now()
 
-    for (let i = 0; i < action.entries.length; i++) {
-      const e = action.entries[i]
+    for (let i = 0; i < entries.length; i++) {
+      const entity = action.entries[i]
+      const { metadata: existing, _timestamp } = newEntries[entity.id] ?? {}
+
       // Don't add if block number is < existing
-
-      const { metadata: existing, _timestamp } = newEntries[e.id] ?? {}
-
       if (
         existing &&
         existing.blocknumber &&
-        e.metadata.blocknumber &&
-        existing.blocknumber > e.metadata.blocknumber
+        entity.metadata.blocknumber &&
+        existing.blocknumber > entity.metadata.blocknumber
       ) {
-        continue
-      }
-
-      if (action.replace) {
-        newEntries[e.id] = wrapEntry(e.metadata)
-      } else if (existing && _timestamp + DEFAULT_ENTRY_TTL < now) {
-        continue
-        // } else {
-        //   newEntries[e.id] = { _timestamp: e.timestamp, metadata: e.metadata }
+        // do nothing
+      } else if (replace) {
+        newEntries[entity.id] = wrapEntry(entity.metadata)
+      } else if (
+        existing &&
+        _timestamp + DEFAULT_ENTRY_TTL > now &&
+        cacheType === 'fast'
+      ) {
+        console.log('cache fast')
       } else if (existing) {
-        newEntries[e.id] = wrapEntry(
-          mergeWith({}, existing, e.metadata, mergeCustomizer)
+        const newMetadata = mergeWith(
+          {},
+          existing,
+          entity.metadata,
+          mergeCustomizer
         )
+        if (cacheType === 'safe-fast' && isEqual(existing, newMetadata)) {
+          // do nothing
+        } else {
+          newEntries[entity.id] = wrapEntry(newMetadata, now)
+        }
       } else {
-        newEntries[e.id] = { _timestamp: e.timestamp, metadata: e.metadata }
+        newEntries[entity.id] = {
+          _timestamp: entity.timestamp ?? now,
+          metadata: entity.metadata
+        }
       }
 
-      newUids[e.uid] = e.id
-      if (e.id in newSubscribers) {
-        newSubscribers[e.id].add(e.uid)
+      newUids[entity.uid] = entity.id
+      if (entity.id in newSubscribers) {
+        newSubscribers[entity.id].add(entity.uid)
       } else {
-        newSubscribers[e.id] = new Set([e.uid])
+        newSubscribers[entity.id] = new Set([entity.uid])
       }
 
-      newIdsToPrune.delete(e.id)
+      newIdsToPrune.delete(entity.id)
     }
 
     return {
@@ -202,13 +223,16 @@ const actionsMap = {
     const newEntries = { ...state.entries }
     const newSubscriptions = { ...state.subscriptions }
 
-    for (let i = 0; i < action.entries.length; i++) {
-      const e = action.entries[i]
-      newEntries[e.id] = wrapEntry({
-        ...unwrapEntry(state.entries[e.id]),
-        ...e.metadata
-      })
-    }
+    action.entries.forEach((e: { id: string | number; metadata: any }) => {
+      newEntries[e.id] = wrapEntry(
+        mergeWith(
+          {},
+          { ...unwrapEntry(state.entries[e.id]) },
+          e.metadata,
+          mergeCustomizer
+        )
+      )
+    })
 
     action.subscriptions.forEach((s: { id: any; kind: any; uids: any }) => {
       const { id, kind, uids } = s
@@ -377,25 +401,7 @@ const actionsMap = {
 export const asCache =
   (
     reducer: {
-      (
-        state:
-          | {
-              // id => entry
-              entries: {}
-              // id => status
-              statuses: {}
-              // uid => id
-              uids: {}
-              // id => Set(uid)
-              subscribers: {} // things subscribing to this cache id
-              // id => Set({kind, uid})
-              subscriptions: {} // things this id is subscribing to,
-              // Set { id }
-              idsToPrune: Set<unknown>
-            }
-          | undefined,
-        action: any
-      ): {
+      (state: CacheState | undefined, action: any): {
         // id => entry
         entries: {}
         // id => status
