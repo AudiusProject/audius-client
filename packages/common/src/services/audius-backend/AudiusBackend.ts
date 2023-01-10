@@ -1337,19 +1337,6 @@ export const audiusBackend = ({
     }
   }
 
-  async function getEntityManagerReplicaSetEnabled() {
-    try {
-      const res = await fetch(
-        `${identityServiceUrl}/health_check/entity_manager_replica_set_enabled`
-      )
-      const json = await res.json()
-      return json.entityManagerReplicaSetEnabled
-    } catch (e) {
-      console.error(e)
-      return false
-    }
-  }
-
   /**
    * Retrieves the user's eth associated wallets from IPFS using the user's metadata CID and creator node endpoints
    * @param user The user metadata which contains the CID for the metadata multihash
@@ -1468,13 +1455,8 @@ export const audiusBackend = ({
       }
 
       newMetadata = schemas.newUserMetadata(newMetadata, true)
-      const userEntityManagerEnabled = await getEntityManagerReplicaSetEnabled()
       const { blockHash, blockNumber, userId } =
-        await audiusLibs.User.updateCreator(
-          newMetadata.user_id,
-          newMetadata,
-          userEntityManagerEnabled
-        )
+        await audiusLibs.User.updateCreator(newMetadata.user_id, newMetadata)
       return { blockHash, blockNumber, userId }
     } catch (err) {
       console.error(getErrorMessage(err))
