@@ -138,7 +138,12 @@ export function* fetchOpenSeaAssets(user) {
       }
     ])
   )
-  yield put(updateUserEthCollectibles(user.user_id, collectibleList))
+  yield put(
+    updateUserEthCollectibles({
+      userId: user.user_id,
+      userCollectibles: collectibleList
+    })
+  )
 }
 
 export function* fetchSolanaCollectiblesForWallets(wallets) {
@@ -174,7 +179,12 @@ export function* fetchSolanaCollectibles(user) {
       }
     ])
   )
-  yield put(updateUserSolCollectibles(user.user_id, solanaCollectibleList))
+  yield put(
+    updateUserSolCollectibles({
+      userId: user.user_id,
+      userCollectibles: solanaCollectibleList
+    })
+  )
 
   // Get verified sol collections from the sol collectibles
   // and save their metadata in the redux store.
@@ -205,7 +215,7 @@ export function* fetchSolanaCollectibles(user) {
       imageUrl
     }
   })
-  yield put(updateSolCollections(collectionMetadatasMap))
+  yield put(updateSolCollections({ metadatas: collectionMetadatasMap }))
 }
 
 function* fetchSupportersAndSupporting(userId) {

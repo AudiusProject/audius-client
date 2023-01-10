@@ -22,12 +22,8 @@ import { waitForWrite } from 'utils/sagaHelpers'
 
 const { updatePremiumContentSignatures } = premiumContentActions
 
-const {
-  updateUserEthCollectibles,
-  updateUserSolCollectibles,
-  UPDATE_USER_ETH_COLLECTIBLES,
-  UPDATE_USER_SOL_COLLECTIBLES
-} = collectiblesActions
+const { updateUserEthCollectibles, updateUserSolCollectibles } =
+  collectiblesActions
 
 const { getPremiumTrackSignatureMap } = premiumContentSelectors
 
@@ -195,8 +191,8 @@ function* updateCollectibleGatedTrackAccess(
 
   // Halt if nfts fetched are not for logged in account
   const areCollectiblesFetched = [
-    UPDATE_USER_ETH_COLLECTIBLES,
-    UPDATE_USER_SOL_COLLECTIBLES
+    updateUserEthCollectibles.type,
+    updateUserSolCollectibles.type
   ].includes(action.type)
   const userIdForCollectibles =
     areCollectiblesFetched && 'userId' in action ? action.userId : null
@@ -295,8 +291,8 @@ function* watchCollectibleGatedTracks() {
   yield takeLatest(
     [
       cacheActions.ADD,
-      UPDATE_USER_ETH_COLLECTIBLES,
-      UPDATE_USER_SOL_COLLECTIBLES
+      updateUserEthCollectibles.type,
+      updateUserSolCollectibles.type
     ],
     updateCollectibleGatedTrackAccess
   )
