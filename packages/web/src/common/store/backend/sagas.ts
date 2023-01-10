@@ -103,16 +103,12 @@ function* watchSetupBackend() {
 
 // If not fully set up, re set-up the backend
 export function* setupBackendIfNotSetUp() {
-  console.log('SetupBackendSaga called')
   yield* put(backendActions.setupBackend())
 
   const isSetup = yield* select(getIsSetup)
   if (!isSetup) {
     // Try to set up again, which should block further actions until completed
-    console.log('SetupBackendSaga action dispatched')
     yield* put(backendActions.setupBackend())
-  } else {
-    console.log('SetupBackendSaga already set up')
   }
 }
 
