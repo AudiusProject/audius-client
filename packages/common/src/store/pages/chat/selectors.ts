@@ -10,6 +10,3 @@ export const getChatMessagesSummary = (state: CommonState, chatId: string) =>
 
 export const getChatMessages = (state: CommonState, chatId: string) =>
   state.pages.chat.chatMessages[chatId]?.data
-
-export const getCurrentChatId = (state: CommonState) =>
-  state.pages.chat.currentChatId

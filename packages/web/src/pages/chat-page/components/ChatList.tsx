@@ -9,7 +9,11 @@ import { useSelector } from 'common/hooks/useSelector'
 import styles from './ChatList.module.css'
 import { ChatListItem } from './ChatListItem'
 
-export const ChatList = (props: ComponentPropsWithoutRef<'div'>) => {
+type ChatListProps = {
+  currentChatId?: string
+} & ComponentPropsWithoutRef<'div'>
+
+export const ChatList = (props: ChatListProps) => {
   const dispatch = useDispatch()
   const chats = useSelector(chatSelectors.getChats)
 
@@ -20,7 +24,11 @@ export const ChatList = (props: ComponentPropsWithoutRef<'div'>) => {
   return (
     <div className={cn(styles.root, props.className)}>
       {chats?.map((chat) => (
-        <ChatListItem key={chat.chat_id} chat={chat} />
+        <ChatListItem
+          key={chat.chat_id}
+          currentChatId={props.currentChatId}
+          chat={chat}
+        />
       ))}
     </div>
   )

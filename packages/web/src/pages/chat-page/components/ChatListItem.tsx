@@ -1,29 +1,30 @@
 import { useCallback } from 'react'
 
 import {
-  chatSelectors,
-  chatActions,
   accountSelectors,
   decodeHashId,
   cacheUsersSelectors
 } from '@audius/common'
 import type { UserChat } from '@audius/sdk'
 import cn from 'classnames'
+import { push } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 
 import { useSelector } from 'common/hooks/useSelector'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import { ProfilePicture } from 'components/notification/Notification/components/ProfilePicture'
 import UserBadges from 'components/user-badges/UserBadges'
+import { chatPage } from 'utils/route'
 
 import styles from './ChatListItem.module.css'
 
 type ChatListItemProps = {
+  currentChatId?: string
   chat: UserChat
 }
 
 export const ChatListItem = (props: ChatListItemProps) => {
-  const { chat } = props
+  const { chat, currentChatId } = props
   const dispatch = useDispatch()
   const currentUserId = useSelector(accountSelectors.getUserId)
   const member = chat.chat_members.find(
@@ -34,11 +35,11 @@ export const ChatListItem = (props: ChatListItemProps) => {
       id: member ? decodeHashId(member.user_id) ?? -1 : -1
     })
   )
-  const currentChatId = useSelector(chatSelectors.getCurrentChatId)
-  const isCurrentChat = currentChatId === chat.chat_id
+  const isCurrentChat = currentChatId && currentChatId === chat.chat_id
+  console.log({ isCurrentChat, currentChatId, chatId: chat.chat_id })
 
   const handleClick = useCallback(() => {
-    dispatch(chatActions.setCurrentChat({ chatId: chat.chat_id }))
+    dispatch(push(chatPage(chat.chat_id)))
   }, [dispatch, chat])
 
   if (!user || !member) {

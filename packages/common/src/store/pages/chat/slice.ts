@@ -4,7 +4,6 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Status } from 'models'
 
 type ChatState = {
-  currentChatId?: string
   chatList: {
     status: Status
     summary?: TypedCommsResponse<UserChat>['summary']
@@ -32,9 +31,6 @@ const slice = createSlice({
   name: 'application/pages/chat',
   initialState,
   reducers: {
-    setCurrentChat: (state, action: PayloadAction<{ chatId: string }>) => {
-      state.currentChatId = action.payload.chatId
-    },
     fetchMoreChats: (state) => {
       // triggers saga
       state.chatList.status = Status.LOADING
