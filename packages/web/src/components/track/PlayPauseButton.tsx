@@ -6,13 +6,14 @@ import styles from './GiantTrackTile.module.css'
 
 type PlayPauseButtonProps = {
   trackId: ID
+  isPremium: boolean
   playing: boolean
   onPlay: () => void
 }
 
 const { getPremiumTrackSignatureMap } = premiumContentSelectors
 
-export const PlayPauseButton = ({ trackId, playing, onPlay }: PlayPauseButtonProps) => {
+export const PlayPauseButton = ({ trackId, isPremium, playing, onPlay }: PlayPauseButtonProps) => {
   const { isEnabled: isPremiumContentEnabled } = useFlag(
     FeatureFlags.PREMIUM_CONTENT_ENABLED
   )
@@ -27,7 +28,7 @@ export const PlayPauseButton = ({ trackId, playing, onPlay }: PlayPauseButtonPro
       text={playing ? 'PAUSE' : 'PLAY'}
       leftIcon={playing ? <IconPause /> : <IconPlay />}
       onClick={onPlay}
-      disabled={isPremiumContentEnabled ? !premiumTrackSignatureMap[trackId] : false}
+      disabled={isPremiumContentEnabled && isPremium ? !premiumTrackSignatureMap[trackId] : false}
     />
   )
 }

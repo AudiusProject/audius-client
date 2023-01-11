@@ -440,7 +440,7 @@ class GiantTrackTile extends PureComponent {
             </div>
 
             <div className={cn(styles.playSection, fadeIn)}>
-              <PlayPauseButton trackId={trackId} playing={playing} onPlay={onPlay} />
+              <PlayPauseButton trackId={trackId} isPremium={isPremium} playing={playing} onPlay={onPlay} />
               {this.renderListenCount()}
             </div>
 
@@ -483,17 +483,13 @@ class GiantTrackTile extends PureComponent {
           ) : null}
         </div>
 
-        {/* {isPremium && ( */}
+        {isPremium && (
           <PremiumTrackSection
             isLoading={isLoading}
-            // premiumConditions={premiumConditions}
-            premiumConditions={{ nft_collection: { chain: 'sol', name: 'Bored Ape Yacht Club', address: '123', imageUrl: 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_1280.jpg' } }}
-            doesUserHaveAccess={false}
-            // premiumConditions={{ follow_user_id: 1 }}
-            // premiumConditions={{ tip_user_id: 1 }}
-            // doesUserHaveAccess={true}
+            premiumConditions={premiumConditions}
+            doesUserHaveAccess={doesUserHaveAccess}
           />
-        {/* )} */}
+        )}
 
         <div className={cn(styles.bottomSection, fadeIn)}>
           <div className={styles.infoLabelsSection}>

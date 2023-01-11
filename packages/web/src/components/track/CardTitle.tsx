@@ -34,44 +34,43 @@ export const CardTitle = ({
     FeatureFlags.PREMIUM_CONTENT_ENABLED
   )
 
-  // if (isPremiumContentEnabled && isPremium) {
-  if (true) {
-      return (
-        <div className={cn(styles.headerContainer, className, styles.premiumContent)}>
-          {premiumConditions?.nft_collection
-            ? <div className={styles.typeLabel}>
-                <IconCollectible />
-                {messages.collectibleGated}
-              </div>
-            : <div className={styles.typeLabel}>
-                <IconSpecialAccess />
-                {messages.specialAccess}
-              </div>}
+  if (isPremiumContentEnabled && isPremium) {
+    return (
+      <div className={cn(styles.headerContainer, className, styles.premiumContent)}>
+        {premiumConditions?.nft_collection
+          ? <div className={styles.typeLabel}>
+              <IconCollectible />
+              {messages.collectibleGated}
+            </div>
+          : <div className={styles.typeLabel}>
+              <IconSpecialAccess />
+              {messages.specialAccess}
+            </div>}
+      </div>
+    )
+  }
+
+  if (!isUnlisted) {
+    return (
+      <div className={cn(styles.headerContainer, className)}>
+        <div className={styles.typeLabel}>
+          {isRemix ? messages.remixTitle : messages.trackTitle}
         </div>
-      )
-    }
+      </div>
+    )
+  }
 
-    // if (!isUnlisted) {
-    //   return (
-    //     <div className={cn(styles.headerContainer, className)}>
-    //       <div className={styles.typeLabel}>
-    //         {isRemix ? messages.remixTitle : messages.trackTitle}
-    //       </div>
-    //     </div>
-    //   )
-    // }
-
-    // return (
-    //   <div className={cn(styles.headerContainer, className)}>
-    //     <Tooltip
-    //       text={messages.hiddenTrackTooltip}
-    //       mouseEnterDelay={0}
-    //       shouldWrapContent={false}
-    //     >
-    //       <div>
-    //         <HiddenTrackHeader />
-    //       </div>
-    //     </Tooltip>
-    //   </div>
-    // )
+  return (
+    <div className={cn(styles.headerContainer, className)}>
+      <Tooltip
+        text={messages.hiddenTrackTooltip}
+        mouseEnterDelay={0}
+        shouldWrapContent={false}
+      >
+        <div>
+          <HiddenTrackHeader />
+        </div>
+      </Tooltip>
+    </div>
+  )
 }
