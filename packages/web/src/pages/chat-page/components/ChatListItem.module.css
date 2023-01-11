@@ -67,19 +67,19 @@
   cursor: pointer;
 }
 
-.unreadIndicator {
+.unreadIndicatorTag {
   align-self: flex-start;
   margin-left: auto;
 
   padding: 5.5px var(--unit-2);
   background: var(--secondary);
-  border-radius: var(--unit-1);
+  border-radius: 2px;
 
   font-size: var(--font-xs);
   font-weight: var(--font-bold);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--white);
+  color: var(--static-white);
   white-space: nowrap;
 }
 

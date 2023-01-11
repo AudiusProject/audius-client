@@ -64,7 +64,7 @@ export const ChatListItem = (props: ChatListItemProps) => {
           </ArtistPopover>
         </div>
         {chat.unread_message_count > 0 ? (
-          <div className={styles.unreadIndicator}>
+          <div className={styles.unreadIndicatorTag}>
             {chat.unread_message_count > 9 ? '9+' : chat.unread_message_count}{' '}
             New
           </div>

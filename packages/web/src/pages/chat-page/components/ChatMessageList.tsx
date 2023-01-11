@@ -10,7 +10,7 @@ import styles from './ChatMessageList.module.css'
 import { ChatMessageListItem } from './ChatMessageListItem'
 
 const { fetchNewChatMessages } = chatActions
-const { getChatMessages } = chatSelectors
+const { getChatMessages, getChats } = chatSelectors
 
 type ChatMessageListProps = ComponentPropsWithoutRef<'div'> & {
   chatId?: string
@@ -20,6 +20,8 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
   const { chatId } = props
   const dispatch = useDispatch()
   const messages = useSelector((state) => getChatMessages(state, chatId ?? ''))
+  const chats = useSelector(getChats)
+  const chat = chatId ? chats.find((chat) => chat.chat_id === chatId) : null
 
   useEffect(() => {
     if (chatId) {
@@ -38,12 +40,24 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
   return (
     <div className={cn(styles.root, props.className)}>
       {chatId &&
-        messages?.map((message) => (
-          <ChatMessageListItem
-            key={message.message_id}
-            chatId={chatId}
-            message={message}
-          />
+        messages?.map((message, i) => (
+          <>
+            {chat &&
+            message.created_at > chat.last_read_at &&
+            (!messages[i + 1] ||
+              messages[i + 1].created_at <= chat.last_read_at) ? (
+              <div className={styles.separator}>
+                <span className={styles.tag}>
+                  {chat.unread_message_count} New Messages
+                </span>
+              </div>
+            ) : null}
+            <ChatMessageListItem
+              key={message.message_id}
+              chatId={chatId}
+              message={message}
+            />
+          </>
         ))}
     </div>
   )
