@@ -457,9 +457,11 @@ export const Audio = () => {
 
     currentUriRef.current = newUri
 
-    const localImageSource = await getLocalTrackImageSource(
-      track ? String(track.track_id) : undefined
-    )
+    const localImageSource = !isReachable
+      ? await getLocalTrackImageSource(
+          track ? String(track.track_id) : undefined
+        )
+      : undefined
 
     const imageUrl =
       getImageSourceOptimistic({
@@ -468,9 +470,11 @@ export const Audio = () => {
         localSource: localImageSource
       })?.[2]?.uri ?? DEFAULT_IMAGE_URL
 
-    const nextLocalImageSource = await getLocalTrackImageSource(
-      nextTrack ? String(nextTrack.track_id) : undefined
-    )
+    const nextLocalImageSource = !isReachable
+      ? await getLocalTrackImageSource(
+          nextTrack ? String(nextTrack.track_id) : undefined
+        )
+      : undefined
 
     const nextImageUrl =
       getImageSourceOptimistic({

@@ -1,8 +1,9 @@
 import { useCallback } from 'react'
 
-import { SquareSizes } from '@audius/common'
+import { SquareSizes, reachabilitySelectors } from '@audius/common'
 import type { ImageURISource } from 'react-native'
 import { exists } from 'react-native-fs'
+import { useSelector } from 'react-redux'
 import { useAsync } from 'react-use'
 import type { AsyncState } from 'react-use/lib/useAsync'
 
@@ -10,6 +11,7 @@ import {
   getLocalCollectionCoverArtPath,
   getLocalTrackCoverArtPath
 } from 'app/services/offline-downloader'
+const { getIsReachable } = reachabilitySelectors
 
 const getLocalTrackImagePath = (trackId?: string) => (size: string) =>
   trackId ? getLocalTrackCoverArtPath(trackId, size) : undefined
@@ -51,7 +53,14 @@ export const getLocalImageSource = async (
 export const useLocalImage = (
   getLocalPath: (size: string) => string | undefined
 ): AsyncState<ImageURISource[]> => {
+  const isReachable = useSelector(getIsReachable)
+
   return useAsync(async () => {
+    // Only check for local images if not reachable
+    if (!isReachable) {
+      return []
+    }
+
     return await getLocalImageSource(getLocalPath)
   }, [getLocalPath])
 }
