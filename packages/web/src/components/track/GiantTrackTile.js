@@ -39,6 +39,7 @@ import InfoLabel from './InfoLabel'
 import Tag from './Tag'
 import { PremiumTrackSection } from './PremiumTrackSection'
 import { CardTitle } from './CardTitle'
+import { PlayPauseButton } from './PlayPauseButton'
 
 const BUTTON_COLLAPSE_WIDTHS = {
   first: 1095,
@@ -437,15 +438,7 @@ class GiantTrackTile extends PureComponent {
             </div>
 
             <div className={cn(styles.playSection, fadeIn)}>
-              <Button
-                name='play'
-                className={styles.playButton}
-                textClassName={styles.playButtonText}
-                type={ButtonType.PRIMARY_ALT}
-                text={playing ? 'PAUSE' : 'PLAY'}
-                leftIcon={playing ? <IconPause /> : <IconPlay />}
-                onClick={onPlay}
-              />
+              <PlayPauseButton trackId={trackId} playing={playing} onPlay={onPlay} />
               {this.renderListenCount()}
             </div>
 
