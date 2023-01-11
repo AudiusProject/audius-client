@@ -46,33 +46,51 @@
   color: var(--neutral-light-2);
 }
 
-.addReactionButton {
+.reaction {
   display: none;
   align-items: center;
   justify-content: center;
   position: absolute;
+  cursor: pointer;
+  bottom: -16px;
+}
+
+.reaction:not(.hasReaction) {
+  background-color: var(--white);
+  border: 1px solid var(--neutral-light-6);
   width: var(--unit-8);
   height: var(--unit-8);
   bottom: -8px;
-  background-color: var(--white);
-  border: 1px solid var(--neutral-light-6);
   border-radius: 50%;
-  cursor: pointer;
 }
 
-.root.isAuthor .addReactionButton {
+.root.isAuthor .reaction {
   left: -8px;
 }
-.root:not(.isAuthor) .addReactionButton {
+.root:not(.isAuthor) .reaction {
   right: -8px;
 }
 
-.bubble:hover .addReactionButton {
+.root.isAuthor .reaction.hasReaction {
+  left: -16px;
+}
+.root:not(.isAuthor) .reaction {
+  right: -16px;
+}
+
+.bubble:hover .reaction,
+.reaction.isOpened,
+.reaction.hasReaction {
   display: flex;
 }
 
-.addReactionIcon g path {
+.reaction:not(.hasReaction) g path {
   width: 24px;
   height: 24px;
   fill: var(--secondary);
+}
+
+.reactionImage {
+  width: var(--unit-10);
+  height: var(--unit-10);
 }

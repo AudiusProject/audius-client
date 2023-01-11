@@ -22,11 +22,14 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
   const messages = useSelector((state) => getChatMessages(state, chatId ?? ''))
 
   useEffect(() => {
+    if (chatId) {
+      dispatch(fetchNewChatMessages({ chatId }))
+    }
     const pollInterval = setInterval(() => {
       if (chatId) {
         dispatch(fetchNewChatMessages({ chatId }))
       }
-    }, 10000)
+    }, 100000000000000000)
     return () => {
       clearInterval(pollInterval)
     }
@@ -34,9 +37,14 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
 
   return (
     <div className={cn(styles.root, props.className)}>
-      {messages?.map((message) => (
-        <ChatMessageListItem key={message.message_id} message={message} />
-      ))}
+      {chatId &&
+        messages?.map((message) => (
+          <ChatMessageListItem
+            key={message.message_id}
+            chatId={chatId}
+            message={message}
+          />
+        ))}
     </div>
   )
 }

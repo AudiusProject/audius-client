@@ -19,6 +19,12 @@ type ChatState = {
   >
 }
 
+type SetMessageReactionPayload = {
+  chatId: string
+  messageId: string
+  reaction: string
+}
+
 const initialState: ChatState = {
   chatList: {
     status: Status.IDLE,
@@ -83,6 +89,37 @@ const slice = createSlice({
     ) => {
       const { chatId } = action.payload
       state.chatMessages[chatId].status = Status.ERROR
+    },
+    setMessageReaction: (
+      _state,
+      _action: PayloadAction<SetMessageReactionPayload>
+    ) => {
+      // triggers saga
+    },
+    setMessageReactionSucceeded: (
+      state,
+      action: PayloadAction<
+        SetMessageReactionPayload & { userId: string; createdAt: string }
+      >
+    ) => {
+      const { userId, chatId, messageId, reaction } = action.payload
+      const index = state.chatMessages[chatId].data.findIndex(
+        (message) => message.message_id === messageId
+      )
+      if (index > -1) {
+        const existingReactions = (
+          state.chatMessages[chatId].data[index].reactions ?? []
+        ).filter((r) => r.user_id !== userId)
+        console.log({ index, existingReactions, messageId })
+        state.chatMessages[chatId].data[index].reactions = [
+          ...existingReactions,
+          {
+            user_id: userId,
+            reaction,
+            created_at: ''
+          }
+        ]
+      }
     }
   }
 })
