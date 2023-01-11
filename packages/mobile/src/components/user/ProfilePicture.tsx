@@ -1,4 +1,6 @@
-import type { DynamicImageProps } from 'app/components/core'
+import { StyleSheet } from 'react-native'
+import type { ImageStyle } from 'react-native-fast-image'
+
 import type { UserImageProps } from 'app/components/image/UserImage'
 import { UserImage } from 'app/components/image/UserImage'
 import { makeStyles } from 'app/styles'
@@ -16,23 +18,18 @@ const useStyles = makeStyles(({ palette }) => ({
   }
 }))
 
-export type ProfilePictureProps = Partial<DynamicImageProps> & {
+export type ProfilePictureProps = Partial<Omit<UserImageProps, 'user'>> & {
   profile: UserImageProps['user']
 }
 
 export const ProfilePicture = (props: ProfilePictureProps) => {
-  const { styles: stylesProp, profile, ...other } = props
+  const { profile, style: styleProp, ...other } = props
   const styles = useStyles()
 
-  return (
-    <UserImage
-      immediate
-      user={profile}
-      styles={{
-        ...stylesProp,
-        root: [styles.profilePhoto, stylesProp?.root]
-      }}
-      {...other}
-    />
-  )
+  const style = StyleSheet.flatten([
+    styles.profilePhoto,
+    styleProp
+  ]) as ImageStyle
+
+  return <UserImage user={profile} style={style} {...other} />
 }

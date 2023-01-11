@@ -1,34 +1,40 @@
-import type { Nullable, User } from '@audius/common'
+import type { User } from '@audius/common'
+import type { FastImageProps, Source } from 'react-native-fast-image'
+import FastImage from 'react-native-fast-image'
 
 import profilePicEmpty from 'app/assets/images/imageProfilePicEmpty2X.png'
-import type { DynamicImageProps } from 'app/components/core'
-import { DynamicImage } from 'app/components/core'
 import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
 
-export const useUserImage = (
-  user: Nullable<
-    Pick<
-      User,
-      'profile_picture_sizes' | 'profile_picture' | 'creator_node_endpoint'
-    >
-  >
-) => {
+type ImageUser = Pick<
+  User,
+  'profile_picture_sizes' | 'profile_picture' | 'creator_node_endpoint'
+>
+
+export const useUserImage = (user?: ImageUser) => {
   const cid = user ? user.profile_picture_sizes || user.profile_picture : null
 
   return useContentNodeImage({
     cid,
-    user,
+    user: user ?? null,
     fallbackImageSource: profilePicEmpty
   })
 }
 
-export type UserImageProps = {
-  user: Parameters<typeof useUserImage>[0]
-} & DynamicImageProps
+export type UserImageProps = Partial<Omit<FastImageProps, 'source'>> & {
+  source?: Partial<Source>
+  user?: ImageUser
+}
 
 export const UserImage = (props: UserImageProps) => {
-  const { user, ...imageProps } = props
+  const { user, source: sourceProp, ...other } = props
   const { source, handleError } = useUserImage(user)
+  const { uri } = source?.[0]
 
-  return <DynamicImage {...imageProps} source={source} onError={handleError} />
+  return (
+    <FastImage
+      source={{ ...sourceProp, uri }}
+      onError={handleError}
+      {...other}
+    />
+  )
 }

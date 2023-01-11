@@ -97,14 +97,15 @@ export const UserList = (props: UserListProps) => {
     if (!isEmpty && !isRefreshing && !loading && isFocused) {
       cachedUsers.current = users
     }
-  }, [isEmpty, isRefreshing, isFocused, loading, users])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEmpty, isRefreshing, isFocused, loading])
 
   // hands off loading state from refreshing to loading
   useEffect(() => {
     if (loading || !users.length) {
       setIsRefreshing(false)
     }
-  }, [loading, users])
+  }, [loading, users.length])
 
   const handleEndReached = useCallback(() => {
     if (hasMore && isFocused) {
