@@ -482,6 +482,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = LRFCG93S85;
 				EXCLUDED_ARCHS = "";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				INFOPLIST_FILE = AudiusReactNative/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -517,6 +518,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = LRFCG93S85;
 				EXCLUDED_ARCHS = "";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				INFOPLIST_FILE = AudiusReactNative/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -709,6 +711,7 @@
 				DEVELOPMENT_TEAM = LRFCG93S85;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = LRFCG93S85;
 				EXCLUDED_ARCHS = "";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				INFOPLIST_FILE = AudiusReactNative/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -796,6 +799,7 @@
 				DEVELOPMENT_TEAM = LRFCG93S85;
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = LRFCG93S85;
 				EXCLUDED_ARCHS = "";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				INFOPLIST_FILE = AudiusReactNative/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -888,6 +892,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = LRFCG93S85;
 				EXCLUDED_ARCHS = "";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				INFOPLIST_FILE = AudiusReactNative/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -964,7 +969,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = CD771AE385683744E1D60474 /* Pods-AudiusReactNative.staging.release.xcconfig */;
 			buildSettings = {
-				APP_DISPLAY_NAME = "Audius Music (Staging)";
+				APP_DISPLAY_NAME = "Staging (Audius)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon.Staging;
 				BUNDLE_ID_SUFFIX = .staging;
 				CLANG_ENABLE_MODULES = YES;
@@ -973,6 +978,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = LRFCG93S85;
 				EXCLUDED_ARCHS = "";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				INFOPLIST_FILE = AudiusReactNative/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (

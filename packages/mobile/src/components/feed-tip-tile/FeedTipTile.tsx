@@ -94,11 +94,12 @@ export const FeedTipTile = () => {
     return null
   }
 
-  return !tipToDisplay || Object.keys(usersMap).length !== tipperIds.length ? (
-    <View style={styles.skeleton}>
-      <FeedTipTileSkeleton />
-    </View>
-  ) : (
+  const tipsLoading =
+    !tipToDisplay || Object.keys(usersMap).length !== tipperIds.length
+
+  if (tipsLoading) return <FeedTipTileSkeleton />
+
+  return (
     <Tile styles={{ tile: styles.tile }}>
       <FadeInView>
         <View style={styles.header}>

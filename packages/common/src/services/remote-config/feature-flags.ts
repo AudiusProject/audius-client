@@ -32,8 +32,11 @@ export enum FeatureFlags {
   VERIFY_HANDLE_WITH_TIKTOK = 'verify_handle_with_tiktok',
   SOLANA_PHONE_WALLET_CONNECT = 'solana_phone_wallet_connect',
   AUDIO_TRANSACTIONS_HISTORY = 'audio_transactions_history',
-  RATE_CTA_ENABLED = 'rate_cta_enabled',
-  SHARE_TO_SNAPCHAT = 'share_to_snapchat'
+  RATE_CTA_ENABLED = 'rate_cta_enabled_v2',
+  SHARE_TO_SNAPCHAT = 'share_to_snapchat',
+  CHAT_ENABLED = 'chat_enabled',
+  FAST_CACHE = 'fast_cache',
+  SAFE_FAST_CACHE = 'safe_fast_cache'
 }
 
 type FlagDefaults = Record<FeatureFlags, boolean>
@@ -82,5 +85,8 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.SOLANA_PHONE_WALLET_CONNECT]: false,
   [FeatureFlags.AUDIO_TRANSACTIONS_HISTORY]: false,
   [FeatureFlags.RATE_CTA_ENABLED]: false,
-  [FeatureFlags.SHARE_TO_SNAPCHAT]: false
+  [FeatureFlags.SHARE_TO_SNAPCHAT]: false,
+  [FeatureFlags.CHAT_ENABLED]: false,
+  [FeatureFlags.FAST_CACHE]: false,
+  [FeatureFlags.SAFE_FAST_CACHE]: false
 }
