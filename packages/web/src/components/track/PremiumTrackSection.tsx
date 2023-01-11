@@ -1,5 +1,5 @@
 import { FeatureFlags, PremiumConditions, cacheUsersSelectors, User, ID, Nullable } from '@audius/common'
-import { Button, ButtonType, IconLock } from '@audius/stems'
+import { Button, ButtonType, IconLock, IconUnlocked } from '@audius/stems'
 import cn from 'classnames'
 import FollowButton from 'components/follow-button/FollowButton'
 import { IconTip } from 'components/notification/Notification/components/icons'
@@ -197,7 +197,7 @@ const UnlockedPremiumTrackSection = ({ premiumConditions, followeeUserName, tipp
   return (
     <div className={styles.premiumContentSectionUnlocked}>
       <div className={styles.premiumContentSectionTitle}>
-        {/* <IconUnlocked className={styles.unlockedIcon} /> */}
+        <IconUnlocked className={styles.unlockedIcon} />
         {messages.unlocked}
       </div>
       <div className={styles.premiumContentSectionDescription}>
