@@ -45,3 +45,34 @@
   font-size: var(--font-xs);
   color: var(--neutral-light-2);
 }
+
+.addReactionButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: var(--unit-8);
+  height: var(--unit-8);
+  bottom: -8px;
+  background-color: var(--white);
+  border: 1px solid var(--neutral-light-6);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.root.isAuthor .addReactionButton {
+  left: -8px;
+}
+.root:not(.isAuthor) .addReactionButton {
+  right: -8px;
+}
+
+.bubble:hover .addReactionButton {
+  display: flex;
+}
+
+.addReactionIcon g path {
+  width: 24px;
+  height: 24px;
+  fill: var(--secondary);
+}

@@ -1,5 +1,6 @@
 import { accountSelectors, decodeHashId } from '@audius/common'
 import type { ChatMessage } from '@audius/sdk'
+import { IconSave } from '@audius/stems'
 import cn from 'classnames'
 import dayjs from 'dayjs'
 
@@ -32,6 +33,9 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
     >
       <div className={styles.bubble}>
         <div className={styles.text}>{message.message}</div>
+        <div className={styles.addReactionButton}>
+          <IconSave width={28} height={28} className={styles.addReactionIcon} />
+        </div>
       </div>
       <div className={styles.date}>{formatMessageDate(message.created_at)}</div>
     </div>
