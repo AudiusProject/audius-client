@@ -15,8 +15,8 @@ const messages = {
   pageDescription: '',
   headerText: 'Messages'
 }
-export const ChatPage = ({ match }: RouteComponentProps) => {
-  const chatId = 'id' in match.params ? (match.params.id as string) : undefined
+export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
+  const chatId = match.params.id
   const { isEnabled: isChatEnabled } = useFlag(FeatureFlags.CHAT_ENABLED)
   if (!isChatEnabled) {
     return null
