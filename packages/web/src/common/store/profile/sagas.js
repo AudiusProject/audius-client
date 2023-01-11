@@ -638,7 +638,7 @@ function* watchSetNotificationSubscription() {
 
           // Dual write to discovery. Part of the migration of subscriptions
           // from identity to discovery.
-          // Discovery automatically subscribes onfollow so only relay if not a subscribe
+          // Discovery automatically subscribes on follow so only relay if not a subscribe
           // on follow.
           if (!action.onFollow) {
             if (action.isSubscribed) {
