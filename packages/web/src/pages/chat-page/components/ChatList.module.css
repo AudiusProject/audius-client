@@ -3,3 +3,23 @@
   background-color: var(--neutral-light-9);
   border-right: 1px solid var(--neutral-light-7);
 }
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: var(--unit-10);
+  padding: var(--unit-6);
+}
+
+.header {
+  font-weight: var(--font-bold);
+  font-size: var(--font-l);
+  line-height: 130%;
+}
+
+.subheader {
+  line-height: 150%;
+}

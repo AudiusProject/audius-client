@@ -9,6 +9,11 @@ import { useSelector } from 'common/hooks/useSelector'
 import styles from './ChatList.module.css'
 import { ChatListItem } from './ChatListItem'
 
+const messages = {
+  nothingHere: 'Nothing Here Yet',
+  start: 'Start a Conversation!'
+}
+
 type ChatListProps = {
   currentChatId?: string
 } & ComponentPropsWithoutRef<'div'>
@@ -23,13 +28,20 @@ export const ChatList = (props: ChatListProps) => {
 
   return (
     <div className={cn(styles.root, props.className)}>
-      {chats?.map((chat) => (
-        <ChatListItem
-          key={chat.chat_id}
-          currentChatId={props.currentChatId}
-          chat={chat}
-        />
-      ))}
+      {chats?.length > 0 ? (
+        chats?.map((chat) => (
+          <ChatListItem
+            key={chat.chat_id}
+            currentChatId={props.currentChatId}
+            chat={chat}
+          />
+        ))
+      ) : (
+        <div className={styles.empty}>
+          <div className={styles.header}>{messages.nothingHere}</div>
+          <div className={styles.subheader}>{messages.start}</div>
+        </div>
+      )}
     </div>
   )
 }
