@@ -222,7 +222,6 @@
 .premiumContentSectionDescription > p {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
 }
 
 .premiumContentSectionDescription img {
@@ -236,6 +235,7 @@
 .premiumContentSectionCollection {
   display: flex;
   align-items: center;
+  margin-top: 8px;
 }
 
 .premiumContentSectionButton {
@@ -268,6 +268,10 @@
   font-size: var(--font-l);
 }
 
+.collectibleName {
+  color: var(--secondary);
+}
+
 .lockedIcon, .unlockedIcon {
   margin-right: 8px;
   width: 16px;
@@ -276,6 +280,12 @@
 
 .badgeIcon {
   margin-left: 4px;
+}
+
+.verifiedGreenIcon {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
 }
 
 .bottomSection {
