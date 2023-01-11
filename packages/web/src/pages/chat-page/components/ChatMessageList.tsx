@@ -1,7 +1,9 @@
 import { ComponentPropsWithoutRef, useEffect } from 'react'
 
 import { chatActions, chatSelectors } from '@audius/common'
+import { ChatMessage } from '@audius/sdk'
 import cn from 'classnames'
+import dayjs from 'dayjs'
 import { useDispatch } from 'react-redux'
 
 import { useSelector } from 'common/hooks/useSelector'
@@ -14,6 +16,17 @@ const { getChatMessages, getChats } = chatSelectors
 
 type ChatMessageListProps = ComponentPropsWithoutRef<'div'> & {
   chatId?: string
+}
+
+const MESSAGE_GROUP_THRESHOLD = 2
+
+const areWithinThreshold = (message: ChatMessage, newMessage?: ChatMessage) => {
+  if (!newMessage) return false
+  return (
+    message.sender_user_id === newMessage.sender_user_id &&
+    dayjs(newMessage.created_at).diff(message.created_at, 'minutes') <
+      MESSAGE_GROUP_THRESHOLD
+  )
 }
 
 export const ChatMessageList = (props: ChatMessageListProps) => {
@@ -56,6 +69,7 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
               key={message.message_id}
               chatId={chatId}
               message={message}
+              isTail={!areWithinThreshold(message, messages[i - 1])}
             />
           </>
         ))}

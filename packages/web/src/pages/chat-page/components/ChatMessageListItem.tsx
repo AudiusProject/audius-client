@@ -24,6 +24,7 @@ import { ReactionPopupMenu } from './ReactionPopupMenu'
 type ChatMessageListItemProps = {
   chatId: string
   message: ChatMessage
+  isTail: boolean
 }
 
 const reactionImageMap: Record<ReactionTypes, string> = {
@@ -42,7 +43,7 @@ const formatMessageDate = (date: string) => {
 }
 
 export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
-  const { chatId, message } = props
+  const { chatId, message, isTail } = props
   const reactionButtonRef = useRef<HTMLDivElement>(null)
   const dispatch = useDispatch()
   const [isReactionPopupVisible, setReactionPopupVisible] = useState(false)
@@ -121,7 +122,11 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
         }
         onSelected={handleReactionSelected}
       />
-      <div className={styles.date}>{formatMessageDate(message.created_at)}</div>
+      {isTail ? (
+        <div className={styles.date}>
+          {formatMessageDate(message.created_at)}
+        </div>
+      ) : null}
     </div>
   )
 }

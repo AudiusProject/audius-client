@@ -44,6 +44,7 @@
 .date {
   font-size: var(--font-xs);
   color: var(--neutral-light-2);
+  margin-bottom: var(--unit-4);
 }
 
 .reaction {
