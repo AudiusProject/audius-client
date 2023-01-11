@@ -14,7 +14,8 @@ import {
   FeatureFlags,
   encodeHashId,
   Genre,
-  tracksSocialActions
+  tracksSocialActions,
+  SquareSizes
 } from '@audius/common'
 import queue from 'react-native-job-queue'
 import TrackPlayer, {
@@ -458,7 +459,8 @@ export const Audio = () => {
     const imageUrl =
       getImageSourceOptimistic({
         cid: track ? track.cover_art_sizes || track.cover_art : null,
-        user: trackOwner
+        user: trackOwner,
+        size: SquareSizes.SIZE_1000_BY_1000
         // localSource
       })?.[2]?.uri ?? DEFAULT_IMAGE_URL
 
@@ -467,7 +469,8 @@ export const Audio = () => {
         cid: nextTrack
           ? nextTrack.cover_art_sizes || nextTrack.cover_art
           : null,
-        user: nextTrackOwner
+        user: nextTrackOwner,
+        size: SquareSizes.SIZE_1000_BY_1000
         // localSource
       })?.[2]?.uri ?? DEFAULT_IMAGE_URL
 

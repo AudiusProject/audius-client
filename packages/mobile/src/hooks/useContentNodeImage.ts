@@ -1,7 +1,6 @@
 import { useState, useMemo, useCallback } from 'react'
 
-import type { Nullable, CID, WidthSizes } from '@audius/common'
-import { SquareSizes } from '@audius/common'
+import type { Nullable, CID, WidthSizes, SquareSizes } from '@audius/common'
 import type { User } from '@sentry/react-native'
 import type { ImageSourcePropType, ImageURISource } from 'react-native'
 
@@ -12,29 +11,10 @@ export type ContentNodeImageSource = {
   handleError: () => void
 }
 
-/**
- * Create an ImageSourceUri[] containing the available
- * images sizes
- */
-const createImageSourceWithSizes = ({
-  sizes,
-  createUri
-}: {
-  sizes: typeof SquareSizes | typeof WidthSizes
-  createUri: (size: string) => string
-}) => {
-  return Object.values(sizes).map((size: string) => {
-    const width = Number(size.split('x')[0])
-    return {
-      width,
-      height: width,
-      uri: createUri(size),
-      // A CID is a unique identifier of a piece of content,
-      // so we can always rely on a cached value
-      // https://reactnative.dev/docs/images#cache-control-ios-only
-      cache: 'force-cache' as const
-    }
-  })
+export const isImageUriSource = (
+  source: ImageSourcePropType
+): source is ImageURISource => {
+  return (source as ImageURISource)?.uri !== undefined
 }
 
 /**
@@ -42,18 +22,19 @@ const createImageSourceWithSizes = ({
  */
 const createImageSourcesForEndpoints = ({
   endpoints,
-  sizes,
   createUri
 }: {
   endpoints: string[]
-  sizes: typeof SquareSizes | typeof WidthSizes
-  createUri: (endpoint: string) => (size: string) => string
-}) =>
+  createUri: (endpoint: string) => string
+}): ImageURISource[] =>
   endpoints.reduce((result, endpoint) => {
-    const source = createImageSourceWithSizes({
-      sizes,
-      createUri: createUri(endpoint)
-    })
+    const source = {
+      uri: createUri(endpoint),
+      // A CID is a unique identifier of a piece of content,
+      // so we can always rely on a cached value
+      // https://reactnative.dev/docs/images#cache-control-ios-only
+      cache: 'force-cache' as const
+    }
 
     return [...result, source]
   }, [])
@@ -66,13 +47,13 @@ const createAllImageSources = ({
   cid,
   user,
   endpoints: providedEndpoints,
-  sizes = SquareSizes,
+  size,
   localSource
 }: {
   cid: Nullable<CID>
   user?: Nullable<{ creator_node_endpoint: Nullable<string> }>
   endpoints?: string[]
-  sizes?: typeof SquareSizes | typeof WidthSizes
+  size: SquareSizes | WidthSizes
   localSource?: ImageURISource[] | null
 }) => {
   if (!cid || (!user && !providedEndpoints)) {
@@ -89,16 +70,14 @@ const createAllImageSources = ({
 
   const newImageSources = createImageSourcesForEndpoints({
     endpoints,
-    sizes,
-    createUri: (endpoint) => (size) => `${endpoint}${cid}/${size}.jpg`
+    createUri: (endpoint) => `${endpoint}${cid}/${size}.jpg`
   })
 
   // These can be removed when all the data on Content Node has
   // been migrated to the new path
   const legacyImageSources = createImageSourcesForEndpoints({
     endpoints,
-    sizes,
-    createUri: (endpoint) => () => `${endpoint}${cid}`
+    createUri: (endpoint) => `${endpoint}${cid}`
   })
 
   const sourceList = [
@@ -124,7 +103,8 @@ export const getImageSourceOptimistic = (
 type UseContentNodeImageOptions = {
   cid: Nullable<CID>
   user: Nullable<Pick<User, 'creator_node_endpoint'>>
-  sizes?: typeof SquareSizes | typeof WidthSizes
+  // The size of the image to fetch
+  size: SquareSizes | WidthSizes
   fallbackImageSource: ImageSourcePropType
   localSource?: ImageURISource[] | null
 }
@@ -143,7 +123,7 @@ type UseContentNodeImageOptions = {
 export const useContentNodeImage = ({
   cid,
   user,
-  sizes = SquareSizes,
+  size,
   fallbackImageSource,
   localSource
 }: UseContentNodeImageOptions): ContentNodeImageSource => {
@@ -167,9 +147,9 @@ export const useContentNodeImage = ({
       cid,
       endpoints,
       localSource,
-      sizes
+      size
     })
-  }, [cid, endpoints, localSource, sizes])
+  }, [cid, endpoints, localSource, size])
 
   const handleError = useCallback(() => {
     if (imageSourceIndex < imageSources.length - 1) {
@@ -181,23 +161,27 @@ export const useContentNodeImage = ({
     }
   }, [imageSourceIndex, imageSources])
 
+  const source = useMemo(() => {
+    if (!user || !cid || failedToLoad) {
+      return fallbackImageSource
+    }
+
+    return imageSources[imageSourceIndex]
+  }, [
+    imageSources,
+    imageSourceIndex,
+    fallbackImageSource,
+    failedToLoad,
+    user,
+    cid
+  ])
+
   const result = useMemo(
     () => ({
-      source:
-        !user || !cid || failedToLoad
-          ? fallbackImageSource
-          : imageSources[imageSourceIndex],
+      source,
       handleError
     }),
-    [
-      imageSources,
-      imageSourceIndex,
-      handleError,
-      fallbackImageSource,
-      failedToLoad,
-      user,
-      cid
-    ]
+    [source, handleError]
   )
 
   return result

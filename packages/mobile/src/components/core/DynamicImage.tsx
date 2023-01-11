@@ -3,15 +3,18 @@ import { useEffect, memo, useCallback, useRef, useState } from 'react'
 
 import { useInstanceVar } from '@audius/common'
 import type { Maybe } from '@audius/common'
+import { isEmpty } from 'lodash'
 import type {
   ImageProps,
   ImageSourcePropType,
   ImageStyle,
+  ImageURISource,
   LayoutChangeEvent,
   StyleProp,
   ViewStyle
 } from 'react-native'
 import { Animated, Image, StyleSheet, View } from 'react-native'
+import { useAsync } from 'react-use'
 
 import Skeleton from 'app/components/skeleton'
 import type { StylesProp } from 'app/styles'
@@ -70,10 +73,23 @@ const ImageLoader = ({
   const [size, setSize] = useState(0)
   const skeletonOpacity = useRef(new Animated.Value(1)).current
   const [isAnimationFinished, setIsAnimationFinished] = useState(false)
+  const [isImageCached, setIsImageCached] = useState(false)
 
   const handleSetSize = useCallback((event: LayoutChangeEvent) => {
     setSize(event.nativeEvent.layout.width)
   }, [])
+
+  useAsync(async () => {
+    const cache = await Image.queryCache?.([
+      (source as ImageURISource).uri ?? ''
+    ])
+
+    if (!isEmpty(cache)) {
+      // Image in the cache already
+      // Do not animate, show the cached image immediately
+      setIsImageCached(true)
+    }
+  }, [source])
 
   const handleLoad = useCallback(() => {
     Animated.timing(skeletonOpacity, {
@@ -90,6 +106,7 @@ const ImageLoader = ({
     // Reset the animation when the source changes
     if (source) {
       setIsAnimationFinished(false)
+      setIsImageCached(false)
       skeletonOpacity.setValue(1)
     }
   }, [source, skeletonOpacity])
@@ -104,7 +121,7 @@ const ImageLoader = ({
           onLoad={handleLoad}
         />
       ) : null}
-      {!isAnimationFinished && !noSkeleton ? (
+      {!isAnimationFinished && !isImageCached && !noSkeleton ? (
         <Animated.View
           style={[
             stylesProp?.imageContainer,

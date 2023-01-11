@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { useCallback } from 'react'
 
+import { SquareSizes } from '@audius/common'
 import { StyleSheet, View, Text, TouchableHighlight } from 'react-native'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
@@ -132,6 +133,7 @@ const TrackSearchResult = ({ isLast, item: track }: TrackSearchResultProps) => {
     <ItemContainer isLast={isLast} onPress={handlePress}>
       <TrackImage
         track={track}
+        size={SquareSizes.SIZE_150_BY_150}
         user={track.user}
         styles={{ root: squareImageStyles, image: squareImageStyles }}
       />
@@ -175,6 +177,7 @@ const PlaylistSearchResult = ({
     <ItemContainer isLast={isLast} onPress={handlePress}>
       <CollectionImage
         collection={playlist}
+        size={SquareSizes.SIZE_150_BY_150}
         user={playlist.user}
         styles={{ root: squareImageStyles, image: squareImageStyles }}
       />
@@ -215,6 +218,7 @@ const AlbumSearchResult = ({ isLast, item: album }: AlbumSearchResultProps) => {
     <ItemContainer isLast={isLast} onPress={handlePress}>
       <CollectionImage
         collection={album}
+        size={SquareSizes.SIZE_150_BY_150}
         user={album.user}
         styles={{ root: squareImageStyles, image: squareImageStyles }}
       />

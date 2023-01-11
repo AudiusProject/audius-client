@@ -96,7 +96,7 @@ export const CollectionScreenDetailsTile = ({
   isAlbum,
   isPrivate,
   isPublishing,
-  renderImage: renderCustomImage,
+  renderImage,
   ...detailsTileProps
 }: CollectionScreenDetailsTileProps) => {
   const styles = useStyles()
@@ -105,7 +105,6 @@ export const CollectionScreenDetailsTile = ({
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const isReachable = useSelector(getIsReachable)
 
-  const collection = useSelector(getCollection)
   const collectionUid = useSelector(getCollectionUid)
   const collectionId = useSelector(getCollectionId)
   const userUid = useSelector(getUserUid)
@@ -156,13 +155,6 @@ export const CollectionScreenDetailsTile = ({
   const trackId = playingTrack?.track_id
 
   const isQueued = entries.some((entry) => playingUid === entry.uid)
-
-  const renderImage = useCallback(
-    (props: DynamicImageProps) => (
-      <CollectionImage collection={collection as Collection} {...props} />
-    ),
-    [collection]
-  )
 
   const handlePressPlay = useCallback(() => {
     if (isPlaying && isQueued) {
@@ -267,7 +259,7 @@ export const CollectionScreenDetailsTile = ({
       renderBottomContent={renderTrackList}
       headerText={!isOfflineModeEnabled ? headerText : undefined}
       renderHeader={isOfflineModeEnabled ? renderHeader : undefined}
-      renderImage={renderCustomImage ?? renderImage}
+      renderImage={renderImage}
       onPressPlay={handlePressPlay}
     />
   )
