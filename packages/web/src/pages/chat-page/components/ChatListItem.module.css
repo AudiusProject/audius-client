@@ -1,0 +1,48 @@
+.root {
+  padding: 16px 24px;
+  gap: 8px;
+  display: flex;
+  align-items: center;
+  background-color: var(--white);
+  border-bottom: 1px solid var(--neutral-light-8);
+
+  cursor: pointer;
+  position: relative;
+}
+
+.root:hover::before,
+.root.active::before {
+  content: '';
+  position: absolute;
+  width: var(--unit-1);
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: var(--secondary-light-2);
+}
+
+.root .profilePicture {
+  width: var(--unit-12);
+  height: var(--unit-12);
+}
+
+.userDetails {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--unit-1);
+}
+
+.userName {
+  display: flex;
+  align-items: center;
+  gap: var(--unit-1);
+  font-weight: var(--font-bold);
+  font-size: var(--font-l);
+}
+
+.userName,
+.userHandle,
+.profilePicture {
+  cursor: pointer;
+}

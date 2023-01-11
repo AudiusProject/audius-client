@@ -1,0 +1,47 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.root.isAuthor {
+  align-items: flex-end;
+}
+
+.bubble {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  max-width: 448px;
+  padding: var(--unit-4);
+  border-radius: var(--unit-3);
+  box-shadow: var(--box-shadow-near);
+  color: var(--netural);
+  background-color: var(--white);
+}
+
+.bubble:hover {
+  background-color: var(--neutral-light-10);
+  box-shadow: var(--box-shadow-far);
+}
+
+.isAuthor .bubble {
+  color: var(--white);
+  background-color: var(--secondary-light-2);
+}
+
+.isAuthor .bubble:hover {
+  background-color: var(--secondary-light-1);
+}
+
+.text {
+  word-break: break-word;
+  text-align: left;
+  line-height: 150%;
+}
+
+.date {
+  font-size: var(--font-xs);
+  color: var(--neutral-light-2);
+}
