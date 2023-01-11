@@ -34,7 +34,7 @@ export const ReactionPopupMenu = ({
       anchorRef={anchorRef as MutableRefObject<HTMLElement>}
       isVisible={isVisible}
       onClose={onClose}
-      className={styles.container}
+      className={styles.popup}
       position={position}
     >
       <div className={styles.root}>
