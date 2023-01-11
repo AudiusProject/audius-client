@@ -182,6 +182,7 @@ export class SolanaClient {
         imageUrl
       }
     } catch (e) {
+      console.warn(`Could not get nft metadata for mint address ${mintAddress}`)
       return null
     }
   }
