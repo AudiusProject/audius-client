@@ -30,7 +30,6 @@ import Skeleton from 'components/skeleton/Skeleton'
 import Toast from 'components/toast/Toast'
 import Tooltip from 'components/tooltip/Tooltip'
 import UserBadges from 'components/user-badges/UserBadges'
-import HiddenTrackHeader from 'pages/track-page/components/HiddenTrackHeader'
 import { moodMap } from 'utils/moods'
 
 import Badge from './Badge'
@@ -38,6 +37,8 @@ import GiantArtwork from './GiantArtwork'
 import styles from './GiantTrackTile.module.css'
 import InfoLabel from './InfoLabel'
 import Tag from './Tag'
+import { PremiumTrackSection } from './PremiumTrackSection'
+import { CardTitle } from './CardTitle'
 
 const BUTTON_COLLAPSE_WIDTHS = {
   first: 1095,
@@ -50,9 +51,6 @@ const REPOST_TIMEOUT = 1000
 const SAVED_TIMEOUT = 1000
 
 const messages = {
-  trackTitle: 'TRACK',
-  remixTitle: 'REMIX',
-  hiddenTrackTooltip: 'Anyone with a link to this page will be able to see it',
   makePublic: 'MAKE PUBLIC',
   isPublishing: 'PUBLISHING',
   repostButtonText: 'repost',
@@ -65,31 +63,14 @@ class GiantTrackTile extends PureComponent {
   }
 
   renderCardTitle(className) {
-    const { isUnlisted, isRemix } = this.props
-
-    if (!isUnlisted) {
-      return (
-        <div className={cn(styles.headerContainer, className)}>
-          <div className={styles.typeLabel}>
-            {isRemix ? messages.remixTitle : messages.trackTitle}
-          </div>
-        </div>
-      )
-    }
-
-    return (
-      <div className={cn(styles.headerContainer, className)}>
-        <Tooltip
-          text={messages.hiddenTrackTooltip}
-          mouseEnterDelay={0}
-          shouldWrapContent={false}
-        >
-          <div>
-            <HiddenTrackHeader />
-          </div>
-        </Tooltip>
-      </div>
-    )
+    const { isUnlisted, isRemix, isPremium, premiumConditions } = this.props
+    return <CardTitle
+      className={className}
+      isUnlisted={isUnlisted}
+      isRemix={isRemix}
+      isPremium={isPremium}
+      premiumConditions={premiumConditions}
+    />
   }
 
   renderShareButton() {
@@ -375,6 +356,8 @@ class GiantTrackTile extends PureComponent {
       onUnfollow,
       isArtistPick,
       isUnlisted,
+      isPremium,
+      premiumConditions,
       onExternalLinkClick,
       coSign,
       loading,
@@ -504,6 +487,18 @@ class GiantTrackTile extends PureComponent {
             <Badge className={styles.badgePlacement} textLabel={badge} />
           ) : null}
         </div>
+
+        {/* {isPremium && ( */}
+          <PremiumTrackSection
+            isLoading={isLoading}
+            // premiumConditions={premiumConditions}
+            premiumConditions={{ nft_collection: { chain: 'sol', name: 'Bored Ape Yacht Club', address: '123', imageUrl: 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_1280.jpg' } }}
+            doesUserHaveAccess={false}
+            // premiumConditions={{ follow_user_id: 1 }}
+            // premiumConditions={{ tip_user_id: 1 }}
+            // doesUserHaveAccess={true}
+          />
+        {/* )} */}
 
         <div className={cn(styles.bottomSection, fadeIn)}>
           <div className={styles.infoLabelsSection}>
