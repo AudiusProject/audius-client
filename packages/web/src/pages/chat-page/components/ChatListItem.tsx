@@ -50,18 +50,27 @@ export const ChatListItem = (props: ChatListItemProps) => {
       className={cn(styles.root, { [styles.active]: isCurrentChat })}
       onClick={handleClick}
     >
-      <ProfilePicture user={user} className={styles.profilePicture} />
-      <div className={styles.userDetails}>
-        <ArtistPopover handle={user.handle}>
-          <div className={styles.userName}>
-            <span>{user.name}</span>
-            <UserBadges userId={user.user_id} badgeSize={14} />
+      <div className={styles.user}>
+        <ProfilePicture user={user} className={styles.profilePicture} />
+        <div className={styles.userDetails}>
+          <ArtistPopover handle={user.handle}>
+            <div className={styles.nameAndBadge}>
+              <span className={styles.name}>{user.name}</span>
+              <UserBadges userId={user.user_id} badgeSize={14} />
+            </div>
+          </ArtistPopover>
+          <ArtistPopover handle={user.handle}>
+            <span className={styles.handle}>@{user.handle}</span>
+          </ArtistPopover>
+        </div>
+        {chat.unread_message_count > 0 ? (
+          <div className={styles.unreadIndicator}>
+            {chat.unread_message_count > 9 ? '9+' : chat.unread_message_count}{' '}
+            New
           </div>
-        </ArtistPopover>
-        <ArtistPopover handle={user.handle}>
-          <span className={styles.userHandle}>@{user.handle}</span>
-        </ArtistPopover>
+        ) : null}
       </div>
+      <div className={styles.messagePreview}>&nbsp;</div>
     </div>
   )
 }
