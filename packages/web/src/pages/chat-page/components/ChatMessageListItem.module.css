@@ -91,7 +91,7 @@
   fill: var(--secondary);
 }
 
-.reactionImage {
+.reactionEmoji {
   width: var(--unit-10);
   height: var(--unit-10);
 }

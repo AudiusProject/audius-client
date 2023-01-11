@@ -12,11 +12,8 @@ import cn from 'classnames'
 import dayjs from 'dayjs'
 import { useDispatch } from 'react-redux'
 
-import StarEyesSrc from 'assets/fonts/emojis/grinning-face-with-star-eyes.png'
-import FrownFaceSrc from 'assets/fonts/emojis/slightly-frowning-face.png'
-import HornFaceSrc from 'assets/fonts/emojis/smiling-face-with-horns.png'
-import SunglassesSrc from 'assets/fonts/emojis/smiling-face-with-sunglasses.png'
 import { useSelector } from 'common/hooks/useSelector'
+import { reactionMap } from 'components/notification/Notification/components/Reaction'
 
 import styles from './ChatMessageListItem.module.css'
 import { ReactionPopupMenu } from './ReactionPopupMenu'
@@ -25,13 +22,6 @@ type ChatMessageListItemProps = {
   chatId: string
   message: ChatMessage
   isTail: boolean
-}
-
-const reactionImageMap: Record<ReactionTypes, string> = {
-  heart: StarEyesSrc,
-  explode: HornFaceSrc,
-  fire: SunglassesSrc,
-  party: FrownFaceSrc
 }
 
 const formatMessageDate = (date: string) => {
@@ -92,17 +82,14 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
         >
           {message.reactions ? (
             message.reactions.map((reaction) => {
-              const Reaction =
-                reaction.reaction in reactionImageMap
-                  ? reactionImageMap[reaction.reaction as ReactionTypes]
-                  : reaction.reaction
-              return (
-                <img
-                  key={reaction.user_id}
-                  className={styles.reactionImage}
-                  src={Reaction}
-                />
-              )
+              if (!(reaction.reaction in reactionMap)) {
+                console.error(
+                  `Reaction type '${reaction.reaction}' does not exist`
+                )
+                return null
+              }
+              const Reaction = reactionMap[reaction.reaction as ReactionTypes]
+              return <Reaction key={reaction.user_id} width={48} height={48} />
             })
           ) : (
             <IconSave
