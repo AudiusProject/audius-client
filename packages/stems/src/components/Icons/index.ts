@@ -102,6 +102,7 @@ export { ReactComponent as IconTikTokInverted } from '../../assets/icons/iconTik
 export { ReactComponent as IconTwitter } from '../../assets/icons/iconTwitter.svg'
 export { ReactComponent as IconTwitterBird } from '../../assets/icons/iconTwitterBird.svg'
 export { ReactComponent as IconUnfollow } from '../../assets/icons/iconUnfollow.svg'
+export { ReactComponent as IconUnlocked } from '../../assets/icons/iconUnlocked.svg'
 export { ReactComponent as IconUpload } from '../../assets/icons/iconUpload.svg'
 export { ReactComponent as IconUser } from '../../assets/icons/iconUser.svg'
 export { ReactComponent as IconValidationCheck } from '../../assets/icons/iconValidationCheck.svg'
