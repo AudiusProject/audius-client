@@ -1,10 +1,11 @@
-import { ComponentPropsWithoutRef, useEffect } from 'react'
+import { ComponentPropsWithoutRef, useEffect, useState } from 'react'
 
-import { chatSelectors, chatActions } from '@audius/common'
+import { chatSelectors, chatActions, Status } from '@audius/common'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
 import { useSelector } from 'common/hooks/useSelector'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 
 import styles from './ChatList.module.css'
 import { ChatListItem } from './ChatListItem'
@@ -20,11 +21,19 @@ type ChatListProps = {
 
 export const ChatList = (props: ChatListProps) => {
   const dispatch = useDispatch()
-  const chats = useSelector(chatSelectors.getChats)
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
+  const chatsState = useSelector(chatSelectors.getChats)
+  const chats = chatsState.data
 
   useEffect(() => {
     dispatch(chatActions.fetchMoreChats())
   }, [dispatch])
+
+  useEffect(() => {
+    if (chatsState.status === Status.SUCCESS) {
+      setHasLoadedOnce(true)
+    }
+  }, [chatsState, setHasLoadedOnce])
 
   return (
     <div className={cn(styles.root, props.className)}>
@@ -36,12 +45,15 @@ export const ChatList = (props: ChatListProps) => {
             chat={chat}
           />
         ))
-      ) : (
+      ) : hasLoadedOnce ? (
         <div className={styles.empty}>
           <div className={styles.header}>{messages.nothingHere}</div>
           <div className={styles.subheader}>{messages.start}</div>
         </div>
-      )}
+      ) : null}
+      {chatsState.status === Status.LOADING ? (
+        <LoadingSpinner className={styles.spinner} />
+      ) : null}
     </div>
   )
 }

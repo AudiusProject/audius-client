@@ -14,6 +14,10 @@ import { ChatMessageListItem } from './ChatMessageListItem'
 const { fetchNewChatMessages } = chatActions
 const { getChatMessages, getChats } = chatSelectors
 
+const messages = {
+  newMessages: 'New Messages'
+}
+
 type ChatMessageListProps = ComponentPropsWithoutRef<'div'> & {
   chatId?: string
 }
@@ -32,8 +36,10 @@ const areWithinThreshold = (message: ChatMessage, newMessage?: ChatMessage) => {
 export const ChatMessageList = (props: ChatMessageListProps) => {
   const { chatId } = props
   const dispatch = useDispatch()
-  const messages = useSelector((state) => getChatMessages(state, chatId ?? ''))
-  const chats = useSelector(getChats)
+  const chatMessages = useSelector((state) =>
+    getChatMessages(state, chatId ?? '')
+  )
+  const { data: chats } = useSelector(getChats)
   const chat = chatId ? chats.find((chat) => chat.chat_id === chatId) : null
 
   useEffect(() => {
@@ -53,15 +59,15 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
   return (
     <div className={cn(styles.root, props.className)}>
       {chatId &&
-        messages?.map((message, i) => (
+        chatMessages?.map((message, i) => (
           <>
             {chat &&
             message.created_at > chat.last_read_at &&
-            (!messages[i + 1] ||
-              messages[i + 1].created_at <= chat.last_read_at) ? (
+            (!chatMessages[i + 1] ||
+              chatMessages[i + 1].created_at <= chat.last_read_at) ? (
               <div className={styles.separator}>
                 <span className={styles.tag}>
-                  {chat.unread_message_count} New Messages
+                  {chat.unread_message_count} {messages.newMessages}
                 </span>
               </div>
             ) : null}
@@ -69,7 +75,7 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
               key={message.message_id}
               chatId={chatId}
               message={message}
-              isTail={!areWithinThreshold(message, messages[i - 1])}
+              isTail={!areWithinThreshold(message, chatMessages[i - 1])}
             />
           </>
         ))}

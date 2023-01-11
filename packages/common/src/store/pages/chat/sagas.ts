@@ -28,7 +28,6 @@ function* doFetchMoreChats() {
     const sdk = yield* call(audiusSdk)
     const summary = yield* select(getChatsSummary)
     const cursor = summary?.next_cursor
-    console.log({ cursor })
     const response = yield* call([sdk.chats, sdk.chats!.getAll], {
       cursor
     })
