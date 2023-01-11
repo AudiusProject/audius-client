@@ -40,6 +40,7 @@ import Tag from './Tag'
 import { PremiumTrackSection } from './PremiumTrackSection'
 import { CardTitle } from './CardTitle'
 import { PlayPauseButton } from './PlayPauseButton'
+import { PremiumTrackCornerTag } from './PremiumTrackCornerTag'
 
 const BUTTON_COLLAPSE_WIDTHS = {
   first: 1095,
@@ -404,6 +405,7 @@ class GiantTrackTile extends PureComponent {
     return (
       <div className={styles.giantTrackTile}>
         <div className={styles.topSection}>
+          {isPremium && <PremiumTrackCornerTag doesUserHaveAccess={doesUserHaveAccess} />}
           <GiantArtwork
             trackId={trackId}
             coverArtSizes={coverArtSizes}
