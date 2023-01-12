@@ -87,7 +87,7 @@ import notificationSagasWeb from './notifications/sagas'
 export default function* rootSaga() {
   const sagas = ([] as (() => Generator<any, void, any>)[]).concat(
     function* () {
-      yield put(setupBackend())
+      yield* put(setupBackend())
     },
     // Config
     analyticsSagas(),
