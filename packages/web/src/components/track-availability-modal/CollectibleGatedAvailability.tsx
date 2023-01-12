@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import {
   Chain,
   TokenStandard,
@@ -15,7 +17,6 @@ import DropdownInput from 'components/data-entry/DropdownInput'
 
 import styles from './TrackAvailabilityModal.module.css'
 import { AvailabilityType, TrackAvailabilitySelectionProps } from './types'
-import { useEffect, useMemo, useState } from 'react'
 
 const { getUserId } = accountSelectors
 const { getUserCollectibles, getSolCollections } = collectiblesSelectors
@@ -134,7 +135,7 @@ export const CollectibleGatedAvailability = ({
     })
 
     return map
-  }, [collectibles])
+  }, [collectibles, solCollections])
 
   const solCollectibleItems = useMemo(() => {
     return Object.keys(solCollectionMap).map((mint) => ({
@@ -152,7 +153,10 @@ export const CollectibleGatedAvailability = ({
     }))
   }, [solCollectionMap])
 
-  const menuItems = useMemo(() => [...ethCollectibleItems, ...solCollectibleItems], [ethCollectibleItems, solCollectibleItems])
+  const menuItems = useMemo(
+    () => [...ethCollectibleItems, ...solCollectibleItems],
+    [ethCollectibleItems, solCollectibleItems]
+  )
 
   return (
     <div className={cn(styles.radioItem, { [styles.selected]: selected })}>
@@ -160,9 +164,9 @@ export const CollectibleGatedAvailability = ({
         className={styles.availabilityRowContent}
         onClick={() => {
           if (updatePremiumContentFields) {
-            updatePremiumContentFields(null, AvailabilityType.COLLECTIBLE_GATED)}
+            updatePremiumContentFields(null, AvailabilityType.COLLECTIBLE_GATED)
           }
-        }
+        }}
       >
         <div className={styles.availabilityRowTitle}>
           <IconCollectible className={styles.availabilityRowIcon} />
@@ -197,23 +201,29 @@ export const CollectibleGatedAvailability = ({
                 if (!updatePremiumContentFields) return
 
                 if (ethCollectionMap[value]) {
-                  updatePremiumContentFields({
-                    nft_collection: {
-                      chain: Chain.Eth,
-                      standard: ethCollectionMap[value].standard,
-                      address: ethCollectionMap[value].address,
-                      name: ethCollectionMap[value].name,
-                      slug: value
-                    }
-                  }, AvailabilityType.COLLECTIBLE_GATED)
+                  updatePremiumContentFields(
+                    {
+                      nft_collection: {
+                        chain: Chain.Eth,
+                        standard: ethCollectionMap[value].standard,
+                        address: ethCollectionMap[value].address,
+                        name: ethCollectionMap[value].name,
+                        slug: value
+                      }
+                    },
+                    AvailabilityType.COLLECTIBLE_GATED
+                  )
                 } else if (solCollectionMap[value]) {
-                  updatePremiumContentFields({
-                    nft_collection: {
-                      chain: Chain.Sol,
-                      address: value,
-                      name: solCollectionMap[value].name
-                    }
-                  }, AvailabilityType.COLLECTIBLE_GATED)
+                  updatePremiumContentFields(
+                    {
+                      nft_collection: {
+                        chain: Chain.Sol,
+                        address: value,
+                        name: solCollectionMap[value].name
+                      }
+                    },
+                    AvailabilityType.COLLECTIBLE_GATED
+                  )
                 }
               }}
               size='large'

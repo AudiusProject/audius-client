@@ -2,7 +2,7 @@ import { IconVisibilityPublic } from '@audius/stems'
 import cn from 'classnames'
 
 import styles from './TrackAvailabilityModal.module.css'
-import { AvailabilityType, TrackAvailabilitySelectionProps } from './types'
+import { TrackAvailabilitySelectionProps } from './types'
 
 const messages = {
   public: 'Public (Default)',

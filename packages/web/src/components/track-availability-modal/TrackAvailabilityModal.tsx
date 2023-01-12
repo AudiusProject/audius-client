@@ -90,8 +90,10 @@ const TrackAvailabilityModal = ({
   }, [didUpdateState])
 
   const updatePremiumContentFields = useCallback(
-    (premiumConditions: Nullable<PremiumConditions>, availabilityType: AvailabilityType) => {
-      console.log('updating', premiumConditions)
+    (
+      premiumConditions: Nullable<PremiumConditions>,
+      availabilityType: AvailabilityType
+    ) => {
       if (premiumConditions) {
         didUpdateState({
           ...defaultAvailabilityFields,
@@ -99,7 +101,6 @@ const TrackAvailabilityModal = ({
           premium_conditions: premiumConditions
         })
       } else if (availabilityType === availability) {
-        return
       } else if (availabilityType === AvailabilityType.SPECIAL_ACCESS) {
         didUpdateState({
           ...defaultAvailabilityFields,
@@ -114,7 +115,7 @@ const TrackAvailabilityModal = ({
         })
       }
     },
-    [didUpdateState, metadataState]
+    [didUpdateState, availability, defaultSpecialAccess]
   )
 
   const updateUnlistedField = useCallback(() => {
@@ -129,16 +130,6 @@ const TrackAvailabilityModal = ({
       didUpdateState({
         ...metadataState,
         [field]: visible
-      })
-    },
-    [didUpdateState, metadataState]
-  )
-
-  const updatePremiumContentFields = useCallback(
-    (premiumConditions: PremiumConditions) => {
-      didUpdateState({
-        ...metadataState,
-        premium_conditions: premiumConditions
       })
     },
     [didUpdateState, metadataState]

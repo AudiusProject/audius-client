@@ -5,7 +5,6 @@ import Switch from '../switch/Switch'
 
 import styles from './TrackAvailabilityModal.module.css'
 import {
-  AvailabilityType,
   TrackAvailabilitySelectionProps,
   UnlistedTrackMetadataField
 } from './types'

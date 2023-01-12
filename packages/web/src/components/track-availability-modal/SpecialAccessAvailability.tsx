@@ -32,9 +32,9 @@ export const SpecialAccessAvailability = ({
         className={styles.availabilityRowContent}
         onClick={() => {
           if (updatePremiumContentFields) {
-            updatePremiumContentFields(null, AvailabilityType.SPECIAL_ACCESS)}
+            updatePremiumContentFields(null, AvailabilityType.SPECIAL_ACCESS)
           }
-        }
+        }}
       >
         <div className={styles.availabilityRowTitle}>
           <IconSpecialAccess className={styles.availabilityRowIcon} />
@@ -59,7 +59,10 @@ export const SpecialAccessAvailability = ({
                 onClick={(e) => {
                   e.stopPropagation()
                   if (updatePremiumContentFields && !!accountUserId) {
-                    updatePremiumContentFields({ follow_user_id: accountUserId }, AvailabilityType.SPECIAL_ACCESS)
+                    updatePremiumContentFields(
+                      { follow_user_id: accountUserId },
+                      AvailabilityType.SPECIAL_ACCESS
+                    )
                   }
                 }}
               />
@@ -79,7 +82,10 @@ export const SpecialAccessAvailability = ({
                 onClick={(e) => {
                   e.stopPropagation()
                   if (updatePremiumContentFields && !!accountUserId) {
-                    updatePremiumContentFields({ tip_user_id: accountUserId }, AvailabilityType.SPECIAL_ACCESS)
+                    updatePremiumContentFields(
+                      { tip_user_id: accountUserId },
+                      AvailabilityType.SPECIAL_ACCESS
+                    )
                   }
                 }}
               />
