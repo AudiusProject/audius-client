@@ -1,4 +1,4 @@
-import { FeatureFlags, PremiumConditions, cacheUsersSelectors, User, ID, Nullable, Chain, usersSocialActions as socialActions, FollowSource } from '@audius/common'
+import { FeatureFlags, PremiumConditions, cacheUsersSelectors, User, ID, Nullable, Chain, usersSocialActions as socialActions, FollowSource, tippingActions } from '@audius/common'
 import { Button, ButtonType, IconLock, IconUnlocked } from '@audius/stems'
 import cn from 'classnames'
 import FollowButton from 'components/follow-button/FollowButton'
@@ -14,6 +14,7 @@ import { AppState } from 'store/types'
 import { ReactComponent as IconVerifiedGreen } from 'assets/img/iconVerifiedGreen.svg'
 
 const { getUsers } = cacheUsersSelectors
+const { beginTip } = tippingActions
 
 const messages = {
   howToUnlock: 'HOW TO UNLOCK',
@@ -34,17 +35,17 @@ const messages = {
 
 type PremiumTrackAccessSectionProps = {
   premiumConditions: PremiumConditions
-  followeeUserName: Nullable<string>
-  tippedUserName: Nullable<string>
+  followee: Nullable<User>
+  tippedUser: Nullable<User>
 }
 
-const LockedPremiumTrackSection = ({ premiumConditions, followeeUserName, tippedUserName }:  PremiumTrackAccessSectionProps) => {
+const LockedPremiumTrackSection = ({ premiumConditions, followee, tippedUser }:  PremiumTrackAccessSectionProps) => {
   const dispatch = useDispatch()
 
   const handleGoToCollection = useCallback(() => {
     const { chain, address, externalLink } = premiumConditions.nft_collection ?? {}
-    if (chain === Chain.Eth) {
-      const url = `https://opensea.io/collection/${nftCollection.slug}`
+    if (chain === Chain.Eth && 'slug' in premiumConditions.nft_collection!) {
+      const url = `https://opensea.io/collection/${premiumConditions.nft_collection.slug}`
       window.open(url, '_blank')
     } else if (chain === Chain.Sol) {
       const explorerUrl = `https://explorer.solana.com/address/${address}`
@@ -57,11 +58,11 @@ const LockedPremiumTrackSection = ({ premiumConditions, followeeUserName, tipped
     if (premiumConditions.follow_user_id) {
       dispatch(socialActions.followUser(premiumConditions.follow_user_id, FollowSource.TRACK_PAGE))
     }
-  }, [])
+  }, [dispatch, premiumConditions])
 
   const handleSendTip = useCallback(() => {
-
-  }, [])
+    dispatch(beginTip({ user: tippedUser, source: 'trackPage' }))
+  }, [dispatch, tippedUser])
 
   const renderLockedDescription = useCallback(() => {
     if (premiumConditions.nft_collection) {
@@ -78,7 +79,7 @@ const LockedPremiumTrackSection = ({ premiumConditions, followeeUserName, tipped
       return <div className={styles.premiumContentSectionDescription}>
         <p>
           {messages.unlockFollowGatedTrackPrefix}
-          {followeeUserName}
+          {followee?.name}
           <UserBadges
             userId={premiumConditions.follow_user_id}
             className={styles.badgeIcon}
@@ -93,7 +94,7 @@ const LockedPremiumTrackSection = ({ premiumConditions, followeeUserName, tipped
       return <div className={styles.premiumContentSectionDescription}>
         <p>
           {messages.unlockTipGatedTrackPrefix}
-          {tippedUserName}
+          {tippedUser?.name}
           <UserBadges
             userId={premiumConditions.tip_user_id}
             className={styles.badgeIcon}
@@ -107,7 +108,7 @@ const LockedPremiumTrackSection = ({ premiumConditions, followeeUserName, tipped
 
     // should not reach here
     return null
-  }, [premiumConditions, followeeUserName, tippedUserName])
+  }, [premiumConditions, followee, tippedUser])
 
   const renderButton = useCallback(() => {
     if (premiumConditions.nft_collection) {
@@ -161,7 +162,7 @@ const LockedPremiumTrackSection = ({ premiumConditions, followeeUserName, tipped
   )
 }
 
-const UnlockedPremiumTrackSection = ({ premiumConditions, followeeUserName, tippedUserName }:  PremiumTrackAccessSectionProps) => {
+const UnlockedPremiumTrackSection = ({ premiumConditions, followee, tippedUser }:  PremiumTrackAccessSectionProps) => {
   const renderUnlockedDescription = useCallback(() => {
     if (premiumConditions.nft_collection) {
       return <p>
@@ -176,7 +177,7 @@ const UnlockedPremiumTrackSection = ({ premiumConditions, followeeUserName, tipp
       return <p>
         <IconVerifiedGreen className={styles.verifiedGreenIcon} />
         {messages.unlockedFollowGatedTrackPrefix}
-        {followeeUserName}
+        {followee?.name}
         <UserBadges
           userId={premiumConditions.follow_user_id}
           className={styles.badgeIcon}
@@ -191,7 +192,7 @@ const UnlockedPremiumTrackSection = ({ premiumConditions, followeeUserName, tipp
       return <p>
         <IconVerifiedGreen className={styles.verifiedGreenIcon} />
         {messages.unlockedTipGatedTrackPrefix}
-        {tippedUserName}
+        {tippedUser?.name}
         <UserBadges
           userId={premiumConditions.tip_user_id}
           className={styles.badgeIcon}
@@ -204,7 +205,7 @@ const UnlockedPremiumTrackSection = ({ premiumConditions, followeeUserName, tipp
 
     // should not reach here
     return null
-  }, [premiumConditions, followeeUserName, tippedUserName])
+  }, [premiumConditions, followee, tippedUser])
 
   return (
     <div className={styles.premiumContentSectionUnlocked}>
@@ -233,8 +234,8 @@ export const PremiumTrackSection = ({ isLoading, premiumConditions, doesUserHave
   const users = useSelector<AppState, { [id: ID]: User }>((state) =>
     getUsers(state, { ids: [followUserId, tipUserId].filter((id): id is number => !!id) })
   )
-  const followeeUserName = useMemo(() => followUserId ? users[followUserId].name : null, [users, followUserId])
-  const tippedUserName = useMemo(() => tipUserId ? users[tipUserId].name : null, [users, tipUserId])
+  const followee = useMemo(() => followUserId ? users[followUserId] : null, [users, followUserId])
+  const tippedUser = useMemo(() => tipUserId ? users[tipUserId] : null, [users, tipUserId])
 
   const fadeIn = {
     [styles.show]: !isLoading,
@@ -250,13 +251,13 @@ export const PremiumTrackSection = ({ isLoading, premiumConditions, doesUserHave
       {doesUserHaveAccess
         ? <UnlockedPremiumTrackSection
             premiumConditions={premiumConditions}
-            followeeUserName={followeeUserName}
-            tippedUserName={tippedUserName}
+            followee={followee}
+            tippedUser={tippedUser}
           />
         : <LockedPremiumTrackSection
             premiumConditions={premiumConditions}
-            followeeUserName={followeeUserName}
-            tippedUserName={tippedUserName}
+            followee={followee}
+            tippedUser={tippedUser}
           />}
     </div>
   )
