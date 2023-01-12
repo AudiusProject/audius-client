@@ -1,4 +1,4 @@
-import { FeatureFlags, PremiumConditions, cacheUsersSelectors, User, ID, Nullable } from '@audius/common'
+import { FeatureFlags, PremiumConditions, cacheUsersSelectors, User, ID, Nullable, Chain } from '@audius/common'
 import { Button, ButtonType, IconLock, IconUnlocked } from '@audius/stems'
 import cn from 'classnames'
 import FollowButton from 'components/follow-button/FollowButton'
@@ -40,8 +40,16 @@ type PremiumTrackAccessSectionProps = {
 
 const LockedPremiumTrackSection = ({ premiumConditions, followeeUserName, tippedUserName }:  PremiumTrackAccessSectionProps) => {
   const handleGoToCollection = useCallback(() => {
-
-  }, [])
+    const { chain, address, externalLink } = premiumConditions.nft_collection ?? {}
+    if (chain === Chain.Eth) {
+      const url = `https://opensea.io/collection/${nftCollection.slug}`
+      window.open(url, '_blank')
+    } else if (chain === Chain.Sol) {
+      const explorerUrl = `https://explorer.solana.com/address/${address}`
+      const url = externalLink ? new URL(externalLink).hostname : explorerUrl
+      window.open(url, '_blank')
+    }
+  }, [premiumConditions])
 
   const handleFollow = useCallback(() => {
 
