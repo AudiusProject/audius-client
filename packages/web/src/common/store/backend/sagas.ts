@@ -115,6 +115,10 @@ function* watchSetReachable() {
   yield* takeEvery(reachabilityActions.SET_REACHABLE, setupBackendIfNotSetUp)
 }
 
+function* init() {
+  yield* put(backendActions.setupBackend())
+}
+
 export default function sagas() {
-  return [watchSetupBackend, watchBackendErrors, watchSetReachable]
+  return [init, watchSetupBackend, watchBackendErrors, watchSetReachable]
 }
