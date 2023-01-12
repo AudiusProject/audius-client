@@ -1,9 +1,5 @@
-import { chatSelectors } from '@audius/common'
+import { useProxySelector, chatSelectors } from '@audius/common'
 import { IconSettings } from '@audius/stems'
-
-import { useSelector } from 'utils/reducer'
-
-import { useOtherChatUser } from '../hooks'
 
 import styles from './ChatHeader.module.css'
 import { ChatUser } from './ChatUser'
@@ -12,11 +8,13 @@ const messages = {
   header: 'Messages'
 }
 
-const { getChat } = chatSelectors
+const { getOtherChatUsers } = chatSelectors
 
 export const ChatHeader = ({ currentChatId }: { currentChatId?: string }) => {
-  const chat = useSelector((state) => getChat(state, currentChatId))
-  const user = useOtherChatUser(chat)
+  const users = useProxySelector(
+    (state) => getOtherChatUsers(state, currentChatId),
+    [currentChatId]
+  )
   return (
     <div className={styles.root}>
       <div className={styles.left}>
@@ -27,7 +25,7 @@ export const ChatHeader = ({ currentChatId }: { currentChatId?: string }) => {
         </div>
       </div>
       <div className={styles.right}>
-        {user ? <ChatUser user={user} /> : null}
+        {users.length > 0 ? <ChatUser user={users[0]} /> : null}
       </div>
     </div>
   )

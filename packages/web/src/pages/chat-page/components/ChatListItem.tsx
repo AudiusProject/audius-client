@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 
+import { chatSelectors, useProxySelector } from '@audius/common'
 import type { UserChat } from '@audius/sdk'
 import cn from 'classnames'
 import { push } from 'connected-react-router'
@@ -7,10 +8,10 @@ import { useDispatch } from 'react-redux'
 
 import { chatPage } from 'utils/route'
 
-import { useOtherChatUser } from '../hooks'
-
 import styles from './ChatListItem.module.css'
 import { ChatUser } from './ChatUser'
+
+const { getOtherChatUsersFromChat } = chatSelectors
 
 type ChatListItemProps = {
   currentChatId?: string
@@ -22,12 +23,16 @@ export const ChatListItem = (props: ChatListItemProps) => {
   const dispatch = useDispatch()
   const isCurrentChat = currentChatId && currentChatId === chat.chat_id
 
+  const users = useProxySelector(
+    (state) => getOtherChatUsersFromChat(state, chat),
+    [chat]
+  )
+
   const handleClick = useCallback(() => {
     dispatch(push(chatPage(chat.chat_id)))
   }, [dispatch, chat])
 
-  const user = useOtherChatUser(chat)
-  if (!user) {
+  if (users.length === 0) {
     return null
   }
   return (
@@ -35,7 +40,7 @@ export const ChatListItem = (props: ChatListItemProps) => {
       className={cn(styles.root, { [styles.active]: isCurrentChat })}
       onClick={handleClick}
     >
-      <ChatUser user={user} textClassName={styles.userText}>
+      <ChatUser user={users[0]} textClassName={styles.userText}>
         {chat.unread_message_count > 0 ? (
           <div className={styles.unreadIndicatorTag}>
             {chat.unread_message_count > 9 ? '9+' : chat.unread_message_count}{' '}
