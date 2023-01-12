@@ -15,6 +15,7 @@ import DropdownInput from 'components/data-entry/DropdownInput'
 
 import styles from './TrackAvailabilityModal.module.css'
 import { AvailabilityType, TrackAvailabilitySelectionProps } from './types'
+import { useEffect, useMemo, useState } from 'react'
 
 const { getUserId } = accountSelectors
 const { getUserCollectibles, getSolCollections } = collectiblesSelectors
@@ -31,6 +32,19 @@ const messages = {
   pickACollection: 'Pick a Collection'
 }
 
+type EthCollectionMap = {
+  [slug: string]: {
+    name: string
+    img: string
+    address: string
+    standard: TokenStandard
+  }
+}
+
+type SolCollectionMap = {
+  [mint: string]: { name: string; img: Nullable<string> }
+}
+
 export const CollectibleGatedAvailability = ({
   selected,
   metadataState,
@@ -43,96 +57,103 @@ export const CollectibleGatedAvailability = ({
       if (!accountUserId) return defaultCollectibles
       return getUserCollectibles(state, { id: accountUserId })
     }) ?? defaultCollectibles
+  const solCollections = useSelector(getSolCollections)
 
   // Ethereum collections
-  const ethCollectionMap: {
-    [slug: string]: {
-      name: string
-      img: string
-      address: string
-      standard: TokenStandard
-    }
-  } = {}
-  collectibles[Chain.Eth].forEach((collectible) => {
-    const {
-      collectionSlug,
-      collectionName,
-      collectionImageUrl,
-      assetContractAddress,
-      standard
-    } = collectible
-    if (
-      !collectionName ||
-      !collectionSlug ||
-      !collectionImageUrl ||
-      !assetContractAddress ||
-      !standard ||
-      ethCollectionMap[collectionSlug]
-    ) {
-      return
-    }
-    ethCollectionMap[collectionSlug] = {
-      name: collectionName,
-      img: collectionImageUrl,
-      address: assetContractAddress,
-      standard
-    }
-  })
-  const ethCollectibleItems = Object.keys(ethCollectionMap).map((slug) => ({
-    text: ethCollectionMap[slug].name,
-    el: (
-      <div className={styles.dropdownRow}>
-        <img
-          src={ethCollectionMap[slug].img}
-          alt={ethCollectionMap[slug].name}
-        />
-        <span>{ethCollectionMap[slug].name}</span>
-      </div>
-    ),
-    value: slug
-  }))
+  const ethCollectionMap: EthCollectionMap = useMemo(() => {
+    const map: EthCollectionMap = {}
+
+    collectibles[Chain.Eth].forEach((collectible) => {
+      const {
+        collectionSlug,
+        collectionName,
+        collectionImageUrl,
+        assetContractAddress,
+        standard
+      } = collectible
+      if (
+        !collectionName ||
+        !collectionSlug ||
+        !collectionImageUrl ||
+        !assetContractAddress ||
+        !standard ||
+        map[collectionSlug]
+      ) {
+        return
+      }
+      map[collectionSlug] = {
+        name: collectionName,
+        img: collectionImageUrl,
+        address: assetContractAddress,
+        standard
+      }
+    })
+
+    return map
+  }, [collectibles])
+
+  const ethCollectibleItems = useMemo(() => {
+    return Object.keys(ethCollectionMap).map((slug) => ({
+      text: ethCollectionMap[slug].name,
+      el: (
+        <div className={styles.dropdownRow}>
+          <img
+            src={ethCollectionMap[slug].img}
+            alt={ethCollectionMap[slug].name}
+          />
+          <span>{ethCollectionMap[slug].name}</span>
+        </div>
+      ),
+      value: slug
+    }))
+  }, [ethCollectionMap])
 
   // Solana collections
-  const solCollections = useSelector(getSolCollections)
-  const validSolCollectionMints = [
-    ...new Set(
-      (collectibles[Chain.Sol] ?? [])
-        .filter(
-          (collectible: Collectible) =>
-            !!collectible.solanaChainMetadata?.collection?.verified
-        )
-        .map((collectible: Collectible) => {
-          const key = collectible.solanaChainMetadata!.collection!.key
-          return typeof key === 'string' ? key : key.toBase58()
-        })
-    )
-  ]
-  const solCollectionMap: {
-    [mint: string]: { name: string; img: Nullable<string> }
-  } = {}
-  validSolCollectionMints.forEach((mint) => {
-    const { data, imageUrl } = solCollections[mint] ?? {}
-    if (!data?.name || solCollectionMap[data.name]) return
-    solCollectionMap[mint] = {
-      name: data.name.replaceAll('\x00', ''),
-      img: imageUrl
-    }
-  })
-  const solCollectibleItems = Object.keys(solCollectionMap).map((mint) => ({
-    text: solCollectionMap[mint].name,
-    el: (
-      <div className={styles.dropdownRow}>
-        <img
-          src={solCollectionMap[mint].img ?? undefined}
-          alt={solCollectionMap[mint].name}
-        />
-        <span>{solCollectionMap[mint].name}</span>
-      </div>
-    ),
-    value: mint
-  }))
+  const solCollectionMap: SolCollectionMap = useMemo(() => {
+    const map: SolCollectionMap = {}
 
-  const menuItems = [...ethCollectibleItems, ...solCollectibleItems]
+    const validSolCollectionMints = [
+      ...new Set(
+        (collectibles[Chain.Sol] ?? [])
+          .filter(
+            (collectible: Collectible) =>
+              !!collectible.solanaChainMetadata?.collection?.verified
+          )
+          .map((collectible: Collectible) => {
+            const key = collectible.solanaChainMetadata!.collection!.key
+            return typeof key === 'string' ? key : key.toBase58()
+          })
+      )
+    ]
+    validSolCollectionMints.forEach((mint) => {
+      const { data, imageUrl } = solCollections[mint] ?? {}
+      if (!data?.name || map[data.name]) return
+      map[mint] = {
+        name: data.name.replaceAll('\x00', ''),
+        img: imageUrl
+      }
+    })
+
+    return map
+  }, [collectibles])
+
+  const solCollectibleItems = useMemo(() => {
+    return Object.keys(solCollectionMap).map((mint) => ({
+      text: solCollectionMap[mint].name,
+      el: (
+        <div className={styles.dropdownRow}>
+          <img
+            src={solCollectionMap[mint].img ?? undefined}
+            alt={solCollectionMap[mint].name}
+          />
+          <span>{solCollectionMap[mint].name}</span>
+        </div>
+      ),
+      value: mint
+    }))
+  }, [solCollectionMap])
+
+  const menuItems = useMemo(() => [...ethCollectibleItems, ...solCollectibleItems], [ethCollectibleItems, solCollectibleItems])
 
   return (
     <div className={cn(styles.radioItem, { [styles.selected]: selected })}>
