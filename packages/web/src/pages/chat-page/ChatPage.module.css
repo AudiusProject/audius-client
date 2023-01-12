@@ -6,10 +6,15 @@
   padding-bottom: 0 !important;
 }
 
-.page > :global(#page) {
+.page > :global(#page).pageContent {
   margin-top: -37px;
   width: 100%;
+  max-width: 100%;
   height: calc(100% + 37px);
+}
+
+.pageHeaderOverride > div > div {
+  margin: 0;
 }
 
 .layout {
