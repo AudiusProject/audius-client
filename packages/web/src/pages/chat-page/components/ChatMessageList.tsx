@@ -12,7 +12,7 @@ import styles from './ChatMessageList.module.css'
 import { ChatMessageListItem } from './ChatMessageListItem'
 
 const { fetchNewChatMessages } = chatActions
-const { getChatMessages, getChats } = chatSelectors
+const { getChatMessages, getChat } = chatSelectors
 
 const messages = {
   newMessages: 'New Messages'
@@ -54,8 +54,7 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
   const chatMessages = useSelector((state) =>
     getChatMessages(state, chatId ?? '')
   )
-  const { data: chats } = useSelector(getChats)
-  const chat = chatId ? chats.find((chat) => chat.chat_id === chatId) : null
+  const chat = useSelector((state) => getChat(state, chatId))
 
   useEffect(() => {
     if (chatId) {

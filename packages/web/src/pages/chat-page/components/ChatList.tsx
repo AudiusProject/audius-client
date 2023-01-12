@@ -10,6 +10,9 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import styles from './ChatList.module.css'
 import { ChatListItem } from './ChatListItem'
 
+const { getChatsResponse } = chatSelectors
+const { fetchMoreChats } = chatActions
+
 const messages = {
   nothingHere: 'Nothing Here Yet',
   start: 'Start a Conversation!'
@@ -22,11 +25,11 @@ type ChatListProps = {
 export const ChatList = (props: ChatListProps) => {
   const dispatch = useDispatch()
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
-  const chatsState = useSelector(chatSelectors.getChats)
+  const chatsState = useSelector(getChatsResponse)
   const chats = chatsState.data
 
   useEffect(() => {
-    dispatch(chatActions.fetchMoreChats())
+    dispatch(fetchMoreChats())
   }, [dispatch])
 
   useEffect(() => {

@@ -12,9 +12,10 @@ const messages = {
   header: 'Messages'
 }
 
+const { getChat } = chatSelectors
+
 export const ChatHeader = ({ currentChatId }: { currentChatId?: string }) => {
-  const { data: chats } = useSelector(chatSelectors.getChats)
-  const chat = chats.find((chat) => chat.chat_id === currentChatId)
+  const chat = useSelector((state) => getChat(state, currentChatId))
   const user = useOtherChatUser(chat)
   return (
     <div className={styles.root}>

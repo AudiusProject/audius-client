@@ -18,6 +18,8 @@ import { reactionMap } from 'components/notification/Notification/components/Rea
 import styles from './ChatMessageListItem.module.css'
 import { ReactionPopupMenu } from './ReactionPopupMenu'
 
+const { setMessageReaction } = chatActions
+
 type ChatMessageListItemProps = {
   chatId: string
   message: ChatMessage
@@ -52,7 +54,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   const handleReactionSelected = useCallback(
     (reaction: ReactionTypes) => {
       dispatch(
-        chatActions.setMessageReaction({
+        setMessageReaction({
           chatId,
           messageId: message.message_id,
           reaction
