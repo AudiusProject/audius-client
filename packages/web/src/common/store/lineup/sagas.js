@@ -11,8 +11,7 @@ import {
   lineupActions as baseLineupActions,
   queueActions,
   playerSelectors,
-  queueSelectors,
-  waitForAccount
+  queueSelectors
 } from '@audius/common'
 import {
   all,
@@ -30,8 +29,6 @@ import {
 
 import { getToQueue } from 'common/store/queue/sagas'
 import { isMobileWeb } from 'common/utils/isMobileWeb'
-
-import { waitForBackendSetup } from '../backend/sagas'
 
 const { getSource, getUid, getPositions } = queueSelectors
 const { getUid: getCurrentPlayerTrackUid, getPlaying } = playerSelectors

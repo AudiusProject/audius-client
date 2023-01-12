@@ -8,12 +8,9 @@ import {
   waitForValue
 } from '@audius/common'
 import { setupBackend } from 'audius-client/src/common/store/backend/actions'
-import {
-  getIsSettingUp,
-  getIsSetup
-} from 'audius-client/src/common/store/backend/selectors'
+import { getIsSettingUp } from 'audius-client/src/common/store/backend/selectors'
 import { make } from 'common/store/analytics/actions'
-import { takeLatest, put, call, select, take } from 'typed-redux-saga'
+import { takeLatest, put, call } from 'typed-redux-saga'
 
 import { ENTROPY_KEY, THEME_STORAGE_KEY } from 'app/constants/storage-keys'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
