@@ -1,7 +1,7 @@
 import { ComponentPropsWithoutRef, useEffect } from 'react'
 
 import { chatActions, chatSelectors } from '@audius/common'
-import { ChatMessage } from '@audius/sdk'
+import type { ChatMessage, UserChat } from '@audius/sdk'
 import cn from 'classnames'
 import dayjs from 'dayjs'
 import { useDispatch } from 'react-redux'
@@ -24,14 +24,29 @@ type ChatMessageListProps = ComponentPropsWithoutRef<'div'> & {
 
 const MESSAGE_GROUP_THRESHOLD = 2
 
-const areWithinThreshold = (message: ChatMessage, newMessage?: ChatMessage) => {
-  if (!newMessage) return false
+/**
+ * Checks to see if the message was sent within the time threshold for grouping it with the next message
+ */
+const hasTail = (message: ChatMessage, newMessage?: ChatMessage) => {
+  if (!newMessage) return true
   return (
-    message.sender_user_id === newMessage.sender_user_id &&
-    dayjs(newMessage.created_at).diff(message.created_at, 'minutes') <
+    message.sender_user_id !== newMessage.sender_user_id ||
+    dayjs(newMessage.created_at).diff(message.created_at, 'minutes') >=
       MESSAGE_GROUP_THRESHOLD
   )
 }
+
+/**
+ * Checks if the current message is the first unread message in the given chat
+ * Used to render the new messages separator indicator
+ */
+const isFirstUnread = (
+  chat: UserChat,
+  message: ChatMessage,
+  prevMessage?: ChatMessage
+) =>
+  message.created_at > chat.last_read_at &&
+  (!prevMessage || prevMessage.created_at <= chat.last_read_at)
 
 export const ChatMessageList = (props: ChatMessageListProps) => {
   const { chatId } = props
@@ -61,22 +76,23 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
       {chatId &&
         chatMessages?.map((message, i) => (
           <>
-            {chat &&
-            message.created_at > chat.last_read_at &&
-            (!chatMessages[i + 1] ||
-              chatMessages[i + 1].created_at <= chat.last_read_at) ? (
+            <ChatMessageListItem
+              key={message.message_id}
+              chatId={chatId}
+              message={message}
+              hasTail={hasTail(message, chatMessages[i - 1])}
+            />
+            {/* 
+              The separator has to come after the message to appear before it, 
+              since the message list order is reversed in CSS
+            */}
+            {chat && isFirstUnread(chat, message, chatMessages[i + 1]) ? (
               <div className={styles.separator}>
                 <span className={styles.tag}>
                   {chat.unread_message_count} {messages.newMessages}
                 </span>
               </div>
             ) : null}
-            <ChatMessageListItem
-              key={message.message_id}
-              chatId={chatId}
-              message={message}
-              isTail={!areWithinThreshold(message, chatMessages[i - 1])}
-            />
           </>
         ))}
     </div>
