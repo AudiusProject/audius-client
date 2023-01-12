@@ -53,3 +53,11 @@
   white-space: nowrap;
   line-height: 130%;
 }
+
+@media (max-width: 1080px) {
+  .messagePreview,
+  .userText,
+  .unreadIndicatorTag {
+    display: none;
+  }
+}

@@ -14,11 +14,11 @@
 }
 
 .left .options {
+  margin-left: auto;
   padding-bottom: 5px; /* fix for line-height on header */
 }
 
 .header {
-  flex: 1;
   text-align: left;
   color: var(--secondary);
   font-weight: var(--font-heavy);
@@ -37,4 +37,13 @@
   display: flex;
   align-items: flex-end;
   padding: 16px;
+}
+
+@media (max-width: 1080px) {
+  .header {
+    display: none;
+  }
+  .left {
+    width: 96px;
+  }
 }

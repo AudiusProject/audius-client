@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
 
 import { User } from '@audius/common'
+import cn from 'classnames'
 
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import { ProfilePicture } from 'components/notification/Notification/components/ProfilePicture'
@@ -10,14 +11,16 @@ import styles from './ChatUser.module.css'
 
 export const ChatUser = ({
   user,
-  children
+  children,
+  textClassName
 }: {
   user: User
   children?: ReactNode
+  textClassName?: string
 }) => (
   <div className={styles.root}>
     <ProfilePicture user={user} className={styles.profilePicture} />
-    <div className={styles.text}>
+    <div className={cn(styles.text, textClassName)}>
       <ArtistPopover handle={user.handle}>
         <div className={styles.nameAndBadge}>
           <span className={styles.name}>{user.name}</span>

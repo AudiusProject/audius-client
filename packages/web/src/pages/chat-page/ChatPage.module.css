@@ -43,3 +43,9 @@
 .messageComposer {
   height: 48px;
 }
+
+@media (max-width: 1080px) {
+  .chatList {
+    width: 96px;
+  }
+}

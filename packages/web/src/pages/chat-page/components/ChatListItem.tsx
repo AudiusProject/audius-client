@@ -35,7 +35,7 @@ export const ChatListItem = (props: ChatListItemProps) => {
       className={cn(styles.root, { [styles.active]: isCurrentChat })}
       onClick={handleClick}
     >
-      <ChatUser user={user}>
+      <ChatUser user={user} textClassName={styles.userText}>
         {chat.unread_message_count > 0 ? (
           <div className={styles.unreadIndicatorTag}>
             {chat.unread_message_count > 9 ? '9+' : chat.unread_message_count}{' '}
