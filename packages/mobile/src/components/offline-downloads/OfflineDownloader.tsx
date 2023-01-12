@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { accountSelectors, reachabilitySelectors } from '@audius/common'
+import { reachabilitySelectors } from '@audius/common'
 import queue from 'react-native-job-queue'
 import { useSelector } from 'react-redux'
 
@@ -9,10 +9,8 @@ import {
   useReadOfflineOverride
 } from 'app/hooks/useIsOfflineModeEnabled'
 import { useLoadOfflineData } from 'app/hooks/useLoadOfflineTracks'
-import { startDownloadWorker, startSync } from 'app/services/offline-downloader'
-import { getIsDoneLoadingFromDisk } from 'app/store/offline-downloads/selectors'
+import { startDownloadWorker } from 'app/services/offline-downloader'
 
-const { getUserId } = accountSelectors
 const { getIsReachable } = reachabilitySelectors
 
 export const OfflineDownloader = () => {
@@ -29,18 +27,7 @@ export const OfflineDownloader = () => {
 
   useLoadOfflineData()
 
-  const [syncStarted, setSyncStarted] = useState(false)
-  const currentUserId = useSelector(getUserId)
   const isReachable = useSelector(getIsReachable)
-  const isDoneLoadingFromDisk = useSelector(getIsDoneLoadingFromDisk)
-
-  // TODO: move this to a saga so we can wait until latest account is loaded
-  useEffect(() => {
-    if (!syncStarted && currentUserId && isDoneLoadingFromDisk && isReachable) {
-      setSyncStarted(true)
-      startSync()
-    }
-  }, [syncStarted, currentUserId, isDoneLoadingFromDisk, isReachable])
 
   useEffect(() => {
     if (!initialized) return

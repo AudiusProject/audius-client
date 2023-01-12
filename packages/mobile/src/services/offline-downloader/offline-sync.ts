@@ -4,20 +4,14 @@ import type {
   DownloadReason,
   UserCollectionMetadata
 } from '@audius/common'
-import {
-  cacheCollectionsSelectors,
-  accountSelectors,
-  cacheTracksSelectors
-} from '@audius/common'
+import { accountSelectors, cacheTracksSelectors } from '@audius/common'
 import moment from 'moment'
 import queue from 'react-native-job-queue'
 
 import type { TrackForDownload } from 'app/components/offline-downloads'
 import { fetchAllFavoritedTracks } from 'app/hooks/useFetchAllFavoritedTracks'
 import { store } from 'app/store'
-import { getOfflineCollections } from 'app/store/offline-downloads/selectors'
 import { populateCoverArtSizes } from 'app/utils/populateCoverArtSizes'
-import { pingTest } from 'app/utils/reachability'
 import { isAvailableForPlay } from 'app/utils/trackUtils'
 
 import { apiClient } from '../audius-api-client'
@@ -36,53 +30,12 @@ import { purgeDownloadedTrack, writeTrackJson } from './offline-storage'
 import type { TrackDownloadWorkerPayload } from './workers/trackDownloadWorker'
 import { TRACK_DOWNLOAD_WORKER } from './workers/trackDownloadWorker'
 
-const { getCollections } = cacheCollectionsSelectors
 const { getTracks } = cacheTracksSelectors
 const { getUserId } = accountSelectors
 
 const STALE_DURATION_TRACKS = moment.duration(7, 'days')
 
-/**
- * Favorites
- *  Check for new and removed track favorites
- *  Check for new and removed collections
- */
-export const startSync = async () => {
-  const reachable = await pingTest()
-  if (!reachable) return
-
-  const state = store.getState()
-  const collections = getCollections(state)
-  // Don't use getAccountSelections as it filters out collections not in cache
-  const userCollectionIds = Object.values(state.account.collections).map(
-    (collection) => collection.id
-  )
-  const offlineCollectionsState = getOfflineCollections(state)
-
-  if (offlineCollectionsState[DOWNLOAD_REASON_FAVORITES]) {
-    // TODO: should we await all the sync calls? Potential race conditions
-    syncFavorites()
-  }
-
-  const offlineCollections: Collection[] = Object.entries(
-    offlineCollectionsState
-  )
-    .filter(
-      ([id, isDownloaded]) => isDownloaded && id !== DOWNLOAD_REASON_FAVORITES
-    )
-    .map(([id, isDownloaded]) => collections[id] ?? null)
-    .filter((collection) => !!collection)
-
-  await syncFavoritedCollections(offlineCollections, userCollectionIds)
-
-  offlineCollections.forEach((collection) => {
-    syncCollection(collection)
-  })
-
-  syncStaleTracks()
-}
-
-const syncFavorites = async () => {
+export const syncFavorites = async () => {
   const state = store.getState()
 
   const currentUserId = getUserId(state as unknown as CommonState)
@@ -139,7 +92,7 @@ const syncFavorites = async () => {
   batchRemoveTrackDownload(tracksForDelete)
 }
 
-const syncFavoritedCollections = async (
+export const syncFavoritedCollections = async (
   offlineCollections: Collection[],
   userCollectionIds: number[]
 ) => {
@@ -186,7 +139,16 @@ const syncFavoritedCollections = async (
   })
 }
 
-const syncCollection = async (
+export const syncCollectionTracks = async (
+  collections: Collection[],
+  isFavoritesDownload?: boolean
+) => {
+  collections.forEach((collection) => {
+    syncCollection(collection, isFavoritesDownload)
+  })
+}
+
+export const syncCollection = async (
   offlineCollection: Collection,
   isFavoritesDownload?: boolean
 ) => {
@@ -249,6 +211,8 @@ const syncCollection = async (
   )
   removeCollectionDownload(collectionIdStr, tracksForDelete)
 
+  // TODO: known bug here we should track download reasons for the collection
+  // and apply each download reason to the sync'd tracks
   const tracksForDownload: TrackForDownload[] = addedTrackIds.map(
     (addedTrack) => ({
       trackId: addedTrack,
@@ -261,7 +225,7 @@ const syncCollection = async (
   batchDownloadTrack(tracksForDownload)
 }
 
-const syncStaleTracks = () => {
+export const syncStaleTracks = () => {
   const state = store.getState()
   const cacheTracks = getTracks(state, {})
   const currentUserId = getUserId(state as unknown as CommonState)
