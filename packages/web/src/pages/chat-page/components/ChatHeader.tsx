@@ -16,9 +16,6 @@ export const ChatHeader = ({ currentChatId }: { currentChatId?: string }) => {
   const { data: chats } = useSelector(chatSelectors.getChats)
   const chat = chats.find((chat) => chat.chat_id === currentChatId)
   const user = useOtherChatUser(chat)
-  if (!user) {
-    return null
-  }
   return (
     <div className={styles.root}>
       <div className={styles.left}>
@@ -29,7 +26,7 @@ export const ChatHeader = ({ currentChatId }: { currentChatId?: string }) => {
         </div>
       </div>
       <div className={styles.right}>
-        <ChatUser user={user} />
+        {user ? <ChatUser user={user} /> : null}
       </div>
     </div>
   )
