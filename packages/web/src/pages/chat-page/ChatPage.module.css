@@ -13,6 +13,11 @@
   height: calc(100% + 37px);
 }
 
+/* Remove header box shadow (use our own in ChatHeader */
+.page > div:first-child > * {
+  box-shadow: none;
+}
+
 .pageHeaderOverride > div > div {
   margin: 0;
 }
