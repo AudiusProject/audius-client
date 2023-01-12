@@ -14,7 +14,6 @@ import queue from 'react-native-job-queue'
 
 import type { TrackForDownload } from 'app/components/offline-downloads'
 import { fetchAllFavoritedTracks } from 'app/hooks/useFetchAllFavoritedTracks'
-import { getAccountCollections } from 'app/screens/favorites-screen/selectors'
 import { store } from 'app/store'
 import { getOfflineCollections } from 'app/store/offline-downloads/selectors'
 import { populateCoverArtSizes } from 'app/utils/populateCoverArtSizes'
@@ -54,7 +53,10 @@ export const startSync = async () => {
 
   const state = store.getState()
   const collections = getCollections(state)
-  const userCollections = getAccountCollections(state, '')
+  // Don't use getAccountSelections as it filters out collections not in cache
+  const userCollectionIds = Object.values(state.account.collections).map(
+    (collection) => collection.id
+  )
   const offlineCollectionsState = getOfflineCollections(state)
 
   if (offlineCollectionsState[DOWNLOAD_REASON_FAVORITES]) {
@@ -71,7 +73,7 @@ export const startSync = async () => {
     .map(([id, isDownloaded]) => collections[id] ?? null)
     .filter((collection) => !!collection)
 
-  await syncFavoritedCollections(offlineCollections, userCollections)
+  await syncFavoritedCollections(offlineCollections, userCollectionIds)
 
   offlineCollections.forEach((collection) => {
     syncCollection(collection)
@@ -139,31 +141,18 @@ const syncFavorites = async () => {
 
 const syncFavoritedCollections = async (
   offlineCollections: Collection[],
-  userCollections: Collection[]
+  userCollectionIds: number[]
 ) => {
   console.log('SyncCollections - start')
   console.log(
     'SyncCollections - offlineCollections -',
     offlineCollections.map((c) => c.playlist_id)
   )
-  console.log(
-    'SyncCollections - userCollections -',
-    userCollections.map((c) => c.playlist_id)
-  )
-  const currentUserId = getUserId(store.getState())
+  console.log('SyncCollections - userCollections -', userCollectionIds)
   const oldCollectionIds = new Set(
     offlineCollections.map((collection) => collection.playlist_id)
   )
-  const newCollectionIds = new Set(
-    userCollections
-      .filter(
-        (collection) =>
-          !collection.is_delete &&
-          (!collection.is_private ||
-            currentUserId !== collection.playlist_owner_id)
-      )
-      .map((collection) => collection.playlist_id)
-  )
+  const newCollectionIds = new Set(userCollectionIds)
   const addedCollectionIds = [...newCollectionIds].filter(
     (collectionId) => !oldCollectionIds.has(collectionId)
   )

@@ -71,15 +71,25 @@ export const downloadCollectionById = async (
   isFavoritesDownload?: boolean
 ) => {
   const state = store.getState()
-  const collection =
-    getCollection(state, { id: collectionId }) ??
-    (collectionId
-      ? await apiClient.getPlaylist({
-          playlistId: collectionId,
-          currentUserId: getUserId(state)
-        })[0]
-      : null)
-  return downloadCollection(collection, isFavoritesDownload)
+  const currentUserId = getUserId(state)
+  const cachedCollection = getCollection(state, { id: collectionId })
+
+  const apiCollection = collectionId
+    ? ((await apiClient.getPlaylist({
+        playlistId: collectionId,
+        currentUserId: getUserId(state)
+      })[0]) as Collection)
+    : null
+
+  const collection = cachedCollection ?? apiCollection
+  if (
+    !collection ||
+    collection.is_delete ||
+    (collection.is_private && collection.playlist_owner_id !== currentUserId)
+  )
+    return
+
+  downloadCollection(collection, isFavoritesDownload)
 }
 
 export const downloadCollection = async (
