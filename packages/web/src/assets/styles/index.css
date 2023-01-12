@@ -3,7 +3,6 @@
 @import '~assets/styles/type.css';
 @import '~assets/styles/emoji.css';
 @import '~assets/styles/ant-overrides.css';
-@import '~assets/styles/shadows.css';
 
 #root *,
 body * {
