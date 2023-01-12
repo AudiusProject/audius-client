@@ -24,7 +24,9 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
       header={<ChatHeader currentChatId={chatId} />}
     >
       <div className={styles.layout}>
-        <ChatList className={styles.chatList} currentChatId={chatId} />
+        <div className={styles.chatList}>
+          <ChatList className={styles.chatList} currentChatId={chatId} />
+        </div>
         <div className={styles.messages}>
           <ChatMessageList className={styles.messageList} chatId={chatId} />
           <ChatComposer className={styles.messageComposer} chatId={chatId} />

@@ -129,7 +129,7 @@ Header.propTypes = {
   wrapperClassName: PropTypes.string,
   showBackButton: PropTypes.bool,
   onClickBack: PropTypes.func,
-  overrideWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+  overrideWidth: PropTypes.number
 }
 
 Header.defaultProps = {

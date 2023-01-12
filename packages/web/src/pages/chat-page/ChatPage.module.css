@@ -13,9 +13,10 @@
   height: calc(100% + 37px);
 }
 
-/* Remove header box shadow (use our own in ChatHeader */
-.page > div:first-child > * {
-  box-shadow: none;
+/* Update box-shadow to be slightly darker */
+.page > div:first-child > div:last-child {
+  box-shadow: 1px 2px 5px rgba(133, 129, 153, 0.25);
+  /* box-shadow: none; */
 }
 
 .pageHeaderOverride > div > div {
@@ -33,6 +34,7 @@
 
 .chatList {
   width: 400px;
+  height: 100%;
 }
 
 .messages {

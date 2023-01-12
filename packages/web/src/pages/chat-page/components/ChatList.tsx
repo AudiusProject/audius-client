@@ -23,7 +23,8 @@ export const ChatList = (props: ChatListProps) => {
   const dispatch = useDispatch()
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
   const chatsState = useSelector(chatSelectors.getChats)
-  const chats = chatsState.data
+  let chats = chatsState.data
+  for (let i = 0; i < 10; i++) chats = chats.concat(chats)
 
   useEffect(() => {
     dispatch(chatActions.fetchMoreChats())
