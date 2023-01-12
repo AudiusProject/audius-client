@@ -11,7 +11,10 @@
   position: relative;
 }
 
-.root:hover::before,
+.root:hover {
+  background-color: var(--neutral-light-9);
+}
+
 .root.active::before {
   content: '';
   position: absolute;
@@ -20,6 +23,10 @@
   top: 0;
   left: 0;
   background-color: var(--secondary-light-2);
+}
+
+.root.active:hover::before {
+  background-color: var(--secondary);
 }
 
 .root .profilePicture {
