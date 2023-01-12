@@ -303,15 +303,16 @@ export const PremiumTrackSection = ({
     () => (tipUserId ? users[tipUserId] : null),
     [users, tipUserId]
   )
+  const shouldDisplay = premiumConditions.nft_collection || followee || tippedUser
 
   const fadeIn = {
     [styles.show]: !isLoading,
     [styles.hide]: isLoading
   }
 
-  if (!isPremiumContentEnabled) {
-    return null
-  }
+  if (!isPremiumContentEnabled) return null
+
+  if (!shouldDisplay) return null
 
   return (
     <div className={cn(styles.premiumContentSection, fadeIn)}>
