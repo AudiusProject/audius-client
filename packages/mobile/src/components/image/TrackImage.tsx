@@ -8,6 +8,9 @@ import { DynamicImage } from 'app/components/core'
 import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
 import { useLocalTrackImage } from 'app/hooks/useLocalImage'
 
+export const DEFAULT_IMAGE_URL =
+  'https://download.audius.co/static-resources/preview-image.jpg'
+
 const { getUser } = cacheUsersSelectors
 
 type UseTrackImageOptions = {
