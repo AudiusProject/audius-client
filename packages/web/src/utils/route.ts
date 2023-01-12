@@ -274,19 +274,35 @@ export const fullAlbumPage = (handle: string, title: string, id: ID) => {
   return `${BASE_URL}${albumPage(handle, title, id)}`
 }
 
-
-export const playlistPage = (handle: string, playlistName?: string | null, playlistId?: ID | null, permalink?: string | null) => {
+export const playlistPage = (
+  handle: string,
+  playlistName?: string | null,
+  playlistId?: ID | null,
+  permalink?: string | null
+) => {
   // Prioritize permalink if available. If not, default to legacy routing
   if (permalink) {
     return permalink
   } else if (playlistName && playlistId) {
-    return `/${encodeUrlName(handle)}/playlist/${encodeUrlName(playlistName)}-${playlistId}`
+    return `/${encodeUrlName(handle)}/playlist/${encodeUrlName(
+      playlistName
+    )}-${playlistId}`
   } else {
     throw Error('Missing required arguments to get PlaylistPage route.')
   }
 }
-export const fullPlaylistPage = (handle: string, playlistName?: string | null, playlistId?: ID | null, permalink?: string | null) => {
-  return `${BASE_URL}${playlistPage(handle, playlistName, playlistId, permalink)}`
+export const fullPlaylistPage = (
+  handle: string,
+  playlistName?: string | null,
+  playlistId?: ID | null,
+  permalink?: string | null
+) => {
+  return `${BASE_URL}${playlistPage(
+    handle,
+    playlistName,
+    playlistId,
+    permalink
+  )}`
 }
 
 export const audioNftPlaylistPage = (handle: string) => {
