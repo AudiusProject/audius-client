@@ -1,4 +1,4 @@
-import { FeatureFlags, PremiumConditions, cacheUsersSelectors, User, ID, Nullable, Chain } from '@audius/common'
+import { FeatureFlags, PremiumConditions, cacheUsersSelectors, User, ID, Nullable, Chain, usersSocialActions as socialActions, FollowSource } from '@audius/common'
 import { Button, ButtonType, IconLock, IconUnlocked } from '@audius/stems'
 import cn from 'classnames'
 import FollowButton from 'components/follow-button/FollowButton'
@@ -9,7 +9,7 @@ import { useCallback, useMemo } from 'react'
 import { ReactComponent as IconExternalLink } from 'assets/img/iconExternalLink.svg'
 
 import styles from './GiantTrackTile.module.css'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { AppState } from 'store/types'
 import { ReactComponent as IconVerifiedGreen } from 'assets/img/iconVerifiedGreen.svg'
 
@@ -39,6 +39,8 @@ type PremiumTrackAccessSectionProps = {
 }
 
 const LockedPremiumTrackSection = ({ premiumConditions, followeeUserName, tippedUserName }:  PremiumTrackAccessSectionProps) => {
+  const dispatch = useDispatch()
+
   const handleGoToCollection = useCallback(() => {
     const { chain, address, externalLink } = premiumConditions.nft_collection ?? {}
     if (chain === Chain.Eth) {
@@ -52,7 +54,9 @@ const LockedPremiumTrackSection = ({ premiumConditions, followeeUserName, tipped
   }, [premiumConditions])
 
   const handleFollow = useCallback(() => {
-
+    if (premiumConditions.follow_user_id) {
+      dispatch(socialActions.followUser(premiumConditions.follow_user_id, FollowSource.TRACK_PAGE))
+    }
   }, [])
 
   const handleSendTip = useCallback(() => {
