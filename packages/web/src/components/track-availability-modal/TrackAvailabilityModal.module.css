@@ -59,7 +59,13 @@
   position: relative;
   display: flex;
   align-items: start;
-  margin-bottom: 24px;
+  padding: 24px 0;
+  border-top: 1px solid var(--neutral-light-7);
+}
+
+.radioItem:first-child {
+  padding-top: 0;
+  border: none;
 }
 
 .radioItem::before {
@@ -79,11 +85,6 @@
 
 .radioItem:hover {
   cursor: pointer;
-}
-
-.radioItem:not(:first-child) {
-  padding-top: 24px;
-  border-top: 1px solid var(--neutral-light-7);
 }
 
 .specialAccessRadioItem {
@@ -191,6 +192,7 @@
 .learnMore {
   display: flex;
   align-items: center;
+  width: fit-content;
   margin: 16px 6px 0 8px;
   color: var(--secondary);
   font-weight: var(--font-bold);

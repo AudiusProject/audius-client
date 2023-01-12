@@ -48,7 +48,6 @@ type SolCollectionMap = {
 export const CollectibleGatedAvailability = ({
   selected,
   metadataState,
-  handleSelection,
   updatePremiumContentFields
 }: TrackAvailabilitySelectionProps) => {
   const accountUserId = useSelector(getUserId)
@@ -159,7 +158,11 @@ export const CollectibleGatedAvailability = ({
     <div className={cn(styles.radioItem, { [styles.selected]: selected })}>
       <div
         className={styles.availabilityRowContent}
-        onClick={() => handleSelection(AvailabilityType.COLLECTIBLE_GATED)}
+        onClick={() => {
+          if (updatePremiumContentFields) {
+            updatePremiumContentFields(null, AvailabilityType.COLLECTIBLE_GATED)}
+          }
+        }
       >
         <div className={styles.availabilityRowTitle}>
           <IconCollectible className={styles.availabilityRowIcon} />
@@ -202,7 +205,7 @@ export const CollectibleGatedAvailability = ({
                       name: ethCollectionMap[value].name,
                       slug: value
                     }
-                  })
+                  }, AvailabilityType.COLLECTIBLE_GATED)
                 } else if (solCollectionMap[value]) {
                   updatePremiumContentFields({
                     nft_collection: {
@@ -210,7 +213,7 @@ export const CollectibleGatedAvailability = ({
                       address: value,
                       name: solCollectionMap[value].name
                     }
-                  })
+                  }, AvailabilityType.COLLECTIBLE_GATED)
                 }
               }}
               size='large'

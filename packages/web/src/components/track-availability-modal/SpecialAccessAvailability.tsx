@@ -22,7 +22,6 @@ const messages = {
 export const SpecialAccessAvailability = ({
   selected,
   metadataState,
-  handleSelection,
   updatePremiumContentFields
 }: TrackAvailabilitySelectionProps) => {
   const accountUserId = useSelector(getUserId)
@@ -31,7 +30,11 @@ export const SpecialAccessAvailability = ({
     <div className={cn(styles.radioItem, { [styles.selected]: selected })}>
       <div
         className={styles.availabilityRowContent}
-        onClick={() => handleSelection(AvailabilityType.SPECIAL_ACCESS)}
+        onClick={() => {
+          if (updatePremiumContentFields) {
+            updatePremiumContentFields(null, AvailabilityType.SPECIAL_ACCESS)}
+          }
+        }
       >
         <div className={styles.availabilityRowTitle}>
           <IconSpecialAccess className={styles.availabilityRowIcon} />
@@ -55,8 +58,9 @@ export const SpecialAccessAvailability = ({
                 value='follower'
                 onClick={(e) => {
                   e.stopPropagation()
-                  if (!updatePremiumContentFields || !accountUserId) return
-                  updatePremiumContentFields({ follow_user_id: accountUserId })
+                  if (updatePremiumContentFields && !!accountUserId) {
+                    updatePremiumContentFields({ follow_user_id: accountUserId }, AvailabilityType.SPECIAL_ACCESS)
+                  }
                 }}
               />
               <div>{messages.followersOnly}</div>
@@ -74,8 +78,9 @@ export const SpecialAccessAvailability = ({
                 value='supporter'
                 onClick={(e) => {
                   e.stopPropagation()
-                  if (!updatePremiumContentFields || !accountUserId) return
-                  updatePremiumContentFields({ tip_user_id: accountUserId })
+                  if (updatePremiumContentFields && !!accountUserId) {
+                    updatePremiumContentFields({ tip_user_id: accountUserId }, AvailabilityType.SPECIAL_ACCESS)
+                  }
                 }}
               />
               <div>

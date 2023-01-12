@@ -35,7 +35,8 @@ export enum AvailabilityType {
 export type TrackAvailabilitySelectionProps = {
   selected: boolean
   metadataState: TrackMetadataState
-  handleSelection: (availability: AvailabilityType) => void
+  updatePublicField?: () => void
+  updatePremiumContentFields?: (premiumConditions: Nullable<PremiumConditions>, availability: AvailabilityType) => void
+  updateUnlistedField?: () => void
   updateHiddenField?: (field: string) => (visible: boolean) => void
-  updatePremiumContentFields?: (premiumConditions: PremiumConditions) => void
 }

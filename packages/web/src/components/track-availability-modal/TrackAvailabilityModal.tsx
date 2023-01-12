@@ -3,7 +3,8 @@ import { useCallback, useMemo } from 'react'
 import {
   FeatureFlags,
   PremiumConditions,
-  accountSelectors
+  accountSelectors,
+  Nullable
 } from '@audius/common'
 import {
   Modal,
@@ -72,9 +73,7 @@ const TrackAvailabilityModal = ({
   )
 
   let availability = AvailabilityType.PUBLIC
-  if (metadataState.unlisted) {
-    availability = AvailabilityType.HIDDEN
-  } else if (
+  if (
     metadataState.is_premium &&
     metadataState.premium_conditions &&
     'nft_collection' in metadataState.premium_conditions
@@ -82,36 +81,48 @@ const TrackAvailabilityModal = ({
     availability = AvailabilityType.COLLECTIBLE_GATED
   } else if (metadataState.is_premium) {
     availability = AvailabilityType.SPECIAL_ACCESS
+  } else if (metadataState.unlisted) {
+    availability = AvailabilityType.HIDDEN
   }
 
-  const handleSelection = useCallback(
-    (availability: AvailabilityType) => {
-      if (availability === AvailabilityType.PUBLIC) {
-        didUpdateState({ ...defaultAvailabilityFields })
-      } else if (availability === AvailabilityType.SPECIAL_ACCESS) {
+  const updatePublicField = useCallback(() => {
+    didUpdateState({ ...defaultAvailabilityFields })
+  }, [didUpdateState])
+
+  const updatePremiumContentFields = useCallback(
+    (premiumConditions: Nullable<PremiumConditions>, availabilityType: AvailabilityType) => {
+      console.log('updating', premiumConditions)
+      if (premiumConditions) {
         didUpdateState({
           ...defaultAvailabilityFields,
           is_premium: true,
-          premium_conditions:
-            'nft_collection' in (metadataState.premium_conditions ?? {})
-              ? defaultSpecialAccess
-              : metadataState?.premium_conditions ?? defaultSpecialAccess
+          premium_conditions: premiumConditions
         })
-      } else if (availability === AvailabilityType.COLLECTIBLE_GATED) {
+      } else if (availabilityType === availability) {
+        return
+      } else if (availabilityType === AvailabilityType.SPECIAL_ACCESS) {
+        didUpdateState({
+          ...defaultAvailabilityFields,
+          is_premium: true,
+          premium_conditions: defaultSpecialAccess
+        })
+      } else if (availabilityType === AvailabilityType.COLLECTIBLE_GATED) {
         didUpdateState({
           ...defaultAvailabilityFields,
           is_premium: true,
           premium_conditions: { nft_collection: undefined }
         })
-      } else {
-        didUpdateState({
-          ...defaultAvailabilityFields,
-          unlisted: true
-        })
       }
     },
-    [didUpdateState, metadataState, defaultSpecialAccess]
+    [didUpdateState, metadataState]
   )
+
+  const updateUnlistedField = useCallback(() => {
+    didUpdateState({
+      ...defaultAvailabilityFields,
+      unlisted: true
+    })
+  }, [didUpdateState])
 
   const updateHiddenField = useCallback(
     (field: string) => (visible: boolean) => {
@@ -153,13 +164,12 @@ const TrackAvailabilityModal = ({
         <PublicAvailability
           selected={availability === AvailabilityType.PUBLIC}
           metadataState={metadataState}
-          handleSelection={handleSelection}
+          updatePublicField={updatePublicField}
         />
         {isSpecialAccessGateEnabled && (
           <SpecialAccessAvailability
             selected={availability === AvailabilityType.SPECIAL_ACCESS}
             metadataState={metadataState}
-            handleSelection={handleSelection}
             updatePremiumContentFields={updatePremiumContentFields}
           />
         )}
@@ -167,14 +177,13 @@ const TrackAvailabilityModal = ({
           <CollectibleGatedAvailability
             selected={availability === AvailabilityType.COLLECTIBLE_GATED}
             metadataState={metadataState}
-            handleSelection={handleSelection}
             updatePremiumContentFields={updatePremiumContentFields}
           />
         )}
         <HiddenAvailability
           selected={availability === AvailabilityType.HIDDEN}
           metadataState={metadataState}
-          handleSelection={handleSelection}
+          updateUnlistedField={updateUnlistedField}
           updateHiddenField={updateHiddenField}
         />
         <div className={styles.doneButtonContainer}>

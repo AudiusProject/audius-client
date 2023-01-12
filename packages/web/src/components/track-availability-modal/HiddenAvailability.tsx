@@ -72,14 +72,14 @@ const HiddenTrackMetadataSection = ({
 export const HiddenAvailability = ({
   selected,
   metadataState,
-  handleSelection,
+  updateUnlistedField,
   updateHiddenField
 }: TrackAvailabilitySelectionProps) => {
   return (
     <div className={cn(styles.radioItem, { [styles.selected]: selected })}>
       <div
         className={styles.availabilityRowContent}
-        onClick={() => handleSelection(AvailabilityType.HIDDEN)}
+        onClick={updateUnlistedField}
       >
         <div className={styles.availabilityRowTitle}>
           <IconHidden className={styles.availabilityRowIcon} />
