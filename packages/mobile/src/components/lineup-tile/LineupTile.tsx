@@ -1,5 +1,3 @@
-import { useCallback } from 'react'
-
 import { accountSelectors } from '@audius/common'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
@@ -31,7 +29,6 @@ export const LineupTile = ({
   index,
   isTrending,
   isUnlisted,
-  onLoad,
   onPress,
   onPressOverflow,
   onPressRepost,
@@ -62,10 +59,6 @@ export const LineupTile = ({
 
   const isOwner = user_id === currentUserId
 
-  const handleLoad = useCallback(() => {
-    onLoad?.(index)
-  }, [onLoad, index])
-
   return (
     <LineupTileRoot onPress={onPress} {...TileProps}>
       <FadeInView>
@@ -87,7 +80,6 @@ export const LineupTile = ({
             coSign={coSign}
             renderImage={renderImage}
             onPressTitle={onPressTitle}
-            setArtworkLoaded={handleLoad}
             uid={uid}
             title={title}
             user={user}

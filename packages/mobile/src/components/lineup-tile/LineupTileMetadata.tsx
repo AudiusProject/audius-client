@@ -58,7 +58,6 @@ type Props = {
   coSign?: Remix | null
   onPressTitle?: GestureResponderHandler
   renderImage: LineupTileProps['renderImage']
-  setArtworkLoaded: (loaded: boolean) => void
   title: string
   user: User
   uid: UID
@@ -70,7 +69,6 @@ export const LineupTileMetadata = ({
   coSign,
   onPressTitle,
   renderImage,
-  setArtworkLoaded,
   title,
   user,
   isPlayingUid
@@ -91,7 +89,6 @@ export const LineupTileMetadata = ({
     <View style={styles.metadata}>
       <LineupTileArt
         renderImage={renderImage}
-        onLoad={() => setArtworkLoaded(true)}
         coSign={coSign}
         style={trackTileStyles.imageContainer}
       />

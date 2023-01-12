@@ -28,9 +28,10 @@ import {
 } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 
-import type { DynamicImageProps } from 'app/components/core/DynamicImage'
 import { CollectionImage } from 'app/components/image/CollectionImage'
 import { useNavigation } from 'app/hooks/useNavigation'
+
+import type { FastImageProps } from '../image/FastImage'
 
 import { CollectionTileTrackList } from './CollectionTileTrackList'
 import { LineupTile } from './LineupTile'
@@ -124,7 +125,7 @@ const CollectionTileComponent = ({
   const isOwner = playlist_owner_id === currentUserId
 
   const renderImage = useCallback(
-    (props: DynamicImageProps) => (
+    (props: FastImageProps) => (
       <CollectionImage collection={collection} {...props} />
     ),
     [collection]

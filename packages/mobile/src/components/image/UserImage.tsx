@@ -1,9 +1,10 @@
 import type { Nullable, User } from '@audius/common'
-import type { FastImageProps, Source } from 'react-native-fast-image'
-import FastImage from 'react-native-fast-image'
 
 import profilePicEmpty from 'app/assets/images/imageProfilePicEmpty2X.png'
 import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
+
+import type { FastImageProps } from './FastImage'
+import { FastImage } from './FastImage'
 
 type ImageUser = Pick<
   User,
@@ -20,19 +21,13 @@ export const useUserImage = (user?: Nullable<ImageUser>) => {
   })
 }
 
-export type UserImageProps = Partial<Omit<FastImageProps, 'source'>> & {
-  source?: Partial<Source>
+export type UserImageProps = FastImageProps & {
   user?: Nullable<ImageUser>
 }
 
 export const UserImage = (props: UserImageProps) => {
-  const { user, source: sourceProp, ...other } = props
+  const { user, ...other } = props
   const { source, handleError } = useUserImage(user)
 
-  const imageSource =
-    typeof source === 'number'
-      ? source
-      : { ...sourceProp, uri: source?.[0]?.uri }
-
-  return <FastImage source={imageSource} onError={handleError} {...other} />
+  return <FastImage source={source} onError={handleError} {...other} />
 }

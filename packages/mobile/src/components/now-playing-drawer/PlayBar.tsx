@@ -141,9 +141,7 @@ export const PlayBar = ({
           style={styles.trackInfo}
           onPress={onPress}
         >
-          <View style={styles.artwork}>
-            {track && <TrackImage track={track} />}
-          </View>
+          {track && <TrackImage track={track} style={styles.artwork} />}
           <View style={styles.trackText}>
             <Text numberOfLines={1} weight='bold' style={styles.title}>
               {track?.title ?? ''}

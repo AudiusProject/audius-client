@@ -6,19 +6,17 @@ import { makeStyles } from 'app/styles'
 
 const useStyles = makeStyles(({ spacing }) => ({
   root: {
-    height: 212
+    height: 216
   },
   cardContent: {
     paddingHorizontal: spacing(2)
   },
-  imageContainer: {
-    paddingTop: spacing(2),
-    paddingHorizontal: spacing(1)
-  },
   image: {
+    marginTop: spacing(2),
     height: 152,
     width: '100%',
-    borderRadius: 152 / 2
+    borderRadius: 152 / 2,
+    alignSelf: 'center'
   },
   textContainer: {
     paddingVertical: spacing(1),
@@ -39,9 +37,7 @@ export const ProfileCardSkeleton = () => {
   const styles = useStyles()
   return (
     <Tile styles={{ tile: styles.root, content: styles.cardContent }}>
-      <View style={styles.imageContainer}>
-        <Skeleton style={styles.image} />
-      </View>
+      <Skeleton style={styles.image} />
       <View style={styles.textContainer}>
         <StaticSkeleton style={styles.title} />
         <StaticSkeleton style={styles.stats} />

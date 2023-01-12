@@ -11,14 +11,12 @@ const useStyles = makeStyles(({ spacing }) => ({
   cardContent: {
     paddingHorizontal: spacing(2)
   },
-  imageContainer: {
-    paddingTop: spacing(2),
-    paddingHorizontal: spacing(1)
-  },
   image: {
+    marginTop: spacing(2),
     height: 152,
     width: '100%',
-    borderRadius: 6
+    borderRadius: 6,
+    alignSelf: 'center'
   },
   textContainer: {
     paddingVertical: spacing(1),
@@ -39,9 +37,7 @@ export const CollectionCardSkeleton = () => {
   const styles = useStyles()
   return (
     <Tile styles={{ tile: styles.root, content: styles.cardContent }}>
-      <View style={styles.imageContainer}>
-        <Skeleton style={styles.image} />
-      </View>
+      <Skeleton style={styles.image} />
       <View style={styles.textContainer}>
         <StaticSkeleton style={styles.title} />
         <StaticSkeleton style={styles.stats} />

@@ -24,9 +24,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import type { DynamicImageProps } from 'app/components/core'
 import { Screen, VirtualizedScrollView } from 'app/components/core'
-import { CollectionImage } from 'app/components/image/CollectionImage'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
 import { setVisibility } from 'app/store/drawers/slice'
@@ -138,13 +136,6 @@ const CollectionScreenComponent = (props: CollectionScreenComponentProps) => {
       is_album ? 'album' : 'playlist'
     }/${encodeUrlName(playlist_name)}-${playlist_id}`
   }, [user.handle, is_album, playlist_name, playlist_id])
-
-  const renderImage = useCallback(
-    (props: DynamicImageProps) => (
-      <CollectionImage collection={collection} {...props} />
-    ),
-    [collection]
-  )
 
   const currentUserId = useSelector(getUserId)
   const isOwner = currentUserId === playlist_owner_id
@@ -258,7 +249,6 @@ const CollectionScreenComponent = (props: CollectionScreenComponentProps) => {
           onPressReposts={handlePressReposts}
           onPressSave={handlePressSave}
           onPressShare={handlePressShare}
-          renderImage={renderImage}
           repostCount={repost_count}
           saveCount={save_count}
           title={playlist_name}

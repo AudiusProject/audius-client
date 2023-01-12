@@ -11,6 +11,7 @@ import UserBadges from 'app/components/user-badges/UserBadges'
 import type { StylesProp } from 'app/styles'
 import { flexRowCentered, makeStyles } from 'app/styles'
 
+import type { FastImageProps } from '../image/FastImage'
 import { DownloadStatusIndicator } from '../offline-downloads'
 
 export type CardType = 'user' | 'collection'
@@ -19,15 +20,13 @@ const useStyles = makeStyles(({ palette, typography, spacing }) => ({
   cardContent: {
     paddingHorizontal: spacing(2)
   },
-  imgContainer: {
-    paddingTop: spacing(2),
-    paddingHorizontal: spacing(1)
-  },
   cardImg: {
     backgroundColor: '#ddd',
     borderRadius: 6,
-    overflow: 'hidden',
-    paddingBottom: '100%'
+    height: 152,
+    width: 152,
+    marginTop: spacing(2),
+    alignSelf: 'center'
   },
   userImg: {
     borderRadius: 1000
@@ -58,7 +57,7 @@ type BaseCardProps = {
   id?: string
   onPress: () => void
   primaryText: string
-  renderImage: () => ReactNode
+  renderImage: (props: FastImageProps) => ReactNode
   secondaryText?: string
   TileProps?: Omit<TileProps<ComponentType<LinearGradientProps>>, 'children'>
   style?: StyleProp<ViewStyle>
@@ -99,11 +98,9 @@ export const Card = (props: CardProps) => {
       styles={{ root: style, content: styles.cardContent }}
       {...TileProps}
     >
-      <View style={styles.imgContainer}>
-        <View style={[styles.cardImg, props.type === 'user' && styles.userImg]}>
-          {renderImage()}
-        </View>
-      </View>
+      {renderImage({
+        style: [styles.cardImg, props.type === 'user' && styles.userImg]
+      })}
       <View style={styles.textContainer}>
         <Text
           numberOfLines={1}

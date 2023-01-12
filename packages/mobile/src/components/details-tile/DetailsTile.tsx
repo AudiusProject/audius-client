@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 
 import { squashNewLines, accountSelectors } from '@audius/common'
-import type { ImageStyle } from 'react-native'
 import { TouchableOpacity, View } from 'react-native'
 import { useSelector } from 'react-redux'
 
@@ -64,7 +63,8 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
 
   coverArt: {
     borderRadius: 4,
-    overflow: 'hidden'
+    height: '100%',
+    width: '100%'
   },
 
   title: {
@@ -230,7 +230,7 @@ export const DetailsTile = ({
   }
 
   const innerImageElement = renderImage({
-    styles: { image: styles.coverArt as ImageStyle }
+    style: styles.coverArt
   })
 
   const imageElement = coSign ? (
