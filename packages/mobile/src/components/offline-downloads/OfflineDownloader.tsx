@@ -8,11 +8,8 @@ import {
   useIsOfflineModeEnabled,
   useReadOfflineOverride
 } from 'app/hooks/useIsOfflineModeEnabled'
-import { useLoadOfflineTracks } from 'app/hooks/useLoadOfflineTracks'
-import {
-  startDownloadWorker,
-  startSyncWorker
-} from 'app/services/offline-downloader'
+import { useLoadOfflineData } from 'app/hooks/useLoadOfflineTracks'
+import { startDownloadWorker, startSync } from 'app/services/offline-downloader'
 import { getIsDoneLoadingFromDisk } from 'app/store/offline-downloads/selectors'
 
 const { getUserId } = accountSelectors
@@ -30,17 +27,18 @@ export const OfflineDownloader = () => {
     }
   }, [initialized, isOfflineModeEnabled])
 
-  useLoadOfflineTracks()
+  useLoadOfflineData()
 
   const [syncStarted, setSyncStarted] = useState(false)
   const currentUserId = useSelector(getUserId)
   const isReachable = useSelector(getIsReachable)
   const isDoneLoadingFromDisk = useSelector(getIsDoneLoadingFromDisk)
 
+  // TODO: move this to a saga so we can wait until latest account is loaded
   useEffect(() => {
     if (!syncStarted && currentUserId && isDoneLoadingFromDisk && isReachable) {
       setSyncStarted(true)
-      startSyncWorker()
+      startSync()
     }
   }, [syncStarted, currentUserId, isDoneLoadingFromDisk, isReachable])
 

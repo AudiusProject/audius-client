@@ -66,12 +66,19 @@ const { getUserFromCollection } = cacheUsersSelectors
 export const DOWNLOAD_REASON_FAVORITES = 'favorites'
 
 /** Main entrypoint - perform all steps required to complete a download for each track */
-export const downloadCollectionById = (
+export const downloadCollectionById = async (
   collectionId?: number | null,
   isFavoritesDownload?: boolean
 ) => {
   const state = store.getState()
-  const collection = getCollection(state, { id: collectionId })
+  const collection =
+    getCollection(state, { id: collectionId }) ??
+    (collectionId
+      ? await apiClient.getPlaylist({
+          playlistId: collectionId,
+          currentUserId: getUserId(state)
+        })[0]
+      : null)
   return downloadCollection(collection, isFavoritesDownload)
 }
 

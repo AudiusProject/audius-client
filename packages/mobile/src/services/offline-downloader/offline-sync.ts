@@ -14,6 +14,7 @@ import queue from 'react-native-job-queue'
 
 import type { TrackForDownload } from 'app/components/offline-downloads'
 import { fetchAllFavoritedTracks } from 'app/hooks/useFetchAllFavoritedTracks'
+import { getAccountCollections } from 'app/screens/favorites-screen/selectors'
 import { store } from 'app/store'
 import { getOfflineCollections } from 'app/store/offline-downloads/selectors'
 import { populateCoverArtSizes } from 'app/utils/populateCoverArtSizes'
@@ -26,6 +27,7 @@ import {
   batchDownloadTrack,
   batchRemoveTrackDownload,
   downloadCollection,
+  downloadCollectionById,
   downloadCollectionCoverArt,
   downloadTrackCoverArt,
   DOWNLOAD_REASON_FAVORITES,
@@ -46,29 +48,34 @@ const STALE_DURATION_TRACKS = moment.duration(7, 'days')
  *  Check for new and removed track favorites
  *  Check for new and removed collections
  */
-export const startSyncWorker = async () => {
+export const startSync = async () => {
   const reachable = await pingTest()
   if (!reachable) return
 
   const state = store.getState()
   const collections = getCollections(state)
+  const userCollections = getAccountCollections(state, '')
   const offlineCollectionsState = getOfflineCollections(state)
+
   if (offlineCollectionsState[DOWNLOAD_REASON_FAVORITES]) {
     // TODO: should we await all the sync calls? Potential race conditions
     syncFavorites()
   }
-  const offlineCollections = Object.entries(offlineCollectionsState)
+
+  const offlineCollections: Collection[] = Object.entries(
+    offlineCollectionsState
+  )
     .filter(
       ([id, isDownloaded]) => isDownloaded && id !== DOWNLOAD_REASON_FAVORITES
     )
     .map(([id, isDownloaded]) => collections[id] ?? null)
     .filter((collection) => !!collection)
 
+  await syncFavoritedCollections(offlineCollections, userCollections)
+
   offlineCollections.forEach((collection) => {
     syncCollection(collection)
   })
-
-  // TODO: diff favorited collections with discovery, queue/remove them for download
 
   syncStaleTracks()
 }
@@ -128,6 +135,66 @@ const syncFavorites = async () => {
     })
   )
   batchRemoveTrackDownload(tracksForDelete)
+}
+
+const syncFavoritedCollections = async (
+  offlineCollections: Collection[],
+  userCollections: Collection[]
+) => {
+  console.log('SyncCollections - start')
+  console.log(
+    'SyncCollections - offlineCollections -',
+    offlineCollections.map((c) => c.playlist_id)
+  )
+  console.log(
+    'SyncCollections - userCollections -',
+    userCollections.map((c) => c.playlist_id)
+  )
+  const currentUserId = getUserId(store.getState())
+  const oldCollectionIds = new Set(
+    offlineCollections.map((collection) => collection.playlist_id)
+  )
+  const newCollectionIds = new Set(
+    userCollections
+      .filter(
+        (collection) =>
+          !collection.is_delete &&
+          (!collection.is_private ||
+            currentUserId !== collection.playlist_owner_id)
+      )
+      .map((collection) => collection.playlist_id)
+  )
+  const addedCollectionIds = [...newCollectionIds].filter(
+    (collectionId) => !oldCollectionIds.has(collectionId)
+  )
+  const removedCollections = [...offlineCollections].filter(
+    (collection) => !newCollectionIds.has(collection.playlist_id)
+  )
+
+  console.log('SyncCollections - addedCollectionIds -', addedCollectionIds)
+  addedCollectionIds.forEach((collectionId) => {
+    downloadCollectionById(collectionId, true)
+  })
+
+  console.log(
+    'SyncCollections - removedCollections -',
+    removedCollections.map((c) => c.playlist_id)
+  )
+  removedCollections.forEach((collection) => {
+    const tracksForDownload =
+      collection.tracks?.map((track) => ({
+        trackId: track.track_id,
+        downloadReason: {
+          is_from_favorites: true,
+          collection_id: collection.playlist_id?.toString()
+        }
+      })) ?? []
+
+    removeCollectionDownload(
+      collection.playlist_id.toString(),
+      tracksForDownload
+    )
+  })
 }
 
 const syncCollection = async (

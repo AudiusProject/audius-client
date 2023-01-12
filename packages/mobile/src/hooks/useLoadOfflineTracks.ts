@@ -39,7 +39,7 @@ import { useIsOfflineModeEnabled } from './useIsOfflineModeEnabled'
 const { getCollection } = cacheCollectionsSelectors
 const { getIsReachable } = reachabilitySelectors
 
-export const useLoadOfflineTracks = () => {
+export const useLoadOfflineData = () => {
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const dispatch = useDispatch()
   const cacheUsers: { uid: string; id: number; metadata: UserMetadata }[] = []
@@ -48,6 +48,7 @@ export const useLoadOfflineTracks = () => {
     if (!isOfflineModeEnabled) return
 
     const offlineCollections = await getOfflineCollections()
+    console.log('offline collections', offlineCollections)
     const cacheCollections: {
       id: string
       uid: string
