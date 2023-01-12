@@ -8,12 +8,13 @@ import {
   toastSagas,
   vipDiscordModalSagas
 } from '@audius/common'
-import { all, fork } from 'redux-saga/effects'
+import { all, fork, put } from 'redux-saga/effects'
 
 import accountSagas from 'common/store/account/sagas'
 import addToPlaylistSagas from 'common/store/add-to-playlist/sagas'
 import analyticsSagas from 'common/store/analytics/sagas'
-import backendSagas, { setupBackend } from 'common/store/backend/sagas'
+import { setupBackend } from 'common/store/backend/actions'
+import backendSagas from 'common/store/backend/sagas'
 import collectionsSagas from 'common/store/cache/collections/sagas'
 import coreCacheSagas from 'common/store/cache/sagas'
 import tracksSagas from 'common/store/cache/tracks/sagas'
@@ -84,8 +85,10 @@ import tokenDashboardSagas from 'store/token-dashboard/sagas'
 import notificationSagasWeb from './notifications/sagas'
 
 export default function* rootSaga() {
-  yield fork(setupBackend)
   const sagas = ([] as (() => Generator<any, void, any>)[]).concat(
+    function* () {
+      yield put(setupBackend())
+    },
     // Config
     analyticsSagas(),
     webAnalyticsSagas(),

@@ -9,7 +9,8 @@ import {
 } from '@audius/common'
 import addToPlaylistSagas from 'common/store/add-to-playlist/sagas'
 import analyticsSagas from 'common/store/analytics/sagas'
-import backendSagas, { setupBackend } from 'common/store/backend/sagas'
+import { setupBackend } from 'common/store/backend/actions'
+import backendSagas from 'common/store/backend/sagas'
 import collectionsSagas from 'common/store/cache/collections/sagas'
 import coreCacheSagas from 'common/store/cache/sagas'
 import tracksSagas from 'common/store/cache/tracks/sagas'
@@ -54,7 +55,7 @@ import repostPageSagas from 'common/store/user-list/reposts/sagas'
 import supportingPageSagas from 'common/store/user-list/supporting/sagas'
 import topSupportersPageSagas from 'common/store/user-list/top-supporters/sagas'
 import walletSagas from 'common/store/wallet/sagas'
-import { all, fork } from 'typed-redux-saga'
+import { all, put, fork } from 'typed-redux-saga'
 
 import accountSagas from './account/sagas'
 import initKeyboardEvents from './keyboard/sagas'
@@ -69,8 +70,10 @@ import themeSagas from './theme/sagas'
 import walletsSagas from './wallet-connect/sagas'
 
 export default function* rootSaga() {
-  yield* fork(setupBackend)
   const sagas = [
+    function* () {
+      yield put(setupBackend())
+    },
     // Config
     ...backendSagas(),
     ...analyticsSagas(),

@@ -120,8 +120,6 @@ function* fetchLineupMetadatasAsync(
   sourceSelector,
   action
 ) {
-  yield waitForBackendSetup()
-  yield waitForAccount()
   const initLineup = yield select(lineupSelector)
   const initSource = sourceSelector
     ? yield select((state) =>
