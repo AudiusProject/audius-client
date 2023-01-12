@@ -11,7 +11,9 @@ import { useLocalTrackImage } from 'app/hooks/useLocalImage'
 const { getUser } = cacheUsersSelectors
 
 type UseTrackImageOptions = {
-  track: Nullable<Pick<Track, 'cover_art_sizes' | 'cover_art' | 'owner_id'>>
+  track: Nullable<
+    Pick<Track, 'track_id' | 'cover_art_sizes' | 'cover_art' | 'owner_id'>
+  >
   size: SquareSizes
   user?: Pick<User, 'creator_node_endpoint'>
 }
@@ -22,9 +24,10 @@ export const useTrackImage = ({ track, size, user }: UseTrackImageOptions) => {
   const selectedUser = useSelector((state) =>
     getUser(state, { id: track?.owner_id })
   )
-  const { value: localSource, loading } = useLocalTrackImage(
-    track?.track_id.toString()
-  )
+  const { value: localSource, loading } = useLocalTrackImage({
+    trackId: track?.track_id.toString(),
+    size
+  })
 
   const contentNodeSource = useContentNodeImage({
     cid,

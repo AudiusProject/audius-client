@@ -99,7 +99,11 @@ const UserSearchResult = ({ isLast, item: user }: UserSearchResultProps) => {
 
   return (
     <ItemContainer isLast={isLast} onPress={handlePress}>
-      <UserImage user={user} styles={{ image: imageStyle, root: imageStyle }} />
+      <UserImage
+        user={user}
+        styles={{ image: imageStyle, root: imageStyle }}
+        size={SquareSizes.SIZE_150_BY_150}
+      />
       <UserBadges
         style={styles.badgeContainer}
         nameStyle={nameStyle}

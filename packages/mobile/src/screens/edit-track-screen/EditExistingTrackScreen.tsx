@@ -31,7 +31,7 @@ export const EditExistingTrackScreen = () => {
 
   const track = useSelector((state) => getTrack(state, { id }))
 
-  const { source: imageSource } = useTrackImage({
+  const trackImage = useTrackImage({
     track,
     size: SquareSizes.SIZE_1000_BY_1000
   })
@@ -49,7 +49,10 @@ export const EditExistingTrackScreen = () => {
   const initialValues = {
     ...track,
     artwork: null,
-    trackArtwork: isImageUriSource(imageSource) ? imageSource.uri : undefined
+    trackArtwork:
+      trackImage && isImageUriSource(trackImage.source)
+        ? trackImage.source.uri
+        : undefined
   }
 
   return (

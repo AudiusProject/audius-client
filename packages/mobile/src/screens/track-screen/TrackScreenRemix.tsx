@@ -128,7 +128,7 @@ const TrackScreenRemixComponent = ({
   const images = (
     <>
       <View style={styles.profilePicture}>
-        <UserImage user={user} />
+        <UserImage user={user} size={SquareSizes.SIZE_150_BY_150} />
       </View>
       <View style={styles.coverArt}>
         <TrackImage track={track} size={SquareSizes.SIZE_480_BY_480} />

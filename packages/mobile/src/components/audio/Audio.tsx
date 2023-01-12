@@ -34,6 +34,7 @@ import { useEffectOnce } from 'react-use'
 import { DEFAULT_IMAGE_URL } from 'app/components/image/TrackImage'
 import { getImageSourceOptimistic } from 'app/hooks/useContentNodeImage'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
+import { getLocalTrackImageSource } from 'app/hooks/useLocalImage'
 import { useOfflineTrackUri } from 'app/hooks/useOfflineTrackUri'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { apiClient } from 'app/services/audius-api-client'
@@ -141,6 +142,7 @@ export const Audio = () => {
   )
   const currentUserId = useSelector(getUserId)
   const isReachable = useSelector(getIsReachable)
+  const isNotReachable = isReachable === false
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
   // Queue things
@@ -456,13 +458,30 @@ export const Audio = () => {
     }
 
     currentUriRef.current = newUri
+
+    const localImageSource =
+      isNotReachable && track
+        ? await getLocalTrackImageSource(
+            String(track.track_id),
+            SquareSizes.SIZE_1000_BY_1000
+          )
+        : undefined
+
     const imageUrl =
       getImageSourceOptimistic({
         cid: track ? track.cover_art_sizes || track.cover_art : null,
         user: trackOwner,
-        size: SquareSizes.SIZE_1000_BY_1000
-        // localSource
-      })?.[2]?.uri ?? DEFAULT_IMAGE_URL
+        size: SquareSizes.SIZE_1000_BY_1000,
+        localSource: localImageSource
+      })?.uri ?? DEFAULT_IMAGE_URL
+
+    const nextLocalImageSource =
+      isNotReachable && nextTrack
+        ? await getLocalTrackImageSource(
+            String(nextTrack.track_id),
+            SquareSizes.SIZE_1000_BY_1000
+          )
+        : undefined
 
     const nextImageUrl =
       getImageSourceOptimistic({
@@ -470,9 +489,9 @@ export const Audio = () => {
           ? nextTrack.cover_art_sizes || nextTrack.cover_art
           : null,
         user: nextTrackOwner,
-        size: SquareSizes.SIZE_1000_BY_1000
-        // localSource
-      })?.[2]?.uri ?? DEFAULT_IMAGE_URL
+        size: SquareSizes.SIZE_1000_BY_1000,
+        localSource: nextLocalImageSource
+      })?.uri ?? DEFAULT_IMAGE_URL
 
     // NOTE: Adding two tracks into the queue to make sure that android has a next button on the lock screen and notification controls
     // This should be removed when the track player queue is used properly

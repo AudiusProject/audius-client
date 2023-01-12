@@ -54,7 +54,7 @@ const createAllImageSources = ({
   user?: Nullable<{ creator_node_endpoint: Nullable<string> }>
   endpoints?: string[]
   size: SquareSizes | WidthSizes
-  localSource?: ImageURISource[] | null
+  localSource?: ImageURISource | null
 }) => {
   if (!cid || (!user && !providedEndpoints)) {
     return []
@@ -81,7 +81,7 @@ const createAllImageSources = ({
   })
 
   const sourceList = [
-    ...(localSource && localSource.length > 0 ? [localSource] : []),
+    ...(localSource ? [localSource] : []),
     ...newImageSources,
     ...legacyImageSources
   ]
@@ -106,7 +106,7 @@ type UseContentNodeImageOptions = {
   // The size of the image to fetch
   size: SquareSizes | WidthSizes
   fallbackImageSource: ImageSourcePropType
-  localSource?: ImageURISource[] | null
+  localSource?: ImageURISource | null
 }
 
 /**

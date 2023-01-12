@@ -12,7 +12,10 @@ const { getUser } = cacheUsersSelectors
 
 type UseCollectionImageOptions = {
   collection: Nullable<
-    Pick<Collection, 'cover_art_sizes' | 'cover_art' | 'playlist_owner_id'>
+    Pick<
+      Collection,
+      'playlist_id' | 'cover_art_sizes' | 'cover_art' | 'playlist_owner_id'
+    >
   >
   size: SquareSizes
   user?: Pick<User, 'creator_node_endpoint'>
@@ -31,9 +34,10 @@ export const useCollectionImage = ({
     getUser(state, { id: collection?.playlist_owner_id })
   )
 
-  const { value: localSource, loading } = useLocalCollectionImage(
-    collection?.playlist_id.toString()
-  )
+  const { value: localSource, loading } = useLocalCollectionImage({
+    collectionId: collection?.playlist_id.toString(),
+    size
+  })
 
   const contentNodeSource = useContentNodeImage({
     cid,
