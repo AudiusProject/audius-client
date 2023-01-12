@@ -153,6 +153,7 @@ const TrackPage = ({
       trackTitle={defaults.title}
       trackId={defaults.trackId}
       userId={user?.user_id ?? 0}
+      ownerId={heroTrack?.owner_id ?? 0}
       artistName={emptyStringGuard(user?.name)}
       artistHandle={emptyStringGuard(user?.handle)}
       coverArtSizes={defaults.coverArtSizes}

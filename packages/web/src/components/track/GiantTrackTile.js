@@ -343,6 +343,7 @@ class GiantTrackTile extends PureComponent {
     const {
       playing,
       trackId,
+      ownerId,
       trackTitle,
       coverArtSizes,
       artistName,
@@ -543,6 +544,7 @@ GiantTrackTile.propTypes = {
   active: PropTypes.bool,
   trackTitle: PropTypes.string,
   trackId: PropTypes.number,
+  ownerId: PropTypes.number,
   artistName: PropTypes.string,
   artistHandle: PropTypes.string,
   coverArtSizes: PropTypes.object,
