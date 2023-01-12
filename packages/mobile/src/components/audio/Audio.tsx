@@ -141,6 +141,7 @@ export const Audio = () => {
   )
   const currentUserId = useSelector(getUserId)
   const isReachable = useSelector(getIsReachable)
+  const isNotReachable = isReachable === false
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
   // Queue things
@@ -457,7 +458,7 @@ export const Audio = () => {
 
     currentUriRef.current = newUri
 
-    const localImageSource = !isReachable
+    const localImageSource = isNotReachable
       ? await getLocalTrackImageSource(
           track ? String(track.track_id) : undefined
         )
@@ -470,7 +471,7 @@ export const Audio = () => {
         localSource: localImageSource
       })?.[2]?.uri ?? DEFAULT_IMAGE_URL
 
-    const nextLocalImageSource = !isReachable
+    const nextLocalImageSource = isNotReachable
       ? await getLocalTrackImageSource(
           nextTrack ? String(nextTrack.track_id) : undefined
         )
