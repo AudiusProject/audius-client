@@ -36,14 +36,19 @@ const messages = {
 type EthCollectionMap = {
   [slug: string]: {
     name: string
-    img: string
     address: string
     standard: TokenStandard
+    img: Nullable<string>
+    externalLink: Nullable<string>
   }
 }
 
 type SolCollectionMap = {
-  [mint: string]: { name: string; img: Nullable<string> }
+  [mint: string]: {
+    name: string
+    img: Nullable<string>
+    externalLink: Nullable<string>
+  }
 }
 
 export const CollectibleGatedAvailability = ({
@@ -69,12 +74,12 @@ export const CollectibleGatedAvailability = ({
         collectionName,
         collectionImageUrl,
         assetContractAddress,
-        standard
+        standard,
+        externalLink
       } = collectible
       if (
         !collectionName ||
         !collectionSlug ||
-        !collectionImageUrl ||
         !assetContractAddress ||
         !standard ||
         map[collectionSlug]
@@ -85,7 +90,8 @@ export const CollectibleGatedAvailability = ({
         name: collectionName,
         img: collectionImageUrl,
         address: assetContractAddress,
-        standard
+        standard,
+        externalLink
       }
     })
 
@@ -97,10 +103,12 @@ export const CollectibleGatedAvailability = ({
       text: ethCollectionMap[slug].name,
       el: (
         <div className={styles.dropdownRow}>
-          <img
-            src={ethCollectionMap[slug].img}
-            alt={ethCollectionMap[slug].name}
-          />
+          {!!ethCollectionMap[slug].img && (
+            <img
+              src={ethCollectionMap[slug].img!}
+              alt={ethCollectionMap[slug].name}
+            />
+          )}
           <span>{ethCollectionMap[slug].name}</span>
         </div>
       ),
@@ -130,7 +138,8 @@ export const CollectibleGatedAvailability = ({
       if (!data?.name || map[data.name]) return
       map[mint] = {
         name: data.name.replaceAll('\x00', ''),
-        img: imageUrl
+        img: imageUrl ?? null,
+        externalLink: null
       }
     })
 
@@ -142,10 +151,12 @@ export const CollectibleGatedAvailability = ({
       text: solCollectionMap[mint].name,
       el: (
         <div className={styles.dropdownRow}>
-          <img
-            src={solCollectionMap[mint].img ?? undefined}
-            alt={solCollectionMap[mint].name}
-          />
+          {!!solCollectionMap[mint].img && (
+            <img
+              src={solCollectionMap[mint].img!}
+              alt={solCollectionMap[mint].name}
+            />
+          )}
           <span>{solCollectionMap[mint].name}</span>
         </div>
       ),
@@ -208,6 +219,8 @@ export const CollectibleGatedAvailability = ({
                         standard: ethCollectionMap[value].standard,
                         address: ethCollectionMap[value].address,
                         name: ethCollectionMap[value].name,
+                        imageUrl: ethCollectionMap[value].img,
+                        externalLink: ethCollectionMap[value].externalLink,
                         slug: value
                       }
                     },
@@ -219,7 +232,9 @@ export const CollectibleGatedAvailability = ({
                       nft_collection: {
                         chain: Chain.Sol,
                         address: value,
-                        name: solCollectionMap[value].name
+                        name: solCollectionMap[value].name,
+                        imageUrl: solCollectionMap[value].img,
+                        externalLink: solCollectionMap[value].externalLink
                       }
                     },
                     AvailabilityType.COLLECTIBLE_GATED
