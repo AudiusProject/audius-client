@@ -1,7 +1,9 @@
 import { FeatureFlags, ID, premiumContentSelectors } from '@audius/common'
 import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
-import { useFlag } from 'hooks/useRemoteConfig'
 import { useSelector } from 'react-redux'
+
+import { useFlag } from 'hooks/useRemoteConfig'
+
 import styles from './GiantTrackTile.module.css'
 
 type PlayPauseButtonProps = {
@@ -13,7 +15,12 @@ type PlayPauseButtonProps = {
 
 const { getPremiumTrackSignatureMap } = premiumContentSelectors
 
-export const PlayPauseButton = ({ trackId, isPremium, playing, onPlay }: PlayPauseButtonProps) => {
+export const PlayPauseButton = ({
+  trackId,
+  isPremium,
+  playing,
+  onPlay
+}: PlayPauseButtonProps) => {
   const { isEnabled: isPremiumContentEnabled } = useFlag(
     FeatureFlags.PREMIUM_CONTENT_ENABLED
   )
@@ -28,7 +35,11 @@ export const PlayPauseButton = ({ trackId, isPremium, playing, onPlay }: PlayPau
       text={playing ? 'PAUSE' : 'PLAY'}
       leftIcon={playing ? <IconPause /> : <IconPlay />}
       onClick={onPlay}
-      disabled={isPremiumContentEnabled && isPremium ? !premiumTrackSignatureMap[trackId] : false}
+      disabled={
+        isPremiumContentEnabled && isPremium
+          ? !premiumTrackSignatureMap[trackId]
+          : false
+      }
     />
   )
 }

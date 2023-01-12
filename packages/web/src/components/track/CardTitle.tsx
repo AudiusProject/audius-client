@@ -1,9 +1,10 @@
 import { FeatureFlags, PremiumConditions } from '@audius/common'
-import Tooltip from 'components/tooltip/Tooltip'
-import HiddenTrackHeader from 'pages/track-page/components/HiddenTrackHeader'
-import { useFlag } from 'hooks/useRemoteConfig'
 import { IconCollectible, IconSpecialAccess } from '@audius/stems'
 import cn from 'classnames'
+
+import Tooltip from 'components/tooltip/Tooltip'
+import { useFlag } from 'hooks/useRemoteConfig'
+import HiddenTrackHeader from 'pages/track-page/components/HiddenTrackHeader'
 
 import styles from './GiantTrackTile.module.css'
 
@@ -36,16 +37,20 @@ export const CardTitle = ({
 
   if (isPremiumContentEnabled && isPremium) {
     return (
-      <div className={cn(styles.headerContainer, className, styles.premiumContent)}>
-        {premiumConditions?.nft_collection
-          ? <div className={styles.typeLabel}>
-              <IconCollectible />
-              {messages.collectibleGated}
-            </div>
-          : <div className={styles.typeLabel}>
-              <IconSpecialAccess />
-              {messages.specialAccess}
-            </div>}
+      <div
+        className={cn(styles.headerContainer, className, styles.premiumContent)}
+      >
+        {premiumConditions?.nft_collection ? (
+          <div className={styles.typeLabel}>
+            <IconCollectible />
+            {messages.collectibleGated}
+          </div>
+        ) : (
+          <div className={styles.typeLabel}>
+            <IconSpecialAccess />
+            {messages.specialAccess}
+          </div>
+        )}
       </div>
     )
   }

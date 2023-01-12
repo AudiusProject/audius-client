@@ -33,14 +33,14 @@ import UserBadges from 'components/user-badges/UserBadges'
 import { moodMap } from 'utils/moods'
 
 import Badge from './Badge'
+import { CardTitle } from './CardTitle'
 import GiantArtwork from './GiantArtwork'
 import styles from './GiantTrackTile.module.css'
 import InfoLabel from './InfoLabel'
-import Tag from './Tag'
-import { PremiumTrackSection } from './PremiumTrackSection'
-import { CardTitle } from './CardTitle'
 import { PlayPauseButton } from './PlayPauseButton'
 import { PremiumTrackCornerTag } from './PremiumTrackCornerTag'
+import { PremiumTrackSection } from './PremiumTrackSection'
+import Tag from './Tag'
 
 const BUTTON_COLLAPSE_WIDTHS = {
   first: 1095,
@@ -66,13 +66,15 @@ class GiantTrackTile extends PureComponent {
 
   renderCardTitle(className) {
     const { isUnlisted, isRemix, isPremium, premiumConditions } = this.props
-    return <CardTitle
-      className={className}
-      isUnlisted={isUnlisted}
-      isRemix={isRemix}
-      isPremium={isPremium}
-      premiumConditions={premiumConditions}
-    />
+    return (
+      <CardTitle
+        className={className}
+        isUnlisted={isUnlisted}
+        isRemix={isRemix}
+        isPremium={isPremium}
+        premiumConditions={premiumConditions}
+      />
+    )
   }
 
   renderShareButton() {
@@ -405,7 +407,10 @@ class GiantTrackTile extends PureComponent {
     return (
       <div className={styles.giantTrackTile}>
         <div className={styles.topSection}>
-          {isPremium && <PremiumTrackCornerTag doesUserHaveAccess={doesUserHaveAccess} />}
+          {isPremium && (
+            // <PremiumTrackCornerTag doesUserHaveAccess={doesUserHaveAccess} />
+            <PremiumTrackCornerTag doesUserHaveAccess={false} />
+          )}
           <GiantArtwork
             trackId={trackId}
             coverArtSizes={coverArtSizes}
@@ -440,7 +445,12 @@ class GiantTrackTile extends PureComponent {
             </div>
 
             <div className={cn(styles.playSection, fadeIn)}>
-              <PlayPauseButton trackId={trackId} isPremium={isPremium} playing={playing} onPlay={onPlay} />
+              <PlayPauseButton
+                trackId={trackId}
+                isPremium={isPremium}
+                playing={playing}
+                onPlay={onPlay}
+              />
               {this.renderListenCount()}
             </div>
 
@@ -487,7 +497,8 @@ class GiantTrackTile extends PureComponent {
           <PremiumTrackSection
             isLoading={isLoading}
             premiumConditions={premiumConditions}
-            doesUserHaveAccess={doesUserHaveAccess}
+            // doesUserHaveAccess={doesUserHaveAccess}
+            doesUserHaveAccess={false}
           />
         )}
 
