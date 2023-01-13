@@ -10,7 +10,7 @@ const fadeInConfig = FadeIn.easing(Easing.ease)
   .withInitialValues({
     opacity: 0.3
   })
-  .duration(1000)
+  .duration(200)
 
 export const FadeInView = (props: FadeInViewProps) => {
   const { children } = props
