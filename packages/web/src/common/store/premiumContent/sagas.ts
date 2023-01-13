@@ -18,11 +18,12 @@ import {
   TrackMetadata
 } from '@audius/common'
 import { takeLatest, select, call, put, delay } from 'typed-redux-saga'
-import { TrackRouteParams } from 'utils/route/trackRouteParser'
 
+import { TrackRouteParams } from 'utils/route/trackRouteParser'
 import { waitForWrite } from 'utils/sagaHelpers'
 
-const { updatePremiumContentSignatures, refreshPremiumTrack } = premiumContentActions
+const { updatePremiumContentSignatures, refreshPremiumTrack } =
+  premiumContentActions
 
 const { updateUserEthCollectibles, updateUserSolCollectibles } =
   collectiblesActions
@@ -291,20 +292,38 @@ function* updateCollectibleGatedTrackAccess(
 
 const PREMIUM_TRACK_POLL_FREQUENCY = 2000
 
-function* pollPremiumTrack({ trackParams, frequency }: { trackParams: TrackRouteParams, frequency: number} ) {
+function* pollPremiumTrack({
+  trackParams,
+  frequency
+}: {
+  trackParams: TrackRouteParams
+  frequency: number
+}) {
   const { trackId, slug, handle } = trackParams ?? {}
   while (true) {
     const premiumTrackSignatureMap = yield* select(getPremiumTrackSignatureMap)
     if (trackId && premiumTrackSignatureMap[trackId]) {
       break
     }
-    yield* put(trackPageActions.fetchTrack(trackId, slug ?? undefined, handle ?? undefined, false))
+    yield* put(
+      trackPageActions.fetchTrack(
+        trackId,
+        slug ?? undefined,
+        handle ?? undefined,
+        false
+      )
+    )
     yield* delay(frequency)
   }
 }
 
-function* refreshPremiumTrackAccess(action: ReturnType<typeof refreshPremiumTrack>) {
-  yield* call(pollPremiumTrack, { trackParams: action.payload.trackParams, frequency: PREMIUM_TRACK_POLL_FREQUENCY })
+function* refreshPremiumTrackAccess(
+  action: ReturnType<typeof refreshPremiumTrack>
+) {
+  yield* call(pollPremiumTrack, {
+    trackParams: action.payload.trackParams,
+    frequency: PREMIUM_TRACK_POLL_FREQUENCY
+  })
 }
 
 function* watchCollectibleGatedTracks() {

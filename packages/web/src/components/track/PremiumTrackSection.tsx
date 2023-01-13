@@ -27,10 +27,9 @@ import { IconTip } from 'components/notification/Notification/components/icons'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useFlag } from 'hooks/useRemoteConfig'
 import { AppState } from 'store/types'
+import { parseTrackRoute } from 'utils/route/trackRouteParser'
 
 import styles from './GiantTrackTile.module.css'
-import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
-import { parseTrackRoute } from 'utils/route/trackRouteParser'
 
 const { getUsers } = cacheUsersSelectors
 const { getSendStatus } = tippingSelectors
@@ -83,7 +82,7 @@ const LockedPremiumTrackSection = ({
       const trackParams = parseTrackRoute(window.location.pathname)
       dispatch(refreshPremiumTrack({ trackParams }))
     }
-  }, [previousSendStatus, sendStatus])
+  }, [dispatch, previousSendStatus, sendStatus])
 
   const handleSendTip = useCallback(() => {
     dispatch(beginTip({ user: tippedUser, source: 'trackPage' }))
