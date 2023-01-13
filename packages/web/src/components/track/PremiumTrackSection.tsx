@@ -9,6 +9,7 @@ import {
   Nullable,
   Chain,
   usersSocialActions as socialActions,
+  premiumContentActions,
   FollowSource,
   tippingSelectors,
   tippingActions
@@ -74,7 +75,7 @@ const LockedPremiumTrackSection = ({
     if (previousSendStatus === 'SUCCESS' && sendStatus === null) {
       setIsUnlocking(true)
       // Poll discovery to get user's premium content signature for this track.
-      // dispatch(refreshPremiumTrack())
+      dispatch(refreshPremiumTrack())
     }
   }, [previousSendStatus, sendStatus])
 
@@ -93,7 +94,7 @@ const LockedPremiumTrackSection = ({
       // Set unlocking state if user has clicked on button to follow artist.
       setIsUnlocking(true)
       // Poll discovery to get user's premium content signature for this track.
-      // dispatch(refreshPremiumTrack())
+      dispatch(refreshPremiumTrack())
     }
   }, [dispatch, premiumConditions])
 

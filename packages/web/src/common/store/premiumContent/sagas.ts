@@ -20,7 +20,7 @@ import { takeLatest, select, call, put } from 'typed-redux-saga'
 
 import { waitForWrite } from 'utils/sagaHelpers'
 
-const { updatePremiumContentSignatures } = premiumContentActions
+const { updatePremiumContentSignatures, refreshPremiumTrack } = premiumContentActions
 
 const { updateUserEthCollectibles, updateUserSolCollectibles } =
   collectiblesActions
@@ -287,6 +287,10 @@ function* updateCollectibleGatedTrackAccess(
   }
 }
 
+function* refreshPremiumTrackAccess() {
+
+}
+
 function* watchCollectibleGatedTracks() {
   yield takeLatest(
     [
@@ -298,8 +302,12 @@ function* watchCollectibleGatedTracks() {
   )
 }
 
+function* watchRefreshPremiumTrack() {
+  yield takeLatest(refreshPremiumTrack.type, refreshPremiumTrackAccess)
+}
+
 const sagas = () => {
-  return [watchCollectibleGatedTracks]
+  return [watchCollectibleGatedTracks, watchRefreshPremiumTrack]
 }
 
 export default sagas

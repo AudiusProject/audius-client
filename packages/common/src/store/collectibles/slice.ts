@@ -5,7 +5,7 @@ import { Chain, Collectible, ID } from '../../models'
 import { Metadata } from '@metaplex-foundation/mpl-token-metadata'
 import { Nullable } from '../../utils'
 
-export type CollectiblesState = {
+type CollectiblesState = {
   userCollectibles: {
     [id: ID]: {
       [Chain.Eth]: Collectible[],
@@ -66,5 +66,3 @@ export const reducer = slice.reducer
 export const actions = slice.actions
 
 export default slice
-
-
