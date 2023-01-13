@@ -20,9 +20,11 @@ const messages = {
 
 type ChatListProps = {
   currentChatId?: string
+  onChatClicked: (chatId: string) => void
 } & ComponentPropsWithoutRef<'div'>
 
 export const ChatList = (props: ChatListProps) => {
+  const { currentChatId, onChatClicked } = props
   const dispatch = useDispatch()
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
   const chatsState = useSelector(getChatsResponse)
@@ -44,8 +46,9 @@ export const ChatList = (props: ChatListProps) => {
         chats?.map((chat) => (
           <ChatListItem
             key={chat.chat_id}
-            currentChatId={props.currentChatId}
+            currentChatId={currentChatId}
             chat={chat}
+            onChatClicked={onChatClicked}
           />
         ))
       ) : hasLoadedOnce ? (
