@@ -1,5 +1,6 @@
 import { chatSelectors, FeatureFlags, useProxySelector } from '@audius/common'
 import { RouteComponentProps } from 'react-router-dom'
+import useMeasure from 'react-use-measure'
 
 import Page from 'components/page/Page'
 import { useFlag } from 'hooks/useRemoteConfig'
@@ -23,6 +24,13 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
     (state) => getOtherChatUsers(state, chatId),
     [chatId]
   )
+
+  // Get the height of the header so we can slide the messages list underneath it for the blur effect
+  const [headerRef, bounds] = useMeasure({
+    polyfill: ResizeObserver,
+    offsetSize: true
+  })
+
   if (!isChatEnabled) {
     return null
   }
@@ -34,15 +42,23 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
       containerClassName={styles.page}
       contentClassName={styles.pageContent}
       useSearch={false}
-      header={<ChatHeader currentChatId={chatId} />}
+      header={<ChatHeader ref={headerRef} currentChatId={chatId} />}
     >
       <div className={styles.layout}>
         <div className={styles.chatList}>
           <ChatList className={styles.chatList} currentChatId={chatId} />
         </div>
-        <div className={styles.messages}>
-          <ChatMessageList className={styles.messageList} chatId={chatId} />
-          <ChatComposer className={styles.messageComposer} chatId={chatId} />
+        <div className={styles.chatArea}>
+          <div
+            className={styles.messages}
+            style={{
+              marginTop: `${-bounds.height}px`,
+              paddingTop: `${bounds.height}px`
+            }}
+          >
+            <ChatMessageList className={styles.messageList} chatId={chatId} />
+          </div>
+          <ChatComposer chatId={chatId} />
         </div>
       </div>
     </Page>
