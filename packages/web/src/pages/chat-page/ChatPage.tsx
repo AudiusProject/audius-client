@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react'
 
 import {
+  chatActions,
   chatSelectors,
   FeatureFlags,
   Status,
@@ -24,6 +25,7 @@ import { ChatMessageList } from './components/ChatMessageList'
 import { CreateChatPrompt } from './components/CreateChatPrompt'
 
 const { getOtherChatUsers, getChatMessagesStatus } = chatSelectors
+const { markChatAsRead } = chatActions
 
 const messages = {
   messages: 'Messages'
@@ -74,13 +76,17 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
   )
 
   // Keep the user scrolled at the bottom for when new messages come in, provided they were already at the bottom
+  // Also mark the chat as read
   useEffect(() => {
     if (messagesStatus === Status.SUCCESS && wasAtBottom) {
       messagesRef.current?.scrollTo({
         top: messagesRef.current?.scrollHeight
       })
+      if (currentChatId) {
+        dispatch(markChatAsRead({ chatId: currentChatId }))
+      }
     }
-  }, [messagesStatus, currentChatId, wasAtBottom])
+  }, [messagesStatus, currentChatId, wasAtBottom, dispatch])
 
   if (!isChatEnabled) {
     return null

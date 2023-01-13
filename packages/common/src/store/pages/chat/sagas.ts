@@ -21,7 +21,8 @@ const {
   fetchNewChatMessagesSucceeded,
   fetchNewChatMessagesFailed,
   setMessageReaction,
-  setMessageReactionSucceeded
+  setMessageReactionSucceeded,
+  markChatAsRead
 } = chatActions
 const { getChatsSummary, getChatMessagesSummary } = chatSelectors
 
@@ -100,24 +101,35 @@ function* doSetMessageReaction(action: ReturnType<typeof setMessageReaction>) {
 
 function* doCreateChat(action: ReturnType<typeof createChat>) {
   const { userIds } = action.payload
-  const audiusSdk = yield* getContext('audiusSdk')
-  const sdk = yield* call(audiusSdk)
-  const user = yield* select(getAccountUser)
-  if (!user) {
-    throw new Error('User not found')
+  try {
+    const audiusSdk = yield* getContext('audiusSdk')
+    const sdk = yield* call(audiusSdk)
+    const user = yield* select(getAccountUser)
+    if (!user) {
+      throw new Error('User not found')
+    }
+    const res = yield* call([sdk.chats, sdk.chats.create], {
+      chatId: '',
+      userId: encodeHashId(user.user_id),
+      invitedUserIds: userIds.map((id) => encodeHashId(id))
+    })
+    const chatId = (res as ChatCreateRPC).params.chat_id
+    const { data: chat } = yield* call([sdk.chats, sdk.chats.get], { chatId })
+    yield* put(createChatSucceeded({ chat }))
+  } catch (e) {
+    console.error('createChatFailed', e)
   }
-  const res = yield* call([sdk.chats, sdk.chats.create], {
-    chatId: '',
-    userId: encodeHashId(user.user_id),
-    invitedUserIds: userIds.map((id) => encodeHashId(id))
-  })
-  const chatId = (res as ChatCreateRPC).params.chat_id
-  const { data: chat } = yield* call([sdk.chats, sdk.chats.get], { chatId })
-  yield* put(createChatSucceeded({ chat }))
 }
 
-function* watchCreateChat() {
-  yield takeEvery(createChat, doCreateChat)
+function* doMarkChatAsRead(action: ReturnType<typeof markChatAsRead>) {
+  const { chatId } = action.payload
+  try {
+    const audiusSdk = yield* getContext('audiusSdk')
+    const sdk = yield* call(audiusSdk)
+    yield* call([sdk.chats, sdk.chats.read], { chatId })
+  } catch (e) {
+    console.error('markChatAsReadFailed', e)
+  }
 }
 
 function* watchFetchChats() {
@@ -132,11 +144,20 @@ function* watchSetMessageReaction() {
   yield takeEvery(setMessageReaction, doSetMessageReaction)
 }
 
+function* watchCreateChat() {
+  yield takeEvery(createChat, doCreateChat)
+}
+
+function* watchMarkChatAsRead() {
+  yield takeEvery(markChatAsRead, doMarkChatAsRead)
+}
+
 export const sagas = () => {
   return [
-    watchCreateChat,
     watchFetchChats,
     watchFetchChatMessages,
-    watchSetMessageReaction
+    watchSetMessageReaction,
+    watchCreateChat,
+    watchMarkChatAsRead
   ]
 }
