@@ -70,12 +70,13 @@ function* doFetchChatMessages(action: ReturnType<typeof fetchNewChatMessages>) {
 }
 
 function* doSetMessageReaction(action: ReturnType<typeof setMessageReaction>) {
-  const { messageId, reaction } = action.payload
+  const { chatId, messageId, reaction } = action.payload
   try {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
     const user = yield* select(getAccountUser)
     yield* call([sdk.chats, sdk.chats.react], {
+      chatId,
       messageId,
       reaction
     })

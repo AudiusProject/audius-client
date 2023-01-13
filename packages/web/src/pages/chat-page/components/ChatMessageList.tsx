@@ -60,14 +60,14 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
     if (chatId) {
       dispatch(fetchNewChatMessages({ chatId }))
     }
-    const pollInterval = setInterval(() => {
-      if (chatId) {
-        dispatch(fetchNewChatMessages({ chatId }))
-      }
-    }, 100000000000000000)
-    return () => {
-      clearInterval(pollInterval)
-    }
+    // const pollInterval = setInterval(() => {
+    //   if (chatId) {
+    //     dispatch(fetchNewChatMessages({ chatId }))
+    //   }
+    // }, 1000)
+    // return () => {
+    //   clearInterval(pollInterval)
+    // }
   }, [dispatch, chatId])
 
   return (

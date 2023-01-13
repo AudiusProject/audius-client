@@ -110,7 +110,6 @@ const slice = createSlice({
         const existingReactions = (
           state.chatMessages[chatId].data[index].reactions ?? []
         ).filter((r) => r.user_id !== userId)
-        console.log({ index, existingReactions, messageId })
         state.chatMessages[chatId].data[index].reactions = [
           ...existingReactions,
           {
