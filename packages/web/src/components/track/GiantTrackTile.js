@@ -13,8 +13,6 @@ import {
   IconRocket,
   IconRepost,
   IconHeart,
-  IconPause,
-  IconPlay,
   IconKebabHorizontal
 } from '@audius/stems'
 import cn from 'classnames'

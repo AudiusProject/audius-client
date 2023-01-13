@@ -95,10 +95,12 @@ const LockedPremiumTrackSection = ({
         <div className={styles.premiumContentSectionDescription}>
           <p>{messages.unlockCollectibleGatedTrack}</p>
           <div className={styles.premiumContentSectionCollection}>
-            <img
-              src={premiumConditions.nft_collection.imageUrl}
-              alt={`${premiumConditions.nft_collection.name} nft collection`}
-            />
+            {premiumConditions.nft_collection.imageUrl && (
+              <img
+                src={premiumConditions.nft_collection.imageUrl}
+                alt={`${premiumConditions.nft_collection.name} nft collection`}
+              />
+            )}
             {premiumConditions.nft_collection.name}
           </div>
         </div>
@@ -289,7 +291,7 @@ export const PremiumTrackSection = ({
     FeatureFlags.PREMIUM_CONTENT_ENABLED
   )
   const { follow_user_id: followUserId, tip_user_id: tipUserId } =
-    premiumConditions
+    premiumConditions ?? {}
   const users = useSelector<AppState, { [id: ID]: User }>((state) =>
     getUsers(state, {
       ids: [followUserId, tipUserId].filter((id): id is number => !!id)
@@ -303,7 +305,8 @@ export const PremiumTrackSection = ({
     () => (tipUserId ? users[tipUserId] : null),
     [users, tipUserId]
   )
-  const shouldDisplay = premiumConditions.nft_collection || followee || tippedUser
+  const shouldDisplay =
+    (premiumConditions ?? {}).nft_collection || followee || tippedUser
 
   const fadeIn = {
     [styles.show]: !isLoading,
@@ -311,7 +314,7 @@ export const PremiumTrackSection = ({
   }
 
   if (!isPremiumContentEnabled) return null
-
+  if (!premiumConditions) return null
   if (!shouldDisplay) return null
 
   return (
