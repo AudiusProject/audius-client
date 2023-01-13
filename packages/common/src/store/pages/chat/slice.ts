@@ -2,7 +2,7 @@ import type { TypedCommsResponse, UserChat, ChatMessage } from '@audius/sdk'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import dayjs from 'dayjs'
 
-import { Status } from 'models'
+import { ID, Status } from 'models'
 import { encodeHashId } from 'utils/hashIds'
 
 type ChatState = {
@@ -39,6 +39,14 @@ const slice = createSlice({
   name: 'application/pages/chat',
   initialState,
   reducers: {
+    createChat: (_state, _action: PayloadAction<{ userIds: ID[] }>) => {
+      // triggers saga
+    },
+    createChatSucceeded: (state, action: PayloadAction<{ chat: UserChat }>) => {
+      console.log(action)
+      const { chat } = action.payload
+      state.chatList.data = [chat].concat(state.chatList.data)
+    },
     fetchMoreChats: (state) => {
       // triggers saga
       state.chatList.status = Status.LOADING
@@ -101,7 +109,7 @@ const slice = createSlice({
     setMessageReactionSucceeded: (
       state,
       action: PayloadAction<
-        SetMessageReactionPayload & { userId: number; createdAt: string }
+        SetMessageReactionPayload & { userId: ID; createdAt: string }
       >
     ) => {
       const { userId, chatId, messageId, reaction } = action.payload

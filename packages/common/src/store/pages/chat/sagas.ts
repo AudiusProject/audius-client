@@ -1,9 +1,10 @@
+import { ChatCreateRPC } from '@audius/sdk'
 import dayjs from 'dayjs'
 import { call, put, select, takeEvery } from 'typed-redux-saga'
 
 import { getAccountUser } from 'store/account/selectors'
 
-import { decodeHashId } from '../../../utils'
+import { decodeHashId, encodeHashId } from '../../../utils'
 import { cacheUsersActions } from '../../cache'
 import { getContext } from '../../effects'
 
@@ -11,6 +12,8 @@ import * as chatSelectors from './selectors'
 import { actions as chatActions } from './slice'
 
 const {
+  createChat,
+  createChatSucceeded,
   fetchMoreChats,
   fetchMoreChatsSucceeded,
   fetchMoreChatsFailed,
@@ -95,6 +98,28 @@ function* doSetMessageReaction(action: ReturnType<typeof setMessageReaction>) {
   }
 }
 
+function* doCreateChat(action: ReturnType<typeof createChat>) {
+  const { userIds } = action.payload
+  const audiusSdk = yield* getContext('audiusSdk')
+  const sdk = yield* call(audiusSdk)
+  const user = yield* select(getAccountUser)
+  if (!user) {
+    throw new Error('User not found')
+  }
+  const res = yield* call([sdk.chats, sdk.chats.create], {
+    chatId: '',
+    userId: encodeHashId(user.user_id),
+    invitedUserIds: userIds.map((id) => encodeHashId(id))
+  })
+  const chatId = (res as ChatCreateRPC).params.chat_id
+  const { data: chat } = yield* call([sdk.chats, sdk.chats.get], { chatId })
+  yield* put(createChatSucceeded({ chat }))
+}
+
+function* watchCreateChat() {
+  yield takeEvery(createChat, doCreateChat)
+}
+
 function* watchFetchChats() {
   yield takeEvery(fetchMoreChats, doFetchMoreChats)
 }
@@ -108,5 +133,10 @@ function* watchSetMessageReaction() {
 }
 
 export const sagas = () => {
-  return [watchFetchChats, watchFetchChatMessages, watchSetMessageReaction]
+  return [
+    watchCreateChat,
+    watchFetchChats,
+    watchFetchChatMessages,
+    watchSetMessageReaction
+  ]
 }

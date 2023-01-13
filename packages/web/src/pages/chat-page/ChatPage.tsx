@@ -21,6 +21,7 @@ import { ChatComposer } from './components/ChatComposer'
 import { ChatHeader } from './components/ChatHeader'
 import { ChatList } from './components/ChatList'
 import { ChatMessageList } from './components/ChatMessageList'
+import { ChatPrompt } from './components/ChatPrompt'
 
 const { getOtherChatUsers, getChatMessagesStatus } = chatSelectors
 
@@ -111,12 +112,16 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
               paddingTop: `${bounds.height}px`
             }}
           >
-            <ChatMessageList
-              className={styles.messageList}
-              chatId={currentChatId}
-            />
+            {currentChatId ? (
+              <ChatMessageList
+                className={styles.messageList}
+                chatId={currentChatId}
+              />
+            ) : (
+              <ChatPrompt />
+            )}
           </div>
-          <ChatComposer chatId={currentChatId} />
+          {currentChatId ? <ChatComposer chatId={currentChatId} /> : null}
         </div>
       </div>
     </Page>

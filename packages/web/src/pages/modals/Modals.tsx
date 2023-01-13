@@ -31,6 +31,7 @@ import ConnectedUserListModal from 'components/user-list-modal/ConnectedUserList
 import AudioBreakdownModal from 'pages/audio-rewards-page/components/modals/AudioBreakdownModal'
 import RewardsModals from 'pages/audio-rewards-page/components/modals/RewardsModals'
 import { VipDiscordModal } from 'pages/audio-rewards-page/components/modals/VipDiscordModal'
+import { ChatComposeModal } from 'pages/chat-page/components/ChatComposeModal'
 import { getClient } from 'utils/clientUtil'
 
 import { AppModal } from './AppModal'
@@ -91,6 +92,7 @@ const Modals = () => {
       <TransactionDetailsModal />
       <StripeOnRampModal />
       <BuyAudioRecoveryModal />
+      <ChatComposeModal />
     </>
   )
 }
