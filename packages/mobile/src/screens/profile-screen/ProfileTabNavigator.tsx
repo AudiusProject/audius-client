@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 import type { Animated } from 'react-native'
+import { View } from 'react-native'
 
 import IconAlbum from 'app/assets/images/iconAlbum.svg'
 import IconCollectibles from 'app/assets/images/iconCollectibles.svg'
@@ -111,6 +112,14 @@ export const ProfileTabNavigator = ({
         renderHeader={renderHeader}
         animatedValue={animatedValue}
         headerHeight={INITIAL_PROFILE_HEADER_HEIGHT}
+        screenOptions={{
+          lazy: true,
+          lazyPlaceholder: () => (
+            <View
+              style={{ height: 50, width: '100%', backgroundColor: 'red' }}
+            />
+          )
+        }}
       >
         {trackScreen}
         {albumsScreen}
@@ -126,6 +135,7 @@ export const ProfileTabNavigator = ({
       renderHeader={renderHeader}
       animatedValue={animatedValue}
       headerHeight={INITIAL_PROFILE_HEADER_HEIGHT}
+      screenOptions={{ lazy: true }}
     >
       {repostsScreen}
       {playlistsScreen}

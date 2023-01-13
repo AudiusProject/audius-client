@@ -1,10 +1,13 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import {
   profilePageSelectors,
   profilePageFeedLineupActions as feedActions,
-  useProxySelector
+  useProxySelector,
+  Status
 } from '@audius/common'
+import { useIsFocused } from '@react-navigation/native'
+import { View } from 'react-native'
 
 import { Lineup } from 'app/components/lineup'
 
@@ -16,6 +19,7 @@ const { getProfileFeedLineup } = profilePageSelectors
 export const RepostsTab = () => {
   const { handle } = useSelectProfile(['handle'])
   const handleLower = handle.toLowerCase()
+  // const isFocused = useIsFocused()
 
   const lineup = useProxySelector(
     (state) => getProfileFeedLineup(state, handleLower),
@@ -28,11 +32,10 @@ export const RepostsTab = () => {
     [handleLower]
   )
 
-  if (!lineup) return null
-
   return (
     <Lineup
       listKey='profile-reposts'
+      lazy
       selfLoad
       actions={feedActions}
       lineup={lineup}

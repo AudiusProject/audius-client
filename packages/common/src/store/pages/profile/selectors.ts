@@ -52,6 +52,9 @@ export const getFolloweeFollows = (state: CommonState, handle?: string) =>
   getProfile(state, handle)?.followeeFollows
 export const getIsSubscribed = (state: CommonState, handle?: string) =>
   getProfile(state, handle)?.isNotificationSubscribed
+
+export const getFetchedCollections = (state: CommonState, handle?: string) =>
+  getProfile(state, handle)?.fetchedCollections
 export const getProfileUser = (
   state: CommonState,
   params?: { handle?: string | null; id?: ID }

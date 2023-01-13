@@ -1,4 +1,8 @@
+import { useEffect } from 'react'
+
+import { cacheUsersActions } from '@audius/common'
 import { View } from 'react-native'
+import { useDispatch } from 'react-redux'
 
 import IconDonate from 'app/assets/images/iconDonate.svg'
 import IconLink from 'app/assets/images/iconLink.svg'

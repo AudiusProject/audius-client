@@ -46,7 +46,7 @@ export const useShouldShowCollectiblesTab = () => {
   const didCollectiblesLoadAndWasEmpty =
     hasCollectibles && !hasCollectiblesOrder
 
-  if (has_collectibles && !didCollectiblesLoadAndWasEmpty) return true
+  if (has_collectibles) return true
 
   const neverSetCollectiblesOrder = !collectibles
   const hasVisibleCollectibles =

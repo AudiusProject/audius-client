@@ -1,13 +1,15 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import type { ID, Supporting } from '@audius/common'
 import {
+  tippingActions,
   useProxySelector,
   stringWeiToBN,
   tippingSelectors,
   MAX_PROFILE_SUPPORTING_TILES
 } from '@audius/common'
 import { FlatList } from 'react-native'
+import { useSelector, useDispatch } from 'react-redux'
 
 import { makeStyles } from 'app/styles'
 
@@ -17,6 +19,8 @@ import { SupportingTile } from './SupportingTile'
 import { SupportingTileSkeleton } from './SupportingTileSkeleton'
 import { ViewAllSupportingTile } from './ViewAllSupportingTile'
 const { getOptimisticSupportingForUser } = tippingSelectors
+
+const { fetchSupportingForUser } = tippingActions
 
 type ViewAllData = { viewAll: true; supporting: Supporting[] }
 
@@ -37,6 +41,23 @@ export const SupportingList = () => {
     'user_id',
     'supporting_count'
   ])
+
+  const dispatch = useDispatch()
+
+  const shouldFetchSupporting = useSelector((state) => {
+    return (
+      !state.tipping.supporting[user_id] &&
+      !state.tipping.supportersOverrides[user_id]
+    )
+  })
+
+  useEffect(() => {
+    if (supporting_count > 0 && shouldFetchSupporting) {
+      console.log('fetching supporting!')
+      dispatch(fetchSupportingForUser({ userId: user_id }))
+    }
+  }, [supporting_count, shouldFetchSupporting, dispatch, user_id])
+
   const supportingForUser = useProxySelector(
     (state) => getOptimisticSupportingForUser(state, user_id),
     [user_id]

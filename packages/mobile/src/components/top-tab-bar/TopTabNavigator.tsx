@@ -23,9 +23,7 @@ export const TabNavigator = ({
     <Tab.Navigator
       initialRouteName={initialScreenName}
       tabBar={(props) => <TopTabBar {...props} />}
-      screenOptions={{
-        ...screenOptions
-      }}
+      screenOptions={screenOptions}
     >
       {children}
     </Tab.Navigator>
@@ -63,14 +61,19 @@ export const tabScreen = (config: TabScreenConfig) => {
 type TopTabsProps = {
   initialScreenName?: string
   screens?: ScreenConfig[]
+  screenOptions?: {}
 }
 
 export const TopTabNavigator = ({
   initialScreenName,
-  screens
+  screens,
+  screenOptions
 }: TopTabsProps) => {
   return (
-    <TabNavigator initialScreenName={initialScreenName}>
+    <TabNavigator
+      initialScreenName={initialScreenName}
+      screenOptions={screenOptions}
+    >
       {screens?.map((screen) => tabScreen({ key: screen.name, ...screen }))}
     </TabNavigator>
   )

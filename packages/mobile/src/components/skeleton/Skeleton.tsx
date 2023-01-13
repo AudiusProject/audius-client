@@ -35,33 +35,11 @@ const useStyles = makeStyles(({ palette }) => ({
 
 const Skeleton = ({ width, height, style, noShimmer }: SkeletonProps) => {
   const styles = useStyles()
-  const shimmerPos = useRef(new Animated.Value(0)).current
   const { skeleton, skeletonHighlight } = useThemeColors()
-
-  const shimmer = useMemo(
-    () =>
-      Animated.loop(
-        Animated.timing(shimmerPos, {
-          toValue: 0,
-          duration: ANIMATION_DURATION_MS,
-          useNativeDriver: true,
-          easing: Easing.ease
-        })
-      ),
-    [shimmerPos]
-  )
 
   return (
     <View style={[styles.view, { height, width }, style]}>
-      <Animated.View
-        onLayout={(e) => {
-          if (noShimmer) return
-          const { width } = e.nativeEvent.layout
-          shimmerPos.setValue(-0.75 * width)
-          shimmer.start()
-        }}
-        style={[styles.skeleton, { transform: [{ translateX: shimmerPos }] }]}
-      >
+      <Animated.View style={[styles.skeleton]}>
         <LinearGradient
           useAngle
           angle={90}

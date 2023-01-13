@@ -18,7 +18,8 @@ import {
   MAX_ARTIST_HOVER_TOP_SUPPORTING,
   MAX_PROFILE_SUPPORTING_TILES,
   MAX_PROFILE_TOP_SUPPORTERS,
-  collectiblesActions
+  collectiblesActions,
+  cacheUsersSelectors
 } from '@audius/common'
 import { merge } from 'lodash'
 import {
@@ -52,6 +53,7 @@ const { getIsReachable } = reachabilitySelectors
 const { getProfileUserId, getProfileFollowers, getProfileUser } =
   profilePageSelectors
 
+const { getUser } = cacheUsersSelectors
 const { getUserId, getAccountUser } = accountSelectors
 
 const { ethCollectiblesFetched, solCollectiblesFetched } = collectiblesActions
@@ -205,103 +207,114 @@ function* fetchSupportersAndSupporting(userId) {
 }
 
 function* fetchProfileAsync(action) {
-  const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  const isNativeMobile = yield getContext('isNativeMobile')
-  const { getRemoteVar } = yield getContext('remoteConfigInstance')
+  // const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  // const isNativeMobile = yield getContext('isNativeMobile')
+  // const { getRemoteVar } = yield getContext('remoteConfigInstance')
 
-  try {
-    let user
-    if (action.handle) {
-      user = yield call(
-        fetchUserByHandle,
-        action.handle,
-        new Set(),
-        action.forceUpdate,
-        action.shouldSetLoading,
-        action.deleteExistingEntry
-      )
-    } else if (action.userId) {
-      const users = yield call(
-        fetchUsers,
-        [action.userId],
-        new Set(),
-        action.forceUpdate,
-        action.shouldSetLoading
-      )
-      user = users.entries[action.userId]
-    }
-    if (!user) {
-      const isReachable = yield select(getIsReachable)
-      if (isReachable) {
-        yield put(profileActions.fetchProfileFailed())
-      }
-      return
-    }
+  const cachedUser = yield select((state) =>
+    getUser(state, { handle: action.handle, id: action.userId })
+  )
+
+  if (cachedUser) {
+    const { handle, user_id } = cachedUser
     yield put(
-      profileActions.fetchProfileSucceeded(
-        user.handle,
-        user.user_id,
-        action.fetchOnly
-      )
+      profileActions.fetchProfileSucceeded(handle, user_id, action.fetchOnly)
     )
-
-    // Fetch user socials and collections after fetching the user itself
-    yield fork(fetchUserSocials, action)
-    yield fork(fetchUserCollections, user.user_id)
-
-    yield fork(fetchSupportersAndSupporting, user.user_id)
-
-    yield fork(fetchProfileCustomizedCollectibles, user)
-    yield fork(fetchOpenSeaAssets, user)
-    yield fork(fetchSolanaCollectibles, user)
-
-    // Get current user notification & subscription status
-    const isSubscribed = yield call(
-      audiusBackendInstance.getUserSubscribed,
-      user.user_id
-    )
-    yield put(
-      profileActions.setNotificationSubscription(
-        user.user_id,
-        isSubscribed,
-        false,
-        user.handle
-      )
-    )
-
-    if (!isNativeMobile) {
-      if (user.track_count > 0) {
-        yield fork(fetchMostUsedTags, user.user_id, user.track_count)
+  } else {
+    try {
+      let user
+      if (action.handle) {
+        user = yield call(
+          fetchUserByHandle,
+          action.handle,
+          new Set(),
+          action.forceUpdate,
+          action.shouldSetLoading,
+          action.deleteExistingEntry
+        )
+      } else if (action.userId) {
+        const users = yield call(
+          fetchUsers,
+          [action.userId],
+          new Set(),
+          action.forceUpdate,
+          action.shouldSetLoading
+        )
+        user = users.entries[action.userId]
       }
-    }
-
-    const showArtistRecommendationsPercent =
-      getRemoteVar(DoubleKeys.SHOW_ARTIST_RECOMMENDATIONS_PERCENT) || 0
-    if (Math.random() < showArtistRecommendationsPercent) {
+      if (!user) {
+        const isReachable = yield select(getIsReachable)
+        if (isReachable) {
+          yield put(profileActions.fetchProfileFailed())
+        }
+        return
+      }
       yield put(
-        artistRecommendationsActions.fetchRelatedArtists({
-          userId: user.user_id
-        })
-      )
-    }
-
-    // Delay so the page can load before we fetch mutual followers
-    yield delay(2000)
-
-    if (!isNativeMobile) {
-      yield put(
-        profileActions.fetchFollowUsers(
-          FollowType.FOLLOWEE_FOLLOWS,
-          undefined,
-          undefined,
-          action.handle
+        profileActions.fetchProfileSucceeded(
+          user.handle,
+          user.user_id,
+          action.fetchOnly
         )
       )
+
+      // // Fetch user socials and collections after fetching the user itself
+      // yield fork(fetchUserSocials, action)
+      // yield fork(fetchUserCollections, user.user_id)
+
+      // yield fork(fetchSupportersAndSupporting, user.user_id)
+
+      // yield fork(fetchProfileCustomizedCollectibles, user)
+      // yield fork(fetchOpenSeaAssets, user)
+      // yield fork(fetchSolanaCollectibles, user)
+
+      // // Get current user notification & subscription status
+      // const isSubscribed = yield call(
+      //   audiusBackendInstance.getUserSubscribed,
+      //   user.user_id
+      // )
+      // yield put(
+      //   profileActions.setNotificationSubscription(
+      //     user.user_id,
+      //     isSubscribed,
+      //     false,
+      //     user.handle
+      //   )
+      // )
+
+      // if (!isNativeMobile) {
+      //   if (user.track_count > 0) {
+      //     yield fork(fetchMostUsedTags, user.user_id, user.track_count)
+      //   }
+      // }
+
+      // const showArtistRecommendationsPercent =
+      //   getRemoteVar(DoubleKeys.SHOW_ARTIST_RECOMMENDATIONS_PERCENT) || 0
+      // if (Math.random() < showArtistRecommendationsPercent) {
+      //   yield put(
+      //     artistRecommendationsActions.fetchRelatedArtists({
+      //       userId: user.user_id
+      //     })
+      //   )
+      // }
+
+      // // Delay so the page can load before we fetch mutual followers
+      // yield delay(2000)
+
+      // if (!isNativeMobile) {
+      //   yield put(
+      //     profileActions.fetchFollowUsers(
+      //       FollowType.FOLLOWEE_FOLLOWS,
+      //       undefined,
+      //       undefined,
+      //       action.handle
+      //     )
+      //   )
+      // }
+    } catch (err) {
+      const isReachable = yield select(getIsReachable)
+      if (!isReachable) return
+      throw err
     }
-  } catch (err) {
-    const isReachable = yield select(getIsReachable)
-    if (!isReachable) return
-    throw err
   }
 }
 

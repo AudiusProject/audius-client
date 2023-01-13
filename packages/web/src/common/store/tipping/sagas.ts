@@ -54,6 +54,7 @@ const {
   convert,
   fetchRecentTips,
   fetchSupportingForUser,
+  fetchSupportersForUser,
   refreshSupport,
   sendTipFailed,
   sendTipSucceeded,
@@ -411,6 +412,52 @@ function* refreshSupportAsync({
   )
 }
 
+function* fetchSupportersForUserAsync({
+  payload: { userId }
+}: {
+  payload: { userId: ID }
+  type: string
+}) {
+  yield* waitForRead()
+  const apiClient = yield* getContext('apiClient')
+
+  const supportersParams: GetSupportersArgs = {
+    userId,
+    limit: MAX_PROFILE_TOP_SUPPORTERS + 1
+  }
+
+  const supportersForReceiverList = yield* call(
+    [apiClient, apiClient.getSupporters],
+    supportersParams
+  )
+
+  const userIds = supportersForReceiverList?.map((supporter) =>
+    decodeHashId(supporter.sender.id)
+  )
+
+  yield call(fetchUsers, userIds)
+
+  const supportersForReceiverMap: Record<string, Supporter> = {}
+
+  supportersForReceiverList?.forEach((supporter) => {
+    const supporterUserId = decodeHashId(supporter.sender.id)
+    if (supporterUserId) {
+      supportersForReceiverMap[supporterUserId] = {
+        sender_id: supporterUserId,
+        rank: supporter.rank,
+        amount: supporter.amount
+      }
+    }
+  })
+
+  yield put(
+    setSupportersForUser({
+      id: userId,
+      supportersForUser: supportersForReceiverMap
+    })
+  )
+}
+
 function* fetchSupportingForUserAsync({
   payload: { userId }
 }: {
@@ -599,6 +646,10 @@ function* watchFetchSupportingForUser() {
   yield* takeEvery(fetchSupportingForUser.type, fetchSupportingForUserAsync)
 }
 
+function* watchFetchSupportersForUser() {
+  yield takeEvery(fetchSupportersForUser.type, fetchSupportersForUserAsync)
+}
+
 function* watchRefreshSupport() {
   yield* takeEvery(refreshSupport.type, refreshSupportAsync)
 }
@@ -618,6 +669,7 @@ function* watchFetchUserSupporter() {
 const sagas = () => {
   return [
     watchFetchSupportingForUser,
+    watchFetchSupportersForUser,
     watchRefreshSupport,
     watchConfirmSendTip,
     watchFetchRecentTips,

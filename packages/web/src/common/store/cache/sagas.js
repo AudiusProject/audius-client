@@ -342,6 +342,7 @@ function* initializeCacheType() {
   } else if (safeFastCache) {
     yield put(cacheActions.setCacheType({ cacheType: 'safe-fast' }))
   }
+  yield put(cacheActions.setCacheType({ cacheType: 'safe-fast' }))
 }
 
 const sagas = () => {

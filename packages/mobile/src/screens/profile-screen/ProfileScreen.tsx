@@ -9,6 +9,7 @@ import {
   shareModalUIActions,
   encodeUrlName
 } from '@audius/common'
+import { fetchProfileSucceeded } from '@audius/common/dist/store/pages/profile/actions'
 import { PortalHost } from '@gorhom/portal'
 import { Animated, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
@@ -56,14 +57,14 @@ export const ProfileScreen = () => {
   const isNotReachable = useSelector(getIsReachable) === false
 
   const fetchProfile = useCallback(() => {
-    dispatch(
-      fetchProfileAction(handleLower ?? null, id ?? null, true, true, false)
-    )
+    dispatch(fetchProfileAction(handleLower, id ?? null, false, false, false))
   }, [dispatch, handleLower, id])
 
   useEffect(() => {
-    fetchProfile()
-  }, [fetchProfile])
+    if (status === Status.IDLE) {
+      fetchProfile()
+    }
+  }, [fetchProfile, status])
 
   const handleRefresh = useCallback(() => {
     if (profile) {

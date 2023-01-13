@@ -91,7 +91,14 @@ export const CollapsibleTabNavigator = ({
       collapsibleOptions={collapsibleOptions}
       initialRouteName={initialScreenName}
       tabBar={tabBar}
-      screenOptions={screenOptions}
+      // lazy={true}
+      // lazyPreloadDistance={1}
+      // lazyPlaceholder={() => null}
+      screenOptions={{
+        ...screenOptions
+        // lazy: false,
+        // lazyPlaceholder: () => null
+      }}
     >
       {children}
     </Tab.Navigator>

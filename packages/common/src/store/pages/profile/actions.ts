@@ -27,6 +27,8 @@ export const UPDATE_MOST_USED_TAGS = 'PROFILE/UPDATE_MOST_USED_TAGS'
 export const SET_NOTIFICATION_SUBSCRIPTION =
   'PROFILE/SET_NOTIFICATION_SUBSCRIPTION'
 
+export const SET_FETCHED_COLLECTIONS = 'PROFILE/SET_FETCHED_COLLECTIONS'
+
 // Either handle or userId is required
 // TODO: Move this to redux toolkit
 export function fetchProfile(
@@ -147,6 +149,13 @@ export function setNotificationSubscription(
     userId,
     isSubscribed,
     update,
+    handle
+  }
+}
+
+export function setFetchedCollections(handle: string) {
+  return {
+    type: SET_FETCHED_COLLECTIONS,
     handle
   }
 }

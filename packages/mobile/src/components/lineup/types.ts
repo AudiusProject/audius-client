@@ -155,6 +155,12 @@ export type LineupProps = {
    * When `true`, add pull-to-refresh capability
    */
   pullToRefresh?: boolean
+  /**
+   * When we want lineup to wait until it is visible before fetching content and can't lazy-load
+   * the lineup itself. This is needed for lineups on artist page because collapsible-tab-view
+   * does not work with tab-navigator lazy mode
+   */
+  lazy?: boolean
 } & Pick<
   SectionListProps<unknown>,
   'showsVerticalScrollIndicator' | 'ListEmptyComponent' | 'ListFooterComponent'

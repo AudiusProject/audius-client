@@ -41,6 +41,7 @@ export type ProfileState = {
   isNotificationSubscribed: boolean
   error?: string
   mostUsedTags: string[]
+  fetchedCollections: boolean
 }
 
 export type ProfilePageState = {

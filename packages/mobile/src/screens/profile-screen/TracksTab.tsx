@@ -3,6 +3,7 @@ import { useCallback, useEffect } from 'react'
 import {
   profilePageSelectors,
   profilePageTracksLineupActions as tracksActions,
+  Status,
   useProxySelector
 } from '@audius/common'
 import { useDispatch } from 'react-redux'
@@ -14,7 +15,7 @@ import { useIsProfileLoaded, useSelectProfile } from './selectors'
 const { getProfileTracksLineup } = profilePageSelectors
 
 export const TracksTab = () => {
-  const isProfileLoaded = useIsProfileLoaded()
+  // const isProfileLoaded = useIsProfileLoaded()
   const dispatch = useDispatch()
 
   const { handle, user_id, track_count, _artist_pick } = useSelectProfile([
@@ -31,19 +32,21 @@ export const TracksTab = () => {
     [handleLower]
   )
 
-  useEffect(() => {
-    if (isProfileLoaded) {
-      dispatch(
-        tracksActions.fetchLineupMetadatas(
-          undefined,
-          undefined,
-          undefined,
-          { userId: user_id },
-          { handle: handleLower }
-        )
-      )
-    }
-  }, [dispatch, isProfileLoaded, user_id, handleLower])
+  // const { status } = lineup
+
+  // useEffect(() => {
+  //   if (status === Status.IDLE) {
+  //     dispatch(
+  //       tracksActions.fetchLineupMetadatas(
+  //         undefined,
+  //         undefined,
+  //         undefined,
+  //         { userId: user_id },
+  //         { handle: handleLower }
+  //       )
+  //     )
+  //   }
+  // }, [dispatch, status, user_id, handleLower])
 
   const loadMore = useCallback(
     (offset: number, limit: number) => {
@@ -52,9 +55,7 @@ export const TracksTab = () => {
           offset,
           limit,
           false,
-          {
-            userId: user_id
-          },
+          { userId: user_id },
           { handle }
         )
       )
@@ -62,14 +63,9 @@ export const TracksTab = () => {
     [dispatch, user_id, handle]
   )
 
-  if (!lineup) return null
-
-  /**
-   * If the profile isn't loaded yet, pass the lineup an empty entries
-   * array so only skeletons are displayed
-   */
   return (
     <Lineup
+      selfLoad
       leadingElementId={_artist_pick}
       listKey='profile-tracks'
       actions={tracksActions}

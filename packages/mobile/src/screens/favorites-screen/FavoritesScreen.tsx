@@ -114,7 +114,10 @@ export const FavoritesScreen = () => {
           <TopTabNavigator screens={favoritesScreens} />
         ) : (
           <ScreenContent>
-            <TopTabNavigator screens={favoritesScreens} />
+            <TopTabNavigator
+              screens={favoritesScreens}
+              screenOptions={{ lazy: true }}
+            />
           </ScreenContent>
         )
       }
