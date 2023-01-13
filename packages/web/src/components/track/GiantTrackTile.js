@@ -490,7 +490,7 @@ class GiantTrackTile extends PureComponent {
           ) : null}
         </div>
 
-        {isPremium && (
+        {isPremium && !isOwner && (
           <PremiumTrackSection
             isLoading={isLoading}
             premiumConditions={premiumConditions}
@@ -539,7 +539,6 @@ GiantTrackTile.propTypes = {
   active: PropTypes.bool,
   trackTitle: PropTypes.string,
   trackId: PropTypes.number,
-  ownerId: PropTypes.number,
   artistName: PropTypes.string,
   artistHandle: PropTypes.string,
   coverArtSizes: PropTypes.object,

@@ -115,7 +115,7 @@ const TrackPage = ({
   const isSaved = heroTrack?.has_current_user_saved ?? false
   const isReposted = heroTrack?.has_current_user_reposted ?? false
   const loading = !heroTrack
-  const doesUserHaveAccess = !!heroTrack?.premium_content_signature
+  const doesUserHaveAccess = isOwner || !!heroTrack?.premium_content_signature
 
   const onPlay = () => onHeroPlay(heroPlaying)
   const onSave = isOwner
@@ -154,7 +154,6 @@ const TrackPage = ({
       trackTitle={defaults.title}
       trackId={defaults.trackId}
       userId={user?.user_id ?? 0}
-      ownerId={heroTrack?.owner_id ?? 0}
       artistName={emptyStringGuard(user?.name)}
       artistHandle={emptyStringGuard(user?.handle)}
       coverArtSizes={defaults.coverArtSizes}
