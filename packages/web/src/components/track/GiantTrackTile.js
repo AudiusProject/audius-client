@@ -361,6 +361,7 @@ class GiantTrackTile extends PureComponent {
       isUnlisted,
       isPremium,
       premiumConditions,
+      doesUserHaveAccess,
       onExternalLinkClick,
       coSign,
       loading,
@@ -407,8 +408,7 @@ class GiantTrackTile extends PureComponent {
       <div className={styles.giantTrackTile}>
         <div className={styles.topSection}>
           {isPremium && (
-            // <PremiumTrackCornerTag doesUserHaveAccess={doesUserHaveAccess} />
-            <PremiumTrackCornerTag doesUserHaveAccess={false} />
+            <PremiumTrackCornerTag doesUserHaveAccess={doesUserHaveAccess} />
           )}
           <GiantArtwork
             trackId={trackId}
@@ -445,8 +445,7 @@ class GiantTrackTile extends PureComponent {
 
             <div className={cn(styles.playSection, fadeIn)}>
               <PlayPauseButton
-                trackId={trackId}
-                isPremium={isPremium}
+                doesUserHaveAccess={doesUserHaveAccess}
                 playing={playing}
                 onPlay={onPlay}
               />
@@ -496,8 +495,7 @@ class GiantTrackTile extends PureComponent {
           <PremiumTrackSection
             isLoading={isLoading}
             premiumConditions={premiumConditions}
-            // doesUserHaveAccess={doesUserHaveAccess}
-            doesUserHaveAccess={false}
+            doesUserHaveAccess={doesUserHaveAccess}
           />
         )}
 
@@ -562,6 +560,9 @@ GiantTrackTile.propTypes = {
   isDownloadable: PropTypes.bool,
   badge: PropTypes.string,
   isUnlisted: PropTypes.bool,
+  isPremium: PropTypes.bool,
+  premiumConditions: PropTypes.object,
+  doesUserHaveAccess: PropTypes.bool,
   isRemix: PropTypes.bool,
   isPublishing: PropTypes.bool,
   fieldVisibility: PropTypes.object,

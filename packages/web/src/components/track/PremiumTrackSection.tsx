@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import {
   FeatureFlags,
@@ -10,6 +10,7 @@ import {
   Chain,
   usersSocialActions as socialActions,
   FollowSource,
+  tippingSelectors,
   tippingActions
 } from '@audius/common'
 import { Button, ButtonType, IconLock, IconUnlocked } from '@audius/stems'
@@ -23,10 +24,13 @@ import { IconTip } from 'components/notification/Notification/components/icons'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useFlag } from 'hooks/useRemoteConfig'
 import { AppState } from 'store/types'
+import { usePrevious } from 'react-use'
 
 import styles from './GiantTrackTile.module.css'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 
 const { getUsers } = cacheUsersSelectors
+const { getSendStatus } = tippingSelectors
 const { beginTip } = tippingActions
 
 const messages = {
@@ -45,7 +49,8 @@ const messages = {
   unlockTipGatedTrackSuffix: ' a tip',
   unlockedTipGatedTrackPrefix: 'Thank you for tipping ',
   unlockedSpecialAccessGatedTrackSuffix: '! This track is now available.',
-  unlocked: 'UNLOCKED'
+  unlocked: 'UNLOCKED',
+  unlocking: 'Unlocking'
 }
 
 type PremiumTrackAccessSectionProps = {
@@ -60,6 +65,37 @@ const LockedPremiumTrackSection = ({
   tippedUser
 }: PremiumTrackAccessSectionProps) => {
   const dispatch = useDispatch()
+  const sendStatus = useSelector(getSendStatus)
+  const previousSendStatus = usePrevious(sendStatus)
+  const [isUnlocking, setIsUnlocking] = useState(false)
+
+  // Set unlocking state if send tip is successful and user closed the tip modal.
+  useEffect(() => {
+    if (previousSendStatus === 'SUCCESS' && sendStatus === null) {
+      setIsUnlocking(true)
+      // Poll discovery to get user's premium content signature for this track.
+      // dispatch(refreshPremiumTrack())
+    }
+  }, [previousSendStatus, sendStatus])
+
+  const handleSendTip = useCallback(() => {
+    dispatch(beginTip({ user: tippedUser, source: 'trackPage' }))
+  }, [dispatch, tippedUser])
+
+  const handleFollow = useCallback(() => {
+    if (premiumConditions.follow_user_id) {
+      dispatch(
+        socialActions.followUser(
+          premiumConditions.follow_user_id,
+          FollowSource.TRACK_PAGE
+        )
+      )
+      // Set unlocking state if user has clicked on button to follow artist.
+      setIsUnlocking(true)
+      // Poll discovery to get user's premium content signature for this track.
+      // dispatch(refreshPremiumTrack())
+    }
+  }, [dispatch, premiumConditions])
 
   const handleGoToCollection = useCallback(() => {
     const { chain, address, externalLink } =
@@ -73,21 +109,6 @@ const LockedPremiumTrackSection = ({
       window.open(url, '_blank')
     }
   }, [premiumConditions])
-
-  const handleFollow = useCallback(() => {
-    if (premiumConditions.follow_user_id) {
-      dispatch(
-        socialActions.followUser(
-          premiumConditions.follow_user_id,
-          FollowSource.TRACK_PAGE
-        )
-      )
-    }
-  }, [dispatch, premiumConditions])
-
-  const handleSendTip = useCallback(() => {
-    dispatch(beginTip({ user: tippedUser, source: 'trackPage' }))
-  }, [dispatch, tippedUser])
 
   const renderLockedDescription = useCallback(() => {
     if (premiumConditions.nft_collection) {
@@ -147,6 +168,19 @@ const LockedPremiumTrackSection = ({
   }, [premiumConditions, followee, tippedUser])
 
   const renderButton = useCallback(() => {
+    if (isUnlocking) {
+      return (
+        <Button
+          text={messages.unlocking}
+          rightIcon={<LoadingSpinner className={styles.spinner} />}
+          type={ButtonType.PRIMARY_ALT}
+          iconClassName={styles.buttonIcon}
+          textClassName={styles.buttonText}
+          disabled
+        />
+      )
+    }
+
     if (premiumConditions.nft_collection) {
       return (
         <Button
@@ -190,7 +224,7 @@ const LockedPremiumTrackSection = ({
 
     // should not reach here
     return null
-  }, [premiumConditions, handleGoToCollection, handleFollow, handleSendTip])
+  }, [premiumConditions, handleGoToCollection, handleFollow, handleSendTip, isUnlocking])
 
   return (
     <div className={styles.premiumContentSectionLocked}>

@@ -115,6 +115,7 @@ const TrackPage = ({
   const isSaved = heroTrack?.has_current_user_saved ?? false
   const isReposted = heroTrack?.has_current_user_reposted ?? false
   const loading = !heroTrack
+  const doesUserHaveAccess = !!heroTrack?.premium_content_signature
 
   const onPlay = () => onHeroPlay(heroPlaying)
   const onSave = isOwner
@@ -179,6 +180,7 @@ const TrackPage = ({
       isUnlisted={defaults.isUnlisted}
       isPremium={defaults.isPremium}
       premiumConditions={defaults.premiumConditions}
+      doesUserHaveAccess={doesUserHaveAccess}
       isRemix={!!defaults.remixParentTrackId}
       isPublishing={defaults.isPublishing}
       fieldVisibility={defaults.fieldVisibility}
