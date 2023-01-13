@@ -1,7 +1,6 @@
 import {
   DefaultSizes,
   Kind,
-  DoubleKeys,
   makeUid,
   makeKindId,
   squashNewLines,
@@ -12,7 +11,6 @@ import {
   profilePageActions as profileActions,
   reachabilitySelectors,
   tippingActions,
-  artistRecommendationsUIActions as artistRecommendationsActions,
   waitForAccount,
   dataURLtoFile,
   MAX_ARTIST_HOVER_TOP_SUPPORTING,
@@ -24,7 +22,6 @@ import {
 import { merge } from 'lodash'
 import {
   call,
-  delay,
   fork,
   getContext,
   put,
@@ -32,12 +29,7 @@ import {
   takeEvery
 } from 'redux-saga/effects'
 
-import {
-  fetchUsers,
-  fetchUserByHandle,
-  fetchUserCollections,
-  fetchUserSocials
-} from 'common/store/cache/users/sagas'
+import { fetchUsers, fetchUserByHandle } from 'common/store/cache/users/sagas'
 import { processAndCacheUsers } from 'common/store/cache/users/utils'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
@@ -62,7 +54,7 @@ function* watchFetchProfile() {
   yield takeEvery(profileActions.FETCH_PROFILE, fetchProfileAsync)
 }
 
-function* fetchProfileCustomizedCollectibles(user) {
+export function* fetchProfileCustomizedCollectibles(user) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
     user.creator_node_endpoint
@@ -175,7 +167,7 @@ export function* fetchSolanaCollectibles(user) {
   yield put(solCollectiblesFetched(user.user_id))
 }
 
-function* fetchSupportersAndSupporting(userId) {
+export function* fetchSupportersAndSupporting(userId) {
   const { waitForRemoteConfig } = yield getContext('remoteConfigInstance')
   yield call(waitForRemoteConfig)
   yield waitForAccount()
@@ -336,7 +328,7 @@ const MOST_USED_TAGS_COUNT = 5
 // NOTE: The number of user tracks is not known b/c some tracks are deleted,
 // so the number of user tracks plus a large track number are fetched
 const LARGE_TRACKCOUNT_TAGS = 100
-function* fetchMostUsedTags(userId, trackCount) {
+export function* fetchMostUsedTags(userId, trackCount) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const trackResponse = yield call(audiusBackendInstance.getArtistTracks, {
     offset: 0,
