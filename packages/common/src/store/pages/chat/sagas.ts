@@ -75,6 +75,9 @@ function* doSetMessageReaction(action: ReturnType<typeof setMessageReaction>) {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
     const user = yield* select(getAccountUser)
+    if (!user) {
+      throw new Error('User not found')
+    }
     yield* call([sdk.chats, sdk.chats.react], {
       chatId,
       messageId,
@@ -83,7 +86,7 @@ function* doSetMessageReaction(action: ReturnType<typeof setMessageReaction>) {
     yield* put(
       setMessageReactionSucceeded({
         ...action.payload,
-        userId: `${user?.user_id}`,
+        userId: user?.user_id,
         createdAt: dayjs().toISOString()
       })
     )

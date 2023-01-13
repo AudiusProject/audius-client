@@ -1,7 +1,9 @@
 import type { TypedCommsResponse, UserChat, ChatMessage } from '@audius/sdk'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import dayjs from 'dayjs'
 
 import { Status } from 'models'
+import { encodeHashId } from 'utils/hashIds'
 
 type ChatState = {
   chatList: {
@@ -99,23 +101,24 @@ const slice = createSlice({
     setMessageReactionSucceeded: (
       state,
       action: PayloadAction<
-        SetMessageReactionPayload & { userId: string; createdAt: string }
+        SetMessageReactionPayload & { userId: number; createdAt: string }
       >
     ) => {
       const { userId, chatId, messageId, reaction } = action.payload
       const index = state.chatMessages[chatId].data.findIndex(
         (message) => message.message_id === messageId
       )
+      const encodedUserId = encodeHashId(userId)
       if (index > -1) {
         const existingReactions = (
           state.chatMessages[chatId].data[index].reactions ?? []
-        ).filter((r) => r.user_id !== userId)
+        ).filter((r) => r.user_id !== encodedUserId)
         state.chatMessages[chatId].data[index].reactions = [
           ...existingReactions,
           {
-            user_id: userId,
+            user_id: encodedUserId,
             reaction,
-            created_at: ''
+            created_at: dayjs().toISOString()
           }
         ]
       }
