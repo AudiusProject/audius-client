@@ -1,4 +1,5 @@
 import type {
+  AudiusAPIClient,
   Collection,
   CommonState,
   DownloadReason,
@@ -94,7 +95,8 @@ export const syncFavorites = async () => {
 
 export const syncFavoritedCollections = async (
   offlineCollections: Collection[],
-  userCollectionIds: number[]
+  userCollectionIds: number[],
+  apiClient?: AudiusAPIClient
 ) => {
   console.log('SyncCollections - start')
   console.log(
@@ -115,7 +117,7 @@ export const syncFavoritedCollections = async (
 
   console.log('SyncCollections - addedCollectionIds -', addedCollectionIds)
   addedCollectionIds.forEach((collectionId) => {
-    downloadCollectionById(collectionId, true)
+    downloadCollectionById(collectionId, true, apiClient)
   })
 
   console.log(

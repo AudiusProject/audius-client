@@ -1,6 +1,7 @@
 import path from 'path'
 
 import type {
+  AudiusAPIClient,
   Collection,
   CommonState,
   DownloadReason,
@@ -68,20 +69,23 @@ export const DOWNLOAD_REASON_FAVORITES = 'favorites'
 /** Main entrypoint - perform all steps required to complete a download for each track */
 export const downloadCollectionById = async (
   collectionId?: number | null,
-  isFavoritesDownload?: boolean
+  isFavoritesDownload?: boolean,
+  apiClient?: AudiusAPIClient
 ) => {
   const state = store.getState()
   const currentUserId = getUserId(state)
   const cachedCollection = getCollection(state, { id: collectionId })
 
-  const apiCollection = collectionId
-    ? ((await apiClient.getPlaylist({
-        playlistId: collectionId,
-        currentUserId: getUserId(state)
-      })[0]) as Collection)
-    : null
+  // const apiCollection =
+  //   collectionId && apiClient
+  //     ? ((await apiClient.getPlaylist({
+  //         playlistId: collectionId,
+  //         currentUserId: getUserId(state)
+  //       })[0]) as Collection)
+  //     : null
 
-  const collection = cachedCollection ?? apiCollection
+  const collection = cachedCollection
+  // const collection = cachedCollection ?? apiCollection
   if (
     !collection ||
     collection.is_delete ||

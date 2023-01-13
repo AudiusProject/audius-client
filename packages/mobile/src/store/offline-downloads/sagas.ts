@@ -1,9 +1,12 @@
 import type {
+  AudiusAPIClient,
   Collection,
   CommonState,
   UserCollectionMetadata
 } from '@audius/common'
 import {
+  collectionPageActions,
+  getContext,
   FavoriteSource,
   tracksSocialActions,
   collectionsSocialActions,
@@ -12,7 +15,15 @@ import {
 } from '@audius/common'
 import { waitForBackendSetup } from 'audius-client/src/common/store/backend/sagas'
 import { waitForRead } from 'audius-client/src/utils/sagaHelpers'
-import { takeLatest, call, select, take, takeEvery } from 'typed-redux-saga'
+import {
+  takeLatest,
+  call,
+  select,
+  take,
+  takeEvery,
+  delay,
+  put
+} from 'typed-redux-saga'
 
 import { apiClient } from 'app/services/audius-api-client'
 import {
@@ -28,6 +39,7 @@ import {
 
 import { getOfflineCollections } from './selectors'
 import { clearOfflineDownloads, doneLoadingFromDisk } from './slice'
+const { fetchCollection } = collectionPageActions
 const { getUserId } = accountSelectors
 const { getCollections } = cacheCollectionsSelectors
 
@@ -104,23 +116,19 @@ export function* startSync() {
     yield* take(doneLoadingFromDisk)
     yield* waitForRead()
     yield* waitForBackendSetup()
-    console.log('SyncSaga - got read')
+    const apiClient: AudiusAPIClient = yield getContext('apiClient')
+    const currentUserId = yield* select(getUserId)
     const collections = yield* select(getCollections)
     // Don't use getAccountSelections as it filters out collections not in cache
     const accountCollections: CommonState['account']['collections'] =
       yield* select((state) => state.account.collections)
-    console.log('SyncSaga - 1')
     const accountCollectionIds = Object.values(accountCollections).map(
       (collection) => collection.id
     )
-    console.log('SyncSaga - 2')
     const offlineCollectionsState = yield* select(getOfflineCollections)
-    console.log('SyncSaga - 3')
     if (offlineCollectionsState[DOWNLOAD_REASON_FAVORITES]) {
-      console.log('SyncSaga - called syncFavorites')
       yield* call(syncFavorites)
     }
-    console.log('SyncSaga - 4')
 
     const offlineCollections: Collection[] = Object.entries(
       offlineCollectionsState
@@ -130,32 +138,28 @@ export function* startSync() {
       )
       .map(([id, isDownloaded]) => collections[id] ?? null)
       .filter((collection) => !!collection)
-    console.log('SyncSaga - 5')
 
     const isFavoritesDownloadEnabled =
       offlineCollectionsState[DOWNLOAD_REASON_FAVORITES]
 
-    console.log(
-      'SyncSaga - called syncFavoritedCollections',
-      offlineCollections,
-      accountCollectionIds
-    )
+    for (const collectionId of accountCollectionIds) {
+      yield* put(fetchCollection(collectionId))
+    }
+
+    // HACK - wait for collection fetch to complete
+    yield* delay(2000)
+
     yield* call(
       syncFavoritedCollections,
       offlineCollections,
       accountCollectionIds
     )
-    console.log(
-      'SyncSaga - called syncCollectionsTracks',
-      offlineCollections,
-      isFavoritesDownloadEnabled
-    )
+
     yield* call(
       syncCollectionsTracks,
       offlineCollections,
       isFavoritesDownloadEnabled
     )
-    console.log('SyncSaga - called syncStaleTracks')
     yield* call(syncStaleTracks)
   } catch (e) {
     console.error('SyncSaga - error', e.message, e.stack)
