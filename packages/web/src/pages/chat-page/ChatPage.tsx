@@ -33,7 +33,7 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
       }`}
       containerClassName={styles.page}
       contentClassName={styles.pageContent}
-      useSearch={false}
+      showSearch={false}
       header={<ChatHeader currentChatId={chatId} />}
     >
       <div className={styles.layout}>
