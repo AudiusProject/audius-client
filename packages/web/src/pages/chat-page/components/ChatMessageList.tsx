@@ -1,4 +1,9 @@
-import { ComponentPropsWithoutRef, useEffect, useLayoutEffect } from 'react'
+import {
+  ComponentPropsWithoutRef,
+  Fragment,
+  useEffect,
+  useLayoutEffect
+} from 'react'
 
 import { chatActions, chatSelectors } from '@audius/common'
 import type { ChatMessage, UserChat } from '@audius/sdk'
@@ -79,9 +84,8 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
     <div className={cn(styles.root, props.className)}>
       {chatId &&
         chatMessages?.map((message, i) => (
-          <>
+          <Fragment key={message.message_id}>
             <ChatMessageListItem
-              key={message.message_id}
               chatId={chatId}
               message={message}
               hasTail={hasTail(message, chatMessages[i - 1])}
@@ -97,7 +101,7 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
                 </span>
               </div>
             ) : null}
-          </>
+          </Fragment>
         ))}
     </div>
   )
