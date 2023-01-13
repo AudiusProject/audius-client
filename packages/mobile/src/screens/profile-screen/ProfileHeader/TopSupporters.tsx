@@ -1,4 +1,4 @@
-import { useCallback, useRef, useLayoutEffect, useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import {
   cacheUsersSelectors,
@@ -7,14 +7,8 @@ import {
   removeNullable,
   tippingActions
 } from '@audius/common'
-import { LayoutAnimation, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
-import Animated, {
-  FadeInDown,
-  FadeInUp,
-  SlideInDown,
-  SlideInUp
-} from 'react-native-reanimated'
 import { useSelector, useDispatch } from 'react-redux'
 
 import IconCaretRight from 'app/assets/images/iconCaretRight.svg'

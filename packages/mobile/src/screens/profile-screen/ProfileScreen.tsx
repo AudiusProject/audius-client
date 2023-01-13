@@ -9,7 +9,6 @@ import {
   shareModalUIActions,
   encodeUrlName
 } from '@audius/common'
-import { fetchProfileSucceeded } from '@audius/common/dist/store/pages/profile/actions'
 import { PortalHost } from '@gorhom/portal'
 import { Animated, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'

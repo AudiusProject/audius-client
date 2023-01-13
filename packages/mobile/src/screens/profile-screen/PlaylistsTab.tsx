@@ -22,20 +22,15 @@ export const PlaylistsTab = () => {
     'handle',
     'playlist_count'
   ])
-  console.log('playlist count?', playlist_count)
   const playlists = useSelector((state) => getProfilePlaylists(state, handle))
   const fetchedCollections = useSelector((state) =>
     getFetchedCollections(state, handle)
   )
-  console.log('playlists', playlists)
   const isFocused = useIsFocused()
   const dispatch = useDispatch()
 
-  console.log('fetched collections playlists?', fetchedCollections, isFocused)
-
   useEffect(() => {
     if (isFocused && playlist_count > 0 && !fetchedCollections) {
-      console.log('this should not hit')
       dispatch(setFetchedCollections(handle))
       dispatch(fetchUserCollections(user_id))
     }

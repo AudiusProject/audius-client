@@ -1,9 +1,8 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 
 import {
   profilePageSelectors,
   profilePageTracksLineupActions as tracksActions,
-  Status,
   useProxySelector
 } from '@audius/common'
 import { useDispatch } from 'react-redux'
@@ -11,11 +10,10 @@ import { useDispatch } from 'react-redux'
 import { Lineup } from 'app/components/lineup'
 
 import { EmptyProfileTile } from './EmptyProfileTile'
-import { useIsProfileLoaded, useSelectProfile } from './selectors'
+import { useSelectProfile } from './selectors'
 const { getProfileTracksLineup } = profilePageSelectors
 
 export const TracksTab = () => {
-  // const isProfileLoaded = useIsProfileLoaded()
   const dispatch = useDispatch()
 
   const { handle, user_id, track_count, _artist_pick } = useSelectProfile([
@@ -31,22 +29,6 @@ export const TracksTab = () => {
     (state) => getProfileTracksLineup(state, handleLower),
     [handleLower]
   )
-
-  // const { status } = lineup
-
-  // useEffect(() => {
-  //   if (status === Status.IDLE) {
-  //     dispatch(
-  //       tracksActions.fetchLineupMetadatas(
-  //         undefined,
-  //         undefined,
-  //         undefined,
-  //         { userId: user_id },
-  //         { handle: handleLower }
-  //       )
-  //     )
-  //   }
-  // }, [dispatch, status, user_id, handleLower])
 
   const loadMore = useCallback(
     (offset: number, limit: number) => {

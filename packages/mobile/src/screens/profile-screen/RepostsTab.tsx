@@ -1,13 +1,10 @@
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import {
   profilePageSelectors,
   profilePageFeedLineupActions as feedActions,
-  useProxySelector,
-  Status
+  useProxySelector
 } from '@audius/common'
-import { useIsFocused } from '@react-navigation/native'
-import { View } from 'react-native'
 
 import { Lineup } from 'app/components/lineup'
 

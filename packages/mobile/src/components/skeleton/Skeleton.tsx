@@ -1,13 +1,11 @@
-import { useMemo, useRef } from 'react'
-
 import type { StyleProp, ViewStyle } from 'react-native'
-import { Animated, Easing, View } from 'react-native'
+import { Animated, View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
-const ANIMATION_DURATION_MS = 1500
+// const ANIMATION_DURATION_MS = 1500
 
 type SkeletonProps = {
   // Width (css string) of the skeleton to display. Default 100%.

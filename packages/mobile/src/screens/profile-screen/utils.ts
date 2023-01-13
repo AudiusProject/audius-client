@@ -43,8 +43,8 @@ export const useShouldShowCollectiblesTab = () => {
   const hasCollectibles =
     collectibleList?.length || solanaCollectibleList?.length
   const hasCollectiblesOrder = Boolean(collectibles?.order?.length)
-  const didCollectiblesLoadAndWasEmpty =
-    hasCollectibles && !hasCollectiblesOrder
+  // const didCollectiblesLoadAndWasEmpty =
+  //   hasCollectibles && !hasCollectiblesOrder
 
   if (has_collectibles) return true
 

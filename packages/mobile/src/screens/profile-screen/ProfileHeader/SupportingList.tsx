@@ -53,7 +53,6 @@ export const SupportingList = () => {
 
   useEffect(() => {
     if (supporting_count > 0 && shouldFetchSupporting) {
-      console.log('fetching supporting!')
       dispatch(fetchSupportingForUser({ userId: user_id }))
     }
   }, [supporting_count, shouldFetchSupporting, dispatch, user_id])

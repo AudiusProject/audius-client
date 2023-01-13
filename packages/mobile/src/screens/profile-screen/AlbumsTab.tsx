@@ -29,11 +29,8 @@ export const AlbumsTab = () => {
   const isFocused = useIsFocused()
   const dispatch = useDispatch()
 
-  console.log('fetched collections albums?', fetchedCollections, isFocused)
-
   useEffect(() => {
     if (isFocused && album_count > 0 && !fetchedCollections) {
-      console.log('this should not hit twice')
       dispatch(setFetchedCollections(handle))
       dispatch(fetchUserCollections(user_id))
     }
