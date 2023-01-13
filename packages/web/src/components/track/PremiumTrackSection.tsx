@@ -29,10 +29,13 @@ import { useFlag } from 'hooks/useRemoteConfig'
 import { AppState } from 'store/types'
 
 import styles from './GiantTrackTile.module.css'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
+import { parseTrackRoute } from 'utils/route/trackRouteParser'
 
 const { getUsers } = cacheUsersSelectors
 const { getSendStatus } = tippingSelectors
 const { beginTip } = tippingActions
+const { refreshPremiumTrack } = premiumContentActions
 
 const messages = {
   howToUnlock: 'HOW TO UNLOCK',
@@ -55,12 +58,14 @@ const messages = {
 }
 
 type PremiumTrackAccessSectionProps = {
+  trackId: ID
   premiumConditions: PremiumConditions
   followee: Nullable<User>
   tippedUser: Nullable<User>
 }
 
 const LockedPremiumTrackSection = ({
+  trackId,
   premiumConditions,
   followee,
   tippedUser
@@ -75,7 +80,8 @@ const LockedPremiumTrackSection = ({
     if (previousSendStatus === 'SUCCESS' && sendStatus === null) {
       setIsUnlocking(true)
       // Poll discovery to get user's premium content signature for this track.
-      dispatch(refreshPremiumTrack())
+      const trackParams = parseTrackRoute(window.location.pathname)
+      dispatch(refreshPremiumTrack({ trackParams }))
     }
   }, [previousSendStatus, sendStatus])
 
@@ -94,7 +100,8 @@ const LockedPremiumTrackSection = ({
       // Set unlocking state if user has clicked on button to follow artist.
       setIsUnlocking(true)
       // Poll discovery to get user's premium content signature for this track.
-      dispatch(refreshPremiumTrack())
+      const trackParams = parseTrackRoute(window.location.pathname)
+      dispatch(refreshPremiumTrack({ trackParams }))
     }
   }, [dispatch, premiumConditions])
 
@@ -319,12 +326,14 @@ const UnlockedPremiumTrackSection = ({
 
 type PremiumTrackSectionProps = {
   isLoading: boolean
+  trackId: ID
   premiumConditions: PremiumConditions
   doesUserHaveAccess: boolean
 }
 
 export const PremiumTrackSection = ({
   isLoading,
+  trackId,
   premiumConditions,
   doesUserHaveAccess
 }: PremiumTrackSectionProps) => {
@@ -362,12 +371,14 @@ export const PremiumTrackSection = ({
     <div className={cn(styles.premiumContentSection, fadeIn)}>
       {doesUserHaveAccess ? (
         <UnlockedPremiumTrackSection
+          trackId={trackId}
           premiumConditions={premiumConditions}
           followee={followee}
           tippedUser={tippedUser}
         />
       ) : (
         <LockedPremiumTrackSection
+          trackId={trackId}
           premiumConditions={premiumConditions}
           followee={followee}
           tippedUser={tippedUser}

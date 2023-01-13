@@ -14,6 +14,7 @@ import {
   premiumContentSelectors,
   premiumContentActions,
   collectiblesActions,
+  trackPageActions,
   TrackMetadata
 } from '@audius/common'
 import { takeLatest, select, call, put } from 'typed-redux-saga'
@@ -287,8 +288,9 @@ function* updateCollectibleGatedTrackAccess(
   }
 }
 
-function* refreshPremiumTrackAccess() {
-
+function* refreshPremiumTrackAccess(action: ReturnType<typeof refreshPremiumTrack>) {
+  const { trackId, slug, handle } = action.payload.trackParams ?? {}
+  yield* put(trackPageActions.fetchTrack(trackId, slug ?? undefined, handle ?? undefined, false))
 }
 
 function* watchCollectibleGatedTracks() {

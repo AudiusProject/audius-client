@@ -493,6 +493,7 @@ class GiantTrackTile extends PureComponent {
         {isPremium && !isOwner && (
           <PremiumTrackSection
             isLoading={isLoading}
+            trackId={trackId}
             premiumConditions={premiumConditions}
             doesUserHaveAccess={doesUserHaveAccess}
           />

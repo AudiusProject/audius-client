@@ -14,9 +14,12 @@ type UpdatePremiumContentSignaturesPayload = {
   [id: ID]: PremiumContentSignature
 }
 
-// type RefreshPremiumTrackPayload = {
-//   [id: ID]: PremiumContentSignature
-// }
+type RefreshPremiumTrackPayload = {
+  trackParams:
+    | { slug: string; trackId: null; handle: string }
+    | { slug: null; trackId: ID; handle: null }
+    | null
+}
 
 const slice = createSlice({
   name: 'premiumContent',
@@ -28,8 +31,7 @@ const slice = createSlice({
         ...action.payload
       }
     },
-    // refreshPremiumTrack: (state, action: PayloadAction<RefreshPremiumTrackPayload>) => {
-    refreshPremiumTrack: () => {
+    refreshPremiumTrack: (_, __: PayloadAction<RefreshPremiumTrackPayload>) => {
     },
   }
 })
