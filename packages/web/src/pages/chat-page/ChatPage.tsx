@@ -79,7 +79,7 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
         top: messagesRef.current?.scrollHeight
       })
     }
-  }, [messagesStatus, wasAtBottom])
+  }, [messagesStatus, currentChatId, wasAtBottom])
 
   if (!isChatEnabled) {
     return null
