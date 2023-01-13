@@ -20,7 +20,7 @@ const HEADER_MARGIN_PX = 32
 const MIN_GUTTER_WIDTH = 20
 
 // Responsible for positioning the header
-const HeaderContainer = ({ header, containerRef, useSearch }) => {
+const HeaderContainer = ({ header, containerRef, showSearch }) => {
   // Need to offset the header on the right side
   // the width of the scrollbar.
   const [scrollBarWidth, setScrollbarWidth] = useState(0)
@@ -76,7 +76,7 @@ const HeaderContainer = ({ header, containerRef, useSearch }) => {
           isChromeOrSafari,
           scrollBarWidth,
           headerContainerRef,
-          topLeftElement: useSearch ? <SearchBar /> : null
+          topLeftElement: showSearch ? <SearchBar /> : null
         })}
       </div>
       {/* We attach the box shadow as a separate element to
@@ -186,7 +186,7 @@ Page.propTypes = {
   // a search bar that scrolls with the page.
   scrollableSearch: PropTypes.bool,
   children: PropTypes.node,
-  useSearch: PropTypes.bool
+  showSearch: PropTypes.bool
 }
 
 Page.defaultProps = {
@@ -194,7 +194,7 @@ Page.defaultProps = {
   size: 'medium',
   fadeDuration: 200,
   scrollableSearch: false,
-  useSearch: true
+  showSearch: true
 }
 
 export default Page
