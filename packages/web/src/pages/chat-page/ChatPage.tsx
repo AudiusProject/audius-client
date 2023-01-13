@@ -80,7 +80,7 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
         top: messagesRef.current?.scrollHeight
       })
     }
-  }, [messagesStatus, wasAtBottom])
+  }, [messagesStatus, currentChatId, wasAtBottom])
 
   if (!isChatEnabled) {
     return null
@@ -92,7 +92,7 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
       }`}
       containerClassName={styles.page}
       contentClassName={styles.pageContent}
-      useSearch={false}
+      showSearch={false}
       header={<ChatHeader ref={headerRef} currentChatId={currentChatId} />}
     >
       <div className={styles.layout}>
