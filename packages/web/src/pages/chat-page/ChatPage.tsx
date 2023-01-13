@@ -104,24 +104,26 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
           />
         </div>
         <div className={styles.chatArea}>
-          <div
-            ref={messagesRef}
-            className={styles.messages}
-            style={{
-              marginTop: `${-bounds.height}px`,
-              paddingTop: `${bounds.height}px`
-            }}
-          >
-            {currentChatId ? (
-              <ChatMessageList
-                className={styles.messageList}
-                chatId={currentChatId}
-              />
-            ) : (
-              <CreateChatPrompt />
-            )}
-          </div>
-          {currentChatId ? <ChatComposer chatId={currentChatId} /> : null}
+          {currentChatId ? (
+            <>
+              <div
+                ref={messagesRef}
+                className={styles.messages}
+                style={{
+                  marginTop: `${-bounds.height}px`,
+                  paddingTop: `${bounds.height}px`
+                }}
+              >
+                <ChatMessageList
+                  className={styles.messageList}
+                  chatId={currentChatId}
+                />
+              </div>
+              <ChatComposer chatId={currentChatId} />
+            </>
+          ) : (
+            <CreateChatPrompt />
+          )}
         </div>
       </div>
     </Page>
