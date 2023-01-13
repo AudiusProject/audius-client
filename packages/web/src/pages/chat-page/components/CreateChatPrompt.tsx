@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux'
 
 import { useSelector } from 'common/hooks/useSelector'
 
-import styles from './ChatPrompt.module.css'
+import styles from './CreateChatPrompt.module.css'
 
 const { getChats } = chatSelectors
 const { setVisibility } = modalsActions
@@ -20,7 +20,7 @@ const messages = {
   writeMessage: 'Write a Message'
 }
 
-export const ChatPrompt = () => {
+export const CreateChatPrompt = () => {
   const dispatch = useDispatch()
   const chats = useSelector(getChats)
   const hasChats = chats?.length > 0

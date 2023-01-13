@@ -24,7 +24,7 @@ import { useModalState } from 'common/hooks/useModalState'
 import Input from 'components/data-entry/Input'
 import ConnectedUserList from 'components/user-list/UserList'
 
-import styles from './ChatComposeModal.module.css'
+import styles from './CreateChatModal.module.css'
 
 const { getUserList } = searchUserListSelectors
 const { createChat } = chatActions
@@ -36,7 +36,7 @@ const messages = {
 }
 const CHAT_COMPOSE_TAG = 'CHAT_COMPOSE'
 
-export const ChatComposeModal = () => {
+export const CreateChatModal = () => {
   const dispatch = useDispatch()
   const [isVisible, setIsVisible] = useModalState('ChatCompose')
   const [pendingUserChat, setPendingUserChat] = useState<number>()
