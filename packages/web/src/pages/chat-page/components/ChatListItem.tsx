@@ -6,6 +6,7 @@ import cn from 'classnames'
 import { push } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 
+import { useRouteMatch } from 'hooks/useRouteMatch'
 import { chatPage } from 'utils/route'
 
 import styles from './ChatListItem.module.css'
@@ -21,6 +22,7 @@ type ChatListItemProps = {
 export const ChatListItem = (props: ChatListItemProps) => {
   const { chat, currentChatId } = props
   const dispatch = useDispatch()
+  const match = useRouteMatch(chatPage(chat.chat_id))
   const isCurrentChat = currentChatId && currentChatId === chat.chat_id
 
   const users = useProxySelector(
@@ -29,8 +31,16 @@ export const ChatListItem = (props: ChatListItemProps) => {
   )
 
   const handleClick = useCallback(() => {
-    dispatch(push(chatPage(chat.chat_id)))
-  }, [dispatch, chat])
+    if (!match) {
+      dispatch(push(chatPage(chat.chat_id)))
+    } else {
+      const mainContent = document.getElementById('mainContent')
+      mainContent?.scrollTo({
+        top: mainContent?.scrollHeight,
+        behavior: 'smooth'
+      })
+    }
+  }, [dispatch, chat, match])
 
   if (users.length === 0) {
     return null

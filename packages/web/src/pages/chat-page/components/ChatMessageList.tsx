@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef, useEffect } from 'react'
+import { ComponentPropsWithoutRef, useEffect, useLayoutEffect } from 'react'
 
 import { chatActions, chatSelectors } from '@audius/common'
 import type { ChatMessage, UserChat } from '@audius/sdk'
@@ -69,6 +69,11 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
     //   clearInterval(pollInterval)
     // }
   }, [dispatch, chatId])
+
+  useLayoutEffect(() => {
+    const mainContent = document.getElementById('mainContent')
+    mainContent?.scrollTo(0, mainContent?.scrollHeight)
+  }, [chatMessages])
 
   return (
     <div className={cn(styles.root, props.className)}>
