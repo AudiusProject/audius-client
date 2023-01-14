@@ -5,6 +5,7 @@ import type { UserChat } from '@audius/sdk'
 import cn from 'classnames'
 
 import styles from './ChatListItem.module.css'
+import { formatMessageDate } from './ChatMessageListItem'
 import { ChatUser } from './ChatUser'
 
 const { getOtherChatUsersFromChat } = chatSelectors
@@ -48,7 +49,10 @@ export const ChatListItem = (props: ChatListItemProps) => {
           </div>
         ) : null}
       </ChatUser>
-      <div className={styles.messagePreview}>{chat.last_message_at}</div>
+      <div className={styles.messagePreview}>
+        todo: replace with latest message{' '}
+        {formatMessageDate(chat.last_message_at)}
+      </div>
     </div>
   )
 }

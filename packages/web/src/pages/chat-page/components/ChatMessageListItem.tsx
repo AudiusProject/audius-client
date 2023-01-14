@@ -26,7 +26,7 @@ type ChatMessageListItemProps = {
   hasTail: boolean
 }
 
-const formatMessageDate = (date: string) => {
+export const formatMessageDate = (date: string) => {
   const d = dayjs(date)
   const today = dayjs()
   if (d.isBefore(today, 'week')) return d.format('M/D/YY h:mm A')
