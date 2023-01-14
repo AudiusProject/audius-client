@@ -19,6 +19,7 @@ import {
 } from '../types'
 
 import styles from './TrackTile.module.css'
+import { PremiumTrackCornerTag } from '../PremiumTrackCornerTag'
 
 const messages = {
   getPlays: (listenCount: number) => ` ${pluralize('Play', listenCount)}`,
@@ -64,6 +65,9 @@ const TrackTile = memo(
     isReposted,
     isOwner,
     isUnlisted,
+    isPremium,
+    premiumConditions,
+    doesUserHaveAccess,
     listenCount,
     isActive,
     isDisabled,
@@ -156,6 +160,9 @@ const TrackTile = memo(
         })}
         onClick={isLoading || isDisabled ? undefined : onTogglePlay}
       >
+        {isPremium && (
+          <PremiumTrackCornerTag doesUserHaveAccess={!!doesUserHaveAccess} />
+        )}
         {/* prefix ordering */}
         <RankAndIndexIndicator
           hasOrdering={hasOrdering}

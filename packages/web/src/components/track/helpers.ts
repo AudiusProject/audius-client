@@ -13,6 +13,7 @@ export const getTrackWithFallback = (track: Track | null) => {
   return (
     track || {
       track_id: -1,
+      owner_id: -1,
       title: '',
       permalink: '',
       repost_count: 0,
@@ -26,6 +27,9 @@ export const getTrackWithFallback = (track: Track | null) => {
       play_count: 0,
       is_delete: false,
       is_unlisted: false,
+      is_premium: false,
+      premium_conditions: null,
+      premium_content_signature: null,
       activity_timestamp: '',
       _co_sign: undefined,
       _cover_art_sizes: {

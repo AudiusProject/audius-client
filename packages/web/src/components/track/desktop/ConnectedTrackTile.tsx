@@ -59,7 +59,7 @@ const { getTrack } = cacheTracksSelectors
 const { getUserFromTrack } = cacheUsersSelectors
 const { saveTrack, unsaveTrack, repostTrack, undoRepostTrack } =
   tracksSocialActions
-const getUserHandle = accountSelectors.getUserHandle
+const { getUserHandle, getUserId } = accountSelectors
 
 type OwnProps = {
   uid: UID
@@ -87,6 +87,7 @@ const ConnectedTrackTile = memo(
     size,
     track,
     user,
+    currentUserId,
     ordered,
     showArtistPick,
     goToRoute,
@@ -112,7 +113,11 @@ const ConnectedTrackTile = memo(
     const {
       is_delete,
       is_unlisted: isUnlisted,
+      is_premium: isPremium,
+      premium_conditions: premiumConditions,
+      premium_content_signature: premiumContentSignature,
       track_id: trackId,
+      owner_id: ownerId,
       title,
       permalink,
       repost_count,
@@ -127,6 +132,8 @@ const ConnectedTrackTile = memo(
       play_count,
       duration
     } = getTrackWithFallback(track)
+
+    const doesUserHaveAccess = (ownerId === currentUserId) || premiumContentSignature
 
     const {
       _artist_pick,
@@ -355,6 +362,9 @@ const ConnectedTrackTile = memo(
           isReposted={isReposted}
           isOwner={isOwner}
           isUnlisted={isUnlisted}
+          isPremium={isPremium}
+          premiumConditions={premiumConditions}
+          doesUserHaveAccess={doesUserHaveAccess}
           isLoading={isLoading}
           isDarkMode={isDarkMode()}
           isMatrixMode={isMatrix()}
@@ -394,7 +404,8 @@ function mapStateToProps(state: AppState, ownProps: OwnProps) {
     playingUid: getUid(state),
     isBuffering: getBuffering(state),
     isPlaying: getPlaying(state),
-    userHandle: getUserHandle(state)
+    userHandle: getUserHandle(state),
+    currentUserId: getUserId(state),
   }
 }
 
