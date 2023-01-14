@@ -21,7 +21,8 @@ const {
   fetchNewChatMessagesSucceeded,
   fetchNewChatMessagesFailed,
   setMessageReaction,
-  setMessageReactionSucceeded
+  setMessageReactionSucceeded,
+  markChatAsRead
 } = chatActions
 const { getChatsSummary, getChatMessagesSummary } = chatSelectors
 
@@ -120,8 +121,15 @@ function* doCreateChat(action: ReturnType<typeof createChat>) {
   }
 }
 
-function* watchCreateChat() {
-  yield takeEvery(createChat, doCreateChat)
+function* doMarkChatAsRead(action: ReturnType<typeof markChatAsRead>) {
+  const { chatId } = action.payload
+  try {
+    const audiusSdk = yield* getContext('audiusSdk')
+    const sdk = yield* call(audiusSdk)
+    yield* call([sdk.chats, sdk.chats.read], { chatId })
+  } catch (e) {
+    console.error('markChatAsReadFailed', e)
+  }
 }
 
 function* watchFetchChats() {
@@ -136,11 +144,20 @@ function* watchSetMessageReaction() {
   yield takeEvery(setMessageReaction, doSetMessageReaction)
 }
 
+function* watchCreateChat() {
+  yield takeEvery(createChat, doCreateChat)
+}
+
+function* watchMarkChatAsRead() {
+  yield takeEvery(markChatAsRead, doMarkChatAsRead)
+}
+
 export const sagas = () => {
   return [
-    watchCreateChat,
     watchFetchChats,
     watchFetchChatMessages,
-    watchSetMessageReaction
+    watchSetMessageReaction,
+    watchCreateChat,
+    watchMarkChatAsRead
   ]
 }

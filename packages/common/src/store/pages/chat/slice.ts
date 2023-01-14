@@ -130,6 +130,9 @@ const slice = createSlice({
           }
         ]
       }
+    },
+    markChatAsRead: (_state, _action: PayloadAction<{ chatId: string }>) => {
+      // triggers saga
     }
   }
 })

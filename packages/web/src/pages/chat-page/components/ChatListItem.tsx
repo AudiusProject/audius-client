@@ -9,6 +9,10 @@ import { ChatUser } from './ChatUser'
 
 const { getOtherChatUsersFromChat } = chatSelectors
 
+const messages = {
+  new: 'New'
+}
+
 type ChatListItemProps = {
   currentChatId?: string
   chat: UserChat
@@ -40,11 +44,11 @@ export const ChatListItem = (props: ChatListItemProps) => {
         {chat.unread_message_count > 0 ? (
           <div className={styles.unreadIndicatorTag}>
             {chat.unread_message_count > 9 ? '9+' : chat.unread_message_count}{' '}
-            New
+            {messages.new}
           </div>
         ) : null}
       </ChatUser>
-      <div className={styles.messagePreview}>(TODO: Message preview here)</div>
+      <div className={styles.messagePreview}>{chat.last_message_at}</div>
     </div>
   )
 }
