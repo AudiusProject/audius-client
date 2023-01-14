@@ -109,7 +109,6 @@ function* doCreateChat(action: ReturnType<typeof createChat>) {
       throw new Error('User not found')
     }
     const res = yield* call([sdk.chats, sdk.chats.create], {
-      chatId: '',
       userId: encodeHashId(user.user_id),
       invitedUserIds: userIds.map((id) => encodeHashId(id))
     })
