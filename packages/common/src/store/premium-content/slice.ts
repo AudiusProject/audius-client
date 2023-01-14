@@ -2,16 +2,24 @@ import { ID, PremiumContentSignature } from 'models'
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
+type PremiumTrackStatus = null | 'UNLOCKING' | 'UNLOCKED'
+
 type PremiumContentState = {
   premiumTrackSignatureMap: { [id: ID]: PremiumContentSignature }
+  status: PremiumTrackStatus
 }
 
 const initialState: PremiumContentState = {
-  premiumTrackSignatureMap: {}
+  premiumTrackSignatureMap: {},
+  status: null
 }
 
 type UpdatePremiumContentSignaturesPayload = {
   [id: ID]: PremiumContentSignature
+}
+
+type UpdatePremiumTrackStatusPayload = {
+  status: PremiumTrackStatus
 }
 
 type RefreshPremiumTrackPayload = {
@@ -31,6 +39,9 @@ const slice = createSlice({
         ...action.payload
       }
     },
+    updatePremiumTrackStatus: (state, action: PayloadAction<UpdatePremiumTrackStatusPayload>) => {
+      state.status = action.payload.status
+    },
     refreshPremiumTrack: (_, __: PayloadAction<RefreshPremiumTrackPayload>) => {
     },
   }
@@ -38,6 +49,7 @@ const slice = createSlice({
 
 export const {
   updatePremiumContentSignatures,
+  updatePremiumTrackStatus,
   refreshPremiumTrack
 } = slice.actions
 

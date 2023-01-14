@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 
 import {
   FeatureFlags,
@@ -12,7 +12,8 @@ import {
   premiumContentActions,
   FollowSource,
   tippingSelectors,
-  tippingActions
+  tippingActions,
+  premiumContentSelectors
 } from '@audius/common'
 import { Button, ButtonType, IconLock, IconUnlocked } from '@audius/stems'
 import cn from 'classnames'
@@ -34,7 +35,8 @@ import styles from './GiantTrackTile.module.css'
 const { getUsers } = cacheUsersSelectors
 const { getSendStatus } = tippingSelectors
 const { beginTip } = tippingActions
-const { refreshPremiumTrack } = premiumContentActions
+const { getPremiumTrackStatus } = premiumContentSelectors
+const { updatePremiumTrackStatus, refreshPremiumTrack } = premiumContentActions
 
 const messages = {
   howToUnlock: 'HOW TO UNLOCK',
@@ -70,12 +72,13 @@ const LockedPremiumTrackSection = ({
   const dispatch = useDispatch()
   const sendStatus = useSelector(getSendStatus)
   const previousSendStatus = usePrevious(sendStatus)
-  const [isUnlocking, setIsUnlocking] = useState(false)
+  const premiumTrackStatus = useSelector(getPremiumTrackStatus)
 
   // Set unlocking state if send tip is successful and user closed the tip modal.
   useEffect(() => {
     if (previousSendStatus === 'SUCCESS' && sendStatus === null) {
-      setIsUnlocking(true)
+      dispatch(updatePremiumTrackStatus({ status: 'UNLOCKING' }))
+
       // Poll discovery to get user's premium content signature for this track.
       const trackParams = parseTrackRoute(window.location.pathname)
       dispatch(refreshPremiumTrack({ trackParams }))
@@ -95,7 +98,8 @@ const LockedPremiumTrackSection = ({
         )
       )
       // Set unlocking state if user has clicked on button to follow artist.
-      setIsUnlocking(true)
+      dispatch(updatePremiumTrackStatus({ status: 'UNLOCKING' }))
+
       // Poll discovery to get user's premium content signature for this track.
       const trackParams = parseTrackRoute(window.location.pathname)
       dispatch(refreshPremiumTrack({ trackParams }))
@@ -173,7 +177,7 @@ const LockedPremiumTrackSection = ({
   }, [premiumConditions, followee, tippedUser])
 
   const renderButton = useCallback(() => {
-    if (isUnlocking) {
+    if (premiumTrackStatus === 'UNLOCKING') {
       return (
         <Button
           text={messages.unlocking}
@@ -234,7 +238,7 @@ const LockedPremiumTrackSection = ({
     handleGoToCollection,
     handleFollow,
     handleSendTip,
-    isUnlocking
+    premiumTrackStatus
   ])
 
   return (

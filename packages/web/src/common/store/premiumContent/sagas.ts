@@ -22,8 +22,11 @@ import { takeLatest, select, call, put, delay } from 'typed-redux-saga'
 import { TrackRouteParams } from 'utils/route/trackRouteParser'
 import { waitForWrite } from 'utils/sagaHelpers'
 
-const { updatePremiumContentSignatures, refreshPremiumTrack } =
-  premiumContentActions
+const {
+  updatePremiumContentSignatures,
+  updatePremiumTrackStatus,
+  refreshPremiumTrack
+} = premiumContentActions
 
 const { updateUserEthCollectibles, updateUserSolCollectibles } =
   collectiblesActions
@@ -303,6 +306,7 @@ function* pollPremiumTrack({
   while (true) {
     const premiumTrackSignatureMap = yield* select(getPremiumTrackSignatureMap)
     if (trackId && premiumTrackSignatureMap[trackId]) {
+      yield* put(updatePremiumTrackStatus({ status: 'UNLOCKED' }))
       break
     }
     yield* put(
