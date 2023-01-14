@@ -28,6 +28,8 @@ type TextAreaV2Props = ComponentPropsWithoutRef<'textarea'> & {
   showMaxLength?: boolean
 }
 
+const CHARACTER_LIMIT_WARN_THRESHOLD_PERCENT = 0.875
+
 export const TextAreaV2 = (props: TextAreaV2Props) => {
   const {
     resize = false,
@@ -68,7 +70,7 @@ export const TextAreaV2 = (props: TextAreaV2Props) => {
   }
 
   const nearCharacterLimit = maxLength
-    ? `${value}`.length > (7.0 / 8.0) * maxLength
+    ? `${value}`.length > CHARACTER_LIMIT_WARN_THRESHOLD_PERCENT * maxLength
     : false
 
   const maxHeight = maxVisibleRows
