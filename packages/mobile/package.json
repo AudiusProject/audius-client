@@ -191,6 +191,7 @@
     "react-native-clean-project": "4.0.1",
     "react-native-flipper": "0.175.0",
     "react-native-flipper-performance-plugin": "0.3.1",
+    "react-native-gradle-plugin": "0.70.3",
     "react-native-performance": "4.0.0",
     "react-native-performance-flipper-reporter": "4.0.0",
     "react-test-renderer": "16.9.0",
