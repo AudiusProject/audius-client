@@ -24,7 +24,7 @@ const {
   setMessageReactionSucceeded,
   markChatAsRead
 } = chatActions
-const { getChatsSummary, getChatMessagesSummary } = chatSelectors
+const { getChatsSummary, getChatMessagesSummary, getChat } = chatSelectors
 
 function* doFetchMoreChats() {
   try {
@@ -126,7 +126,10 @@ function* doMarkChatAsRead(action: ReturnType<typeof markChatAsRead>) {
   try {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
-    yield* call([sdk.chats, sdk.chats.read], { chatId })
+    const chat = yield* select((state) => getChat(state, chatId))
+    if (!chat || chat?.unread_message_count > 0) {
+      yield* call([sdk.chats, sdk.chats.read], { chatId })
+    }
   } catch (e) {
     console.error('markChatAsReadFailed', e)
   }
