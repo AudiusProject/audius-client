@@ -57,14 +57,12 @@ const messages = {
 }
 
 type PremiumTrackAccessSectionProps = {
-  trackId: ID
   premiumConditions: PremiumConditions
   followee: Nullable<User>
   tippedUser: Nullable<User>
 }
 
 const LockedPremiumTrackSection = ({
-  trackId,
   premiumConditions,
   followee,
   tippedUser
@@ -325,14 +323,12 @@ const UnlockedPremiumTrackSection = ({
 
 type PremiumTrackSectionProps = {
   isLoading: boolean
-  trackId: ID
   premiumConditions: PremiumConditions
   doesUserHaveAccess: boolean
 }
 
 export const PremiumTrackSection = ({
   isLoading,
-  trackId,
   premiumConditions,
   doesUserHaveAccess
 }: PremiumTrackSectionProps) => {
@@ -370,14 +366,12 @@ export const PremiumTrackSection = ({
     <div className={cn(styles.premiumContentSection, fadeIn)}>
       {doesUserHaveAccess ? (
         <UnlockedPremiumTrackSection
-          trackId={trackId}
           premiumConditions={premiumConditions}
           followee={followee}
           tippedUser={tippedUser}
         />
       ) : (
         <LockedPremiumTrackSection
-          trackId={trackId}
           premiumConditions={premiumConditions}
           followee={followee}
           tippedUser={tippedUser}
