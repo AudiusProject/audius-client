@@ -53,24 +53,24 @@ export type RemixOf = {
   tracks: Remix[]
 }
 
-type TokenStandard = 'ERC721' | 'ERC1155'
+export type TokenStandard = 'ERC721' | 'ERC1155'
 
-type PremiumConditionsEthNFTCollection = {
+export type PremiumConditionsEthNFTCollection = {
   chain: Chain.Eth
   standard: TokenStandard
   address: string
   name: string
   slug: string
+  imageUrl: Nullable<string>
   externalLink: Nullable<string>
-  permaLink: Nullable<string>
 }
 
-type PremiumConditionsSolNFTCollection = {
+export type PremiumConditionsSolNFTCollection = {
   chain: Chain.Sol
   address: string
   name: string
+  imageUrl: Nullable<string>
   externalLink: Nullable<string>
-  permaLink: Nullable<string>
 }
 
 export type PremiumConditions = {
