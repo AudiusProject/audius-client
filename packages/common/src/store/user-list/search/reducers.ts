@@ -20,7 +20,10 @@ const initialState = {
 const searchPageReducer = createReducer<SearchOwnState, SearchActions>(
   initialState,
   {
-    [actions.SET_SEARCH_QUERY](state: any, action: any) {
+    [actions.SET_SEARCH_QUERY](
+      state: SearchOwnState,
+      action: ReturnType<typeof actions.setSearchQuery>
+    ) {
       return {
         ...state,
         query: action.query
