@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { UIEvent, useCallback, useLayoutEffect, useRef } from 'react'
 
 import {
   chatActions,
@@ -7,6 +7,7 @@ import {
   Status,
   useProxySelector
 } from '@audius/common'
+import { ResizeObserver } from '@juggle/resize-observer'
 import { push as pushRoute } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 import { RouteComponentProps } from 'react-router-dom'
@@ -31,6 +32,11 @@ const messages = {
   messages: 'Messages'
 }
 
+const isScrolledToBottom = (element: HTMLElement) => {
+  const { scrollTop, clientHeight, scrollHeight } = element
+  return scrollTop + clientHeight >= scrollHeight
+}
+
 export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
   const currentChatId = match.params.id
   const dispatch = useDispatch()
@@ -44,20 +50,21 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
   )
 
   // Get the height of the header so we can slide the messages list underneath it for the blur effect
-  const [headerRef, bounds] = useMeasure({
+  const [headerRef, headerBounds] = useMeasure({
     polyfill: ResizeObserver,
     offsetSize: true
   })
   const messagesRef = useRef<HTMLDivElement>(null)
 
-  // Cache whether the user was already scrolled to the bottom
-  // Effects run after the render, so we can't calculate this inside the effect
-  // but without rendering, there's nowhere to scroll, so do that within the effect
-  let wasAtBottom = false
-  if (messagesRef.current) {
-    const { scrollTop, clientHeight, scrollHeight } = messagesRef.current
-    wasAtBottom = scrollTop + clientHeight >= scrollHeight
-  }
+  // Mark chat as read when the user reaches the bottom
+  const handleScroll = useCallback(
+    (e: UIEvent<HTMLDivElement>) => {
+      if (currentChatId && isScrolledToBottom(e.currentTarget)) {
+        dispatch(markChatAsRead({ chatId: currentChatId }))
+      }
+    },
+    [dispatch, currentChatId]
+  )
 
   // Navigate to new chats
   // Scroll to bottom if active chat is clicked again
@@ -75,18 +82,26 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
     [messagesRef, currentChatId, dispatch]
   )
 
-  // Keep the user scrolled at the bottom for when new messages come in, provided they were already at the bottom
-  // Also mark the chat as read
-  useEffect(() => {
-    if (messagesStatus === Status.SUCCESS && wasAtBottom) {
-      messagesRef.current?.scrollTo({
-        top: messagesRef.current?.scrollHeight
-      })
-      if (currentChatId) {
-        dispatch(markChatAsRead({ chatId: currentChatId }))
-      }
+  // Cache whether the user was already scrolled to the bottom prior to render
+  const wasScrolledToBottomBeforeRender =
+    messagesRef.current && isScrolledToBottom(messagesRef.current)
+  useLayoutEffect(() => {
+    // Ensure we're still stuck to the bottom after messages render
+    // This is redundant after first messages render, as using reverse flex wrapping
+    // so no manual scrolling is necessary for new messages being added
+    if (
+      wasScrolledToBottomBeforeRender &&
+      currentChatId &&
+      messagesStatus === Status.SUCCESS
+    ) {
+      messagesRef.current?.scrollTo({ top: messagesRef.current?.scrollHeight })
     }
-  }, [messagesStatus, currentChatId, wasAtBottom, dispatch])
+  }, [
+    messagesRef,
+    currentChatId,
+    wasScrolledToBottomBeforeRender,
+    messagesStatus
+  ])
 
   if (!isChatEnabled) {
     return null
@@ -114,10 +129,11 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
             <>
               <div
                 ref={messagesRef}
+                onScroll={handleScroll}
                 className={styles.messages}
                 style={{
-                  marginTop: `${-bounds.height}px`,
-                  paddingTop: `${bounds.height}px`
+                  marginTop: `${-headerBounds.height}px`,
+                  paddingTop: `${headerBounds.height}px`
                 }}
               >
                 <ChatMessageList
