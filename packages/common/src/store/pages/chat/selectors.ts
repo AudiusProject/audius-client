@@ -17,14 +17,17 @@ export const getChat = (state: CommonState, chatId?: string) =>
 
 export const getChats = (state: CommonState) => state.pages.chat.chatList.data
 
-export const getChatsResponse = (state: CommonState) =>
-  state.pages.chat.chatList
+export const getChatsStatus = (state: CommonState) =>
+  state.pages.chat.chatList.status
 
 export const getChatMessagesSummary = (state: CommonState, chatId: string) =>
   state.pages.chat.chatMessages[chatId].summary
 
 export const getChatMessages = (state: CommonState, chatId: string) =>
   state.pages.chat.chatMessages[chatId]?.data
+
+export const getChatMessagesStatus = (state: CommonState, chatId: string) =>
+  state.pages.chat.chatMessages[chatId]?.status
 
 export const getOtherChatUsersFromChat = (
   state: CommonState,

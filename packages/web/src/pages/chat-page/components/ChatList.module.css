@@ -1,5 +1,4 @@
 .root {
-  position: fixed;
   overflow-y: auto;
   background-color: var(--neutral-light-9);
   border-right: 1px solid var(--neutral-light-7);

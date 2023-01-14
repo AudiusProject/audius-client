@@ -517,6 +517,7 @@ class App extends Component {
     }
 
     const SwitchComponent = isMobile() ? AnimatedSwitch : Switch
+    const noScroll = matchPath(this.state.currentRoute, CHAT_PAGE)
 
     return (
       <div className={cn(styles.app, { [styles.mobileApp]: isMobileClient })}>
@@ -553,7 +554,8 @@ class App extends Component {
           role='main'
           className={cn(styles.mainContentWrapper, {
             [styles.bannerMargin]: showBanner,
-            [styles.mainContentWrapperMobile]: isMobileClient
+            [styles.mainContentWrapperMobile]: isMobileClient,
+            [styles.noScroll]: noScroll
           })}
         >
           {isMobileClient && <TopLevelPage />}

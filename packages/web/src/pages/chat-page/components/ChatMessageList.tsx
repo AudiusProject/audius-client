@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef, useEffect } from 'react'
+import { ComponentPropsWithoutRef, Fragment, useEffect } from 'react'
 
 import { chatActions, chatSelectors } from '@audius/common'
 import type { ChatMessage, UserChat } from '@audius/sdk'
@@ -60,23 +60,22 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
     if (chatId) {
       dispatch(fetchNewChatMessages({ chatId }))
     }
-    const pollInterval = setInterval(() => {
-      if (chatId) {
-        dispatch(fetchNewChatMessages({ chatId }))
-      }
-    }, 100000000000000000)
-    return () => {
-      clearInterval(pollInterval)
-    }
+    // const pollInterval = setInterval(() => {
+    //   if (chatId) {
+    //     dispatch(fetchNewChatMessages({ chatId }))
+    //   }
+    // }, 1000)
+    // return () => {
+    //   clearInterval(pollInterval)
+    // }
   }, [dispatch, chatId])
 
   return (
     <div className={cn(styles.root, props.className)}>
       {chatId &&
         chatMessages?.map((message, i) => (
-          <>
+          <Fragment key={message.message_id}>
             <ChatMessageListItem
-              key={message.message_id}
               chatId={chatId}
               message={message}
               hasTail={hasTail(message, chatMessages[i - 1])}
@@ -92,7 +91,7 @@ export const ChatMessageList = (props: ChatMessageListProps) => {
                 </span>
               </div>
             ) : null}
-          </>
+          </Fragment>
         ))}
     </div>
   )
