@@ -19,6 +19,7 @@ import {
   Scrollbar
 } from '@audius/stems'
 import { useDispatch } from 'react-redux'
+import { useDebounce } from 'react-use'
 
 import { useModalState } from 'common/hooks/useModalState'
 import Input from 'components/data-entry/Input'
@@ -35,6 +36,7 @@ const messages = {
   message: 'Message'
 }
 const CHAT_COMPOSE_TAG = 'CHAT_COMPOSE'
+const DEBOUNCE_MS = 250
 
 export const CreateChatModal = () => {
   const dispatch = useDispatch()
@@ -42,18 +44,21 @@ export const CreateChatModal = () => {
   const [pendingUserChat, setPendingUserChat] = useState<number>()
   const [query, setQuery] = useState('')
 
-  const doSearch = useCallback(() => {
-    dispatch(searchUserListActions.setSearchQuery(query))
-    dispatch(userListActions.reset(SEARCH_USER_LIST_TAG))
-    dispatch(userListActions.loadMore(SEARCH_USER_LIST_TAG))
-  }, [query, dispatch])
+  useDebounce(
+    () => {
+      dispatch(searchUserListActions.setSearchQuery(query))
+      dispatch(userListActions.reset(SEARCH_USER_LIST_TAG))
+      dispatch(userListActions.loadMore(SEARCH_USER_LIST_TAG))
+    },
+    DEBOUNCE_MS,
+    [query, dispatch]
+  )
 
   const handleChange = useCallback(
     (value: string) => {
       setQuery(value)
-      doSearch()
     },
-    [setQuery, doSearch]
+    [setQuery]
   )
 
   const handleClose = useCallback(() => {
