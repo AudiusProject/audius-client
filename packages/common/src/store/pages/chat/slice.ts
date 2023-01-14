@@ -43,7 +43,6 @@ const slice = createSlice({
       // triggers saga
     },
     createChatSucceeded: (state, action: PayloadAction<{ chat: UserChat }>) => {
-      console.log(action)
       const { chat } = action.payload
       state.chatList.data = [chat].concat(state.chatList.data)
     },
