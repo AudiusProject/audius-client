@@ -13,7 +13,6 @@ export const getTrackWithFallback = (track: Track | null) => {
   return (
     track || {
       track_id: -1,
-      owner_id: -1,
       title: '',
       permalink: '',
       repost_count: 0,

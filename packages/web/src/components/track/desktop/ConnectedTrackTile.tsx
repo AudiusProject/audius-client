@@ -87,7 +87,6 @@ const ConnectedTrackTile = memo(
     size,
     track,
     user,
-    currentUserId,
     ordered,
     showArtistPick,
     goToRoute,
@@ -117,7 +116,6 @@ const ConnectedTrackTile = memo(
       premium_conditions: premiumConditions,
       premium_content_signature: premiumContentSignature,
       track_id: trackId,
-      owner_id: ownerId,
       title,
       permalink,
       repost_count,
@@ -133,8 +131,6 @@ const ConnectedTrackTile = memo(
       duration
     } = getTrackWithFallback(track)
 
-    const doesUserHaveAccess = (ownerId === currentUserId) || premiumContentSignature
-
     const {
       _artist_pick,
       name,
@@ -147,6 +143,8 @@ const ConnectedTrackTile = memo(
     const isTrackPlaying = isActive && isPlaying
     const isOwner = handle === userHandle
     const isArtistPick = showArtistPick && _artist_pick === trackId
+    const doesUserHaveAccess =
+      !isPremium || isOwner || !!premiumContentSignature
 
     const menuRef = useRef<HTMLDivElement>(null)
 
@@ -404,8 +402,7 @@ function mapStateToProps(state: AppState, ownProps: OwnProps) {
     playingUid: getUid(state),
     isBuffering: getBuffering(state),
     isPlaying: getPlaying(state),
-    userHandle: getUserHandle(state),
-    currentUserId: getUserId(state),
+    userHandle: getUserHandle(state)
   }
 }
 

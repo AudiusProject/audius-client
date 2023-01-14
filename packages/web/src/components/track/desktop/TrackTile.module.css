@@ -361,6 +361,25 @@
   width: 100%;
 }
 
+.bottomRow.premiumContent {
+  width: fit-content;
+  padding: 2px 8px;
+  border: 1px solid var(--neutral-light-4);
+  border-radius: 2px;
+  font-weight: var(--font-bold);
+  color: var(--neutral-light-4);
+}
+
+.bottomRow.premiumContent svg {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+
+.bottomRow.premiumContent path {
+  fill: var(--neutral-light-4);
+}
+
 .bottomRow .iconButtons {
   display: inline-flex;
 }
