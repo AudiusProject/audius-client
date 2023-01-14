@@ -1,7 +1,7 @@
 import { memo, MouseEvent, useCallback } from 'react'
 
-import { formatCount, pluralize, formatSeconds } from '@audius/common'
-import { IconCrown, IconHidden } from '@audius/stems'
+import { formatCount, pluralize, formatSeconds, FeatureFlags, PremiumConditions } from '@audius/common'
+import { IconCrown, IconHidden, IconCollectible, IconSpecialAccess } from '@audius/stems'
 import cn from 'classnames'
 
 import { ReactComponent as IconStar } from 'assets/img/iconStar.svg'
@@ -20,13 +20,16 @@ import {
 
 import styles from './TrackTile.module.css'
 import { PremiumTrackCornerTag } from '../PremiumTrackCornerTag'
+import { useFlag } from 'hooks/useRemoteConfig'
 
 const messages = {
   getPlays: (listenCount: number) => ` ${pluralize('Play', listenCount)}`,
   artistPick: 'Artist Pick',
   hiddenTrack: 'Hidden Track',
   repostLabel: 'Repost',
-  unrepostLabel: 'Unrepost'
+  unrepostLabel: 'Unrepost',
+  collectibleGated: 'Collectible Gated',
+  specialAccess: 'Special Access'
 }
 
 const RankAndIndexIndicator = ({
@@ -53,6 +56,32 @@ const RankAndIndexIndicator = ({
         </div>
       )}
     </>
+  )
+}
+
+const PremiumContentLabel = ({ premiumConditions }: { premiumConditions?: PremiumConditions }) => {
+  const { isEnabled: isPremiumContentEnabled } = useFlag(
+    FeatureFlags.PREMIUM_CONTENT_ENABLED
+  )
+
+  if (!isPremiumContentEnabled) {
+    return null
+  }
+
+  if (premiumConditions?.nft_collection) {
+    return (
+      <div className={cn(styles.premiumContent, styles.topRightIconLabel)}>
+        <IconCollectible className={styles.topRightIcon} />
+        {messages.collectibleGated}
+      </div>
+    )
+  }
+
+  return (
+    <div className={cn(styles.premiumContent, styles.topRightIconLabel)}>
+      <IconSpecialAccess className={styles.topRightIcon} />
+      {messages.specialAccess}
+    </div>
   )
 }
 
@@ -236,6 +265,7 @@ const TrackTile = memo(
               )}
             </div>
             <div className={styles.topRight}>
+              {isPremium && <PremiumContentLabel premiumConditions={premiumConditions} />}
               {isArtistPick && (
                 <div className={styles.topRightIconLabel}>
                   <IconStar className={styles.topRightIcon} />

@@ -299,6 +299,14 @@
   margin-right: 12px;
 }
 
+.topRightIconLabel.premiumContent {
+  color: var(--accent-blue);
+}
+
+.topRightIconLabel.premiumContent path {
+  fill: var(--accent-blue);
+}
+
 .bottomRight {
   position: absolute;
   right: 0;
