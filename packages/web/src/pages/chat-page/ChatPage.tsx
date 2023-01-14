@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react'
 
 import {
+  chatActions,
   chatSelectors,
   FeatureFlags,
   Status,
@@ -21,8 +22,10 @@ import { ChatComposer } from './components/ChatComposer'
 import { ChatHeader } from './components/ChatHeader'
 import { ChatList } from './components/ChatList'
 import { ChatMessageList } from './components/ChatMessageList'
+import { CreateChatPrompt } from './components/CreateChatPrompt'
 
 const { getOtherChatUsers, getChatMessagesStatus } = chatSelectors
+const { markChatAsRead } = chatActions
 
 const messages = {
   messages: 'Messages'
@@ -73,13 +76,17 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
   )
 
   // Keep the user scrolled at the bottom for when new messages come in, provided they were already at the bottom
+  // Also mark the chat as read
   useEffect(() => {
     if (messagesStatus === Status.SUCCESS && wasAtBottom) {
       messagesRef.current?.scrollTo({
         top: messagesRef.current?.scrollHeight
       })
+      if (currentChatId) {
+        dispatch(markChatAsRead({ chatId: currentChatId }))
+      }
     }
-  }, [messagesStatus, currentChatId, wasAtBottom])
+  }, [messagesStatus, currentChatId, wasAtBottom, dispatch])
 
   if (!isChatEnabled) {
     return null
@@ -103,20 +110,26 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
           />
         </div>
         <div className={styles.chatArea}>
-          <div
-            ref={messagesRef}
-            className={styles.messages}
-            style={{
-              marginTop: `${-bounds.height}px`,
-              paddingTop: `${bounds.height}px`
-            }}
-          >
-            <ChatMessageList
-              className={styles.messageList}
-              chatId={currentChatId}
-            />
-          </div>
-          <ChatComposer chatId={currentChatId} />
+          {currentChatId ? (
+            <>
+              <div
+                ref={messagesRef}
+                className={styles.messages}
+                style={{
+                  marginTop: `${-bounds.height}px`,
+                  paddingTop: `${bounds.height}px`
+                }}
+              >
+                <ChatMessageList
+                  className={styles.messageList}
+                  chatId={currentChatId}
+                />
+              </div>
+              <ChatComposer chatId={currentChatId} />
+            </>
+          ) : (
+            <CreateChatPrompt />
+          )}
         </div>
       </div>
     </Page>
