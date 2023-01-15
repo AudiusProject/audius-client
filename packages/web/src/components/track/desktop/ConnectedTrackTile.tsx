@@ -177,7 +177,8 @@ const ConnectedTrackTile = memo(
         showArtworkIcon: !isLoading,
         showSkeleton: isLoading,
         callback: () => setArtworkLoaded(true),
-        label: `${title} by ${name}`
+        label: `${title} by ${name}`,
+        doesUserHaveAccess
       }
       return <TrackArtwork {...artworkProps} />
     }
