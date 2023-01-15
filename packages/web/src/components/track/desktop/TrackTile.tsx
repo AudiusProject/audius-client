@@ -13,7 +13,8 @@ import {
   IconHidden,
   IconCollectible,
   IconSpecialAccess,
-  IconLock
+  IconLock,
+  IconUnlocked
 } from '@audius/stems'
 import cn from 'classnames'
 
@@ -43,6 +44,7 @@ const messages = {
   unrepostLabel: 'Unrepost',
   collectibleGated: 'Collectible Gated',
   specialAccess: 'Special Access',
+  unlocked: 'Unlocked',
   locked: 'LOCKED'
 }
 
@@ -74,9 +76,11 @@ const RankAndIndexIndicator = ({
 }
 
 const PremiumContentLabel = ({
-  premiumConditions
+  premiumConditions,
+  doesUserHaveAccess
 }: {
   premiumConditions?: PremiumConditions
+  doesUserHaveAccess: boolean
 }) => {
   const { isEnabled: isPremiumContentEnabled } = useFlag(
     FeatureFlags.PREMIUM_CONTENT_ENABLED
@@ -84,6 +88,15 @@ const PremiumContentLabel = ({
 
   if (!isPremiumContentEnabled) {
     return null
+  }
+
+  if (doesUserHaveAccess) {
+    return (
+      <div className={cn(styles.premiumContent, styles.topRightIconLabel)}>
+        <IconUnlocked className={styles.topRightIcon} />
+        {messages.unlocked}
+      </div>
+    )
   }
 
   if (premiumConditions?.nft_collection) {
@@ -397,7 +410,7 @@ const TrackTile = memo(
             </div>
             <div className={styles.topRight}>
               {isPremium && (
-                <PremiumContentLabel premiumConditions={premiumConditions} />
+                <PremiumContentLabel premiumConditions={premiumConditions} doesUserHaveAccess={!!doesUserHaveAccess} />
               )}
               {isArtistPick && (
                 <div className={styles.topRightIconLabel}>
