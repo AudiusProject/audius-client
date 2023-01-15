@@ -17,7 +17,7 @@ import {
   trackPageActions,
   TrackMetadata
 } from '@audius/common'
-import { takeLatest, select, call, put, delay } from 'typed-redux-saga'
+import { takeEvery, select, call, put, delay } from 'typed-redux-saga'
 
 import { TrackRouteParams } from 'utils/route/trackRouteParser'
 import { waitForWrite } from 'utils/sagaHelpers'
@@ -180,11 +180,13 @@ function* updateNewPremiumContentSignatures({
  * Halts if not all nfts have been fetched yet. Similarly, does not proceed if no tracks are in the cache yet.
  * Skips tracks whose signatures have already been previously obtained.
  */
+let index = 0
 function* updateCollectibleGatedTrackAccess(
   action:
     | ReturnType<typeof updateUserEthCollectibles>
     | ReturnType<typeof updateUserSolCollectibles>
     | ReturnType<typeof cacheActions.add>
+    | ReturnType<typeof cacheActions.update>
 ) {
   // Halt if premium content not enabled
   yield* waitForWrite()
@@ -331,9 +333,10 @@ function* refreshPremiumTrackAccess(
 }
 
 function* watchCollectibleGatedTracks() {
-  yield* takeLatest(
+  yield* takeEvery(
     [
       cacheActions.ADD,
+      cacheActions.UPDATE,
       updateUserEthCollectibles.type,
       updateUserSolCollectibles.type
     ],
@@ -342,7 +345,7 @@ function* watchCollectibleGatedTracks() {
 }
 
 function* watchRefreshPremiumTrack() {
-  yield* takeLatest(refreshPremiumTrack.type, refreshPremiumTrackAccess)
+  yield* takeEvery(refreshPremiumTrack.type, refreshPremiumTrackAccess)
 }
 
 const sagas = () => {

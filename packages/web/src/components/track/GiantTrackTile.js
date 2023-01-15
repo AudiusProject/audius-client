@@ -345,6 +345,14 @@ class GiantTrackTile extends PureComponent {
     }
   }
 
+  handleUnfollow = () => {
+    const { doesUserHaveAccess, isPremium, premiumConditions, onLock, trackId } =
+      this.props
+    if (doesUserHaveAccess && isPremium && premiumConditions.follow_user_id) {
+      onLock(trackId)
+    }
+  }
+
   render() {
     const {
       playing,
@@ -436,6 +444,7 @@ class GiantTrackTile extends PureComponent {
                   <ArtistPopover
                     handle={artistHandle}
                     onFollow={this.handleFollow}
+                    onUnfollow={this.handleUnfollow}
                   >
                     <h2 className={styles.artist} onClick={onClickArtistName}>
                       {artistName}
@@ -585,6 +594,7 @@ GiantTrackTile.propTypes = {
   onSave: PropTypes.func,
   following: PropTypes.bool,
   onUnlock: PropTypes.func,
+  onLock: PropTypes.func,
   onFollow: PropTypes.func,
   onUnfollow: PropTypes.func,
   onDownload: PropTypes.func
@@ -616,6 +626,7 @@ GiantTrackTile.defaultProps = {
   onSave: () => {},
   onFollow: () => {},
   onUnlock: () => {},
+  onLock: () => {},
   onDownload: () => {}
 }
 
