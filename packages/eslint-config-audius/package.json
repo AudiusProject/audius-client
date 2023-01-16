@@ -1,6 +1,6 @@
 {
   "name": "eslint-config-audius",
-  "version": "1.5.2",
+  "version": "1.5.6",
   "description": "Custom eslint config for Audius.",
   "author": "Audius",
   "homepage": "https://github.com/AudiusProject/audius-client#readme",
@@ -46,6 +46,6 @@
     "url": "https://github.com/AudiusProject/audius-client/issues"
   },
   "dependencies": {
-    "@audius/sdk": "1.0.37"
+    "@audius/sdk": "1.0.39"
   }
 }
