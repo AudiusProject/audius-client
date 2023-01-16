@@ -141,16 +141,16 @@ export const syncFavoritedCollections = async (
   })
 }
 
-export const syncCollectionTracks = async (
+export const syncCollectionsTracks = async (
   collections: Collection[],
   isFavoritesDownload?: boolean
 ) => {
   collections.forEach((collection) => {
-    syncCollection(collection, isFavoritesDownload)
+    syncCollectionTracks(collection, isFavoritesDownload)
   })
 }
 
-export const syncCollection = async (
+export const syncCollectionTracks = async (
   offlineCollection: Collection,
   isFavoritesDownload?: boolean
 ) => {

@@ -1,12 +1,10 @@
 import type {
-  AudiusAPIClient,
   Collection,
-  CommonState,
+  AccountCollection,
   UserCollectionMetadata
 } from '@audius/common'
 import {
   collectionPageActions,
-  getContext,
   FavoriteSource,
   tracksSocialActions,
   collectionsSocialActions,
@@ -21,7 +19,6 @@ import {
   select,
   take,
   takeEvery,
-  delay,
   put
 } from 'typed-redux-saga'
 
@@ -34,12 +31,13 @@ import {
   syncFavorites,
   syncFavoritedCollections,
   syncStaleTracks,
-  syncCollectionTracks as syncCollectionsTracks
+  syncCollectionsTracks
 } from 'app/services/offline-downloader'
 
 import { getOfflineCollections } from './selectors'
 import { clearOfflineDownloads, doneLoadingFromDisk } from './slice'
-const { fetchCollection } = collectionPageActions
+const { fetchCollection, FETCH_COLLECTION_SUCCEEDED, FETCH_COLLECTION_FAILED } =
+  collectionPageActions
 const { getUserId } = accountSelectors
 const { getCollections } = cacheCollectionsSelectors
 
@@ -116,11 +114,9 @@ export function* startSync() {
     yield* take(doneLoadingFromDisk)
     yield* waitForRead()
     yield* waitForBackendSetup()
-    const apiClient: AudiusAPIClient = yield getContext('apiClient')
-    const currentUserId = yield* select(getUserId)
     const collections = yield* select(getCollections)
     // Don't use getAccountSelections as it filters out collections not in cache
-    const accountCollections: CommonState['account']['collections'] =
+    const accountCollections: { [id: number]: AccountCollection } =
       yield* select((state) => state.account.collections)
     const accountCollectionIds = Object.values(accountCollections).map(
       (collection) => collection.id
@@ -144,10 +140,8 @@ export function* startSync() {
 
     for (const collectionId of accountCollectionIds) {
       yield* put(fetchCollection(collectionId))
+      yield* take([FETCH_COLLECTION_SUCCEEDED, FETCH_COLLECTION_FAILED])
     }
-
-    // HACK - wait for collection fetch to complete
-    yield* delay(2000)
 
     yield* call(
       syncFavoritedCollections,
