@@ -41,7 +41,7 @@ const getNextImage =
     return imageSizes[next]
   }
 
-type BaseUserImageSizeProps<
+export type BaseUserImageSizeProps<
   ImageSize extends Size,
   ImageSizes extends ImageSizesObject<ImageSize>
 > = {
