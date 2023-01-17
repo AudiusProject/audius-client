@@ -55,7 +55,7 @@ export const useLocalImage = (
 ): AsyncState<ImageURISource[]> => {
   const isNotReachable = useSelector(getIsReachable) === false
 
-  return useAsync(async () => {
+  const sourceResult = useAsync(async () => {
     // Only check for local images if not reachable
     if (isNotReachable) {
       return []
@@ -63,6 +63,12 @@ export const useLocalImage = (
 
     return await getLocalImageSource(getLocalPath)
   }, [getLocalPath])
+
+  if (isNotReachable) {
+    return { value: [], loading: false }
+  }
+
+  return sourceResult
 }
 
 export const useLocalTrackImage = (trackId?: string) => {
