@@ -414,6 +414,7 @@ export const asCache =
         subscriptions: {} // things this id is subscribing to,
         // Set { id }
         idsToPrune: Set<unknown>
+        permalinks: {}
       }
       (arg0: any, arg1: any): any
     },

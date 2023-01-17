@@ -364,6 +364,7 @@ export const makePlaylist = (
     repost_count,
     track_count,
     total_play_count,
+    permalink: 'test',
     playlist_contents: playlistContents,
 
     // Fields to prune

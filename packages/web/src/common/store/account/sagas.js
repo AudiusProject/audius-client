@@ -247,7 +247,12 @@ export function* fetchLocalAccountAsync() {
 
 function* cacheAccount(account) {
   const localStorage = yield getContext('localStorage')
-  const collections = account.playlists || []
+  let collections = account.playlists || []
+
+  collections = collections.map((collection) => {
+    if (!collection.permalink) return { ...collection, permalink: 'cache-account-saga' }
+    return collection
+  })
 
   yield put(
     cacheActions.add(Kind.USERS, [

@@ -535,11 +535,7 @@ export function* watchShareCollection() {
             collection.playlist_name,
             collection.playlist_id
           )
-        : playlistPage(
-            user.handle,
-            collection.playlist_name,
-            collection.playlist_id
-          )
+        : playlistPage(collection.permalink)
 
       const share = yield* getContext('share')
       share(link, formatShareText(collection.playlist_name, user.name))

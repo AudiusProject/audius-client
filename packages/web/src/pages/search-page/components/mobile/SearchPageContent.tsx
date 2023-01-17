@@ -244,17 +244,19 @@ const CardSearchPage = ({
           }
           case CardType.ALBUM:
           case CardType.PLAYLIST: {
-            const routeFunc =
-              cardType === CardType.ALBUM ? albumPage : playlistPage
             const collection = e as UserCollection
+            const route =
+              cardType === CardType.ALBUM
+                ? albumPage(
+                    collection.user.handle,
+                    collection.playlist_name,
+                    collection.playlist_id
+                  )
+                : playlistPage(collection.permalink)
             return {
               userId: collection.playlist_owner_id,
               id: collection.playlist_id,
-              route: routeFunc(
-                collection.user.handle,
-                collection.playlist_name,
-                collection.playlist_id
-              ),
+              route,
               primaryText: collection.playlist_name,
               secondaryText: collection.user.handle,
               imageSize: collection._cover_art_sizes

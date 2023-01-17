@@ -4,6 +4,7 @@ export type AccountCollection = {
   id: ID
   name: string
   is_album: boolean
+  permalink: string
   user: { id: ID; handle: string }
 }
 

@@ -126,11 +126,7 @@ const ConnectedPlaylistTile = memo(
             collection.playlist_name,
             collection.playlist_id
           )
-        : playlistPage(
-            user.handle,
-            collection.playlist_name,
-            collection.playlist_id
-          )
+        : playlistPage(collection.permalink)
     }, [collection, user])
 
     const goToCollectionPage = useCallback(

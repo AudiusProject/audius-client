@@ -1,9 +1,10 @@
 import { combineReducers } from 'redux'
 
-import { Kind, Cache, Collection } from '../models'
+import { Kind } from '../models'
 
 import accountSlice from './account/slice'
 import averageColorReducer from './average-color/slice'
+import { CollectionsCacheState } from './cache/collections/types'
 import collectionsReducer from './cache/collections/reducer'
 import { asCache } from './cache/reducer'
 import tracksReducer from './cache/tracks/reducer'
@@ -239,7 +240,7 @@ export type CommonState = {
   // confirmer: ConfirmerState
 
   // Cache
-  collections: Cache<Collection>
+  collections: CollectionsCacheState
   tracks: TracksCacheState
   users: UsersCacheState
 

@@ -203,11 +203,7 @@ const ExplorePage = ({
             playlist.playlist_name,
             playlist.playlist_id
           )
-        : playlistPage(
-            playlist.user.handle,
-            playlist.playlist_name,
-            playlist.playlist_id
-          )
+        : playlistPage(playlist.permalink)
 
       return (
         <Card

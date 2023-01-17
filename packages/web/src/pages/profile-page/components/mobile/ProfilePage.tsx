@@ -390,19 +390,11 @@ const ProfilePage = g(
             playlist.playlist_contents.track_ids.length,
             playlist.is_private
           )}
-          href={playlistPage(
-            profile.handle,
-            playlist.playlist_name,
-            playlist.playlist_id
-          )}
+          href={playlistPage(playlist.permalink)}
           onClick={(e: MouseEvent) => {
             e.preventDefault()
             goToRoute(
-              playlistPage(
-                profile.handle,
-                playlist.playlist_name,
-                playlist.playlist_id
-              )
+              playlistPage(playlist.permalink)
             )
           }}
         />

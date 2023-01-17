@@ -251,11 +251,7 @@ const FeaturedContent = (props: FeaturedContentProps) => {
                       p.user.creator_node_endpoint
                     )}
                     onClick={handleClickRoute(
-                      playlistPage(
-                        p.user.handle,
-                        p.playlist_name,
-                        p.playlist_id
-                      ),
+                      playlistPage(p.permalink),
                       props.setRenderPublicSite
                     )}
                   />

@@ -77,7 +77,7 @@ const FULL_ENDPOINT_MAP = {
     `/users/${userId}/favorites/tracks`,
   userRepostsByHandle: (handle: OpaqueID) => `/users/handle/${handle}/reposts`,
   getRelatedArtists: (userId: OpaqueID) => `/users/${userId}/related`,
-  getPlaylist: (playlistId: OpaqueID) => `/playlists/${playlistId}`,
+  getPlaylist: () => `/playlists`,
   topGenreUsers: '/users/genre/top',
   topArtists: '/users/top',
   getTrack: (trackId: OpaqueID) => `/tracks/${trackId}`,
@@ -264,8 +264,9 @@ type GetUserRepostsByHandleArgs = {
 }
 
 type GetPlaylistArgs = {
-  playlistId: ID
+  playlistId: Nullable<ID>
   currentUserId: Nullable<ID>
+  permalink: Nullable<string>
 }
 
 type GetStemsArgs = {
@@ -1163,17 +1164,18 @@ export class AudiusAPIClient {
     return adapted
   }
 
-  async getPlaylist({ playlistId, currentUserId }: GetPlaylistArgs) {
+  async getPlaylist({ playlistId, currentUserId, permalink }: GetPlaylistArgs) {
     this._assertInitialized()
     const encodedCurrentUserId = encodeHashId(currentUserId)
-    const encodedPlaylistId = this._encodeOrThrow(playlistId)
     const params = {
-      user_id: encodedCurrentUserId || undefined
+      user_id: encodedCurrentUserId || undefined,
+      playlist_id: playlistId ? this._encodeOrThrow(playlistId) : null,
+      permalink
     }
 
     const response: Nullable<APIResponse<APIPlaylist[]>> =
       await this._getResponse(
-        FULL_ENDPOINT_MAP.getPlaylist(encodedPlaylistId),
+        FULL_ENDPOINT_MAP.getPlaylist(),
         params
       )
 

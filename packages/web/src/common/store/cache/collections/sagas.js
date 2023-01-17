@@ -1216,6 +1216,17 @@ function* fetchRepostInfo(entries) {
 function* watchAdd() {
   yield takeEvery(cacheActions.ADD_SUCCEEDED, function* (action) {
     if (action.kind === Kind.COLLECTIONS) {
+      // yield put(
+      //   collectionActions.setPermalinkStatus(
+      //     action.entries
+      //       .filter((entry) => !!entry.metadata.permalink)
+      //       .map((entry) => ({
+      //         permalink: entry.metadata.permalink,
+      //         id: entry.id,
+      //         status: Status.SUCCESS
+      //       }))
+      //   )
+      // )
       yield fork(fetchRepostInfo, action.entries)
     }
   })

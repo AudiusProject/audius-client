@@ -51,11 +51,11 @@ export const getTwitterShareText = (
     }
     case 'playlist': {
       const {
-        playlist: { playlist_name, playlist_id },
+        playlist: { playlist_name, playlist_id, permalink },
         creator: { handle }
       } = content
       twitterText = messages.playlistShareText(playlist_name, handle)
-      link = fullPlaylistPage(handle, playlist_name, playlist_id)
+      link = fullPlaylistPage(permalink)
       analyticsEvent = { kind: 'playlist', id: playlist_id, url: link }
       break
     }

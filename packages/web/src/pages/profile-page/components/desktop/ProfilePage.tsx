@@ -43,7 +43,7 @@ import {
   profilePage,
   UPLOAD_PAGE,
   UPLOAD_ALBUM_PAGE,
-  UPLOAD_PLAYLIST_PAGE
+  UPLOAD_PLAYLIST_PAGE,
 } from 'utils/route'
 import { getUserPageSEOFields } from 'utils/seo'
 
@@ -313,9 +313,7 @@ const ProfilePage = ({
         id={playlist.playlist_id}
         imageSize={playlist._cover_art_sizes}
         isPublic={!playlist.is_private}
-        // isAlbum={playlist.is_album}
         primaryText={playlist.playlist_name}
-        // link={fullPlaylistPage(profile.handle, playlist.playlist_name, playlist.playlist_id)}
         secondaryText={formatCardSecondaryText(
           playlist.save_count,
           playlist.playlist_contents.track_ids.length,
@@ -324,19 +322,11 @@ const ProfilePage = ({
         cardCoverImageSizes={playlist._cover_art_sizes}
         isReposted={playlist.has_current_user_reposted}
         isSaved={playlist.has_current_user_saved}
-        href={playlistPage(
-          profile.handle,
-          playlist.playlist_name,
-          playlist.playlist_id
-        )}
+        href={playlistPage(playlist.permalink)}
         onClick={(e: MouseEvent) => {
           e.preventDefault()
           goToRoute(
-            playlistPage(
-              profile.handle,
-              playlist.playlist_name,
-              playlist.playlist_id
-            )
+            playlistPage(playlist.permalink)
           )
         }}
       />
@@ -511,30 +501,20 @@ const ProfilePage = ({
         playlistId={playlist.playlist_id}
         isPublic={!playlist.is_private}
         playlistName={playlist.playlist_name}
-        // isAlbum={playlist.is_album}
         primaryText={playlist.playlist_name}
         secondaryText={formatCardSecondaryText(
           playlist.save_count,
           playlist.playlist_contents.track_ids.length,
           playlist.is_private
         )}
-        // link={fullPlaylistPage(profile.handle, playlist.playlist_name, playlist.playlist_id)}
         isReposted={playlist.has_current_user_reposted}
         isSaved={playlist.has_current_user_saved}
         cardCoverImageSizes={playlist._cover_art_sizes}
-        href={playlistPage(
-          profile.handle,
-          playlist.playlist_name,
-          playlist.playlist_id
-        )}
+        href={playlistPage(playlist.permalink)}
         onClick={(e: MouseEvent) => {
           e.preventDefault()
           goToRoute(
-            playlistPage(
-              profile.handle,
-              playlist.playlist_name,
-              playlist.playlist_id
-            )
+            playlistPage(playlist.permalink)
           )
         }}
       />

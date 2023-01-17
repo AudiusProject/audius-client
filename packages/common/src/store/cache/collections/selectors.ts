@@ -10,8 +10,11 @@ import { EnhancedCollectionTrack } from './types'
 
 export const getCollection = (
   state: CommonState,
-  props: { id?: ID | null; uid?: UID | null }
+  props: { id?: ID | null; uid?: UID | null; permalink?: string | null }
 ) => {
+  if (props.permalink && state.collections.permalinks[props.permalink.toLowerCase()].id) {
+    props.id = state.collections.permalinks[props.permalink.toLowerCase()].id
+  }
   return getEntry(state, {
     ...props,
     kind: Kind.COLLECTIONS
@@ -22,7 +25,7 @@ export const getStatus = (state: CommonState, props: { id: ID }) =>
 
 export const getCollections = (
   state: CommonState,
-  props?: { ids?: ID[] | null; uids?: UID[] | null }
+  props?: { ids?: ID[] | null; uids?: UID[] | null; permalinks?: string[] | null }
 ) => {
   if (props && props.ids) {
     const collections: { [id: number]: Collection } = {}
@@ -40,6 +43,13 @@ export const getCollections = (
       if (collection) {
         collections[collection.playlist_id] = collection
       }
+    })
+    return collections
+  } else if (props && props.permalinks) {
+    const collections: { [permalink: string]: Collection } = {}
+    props.permalinks.forEach((permalink) => {
+      const collection = getCollection(state, { permalink })
+      if (collection) collections[permalink] = collection
     })
     return collections
   }

@@ -10,18 +10,30 @@ import { call, put, takeLatest, takeEvery } from 'redux-saga/effects'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 
 import tracksSagas from './lineups/sagas'
+import { retrieveCollectionByPermalink } from 'common/store/cache/collections/utils/retrieveCollections'
 
 function* watchFetchCollection() {
   yield takeLatest(collectionActions.FETCH_COLLECTION, function* (action) {
-    const collectionId = action.id
+    const { id: collectionId, permalink } = action
 
-    const { collections, uids: collectionUids } = yield call(
-      retrieveCollections,
-      null,
-      [collectionId],
-      /* fetchTracks */ false,
-      /* requiresAllTracks */ true
-    )
+
+    if (!collectionId) {
+      const { collections, uids: collectionUids } = yield call(
+        retrieveCollectionByPermalink,
+        permalink,
+        /* fetchTracks */ false,
+        /* requiresAllTracks */ true
+      )
+    } else {
+      const { collections, uids: collectionUids } = yield call(
+        retrieveCollections,
+        null,
+        [collectionId],
+        /* fetchTracks */ false,
+        /* requiresAllTracks */ true
+      )
+    }
+  
 
     if (Object.values(collections).length === 0) {
       yield put(collectionActions.fetchCollectionFailed())

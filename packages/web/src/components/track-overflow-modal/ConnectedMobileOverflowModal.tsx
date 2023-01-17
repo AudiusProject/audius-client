@@ -167,7 +167,8 @@ const ConnectedMobileOverflowModal = ({
         }
       }
       case OverflowSource.COLLECTIONS: {
-        if (!id || !handle || !title || isAlbum === undefined) return {}
+        if ((!id || !handle || !title || isAlbum === undefined) && !permalink)
+          return {}
         return {
           onRepost: () => repostCollection(id as ID),
           onUnrepost: () => unrepostCollection(id as ID),
@@ -176,10 +177,9 @@ const ConnectedMobileOverflowModal = ({
           onShare: () => shareCollection(id as ID),
           onVisitArtistPage: () => visitArtistPage(handle),
           onVisitCollectionPage: () =>
-            (isAlbum ? visitAlbumPage : visitPlaylistPage)(
-              id as ID,
-              handle,
-              title
+            (isAlbum
+              ? visitAlbumPage(id as ID, handle, title)
+              : visitPlaylistPage(permalink)
             ),
           onVisitCollectiblePage: () =>
             visitCollectiblePage(handle, id as string),
@@ -297,7 +297,8 @@ const getAdditionalInfo = ({
         handle: user.handle,
         artistName: user.name,
         title: col.playlist_name,
-        isAlbum: col.is_album
+        isAlbum: col.is_album,
+        permalink: col.permalink
       }
     }
     case OverflowSource.PROFILE: {
@@ -380,11 +381,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     visitCollectiblePage: (handle: string, id: string) => {
       dispatch(pushRoute(collectibleDetailsPage(handle, id)))
     },
-    visitPlaylistPage: (
-      playlistId: ID,
-      handle: string,
-      playlistTitle: string
-    ) => dispatch(pushRoute(playlistPage(handle, playlistTitle, playlistId))),
+    visitPlaylistPage: (permalink: string) =>
+      dispatch(pushRoute(playlistPage(permalink))),
     visitAlbumPage: (albumId: ID, handle: string, albumTitle: string) =>
       dispatch(pushRoute(albumPage(handle, albumTitle, albumId)))
   }

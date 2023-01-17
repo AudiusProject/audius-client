@@ -10,7 +10,8 @@ import {
   FETCH_COLLECTION_SUCCEEDED,
   FETCH_COLLECTION_FAILED,
   RESET_COLLECTION,
-  SET_SMART_COLLECTION
+  SET_SMART_COLLECTION,
+  SET_COLLECTION_PERMALINK
 } from './actions'
 import { PREFIX as tracksPrefix } from './lineup/actions'
 
@@ -23,6 +24,12 @@ export const initialState = {
 }
 
 const actionsMap = {
+  [SET_COLLECTION_PERMALINK](state, action) {
+    return {
+      ...state,
+      collectionPermalink: action.permalink,
+    }
+  },
   [FETCH_COLLECTION](state, action) {
     return {
       ...state,

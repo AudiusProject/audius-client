@@ -268,7 +268,7 @@ class CollectionPage extends Component<
     if (metadata) {
       const params = parseCollectionRoute(pathname)
       if (params) {
-        const { collectionId, title, collectionType, handle } = params
+        const { collectionId, title, collectionType, handle, permalink } = params
         const newCollectionName = formatUrlName(metadata.playlist_name)
 
         const routeLacksCollectionInfo =
@@ -277,7 +277,7 @@ class CollectionPage extends Component<
           // Check if we are coming from a non-canonical route and replace route if necessary.
           const newPath = metadata.is_album
             ? albumPage(user!.handle, metadata.playlist_name, collectionId)
-            : playlistPage(user!.handle, metadata.playlist_name, collectionId)
+            : playlistPage(permalink)
           this.props.replaceRoute(newPath)
         } else {
           // Id matches or temp id matches
@@ -339,12 +339,20 @@ class CollectionPage extends Component<
   }
 
   fetchCollection = (pathname: string, forceFetch = false) => {
-    const params = parseCollectionRoute(pathname)
-    if (params) {
-      const { collectionId } = params
+    const { collectionId, slug, handle } = parseCollectionRoute(pathname)
+    
+    if (collectionId) {
       if (forceFetch || collectionId !== this.state.playlistId) {
         this.setState({ playlistId: collectionId as number })
-        this.props.fetchCollection(collectionId as number)
+        this.props.fetchCollection(collectionId as number, slug || '', handle || '')
+        this.props.fetchTracks()
+      }
+    }
+    
+    if (slug && handle) {
+      if (forceFetch) {
+        this.props.setCollectionPermalink(`/${handle}/playlist/${slug}`)
+        this.props.fetchCollection(collectionId, slug || '', handle || '')
         this.props.fetchTracks()
       }
     }
@@ -728,6 +736,7 @@ class CollectionPage extends Component<
       canonicalUrl = '',
       structuredData
     } = getCollectionPageSEOFields({
+      permalink: metadata?.permalink,
       playlistName: metadata?.playlist_name,
       playlistId: metadata?.playlist_id,
       userName: user?.name,
@@ -835,8 +844,8 @@ function makeMapStateToProps() {
 
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
-    fetchCollection: (id: number) =>
-      dispatch(collectionActions.fetchCollection(id)),
+    fetchCollection: (id: number | null, slug: string, handle: string) =>
+      dispatch(collectionActions.fetchCollection(id, slug, handle)),
     fetchTracks: () =>
       dispatch(tracksActions.fetchLineupMetadatas(0, 200, false, undefined)),
     resetCollection: (collectionUid: string, userUid: string) =>
@@ -879,6 +888,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
           FavoriteSource.COLLECTION_PAGE
         )
       ),
+    
+    setCollectionPermalink: (permalink: string) => dispatch(collectionActions.setCollectionPermalink(permalink)),
 
     unsaveCollection: (playlistId: number) =>
       dispatch(

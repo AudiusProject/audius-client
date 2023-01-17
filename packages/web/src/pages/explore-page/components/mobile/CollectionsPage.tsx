@@ -60,11 +60,7 @@ const ExplorePage = ({
                 )
               )
             : goToRoute(
-                playlistPage(
-                  playlist.user.handle,
-                  playlist.playlist_name,
-                  playlist.playlist_id
-                )
+                playlistPage(playlist.permalink)
               )
         }}
       />

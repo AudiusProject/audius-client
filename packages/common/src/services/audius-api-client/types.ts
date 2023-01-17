@@ -190,6 +190,7 @@ export type APIPlaylist = {
   track_count: number
   cover_art: Nullable<string>
   cover_art_sizes: Nullable<string>
+  permalink: string
 }
 
 export type APISearchPlaylist = Omit<

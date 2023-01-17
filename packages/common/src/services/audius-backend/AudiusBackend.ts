@@ -879,7 +879,9 @@ export const audiusBackend = ({
     try {
       const account = audiusLibs.Account.getCurrentUser()
       if (!account) return null
-
+      account.collections = account.collections.map((collection: Collection) => {
+        return { ...collection, permalink: 'getaccount-test'}
+      })
       // If reading the artist pick from discovery, set _artist_pick on
       // the user to the value from discovery (set in artist_pick_track_id
       // on the user).
@@ -1578,7 +1580,9 @@ export const audiusBackend = ({
         userId,
         true
       )
-      return (playlists || []).map(getCollectionImages)
+      return (playlists || []).map(getCollectionImages).map((playlist: Collection) => {
+        return { ...playlist, permalink: 'test-audius-backend' }
+      })
     } catch (err) {
       console.log(getErrorMessage(err))
       return []

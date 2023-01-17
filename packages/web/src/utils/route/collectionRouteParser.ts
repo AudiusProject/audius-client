@@ -9,8 +9,10 @@ type CollectionRouteParams =
       handle: string
       collectionType: 'playlist' | 'album'
       title: string
+      slug: null
     }
-  | { collectionId: ID; handle: null; collectionType: null; title: null }
+  | { collectionId: ID; handle: null; collectionType: null; title: null; slug: null }
+  | { collectionId: null; handle: string; collectionType: string; title: null; slug: string }
   | null
 
 /**
@@ -26,23 +28,19 @@ export const parseCollectionRoute = (route: string): CollectionRouteParams => {
   if (collectionIdPageMatch) {
     const collectionId = decodeHashId(collectionIdPageMatch.params.id)
     if (collectionId === null) return null
-    return { collectionId, handle: null, collectionType: null, title: null }
+    return { collectionId, handle: null, collectionType: null, title: null, slug: null }
   }
 
   const playlistPageMatch = matchPath<{
     handle: string
-    playlistName: string
+    slug: string
   }>(route, {
     path: PLAYLIST_PAGE,
     exact: true
   })
   if (playlistPageMatch) {
-    const { handle, playlistName } = playlistPageMatch.params
-    const nameParts = playlistName.split('-')
-    const title = nameParts.slice(0, nameParts.length - 1).join('-')
-    const collectionId = parseInt(nameParts[nameParts.length - 1], 10)
-    if (!collectionId || isNaN(collectionId)) return null
-    return { title, collectionId, handle, collectionType: 'playlist' }
+    const { handle, slug } = playlistPageMatch.params
+    return { title: null, collectionId: null, handle, slug, collectionType: 'playlist' }
   }
 
   const albumPageMatch = matchPath<{
@@ -58,7 +56,7 @@ export const parseCollectionRoute = (route: string): CollectionRouteParams => {
     const title = nameParts.slice(0, nameParts.length - 1).join('-')
     const collectionId = parseInt(nameParts[nameParts.length - 1], 10)
     if (!collectionId || isNaN(collectionId)) return null
-    return { title, collectionId, handle, collectionType: 'album' }
+    return { title, collectionId, slug: null, handle, collectionType: 'album' }
   }
 
   return null

@@ -241,7 +241,7 @@ const EditPlaylistPage = g(
         toast(messages.toast)
         close()
         goToRoute(
-          playlistPage(account.handle, formFields.playlist_name, tempId)
+          playlistPage(formFields.permalink)
         )
       }
     }, [

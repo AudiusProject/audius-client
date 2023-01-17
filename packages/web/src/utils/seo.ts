@@ -107,19 +107,21 @@ export const getTrackPageSEOFields = ({
 }
 
 export const getCollectionPageSEOFields = ({
+  permalink,
   playlistName,
   playlistId,
   userName,
   userHandle,
   isAlbum
 }: {
+  permalink?: string
   playlistName?: string
   playlistId?: number
   userName?: string
   userHandle?: string
   isAlbum?: boolean
 }) => {
-  if (!playlistName || !playlistId || !userName || !userHandle) return {}
+  if (!playlistName || !playlistId || !userName || !userHandle || !permalink) return {}
 
   const pageTitle = `${playlistName} by ${userName}`
   const pageDescription = createSeoDescription(
@@ -127,7 +129,7 @@ export const getCollectionPageSEOFields = ({
   )
   const canonicalUrl = isAlbum
     ? fullAlbumPage(userHandle, playlistName, playlistId)
-    : fullPlaylistPage(userHandle, playlistName, playlistId)
+    : fullPlaylistPage(permalink)
   const structuredData = {
     '@context': 'http://schema.googleapis.com/',
     '@type': 'MusicAlbum',

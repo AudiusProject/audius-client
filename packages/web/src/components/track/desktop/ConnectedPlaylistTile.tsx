@@ -138,6 +138,7 @@ const ConnectedPlaylistTile = memo(
   }: ConnectedPlaylistTileProps) => {
     const {
       is_album: isAlbum,
+      permalink,
       playlist_name: title,
       playlist_id: id,
       is_private: isPrivate,
@@ -229,7 +230,7 @@ const ConnectedPlaylistTile = memo(
     )
     const href = isAlbum
       ? albumPage(handle, title, id)
-      : playlistPage(handle, title, id)
+      : playlistPage(permalink)
 
     const onClickTitle = useCallback(
       (e: MouseEvent) => {
@@ -403,7 +404,7 @@ const ConnectedPlaylistTile = memo(
           link={
             isAlbum
               ? fullAlbumPage(handle, title, id)
-              : fullPlaylistPage(handle, title, id)
+              : fullPlaylistPage(permalink)
           }
         >
           {children as any}

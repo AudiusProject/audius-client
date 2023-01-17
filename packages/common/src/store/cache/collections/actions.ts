@@ -26,7 +26,7 @@ export const DELETE_PLAYLIST = 'DELETE_PLAYLIST'
 export const DELETE_PLAYLIST_REQUESTED = 'DELETE_PLAYLIST_REQUESTED'
 export const DELETE_PLAYLIST_SUCCEEDED = 'DELETE_PLAYLIST_SUCCEEDED'
 export const DELETE_PLAYLIST_FAILED = 'DELETE_PLAYLIST_FAILED'
-
+export const SET_PERMALINKS = 'SET_PERMALINK'
 export const FETCH_COVER_ART = 'TRACKS/FETCH_COVER_ART'
 
 /**
@@ -47,6 +47,10 @@ export function createPlaylistRequested() {
 
 export function createPlaylistSucceeded() {
   return { type: CREATE_PLAYLIST_SUCCEEDED }
+}
+
+export function setPermalinks(permalinks: { permalink: string; id: ID }[]) {
+  return { type: SET_PERMALINKS, permalinks }
 }
 
 export function createPlaylistFailed(

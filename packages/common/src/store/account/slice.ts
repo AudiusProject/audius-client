@@ -56,6 +56,7 @@ const slice = createSlice({
       action: PayloadAction<FetchAccountSucceededPayload>
     ) => {
       const { userId, orderedPlaylists, collections } = action.payload
+      console.log('collections is ', collections)
       state.userId = userId
       state.orderedPlaylists = orderedPlaylists
       state.collections = keyBy(collections, 'id')

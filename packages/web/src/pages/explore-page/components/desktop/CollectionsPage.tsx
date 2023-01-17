@@ -10,13 +10,13 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Page from 'components/page/Page'
 import { useOrderedLoad } from 'hooks/useOrderedLoad'
 import {
-  playlistPage,
   fullPlaylistPage,
   albumPage,
   fullAlbumPage,
   BASE_URL,
   EXPLORE_PAGE,
-  profilePage
+  profilePage,
+  playlistPage
 } from 'utils/route'
 
 import styles from './CollectionsPage.module.css'
@@ -99,11 +99,7 @@ const CollectionsPage = ({
                 playlist.playlist_name,
                 playlist.playlist_id
               )
-            : fullPlaylistPage(
-                playlist.user.handle,
-                playlist.playlist_name,
-                playlist.playlist_id
-              )
+            : fullPlaylistPage(playlist.permalink)
         }
         reposts={playlist.repost_count}
         favorites={playlist.save_count}
@@ -121,11 +117,7 @@ const CollectionsPage = ({
                 )
               )
             : goToRoute(
-                playlistPage(
-                  playlist.user.handle,
-                  playlist.playlist_name,
-                  playlist.playlist_id
-                )
+                playlistPage(playlist.permalink)
               )
         }}
       />

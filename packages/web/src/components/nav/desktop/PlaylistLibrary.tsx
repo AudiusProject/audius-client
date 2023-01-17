@@ -287,8 +287,10 @@ const PlaylistLibrary = ({
   const renderPlaylist = (playlistId: ID, level = 0) => {
     const playlist = playlists[playlistId]
     if (!account || !playlist) return null
-    const { id, name } = playlist
-    const url = playlistPage(playlist.user.handle, name, id)
+    const { id, permalink } = playlist
+    const url = playlistPage(permalink)
+    
+    console.log('url is: ', url)
     const addTrack = (trackId: ID) => dispatch(addTrackToPlaylist(trackId, id))
     const isOwner = playlist.user.handle === account.handle
     const hasUpdate = updatesSet.has(id)

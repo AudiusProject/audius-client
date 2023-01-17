@@ -286,11 +286,7 @@ const PlaylistCardLineup = ({
         )}
         onClick={() => {
           goToRoute(
-            playlistPage(
-              playlist.ownerHandle,
-              playlist.playlist_name,
-              playlist.playlist_id
-            )
+            playlistPage(playlist.permalink)
           )
           updatePlaylistLastViewedAt(playlist.playlist_id)
           record(

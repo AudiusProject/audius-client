@@ -34,6 +34,7 @@ export type CollectionMetadata = {
   playlist_contents: {
     track_ids: Array<{ time: number; track: ID; uid?: UID }>
   }
+  permalink: string
   tracks?: UserTrackMetadata[]
   track_count: number
   playlist_id: ID

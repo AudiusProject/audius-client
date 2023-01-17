@@ -21,6 +21,7 @@ export type CollectionsPageState = {
   tracks: LineupState<CollectionTrack>
   userUid: UID | null
   smartCollectionVariant: SmartCollectionVariant
+  collectionPermalink: string | null
 }
 
 export type CollectionsPageType = 'playlist' | 'album'

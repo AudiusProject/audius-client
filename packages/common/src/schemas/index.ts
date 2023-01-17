@@ -80,7 +80,8 @@ const collectionMetadataSchema = {
   save_count: null,
   license: null,
   upc: null,
-  description: null
+  description: null,
+  permalink: '',
 }
 
 export const newCollectionMetadata = (fields?: any, validate = false) => {

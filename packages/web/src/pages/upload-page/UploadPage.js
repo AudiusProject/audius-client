@@ -303,12 +303,8 @@ class Upload extends Component {
           break
         }
         case UploadType.PLAYLIST: {
-          const playlistName = upload.metadata.playlist_name
-          route = playlistPage(
-            account.handle,
-            playlistName,
-            upload.completionId
-          )
+          const permalink = upload.metadata.permalink
+          route = playlistPage(permalink)
           uploadType = 'playlist'
           break
         }

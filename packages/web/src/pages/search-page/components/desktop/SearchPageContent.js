@@ -174,11 +174,7 @@ class SearchPageContent extends Component {
       const toastId = `playlist-${playlist.playlist_id}`
       const onClick = () => {
         goToRoute(
-          playlistPage(
-            playlist.user.handle,
-            playlist.playlist_name,
-            playlist.playlist_id
-          )
+          playlistPage(permalink)
         )
         recordSearchResultClick({
           term: searchText,
@@ -201,9 +197,7 @@ class SearchPageContent extends Component {
           playlistId={playlist.playlist_id}
           isAlbum={playlist.is_album}
           link={fullPlaylistPage(
-            playlist.user.handle,
-            playlist.playlist_name,
-            playlist.playlist_id
+            playlist.permalink
           )}
           primaryText={playlist.playlist_name}
           firesOnClick={false}

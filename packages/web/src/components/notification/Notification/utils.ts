@@ -24,11 +24,7 @@ export const getEntityLink = (entity: EntityType, fullRoute = false) => {
   }
   if (entity.user) {
     const getRoute = fullRoute ? fullPlaylistPage : playlistPage
-    return getRoute(
-      entity.user.handle,
-      entity.playlist_name,
-      entity.playlist_id
-    )
+    return getRoute(entity.permalink)
   }
   return ''
 }

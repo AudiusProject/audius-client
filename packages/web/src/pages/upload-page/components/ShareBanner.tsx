@@ -28,7 +28,7 @@ import {
   fullTrackPage,
   profilePage,
   albumPage,
-  playlistPage
+  playlistPage,
 } from 'utils/route'
 import { openTwitterLink } from 'utils/tweet'
 
@@ -127,9 +127,9 @@ const getShareTextUrl = async (
       const { metadata, completionId } = upload
       if (!metadata || !completionId) return { text: '', url: '' }
 
-      const { playlist_name: title } = metadata
+      const { permalink, playlist_name: title } = metadata
       const getPage = fullUrl ? fullPlaylistPage : playlistPage
-      const url = getPage(user.handle, title, completionId)
+      const url = getPage(permalink)
       return {
         text: `Check out my new playlist, ${title} on @AudiusProject #Audius`,
         url
