@@ -23,7 +23,7 @@ import {
 
 const DEFAULT_ENTRY_TTL = 5 /* min */ * 60 /* seconds */ * 1000 /* ms */
 
-type CacheState = {
+export type CacheState = {
   entries: Record<ID, { _timestamp: number; metadata: Record<string, unknown> }>
   statuses: Record<ID, Status>
   uids: Record<UID, ID>

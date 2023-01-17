@@ -12,6 +12,10 @@ export const getCollection = (
   state: CommonState,
   props: { id?: ID | null; uid?: UID | null; permalink?: string | null }
 ) => {
+  const permalink = props.permalink?.toLowerCase()
+  if (permalink && state.collections.permalinks[permalink]) {
+    props.id = state.collections.permalinks[permalink]
+  }
   return getEntry(state, {
     ...props,
     kind: Kind.COLLECTIONS
@@ -22,7 +26,11 @@ export const getStatus = (state: CommonState, props: { id: ID }) =>
 
 export const getCollections = (
   state: CommonState,
-  props?: { ids?: ID[] | null; uids?: UID[] | null }
+  props?: {
+    ids?: ID[] | null
+    uids?: UID[] | null
+    permalinks?: string[] | null
+  }
 ) => {
   if (props && props.ids) {
     const collections: { [id: number]: Collection } = {}
@@ -42,6 +50,12 @@ export const getCollections = (
       }
     })
     return collections
+  } else if (props && props.permalinks) {
+    const collections: { [permalink: string]: Collection } = {}
+    props.permalinks.forEach((permalink) => {
+      const collection = getCollection(state, { permalink })
+      if (collection) collections[permalink] = collection
+    })
   }
   return getAllEntries(state, { kind: Kind.COLLECTIONS })
 }
