@@ -28,6 +28,7 @@
     "electron:prod": "electron . production",
     "electron:localhost": "electron . localhost",
     "pack": "electron-builder --dir",
+    "preinstall": "npm-force-resolutions",
     "dist": "node ./scripts/dist.js --mac --win --linux",
     "dist:mac": "node ./scripts/dist.js --mac",
     "dist:win": "node ./scripts/dist.js --win",
@@ -264,6 +265,9 @@
     "url": "^0.11.0",
     "util": "^0.12.4",
     "webpack": "5.73.0"
+  },
+  "resolutions": {
+    "@types/react": "18.0.26"
   },
   "jest": {
     "coverageReporters": [
