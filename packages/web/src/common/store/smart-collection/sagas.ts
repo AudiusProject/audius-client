@@ -38,10 +38,10 @@ function* fetchHeavyRotation() {
   const explore = yield* getContext('explore')
   const topListens = yield* call([explore, 'getTopUserListens'])
 
-  const users = (yield* call(
+  const users = yield* call(
     retrieveUsers,
     topListens.map((t) => t.userId)
-  )) as { entries: Record<string, User> }
+  )
 
   const trackIds = topListens
     .filter(
