@@ -1,0 +1,73 @@
+diff --git a/node_modules/react-virtualized/package.json b/node_modules/react-virtualized/package.json
+index 0dc4992..5c9cc64 100644
+--- a/node_modules/react-virtualized/package.json
++++ b/node_modules/react-virtualized/package.json
+@@ -1,26 +1,32 @@
+ {
+-  "_from": "https://registry.npmjs.org/react-virtualized/-/react-virtualized-9.22.3.tgz",
++  "_args": [
++    [
++      "react-virtualized@9.22.3",
++      "/Users/dylanaudius/Dev/Audius/audius-client/packages/web"
++    ]
++  ],
++  "_from": "react-virtualized@9.22.3",
+   "_id": "react-virtualized@9.22.3",
+   "_inBundle": false,
+   "_integrity": "sha512-MKovKMxWTcwPSxE1kK1HcheQTWfuCxAuBoSTf2gwyMM21NdX/PXUhnoP8Uc5dRKd+nKm8v41R36OellhdCpkrw==",
+   "_location": "/react-virtualized",
+   "_phantomChildren": {},
+   "_requested": {
+-    "type": "remote",
+-    "raw": "react-virtualized@https://registry.npmjs.org/react-virtualized/-/react-virtualized-9.22.3.tgz",
++    "type": "version",
++    "registry": true,
++    "raw": "react-virtualized@9.22.3",
+     "name": "react-virtualized",
+     "escapedName": "react-virtualized",
+-    "rawSpec": "https://registry.npmjs.org/react-virtualized/-/react-virtualized-9.22.3.tgz",
+-    "saveSpec": "https://registry.npmjs.org/react-virtualized/-/react-virtualized-9.22.3.tgz",
+-    "fetchSpec": "https://registry.npmjs.org/react-virtualized/-/react-virtualized-9.22.3.tgz"
++    "rawSpec": "9.22.3",
++    "saveSpec": null,
++    "fetchSpec": "9.22.3"
+   },
+   "_requiredBy": [
+     "/"
+   ],
+   "_resolved": "https://registry.npmjs.org/react-virtualized/-/react-virtualized-9.22.3.tgz",
+-  "_shasum": "f430f16beb0a42db420dbd4d340403c0de334421",
+-  "_spec": "react-virtualized@https://registry.npmjs.org/react-virtualized/-/react-virtualized-9.22.3.tgz",
+-  "_where": "/private/var/folders/_r/fzzrbw2s3gj4f6qnlwp081zw0000gn/T/tmp-94278E8xnDouV4OwH",
++  "_spec": "9.22.3",
++  "_where": "/Users/dylanaudius/Dev/Audius/audius-client/packages/web",
+   "author": {
+     "name": "Brian Vaughn",
+     "email": "brian.david.vaughn@gmail.com"
+@@ -33,7 +39,6 @@
+   "bugs": {
+     "url": "https://github.com/bvaughn/react-virtualized/issues"
+   },
+-  "bundleDependencies": false,
+   "dependencies": {
+     "@babel/runtime": "^7.7.2",
+     "clsx": "^1.0.4",
+@@ -42,7 +47,6 @@
+     "prop-types": "^15.7.2",
+     "react-lifecycles-compat": "^3.0.4"
+   },
+-  "deprecated": false,
+   "description": "React components for efficiently rendering large, scrollable lists and tabular data",
+   "devDependencies": {
+     "@babel/cli": "^7.7.0",
+@@ -145,8 +149,8 @@
+   "module": "dist/es/index.js",
+   "name": "react-virtualized",
+   "peerDependencies": {
+-    "react": "^15.3.0 || ^16.0.0-alpha",
+-    "react-dom": "^15.3.0 || ^16.0.0-alpha"
++    "react": "^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0",
++    "react-dom": "^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0"
+   },
+   "repository": {
+     "type": "git",

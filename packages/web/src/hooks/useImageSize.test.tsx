@@ -11,7 +11,7 @@ const TestComponent = (
   const dispatch = () => {}
   // @ts-ignore
   const image = useImageSize({ ...props, dispatch })
-  return <div>{image ?? 'nothing'}</div>
+  return <div>{image() ?? 'nothing'}</div>
 }
 
 describe('useImageSize', () => {
