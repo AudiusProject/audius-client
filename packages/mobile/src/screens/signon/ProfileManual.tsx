@@ -29,7 +29,9 @@ import IconArrow from 'app/assets/images/iconArrow.svg'
 import ValidationIconX from 'app/assets/images/iconValidationX.svg'
 import Button from 'app/components/button'
 import LoadingSpinner from 'app/components/loading-spinner'
+import { make, track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
+import { EventNames } from 'app/types/analytics'
 import type { Image } from 'app/types/image'
 import { launchSelectImageActionSheet } from 'app/utils/launchSelectImageActionSheet'
 import { useColor, useThemeColors } from 'app/utils/theme'
@@ -348,7 +350,14 @@ const ProfileManual = ({ navigation }: ProfileManualProps) => {
 
   const onContinuePress = () => {
     Keyboard.dismiss()
+
     dispatch(signOnActions.signUp())
+    track(
+      make({
+        eventName: EventNames.CREATE_ACCOUNT_COMPLETE_PROFILE,
+        handle: handleField.value
+      })
+    )
     navigation.replace('FirstFollows')
   }
 
