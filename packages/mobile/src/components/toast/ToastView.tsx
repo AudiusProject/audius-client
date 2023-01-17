@@ -38,13 +38,17 @@ const createStyles = (type: ToastType) => (themeColors: ThemeColors) => {
       backgroundColor,
       borderRadius: 8
     },
+    toastTextContainer: {
+      paddingTop: 14,
+      paddingBottom: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingLeft: 16,
+      paddingRight: 16
+    },
     content: {
       color: themeColors.staticWhite,
-      fontSize: 14,
-      paddingLeft: 16,
-      paddingRight: 16,
-      paddingTop: 12,
-      paddingBottom: 12
+      fontSize: 14
     }
   })
 }
@@ -120,9 +124,11 @@ const ToastView = ({ content, timeout, type = 'info' }: ToastViewProps) => {
           }
         ]}
       >
-        <Text style={styles.content} weight={'demiBold'}>
-          {content}
-        </Text>
+        <View style={styles.toastTextContainer}>
+          <Text style={styles.content} weight={'demiBold'}>
+            {content}
+          </Text>
+        </View>
       </Animated.View>
     </View>
   )
