@@ -53,18 +53,18 @@ export const getLocalImageSource = async (
 export const useLocalImage = (
   getLocalPath: (size: string) => string | undefined
 ): AsyncState<ImageURISource[]> => {
-  const isNotReachable = useSelector(getIsReachable) === false
+  const isReachable = useSelector(getIsReachable)
 
   const sourceResult = useAsync(async () => {
-    // Only check for local images if not reachable
-    if (isNotReachable) {
+    // If reachable, don't check for local images
+    if (isReachable) {
       return []
     }
 
     return await getLocalImageSource(getLocalPath)
   }, [getLocalPath])
 
-  if (isNotReachable) {
+  if (isReachable) {
     return { value: [], loading: false }
   }
 
