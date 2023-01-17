@@ -15,6 +15,7 @@ import {
   FavoriteType,
   Kind,
   Status,
+  Nullable,
   Uid,
   formatUrlName,
   accountSelectors,
@@ -86,7 +87,8 @@ const {
   getCollectionTracksLineup,
   getCollectionUid,
   getUser,
-  getUserUid
+  getUserUid,
+  getCollectionPermalink
 } = collectionPageSelectors
 const { updatePlaylistLastViewedAt } = notificationsActions
 const { getPlaylistUpdates } = notificationsSelectors
@@ -268,11 +270,14 @@ class CollectionPage extends Component<
     if (metadata) {
       const params = parseCollectionRoute(pathname)
       if (params) {
-        const { collectionId, title, collectionType, handle } = params
+        const { collectionId, title, collectionType, handle, permalink } =
+          params
         const newCollectionName = formatUrlName(metadata.playlist_name)
 
         const routeLacksCollectionInfo =
-          (title === null || handle === null || collectionType === null) && user
+          (title === null || handle === null || collectionType === null) &&
+          permalink == null &&
+          user
         if (routeLacksCollectionInfo) {
           // Check if we are coming from a non-canonical route and replace route if necessary.
           const newPath = metadata.is_album
@@ -340,11 +345,19 @@ class CollectionPage extends Component<
 
   fetchCollection = (pathname: string, forceFetch = false) => {
     const params = parseCollectionRoute(pathname)
-    if (params) {
-      const { collectionId } = params
-      if (forceFetch || collectionId !== this.state.playlistId) {
-        this.setState({ playlistId: collectionId as number })
-        this.props.fetchCollection(collectionId as number)
+
+    if (params?.collectionId) {
+      if (forceFetch || params?.collectionId !== this.state.playlistId) {
+        this.setState({ playlistId: params?.collectionId as number })
+        this.props.fetchCollection(params?.collectionId as number)
+        this.props.fetchTracks()
+      }
+    }
+
+    if (params?.permalink) {
+      if (forceFetch) {
+        this.props.setCollectionPermalink(params?.permalink)
+        this.props.fetchCollection(params?.collectionId, params?.permalink)
         this.props.fetchTracks()
       }
     }
@@ -817,6 +830,7 @@ function makeMapStateToProps() {
       tracks: getTracksLineup(state),
       collectionUid: getCollectionUid(state) || '',
       collection: getCollection(state) as Collection,
+      collectionPermalink: getCollectionPermalink(state),
       user: getUser(state),
       userUid: getUserUid(state) || '',
       status: getCollectionStatus(state) || '',
@@ -835,10 +849,12 @@ function makeMapStateToProps() {
 
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
-    fetchCollection: (id: number) =>
-      dispatch(collectionActions.fetchCollection(id)),
+    fetchCollection: (id: Nullable<number>, permalink?: string) =>
+      dispatch(collectionActions.fetchCollection(id, permalink)),
     fetchTracks: () =>
       dispatch(tracksActions.fetchLineupMetadatas(0, 200, false, undefined)),
+    setCollectionPermalink: (permalink: string) =>
+      dispatch(collectionActions.setCollectionPermalink(permalink)),
     resetCollection: (collectionUid: string, userUid: string) =>
       dispatch(collectionActions.resetCollection(collectionUid, userUid)),
     goToRoute: (route: string) => dispatch(pushRoute(route)),

@@ -13,9 +13,10 @@ export const setCollectionPermalink = (permalink: string) => ({
   permalink
 })
 
-export const fetchCollection = (id: number) => ({
+export const fetchCollection = (id: Nullable<number>, permalink?: string) => ({
   type: FETCH_COLLECTION,
-  id
+  id,
+  permalink
 })
 
 export const fetchCollectionSucceeded = (
