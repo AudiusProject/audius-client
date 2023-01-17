@@ -257,15 +257,15 @@ android {
             ]
         }
         releaseCandidate {
-            resValue "string", "CodePushDeploymentKey", '"09yN4-3LHKp_GVKFJEOoDDRqx2o3fJirP5nZf"'
+            resValue "string", "CodePushDeploymentKey", '"ceWFTSWpNzjz-T8OV_RGTClMLUTHne9GeVoSh"'
             applicationIdSuffix ".releasecandidate"
             manifestPlaceholders = [
                 appIcon: "@mipmap/ic_launcher_releasecandidate"
             ]
         }
         staging {
+            resValue "string", "CodePushDeploymentKey", '""'
             // Pre-compile run ENVFILE=.env.stage
-            resValue "string", "CodePushDeploymentKey", '"ceWFTSWpNzjz-T8OV_RGTClMLUTHne9GeVoSh"'
             applicationIdSuffix ".staging"
             manifestPlaceholders = [
                 appIcon: "@mipmap/ic_launcher_staging"
