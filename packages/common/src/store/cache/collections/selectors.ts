@@ -10,7 +10,7 @@ import { EnhancedCollectionTrack } from './types'
 
 export const getCollection = (
   state: CommonState,
-  props: { id?: ID | null; uid?: UID | null }
+  props: { id?: ID | null; uid?: UID | null; permalink?: string | null }
 ) => {
   return getEntry(state, {
     ...props,

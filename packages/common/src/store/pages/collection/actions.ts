@@ -6,6 +6,12 @@ export const FETCH_COLLECTION_SUCCEEDED = 'FETCH_COLLECTION_SUCCEEDED'
 export const FETCH_COLLECTION_FAILED = 'FETCH_COLLECTION_FAILED'
 export const RESET_COLLECTION = 'RESET_COLLECTION'
 export const SET_SMART_COLLECTION = 'SET_SMART_COLLECTION'
+export const SET_COLLECTION_PERMALINK = 'SET_COLLECTION_PERMALINK'
+
+export const setCollectionPermalink = (permalink: string) => ({
+  type: SET_COLLECTION_PERMALINK,
+  permalink
+})
 
 export const fetchCollection = (id: number) => ({
   type: FETCH_COLLECTION,
