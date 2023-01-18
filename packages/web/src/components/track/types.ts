@@ -210,6 +210,9 @@ export type DesktopTrackTileProps = {
 
   /** The relative link of the track */
   permalink: string
+
+  /** Whether the bottom bar can be overridden */
+  canOverrideBottomBar?: boolean
 }
 
 export type DesktopPlaylistTileProps = {

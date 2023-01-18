@@ -99,7 +99,8 @@ const TrackTile = memo(
     onClickShare,
     onTogglePlay,
     showRankIcon,
-    permalink
+    permalink,
+    canOverrideBottomBar
   }: TrackTileProps) => {
     const hasOrdering = order !== undefined
 
@@ -258,6 +259,7 @@ const TrackTile = memo(
             onClickRepost={onClickRepost}
             onClickFavorite={onClickFavorite}
             onClickShare={onClickShare}
+            canOverrideBottomBar={canOverrideBottomBar}
           />
         </div>
       </div>
