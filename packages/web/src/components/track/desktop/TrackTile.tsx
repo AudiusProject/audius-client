@@ -1,31 +1,19 @@
-import { memo, MouseEvent, ReactNode, useCallback } from 'react'
+import { memo, MouseEvent, useCallback } from 'react'
 
 import {
   formatCount,
   pluralize,
-  formatSeconds,
-  FeatureFlags,
-  PremiumConditions,
-  FieldVisibility
+  formatSeconds
 } from '@audius/common'
 import {
   IconCrown,
-  IconHidden,
-  IconCollectible,
-  IconSpecialAccess,
-  IconLock,
-  IconUnlocked
+  IconHidden
 } from '@audius/stems'
 import cn from 'classnames'
 
 import { ReactComponent as IconStar } from 'assets/img/iconStar.svg'
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
-import FavoriteButton from 'components/alt-button/FavoriteButton'
-import RepostButton from 'components/alt-button/RepostButton'
-import ShareButton from 'components/alt-button/ShareButton'
 import Skeleton from 'components/skeleton/Skeleton'
-import Tooltip from 'components/tooltip/Tooltip'
-import { useFlag } from 'hooks/useRemoteConfig'
 
 import { PremiumTrackCornerTag } from '../PremiumTrackCornerTag'
 import TrackBannerIcon, { TrackBannerIconType } from '../TrackBannerIcon'
@@ -35,13 +23,13 @@ import {
 } from '../types'
 
 import styles from './TrackTile.module.css'
+import { BottomRow } from './BottomRow'
+import { PremiumContentLabel } from './PremiumContentLabel'
 
 const messages = {
   getPlays: (listenCount: number) => ` ${pluralize('Play', listenCount)}`,
   artistPick: 'Artist Pick',
   hiddenTrack: 'Hidden Track',
-  repostLabel: 'Repost',
-  unrepostLabel: 'Unrepost',
   collectibleGated: 'Collectible Gated',
   specialAccess: 'Special Access',
   unlocked: 'Unlocked',
@@ -72,195 +60,6 @@ const RankAndIndexIndicator = ({
         </div>
       )}
     </>
-  )
-}
-
-const PremiumContentLabel = ({
-  premiumConditions,
-  doesUserHaveAccess
-}: {
-  premiumConditions?: PremiumConditions
-  doesUserHaveAccess: boolean
-}) => {
-  const { isEnabled: isPremiumContentEnabled } = useFlag(
-    FeatureFlags.PREMIUM_CONTENT_ENABLED
-  )
-
-  if (!isPremiumContentEnabled) {
-    return null
-  }
-
-  if (doesUserHaveAccess) {
-    return (
-      <div className={cn(styles.premiumContent, styles.topRightIconLabel)}>
-        <IconUnlocked className={styles.topRightIcon} />
-        {messages.unlocked}
-      </div>
-    )
-  }
-
-  if (premiumConditions?.nft_collection) {
-    return (
-      <div className={cn(styles.premiumContent, styles.topRightIconLabel)}>
-        <IconCollectible className={styles.topRightIcon} />
-        {messages.collectibleGated}
-      </div>
-    )
-  }
-
-  return (
-    <div className={cn(styles.premiumContent, styles.topRightIconLabel)}>
-      <IconSpecialAccess className={styles.topRightIcon} />
-      {messages.specialAccess}
-    </div>
-  )
-}
-
-type BottomRowProps = {
-  doesUserHaveAccess?: boolean
-  isDisabled?: boolean
-  isLoading?: boolean
-  isFavorited?: boolean
-  isReposted?: boolean
-  rightActions?: ReactNode
-  bottomBar?: ReactNode
-  isUnlisted?: boolean
-  fieldVisibility?: FieldVisibility
-  isOwner: boolean
-  isDarkMode?: boolean
-  isMatrixMode: boolean
-  showIconButtons?: boolean
-  onClickRepost: (e?: MouseEvent) => void
-  onClickFavorite: (e?: MouseEvent) => void
-  onClickShare: (e?: MouseEvent) => void
-}
-
-const BottomRow = ({
-  doesUserHaveAccess,
-  isDisabled,
-  isLoading,
-  isFavorited,
-  isReposted,
-  rightActions,
-  bottomBar,
-  isUnlisted,
-  fieldVisibility,
-  isOwner,
-  isDarkMode,
-  isMatrixMode,
-  showIconButtons,
-  onClickRepost,
-  onClickFavorite,
-  onClickShare
-}: BottomRowProps) => {
-  const { isEnabled: isPremiumContentEnabled } = useFlag(
-    FeatureFlags.PREMIUM_CONTENT_ENABLED
-  )
-
-  const repostLabel = isReposted ? messages.unrepostLabel : messages.repostLabel
-
-  const hideShare: boolean = fieldVisibility
-    ? fieldVisibility.share === false
-    : false
-
-  const onStopPropagation = useCallback(
-    (e: MouseEvent) => e.stopPropagation(),
-    []
-  )
-
-  const renderShareButton = () => {
-    return (
-      <Tooltip
-        text={'Share'}
-        disabled={isDisabled || hideShare}
-        placement='top'
-        mount='page'
-      >
-        <div
-          className={cn(styles.iconButtonContainer, {
-            [styles.isHidden]: hideShare
-          })}
-          onClick={onStopPropagation}
-        >
-          <ShareButton
-            onClick={onClickShare}
-            isDarkMode={!!isDarkMode}
-            className={styles.iconButton}
-            stopPropagation={false}
-            isMatrixMode={isMatrixMode}
-          />
-        </div>
-      </Tooltip>
-    )
-  }
-
-  if (isPremiumContentEnabled && !doesUserHaveAccess) {
-    return (
-      <div className={cn(styles.premiumContent, styles.bottomRow)}>
-        <IconLock />
-        {messages.locked}
-      </div>
-    )
-  }
-
-  return (
-    <div className={styles.bottomRow}>
-      {bottomBar}
-      {!isLoading && showIconButtons && isUnlisted && (
-        <div className={styles.iconButtons}>{renderShareButton()}</div>
-      )}
-      {!isLoading && showIconButtons && !isUnlisted && (
-        <div className={styles.iconButtons}>
-          <Tooltip
-            text={repostLabel}
-            disabled={isDisabled || isOwner}
-            placement='top'
-            mount='page'
-          >
-            <div
-              className={cn(styles.iconButtonContainer, {
-                [styles.isDisabled]: isOwner,
-                [styles.isHidden]: isUnlisted
-              })}
-            >
-              <RepostButton
-                aria-label={repostLabel}
-                onClick={onClickRepost}
-                isActive={isReposted}
-                isDisabled={isOwner}
-                isDarkMode={!!isDarkMode}
-                isMatrixMode={isMatrixMode}
-                wrapperClassName={styles.iconButton}
-              />
-            </div>
-          </Tooltip>
-          <Tooltip
-            text={isFavorited ? 'Unfavorite' : 'Favorite'}
-            disabled={isDisabled || isOwner}
-            placement='top'
-            mount='page'
-          >
-            <div
-              className={cn(styles.iconButtonContainer, {
-                [styles.isDisabled]: isOwner,
-                [styles.isHidden]: isUnlisted
-              })}
-            >
-              <FavoriteButton
-                onClick={onClickFavorite}
-                isActive={isFavorited}
-                isDisabled={isOwner}
-                isDarkMode={!!isDarkMode}
-                isMatrixMode={isMatrixMode}
-                wrapperClassName={styles.iconButton}
-              />
-            </div>
-          </Tooltip>
-          {renderShareButton()}
-        </div>
-      )}
-      {!isLoading && <div>{rightActions}</div>}
-    </div>
   )
 }
 
