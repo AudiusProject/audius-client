@@ -56,6 +56,7 @@ export const getCollections = (
       const collection = getCollection(state, { permalink })
       if (collection) collections[permalink] = collection
     })
+    return collections
   }
   return getAllEntries(state, { kind: Kind.COLLECTIONS })
 }
