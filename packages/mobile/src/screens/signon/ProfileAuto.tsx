@@ -10,7 +10,8 @@ import {
 } from 'common/store/pages/signon/selectors'
 import { EditingStatus } from 'common/store/pages/signon/types'
 import type { EditableField } from 'common/store/pages/signon/types'
-import { Animated, View, TouchableOpacity, SafeAreaView } from 'react-native'
+import { Animated, View, TouchableOpacity } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconImage from 'app/assets/images/iconImage.svg'
@@ -23,6 +24,7 @@ import LoadingSpinner from 'app/components/loading-spinner'
 import { SocialButton } from 'app/components/social-button'
 import { TikTokAuthButton } from 'app/components/tiktok-auth'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+import { useToast } from 'app/hooks/useToast'
 import { track, make } from 'app/services/analytics'
 import * as oauthActions from 'app/store/oauth/actions'
 import {
@@ -116,7 +118,8 @@ const messages = {
   verifiedTileHeader: 'Verified?',
   verifiedTileContent:
     'If the linked account is verified, your Audius account will be verified to match!',
-  manual: "I'd rather fill out my profile manually"
+  manual: "I'd rather fill out my profile manually",
+  error: 'Something went wrong, please try again'
 }
 
 let didAnimation = false
@@ -150,6 +153,7 @@ type ProfileAutoProps = NativeStackScreenProps<
 const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
+  const { toast } = useToast()
   const { neutralLight4, staticWhite } = useThemeColors()
   const twitterInfo = useSelector(getTwitterInfo)
   const twitterError = useSelector(getTwitterError)
@@ -344,11 +348,11 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
   ])
 
   useEffect(() => {
-    if (twitterError | instagramError | tikTokError) {
+    if (twitterError || instagramError || tikTokError) {
       setIsLoading(false)
-      // TODO: sk - show an error message?
+      toast({ content: messages.error })
     }
-  }, [twitterError, instagramError, tikTokError])
+  }, [twitterError, instagramError, tikTokError, toast])
 
   const handleTwitterPress = () => {
     setIsLoading(true)
@@ -376,6 +380,7 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
   }
 
   const handleTikTokPress = () => {
+    dispatch(oauthActions.setTikTokError(null))
     setIsLoading(true)
     track(
       make({
