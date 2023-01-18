@@ -28,7 +28,7 @@ const defaultCollectibles = { [Chain.Eth]: [], [Chain.Sol]: [] }
 const messages = {
   collectibleGated: 'Collectible Gated',
   collectibleGatedSubtitle:
-    'Collectible gated content can only be accessed by users with linked wallets containing a collectible from the specified collection. These tracks do not appear on trending or in user feeds.',
+    'Users who own a digital collectible matching your selection will have access to your track. Collectible gated content does not appear on trending or in user feeds.',
   learnMore: 'Learn More',
   pickACollection: 'Pick a Collection'
 }
