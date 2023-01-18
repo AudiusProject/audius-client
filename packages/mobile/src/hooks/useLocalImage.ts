@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 
 import { SquareSizes, reachabilitySelectors } from '@audius/common'
 import type { ImageURISource } from 'react-native'
