@@ -71,16 +71,7 @@ export const downloadCollectionById = async (
   isFavoritesDownload?: boolean
 ) => {
   const state = store.getState()
-  const currentUserId = getUserId(state)
-  const cachedCollection = getCollection(state, { id: collectionId })
-
-  const collection = cachedCollection
-  if (
-    !collection ||
-    collection.is_delete ||
-    (collection.is_private && collection.playlist_owner_id !== currentUserId)
-  )
-    return
+  const collection = getCollection(state, { id: collectionId })
 
   downloadCollection(collection, isFavoritesDownload)
 }
@@ -90,6 +81,16 @@ export const downloadCollection = async (
   isFavoritesDownload?: boolean
 ) => {
   const state = store.getState()
+  const currentUserId = getUserId(state)
+
+  // Prevent download of unavailable collections
+  if (
+    !collection ||
+    collection.is_delete ||
+    (collection.is_private && collection.playlist_owner_id !== currentUserId)
+  )
+    return
+
   const user = getUserFromCollection(state, { id: collection?.playlist_id })
   const collectionIdStr: string | undefined = isFavoritesDownload
     ? DOWNLOAD_REASON_FAVORITES

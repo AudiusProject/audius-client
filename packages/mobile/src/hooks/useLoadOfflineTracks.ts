@@ -48,7 +48,6 @@ export const useLoadOfflineData = () => {
     if (!isOfflineModeEnabled) return
 
     const offlineCollections = await getOfflineCollections()
-    console.log('offline collections', offlineCollections)
     const cacheCollections: {
       id: string
       uid: string

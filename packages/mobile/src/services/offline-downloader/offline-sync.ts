@@ -210,8 +210,9 @@ export const syncCollectionTracks = async (
   )
   removeCollectionDownload(collectionIdStr, tracksForDelete)
 
-  // TODO: known bug here we should track download reasons for the collection
-  // and apply each download reason to the sync'd tracks
+  // TODO: known bug here we should track multiple download reasons for the collection
+  // and apply each download reason to the sync'd tracks.
+  // Impact would be wrongly removing tracks when favorites toggle is turned off.
   const tracksForDownload: TrackForDownload[] = addedTrackIds.map(
     (addedTrack) => ({
       trackId: addedTrack,
