@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import {
+  getEmailField,
   getHandleField,
   getNameField,
   getProfileImageField,
@@ -255,6 +256,7 @@ const ProfileManual = ({ navigation }: ProfileManualProps) => {
 
   const handleField: EditableField = useSelector(getHandleField)
   const nameField: EditableField = useSelector(getNameField)
+  const emailField: EditableField = useSelector(getEmailField)
   const profileImage: Image = useSelector(getProfileImageField)
   const isVerified: boolean = useSelector(getIsVerified)
 
@@ -355,7 +357,8 @@ const ProfileManual = ({ navigation }: ProfileManualProps) => {
     track(
       make({
         eventName: EventNames.CREATE_ACCOUNT_COMPLETE_PROFILE,
-        handle: handleField.value
+        handle: handleField.value,
+        emailAddress: emailField.value
       })
     )
     navigation.replace('FirstFollows')
