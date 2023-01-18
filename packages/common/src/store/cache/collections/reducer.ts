@@ -18,7 +18,8 @@ const actionsMap = {
     return {
       ...state,
       permalinks: {
-        ...state.collections.permalinks,
+        // @ts-ignore
+        ...state.permalinks,
         ...action.permalinksToIds
       }
     }
