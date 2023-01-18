@@ -20,7 +20,7 @@ type TestComponentProps = Omit<
 const TestComponent = (props: TestComponentProps) => {
   const dispatch = (() => {}) as Dispatch<any>
   const image = useImageSize({ ...props, dispatch })
-  return <div>{image() ?? 'nothing'}</div>
+  return <div>{image ?? 'nothing'}</div>
 }
 
 describe('useImageSize', () => {
