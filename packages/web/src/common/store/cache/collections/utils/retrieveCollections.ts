@@ -117,6 +117,7 @@ function* getEntriesTimestamp(ids: ID[] | string[]) {
       acc[id] = getEntryTimestamp(state, { kind: Kind.COLLECTIONS, id })
       return acc
     }, {} as { [id: number]: number | null })
+  // @ts-ignore
   const selected: ReturnType<typeof selector> = yield select(selector, ids)
   return selected
 }
@@ -171,11 +172,9 @@ export function* retrieveCollectionByPermalink( // optional owner of collections
       yield addUsersFromCollections(metadatas)
       yield addTracksFromCollections(metadatas)
       yield* put(
-        collectionActions.setCollectionPermalinks([
-          {
-            permalink: metadatas[0].playlist_id
-          }
-        ])
+        collectionActions.setCollectionPermalinks({
+          [permalink]: metadatas[0].playlist_id
+        })
       )
       if (fetchTracks) {
         yield call(retrieveTracksForCollections, metadatas, new Set())
