@@ -1202,11 +1202,13 @@ export class AudiusAPIClient {
       user_id: encodedCurrentUserId || undefined
     }
     const splitPermalink = permalink.split('/')
-    if (splitPermalink.length !== 3) {
-      throw Error('Permalink formatted incorrectly.')
+    if (splitPermalink.length !== 4) {
+      throw Error(
+        'Permalink formatted incorrectly. Should follow /<handle>/playlist/<slug> format.'
+      )
     }
-    const handle = splitPermalink[0]
-    const slug = splitPermalink[2]
+    const handle = splitPermalink[1]
+    const slug = splitPermalink[3]
     const response: Nullable<APIResponse<APIPlaylist[]>> =
       await this._getResponse(
         FULL_ENDPOINT_MAP.getPlaylistByPermalink(handle, slug),
