@@ -64,7 +64,8 @@ const messages = {
   unlockTipGatedTrackSuffix: ' a tip',
   thankYouForSupporting: 'Thank you for supporting ',
   unlockingTipGatedTrackSuffix: ' by sending them a tip!',
-  unlockedTipGatedTrackSuffix: ' by sending them a tip! This track is now available.'
+  unlockedTipGatedTrackSuffix:
+    ' by sending them a tip! This track is now available.'
 }
 
 type PremiumTrackAccessSectionProps = {
@@ -81,7 +82,6 @@ const LockedPremiumTrackSection = ({
   const dispatch = useDispatch()
   const sendStatus = useSelector(getSendStatus)
   const previousSendStatus = usePrevious(sendStatus)
-  const premiumTrackStatus = useSelector(getPremiumTrackStatus)
   const account = useSelector(getAccountUser)
 
   // Set unlocking state if send tip is successful and user closed the tip modal.
@@ -141,20 +141,6 @@ const LockedPremiumTrackSection = ({
 
   const renderLockedDescription = useCallback(() => {
     if (premiumConditions.nft_collection) {
-      if (premiumTrackStatus === 'UNLOCKING') {
-        return (
-          <div className={styles.premiumContentSectionDescription}>
-            <p>
-              <LoadingSpinner className={styles.spinner} />
-              {messages.aCollectibleFrom}
-              <span className={styles.collectibleName}>
-                &nbsp;{premiumConditions.nft_collection.name}&nbsp;
-              </span>
-              {messages.unlockingCollectibleGatedTrackSuffix}
-            </p>
-          </div>
-        )
-      }
       return (
         <div className={styles.premiumContentSectionDescription}>
           <p>{messages.unlockCollectibleGatedTrack}</p>
@@ -172,24 +158,6 @@ const LockedPremiumTrackSection = ({
     }
 
     if (premiumConditions.follow_user_id) {
-      if (premiumTrackStatus === 'UNLOCKING') {
-        return (
-          <div className={styles.premiumContentSectionDescription}>
-            <p>
-              <LoadingSpinner className={styles.spinner} />
-              {messages.thankYouForFollowing}
-              {followee?.name}
-              <UserBadges
-                userId={premiumConditions.follow_user_id}
-                className={styles.badgeIcon}
-                badgeSize={14}
-                useSVGTiers
-                />
-              {messages.unlockingFollowGatedTrackSuffix}
-            </p>
-          </div>
-        )
-      }
       return (
         <div className={styles.premiumContentSectionDescription}>
           <p>
@@ -207,24 +175,6 @@ const LockedPremiumTrackSection = ({
     }
 
     if (premiumConditions.tip_user_id) {
-      if (premiumTrackStatus === 'UNLOCKING') {
-        return (
-          <div className={styles.premiumContentSectionDescription}>
-            <p>
-              <LoadingSpinner className={styles.spinner} />
-              {messages.thankYouForSupporting}
-              {followee?.name}
-              <UserBadges
-                userId={premiumConditions.follow_user_id}
-                className={styles.badgeIcon}
-                badgeSize={14}
-                useSVGTiers
-              />
-              {messages.unlockingTipGatedTrackSuffix}
-            </p>
-          </div>
-        )
-      }
       return (
         <div className={styles.premiumContentSectionDescription}>
           <p>
@@ -247,10 +197,6 @@ const LockedPremiumTrackSection = ({
   }, [premiumConditions, followee, tippedUser])
 
   const renderButton = useCallback(() => {
-    if (premiumTrackStatus === 'UNLOCKING') {
-      return null
-    }
-
     if (premiumConditions.nft_collection) {
       return (
         <Button
@@ -298,8 +244,7 @@ const LockedPremiumTrackSection = ({
     premiumConditions,
     handleGoToCollection,
     handleFollow,
-    handleSendTip,
-    premiumTrackStatus
+    handleSendTip
   ])
 
   return (
@@ -307,11 +252,82 @@ const LockedPremiumTrackSection = ({
       <div>
         <div className={styles.premiumContentSectionTitle}>
           <IconLock className={styles.lockedIcon} />
-          {premiumTrackStatus === 'UNLOCKING' ? messages.unlocking : messages.howToUnlock}
+          {messages.howToUnlock}
         </div>
         {renderLockedDescription()}
       </div>
       <div className={styles.premiumContentSectionButton}>{renderButton()}</div>
+    </div>
+  )
+}
+
+const UnlockingPremiumTrackSection = ({
+  premiumConditions,
+  followee,
+  tippedUser
+}: PremiumTrackAccessSectionProps) => {
+  const renderUnlockingDescription = useCallback(() => {
+    if (premiumConditions.nft_collection) {
+      return (
+        <p>
+          <LoadingSpinner className={styles.spinner} />
+          {messages.aCollectibleFrom}
+          <span className={styles.collectibleName}>
+            &nbsp;{premiumConditions.nft_collection.name}&nbsp;
+          </span>
+          {messages.unlockingCollectibleGatedTrackSuffix}
+        </p>
+      )
+    }
+
+    if (premiumConditions.follow_user_id) {
+      return (
+        <p>
+          <LoadingSpinner className={styles.spinner} />
+          {messages.thankYouForFollowing}
+          {followee?.name}
+          <UserBadges
+            userId={premiumConditions.follow_user_id}
+            className={styles.badgeIcon}
+            badgeSize={14}
+            useSVGTiers
+          />
+          {messages.unlockingFollowGatedTrackSuffix}
+        </p>
+      )
+    }
+
+    if (premiumConditions.tip_user_id) {
+      return (
+        <p>
+          <LoadingSpinner className={styles.spinner} />
+          {messages.thankYouForSupporting}
+          {tippedUser?.name}
+          <UserBadges
+            userId={premiumConditions.tip_user_id}
+            className={styles.badgeIcon}
+            badgeSize={14}
+            useSVGTiers
+          />
+          {messages.unlockingTipGatedTrackSuffix}
+        </p>
+      )
+    }
+    // should not reach here
+    return null
+  }, [premiumConditions, followee, tippedUser])
+
+  return (
+    <div className={styles.premiumContentSectionLocked}>
+      <div>
+        <div className={styles.premiumContentSectionTitle}>
+          <IconLock className={styles.lockedIcon} />
+          {messages.unlocking}
+        </div>
+        <div className={styles.premiumContentSectionDescription}>
+          {renderUnlockingDescription()}
+        </div>
+      </div>
     </div>
   )
 }
@@ -400,6 +416,7 @@ export const PremiumTrackSection = ({
   const { isEnabled: isPremiumContentEnabled } = useFlag(
     FeatureFlags.PREMIUM_CONTENT_ENABLED
   )
+  const premiumTrackStatus = useSelector(getPremiumTrackStatus)
   const { follow_user_id: followUserId, tip_user_id: tipUserId } =
     premiumConditions ?? {}
   const users = useSelector<AppState, { [id: ID]: User }>((state) =>
@@ -427,21 +444,37 @@ export const PremiumTrackSection = ({
   if (!premiumConditions) return null
   if (!shouldDisplay) return null
 
-  return (
-    <div className={cn(styles.premiumContentSection, fadeIn)}>
-      {doesUserHaveAccess ? (
+  if (doesUserHaveAccess) {
+    return (
+      <div className={cn(styles.premiumContentSection, fadeIn)}>
         <UnlockedPremiumTrackSection
           premiumConditions={premiumConditions}
           followee={followee}
           tippedUser={tippedUser}
         />
-      ) : (
-        <LockedPremiumTrackSection
+      </div>
+    )
+  }
+
+  if (premiumTrackStatus === 'UNLOCKING') {
+    return (
+      <div className={cn(styles.premiumContentSection, fadeIn)}>
+        <UnlockingPremiumTrackSection
           premiumConditions={premiumConditions}
           followee={followee}
           tippedUser={tippedUser}
         />
-      )}
+      </div>
+    )
+  }
+
+  return (
+    <div className={cn(styles.premiumContentSection, fadeIn)}>
+      <LockedPremiumTrackSection
+        premiumConditions={premiumConditions}
+        followee={followee}
+        tippedUser={tippedUser}
+      />
     </div>
   )
 }
