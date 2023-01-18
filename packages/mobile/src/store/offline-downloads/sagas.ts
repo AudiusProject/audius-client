@@ -110,7 +110,6 @@ function* watchClearOfflineDownloads() {
 
 export function* startSync() {
   try {
-    console.log('SyncSaga - init')
     yield* take(doneLoadingFromDisk)
     yield* waitForRead()
     yield* waitForBackendSetup()
@@ -143,10 +142,15 @@ export function* startSync() {
       yield* take([FETCH_COLLECTION_SUCCEEDED, FETCH_COLLECTION_FAILED])
     }
 
+    const updatedCollections = yield* select(getCollections)
+    const updatedAccountCollections = accountCollectionIds
+      .map((id) => updatedCollections[id])
+      .filter((collection) => !!collection)
+
     yield* call(
       syncFavoritedCollections,
       offlineCollections,
-      accountCollectionIds
+      updatedAccountCollections
     )
 
     yield* call(

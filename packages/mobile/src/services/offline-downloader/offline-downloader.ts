@@ -69,23 +69,13 @@ export const DOWNLOAD_REASON_FAVORITES = 'favorites'
 /** Main entrypoint - perform all steps required to complete a download for each track */
 export const downloadCollectionById = async (
   collectionId?: number | null,
-  isFavoritesDownload?: boolean,
-  apiClient?: AudiusAPIClient
+  isFavoritesDownload?: boolean
 ) => {
   const state = store.getState()
   const currentUserId = getUserId(state)
   const cachedCollection = getCollection(state, { id: collectionId })
 
-  // const apiCollection =
-  //   collectionId && apiClient
-  //     ? ((await apiClient.getPlaylist({
-  //         playlistId: collectionId,
-  //         currentUserId: getUserId(state)
-  //       })[0]) as Collection)
-  //     : null
-
   const collection = cachedCollection
-  // const collection = cachedCollection ?? apiCollection
   if (
     !collection ||
     collection.is_delete ||

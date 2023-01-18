@@ -1,5 +1,4 @@
 import type {
-  AudiusAPIClient,
   Collection,
   CommonState,
   DownloadReason,
@@ -21,7 +20,6 @@ import {
   batchDownloadTrack,
   batchRemoveTrackDownload,
   downloadCollection,
-  downloadCollectionById,
   downloadCollectionCoverArt,
   downloadTrackCoverArt,
   DOWNLOAD_REASON_FAVORITES,
@@ -95,35 +93,34 @@ export const syncFavorites = async () => {
 
 export const syncFavoritedCollections = async (
   offlineCollections: Collection[],
-  userCollectionIds: number[],
-  apiClient?: AudiusAPIClient
+  userCollections: Collection[]
 ) => {
-  console.log('SyncCollections - start')
-  console.log(
-    'SyncCollections - offlineCollections -',
-    offlineCollections.map((c) => c.playlist_id)
-  )
-  console.log('SyncCollections - userCollections -', userCollectionIds)
   const oldCollectionIds = new Set(
     offlineCollections.map((collection) => collection.playlist_id)
   )
-  const newCollectionIds = new Set(userCollectionIds)
-  const addedCollectionIds = [...newCollectionIds].filter(
-    (collectionId) => !oldCollectionIds.has(collectionId)
+  const newCollectionIds = new Set(
+    userCollections.map((collection) => collection.playlist_id)
+  )
+  const addedCollections = [...userCollections].filter(
+    (collection) => !oldCollectionIds.has(collection.playlist_id)
   )
   const removedCollections = [...offlineCollections].filter(
     (collection) => !newCollectionIds.has(collection.playlist_id)
   )
 
-  console.log('SyncCollections - addedCollectionIds -', addedCollectionIds)
-  addedCollectionIds.forEach((collectionId) => {
-    downloadCollectionById(collectionId, true, apiClient)
+  addedCollections.forEach((collection) => {
+    const tracksForDownload = collection.tracks?.map((track) => ({
+      trackId: track.track_id,
+      downloadReason: {
+        is_from_favorites: true,
+        collection_id: collection.playlist_id.toString()
+      }
+    }))
+    downloadCollection(collection, true)
+    if (!tracksForDownload) return
+    batchDownloadTrack(tracksForDownload)
   })
 
-  console.log(
-    'SyncCollections - removedCollections -',
-    removedCollections.map((c) => c.playlist_id)
-  )
   removedCollections.forEach((collection) => {
     const tracksForDownload =
       collection.tracks?.map((track) => ({
