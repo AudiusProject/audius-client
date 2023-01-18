@@ -79,7 +79,7 @@ const FULL_ENDPOINT_MAP = {
   getRelatedArtists: (userId: OpaqueID) => `/users/${userId}/related`,
   getPlaylist: (playlistId: OpaqueID) => `/playlists/${playlistId}`,
   getPlaylistByPermalink: (handle: string, slug: string) =>
-    `${handle}/playlists/${slug}`,
+    `/playlists/by_permalink/${handle}/${slug}`,
   topGenreUsers: '/users/genre/top',
   topArtists: '/users/top',
   getTrack: (trackId: OpaqueID) => `/tracks/${trackId}`,
