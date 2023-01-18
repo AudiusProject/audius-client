@@ -99,7 +99,9 @@ export const CollectibleGatedAvailability = ({
   }, [collectibles])
 
   const ethCollectibleItems = useMemo(() => {
-    return Object.keys(ethCollectionMap).map((slug) => ({
+    return Object.keys(ethCollectionMap)
+      .sort((s1, s2) => ethCollectionMap[s1].name.localeCompare(ethCollectionMap[s2].name))
+      .map((slug) => ({
       text: ethCollectionMap[slug].name,
       el: (
         <div className={styles.dropdownRow}>
@@ -147,7 +149,9 @@ export const CollectibleGatedAvailability = ({
   }, [collectibles, solCollections])
 
   const solCollectibleItems = useMemo(() => {
-    return Object.keys(solCollectionMap).map((mint) => ({
+    return Object.keys(solCollectionMap)
+      .sort((m1, m2) => solCollectionMap[m1].name.localeCompare(solCollectionMap[m2].name))
+      .map((mint) => ({
       text: solCollectionMap[mint].name,
       el: (
         <div className={styles.dropdownRow}>
