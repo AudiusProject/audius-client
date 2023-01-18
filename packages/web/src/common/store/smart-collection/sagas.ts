@@ -6,8 +6,7 @@ import {
   accountSelectors,
   smartCollectionPageActions,
   collectionPageActions,
-  getContext,
-  User
+  getContext
 } from '@audius/common'
 import { takeEvery, put, call, select } from 'typed-redux-saga'
 
