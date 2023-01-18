@@ -71,6 +71,5 @@ const persistedSearchReducer = persistReducer(
   searchPersistConfig,
   slice.reducer
 )
-export default persistedSearchReducer
 
-// export default slice.reducer
+export default persistedSearchReducer

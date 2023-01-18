@@ -10,7 +10,7 @@ import { Text } from 'app/components/core'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { updateQuery } from 'app/store/search/slice'
 import { makeStyles } from 'app/styles'
-import { useColor } from 'app/utils/theme'
+import { useThemeColors } from 'app/utils/theme'
 
 const useStyles = makeStyles(({ spacing }) => ({
   itemContainer: {
@@ -38,8 +38,7 @@ export const SearchHistoryListItem = (props: SearchHistoryListItemProps) => {
   const { text } = props
   const styles = useStyles()
   const navigation = useNavigation()
-  const backgroundColor = useColor('neutralLight8')
-  const color = useColor('neutralLight4')
+  const { neutralLight4, neutralLight8 } = useThemeColors()
   const dispatch = useDispatch()
 
   const onPress = useCallback(() => {
@@ -53,7 +52,7 @@ export const SearchHistoryListItem = (props: SearchHistoryListItemProps) => {
 
   return (
     <TouchableHighlight
-      underlayColor={backgroundColor}
+      underlayColor={neutralLight8}
       activeOpacity={0.8}
       onPress={onPress}
     >
@@ -63,7 +62,7 @@ export const SearchHistoryListItem = (props: SearchHistoryListItemProps) => {
             {text}
           </Text>
         </View>
-        <IconArrow style={styles.arrow} fill={color} />
+        <IconArrow style={styles.arrow} fill={neutralLight4} />
       </View>
     </TouchableHighlight>
   )

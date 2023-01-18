@@ -80,14 +80,6 @@ const rootReducer = combineReducers({
   shareToStoryProgress
 })
 
-// const persistConfig = {
-//   key: 'root',
-//   storage: AsyncStorage,
-//   whitelist: ['search']
-// }
-
-// const persistedRootReducer = persistReducer(persistConfig, rootReducer)
-
 const sagaMiddleware = createSagaMiddleware({
   context: storeContext,
   onError: (e) => {
