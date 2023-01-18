@@ -10,7 +10,8 @@ import {
   FieldVisibility,
   LineupTrack,
   Remix,
-  PremiumConditions
+  PremiumConditions,
+  Nullable
 } from '@audius/common'
 
 export enum TrackTileSize {
@@ -124,7 +125,7 @@ export type DesktopTrackTileProps = {
   isPremium?: boolean
 
   /** Premium conditions if track is premium */
-  premiumConditions?: PremiumConditions
+  premiumConditions?: Nullable<PremiumConditions>
 
   /** If logged in user has access to track */
   doesUserHaveAccess?: boolean
