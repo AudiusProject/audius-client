@@ -154,7 +154,7 @@ export function* retrieveCollectionByPermalink( // optional owner of collections
     retrieveFromSource: function* (permalinks: string[]) {
       const metadatas: UserCollectionMetadata[] = yield call(
         retrieveCollection,
-        null,
+        null, // playlistId
         permalinks[0]
       )
 
