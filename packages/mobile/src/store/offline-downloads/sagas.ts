@@ -121,11 +121,14 @@ export function* startSync() {
       (collection) => collection.id
     )
     const offlineCollectionsState = yield* select(getOfflineCollections)
-    if (offlineCollectionsState[DOWNLOAD_REASON_FAVORITES]) {
+
+    const isFavoritesDownloadEnabled =
+      offlineCollectionsState[DOWNLOAD_REASON_FAVORITES]
+    if (isFavoritesDownloadEnabled) {
       yield* call(syncFavorites)
     }
 
-    const offlineCollections: Collection[] = Object.entries(
+    const existingOfflineCollections: Collection[] = Object.entries(
       offlineCollectionsState
     )
       .filter(
@@ -134,28 +137,27 @@ export function* startSync() {
       .map(([id, isDownloaded]) => collections[id] ?? null)
       .filter((collection) => !!collection)
 
-    const isFavoritesDownloadEnabled =
-      offlineCollectionsState[DOWNLOAD_REASON_FAVORITES]
+    if (!isFavoritesDownloadEnabled) {
+      for (const collectionId of accountCollectionIds) {
+        yield* put(fetchCollection(collectionId))
+        yield* take([FETCH_COLLECTION_SUCCEEDED, FETCH_COLLECTION_FAILED])
+      }
 
-    for (const collectionId of accountCollectionIds) {
-      yield* put(fetchCollection(collectionId))
-      yield* take([FETCH_COLLECTION_SUCCEEDED, FETCH_COLLECTION_FAILED])
+      const updatedCollections = yield* select(getCollections)
+      const updatedAccountCollections = accountCollectionIds
+        .map((id) => updatedCollections[id])
+        .filter((collection) => !!collection)
+
+      yield* call(
+        syncFavoritedCollections,
+        existingOfflineCollections,
+        updatedAccountCollections
+      )
     }
-
-    const updatedCollections = yield* select(getCollections)
-    const updatedAccountCollections = accountCollectionIds
-      .map((id) => updatedCollections[id])
-      .filter((collection) => !!collection)
-
-    yield* call(
-      syncFavoritedCollections,
-      offlineCollections,
-      updatedAccountCollections
-    )
 
     yield* call(
       syncCollectionsTracks,
-      offlineCollections,
+      existingOfflineCollections,
       isFavoritesDownloadEnabled
     )
     yield* call(syncStaleTracks)

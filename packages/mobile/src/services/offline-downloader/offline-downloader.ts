@@ -1,7 +1,6 @@
 import path from 'path'
 
 import type {
-  AudiusAPIClient,
   Collection,
   CommonState,
   DownloadReason,
