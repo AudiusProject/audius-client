@@ -28,7 +28,7 @@ import {
   batchDownloadTrack,
   downloadCollectionById,
   DOWNLOAD_REASON_FAVORITES,
-  syncFavorites,
+  syncFavoritedTracks,
   syncFavoritedCollections,
   syncStaleTracks,
   syncCollectionsTracks
@@ -121,13 +121,6 @@ export function* startSync() {
       (collection) => collection.id
     )
     const offlineCollectionsState = yield* select(getOfflineCollections)
-
-    const isFavoritesDownloadEnabled =
-      offlineCollectionsState[DOWNLOAD_REASON_FAVORITES]
-    if (isFavoritesDownloadEnabled) {
-      yield* call(syncFavorites)
-    }
-
     const existingOfflineCollections: Collection[] = Object.entries(
       offlineCollectionsState
     )
@@ -137,7 +130,13 @@ export function* startSync() {
       .map(([id, isDownloaded]) => collections[id] ?? null)
       .filter((collection) => !!collection)
 
-    if (!isFavoritesDownloadEnabled) {
+    const isFavoritesDownloadEnabled =
+      offlineCollectionsState[DOWNLOAD_REASON_FAVORITES]
+    if (isFavoritesDownloadEnabled) {
+      // Individual tracks
+      yield* call(syncFavoritedTracks)
+
+      // Favorited collections
       for (const collectionId of accountCollectionIds) {
         yield* put(fetchCollection(collectionId))
         yield* take([FETCH_COLLECTION_SUCCEEDED, FETCH_COLLECTION_FAILED])
@@ -155,6 +154,7 @@ export function* startSync() {
       )
     }
 
+    // Individual collections
     yield* call(
       syncCollectionsTracks,
       existingOfflineCollections,

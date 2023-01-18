@@ -34,7 +34,7 @@ const { getUserId } = accountSelectors
 
 const STALE_DURATION_TRACKS = moment.duration(7, 'days')
 
-export const syncFavorites = async () => {
+export const syncFavoritedTracks = async () => {
   const state = store.getState()
 
   const currentUserId = getUserId(state as unknown as CommonState)
