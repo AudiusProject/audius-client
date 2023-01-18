@@ -30,7 +30,7 @@ const getUserId = accountSelectors.getUserId
 function* markCollectionDeleted(
   collectionMetadatas: CollectionMetadata[]
 ): Generator<any, CollectionMetadata[], any> {
-  const collections = yield select(getCollections, {
+  const collections = yield* select(getCollections, {
     ids: collectionMetadatas.map((c) => c.playlist_id)
   })
   return collectionMetadatas.map((metadata) => {
@@ -93,22 +93,35 @@ export function* retrieveTracksForCollections(
   })
 }
 
+type retrieveCollectionArgs = {
+  playlistId?: Nullable<ID>
+  permalink?: Nullable<string>
+}
+
 /**
  * Retrieves a single collection via API client
  */
-export function* retrieveCollection(
-  playlistId: Nullable<ID>,
-  permalink?: Nullable<string>
-) {
+export function* retrieveCollection({
+  playlistId,
+  permalink
+}: retrieveCollectionArgs) {
   yield* waitForRead()
   const apiClient = yield* getContext('apiClient')
   const currentUserId = yield* select(getUserId)
-  const endpoint = permalink ? 'getPlaylistByPermalink' : 'getPlaylist'
-  const endpointArgs = permalink
-    ? { currentUserId, permalink }
-    : { currentUserId, playlistId }
-  const playlists = yield* call([apiClient, endpoint], endpointArgs)
-  return playlists
+  if (playlistId) {
+    const playlists = yield* call([apiClient, 'getPlaylist'], {
+      currentUserId,
+      playlistId
+    })
+    return playlists
+  }
+  if (permalink) {
+    const playlists = yield* call([apiClient, 'getPlaylistByPermalink'], {
+      currentUserId,
+      permalink
+    })
+    return playlists
+  }
 }
 
 function* getEntriesTimestamp(ids: ID[] | string[]) {
@@ -117,8 +130,7 @@ function* getEntriesTimestamp(ids: ID[] | string[]) {
       acc[id] = getEntryTimestamp(state, { kind: Kind.COLLECTIONS, id })
       return acc
     }, {} as { [id: number]: number | null })
-  // @ts-ignore
-  const selected: ReturnType<typeof selector> = yield select(selector, ids)
+  const selected: ReturnType<typeof selector> = yield* select(selector, ids)
   return selected
 }
 
@@ -132,7 +144,7 @@ export function* retrieveCollectionByPermalink( // optional owner of collections
   requiresAllTracks = false
 ) {
   // @ts-ignore retrieve should be refactored to ts first
-  const { entries, uids } = yield call(retrieve, {
+  const { entries, uids } = yield* call(retrieve, {
     ids: [permalink],
     selectFromCache: function* (permalinks: string[]) {
       const res = yield* select(cacheCollectionsSelectors.getCollections, {
@@ -153,31 +165,29 @@ export function* retrieveCollectionByPermalink( // optional owner of collections
     },
     getEntriesTimestamp,
     retrieveFromSource: function* (permalinks: string[]) {
-      const metadatas: UserCollectionMetadata[] = yield call(
-        retrieveCollection,
-        null, // playlistId
-        permalinks[0]
-      )
+      const metadatas = yield* call(retrieveCollection, {
+        permalink: permalinks[0]
+      })
 
       // Process any local deletions on the client
-      const metadatasWithDeleted: UserCollectionMetadata[] = yield call(
+      const metadatasWithDeleted = yield* call(
         markCollectionDeleted,
-        metadatas
+        metadatas!
       )
 
       return metadatasWithDeleted
     },
     onBeforeAddToCache: function* (metadatas: UserCollectionMetadata[]) {
       const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-      yield addUsersFromCollections(metadatas)
-      yield addTracksFromCollections(metadatas)
+      yield* addUsersFromCollections(metadatas)
+      yield* addTracksFromCollections(metadatas)
       yield* put(
         collectionActions.setCollectionPermalinks({
           [permalink]: metadatas[0].playlist_id
         })
       )
       if (fetchTracks) {
-        yield call(retrieveTracksForCollections, metadatas, new Set())
+        yield* call(retrieveTracksForCollections, metadatas, new Set())
       }
 
       const reformattedCollections = metadatas.map((c) =>
@@ -212,12 +222,12 @@ export function* retrieveCollections(
   requiresAllTracks = false
 ) {
   // @ts-ignore retrieve should be refactored to ts first
-  const { entries, uids } = yield call(retrieve, {
+  const { entries, uids } = yield* call(retrieve, {
     ids: collectionIds,
     selectFromCache: function* (ids: ID[]) {
       const res: {
         [id: number]: Collection
-      } = yield select(getCollections, { ids })
+      } = yield* select(getCollections, { ids })
       if (requiresAllTracks) {
         const keys = Object.keys(res) as any
         keys.forEach((collectionId: number) => {
@@ -234,30 +244,30 @@ export function* retrieveCollections(
     getEntriesTimestamp,
     retrieveFromSource: function* (ids: ID[]) {
       const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-      let metadatas: UserCollectionMetadata[]
+      let metadatas
 
       if (ids.length === 1) {
-        metadatas = yield call(retrieveCollection, ids[0])
+        metadatas = yield* call(retrieveCollection, { playlistId: ids[0] })
       } else {
         // TODO: Remove this branch when we have batched endpoints in new V1 api.
-        metadatas = yield call(audiusBackendInstance.getPlaylists, userId, ids)
+        metadatas = yield* call(audiusBackendInstance.getPlaylists, userId, ids)
       }
 
       // Process any local deletions on the client
-      const metadatasWithDeleted: UserCollectionMetadata[] = yield call(
+      const metadatasWithDeleted = yield* call(
         markCollectionDeleted,
-        metadatas
+        metadatas!
       )
 
       return metadatasWithDeleted
     },
     onBeforeAddToCache: function* (metadatas: UserCollectionMetadata[]) {
       const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-      yield addUsersFromCollections(metadatas)
-      yield addTracksFromCollections(metadatas)
+      yield* addUsersFromCollections(metadatas)
+      yield* addTracksFromCollections(metadatas)
 
       if (fetchTracks) {
-        yield call(retrieveTracksForCollections, metadatas, new Set())
+        yield* call(retrieveTracksForCollections, metadatas, new Set())
       }
 
       const reformattedCollections = metadatas.map((c) =>

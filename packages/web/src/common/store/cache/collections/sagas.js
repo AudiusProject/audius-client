@@ -475,10 +475,9 @@ function* confirmAddTrackToPlaylist(
         return playlistId
       },
       function* (confirmedPlaylistId) {
-        const confirmedPlaylist = (yield call(
-          retrieveCollection,
-          confirmedPlaylistId
-        ))[0]
+        const confirmedPlaylist = (yield call(retrieveCollection, {
+          playlistId: confirmedPlaylistId
+        }))[0]
 
         const playlist = yield select(getCollection, { id: playlistId })
 
@@ -698,10 +697,9 @@ function* confirmRemoveTrackFromPlaylist(
         return confirmedPlaylistId
       },
       function* (confirmedPlaylistId) {
-        const confirmedPlaylist = (yield call(
-          retrieveCollection,
-          confirmedPlaylistId
-        ))[0]
+        const confirmedPlaylist = (yield call(retrieveCollection, {
+          playlistId: confirmedPlaylistId
+        }))[0]
         yield put(
           cacheActions.update(Kind.COLLECTIONS, [
             {
@@ -828,10 +826,9 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds, playlist) {
         return playlistId
       },
       function* (confirmedPlaylistId) {
-        const confirmedPlaylist = (yield call(
-          retrieveCollection,
-          confirmedPlaylistId
-        ))[0]
+        const confirmedPlaylist = (yield call(retrieveCollection, {
+          playlistId: confirmedPlaylistId
+        }))[0]
 
         yield put(
           cacheActions.update(Kind.COLLECTIONS, [
