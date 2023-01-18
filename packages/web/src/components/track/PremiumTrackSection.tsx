@@ -45,22 +45,26 @@ const { getAccountUser } = accountSelectors
 
 const messages = {
   howToUnlock: 'HOW TO UNLOCK',
-  unlockCollectibleGatedTrack:
-    'To unlock this track, you must link a wallet containing a collectible from:',
-  unlockedCollectibleGatedTrackPrefix: 'A Collectible from ',
-  unlockedCollectibleGatedTrackSuffix:
-    ' was found in a linked wallet. This track is now available.',
+  unlocking: 'UNLOCKING',
+  unlocked: 'UNLOCKED',
   goToCollection: 'Go To Collection',
   sendTip: 'Send Tip',
   followArtist: 'Follow Artist',
+  unlockCollectibleGatedTrack:
+    'To unlock this track, you must link a wallet containing a collectible from:',
+  aCollectibleFrom: 'A Collectible from ',
+  unlockingCollectibleGatedTrackSuffix: ' was found in a linked wallet.',
+  unlockedCollectibleGatedTrackSuffix:
+    ' was found in a linked wallet. This track is now available.',
   unlockFollowGatedTrackPrefix: 'Follow ',
-  unlockedFollowGatedTrackPrefix: 'Thank you for following ',
+  thankYouForFollowing: 'Thank you for following ',
+  unlockingFollowGatedTrackSuffix: '!',
+  unlockedFollowGatedTrackSuffix: '! This track is now available.',
   unlockTipGatedTrackPrefix: 'Send ',
   unlockTipGatedTrackSuffix: ' a tip',
-  unlockedTipGatedTrackPrefix: 'Thank you for tipping ',
-  unlockedSpecialAccessGatedTrackSuffix: '! This track is now available.',
-  unlocked: 'UNLOCKED',
-  unlocking: 'Unlocking'
+  thankYouForSupporting: 'Thank you for supporting ',
+  unlockingTipGatedTrackSuffix: ' by sending them a tip!',
+  unlockedTipGatedTrackSuffix: ' by sending them a tip! This track is now available.'
 }
 
 type PremiumTrackAccessSectionProps = {
@@ -137,6 +141,20 @@ const LockedPremiumTrackSection = ({
 
   const renderLockedDescription = useCallback(() => {
     if (premiumConditions.nft_collection) {
+      if (premiumTrackStatus === 'UNLOCKING') {
+        return (
+          <div className={styles.premiumContentSectionDescription}>
+            <p>
+              <LoadingSpinner className={styles.spinner} />
+              {messages.aCollectibleFrom}
+              <span className={styles.collectibleName}>
+                &nbsp;{premiumConditions.nft_collection.name}&nbsp;
+              </span>
+              {messages.unlockingCollectibleGatedTrackSuffix}
+            </p>
+          </div>
+        )
+      }
       return (
         <div className={styles.premiumContentSectionDescription}>
           <p>{messages.unlockCollectibleGatedTrack}</p>
@@ -154,6 +172,24 @@ const LockedPremiumTrackSection = ({
     }
 
     if (premiumConditions.follow_user_id) {
+      if (premiumTrackStatus === 'UNLOCKING') {
+        return (
+          <div className={styles.premiumContentSectionDescription}>
+            <p>
+              <LoadingSpinner className={styles.spinner} />
+              {messages.thankYouForFollowing}
+              {followee?.name}
+              <UserBadges
+                userId={premiumConditions.follow_user_id}
+                className={styles.badgeIcon}
+                badgeSize={14}
+                useSVGTiers
+                />
+              {messages.unlockingFollowGatedTrackSuffix}
+            </p>
+          </div>
+        )
+      }
       return (
         <div className={styles.premiumContentSectionDescription}>
           <p>
@@ -171,6 +207,24 @@ const LockedPremiumTrackSection = ({
     }
 
     if (premiumConditions.tip_user_id) {
+      if (premiumTrackStatus === 'UNLOCKING') {
+        return (
+          <div className={styles.premiumContentSectionDescription}>
+            <p>
+              <LoadingSpinner className={styles.spinner} />
+              {messages.thankYouForSupporting}
+              {followee?.name}
+              <UserBadges
+                userId={premiumConditions.follow_user_id}
+                className={styles.badgeIcon}
+                badgeSize={14}
+                useSVGTiers
+              />
+              {messages.unlockingTipGatedTrackSuffix}
+            </p>
+          </div>
+        )
+      }
       return (
         <div className={styles.premiumContentSectionDescription}>
           <p>
@@ -194,16 +248,7 @@ const LockedPremiumTrackSection = ({
 
   const renderButton = useCallback(() => {
     if (premiumTrackStatus === 'UNLOCKING') {
-      return (
-        <Button
-          text={messages.unlocking}
-          rightIcon={<LoadingSpinner className={styles.spinner} />}
-          type={ButtonType.PRIMARY_ALT}
-          iconClassName={styles.buttonIcon}
-          textClassName={styles.buttonText}
-          disabled
-        />
-      )
+      return null
     }
 
     if (premiumConditions.nft_collection) {
@@ -262,7 +307,7 @@ const LockedPremiumTrackSection = ({
       <div>
         <div className={styles.premiumContentSectionTitle}>
           <IconLock className={styles.lockedIcon} />
-          {messages.howToUnlock}
+          {premiumTrackStatus === 'UNLOCKING' ? messages.unlocking : messages.howToUnlock}
         </div>
         {renderLockedDescription()}
       </div>
@@ -281,7 +326,7 @@ const UnlockedPremiumTrackSection = ({
       return (
         <p>
           <IconVerifiedGreen className={styles.verifiedGreenIcon} />
-          {messages.unlockedCollectibleGatedTrackPrefix}
+          {messages.aCollectibleFrom}
           <span className={styles.collectibleName}>
             &nbsp;{premiumConditions.nft_collection.name}&nbsp;
           </span>
@@ -294,7 +339,7 @@ const UnlockedPremiumTrackSection = ({
       return (
         <p>
           <IconVerifiedGreen className={styles.verifiedGreenIcon} />
-          {messages.unlockedFollowGatedTrackPrefix}
+          {messages.thankYouForFollowing}
           {followee?.name}
           <UserBadges
             userId={premiumConditions.follow_user_id}
@@ -302,7 +347,7 @@ const UnlockedPremiumTrackSection = ({
             badgeSize={14}
             useSVGTiers
           />
-          {messages.unlockedSpecialAccessGatedTrackSuffix}
+          {messages.unlockedFollowGatedTrackSuffix}
         </p>
       )
     }
@@ -311,7 +356,7 @@ const UnlockedPremiumTrackSection = ({
       return (
         <p>
           <IconVerifiedGreen className={styles.verifiedGreenIcon} />
-          {messages.unlockedTipGatedTrackPrefix}
+          {messages.thankYouForSupporting}
           {tippedUser?.name}
           <UserBadges
             userId={premiumConditions.tip_user_id}
@@ -319,7 +364,7 @@ const UnlockedPremiumTrackSection = ({
             badgeSize={14}
             useSVGTiers
           />
-          {messages.unlockedSpecialAccessGatedTrackSuffix}
+          {messages.unlockedTipGatedTrackSuffix}
         </p>
       )
     }
