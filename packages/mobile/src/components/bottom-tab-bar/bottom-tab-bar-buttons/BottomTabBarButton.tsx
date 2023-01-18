@@ -61,7 +61,9 @@ const BottomTabBarRiveButton = (props: BottomTabBarRiveButtonProps) => {
   const { neutralLight8, neutralLight10 } = useThemeColors()
   const riveRef = useRef<RiveRef | null>(null)
   const previousActive = usePrevious(isActive)
-  const initialIsActive = isActive && previousActive === undefined
+  const initialIsActive = Boolean(
+    (isActive && previousActive === undefined) || (previousActive && isActive)
+  )
 
   const handlePress = useCallback(() => {
     if (!isActive) {
