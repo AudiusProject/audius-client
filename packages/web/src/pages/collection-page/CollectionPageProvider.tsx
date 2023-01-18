@@ -281,7 +281,7 @@ class CollectionPage extends Component<
         if (routeLacksCollectionInfo) {
           // Check if we are coming from a non-canonical route and replace route if necessary.
           const newPath = metadata.is_album
-            ? albumPage(user!.handle, metadata.playlist_name, collectionId)
+            ? albumPage(user!.handle, metadata.playlist_name, collectionId!)
             : playlistPage(user!.handle, metadata.playlist_name, collectionId)
           this.props.replaceRoute(newPath)
         } else {

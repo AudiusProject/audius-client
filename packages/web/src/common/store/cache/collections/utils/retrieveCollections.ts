@@ -124,13 +124,16 @@ export function* retrieveCollection({
   }
 }
 
-function* getEntriesTimestamp(ids: ID[] | string[]) {
-  const selector = (state: CommonState, ids: ID[]) =>
-    ids.reduce((acc, id) => {
-      acc[id] = getEntryTimestamp(state, { kind: Kind.COLLECTIONS, id })
-      return acc
-    }, {} as { [id: number]: number | null })
-  const selected: ReturnType<typeof selector> = yield* select(selector, ids)
+function* getEntriesTimestamp(ids: (ID | string)[]) {
+  const selector = (state: CommonState, ids: (ID | string)[]) =>
+    ids.reduce(
+      (acc: { [id: number | string]: number | null }, id: ID | string) => {
+        acc[id] = getEntryTimestamp(state, { kind: Kind.COLLECTIONS, id })
+        return acc
+      },
+      {}
+    )
+  const selected = yield* select(selector, ids)
   return selected
 }
 

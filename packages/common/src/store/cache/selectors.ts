@@ -71,7 +71,7 @@ export function getEntry(
  */
 export const getEntryTimestamp = (
   state: CommonState,
-  { kind, id }: { kind: Kind; id?: ID | null }
+  { kind, id }: { kind: Kind; id?: ID | string | null }
 ) => {
   if (kind && id) {
     const entries = getCache(state, { kind }).entries
