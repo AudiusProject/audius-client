@@ -10,6 +10,7 @@ import type {
   UserTrackMetadata
 } from '@audius/common'
 import {
+  Variant,
   FavoriteSource,
   Kind,
   makeUid,
@@ -92,6 +93,8 @@ export const downloadCollection = async (
   // Prevent download of unavailable collections
   if (
     !collection ||
+    // @ts-ignore shouldn't be necessary, but not sure we trust the types all the way down
+    collection.variant === Variant.SMART ||
     collection.is_delete ||
     (collection.is_private && collection.playlist_owner_id !== currentUserId)
   )
