@@ -117,7 +117,8 @@ const TrackPage = ({
   const isSaved = heroTrack?.has_current_user_saved ?? false
   const isReposted = heroTrack?.has_current_user_reposted ?? false
   const loading = !heroTrack
-  const doesUserHaveAccess = isOwner || !!heroTrack?.premium_content_signature
+  const doesUserHaveAccess =
+    !heroTrack?.is_premium || isOwner || !!heroTrack?.premium_content_signature
 
   const onPlay = () => onHeroPlay(heroPlaying)
   const onSave = isOwner
