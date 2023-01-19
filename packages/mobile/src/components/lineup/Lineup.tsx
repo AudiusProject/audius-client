@@ -516,7 +516,7 @@ export const Lineup = ({
           lineup.hasMore ? <View style={{ height: 16 }} /> : ListFooterComponent
         }
         ListEmptyComponent={LineupEmptyComponent}
-        onEndReached={handleLoadMore}
+        onEndReached={handleLoadMore as () => void}
         onEndReachedThreshold={LOAD_MORE_THRESHOLD}
         sections={sections}
         stickySectionHeadersEnabled={false}
