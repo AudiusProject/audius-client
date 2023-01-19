@@ -25,7 +25,11 @@ import { useFocusEffect } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import type { DynamicImageProps } from 'app/components/core'
-import { Screen, VirtualizedScrollView } from 'app/components/core'
+import {
+  ScreenContent,
+  Screen,
+  VirtualizedScrollView
+} from 'app/components/core'
 import { CollectionImage } from 'app/components/image/CollectionImage'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
@@ -240,31 +244,33 @@ const CollectionScreenComponent = (props: CollectionScreenComponentProps) => {
 
   return (
     <Screen url={url}>
-      <VirtualizedScrollView
-        listKey={`playlist-${collection.playlist_id}`}
-        style={styles.root}
-      >
-        <CollectionScreenDetailsTile
-          description={description ?? ''}
-          extraDetails={extraDetails}
-          hasReposted={has_current_user_reposted}
-          hasSaved={has_current_user_saved}
-          isAlbum={is_album}
-          isPrivate={is_private}
-          isPublishing={_is_publishing ?? false}
-          onPressFavorites={handlePressFavorites}
-          onPressOverflow={handlePressOverflow}
-          onPressRepost={handlePressRepost}
-          onPressReposts={handlePressReposts}
-          onPressSave={handlePressSave}
-          onPressShare={handlePressShare}
-          renderImage={renderImage}
-          repostCount={repost_count}
-          saveCount={save_count}
-          title={playlist_name}
-          user={user}
-        />
-      </VirtualizedScrollView>
+      <ScreenContent>
+        <VirtualizedScrollView
+          listKey={`playlist-${collection.playlist_id}`}
+          style={styles.root}
+        >
+          <CollectionScreenDetailsTile
+            description={description ?? ''}
+            extraDetails={extraDetails}
+            hasReposted={has_current_user_reposted}
+            hasSaved={has_current_user_saved}
+            isAlbum={is_album}
+            isPrivate={is_private}
+            isPublishing={_is_publishing ?? false}
+            onPressFavorites={handlePressFavorites}
+            onPressOverflow={handlePressOverflow}
+            onPressRepost={handlePressRepost}
+            onPressReposts={handlePressReposts}
+            onPressSave={handlePressSave}
+            onPressShare={handlePressShare}
+            renderImage={renderImage}
+            repostCount={repost_count}
+            saveCount={save_count}
+            title={playlist_name}
+            user={user}
+          />
+        </VirtualizedScrollView>
+      </ScreenContent>
     </Screen>
   )
 }
