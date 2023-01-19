@@ -13,7 +13,6 @@ import {
   ButtonSize,
   ButtonType,
   IconCompose,
-  IconMail,
   Modal,
   ModalHeader,
   ModalTitle,
