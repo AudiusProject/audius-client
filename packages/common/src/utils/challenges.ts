@@ -155,11 +155,14 @@ export const sortChallenges = (
 
     if (userChallenge1?.state === 'disbursed') {
       return 1
-    } else if (userChallenge1?.state === 'completed') {
+    }
+    if (userChallenge1?.state === 'completed') {
       return -1
-    } else if (userChallenge2?.state === 'disbursed') {
+    }
+    if (userChallenge2?.state === 'disbursed') {
       return -1
-    } else if (userChallenge2?.state === 'completed') {
+    }
+    if (userChallenge2?.state === 'completed') {
       return 1
     }
     return 0
