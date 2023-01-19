@@ -283,6 +283,7 @@ export const removeAllDownloadedFavorites = async (
   const downloadedCollections = getOfflineCollections(state)
   const favoritedDownloadedCollections = getOfflineFavoritedCollections(state)
 
+  purgeDownloadedCollection(DOWNLOAD_REASON_FAVORITES)
   // remove collections if they're not also downloaded separately
   Object.entries(favoritedDownloadedCollections).forEach(
     ([collectionId, isDownloaded]) => {
