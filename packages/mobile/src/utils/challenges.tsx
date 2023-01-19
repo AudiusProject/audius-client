@@ -122,8 +122,7 @@ const mobileChallengeConfig: Record<ChallengeRewardID, MobileChallengeConfig> =
           : messages.sendFirstTipButton,
       buttonInfo: {
         navigation: {
-          screen: 'explore',
-          params: { screen: 'HeavyRotation' }
+          screen: 'favorites'
         }
       }
     },
@@ -131,7 +130,8 @@ const mobileChallengeConfig: Record<ChallengeRewardID, MobileChallengeConfig> =
       icon: TrebleClef,
       buttonInfo: {
         navigation: {
-          screen: 'favorites'
+          screen: 'explore',
+          params: { screen: 'Explore' }
         }
       }
     },

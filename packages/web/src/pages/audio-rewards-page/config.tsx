@@ -13,7 +13,6 @@ import {
   SETTINGS_PAGE,
   TRENDING_PAGE,
   UPLOAD_PAGE,
-  EXPLORE_HEAVY_ROTATION_PAGE,
   FAVORITES_PAGE
 } from 'utils/route'
 
@@ -70,7 +69,7 @@ const linkButtonMap: Record<LinkButtonType, LinkButtonInfo> = {
     label: 'Find Someone To Tip',
     leftIcon: null,
     rightIcon: <GoldBadgeIconImage />,
-    link: () => EXPLORE_HEAVY_ROTATION_PAGE
+    link: () => FAVORITES_PAGE
   },
   firstPlaylist: {
     label: 'Discover Some Tracks',
