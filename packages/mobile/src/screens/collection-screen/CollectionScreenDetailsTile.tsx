@@ -2,7 +2,6 @@ import { useCallback, useMemo } from 'react'
 
 import type { Collection, ID, Maybe, UID } from '@audius/common'
 import {
-  SmartCollection,
   Variant,
   useProxySelector,
   collectionPageActions,
