@@ -14,6 +14,7 @@ import {
   TrackTile,
   LineupTileSkeleton
 } from 'app/components/lineup-tile'
+import { useBecomeReachable } from 'app/hooks/useReachabilityState'
 import { useScrollToTop } from 'app/hooks/useScrollToTop'
 
 import { Delineator } from './Delineator'
@@ -319,6 +320,35 @@ export const Lineup = ({
     pageItemCount,
     extraFetchOptions
   ])
+
+  useBecomeReachable(
+    useCallback(() => {
+      if (entries?.length > 0) return
+      const offset = 0
+      const limit = itemCounts.initial
+      if (loadMore) {
+        loadMore(offset, limit, true)
+      } else {
+        dispatch(
+          actions.fetchLineupMetadatas(
+            offset,
+            limit,
+            true,
+            fetchPayload,
+            extraFetchOptions
+          )
+        )
+      }
+    }, [
+      actions,
+      dispatch,
+      entries?.length,
+      extraFetchOptions,
+      fetchPayload,
+      itemCounts.initial,
+      loadMore
+    ])
+  )
 
   // When scrolled past the end threshold of the lineup and the lineup is not loading,
   // trigger another load
