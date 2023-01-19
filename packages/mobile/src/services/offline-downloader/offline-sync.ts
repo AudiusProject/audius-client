@@ -23,7 +23,8 @@ import {
   downloadCollectionCoverArt,
   downloadTrackCoverArt,
   DOWNLOAD_REASON_FAVORITES,
-  removeCollectionDownload
+  removeCollectionDownload,
+  removeDownloadedCollectionFromFavorites
 } from './offline-downloader'
 import { purgeDownloadedTrack, writeTrackJson } from './offline-storage'
 import type { TrackDownloadWorkerPayload } from './workers/trackDownloadWorker'
@@ -116,7 +117,7 @@ export const syncFavoritedCollections = async (
         collection_id: collection.playlist_id.toString()
       }
     }))
-    downloadCollection(collection, true)
+    downloadCollection(collection)
     if (!tracksForDownload) return
     batchDownloadTrack(tracksForDownload)
   })
@@ -131,7 +132,7 @@ export const syncFavoritedCollections = async (
         }
       })) ?? []
 
-    removeCollectionDownload(
+    removeDownloadedCollectionFromFavorites(
       collection.playlist_id.toString(),
       tracksForDownload
     )

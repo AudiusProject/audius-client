@@ -14,6 +14,9 @@ export type OfflineDownloadsState = {
   collections: {
     [key: string]: boolean
   }
+  favoritedCollections: {
+    [key: string]: boolean
+  }
   isDoneLoadingFromDisk: boolean
 }
 
@@ -23,10 +26,16 @@ export enum OfflineTrackDownloadStatus {
   ERROR = 'ERROR'
 }
 
+type CollectionDownloadPayload = {
+  collectionId: string
+  isFavoritesDownload: boolean
+}
+
 const initialState: OfflineDownloadsState = {
   downloadStatus: {},
   tracks: {},
   collections: {},
+  favoritedCollections: {},
   isDoneLoadingFromDisk: false
 }
 
@@ -56,15 +65,23 @@ const slice = createSlice({
     },
     addCollection: (
       state,
-      { payload: collectionId }: PayloadAction<string>
+      {
+        payload: { collectionId, isFavoritesDownload }
+      }: PayloadAction<CollectionDownloadPayload>
     ) => {
-      state.collections[collectionId] = true
+      isFavoritesDownload
+        ? (state.favoritedCollections[collectionId] = true)
+        : (state.collections[collectionId] = true)
     },
     removeCollection: (
       state,
-      { payload: collectionId }: PayloadAction<string>
+      {
+        payload: { collectionId, isFavoritesDownload }
+      }: PayloadAction<CollectionDownloadPayload>
     ) => {
-      state.collections[collectionId] = false
+      isFavoritesDownload
+        ? (state.favoritedCollections[collectionId] = false)
+        : (state.collections[collectionId] = false)
     },
     loadTracks: (state, { payload: tracks }: PayloadAction<LineupTrack[]>) => {
       tracks.forEach((track) => {

@@ -2,6 +2,7 @@ import path from 'path'
 
 import type {
   Collection,
+  CollectionMetadata,
   CommonState,
   DownloadReason,
   Track,
@@ -26,6 +27,7 @@ import { getAccountCollections } from 'app/screens/favorites-screen/selectors'
 import { store } from 'app/store'
 import {
   getOfflineCollections,
+  getOfflineFavoritedCollections,
   getOfflineTracks
 } from 'app/store/offline-downloads/selectors'
 import {
@@ -35,7 +37,8 @@ import {
   completeDownload,
   errorDownload,
   loadTrack,
-  removeDownload
+  removeDownload,
+  removeCollection
 } from 'app/store/offline-downloads/slice'
 import { populateCoverArtSizes } from 'app/utils/populateCoverArtSizes'
 
@@ -73,11 +76,24 @@ export const downloadCollectionById = async (
   const state = store.getState()
   const collection = getCollection(state, { id: collectionId })
 
-  downloadCollection(collection, isFavoritesDownload)
+export const downloadAllFavorites = async () => {
+  const state = store.getState()
+  store.dispatch(
+    addCollection({
+      collectionId: DOWNLOAD_REASON_FAVORITES,
+      isFavoritesDownload: false
+    })
+  )
+  writeFavoritesCollectionJson()
+  // @ts-ignore state is CommonState
+  const favoritedCollections = getAccountCollections(state as CommonState, '')
+  favoritedCollections.forEach(async (userCollection) => {
+    downloadCollection(userCollection, /* isFavoritesDownload */ true)
+  })
 }
 
 export const downloadCollection = async (
-  collection: Collection | null,
+  collection: CollectionMetadata,
   isFavoritesDownload?: boolean
 ) => {
   const state = store.getState()
@@ -92,43 +108,30 @@ export const downloadCollection = async (
     return
 
   const user = getUserFromCollection(state, { id: collection?.playlist_id })
-  const collectionIdStr: string | undefined = isFavoritesDownload
-    ? DOWNLOAD_REASON_FAVORITES
-    : collection?.playlist_id.toString()
-  if (!collectionIdStr) return
-  store.dispatch(addCollection(collectionIdStr))
-  if (isFavoritesDownload) {
-    writeFavoritesCollectionJson()
-    // @ts-ignore state is CommonState
-    const userCollections = getAccountCollections(state as CommonState, '')
-    userCollections.forEach(async (userCollection) => {
-      const user = getUserFromCollection(state, {
-        id: userCollection.playlist_id
-      })
-      if (!user) return
-      userCollection = await populateCoverArtSizes({
-        ...userCollection,
-        user
-      })
-      downloadCollectionCoverArt(userCollection)
-      writeCollectionJson(
-        userCollection.playlist_id.toString(),
-        userCollection,
-        user
-      )
+  const collectionIdStr: string = collection.playlist_id.toString()
+  store.dispatch(
+    addCollection({
+      collectionId: collectionIdStr,
+      isFavoritesDownload: !!isFavoritesDownload
     })
-  } else {
-    if (!collection || !user) return
-    store.dispatch(
-      saveCollection(collection.playlist_id, FavoriteSource.OFFLINE_DOWNLOAD)
-    )
-    collection = await populateCoverArtSizes({
-      ...collection,
-      user
-    })
-    downloadCollectionCoverArt(collection)
-    await writeCollectionJson(collectionIdStr, collection!, user)
+  )
+
+  if (!user) return
+  store.dispatch(
+    saveCollection(collection.playlist_id, FavoriteSource.OFFLINE_DOWNLOAD)
+  )
+  const populatedCollection: Collection = await populateCoverArtSizes({
+    ...collection,
+    user
+  })
+  downloadCollectionCoverArt(populatedCollection)
+  const collectionToWrite: CollectionMetadata = {
+    ...populatedCollection,
+    offline: {
+      isFavoritesDownload: !!isFavoritesDownload
+    }
   }
+  await writeCollectionJson(collectionIdStr, collectionToWrite, user)
 }
 
 export const batchDownloadTrack = (tracksForDownload: TrackForDownload[]) => {
@@ -280,12 +283,53 @@ const shouldAbortDownload = (downloadReason: DownloadReason) => {
   )
 }
 
+export const removeAllDownloadedFavorites = async (
+  tracksForDownload: TrackForDownload[]
+) => {
+  const state = store.getState()
+  const downloadedCollections = getOfflineCollections(state)
+  const favoritedDownloadedCollections = getOfflineFavoritedCollections(state)
+
+  // remove collections if they're not also downloaded separately
+  Object.entries(favoritedDownloadedCollections).forEach(
+    ([collectionId, isDownloaded]) => {
+      if (!isDownloaded) return
+      if (downloadedCollections[collectionId]) {
+        store.dispatch(
+          removeCollection({ collectionId, isFavoritesDownload: true })
+        )
+      } else {
+        purgeDownloadedCollection(collectionId)
+        batchRemoveTrackDownload(tracksForDownload)
+      }
+    }
+  )
+}
+
+export const removeDownloadedCollectionFromFavorites = async (
+  collectionId: string,
+  tracksForDownload: TrackForDownload[]
+) => {
+  const state = store.getState()
+  const downloadedCollections = getOfflineCollections(state)
+  const favoritedDownloadedCollections = getOfflineFavoritedCollections(state)
+  if (!favoritedDownloadedCollections[collectionId]) return
+  if (downloadedCollections[collectionId]) {
+    store.dispatch(
+      removeCollection({ collectionId, isFavoritesDownload: true })
+    )
+  } else {
+    purgeDownloadedCollection(collectionId)
+    batchRemoveTrackDownload(tracksForDownload)
+  }
+}
+
 export const removeCollectionDownload = async (
   collectionId: string,
   tracksForDownload: TrackForDownload[]
 ) => {
-  purgeDownloadedCollection(collectionId)
   batchRemoveTrackDownload(tracksForDownload)
+  purgeDownloadedCollection(collectionId)
 }
 
 export const batchRemoveTrackDownload = async (

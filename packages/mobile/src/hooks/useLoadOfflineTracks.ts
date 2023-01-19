@@ -57,9 +57,17 @@ export const useLoadOfflineData = () => {
     }[] = []
     for (const collectionId of offlineCollections) {
       try {
-        dispatch(addCollection(collectionId))
-        if (collectionId === DOWNLOAD_REASON_FAVORITES) continue
+        if (collectionId === DOWNLOAD_REASON_FAVORITES) {
+          dispatch(addCollection({ collectionId, isFavoritesDownload: false }))
+          continue
+        }
         const collection = await getCollectionJson(collectionId)
+        dispatch(
+          addCollection({
+            collectionId,
+            isFavoritesDownload: !!collection.offline?.isFavoritesDownload
+          })
+        )
         cacheCollections.push({
           id: collectionId,
           uid: makeUid(Kind.COLLECTIONS, parseInt(collectionId, 10)),
