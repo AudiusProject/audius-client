@@ -31,6 +31,7 @@ import {
   VirtualizedScrollView
 } from 'app/components/core'
 import { CollectionImage } from 'app/components/image/CollectionImage'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
 import { setVisibility } from 'app/store/drawers/slice'
@@ -136,6 +137,7 @@ const CollectionScreenComponent = (props: CollectionScreenComponentProps) => {
     save_count,
     updated_at
   } = collection
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
   const url = useMemo(() => {
     return `/${encodeUrlName(user.handle)}/${
@@ -244,7 +246,7 @@ const CollectionScreenComponent = (props: CollectionScreenComponentProps) => {
 
   return (
     <Screen url={url}>
-      <ScreenContent>
+      <ScreenContent isOfflineCapable={isOfflineModeEnabled}>
         <VirtualizedScrollView
           listKey={`playlist-${collection.playlist_id}`}
           style={styles.root}

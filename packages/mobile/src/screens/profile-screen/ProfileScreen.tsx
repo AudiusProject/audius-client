@@ -110,7 +110,7 @@ export const ProfileScreen = () => {
       topbarRight={topbarRight}
       url={handle && `/${encodeUrlName(handle)}`}
     >
-      <ScreenContent isOfflineCapable={true}>
+      <ScreenContent isOfflineCapable>
         {!profile ? (
           <ProfileScreenSkeleton />
         ) : (

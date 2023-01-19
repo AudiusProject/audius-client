@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import { Button, Screen, ScreenContent } from 'app/components/core'
 import { Lineup } from 'app/components/lineup'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
 import { makeStyles } from 'app/styles'
@@ -52,6 +53,7 @@ export const TrackScreen = () => {
   const navigation = useNavigation()
   const { params } = useRoute<'Track'>()
   const dispatch = useDispatch()
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
   const { searchTrack, id, canBeUnlisted = true, handle, slug } = params ?? {}
 
@@ -120,7 +122,7 @@ export const TrackScreen = () => {
 
   return (
     <Screen url={track?.permalink}>
-      <ScreenContent isOfflineCapable>
+      <ScreenContent isOfflineCapable={isOfflineModeEnabled}>
         <Lineup
           actions={tracksActions}
           count={6}
