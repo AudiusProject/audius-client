@@ -28,6 +28,8 @@ export enum OfflineTrackDownloadStatus {
 
 type CollectionDownloadPayload = {
   collectionId: string
+  // true if collection downloaded as part of allFavorites download toggle
+  // false if collection was marked for download individually on its own page
   isFavoritesDownload: boolean
 }
 

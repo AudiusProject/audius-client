@@ -85,12 +85,12 @@ export const DownloadToggle = ({
   tracksForDownload,
   collection,
   labelText,
-  isFavoritesDownload
+  isFavoritesDownload: isAllFavoritesToggle
 }: DownloadToggleProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
   const [disabled, setDisabled] = useState(false)
-  const collectionIdStr = isFavoritesDownload
+  const collectionIdStr = isAllFavoritesToggle
     ? DOWNLOAD_REASON_FAVORITES
     : collection?.playlist_id?.toString()
 
@@ -128,15 +128,16 @@ export const DownloadToggle = ({
 
   const handleToggleDownload = useCallback(
     (isDownloadEnabled: boolean) => {
-      if (!collection && !isFavoritesDownload) return
+      if (!collection && !isAllFavoritesToggle) return
       if (isDownloadEnabled) {
-        isFavoritesDownload
-          ? downloadAllFavorites()
-          : collection &&
-            downloadCollection(collection, /* isFavoritesDownload */ false)
-        batchDownloadTrack(tracksForDownload)
+        if (isAllFavoritesToggle) {
+          downloadAllFavorites()
+        } else if (collection) {
+          downloadCollection(collection, /* isFavoritesDownload */ false)
+          batchDownloadTrack(tracksForDownload)
+        }
       } else {
-        if (!isFavoritesDownload && collectionIdStr) {
+        if (!isAllFavoritesToggle && collectionIdStr) {
           // we are trying to remove download from a collection page
           dispatch(
             setVisibility({
@@ -162,7 +163,7 @@ export const DownloadToggle = ({
       collection,
       collectionIdStr,
       dispatch,
-      isFavoritesDownload,
+      isAllFavoritesToggle,
       tracksForDownload
     ]
   )
@@ -171,7 +172,7 @@ export const DownloadToggle = ({
     <View style={labelText ? styles.rootWithLabel : styles.root}>
       {labelText ? <View style={styles.flex1} /> : null}
       <View style={labelText ? styles.iconTitle : null}>
-        {collection || isFavoritesDownload ? (
+        {collection || isAllFavoritesToggle ? (
           <DownloadStatusIndicator
             statusOverride={
               isCollectionMarkedForDownload || isThisFavoritedCollectionDownload
@@ -195,7 +196,7 @@ export const DownloadToggle = ({
         ) : null}
       </View>
       <View style={labelText ? styles.toggleContainer : null}>
-        {collection || isFavoritesDownload ? (
+        {collection || isAllFavoritesToggle ? (
           <Switch
             value={
               isCollectionMarkedForDownload || isThisFavoritedCollectionDownload

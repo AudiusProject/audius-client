@@ -23,6 +23,7 @@ import { uniq, isEqual } from 'lodash'
 import RNFS, { exists } from 'react-native-fs'
 
 import type { TrackForDownload } from 'app/components/offline-downloads'
+import { fetchAllFavoritedTracks } from 'app/hooks/useFetchAllFavoritedTracks'
 import { getAccountCollections } from 'app/screens/favorites-screen/selectors'
 import { store } from 'app/store'
 import {
@@ -69,6 +70,9 @@ export const DOWNLOAD_REASON_FAVORITES = 'favorites'
 
 export const downloadAllFavorites = async () => {
   const state = store.getState()
+  const currentUserId = getUserId(state)
+  if (!currentUserId) return
+
   store.dispatch(
     addCollection({
       collectionId: DOWNLOAD_REASON_FAVORITES,
@@ -76,6 +80,20 @@ export const downloadAllFavorites = async () => {
     })
   )
   writeFavoritesCollectionJson()
+
+  const allFavoritedTracks = await fetchAllFavoritedTracks(currentUserId)
+  const tracksForDownload: TrackForDownload[] = allFavoritedTracks.map(
+    ({ trackId, favoriteCreatedAt }) => ({
+      trackId,
+      downloadReason: {
+        is_from_favorites: true,
+        collection_id: DOWNLOAD_REASON_FAVORITES,
+        favorite_created_at: favoriteCreatedAt
+      }
+    })
+  )
+  batchDownloadTrack(tracksForDownload)
+
   // @ts-ignore state is CommonState
   const favoritedCollections = getAccountCollections(state as CommonState, '')
   favoritedCollections.forEach(async (userCollection) => {
@@ -125,6 +143,16 @@ export const downloadCollection = async (
     }
   }
   await writeCollectionJson(collectionIdStr, collectionToWrite, user)
+  const tracksForDownload = collection.playlist_contents.track_ids.map(
+    ({ track: trackId }) => ({
+      trackId,
+      downloadReason: {
+        is_from_favorites: isFavoritesDownload,
+        collection_id: collection.playlist_id.toString()
+      }
+    })
+  )
+  batchDownloadTrack(tracksForDownload)
 }
 
 export const batchDownloadTrack = (tracksForDownload: TrackForDownload[]) => {
@@ -276,14 +304,29 @@ const shouldAbortDownload = (downloadReason: DownloadReason) => {
   )
 }
 
-export const removeAllDownloadedFavorites = async (
-  tracksForDownload: TrackForDownload[]
-) => {
+export const removeAllDownloadedFavorites = async () => {
   const state = store.getState()
+  const currentUserId = getUserId(state)
+  if (!currentUserId) return
   const downloadedCollections = getOfflineCollections(state)
   const favoritedDownloadedCollections = getOfflineFavoritedCollections(state)
 
+  const allFavoritedTracks = await fetchAllFavoritedTracks(currentUserId)
+  const tracksForDownload: TrackForDownload[] = allFavoritedTracks.map(
+    ({ trackId, favoriteCreatedAt }) => ({
+      trackId,
+      downloadReason: {
+        is_from_favorites: true,
+        collection_id: DOWNLOAD_REASON_FAVORITES,
+        favorite_created_at: favoriteCreatedAt
+      }
+    })
+  )
+  batchDownloadTrack(tracksForDownload)
+
   purgeDownloadedCollection(DOWNLOAD_REASON_FAVORITES)
+  batchRemoveTrackDownload(tracksForDownload)
+
   // remove collections if they're not also downloaded separately
   Object.entries(favoritedDownloadedCollections).forEach(
     ([collectionId, isDownloaded]) => {
@@ -294,7 +337,6 @@ export const removeAllDownloadedFavorites = async (
         )
       } else {
         purgeDownloadedCollection(collectionId)
-        batchRemoveTrackDownload(tracksForDownload)
       }
     }
   )
