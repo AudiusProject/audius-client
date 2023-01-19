@@ -115,7 +115,6 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
   const styles = useStyles()
 
   const { isOpen, onOpen, onClose } = useDrawer('NowPlaying')
-  console.log('isOpen?', isOpen)
   const playCounter = useSelector(getCounter)
   const currentUid = useSelector(getUid)
   const isPlaying = useSelector(getPlaying)
