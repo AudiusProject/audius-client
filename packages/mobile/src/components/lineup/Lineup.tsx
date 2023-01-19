@@ -261,93 +261,82 @@ export const Lineup = ({
   // Either the provided count or a default
   const countOrDefault = count !== undefined ? count : MAX_TILES_COUNT
 
-  const handleLoadMore = useCallback(() => {
-    const {
-      deleted = 0,
-      nullCount = 0,
-      entries,
-      hasMore,
-      page,
-      status
-    } = lineup
+  const handleLoadMore = useCallback(
+    (reset?: boolean) => {
+      const {
+        deleted = 0,
+        nullCount = 0,
+        entries,
+        hasMore,
+        page,
+        status
+      } = lineup
 
-    const offset = lineupLength + deleted + nullCount
+      const offset = lineupLength + deleted + nullCount
 
-    const shouldLoadMore =
-      // Lineup has more items to load
-      hasMore &&
-      // Number of loaded items does not exceed max count
-      lineupLength < countOrDefault &&
-      // Page item count doesn't exceed current offset
-      (page === 0 || pageItemCount <= offset) &&
-      entries.length < limit &&
-      (includeLineupStatus ? status !== Status.LOADING : true)
+      const shouldLoadMore =
+        // Lineup has more items to load
+        hasMore &&
+        // Number of loaded items does not exceed max count
+        lineupLength < countOrDefault &&
+        // Page item count doesn't exceed current offset
+        (page === 0 || pageItemCount <= offset) &&
+        entries.length < limit &&
+        (includeLineupStatus ? status !== Status.LOADING : true)
 
-    if (shouldLoadMore) {
-      const itemLoadCount = itemCounts.initial + page * itemCounts.loadMore
+      if (shouldLoadMore || reset) {
+        const _offset = reset ? offset : 0
+        const _page = reset ? page : 0
+        const itemLoadCount = itemCounts.initial + _page * itemCounts.loadMore
 
-      dispatch(actions.setPage(page + 1))
+        if (!reset) {
+          dispatch(actions.setPage(page + 1))
+        }
 
-      const limit =
-        Math.min(itemLoadCount, Math.max(countOrDefault, itemCounts.minimum)) -
-        offset
+        const limit =
+          Math.min(
+            itemLoadCount,
+            Math.max(countOrDefault, itemCounts.minimum)
+          ) - _offset
 
-      if (loadMore) {
-        loadMore(offset, limit, page === 0)
-      } else {
-        dispatch(
-          actions.fetchLineupMetadatas(
-            offset,
-            limit,
-            page === 0,
-            fetchPayload,
-            extraFetchOptions
+        if (loadMore) {
+          loadMore(_offset, limit, _page === 0)
+        } else {
+          dispatch(
+            actions.fetchLineupMetadatas(
+              _offset,
+              limit,
+              _page === 0,
+              fetchPayload,
+              extraFetchOptions
+            )
           )
-        )
+        }
       }
-    }
-  }, [
-    actions,
-    countOrDefault,
-    dispatch,
-    fetchPayload,
-    includeLineupStatus,
-    itemCounts,
-    limit,
-    lineup,
-    lineupLength,
-    loadMore,
-    pageItemCount,
-    extraFetchOptions
-  ])
+    },
+    [
+      actions,
+      countOrDefault,
+      dispatch,
+      fetchPayload,
+      includeLineupStatus,
+      itemCounts,
+      limit,
+      lineup,
+      lineupLength,
+      loadMore,
+      pageItemCount,
+      extraFetchOptions
+    ]
+  )
 
   useBecomeReachable(
     useCallback(() => {
-      if (entries?.length > 0) return
-      const offset = 0
-      const limit = itemCounts.initial
-      if (loadMore) {
-        loadMore(offset, limit, true)
-      } else {
-        dispatch(
-          actions.fetchLineupMetadatas(
-            offset,
-            limit,
-            true,
-            fetchPayload,
-            extraFetchOptions
-          )
-        )
-      }
-    }, [
-      actions,
-      dispatch,
-      entries?.length,
-      extraFetchOptions,
-      fetchPayload,
-      itemCounts.initial,
-      loadMore
-    ])
+      if (entries.length > 0 || status === Status.LOADING) return
+      handleLoadMore(true)
+      // using the latest creates infinite loop, and we only need the initial state
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [entries])
   )
 
   // When scrolled past the end threshold of the lineup and the lineup is not loading,
