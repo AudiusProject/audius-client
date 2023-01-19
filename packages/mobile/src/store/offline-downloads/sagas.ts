@@ -89,7 +89,7 @@ export function* downloadSavedCollection(
     }
   }))
   if (!tracksForDownload) return
-  downloadCollection(collection, true)
+  downloadCollection(collection, /* isFavoritesDownload */ true)
   batchDownloadTrack(tracksForDownload)
 }
 
