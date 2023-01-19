@@ -7,7 +7,7 @@ import {
   ReactionTypes
 } from '@audius/common'
 import type { ChatMessage } from '@audius/sdk'
-import { IconSave, PopupPosition } from '@audius/stems'
+import { IconPlus, PopupPosition } from '@audius/stems'
 import cn from 'classnames'
 import dayjs from 'dayjs'
 import { useDispatch } from 'react-redux'
@@ -94,7 +94,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
               return <Reaction key={reaction.user_id} width={48} height={48} />
             })
           ) : (
-            <IconSave
+            <IconPlus
               width={28}
               height={28}
               className={styles.addReactionIcon}

@@ -12,6 +12,7 @@ import {
   Button,
   ButtonSize,
   ButtonType,
+  IconCompose,
   IconMail,
   Modal,
   ModalHeader,
@@ -80,7 +81,10 @@ export const CreateChatModal = () => {
       onClosed={() => setPendingUserChat(undefined)}
     >
       <ModalHeader onClose={handleClose}>
-        <ModalTitle icon={<IconMail />} title={messages.title} />
+        <ModalTitle
+          icon={<IconCompose className={styles.icon} />}
+          title={messages.title}
+        />
       </ModalHeader>
       <div className={styles.modalContent}>
         <div className={styles.search}>
@@ -100,6 +104,7 @@ export const CreateChatModal = () => {
                   text={messages.message}
                   isDisabled={pendingUserChat === userId}
                   disabled={pendingUserChat === userId}
+                  leftIcon={<IconCompose />}
                   onClick={() => handleCreateChat(userId)}
                 />
               )}
