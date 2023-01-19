@@ -1,4 +1,4 @@
-import { PremiumConditions, FeatureFlags } from '@audius/common'
+import { PremiumConditions, FeatureFlags, Nullable } from '@audius/common'
 import { IconCollectible, IconSpecialAccess, IconUnlocked } from '@audius/stems'
 import cn from 'classnames'
 
@@ -16,7 +16,7 @@ export const PremiumContentLabel = ({
   premiumConditions,
   doesUserHaveAccess
 }: {
-  premiumConditions?: PremiumConditions
+  premiumConditions?: Nullable<PremiumConditions>
   doesUserHaveAccess: boolean
 }) => {
   const { isEnabled: isPremiumContentEnabled } = useFlag(
