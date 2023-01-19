@@ -11,7 +11,6 @@ import type {
 } from '@audius/common'
 import {
   FavoriteSource,
-  cacheCollectionsSelectors,
   Kind,
   makeUid,
   encodeHashId,
@@ -63,18 +62,9 @@ import {
 
 const { saveCollection } = collectionsSocialActions
 const { getUserId } = accountSelectors
-const { getCollection } = cacheCollectionsSelectors
 const { getUserFromCollection } = cacheUsersSelectors
 
 export const DOWNLOAD_REASON_FAVORITES = 'favorites'
-
-/** Main entrypoint - perform all steps required to complete a download for each track */
-export const downloadCollectionById = async (
-  collectionId?: number | null,
-  isFavoritesDownload?: boolean
-) => {
-  const state = store.getState()
-  const collection = getCollection(state, { id: collectionId })
 
 export const downloadAllFavorites = async () => {
   const state = store.getState()
