@@ -3,6 +3,7 @@
 import { pick } from 'lodash'
 
 const trackMetadataSchema = {
+  track_cid: null,
   owner_id: null,
   title: null,
   length: null,

@@ -1,5 +1,6 @@
 import type { CommonState, RemoteConfigState } from '@audius/common'
 import {
+  ErrorLevel,
   remoteConfigReducer as remoteConfig,
   reducers as commonReducers
 } from '@audius/common'
@@ -16,7 +17,10 @@ import searchBar from 'audius-client/src/common/store/search-bar/reducer'
 import type SearchBarState from 'audius-client/src/common/store/search-bar/types'
 import type { Store } from 'redux'
 import { createStore, combineReducers, applyMiddleware } from 'redux'
+import { persistStore } from 'redux-persist'
 import createSagaMiddleware from 'redux-saga'
+
+import { reportToSentry } from 'app/utils/reportToSentry'
 
 import type { DownloadState } from './download/slice'
 import downloads from './download/slice'
@@ -31,8 +35,8 @@ import oauth from './oauth/reducer'
 import type { OfflineDownloadsState } from './offline-downloads/slice'
 import offlineDownloads from './offline-downloads/slice'
 import rootSaga from './sagas'
-import type { SearchState } from './search/reducer'
-import search from './search/reducer'
+import type { SearchState } from './search/slice'
+import search from './search/slice'
 import shareToStoryProgress from './share-to-story-progress/slice'
 import type { ShareToStoryProgressState } from './share-to-story-progress/slice'
 import { storeContext } from './storeContext'
@@ -58,34 +62,47 @@ export type AppState = CommonState & {
   shareToStoryProgress: ShareToStoryProgressState
 }
 
+const onSagaError = (
+  error: Error,
+  errorInfo: {
+    sagaStack: string
+  }
+) => {
+  console.error(
+    `Caught saga error: ${error} ${JSON.stringify(errorInfo, null, 4)}`
+  )
+  reportToSentry({
+    level: ErrorLevel.Fatal,
+    error,
+    additionalInfo: errorInfo
+  })
+}
+
 const commonStoreReducers = commonReducers()
 
-const createRootReducer = () =>
-  combineReducers({
-    ...commonStoreReducers,
-    // These also belong in common store reducers but are here until we move them to the @audius/common package:
-    backend,
-    confirmer,
-    signOn: signOnReducer as SignOnPageReducer,
-    searchBar,
+const rootReducer = combineReducers({
+  ...commonStoreReducers,
+  // These also belong in common store reducers but are here until we move them to the @audius/common package:
+  backend,
+  confirmer,
+  signOn: signOnReducer as SignOnPageReducer,
+  searchBar,
 
-    drawers,
-    downloads,
-    keyboard,
-    oauth,
-    offlineDownloads,
-    remoteConfig,
-    search,
-    mobileUi,
-    walletConnect,
-    shareToStoryProgress
-  })
+  drawers,
+  downloads,
+  keyboard,
+  oauth,
+  offlineDownloads,
+  remoteConfig,
+  search,
+  mobileUi,
+  walletConnect,
+  shareToStoryProgress
+})
 
 const sagaMiddleware = createSagaMiddleware({
   context: storeContext,
-  onError: (e) => {
-    console.error('Caught Saga Error', e, e.stack)
-  }
+  onError: onSagaError
 })
 
 const middlewares = [sagaMiddleware]
@@ -96,9 +113,11 @@ if (__DEV__) {
 }
 
 export const store = createStore(
-  createRootReducer(),
+  rootReducer,
   applyMiddleware(...middlewares)
 ) as unknown as Store<AppState> // need to explicitly type the store for offline-mode store reference
+
+export const persistor = persistStore(store)
 
 sagaMiddleware.run(rootSaga)
 

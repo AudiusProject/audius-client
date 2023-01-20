@@ -24,6 +24,7 @@ import LoadingSpinner from 'app/components/loading-spinner'
 import { SocialButton } from 'app/components/social-button'
 import { TikTokAuthButton } from 'app/components/tiktok-auth'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+import { useToast } from 'app/hooks/useToast'
 import { track, make } from 'app/services/analytics'
 import * as oauthActions from 'app/store/oauth/actions'
 import {
@@ -117,7 +118,8 @@ const messages = {
   verifiedTileHeader: 'Verified?',
   verifiedTileContent:
     'If the linked account is verified, your Audius account will be verified to match!',
-  manual: "I'd rather fill out my profile manually"
+  manual: "I'd rather fill out my profile manually",
+  error: 'Something went wrong, please try again'
 }
 
 let didAnimation = false
@@ -151,6 +153,7 @@ type ProfileAutoProps = NativeStackScreenProps<
 const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
+  const { toast } = useToast()
   const { neutralLight4, staticWhite } = useThemeColors()
   const twitterInfo = useSelector(getTwitterInfo)
   const twitterError = useSelector(getTwitterError)
@@ -167,13 +170,6 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
   const [isLoading, setIsLoading] = useState(false)
   const [hasNavigatedAway, setHasNavigatedAway] = useState(false)
   const [didValidateHandle, setDidValidateHandle] = useState(false)
-
-  const goTo = useCallback(
-    (page: 'ProfileManual' | 'FirstFollows') => {
-      navigation.replace(page)
-    },
-    [navigation]
-  )
 
   const validateHandle = useCallback(
     (handle: string, verified: boolean) => {
@@ -288,25 +284,33 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
       ) {
         trackOAuthComplete(completeEvent, handle, verified)
         setOAuthInfo()
-        goTo('ProfileManual')
+        navigation.push('ProfileManual')
         setHasNavigatedAway(true)
         setIsLoading(false)
       } else if (handleField.status === EditingStatus.SUCCESS) {
         trackOAuthComplete(completeEvent, handle, verified)
         setOAuthInfo()
         signUp()
-        goTo('FirstFollows')
+        track(
+          make({
+            eventName: EventNames.CREATE_ACCOUNT_COMPLETE_PROFILE,
+            emailAddress: emailField.value,
+            handle
+          })
+        )
+        navigation.push('FirstFollows')
         setHasNavigatedAway(true)
         setIsLoading(false)
       }
     },
     [
       handleField,
+      emailField,
       didValidateHandle,
       validateHandle,
       setOAuthInfo,
       signUp,
-      goTo,
+      navigation,
       trackOAuthComplete
     ]
   )
@@ -345,11 +349,11 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
   ])
 
   useEffect(() => {
-    if (twitterError | instagramError | tikTokError) {
+    if (twitterError || instagramError || tikTokError) {
       setIsLoading(false)
-      // TODO: sk - show an error message?
+      toast({ content: messages.error })
     }
-  }, [twitterError, instagramError, tikTokError])
+  }, [twitterError, instagramError, tikTokError, toast])
 
   const handleTwitterPress = () => {
     setIsLoading(true)
@@ -377,6 +381,7 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
   }
 
   const handleTikTokPress = () => {
+    dispatch(oauthActions.setTikTokError(null))
     setIsLoading(true)
     track(
       make({
@@ -385,6 +390,10 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
       })
     )
   }
+
+  const handlePressManual = useCallback(() => {
+    navigation.push('ProfileManual')
+  }, [navigation])
 
   useEffect(() => {
     if (abandoned) {
@@ -467,7 +476,7 @@ const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
 
             <TouchableOpacity
               activeOpacity={0.6}
-              onPress={() => goTo('ProfileManual')}
+              onPress={handlePressManual}
               style={styles.manualButton}
             >
               <Text

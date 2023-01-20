@@ -50,19 +50,29 @@ export const getLocalImageSource = async (
   return verifiedSources
 }
 
+// When reachable, return empty array for local source.
+// defined here to have a single reference and avoid rerenders
+const reachableResult = { value: [], loading: false }
+
 export const useLocalImage = (
   getLocalPath: (size: string) => string | undefined
 ): AsyncState<ImageURISource[]> => {
-  const isNotReachable = useSelector(getIsReachable) === false
+  const isReachable = useSelector(getIsReachable)
 
-  return useAsync(async () => {
-    // Only check for local images if not reachable
-    if (isNotReachable) {
+  const sourceResult = useAsync(async () => {
+    // If reachable, don't check for local images
+    if (isReachable) {
       return []
     }
 
     return await getLocalImageSource(getLocalPath)
   }, [getLocalPath])
+
+  if (isReachable) {
+    return reachableResult
+  }
+
+  return sourceResult
 }
 
 export const useLocalTrackImage = (trackId?: string) => {
