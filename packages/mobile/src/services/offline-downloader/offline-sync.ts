@@ -23,7 +23,6 @@ import {
   downloadCollectionCoverArt,
   downloadTrackCoverArt,
   DOWNLOAD_REASON_FAVORITES,
-  removeCollectionDownload,
   removeDownloadedCollectionFromFavorites
 } from './offline-downloader'
 import { purgeDownloadedTrack, writeTrackJson } from './offline-storage'

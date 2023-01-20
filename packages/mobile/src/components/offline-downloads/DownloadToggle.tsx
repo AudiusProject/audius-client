@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Switch, Text } from 'app/components/core'
 import { getAccountCollections } from 'app/screens/favorites-screen/selectors'
 import {
-  batchDownloadTrack,
   downloadAllFavorites,
   downloadCollection,
   DOWNLOAD_REASON_FAVORITES
