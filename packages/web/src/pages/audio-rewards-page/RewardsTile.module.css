@@ -58,6 +58,9 @@
   flex: 1 1 320px;
   min-width: 320px;
 }
+.trendingRewardPanelContainer {
+  padding-top: 40px;
+}
 
 .rewardPanelContainer:not(:first-child):not(:last-child) {
   margin-left: 8px;
