@@ -3,18 +3,15 @@ import { useEffect, memo, useCallback, useRef, useState } from 'react'
 
 import { useInstanceVar } from '@audius/common'
 import type { Maybe } from '@audius/common'
-import { isEmpty } from 'lodash'
 import type {
   ImageProps,
   ImageSourcePropType,
   ImageStyle,
-  ImageURISource,
   LayoutChangeEvent,
   StyleProp,
   ViewStyle
 } from 'react-native'
 import { Animated, Image, StyleSheet, View } from 'react-native'
-import { useAsync } from 'react-use'
 
 import Skeleton from 'app/components/skeleton'
 import type { StylesProp } from 'app/styles'
