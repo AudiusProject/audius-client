@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { FunctionComponent, SVGProps } from 'react'
 
 import { CID, ID, UID } from '../models/Identifiers'
 import { CoverArtSizes } from '../models/ImageSizes'
@@ -48,6 +48,12 @@ export type CollectionMetadata = {
   activity_timestamp?: string
   playlist_image_multihash?: string
   playlist_image_sizes_multihash?: string
+  offline?: OfflineCollectionMetadata
+}
+
+// This is available on mobile for offline tracks
+export type OfflineCollectionMetadata = {
+  isFavoritesDownload?: boolean
 }
 
 export type ComputedCollectionProperties = {
@@ -78,7 +84,7 @@ export type SmartCollection = {
   gradient?: string
   imageOverride?: string
   shadow?: string
-  icon?: ReactNode
+  icon?: FunctionComponent<SVGProps<SVGSVGElement> & { title?: string }>
   link: string
   playlist_contents?: PlaylistContents
   has_current_user_saved?: boolean

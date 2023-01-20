@@ -1,72 +1,65 @@
-import { ComponentPropsWithoutRef, useCallback, useEffect } from 'react'
+import { ComponentPropsWithoutRef, useEffect, useState } from 'react'
 
-import {
-  chatSelectors,
-  chatActions,
-  accountSelectors,
-  decodeHashId,
-  cacheUsersSelectors
-} from '@audius/common'
-import type { UserChat } from '@audius/sdk'
+import { chatSelectors, chatActions, Status } from '@audius/common'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
 import { useSelector } from 'common/hooks/useSelector'
-import { ProfilePicture } from 'components/notification/Notification/components/ProfilePicture'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 
 import styles from './ChatList.module.css'
+import { ChatListItem } from './ChatListItem'
 
-type ChatListItemProps = {
-  chat: UserChat
+const { getChats, getChatsStatus } = chatSelectors
+const { fetchMoreChats } = chatActions
+
+const messages = {
+  nothingHere: 'Nothing Here Yet',
+  start: 'Start a Conversation!'
 }
 
-const ChatListItem = (props: ChatListItemProps) => {
-  const { chat } = props
+type ChatListProps = {
+  currentChatId?: string
+  onChatClicked: (chatId: string) => void
+} & ComponentPropsWithoutRef<'div'>
+
+export const ChatList = (props: ChatListProps) => {
+  const { currentChatId, onChatClicked } = props
   const dispatch = useDispatch()
-  const currentUserId = useSelector(accountSelectors.getUserId)
-  const member = chat.chat_members.find(
-    (u) => decodeHashId(u.user_id) !== currentUserId
-  )
-  const user = useSelector((state) =>
-    cacheUsersSelectors.getUser(state, {
-      id: member ? decodeHashId(member.user_id) ?? -1 : -1
-    })
-  )
-  const currentChatId = useSelector(chatSelectors.getCurrentChatId)
-  const isCurrentChat = currentChatId === chat.chat_id
-
-  const handleClick = useCallback(() => {
-    dispatch(chatActions.setCurrentChat({ chatId: chat.chat_id }))
-  }, [dispatch, chat])
-
-  if (!user || !member) {
-    return null
-  }
-  return (
-    <div
-      className={cn(styles.chat, { [styles.current]: isCurrentChat })}
-      onClick={handleClick}
-    >
-      <ProfilePicture user={user} />
-      <span>{user.name}</span>
-    </div>
-  )
-}
-
-export const ChatList = (props: ComponentPropsWithoutRef<'div'>) => {
-  const dispatch = useDispatch()
-  const chats = useSelector(chatSelectors.getChats)
-  console.log({ chats })
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false)
+  const chats = useSelector(getChats)
+  const status = useSelector(getChatsStatus)
 
   useEffect(() => {
-    dispatch(chatActions.fetchMoreChats())
+    dispatch(fetchMoreChats())
   }, [dispatch])
+
+  useEffect(() => {
+    if (status === Status.SUCCESS) {
+      setHasLoadedOnce(true)
+    }
+  }, [status, setHasLoadedOnce])
 
   return (
     <div className={cn(styles.root, props.className)}>
-      {chats?.map((chat) => (
-        <ChatListItem key={chat.chat_id} chat={chat} />
-      ))}
+      {chats?.length > 0 ? (
+        chats?.map((chat) => (
+          <ChatListItem
+            key={chat.chat_id}
+            currentChatId={currentChatId}
+            chat={chat}
+            onChatClicked={onChatClicked}
+          />
+        ))
+      ) : hasLoadedOnce ? (
+        <div className={styles.empty}>
+          <div className={styles.header}>{messages.nothingHere}</div>
+          <div className={styles.subheader}>{messages.start}</div>
+        </div>
+      ) : null}
+      {status === Status.LOADING ? (
+        <LoadingSpinner className={styles.spinner} />
+      ) : null}
     </div>
   )
 }

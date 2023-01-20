@@ -228,7 +228,7 @@ const NavColumn = ({
   ])
 
   const onClickNavLinkWithAccount = useCallback(
-    (e?: MouseEvent<HTMLAnchorElement>, id?: number) => {
+    (e?: MouseEvent, id?: number) => {
       if (!account) {
         e?.preventDefault()
         goToSignUp('restricted page')
@@ -326,7 +326,7 @@ const NavColumn = ({
         })}
       >
         <Scrollbar
-          containerRef={(el) => {
+          containerRef={(el: HTMLElement) => {
             scrollbarRef.current = el
           }}
           className={styles.scrollable}

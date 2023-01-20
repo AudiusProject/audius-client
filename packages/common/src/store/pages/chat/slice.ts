@@ -1,10 +1,11 @@
 import type { TypedCommsResponse, UserChat, ChatMessage } from '@audius/sdk'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import dayjs from 'dayjs'
 
-import { Status } from 'models'
+import { ID, Status } from 'models'
+import { encodeHashId } from 'utils/hashIds'
 
 type ChatState = {
-  currentChatId?: string
   chatList: {
     status: Status
     summary?: TypedCommsResponse<UserChat>['summary']
@@ -20,6 +21,12 @@ type ChatState = {
   >
 }
 
+type SetMessageReactionPayload = {
+  chatId: string
+  messageId: string
+  reaction: string
+}
+
 const initialState: ChatState = {
   chatList: {
     status: Status.IDLE,
@@ -32,8 +39,12 @@ const slice = createSlice({
   name: 'application/pages/chat',
   initialState,
   reducers: {
-    setCurrentChat: (state, action: PayloadAction<{ chatId: string }>) => {
-      state.currentChatId = action.payload.chatId
+    createChat: (_state, _action: PayloadAction<{ userIds: ID[] }>) => {
+      // triggers saga
+    },
+    createChatSucceeded: (state, action: PayloadAction<{ chat: UserChat }>) => {
+      const { chat } = action.payload
+      state.chatList.data = [chat].concat(state.chatList.data)
     },
     fetchMoreChats: (state) => {
       // triggers saga
@@ -87,6 +98,40 @@ const slice = createSlice({
     ) => {
       const { chatId } = action.payload
       state.chatMessages[chatId].status = Status.ERROR
+    },
+    setMessageReaction: (
+      _state,
+      _action: PayloadAction<SetMessageReactionPayload>
+    ) => {
+      // triggers saga
+    },
+    setMessageReactionSucceeded: (
+      state,
+      action: PayloadAction<
+        SetMessageReactionPayload & { userId: ID; createdAt: string }
+      >
+    ) => {
+      const { userId, chatId, messageId, reaction } = action.payload
+      const index = state.chatMessages[chatId].data.findIndex(
+        (message) => message.message_id === messageId
+      )
+      const encodedUserId = encodeHashId(userId)
+      if (index > -1) {
+        const existingReactions = (
+          state.chatMessages[chatId].data[index].reactions ?? []
+        ).filter((r) => r.user_id !== encodedUserId)
+        state.chatMessages[chatId].data[index].reactions = [
+          ...existingReactions,
+          {
+            user_id: encodedUserId,
+            reaction,
+            created_at: dayjs().toISOString()
+          }
+        ]
+      }
+    },
+    markChatAsRead: (_state, _action: PayloadAction<{ chatId: string }>) => {
+      // triggers saga
     }
   }
 })

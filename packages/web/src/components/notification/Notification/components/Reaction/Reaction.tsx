@@ -12,14 +12,25 @@ import Lottie, { LottieProps } from 'react-lottie'
 import styles from './Reaction.module.css'
 
 export type ReactionProps = {
+  className?: string
   animationData: LottieProps['options']['animationData']
   isActive?: boolean
   isResponsive?: boolean
   onClick?: MouseEventHandler
+  width?: number
+  height?: number
 }
 
 export const Reaction = (props: ReactionProps) => {
-  const { animationData, isActive, isResponsive, onClick } = props
+  const {
+    className,
+    animationData,
+    isActive,
+    isResponsive,
+    onClick,
+    width = 86,
+    height = 86
+  } = props
   const [isInteracting, setInteracting] = useState(false)
   const [isClicked, setIsClicked] = useState(false)
 
@@ -60,7 +71,7 @@ export const Reaction = (props: ReactionProps) => {
 
   return (
     <div
-      className={cn(styles.root, {
+      className={cn(styles.root, className, {
         [styles.active]: isActive === true,
         [styles.inactive]: isActive === false,
         [styles.responsive]: isResponsive,
@@ -71,8 +82,8 @@ export const Reaction = (props: ReactionProps) => {
       onMouseLeave={handleMouseLeave}
     >
       <Lottie
-        height={86}
-        width={86}
+        height={width}
+        width={height}
         options={lottieOptions}
         isStopped={isActive === false && !isInteracting}
         isClickToPauseDisabled

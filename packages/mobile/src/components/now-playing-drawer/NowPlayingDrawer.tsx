@@ -21,6 +21,7 @@ import type {
 } from 'react-native'
 import { Platform, View, StatusBar, Pressable } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import TrackPlayer from 'react-native-track-player'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { BOTTOM_BAR_HEIGHT } from 'app/components/bottom-tab-bar'
@@ -46,7 +47,7 @@ import { TrackInfo } from './TrackInfo'
 import { PLAY_BAR_HEIGHT } from './constants'
 const { seek, reset } = playerActions
 
-const { getPlaying, getCurrentTrack, getCounter } = playerSelectors
+const { getPlaying, getCurrentTrack, getCounter, getUid } = playerSelectors
 const { next, previous } = queueActions
 const { getUser } = cacheUsersSelectors
 
@@ -115,6 +116,7 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
 
   const { isOpen, onOpen, onClose } = useDrawer('NowPlaying')
   const playCounter = useSelector(getCounter)
+  const currentUid = useSelector(getUid)
   const isPlaying = useSelector(getPlaying)
   const [isPlayBarShowing, setIsPlayBarShowing] = useState(false)
 
@@ -205,6 +207,7 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
 
   const track = useSelector(getCurrentTrack)
   const trackId = track?.track_id
+  const trackDuration = track?.duration ?? 0
 
   const user = useSelector((state) =>
     getUser(state, track ? { id: track.owner_id } : {})
@@ -213,31 +216,26 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
 
   useEffect(() => {
     setMediaKey((mediaKey) => mediaKey + 1)
-  }, [playCounter])
+  }, [playCounter, currentUid])
 
-  const onNext = useCallback(() => {
+  const onNext = useCallback(async () => {
     if (track?.genre === Genre.PODCASTS) {
-      if (global.progress) {
-        const { currentTime } = global.progress
-        const newPosition = currentTime + SKIP_DURATION_SEC
-        dispatch(seek({ seconds: Math.min(track.duration, newPosition) }))
-      }
+      const currentPosition = await TrackPlayer.getPosition()
+      const newPosition = currentPosition + SKIP_DURATION_SEC
+      dispatch(seek({ seconds: Math.min(track.duration, newPosition) }))
     } else {
       dispatch(next({ skip: true }))
       setMediaKey((mediaKey) => mediaKey + 1)
     }
   }, [dispatch, setMediaKey, track])
 
-  const onPrevious = useCallback(() => {
+  const onPrevious = useCallback(async () => {
+    const currentPosition = await TrackPlayer.getPosition()
     if (track?.genre === Genre.PODCASTS) {
-      if (global.progress) {
-        const { currentTime } = global.progress
-        const newPosition = currentTime - SKIP_DURATION_SEC
-        dispatch(seek({ seconds: Math.max(0, newPosition) }))
-      }
+      const newPosition = currentPosition - SKIP_DURATION_SEC
+      dispatch(seek({ seconds: Math.max(0, newPosition) }))
     } else {
-      const shouldGoToPrevious =
-        global.progress?.currentTime < RESTART_THRESHOLD_SEC
+      const shouldGoToPrevious = currentPosition < RESTART_THRESHOLD_SEC
       if (shouldGoToPrevious) {
         dispatch(previous())
         setMediaKey((mediaKey) => mediaKey + 1)
@@ -302,6 +300,7 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
       >
         <View style={styles.playBarContainer}>
           <PlayBar
+            mediaKey={`${mediaKey}`}
             track={track}
             user={user}
             onPress={onDrawerOpen}
@@ -329,7 +328,7 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
             isPlaying={isPlaying}
             onPressIn={onPressScrubberIn}
             onPressOut={onPressScrubberOut}
-            duration={track?.duration ?? 0}
+            duration={trackDuration}
           />
         </View>
         <View style={styles.controlsContainer}>

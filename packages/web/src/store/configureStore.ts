@@ -1,8 +1,8 @@
 import { ErrorLevel } from '@audius/common'
+import { composeWithDevToolsLogOnlyInProduction } from '@redux-devtools/extension'
 import * as Sentry from '@sentry/browser'
 import { routerMiddleware, push as pushRoute } from 'connected-react-router'
 import { createStore, applyMiddleware, Action, Store } from 'redux'
-import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction'
 import createSagaMiddleware from 'redux-saga'
 import createSentryMiddleware from 'redux-sentry-middleware'
 
@@ -35,13 +35,17 @@ const onSagaError = (
     `Caught saga error: ${error} ${JSON.stringify(errorInfo, null, 4)}`
   )
   store.dispatch(pushRoute(ERROR_PAGE))
+  const additionalInfo = {
+    ...errorInfo,
+    route: window.location.pathname
+  }
 
   reportToSentry({
     level: ErrorLevel.Fatal,
     error,
-    additionalInfo: errorInfo
+    additionalInfo
   })
-  amplitudeTrack(ERROR_PAGE, errorInfo)
+  amplitudeTrack(ERROR_PAGE, additionalInfo)
 }
 
 // Can't send up the entire Redux state b/c it's too fat
@@ -122,7 +126,10 @@ const middlewares = applyMiddleware(
 )
 
 const configureStore = () => {
-  const composeEnhancers = composeWithDevTools({ trace: true, traceLimit: 25 })
+  const composeEnhancers = composeWithDevToolsLogOnlyInProduction({
+    trace: true,
+    traceLimit: 25
+  })
   const store = createStore(
     createRootReducer(history),
     composeEnhancers(middlewares)

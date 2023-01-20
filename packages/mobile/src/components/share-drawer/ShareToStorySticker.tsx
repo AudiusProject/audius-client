@@ -81,7 +81,7 @@ export const ShareToStorySticker = ({
     user,
     size: SquareSizes.SIZE_480_BY_480
   })
-  const { neutralLight2 } = useThemeColors()
+  const { neutralLight2, staticNeutralLight8 } = useThemeColors()
   return (
     <View style={[styles.container, style]}>
       <View>
@@ -121,7 +121,7 @@ export const ShareToStorySticker = ({
             hideName
           />
         </View>
-        <Divider color='staticNeutralLight8' width={2} />
+        <Divider color={staticNeutralLight8} width={2} />
         <View style={styles.belowDividerContainer}>
           <Text
             allowFontScaling={false}

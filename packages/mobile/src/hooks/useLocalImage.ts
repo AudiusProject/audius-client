@@ -49,20 +49,36 @@ export const getLocalCollectionImageSource = (
   return getLocalImageSource(getLocalCollectionImagePath(collectionId), size)
 }
 
-export const useLocalImage = (
-  getLocalPath: (size: string) => string | undefined,
-  size: SquareSizes | WidthSizes
-): AsyncState<Nullable<ImageURISource>> => {
-  const isNotReachable = useSelector(getIsReachable) === false
+// When reachable, return empty array for local source.
+// defined here to have a single reference and avoid rerenders
+const reachableResult: AsyncState<Nullable<ImageURISource>> = {
+  value: null,
+  loading: false
+}
 
-  return useAsync(async () => {
-    // Only check for local images if not reachable
-    if (isNotReachable) {
+export const useLocalImage = ({
+  getLocalPath,
+  size
+}: {
+  getLocalPath: (size: string) => string | undefined
+  size: SquareSizes | WidthSizes
+}): AsyncState<Nullable<ImageURISource>> => {
+  const isReachable = useSelector(getIsReachable)
+
+  const sourceResult = useAsync(async () => {
+    // If reachable, don't check for local images
+    if (isReachable) {
       return null
     }
 
     return await getLocalImageSource(getLocalPath, size)
   }, [getLocalPath])
+
+  if (isReachable) {
+    return reachableResult
+  }
+
+  return sourceResult
 }
 
 export const useLocalTrackImage = ({
@@ -76,7 +92,7 @@ export const useLocalTrackImage = ({
     (size: string) => getLocalTrackImagePath(trackId)(size),
     [trackId]
   )
-  return useLocalImage(getLocalPath, size)
+  return useLocalImage({ getLocalPath, size })
 }
 
 export const useLocalCollectionImage = ({
@@ -90,5 +106,5 @@ export const useLocalCollectionImage = ({
     (size: string) => getLocalCollectionImagePath(collectionId)(size),
     [collectionId]
   )
-  return useLocalImage(getLocalPath, size)
+  return useLocalImage({ getLocalPath, size })
 }

@@ -82,7 +82,7 @@ export const NOTIFICATION_PAGE = '/notifications'
 export const APP_REDIRECT = '/app-redirect'
 export const CHECK_PAGE = '/check'
 export const DEACTIVATE_PAGE = '/deactivate'
-export const CHAT_PAGE = '/chat'
+export const CHAT_PAGE = '/messages/:id?'
 
 // Param routes.
 export const NOTIFICATION_USERS_PAGE = '/notification/:notificationId/users'
@@ -276,13 +276,33 @@ export const fullAlbumPage = (handle: string, title: string, id: ID) => {
 
 export const playlistPage = (
   handle: string,
-  title: string,
-  id: ID | string
+  playlistName?: string | null,
+  playlistId?: ID | null,
+  permalink?: string | null
 ) => {
-  return `/${encodeUrlName(handle)}/playlist/${encodeUrlName(title)}-${id}`
+  // Prioritize permalink if available. If not, default to legacy routing
+  if (permalink) {
+    return permalink
+  } else if (playlistName && playlistId) {
+    return `/${encodeUrlName(handle)}/playlist/${encodeUrlName(
+      playlistName
+    )}-${playlistId}`
+  } else {
+    throw Error('Missing required arguments to get PlaylistPage route.')
+  }
 }
-export const fullPlaylistPage = (handle: string, title: string, id: ID) => {
-  return `${BASE_URL}${playlistPage(handle, title, id)}`
+export const fullPlaylistPage = (
+  handle: string,
+  playlistName?: string | null,
+  playlistId?: ID | null,
+  permalink?: string | null
+) => {
+  return `${BASE_URL}${playlistPage(
+    handle,
+    playlistName,
+    playlistId,
+    permalink
+  )}`
 }
 
 export const audioNftPlaylistPage = (handle: string) => {
@@ -322,6 +342,10 @@ export const fullSearchResultsPage = (query: string) => {
 
 export const exploreMoodPlaylistsPage = (mood: string) => {
   return `/explore/${mood}`
+}
+
+export const chatPage = (id: string) => {
+  return `/messages/${id}`
 }
 
 export const doesMatchRoute = (route: string, exact = true) => {

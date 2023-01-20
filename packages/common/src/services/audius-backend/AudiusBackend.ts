@@ -1596,7 +1596,6 @@ export const audiusBackend = ({
     if (isAlbum) isPrivate = false
 
     try {
-      let response
       const web3 = await audiusLibs.web3Manager.getWeb3()
       const currentBlockNumber = await web3.eth.getBlockNumber()
       const currentBlock = await web3.eth.getBlock(currentBlockNumber)
@@ -1604,7 +1603,7 @@ export const audiusBackend = ({
         track: trackId,
         metadata_time: currentBlock.timestamp
       }))
-      response = await audiusLibs.EntityManager.createPlaylist({
+      const response = await audiusLibs.EntityManager.createPlaylist({
         ...metadata,
         playlist_id: playlistId,
         playlist_contents: { track_ids: playlistTracks },
@@ -2164,9 +2163,10 @@ export const audiusBackend = ({
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
     if (!account) return
+    let notificationsReadResponse
     try {
       const { data, signature } = await signData()
-      return await fetch(`${identityServiceUrl}/notifications/all`, {
+      const response = await fetch(`${identityServiceUrl}/notifications/all`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2174,10 +2174,23 @@ export const audiusBackend = ({
           [AuthHeaders.Signature]: signature
         },
         body: JSON.stringify({ isViewed: true, clearBadges: !!nativeMobile })
-      }).then((res) => res.json())
+      })
+      notificationsReadResponse = await response.json()
     } catch (e) {
       console.error(e)
     }
+    try {
+      if (
+        await getFeatureEnabled(
+          FeatureFlags.ENTITY_MANAGER_VIEW_NOTIFICATIONS_ENABLED
+        )
+      ) {
+        await audiusLibs.Notifications.viewNotification({})
+      }
+    } catch (err) {
+      console.error(err)
+    }
+    return notificationsReadResponse
   }
 
   async function clearNotificationBadges() {
@@ -2696,9 +2709,10 @@ export const audiusBackend = ({
     const account = audiusLibs.Account.getCurrentUser()
     if (!account) return
 
+    let updatedPlaylistResponse = false
     try {
       const { data, signature } = await signData()
-      return await fetch(
+      const response = await fetch(
         `${identityServiceUrl}/user_playlist_updates?walletAddress=${account.wallet}&playlistId=${playlistId}`,
         {
           method: 'POST',
@@ -2709,10 +2723,22 @@ export const audiusBackend = ({
           }
         }
       )
+      updatedPlaylistResponse = await response.json()
     } catch (err) {
       console.log(getErrorMessage(err))
-      return false
     }
+    try {
+      if (
+        await getFeatureEnabled(
+          FeatureFlags.ENTITY_MANAGER_VIEW_PLAYLIST_ENABLED
+        )
+      ) {
+        await audiusLibs.Notifications.viewPlaylist({ playlistId })
+      }
+    } catch (err) {
+      console.log(getErrorMessage(err))
+    }
+    return updatedPlaylistResponse
   }
 
   async function updateHCaptchaScore(token: string) {

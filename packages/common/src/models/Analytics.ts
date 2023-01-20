@@ -469,6 +469,7 @@ type ErrorPage = {
   eventName: Name.ERROR_PAGE
   error: string
   name: string
+  route?: string
 }
 type NotFoundPage = {
   eventName: Name.NOT_FOUND_PAGE
@@ -1223,7 +1224,12 @@ type RewardsClaimUnknown = {
   error: string
 }
 
-export type TipSource = 'profile' | 'feed' | 'dethroned' | 'buyAudio'
+export type TipSource =
+  | 'profile'
+  | 'feed'
+  | 'dethroned'
+  | 'buyAudio'
+  | 'trackPage'
 
 type TipAudioRequest = {
   eventName: Name.TIP_AUDIO_REQUEST

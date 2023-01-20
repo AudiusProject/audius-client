@@ -3,6 +3,7 @@ import { Metadata } from '@metaplex-foundation/mpl-token-metadata'
 import { Nullable } from '../utils/typeUtils'
 
 import { Chain } from './Chain'
+import { TokenStandard } from './Track'
 
 export type CollectiblesMetadata = {
   [key: string]: object
@@ -40,7 +41,10 @@ export type Collectible = {
 
   // ethereum nfts
   assetContractAddress: Nullable<string>
+  standard: Nullable<TokenStandard>
   collectionSlug: Nullable<string>
+  collectionName: Nullable<string>
+  collectionImageUrl: Nullable<string>
 
   // solana nfts
   solanaChainMetadata: Nullable<Metadata>

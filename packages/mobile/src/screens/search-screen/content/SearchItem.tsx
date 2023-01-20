@@ -3,6 +3,7 @@ import { useCallback } from 'react'
 
 import { SquareSizes } from '@audius/common'
 import { StyleSheet, View, Text, TouchableHighlight } from 'react-native'
+import { useDispatch } from 'react-redux'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import { CollectionImage } from 'app/components/image/CollectionImage'
@@ -10,7 +11,7 @@ import { TrackImage } from 'app/components/image/TrackImage'
 import { UserImage } from 'app/components/image/UserImage'
 import UserBadges from 'app/components/user-badges/UserBadges'
 import { useNavigation } from 'app/hooks/useNavigation'
-import useSearchHistory from 'app/store/search/hooks'
+import { addItem } from 'app/store/search/slice'
 import type {
   SearchPlaylist,
   SearchTrack,
@@ -90,12 +91,12 @@ const UserSearchResult = ({ isLast, item: user }: UserSearchResultProps) => {
     backgroundColor: 'neutralLight4'
   })
   const navigation = useNavigation()
-  const { appendSearchItem } = useSearchHistory()
+  const dispatch = useDispatch()
 
   const handlePress = useCallback(() => {
-    appendSearchItem(user.name)
+    dispatch(addItem({ searchItem: user.name }))
     navigation.push('Profile', { handle: user.handle })
-  }, [user, navigation, appendSearchItem])
+  }, [user, navigation, dispatch])
 
   return (
     <ItemContainer isLast={isLast} onPress={handlePress}>
@@ -122,16 +123,16 @@ const TrackSearchResult = ({ isLast, item: track }: TrackSearchResultProps) => {
   })
 
   const navigation = useNavigation()
-  const { appendSearchItem } = useSearchHistory()
+  const dispatch = useDispatch()
 
   const handlePress = useCallback(() => {
-    appendSearchItem(track.title)
+    dispatch(addItem({ searchItem: track.title }))
     navigation.push('Track', {
       id: track.track_id,
       searchTrack: track,
       canBeUnlisted: false
     })
-  }, [track, navigation, appendSearchItem])
+  }, [track, navigation, dispatch])
 
   return (
     <ItemContainer isLast={isLast} onPress={handlePress}>
@@ -167,15 +168,15 @@ const PlaylistSearchResult = ({
   })
 
   const navigation = useNavigation()
-  const { appendSearchItem } = useSearchHistory()
+  const dispatch = useDispatch()
 
   const handlePress = useCallback(() => {
-    appendSearchItem(playlist.playlist_name)
+    dispatch(addItem({ searchItem: playlist.playlist_name }))
     navigation.push('Collection', {
       id: playlist.playlist_id,
       searchCollection: playlist
     })
-  }, [playlist, navigation, appendSearchItem])
+  }, [playlist, navigation, dispatch])
 
   return (
     <ItemContainer isLast={isLast} onPress={handlePress}>
@@ -208,15 +209,15 @@ const AlbumSearchResult = ({ isLast, item: album }: AlbumSearchResultProps) => {
   })
 
   const navigation = useNavigation()
-  const { appendSearchItem } = useSearchHistory()
+  const dispatch = useDispatch()
 
   const handlePress = useCallback(() => {
-    appendSearchItem(album.playlist_name)
+    dispatch(addItem({ searchItem: album.playlist_name }))
     navigation.push('Collection', {
       id: album.playlist_id,
       searchCollection: album
     })
-  }, [album, navigation, appendSearchItem])
+  }, [album, navigation, dispatch])
 
   return (
     <ItemContainer isLast={isLast} onPress={handlePress}>

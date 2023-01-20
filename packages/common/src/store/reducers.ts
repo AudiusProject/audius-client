@@ -13,6 +13,7 @@ import { UsersCacheState } from './cache/users/types'
 import cast from './cast/slice'
 import changePasswordReducer from './change-password/slice'
 import { ChangePasswordState } from './change-password/types'
+import collectiblesSlice from './collectibles/slice'
 import musicConfettiReducer, {
   MusicConfettiState
 } from './music-confetti/slice'
@@ -53,7 +54,7 @@ import {
   playlistLibraryReducer,
   PlaylistLibraryState
 } from './playlist-library'
-import premiumContentReducer from './premium-content/reducer'
+import premiumContentSlice from './premium-content/slice'
 import queue from './queue/slice'
 import reachability from './reachability/reducer'
 import { ReachabilityState } from './reachability/types'
@@ -102,6 +103,7 @@ import followingUserListReducer from './user-list/following/reducers'
 import mutualsUserListReducer from './user-list/mutuals/reducers'
 import notificationsUserListReducer from './user-list/notifications/reducers'
 import repostsUserListReducer from './user-list/reposts/reducers'
+import searchUserListReducer from './user-list/search/reducers'
 import supportingUserListReducer from './user-list/supporting/reducers'
 import topSupportersUserListReducer from './user-list/top-supporters/reducers'
 import wallet from './wallet/slice'
@@ -174,7 +176,8 @@ export const reducers = () => ({
       topSupporters: topSupportersUserListReducer,
       supporting: supportingUserListReducer,
       mutuals: mutualsUserListReducer,
-      notifications: notificationsUserListReducer
+      notifications: notificationsUserListReducer,
+      search: searchUserListReducer
     }),
     theme,
     vipDiscordModal: vipDiscordModalReducer,
@@ -215,7 +218,10 @@ export const reducers = () => ({
   tipping: tippingReducer,
 
   // Premium content
-  premiumContent: premiumContentReducer,
+  premiumContent: premiumContentSlice.reducer,
+
+  // Collectibles
+  collectibles: collectiblesSlice.reducer,
 
   upload
 })
@@ -280,6 +286,7 @@ export type CommonState = {
       favorites: ReturnType<typeof favoritesUserListReducer>
       topSupporters: ReturnType<typeof topSupportersUserListReducer>
       supporting: ReturnType<typeof supportingUserListReducer>
+      search: ReturnType<typeof searchUserListReducer>
     }
     theme: ThemeState
     vipDiscordModal: VipDiscordModalState
@@ -317,7 +324,10 @@ export type CommonState = {
   tipping: ReturnType<typeof tippingReducer>
 
   // Premium content
-  premiumContent: ReturnType<typeof premiumContentReducer>
+  premiumContent: ReturnType<typeof premiumContentSlice.reducer>
+
+  // Collectibles
+  collectibles: ReturnType<typeof collectiblesSlice.reducer>
 
   upload: UploadState
 }
