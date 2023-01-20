@@ -130,12 +130,10 @@ export const DownloadToggle = ({
     (isDownloadEnabled: boolean) => {
       if (!collection && !isAllFavoritesToggle) return
       if (isDownloadEnabled) {
-        if (isAllFavoritesToggle) {
-          downloadAllFavorites()
-        } else if (collection) {
-          downloadCollection(collection, /* isFavoritesDownload */ false)
-          batchDownloadTrack(tracksForDownload)
-        }
+        isAllFavoritesToggle
+          ? downloadAllFavorites()
+          : collection &&
+            downloadCollection(collection, /* isFavoritesDownload */ false)
       } else {
         if (!isAllFavoritesToggle && collectionIdStr) {
           // we are trying to remove download from a collection page
