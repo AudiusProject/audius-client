@@ -31,6 +31,7 @@ import { makeStyles } from 'app/styles'
 
 import { FilterInput } from './FilterInput'
 import { NoTracksPlaceholder } from './NoTracksPlaceholder'
+import { OfflineContentBanner } from './OfflineContentBanner'
 const { getPlaying, getUid } = playerSelectors
 const { saveTrack, unsaveTrack } = tracksSocialActions
 const { getSavedTracksLineup, getSavedTracksStatus } = savedPageSelectors
@@ -146,6 +147,7 @@ export const TracksTab = () => {
           )
         ) : (
           <>
+            <OfflineContentBanner />
             <FilterInput
               value={filterValue}
               placeholder={messages.inputPlaceholder}
