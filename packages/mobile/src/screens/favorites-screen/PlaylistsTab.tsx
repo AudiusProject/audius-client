@@ -13,6 +13,8 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import type { FavoritesTabScreenParamList } from '../app-screen/FavoritesTabScreen'
 
 import { FilterInput } from './FilterInput'
+import { NoTracksPlaceholder } from './NoTracksPlaceholder'
+import { OfflineContentBanner } from './OfflineContentBanner'
 import { getAccountCollections } from './selectors'
 
 const { getIsReachable } = reachabilitySelectors
@@ -43,24 +45,31 @@ export const PlaylistsTab = () => {
   return (
     <VirtualizedScrollView>
       {!userPlaylists?.length && !filterValue ? (
-        <EmptyTileCTA message={messages.emptyTabText} />
+        isOfflineModeEnabled && !isReachable ? (
+          <NoTracksPlaceholder />
+        ) : (
+          <EmptyTileCTA message={messages.emptyTabText} />
+        )
       ) : (
-        <FilterInput
-          value={filterValue}
-          placeholder={messages.inputPlaceholder}
-          onChangeText={setFilterValue}
-        />
-      )}
-      <>
-        {!isReachable && isOfflineModeEnabled ? null : (
-          <Button
-            title='Create a New Playlist'
-            variant='commonAlt'
-            onPress={handleNavigateToNewPlaylist}
+        <>
+          <OfflineContentBanner />
+          <FilterInput
+            value={filterValue}
+            placeholder={messages.inputPlaceholder}
+            onChangeText={setFilterValue}
           />
-        )}
-      </>
-      <CollectionList scrollEnabled={false} collection={userPlaylists} />
+          <>
+            {!isReachable && isOfflineModeEnabled ? null : (
+              <Button
+                title='Create a New Playlist'
+                variant='commonAlt'
+                onPress={handleNavigateToNewPlaylist}
+              />
+            )}
+          </>
+          <CollectionList scrollEnabled={false} collection={userPlaylists} />
+        </>
+      )}
     </VirtualizedScrollView>
   )
 }

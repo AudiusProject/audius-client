@@ -9,7 +9,8 @@ import {
   tracksSocialActions,
   collectionsSocialActions,
   accountSelectors,
-  cacheCollectionsSelectors
+  cacheCollectionsSelectors,
+  reachabilityActions
 } from '@audius/common'
 import { waitForBackendSetup } from 'audius-client/src/common/store/backend/sagas'
 import { waitForRead } from 'audius-client/src/utils/sagaHelpers'
@@ -31,13 +32,23 @@ import {
   syncFavoritedCollections,
   syncStaleTracks,
   syncCollectionsTracks,
-  downloadCollection
+  downloadCollection,
+  enqueueTrackDownload
 } from 'app/services/offline-downloader'
+import {
+  blockedPlayCounterWorker,
+  playCounterWorker,
+  setPlayCounterWorker
+} from 'app/services/offline-downloader/workers'
 
-import { getOfflineCollections } from './selectors'
+import {
+  getOfflineCollections,
+  getOfflineFavoritedCollections
+} from './selectors'
 import { clearOfflineDownloads, doneLoadingFromDisk } from './slice'
 const { fetchCollection, FETCH_COLLECTION_SUCCEEDED, FETCH_COLLECTION_FAILED } =
   collectionPageActions
+const { SET_REACHABLE, SET_UNREACHABLE } = reachabilityActions
 const { getUserId } = accountSelectors
 const { getCollections } = cacheCollectionsSelectors
 
@@ -46,15 +57,13 @@ export function* downloadSavedTrack(
 ) {
   const offlineCollections = yield* select(getOfflineCollections)
   if (!offlineCollections[DOWNLOAD_REASON_FAVORITES]) return
-  batchDownloadTrack([
-    {
-      trackId: action.trackId,
-      downloadReason: {
-        is_from_favorites: true,
-        collection_id: DOWNLOAD_REASON_FAVORITES
-      }
+  enqueueTrackDownload({
+    trackId: action.trackId,
+    downloadReason: {
+      is_from_favorites: true,
+      collection_id: DOWNLOAD_REASON_FAVORITES
     }
-  ])
+  })
 }
 
 export function* watchSaveTrack() {
@@ -121,8 +130,13 @@ export function* startSync() {
       (collection) => collection.id
     )
     const offlineCollectionsState = yield* select(getOfflineCollections)
+    const isFavoritesDownloadEnabled =
+      offlineCollectionsState[DOWNLOAD_REASON_FAVORITES]
+    const offlineFavoritedCollections = yield* select(
+      getOfflineFavoritedCollections
+    )
     const existingOfflineCollections: Collection[] = Object.entries(
-      offlineCollectionsState
+      offlineFavoritedCollections
     )
       .filter(
         ([id, isDownloaded]) => isDownloaded && id !== DOWNLOAD_REASON_FAVORITES
@@ -130,8 +144,6 @@ export function* startSync() {
       .map(([id, isDownloaded]) => collections[id] ?? null)
       .filter((collection) => !!collection)
 
-    const isFavoritesDownloadEnabled =
-      offlineCollectionsState[DOWNLOAD_REASON_FAVORITES]
     if (isFavoritesDownloadEnabled) {
       // Individual tracks
       yield* call(syncFavoritedTracks)
@@ -166,11 +178,29 @@ export function* startSync() {
   }
 }
 
+export function* handleSetReachable() {
+  yield* call(setPlayCounterWorker, playCounterWorker)
+}
+
+export function* watchSetReachable() {
+  yield* takeLatest(SET_REACHABLE, handleSetReachable)
+}
+
+export function* handleSetUnreachable() {
+  yield* call(setPlayCounterWorker, blockedPlayCounterWorker)
+}
+
+export function* watchSetUnreachable() {
+  yield* takeLatest(SET_UNREACHABLE, handleSetUnreachable)
+}
+
 const sagas = () => {
   return [
     watchSaveTrack,
     watchSaveCollection,
     watchClearOfflineDownloads,
+    watchSetReachable,
+    watchSetUnreachable,
     startSync
   ]
 }
