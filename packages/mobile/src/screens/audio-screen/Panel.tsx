@@ -136,7 +136,7 @@ export const Panel = ({
 
   return (
     <TouchableOpacity
-      style={[styles.root, hasDisbursed ? styles.completed : '']}
+      style={[styles.root, hasDisbursed ? styles.completed : null]}
       onPress={onPress}
       activeOpacity={0.7}
     >
@@ -175,7 +175,7 @@ export const Panel = ({
           size='medium'
           icon={IconArrow}
           onPress={onPress}
-          style={[styles.button, hasDisbursed ? styles.completed : '']}
+          style={[styles.button, hasDisbursed ? styles.completed : null]}
         />
       }
     </TouchableOpacity>
