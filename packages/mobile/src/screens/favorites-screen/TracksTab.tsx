@@ -30,6 +30,7 @@ import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 import { makeStyles } from 'app/styles'
 
 import { FilterInput } from './FilterInput'
+import { NoTracksPlaceholder } from './NoTracksPlaceholder'
 const { getPlaying, getUid } = playerSelectors
 const { saveTrack, unsaveTrack } = tracksSocialActions
 const { getSavedTracksLineup, getSavedTracksStatus } = savedPageSelectors
@@ -138,7 +139,11 @@ export const TracksTab = () => {
     <WithLoader loading={isLoading}>
       <VirtualizedScrollView listKey='favorites-screen'>
         {!isLoading && hasNoFavorites && !filterValue ? (
-          <EmptyTileCTA message={messages.emptyTabText} />
+          isOfflineModeEnabled && !isReachable ? (
+            <NoTracksPlaceholder />
+          ) : (
+            <EmptyTileCTA message={messages.emptyTabText} />
+          )
         ) : (
           <>
             <FilterInput
