@@ -11,7 +11,6 @@ export type PlayCountWorkerPayload = { trackId: number }
 
 const countPlay = async (payload: PlayCountWorkerPayload) => {
   const { trackId } = payload
-  console.log('OfflinePlays - listen recorded', trackId)
   store.dispatch(recordListen(trackId))
 }
 
