@@ -410,6 +410,7 @@ export const removeTrackDownload = async ({
     )
     if (remainingReasons.length === 0) {
       purgeDownloadedTrack(trackIdStr)
+      store.dispatch(removeDownload(trackIdStr))
     } else {
       const trackToWrite = {
         ...diskTrack,
