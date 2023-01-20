@@ -197,7 +197,7 @@
     "metro-react-native-babel-preset": "0.73.7",
     "patch-package": "6.4.7",
     "react-native-clean-project": "4.0.1",
-    "react-native-flipper": "0.177.0",
+    "react-native-flipper": "0.175.0",
     "react-native-flipper-performance-plugin": "0.3.1",
     "react-native-gradle-plugin": "0.71.13",
     "react-native-performance": "4.0.0",
