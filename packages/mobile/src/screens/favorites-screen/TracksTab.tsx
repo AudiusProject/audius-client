@@ -136,7 +136,7 @@ export const TracksTab = () => {
 
   return (
     <WithLoader loading={isLoading}>
-      <VirtualizedScrollView listKey='favorites-screen'>
+      <VirtualizedScrollView>
         {!isLoading && hasNoFavorites && !filterValue ? (
           <EmptyTileCTA message={messages.emptyTabText} />
         ) : (

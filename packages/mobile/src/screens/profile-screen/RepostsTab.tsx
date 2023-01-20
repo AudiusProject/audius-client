@@ -32,7 +32,6 @@ export const RepostsTab = () => {
 
   return (
     <Lineup
-      listKey='profile-reposts'
       selfLoad
       actions={feedActions}
       lineup={lineup}

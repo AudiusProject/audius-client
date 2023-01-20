@@ -27,7 +27,7 @@ export const AlbumsTab = () => {
   )
 
   return (
-    <VirtualizedScrollView listKey='favorites-albums-view'>
+    <VirtualizedScrollView>
       {!userAlbums?.length && !filterValue ? (
         <EmptyTileCTA message={messages.emptyTabText} />
       ) : (
@@ -38,7 +38,6 @@ export const AlbumsTab = () => {
             onChangeText={setFilterValue}
           />
           <CollectionList
-            listKey='favorites-albums'
             scrollEnabled={false}
             collection={userAlbums}
             style={{ marginVertical: 12 }}

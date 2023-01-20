@@ -41,7 +41,7 @@ export const PlaylistsTab = () => {
   }, [navigation])
 
   return (
-    <VirtualizedScrollView listKey='favorites-playlists-view'>
+    <VirtualizedScrollView>
       {!userPlaylists?.length && !filterValue ? (
         <EmptyTileCTA message={messages.emptyTabText} />
       ) : (
@@ -60,11 +60,7 @@ export const PlaylistsTab = () => {
           />
         )}
       </>
-      <CollectionList
-        listKey='favorites-playlists'
-        scrollEnabled={false}
-        collection={userPlaylists}
-      />
+      <CollectionList scrollEnabled={false} collection={userPlaylists} />
     </VirtualizedScrollView>
   )
 }

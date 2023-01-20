@@ -247,10 +247,7 @@ const CollectionScreenComponent = (props: CollectionScreenComponentProps) => {
   return (
     <Screen url={url}>
       <ScreenContent isOfflineCapable={isOfflineModeEnabled}>
-        <VirtualizedScrollView
-          listKey={`playlist-${collection.playlist_id}`}
-          style={styles.root}
-        >
+        <VirtualizedScrollView style={styles.root}>
           <CollectionScreenDetailsTile
             description={description ?? ''}
             extraDetails={extraDetails}

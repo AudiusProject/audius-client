@@ -13,7 +13,6 @@ export const AlbumsTab = () => {
 
   return (
     <CollectionList
-      listKey='profile-albums'
       collection={albums}
       ListEmptyComponent={<EmptyProfileTile tab='albums' />}
       disableTopTabScroll

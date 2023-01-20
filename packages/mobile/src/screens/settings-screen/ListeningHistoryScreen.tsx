@@ -102,7 +102,7 @@ export const ListeningHistoryScreen = () => {
           {status === Status.SUCCESS && entries.length === 0 ? (
             <EmptyTileCTA message={messages.noHistoryMessage} />
           ) : (
-            <VirtualizedScrollView listKey='listening-history-screen'>
+            <VirtualizedScrollView>
               <Tile
                 styles={{
                   root: styles.container,
