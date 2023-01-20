@@ -338,9 +338,9 @@ class GiantTrackTile extends PureComponent {
   }
 
   handleFollow = () => {
-    const { doesUserHaveAccess, isPremium, premiumConditions, onUnlock } =
+    const { doesUserHaveAccess, premiumConditions, onUnlock } =
       this.props
-    if (!doesUserHaveAccess && isPremium && premiumConditions.follow_user_id) {
+    if (!doesUserHaveAccess && premiumConditions.follow_user_id) {
       onUnlock()
     }
   }
@@ -348,12 +348,11 @@ class GiantTrackTile extends PureComponent {
   handleUnfollow = () => {
     const {
       doesUserHaveAccess,
-      isPremium,
       premiumConditions,
       onLock,
       trackId
     } = this.props
-    if (doesUserHaveAccess && isPremium && premiumConditions.follow_user_id) {
+    if (doesUserHaveAccess && premiumConditions.follow_user_id) {
       onLock(trackId)
     }
   }
