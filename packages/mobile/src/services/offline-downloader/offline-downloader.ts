@@ -315,19 +315,21 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
 }
 
 // Util to check if we should short-circuit download in case the associated collection download has been cancelled
-const shouldAbortDownload = (downloadReason: DownloadReason) => {
+const shouldAbortDownload = ({
+  collection_id,
+  is_from_favorites
+}: DownloadReason) => {
   const state = store.getState()
   const offlineCollections = getOfflineCollections(state)
   const favoritedOfflineCollections = getOfflineFavoritedCollections(state)
-  return (
-    (downloadReason.is_from_favorites &&
-      (!offlineCollections[DOWNLOAD_REASON_FAVORITES] ||
-        (downloadReason.collection_id &&
-          !favoritedOfflineCollections[downloadReason.collection_id]))) ||
-    (!downloadReason.is_from_favorites &&
-      downloadReason.collection_id &&
-      !offlineCollections[downloadReason.collection_id])
-  )
+  if (is_from_favorites && collection_id !== DOWNLOAD_REASON_FAVORITES) {
+    return (
+      !offlineCollections[DOWNLOAD_REASON_FAVORITES] ||
+      (collection_id && !favoritedOfflineCollections[collection_id])
+    )
+  } else {
+    return collection_id && !offlineCollections[collection_id]
+  }
 }
 
 export const removeAllDownloadedFavorites = async () => {
