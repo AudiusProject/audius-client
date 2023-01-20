@@ -318,9 +318,12 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
 const shouldAbortDownload = (downloadReason: DownloadReason) => {
   const state = store.getState()
   const offlineCollections = getOfflineCollections(state)
+  const favoritedOfflineCollections = getOfflineFavoritedCollections(state)
   return (
     (downloadReason.is_from_favorites &&
-      !offlineCollections[DOWNLOAD_REASON_FAVORITES]) ||
+      (!offlineCollections[DOWNLOAD_REASON_FAVORITES] ||
+        (downloadReason.collection_id &&
+          !favoritedOfflineCollections[downloadReason.collection_id]))) ||
     (!downloadReason.is_from_favorites &&
       downloadReason.collection_id &&
       !offlineCollections[downloadReason.collection_id])
@@ -405,8 +408,10 @@ export const removeTrackDownload = async ({
     const trackIdStr = trackId.toString()
     const diskTrack = await getTrackJson(trackIdStr)
     const downloadReasons = diskTrack.offline?.reasons_for_download ?? []
-    const remainingReasons = downloadReasons.filter(
-      (reason) => !isEqual(reason, downloadReason)
+    const remainingReasons = downloadReasons.filter((reason) =>
+      downloadReason.collection_id === DOWNLOAD_REASON_FAVORITES
+        ? !reason.is_from_favorites
+        : !isEqual(reason, downloadReason)
     )
     if (remainingReasons.length === 0) {
       purgeDownloadedTrack(trackIdStr)
