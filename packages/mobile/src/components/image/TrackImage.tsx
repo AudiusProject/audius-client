@@ -1,24 +1,28 @@
 import type { User, Track, Nullable } from '@audius/common'
 import { cacheUsersSelectors } from '@audius/common'
+import type { ImageStyle } from 'react-native-fast-image'
 import { useSelector } from 'react-redux'
 
 import imageEmpty from 'app/assets/images/imageBlank2x.png'
-import type { DynamicImageProps } from 'app/components/core'
-import { DynamicImage } from 'app/components/core'
 import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
 import { useLocalTrackImage } from 'app/hooks/useLocalImage'
+import type { StylesProp } from 'app/styles'
+
+import type { FastImageProps } from './FastImage'
+import { FastImage } from './FastImage'
 
 const { getUser } = cacheUsersSelectors
+
+type ImageTrack = Nullable<
+  Pick<Track, 'track_id' | 'cover_art_sizes' | 'cover_art' | 'owner_id'>
+>
+
+type ImageUser = Nullable<Pick<User, 'creator_node_endpoint'>>
 
 export const DEFAULT_IMAGE_URL =
   'https://download.audius.co/static-resources/preview-image.jpg'
 
-export const useTrackImage = (
-  track: Nullable<
-    Pick<Track, 'track_id' | 'cover_art_sizes' | 'cover_art' | 'owner_id'>
-  >,
-  user?: Pick<User, 'creator_node_endpoint'>
-) => {
+export const useTrackImage = (track: ImageTrack, user?: ImageUser) => {
   const cid = track ? track.cover_art_sizes || track.cover_art : null
 
   const selectedUser = useSelector((state) =>
@@ -39,20 +43,27 @@ export const useTrackImage = (
 }
 
 type TrackImageProps = {
-  track: Parameters<typeof useTrackImage>[0]
-  user?: Parameters<typeof useTrackImage>[1]
-} & DynamicImageProps
+  track: ImageTrack
+  user?: ImageUser
+  styles?: StylesProp<{
+    image: ImageStyle
+  }>
+} & FastImageProps
 
 export const TrackImage = (props: TrackImageProps) => {
-  const { track, user, ...imageProps } = props
-
+  const { track, user, styles, style, ...imageProps } = props
   const trackImageSource = useTrackImage(track, user)
 
-  return trackImageSource ? (
-    <DynamicImage
+  if (!trackImageSource) return null
+
+  const { source, handleError } = trackImageSource
+
+  return (
+    <FastImage
       {...imageProps}
-      source={trackImageSource.source}
-      onError={trackImageSource.handleError}
+      style={[style, styles?.image]}
+      source={source}
+      onError={handleError}
     />
-  ) : null
+  )
 }

@@ -18,6 +18,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
+import type { SetOptional } from 'type-fest'
 
 import type { DynamicImageProps } from 'app/components/core'
 import { Text } from 'app/components/core'
@@ -27,6 +28,7 @@ import type {
   DetailsTileProps
 } from 'app/components/details-tile/types'
 import { CollectionImage } from 'app/components/image/CollectionImage'
+import type { FastImageProps } from 'app/components/image/FastImage'
 import { DownloadToggle } from 'app/components/offline-downloads'
 import { TrackList } from 'app/components/track-list'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
@@ -75,7 +77,7 @@ type CollectionScreenDetailsTileProps = {
   isPublishing?: boolean
   extraDetails?: DetailsTileDetail[]
 } & Omit<
-  DetailsTileProps,
+  SetOptional<DetailsTileProps, 'renderImage'>,
   'descriptionLinkPressSource' | 'details' | 'headerText' | 'onPressPlay'
 >
 
@@ -97,7 +99,7 @@ export const CollectionScreenDetailsTile = ({
   isAlbum,
   isPrivate,
   isPublishing,
-  renderImage: renderCustomImage,
+  renderImage: renderImageProp,
   ...detailsTileProps
 }: CollectionScreenDetailsTileProps) => {
   const styles = useStyles()
@@ -159,8 +161,12 @@ export const CollectionScreenDetailsTile = ({
   const isQueued = entries.some((entry) => playingUid === entry.uid)
 
   const renderImage = useCallback(
-    (props: DynamicImageProps) => (
-      <CollectionImage collection={collection as Collection} {...props} />
+    (props: FastImageProps) => (
+      <CollectionImage
+        collection={collection as Collection}
+        size='medium'
+        {...props}
+      />
     ),
     [collection]
   )
@@ -267,7 +273,7 @@ export const CollectionScreenDetailsTile = ({
       renderBottomContent={renderTrackList}
       headerText={!isOfflineModeEnabled ? headerText : undefined}
       renderHeader={isOfflineModeEnabled ? renderHeader : undefined}
-      renderImage={renderCustomImage ?? renderImage}
+      renderImage={renderImageProp ?? renderImage}
       onPressPlay={handlePressPlay}
     />
   )

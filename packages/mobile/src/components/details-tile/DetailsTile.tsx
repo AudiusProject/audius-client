@@ -230,7 +230,7 @@ export const DetailsTile = ({
   }
 
   const innerImageElement = renderImage({
-    styles: { image: styles.coverArt as ImageStyle }
+    style: styles.coverArt
   })
 
   const imageElement = coSign ? (
