@@ -352,7 +352,6 @@ export const removeAllDownloadedFavorites = async () => {
   )
 
   purgeDownloadedCollection(DOWNLOAD_REASON_FAVORITES)
-  batchRemoveTrackDownload(tracksForDownload)
 
   // remove collections if they're not also downloaded separately
   Object.entries(favoritedDownloadedCollections).forEach(
@@ -367,6 +366,8 @@ export const removeAllDownloadedFavorites = async () => {
       }
     }
   )
+
+  batchRemoveTrackDownload(tracksForDownload)
 }
 
 export const removeDownloadedCollectionFromFavorites = async (
