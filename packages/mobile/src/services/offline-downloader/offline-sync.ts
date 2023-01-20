@@ -170,7 +170,11 @@ export const syncCollectionTracks = async (
     updatedCollection
   )
 
-  downloadCollection(updatedCollectionWithArt)
+  downloadCollection(
+    updatedCollectionWithArt,
+    /* isFavoritesDownload */ false,
+    /* skipTracks */ true
+  )
   if (
     updatedCollectionWithArt.cover_art_sizes !==
     offlineCollection.cover_art_sizes
@@ -200,7 +204,7 @@ export const syncCollectionTracks = async (
       }
     })
   )
-  removeCollectionDownload(collectionIdStr, tracksForDelete)
+  batchRemoveTrackDownload(tracksForDelete)
 
   // TODO: known bug here we should track multiple download reasons for the collection
   // and apply each download reason to the sync'd tracks.
