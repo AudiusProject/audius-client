@@ -228,13 +228,13 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
         store.dispatch(completeDownload(trackIdStr))
         return
       }
+      const now = Date.now()
       const trackToWrite: Track & UserTrackMetadata = {
         ...trackJson,
         offline: {
           download_completed_time:
-            trackJson.offline?.download_completed_time ?? Date.now(),
-          last_verified_time:
-            trackJson.offline?.last_verified_time ?? Date.now(),
+            trackJson.offline?.download_completed_time ?? now,
+          last_verified_time: trackJson.offline?.last_verified_time ?? now,
           reasons_for_download: trackJson.offline?.reasons_for_download?.concat(
             downloadReason
           ) ?? [downloadReason],
@@ -266,6 +266,7 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
 
     await downloadTrackCoverArt(track)
     await tryDownloadTrackFromEachCreatorNode(track)
+    const now = Date.now()
     const trackToWrite: Track & UserTrackMetadata = {
       ...track,
       offline: {
@@ -273,8 +274,8 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
           downloadReason,
           ...(track?.offline?.reasons_for_download ?? [])
         ]),
-        download_completed_time: Date.now(),
-        last_verified_time: Date.now(),
+        download_completed_time: now,
+        last_verified_time: now,
         favorite_created_at: favoriteCreatedAt
       }
     }
@@ -420,13 +421,13 @@ export const removeTrackDownload = async ({
       purgeDownloadedTrack(trackIdStr)
       store.dispatch(removeDownload(trackIdStr))
     } else {
+      const now = Date.now()
       const trackToWrite = {
         ...diskTrack,
         offline: {
           download_completed_time:
-            diskTrack.offline?.download_completed_time ?? Date.now(),
-          last_verified_time:
-            diskTrack.offline?.last_verified_time ?? Date.now(),
+            diskTrack.offline?.download_completed_time ?? now,
+          last_verified_time: diskTrack.offline?.last_verified_time ?? now,
           reasons_for_download: remainingReasons,
           favorite_created_at: diskTrack.offline?.favorite_created_at
         }
@@ -434,7 +435,7 @@ export const removeTrackDownload = async ({
       await writeTrackJson(trackIdStr, trackToWrite)
     }
   } catch (e) {
-    console.debug(
+    console.error(
       `failed to remove track ${trackId} from collection ${downloadReason.collection_id}`
     )
   }
