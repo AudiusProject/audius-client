@@ -77,7 +77,7 @@ const RewardPanel = ({
     challenge &&
     challenge.max_steps > 1 &&
     challenge.challenge_type !== 'aggregate' &&
-    challenge.state !== 'disbursed'
+    !hasDisbursed
 
   let progressLabelFilled: string
   if (shouldShowCompleted) {

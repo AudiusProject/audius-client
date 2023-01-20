@@ -122,9 +122,7 @@ export const Panel = ({
   const hasDisbursed = challenge?.state === 'disbursed'
   const needsDisbursement = challenge && challenge.claimableAmount > 0
   const shouldShowProgressBar =
-    stepCount > 1 &&
-    challenge?.challenge_type !== 'aggregate' &&
-    challenge?.state !== 'disbursed'
+    stepCount > 1 && challenge?.challenge_type !== 'aggregate' && !hasDisbursed
 
   const shouldShowProgress = !!progressLabel
   let progressLabelFilled: string | null = null

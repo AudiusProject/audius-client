@@ -124,7 +124,7 @@ export const ChallengeRewardsDrawerProvider = () => {
 
   // Challenge drawer contents
   let contents: Maybe<React.ReactElement>
-  if (challenge?.state !== 'completed') {
+  if (challenge?.state && challenge?.state !== 'completed') {
     switch (modalType) {
       case 'referrals':
       case 'ref-v':

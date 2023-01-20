@@ -206,7 +206,6 @@ export const ChallengeRewardsDrawer = ({
 
   const hasCompleted =
     challengeState === 'completed' || challengeState === 'disbursed'
-  const hasDisbursed = challengeState === 'disbursed'
   const statusText = hasCompleted
     ? messages.complete
     : isInProgress
@@ -338,7 +337,7 @@ export const ChallengeRewardsDrawer = ({
                 />
               ]
             : null}
-          {claimedAmount > 0 && hasDisbursed ? (
+          {claimedAmount > 0 && challengeState !== 'disbursed' ? (
             <Text style={styles.claimedAmount} weight='heavy'>
               {claimedAmountText}
             </Text>
