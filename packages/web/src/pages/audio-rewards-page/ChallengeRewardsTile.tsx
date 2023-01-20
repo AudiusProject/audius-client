@@ -1,17 +1,17 @@
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
 
 import {
   ChallengeRewardID,
   OptimisticUserChallenge,
   removeNullable,
-  sortChallenges,
   StringKeys,
   fillString,
   formatNumberCommas,
   challengesSelectors,
   audioRewardsPageActions,
   ChallengeRewardsModalType,
-  audioRewardsPageSelectors
+  audioRewardsPageSelectors,
+  UserChallenge
 } from '@audius/common'
 import { ProgressBar, IconCheck } from '@audius/stems'
 import cn from 'classnames'
@@ -177,12 +177,41 @@ const useRewardIds = (
   return filteredRewards
 }
 
+const sortChallenges = (
+  userChallenges: Record<string, UserChallenge>
+): ((id1: ChallengeRewardID, id2: ChallengeRewardID) => number) => {
+  return (id1, id2) => {
+    const userChallenge1 = userChallenges[id1]
+    const userChallenge2 = userChallenges[id2]
+
+    if (Object.keys(userChallenges).length === 0) {
+      console.log('REED returning early', userChallenges)
+      return 0
+    }
+    console.log('REED userChallenges: ', userChallenges)
+    console.log('REED ids: ', id1, id2)
+    console.log('REED userChallenge1, 2: ', userChallenge1, userChallenge2)
+    if (userChallenge1.is_disbursed) {
+      return 1
+    }
+    if (userChallenge1.is_complete) {
+      return -1
+    }
+    if (userChallenge2.is_disbursed) {
+      return -1
+    }
+    if (userChallenge2.is_complete) {
+      return 1
+    }
+    return 0
+  }
+}
+
 const RewardsTile = ({ className }: RewardsTileProps) => {
   const setVisibility = useSetVisibility()
   const dispatch = useDispatch()
   const userChallengesLoading = useSelector(getUserChallengesLoading)
   const userChallenges = useSelector(getUserChallenges)
-  const optimisticUserChallenges = useSelector(getOptimisticUserChallenges)
   const [haveChallengesLoaded, setHaveChallengesLoaded] = useState(false)
 
   // The referred challenge only needs a tile if the user was referred
@@ -205,15 +234,20 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
     setVisibility('ChallengeRewardsExplainer')(true)
   }
 
-  const rewardsTiles = rewardIds
-    // Filter out challenges that DN didn't return
-    .map((id) => userChallenges[id]?.challenge_id)
-    .filter(removeNullable)
-    .sort(sortChallenges(optimisticUserChallenges))
-    .map((id) => {
-      const props = getChallengeConfig(id)
-      return <RewardPanel {...props} openModal={openModal} key={props.id} />
-    })
+  const rewardIdsSorted = useMemo(
+    () =>
+      rewardIds
+        // Filter out challenges that DN didn't return
+        .map((id) => userChallenges[id]?.challenge_id)
+        .filter(removeNullable)
+        .sort(sortChallenges(userChallenges)),
+    [rewardIds, userChallenges]
+  )
+
+  const rewardsTiles = rewardIdsSorted.map((id) => {
+    const props = getChallengeConfig(id)
+    return <RewardPanel {...props} openModal={openModal} key={props.id} />
+  })
 
   const wm = useWithMobileStyle(styles.mobile)
 

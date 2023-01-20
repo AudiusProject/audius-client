@@ -3,7 +3,8 @@ import { useCallback, useEffect, useState } from 'react'
 import type {
   ChallengeRewardID,
   ChallengeRewardsModalType,
-  CommonState
+  CommonState,
+  OptimisticUserChallenge
 } from '@audius/common'
 import {
   removeNullable,
@@ -11,8 +12,7 @@ import {
   challengesSelectors,
   audioRewardsPageActions,
   audioRewardsPageSelectors,
-  modalsActions,
-  sortChallenges
+  modalsActions
 } from '@audius/common'
 import { useFocusEffect } from '@react-navigation/native'
 import { View } from 'react-native'
@@ -66,6 +66,29 @@ const useStyles = makeStyles(({ spacing }) => ({
     marginVertical: spacing(2)
   }
 }))
+
+const sortChallenges = (
+  userChallenges: Partial<Record<ChallengeRewardID, OptimisticUserChallenge>>
+): ((id1: ChallengeRewardID, id2: ChallengeRewardID) => number) => {
+  return (id1, id2) => {
+    const userChallenge1 = userChallenges[id1]
+    const userChallenge2 = userChallenges[id2]
+
+    if (userChallenge1?.state === 'disbursed') {
+      return 1
+    }
+    if (userChallenge1?.state === 'completed') {
+      return -1
+    }
+    if (userChallenge2?.state === 'disbursed') {
+      return -1
+    }
+    if (userChallenge2?.state === 'completed') {
+      return 1
+    }
+    return 0
+  }
+}
 
 export const ChallengeRewards = () => {
   const styles = useStyles()
