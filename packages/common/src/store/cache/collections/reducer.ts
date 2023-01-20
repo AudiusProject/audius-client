@@ -1,9 +1,9 @@
 import { initialCacheState } from 'store/cache/reducer'
-import { CommonState } from 'store/commonStore'
 
 import { ID } from '../../../models'
 
 import { SET_COLLECTION_PERMALINKS } from './actions'
+import { CollectionsCacheState } from './types'
 
 const initialState = {
   ...initialCacheState,
@@ -12,13 +12,12 @@ const initialState = {
 
 const actionsMap = {
   [SET_COLLECTION_PERMALINKS](
-    state: CommonState,
+    state: CollectionsCacheState,
     action: { permalinksToIds: { [permalink: string]: ID } }
   ) {
     return {
       ...state,
       permalinks: {
-        // @ts-ignore
         ...state.permalinks,
         ...action.permalinksToIds
       }

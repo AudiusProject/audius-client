@@ -108,13 +108,6 @@ export function* retrieveCollection({
   yield* waitForRead()
   const apiClient = yield* getContext('apiClient')
   const currentUserId = yield* select(getUserId)
-  if (playlistId) {
-    const playlists = yield* call([apiClient, 'getPlaylist'], {
-      currentUserId,
-      playlistId
-    })
-    return playlists
-  }
   if (permalink) {
     const playlists = yield* call([apiClient, 'getPlaylistByPermalink'], {
       currentUserId,
@@ -122,10 +115,18 @@ export function* retrieveCollection({
     })
     return playlists
   }
+  if (playlistId) {
+    const playlists = yield* call([apiClient, 'getPlaylist'], {
+      currentUserId,
+      playlistId
+    })
+    return playlists
+  }
+  return []
 }
 
-function* getEntriesTimestamp(ids: (ID | string)[]) {
-  const selector = (state: CommonState, ids: (ID | string)[]) =>
+function* selectEntriesTimestamp(ids: (ID | string)[]) {
+  const entriesTimestamps = (state: CommonState, ids: (ID | string)[]) =>
     ids.reduce(
       (acc: { [id: number | string]: number | null }, id: ID | string) => {
         acc[id] = getEntryTimestamp(state, { kind: Kind.COLLECTIONS, id })
@@ -133,15 +134,18 @@ function* getEntriesTimestamp(ids: (ID | string)[]) {
       },
       {}
     )
-  const selected = yield* select(selector, ids)
-  return selected
+  const selectedEntries = yield* select(entriesTimestamps, ids)
+  return selectedEntries
 }
 
-export function* retrieveCollectionByPermalink( // optional owner of collections to fetch (TODO: to be removed)
+export function* retrieveCollectionByPermalink(
   permalink: string,
-  // whether or not to fetch the tracks inside the playlist
+  /**
+   * whether or not to fetch the tracks inside the playlist
+   */
   fetchTracks = false,
-  /**  whether or not fetching this collection requires it to have all its tracks.
+  /**
+   * whether or not fetching this collection requires it to have all its tracks.
    * In the case where a collection is already cached with partial tracks, use this flag to refetch from source.
    */
   requiresAllTracks = false
@@ -150,23 +154,27 @@ export function* retrieveCollectionByPermalink( // optional owner of collections
   const { entries, uids } = yield* call(retrieve, {
     ids: [permalink],
     selectFromCache: function* (permalinks: string[]) {
-      const res = yield* select(cacheCollectionsSelectors.getCollections, {
-        permalinks
-      })
+      const cachedCollections = yield* select(
+        cacheCollectionsSelectors.getCollections,
+        {
+          permalinks
+        }
+      )
       if (requiresAllTracks) {
-        const keys = Object.keys(res) as any
-        keys.forEach((collectionId: number) => {
-          const fullTrackCount = res[collectionId].track_count
-          const currentTrackCount = res[collectionId].tracks?.length ?? 0
+        const keys = Object.keys(cachedCollections) as unknown as number[]
+        keys.forEach((collectionId) => {
+          const fullTrackCount = cachedCollections[collectionId].track_count
+          const currentTrackCount =
+            cachedCollections[collectionId].tracks?.length ?? 0
           if (currentTrackCount < fullTrackCount) {
             // Remove the collection from the res so retrieve knows to get it from source
-            delete res[collectionId]
+            delete cachedCollections[collectionId]
           }
         })
       }
-      return res
+      return cachedCollections
     },
-    getEntriesTimestamp,
+    getEntriesTimestamp: selectEntriesTimestamp,
     retrieveFromSource: function* (permalinks: string[]) {
       const metadatas = yield* call(retrieveCollection, {
         permalink: permalinks[0]
@@ -244,7 +252,7 @@ export function* retrieveCollections(
       }
       return res
     },
-    getEntriesTimestamp,
+    getEntriesTimestamp: selectEntriesTimestamp,
     retrieveFromSource: function* (ids: ID[]) {
       const audiusBackendInstance = yield* getContext('audiusBackendInstance')
       let metadatas

@@ -280,9 +280,10 @@ class CollectionPage extends Component<
           user
         if (routeLacksCollectionInfo) {
           // Check if we are coming from a non-canonical route and replace route if necessary.
-          const newPath = metadata.is_album
-            ? albumPage(user!.handle, metadata.playlist_name, collectionId!)
-            : playlistPage(user!.handle, metadata.playlist_name, collectionId)
+          const newPath =
+            metadata.is_album && collectionId
+              ? albumPage(user!.handle, metadata.playlist_name, collectionId)
+              : playlistPage(user!.handle, metadata.playlist_name, collectionId)
           this.props.replaceRoute(newPath)
         } else {
           // Id matches or temp id matches
@@ -347,17 +348,19 @@ class CollectionPage extends Component<
     const params = parseCollectionRoute(pathname)
 
     if (params?.collectionId) {
-      if (forceFetch || params?.collectionId !== this.state.playlistId) {
-        this.setState({ playlistId: params?.collectionId as number })
-        this.props.fetchCollection(params?.collectionId as number)
+      const { collectionId } = params
+      if (forceFetch || collectionId !== this.state.playlistId) {
+        this.setState({ playlistId: collectionId as number })
+        this.props.fetchCollection(collectionId as number)
         this.props.fetchTracks()
       }
     }
 
     if (params?.permalink) {
+      const { permalink, collectionId } = params
       if (forceFetch) {
-        this.props.setCollectionPermalink(params?.permalink)
-        this.props.fetchCollection(params?.collectionId, params?.permalink)
+        this.props.setCollectionPermalink(permalink)
+        this.props.fetchCollection(collectionId, permalink)
         this.props.fetchTracks()
       }
     }

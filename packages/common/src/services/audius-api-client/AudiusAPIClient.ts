@@ -1207,8 +1207,7 @@ export class AudiusAPIClient {
         'Permalink formatted incorrectly. Should follow /<handle>/playlist/<slug> format.'
       )
     }
-    const handle = splitPermalink[1]
-    const slug = splitPermalink[3]
+    const [, handle, , slug] = splitPermalink
     const response: Nullable<APIResponse<APIPlaylist[]>> =
       await this._getResponse(
         FULL_ENDPOINT_MAP.getPlaylistByPermalink(handle, slug),

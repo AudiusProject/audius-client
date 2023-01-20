@@ -1,7 +1,4 @@
 // @ts-nocheck
-// TODO(nkang) - convert to TS
-import { StateClient } from '@project-serum/anchor'
-
 import tracksReducer from 'store/pages/collection/lineup/reducer'
 
 import { Status } from '../../../models/Status'
