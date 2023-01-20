@@ -195,7 +195,7 @@
     "jest": "24.9.0",
     "jetifier": "1.6.8",
     "metro-react-native-babel-preset": "0.73.7",
-    "patch-package": "6.4.7",
+    "patch-package": "6.5.1",
     "react-native-clean-project": "4.0.1",
     "react-native-flipper": "0.175.0",
     "react-native-flipper-performance-plugin": "0.3.1",
