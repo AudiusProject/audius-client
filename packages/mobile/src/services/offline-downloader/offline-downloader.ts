@@ -322,7 +322,6 @@ export const removeAllDownloadedFavorites = async () => {
       }
     })
   )
-  batchDownloadTrack(tracksForDownload)
 
   purgeDownloadedCollection(DOWNLOAD_REASON_FAVORITES)
   batchRemoveTrackDownload(tracksForDownload)
