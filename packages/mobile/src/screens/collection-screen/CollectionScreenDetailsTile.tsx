@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
-import type { Collection, ID, Maybe, UID } from '@audius/common'
+import type { ID, Maybe, UID } from '@audius/common'
 import {
   Variant,
   useProxySelector,
@@ -19,14 +19,12 @@ import { useFocusEffect } from '@react-navigation/native'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import type { DynamicImageProps } from 'app/components/core'
 import { Text } from 'app/components/core'
 import { DetailsTile } from 'app/components/details-tile'
 import type {
   DetailsTileDetail,
   DetailsTileProps
 } from 'app/components/details-tile/types'
-import { CollectionImage } from 'app/components/image/CollectionImage'
 import { DownloadToggle } from 'app/components/offline-downloads'
 import { TrackList } from 'app/components/track-list'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
