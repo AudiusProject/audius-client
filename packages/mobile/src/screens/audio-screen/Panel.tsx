@@ -16,21 +16,43 @@ import { useThemeColors } from 'app/utils/theme'
 
 const messages = {
   completeLabel: 'COMPLETE',
-  claimReward: 'Claim Your Reward'
+  claimReward: 'Claim Your Reward',
+  readyToClaim: 'Ready to Claim'
 }
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   root: {
-    marginVertical: spacing(2),
+    marginBottom: spacing(2),
     borderRadius: spacing(2),
     borderColor: palette.neutralLight7,
     borderWidth: 2,
-    paddingTop: spacing(10),
-    paddingBottom: spacing(8),
-    paddingHorizontal: spacing(5)
+    paddingBottom: spacing(8)
   },
   completed: {
     backgroundColor: palette.neutralLight10
+  },
+  content: {
+    paddingHorizontal: spacing(5)
+  },
+  pillContainer: {
+    height: spacing(6),
+    margin: spacing(2),
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end'
+  },
+  pillMessage: {
+    paddingVertical: spacing(1),
+    paddingHorizontal: spacing(2),
+    fontSize: typography.fontSize.small,
+    fontFamily: typography.fontByWeight.demiBold,
+    lineHeight: spacing(4),
+    color: palette.secondary,
+    backgroundColor: palette.background,
+    borderWidth: 1,
+    borderRadius: 12,
+    borderColor: palette.backgroundSecondary,
+    overflow: 'hidden'
   },
   header: {
     flexDirection: 'row',
@@ -140,44 +162,51 @@ export const Panel = ({
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <View style={styles.header}>
-        {icon ? <Image style={styles.headerImage} source={icon} /> : null}
-        <Text style={styles.title}>{title}</Text>
+      <View style={styles.pillContainer}>
+        {challenge?.state === 'completed' ? (
+          <Text style={styles.pillMessage}>{messages.readyToClaim}</Text>
+        ) : null}
       </View>
-      <Text style={styles.description}>
-        {shortDescription || description(challenge)}
-      </Text>
-      {shouldShowProgress ? (
-        <View style={styles.progressLabel}>
-          <IconCheck
-            style={styles.iconCheck}
-            fill={neutralLight4}
-            width={20}
-            height={20}
-          />
-          <Text style={styles.progress}>{progressLabelFilled}</Text>
+      <View style={styles.content}>
+        <View style={styles.header}>
+          {icon ? <Image style={styles.headerImage} source={icon} /> : null}
+          <Text style={styles.title}>{title}</Text>
         </View>
-      ) : null}
-      {shouldShowProgressBar ? (
-        <View>
-          <ProgressBar
-            progress={challenge?.current_step_count ?? 0}
-            max={stepCount}
+        <Text style={styles.description}>
+          {shortDescription || description(challenge)}
+        </Text>
+        {shouldShowProgress ? (
+          <View style={styles.progressLabel}>
+            <IconCheck
+              style={styles.iconCheck}
+              fill={neutralLight4}
+              width={20}
+              height={20}
+            />
+            <Text style={styles.progress}>{progressLabelFilled}</Text>
+          </View>
+        ) : null}
+        {shouldShowProgressBar ? (
+          <View>
+            <ProgressBar
+              progress={challenge?.current_step_count ?? 0}
+              max={stepCount}
+            />
+          </View>
+        ) : null}
+        {
+          <Button
+            fullWidth
+            title={needsDisbursement ? messages.claimReward : panelButtonText}
+            variant={buttonType}
+            iconPosition='right'
+            size='medium'
+            icon={IconArrow}
+            onPress={onPress}
+            style={[styles.button, hasDisbursed ? styles.completed : null]}
           />
-        </View>
-      ) : null}
-      {
-        <Button
-          fullWidth
-          title={needsDisbursement ? messages.claimReward : panelButtonText}
-          variant={buttonType}
-          iconPosition='right'
-          size='medium'
-          icon={IconArrow}
-          onPress={onPress}
-          style={[styles.button, hasDisbursed ? styles.completed : null]}
-        />
-      }
+        }
+      </View>
     </TouchableOpacity>
   )
 }

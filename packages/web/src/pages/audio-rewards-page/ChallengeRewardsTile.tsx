@@ -38,7 +38,8 @@ const messages = {
   description2:
     'Opportunities to earn $AUDIO will change, so check back often for more chances to earn!',
   completeLabel: 'COMPLETE',
-  claimReward: 'Claim Your Reward'
+  claimReward: 'Claim Your Reward',
+  readyToClaim: 'Ready to Claim'
 }
 
 type RewardPanelProps = {
@@ -108,6 +109,13 @@ const RewardPanel = ({
       )}
       onClick={openRewardModal}
     >
+      <div className={wm(styles.pillContainer)}>
+        {challenge?.state === 'completed' && (
+          <span className={wm(styles.pillMessage)}>
+            {messages.readyToClaim}
+          </span>
+        )}
+      </div>
       <span className={wm(styles.rewardTitle)}>
         {icon}
         {title}
