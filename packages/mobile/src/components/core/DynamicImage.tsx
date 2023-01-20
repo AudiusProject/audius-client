@@ -73,23 +73,10 @@ const ImageLoader = ({
   const [size, setSize] = useState(0)
   const skeletonOpacity = useRef(new Animated.Value(1)).current
   const [isAnimationFinished, setIsAnimationFinished] = useState(false)
-  const [isImageCached, setIsImageCached] = useState(false)
 
   const handleSetSize = useCallback((event: LayoutChangeEvent) => {
     setSize(event.nativeEvent.layout.width)
   }, [])
-
-  useAsync(async () => {
-    const cache = await Image.queryCache?.([
-      (source as ImageURISource).uri ?? ''
-    ])
-
-    if (!isEmpty(cache)) {
-      // Image in the cache already
-      // Do not animate, show the cached image immediately
-      setIsImageCached(true)
-    }
-  }, [source])
 
   const handleLoad = useCallback(() => {
     Animated.timing(skeletonOpacity, {
@@ -106,7 +93,6 @@ const ImageLoader = ({
     // Reset the animation when the source changes
     if (source) {
       setIsAnimationFinished(false)
-      setIsImageCached(false)
       skeletonOpacity.setValue(1)
     }
   }, [source, skeletonOpacity])
@@ -121,7 +107,7 @@ const ImageLoader = ({
           onLoad={handleLoad}
         />
       ) : null}
-      {!isAnimationFinished && !isImageCached && !noSkeleton ? (
+      {!isAnimationFinished && !noSkeleton ? (
         <Animated.View
           style={[
             stylesProp?.imageContainer,
