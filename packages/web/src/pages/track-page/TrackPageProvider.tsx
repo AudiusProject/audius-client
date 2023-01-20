@@ -76,7 +76,8 @@ const { setRepost } = repostsUserListActions
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { open } = mobileOverflowMenuUIActions
 const { tracksActions } = trackPageLineupActions
-const { updatePremiumTrackStatus, removePremiumContentSignature } = premiumContentActions
+const { updatePremiumTrackStatus, removePremiumContentSignature } =
+  premiumContentActions
 const { getPremiumTrackSignatureMap } = premiumContentSelectors
 const {
   getUser,
@@ -410,9 +411,10 @@ class TrackPageProvider extends Component<
     const isOwner = track?.owner_id === userId ?? false
     const isPremium = !!track?.is_premium
     // const hasPremiumContentSignature = !!track?.premium_content_signature
-    const hasPremiumContentSignature = !!this.props.premiumTrackSignatureMap[track?.track_id]
-    console.log('yolo',this.props.premiumTrackSignatureMap)
-    const doesUserHaveAccess = !isPremium || isOwner || hasPremiumContentSignature
+    const hasPremiumContentSignature =
+      !!this.props.premiumTrackSignatureMap[track?.track_id]
+    const doesUserHaveAccess =
+      !isPremium || isOwner || hasPremiumContentSignature
 
     const desktopProps = {
       // Follow Props

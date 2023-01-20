@@ -100,22 +100,24 @@ export const CollectibleGatedAvailability = ({
 
   const ethCollectibleItems = useMemo(() => {
     return Object.keys(ethCollectionMap)
-      .sort((s1, s2) => ethCollectionMap[s1].name.localeCompare(ethCollectionMap[s2].name))
+      .sort((s1, s2) =>
+        ethCollectionMap[s1].name.localeCompare(ethCollectionMap[s2].name)
+      )
       .map((slug) => ({
-      text: ethCollectionMap[slug].name,
-      el: (
-        <div className={styles.dropdownRow}>
-          {!!ethCollectionMap[slug].img && (
-            <img
-              src={ethCollectionMap[slug].img!}
-              alt={ethCollectionMap[slug].name}
-            />
-          )}
-          <span>{ethCollectionMap[slug].name}</span>
-        </div>
-      ),
-      value: slug
-    }))
+        text: ethCollectionMap[slug].name,
+        el: (
+          <div className={styles.dropdownRow}>
+            {!!ethCollectionMap[slug].img && (
+              <img
+                src={ethCollectionMap[slug].img!}
+                alt={ethCollectionMap[slug].name}
+              />
+            )}
+            <span>{ethCollectionMap[slug].name}</span>
+          </div>
+        ),
+        value: slug
+      }))
   }, [ethCollectionMap])
 
   // Solana collections
@@ -150,22 +152,24 @@ export const CollectibleGatedAvailability = ({
 
   const solCollectibleItems = useMemo(() => {
     return Object.keys(solCollectionMap)
-      .sort((m1, m2) => solCollectionMap[m1].name.localeCompare(solCollectionMap[m2].name))
+      .sort((m1, m2) =>
+        solCollectionMap[m1].name.localeCompare(solCollectionMap[m2].name)
+      )
       .map((mint) => ({
-      text: solCollectionMap[mint].name,
-      el: (
-        <div className={styles.dropdownRow}>
-          {!!solCollectionMap[mint].img && (
-            <img
-              src={solCollectionMap[mint].img!}
-              alt={solCollectionMap[mint].name}
-            />
-          )}
-          <span>{solCollectionMap[mint].name}</span>
-        </div>
-      ),
-      value: mint
-    }))
+        text: solCollectionMap[mint].name,
+        el: (
+          <div className={styles.dropdownRow}>
+            {!!solCollectionMap[mint].img && (
+              <img
+                src={solCollectionMap[mint].img!}
+                alt={solCollectionMap[mint].name}
+              />
+            )}
+            <span>{solCollectionMap[mint].name}</span>
+          </div>
+        ),
+        value: mint
+      }))
   }, [solCollectionMap])
 
   const menuItems = useMemo(

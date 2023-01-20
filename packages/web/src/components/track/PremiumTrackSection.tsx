@@ -240,12 +240,7 @@ const LockedPremiumTrackSection = ({
 
     // should not reach here
     return null
-  }, [
-    premiumConditions,
-    handleGoToCollection,
-    handleFollow,
-    handleSendTip
-  ])
+  }, [premiumConditions, handleGoToCollection, handleFollow, handleSendTip])
 
   return (
     <div className={styles.premiumContentSectionLocked}>

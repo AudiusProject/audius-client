@@ -346,8 +346,13 @@ class GiantTrackTile extends PureComponent {
   }
 
   handleUnfollow = () => {
-    const { doesUserHaveAccess, isPremium, premiumConditions, onLock, trackId } =
-      this.props
+    const {
+      doesUserHaveAccess,
+      isPremium,
+      premiumConditions,
+      onLock,
+      trackId
+    } = this.props
     if (doesUserHaveAccess && isPremium && premiumConditions.follow_user_id) {
       onLock(trackId)
     }
