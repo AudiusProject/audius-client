@@ -390,7 +390,7 @@ const ConnectedTrackTile = memo(
           isTrending={isTrending}
           showRankIcon={showRankIcon}
           permalink={permalink}
-          canOverrideBottomBar
+          isTrack
         />
       </Draggable>
     )
