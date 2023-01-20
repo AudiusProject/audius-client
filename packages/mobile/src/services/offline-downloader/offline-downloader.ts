@@ -307,6 +307,10 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
     }
   } catch (e) {
     throw failJob(e.message)
+  } finally {
+    if (shouldAbortDownload(downloadReason)) {
+      removeTrackDownload(trackForDownload)
+    }
   }
 }
 
@@ -390,36 +394,41 @@ export const batchRemoveTrackDownload = async (
   tracksForDownload: TrackForDownload[]
 ) => {
   cancelQueuedDownloads(tracksForDownload)
-  tracksForDownload.forEach(async ({ trackId, downloadReason }) => {
-    try {
-      const trackIdStr = trackId.toString()
-      const diskTrack = await getTrackJson(trackIdStr)
-      const downloadReasons = diskTrack.offline?.reasons_for_download ?? []
-      const remainingReasons = downloadReasons.filter(
-        (reason) => !isEqual(reason, downloadReason)
-      )
-      if (remainingReasons.length === 0) {
-        purgeDownloadedTrack(trackIdStr)
-      } else {
-        const trackToWrite = {
-          ...diskTrack,
-          offline: {
-            download_completed_time:
-              diskTrack.offline?.download_completed_time ?? Date.now(),
-            last_verified_time:
-              diskTrack.offline?.last_verified_time ?? Date.now(),
-            reasons_for_download: remainingReasons,
-            favorite_created_at: diskTrack.offline?.favorite_created_at
-          }
+  tracksForDownload.forEach(removeTrackDownload)
+}
+
+export const removeTrackDownload = async ({
+  trackId,
+  downloadReason
+}: TrackForDownload) => {
+  try {
+    const trackIdStr = trackId.toString()
+    const diskTrack = await getTrackJson(trackIdStr)
+    const downloadReasons = diskTrack.offline?.reasons_for_download ?? []
+    const remainingReasons = downloadReasons.filter(
+      (reason) => !isEqual(reason, downloadReason)
+    )
+    if (remainingReasons.length === 0) {
+      purgeDownloadedTrack(trackIdStr)
+    } else {
+      const trackToWrite = {
+        ...diskTrack,
+        offline: {
+          download_completed_time:
+            diskTrack.offline?.download_completed_time ?? Date.now(),
+          last_verified_time:
+            diskTrack.offline?.last_verified_time ?? Date.now(),
+          reasons_for_download: remainingReasons,
+          favorite_created_at: diskTrack.offline?.favorite_created_at
         }
-        await writeTrackJson(trackIdStr, trackToWrite)
       }
-    } catch (e) {
-      console.debug(
-        `failed to remove track ${trackId} from collection ${downloadReason.collection_id}`
-      )
+      await writeTrackJson(trackIdStr, trackToWrite)
     }
-  })
+  } catch (e) {
+    console.debug(
+      `failed to remove track ${trackId} from collection ${downloadReason.collection_id}`
+    )
+  }
 }
 
 export const downloadTrackCoverArt = async (track: Track) => {
