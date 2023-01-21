@@ -1,10 +1,11 @@
-import { useCallback, useRef, useLayoutEffect } from 'react'
+import { useCallback, useRef, useLayoutEffect, useEffect } from 'react'
 
 import {
   cacheUsersSelectors,
   tippingSelectors,
   useProxySelector,
-  removeNullable
+  removeNullable,
+  tippingActions
 } from '@audius/common'
 import { LayoutAnimation, Text, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -17,7 +18,10 @@ import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
 import { useSelectProfile } from '../selectors'
+import { useDispatch, useSelector } from 'react-redux'
+import { ProfilePictureListSkeleton } from 'app/screens/notifications-screen/Notification/ProfilePictureListSkeleton'
 const { getOptimisticSupportersForUser } = tippingSelectors
+const { fetchSupportersForUser } = tippingActions
 const { getUsers } = cacheUsersSelectors
 
 const messages = {
@@ -65,18 +69,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   }
 }))
 
-const useLoadingAnimation = (isDepLoaded: () => boolean, dependency: any) => {
-  // Prevents multiple re-renders if the dependency changes.
-  const isLoaded = useRef(false)
-
-  useLayoutEffect(() => {
-    if (isDepLoaded() && !isLoaded.current) {
-      isLoaded.current = true
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-    }
-  }, [dependency, isDepLoaded])
-}
-
 const useSelectTopSupporters = (userId: number) =>
   useProxySelector(
     (state) => {
@@ -107,26 +99,46 @@ export const TopSupporters = () => {
     'supporter_count'
   ])
 
+  const dispatch = useDispatch()
+
+  const shouldFetchSupporters = useSelector((state) => {
+    return (
+      !state.tipping.supporters[user_id] &&
+      !state.tipping.supportersOverrides[user_id]
+    )
+  })
+
+  useEffect(() => {
+    if (supporter_count > 0 && shouldFetchSupporters) {
+      dispatch(fetchSupportersForUser({ userId: user_id }))
+    }
+  }, [supporter_count, shouldFetchSupporters, dispatch, user_id])
+
   const topSupporters = useSelectTopSupporters(user_id)
 
   const handlePress = useCallback(() => {
     navigation.push('TopSupporters', { userId: user_id, source: 'profile' })
   }, [navigation, user_id])
 
-  useLoadingAnimation(() => topSupporters.length > 0, topSupporters)
-
-  return topSupporters.length ? (
+  return supporter_count ? (
     <View style={styles.root} pointerEvents='box-none'>
       <TouchableOpacity style={styles.touchableRoot} onPress={handlePress}>
-        <ProfilePictureList
-          users={topSupporters}
-          totalUserCount={supporter_count}
-          limit={MAX_PROFILE_SUPPORTERS_VIEW_ALL_USERS}
-          style={styles.profilePictureList}
-          navigationType='push'
-          interactive={false}
-          imageStyles={styles.profilePicture}
-        />
+        {topSupporters.length > 0 ? (
+          <ProfilePictureList
+            users={topSupporters}
+            totalUserCount={supporter_count}
+            limit={MAX_PROFILE_SUPPORTERS_VIEW_ALL_USERS}
+            style={styles.profilePictureList}
+            navigationType='push'
+            interactive={false}
+            imageStyles={styles.profilePicture}
+          />
+        ) : (
+          <ProfilePictureListSkeleton
+            count={supporter_count}
+            limit={MAX_PROFILE_SUPPORTERS_VIEW_ALL_USERS}
+          />
+        )}
         <View style={styles.alignRowCenter}>
           <IconTrophy style={styles.icon} fill={neutral} />
           <Text style={styles.viewTopSupportersText}>

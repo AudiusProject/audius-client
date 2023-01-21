@@ -294,7 +294,9 @@ function* fetchProfileAsync(action) {
     yield fork(fetchUserSocials, action)
     yield fork(fetchUserCollections, user.user_id)
 
-    yield fork(fetchSupportersAndSupporting, user.user_id)
+    if (!isNativeMobile) {
+      yield fork(fetchSupportersAndSupporting, user.user_id)
+    }
 
     yield fork(fetchProfileCustomizedCollectibles, user)
     yield fork(fetchOpenSeaAssets, user)
