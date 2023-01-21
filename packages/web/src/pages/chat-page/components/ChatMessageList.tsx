@@ -2,7 +2,6 @@ import {
   ComponentPropsWithoutRef,
   Fragment,
   useCallback,
-  useRef,
   UIEvent,
   useEffect,
   forwardRef
@@ -18,16 +17,14 @@ import {
 import type { ChatMessage, UserChat } from '@audius/sdk'
 import cn from 'classnames'
 import dayjs from 'dayjs'
-import { mergeRefs } from 'react-merge-refs'
 import { useDispatch } from 'react-redux'
 
 import { useSelector } from 'common/hooks/useSelector'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 
-import { useStickyScrollbar } from '../useStickyScrollbar'
-
 import styles from './ChatMessageList.module.css'
 import { ChatMessageListItem } from './ChatMessageListItem'
+import { StickyScrollList } from './StickyScrollList'
 
 const { fetchMoreMessages, markChatAsRead } = chatActions
 const {
@@ -100,13 +97,6 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     const userId = useSelector(accountSelectors.getUserId)
     const currentUserId = encodeHashId(userId)
 
-    const ref = useRef<HTMLDivElement>(null)
-    useStickyScrollbar({
-      ref,
-      initDep: chatId,
-      list: chatMessages
-    })
-
     const handleScroll = useCallback(
       (e: UIEvent<HTMLDivElement>) => {
         if (chatId && isScrolledToBottom(e.currentTarget)) {
@@ -132,10 +122,13 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     }, [dispatch, chatId, status])
 
     return (
-      <div
-        ref={mergeRefs([ref, forwardedRef])}
+      <StickyScrollList
+        ref={forwardedRef}
         onScroll={handleScroll}
         className={cn(styles.root, classNameProp)}
+        resetKey={chatId}
+        updateKey={chatMessages}
+        stickToBottom
         {...other}
       >
         <div className={styles.listRoot}>
@@ -171,7 +164,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
             <LoadingSpinner className={styles.spinner} />
           ) : null}
         </div>
-      </div>
+      </StickyScrollList>
     )
   }
 )
