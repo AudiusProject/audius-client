@@ -31,12 +31,7 @@ export type TrackMetadataState = {
 
 export type TrackAvailabilitySelectionProps = {
   selected: boolean
-  metadataState: TrackMetadataState
-  updatePublicField?: () => void
-  updatePremiumContentFields?: (
-    premiumConditions: Nullable<PremiumConditions>,
-    availability: TrackAvailabilityType
-  ) => void
-  updateUnlistedField?: () => void
-  updateHiddenField?: (field: string) => (visible: boolean) => void
+  state: TrackMetadataState
+  onStateUpdate: (...args: any[]) => any
+  disabled?: boolean
 }

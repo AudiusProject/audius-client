@@ -118,6 +118,7 @@ const TrackAvailabilityModalContainer = (props) => {
         onClose={() => props.setIsAvailabilityModalOpen(false)}
         didUpdateState={props.didUpdateAvailabilityState}
         metadataState={props.availabilityState}
+        isRemix={props.isRemix}
       />
     )
   }
@@ -477,6 +478,7 @@ const AdvancedForm = (props) => {
           setIsAvailabilityModalOpen={setIsAvailabilityModalOpen}
           didUpdateAvailabilityState={didUpdateAvailabilityState}
           availabilityState={availabilityState}
+          isRemix={!!props.defaultFields.remix_of?.tracks?.length}
         />
       )}
       <div
