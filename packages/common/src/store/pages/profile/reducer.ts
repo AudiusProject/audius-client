@@ -22,7 +22,8 @@ import {
   FETCH_FOLLOW_USERS_FAILED,
   DISMISS_PROFILE_METER,
   UPDATE_MOST_USED_TAGS,
-  SET_NOTIFICATION_SUBSCRIPTION
+  SET_NOTIFICATION_SUBSCRIPTION,
+  FETCH_COLLECTIONS_SUCCEEDED
 } from './actions'
 import { PREFIX as feedPrefix } from './lineups/feed/actions'
 import { PREFIX as tracksPrefix } from './lineups/tracks/actions'
@@ -37,6 +38,7 @@ const initialProfileState = {
   updateSuccess: false,
   updateError: false,
   mostUsedTags: [],
+  collectionStatus: Status.IDLE,
 
   collectionSortMode: CollectionSortMode.TIMESTAMP,
 
@@ -207,6 +209,9 @@ const actionsMap = {
     return updateProfile(state, action, {
       isNotificationSubscribed: isSubscribed
     })
+  },
+  [FETCH_COLLECTIONS_SUCCEEDED](state, action) {
+    return updateProfile(state, action, { collectionStatus: Status.SUCCESS })
   }
 }
 
