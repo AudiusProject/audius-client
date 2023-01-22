@@ -180,7 +180,6 @@ function* updateNewPremiumContentSignatures({
  * Halts if not all nfts have been fetched yet. Similarly, does not proceed if no tracks are in the cache yet.
  * Skips tracks whose signatures have already been previously obtained.
  */
-let index = 0
 function* updateCollectibleGatedTrackAccess(
   action:
     | ReturnType<typeof updateUserEthCollectibles>

@@ -124,7 +124,11 @@ const TrackTile = memo(
           // Standalone means that this tile is not w/ a playlist
           [styles.standalone]: !!standalone
         })}
-        onClick={isLoading || isDisabled || !doesUserHaveAccess ? undefined : onTogglePlay}
+        onClick={
+          isLoading || isDisabled || !doesUserHaveAccess
+            ? undefined
+            : onTogglePlay
+        }
       >
         {isPremium && (
           <PremiumTrackCornerTag doesUserHaveAccess={!!doesUserHaveAccess} />

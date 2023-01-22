@@ -410,8 +410,9 @@ class TrackPageProvider extends Component<
         : null
 
     const isPremium = !!track?.is_premium
-    const hasPremiumContentSignature =
-      !!this.props.premiumTrackSignatureMap[track?.track_id]
+    const hasPremiumContentSignature = !!(
+      track?.track_id && this.props.premiumTrackSignatureMap[track.track_id]
+    )
     const doesUserHaveAccess = !isPremium || hasPremiumContentSignature
 
     const desktopProps = {
