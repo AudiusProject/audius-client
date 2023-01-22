@@ -294,7 +294,7 @@ function* updateCollectibleGatedTrackAccess(
   }
 }
 
-const PREMIUM_TRACK_POLL_FREQUENCY = 2000
+const PREMIUM_TRACK_POLL_FREQUENCY = 3000
 
 function* pollPremiumTrack({
   trackParams,
@@ -315,7 +315,8 @@ function* pollPremiumTrack({
         trackId,
         slug ?? undefined,
         handle ?? undefined,
-        false
+        false,
+        true
       )
     )
     yield* delay(frequency)
