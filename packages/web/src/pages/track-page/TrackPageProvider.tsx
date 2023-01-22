@@ -408,13 +408,11 @@ class TrackPageProvider extends Component<
         : trackRank.week && trackRank.week <= TRENDING_BADGE_LIMIT
         ? `#${trackRank.week} This Week`
         : null
-    const isOwner = track?.owner_id === userId ?? false
+
     const isPremium = !!track?.is_premium
-    // const hasPremiumContentSignature = !!track?.premium_content_signature
     const hasPremiumContentSignature =
       !!this.props.premiumTrackSignatureMap[track?.track_id]
-    const doesUserHaveAccess =
-      !isPremium || isOwner || hasPremiumContentSignature
+    const doesUserHaveAccess = !isPremium || hasPremiumContentSignature
 
     const desktopProps = {
       // Follow Props
