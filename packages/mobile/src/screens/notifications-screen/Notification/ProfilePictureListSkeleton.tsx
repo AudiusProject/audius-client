@@ -3,7 +3,7 @@ import { View } from 'react-native'
 
 import { makeStyles } from 'app/styles'
 
-const useStyles = makeStyles(({ spacing, palette, typography }) => ({
+const useStyles = makeStyles(({ spacing, palette }) => ({
   root: {
     flexDirection: 'row',
     marginRight: spacing(6)
@@ -36,7 +36,6 @@ export const ProfilePictureListSkeleton = (
         <View key={index} style={styles.image} />
       ))}
       {count >= limit ? <View style={styles.extra} /> : null}
-      <View></View>
     </View>
   )
 }
