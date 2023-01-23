@@ -162,7 +162,7 @@ export const Panel = ({
 
   return (
     <TouchableOpacity
-      style={[styles.root, hasDisbursed ? styles.completed : null]}
+      style={[styles.root, hasDisbursed ? styles.disbursed : null]}
       onPress={onPress}
       activeOpacity={0.7}
     >
