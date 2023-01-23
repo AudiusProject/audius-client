@@ -143,7 +143,8 @@ const RewardPanel = ({
         className={wm(
           cn(styles.panelButton, hasDisbursed ? styles.completed : '')
         )}
-        completed={challenge?.state}
+        needsDisbursement={needsDisbursement}
+        hasDisbursed={hasDisbursed}
         text={buttonMessage}
         onClick={openRewardModal}
         textClassName={styles.panelButtonText}
