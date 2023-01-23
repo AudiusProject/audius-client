@@ -23,7 +23,7 @@ import {
   downloadCollectionCoverArt,
   downloadTrackCoverArt,
   DOWNLOAD_REASON_FAVORITES,
-  removeCollectionDownload
+  removeDownloadedCollectionFromFavorites
 } from './offline-downloader'
 import { purgeDownloadedTrack, writeTrackJson } from './offline-storage'
 import type { TrackDownloadWorkerPayload } from './workers/trackDownloadWorker'
@@ -109,16 +109,7 @@ export const syncFavoritedCollections = async (
   )
 
   addedCollections.forEach((collection) => {
-    const tracksForDownload = collection.tracks?.map((track) => ({
-      trackId: track.track_id,
-      downloadReason: {
-        is_from_favorites: true,
-        collection_id: collection.playlist_id.toString()
-      }
-    }))
-    downloadCollection(collection, true)
-    if (!tracksForDownload) return
-    batchDownloadTrack(tracksForDownload)
+    downloadCollection(collection, /* isFavoritesDownload */ true)
   })
 
   removedCollections.forEach((collection) => {
@@ -131,7 +122,7 @@ export const syncFavoritedCollections = async (
         }
       })) ?? []
 
-    removeCollectionDownload(
+    removeDownloadedCollectionFromFavorites(
       collection.playlist_id.toString(),
       tracksForDownload
     )
@@ -178,7 +169,11 @@ export const syncCollectionTracks = async (
     updatedCollection
   )
 
-  downloadCollection(updatedCollectionWithArt)
+  downloadCollection(
+    updatedCollectionWithArt,
+    isFavoritesDownload,
+    /* skipTracks */ true
+  )
   if (
     updatedCollectionWithArt.cover_art_sizes !==
     offlineCollection.cover_art_sizes
@@ -208,7 +203,7 @@ export const syncCollectionTracks = async (
       }
     })
   )
-  removeCollectionDownload(collectionIdStr, tracksForDelete)
+  batchRemoveTrackDownload(tracksForDelete)
 
   // TODO: known bug here we should track multiple download reasons for the collection
   // and apply each download reason to the sync'd tracks.

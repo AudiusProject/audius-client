@@ -268,7 +268,7 @@ export const makeTrack = (
     artwork: undefined,
     downloadable: undefined,
     favorite_count: undefined,
-    is_streamable: undefined,
+    is_streamable: undefined
   }
 
   delete marshalled.id
@@ -363,6 +363,7 @@ export const makePlaylist = (
     track_count,
     total_play_count,
     playlist_contents: playlistContents,
+    permalink: 'response-adapter-permalink',
 
     // Fields to prune
     id: undefined,

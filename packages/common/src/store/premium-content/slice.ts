@@ -1,8 +1,8 @@
-import { ID, PremiumContentSignature } from 'models'
-
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-type PremiumTrackStatus = null | 'UNLOCKING' | 'UNLOCKED'
+import { ID, PremiumContentSignature } from 'models'
+
+type PremiumTrackStatus = null | 'UNLOCKING' | 'UNLOCKED' | 'LOCKED'
 
 type PremiumContentState = {
   premiumTrackSignatureMap: { [id: ID]: PremiumContentSignature }
@@ -18,11 +18,16 @@ type UpdatePremiumContentSignaturesPayload = {
   [id: ID]: PremiumContentSignature
 }
 
+type RemovePremiumContentSignaturePayload = {
+  trackId: ID
+}
+
 type UpdatePremiumTrackStatusPayload = {
   status: PremiumTrackStatus
 }
 
 type RefreshPremiumTrackPayload = {
+  trackId: ID
   trackParams:
     | { slug: string; trackId: null; handle: string }
     | { slug: null; trackId: ID; handle: null }
@@ -33,17 +38,25 @@ const slice = createSlice({
   name: 'premiumContent',
   initialState,
   reducers: {
-    updatePremiumContentSignatures: (state, action: PayloadAction<UpdatePremiumContentSignaturesPayload>) => {
+    updatePremiumContentSignatures: (
+      state,
+      action: PayloadAction<UpdatePremiumContentSignaturesPayload>
+    ) => {
       state.premiumTrackSignatureMap = {
         ...state.premiumTrackSignatureMap,
         ...action.payload
       }
     },
+    removePremiumContentSignature: (state, action: PayloadAction<RemovePremiumContentSignaturePayload>) => {
+      delete state.premiumTrackSignatureMap[action.payload.trackId]
+    },
     updatePremiumTrackStatus: (state, action: PayloadAction<UpdatePremiumTrackStatusPayload>) => {
       state.status = action.payload.status
     },
-    refreshPremiumTrack: (_, __: PayloadAction<RefreshPremiumTrackPayload>) => {
-    },
+    refreshPremiumTrack: (
+      _,
+      __: PayloadAction<RefreshPremiumTrackPayload>
+    ) => {}
   }
 })
 

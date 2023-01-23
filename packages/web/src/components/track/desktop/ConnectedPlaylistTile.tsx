@@ -227,9 +227,17 @@ const ConnectedPlaylistTile = memo(
         record
       ]
     )
-    const href = isAlbum
+    const href = isLoading
+      ? ''
+      : isAlbum
       ? albumPage(handle, title, id)
       : playlistPage(handle, title, id)
+
+    const fullHref = isLoading
+      ? ''
+      : isAlbum
+      ? fullAlbumPage(handle, title, id)
+      : fullPlaylistPage(handle, title, id)
 
     const onClickTitle = useCallback(
       (e: MouseEvent) => {
@@ -400,16 +408,12 @@ const ConnectedPlaylistTile = memo(
           kind={isAlbum ? 'album' : 'playlist'}
           id={id}
           isOwner={isOwner}
-          link={
-            isAlbum
-              ? fullAlbumPage(handle, title, id)
-              : fullPlaylistPage(handle, title, id)
-          }
+          link={fullHref}
         >
           {children as any}
         </Draggable>
       ),
-      [id, disableActions, title, isAlbum, handle, isOwner]
+      [id, disableActions, title, isAlbum, isOwner, fullHref]
     )
 
     const renderTrackList = useCallback(() => {

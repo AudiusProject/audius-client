@@ -35,10 +35,7 @@ import {
 } from '../services/offline-downloader/offline-storage'
 
 import { useIsOfflineModeEnabled } from './useIsOfflineModeEnabled'
-import {
-  useBecomeReachable,
-  useBecomeUnreachable
-} from './useReachabilityState'
+import useReachabilityState from './useReachabilityState'
 const { getCollection } = cacheCollectionsSelectors
 
 export const useLoadOfflineData = () => {
@@ -57,20 +54,28 @@ export const useLoadOfflineData = () => {
     }[] = []
     for (const collectionId of offlineCollections) {
       try {
-        dispatch(addCollection(collectionId))
-        if (collectionId === DOWNLOAD_REASON_FAVORITES) continue
-        const collection = await getCollectionJson(collectionId)
-        cacheCollections.push({
-          id: collectionId,
-          uid: makeUid(Kind.COLLECTIONS, parseInt(collectionId, 10)),
-          metadata: collection
-        })
-        if (collection.user) {
-          cacheUsers.push({
-            id: collection.user.user_id,
-            uid: makeUid(Kind.USERS, collection.user.user_id),
-            metadata: collection.user
+        if (collectionId === DOWNLOAD_REASON_FAVORITES) {
+          dispatch(addCollection({ collectionId, isFavoritesDownload: false }))
+        } else {
+          const collection = await getCollectionJson(collectionId)
+          dispatch(
+            addCollection({
+              collectionId,
+              isFavoritesDownload: !!collection.offline?.isFavoritesDownload
+            })
+          )
+          cacheCollections.push({
+            id: collectionId,
+            uid: makeUid(Kind.COLLECTIONS, parseInt(collectionId, 10)),
+            metadata: collection
           })
+          if (collection.user) {
+            cacheUsers.push({
+              id: collection.user.user_id,
+              uid: makeUid(Kind.USERS, collection.user.user_id),
+              metadata: collection.user
+            })
+          }
         }
       } catch (e) {
         console.warn('Failed to load offline collection', collectionId)
@@ -146,57 +151,58 @@ export const useOfflineCollectionLineup = (
     }
   })
 
-  useBecomeReachable(fetchOnlineContent)
-  useBecomeUnreachable(
-    useCallback(() => {
-      if (isOfflineModeEnabled && collectionId) {
-        const lineupTracks = Object.values(offlineTracks).filter((track) =>
-          track.offline?.reasons_for_download.some(
-            (reason) => reason.collection_id === collectionId.toString()
+  const fetchLocalContent = useCallback(() => {
+    if (isOfflineModeEnabled && collectionId) {
+      const lineupTracks = Object.values(offlineTracks).filter((track) =>
+        track.offline?.reasons_for_download.some(
+          (reason) => reason.collection_id === collectionId.toString()
+        )
+      )
+
+      if (collectionId === DOWNLOAD_REASON_FAVORITES) {
+        // Reorder lineup tracks accorinding to favorite time
+        const sortedTracks = orderBy(
+          lineupTracks,
+          (track) => track.offline?.favorite_created_at,
+          ['desc']
+        )
+        dispatch(
+          lineupActions.fetchLineupMetadatasSucceeded(
+            sortedTracks,
+            0,
+            sortedTracks.length,
+            0,
+            0
           )
         )
+      } else {
+        // Reorder lineup tracks according to the collection
+        // TODO: This may have issues for playlists with duplicate tracks
+        const sortedTracks = collection?.playlist_contents.track_ids
+          .map(({ track: trackId }) =>
+            lineupTracks.find((track) => trackId === track.track_id)
+          )
+          .filter((track) => !!track)
 
-        if (collectionId === DOWNLOAD_REASON_FAVORITES) {
-          // Reorder lineup tracks accorinding to favorite time
-          const sortedTracks = orderBy(
-            lineupTracks,
-            (track) => track.offline?.favorite_created_at,
-            ['desc']
+        dispatch(
+          lineupActions.fetchLineupMetadatasSucceeded(
+            sortedTracks,
+            0,
+            lineupTracks.length,
+            0,
+            0
           )
-          dispatch(
-            lineupActions.fetchLineupMetadatasSucceeded(
-              sortedTracks,
-              0,
-              lineupTracks.length,
-              false,
-              false
-            )
-          )
-        } else {
-          // Reorder lineup tracks according to the collection
-          // TODO: This may have issues for playlists with duplicate tracks
-          const sortedTracks = collection?.playlist_contents.track_ids.map(
-            ({ track: trackId }) =>
-              lineupTracks.find((track) => trackId === track.track_id)
-          )
-          dispatch(
-            lineupActions.fetchLineupMetadatasSucceeded(
-              sortedTracks,
-              0,
-              lineupTracks.length,
-              false,
-              false
-            )
-          )
-        }
+        )
       }
-    }, [
-      collection?.playlist_contents.track_ids,
-      collectionId,
-      dispatch,
-      isOfflineModeEnabled,
-      lineupActions,
-      offlineTracks
-    ])
-  )
+    }
+  }, [
+    collection?.playlist_contents.track_ids,
+    collectionId,
+    dispatch,
+    isOfflineModeEnabled,
+    lineupActions,
+    offlineTracks
+  ])
+
+  useReachabilityState(fetchOnlineContent, fetchLocalContent)
 }

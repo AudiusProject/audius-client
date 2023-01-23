@@ -90,6 +90,7 @@ export const ANNOUNCEMENT_PAGE = '/notification/:notificationId'
 export const SEARCH_CATEGORY_PAGE = '/search/:query/:category'
 export const SEARCH_PAGE = '/search/:query?'
 export const PLAYLIST_PAGE = '/:handle/playlist/:playlistName'
+export const PLAYLIST_BY_PERMALINK_PAGE = '/:handle/playlist/:slug'
 export const ALBUM_PAGE = '/:handle/album/:albumName'
 export const TRACK_PAGE = '/:handle/:slug'
 export const TRACK_REMIXES_PAGE = '/:handle/:slug/remixes'
@@ -288,7 +289,8 @@ export const playlistPage = (
       playlistName
     )}-${playlistId}`
   } else {
-    throw Error('Missing required arguments to get PlaylistPage route.')
+    console.error('Missing required arguments to get PlaylistPage route.')
+    return ''
   }
 }
 export const fullPlaylistPage = (

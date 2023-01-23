@@ -3,12 +3,18 @@ import cn from 'classnames'
 
 import styles from './ButtonWithArrow.module.css'
 
-const ButtonWithArrow = (props: ButtonProps) => {
+const ButtonWithArrow = (props: { completed?: string } & ButtonProps) => {
+  const buttonType =
+    props.completed === 'completed'
+      ? ButtonType.PRIMARY_ALT
+      : props.completed === 'disbursed'
+      ? ButtonType.COMMON_ALT
+      : ButtonType.COMMON
   return (
     <Button
       className={cn(styles.rewardButton, props.className)}
-      type={ButtonType.PRIMARY_ALT}
-      rightIcon={<IconArrow />}
+      type={buttonType}
+      rightIcon={props.completed !== 'disbursed' ? <IconArrow /> : null}
       iconClassName={styles.buttonIcon}
       textClassName={cn(styles.text, props.textClassName)}
       {...props}

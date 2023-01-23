@@ -1,7 +1,11 @@
 import { useCallback } from 'react'
 
 import type { Nullable, Track, User } from '@audius/common'
-import { FavoriteSource, tracksSocialActions } from '@audius/common'
+import {
+  SquareSizes,
+  FavoriteSource,
+  tracksSocialActions
+} from '@audius/common'
 import { TouchableOpacity, Animated, View, Dimensions } from 'react-native'
 import { useDispatch } from 'react-redux'
 
@@ -83,14 +87,11 @@ type PlayBarProps = {
   user: Nullable<User>
   onPress: () => void
   translationAnim: Animated.Value
+  mediaKey: string
 }
 
-export const PlayBar = ({
-  track,
-  user,
-  onPress,
-  translationAnim
-}: PlayBarProps) => {
+export const PlayBar = (props: PlayBarProps) => {
+  const { track, user, onPress, translationAnim, mediaKey } = props
   const styles = useStyles()
   const dispatch = useDispatch()
 
@@ -114,26 +115,25 @@ export const PlayBar = ({
     )
   }
 
+  const rootOpacityAnimation = translationAnim.interpolate({
+    // Interpolate the animation such that the play bar fades out
+    // at 25% up the screen.
+    inputRange: [
+      0,
+      0.75 * (NOW_PLAYING_HEIGHT - PLAY_BAR_HEIGHT),
+      NOW_PLAYING_HEIGHT - PLAY_BAR_HEIGHT
+    ],
+    outputRange: [0, 0, 1],
+    extrapolate: 'extend'
+  })
+
   return (
-    <Animated.View
-      style={[
-        styles.root,
-        {
-          opacity: translationAnim.interpolate({
-            // Interpolate the animation such that the play bar fades out
-            // at 25% up the screen.
-            inputRange: [
-              0,
-              0.75 * (NOW_PLAYING_HEIGHT - PLAY_BAR_HEIGHT),
-              NOW_PLAYING_HEIGHT - PLAY_BAR_HEIGHT
-            ],
-            outputRange: [0, 0, 1],
-            extrapolate: 'extend'
-          })
-        }
-      ]}
-    >
-      <TrackingBar translationAnim={translationAnim} />
+    <Animated.View style={[styles.root, { opacity: rootOpacityAnimation }]}>
+      <TrackingBar
+        duration={track?.duration ?? 0}
+        mediaKey={mediaKey}
+        translateYAnimation={translationAnim}
+      />
       <View style={styles.container}>
         {renderFavoriteButton()}
         <TouchableOpacity
@@ -142,7 +142,9 @@ export const PlayBar = ({
           onPress={onPress}
         >
           <View style={styles.artwork}>
-            {track && <TrackImage track={track} />}
+            {track && (
+              <TrackImage track={track} size={SquareSizes.SIZE_150_BY_150} />
+            )}
           </View>
           <View style={styles.trackText}>
             <Text numberOfLines={1} weight='bold' style={styles.title}>
