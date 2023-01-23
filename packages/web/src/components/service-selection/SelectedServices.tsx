@@ -53,8 +53,10 @@ export const SelectedServices = (props: SelectedServicesProps) => {
 
   useEffect(() => {
     if (!fetchedServices && (!services || services.length === 0)) {
-      setFetchedServices(true)
-      dispatch(fetchServices())
+      setFetchedServices(() => {
+        dispatch(fetchServices())
+        return true
+      })
     }
   }, [services, dispatch, fetchedServices])
 
