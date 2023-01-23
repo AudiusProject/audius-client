@@ -906,6 +906,7 @@ export const audiusBackend = ({
             : body.pinnedTrackId) || null
         account.twitterVerified = body.twitterVerified || false
         account.instagramVerified = body.instagramVerified || false
+        account.tikTokVerified = body.tikTokVerified || false
       } catch (e) {
         console.error(e)
       }
