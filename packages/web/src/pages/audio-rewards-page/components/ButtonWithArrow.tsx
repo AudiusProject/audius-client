@@ -4,7 +4,7 @@ import cn from 'classnames'
 import styles from './ButtonWithArrow.module.css'
 
 const ButtonWithArrow = (
-  props: { needsDisbursement?: boolean; hasDisbursed: boolean } & ButtonProps
+  props: { hasDisbursed: boolean; needsDisbursement?: boolean } & ButtonProps
 ) => {
   const buttonType = props.needsDisbursement
     ? ButtonType.PRIMARY_ALT
