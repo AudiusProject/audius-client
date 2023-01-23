@@ -13,7 +13,7 @@ export const getExplorePlaylists = createSelector(
   (state: CommonState) => state.pages.explore.playlists,
   (state: CommonState) => state.collections.entries,
   (playlists, collections) =>
-    playlists.map((id) => collections[id].metadata).filter(removeNullable)
+    playlists.map((id) => collections[id]?.metadata).filter(removeNullable)
 )
 
 export const getExploreArtists = createSelector(
