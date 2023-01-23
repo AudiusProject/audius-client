@@ -205,7 +205,7 @@ export const Panel = ({
             variant={buttonType}
             iconPosition='right'
             size='medium'
-            icon={hasDisbursed ? null : IconArrow}
+            icon={hasDisbursed ? undefined : IconArrow}
             onPress={onPress}
             style={[styles.button, hasDisbursed ? styles.disbursed : null]}
           />
