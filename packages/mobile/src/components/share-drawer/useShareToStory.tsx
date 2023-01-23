@@ -22,6 +22,10 @@ import { View } from 'react-native'
 import Config from 'react-native-config'
 import RNFS from 'react-native-fs'
 import Share from 'react-native-share'
+import {
+  init as initTikTokShare,
+  share as shareToTikTok
+} from 'react-native-tiktok'
 import type ViewShot from 'react-native-view-shot'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -35,6 +39,7 @@ import {
   getPlatform,
   getProgressPercentage
 } from 'app/store/share-to-story-progress/selectors'
+import type { ShareToStoryPlatform } from 'app/store/share-to-story-progress/slice'
 import {
   reset,
   setCancel,
@@ -63,6 +68,30 @@ const cancelRequestedEventEmitter = new EventEmitter()
 const CANCEL_REQUESTED_EVENT = 'cancel' as const
 const STICKER_LOADED_EVENT = 'loaded' as const
 
+const START_EVENT_NAMES_MAP = {
+  instagram: EventNames.SHARE_TO_IG_STORY,
+  tiktok: EventNames.SHARE_TO_TIKTOK_VIDEO,
+  snapchat: EventNames.SHARE_TO_SNAPCHAT
+} as Record<ShareToStoryPlatform, string>
+
+const CANCELLED_EVENT_NAMES_MAP = {
+  instagram: EventNames.SHARE_TO_IG_STORY_CANCELLED,
+  tiktok: EventNames.SHARE_TO_TIKTOK_VIDEO_CANCELLED,
+  snapchat: EventNames.SHARE_TO_SNAPCHAT_CANCELLED
+} as Record<ShareToStoryPlatform, string>
+
+const SUCCESS_EVENT_NAMES_MAP = {
+  instagram: EventNames.SHARE_TO_IG_STORY_SUCCESS,
+  tiktok: EventNames.SHARE_TO_TIKTOK_VIDEO_SUCCESS,
+  snapchat: EventNames.SHARE_TO_SNAPCHAT_STORY_SUCCESS
+} as Record<ShareToStoryPlatform, string>
+
+const ERROR_EVENT_NAMES_MAP = {
+  instagram: EventNames.SHARE_TO_IG_STORY_ERROR,
+  tiktok: EventNames.SHARE_TO_TIKTOK_VIDEO_ERROR,
+  snapchat: EventNames.SHARE_TO_SNAPCHAT_ERROR
+} as Record<ShareToStoryPlatform, string>
+
 export const useShareToStory = ({
   content,
   viewShotRef
@@ -75,6 +104,8 @@ export const useShareToStory = ({
   const cancelRef = useRef(false)
   const [shouldRenderShareToStorySticker, setShouldRenderShareToStorySticker] =
     useState(false)
+  const [selectedPlatform, setSelectedPlatform] =
+    useState<ShareToStoryPlatform | null>(null)
   const trackTitle =
     content?.type === 'track' ? content?.track.title : undefined
   const artistHandle =
@@ -119,7 +150,7 @@ export const useShareToStory = ({
   }, [viewShotRef])
 
   const toggleProgressDrawer = useCallback(
-    (open: boolean, platform?: 'instagram' | 'snapchat') => {
+    (open: boolean, platform?: ShareToStoryPlatform) => {
       if (open && platform) {
         dispatch(setPlatform(platform))
       }
@@ -136,10 +167,11 @@ export const useShareToStory = ({
     deactivateKeepAwake()
     dispatch(reset())
     toggleProgressDrawer(false)
+    setSelectedPlatform(null)
   }, [dispatch, toggleProgressDrawer])
 
   const handleError = useCallback(
-    (platform: 'instagram' | 'snapchat', error: Error, name?: string) => {
+    (platform: ShareToStoryPlatform, error: Error, name?: string) => {
       reportToSentry({
         level: ErrorLevel.Error,
         error,
@@ -148,10 +180,7 @@ export const useShareToStory = ({
       toast({ content: messages.shareToStoryError, type: 'error' })
       track(
         make({
-          eventName:
-            platform === 'instagram'
-              ? EventNames.SHARE_TO_IG_STORY_ERROR
-              : EventNames.SHARE_TO_SNAPCHAT_ERROR,
+          eventName: ERROR_EVENT_NAMES_MAP[platform],
           title: trackTitle,
           artist: artistHandle,
           error: `${name ? `${name} - ` : ''}${error.message}`
@@ -163,16 +192,13 @@ export const useShareToStory = ({
   )
 
   const cancelStory = useCallback(
-    async (platform: 'instagram' | 'snapchat') => {
+    async (platform: ShareToStoryPlatform) => {
       cancelRef.current = true
       cancelRequestedEventEmitter.emit(CANCEL_REQUESTED_EVENT)
       await FFmpegKit.cancel()
       track(
         make({
-          eventName:
-            platform === 'instagram'
-              ? EventNames.SHARE_TO_IG_STORY_CANCELLED
-              : EventNames.SHARE_TO_SNAPCHAT_CANCELLED,
+          eventName: CANCELLED_EVENT_NAMES_MAP[platform],
           title: trackTitle,
           artist: artistHandle
         })
@@ -218,15 +244,20 @@ export const useShareToStory = ({
     []
   )
 
+  const pasteToTikTokApp = useCallback((videoUri: string) => {
+    initTikTokShare(Config.TIKTOK_APP_ID)
+    // TODO: Handle errors
+    shareToTikTok(videoUri, (code) => {
+      console.log(code)
+    })
+  }, [])
+
   const generateStory = useCallback(
-    async (platform: 'instagram' | 'snapchat') => {
+    async (platform: ShareToStoryPlatform) => {
       if (content?.type === 'track') {
         track(
           make({
-            eventName:
-              platform === 'instagram'
-                ? EventNames.SHARE_TO_IG_STORY
-                : EventNames.SHARE_TO_SNAPCHAT,
+            eventName: START_EVENT_NAMES_MAP[platform],
             title: content.track.title,
             artist: content.artist.handle
           })
@@ -327,9 +358,13 @@ export const useShareToStory = ({
         let session: FFmpegSession
         const SHOWFREQS_SEGMENT =
           'aformat=channel_layouts=mono:sample_rates=16000,adynamicsmooth,showfreqs=s=900x40:fscale=log:colors=#ffffff70'
+        const thirdLayerSegment =
+          platform === 'tiktok'
+            ? '[vid];[1:v]scale=396:548[stkr];[vid][stkr]overlay=format=auto:x=72:y=200;'
+            : ';'
         try {
           session = await FFmpegKit.execute(
-            `${audioStartOffsetConfig}-i ${streamMp3Url} -filter_complex "${backgroundSegment}[bg];[0:a]${SHOWFREQS_SEGMENT}[fg];[0:a]${SHOWFREQS_SEGMENT},vflip[fgflip];[bg][fg]overlay=format=auto:x=-100:y=H-h-100[fo];[fo][fgflip]overlay=format=auto:x=-100:y=H-h-60;[0:a]anull" -pix_fmt yuv420p -c:v libx264 -preset ultrafast -c:a aac -t 10 ${storyVideoPath}`
+            `${audioStartOffsetConfig}-i ${streamMp3Url} -i ${stickerUri} -filter_complex "${backgroundSegment}[bg];[0:a]${SHOWFREQS_SEGMENT}[fg];[0:a]${SHOWFREQS_SEGMENT},vflip[fgflip];[bg][fg]overlay=format=auto:x=-100:y=H-h-100[fo];[fo][fgflip]overlay=format=auto:x=-100:y=H-h-60${thirdLayerSegment}[0:a]anull" -pix_fmt yuv420p -c:v libx264 -preset ultrafast -c:a aac -t 10 ${storyVideoPath}`
           )
         } catch (e) {
           handleError(platform, e, 'Error at FFmpeg step')
@@ -361,12 +396,15 @@ export const useShareToStory = ({
         try {
           if (platform === 'instagram') {
             await pasteToInstagramApp(videoUri, stickerUri)
-          } else {
+          } else if (platform === 'snapchat') {
             await pasteToSnapchatApp(
               videoUri,
               `file://${stickerUri}`,
               content.track.permalink
             )
+          } else if (platform === 'tiktok') {
+            console.log(storyVideoPath, 'PATH')
+            pasteToTikTokApp(`${storyVideoPath}`)
           }
         } catch (error) {
           handleError(platform, error, 'Error at share to app step')
@@ -376,10 +414,7 @@ export const useShareToStory = ({
         }
         track(
           make({
-            eventName:
-              platform === 'instagram'
-                ? EventNames.SHARE_TO_IG_STORY_SUCCESS
-                : EventNames.SHARE_TO_SNAPCHAT_STORY_SUCCESS,
+            eventName: SUCCESS_EVENT_NAMES_MAP[platform],
             title: content.track.title,
             artist: content.artist.handle
           })
@@ -397,12 +432,13 @@ export const useShareToStory = ({
       handleError,
       cleanup,
       dispatch,
-      cancelStory
+      cancelStory,
+      pasteToTikTokApp
     ]
   )
 
   const handleShare = useCallback(
-    async (platform: 'instagram' | 'snapchat') => {
+    async (platform: ShareToStoryPlatform) => {
       await Promise.race([
         generateStory(platform),
         new Promise<false>((resolve) =>
@@ -416,17 +452,26 @@ export const useShareToStory = ({
   )
 
   const handleShareToInstagramStory = useCallback(async () => {
+    setSelectedPlatform('instagram')
     await handleShare('instagram')
   }, [handleShare])
 
   const handleShareToSnapchat = useCallback(async () => {
+    setSelectedPlatform('snapchat')
     await handleShare('snapchat')
+  }, [handleShare])
+
+  const handleShareToTikTok = useCallback(async () => {
+    setSelectedPlatform('tiktok')
+    await handleShare('tiktok')
   }, [handleShare])
 
   return {
     handleShareToSnapchat,
     handleShareToStoryStickerLoad,
     handleShareToInstagramStory,
+    handleShareToTikTok,
+    selectedPlatform,
     shouldRenderShareToStorySticker,
     cancelStory
   }
@@ -492,6 +537,16 @@ export const ShareToStoryProgressDrawer = () => {
   const handleCancel = useCallback(() => {
     cancel?.()
   }, [cancel])
+
+  let subtitle: string
+  if (platform === 'instagram') {
+    subtitle = messages.loadingInstagramStorySubtitle
+  } else if (platform === 'snapchat') {
+    subtitle = messages.loadingSnapchatSubtitle
+  } else {
+    subtitle = messages.loadingTikTokSubtitle
+  }
+
   return (
     <NativeDrawer drawerName='ShareToStoryProgress' onClose={handleCancel}>
       <View style={styles.container}>
@@ -517,9 +572,7 @@ export const ShareToStoryProgressDrawer = () => {
           <LinearProgress value={progress} styles={progressBarStyles} />
         </View>
         <Text weight='medium' fontSize={'large'} style={styles.subtitleText}>
-          {platform === 'instagram'
-            ? messages.loadingInstagramStorySubtitle
-            : messages.loadingSnapchatSubtitle}
+          {subtitle}
         </Text>
         <Button
           title={messages.cancel}
