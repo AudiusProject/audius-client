@@ -1,4 +1,4 @@
-import { useCallback, useRef, useLayoutEffect, useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import {
   cacheUsersSelectors,
@@ -7,19 +7,19 @@ import {
   removeNullable,
   tippingActions
 } from '@audius/common'
-import { LayoutAnimation, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
 import IconTrophy from 'app/assets/images/iconTrophy.svg'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { ProfilePictureList } from 'app/screens/notifications-screen/Notification'
+import { ProfilePictureListSkeleton } from 'app/screens/notifications-screen/Notification/ProfilePictureListSkeleton'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
 import { useSelectProfile } from '../selectors'
-import { useDispatch, useSelector } from 'react-redux'
-import { ProfilePictureListSkeleton } from 'app/screens/notifications-screen/Notification/ProfilePictureListSkeleton'
 const { getOptimisticSupportersForUser } = tippingSelectors
 const { fetchSupportersForUser } = tippingActions
 const { getUsers } = cacheUsersSelectors

@@ -435,7 +435,7 @@ function* fetchSupportersForUserAsync(action: FetchSupportingAction) {
   const userIds = supportersForReceiverList?.map((supporter) =>
     decodeHashId(supporter.sender.id)
   )
-
+  if (!userIds) return
   yield call(fetchUsers, userIds)
 
   const supportersForReceiverMap: Record<string, Supporter> = {}

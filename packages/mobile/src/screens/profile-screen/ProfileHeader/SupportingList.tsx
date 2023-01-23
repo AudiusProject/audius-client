@@ -1,13 +1,15 @@
 import { useEffect, useMemo } from 'react'
 
-import { ID, Supporting, tippingActions } from '@audius/common'
+import type { ID, Supporting } from '@audius/common'
 import {
+  tippingActions,
   useProxySelector,
   stringWeiToBN,
   tippingSelectors,
   MAX_PROFILE_SUPPORTING_TILES
 } from '@audius/common'
 import { FlatList } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { makeStyles } from 'app/styles'
 
@@ -16,7 +18,6 @@ import { useSelectProfile } from '../selectors'
 import { SupportingTile } from './SupportingTile'
 import { SupportingTileSkeleton } from './SupportingTileSkeleton'
 import { ViewAllSupportingTile } from './ViewAllSupportingTile'
-import { useDispatch, useSelector } from 'react-redux'
 
 const { getOptimisticSupportingForUser } = tippingSelectors
 const { fetchSupportingForUser } = tippingActions
