@@ -1067,7 +1067,7 @@ export class AudiusAPIClient {
         params
       )
 
-    if (!response) return []
+    if (!response) return null
 
     const adapted = response.data.map(({ item, ...props }) => ({
       timestamp: props.timestamp,
