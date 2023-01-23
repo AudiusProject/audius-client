@@ -2102,7 +2102,7 @@ export const audiusBackend = ({
   ) {
     await waitForLibsInit()
     try {
-      await audiusLibs.Account.associateTikTokAccount(tikTokId, userId, handle)
+      await audiusLibs.Account.associateTikTokUser(tikTokId, userId, handle)
       return { success: true }
     } catch (error) {
       console.error(getErrorMessage(error))
