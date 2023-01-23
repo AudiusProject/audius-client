@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 
 import cn from 'classnames'
+import { isEqual } from 'lodash'
 import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconInfo } from 'assets/img/iconInfo.svg'
@@ -39,7 +40,7 @@ type SelectedServicesProps = {
 
 export const SelectedServices = (props: SelectedServicesProps) => {
   const { requiresAtLeastOne, variant = 'normal' } = props
-  const services = useSelector(getSelectedServices)
+  const services = useSelector(getSelectedServices, isEqual)
   const [fetchedServices, setFetchedServices] = useState(false)
   const dispatch = useDispatch()
 
@@ -53,10 +54,8 @@ export const SelectedServices = (props: SelectedServicesProps) => {
 
   useEffect(() => {
     if (!fetchedServices && (!services || services.length === 0)) {
-      setFetchedServices(() => {
-        dispatch(fetchServices())
-        return true
-      })
+      setFetchedServices(true)
+      dispatch(fetchServices())
     }
   }, [services, dispatch, fetchedServices])
 
