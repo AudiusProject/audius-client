@@ -294,31 +294,28 @@ function* updateCollectibleGatedTrackAccess(
   }
 }
 
-const PREMIUM_TRACK_POLL_FREQUENCY = 3000
+const PREMIUM_TRACK_POLL_FREQUENCY = 5000
 
 function* pollPremiumTrack({
+  trackId,
   trackParams,
   frequency
 }: {
+  trackId: ID
   trackParams: TrackRouteParams
   frequency: number
 }) {
-  const { trackId, slug, handle } = trackParams ?? {}
+  const { slug, handle } = trackParams ?? {}
+
+  if (!slug || !handle) return
+
   while (true) {
     const premiumTrackSignatureMap = yield* select(getPremiumTrackSignatureMap)
-    if (trackId && premiumTrackSignatureMap[trackId]) {
+    if (premiumTrackSignatureMap[trackId]) {
       yield* put(updatePremiumTrackStatus({ status: 'UNLOCKED' }))
       break
     }
-    yield* put(
-      trackPageActions.fetchTrack(
-        trackId,
-        slug ?? undefined,
-        handle ?? undefined,
-        false,
-        true
-      )
-    )
+    yield* put(trackPageActions.fetchTrack(null, slug, handle, false, true))
     yield* delay(frequency)
   }
 }
@@ -326,8 +323,10 @@ function* pollPremiumTrack({
 function* refreshPremiumTrackAccess(
   action: ReturnType<typeof refreshPremiumTrack>
 ) {
+  const { trackId, trackParams } = action.payload
   yield* call(pollPremiumTrack, {
-    trackParams: action.payload.trackParams,
+    trackId,
+    trackParams,
     frequency: PREMIUM_TRACK_POLL_FREQUENCY
   })
 }

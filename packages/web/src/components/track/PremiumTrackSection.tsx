@@ -69,12 +69,14 @@ const messages = {
 }
 
 type PremiumTrackAccessSectionProps = {
+  trackId: ID
   premiumConditions: PremiumConditions
   followee: Nullable<User>
   tippedUser: Nullable<User>
 }
 
 const LockedPremiumTrackSection = ({
+  trackId,
   premiumConditions,
   followee,
   tippedUser
@@ -91,7 +93,7 @@ const LockedPremiumTrackSection = ({
 
       // Poll discovery to get user's premium content signature for this track.
       const trackParams = parseTrackRoute(window.location.pathname)
-      dispatch(refreshPremiumTrack({ trackParams }))
+      dispatch(refreshPremiumTrack({ trackParams, trackId }))
     }
   }, [dispatch, previousSendStatus, sendStatus])
 
@@ -118,7 +120,7 @@ const LockedPremiumTrackSection = ({
 
         // Poll discovery to get user's premium content signature for this track.
         const trackParams = parseTrackRoute(window.location.pathname)
-        dispatch(refreshPremiumTrack({ trackParams }))
+        dispatch(refreshPremiumTrack({ trackParams, trackId }))
       }
     } else {
       dispatch(pushRoute(SIGN_UP_PAGE))
@@ -399,12 +401,14 @@ const UnlockedPremiumTrackSection = ({
 
 type PremiumTrackSectionProps = {
   isLoading: boolean
+  trackId: ID
   premiumConditions: PremiumConditions
   doesUserHaveAccess: boolean
 }
 
 export const PremiumTrackSection = ({
   isLoading,
+  trackId,
   premiumConditions,
   doesUserHaveAccess
 }: PremiumTrackSectionProps) => {
@@ -443,6 +447,7 @@ export const PremiumTrackSection = ({
     return (
       <div className={cn(styles.premiumContentSection, fadeIn)}>
         <UnlockedPremiumTrackSection
+          trackId={trackId}
           premiumConditions={premiumConditions}
           followee={followee}
           tippedUser={tippedUser}
@@ -455,6 +460,7 @@ export const PremiumTrackSection = ({
     return (
       <div className={cn(styles.premiumContentSection, fadeIn)}>
         <UnlockingPremiumTrackSection
+          trackId={trackId}
           premiumConditions={premiumConditions}
           followee={followee}
           tippedUser={tippedUser}
@@ -466,6 +472,7 @@ export const PremiumTrackSection = ({
   return (
     <div className={cn(styles.premiumContentSection, fadeIn)}>
       <LockedPremiumTrackSection
+        trackId={trackId}
         premiumConditions={premiumConditions}
         followee={followee}
         tippedUser={tippedUser}

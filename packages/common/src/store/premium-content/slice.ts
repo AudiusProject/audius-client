@@ -27,6 +27,7 @@ type UpdatePremiumTrackStatusPayload = {
 }
 
 type RefreshPremiumTrackPayload = {
+  trackId: ID
   trackParams:
     | { slug: string; trackId: null; handle: string }
     | { slug: null; trackId: ID; handle: null }
