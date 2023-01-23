@@ -67,13 +67,16 @@ const useStyles = makeStyles(({ spacing }) => ({
   }
 }))
 
-const sortChallenges = (
+const makeChallengeSortComparator = (
   userChallenges: Partial<Record<ChallengeRewardID, OptimisticUserChallenge>>
 ): ((id1: ChallengeRewardID, id2: ChallengeRewardID) => number) => {
   return (id1, id2) => {
     const userChallenge1 = userChallenges[id1]
     const userChallenge2 = userChallenges[id2]
 
+    if (!userChallenge1 || !userChallenge2) {
+      return 0
+    }
     if (userChallenge1?.state === 'disbursed') {
       return 1
     }
@@ -128,7 +131,7 @@ export const ChallengeRewards = () => {
     // Filter out challenges that DN didn't return
     .map((id) => userChallenges[id]?.challenge_id)
     .filter(removeNullable)
-    .sort(sortChallenges(optimisticUserChallenges))
+    .sort(makeChallengeSortComparator(optimisticUserChallenges))
     .map((id) => {
       const props = getChallengeConfig(id)
       return (

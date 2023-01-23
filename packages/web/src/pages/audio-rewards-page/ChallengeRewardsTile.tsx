@@ -177,20 +177,16 @@ const useRewardIds = (
   return filteredRewards
 }
 
-const sortChallenges = (
+const makeChallengeSortComparator = (
   userChallenges: Record<string, UserChallenge>
 ): ((id1: ChallengeRewardID, id2: ChallengeRewardID) => number) => {
   return (id1, id2) => {
     const userChallenge1 = userChallenges[id1]
     const userChallenge2 = userChallenges[id2]
 
-    if (Object.keys(userChallenges).length === 0) {
-      console.log('REED returning early', userChallenges)
+    if (!userChallenge1 || !userChallenge2) {
       return 0
     }
-    console.log('REED userChallenges: ', userChallenges)
-    console.log('REED ids: ', id1, id2)
-    console.log('REED userChallenge1, 2: ', userChallenge1, userChallenge2)
     if (userChallenge1.is_disbursed) {
       return 1
     }
@@ -240,7 +236,7 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
         // Filter out challenges that DN didn't return
         .map((id) => userChallenges[id]?.challenge_id)
         .filter(removeNullable)
-        .sort(sortChallenges(userChallenges)),
+        .sort(makeChallengeSortComparator(userChallenges)),
     [rewardIds, userChallenges]
   )
 
