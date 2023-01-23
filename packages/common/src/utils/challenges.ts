@@ -1,4 +1,8 @@
-import { ChallengeRewardID, OptimisticUserChallenge } from '../models'
+import {
+  ChallengeRewardID,
+  UserChallenge,
+  OptimisticUserChallenge
+} from '../models'
 
 import { formatNumberCommas } from './formatUtil'
 
@@ -143,5 +147,57 @@ export const challengeRewardsConfig: Record<
     description: () => 'Winners are selected every Friday at Noon PT!',
     panelButtonText: 'See More',
     id: 'trending-underground'
+  }
+}
+
+export const makeChallengeSortComparator = (
+  userChallenges: Record<string, UserChallenge>
+): ((id1: ChallengeRewardID, id2: ChallengeRewardID) => number) => {
+  return (id1, id2) => {
+    const userChallenge1 = userChallenges[id1]
+    const userChallenge2 = userChallenges[id2]
+
+    if (!userChallenge1 || !userChallenge2) {
+      return 0
+    }
+    if (userChallenge1.is_disbursed) {
+      return 1
+    }
+    if (userChallenge1.is_complete) {
+      return -1
+    }
+    if (userChallenge2.is_disbursed) {
+      return -1
+    }
+    if (userChallenge2.is_complete) {
+      return 1
+    }
+    return 0
+  }
+}
+
+export const makeOptimisticChallengeSortComparator = (
+  userChallenges: Partial<Record<ChallengeRewardID, OptimisticUserChallenge>>
+): ((id1: ChallengeRewardID, id2: ChallengeRewardID) => number) => {
+  return (id1, id2) => {
+    const userChallenge1 = userChallenges[id1]
+    const userChallenge2 = userChallenges[id2]
+
+    if (!userChallenge1 || !userChallenge2) {
+      return 0
+    }
+    if (userChallenge1?.state === 'disbursed') {
+      return 1
+    }
+    if (userChallenge1?.state === 'completed') {
+      return -1
+    }
+    if (userChallenge2?.state === 'disbursed') {
+      return -1
+    }
+    if (userChallenge2?.state === 'completed') {
+      return 1
+    }
+    return 0
   }
 }

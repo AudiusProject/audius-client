@@ -11,7 +11,7 @@ import {
   audioRewardsPageActions,
   ChallengeRewardsModalType,
   audioRewardsPageSelectors,
-  UserChallenge
+  makeChallengeSortComparator
 } from '@audius/common'
 import { ProgressBar, IconCheck } from '@audius/stems'
 import cn from 'classnames'
@@ -175,32 +175,6 @@ const useRewardIds = (
     (reward) => validRewardIds.has(reward) && !hideConfig[reward]
   )
   return filteredRewards
-}
-
-const makeChallengeSortComparator = (
-  userChallenges: Record<string, UserChallenge>
-): ((id1: ChallengeRewardID, id2: ChallengeRewardID) => number) => {
-  return (id1, id2) => {
-    const userChallenge1 = userChallenges[id1]
-    const userChallenge2 = userChallenges[id2]
-
-    if (!userChallenge1 || !userChallenge2) {
-      return 0
-    }
-    if (userChallenge1.is_disbursed) {
-      return 1
-    }
-    if (userChallenge1.is_complete) {
-      return -1
-    }
-    if (userChallenge2.is_disbursed) {
-      return -1
-    }
-    if (userChallenge2.is_complete) {
-      return 1
-    }
-    return 0
-  }
 }
 
 const RewardsTile = ({ className }: RewardsTileProps) => {
