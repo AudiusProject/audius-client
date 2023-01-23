@@ -4,17 +4,13 @@ import { reachabilitySelectors } from '@audius/common'
 import queue from 'react-native-job-queue'
 import { useSelector } from 'react-redux'
 
-import {
-  useIsOfflineModeEnabled,
-  useReadOfflineOverride
-} from 'app/hooks/useIsOfflineModeEnabled'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useLoadOfflineData } from 'app/hooks/useLoadOfflineTracks'
 import { startDownloadWorker } from 'app/services/offline-downloader'
 
 const { getIsReachable } = reachabilitySelectors
 
 export const OfflineDownloader = () => {
-  useReadOfflineOverride()
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const [initialized, setInitialized] = useState(false)
 

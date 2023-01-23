@@ -1,7 +1,5 @@
-import { useCallback, useState } from 'react'
-
 import { COPYRIGHT_TEXT } from 'audius-client/src/utils/copyright'
-import { View, Image, TouchableWithoutFeedback } from 'react-native'
+import { View, Image } from 'react-native'
 import VersionNumber from 'react-native-version-number'
 
 import appIcon from 'app/assets/images/appIcon.png'
@@ -11,7 +9,6 @@ import IconDiscord from 'app/assets/images/iconDiscord.svg'
 import IconInstagram from 'app/assets/images/iconInstagram.svg'
 import IconTwitter from 'app/assets/images/iconTwitterBird.svg'
 import { Screen, ScreenContent, Text } from 'app/components/core'
-import { toggleLocalOfflineModeOverride } from 'app/hooks/useIsOfflineModeEnabled'
 import { makeStyles } from 'app/styles'
 
 import { Divider } from './Divider'
@@ -48,15 +45,6 @@ const useStyles = makeStyles(({ spacing }) => ({
 
 export const AboutScreen = () => {
   const styles = useStyles()
-  const [clickCount, setClickCount] = useState(0)
-  const handleTitleClick = useCallback(() => {
-    if (clickCount >= 9) {
-      toggleLocalOfflineModeOverride()
-      setClickCount(0)
-    } else {
-      setClickCount(clickCount + 1)
-    }
-  }, [clickCount])
 
   return (
     <Screen variant='secondary' title={messages.title} topbarRight={null}>
@@ -64,9 +52,7 @@ export const AboutScreen = () => {
         <View style={styles.header}>
           <Image source={appIcon} style={styles.appIcon} />
           <View>
-            <TouchableWithoutFeedback onPress={handleTitleClick}>
-              <Text variant='h2'>{messages.appName}</Text>
-            </TouchableWithoutFeedback>
+            <Text variant='h2'>{messages.appName}</Text>
             <Text variant='body2'>
               {messages.version} {VersionNumber.appVersion}
             </Text>
