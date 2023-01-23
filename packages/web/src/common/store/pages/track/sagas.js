@@ -139,7 +139,6 @@ function* watchFetchTrack() {
     try {
       let track
       if (!trackId) {
-        console.log('not track id', handle, slug)
         track = yield call(retrieveTrackByHandleAndSlug, {
           handle,
           slug,
