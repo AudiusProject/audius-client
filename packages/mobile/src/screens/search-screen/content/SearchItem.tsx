@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { useCallback } from 'react'
 
+import { SquareSizes } from '@audius/common'
 import { StyleSheet, View, Text, TouchableHighlight } from 'react-native'
 import { useDispatch } from 'react-redux'
 
@@ -99,7 +100,11 @@ const UserSearchResult = ({ isLast, item: user }: UserSearchResultProps) => {
 
   return (
     <ItemContainer isLast={isLast} onPress={handlePress}>
-      <UserImage user={user} styles={{ image: imageStyle, root: imageStyle }} />
+      <UserImage
+        user={user}
+        styles={{ image: imageStyle, root: imageStyle }}
+        size={SquareSizes.SIZE_150_BY_150}
+      />
       <UserBadges
         style={styles.badgeContainer}
         nameStyle={nameStyle}
@@ -131,7 +136,12 @@ const TrackSearchResult = ({ isLast, item: track }: TrackSearchResultProps) => {
 
   return (
     <ItemContainer isLast={isLast} onPress={handlePress}>
-      <TrackImage track={track} user={track.user} style={squareImageStyles} />
+      <TrackImage
+        track={track}
+        size={SquareSizes.SIZE_150_BY_150}
+        user={track.user}
+        style={squareImageStyles}
+      />
       <View style={styles.nameContainer}>
         <Text numberOfLines={1} style={nameStyle}>
           {track.title}
@@ -172,6 +182,7 @@ const PlaylistSearchResult = ({
     <ItemContainer isLast={isLast} onPress={handlePress}>
       <CollectionImage
         collection={playlist}
+        size={SquareSizes.SIZE_150_BY_150}
         user={playlist.user}
         style={squareImageStyles}
       />
@@ -212,8 +223,9 @@ const AlbumSearchResult = ({ isLast, item: album }: AlbumSearchResultProps) => {
     <ItemContainer isLast={isLast} onPress={handlePress}>
       <CollectionImage
         collection={album}
+        size={SquareSizes.SIZE_150_BY_150}
         user={album.user}
-        styles={squareImageStyles}
+        style={squareImageStyles}
       />
       <View style={styles.nameContainer}>
         <Text numberOfLines={1} style={nameStyle}>

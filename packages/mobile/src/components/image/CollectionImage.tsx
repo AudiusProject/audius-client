@@ -1,31 +1,29 @@
-import type { Collection, Nullable, User } from '@audius/common'
+import type { Collection, Nullable, SquareSizes, User } from '@audius/common'
 import { cacheUsersSelectors } from '@audius/common'
-import type { ImageStyle } from 'react-native-fast-image'
 import { useSelector } from 'react-redux'
 
 import imageEmpty from 'app/assets/images/imageBlank2x.png'
 import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
 import { useLocalCollectionImage } from 'app/hooks/useLocalImage'
-import type { StylesProp } from 'app/styles'
 
 import type { FastImageProps } from './FastImage'
 import { FastImage } from './FastImage'
 
 const { getUser } = cacheUsersSelectors
 
-type ImageCollection = Nullable<
-  Pick<
-    Collection,
-    'cover_art_sizes' | 'cover_art' | 'playlist_owner_id' | 'playlist_id'
+type UseCollectionImageOptions = {
+  collection: Nullable<
+    Pick<
+      Collection,
+      'playlist_id' | 'cover_art_sizes' | 'cover_art' | 'playlist_owner_id'
+    >
   >
->
+  size: SquareSizes
+  user?: Pick<User, 'creator_node_endpoint'>
+}
 
-type ImageUser = Pick<User, 'creator_node_endpoint'>
-
-export const useCollectionImage = (
-  collection: ImageCollection,
-  user?: ImageUser
-) => {
+export const useCollectionImage = (options: UseCollectionImageOptions) => {
+  const { collection, size, user } = options
   const cid = collection
     ? collection.cover_art_sizes || collection.cover_art
     : null
@@ -34,12 +32,14 @@ export const useCollectionImage = (
     getUser(state, { id: collection?.playlist_owner_id })
   )
 
-  const { value: localSource, loading } = useLocalCollectionImage(
-    collection?.playlist_id.toString()
-  )
+  const { value: localSource, loading } = useLocalCollectionImage({
+    collectionId: collection?.playlist_id.toString(),
+    size
+  })
 
   const contentNodeSource = useContentNodeImage({
     cid,
+    size,
     user: selectedUser ?? user ?? null,
     fallbackImageSource: imageEmpty,
     localSource
@@ -48,27 +48,17 @@ export const useCollectionImage = (
   return loading ? null : contentNodeSource
 }
 
-type CollectionImageProps = {
-  collection: ImageCollection
-  user?: ImageUser
-  styles?: StylesProp<{
-    image: ImageStyle
-  }>
-} & FastImageProps
+type CollectionImageProps = UseCollectionImageOptions & Partial<FastImageProps>
 
 export const CollectionImage = (props: CollectionImageProps) => {
-  const { collection, user, styles, style, ...imageProps } = props
-  const collectionImageSource = useCollectionImage(collection, user)
+  const { collection, size, user, style, ...other } = props
+  const collectionImageSource = useCollectionImage({ collection, size, user })
+
   if (!collectionImageSource) return null
 
   const { source, handleError } = collectionImageSource
 
   return (
-    <FastImage
-      {...imageProps}
-      style={[style, styles?.image]}
-      source={source}
-      onError={handleError}
-    />
+    <FastImage {...other} style={style} source={source} onError={handleError} />
   )
 }

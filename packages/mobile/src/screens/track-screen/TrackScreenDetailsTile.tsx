@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 
 import type { UID, Track, User } from '@audius/common'
 import {
+  SquareSizes,
   removeNullable,
   playerSelectors,
   FavoriteSource,
@@ -31,7 +32,7 @@ import IconHidden from 'app/assets/images/iconHidden.svg'
 import { Tag, Text } from 'app/components/core'
 import { DetailsTile } from 'app/components/details-tile'
 import type { DetailsTileDetail } from 'app/components/details-tile/types'
-import type { FastImageProps } from 'app/components/image/FastImage'
+import type { ImageProps } from 'app/components/image/FastImage'
 import { TrackImage } from 'app/components/image/TrackImage'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { make, track as record } from 'app/services/analytics'
@@ -186,7 +187,9 @@ export const TrackScreenDetailsTile = ({
   ].filter(({ isHidden, value }) => !isHidden && !!value)
 
   const renderImage = useCallback(
-    (props: FastImageProps) => <TrackImage track={track} {...props} />,
+    (props: ImageProps) => (
+      <TrackImage track={track} size={SquareSizes.SIZE_480_BY_480} {...props} />
+    ),
     [track]
   )
 

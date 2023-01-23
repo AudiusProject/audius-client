@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
-import type { Collection, ID, Maybe, UID } from '@audius/common'
+import type { ID, Maybe, UID } from '@audius/common'
 import {
   Variant,
   useProxySelector,
@@ -18,17 +18,13 @@ import {
 import { useFocusEffect } from '@react-navigation/native'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
-import type { SetOptional } from 'type-fest'
 
-import type { DynamicImageProps } from 'app/components/core'
 import { Text } from 'app/components/core'
 import { DetailsTile } from 'app/components/details-tile'
 import type {
   DetailsTileDetail,
   DetailsTileProps
 } from 'app/components/details-tile/types'
-import { CollectionImage } from 'app/components/image/CollectionImage'
-import type { FastImageProps } from 'app/components/image/FastImage'
 import { DownloadToggle } from 'app/components/offline-downloads'
 import { TrackList } from 'app/components/track-list'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
@@ -77,7 +73,7 @@ type CollectionScreenDetailsTileProps = {
   isPublishing?: boolean
   extraDetails?: DetailsTileDetail[]
 } & Omit<
-  SetOptional<DetailsTileProps, 'renderImage'>,
+  DetailsTileProps,
   'descriptionLinkPressSource' | 'details' | 'headerText' | 'onPressPlay'
 >
 
@@ -99,7 +95,7 @@ export const CollectionScreenDetailsTile = ({
   isAlbum,
   isPrivate,
   isPublishing,
-  renderImage: renderImageProp,
+  renderImage,
   ...detailsTileProps
 }: CollectionScreenDetailsTileProps) => {
   const styles = useStyles()
@@ -159,17 +155,6 @@ export const CollectionScreenDetailsTile = ({
   const trackId = playingTrack?.track_id
 
   const isQueued = entries.some((entry) => playingUid === entry.uid)
-
-  const renderImage = useCallback(
-    (props: FastImageProps) => (
-      <CollectionImage
-        collection={collection as Collection}
-        size='medium'
-        {...props}
-      />
-    ),
-    [collection]
-  )
 
   const handlePressPlay = useCallback(() => {
     if (isPlaying && isQueued) {
@@ -273,7 +258,7 @@ export const CollectionScreenDetailsTile = ({
       renderBottomContent={renderTrackList}
       headerText={!isOfflineModeEnabled ? headerText : undefined}
       renderHeader={isOfflineModeEnabled ? renderHeader : undefined}
-      renderImage={renderImageProp ?? renderImage}
+      renderImage={renderImage}
       onPressPlay={handlePressPlay}
     />
   )
