@@ -344,14 +344,19 @@ export const removeAllDownloadedFavorites = async () => {
   const favoritedDownloadedCollections = getOfflineFavoritedCollections(state)
   const offlineTracks = getOfflineTracks(state)
 
+  const downloadedFavoritedTracks = Object.values(offlineTracks)
+    .filter((track) => !!track.offline?.favorite_created_at)
+    .map((track) => ({
+      trackId: track.track_id,
+      favoriteCreatedAt: track.offline?.favorite_created_at
+    }))
+
   const allFavoritedTracks = isReachable
-    ? await fetchAllFavoritedTracks(currentUserId)
-    : Object.values(offlineTracks)
-        .filter((track) => !!track.offline?.favorite_created_at)
-        .map((track) => ({
-          trackId: track.track_id,
-          favoriteCreatedAt: track.offline?.favorite_created_at
-        }))
+    ? [
+        ...(await fetchAllFavoritedTracks(currentUserId)),
+        ...downloadedFavoritedTracks
+      ]
+    : downloadedFavoritedTracks
   const tracksForDownload: TrackForDownload[] = allFavoritedTracks.map(
     ({ trackId, favoriteCreatedAt }) => ({
       trackId,
