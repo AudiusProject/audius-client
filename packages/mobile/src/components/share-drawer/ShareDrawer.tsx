@@ -196,11 +196,7 @@ export const ShareDrawer = () => {
       icon: <IconLink height={26} width={26} fill={secondary} />,
       callback: handleCopyLink
     }
-    const SUCCESS_EVENT_NAMES_MAP = {
-      instagram: EventNames.SHARE_TO_IG_STORY_SUCCESS,
-      tiktok: EventNames.SHARE_TO_TIKTOK_VIDEO_SUCCESS,
-      snapchat: EventNames.SHARE_TO_SNAPCHAT_STORY_SUCCESS
-    } as Record<ShareToStoryPlatform, string>
+
     const shareSheetAction = {
       text: messages.shareSheet(shareType),
       icon: <IconShare height={26} width={26} fill={secondary} />,
