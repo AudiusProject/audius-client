@@ -346,7 +346,7 @@ function* associateTikTokAccount(action) {
     )
 
     const account = yield select(getAccountUser)
-    const { verified } = profile
+    const { is_verified: verified } = profile
     if (!account.is_verified && verified) {
       yield put(
         cacheActions.update(Kind.USERS, [
