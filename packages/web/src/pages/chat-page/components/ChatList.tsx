@@ -63,7 +63,7 @@ export const ChatList = (props: ChatListProps) => {
         }
       >
         {chats?.length > 0 ? (
-          chats?.map((chat) => (
+          chats.map((chat) => (
             <ChatListItem
               key={chat.chat_id}
               currentChatId={currentChatId}

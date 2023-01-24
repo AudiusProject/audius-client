@@ -144,6 +144,10 @@ const slice = createSlice({
     },
     upsertChat: (state, action: PayloadAction<{ chat: UserChat }>) => {
       const { chat } = action.payload
+      if (!state.chatList.data) {
+        console.warn('ChatList not initialized')
+        return
+      }
       const index = state.chatList.data.findIndex(
         (c) => c.chat_id === chat.chat_id
       )
@@ -159,10 +163,16 @@ const slice = createSlice({
       action: PayloadAction<{ chatId: string; message: ChatMessage }>
     ) => {
       const { chatId, message } = action.payload
+      if (!state.chatMessages[chatId]?.data) {
+        console.warn('ChatMessages not initialized')
+        return
+      }
       const index = state.chatMessages[chatId].data.findIndex(
         (m) => m.message_id === message.message_id
       )
-      state.chatMessages[chatId].data[index].reactions = message.reactions
+      if (index > -1) {
+        state.chatMessages[chatId].data[index].reactions = message.reactions
+      }
     }
   }
 })
