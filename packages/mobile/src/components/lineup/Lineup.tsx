@@ -330,14 +330,14 @@ export const Lineup = ({
     ]
   )
 
-  // useBecomeReachable(
-  //   useCallback(() => {
-  //     if (entries.length > 0 || status === Status.LOADING) return
-  //     handleLoadMore(true)
-  //     // using the latest creates infinite loop, and we only need the initial state
-  //     // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   }, [entries])
-  // )
+  useBecomeReachable(
+    useCallback(() => {
+      if (entries.length > 0 || status === Status.LOADING) return
+      handleLoadMore(true)
+      // using the latest creates infinite loop, and we only need the initial state
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [entries])
+  )
 
   // When scrolled past the end threshold of the lineup and the lineup is not loading,
   // trigger another load
