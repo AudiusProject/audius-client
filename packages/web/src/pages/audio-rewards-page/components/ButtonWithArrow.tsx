@@ -3,26 +3,12 @@ import cn from 'classnames'
 
 import styles from './ButtonWithArrow.module.css'
 
-const ButtonWithArrow = (
-  props: { hasDisbursed?: boolean; needsDisbursement?: boolean } & ButtonProps
-) => {
-  let buttonType = ButtonType.PRIMARY_ALT
-  if (
-    props.hasDisbursed !== undefined &&
-    props.needsDisbursement !== undefined
-  ) {
-    buttonType = props.needsDisbursement
-      ? ButtonType.PRIMARY_ALT
-      : props.hasDisbursed
-      ? ButtonType.COMMON_ALT
-      : ButtonType.COMMON
-  }
-
+const ButtonWithArrow = (props: ButtonProps) => {
   return (
     <Button
       className={cn(styles.rewardButton, props.className)}
-      type={buttonType}
-      rightIcon={props.hasDisbursed ? null : <IconArrow />}
+      type={props.type ?? ButtonType.PRIMARY_ALT}
+      rightIcon={<IconArrow />}
       iconClassName={styles.buttonIcon}
       textClassName={cn(styles.text, props.textClassName)}
       {...props}
