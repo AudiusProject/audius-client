@@ -1,19 +1,19 @@
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
 
 import {
   ChallengeRewardID,
   OptimisticUserChallenge,
   removeNullable,
-  sortChallenges,
   StringKeys,
   fillString,
   formatNumberCommas,
   challengesSelectors,
   audioRewardsPageActions,
   ChallengeRewardsModalType,
-  audioRewardsPageSelectors
+  audioRewardsPageSelectors,
+  makeChallengeSortComparator
 } from '@audius/common'
-import { ProgressBar } from '@audius/stems'
+import { ProgressBar, ButtonType, Button, IconCheck } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -33,12 +33,12 @@ const { fetchUserChallenges, setChallengeRewardsModalType } =
 const { getOptimisticUserChallenges } = challengesSelectors
 
 const messages = {
-  title: '$AUDIO REWARDS',
+  title: 'EARN REWARDS',
   description1: 'Complete tasks to earn $AUDIO tokens!',
-  description2:
-    'Opportunities to earn $AUDIO will change, so check back often for more chances to earn!',
   completeLabel: 'COMPLETE',
-  claimReward: 'Claim Your Reward'
+  claimReward: 'Claim Your Reward',
+  readyToClaim: 'Ready to Claim',
+  viewDetails: 'View Details'
 }
 
 type RewardPanelProps = {
@@ -70,11 +70,14 @@ const RewardPanel = ({
   const challenge = userChallenges[id]
   const shouldShowCompleted =
     challenge?.state === 'completed' || challenge?.state === 'disbursed'
+  const hasCompleted = challenge?.state === 'completed'
+  const hasDisbursed = challenge?.state === 'disbursed'
   const needsDisbursement = challenge && challenge.claimableAmount > 0
   const shouldShowProgressBar =
     challenge &&
     challenge.max_steps > 1 &&
-    challenge.challenge_type !== 'aggregate'
+    challenge.challenge_type !== 'aggregate' &&
+    !hasDisbursed
 
   let progressLabelFilled: string
   if (shouldShowCompleted) {
@@ -98,9 +101,32 @@ const RewardPanel = ({
         )
       : ''
   }
+  const buttonMessage = needsDisbursement
+    ? messages.claimReward
+    : hasDisbursed
+    ? messages.viewDetails
+    : panelButtonText
+
+  const buttonType = needsDisbursement
+    ? ButtonType.PRIMARY_ALT
+    : hasDisbursed
+    ? ButtonType.COMMON_ALT
+    : ButtonType.COMMON
 
   return (
-    <div className={wm(styles.rewardPanelContainer)} onClick={openRewardModal}>
+    <div
+      className={wm(
+        cn(styles.rewardPanelContainer, hasDisbursed ? styles.completed : '')
+      )}
+      onClick={openRewardModal}
+    >
+      <div className={wm(styles.pillContainer)}>
+        {hasCompleted && (
+          <span className={wm(styles.pillMessage)}>
+            {messages.readyToClaim}
+          </span>
+        )}
+      </div>
       <span className={wm(styles.rewardTitle)}>
         {icon}
         {title}
@@ -109,13 +135,8 @@ const RewardPanel = ({
         {description(challenge)}
       </span>
       <div className={wm(styles.rewardProgress)}>
-        <p
-          className={cn(styles.rewardProgressLabel, {
-            [styles.complete]: shouldShowCompleted
-          })}
-        >
-          {progressLabelFilled}
-        </p>
+        {shouldShowCompleted && <IconCheck className={wm(styles.iconCheck)} />}
+        <p className={styles.rewardProgressLabel}>{progressLabelFilled}</p>
         {shouldShowProgressBar && (
           <ProgressBar
             className={styles.rewardProgressBar}
@@ -124,12 +145,23 @@ const RewardPanel = ({
           />
         )}
       </div>
-      <ButtonWithArrow
-        className={wm(styles.panelButton)}
-        text={needsDisbursement ? messages.claimReward : panelButtonText}
-        onClick={openRewardModal}
-        textClassName={styles.panelButtonText}
-      />
+      {hasDisbursed ? (
+        <Button
+          className={wm(cn(styles.panelButton, styles.completed))}
+          type={buttonType}
+          text={buttonMessage}
+          onClick={openRewardModal}
+          textClassName={styles.panelButtonText}
+        />
+      ) : (
+        <ButtonWithArrow
+          className={wm(styles.panelButton)}
+          type={buttonType}
+          text={buttonMessage}
+          onClick={openRewardModal}
+          textClassName={styles.panelButtonText}
+        />
+      )}
     </div>
   )
 }
@@ -169,7 +201,6 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
   const dispatch = useDispatch()
   const userChallengesLoading = useSelector(getUserChallengesLoading)
   const userChallenges = useSelector(getUserChallenges)
-  const optimisticUserChallenges = useSelector(getOptimisticUserChallenges)
   const [haveChallengesLoaded, setHaveChallengesLoaded] = useState(false)
 
   // The referred challenge only needs a tile if the user was referred
@@ -192,15 +223,20 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
     setVisibility('ChallengeRewardsExplainer')(true)
   }
 
-  const rewardsTiles = rewardIds
-    // Filter out challenges that DN didn't return
-    .map((id) => userChallenges[id]?.challenge_id)
-    .filter(removeNullable)
-    .sort(sortChallenges(optimisticUserChallenges))
-    .map((id) => {
-      const props = getChallengeConfig(id)
-      return <RewardPanel {...props} openModal={openModal} key={props.id} />
-    })
+  const rewardIdsSorted = useMemo(
+    () =>
+      rewardIds
+        // Filter out challenges that DN didn't return
+        .map((id) => userChallenges[id]?.challenge_id)
+        .filter(removeNullable)
+        .sort(makeChallengeSortComparator(userChallenges)),
+    [rewardIds, userChallenges]
+  )
+
+  const rewardsTiles = rewardIdsSorted.map((id) => {
+    const props = getChallengeConfig(id)
+    return <RewardPanel {...props} openModal={openModal} key={props.id} />
+  })
 
   const wm = useWithMobileStyle(styles.mobile)
 
@@ -209,7 +245,6 @@ const RewardsTile = ({ className }: RewardsTileProps) => {
       <span className={wm(styles.title)}>{messages.title}</span>
       <div className={wm(styles.subtitle)}>
         <span>{messages.description1}</span>
-        <span>{messages.description2}</span>
       </div>
       <div className={styles.rewardsContainer}>
         {userChallengesLoading && !haveChallengesLoaded ? (

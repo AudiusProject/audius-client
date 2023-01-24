@@ -7,7 +7,7 @@ const ButtonWithArrow = (props: ButtonProps) => {
   return (
     <Button
       className={cn(styles.rewardButton, props.className)}
-      type={ButtonType.PRIMARY_ALT}
+      type={props.type ?? ButtonType.PRIMARY_ALT}
       rightIcon={<IconArrow />}
       iconClassName={styles.buttonIcon}
       textClassName={cn(styles.text, props.textClassName)}

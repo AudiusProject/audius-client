@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react'
 
 import type { Collection, Nullable, User } from '@audius/common'
 import {
+  SquareSizes,
   encodeUrlName,
   removeNullable,
   FavoriteSource,
@@ -24,13 +25,13 @@ import {
 import { useFocusEffect } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import type { DynamicImageProps } from 'app/components/core'
 import {
   ScreenContent,
   Screen,
   VirtualizedScrollView
 } from 'app/components/core'
 import { CollectionImage } from 'app/components/image/CollectionImage'
+import type { ImageProps } from 'app/components/image/FastImage'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
@@ -146,8 +147,12 @@ const CollectionScreenComponent = (props: CollectionScreenComponentProps) => {
   }, [user.handle, is_album, playlist_name, playlist_id])
 
   const renderImage = useCallback(
-    (props: DynamicImageProps) => (
-      <CollectionImage collection={collection} {...props} />
+    (props: ImageProps) => (
+      <CollectionImage
+        collection={collection}
+        size={SquareSizes.SIZE_480_BY_480}
+        {...props}
+      />
     ),
     [collection]
   )

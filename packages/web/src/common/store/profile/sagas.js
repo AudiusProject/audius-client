@@ -290,13 +290,12 @@ function* fetchProfileAsync(action) {
       )
     )
 
-    // Fetch user socials and collections after fetching the user itself
-    yield fork(fetchUserSocials, action)
     if (!isNativeMobile) {
+      // Fetch user socials and collections after fetching the user itself
+      yield fork(fetchUserSocials, action)
       yield fork(fetchUserCollections, user.user_id)
+      yield fork(fetchSupportersAndSupporting, user.user_id)
     }
-
-    yield fork(fetchSupportersAndSupporting, user.user_id)
 
     yield fork(fetchProfileCustomizedCollectibles, user)
     yield fork(fetchOpenSeaAssets, user)

@@ -8,6 +8,7 @@ import type {
   CommonState
 } from '@audius/common'
 import {
+  SquareSizes,
   removeNullable,
   useProxySelector,
   playerSelectors,
@@ -28,9 +29,10 @@ import {
 } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 
-import type { DynamicImageProps } from 'app/components/core/DynamicImage'
 import { CollectionImage } from 'app/components/image/CollectionImage'
 import { useNavigation } from 'app/hooks/useNavigation'
+
+import type { ImageProps } from '../image/FastImage'
 
 import { CollectionTileTrackList } from './CollectionTileTrackList'
 import { LineupTile } from './LineupTile'
@@ -124,8 +126,12 @@ const CollectionTileComponent = ({
   const isOwner = playlist_owner_id === currentUserId
 
   const renderImage = useCallback(
-    (props: DynamicImageProps) => (
-      <CollectionImage collection={collection} {...props} />
+    (props: ImageProps) => (
+      <CollectionImage
+        collection={collection}
+        size={SquareSizes.SIZE_150_BY_150}
+        {...props}
+      />
     ),
     [collection]
   )
