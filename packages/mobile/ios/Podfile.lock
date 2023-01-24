@@ -489,7 +489,7 @@ PODS:
     - ReactCommon/turbomodule/core
   - react-native-tiktok (1.1.1):
     - React-Core
-    - TikTokOpenSDK (~> 5.0.0)
+    - TikTokOpenSDK (= 5.0.0)
   - react-native-track-player (3.2.0):
     - React-Core
     - SwiftAudioEx (= 0.15.3)
@@ -1095,7 +1095,7 @@ SPEC CHECKSUMS:
   react-native-performance: f08613f428978a9e39a118ac0a776f5e0599c42e
   react-native-randombytes: 5fc412efe7b5c55b9002c0004d75fe5fabcaa507
   react-native-safe-area-context: ec0d85aca8110dae9327430a9541fec165352dab
-  react-native-tiktok: 9ef23158b524c39fd5902c6e92458608daf24e7e
+  react-native-tiktok: a10460b01267b30a979095ccd7ec52964c80bb48
   react-native-track-player: 86649137952f7beeed18b4be7974be1d431d967f
   react-native-version-number: 15563dc4145a94aabfc1faab2a9af10174a4204e
   react-native-video: 79a186e378d327b6c08bc3982c17ef455c6bd75c
