@@ -5,10 +5,10 @@ import path from 'path'
 
 import type { Color, Nullable, ShareModalContent } from '@audius/common'
 import {
-  SquareSizes,
   encodeHashId,
   ErrorLevel,
   modalsActions,
+  SquareSizes,
   uuid
 } from '@audius/common'
 import {
@@ -43,8 +43,8 @@ import type { ShareToStoryPlatform } from 'app/store/share-to-story-progress/sli
 import {
   reset,
   setCancel,
-  setProgress,
-  setPlatform
+  setPlatform,
+  setProgress
 } from 'app/store/share-to-story-progress/slice'
 import { makeStyles } from 'app/styles'
 import { EventNames } from 'app/types/analytics'
@@ -72,25 +72,45 @@ const START_EVENT_NAMES_MAP = {
   instagram: EventNames.SHARE_TO_IG_STORY,
   tiktok: EventNames.SHARE_TO_TIKTOK_VIDEO,
   snapchat: EventNames.SHARE_TO_SNAPCHAT
-} as Record<ShareToStoryPlatform, string>
+} as Record<
+  ShareToStoryPlatform,
+  | typeof EventNames.SHARE_TO_IG_STORY
+  | typeof EventNames.SHARE_TO_TIKTOK_VIDEO
+  | typeof EventNames.SHARE_TO_SNAPCHAT
+>
 
 const CANCELLED_EVENT_NAMES_MAP = {
   instagram: EventNames.SHARE_TO_IG_STORY_CANCELLED,
   tiktok: EventNames.SHARE_TO_TIKTOK_VIDEO_CANCELLED,
   snapchat: EventNames.SHARE_TO_SNAPCHAT_CANCELLED
-} as Record<ShareToStoryPlatform, string>
+} as Record<
+  ShareToStoryPlatform,
+  | typeof EventNames.SHARE_TO_IG_STORY_CANCELLED
+  | typeof EventNames.SHARE_TO_TIKTOK_VIDEO_CANCELLED
+  | typeof EventNames.SHARE_TO_SNAPCHAT_CANCELLED
+>
 
 const SUCCESS_EVENT_NAMES_MAP = {
   instagram: EventNames.SHARE_TO_IG_STORY_SUCCESS,
   tiktok: EventNames.SHARE_TO_TIKTOK_VIDEO_SUCCESS,
   snapchat: EventNames.SHARE_TO_SNAPCHAT_STORY_SUCCESS
-} as Record<ShareToStoryPlatform, string>
+} as Record<
+  ShareToStoryPlatform,
+  | typeof EventNames.SHARE_TO_IG_STORY_SUCCESS
+  | typeof EventNames.SHARE_TO_TIKTOK_VIDEO_SUCCESS
+  | typeof EventNames.SHARE_TO_SNAPCHAT_STORY_SUCCESS
+>
 
 const ERROR_EVENT_NAMES_MAP = {
   instagram: EventNames.SHARE_TO_IG_STORY_ERROR,
   tiktok: EventNames.SHARE_TO_TIKTOK_VIDEO_ERROR,
   snapchat: EventNames.SHARE_TO_SNAPCHAT_ERROR
-} as Record<ShareToStoryPlatform, string>
+} as Record<
+  ShareToStoryPlatform,
+  | typeof EventNames.SHARE_TO_IG_STORY_ERROR
+  | typeof EventNames.SHARE_TO_TIKTOK_VIDEO_ERROR
+  | typeof EventNames.SHARE_TO_SNAPCHAT_ERROR
+>
 
 export const useShareToStory = ({
   content,
