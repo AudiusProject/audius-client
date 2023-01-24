@@ -18,7 +18,7 @@ export const getSmartCollectionVariant = (state: CommonState) =>
   state.pages.collection.smartCollectionVariant
 export const getCollectionPermalink = (state: CommonState) =>
   state.pages.collection.permalink
-export const getCollection = (state: CommonState, params?: { id: ID }) => {
+export const getCollection = (state: CommonState, params?: { id?: ID }) => {
   const smartCollectionVariant = getSmartCollectionVariant(state)
   if (smartCollectionVariant) {
     return getSmartCollection(state, { variant: smartCollectionVariant })
