@@ -266,9 +266,8 @@ export const useShareToStory = ({
 
   const pasteToTikTokApp = useCallback((videoUri: string) => {
     initTikTokShare(Config.TIKTOK_APP_ID)
-    // TODO: Handle errors
-    shareToTikTok(videoUri, (code) => {
-      console.log(code)
+    shareToTikTok(videoUri, (_code) => {
+      // TODO: Handle errors handed back from TikTok
     })
   }, [])
 
@@ -382,9 +381,11 @@ export const useShareToStory = ({
           platform === 'tiktok'
             ? '[vid];[1:v]scale=396:548[stkr];[vid][stkr]overlay=format=auto:x=72:y=200;'
             : ';'
+        const stickerImageInput =
+          platform === 'tiktok' ? ` -i ${stickerUri}` : ''
         try {
           session = await FFmpegKit.execute(
-            `${audioStartOffsetConfig}-i ${streamMp3Url} -i ${stickerUri} -filter_complex "${backgroundSegment}[bg];[0:a]${SHOWFREQS_SEGMENT}[fg];[0:a]${SHOWFREQS_SEGMENT},vflip[fgflip];[bg][fg]overlay=format=auto:x=-100:y=H-h-100[fo];[fo][fgflip]overlay=format=auto:x=-100:y=H-h-60${thirdLayerSegment}[0:a]anull" -pix_fmt yuv420p -c:v libx264 -preset ultrafast -c:a aac -t 10 ${storyVideoPath}`
+            `${audioStartOffsetConfig}-i ${streamMp3Url}${stickerImageInput} -filter_complex "${backgroundSegment}[bg];[0:a]${SHOWFREQS_SEGMENT}[fg];[0:a]${SHOWFREQS_SEGMENT},vflip[fgflip];[bg][fg]overlay=format=auto:x=-100:y=H-h-100[fo];[fo][fgflip]overlay=format=auto:x=-100:y=H-h-60${thirdLayerSegment}[0:a]anull" -pix_fmt yuv420p -c:v libx264 -preset ultrafast -c:a aac -t 10 ${storyVideoPath}`
           )
         } catch (e) {
           handleError(platform, e, 'Error at FFmpeg step')
@@ -423,7 +424,6 @@ export const useShareToStory = ({
               content.track.permalink
             )
           } else if (platform === 'tiktok') {
-            console.log(storyVideoPath, 'PATH')
             pasteToTikTokApp(`${storyVideoPath}`)
           }
         } catch (error) {
