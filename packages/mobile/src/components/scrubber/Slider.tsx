@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 
 import { useAppState } from '@react-native-community/hooks'
-import type { GestureResponderEvent } from 'react-native'
+import { Easing, GestureResponderEvent } from 'react-native'
 import { View, Animated, PanResponder } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 import TrackPlayer from 'react-native-track-player'
@@ -138,7 +138,8 @@ export const Slider = memo((props: SliderProps) => {
       currentAnimation.current = Animated.timing(translationAnim, {
         toValue: railWidth,
         duration: timeRemaining,
-        useNativeDriver: true
+        useNativeDriver: true,
+        easing: Easing.linear
       })
       currentAnimation.current.start()
     },

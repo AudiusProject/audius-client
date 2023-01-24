@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react'
 
 import { playerSelectors } from '@audius/common'
-import { Animated, Dimensions } from 'react-native'
+import { Animated, Dimensions, Easing } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 import TrackPlayer from 'react-native-track-player'
 import { useSelector } from 'react-redux'
@@ -24,9 +24,10 @@ const useStyles = makeStyles(({ palette }) => ({
     overflow: 'hidden'
   },
   tracker: {
-    height: 3,
-    // flexGrow: 1,
-    backgroundColor: 'red'
+    height: 3
+  },
+  trackerGradient: {
+    flex: 1
   }
 }))
 
@@ -59,7 +60,8 @@ export const TrackingBar = (props: TrackingBarProps) => {
     currentAnimation.current = Animated.timing(translateXAnimation.current, {
       toValue: 1,
       duration: timeRemaining * 1000,
-      useNativeDriver: true
+      useNativeDriver: true,
+      easing: Easing.linear
     })
 
     currentAnimation.current.start()
@@ -121,7 +123,7 @@ export const TrackingBar = (props: TrackingBarProps) => {
           useAngle
           angle={135}
           colors={[primaryLight2, primaryDark2]}
-          style={{ flex: 1 }}
+          style={styles.trackerGradient}
         />
       </Animated.View>
     </Animated.View>
