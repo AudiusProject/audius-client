@@ -55,7 +55,6 @@ index be8a751..c55f3e8 100644
  
 -COCOAPODS: 1.10.1
 +COCOAPODS: 1.11.3
-
 diff --git a/node_modules/react-native-tiktok/react-native-tiktok.podspec b/node_modules/react-native-tiktok/react-native-tiktok.podspec
 index 95c0dbe..f457069 100644
 --- a/node_modules/react-native-tiktok/react-native-tiktok.podspec
