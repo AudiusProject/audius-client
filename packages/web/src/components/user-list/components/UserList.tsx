@@ -1,5 +1,3 @@
-import { ReactNode } from 'react'
-
 import { ID, User } from '@audius/common'
 import cn from 'classnames'
 import InfiniteScroll from 'react-infinite-scroller'
@@ -27,7 +25,6 @@ type UserListProps = {
   onUnfollow: (userId: ID) => void
   getScrollParent?: () => HTMLElement | null
   onNavigateAway?: () => void
-  renderActionButton?: (userId: ID) => ReactNode
 }
 
 const UserList = (props: UserListProps) => {
@@ -60,18 +57,16 @@ const UserList = (props: UserListProps) => {
               className={styles.artistChipContainer}
               popoverMount={MountPlacement.BODY}
             />
-            {user.user_id !== props.userId
-              ? props.renderActionButton?.(user.user_id) || (
-                  <FollowButton
-                    size='small'
-                    following={user.does_current_user_follow}
-                    onFollow={() => props.onFollow(user.user_id)}
-                    onUnfollow={() => props.onUnfollow(user.user_id)}
-                    showIcon
-                    stopPropagation
-                  />
-                )
-              : null}
+            {user.user_id !== props.userId ? (
+              <FollowButton
+                size='small'
+                following={user.does_current_user_follow}
+                onFollow={() => props.onFollow(user.user_id)}
+                onUnfollow={() => props.onUnfollow(user.user_id)}
+                showIcon
+                stopPropagation
+              />
+            ) : null}
           </div>
         ))}
         {/* Only show the spacer if we're in fullscreen mode (no getScrollParent) */}

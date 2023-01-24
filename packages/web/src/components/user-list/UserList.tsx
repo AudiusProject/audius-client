@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import {
   ID,
@@ -43,9 +43,6 @@ type ConnectedUserListOwnProps = {
   beforeClickArtistName?: () => void
   getScrollParent?: () => HTMLElement | null
   onNavigateAway?: () => void
-
-  // Optional replacement for follow button
-  renderActionButton?: (userId: ID) => ReactNode
 }
 
 type ConnectedUserListProps = ConnectedUserListOwnProps &
@@ -108,7 +105,6 @@ const ConnectedUserList = (props: ConnectedUserListProps) => {
       getScrollParent={props.getScrollParent}
       tag={props.tag}
       onNavigateAway={props.onNavigateAway}
-      renderActionButton={props.renderActionButton}
     />
   )
 }

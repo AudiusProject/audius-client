@@ -58,7 +58,6 @@ import followingPageSagas from 'common/store/user-list/following/sagas'
 import mutualsPageSagas from 'common/store/user-list/mutuals/sagas'
 import notificationUsersPageSagas from 'common/store/user-list/notifications/sagas'
 import repostPageSagas from 'common/store/user-list/reposts/sagas'
-import searchPageSagas from 'common/store/user-list/search/sagas'
 import supportingPageSagas from 'common/store/user-list/supporting/sagas'
 import topSupportersPageSagas from 'common/store/user-list/top-supporters/sagas'
 import walletSagas from 'common/store/wallet/sagas'
@@ -168,7 +167,6 @@ export default function* rootSaga() {
     remixSettingsSagas(),
     repostPageSagas(),
     scrollLockSagas(),
-    searchPageSagas(),
     shareModalSagas(),
     overflowMenuSagas(),
     toastSagas(),
