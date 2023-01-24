@@ -1,6 +1,6 @@
 import type { CommonState, Nullable, Track } from '@audius/common'
 import { SquareSizes, averageColorSelectors } from '@audius/common'
-import { Dimensions, View } from 'react-native'
+import { Dimensions } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import { Shadow } from 'app/components/core'

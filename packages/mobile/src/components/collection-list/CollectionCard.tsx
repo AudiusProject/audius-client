@@ -8,7 +8,8 @@ import { Card } from 'app/components/card'
 import { CollectionImage } from 'app/components/image/CollectionImage'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { formatCount } from 'app/utils/format'
-import { ImageProps } from '../image/FastImage'
+
+import type { ImageProps } from '../image/FastImage'
 
 const formatPlaylistCardSecondaryText = (saves: number, tracks: number) => {
   const savesText = saves === 1 ? 'Favorite' : 'Favorites'

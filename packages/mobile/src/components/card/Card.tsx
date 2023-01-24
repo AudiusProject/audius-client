@@ -11,8 +11,8 @@ import UserBadges from 'app/components/user-badges/UserBadges'
 import type { StylesProp } from 'app/styles'
 import { flexRowCentered, makeStyles } from 'app/styles'
 
+import type { ImageProps } from '../image/FastImage'
 import { DownloadStatusIndicator } from '../offline-downloads'
-import { ImageProps } from '../image/FastImage'
 
 export type CardType = 'user' | 'collection'
 
