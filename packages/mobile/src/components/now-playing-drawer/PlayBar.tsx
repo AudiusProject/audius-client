@@ -1,7 +1,11 @@
 import { useCallback } from 'react'
 
 import type { Nullable, Track, User } from '@audius/common'
-import { FavoriteSource, tracksSocialActions } from '@audius/common'
+import {
+  SquareSizes,
+  FavoriteSource,
+  tracksSocialActions
+} from '@audius/common'
 import { TouchableOpacity, Animated, View, Dimensions } from 'react-native'
 import { useDispatch } from 'react-redux'
 
@@ -137,9 +141,13 @@ export const PlayBar = (props: PlayBarProps) => {
           style={styles.trackInfo}
           onPress={onPress}
         >
-          <View style={styles.artwork}>
-            {track && <TrackImage track={track} />}
-          </View>
+          {track ? (
+            <TrackImage
+              style={styles.artwork}
+              track={track}
+              size={SquareSizes.SIZE_150_BY_150}
+            />
+          ) : null}
           <View style={styles.trackText}>
             <Text numberOfLines={1} weight='bold' style={styles.title}>
               {track?.title ?? ''}

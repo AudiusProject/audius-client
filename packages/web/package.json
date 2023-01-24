@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@audius/common": "1.5.7",
-    "@audius/sdk": "1.0.41",
+    "@audius/sdk": "1.0.42",
     "@audius/stems": "1.5.7",
     "@coinbase/cbpay-js": "1.2.0",
     "@craco/craco": "7.0.0-alpha.3",
@@ -140,6 +140,7 @@
     "react-infinite-scroller": "1.2.4",
     "react-lottie": "1.2.3",
     "react-markdown": "4.3.1",
+    "react-merge-refs": "^2.0.1",
     "react-redux": "8.0.5",
     "react-router-dom": "5.3.4",
     "react-router-last-location": "2.0.1",
