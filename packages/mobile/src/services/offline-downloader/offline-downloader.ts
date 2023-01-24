@@ -259,7 +259,7 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
         uid: lineupTrack.uid,
         metadata: lineupTrack
       }
-      store.dispatch(cacheActions.add(Kind.TRACKS, [cacheTrack], false, true))
+      // store.dispatch(cacheActions.add(Kind.TRACKS, [cacheTrack], false, true))
 
       store.dispatch(loadTrack(lineupTrack))
       store.dispatch(completeDownload(trackIdStr))
@@ -299,7 +299,7 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
         uid: lineupTrack.uid,
         metadata: lineupTrack
       }
-      store.dispatch(cacheActions.add(Kind.TRACKS, [cacheTrack], false, true))
+      // store.dispatch(cacheActions.add(Kind.TRACKS, [cacheTrack], false, true))
       store.dispatch(loadTrack(lineupTrack))
       store.dispatch(completeDownload(trackIdStr))
       return
@@ -311,6 +311,10 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
   } catch (e) {
     throw failJob(e.message)
   } finally {
+    console.log('sleeping')
+    await new Promise((resolve) => {
+      setTimeout(resolve, 5000)
+    })
     if (shouldAbortDownload(downloadReason)) {
       removeTrackDownload(trackForDownload)
     }
