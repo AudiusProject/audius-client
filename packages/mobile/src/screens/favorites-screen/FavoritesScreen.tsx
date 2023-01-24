@@ -108,7 +108,10 @@ export const FavoritesScreen = () => {
         )}
       </ScreenHeader>
       <ScreenContent isOfflineCapable={isOfflineModeEnabled}>
-        {<TopTabNavigator screens={favoritesScreens} />}
+        <TopTabNavigator
+          screens={favoritesScreens}
+          screenOptions={{ lazy: true }}
+        />
       </ScreenContent>
     </Screen>
   )
