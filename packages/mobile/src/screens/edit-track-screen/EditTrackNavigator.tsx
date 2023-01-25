@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 
+import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 import { useAppScreenOptions } from 'app/screens/app-screen/useAppScreenOptions'
 
 import { EditTrackForm } from './EditTrackForm'
@@ -38,7 +38,10 @@ export const EditTrackNavigator = (props: EditTrackNavigatorProps) => {
       {isPremiumContentEnabled ? (
         <Stack.Screen name='Availability' component={TrackAvailabilityScreen} />
       ) : (
-        <Stack.Screen name='TrackVisibility' component={TrackVisibilityScreen} />
+        <Stack.Screen
+          name='TrackVisibility'
+          component={TrackVisibilityScreen}
+        />
       )}
       <Stack.Screen name='IsrcIswc' component={IsrcIswcScreen} />
       <Stack.Screen name='LicenseType' component={LicenseTypeScreen} />

@@ -40,8 +40,12 @@ export const TrackVisibilityField = (props: TrackVisibilityFieldProps) => {
   const values = [trackVisibilityLabel, ...fieldVisibilityLabels]
 
   const isPremiumContentEnabled = useIsPremiumContentEnabled()
-  const label = isPremiumContentEnabled ? messages.availability : messages.trackVisibility
-  const submenuScreenName = isPremiumContentEnabled ? 'Availability' : 'TrackVisibility'
+  const label = isPremiumContentEnabled
+    ? messages.availability
+    : messages.trackVisibility
+  const submenuScreenName = isPremiumContentEnabled
+    ? 'Availability'
+    : 'TrackVisibility'
 
   return (
     <ContextualSubmenu

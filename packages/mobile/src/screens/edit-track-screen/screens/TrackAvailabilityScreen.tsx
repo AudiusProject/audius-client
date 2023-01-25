@@ -1,12 +1,15 @@
+import { useState } from 'react'
+
+import { TrackAvailabilityType } from '@audius/common'
+
 import IconHidden from 'app/assets/images/iconHidden.svg'
 
-import { ListSelectionScreen } from './ListSelectionScreen'
-import { useState } from 'react'
-import { TrackAvailabilityType } from '@audius/common'
-import { PublicAvailability } from '../components/PublicAvailability'
-import { SpecialAccessAvailability } from '../components/SpecialAccessAvailability'
 import { CollectibleGatedAvailability } from '../components/CollectibleGatedAvailability'
 import { HiddenAvailability } from '../components/HiddenAvailability'
+import { PublicAvailability } from '../components/PublicAvailability'
+import { SpecialAccessAvailability } from '../components/SpecialAccessAvailability'
+
+import { ListSelectionScreen } from './ListSelectionScreen'
 
 const messages = {
   title: 'Availability',

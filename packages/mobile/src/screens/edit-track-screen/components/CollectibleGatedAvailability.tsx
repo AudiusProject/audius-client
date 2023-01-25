@@ -1,5 +1,6 @@
-import { Text } from 'app/components/core'
 import { View } from 'react-native'
+
+import { Text } from 'app/components/core'
 
 export const CollectibleGatedAvailability = () => {
   return (

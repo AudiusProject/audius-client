@@ -1,6 +1,6 @@
-import { Text } from 'app/components/core'
-import { Divider } from 'app/screens/settings-screen/Divider'
 import { View } from 'react-native'
+
+import { Text } from 'app/components/core'
 
 export const PublicAvailability = () => {
   return (
