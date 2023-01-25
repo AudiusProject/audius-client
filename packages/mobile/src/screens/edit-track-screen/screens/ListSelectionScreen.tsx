@@ -22,6 +22,7 @@ export type ListSelectionProps = {
   renderItem: ListRenderItem<ListSelectionData>
   onChange: (value: Nullable<string>) => void
   value: string
+  disableSearch?: boolean
 }
 
 const messages = {
@@ -67,7 +68,8 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
     renderItem: renderItemProp,
     data,
     onChange,
-    value
+    value,
+    disableSearch = false
   } = props
 
   const styles = useStyles()
@@ -111,12 +113,14 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
       style={styles.root}
     >
       <View style={styles.content}>
-        <TextInput
-          placeholder={searchText}
-          styles={{ root: styles.search, input: styles.searchInput }}
-          onChangeText={setFilterInput}
-          returnKeyType='search'
-        />
+        {!disableSearch && (
+          <TextInput
+            placeholder={searchText}
+            styles={{ root: styles.search, input: styles.searchInput }}
+            onChangeText={setFilterInput}
+            returnKeyType='search'
+          />
+        )}
         <FlatList
           renderItem={renderItem}
           ListHeaderComponent={<View style={styles.listHeader} />}
