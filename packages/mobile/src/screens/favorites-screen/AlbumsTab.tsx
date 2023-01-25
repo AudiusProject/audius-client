@@ -31,7 +31,6 @@ export const AlbumsTab = () => {
     isReachable,
     isOfflineModeEnabled
   ])
-  console.log(offlineDownloadStatus)
   const userAlbums = useProxySelector(
     (state: CommonState) =>
       getAccountCollections(state, filterValue).filter((collection) => {

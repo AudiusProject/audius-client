@@ -48,7 +48,6 @@ export const PlaylistsTab = () => {
             ) ?? []
 
           // Don't show a playlist in Offline Mode if it has at least one track but none of the tracks have been downloaded yet
-          console.log(offlineDownloadStatus)
           return (
             !collection.is_album &&
             (trackIds.length === 0 ||
