@@ -31,7 +31,10 @@ export const PlaylistsTab = () => {
   const [filterValue, setFilterValue] = useState('')
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const isReachable = useSelector(getIsReachable)
-  const offlineDownloadStatus = useSelector(getOfflineDownloadStatus)
+  const offlineDownloadStatus = useProxySelector(getOfflineDownloadStatus, [
+    isReachable,
+    isOfflineModeEnabled
+  ])
   const userPlaylists = useProxySelector(
     (state: CommonState) =>
       getAccountCollections(state, filterValue).filter((collection) => {
@@ -45,19 +48,21 @@ export const PlaylistsTab = () => {
             ) ?? []
 
           // Don't show a playlist in Offline Mode if it has at least one track but none of the tracks have been downloaded yet
+          console.log(offlineDownloadStatus)
           return (
-            trackIds.length === 0 ||
-            trackIds.some((t) => {
-              return (
-                offlineDownloadStatus[t.toString()] ===
-                OfflineTrackDownloadStatus.SUCCESS
-              )
-            })
+            !collection.is_album &&
+            (trackIds.length === 0 ||
+              trackIds.some((t) => {
+                return (
+                  offlineDownloadStatus[t.toString()] ===
+                  OfflineTrackDownloadStatus.SUCCESS
+                )
+              }))
           )
         }
         return true
       }),
-    [filterValue]
+    [filterValue, isReachable, isOfflineModeEnabled]
   )
 
   const handleNavigateToNewPlaylist = useCallback(() => {
