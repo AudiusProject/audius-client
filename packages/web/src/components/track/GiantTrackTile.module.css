@@ -272,6 +272,10 @@
   color: var(--secondary);
 }
 
+.collectibleName:hover {
+  cursor: pointer;
+}
+
 .lockedIcon,
 .unlockedIcon {
   margin-right: 8px;

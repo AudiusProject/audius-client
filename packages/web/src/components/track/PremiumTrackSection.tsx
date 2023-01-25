@@ -73,13 +73,15 @@ type PremiumTrackAccessSectionProps = {
   premiumConditions: PremiumConditions
   followee: Nullable<User>
   tippedUser: Nullable<User>
+  goToCollection: () => void
 }
 
 const LockedPremiumTrackSection = ({
   trackId,
   premiumConditions,
   followee,
-  tippedUser
+  tippedUser,
+  goToCollection
 }: PremiumTrackAccessSectionProps) => {
   const dispatch = useDispatch()
   const sendStatus = useSelector(getSendStatus)
@@ -127,19 +129,6 @@ const LockedPremiumTrackSection = ({
       dispatch(showRequiresAccountModal())
     }
   }, [dispatch, account, premiumConditions, trackId])
-
-  const handleGoToCollection = useCallback(() => {
-    const { chain, address, externalLink } =
-      premiumConditions.nft_collection ?? {}
-    if (chain === Chain.Eth && 'slug' in premiumConditions.nft_collection!) {
-      const url = `https://opensea.io/collection/${premiumConditions.nft_collection.slug}`
-      window.open(url, '_blank')
-    } else if (chain === Chain.Sol) {
-      const explorerUrl = `https://explorer.solana.com/address/${address}`
-      const url = externalLink ? new URL(externalLink).hostname : explorerUrl
-      window.open(url, '_blank')
-    }
-  }, [premiumConditions])
 
   const renderLockedDescription = useCallback(() => {
     if (premiumConditions.nft_collection) {
@@ -203,7 +192,7 @@ const LockedPremiumTrackSection = ({
       return (
         <Button
           text={messages.goToCollection}
-          onClick={handleGoToCollection}
+          onClick={goToCollection}
           rightIcon={<IconExternalLink />}
           type={ButtonType.PRIMARY_ALT}
           iconClassName={styles.buttonIcon}
@@ -242,7 +231,7 @@ const LockedPremiumTrackSection = ({
 
     // should not reach here
     return null
-  }, [premiumConditions, handleGoToCollection, handleFollow, handleSendTip])
+  }, [premiumConditions, goToCollection, handleFollow, handleSendTip])
 
   return (
     <div className={styles.premiumContentSectionLocked}>
@@ -261,7 +250,8 @@ const LockedPremiumTrackSection = ({
 const UnlockingPremiumTrackSection = ({
   premiumConditions,
   followee,
-  tippedUser
+  tippedUser,
+  goToCollection
 }: PremiumTrackAccessSectionProps) => {
   const renderUnlockingDescription = useCallback(() => {
     if (premiumConditions.nft_collection) {
@@ -269,7 +259,7 @@ const UnlockingPremiumTrackSection = ({
         <p>
           <LoadingSpinner className={styles.spinner} />
           {messages.aCollectibleFrom}
-          <span className={styles.collectibleName}>
+          <span className={styles.collectibleName} onClick={goToCollection}>
             &nbsp;{premiumConditions.nft_collection.name}&nbsp;
           </span>
           {messages.unlockingCollectibleGatedTrackSuffix}
@@ -312,7 +302,7 @@ const UnlockingPremiumTrackSection = ({
     }
     // should not reach here
     return null
-  }, [premiumConditions, followee, tippedUser])
+  }, [premiumConditions, followee, tippedUser, goToCollection])
 
   return (
     <div className={styles.premiumContentSectionLocked}>
@@ -332,7 +322,8 @@ const UnlockingPremiumTrackSection = ({
 const UnlockedPremiumTrackSection = ({
   premiumConditions,
   followee,
-  tippedUser
+  tippedUser,
+  goToCollection
 }: PremiumTrackAccessSectionProps) => {
   const renderUnlockedDescription = useCallback(() => {
     if (premiumConditions.nft_collection) {
@@ -340,7 +331,7 @@ const UnlockedPremiumTrackSection = ({
         <p>
           <IconVerifiedGreen className={styles.verifiedGreenIcon} />
           {messages.aCollectibleFrom}
-          <span className={styles.collectibleName}>
+          <span className={styles.collectibleName} onClick={goToCollection}>
             &nbsp;{premiumConditions.nft_collection.name}&nbsp;
           </span>
           {messages.unlockedCollectibleGatedTrackSuffix}
@@ -384,7 +375,7 @@ const UnlockedPremiumTrackSection = ({
 
     // should not reach here
     return null
-  }, [premiumConditions, followee, tippedUser])
+  }, [premiumConditions, followee, tippedUser, goToCollection])
 
   return (
     <div className={styles.premiumContentSectionUnlocked}>
@@ -439,6 +430,19 @@ export const PremiumTrackSection = ({
     [styles.hide]: isLoading
   }
 
+  const handleGoToCollection = useCallback(() => {
+    const { chain, address, externalLink } =
+      premiumConditions.nft_collection ?? {}
+    if (chain === Chain.Eth && 'slug' in premiumConditions.nft_collection!) {
+      const url = `https://opensea.io/collection/${premiumConditions.nft_collection.slug}`
+      window.open(url, '_blank')
+    } else if (chain === Chain.Sol) {
+      const explorerUrl = `https://explorer.solana.com/address/${address}`
+      const url = externalLink ? new URL(externalLink).hostname : explorerUrl
+      window.open(url, '_blank')
+    }
+  }, [premiumConditions])
+
   if (!isPremiumContentEnabled) return null
   if (!premiumConditions) return null
   if (!shouldDisplay) return null
@@ -451,6 +455,7 @@ export const PremiumTrackSection = ({
           premiumConditions={premiumConditions}
           followee={followee}
           tippedUser={tippedUser}
+          goToCollection={handleGoToCollection}
         />
       </div>
     )
@@ -464,6 +469,7 @@ export const PremiumTrackSection = ({
           premiumConditions={premiumConditions}
           followee={followee}
           tippedUser={tippedUser}
+          goToCollection={handleGoToCollection}
         />
       </div>
     )
@@ -476,6 +482,7 @@ export const PremiumTrackSection = ({
         premiumConditions={premiumConditions}
         followee={followee}
         tippedUser={tippedUser}
+        goToCollection={handleGoToCollection}
       />
     </div>
   )
