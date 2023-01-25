@@ -31,10 +31,7 @@ export const PlaylistsTab = () => {
   const [filterValue, setFilterValue] = useState('')
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const isReachable = useSelector(getIsReachable)
-  const offlineDownloadStatus = useProxySelector(getOfflineDownloadStatus, [
-    isReachable,
-    isOfflineModeEnabled
-  ])
+  const offlineDownloadStatus = useSelector(getOfflineDownloadStatus)
   const userPlaylists = useProxySelector(
     (state: CommonState) =>
       getAccountCollections(state, filterValue).filter((collection) => {
