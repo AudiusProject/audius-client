@@ -7,7 +7,8 @@ import {
   collectiblesSelectors,
   CommonState,
   Collectible,
-  Nullable
+  Nullable,
+  TrackAvailabilityType
 } from '@audius/common'
 import { IconArrow, IconCollectible } from '@audius/stems'
 import cn from 'classnames'
@@ -16,7 +17,7 @@ import { useSelector } from 'react-redux'
 import DropdownInput from 'components/data-entry/DropdownInput'
 
 import styles from './TrackAvailabilityModal.module.css'
-import { AvailabilityType, TrackAvailabilitySelectionProps } from './types'
+import { TrackAvailabilitySelectionProps } from './types'
 
 const { getUserId } = accountSelectors
 const { getUserCollectibles, getSolCollections } = collectiblesSelectors
@@ -183,7 +184,7 @@ export const CollectibleGatedAvailability = ({
         className={styles.availabilityRowContent}
         onClick={() => {
           if (updatePremiumContentFields) {
-            updatePremiumContentFields(null, AvailabilityType.COLLECTIBLE_GATED)
+            updatePremiumContentFields(null, TrackAvailabilityType.COLLECTIBLE_GATED)
           }
         }}
       >
@@ -232,7 +233,7 @@ export const CollectibleGatedAvailability = ({
                         slug: value
                       }
                     },
-                    AvailabilityType.COLLECTIBLE_GATED
+                    TrackAvailabilityType.COLLECTIBLE_GATED
                   )
                 } else if (solCollectionMap[value]) {
                   updatePremiumContentFields(
@@ -245,7 +246,7 @@ export const CollectibleGatedAvailability = ({
                         externalLink: solCollectionMap[value].externalLink
                       }
                     },
-                    AvailabilityType.COLLECTIBLE_GATED
+                    TrackAvailabilityType.COLLECTIBLE_GATED
                   )
                 }
               }}
