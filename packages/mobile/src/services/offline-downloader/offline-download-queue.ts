@@ -116,3 +116,11 @@ export const cancelQueuedDownloads = async (
   })
   queue.start()
 }
+
+// DEBUGGING
+global.queue = queue
+
+setInterval(async () => {
+  const jobs = await queue.getJobs()
+  console.log(jobs.length)
+}, 3000)
