@@ -2,9 +2,11 @@ import { useField } from 'formik'
 
 import type { ContextualSubmenuProps } from 'app/components/core'
 import { ContextualSubmenu } from 'app/components/core'
+import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 
 const messages = {
-  label: 'Track Visibility',
+  trackVisibility: 'Track Visibility',
+  availability: 'Availability',
   public: 'Public',
   hidden: 'Hidden',
   showGenre: 'Show Genre',
@@ -37,10 +39,14 @@ export const TrackVisibilityField = (props: TrackVisibilityFieldProps) => {
 
   const values = [trackVisibilityLabel, ...fieldVisibilityLabels]
 
+  const isPremiumContentEnabled = useIsPremiumContentEnabled()
+  const label = isPremiumContentEnabled ? messages.availability : messages.trackVisibility
+  const submenuScreenName = isPremiumContentEnabled ? 'Availability' : 'TrackVisibility'
+
   return (
     <ContextualSubmenu
-      label={messages.label}
-      submenuScreenName='TrackVisibility'
+      label={label}
+      submenuScreenName={submenuScreenName}
       value={values}
       {...props}
     />

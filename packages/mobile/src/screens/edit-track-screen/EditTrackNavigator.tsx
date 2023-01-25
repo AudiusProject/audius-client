@@ -1,4 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 
 import { useAppScreenOptions } from 'app/screens/app-screen/useAppScreenOptions'
 
@@ -10,7 +11,8 @@ import {
   RemixSettingsScreen,
   SelectGenreScreen,
   SelectMoodScreen,
-  TrackVisibilityScreen
+  TrackVisibilityScreen,
+  TrackAvailabilityScreen
 } from './screens'
 import type { EditTrackFormProps } from './types'
 
@@ -21,6 +23,7 @@ const screenOptionOverrides = { headerRight: () => null }
 type EditTrackNavigatorProps = EditTrackFormProps
 
 export const EditTrackNavigator = (props: EditTrackNavigatorProps) => {
+  const isPremiumContentEnabled = useIsPremiumContentEnabled()
   const screenOptions = useAppScreenOptions(screenOptionOverrides)
 
   return (
@@ -32,7 +35,11 @@ export const EditTrackNavigator = (props: EditTrackNavigatorProps) => {
       <Stack.Screen name='SelectMood' component={SelectMoodScreen} />
       <Stack.Screen name='RemixSettings' component={RemixSettingsScreen} />
       <Stack.Screen name='AdvancedOptions' component={AdvancedOptionsScreen} />
-      <Stack.Screen name='TrackVisibility' component={TrackVisibilityScreen} />
+      {isPremiumContentEnabled ? (
+        <Stack.Screen name='Availability' component={TrackAvailabilityScreen} />
+      ) : (
+        <Stack.Screen name='TrackVisibility' component={TrackVisibilityScreen} />
+      )}
       <Stack.Screen name='IsrcIswc' component={IsrcIswcScreen} />
       <Stack.Screen name='LicenseType' component={LicenseTypeScreen} />
     </Stack.Navigator>
