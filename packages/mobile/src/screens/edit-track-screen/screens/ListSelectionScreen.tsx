@@ -11,7 +11,7 @@ import { makeStyles } from 'app/styles'
 
 import { FormScreen } from '../components'
 
-export type ListSelectionData = { label: string; value: string }
+export type ListSelectionData = { label: string; value: string, disabled?: boolean }
 
 export type ListSelectionProps = {
   screenTitle: string
@@ -22,6 +22,7 @@ export type ListSelectionProps = {
   value: string
   searchText?: string
   disableSearch?: boolean
+  hideSelectionLabel?: boolean
 }
 
 const messages = {
@@ -68,7 +69,8 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
     onChange,
     value,
     searchText = '',
-    disableSearch = false
+    disableSearch = false,
+    hideSelectionLabel = false
   } = props
 
   const styles = useStyles()
@@ -78,11 +80,22 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
 
   const renderItem: ListRenderItem<ListSelectionData> = useCallback(
     (info) => {
-      const { value: itemValue } = info.item
+      const { value: itemValue, disabled } = info.item
       const isSelected = value === itemValue
 
       const handleChange = () => {
         onChange(isSelected ? null : itemValue)
+      }
+
+      if (disabled) {
+        return (
+          <View style={styles.listItem}>
+            <View style={styles.listItemContent}>
+              <RadioButton checked={isSelected} disabled={disabled} style={styles.radio} />
+              {renderItemProp(info)}
+            </View>
+          </View>
+        )
       }
 
       return (
@@ -91,7 +104,7 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
             <RadioButton checked={isSelected} style={styles.radio} />
             {renderItemProp(info)}
           </View>
-          {isSelected ? (
+          {isSelected && !hideSelectionLabel ? (
             <Text variant='body' color='secondary'>
               {messages.selected}
             </Text>

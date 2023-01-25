@@ -9,7 +9,7 @@ import { HiddenAvailability } from '../components/HiddenAvailability'
 import { PublicAvailability } from '../components/PublicAvailability'
 import { SpecialAccessAvailability } from '../components/SpecialAccessAvailability'
 
-import { ListSelectionScreen } from './ListSelectionScreen'
+import { ListSelectionData, ListSelectionScreen } from './ListSelectionScreen'
 
 const messages = {
   title: 'Availability',
@@ -28,22 +28,34 @@ const specialAccessAvailability = TrackAvailabilityType.SPECIAL_ACCESS
 const collectibleGatedAvailability = TrackAvailabilityType.COLLECTIBLE_GATED
 const hiddenAvailability = TrackAvailabilityType.HIDDEN
 
-const data = [
+const data: ListSelectionData[] = [
   { label: publicAvailability, value: publicAvailability },
   { label: specialAccessAvailability, value: specialAccessAvailability },
   { label: collectibleGatedAvailability, value: collectibleGatedAvailability },
   { label: hiddenAvailability, value: hiddenAvailability }
 ]
 
-const items = {
-  [publicAvailability]: <PublicAvailability />,
-  [specialAccessAvailability]: <SpecialAccessAvailability />,
-  [collectibleGatedAvailability]: <CollectibleGatedAvailability />,
-  [hiddenAvailability]: <HiddenAvailability />
-}
-
 export const TrackAvailabilityScreen = () => {
   const [availability, setAvailability] = useState(TrackAvailabilityType.PUBLIC)
+
+  const items = {
+    [publicAvailability]: <PublicAvailability
+      selected={true}
+      disabled={false}
+    />,
+    [specialAccessAvailability]: <SpecialAccessAvailability
+      selected={true}
+      disabled={false}
+    />,
+    [collectibleGatedAvailability]: <CollectibleGatedAvailability
+      selected={true}
+      disabled={false}
+    />,
+    [hiddenAvailability]: <HiddenAvailability
+      selected={true}
+      disabled={false}
+    />
+  }
 
   return (
     <ListSelectionScreen
@@ -54,6 +66,7 @@ export const TrackAvailabilityScreen = () => {
       value={availability}
       onChange={setAvailability}
       disableSearch
+      hideSelectionLabel
     />
   )
 }
