@@ -291,9 +291,8 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
   } catch (e) {
     throw failJob(e.message)
   } finally {
-    console.log('sleeping')
     await new Promise((resolve) => {
-      setTimeout(resolve, 5000)
+      setTimeout(resolve, 1000)
     })
     if (shouldAbortDownload(downloadReason)) {
       removeTrackDownload(trackForDownload)
