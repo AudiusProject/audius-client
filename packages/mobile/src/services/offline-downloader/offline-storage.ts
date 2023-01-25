@@ -265,3 +265,6 @@ export const readDirRec = async (path: string) => {
 }
 
 export const readDirRoot = async () => await readDirRec(downloadsRoot)
+
+// DEBUGGING
+console.log(`DownloadsRoot -`, downloadsRoot)
