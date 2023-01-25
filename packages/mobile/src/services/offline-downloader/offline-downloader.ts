@@ -12,12 +12,9 @@ import type {
 import {
   Variant,
   FavoriteSource,
-  Kind,
-  makeUid,
   encodeHashId,
   accountSelectors,
   cacheUsersSelectors,
-  cacheActions,
   collectionsSocialActions,
   reachabilitySelectors
 } from '@audius/common'
