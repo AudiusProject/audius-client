@@ -1,11 +1,12 @@
-import { View } from 'react-native'
-
 import IconHidden from 'app/assets/images/iconHidden.svg'
-import { Divider, Text } from 'app/components/core'
-import { makeStyles } from 'app/styles'
 
-import { FormScreen } from '../components'
-import { SwitchField } from '../fields'
+import { ListSelectionScreen } from './ListSelectionScreen'
+import { useState } from 'react'
+import { TrackAvailabilityType } from '@audius/common'
+import { PublicAvailability } from '../components/PublicAvailability'
+import { SpecialAccessAvailability } from '../components/SpecialAccessAvailability'
+import { CollectibleGatedAvailability } from '../components/CollectibleGatedAvailability'
+import { HiddenAvailability } from '../components/HiddenAvailability'
 
 const messages = {
   title: 'Availability',
@@ -19,38 +20,37 @@ const messages = {
   showPlayCount: 'Show Play Count'
 }
 
-const useStyles = makeStyles(({ spacing }) => ({
-  content: {
-    padding: spacing(6)
-  },
-  divider: {
-    marginTop: spacing(4),
-    marginHorizontal: spacing(-6)
-  }
-}))
+const publicAvailability = TrackAvailabilityType.PUBLIC
+const specialAccessAvailability = TrackAvailabilityType.SPECIAL_ACCESS
+const collectibleGatedAvailability = TrackAvailabilityType.COLLECTIBLE_GATED
+const hiddenAvailability = TrackAvailabilityType.HIDDEN
+
+const data = [
+  { label: publicAvailability, value: publicAvailability },
+  { label: specialAccessAvailability, value: specialAccessAvailability },
+  { label: collectibleGatedAvailability, value: collectibleGatedAvailability },
+  { label: hiddenAvailability, value: hiddenAvailability }
+]
+
+const items = {
+  [publicAvailability]: <PublicAvailability />,
+  [specialAccessAvailability]: <SpecialAccessAvailability />,
+  [collectibleGatedAvailability]: <CollectibleGatedAvailability />,
+  [hiddenAvailability]: <HiddenAvailability />
+}
 
 export const TrackAvailabilityScreen = () => {
-  const styles = useStyles()
+  const [availability, setAvailability] = useState(TrackAvailabilityType.PUBLIC)
 
   return (
-    <FormScreen title={messages.title} icon={IconHidden} variant='white'>
-      <View style={styles.content}>
-        <Text fontSize='large'>{messages.description}</Text>
-        <Divider style={styles.divider} />
-        <SwitchField name='is_unlisted' label={messages.hideTrack} />
-        <Divider style={styles.divider} />
-        <SwitchField name='field_visibility.genre' label={messages.showGenre} />
-        <SwitchField name='field_visibility.mood' label={messages.showMood} />
-        <SwitchField name='field_visibility.tags' label={messages.showTags} />
-        <SwitchField
-          name='field_visibility.share'
-          label={messages.showShareButton}
-        />
-        <SwitchField
-          name='field_visibility.play_count'
-          label={messages.showPlayCount}
-        />
-      </View>
-    </FormScreen>
+    <ListSelectionScreen
+      data={data}
+      renderItem={({ item }) => items[item.label]}
+      screenTitle={messages.title}
+      icon={IconHidden}
+      value={availability}
+      onChange={setAvailability}
+      disableSearch
+    />
   )
 }

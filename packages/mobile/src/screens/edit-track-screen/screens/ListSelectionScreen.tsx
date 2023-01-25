@@ -17,11 +17,11 @@ export type ListSelectionData = { label: string; value: string }
 export type ListSelectionProps = {
   screenTitle: string
   icon: ComponentType<SvgProps>
-  searchText: string
   data: ListSelectionData[]
   renderItem: ListRenderItem<ListSelectionData>
-  onChange: (value: Nullable<string>) => void
+  onChange: (value: any) => void
   value: string
+  searchText?: string
   disableSearch?: boolean
 }
 
@@ -64,11 +64,11 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
   const {
     screenTitle,
     icon,
-    searchText,
     renderItem: renderItemProp,
     data,
     onChange,
     value,
+    searchText = '',
     disableSearch = false
   } = props
 
