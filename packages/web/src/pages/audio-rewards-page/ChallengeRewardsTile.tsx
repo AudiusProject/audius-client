@@ -157,7 +157,7 @@ const RewardPanel = ({
         </div>
         <Button
           className={wm(
-            cn(styles.panelButton, hasDisbursed ? styles.completed : '')
+            cn(styles.panelButton, hasDisbursed ? styles.buttonCompleted : '')
           )}
           type={buttonType}
           text={buttonMessage}

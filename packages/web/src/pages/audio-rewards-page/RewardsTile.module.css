@@ -92,6 +92,10 @@
 
 .completed {
   background: var(--neutral-light-10);
+}
+
+.buttonCompleted {
+  background: var(--neutral-light-10);
   min-height: 38px;
 }
 
