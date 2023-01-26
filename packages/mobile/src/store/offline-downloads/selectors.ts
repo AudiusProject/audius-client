@@ -9,7 +9,7 @@ export const getOfflineDownloadStatus = (state: AppState) =>
   state.offlineDownloads.downloadStatus
 
 export const getTrackOfflineDownloadStatus =
-  (trackId?: string) => (state: AppState) =>
+  (trackId?: number) => (state: AppState) =>
     trackId ? state.offlineDownloads.downloadStatus[trackId] : null
 
 export const getIsCollectionMarkedForDownload =

@@ -20,7 +20,7 @@ import { OfflineTrackDownloadStatus } from 'app/store/offline-downloads/slice'
 const { getCollection } = cacheCollectionsSelectors
 
 type TrackDownloadIndicatorProps = {
-  trackId?: string
+  trackId?: number
   collectionId?: string
   statusOverride?: OfflineTrackDownloadStatus | null
   showNotDownloaded?: boolean
