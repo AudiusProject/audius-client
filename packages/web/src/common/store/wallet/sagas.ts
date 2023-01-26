@@ -179,54 +179,58 @@ function* fetchBalanceAsync() {
   const account = yield* select(getAccountUser)
   if (!account) return
 
-  // Opt out of balance refreshes if the balance
-  // is frozen due to a recent optimistic update
-  const isBalanceFrozen = yield* call(getIsBalanceFrozen)
-  if (isBalanceFrozen) return
+  try {
+    // Opt out of balance refreshes if the balance
+    // is frozen due to a recent optimistic update
+    const isBalanceFrozen = yield* call(getIsBalanceFrozen)
+    if (isBalanceFrozen) return
 
-  const localBalanceChange: ReturnType<typeof getLocalBalanceDidChange> =
-    yield* select(getLocalBalanceDidChange)
+    const localBalanceChange: ReturnType<typeof getLocalBalanceDidChange> =
+      yield* select(getLocalBalanceDidChange)
 
-  const [currentEthAudioWeiBalance, currentSolAudioWeiBalance] = yield* all([
-    call(
-      [walletClient, 'getCurrentBalance'],
+    const [currentEthAudioWeiBalance, currentSolAudioWeiBalance] = yield* all([
+      call(
+        [walletClient, 'getCurrentBalance'],
+        /* bustCache */ localBalanceChange
+      ),
+      call([walletClient, 'getCurrentWAudioBalance'])
+    ])
+
+    const associatedWalletBalance: BNWei = yield* call(
+      [walletClient, 'getAssociatedWalletBalance'],
+      account.user_id,
       /* bustCache */ localBalanceChange
-    ),
-    call([walletClient, 'getCurrentWAudioBalance'])
-  ])
-
-  const associatedWalletBalance: BNWei = yield* call(
-    [walletClient, 'getAssociatedWalletBalance'],
-    account.user_id,
-    /* bustCache */ localBalanceChange
-  )
-
-  const audioWeiBalance = currentEthAudioWeiBalance.add(
-    currentSolAudioWeiBalance
-  ) as BNWei
-
-  const useSolAudio = yield* call(
-    getFeatureEnabled,
-    FeatureFlags.ENABLE_SPL_AUDIO
-  )
-  if (useSolAudio) {
-    const totalBalance = audioWeiBalance.add(associatedWalletBalance) as BNWei
-    yield* put(
-      setBalance({
-        balance: weiToString(audioWeiBalance),
-        totalBalance: weiToString(totalBalance)
-      })
     )
-  } else {
-    const totalBalance = currentEthAudioWeiBalance.add(
-      associatedWalletBalance
+
+    const audioWeiBalance = currentEthAudioWeiBalance.add(
+      currentSolAudioWeiBalance
     ) as BNWei
-    yield* put(
-      setBalance({
-        balance: weiToString(currentEthAudioWeiBalance),
-        totalBalance: weiToString(totalBalance)
-      })
+
+    const useSolAudio = yield* call(
+      getFeatureEnabled,
+      FeatureFlags.ENABLE_SPL_AUDIO
     )
+    if (useSolAudio) {
+      const totalBalance = audioWeiBalance.add(associatedWalletBalance) as BNWei
+      yield* put(
+        setBalance({
+          balance: weiToString(audioWeiBalance),
+          totalBalance: weiToString(totalBalance)
+        })
+      )
+    } else {
+      const totalBalance = currentEthAudioWeiBalance.add(
+        associatedWalletBalance
+      ) as BNWei
+      yield* put(
+        setBalance({
+          balance: weiToString(currentEthAudioWeiBalance),
+          totalBalance: weiToString(totalBalance)
+        })
+      )
+    }
+  } catch (err) {
+    console.error(err)
   }
 }
 
