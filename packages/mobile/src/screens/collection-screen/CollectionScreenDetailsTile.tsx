@@ -72,6 +72,7 @@ type CollectionScreenDetailsTileProps = {
   isPrivate?: boolean
   isPublishing?: boolean
   extraDetails?: DetailsTileDetail[]
+  collectionId: number
 } & Omit<
   DetailsTileProps,
   'descriptionLinkPressSource' | 'details' | 'headerText' | 'onPressPlay'
