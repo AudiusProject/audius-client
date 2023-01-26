@@ -130,7 +130,7 @@ export const DownloadToggle = ({
       if (!collection && !isAllFavoritesToggle) return
       if (isDownloadEnabled) {
         isAllFavoritesToggle
-          ? downloadAllFavorites()
+          ? downloadAllFavorites(tracksForDownload)
           : collection &&
             downloadCollection(collection, /* isFavoritesDownload */ false)
       } else {

@@ -67,7 +67,9 @@ const { getUserFromCollection } = cacheUsersSelectors
 const { getIsReachable } = reachabilitySelectors
 export const DOWNLOAD_REASON_FAVORITES = 'favorites'
 
-export const downloadAllFavorites = async () => {
+export const downloadAllFavorites = async (
+  tracksForDownload: TrackForDownload[]
+) => {
   const state = store.getState()
   const currentUserId = getUserId(state)
   if (!currentUserId) return
@@ -75,24 +77,10 @@ export const downloadAllFavorites = async () => {
   store.dispatch(
     addCollection({
       collectionId: DOWNLOAD_REASON_FAVORITES,
-      isFavoritesDownload: false
+      isFavoritesDownload: false // favorites is not a subset of favorites
     })
   )
   writeFavoritesCollectionJson()
-
-  const allFavoritedTracks = await fetchAllFavoritedTracks(currentUserId)
-  const tracksForDownload: TrackForDownload[] = allFavoritedTracks.map(
-    ({ trackId, favoriteCreatedAt }) => ({
-      trackId,
-      downloadReason: {
-        is_from_favorites: true,
-        collection_id: DOWNLOAD_REASON_FAVORITES,
-        favorite_created_at: favoriteCreatedAt
-      },
-      favoriteCreatedAt
-    })
-  )
-
   batchDownloadTrack(tracksForDownload)
 
   // @ts-ignore state is CommonState
