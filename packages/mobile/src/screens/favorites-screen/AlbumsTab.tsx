@@ -1,6 +1,5 @@
 import { useState } from 'react'
 
-import type { CommonState } from '@audius/common'
 import { useProxySelector, reachabilitySelectors } from '@audius/common'
 import { useSelector } from 'react-redux'
 
