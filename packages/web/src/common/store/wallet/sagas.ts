@@ -12,7 +12,8 @@ import {
   walletSelectors,
   InputSendDataAction,
   walletActions,
-  getContext
+  getContext,
+  ErrorLevel
 } from '@audius/common'
 import type { AudiusLibs } from '@audius/sdk'
 import BN from 'bn.js'
@@ -20,6 +21,7 @@ import { all, call, put, take, takeEvery, select } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
 import { SETUP_BACKEND_SUCCEEDED } from 'common/store/backend/actions'
+import { reportToSentry } from 'store/errors/reportToSentry'
 import { waitForWrite } from 'utils/sagaHelpers'
 
 const ATA_SIZE = 165 // Size allocated for an associated token account
@@ -231,6 +233,11 @@ function* fetchBalanceAsync() {
     }
   } catch (err) {
     console.error(err)
+    yield* call(reportToSentry, {
+      level: ErrorLevel.Error,
+      error: err as Error,
+      additionalInfo: { user_id: account.user_id }
+    })
   }
 }
 
