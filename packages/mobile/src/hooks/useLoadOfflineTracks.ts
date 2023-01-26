@@ -153,12 +153,19 @@ export const useOfflineCollectionLineup = (
   })
 
   const fetchLocalContent = useCallback(() => {
+    const collectionTrackIds = new Set(
+      collection?.playlist_contents?.track_ids?.map(
+        (trackData) => trackData.track
+      ) ?? []
+    )
+
     if (isOfflineModeEnabled && collectionId) {
       const lineupTracks = Object.values(offlineTracks)
-        .filter((track) =>
-          track.offline?.reasons_for_download.some(
-            (reason) => reason.collection_id === collectionId.toString()
-          )
+        .filter(
+          (track) =>
+            track.offline?.reasons_for_download.some(
+              (reason) => reason.collection_id === collectionId.toString()
+            ) || collectionTrackIds.has(track.track_id)
         )
         .map((track) => ({
           uid: makeUid(Kind.TRACKS, track.track_id),
@@ -174,7 +181,7 @@ export const useOfflineCollectionLineup = (
       store.dispatch(cacheActions.add(Kind.TRACKS, cacheTracks, false, true))
 
       if (collectionId === DOWNLOAD_REASON_FAVORITES) {
-        // Reorder lineup tracks accorinding to favorite time
+        // Reorder lineup tracks according to favorite time
         const sortedTracks = orderBy(
           lineupTracks,
           (track) => track.offline?.favorite_created_at,

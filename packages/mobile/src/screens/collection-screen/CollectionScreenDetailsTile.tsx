@@ -92,6 +92,7 @@ const recordPlay = (id: Maybe<number>, play = true) => {
 export const CollectionScreenDetailsTile = ({
   description,
   extraDetails = [],
+  collectionId,
   isAlbum,
   isPrivate,
   isPublishing,
@@ -106,7 +107,6 @@ export const CollectionScreenDetailsTile = ({
 
   const collection = useSelector(getCollection)
   const collectionUid = useSelector(getCollectionUid)
-  const collectionId = useSelector(getCollectionId)
   const userUid = useSelector(getUserUid)
   const { entries, status } = useProxySelector(getTracksLineup, [isReachable])
   const tracksLoading = status === Status.LOADING
