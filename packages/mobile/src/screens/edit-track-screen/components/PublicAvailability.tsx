@@ -4,6 +4,8 @@ import { Text } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 import IconVisibilityPublic from 'app/assets/images/iconVisibilityPublic.svg'
 import { useColor } from 'app/utils/theme'
+import { useEffect } from 'react'
+import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
 
 const messages = {
   public: 'Public (Default)',
@@ -64,6 +66,14 @@ export const PublicAvailability = ({ selected, disabled = false }: TrackAvailabi
     : disabled
       ? neutralLight4
       : neutral
+
+  const { reset: resetTrackAvailabilityFields } = useSetTrackAvailabilityFields()
+
+  useEffect(() => {
+    if (selected) {
+      resetTrackAvailabilityFields()
+    }
+  }, [selected])
 
   return (
     <View style={styles.root}>

@@ -1,10 +1,12 @@
 import { View } from 'react-native'
 
-import { Divider, Text } from 'app/components/core'
+import { Text } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 import IconHidden from 'app/assets/images/iconHidden.svg'
 import { SwitchField } from '../fields'
 import { useColor } from 'app/utils/theme'
+import { useEffect } from 'react'
+import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
 
 const messages = {
   hidden: 'Hidden',
@@ -86,6 +88,14 @@ export const HiddenAvailability = ({ selected, disabled = false }: TrackAvailabi
     ? neutralLight4
     : neutral
 
+  const { set: setTrackAvailabilityFields } = useSetTrackAvailabilityFields()
+
+  useEffect(() => {
+    if (selected) {
+      setTrackAvailabilityFields({ 'is_unlisted': true }, true)
+    }
+  }, [selected])
+
   return (
     <View style={styles.root}>
       <View style={styles.titleContainer}>
@@ -101,7 +111,6 @@ export const HiddenAvailability = ({ selected, disabled = false }: TrackAvailabi
       </View>
       {selected && (
         <View style={styles.selection}>
-          {/* <SwitchField name='is_unlisted' label={messages.hideTrack} style={styles.switch} /> */}
           <SwitchField name='field_visibility.genre' label={messages.showGenre} style={styles.firstSwitch} />
           <SwitchField name='field_visibility.mood' label={messages.showMood} style={styles.switch} />
           <SwitchField name='field_visibility.tags' label={messages.showTags} style={styles.switch} />

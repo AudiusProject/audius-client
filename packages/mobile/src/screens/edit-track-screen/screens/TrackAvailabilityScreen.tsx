@@ -37,32 +37,33 @@ const data: ListSelectionData[] = [
   { label: hiddenAvailability, value: hiddenAvailability }
 ]
 
+let i = 1
 export const TrackAvailabilityScreen = () => {
   const isSpecialAccessGateEnabled = useIsSpecialAccessGateEnabled()
   const isNFTGateEnabled = useIsNFTGateEnabled()
-  const [availability, setAvailability] = useState(TrackAvailabilityType.PUBLIC)
+  const [availability, setAvailability] = useState<TrackAvailabilityType>(TrackAvailabilityType.PUBLIC)
 
   const items = {
     [publicAvailability]: <PublicAvailability
-      selected={true}
+      selected={availability === TrackAvailabilityType.PUBLIC}
       disabled={false}
     />,
     [specialAccessAvailability]: isSpecialAccessGateEnabled
       ? (
         <SpecialAccessAvailability
-          selected={true}
+          selected={availability === TrackAvailabilityType.SPECIAL_ACCESS}
           disabled={false}
         />
       ) : null,
     [collectibleGatedAvailability]: isNFTGateEnabled
       ? (
         <CollectibleGatedAvailability
-          selected={true}
+          selected={availability === TrackAvailabilityType.COLLECTIBLE_GATED}
           disabled={false}
         />
       ) : null,
     [hiddenAvailability]: <HiddenAvailability
-      selected={true}
+      selected={availability === TrackAvailabilityType.HIDDEN}
       disabled={false}
     />
   }

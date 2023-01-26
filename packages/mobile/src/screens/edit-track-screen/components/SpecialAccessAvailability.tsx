@@ -4,6 +4,8 @@ import { Text } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
 import { useColor } from 'app/utils/theme'
+import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
+import { useEffect } from 'react'
 
 const messages = {
   specialAccess: 'Special Access',
@@ -64,6 +66,19 @@ export const SpecialAccessAvailability = ({ selected, disabled = false }: TrackA
     : disabled
       ? neutralLight4
       : neutral
+
+  const { set: setTrackAvailabilityFields } = useSetTrackAvailabilityFields()
+
+  useEffect(() => {
+    if (selected) {
+      setTrackAvailabilityFields({
+        'is_premium': true,
+        'premium_conditions': { follow_user_id: 1 }
+      },
+        true
+      )
+    }
+  }, [selected])
 
   return (
     <View style={styles.root}>

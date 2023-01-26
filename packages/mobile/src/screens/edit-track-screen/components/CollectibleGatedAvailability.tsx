@@ -5,6 +5,8 @@ import { makeStyles } from 'app/styles'
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
 import { useColor } from 'app/utils/theme'
 import IconArrow from 'app/assets/images/iconArrow.svg'
+import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
+import { useEffect } from 'react'
 
 const messages = {
   collectibleGated: 'Collectible Gated',
@@ -79,6 +81,19 @@ export const CollectibleGatedAvailability = ({ selected, disabled = false }: Tra
     : disabled
       ? neutralLight4
       : neutral
+
+  const { set: setTrackAvailabilityFields } = useSetTrackAvailabilityFields()
+
+  useEffect(() => {
+    if (selected) {
+      setTrackAvailabilityFields({
+        'is_premium': true,
+        'premium_conditions': { nft_collection: undefined }
+      },
+        true
+      )
+    }
+  }, [selected])
 
   return (
     <View style={styles.root}>
