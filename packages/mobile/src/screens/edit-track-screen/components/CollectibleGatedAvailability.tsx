@@ -1,16 +1,21 @@
 import { View } from 'react-native'
 
-import { Text } from 'app/components/core'
+import { Link, Text } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
+import { useColor } from 'app/utils/theme'
+import IconArrow from 'app/assets/images/iconArrow.svg'
 
 const messages = {
   collectibleGated: 'Collectible Gated',
   collectibleGatedSubtitle:
-    'Users who own a digital collectible matching your selection will have access to your track. Collectible gated content does not appear on trending or in user feeds.'
+    'Users who own a digital collectible matching your selection will have access to your track. Collectible gated content does not appear on trending or in user feeds.',
+  learnMore: 'Learn More'
 }
 
-const useStyles = makeStyles(({ spacing, palette }) => ({
+const LEARN_MORE_URL = ''
+
+const useStyles = makeStyles(({ typography, spacing, palette }) => ({
   root: {
     width: spacing(76)
   },
@@ -46,6 +51,17 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
   },
   subtitle: {
     color: palette.neutral
+  },
+  learnMore: {
+    marginTop: spacing(4),
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  learnMoreText: {
+    marginRight: spacing(0.5),
+    fontFamily: typography.fontByWeight.bold,
+    fontSize: typography.fontSize.small,
+    color: palette.secondary
   }
 }))
 
@@ -56,6 +72,7 @@ type TrackAvailabilitySelectionProps = {
 
 export const CollectibleGatedAvailability = ({ selected, disabled = false }: TrackAvailabilitySelectionProps) => {
   const styles = useStyles()
+  const secondary = useColor('secondary')
 
   const titleStyles: object[] = [styles.title]
   if (selected) {
@@ -84,6 +101,12 @@ export const CollectibleGatedAvailability = ({ selected, disabled = false }: Tra
           {messages.collectibleGatedSubtitle}
         </Text>
       </View>
+      <Link url={LEARN_MORE_URL} style={styles.learnMore}>
+        <Text style={styles.learnMoreText}>
+          {messages.learnMore}
+        </Text>
+        <IconArrow fill={secondary} width={16} height={16} />
+      </Link>
     </View>
   )
 }
