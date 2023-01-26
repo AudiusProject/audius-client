@@ -10,6 +10,8 @@ import { PublicAvailability } from '../components/PublicAvailability'
 import { SpecialAccessAvailability } from '../components/SpecialAccessAvailability'
 
 import { ListSelectionData, ListSelectionScreen } from './ListSelectionScreen'
+import { useIsSpecialAccessGateEnabled } from 'app/hooks/useIsSpecialAccessGateEnabled'
+import { useIsNFTGateEnabled } from 'app/hooks/useIsNFTGateEnabled'
 
 const messages = {
   title: 'Availability',
@@ -36,6 +38,8 @@ const data: ListSelectionData[] = [
 ]
 
 export const TrackAvailabilityScreen = () => {
+  const isSpecialAccessGateEnabled = useIsSpecialAccessGateEnabled()
+  const isNFTGateEnabled = useIsNFTGateEnabled()
   const [availability, setAvailability] = useState(TrackAvailabilityType.PUBLIC)
 
   const items = {
@@ -43,14 +47,20 @@ export const TrackAvailabilityScreen = () => {
       selected={true}
       disabled={false}
     />,
-    [specialAccessAvailability]: <SpecialAccessAvailability
-      selected={true}
-      disabled={false}
-    />,
-    [collectibleGatedAvailability]: <CollectibleGatedAvailability
-      selected={true}
-      disabled={false}
-    />,
+    [specialAccessAvailability]: isSpecialAccessGateEnabled
+      ? (
+        <SpecialAccessAvailability
+          selected={true}
+          disabled={false}
+        />
+      ) : null,
+    [collectibleGatedAvailability]: isNFTGateEnabled
+      ? (
+        <CollectibleGatedAvailability
+          selected={true}
+          disabled={false}
+        />
+      ) : null,
     [hiddenAvailability]: <HiddenAvailability
       selected={true}
       disabled={false}
