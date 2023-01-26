@@ -289,7 +289,8 @@ const PlaylistCardLineup = ({
             playlistPage(
               playlist.ownerHandle,
               playlist.playlist_name,
-              playlist.playlist_id
+              playlist.playlist_id,
+              playlist.permalink
             )
           )
           updatePlaylistLastViewedAt(playlist.playlist_id)

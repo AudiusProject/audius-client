@@ -121,6 +121,7 @@ type CollectionPageProps = OwnProps &
 
 type CollectionPageState = {
   filterText: string
+  pathname: string
   initialOrder: string[] | null
   playlistId: number | null
   reordering: string[] | null
@@ -138,6 +139,7 @@ class CollectionPage extends Component<
     filterText: '',
     initialOrder: null,
     playlistId: null,
+    pathname: this.props.pathname,
     // For drag + drop reordering
     reordering: null,
     allowReordering: true,
@@ -179,6 +181,7 @@ class CollectionPage extends Component<
       smartCollection,
       tracks,
       pathname,
+      collectionPermalink,
       fetchCollectionSucceeded,
       type,
       playlistUpdates,
@@ -219,7 +222,6 @@ class CollectionPage extends Component<
     }
 
     const params = parseCollectionRoute(pathname)
-
     if (!params) return
     if (status === Status.ERROR) {
       if (
@@ -247,10 +249,6 @@ class CollectionPage extends Component<
       const collectionId = Uid.fromString(metadata._moved).id
       // TODO: Put fetch collection succeeded and then replace route
       fetchCollectionSucceeded(collectionId, metadata._moved, userUid)
-      const newPath = pathname.replace(
-        `${metadata.playlist_id}`,
-        collectionId.toString()
-      )
       this.setState(
         {
           playlistId: collectionId,
@@ -258,7 +256,7 @@ class CollectionPage extends Component<
           reordering: null
         },
         () => {
-          this.props.replaceRoute(newPath)
+          this.props.replaceRoute(collectionPermalink)
         }
       )
     }
@@ -272,7 +270,6 @@ class CollectionPage extends Component<
       if (params) {
         const { collectionId, title, collectionType, handle, permalink } =
           params
-        const newCollectionName = formatUrlName(metadata.playlist_name)
 
         const routeLacksCollectionInfo =
           (title === null || handle === null || collectionType === null) &&
@@ -283,19 +280,22 @@ class CollectionPage extends Component<
           const newPath =
             metadata.is_album && collectionId
               ? albumPage(user!.handle, metadata.playlist_name, collectionId)
-              : playlistPage(user!.handle, metadata.playlist_name, collectionId)
+              : playlistPage(
+                  user!.handle,
+                  metadata.playlist_name,
+                  collectionId,
+                  metadata.permalink
+                )
           this.props.replaceRoute(newPath)
         } else {
-          // Id matches or temp id matches
-          const idMatches =
-            collectionId === metadata.playlist_id ||
-            (metadata._temp && `${collectionId}` === `${metadata.playlist_id}`)
-          // Check that the playlist name hasn't changed. If so, update url.
-          if (idMatches && title) {
-            if (newCollectionName !== title) {
-              const newPath = pathname.replace(title, newCollectionName)
-              this.props.replaceRoute(newPath)
-            }
+          if (
+            pathname === this.state.pathname &&
+            prevMetadata?.playlist_id === metadata.playlist_id &&
+            collectionPermalink &&
+            collectionPermalink !== pathname
+          ) {
+            this.setState({ pathname: collectionPermalink })
+            this.props.replaceRoute(collectionPermalink)
           }
         }
       }
@@ -346,7 +346,6 @@ class CollectionPage extends Component<
 
   fetchCollection = (pathname: string, forceFetch = false) => {
     const params = parseCollectionRoute(pathname)
-
     if (params?.collectionId) {
       const { collectionId } = params
       if (forceFetch || collectionId !== this.state.playlistId) {
@@ -748,6 +747,7 @@ class CollectionPage extends Component<
       playlistId: metadata?.playlist_id,
       userName: user?.name,
       userHandle: user?.handle,
+      permalink: metadata?.permalink,
       isAlbum: metadata?.is_album
     })
 
@@ -756,7 +756,7 @@ class CollectionPage extends Component<
       description,
       canonicalUrl,
       structuredData,
-      playlistId: playlistId!,
+      playlistId: playlistId ?? metadata?.playlist_id,
       allowReordering,
       playing,
       type,

@@ -129,7 +129,8 @@ const ConnectedPlaylistTile = memo(
         : playlistPage(
             user.handle,
             collection.playlist_name,
-            collection.playlist_id
+            collection.playlist_id,
+            collection.permalink
           )
     }, [collection, user])
 

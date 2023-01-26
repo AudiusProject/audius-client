@@ -102,7 +102,12 @@ class ConnectedSearchBar extends Component {
         (p) =>
           value ===
           (p.user
-            ? playlistPage(p.user.handle, p.playlist_name, p.playlist_id)
+            ? playlistPage(
+                p.user.handle,
+                p.playlist_name,
+                p.playlist_id,
+                p.permalink
+              )
             : '')
       )
       if (selectedPlaylist)
@@ -181,7 +186,8 @@ class ConnectedSearchBar extends Component {
                 ? playlistPage(
                     playlist.user.handle,
                     playlist.playlist_name,
-                    playlist.playlist_id
+                    playlist.playlist_id,
+                    playlist.permalink
                   )
                 : '',
               id: playlist.playlist_id,

@@ -206,7 +206,8 @@ const ExplorePage = ({
         : playlistPage(
             playlist.user.handle,
             playlist.playlist_name,
-            playlist.playlist_id
+            playlist.playlist_id,
+            playlist.permalink
           )
 
       return (

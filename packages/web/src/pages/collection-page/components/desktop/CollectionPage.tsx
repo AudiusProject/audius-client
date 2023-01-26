@@ -111,6 +111,7 @@ const CollectionPage = ({
   playing,
   type,
   collection: { status, metadata, user },
+  collection,
   columns,
   tracks,
   userId,

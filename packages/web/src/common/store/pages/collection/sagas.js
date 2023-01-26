@@ -41,7 +41,9 @@ function* watchFetchCollection() {
       yield put(collectionActions.fetchCollectionFailed())
       return
     }
-    const collection = collections[collectionId]
+    const collection = permalink
+      ? collections[permalink]
+      : collections[collectionId]
     const userUid = makeUid(Kind.USERS, collection.playlist_owner_id)
     const collectionUid = collectionUids[collectionId]
     if (collection) {

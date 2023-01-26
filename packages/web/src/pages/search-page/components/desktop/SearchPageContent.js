@@ -177,7 +177,8 @@ class SearchPageContent extends Component {
           playlistPage(
             playlist.user.handle,
             playlist.playlist_name,
-            playlist.playlist_id
+            playlist.playlist_id,
+            playlist.permalink
           )
         )
         recordSearchResultClick({
@@ -203,7 +204,8 @@ class SearchPageContent extends Component {
           link={fullPlaylistPage(
             playlist.user.handle,
             playlist.playlist_name,
-            playlist.playlist_id
+            playlist.playlist_id,
+            playlist.permalink
           )}
           primaryText={playlist.playlist_name}
           firesOnClick={false}

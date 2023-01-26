@@ -111,12 +111,14 @@ export const getCollectionPageSEOFields = ({
   playlistId,
   userName,
   userHandle,
+  permalink,
   isAlbum
 }: {
   playlistName?: string
   playlistId?: number
   userName?: string
   userHandle?: string
+  permalink?: string
   isAlbum?: boolean
 }) => {
   if (!playlistName || !playlistId || !userName || !userHandle) return {}
@@ -127,7 +129,7 @@ export const getCollectionPageSEOFields = ({
   )
   const canonicalUrl = isAlbum
     ? fullAlbumPage(userHandle, playlistName, playlistId)
-    : fullPlaylistPage(userHandle, playlistName, playlistId)
+    : fullPlaylistPage(userHandle, playlistName, playlistId, permalink)
   const structuredData = {
     '@context': 'http://schema.googleapis.com/',
     '@type': 'MusicAlbum',

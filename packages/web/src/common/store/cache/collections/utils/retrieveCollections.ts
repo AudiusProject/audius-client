@@ -256,7 +256,6 @@ export function* retrieveCollections(
     retrieveFromSource: function* (ids: ID[]) {
       const audiusBackendInstance = yield* getContext('audiusBackendInstance')
       let metadatas
-
       if (ids.length === 1) {
         metadatas = yield* call(retrieveCollection, { playlistId: ids[0] })
       } else {

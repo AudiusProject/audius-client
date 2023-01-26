@@ -83,7 +83,8 @@ const ConnectedMobileOverflowModal = ({
   handle,
   artistName,
   title,
-  permalink,
+  permalink, // trackPermalink
+  playlistPermalink,
   isAlbum,
   shareCollection,
   repostTrack,
@@ -175,12 +176,11 @@ const ConnectedMobileOverflowModal = ({
           onUnfavorite: () => unsaveCollection(id as ID),
           onShare: () => shareCollection(id as ID),
           onVisitArtistPage: () => visitArtistPage(handle),
-          onVisitCollectionPage: () =>
-            (isAlbum ? visitAlbumPage : visitPlaylistPage)(
-              id as ID,
-              handle,
-              title
-            ),
+          onVisitCollectionPage: () => {
+            return isAlbum
+              ? visitAlbumPage(id as ID, handle, title)
+              : visitPlaylistPage(id as ID, handle, title, playlistPermalink)
+          },
           onVisitCollectiblePage: () =>
             visitCollectiblePage(handle, id as string),
           onEditPlaylist: isAlbum ? () => {} : () => editPlaylist(id as ID),
@@ -253,6 +253,7 @@ const getAdditionalInfo = ({
   artistName?: string
   title?: string
   permalink?: string
+  playlistPermalink?: string
   isAlbum?: boolean
   notification?: Notification
   ownerId?: ID
@@ -297,7 +298,8 @@ const getAdditionalInfo = ({
         handle: user.handle,
         artistName: user.name,
         title: col.playlist_name,
-        isAlbum: col.is_album
+        isAlbum: col.is_album,
+        playlistPermalink: col.permalink
       }
     }
     case OverflowSource.PROFILE: {
@@ -383,8 +385,12 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     visitPlaylistPage: (
       playlistId: ID,
       handle: string,
-      playlistTitle: string
-    ) => dispatch(pushRoute(playlistPage(handle, playlistTitle, playlistId))),
+      playlistTitle: string,
+      permalink: string
+    ) =>
+      dispatch(
+        pushRoute(playlistPage(handle, playlistTitle, playlistId, permalink))
+      ),
     visitAlbumPage: (albumId: ID, handle: string, albumTitle: string) =>
       dispatch(pushRoute(albumPage(handle, albumTitle, albumId)))
   }

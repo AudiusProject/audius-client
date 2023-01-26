@@ -351,6 +351,7 @@ export function* saveCollectionAsync(
       id: collection.playlist_id,
       name: collection.playlist_name,
       is_album: collection.is_album,
+      permalink: collection.permalink,
       user: { id: user.user_id, handle: user.handle }
     })
   )
@@ -538,7 +539,8 @@ export function* watchShareCollection() {
         : playlistPage(
             user.handle,
             collection.playlist_name,
-            collection.playlist_id
+            collection.playlist_id,
+            collection.permalink
           )
 
       const share = yield* getContext('share')

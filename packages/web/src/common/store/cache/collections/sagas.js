@@ -128,6 +128,7 @@ function* createPlaylistAsync(action) {
       id: playlist.playlist_id,
       name: playlist.playlist_name,
       isAlbum: playlist.is_album,
+      permalink: playlist.permalink,
       user: { id: userId, handle: user.handle }
     })
   )
@@ -228,6 +229,7 @@ function* confirmCreatePlaylist(uid, userId, formFields, source) {
             // may have edited the name before we got the confirmed result back.
             name: reformattedPlaylist.playlist_name,
             isAlbum: confirmedPlaylist.is_album,
+            permalink: confirmedPlaylist.permalink,
             user: {
               id: user.user_id,
               handle: user.handle
@@ -1080,6 +1082,7 @@ function* confirmDeleteAlbum(playlistId, trackIds, userId) {
               id: playlist.playlist_id,
               name: playlist.playlist_name,
               isAlbum: playlist.is_album,
+              permalink: playlist.permalink,
               user: { id: user.user_id, handle: user.handle }
             })
           )
@@ -1155,6 +1158,7 @@ function* confirmDeletePlaylist(userId, playlistId) {
               id: playlist.playlist_id,
               name: playlist.playlist_name,
               isAlbum: playlist.is_album,
+              permalink: playlist.permalink,
               user: { id: user.user_id, handle: user.handle }
             })
           )

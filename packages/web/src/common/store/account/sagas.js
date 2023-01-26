@@ -208,7 +208,6 @@ export function* fetchAccountAsync({ isSignUp = false }) {
     )
     return
   }
-
   // Set the userId in the remoteConfigInstance
   remoteConfigInstance.setUserId(account.user_id)
 

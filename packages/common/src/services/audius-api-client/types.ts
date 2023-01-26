@@ -186,6 +186,7 @@ export type APIPlaylist = {
   is_private: boolean
   added_timestamps: APIPlaylistAddedTimestamp[]
   tracks: APITrack[]
+  permalink: string
   track_count: number
   cover_art: Nullable<string>
   cover_art_sizes: Nullable<string>

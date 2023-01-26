@@ -148,7 +148,8 @@ const ConnectedPlaylistTile = memo(
       followee_saves: followeeSaves,
       has_current_user_reposted: isReposted,
       has_current_user_saved: isFavorited,
-      track_count: trackCount
+      track_count: trackCount,
+      permalink
     } = getCollectionWithFallback(collection)
 
     const {
@@ -231,13 +232,13 @@ const ConnectedPlaylistTile = memo(
       ? ''
       : isAlbum
       ? albumPage(handle, title, id)
-      : playlistPage(handle, title, id)
+      : playlistPage(handle, title, id, permalink)
 
     const fullHref = isLoading
       ? ''
       : isAlbum
       ? fullAlbumPage(handle, title, id)
-      : fullPlaylistPage(handle, title, id)
+      : fullPlaylistPage(handle, title, id, permalink)
 
     const onClickTitle = useCallback(
       (e: MouseEvent) => {

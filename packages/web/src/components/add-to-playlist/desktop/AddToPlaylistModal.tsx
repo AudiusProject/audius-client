@@ -74,7 +74,12 @@ const AddToPlaylistModal = () => {
         <ToastLinkContent
           text={messages.addedToast}
           linkText={messages.view}
-          link={playlistPage(account.handle, trackTitle, playlist.playlist_id)}
+          link={playlistPage(
+            account.handle,
+            trackTitle,
+            playlist.playlist_id,
+            playlist.permalink
+          )}
         />
       )
     }

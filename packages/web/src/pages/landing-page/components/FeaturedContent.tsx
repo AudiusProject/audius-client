@@ -200,7 +200,8 @@ const FeaturedContent = (props: FeaturedContentProps) => {
                       playlistPage(
                         p.user.handle,
                         p.playlist_name,
-                        p.playlist_id
+                        p.playlist_id,
+                        p.permalink
                       ),
                       props.setRenderPublicSite
                     )}
@@ -254,7 +255,8 @@ const FeaturedContent = (props: FeaturedContentProps) => {
                       playlistPage(
                         p.user.handle,
                         p.playlist_name,
-                        p.playlist_id
+                        p.playlist_id,
+                        p.permalink
                       ),
                       props.setRenderPublicSite
                     )}

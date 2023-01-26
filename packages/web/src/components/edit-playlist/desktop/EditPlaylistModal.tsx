@@ -75,7 +75,8 @@ const EditPlaylistModal = ({
     playlist_id: playlistId,
     is_album: isAlbum,
     playlist_name: title,
-    user
+    user,
+    permalink
   } = collection || {}
   const { handle } = user || {}
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
@@ -86,7 +87,7 @@ const EditPlaylistModal = ({
     onClose()
     deletePlaylist(playlistId!)
     if (handle && title) {
-      const playlistRoute = playlistPage(handle, title, playlistId!)
+      const playlistRoute = playlistPage(handle, title, playlistId!, permalink)
       // If on the playlist page, direct user to feed
       if (getPathname(location) === playlistRoute) goToRoute(FEED_PAGE)
     }

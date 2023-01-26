@@ -453,6 +453,7 @@ const Artwork = ({
     coverArtSizes,
     SquareSizes.SIZE_1000_BY_1000
   )
+
   useEffect(() => {
     // If there's a gradient, this is a smart collection. Just immediately call back
     if (image || gradient || imageOverride) callback()
@@ -562,7 +563,6 @@ class CollectionHeader extends PureComponent {
       [styles.show]: !isLoading,
       [styles.hide]: isLoading
     }
-
     return (
       <div className={styles.collectionHeader}>
         <div className={styles.topSection}>

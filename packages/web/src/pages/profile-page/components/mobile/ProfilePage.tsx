@@ -395,7 +395,8 @@ const ProfilePage = g(
           href={playlistPage(
             profile.handle,
             playlist.playlist_name,
-            playlist.playlist_id
+            playlist.playlist_id,
+            playlist.permalink
           )}
           onClick={(e: MouseEvent) => {
             e.preventDefault()
@@ -403,7 +404,8 @@ const ProfilePage = g(
               playlistPage(
                 profile.handle,
                 playlist.playlist_name,
-                playlist.playlist_id
+                playlist.playlist_id,
+                playlist.permalink
               )
             )
           }}

@@ -793,6 +793,7 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
             id: confirmedPlaylist.playlist_id,
             name: confirmedPlaylist.playlist_name,
             is_album: confirmedPlaylist.is_album,
+            permalink: confirmedPlaylist.permalink,
             user: {
               id: user.user_id,
               handle: user.handle

@@ -1203,7 +1203,7 @@ export class AudiusAPIClient {
     }
     const splitPermalink = permalink.split('/')
     if (splitPermalink.length !== 4) {
-      throw Error(
+      console.error(
         'Permalink formatted incorrectly. Should follow /<handle>/playlist/<slug> format.'
       )
     }

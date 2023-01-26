@@ -49,6 +49,7 @@ export type CollectionMetadata = {
   playlist_image_multihash?: string
   playlist_image_sizes_multihash?: string
   offline?: OfflineCollectionMetadata
+  permalink: string
 }
 
 // This is available on mobile for offline tracks

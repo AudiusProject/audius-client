@@ -102,7 +102,8 @@ const CollectionsPage = ({
             : fullPlaylistPage(
                 playlist.user.handle,
                 playlist.playlist_name,
-                playlist.playlist_id
+                playlist.playlist_id,
+                playlist.permalink
               )
         }
         reposts={playlist.repost_count}
@@ -124,7 +125,8 @@ const CollectionsPage = ({
                 playlistPage(
                   playlist.user.handle,
                   playlist.playlist_name,
-                  playlist.playlist_id
+                  playlist.playlist_id,
+                  playlist.permalink
                 )
               )
         }}

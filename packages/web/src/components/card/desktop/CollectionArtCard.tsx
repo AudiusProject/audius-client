@@ -84,6 +84,7 @@ const CollectionArtCard = g(
       has_current_user_reposted,
       has_current_user_saved,
       repost_count,
+      permalink,
       save_count
     } = collection
     const { user_id, name, handle } = user
@@ -94,7 +95,7 @@ const CollectionArtCard = g(
       if (isPerspectiveDisabled) return
       const link = is_album
         ? albumPage(handle, playlist_name, playlist_id)
-        : playlistPage(handle, playlist_name, playlist_id)
+        : playlistPage(handle, playlist_name, playlist_id, permalink)
       goToRoute(link)
     }, [
       is_album,
@@ -102,6 +103,7 @@ const CollectionArtCard = g(
       playlist_name,
       playlist_id,
       goToRoute,
+      permalink,
       isPerspectiveDisabled
     ])
 
