@@ -1,12 +1,18 @@
-import type { ReactNode } from 'react'
-import { useCallback, useEffect, useRef } from 'react'
+import { useRef, useCallback, useEffect } from 'react'
 
+import { toastActions, toastSelectors } from '@audius/common'
+import type { Toast as ToastType } from '@audius/common'
 import { Animated, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useDispatch, useSelector } from 'react-redux'
 
-import Text from 'app/components/text'
+import { Text } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 
+const { getToasts } = toastSelectors
+const { dismissToast } = toastActions
+
+const DEFAULT_TIMEOUT = 2000
 const DISTANCE_DOWN = 60
 
 const springConfig = {
@@ -14,23 +20,21 @@ const springConfig = {
   friction: 20
 }
 
-export type ToastType = 'info' | 'error'
-
 const useStyles = makeStyles(({ palette, spacing }) => ({
-  container: {
+  root: {
     zIndex: 50,
     alignItems: 'center',
     justifyContent: 'center'
   },
-  toastView: {
+  toast: {
     position: 'absolute',
     backgroundColor: palette.secondary,
     borderRadius: 8
   },
-  toastViewError: {
+  toastError: {
     backgroundColor: palette.accentRed
   },
-  toastTextContainer: {
+  contentRoot: {
     paddingTop: spacing(3) + 2,
     paddingBottom: spacing(3),
     alignItems: 'center',
@@ -44,67 +48,67 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   }
 }))
 
-export type ToastViewProps = {
-  /**
-   * The content inside the toast. Can be text or component.
-   */
-  content: ReactNode
-  /**
-   * The timeout before the toast fades away
-   */
-  timeout: number
-  /**
-   * The type of toast (info, error, etc.)
-   */
-  type: ToastType
+type ToastProps = {
+  toast: ToastType
 }
 
-const ToastView = ({ content, timeout, type = 'info' }: ToastViewProps) => {
+const Toast = (props: ToastProps) => {
+  const { toast } = props
+  const { content, timeout = DEFAULT_TIMEOUT, type, key } = toast
   const styles = useStyles()
+  // const toastAnimation = useRef(new Animated.Value(0)).current
   const translationAnim = useRef(new Animated.Value(0)).current
   const opacityAnim = useRef(new Animated.Value(0)).current
   const insets = useSafeAreaInsets()
+  const dispatch = useDispatch()
 
-  const animOut = useCallback(() => {
+  const handleDismiss = useCallback(() => {
+    dispatch(dismissToast({ key }))
+  }, [dispatch, key])
+
+  const animateOut = useCallback(() => {
     Animated.spring(opacityAnim, {
       ...springConfig,
       toValue: 0,
       useNativeDriver: true
     }).start()
+
     Animated.spring(translationAnim, {
       ...springConfig,
       toValue: 0,
       useNativeDriver: true
-    }).start()
-  }, [translationAnim, opacityAnim])
+    }).start(handleDismiss)
+  }, [translationAnim, opacityAnim, handleDismiss])
 
-  const animIn = useCallback(() => {
+  const animateIn = useCallback(() => {
     const callback = () => {
       setTimeout(() => {
-        animOut()
+        animateOut()
       }, timeout)
     }
+
     Animated.spring(opacityAnim, {
       ...springConfig,
       toValue: 1,
       useNativeDriver: true
     }).start()
+
     Animated.spring(translationAnim, {
       ...springConfig,
       toValue: Math.max(DISTANCE_DOWN, insets.top + 20),
       useNativeDriver: true
     }).start(callback)
-  }, [translationAnim, opacityAnim, animOut, timeout, insets])
+  }, [translationAnim, opacityAnim, animateOut, timeout, insets])
 
   useEffect(() => {
-    animIn()
-  }, [animIn])
+    animateIn()
+  }, [animateIn])
 
   return (
-    <View style={styles.container}>
+    <View style={styles.root}>
       <Animated.View
         style={[
-          styles.toastView,
+          styles.toast,
           {
             opacity: opacityAnim,
             transform: [
@@ -113,10 +117,10 @@ const ToastView = ({ content, timeout, type = 'info' }: ToastViewProps) => {
               }
             ]
           },
-          type === 'error' ? styles.toastViewError : {}
+          type === 'error' && styles.toastError
         ]}
       >
-        <View style={styles.toastTextContainer}>
+        <View style={styles.contentRoot}>
           <Text style={styles.content} weight={'demiBold'}>
             {content}
           </Text>
@@ -126,4 +130,14 @@ const ToastView = ({ content, timeout, type = 'info' }: ToastViewProps) => {
   )
 }
 
-export default ToastView
+export const Toasts = () => {
+  const toasts = useSelector(getToasts)
+
+  return (
+    <>
+      {toasts.map((toast) => (
+        <Toast key={toast.key} toast={toast} />
+      ))}
+    </>
+  )
+}
