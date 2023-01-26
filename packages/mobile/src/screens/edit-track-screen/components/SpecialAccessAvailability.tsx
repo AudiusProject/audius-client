@@ -3,6 +3,7 @@ import { View } from 'react-native'
 import { Text } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
+import { useColor } from 'app/utils/theme'
 
 const messages = {
   specialAccess: 'Special Access',
@@ -30,16 +31,7 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
   },
   titleIcon: {
     marginTop: 0,
-    marginRight: spacing(2.5),
-    fill: palette.neutral
-  },
-  selectedTitleIcon: {
-    marginTop: 0,
-    fill: palette.secondary
-  },
-  disabledTitleIcon: {
-    marginTop: 0,
-    fill: palette.neutralLight4
+    marginRight: spacing(2.5)
   },
   subtitleContainer: {
     marginTop: spacing(2),
@@ -56,6 +48,9 @@ type TrackAvailabilitySelectionProps = {
 
 export const SpecialAccessAvailability = ({ selected, disabled = false }: TrackAvailabilitySelectionProps) => {
   const styles = useStyles()
+  const secondary = useColor('secondary')
+  const neutral = useColor('neutral')
+  const neutralLight4 = useColor('neutralLight4')
 
   const titleStyles: object[] = [styles.title]
   if (selected) {
@@ -64,17 +59,16 @@ export const SpecialAccessAvailability = ({ selected, disabled = false }: TrackA
     titleStyles.push(styles.disabledTitle)
   }
 
-  const titleIconStyles: object[] = [styles.titleIcon]
-  if (selected) {
-    titleIconStyles.push(styles.selectedTitleIcon)
-  } else if (disabled) {
-    titleIconStyles.push(styles.disabledTitleIcon)
-  }
+  const titleIconColor = selected
+    ? secondary
+    : disabled
+      ? neutralLight4
+      : neutral
 
   return (
     <View style={styles.root}>
       <View style={styles.titleContainer}>
-        <IconSpecialAccess style={titleIconStyles} />
+        <IconSpecialAccess style={styles.titleIcon} fill={titleIconColor} />
         <Text weight='bold' style={titleStyles}>
           {messages.specialAccess}
         </Text>
