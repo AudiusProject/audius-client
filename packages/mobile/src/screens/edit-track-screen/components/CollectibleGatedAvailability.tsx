@@ -1,12 +1,13 @@
+import { useEffect } from 'react'
+
 import { View } from 'react-native'
 
-import { Link, Text } from 'app/components/core'
-import { makeStyles } from 'app/styles'
-import IconCollectible from 'app/assets/images/iconCollectible.svg'
-import { useColor } from 'app/utils/theme'
 import IconArrow from 'app/assets/images/iconArrow.svg'
+import IconCollectible from 'app/assets/images/iconCollectible.svg'
+import { Link, Text } from 'app/components/core'
 import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
-import { useEffect } from 'react'
+import { makeStyles } from 'app/styles'
+import { useColor } from 'app/utils/theme'
 
 const messages = {
   collectibleGated: 'Collectible Gated',
@@ -27,7 +28,7 @@ const useStyles = makeStyles(({ typography, spacing, palette }) => ({
   },
   title: {
     fontSize: 22,
-    marginTop: 0,
+    marginTop: 0
   },
   selectedTitle: {
     color: palette.secondary
@@ -40,7 +41,7 @@ const useStyles = makeStyles(({ typography, spacing, palette }) => ({
     marginRight: spacing(2.5)
   },
   subtitleContainer: {
-    marginTop: spacing(2),
+    marginTop: spacing(2)
   },
   subtitle: {
     color: palette.neutral
@@ -63,7 +64,10 @@ type TrackAvailabilitySelectionProps = {
   disabled?: boolean
 }
 
-export const CollectibleGatedAvailability = ({ selected, disabled = false }: TrackAvailabilitySelectionProps) => {
+export const CollectibleGatedAvailability = ({
+  selected,
+  disabled = false
+}: TrackAvailabilitySelectionProps) => {
   const styles = useStyles()
   const secondary = useColor('secondary')
   const neutral = useColor('neutral')
@@ -79,21 +83,22 @@ export const CollectibleGatedAvailability = ({ selected, disabled = false }: Tra
   const titleIconColor = selected
     ? secondary
     : disabled
-      ? neutralLight4
-      : neutral
+    ? neutralLight4
+    : neutral
 
   const { set: setTrackAvailabilityFields } = useSetTrackAvailabilityFields()
 
   useEffect(() => {
     if (selected) {
-      setTrackAvailabilityFields({
-        'is_premium': true,
-        'premium_conditions': { nft_collection: undefined }
-      },
+      setTrackAvailabilityFields(
+        {
+          is_premium: true,
+          premium_conditions: { nft_collection: undefined }
+        },
         true
       )
     }
-  }, [selected])
+  }, [selected, setTrackAvailabilityFields])
 
   return (
     <View style={styles.root}>
@@ -109,9 +114,7 @@ export const CollectibleGatedAvailability = ({ selected, disabled = false }: Tra
         </Text>
       </View>
       <Link url={LEARN_MORE_URL} style={styles.learnMore}>
-        <Text style={styles.learnMoreText}>
-          {messages.learnMore}
-        </Text>
+        <Text style={styles.learnMoreText}>{messages.learnMore}</Text>
         <IconArrow fill={secondary} width={16} height={16} />
       </Link>
     </View>

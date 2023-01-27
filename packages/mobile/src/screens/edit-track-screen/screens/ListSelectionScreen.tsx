@@ -11,7 +11,11 @@ import { makeStyles } from 'app/styles'
 
 import { FormScreen } from '../components'
 
-export type ListSelectionData = { label: string; value: string, disabled?: boolean }
+export type ListSelectionData = {
+  label: string
+  value: string
+  disabled?: boolean
+}
 
 export type ListSelectionProps = {
   screenTitle: string
@@ -99,7 +103,11 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
         return (
           <View style={styles.listItem}>
             <View style={styles.listItemContent}>
-              <RadioButton checked={isSelected} disabled={disabled} style={styles.radio} />
+              <RadioButton
+                checked={isSelected}
+                disabled={disabled}
+                style={styles.radio}
+              />
               {renderItemProp(info)}
             </View>
           </View>
@@ -120,7 +128,7 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
         </TouchableOpacity>
       )
     },
-    [renderItemProp, value, styles, onChange]
+    [renderItemProp, value, styles, onChange, disableReset, hideSelectionLabel]
   )
 
   const filteredData = data.filter(({ label }) => label.match(filterRegexp))

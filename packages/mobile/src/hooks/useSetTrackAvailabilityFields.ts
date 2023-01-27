@@ -1,6 +1,7 @@
-import { Nullable, PremiumConditions } from "@audius/common"
-import { useField } from "formik"
-import { useCallback, useMemo } from "react"
+import { useCallback, useMemo } from 'react'
+
+import type { Nullable, PremiumConditions } from '@audius/common'
+import { useField } from 'formik'
 
 const defaultTrackAvailabilityFields = {
   is_premium: false,
@@ -18,13 +19,20 @@ type TrackAvailabilityField = typeof defaultTrackAvailabilityFields
 // It has to be used with a Formik context because it uses formik's useField hook.
 export const useSetTrackAvailabilityFields = () => {
   const [, , { setValue: setIsPremium }] = useField<boolean>('is_premium')
-  const [, , { setValue: setPremiumConditions }] = useField<Nullable<PremiumConditions>>('premium_conditions')
+  const [, , { setValue: setPremiumConditions }] =
+    useField<Nullable<PremiumConditions>>('premium_conditions')
   const [, , { setValue: setIsUnlisted }] = useField<boolean>('is_unlisted')
-  const [, , { setValue: setGenre }] = useField<boolean>('field_visibility.genre')
+  const [, , { setValue: setGenre }] = useField<boolean>(
+    'field_visibility.genre'
+  )
   const [, , { setValue: setMood }] = useField<boolean>('field_visibility.mood')
   const [, , { setValue: setTags }] = useField<boolean>('field_visibility.tags')
-  const [, , { setValue: setShare }] = useField<boolean>('field_visibility.share')
-  const [, , { setValue: setPlayCount }] = useField<boolean>('field_visibility.play_count')
+  const [, , { setValue: setShare }] = useField<boolean>(
+    'field_visibility.share'
+  )
+  const [, , { setValue: setPlayCount }] = useField<boolean>(
+    'field_visibility.play_count'
+  )
 
   const fieldSetters = useMemo(() => {
     return {
@@ -37,36 +45,44 @@ export const useSetTrackAvailabilityFields = () => {
       'field_visibility.share': setShare,
       'field_visibility.play_count': setPlayCount
     }
+    // adding the useField setters cause infinite rendering
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const set = useCallback((fieldValues: Partial<TrackAvailabilityField>, resetOtherFields = false) => {
-    const givenKeys = Object.keys(fieldValues)
-    givenKeys.forEach(key => {
-      const value = fieldValues[key]
+  const set = useCallback(
+    (
+      fieldValues: Partial<TrackAvailabilityField>,
+      resetOtherFields = false
+    ) => {
+      const givenKeys = Object.keys(fieldValues)
+      givenKeys.forEach((key) => {
+        const value = fieldValues[key]
+        const setter = fieldSetters[key]
+        setter(value)
+      })
+
+      if (resetOtherFields) {
+        const givenKeySet = new Set(givenKeys)
+        const otherKeys = Object.keys(defaultTrackAvailabilityFields).filter(
+          (key) => !givenKeySet.has(key)
+        )
+        otherKeys.forEach((key) => {
+          const value = defaultTrackAvailabilityFields[key]
+          const setter = fieldSetters[key]
+          setter(value)
+        })
+      }
+    },
+    [fieldSetters]
+  )
+
+  const reset = useCallback(() => {
+    Object.keys(defaultTrackAvailabilityFields).forEach((key) => {
+      const value = defaultTrackAvailabilityFields[key]
       const setter = fieldSetters[key]
       setter(value)
     })
-
-    if (resetOtherFields) {
-      const givenKeySet = new Set(givenKeys)
-      const otherKeys = Object.keys(defaultTrackAvailabilityFields)
-        .filter(key => !givenKeySet.has(key))
-      otherKeys.forEach(key => {
-        const value = defaultTrackAvailabilityFields[key]
-        const setter = fieldSetters[key]
-        setter(value)
-      })
-    }
-  }, [])
-
-  const reset = useCallback(() => {
-    Object.keys(defaultTrackAvailabilityFields)
-      .forEach(key => {
-        const value = defaultTrackAvailabilityFields[key]
-        const setter = fieldSetters[key]
-        setter(value)
-      })
-  }, [])
+  }, [fieldSetters])
 
   return { set, reset }
 }

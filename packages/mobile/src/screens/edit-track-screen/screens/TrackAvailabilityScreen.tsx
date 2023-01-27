@@ -3,15 +3,16 @@ import { useState } from 'react'
 import { TrackAvailabilityType } from '@audius/common'
 
 import IconHidden from 'app/assets/images/iconHidden.svg'
+import { useIsNFTGateEnabled } from 'app/hooks/useIsNFTGateEnabled'
+import { useIsSpecialAccessGateEnabled } from 'app/hooks/useIsSpecialAccessGateEnabled'
 
 import { CollectibleGatedAvailability } from '../components/CollectibleGatedAvailability'
 import { HiddenAvailability } from '../components/HiddenAvailability'
 import { PublicAvailability } from '../components/PublicAvailability'
 import { SpecialAccessAvailability } from '../components/SpecialAccessAvailability'
 
-import { ListSelectionData, ListSelectionScreen } from './ListSelectionScreen'
-import { useIsSpecialAccessGateEnabled } from 'app/hooks/useIsSpecialAccessGateEnabled'
-import { useIsNFTGateEnabled } from 'app/hooks/useIsNFTGateEnabled'
+import type { ListSelectionData } from './ListSelectionScreen'
+import { ListSelectionScreen } from './ListSelectionScreen'
 
 const messages = {
   title: 'Availability',
@@ -37,35 +38,38 @@ const data: ListSelectionData[] = [
   { label: hiddenAvailability, value: hiddenAvailability }
 ]
 
-let i = 1
 export const TrackAvailabilityScreen = () => {
   const isSpecialAccessGateEnabled = useIsSpecialAccessGateEnabled()
   const isNFTGateEnabled = useIsNFTGateEnabled()
-  const [availability, setAvailability] = useState<TrackAvailabilityType>(TrackAvailabilityType.PUBLIC)
+  const [availability, setAvailability] = useState<TrackAvailabilityType>(
+    TrackAvailabilityType.PUBLIC
+  )
 
   const items = {
-    [publicAvailability]: <PublicAvailability
-      selected={availability === TrackAvailabilityType.PUBLIC}
-      disabled={false}
-    />,
-    [specialAccessAvailability]: isSpecialAccessGateEnabled
-      ? (
-        <SpecialAccessAvailability
-          selected={availability === TrackAvailabilityType.SPECIAL_ACCESS}
-          disabled={false}
-        />
-      ) : null,
-    [collectibleGatedAvailability]: isNFTGateEnabled
-      ? (
-        <CollectibleGatedAvailability
-          selected={availability === TrackAvailabilityType.COLLECTIBLE_GATED}
-          disabled={false}
-        />
-      ) : null,
-    [hiddenAvailability]: <HiddenAvailability
-      selected={availability === TrackAvailabilityType.HIDDEN}
-      disabled={false}
-    />
+    [publicAvailability]: (
+      <PublicAvailability
+        selected={availability === TrackAvailabilityType.PUBLIC}
+        disabled={false}
+      />
+    ),
+    [specialAccessAvailability]: isSpecialAccessGateEnabled ? (
+      <SpecialAccessAvailability
+        selected={availability === TrackAvailabilityType.SPECIAL_ACCESS}
+        disabled={false}
+      />
+    ) : null,
+    [collectibleGatedAvailability]: isNFTGateEnabled ? (
+      <CollectibleGatedAvailability
+        selected={availability === TrackAvailabilityType.COLLECTIBLE_GATED}
+        disabled={false}
+      />
+    ) : null,
+    [hiddenAvailability]: (
+      <HiddenAvailability
+        selected={availability === TrackAvailabilityType.HIDDEN}
+        disabled={false}
+      />
+    )
   }
 
   return (

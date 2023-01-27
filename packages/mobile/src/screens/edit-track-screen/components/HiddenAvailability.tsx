@@ -1,12 +1,14 @@
+import { useEffect } from 'react'
+
 import { View } from 'react-native'
 
-import { Text } from 'app/components/core'
-import { makeStyles } from 'app/styles'
 import IconHidden from 'app/assets/images/iconHidden.svg'
-import { SwitchField } from '../fields'
-import { useColor } from 'app/utils/theme'
-import { useEffect } from 'react'
+import { Text } from 'app/components/core'
 import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
+import { makeStyles } from 'app/styles'
+import { useColor } from 'app/utils/theme'
+
+import { SwitchField } from '../fields'
 
 const messages = {
   hidden: 'Hidden',
@@ -30,7 +32,7 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
   },
   title: {
     fontSize: 22,
-    marginTop: 0,
+    marginTop: 0
   },
   selectedTitle: {
     color: palette.secondary
@@ -43,7 +45,7 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     marginRight: spacing(2.5)
   },
   subtitleContainer: {
-    marginTop: spacing(2),
+    marginTop: spacing(2)
   },
   subtitle: {
     color: palette.neutral
@@ -69,7 +71,10 @@ type TrackAvailabilitySelectionProps = {
   disabled?: boolean
 }
 
-export const HiddenAvailability = ({ selected, disabled = false }: TrackAvailabilitySelectionProps) => {
+export const HiddenAvailability = ({
+  selected,
+  disabled = false
+}: TrackAvailabilitySelectionProps) => {
   const styles = useStyles()
   const secondary = useColor('secondary')
   const neutral = useColor('neutral')
@@ -83,8 +88,8 @@ export const HiddenAvailability = ({ selected, disabled = false }: TrackAvailabi
   }
 
   const titleIconColor = selected
-  ? secondary
-  : disabled
+    ? secondary
+    : disabled
     ? neutralLight4
     : neutral
 
@@ -92,9 +97,9 @@ export const HiddenAvailability = ({ selected, disabled = false }: TrackAvailabi
 
   useEffect(() => {
     if (selected) {
-      setTrackAvailabilityFields({ 'is_unlisted': true }, true)
+      setTrackAvailabilityFields({ is_unlisted: true }, true)
     }
-  }, [selected])
+  }, [selected, setTrackAvailabilityFields])
 
   return (
     <View style={styles.root}>
@@ -111,17 +116,31 @@ export const HiddenAvailability = ({ selected, disabled = false }: TrackAvailabi
       </View>
       {selected && (
         <View style={styles.selection}>
-          <SwitchField name='field_visibility.genre' label={messages.showGenre} style={styles.firstSwitch} />
-          <SwitchField name='field_visibility.mood' label={messages.showMood} style={styles.switch} />
-          <SwitchField name='field_visibility.tags' label={messages.showTags} style={styles.switch} />
+          <SwitchField
+            name='field_visibility.genre'
+            label={messages.showGenre}
+            style={styles.firstSwitch}
+          />
+          <SwitchField
+            name='field_visibility.mood'
+            label={messages.showMood}
+            style={styles.switch}
+          />
+          <SwitchField
+            name='field_visibility.tags'
+            label={messages.showTags}
+            style={styles.switch}
+          />
           <SwitchField
             name='field_visibility.share'
             label={messages.showShareButton}
-            style={styles.switch} />
+            style={styles.switch}
+          />
           <SwitchField
             name='field_visibility.play_count'
             label={messages.showPlayCount}
-            style={styles.switch} />
+            style={styles.switch}
+          />
         </View>
       )}
     </View>

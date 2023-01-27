@@ -1,11 +1,12 @@
+import { useEffect } from 'react'
+
 import { View } from 'react-native'
 
-import { Text } from 'app/components/core'
-import { makeStyles } from 'app/styles'
 import IconVisibilityPublic from 'app/assets/images/iconVisibilityPublic.svg'
-import { useColor } from 'app/utils/theme'
-import { useEffect } from 'react'
+import { Text } from 'app/components/core'
 import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
+import { makeStyles } from 'app/styles'
+import { useColor } from 'app/utils/theme'
 
 const messages = {
   public: 'Public (Default)',
@@ -36,7 +37,7 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     marginRight: spacing(2.5)
   },
   subtitleContainer: {
-    marginTop: spacing(2),
+    marginTop: spacing(2)
   },
   subtitle: {
     color: palette.neutral
@@ -48,7 +49,10 @@ type TrackAvailabilitySelectionProps = {
   disabled?: boolean
 }
 
-export const PublicAvailability = ({ selected, disabled = false }: TrackAvailabilitySelectionProps) => {
+export const PublicAvailability = ({
+  selected,
+  disabled = false
+}: TrackAvailabilitySelectionProps) => {
   const styles = useStyles()
   const secondary = useColor('secondary')
   const neutral = useColor('neutral')
@@ -64,16 +68,17 @@ export const PublicAvailability = ({ selected, disabled = false }: TrackAvailabi
   const titleIconColor = selected
     ? secondary
     : disabled
-      ? neutralLight4
-      : neutral
+    ? neutralLight4
+    : neutral
 
-  const { reset: resetTrackAvailabilityFields } = useSetTrackAvailabilityFields()
+  const { reset: resetTrackAvailabilityFields } =
+    useSetTrackAvailabilityFields()
 
   useEffect(() => {
     if (selected) {
       resetTrackAvailabilityFields()
     }
-  }, [selected])
+  }, [selected, resetTrackAvailabilityFields])
 
   return (
     <View style={styles.root}>

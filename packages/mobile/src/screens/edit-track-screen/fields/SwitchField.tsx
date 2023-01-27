@@ -1,5 +1,6 @@
 import { useField } from 'formik'
-import { View, ViewStyle } from 'react-native'
+import type { ViewStyle } from 'react-native'
+import { View } from 'react-native'
 
 import { Switch, Text } from 'app/components/core'
 import { makeStyles } from 'app/styles'
