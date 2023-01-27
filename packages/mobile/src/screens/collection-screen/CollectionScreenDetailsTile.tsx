@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
-import type { ID, Maybe, UID } from '@audius/common'
+import type { ID, Maybe, SmartCollectionVariant, UID } from '@audius/common'
 import {
   Variant,
   useProxySelector,
