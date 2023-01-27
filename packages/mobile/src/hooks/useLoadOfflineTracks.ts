@@ -1,12 +1,11 @@
 import { useCallback } from 'react'
 
-import {
+import type {
   CollectionMetadata,
   Track,
   UserMetadata,
   lineupActions,
   UserTrackMetadata,
-  collectionPageActions,
   SmartCollectionVariant
 } from '@audius/common'
 import {
@@ -141,7 +140,11 @@ export const useLoadOfflineData = () => {
  * @param lineupActions the actions instance for the lineup
  */
 export const useOfflineCollectionLineup = (
-  collectionId: typeof DOWNLOAD_REASON_FAVORITES | number | SmartCollectionVariant | null,
+  collectionId:
+    | typeof DOWNLOAD_REASON_FAVORITES
+    | number
+    | SmartCollectionVariant
+    | null,
   fetchOnlineContent: () => void,
   lineupActions: lineupActions.LineupActions
 ) => {
