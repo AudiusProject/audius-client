@@ -1040,7 +1040,11 @@ function mapDispatchToProps(dispatch: Dispatch, props: RouteComponentProps) {
     playUserFeedTrack: (uid: UID) => dispatch(feedActions.play(uid)),
     pauseUserFeedTrack: () => dispatch(feedActions.pause()),
     // Followes
-    fetchFollowUsers: (followGroup: any, limit: number, offset: number) =>
+    fetchFollowUsers: (
+      followGroup: FollowType,
+      limit: number,
+      offset: number
+    ) =>
       dispatch(
         profileActions.fetchFollowUsers(followGroup, limit, offset, handleLower)
       ),
