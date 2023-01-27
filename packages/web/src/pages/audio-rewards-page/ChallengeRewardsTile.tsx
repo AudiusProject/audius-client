@@ -127,7 +127,7 @@ const RewardPanel = ({
     >
       <div className={wm(styles.rewardPanelTop)}>
         <div className={wm(styles.pillContainer)}>
-          {hasCompleted && (
+          {needsDisbursement && (
             <span className={wm(styles.pillMessage)}>
               {messages.readyToClaim}
             </span>
