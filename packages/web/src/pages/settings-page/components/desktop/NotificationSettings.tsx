@@ -76,7 +76,6 @@ const NotificationSettings = (props: NotificationSettingsProps) => {
   const { isEnabled: isChatEnabled } = useFlag(FeatureFlags.CHAT_ENABLED)
   const browserPushEnabled =
     props.settings[BrowserNotificationSetting.BrowserPush]
-
   const notificationToggles = [
     {
       text: messages.milestonesAndAchievements,
