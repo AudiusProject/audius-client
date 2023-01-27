@@ -45,7 +45,7 @@ export const startDownloadWorker = async () => {
   queue.stop()
   queue.configure({
     concurrency: 1,
-    updateInterval: 10
+    updateInterval: 500
   })
 
   // Reset worker to improve devEx. Forces the worker to take code updates across reloads
@@ -116,3 +116,10 @@ export const cancelQueuedDownloads = async (
   })
   queue.start()
 }
+
+global.queue = queue
+
+setInterval(async () => {
+  const jobs = await queue.getJobs()
+  console.log(`JobQueue - job count`, jobs.length)
+}, 5000)
