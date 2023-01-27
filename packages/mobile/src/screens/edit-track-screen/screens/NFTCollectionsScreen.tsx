@@ -1,13 +1,23 @@
-import { View } from 'react-native'
-import { ListSelectionScreen } from "./ListSelectionScreen"
-import IconImage from 'app/assets/images/iconImage.svg'
-import { useField } from "formik"
-import { Nullable, PremiumConditions, Chain, EthCollectionMap, SolCollectionMap, accountSelectors, collectiblesSelectors, CommonState, Collectible } from "@audius/common"
 import { useCallback, useMemo } from 'react'
+
+import type {
+  Nullable,
+  PremiumConditions,
+  EthCollectionMap,
+  SolCollectionMap,
+  CommonState,
+  Collectible
+} from '@audius/common'
+import { Chain, accountSelectors, collectiblesSelectors } from '@audius/common'
+import { useField } from 'formik'
+import { View, Image } from 'react-native'
 import { useSelector } from 'react-redux'
-import { Image } from 'react-native'
-import { makeStyles } from 'app/styles'
+
+import IconImage from 'app/assets/images/iconImage.svg'
 import { Text } from 'app/components/core'
+import { makeStyles } from 'app/styles'
+
+import { ListSelectionScreen } from './ListSelectionScreen'
 
 const messages = {
   collections: 'COLLECTIONS',
@@ -22,8 +32,7 @@ const defaultCollectibles = { [Chain.Eth]: [], [Chain.Sol]: [] }
 const useStyles = makeStyles(({ spacing, palette, type }) => ({
   item: {
     flexDirection: 'row',
-    alignItems: 'center',
-
+    alignItems: 'center'
   },
   logo: {
     marginRight: spacing(3),
@@ -31,7 +40,7 @@ const useStyles = makeStyles(({ spacing, palette, type }) => ({
     borderColor: palette.neutralLight8,
     borderRadius: spacing(1),
     width: spacing(8),
-    height: spacing(8),
+    height: spacing(8)
   }
 }))
 
@@ -126,18 +135,16 @@ export const NFTCollectionsScreen = () => {
   const collectionImageMap = useMemo(() => {
     const map: { [address: string]: string } = {}
 
-    Object.keys(ethCollectionMap)
-      .forEach(slug => {
-        if (!!ethCollectionMap[slug].img) {
-          map[slug] = ethCollectionMap[slug].img!
-        }
-      })
-    Object.keys(solCollectionMap)
-      .forEach(mint => {
-        if (!!solCollectionMap[mint].img) {
-          map[mint] = solCollectionMap[mint].img!
-        }
-      })
+    Object.keys(ethCollectionMap).forEach((slug) => {
+      if (ethCollectionMap[slug].img) {
+        map[slug] = ethCollectionMap[slug].img!
+      }
+    })
+    Object.keys(solCollectionMap).forEach((mint) => {
+      if (solCollectionMap[mint].img) {
+        map[mint] = solCollectionMap[mint].img!
+      }
+    })
 
     return map
   }, [ethCollectionMap, solCollectionMap])
@@ -158,20 +165,18 @@ export const NFTCollectionsScreen = () => {
     [ethCollectibleItems, solCollectibleItems]
   )
 
-  const renderItem = (({ item }) => {
+  const renderItem = ({ item }) => {
     const { label: name, value: identifier } = item
     const imageUrl = collectionImageMap[identifier]
     return (
       <View style={styles.item}>
-        {imageUrl && (
-          <Image source={{ uri: imageUrl }} style={styles.logo} />
-        )}
+        {imageUrl && <Image source={{ uri: imageUrl }} style={styles.logo} />}
         <Text weight='demiBold' fontSize='large'>
           {name}
         </Text>
       </View>
     )
-  })
+  }
 
   const value = useMemo(() => {
     if (Chain.Eth === premiumConditions?.nft_collection?.chain) {
@@ -183,31 +188,34 @@ export const NFTCollectionsScreen = () => {
     return ''
   }, [premiumConditions])
 
-  const handleChange = useCallback((value: string) => {
-    if (ethCollectionMap[value]) {
-      setPremiumConditions({
-        nft_collection: {
-          chain: Chain.Eth,
-          standard: ethCollectionMap[value].standard,
-          address: ethCollectionMap[value].address,
-          name: ethCollectionMap[value].name,
-          imageUrl: ethCollectionMap[value].img,
-          externalLink: ethCollectionMap[value].externalLink,
-          slug: value
-        }
-      })
-    } else if (solCollectionMap[value]) {
-      setPremiumConditions({
-        nft_collection: {
-          chain: Chain.Sol,
-          address: value,
-          name: solCollectionMap[value].name,
-          imageUrl: solCollectionMap[value].img,
-          externalLink: solCollectionMap[value].externalLink
-        }
-      })
-    }
-  }, [])
+  const handleChange = useCallback(
+    (value: string) => {
+      if (ethCollectionMap[value]) {
+        setPremiumConditions({
+          nft_collection: {
+            chain: Chain.Eth,
+            standard: ethCollectionMap[value].standard,
+            address: ethCollectionMap[value].address,
+            name: ethCollectionMap[value].name,
+            imageUrl: ethCollectionMap[value].img,
+            externalLink: ethCollectionMap[value].externalLink,
+            slug: value
+          }
+        })
+      } else if (solCollectionMap[value]) {
+        setPremiumConditions({
+          nft_collection: {
+            chain: Chain.Sol,
+            address: value,
+            name: solCollectionMap[value].name,
+            imageUrl: solCollectionMap[value].img,
+            externalLink: solCollectionMap[value].externalLink
+          }
+        })
+      }
+    },
+    [setPremiumConditions, ethCollectionMap, solCollectionMap]
+  )
 
   return (
     <ListSelectionScreen

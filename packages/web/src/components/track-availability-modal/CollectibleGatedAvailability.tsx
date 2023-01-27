@@ -166,7 +166,10 @@ export const CollectibleGatedAvailability = ({
         className={styles.availabilityRowContent}
         onClick={() => {
           if (updatePremiumContentFields) {
-            updatePremiumContentFields(null, TrackAvailabilityType.COLLECTIBLE_GATED)
+            updatePremiumContentFields(
+              null,
+              TrackAvailabilityType.COLLECTIBLE_GATED
+            )
           }
         }}
       >

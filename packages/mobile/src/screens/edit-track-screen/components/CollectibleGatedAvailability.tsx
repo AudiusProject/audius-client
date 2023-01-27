@@ -1,16 +1,16 @@
 import { useCallback, useEffect } from 'react'
 
 import { View } from 'react-native'
+import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
 import { Link, Text } from 'app/components/core'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
 import { makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
-import { TouchableOpacity } from 'react-native-gesture-handler'
-import { useNavigation } from 'app/hooks/useNavigation'
 
 const messages = {
   collectibleGated: 'Collectible Gated',
@@ -99,8 +99,8 @@ export const CollectibleGatedAvailability = ({
   const titleIconColor = selected
     ? secondary
     : disabled
-      ? neutralLight4
-      : neutral
+    ? neutralLight4
+    : neutral
 
   const { set: setTrackAvailabilityFields } = useSetTrackAvailabilityFields()
 
