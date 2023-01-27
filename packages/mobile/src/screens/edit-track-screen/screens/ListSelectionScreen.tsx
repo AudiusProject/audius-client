@@ -22,6 +22,7 @@ export type ListSelectionProps = {
   value: string
   searchText?: string
   disableSearch?: boolean
+  disableReset?: boolean
   hideSelectionLabel?: boolean
 }
 
@@ -70,6 +71,7 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
     value,
     searchText = '',
     disableSearch = false,
+    disableReset = false,
     hideSelectionLabel = false
   } = props
 
@@ -84,7 +86,13 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
       const isSelected = value === itemValue
 
       const handleChange = () => {
-        onChange(isSelected ? null : itemValue)
+        if (isSelected) {
+          if (!disableReset) {
+            onChange(null)
+          }
+        } else {
+          onChange(itemValue)
+        }
       }
 
       if (disabled) {
