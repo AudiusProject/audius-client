@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { TrackAvailabilityType } from '@audius/common'
 
@@ -13,6 +13,7 @@ import { SpecialAccessAvailability } from '../components/SpecialAccessAvailabili
 
 import type { ListSelectionData } from './ListSelectionScreen'
 import { ListSelectionScreen } from './ListSelectionScreen'
+import { useField } from 'formik'
 
 const messages = {
   title: 'Availability',
@@ -41,8 +42,26 @@ const data: ListSelectionData[] = [
 export const TrackAvailabilityScreen = () => {
   const isSpecialAccessGateEnabled = useIsSpecialAccessGateEnabled()
   const isNFTGateEnabled = useIsNFTGateEnabled()
+
+  const [{ value: isPremium }] = useField('is_premium')
+  const [{ value: premiumConditions }] = useField('premium_conditions')
+  const [{ value: isUnlisted }] = useField('is_unlisted')
+
+  const initialAvailability = useMemo(() => {
+    if ('nft_collection' in (premiumConditions ?? {})) {
+      return TrackAvailabilityType.COLLECTIBLE_GATED
+    }
+    if (isPremium) {
+      return TrackAvailabilityType.SPECIAL_ACCESS
+    }
+    if (isUnlisted) {
+      return TrackAvailabilityType.HIDDEN
+    }
+    return TrackAvailabilityType.PUBLIC
+  }, [])
+
   const [availability, setAvailability] = useState<TrackAvailabilityType>(
-    TrackAvailabilityType.PUBLIC
+    initialAvailability
   )
 
   const items = {

@@ -56,7 +56,7 @@ export const TrackVisibilityField = (props: TrackVisibilityFieldProps) => {
       return [messages.hidden, ...fieldVisibilityLabels]
     }
     return [messages.public]
-  }, [premiumConditions, isUnlisted])
+  }, [premiumConditions, isUnlisted, fieldVisibility])
 
   const isPremiumContentEnabled = useIsPremiumContentEnabled()
   const label = isPremiumContentEnabled

@@ -1,6 +1,6 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 
-import { View } from 'react-native'
+import { View, Image } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
@@ -11,13 +11,16 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
 import { makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
+import { useField } from 'formik'
+import { Nullable, PremiumConditions } from '@audius/common'
 
 const messages = {
   collectibleGated: 'Collectible Gated',
   collectibleGatedSubtitle:
     'Users who own a digital collectible matching your selection will have access to your track. Collectible gated content does not appear on trending or in user feeds.',
   learnMore: 'Learn More',
-  pickACollection: 'Pick A Collection'
+  pickACollection: 'Pick A Collection',
+  ownersOf: 'Owners Of'
 }
 
 const LEARN_MORE_URL = ''
@@ -61,17 +64,46 @@ const useStyles = makeStyles(({ typography, spacing, palette }) => ({
     fontSize: typography.fontSize.small,
     color: palette.secondary
   },
-  pickACollection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  collectionContainer: {
     marginTop: spacing(4),
     paddingVertical: spacing(4),
     paddingHorizontal: spacing(6),
     borderWidth: 1,
     borderColor: palette.neutralLight8,
     borderRadius: spacing(2)
-  }
+  },
+  pickACollection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  ownersOf: {
+    marginTop: spacing(4),
+    marginBottom: spacing(2),
+    fontFamily: typography.fontByWeight.demiBold,
+    fontSize: typography.fontSize.small,
+  },
+  collection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing(2),
+    backgroundColor: palette.neutralLight8,
+    borderWidth: 1,
+    borderColor: palette.neutralLight7,
+    borderRadius: spacing(2)
+  },
+  collectionName: {
+    fontFamily: typography.fontByWeight.demiBold,
+    fontSize: typography.fontSize.small
+  },
+  logo: {
+    marginRight: spacing(1),
+    borderWidth: 1,
+    borderColor: palette.neutralLight8,
+    borderRadius: spacing(1),
+    width: spacing(5),
+    height: spacing(5)
+  },
 }))
 
 type TrackAvailabilitySelectionProps = {
@@ -103,9 +135,16 @@ export const CollectibleGatedAvailability = ({
     : neutral
 
   const { set: setTrackAvailabilityFields } = useSetTrackAvailabilityFields()
+  const [{ value: premiumConditions }, , { setValue: setPremiumConditions }] =
+    useField<Nullable<PremiumConditions>>('premium_conditions')
+  const nftCollection = useMemo(() => {
+    return premiumConditions?.nft_collection ?? null
+  }, [premiumConditions])
 
+  // If collectible gated was not previously selected,
+  // set as collectible gated and reset other fields.
   useEffect(() => {
-    if (selected) {
+    if (!('nft_collection' in (premiumConditions ?? {})) && selected) {
       setTrackAvailabilityFields(
         {
           is_premium: true,
@@ -114,7 +153,7 @@ export const CollectibleGatedAvailability = ({
         true
       )
     }
-  }, [selected, setTrackAvailabilityFields])
+  }, [premiumConditions, selected, setTrackAvailabilityFields])
 
   const handlePickACollection = useCallback(() => {
     navigation.navigate('NFTCollections')
@@ -138,13 +177,24 @@ export const CollectibleGatedAvailability = ({
         <IconArrow fill={secondary} width={16} height={16} />
       </Link>
       {selected && (
-        <TouchableOpacity onPress={handlePickACollection}>
+        <TouchableOpacity onPress={handlePickACollection} style={styles.collectionContainer}>
           <View style={styles.pickACollection}>
             <Text weight='demiBold' fontSize='large'>
               {messages.pickACollection}
             </Text>
             <IconCaretRight fill={neutralLight4} width={16} height={16} />
           </View>
+          {nftCollection && (
+            <View>
+              <Text style={styles.ownersOf}>{messages.ownersOf}</Text>
+              <View style={styles.collection}>
+                {nftCollection.imageUrl && (
+                  <Image source={{ uri: nftCollection.imageUrl }} style={styles.logo} />
+                )}
+                <Text style={styles.collectionName}>{nftCollection.name}</Text>
+              </View>
+            </View>
+          )}
         </TouchableOpacity>
       )}
     </View>

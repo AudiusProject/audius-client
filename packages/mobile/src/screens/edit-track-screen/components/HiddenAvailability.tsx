@@ -9,6 +9,7 @@ import { makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
 
 import { SwitchField } from '../fields'
+import { useField } from 'formik'
 
 const messages = {
   hidden: 'Hidden',
@@ -94,12 +95,15 @@ export const HiddenAvailability = ({
     : neutral
 
   const { set: setTrackAvailabilityFields } = useSetTrackAvailabilityFields()
+  const [{ value: isUnlisted }] = useField('is_unlisted')
 
+  // If hidden was not previously selected,
+  // set hidden and reset other fields.
   useEffect(() => {
-    if (selected) {
+    if (!isUnlisted && selected) {
       setTrackAvailabilityFields({ is_unlisted: true }, true)
     }
-  }, [selected, setTrackAvailabilityFields])
+  }, [isUnlisted, selected, setTrackAvailabilityFields])
 
   return (
     <View style={styles.root}>

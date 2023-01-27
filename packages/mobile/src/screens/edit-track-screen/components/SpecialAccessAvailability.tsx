@@ -107,19 +107,6 @@ export const SpecialAccessAvailability = ({
     : neutral
 
   const { set: setTrackAvailabilityFields } = useSetTrackAvailabilityFields()
-
-  useEffect(() => {
-    if (selected) {
-      setTrackAvailabilityFields(
-        {
-          is_premium: true,
-          premium_conditions: { follow_user_id: 1 }
-        },
-        true
-      )
-    }
-  }, [selected, setTrackAvailabilityFields])
-
   const [{ value: premiumConditions }, , { setValue: setPremiumConditions }] =
     useField<Nullable<PremiumConditions>>('premium_conditions')
   const isFollowerGated = useMemo(() => {
@@ -129,6 +116,25 @@ export const SpecialAccessAvailability = ({
     return !!premiumConditions?.tip_user_id
   }, [premiumConditions])
   const currentUserId = useSelector(getUserId)
+
+  // If special access was not previously selected,
+  // set as follow gated and reset other fields.
+  useEffect(() => {
+    if (
+      !premiumConditions?.follow_user_id &&
+      !premiumConditions?.tip_user_id &&
+      selected &&
+      currentUserId
+    ) {
+      setTrackAvailabilityFields(
+        {
+          is_premium: true,
+          premium_conditions: { follow_user_id: currentUserId }
+        },
+        true
+      )
+    }
+  }, [premiumConditions, selected, currentUserId, setTrackAvailabilityFields])
 
   const handlePressFollowers = useCallback(() => {
     if (currentUserId) {
