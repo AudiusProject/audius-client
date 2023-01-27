@@ -1041,12 +1041,17 @@ function mapDispatchToProps(dispatch: Dispatch, props: RouteComponentProps) {
     pauseUserFeedTrack: () => dispatch(feedActions.pause()),
     // Followes
     fetchFollowUsers: (
-      followGroup: FollowType,
+      followerGroup: FollowType,
       limit: number,
       offset: number
     ) =>
       dispatch(
-        profileActions.fetchFollowUsers(followGroup, limit, offset, handleLower)
+        profileActions.fetchFollowUsers(
+          followerGroup,
+          limit,
+          offset,
+          handleLower
+        )
       ),
 
     openCreatePlaylistModal: () =>
