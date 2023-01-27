@@ -66,7 +66,12 @@ import remixSettingsReducer, {
 import solanaReducer from './solana/slice'
 import stemsUpload from './stems-upload/slice'
 import tippingReducer from './tipping/slice'
-import { ToastState, TransactionDetailsState } from './ui'
+import {
+  searchUsersModalReducer,
+  SearchUsersModalState,
+  ToastState,
+  TransactionDetailsState
+} from './ui'
 import addToPlaylistReducer, {
   AddToPlaylistState
 } from './ui/add-to-playlist/reducer'
@@ -167,6 +172,7 @@ export const reducers = () => ({
     remixSettings: remixSettingsReducer,
     shareSoundToTikTokModal: shareSoundToTikTokModalReducer,
     shareModal: shareModalReducer,
+    searchUsersModal: searchUsersModalReducer,
     toast: toastReducer,
     transactionDetails: transactionDetailsReducer,
     userList: combineReducers({
@@ -274,6 +280,7 @@ export type CommonState = {
     reactions: ReactionsState
     remixSettings: RemixSettingsState
     shareSoundToTikTokModal: ShareSoundToTikTokModalState
+    searchUsersModal: SearchUsersModalState
     shareModal: ShareModalState
     toast: ToastState
     transactionDetails: TransactionDetailsState
