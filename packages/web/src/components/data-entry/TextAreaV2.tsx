@@ -19,7 +19,13 @@ const sizeToVerticalPadding: Record<TextAreaSize, number> = {
   [TextAreaSize.SMALL]: 12
 }
 
-const getMaxHeight = (maxVisibleRows: number | undefined, size: TextAreaSize) =>
+const getMaxHeight = ({
+  maxVisibleRows,
+  size
+}: {
+  maxVisibleRows?: number
+  size: TextAreaSize
+}) =>
   maxVisibleRows !== undefined
     ? maxVisibleRows * sizeToLineHeight[size] + sizeToVerticalPadding[size]
     : undefined
@@ -58,7 +64,7 @@ export const TextAreaV2 = (props: TextAreaV2Props) => {
     characterCount > CHARACTER_LIMIT_WARN_THRESHOLD_PERCENT * maxLength
 
   const maxHeight = grows
-    ? getMaxHeight(maxVisibleRows, size)
+    ? getMaxHeight({ maxVisibleRows, size })
     : ref.current?.offsetHeight // clamp to initial height if non-growing
 
   const style = {
