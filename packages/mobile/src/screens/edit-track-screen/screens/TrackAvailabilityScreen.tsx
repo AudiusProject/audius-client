@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 
 import { TrackAvailabilityType } from '@audius/common'
+import { useField } from 'formik'
 
 import IconHidden from 'app/assets/images/iconHidden.svg'
 import { useIsNFTGateEnabled } from 'app/hooks/useIsNFTGateEnabled'
@@ -13,7 +14,6 @@ import { SpecialAccessAvailability } from '../components/SpecialAccessAvailabili
 
 import type { ListSelectionData } from './ListSelectionScreen'
 import { ListSelectionScreen } from './ListSelectionScreen'
-import { useField } from 'formik'
 
 const messages = {
   title: 'Availability',
@@ -58,11 +58,12 @@ export const TrackAvailabilityScreen = () => {
       return TrackAvailabilityType.HIDDEN
     }
     return TrackAvailabilityType.PUBLIC
+    // we only care about what the initial value was here
+    // eslint-disable-next-line
   }, [])
 
-  const [availability, setAvailability] = useState<TrackAvailabilityType>(
-    initialAvailability
-  )
+  const [availability, setAvailability] =
+    useState<TrackAvailabilityType>(initialAvailability)
 
   const items = {
     [publicAvailability]: (

@@ -119,7 +119,10 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
       }
 
       return (
-        <TouchableOpacity style={[styles.listItem, itemStyles]} onPress={handleChange}>
+        <TouchableOpacity
+          style={[styles.listItem, itemStyles]}
+          onPress={handleChange}
+        >
           <View style={[styles.listItemContent, itemContentStyles]}>
             <RadioButton checked={isSelected} style={styles.radio} />
             {renderItemProp(info)}
@@ -132,7 +135,16 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
         </TouchableOpacity>
       )
     },
-    [renderItemProp, value, styles, onChange, disableReset, hideSelectionLabel]
+    [
+      renderItemProp,
+      value,
+      styles,
+      onChange,
+      disableReset,
+      hideSelectionLabel,
+      itemStyles,
+      itemContentStyles
+    ]
   )
 
   const filteredData = data.filter(({ label }) => label.match(filterRegexp))

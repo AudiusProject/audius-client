@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 
+import { useField } from 'formik'
 import { View } from 'react-native'
 
 import IconHidden from 'app/assets/images/iconHidden.svg'
@@ -9,7 +10,6 @@ import { makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
 
 import { SwitchField } from '../fields'
-import { useField } from 'formik'
 
 const messages = {
   hidden: 'Hidden',

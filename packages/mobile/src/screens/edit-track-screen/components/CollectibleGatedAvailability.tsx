@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react'
 
+import type { Nullable, PremiumConditions } from '@audius/common'
+import { useField } from 'formik'
 import { View, Image } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
@@ -11,8 +13,6 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
 import { makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
-import { useField } from 'formik'
-import { Nullable, PremiumConditions } from '@audius/common'
 
 const messages = {
   collectibleGated: 'Collectible Gated',
@@ -81,7 +81,7 @@ const useStyles = makeStyles(({ typography, spacing, palette }) => ({
     marginTop: spacing(4),
     marginBottom: spacing(2),
     fontFamily: typography.fontByWeight.demiBold,
-    fontSize: typography.fontSize.small,
+    fontSize: typography.fontSize.small
   },
   collection: {
     flexDirection: 'row',
@@ -103,7 +103,7 @@ const useStyles = makeStyles(({ typography, spacing, palette }) => ({
     borderRadius: spacing(1),
     width: spacing(5),
     height: spacing(5)
-  },
+  }
 }))
 
 type TrackAvailabilitySelectionProps = {
@@ -135,7 +135,7 @@ export const CollectibleGatedAvailability = ({
     : neutral
 
   const { set: setTrackAvailabilityFields } = useSetTrackAvailabilityFields()
-  const [{ value: premiumConditions }, , { setValue: setPremiumConditions }] =
+  const [{ value: premiumConditions }] =
     useField<Nullable<PremiumConditions>>('premium_conditions')
   const nftCollection = useMemo(() => {
     return premiumConditions?.nft_collection ?? null
@@ -177,7 +177,10 @@ export const CollectibleGatedAvailability = ({
         <IconArrow fill={secondary} width={16} height={16} />
       </Link>
       {selected && (
-        <TouchableOpacity onPress={handlePickACollection} style={styles.collectionContainer}>
+        <TouchableOpacity
+          onPress={handlePickACollection}
+          style={styles.collectionContainer}
+        >
           <View style={styles.pickACollection}>
             <Text weight='demiBold' fontSize='large'>
               {messages.pickACollection}
@@ -189,7 +192,10 @@ export const CollectibleGatedAvailability = ({
               <Text style={styles.ownersOf}>{messages.ownersOf}</Text>
               <View style={styles.collection}>
                 {nftCollection.imageUrl && (
-                  <Image source={{ uri: nftCollection.imageUrl }} style={styles.logo} />
+                  <Image
+                    source={{ uri: nftCollection.imageUrl }}
+                    style={styles.logo}
+                  />
                 )}
                 <Text style={styles.collectionName}>{nftCollection.name}</Text>
               </View>

@@ -1,9 +1,10 @@
+import { useMemo } from 'react'
+
 import { useField } from 'formik'
 
 import type { ContextualSubmenuProps } from 'app/components/core'
 import { ContextualSubmenu } from 'app/components/core'
 import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
-import { useMemo } from 'react'
 
 const messages = {
   trackVisibility: 'Track Visibility',
@@ -56,7 +57,7 @@ export const TrackVisibilityField = (props: TrackVisibilityFieldProps) => {
       return [messages.hidden, ...fieldVisibilityLabels]
     }
     return [messages.public]
-  }, [premiumConditions, isUnlisted, fieldVisibility])
+  }, [premiumConditions, isUnlisted, fieldVisibilityLabels])
 
   const isPremiumContentEnabled = useIsPremiumContentEnabled()
   const label = isPremiumContentEnabled
