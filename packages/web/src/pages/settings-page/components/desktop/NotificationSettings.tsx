@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 
 import {
+  FeatureFlags,
   Notifications,
   BrowserNotificationSetting,
   EmailFrequency
@@ -13,6 +14,7 @@ import TabSlider from 'components/data-entry/TabSlider'
 import Switch from 'components/switch/Switch'
 import { Permission } from 'utils/browserNotifications'
 import { isElectron } from 'utils/clientUtil'
+import { useFlag } from 'hooks/useRemoteConfig'
 
 import styles from './NotificationSettings.module.css'
 
@@ -24,6 +26,7 @@ const messages = {
   reposts: 'Reposts',
   favorites: 'Favorites',
   remixes: 'Remixes of My Tracks',
+  messages: 'Messages',
   emailFrequency: '‘What You Missed’ Email Frequency',
   enablePermissions:
     'Notifications for Audius are blocked. Please enable in your browser settings and reload the page.'
@@ -70,8 +73,10 @@ type NotificationSettingsProps = {
 }
 
 const NotificationSettings = (props: NotificationSettingsProps) => {
+  const { isEnabled: isChatEnabled } = useFlag(FeatureFlags.CHAT_ENABLED)
   const browserPushEnabled =
     props.settings[BrowserNotificationSetting.BrowserPush]
+
   const notificationToggles = [
     {
       text: messages.milestonesAndAchievements,
@@ -109,6 +114,17 @@ const NotificationSettings = (props: NotificationSettingsProps) => {
       type: BrowserNotificationSetting.Remixes
     }
   ]
+  if (isChatEnabled) {
+    notificationToggles.push(
+      {
+        text: messages.messages,
+        isOn:
+          browserPushEnabled &&
+          props.settings[BrowserNotificationSetting.Messages],
+        type: BrowserNotificationSetting.Messages
+      }
+    )
+  }
 
   const emailOptions = [
     { key: EmailFrequency.Live, text: 'Live' },
