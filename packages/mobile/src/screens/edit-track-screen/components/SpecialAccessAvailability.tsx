@@ -1,16 +1,23 @@
 import { View } from 'react-native'
+import { TouchableOpacity } from 'react-native-gesture-handler'
 
-import { Text } from 'app/components/core'
+import { RadioButton, Text } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
 import { useColor } from 'app/utils/theme'
 import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
-import { useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
+import { PremiumConditions, Nullable, accountSelectors } from '@audius/common'
+import { useField } from 'formik'
+import { useSelector } from 'react-redux'
+import IconInfo from 'app/assets/images/iconInfo.svg'
 
 const messages = {
   specialAccess: 'Special Access',
   specialAccessSubtitle:
-    'Special Access tracks are only available to users who meet certain criteria, such as following the artist.'
+    'Special Access tracks are only available to users who meet certain criteria, such as following the artist.',
+  followersOnly: 'Available to Followers Only',
+  supportersOnly: 'Available to Supporters Only'
 }
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
@@ -40,8 +47,35 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
   },
   subtitle: {
     color: palette.neutral
+  },
+  selection: {
+    marginTop: spacing(2),
+    padding: spacing(4),
+    backgroundColor: palette.neutralLight10,
+    borderWidth: 1,
+    borderColor: palette.neutralLight7,
+    borderRadius: spacing(2)
+  },
+  radio: {
+    marginRight: spacing(2)
+  },
+  followersOnly: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing(2.5)
+  },
+  supportersOnly: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  infoIcon: {
+    marginLeft: spacing(2),
+    width: spacing(4),
+    height: spacing(4)
   }
 }))
+
+const { getUserId } = accountSelectors
 
 type TrackAvailabilitySelectionProps = {
   selected: boolean
@@ -80,6 +114,27 @@ export const SpecialAccessAvailability = ({ selected, disabled = false }: TrackA
     }
   }, [selected])
 
+  const [{ value: premiumConditions }, , { setValue: setPremiumConditions }] = useField<Nullable<PremiumConditions>>('premium_conditions')
+  const isFollowerGated = useMemo(() => {
+    return !!premiumConditions?.follow_user_id
+  }, [premiumConditions])
+  const isSupporterGated = useMemo(() => {
+    return !!premiumConditions?.tip_user_id
+  }, [premiumConditions])
+  const currentUserId = useSelector(getUserId)
+
+  const handlePressFollowers = useCallback(() => {
+    if (currentUserId) {
+      setPremiumConditions({ follow_user_id: currentUserId })
+    }
+  }, [currentUserId])
+
+  const handlePressSupporters = useCallback(() => {
+    if (currentUserId) {
+      setPremiumConditions({ tip_user_id: currentUserId })
+    }
+  }, [currentUserId])
+
   return (
     <View style={styles.root}>
       <View style={styles.titleContainer}>
@@ -93,6 +148,27 @@ export const SpecialAccessAvailability = ({ selected, disabled = false }: TrackA
           {messages.specialAccessSubtitle}
         </Text>
       </View>
+      {selected && (
+        <View style={styles.selection}>
+          <TouchableOpacity onPress={handlePressFollowers}>
+            <View style={styles.followersOnly}>
+              <RadioButton checked={isFollowerGated} disabled={disabled} style={styles.radio} />
+              <Text>
+                {messages.followersOnly}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handlePressSupporters}>
+            <View style={styles.supportersOnly}>
+              <RadioButton checked={isSupporterGated} disabled={disabled} style={styles.radio} />
+              <Text>
+                {messages.supportersOnly}
+              </Text>
+              <IconInfo style={styles.infoIcon} fill={neutralLight4} />
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   )
 }
