@@ -1,19 +1,23 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import { View } from 'react-native'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
+import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
 import { Link, Text } from 'app/components/core'
 import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
 import { makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
+import { TouchableOpacity } from 'react-native-gesture-handler'
+import { useNavigation } from 'app/hooks/useNavigation'
 
 const messages = {
   collectibleGated: 'Collectible Gated',
   collectibleGatedSubtitle:
     'Users who own a digital collectible matching your selection will have access to your track. Collectible gated content does not appear on trending or in user feeds.',
-  learnMore: 'Learn More'
+  learnMore: 'Learn More',
+  pickACollection: 'Pick A Collection'
 }
 
 const LEARN_MORE_URL = ''
@@ -56,6 +60,17 @@ const useStyles = makeStyles(({ typography, spacing, palette }) => ({
     fontFamily: typography.fontByWeight.bold,
     fontSize: typography.fontSize.small,
     color: palette.secondary
+  },
+  pickACollection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: spacing(4),
+    paddingVertical: spacing(4),
+    paddingHorizontal: spacing(6),
+    borderWidth: 1,
+    borderColor: palette.neutralLight8,
+    borderRadius: spacing(2)
   }
 }))
 
@@ -68,6 +83,7 @@ export const CollectibleGatedAvailability = ({
   selected,
   disabled = false
 }: TrackAvailabilitySelectionProps) => {
+  const navigation = useNavigation()
   const styles = useStyles()
   const secondary = useColor('secondary')
   const neutral = useColor('neutral')
@@ -83,8 +99,8 @@ export const CollectibleGatedAvailability = ({
   const titleIconColor = selected
     ? secondary
     : disabled
-    ? neutralLight4
-    : neutral
+      ? neutralLight4
+      : neutral
 
   const { set: setTrackAvailabilityFields } = useSetTrackAvailabilityFields()
 
@@ -99,6 +115,10 @@ export const CollectibleGatedAvailability = ({
       )
     }
   }, [selected, setTrackAvailabilityFields])
+
+  const handlePickACollection = useCallback(() => {
+    navigation.navigate('NFTCollections')
+  }, [navigation])
 
   return (
     <View style={styles.root}>
@@ -117,6 +137,16 @@ export const CollectibleGatedAvailability = ({
         <Text style={styles.learnMoreText}>{messages.learnMore}</Text>
         <IconArrow fill={secondary} width={16} height={16} />
       </Link>
+      {selected && (
+        <TouchableOpacity onPress={handlePickACollection}>
+          <View style={styles.pickACollection}>
+            <Text weight='demiBold' fontSize='large'>
+              {messages.pickACollection}
+            </Text>
+            <IconCaretRight fill={neutralLight4} width={16} height={16} />
+          </View>
+        </TouchableOpacity>
+      )}
     </View>
   )
 }

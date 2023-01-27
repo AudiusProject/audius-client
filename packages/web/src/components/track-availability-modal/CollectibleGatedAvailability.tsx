@@ -2,13 +2,13 @@ import { useMemo } from 'react'
 
 import {
   Chain,
-  TokenStandard,
   accountSelectors,
   collectiblesSelectors,
   CommonState,
   Collectible,
-  Nullable,
-  TrackAvailabilityType
+  TrackAvailabilityType,
+  EthCollectionMap,
+  SolCollectionMap
 } from '@audius/common'
 import { IconArrow, IconCollectible } from '@audius/stems'
 import cn from 'classnames'
@@ -32,24 +32,6 @@ const messages = {
     'Users who own a digital collectible matching your selection will have access to your track. Collectible gated content does not appear on trending or in user feeds.',
   learnMore: 'Learn More',
   pickACollection: 'Pick a Collection'
-}
-
-type EthCollectionMap = {
-  [slug: string]: {
-    name: string
-    address: string
-    standard: TokenStandard
-    img: Nullable<string>
-    externalLink: Nullable<string>
-  }
-}
-
-type SolCollectionMap = {
-  [mint: string]: {
-    name: string
-    img: Nullable<string>
-    externalLink: Nullable<string>
-  }
 }
 
 export const CollectibleGatedAvailability = ({

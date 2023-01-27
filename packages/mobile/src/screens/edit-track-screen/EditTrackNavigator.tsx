@@ -14,6 +14,7 @@ import {
   TrackVisibilityScreen,
   TrackAvailabilityScreen
 } from './screens'
+import { NFTCollectionsScreen } from './screens/NFTCollectionsScreen'
 import type { EditTrackFormProps } from './types'
 
 const Stack = createNativeStackNavigator()
@@ -42,6 +43,9 @@ export const EditTrackNavigator = (props: EditTrackNavigatorProps) => {
           name='TrackVisibility'
           component={TrackVisibilityScreen}
         />
+      )}
+      {isPremiumContentEnabled && (
+        <Stack.Screen name='NFTCollections' component={NFTCollectionsScreen} />
       )}
       <Stack.Screen name='IsrcIswc' component={IsrcIswcScreen} />
       <Stack.Screen name='LicenseType' component={LicenseTypeScreen} />
