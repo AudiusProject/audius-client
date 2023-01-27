@@ -1,4 +1,8 @@
-import { FeatureFlags, PushNotificationSetting, settingsPageActions } from '@audius/common'
+import {
+  FeatureFlags,
+  PushNotificationSetting,
+  settingsPageActions
+} from '@audius/common'
 import { useDispatch } from 'react-redux'
 import { useEffectOnce } from 'react-use'
 
@@ -66,7 +70,6 @@ export const NotificationSettingsScreen = () => {
             label={messages.messages}
             type={PushNotificationSetting.Messages}
           />
-
         ) : null}
         <Divider />
         <EmailFrequencyControlRow />

@@ -12,9 +12,9 @@ import cn from 'classnames'
 import { ReactComponent as IconRemove } from 'assets/img/iconRemove.svg'
 import TabSlider from 'components/data-entry/TabSlider'
 import Switch from 'components/switch/Switch'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { Permission } from 'utils/browserNotifications'
 import { isElectron } from 'utils/clientUtil'
-import { useFlag } from 'hooks/useRemoteConfig'
 
 import styles from './NotificationSettings.module.css'
 
@@ -114,15 +114,13 @@ const NotificationSettings = (props: NotificationSettingsProps) => {
     }
   ]
   if (isChatEnabled) {
-    notificationToggles.push(
-      {
-        text: messages.messages,
-        isOn:
-          browserPushEnabled &&
-          props.settings[BrowserNotificationSetting.Messages],
-        type: BrowserNotificationSetting.Messages
-      }
-    )
+    notificationToggles.push({
+      text: messages.messages,
+      isOn:
+        browserPushEnabled &&
+        props.settings[BrowserNotificationSetting.Messages],
+      type: BrowserNotificationSetting.Messages
+    })
   }
 
   const emailOptions = [
