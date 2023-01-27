@@ -11,7 +11,6 @@ import queue from 'react-native-job-queue'
 import type { TrackForDownload } from 'app/components/offline-downloads'
 import { fetchAllFavoritedTracks } from 'app/hooks/useFetchAllFavoritedTracks'
 import { store } from 'app/store'
-import { populateCoverArtSizes } from 'app/utils/populateCoverArtSizes'
 import { isAvailableForPlay } from 'app/utils/trackUtils'
 
 import { apiClient } from '../audius-api-client'
