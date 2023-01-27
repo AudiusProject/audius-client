@@ -35,7 +35,6 @@ import { formatCount } from 'app/utils/format'
 const {
   getCollection,
   getCollectionTracksLineup,
-  getCollectionId,
   getCollectionUid,
   getUserUid
 } = collectionPageSelectors
