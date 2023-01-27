@@ -128,11 +128,8 @@ export const getLocalCollectionCoverArtDestination = (
   )
 }
 
-export const getLocalCollectionCoverArtPath = (
-  collectionId: string,
-  size: string
-) => {
-  return path.join(getLocalCollectionDir(collectionId), `${size}.jpg`)
+export const getLocalCollectionCoverArtPath = (collectionId: string) => {
+  return path.join(getLocalCollectionDir(collectionId), '1000x1000.jpg')
 }
 
 export const getLocalTrackCoverArtDestination = (
@@ -142,8 +139,8 @@ export const getLocalTrackCoverArtDestination = (
   return path.join(getLocalTrackDir(trackId), getArtFileNameFromUri(uri))
 }
 
-export const getLocalTrackCoverArtPath = (trackId: string, size: string) => {
-  return path.join(getLocalTrackDir(trackId), `${size}.jpg`)
+export const getLocalTrackCoverArtPath = (trackId: string) => {
+  return path.join(getLocalTrackDir(trackId), '1000x1000.jpg')
 }
 
 export const getArtFileNameFromUri = (uri: string) => {
@@ -203,11 +200,9 @@ export const verifyTrack = async (
 ): Promise<boolean> => {
   const audioFile = exists(getLocalAudioPath(trackId))
   const jsonFile = exists(getLocalTrackJsonPath(trackId))
-  const artFiles = Object.values(SquareSizes).map((size) =>
-    exists(path.join(getLocalTrackDir(trackId), `${size}.jpg`))
-  )
+  const artFile = exists(path.join(getLocalTrackDir(trackId), `1000x1000.jpg`))
 
-  const results = await allSettled([audioFile, jsonFile, ...artFiles])
+  const results = await allSettled([audioFile, jsonFile, artFile])
   const booleanResults = results.map(
     (result) => result.status === 'fulfilled' && !!result.value
   )
