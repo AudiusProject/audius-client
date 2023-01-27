@@ -1,12 +1,6 @@
 import { ComponentPropsWithoutRef } from 'react'
 
-import {
-  ID,
-  SquareSizes,
-  User,
-  SUPPORTING_USER_LIST_TAG,
-  TOP_SUPPORTERS_USER_LIST_TAG
-} from '@audius/common'
+import { ID, SquareSizes, User } from '@audius/common'
 import cn from 'classnames'
 
 import { ArtistPopover } from 'components/artist/ArtistPopover'
@@ -149,7 +143,7 @@ const ArtistChip = ({
             userId={userId}
             name={name}
             handle={handle}
-            showPopover
+            showPopover={showPopover}
             popoverMount={popoverMount}
             onNavigateAway={onNavigateAway}
           />
