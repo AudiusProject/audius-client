@@ -1,85 +1,61 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 
-import { chatActions, ID } from '@audius/common'
 import {
-  IconCompose,
-  Modal,
-  ModalHeader,
-  ModalTitle,
-  Scrollbar
-} from '@audius/stems'
+  accountSelectors,
+  mutualsUserListActions,
+  mutualsUserListSelectors,
+  MUTUALS_USER_LIST_TAG,
+  userListActions
+} from '@audius/common'
+import { IconCompose } from '@audius/stems'
 import { useDispatch } from 'react-redux'
-import { useDebounce } from 'react-use'
 
-import { useModalState } from 'common/hooks/useModalState'
-import Input from 'components/data-entry/Input'
-
-import styles from './CreateChatModal.module.css'
-
-const { createChat } = chatActions
+import { useSelector } from 'common/hooks/useSelector'
+import { SearchUsersModal } from 'components/search-users-modal/SearchUsersModal'
+import { MessageUserSearchResult } from 'pages/chat-page/components/CreateChatUserResult'
 
 const messages = {
-  title: 'New Message',
-  searchUsers: 'Search Users',
-  message: 'Message'
+  title: 'New Message'
 }
-const DEBOUNCE_MS = 250
+
+const { getAccountUser } = accountSelectors
 
 export const CreateChatModal = () => {
   const dispatch = useDispatch()
-  const [isVisible, setIsVisible] = useModalState('ChatCompose')
-  const [pendingUserChat, setPendingUserChat] = useState<number>()
-  const [query, setQuery] = useState('')
+  const currentUser = useSelector(getAccountUser)
 
-  useDebounce(
-    () => {
-      // TODO: Do query
-    },
-    DEBOUNCE_MS,
-    [query, dispatch]
+  const { userIds, loading, hasMore } = useSelector(
+    mutualsUserListSelectors.getUserList
   )
 
-  const handleChange = useCallback(
-    (value: string) => {
-      setQuery(value)
-    },
-    [setQuery]
-  )
+  const loadMore = useCallback(() => {
+    if (currentUser) {
+      dispatch(mutualsUserListActions.setMutuals(currentUser?.user_id))
+      dispatch(userListActions.loadMore(MUTUALS_USER_LIST_TAG))
+    }
+  }, [dispatch, currentUser])
 
-  const handleClose = useCallback(() => {
-    setIsVisible(false)
-  }, [setIsVisible])
-
-  const handleCreateChat = useCallback(
-    (userId: ID) => {
-      setPendingUserChat(userId)
-      dispatch(createChat({ userIds: [userId] }))
-    },
-    [dispatch]
-  )
+  useEffect(() => {
+    loadMore()
+  }, [loadMore])
 
   return (
-    <Modal
-      isOpen={isVisible}
-      onClose={handleClose}
-      onClosed={() => setPendingUserChat(undefined)}
-    >
-      <ModalHeader onClose={handleClose}>
-        <ModalTitle
-          icon={<IconCompose className={styles.icon} />}
-          title={messages.title}
+    <SearchUsersModal
+      modalName='CreateChat'
+      titleProps={{ title: messages.title, icon: <IconCompose /> }}
+      defaultUserList={{
+        userIds,
+        loadMore,
+        loading,
+        hasMore
+      }}
+      renderUser={(user, closeModal) => (
+        <MessageUserSearchResult
+          key={user.user_id}
+          user={user}
+          closeModal={closeModal}
         />
-      </ModalHeader>
-      <div className={styles.modalContent}>
-        <div className={styles.search}>
-          <Input placeholder={messages.searchUsers} onChange={handleChange} />
-        </div>
-        <div className={styles.results}>
-          <Scrollbar className={styles.scrollbar}>
-            {/* TODO: list users */}
-          </Scrollbar>
-        </div>
-      </div>
-    </Modal>
+      )}
+    />
   )
 }
