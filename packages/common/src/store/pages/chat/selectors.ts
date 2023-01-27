@@ -46,6 +46,16 @@ export const getChats = createSelector(
   [getChatsRaw, getAllChatMessages, getOptimisticReads],
   (chats, allMessages, optimisticReads) => {
     return chats?.map((chat) => {
+      // If have a clientside optimistic read status, override the server status
+      if (optimisticReads?.[chat.chat_id]) {
+        chat = {
+          ...chat,
+          ...optimisticReads[chat.chat_id]
+        }
+      }
+
+      // If have newer messages on the client than the server's version for the chat,
+      // use that instead for the last_message and last_message_at
       const chatMessages = allMessages[chat.chat_id]?.data
       if (
         chatMessages &&
@@ -53,21 +63,17 @@ export const getChats = createSelector(
         chatMessages[0] &&
         dayjs(chatMessages[0].created_at).isAfter(chat.last_message_at)
       ) {
-        return {
+        chat = {
           ...chat,
-          ...optimisticReads[chat.chat_id],
           last_message_at: chatMessages[0].created_at,
           last_message: chatMessages[0].message
         }
       }
-
-      return {
-        ...chat,
-        ...optimisticReads[chat.chat_id]
-      }
+      return chat
     })
   }
 )
+
 export const getChatMessages = createSelector(
   [getChatMessagesRaw, getOptimisticReactions],
   (messages, optimisticReactions) => {
