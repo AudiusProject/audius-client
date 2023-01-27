@@ -2,6 +2,7 @@ import {
   accountSelectors,
   SearchKind,
   searchUsersModalActions,
+  searchUsersModalSelectors,
   User
 } from '@audius/common'
 import { call, put, select, takeLatest } from 'typed-redux-saga'
@@ -10,17 +11,19 @@ import { processAndCacheUsers } from 'common/store/cache/users/utils'
 import { apiClient } from 'services/audius-api-client'
 const { getUserId } = accountSelectors
 const { searchUsers, searchUsersSucceeded } = searchUsersModalActions
+const { getUserList } = searchUsersModalSelectors
 
 function* doSearchUsers(action: ReturnType<typeof searchUsers>) {
-  const { query, currentPage = 0, pageSize = 15 } = action.payload
+  const { query, limit = 15 } = action.payload
+  const userList = yield* select(getUserList)
   try {
     const currentUserId = yield* select(getUserId)
     const res = yield* call([apiClient, apiClient.getSearchFull], {
       currentUserId,
       query,
       kind: SearchKind.USERS,
-      offset: currentPage * pageSize,
-      limit: pageSize
+      offset: userList.cursor,
+      limit
     })
     const users = Object.values(res.users) as User[]
     yield* call(processAndCacheUsers, users)

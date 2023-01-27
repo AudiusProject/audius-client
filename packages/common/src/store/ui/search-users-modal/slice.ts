@@ -1,11 +1,25 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
+import { ID } from 'models/Identifiers'
+import { Status } from 'models/Status'
+
 export type SearchUsersModalState = {
-  userIds: number[]
+  userList: {
+    userIds: ID[]
+    hasMore: boolean
+    status: Status
+    cursor: number
+  }
+  lastQuery?: string
 }
 
 const initialState: SearchUsersModalState = {
-  userIds: []
+  userList: {
+    userIds: [],
+    hasMore: true,
+    status: Status.IDLE,
+    cursor: 0
+  }
 }
 
 const slice = createSlice({
@@ -13,20 +27,29 @@ const slice = createSlice({
   initialState,
   reducers: {
     searchUsers: (
-      _state,
-      _action: PayloadAction<{
-        query: string
-        currentPage?: number
-        pageSize?: number
-      }>
+      state,
+      action: PayloadAction<{ query: string; limit?: number }>
     ) => {
       // Triggers Saga
+      const { query } = action.payload
+      if (state.lastQuery !== query) {
+        state.userList.userIds = []
+        state.userList.cursor = 0
+        state.lastQuery = query
+      }
+      state.userList.status = Status.LOADING
     },
     searchUsersSucceeded: (
       state,
       action: PayloadAction<{ userIds: number[] }>
     ) => {
-      state.userIds = action.payload.userIds
+      state.userList.userIds = state.userList.userIds.concat(
+        action.payload.userIds
+      )
+      state.userList.status = Status.SUCCESS
+      state.userList.hasMore = action.payload.userIds.length > 0
+      state.userList.cursor =
+        state.userList.cursor + state.userList.userIds.length
     }
   }
 })
