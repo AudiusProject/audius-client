@@ -75,7 +75,6 @@ const RewardPanel = ({
   const challenge = userChallenges[id]
   const shouldShowCompleted =
     challenge?.state === 'completed' || challenge?.state === 'disbursed'
-  const hasCompleted = challenge?.state === 'completed'
   const hasDisbursed = challenge?.state === 'disbursed'
   const needsDisbursement = challenge && challenge.claimableAmount > 0
   const shouldShowProgressBar =
