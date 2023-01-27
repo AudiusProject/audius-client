@@ -116,10 +116,3 @@ export const cancelQueuedDownloads = async (
   })
   queue.start()
 }
-
-global.queue = queue
-
-setInterval(async () => {
-  const jobs = await queue.getJobs()
-  console.log(`JobQueue - job count`, jobs.length)
-}, 5000)
