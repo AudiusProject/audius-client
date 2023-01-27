@@ -37,6 +37,9 @@ type ConnectedUserListOwnProps = {
   // Selector pointing to this particular instance of the UserList in the global store.
   stateSelector: (state: AppState) => UserListStoreState
 
+  // Selector pointing to relevant userId in the context of this modal
+  userIdSelector?: (state: AppState) => ID | null
+
   // Optional sideeffects on/before performing actions
   afterFollow?: () => void
   afterUnfollow?: () => void
@@ -104,6 +107,7 @@ const ConnectedUserList = (props: ConnectedUserListProps) => {
       isMobile={props.isMobile}
       getScrollParent={props.getScrollParent}
       tag={props.tag}
+      otherUserId={props.otherUserId}
       onNavigateAway={props.onNavigateAway}
     />
   )
@@ -112,6 +116,7 @@ const ConnectedUserList = (props: ConnectedUserListProps) => {
 function mapStateToProps(state: AppState, ownProps: ConnectedUserListOwnProps) {
   const { hasMore, loading, userIds } = ownProps.stateSelector(state)
   const userId = getUserId(state)
+  const otherUserId = ownProps.userIdSelector?.(state) ?? undefined
   const getOptimisticUserIds = makeGetOptimisticUserIdsIfNeeded({
     userIds,
     tag: ownProps.tag
@@ -130,7 +135,8 @@ function mapStateToProps(state: AppState, ownProps: ConnectedUserListOwnProps) {
     users,
     hasMore,
     loading,
-    isMobile: isMobile()
+    isMobile: isMobile(),
+    otherUserId
   }
 }
 
