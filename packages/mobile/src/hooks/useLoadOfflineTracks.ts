@@ -226,4 +226,5 @@ export const useOfflineCollectionLineup = (
   ])
 
   useReachabilityState(fetchOnlineContent, fetchLocalContent)
+  return fetchLocalContent
 }
