@@ -71,7 +71,7 @@ type CollectionScreenDetailsTileProps = {
   isPrivate?: boolean
   isPublishing?: boolean
   extraDetails?: DetailsTileDetail[]
-  collectionId: number
+  collectionId: number | SmartCollectionVariant
 } & Omit<
   DetailsTileProps,
   'descriptionLinkPressSource' | 'details' | 'headerText' | 'onPressPlay'
