@@ -15,7 +15,7 @@ import { useSelector } from 'react-redux'
 
 import IconImage from 'app/assets/images/iconImage.svg'
 import { Text } from 'app/components/core'
-import { makeStyles } from 'app/styles'
+import { makeStyles, typography } from 'app/styles'
 
 import { ListSelectionScreen } from './ListSelectionScreen'
 
@@ -41,6 +41,14 @@ const useStyles = makeStyles(({ spacing, palette, type }) => ({
     borderRadius: spacing(1),
     width: spacing(8),
     height: spacing(8)
+  },
+  collectionName: {
+    fontFamily: typography.fontByWeight.demiBold,
+    fontSize: typography.fontSize.large,
+    width: spacing(50)
+  },
+  row: {
+    alignItems: 'center'
   }
 }))
 
@@ -171,7 +179,7 @@ export const NFTCollectionsScreen = () => {
     return (
       <View style={styles.item}>
         {imageUrl && <Image source={{ uri: imageUrl }} style={styles.logo} />}
-        <Text weight='demiBold' fontSize='large'>
+        <Text style={styles.collectionName} numberOfLines={1}>
           {name}
         </Text>
       </View>
@@ -227,6 +235,8 @@ export const NFTCollectionsScreen = () => {
       onChange={handleChange}
       searchText={messages.searchCollections}
       disableReset
+      itemStyles={styles.row}
+      itemContentStyles={styles.row}
     />
   )
 }
