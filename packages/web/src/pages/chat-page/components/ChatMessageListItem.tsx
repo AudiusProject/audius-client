@@ -2,9 +2,11 @@ import { useCallback, useRef, useState } from 'react'
 
 import {
   accountSelectors,
+  cacheUsersSelectors,
   chatActions,
   decodeHashId,
-  ReactionTypes
+  ReactionTypes,
+  useProxySelector
 } from '@audius/common'
 import type { ChatMessage } from '@audius/sdk'
 import { IconPlus, PopupPosition } from '@audius/stems'
@@ -21,6 +23,7 @@ import styles from './ChatMessageListItem.module.css'
 import { ReactionPopupMenu } from './ReactionPopupMenu'
 
 const { setMessageReaction } = chatActions
+const { getUserId } = accountSelectors
 
 type ChatMessageListItemProps = {
   chatId: string
@@ -42,8 +45,15 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   const dispatch = useDispatch()
   const [isReactionPopupVisible, setReactionPopupVisible] = useState(false)
   const senderUserId = decodeHashId(message.sender_user_id)
-  const userId = useSelector(accountSelectors.getUserId)
+  const userId = useSelector(getUserId)
   const isAuthor = userId === senderUserId
+  const reactionUsers = useProxySelector(
+    (state) =>
+      cacheUsersSelectors.getUsers(state, {
+        ids: message.reactions?.map((r) => decodeHashId(r.user_id)!)
+      }),
+    [message]
+  )
 
   const handleOpenReactionPopupButtonClicked = useCallback(
     () => setReactionPopupVisible((isVisible) => !isVisible),
@@ -84,7 +94,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
           })}
           onClick={handleOpenReactionPopupButtonClicked}
         >
-          {message.reactions ? (
+          {message.reactions?.length > 0 ? (
             message.reactions.map((reaction) => {
               if (!(reaction.reaction in reactionMap)) {
                 console.error(
@@ -99,6 +109,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
                   key={reaction.user_id}
                   width={48}
                   height={48}
+                  title={reactionUsers[decodeHashId(reaction.user_id)!].name}
                 />
               )
             })
