@@ -4,7 +4,8 @@ import {
   formatCount,
   accountSelectors,
   explorePageActions,
-  explorePageSelectors
+  explorePageSelectors,
+  removeNullable
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
@@ -66,7 +67,7 @@ const ExplorePage = ({
     // Props from AppState
     account,
     playlists: explore.playlists,
-    profiles: explore.profiles,
+    profiles: explore.profiles.filter(removeNullable),
     status: explore.status,
     formatPlaylistCardSecondaryText,
     formatProfileCardSecondaryText,

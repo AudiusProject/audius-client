@@ -176,6 +176,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       !activeTab &&
       profile &&
       profile.profile &&
+      profile.profile.track_count !== undefined &&
       artistTracks!.status === Status.SUCCESS
     ) {
       if (profile.profile.track_count > 0) {
@@ -191,6 +192,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       !activeTab &&
       profile &&
       profile.profile &&
+      profile.profile.track_count !== undefined &&
       !(profile.profile.track_count > 0)
     ) {
       this.setState({
@@ -203,7 +205,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       const params = parseUserRoute(pathname)
       if (params) {
         const { handle } = params
-        if (handle === null) {
+        if (handle === null && profile.profile.handle) {
           const newPath = profilePage(profile.profile.handle)
           this.props.replaceRoute(newPath)
         }
@@ -222,7 +224,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     const {
       profile: { profile }
     } = this.props
-    if (!profile) return
+    if (!profile || !profile.user_id) return
     this.props.onFollow(profile.user_id)
     if (this.props.account) {
       this.props.updateCurrentUserFollows(true)
@@ -236,10 +238,9 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     const {
       profile: { profile }
     } = this.props
-    if (!profile) return
-    const userId = profile.user_id
-    this.props.onUnfollow(userId)
-    this.props.setNotificationSubscription(userId, false)
+    if (!profile || !profile.user_id) return
+    this.props.onUnfollow(profile.user_id)
+    this.props.setNotificationSubscription(profile.user_id, false)
 
     if (this.props.account) {
       this.props.updateCurrentUserFollows(false)
@@ -481,7 +482,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     const {
       profile: { profile }
     } = this.props
-    if (!profile) return
+    if (!profile || !profile.user_id) return
     this.props.onShare(profile.user_id)
   }
 
@@ -507,10 +508,10 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     let followingCount = 0
 
     if (profile) {
-      trackCount = profile.track_count
-      playlistCount = profile.playlist_count
-      followerCount = profile.follower_count
-      followingCount = profile.followee_count
+      trackCount = profile.track_count || 0
+      playlistCount = profile.playlist_count || 0
+      followerCount = profile.follower_count || 0
+      followingCount = profile.followee_count || 0
     }
 
     return isArtist
@@ -549,7 +550,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       profile: { profile },
       trackUpdateSort
     } = this.props
-    if (!profile) return
+    if (!profile || !profile.user_id) return
     this.setState({ tracksLineupOrder: TracksSortMode.RECENT })
     updateCollectionOrder(CollectionSortMode.TIMESTAMP)
     trackUpdateSort('recent')
@@ -568,7 +569,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       profile: { profile },
       trackUpdateSort
     } = this.props
-    if (!profile) return
+    if (!profile || !profile.user_id) return
     this.setState({ tracksLineupOrder: TracksSortMode.POPULAR })
     this.props.loadMoreArtistTracks(
       0,
@@ -584,7 +585,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     const {
       profile: { profile }
     } = this.props
-    if (!profile) return
+    if (!profile || !profile.user_id) return
     this.props.loadMoreArtistTracks(
       offset,
       limit,
@@ -600,7 +601,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     } = this.props
     if (profile) {
       let tab = `/${currLabel.toLowerCase()}`
-      if (profile.track_count > 0) {
+      if (profile.track_count !== undefined && profile.track_count > 0) {
         // An artist, default route is tracks
         if (currLabel === ProfilePageTabs.TRACKS) {
           tab = ''
@@ -625,7 +626,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     const {
       profile: { profile }
     } = this.props
-    if (!profile) return
+    if (!profile || !profile.user_id) return
     this.props.loadMoreUserFeed(offset, limit, profile.user_id)
   }
 
@@ -672,7 +673,9 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
 
   getIsArtist = () => {
     const { profile } = this.props.profile
-    return !!profile && profile.track_count > 0
+    return (
+      !!profile && profile.track_count !== undefined && profile.track_count > 0
+    )
   }
 
   getIsOwner = () => {

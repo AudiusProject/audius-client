@@ -171,9 +171,13 @@ export function* undoRepostCollectionAsync(
     ids: [action.collectionId]
   })
   const collection = collections[action.collectionId]
+  if (!collection) {
+    console.error(`Missing collection ${action.collectionId}`)
+    return
+  }
 
   const event = make(Name.UNDO_REPOST, {
-    kind: collection.is_album ? 'album' : 'playlist',
+    kind: collection?.is_album ? 'album' : 'playlist',
     source: action.source,
     id: action.collectionId
   })
@@ -313,6 +317,11 @@ export function* saveCollectionAsync(
     ids: [action.collectionId]
   })
   const collection = collections[action.collectionId]
+  if (!collection) {
+    console.error(`Missing collection ${action.collectionId}`)
+    return
+  }
+
   const user = yield* select(getUser, { id: collection.playlist_owner_id })
   if (!user) return
 
@@ -451,6 +460,10 @@ export function* unsaveCollectionAsync(
     ids: [action.collectionId]
   })
   const collection = collections[action.collectionId]
+  if (!collection) {
+    console.error(`Missing collection ${action.collectionId}`)
+    return
+  }
 
   const event = make(Name.UNFAVORITE, {
     kind: collection.is_album ? 'album' : 'playlist',
@@ -524,7 +537,10 @@ export function* watchShareCollection() {
     function* (action: ReturnType<typeof socialActions.shareCollection>) {
       const { collectionId } = action
       const collection = yield* select(getCollection, { id: collectionId })
-      if (!collection) return
+      if (!collection) {
+        console.error(`Missing collection ${action.collectionId}`)
+        return
+      }
 
       const user = yield* select(getUser, { id: collection.playlist_owner_id })
       if (!user) return

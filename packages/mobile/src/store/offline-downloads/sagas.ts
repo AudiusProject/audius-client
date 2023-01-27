@@ -4,6 +4,7 @@ import type {
   UserCollectionMetadata
 } from '@audius/common'
 import {
+  removeNullable,
   collectionPageActions,
   FavoriteSource,
   tracksSocialActions,
@@ -148,7 +149,7 @@ export function* startSync() {
         ([id, isDownloaded]) => isDownloaded && id !== DOWNLOAD_REASON_FAVORITES
       )
       .map(([id, isDownloaded]) => collections[id] ?? null)
-      .filter((collection) => !!collection)
+      .filter(removeNullable)
 
     if (isFavoritesDownloadEnabled) {
       // Individual tracks
@@ -163,7 +164,7 @@ export function* startSync() {
       const updatedCollections = yield* select(getCollections)
       const updatedAccountCollections = accountCollectionIds
         .map((id) => updatedCollections[id])
-        .filter((collection) => !!collection)
+        .filter(removeNullable)
 
       yield* call(
         syncFavoritedCollections,

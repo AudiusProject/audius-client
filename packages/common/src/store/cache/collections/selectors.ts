@@ -119,14 +119,20 @@ export const getTracksFromCollection = (
       trackUid.source = `${collectionSource}:${trackUid.source}`
       trackUid.count = i
 
-      if (!tracks[t.track]) {
+      const track = tracks[t.track]
+      if (!track) {
         console.error(`Found empty track ${t.track}`)
+        return null
+      }
+      const user = users[track.owner_id]
+      if (!user) {
+        console.error(`Found empty user ${track.owner_id}`)
         return null
       }
       return {
         ...tracks[t.track],
         uid: trackUid.toString(),
-        user: users[tracks[t.track].owner_id]
+        user
       }
     })
     .filter(Boolean) as EnhancedCollectionTrack[]

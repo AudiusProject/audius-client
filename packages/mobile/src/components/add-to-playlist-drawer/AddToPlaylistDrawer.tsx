@@ -6,7 +6,8 @@ import {
   accountSelectors,
   cacheCollectionsActions,
   addToPlaylistUISelectors,
-  newCollectionMetadata
+  newCollectionMetadata,
+  removeNullable
 } from '@audius/common'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
@@ -97,7 +98,7 @@ export const AddToPlaylistDrawer = () => {
         </View>
         <CardList
           contentContainerStyle={styles.cardList}
-          data={userPlaylists}
+          data={userPlaylists.filter(removeNullable)}
           renderItem={({ item }) => (
             <Card
               key={item.playlist_id}

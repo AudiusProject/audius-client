@@ -61,7 +61,9 @@ export const getUsers = (
         getUserByHandle(state, { handle: handle.toLowerCase() }) || {}
       if (id) {
         const user = getUser(state, { id })
-        if (user) users[handle] = user
+        if (user) {
+          users[handle] = user
+        }
       }
     })
     return users

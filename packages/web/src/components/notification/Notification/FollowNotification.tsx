@@ -2,7 +2,8 @@ import { useCallback } from 'react'
 
 import {
   notificationsSelectors,
-  FollowNotification as FollowNotificationType
+  FollowNotification as FollowNotificationType,
+  removeNullable
 } from '@audius/common'
 import { push } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
@@ -77,7 +78,7 @@ export const FollowNotification = (props: FollowNotificationProps) => {
     <NotificationTile notification={notification} onClick={handleClick}>
       <NotificationHeader icon={<IconFollow />}>
         <UserProfilePictureList
-          users={users}
+          users={users.filter(removeNullable)}
           totalUserCount={userIds.length}
           stopPropagation
         />

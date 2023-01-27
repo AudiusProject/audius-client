@@ -1,6 +1,5 @@
 import {
   ID,
-  Collection,
   CollectionMetadata,
   UserCollectionMetadata,
   Kind,
@@ -37,7 +36,7 @@ function* markCollectionDeleted(
     if (!(metadata.playlist_id in collections)) return metadata
     return {
       ...metadata,
-      _marked_deleted: !!collections[metadata.playlist_id]._marked_deleted
+      _marked_deleted: !!collections?.[metadata.playlist_id]?._marked_deleted
     }
   })
 }
@@ -163,9 +162,10 @@ export function* retrieveCollectionByPermalink(
       if (requiresAllTracks) {
         const keys = Object.keys(cachedCollections) as unknown as number[]
         keys.forEach((collectionId) => {
-          const fullTrackCount = cachedCollections[collectionId].track_count
+          const fullTrackCount =
+            cachedCollections?.[collectionId]?.track_count ?? 0
           const currentTrackCount =
-            cachedCollections[collectionId].tracks?.length ?? 0
+            cachedCollections?.[collectionId]?.tracks?.length ?? 0
           if (currentTrackCount < fullTrackCount) {
             // Remove the collection from the res so retrieve knows to get it from source
             delete cachedCollections[collectionId]
@@ -236,14 +236,12 @@ export function* retrieveCollections(
   const { entries, uids } = yield* call(retrieve, {
     ids: collectionIds,
     selectFromCache: function* (ids: ID[]) {
-      const res: {
-        [id: number]: Collection
-      } = yield* select(getCollections, { ids })
+      const res = yield* select(getCollections, { ids })
       if (requiresAllTracks) {
         const keys = Object.keys(res) as any
         keys.forEach((collectionId: number) => {
-          const fullTrackCount = res[collectionId].track_count
-          const currentTrackCount = res[collectionId].tracks?.length ?? 0
+          const fullTrackCount = res?.[collectionId]?.track_count ?? 0
+          const currentTrackCount = res?.[collectionId]?.tracks?.length ?? 0
           if (currentTrackCount < fullTrackCount) {
             // Remove the collection from the res so retrieve knows to get it from source
             delete res[collectionId]

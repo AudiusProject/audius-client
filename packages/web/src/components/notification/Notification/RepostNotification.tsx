@@ -2,6 +2,7 @@ import { MouseEventHandler, useCallback } from 'react'
 
 import {
   notificationsSelectors,
+  removeNullable,
   RepostNotification as RepostNotificationType
 } from '@audius/common'
 import { push } from 'connected-react-router'
@@ -85,7 +86,7 @@ export const RepostNotification = (props: RepostNotificationProps) => {
     >
       <NotificationHeader icon={<IconRepost />}>
         <UserProfilePictureList
-          users={users}
+          users={users.filter(removeNullable)}
           totalUserCount={userIds.length}
           stopPropagation
         />

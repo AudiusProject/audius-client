@@ -2,7 +2,8 @@ import { MouseEventHandler, useCallback } from 'react'
 
 import {
   notificationsSelectors,
-  FavoriteNotification as FavoriteNotificationType
+  FavoriteNotification as FavoriteNotificationType,
+  removeNullable
 } from '@audius/common'
 import { push } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
@@ -80,7 +81,7 @@ export const FavoriteNotification = (props: FavoriteNotificationProps) => {
     <NotificationTile notification={notification} onClick={handleClick}>
       <NotificationHeader icon={<IconFavorite />}>
         <UserProfilePictureList
-          users={users}
+          users={users.filter(removeNullable)}
           totalUserCount={userIds.length}
           stopPropagation
         />

@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 
 import type { FavoriteNotification as FavoriteNotificationType } from '@audius/common'
 import {
+  removeNullable,
   formatCount,
   notificationsSelectors,
   useProxySelector
@@ -59,7 +60,7 @@ export const FavoriteNotification = (props: FavoriteNotificationProps) => {
   return (
     <NotificationTile notification={notification} onPress={handlePress}>
       <NotificationHeader icon={IconHeart}>
-        <ProfilePictureList users={users} />
+        <ProfilePictureList users={users.filter(removeNullable)} />
       </NotificationHeader>
       <NotificationText>
         <UserNameLink user={firstUser} />

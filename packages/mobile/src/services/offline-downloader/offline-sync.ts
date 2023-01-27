@@ -4,7 +4,11 @@ import type {
   DownloadReason,
   UserCollectionMetadata
 } from '@audius/common'
-import { accountSelectors, cacheTracksSelectors } from '@audius/common'
+import {
+  removeNullable,
+  accountSelectors,
+  cacheTracksSelectors
+} from '@audius/common'
 import moment from 'moment'
 import queue from 'react-native-job-queue'
 
@@ -54,9 +58,10 @@ export const syncFavoritedTracks = async () => {
     .map(({ trackId }) => trackId)
   const cachedFavoritedTrackIds = Object.entries(cacheTracks)
     .filter(([id, track]) =>
-      track.offline?.reasons_for_download.some(isTrackFavoriteReason)
+      track?.offline?.reasons_for_download.some(isTrackFavoriteReason)
     )
-    .map(([id, track]) => track.track_id)
+    .map(([id, track]) => track?.track_id)
+    .filter(removeNullable)
 
   const oldTrackIds = new Set([...queuedTracks, ...cachedFavoritedTrackIds])
   const newTrackIds = new Set(favoritedTracks.map(({ trackId }) => trackId))
@@ -229,14 +234,16 @@ export const syncStaleTracks = () => {
   const staleCachedTracks = Object.entries(cacheTracks)
     .filter(
       ([id, track]) =>
-        track.offline &&
+        track?.offline &&
         moment()
           .subtract(STALE_DURATION_TRACKS)
-          .isAfter(moment(track.offline?.last_verified_time))
+          .isAfter(moment(track?.offline?.last_verified_time))
     )
     .map(([id, track]) => track)
 
   staleCachedTracks.forEach(async (staleTrack) => {
+    if (!staleTrack) return
+
     const updatedTrack = await apiClient.getTrack({
       id: staleTrack.track_id,
       currentUserId

@@ -55,16 +55,18 @@ const AddToPlaylistModal = () => {
   const [searchValue, setSearchValue] = useState('')
 
   const filteredPlaylists = useMemo(() => {
-    return (account?.playlists ?? []).filter(
-      (playlist: Collection) =>
-        // Don't allow adding to this playlist if already on this playlist's page.
-        playlist.playlist_id !== currentCollectionId &&
+    const playlists = account?.playlists ?? []
+    return playlists.filter((playlist) => {
+      // Don't allow adding to this playlist if already on this playlist's page.
+      return (
+        playlist?.playlist_id !== currentCollectionId &&
         (searchValue
-          ? playlist.playlist_name
-              .toLowerCase()
+          ? playlist?.playlist_name
+              ?.toLowerCase()
               .includes(searchValue.toLowerCase())
           : true)
-    )
+      )
+    })
   }, [searchValue, account, currentCollectionId])
 
   const handlePlaylistClick = (playlist: Collection) => {
@@ -135,7 +137,7 @@ const AddToPlaylistModal = () => {
             {filteredPlaylists.map((playlist) => (
               <div key={`${playlist.playlist_id}`}>
                 <PlaylistItem
-                  playlist={playlist}
+                  playlist={playlist as Collection}
                   handleClick={handlePlaylistClick}
                 />
               </div>

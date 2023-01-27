@@ -77,7 +77,7 @@ export const getProfileCollections = createDeepEqualSelector(
   ],
   (userId, users, collections) => {
     if (!userId) return undefined
-    const user: User = users[userId]
+    const user = users[userId]
     if (!user) return undefined
     const { handle, _collectionIds } = user
     const userCollections = _collectionIds
@@ -146,7 +146,7 @@ export const makeGetProfile = () => {
       if (!(userId in users)) return emptyState
 
       // Get playlists & albums.
-      const c = (users[userId]._collectionIds || [])
+      const c = (users?.[userId]?._collectionIds ?? [])
         .map((id) =>
           id in collections ? collections[id as unknown as number] : null
         )
@@ -204,6 +204,8 @@ export const makeGetProfile = () => {
             status: followees?.status ?? Status.IDLE,
             users: followeesPopulated
           }
+        } as User & { followers: { status: Status; users: User[] } } & {
+          followees: { status: Status; users: User[] }
         },
         mostUsedTags,
         playlists,

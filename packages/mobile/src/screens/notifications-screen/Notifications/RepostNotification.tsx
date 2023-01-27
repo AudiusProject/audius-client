@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 
 import type { RepostNotification as RepostNotificationType } from '@audius/common'
 import {
+  removeNullable,
   useProxySelector,
   formatCount,
   notificationsSelectors
@@ -58,7 +59,7 @@ export const RepostNotification = (props: RepostNotificationProps) => {
   return (
     <NotificationTile notification={notification} onPress={handlePress}>
       <NotificationHeader icon={IconRepost}>
-        <ProfilePictureList users={users} />
+        <ProfilePictureList users={users.filter(removeNullable)} />
       </NotificationHeader>
       <NotificationText>
         <UserNameLink user={firstUser} />
