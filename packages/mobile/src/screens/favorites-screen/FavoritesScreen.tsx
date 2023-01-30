@@ -118,7 +118,7 @@ export const FavoritesScreen = () => {
         styles={{ icon: { marginLeft: 3 } }}
       >
         {isOfflineModeEnabled && (
-          <View style={{ display: 'flex', flexDirection: 'row' }}>
+          <View style={{ flexDirection: 'row' }}>
             <DownloadProgress />
             <DownloadToggle
               tracksForDownload={tracksForDownload}
