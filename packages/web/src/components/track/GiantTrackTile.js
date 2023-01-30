@@ -481,8 +481,8 @@ class GiantTrackTile extends PureComponent {
             >
               {this.renderShareButton()}
               {this.renderMakePublicButton()}
-              {this.renderRepostButton()}
-              {this.renderFavoriteButton()}
+              {doesUserHaveAccess && this.renderRepostButton()}
+              {doesUserHaveAccess && this.renderFavoriteButton()}
               <span>
                 <Menu {...overflowMenu}>
                   {(ref, triggerPopup) => (
