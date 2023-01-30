@@ -9,7 +9,6 @@ import type {
   UserTrackMetadata
 } from '@audius/common'
 import { allSettled } from '@audius/common'
-import { readDir } from 'react-native-fs'
 import RNFetchBlob from 'rn-fetch-blob'
 
 import { store } from 'app/store'
@@ -21,7 +20,7 @@ import {
 import { DOWNLOAD_REASON_FAVORITES } from './offline-downloader'
 
 const {
-  fs: { dirs, exists, mkdir, readFile, unlink, writeFile }
+  fs: { dirs, exists, ls, mkdir, readFile, unlink, writeFile }
 } = RNFetchBlob
 
 export type OfflineCollection = Collection & { user: UserMetadata }
@@ -105,9 +104,7 @@ export const getOfflineCollections = async () => {
   if (!(await exists(collectionsDir))) {
     return []
   }
-  // Using RNFS.readDir because it can syncrouncously filter out directories
-  const files = await readDir(collectionsDir)
-  return files.filter((file) => file.isDirectory()).map((file) => file.name)
+  return await ls(collectionsDir)
 }
 
 export const purgeDownloadedCollection = async (collectionId: string) => {
@@ -165,8 +162,7 @@ export const listTracks = async (): Promise<string[]> => {
   if (!(await exists(tracksDir))) {
     return []
   }
-  const files = await readDir(tracksDir)
-  return files.filter((file) => file.isDirectory()).map((file) => file.name)
+  return await ls(tracksDir)
 }
 
 export const getTrackJson = async (
