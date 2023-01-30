@@ -37,7 +37,7 @@ export const DownloadProgress = () => {
   ).length
 
   // Only render if there are active downloads
-  if (numDownloadsComplete - numDownloadsComplete === 0) return null
+  if (numDownloadsComplete === numDownloads) return null
 
   return (
     <View style={styles.root}>
