@@ -73,14 +73,11 @@ export const FavoritesScreen = () => {
   const userCollections = useProxySelector(
     (state: CommonState) => {
       if (isOfflineModeEnabled && !isReachable) {
-        if (isDoneLoadingFromDisk) {
-          return getAccountCollections(state, '')
-        } else {
+        if (!isDoneLoadingFromDisk) {
           return []
         }
-      } else {
-        return getAccountCollections(state, '')
       }
+      return getAccountCollections(state, '')
     },
     [isOfflineModeEnabled, isReachable, isDoneLoadingFromDisk]
   )
