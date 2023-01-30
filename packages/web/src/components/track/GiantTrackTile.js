@@ -421,7 +421,7 @@ class GiantTrackTile extends PureComponent {
     return (
       <div className={styles.giantTrackTile}>
         <div className={styles.topSection}>
-          {isPremium && (
+          {!isLoading && isPremium && (
             <PremiumTrackCornerTag doesUserHaveAccess={doesUserHaveAccess} />
           )}
           <GiantArtwork

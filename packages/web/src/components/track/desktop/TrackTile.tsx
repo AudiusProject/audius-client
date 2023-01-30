@@ -130,7 +130,7 @@ const TrackTile = memo(
             : onTogglePlay
         }
       >
-        {isPremium && (
+        {!isLoading && isPremium && (
           <PremiumTrackCornerTag doesUserHaveAccess={!!doesUserHaveAccess} />
         )}
         {/* prefix ordering */}
@@ -206,7 +206,7 @@ const TrackTile = memo(
               )}
             </div>
             <div className={styles.topRight}>
-              {isPremium && (
+              {!isLoading && isPremium && (
                 <PremiumContentLabel
                   premiumConditions={premiumConditions}
                   doesUserHaveAccess={!!doesUserHaveAccess}

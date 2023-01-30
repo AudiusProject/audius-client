@@ -15,7 +15,8 @@ import {
   premiumContentActions,
   collectiblesActions,
   trackPageActions,
-  TrackMetadata
+  TrackMetadata,
+  Nullable
 } from '@audius/common'
 import { takeEvery, select, call, put, delay } from 'typed-redux-saga'
 
@@ -262,30 +263,42 @@ function* updateCollectibleGatedTrackAccess(
   // which the client believes the user should have access to
   const apiClient = yield* getContext('apiClient')
 
-  const premiumContentSignatureMap = yield* call(
+  const premiumContentSignatureResponse = yield* call(
     [apiClient, apiClient.getPremiumContentSignatures],
     {
       userId: account.user_id,
       trackMap
     }
   )
+  const premiumContentSignatureMap: {
+    [id: ID]: Nullable<PremiumContentSignature>
+  } = {}
 
-  // update premium content signatures
-  if (premiumContentSignatureMap) {
+  if (premiumContentSignatureResponse) {
+    // Set null for tracks for which signatures did not get returned
+    // to signal that an attempt was made but the user does not have access.
+    Object.keys(trackMap).forEach((trackId) => {
+      const id = parseInt(trackId)
+      if (!premiumContentSignatureResponse[id]) {
+        premiumContentSignatureMap[id] = null
+      }
+    })
+
+    // update premium content signatures
     yield* put(updatePremiumContentSignatures(premiumContentSignatureMap))
 
     // also update premium tracks' metadata with the newly obtained signature
     yield* put(
       cacheActions.update(
         Kind.TRACKS,
-        Object.keys(premiumContentSignatureMap).map((trackId) => {
+        Object.keys(premiumContentSignatureResponse).map((trackId) => {
           const id = parseInt(trackId)
           return {
             id,
             metadata: {
               // todo: remove below ts ignore
               // @ts-ignore
-              premium_content_signature: premiumContentSignatureMap[id]
+              premium_content_signature: premiumContentSignatureResponse[id]
             }
           }
         })

@@ -5,9 +5,11 @@ import {
   Track,
   User,
   trackPageLineupActions,
-  QueueItem
+  QueueItem,
+  premiumContentSelectors
 } from '@audius/common'
 import cn from 'classnames'
+import { useSelector } from 'react-redux'
 
 import CoverPhoto from 'components/cover-photo/CoverPhoto'
 import Lineup from 'components/lineup/Lineup'
@@ -22,7 +24,9 @@ import { getTrackDefaults, emptyStringGuard } from 'pages/track-page/utils'
 
 import Remixes from './Remixes'
 import styles from './TrackPage.module.css'
+
 const { tracksActions } = trackPageLineupActions
+const { getPremiumTrackSignatureMap } = premiumContentSelectors
 
 const messages = {
   moreBy: 'More By',
@@ -42,7 +46,6 @@ export type OwnProps = {
   heroPlaying: boolean
   userId: ID | null
   badge: string | null
-  doesUserHaveAccess: boolean
   onHeroPlay: (isPlaying: boolean) => void
   goToProfilePage: (handle: string) => void
   goToSearchResultsPage: (tag: string) => void
@@ -88,7 +91,6 @@ const TrackPage = ({
   heroPlaying,
   userId,
   badge,
-  doesUserHaveAccess,
   onHeroPlay,
   goToProfilePage,
   goToSearchResultsPage,
@@ -120,7 +122,19 @@ const TrackPage = ({
   const following = user?.does_current_user_follow ?? false
   const isSaved = heroTrack?.has_current_user_saved ?? false
   const isReposted = heroTrack?.has_current_user_reposted ?? false
-  const loading = !heroTrack
+
+  const trackId = heroTrack?.track_id
+  const hasPremiumContentSignature = !!heroTrack?.premium_content_signature
+  const isCollectibleGated = !!heroTrack?.premium_conditions?.nft_collection
+  const premiumTrackSignatureMap = useSelector(getPremiumTrackSignatureMap)
+  const isSignatureToBeFetched =
+    isCollectibleGated &&
+    !!trackId &&
+    premiumTrackSignatureMap[trackId] === undefined
+  const isUserAccessTBD = !hasPremiumContentSignature && isSignatureToBeFetched
+  const loading = !heroTrack || isUserAccessTBD
+  const isPremium = !!heroTrack?.is_premium
+  const doesUserHaveAccess = !isPremium || hasPremiumContentSignature
 
   const onPlay = () => onHeroPlay(heroPlaying)
   const onSave = isOwner

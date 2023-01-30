@@ -116,6 +116,7 @@ const ConnectedTrackTile = memo(
       is_unlisted: isUnlisted,
       is_premium: isPremium,
       premium_conditions: premiumConditions,
+      premium_content_signature: premiumContentSignature,
       track_id: trackId,
       title,
       permalink,
@@ -145,8 +146,16 @@ const ConnectedTrackTile = memo(
     const isOwner = handle === userHandle
     const isArtistPick = showArtistPick && _artist_pick === trackId
 
+    const hasPremiumContentSignature = !!premiumContentSignature
+    const isCollectibleGated = !!premiumConditions?.nft_collection
     const premiumTrackSignatureMap = useSelector(getPremiumTrackSignatureMap)
-    const hasPremiumContentSignature = !!premiumTrackSignatureMap[trackId]
+    const isSignatureToBeFetched =
+      isCollectibleGated &&
+      !!trackId &&
+      premiumTrackSignatureMap[trackId] === undefined
+    const isUserAccessTBD =
+      !hasPremiumContentSignature && isSignatureToBeFetched
+    const loading = isLoading || isUserAccessTBD
     const doesUserHaveAccess = !isPremium || hasPremiumContentSignature
 
     const menuRef = useRef<HTMLDivElement>(null)
@@ -163,10 +172,10 @@ const ConnectedTrackTile = memo(
 
     const [artworkLoaded, setArtworkLoaded] = useState(false)
     useEffect(() => {
-      if (artworkLoaded && !isLoading && hasLoaded) {
+      if (artworkLoaded && !loading && hasLoaded) {
         hasLoaded(index)
       }
-    }, [artworkLoaded, hasLoaded, index, isLoading])
+    }, [artworkLoaded, hasLoaded, index, loading])
 
     const renderImage = () => {
       const artworkProps = {
@@ -177,8 +186,8 @@ const ConnectedTrackTile = memo(
         isBuffering: isTrackBuffering,
         isPlaying: isTrackPlaying,
         artworkIconClassName: styles.artworkIcon,
-        showArtworkIcon: !isLoading,
-        showSkeleton: isLoading,
+        showArtworkIcon: !loading,
+        showSkeleton: loading,
         callback: () => setArtworkLoaded(true),
         label: `${title} by ${name}`,
         doesUserHaveAccess
@@ -345,7 +354,7 @@ const ConnectedTrackTile = memo(
     const userName = renderUserName()
 
     const disableActions = false
-    const showSkeleton = isLoading
+    const showSkeleton = loading
 
     return (
       <Draggable
@@ -367,7 +376,7 @@ const ConnectedTrackTile = memo(
           isPremium={isPremium}
           premiumConditions={premiumConditions}
           doesUserHaveAccess={doesUserHaveAccess}
-          isLoading={isLoading}
+          isLoading={loading}
           isDarkMode={isDarkMode()}
           isMatrixMode={isMatrix()}
           listenCount={play_count}
@@ -382,7 +391,7 @@ const ConnectedTrackTile = memo(
           fieldVisibility={fieldVisibility}
           containerClassName={cn(styles.container, {
             [containerClassName!]: !!containerClassName,
-            [styles.loading]: isLoading,
+            [styles.loading]: loading,
             [styles.active]: isActive
           })}
           onClickTitle={onClickTitle}
