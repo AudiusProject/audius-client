@@ -55,12 +55,13 @@ function* getTokenIdMap({
   solCollectibles,
   premiumTrackSignatureIdSet
 }: {
-  tracks: { [id: number]: Track }
+  tracks: { [id: ID]: Track }
   ethCollectibles: Collectible[]
   solCollectibles: Collectible[]
-  premiumTrackSignatureIdSet: Set<number>
+  premiumTrackSignatureIdSet: Set<ID>
 }) {
-  const trackMap: { [id: number]: string[] } = {}
+  const trackMap: { [id: ID]: string[] } = {}
+  const skipped: Set<ID> = new Set()
 
   // Build map of eth nft contract address -> list of token ids
   // ERC1155 requires token ids to get the balance of a wallet for a given collection
@@ -99,8 +100,11 @@ function* getTokenIdMap({
     .map(Number)
     .filter(Boolean)
     .forEach((trackId) => {
-      // skip this track entry if we already have a signature for it
-      if (premiumTrackSignatureIdSet.has(trackId)) return
+      if (premiumTrackSignatureIdSet.has(trackId)) {
+        // skip this track entry if we already have a signature for it
+        skipped.add(trackId)
+        return
+      }
 
       // skip this track entry if it is not premium or if it is not gated on an nft collection
       const { is_premium: isPremium, premium_conditions: premiumConditions } =
@@ -143,7 +147,7 @@ function* getTokenIdMap({
       }
     })
 
-  return trackMap
+  return { trackMap, skipped }
 }
 
 function* updateNewPremiumContentSignatures({
@@ -215,9 +219,9 @@ function* updateCollectibleGatedTrackAccess(
   )
 
   // update premium content signatures from tracks' metadata with the signature
-  const areTracksAdded =
+  const areTracksUpdated =
     'kind' in action && action.kind === Kind.TRACKS && !!action.entries.length
-  if (areTracksAdded) {
+  if (areTracksUpdated) {
     yield* call(updateNewPremiumContentSignatures, {
       tracks: action.entries.map(
         ({ metadata }: { metadata: TrackMetadata }) => metadata
@@ -234,12 +238,12 @@ function* updateCollectibleGatedTrackAccess(
 
   // halt if no tracks in cache and no added tracks
   const cachedTracks = yield* select(getTracks, {})
-  const newlyAddedTracks = areTracksAdded ? action.entries : []
-  if (!Object.keys(cachedTracks).length && !newlyAddedTracks.length) return
+  const newlyUpdatedTracks = areTracksUpdated ? action.entries : []
+  if (!Object.keys(cachedTracks).length && !newlyUpdatedTracks.length) return
 
   const allTracks = {
     ...cachedTracks,
-    ...newlyAddedTracks.reduce(
+    ...newlyUpdatedTracks.reduce(
       (
         acc: { [id: ID]: Track },
         curr: { id: number; uid: string; metadata: Track }
@@ -251,12 +255,30 @@ function* updateCollectibleGatedTrackAccess(
     )
   }
 
-  const trackMap = yield* call(getTokenIdMap, {
+  const { trackMap, skipped } = yield* call(getTokenIdMap, {
     tracks: allTracks,
     ethCollectibles: account.collectibleList || [],
     solCollectibles: account.solanaCollectibleList || [],
     premiumTrackSignatureIdSet
   })
+
+  // Set null for collectible gated track signatures as
+  // the user does not have nfts for those collections
+  // and therefore does have access.
+  const premiumContentSignatureMap: {
+    [id: ID]: Nullable<PremiumContentSignature>
+  } = {}
+  Object.keys(allTracks).forEach((trackId) => {
+    const id = parseInt(trackId)
+    if (skipped.has(id)) return
+
+    const { premium_conditions: premiumConditions } = allTracks[trackId]
+    if (premiumConditions?.nft_collection && !trackMap[id]) {
+      premiumContentSignatureMap[id] = null
+    }
+  })
+  yield* put(updatePremiumContentSignatures(premiumContentSignatureMap))
+
   if (!Object.keys(trackMap).length) return
 
   // request premium content signatures for the relevant nft-gated tracks
@@ -270,11 +292,11 @@ function* updateCollectibleGatedTrackAccess(
       trackMap
     }
   )
-  const premiumContentSignatureMap: {
-    [id: ID]: Nullable<PremiumContentSignature>
-  } = {}
 
   if (premiumContentSignatureResponse) {
+    const premiumContentSignatureMap: {
+      [id: ID]: Nullable<PremiumContentSignature>
+    } = { ...premiumContentSignatureResponse }
     // Set null for tracks for which signatures did not get returned
     // to signal that an attempt was made but the user does not have access.
     Object.keys(trackMap).forEach((trackId) => {
@@ -287,23 +309,10 @@ function* updateCollectibleGatedTrackAccess(
     // update premium content signatures
     yield* put(updatePremiumContentSignatures(premiumContentSignatureMap))
 
-    // also update premium tracks' metadata with the newly obtained signature
-    yield* put(
-      cacheActions.update(
-        Kind.TRACKS,
-        Object.keys(premiumContentSignatureResponse).map((trackId) => {
-          const id = parseInt(trackId)
-          return {
-            id,
-            metadata: {
-              // todo: remove below ts ignore
-              // @ts-ignore
-              premium_content_signature: premiumContentSignatureResponse[id]
-            }
-          }
-        })
-      )
-    )
+    // we previously also updated the track's metadata in the store
+    // to include the premium content signature,
+    // but updating the track would mean getting back in this saga
+    // and ending up in a loop
   }
 }
 

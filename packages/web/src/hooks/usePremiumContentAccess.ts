@@ -11,7 +11,9 @@ export const usePremiumContentAccess = (track: Nullable<Partial<Track>>) => {
   const { isUserAccessTBD, doesUserHaveAccess } = useMemo(() => {
     const trackId = track?.track_id
     const isPremium = !!track?.is_premium
-    const hasPremiumContentSignature = !!track?.premium_content_signature
+    const hasPremiumContentSignature =
+      !!track?.premium_content_signature ||
+      !!(trackId && premiumTrackSignatureMap[trackId])
     const isCollectibleGated = !!track?.premium_conditions?.nft_collection
     const isSignatureToBeFetched =
       isCollectibleGated &&

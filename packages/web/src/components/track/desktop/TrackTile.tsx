@@ -210,6 +210,7 @@ const TrackTile = memo(
                 <PremiumContentLabel
                   premiumConditions={premiumConditions}
                   doesUserHaveAccess={!!doesUserHaveAccess}
+                  permalink={permalink}
                 />
               )}
               {isArtistPick && (
