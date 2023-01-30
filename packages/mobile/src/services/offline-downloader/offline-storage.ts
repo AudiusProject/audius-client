@@ -20,7 +20,7 @@ import {
 import { DOWNLOAD_REASON_FAVORITES } from './offline-downloader'
 
 const {
-  fs: { dirs, exists, ls, mkdir, readFile, unlink, writeFile }
+  fs: { dirs, exists, ls, lstat, mkdir, readFile, unlink, writeFile }
 } = RNFetchBlob
 
 export type OfflineCollection = Collection & { user: UserMetadata }
@@ -237,18 +237,18 @@ export const purgeDownloadedTrack = async (trackId: string) => {
 
 /** Debugging method to read cached files */
 export const readDirRec = async (path: string) => {
-  const files = await readDir(path)
+  const files = await lstat(path)
   if (files.length === 0) {
     console.log(`${getPathFromRoot(path)} - empty`)
   }
   files.forEach((item) => {
-    if (item.isFile()) {
+    if (item.type === 'file') {
       console.log(`${getPathFromRoot(item.path)} - ${item.size} bytes`)
     }
   })
   await Promise.all(
     files.map(async (item) => {
-      if (item.isDirectory()) {
+      if (item.type === 'directory') {
         await readDirRec(item.path)
       }
     })
