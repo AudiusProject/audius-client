@@ -8,7 +8,7 @@ import type {
   UserMetadata,
   UserTrackMetadata
 } from '@audius/common'
-import { allSettled, SquareSizes } from '@audius/common'
+import { allSettled } from '@audius/common'
 import RNFS, { exists, readDir, readFile } from 'react-native-fs'
 
 import { store } from 'app/store'
@@ -22,6 +22,7 @@ import { DOWNLOAD_REASON_FAVORITES } from './offline-downloader'
 export type OfflineCollection = Collection & { user: UserMetadata }
 
 export const downloadsRoot = path.join(RNFS.CachesDirectoryPath, 'downloads')
+const IMAGE_FILENAME = '1000x1000.jpg'
 
 export const getPathFromRoot = (string: string) => {
   return string.replace(downloadsRoot, '~')
@@ -122,30 +123,22 @@ export const getLocalCollectionCoverArtDestination = (
   collectionId: string,
   uri: string
 ) => {
-  return path.join(
-    getLocalCollectionDir(collectionId),
-    getArtFileNameFromUri(uri)
-  )
+  return path.join(getLocalCollectionDir(collectionId), IMAGE_FILENAME)
 }
 
 export const getLocalCollectionCoverArtPath = (collectionId: string) => {
-  return path.join(getLocalCollectionDir(collectionId), '1000x1000.jpg')
+  return path.join(getLocalCollectionDir(collectionId), IMAGE_FILENAME)
 }
 
 export const getLocalTrackCoverArtDestination = (
   trackId: string,
   uri: string
 ) => {
-  return path.join(getLocalTrackDir(trackId), getArtFileNameFromUri(uri))
+  return path.join(getLocalTrackDir(trackId), IMAGE_FILENAME)
 }
 
 export const getLocalTrackCoverArtPath = (trackId: string) => {
-  return path.join(getLocalTrackDir(trackId), '1000x1000.jpg')
-}
-
-export const getArtFileNameFromUri = (uri: string) => {
-  // This should be "150x150.jpg" or similar
-  return uri.split('/').slice(-1)[0]
+  return path.join(getLocalTrackDir(trackId), IMAGE_FILENAME)
 }
 
 // Audio
