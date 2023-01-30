@@ -10,7 +10,6 @@ import {
   Name,
   PlaybackSource,
   formatSecondsAsText,
-  lineupSelectors,
   collectionPageLineupActions as tracksActions,
   collectionPageSelectors,
   reachabilitySelectors
@@ -39,7 +38,6 @@ const {
   getUserUid
 } = collectionPageSelectors
 const { resetCollection } = collectionPageActions
-const { makeGetTableMetadatas } = lineupSelectors
 const { getPlaying, getUid, getCurrentTrack } = playerSelectors
 const { getIsReachable } = reachabilitySelectors
 
@@ -77,8 +75,6 @@ type CollectionScreenDetailsTileProps = {
   'descriptionLinkPressSource' | 'details' | 'headerText' | 'onPressPlay'
 >
 
-const getTracksLineup = makeGetTableMetadatas(getCollectionTracksLineup)
-
 const recordPlay = (id: Maybe<number>, play = true) => {
   track(
     make({
@@ -108,7 +104,11 @@ export const CollectionScreenDetailsTile = ({
   const collection = useSelector(getCollection)
   const collectionUid = useSelector(getCollectionUid)
   const userUid = useSelector(getUserUid)
-  const { entries, status } = useProxySelector(getTracksLineup, [isReachable])
+  const { entries, status } = useProxySelector(getCollectionTracksLineup, [
+    isReachable
+  ])
+  const trackUids = useMemo(() => entries.map(({ uid }) => uid), [entries])
+
   const tracksLoading = status === Status.LOADING
   const numTracks = entries.length
 
@@ -245,7 +245,7 @@ export const CollectionScreenDetailsTile = ({
       return (
         <>
           <View style={styles.trackListDivider} />
-          <TrackList hideArt showDivider showSkeleton tracks={Array(20)} />
+          <TrackList hideArt showDivider showSkeleton uids={Array(20)} />
         </>
       )
 
@@ -258,7 +258,7 @@ export const CollectionScreenDetailsTile = ({
           hideArt
           showDivider
           togglePlay={handlePressTrackListItemPlay}
-          tracks={entries}
+          uids={trackUids}
         />
       </>
     )

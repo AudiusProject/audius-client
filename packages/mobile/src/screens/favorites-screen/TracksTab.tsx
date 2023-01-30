@@ -1,21 +1,22 @@
 import { useCallback, useState } from 'react'
 
-import type { ID, UID } from '@audius/common'
+import type { ID, Nullable, Track, UID, User } from '@audius/common'
 import {
-  useProxySelector,
+  cacheTracksSelectors,
+  cacheUsersSelectors,
   savedPageActions,
   playerSelectors,
   Status,
   FavoriteSource,
   Name,
   PlaybackSource,
-  lineupSelectors,
   savedPageTracksLineupActions as tracksActions,
   savedPageSelectors,
   tracksSocialActions,
   reachabilitySelectors
 } from '@audius/common'
 import { useFocusEffect } from '@react-navigation/native'
+import { isEqual } from 'lodash'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Tile, VirtualizedScrollView } from 'app/components/core'
@@ -36,8 +37,9 @@ const { getPlaying, getUid } = playerSelectors
 const { saveTrack, unsaveTrack } = tracksSocialActions
 const { getSavedTracksLineup, getSavedTracksStatus } = savedPageSelectors
 const { fetchSaves } = savedPageActions
-const { makeGetTableMetadatas } = lineupSelectors
 const { getIsReachable } = reachabilitySelectors
+const { getTrack } = cacheTracksSelectors
+const { getUserFromTrack } = cacheUsersSelectors
 
 const messages = {
   emptyTabText: "You haven't favorited any tracks yet.",
@@ -61,8 +63,6 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     marginVertical: 48
   }
 }))
-
-const getTracks = makeGetTableMetadatas(getSavedTracksLineup)
 
 export const TracksTab = () => {
   const dispatch = useDispatch()
@@ -99,15 +99,36 @@ export const TracksTab = () => {
   const isPlaying = useSelector(getPlaying)
   const playingUid = useSelector(getUid)
   const savedTracksStatus = useSelector(getSavedTracksStatus)
-  const savedTracks = useProxySelector(getTracks, [])
+  const savedTrackUids: string[] = useSelector(
+    (state) => getSavedTracksLineup(state).entries.map(({ uid }) => uid),
+    isEqual
+  )
+  const filterTrack = (
+    track: Nullable<Track>,
+    user: Nullable<User>
+  ): track is TrackMetadata => {
+    if (!track || !user) {
+      return false
+    }
 
-  const filterTrack = (track: TrackMetadata) => {
+    if (!filterValue.length) {
+      return true
+    }
+
     const matchValue = filterValue?.toLowerCase()
     return (
       track.title?.toLowerCase().indexOf(matchValue) > -1 ||
-      track.user?.name.toLowerCase().indexOf(matchValue) > -1
+      user.name.toLowerCase().indexOf(matchValue) > -1
     )
   }
+
+  const filteredTrackUids: string[] = useSelector((state) => {
+    return savedTrackUids.filter((uid) => {
+      const track = getTrack(state, { uid })
+      const user = getUserFromTrack(state, { uid })
+      return filterTrack(track, user)
+    })
+  }, isEqual)
 
   const onToggleSave = useCallback(
     (isSaved: boolean, trackId: ID) => {
@@ -147,8 +168,7 @@ export const TracksTab = () => {
   )
 
   const isLoading = savedTracksStatus !== Status.SUCCESS
-  const tracks = savedTracks.entries as TrackMetadata[]
-  const hasNoFavorites = tracks.length === 0
+  const hasNoFavorites = savedTrackUids.length === 0
 
   return (
     <WithLoader loading={isLoading}>
@@ -167,7 +187,7 @@ export const TracksTab = () => {
               placeholder={messages.inputPlaceholder}
               onChangeText={setFilterValue}
             />
-            {tracks.length ? (
+            {savedTrackUids.length ? (
               <Tile
                 styles={{
                   root: styles.container,
@@ -179,7 +199,7 @@ export const TracksTab = () => {
                   showDivider
                   togglePlay={togglePlay}
                   trackItemAction='save'
-                  tracks={tracks.filter(filterTrack)}
+                  uids={filteredTrackUids}
                   hideArt
                 />
               </Tile>

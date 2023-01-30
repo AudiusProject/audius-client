@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import type { ID, UID } from '@audius/common'
 import {
@@ -23,20 +23,16 @@ import {
 } from 'app/components/core'
 import { EmptyTileCTA } from 'app/components/empty-tile-cta'
 import { TrackList } from 'app/components/track-list'
-import type { TracksMetadata } from 'app/components/track-list/types'
 import { WithLoader } from 'app/components/with-loader/WithLoader'
 import { make, track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 const { getPlaying, getUid } = playerSelectors
 const { getHistoryTracksLineup } = historyPageSelectors
-const { makeGetTableMetadatas } = lineupSelectors
 
 const messages = {
   title: 'Listening History',
   noHistoryMessage: "You haven't listened to any tracks yet"
 }
-const getTracks = makeGetTableMetadatas(getHistoryTracksLineup)
-
 const useStyles = makeStyles(({ palette, spacing }) => ({
   container: {
     marginVertical: spacing(4),
@@ -62,7 +58,8 @@ export const ListeningHistoryScreen = () => {
 
   useFocusEffect(fetchListeningHistory)
 
-  const { status, entries } = useProxySelector(getTracks, [])
+  const { status, entries } = useProxySelector(getHistoryTracksLineup, [])
+  const trackUids = useMemo(() => entries.map(({ uid }) => uid), [entries])
 
   const togglePlay = useCallback(
     (uid: UID, id: ID) => {
@@ -110,7 +107,7 @@ export const ListeningHistoryScreen = () => {
                 }}
               >
                 <TrackList
-                  tracks={entries as TracksMetadata}
+                  uids={trackUids}
                   showDivider
                   togglePlay={togglePlay}
                   trackItemAction='overflow'

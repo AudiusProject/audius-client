@@ -1,15 +1,17 @@
 import { useCallback, useMemo, useState } from 'react'
 
-import type { ID, Track } from '@audius/common'
+import type { CommonState, ID, Track, UID, User } from '@audius/common'
 import {
   removeNullable,
   OverflowAction,
   OverflowSource,
-  mobileOverflowMenuUIActions
+  mobileOverflowMenuUIActions,
+  cacheUsersSelectors,
+  cacheTracksSelectors
 } from '@audius/common'
 import type { NativeSyntheticEvent, NativeTouchEvent } from 'react-native'
 import { Text, TouchableOpacity, View } from 'react-native'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconDrag from 'app/assets/images/iconDrag.svg'
 import IconHeart from 'app/assets/images/iconHeart.svg'
@@ -23,8 +25,10 @@ import { useThemeColors } from 'app/utils/theme'
 
 import { TablePlayButton } from './TablePlayButton'
 import { TrackArtwork } from './TrackArtwork'
-import type { TrackMetadata } from './types'
 const { open: openOverflowMenu } = mobileOverflowMenuUIActions
+
+const { getUserFromTrack } = cacheUsersSelectors
+const { getTrack } = cacheTracksSelectors
 
 export type TrackItemAction = 'save' | 'overflow' | 'remove'
 
@@ -100,6 +104,7 @@ const getMessages = ({ isDeleted = false }: { isDeleted?: boolean } = {}) => ({
 export type TrackListItemProps = {
   drag: () => void
   hideArt?: boolean
+  id?: ID
   index: number
   isActive?: boolean
   isPlaying?: boolean
@@ -107,11 +112,30 @@ export type TrackListItemProps = {
   onRemove?: (index: number) => void
   onSave?: (isSaved: boolean, trackId: ID) => void
   togglePlay?: (uid: string, trackId: ID) => void
-  track: TrackMetadata
+  uid?: UID
   trackItemAction?: TrackItemAction
 }
 
-export const TrackListItem = ({
+export const TrackListItem = (props: TrackListItemProps) => {
+  const { id, uid } = props
+
+  const track = useSelector((state) => getTrack(state, { id, uid }))
+  const user = useSelector((state) => getUserFromTrack(state, { id, uid }))
+
+  if (!track || !user) {
+    console.warn('Track or user missing for TrackListItem, preventing render')
+    return null
+  }
+
+  return <TrackListItemComponent {...props} track={track} user={user} />
+}
+
+type TrackListItemComponentProps = TrackListItemProps & {
+  track: Track
+  user: User
+}
+
+const TrackListItemComponent = ({
   drag,
   hideArt,
   index,
@@ -122,17 +146,14 @@ export const TrackListItem = ({
   onSave,
   togglePlay,
   track,
-  trackItemAction
-}: TrackListItemProps) => {
-  const {
-    has_current_user_saved,
-    is_delete,
-    is_unlisted,
-    title,
-    track_id,
-    uid,
-    user: { name, is_deactivated }
-  } = track
+  trackItemAction,
+  uid,
+  user
+}: TrackListItemComponentProps) => {
+  const { has_current_user_saved, is_delete, is_unlisted, title, track_id } =
+    track
+  const { is_deactivated, name } = user
+
   const isDeleted = is_delete || !!is_deactivated || is_unlisted
 
   const messages = getMessages({ isDeleted })
@@ -246,7 +267,7 @@ export const TrackListItem = ({
           </View>
           <Text numberOfLines={1} style={styles.artistName}>
             {name}
-            <UserBadges user={track.user} badgeSize={12} hideName />
+            <UserBadges user={user} badgeSize={12} hideName />
           </Text>
         </View>
         {trackItemAction === 'save' ? (
