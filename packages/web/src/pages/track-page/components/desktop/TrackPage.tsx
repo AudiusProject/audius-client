@@ -5,11 +5,9 @@ import {
   Track,
   User,
   trackPageLineupActions,
-  QueueItem,
-  premiumContentSelectors
+  QueueItem
 } from '@audius/common'
 import cn from 'classnames'
-import { useSelector } from 'react-redux'
 
 import CoverPhoto from 'components/cover-photo/CoverPhoto'
 import Lineup from 'components/lineup/Lineup'
@@ -20,13 +18,13 @@ import SectionButton from 'components/section-button/SectionButton'
 import StatBanner from 'components/stat-banner/StatBanner'
 import GiantTrackTile from 'components/track/GiantTrackTile'
 import { TrackTileSize } from 'components/track/types'
+import { usePremiumContentAccess } from 'hooks/usePremiumContentAccess'
 import { getTrackDefaults, emptyStringGuard } from 'pages/track-page/utils'
 
 import Remixes from './Remixes'
 import styles from './TrackPage.module.css'
 
 const { tracksActions } = trackPageLineupActions
-const { getPremiumTrackSignatureMap } = premiumContentSelectors
 
 const messages = {
   moreBy: 'More By',
@@ -123,18 +121,9 @@ const TrackPage = ({
   const isSaved = heroTrack?.has_current_user_saved ?? false
   const isReposted = heroTrack?.has_current_user_reposted ?? false
 
-  const trackId = heroTrack?.track_id
-  const hasPremiumContentSignature = !!heroTrack?.premium_content_signature
-  const isCollectibleGated = !!heroTrack?.premium_conditions?.nft_collection
-  const premiumTrackSignatureMap = useSelector(getPremiumTrackSignatureMap)
-  const isSignatureToBeFetched =
-    isCollectibleGated &&
-    !!trackId &&
-    premiumTrackSignatureMap[trackId] === undefined
-  const isUserAccessTBD = !hasPremiumContentSignature && isSignatureToBeFetched
+  const { isUserAccessTBD, doesUserHaveAccess } =
+    usePremiumContentAccess(heroTrack)
   const loading = !heroTrack || isUserAccessTBD
-  const isPremium = !!heroTrack?.is_premium
-  const doesUserHaveAccess = !isPremium || hasPremiumContentSignature
 
   const onPlay = () => onHeroPlay(heroPlaying)
   const onSave = isOwner

@@ -17,14 +17,13 @@ import {
   accountSelectors,
   cacheTracksSelectors,
   cacheUsersSelectors,
-  premiumContentSelectors,
   tracksSocialActions,
   shareModalUIActions,
   playerSelectors
 } from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
-import { connect, useSelector } from 'react-redux'
+import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
@@ -34,6 +33,7 @@ import Menu from 'components/menu/Menu'
 import { OwnProps as TrackMenuProps } from 'components/menu/TrackMenu'
 import { TrackArtwork } from 'components/track/desktop/Artwork'
 import UserBadges from 'components/user-badges/UserBadges'
+import { usePremiumContentAccess } from 'hooks/usePremiumContentAccess'
 import {
   setUsers,
   setVisibility
@@ -61,7 +61,6 @@ const { getUserFromTrack } = cacheUsersSelectors
 const { saveTrack, unsaveTrack, repostTrack, undoRepostTrack } =
   tracksSocialActions
 const { getUserHandle } = accountSelectors
-const { getPremiumTrackSignatureMap } = premiumContentSelectors
 
 type OwnProps = {
   uid: UID
@@ -111,12 +110,12 @@ const ConnectedTrackTile = memo(
     isTrending,
     showRankIcon
   }: ConnectedTrackTileProps) => {
+    const trackWithFallback = getTrackWithFallback(track)
     const {
       is_delete,
       is_unlisted: isUnlisted,
       is_premium: isPremium,
       premium_conditions: premiumConditions,
-      premium_content_signature: premiumContentSignature,
       track_id: trackId,
       title,
       permalink,
@@ -131,7 +130,7 @@ const ConnectedTrackTile = memo(
       _cover_art_sizes,
       play_count,
       duration
-    } = getTrackWithFallback(track)
+    } = trackWithFallback
 
     const {
       _artist_pick,
@@ -146,17 +145,9 @@ const ConnectedTrackTile = memo(
     const isOwner = handle === userHandle
     const isArtistPick = showArtistPick && _artist_pick === trackId
 
-    const hasPremiumContentSignature = !!premiumContentSignature
-    const isCollectibleGated = !!premiumConditions?.nft_collection
-    const premiumTrackSignatureMap = useSelector(getPremiumTrackSignatureMap)
-    const isSignatureToBeFetched =
-      isCollectibleGated &&
-      !!trackId &&
-      premiumTrackSignatureMap[trackId] === undefined
-    const isUserAccessTBD =
-      !hasPremiumContentSignature && isSignatureToBeFetched
+    const { isUserAccessTBD, doesUserHaveAccess } =
+      usePremiumContentAccess(trackWithFallback)
     const loading = isLoading || isUserAccessTBD
-    const doesUserHaveAccess = !isPremium || hasPremiumContentSignature
 
     const menuRef = useRef<HTMLDivElement>(null)
 
