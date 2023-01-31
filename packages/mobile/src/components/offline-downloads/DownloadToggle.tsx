@@ -1,10 +1,11 @@
 import { useCallback, useMemo, useState } from 'react'
 
-import type { Collection, DownloadReason } from '@audius/common'
+import type { Collection, CommonState, DownloadReason } from '@audius/common'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Switch, Text } from 'app/components/core'
+import { getAccountCollections } from 'app/screens/favorites-screen/selectors'
 import {
   downloadAllFavorites,
   downloadCollection,
@@ -13,8 +14,7 @@ import {
 import { setVisibility } from 'app/store/drawers/slice'
 import {
   getIsCollectionMarkedForDownload,
-  getIsAnyDownloadInProgress,
-  getIsCollectionOwner
+  getIsAnyDownloadInProgress
 } from 'app/store/offline-downloads/selectors'
 import { OfflineTrackDownloadStatus as OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
@@ -106,17 +106,23 @@ export const DownloadToggle = ({
     getIsCollectionMarkedForDownload(collectionIdStr)
   )
 
+  const userCollections = useSelector((state: CommonState) =>
+    getAccountCollections(state, '')
+  )
   const isFavoritesMarkedForDownload = useSelector(
     getIsCollectionMarkedForDownload(DOWNLOAD_REASON_FAVORITES)
   )
-
-  const isCollectionOwner = useSelector((state) =>
-    getIsCollectionOwner(state, collection?.playlist_id)
-  )
-
   const isThisFavoritedCollectionDownload = useMemo(
-    () => !!(collection && isFavoritesMarkedForDownload && isCollectionOwner),
-    [collection, isFavoritesMarkedForDownload, isCollectionOwner]
+    () =>
+      !!(
+        collection &&
+        isFavoritesMarkedForDownload &&
+        userCollections.some(
+          (userCollection) =>
+            userCollection.playlist_id === collection.playlist_id
+        )
+      ),
+    [collection, isFavoritesMarkedForDownload, userCollections]
   )
 
   const handleToggleDownload = useCallback(
