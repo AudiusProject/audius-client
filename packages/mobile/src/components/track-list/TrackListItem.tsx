@@ -1,13 +1,15 @@
 import { useCallback, useMemo, useState } from 'react'
 
-import type { CommonState, ID, Track, UID, User } from '@audius/common'
+import type { ID, Track, UID, User } from '@audius/common'
 import {
+  useProxySelector,
   removeNullable,
   OverflowAction,
   OverflowSource,
   mobileOverflowMenuUIActions,
   cacheUsersSelectors,
-  cacheTracksSelectors
+  cacheTracksSelectors,
+  playerSelectors
 } from '@audius/common'
 import type { NativeSyntheticEvent, NativeTouchEvent } from 'react-native'
 import { Text, TouchableOpacity, View } from 'react-native'
@@ -29,6 +31,7 @@ const { open: openOverflowMenu } = mobileOverflowMenuUIActions
 
 const { getUserFromTrack } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
+const { getPlaying, getUid } = playerSelectors
 
 export type TrackItemAction = 'save' | 'overflow' | 'remove'
 
@@ -94,6 +97,19 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   },
   dragIcon: {
     marginRight: spacing(6)
+  },
+  divider: {
+    borderBottomColor: palette.neutralLight7,
+    borderBottomWidth: 1,
+    marginVertical: 0,
+    marginHorizontal: spacing(6)
+  },
+  noMarginDivider: {
+    borderBottomColor: palette.neutralLight8,
+    marginHorizontal: 0
+  },
+  hideDivider: {
+    opacity: 0
   }
 }))
 
@@ -102,30 +118,51 @@ const getMessages = ({ isDeleted = false }: { isDeleted?: boolean } = {}) => ({
 })
 
 export type TrackListItemProps = {
-  drag: () => void
+  drag?: () => void
   hideArt?: boolean
   id?: ID
   index: number
-  isActive?: boolean
-  isPlaying?: boolean
   isReorderable?: boolean
+  noDividerMargin?: boolean
   onRemove?: (index: number) => void
   onSave?: (isSaved: boolean, trackId: ID) => void
+  prevUid?: UID
+  showDivider?: boolean
+  showTopDivider?: boolean
   togglePlay?: (uid: string, trackId: ID) => void
-  uid?: UID
   trackItemAction?: TrackItemAction
+  uid?: UID
 }
 
 export const TrackListItem = (props: TrackListItemProps) => {
   const { id, uid } = props
 
-  const track = useSelector((state) => getTrack(state, { id, uid }))
-  const user = useSelector((state) => getUserFromTrack(state, { id, uid }))
+  const track = useSelector(
+    (state) => getTrack(state, { id, uid }),
+    (a, b) => {
+      const result = a === b
+      if (!result) {
+        console.log('track not equal!!!')
+      }
+      return result
+    }
+  )
+  const user = useSelector(
+    (state) => getUserFromTrack(state, { id, uid }),
+    (a, b) => {
+      const result = a === b
+      if (!result) {
+        console.log('user not equal!!!')
+      }
+      return result
+    }
+  )
 
   if (!track || !user) {
     console.warn('Track or user missing for TrackListItem, preventing render')
     return null
   }
+  // console.log('tracklistitem render')
 
   return <TrackListItemComponent {...props} track={track} user={user} />
 }
@@ -135,26 +172,44 @@ type TrackListItemComponentProps = TrackListItemProps & {
   user: User
 }
 
-const TrackListItemComponent = ({
-  drag,
-  hideArt,
-  index,
-  isActive,
-  isReorderable = false,
-  isPlaying = false,
-  onRemove,
-  onSave,
-  togglePlay,
-  track,
-  trackItemAction,
-  uid,
-  user
-}: TrackListItemComponentProps) => {
+const TrackListItemComponent = (props: TrackListItemComponentProps) => {
+  const {
+    drag,
+    hideArt,
+    index,
+    isReorderable = false,
+    noDividerMargin,
+    onRemove,
+    onSave,
+    prevUid,
+    showDivider,
+    showTopDivider,
+    togglePlay,
+    track,
+    trackItemAction,
+    uid,
+    user
+  } = props
+
   const { has_current_user_saved, is_delete, is_unlisted, title, track_id } =
     track
   const { is_deactivated, name } = user
 
   const isDeleted = is_delete || !!is_deactivated || is_unlisted
+
+  const isActive = useSelector((state) => {
+    const playingUid = getUid(state)
+    return uid !== undefined && uid === playingUid
+  })
+
+  const isPrevItemActive = useSelector((state) => {
+    const playingUid = getUid(state)
+    return prevUid !== undefined && prevUid === playingUid
+  })
+
+  const isPlaying = useSelector((state) => {
+    return isActive && getPlaying(state)
+  })
 
   const messages = getMessages({ isDeleted })
   const styles = useStyles()
@@ -210,102 +265,117 @@ const TrackListItemComponent = ({
   const handlePressRemove = () => {
     onRemove?.(index)
   }
+  // console.log('tracklistitemcomponent render')
+
+  // The dividers above and belove the active track should be hidden
+  const hideDivider = isActive || isPrevItemActive
 
   return (
-    <View
-      style={[
-        styles.trackContainer,
-        isActive && styles.trackContainerActive,
-        isDeleted && styles.trackContainerDisabled
-      ]}
-    >
-      <TouchableOpacity
-        style={styles.trackInnerContainer}
-        onPress={onPressTrack}
-        onLongPress={drag}
-        disabled={isDeleted}
+    <View>
+      {showDivider && (showTopDivider || index > 0) ? (
+        <View
+          style={[
+            styles.divider,
+            hideDivider && styles.hideDivider,
+            noDividerMargin && styles.noMarginDivider
+          ]}
+        />
+      ) : null}
+      <View
+        style={[
+          styles.trackContainer,
+          isActive && styles.trackContainerActive,
+          isDeleted && styles.trackContainerDisabled
+        ]}
       >
-        {!hideArt ? (
-          <TrackArtwork
-            track={track as Track}
-            isActive={isActive}
-            isPlaying={isPlaying}
-          />
-        ) : isActive && !isDeleted ? (
-          <View style={styles.playButtonContainer}>
-            <TablePlayButton
-              playing
-              paused={!isPlaying}
-              hideDefault={false}
-              onPress={onPressTrack}
+        <TouchableOpacity
+          style={styles.trackInnerContainer}
+          onPress={onPressTrack}
+          onLongPress={drag}
+          disabled={isDeleted}
+        >
+          {!hideArt ? (
+            <TrackArtwork
+              track={track as Track}
+              isActive={isActive}
+              isPlaying={isPlaying}
             />
-          </View>
-        ) : null}
-        {isReorderable && <IconDrag style={styles.dragIcon} />}
-        <View style={styles.nameArtistContainer}>
-          <View style={styles.topLine}>
-            <View
-              style={styles.trackTitle}
-              onLayout={(e) => setTitleWidth(e.nativeEvent.layout.width)}
-            >
-              <Text
-                numberOfLines={1}
-                style={[styles.trackTitleText, { maxWidth: titleMaxWidth }]}
-              >
-                {title}
-              </Text>
-              <Text numberOfLines={1} style={[styles.trackTitleText]}>
-                {messages.deleted}
-              </Text>
+          ) : isActive && !isDeleted ? (
+            <View style={styles.playButtonContainer}>
+              <TablePlayButton
+                playing
+                paused={!isPlaying}
+                hideDefault={false}
+                onPress={onPressTrack}
+              />
             </View>
-
-            {!isDeleted && (
-              <View style={styles.downloadIndicator}>
-                <DownloadStatusIndicator trackId={track_id} size={16} />
+          ) : null}
+          {isReorderable && <IconDrag style={styles.dragIcon} />}
+          <View style={styles.nameArtistContainer}>
+            <View style={styles.topLine}>
+              <View
+                style={styles.trackTitle}
+                onLayout={(e) => setTitleWidth(e.nativeEvent.layout.width)}
+              >
+                <Text
+                  numberOfLines={1}
+                  style={[styles.trackTitleText, { maxWidth: titleMaxWidth }]}
+                >
+                  {title}
+                </Text>
+                <Text numberOfLines={1} style={[styles.trackTitleText]}>
+                  {messages.deleted}
+                </Text>
               </View>
-            )}
+
+              {!isDeleted && (
+                <View style={styles.downloadIndicator}>
+                  <DownloadStatusIndicator trackId={track_id} size={16} />
+                </View>
+              )}
+            </View>
+            <Text numberOfLines={1} style={styles.artistName}>
+              {name}
+              <UserBadges user={user} badgeSize={12} hideName />
+            </Text>
           </View>
-          <Text numberOfLines={1} style={styles.artistName}>
-            {name}
-            <UserBadges user={user} badgeSize={12} hideName />
-          </Text>
-        </View>
-        {trackItemAction === 'save' ? (
-          <IconButton
-            icon={IconHeart}
-            styles={{
-              root: styles.iconContainer,
-              icon: styles.icon
-            }}
-            fill={
-              has_current_user_saved
-                ? themeColors.primary
-                : themeColors.neutralLight4
-            }
-            onPress={handlePressSave}
-          />
-        ) : null}
-        {trackItemAction === 'overflow' ? (
-          <IconButton
-            icon={IconKebabHorizontal}
-            styles={{
-              root: styles.iconContainer,
-              icon: styles.icon
-            }}
-            onPress={handlePressOverflow}
-          />
-        ) : null}
-        {trackItemAction === 'remove' ? (
-          <IconButton
-            icon={IconRemoveTrack}
-            styles={{
-              root: styles.iconContainer,
-              icon: styles.removeIcon
-            }}
-            onPress={handlePressRemove}
-          />
-        ) : null}
-      </TouchableOpacity>
+          {trackItemAction === 'save' ? (
+            <IconButton
+              icon={IconHeart}
+              styles={{
+                root: styles.iconContainer,
+                icon: styles.icon
+              }}
+              fill={
+                has_current_user_saved
+                  ? themeColors.primary
+                  : themeColors.neutralLight4
+              }
+              onPress={handlePressSave}
+            />
+          ) : null}
+          {trackItemAction === 'overflow' ? (
+            <IconButton
+              icon={IconKebabHorizontal}
+              styles={{
+                root: styles.iconContainer,
+                icon: styles.icon
+              }}
+              onPress={handlePressOverflow}
+            />
+          ) : null}
+          {trackItemAction === 'remove' ? (
+            <IconButton
+              icon={IconRemoveTrack}
+              styles={{
+                root: styles.iconContainer,
+                icon: styles.removeIcon
+              }}
+              onPress={handlePressRemove}
+            />
+          ) : null}
+        </TouchableOpacity>
+      </View>
     </View>
   )
 }

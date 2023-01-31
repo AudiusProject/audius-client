@@ -81,8 +81,6 @@ export const TracksTab = () => {
   )
 
   const [filterValue, setFilterValue] = useState('')
-  const isPlaying = useSelector(getPlaying)
-  const playingUid = useSelector(getUid)
   const savedTracksStatus = useSelector(getSavedTracksStatus)
   const savedTrackUids: string[] = useSelector(
     (state) => getSavedTracksLineup(state).entries.map(({ uid }) => uid),
@@ -129,34 +127,15 @@ export const TracksTab = () => {
 
   const togglePlay = useCallback(
     (uid: UID, id: ID) => {
-      if (uid !== playingUid || (uid === playingUid && !isPlaying)) {
-        dispatch(tracksActions.play(uid))
-        // TODO: store and queue events locally; upload on reconnect
-        if (!isReachable && isOfflineModeEnabled) return
-        track(
-          make({
-            eventName: Name.PLAYBACK_PLAY,
-            id: `${id}`,
-            source: PlaybackSource.FAVORITES_PAGE
-          })
-        )
-      } else if (uid === playingUid && isPlaying) {
-        dispatch(tracksActions.pause())
-        if (!isReachable && isOfflineModeEnabled) return
-        track(
-          make({
-            eventName: Name.PLAYBACK_PAUSE,
-            id: `${id}`,
-            source: PlaybackSource.FAVORITES_PAGE
-          })
-        )
-      }
+      dispatch(tracksActions.togglePlay(uid, id, PlaybackSource.FAVORITES_PAGE))
     },
-    [playingUid, isPlaying, dispatch, isReachable, isOfflineModeEnabled]
+    [dispatch]
   )
 
   const isLoading = savedTracksStatus !== Status.SUCCESS
   const hasNoFavorites = savedTrackUids.length === 0
+
+  console.log('tracks tab rerender')
 
   return (
     <WithLoader loading={isLoading}>

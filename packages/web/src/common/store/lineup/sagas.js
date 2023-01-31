@@ -11,7 +11,8 @@ import {
   lineupActions as baseLineupActions,
   queueActions,
   playerSelectors,
-  queueSelectors
+  queueSelectors,
+  reachabilitySelectors
 } from '@audius/common'
 import {
   all,
@@ -35,6 +36,7 @@ const { getUid: getCurrentPlayerTrackUid, getPlaying } = playerSelectors
 const { getUsers } = cacheUsersSelectors
 const { getTrack, getTracks } = cacheTracksSelectors
 const { getCollection } = cacheCollectionsSelectors
+const { getIsReachable } = reachabilitySelectors
 
 const makeCollectionSourceId = (source, playlistId) =>
   `${source}:collection:${playlistId}`
@@ -349,12 +351,16 @@ function* pause(action) {
 function* togglePlay(lineupActions, lineupSelector, prefix, action) {
   const isPlaying = yield select(getPlaying)
   const analytics = yield getContext('analytics')
+  const isReachable = yield select(getIsReachable)
 
   const playingUid = yield select(getCurrentPlayerTrackUid)
   const isPlayingUid = playingUid === action.uid
 
   if (!isPlayingUid || !isPlaying) {
     yield put(lineupActions.play(action.uid))
+
+    // TODO: store and queue events locally; upload on reconnect
+    if (!isReachable) return
     analytics.track({
       eventName: Name.PLAYBACK_PLAY,
       id: `${action.id}`,
@@ -362,6 +368,9 @@ function* togglePlay(lineupActions, lineupSelector, prefix, action) {
     })
   } else {
     yield put(lineupActions.pause())
+
+    // TODO: store and queue events locally; upload on reconnect
+    if (!isReachable) return
     analytics.track({
       eventName: Name.PLAYBACK_PAUSE,
       id: `${action.id}`,

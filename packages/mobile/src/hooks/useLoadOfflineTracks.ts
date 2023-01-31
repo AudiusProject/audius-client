@@ -37,7 +37,7 @@ import {
 } from '../services/offline-downloader/offline-storage'
 
 import { useIsOfflineModeEnabled } from './useIsOfflineModeEnabled'
-import useReachabilityEffect from './useReachabilityEffect'
+import { useReachabilityEffect } from './useReachabilityEffect'
 const { getCollection } = cacheCollectionsSelectors
 
 export const useLoadOfflineData = () => {
