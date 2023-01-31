@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 
 import { useField } from 'formik'
-import { View } from 'react-native'
+import { Dimensions, View } from 'react-native'
 
 import IconHidden from 'app/assets/images/iconHidden.svg'
 import { Text } from 'app/components/core'
@@ -23,9 +23,11 @@ const messages = {
   showPlayCount: 'Show Play Count'
 }
 
+const screenWidth = Dimensions.get('screen').width
+
 const useStyles = makeStyles(({ spacing, palette }) => ({
   root: {
-    width: spacing(76)
+    width: screenWidth - spacing(22)
   },
   titleContainer: {
     flexDirection: 'row',

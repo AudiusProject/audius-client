@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 
 import type { Nullable, PremiumConditions } from '@audius/common'
 import { useField } from 'formik'
-import { View, Image } from 'react-native'
+import { View, Image, Dimensions } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
@@ -25,9 +25,11 @@ const messages = {
 
 const LEARN_MORE_URL = ''
 
+const screenWidth = Dimensions.get('screen').width
+
 const useStyles = makeStyles(({ typography, spacing, palette }) => ({
   root: {
-    width: spacing(76)
+    width: screenWidth - spacing(22)
   },
   titleContainer: {
     flexDirection: 'row',

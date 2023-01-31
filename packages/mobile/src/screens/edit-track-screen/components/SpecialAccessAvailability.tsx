@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import type { PremiumConditions, Nullable } from '@audius/common'
 import { accountSelectors } from '@audius/common'
 import { useField } from 'formik'
-import { View } from 'react-native'
+import { Dimensions, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { useSelector } from 'react-redux'
 
@@ -22,9 +22,11 @@ const messages = {
   supportersOnly: 'Available to Supporters Only'
 }
 
+const screenWidth = Dimensions.get('screen').width
+
 const useStyles = makeStyles(({ spacing, palette }) => ({
   root: {
-    width: spacing(76)
+    width: screenWidth - spacing(22)
   },
   titleContainer: {
     flexDirection: 'row',
