@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 
+import type { Nullable, PremiumConditions } from '@audius/common'
 import { TrackAvailabilityType } from '@audius/common'
 import { useField } from 'formik'
 
@@ -43,9 +44,10 @@ export const TrackAvailabilityScreen = () => {
   const isSpecialAccessGateEnabled = useIsSpecialAccessGateEnabled()
   const isNFTGateEnabled = useIsNFTGateEnabled()
 
-  const [{ value: isPremium }] = useField('is_premium')
-  const [{ value: premiumConditions }] = useField('premium_conditions')
-  const [{ value: isUnlisted }] = useField('is_unlisted')
+  const [{ value: isPremium }] = useField<boolean>('is_premium')
+  const [{ value: premiumConditions }] =
+    useField<Nullable<PremiumConditions>>('premium_conditions')
+  const [{ value: isUnlisted }] = useField<boolean>('is_unlisted')
 
   const initialAvailability = useMemo(() => {
     if ('nft_collection' in (premiumConditions ?? {})) {

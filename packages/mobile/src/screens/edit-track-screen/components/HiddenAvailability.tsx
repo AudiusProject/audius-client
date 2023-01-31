@@ -97,7 +97,7 @@ export const HiddenAvailability = ({
     : neutral
 
   const { set: setTrackAvailabilityFields } = useSetTrackAvailabilityFields()
-  const [{ value: isUnlisted }] = useField('is_unlisted')
+  const [{ value: isUnlisted }] = useField<boolean>('is_unlisted')
 
   // If hidden was not previously selected,
   // set hidden and reset other fields.

@@ -1,5 +1,10 @@
 import { useMemo } from 'react'
 
+import type {
+  FieldVisibility,
+  Nullable,
+  PremiumConditions
+} from '@audius/common'
 import { useField } from 'formik'
 
 import type { ContextualSubmenuProps } from 'app/components/core'
@@ -35,9 +40,11 @@ const fieldVisibilityKeys = Object.keys(fieldVisibilityLabelMap)
 type TrackVisibilityFieldProps = Partial<ContextualSubmenuProps>
 
 export const TrackVisibilityField = (props: TrackVisibilityFieldProps) => {
-  const [{ value: premiumConditions }] = useField('premium_conditions')
-  const [{ value: isUnlisted }] = useField('is_unlisted')
-  const [{ value: fieldVisibility }] = useField('field_visibility')
+  const [{ value: premiumConditions }] =
+    useField<Nullable<PremiumConditions>>('premium_conditions')
+  const [{ value: isUnlisted }] = useField<boolean>('is_unlisted')
+  const [{ value: fieldVisibility }] =
+    useField<FieldVisibility>('field_visibility')
 
   const fieldVisibilityLabels = fieldVisibilityKeys
     .filter((visibilityKey) => fieldVisibility[visibilityKey])

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import type { Nullable, PremiumConditions } from '@audius/common'
 import { useField } from 'formik'

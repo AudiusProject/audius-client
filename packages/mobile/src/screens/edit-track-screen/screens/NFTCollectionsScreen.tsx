@@ -1,14 +1,7 @@
 import { useCallback, useMemo } from 'react'
 
-import type {
-  Nullable,
-  PremiumConditions,
-  EthCollectionMap,
-  SolCollectionMap,
-  CommonState,
-  Collectible
-} from '@audius/common'
-import { Chain, accountSelectors, collectiblesSelectors } from '@audius/common'
+import type { Nullable, PremiumConditions } from '@audius/common'
+import { Chain, collectiblesSelectors } from '@audius/common'
 import { useField } from 'formik'
 import { View, Image } from 'react-native'
 import { useSelector } from 'react-redux'
@@ -24,10 +17,7 @@ const messages = {
   searchCollections: 'Search Collections'
 }
 
-const { getUserId } = accountSelectors
-const { getUserCollectibles, getSolCollections } = collectiblesSelectors
-
-const defaultCollectibles = { [Chain.Eth]: [], [Chain.Sol]: [] }
+const { getVerifiedUserCollections } = collectiblesSelectors
 
 const useStyles = makeStyles(({ spacing, palette, type }) => ({
   item: {
@@ -56,47 +46,8 @@ export const NFTCollectionsScreen = () => {
   const styles = useStyles()
   const [{ value: premiumConditions }, , { setValue: setPremiumConditions }] =
     useField<Nullable<PremiumConditions>>('premium_conditions')
-  const accountUserId = useSelector(getUserId)
-  const collectibles =
-    useSelector((state: CommonState) => {
-      if (!accountUserId) return defaultCollectibles
-      return getUserCollectibles(state, { id: accountUserId })
-    }) ?? defaultCollectibles
-  const solCollections = useSelector(getSolCollections)
-
-  // Ethereum collections
-  const ethCollectionMap: EthCollectionMap = useMemo(() => {
-    const map: EthCollectionMap = {}
-
-    collectibles[Chain.Eth].forEach((collectible) => {
-      const {
-        collectionSlug,
-        collectionName,
-        collectionImageUrl,
-        assetContractAddress,
-        standard,
-        externalLink
-      } = collectible
-      if (
-        !collectionName ||
-        !collectionSlug ||
-        !assetContractAddress ||
-        !standard ||
-        map[collectionSlug]
-      ) {
-        return
-      }
-      map[collectionSlug] = {
-        name: collectionName,
-        img: collectionImageUrl,
-        address: assetContractAddress,
-        standard,
-        externalLink
-      }
-    })
-
-    return map
-  }, [collectibles])
+  const { ethCollectionMap, solCollectionMap, collectionImageMap } =
+    useSelector(getVerifiedUserCollections)
 
   const ethCollectibleItems = useMemo(() => {
     return Object.keys(ethCollectionMap)
@@ -108,54 +59,6 @@ export const NFTCollectionsScreen = () => {
         value: slug
       }))
   }, [ethCollectionMap])
-
-  // Solana collections
-  const solCollectionMap: SolCollectionMap = useMemo(() => {
-    const map: SolCollectionMap = {}
-
-    const validSolCollectionMints = [
-      ...new Set(
-        (collectibles[Chain.Sol] ?? [])
-          .filter(
-            (collectible: Collectible) =>
-              !!collectible.solanaChainMetadata?.collection?.verified
-          )
-          .map((collectible: Collectible) => {
-            const key = collectible.solanaChainMetadata!.collection!.key
-            return typeof key === 'string' ? key : key.toBase58()
-          })
-      )
-    ]
-    validSolCollectionMints.forEach((mint) => {
-      const { data, imageUrl } = solCollections[mint] ?? {}
-      if (!data?.name || map[data.name]) return
-      map[mint] = {
-        name: data.name.replaceAll('\x00', ''),
-        img: imageUrl ?? null,
-        externalLink: null
-      }
-    })
-
-    return map
-  }, [collectibles, solCollections])
-
-  // All collections images
-  const collectionImageMap = useMemo(() => {
-    const map: { [address: string]: string } = {}
-
-    Object.keys(ethCollectionMap).forEach((slug) => {
-      if (ethCollectionMap[slug].img) {
-        map[slug] = ethCollectionMap[slug].img!
-      }
-    })
-    Object.keys(solCollectionMap).forEach((mint) => {
-      if (solCollectionMap[mint].img) {
-        map[mint] = solCollectionMap[mint].img!
-      }
-    })
-
-    return map
-  }, [ethCollectionMap, solCollectionMap])
 
   const solCollectibleItems = useMemo(() => {
     return Object.keys(solCollectionMap)
