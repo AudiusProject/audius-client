@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import type { PremiumConditions, Nullable } from '@audius/common'
 import { accountSelectors } from '@audius/common'
@@ -111,12 +111,8 @@ export const SpecialAccessAvailability = ({
   const { set: setTrackAvailabilityFields } = useSetTrackAvailabilityFields()
   const [{ value: premiumConditions }, , { setValue: setPremiumConditions }] =
     useField<Nullable<PremiumConditions>>('premium_conditions')
-  const isFollowerGated = useMemo(() => {
-    return !!premiumConditions?.follow_user_id
-  }, [premiumConditions])
-  const isSupporterGated = useMemo(() => {
-    return !!premiumConditions?.tip_user_id
-  }, [premiumConditions])
+  const isFollowerGated = !!premiumConditions?.follow_user_id
+  const isSupporterGated = !!premiumConditions?.tip_user_id
   const currentUserId = useSelector(getUserId)
 
   // If special access was not previously selected,

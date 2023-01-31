@@ -31,7 +31,9 @@ export const CollectibleGatedAvailability = ({
   metadataState,
   updatePremiumContentFields
 }: TrackAvailabilitySelectionProps) => {
-  const { ethCollectionMap, solCollectionMap } = useSelector(getVerifiedUserCollections)
+  const { ethCollectionMap, solCollectionMap } = useSelector(
+    getVerifiedUserCollections
+  )
 
   const ethCollectibleItems = useMemo(() => {
     return Object.keys(ethCollectionMap)
