@@ -154,7 +154,7 @@ class CollectionPage extends Component<
   unlisten!: UnregisterCallback
 
   componentDidMount() {
-    this.fetchCollection(getPathname(this.props.location))
+    this.fetchCollection(getPathname(this.props.location), true)
     this.unlisten = this.props.history.listen((location, action) => {
       if (
         action !== 'REPLACE' &&
@@ -187,7 +187,14 @@ class CollectionPage extends Component<
       playlistUpdates,
       updatePlaylistLastViewedAt
     } = this.props
-
+    if (
+      (!this.state.playlistId ||
+        metadata?.playlist_id !== prevProps.collection?.playlist_id) &&
+      metadata
+    ) {
+      this.setState({ playlistId: metadata.playlist_id })
+      return
+    }
     if (
       type === 'playlist' &&
       this.state.playlistId &&
@@ -270,7 +277,6 @@ class CollectionPage extends Component<
       if (params) {
         const { collectionId, title, collectionType, handle, permalink } =
           params
-
         const routeLacksCollectionInfo =
           (title === null || handle === null || collectionType === null) &&
           permalink == null &&
@@ -294,8 +300,8 @@ class CollectionPage extends Component<
             collectionPermalink &&
             collectionPermalink !== pathname
           ) {
-            this.setState({ pathname: collectionPermalink })
-            this.props.replaceRoute(collectionPermalink)
+            this.props.setCollectionPermalink(this.state.pathname)
+            this.props.replaceRoute(this.state.pathname)
           }
         }
       }
@@ -357,9 +363,10 @@ class CollectionPage extends Component<
 
     if (params?.permalink) {
       const { permalink, collectionId } = params
-      if (forceFetch) {
+      if (forceFetch || permalink !== this.state.pathname) {
         this.props.setCollectionPermalink(permalink)
         this.props.fetchCollection(collectionId, permalink)
+
         this.props.fetchTracks()
       }
     }
@@ -735,7 +742,7 @@ class CollectionPage extends Component<
       smartCollection
     } = this.props
 
-    const { playlistId, allowReordering } = this.state
+    const { allowReordering } = this.state
 
     const {
       title = '',
@@ -750,13 +757,12 @@ class CollectionPage extends Component<
       permalink: metadata?.permalink,
       isAlbum: metadata?.is_album
     })
-
     const childProps = {
       title,
       description,
       canonicalUrl,
       structuredData,
-      playlistId: playlistId ?? metadata?.playlist_id,
+      playlistId: this.state.playlistId,
       allowReordering,
       playing,
       type,
