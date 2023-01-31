@@ -141,7 +141,6 @@ export const syncCollectionTracks = async (
   offlineCollection: Collection,
   isFavoritesDownload?: boolean
 ) => {
-  // TODO: record and check last verified time for collections
   const state = store.getState()
   const currentUserId = getUserId(state as unknown as CommonState)
   const downloadedTracks = getOfflineTracks(state)
