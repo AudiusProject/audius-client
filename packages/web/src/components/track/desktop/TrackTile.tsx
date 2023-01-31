@@ -130,8 +130,12 @@ const TrackTile = memo(
             : onTogglePlay
         }
       >
-        {!isLoading && isPremium && (
-          <PremiumTrackCornerTag doesUserHaveAccess={!!doesUserHaveAccess} />
+        {!isLoading && isPremium && premiumConditions && (
+          <PremiumTrackCornerTag
+            doesUserHaveAccess={!!doesUserHaveAccess}
+            isOwner={isOwner}
+            premiumConditions={premiumConditions}
+          />
         )}
         {/* prefix ordering */}
         <RankAndIndexIndicator
