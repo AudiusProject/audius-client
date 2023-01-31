@@ -32,7 +32,10 @@ export const SpecialAccessAvailability = ({
         className={styles.availabilityRowContent}
         onClick={() => {
           if (updatePremiumContentFields) {
-            updatePremiumContentFields(null, TrackAvailabilityType.SPECIAL_ACCESS)
+            updatePremiumContentFields(
+              null,
+              TrackAvailabilityType.SPECIAL_ACCESS
+            )
           }
         }}
       >

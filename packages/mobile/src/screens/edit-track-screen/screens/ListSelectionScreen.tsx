@@ -1,7 +1,7 @@
 import type { ComponentType } from 'react'
 import { useState, useCallback } from 'react'
 
-import type { ListRenderItem } from 'react-native'
+import type { ListRenderItem, ViewStyle } from 'react-native'
 import { FlatList, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import type { SvgProps } from 'react-native-svg'
@@ -11,7 +11,11 @@ import { makeStyles } from 'app/styles'
 
 import { FormScreen } from '../components'
 
-export type ListSelectionData = { label: string; value: string }
+export type ListSelectionData = {
+  label: string
+  value: string
+  disabled?: boolean
+}
 
 export type ListSelectionProps = {
   screenTitle: string
@@ -22,6 +26,10 @@ export type ListSelectionProps = {
   value: string
   searchText?: string
   disableSearch?: boolean
+  allowDeselect?: boolean
+  hideSelectionLabel?: boolean
+  itemStyles?: ViewStyle
+  itemContentStyles?: ViewStyle
 }
 
 const messages = {
@@ -68,7 +76,11 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
     onChange,
     value,
     searchText = '',
-    disableSearch = false
+    disableSearch = false,
+    allowDeselect = true,
+    hideSelectionLabel = false,
+    itemStyles,
+    itemContentStyles
   } = props
 
   const styles = useStyles()
@@ -78,20 +90,44 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
 
   const renderItem: ListRenderItem<ListSelectionData> = useCallback(
     (info) => {
-      const { value: itemValue } = info.item
+      const { value: itemValue, disabled } = info.item
       const isSelected = value === itemValue
 
       const handleChange = () => {
-        onChange(isSelected ? null : itemValue)
+        if (isSelected) {
+          if (allowDeselect) {
+            onChange(null)
+          }
+        } else {
+          onChange(itemValue)
+        }
+      }
+
+      if (disabled) {
+        return (
+          <View style={styles.listItem}>
+            <View style={styles.listItemContent}>
+              <RadioButton
+                checked={isSelected}
+                disabled={disabled}
+                style={styles.radio}
+              />
+              {renderItemProp(info)}
+            </View>
+          </View>
+        )
       }
 
       return (
-        <TouchableOpacity style={styles.listItem} onPress={handleChange}>
-          <View style={styles.listItemContent}>
+        <TouchableOpacity
+          style={[styles.listItem, itemStyles]}
+          onPress={handleChange}
+        >
+          <View style={[styles.listItemContent, itemContentStyles]}>
             <RadioButton checked={isSelected} style={styles.radio} />
             {renderItemProp(info)}
           </View>
-          {isSelected ? (
+          {isSelected && !hideSelectionLabel ? (
             <Text variant='body' color='secondary'>
               {messages.selected}
             </Text>
@@ -99,7 +135,16 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
         </TouchableOpacity>
       )
     },
-    [renderItemProp, value, styles, onChange]
+    [
+      renderItemProp,
+      value,
+      styles,
+      onChange,
+      allowDeselect,
+      hideSelectionLabel,
+      itemStyles,
+      itemContentStyles
+    ]
   )
 
   const filteredData = data.filter(({ label }) => label.match(filterRegexp))
