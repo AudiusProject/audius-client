@@ -1,5 +1,7 @@
+import type { Collection } from '@audius/common'
 import { createSelector } from 'reselect'
 
+import { getAccountCollections } from 'app/screens/favorites-screen/selectors'
 import type { AppState } from 'app/store'
 
 import type { OfflineDownloadsState } from './slice'
@@ -60,6 +62,15 @@ export const getIsAllDownloadsErrored = createSelector(
         const status = offlineDownloadStatus[trackId.toString()]
         return status === OfflineTrackDownloadStatus.ERROR
       })
+    )
+  }
+)
+
+export const getIsCollectionOwner = createSelector(
+  [getAccountCollections, (state, collectionId) => collectionId],
+  (accountCollections: Collection[], collectionId) => {
+    return accountCollections.some(
+      (userCollection) => userCollection.playlist_id === collectionId
     )
   }
 )
