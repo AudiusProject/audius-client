@@ -265,7 +265,7 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
         />
       </Stack.Group>
       <Stack.Group>
-        <Stack.Screen name='Chats' component={ChatsScreen} />
+        <Stack.Screen name='ChatList' component={ChatListScreen} />
       </Stack.Group>
     </Stack.Navigator>
   )
