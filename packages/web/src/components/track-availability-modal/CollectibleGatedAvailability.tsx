@@ -2,13 +2,8 @@ import { useMemo } from 'react'
 
 import {
   Chain,
-  accountSelectors,
   collectiblesSelectors,
-  CommonState,
-  Collectible,
-  TrackAvailabilityType,
-  EthCollectionMap,
-  SolCollectionMap
+  TrackAvailabilityType
 } from '@audius/common'
 import { IconArrow, IconCollectible } from '@audius/stems'
 import cn from 'classnames'
@@ -19,12 +14,9 @@ import DropdownInput from 'components/data-entry/DropdownInput'
 import styles from './TrackAvailabilityModal.module.css'
 import { TrackAvailabilitySelectionProps } from './types'
 
-const { getUserId } = accountSelectors
-const { getUserCollectibles, getSolCollections } = collectiblesSelectors
+const { getVerifiedUserCollections } = collectiblesSelectors
 
 const LEARN_MORE_URL = ''
-
-const defaultCollectibles = { [Chain.Eth]: [], [Chain.Sol]: [] }
 
 const messages = {
   collectibleGated: 'Collectible Gated',
@@ -39,47 +31,7 @@ export const CollectibleGatedAvailability = ({
   metadataState,
   updatePremiumContentFields
 }: TrackAvailabilitySelectionProps) => {
-  const accountUserId = useSelector(getUserId)
-  const collectibles =
-    useSelector((state: CommonState) => {
-      if (!accountUserId) return defaultCollectibles
-      return getUserCollectibles(state, { id: accountUserId })
-    }) ?? defaultCollectibles
-  const solCollections = useSelector(getSolCollections)
-
-  // Ethereum collections
-  const ethCollectionMap: EthCollectionMap = useMemo(() => {
-    const map: EthCollectionMap = {}
-
-    collectibles[Chain.Eth].forEach((collectible) => {
-      const {
-        collectionSlug,
-        collectionName,
-        collectionImageUrl,
-        assetContractAddress,
-        standard,
-        externalLink
-      } = collectible
-      if (
-        !collectionName ||
-        !collectionSlug ||
-        !assetContractAddress ||
-        !standard ||
-        map[collectionSlug]
-      ) {
-        return
-      }
-      map[collectionSlug] = {
-        name: collectionName,
-        img: collectionImageUrl,
-        address: assetContractAddress,
-        standard,
-        externalLink
-      }
-    })
-
-    return map
-  }, [collectibles])
+  const { ethCollectionMap, solCollectionMap } = useSelector(getVerifiedUserCollections)
 
   const ethCollectibleItems = useMemo(() => {
     return Object.keys(ethCollectionMap)
@@ -102,36 +54,6 @@ export const CollectibleGatedAvailability = ({
         value: slug
       }))
   }, [ethCollectionMap])
-
-  // Solana collections
-  const solCollectionMap: SolCollectionMap = useMemo(() => {
-    const map: SolCollectionMap = {}
-
-    const validSolCollectionMints = [
-      ...new Set(
-        (collectibles[Chain.Sol] ?? [])
-          .filter(
-            (collectible: Collectible) =>
-              !!collectible.solanaChainMetadata?.collection?.verified
-          )
-          .map((collectible: Collectible) => {
-            const key = collectible.solanaChainMetadata!.collection!.key
-            return typeof key === 'string' ? key : key.toBase58()
-          })
-      )
-    ]
-    validSolCollectionMints.forEach((mint) => {
-      const { data, imageUrl } = solCollections[mint] ?? {}
-      if (!data?.name || map[data.name]) return
-      map[mint] = {
-        name: data.name.replaceAll('\x00', ''),
-        img: imageUrl ?? null,
-        externalLink: null
-      }
-    })
-
-    return map
-  }, [collectibles, solCollections])
 
   const solCollectibleItems = useMemo(() => {
     return Object.keys(solCollectionMap)
