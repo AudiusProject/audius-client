@@ -15,7 +15,7 @@ const { getUserId } = accountSelectors
 const messages = {
   specialAccess: 'Special Access',
   specialAccessSubtitle:
-    'Special Access content is only available to users who meet your pre-specified criteria.',
+    'Special Access tracks are only available to users who meet certain criteria, such as following the artist.',
   followersOnly: 'Available to Followers Only',
   supportersOnly: 'Available to Supporters Only',
   supportersInfo: 'Supporters are users who have sent you a tip'

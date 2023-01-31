@@ -1,8 +1,4 @@
-import {
-  TrackAvailabilityType,
-  Nullable,
-  PremiumConditions
-} from '@audius/common'
+import { Nullable, PremiumConditions } from '@audius/common'
 
 export enum PremiumTrackMetadataField {
   IS_PREMIUM = 'is_premium',
