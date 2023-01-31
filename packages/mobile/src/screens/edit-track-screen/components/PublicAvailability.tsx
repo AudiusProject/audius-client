@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-import { View } from 'react-native'
+import { Dimensions, View } from 'react-native'
 
 import IconVisibilityPublic from 'app/assets/images/iconVisibilityPublic.svg'
 import { Text } from 'app/components/core'
@@ -14,9 +14,11 @@ const messages = {
     'Public tracks are visible to all users and appear throughout Audius.'
 }
 
+const screenWidth = Dimensions.get('screen').width
+
 const useStyles = makeStyles(({ spacing, palette }) => ({
   root: {
-    width: spacing(76)
+    width: screenWidth - spacing(22)
   },
   titleContainer: {
     flexDirection: 'row',

@@ -1,10 +1,15 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 
-import { View } from 'react-native'
+import type { Nullable, PremiumConditions } from '@audius/common'
+import { useField } from 'formik'
+import { View, Image, Dimensions } from 'react-native'
+import { TouchableOpacity } from 'react-native-gesture-handler'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
+import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
 import { Link, Text } from 'app/components/core'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
 import { makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
@@ -13,14 +18,18 @@ const messages = {
   collectibleGated: 'Collectible Gated',
   collectibleGatedSubtitle:
     'Users who own a digital collectible matching your selection will have access to your track. Collectible gated content does not appear on trending or in user feeds.',
-  learnMore: 'Learn More'
+  learnMore: 'Learn More',
+  pickACollection: 'Pick A Collection',
+  ownersOf: 'Owners Of'
 }
 
 const LEARN_MORE_URL = ''
 
+const screenWidth = Dimensions.get('screen').width
+
 const useStyles = makeStyles(({ typography, spacing, palette }) => ({
   root: {
-    width: spacing(76)
+    width: screenWidth - spacing(22)
   },
   titleContainer: {
     flexDirection: 'row',
@@ -56,6 +65,46 @@ const useStyles = makeStyles(({ typography, spacing, palette }) => ({
     fontFamily: typography.fontByWeight.bold,
     fontSize: typography.fontSize.small,
     color: palette.secondary
+  },
+  collectionContainer: {
+    marginTop: spacing(4),
+    paddingVertical: spacing(4),
+    paddingHorizontal: spacing(6),
+    borderWidth: 1,
+    borderColor: palette.neutralLight8,
+    borderRadius: spacing(2)
+  },
+  pickACollection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  ownersOf: {
+    marginTop: spacing(4),
+    marginBottom: spacing(2),
+    fontFamily: typography.fontByWeight.demiBold,
+    fontSize: typography.fontSize.small
+  },
+  collection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing(2),
+    backgroundColor: palette.neutralLight8,
+    borderWidth: 1,
+    borderColor: palette.neutralLight7,
+    borderRadius: spacing(2)
+  },
+  collectionName: {
+    fontFamily: typography.fontByWeight.demiBold,
+    fontSize: typography.fontSize.small
+  },
+  logo: {
+    marginRight: spacing(1),
+    borderWidth: 1,
+    borderColor: palette.neutralLight8,
+    borderRadius: spacing(1),
+    width: spacing(5),
+    height: spacing(5)
   }
 }))
 
@@ -68,6 +117,7 @@ export const CollectibleGatedAvailability = ({
   selected,
   disabled = false
 }: TrackAvailabilitySelectionProps) => {
+  const navigation = useNavigation()
   const styles = useStyles()
   const secondary = useColor('secondary')
   const neutral = useColor('neutral')
@@ -87,9 +137,14 @@ export const CollectibleGatedAvailability = ({
     : neutral
 
   const { set: setTrackAvailabilityFields } = useSetTrackAvailabilityFields()
+  const [{ value: premiumConditions }] =
+    useField<Nullable<PremiumConditions>>('premium_conditions')
+  const nftCollection = premiumConditions?.nft_collection ?? null
 
+  // If collectible gated was not previously selected,
+  // set as collectible gated and reset other fields.
   useEffect(() => {
-    if (selected) {
+    if (!('nft_collection' in (premiumConditions ?? {})) && selected) {
       setTrackAvailabilityFields(
         {
           is_premium: true,
@@ -98,7 +153,11 @@ export const CollectibleGatedAvailability = ({
         true
       )
     }
-  }, [selected, setTrackAvailabilityFields])
+  }, [premiumConditions, selected, setTrackAvailabilityFields])
+
+  const handlePickACollection = useCallback(() => {
+    navigation.navigate('NFTCollections')
+  }, [navigation])
 
   return (
     <View style={styles.root}>
@@ -117,6 +176,33 @@ export const CollectibleGatedAvailability = ({
         <Text style={styles.learnMoreText}>{messages.learnMore}</Text>
         <IconArrow fill={secondary} width={16} height={16} />
       </Link>
+      {selected && (
+        <TouchableOpacity
+          onPress={handlePickACollection}
+          style={styles.collectionContainer}
+        >
+          <View style={styles.pickACollection}>
+            <Text weight='demiBold' fontSize='large'>
+              {messages.pickACollection}
+            </Text>
+            <IconCaretRight fill={neutralLight4} width={16} height={16} />
+          </View>
+          {nftCollection && (
+            <View>
+              <Text style={styles.ownersOf}>{messages.ownersOf}</Text>
+              <View style={styles.collection}>
+                {nftCollection.imageUrl && (
+                  <Image
+                    source={{ uri: nftCollection.imageUrl }}
+                    style={styles.logo}
+                  />
+                )}
+                <Text style={styles.collectionName}>{nftCollection.name}</Text>
+              </View>
+            </View>
+          )}
+        </TouchableOpacity>
+      )}
     </View>
   )
 }

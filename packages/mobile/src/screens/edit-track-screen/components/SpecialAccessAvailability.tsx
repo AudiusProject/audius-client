@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import type { PremiumConditions, Nullable } from '@audius/common'
 import { accountSelectors } from '@audius/common'
 import { useField } from 'formik'
-import { View } from 'react-native'
+import { Dimensions, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { useSelector } from 'react-redux'
 
@@ -22,9 +22,11 @@ const messages = {
   supportersOnly: 'Available to Supporters Only'
 }
 
+const screenWidth = Dimensions.get('screen').width
+
 const useStyles = makeStyles(({ spacing, palette }) => ({
   root: {
-    width: spacing(76)
+    width: screenWidth - spacing(22)
   },
   titleContainer: {
     flexDirection: 'row',
@@ -107,28 +109,32 @@ export const SpecialAccessAvailability = ({
     : neutral
 
   const { set: setTrackAvailabilityFields } = useSetTrackAvailabilityFields()
+  const [{ value: premiumConditions }, , { setValue: setPremiumConditions }] =
+    useField<Nullable<PremiumConditions>>('premium_conditions')
+  const isFollowerGated = !!premiumConditions?.follow_user_id
+  const isSupporterGated = !!premiumConditions?.tip_user_id
+  const currentUserId = useSelector(getUserId)
 
+  // If special access was not previously selected,
+  // set as follow gated and reset other fields.
   useEffect(() => {
-    if (selected) {
+    if (!isFollowerGated && !isSupporterGated && selected && currentUserId) {
       setTrackAvailabilityFields(
         {
           is_premium: true,
-          premium_conditions: { follow_user_id: 1 }
+          premium_conditions: { follow_user_id: currentUserId }
         },
         true
       )
     }
-  }, [selected, setTrackAvailabilityFields])
-
-  const [{ value: premiumConditions }, , { setValue: setPremiumConditions }] =
-    useField<Nullable<PremiumConditions>>('premium_conditions')
-  const isFollowerGated = useMemo(() => {
-    return !!premiumConditions?.follow_user_id
-  }, [premiumConditions])
-  const isSupporterGated = useMemo(() => {
-    return !!premiumConditions?.tip_user_id
-  }, [premiumConditions])
-  const currentUserId = useSelector(getUserId)
+  }, [
+    isFollowerGated,
+    isSupporterGated,
+    premiumConditions,
+    selected,
+    currentUserId,
+    setTrackAvailabilityFields
+  ])
 
   const handlePressFollowers = useCallback(() => {
     if (currentUserId) {

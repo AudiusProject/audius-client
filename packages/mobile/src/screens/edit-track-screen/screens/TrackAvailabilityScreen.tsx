@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
+import type { Nullable, PremiumConditions } from '@audius/common'
 import { TrackAvailabilityType } from '@audius/common'
+import { useField } from 'formik'
 
 import IconHidden from 'app/assets/images/iconHidden.svg'
 import { useIsNFTGateEnabled } from 'app/hooks/useIsNFTGateEnabled'
@@ -41,9 +43,29 @@ const data: ListSelectionData[] = [
 export const TrackAvailabilityScreen = () => {
   const isSpecialAccessGateEnabled = useIsSpecialAccessGateEnabled()
   const isNFTGateEnabled = useIsNFTGateEnabled()
-  const [availability, setAvailability] = useState<TrackAvailabilityType>(
-    TrackAvailabilityType.PUBLIC
-  )
+
+  const [{ value: isPremium }] = useField<boolean>('is_premium')
+  const [{ value: premiumConditions }] =
+    useField<Nullable<PremiumConditions>>('premium_conditions')
+  const [{ value: isUnlisted }] = useField<boolean>('is_unlisted')
+
+  const initialAvailability = useMemo(() => {
+    if ('nft_collection' in (premiumConditions ?? {})) {
+      return TrackAvailabilityType.COLLECTIBLE_GATED
+    }
+    if (isPremium) {
+      return TrackAvailabilityType.SPECIAL_ACCESS
+    }
+    if (isUnlisted) {
+      return TrackAvailabilityType.HIDDEN
+    }
+    return TrackAvailabilityType.PUBLIC
+    // we only care about what the initial value was here
+    // eslint-disable-next-line
+  }, [])
+
+  const [availability, setAvailability] =
+    useState<TrackAvailabilityType>(initialAvailability)
 
   const items = {
     [publicAvailability]: (
@@ -81,7 +103,7 @@ export const TrackAvailabilityScreen = () => {
       value={availability}
       onChange={setAvailability}
       disableSearch
-      disableReset
+      allowDeselect={false}
       hideSelectionLabel
     />
   )

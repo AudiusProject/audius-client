@@ -1,7 +1,7 @@
 import type { ComponentType } from 'react'
 import { useState, useCallback } from 'react'
 
-import type { ListRenderItem } from 'react-native'
+import type { ListRenderItem, ViewStyle } from 'react-native'
 import { FlatList, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import type { SvgProps } from 'react-native-svg'
@@ -26,8 +26,10 @@ export type ListSelectionProps = {
   value: string
   searchText?: string
   disableSearch?: boolean
-  disableReset?: boolean
+  allowDeselect?: boolean
   hideSelectionLabel?: boolean
+  itemStyles?: ViewStyle
+  itemContentStyles?: ViewStyle
 }
 
 const messages = {
@@ -75,8 +77,10 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
     value,
     searchText = '',
     disableSearch = false,
-    disableReset = false,
-    hideSelectionLabel = false
+    allowDeselect = true,
+    hideSelectionLabel = false,
+    itemStyles,
+    itemContentStyles
   } = props
 
   const styles = useStyles()
@@ -91,7 +95,7 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
 
       const handleChange = () => {
         if (isSelected) {
-          if (!disableReset) {
+          if (allowDeselect) {
             onChange(null)
           }
         } else {
@@ -115,8 +119,11 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
       }
 
       return (
-        <TouchableOpacity style={styles.listItem} onPress={handleChange}>
-          <View style={styles.listItemContent}>
+        <TouchableOpacity
+          style={[styles.listItem, itemStyles]}
+          onPress={handleChange}
+        >
+          <View style={[styles.listItemContent, itemContentStyles]}>
             <RadioButton checked={isSelected} style={styles.radio} />
             {renderItemProp(info)}
           </View>
@@ -128,7 +135,16 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
         </TouchableOpacity>
       )
     },
-    [renderItemProp, value, styles, onChange, disableReset, hideSelectionLabel]
+    [
+      renderItemProp,
+      value,
+      styles,
+      onChange,
+      allowDeselect,
+      hideSelectionLabel,
+      itemStyles,
+      itemContentStyles
+    ]
   )
 
   const filteredData = data.filter(({ label }) => label.match(filterRegexp))
