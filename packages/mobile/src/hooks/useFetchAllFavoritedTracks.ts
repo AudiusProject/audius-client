@@ -30,7 +30,8 @@ export const fetchAllFavoritedTracks = async (currentUserId: number) => {
   const url = apiClient.makeUrl(
     `/users/${encodeHashId(currentUserId)}/favorites`,
     {
-      user_id: currentUserId
+      user_id: currentUserId,
+      limit: 10000
     }
   )
   const { data: result }: FavoritedTracksResponse = await fetch(url).then(
