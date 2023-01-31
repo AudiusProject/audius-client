@@ -101,7 +101,7 @@ export const TrackAvailabilityScreen = () => {
       value={availability}
       onChange={setAvailability}
       disableSearch
-      disableReset
+      allowDeselect={false}
       hideSelectionLabel
     />
   )

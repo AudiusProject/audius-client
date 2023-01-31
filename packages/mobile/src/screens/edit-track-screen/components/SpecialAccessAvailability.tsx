@@ -120,12 +120,7 @@ export const SpecialAccessAvailability = ({
   // If special access was not previously selected,
   // set as follow gated and reset other fields.
   useEffect(() => {
-    if (
-      !premiumConditions?.follow_user_id &&
-      !premiumConditions?.tip_user_id &&
-      selected &&
-      currentUserId
-    ) {
+    if (!isFollowerGated && !isSupporterGated && selected && currentUserId) {
       setTrackAvailabilityFields(
         {
           is_premium: true,
@@ -134,7 +129,14 @@ export const SpecialAccessAvailability = ({
         true
       )
     }
-  }, [premiumConditions, selected, currentUserId, setTrackAvailabilityFields])
+  }, [
+    isFollowerGated,
+    isSupporterGated,
+    premiumConditions,
+    selected,
+    currentUserId,
+    setTrackAvailabilityFields
+  ])
 
   const handlePressFollowers = useCallback(() => {
     if (currentUserId) {

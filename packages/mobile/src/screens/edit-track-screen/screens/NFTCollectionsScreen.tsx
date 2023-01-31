@@ -173,18 +173,21 @@ export const NFTCollectionsScreen = () => {
     [ethCollectibleItems, solCollectibleItems]
   )
 
-  const renderItem = ({ item }) => {
-    const { label: name, value: identifier } = item
-    const imageUrl = collectionImageMap[identifier]
-    return (
-      <View style={styles.item}>
-        {imageUrl && <Image source={{ uri: imageUrl }} style={styles.logo} />}
-        <Text style={styles.collectionName} numberOfLines={1}>
-          {name}
-        </Text>
-      </View>
-    )
-  }
+  const renderItem = useCallback(
+    ({ item }) => {
+      const { label: name, value: identifier } = item
+      const imageUrl = collectionImageMap[identifier]
+      return (
+        <View style={styles.item}>
+          {imageUrl && <Image source={{ uri: imageUrl }} style={styles.logo} />}
+          <Text style={styles.collectionName} numberOfLines={1}>
+            {name}
+          </Text>
+        </View>
+      )
+    },
+    [collectionImageMap, styles]
+  )
 
   const value = useMemo(() => {
     if (Chain.Eth === premiumConditions?.nft_collection?.chain) {
@@ -234,7 +237,7 @@ export const NFTCollectionsScreen = () => {
       value={value}
       onChange={handleChange}
       searchText={messages.searchCollections}
-      disableReset
+      allowDeselect={false}
       itemStyles={styles.row}
       itemContentStyles={styles.row}
     />
