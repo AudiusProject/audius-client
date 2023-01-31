@@ -210,6 +210,12 @@ const TrackTile = memo(
               )}
             </div>
             <div className={styles.topRight}>
+              {isArtistPick && (
+                <div className={styles.topRightIconLabel}>
+                  <IconStar className={styles.topRightIcon} />
+                  {messages.artistPick}
+                </div>
+              )}
               {!isLoading && isPremium && (
                 <PremiumContentLabel
                   premiumConditions={premiumConditions}
@@ -217,12 +223,6 @@ const TrackTile = memo(
                   isOwner={isOwner}
                   permalink={permalink}
                 />
-              )}
-              {isArtistPick && (
-                <div className={styles.topRightIconLabel}>
-                  <IconStar className={styles.topRightIcon} />
-                  {messages.artistPick}
-                </div>
               )}
               {isUnlisted && (
                 <div className={styles.topRightIconLabel}>
