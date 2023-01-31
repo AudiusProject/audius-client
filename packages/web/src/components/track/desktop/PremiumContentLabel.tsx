@@ -19,10 +19,12 @@ const messages = {
 export const PremiumContentLabel = ({
   premiumConditions,
   doesUserHaveAccess,
+  isOwner,
   permalink
 }: {
   premiumConditions?: Nullable<PremiumConditions>
   doesUserHaveAccess: boolean
+  isOwner: boolean
   permalink: string
 }) => {
   const { isEnabled: isPremiumContentEnabled } = useFlag(
@@ -36,6 +38,27 @@ export const PremiumContentLabel = ({
 
   if (!isPremiumContentEnabled) {
     return null
+  }
+
+  if (isOwner) {
+    return premiumConditions?.nft_collection
+      ? (
+        <div
+          className={cn(styles.premiumContent, styles.topRightIconLabel)}
+          onClick={handleClick}
+        >
+          <IconCollectible className={styles.topRightIcon} />
+          {messages.collectibleGated}
+        </div>
+      ) : (
+        <div
+          className={cn(styles.premiumContent, styles.topRightIconLabel)}
+          onClick={handleClick}
+        >
+          <IconSpecialAccess className={styles.topRightIcon} />
+          {messages.specialAccess}
+        </div>
+      )
   }
 
   if (doesUserHaveAccess) {

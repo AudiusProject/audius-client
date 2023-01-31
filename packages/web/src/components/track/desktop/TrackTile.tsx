@@ -214,6 +214,7 @@ const TrackTile = memo(
                 <PremiumContentLabel
                   premiumConditions={premiumConditions}
                   doesUserHaveAccess={!!doesUserHaveAccess}
+                  isOwner={isOwner}
                   permalink={permalink}
                 />
               )}
