@@ -74,26 +74,11 @@ export const TracksTab = () => {
     dispatch(fetchSaves())
   }, [dispatch])
 
-  const handleFetchSavesOffline = useOfflineCollectionLineup(
+  useOfflineCollectionLineup(
     DOWNLOAD_REASON_FAVORITES,
     handleFetchSavesOnline,
     tracksActions
   )
-
-  const handleFetchSaves = useCallback(() => {
-    if (isOfflineModeEnabled && !isReachable) {
-      handleFetchSavesOffline()
-    } else {
-      handleFetchSavesOnline()
-    }
-  }, [
-    handleFetchSavesOffline,
-    handleFetchSavesOnline,
-    isOfflineModeEnabled,
-    isReachable
-  ])
-
-  useFocusEffect(handleFetchSaves)
 
   const [filterValue, setFilterValue] = useState('')
   const isPlaying = useSelector(getPlaying)
@@ -122,13 +107,16 @@ export const TracksTab = () => {
     )
   }
 
-  const filteredTrackUids: string[] = useSelector((state) => {
-    return savedTrackUids.filter((uid) => {
-      const track = getTrack(state, { uid })
-      const user = getUserFromTrack(state, { uid })
-      return filterTrack(track, user)
-    })
-  }, isEqual)
+  const filteredTrackUids: string[] = useSelector(
+    (state) => {
+      return savedTrackUids.filter((uid) => {
+        const track = getTrack(state, { uid })
+        const user = getUserFromTrack(state, { uid })
+        return filterTrack(track, user)
+      })
+    },
+    isEqual
+  )
 
   const onToggleSave = useCallback(
     (isSaved: boolean, trackId: ID) => {
@@ -187,7 +175,7 @@ export const TracksTab = () => {
               placeholder={messages.inputPlaceholder}
               onChangeText={setFilterValue}
             />
-            {savedTrackUids.length ? (
+            {filteredTrackUids.length ? (
               <Tile
                 styles={{
                   root: styles.container,

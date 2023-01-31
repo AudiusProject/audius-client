@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import type { ID, UID } from '@audius/common'
 import { playerSelectors } from '@audius/common'
@@ -8,6 +8,7 @@ import { FlatList, View } from 'react-native'
 import type { DraggableFlatListProps } from 'react-native-draggable-flatlist'
 import DraggableFlatList from 'react-native-draggable-flatlist'
 import { useSelector } from 'react-redux'
+import { usePrevious } from 'react-use'
 
 import * as haptics from 'app/haptics'
 import { makeStyles } from 'app/styles'
@@ -52,6 +53,8 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   }
 }))
 
+const noOp = () => {}
+
 /**
  * A FlatList of tracks
  *
@@ -80,65 +83,89 @@ export const TrackList = ({
   const playingUid = useSelector(getUid)
   const data = useMemo(() => uids ?? ids ?? [], [uids, ids])
 
-  const renderSkeletonTrack = ({ index }) => (
-    <View>
-      {showDivider && (showTopDivider || index > 0) ? (
-        <View
-          style={[styles.divider, noDividerMargin && styles.noMarginDivider]}
-        />
-      ) : null}
-      <TrackListItemSkeleton />
-    </View>
-  )
-
-  const renderDraggableTrack: DraggableFlatListProps<
-    UID | ID
-  >['renderItem'] = ({ item, index = -1, drag }) => {
-    const isActive = item !== undefined && item === playingUid
-
-    // The dividers above and belove the active track should be hidden
-    const hideDivider = isActive || (uids && uids[index - 1] === playingUid)
-
-    return (
+  const renderSkeletonTrack = useCallback(
+    ({ index }) => (
       <View>
         {showDivider && (showTopDivider || index > 0) ? (
           <View
-            style={[
-              styles.divider,
-              hideDivider && styles.hideDivider,
-              noDividerMargin && styles.noMarginDivider
-            ]}
+            style={[styles.divider, noDividerMargin && styles.noMarginDivider]}
           />
         ) : null}
-        <TrackListItem
-          id={ids && (item as ID)}
-          index={index}
-          drag={drag}
-          hideArt={hideArt}
-          isActive={isActive}
-          isPlaying={isPlaying}
-          isReorderable={isReorderable}
-          uid={uids && (item as UID)}
-          key={item}
-          onSave={onSave}
-          togglePlay={togglePlay}
-          trackItemAction={trackItemAction}
-          onRemove={onRemove}
-        />
+        <TrackListItemSkeleton />
       </View>
-    )
-  }
+    ),
+    [showDivider, noDividerMargin, showTopDivider, styles]
+  )
+  console.log('tracklist rerender')
 
-  const renderTrack: FlatListProps<UID | ID>['renderItem'] = ({
-    item,
-    index
-  }) =>
-    renderDraggableTrack({
-      item,
-      index,
-      drag: () => {},
-      isActive: false
-    }) as ReactElement
+  const renderDraggableTrack: DraggableFlatListProps<UID | ID>['renderItem'] =
+    useCallback(
+      ({ item, index = -1, drag }) => {
+        const isActive = item !== undefined && item === playingUid
+
+        // The dividers above and belove the active track should be hidden
+        const hideDivider = isActive || (uids && uids[index - 1] === playingUid)
+
+        console.log('rendering list item!!!')
+        return (
+          <View>
+            {showDivider && (showTopDivider || index > 0) ? (
+              <View
+                style={[
+                  styles.divider,
+                  hideDivider && styles.hideDivider,
+                  noDividerMargin && styles.noMarginDivider
+                ]}
+              />
+            ) : null}
+            <TrackListItem
+              id={ids && (item as ID)}
+              index={index}
+              drag={drag}
+              hideArt={hideArt}
+              isActive={isActive}
+              isPlaying={isPlaying}
+              isReorderable={isReorderable}
+              uid={uids && (item as UID)}
+              key={item}
+              onSave={onSave}
+              togglePlay={togglePlay}
+              trackItemAction={trackItemAction}
+              onRemove={onRemove}
+            />
+          </View>
+        )
+      },
+      [
+        hideArt,
+        ids,
+        isPlaying,
+        isReorderable,
+        noDividerMargin,
+        onRemove,
+        onSave,
+        playingUid,
+        showDivider,
+        showTopDivider,
+        styles.divider,
+        styles.hideDivider,
+        styles.noMarginDivider,
+        togglePlay,
+        trackItemAction,
+        uids
+      ]
+    )
+
+  const renderTrack: FlatListProps<UID | ID>['renderItem'] = useCallback(
+    ({ item, index }) =>
+      renderDraggableTrack({
+        item,
+        index,
+        drag: noOp,
+        isActive: false
+      }) as ReactElement,
+    [renderDraggableTrack]
+  )
 
   if (showSkeleton)
     return (
@@ -151,15 +178,9 @@ export const TrackList = ({
       autoscrollThreshold={200}
       data={data}
       keyExtractor={(item) => String(item)}
-      onDragBegin={() => {
-        haptics.light()
-      }}
-      onPlaceholderIndexChange={() => {
-        haptics.light()
-      }}
-      onDragEnd={(p) => {
-        onReorder?.(p)
-      }}
+      onDragBegin={haptics.light}
+      onPlaceholderIndexChange={haptics.light}
+      onDragEnd={onReorder}
       renderItem={renderDraggableTrack}
       renderPlaceholder={() => <View />}
     />

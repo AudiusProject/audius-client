@@ -9,6 +9,10 @@ type OnBecomeUnreachable = () => any
 
 const { getIsReachable } = reachabilitySelectors
 
+/**
+ * Invoke a function once based on initial reachability
+ * and when reachability changes
+ */
 export const useReachabilityState = (
   onBecomeReachable: OnBecomeReachable | null,
   onBecomeUnreachable: OnBecomeUnreachable | null
@@ -22,7 +26,11 @@ export const useReachabilityState = (
         console.info('Become reachable')
         onBecomeReachable()
       }
-      if (!nextReachabilityState && prevReachability && onBecomeUnreachable) {
+      if (
+        !nextReachabilityState &&
+        (prevReachability || prevReachability === undefined) &&
+        onBecomeUnreachable
+      ) {
         console.info('Become unreachable')
         onBecomeUnreachable()
       }

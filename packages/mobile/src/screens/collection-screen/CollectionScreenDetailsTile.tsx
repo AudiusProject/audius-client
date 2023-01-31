@@ -115,34 +115,15 @@ export const CollectionScreenDetailsTile = ({
   const numTracks = entries.length
 
   const handleFetchLineupOnline = useCallback(() => {
+    dispatch(resetCollection(collectionUid, userUid))
     dispatch(tracksActions.fetchLineupMetadatas(0, 200, false, undefined))
-  }, [dispatch])
+  }, [dispatch, collectionUid, userUid])
 
-  const handleFetchLineupOffline = useOfflineCollectionLineup(
+  useOfflineCollectionLineup(
     collectionId,
     handleFetchLineupOnline,
     tracksActions
   )
-  const handleFetchLineup = useCallback(() => {
-    if (isOfflineModeEnabled && !isReachable) {
-      handleFetchLineupOffline()
-    } else {
-      handleFetchLineupOnline()
-    }
-  }, [
-    handleFetchLineupOffline,
-    handleFetchLineupOnline,
-    isOfflineModeEnabled,
-    isReachable
-  ])
-
-  const handleFetchCollectionLineup = useCallback(() => {
-    dispatch(resetCollection(collectionUid, userUid))
-    handleFetchLineup()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, handleFetchLineupOnline])
-
-  useFocusEffect(handleFetchCollectionLineup)
 
   const duration = entries?.reduce(
     (duration, entry) => duration + entry.duration,
