@@ -41,24 +41,23 @@ export const PremiumContentLabel = ({
   }
 
   if (isOwner) {
-    return premiumConditions?.nft_collection
-      ? (
-        <div
-          className={cn(styles.premiumContent, styles.topRightIconLabel)}
-          onClick={handleClick}
-        >
-          <IconCollectible className={styles.topRightIcon} />
-          {messages.collectibleGated}
-        </div>
-      ) : (
-        <div
-          className={cn(styles.premiumContent, styles.topRightIconLabel)}
-          onClick={handleClick}
-        >
-          <IconSpecialAccess className={styles.topRightIcon} />
-          {messages.specialAccess}
-        </div>
-      )
+    return premiumConditions?.nft_collection ? (
+      <div
+        className={cn(styles.premiumContent, styles.topRightIconLabel)}
+        onClick={handleClick}
+      >
+        <IconCollectible className={styles.topRightIcon} />
+        {messages.collectibleGated}
+      </div>
+    ) : (
+      <div
+        className={cn(styles.premiumContent, styles.topRightIconLabel)}
+        onClick={handleClick}
+      >
+        <IconSpecialAccess className={styles.topRightIcon} />
+        {messages.specialAccess}
+      </div>
+    )
   }
 
   if (doesUserHaveAccess) {
