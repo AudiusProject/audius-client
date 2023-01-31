@@ -14,7 +14,7 @@ import {
   TrackTile,
   LineupTileSkeleton
 } from 'app/components/lineup-tile'
-import { useBecomeReachable } from 'app/hooks/useReachabilityState'
+import { useReachableEffect } from 'app/hooks/useReachabilityEffect'
 import { useScrollToTop } from 'app/hooks/useScrollToTop'
 
 import { Delineator } from './Delineator'
@@ -330,7 +330,7 @@ export const Lineup = ({
     ]
   )
 
-  useBecomeReachable(
+  useReachableEffect(
     useCallback(() => {
       if (entries.length > 0 || status === Status.LOADING) return
       handleLoadMore(true)

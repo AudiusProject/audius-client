@@ -37,7 +37,7 @@ import {
 } from '../services/offline-downloader/offline-storage'
 
 import { useIsOfflineModeEnabled } from './useIsOfflineModeEnabled'
-import useReachabilityState from './useReachabilityState'
+import useReachabilityEffect from './useReachabilityEffect'
 const { getCollection } = cacheCollectionsSelectors
 
 export const useLoadOfflineData = () => {
@@ -230,5 +230,5 @@ export const useOfflineCollectionLineup = (
     offlineTracks
   ])
 
-  useReachabilityState(fetchOnlineContent, fetchLocalContent)
+  useReachabilityEffect(fetchOnlineContent, fetchLocalContent)
 }

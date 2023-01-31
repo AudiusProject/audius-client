@@ -13,7 +13,7 @@ const { getIsReachable } = reachabilitySelectors
  * Invoke a function once based on initial reachability
  * and when reachability changes
  */
-export const useReachabilityState = (
+export const useReachabilityEffect = (
   onBecomeReachable: OnBecomeReachable | null,
   onBecomeUnreachable: OnBecomeUnreachable | null
 ) => {
@@ -45,14 +45,12 @@ export const useReachabilityState = (
   return currentReachability
 }
 
-export const useBecomeReachable = (onBecomeReachable: OnBecomeReachable) => {
-  return useReachabilityState(onBecomeReachable, null)
+export const useReachableEffect = (onBecomeReachable: OnBecomeReachable) => {
+  return useReachabilityEffect(onBecomeReachable, null)
 }
 
-export const useBecomeUnreachable = (
+export const useUnreachableEffect = (
   onBecomeUnreachable: OnBecomeUnreachable
 ) => {
-  return useReachabilityState(null, onBecomeUnreachable)
+  return useReachabilityEffect(null, onBecomeUnreachable)
 }
-
-export default useReachabilityState
