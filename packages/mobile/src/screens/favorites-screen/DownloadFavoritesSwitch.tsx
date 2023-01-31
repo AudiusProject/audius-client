@@ -1,7 +1,8 @@
 import { useCallback } from 'react'
 
+import { reachabilitySelectors } from '@audius/common'
 import { View } from 'react-native'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { Switch } from 'app/components/core'
 import { DownloadStatusIndicator } from 'app/components/offline-downloads/DownloadStatusIndicatorBase'
@@ -14,6 +15,7 @@ import { setVisibility } from 'app/store/drawers/slice'
 import { getOfflineDownloadStatus } from 'app/store/offline-downloads/selectors'
 import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
+const { getIsReachable } = reachabilitySelectors
 
 const useStyles = makeStyles(({ spacing }) => ({
   root: {
@@ -28,6 +30,7 @@ const useStyles = makeStyles(({ spacing }) => ({
 export const DownloadFavoritesSwitch = () => {
   const styles = useStyles()
   const dispatch = useDispatch()
+  const isReachable = useSelector(getIsReachable)
 
   const isMarkedForDownload = useProxySelector((state) => {
     const { collections, favoritedCollections } = state.offlineDownloads
@@ -73,8 +76,6 @@ export const DownloadFavoritesSwitch = () => {
 
   const downloadStatus = getDownloadStatus()
 
-  console.log({ downloadStatus })
-
   const handleToggleDownload = useCallback(
     (isDownloadEnabled: boolean) => {
       if (isDownloadEnabled) {
@@ -100,6 +101,7 @@ export const DownloadFavoritesSwitch = () => {
       <Switch
         value={isMarkedForDownload}
         onValueChange={handleToggleDownload}
+        disabled={!isReachable}
       />
     </View>
   )

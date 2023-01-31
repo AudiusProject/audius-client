@@ -1,7 +1,11 @@
 import { useCallback } from 'react'
 
 import type { Collection, SmartCollectionVariant } from '@audius/common'
-import { collectionPageSelectors, Variant } from '@audius/common'
+import {
+  reachabilitySelectors,
+  collectionPageSelectors,
+  Variant
+} from '@audius/common'
 import { View } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -15,6 +19,7 @@ import { getOfflineDownloadStatus } from 'app/store/offline-downloads/selectors'
 import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
 const { getCollection } = collectionPageSelectors
+const { getIsReachable } = reachabilitySelectors
 
 const messages = {
   album: 'Album',
@@ -118,6 +123,7 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
   const { playlist_id, playlist_contents } = collection
   const { track_ids } = playlist_contents
   const dispatch = useDispatch()
+  const isReachable = useSelector(getIsReachable)
 
   const isMarkedForDownload = useProxySelector(
     (state) => {
@@ -194,6 +200,7 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
         <Switch
           value={isMarkedForDownload}
           onValueChange={handleToggleDownload}
+          disabled={isMarkedForDownload || !isReachable}
         />
       </View>
     </View>
