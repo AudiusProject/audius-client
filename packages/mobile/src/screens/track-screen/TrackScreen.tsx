@@ -129,6 +129,8 @@ export const TrackScreen = () => {
       <ScreenContent isOfflineCapable={isOfflineModeEnabled}>
         <Lineup
           actions={tracksActions}
+          // When offline, we don't want to render any tiles here and the
+          // current solution is to hard-code a count to show skeletons
           count={isReachable ? 6 : 0}
           header={
             <TrackScreenMainContent
