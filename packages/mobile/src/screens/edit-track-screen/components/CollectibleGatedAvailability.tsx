@@ -139,9 +139,7 @@ export const CollectibleGatedAvailability = ({
   const { set: setTrackAvailabilityFields } = useSetTrackAvailabilityFields()
   const [{ value: premiumConditions }] =
     useField<Nullable<PremiumConditions>>('premium_conditions')
-  const nftCollection = useMemo(() => {
-    return premiumConditions?.nft_collection ?? null
-  }, [premiumConditions])
+  const nftCollection = premiumConditions?.nft_collection ?? null
 
   // If collectible gated was not previously selected,
   // set as collectible gated and reset other fields.
