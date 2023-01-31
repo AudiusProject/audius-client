@@ -29,7 +29,7 @@ export const makeGetSearchArtists = () => {
   return createSelector(
     [getSearchArtistsIds, getUnsortedSearchArtists],
     (ids, artists) =>
-      ids.map((id) => artists[id]).filter((a) => !a.is_deactivated)
+      ids.map((id) => artists[id]).filter((a) => !a?.is_deactivated)
   )
 }
 
@@ -41,7 +41,7 @@ export const makeGetSearchAlbums = () => {
       .map((album) => {
         return {
           ...album,
-          user: users[album.playlist_owner_id]
+          user: album ? users[album.playlist_owner_id] : null
         }
       })
       .filter((album) => !!album.user && !album.user.is_deactivated)
@@ -58,10 +58,17 @@ export const makeGetSearchPlaylists = () => {
         .map((playlist) => {
           return {
             ...playlist,
-            user: users[playlist.playlist_owner_id],
-            trackCount: (playlist.playlist_contents.track_ids || []).length
+            user: playlist ? users[playlist.playlist_owner_id] : null,
+            trackCount: playlist
+              ? (playlist.playlist_contents.track_ids || []).length
+              : null
           }
         })
-        .filter((playlist) => !!playlist.user && !playlist.user.is_deactivated)
+        .filter(
+          (playlist) =>
+            !!playlist.user &&
+            !playlist.user.is_deactivated &&
+            playlist.trackCount !== null
+        )
   )
 }

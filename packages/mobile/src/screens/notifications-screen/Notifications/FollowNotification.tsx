@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 
 import type { FollowNotification as FollowNotificationType } from '@audius/common'
 import {
+  removeNullable,
   useProxySelector,
   formatCount,
   notificationsSelectors
@@ -52,7 +53,7 @@ export const FollowNotification = (props: FollowNotificationProps) => {
   return (
     <NotificationTile notification={notification} onPress={handlePress}>
       <NotificationHeader icon={IconUser}>
-        <ProfilePictureList users={users} />
+        <ProfilePictureList users={users.filter(removeNullable)} />
       </NotificationHeader>
       <NotificationText>
         <UserNameLink user={firstUser} />

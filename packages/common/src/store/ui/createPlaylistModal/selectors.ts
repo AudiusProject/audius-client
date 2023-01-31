@@ -1,7 +1,9 @@
+import { UserTrack } from 'models/Track'
 import { getCollection } from 'store/cache/collections/selectors'
 import { getTracks as getCachedTracks } from 'store/cache/tracks/selectors'
 import { getUsers } from 'store/cache/users/selectors'
 import { CommonState } from 'store/commonStore'
+import { removeNullable } from 'utils/typeUtils'
 
 export const getBaseState = (state: CommonState) => state.ui.createPlaylistModal
 
@@ -22,13 +24,23 @@ export const getTracks = (state: CommonState) => {
 
   const trackIds = metadata.playlist_contents.track_ids.map((t) => t.track)
   const tracks = getCachedTracks(state, { ids: trackIds })
-  const userIds = Object.keys(tracks).map(
-    (trackId) => tracks[trackId as unknown as number].owner_id
-  )
+  const userIds = Object.keys(tracks)
+    .map((trackId) => {
+      const parsedTrackId = parseInt(trackId)
+      const track = tracks[parsedTrackId]
+      if (!track) return null
+      return track.owner_id
+    })
+    .filter(removeNullable)
   const users = getUsers(state, { ids: userIds })
 
-  return trackIds.map((id) => ({
-    ...tracks[id],
-    user: users[tracks[id].owner_id]
-  }))
+  return trackIds
+    .map((id) => {
+      if (!tracks[id] && !users?.[tracks[id]!.owner_id]) return null
+      return {
+        ...tracks[id],
+        user: users?.[tracks[id]!.owner_id]
+      } as UserTrack
+    })
+    .filter(removeNullable)
 }

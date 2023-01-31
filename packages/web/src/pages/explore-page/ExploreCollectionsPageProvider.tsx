@@ -8,7 +8,8 @@ import {
   explorePageCollectionsActions,
   RepostType,
   repostsUserListActions,
-  favoritesUserListActions
+  favoritesUserListActions,
+  removeNullable
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
@@ -145,7 +146,7 @@ const ExploreCollectionsPageProvider = ({
   const childProps = {
     title,
     description,
-    collections,
+    collections: collections.filter(removeNullable),
     status,
     onClickReposts,
     onClickFavorites,

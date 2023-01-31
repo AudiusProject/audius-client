@@ -10,7 +10,8 @@ import {
   trendingPageLineupSelectors,
   trendingPageActions,
   trendingPageSelectors,
-  getContext
+  getContext,
+  removeNullable
 } from '@audius/common'
 import { keccak_256 } from 'js-sha3'
 import { call, put, select } from 'redux-saga/effects'
@@ -60,7 +61,7 @@ export function* retrieveTrending({
     const tracksMap: ReturnType<typeof getTracks> = yield select(
       (state: AppState) => getTracks(state, { ids: trackIds })
     )
-    const tracks = trackIds.map((id) => tracksMap[id])
+    const tracks = trackIds.map((id) => tracksMap[id]).filter(removeNullable)
     return tracks
   }
 

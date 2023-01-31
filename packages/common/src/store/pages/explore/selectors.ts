@@ -39,11 +39,12 @@ export const makeGetExplore = () => {
     (explore, collections, users) => {
       const playlists = explore.playlists
         .map((id) => collections[id])
-        .filter(Boolean)
+        .filter(removeNullable)
         .map((collection) => ({
           ...collection,
-          user: users[collection.playlist_owner_id] || {}
+          user: collection ? users[collection.playlist_owner_id] : null
         }))
+        .filter((collection) => collection.user) as UserCollection[]
       const profiles = explore.profiles.map((id) => users[id]).filter(Boolean)
       return {
         playlists,

@@ -86,28 +86,28 @@ export const getEntryTimestamp = (
 export function getAllEntries(
   state: CommonState,
   props: { kind: Kind.USERS }
-): { [id: string]: User }
+): Partial<Record<string, User>>
 export function getAllEntries(
   state: CommonState,
   props: { kind: Kind.COLLECTIONS }
-): { [id: string]: Collection }
+): Partial<Record<string, Collection>>
 export function getAllEntries(
   state: CommonState,
   props: { kind: Kind.TRACKS }
-): { [id: string]: Track }
+): Partial<Record<string, Track>>
 export function getAllEntries(
   state: CommonState,
   props: { kind: Kind.USERS }
 ):
-  | { [id: string]: User }
-  | { [id: string]: Track }
-  | { [id: string]: Collection }
+  | Partial<Record<string, User>>
+  | Partial<Record<string, Track>>
+  | Partial<Record<string, Collection>>
 export function getAllEntries(state: CommonState, props: { kind: Kind }) {
   const entries = getCache(state, props).entries
   return Object.keys(entries).reduce((acc, id) => {
     acc[id] = entries[id as unknown as number].metadata
     return acc
-  }, {} as { [id: string]: Track | Collection | User })
+  }, {} as Partial<Record<string, User>> | Partial<Record<string, Track>> | Partial<Record<string, Collection>>)
 }
 
 export function getCache(

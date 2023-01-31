@@ -69,6 +69,10 @@ export function* repostTrackAsync(
 
   const tracks = yield* select(getTracks, { ids: [action.trackId] })
   const track = tracks[action.trackId]
+  if (!track) {
+    console.error(`Missing track ${action.trackId}`)
+    return
+  }
 
   const eagerlyUpdatedMetadata: Partial<Track> = {
     has_current_user_reposted: true,
@@ -216,6 +220,10 @@ export function* undoRepostTrackAsync(
 
   const tracks = yield* select(getTracks, { ids: [action.trackId] })
   const track = tracks[action.trackId]
+  if (!track) {
+    console.error(`Missing track ${action.trackId}`)
+    return
+  }
 
   const eagerlyUpdatedMetadata: Partial<Track> = {
     has_current_user_reposted: false,
@@ -317,6 +325,10 @@ export function* saveTrackAsync(
 
   const tracks = yield* select(getTracks, { ids: [action.trackId] })
   const track = tracks[action.trackId]
+  if (!track) {
+    console.error(`Missing track ${action.trackId}`)
+    return
+  }
 
   if (track.has_current_user_saved) return
 

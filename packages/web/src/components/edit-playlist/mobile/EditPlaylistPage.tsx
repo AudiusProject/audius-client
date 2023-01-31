@@ -13,7 +13,8 @@ import {
   createPlaylistModalUISelectors,
   createPlaylistModalUIActions as createPlaylistActions,
   imageBlank as placeholderCoverArt,
-  newCollectionMetadata
+  newCollectionMetadata,
+  removeNullable
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
@@ -276,7 +277,7 @@ const EditPlaylistPage = g(
         const trackMetadata = tracks?.find(
           (track) => track.track_id === trackId
         )
-        if (!trackMetadata) return
+        if (!trackMetadata || !trackMetadata.title) return
         setConfirmRemoveTrack({
           title: trackMetadata.title,
           trackId,
@@ -342,25 +343,28 @@ const EditPlaylistPage = g(
     // Put together track list if necessary
     let trackList = null
     if (tracks && reorderedTracks.length > 0) {
-      trackList = reorderedTracks.map((i) => {
-        const t = tracks[i]
-        const playlistTrack = metadata?.playlist_contents.track_ids[i]
-        const isRemoveActive =
-          showRemoveTrackDrawer &&
-          t.track_id === confirmRemoveTrack?.trackId &&
-          playlistTrack?.time === confirmRemoveTrack?.timestamp
+      trackList = reorderedTracks
+        .map((i) => {
+          const t = tracks[i]
+          const playlistTrack = metadata?.playlist_contents.track_ids[i]
+          const isRemoveActive =
+            showRemoveTrackDrawer &&
+            t.track_id === confirmRemoveTrack?.trackId &&
+            playlistTrack?.time === confirmRemoveTrack?.timestamp
 
-        return {
-          isLoading: false,
-          artistName: t.user.name,
-          artistHandle: t.user.handle,
-          trackTitle: t.title,
-          trackId: t.track_id,
-          time: playlistTrack?.time,
-          isDeleted: t.is_delete || !!t.user.is_deactivated,
-          isRemoveActive
-        }
-      })
+          if (!t.user || !t.title || !t.track_id) return null
+          return {
+            isLoading: false,
+            artistName: t.user.name,
+            artistHandle: t.user.handle,
+            trackTitle: t.title,
+            trackId: t.track_id,
+            time: playlistTrack?.time,
+            isDeleted: t.is_delete || !!t.user.is_deactivated,
+            isRemoveActive
+          }
+        })
+        .filter(removeNullable)
     }
 
     return (
