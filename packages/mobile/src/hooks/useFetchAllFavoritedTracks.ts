@@ -41,7 +41,7 @@ export const fetchAllFavoritedTracks = async (currentUserId: number) => {
   return result
     .filter((trackSave) => trackSave.favorite_type === 'SaveType.track')
     .map((trackSave: APIFavorite) => ({
-      trackId: decodeHashId(trackSave.favorite_item_id),
+      trackId: decodeHashId(trackSave.favorite_item_id) as number,
       favoriteCreatedAt: trackSave.created_at
     }))
 }
