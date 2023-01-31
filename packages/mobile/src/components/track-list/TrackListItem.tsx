@@ -2,7 +2,6 @@ import { useCallback, useMemo, useState } from 'react'
 
 import type { ID, Track, UID, User } from '@audius/common'
 import {
-  useProxySelector,
   removeNullable,
   OverflowAction,
   OverflowSource,
