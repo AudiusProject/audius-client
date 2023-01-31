@@ -264,7 +264,7 @@ function* updateCollectibleGatedTrackAccess(
 
   // Set null for collectible gated track signatures as
   // the user does not have nfts for those collections
-  // and therefore does have access.
+  // and therefore does not have access.
   const premiumContentSignatureMap: {
     [id: ID]: Nullable<PremiumContentSignature>
   } = {}
