@@ -51,7 +51,7 @@ export const DownloadProgress = () => {
         style={{
           root: styles.progressBar
         }}
-        progress={numDownloadsComplete}
+        progress={numDownloadsSuccess}
         max={numDownloads}
       />
     </View>
