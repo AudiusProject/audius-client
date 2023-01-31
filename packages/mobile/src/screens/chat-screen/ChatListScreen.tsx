@@ -1,0 +1,66 @@
+import { useEffect } from 'react'
+
+import { chatActions, chatSelectors } from '@audius/common'
+import { View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
+
+import { Screen, ScrollView, ScreenContent } from 'app/components/core'
+import LoadingSpinner from 'app/components/loading-spinner'
+import { makeStyles } from 'app/styles'
+
+import { ChatListItem } from './ChatListItem'
+
+const { getChats } = chatSelectors
+
+const messages = {
+  title: 'Messages'
+}
+
+const useStyles = makeStyles(({ spacing, palette, typography }) => ({
+  title: {
+    borderBottomWidth: 1,
+    borderBottomColor: palette.neutralLight8
+  }
+}))
+
+export const ChatListScreen = () => {
+  const styles = useStyles()
+  const dispatch = useDispatch()
+  const chats = useSelector(getChats)
+
+  useEffect(() => {
+    dispatch(chatActions.fetchMoreChats())
+  }, [dispatch])
+
+  return (
+    <Screen
+      url='/chat'
+      // variant='secondary'
+      // icon={IconChat}
+      title={messages.title}
+      style={styles.title}
+    >
+      <ScreenContent>
+        <ScrollView style={styles.root}>
+          <View>
+            <View style={styles.title}>
+              {chats.length > 0 ? (
+                chats.map((chat) => {
+                  return (
+                    <ChatListItem
+                      key={chat.chat_id}
+                      currentChatId={chat.chat_id}
+                      chat={chat}
+                    />
+                  )
+                })
+              ) : (
+                <LoadingSpinner />
+              )}
+            </View>
+          </View>
+        </ScrollView>
+      </ScreenContent>
+    </Screen>
+  )
+}
