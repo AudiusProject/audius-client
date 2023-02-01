@@ -19,10 +19,11 @@ import IconHeart from 'app/assets/images/iconHeart.svg'
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconRemoveTrack from 'app/assets/images/iconRemoveTrack.svg'
 import { IconButton } from 'app/components/core'
-import { DownloadStatusIndicator } from 'app/components/offline-downloads'
 import UserBadges from 'app/components/user-badges'
 import { font, makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
+
+import { TrackDownloadStatusIndicator } from '../offline-downloads/TrackDownloadStatusIndicator'
 
 import { TablePlayButton } from './TablePlayButton'
 import { TrackArtwork } from './TrackArtwork'
@@ -311,7 +312,7 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
 
               {!isDeleted && (
                 <View style={styles.downloadIndicator}>
-                  <DownloadStatusIndicator trackId={track_id} size={16} />
+                  <TrackDownloadStatusIndicator trackId={track_id} size={16} />
                 </View>
               )}
             </View>
