@@ -186,13 +186,6 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
     return 'secondary'
   }
 
-  const getHeaderText = () => {
-    if (downloadStatus === OfflineDownloadStatus.INIT) return messages.queued
-    if (downloadStatus === OfflineDownloadStatus.LOADING)
-      return messages.downloading
-    return headerText
-  }
-
   return (
     <View style={styles.root}>
       <View style={styles.headerLeft} />
@@ -207,7 +200,9 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
           weight='demiBold'
           fontSize='small'
         >
-          {getHeaderText()}
+          {downloadStatus === OfflineDownloadStatus.LOADING
+            ? messages.downloading
+            : headerText}
         </Text>
       </View>
       <View style={styles.headerRight}>
