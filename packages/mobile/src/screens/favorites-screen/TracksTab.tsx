@@ -108,18 +108,9 @@ export const TracksTab = () => {
     tracksActions
   )
 
-  const savedTrackUids: string[] = useSelector(
-    (state) => {
-      return getSavedTracksLineup(state).entries.map(({ uid }) => uid)
-    },
-    (a, b) => {
-      const result = isEqual(a, b)
-      if (!result) {
-        console.log('savedTrackUids NOT EQUAL', a, b)
-      }
-      return result
-    }
-  )
+  const savedTrackUids: string[] = useSelector((state) => {
+    return getSavedTracksLineup(state).entries.map(({ uid }) => uid)
+  }, isEqual)
 
   const filterTrack = (
     track: Nullable<Track>,
@@ -147,7 +138,6 @@ export const TracksTab = () => {
   const handleMoreFetchSaves = useCallback(() => {
     if (
       allTracksFetched ||
-      isLoading ||
       isFetchingMore ||
       (isOfflineModeEnabled && !isReachable) ||
       savedTrackUids.length < fetchPage * FETCH_LIMIT
@@ -166,7 +156,6 @@ export const TracksTab = () => {
     fetchPage,
     filterValue,
     isFetchingMore,
-    isLoading,
     isOfflineModeEnabled,
     isReachable,
     savedTrackUids.length
@@ -195,7 +184,6 @@ export const TracksTab = () => {
     },
     [dispatch]
   )
-  console.log('tracks tab rerender')
 
   return (
     <VirtualizedScrollView listKey='favorites-screen'>

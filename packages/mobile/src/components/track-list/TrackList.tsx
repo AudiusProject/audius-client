@@ -67,12 +67,10 @@ export const TrackList = ({
     ),
     [showDivider, noDividerMargin, showTopDivider]
   )
-  console.log('tracklist rerender')
 
   const renderDraggableTrack: DraggableFlatListProps<UID | ID>['renderItem'] =
     useCallback(
       ({ item, index = -1, drag }) => {
-        console.log('rendering list item!!!')
         return (
           <TrackListItem
             id={ids && (item as ID)}

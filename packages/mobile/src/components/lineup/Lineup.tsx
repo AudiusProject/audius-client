@@ -162,6 +162,8 @@ const LineupTileView = memo(function LineupTileView({
   }
 })
 
+// Using `memo` because FlatList renders these items
+// And we want to avoid a full render when the props haven't changed
 const LineupItemTile = memo(function LineupItemTile({
   item,
   index,

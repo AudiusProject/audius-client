@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 
 import type { ID, Track, UID, User } from '@audius/common'
 import {
@@ -133,38 +133,21 @@ export type TrackListItemProps = {
   uid?: UID
 }
 
-export const TrackListItem = (props: TrackListItemProps) => {
+// Using `memo` because FlatList renders these items
+// And we want to avoid a full render when the props haven't changed
+export const TrackListItem = memo((props: TrackListItemProps) => {
   const { id, uid } = props
 
-  const track = useSelector(
-    (state) => getTrack(state, { id, uid }),
-    (a, b) => {
-      const result = a === b
-      if (!result) {
-        console.log('track not equal!!!')
-      }
-      return result
-    }
-  )
-  const user = useSelector(
-    (state) => getUserFromTrack(state, { id, uid }),
-    (a, b) => {
-      const result = a === b
-      if (!result) {
-        console.log('user not equal!!!')
-      }
-      return result
-    }
-  )
+  const track = useSelector((state) => getTrack(state, { id, uid }))
+  const user = useSelector((state) => getUserFromTrack(state, { id, uid }))
 
   if (!track || !user) {
     console.warn('Track or user missing for TrackListItem, preventing render')
     return null
   }
-  // console.log('tracklistitem render')
 
   return <TrackListItemComponent {...props} track={track} user={user} />
-}
+})
 
 type TrackListItemComponentProps = TrackListItemProps & {
   track: Track
