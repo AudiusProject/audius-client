@@ -16,6 +16,7 @@ const { getTrack, getUser, getStatus } = remixSettingsSelectors
 const { fetchTrack, fetchTrackSucceeded, reset } = remixSettingsActions
 
 type OwnProps = {
+  isPremium: boolean
   isOpen: boolean
   onClose: () => void
   // When opening the modal from a track that already has remix_of set,
@@ -30,6 +31,7 @@ type ConnectedRemixSettingsModalProps = OwnProps &
 
 const ConnectedRemixSettingsModal = ({
   initialTrackId,
+  isPremium,
   isOpen,
   onClose,
   track,
@@ -56,6 +58,7 @@ const ConnectedRemixSettingsModal = ({
     <RemixSettingsModal
       isOpen={isOpen}
       onClose={onClose}
+      isPremium={isPremium}
       track={track}
       user={user}
       isInvalidTrack={status === Status.ERROR}

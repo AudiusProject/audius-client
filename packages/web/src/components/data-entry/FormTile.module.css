@@ -184,11 +184,18 @@
   font-weight: var(--font-demi-bold);
 }
 
-.release .trackAvailabilityButton {
+.release .remixSettingsButton {
+  margin-top: var(--unit-3);
+  width: 156px;
+}
+
+  .release .trackAvailabilityButton,
+.release .remixSettingsButton {
   height: 35px;
 }
 
-.trackAvailabilityButton .trackAvailabilityButtonText {
+.trackAvailabilityButton .trackAvailabilityButtonText,
+.remixSettingsButton .remixSettingsButtonText {
   font-size: var(--font-xs);
 }
 
