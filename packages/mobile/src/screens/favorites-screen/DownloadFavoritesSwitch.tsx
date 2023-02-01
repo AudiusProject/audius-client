@@ -5,7 +5,7 @@ import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Switch } from 'app/components/core'
-import { DownloadStatusIndicator } from 'app/components/offline-downloads/DownloadStatusIndicatorBase'
+import { DownloadStatusIndicator } from 'app/components/offline-downloads/DownloadStatusIndicator'
 import { useProxySelector } from 'app/hooks/useProxySelector'
 import {
   downloadAllFavorites,

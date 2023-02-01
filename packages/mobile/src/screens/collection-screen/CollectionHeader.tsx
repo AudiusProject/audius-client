@@ -13,7 +13,7 @@ import { View } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 
 import { Switch, Text } from 'app/components/core'
-import { DownloadStatusIndicator } from 'app/components/offline-downloads/DownloadStatusIndicatorBase'
+import { DownloadStatusIndicator } from 'app/components/offline-downloads/DownloadStatusIndicator'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useProxySelector } from 'app/hooks/useProxySelector'
 import { batchDownloadCollection } from 'app/services/offline-downloader'
