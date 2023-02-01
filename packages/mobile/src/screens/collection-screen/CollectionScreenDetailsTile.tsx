@@ -14,7 +14,6 @@ import {
   collectionPageSelectors,
   reachabilitySelectors
 } from '@audius/common'
-import { useFocusEffect } from '@react-navigation/native'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -114,11 +113,7 @@ export const CollectionScreenDetailsTile = ({
     dispatch(tracksActions.fetchLineupMetadatas(0, 200, false, undefined))
   }, [dispatch, collectionUid, userUid])
 
-  useOfflineCollectionLineup(
-    collectionId,
-    handleFetchLineupOnline,
-    tracksActions
-  )
+  useOfflineCollectionLineup(collectionId, handleFetchLineupOnline)
 
   const duration = entries?.reduce(
     (duration, entry) => duration + entry.duration,
@@ -233,6 +228,7 @@ export const CollectionScreenDetailsTile = ({
       details={details}
       hideOverflow={detailsTileProps.hideOverflow || !isReachable}
       hideListenCount={true}
+      hideRepost={!isReachable}
       isPlaying={isPlaying && isQueued}
       renderBottomContent={renderTrackList}
       headerText={!isOfflineModeEnabled ? headerText : undefined}

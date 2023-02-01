@@ -83,7 +83,7 @@ export const downloadAllFavorites = async () => {
       isFavoritesDownload: false
     })
   )
-  writeFavoritesCollectionJson()
+  await writeFavoritesCollectionJson()
 
   const allFavoritedTracks = await fetchAllFavoritedTracks(currentUserId)
   const tracksForDownload: TrackForDownload[] = allFavoritedTracks.map(
@@ -148,7 +148,7 @@ export const downloadCollection = async (
     user
   }
 
-  downloadCollectionCoverArt(collectionWithUser)
+  await downloadCollectionCoverArt(collectionWithUser)
 
   const collectionToWrite: CollectionMetadata = {
     ...collectionWithUser,
@@ -301,9 +301,6 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
   } catch (e) {
     throw failJob(e.message)
   } finally {
-    await new Promise((resolve) => {
-      setTimeout(resolve, 1000)
-    })
     if (shouldAbortDownload(downloadReason)) {
       removeTrackDownload(trackForDownload)
     }
@@ -344,6 +341,8 @@ export const removeAllDownloadedFavorites = async () => {
       favoriteCreatedAt: track.offline?.favorite_created_at
     }))
 
+  purgeDownloadedCollection(DOWNLOAD_REASON_FAVORITES)
+
   const allFavoritedTracks = isReachable
     ? [
         ...(await fetchAllFavoritedTracks(currentUserId)),
@@ -360,8 +359,6 @@ export const removeAllDownloadedFavorites = async () => {
       }
     })
   )
-
-  purgeDownloadedCollection(DOWNLOAD_REASON_FAVORITES)
 
   // remove collections if they're not also downloaded separately
   Object.entries(favoritedDownloadedCollections).forEach(

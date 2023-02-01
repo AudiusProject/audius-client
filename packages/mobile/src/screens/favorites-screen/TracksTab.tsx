@@ -24,8 +24,7 @@ import { TrackList } from 'app/components/track-list'
 import type { TrackMetadata } from 'app/components/track-list/types'
 import { WithLoader } from 'app/components/with-loader/WithLoader'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
-import { useOfflineCollectionLineup } from 'app/hooks/useLoadOfflineTracks'
-import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
+import { useOfflineFavoritesLineup } from 'app/hooks/useLoadOfflineTracks'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 
@@ -102,11 +101,7 @@ export const TracksTab = () => {
     dispatch(fetchSaves('', '', '', 0, FETCH_LIMIT))
   })
 
-  useOfflineCollectionLineup(
-    DOWNLOAD_REASON_FAVORITES,
-    debouncedFetchSavesOnline as any,
-    tracksActions
-  )
+  useOfflineFavoritesLineup(debouncedFetchSavesOnline as any)
 
   const savedTrackUids: string[] = useSelector((state) => {
     return getSavedTracksLineup(state).entries.map(({ uid }) => uid)
