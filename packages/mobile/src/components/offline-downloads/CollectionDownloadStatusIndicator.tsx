@@ -19,7 +19,7 @@ type CollectionDownloadIndicatorProps = {
   size?: number
 }
 
-const getCollectionDownloadStatus = (
+export const getCollectionDownloadStatus = (
   state: AppState,
   collectionId?: ID
 ): OfflineDownloadStatus | null => {

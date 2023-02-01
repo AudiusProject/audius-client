@@ -13,12 +13,19 @@ import { View } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 
 import { Switch, Text } from 'app/components/core'
+import { getCollectionDownloadStatus } from 'app/components/offline-downloads/CollectionDownloadStatusIndicator'
 import { DownloadStatusIndicator } from 'app/components/offline-downloads/DownloadStatusIndicator'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useProxySelector } from 'app/hooks/useProxySelector'
-import { batchDownloadCollection } from 'app/services/offline-downloader'
+import {
+  batchDownloadCollection,
+  DOWNLOAD_REASON_FAVORITES
+} from 'app/services/offline-downloader'
 import { setVisibility } from 'app/store/drawers/slice'
-import { getOfflineDownloadStatus } from 'app/store/offline-downloads/selectors'
+import {
+  getIsCollectionMarkedForDownload,
+  getOfflineDownloadStatus
+} from 'app/store/offline-downloads/selectors'
 import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
 const { getUserId } = accountSelectors
@@ -125,45 +132,26 @@ type OfflineCollectionHeaderProps = {
 const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
   const styles = useStyles()
   const { collection, headerText } = props
-  const { playlist_id, playlist_contents } = collection
-  const { track_ids } = playlist_contents
+  const { playlist_id } = collection
   const dispatch = useDispatch()
   const currentUserId = useSelector(getUserId)
   const isReachable = useSelector(getIsReachable)
 
-  const isMarkedForDownload = useProxySelector(
-    (state) => {
-      const { collectionStatus, favoritedCollectionStatus } =
-        state.offlineDownloads
-      return !!(
-        collectionStatus[playlist_id] || favoritedCollectionStatus[playlist_id]
-      )
-    },
-    [playlist_id]
+  const isMarkedForDownload = useSelector(
+    getIsCollectionMarkedForDownload(playlist_id)
   )
 
-  const isDownloaded = useProxySelector(
-    (state) => {
-      const trackIds = track_ids.map(({ track }) => track)
-      const downloadStatus = getOfflineDownloadStatus(state)
-      return trackIds.every(
-        (trackId) => downloadStatus[trackId] === OfflineDownloadStatus.SUCCESS
-      )
-    },
-    [track_ids]
+  const isFavoritesToggleOn = useSelector(
+    getIsCollectionMarkedForDownload(DOWNLOAD_REASON_FAVORITES)
   )
 
-  const getDownloadStatus = () => {
-    if (!isMarkedForDownload) {
-      return OfflineDownloadStatus.INACTIVE
-    }
-    if (isDownloaded) {
-      return OfflineDownloadStatus.SUCCESS
-    }
-    return OfflineDownloadStatus.LOADING
-  }
-
-  const downloadStatus = getDownloadStatus()
+  const downloadStatus = useProxySelector(
+    (state) => {
+      const status = getCollectionDownloadStatus(state, playlist_id)
+      return isMarkedForDownload ? status : OfflineDownloadStatus.INACTIVE
+    },
+    [isMarkedForDownload, playlist_id]
+  )
 
   const handleToggleDownload = useCallback(
     (isDownloadEnabled: boolean) => {
@@ -218,7 +206,7 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
         <Switch
           value={isMarkedForDownload}
           onValueChange={handleToggleDownload}
-          disabled={isMarkedForDownload || !isReachable}
+          disabled={isFavoritesToggleOn || !isReachable}
         />
       </View>
     </View>
