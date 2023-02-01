@@ -308,11 +308,6 @@ function* updateCollectibleGatedTrackAccess(
 
     // update premium content signatures
     yield* put(updatePremiumContentSignatures(premiumContentSignatureMap))
-
-    // we previously also updated the track's metadata in the store
-    // to include the premium content signature,
-    // but updating the track would mean getting back in this saga
-    // and ending up in a loop
   }
 }
 
