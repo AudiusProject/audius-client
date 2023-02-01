@@ -4,7 +4,9 @@ import {
   ID,
   Status,
   remixSettingsSelectors,
-  remixSettingsActions
+  remixSettingsActions,
+  Nullable,
+  PremiumConditions
 } from '@audius/common'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
@@ -17,6 +19,7 @@ const { fetchTrack, fetchTrackSucceeded, reset } = remixSettingsActions
 
 type OwnProps = {
   isPremium: boolean
+  premiumConditions: Nullable<PremiumConditions>
   isRemix: boolean
   setIsRemix: (isRemix: boolean) => void
   isOpen: boolean
@@ -35,6 +38,7 @@ type ConnectedRemixSettingsModalProps = OwnProps &
 const ConnectedRemixSettingsModal = ({
   initialTrackId,
   isPremium,
+  premiumConditions,
   isRemix,
   setIsRemix,
   isOpen,
@@ -65,6 +69,7 @@ const ConnectedRemixSettingsModal = ({
       isOpen={isOpen}
       onClose={onClose}
       isPremium={isPremium}
+      premiumConditions={premiumConditions}
       isRemix={isRemix}
       setIsRemix={setIsRemix}
       onChangeField={onChangeField}

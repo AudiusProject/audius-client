@@ -259,6 +259,7 @@ const BasicForm = (props) => {
           props.defaultFields.remix_of?.tracks?.[0]?.parent_track_id
         }
         isPremium={props.defaultFields.is_premium ?? false}
+        premiumConditions={props.defaultFields.premium_conditions ?? null}
         isRemix={isRemix}
         setIsRemix={setIsRemix}
         isOpen={remixSettingsModalVisible}

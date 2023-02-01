@@ -1,6 +1,14 @@
 import { useCallback, useState, useEffect, useRef } from 'react'
 
-import { FeatureFlags, ID, SquareSizes, Track, User } from '@audius/common'
+import {
+  FeatureFlags,
+  ID,
+  Nullable,
+  PremiumConditions,
+  SquareSizes,
+  Track,
+  User
+} from '@audius/common'
 import {
   Modal,
   Button,
@@ -36,8 +44,11 @@ const messages = {
   remixOf: 'This is a Remix of: (Paste Audius Track URL)',
   error: 'Please paste a valid Audius track URL',
   by: 'by',
-  changeAvailability:
-    'Availablity is set to Collectible Gated. To enable these options, change availability to Public.',
+  changeAvailabilityPrefix: 'Availablity is set to ',
+  changeAvailabilitySuffix:
+    '. To enable these options, change availability to Public.',
+  collectibleGated: 'Collectible Gated',
+  specialAccess: 'Special Access',
   markAsRemix: 'Mark This Track as a Remix',
   pasteLink: 'Paste the link to the Audius track you’ve remixed',
   enterLink: 'Enter an Audius Link',
@@ -84,6 +95,7 @@ type RemixSettingsModalProps = {
   onClose: (trackId: ID | null) => void
   onEditUrl: (url: string) => void
   isPremium: boolean
+  premiumConditions: Nullable<PremiumConditions>
   isRemix: boolean
   setIsRemix: (isRemix: boolean) => void
   onChangeField: (field: string, value: any) => void
@@ -98,6 +110,7 @@ const RemixSettingsModal = ({
   onClose,
   onEditUrl,
   isPremium,
+  premiumConditions,
   isRemix,
   setIsRemix,
   onChangeField,
@@ -175,7 +188,15 @@ const RemixSettingsModal = ({
           {isPremium && (
             <div className={styles.disableInfo}>
               <IconQuestionCircle className={styles.disableInfoIcon} />
-              <div>{messages.changeAvailability}</div>
+              <div>
+                <span>{messages.changeAvailabilityPrefix}</span>
+                <span>
+                  {'nft_collection' in (premiumConditions ?? {})
+                    ? messages.collectibleGated
+                    : messages.specialAccess}
+                </span>
+                <span>{messages.changeAvailabilitySuffix}</span>
+              </div>
             </div>
           )}
           <div className={styles.toggleRow}>
