@@ -182,7 +182,7 @@ export const downloadCollection = async ({
   const collectionToWrite: CollectionMetadata = {
     ...collection,
     offline: {
-      // TODO: This is broken!! Need to add download reasons. DO NOT APPROVE IF IN PR
+      // TODO: This is broken! Need to add download reasons. We are only tracking the last known download reason.
       isFavoritesDownload: !!isFavoritesDownload
     }
   }
