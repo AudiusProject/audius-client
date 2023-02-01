@@ -30,6 +30,7 @@ type TrackListProps = {
   Pick<TrackListItemProps, 'noDividerMargin' | 'showDivider' | 'showTopDivider'>
 
 const noOp = () => {}
+const keyExtractor = (item: string | number) => String(item)
 
 /**
  * A FlatList of tracks
@@ -128,7 +129,7 @@ export const TrackList = ({
       {...otherProps}
       autoscrollThreshold={200}
       data={data}
-      keyExtractor={(item) => String(item)}
+      keyExtractor={keyExtractor}
       onDragBegin={haptics.light}
       onPlaceholderIndexChange={haptics.light}
       onDragEnd={onReorder}
@@ -136,6 +137,11 @@ export const TrackList = ({
       renderPlaceholder={() => <View />}
     />
   ) : (
-    <FlatList {...otherProps} data={data} renderItem={renderTrack} />
+    <FlatList
+      {...otherProps}
+      data={data}
+      renderItem={renderTrack}
+      keyExtractor={keyExtractor}
+    />
   )
 }

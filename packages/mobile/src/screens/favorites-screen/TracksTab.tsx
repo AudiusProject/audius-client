@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import type { ID, Nullable, Track, UID, User } from '@audius/common'
 import {
   cacheTracksSelectors,
   cacheUsersSelectors,
   savedPageActions,
-  playerSelectors,
   Status,
   FavoriteSource,
   PlaybackSource,
@@ -16,6 +15,7 @@ import {
 } from '@audius/common'
 import { isEqual, debounce } from 'lodash'
 import { useDispatch, useSelector } from 'react-redux'
+import { useEffectOnce } from 'react-use'
 
 import { Tile, VirtualizedScrollView } from 'app/components/core'
 import { EmptyTileCTA } from 'app/components/empty-tile-cta'
@@ -35,11 +35,12 @@ import { OfflineContentBanner } from './OfflineContentBanner'
 const { saveTrack, unsaveTrack } = tracksSocialActions
 const { fetchSaves, fetchMoreSaves } = savedPageActions
 const {
+  getSaves,
+  getLocalSaves,
   getSavedTracksLineup,
   getSavedTracksStatus,
   getInitialFetchStatus,
-  getIsFetchingMore,
-  hasReachedEnd
+  getIsFetchingMore
 } = savedPageSelectors
 const { getIsReachable } = reachabilitySelectors
 const { getTrack } = cacheTracksSelectors
@@ -68,7 +69,7 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   }
 }))
 
-const FETCH_LIMIT = 50
+const FETCH_LIMIT = 5
 
 export const TracksTab = () => {
   const dispatch = useDispatch()
@@ -78,11 +79,16 @@ export const TracksTab = () => {
 
   const [filterValue, setFilterValue] = useState('')
   const [fetchPage, setFetchPage] = useState(0)
-  const [allTracksFetched, setAllTracksFetched] = useState(false)
   const savedTracksStatus = useSelector(getSavedTracksStatus)
-  const hasReachedFavoritesEnd = useSelector(hasReachedEnd)
   const initialFetch = useSelector(getInitialFetchStatus)
   const isFetchingMore = useSelector(getIsFetchingMore)
+  const saves = useSelector(getSaves)
+  const localSaves = useSelector(getLocalSaves)
+
+  const saveCount = useMemo(
+    () => saves.length + Object.keys(localSaves).length,
+    [saves, localSaves]
+  )
 
   const isLoading = savedTracksStatus !== Status.SUCCESS
 
@@ -92,6 +98,10 @@ export const TracksTab = () => {
     }, 500)
   }, [dispatch])
 
+  useEffectOnce(() => {
+    dispatch(fetchSaves('', '', '', 0, FETCH_LIMIT))
+  })
+
   useOfflineCollectionLineup(
     DOWNLOAD_REASON_FAVORITES,
     debouncedFetchSavesOnline as any,
@@ -99,9 +109,18 @@ export const TracksTab = () => {
   )
 
   const savedTrackUids: string[] = useSelector(
-    (state) => getSavedTracksLineup(state).entries.map(({ uid }) => uid),
-    isEqual
+    (state) => {
+      return getSavedTracksLineup(state).entries.map(({ uid }) => uid)
+    },
+    (a, b) => {
+      const result = isEqual(a, b)
+      if (!result) {
+        console.log('savedTrackUids NOT EQUAL', a, b)
+      }
+      return result
+    }
   )
+
   const filterTrack = (
     track: Nullable<Track>,
     user: Nullable<User>
@@ -120,6 +139,10 @@ export const TracksTab = () => {
       user.name.toLowerCase().indexOf(matchValue) > -1
     )
   }
+
+  const allTracksFetched = useMemo(() => {
+    return savedTrackUids.length === saveCount && !filterValue
+  }, [savedTrackUids, saveCount, filterValue])
 
   const handleMoreFetchSaves = useCallback(() => {
     if (
@@ -149,14 +172,6 @@ export const TracksTab = () => {
     savedTrackUids.length
   ])
 
-  useEffect(() => {
-    if (savedTrackUids && !allTracksFetched && !filterValue) {
-      setAllTracksFetched(true)
-    } else if (!savedTrackUids && allTracksFetched) {
-      setAllTracksFetched(false)
-    }
-  }, [allTracksFetched, filterValue, hasReachedFavoritesEnd, savedTrackUids])
-
   const filteredTrackUids: string[] = useSelector((state) => {
     return savedTrackUids.filter((uid) => {
       const track = getTrack(state, { uid })
@@ -180,6 +195,7 @@ export const TracksTab = () => {
     },
     [dispatch]
   )
+  console.log('tracks tab rerender')
 
   return (
     <VirtualizedScrollView listKey='favorites-screen'>
@@ -207,14 +223,14 @@ export const TracksTab = () => {
                   }}
                 >
                   <TrackList
+                    hideArt
+                    onEndReached={handleMoreFetchSaves}
+                    onEndReachedThreshold={1.5}
                     onSave={onToggleSave}
                     showDivider
                     togglePlay={togglePlay}
                     trackItemAction='save'
                     uids={filteredTrackUids}
-                    onEndReachedThreshold={1.5}
-                    onEndReached={handleMoreFetchSaves}
-                    hideArt
                   />
                 </Tile>
               ) : null}

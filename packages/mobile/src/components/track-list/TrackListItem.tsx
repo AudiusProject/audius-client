@@ -311,11 +311,11 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
           ) : null}
           {isReorderable && <IconDrag style={styles.dragIcon} />}
           <View style={styles.nameArtistContainer}>
-            <View style={styles.topLine}>
-              <View
-                style={styles.trackTitle}
-                onLayout={(e) => setTitleWidth(e.nativeEvent.layout.width)}
-              >
+            <View
+              style={styles.topLine}
+              onLayout={(e) => setTitleWidth(e.nativeEvent.layout.width)}
+            >
+              <View style={styles.trackTitle}>
                 <Text
                   numberOfLines={1}
                   style={[styles.trackTitleText, { maxWidth: titleMaxWidth }]}
