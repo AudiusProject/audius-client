@@ -22,10 +22,7 @@ const matchesFilter = (
   )
 }
 
-export const getAccountCollections = (
-  state: CommonState,
-  filterValue?: string
-) => {
+export const getAccountCollections = (state: CommonState, filterValue = '') => {
   const collectionEntries = state.collections?.entries
   const { collections } = state.account
   if (!collectionEntries) return []
@@ -36,7 +33,7 @@ export const getAccountCollections = (
         playlist &&
         !playlist._marked_deleted &&
         !playlist.is_delete &&
-        matchesFilter(playlist, state.users.entries, filterValue ?? '')
+        matchesFilter(playlist, state.users.entries, filterValue)
     )
     .sort((a, b) =>
       a.playlist_name.toLowerCase().localeCompare(b.playlist_name.toLowerCase())

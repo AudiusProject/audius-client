@@ -97,11 +97,11 @@ export const TracksTab = () => {
     }, 500)
   }, [dispatch])
 
-  useReachableEffect(() => {
-    dispatch(fetchSaves('', '', '', 0, FETCH_LIMIT))
-  })
+  const fetchSavesOnline = useCallback(() => {
+    debouncedFetchSavesOnline(filterValue)
+  }, [debouncedFetchSavesOnline, filterValue])
 
-  useOfflineFavoritesLineup(debouncedFetchSavesOnline as any)
+  useOfflineFavoritesLineup(fetchSavesOnline)
 
   const savedTrackUids: string[] = useSelector((state) => {
     return getSavedTracksLineup(state).entries.map(({ uid }) => uid)
