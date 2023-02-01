@@ -34,9 +34,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     fontWeight: 'bold',
     color: palette.neutral
   },
-  userBadges: {
-    height: 22
-  },
   handle: {
     fontSize: typography.fontSize.small
   }

@@ -46,7 +46,6 @@ export const ChatListScreen = () => {
     <Screen
       url='/chat'
       title={messages.title}
-      style={styles.title}
       topbarRight={null}
     >
       <ScreenContent>
@@ -57,7 +56,6 @@ export const ChatListScreen = () => {
                 return (
                   <ChatListItem
                     key={chat.chat_id}
-                    currentChatId={chat.chat_id}
                     chat={chat}
                   />
                 )
