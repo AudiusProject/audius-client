@@ -184,18 +184,11 @@
   font-weight: var(--font-demi-bold);
 }
 
-.release .remixSettingsButton {
-  margin-top: var(--unit-3);
-  width: 156px;
-}
-
-.release .trackAvailabilityButton,
-.release .remixSettingsButton {
+.release .trackAvailabilityButton {
   height: 35px;
 }
 
-.trackAvailabilityButton .trackAvailabilityButtonText,
-.remixSettingsButton .remixSettingsButtonText {
+.trackAvailabilityButton .trackAvailabilityButtonText {
   font-size: var(--font-xs);
 }
 
@@ -215,18 +208,4 @@
 
 .floatRight > * {
   margin: 8px;
-}
-
-.hideRemixes {
-  display: inline-flex;
-  align-items: center;
-  margin-top: 17px;
-  height: 34px;
-}
-
-.hideRemixesText {
-  color: var(--neutral);
-  font-size: var(--font-s);
-  font-weight: var(--font-medium);
-  margin-right: 8px;
 }

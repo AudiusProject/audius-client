@@ -8,19 +8,19 @@ type SwitchProps = {
   isOn: boolean
   isDisabled?: boolean
   handleToggle: MouseEventHandler<Element>
-  allowDisableChecked?: boolean
+  allowCheckedWhileDisabled?: boolean
 }
 
 const Switch = ({
   isOn,
   handleToggle,
   isDisabled = false,
-  allowDisableChecked
+  allowCheckedWhileDisabled
 }: SwitchProps) => {
   return (
     <div className={cn(styles.container, { [styles.disabled]: isDisabled })}>
       <input
-        checked={allowDisableChecked ? isOn : isDisabled ? false : isOn}
+        checked={allowCheckedWhileDisabled ? isOn : isDisabled ? false : isOn}
         className={styles.inputCheckbox}
         type='checkbox'
       />

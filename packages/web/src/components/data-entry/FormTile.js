@@ -22,6 +22,7 @@ import TextArea from 'components/data-entry/TextArea'
 import LabeledButton from 'components/labeled-button/LabeledButton'
 import Dropdown from 'components/navigation/Dropdown'
 import ConnectedRemixSettingsModal from 'components/remix-settings-modal/ConnectedRemixSettingsModal'
+import { RemixSettingsModalTrigger } from 'components/remix-settings-modal/RemixSettingsModalTrigger'
 import SourceFilesModal from 'components/source-files-modal/SourceFilesModal'
 import Switch from 'components/switch/Switch'
 import TrackAvailabilityModal from 'components/track-availability-modal/TrackAvailabilityModal'
@@ -33,6 +34,7 @@ import { resizeImage } from 'utils/imageProcessingUtil'
 import { moodMap } from 'utils/moods'
 
 import styles from './FormTile.module.css'
+
 const {
   ALL_RIGHTS_RESERVED_TYPE,
   computeLicense,
@@ -50,10 +52,8 @@ const messages = {
   specialAccess: 'Special Access',
   collectibleGated: 'Collectible Gated',
   hidden: 'Hidden',
-  remixSettings: 'Remix Settings',
   thisIsARemix: 'This is a Remix',
   editRemix: 'Edit',
-  hideRemixes: 'Hide Remixes on Track Page',
   trackVisibility: 'Track Visibility',
   availability: 'Availability'
 }
@@ -391,35 +391,6 @@ const BasicForm = (props) => {
   )
 }
 
-const RemixSettingsButton = (props) => {
-  const { isEnabled: isPremiumContentEnabled } = useFlag(
-    FeatureFlags.PREMIUM_CONTENT_ENABLED
-  )
-
-  if (isPremiumContentEnabled) {
-    return (
-      <LabeledButton
-        type={ButtonType.COMMON_ALT}
-        name='remixSettings'
-        text={messages.remixSettings}
-        className={styles.remixSettingsButton}
-        textClassName={styles.remixSettingsButtonText}
-        onClick={props.onClick}
-      />
-    )
-  }
-
-  return (
-    <div className={styles.hideRemixes}>
-      <div className={styles.hideRemixesText}>{messages.hideRemixes}</div>
-      <Switch
-        isOn={props.hideRemixes}
-        handleToggle={props.didToggleHideRemixesState}
-      />
-    </div>
-  )
-}
-
 const AdvancedForm = (props) => {
   let availabilityButtonTitle
   let availabilityState = {
@@ -547,7 +518,7 @@ const AdvancedForm = (props) => {
             />
           </div>
           {props.type === 'track' && (
-            <RemixSettingsButton
+            <RemixSettingsModalTrigger
               onClick={() => props.setRemixSettingsModalVisible(true)}
               hideRemixes={hideRemixes}
               handleToggle={didToggleHideRemixesState}

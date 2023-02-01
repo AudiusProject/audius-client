@@ -237,7 +237,7 @@ const RemixSettingsModal = ({
                 )
               }}
               isDisabled={isPremium}
-              allowDisableChecked
+              allowCheckedWhileDisabled
             />
           </div>
           <div
