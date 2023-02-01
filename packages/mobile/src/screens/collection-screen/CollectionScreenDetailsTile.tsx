@@ -114,9 +114,9 @@ export const CollectionScreenDetailsTile = ({
 
   const handleFetchLineupOffline = useOfflineCollectionLineup(
     collectionId,
-    handleFetchLineupOnline,
-    tracksActions
+    handleFetchLineupOnline
   )
+
   const handleFetchLineup = useCallback(() => {
     if (isOfflineModeEnabled && !isReachable) {
       handleFetchLineupOffline()
@@ -256,6 +256,7 @@ export const CollectionScreenDetailsTile = ({
       details={details}
       hideOverflow={detailsTileProps.hideOverflow || !isReachable}
       hideListenCount={true}
+      hideRepost={!isReachable}
       isPlaying={isPlaying && isQueued}
       renderBottomContent={renderTrackList}
       headerText={!isOfflineModeEnabled ? headerText : undefined}

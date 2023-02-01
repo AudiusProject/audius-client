@@ -327,9 +327,6 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
   } catch (e) {
     throw failJob(e.message)
   } finally {
-    await new Promise((resolve) => {
-      setTimeout(resolve, 1000)
-    })
     if (shouldAbortDownload(downloadReason)) {
       removeTrackDownload(trackForDownload)
     }
