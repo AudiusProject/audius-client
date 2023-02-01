@@ -139,7 +139,12 @@ const BasicForm = (props) => {
   const { isEnabled: isPremiumContentEnabled } = useFlag(
     FeatureFlags.PREMIUM_CONTENT_ENABLED
   )
-  const { remixSettingsModalVisible, setRemixSettingsModalVisible } = props
+  const {
+    remixSettingsModalVisible,
+    setRemixSettingsModalVisible,
+    isRemix,
+    setIsRemix
+  } = props
 
   const onPreviewClick = props.playing
     ? props.onStopPreview
@@ -247,8 +252,6 @@ const BasicForm = (props) => {
     )
   }
 
-  const [isRemix, setIsRemix] = useState(!!props.defaultFields.remix_of)
-
   const renderRemixSettingsModal = () => {
     return (
       <ConnectedRemixSettingsModal
@@ -256,6 +259,8 @@ const BasicForm = (props) => {
           props.defaultFields.remix_of?.tracks?.[0]?.parent_track_id
         }
         isPremium={props.defaultFields.is_premium ?? false}
+        isRemix={isRemix}
+        setIsRemix={setIsRemix}
         isOpen={remixSettingsModalVisible}
         onClose={(trackId) => {
           if (!trackId) {
@@ -269,6 +274,7 @@ const BasicForm = (props) => {
           }
           setRemixSettingsModalVisible(false)
         }}
+        onChangeField={props.onChangeField}
       />
     )
   }
@@ -659,7 +665,8 @@ class FormTile extends Component {
 
     imageProcessingError: false,
 
-    remixSettingsModalVisible: false
+    remixSettingsModalVisible: false,
+    isRemix: !!this.props.defaultFields.remix_of
   }
 
   componentDidMount() {
@@ -770,6 +777,10 @@ class FormTile extends Component {
     this.setState({ remixSettingsModalVisible: visible })
   }
 
+  setIsRemix = (isRemix) => {
+    this.setState({ isRemix })
+  }
+
   render() {
     const {
       advancedShow,
@@ -779,7 +790,8 @@ class FormTile extends Component {
       allowAttribution,
       commercialUse,
       derivativeWorks,
-      remixSettingsModalVisible
+      remixSettingsModalVisible,
+      isRemix
     } = this.state
 
     const { licenseType, licenseDescription } = license
@@ -793,6 +805,8 @@ class FormTile extends Component {
           imageProcessingError={imageProcessingError}
           remixSettingsModalVisible={remixSettingsModalVisible}
           setRemixSettingsModalVisible={this.setRemixSettingsModalVisible}
+          isRemix={isRemix}
+          setIsRemix={this.setIsRemix}
         />
         <AdvancedForm
           {...this.props}
@@ -808,6 +822,8 @@ class FormTile extends Component {
           onSelectDerivativeWorks={this.onSelectDerivativeWorks}
           remixSettingsModalVisible={remixSettingsModalVisible}
           setRemixSettingsModalVisible={this.setRemixSettingsModalVisible}
+          isRemix={isRemix}
+          setIsRemix={this.setIsRemix}
         />
         {this.props.children.length > 0 ? (
           <DragDropContext onDragEnd={this.onDragEnd}>

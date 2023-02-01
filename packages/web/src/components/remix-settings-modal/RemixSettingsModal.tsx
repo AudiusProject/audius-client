@@ -84,6 +84,10 @@ type RemixSettingsModalProps = {
   onClose: (trackId: ID | null) => void
   onEditUrl: (url: string) => void
   isPremium: boolean
+  isRemix: boolean
+  setIsRemix: (isRemix: boolean) => void
+  onChangeField: (field: string, value: any) => void
+  reset: () => void
   isInvalidTrack: boolean
   track: Track | null
   user: User | null
@@ -94,6 +98,10 @@ const RemixSettingsModal = ({
   onClose,
   onEditUrl,
   isPremium,
+  isRemix,
+  setIsRemix,
+  onChangeField,
+  reset,
   track,
   user,
   isInvalidTrack
@@ -102,7 +110,6 @@ const RemixSettingsModal = ({
     FeatureFlags.PREMIUM_CONTENT_ENABLED
   )
 
-  const [isRemix, setIsRemix] = useState(false)
   const [shouldHideOtherRemixes, setShouldHideOtherRemixes] = useState(true)
 
   const inputRef = useRef<HTMLInputElement>(null)
@@ -180,6 +187,11 @@ const RemixSettingsModal = ({
               handleToggle={(e) => {
                 e.stopPropagation()
                 setIsRemix(!isRemix)
+                if (isRemix) {
+                  onChangeField('remix_of', null)
+                  reset()
+                  setUrl(null)
+                }
               }}
               isDisabled={isPremium}
             />
@@ -198,7 +210,7 @@ const RemixSettingsModal = ({
             placeholder={messages.enterLink}
             size='large'
             onChange={onChange}
-            disabled={isPremium}
+            disabled={!isRemix || isPremium}
           />
           {url && (
             <div className={styles.bottom}>
@@ -238,7 +250,7 @@ const RemixSettingsModal = ({
 
           <div className={styles.doneButtonContainer}>
             <Button
-              textClassName={styles.doneButton}
+              textClassName={styles.doneButton2}
               text={messages.done2}
               type={ButtonType.PRIMARY_ALT}
               onClick={onCloseModal}

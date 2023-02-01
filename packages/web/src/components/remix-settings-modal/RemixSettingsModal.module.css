@@ -111,13 +111,18 @@
   align-items: center;
 }
 
+.doneButton {
+  align-self: flex-end;
+  margin: 16px;
+}
+
 .doneButtonContainer {
   display: flex;
   justify-content: center;
   padding-top: var(--unit-2);
 }
 
-.doneButtonContainer .doneButton {
+.doneButtonContainer .doneButton2 {
   font-size: var(--font-l);
 }
 
