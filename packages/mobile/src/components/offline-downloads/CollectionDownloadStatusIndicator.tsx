@@ -31,7 +31,10 @@ const getCollectionDownloadStatus = (
 
   if (!isMarkedForDownload) return null
 
-  const trackStatuses = collection.playlist_contents.track_ids
+  const playlistTracks = collection.playlist_contents.track_ids
+  if (playlistTracks.length === 0) return OfflineDownloadStatus.SUCCESS
+
+  const trackStatuses = playlistTracks
     .map(({ track: trackId }) => getTrackOfflineDownloadStatus(trackId)(state))
     .filter(removeNullable)
 
