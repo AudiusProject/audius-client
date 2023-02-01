@@ -11,13 +11,12 @@ import { useDispatch } from 'react-redux'
 
 import IconHeart from 'app/assets/images/iconHeart.svg'
 import IconRepost from 'app/assets/images/iconRepost.svg'
+import { CollectionDownloadStatusIndicator } from 'app/components/offline-downloads/CollectionDownloadStatusIndicator'
+import { TrackDownloadStatusIndicator } from 'app/components/offline-downloads/TrackDownloadStatusIndicator'
 import Text from 'app/components/text'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles, flexRowCentered } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
-
-import { CollectionDownloadStatusIndicator } from '../offline-downloads/CollectionDownloadStatusIndicator'
-import { TrackDownloadStatusIndicator } from '../offline-downloads/TrackDownloadStatusIndicator'
 
 import { LineupTileRankIcon } from './LineupTileRankIcon'
 import { useStyles as useTrackTileStyles } from './styles'

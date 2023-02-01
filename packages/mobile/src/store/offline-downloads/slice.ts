@@ -47,7 +47,7 @@ const slice = createSlice({
   initialState,
   reducers: {
     // Queueing downloads
-    batchStartDownload: (
+    batchInitDownload: (
       state,
       { payload: trackIds }: PayloadAction<string[]>
     ) => {
@@ -68,7 +68,7 @@ const slice = createSlice({
     removeDownload: (state, { payload: trackId }: PayloadAction<string>) => {
       delete state.downloadStatus[trackId]
     },
-    batchStartCollectionDownload: (
+    batchInitCollectionDownload: (
       state,
       {
         payload: { collectionIds, isFavoritesDownload }
@@ -157,13 +157,13 @@ const slice = createSlice({
 
 export const {
   // TODO: don't name these the same thing
+  batchInitDownload,
   startDownload,
-  batchStartDownload,
   completeDownload,
   errorDownload,
   removeDownload,
+  batchInitCollectionDownload,
   startCollectionDownload,
-  batchStartCollectionDownload,
   completeCollectionDownload,
   errorCollectionDownload,
   removeCollectionDownload,

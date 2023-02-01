@@ -29,13 +29,13 @@ import {
 } from 'app/store/offline-downloads/selectors'
 import {
   actions as offlineDownloadsActions,
-  batchStartDownload,
+  batchInitDownload,
   startDownload,
   completeDownload,
   errorDownload,
   loadTrack,
   removeDownload,
-  batchStartCollectionDownload,
+  batchInitCollectionDownload,
   errorCollectionDownload,
   startCollectionDownload,
   completeCollectionDownload
@@ -115,7 +115,7 @@ export const batchDownloadCollection = (
     })
   )
   store.dispatch(
-    batchStartCollectionDownload({
+    batchInitCollectionDownload({
       collectionIds: collectionsForDownload.map(
         ({ collectionId }) => collectionId
       ),
@@ -200,7 +200,7 @@ export const downloadCollection = async ({
 
 export const batchDownloadTrack = (tracksForDownload: TrackForDownload[]) => {
   store.dispatch(
-    batchStartDownload(
+    batchInitDownload(
       tracksForDownload.map(({ trackId }) => trackId.toString())
     )
   )

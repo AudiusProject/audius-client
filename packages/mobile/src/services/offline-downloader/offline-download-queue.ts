@@ -4,8 +4,8 @@ import queue from 'react-native-job-queue'
 
 import { store } from 'app/store'
 import {
-  batchStartCollectionDownload,
-  batchStartDownload,
+  batchInitCollectionDownload,
+  batchInitDownload,
   errorCollectionDownload,
   errorDownload,
   removeCollectionDownload,
@@ -102,13 +102,13 @@ export const startDownloadWorker = async () => {
       }
     })
   store.dispatch(
-    batchStartCollectionDownload({
+    batchInitCollectionDownload({
       collectionIds: favoritedCollectionIdsInQueue,
       isFavoritesDownload: true
     })
   )
   store.dispatch(
-    batchStartCollectionDownload({
+    batchInitCollectionDownload({
       collectionIds: collectionIdsInQueue,
       isFavoritesDownload: false
     })
@@ -133,7 +133,7 @@ export const startDownloadWorker = async () => {
       }
     })
 
-  store.dispatch(batchStartDownload(trackIdsInQueue))
+  store.dispatch(batchInitDownload(trackIdsInQueue))
 
   queue.start()
 }

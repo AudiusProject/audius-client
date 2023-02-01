@@ -67,7 +67,7 @@ export const useLoadOfflineData = () => {
           dispatch(
             completeCollectionDownload({
               collectionId,
-              isFavoritesDownload: false
+              isFavoritesDownload: false // 'favorites' is not a favorited collection
             })
           )
         } else {
