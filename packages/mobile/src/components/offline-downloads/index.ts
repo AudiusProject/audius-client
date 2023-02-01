@@ -1,2 +1,2 @@
 export * from './DownloadStatusIndicator'
-export * from './types'
+export * from '../../services/offline-downloader/types'

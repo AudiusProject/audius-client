@@ -16,6 +16,7 @@ import { isAvailableForPlay } from 'app/utils/trackUtils'
 import { apiClient } from '../audius-api-client'
 
 import {
+  batchDownloadCollection,
   batchDownloadTrack,
   batchRemoveTrackDownload,
   downloadCollection,
@@ -107,9 +108,7 @@ export const syncFavoritedCollections = async (
     (collection) => !newCollectionIds.has(collection.playlist_id)
   )
 
-  addedCollections.forEach((collection) => {
-    downloadCollection(collection, /* isFavoritesDownload */ true)
-  })
+  batchDownloadCollection(addedCollections, true)
 
   removedCollections.forEach((collection) => {
     const tracksForDownload =
@@ -130,7 +129,7 @@ export const syncFavoritedCollections = async (
 
 export const syncCollectionsTracks = async (
   collections: Collection[],
-  isFavoritesDownload?: boolean
+  isFavoritesDownload: boolean
 ) => {
   collections.forEach((collection) => {
     syncCollectionTracks(collection, isFavoritesDownload)
@@ -139,7 +138,7 @@ export const syncCollectionsTracks = async (
 
 export const syncCollectionTracks = async (
   offlineCollection: Collection,
-  isFavoritesDownload?: boolean
+  isFavoritesDownload: boolean
 ) => {
   // TODO: record and check last verified time for collections
   const state = store.getState()
@@ -164,8 +163,8 @@ export const syncCollectionTracks = async (
     return
   }
 
-  downloadCollection(
-    updatedCollection,
+  batchDownloadCollection(
+    [updatedCollection],
     isFavoritesDownload,
     /* skipTracks */ true
   )

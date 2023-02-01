@@ -1,6 +1,7 @@
 import path from 'path'
 
 import type {
+  Collection,
   CollectionMetadata,
   CommonState,
   DownloadReason,
@@ -22,7 +23,10 @@ import {
 import { uniq, isEqual } from 'lodash'
 import RNFetchBlob from 'rn-fetch-blob'
 
-import type { TrackForDownload } from 'app/components/offline-downloads'
+import type {
+  CollectionForDownload,
+  TrackForDownload
+} from 'app/components/offline-downloads'
 import { createAllImageSources } from 'app/hooks/useContentNodeImage'
 import { fetchAllFavoritedTracks } from 'app/hooks/useFetchAllFavoritedTracks'
 import { getAccountCollections } from 'app/screens/favorites-screen/selectors'
@@ -33,20 +37,22 @@ import {
   getOfflineTracks
 } from 'app/store/offline-downloads/selectors'
 import {
-  addCollection,
   batchStartDownload,
   startDownload,
   completeDownload,
   errorDownload,
   loadTrack,
   removeDownload,
-  removeCollection
+  batchStartCollectionDownload,
+  errorCollectionDownload,
+  startCollectionDownload
 } from 'app/store/offline-downloads/slice'
 
 import { apiClient } from '../audius-api-client'
 
 import {
   cancelQueuedDownloads,
+  enqueueCollectionDownload,
   enqueueTrackDownload
 } from './offline-download-queue'
 import {
@@ -78,7 +84,7 @@ export const downloadAllFavorites = async () => {
   if (!currentUserId) return
 
   store.dispatch(
-    addCollection({
+    batchStartCollectionDownload({
       collectionId: DOWNLOAD_REASON_FAVORITES,
       isFavoritesDownload: false
     })
@@ -102,12 +108,96 @@ export const downloadAllFavorites = async () => {
 
   // @ts-ignore state is CommonState
   const favoritedCollections = getAccountCollections(state as CommonState, '')
-  favoritedCollections.forEach(async (userCollection) => {
-    downloadCollection(userCollection, /* isFavoritesDownload */ true)
-  })
+  batchDownloadCollection(favoritedCollections, true)
 }
 
-export const downloadCollection = async (
+export const batchDownloadCollection = (
+  collections: CollectionMetadata[],
+  isFavoritesDownload: boolean,
+  skipTracks = false
+) => {
+  const collectionsForDownload: CollectionForDownload[] = collections.map(
+    (collection) => ({
+      collectionId: collection.playlist_id,
+      isFavoritesDownload
+    })
+  )
+  store.dispatch(
+    batchStartCollectionDownload(
+      collectionsForDownload.map(({ collectionId }) => collectionId)
+    )
+  )
+  collectionsForDownload.forEach((collectionForDownload) =>
+    enqueueCollectionDownload(collectionForDownload)
+  )
+
+  if (skipTracks) return
+  const tracksForDownload = collections.flatMap((collection) =>
+    collection.playlist_contents.track_ids.map(({ track: trackId }) => ({
+      trackId,
+      downloadReason: {
+        is_from_favorites: isFavoritesDownload,
+        collection_id: collection.playlist_id.toString()
+      }
+    }))
+  )
+  batchDownloadTrack(tracksForDownload)
+}
+
+export const downloadCollection = async ({
+  collectionId,
+  isFavoritesDownload
+}: CollectionForDownload) => {
+  const state = store.getState()
+  const currentUserId = getUserId(state)
+  store.dispatch(startCollectionDownload(collectionId))
+
+  // Throw this
+  const failJob = (message?: string) => {
+    store.dispatch(errorCollectionDownload(collectionId))
+    return new Error(message)
+  }
+
+  const collectionFromApi = (
+    await apiClient.getPlaylist({
+      playlistId: collectionId,
+      currentUserId
+    })
+  )[0]
+
+  if (!collectionFromApi) {
+    throw failJob(
+      `collection to download not found on discovery - ${collectionFromApi}`
+    )
+  }
+  const collection = collectionFromApi
+
+  // Prevent download of unavailable collections
+  if (
+    collection.is_delete ||
+    // Not sure this is necessary
+    (collection.is_private && collection.playlist_owner_id !== currentUserId)
+  )
+    throw failJob(`collection to download is not available - ${collectionId}`)
+
+  await downloadCollectionCoverArt(collection)
+
+  const collectionToWrite: CollectionMetadata = {
+    ...collection,
+    offline: {
+      // TODO: This is broken!! Need to add download reasons. DO NOT APPROVE IF IN PR
+      isFavoritesDownload: !!isFavoritesDownload
+    }
+  }
+
+  await writeCollectionJson(
+    collectionId.toString(),
+    collectionToWrite,
+    collection.user
+  )
+}
+
+export const downloadCollectionOld = async (
   collection: CollectionMetadata,
   isFavoritesDownload?: boolean,
   skipTracks?: boolean
@@ -153,6 +243,7 @@ export const downloadCollection = async (
   const collectionToWrite: CollectionMetadata = {
     ...collectionWithUser,
     offline: {
+      // TODO: This is broken!! Need to add download reasons. DO NOT APPROVE IF IN PR
       isFavoritesDownload: !!isFavoritesDownload
     }
   }

@@ -57,7 +57,7 @@ export const getLocalCollectionJsonPath = (collectionId: string) => {
 export const writeCollectionJson = async (
   collectionId: string,
   collectionToWrite: CollectionMetadata,
-  user: User
+  user: UserMetadata
 ) => {
   const pathToWrite = getLocalCollectionJsonPath(collectionId)
   if (await exists(pathToWrite)) {

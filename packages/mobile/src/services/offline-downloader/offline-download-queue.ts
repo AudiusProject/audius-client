@@ -2,7 +2,10 @@ import type { ID } from '@audius/common'
 import { isEqual, groupBy } from 'lodash'
 import queue from 'react-native-job-queue'
 
-import type { TrackForDownload } from 'app/components/offline-downloads'
+import type {
+  CollectionForDownload,
+  TrackForDownload
+} from 'app/components/offline-downloads'
 import { store } from 'app/store'
 import {
   batchStartCollectionDownload,
@@ -27,6 +30,20 @@ import {
   trackDownloadWorker,
   TRACK_DOWNLOAD_WORKER
 } from './workers/trackDownloadWorker'
+
+export const enqueueCollectionDownload = async (
+  collectionForDownload: CollectionForDownload
+) => {
+  queue.addJob<CollectionDownloadWorkerPayload>(
+    COLLECTION_DOWNLOAD_WORKER,
+    collectionForDownload,
+    {
+      attempts: 3,
+      priority: 1,
+      timeout: 30 * 60 * 1000
+    }
+  )
+}
 
 export const enqueueTrackDownload = async (
   trackForDownload: TrackForDownload

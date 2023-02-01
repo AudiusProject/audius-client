@@ -11,7 +11,7 @@ export type OfflineDownloadsState = {
   collectionStatus: {
     [key: string]: OfflineDownloadStatus
   }
-  favoritedCollectionStatuss: {
+  favoritedCollectionStatus: {
     [key: string]: OfflineDownloadStatus
   }
   tracks: {
@@ -32,7 +32,7 @@ const initialState: OfflineDownloadsState = {
   downloadStatus: {},
   tracks: {},
   collectionStatus: {},
-  favoritedCollectionStatuss: {},
+  favoritedCollectionStatus: {},
   isDoneLoadingFromDisk: false
 }
 
@@ -129,11 +129,13 @@ const slice = createSlice({
 })
 
 export const {
+  // TODO: don't name these the same thing
   startDownload,
   batchStartDownload,
   completeDownload,
   errorDownload,
   removeDownload,
+  startCollectionDownload,
   batchStartCollectionDownload,
   completeCollectionDownload,
   errorCollectionDownload,

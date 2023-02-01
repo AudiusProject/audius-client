@@ -26,11 +26,12 @@ export const getOfflineTracks = (
 
 export const getOfflineCollections = (
   state: AppState
-): OfflineDownloadsState['collections'] => state.offlineDownloads.collections
+): OfflineDownloadsState['collectionStatus'] =>
+  state.offlineDownloads.collections
 
 export const getOfflineFavoritedCollections = (
   state: AppState
-): OfflineDownloadsState['favoritedCollections'] =>
+): OfflineDownloadsState['favoritedCollectionStatuss'] =>
   state.offlineDownloads.favoritedCollections
 
 export const getIsDoneLoadingFromDisk = (state: AppState): boolean =>
