@@ -247,7 +247,6 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
   const handlePressRemove = () => {
     onRemove?.(index)
   }
-  // console.log('tracklistitemcomponent render')
 
   // The dividers above and belove the active track should be hidden
   const hideDivider = isActive || isPrevItemActive
