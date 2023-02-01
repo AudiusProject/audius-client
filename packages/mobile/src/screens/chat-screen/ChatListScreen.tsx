@@ -20,13 +20,17 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   title: {
     borderBottomWidth: 1,
     borderBottomColor: palette.neutralLight8
+  },
+  loadingSpinner: {
+    margin: 'auto'
   }
 }))
 
 export const ChatListScreen = () => {
   const styles = useStyles()
   const dispatch = useDispatch()
-  const chats = useSelector(getChats)
+  // const chats = useSelector(getChats)
+  const chats = []
 
   useEffect(() => {
     dispatch(chatActions.fetchMoreChats())
@@ -35,13 +39,11 @@ export const ChatListScreen = () => {
   return (
     <Screen
       url='/chat'
-      // variant='secondary'
-      // icon={IconChat}
       title={messages.title}
       style={styles.title}
     >
       <ScreenContent>
-        <ScrollView style={styles.root}>
+        <ScrollView>
           <View>
             <View style={styles.title}>
               {chats.length > 0 ? (
@@ -55,7 +57,7 @@ export const ChatListScreen = () => {
                   )
                 })
               ) : (
-                <LoadingSpinner />
+                <LoadingSpinner style={styles.loadingSpinner}/>
               )}
             </View>
           </View>

@@ -30,15 +30,11 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 type ChatListItemProps = {
   currentChatId?: string
   chat: UserChat
-  onChatPressed: (chatId: string) => void
 }
 
 export const ChatListItem = (props: ChatListItemProps) => {
-  const navigation = useNavigation<AppTabScreenParamList>()
-  const handlePress = useCallback(() => {
-    navigation.navigate('Chat', { chatId: currentChatId })
-  }, [navigation, currentChatId])
   const { chat, currentChatId } = props
+  const navigation = useNavigation<AppTabScreenParamList>()
   const styles = useStyles()
   const users = useProxySelector(
     (state) => getOtherChatUsersFromChat(state, chat),
@@ -50,10 +46,10 @@ export const ChatListItem = (props: ChatListItemProps) => {
   }
 
   return (
-    <TouchableHighlight onPress={handlePress}>
+    <TouchableHighlight>
       <View style={styles.root}>
         <ChatUser user={users[0]} />
-        <Text style={styles.title}>{chat.last_message}</Text>
+        <Text>{chat.last_message}</Text>
       </View>
     </TouchableHighlight>
   )
