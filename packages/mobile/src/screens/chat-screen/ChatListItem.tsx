@@ -1,15 +1,10 @@
-import { useCallback } from 'react'
-
 import { chatSelectors, useProxySelector } from '@audius/common'
 import type { UserChat } from '@audius/sdk'
 import { View, TouchableHighlight } from 'react-native'
 
 import { Text } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
-import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
-
-import type { AppTabScreenParamList } from '../app-screen'
 
 import { ChatUser } from './ChatUser'
 
@@ -32,13 +27,11 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 }))
 
 type ChatListItemProps = {
-  currentChatId?: string
   chat: UserChat
 }
 
 export const ChatListItem = (props: ChatListItemProps) => {
-  const { chat, currentChatId } = props
-  const navigation = useNavigation<AppTabScreenParamList>()
+  const { chat } = props
   const styles = useStyles()
   const users = useProxySelector(
     (state) => getOtherChatUsersFromChat(state, chat),
@@ -53,7 +46,9 @@ export const ChatListItem = (props: ChatListItemProps) => {
     <TouchableHighlight>
       <View style={styles.root}>
         <ChatUser user={users[0]} />
-        <Text numberOfLines={1} style={styles.preview}>{chat.last_message}</Text>
+        <Text numberOfLines={1} style={styles.preview}>
+          {chat.last_message}
+        </Text>
       </View>
     </TouchableHighlight>
   )

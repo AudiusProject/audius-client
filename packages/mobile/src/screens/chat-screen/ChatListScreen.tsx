@@ -47,6 +47,7 @@ export const ChatListScreen = () => {
       url='/chat'
       title={messages.title}
       style={styles.title}
+      topbarRight={null}
     >
       <ScreenContent>
         <ScrollView contentContainerStyle={styles.container}>
@@ -62,7 +63,7 @@ export const ChatListScreen = () => {
                 )
               })
             ) : (
-                <LoadingSpinner style={styles.loadingSpinner}/>
+              <LoadingSpinner style={styles.loadingSpinner} />
             )}
           </View>
         </ScrollView>
