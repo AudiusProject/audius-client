@@ -24,6 +24,10 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     backgroundColor: palette.white,
     borderColor: palette.neutralLight8,
     borderBottomWidth: 1
+  },
+  preview: {
+    fontSize: typography.fontSize.medium,
+    lineHeight: spacing(6)
   }
 }))
 
@@ -49,7 +53,7 @@ export const ChatListItem = (props: ChatListItemProps) => {
     <TouchableHighlight>
       <View style={styles.root}>
         <ChatUser user={users[0]} />
-        <Text>{chat.last_message}</Text>
+        <Text numberOfLines={1} style={styles.preview}>{chat.last_message}</Text>
       </View>
     </TouchableHighlight>
   )

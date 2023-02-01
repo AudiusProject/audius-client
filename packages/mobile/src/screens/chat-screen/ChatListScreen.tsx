@@ -17,20 +17,26 @@ const messages = {
 }
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
-  title: {
+  chatRow: {
     borderBottomWidth: 1,
     borderBottomColor: palette.neutralLight8
   },
+  container: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%'
+  },
   loadingSpinner: {
-    margin: 'auto'
+    height: spacing(20),
+    widht: spacing(20)
   }
 }))
 
 export const ChatListScreen = () => {
   const styles = useStyles()
   const dispatch = useDispatch()
-  // const chats = useSelector(getChats)
-  const chats = []
+  const chats = useSelector(getChats)
 
   useEffect(() => {
     dispatch(chatActions.fetchMoreChats())
@@ -43,23 +49,21 @@ export const ChatListScreen = () => {
       style={styles.title}
     >
       <ScreenContent>
-        <ScrollView>
-          <View>
-            <View style={styles.title}>
-              {chats.length > 0 ? (
-                chats.map((chat) => {
-                  return (
-                    <ChatListItem
-                      key={chat.chat_id}
-                      currentChatId={chat.chat_id}
-                      chat={chat}
-                    />
-                  )
-                })
-              ) : (
+        <ScrollView contentContainerStyle={styles.container}>
+          <View style={styles.chatRow}>
+            {chats.length > 0 ? (
+              chats.map((chat) => {
+                return (
+                  <ChatListItem
+                    key={chat.chat_id}
+                    currentChatId={chat.chat_id}
+                    chat={chat}
+                  />
+                )
+              })
+            ) : (
                 <LoadingSpinner style={styles.loadingSpinner}/>
-              )}
-            </View>
+            )}
           </View>
         </ScrollView>
       </ScreenContent>
