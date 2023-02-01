@@ -24,7 +24,6 @@ import type { TrackMetadata } from 'app/components/track-list/types'
 import { WithLoader } from 'app/components/with-loader/WithLoader'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useOfflineFavoritesLineup } from 'app/hooks/useLoadOfflineTracks'
-import { useReachableEffect } from 'app/hooks/useReachabilityEffect'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 
