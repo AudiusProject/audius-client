@@ -46,7 +46,7 @@ export const syncFavoritedTracks = async () => {
     downloadReason.is_from_favorites &&
     downloadReason.collection_id === DOWNLOAD_REASON_FAVORITES
 
-  const queuedTracks = (await queue.getJobs())
+  const queuedTrackIds = (await queue.getJobs())
     .filter(({ workerName }) => workerName === TRACK_DOWNLOAD_WORKER)
     .map(({ payload }) => JSON.parse(payload) as TrackDownloadWorkerPayload)
     .filter(({ downloadReason }) => isTrackFavoriteReason(downloadReason))
@@ -57,7 +57,7 @@ export const syncFavoritedTracks = async () => {
     )
     .map(([_id, track]) => track.track_id)
 
-  const oldTrackIds = new Set([...queuedTracks, ...cachedFavoritedTrackIds])
+  const oldTrackIds = new Set([...queuedTrackIds, ...cachedFavoritedTrackIds])
   const newTrackIds = new Set(favoritedTracks.map(({ trackId }) => trackId))
   const addedTracks = [...favoritedTracks].filter(
     ({ trackId }) => !oldTrackIds.has(trackId)
@@ -146,7 +146,7 @@ export const syncCollectionTracks = async (
   const downloadedTracks = getOfflineTracks(state)
   const collectionId = offlineCollection.playlist_id
   const collectionIdStr = offlineCollection.playlist_id.toString()
-  const queuedTracks = (await queue.getJobs())
+  const queuedTrackIds = (await queue.getJobs())
     .filter(({ workerName }) => workerName === TRACK_DOWNLOAD_WORKER)
     .map(({ payload }) => JSON.parse(payload) as TrackDownloadWorkerPayload)
     .filter(
@@ -164,23 +164,24 @@ export const syncCollectionTracks = async (
 
   // TODO: will discovery serve a removed playlist?
   if (!updatedCollection) return
+  const downloadedCollectionTrackIds = offlineCollection.tracks
+    ?.map((track) => track.track_id)
+    ?.filter((trackId) => downloadedTracks[trackId] != null)
 
-  const oldTrackIds = new Set([
-    ...(offlineCollection.tracks
-      ?.map((track) => track.track_id)
-      .filter((trackId) => downloadedTracks[trackId] != null) || []),
-    ...queuedTracks
+  const downloadedOrQueuedCollectionTrackIds = new Set([
+    ...(downloadedCollectionTrackIds || []),
+    ...queuedTrackIds
   ])
-  const newTrackIds = new Set(
+  const updatedCollectionTrackIds = new Set(
     updatedCollection.tracks?.map((track) => track.track_id)
   )
 
-  const addedTrackIds = [...newTrackIds].filter(
-    (trackId) => !oldTrackIds.has(trackId)
+  const addedTrackIds = [...updatedCollectionTrackIds].filter(
+    (trackId) => !downloadedOrQueuedCollectionTrackIds.has(trackId)
   )
 
-  const removedTrackIds = [...oldTrackIds].filter(
-    (trackId) => !newTrackIds.has(trackId)
+  const removedTrackIds = [...downloadedOrQueuedCollectionTrackIds].filter(
+    (trackId) => !updatedCollectionTrackIds.has(trackId)
   )
 
   const tracksForDelete: TrackForDownload[] = removedTrackIds.map(
