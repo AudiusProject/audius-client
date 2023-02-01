@@ -12,7 +12,8 @@ import {
   chatActions,
   chatSelectors,
   encodeHashId,
-  Status
+  Status,
+  MESSAGE_GROUP_THRESHOLD_MINUTES
 } from '@audius/common'
 import type { ChatMessage, UserChat } from '@audius/sdk'
 import cn from 'classnames'
@@ -42,7 +43,6 @@ type ChatMessageListProps = ComponentPropsWithoutRef<'div'> & {
   chatId?: string
 }
 
-const MESSAGE_GROUP_THRESHOLD_MINUTES = 2
 const SCROLL_TOP_THRESHOLD = 800
 
 const isScrolledToBottom = (element: HTMLElement) => {

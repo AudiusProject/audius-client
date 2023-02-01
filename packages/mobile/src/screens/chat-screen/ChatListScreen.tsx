@@ -49,7 +49,13 @@ export const ChatListScreen = () => {
           <View style={styles.chatRow}>
             {chats.length > 0 ? (
               chats.map((chat) => {
-                return <ChatListItem key={chat.chat_id} chat={chat} />
+                return (
+                  <ChatListItem
+                    key={chat.chat_id}
+                    chat={chat}
+                    currentChatId={chat.chat_id}
+                  />
+                )
               })
             ) : (
               <LoadingSpinner style={styles.loadingSpinner} />
