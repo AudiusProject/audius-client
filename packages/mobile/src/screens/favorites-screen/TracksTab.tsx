@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import type { ID, Nullable, Track, UID, User } from '@audius/common'
 import {
@@ -102,6 +102,12 @@ export const TracksTab = () => {
   }, [debouncedFetchSavesOnline, filterValue])
 
   useOfflineFavoritesLineup(fetchSavesOnline)
+
+  useEffect(() => {
+    if (isReachable) {
+      fetchSavesOnline()
+    }
+  }, [isReachable, fetchSavesOnline])
 
   const savedTrackUids: string[] = useSelector((state) => {
     return getSavedTracksLineup(state).entries.map(({ uid }) => uid)
