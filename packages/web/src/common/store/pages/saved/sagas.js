@@ -5,14 +5,7 @@ import {
   savedPageSelectors,
   waitForValue
 } from '@audius/common'
-import {
-  takeLatest,
-  call,
-  put,
-  fork,
-  select,
-  getContext
-} from 'redux-saga/effects'
+import { takeLatest, call, put, select, getContext } from 'redux-saga/effects'
 
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import { waitForRead } from 'utils/sagaHelpers'
