@@ -4,6 +4,7 @@ import type {
   CollectionMetadata,
   CommonState,
   DownloadReason,
+  ID,
   Track,
   UserCollectionMetadata,
   UserMetadata,
@@ -44,6 +45,7 @@ import {
 import { apiClient } from '../audius-api-client'
 
 import {
+  cancelQueuedCollectionDownloads,
   cancelQueuedDownloads,
   enqueueCollectionDownload,
   enqueueTrackDownload
@@ -427,7 +429,7 @@ export const removeAllDownloadedFavorites = async () => {
 }
 
 export const removeDownloadedCollectionFromFavorites = async (
-  collectionId: string,
+  collectionId: ID,
   tracksForDownload: TrackForDownload[]
 ) => {
   const state = store.getState()
@@ -435,24 +437,35 @@ export const removeDownloadedCollectionFromFavorites = async (
   const favoritedDownloadedCollections = getOfflineFavoritedCollections(state)
   if (!favoritedDownloadedCollections[collectionId]) return
   if (downloadedCollections[collectionId]) {
+    const collectionForDownload = {
+      collectionId,
+      isFavoritesDownload: true
+    }
     store.dispatch(
-      offlineDownloadsActions.removeCollectionDownload({
-        collectionId,
-        isFavoritesDownload: true
-      })
+      offlineDownloadsActions.removeCollectionDownload(collectionForDownload)
     )
+    cancelQueuedCollectionDownloads([collectionForDownload])
   } else {
-    purgeDownloadedCollection(collectionId)
-    batchRemoveTrackDownload(tracksForDownload)
+    removeCollectionDownload(collectionId, tracksForDownload)
   }
 }
 
 export const removeCollectionDownload = async (
-  collectionId: string,
+  collectionId: number,
   tracksForDownload: TrackForDownload[]
 ) => {
+  cancelQueuedCollectionDownloads([
+    {
+      collectionId,
+      isFavoritesDownload: true
+    },
+    {
+      collectionId,
+      isFavoritesDownload: false
+    }
+  ])
   batchRemoveTrackDownload(tracksForDownload)
-  purgeDownloadedCollection(collectionId)
+  purgeDownloadedCollection(collectionId.toString())
 }
 
 export const batchRemoveTrackDownload = async (

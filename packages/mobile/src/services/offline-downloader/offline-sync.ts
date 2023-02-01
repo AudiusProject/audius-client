@@ -120,7 +120,7 @@ export const syncFavoritedCollections = async (
       })) ?? []
 
     removeDownloadedCollectionFromFavorites(
-      collection.playlist_id.toString(),
+      collection.playlist_id,
       tracksForDownload
     )
   })

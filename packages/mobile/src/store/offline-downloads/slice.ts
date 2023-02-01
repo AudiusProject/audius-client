@@ -2,7 +2,7 @@ import type { ID, Track, UserTrackMetadata } from '@audius/common'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 
-type CollectionId = ID | string
+export type CollectionId = ID | string
 type CollectionStatusPayload = {
   collectionId: CollectionId
   isFavoritesDownload?: boolean
