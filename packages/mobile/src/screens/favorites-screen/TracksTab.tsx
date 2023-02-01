@@ -68,7 +68,7 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   }
 }))
 
-const FETCH_LIMIT = 5
+const FETCH_LIMIT = 50
 
 export const TracksTab = () => {
   const dispatch = useDispatch()
