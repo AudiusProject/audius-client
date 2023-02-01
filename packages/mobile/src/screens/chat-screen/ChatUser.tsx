@@ -48,7 +48,7 @@ export const ChatUser = ({ user }: { user: User }) => {
       <View style={styles.userContainer}>
         <View style={styles.userNameContainer}>
           <Text style={styles.userName}>{user.name}</Text>
-          <UserBadges user={user} style={styles.userBadges} hideName />
+          <UserBadges user={user} hideName />
         </View>
         <Text style={styles.handle}>@{user.handle}</Text>
       </View>

@@ -43,22 +43,13 @@ export const ChatListScreen = () => {
   }, [dispatch])
 
   return (
-    <Screen
-      url='/chat'
-      title={messages.title}
-      topbarRight={null}
-    >
+    <Screen url='/chat' title={messages.title} topbarRight={null}>
       <ScreenContent>
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.chatRow}>
             {chats.length > 0 ? (
               chats.map((chat) => {
-                return (
-                  <ChatListItem
-                    key={chat.chat_id}
-                    chat={chat}
-                  />
-                )
+                return <ChatListItem key={chat.chat_id} chat={chat} />
               })
             ) : (
               <LoadingSpinner style={styles.loadingSpinner} />
