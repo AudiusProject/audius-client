@@ -22,10 +22,7 @@ import {
   DOWNLOAD_REASON_FAVORITES
 } from 'app/services/offline-downloader'
 import { setVisibility } from 'app/store/drawers/slice'
-import {
-  getIsCollectionMarkedForDownload,
-  getOfflineDownloadStatus
-} from 'app/store/offline-downloads/selectors'
+import { getIsCollectionMarkedForDownload } from 'app/store/offline-downloads/selectors'
 import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
 const { getUserId } = accountSelectors
@@ -39,6 +36,7 @@ const messages = {
   empty: 'This playlist is empty.',
   privatePlaylist: 'Private Playlist',
   publishing: 'Publishing...',
+  queued: 'Download Queued',
   downloading: 'Downloading'
 }
 
@@ -179,6 +177,22 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
     [collection, currentUserId, dispatch, playlist_id]
   )
 
+  const getTextColor = () => {
+    if (
+      downloadStatus === OfflineDownloadStatus.INACTIVE ||
+      downloadStatus === OfflineDownloadStatus.INIT
+    )
+      return 'neutralLight4'
+    return 'secondary'
+  }
+
+  const getHeaderText = () => {
+    if (downloadStatus === OfflineDownloadStatus.INIT) return messages.queued
+    if (downloadStatus === OfflineDownloadStatus.LOADING)
+      return messages.downloading
+    return headerText
+  }
+
   return (
     <View style={styles.root}>
       <View style={styles.headerLeft} />
@@ -189,17 +203,11 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
         />
         <Text
           style={styles.headerText}
-          color={
-            downloadStatus === OfflineDownloadStatus.INACTIVE
-              ? 'neutralLight4'
-              : 'secondary'
-          }
+          color={getTextColor()}
           weight='demiBold'
           fontSize='small'
         >
-          {downloadStatus === OfflineDownloadStatus.LOADING
-            ? messages.downloading
-            : headerText}
+          {getHeaderText()}
         </Text>
       </View>
       <View style={styles.headerRight}>
