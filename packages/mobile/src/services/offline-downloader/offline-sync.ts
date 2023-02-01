@@ -8,7 +8,6 @@ import { accountSelectors, cacheTracksSelectors } from '@audius/common'
 import moment from 'moment'
 import queue from 'react-native-job-queue'
 
-import type { TrackForDownload } from 'app/components/offline-downloads'
 import { fetchAllFavoritedTracks } from 'app/hooks/useFetchAllFavoritedTracks'
 import { store } from 'app/store'
 import { isAvailableForPlay } from 'app/utils/trackUtils'
@@ -19,13 +18,13 @@ import {
   batchDownloadCollection,
   batchDownloadTrack,
   batchRemoveTrackDownload,
-  downloadCollection,
   downloadCollectionCoverArt,
   downloadTrackCoverArt,
   DOWNLOAD_REASON_FAVORITES,
   removeDownloadedCollectionFromFavorites
 } from './offline-downloader'
 import { purgeDownloadedTrack, writeTrackJson } from './offline-storage'
+import type { TrackForDownload } from './types'
 import type { TrackDownloadWorkerPayload } from './workers/trackDownloadWorker'
 import { TRACK_DOWNLOAD_WORKER } from './workers/trackDownloadWorker'
 

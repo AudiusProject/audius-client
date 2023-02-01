@@ -4,7 +4,6 @@ import type {
   Collection,
   CollectionMetadata,
   Track,
-  User,
   UserMetadata,
   UserTrackMetadata
 } from '@audius/common'
@@ -13,7 +12,7 @@ import RNFetchBlob from 'rn-fetch-blob'
 
 import { store } from 'app/store'
 import {
-  removeCollection,
+  removeCollectionDownload,
   unloadTrack
 } from 'app/store/offline-downloads/slice'
 
@@ -111,8 +110,12 @@ export const purgeDownloadedCollection = async (collectionId: string) => {
   const collectionDir = getLocalCollectionDir(collectionId)
   if (!(await exists(collectionDir))) return
   await unlink(collectionDir)
-  store.dispatch(removeCollection({ collectionId, isFavoritesDownload: true }))
-  store.dispatch(removeCollection({ collectionId, isFavoritesDownload: false }))
+  store.dispatch(
+    removeCollectionDownload({ collectionId, isFavoritesDownload: true })
+  )
+  store.dispatch(
+    removeCollectionDownload({ collectionId, isFavoritesDownload: false })
+  )
 }
 
 // Track Json

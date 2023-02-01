@@ -33,10 +33,11 @@ export const DownloadFavoritesSwitch = () => {
   const isReachable = useSelector(getIsReachable)
 
   const isMarkedForDownload = useProxySelector((state) => {
-    const { collections, favoritedCollections } = state.offlineDownloads
-    return (
-      collections[DOWNLOAD_REASON_FAVORITES] ||
-      favoritedCollections[DOWNLOAD_REASON_FAVORITES]
+    const { collectionStatus, favoritedCollectionStatus } =
+      state.offlineDownloads
+    return !!(
+      collectionStatus[DOWNLOAD_REASON_FAVORITES] ||
+      favoritedCollectionStatus[DOWNLOAD_REASON_FAVORITES]
     )
   }, [])
 

@@ -133,8 +133,11 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
 
   const isMarkedForDownload = useProxySelector(
     (state) => {
-      const { collections, favoritedCollections } = state.offlineDownloads
-      return collections[playlist_id] || favoritedCollections[playlist_id]
+      const { collectionStatus, favoritedCollectionStatus } =
+        state.offlineDownloads
+      return !!(
+        collectionStatus[playlist_id] || favoritedCollectionStatus[playlist_id]
+      )
     },
     [playlist_id]
   )

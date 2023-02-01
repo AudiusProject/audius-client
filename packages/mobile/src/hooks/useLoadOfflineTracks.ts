@@ -22,7 +22,7 @@ import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 import { store } from 'app/store'
 import { getOfflineTracks } from 'app/store/offline-downloads/selectors'
 import {
-  addCollection,
+  completeCollectionDownload,
   doneLoadingFromDisk,
   loadTracks
 } from 'app/store/offline-downloads/slice'
@@ -40,6 +40,7 @@ import { useIsOfflineModeEnabled } from './useIsOfflineModeEnabled'
 import useReachabilityState from './useReachabilityState'
 const { getCollection } = cacheCollectionsSelectors
 
+// Load offline data into redux on app start
 export const useLoadOfflineData = () => {
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const dispatch = useDispatch()
@@ -57,11 +58,16 @@ export const useLoadOfflineData = () => {
     for (const collectionId of offlineCollections) {
       try {
         if (collectionId === DOWNLOAD_REASON_FAVORITES) {
-          dispatch(addCollection({ collectionId, isFavoritesDownload: false }))
+          dispatch(
+            completeCollectionDownload({
+              collectionId,
+              isFavoritesDownload: false
+            })
+          )
         } else {
           const collection = await getCollectionJson(collectionId)
           dispatch(
-            addCollection({
+            completeCollectionDownload({
               collectionId,
               isFavoritesDownload: !!collection.offline?.isFavoritesDownload
             })

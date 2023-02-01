@@ -2,10 +2,6 @@ import type { ID } from '@audius/common'
 import { isEqual, groupBy } from 'lodash'
 import queue from 'react-native-job-queue'
 
-import type {
-  CollectionForDownload,
-  TrackForDownload
-} from 'app/components/offline-downloads'
 import { store } from 'app/store'
 import {
   batchStartCollectionDownload,
@@ -16,6 +12,7 @@ import {
   removeDownload
 } from 'app/store/offline-downloads/slice'
 
+import type { CollectionForDownload, TrackForDownload } from './types'
 import type { CollectionDownloadWorkerPayload } from './workers/collectionDownloadWorker'
 import {
   collectionDownloadWorker,
@@ -82,6 +79,7 @@ export const startDownloadWorker = async () => {
 
   // Sync leftover jobs from last session to redux state
   const jobs = await queue.getJobs()
+  const favoritedCollectionIdsInQueue: ID[] = []
   const collectionIdsInQueue: ID[] = []
   jobs
     .filter((job) => job.workerName === COLLECTION_DOWNLOAD_WORKER)
@@ -90,18 +88,31 @@ export const startDownloadWorker = async () => {
         const { payload, failed } = job
         const parsedPayload: CollectionDownloadWorkerPayload =
           JSON.parse(payload)
-        const { collectionId } = parsedPayload
+        const { collectionId, isFavoritesDownload } = parsedPayload
         if (failed) {
-          store.dispatch(errorCollectionDownload(collectionId))
+          store.dispatch(errorCollectionDownload(parsedPayload))
           queue.removeJob(job)
         } else {
-          collectionIdsInQueue.push(collectionId)
+          isFavoritesDownload
+            ? favoritedCollectionIdsInQueue.push(collectionId)
+            : collectionIdsInQueue.push(collectionId)
         }
       } catch (e) {
         console.warn(e)
       }
     })
-  store.dispatch(batchStartCollectionDownload(collectionIdsInQueue))
+  store.dispatch(
+    batchStartCollectionDownload({
+      collectionIds: favoritedCollectionIdsInQueue,
+      isFavoritesDownload: true
+    })
+  )
+  store.dispatch(
+    batchStartCollectionDownload({
+      collectionIds: collectionIdsInQueue,
+      isFavoritesDownload: false
+    })
+  )
 
   const trackIdsInQueue: string[] = []
   jobs
@@ -157,7 +168,7 @@ export const cancelQueuedCollectionDownloads = async (
       )
       rawJob.active ? queue.cancelJob(rawJob.id) : queue.removeJob(rawJob)
 
-      store.dispatch(removeCollectionDownload(parsedPayload.collectionId))
+      store.dispatch(removeCollectionDownload(parsedPayload))
     } catch (e) {
       console.warn(e)
     }

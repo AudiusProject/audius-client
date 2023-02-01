@@ -16,8 +16,8 @@ export const getIsCollectionMarkedForDownload =
   (collection?: string) => (state: AppState) =>
     !!(
       collection &&
-      (state.offlineDownloads.collections[collection] ||
-        state.offlineDownloads.favoritedCollections[collection])
+      (state.offlineDownloads.collectionStatus[collection] ||
+        state.offlineDownloads.favoritedCollectionStatus[collection])
     )
 
 export const getOfflineTracks = (
@@ -27,12 +27,12 @@ export const getOfflineTracks = (
 export const getOfflineCollections = (
   state: AppState
 ): OfflineDownloadsState['collectionStatus'] =>
-  state.offlineDownloads.collections
+  state.offlineDownloads.collectionStatus
 
 export const getOfflineFavoritedCollections = (
   state: AppState
-): OfflineDownloadsState['favoritedCollectionStatuss'] =>
-  state.offlineDownloads.favoritedCollections
+): OfflineDownloadsState['favoritedCollectionStatus'] =>
+  state.offlineDownloads.favoritedCollectionStatus
 
 export const getIsDoneLoadingFromDisk = (state: AppState): boolean =>
   state.offlineDownloads.isDoneLoadingFromDisk
