@@ -11,11 +11,13 @@ import { useDispatch } from 'react-redux'
 
 import IconHeart from 'app/assets/images/iconHeart.svg'
 import IconRepost from 'app/assets/images/iconRepost.svg'
-import { DownloadStatusIndicator } from 'app/components/offline-downloads'
 import Text from 'app/components/text'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles, flexRowCentered } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
+
+import { CollectionDownloadStatusIndicator } from '../offline-downloads/CollectionDownloadStatusIndicator'
+import { TrackDownloadStatusIndicator } from '../offline-downloads/TrackDownloadStatusIndicator'
 
 import { LineupTileRankIcon } from './LineupTileRankIcon'
 import { useStyles as useTrackTileStyles } from './styles'
@@ -110,10 +112,11 @@ export const LineupTileStats = ({
     navigation.push('Reposts', { id, repostType })
   }, [dispatch, id, navigation, repostType])
 
-  const downloadIndicatorProps = {
-    size: 18,
-    [isCollection ? 'collectionId' : 'trackId']: id.toString()
-  }
+  const downloadStatusIndicator = isCollection ? (
+    <CollectionDownloadStatusIndicator size={18} collectionId={id} />
+  ) : (
+    <TrackDownloadStatusIndicator size={18} trackId={id} />
+  )
 
   return (
     <View style={styles.stats}>
@@ -159,7 +162,7 @@ export const LineupTileStats = ({
             />
           </TouchableOpacity>
           <View style={[trackTileStyles.statItem]}>
-            <DownloadStatusIndicator {...downloadIndicatorProps} />
+            {downloadStatusIndicator}
           </View>
         </View>
       )}

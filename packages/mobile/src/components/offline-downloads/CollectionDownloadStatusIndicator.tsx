@@ -1,13 +1,12 @@
-import { useMemo } from 'react'
-
-import { cacheCollectionsSelectors } from '@audius/common'
-import { useSelector } from 'react-redux'
+import type { ID } from '@audius/common'
+import { cacheCollectionsSelectors, removeNullable } from '@audius/common'
 
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
+import { useProxySelector } from 'app/hooks/useProxySelector'
+import type { AppState } from 'app/store'
 import {
   getIsCollectionMarkedForDownload,
-  getIsAnyDownloadInProgress,
-  getIsAllDownloadsErrored
+  getTrackOfflineDownloadStatus
 } from 'app/store/offline-downloads/selectors'
 import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 
@@ -16,8 +15,57 @@ import { DownloadStatusIndicator } from './DownloadStatusIndicator'
 const { getCollection } = cacheCollectionsSelectors
 
 type CollectionDownloadIndicatorProps = {
-  collectionId?: string
+  collectionId?: number
   size?: number
+}
+
+const getCollectionDownloadStatus = (
+  state: AppState,
+  collectionId?: ID
+): OfflineDownloadStatus | null => {
+  const collection = getCollection(state, { id: collectionId })
+  if (!collection) return OfflineDownloadStatus.INACTIVE
+
+  const isMarkedForDownload =
+    getIsCollectionMarkedForDownload(collectionId)(state)
+
+  if (!isMarkedForDownload) return null
+
+  const trackStatuses = collection.playlist_contents.track_ids
+    .map(({ track: trackId }) => getTrackOfflineDownloadStatus(trackId)(state))
+    .filter(removeNullable)
+
+  if (trackStatuses.length === 0) return OfflineDownloadStatus.INIT
+
+  if (trackStatuses.every((status) => status === OfflineDownloadStatus.INIT))
+    return OfflineDownloadStatus.INIT
+
+  if (trackStatuses.some((status) => status === OfflineDownloadStatus.LOADING))
+    return OfflineDownloadStatus.LOADING
+
+  if (
+    trackStatuses.every(
+      (status) =>
+        status === OfflineDownloadStatus.SUCCESS ||
+        status === OfflineDownloadStatus.ERROR
+    )
+  )
+    return OfflineDownloadStatus.SUCCESS
+
+  if (trackStatuses.every((status) => status === OfflineDownloadStatus.ERROR))
+    return OfflineDownloadStatus.ERROR
+
+  if (
+    trackStatuses.every(
+      (status) =>
+        status === OfflineDownloadStatus.INIT ||
+        status === OfflineDownloadStatus.SUCCESS ||
+        status === OfflineDownloadStatus.ERROR
+    )
+  )
+    return OfflineDownloadStatus.LOADING
+
+  return OfflineDownloadStatus.INIT
 }
 
 export const CollectionDownloadStatusIndicator = (
@@ -25,41 +73,13 @@ export const CollectionDownloadStatusIndicator = (
 ) => {
   const { collectionId, ...other } = props
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
-  const isMarkedForDownload = useSelector(
-    getIsCollectionMarkedForDownload(collectionId)
+
+  const status = useProxySelector(
+    (state) => getCollectionDownloadStatus(state, collectionId),
+    [collectionId]
   )
-
-  const collection = useSelector((state) =>
-    getCollection(state, {
-      id: isMarkedForDownload && collectionId ? parseInt(collectionId) : null
-    })
-  )
-
-  const trackIds = useMemo(() => {
-    return (
-      collection?.playlist_contents?.track_ids?.map(
-        (trackData) => trackData.track
-      ) ?? []
-    )
-  }, [collection])
-
-  const isAnyDownloadInProgress = useSelector((state) =>
-    getIsAnyDownloadInProgress(state, trackIds)
-  )
-
-  const isAllDownloadsErrored = useSelector((state) =>
-    getIsAllDownloadsErrored(state, trackIds)
-  )
-
-  const downloadStatus = isMarkedForDownload
-    ? isAnyDownloadInProgress
-      ? OfflineDownloadStatus.LOADING
-      : isAllDownloadsErrored
-      ? OfflineDownloadStatus.ERROR
-      : OfflineDownloadStatus.SUCCESS
-    : null
 
   if (!isOfflineModeEnabled) return null
 
-  return <DownloadStatusIndicator status={downloadStatus} {...other} />
+  return <DownloadStatusIndicator status={status} {...other} />
 }
