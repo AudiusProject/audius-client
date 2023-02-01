@@ -28,6 +28,17 @@ import {
   TRACK_DOWNLOAD_WORKER
 } from './workers/trackDownloadWorker'
 
+const isEqualCollectionPayload = isEqual
+
+const isEqualTrackPayload = (
+  a: TrackDownloadWorkerPayload,
+  b: TrackDownloadWorkerPayload
+) => {
+  const { favoriteCreatedAt: ignoredAFavoriteCreatedAt, ...aPayload } = a
+  const { favoriteCreatedAt: ignoredBFavoriteCreatedAt, ...bPayload } = a
+  return isEqual(aPayload, bPayload)
+}
+
 export const enqueueCollectionDownload = async (
   collectionForDownload: CollectionForDownload
 ) => {
@@ -153,7 +164,8 @@ export const cancelQueuedCollectionDownloads = async (
       return (
         workerName === COLLECTION_DOWNLOAD_WORKER &&
         (payloadsToCancelById[parsedPayload.collectionId] ?? []).some(
-          (payloadToCancel) => isEqual(payloadToCancel, parsedPayload)
+          (payloadToCancel) =>
+            isEqualCollectionPayload(payloadToCancel, parsedPayload)
         )
       )
     } catch (e) {
@@ -179,19 +191,32 @@ export const cancelQueuedCollectionDownloads = async (
 export const cancelQueuedDownloads = async (
   payloadsToCancel: TrackDownloadWorkerPayload[]
 ) => {
+  console.log('cancelling yeah?')
   const payloadsToCancelById = groupBy(
     payloadsToCancel,
     (payload) => payload.trackId
   )
   queue.stop()
   const jobs = await queue.getJobs()
+  console.log('are there jobs?', jobs, payloadsToCancelById, payloadsToCancel)
   const jobsToCancel = jobs.filter(({ workerName, payload }) => {
     try {
       const parsedPayload: TrackDownloadWorkerPayload = JSON.parse(payload)
       return (
         workerName === TRACK_DOWNLOAD_WORKER &&
         (payloadsToCancelById[parsedPayload.trackId] ?? []).some(
-          (payloadToCancel) => isEqual(payloadToCancel, parsedPayload)
+          (payloadToCancel) => {
+            console.log('payload to cancel', payloadToCancel)
+            console.log('parsed paylead', parsedPayload)
+
+            console.log(
+              'equal?',
+
+              isEqualTrackPayload(payloadToCancel, parsedPayload)
+            )
+
+            return isEqualTrackPayload(payloadToCancel, parsedPayload)
+          }
         )
       )
     } catch (e) {
@@ -199,6 +224,7 @@ export const cancelQueuedDownloads = async (
       return false
     }
   })
+  console.log('got jobs to cancel?', jobsToCancel)
   jobsToCancel.forEach(async (rawJob) => {
     try {
       const parsedPayload: TrackDownloadWorkerPayload = JSON.parse(
