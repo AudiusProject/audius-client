@@ -137,12 +137,8 @@ export const useLoadOfflineData = () => {
 }
 
 /**
- * A helper hook that can substitute out the contents of a lineup for the
- * equivalent "offline" version
+ * Load a collection lineup, either online or offline
  * @param collectionId either the numeric collection id
- * @param fetchOnlineContent a callback that can be used to refetch the online content
- *  if reachability is established. This is normally what you would call inside
- *  `useFocusEffect` on mount of the lineup
  * TODO: Move this into the component layer
  */
 export const useOfflineCollectionLineup = (
@@ -222,11 +218,7 @@ export const useOfflineCollectionLineup = (
 }
 
 /**
- * A helper hook that can substitute out the contents of a lineup for the
- * equivalent "offline" version
- * @param fetchOnlineContent a callback that can be used to refetch the online content
- *  if reachability is established. This is normally what you would call inside
- *  `useFocusEffect` on mount of the lineup
+ * Load the favorites lineup, either online or offline
  * TODO: Move this into the component layer
  */
 export const useOfflineFavoritesLineup = (fetchOnlineContent: () => void) => {
@@ -280,6 +272,5 @@ export const useOfflineFavoritesLineup = (fetchOnlineContent: () => void) => {
     }
   }, [dispatch, isOfflineModeEnabled, offlineTracks, savedTracksUidMap])
 
-  useReachabilityState(fetchOnlineContent, fetchLocalContent)
-  return fetchLocalContent
+  useReachabilityEffect(fetchOnlineContent, fetchLocalContent)
 }

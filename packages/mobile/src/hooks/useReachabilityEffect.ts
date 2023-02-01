@@ -41,16 +41,14 @@ export const useReachabilityEffect = (
   useEffect(() => {
     handleReachabilityStateChange(!!currentReachability)
   }, [currentReachability, handleReachabilityStateChange])
-
-  return currentReachability
 }
 
 export const useReachableEffect = (onBecomeReachable: OnBecomeReachable) => {
-  return useReachabilityEffect(onBecomeReachable, null)
+  useReachabilityEffect(onBecomeReachable, null)
 }
 
 export const useUnreachableEffect = (
   onBecomeUnreachable: OnBecomeUnreachable
 ) => {
-  return useReachabilityEffect(null, onBecomeUnreachable)
+  useReachabilityEffect(null, onBecomeUnreachable)
 }
