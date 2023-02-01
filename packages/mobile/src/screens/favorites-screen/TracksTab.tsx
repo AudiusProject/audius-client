@@ -15,7 +15,6 @@ import {
 } from '@audius/common'
 import { isEqual, debounce } from 'lodash'
 import { useDispatch, useSelector } from 'react-redux'
-import { useEffectOnce } from 'react-use'
 
 import { Tile, VirtualizedScrollView } from 'app/components/core'
 import { EmptyTileCTA } from 'app/components/empty-tile-cta'
