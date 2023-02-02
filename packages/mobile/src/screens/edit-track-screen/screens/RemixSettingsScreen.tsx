@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import type { Nullable, PremiumConditions } from '@audius/common'
 import {
   createRemixOfMetadata,
-  Nullable,
-  PremiumConditions,
   remixSettingsActions,
   remixSettingsSelectors,
   Status
@@ -14,19 +13,19 @@ import { debounce } from 'lodash'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import IconRemix from 'app/assets/images/iconRemix.svg'
 import IconQuestionCircle from 'app/assets/images/iconQuestionCircle.svg'
+import IconRemix from 'app/assets/images/iconRemix.svg'
 import type { TextProps } from 'app/components/core'
 import { TextInput, Divider, Button, Switch, Text } from 'app/components/core'
 import { InputErrorMessage } from 'app/components/core/InputErrorMessage'
+import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
 import { getTrackRoute } from 'app/utils/routes'
+import { useColor } from 'app/utils/theme'
 
 import { FormScreen, RemixTrackPill } from '../components'
 import type { RemixOfField } from '../types'
-import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
-import { useColor } from 'app/utils/theme'
 
 const { getTrack, getUser, getStatus } = remixSettingsSelectors
 const { fetchTrack, fetchTrackSucceeded, reset } = remixSettingsActions
@@ -39,7 +38,8 @@ const messages = {
   markRemix: 'Mark This Track as a Remix',
   isRemixLinkDescription: 'Paste the link to the Audius track you’ve remixed.',
   hideRemixLabel: 'Hide Remixes on Track Page',
-  hideRemixesDescription: "Enabling this option will prevent other user’s remixes from appearing on your track page.",
+  hideRemixesDescription:
+    'Enabling this option will prevent other user’s remixes from appearing on your track page.',
   hideRemixes: 'Hide Remixes of this Track',
   hideRemixDescription:
     'Hide remixes of this track to prevent them from showing on your track page.',
@@ -49,7 +49,8 @@ const messages = {
   remixUrlPlaceholder: 'Track URL',
   enterLink: 'Enter an Audius Link',
   changeAvailbilityPrefix: 'Availablity is set to ',
-  changeAvailbilitySuffix: 'To enable these options, change availability to Public.',
+  changeAvailbilitySuffix:
+    'To enable these options, change availability to Public.',
   collectibleGated: 'Collectible Gated. ',
   specialAccess: 'Special Access. '
 }
@@ -114,7 +115,8 @@ export const RemixSettingsScreen = () => {
   const [{ value: remixesVisible }, , { setValue: setRemixesVisible }] =
     useField<boolean>('field_visibility.remixes')
   const [{ value: isPremium }] = useField<boolean>('is_premium')
-  const [{ value: premiumConditions }] = useField<Nullable<PremiumConditions>>('premium_conditions')
+  const [{ value: premiumConditions }] =
+    useField<Nullable<PremiumConditions>>('premium_conditions')
   const isCollectibleGated = 'nft_collection' in (premiumConditions ?? {})
 
   const parentTrackId = remixOf?.tracks[0].parent_track_id
@@ -136,6 +138,8 @@ export const RemixSettingsScreen = () => {
     } else {
       setRemixesVisible(true)
     }
+    // adding the useField setters cause infinite rendering
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPremium])
 
   const handleFetchParentTrack = useMemo(
@@ -234,13 +238,21 @@ export const RemixSettingsScreen = () => {
               <IconQuestionCircle style={styles.questionIcon} fill={neutral} />
               <View style={styles.changeAvailabilityText}>
                 <Text>{messages.changeAvailbilityPrefix}</Text>
-                <Text>{isCollectibleGated ? messages.collectibleGated : messages.specialAccess}</Text>
+                <Text>
+                  {isCollectibleGated
+                    ? messages.collectibleGated
+                    : messages.specialAccess}
+                </Text>
                 <Text>{messages.changeAvailbilitySuffix}</Text>
               </View>
             </View>
           )}
           <View style={styles.option}>
-            <Text {...labelProps}>{isPremiumContentEnabled ? messages.markRemix : messages.isRemixLabel}</Text>
+            <Text {...labelProps}>
+              {isPremiumContentEnabled
+                ? messages.markRemix
+                : messages.isRemixLabel}
+            </Text>
             <Switch
               value={isTrackRemix}
               onValueChange={handleChangeIsRemix}
@@ -256,7 +268,11 @@ export const RemixSettingsScreen = () => {
                 styles={{ root: styles.inputRoot, input: styles.input }}
                 value={remixOfInput}
                 onChangeText={handleChangeLink}
-                placeholder={isPremiumContentEnabled ? messages.enterLink : messages.remixUrlPlaceholder}
+                placeholder={
+                  isPremiumContentEnabled
+                    ? messages.enterLink
+                    : messages.remixUrlPlaceholder
+                }
                 onFocus={handleFocus}
                 returnKeyType='done'
               />
@@ -278,14 +294,22 @@ export const RemixSettingsScreen = () => {
         <Divider />
         <View style={styles.setting}>
           <View style={styles.option}>
-            <Text {...labelProps}>{isPremiumContentEnabled ? messages.hideRemixes : messages.hideRemixLabel}</Text>
+            <Text {...labelProps}>
+              {isPremiumContentEnabled
+                ? messages.hideRemixes
+                : messages.hideRemixLabel}
+            </Text>
             <Switch
               value={!remixesVisible}
               onValueChange={(value) => setRemixesVisible(!value)}
               isDisabled={isPremium}
             />
           </View>
-          <Text {...descriptionProps}>{isPremiumContentEnabled ? messages.hideRemixesDescription : messages.hideRemixDescription}</Text>
+          <Text {...descriptionProps}>
+            {isPremiumContentEnabled
+              ? messages.hideRemixesDescription
+              : messages.hideRemixDescription}
+          </Text>
         </View>
         <Divider />
       </View>

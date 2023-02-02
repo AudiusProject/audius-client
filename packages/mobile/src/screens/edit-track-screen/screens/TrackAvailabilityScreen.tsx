@@ -3,23 +3,23 @@ import { useMemo, useState } from 'react'
 import type { Nullable, PremiumConditions } from '@audius/common'
 import { TrackAvailabilityType } from '@audius/common'
 import { useField } from 'formik'
+import { View, Text } from 'react-native'
 
 import IconHidden from 'app/assets/images/iconHidden.svg'
+import IconQuestionCircle from 'app/assets/images/iconQuestionCircle.svg'
 import { useIsNFTGateEnabled } from 'app/hooks/useIsNFTGateEnabled'
 import { useIsSpecialAccessGateEnabled } from 'app/hooks/useIsSpecialAccessGateEnabled'
+import { makeStyles } from 'app/styles'
+import { useColor } from 'app/utils/theme'
 
 import { CollectibleGatedAvailability } from '../components/CollectibleGatedAvailability'
 import { HiddenAvailability } from '../components/HiddenAvailability'
 import { PublicAvailability } from '../components/PublicAvailability'
 import { SpecialAccessAvailability } from '../components/SpecialAccessAvailability'
+import type { RemixOfField } from '../types'
 
 import type { ListSelectionData } from './ListSelectionScreen'
 import { ListSelectionScreen } from './ListSelectionScreen'
-import { RemixOfField } from '../types'
-import { View, Text } from 'react-native'
-import { makeStyles } from 'app/styles'
-import IconQuestionCircle from 'app/assets/images/iconQuestionCircle.svg'
-import { useColor } from 'app/utils/theme'
 
 const messages = {
   title: 'Availability',
@@ -31,7 +31,8 @@ const messages = {
   showTags: 'Show Tags',
   showShareButton: 'Show Share Button',
   showPlayCount: 'Show Play Count',
-  markedAsRemix: 'This track is marked as a remix. To enable additional availability options, unmark within Remix Settings.'
+  markedAsRemix:
+    'This track is marked as a remix. To enable additional availability options, unmark within Remix Settings.'
 }
 
 const publicAvailability = TrackAvailabilityType.PUBLIC
@@ -50,7 +51,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     backgroundColor: palette.neutralLight9,
     borderWidth: 1,
     borderColor: palette.neutralLight7,
-    borderRadius: spacing(2),
+    borderRadius: spacing(2)
   },
   isRemixText: {
     fontFamily: typography.fontByWeight.medium,
@@ -69,13 +70,12 @@ const MarkedAsRemix = () => {
   const neutral = useColor('neutral')
   const [{ value: remixOf }] = useField<RemixOfField>('remix_of')
 
-  return remixOf
-  ? (
+  return remixOf ? (
     <View style={styles.isRemix}>
       <IconQuestionCircle style={styles.questionIcon} fill={neutral} />
       <Text style={styles.isRemixText}>{messages.markedAsRemix}</Text>
     </View>
-  ) : <></>
+  ) : null
 }
 
 export const TrackAvailabilityScreen = () => {
@@ -108,8 +108,16 @@ export const TrackAvailabilityScreen = () => {
 
   const data: ListSelectionData[] = [
     { label: publicAvailability, value: publicAvailability },
-    { label: specialAccessAvailability, value: specialAccessAvailability, disabled: !!remixOf },
-    { label: collectibleGatedAvailability, value: collectibleGatedAvailability, disabled: !!remixOf },
+    {
+      label: specialAccessAvailability,
+      value: specialAccessAvailability,
+      disabled: !!remixOf
+    },
+    {
+      label: collectibleGatedAvailability,
+      value: collectibleGatedAvailability,
+      disabled: !!remixOf
+    },
     { label: hiddenAvailability, value: hiddenAvailability }
   ]
 
