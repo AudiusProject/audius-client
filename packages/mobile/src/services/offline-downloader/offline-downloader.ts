@@ -364,7 +364,7 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
     const verified = await verifyTrack(trackIdStr, true)
     if (!verified) {
       throw failJob({
-        messsage: `DownloadQueueWorker - download verification failed ${trackIdStr}`,
+        message: `DownloadQueueWorker - download verification failed ${trackIdStr}`,
         error: DownloadTrackError.FAILED_TO_VERIFY
       })
     }
