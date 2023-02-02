@@ -9,6 +9,7 @@ import {
   collectionsSocialActions,
   Variant
 } from '@audius/common'
+import { debounce } from 'lodash'
 import { View } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -151,8 +152,9 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
     [isMarkedForDownload, playlist_id]
   )
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleToggleDownload = useCallback(
-    (isDownloadEnabled: boolean) => {
+    debounce((isDownloadEnabled: boolean) => {
       if (isDownloadEnabled) {
         batchDownloadCollection([collection], false)
         const isOwner = currentUserId === collection.playlist_owner_id
@@ -173,7 +175,7 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
           })
         )
       }
-    },
+    }, 800),
     [collection, currentUserId, dispatch, playlist_id]
   )
 
@@ -207,7 +209,7 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
       </View>
       <View style={styles.headerRight}>
         <Switch
-          value={isMarkedForDownload}
+          defaultValue={isMarkedForDownload}
           onValueChange={handleToggleDownload}
           disabled={
             isFavoritesToggleOn || (!isReachable && !isMarkedForDownload)
