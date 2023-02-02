@@ -6,9 +6,7 @@ import {
   accountSelectors,
   TrackAvailabilityType,
   collectiblesSelectors,
-  Nullable,
-  Chain,
-  CommonState
+  Nullable
 } from '@audius/common'
 import {
   Modal,
@@ -22,6 +20,7 @@ import {
 import cn from 'classnames'
 import { useSelector } from 'react-redux'
 
+import { ReactComponent as IconQuestionCircle } from 'assets/img/iconQuestionCircle.svg'
 import { ModalRadioGroup } from 'components/modal-radio/ModalRadioGroup'
 import { ModalRadioItem } from 'components/modal-radio/ModalRadioItem'
 import { useFlag } from 'hooks/useRemoteConfig'
@@ -34,11 +33,12 @@ import styles from './TrackAvailabilityModal.module.css'
 import { TrackMetadataState } from './types'
 
 const { getUserId } = accountSelectors
-const { getUserCollectibles } = collectiblesSelectors
+const { getVerifiedUserCollections } = collectiblesSelectors
 
 const messages = {
   title: 'AVAILABILITY',
-  hideTrack: 'Hide Track',
+  isRemix:
+    'This track is marked as a remix. To enable additional availability options, unmark within Remix Settings.',
   done: 'Done'
 }
 
@@ -61,8 +61,6 @@ type TrackAvailabilityModalProps = {
   onClose: () => void
 }
 
-const defaultCollectibles = { [Chain.Eth]: [], [Chain.Sol]: [] }
-
 // A modal that allows you to set a track as collectible-gated, special access, or unlisted,
 // as well as toggle individual unlisted metadata field visibility.
 const TrackAvailabilityModal = ({
@@ -76,22 +74,19 @@ const TrackAvailabilityModal = ({
   const { isEnabled: isSpecialAccessGateEnabled } = useFlag(
     FeatureFlags.SPECIAL_ACCESS_GATE_ENABLED
   )
+  const { ethCollectionMap, solCollectionMap } = useSelector(
+    getVerifiedUserCollections
+  )
+  const numEthCollectibles = Object.keys(ethCollectionMap).length
+  const numSolCollectibles = Object.keys(solCollectionMap).length
+  const hasNoCollectibles = numEthCollectibles + numSolCollectibles === 0
+  const isCollectibleGateDisabled = hasNoCollectibles || isRemix
 
   const accountUserId = useSelector(getUserId)
   const defaultSpecialAccess = useMemo(
     () => (accountUserId ? { follow_user_id: accountUserId } : null),
     [accountUserId]
   )
-  const collectibles =
-    useSelector((state: CommonState) => {
-      if (!accountUserId) return undefined
-      return getUserCollectibles(state, { id: accountUserId })
-    }) ?? defaultCollectibles
-  const ethCollectibles = collectibles[Chain.Eth] ?? []
-  const solCollectibles = collectibles[Chain.Sol] ?? []
-  const hasNoCollectibles =
-    ethCollectibles.length + solCollectibles.length === 0
-  const isCollectibleGateDisabled = hasNoCollectibles || isRemix
 
   let availability = TrackAvailabilityType.PUBLIC
   if (
@@ -264,7 +259,13 @@ const TrackAvailabilityModal = ({
           icon={<IconHidden className={styles.modalTitleIcon} />}
         />
       </ModalHeader>
-      <ModalContent className={styles.content}>
+      <ModalContent>
+        {isRemix && (
+          <div className={styles.isRemix}>
+            <IconQuestionCircle className={styles.isRemixIcon} />
+            <div>{messages.isRemix}</div>
+          </div>
+        )}
         <ModalRadioGroup items={radioItems} />
         <div className={styles.doneButtonContainer}>
           <Button

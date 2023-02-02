@@ -40,8 +40,7 @@ export const CollectibleGatedAvailability = ({
   )
   const numEthCollectibles = Object.keys(ethCollectionMap).length
   const numSolCollectibles = Object.keys(solCollectionMap).length
-  const hasNoCollectibles =
-    numEthCollectibles + numSolCollectibles === 0
+  const hasNoCollectibles = numEthCollectibles + numSolCollectibles === 0
 
   const ethCollectibleItems = useMemo(() => {
     return Object.keys(ethCollectionMap)
