@@ -29,6 +29,7 @@ export const OfflineDownloader = () => {
 
   const isReachable = useSelector(getIsReachable)
 
+  // Move this logic to watch set (un)rechable sagas?:
   useEffect(() => {
     if (!initialized) return
     const isQueueRunning = queue.isRunning

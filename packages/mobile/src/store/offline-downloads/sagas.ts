@@ -18,6 +18,7 @@ import {
 import { waitForBackendSetup } from 'audius-client/src/common/store/backend/sagas'
 import { waitForRead } from 'audius-client/src/utils/sagaHelpers'
 import {
+  all,
   takeLatest,
   call,
   select,
@@ -216,7 +217,7 @@ export function* startSync() {
 }
 
 export function* handleSetReachable() {
-  yield* call(setPlayCounterWorker, playCounterWorker)
+  // yield* call(setPlayCounterWorker, playCounterWorker)
 }
 
 export function* watchSetReachable() {
@@ -224,7 +225,7 @@ export function* watchSetReachable() {
 }
 
 export function* handleSetUnreachable() {
-  yield* call(setPlayCounterWorker, blockedPlayCounterWorker)
+  // yield* all([call(setPlayCounterWorker, blockedPlayCounterWorker), call(setDownloadCollectionWorker)
 }
 
 export function* watchSetUnreachable() {
