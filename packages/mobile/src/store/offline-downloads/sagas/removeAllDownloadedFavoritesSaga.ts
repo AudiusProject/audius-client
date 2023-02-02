@@ -1,9 +1,15 @@
 import type { ID } from '@audius/common'
 import { partition } from 'lodash'
-import { takeEvery, select, put, fork } from 'typed-redux-saga'
+import { takeEvery, select, put, call } from 'typed-redux-saga'
 
-import type { TrackForDownload } from 'app/services/offline-downloader'
-import { cancelQueuedDownloads } from 'app/services/offline-downloader'
+import type {
+  CollectionForDownload,
+  TrackForDownload
+} from 'app/services/offline-downloader'
+import {
+  cancelQueuedCollectionDownloads,
+  cancelQueuedDownloads
+} from 'app/services/offline-downloader'
 
 import {
   getOfflineCollections,
@@ -37,8 +43,11 @@ export function* watchRemoveAllDownloadedFavorites() {
 }
 
 function* removeAllDownloadedFavoritesWorker() {
-  yield* removeAllFavoritesTracks()
-  yield* removeAllFavoritesCollections()
+  const tracksToDequeue = yield* call(removeAllFavoritesTracks)
+  const collectionsToDequeue = yield* call(removeAllFavoritesCollections)
+
+  yield* call(cancelQueuedCollectionDownloads, collectionsToDequeue)
+  yield* call(cancelQueuedDownloads, tracksToDequeue)
 }
 
 function* removeAllFavoritesTracks() {
@@ -62,7 +71,7 @@ function* removeAllFavoritesTracks() {
 
   for (const offlineTrack of offlineTrackList) {
     const { track_id, offline } = offlineTrack
-    if (!offline) return
+    if (!offline) continue
 
     const { reasons_for_download } = offline
 
@@ -95,8 +104,6 @@ function* removeAllFavoritesTracks() {
     }
   }
 
-  yield* fork(cancelQueuedDownloads, tracksToDequeue)
-
   if (tracksToRemove.length > 0) {
     yield* put(removeTrackDownloads({ trackIds: tracksToRemove }))
   }
@@ -104,6 +111,8 @@ function* removeAllFavoritesTracks() {
   if (tracksToUpdate.length > 0) {
     yield* put(updateTrackDownloadReasons({ reasons: tracksToUpdate }))
   }
+
+  return tracksToDequeue
 }
 
 function* removeAllFavoritesCollections() {
@@ -111,11 +120,17 @@ function* removeAllFavoritesCollections() {
   const offlineFavoritedCollections = yield* select(
     getOfflineFavoritedCollections
   )
+  const offlineFavoritedCollectionIds = Object.keys(offlineFavoritedCollections)
 
   const collectionsToRemove: CollectionId[] = ['favorites']
   const collectionsToUpdate: CollectionReasonsToUpdate[] = []
+  const collectionsToDequeue: CollectionForDownload[] =
+    offlineFavoritedCollectionIds.map((collectionId) => ({
+      collectionId,
+      isFavoritesDownload: true
+    }))
 
-  Object.keys(offlineFavoritedCollections).forEach((favoritedCollectionId) => {
+  offlineFavoritedCollectionIds.forEach((favoritedCollectionId) => {
     const offlineCollectionStatus = offlineCollections[favoritedCollectionId]
     const isAlsoOfflineCollection =
       offlineCollectionStatus &&
@@ -141,4 +156,6 @@ function* removeAllFavoritesCollections() {
       updateCollectionDownloadReasons({ reasons: collectionsToUpdate })
     )
   }
+
+  return collectionsToDequeue
 }
