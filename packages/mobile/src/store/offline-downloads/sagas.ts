@@ -259,6 +259,11 @@ function* watchAddTrackToPlaylist() {
 function* downloadNewFavoriteIfNecessary({
   trackId
 }: ReturnType<typeof savedPageActions.addLocalSave>) {
+  const areFavoritesDownloaded = yield* select(
+    getIsCollectionMarkedForDownload(DOWNLOAD_REASON_FAVORITES)
+  )
+  if (!areFavoritesDownloaded) return
+
   batchDownloadTrack([
     {
       trackId,
