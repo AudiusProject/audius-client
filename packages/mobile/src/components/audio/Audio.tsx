@@ -46,7 +46,8 @@ import {
 } from 'app/services/offline-downloader'
 import type { PlayCountWorkerPayload } from 'app/services/offline-downloader/workers/playCounterWorker'
 import { PLAY_COUNTER_WORKER } from 'app/services/offline-downloader/workers/playCounterWorker'
-import { getOfflineTracks } from 'app/store/offline-downloads/selectors'
+import { getOfflineDownloadStatus } from 'app/store/offline-downloads/selectors'
+import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 
 const { getUsers } = cacheUsersSelectors
 const { getTracks } = cacheTracksSelectors
@@ -140,9 +141,9 @@ export const Audio = () => {
 
   // A map from trackId to offline availability
   const offlineAvailabilityByTrackId = useSelector((state) => {
-    const offlineTracks = getOfflineTracks(state)
+    const offlineTrackStatus = getOfflineDownloadStatus(state)
     return queueTrackIds.reduce((result, id) => {
-      if (offlineTracks[id]) {
+      if (offlineTrackStatus[id] === OfflineDownloadStatus.SUCCESS) {
         return {
           ...result,
           [id]: true
