@@ -99,6 +99,12 @@ function* createPlaylistAsync(action) {
   playlist.playlist_owner_id = userId
   playlist.is_private = true
   playlist.playlist_contents = { track_ids: [] }
+  const playlistNameToURI = decodeURIComponent(
+    action.formFields.playlist_name.replace(/\s+/g, '-').toLowerCase()
+  )
+  const user = yield select(getUser, { id: userId })
+  playlist.permalink = `/${user.handle}/playlist/${playlistNameToURI}-${playlist.playlist_id}`
+
   if (playlist.artwork) {
     playlist._cover_art_sizes = {
       ...playlist._cover_art_sizes,
@@ -122,7 +128,6 @@ function* createPlaylistAsync(action) {
       /* persistent cache */ false // Do not persistent cache since it's missing data
     )
   )
-  const user = yield select(getUser, { id: userId })
   yield put(
     accountActions.addAccountPlaylist({
       id: playlist.playlist_id,
