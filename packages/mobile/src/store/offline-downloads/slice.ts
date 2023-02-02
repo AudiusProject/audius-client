@@ -1,10 +1,17 @@
-import type { ID, OfflineTrackMetadata } from '@audius/common'
+import type {
+  DownloadReason,
+  ID,
+  OfflineTrackMetadata,
+  Track,
+  UserTrackMetadata
+} from '@audius/common'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 
 import type { TrackForDownload } from 'app/services/offline-downloader'
 
 export type CollectionId = ID | string
+
 type CollectionStatusPayload = {
   collectionId: CollectionId
   isFavoritesDownload?: boolean
@@ -30,6 +37,32 @@ export type OfflineDownloadsState = {
   }
   isDoneLoadingFromDisk: boolean
 }
+
+export type RemoveCollectionDownloadsAction = PayloadAction<{
+  collectionIds: CollectionId[]
+}>
+
+export type CollectionReasonsToUpdate = {
+  collectionId: CollectionId
+  isFavoritesDownload: boolean
+}
+
+export type UpdateCollectionDownloadReasonsAction = PayloadAction<{
+  reasons: CollectionReasonsToUpdate[]
+}>
+
+export type RemoveTrackDownloadsAction = PayloadAction<{
+  trackIds: ID[]
+}>
+
+export type TrackReasonsToUpdate = {
+  trackId: ID
+  reasons_for_download: DownloadReason[]
+}
+
+export type UpdateTrackDownloadReasonsAction = PayloadAction<{
+  reasons: TrackReasonsToUpdate[]
+}>
 
 export enum OfflineDownloadStatus {
   INACTIVE = 'INACTIVE', // download is not initiated,
@@ -126,6 +159,30 @@ const slice = createSlice({
         : state.collectionStatus
       delete collectionStatus[collectionId]
     },
+    updateCollectionDownloadReasons: (
+      state,
+      action: UpdateCollectionDownloadReasonsAction
+    ) => {
+      const { reasons } = action.payload
+      reasons.forEach((reason) => {
+        const { collectionId, isFavoritesDownload } = reason
+        if (isFavoritesDownload) {
+          delete state.collectionStatus[collectionId]
+        } else {
+          delete state.favoritedCollectionStatus[collectionId]
+        }
+      })
+    },
+    removeCollectionDownloads: (
+      state,
+      action: RemoveCollectionDownloadsAction
+    ) => {
+      const { collectionIds } = action.payload
+      collectionIds.forEach((collectionId) => {
+        delete state.favoritedCollectionStatus[collectionId]
+        delete state.collectionStatus[collectionId]
+      })
+    },
     addTrackOfflineMetadata: (
       state,
       action: PayloadAction<{
@@ -163,6 +220,13 @@ const slice = createSlice({
         ]
       })
     },
+    loadTracks: (state, { payload: tracks }: PayloadAction<LineupTrack[]>) => {
+      tracks.forEach((track) => {
+        const trackIdStr = track.track_id.toString()
+        state.tracks[trackIdStr] = track
+        state.downloadStatus[trackIdStr] = OfflineDownloadStatus.SUCCESS
+      })
+    },
     batchRemoveTrackDownloadReason: (
       state,
       action: PayloadAction<TrackDownloadReasonPayload[]>
@@ -187,7 +251,25 @@ const slice = createSlice({
       delete state.offlineTrackMetadata[trackId]
       delete state.downloadStatus[trackId]
     },
-    unloadTracks: (state, { payload: trackIds }: PayloadAction<string[]>) => {
+    updateTrackDownloadReasons: (
+      state,
+      action: UpdateTrackDownloadReasonsAction
+    ) => {
+      const { reasons } = action.payload
+      const { tracks } = state
+
+      reasons.forEach((reason) => {
+        const { trackId, reasons_for_download } = reason
+        const track = tracks[trackId]
+        const { offline } = track
+
+        if (offline) {
+          offline.reasons_for_download = reasons_for_download
+        }
+      })
+    },
+    removeTrackDownloads: (state, action: RemoveTrackDownloadsAction) => {
+      const { trackIds } = action.payload
       trackIds.forEach((trackId) => {
         delete state.offlineTrackMetadata[trackId]
         delete state.downloadStatus[trackId]
@@ -202,7 +284,9 @@ const slice = createSlice({
       state.downloadStatus = initialState.downloadStatus
       state.favoritedCollectionStatus = initialState.favoritedCollectionStatus
       state.isDoneLoadingFromDisk = initialState.isDoneLoadingFromDisk
-    }
+    },
+    // Lifecycle actions that trigger complex saga flows
+    removeAllDownloadedFavorites: () => {}
   }
 })
 
@@ -217,11 +301,17 @@ export const {
   startCollectionDownload,
   completeCollectionDownload,
   errorCollectionDownload,
+  updateCollectionDownloadReasons,
   removeCollectionDownload,
+  removeCollectionDownloads,
+  loadTracks,
+  loadTrack,
   unloadTrack,
-  unloadTracks,
+  updateTrackDownloadReasons,
+  removeTrackDownloads,
   doneLoadingFromDisk,
-  clearOfflineDownloads
+  clearOfflineDownloads,
+  removeAllDownloadedFavorites
 } = slice.actions
 export const actions = slice.actions
 
