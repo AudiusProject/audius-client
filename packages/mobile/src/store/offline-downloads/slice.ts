@@ -1,6 +1,8 @@
-import type { ID, Track, UserTrackMetadata } from '@audius/common'
+import type { DownloadReason, ID } from '@audius/common'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
+
+import type { TrackForDownload } from 'app/services/offline-downloader'
 
 export type CollectionId = ID | string
 type CollectionStatusPayload = {
@@ -8,7 +10,10 @@ type CollectionStatusPayload = {
   isFavoritesDownload?: boolean
 }
 
-type LineupTrack = Track & UserTrackMetadata
+type TrackDownloadReasonPayload = Pick<
+  TrackForDownload,
+  'trackId' | 'downloadReason'
+>
 
 export type OfflineDownloadsState = {
   downloadStatus: {
@@ -20,8 +25,8 @@ export type OfflineDownloadsState = {
   favoritedCollectionStatus: {
     [key: string]: OfflineDownloadStatus
   }
-  tracks: {
-    [key: string]: LineupTrack
+  downloadReasonsByTrackId: {
+    [key: string]: DownloadReason[]
   }
   isDoneLoadingFromDisk: boolean
 }
@@ -36,7 +41,7 @@ export enum OfflineDownloadStatus {
 
 const initialState: OfflineDownloadsState = {
   downloadStatus: {},
-  tracks: {},
+  downloadReasonsByTrackId: {},
   collectionStatus: {},
   favoritedCollectionStatus: {},
   isDoneLoadingFromDisk: false
@@ -121,25 +126,55 @@ const slice = createSlice({
         : state.collectionStatus
       delete collectionStatus[collectionId]
     },
-    loadTracks: (state, { payload: tracks }: PayloadAction<LineupTrack[]>) => {
-      tracks.forEach((track) => {
-        const trackIdStr = track.track_id.toString()
-        state.tracks[trackIdStr] = track
-        state.downloadStatus[trackIdStr] = OfflineDownloadStatus.SUCCESS
+    batchAddTrackDownloadReason: (
+      state,
+      action: PayloadAction<TrackDownloadReasonPayload[]>
+    ) => {
+      const { payload: tracksForDownload } = action
+      tracksForDownload.forEach(({ trackId, downloadReason }) => {
+        const existingReasons = state.downloadReasonsByTrackId[trackId] ?? []
+        if (
+          // if it's not a new reason
+          existingReasons.some(
+            (existingReason) =>
+              existingReason.collection_id === downloadReason.collection_id &&
+              existingReason.is_from_favorites ===
+                downloadReason.is_from_favorites
+          )
+        )
+          return
+
+        state.downloadReasonsByTrackId[trackId] = [
+          ...existingReasons,
+          downloadReason
+        ]
       })
     },
-    loadTrack: (state, { payload: track }: PayloadAction<LineupTrack>) => {
-      const trackIdStr = track.track_id.toString()
-      state.tracks[trackIdStr] = track
-      state.downloadStatus[trackIdStr] = OfflineDownloadStatus.SUCCESS
+    batchRemoveTrackDownloadReason: (
+      state,
+      action: PayloadAction<TrackDownloadReasonPayload[]>
+    ) => {
+      const { payload: tracksForDownload } = action
+      tracksForDownload.forEach(({ trackId, downloadReason }) => {
+        const existingReasons = state.downloadReasonsByTrackId[trackId] ?? []
+
+        const updatedReasons = existingReasons.filter(
+          (existingReason) =>
+            existingReason.collection_id !== downloadReason.collection_id ||
+            existingReason.is_from_favorites !==
+              downloadReason.is_from_favorites
+        )
+
+        state.downloadReasonsByTrackId[trackId] = updatedReasons
+      })
     },
     unloadTrack: (state, { payload: trackId }: PayloadAction<string>) => {
-      delete state.tracks[trackId]
+      delete state.downloadReasonsByTrackId[trackId]
       delete state.downloadStatus[trackId]
     },
     unloadTracks: (state, { payload: trackIds }: PayloadAction<string[]>) => {
       trackIds.forEach((trackId) => {
-        delete state.tracks[trackId]
+        delete state.downloadReasonsByTrackId[trackId]
         delete state.downloadStatus[trackId]
       })
     },
@@ -148,8 +183,9 @@ const slice = createSlice({
     },
     clearOfflineDownloads: (state) => {
       state.collectionStatus = initialState.collectionStatus
-      state.tracks = initialState.tracks
+      state.downloadReasonsByTrackId = initialState.downloadReasonsByTrackId
       state.downloadStatus = initialState.downloadStatus
+      state.favoritedCollectionStatus = initialState.favoritedCollectionStatus
       state.isDoneLoadingFromDisk = initialState.isDoneLoadingFromDisk
     }
   }
@@ -167,8 +203,6 @@ export const {
   completeCollectionDownload,
   errorCollectionDownload,
   removeCollectionDownload,
-  loadTracks,
-  loadTrack,
   unloadTrack,
   unloadTracks,
   doneLoadingFromDisk,
