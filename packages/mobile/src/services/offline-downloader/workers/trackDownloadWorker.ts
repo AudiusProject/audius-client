@@ -22,17 +22,23 @@ const onFailure = async (
   switch (error.message) {
     case DownloadTrackError.IS_DELETED:
     case DownloadTrackError.IS_UNLISTED: {
+      queue.stop()
       const jobs = await queue.getJobs()
-      jobs.forEach((rawJob) => {
-        if (rawJob.workerName === TRACK_DOWNLOAD_WORKER) {
-          const parsedPayload: TrackDownloadWorkerPayload = JSON.parse(
-            rawJob.payload
-          )
-          if (isEqualTrackPayload(payload, parsedPayload)) {
-            queue.removeJob(rawJob)
+      try {
+        jobs.forEach((rawJob) => {
+          if (rawJob.workerName === TRACK_DOWNLOAD_WORKER) {
+            const parsedPayload: TrackDownloadWorkerPayload = JSON.parse(
+              rawJob.payload
+            )
+            if (isEqualTrackPayload(payload, parsedPayload)) {
+              queue.removeJob(rawJob)
+            }
           }
-        }
-      })
+        })
+      } catch (e) {
+        console.warn(e)
+      }
+      queue.start()
       break
     }
     default:

@@ -19,17 +19,23 @@ const onFailure = async (
   switch (error.message) {
     case DownloadCollectionError.IS_DELETED:
     case DownloadCollectionError.IS_PRIVATE: {
+      queue.stop()
       const jobs = await queue.getJobs()
-      jobs.forEach((rawJob) => {
-        if (rawJob.workerName === COLLECTION_DOWNLOAD_WORKER) {
-          const parsedPayload: CollectionDownloadWorkerPayload = JSON.parse(
-            rawJob.payload
-          )
-          if (isEqualCollectionPayload(payload, parsedPayload)) {
-            queue.removeJob(rawJob)
+      try {
+        jobs.forEach((rawJob) => {
+          if (rawJob.workerName === COLLECTION_DOWNLOAD_WORKER) {
+            const parsedPayload: CollectionDownloadWorkerPayload = JSON.parse(
+              rawJob.payload
+            )
+            if (isEqualCollectionPayload(payload, parsedPayload)) {
+              queue.removeJob(rawJob)
+            }
           }
-        }
-      })
+        })
+      } catch (e) {
+        console.warn(e)
+      }
+      queue.start()
       break
     }
     default:

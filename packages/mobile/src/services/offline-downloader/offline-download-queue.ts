@@ -158,7 +158,7 @@ export const cancelQueuedCollectionDownloads = async (
   )
   queue.stop()
   const jobs = await queue.getJobs()
-  jobs.forEach(async (rawJob) => {
+  jobs.forEach((rawJob) => {
     const { workerName, payload, id, active } = rawJob
     try {
       if (workerName === COLLECTION_DOWNLOAD_WORKER) {
@@ -197,7 +197,7 @@ export const cancelQueuedDownloads = async (
   )
   queue.stop()
   const jobs = await queue.getJobs()
-  jobs.forEach(async (rawJob) => {
+  jobs.forEach((rawJob) => {
     const { workerName, payload, id, active } = rawJob
     try {
       if (workerName === TRACK_DOWNLOAD_WORKER) {
