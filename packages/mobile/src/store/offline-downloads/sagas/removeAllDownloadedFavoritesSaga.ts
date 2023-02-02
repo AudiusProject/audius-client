@@ -139,7 +139,7 @@ function* removeFavoritedTracks() {
       reasons_for_download,
       (reason) => {
         const { is_from_favorites, collection_id } = reason
-        return !(
+        return (
           is_from_favorites &&
           collection_id &&
           favoritedCollectionIds.has(collection_id)
