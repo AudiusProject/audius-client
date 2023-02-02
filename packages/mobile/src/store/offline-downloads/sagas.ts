@@ -11,7 +11,9 @@ import {
   collectionsSocialActions,
   accountSelectors,
   cacheCollectionsSelectors,
-  reachabilityActions
+  reachabilityActions,
+  savedPageActions,
+  cacheSelectors
 } from '@audius/common'
 import { waitForBackendSetup } from 'audius-client/src/common/store/backend/sagas'
 import { waitForRead } from 'audius-client/src/utils/sagaHelpers'
@@ -59,6 +61,7 @@ const { fetchCollection, FETCH_COLLECTION_SUCCEEDED, FETCH_COLLECTION_FAILED } =
 const { SET_REACHABLE, SET_UNREACHABLE } = reachabilityActions
 const { getUserId } = accountSelectors
 const { getCollections } = cacheCollectionsSelectors
+const { getTrack } = cacheSelectors
 
 export function* downloadSavedTrack(
   action: ReturnType<typeof tracksSocialActions.saveTrack>
@@ -253,6 +256,27 @@ function* watchAddTrackToPlaylist() {
   )
 }
 
+function* downloadNewFavoriteIfNecessary({
+  trackId
+}: ReturnType<typeof savedPageActions.addLocalSave>) {
+  batchDownloadTrack([
+    {
+      trackId,
+      downloadReason: {
+        is_from_favorites: true,
+        collection_id: DOWNLOAD_REASON_FAVORITES
+      }
+    }
+  ])
+}
+
+function* watchAddLocalSave() {
+  yield* takeEvery(
+    savedPageActions.ADD_LOCAL_SAVE,
+    downloadNewFavoriteIfNecessary
+  )
+}
+
 const sagas = () => {
   return [
     watchSaveTrack,
@@ -262,7 +286,8 @@ const sagas = () => {
     watchSetReachable,
     watchSetUnreachable,
     startSync,
-    watchAddTrackToPlaylist
+    watchAddTrackToPlaylist,
+    watchAddLocalSave
   ]
 }
 
