@@ -15,6 +15,11 @@ import { SpecialAccessAvailability } from '../components/SpecialAccessAvailabili
 
 import type { ListSelectionData } from './ListSelectionScreen'
 import { ListSelectionScreen } from './ListSelectionScreen'
+import { RemixOfField } from '../types'
+import { View, Text } from 'react-native'
+import { makeStyles } from 'app/styles'
+import IconQuestionCircle from 'app/assets/images/iconQuestionCircle.svg'
+import { useColor } from 'app/utils/theme'
 
 const messages = {
   title: 'Availability',
@@ -25,7 +30,8 @@ const messages = {
   showMood: 'Show Mood',
   showTags: 'Show Tags',
   showShareButton: 'Show Share Button',
-  showPlayCount: 'Show Play Count'
+  showPlayCount: 'Show Play Count',
+  markedAsRemix: 'This track is marked as a remix. To enable additional availability options, unmark within Remix Settings.'
 }
 
 const publicAvailability = TrackAvailabilityType.PUBLIC
@@ -33,12 +39,44 @@ const specialAccessAvailability = TrackAvailabilityType.SPECIAL_ACCESS
 const collectibleGatedAvailability = TrackAvailabilityType.COLLECTIBLE_GATED
 const hiddenAvailability = TrackAvailabilityType.HIDDEN
 
-const data: ListSelectionData[] = [
-  { label: publicAvailability, value: publicAvailability },
-  { label: specialAccessAvailability, value: specialAccessAvailability },
-  { label: collectibleGatedAvailability, value: collectibleGatedAvailability },
-  { label: hiddenAvailability, value: hiddenAvailability }
-]
+const useStyles = makeStyles(({ palette, spacing, typography }) => ({
+  isRemix: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: spacing(4),
+    marginHorizontal: spacing(4),
+    paddingVertical: spacing(2),
+    paddingHorizontal: spacing(4),
+    backgroundColor: palette.neutralLight9,
+    borderWidth: 1,
+    borderColor: palette.neutralLight7,
+    borderRadius: spacing(2),
+  },
+  isRemixText: {
+    fontFamily: typography.fontByWeight.medium,
+    fontSize: typography.fontSize.medium,
+    color: palette.neutral
+  },
+  questionIcon: {
+    marginRight: spacing(4),
+    width: spacing(5),
+    height: spacing(5)
+  }
+}))
+
+const MarkedAsRemix = () => {
+  const styles = useStyles()
+  const neutral = useColor('neutral')
+  const [{ value: remixOf }] = useField<RemixOfField>('remix_of')
+
+  return remixOf
+  ? (
+    <View style={styles.isRemix}>
+      <IconQuestionCircle style={styles.questionIcon} fill={neutral} />
+      <Text style={styles.isRemixText}>{messages.markedAsRemix}</Text>
+    </View>
+  ) : <></>
+}
 
 export const TrackAvailabilityScreen = () => {
   const isSpecialAccessGateEnabled = useIsSpecialAccessGateEnabled()
@@ -48,6 +86,7 @@ export const TrackAvailabilityScreen = () => {
   const [{ value: premiumConditions }] =
     useField<Nullable<PremiumConditions>>('premium_conditions')
   const [{ value: isUnlisted }] = useField<boolean>('is_unlisted')
+  const [{ value: remixOf }] = useField<RemixOfField>('remix_of')
 
   const initialAvailability = useMemo(() => {
     if ('nft_collection' in (premiumConditions ?? {})) {
@@ -67,6 +106,13 @@ export const TrackAvailabilityScreen = () => {
   const [availability, setAvailability] =
     useState<TrackAvailabilityType>(initialAvailability)
 
+  const data: ListSelectionData[] = [
+    { label: publicAvailability, value: publicAvailability },
+    { label: specialAccessAvailability, value: specialAccessAvailability, disabled: !!remixOf },
+    { label: collectibleGatedAvailability, value: collectibleGatedAvailability, disabled: !!remixOf },
+    { label: hiddenAvailability, value: hiddenAvailability }
+  ]
+
   const items = {
     [publicAvailability]: (
       <PublicAvailability
@@ -77,13 +123,13 @@ export const TrackAvailabilityScreen = () => {
     [specialAccessAvailability]: isSpecialAccessGateEnabled ? (
       <SpecialAccessAvailability
         selected={availability === TrackAvailabilityType.SPECIAL_ACCESS}
-        disabled={false}
+        disabled={!!remixOf}
       />
     ) : null,
     [collectibleGatedAvailability]: isNFTGateEnabled ? (
       <CollectibleGatedAvailability
         selected={availability === TrackAvailabilityType.COLLECTIBLE_GATED}
-        disabled={false}
+        disabled={!!remixOf}
       />
     ) : null,
     [hiddenAvailability]: (
@@ -105,6 +151,7 @@ export const TrackAvailabilityScreen = () => {
       disableSearch
       allowDeselect={false}
       hideSelectionLabel
+      header={<MarkedAsRemix />}
     />
   )
 }

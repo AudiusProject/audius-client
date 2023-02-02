@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 import { useState, useCallback } from 'react'
 
 import type { ListRenderItem, ViewStyle } from 'react-native'
@@ -30,6 +30,7 @@ export type ListSelectionProps = {
   hideSelectionLabel?: boolean
   itemStyles?: ViewStyle
   itemContentStyles?: ViewStyle
+  header?: ReactNode
 }
 
 const messages = {
@@ -80,7 +81,8 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
     allowDeselect = true,
     hideSelectionLabel = false,
     itemStyles,
-    itemContentStyles
+    itemContentStyles,
+    header
   } = props
 
   const styles = useStyles()
@@ -157,6 +159,7 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
       style={styles.root}
     >
       <View style={styles.content}>
+        {header}
         {!disableSearch && (
           <TextInput
             placeholder={searchText}
