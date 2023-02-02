@@ -31,7 +31,7 @@ import { NoTracksPlaceholder } from './NoTracksPlaceholder'
 import { OfflineContentBanner } from './OfflineContentBanner'
 import { useFavoritesLineup } from './useFavoritesLineup'
 const { saveTrack, unsaveTrack } = tracksSocialActions
-const { fetchSavesAction, fetchMoreSaves } = savedPageActions
+const { fetchSaves: fetchSavesAction, fetchMoreSaves } = savedPageActions
 const {
   getSaves,
   getLocalSaves,

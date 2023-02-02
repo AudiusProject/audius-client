@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 
 import {
   savedPageTracksLineupActions,
@@ -7,7 +7,7 @@ import {
   cacheActions,
   savedPageSelectors
 } from '@audius/common'
-import { isEqual, debounce, orderBy } from 'lodash'
+import { orderBy } from 'lodash'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
@@ -32,22 +32,6 @@ export const useFavoritesLineup = (fetchLineup: () => void) => {
     return acc
   }, {})
   const lineup = useSelector(getSavedTracksLineup)
-
-  const debouncedFetchSavesOnline = useMemo(() => {
-    return debounce((filterVal) => {
-      dispatch(fetchSaves(filterVal, '', '', 0, FETCH_LIMIT))
-    }, 500)
-  }, [dispatch])
-
-  const fetchSavesOnline = useCallback(() => {
-    debouncedFetchSavesOnline(filterValue)
-  }, [debouncedFetchSavesOnline, filterValue])
-
-  useEffect(() => {
-    if (isReachable) {
-      fetchSavesOnline()
-    }
-  }, [isReachable, fetchSavesOnline])
 
   const fetchLineupOffline = useCallback(() => {
     if (isOfflineModeEnabled) {
