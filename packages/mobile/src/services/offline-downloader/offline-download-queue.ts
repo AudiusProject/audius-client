@@ -35,7 +35,7 @@ export const isEqualTrackPayload = (
   b: TrackDownloadWorkerPayload
 ) => {
   const { favoriteCreatedAt: ignoredAFavoriteCreatedAt, ...aPayload } = a
-  const { favoriteCreatedAt: ignoredBFavoriteCreatedAt, ...bPayload } = a
+  const { favoriteCreatedAt: ignoredBFavoriteCreatedAt, ...bPayload } = b
   return isEqual(aPayload, bPayload)
 }
 
