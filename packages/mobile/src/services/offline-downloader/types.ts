@@ -1,9 +1,7 @@
-import type { DownloadReason } from '@audius/common'
-
-import type { CollectionId } from 'app/store/offline-downloads/slice'
+import type { DownloadReason, ID } from '@audius/common'
 
 export type CollectionForDownload = {
-  collectionId: CollectionId
+  collectionId: ID
   isFavoritesDownload?: boolean
 }
 

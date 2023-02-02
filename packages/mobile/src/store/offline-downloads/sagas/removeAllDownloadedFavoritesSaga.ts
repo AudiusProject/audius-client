@@ -7,6 +7,7 @@ import type {
   TrackForDownload
 } from 'app/services/offline-downloader'
 import {
+  DOWNLOAD_REASON_FAVORITES,
   cancelQueuedCollectionDownloads,
   cancelQueuedDownloads
 } from 'app/services/offline-downloader'
@@ -80,13 +81,15 @@ function* removeFavoritedCollections() {
   )
   const offlineFavoritedCollectionIds = Object.keys(offlineFavoritedCollections)
 
-  const collectionsToRemove: CollectionId[] = ['favorites']
+  const collectionsToRemove: CollectionId[] = [DOWNLOAD_REASON_FAVORITES]
   const collectionsToUpdate: CollectionReasonsToUpdate[] = []
   const collectionsToDequeue: CollectionForDownload[] =
-    offlineFavoritedCollectionIds.map((collectionId) => ({
-      collectionId,
-      isFavoritesDownload: true
-    }))
+    offlineFavoritedCollectionIds
+      .filter((collectionId) => collectionId !== DOWNLOAD_REASON_FAVORITES)
+      .map((collectionId) => ({
+        collectionId: parseInt(collectionId, 10),
+        isFavoritesDownload: true
+      }))
 
   offlineFavoritedCollectionIds.forEach((favoritedCollectionId) => {
     const offlineCollectionStatus = offlineCollections[favoritedCollectionId]

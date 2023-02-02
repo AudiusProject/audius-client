@@ -8,8 +8,7 @@ import {
   batchInitDownload,
   errorCollectionDownload,
   errorDownload,
-  removeCollectionDownload,
-  removeDownload
+  removeCollectionDownload
 } from 'app/store/offline-downloads/slice'
 
 import type { CollectionForDownload, TrackForDownload } from './types'
