@@ -50,7 +50,7 @@ export const useCollectionLineup = (
     },
     {}
   )
-  // TODO: do we need proxy selector here
+
   const lineup = useProxySelector(getTracksLineup, [isReachable])
 
   const fetchLineupOffline = useCallback(() => {
