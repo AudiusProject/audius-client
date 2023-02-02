@@ -4,6 +4,7 @@ import type {
   UserCollectionMetadata
 } from '@audius/common'
 import {
+  waitForValue,
   collectionPageActions,
   FavoriteSource,
   tracksSocialActions,
@@ -11,7 +12,8 @@ import {
   collectionsSocialActions,
   accountSelectors,
   cacheCollectionsSelectors,
-  reachabilityActions
+  reachabilityActions,
+  savedPageActions
 } from '@audius/common'
 import { waitForBackendSetup } from 'audius-client/src/common/store/backend/sagas'
 import { waitForRead } from 'audius-client/src/utils/sagaHelpers'
@@ -49,6 +51,7 @@ import { watchRemoveTrackDownloads } from './sagas/removeTrackDownloadsSaga'
 import { watchUpdateTrackDownloadReasons } from './sagas/updateTrackDownloadReasonsSaga'
 import {
   getIsCollectionMarkedForDownload,
+  getIsDoneLoadingFromDisk,
   getOfflineCollections,
   getOfflineFavoritedCollections
 } from './selectors'
@@ -231,6 +234,7 @@ function* downloadNewPlaylistTrackIfNecessary({
   trackId,
   playlistId
 }: ReturnType<typeof cacheCollectionsActions.addTrackToPlaylist>) {
+  yield* call(waitForValue, getIsDoneLoadingFromDisk)
   const isCollectionDownloaded = yield* select(
     getIsCollectionMarkedForDownload(playlistId.toString())
   )
@@ -257,6 +261,33 @@ function* watchAddTrackToPlaylist() {
   )
 }
 
+function* downloadNewFavoriteIfNecessary({
+  trackId
+}: ReturnType<typeof savedPageActions.addLocalSave>) {
+  yield* call(waitForValue, getIsDoneLoadingFromDisk)
+  const areFavoritesDownloaded = yield* select(
+    getIsCollectionMarkedForDownload(DOWNLOAD_REASON_FAVORITES)
+  )
+  if (!areFavoritesDownloaded) return
+
+  batchDownloadTrack([
+    {
+      trackId,
+      downloadReason: {
+        is_from_favorites: true,
+        collection_id: DOWNLOAD_REASON_FAVORITES
+      }
+    }
+  ])
+}
+
+function* watchAddLocalSave() {
+  yield* takeEvery(
+    savedPageActions.ADD_LOCAL_SAVE,
+    downloadNewFavoriteIfNecessary
+  )
+}
+
 const sagas = () => {
   return [
     watchSaveTrack,
@@ -267,6 +298,7 @@ const sagas = () => {
     watchSetUnreachable,
     startSync,
     watchAddTrackToPlaylist,
+    watchAddLocalSave,
     watchRemoveAllDownloadedFavorites,
     watchRemoveTrackDownloads,
     watchUpdateTrackDownloadReasons,

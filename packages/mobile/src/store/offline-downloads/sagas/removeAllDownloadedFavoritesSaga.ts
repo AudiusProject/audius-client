@@ -1,5 +1,9 @@
 import type { ID } from '@audius/common'
-import { takeEvery, select, put } from 'typed-redux-saga'
+import { partition } from 'lodash'
+import { takeEvery, select, put, fork } from 'typed-redux-saga'
+
+import type { TrackForDownload } from 'app/services/offline-downloader'
+import { cancelQueuedDownloads } from 'app/services/offline-downloader'
 
 import {
   getOfflineCollections,
@@ -44,48 +48,61 @@ function* removeAllFavoritesTracks() {
   )
 
   const tracksToRemove: ID[] = []
-  const reasonsToUpdate: TrackReasonsToUpdate[] = []
+  const tracksToUpdate: TrackReasonsToUpdate[] = []
+  const tracksToDequeue: TrackForDownload[] = []
 
-  // TODO: double check if "favorites" collection is in here
   const offlineFavoritedCollections = yield* select(
     getOfflineFavoritedCollections
   )
+
   const favoritedCollectionIds = new Set([
     'favorites',
     ...Object.keys(offlineFavoritedCollections)
   ])
 
-  offlineTrackList.forEach((offlineTrack) => {
+  for (const offlineTrack of offlineTrackList) {
     const { track_id, offline } = offlineTrack
     if (!offline) return
 
     const { reasons_for_download } = offline
 
-    const remainingReasons = reasons_for_download.filter((reason) => {
-      const { is_from_favorites, collection_id } = reason
-      return !(
-        is_from_favorites &&
-        collection_id &&
-        favoritedCollectionIds.has(collection_id)
-      )
-    })
+    const [deletedReasons, remainingReasons] = partition(
+      reasons_for_download,
+      (reason) => {
+        const { is_from_favorites, collection_id } = reason
+        return !(
+          is_from_favorites &&
+          collection_id &&
+          favoritedCollectionIds.has(collection_id)
+        )
+      }
+    )
+
+    tracksToDequeue.push(
+      ...deletedReasons.map((downloadReason) => ({
+        trackId: track_id,
+        downloadReason
+      }))
+    )
 
     if (remainingReasons.length === 0) {
       tracksToRemove.push(track_id)
-    } else {
-      reasonsToUpdate.push({
+    } else if (remainingReasons.length < reasons_for_download.length) {
+      tracksToUpdate.push({
         trackId: track_id,
         reasons_for_download: remainingReasons
       })
     }
-  })
+  }
+
+  yield* fork(cancelQueuedDownloads, tracksToDequeue)
 
   if (tracksToRemove.length > 0) {
     yield* put(removeTrackDownloads({ trackIds: tracksToRemove }))
   }
 
-  if (reasonsToUpdate.length > 0) {
-    yield* put(updateTrackDownloadReasons({ reasons: reasonsToUpdate }))
+  if (tracksToUpdate.length > 0) {
+    yield* put(updateTrackDownloadReasons({ reasons: tracksToUpdate }))
   }
 }
 
