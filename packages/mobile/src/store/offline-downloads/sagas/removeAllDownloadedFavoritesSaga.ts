@@ -43,14 +43,71 @@ export function* watchRemoveAllDownloadedFavorites() {
 }
 
 function* removeAllDownloadedFavoritesWorker() {
-  const tracksToDequeue = yield* call(removeAllFavoritesTracks)
-  const collectionsToDequeue = yield* call(removeAllFavoritesCollections)
+  const { collectionsToRemove, collectionsToUpdate, collectionsToDequeue } =
+    yield* call(removeFavoritedCollections)
+
+  const { tracksToRemove, tracksToUpdate, tracksToDequeue } = yield* call(
+    removeFavoritedTracks
+  )
+
+  if (collectionsToRemove.length > 0) {
+    yield* put(
+      removeCollectionDownloads({ collectionIds: collectionsToRemove })
+    )
+  }
+  if (collectionsToUpdate.length > 0) {
+    yield* put(
+      updateCollectionDownloadReasons({ reasons: collectionsToUpdate })
+    )
+  }
+
+  if (tracksToRemove.length > 0) {
+    yield* put(removeTrackDownloads({ trackIds: tracksToRemove }))
+  }
+
+  if (tracksToUpdate.length > 0) {
+    yield* put(updateTrackDownloadReasons({ reasons: tracksToUpdate }))
+  }
 
   yield* call(cancelQueuedCollectionDownloads, collectionsToDequeue)
   yield* call(cancelQueuedDownloads, tracksToDequeue)
 }
 
-function* removeAllFavoritesTracks() {
+function* removeFavoritedCollections() {
+  const offlineCollections = yield* select(getOfflineCollections)
+  const offlineFavoritedCollections = yield* select(
+    getOfflineFavoritedCollections
+  )
+  const offlineFavoritedCollectionIds = Object.keys(offlineFavoritedCollections)
+
+  const collectionsToRemove: CollectionId[] = ['favorites']
+  const collectionsToUpdate: CollectionReasonsToUpdate[] = []
+  const collectionsToDequeue: CollectionForDownload[] =
+    offlineFavoritedCollectionIds.map((collectionId) => ({
+      collectionId,
+      isFavoritesDownload: true
+    }))
+
+  offlineFavoritedCollectionIds.forEach((favoritedCollectionId) => {
+    const offlineCollectionStatus = offlineCollections[favoritedCollectionId]
+    const isAlsoOfflineCollection =
+      offlineCollectionStatus &&
+      offlineCollectionStatus !== OfflineDownloadStatus.INIT
+
+    if (isAlsoOfflineCollection) {
+      collectionsToUpdate.push({
+        collectionId: parseInt(favoritedCollectionId, 10),
+        isFavoritesDownload: false
+      })
+    } else {
+      collectionsToRemove.push(parseInt(favoritedCollectionId, 10))
+    }
+  })
+
+  return { collectionsToRemove, collectionsToUpdate, collectionsToDequeue }
+}
+
+function* removeFavoritedTracks() {
   const offlineTracks = yield* select(getOfflineTracks)
   const offlineTrackList = Object.keys(offlineTracks).map(
     (offlineTrackId) => offlineTracks[offlineTrackId]
@@ -104,58 +161,5 @@ function* removeAllFavoritesTracks() {
     }
   }
 
-  if (tracksToRemove.length > 0) {
-    yield* put(removeTrackDownloads({ trackIds: tracksToRemove }))
-  }
-
-  if (tracksToUpdate.length > 0) {
-    yield* put(updateTrackDownloadReasons({ reasons: tracksToUpdate }))
-  }
-
-  return tracksToDequeue
-}
-
-function* removeAllFavoritesCollections() {
-  const offlineCollections = yield* select(getOfflineCollections)
-  const offlineFavoritedCollections = yield* select(
-    getOfflineFavoritedCollections
-  )
-  const offlineFavoritedCollectionIds = Object.keys(offlineFavoritedCollections)
-
-  const collectionsToRemove: CollectionId[] = ['favorites']
-  const collectionsToUpdate: CollectionReasonsToUpdate[] = []
-  const collectionsToDequeue: CollectionForDownload[] =
-    offlineFavoritedCollectionIds.map((collectionId) => ({
-      collectionId,
-      isFavoritesDownload: true
-    }))
-
-  offlineFavoritedCollectionIds.forEach((favoritedCollectionId) => {
-    const offlineCollectionStatus = offlineCollections[favoritedCollectionId]
-    const isAlsoOfflineCollection =
-      offlineCollectionStatus &&
-      offlineCollectionStatus !== OfflineDownloadStatus.INIT
-
-    if (isAlsoOfflineCollection) {
-      collectionsToUpdate.push({
-        collectionId: parseInt(favoritedCollectionId, 10),
-        isFavoritesDownload: false
-      })
-    } else {
-      collectionsToRemove.push(parseInt(favoritedCollectionId, 10))
-    }
-  })
-
-  if (collectionsToRemove.length > 0) {
-    yield* put(
-      removeCollectionDownloads({ collectionIds: collectionsToRemove })
-    )
-  }
-  if (collectionsToUpdate.length > 0) {
-    yield* put(
-      updateCollectionDownloadReasons({ reasons: collectionsToUpdate })
-    )
-  }
-
-  return collectionsToDequeue
+  return { tracksToRemove, tracksToUpdate, tracksToDequeue }
 }
