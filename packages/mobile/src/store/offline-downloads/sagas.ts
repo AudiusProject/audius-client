@@ -4,6 +4,7 @@ import type {
   UserCollectionMetadata
 } from '@audius/common'
 import {
+  waitForValue,
   collectionPageActions,
   FavoriteSource,
   tracksSocialActions,
@@ -12,8 +13,7 @@ import {
   accountSelectors,
   cacheCollectionsSelectors,
   reachabilityActions,
-  savedPageActions,
-  cacheSelectors
+  savedPageActions
 } from '@audius/common'
 import { waitForBackendSetup } from 'audius-client/src/common/store/backend/sagas'
 import { waitForRead } from 'audius-client/src/utils/sagaHelpers'
@@ -47,6 +47,7 @@ import {
 
 import {
   getIsCollectionMarkedForDownload,
+  getIsDoneLoadingFromDisk,
   getOfflineCollections,
   getOfflineFavoritedCollections
 } from './selectors'
@@ -61,7 +62,6 @@ const { fetchCollection, FETCH_COLLECTION_SUCCEEDED, FETCH_COLLECTION_FAILED } =
 const { SET_REACHABLE, SET_UNREACHABLE } = reachabilityActions
 const { getUserId } = accountSelectors
 const { getCollections } = cacheCollectionsSelectors
-const { getTrack } = cacheSelectors
 
 export function* downloadSavedTrack(
   action: ReturnType<typeof tracksSocialActions.saveTrack>
@@ -230,6 +230,7 @@ function* downloadNewPlaylistTrackIfNecessary({
   trackId,
   playlistId
 }: ReturnType<typeof cacheCollectionsActions.addTrackToPlaylist>) {
+  yield* call(waitForValue, getIsDoneLoadingFromDisk)
   const isCollectionDownloaded = yield* select(
     getIsCollectionMarkedForDownload(playlistId.toString())
   )
@@ -259,6 +260,7 @@ function* watchAddTrackToPlaylist() {
 function* downloadNewFavoriteIfNecessary({
   trackId
 }: ReturnType<typeof savedPageActions.addLocalSave>) {
+  yield* call(waitForValue, getIsDoneLoadingFromDisk)
   const areFavoritesDownloaded = yield* select(
     getIsCollectionMarkedForDownload(DOWNLOAD_REASON_FAVORITES)
   )
