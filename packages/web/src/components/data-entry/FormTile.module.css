@@ -121,7 +121,7 @@
 .release {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 .release > div:first-child {
   flex: 0 0 158px;

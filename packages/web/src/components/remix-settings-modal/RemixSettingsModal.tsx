@@ -206,7 +206,6 @@ const RemixSettingsModal = ({
             <Switch
               isOn={isRemix}
               handleToggle={(e) => {
-                e.stopPropagation()
                 setIsRemix(!isRemix)
                 if (isRemix) {
                   onChangeField('remix_of', null)
@@ -252,7 +251,6 @@ const RemixSettingsModal = ({
             <Switch
               isOn={shouldHideOtherRemixes || isPremium}
               handleToggle={(e) => {
-                e.stopPropagation()
                 setShouldHideOtherRemixes(
                   !(shouldHideOtherRemixes || isPremium)
                 )

@@ -1,7 +1,6 @@
 import { FeatureFlags } from '@audius/common'
-import { ButtonType } from '@audius/stems'
+import { Button, ButtonType } from '@audius/stems'
 
-import LabeledButton from 'components/labeled-button/LabeledButton'
 import Switch from 'components/switch/Switch'
 import { useFlag } from 'hooks/useRemoteConfig'
 
@@ -27,10 +26,9 @@ export const RemixSettingsModalTrigger = (
 
   if (isPremiumContentEnabled) {
     return (
-      <LabeledButton
+      <Button
         type={ButtonType.COMMON_ALT}
         name='remixSettings'
-        label=''
         text={messages.remixSettings}
         className={styles.trigger}
         textClassName={styles.triggerText}
