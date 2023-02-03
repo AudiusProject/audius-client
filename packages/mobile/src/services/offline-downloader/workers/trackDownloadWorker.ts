@@ -48,15 +48,6 @@ const onFailure = async (
   }
 }
 
-export const setTrackDownloadWorker = async (
-  worker: Worker<TrackDownloadWorkerPayload>
-) => {
-  queue.stop()
-  queue.removeWorker(TRACK_DOWNLOAD_WORKER)
-  queue.addWorker(worker)
-  await startQueueIfOnline()
-}
-
 const executor = (payload: TrackDownloadWorkerPayload) => {
   const promise: CancellablePromise<void> = downloadTrack(payload)
   promise.rn_job_queue_cancel = () => {

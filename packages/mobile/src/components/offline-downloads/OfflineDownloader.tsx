@@ -40,11 +40,10 @@ export const OfflineDownloader = () => {
 
   useEffect(() => {
     if (!initialized) return
-    const isQueueRunning = queue.isRunning
 
-    if (isReachable && !isQueueRunning) {
+    if (isReachable) {
       queue.start()
-    } else if (!isReachable && isQueueRunning) {
+    } else if (!isReachable) {
       queue.stop()
     }
   }, [initialized, isReachable])

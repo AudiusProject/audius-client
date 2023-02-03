@@ -26,10 +26,3 @@ export const setPlayCounterWorker = async (
 }
 
 export const playCounterWorker = new Worker(PLAY_COUNTER_WORKER, countPlay)
-export const blockedPlayCounterWorker = new Worker(
-  PLAY_COUNTER_WORKER,
-  countPlay,
-  {
-    concurrency: 0
-  }
-)
