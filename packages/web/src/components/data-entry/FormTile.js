@@ -387,12 +387,23 @@ const BasicForm = (props) => {
       {renderBasicForm()}
       {renderBottomMenu()}
       {renderSourceFilesModal()}
-      {renderRemixSettingsModal()}
+      {!isPremiumContentEnabled && renderRemixSettingsModal()}
     </div>
   )
 }
 
 const AdvancedForm = (props) => {
+  const { isEnabled: isPremiumContentEnabled } = useFlag(
+    FeatureFlags.PREMIUM_CONTENT_ENABLED
+  )
+
+  const {
+    remixSettingsModalVisible,
+    setRemixSettingsModalVisible,
+    isRemix,
+    setIsRemix
+  } = props
+
   let availabilityButtonTitle
   let availabilityState = {
     is_premium: props.defaultFields.is_premium,
@@ -479,6 +490,36 @@ const AdvancedForm = (props) => {
       remixes: hideRemixes
     })
     setHideRemixes((hideRemixes) => !hideRemixes)
+  }
+
+  const renderRemixSettingsModal = () => {
+    return (
+      <ConnectedRemixSettingsModal
+        initialTrackId={
+          props.defaultFields.remix_of?.tracks?.[0]?.parent_track_id
+        }
+        isPremium={props.defaultFields.is_premium ?? false}
+        premiumConditions={props.defaultFields.premium_conditions ?? null}
+        isRemix={isRemix}
+        setIsRemix={setIsRemix}
+        isOpen={remixSettingsModalVisible}
+        onClose={(trackId) => {
+          if (!trackId) {
+            setIsRemix(false)
+            props.onChangeField('remix_of', null)
+          } else {
+            props.onChangeField(
+              'remix_of',
+              createRemixOfMetadata({ parentTrackId: trackId })
+            )
+          }
+          setRemixSettingsModalVisible(false)
+        }}
+        onChangeField={props.onChangeField}
+        hideRemixes={hideRemixes}
+        onToggleHideRemixes={didToggleHideRemixesState}
+      />
+    )
   }
 
   return (
@@ -610,6 +651,7 @@ const AdvancedForm = (props) => {
           <br />
           {props.licenseDescription}
         </div>
+        {isPremiumContentEnabled && renderRemixSettingsModal()}
       </div>
     </>
   )
@@ -792,8 +834,10 @@ class FormTile extends Component {
           onSelectAllowAttribution={this.onSelectAllowAttribution}
           onSelectCommercialUse={this.onSelectCommercialUse}
           onSelectDerivativeWorks={this.onSelectDerivativeWorks}
+          remixSettingsModalVisible={remixSettingsModalVisible}
           setRemixSettingsModalVisible={this.setRemixSettingsModalVisible}
           isRemix={isRemix}
+          setIsRemix={this.setIsRemix}
         />
         {this.props.children.length > 0 ? (
           <DragDropContext onDragEnd={this.onDragEnd}>
