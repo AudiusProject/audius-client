@@ -37,7 +37,8 @@ import {
   syncCollectionsTracks,
   enqueueTrackDownload,
   batchDownloadCollection,
-  batchRemoveTrackDownload
+  batchRemoveTrackDownload,
+  cancelAllQueuedDownloads
 } from 'app/services/offline-downloader'
 import {
   blockedPlayCounterWorker,
@@ -146,6 +147,7 @@ export function* watchSaveCollection() {
 
 function* clearOffineDownloadsAsync() {
   yield* call(purgeAllDownloads)
+  yield* call(cancelAllQueuedDownloads)
 }
 
 function* watchClearOfflineDownloads() {
