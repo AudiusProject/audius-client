@@ -353,9 +353,11 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
       return
     }
 
-    await downloadTrackCoverArt(trackFromApi)
+    await Promise.all([
+      downloadTrackCoverArt(trackFromApi),
+      tryDownloadTrackFromEachCreatorNode(trackFromApi)
+    ])
 
-    await tryDownloadTrackFromEachCreatorNode(trackFromApi)
     const now = Date.now()
     const trackToWrite: Track & UserTrackMetadata = {
       ...trackFromApi,
