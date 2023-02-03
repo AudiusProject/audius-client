@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react'
 
 import type { Nullable, PremiumConditions } from '@audius/common'
-import { TrackAvailabilityType } from '@audius/common'
+import { TrackAvailabilityType, collectiblesSelectors } from '@audius/common'
 import { useField } from 'formik'
 import { View, Text } from 'react-native'
+import { useSelector } from 'react-redux'
 
 import IconHidden from 'app/assets/images/iconHidden.svg'
 import IconQuestionCircle from 'app/assets/images/iconQuestionCircle.svg'
@@ -34,6 +35,8 @@ const messages = {
   markedAsRemix:
     'This track is marked as a remix. To enable additional availability options, unmark within Remix Settings.'
 }
+
+const { getVerifiedUserCollections } = collectiblesSelectors
 
 const publicAvailability = TrackAvailabilityType.PUBLIC
 const specialAccessAvailability = TrackAvailabilityType.SPECIAL_ACCESS
@@ -87,6 +90,15 @@ export const TrackAvailabilityScreen = () => {
     useField<Nullable<PremiumConditions>>('premium_conditions')
   const [{ value: isUnlisted }] = useField<boolean>('is_unlisted')
   const [{ value: remixOf }] = useField<RemixOfField>('remix_of')
+  const isRemix = !!remixOf
+
+  const { ethCollectionMap, solCollectionMap } = useSelector(
+    getVerifiedUserCollections
+  )
+  const numEthCollectibles = Object.keys(ethCollectionMap).length
+  const numSolCollectibles = Object.keys(solCollectionMap).length
+  const hasNoCollectibles = numEthCollectibles + numSolCollectibles === 0
+  const isCollectibleGateDisabled = hasNoCollectibles || isRemix
 
   const initialAvailability = useMemo(() => {
     if ('nft_collection' in (premiumConditions ?? {})) {
@@ -111,12 +123,12 @@ export const TrackAvailabilityScreen = () => {
     {
       label: specialAccessAvailability,
       value: specialAccessAvailability,
-      disabled: !!remixOf
+      disabled: isRemix
     },
     {
       label: collectibleGatedAvailability,
       value: collectibleGatedAvailability,
-      disabled: !!remixOf
+      disabled: isCollectibleGateDisabled
     },
     { label: hiddenAvailability, value: hiddenAvailability }
   ]
@@ -125,25 +137,23 @@ export const TrackAvailabilityScreen = () => {
     [publicAvailability]: (
       <PublicAvailability
         selected={availability === TrackAvailabilityType.PUBLIC}
-        disabled={false}
       />
     ),
     [specialAccessAvailability]: isSpecialAccessGateEnabled ? (
       <SpecialAccessAvailability
         selected={availability === TrackAvailabilityType.SPECIAL_ACCESS}
-        disabled={!!remixOf}
+        disabled={isRemix}
       />
     ) : null,
     [collectibleGatedAvailability]: isNFTGateEnabled ? (
       <CollectibleGatedAvailability
         selected={availability === TrackAvailabilityType.COLLECTIBLE_GATED}
-        disabled={!!remixOf}
+        disabled={isCollectibleGateDisabled}
       />
     ) : null,
     [hiddenAvailability]: (
       <HiddenAvailability
         selected={availability === TrackAvailabilityType.HIDDEN}
-        disabled={false}
       />
     )
   }
