@@ -16,14 +16,13 @@ const useStyles = makeStyles(({ spacing }) => ({
 }))
 
 export const FilterInput = (props: FilterInputProps) => {
-  const { value, onChangeText, placeholder } = props
+  const { onChangeText, placeholder } = props
   const styles = useStyles()
 
   return (
     <Tile styles={{ root: styles.tileRoot, tile: styles.tile }}>
       <TextInput
         placeholder={placeholder}
-        value={value}
         onChangeText={onChangeText}
         returnKeyType='search'
         Icon={IconFilter}
