@@ -106,11 +106,10 @@ const slice = createSlice({
       state.downloadStatus[trackId] = OfflineDownloadStatus.ERROR
     },
     removeDownload: (state, { payload: trackId }: PayloadAction<string>) => {
-      if (state.downloadStatus[trackId] === OfflineDownloadStatus.ABANDONED) {
-        delete state.downloadStatus[trackId]
-      } else {
-        state.downloadStatus[trackId] = OfflineDownloadStatus.ABANDONED
-      }
+      delete state.downloadStatus[trackId]
+    },
+    abandonDownload: (state, { payload: trackId }: PayloadAction<string>) => {
+      state.downloadStatus[trackId] = OfflineDownloadStatus.ABANDONED
     },
     batchInitCollectionDownload: (
       state,
@@ -249,6 +248,7 @@ export const {
   startDownload,
   completeDownload,
   errorDownload,
+  abandonDownload,
   removeDownload,
   batchInitCollectionDownload,
   startCollectionDownload,

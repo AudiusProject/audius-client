@@ -24,7 +24,8 @@ import { getAccountCollections } from 'app/screens/favorites-screen/selectors'
 import { store } from 'app/store'
 import {
   getOfflineCollections,
-  getOfflineFavoritedCollections
+  getOfflineFavoritedCollections,
+  getTrackOfflineDownloadStatus
 } from 'app/store/offline-downloads/selectors'
 import {
   actions as offlineDownloadsActions,
@@ -32,6 +33,7 @@ import {
   startDownload,
   completeDownload,
   errorDownload,
+  abandonDownload,
   loadTrack,
   removeDownload,
   batchInitCollectionDownload,
@@ -481,6 +483,7 @@ export const removeTrackDownload = async ({
   trackId,
   downloadReason
 }: TrackForDownload) => {
+  const state = store.getState()
   try {
     const trackIdStr = trackId.toString()
     const diskTrack = await getTrackJson(trackIdStr)
@@ -492,7 +495,12 @@ export const removeTrackDownload = async ({
     )
     if (!diskTrack || remainingReasons.length === 0) {
       purgeDownloadedTrack(trackIdStr)
-      store.dispatch(removeDownload(trackIdStr))
+      const status = getTrackOfflineDownloadStatus(trackId)(state)
+      if (status === OfflineDownloadStatus.ERROR) {
+        store.dispatch(abandonDownload(trackIdStr))
+      } else {
+        store.dispatch(removeDownload(trackIdStr))
+      }
     } else {
       const now = Date.now()
       const trackToWrite = {
