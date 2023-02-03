@@ -112,18 +112,30 @@ export const downloadAllFavorites = async () => {
     })
   )
 
-  batchDownloadTrack(tracksForDownload)
-
   // @ts-ignore state is CommonState
   const favoritedCollections = getAccountCollections(state as CommonState, '')
-  batchDownloadCollection(favoritedCollections, true)
+  // Aggregate all of the tracks and collections to download, but download the tracks first
+  const {
+    tracksForDownload: collectionTracksForDownload,
+    collectionsForDownload
+  } = batchDownloadCollection(favoritedCollections, true, false, true)
+
+  batchDownloadTrack(tracksForDownload.concat(collectionTracksForDownload))
+  collectionsForDownload.forEach((collectionForDownload) =>
+    enqueueCollectionDownload(collectionForDownload)
+  )
 }
 
 export const batchDownloadCollection = (
   collections: CollectionMetadata[],
   isFavoritesDownload: boolean,
-  skipTracks = false
-) => {
+  skipTracks = false,
+  // Returns tracks back to the caller instead of queuing them specifically
+  skipDownload = false
+): {
+  tracksForDownload: TrackForDownload[]
+  collectionsForDownload: CollectionForDownload[]
+} => {
   const collectionsForDownload: CollectionForDownload[] = collections.map(
     (collection) => ({
       collectionId: collection.playlist_id,
@@ -138,21 +150,27 @@ export const batchDownloadCollection = (
       isFavoritesDownload
     })
   )
-  collectionsForDownload.forEach((collectionForDownload) =>
-    enqueueCollectionDownload(collectionForDownload)
-  )
+  if (!skipDownload) {
+    collectionsForDownload.forEach((collectionForDownload) =>
+      enqueueCollectionDownload(collectionForDownload)
+    )
+  }
 
-  if (skipTracks) return
-  const tracksForDownload = collections.flatMap((collection) =>
-    collection.playlist_contents.track_ids.map(({ track: trackId }) => ({
-      trackId,
-      downloadReason: {
-        is_from_favorites: isFavoritesDownload,
-        collection_id: collection.playlist_id.toString()
-      }
-    }))
+  if (skipTracks) return { tracksForDownload: [], collectionsForDownload: [] }
+  const tracksForDownload: TrackForDownload[] = collections.flatMap(
+    (collection) =>
+      collection.playlist_contents.track_ids.map(({ track: trackId }) => ({
+        trackId,
+        downloadReason: {
+          is_from_favorites: isFavoritesDownload,
+          collection_id: collection.playlist_id.toString()
+        }
+      }))
   )
-  batchDownloadTrack(tracksForDownload)
+  if (!skipDownload) {
+    batchDownloadTrack(tracksForDownload)
+  }
+  return { tracksForDownload, collectionsForDownload }
 }
 
 export const downloadCollection = async ({
