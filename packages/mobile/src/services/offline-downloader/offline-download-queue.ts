@@ -236,6 +236,5 @@ export const cancelAllQueuedDownloads = async () => {
       queue.cancelJob(id)
     }
   })
-  // TODO: call startIfOffline
-  queue.start()
+  startQueueIfOnline()
 }
