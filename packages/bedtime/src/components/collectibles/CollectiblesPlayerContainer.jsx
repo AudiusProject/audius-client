@@ -21,9 +21,6 @@ const CollectiblesPlayerContainer = ({
 
   return (
     <>
-      <CollectibleHelmet
-        collectiblesInfo={collectiblesInfo}
-      />
       {collectiblesInfo.type === 'gallery' && (
         <CollectibleGallery
           collectibles={getCollectiblesArray()}
