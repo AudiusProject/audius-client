@@ -37,6 +37,7 @@ export const useCollectionLineup = (
 ) => {
   const dispatch = useDispatch()
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
+  // TODO: call getOfflineTrackMetadata
   const offlineTracks = useSelector(getOfflineTracks)
   const isReachable = useSelector(getIsReachable)
   const collection = useSelector((state) => {

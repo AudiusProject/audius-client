@@ -25,6 +25,7 @@ const { getSavedTracksLineup } = savedPageSelectors
 export const useFavoritesLineup = (fetchLineup: () => void) => {
   const dispatch = useDispatch()
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
+  // TODO: call getOfflineTrackMetadata
   const offlineTracks = useSelector(getOfflineTracks)
   const savedTracks = useSelector(getSavedTracksLineup)
   const savedTracksUidMap = savedTracks.entries.reduce((acc, track) => {

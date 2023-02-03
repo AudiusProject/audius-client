@@ -1,10 +1,4 @@
-import type {
-  DownloadReason,
-  ID,
-  OfflineTrackMetadata,
-  Track,
-  UserTrackMetadata
-} from '@audius/common'
+import type { DownloadReason, ID, OfflineTrackMetadata } from '@audius/common'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 
@@ -183,7 +177,7 @@ const slice = createSlice({
         delete state.collectionStatus[collectionId]
       })
     },
-    addTrackOfflineMetadata: (
+    setTrackOfflineMetadata: (
       state,
       action: PayloadAction<{
         trackId: number
@@ -220,13 +214,6 @@ const slice = createSlice({
         ]
       })
     },
-    loadTracks: (state, { payload: tracks }: PayloadAction<LineupTrack[]>) => {
-      tracks.forEach((track) => {
-        const trackIdStr = track.track_id.toString()
-        state.tracks[trackIdStr] = track
-        state.downloadStatus[trackIdStr] = OfflineDownloadStatus.SUCCESS
-      })
-    },
     batchRemoveTrackDownloadReason: (
       state,
       action: PayloadAction<TrackDownloadReasonPayload[]>
@@ -256,16 +243,13 @@ const slice = createSlice({
       action: UpdateTrackDownloadReasonsAction
     ) => {
       const { reasons } = action.payload
-      const { tracks } = state
+      const { offlineTrackMetadata } = state
 
       reasons.forEach((reason) => {
         const { trackId, reasons_for_download } = reason
-        const track = tracks[trackId]
-        const { offline } = track
+        const offlineMetadata = offlineTrackMetadata[trackId]
 
-        if (offline) {
-          offline.reasons_for_download = reasons_for_download
-        }
+        offlineMetadata.reasons_for_download = reasons_for_download
       })
     },
     removeTrackDownloads: (state, action: RemoveTrackDownloadsAction) => {
@@ -304,8 +288,7 @@ export const {
   updateCollectionDownloadReasons,
   removeCollectionDownload,
   removeCollectionDownloads,
-  loadTracks,
-  loadTrack,
+  setTrackOfflineMetadata,
   unloadTrack,
   updateTrackDownloadReasons,
   removeTrackDownloads,

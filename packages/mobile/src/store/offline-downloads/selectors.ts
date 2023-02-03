@@ -31,7 +31,7 @@ export const getTrackDownloadReasons =
     trackId
       ? state.offlineDownloads.offlineTrackMetadata[trackId]
           .reasons_for_download
-      : null
+      : []
 
 export const getOfflineCollections = (
   state: AppState
@@ -55,6 +55,23 @@ export const getOfflineTrackIds = (state: AppState) =>
       ([id, downloadStatus]) => downloadStatus === OfflineDownloadStatus.SUCCESS
     )
     .map(([id, downloadstatus]) => id)
+
+export const getOfflineTrack =
+  (trackId: ID) =>
+  (state: AppState): TrackMetadata | null => {
+    if (
+      getTrackOfflineDownloadStatus(trackId)(state) !==
+      OfflineDownloadStatus.SUCCESS
+    )
+      return null
+    const track = getTrack(state, { id: trackId })
+    if (!track) return null
+    const offlineMetadata = getTrackOfflineMetadata(trackId)(state)
+    return {
+      ...track,
+      offline: offlineMetadata || undefined
+    }
+  }
 
 export const getOfflineTracks = (state: AppState): TrackMetadata[] => {
   const offlineTrackIds = getOfflineTrackIds(state)

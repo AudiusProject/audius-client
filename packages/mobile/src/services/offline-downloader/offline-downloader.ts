@@ -10,10 +10,13 @@ import type {
   UserTrackMetadata
 } from '@audius/common'
 import {
+  cacheActions,
+  Kind,
   cacheTracksSelectors,
   SquareSizes,
   encodeHashId,
-  accountSelectors
+  accountSelectors,
+  cacheUsersActions
 } from '@audius/common'
 import { uniq, isEqual } from 'lodash'
 import RNFetchBlob from 'rn-fetch-blob'
@@ -24,7 +27,12 @@ import { getAccountCollections } from 'app/screens/favorites-screen/selectors'
 import { store } from 'app/store'
 import {
   getOfflineCollections,
-  getOfflineFavoritedCollections
+  getOfflineDownloadStatus,
+  cacheuser
+  getOfflineFavoritedCollections,
+  getOfflineTrack,
+  getTrackDownloadReasons,
+  getTrackOfflineDownloadStatus
 } from 'app/store/offline-downloads/selectors'
 import {
   actions as offlineDownloadsActions,
@@ -38,7 +46,8 @@ import {
   errorCollectionDownload,
   startCollectionDownload,
   completeCollectionDownload,
-  OfflineDownloadStatus
+  OfflineDownloadStatus,
+  setTrackOfflineMetadata
 } from 'app/store/offline-downloads/slice'
 
 import { apiClient } from '../audius-api-client'
@@ -214,7 +223,8 @@ export const downloadCollection = async ({
       ...collection,
       offline: {
         // TODO: This is broken! Need to add download reasons. We are only tracking the last known download reason.
-        isFavoritesDownload: !!isFavoritesDownload
+        isFavoritesDownload: !!isFavoritesDownload ? true : collection.offline?.isFavoritesDownload
+        isIndividualDownload: !isFavoritesDownload ? false : collection.offline?.isIndividualDownload
       }
     }
 
@@ -292,17 +302,17 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
     })
   }
 
+  const offlineTrack = getOfflineTrack(trackId)(state)
   try {
-    if (await verifyTrack(trackIdStr, false)) {
-      const trackJson = await getTrackJson(trackIdStr)
-      if (!trackJson) return
-
+    if (offlineTrack) {
       // Track is already downloaded, so rewrite the json
       // to include this collection in the reasons_for_download list
 
+      const existingDownloadReasons =
+        offlineTrack.offline?.reasons_for_download ?? []
       // Skip if duplicate download reason
       if (
-        trackJson.offline?.reasons_for_download.some(
+        existingDownloadReasons.some(
           (existingReason) =>
             existingReason.collection_id === downloadReason.collection_id &&
             existingReason.is_from_favorites ===
@@ -313,24 +323,37 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
         return
       }
       const now = Date.now()
+      const offlineMetadata = {
+        download_completed_time:
+          offlineTrack.offline?.download_completed_time ?? now,
+        last_verified_time: offlineTrack.offline?.last_verified_time ?? now,
+        reasons_for_download: existingDownloadReasons.concat(downloadReason),
+        favorite_created_at: offlineTrack.offline?.favorite_created_at
+      }
+      store.dispatch(setTrackOfflineMetadata({ trackId, offlineMetadata }))
       const trackToWrite: Track & UserTrackMetadata = {
-        ...trackJson,
-        offline: {
-          download_completed_time:
-            trackJson.offline?.download_completed_time ?? now,
-          last_verified_time: trackJson.offline?.last_verified_time ?? now,
-          reasons_for_download: trackJson.offline?.reasons_for_download?.concat(
-            downloadReason
-          ) ?? [downloadReason],
-          favorite_created_at: trackJson.offline?.favorite_created_at
-        }
+        ...trackFromApi,
+        // Empty cover art sizes because the images are stored locally
+        _cover_art_sizes: {},
+        user: trackFromApi.user,
+        offline: offlineMetadata
       }
 
       if (shouldAbortDownload(trackForDownload)) return
 
       await writeTrackJson(trackIdStr, trackToWrite)
 
-      store.dispatch(loadTrack(trackToWrite))
+      store.dispatch(addTrackOfflineMetadata(trackToWrite.offline))
+      store.dispatch(
+        cacheActions.add(Kind.TRACKS, [{ id: trackId, metadata: trackFromApi }])
+      )
+      // TODO: do this every time we add offline tracks to cache
+      // TODO: is UserMetadata the right type for the cache
+      store.dispatch(
+        cacheActions.add(Kind.USERS, [
+          { id: trackId, metadata: trackFromApi.user }
+        ])
+      )
       store.dispatch(completeDownload(trackIdStr))
       return
     }
@@ -338,21 +361,25 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
     await downloadTrackCoverArt(trackFromApi)
 
     await tryDownloadTrackFromEachCreatorNode(trackFromApi)
+
     const now = Date.now()
+    const offlineMetadata = {
+      reasons_for_download: [downloadReason],
+      download_completed_time: now,
+      last_verified_time: now,
+      favorite_created_at: favoriteCreatedAt
+    }
     const trackToWrite: Track & UserTrackMetadata = {
       ...trackFromApi,
       // Empty cover art sizes because the images are stored locally
       _cover_art_sizes: {},
-      offline: {
-        reasons_for_download: uniq([
-          downloadReason,
-          ...(trackFromApi?.offline?.reasons_for_download ?? [])
-        ]),
-        download_completed_time: now,
-        last_verified_time: now,
-        favorite_created_at: favoriteCreatedAt
-      }
+      offline: offlineMetadata
     }
+
+    store.dispatch(addTrackOfflineMetadata(trackToWrite.offline))
+    store.dispatch(
+      cacheActions.add(Kind.TRACKS, [{ id: trackId, metadata: trackFromApi }])
+    )
 
     await writeTrackJson(trackIdStr, trackToWrite)
 
@@ -589,4 +616,9 @@ const downloadIfNotExists = async (
   }).fetch('GET', uri)
 
   return result?.info().status ?? null
+}
+function addTrackOfflineMetadata(
+  offline: import('@audius/common').OfflineTrackMetadata | undefined
+): any {
+  throw new Error('Function not implemented.')
 }
