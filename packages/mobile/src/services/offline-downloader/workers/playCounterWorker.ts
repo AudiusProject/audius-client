@@ -3,6 +3,8 @@ import queue, { Worker } from 'react-native-job-queue'
 
 import { store } from 'app/store'
 
+import { startQueueIfOnline } from './utils'
+
 const { recordListen } = tracksSocialActions
 
 export const PLAY_COUNTER_WORKER = 'play_counter_worker'
@@ -20,7 +22,7 @@ export const setPlayCounterWorker = async (
   queue.stop()
   queue.removeWorker(PLAY_COUNTER_WORKER)
   queue.addWorker(worker)
-  await queue.start()
+  await startQueueIfOnline()
 }
 
 export const playCounterWorker = new Worker(PLAY_COUNTER_WORKER, countPlay)
