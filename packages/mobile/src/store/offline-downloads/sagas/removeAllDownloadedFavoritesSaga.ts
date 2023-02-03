@@ -9,7 +9,7 @@ import type {
 import {
   DOWNLOAD_REASON_FAVORITES,
   cancelQueuedCollectionDownloads,
-  cancelQueuedDownloads
+  cancelQueuedTrackDownloads
 } from 'app/services/offline-downloader'
 
 import {
@@ -71,7 +71,7 @@ function* removeAllDownloadedFavoritesWorker() {
   }
 
   yield* call(cancelQueuedCollectionDownloads, collectionsToDequeue)
-  yield* call(cancelQueuedDownloads, tracksToDequeue)
+  yield* call(cancelQueuedTrackDownloads, tracksToDequeue)
 }
 
 function* removeFavoritedCollections() {
@@ -115,7 +115,6 @@ function* removeFavoritedTracks() {
   const offlineTrackList = Object.keys(offlineTracks).map(
     (offlineTrackId) => offlineTracks[offlineTrackId]
   )
-
   const tracksToRemove: ID[] = []
   const tracksToUpdate: TrackReasonsToUpdate[] = []
   const tracksToDequeue: TrackForDownload[] = []
@@ -135,7 +134,7 @@ function* removeFavoritedTracks() {
 
     const { reasons_for_download } = offline
 
-    const [deletedReasons, remainingReasons] = partition(
+    const [removedReasons, remainingReasons] = partition(
       reasons_for_download,
       (reason) => {
         const { is_from_favorites, collection_id } = reason
@@ -148,7 +147,7 @@ function* removeFavoritedTracks() {
     )
 
     tracksToDequeue.push(
-      ...deletedReasons.map((downloadReason) => ({
+      ...removedReasons.map((downloadReason) => ({
         trackId: track_id,
         downloadReason
       }))

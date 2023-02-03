@@ -45,7 +45,9 @@ const useStyles = makeStyles(({ spacing }) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: spacing(1)
+    marginTop: spacing(1),
+    marginBottom: spacing(2),
+    paddingHorizontal: spacing(2)
   },
   headerLeft: {
     flex: 1
@@ -69,7 +71,8 @@ const useStyles = makeStyles(({ spacing }) => ({
     textTransform: 'uppercase'
   },
   rootLegacy: {
-    marginVertical: spacing(2)
+    marginTop: spacing(2),
+    marginBottom: spacing(3)
   }
 }))
 

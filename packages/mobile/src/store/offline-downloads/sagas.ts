@@ -48,6 +48,7 @@ import {
 import { watchRemoveAllDownloadedFavorites } from './sagas/removeAllDownloadedFavoritesSaga'
 import { watchRemoveCollectionDownloads } from './sagas/removeCollectionDownloadsSaga'
 import { watchRemoveTrackDownloads } from './sagas/removeTrackDownloadsSaga'
+import { requestRemoveDownloadedCollectionSaga } from './sagas/requestRemoveDownloadedCollectionSaga'
 import { watchUpdateTrackDownloadReasons } from './sagas/updateTrackDownloadReasonsSaga'
 import {
   getIsCollectionMarkedForDownload,
@@ -303,7 +304,8 @@ const sagas = () => {
     watchRemoveAllDownloadedFavorites,
     watchRemoveTrackDownloads,
     watchUpdateTrackDownloadReasons,
-    watchRemoveCollectionDownloads
+    watchRemoveCollectionDownloads,
+    requestRemoveDownloadedCollectionSaga
   ]
 }
 

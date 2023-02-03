@@ -35,11 +35,7 @@ const { getPlaying, getUid, getCurrentTrack } = playerSelectors
 const { getIsReachable } = reachabilitySelectors
 
 const messages = {
-  album: 'Album',
-  playlist: 'Playlist',
   empty: 'This playlist is empty.',
-  privatePlaylist: 'Private Playlist',
-  publishing: 'Publishing...',
   detailsPlaceholder: '---'
 }
 
@@ -169,22 +165,6 @@ export const CollectionScreenDetailsTile = ({
     [dispatch, isPlaying, playingUid]
   )
 
-  const headerText = useMemo(() => {
-    if (isPublishing) {
-      return messages.publishing
-    }
-
-    if (isAlbum) {
-      return messages.album
-    }
-
-    if (isPrivate) {
-      return messages.privatePlaylist
-    }
-
-    return messages.playlist
-  }, [isAlbum, isPrivate, isPublishing])
-
   const renderHeader = useCallback(
     () => <CollectionHeader collectionId={collectionId} />,
     [collectionId]
@@ -230,8 +210,7 @@ export const CollectionScreenDetailsTile = ({
       hideRepost={!isReachable}
       isPlaying={isPlaying && isQueued}
       renderBottomContent={renderTrackList}
-      headerText={!isOfflineModeEnabled ? headerText : undefined}
-      renderHeader={isOfflineModeEnabled ? renderHeader : undefined}
+      renderHeader={renderHeader}
       renderImage={renderImage}
       onPressPlay={handlePressPlay}
     />

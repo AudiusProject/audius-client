@@ -58,6 +58,14 @@ export type UpdateTrackDownloadReasonsAction = PayloadAction<{
   reasons: TrackReasonsToUpdate[]
 }>
 
+export type RequestRemoveDownloadedCollectionAction = PayloadAction<{
+  collectionId: ID
+}>
+
+export type RequestRemoveFavoritedDownloadedCollectionAction = PayloadAction<{
+  collectionId: ID
+}>
+
 export enum OfflineDownloadStatus {
   // download is not initiated
   INACTIVE = 'INACTIVE',
@@ -238,7 +246,15 @@ const slice = createSlice({
       state.isDoneLoadingFromDisk = initialState.isDoneLoadingFromDisk
     },
     // Lifecycle actions that trigger complex saga flows
-    removeAllDownloadedFavorites: () => {}
+    removeAllDownloadedFavorites: () => {},
+    requestRemoveDownloadedCollection: (
+      _state,
+      _action: RequestRemoveDownloadedCollectionAction
+    ) => {},
+    requestRemoveFavoritedDownloadedCollection: (
+      _state,
+      _action: RequestRemoveDownloadedCollectionAction
+    ) => {}
   }
 })
 
@@ -264,7 +280,9 @@ export const {
   removeTrackDownloads,
   doneLoadingFromDisk,
   clearOfflineDownloads,
-  removeAllDownloadedFavorites
+  removeAllDownloadedFavorites,
+  requestRemoveDownloadedCollection,
+  requestRemoveFavoritedDownloadedCollection
 } = slice.actions
 export const actions = slice.actions
 

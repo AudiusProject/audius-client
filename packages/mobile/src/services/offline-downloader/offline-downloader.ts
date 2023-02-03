@@ -47,7 +47,7 @@ import { apiClient } from '../audius-api-client'
 
 import {
   cancelQueuedCollectionDownloads,
-  cancelQueuedDownloads,
+  cancelQueuedTrackDownloads,
   enqueueCollectionDownload,
   enqueueTrackDownload
 } from './offline-download-queue'
@@ -475,7 +475,7 @@ export const removeCollectionDownload = async (
 export const batchRemoveTrackDownload = async (
   tracksForDownload: TrackForDownload[]
 ) => {
-  cancelQueuedDownloads(tracksForDownload)
+  cancelQueuedTrackDownloads(tracksForDownload)
   tracksForDownload.forEach(removeTrackDownload)
 }
 

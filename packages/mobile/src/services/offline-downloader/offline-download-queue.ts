@@ -188,7 +188,7 @@ export const cancelQueuedCollectionDownloads = async (
   queue.start()
 }
 
-export const cancelQueuedDownloads = async (
+export const cancelQueuedTrackDownloads = async (
   payloadsToCancel: TrackDownloadWorkerPayload[]
 ) => {
   const payloadsToCancelById = groupBy(
