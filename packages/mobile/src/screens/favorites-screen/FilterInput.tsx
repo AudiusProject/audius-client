@@ -8,7 +8,7 @@ type FilterInputProps = TextInputProps
 
 const useStyles = makeStyles(({ spacing }) => ({
   tileRoot: {
-    margin: spacing(4)
+    marginVertical: spacing(4)
   },
   tile: {
     padding: spacing(2)

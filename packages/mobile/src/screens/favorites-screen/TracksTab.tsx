@@ -16,12 +16,11 @@ import {
 import { isEqual, debounce } from 'lodash'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Tile, VirtualizedScrollView } from 'app/components/core'
+import { PlayBarChin } from 'app/components/core/PlayBarChin'
 import { EmptyTileCTA } from 'app/components/empty-tile-cta'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { TrackList } from 'app/components/track-list'
 import type { TrackMetadata } from 'app/components/track-list/types'
-import { WithLoader } from 'app/components/with-loader/WithLoader'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
@@ -32,13 +31,8 @@ import { OfflineContentBanner } from './OfflineContentBanner'
 import { useFavoritesLineup } from './useFavoritesLineup'
 const { saveTrack, unsaveTrack } = tracksSocialActions
 const { fetchSaves: fetchSavesAction, fetchMoreSaves } = savedPageActions
-const {
-  getSaves,
-  getLocalSaves,
-  getSavedTracksStatus,
-  getInitialFetchStatus,
-  getIsFetchingMore
-} = savedPageSelectors
+const { getSaves, getLocalSaves, getSavedTracksStatus, getIsFetchingMore } =
+  savedPageSelectors
 const { getIsReachable } = reachabilitySelectors
 const { getTrack } = cacheTracksSelectors
 const { getUserFromTrack } = cacheUsersSelectors
@@ -50,19 +44,10 @@ const messages = {
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   container: {
-    marginVertical: spacing(4),
-    marginHorizontal: spacing(3),
-    borderRadius: 6
+    paddingHorizontal: spacing(3)
   },
-  trackListContainer: {
-    backgroundColor: palette.white,
-    borderRadius: 6,
-    overflow: 'hidden'
-  },
-  spinnerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginVertical: 48
+  footer: {
+    marginBottom: spacing(4)
   }
 }))
 
@@ -77,7 +62,6 @@ export const TracksTab = () => {
   const [filterValue, setFilterValue] = useState('')
   const [fetchPage, setFetchPage] = useState(0)
   const savedTracksStatus = useSelector(getSavedTracksStatus)
-  const initialFetch = useSelector(getInitialFetchStatus)
   const isFetchingMore = useSelector(getIsFetchingMore)
   const saves = useSelector(getSaves)
   const localSaves = useSelector(getLocalSaves)
@@ -89,15 +73,9 @@ export const TracksTab = () => {
 
   const isLoading = savedTracksStatus !== Status.SUCCESS
 
-  const debouncedFetchSaves = useMemo(() => {
-    return debounce((filterVal) => {
-      dispatch(fetchSavesAction(filterVal, '', '', 0, FETCH_LIMIT))
-    }, 500)
-  }, [dispatch])
-
   const fetchSaves = useCallback(() => {
-    debouncedFetchSaves(filterValue)
-  }, [debouncedFetchSaves, filterValue])
+    dispatch(fetchSavesAction(filterValue, '', '', 0, FETCH_LIMIT))
+  }, [dispatch, filterValue])
 
   useEffect(() => {
     // Need to fetch saves when the filterValue (by way of fetchSaves) changes
@@ -182,56 +160,67 @@ export const TracksTab = () => {
     [dispatch]
   )
 
+  const handleChangeFilterValue = useMemo(() => {
+    return debounce(setFilterValue, 250)
+  }, [])
+
+  // TODO wrap in callbacks
+  const Spinner = (
+    <LoadingSpinner
+      style={{
+        alignSelf: 'center',
+        marginTop: spacing(1),
+        marginBottom: spacing(8)
+      }}
+    />
+  )
+
+  const TrackListHeader = (
+    <>
+      <OfflineContentBanner />
+      <FilterInput
+        placeholder={messages.inputPlaceholder}
+        onChangeText={handleChangeFilterValue}
+      />
+    </>
+  )
+
+  const TrackListEmpty = () => {
+    if (!isLoading && filteredTrackUids.length === 0 && !filterValue) {
+      if (isOfflineModeEnabled && !isReachable) {
+        return <NoTracksPlaceholder />
+      } else {
+        return <EmptyTileCTA message={messages.emptyTabText} />
+      }
+    }
+
+    return Spinner
+  }
+
+  const TrackListFooter = () => {
+    return (
+      <>
+        {isFetchingMore ? Spinner : null}
+        <PlayBarChin />
+      </>
+    )
+  }
+
   return (
-    <VirtualizedScrollView listKey='favorites-screen'>
-      {!isLoading && filteredTrackUids.length === 0 && !filterValue ? (
-        isOfflineModeEnabled && !isReachable ? (
-          <NoTracksPlaceholder />
-        ) : (
-          <EmptyTileCTA message={messages.emptyTabText} />
-        )
-      ) : (
-        <>
-          <OfflineContentBanner />
-          <FilterInput
-            value={filterValue}
-            placeholder={messages.inputPlaceholder}
-            onChangeText={setFilterValue}
-          />
-          <WithLoader loading={initialFetch}>
-            <>
-              {filteredTrackUids.length ? (
-                <Tile
-                  styles={{
-                    root: styles.container,
-                    tile: styles.trackListContainer
-                  }}
-                >
-                  <TrackList
-                    hideArt
-                    onEndReached={handleMoreFetchSaves}
-                    onEndReachedThreshold={1.5}
-                    onSave={onToggleSave}
-                    showDivider
-                    togglePlay={togglePlay}
-                    trackItemAction='save'
-                    uids={filteredTrackUids}
-                  />
-                </Tile>
-              ) : null}
-              {isFetchingMore ? (
-                <LoadingSpinner
-                  style={{
-                    alignSelf: 'center',
-                    marginTop: spacing(1),
-                    marginBottom: spacing(8)
-                  }}
-                />
-              ) : null}
-            </>
-          </WithLoader>
-        </>
-      )}
-    </VirtualizedScrollView>
+    <TrackList
+      hideArt
+      ListEmptyComponent={TrackListEmpty}
+      ListFooterComponent={TrackListFooter}
+      ListFooterComponentStyle={styles.footer}
+      ListHeaderComponent={TrackListHeader}
+      onEndReached={handleMoreFetchSaves}
+      onEndReachedThreshold={1.5}
+      onSave={onToggleSave}
+      showDivider
+      style={styles.container}
+      togglePlay={togglePlay}
+      trackItemAction='save'
+      uids={filteredTrackUids}
+    />
   )
 }
