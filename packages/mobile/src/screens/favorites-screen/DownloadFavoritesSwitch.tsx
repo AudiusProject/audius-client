@@ -1,12 +1,12 @@
 import { useCallback } from 'react'
 
 import { reachabilitySelectors } from '@audius/common'
-import { debounce } from 'lodash'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Switch } from 'app/components/core'
 import { DownloadStatusIndicator } from 'app/components/offline-downloads/DownloadStatusIndicator'
+import { useDebouncedCallback } from 'app/hooks/useDebouncedCallback'
 import { useProxySelector } from 'app/hooks/useProxySelector'
 import {
   downloadAllFavorites,
@@ -79,9 +79,8 @@ export const DownloadFavoritesSwitch = () => {
 
   const downloadStatus = getDownloadStatus()
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleToggleDownload = useCallback(
-    debounce((isDownloadEnabled: boolean) => {
+    (isDownloadEnabled: boolean) => {
       if (isDownloadEnabled) {
         downloadAllFavorites()
       } else {
@@ -92,8 +91,13 @@ export const DownloadFavoritesSwitch = () => {
           })
         )
       }
-    }, 800),
+    },
     [dispatch]
+  )
+
+  const debouncedHandleToggleDownload = useDebouncedCallback(
+    handleToggleDownload,
+    800
   )
 
   return (
@@ -104,7 +108,7 @@ export const DownloadFavoritesSwitch = () => {
       />
       <Switch
         defaultValue={isMarkedForDownload}
-        onValueChange={handleToggleDownload}
+        onValueChange={debouncedHandleToggleDownload}
         disabled={!isReachable && !isMarkedForDownload}
       />
     </View>
