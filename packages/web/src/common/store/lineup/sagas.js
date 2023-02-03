@@ -394,7 +394,7 @@ function* reset(
           const trackUid = new Uid(
             Kind.TRACKS,
             trackId,
-            makeCollectionSourceId(source, collection.playlist_id),
+            Uid.makeCollectionSourceId(source, collection.playlist_id),
             idx
           )
           return { UID: trackUid.toString() }
