@@ -136,7 +136,7 @@ export const Audio = () => {
   const queueShuffle = useSelector(getShuffle)
   const queueOrder = useSelector(getOrder)
   const queueSource = useSelector(getSource)
-  const collectionId = useSelector(getCollectionId)
+  const queueCollectionId = useSelector(getCollectionId)
   const queueTrackUids = queueOrder.map((trackData) => trackData.uid)
   const queueTrackIds = queueOrder.map((trackData) => trackData.id)
   const queueTrackMap = useSelector(
@@ -156,7 +156,7 @@ export const Audio = () => {
     getIsCollectionMarkedForDownload(
       queueSource === savedPageTracksLineupActions.prefix
         ? DOWNLOAD_REASON_FAVORITES
-        : collectionId?.toString()
+        : queueCollectionId?.toString()
     )
   )
   const wasCollectionMarkedForDownload = usePrevious(
@@ -391,7 +391,7 @@ export const Audio = () => {
         // Get Track url
         let url: string
         let isM3u8 = false
-        if (offlineTrackAvailable) {
+        if (offlineTrackAvailable && isCollectionMarkedForDownload) {
           const audioFilePath = getLocalAudioPath(trackId)
           url = `file://${audioFilePath}`
         } else if (isStreamMp3Enabled && isReachable) {
@@ -461,7 +461,8 @@ export const Audio = () => {
     queueTrackOwnersMap,
     queueTrackUids,
     queueTracks,
-    didOfflineToggleChange
+    didOfflineToggleChange,
+    isCollectionMarkedForDownload
   ])
 
   const handleQueueIdxChange = useCallback(async () => {
