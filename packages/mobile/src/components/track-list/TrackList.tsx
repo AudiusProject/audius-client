@@ -75,6 +75,7 @@ export const TrackList = ({
           <TrackListItem
             id={ids && (item as ID)}
             index={index}
+            isLast={index === data.length - 1}
             drag={drag}
             hideArt={hideArt}
             isReorderable={isReorderable}
@@ -93,6 +94,7 @@ export const TrackList = ({
       },
       [
         hideArt,
+        data,
         ids,
         isReorderable,
         noDividerMargin,
@@ -138,8 +140,8 @@ export const TrackList = ({
     <FlatList
       {...otherProps}
       data={data}
-      renderItem={renderTrack}
       keyExtractor={keyExtractor}
+      renderItem={renderTrack}
     />
   )
 }

@@ -50,14 +50,8 @@ const messages = {
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   container: {
-    marginVertical: spacing(4),
-    marginHorizontal: spacing(3),
-    borderRadius: 6
-  },
-  trackListContainer: {
-    backgroundColor: palette.white,
-    borderRadius: 6,
-    overflow: 'hidden'
+    marginBottom: spacing(4),
+    marginHorizontal: spacing(3)
   },
   spinnerContainer: {
     flexDirection: 'row',
@@ -89,15 +83,9 @@ export const TracksTab = () => {
 
   const isLoading = savedTracksStatus !== Status.SUCCESS
 
-  const debouncedFetchSaves = useMemo(() => {
-    return debounce((filterVal) => {
-      dispatch(fetchSavesAction(filterVal, '', '', 0, FETCH_LIMIT))
-    }, 500)
-  }, [dispatch])
-
   const fetchSaves = useCallback(() => {
-    debouncedFetchSaves(filterValue)
-  }, [debouncedFetchSaves, filterValue])
+    dispatch(fetchSavesAction(filterValue, '', '', 0, FETCH_LIMIT))
+  }, [dispatch, filterValue])
 
   useEffect(() => {
     // Need to fetch saves when the filterValue (by way of fetchSaves) changes
@@ -182,6 +170,10 @@ export const TracksTab = () => {
     [dispatch]
   )
 
+  const handleChangeFilterValue = useMemo(() => {
+    return debounce(setFilterValue, 250)
+  }, [])
+
   return (
     <VirtualizedScrollView listKey='favorites-screen'>
       {!isLoading && filteredTrackUids.length === 0 && !filterValue ? (
@@ -194,17 +186,15 @@ export const TracksTab = () => {
         <>
           <OfflineContentBanner />
           <FilterInput
-            value={filterValue}
             placeholder={messages.inputPlaceholder}
-            onChangeText={setFilterValue}
+            onChangeText={handleChangeFilterValue}
           />
           <WithLoader loading={initialFetch}>
             <>
               {filteredTrackUids.length ? (
                 <Tile
                   styles={{
-                    root: styles.container,
-                    tile: styles.trackListContainer
+                    root: styles.container
                   }}
                 >
                   <TrackList
