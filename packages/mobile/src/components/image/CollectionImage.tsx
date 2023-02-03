@@ -1,7 +1,5 @@
 import type { Collection, Nullable, SquareSizes, User } from '@audius/common'
 import { cacheUsersSelectors } from '@audius/common'
-import type { ImageProps } from 'react-native'
-import { Image } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import imageEmpty from 'app/assets/images/imageBlank2x.png'
