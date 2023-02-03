@@ -22,7 +22,6 @@ import type {
   DetailsTileProps
 } from 'app/components/details-tile/types'
 import { TrackList } from 'app/components/track-list'
-import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { make, track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 import { formatCount } from 'app/utils/format'
@@ -88,7 +87,6 @@ export const CollectionScreenDetailsTile = ({
   const styles = useStyles()
   const dispatch = useDispatch()
 
-  const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const isReachable = useSelector(getIsReachable)
 
   const collectionUid = useSelector(getCollectionUid)
