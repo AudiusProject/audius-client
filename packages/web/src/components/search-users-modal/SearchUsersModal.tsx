@@ -31,6 +31,7 @@ import { useDebounce } from 'react-use'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { InputV2, InputV2Size } from 'components/data-entry/InputV2'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 
 import styles from './SearchUsersModal.module.css'
 
@@ -79,10 +80,9 @@ export const SearchUsersModal = (props: SearchUsersModalProps) => {
   const { userIds, hasMore, status } = useSelector(getUserList)
   const users = useProxySelector(
     (state) => {
-      const users = getUsers(state, {
-        ids: hasQuery ? userIds : defaultUserList.userIds
-      })
-      return Object.values(users)
+      const ids = hasQuery ? userIds : defaultUserList.userIds
+      const users = getUsers(state, { ids })
+      return ids.map((id) => users[id])
     },
     [hasQuery, userIds]
   )
@@ -108,7 +108,7 @@ export const SearchUsersModal = (props: SearchUsersModalProps) => {
   )
 
   const handleLoadMore = useCallback(() => {
-    if (status !== Status.LOADING || defaultUserList.loading) {
+    if (status === Status.LOADING || defaultUserList.loading) {
       return
     }
     if (hasQuery) {
@@ -152,6 +152,8 @@ export const SearchUsersModal = (props: SearchUsersModalProps) => {
             initialLoad
             hasMore={hasQuery ? hasMore : defaultUserList.hasMore}
             getScrollParent={() => scrollParentRef.current}
+            loader={<LoadingSpinner className={styles.spinner} />}
+            threshold={48}
           >
             {users.map((user) => renderUser(user, handleClose))}
           </InfiniteScroll>

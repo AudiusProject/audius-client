@@ -23,3 +23,9 @@
 .iconLight path {
   fill: var(--neutral-light-4);
 }
+
+.spinner {
+  width: var(--unit-12);
+  height: var(--unit-12);
+  margin: var(--unit-4) auto;
+}

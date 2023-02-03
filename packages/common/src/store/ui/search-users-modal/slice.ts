@@ -8,7 +8,6 @@ export type SearchUsersModalState = {
     userIds: ID[]
     hasMore: boolean
     status: Status
-    cursor: number
   }
   lastQuery?: string
 }
@@ -17,8 +16,7 @@ const initialState: SearchUsersModalState = {
   userList: {
     userIds: [],
     hasMore: true,
-    status: Status.IDLE,
-    cursor: 0
+    status: Status.IDLE
   }
 }
 
@@ -34,7 +32,6 @@ const slice = createSlice({
       const { query } = action.payload
       if (state.lastQuery !== query) {
         state.userList.userIds = []
-        state.userList.cursor = 0
         state.lastQuery = query
       }
       state.userList.status = Status.LOADING
@@ -48,8 +45,6 @@ const slice = createSlice({
       )
       state.userList.status = Status.SUCCESS
       state.userList.hasMore = action.payload.userIds.length > 0
-      state.userList.cursor =
-        state.userList.cursor + state.userList.userIds.length
     }
   }
 })

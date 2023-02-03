@@ -22,7 +22,7 @@ function* doSearchUsers(action: ReturnType<typeof searchUsers>) {
       currentUserId,
       query,
       kind: SearchKind.USERS,
-      offset: userList.cursor,
+      offset: userList.userIds.length,
       limit
     })
     const users = Object.values(res.users) as User[]
