@@ -405,7 +405,7 @@ const UnlockedPremiumTrackSection = ({
 
     // should not reach here
     return null
-  }, [premiumConditions, followee, tippedUser, goToCollection])
+  }, [premiumConditions, isOwner, followee, tippedUser, goToCollection])
 
   return (
     <div className={styles.premiumContentSectionUnlocked}>
