@@ -12,6 +12,8 @@ import {
 } from '../offline-downloader'
 import type { TrackForDownload } from '../types'
 
+import { startQueueIfOnline } from './utils'
+
 export const TRACK_DOWNLOAD_WORKER = 'track_download_worker'
 export type TrackDownloadWorkerPayload = TrackForDownload
 
@@ -38,12 +40,21 @@ const onFailure = async (
       } catch (e) {
         console.warn(e)
       }
-      queue.start()
+      startQueueIfOnline()
       break
     }
     default:
       break
   }
+}
+
+export const setTrackDownloadWorker = async (
+  worker: Worker<TrackDownloadWorkerPayload>
+) => {
+  queue.stop()
+  queue.removeWorker(TRACK_DOWNLOAD_WORKER)
+  queue.addWorker(worker)
+  await startQueueIfOnline()
 }
 
 const executor = (payload: TrackDownloadWorkerPayload) => {

@@ -217,7 +217,8 @@ export function* startSync() {
 }
 
 export function* handleSetReachable() {
-  // yield* call(setPlayCounterWorker, playCounterWorker)
+  // Why do we do this?
+  yield* call(setPlayCounterWorker, playCounterWorker)
 }
 
 export function* watchSetReachable() {
@@ -225,7 +226,8 @@ export function* watchSetReachable() {
 }
 
 export function* handleSetUnreachable() {
-  // yield* all([call(setPlayCounterWorker, blockedPlayCounterWorker), call(setDownloadCollectionWorker)
+  // Why do we do this?
+  yield* call(setPlayCounterWorker, blockedPlayCounterWorker)
 }
 
 export function* watchSetUnreachable() {
