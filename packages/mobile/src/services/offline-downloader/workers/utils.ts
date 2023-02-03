@@ -9,7 +9,6 @@ export const startQueueIfOnline = async () => {
   const state = store.getState()
   const reachable = getIsReachable(state)
   if (reachable) {
-    console.log('actually starting queue')
     return queue.start()
   }
 }
