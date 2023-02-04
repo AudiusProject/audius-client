@@ -1905,8 +1905,7 @@ export const audiusBackend = ({
     password,
     formFields,
     hasWallet = false,
-    referrer = null,
-    feePayerOverride = null
+    referrer = null
   }: {
     email: string
     password: string
@@ -1920,7 +1919,6 @@ export const audiusBackend = ({
     }
     hasWallet: boolean
     referrer: Nullable<ID>
-    feePayerOverride: Nullable<string>
   }) {
     await waitForLibsInit()
     const metadata = schemas.newUserMetadata()
