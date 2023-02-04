@@ -318,8 +318,6 @@ function* signUp() {
 
   yield call(audiusBackendInstance.setUserHandleForRelay, handle)
 
-  const feePayerOverride = yield select(getFeePayer)
-
   yield put(
     confirmerActions.requestConfirmation(
       handle,
@@ -330,8 +328,7 @@ function* signUp() {
             password,
             formFields: createUserMetadata,
             hasWallet: alreadyExisted,
-            referrer,
-            feePayerOverride
+            referrer
           })
 
         if (error) {
