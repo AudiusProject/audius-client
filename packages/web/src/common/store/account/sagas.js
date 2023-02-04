@@ -130,14 +130,6 @@ function* onSignedIn({ payload: { account, isSignUp = false } }) {
     audiusBackendInstance,
     feePayerOverride
   )
-  if (!isSignUp) {
-    yield call(
-      createUserBankIfNeeded,
-      analytics.track,
-      audiusBackendInstance,
-      feePayerOverride
-    )
-  }
 
   // Repair users from flare-101 that were impacted and lost connected wallets
   // TODO: this should be removed after sufficient time has passed or users have gotten
