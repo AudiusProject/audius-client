@@ -1,11 +1,20 @@
 import type {
   DownloadReason,
   ID,
+  OfflineCollectionMetadata,
+  OfflineTrackMetadata,
   Track,
   UserTrackMetadata
 } from '@audius/common'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
+import { persistReducer } from 'redux-persist'
+
+import type {
+  CollectionForDownload,
+  TrackForDownload
+} from 'app/services/offline-downloader'
 
 export type CollectionId = ID | string
 
@@ -30,6 +39,9 @@ export type OfflineDownloadsState = {
     [key: string]: LineupTrack
   }
   isDoneLoadingFromDisk: boolean
+  downloadQueue: (TrackForDownload | CollectionForDownload)[]
+  offlineTrackMetadata: Record<ID, OfflineTrackMetadata>
+  offlineCollectionMetadata: Record<ID, OfflineCollectionMetadata>
 }
 
 export type RemoveCollectionDownloadsAction = PayloadAction<{
@@ -87,7 +99,10 @@ const initialState: OfflineDownloadsState = {
   tracks: {},
   collectionStatus: {},
   favoritedCollectionStatus: {},
-  isDoneLoadingFromDisk: false
+  isDoneLoadingFromDisk: false,
+  downloadQueue: [],
+  offlineCollectionMetadata: {},
+  offlineTrackMetadata: {}
 }
 
 const slice = createSlice({
@@ -286,4 +301,15 @@ export const {
 } = slice.actions
 export const actions = slice.actions
 
-export default slice.reducer
+const offlineDownloadsPersistConfig = {
+  key: 'offline-downloads',
+  storage: AsyncStorage,
+  blacklist: ['tracks', 'isDoneLoadingFromDisk']
+}
+
+const persistedOfflineDownloadsReducer = persistReducer(
+  offlineDownloadsPersistConfig,
+  slice.reducer
+)
+
+export default persistedOfflineDownloadsReducer
