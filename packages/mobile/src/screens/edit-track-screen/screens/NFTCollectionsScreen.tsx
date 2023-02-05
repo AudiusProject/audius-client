@@ -8,10 +8,10 @@ import { useSelector } from 'react-redux'
 
 import IconImage from 'app/assets/images/iconImage.svg'
 import { Button, Text } from 'app/components/core'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles, typography } from 'app/styles'
 
 import { ListSelectionScreen } from './ListSelectionScreen'
-import { useNavigation } from 'app/hooks/useNavigation'
 
 const messages = {
   collections: 'COLLECTIONS',
@@ -135,7 +135,7 @@ export const NFTCollectionsScreen = () => {
   )
 
   const handleSubmit = useCallback(() => {
-    if (!!premiumConditions?.nft_collection) {
+    if (premiumConditions?.nft_collection) {
       navigation.goBack()
     }
   }, [premiumConditions, navigation])

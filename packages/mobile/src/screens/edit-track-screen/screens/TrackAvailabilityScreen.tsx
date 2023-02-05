@@ -8,8 +8,10 @@ import { useSelector } from 'react-redux'
 
 import IconHidden from 'app/assets/images/iconHidden.svg'
 import IconQuestionCircle from 'app/assets/images/iconQuestionCircle.svg'
+import { Button } from 'app/components/core'
 import { useIsNFTGateEnabled } from 'app/hooks/useIsNFTGateEnabled'
 import { useIsSpecialAccessGateEnabled } from 'app/hooks/useIsSpecialAccessGateEnabled'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
 
@@ -21,8 +23,6 @@ import type { RemixOfField } from '../types'
 
 import type { ListSelectionData } from './ListSelectionScreen'
 import { ListSelectionScreen } from './ListSelectionScreen'
-import { Button } from 'app/components/core'
-import { useNavigation } from 'app/hooks/useNavigation'
 
 const messages = {
   title: 'Availability',
@@ -168,7 +168,11 @@ export const TrackAvailabilityScreen = () => {
    * - user has selected a collection for this collectible gated track
    */
   const handleSubmit = useCallback(() => {
-    if (!premiumConditions || !('nft_collection' in premiumConditions) || !!premiumConditions.nft_collection) {
+    if (
+      !premiumConditions ||
+      !('nft_collection' in premiumConditions) ||
+      !!premiumConditions.nft_collection
+    ) {
       navigation.goBack()
     }
   }, [premiumConditions, navigation])
@@ -192,7 +196,13 @@ export const TrackAvailabilityScreen = () => {
           fullWidth
           title={messages.done}
           onPress={handleSubmit}
-          disabled={!!(premiumConditions && ('nft_collection' in premiumConditions) && !premiumConditions.nft_collection)}
+          disabled={
+            !!(
+              premiumConditions &&
+              'nft_collection' in premiumConditions &&
+              !premiumConditions.nft_collection
+            )
+          }
         />
       }
     />
