@@ -31,6 +31,7 @@ export type ListSelectionProps = {
   itemStyles?: ViewStyle
   itemContentStyles?: ViewStyle
   header?: ReactNode
+  bottomSection?: ReactNode
 }
 
 const messages = {
@@ -82,7 +83,8 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
     hideSelectionLabel = false,
     itemStyles,
     itemContentStyles,
-    header
+    header,
+    bottomSection
   } = props
 
   const styles = useStyles()
@@ -157,6 +159,7 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
       icon={icon}
       variant='white'
       style={styles.root}
+      bottomSection={bottomSection}
     >
       <View style={styles.content}>
         {header}

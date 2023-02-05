@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import type { Nullable, PremiumConditions } from '@audius/common'
 import { TrackAvailabilityType, collectiblesSelectors } from '@audius/common'
@@ -21,6 +21,8 @@ import type { RemixOfField } from '../types'
 
 import type { ListSelectionData } from './ListSelectionScreen'
 import { ListSelectionScreen } from './ListSelectionScreen'
+import { Button } from 'app/components/core'
+import { useNavigation } from 'app/hooks/useNavigation'
 
 const messages = {
   title: 'Availability',
@@ -33,7 +35,8 @@ const messages = {
   showShareButton: 'Show Share Button',
   showPlayCount: 'Show Play Count',
   markedAsRemix:
-    'This track is marked as a remix. To enable additional availability options, unmark within Remix Settings.'
+    'This track is marked as a remix. To enable additional availability options, unmark within Remix Settings.',
+  done: 'Done'
 }
 
 const { getVerifiedUserCollections } = collectiblesSelectors
@@ -85,6 +88,7 @@ export const TrackAvailabilityScreen = () => {
   const isSpecialAccessGateEnabled = useIsSpecialAccessGateEnabled()
   const isNFTGateEnabled = useIsNFTGateEnabled()
 
+  const navigation = useNavigation()
   const [{ value: isPremium }] = useField<boolean>('is_premium')
   const [{ value: premiumConditions }] =
     useField<Nullable<PremiumConditions>>('premium_conditions')
@@ -158,6 +162,17 @@ export const TrackAvailabilityScreen = () => {
     )
   }
 
+  /**
+   * Only navigate back if:
+   * - track is not collectible gated, or
+   * - user has selected a collection for this collectible gated track
+   */
+  const handleSubmit = useCallback(() => {
+    if (!premiumConditions || !('nft_collection' in premiumConditions) || !!premiumConditions.nft_collection) {
+      navigation.goBack()
+    }
+  }, [premiumConditions, navigation])
+
   return (
     <ListSelectionScreen
       data={data}
@@ -170,6 +185,16 @@ export const TrackAvailabilityScreen = () => {
       allowDeselect={false}
       hideSelectionLabel
       header={<MarkedAsRemix />}
+      bottomSection={
+        <Button
+          variant='primary'
+          size='large'
+          fullWidth
+          title={messages.done}
+          onPress={handleSubmit}
+          disabled={!!(premiumConditions && ('nft_collection' in premiumConditions) && !premiumConditions.nft_collection)}
+        />
+      }
     />
   )
 }
