@@ -13,7 +13,10 @@ import {
 } from 'app/services/offline-downloader'
 import { setVisibility } from 'app/store/drawers/slice'
 import { getOfflineDownloadStatus } from 'app/store/offline-downloads/selectors'
-import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
+import {
+  OfflineDownloadStatus,
+  requestDownloadAllFavorites
+} from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
 const { getIsReachable } = reachabilitySelectors
 
@@ -81,7 +84,7 @@ export const DownloadFavoritesSwitch = () => {
   const handleToggleDownload = useCallback(
     (isDownloadEnabled: boolean) => {
       if (isDownloadEnabled) {
-        downloadAllFavorites()
+        dispatch(requestDownloadAllFavorites())
       } else {
         dispatch(
           setVisibility({

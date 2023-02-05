@@ -16,6 +16,14 @@ import type {
   TrackForDownload
 } from 'app/services/offline-downloader'
 
+import { getOfflineTrackMetadata } from './selectors'
+import {
+  addOfflineCollection,
+  addOfflineTrack,
+  removeOfflineCollection,
+  removeOfflineTrack
+} from './utils'
+
 export type CollectionId = ID | string
 
 type CollectionStatusPayload = {
@@ -24,6 +32,8 @@ type CollectionStatusPayload = {
 }
 
 type LineupTrack = Track & UserTrackMetadata
+
+export type DownloadQueueItem = TrackForDownload | CollectionForDownload
 
 export type OfflineDownloadsState = {
   downloadStatus: {
@@ -39,7 +49,7 @@ export type OfflineDownloadsState = {
     [key: string]: LineupTrack
   }
   isDoneLoadingFromDisk: boolean
-  downloadQueue: (TrackForDownload | CollectionForDownload)[]
+  downloadQueue: { type: 'collection' | 'track'; id: ID }[]
   offlineTrackMetadata: Record<ID, OfflineTrackMetadata>
   offlineCollectionMetadata: Record<ID, OfflineCollectionMetadata>
 }
@@ -76,6 +86,28 @@ export type RequestRemoveDownloadedCollectionAction = PayloadAction<{
 
 export type RequestRemoveFavoritedDownloadedCollectionAction = PayloadAction<{
   collectionId: ID
+}>
+
+export type AddOfflineItemsAction = PayloadAction<{
+  items: Array<
+    | { type: 'track'; id: ID; metadata: OfflineTrackMetadata }
+    | {
+        type: 'collection'
+        id: CollectionId
+        metadata: OfflineCollectionMetadata
+      }
+  >
+}>
+
+export type RemoveOfflineItemsAction = PayloadAction<{
+  items: Array<
+    | { type: 'track'; id: ID; metadata: OfflineTrackMetadata }
+    | {
+        type: 'collection'
+        id: CollectionId
+        metadata: OfflineCollectionMetadata
+      }
+  >
 }>
 
 export enum OfflineDownloadStatus {
@@ -251,6 +283,71 @@ const slice = createSlice({
         delete state.downloadStatus[trackId]
       })
     },
+    addOfflineItems: (state, action: AddOfflineItemsAction) => {
+      const { items } = action.payload
+      const {
+        offlineTrackMetadata,
+        downloadStatus,
+        downloadQueue,
+        offlineCollectionMetadata,
+        collectionStatus
+      } = state
+      for (const item of items) {
+        if (item.type === 'track') {
+          const { type, id, metadata } = item
+          addOfflineTrack(offlineTrackMetadata, id, metadata)
+
+          if (!downloadStatus[id]) {
+            downloadStatus[id] = OfflineDownloadStatus.INIT
+            downloadQueue.push({ type, id })
+          }
+        } else if (item.type === 'collection') {
+          const { type, id, metadata } = item
+          addOfflineCollection(offlineCollectionMetadata, id, metadata)
+
+          if (!collectionStatus[id]) {
+            collectionStatus[id] = OfflineDownloadStatus.INIT
+            downloadQueue.push({ type, id })
+          }
+        }
+      }
+    },
+    removeOfflineItems: (state, action: RemoveOfflineItemsAction) => {
+      const { items } = action.payload
+      const {
+        offlineTrackMetadata,
+        downloadStatus,
+        downloadQueue,
+        offlineCollectionMetadata,
+        collectionStatus
+      } = state
+
+      for (const item of items) {
+        if (item.type === 'track') {
+          const { type, id, metadata } = item
+          removeOfflineTrack(offlineTrackMetadata, id, metadata)
+
+          if (!offlineTrackMetadata[id]) {
+            delete downloadStatus[id]
+            const queueIndex = downloadQueue.findIndex(
+              (queueItem) => queueItem.type === type && queueItem.id === id
+            )
+            downloadQueue.splice(queueIndex, 1)
+          }
+        } else if (item.type === 'collection') {
+          const { type, id, metadata } = item
+          removeOfflineCollection(offlineCollectionMetadata, id, metadata)
+
+          if (!offlineCollectionMetadata[id]) {
+            delete collectionStatus[id]
+            const queueIndex = downloadQueue.findIndex(
+              (queueItem) => queueItem.type === type && queueItem.id === id
+            )
+            downloadQueue.splice(queueIndex, 1)
+          }
+        }
+      }
+    },
     doneLoadingFromDisk: (state) => {
       state.isDoneLoadingFromDisk = true
     },
@@ -259,8 +356,12 @@ const slice = createSlice({
       state.tracks = initialState.tracks
       state.downloadStatus = initialState.downloadStatus
       state.isDoneLoadingFromDisk = initialState.isDoneLoadingFromDisk
+      state.downloadQueue = initialState.downloadQueue
+      state.offlineTrackMetadata = initialState.offlineTrackMetadata
+      state.offlineCollectionMetadata = initialState.offlineCollectionMetadata
     },
     // Lifecycle actions that trigger complex saga flows
+    requestDownloadAllFavorites: () => {},
     removeAllDownloadedFavorites: () => {},
     requestRemoveDownloadedCollection: (
       _state,
@@ -293,8 +394,11 @@ export const {
   unloadTrack,
   updateTrackDownloadReasons,
   removeTrackDownloads,
+  addOfflineItems,
+  removeOfflineItems,
   doneLoadingFromDisk,
   clearOfflineDownloads,
+  requestDownloadAllFavorites,
   removeAllDownloadedFavorites,
   requestRemoveDownloadedCollection,
   requestRemoveFavoritedDownloadedCollection

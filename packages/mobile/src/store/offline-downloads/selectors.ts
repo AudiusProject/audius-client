@@ -35,3 +35,9 @@ export const getOfflineFavoritedCollections = (
 
 export const getIsDoneLoadingFromDisk = (state: AppState): boolean =>
   state.offlineDownloads.isDoneLoadingFromDisk
+
+export const getOfflineTrackMetadata = (state: AppState) =>
+  state.offlineDownloads.offlineTrackMetadata
+
+export const getOfflineCollectionMetadata = (state: AppState) =>
+  state.offlineDownloads.offlineCollectionMetadata

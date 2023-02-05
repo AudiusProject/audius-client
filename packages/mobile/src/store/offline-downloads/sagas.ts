@@ -48,6 +48,7 @@ import {
 import { watchRemoveAllDownloadedFavorites } from './sagas/removeAllDownloadedFavoritesSaga'
 import { watchRemoveCollectionDownloads } from './sagas/removeCollectionDownloadsSaga'
 import { watchRemoveTrackDownloads } from './sagas/removeTrackDownloadsSaga'
+import { requestDownloadAllFavoritesSaga } from './sagas/requestDownloadAllFavoritesSaga'
 import { requestRemoveDownloadedCollectionSaga } from './sagas/requestRemoveDownloadedCollectionSaga'
 import { watchUpdateTrackDownloadReasons } from './sagas/updateTrackDownloadReasonsSaga'
 import {
@@ -305,6 +306,7 @@ const sagas = () => {
     watchRemoveTrackDownloads,
     watchUpdateTrackDownloadReasons,
     watchRemoveCollectionDownloads,
+    requestDownloadAllFavoritesSaga,
     requestRemoveDownloadedCollectionSaga
   ]
 }
