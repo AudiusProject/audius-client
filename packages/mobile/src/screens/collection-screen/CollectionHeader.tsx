@@ -2,11 +2,8 @@ import { useCallback } from 'react'
 
 import type { Collection, SmartCollectionVariant } from '@audius/common'
 import {
-  FavoriteSource,
-  accountSelectors,
   reachabilitySelectors,
   collectionPageSelectors,
-  collectionsSocialActions,
   Variant
 } from '@audius/common'
 import { View } from 'react-native'
@@ -17,17 +14,15 @@ import { getCollectionDownloadStatus } from 'app/components/offline-downloads/Co
 import { DownloadStatusIndicator } from 'app/components/offline-downloads/DownloadStatusIndicator'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useProxySelector } from 'app/hooks/useProxySelector'
-import {
-  batchDownloadCollection,
-  DOWNLOAD_REASON_FAVORITES
-} from 'app/services/offline-downloader'
+import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 import { setVisibility } from 'app/store/drawers/slice'
 import { getIsCollectionMarkedForDownload } from 'app/store/offline-downloads/selectors'
-import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
+import {
+  OfflineDownloadStatus,
+  requestDownloadCollection
+} from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
-const { getUserId } = accountSelectors
 const { getCollection } = collectionPageSelectors
-const { saveCollection } = collectionsSocialActions
 const { getIsReachable } = reachabilitySelectors
 
 const messages = {
@@ -135,7 +130,6 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
   const { collection, headerText } = props
   const { playlist_id } = collection
   const dispatch = useDispatch()
-  const currentUserId = useSelector(getUserId)
   const isReachable = useSelector(getIsReachable)
 
   const isMarkedForDownload = useSelector(
@@ -157,16 +151,7 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
   const handleToggleDownload = useCallback(
     (isDownloadEnabled: boolean) => {
       if (isDownloadEnabled) {
-        batchDownloadCollection([collection], false)
-        const isOwner = currentUserId === collection.playlist_owner_id
-        if (!collection.has_current_user_saved && !isOwner) {
-          dispatch(
-            saveCollection(
-              collection.playlist_id,
-              FavoriteSource.OFFLINE_DOWNLOAD
-            )
-          )
-        }
+        dispatch(requestDownloadCollection({ collectionId: playlist_id }))
       } else {
         dispatch(
           setVisibility({
@@ -177,7 +162,7 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
         )
       }
     },
-    [collection, currentUserId, dispatch, playlist_id]
+    [dispatch, playlist_id]
   )
 
   const getTextColor = () => {

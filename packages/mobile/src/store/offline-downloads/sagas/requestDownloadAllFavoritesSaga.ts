@@ -5,7 +5,7 @@ import { fetchAllFavoritedTracks } from 'app/hooks/useFetchAllFavoritedTracks'
 import { getAccountCollections } from 'app/screens/favorites-screen/selectors'
 import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 
-import type { AddOfflineItemsAction } from '../slice'
+import type { OfflineItem } from '../slice'
 import { addOfflineItems, requestDownloadAllFavorites } from '../slice'
 
 const { getUserId } = accountSelectors
@@ -18,7 +18,7 @@ function* downloadAllFavorites() {
   const currentUserId = yield* select(getUserId)
   if (!currentUserId) return
 
-  const offlineItemsToAdd: AddOfflineItemsAction['payload']['items'] = []
+  const offlineItemsToAdd: OfflineItem[] = []
 
   offlineItemsToAdd.push({
     type: 'collection',

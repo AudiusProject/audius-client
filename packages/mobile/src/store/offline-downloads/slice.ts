@@ -88,26 +88,24 @@ export type RequestRemoveFavoritedDownloadedCollectionAction = PayloadAction<{
   collectionId: ID
 }>
 
+export type OfflineItem =
+  | { type: 'track'; id: ID; metadata: OfflineTrackMetadata }
+  | {
+      type: 'collection'
+      id: CollectionId
+      metadata: OfflineCollectionMetadata
+    }
+
 export type AddOfflineItemsAction = PayloadAction<{
-  items: Array<
-    | { type: 'track'; id: ID; metadata: OfflineTrackMetadata }
-    | {
-        type: 'collection'
-        id: CollectionId
-        metadata: OfflineCollectionMetadata
-      }
-  >
+  items: OfflineItem[]
 }>
 
 export type RemoveOfflineItemsAction = PayloadAction<{
-  items: Array<
-    | { type: 'track'; id: ID; metadata: OfflineTrackMetadata }
-    | {
-        type: 'collection'
-        id: CollectionId
-        metadata: OfflineCollectionMetadata
-      }
-  >
+  items: OfflineItem[]
+}>
+
+export type CollectionAction = PayloadAction<{
+  collectionId: ID
 }>
 
 export enum OfflineDownloadStatus {
@@ -362,6 +360,11 @@ const slice = createSlice({
     },
     // Lifecycle actions that trigger complex saga flows
     requestDownloadAllFavorites: () => {},
+    requestDownloadCollection: (_state, _action: CollectionAction) => {},
+    requestDownloadFavoritedCollection: (
+      _state,
+      _action: CollectionAction
+    ) => {},
     removeAllDownloadedFavorites: () => {},
     requestRemoveDownloadedCollection: (
       _state,
@@ -399,6 +402,8 @@ export const {
   doneLoadingFromDisk,
   clearOfflineDownloads,
   requestDownloadAllFavorites,
+  requestDownloadCollection,
+  requestDownloadFavoritedCollection,
   removeAllDownloadedFavorites,
   requestRemoveDownloadedCollection,
   requestRemoveFavoritedDownloadedCollection
@@ -408,7 +413,7 @@ export const actions = slice.actions
 const offlineDownloadsPersistConfig = {
   key: 'offline-downloads',
   storage: AsyncStorage,
-  blacklist: ['tracks', 'isDoneLoadingFromDisk']
+  blacklist: ['tracks', 'isDoneLoadingFromDisk', 'favoritedCollectionStatus']
 }
 
 const persistedOfflineDownloadsReducer = persistReducer(

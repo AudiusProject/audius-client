@@ -6,7 +6,7 @@ import {
   getOfflineCollectionMetadata,
   getOfflineTrackMetadata
 } from '../selectors'
-import type { RemoveOfflineItemsAction } from '../slice'
+import type { OfflineItem } from '../slice'
 import { removeOfflineItems, removeAllDownloadedFavorites } from '../slice'
 
 /*
@@ -14,7 +14,7 @@ import { removeOfflineItems, removeAllDownloadedFavorites } from '../slice'
  * This includes the "favorites" collection and all collections that were
  * not explicitly downloaded by the user previously.
  */
-export function* watchRemoveAllDownloadedFavorites() {
+export function* requestRemoveAllDownloadedFavoritesSaga() {
   yield* takeEvery(
     removeAllDownloadedFavorites.type,
     removeAllDownloadedFavoritesWorker
@@ -22,7 +22,7 @@ export function* watchRemoveAllDownloadedFavorites() {
 }
 
 function* removeAllDownloadedFavoritesWorker() {
-  const offlineItemsToRemove: RemoveOfflineItemsAction['payload']['items'] = []
+  const offlineItemsToRemove: OfflineItem[] = []
   const offlineCollectionMetadata = yield* select(getOfflineCollectionMetadata)
   const offlineCollectionIds = Object.keys(offlineCollectionMetadata).map(
     (id) => (id === DOWNLOAD_REASON_FAVORITES ? id : parseInt(id, 10))

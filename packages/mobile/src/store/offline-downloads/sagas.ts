@@ -1,7 +1,8 @@
 import type {
   Collection,
   AccountCollection,
-  UserCollectionMetadata
+  UserCollectionMetadata,
+  collectionsSocialActions
 } from '@audius/common'
 import {
   waitForValue,
@@ -9,7 +10,6 @@ import {
   FavoriteSource,
   tracksSocialActions,
   cacheCollectionsActions,
-  collectionsSocialActions,
   accountSelectors,
   cacheCollectionsSelectors,
   reachabilityActions,
@@ -45,12 +45,16 @@ import {
   setPlayCounterWorker
 } from 'app/services/offline-downloader/workers'
 
-import { watchRemoveAllDownloadedFavorites } from './sagas/removeAllDownloadedFavoritesSaga'
 import { watchRemoveCollectionDownloads } from './sagas/removeCollectionDownloadsSaga'
 import { watchRemoveTrackDownloads } from './sagas/removeTrackDownloadsSaga'
 import { requestDownloadAllFavoritesSaga } from './sagas/requestDownloadAllFavoritesSaga'
+import { requestDownloadCollectionSaga } from './sagas/requestDownloadCollectionSaga'
+import { requestDownloadFavoritedCollectionSaga } from './sagas/requestDownloadFavoritedCollectionSaga'
+import { requestRemoveAllDownloadedFavoritesSaga } from './sagas/requestRemoveAllDownloadedFavoritesSaga'
 import { requestRemoveDownloadedCollectionSaga } from './sagas/requestRemoveDownloadedCollectionSaga'
+import { requestRemoveFavoritedDownloadedCollectionSaga } from './sagas/requestRemoveFavoritedDownloadedCollectionSaga'
 import { watchUpdateTrackDownloadReasons } from './sagas/updateTrackDownloadReasonsSaga'
+import { watchSaveCollectionSaga } from './sagas/watchSaveCollectionSaga'
 import {
   getIsCollectionMarkedForDownload,
   getIsDoneLoadingFromDisk,
@@ -104,45 +108,6 @@ function* watchUnsaveTrack() {
 
       yield* call(batchRemoveTrackDownload, [trackToRemove])
     }
-  )
-}
-
-export function* downloadSavedCollection(
-  action: ReturnType<typeof collectionsSocialActions.saveCollection>
-) {
-  const offlineCollections = yield* select(getOfflineCollections)
-  const currentUserId = yield* select(getUserId)
-
-  if (
-    !offlineCollections[DOWNLOAD_REASON_FAVORITES] ||
-    action.source === FavoriteSource.OFFLINE_DOWNLOAD ||
-    !currentUserId
-  )
-    return
-  const collection: UserCollectionMetadata = (yield* call(
-    [apiClient, apiClient.getPlaylist],
-    {
-      playlistId: action.collectionId,
-      currentUserId
-    }
-  ))?.[0]
-
-  const tracksForDownload = collection.tracks?.map((track) => ({
-    trackId: track.track_id,
-    downloadReason: {
-      is_from_favorites: false,
-      collection_id: action.collectionId.toString()
-    }
-  }))
-  if (!tracksForDownload) return
-  batchDownloadCollection([collection], true)
-  batchDownloadTrack(tracksForDownload)
-}
-
-export function* watchSaveCollection() {
-  yield* takeEvery(
-    collectionsSocialActions.SAVE_COLLECTION,
-    downloadSavedCollection
   )
 }
 
@@ -295,19 +260,22 @@ const sagas = () => {
   return [
     watchSaveTrack,
     watchUnsaveTrack,
-    watchSaveCollection,
+    watchSaveCollectionSaga,
     watchClearOfflineDownloads,
     watchSetReachable,
     watchSetUnreachable,
     startSync,
     watchAddTrackToPlaylist,
     watchAddLocalSave,
-    watchRemoveAllDownloadedFavorites,
     watchRemoveTrackDownloads,
     watchUpdateTrackDownloadReasons,
     watchRemoveCollectionDownloads,
     requestDownloadAllFavoritesSaga,
-    requestRemoveDownloadedCollectionSaga
+    requestDownloadCollectionSaga,
+    requestDownloadFavoritedCollectionSaga,
+    requestRemoveAllDownloadedFavoritesSaga,
+    requestRemoveDownloadedCollectionSaga,
+    requestRemoveFavoritedDownloadedCollectionSaga
   ]
 }
 

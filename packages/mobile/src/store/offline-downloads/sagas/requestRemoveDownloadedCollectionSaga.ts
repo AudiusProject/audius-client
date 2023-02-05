@@ -7,12 +7,15 @@ import {
   cancelQueuedCollectionDownloads
 } from 'app/services/offline-downloader'
 
-import { getOfflineTracks } from '../selectors'
+import { getOfflineTrackMetadata, getOfflineTracks } from '../selectors'
 import type {
+  CollectionAction,
+  OfflineItem,
   RequestRemoveDownloadedCollectionAction,
   TrackReasonsToUpdate
 } from '../slice'
 import {
+  removeOfflineItems,
   updateTrackDownloadReasons,
   removeTrackDownloads,
   removeCollectionDownloads,
@@ -26,7 +29,38 @@ export function* requestRemoveDownloadedCollectionSaga() {
   )
 }
 
-function* removeDownloadedCollectionWorker(
+function* removeDownloadedCollectionWorker(action: CollectionAction) {
+  const { collectionId } = action.payload
+
+  const offlineItemsToRemove: OfflineItem[] = []
+
+  offlineItemsToRemove.push({
+    type: 'collection',
+    id: collectionId,
+    metadata: { reasons_for_download: [{ is_from_favorites: false }] }
+  })
+
+  const offlineTrackMetadata = yield* select(getOfflineTrackMetadata)
+  const offlineTrackIds = Object.keys(offlineTrackMetadata).map((id) =>
+    parseInt(id, 10)
+  )
+
+  for (const offlineTrackId of offlineTrackIds) {
+    offlineItemsToRemove.push({
+      type: 'track',
+      id: offlineTrackId,
+      metadata: {
+        reasons_for_download: [
+          { collection_id: collectionId, is_from_favorites: false }
+        ]
+      }
+    })
+  }
+
+  yield* put(removeOfflineItems({ items: offlineItemsToRemove }))
+}
+
+function* removeDownloadedCollectionWorker2(
   action: RequestRemoveDownloadedCollectionAction
 ) {
   const { collectionId } = action.payload

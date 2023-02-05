@@ -13,11 +13,7 @@ export const getTrackOfflineDownloadStatus =
 
 export const getIsCollectionMarkedForDownload =
   (collectionId?: string | ID) => (state: AppState) =>
-    !!(
-      collectionId &&
-      (state.offlineDownloads.collectionStatus[collectionId] ||
-        state.offlineDownloads.favoritedCollectionStatus[collectionId])
-    )
+    !!(collectionId && state.offlineDownloads.collectionStatus[collectionId])
 
 export const getOfflineTracks = (
   state: AppState
@@ -41,3 +37,6 @@ export const getOfflineTrackMetadata = (state: AppState) =>
 
 export const getOfflineCollectionMetadata = (state: AppState) =>
   state.offlineDownloads.offlineCollectionMetadata
+
+export const getOfflineCollectionsStatus = (state: AppState) =>
+  state.offlineDownloads.collectionStatus
