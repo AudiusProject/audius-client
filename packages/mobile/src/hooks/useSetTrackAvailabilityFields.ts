@@ -10,8 +10,8 @@ const defaultTrackAvailabilityFields = {
   'field_visibility.genre': true,
   'field_visibility.mood': true,
   'field_visibility.tags': true,
-  'field_visibility.share': false,
-  'field_visibility.play_count': false
+  'field_visibility.share': true,
+  'field_visibility.play_count': true
 }
 type TrackAvailabilityField = typeof defaultTrackAvailabilityFields
 
