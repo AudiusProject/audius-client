@@ -175,7 +175,7 @@ const TrackPage = ({
       isOwner={isOwner}
       currentUserId={userId}
       isArtistPick={
-        heroTrack && user ? user._artist_pick === heroTrack.track_id : false
+        heroTrack && user ? user.artist_pick_track_id === heroTrack.track_id : false
       }
       isSaved={isSaved}
       badge={badge}

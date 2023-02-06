@@ -574,8 +574,7 @@ export function* watchSetArtistPick() {
           {
             id: userId,
             metadata: {
-              artist_pick_track_id: action.trackId,
-              _artist_pick: action.trackId
+              artist_pick_track_id: action.trackId
             }
           }
         ])
@@ -599,8 +598,7 @@ export function* watchUnsetArtistPick() {
         {
           id: userId,
           metadata: {
-            artist_pick_track_id: null,
-            _artist_pick: null
+            artist_pick_track_id: null
           }
         }
       ])

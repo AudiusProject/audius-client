@@ -275,8 +275,7 @@ function* deleteTrackAsync(action) {
         {
           id: userId,
           metadata: {
-            artist_pick_track_id: null,
-            _artist_pick: null
+            artist_pick_track_id: null
           }
         }
       ])
