@@ -17,7 +17,7 @@ import {
   encodeHashId,
   accountSelectors
 } from '@audius/common'
-import { uniq, isEqual } from 'lodash'
+import { isEqual } from 'lodash'
 import RNFetchBlob from 'rn-fetch-blob'
 
 import { createAllImageSources } from 'app/hooks/useContentNodeImage'
@@ -25,8 +25,8 @@ import { fetchAllFavoritedTracks } from 'app/hooks/useFetchAllFavoritedTracks'
 import { getAccountCollections } from 'app/screens/favorites-screen/selectors'
 import { store } from 'app/store'
 import {
-  getOfflineCollections,
-  getOfflineFavoritedCollections,
+  getAllOfflineCollections,
+  getAllOfflineFavoritedCollections,
   getOfflineTrack,
   getTrackOfflineDownloadStatus
 } from 'app/store/offline-downloads/selectors'
@@ -433,8 +433,8 @@ const shouldAbortDownload = (trackForDownload: TrackForDownload) => {
   const { trackId, downloadReason } = trackForDownload
   const { collection_id, is_from_favorites } = downloadReason
   const state = store.getState()
-  const offlineCollections = getOfflineCollections(state)
-  const favoritedOfflineCollections = getOfflineFavoritedCollections(state)
+  const offlineCollections = getAllOfflineCollections(state)
+  const favoritedOfflineCollections = getAllOfflineFavoritedCollections(state)
   const cachedTrack = getTrack(state, { id: trackId })
   const isSaved = cachedTrack?.has_current_user_saved
   const isFavoritesMarkedForDownload =
@@ -466,8 +466,9 @@ export const removeDownloadedCollectionFromFavorites = async (
   tracksForDownload: TrackForDownload[]
 ) => {
   const state = store.getState()
-  const downloadedCollections = getOfflineCollections(state)
-  const favoritedDownloadedCollections = getOfflineFavoritedCollections(state)
+  const downloadedCollections = getAllOfflineCollections(state)
+  const favoritedDownloadedCollections =
+    getAllOfflineFavoritedCollections(state)
   if (!favoritedDownloadedCollections[collectionId]) return
   if (downloadedCollections[collectionId]) {
     const collectionForDownload = {

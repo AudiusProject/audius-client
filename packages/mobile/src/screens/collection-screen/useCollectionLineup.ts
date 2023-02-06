@@ -37,7 +37,6 @@ export const useCollectionLineup = (
 ) => {
   const dispatch = useDispatch()
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
-  // TODO: call getOfflineTrackMetadata
   const offlineTracks = useSelector(getOfflineTracks)
   const isReachable = useSelector(getIsReachable)
   const collection = useSelector((state) => {
@@ -56,7 +55,7 @@ export const useCollectionLineup = (
 
   const fetchLineupOffline = useCallback(() => {
     if (isOfflineModeEnabled && collectionId && collection) {
-      const lineupTracks = Object.values(offlineTracks)
+      const lineupTracks = offlineTracks
         .filter((track) =>
           track.offline?.reasons_for_download.some(
             (reason) => reason.collection_id === collectionId.toString()

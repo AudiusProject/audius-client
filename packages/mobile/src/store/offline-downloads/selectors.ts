@@ -7,7 +7,7 @@ import type { OfflineDownloadsState } from './slice'
 import { OfflineDownloadStatus } from './slice'
 const { getTrack } = cacheTracksSelectors
 
-export const getOfflineDownloadStatus = (state: AppState) =>
+export const getAllOfflineDownloadStatus = (state: AppState) =>
   state.offlineDownloads.downloadStatus
 
 export const getTrackOfflineDownloadStatus =
@@ -22,6 +22,9 @@ export const getIsCollectionMarkedForDownload =
         state.offlineDownloads.favoritedCollectionStatus[collectionId])
     )
 
+export const getAllOfflineTrackMetadata = (state: AppState) =>
+  state.offlineDownloads.offlineTrackMetadata
+
 export const getTrackOfflineMetadata =
   (trackId?: number) => (state: AppState) =>
     trackId ? state.offlineDownloads.offlineTrackMetadata[trackId] : null
@@ -33,12 +36,12 @@ export const getTrackDownloadReasons =
           .reasons_for_download
       : []
 
-export const getOfflineCollections = (
+export const getAllOfflineCollections = (
   state: AppState
 ): OfflineDownloadsState['collectionStatus'] =>
   state.offlineDownloads.collectionStatus
 
-export const getOfflineFavoritedCollections = (
+export const getAllOfflineFavoritedCollections = (
   state: AppState
 ): OfflineDownloadsState['favoritedCollectionStatus'] =>
   state.offlineDownloads.favoritedCollectionStatus

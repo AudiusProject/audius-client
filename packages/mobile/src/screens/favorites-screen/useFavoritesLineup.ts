@@ -25,7 +25,6 @@ const { getSavedTracksLineup } = savedPageSelectors
 export const useFavoritesLineup = (fetchLineup: () => void) => {
   const dispatch = useDispatch()
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
-  // TODO: call getOfflineTrackMetadata
   const offlineTracks = useSelector(getOfflineTracks)
   const savedTracks = useSelector(getSavedTracksLineup)
   const savedTracksUidMap = savedTracks.entries.reduce((acc, track) => {
@@ -36,7 +35,7 @@ export const useFavoritesLineup = (fetchLineup: () => void) => {
 
   const fetchLineupOffline = useCallback(() => {
     if (isOfflineModeEnabled) {
-      const lineupTracks = Object.values(offlineTracks)
+      const lineupTracks = offlineTracks
         .filter((track) =>
           track.offline?.reasons_for_download.some(
             (reason) => reason.collection_id === DOWNLOAD_REASON_FAVORITES
