@@ -81,7 +81,7 @@ const TrackAvailabilityButton = (props) => {
         name='setUnlisted'
         text={props.availabilityButtonTitle}
         label={messages.availability}
-        className={styles.trackAvailabilityButton}
+        className={cn(styles.trackAvailabilityButton, { [styles.error]: props.error })}
         textClassName={styles.trackAvailabilityButtonText}
         onClick={() => {
           props.setIsAvailabilityModalOpen(true)
@@ -546,6 +546,7 @@ const AdvancedForm = (props) => {
             <TrackAvailabilityButton
               availabilityButtonTitle={availabilityButtonTitle}
               setIsAvailabilityModalOpen={setIsAvailabilityModalOpen}
+              error={props.invalidFields.premium_conditions}
             />
           )}
           <div className={styles.datePicker}>

@@ -60,6 +60,8 @@ class EditPage extends Component {
       ) {
         newInvalidTracksFields[i].genre = !track.metadata.genre
         newInvalidTracksFields[i].artwork = !track.metadata.artwork.file
+        const { premium_conditions: premiumConditions } = track.metadata
+        newInvalidTracksFields[i].premium_conditions = premiumConditions && 'nft_collection' in premiumConditions && !premiumConditions.nft_collection
       }
       return Object.values(newInvalidTracksFields[i]).every((f) => !f)
     })
