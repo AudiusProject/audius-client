@@ -54,6 +54,7 @@ import { requestRemoveAllDownloadedFavoritesSaga } from './sagas/requestRemoveAl
 import { requestRemoveDownloadedCollectionSaga } from './sagas/requestRemoveDownloadedCollectionSaga'
 import { requestRemoveFavoritedDownloadedCollectionSaga } from './sagas/requestRemoveFavoritedDownloadedCollectionSaga'
 import { watchUpdateTrackDownloadReasons } from './sagas/updateTrackDownloadReasonsSaga'
+import { watchRemoveOfflineItems } from './sagas/watchRemoveOfflineItems'
 import { watchSaveCollectionSaga } from './sagas/watchSaveCollectionSaga'
 import {
   getIsCollectionMarkedForDownload,
@@ -264,6 +265,7 @@ const sagas = () => {
     watchClearOfflineDownloads,
     watchSetReachable,
     watchSetUnreachable,
+    watchRemoveOfflineItems,
     startSync,
     watchAddTrackToPlaylist,
     watchAddLocalSave,
