@@ -32,7 +32,7 @@ import { setFolderId as setEditFolderModalFolderId } from 'store/application/ui/
 import { open as openEditPlaylistModal } from 'store/application/ui/editPlaylistModal/slice'
 import { getIsDragging } from 'store/dragndrop/selectors'
 import { useSelector } from 'utils/reducer'
-import { audioNftPlaylistPage, getPathname, playlistPage } from 'utils/route'
+import { audioNftPlaylistPage, getPathname, collectionPage } from 'utils/route'
 
 import navColumnStyles from './NavColumn.module.css'
 import { PlaylistFolderNavItem } from './PlaylistFolderNavItem'
@@ -289,8 +289,8 @@ const PlaylistLibrary = ({
   const renderPlaylist = (playlistId: ID, level = 0) => {
     const playlist = playlists[playlistId]
     if (!account || !playlist) return null
-    const { id, name } = playlist
-    const url = playlistPage(playlist.user.handle, name, id)
+    const { id, name, is_album } = playlist
+    const url = collectionPage(playlist.user.handle, is_album, name, id)
     const addTrack = (trackId: ID) => dispatch(addTrackToPlaylist(trackId, id))
     const isOwner = playlist.user.handle === account.handle
     const hasUpdate = updatesSet.has(id)

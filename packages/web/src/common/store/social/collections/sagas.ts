@@ -26,7 +26,7 @@ import { adjustUserField } from 'common/store/cache/users/sagas'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
-import { albumPage, audioNftPlaylistPage, playlistPage } from 'utils/route'
+import { audioNftPlaylistPage, collectionPage } from 'utils/route'
 import { waitForWrite } from 'utils/sagaHelpers'
 
 import watchCollectionErrors from './errorSagas'
@@ -542,17 +542,12 @@ export function* watchShareCollection() {
       const user = yield* select(getUser, { id: collection.playlist_owner_id })
       if (!user) return
 
-      const link = collection.is_album
-        ? albumPage(
-            user.handle,
-            collection.playlist_name,
-            collection.playlist_id
-          )
-        : playlistPage(
-            user.handle,
-            collection.playlist_name,
-            collection.playlist_id
-          )
+      const link = collectionPage(
+        user.handle,
+        collection.is_album,
+        collection.playlist_name,
+        collection.playlist_id
+      )
 
       const share = yield* getContext('share')
       share(link, formatShareText(collection.playlist_name, user.name))

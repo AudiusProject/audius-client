@@ -10,10 +10,8 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Page from 'components/page/Page'
 import { useOrderedLoad } from 'hooks/useOrderedLoad'
 import {
-  playlistPage,
-  fullPlaylistPage,
-  albumPage,
-  fullAlbumPage,
+  collectionPage,
+  fullCollectionPage,
   BASE_URL,
   EXPLORE_PAGE,
   profilePage
@@ -92,19 +90,12 @@ const CollectionsPage = ({
         isReposted={playlist.has_current_user_reposted}
         isSaved={playlist.has_current_user_saved}
         cardCoverImageSizes={playlist._cover_art_sizes}
-        href={
-          playlist.is_album
-            ? fullAlbumPage(
-                playlist.user.handle,
-                playlist.playlist_name,
-                playlist.playlist_id
-              )
-            : fullPlaylistPage(
-                playlist.user.handle,
-                playlist.playlist_name,
-                playlist.playlist_id
-              )
-        }
+        href={fullCollectionPage(
+          playlist.user.handle,
+          playlist.is_album,
+          playlist.playlist_name,
+          playlist.playlist_id
+        )}
         reposts={playlist.repost_count}
         favorites={playlist.save_count}
         trackCount={playlist.playlist_contents.track_ids.length}
@@ -112,21 +103,14 @@ const CollectionsPage = ({
         onClickFavorites={() => onClickFavorites(playlist.playlist_id)}
         onClick={(e) => {
           e.preventDefault()
-          playlist.is_album
-            ? goToRoute(
-                albumPage(
-                  playlist.user.handle,
-                  playlist.playlist_name,
-                  playlist.playlist_id
-                )
-              )
-            : goToRoute(
-                playlistPage(
-                  playlist.user.handle,
-                  playlist.playlist_name,
-                  playlist.playlist_id
-                )
-              )
+          goToRoute(
+            collectionPage(
+              playlist.user.handle,
+              playlist.is_album,
+              playlist.playlist_name,
+              playlist.playlist_id
+            )
+          )
         }}
       />
     )

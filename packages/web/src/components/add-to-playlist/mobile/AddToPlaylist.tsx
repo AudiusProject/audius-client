@@ -23,7 +23,7 @@ import { ToastContext } from 'components/toast/ToastContext'
 import useHasChangedRoute from 'hooks/useHasChangedRoute'
 import NewPlaylistButton from 'pages/saved-page/components/mobile/NewPlaylistButton'
 import { AppState } from 'store/types'
-import { playlistPage } from 'utils/route'
+import { collectionPage } from 'utils/route'
 import { getTempPlaylistId } from 'utils/tempPlaylistId'
 import { withNullGuard } from 'utils/withNullGuard'
 
@@ -106,7 +106,9 @@ const AddToPlaylist = g(
       createPlaylist(tempId, metadata, trackId!)
       addTrackToPlaylist(trackId!, tempId)
       toast(messages.createdToast)
-      goToRoute(playlistPage(account.handle, trackTitle, tempId))
+      goToRoute(
+        collectionPage(account.handle, false /* isAlbum */, trackTitle, tempId)
+      )
       close()
     }, [
       account,

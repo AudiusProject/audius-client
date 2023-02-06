@@ -18,10 +18,8 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Page from 'components/page/Page'
 import Toast from 'components/toast/Toast'
 import {
-  albumPage,
-  fullAlbumPage,
-  playlistPage,
-  fullPlaylistPage,
+  collectionPage,
+  fullCollectionPage,
   profilePage,
   fullSearchResultsPage,
   NOT_FOUND_PAGE
@@ -174,8 +172,9 @@ class SearchPageContent extends Component {
       const toastId = `playlist-${playlist.playlist_id}`
       const onClick = () => {
         goToRoute(
-          playlistPage(
+          collectionPage(
             playlist.user.handle,
+            playlist.is_album,
             playlist.playlist_name,
             playlist.playlist_id
           )
@@ -200,8 +199,9 @@ class SearchPageContent extends Component {
           fillParent={false}
           playlistId={playlist.playlist_id}
           isAlbum={playlist.is_album}
-          link={fullPlaylistPage(
+          link={fullCollectionPage(
             playlist.user.handle,
+            playlist.is_album,
             playlist.playlist_name,
             playlist.playlist_id
           )}
@@ -241,7 +241,13 @@ class SearchPageContent extends Component {
       const toastId = `album-${album.playlist_id}`
       const onClick = () => {
         goToRoute(
-          albumPage(album.user.handle, album.playlist_name, album.playlist_id)
+          collectionPage(
+            album.user.handle,
+            album.is_album,
+            album.playlist_name,
+            album.playlist_id,
+            album.permalink
+          )
         )
         recordSearchResultClick({
           term: searchText,
@@ -263,10 +269,12 @@ class SearchPageContent extends Component {
           fillParent={false}
           playlistId={album.playlist_id}
           isAlbum={album.is_album}
-          link={fullAlbumPage(
+          link={fullCollectionPage(
             album.user.handle,
+            album.is_album,
             album.playlist_name,
-            album.playlist_id
+            album.playlist_id,
+            album.permalink
           )}
           primaryText={album.playlist_name}
           firesOnClick={false}

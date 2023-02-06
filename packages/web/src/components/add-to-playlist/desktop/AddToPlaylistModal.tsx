@@ -22,7 +22,7 @@ import { ToastContext } from 'components/toast/ToastContext'
 import ToastLinkContent from 'components/toast/mobile/ToastLinkContent'
 import { useCollectionCoverArt } from 'hooks/useCollectionCoverArt'
 import { AppState } from 'store/types'
-import { playlistPage } from 'utils/route'
+import { collectionPage } from 'utils/route'
 import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
 import styles from './AddToPlaylistModal.module.css'
@@ -74,7 +74,12 @@ const AddToPlaylistModal = () => {
         <ToastLinkContent
           text={messages.addedToast}
           linkText={messages.view}
-          link={playlistPage(account.handle, trackTitle, playlist.playlist_id)}
+          link={collectionPage(
+            account.handle,
+            playlist.is_album,
+            trackTitle,
+            playlist.playlist_id
+          )}
         />
       )
     }
@@ -96,7 +101,12 @@ const AddToPlaylistModal = () => {
         <ToastLinkContent
           text={messages.createdToast}
           linkText={messages.view}
-          link={playlistPage(account.handle, trackTitle, tempId)}
+          link={collectionPage(
+            account.handle,
+            false /* isAlbum */,
+            trackTitle,
+            tempId
+          )}
         />
       )
     }

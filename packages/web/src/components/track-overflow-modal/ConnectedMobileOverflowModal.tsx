@@ -30,9 +30,8 @@ import { Dispatch } from 'redux'
 
 import { AppState } from 'store/types'
 import {
-  albumPage,
   collectibleDetailsPage,
-  playlistPage,
+  collectionPage,
   profilePage
 } from 'utils/route'
 
@@ -101,8 +100,7 @@ const ConnectedMobileOverflowModal = ({
   visitTrackPage,
   visitArtistPage,
   visitCollectiblePage,
-  visitPlaylistPage,
-  visitAlbumPage,
+  visitCollectionPage,
   unsubscribeUser,
   follow,
   unfollow,
@@ -175,12 +173,9 @@ const ConnectedMobileOverflowModal = ({
           onUnfavorite: () => unsaveCollection(id as ID),
           onShare: () => shareCollection(id as ID),
           onVisitArtistPage: () => visitArtistPage(handle),
-          onVisitCollectionPage: () =>
-            (isAlbum ? visitAlbumPage : visitPlaylistPage)(
-              id as ID,
-              handle,
-              title
-            ),
+          onVisitCollectionPage: () => {
+            return visitCollectionPage(id as ID, handle, title, isAlbum)
+          },
           onVisitCollectiblePage: () =>
             visitCollectiblePage(handle, id as string),
           onEditPlaylist: isAlbum ? () => {} : () => editPlaylist(id as ID),
@@ -380,13 +375,15 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     visitCollectiblePage: (handle: string, id: string) => {
       dispatch(pushRoute(collectibleDetailsPage(handle, id)))
     },
-    visitPlaylistPage: (
+    visitCollectionPage: (
       playlistId: ID,
       handle: string,
-      playlistTitle: string
-    ) => dispatch(pushRoute(playlistPage(handle, playlistTitle, playlistId))),
-    visitAlbumPage: (albumId: ID, handle: string, albumTitle: string) =>
-      dispatch(pushRoute(albumPage(handle, albumTitle, albumId)))
+      playlistTitle: string,
+      isAlbum: boolean
+    ) =>
+      dispatch(
+        pushRoute(collectionPage(handle, isAlbum, playlistTitle, playlistId))
+      )
   }
 }
 

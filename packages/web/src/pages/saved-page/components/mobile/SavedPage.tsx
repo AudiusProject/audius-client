@@ -30,7 +30,7 @@ import { useMainPageHeader } from 'components/nav/store/context'
 import TrackList from 'components/track/mobile/TrackList'
 import { TrackItemAction } from 'components/track/mobile/TrackListItem'
 import useTabs from 'hooks/useTabs/useTabs'
-import { albumPage, TRENDING_PAGE, playlistPage } from 'utils/route'
+import { TRENDING_PAGE, collectionPage } from 'utils/route'
 
 import NewPlaylistButton from './NewPlaylistButton'
 import styles from './SavedPage.module.css'
@@ -198,7 +198,13 @@ const AlbumCardLineup = ({
         )}
         onClick={() =>
           goToRoute(
-            albumPage(album.ownerHandle, album.playlist_name, album.playlist_id)
+            collectionPage(
+              album.ownerHandle,
+              album.is_album,
+              album.playlist_name,
+              album.playlist_id,
+              album.permalink
+            )
           )
         }
       />
@@ -286,8 +292,9 @@ const PlaylistCardLineup = ({
         )}
         onClick={() => {
           goToRoute(
-            playlistPage(
+            collectionPage(
               playlist.ownerHandle,
+              playlist.is_album,
               playlist.playlist_name,
               playlist.playlist_id
             )

@@ -21,7 +21,7 @@ import {
 } from 'common/store/search-bar/actions'
 import { getSearch } from 'common/store/search-bar/selectors'
 import Bar from 'components/search/SearchBar'
-import { albumPage, playlistPage, profilePage, getPathname } from 'utils/route'
+import { collectionPage, profilePage, getPathname } from 'utils/route'
 
 import styles from './ConnectedSearchBar.module.css'
 
@@ -102,7 +102,12 @@ class ConnectedSearchBar extends Component {
         (p) =>
           value ===
           (p.user
-            ? playlistPage(p.user.handle, p.playlist_name, p.playlist_id)
+            ? collectionPage(
+                p.user.handle,
+                p.is_album,
+                p.playlist_name,
+                p.playlist_id
+              )
             : '')
       )
       if (selectedPlaylist)
@@ -111,7 +116,13 @@ class ConnectedSearchBar extends Component {
         (a) =>
           value ===
           (a.user
-            ? albumPage(a.user.handle, a.playlist_name, a.playlist_id)
+            ? collectionPage(
+                a.user.handle,
+                a.is_album,
+                a.playlist_name,
+                a.playlist_id,
+                a.permalink
+              )
             : '')
       )
       if (selectedAlbum) return { kind: 'album', id: selectedAlbum.playlist_id }
@@ -178,8 +189,9 @@ class ConnectedSearchBar extends Component {
               primary: playlist.playlist_name,
               secondary: playlist.user ? playlist.user.name : '',
               key: playlist.user
-                ? playlistPage(
+                ? collectionPage(
                     playlist.user.handle,
+                    playlist.is_album,
                     playlist.playlist_name,
                     playlist.playlist_id
                   )
@@ -204,10 +216,12 @@ class ConnectedSearchBar extends Component {
           children: this.props.search.albums.map((album) => {
             return {
               key: album.user
-                ? albumPage(
+                ? collectionPage(
                     album.user.handle,
+                    album.is_album,
                     album.playlist_name,
-                    album.playlist_id
+                    album.playlist_id,
+                    album.permalink
                   )
                 : '',
               primary: album.playlist_name,

@@ -66,8 +66,7 @@ import {
   NOT_FOUND_PAGE,
   REPOSTING_USERS_ROUTE,
   FAVORITING_USERS_ROUTE,
-  playlistPage,
-  albumPage,
+  collectionPage,
   getPathname
 } from 'utils/route'
 import { parseCollectionRoute } from 'utils/route/collectionRouteParser'
@@ -280,10 +279,12 @@ class CollectionPage extends Component<
           user
         if (routeLacksCollectionInfo) {
           // Check if we are coming from a non-canonical route and replace route if necessary.
-          const newPath =
-            metadata.is_album && collectionId
-              ? albumPage(user!.handle, metadata.playlist_name, collectionId)
-              : playlistPage(user!.handle, metadata.playlist_name, collectionId)
+          const newPath = collectionPage(
+            user!.handle,
+            metadata.is_album,
+            metadata.playlist_name,
+            collectionId
+          )
           this.props.replaceRoute(newPath)
         } else {
           // Id matches or temp id matches

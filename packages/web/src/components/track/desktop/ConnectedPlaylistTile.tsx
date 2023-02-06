@@ -52,11 +52,9 @@ import {
 import { AppState } from 'store/types'
 import { isDescendantElementOf } from 'utils/domUtils'
 import {
-  albumPage,
-  fullAlbumPage,
-  fullPlaylistPage,
+  fullCollectionPage,
   fullTrackPage,
-  playlistPage,
+  collectionPage,
   profilePage
 } from 'utils/route'
 import { isDarkMode, isMatrix } from 'utils/theme/theme'
@@ -227,17 +225,11 @@ const ConnectedPlaylistTile = memo(
         record
       ]
     )
-    const href = isLoading
-      ? ''
-      : isAlbum
-      ? albumPage(handle, title, id)
-      : playlistPage(handle, title, id)
+    const href = isLoading ? '' : collectionPage(handle, isAlbum, title, id)
 
     const fullHref = isLoading
       ? ''
-      : isAlbum
-      ? fullAlbumPage(handle, title, id)
-      : fullPlaylistPage(handle, title, id)
+      : fullCollectionPage(handle, isAlbum, title, id)
 
     const onClickTitle = useCallback(
       (e: MouseEvent) => {

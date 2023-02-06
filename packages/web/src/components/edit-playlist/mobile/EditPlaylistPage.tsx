@@ -33,7 +33,7 @@ import useHasChangedRoute from 'hooks/useHasChangedRoute'
 import UploadStub from 'pages/profile-page/components/mobile/UploadStub'
 import { AppState } from 'store/types'
 import { resizeImage } from 'utils/imageProcessingUtil'
-import { playlistPage } from 'utils/route'
+import { collectionPage } from 'utils/route'
 import { getTempPlaylistId } from 'utils/tempPlaylistId'
 import { withNullGuard } from 'utils/withNullGuard'
 
@@ -241,7 +241,12 @@ const EditPlaylistPage = g(
         toast(messages.toast)
         close()
         goToRoute(
-          playlistPage(account.handle, formFields.playlist_name, tempId)
+          collectionPage(
+            account.handle,
+            false /* isAlbum */,
+            formFields.playlist_name,
+            tempId
+          )
         )
       }
     }, [

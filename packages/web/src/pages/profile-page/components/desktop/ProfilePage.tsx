@@ -38,8 +38,7 @@ import useTabs, { useTabRecalculator } from 'hooks/useTabs/useTabs'
 import { MIN_COLLECTIBLES_TIER } from 'pages/profile-page/ProfilePageProvider'
 import EmptyTab from 'pages/profile-page/components/EmptyTab'
 import {
-  albumPage,
-  playlistPage,
+  collectionPage,
   profilePage,
   UPLOAD_PAGE,
   UPLOAD_ALBUM_PAGE,
@@ -280,7 +279,6 @@ const ProfilePage = ({
         imageSize={album._cover_art_sizes}
         isPlaylist={!album.is_album}
         primaryText={album.playlist_name}
-        // link={fullAlbumPage(profile.handle, album.playlist_name, album.playlist_id)}
         secondaryText={formatCardSecondaryText(
           album.save_count,
           album.playlist_contents.track_ids.length
@@ -288,11 +286,23 @@ const ProfilePage = ({
         cardCoverImageSizes={album._cover_art_sizes}
         isReposted={album.has_current_user_reposted}
         isSaved={album.has_current_user_saved}
-        href={albumPage(profile.handle, album.playlist_name, album.playlist_id)}
+        href={collectionPage(
+          profile.handle,
+          album.is_album,
+          album.playlist_name,
+          album.playlist_id,
+          album.permalink
+        )}
         onClick={(e: MouseEvent) => {
           e.preventDefault()
           goToRoute(
-            albumPage(profile.handle, album.playlist_name, album.playlist_id)
+            collectionPage(
+              profile.handle,
+              album.is_album,
+              album.playlist_name,
+              album.playlist_id,
+              album.permalink
+            )
           )
         }}
       />
@@ -330,16 +340,18 @@ const ProfilePage = ({
         cardCoverImageSizes={playlist._cover_art_sizes}
         isReposted={playlist.has_current_user_reposted}
         isSaved={playlist.has_current_user_saved}
-        href={playlistPage(
+        href={collectionPage(
           profile.handle,
+          playlist.is_album,
           playlist.playlist_name,
           playlist.playlist_id
         )}
         onClick={(e: MouseEvent) => {
           e.preventDefault()
           goToRoute(
-            playlistPage(
+            collectionPage(
               profile.handle,
+              playlist.is_album,
               playlist.playlist_name,
               playlist.playlist_id
             )
@@ -528,16 +540,18 @@ const ProfilePage = ({
         isReposted={playlist.has_current_user_reposted}
         isSaved={playlist.has_current_user_saved}
         cardCoverImageSizes={playlist._cover_art_sizes}
-        href={playlistPage(
+        href={collectionPage(
           profile.handle,
+          playlist.is_album,
           playlist.playlist_name,
           playlist.playlist_id
         )}
         onClick={(e: MouseEvent) => {
           e.preventDefault()
           goToRoute(
-            playlistPage(
+            collectionPage(
               profile.handle,
+              playlist.is_album,
               playlist.playlist_name,
               playlist.playlist_id
             )

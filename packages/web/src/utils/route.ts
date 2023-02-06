@@ -92,6 +92,7 @@ export const SEARCH_PAGE = '/search/:query?'
 export const PLAYLIST_PAGE = '/:handle/playlist/:playlistName'
 export const PLAYLIST_BY_PERMALINK_PAGE = '/:handle/playlist/:slug'
 export const ALBUM_PAGE = '/:handle/album/:albumName'
+export const ALBUM_BY_PERMALINK_PAGE = '/:handle/album/:slug'
 export const TRACK_PAGE = '/:handle/:slug'
 export const TRACK_REMIXES_PAGE = '/:handle/:slug/remixes'
 export const PROFILE_PAGE = '/:handle'
@@ -275,8 +276,9 @@ export const fullAlbumPage = (handle: string, title: string, id: ID) => {
   return `${BASE_URL}${albumPage(handle, title, id)}`
 }
 
-export const playlistPage = (
+export const collectionPage = (
   handle: string,
+  isAlbum: boolean,
   playlistName?: string | null,
   playlistId?: ID | null,
   permalink?: string | null
@@ -285,22 +287,24 @@ export const playlistPage = (
   if (permalink) {
     return permalink
   } else if (playlistName && playlistId) {
-    return `/${encodeUrlName(handle)}/playlist/${encodeUrlName(
-      playlistName
-    )}-${playlistId}`
+    return `/${encodeUrlName(handle)}/${
+      isAlbum ? 'album' : 'playlist'
+    }/${encodeUrlName(playlistName)}-${playlistId}`
   } else {
     console.error('Missing required arguments to get PlaylistPage route.')
     return ''
   }
 }
-export const fullPlaylistPage = (
+export const fullCollectionPage = (
   handle: string,
+  isAlbum: boolean,
   playlistName?: string | null,
   playlistId?: ID | null,
   permalink?: string | null
 ) => {
-  return `${BASE_URL}${playlistPage(
+  return `${BASE_URL}${collectionPage(
     handle,
+    isAlbum,
     playlistName,
     playlistId,
     permalink

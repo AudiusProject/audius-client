@@ -29,7 +29,7 @@ import EmptyTable from 'components/tracks-table/EmptyTable'
 import { useOrderedLoad } from 'hooks/useOrderedLoad'
 import useTabs from 'hooks/useTabs/useTabs'
 import { MainContentContext } from 'pages/MainContentContext'
-import { albumPage } from 'utils/route'
+import { collectionPage } from 'utils/route'
 
 import styles from './SavedPage.module.css'
 
@@ -204,10 +204,12 @@ const SavedPage = ({
             cardCoverImageSizes={album._cover_art_sizes}
             onClick={() =>
               goToRoute(
-                albumPage(
+                collectionPage(
                   album.ownerHandle,
+                  album.is_album,
                   album.playlist_name,
-                  album.playlist_id
+                  album.playlist_id,
+                  album.permalink
                 )
               )
             }

@@ -43,8 +43,7 @@ import {
   ExploreMoodCollection
 } from 'pages/explore-page/collections'
 import {
-  playlistPage,
-  albumPage,
+  collectionPage,
   profilePage,
   BASE_URL,
   EXPLORE_PAGE
@@ -197,17 +196,12 @@ const ExplorePage = ({
     profileCards = []
   } else {
     playlistCards = playlists.map((playlist: UserCollection) => {
-      const href = playlist.is_album
-        ? albumPage(
-            playlist.user.handle,
-            playlist.playlist_name,
-            playlist.playlist_id
-          )
-        : playlistPage(
-            playlist.user.handle,
-            playlist.playlist_name,
-            playlist.playlist_id
-          )
+      const href = collectionPage(
+        playlist.user.handle,
+        playlist.is_album,
+        playlist.playlist_name,
+        playlist.playlist_id
+      )
 
       return (
         <Card

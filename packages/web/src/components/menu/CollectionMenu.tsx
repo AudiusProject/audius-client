@@ -15,7 +15,7 @@ import { Dispatch } from 'redux'
 import * as embedModalActions from 'components/embed-modal/store/actions'
 import { open as openEditCollectionModal } from 'store/application/ui/editPlaylistModal/slice'
 import { AppState } from 'store/types'
-import { albumPage, playlistPage, profilePage } from 'utils/route'
+import { collectionPage, profilePage } from 'utils/route'
 const { getUser } = cacheUsersSelectors
 
 type PlaylistId = number
@@ -81,7 +81,6 @@ const CollectionMenu = (props: CollectionMenuProps) => {
       extraMenuItems
     } = props
 
-    const routePage = type === 'album' ? albumPage : playlistPage
     const shareMenuItem = {
       text: 'Share',
       onClick: () => {
@@ -114,9 +113,12 @@ const CollectionMenu = (props: CollectionMenuProps) => {
       onClick: () => goToRoute(profilePage(handle))
     }
 
+    const isAlbum = type === 'album'
+
     const playlistPageMenuItem = {
       text: `Visit ${typeName} Page`,
-      onClick: () => goToRoute(routePage(handle, playlistName, playlistId))
+      onClick: () =>
+        goToRoute(collectionPage(handle, isAlbum, playlistName, playlistId))
     }
 
     const editCollectionMenuItem = {

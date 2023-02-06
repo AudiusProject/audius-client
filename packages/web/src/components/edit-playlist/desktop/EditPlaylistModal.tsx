@@ -27,7 +27,7 @@ import {
 } from 'store/application/ui/editPlaylistModal/selectors'
 import { close } from 'store/application/ui/editPlaylistModal/slice'
 import { AppState } from 'store/types'
-import { FEED_PAGE, getPathname, playlistPage } from 'utils/route'
+import { FEED_PAGE, getPathname, collectionPage } from 'utils/route'
 import zIndex from 'utils/zIndex'
 
 import styles from './EditPlaylistModal.module.css'
@@ -86,7 +86,12 @@ const EditPlaylistModal = ({
     onClose()
     deletePlaylist(playlistId!)
     if (handle && title) {
-      const playlistRoute = playlistPage(handle, title, playlistId!)
+      const playlistRoute = collectionPage(
+        handle,
+        isAlbum || false,
+        title,
+        playlistId!
+      )
       // If on the playlist page, direct user to feed
       if (getPathname(location) === playlistRoute) goToRoute(FEED_PAGE)
     }

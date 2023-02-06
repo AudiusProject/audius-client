@@ -69,7 +69,7 @@ import {
   FEED_PAGE,
   fullTrackPage,
   HISTORY_PAGE,
-  playlistPage,
+  collectionPage,
   profilePage,
   SAVED_PAGE,
   TRENDING_PAGE,
@@ -191,7 +191,14 @@ const NavColumn = ({
       createPlaylist(tempId, metadata)
       closeCreatePlaylistModal()
       if (account) {
-        goToRoute(playlistPage(account.handle, metadata.playlist_name, tempId))
+        goToRoute(
+          collectionPage(
+            account.handle,
+            kind === 'album',
+            metadata.playlist_name,
+            tempId
+          )
+        )
       }
     },
     [account, createPlaylist, closeCreatePlaylistModal, goToRoute]

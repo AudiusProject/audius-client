@@ -43,26 +43,6 @@ export const parseCollectionRoute = (route: string): CollectionRouteParams => {
     return { collectionId, handle: null, collectionType: null, title: null }
   }
 
-  // const playlistByPermalinkMatch = matchPath<{
-  //   handle: string
-  //   slug: string
-  // }>(route, {
-  //   path: PLAYLIST_BY_PERMALINK_PAGE,
-  //   exact: true
-  // })
-  // if (playlistByPermalinkMatch) {
-  //   const { handle, slug } = playlistByPermalinkMatch.params
-  //   const permalink = `${handle}/playlist/${slug}`
-  //   console.log('matched to permalink route')
-  //   return {
-  //     title: null,
-  //     collectionId: null,
-  //     permalink,
-  //     handle: null,
-  //     collectionType: 'playlist'
-  //   }
-  // }
-
   const playlistPageMatch = matchPath<{
     handle: string
     playlistName: string

@@ -40,7 +40,7 @@ import TierExplainerDrawer from 'components/user-badges/TierExplainerDrawer'
 import useAsyncPoll from 'hooks/useAsyncPoll'
 import useTabs from 'hooks/useTabs/useTabs'
 import { MIN_COLLECTIBLES_TIER } from 'pages/profile-page/ProfilePageProvider'
-import { albumPage, playlistPage } from 'utils/route'
+import { collectionPage } from 'utils/route'
 import { getUserPageSEOFields } from 'utils/seo'
 import { withNullGuard } from 'utils/withNullGuard'
 
@@ -392,16 +392,18 @@ const ProfilePage = g(
             playlist.playlist_contents.track_ids.length,
             playlist.is_private
           )}
-          href={playlistPage(
+          href={collectionPage(
             profile.handle,
+            playlist.is_album,
             playlist.playlist_name,
             playlist.playlist_id
           )}
           onClick={(e: MouseEvent) => {
             e.preventDefault()
             goToRoute(
-              playlistPage(
+              collectionPage(
                 profile.handle,
+                playlist.is_album,
                 playlist.playlist_name,
                 playlist.playlist_id
               )
@@ -421,18 +423,22 @@ const ProfilePage = g(
               album.save_count,
               album.playlist_contents.track_ids.length
             )}
-            href={albumPage(
+            href={collectionPage(
               profile.handle,
+              album.is_album,
               album.playlist_name,
-              album.playlist_id
+              album.playlist_id,
+              album.permalink
             )}
             onClick={(e: MouseEvent) => {
               e.preventDefault()
               goToRoute(
-                albumPage(
+                collectionPage(
                   profile.handle,
+                  album.is_album,
                   album.playlist_name,
-                  album.playlist_id
+                  album.playlist_id,
+                  album.permalink
                 )
               )
             }}
