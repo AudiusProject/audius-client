@@ -17,12 +17,13 @@ export const TracksTab = () => {
   const isProfileLoaded = useIsProfileLoaded()
   const dispatch = useDispatch()
 
-  const { handle, user_id, track_count, artist_pick_track_id } = useSelectProfile([
-    'handle',
-    'user_id',
-    'track_count',
-    'artist_pick_track_id'
-  ])
+  const { handle, user_id, track_count, artist_pick_track_id } =
+    useSelectProfile([
+      'handle',
+      'user_id',
+      'track_count',
+      'artist_pick_track_id'
+    ])
 
   const handleLower = handle.toLowerCase()
 

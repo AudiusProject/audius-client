@@ -9,8 +9,7 @@ import {
   cacheUsersActions as userActions,
   waitForValue,
   waitForAccount,
-  playlistLibraryHelpers,
-  FeatureFlags
+  playlistLibraryHelpers
 } from '@audius/common'
 import { mergeWith } from 'lodash'
 import {

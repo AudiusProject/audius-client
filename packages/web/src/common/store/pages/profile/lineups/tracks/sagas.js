@@ -3,25 +3,14 @@ import {
   accountSelectors,
   cacheTracksActions,
   cacheTracksSelectors,
-  cacheUsersSelectors,
   profilePageSelectors,
   TracksSortMode,
   profilePageTracksLineupActions as tracksActions,
   profilePageTracksLineupActions as lineupActions,
-  tracksSocialActions,
-  waitForValue,
-  FeatureFlags
+  tracksSocialActions
 } from '@audius/common'
-import {
-  all,
-  call,
-  select,
-  takeEvery,
-  put,
-  getContext
-} from 'redux-saga/effects'
+import { call, select, takeEvery, put } from 'redux-saga/effects'
 
-import { retrieveTracks } from 'common/store/cache/tracks/utils'
 import { LineupSagas } from 'common/store/lineup/sagas'
 import { waitForRead } from 'utils/sagaHelpers'
 
