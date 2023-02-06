@@ -277,6 +277,7 @@ const slice = createSlice({
       state.isDoneLoadingFromDisk = true
     },
     clearOfflineDownloads: (state) => {
+      state.downloadStatus = initialState.downloadStatus
       state.collectionStatus = initialState.collectionStatus
       state.offlineTrackMetadata = initialState.offlineTrackMetadata
       state.downloadStatus = initialState.downloadStatus
