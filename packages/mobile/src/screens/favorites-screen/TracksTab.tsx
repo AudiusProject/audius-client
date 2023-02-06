@@ -53,6 +53,10 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     marginBottom: spacing(4),
     marginHorizontal: spacing(3)
   },
+  trackList: {
+    borderRadius: 8,
+    overflow: 'hidden'
+  },
   spinnerContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -194,10 +198,11 @@ export const TracksTab = () => {
               {filteredTrackUids.length ? (
                 <Tile
                   styles={{
-                    root: styles.container
+                    tile: styles.container
                   }}
                 >
                   <TrackList
+                    style={styles.trackList}
                     hideArt
                     onEndReached={handleMoreFetchSaves}
                     onEndReachedThreshold={1.5}

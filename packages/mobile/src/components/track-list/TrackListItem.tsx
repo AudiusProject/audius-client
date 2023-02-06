@@ -47,14 +47,6 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   trackContainerDisabled: {
     backgroundColor: palette.neutralLight9
   },
-  trackContainerFirst: {
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8
-  },
-  trackContainerLast: {
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8
-  },
   trackInnerContainer: {
     height: '100%',
     width: '100%',
@@ -130,7 +122,6 @@ export type TrackListItemProps = {
   hideArt?: boolean
   id?: ID
   index: number
-  isLast: boolean
   isReorderable?: boolean
   noDividerMargin?: boolean
   onRemove?: (index: number) => void
@@ -169,7 +160,6 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
     drag,
     hideArt,
     index,
-    isLast,
     isReorderable = false,
     noDividerMargin,
     onRemove,
@@ -277,9 +267,7 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
         style={[
           styles.trackContainer,
           isActive && styles.trackContainerActive,
-          isDeleted && styles.trackContainerDisabled,
-          index === 0 && styles.trackContainerFirst,
-          isLast && styles.trackContainerLast
+          isDeleted && styles.trackContainerDisabled
         ]}
       >
         <TouchableOpacity
