@@ -363,8 +363,6 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
       store.dispatch(
         cacheActions.add(Kind.TRACKS, [{ id: trackId, metadata: trackFromApi }])
       )
-      // TODO: do this every time we add offline tracks to cache
-      // TODO: is UserMetadata the right type for the cache
       store.dispatch(
         cacheActions.add(Kind.USERS, [
           { id: trackId, metadata: trackFromApi.user }
@@ -403,6 +401,11 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
     )
     store.dispatch(
       cacheActions.add(Kind.TRACKS, [{ id: trackId, metadata: trackFromApi }])
+    )
+    store.dispatch(
+      cacheActions.add(Kind.USERS, [
+        { id: trackId, metadata: trackFromApi.user }
+      ])
     )
 
     await writeTrackJson(trackIdStr, trackToWrite)
