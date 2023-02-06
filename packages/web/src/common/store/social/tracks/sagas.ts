@@ -563,17 +563,12 @@ export function* confirmUnsaveTrack(trackId: ID, user: User) {
 }
 
 export function* watchSetArtistPick() {
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* takeEvery(
     socialActions.SET_ARTIST_PICK,
     function* (action: ReturnType<typeof socialActions.setArtistPick>) {
       yield* waitForWrite()
       const userId = yield* select(getUserId)
 
-      // Dual write to the artist_pick_track_id field in the
-      // users table in the discovery DB. Part of the migration
-      // of the artist pick feature from the identity service
-      // to the entity manager in discovery.
       yield* put(
         cacheActions.update(Kind.USERS, [
           {
@@ -585,7 +580,6 @@ export function* watchSetArtistPick() {
           }
         ])
       )
-      yield* call(audiusBackendInstance.setArtistPick, action.trackId)
       const user = yield* call(waitForValue, getUser, { id: userId })
       yield fork(updateProfileAsync, { metadata: user })
 
@@ -596,15 +590,10 @@ export function* watchSetArtistPick() {
 }
 
 export function* watchUnsetArtistPick() {
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* takeEvery(socialActions.UNSET_ARTIST_PICK, function* (action) {
     yield* waitForWrite()
     const userId = yield* select(getUserId)
 
-    // Dual write to the artist_pick_track_id field in the
-    // users table in the discovery DB. Part of the migration
-    // of the artist pick feature from the identity service
-    // to the entity manager in discovery.
     yield* put(
       cacheActions.update(Kind.USERS, [
         {
@@ -616,7 +605,6 @@ export function* watchUnsetArtistPick() {
         }
       ])
     )
-    yield* call(audiusBackendInstance.setArtistPick)
     const user = yield* call(waitForValue, getUser, { id: userId })
     yield fork(updateProfileAsync, { metadata: user })
 

@@ -1858,31 +1858,6 @@ export const audiusBackend = ({
     }
   }
 
-  /**
-   * Sets the artist pick for a user
-   * @param {number?} trackId if null, unsets the artist pick
-   */
-  async function setArtistPick(trackId: Nullable<ID> = null) {
-    await waitForLibsInit()
-    try {
-      const { data, signature } = await signData()
-      return await fetch(`${identityServiceUrl}/artist_pick`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          [AuthHeaders.Message]: data,
-          [AuthHeaders.Signature]: signature
-        },
-        body: JSON.stringify({
-          trackId
-        })
-      })
-    } catch (err) {
-      console.log(getErrorMessage(err))
-      return false
-    }
-  }
-
   async function signIn(email: string, password: string) {
     await waitForLibsInit()
     return audiusLibs.Account.login(email, password)
@@ -3267,7 +3242,6 @@ export const audiusBackend = ({
     sendTokens,
     sendWAudioTokens,
     sendWelcomeEmail,
-    setArtistPick,
     setCreatorNodeEndpoint,
     setup,
     setUserHandleForRelay,
