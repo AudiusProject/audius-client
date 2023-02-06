@@ -172,12 +172,14 @@ export const syncCollectionTracks = async (
   const downloadedCollectionTrackIds =
     offlineCollection.tracks
       ?.map((track) => track.track_id)
-      ?.filter(
-        (trackId) =>
-          // TODO: which statuses are most correct here?
-          trackDownloadStatus[trackId] === OfflineDownloadStatus.SUCCESS ||
-          trackDownloadStatus[trackId] === OfflineDownloadStatus.LOADING
-      ) ?? []
+      ?.filter((trackId) => {
+        const downloadStatus = trackDownloadStatus[trackId]
+        return (
+          downloadStatus === OfflineDownloadStatus.SUCCESS ||
+          downloadStatus === OfflineDownloadStatus.LOADING ||
+          downloadStatus === OfflineDownloadStatus.INIT
+        )
+      }) ?? []
 
   if (updatedCollection.is_delete) {
     removeCollectionDownload(

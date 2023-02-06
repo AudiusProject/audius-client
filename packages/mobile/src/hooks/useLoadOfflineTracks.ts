@@ -88,14 +88,9 @@ export const useLoadOfflineData = () => {
         try {
           const track = await getTrackJson(trackId)
           if (!track?.offline) return
-          const lineupTrack = {
-            uid: makeUid(Kind.TRACKS, track.track_id),
-            kind: Kind.TRACKS,
-            ...track
-          }
           cacheTracks.push({
             id: track.track_id,
-            uid: lineupTrack.uid,
+            uid: makeUid(Kind.TRACKS, track.track_id),
             metadata: track
           })
           if (track.user) {
