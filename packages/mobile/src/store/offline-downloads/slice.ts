@@ -2,19 +2,12 @@ import type { DownloadReason, ID, OfflineTrackMetadata } from '@audius/common'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 
-import type { TrackForDownload } from 'app/services/offline-downloader'
-
 export type CollectionId = ID | string
 
 type CollectionStatusPayload = {
   collectionId: CollectionId
   isFavoritesDownload?: boolean
 }
-
-type TrackDownloadReasonPayload = Pick<
-  TrackForDownload,
-  'trackId' | 'downloadReason'
->
 
 export type TrackOfflineMetadataPayload = {
   trackId: ID
@@ -201,51 +194,6 @@ const slice = createSlice({
       trackOfflineMetadatas.forEach((trackOfflineMetadata) => {
         const { trackId, offlineMetadata } = trackOfflineMetadata
         state.offlineTrackMetadata[trackId] = offlineMetadata
-      })
-    },
-    batchAddTrackDownloadReason: (
-      state,
-      action: PayloadAction<TrackDownloadReasonPayload[]>
-    ) => {
-      const { payload: tracksForDownload } = action
-      tracksForDownload.forEach(({ trackId, downloadReason }) => {
-        const existingReasons =
-          state.offlineTrackMetadata[trackId].reasons_for_download ?? []
-        if (
-          // if it's not a new reason
-          existingReasons.some(
-            (existingReason) =>
-              existingReason.collection_id === downloadReason.collection_id &&
-              existingReason.is_from_favorites ===
-                downloadReason.is_from_favorites
-          )
-        )
-          return
-
-        state.offlineTrackMetadata[trackId].reasons_for_download = [
-          ...existingReasons,
-          downloadReason
-        ]
-      })
-    },
-    batchRemoveTrackDownloadReason: (
-      state,
-      action: PayloadAction<TrackDownloadReasonPayload[]>
-    ) => {
-      const { payload: tracksForDownload } = action
-      tracksForDownload.forEach(({ trackId, downloadReason }) => {
-        const existingReasons =
-          state.offlineTrackMetadata[trackId].reasons_for_download ?? []
-
-        const updatedReasons = existingReasons.filter(
-          (existingReason) =>
-            existingReason.collection_id !== downloadReason.collection_id ||
-            existingReason.is_from_favorites !==
-              downloadReason.is_from_favorites
-        )
-
-        state.offlineTrackMetadata[trackId].reasons_for_download =
-          updatedReasons
       })
     },
     unloadTrack: (state, { payload: trackId }: PayloadAction<string>) => {
