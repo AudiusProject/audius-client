@@ -81,7 +81,9 @@ const TrackAvailabilityButton = (props) => {
         name='setUnlisted'
         text={props.availabilityButtonTitle}
         label={messages.availability}
-        className={cn(styles.trackAvailabilityButton, { [styles.error]: props.error })}
+        className={cn(styles.trackAvailabilityButton, {
+          [styles.error]: props.error
+        })}
         textClassName={styles.trackAvailabilityButtonText}
         onClick={() => {
           props.setIsAvailabilityModalOpen(true)
