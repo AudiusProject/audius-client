@@ -7,7 +7,7 @@ import {
   batchInitCollectionDownload,
   batchInitDownload,
   errorCollectionDownload,
-  errorDownload,
+  errorTrackDownload,
   removeCollectionDownload
 } from 'app/store/offline-downloads/slice'
 
@@ -133,7 +133,7 @@ export const startDownloadWorker = async () => {
         const parsedPayload: TrackDownloadWorkerPayload = JSON.parse(payload)
         const { trackId } = parsedPayload
         if (failed) {
-          store.dispatch(errorDownload(trackId.toString()))
+          store.dispatch(errorTrackDownload(trackId.toString()))
           queue.removeJob(job)
         } else {
           trackIdsInQueue.push(trackId.toString())

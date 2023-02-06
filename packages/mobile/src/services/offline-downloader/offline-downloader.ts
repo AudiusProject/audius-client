@@ -30,9 +30,9 @@ import {
 import {
   actions as offlineDownloadsActions,
   batchInitDownload,
-  startDownload,
-  completeDownload,
-  errorDownload,
+  startTrackDownload,
+  completeTrackDownload,
+  errorTrackDownload,
   abandonDownload,
   loadTrack,
   removeDownload,
@@ -269,7 +269,7 @@ export const batchDownloadTrack = (tracksForDownload: TrackForDownload[]) => {
 export const downloadTrack = async (trackForDownload: TrackForDownload) => {
   const { trackId, downloadReason, favoriteCreatedAt } = trackForDownload
   const trackIdStr = trackId.toString()
-  store.dispatch(startDownload(trackIdStr))
+  store.dispatch(startTrackDownload(trackIdStr))
 
   // Throw this
   const failJob = ({
@@ -279,7 +279,7 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
     message?: string
     error?: DownloadTrackError
   }) => {
-    store.dispatch(errorDownload(trackIdStr))
+    store.dispatch(errorTrackDownload(trackIdStr))
     console.warn(message)
     return new Error(error)
   }
@@ -329,7 +329,7 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
               downloadReason.is_from_favorites
         )
       ) {
-        store.dispatch(completeDownload(trackIdStr))
+        store.dispatch(completeTrackDownload(trackIdStr))
         return
       }
       const now = Date.now()
@@ -351,7 +351,7 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
       await writeTrackJson(trackIdStr, trackToWrite)
 
       store.dispatch(loadTrack(trackToWrite))
-      store.dispatch(completeDownload(trackIdStr))
+      store.dispatch(completeTrackDownload(trackIdStr))
       return
     }
 
@@ -388,7 +388,7 @@ export const downloadTrack = async (trackForDownload: TrackForDownload) => {
       })
     }
     store.dispatch(loadTrack(trackToWrite))
-    store.dispatch(completeDownload(trackIdStr))
+    store.dispatch(completeTrackDownload(trackIdStr))
     return
   } catch (e) {
     throw failJob(e.message)

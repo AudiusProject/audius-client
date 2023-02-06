@@ -1,16 +1,9 @@
-import type {
-  Collection,
-  AccountCollection,
-  UserCollectionMetadata,
-  collectionsSocialActions
-} from '@audius/common'
+import type { Collection, AccountCollection } from '@audius/common'
 import {
   waitForValue,
   collectionPageActions,
-  FavoriteSource,
   tracksSocialActions,
   cacheCollectionsActions,
-  accountSelectors,
   cacheCollectionsSelectors,
   reachabilityActions,
   savedPageActions
@@ -26,7 +19,6 @@ import {
   put
 } from 'typed-redux-saga'
 
-import { apiClient } from 'app/services/audius-api-client'
 import {
   purgeAllDownloads,
   batchDownloadTrack,
@@ -36,7 +28,6 @@ import {
   syncStaleTracks,
   syncCollectionsTracks,
   enqueueTrackDownload,
-  batchDownloadCollection,
   batchRemoveTrackDownload
 } from 'app/services/offline-downloader'
 import {
@@ -45,6 +36,7 @@ import {
   setPlayCounterWorker
 } from 'app/services/offline-downloader/workers'
 
+import { processDownloadQueueSaga } from './sagas/processDownloadQueueSaga/processDownloadQueueSaga'
 import { watchRemoveCollectionDownloads } from './sagas/removeCollectionDownloadsSaga'
 import { watchRemoveTrackDownloads } from './sagas/removeTrackDownloadsSaga'
 import { requestDownloadAllFavoritesSaga } from './sagas/requestDownloadAllFavoritesSaga'
@@ -54,6 +46,8 @@ import { requestRemoveAllDownloadedFavoritesSaga } from './sagas/requestRemoveAl
 import { requestRemoveDownloadedCollectionSaga } from './sagas/requestRemoveDownloadedCollectionSaga'
 import { requestRemoveFavoritedDownloadedCollectionSaga } from './sagas/requestRemoveFavoritedDownloadedCollectionSaga'
 import { watchUpdateTrackDownloadReasons } from './sagas/updateTrackDownloadReasonsSaga'
+import { watchAddOfflineItems } from './sagas/watchAddOfflineItems'
+import { watchReachability } from './sagas/watchReachability'
 import { watchRemoveOfflineItems } from './sagas/watchRemoveOfflineItems'
 import { watchSaveCollectionSaga } from './sagas/watchSaveCollectionSaga'
 import {
@@ -66,12 +60,11 @@ import {
   clearOfflineDownloads,
   doneLoadingFromDisk,
   OfflineDownloadStatus,
-  startDownload
+  startTrackDownload
 } from './slice'
 const { fetchCollection, FETCH_COLLECTION_SUCCEEDED, FETCH_COLLECTION_FAILED } =
   collectionPageActions
 const { SET_REACHABLE, SET_UNREACHABLE } = reachabilityActions
-const { getUserId } = accountSelectors
 const { getCollections } = cacheCollectionsSelectors
 
 export function* downloadSavedTrack(
@@ -219,7 +212,7 @@ function* downloadNewPlaylistTrackIfNecessary({
       is_from_favorites: !!favoriteDownloadedCollections[playlistId]
     }
   }
-  yield* put(startDownload(trackId.toString()))
+  yield* put(startTrackDownload(trackId.toString()))
   yield* call(enqueueTrackDownload, trackForDownload)
 }
 
@@ -265,6 +258,7 @@ const sagas = () => {
     watchClearOfflineDownloads,
     watchSetReachable,
     watchSetUnreachable,
+    watchAddOfflineItems,
     watchRemoveOfflineItems,
     startSync,
     watchAddTrackToPlaylist,
@@ -272,12 +266,14 @@ const sagas = () => {
     watchRemoveTrackDownloads,
     watchUpdateTrackDownloadReasons,
     watchRemoveCollectionDownloads,
+    watchReachability,
     requestDownloadAllFavoritesSaga,
     requestDownloadCollectionSaga,
     requestDownloadFavoritedCollectionSaga,
     requestRemoveAllDownloadedFavoritesSaga,
     requestRemoveDownloadedCollectionSaga,
-    requestRemoveFavoritedDownloadedCollectionSaga
+    requestRemoveFavoritedDownloadedCollectionSaga,
+    processDownloadQueueSaga
   ]
 }
 
