@@ -16,6 +16,11 @@ type TrackDownloadReasonPayload = Pick<
   'trackId' | 'downloadReason'
 >
 
+export type TrackOfflineMetadataPayload = {
+  trackId: ID
+  offlineMetadata: OfflineTrackMetadata
+}
+
 export type OfflineDownloadsState = {
   downloadStatus: {
     [key: string]: OfflineDownloadStatus
@@ -188,17 +193,15 @@ const slice = createSlice({
         delete state.collectionStatus[collectionId]
       })
     },
-    setTrackOfflineMetadata: (
+    batchSetTrackOfflineMetadata: (
       state,
-      action: PayloadAction<{
-        trackId: number
-        offlineMetadata: OfflineTrackMetadata
-      }>
+      action: PayloadAction<TrackOfflineMetadataPayload[]>
     ) => {
-      const {
-        payload: { trackId, offlineMetadata }
-      } = action
-      state.offlineTrackMetadata[trackId] = offlineMetadata
+      const { payload: trackOfflineMetadatas } = action
+      trackOfflineMetadatas.forEach((trackOfflineMetadata) => {
+        const { trackId, offlineMetadata } = trackOfflineMetadata
+        state.offlineTrackMetadata[trackId] = offlineMetadata
+      })
     },
     batchAddTrackDownloadReason: (
       state,
@@ -300,7 +303,7 @@ export const {
   updateCollectionDownloadReasons,
   removeCollectionDownload,
   removeCollectionDownloads,
-  setTrackOfflineMetadata,
+  batchSetTrackOfflineMetadata,
   unloadTrack,
   updateTrackDownloadReasons,
   removeTrackDownloads,
