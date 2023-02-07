@@ -18,8 +18,6 @@ const MAX_SEGMENTS = 47;
 const AVERAGE_SEGMENT_DURATION = 6; /* seconds */
 const MAX_BUFFER_LENGTH = MAX_SEGMENTS * AVERAGE_SEGMENT_DURATION;
 
-const PUBLIC_IPFS_GATEWAY = `http://cloudflare-ipfs.com/ipfs/`;
-
 // Account for possibility of no-window in Preact pre-render
 const IS_CHROME_LIKE =
   typeof window !== "undefined" &&
@@ -134,8 +132,7 @@ class AudioStream {
       this.hls.attachMedia(this.audio);
     } else {
       // Native HLS (ios Safari)
-      const m3u8Gateways =
-        gateways.length > 0 ? [gateways[0]] : [PUBLIC_IPFS_GATEWAY];
+      const m3u8Gateways = [gateways[0]]
       const m3u8 = generateM3U8Variants(
         segments,
         prefetchedSegments,

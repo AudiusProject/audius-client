@@ -4,12 +4,6 @@ const axios = require("axios");
 
 const CancelToken = axios.CancelToken;
 
-// Public gateways to send requests to, ordered by precidence.
-const publicGateways = [
-  "https://ipfs.io/ipfs/",
-  "https://cloudflare-ipfs.com/ipfs/"
-];
-
 const creatorNodes = getCreatorNodeWhitelist()
 const creatorNodeWhitelist = new Set(creatorNodes.split(',').map(c => `${c}/ipfs/`))
 
@@ -115,7 +109,7 @@ export const fetchJsonFromCID = async (cid) => {
  *  Can be used for tracking metrics on which gateways were used.
  */
 const _fetchCID = async (cid, creatorNodeGateways, callback = () => {}) => {
-  const gateways = publicGateways.concat(...creatorNodeGateways);
+  const gateways = [...creatorNodeGateways];
   const urls = gateways.map(gateway => `${gateway}${cid}`);
 
   try {
