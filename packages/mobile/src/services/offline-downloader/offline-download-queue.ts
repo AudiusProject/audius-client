@@ -12,6 +12,7 @@ import {
 } from 'app/store/offline-downloads/slice'
 
 import type { CollectionForDownload, TrackForDownload } from './types'
+import { startQueueIfOnline } from './workers'
 import type { CollectionDownloadWorkerPayload } from './workers/collectionDownloadWorker'
 import {
   collectionDownloadWorker,
@@ -144,8 +145,6 @@ export const startDownloadWorker = async () => {
     })
 
   store.dispatch(batchInitDownload(trackIdsInQueue))
-
-  queue.start()
 }
 
 export const cancelQueuedCollectionDownloads = async (
@@ -185,7 +184,7 @@ export const cancelQueuedCollectionDownloads = async (
       console.warn(e)
     }
   })
-  queue.start()
+  startQueueIfOnline()
 }
 
 export const cancelQueuedTrackDownloads = async (
@@ -222,5 +221,20 @@ export const cancelQueuedTrackDownloads = async (
       console.warn(e)
     }
   })
-  queue.start()
+  startQueueIfOnline()
+}
+
+export const cancelAllQueuedDownloads = async () => {
+  queue.stop()
+  const jobs = await queue.getJobs()
+  jobs.forEach((rawJob) => {
+    const { workerName, id } = rawJob
+    if (
+      workerName === TRACK_DOWNLOAD_WORKER ||
+      workerName === COLLECTION_DOWNLOAD_WORKER
+    ) {
+      queue.cancelJob(id)
+    }
+  })
+  startQueueIfOnline()
 }

@@ -2,9 +2,7 @@ import type {
   DownloadReason,
   ID,
   OfflineCollectionMetadata,
-  OfflineTrackMetadata,
-  Track,
-  UserTrackMetadata
+  OfflineTrackMetadata
 } from '@audius/common'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import type { PayloadAction } from '@reduxjs/toolkit'
@@ -24,7 +22,10 @@ type CollectionStatusPayload = {
   collectionId: CollectionId
 }
 
-type LineupTrack = Track & UserTrackMetadata
+export type TrackOfflineMetadataPayload = {
+  trackId: ID
+  offlineMetadata: OfflineTrackMetadata
+}
 
 export type DownloadQueueItem =
   | { type: 'collection'; id: ID }
@@ -39,9 +40,6 @@ export type OfflineDownloadsState = {
   }
   favoritedCollectionStatus: {
     [key: string]: OfflineDownloadStatus
-  }
-  tracks: {
-    [key: string]: LineupTrack
   }
   isDoneLoadingFromDisk: boolean
   downloadQueue: DownloadQueueItem[]
@@ -139,7 +137,6 @@ export enum OfflineDownloadStatus {
 
 const initialState: OfflineDownloadsState = {
   downloadStatus: {},
-  tracks: {},
   collectionStatus: {},
   favoritedCollectionStatus: {},
   isDoneLoadingFromDisk: false,
@@ -159,7 +156,13 @@ const slice = createSlice({
       { payload: trackIds }: PayloadAction<string[]>
     ) => {
       trackIds.forEach((trackId) => {
-        state.downloadStatus[trackId] = OfflineDownloadStatus.INIT
+        if (
+          !state.downloadStatus[trackId] ||
+          (state.downloadStatus[trackId] !== OfflineDownloadStatus.LOADING &&
+            state.downloadStatus[trackId] !== OfflineDownloadStatus.SUCCESS)
+        ) {
+          state.downloadStatus[trackId] = OfflineDownloadStatus.INIT
+        }
       })
     },
     // Actually starting the download
@@ -167,7 +170,12 @@ const slice = createSlice({
       state,
       { payload: trackId }: PayloadAction<string>
     ) => {
-      state.downloadStatus[trackId] = OfflineDownloadStatus.LOADING
+      if (
+        !state.downloadStatus[trackId] ||
+        state.downloadStatus[trackId] !== OfflineDownloadStatus.SUCCESS
+      ) {
+        state.downloadStatus[trackId] = OfflineDownloadStatus.LOADING
+      }
     },
     completeTrackDownload: (
       state,
@@ -179,13 +187,23 @@ const slice = createSlice({
       state,
       { payload: trackId }: PayloadAction<string>
     ) => {
-      state.downloadStatus[trackId] = OfflineDownloadStatus.ERROR
+      if (
+        !state.downloadStatus[trackId] ||
+        state.downloadStatus[trackId] !== OfflineDownloadStatus.SUCCESS
+      ) {
+        state.downloadStatus[trackId] = OfflineDownloadStatus.ERROR
+      }
     },
     removeDownload: (state, { payload: trackId }: PayloadAction<string>) => {
       delete state.downloadStatus[trackId]
     },
     abandonDownload: (state, { payload: trackId }: PayloadAction<string>) => {
-      state.downloadStatus[trackId] = OfflineDownloadStatus.ABANDONED
+      if (
+        !state.downloadStatus[trackId] ||
+        state.downloadStatus[trackId] !== OfflineDownloadStatus.SUCCESS
+      ) {
+        state.downloadStatus[trackId] = OfflineDownloadStatus.ABANDONED
+      }
     },
     batchInitCollectionDownload: (
       state,
@@ -254,20 +272,18 @@ const slice = createSlice({
         delete state.collectionStatus[collectionId]
       })
     },
-    loadTracks: (state, { payload: tracks }: PayloadAction<LineupTrack[]>) => {
-      tracks.forEach((track) => {
-        const trackIdStr = track.track_id.toString()
-        state.tracks[trackIdStr] = track
-        state.downloadStatus[trackIdStr] = OfflineDownloadStatus.SUCCESS
+    batchSetTrackOfflineMetadata: (
+      state,
+      action: PayloadAction<TrackOfflineMetadataPayload[]>
+    ) => {
+      const { payload: trackOfflineMetadatas } = action
+      trackOfflineMetadatas.forEach((trackOfflineMetadata) => {
+        const { trackId, offlineMetadata } = trackOfflineMetadata
+        state.offlineTrackMetadata[trackId] = offlineMetadata
       })
     },
-    loadTrack: (state, { payload: track }: PayloadAction<LineupTrack>) => {
-      const trackIdStr = track.track_id.toString()
-      state.tracks[trackIdStr] = track
-      state.downloadStatus[trackIdStr] = OfflineDownloadStatus.SUCCESS
-    },
     unloadTrack: (state, { payload: trackId }: PayloadAction<string>) => {
-      delete state.tracks[trackId]
+      delete state.offlineTrackMetadata[trackId]
       delete state.downloadStatus[trackId]
     },
     updateTrackDownloadReasons: (
@@ -275,22 +291,19 @@ const slice = createSlice({
       action: UpdateTrackDownloadReasonsAction
     ) => {
       const { reasons } = action.payload
-      const { tracks } = state
+      const { offlineTrackMetadata } = state
 
       reasons.forEach((reason) => {
         const { trackId, reasons_for_download } = reason
-        const track = tracks[trackId]
-        const { offline } = track
+        const offlineMetadata = offlineTrackMetadata[trackId]
 
-        if (offline) {
-          offline.reasons_for_download = reasons_for_download
-        }
+        offlineMetadata.reasons_for_download = reasons_for_download
       })
     },
     removeTrackDownloads: (state, action: RemoveTrackDownloadsAction) => {
       const { trackIds } = action.payload
       trackIds.forEach((trackId) => {
-        delete state.tracks[trackId]
+        delete state.offlineTrackMetadata[trackId]
         delete state.downloadStatus[trackId]
       })
     },
@@ -301,8 +314,7 @@ const slice = createSlice({
         downloadStatus,
         downloadQueue,
         offlineCollectionMetadata,
-        collectionStatus,
-        queueStatus
+        collectionStatus
       } = state
       for (const item of items) {
         if (item.type === 'track') {
@@ -398,9 +410,11 @@ const slice = createSlice({
       state.isDoneLoadingFromDisk = true
     },
     clearOfflineDownloads: (state) => {
-      state.collectionStatus = initialState.collectionStatus
-      state.tracks = initialState.tracks
       state.downloadStatus = initialState.downloadStatus
+      state.collectionStatus = initialState.collectionStatus
+      state.offlineTrackMetadata = initialState.offlineTrackMetadata
+      state.downloadStatus = initialState.downloadStatus
+      state.favoritedCollectionStatus = initialState.favoritedCollectionStatus
       state.isDoneLoadingFromDisk = initialState.isDoneLoadingFromDisk
       state.downloadQueue = initialState.downloadQueue
       state.queueStatus = initialState.queueStatus
@@ -441,8 +455,7 @@ export const {
   updateCollectionDownloadReasons,
   removeCollectionDownload,
   removeCollectionDownloads,
-  loadTracks,
-  loadTrack,
+  batchSetTrackOfflineMetadata,
   unloadTrack,
   updateTrackDownloadReasons,
   removeTrackDownloads,
