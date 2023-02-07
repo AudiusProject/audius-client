@@ -68,7 +68,6 @@ export type ComputedUserProperties = {
   _cover_photo_sizes: CoverPhotoSizes
   _collectionIds?: string[]
   _profile_picture_color?: Color
-  artist_pick_track_id?: ID
   updatedProfilePicture?: { file: File; url: string }
   updatedCoverPhoto?: { file: File; url: string }
 }
