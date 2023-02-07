@@ -79,7 +79,6 @@ export const makeUser = (
     id: undefined,
     cover_photo_legacy: undefined,
     profile_picture_legacy: undefined,
-    artist_pick_track_id: null
   }
 
   delete newUser.id
