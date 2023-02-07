@@ -1,24 +1,9 @@
-import type { ID } from '@audius/common'
-import { takeEvery, select, put, call } from 'typed-redux-saga'
+import { takeEvery, select, put } from 'typed-redux-saga'
 
-import type { TrackForDownload } from 'app/services/offline-downloader'
-import {
-  cancelQueuedCollectionDownloads,
-  cancelQueuedTrackDownloads
-} from 'app/services/offline-downloader'
-
-import { getOfflineTrackMetadata, getOfflineTracks } from '../selectors'
-import type {
-  CollectionAction,
-  OfflineItem,
-  RequestRemoveFavoritedDownloadedCollectionAction,
-  TrackReasonsToUpdate
-} from '../slice'
+import { getOfflineTrackMetadata } from '../selectors'
+import type { CollectionAction, OfflineItem } from '../slice'
 import {
   removeOfflineItems,
-  removeCollectionDownloads,
-  removeTrackDownloads,
-  updateTrackDownloadReasons,
   requestRemoveFavoritedDownloadedCollection
 } from '../slice'
 

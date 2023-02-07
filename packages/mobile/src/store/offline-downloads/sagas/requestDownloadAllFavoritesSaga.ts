@@ -55,7 +55,6 @@ function* downloadAllFavorites() {
       type: 'collection',
       id: playlist_id,
       metadata: {
-        isFavoritesDownload: true,
         reasons_for_download: [downloadReason]
       }
     })
@@ -83,49 +82,3 @@ function* downloadAllFavorites() {
 
   yield* put(addOfflineItems({ items: offlineItemsToAdd }))
 }
-
-// function* downloadAllFavoritesLegacy() {
-//   const currentUserId = yield* select(getUserId)
-//   if (!currentUserId) return
-
-//   const allFavoritedTracks = yield* call(fetchAllFavoritedTracks, currentUserId)
-
-//   const offlineTrackMetadata = yield* select(getOfflineTrackMetadata)
-//   const offlineQueueItems: DownloadQueueItem[] = []
-
-//   for (const favoritedTrack of allFavoritedTracks) {
-//     const { trackId, favoriteCreatedAt } = favoritedTrack
-//     const downloadReason = {
-//       is_from_favorites: true,
-//       collection_id: DOWNLOAD_REASON_FAVORITES
-//     }
-//     addOfflineTrack(offlineTrackMetadata, trackId, downloadReason)
-//     offlineQueueItems.push({ trackId, favoriteCreatedAt, downloadReason })
-//   }
-
-//   const favoritedCollections = yield* select(getAccountCollections)
-
-//   const offlineCollectionMetadata = yield* select(getOfflineCollectionMetadata)
-
-//   for (const favoritedCollection of favoritedCollections) {
-//     const { playlist_id, playlist_contents } = favoritedCollection
-//     const downloadReason = { is_from_favorites: true }
-
-//     addOfflineCollection(offlineCollectionMetadata, playlist_id, downloadReason)
-//     offlineQueueItems.push({
-//       collectionId: playlist_id,
-//       downloadReason
-//     })
-
-//     const { track_ids } = playlist_contents
-
-//     for (const { track: trackId } of track_ids) {
-//       const downloadReason = {
-//         is_from_favorites: true,
-//         collection_id: playlist_id
-//       }
-//       addOfflineTrack(offlineTrackMetadata, trackId, downloadReason)
-//       offlineQueueItems.push({ trackId, downloadReason })
-//     }
-//   }
-// }

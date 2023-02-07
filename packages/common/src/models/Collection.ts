@@ -55,7 +55,6 @@ export type CollectionDownloadReason = { is_from_favorites: boolean }
 
 // This is available on mobile for offline tracks
 export type OfflineCollectionMetadata = {
-  isFavoritesDownload?: boolean
   reasons_for_download: CollectionDownloadReason[]
 }
 

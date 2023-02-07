@@ -10,7 +10,7 @@ import { useDebouncedCallback } from 'app/hooks/useDebouncedCallback'
 import { useProxySelector } from 'app/hooks/useProxySelector'
 import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 import { setVisibility } from 'app/store/drawers/slice'
-import { getAllOfflineDownloadStatus } from 'app/store/offline-downloads/selectors'
+import { getOfflineTrackStatus } from 'app/store/offline-downloads/selectors'
 import {
   OfflineDownloadStatus,
   requestDownloadAllFavorites
@@ -34,16 +34,12 @@ export const DownloadFavoritesSwitch = () => {
   const isReachable = useSelector(getIsReachable)
 
   const isMarkedForDownload = useProxySelector((state) => {
-    const { collectionStatus, favoritedCollectionStatus } =
-      state.offlineDownloads
-    return !!(
-      collectionStatus[DOWNLOAD_REASON_FAVORITES] ||
-      favoritedCollectionStatus[DOWNLOAD_REASON_FAVORITES]
-    )
+    const { collectionStatus } = state.offlineDownloads
+    return !!collectionStatus[DOWNLOAD_REASON_FAVORITES]
   }, [])
 
   const isDownloaded = useProxySelector((state) => {
-    const downloadStatus = getAllOfflineDownloadStatus(state)
+    const downloadStatus = getOfflineTrackStatus(state)
     const tracksToDownload = Object.keys(downloadStatus)
     if (tracksToDownload.length === 0) return false
 

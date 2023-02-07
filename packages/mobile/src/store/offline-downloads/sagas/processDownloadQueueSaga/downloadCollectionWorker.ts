@@ -1,6 +1,6 @@
 import type { ID } from '@audius/common'
 import { accountSelectors, getContext } from '@audius/common'
-import { select, call, put, all } from 'typed-redux-saga'
+import { select, call, put } from 'typed-redux-saga'
 
 import {
   downloadCollectionCoverArt,
@@ -9,6 +9,7 @@ import {
   writeFavoritesCollectionJson
 } from 'app/services/offline-downloader'
 
+import type { CollectionId } from '../../slice'
 import {
   completeDownload,
   downloadQueuedItem,
@@ -19,7 +20,7 @@ import {
 const { getUserId } = accountSelectors
 
 // TODO add favorites collection task
-export function* downloadCollectionWorker(collectionId: ID) {
+export function* downloadCollectionWorker(collectionId: CollectionId) {
   yield* put(startDownload({ type: 'collection', id: collectionId }))
 
   // "favorites" collection short circuit

@@ -35,10 +35,14 @@ export const addOfflineTrack = (
     ...metadata,
     reasons_for_download: downloadReasons
   }
+
+  return offlineTrackMetadata
 }
 
 export const addOfflineCollection = (
-  offlineCollectionMetadata: Record<CollectionId, OfflineCollectionMetadata>,
+  offlineCollectionMetadata: {
+    [Key in CollectionId]?: OfflineCollectionMetadata
+  },
   collectionId: CollectionId,
   metadata: OfflineCollectionMetadata
 ) => {
@@ -99,7 +103,9 @@ export const removeOfflineTrack = (
 }
 
 export const removeOfflineCollection = (
-  offlineCollectionMetadata: Record<ID, OfflineCollectionMetadata>,
+  offlineCollectionMetadata: {
+    [Key in CollectionId]?: OfflineCollectionMetadata
+  },
   collectionId: CollectionId,
   metadata: OfflineCollectionMetadata
 ) => {
