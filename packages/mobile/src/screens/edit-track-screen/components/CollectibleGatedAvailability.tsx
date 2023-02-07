@@ -182,7 +182,8 @@ export const CollectibleGatedAvailability = ({
       setTrackAvailabilityFields(
         {
           is_premium: true,
-          premium_conditions: { nft_collection: undefined }
+          premium_conditions: { nft_collection: undefined },
+          'field_visibility.remixes': false
         },
         true
       )
