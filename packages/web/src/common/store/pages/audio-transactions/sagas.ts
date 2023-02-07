@@ -153,19 +153,21 @@ function* fetchTransactionMetadata() {
       const { txDetails } = action.payload
       yield* call(waitForLibsInit)
       const libs: AudiusLibs = yield* call(audiusBackendInstance.getAudiusLibs)
-      const response = yield* call(
+      const response = (yield* call(
         [
           libs.identityService!,
           libs.identityService!.getUserBankTransactionMetadata
         ],
         txDetails.signature
-      )
+      )) as any[]
       yield put(
         fetchTransactionDetailsSucceeded({
           transactionId: txDetails.signature,
           transactionDetails: {
             ...txDetails,
-            metadata: (response as any[])[0].metadata
+            // If metadata does not exist on identity, mark as null to indicate
+            // that fetch was attempted but failed.
+            metadata: response.length === 0 ? null : response[0].metadata
           }
         })
       )
