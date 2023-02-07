@@ -98,14 +98,12 @@ const dateAndMetadataBlocks = (transactionDetails: TransactionDetails) => {
   switch (transactionDetails.transactionType) {
     case TransactionType.PURCHASE: {
       // Rare case: metadata will be null if failed to fetch from identity.
-      if (transactionDetails.metadata === null) {
+      if (!transactionDetails.metadata) {
         return
       }
       return (
         <>
-          <TransactionPurchaseMetadata
-            metadata={transactionDetails.metadata!}
-          />
+          <TransactionPurchaseMetadata metadata={transactionDetails.metadata} />
           <Block header={messages.date}>{transactionDetails.date}</Block>
         </>
       )

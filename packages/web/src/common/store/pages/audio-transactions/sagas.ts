@@ -167,7 +167,7 @@ function* fetchTransactionMetadata() {
             ...txDetails,
             // If metadata does not exist on identity, mark as null to indicate
             // that fetch was attempted but failed.
-            metadata: response.length === 0 ? null : response[0].metadata
+            metadata: response[0]?.metadata ?? null
           }
         })
       )
