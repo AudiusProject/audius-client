@@ -252,8 +252,7 @@ const CardSearchPage = ({
                 collection.user.handle,
                 isAlbum,
                 collection.playlist_name,
-                collection.playlist_id,
-                collection.permalink
+                collection.playlist_id
               ),
               primaryText: collection.playlist_name,
               secondaryText: collection.user.handle,

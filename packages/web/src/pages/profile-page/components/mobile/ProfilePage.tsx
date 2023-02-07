@@ -427,8 +427,7 @@ const ProfilePage = g(
               profile.handle,
               album.is_album,
               album.playlist_name,
-              album.playlist_id,
-              album.permalink
+              album.playlist_id
             )}
             onClick={(e: MouseEvent) => {
               e.preventDefault()
@@ -437,8 +436,7 @@ const ProfilePage = g(
                   profile.handle,
                   album.is_album,
                   album.playlist_name,
-                  album.playlist_id,
-                  album.permalink
+                  album.playlist_id
                 )
               )
             }}

@@ -202,8 +202,7 @@ const AlbumCardLineup = ({
               album.ownerHandle,
               album.is_album,
               album.playlist_name,
-              album.playlist_id,
-              album.permalink
+              album.playlist_id
             )
           )
         }

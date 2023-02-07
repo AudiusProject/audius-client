@@ -120,8 +120,7 @@ class ConnectedSearchBar extends Component {
                 a.user.handle,
                 a.is_album,
                 a.playlist_name,
-                a.playlist_id,
-                a.permalink
+                a.playlist_id
               )
             : '')
       )
@@ -220,8 +219,7 @@ class ConnectedSearchBar extends Component {
                     album.user.handle,
                     album.is_album,
                     album.playlist_name,
-                    album.playlist_id,
-                    album.permalink
+                    album.playlist_id
                   )
                 : '',
               primary: album.playlist_name,

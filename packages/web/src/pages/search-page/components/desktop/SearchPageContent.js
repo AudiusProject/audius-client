@@ -245,8 +245,7 @@ class SearchPageContent extends Component {
             album.user.handle,
             album.is_album,
             album.playlist_name,
-            album.playlist_id,
-            album.permalink
+            album.playlist_id
           )
         )
         recordSearchResultClick({
@@ -273,8 +272,7 @@ class SearchPageContent extends Component {
             album.user.handle,
             album.is_album,
             album.playlist_name,
-            album.playlist_id,
-            album.permalink
+            album.playlist_id
           )}
           primaryText={album.playlist_name}
           firesOnClick={false}
