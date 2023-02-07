@@ -1,27 +1,66 @@
 import type { ID, Track, UserTrackMetadata } from '@audius/common'
-import { accountSelectors, getContext } from '@audius/common'
-import { select, call, put, all } from 'typed-redux-saga'
+import {
+  accountSelectors,
+  getContext,
+  reachabilityActions
+} from '@audius/common'
+import { select, call, put, all, take, race } from 'typed-redux-saga'
 
 import {
   downloadTrackCoverArt,
   DownloadTrackError,
+  purgeDownloadedTrack,
   tryDownloadTrackFromEachCreatorNode,
   verifyTrack,
   writeTrackJson
 } from 'app/services/offline-downloader'
 
+import { getTrackOfflineDownloadStatus } from '../../selectors'
 import {
+  cancelDownload,
   completeDownload,
   downloadQueuedItem,
   errorDownload,
+  OfflineDownloadStatus,
+  removeOfflineItems,
   startDownload
 } from '../../slice'
+const { SET_UNREACHABLE } = reachabilityActions
 
 const { getUserId } = accountSelectors
 
+function* shouldCancel(trackId: ID) {
+  while (true) {
+    yield* take(removeOfflineItems.type)
+    const trackStatus = yield* select(getTrackOfflineDownloadStatus(trackId))
+    if (!trackStatus) return
+  }
+}
+
 export function* downloadTrackWorker(trackId: ID) {
   yield* put(startDownload({ type: 'track', id: trackId }))
+  const { downloadTrack, unreachable, cancel } = yield* race({
+    downloadTrack: call(downloadTrackWorkerInternal, trackId),
+    unreachable: take(SET_UNREACHABLE),
+    cancel: call(shouldCancel, trackId)
+  })
+  if (cancel || unreachable || downloadTrack === OfflineDownloadStatus.ERROR) {
+    yield* put(cancelDownload({ type: 'track', id: trackId }))
+    yield* call(purgeDownloadedTrack, trackId.toString())
+  }
+  if (downloadTrack) {
+    yield* put(
+      completeDownload({
+        type: 'track',
+        id: trackId,
+        completedAt: Date.now()
+      })
+    )
+    yield* put(downloadQueuedItem())
+  }
+}
 
+export function* downloadTrackWorkerInternal(trackId: ID) {
   const currentUserId = yield* select(getUserId)
 
   const apiClient = yield* getContext('apiClient')
@@ -37,7 +76,7 @@ export function* downloadTrackWorker(trackId: ID) {
       message: `track to {download not found on discovery - ${trackId}`,
       error: DownloadTrackError.FAILED_TO_FETCH
     })
-    return
+    return OfflineDownloadStatus.ERROR
   }
   if (track.is_delete) {
     yield* call(trackDownloadFailed, {
@@ -45,7 +84,7 @@ export function* downloadTrackWorker(trackId: ID) {
       message: `track to download is deleted - ${trackId}`,
       error: DownloadTrackError.IS_DELETED
     })
-    return
+    return OfflineDownloadStatus.ERROR
   }
 
   if (track.is_unlisted && currentUserId !== track.user.user_id) {
@@ -54,7 +93,7 @@ export function* downloadTrackWorker(trackId: ID) {
       message: `track to download is unlisted and user is not owner - ${trackId} - ${currentUserId}`,
       error: DownloadTrackError.IS_UNLISTED
     })
-    return
+    return OfflineDownloadStatus.ERROR
   }
 
   const trackMetadata: Track & UserTrackMetadata = {
@@ -76,7 +115,7 @@ export function* downloadTrackWorker(trackId: ID) {
       message: e?.message ?? 'Unknown Error',
       error: DownloadTrackError.UNKNOWN
     })
-    return
+    return OfflineDownloadStatus.ERROR
   }
 
   const verified = yield* call(verifyTrack, trackId.toString(), true)
@@ -87,14 +126,10 @@ export function* downloadTrackWorker(trackId: ID) {
       message: `DownloadQueueWorker - download verification failed ${trackId}`,
       error: DownloadTrackError.FAILED_TO_VERIFY
     })
-    return
+    return OfflineDownloadStatus.ERROR
   }
 
-  yield* put(
-    completeDownload({ type: 'track', id: trackId, completedAt: Date.now() })
-  )
-
-  yield* put(downloadQueuedItem())
+  return OfflineDownloadStatus.SUCCESS
 }
 
 type TrackDownloadFailedConfig = {
@@ -115,5 +150,4 @@ function* trackDownloadFailed(config: TrackDownloadFailedConfig) {
 
   // todo post error message?
   console.error(message)
-  yield* put(downloadQueuedItem())
 }

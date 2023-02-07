@@ -225,6 +225,14 @@ const slice = createSlice({
       }
       state.downloadQueue.shift()
     },
+    cancelDownload: (state, action: QueueAction) => {
+      const { type, id } = action.payload
+      if (type === 'collection') {
+        state.collectionStatus[id] = OfflineDownloadStatus.INIT
+      } else if (type === 'track') {
+        state.trackStatus[id] = OfflineDownloadStatus.INIT
+      }
+    },
     errorDownload: (state, action: QueueAction) => {
       const { type, id } = action.payload
       if (type === 'collection') {
@@ -285,6 +293,7 @@ export const {
   downloadQueuedItem,
   startDownload,
   completeDownload,
+  cancelDownload,
   errorDownload,
   updateQueueStatus
 } = slice.actions

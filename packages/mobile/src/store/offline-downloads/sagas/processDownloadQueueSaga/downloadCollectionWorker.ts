@@ -1,33 +1,70 @@
 import type { ID } from '@audius/common'
-import { accountSelectors, getContext } from '@audius/common'
-import { select, call, put } from 'typed-redux-saga'
+import {
+  accountSelectors,
+  getContext,
+  reachabilityActions
+} from '@audius/common'
+import { select, call, put, take, race, cancelled } from 'typed-redux-saga'
 
 import {
   downloadCollectionCoverArt,
   DownloadCollectionError,
+  purgeDownloadedCollection,
   writeCollectionJson,
   writeFavoritesCollectionJson
 } from 'app/services/offline-downloader'
 
+import { getCollectionOfflineDownloadStatus } from '../../selectors'
 import type { CollectionId } from '../../slice'
 import {
+  OfflineDownloadStatus,
+  cancelDownload,
+  removeOfflineItems,
   completeDownload,
   downloadQueuedItem,
   errorDownload,
   startDownload
 } from '../../slice'
+const { SET_UNREACHABLE } = reachabilityActions
 
 const { getUserId } = accountSelectors
 
-// TODO add favorites collection task
+function* shouldCancel(collectionId: CollectionId) {
+  while (true) {
+    yield* take(removeOfflineItems.type)
+    const trackStatus = yield* select(
+      getCollectionOfflineDownloadStatus(collectionId)
+    )
+    if (!trackStatus) return
+  }
+}
+
 export function* downloadCollectionWorker(collectionId: CollectionId) {
   yield* put(startDownload({ type: 'collection', id: collectionId }))
+  const { downloadCollection, unreachable, cancel } = yield* race({
+    downloadCollection: call(downloadCollectionWorkerInternal, collectionId),
+    unreachable: take(SET_UNREACHABLE),
+    cancel: call(shouldCancel, collectionId)
+  })
+  if (
+    cancel ||
+    unreachable ||
+    downloadCollection === OfflineDownloadStatus.ERROR
+  ) {
+    yield* put(cancelDownload({ type: 'collection', id: collectionId }))
+    purgeDownloadedCollection(collectionId.toString())
+  }
+  if (downloadCollection === OfflineDownloadStatus.SUCCESS) {
+    yield* put(completeDownload({ type: 'collection', id: collectionId }))
+    yield* put(downloadQueuedItem())
+  }
+}
 
+// TODO add favorites collection task
+export function* downloadCollectionWorkerInternal(collectionId: CollectionId) {
   // "favorites" collection short circuit
   if (typeof collectionId === 'string') {
     yield* call(writeFavoritesCollectionJson)
-    yield* put(completeDownload({ type: 'collection', id: collectionId }))
-    yield* put(downloadQueuedItem())
     return
   }
 
@@ -44,7 +81,7 @@ export function* downloadCollectionWorker(collectionId: CollectionId) {
       message: `collection to download not found on discovery - ${collectionId}`,
       error: DownloadCollectionError.FAILED_TO_FETCH
     })
-    return
+    return OfflineDownloadStatus.ERROR
   }
   if (collection.is_delete) {
     yield* call(collectionDownloadFailed, {
@@ -52,7 +89,7 @@ export function* downloadCollectionWorker(collectionId: CollectionId) {
       message: `collection to download is deleted - ${collectionId}`,
       error: DownloadCollectionError.IS_DELETED
     })
-    return
+    return OfflineDownloadStatus.ERROR
   }
   if (collection.is_private && collection.playlist_owner_id !== currentUserId) {
     yield* call(collectionDownloadFailed, {
@@ -60,7 +97,7 @@ export function* downloadCollectionWorker(collectionId: CollectionId) {
       message: `collection to download is private and user is not owner - ${collectionId} - ${currentUserId}`,
       error: DownloadCollectionError.IS_PRIVATE
     })
-    return
+    return OfflineDownloadStatus.ERROR
   }
 
   try {
@@ -77,11 +114,10 @@ export function* downloadCollectionWorker(collectionId: CollectionId) {
       message: e?.message ?? 'Unknown Error',
       error: DownloadCollectionError.UNKNOWN
     })
-    return
+    return OfflineDownloadStatus.ERROR
   }
 
-  yield* put(completeDownload({ type: 'collection', id: collectionId }))
-  yield* put(downloadQueuedItem())
+  return OfflineDownloadStatus.SUCCESS
 }
 
 type CollectionDownloadFailedConfig = {
@@ -103,5 +139,4 @@ function* collectionDownloadFailed(config: CollectionDownloadFailedConfig) {
 
   // todo post error message?
   console.error(message)
-  yield* put(downloadQueuedItem())
 }
