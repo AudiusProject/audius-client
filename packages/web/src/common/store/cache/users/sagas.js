@@ -421,7 +421,6 @@ export function* fetchUserSocials({ handle }) {
           tiktok_handle: socials.tikTokHandle || null,
           website: socials.website || null,
           donation: socials.donation || null,
-          artist_pick_track_id: user.artist_pick_track_id || null
         }
       }
     ])

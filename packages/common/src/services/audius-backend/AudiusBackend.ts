@@ -887,7 +887,6 @@ export const audiusBackend = ({
         account.tiktok_handle = body.tikTokHandle || null
         account.website = body.website || null
         account.donation = body.donation || null
-        account.artist_pick_track_id = account.artist_pick_track_id || null
         account.twitterVerified = body.twitterVerified || false
         account.instagramVerified = body.instagramVerified || false
         account.tikTokVerified = body.tikTokVerified || false
