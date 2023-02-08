@@ -20,7 +20,6 @@ import {
   savedPageTracksLineupActions
 } from '@audius/common'
 import { isEqual } from 'lodash'
-import queue from 'react-native-job-queue'
 import TrackPlayer, {
   AppKilledPlaybackBehavior,
   Capability,
@@ -46,12 +45,11 @@ import {
   getLocalAudioPath,
   isAudioAvailableOffline
 } from 'app/services/offline-downloader'
-import type { PlayCountWorkerPayload } from 'app/services/offline-downloader/workers/playCounterWorker'
-import { PLAY_COUNTER_WORKER } from 'app/services/offline-downloader/workers/playCounterWorker'
 import {
-  getOfflineTracks,
+  getOfflineTrackStatus,
   getIsCollectionMarkedForDownload
 } from 'app/store/offline-downloads/selectors'
+import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 
 const { getUsers } = cacheUsersSelectors
 const { getTracks } = cacheTracksSelectors
@@ -167,9 +165,9 @@ export const Audio = () => {
 
   // A map from trackId to offline availability
   const offlineAvailabilityByTrackId = useSelector((state) => {
-    const offlineTracks = getOfflineTracks(state)
+    const offlineTrackStatus = getOfflineTrackStatus(state)
     return queueTrackIds.reduce((result, id) => {
-      if (offlineTracks[id]) {
+      if (offlineTrackStatus[id] === OfflineDownloadStatus.SUCCESS) {
         return {
           ...result,
           [id]: true
@@ -305,7 +303,8 @@ export const Audio = () => {
       if (isReachable) {
         dispatch(recordListen(trackId))
       } else if (isOfflineModeEnabled) {
-        queue.addJob<PlayCountWorkerPayload>(PLAY_COUNTER_WORKER, { trackId })
+        // TODO fix offline play counts
+        // queue.addJob<PlayCountWorkerPayload>(PLAY_COUNTER_WORKER, { trackId })
       }
     }, RECORD_LISTEN_SECONDS)
 
