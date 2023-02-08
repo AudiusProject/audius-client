@@ -2,9 +2,9 @@ import { useCallback } from 'react'
 
 import type { Track } from '@audius/common'
 import {
+  usePremiumContentAccess,
   squashNewLines,
-  accountSelectors,
-  usePremiumContentAccess
+  accountSelectors
 } from '@audius/common'
 import { TouchableOpacity, View } from 'react-native'
 import { useSelector } from 'react-redux'
