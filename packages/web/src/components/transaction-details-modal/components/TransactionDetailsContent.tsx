@@ -97,10 +97,6 @@ const UserDetails = ({ userId }: UserDetailsProps) => {
 const dateAndMetadataBlocks = (transactionDetails: TransactionDetails) => {
   switch (transactionDetails.transactionType) {
     case TransactionType.PURCHASE: {
-      // Rare case: metadata will be null if failed to fetch from identity.
-      if (!transactionDetails.metadata) {
-        return
-      }
       return (
         <>
           <TransactionPurchaseMetadata metadata={transactionDetails.metadata} />

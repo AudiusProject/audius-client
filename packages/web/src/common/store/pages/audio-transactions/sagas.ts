@@ -8,6 +8,7 @@ import {
   transactionDetailsActions,
   getContext
 } from '@audius/common'
+import type { InAppAudioPurchaseMetadata } from '@audius/common'
 import { AudiusLibs, full } from '@audius/sdk'
 import { call, takeLatest, put } from 'typed-redux-saga'
 
@@ -151,15 +152,18 @@ function* fetchTransactionMetadata() {
     fetchAudioTransactionMetadata.type,
     function* (action: ReturnType<typeof fetchAudioTransactionMetadata>) {
       const { txDetails } = action.payload
+      if (txDetails.transactionType !== TransactionType.PURCHASE) {
+        return
+      }
       yield* call(waitForLibsInit)
       const libs: AudiusLibs = yield* call(audiusBackendInstance.getAudiusLibs)
-      const response = (yield* call(
+      const response: InAppAudioPurchaseMetadata = yield* call(
         [
           libs.identityService!,
           libs.identityService!.getUserBankTransactionMetadata
         ],
         txDetails.signature
-      )) as any[]
+      )
       yield put(
         fetchTransactionDetailsSucceeded({
           transactionId: txDetails.signature,
@@ -167,7 +171,7 @@ function* fetchTransactionMetadata() {
             ...txDetails,
             // If metadata does not exist on identity, mark as null to indicate
             // that fetch was attempted but failed.
-            metadata: response[0]?.metadata ?? null
+            metadata: response ?? null
           }
         })
       )
