@@ -16,6 +16,7 @@ import { processSearchResults } from './helper'
 import {
   APIActivity,
   APIBlockConfirmation,
+  APIFavorite,
   APIPlaylist,
   APIResponse,
   APISearch,
@@ -46,7 +47,8 @@ enum PathType {
 const ROOT_ENDPOINT_MAP = {
   feed: `/feed`,
   healthCheck: '/health_check',
-  blockConfirmation: '/block_confirmation'
+  blockConfirmation: '/block_confirmation',
+  getCollectionMetadata: '/playlists'
 }
 
 const FULL_ENDPOINT_MAP = {
@@ -73,6 +75,7 @@ const FULL_ENDPOINT_MAP = {
   getUser: (userId: OpaqueID) => `/users/${userId}`,
   userByHandle: (handle: OpaqueID) => `/users/handle/${handle}`,
   userTracksByHandle: (handle: OpaqueID) => `/users/handle/${handle}/tracks`,
+  userFavorites: (userId: OpaqueID) => `/users/${userId}/favorites`,
   userFavoritedTracks: (userId: OpaqueID) =>
     `/users/${userId}/favorites/tracks`,
   userRepostsByHandle: (handle: OpaqueID) => `/users/handle/${handle}/reposts`,
@@ -242,6 +245,11 @@ type GetRelatedArtistsArgs = CurrentUserIdArg &
     userId: ID
   }
 
+type GetFavoritesArgs = {
+  currentUserId: ID
+  limit?: number
+}
+
 type GetProfileListArgs = {
   profileUserId: ID
   currentUserId: Nullable<ID>
@@ -263,6 +271,11 @@ type GetUserRepostsByHandleArgs = {
   currentUserId: Nullable<ID>
   offset?: number
   limit?: number
+}
+
+type GetCollectionMetadataArgs = {
+  collectionId: ID
+  currentUserId: ID
 }
 
 type GetPlaylistArgs = {
@@ -1047,6 +1060,19 @@ export class AudiusAPIClient {
     return adapted
   }
 
+  async getFavorites({ currentUserId, limit }: GetFavoritesArgs) {
+    this._assertInitialized()
+    const encodedUserId = encodeHashId(currentUserId)
+    const params = { user_id: encodedUserId, limit }
+    const response = await this._getResponse<APIResponse<APIFavorite[]>>(
+      FULL_ENDPOINT_MAP.userFavorites(encodedUserId),
+      params
+    )
+    if (!response) return []
+    const { data } = response
+    return data.map(adapter.makeFavorite).filter(removeNullable)
+  }
+
   async getFavoritedTracks({
     profileUserId,
     currentUserId,
@@ -1168,6 +1194,26 @@ export class AudiusAPIClient {
       .map(adapter.makeUser)
       .filter(removeNullable)
     return adapted
+  }
+
+  async getCollectionMetadata({
+    collectionId,
+    currentUserId
+  }: GetCollectionMetadataArgs) {
+    this._assertInitialized()
+    const encodedCurrentUserId = encodeHashId(currentUserId)
+    const encodedCollectionId = this._encodeOrThrow(collectionId)
+    const params = {
+      user_id: encodedCurrentUserId,
+      playlist_id: encodedCollectionId
+    }
+    const response = await this._getResponse<APIResponse<APIPlaylist[]>>(
+      ROOT_ENDPOINT_MAP.getCollectionMetadata,
+      params
+    )
+    if (!response) return null
+
+    return adapter.makePlaylist(response.data[0])
   }
 
   async getPlaylist({ playlistId, currentUserId }: GetPlaylistArgs) {

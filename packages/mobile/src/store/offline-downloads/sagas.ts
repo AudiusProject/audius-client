@@ -7,6 +7,7 @@ import { requestDownloadFavoritedCollectionSaga } from './sagas/requestDownloadF
 import { requestRemoveAllDownloadedFavoritesSaga } from './sagas/requestRemoveAllDownloadedFavoritesSaga'
 import { requestRemoveDownloadedCollectionSaga } from './sagas/requestRemoveDownloadedCollectionSaga'
 import { requestRemoveFavoritedDownloadedCollectionSaga } from './sagas/requestRemoveFavoritedDownloadedCollectionSaga'
+import { syncOfflineDataSaga } from './sagas/syncOfflineDataSaga'
 import { updateStaleOfflineDataSaga } from './sagas/updateStaleOfflineDataSaga'
 import { watchAddTrackToPlaylistSaga } from './sagas/watchAddTrackToPlaylistSaga'
 import { watchRemoveOfflineItems } from './sagas/watchRemoveOfflineItems'
@@ -18,6 +19,7 @@ const sagas = () => {
   return [
     // Loading/updating downloaded content
     rehydrateOfflineDataSaga,
+    syncOfflineDataSaga,
     updateStaleOfflineDataSaga,
 
     // User actions
