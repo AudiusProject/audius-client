@@ -109,4 +109,7 @@ export type DetailsTileProps = {
 
   /** User associated with the item */
   user?: User | SearchUser
+
+  /** Redner function for the corner tag aka "dog ear" for premium tracks */
+  renderCornerTag?: () => ReactNode
 }

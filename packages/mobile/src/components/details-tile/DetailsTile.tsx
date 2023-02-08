@@ -179,7 +179,8 @@ export const DetailsTile = ({
   saveCount,
   headerText,
   title,
-  user
+  user,
+  renderCornerTag
 }: DetailsTileProps) => {
   const styles = useStyles()
   const navigation = useNavigation()
@@ -236,6 +237,7 @@ export const DetailsTile = ({
   return (
     <Tile styles={{ root: styles.root, content: styles.tileContent }}>
       <View style={styles.topContent}>
+        {renderCornerTag?.()}
         {renderHeader ? (
           renderHeader()
         ) : (
