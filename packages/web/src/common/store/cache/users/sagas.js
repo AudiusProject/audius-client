@@ -420,7 +420,7 @@ export function* fetchUserSocials({ handle }) {
           instagram_handle: socials.instagramHandle || null,
           tiktok_handle: socials.tikTokHandle || null,
           website: socials.website || null,
-          donation: socials.donation || null,
+          donation: socials.donation || null
         }
       }
     ])
