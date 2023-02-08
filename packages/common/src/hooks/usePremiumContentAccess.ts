@@ -1,10 +1,13 @@
-import { Track } from 'models'
+import { PremiumConditions, Track } from 'models'
 import { useMemo } from 'react'
 
 import { useSelector } from 'react-redux'
+import { cacheUsersSelectors } from 'store/cache'
 import { premiumContentSelectors } from 'store/premium-content'
+import { CommonState } from 'store/reducers'
 import { Nullable } from 'utils'
 
+const { getUsers } = cacheUsersSelectors
 const { getPremiumTrackSignatureMap } = premiumContentSelectors
 
 export const usePremiumContentAccess = (track: Nullable<Partial<Track>>) => {
@@ -33,4 +36,25 @@ export const usePremiumContentAccess = (track: Nullable<Partial<Track>>) => {
   }, [track, premiumTrackSignatureMap])
 
   return { isUserAccessTBD, doesUserHaveAccess }
+}
+
+export const useSpecialAccessEntity = (premiumConditions: Nullable<PremiumConditions>) => {
+  const { follow_user_id: followUserId, tip_user_id: tipUserId } =
+    premiumConditions ?? {}
+
+  const users = useSelector((state: CommonState) =>
+    getUsers(state, {
+      ids: [followUserId, tipUserId].filter((id): id is number => !!id)
+    })
+  )
+  const followee = useMemo(
+    () => (followUserId ? users[followUserId] : null),
+    [users, followUserId]
+  )
+  const tippedUser = useMemo(
+    () => (tipUserId ? users[tipUserId] : null),
+    [users, tipUserId]
+  )
+
+  return { followee, tippedUser }
 }

@@ -23,7 +23,8 @@ import { PremiumTrackCornerTag } from 'app/screens/track-screen/PremiumTrackCorn
 import { flexRowCentered, makeStyles } from 'app/styles'
 
 import { DetailsTileActionButtons } from './DetailsTileActionButtons'
-import { DetailsTilePremiumAccess } from './DetailsTilePremiumAccess'
+import { DetailsTileHasAccess } from './DetailsTileHasAccess'
+import { DetailsTileNoAccess } from './DetailsTileNoAccess'
 import { DetailsTileStats } from './DetailsTileStats'
 import type { DetailsTileProps } from './types'
 
@@ -233,31 +234,6 @@ export const DetailsTile = ({
     return null
   }
 
-  const renderMainButton = () => {
-    if (isPremiumContentEnabled && premiumConditions && trackId) {
-      return (
-        <DetailsTilePremiumAccess
-          premiumConditions={premiumConditions}
-          trackId={trackId}
-          isOwner={isOwner}
-          doesUserHaveAccess={doesUserHaveAccess}
-        />
-      )
-    }
-
-    return (
-      <Button
-        styles={{ text: styles.playButtonText }}
-        title={isPlaying ? messages.pause : messages.play}
-        size='large'
-        iconPosition='left'
-        icon={isPlaying ? IconPause : IconPlay}
-        onPress={handlePressPlay}
-        fullWidth
-      />
-    )
-  }
-
   const renderDetailLabels = () => {
     return detailLabels.map((infoFact) => {
       return (
@@ -317,7 +293,27 @@ export const DetailsTile = ({
             </TouchableOpacity>
           ) : null}
           <View style={styles.buttonSection}>
-            {renderMainButton()}
+            {isPremiumContentEnabled &&
+              !doesUserHaveAccess &&
+              premiumConditions &&
+              trackId && (
+                <DetailsTileNoAccess
+                  trackId={trackId}
+                  premiumConditions={premiumConditions}
+                />
+              )}
+            {!isPremiumContentEnabled ||
+              (doesUserHaveAccess && (
+                <Button
+                  styles={{ text: styles.playButtonText }}
+                  title={isPlaying ? messages.pause : messages.play}
+                  size='large'
+                  iconPosition='left'
+                  icon={isPlaying ? IconPause : IconPlay}
+                  onPress={handlePressPlay}
+                  fullWidth
+                />
+              ))}
             <DetailsTileActionButtons
               hasReposted={!!hasReposted}
               hasSaved={!!hasSaved}
@@ -332,6 +328,14 @@ export const DetailsTile = ({
               onPressShare={onPressShare}
             />
           </View>
+          {isPremiumContentEnabled &&
+            doesUserHaveAccess &&
+            premiumConditions && (
+              <DetailsTileHasAccess
+                premiumConditions={premiumConditions}
+                isOwner={isOwner}
+              />
+            )}
           <DetailsTileStats
             favoriteCount={saveCount}
             hideFavoriteCount={hideFavoriteCount}
