@@ -38,6 +38,12 @@ export const makeUser = (
     return undefined
   }
 
+  // TODO remove conditional once all DN nodes are encoding the artist pick ID
+  let decoded_artist_pick_track_id = user.artist_pick_track_id
+  if (typeof user.artist_pick_track_id === 'string') {
+    decoded_artist_pick_track_id = decodeHashId(user.artist_pick_track_id)
+  }
+
   const balance = user.balance as StringWei
   const associated_wallets_balance =
     user.associated_wallets_balance as StringWei
@@ -58,6 +64,7 @@ export const makeUser = (
 
   const newUser = {
     ...user,
+    artist_pick_track_id: decoded_artist_pick_track_id,
     balance,
     associated_wallets_balance,
     album_count,
@@ -78,8 +85,7 @@ export const makeUser = (
     // Fields to prune
     id: undefined,
     cover_photo_legacy: undefined,
-    profile_picture_legacy: undefined,
-    artist_pick_track_id: null
+    profile_picture_legacy: undefined
   }
 
   delete newUser.id
