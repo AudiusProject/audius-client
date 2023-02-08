@@ -1,6 +1,11 @@
 import { useCallback } from 'react'
 
-import { squashNewLines, accountSelectors } from '@audius/common'
+import type { Track } from '@audius/common'
+import {
+  squashNewLines,
+  accountSelectors,
+  usePremiumContentAccess
+} from '@audius/common'
 import { TouchableOpacity, View } from 'react-native'
 import { useSelector } from 'react-redux'
 
@@ -12,10 +17,13 @@ import { Button, Hyperlink, Tile } from 'app/components/core'
 import Text from 'app/components/text'
 import UserBadges from 'app/components/user-badges'
 import { light } from 'app/haptics'
+import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { PremiumTrackCornerTag } from 'app/screens/track-screen/PremiumTrackCornerTag'
 import { flexRowCentered, makeStyles } from 'app/styles'
 
 import { DetailsTileActionButtons } from './DetailsTileActionButtons'
+import { DetailsTilePremiumAccess } from './DetailsTilePremiumAccess'
 import { DetailsTileStats } from './DetailsTileStats'
 import type { DetailsTileProps } from './types'
 
@@ -180,8 +188,15 @@ export const DetailsTile = ({
   headerText,
   title,
   user,
-  renderCornerTag
+  track
 }: DetailsTileProps) => {
+  const isPremiumContentEnabled = useIsPremiumContentEnabled()
+  const { doesUserHaveAccess } = usePremiumContentAccess(
+    track ? (track as unknown as Track) : null
+  )
+  const { track_id: trackId, premium_conditions: premiumConditions } =
+    track ?? {}
+
   const styles = useStyles()
   const navigation = useNavigation()
 
@@ -204,6 +219,44 @@ export const DetailsTile = ({
     light()
     onPressPlay()
   }, [onPressPlay])
+
+  const renderCornerTag = () => {
+    if (isPremiumContentEnabled && premiumConditions) {
+      return (
+        <PremiumTrackCornerTag
+          doesUserHaveAccess={doesUserHaveAccess}
+          isOwner={isOwner}
+          premiumConditions={premiumConditions}
+        />
+      )
+    }
+    return null
+  }
+
+  const renderMainButton = () => {
+    if (isPremiumContentEnabled && premiumConditions && trackId) {
+      return (
+        <DetailsTilePremiumAccess
+          premiumConditions={premiumConditions}
+          trackId={trackId}
+          isOwner={isOwner}
+          doesUserHaveAccess={doesUserHaveAccess}
+        />
+      )
+    }
+
+    return (
+      <Button
+        styles={{ text: styles.playButtonText }}
+        title={isPlaying ? messages.pause : messages.play}
+        size='large'
+        iconPosition='left'
+        icon={isPlaying ? IconPause : IconPlay}
+        onPress={handlePressPlay}
+        fullWidth
+      />
+    )
+  }
 
   const renderDetailLabels = () => {
     return detailLabels.map((infoFact) => {
@@ -264,15 +317,7 @@ export const DetailsTile = ({
             </TouchableOpacity>
           ) : null}
           <View style={styles.buttonSection}>
-            <Button
-              styles={{ text: styles.playButtonText }}
-              title={isPlaying ? messages.pause : messages.play}
-              size='large'
-              iconPosition='left'
-              icon={isPlaying ? IconPause : IconPlay}
-              onPress={handlePressPlay}
-              fullWidth
-            />
+            {renderMainButton()}
             <DetailsTileActionButtons
               hasReposted={!!hasReposted}
               hasSaved={!!hasSaved}

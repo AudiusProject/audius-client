@@ -2,7 +2,6 @@ import { useCallback } from 'react'
 
 import type { UID, Track, User } from '@audius/common'
 import {
-  usePremiumContentAccess,
   SquareSizes,
   removeNullable,
   playerSelectors,
@@ -50,7 +49,6 @@ import { flexRowCentered, makeStyles } from 'app/styles'
 import { moodMap } from 'app/utils/moods'
 import { useThemeColors } from 'app/utils/theme'
 
-import { PremiumTrackCornerTag } from './PremiumTrackCornerTag'
 import { TrackScreenDownloadButtons } from './TrackScreenDownloadButtons'
 const { getPlaying, getTrackId } = playerSelectors
 const { setFavorite } = favoritesUserListActions
@@ -164,10 +162,6 @@ export const TrackScreenDetailsTile = ({
 }: TrackScreenDetailsTileProps) => {
   const isPremiumContentEnabled = useIsPremiumContentEnabled()
 
-  const { doesUserHaveAccess } = usePremiumContentAccess(
-    track as unknown as Track
-  )
-
   const styles = useStyles()
   const navigation = useNavigation()
   const { accentOrange, accentBlue } = useThemeColors()
@@ -192,7 +186,6 @@ export const TrackScreenDetailsTile = ({
     has_current_user_saved,
     is_unlisted,
     is_premium: isPremium,
-    premium_conditions: premiumConditions,
     mood,
     owner_id,
     play_count,
@@ -206,6 +199,9 @@ export const TrackScreenDetailsTile = ({
   } = track
 
   const isOwner = owner_id === currentUserId
+  const hideFavorite = is_unlisted || (isPremiumContentEnabled && isPremium)
+  const hideRepost =
+    is_unlisted || !isReachable || (isPremiumContentEnabled && isPremium)
 
   const remixParentTrackId = remix_of?.tracks?.[0]?.parent_track_id
   const isRemix = !!remixParentTrackId
@@ -426,19 +422,6 @@ export const TrackScreenDetailsTile = ({
     )
   }
 
-  const renderCornerTag = () => {
-    if (isPremiumContentEnabled && isPremium && premiumConditions) {
-      return (
-        <PremiumTrackCornerTag
-          doesUserHaveAccess={doesUserHaveAccess}
-          isOwner={isOwner}
-          premiumConditions={premiumConditions}
-        />
-      )
-    }
-    return null
-  }
-
   return (
     <DetailsTile
       descriptionLinkPressSource='track page'
@@ -451,8 +434,8 @@ export const TrackScreenDetailsTile = ({
       renderBottomContent={renderBottomContent}
       renderHeader={is_unlisted || isOfflineEnabled ? renderHeader : undefined}
       headerText={isRemix ? messages.remix : messages.track}
-      hideFavorite={is_unlisted}
-      hideRepost={is_unlisted || !isReachable}
+      hideFavorite={hideFavorite}
+      hideRepost={hideRepost}
       hideShare={is_unlisted && !field_visibility?.share}
       hideOverflow={!isReachable}
       hideFavoriteCount={is_unlisted}
@@ -471,7 +454,7 @@ export const TrackScreenDetailsTile = ({
       repostCount={repost_count}
       saveCount={save_count}
       title={title}
-      renderCornerTag={renderCornerTag}
+      track={track}
     />
   )
 }

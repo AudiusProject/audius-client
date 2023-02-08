@@ -3,7 +3,6 @@ import type { PremiumConditions } from '@audius/common'
 import IconCollectibleCornerTag from 'app/assets/images/iconCollectibleCornerTag.svg'
 import IconLockedCornerTag from 'app/assets/images/iconLockedCornerTag.svg'
 import IconSpecialAccessCornerTag from 'app/assets/images/iconSpecialAccessCornerTag.svg'
-import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 import { makeStyles } from 'app/styles'
 
 const useStyles = makeStyles(() => ({
@@ -23,12 +22,7 @@ export const PremiumTrackCornerTag = ({
   isOwner,
   premiumConditions
 }: PremiumTrackCornerTagProps) => {
-  const isPremiumContentEnabled = useIsPremiumContentEnabled()
   const styles = useStyles()
-
-  if (!isPremiumContentEnabled) {
-    return null
-  }
 
   if (isOwner) {
     if (premiumConditions.nft_collection) {
