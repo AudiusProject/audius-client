@@ -1,4 +1,8 @@
-import { InAppAudioPurchaseMetadata, formatNumberString } from '@audius/common'
+import {
+  InAppAudioPurchaseMetadata,
+  formatNumberString,
+  Nullable
+} from '@audius/common'
 
 import { ReactComponent as IconExternalLink } from 'assets/img/iconExternalLink.svg'
 import {
@@ -23,7 +27,7 @@ const messages = {
 export const TransactionPurchaseMetadata = ({
   metadata
 }: {
-  metadata?: InAppAudioPurchaseMetadata
+  metadata?: Nullable<InAppAudioPurchaseMetadata>
 }) => {
   return (
     <BlockContainer>

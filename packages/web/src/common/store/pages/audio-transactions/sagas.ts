@@ -6,7 +6,8 @@ import {
   formatDate,
   StringAudio,
   transactionDetailsActions,
-  getContext
+  getContext,
+  Nullable
 } from '@audius/common'
 import type { InAppAudioPurchaseMetadata } from '@audius/common'
 import { AudiusLibs, full } from '@audius/sdk'
@@ -157,7 +158,7 @@ function* fetchTransactionMetadata() {
       }
       yield* call(waitForLibsInit)
       const libs: AudiusLibs = yield* call(audiusBackendInstance.getAudiusLibs)
-      const response: InAppAudioPurchaseMetadata = yield* call(
+      const response = yield* call(
         [
           libs.identityService!,
           libs.identityService!.getUserBankTransactionMetadata
@@ -169,9 +170,7 @@ function* fetchTransactionMetadata() {
           transactionId: txDetails.signature,
           transactionDetails: {
             ...txDetails,
-            // If metadata does not exist on identity, mark as null to indicate
-            // that fetch was attempted but failed.
-            metadata: response ?? null
+            metadata: response as Nullable<InAppAudioPurchaseMetadata>
           }
         })
       )
