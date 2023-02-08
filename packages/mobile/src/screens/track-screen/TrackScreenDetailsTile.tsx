@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 
 import type { UID, Track, User } from '@audius/common'
 import {
+  usePremiumContentAccess,
   SquareSizes,
   removeNullable,
   playerSelectors,
@@ -162,6 +163,10 @@ export const TrackScreenDetailsTile = ({
   isLineupLoading
 }: TrackScreenDetailsTileProps) => {
   const isPremiumContentEnabled = useIsPremiumContentEnabled()
+
+  const { doesUserHaveAccess } = usePremiumContentAccess(
+    track as unknown as Track
+  )
 
   const styles = useStyles()
   const navigation = useNavigation()
@@ -425,7 +430,7 @@ export const TrackScreenDetailsTile = ({
     if (isPremiumContentEnabled && isPremium && premiumConditions) {
       return (
         <PremiumTrackCornerTag
-          doesUserHaveAccess={false}
+          doesUserHaveAccess={doesUserHaveAccess}
           isOwner={isOwner}
           premiumConditions={premiumConditions}
         />

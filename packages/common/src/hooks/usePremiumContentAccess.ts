@@ -1,7 +1,9 @@
+import { Track } from 'models'
 import { useMemo } from 'react'
 
-import { Nullable, premiumContentSelectors, Track } from '@audius/common'
 import { useSelector } from 'react-redux'
+import { premiumContentSelectors } from 'store/premium-content'
+import { Nullable } from 'utils'
 
 const { getPremiumTrackSignatureMap } = premiumContentSelectors
 

@@ -1,6 +1,7 @@
 import type {
   Nullable,
   PremiumConditions,
+  PremiumContentSignature,
   Repost,
   TrackSegment,
   User
@@ -79,6 +80,7 @@ export type SearchTrack = TrackImage & {
   is_unlisted: boolean
   is_premium: boolean
   premium_conditions: Nullable<PremiumConditions>
+  premium_content_signature: Nullable<PremiumContentSignature>
   has_current_user_saved: undefined
   stem_of: null
   updated_at: string
