@@ -187,7 +187,9 @@ const slice = createSlice({
             const queueIndex = downloadQueue.findIndex(
               (queueItem) => queueItem.type === type && queueItem.id === id
             )
-            downloadQueue.splice(queueIndex, 1)
+            if (queueIndex !== -1) {
+              downloadQueue.splice(queueIndex, 1)
+            }
           }
         } else if (item.type === 'collection') {
           const { type, id, metadata } = item
@@ -198,12 +200,13 @@ const slice = createSlice({
             const queueIndex = downloadQueue.findIndex(
               (queueItem) => queueItem.type === type && queueItem.id === id
             )
-            downloadQueue.splice(queueIndex, 1)
+            if (queueIndex !== -1) {
+              downloadQueue.splice(queueIndex, 1)
+            }
           }
         }
       }
     },
-    downloadQueuedItem: () => {},
     startDownload: (state, action: QueueAction) => {
       const { type, id } = action.payload
       if (type === 'collection') {
@@ -274,7 +277,8 @@ const slice = createSlice({
     requestRemoveFavoritedDownloadedCollection: (
       _state,
       _action: RequestRemoveDownloadedCollectionAction
-    ) => {}
+    ) => {},
+    requestDownloadQueuedItem: () => {}
   }
 })
 
@@ -290,7 +294,7 @@ export const {
   removeAllDownloadedFavorites,
   requestRemoveDownloadedCollection,
   requestRemoveFavoritedDownloadedCollection,
-  downloadQueuedItem,
+  requestDownloadQueuedItem,
   startDownload,
   completeDownload,
   cancelDownload,

@@ -1,16 +1,20 @@
 import { takeEvery, select, call, put } from 'typed-redux-saga'
 
 import { getDownloadQueue, getQueueStatus } from '../../selectors'
-import { downloadQueuedItem, QueueStatus, updateQueueStatus } from '../../slice'
+import {
+  requestDownloadQueuedItem,
+  QueueStatus,
+  updateQueueStatus
+} from '../../slice'
 
 import { downloadCollectionWorker } from './downloadCollectionWorker'
 import { downloadTrackWorker } from './downloadTrackWorker'
 
-export function* processDownloadQueueSaga() {
-  yield* takeEvery(downloadQueuedItem.type, processDownloadQueueWorker)
+export function* requestDownloadQueuedItemSaga() {
+  yield* takeEvery(requestDownloadQueuedItem.type, downloadQueuedItem)
 }
 
-function* processDownloadQueueWorker() {
+function* downloadQueuedItem() {
   const queueStatus = yield* select(getQueueStatus)
   if (queueStatus !== QueueStatus.PROCESSING) return
 
