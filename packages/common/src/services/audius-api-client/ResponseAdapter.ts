@@ -39,9 +39,11 @@ export const makeUser = (
   }
 
   // TODO remove conditional once all DN nodes are encoding the artist pick ID
-  let decoded_artist_pick_track_id = user.artist_pick_track_id
+  let decoded_artist_pick_track_id: number | null
   if (typeof user.artist_pick_track_id === 'string') {
     decoded_artist_pick_track_id = decodeHashId(user.artist_pick_track_id)
+  } else {
+    decoded_artist_pick_track_id = user.artist_pick_track_id
   }
 
   const balance = user.balance as StringWei
