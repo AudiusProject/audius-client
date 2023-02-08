@@ -23,7 +23,7 @@ export type OpaqueID = string
 
 export type APIUser = {
   album_count: number
-  // TODO remove number type once all DN nodes are encoding the artist pick ID
+  // TODO remove number type once all DNs are encoding the artist pick ID
   artist_pick_track_id: Nullable<number | OpaqueID>
   blocknumber: number
   balance: string

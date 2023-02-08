@@ -38,7 +38,7 @@ export const makeUser = (
     return undefined
   }
 
-  // TODO remove conditional once all DN nodes are encoding the artist pick ID
+  // TODO remove conditional once all DNs are encoding the artist pick ID
   let decoded_artist_pick_track_id: number | null
   if (typeof user.artist_pick_track_id === 'string') {
     decoded_artist_pick_track_id = decodeHashId(user.artist_pick_track_id)
