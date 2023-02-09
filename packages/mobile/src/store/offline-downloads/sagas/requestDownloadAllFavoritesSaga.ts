@@ -31,6 +31,8 @@ function* downloadAllFavorites() {
     limit: 10000
   })
 
+  if (!allFavoritedTracks) return
+
   for (const favoritedTrack of allFavoritedTracks) {
     const { save_item_id: trackId, created_at } = favoritedTrack
     const downloadReason = {

@@ -87,6 +87,8 @@ function* syncFavoritesCollection() {
     { currentUserId, limit: 10000 }
   )
 
+  if (!latestFavoritedTracks) return CollectionSyncStatus.ERROR
+
   const offlineFavoritedTrackIds = Object.keys(offlineTrackMetadata)
     .map(parseInt)
     .filter((id) =>

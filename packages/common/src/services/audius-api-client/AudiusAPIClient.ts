@@ -1068,7 +1068,7 @@ export class AudiusAPIClient {
       FULL_ENDPOINT_MAP.userFavorites(encodedUserId),
       params
     )
-    if (!response) return []
+    if (!response) return null
     const { data } = response
     return data.map(adapter.makeFavorite).filter(removeNullable)
   }
@@ -1202,7 +1202,7 @@ export class AudiusAPIClient {
   }: GetCollectionMetadataArgs) {
     this._assertInitialized()
     const encodedCurrentUserId = encodeHashId(currentUserId)
-    const encodedCollectionId = this._encodeOrThrow(collectionId)
+    const encodedCollectionId = encodeHashId(collectionId)
     const params = {
       user_id: encodedCurrentUserId,
       playlist_id: encodedCollectionId
