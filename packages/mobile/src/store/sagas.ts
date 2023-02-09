@@ -153,7 +153,7 @@ export default function* rootSaga() {
     ...mobileUiSagas(),
     ...uploadSagas(),
     ...remixSettingsSagas(),
-    ...offlineDownloadSagas(),
+    // ...offlineDownloadSagas(),
 
     initKeyboardEvents,
     ...remoteConfig(),
