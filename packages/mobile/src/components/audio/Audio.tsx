@@ -49,7 +49,10 @@ import {
   getOfflineTrackStatus,
   getIsCollectionMarkedForDownload
 } from 'app/store/offline-downloads/selectors'
-import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
+import {
+  addOfflineItems,
+  OfflineDownloadStatus
+} from 'app/store/offline-downloads/slice'
 
 const { getUsers } = cacheUsersSelectors
 const { getTracks } = cacheTracksSelectors
@@ -304,7 +307,9 @@ export const Audio = () => {
         dispatch(recordListen(trackId))
       } else if (isOfflineModeEnabled) {
         // TODO fix offline play counts
-        // queue.addJob<PlayCountWorkerPayload>(PLAY_COUNTER_WORKER, { trackId })
+        dispatch(
+          addOfflineItems({ items: [{ type: 'play-count', id: trackId }] })
+        )
       }
     }, RECORD_LISTEN_SECONDS)
 
