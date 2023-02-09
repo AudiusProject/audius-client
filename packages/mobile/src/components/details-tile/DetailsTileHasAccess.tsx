@@ -286,11 +286,6 @@ export const DetailsTileHasAccess = ({
   }
 
   return (
-    <DetailsTileUnlockedSection
-      nftCollection={nftCollection}
-      followee={followee}
-      tippedUser={tippedUser}
-      renderDescription={renderUnlockedDescription}
-    />
+    <DetailsTileUnlockedSection renderDescription={renderUnlockedDescription} />
   )
 }
