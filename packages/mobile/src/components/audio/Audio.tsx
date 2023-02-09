@@ -306,7 +306,6 @@ export const Audio = () => {
       if (isReachable) {
         dispatch(recordListen(trackId))
       } else if (isOfflineModeEnabled) {
-        // TODO fix offline play counts
         dispatch(
           addOfflineItems({ items: [{ type: 'play-count', id: trackId }] })
         )
