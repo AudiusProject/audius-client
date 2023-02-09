@@ -72,7 +72,6 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   },
   icon: {
     fill: palette.neutralLight5,
-    // fill: palette.primary,
     height: spacing(2),
     width: spacing(2)
   },

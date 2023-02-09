@@ -123,11 +123,6 @@ const NavigationContainer = (props: NavigationContainerProps) => {
                         }
                       }
                     }
-                    // chat: {
-                    //   screens: {
-                    //     Chat: 'chat/:chatId'
-                    //   }
-                    // }
                   }
                 },
                 Upload: {
