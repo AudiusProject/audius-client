@@ -99,7 +99,9 @@ const dateAndMetadataBlocks = (transactionDetails: TransactionDetails) => {
     case TransactionType.PURCHASE: {
       return (
         <>
-          <TransactionPurchaseMetadata metadata={transactionDetails.metadata} />
+          <TransactionPurchaseMetadata
+            metadata={transactionDetails.metadata!}
+          />
           <Block header={messages.date}>{transactionDetails.date}</Block>
         </>
       )

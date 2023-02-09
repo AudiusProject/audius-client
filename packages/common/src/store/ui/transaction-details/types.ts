@@ -1,7 +1,6 @@
 import { Action } from '@reduxjs/toolkit'
 
 import { StringAudio, Status } from '../../../models'
-import { Nullable } from '../../../utils/typeUtils'
 
 export enum TransactionType {
   PURCHASE = 'PURCHASE',
@@ -47,7 +46,7 @@ export type TransactionDetails =
       date: string
       change: StringAudio
       balance: StringAudio
-      metadata?: Nullable<InAppAudioPurchaseMetadata>
+      metadata?: InAppAudioPurchaseMetadata
     }
   | {
       signature: string
