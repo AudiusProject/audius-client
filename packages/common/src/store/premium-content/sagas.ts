@@ -315,7 +315,7 @@ function* updateCollectibleGatedTrackAccess(
   }
 }
 
-const PREMIUM_TRACK_POLL_FREQUENCY = 5000
+const PREMIUM_TRACK_POLL_FREQUENCY = 1000
 
 function* pollPremiumTrack({
   trackId,
