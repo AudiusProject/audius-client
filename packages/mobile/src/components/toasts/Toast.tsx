@@ -50,7 +50,7 @@ type ToastProps = {
 
 export const Toast = (props: ToastProps) => {
   const { toast } = props
-  const { content, timeout = DEFAULT_TIMEOUT, type, key } = toast
+  const { content, timeout = DEFAULT_TIMEOUT, key } = toast
   const styles = useStyles()
   const toastAnimation = useRef(new Animated.Value(0))
   const insets = useSafeAreaInsets()
