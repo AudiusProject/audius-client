@@ -30,9 +30,6 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     backgroundColor: palette.secondary,
     borderRadius: 8
   },
-  toastError: {
-    backgroundColor: palette.accentRed
-  },
   contentRoot: {
     paddingTop: spacing(3) + 2,
     paddingBottom: spacing(3),
@@ -105,8 +102,7 @@ export const Toast = (props: ToastProps) => {
           {
             opacity: opacityStyle,
             transform: [{ translateY: translateYStyle }]
-          },
-          type === 'error' && styles.toastError
+          }
         ]}
       >
         <View style={styles.contentRoot}>
