@@ -1,9 +1,5 @@
-import { useEffect } from 'react'
-
 import {
   accountSelectors,
-  chatActions,
-  chatSelectors,
   decodeHashId,
   formatMessageDate
 } from '@audius/common'
@@ -62,7 +58,7 @@ type ChatMessageListItemProps = {
 export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   const styles = useStyles()
 
-  const { chatId, message, hasTail } = props
+  const { message, hasTail } = props
   const userId = useSelector(getUserId)
   const senderUserId = decodeHashId(message.sender_user_id)
   const isAuthor = senderUserId === userId

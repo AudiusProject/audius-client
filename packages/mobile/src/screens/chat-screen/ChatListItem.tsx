@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 
 import { chatSelectors, useProxySelector } from '@audius/common'
-import type { UserChat } from '@audius/sdk'
 import { View, TouchableHighlight } from 'react-native'
 
 import { Text } from 'app/components/core'

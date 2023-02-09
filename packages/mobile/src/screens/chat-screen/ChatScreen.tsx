@@ -1,12 +1,11 @@
-import { useEffect, useState, Fragment } from 'react'
+import { useEffect, useState } from 'react'
 
 import {
   chatActions,
   chatSelectors,
   encodeUrlName,
   MESSAGE_GROUP_THRESHOLD_MINUTES,
-  Status,
-  accountSelectors
+  Status
 } from '@audius/common'
 import dayjs from 'dayjs'
 import { View } from 'react-native'
@@ -21,13 +20,8 @@ import { makeStyles } from 'app/styles'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
 
-const {
-  getChatMessages,
-  getOtherChatUsers,
-  getChatMessagesSummary,
-  getChatMessagesStatus,
-  getChat
-} = chatSelectors
+const { getChatMessages, getOtherChatUsers, getChatMessagesStatus } =
+  chatSelectors
 const { fetchMoreMessages } = chatActions
 
 const messages = {
@@ -93,20 +87,6 @@ const hasTail = (message: ChatMessage, newMessage?: ChatMessage) => {
   )
 }
 
-/**
- * Checks if the current message is the first unread message in the given chat
- * Used to render the new messages separator indicator
- */
-const isFirstUnread = (
-  chat: UserChat,
-  message: ChatMessage,
-  currentUserId: string | null,
-  prevMessage?: ChatMessage
-) =>
-  message.created_at > chat.last_read_at &&
-  (!prevMessage || prevMessage.created_at <= chat.last_read_at) &&
-  message.sender_user_id !== currentUserId
-
 export const ChatScreen = () => {
   const styles = useStyles()
   const dispatch = useDispatch()
@@ -115,14 +95,9 @@ export const ChatScreen = () => {
   const [text, setText] = useState('')
   const { params } = useRoute<'Chat'>()
   const { chatId } = params
-  const currentUserId = useSelector(accountSelectors.getUserId)
   const url = `/chat/${encodeUrlName(chatId)}`
-  const chat = useSelector((state) => getChat(state, chatId))
   const chatMessages = useSelector((state) =>
     getChatMessages(state, chatId ?? '')
-  )
-  const summary = useSelector((state) =>
-    getChatMessagesSummary(state, chatId ?? '')
   )
   const status = useSelector((state) =>
     getChatMessagesStatus(state, chatId ?? '')
@@ -150,29 +125,12 @@ export const ChatScreen = () => {
                 style={styles.list}
                 data={chatMessages}
                 keyExtractor={(message) => message.chat_id}
-                initialScrollIndex={10}
                 renderItem={({ item, index }) => {
                   return (
-                    <Fragment>
-                      <ChatMessageListItem
-                        message={item}
-                        hasTail={hasTail(item, chatMessages[index - 1])}
-                      />
-                      {chat &&
-                      chat.unread_message_count &&
-                      isFirstUnread(
-                        chat,
-                        message,
-                        currentUserId,
-                        chatMessages[index + 1]
-                      ) ? (
-                        <div className={styles.separator}>
-                          <span className={styles.tag}>
-                            {chat.unread_message_count} {messages.newMessages}
-                          </span>
-                        </div>
-                      ) : null}
-                    </Fragment>
+                    <ChatMessageListItem
+                      message={item}
+                      hasTail={hasTail(item, chatMessages[index - 1])}
+                    />
                   )
                 }}
               />
