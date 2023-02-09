@@ -56,5 +56,5 @@ export const useSpecialAccessEntity = (premiumConditions: Nullable<PremiumCondit
     [users, tipUserId]
   )
 
-  return { nftCollection, followee, tippedUser }
+  return { nftCollection:  nftCollection ?? null, followee, tippedUser }
 }
