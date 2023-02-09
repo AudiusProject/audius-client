@@ -17,23 +17,17 @@ const { getOtherChatUsersFromChat } = chatSelectors
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   root: {
-    width: '100%',
     height: spacing(28),
     paddingVertical: spacing(4),
-    paddingHorizontal: spacing(6),
+    paddingHorizontal: spacing(10),
     backgroundColor: palette.white,
     borderColor: palette.neutralLight8,
     borderBottomWidth: 1
   }
 }))
 
-type ChatListItemProps = {
-  currentChatId?: string
-  chat: UserChat
-}
-
-export const ChatListItem = (props: ChatListItemProps) => {
-  const { chat, currentChatId } = props
+export const ChatListItem = ({ chat }: { UserChat }) => {
+  const currentChatId = chat.chat_id
   const navigation = useNavigation<AppTabScreenParamList>()
   const styles = useStyles()
 

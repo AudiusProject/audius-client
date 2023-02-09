@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Fragment } from 'react'
 
 import {
   chatActions,
   chatSelectors,
   encodeUrlName,
-  MESSAGE_GROUP_THRESHOLD_MINUTES
+  MESSAGE_GROUP_THRESHOLD_MINUTES,
+  Status,
+  accountSelectors
 } from '@audius/common'
 import dayjs from 'dayjs'
 import { View } from 'react-native'
@@ -12,6 +14,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import IconSend from 'app/assets/images/iconSend.svg'
 import { TextInput, Screen, FlatList, ScreenContent } from 'app/components/core'
+import LoadingSpinner from 'app/components/loading-spinner'
 // import { UserBadges } from 'app/components/user-badges'
 import { useRoute } from 'app/hooks/useRoute'
 import { makeStyles } from 'app/styles'
@@ -22,7 +25,8 @@ const {
   getChatMessages,
   getOtherChatUsers,
   getChatMessagesSummary,
-  getChatMessagesStatus
+  getChatMessagesStatus,
+  getChat
 } = chatSelectors
 const { fetchMoreMessages } = chatActions
 
@@ -32,7 +36,7 @@ const messages = {
 }
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
-  container: {
+  rootContainer: {
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
@@ -89,6 +93,20 @@ const hasTail = (message: ChatMessage, newMessage?: ChatMessage) => {
   )
 }
 
+/**
+ * Checks if the current message is the first unread message in the given chat
+ * Used to render the new messages separator indicator
+ */
+const isFirstUnread = (
+  chat: UserChat,
+  message: ChatMessage,
+  currentUserId: string | null,
+  prevMessage?: ChatMessage
+) =>
+  message.created_at > chat.last_read_at &&
+  (!prevMessage || prevMessage.created_at <= chat.last_read_at) &&
+  message.sender_user_id !== currentUserId
+
 export const ChatScreen = () => {
   const styles = useStyles()
   const dispatch = useDispatch()
@@ -97,7 +115,9 @@ export const ChatScreen = () => {
   const [text, setText] = useState('')
   const { params } = useRoute<'Chat'>()
   const { chatId } = params
+  const currentUserId = useSelector(accountSelectors.getUserId)
   const url = `/chat/${encodeUrlName(chatId)}`
+  const chat = useSelector((state) => getChat(state, chatId))
   const chatMessages = useSelector((state) =>
     getChatMessages(state, chatId ?? '')
   )
@@ -122,23 +142,44 @@ export const ChatScreen = () => {
       style={styles.title}
     >
       <ScreenContent>
-        <View style={styles.container}>
-          <View style={styles.listContainer}>
-            <FlatList
-              contentContainerStyle={styles.flatListContainer}
-              style={styles.list}
-              data={chatMessages}
-              keyExtractor={(message) => message.chat_id}
-              renderItem={({ item, index }) => {
-                return (
-                  <ChatMessageListItem
-                    message={item}
-                    hasTail={hasTail(item, chatMessages[index - 1])}
-                  />
-                )
-              }}
-            />
-          </View>
+        <View style={styles.rootContainer}>
+          {status === Status.SUCCESS ? (
+            <View style={styles.listContainer}>
+              <FlatList
+                contentContainerStyle={styles.flatListContainer}
+                style={styles.list}
+                data={chatMessages}
+                keyExtractor={(message) => message.chat_id}
+                initialScrollIndex={10}
+                renderItem={({ item, index }) => {
+                  return (
+                    <Fragment>
+                      <ChatMessageListItem
+                        message={item}
+                        hasTail={hasTail(item, chatMessages[index - 1])}
+                      />
+                      {chat &&
+                      chat.unread_message_count &&
+                      isFirstUnread(
+                        chat,
+                        message,
+                        currentUserId,
+                        chatMessages[index + 1]
+                      ) ? (
+                        <div className={styles.separator}>
+                          <span className={styles.tag}>
+                            {chat.unread_message_count} {messages.newMessages}
+                          </span>
+                        </div>
+                      ) : null}
+                    </Fragment>
+                  )
+                }}
+              />
+            </View>
+          ) : (
+            <LoadingSpinner />
+          )}
           <View style={styles.composeView}>
             <TextInput
               placeholder={messages.startNewMessage}
