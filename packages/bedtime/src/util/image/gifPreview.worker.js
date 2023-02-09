@@ -17,7 +17,10 @@ export default () => {
       url: imageUrl
     })
       .then((img) => {
-        if (process.env.PREACT_APP_ENVIRONMENT !== 'production') {
+        if (
+          process.env.PREACT_APP_ENVIRONMENT !== 'production' ||
+          process.env.SHOW_ERROR_LOGS
+        ) {
           self.console.log(imageUrl, img)
         }
         const mimeType = 'image/jpeg'
