@@ -90,7 +90,7 @@ function* syncFavoritesCollection() {
   if (!latestFavoritedTracks) return CollectionSyncStatus.ERROR
 
   const offlineFavoritedTrackIds = Object.keys(offlineTrackMetadata)
-    .map(parseInt)
+    .map((id) => parseInt(id, 10))
     .filter((id) =>
       offlineTrackMetadata[id].reasons_for_download.some(isTrackFavoriteReason)
     )

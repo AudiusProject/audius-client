@@ -17,7 +17,7 @@ import { watchUnSaveTrackSaga } from './sagas/watchUnsaveTrackSaga'
 
 const sagas = () => {
   return [
-    // Loading/updating downloaded content
+    // Loading/syncing/updating offline content
     rehydrateOfflineDataSaga,
     syncOfflineDataSaga,
     updateStaleOfflineDataSaga,

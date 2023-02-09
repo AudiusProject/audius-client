@@ -31,6 +31,8 @@ function* downloadAllFavorites() {
     limit: 10000
   })
 
+  console.log('favs?', allFavoritedTracks)
+
   if (!allFavoritedTracks) return
 
   for (const favoritedTrack of allFavoritedTracks) {

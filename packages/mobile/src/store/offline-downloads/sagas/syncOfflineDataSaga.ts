@@ -1,23 +1,21 @@
 import type { CommonState } from '@audius/common'
-import { waitForValue } from '@audius/common'
 import { waitForBackendSetup } from 'audius-client/src/common/store/backend/sagas'
 import { waitForRead } from 'audius-client/src/utils/sagaHelpers'
 import { difference, intersection } from 'lodash'
-import { call, put, select } from 'typed-redux-saga'
+import { put, select, take } from 'typed-redux-saga'
 
 import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 
 import { getOfflineCollectionsStatus } from '../selectors'
-import type { CollectionId } from '../slice'
+import type { CollectionId, OfflineItem } from '../slice'
 import {
+  doneLoadingFromDisk,
   addOfflineItems,
-  removeOfflineItems,
-  addCollectionSyncs,
-  doneLoadingFromDisk
+  removeOfflineItems
 } from '../slice'
 
 export function* syncOfflineDataSaga() {
-  yield* call(waitForValue, doneLoadingFromDisk)
+  yield* take(doneLoadingFromDisk.type)
   yield* waitForRead()
   yield* waitForBackendSetup()
 
@@ -28,9 +26,11 @@ export function* syncOfflineDataSaga() {
 
   const offlineCollectionIds = Object.keys(collectionStatus)
     .filter((id) => id !== DOWNLOAD_REASON_FAVORITES)
-    .map(parseInt)
+    .map((id) => parseInt(id, 10))
 
-  const accountCollectionIds = Object.keys(accountCollections).map(parseInt)
+  const accountCollectionIds = Object.keys(accountCollections).map((id) =>
+    parseInt(id, 10)
+  )
 
   // Remove
   const collectionIdsToRemove = difference(
@@ -55,6 +55,8 @@ export function* syncOfflineDataSaga() {
     )
   }
 
+  const offlineItemsToAdd: OfflineItem[] = []
+
   // Sync
   const collectionIdsToSync: CollectionId[] = intersection(
     offlineCollectionIds,
@@ -65,11 +67,12 @@ export function* syncOfflineDataSaga() {
     collectionIdsToSync.unshift(DOWNLOAD_REASON_FAVORITES)
   }
 
-  if (collectionIdsToSync.length > 0) {
-    yield* put(
-      addCollectionSyncs({ items: collectionIdsToSync.map((id) => ({ id })) })
-    )
-  }
+  const collectionsToSync: OfflineItem[] = collectionIdsToSync.map((id) => ({
+    type: 'collection-sync',
+    id
+  }))
+
+  offlineItemsToAdd.push(...collectionsToSync)
 
   // Add
   if (collectionStatus[DOWNLOAD_REASON_FAVORITES]) {
@@ -78,16 +81,16 @@ export function* syncOfflineDataSaga() {
       offlineCollectionIds
     )
 
-    if (collectionIdsToAdd.length > 0) {
-      yield* put(
-        addOfflineItems({
-          items: collectionIdsToAdd.map((id) => ({
-            type: 'collection',
-            id,
-            metadata: { reasons_for_download: [{ is_from_favorites: true }] }
-          }))
-        })
-      )
-    }
+    const collectionsToAdd: OfflineItem[] = collectionIdsToAdd.map((id) => ({
+      type: 'collection',
+      id,
+      metadata: { reasons_for_download: [{ is_from_favorites: true }] }
+    }))
+
+    offlineItemsToAdd.push(...collectionsToAdd)
+  }
+
+  if (offlineItemsToAdd.length > 0) {
+    yield* put(addOfflineItems({ items: offlineItemsToAdd }))
   }
 }

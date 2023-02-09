@@ -1,6 +1,6 @@
 import type {
-  ID,
   OfflineCollectionMetadata,
+  ID,
   OfflineTrackMetadata
 } from '@audius/common'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -63,6 +63,10 @@ export type OfflineItem =
       id: CollectionId
       metadata: OfflineCollectionMetadata
     }
+  | {
+      type: 'collection-sync'
+      id: CollectionId
+    }
 
 export type RedownloadOfflineItemsAction = PayloadAction<{
   items: DownloadQueueItem[]
@@ -77,10 +81,6 @@ export type RemoveOfflineItemsAction = PayloadAction<{
 }>
 
 export type CollectionSyncItem = { id: CollectionId }
-
-export type AddCollectionSyncsAction = PayloadAction<{
-  items: CollectionSyncItem[]
-}>
 
 export type CollectionAction = PayloadAction<{
   collectionId: ID
@@ -165,7 +165,8 @@ const slice = createSlice({
         trackStatus,
         downloadQueue,
         offlineCollectionMetadata,
-        collectionStatus
+        collectionStatus,
+        collectionSyncStatus
       } = state
       for (const item of items) {
         if (item.type === 'track') {
@@ -183,6 +184,18 @@ const slice = createSlice({
           if (!collectionStatus[id]) {
             collectionStatus[id] = OfflineDownloadStatus.INIT
             downloadQueue.push({ type, id })
+          }
+        } else if (item.type === 'collection-sync') {
+          const { id } = item
+          const syncStatus = collectionSyncStatus[id]
+          if (
+            !(
+              syncStatus === CollectionSyncStatus.INIT ||
+              syncStatus === CollectionSyncStatus.SYNCING
+            )
+          ) {
+            collectionSyncStatus[id] = CollectionSyncStatus.INIT
+            downloadQueue.push({ type: 'collection-sync', id })
           }
         }
       }
@@ -268,23 +281,6 @@ const slice = createSlice({
       }
       state.downloadQueue.shift()
     },
-    addCollectionSyncs: (state, action: AddCollectionSyncsAction) => {
-      const { items } = action.payload
-      const { collectionSyncStatus, downloadQueue } = state
-      for (const syncItem of items) {
-        const { id } = syncItem
-        const syncStatus = collectionSyncStatus[id]
-        if (
-          !(
-            syncStatus === CollectionSyncStatus.INIT ||
-            syncStatus === CollectionSyncStatus.SYNCING
-          )
-        ) {
-          collectionSyncStatus[id] = CollectionSyncStatus.INIT
-          downloadQueue.push({ type: 'collection-sync', id })
-        }
-      }
-    },
     startCollectionSync: (state, action: SyncAction) => {
       const { id } = action.payload
       state.collectionSyncStatus[id] = CollectionSyncStatus.SYNCING
@@ -292,6 +288,7 @@ const slice = createSlice({
     completeCollectionSync: (state, action: SyncAction) => {
       const { id } = action.payload
       state.collectionSyncStatus[id] = CollectionSyncStatus.SUCCESS
+      state.downloadQueue.shift()
     },
     cancelCollectionSync: (state, action: SyncAction) => {
       const { id } = action.payload
@@ -344,7 +341,6 @@ export const {
   addOfflineItems,
   removeOfflineItems,
   redownloadOfflineItems,
-  addCollectionSyncs,
   doneLoadingFromDisk,
   clearOfflineDownloads,
   startDownload,

@@ -1,6 +1,11 @@
 import type { AudiusLibs } from '@audius/sdk/dist/native-libs'
 
-import { ID, TimeRange, StemTrackMetadata } from '../../models'
+import {
+  ID,
+  TimeRange,
+  StemTrackMetadata,
+  CollectionMetadata
+} from '../../models'
 import { SearchKind } from '../../store/pages/search-results/types'
 import { decodeHashId, encodeHashId } from '../../utils/hashIds'
 import { Nullable, removeNullable } from '../../utils/typeUtils'
@@ -75,7 +80,6 @@ const FULL_ENDPOINT_MAP = {
   getUser: (userId: OpaqueID) => `/users/${userId}`,
   userByHandle: (handle: OpaqueID) => `/users/handle/${handle}`,
   userTracksByHandle: (handle: OpaqueID) => `/users/handle/${handle}/tracks`,
-  userFavorites: (userId: OpaqueID) => `/users/${userId}/favorites`,
   userFavoritedTracks: (userId: OpaqueID) =>
     `/users/${userId}/favorites/tracks`,
   userRepostsByHandle: (handle: OpaqueID) => `/users/handle/${handle}/reposts`,
@@ -110,6 +114,7 @@ const ENDPOINT_MAP = {
   associatedWallets: '/users/associated_wallets',
   associatedWalletUserId: '/users/id',
   userChallenges: (userId: OpaqueID) => `/users/${userId}/challenges`,
+  userFavorites: (userId: OpaqueID) => `/users/${userId}/favorites`,
   undisbursedUserChallenges: `/challenges/undisbursed`
 }
 
@@ -1065,8 +1070,10 @@ export class AudiusAPIClient {
     const encodedUserId = encodeHashId(currentUserId)
     const params = { user_id: encodedUserId, limit }
     const response = await this._getResponse<APIResponse<APIFavorite[]>>(
-      FULL_ENDPOINT_MAP.userFavorites(encodedUserId),
-      params
+      ENDPOINT_MAP.userFavorites(encodedUserId),
+      params,
+      true,
+      PathType.VersionPath
     )
     if (!response) return null
     const { data } = response
@@ -1201,19 +1208,17 @@ export class AudiusAPIClient {
     currentUserId
   }: GetCollectionMetadataArgs) {
     this._assertInitialized()
-    const encodedCurrentUserId = encodeHashId(currentUserId)
-    const encodedCollectionId = encodeHashId(collectionId)
-    const params = {
-      user_id: encodedCurrentUserId,
-      playlist_id: encodedCollectionId
-    }
-    const response = await this._getResponse<APIResponse<APIPlaylist[]>>(
-      ROOT_ENDPOINT_MAP.getCollectionMetadata,
-      params
-    )
-    if (!response) return null
 
-    return adapter.makePlaylist(response.data[0])
+    const headers = { 'X-User-ID': currentUserId.toString() }
+    const params = { playlist_id: collectionId }
+    const response = await this._getResponse<APIResponse<CollectionMetadata[]>>(
+      ROOT_ENDPOINT_MAP.getCollectionMetadata,
+      params,
+      false,
+      PathType.RootPath,
+      headers
+    )
+    return response?.data?.[0]
   }
 
   async getPlaylist({ playlistId, currentUserId }: GetPlaylistArgs) {

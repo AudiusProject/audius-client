@@ -23,7 +23,7 @@ const { getTrack } = cacheTracksSelectors
 const STALE_DURATION_TRACKS = moment.duration(7, 'days')
 
 export function* updateStaleOfflineDataSaga() {
-  yield* take(doneLoadingFromDisk)
+  yield* take(doneLoadingFromDisk.type)
   yield* waitForRead()
   yield* waitForBackendSetup()
 
@@ -37,10 +37,10 @@ export function* updateStaleOfflineDataSaga() {
   const apiClient = yield* getContext('apiClient')
   const offlineTrackMetadata = yield* select(getOfflineTrackMetadata)
   const staleTrackIds = Object.keys(offlineTrackMetadata)
-    .map(parseInt)
+    .map((id) => parseInt(id, 10))
     .filter((trackId) => {
       const metadata = offlineTrackMetadata[trackId]
-      if (!metadata.last_verified_time) return false
+      if (!metadata?.last_verified_time) return false
       return moment()
         .subtract(STALE_DURATION_TRACKS)
         .isAfter(metadata.last_verified_time)
@@ -82,6 +82,10 @@ export function* updateStaleOfflineDataSaga() {
     })
   }
 
-  yield* put(redownloadOfflineItems({ items: offlineItemsToRedownload }))
-  yield* put(addOfflineItems({ items: offlineItemsToUpdate }))
+  if (offlineItemsToRedownload.length > 0) {
+    yield* put(redownloadOfflineItems({ items: offlineItemsToRedownload }))
+  }
+  if (offlineItemsToUpdate.length > 0) {
+    yield* put(addOfflineItems({ items: offlineItemsToUpdate }))
+  }
 }
