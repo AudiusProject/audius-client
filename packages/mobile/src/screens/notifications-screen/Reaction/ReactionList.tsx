@@ -45,7 +45,6 @@ type Positions = { [k in ReactionTypes]: { x: number; width: number } }
  */
 export const ReactionList = (props: ReactionListProps) => {
   const { selectedReaction, onChange, isVisible } = props
-  console.log('isVisible??', isVisible)
   const styles = useStyles()
   // The current reaction the user is interacting with.
   // Note this needs to be a ref since the guesture handler is also a ref
