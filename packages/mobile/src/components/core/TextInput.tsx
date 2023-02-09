@@ -344,7 +344,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
             </Animated.View>
           ) : Icon ? (
             <Icon
-              style={[{ height: styles.icon.height, width: styles.icon.width }]}
+              style={{ height: styles.icon.height, width: styles.icon.width }}
               fill={styles.icon.fill}
               height={styles.icon.height}
               width={styles.icon.width}
