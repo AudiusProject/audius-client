@@ -1,21 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>Audius</title>
-		<meta name="viewport" content="width=device-width,initial-scale=1">
-		<meta name="mobile-web-app-capable" content="yes">
-		<meta name="apple-mobile-web-app-capable" content="yes">
+  <head>
+    <meta charset="utf-8" />
+    <title>Audius</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <% preact.headEnd %>
-    
+
     <!-- start Google Analytics -->
-    <script async src="/embed/assets/scripts/gtag.js?id=UA-120325397-2"></script>
+    <script
+      async
+      src="/embed/assets/scripts/gtag.js?id=UA-120325397-2"
+    ></script>
     <script>
       try {
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'UA-120325397-2');
+        window.dataLayer = window.dataLayer || []
+        function gtag() {
+          dataLayer.push(arguments)
+        }
+        gtag('js', new Date())
+        gtag('config', 'UA-120325397-2')
       } catch (e) {
         console.error(e)
       }
@@ -35,9 +40,8 @@
       fetchBItems()
     </script>
     <!-- end bItems -->
-    
-	</head>
-	<body>
-		<% preact.bodyEnd %>
-	</body>
+  </head>
+  <body>
+    <% preact.bodyEnd %>
+  </body>
 </html>

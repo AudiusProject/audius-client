@@ -27,14 +27,16 @@ export default class WebWorker {
    * @param {?boolean} terminateOnResult Whether or not to terminate the worker on gathering the result.
    * Note: Workers are non-trivial to spin up, so leaving commonly used workers running can be useful.
    */
-  constructor (workerFile, terminateOnResult = true) {
+  constructor(workerFile, terminateOnResult = true) {
     const code = workerFile.toString()
-    const blob = new Blob([`
+    const blob = new Blob([
+      `
       const importWorkerScript = ${importWorkScriptCode}
       const code = ${code}
       code()
-    `])
-    this.worker = new Worker((URL.createObjectURL(blob)))
+    `
+    ])
+    this.worker = new Worker(URL.createObjectURL(blob))
     this.terminateOnResult = terminateOnResult
   }
 
@@ -52,14 +54,14 @@ export default class WebWorker {
    */
   getResult = async (key = '') => {
     return new Promise((resolve, reject) => {
-      this.worker.addEventListener('message', event => {
+      this.worker.addEventListener('message', (event) => {
         if (event.data.key) {
           if (event.data.key === key) {
             resolve(event.data.result)
           } else {
           }
         } else {
-          resolve(event.data)
+          resolve(event.data.result)
         }
         if (this.terminateOnResult) {
           this.worker.terminate()

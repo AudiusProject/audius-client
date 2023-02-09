@@ -9,10 +9,12 @@ import BedtimeScrubber from '../scrubber/BedtimeScrubber'
 import Titles from '../titles/Titles'
 import cn from 'classnames'
 import Card from '../card/Card'
+import { stripLeadingSlash } from '../../util/stringUtil'
 import IconVerified from '../../assets/img/iconVerified.svg'
 
 import styles from './CollectionPlayerCard.module.css'
 import { isBItem } from '../../util/bitems'
+import { getArtworkUrl } from '../../util/getArtworkUrl'
 
 const CollectionListRow = ({
   playingState,
@@ -41,22 +43,26 @@ const CollectionListRow = ({
         onTogglePlay()
       }}
     >
-      <div className={cn(styles.leftElement, { [styles.trackIndex]: !isActive })}>
-        {isActive ?
-         <PlayButton
-           onTogglePlay={onTogglePlay}
-           playingState={playingState}
-           iconColor={iconColor}
-           className={styles.playButton}
-         /> :
-         trackIndex
-        }
+      <div
+        className={cn(styles.leftElement, { [styles.trackIndex]: !isActive })}
+      >
+        {isActive ? (
+          <PlayButton
+            onTogglePlay={onTogglePlay}
+            playingState={playingState}
+            iconColor={iconColor}
+            className={styles.playButton}
+          />
+        ) : (
+          trackIndex
+        )}
       </div>
-      <div className={cn(styles.rightElement, { [styles.clickableText]: textIsClickable })}>
-        <div
-          className={styles.rowTitle}
-          onClick={makeOnClickURL(trackURL)}
-        >
+      <div
+        className={cn(styles.rightElement, {
+          [styles.clickableText]: textIsClickable
+        })}
+      >
+        <div className={styles.rowTitle} onClick={makeOnClickURL(trackURL)}>
           {trackTitle}
         </div>
         <div
@@ -85,12 +91,12 @@ const CollectionPlayerCard = ({
   isTwitter
 }) => {
   const makeOnTogglePlay = (index) => () => onTogglePlay(index)
-
+  const permalink = stripLeadingSlash(collection.permalink)
   return (
     <Card
       isTwitter={isTwitter}
       backgroundColor={backgroundColor}
-      twitterURL={collection.collectionURLPath}
+      twitterURL={permalink}
       fillContainer
     >
       <div className={styles.padding}>
@@ -100,29 +106,29 @@ const CollectionPlayerCard = ({
           </div>
           <div className={styles.share}>
             <ShareButton
-              url={collection.collectionURLPath}
-              creator={collection.ownerName}
-              title={collection.name}
+              url={permalink}
+              creator={collection.user.name}
+              title={collection.playlist_name}
             />
           </div>
         </div>
         <div className={styles.middleRow}>
           <Artwork
             className={styles.artwork}
-            artworkURL={collection.coverArt}
-            onClickURL={collection.collectionURLPath}
-            displayHoverPlayButton={true}
+            artworkURL={getArtworkUrl(collection)}
+            onClickURL={permalink}
+            displayHoverPlayButton
             onTogglePlay={makeOnTogglePlay(activeTrackIndex)}
             playingState={playingState}
             iconColor={rowBackgroundColor}
           />
           <div className={styles.middleRowRight}>
             <Titles
-              artistName={collection.ownerName}
-              handle={collection.ownerHandle}
-              isVerified={collection.isVerified}
-              title={collection.name}
-              titleUrl={collection.collectionURLPath}
+              artistName={collection.user.name}
+              handle={collection.user.handle}
+              isVerified={collection.user.is_verified}
+              title={collection.playlist_name}
+              titleUrl={permalink}
             />
             <BedtimeScrubber
               duration={duration}
@@ -133,30 +139,28 @@ const CollectionPlayerCard = ({
             />
           </div>
         </div>
-        <div
-          className={styles.listContainer}
-        >
+        <div className={styles.listContainer}>
           <SimpleBar
             style={{
               maxHeight: '100%'
             }}
           >
-            {collection.tracks.map((t, i) => {
-              if (isBItem(t.id)) return null
+            {collection.tracks.map((track, i) => {
+              if (isBItem(track.id)) return null
               return (
                 <CollectionListRow
                   key={i}
-                  artistHandle={t.handle}
-                  artistName={t.userName}
+                  artistHandle={track.user.handle}
+                  artistName={track.user.name}
                   isActive={i === activeTrackIndex}
                   playingState={playingState}
                   trackIndex={i + 1}
-                  trackURL={t.urlPath}
-                  trackTitle={t.title}
+                  trackURL={stripLeadingSlash(track.permalink)}
+                  trackTitle={track.title}
                   iconColor={rowBackgroundColor}
                   onTogglePlay={makeOnTogglePlay(i)}
                   textIsClickable={false}
-                  isVerified={t.isVerified}
+                  isVerified={track.user.is_verified}
                 />
               )
             })}

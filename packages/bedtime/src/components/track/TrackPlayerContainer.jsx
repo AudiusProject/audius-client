@@ -7,6 +7,7 @@ import TrackPlayerTiny from './TrackPlayerTiny'
 import usePlayback from '../../hooks/usePlayback'
 import { PauseContext } from '../pausedpopover/PauseProvider'
 import TrackPlayerCard from './TrackPlayerCard'
+import { stripLeadingSlash } from '../../util/stringUtil'
 import TrackHelmet from './TrackHelmet'
 import { useSpacebar } from '../../hooks/useSpacebar'
 import { useRecordListens } from '../../hooks/useRecordListens'
@@ -47,27 +48,32 @@ const TrackPlayerContainer = ({
   const didTogglePlay = useCallback(() => {
     if (!didInitAudio) {
       initAudio()
-      loadTrack(track.segments, formatGateways(track.gateways))
+      loadTrack(
+        track.track_segments,
+        formatGateways(track.user.creator_node_endpoint)
+      )
       setDidInitAudio(true)
     }
     onTogglePlay()
     if (playingState === PlayingState.Playing && flavor !== PlayerFlavor.TINY) {
       setPopoverVisibility(true)
-    } else if (playingState === PlayingState.Paused){
+    } else if (playingState === PlayingState.Paused) {
       setPopoverVisibility(false)
     }
   }, [
     didInitAudio,
-    initAudio,
-    loadTrack,
-    setDidInitAudio,
     onTogglePlay,
     playingState,
-    setPopoverVisibility,
-    flavor
+    flavor,
+    initAudio,
+    loadTrack,
+    track.track_segments,
+    track.user.creator_node_endpoint,
+    setPopoverVisibility
   ])
 
-  const playbarEnabled = playingState !== PlayingState.Buffering && !popoverVisibility
+  const playbarEnabled =
+    playingState !== PlayingState.Buffering && !popoverVisibility
   useSpacebar(didTogglePlay, playbarEnabled)
   useRecordListens(position, mediaKey, track.id, LISTEN_INTERVAL_SECONDS)
 
@@ -76,9 +82,13 @@ const TrackPlayerContainer = ({
     const mobile = isMobile()
     if (!isTwitter || mobile) return
     initAudio()
-    loadTrack(track.segments, formatGateways(track.gateways))
+    loadTrack(
+      track.track_segments,
+      formatGateways(track.user.creator_node_endpoint)
+    )
     setDidInitAudio(true)
     onTogglePlay()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -97,25 +107,28 @@ const TrackPlayerContainer = ({
         }
       }
     }
-    window.addEventListener('message', handleMessage);
+    window.addEventListener('message', handleMessage)
     return () => {
       window.removeEventListener('message', handleMessage)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [didTogglePlay])
+
+  const albumArtURL = (track.artwork || {})['480x480']
 
   const props = {
     title: track.title,
     mediaKey,
-    handle: track.handle,
-    artistName: track.userName,
+    handle: track.user.handle,
+    artistName: track.user.name,
     playingState,
-    albumArtURL: track.coverArt,
+    albumArtURL,
     onTogglePlay: didTogglePlay,
-    isVerified: track.isVerified,
+    isVerified: track.user.is_verified,
     seekTo,
     position,
     duration,
-    trackURL: track.urlPath,
+    trackURL: stripLeadingSlash(track.permalink),
     backgroundColor,
     isTwitter,
     did404
@@ -123,25 +136,11 @@ const TrackPlayerContainer = ({
 
   let trackPlayer
   if (flavor === PlayerFlavor.COMPACT) {
-    trackPlayer = (
-      <TrackPlayerCompact
-        {...props}
-      />
-    )
-  }
-  else if (flavor === PlayerFlavor.TINY) {
-    trackPlayer = (
-      <TrackPlayerTiny
-        {...props}
-      />
-    )
-  }
-  else {
-    trackPlayer = (
-      <TrackPlayerCard
-        {...props}
-      />
-    )
+    trackPlayer = <TrackPlayerCompact {...props} />
+  } else if (flavor === PlayerFlavor.TINY) {
+    trackPlayer = <TrackPlayerTiny {...props} />
+  } else {
+    trackPlayer = <TrackPlayerCard {...props} />
   }
   return (
     <>

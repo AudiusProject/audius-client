@@ -1,5 +1,8 @@
 import { getIdentityEndpoint, getAPIHostname } from './getEnv'
+import { sdk } from '@audius/sdk'
+
 import { recordListen as recordAnalyticsListen } from '../analytics/analytics'
+import { encodeHashId, decodeHashId } from './hashids'
 
 const HOSTNAME = getAPIHostname()
 const IDENTITY_SERVICE_ENDPOINT = getIdentityEndpoint()
@@ -10,19 +13,20 @@ export const RequestedEntity = Object.seal({
   COLLECTIBLES: 'collectibles'
 })
 
-// From DAPP
+const audiusSdk = sdk({ appName: 'Audius Bedtime Client' })
+
 export const uuid = () => {
   // https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript/873856#873856
-  var s = []
-  var hexDigits = '0123456789abcdef'
-  for (var i = 0; i < 36; i++) {
+  const s = []
+  const hexDigits = '0123456789abcdef'
+  for (let i = 0; i < 36; i++) {
     s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1)
   }
   s[14] = '4' // bits 12-15 of the time_hi_and_version field to 0010
   s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1) // bits 6-7 of the clock_seq_hi_and_reserved to 01
   s[8] = s[13] = s[18] = s[23] = '-'
 
-  var uuid = s.join('')
+  const uuid = s.join('')
   return uuid
 }
 
@@ -49,14 +53,12 @@ export const uuid = () => {
 //     coverArt: string
 // }
 
-export const recordListen = async (
-  trackId
-) => {
+export const recordListen = async (trackId) => {
   const url = `${IDENTITY_SERVICE_ENDPOINT}/tracks/${trackId}/listen`
   const method = 'POST'
   const headers = {
     Accept: 'application/json',
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json'
   }
 
   const body = JSON.stringify({
@@ -87,8 +89,11 @@ const makeRequest = async (url) => {
   }
 }
 
-const constructEndpoint = (entity, id, ownerId) =>
-  `${process.env.PREACT_APP_AUDIUS_SCHEME}://${HOSTNAME}/embed/api/${entity}/${id}${ownerId ? `?ownerId=${ownerId}` : ''}`
+const getFormattedCollectionResponse = (collection) => {
+  const item = collection?.[0]
+  item.permalink = `${item.permalink ?? ''}-${decodeHashId(item.id)}`
+  return item
+}
 
 const constructCollectiblesEndpoint = (handle) =>
   `${process.env.PREACT_APP_AUDIUS_SCHEME}://${HOSTNAME}/embed/api/${handle}/${RequestedEntity.COLLECTIBLES}`
@@ -96,29 +101,24 @@ const constructCollectiblesEndpoint = (handle) =>
 const constructCollectibleIdEndpoint = (handle, collectibleId) =>
   `${process.env.PREACT_APP_AUDIUS_SCHEME}://${HOSTNAME}/embed/api/${handle}/${RequestedEntity.COLLECTIBLES}/${collectibleId}`
 
-// For hash id based requests, we don't care about the owner id, since
-// this avoids the monotonically increasing issues track ids have
-const constructHashIdEndpoint = (entity, hashId) =>
-`${process.env.PREACT_APP_AUDIUS_SCHEME}://${HOSTNAME}/embed/api/${entity}/hashid/${hashId}`
-
-export const getTrack = async (id, ownerId) => {
-  const url = constructEndpoint(RequestedEntity.TRACKS, id, ownerId)
-  return makeRequest(url)
+export const getTrack = async (id) => {
+  return audiusSdk.full.tracks.getTrack({ trackId: encodeHashId(id) })
 }
 
 export const getTrackWithHashId = async (hashId) => {
-  const url = constructHashIdEndpoint(RequestedEntity.TRACKS, hashId)
-  return makeRequest(url)
+  return audiusSdk.full.tracks.getTrack({ trackId: hashId })
 }
 
-export const getCollection = async (id, ownerId) => {
-  const url = constructEndpoint(RequestedEntity.COLLECTIONS, id, ownerId)
-  return makeRequest(url)
+export const getCollection = async (id) => {
+  const res = await audiusSdk.full.playlists.getPlaylist({
+    playlidId: encodeHashId(id)
+  })
+  return getFormattedCollectionResponse(res)
 }
 
 export const getCollectionWithHashId = async (hashId) => {
-  const url = constructHashIdEndpoint(RequestedEntity.COLLECTIONS, hashId)
-  return makeRequest(url)
+  const res = await audiusSdk.full.playlists.getPlaylist({ playlistId: hashId })
+  return getFormattedCollectionResponse(res)
 }
 
 export const getCollectible = async (handle, collectibleId) => {

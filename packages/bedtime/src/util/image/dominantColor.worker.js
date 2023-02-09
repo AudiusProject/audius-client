@@ -1,10 +1,8 @@
-import { getScriptDirectory } from '../getEnv'
-
 /* globals Jimp */
 
+export const DEFAULT_DOMINANT_COLOR = 'rgb(126,27,204)'
+
 export default () => {
-  const DEFAULT_RGB = '#7e1bcc'
-  const DEFAULT_IMAGE = 'https://download.audius.co/static-resources/preview-image.jpg'
   const SAMPLE_RATE = 20
   const REQUEST_TIMEOUT = 1500
 
@@ -13,19 +11,18 @@ export default () => {
   // #CDC8C8, which works out to a luminance of 201.
   const LUMINANCE_THRESHOLD = 201
 
-
   const clampedRGBColor = (rgbString /* string of 'r,g,b' */) => {
-    const [r, g, b] = rgbString.split(',').map(x => parseInt(x))
-  // Luminance in [0, 255]
-  // https://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
-    const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b)
+    const [r, g, b] = rgbString.split(',').map((x) => parseInt(x))
+    // Luminance in [0, 255]
+    // https://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
+    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
 
     if (luminance < LUMINANCE_THRESHOLD) {
       return [r, g, b]
     }
 
     const scaleFactor = LUMINANCE_THRESHOLD / luminance
-    return [r, g, b].map(x => x * scaleFactor)
+    return [r, g, b].map((x) => x * scaleFactor)
   }
 
   const formatRGB = (r, g, b) => `rgb(${r},${g},${b})`
@@ -43,7 +40,7 @@ export default () => {
   const dominantRgb = ({ key, imageUrl, attempt = 0 }) => {
     if (attempt > 2) {
       console.info('Failed all attempts, returning default')
-      postMessage({key, result: DEFAULT_RGB})
+      postMessage({ key, result: DEFAULT_DOMINANT_COLOR })
       return
     }
 
@@ -52,12 +49,11 @@ export default () => {
     }
 
     const processImage = () => {
-      return Jimp.read({ url: imageUrl })
-      .then(img => {
+      return Jimp.read({ url: imageUrl }).then((img) => {
         img.posterize(15)
-        const imageData = img.bitmap;
-        const pixels = imageData.data;
-        const pixelCount = imageData.width * imageData.height;
+        const imageData = img.bitmap
+        const pixels = imageData.data
+        const pixelCount = imageData.width * imageData.height
 
         let counts = {}
 
@@ -75,7 +71,6 @@ export default () => {
           }
         }
 
-
         let result
         Object.keys(counts).reduce((acc, i) => {
           if (counts[i] > acc) {
@@ -89,26 +84,26 @@ export default () => {
 
         // eslint-disable-next-line
         didFulfill = true
-        postMessage({key, result})
+        postMessage({ key, result })
       })
     }
 
-    const timeouter = () => new Promise((fulfill, reject) => {
-      setTimeout(() => {
-        reject(new Error('Timeout'))
-      }, REQUEST_TIMEOUT)
-    })
+    const timeouter = () =>
+      new Promise((fulfill, reject) => {
+        setTimeout(() => {
+          reject(new Error('Timeout'))
+        }, REQUEST_TIMEOUT)
+      })
 
     Promise.race([processImage(), timeouter()]).catch((err) => {
       console.warn(`Failed attempt ${attempt} with err ${err.message}`)
-      dominantRgb({key, imageUrl, attempt: attempt + 1})
+      dominantRgb({ key, imageUrl, attempt: attempt + 1 })
     })
   }
 
   // eslint-disable-next-line
-  self.addEventListener('message', e => {
+  self.addEventListener('message', (e) => {
     if (!e) return
     dominantRgb(JSON.parse(e.data))
   })
 }
-

@@ -11,7 +11,6 @@ export const getAudiusURL = () => {
   const hostname = getAudiusHostname()
   if (!hostname) {
     return `https://${window.location.host}`
-
   }
   const scheme = process.env.PREACT_APP_AUDIUS_SCHEME
 
@@ -19,7 +18,7 @@ export const getAudiusURL = () => {
 }
 
 export const getCopyableLink = (path) => {
-  return `${getAudiusURL()}/app-redirect${path ? ("/" + path) : ""}#embed`
+  return `${getAudiusURL()}/app-redirect${path ? `/${path}` : ''}#embed`
 }
 
 export const share = (url, title, creator) => {

@@ -7,7 +7,8 @@ import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 import styles from './Artwork.module.css'
 import audiusLogo from '../../assets/img/logoEmbedPlayer.png'
 
-export const DEFAULT_IMAGE = 'https://download.audius.co/static-resources/preview-image.jpg'
+export const DEFAULT_IMAGE =
+  'https://download.audius.co/static-resources/preview-image.jpg'
 
 const preloadImage = (url, callback, onError) => {
   const img = new Image()
@@ -35,11 +36,12 @@ const usePreloadImage = (url) => {
   return [imageLoaded, hasErrored]
 }
 
-const getWrapperTint = (rgbString) => `${rgbString.slice(0, rgbString.length - 1)}, 0.5)`
+const getWrapperTint = (rgbString) =>
+  `${rgbString.slice(0, rgbString.length - 1)}, 0.5)`
 
 const Artwork = ({
   onClickURL,
-  artworkURL,
+  artworkURL = 'https://download.audius.co/static-resources/preview-image.jpg',
   className,
   containerClassName,
   displayHoverPlayButton = false,
@@ -82,16 +84,20 @@ const Artwork = ({
 
   const getPlayButtonStyle = () => {
     const boxShadow = '0px 2px 8px -2px rgba(0, 0, 0, 0.5)'
-    return isLargeFlavor ? {
-      boxShadow,
-      height: `${sideLength}px`,
-      width: `${sideLength}px`,
-      borderRadius: '50%'
-    } : { boxShadow }
+    return isLargeFlavor
+      ? {
+          boxShadow,
+          height: `${sideLength}px`,
+          width: `${sideLength}px`,
+          borderRadius: '50%'
+        }
+      : { boxShadow }
   }
   return (
     <div
-      className={cn(styles.container, {
+      className={cn(
+        styles.container,
+        {
           [styles.hasLoaded]: hasImageLoaded || hasImageErrored
         },
         containerClassName
@@ -99,23 +105,25 @@ const Artwork = ({
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      { showLogo && <div
-        className={styles.logoWrapper}
-        onClick={onLogoClick}
-        style={{
-          background: `url(${audiusLogo})`,
-          opacity: isHovering ? 1 : 0.6
-        }}
-        /> }
-      {displayHoverPlayButton &&
-       <div
-         className={styles.playButtonWrapper}
-         onClick={onClickWrapper}
-         ref={playButtonParentRef}
-         style={{
-           backgroundColor: `${getWrapperTint(iconColor)}`
-         }}
-       >
+      {showLogo && (
+        <div
+          className={styles.logoWrapper}
+          onClick={onLogoClick}
+          style={{
+            background: `url(${audiusLogo})`,
+            opacity: isHovering ? 1 : 0.6
+          }}
+        />
+      )}
+      {displayHoverPlayButton && (
+        <div
+          className={styles.playButtonWrapper}
+          onClick={onClickWrapper}
+          ref={playButtonParentRef}
+          style={{
+            backgroundColor: `${getWrapperTint(iconColor)}`
+          }}
+        >
           <PlayButton
             style={getPlayButtonStyle()}
             onTogglePlay={onTogglePlay}
@@ -123,11 +131,14 @@ const Artwork = ({
             iconColor={getWrapperTint(iconColor)}
           />
         </div>
-      }
+      )}
       <div
         onClick={onClick}
         className={cn(styles.albumArt, className)}
-        style={{ backgroundImage: hasImageLoaded || hasImageErrored ? `url(${artworkURL})` : '' }}
+        style={{
+          backgroundImage:
+            hasImageLoaded || hasImageErrored ? `url(${artworkURL})` : ''
+        }}
       />
     </div>
   )

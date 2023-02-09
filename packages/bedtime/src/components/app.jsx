@@ -4,20 +4,19 @@ import {
   getCollectible,
   getCollectibles,
   getCollection,
-  GetCollectionsResponse,
   getCollectionWithHashId,
   getTrack,
-  GetTracksResponse,
   getTrackWithHashId
 } from '../util/BedtimeClient'
 import CollectiblesPlayerContainer from './collectibles/CollectiblesPlayerContainer'
+import { DEFAULT_DOMINANT_COLOR } from '../util/image/dominantColor.worker'
 import CollectionPlayerContainer from './collection/CollectionPlayerContainer'
 import TrackPlayerContainer from './track/TrackPlayerContainer'
 import Error from './error/Error'
 import DeletedContent from './deleted/DeletedContent'
+import { stripLeadingSlash } from '../util/stringUtil'
 import cn from 'classnames'
 import Loading from './loading/Loading'
-import TwitterFooter from './twitterfooter/TwitterFooter'
 import { ToastContextProvider } from './toast/ToastContext'
 import { PauseContextProvider } from './pausedpopover/PauseProvider'
 import PausePopover from './pausedpopover/PausePopover'
@@ -45,6 +44,7 @@ import {
   AUDIO_NFT_PLAYLIST_ROUTE,
   AUDIO_NFT_PLAYLIST_DISCORD_ROUTE
 } from '../routes'
+import { getArtworkUrl } from '../util/getArtworkUrl'
 
 if (module.hot) {
   // tslint:disable-next-line:no-var-requires
@@ -192,7 +192,6 @@ const App = (props) => {
 
     try {
       const { requestType } = request
-
       if (requestType === RequestType.TRACK) {
         let track
         if (request.hashId) {
@@ -211,10 +210,26 @@ const App = (props) => {
         } else {
           setDid404(false)
           setTracksResponse(track)
-          recordOpen(track.id, track.title, track.handle, track.urlPath)
+          recordOpen(
+            track.id,
+            track.title,
+            track.user.handle,
+            stripLeadingSlash(track.permalink)
+          )
 
-          // set average color
-          const color = await getDominantColor(track.coverArt)
+          const artworkUrl = getArtworkUrl(track)
+          // Set dominant color
+          let color
+          if (artworkUrl) {
+            try {
+              color = await getDominantColor(artworkUrl)
+            } catch (e) {
+              color = DEFAULT_DOMINANT_COLOR
+            }
+          } else {
+            color = DEFAULT_DOMINANT_COLOR
+          }
+
           setDominantColor({ primary: color })
         }
       } else if (requestType === RequestType.COLLECTION) {
@@ -224,7 +239,6 @@ const App = (props) => {
         } else {
           collection = await getCollection(request.id, request.ownerId)
         }
-
         if (!collection) {
           setDid404(true)
           setCollectionsResponse(null)
@@ -233,13 +247,23 @@ const App = (props) => {
           setCollectionsResponse(collection)
           recordOpen(
             collection.id,
-            collection.name,
-            collection.ownerHandle,
-            collection.collectionURLPath
+            collection.playlist_name,
+            collection.user.handle,
+            stripLeadingSlash(collection.permalink)
           )
 
+          const artworkUrl = getArtworkUrl(collection)
           // Set dominant color
-          const color = await getDominantColor(collection.coverArt)
+          let color
+          if (artworkUrl) {
+            try {
+              color = await getDominantColor(artworkUrl)
+            } catch (e) {
+              color = DEFAULT_DOMINANT_COLOR
+            }
+          } else {
+            color = DEFAULT_DOMINANT_COLOR
+          }
           setDominantColor({
             primary: color,
             secondary: shadeColor(color, -20)
@@ -403,12 +427,14 @@ const App = (props) => {
       return null
     }
 
-    let artworkURL =
-      tracksResponse?.coverArt || collectionsResponse?.coverArt || null
+    let artworkURL = getArtworkUrl(tracksResponse || collectionsResponse)
     let artworkClickURL =
-      tracksResponse?.urlPath || collectionsResponse?.collectionURLPath || null
-    let listenOnAudiusURL =
-      tracksResponse?.urlPath || collectionsResponse?.collectionURLPath || null
+      tracksResponse?.permalink || collectionsResponse?.permalink
+        ? stripLeadingSlash(
+            tracksResponse?.permalink || collectionsResponse?.permalink
+          )
+        : null
+    let listenOnAudiusURL = artworkClickURL
     let flavor = requestState.playerFlavor
     return (
       <PausePopover
