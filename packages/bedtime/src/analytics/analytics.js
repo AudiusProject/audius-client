@@ -1,6 +1,7 @@
 import amplitude from 'amplitude-js'
 
 import { getAmplitudeAPIKey, getAmplitudeProxy } from '../util/getEnv'
+import { logError } from '../util/logError'
 
 const AMP_API_KEY = getAmplitudeAPIKey()
 const AMP_PROXY = getAmplitudeProxy()
@@ -13,14 +14,13 @@ export const initTrackSessionStart = async () => {
       const SESSION_START = 'Session Start'
       const SOURCE = 'embed player'
       amp.init(AMP_API_KEY, undefined, { apiEndpoint: AMP_PROXY })
-      amp
-        .logEvent(
-          SESSION_START,
-          { source: SOURCE, referrer: document.referrer }
-        )
+      amp.logEvent(SESSION_START, {
+        source: SOURCE,
+        referrer: document.referrer
+      })
     }
   } catch (err) {
-    console.error(err)
+    logError(err)
   }
 }
 
@@ -39,10 +39,7 @@ const track = (event, properties) => {
 }
 
 export const recordOpen = (id, title, handle, path) => {
-  track(
-    OPEN,
-    { id: `${id}`, handle, title, path, referrer: document.referrer }
-  )
+  track(OPEN, { id: `${id}`, handle, title, path, referrer: document.referrer })
 }
 
 export const recordError = () => {
@@ -50,22 +47,21 @@ export const recordError = () => {
 }
 
 export const recordPlay = (id) => {
-  track(
-    PLAYBACK_PLAY,
-    { id: `${id}`, source: SOURCE, referrer: document.referrer }
-  )
+  track(PLAYBACK_PLAY, {
+    id: `${id}`,
+    source: SOURCE,
+    referrer: document.referrer
+  })
 }
 
 export const recordPause = (id) => {
-  track(
-    PLAYBACK_PAUSE,
-    { id: `${id}`, source: SOURCE, referrer: document.referrer }
-  )
+  track(PLAYBACK_PAUSE, {
+    id: `${id}`,
+    source: SOURCE,
+    referrer: document.referrer
+  })
 }
 
 export const recordListen = (id) => {
-  track(
-    LISTEN,
-    { id: `${id}` }
-  )
+  track(LISTEN, { id: `${id}` })
 }

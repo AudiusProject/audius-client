@@ -4,15 +4,15 @@ import cn from 'classnames'
 
 import { getFrameFromGif } from './collectibleHelpers'
 import styles from './CollectibleTile.module.css'
+import { logError } from '../../util/logError'
 
-const preload = async (src) => (
-  new Promise(resolve => {
+const preload = async (src) =>
+  new Promise((resolve) => {
     const i = new Image()
     i.onload = resolve
     i.onerror = resolve
     i.src = src
   })
-)
 
 const CollectibleTile = ({ collectible, onClick }) => {
   const { mediaType, frameUrl, videoUrl, gifUrl, name } = collectible
@@ -44,24 +44,22 @@ const CollectibleTile = ({ collectible, onClick }) => {
   return (
     <div className={styles.imgContainer}>
       {!isLoading && (
-        <div className={cn(styles.imageWrapper, { [styles.fadeIn]: !isLoading })} onClick={onClick}>
-          {(mediaType === 'VIDEO' && !frame && videoUrl)
-            ? (
-              <video
-                className={styles.video}
-                src={`${videoUrl}#t=0.1`}
-              />
-            ) : (
-              <img
-                className={styles.image}
-                src={frame}
-                onError={() => {
-                  console.error(`Error loading: ${name}`)
-                  setIsHidden(true)
-                }}
-              />
-            )
-          }
+        <div
+          className={cn(styles.imageWrapper, { [styles.fadeIn]: !isLoading })}
+          onClick={onClick}
+        >
+          {mediaType === 'VIDEO' && !frame && videoUrl ? (
+            <video className={styles.video} src={`${videoUrl}#t=0.1`} />
+          ) : (
+            <img
+              className={styles.image}
+              src={frame}
+              onError={() => {
+                logError(`Error loading: ${name}`)
+                setIsHidden(true)
+              }}
+            />
+          )}
         </div>
       )}
     </div>

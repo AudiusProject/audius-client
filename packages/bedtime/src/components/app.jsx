@@ -45,6 +45,7 @@ import {
   AUDIO_NFT_PLAYLIST_DISCORD_ROUTE
 } from '../routes'
 import { getArtworkUrl } from '../util/getArtworkUrl'
+import { logError } from '../util/logError'
 
 if (module.hot) {
   // tslint:disable-next-line:no-var-requires
@@ -301,7 +302,7 @@ const App = (props) => {
       setShowLoadingAnimation(false)
     } catch (e) {
       onGoingRequest.current = false
-      console.error(`Got error: ${e.message}`)
+      logError(`Got error: ${e.message}`)
       setDidError(true)
       setShowLoadingAnimation(false)
       setDid404(false)

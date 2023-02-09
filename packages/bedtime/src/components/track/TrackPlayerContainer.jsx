@@ -14,6 +14,7 @@ import { useRecordListens } from '../../hooks/useRecordListens'
 import { PlayingState } from '../playbutton/PlayButton'
 import { isMobile } from '../../util/isMobile'
 import { formatGateways } from '../../util/gatewayUtil'
+import { logError } from '../../util/logError'
 
 const LISTEN_INTERVAL_SECONDS = 1
 
@@ -103,7 +104,7 @@ const TrackPlayerContainer = ({
             if (method === 'seekTo') seekTo(value)
           }
         } catch (error) {
-          console.error(error)
+          logError(error)
         }
       }
     }

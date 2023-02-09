@@ -1,4 +1,5 @@
 import Hashids from 'hashids'
+import { logError } from './logError'
 
 const HASH_SALT = 'azowernasdfoia'
 const MIN_LENGTH = 5
@@ -13,7 +14,7 @@ export const decodeHashId = (id) => {
     if (isNaN(num)) return null
     return num
   } catch (e) {
-    console.error(`Failed to decode ${id}`, e)
+    logError(`Failed to decode ${id}`, e)
     return null
   }
 }
@@ -24,7 +25,7 @@ export function encodeHashId(id) {
     const encodedId = hashids.encode(id)
     return encodedId
   } catch (e) {
-    console.error(`Failed to encode ${id}`, e)
+    logError(`Failed to encode ${id}`, e)
     return null
   }
 }

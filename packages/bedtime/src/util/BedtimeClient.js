@@ -3,6 +3,7 @@ import { sdk } from '@audius/sdk'
 
 import { recordListen as recordAnalyticsListen } from '../analytics/analytics'
 import { encodeHashId, decodeHashId } from './hashids'
+import { logError } from './logError'
 
 const HOSTNAME = getAPIHostname()
 const IDENTITY_SERVICE_ENDPOINT = getIdentityEndpoint()
@@ -69,7 +70,7 @@ export const recordListen = async (trackId) => {
     await fetch(url, { method, headers, body })
     recordAnalyticsListen(trackId)
   } catch (e) {
-    console.error(`Got error storing playcount: [${e.message}]`)
+    logError(`Got error storing playcount: [${e.message}]`)
   }
 }
 
@@ -84,7 +85,7 @@ const makeRequest = async (url) => {
     }
     return resp.json()
   } catch (e) {
-    console.error(`Saw error requesting URL [${url}]: [${e.message}]`)
+    logError(`Saw error requesting URL [${url}]: [${e.message}]`)
     throw e
   }
 }

@@ -6,6 +6,7 @@ import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 
 import styles from './Artwork.module.css'
 import audiusLogo from '../../assets/img/logoEmbedPlayer.png'
+import { logError } from '../../util/logError'
 
 export const DEFAULT_IMAGE =
   'https://download.audius.co/static-resources/preview-image.jpg'
@@ -14,7 +15,7 @@ const preloadImage = (url, callback, onError) => {
   const img = new Image()
   img.onload = callback
   img.onerror = (e) => {
-    console.error(e)
+    logError(e)
     onError()
   }
   img.src = url

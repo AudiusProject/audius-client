@@ -1,5 +1,7 @@
 /* globals Jimp */
 
+import { logError } from '../logError'
+
 export default () => {
   const script = `${process.env.PREACT_APP_HOST_PREFIX}/assets/scripts/jimp.min.js`
   // eslint-disable-next-line
@@ -14,26 +16,27 @@ export default () => {
     Jimp.read({
       url: imageUrl
     })
-      .then(img => {
-        // eslint-disable-next-line
-        self.console.log(imageUrl, img)
+      .then((img) => {
+        if (process.env.PREACT_APP_ENVIRONMENT !== 'production') {
+          self.console.log(imageUrl, img)
+        }
         const mimeType = 'image/jpeg'
-        img.getBufferAsync(mimeType).then(buffer => {
+        img.getBufferAsync(mimeType).then((buffer) => {
           // eslint-disable-next-line
           let convertedBlob = new self.Blob([buffer], { type: mimeType })
           // eslint-disable-next-line
-          postMessage({key, result: convertedBlob})
+          postMessage({ key, result: convertedBlob })
         })
       })
-      .catch(err => {
-        console.error(imageUrl, err)
+      .catch((err) => {
+        logError(imageUrl, err)
         // eslint-disable-next-line
-        postMessage({key, result: new Blob()})
+        postMessage({ key, result: new Blob() })
       })
   }
 
   // eslint-disable-next-line
-  self.addEventListener('message', e => {
+  self.addEventListener('message', (e) => {
     if (!e) return
     gifPreview(JSON.parse(e.data))
   })
