@@ -4,6 +4,8 @@ import { Chain, PremiumConditions } from '@audius/common'
 import { useSpecialAccessEntity } from '@audius/common'
 import { View, Text } from 'react-native'
 
+import IconCollectible from 'app/assets/images/iconCollectible.svg'
+import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
 import IconUnlocked from 'app/assets/images/iconUnlocked.svg'
 import IconVerifiedGreen from 'app/assets/images/iconVerifiedGreen.svg'
 import UserBadges from 'app/components/user-badges'
@@ -13,6 +15,8 @@ import { useLink } from 'app/components/core'
 
 const messages = {
   unlocked: 'UNLOCKED',
+  collectibleGated: 'COLLECTIBLE GATED',
+  specialAccess: 'SPECIAL ACCESS',
   unlockedCollectibleGatedPrefix: 'A Collectible from ',
   unlockedCollectibleGatedSuffix:
     ' was found in a linked wallet. This track is now available.',
@@ -20,11 +24,11 @@ const messages = {
     'Users can unlock access by linking a wallet containing a collectible from ',
   unlockedFollowGatedPrefix: 'Thank you for following ',
   unlockedFollowGatedSuffix: ' ! This track is now available.',
-  ownerFollowGatedPrefix: 'Users can unlock access by following your account!',
+  ownerFollowGated: 'Users can unlock access by following your account!',
   unlockedTipGatedPrefix: 'Thank you for supporting ',
   unlockedTipGatedSuffix:
     ' by sending them a tip!  This track is now available.',
-  ownerTipGatedPrefix: 'Users can unlock access by sending you a tip! '
+  ownerTipGated: 'Users can unlock access by sending you a tip! '
 }
 
 const useStyles = makeStyles(({ palette, spacing, typography }) => ({
@@ -177,9 +181,74 @@ const DetailsTileOwnerSection = ({
 }: {
   premiumConditions: PremiumConditions
 }) => {
+  const styles = useStyles()
+  const neutral = useColor('neutral')
+  const { nftCollection, followee, tippedUser } = useSpecialAccessEntity(premiumConditions)
+
+  const collectionLink = useMemo(() => {
+    if (!nftCollection) return ''
+
+    const { chain, address, externalLink } = nftCollection
+    if (chain === Chain.Eth && 'slug' in nftCollection!) {
+      return `https://opensea.io/collection/${nftCollection.slug}`
+    } else if (chain === Chain.Sol) {
+      const explorerUrl = `https://explorer.solana.com/address/${address}`
+      return externalLink ? new URL(externalLink).hostname : explorerUrl
+    }
+
+    return ''
+  }, [nftCollection])
+
+  const { onPress: onPressCollectionName } = useLink(collectionLink)
+
+  const renderDescription = useCallback(() => {
+    if (nftCollection) {
+      return (
+        <View style={styles.descriptionContainer}>
+          <Text>
+            <Text style={styles.description}>
+              {messages.ownerCollectibleGatedPrefix}
+            </Text>
+            <Text onPress={onPressCollectionName} style={[styles.description, styles.collectionName]}>{nftCollection.name}</Text>
+          </Text>
+        </View>
+      )
+    }
+    if (followee) {
+      return (
+        <View style={styles.descriptionContainer}>
+          <Text>
+            <Text style={styles.description}>
+              {messages.ownerFollowGated}
+            </Text>
+          </Text>
+        </View>
+      )
+    }
+    if (tippedUser) {
+      return (
+        <View style={styles.descriptionContainer}>
+          <Text>
+            <Text style={styles.description}>
+              {messages.ownerTipGated}
+            </Text>
+          </Text>
+        </View>
+      )
+    }
+
+    // should not reach here
+    return null
+  }, [premiumConditions, followee, tippedUser, styles])
+
   return (
-    <View>
-      <Text>hi</Text>
+    <View style={styles.root}>
+      <View style={styles.titleContainer}>
+        {nftCollection && <IconCollectible fill={neutral} width={16} height={16} />}
+        {(followee || tippedUser) && <IconSpecialAccess fill={neutral} width={16} height={16} />}
+        <Text style={styles.title}>{nftCollection ? messages.collectibleGated : messages.specialAccess}</Text>
+      </View>
+      {renderDescription()}
     </View>
   )
 }
