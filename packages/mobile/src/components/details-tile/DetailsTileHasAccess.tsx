@@ -1,6 +1,6 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
-import type { PremiumConditions } from '@audius/common'
+import { Chain, PremiumConditions } from '@audius/common'
 import { useSpecialAccessEntity } from '@audius/common'
 import { View, Text } from 'react-native'
 
@@ -9,6 +9,7 @@ import IconVerifiedGreen from 'app/assets/images/iconVerifiedGreen.svg'
 import UserBadges from 'app/components/user-badges'
 import { flexRowCentered, makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
+import { useLink } from 'app/components/core'
 
 const messages = {
   unlocked: 'UNLOCKED',
@@ -63,6 +64,9 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   checkIcon: {
     width: spacing(6),
     height: spacing(6)
+  },
+  collectionName: {
+    color: palette.secondary
   }
 }))
 
@@ -73,21 +77,58 @@ const DetailsTileUnlockedSection = ({
 }) => {
   const styles = useStyles()
   const neutral = useColor('neutral')
-  const { followee, tippedUser } = useSpecialAccessEntity(premiumConditions)
-  console.log('premiumConditions is', premiumConditions, followee, tippedUser)
+  const { nftCollection, followee, tippedUser } = useSpecialAccessEntity(premiumConditions)
+
+  const collectionLink = useMemo(() => {
+    if (!nftCollection) return ''
+
+    const { chain, address, externalLink } = nftCollection
+    if (chain === Chain.Eth && 'slug' in nftCollection!) {
+      return `https://opensea.io/collection/${nftCollection.slug}`
+    } else if (chain === Chain.Sol) {
+      const explorerUrl = `https://explorer.solana.com/address/${address}`
+      return externalLink ? new URL(externalLink).hostname : explorerUrl
+    }
+
+    return ''
+  }, [nftCollection])
+
+  const { onPress: onPressCollectionName } = useLink(collectionLink)
 
   const renderDescription = useCallback(() => {
-    if (premiumConditions.nft_collection) {
+    if (nftCollection) {
       return (
-        <View>
-          <Text style={styles.description}>yolo</Text>
+        <View style={styles.descriptionContainer}>
+          <Text>
+            <Text style={styles.description}>
+              {messages.unlockedCollectibleGatedPrefix}
+            </Text>
+            <Text onPress={onPressCollectionName} style={[styles.description, styles.collectionName]}>{nftCollection.name}</Text>
+            <Text style={styles.description}>
+              {messages.unlockedCollectibleGatedSuffix}
+            </Text>
+          </Text>
         </View>
       )
     }
     if (followee) {
       return (
-        <View>
-          <Text style={styles.description}>yolo</Text>
+        <View style={styles.descriptionContainer}>
+          <Text>
+            <Text style={styles.description}>
+              {messages.unlockedFollowGatedPrefix}
+            </Text>
+            <Text style={styles.description}>{followee.name}</Text>
+            <UserBadges
+              badgeSize={16}
+              user={followee}
+              nameStyle={styles.description}
+              hideName
+            />
+            <Text style={styles.description}>
+              {messages.unlockedFollowGatedSuffix}
+            </Text>
+          </Text>
         </View>
       )
     }

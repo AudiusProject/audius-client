@@ -39,7 +39,7 @@ export const usePremiumContentAccess = (track: Nullable<Partial<Track>>) => {
 }
 
 export const useSpecialAccessEntity = (premiumConditions: Nullable<PremiumConditions>) => {
-  const { follow_user_id: followUserId, tip_user_id: tipUserId } =
+  const { follow_user_id: followUserId, tip_user_id: tipUserId, nft_collection: nftCollection } =
     premiumConditions ?? {}
 
   const users = useSelector((state: CommonState) =>
@@ -56,5 +56,5 @@ export const useSpecialAccessEntity = (premiumConditions: Nullable<PremiumCondit
     [users, tipUserId]
   )
 
-  return { followee, tippedUser }
+  return { nftCollection, followee, tippedUser }
 }
