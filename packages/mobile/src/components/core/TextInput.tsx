@@ -72,11 +72,10 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   },
   icon: {
     fill: palette.neutralLight5,
-    height: spacing(2),
-    width: spacing(2)
+    height: spacing(4),
+    width: spacing(4)
   },
   placeholderText: {
-    fontSize: typography.fontSize.xxl,
     color: palette.neutralLight4
   },
   startAdornment: {},
@@ -92,12 +91,6 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
     marginVertical: spacing(3)
   }
 }))
-
-type IconStyle = {
-  fill: number
-  width: number
-  height: number
-}
 
 export type TextInputProps = RNTextInputProps & {
   label?: string
@@ -119,7 +112,6 @@ export type TextInputProps = RNTextInputProps & {
     root: ViewStyle
     input: TextStyle
     labelText: TextStyle
-    icon: IconStyle
   }>
   hideInputAccessory?: boolean
 }
@@ -352,13 +344,10 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
             </Animated.View>
           ) : Icon ? (
             <Icon
-              style={[
-                { height: styles.icon.height, width: styles.icon.width },
-                stylesProp?.icon
-              ]}
-              fill={stylesProp?.icon?.fill ?? styles.icon.fill}
-              height={stylesProp?.icon?.height ?? styles.icon.height}
-              width={stylesProp?.icon?.width ?? styles.icon.width}
+              style={[{ height: styles.icon.height, width: styles.icon.width }]}
+              fill={styles.icon.fill}
+              height={styles.icon.height}
+              width={styles.icon.width}
             />
           ) : null}
           {endAdornment ? (

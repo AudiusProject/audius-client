@@ -7,6 +7,7 @@ import {
   MESSAGE_GROUP_THRESHOLD_MINUTES,
   Status
 } from '@audius/common'
+import type { ChatMessage } from '@audius/sdk'
 import dayjs from 'dayjs'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
@@ -17,6 +18,7 @@ import LoadingSpinner from 'app/components/loading-spinner'
 // import { UserBadges } from 'app/components/user-badges'
 import { useRoute } from 'app/hooks/useRoute'
 import { makeStyles } from 'app/styles'
+import { useThemePalette } from 'app/utils/theme'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
 
@@ -45,7 +47,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     paddingHorizontal: spacing(6),
     display: 'flex',
     flexDirection: 'column-reverse'
-    // flex: 1
   },
   composeView: {
     paddingVertical: spacing(2),
@@ -102,6 +103,7 @@ export const ChatScreen = () => {
   const status = useSelector((state) =>
     getChatMessagesStatus(state, chatId ?? '')
   )
+  const palette = useThemePalette()
 
   useEffect(() => {
     dispatch(fetchMoreMessages({ chatId }))
@@ -114,7 +116,6 @@ export const ChatScreen = () => {
       url={url}
       // variant='secondary'
       title={otherUser[0] ? otherUser[0].handle : messages.title}
-      style={styles.title}
     >
       <ScreenContent>
         <View style={styles.rootContainer}>
@@ -122,7 +123,6 @@ export const ChatScreen = () => {
             <View style={styles.listContainer}>
               <FlatList
                 contentContainerStyle={styles.flatListContainer}
-                style={styles.list}
                 data={chatMessages}
                 keyExtractor={(message) => message.chat_id}
                 renderItem={({ item, index }) => {
@@ -141,11 +141,17 @@ export const ChatScreen = () => {
           <View style={styles.composeView}>
             <TextInput
               placeholder={messages.startNewMessage}
-              Icon={IconSend}
+              Icon={() => (
+                <IconSend
+                  fill={palette.primary}
+                  width={styles.icon.width}
+                  height={styles.icon.height}
+                  opacity={iconOpacity}
+                />
+              )}
               styles={{
                 root: styles.composeTextContainer,
-                input: styles.composeTextInput,
-                icon: { ...styles.icon, opacity: iconOpacity }
+                input: styles.composeTextInput
               }}
               onChangeText={(text) => {
                 setText(text)

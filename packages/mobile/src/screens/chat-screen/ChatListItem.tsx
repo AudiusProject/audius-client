@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 
 import { chatSelectors, useProxySelector } from '@audius/common'
+import type { UserChat } from '@audius/sdk'
 import { View, TouchableHighlight } from 'react-native'
 
 import { Text } from 'app/components/core'
@@ -18,14 +19,14 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   root: {
     height: spacing(28),
     paddingVertical: spacing(4),
-    paddingHorizontal: spacing(10),
+    paddingHorizontal: spacing(6),
     backgroundColor: palette.white,
     borderColor: palette.neutralLight8,
     borderBottomWidth: 1
   }
 }))
 
-export const ChatListItem = ({ chat }: { UserChat }) => {
+export const ChatListItem = ({ chat }: { chat: UserChat }) => {
   const currentChatId = chat.chat_id
   const navigation = useNavigation<AppTabScreenParamList>()
   const styles = useStyles()
@@ -47,9 +48,7 @@ export const ChatListItem = ({ chat }: { UserChat }) => {
     <TouchableHighlight onPress={handlePress}>
       <View style={styles.root}>
         <ChatUser user={users[0]} />
-        <Text style={styles.title} numberOfLines={1}>
-          {chat.last_message}
-        </Text>
+        <Text numberOfLines={1}>{chat.last_message}</Text>
       </View>
     </TouchableHighlight>
   )

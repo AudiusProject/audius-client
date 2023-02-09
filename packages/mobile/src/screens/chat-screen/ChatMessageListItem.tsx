@@ -50,7 +50,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 }))
 
 type ChatMessageListItemProps = {
-  chatId: string
   message: ChatMessage
   hasTail: boolean
 }
@@ -70,10 +69,8 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
         isAuthor ? styles.rootIsAuthor : styles.rootOtherUser
       ]}
     >
-      <View style={[styles.bubble, isAuthor ? styles.isAuthor : '']}>
-        <Text style={isAuthor ? styles.textIsAuthor : ''}>
-          {message.message}
-        </Text>
+      <View style={[styles.bubble, isAuthor && styles.isAuthor]}>
+        <Text style={isAuthor && styles.textIsAuthor}>{message.message}</Text>
       </View>
       {hasTail && (
         <View style={styles.dateContainer}>
