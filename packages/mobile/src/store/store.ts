@@ -108,6 +108,7 @@ const onSagaError = (
       RNRestart.Restart()
     }, errorRestartTimeout)
   }
+}
 
 const commonStoreReducers = commonReducers()
 
