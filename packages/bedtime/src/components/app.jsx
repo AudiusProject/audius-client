@@ -8,6 +8,7 @@ import {
   getTrack,
   getTrackWithHashId
 } from '../util/BedtimeClient'
+import { decodeHashId } from '../util/hashids'
 import CollectiblesPlayerContainer from './collectibles/CollectiblesPlayerContainer'
 import { DEFAULT_DOMINANT_COLOR } from '../util/image/dominantColor.worker'
 import CollectionPlayerContainer from './collection/CollectionPlayerContainer'
@@ -46,7 +47,6 @@ import {
 } from '../routes'
 import { getArtworkUrl } from '../util/getArtworkUrl'
 import { logError } from '../util/logError'
-import { decodeHashId } from '../util/hashids'
 
 if (module.hot) {
   // tslint:disable-next-line:no-var-requires
@@ -213,7 +213,7 @@ const App = (props) => {
           setDid404(false)
           setTracksResponse(track)
           recordOpen(
-            track.id,
+            decodeHashId(track.id),
             track.title,
             track.user.handle,
             stripLeadingSlash(track.permalink)
@@ -249,7 +249,7 @@ const App = (props) => {
           setDid404(false)
           setCollectionsResponse(collection)
           recordOpen(
-            collection.id,
+            decodeHashId(collection.id),
             collection.playlist_name,
             collection.user.handle,
             stripLeadingSlash(collection.permalink)

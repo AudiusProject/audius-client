@@ -68,31 +68,10 @@ export const uuid = () => {
   return uuid
 }
 
-// TODO: proptypes
-// export interface TrackResponse {
-//   title: string
-//   handle: string
-//   userName: string
-//   segments: Array<{ duration: number, multihash: string }>
-//   urlPath: string
-// }
-
-// export type GetTracksResponse = TrackResponse & {
-//   isVerified: boolean,
-//   coverArt: string
-// }
-
-// export interface GetCollectionsResponse {
-//     name: string
-//     ownerHandle: string
-//     ownerName: string
-//     collectionURLPath: string
-//     tracks: TrackResponse[]
-//     coverArt: string
-// }
-
+/** param trackId is the encoded track id (i.e. hash id) */
 export const recordListen = async (trackId) => {
-  const url = `${IDENTITY_SERVICE_ENDPOINT}/tracks/${trackId}/listen`
+  const numericHashId = decodeHashId(trackId)
+  const url = `${IDENTITY_SERVICE_ENDPOINT}/tracks/${numericHashId}/listen`
   const method = 'POST'
   const headers = {
     Accept: 'application/json',
@@ -105,7 +84,7 @@ export const recordListen = async (trackId) => {
 
   try {
     await fetch(url, { method, headers, body })
-    recordAnalyticsListen(trackId)
+    recordAnalyticsListen(numericHashId)
   } catch (e) {
     logError(`Got error storing playcount: [${e.message}]`)
   }

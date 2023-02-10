@@ -3,6 +3,7 @@ import AudioStream from '../audio/AudioStream'
 import { PlayingState } from '../components/playbutton/PlayButton'
 import { recordPlay, recordPause } from '../analytics/analytics'
 import { sendPostMessage } from '../api/util'
+import { decodeHashId } from '../util/hashids'
 
 const SEEK_INTERVAL = 200
 
@@ -177,7 +178,7 @@ const usePlayback = (id, onAfterAudioEnd) => {
           setPlayingStateRef(PlayingState.Playing)
           audioRef.current?.play()
           setPlayCounter((p) => p + 1)
-          recordPlay(idOverride || id)
+          recordPlay(decodeHashId(idOverride || id))
           sendPostMessage({ event: 'play' })
           break
         case PlayingState.Buffering:
@@ -185,13 +186,13 @@ const usePlayback = (id, onAfterAudioEnd) => {
         case PlayingState.Paused:
           setPlayingStateRef(PlayingState.Playing)
           audioRef.current?.play()
-          recordPlay(idOverride || id)
+          recordPlay(decodeHashId(idOverride || id))
           sendPostMessage({ event: 'play' })
           break
         case PlayingState.Playing:
           setPlayingStateRef(PlayingState.Paused)
           audioRef.current?.pause()
-          recordPause(idOverride || id)
+          recordPause(decodeHashId(idOverride || id))
           sendPostMessage({ event: 'pause' })
           break
       }

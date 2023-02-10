@@ -38,6 +38,7 @@ const track = (event, properties) => {
   }
 }
 
+/** id param is the numeric id */
 export const recordOpen = (id, title, handle, path) => {
   track(OPEN, { id: `${id}`, handle, title, path, referrer: document.referrer })
 }
@@ -46,6 +47,7 @@ export const recordError = () => {
   track(ERROR, { referrer: document.referrer })
 }
 
+/** id param is the numeric id */
 export const recordPlay = (id) => {
   track(PLAYBACK_PLAY, {
     id: `${id}`,
@@ -54,6 +56,7 @@ export const recordPlay = (id) => {
   })
 }
 
+/** id param is the numeric id */
 export const recordPause = (id) => {
   track(PLAYBACK_PAUSE, {
     id: `${id}`,
@@ -62,6 +65,7 @@ export const recordPause = (id) => {
   })
 }
 
+/** id param is the numeric id */
 export const recordListen = (id) => {
   track(LISTEN, { id: `${id}` })
 }
