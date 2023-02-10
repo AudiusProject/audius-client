@@ -111,7 +111,8 @@ const TrackTile = memo(
       ? fieldVisibility.play_count === false
       : false
 
-    const showPremiumCornerTag = !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
+    const showPremiumCornerTag =
+      !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
 
     return (
       <div

@@ -136,7 +136,7 @@ export const TrackTileComponent = ({
         overflowActions
       })
     )
-  }, [track_id, dispatch, isOnArtistsTracksTab, isOwner])
+  }, [isPremium, track_id, dispatch, isOnArtistsTracksTab, isOwner])
 
   const handlePressShare = useCallback(() => {
     if (track_id === undefined) {

@@ -369,7 +369,8 @@ class GiantTrackTile extends PureComponent {
     const { artworkLoading } = this.state
 
     const isLoading = loading || artworkLoading
-    const showPremiumCornerTag = !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
+    const showPremiumCornerTag =
+      !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
 
     const overflowMenuExtraItems = []
     if (!isOwner) {

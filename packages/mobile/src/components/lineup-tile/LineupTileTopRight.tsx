@@ -1,12 +1,13 @@
-import { formatSeconds, PremiumConditions, Nullable } from '@audius/common'
+import type { PremiumConditions, Nullable } from '@audius/common'
+import { formatSeconds } from '@audius/common'
 import type { ViewStyle } from 'react-native'
 import { StyleSheet, View } from 'react-native'
 import type { SvgProps } from 'react-native-svg'
 
-import IconHidden from 'app/assets/images/iconHidden.svg'
-import IconStar from 'app/assets/images/iconStar.svg'
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
+import IconHidden from 'app/assets/images/iconHidden.svg'
 import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
+import IconStar from 'app/assets/images/iconStar.svg'
 import Text from 'app/components/text'
 import { flexRowCentered } from 'app/styles'
 import { useColor, useThemeColors } from 'app/utils/theme'
@@ -105,13 +106,25 @@ export const LineupTileTopRight = ({
     <View style={styles.topRight}>
       {!!premiumConditions && (
         <LineupTileTopRightItem
-          icon={premiumConditions.nft_collection ? IconCollectible : IconSpecialAccess}
-          label={premiumConditions.nft_collection ? messages.collectibleGated : messages.specialAccess}
+          icon={
+            premiumConditions.nft_collection
+              ? IconCollectible
+              : IconSpecialAccess
+          }
+          label={
+            premiumConditions.nft_collection
+              ? messages.collectibleGated
+              : messages.specialAccess
+          }
           color={accentBlue}
         />
       )}
       {!premiumConditions && showArtistPick && isArtistPick && (
-        <LineupTileTopRightItem icon={IconStar} label={messages.artistPick} color={neutralLight4} />
+        <LineupTileTopRightItem
+          icon={IconStar}
+          label={messages.artistPick}
+          color={neutralLight4}
+        />
       )}
       {isUnlisted && (
         <LineupTileTopRightItem

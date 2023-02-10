@@ -1,11 +1,13 @@
-import { ID, premiumContentSelectors } from "@audius/common"
-import { View } from "react-native"
-import { useSelector } from "react-redux"
-import { Text } from 'app/components/core'
-import { flexRowCentered, makeStyles } from "app/styles"
+import type { ID } from '@audius/common'
+import { premiumContentSelectors } from '@audius/common'
+import { View } from 'react-native'
+import { useSelector } from 'react-redux'
+
 import IconLock from 'app/assets/images/iconLock.svg'
-import { useColor } from "app/utils/theme"
+import { Text } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
+import { flexRowCentered, makeStyles } from 'app/styles'
+import { useColor } from 'app/utils/theme'
 
 const { getPremiumTrackStatusMap } = premiumContentSelectors
 
@@ -39,15 +41,18 @@ export const LineupTileAccessStatus = ({ trackId }: { trackId: ID }) => {
   const premiumTrackStatus = premiumTrackStatusMap[trackId]
   const neutralLight4 = useColor('neutralLight4')
 
-  return <View style={styles.root}>
-    {premiumTrackStatus === 'UNLOCKING'
-    ? (
-      <LoadingSpinner />
+  return (
+    <View style={styles.root}>
+      {premiumTrackStatus === 'UNLOCKING' ? (
+        <LoadingSpinner />
       ) : (
-      <IconLock fill={neutralLight4} width={16} height={16} />
-    )}
-    <Text style={styles.text}>
-      {premiumTrackStatus === 'UNLOCKING' ? messages.unlocking : messages.locked}
-    </Text>
-  </View>
+        <IconLock fill={neutralLight4} width={16} height={16} />
+      )}
+      <Text style={styles.text}>
+        {premiumTrackStatus === 'UNLOCKING'
+          ? messages.unlocking
+          : messages.locked}
+      </Text>
+    </View>
+  )
 }

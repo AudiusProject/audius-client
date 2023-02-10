@@ -1,3 +1,4 @@
+import type { ID } from '@audius/common'
 import { View } from 'react-native'
 
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
@@ -5,11 +6,11 @@ import IconShare from 'app/assets/images/iconShare.svg'
 import { IconButton } from 'app/components/core'
 import { FavoriteButton } from 'app/components/favorite-button'
 import { RepostButton } from 'app/components/repost-button'
+import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 import { flexRowCentered, makeStyles } from 'app/styles'
 import type { GestureResponderHandler } from 'app/types/gesture'
 import { useThemeColors } from 'app/utils/theme'
-import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
-import { ID } from '@audius/common'
+
 import { LineupTileAccessStatus } from './LineupTileAccessStatus'
 
 type Props = {
@@ -106,13 +107,16 @@ export const LineupTileActionButtons = ({
     />
   )
 
-  const showPremiumAccessStatus = isPremiumContentEnabled && trackId && !doesUserHaveAccess
+  const showPremiumAccessStatus =
+    isPremiumContentEnabled && trackId && !doesUserHaveAccess
   const showLeftButtons = !showPremiumAccessStatus && !isUnlisted
 
   return (
     <View style={styles.bottomButtons}>
       <View style={styles.leftButtons}>
-        {showPremiumAccessStatus && <LineupTileAccessStatus trackId={trackId} />}
+        {showPremiumAccessStatus && (
+          <LineupTileAccessStatus trackId={trackId} />
+        )}
         {showLeftButtons && (
           <>
             {repostButton}

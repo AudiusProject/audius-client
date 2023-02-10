@@ -3,6 +3,8 @@ import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import type { LineupTileProps } from 'app/components/lineup-tile/types'
+import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
+import { PremiumTrackCornerTag } from 'app/screens/track-screen/PremiumTrackCornerTag'
 
 import { LineupTileActionButtons } from './LineupTileActionButtons'
 import {
@@ -14,8 +16,6 @@ import { LineupTileMetadata } from './LineupTileMetadata'
 import { LineupTileRoot } from './LineupTileRoot'
 import { LineupTileStats } from './LineupTileStats'
 import { LineupTileTopRight } from './LineupTileTopRight'
-import { PremiumTrackCornerTag } from 'app/screens/track-screen/PremiumTrackCornerTag'
-import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 
 const { getUserId } = accountSelectors
 
@@ -74,7 +74,9 @@ export const LineupTile = ({
           premiumConditions={premiumConditions}
         />
       )}
-      {(!isPremiumContentEnabled || !premiumConditions) && showArtistPick && isArtistPick ? (
+      {(!isPremiumContentEnabled || !premiumConditions) &&
+      showArtistPick &&
+      isArtistPick ? (
         <LineupTileBannerIcon type={LineupTileBannerIconType.STAR} />
       ) : null}
       {isUnlisted ? (
