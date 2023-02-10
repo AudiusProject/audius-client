@@ -235,7 +235,6 @@ export const Slider = memo((props: SliderProps) => {
     () =>
       PanResponder.create({
         onMoveShouldSetPanResponder: () => {
-          onDrag(handlePosition)
           return true
         },
         onPanResponderMove: (e, gestureState) => {

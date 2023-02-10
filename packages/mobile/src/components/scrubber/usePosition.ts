@@ -20,7 +20,6 @@ export const usePosition = (
   }, [])
 
   useEffect(() => {
-    let outerTimeout: NodeJS.Timeout
     let currentTimeout: NodeJS.Timeout
 
     const updatePosition = () => {
@@ -40,11 +39,10 @@ export const usePosition = (
     }
 
     if (isPlaying && !isInteracting) {
-      outerTimeout = updatePosition()
+      currentTimeout = updatePosition()
     }
 
     return () => {
-      clearTimeout(outerTimeout)
       clearTimeout(currentTimeout)
     }
   }, [isPlaying, isInteracting, duration])
