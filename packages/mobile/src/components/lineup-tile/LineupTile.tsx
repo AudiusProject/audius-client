@@ -1,4 +1,4 @@
-import { accountSelectors } from '@audius/common'
+import { accountSelectors, usePremiumContentAccess } from '@audius/common'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
@@ -14,6 +14,9 @@ import { LineupTileMetadata } from './LineupTileMetadata'
 import { LineupTileRoot } from './LineupTileRoot'
 import { LineupTileStats } from './LineupTileStats'
 import { LineupTileTopRight } from './LineupTileTopRight'
+import { PremiumTrackCornerTag } from 'app/screens/track-screen/PremiumTrackCornerTag'
+import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
+
 const { getUserId } = accountSelectors
 
 export const LineupTile = ({
@@ -45,6 +48,7 @@ export const LineupTile = ({
   isPlayingUid,
   TileProps
 }: LineupTileProps) => {
+  const isPremiumContentEnabled = useIsPremiumContentEnabled()
   const {
     has_current_user_reposted,
     has_current_user_saved,
@@ -53,15 +57,23 @@ export const LineupTile = ({
   } = item
   const { artist_pick_track_id, name, user_id } = user
   const currentUserId = useSelector(getUserId)
+  const isOwner = user_id === currentUserId
   const isCollection = 'playlist_id' in item
   const isTrack = 'track_id' in item
   const premiumConditions = isTrack ? item.premium_conditions : null
-
-  const isOwner = user_id === currentUserId
+  const isArtistPick = artist_pick_track_id === id
+  const { doesUserHaveAccess } = usePremiumContentAccess(isTrack ? item : null)
 
   return (
     <LineupTileRoot onPress={onPress} {...TileProps}>
-      {!premiumConditions && showArtistPick && artist_pick_track_id === id ? (
+      {isPremiumContentEnabled && premiumConditions && (
+        <PremiumTrackCornerTag
+          doesUserHaveAccess={doesUserHaveAccess}
+          isOwner={isOwner}
+          premiumConditions={premiumConditions}
+        />
+      )}
+      {(!isPremiumContentEnabled || !premiumConditions) && showArtistPick && isArtistPick ? (
         <LineupTileBannerIcon type={LineupTileBannerIconType.STAR} />
       ) : null}
       {isUnlisted ? (
@@ -70,10 +82,10 @@ export const LineupTile = ({
       <View>
         <LineupTileTopRight
           duration={duration}
-          isArtistPick={artist_pick_track_id === id}
           isUnlisted={isUnlisted}
-          showArtistPick={showArtistPick}
           premiumConditions={premiumConditions}
+          isArtistPick={isArtistPick}
+          showArtistPick={showArtistPick}
         />
         <LineupTileMetadata
           artistName={name}
