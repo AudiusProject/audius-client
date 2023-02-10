@@ -13,8 +13,17 @@ export const RequestedEntity = Object.seal({
   COLLECTIONS: 'collections',
   COLLECTIBLES: 'collectibles'
 })
-
-const audiusSdk = sdk({ appName: 'Audius Embed Player' })
+let discoveryEndpoint
+const audiusSdk = sdk({
+  appName: 'Audius Embed Player',
+  discoveryProviderConfig: {
+    selectionCallback: (endpoint) => {
+      discoveryEndpoint = endpoint
+    }
+  }
+})
+export const getTrackStreamEndpoint = (trackId) =>
+  `${discoveryEndpoint}/v1/tracks/${trackId}/stream`
 
 export const uuid = () => {
   // https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript/873856#873856

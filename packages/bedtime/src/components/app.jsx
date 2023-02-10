@@ -46,6 +46,7 @@ import {
 } from '../routes'
 import { getArtworkUrl } from '../util/getArtworkUrl'
 import { logError } from '../util/logError'
+import { decodeHashId } from '../util/hashids'
 
 if (module.hot) {
   // tslint:disable-next-line:no-var-requires
@@ -240,6 +241,7 @@ const App = (props) => {
         } else {
           collection = await getCollection(request.id)
         }
+
         if (!collection) {
           setDid404(true)
           setCollectionsResponse(null)
@@ -388,7 +390,7 @@ const App = (props) => {
           in
           timeout={1000}
         >
-          {tracksResponse && (
+          {!tracksResponse ? null : (
             <TrackPlayerContainer
               track={tracksResponse}
               flavor={requestState.playerFlavor}
@@ -396,7 +398,7 @@ const App = (props) => {
               backgroundColor={dominantColor.primary}
             />
           )}
-          {collectionsResponse && (
+          {!collectionsResponse ? null : (
             <CollectionPlayerContainer
               collection={collectionsResponse}
               flavor={requestState.playerFlavor}

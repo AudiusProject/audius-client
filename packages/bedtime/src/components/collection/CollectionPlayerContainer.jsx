@@ -1,5 +1,11 @@
 import { h } from 'preact'
-import { useState, useContext, useCallback, useEffect } from 'preact/hooks'
+import {
+  useState,
+  useContext,
+  useCallback,
+  useEffect,
+  useMemo
+} from 'preact/hooks'
 
 import usePlayback from '../../hooks/usePlayback'
 import CollectionPlayerCard from './CollectionPlayerCard'
@@ -11,6 +17,7 @@ import { isMobile } from '../../util/isMobile'
 import { PlayerFlavor } from '../app'
 import { formatGateways } from '../../util/gatewayUtil'
 import CollectionHelmet from './CollectionHelmet'
+import { getTrackStreamEndpoint } from '../../util/BedtimeClient'
 
 const LISTEN_INTERVAL_SECONDS = 1
 
@@ -82,21 +89,39 @@ const CollectionPlayerContainer = ({
     LISTEN_INTERVAL_SECONDS
   )
 
+  const trackInfoForPlayback = useMemo(() => {
+    const activeTrack = collection.tracks[activeTrackIndex]
+    if (activeTrack == null) {
+      return null
+    }
+    const mp3StreamUrl = getTrackStreamEndpoint(activeTrack.id)
+
+    return {
+      segments: activeTrack.track_segments,
+      gateways: formatGateways(activeTrack.user.creator_node_endpoint),
+      title: activeTrack.title,
+      artistName: activeTrack.user.name,
+      mp3StreamUrl
+    }
+  }, [activeTrackIndex, collection.tracks])
+
   // Setup twitter autoplay
   useEffect(() => {
     const mobile = isMobile()
     if (!isTwitter || mobile || !collection.tracks.length) return
     initAudio()
-    loadTrack(getSegments(0), getGateways(0))
+    loadTrack(trackInfoForPlayback)
     setDidInitAudio(true)
     onTogglePlay()
-  }, [])
+    // TODO: Fix these deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trackInfoForPlayback])
 
   const onTogglePlayTrack = useCallback(
     (trackIndex) => {
       if (!didInitAudio) {
         initAudio()
-        loadTrack(getSegments(trackIndex), getGateways(trackIndex))
+        loadTrack(trackInfoForPlayback)
         setDidInitAudio(true)
       }
 
@@ -113,7 +138,7 @@ const CollectionPlayerContainer = ({
 
       setActiveTrackIndex(trackIndex)
       stop()
-      loadTrack(getSegments(trackIndex), getGateways(trackIndex))
+      loadTrack(trackInfoForPlayback)
       onTogglePlay(getId(trackIndex))
     },
     // TODO: Fix these deps
@@ -127,7 +152,8 @@ const CollectionPlayerContainer = ({
       setPopoverVisibility,
       onTogglePlay,
       stop,
-      getId
+      getId,
+      trackInfoForPlayback
     ]
   )
 

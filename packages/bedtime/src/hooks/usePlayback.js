@@ -31,15 +31,15 @@ const usePlayback = (id, onAfterAudioEnd) => {
   // clients the most recent version to update their UI, so we manually
   // trigger a rerender if we update the ref.
   const [, setRerenderBool] = useState(true)
-  const setPlayingStateRef = (state) => {
-    setRerenderBool(b => !b)
+  const setPlayingStateRef = useCallback((state) => {
+    setRerenderBool((b) => !b)
     playingStateRef.current = state
-  }
+  }, [])
 
   // Hold onto the callbacks we return as refs, to be passed into
   // onTrackEnd to break the cyclic dependeny here.
   const togglePlayRef = useRef(() => {})
-  const loadRef = useRef((trackSegments) => {})
+  const loadRef = useRef(() => {})
   const stopRef = useRef(() => {})
   const setVolumeRef = useRef(() => {})
 
@@ -64,22 +64,46 @@ const usePlayback = (id, onAfterAudioEnd) => {
   }, [onAfterAudioEndRef, onAfterAudioEnd])
 
   const onAudioEnd = () => {
-    if (!audioRef.current) { throw new Error('Init not called') }
+    if (!audioRef.current) {
+      throw new Error('Init not called')
+    }
     setPlayingStateRef(PlayingState.Stopped)
     clearInterval(seekInterval.current)
     setTiming({ position: 0, duration: audioRef.current.getDuration() })
-    setMediaKey(m => m + 1)
+    setMediaKey((m) => m + 1)
     onAfterAudioEndCallback()
   }
 
-  const loadTrack = useCallback((trackSegments, gateways) => {
-    if (!audioRef.current) { throw new Error('Init not called') }
-    audioRef.current.load(trackSegments, onAudioEnd, [], gateways)
-    const newTiming = { position: 0, duration: audioRef.current.getDuration() }
-    setTiming(newTiming)
-    sendPostMessage({ event: 'ready' })
-    sendPostMessage({ event: 'progress', data: newTiming })
-  }, [audioRef, setTiming])
+  const loadTrack = useCallback(
+    ({ segments, gateways, title, artistName, mp3StreamUrl }) => {
+      if (!audioRef.current) {
+        throw new Error('Init not called')
+      }
+      audioRef.current.load(
+        segments,
+        onAudioEnd,
+        [],
+        gateways,
+        {
+          id,
+          title,
+          artist: artistName,
+          artwork: ''
+        },
+        mp3StreamUrl
+      )
+      const newTiming = {
+        position: 0,
+        duration: audioRef.current.getDuration()
+      }
+      setTiming(newTiming)
+      sendPostMessage({ event: 'ready' })
+      sendPostMessage({ event: 'progress', data: newTiming })
+    },
+    // TODO: Fix these deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [audioRef, setTiming, id]
+  )
   loadRef.current = loadTrack
 
   const startSeeking = useCallback(() => {
@@ -87,31 +111,37 @@ const usePlayback = (id, onAfterAudioEnd) => {
 
     seekInterval.current = setInterval(async () => {
       const audio = audioRef.current
-      if (!audio) { return }
+      if (!audio) {
+        return
+      }
       const position = audio.getPosition()
       const duration = audio.getDuration()
       const newTiming = { position, duration }
       setTiming(newTiming)
-      if(playingStateRef.current == PlayingState.Playing){
+      if (playingStateRef.current == PlayingState.Playing) {
         sendPostMessage({ event: 'progress', data: newTiming })
       }
       // Handle buffering state
       const isBuffering = audio.isBuffering()
       if (isBuffering && playingStateRef.current !== PlayingState.Buffering) {
         playingStateRef.current = PlayingState.Buffering
-        setRerenderBool(r => !r)
-      } else if (!isBuffering && playingStateRef.current === PlayingState.Buffering) {
+        setRerenderBool((r) => !r)
+      } else if (
+        !isBuffering &&
+        playingStateRef.current === PlayingState.Buffering
+      ) {
         playingStateRef.current = PlayingState.Playing
-        setRerenderBool(r => !r)
+        setRerenderBool((r) => !r)
       }
-
     }, SEEK_INTERVAL)
   }, [audioRef, setTiming])
 
   // Clean up
   useEffect(() => {
     return () => {
-      if (seekInterval.current) { clearInterval(seekInterval.current) }
+      if (seekInterval.current) {
+        clearInterval(seekInterval.current)
+      }
     }
   }, [seekInterval])
 
@@ -119,57 +149,72 @@ const usePlayback = (id, onAfterAudioEnd) => {
   useEffect(() => {
     if (playCounter !== prevPlayCounter) {
       setPrevPlayCounter(playCounter)
-      setMediaKey(m => m + 1)
+      setMediaKey((m) => m + 1)
       startSeeking()
     }
-  }, [playCounter, prevPlayCounter, startSeeking, timing, setTiming, setMediaKey])
+  }, [
+    playCounter,
+    prevPlayCounter,
+    startSeeking,
+    timing,
+    setTiming,
+    setMediaKey
+  ])
 
   const seekTo = useCallback((location) => {
     const audio = audioRef.current
-    if (!audio) { return }
+    if (!audio) {
+      return
+    }
     audio.seek(location)
     sendPostMessage({ event: 'seek' })
   }, [])
 
-  const onTogglePlay = useCallback((idOverride) => {
-    switch (playingStateRef.current) {
-      case PlayingState.Stopped:
-        setPlayingStateRef(PlayingState.Playing)
-        audioRef.current?.play()
-        setPlayCounter(p => p + 1)
-        recordPlay(idOverride || id)
-        sendPostMessage({ event: 'play' })
-        break
-      case PlayingState.Buffering:
-        break
-      case PlayingState.Paused:
-        setPlayingStateRef(PlayingState.Playing)
-        audioRef.current?.play()
-        recordPlay(idOverride || id)
-        sendPostMessage({ event: 'play' })
-        break
-      case PlayingState.Playing:
-        setPlayingStateRef(PlayingState.Paused)
-        audioRef.current?.pause()
-        recordPause(idOverride || id)
-        sendPostMessage({ event: 'pause' })
-        break
-    }
-  }, [playingStateRef, setPlayingStateRef, id])
+  const onTogglePlay = useCallback(
+    (idOverride) => {
+      switch (playingStateRef.current) {
+        case PlayingState.Stopped:
+          setPlayingStateRef(PlayingState.Playing)
+          audioRef.current?.play()
+          setPlayCounter((p) => p + 1)
+          recordPlay(idOverride || id)
+          sendPostMessage({ event: 'play' })
+          break
+        case PlayingState.Buffering:
+          break
+        case PlayingState.Paused:
+          setPlayingStateRef(PlayingState.Playing)
+          audioRef.current?.play()
+          recordPlay(idOverride || id)
+          sendPostMessage({ event: 'play' })
+          break
+        case PlayingState.Playing:
+          setPlayingStateRef(PlayingState.Paused)
+          audioRef.current?.pause()
+          recordPause(idOverride || id)
+          sendPostMessage({ event: 'pause' })
+          break
+      }
+    },
+    [playingStateRef, setPlayingStateRef, id]
+  )
   togglePlayRef.current = onTogglePlay
 
   const stop = useCallback(() => {
     audioRef.current?.stop()
     setPlayingStateRef(PlayingState.Stopped)
 
-    setTiming(t => ({ position: 0, duration: t.duration }))
-  }, [audioRef, playingStateRef, setTiming])
+    setTiming((t) => ({ position: 0, duration: t.duration }))
+  }, [audioRef, setTiming])
 
   stopRef.current = stop
 
-  const setVolume = useCallback((volume) => {
-    audioRef.current?.setVolume(volume)
-  }, [audioRef])
+  const setVolume = useCallback(
+    (volume) => {
+      audioRef.current?.setVolume(volume)
+    },
+    [audioRef]
+  )
 
   setVolumeRef.current = setVolume
 
@@ -185,7 +230,6 @@ const usePlayback = (id, onAfterAudioEnd) => {
     stop,
     setVolume
   }
-
 }
 
 export default usePlayback
