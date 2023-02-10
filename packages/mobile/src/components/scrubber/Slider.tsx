@@ -267,31 +267,6 @@ export const Slider = memo((props: SliderProps) => {
     ]
   )
 
-  // const panResponder2 = PanResponder.create({
-  //   onMoveShouldSetPanResponder: () => {
-  //     onDrag(handlePosition)
-  //     return true
-  //   },
-  //   onPanResponderMove: (e, gestureState) => {
-  //     const newPosition = Math.max(
-  //       0,
-  //       Math.min(gestureState.dx + handlePosition, railWidth)
-  //     )
-  //     attachToDx(translationAnim, newPosition)(e)
-  //     onDrag(newPosition / railWidth)
-  //   },
-  //   onPanResponderRelease: (e, gestureState) => {
-  //     const newPosition = Math.max(
-  //       0,
-  //       Math.min(gestureState.dx + handlePosition, railWidth)
-  //     )
-  //     attachToDx(translationAnim, newPosition)(e)
-  //     setHandlePosition(newPosition)
-  //     onReleaseHandle(newPosition / railWidth)
-  //     onDragRelease()
-  //   }
-  // })
-
   // When the media key changes, reset the scrubber
   useEffect(() => {
     translationAnim.setValue(0)
