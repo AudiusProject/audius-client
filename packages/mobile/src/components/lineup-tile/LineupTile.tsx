@@ -66,7 +66,12 @@ export const LineupTile = ({
   const { doesUserHaveAccess } = usePremiumContentAccess(isTrack ? item : null)
 
   return (
-    <LineupTileRoot onPress={onPress} {...TileProps}>
+    <LineupTileRoot
+      onPress={
+        !isPremiumContentEnabled || doesUserHaveAccess ? onPress : undefined
+      }
+      {...TileProps}
+    >
       {isPremiumContentEnabled && premiumConditions && (
         <PremiumTrackCornerTag
           doesUserHaveAccess={doesUserHaveAccess}
