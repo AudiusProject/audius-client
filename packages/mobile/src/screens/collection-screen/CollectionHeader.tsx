@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 import type { Collection, SmartCollectionVariant } from '@audius/common'
 import {
+  accountSelectors,
   reachabilitySelectors,
   collectionPageSelectors,
   Variant
@@ -26,6 +27,7 @@ import {
 import { makeStyles } from 'app/styles'
 const { getCollection } = collectionPageSelectors
 const { getIsReachable } = reachabilitySelectors
+const { getUserId } = accountSelectors
 
 const messages = {
   album: 'Album',
@@ -61,7 +63,8 @@ const useStyles = makeStyles(({ spacing }) => ({
     justifyContent: 'flex-end'
   },
   headerText: {
-    marginVertical: spacing(4),
+    marginTop: spacing(4),
+    marginBottom: spacing(4),
     letterSpacing: 2,
     lineHeight: 17,
     textAlign: 'center',
@@ -133,6 +136,7 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
   const { playlist_id } = collection
   const dispatch = useDispatch()
   const isReachable = useSelector(getIsReachable)
+  const currentUserId = useSelector(getUserId)
 
   const isMarkedForDownload = useSelector(
     getIsCollectionMarkedForDownload(playlist_id)
@@ -155,6 +159,10 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
   const removeDrawerVisibility = useSelector(
     getVisibility('RemoveDownloadedCollection')
   )
+
+  const showDownloadSwitchAndIndicator =
+    collection.has_current_user_saved ||
+    collection.playlist_owner_id === currentUserId
 
   useEffect(() => {
     if (
@@ -207,7 +215,7 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
     <View style={styles.root}>
       <View style={styles.headerLeft} />
       <View style={styles.headerCenter}>
-        {collection.has_current_user_saved ? (
+        {showDownloadSwitchAndIndicator ? (
           <DownloadStatusIndicator
             status={downloadStatus}
             style={styles.downloadStatusIndicator}
@@ -225,7 +233,7 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
         </Text>
       </View>
       <View style={styles.headerRight}>
-        {collection.has_current_user_saved ? (
+        {showDownloadSwitchAndIndicator ? (
           <Switch
             value={downloadSwitchValue}
             onValueChange={handleDownloadSwitchChange}
