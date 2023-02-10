@@ -60,6 +60,7 @@ export const LineupTile = ({
   const isOwner = user_id === currentUserId
   const isCollection = 'playlist_id' in item
   const isTrack = 'track_id' in item
+  const trackId = isTrack ? item.track_id : undefined
   const premiumConditions = isTrack ? item.premium_conditions : null
   const isArtistPick = artist_pick_track_id === id
   const { doesUserHaveAccess } = usePremiumContentAccess(isTrack ? item : null)
@@ -120,6 +121,8 @@ export const LineupTile = ({
         isOwner={isOwner}
         isShareHidden={hideShare}
         isUnlisted={isUnlisted}
+        trackId={trackId}
+        doesUserHaveAccess={doesUserHaveAccess}
         onPressOverflow={onPressOverflow}
         onPressRepost={onPressRepost}
         onPressSave={onPressSave}

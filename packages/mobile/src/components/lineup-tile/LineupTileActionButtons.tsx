@@ -8,6 +8,9 @@ import { RepostButton } from 'app/components/repost-button'
 import { flexRowCentered, makeStyles } from 'app/styles'
 import type { GestureResponderHandler } from 'app/types/gesture'
 import { useThemeColors } from 'app/utils/theme'
+import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
+import { ID } from '@audius/common'
+import { LineupTileAccessStatus } from './LineupTileAccessStatus'
 
 type Props = {
   disabled?: boolean
@@ -16,6 +19,8 @@ type Props = {
   isOwner?: boolean
   isShareHidden?: boolean
   isUnlisted?: boolean
+  trackId?: ID
+  doesUserHaveAccess?: boolean
   onPressOverflow?: GestureResponderHandler
   onPressRepost?: GestureResponderHandler
   onPressSave?: GestureResponderHandler
@@ -51,11 +56,14 @@ export const LineupTileActionButtons = ({
   isOwner,
   isShareHidden,
   isUnlisted,
+  trackId,
+  doesUserHaveAccess = false,
   onPressOverflow,
   onPressRepost,
   onPressSave,
   onPressShare
 }: Props) => {
+  const isPremiumContentEnabled = useIsPremiumContentEnabled()
   const { neutralLight4 } = useThemeColors()
   const styles = useStyles()
 
@@ -98,10 +106,14 @@ export const LineupTileActionButtons = ({
     />
   )
 
+  const showPremiumAccessStatus = isPremiumContentEnabled && trackId && !doesUserHaveAccess
+  const showLeftButtons = !showPremiumAccessStatus && !isUnlisted
+
   return (
     <View style={styles.bottomButtons}>
       <View style={styles.leftButtons}>
-        {!isUnlisted && (
+        {showPremiumAccessStatus && <LineupTileAccessStatus trackId={trackId} />}
+        {showLeftButtons && (
           <>
             {repostButton}
             {favoriteButton}

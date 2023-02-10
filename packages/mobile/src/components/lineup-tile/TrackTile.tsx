@@ -94,7 +94,8 @@ export const TrackTileComponent = ({
     has_current_user_saved,
     play_count,
     title,
-    track_id
+    track_id,
+    is_premium: isPremium
   } = track
 
   const renderImage = useCallback(
@@ -121,7 +122,7 @@ export const TrackTileComponent = ({
       return
     }
     const overflowActions = [
-      OverflowAction.ADD_TO_PLAYLIST,
+      !isPremium ? OverflowAction.ADD_TO_PLAYLIST : null,
       OverflowAction.VIEW_TRACK_PAGE,
       isOnArtistsTracksTab ? null : OverflowAction.VIEW_ARTIST_PAGE,
       isOwner ? OverflowAction.EDIT_TRACK : null,
