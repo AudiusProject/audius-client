@@ -42,8 +42,6 @@ const useStyles = makeStyles(({ spacing }) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: spacing(1),
-    marginBottom: spacing(2),
     paddingHorizontal: spacing(2)
   },
   headerLeft: {
@@ -63,7 +61,9 @@ const useStyles = makeStyles(({ spacing }) => ({
     justifyContent: 'flex-end'
   },
   headerText: {
+    marginVertical: spacing(4),
     letterSpacing: 2,
+    lineHeight: 17,
     textAlign: 'center',
     textTransform: 'uppercase'
   },
@@ -207,10 +207,12 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
     <View style={styles.root}>
       <View style={styles.headerLeft} />
       <View style={styles.headerCenter}>
-        <DownloadStatusIndicator
-          status={downloadStatus}
-          style={styles.downloadStatusIndicator}
-        />
+        {collection.has_current_user_saved ? (
+          <DownloadStatusIndicator
+            status={downloadStatus}
+            style={styles.downloadStatusIndicator}
+          />
+        ) : null}
         <Text
           style={styles.headerText}
           color={getTextColor()}
@@ -223,13 +225,15 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
         </Text>
       </View>
       <View style={styles.headerRight}>
-        <Switch
-          value={downloadSwitchValue}
-          onValueChange={handleDownloadSwitchChange}
-          disabled={
-            isFavoritesToggleOn || (!isReachable && !isMarkedForDownload)
-          }
-        />
+        {collection.has_current_user_saved ? (
+          <Switch
+            value={downloadSwitchValue}
+            onValueChange={handleDownloadSwitchChange}
+            disabled={
+              isFavoritesToggleOn || (!isReachable && !isMarkedForDownload)
+            }
+          />
+        ) : null}
       </View>
     </View>
   )
