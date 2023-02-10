@@ -8,16 +8,11 @@ import { getContext } from 'store/effects'
 import { trackPageActions } from 'store/pages'
 import { usersSocialActions } from 'store/social'
 import { tippingActions } from 'store/tipping'
+import { parseTrackRouteFromPermalink } from 'utils'
 import { takeEvery, select, call, put, delay, all } from 'typed-redux-saga'
 import { Nullable } from 'utils/typeUtils'
 
 import { premiumContentActions, premiumContentSelectors } from '.'
-
-// Permalinks have the following format: '/<handle>/<track-slug>' 
-const parseTrackRouteFromPermalink = (permalink: string) => {
-  const [, handle, slug] = permalink.split('/')
-  return { slug, trackId: null, handle }
-}
 
 type TrackRouteParams =
   | { slug: string; trackId: null; handle: string }
