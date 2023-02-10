@@ -8,6 +8,32 @@ import { logError } from './logError'
 const HOSTNAME = getAPIHostname()
 const IDENTITY_SERVICE_ENDPOINT = getIdentityEndpoint()
 
+const sdkConfigOptions =
+  process.env.PREACT_APP_ENVIRONMENT === 'staging' ||
+  process.env.PREACT_APP_ENVIRONMENT === 'development'
+    ? {
+        ethContractsConfig: {
+          tokenContractAddress: process.env.PREACT_APP_ETH_TOKEN_ADDRESS ?? '',
+          registryAddress: process.env.PREACT_APP_ETH_REGISTRY_ADDRESS ?? '',
+          claimDistributionContractAddress:
+            process.env.PREACT_APP_CLAIM_DISTRIBUTION_CONTRACT_ADDRESS ?? '',
+          wormholeContractAddress: process.env.PREACT_APP_WORMHOLE_ADDRESS ?? ''
+        },
+        ethWeb3Config: {
+          tokenAddress: process.env.PREACT_APP_ETH_TOKEN_ADDRESS ?? '',
+          registryAddress: process.env.PREACT_APP_ETH_REGISTRY_ADDRESS ?? '',
+          providers: (process.env.PREACT_APP_ETH_PROVIDER_URL || '').split(','),
+          ownerWallet: process.env.PREACT_APP_ETH_OWNER_WALLET,
+          claimDistributionContractAddress:
+            process.env.PREACT_APP_CLAIM_DISTRIBUTION_CONTRACT_ADDRESS ?? '',
+          wormholeContractAddress: process.env.PREACT_APP_WORMHOLE_ADDRESS ?? ''
+        },
+        identityServiceConfig: {
+          identityServiceEndpoint: IDENTITY_SERVICE_ENDPOINT
+        }
+      }
+    : {}
+
 export const RequestedEntity = Object.seal({
   TRACKS: 'tracks',
   COLLECTIONS: 'collections',
@@ -20,8 +46,10 @@ const audiusSdk = sdk({
     selectionCallback: (endpoint) => {
       discoveryEndpoint = endpoint
     }
-  }
+  },
+  ...sdkConfigOptions
 })
+
 export const getTrackStreamEndpoint = (trackId) =>
   `${discoveryEndpoint}/v1/tracks/${trackId}/stream`
 

@@ -26,3 +26,7 @@ export const getAPIHostname = () => {
 export const getAudiusHostname = () => {
   return process.env.PREACT_APP_HOSTNAME_REDIRECT
 }
+
+export const getIsMp3StreamOn = () => {
+  return process.env.PREACT_APP_STREAM_MP3_ON === 'true'
+}

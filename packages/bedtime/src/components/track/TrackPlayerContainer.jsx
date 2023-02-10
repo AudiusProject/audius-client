@@ -22,6 +22,7 @@ import { isMobile } from '../../util/isMobile'
 import { formatGateways } from '../../util/gatewayUtil'
 import { logError } from '../../util/logError'
 import { getTrackStreamEndpoint } from '../../util/BedtimeClient'
+import { getIsMp3StreamOn } from '../../util/getEnv'
 
 const LISTEN_INTERVAL_SECONDS = 1
 
@@ -59,7 +60,9 @@ const TrackPlayerContainer = ({
       gateways: formatGateways(track.user.creator_node_endpoint),
       title: track.title,
       artistName: track.user.name,
-      mp3StreamUrl: getTrackStreamEndpoint(track.id)
+      mp3StreamUrl: getIsMp3StreamOn()
+        ? getTrackStreamEndpoint(track.id)
+        : undefined
     }
   }, [
     track.id,
