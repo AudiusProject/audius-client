@@ -198,7 +198,7 @@ const App = (props) => {
         if (request.hashId) {
           track = await getTrackWithHashId(request.hashId)
         } else {
-          track = await getTrack(request.id, request.ownerId)
+          track = await getTrack(request.id)
         }
 
         if (!track) {
@@ -238,7 +238,7 @@ const App = (props) => {
         if (request.hashId) {
           collection = await getCollectionWithHashId(request.hashId)
         } else {
-          collection = await getCollection(request.id, request.ownerId)
+          collection = await getCollection(request.id)
         }
         if (!collection) {
           setDid404(true)

@@ -112,7 +112,7 @@ export const getTrackWithHashId = async (hashId) => {
 
 export const getCollection = async (id) => {
   const res = await audiusSdk.full.playlists.getPlaylist({
-    playlidId: encodeHashId(id)
+    playlistId: encodeHashId(id)
   })
   return getFormattedCollectionResponse(res)
 }
