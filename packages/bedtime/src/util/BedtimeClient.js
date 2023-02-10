@@ -14,7 +14,7 @@ export const RequestedEntity = Object.seal({
   COLLECTIBLES: 'collectibles'
 })
 
-const audiusSdk = sdk({ appName: 'Audius Bedtime Client' })
+const audiusSdk = sdk({ appName: 'Audius Embed Player' })
 
 export const uuid = () => {
   // https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript/873856#873856

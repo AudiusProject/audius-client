@@ -141,7 +141,7 @@ const CollectionPlayerContainer = ({
 
   return (
     <>
-      <CollectionHelmet collectoin={collection} />
+      <CollectionHelmet collection={collection} />
       <CollectionPlayerCard
         activeTrackIndex={activeTrackIndex}
         backgroundColor={backgroundColor}
