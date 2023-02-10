@@ -353,7 +353,15 @@ function* pollPremiumTrack({
       break
     }
     yield* put(
-      trackPageActions.fetchTrack(null, slug, handle, false, true, false)
+      trackPageActions.fetchTrack(
+        null /* trackId */,
+        slug,
+        handle,
+        false /* canBeUnlisted */,
+        true /* forceRetrieveFromSource */,
+        false /* withRemixes */,
+        true /* skipSideEffects */
+      )
     )
     yield* delay(frequency)
   }
