@@ -17,7 +17,7 @@ type DownloadFavoritesSwitchProps = SwitchProps
 export const DownloadFavoritesSwitch = (
   props: DownloadFavoritesSwitchProps
 ) => {
-  const { onValueChange } = props
+  const { onValueChange, ...other } = props
   const dispatch = useDispatch()
 
   const isSwitchDisabled = useSelector((state) => {
@@ -67,6 +67,7 @@ export const DownloadFavoritesSwitch = (
         value={value}
         onValueChange={handleValueChange}
         disabled={isSwitchDisabled}
+        {...other}
       />
     </>
   )
