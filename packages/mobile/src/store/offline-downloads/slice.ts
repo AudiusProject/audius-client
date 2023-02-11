@@ -232,10 +232,16 @@ const slice = createSlice({
 
           if (!offlineTrackMetadata[id]) {
             delete trackStatus[id]
-            const queueIndex = downloadQueue.findIndex(
+            const trackIndex = downloadQueue.findIndex(
               (queueItem) => queueItem.type === type && queueItem.id === id
             )
-            if (queueIndex !== -1) downloadQueue.splice(queueIndex, 1)
+            if (trackIndex !== -1) downloadQueue.splice(trackIndex, 1)
+
+            const staleTrackIndex = downloadQueue.findIndex(
+              (queueItem) =>
+                queueItem.type === 'stale-track' && queueItem.id === id
+            )
+            if (staleTrackIndex !== -1) downloadQueue.splice(staleTrackIndex, 1)
           }
         } else if (item.type === 'collection') {
           const { id, metadata } = item

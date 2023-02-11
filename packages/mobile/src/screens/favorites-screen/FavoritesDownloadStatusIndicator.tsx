@@ -51,7 +51,11 @@ export const FavoritesDownloadStatusIndicator = (
 
   return (
     <DownloadStatusIndicator
-      status={switchValue ? OfflineDownloadStatus.LOADING : downloadStatus}
+      status={
+        switchValue && downloadStatus === OfflineDownloadStatus.INACTIVE
+          ? OfflineDownloadStatus.LOADING
+          : downloadStatus
+      }
       style={styles.root}
     />
   )
