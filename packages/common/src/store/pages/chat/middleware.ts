@@ -1,4 +1,4 @@
-import { type sdk } from '@audius/sdk'
+import { ChatEvents, type sdk } from '@audius/sdk'
 import { Middleware } from 'redux'
 
 import { actions as chatActions } from './slice'
@@ -14,49 +14,59 @@ const {
 export const chatMiddleware =
   (audiusSdk: () => Promise<ReturnType<typeof sdk>>): Middleware =>
   (store) => {
-    let listener: ReturnType<typeof sdk>['chats']['eventEmitter']
-    let websocket: Awaited<
-      ReturnType<ReturnType<typeof sdk>['chats']['listen']>
-    >
+    let messageListener: ChatEvents['message'] | null = null
+    let reactionListener: ChatEvents['reaction'] | null = null
+    let openListener: ChatEvents['open'] | null = null
+    let closeListener: ChatEvents['close'] | null = null
+
     return (next) => (action) => {
       if (connect.match(action)) {
-        audiusSdk()
-          .then((sdk) => {
-            if (!listener) {
-              listener = sdk.chats.eventEmitter
-              listener.on('open', () => {
-                console.log(
-                  'Chat middleware WebSocket opened. Listening for chats...'
-                )
+        console.log('Chat middleware attaching')
+        audiusSdk().then((sdk) => {
+          openListener = () => {
+            console.log(
+              'Chat middleware WebSocket opened. Listening for chats...'
+            )
+          }
+          messageListener = ({ chatId, message }) => {
+            store.dispatch(addMessage({ chatId, message }))
+            store.dispatch(incrementUnreadCount({ chatId }))
+          }
+          reactionListener = ({ chatId, messageId, reaction }) => {
+            store.dispatch(
+              setMessageReactionSucceeded({
+                chatId,
+                messageId,
+                reaction
               })
-              listener.on('message', ({ chatId, message }) => {
-                store.dispatch(addMessage({ chatId, message }))
-                store.dispatch(incrementUnreadCount({ chatId }))
-              })
-              listener.on('reaction', ({ chatId, messageId, reaction }) => {
-                store.dispatch(
-                  setMessageReactionSucceeded({
-                    chatId,
-                    messageId,
-                    reaction
-                  })
-                )
-              })
-              listener.on('close', () => {
-                console.log('Chat middleware WebSocket closed.')
-              })
-              return sdk.chats.listen()
-            }
-            return Promise.resolve(null)
-          })
-          .then((ws) => {
-            if (ws !== null) {
-              console.log('Chat middleware initialized.')
-              websocket = ws
-            }
-          })
-      } else if (disconnect.match(action) && websocket) {
-        websocket.close()
+            )
+          }
+          closeListener = () => {
+            console.log('Chat middleware WebSocket closed. Reconnecting...')
+            sdk.chats.listen()
+          }
+          sdk.chats.addListener('open', openListener)
+          sdk.chats.addListener('message', messageListener)
+          sdk.chats.addListener('reaction', reactionListener)
+          sdk.chats.addListener('close', closeListener)
+          return sdk.chats.listen()
+        })
+      } else if (disconnect.match(action)) {
+        console.log('Chat middleware detaching')
+        audiusSdk().then((sdk) => {
+          if (openListener) {
+            sdk.chats.removeListener('open', openListener)
+          }
+          if (messageListener) {
+            sdk.chats.removeListener('message', messageListener)
+          }
+          if (reactionListener) {
+            sdk.chats.removeListener('reaction', reactionListener)
+          }
+          if (closeListener) {
+            sdk.chats.removeListener('close', closeListener)
+          }
+        })
       }
       return next(action)
     }
