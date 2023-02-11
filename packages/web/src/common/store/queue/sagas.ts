@@ -22,6 +22,7 @@ import {
   playerActions,
   playerSelectors,
   queueSelectors,
+  premiumContentSelectors,
   getContext
 } from '@audius/common'
 import { all, call, put, select, takeEvery, takeLatest } from 'typed-redux-saga'
@@ -42,6 +43,8 @@ const {
   getUid,
   getUndershot
 } = queueSelectors
+
+const { getPremiumTrackSignatureMap } = premiumContentSelectors
 
 const { getTrackId: getPlayerTrackId, getUid: getPlayerUid } = playerSelectors
 
@@ -302,8 +305,21 @@ export function* watchNext() {
     const id = (yield* select(getQueueTrackId)) as ID
     const track = yield* select(getTrack, { id })
     const user = yield* select(getUser, { id: track?.owner_id })
-    // Skip deleted or owner deactivated track
-    if (track && (track.is_delete || user?.is_deactivated)) {
+    const premiumTrackSignatureMap = yield* select(getPremiumTrackSignatureMap)
+    const {
+      track_id: trackId,
+      is_premium: isPremium,
+      premium_content_signature: premiumContentSignature
+    } = track ?? {}
+    const hasPremiumContentSignature =
+      !!premiumContentSignature ||
+      !!(trackId && premiumTrackSignatureMap[trackId])
+    const doesUserHaveAccess = !isPremium || hasPremiumContentSignature
+    // Skip deleted or owner deactivated locked premium track
+    if (
+      track &&
+      (track.is_delete || user?.is_deactivated || !doesUserHaveAccess)
+    ) {
       yield* put(next({ skip }))
     } else {
       const uid = yield* select(getUid)
