@@ -36,18 +36,18 @@ function* downloadAllFavorites() {
   ]
 
   // Add local saves
+  const now = Date.now().toString()
   const localSaves = yield* select(getLocalSaves)
-  const localSaveIds = Object.keys(localSaves).map((id) => parseInt(id, 10))
-  const now = Date.now()
-
-  const localSavesToAdd: OfflineItem[] = localSaveIds.map((id) => ({
-    type: 'track',
-    id,
-    metadata: {
-      favorite_created_at: now.toString(),
-      reasons_for_download: trackReasonsForDownload
-    }
-  }))
+  const localSavesToAdd: OfflineItem[] = Object.keys(localSaves)
+    .map((id) => parseInt(id, 10))
+    .map((id) => ({
+      type: 'track',
+      id,
+      metadata: {
+        favorite_created_at: now,
+        reasons_for_download: trackReasonsForDownload
+      }
+    }))
 
   offlineItemsToAdd.push(...localSavesToAdd)
 
