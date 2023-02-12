@@ -24,7 +24,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   },
   loadingSpinner: {
     height: spacing(20),
-    widht: spacing(20),
+    width: spacing(20),
     alignSelf: 'center'
   }
 }))

@@ -13,11 +13,10 @@ import {
   chatSelectors,
   encodeHashId,
   Status,
-  MESSAGE_GROUP_THRESHOLD_MINUTES
+  hasTail
 } from '@audius/common'
 import type { ChatMessage, UserChat } from '@audius/sdk'
 import cn from 'classnames'
-import dayjs from 'dayjs'
 import { useDispatch } from 'react-redux'
 
 import { useSelector } from 'common/hooks/useSelector'
@@ -52,18 +51,6 @@ const isScrolledToBottom = (element: HTMLElement) => {
 
 const isScrolledToTop = (element: HTMLElement) => {
   return element.scrollTop < SCROLL_TOP_THRESHOLD
-}
-
-/**
- * Checks to see if the message was sent within the time threshold for grouping it with the next message
- */
-const hasTail = (message: ChatMessage, newMessage?: ChatMessage) => {
-  if (!newMessage) return true
-  return (
-    message.sender_user_id !== newMessage.sender_user_id ||
-    dayjs(newMessage.created_at).diff(message.created_at, 'minutes') >=
-      MESSAGE_GROUP_THRESHOLD_MINUTES
-  )
 }
 
 /**

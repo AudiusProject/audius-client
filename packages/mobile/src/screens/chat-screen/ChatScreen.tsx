@@ -4,18 +4,15 @@ import {
   chatActions,
   chatSelectors,
   encodeUrlName,
-  MESSAGE_GROUP_THRESHOLD_MINUTES,
-  Status
+  Status,
+  hasTail
 } from '@audius/common'
-import type { ChatMessage } from '@audius/sdk'
-import dayjs from 'dayjs'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconSend from 'app/assets/images/iconSend.svg'
 import { TextInput, Screen, FlatList, ScreenContent } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
-// import { UserBadges } from 'app/components/user-badges'
 import { useRoute } from 'app/hooks/useRoute'
 import { makeStyles } from 'app/styles'
 import { useThemePalette } from 'app/utils/theme'
@@ -76,18 +73,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   }
 }))
 
-/**
- * Checks to see if the message was sent within the time threshold for grouping it with the next message
- */
-const hasTail = (message: ChatMessage, newMessage?: ChatMessage) => {
-  if (!newMessage) return true
-  return (
-    message.sender_user_id !== newMessage.sender_user_id ||
-    dayjs(newMessage.created_at).diff(message.created_at, 'minutes') >=
-      MESSAGE_GROUP_THRESHOLD_MINUTES
-  )
-}
-
 export const ChatScreen = () => {
   const styles = useStyles()
   const dispatch = useDispatch()
@@ -114,7 +99,6 @@ export const ChatScreen = () => {
   return (
     <Screen
       url={url}
-      // variant='secondary'
       title={otherUser[0] ? otherUser[0].handle : messages.title}
     >
       <ScreenContent>
