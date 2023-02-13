@@ -110,7 +110,6 @@ const makeRequest = async (url) => {
 
 const getFormattedCollectionResponse = (collection) => {
   const item = collection?.[0]
-  item.permalink = `${item.permalink ?? ''}-${decodeHashId(item.id)}`
   return item
 }
 
