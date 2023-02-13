@@ -7,7 +7,7 @@ import {
   shareModalUISagas as shareModalSagas,
   toastSagas,
   vipDiscordModalSagas,
-  reachabilitySagas
+  reachabilitySagas as commonReachabilitySagas
 } from '@audius/common'
 import { all, fork } from 'redux-saga/effects'
 
@@ -180,7 +180,7 @@ export default function* rootSaga() {
     tokenDashboardSagas(),
     userListModalSagas(),
     vipDiscordModalSagas(),
-    reachabilitySagas(),
+    commonReachabilitySagas(),
 
     // Remote config
     remoteConfigSagas(),

@@ -6,7 +6,6 @@ import { AppState } from 'react-native'
 
 import { env } from 'app/services/env'
 import { dispatch } from 'app/store'
-import { storeContext } from 'app/store/storeContext'
 
 const REACHABILITY_URL = env.REACHABILITY_URL
 
