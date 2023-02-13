@@ -31,6 +31,7 @@ import type { DrawersState } from './drawers/slice'
 import drawers from './drawers/slice'
 import type { KeyboardState } from './keyboard/slice'
 import keyboard from './keyboard/slice'
+import { listenerMiddleware } from './listenerMiddleware'
 import mobileUi from './mobileUi/slice'
 import type { MobileUiState } from './mobileUi/slice'
 import type { OAuthState } from './oauth/reducer'
@@ -43,6 +44,7 @@ import search from './search/slice'
 import shareToStoryProgress from './share-to-story-progress/slice'
 import type { ShareToStoryProgressState } from './share-to-story-progress/slice'
 import { storeContext } from './storeContext'
+import { listeners as themeListeners } from './theme/sagas'
 import type { WalletConnectState } from './wallet-connect/slice'
 import walletConnect from './wallet-connect/slice'
 
@@ -137,7 +139,7 @@ const sagaMiddleware = createSagaMiddleware({
   onError: onSagaError
 })
 
-const middlewares = [sagaMiddleware]
+const middlewares = [sagaMiddleware, listenerMiddleware.middleware]
 
 if (__DEV__) {
   const createDebugger = require('redux-flipper').default

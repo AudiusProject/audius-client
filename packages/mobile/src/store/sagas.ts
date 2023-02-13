@@ -66,7 +66,6 @@ import rateCtaSagas from './rate-cta/sagas'
 import settingsSagas from './settings/sagas'
 import signOutSagas from './sign-out/sagas'
 import signUpSagas from './sign-up/sagas'
-import themeSagas from './theme/sagas'
 import walletsSagas from './wallet-connect/sagas'
 
 export default function* rootSaga() {
@@ -148,7 +147,6 @@ export default function* rootSaga() {
     ...deletePlaylistConfirmationModalSagas(),
     ...shareModalSagas(),
     ...vipDiscordModalSagas(),
-    ...themeSagas(),
     ...tokenDashboardSagas(),
     ...mobileUiSagas(),
     ...uploadSagas(),
