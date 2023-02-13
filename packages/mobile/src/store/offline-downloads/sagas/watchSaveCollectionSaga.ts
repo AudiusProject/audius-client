@@ -1,7 +1,7 @@
 import { collectionsSocialActions, FavoriteSource } from '@audius/common'
 import { takeEvery, select, put } from 'typed-redux-saga'
 
-import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
+import { DOWNLOAD_REASON_FAVORITES } from 'app/store/offline-downloads/constants'
 
 import { getOfflineCollectionsStatus } from '../selectors'
 import { requestDownloadFavoritedCollection } from '../slice'

@@ -9,7 +9,7 @@ import { difference } from 'lodash'
 import moment from 'moment'
 import { call, put, race, select, take } from 'typed-redux-saga'
 
-import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
+import { DOWNLOAD_REASON_FAVORITES } from 'app/store/offline-downloads/constants'
 import { dispatch } from 'app/store/store'
 
 import {
@@ -152,7 +152,8 @@ function* syncCollection(collectionId: ID) {
     [apiClient, apiClient.getCollectionMetadata],
     {
       collectionId,
-      currentUserId
+      currentUserId,
+      abortOnUnreachable: false
     }
   )
 

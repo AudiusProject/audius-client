@@ -4,7 +4,7 @@ import { waitForRead } from 'audius-client/src/utils/sagaHelpers'
 import { difference, intersection } from 'lodash'
 import { put, select, take } from 'typed-redux-saga'
 
-import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
+import { DOWNLOAD_REASON_FAVORITES } from 'app/store/offline-downloads/constants'
 
 import { getOfflineCollectionsStatus } from '../selectors'
 import type { CollectionId, OfflineItem } from '../slice'

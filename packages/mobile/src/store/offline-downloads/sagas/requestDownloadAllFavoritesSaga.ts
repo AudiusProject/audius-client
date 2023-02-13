@@ -6,7 +6,7 @@ import {
 import { takeEvery, select, call, put } from 'typed-redux-saga'
 
 import { getAccountCollections } from 'app/screens/favorites-screen/selectors'
-import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
+import { DOWNLOAD_REASON_FAVORITES } from 'app/store/offline-downloads/constants'
 
 import type { OfflineItem } from '../slice'
 import { addOfflineItems, requestDownloadAllFavorites } from '../slice'

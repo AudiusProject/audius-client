@@ -5,8 +5,8 @@ import type { SwitchProps } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Switch } from 'app/components/core'
-import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 import { setVisibility } from 'app/store/drawers/slice'
+import { DOWNLOAD_REASON_FAVORITES } from 'app/store/offline-downloads/constants'
 import { getCollectionDownloadStatus } from 'app/store/offline-downloads/selectors'
 import { requestDownloadAllFavorites } from 'app/store/offline-downloads/slice'
 

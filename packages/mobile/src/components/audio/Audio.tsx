@@ -40,10 +40,8 @@ import { getLocalTrackImageSource } from 'app/hooks/useLocalImage'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { apiClient } from 'app/services/audius-api-client'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
-import {
-  DOWNLOAD_REASON_FAVORITES,
-  getLocalAudioPath
-} from 'app/services/offline-downloader'
+import { getLocalAudioPath } from 'app/services/offline-downloader'
+import { DOWNLOAD_REASON_FAVORITES } from 'app/store/offline-downloads/constants'
 import {
   getOfflineTrackStatus,
   getIsCollectionMarkedForDownload
