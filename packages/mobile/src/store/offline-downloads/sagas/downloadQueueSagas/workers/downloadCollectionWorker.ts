@@ -73,7 +73,8 @@ function* downloadCollectionAsync(collectionId: CollectionId) {
   const apiClient = yield* getContext('apiClient')
   const [collection] = yield* call([apiClient, apiClient.getPlaylist], {
     playlistId: collectionId,
-    currentUserId
+    currentUserId,
+    abortOnUnreachable: false
   })
 
   if (

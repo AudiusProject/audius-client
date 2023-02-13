@@ -1,30 +1,16 @@
 import path from 'path'
 
-import type {
-  UserCollectionMetadata,
-  UserMetadata,
-  UserTrackMetadata
-} from '@audius/common'
-import { SquareSizes, encodeHashId, accountSelectors } from '@audius/common'
+import type { UserCollectionMetadata, UserTrackMetadata } from '@audius/common'
+import { SquareSizes } from '@audius/common'
 import RNFetchBlob from 'rn-fetch-blob'
 
 import { createAllImageSources } from 'app/hooks/useContentNodeImage'
-import { store } from 'app/store'
-
-import { apiClient } from '../audius-api-client'
 
 import {
-  getLocalAudioPath,
   getLocalTrackCoverArtDestination,
   getLocalCollectionCoverArtDestination,
   mkdirSafe
 } from './offline-storage'
-
-const {
-  fs: { exists }
-} = RNFetchBlob
-
-const { getUserId } = accountSelectors
 
 export const DOWNLOAD_REASON_FAVORITES = 'favorites'
 
@@ -54,7 +40,7 @@ const downloadCoverArt =
 
       const destination = getDestination(entity, uri)
 
-      const response = await downloadIfNotExists(uri, destination)
+      const response = await downloadFile(uri, destination)
       if (response !== 200) {
         await downloadImage(uris.slice(1))
       }
@@ -76,43 +62,8 @@ export const downloadCollectionCoverArt = downloadCoverArt(
   getCollectionArtDestination
 )
 
-export const tryDownloadTrackFromEachCreatorNode = async (
-  track: UserTrackMetadata
-) => {
-  const state = store.getState()
-  const user = (
-    await apiClient.getUser({
-      userId: track?.owner_id,
-      // @ts-ignore mismatch in an irrelevant part of state
-      currentUserId: getUserId(state)
-    })
-  )[0] as UserMetadata
-  const encodedTrackId = encodeHashId(track.track_id)
-  const creatorNodeEndpoints = user.creator_node_endpoint?.split(',')
-  const destination = getLocalAudioPath(track.track_id.toString())
-
-  if (creatorNodeEndpoints) {
-    for (const creatorNodeEndpoint of creatorNodeEndpoints) {
-      const uri = `${creatorNodeEndpoint}/tracks/stream/${encodedTrackId}`
-      const statusCode = await downloadIfNotExists(uri, destination)
-      if (statusCode) {
-        return statusCode
-      }
-    }
-  }
-}
-
 /** Download file at uri to destination unless there is already a file at that location or overwrite is true */
-const downloadIfNotExists = async (
-  uri: string,
-  destination: string,
-  overwrite?: boolean
-) => {
-  if (!uri || !destination) return null
-  if (!overwrite && (await exists(destination))) {
-    return null
-  }
-
+export const downloadFile = async (uri: string, destination: string) => {
   const destinationDirectory = path.dirname(destination)
   await mkdirSafe(destinationDirectory)
 

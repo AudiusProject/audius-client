@@ -380,7 +380,7 @@ export const Audio = () => {
     const newTrackData = await Promise.all(
       newQueueTracks.map(async (track) => {
         const trackOwner = queueTrackOwnersMap[track.owner_id]
-        const trackId = track.track_id.toString()
+        const trackId = track.track_id
         const offlineTrackAvailable =
           trackId &&
           isOfflineModeEnabled &&
@@ -410,7 +410,7 @@ export const Audio = () => {
 
         const localSource =
           isNotReachable && track
-            ? await getLocalTrackImageSource(trackId)
+            ? await getLocalTrackImageSource(trackId.toString())
             : undefined
 
         const imageUrl =

@@ -4,7 +4,7 @@ import { select } from 'typed-redux-saga'
 import { getOfflineTrackMetadata } from '../selectors'
 import type { OfflineItem } from '../slice'
 
-const STALE_DURATION_TRACKS = moment.duration(1, 'second')
+const STALE_DURATION_TRACKS = moment.duration(7, 'days')
 const STALE_BATCH_SIZE = 20
 
 export function* redownloadStaleTracksSaga() {

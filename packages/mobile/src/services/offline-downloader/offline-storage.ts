@@ -3,6 +3,7 @@ import path from 'path'
 import type {
   Collection,
   CollectionMetadata,
+  ID,
   Nullable,
   Track,
   UserMetadata,
@@ -139,12 +140,8 @@ export const getLocalTrackCoverArtPath = (trackId: string) => {
 
 // Audio
 
-export const getLocalAudioPath = (trackId: string): string => {
-  return path.join(getLocalTrackDir(trackId), `${trackId}.mp3`)
-}
-
-export const isAudioAvailableOffline = async (trackId: string) => {
-  return await exists(getLocalAudioPath(trackId))
+export const getLocalAudioPath = (trackId: ID): string => {
+  return path.join(getLocalTrackDir(trackId.toString()), `${trackId}.mp3`)
 }
 
 // Storage management
@@ -187,7 +184,7 @@ export const verifyTrack = async (
   trackId: string,
   expectTrue?: boolean
 ): Promise<boolean> => {
-  const audioFile = exists(getLocalAudioPath(trackId))
+  const audioFile = exists(getLocalAudioPath(parseInt(trackId, 10)))
   const jsonFile = exists(getLocalTrackJsonPath(trackId))
   const artFile = exists(path.join(getLocalTrackDir(trackId), IMAGE_FILENAME))
 
@@ -241,14 +238,6 @@ export const purgeAllDownloads = async (withLogs?: boolean) => {
     }
     await readDirRec(downloadsRoot)
   }
-}
-
-export const purgeDownloadedTrack = async (trackId: string) => {
-  const trackDir = getLocalTrackDir(trackId)
-  if (!(await exists(trackDir))) return
-  await unlink(trackDir)
-  // TODO properly delete from store + potentially move this to saga
-  // store.dispatch(unloadTrack(trackId))
 }
 
 /** Debugging method to read cached files */

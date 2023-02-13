@@ -1,15 +1,23 @@
-import type { ID, Track, UserTrackMetadata } from '@audius/common'
+import type {
+  ID,
+  Track,
+  TrackMetadata,
+  UserTrackMetadata
+} from '@audius/common'
 import {
+  encodeHashId,
   accountSelectors,
   getContext,
   reachabilityActions
 } from '@audius/common'
+import { CANCEL } from 'redux-saga'
+import RNFetchBlob from 'rn-fetch-blob'
 import { select, call, put, all, take, race } from 'typed-redux-saga'
 
 import {
   downloadTrackCoverArt,
-  purgeDownloadedTrack,
-  tryDownloadTrackFromEachCreatorNode,
+  getLocalAudioPath,
+  getLocalTrackDir,
   writeTrackJson
 } from 'app/services/offline-downloader'
 
@@ -45,14 +53,14 @@ export function* downloadTrackWorker(trackId: ID) {
   })
 
   if (cancel) {
-    yield* call(purgeDownloadedTrack, trackId.toString())
+    yield* call(removeDownloadedTrack, trackId)
     yield* put(requestDownloadQueuedItem())
   } else if (unreachable) {
     yield* put(cancelDownload({ type: 'track', id: trackId }))
-    yield* call(purgeDownloadedTrack, trackId.toString())
+    yield* call(removeDownloadedTrack, trackId)
   } else if (downloadTrack === OfflineDownloadStatus.ERROR) {
     yield* put(errorDownload({ type: 'track', id: trackId }))
-    yield* call(purgeDownloadedTrack, trackId.toString())
+    yield* call(removeDownloadedTrack, trackId)
     yield* put(requestDownloadQueuedItem())
   } else if (downloadTrack === OfflineDownloadStatus.SUCCESS) {
     yield* put(
@@ -70,7 +78,8 @@ function* downloadTrackAsync(
 
   const track = yield* call([apiClient, apiClient.getTrack], {
     id: trackId,
-    currentUserId
+    currentUserId,
+    abortOnUnreachable: false
   })
 
   if (
@@ -90,7 +99,7 @@ function* downloadTrackAsync(
   try {
     yield* all([
       call(downloadTrackCoverArt, track),
-      call(tryDownloadTrackFromEachCreatorNode, track)
+      call(downloadTrackAudio, track)
     ])
 
     yield* call(writeTrackJson, trackId.toString(), trackMetadata)
@@ -99,4 +108,46 @@ function* downloadTrackAsync(
   }
 
   return OfflineDownloadStatus.SUCCESS
+}
+
+function* downloadTrackAudio(track: TrackMetadata) {
+  const { owner_id, track_id } = track
+  const currentUserId = yield* select(getUserId)
+  const apiClient = yield* getContext('apiClient')
+  const [trackOwner] = yield* call([apiClient, apiClient.getUser], {
+    userId: owner_id,
+    currentUserId,
+    abortOnUnreachable: false
+  })
+
+  if (!trackOwner) throw new Error('Unable to fetch track owner')
+
+  const { creator_node_endpoint } = trackOwner
+  const creatorNodeEndpoints = creator_node_endpoint?.split(',')
+  if (!creatorNodeEndpoints) throw new Error('No creator node endpoints')
+
+  const trackFilePath = getLocalAudioPath(track_id)
+  const encodedTrackId = encodeHashId(track_id)
+
+  for (const creatorNodeEndpoint of creatorNodeEndpoints) {
+    const trackAudioUri = `${creatorNodeEndpoint}/tracks/stream/${encodedTrackId}`
+    const response = yield* call(downloadFile, trackAudioUri, trackFilePath)
+    if (response.info().status === 200) {
+      return
+    }
+  }
+
+  throw new Error('Unable to download track audio')
+}
+
+function downloadFile(uri: string, destination: string) {
+  const { fetch } = RNFetchBlob.config({ path: destination })
+  const fetchTask = fetch('GET', uri)
+  fetchTask[CANCEL] = fetchTask.cancel
+  return fetchTask
+}
+
+async function removeDownloadedTrack(trackId: ID) {
+  const trackDir = getLocalTrackDir(trackId.toString())
+  return await RNFetchBlob.fs.unlink(trackDir)
 }
