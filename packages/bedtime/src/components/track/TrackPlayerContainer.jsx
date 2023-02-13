@@ -23,6 +23,7 @@ import { formatGateways } from '../../util/gatewayUtil'
 import { logError } from '../../util/logError'
 import { getTrackStreamEndpoint } from '../../util/BedtimeClient'
 import { getIsMp3StreamOn } from '../../util/getEnv'
+import { getArtworkUrl } from '../../util/getArtworkUrl'
 
 const LISTEN_INTERVAL_SECONDS = 1
 
@@ -135,7 +136,7 @@ const TrackPlayerContainer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [didTogglePlay])
 
-  const albumArtURL = (track.artwork || {})['480x480']
+  const albumArtURL = getArtworkUrl(track)
 
   const props = {
     title: track.title,

@@ -41,7 +41,7 @@ export const RequestedEntity = Object.seal({
 })
 let discoveryEndpoint
 const discoveryNodeSelector = new DiscoveryNodeSelector()
-discoveryNodeSelector.addEventListener('change', endpoint => {
+discoveryNodeSelector.addEventListener('change', (endpoint) => {
   discoveryEndpoint = endpoint
 })
 const audiusSdk = sdk({
@@ -121,11 +121,15 @@ const constructCollectibleIdEndpoint = (handle, collectibleId) =>
   `${process.env.PREACT_APP_AUDIUS_SCHEME}://${HOSTNAME}/embed/api/${handle}/${RequestedEntity.COLLECTIBLES}/${collectibleId}`
 
 export const getTrack = async (id) => {
-  return audiusSdk.full.tracks.getTrack({ trackId: encodeHashId(id) })
+  const res = await audiusSdk.full.tracks.getTrack({
+    trackId: encodeHashId(id)
+  })
+  return res.data
 }
 
 export const getTrackWithHashId = async (hashId) => {
-  return audiusSdk.full.tracks.getTrack({ trackId: hashId })
+  const res = await audiusSdk.full.tracks.getTrack({ trackId: hashId })
+  return res.data
 }
 
 export const getCollection = async (id) => {
