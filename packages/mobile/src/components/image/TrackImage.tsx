@@ -34,7 +34,7 @@ type UseTrackImageOptions = {
 }
 
 const useLocalTrackImageUri = (trackId: Maybe<ID>) => {
-  const trackImage = useSelector((state) => {
+  const trackImageUri = useSelector((state) => {
     if (!trackId) return null
 
     const isReachable = getIsReachable(state)
@@ -47,7 +47,7 @@ const useLocalTrackImageUri = (trackId: Maybe<ID>) => {
     return `file://${getLocalTrackCoverArtPath(trackId.toString())}`
   })
 
-  return trackImage
+  return trackImageUri
 }
 
 export const useTrackImage = ({ track, size, user }: UseTrackImageOptions) => {

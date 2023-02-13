@@ -34,7 +34,7 @@ type UseCollectionImageOptions = {
 }
 
 const useLocalCollectionImageUri = (collectionId: Maybe<ID>) => {
-  const collectionImage = useSelector((state) => {
+  const collectionImageUri = useSelector((state) => {
     if (!collectionId) return null
 
     const isReachable = getIsReachable(state)
@@ -52,7 +52,7 @@ const useLocalCollectionImageUri = (collectionId: Maybe<ID>) => {
     return `file://${getLocalCollectionCoverArtPath(collectionId.toString())}`
   })
 
-  return collectionImage
+  return collectionImageUri
 }
 
 export const useCollectionImage = (options: UseCollectionImageOptions) => {
