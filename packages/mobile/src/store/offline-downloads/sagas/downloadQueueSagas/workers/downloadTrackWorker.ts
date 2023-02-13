@@ -12,6 +12,7 @@ import {
   tryDownloadTrackFromEachCreatorNode,
   writeTrackJson
 } from 'app/services/offline-downloader'
+import { isTrackValid } from 'app/utils/trackUtils'
 
 import { getTrackOfflineDownloadStatus } from '../../../selectors'
 import {
@@ -66,6 +67,8 @@ function* downloadTrackAsync(
   trackId: ID
 ): Generator<any, OfflineDownloadStatus> {
   const currentUserId = yield* select(getUserId)
+  if (!currentUserId) return OfflineDownloadStatus.ERROR
+
   const apiClient = yield* getContext('apiClient')
 
   const track = yield* call([apiClient, apiClient.getTrack], {
@@ -73,12 +76,10 @@ function* downloadTrackAsync(
     currentUserId
   })
 
-  if (
-    !track ||
-    track.is_delete ||
-    (track.is_unlisted && currentUserId !== track.user.user_id)
-  ) {
-    return OfflineDownloadStatus.ERROR
+  if (!track) return OfflineDownloadStatus.ERROR
+
+  if (!isTrackValid(track, currentUserId)) {
+    return OfflineDownloadStatus.ABANDONED
   }
 
   const trackMetadata: Track & UserTrackMetadata = {

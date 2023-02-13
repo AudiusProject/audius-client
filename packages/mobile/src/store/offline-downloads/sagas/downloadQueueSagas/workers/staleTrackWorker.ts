@@ -18,7 +18,7 @@ import {
   requestDownloadQueuedItem,
   startDownload
 } from 'app/store/offline-downloads/slice'
-import { isAvailableForPlay } from 'app/utils/trackUtils'
+import { isTrackValid } from 'app/utils/trackUtils'
 
 const { SET_UNREACHABLE } = reachabilityActions
 const { getUserId } = accountSelectors
@@ -65,8 +65,8 @@ export function* handleStaleTrack(trackId: ID) {
 
   if (!latestTrack) return OfflineDownloadStatus.ERROR
 
-  if (!isAvailableForPlay(latestTrack, currentUserId)) {
-    return OfflineDownloadStatus.ERROR
+  if (!isTrackValid(latestTrack, currentUserId)) {
+    return OfflineDownloadStatus.ABANDONED
   }
 
   if (moment(latestTrack.updated_at).isAfter(currentTrack.updated_at)) {

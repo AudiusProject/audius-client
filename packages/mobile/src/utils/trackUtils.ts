@@ -1,13 +1,10 @@
-import type { Track } from '@audius/common'
+import type { ID, UserTrackMetadata } from '@audius/common'
 
-export const isAvailableForPlay = (
-  track: Pick<
-    Track,
-    'is_available' | 'is_delete' | 'is_invalid' | 'is_unlisted' | 'owner_id'
-  >,
-  currentUserId: number
-) =>
-  track.is_available &&
-  !track.is_delete &&
-  !track.is_invalid &&
-  !(track.is_unlisted && track.owner_id !== currentUserId)
+export const isTrackValid = (track: UserTrackMetadata, currentUserId: ID) => {
+  const { is_available, is_delete, is_invalid, is_unlisted, user } = track
+  const { user_id, is_deactivated } = user
+  const isListed = !is_unlisted || user_id === currentUserId
+  return (
+    is_available && !is_delete && !is_invalid && isListed && !is_deactivated
+  )
+}

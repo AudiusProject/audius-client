@@ -12,6 +12,7 @@ import {
   writeCollectionJson,
   writeFavoritesCollectionJson
 } from 'app/services/offline-downloader'
+import { isCollectionValid } from 'app/utils/isCollectionValid'
 
 import { getCollectionOfflineDownloadStatus } from '../../../selectors'
 import type { CollectionId } from '../../../slice'
@@ -70,18 +71,18 @@ function* downloadCollectionAsync(collectionId: CollectionId) {
   }
 
   const currentUserId = yield* select(getUserId)
+  if (!currentUserId) return OfflineDownloadStatus.ERROR
+
   const apiClient = yield* getContext('apiClient')
   const [collection] = yield* call([apiClient, apiClient.getPlaylist], {
     playlistId: collectionId,
     currentUserId
   })
 
-  if (
-    !collection ||
-    collection.is_delete ||
-    (collection.is_private && collection.playlist_owner_id !== currentUserId)
-  ) {
-    return OfflineDownloadStatus.ERROR
+  if (!collection) return OfflineDownloadStatus.ERROR
+
+  if (!isCollectionValid(collection, currentUserId)) {
+    return OfflineDownloadStatus.ABANDONED
   }
 
   try {
