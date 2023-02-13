@@ -46,7 +46,7 @@ const CollectiblesHeader = ({
   backButtonVisible = false,
   onBackButtonClick = () => {}
 }) => {
-  const { name, handle, is_verified, total_balance } = user
+  const { name, handle, isVerified, total_balance } = user
   const onClick = () => window.open(getCopyableLink(`${handle}/collectibles`), '_blank')
 
   return (
@@ -64,7 +64,7 @@ const CollectiblesHeader = ({
         <h2>NFT COLLECTIBLES</h2>
         <div className={styles.userInfo}>
           <h2>{name}</h2>
-          {is_verified && <IconVerified />}
+          {isVerified && <IconVerified />}
           {getTierIcon(total_balance)}
         </div>
       </div>

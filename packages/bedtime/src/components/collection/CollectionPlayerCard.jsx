@@ -108,7 +108,7 @@ const CollectionPlayerCard = ({
             <ShareButton
               url={permalink}
               creator={collection.user.name}
-              title={collection.playlist_name}
+              title={collection.playlistName}
             />
           </div>
         </div>
@@ -126,8 +126,8 @@ const CollectionPlayerCard = ({
             <Titles
               artistName={collection.user.name}
               handle={collection.user.handle}
-              isVerified={collection.user.is_verified}
-              title={collection.playlist_name}
+              isVerified={collection.user.isVerified}
+              title={collection.playlistName}
               titleUrl={permalink}
             />
             <BedtimeScrubber
@@ -160,7 +160,7 @@ const CollectionPlayerCard = ({
                   iconColor={rowBackgroundColor}
                   onTogglePlay={makeOnTogglePlay(i)}
                   textIsClickable={false}
-                  isVerified={track.user.is_verified}
+                  isVerified={track.user.isVerified}
                 />
               )
             })}

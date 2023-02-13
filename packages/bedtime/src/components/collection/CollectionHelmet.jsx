@@ -7,18 +7,18 @@ const CollectionHelmet = ({ collection }) => {
     return null
   }
 
-  const title = `${collection.playlist_name} by ${collection.user.name} • Audius`
-  const description = `Listen on Audius: ${collection.playlist_name}`
+  const title = `${collection.playlistName} by ${collection.user.name} • Audius`
+  const description = `Listen on Audius: ${collection.playlistName}`
   const hostname = getAudiusHostname()
   const url = `https://${hostname}${collection.permalink}`
-  const isAlbum = collection.is_album
+  const isAlbum = collection.isAlbum
   let type = isAlbum ? 'MusicAlbum' : 'MusicPlaylist'
   const structuredData = {
     '@context': 'http://schema.googleapis.com/',
     '@type': type,
     '@id': url,
     url,
-    name: collection.playlist_name,
+    name: collection.playlistName,
     description
   }
 

@@ -1,6 +1,12 @@
 import { h } from 'preact'
-import { useState, useContext, useCallback, useEffect } from 'preact/hooks'
-import { getIsMp3StreamOn } from '../../util/getEnv'
+import {
+  useState,
+  useContext,
+  useCallback,
+  useEffect,
+  useMemo
+} from 'preact/hooks'
+
 import usePlayback from '../../hooks/usePlayback'
 import CollectionPlayerCard from './CollectionPlayerCard'
 import { PauseContext } from '../pausedpopover/PauseProvider'
@@ -26,26 +32,14 @@ const CollectionPlayerContainer = ({
   const [didInitAudio, setDidInitAudio] = useState(false)
   const { popoverVisibility, setPopoverVisibility } = useContext(PauseContext)
 
+  // Helper fn to get segements
+  const getSegments = useCallback(
+    (i) => collection.tracks[i].trackSegments,
+    [collection]
+  )
   const getId = useCallback((i) => collection.tracks[i]?.id, [collection])
-
-  const getTrackInfoForPlayback = useCallback(
-    (trackIndex) => {
-      const activeTrack = collection.tracks[trackIndex]
-      if (activeTrack == null) {
-        return null
-      }
-      const mp3StreamUrl = getIsMp3StreamOn()
-        ? getTrackStreamEndpoint(activeTrack.id)
-        : undefined
-
-      return {
-        segments: activeTrack.track_segments,
-        gateways: formatGateways(activeTrack.user.creator_node_endpoint),
-        title: activeTrack.title,
-        artistName: activeTrack.user.name,
-        mp3StreamUrl
-      }
-    },
+  const getGateways = useCallback(
+    (i) => formatGateways(collection.tracks[i].user.creatorNodeEndpoint),
     [collection.tracks]
   )
 
@@ -55,22 +49,22 @@ const CollectionPlayerContainer = ({
       // Handle last track case
       if (activeTrackIndex === collection.tracks.length - 1) {
         setActiveTrackIndex(0)
-        load(getTrackInfoForPlayback(0))
+        load(getSegments(0), getGateways(0))
         setPopoverVisibility(true)
         return
       }
 
-      const newTrackIndex = activeTrackIndex + 1
+      setActiveTrackIndex((i) => i + 1)
       stop()
-      load(getTrackInfoForPlayback(newTrackIndex))
-      setActiveTrackIndex(newTrackIndex)
+      load(getSegments(activeTrackIndex + 1), getGateways(activeTrackIndex + 1))
       onTogglePlay()
     },
     [
       activeTrackIndex,
       collection.tracks.length,
-      setPopoverVisibility,
-      getTrackInfoForPlayback
+      getSegments,
+      getGateways,
+      setPopoverVisibility
     ]
   )
 
@@ -95,21 +89,36 @@ const CollectionPlayerContainer = ({
     LISTEN_INTERVAL_SECONDS
   )
 
+  const trackInfoForPlayback = useMemo(() => {
+    const activeTrack = collection.tracks[activeTrackIndex]
+    if (activeTrack == null) {
+      return null
+    }
+    const mp3StreamUrl = getTrackStreamEndpoint(activeTrack.id)
+
+    return {
+      segments: activeTrack.trackSegments,
+      gateways: formatGateways(activeTrack.user.creatorNodeEndpoint),
+      title: activeTrack.title,
+      artistName: activeTrack.user.name,
+      mp3StreamUrl
+    }
+  }, [activeTrackIndex, collection.tracks])
+
   // Setup twitter autoplay
   useEffect(() => {
     const mobile = isMobile()
     if (!isTwitter || mobile || !collection.tracks.length) return
     initAudio()
-    loadTrack(getTrackInfoForPlayback(activeTrackIndex))
+    loadTrack(trackInfoForPlayback)
     setDidInitAudio(true)
     onTogglePlay()
     // TODO: Fix these deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [trackInfoForPlayback])
 
   const onTogglePlayTrack = useCallback(
     (trackIndex) => {
-      const trackInfoForPlayback = getTrackInfoForPlayback(trackIndex)
       if (!didInitAudio) {
         initAudio()
         loadTrack(trackInfoForPlayback)
@@ -144,7 +153,7 @@ const CollectionPlayerContainer = ({
       onTogglePlay,
       stop,
       getId,
-      getTrackInfoForPlayback
+      trackInfoForPlayback
     ]
   )
 

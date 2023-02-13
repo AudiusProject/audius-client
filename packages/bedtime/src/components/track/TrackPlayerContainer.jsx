@@ -56,8 +56,8 @@ const TrackPlayerContainer = ({
 
   const trackInfoForPlayback = useMemo(() => {
     return {
-      segments: track.track_segments,
-      gateways: formatGateways(track.user.creator_node_endpoint),
+      segments: track.trackSegments,
+      gateways: formatGateways(track.user.creatorNodeEndpoint),
       title: track.title,
       artistName: track.user.name,
       mp3StreamUrl: getIsMp3StreamOn()
@@ -67,8 +67,8 @@ const TrackPlayerContainer = ({
   }, [
     track.id,
     track.title,
-    track.track_segments,
-    track.user.creator_node_endpoint,
+    track.trackSegments,
+    track.user.creatorNodeEndpoint,
     track.user.name
   ])
 
@@ -145,7 +145,7 @@ const TrackPlayerContainer = ({
     playingState,
     albumArtURL,
     onTogglePlay: didTogglePlay,
-    isVerified: track.user.is_verified,
+    isVerified: track.user.isVerified,
     seekTo,
     position,
     duration,

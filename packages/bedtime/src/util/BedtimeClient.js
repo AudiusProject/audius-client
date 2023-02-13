@@ -1,5 +1,5 @@
 import { getIdentityEndpoint, getAPIHostname } from './getEnv'
-import { sdk } from '@audius/sdk'
+import { sdk, DiscoveryNodeSelector } from '@audius/sdk'
 
 import { recordListen as recordAnalyticsListen } from '../analytics/analytics'
 import { encodeHashId, decodeHashId } from './hashids'
@@ -40,12 +40,14 @@ export const RequestedEntity = Object.seal({
   COLLECTIBLES: 'collectibles'
 })
 let discoveryEndpoint
+const discoveryNodeSelector = new DiscoveryNodeSelector()
+discoveryNodeSelector.addEventListener('change', endpoint => {
+  discoveryEndpoint = endpoint
+})
 const audiusSdk = sdk({
   appName: 'Audius Embed Player',
-  discoveryProviderConfig: {
-    selectionCallback: (endpoint) => {
-      discoveryEndpoint = endpoint
-    }
+  services: {
+    discoveryNodeSelector
   },
   ...sdkConfigOptions
 })
@@ -130,12 +132,12 @@ export const getCollection = async (id) => {
   const res = await audiusSdk.full.playlists.getPlaylist({
     playlistId: encodeHashId(id)
   })
-  return getFormattedCollectionResponse(res)
+  return getFormattedCollectionResponse(res.data)
 }
 
 export const getCollectionWithHashId = async (hashId) => {
   const res = await audiusSdk.full.playlists.getPlaylist({ playlistId: hashId })
-  return getFormattedCollectionResponse(res)
+  return getFormattedCollectionResponse(res.data)
 }
 
 export const getCollectible = async (handle, collectibleId) => {

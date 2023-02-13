@@ -250,7 +250,7 @@ const App = (props) => {
           setCollectionsResponse(collection)
           recordOpen(
             decodeHashId(collection.id),
-            collection.playlist_name,
+            collection.playlistName,
             collection.user.handle,
             stripLeadingSlash(collection.permalink)
           )
