@@ -331,7 +331,10 @@ export function* watchNext() {
     const id = (yield* select(getQueueTrackId)) as ID
     const track = yield* select(getTrack, { id })
     const user = yield* select(getUser, { id: track?.owner_id })
-    const doesUserHaveAccess = yield* call(doesUserHaveTrackAccess, track ?? null)
+    const doesUserHaveAccess = yield* call(
+      doesUserHaveTrackAccess,
+      track ?? null
+    )
 
     // Skip deleted or owner deactivated or locked premium track
     if (
@@ -417,11 +420,17 @@ export function* watchPrevious() {
       const track = yield* select(getTrack, { id })
       const source = yield* select(getSource)
       const user = yield* select(getUser, { id: track?.owner_id })
-      const doesUserHaveAccess = yield* call(doesUserHaveTrackAccess, track ?? null)
+      const doesUserHaveAccess = yield* call(
+        doesUserHaveTrackAccess,
+        track ?? null
+      )
 
       // If we move to a previous song that's been
       // deleted or to which the user does not have access, skip over it.
-      if (track && (track.is_delete || user?.is_deactivated || !doesUserHaveAccess)) {
+      if (
+        track &&
+        (track.is_delete || user?.is_deactivated || !doesUserHaveAccess)
+      ) {
         yield* put(previous())
       } else {
         const index = yield* select(getIndex)
