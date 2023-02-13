@@ -34,7 +34,7 @@ const { SET_UNREACHABLE } = reachabilityActions
 
 const { getUserId } = accountSelectors
 
-function* shouldCancelDownload(trackId: ID) {
+function* shouldAbortDownload(trackId: ID) {
   while (true) {
     yield* take(removeOfflineItems.type)
     const trackStatus = yield* select(getTrackOfflineDownloadStatus(trackId))
@@ -45,16 +45,16 @@ function* shouldCancelDownload(trackId: ID) {
 export function* downloadTrackWorker(trackId: ID) {
   yield* put(startDownload({ type: 'track', id: trackId }))
 
-  const { jobResult, unreachable, cancel } = yield* race({
+  const { jobResult, cancel, abort } = yield* race({
     jobResult: call(downloadTrackAsync, trackId),
-    cancel: call(shouldCancelDownload, trackId),
-    unreachable: take(SET_UNREACHABLE)
+    abort: call(shouldAbortDownload, trackId),
+    cancel: take(SET_UNREACHABLE)
   })
 
-  if (cancel) {
+  if (abort) {
     yield* call(removeDownloadedTrack, trackId)
     yield* put(requestDownloadQueuedItem())
-  } else if (unreachable) {
+  } else if (cancel) {
     yield* put(cancelDownload({ type: 'track', id: trackId }))
     yield* call(removeDownloadedTrack, trackId)
   } else if (jobResult === OfflineDownloadStatus.ERROR) {

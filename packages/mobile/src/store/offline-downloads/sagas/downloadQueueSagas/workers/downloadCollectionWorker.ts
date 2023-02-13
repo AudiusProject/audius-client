@@ -35,7 +35,7 @@ const { SET_UNREACHABLE } = reachabilityActions
 
 const { getUserId } = accountSelectors
 
-function* shouldCancelDownload(collectionId: CollectionId) {
+function* shouldAbortDownload(collectionId: CollectionId) {
   while (true) {
     yield* take(removeOfflineItems.type)
     const trackStatus = yield* select(
@@ -48,16 +48,16 @@ function* shouldCancelDownload(collectionId: CollectionId) {
 export function* downloadCollectionWorker(collectionId: CollectionId) {
   yield* put(startDownload({ type: 'collection', id: collectionId }))
 
-  const { jobResult, unreachable, cancel } = yield* race({
+  const { jobResult, cancel, abort } = yield* race({
     jobResult: call(downloadCollectionAsync, collectionId),
-    cancel: call(shouldCancelDownload, collectionId),
-    unreachable: take(SET_UNREACHABLE)
+    abort: call(shouldAbortDownload, collectionId),
+    cancel: take(SET_UNREACHABLE)
   })
 
-  if (cancel) {
+  if (abort) {
     yield* call(removeDownloadedCollection, collectionId)
     yield* put(requestDownloadQueuedItem())
-  } else if (unreachable) {
+  } else if (cancel) {
     yield* put(cancelDownload({ type: 'collection', id: collectionId }))
     yield* call(removeDownloadedCollection, collectionId)
   } else if (jobResult === OfflineDownloadStatus.ERROR) {
