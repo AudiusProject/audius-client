@@ -49,11 +49,6 @@ export function* rehydrateOfflineDataSaga() {
       offlineCollectionStatus[collectionId] === OfflineDownloadStatus.SUCCESS
   )
 
-  console.log(
-    'the json',
-    getLocalCollectionJsonPath(downloadedCollectionIds[0])
-  )
-
   for (const collectionId of downloadedCollectionIds) {
     if (collectionId === DOWNLOAD_REASON_FAVORITES) continue
     const userCollection = yield* call(getCollectionJson, collectionId)

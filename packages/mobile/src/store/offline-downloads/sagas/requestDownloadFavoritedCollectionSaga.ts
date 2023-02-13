@@ -28,11 +28,8 @@ function* downloadFavoritedCollection(action: CollectionAction) {
   })
 
   const {
-    playlist_contents: { track_ids },
-    tracks
+    playlist_contents: { track_ids }
   } = collection
-
-  console.log('track_ids?', track_ids.length, tracks?.length)
 
   for (const { track: trackId } of track_ids) {
     offlineItemsToAdd.push({
