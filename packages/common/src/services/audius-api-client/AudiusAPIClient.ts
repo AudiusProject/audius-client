@@ -878,13 +878,6 @@ export class AudiusAPIClient {
     return adapted
   }
 
-  async getTrack2(stuff: GetTrackArgs) {
-    console.log('stuff', stuff)
-    this._assertInitialized()
-
-    return null
-  }
-
   async getTracks({ ids, currentUserId }: GetTracksArgs) {
     this._assertInitialized()
     const encodedTrackIds = ids.map((id) => this._encodeOrThrow(id))
