@@ -65,7 +65,6 @@ const updateReachability = async (netInfoState: NetInfoState) => {
     // Supercede the setUnreachable debounce if necessary
     setUnreachable(false)
     dispatch(reachabilityActions.setReachable())
-    storeContext.apiClient.setIsReachable(true)
   }
 }
 
@@ -74,7 +73,6 @@ const setUnreachable = debounce(
   (isUnreachable: boolean) => {
     if (isUnreachable) {
       dispatch(reachabilityActions.setUnreachable())
-      storeContext.apiClient.setIsReachable(false)
     }
   },
   2500,
