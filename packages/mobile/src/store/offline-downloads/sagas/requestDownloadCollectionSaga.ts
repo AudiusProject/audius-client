@@ -20,6 +20,7 @@ export function* requestDownloadCollectionSaga() {
 
 function* downloadCollection(action: CollectionAction) {
   const { collectionId } = action.payload
+  // TODO should we fetch from api instead?
   const collection = yield* select(getCollection, { id: collectionId })
   if (!collection) return
 

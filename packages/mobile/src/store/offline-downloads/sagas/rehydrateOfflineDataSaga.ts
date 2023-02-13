@@ -11,6 +11,7 @@ import { call, select, put } from 'typed-redux-saga'
 import {
   DOWNLOAD_REASON_FAVORITES,
   getCollectionJson,
+  getLocalCollectionJsonPath,
   getTrackJson
 } from 'app/services/offline-downloader'
 
@@ -46,6 +47,11 @@ export function* rehydrateOfflineDataSaga() {
   const downloadedCollectionIds = Object.keys(offlineCollectionStatus).filter(
     (collectionId) =>
       offlineCollectionStatus[collectionId] === OfflineDownloadStatus.SUCCESS
+  )
+
+  console.log(
+    'the json',
+    getLocalCollectionJsonPath(downloadedCollectionIds[0])
   )
 
   for (const collectionId of downloadedCollectionIds) {

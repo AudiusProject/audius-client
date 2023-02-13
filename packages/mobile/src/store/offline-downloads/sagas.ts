@@ -12,7 +12,7 @@ import { watchAddTrackToPlaylistSaga } from './sagas/watchAddTrackToPlaylistSaga
 import { watchRemoveOfflineItems } from './sagas/watchRemoveOfflineItems'
 import { watchSaveCollectionSaga } from './sagas/watchSaveCollectionSaga'
 import { watchSaveTrackSaga } from './sagas/watchSaveTrackSaga'
-import { watchUnSaveTrackSaga } from './sagas/watchUnsaveTrackSaga'
+import { watchUnsaveTrackSaga } from './sagas/watchUnsaveTrackSaga'
 
 const sagas = () => {
   return [
@@ -33,7 +33,7 @@ const sagas = () => {
 
     // Track/Collection watchers
     watchSaveTrackSaga,
-    watchUnSaveTrackSaga,
+    watchUnsaveTrackSaga,
     watchSaveCollectionSaga,
     watchRemoveOfflineItems,
     watchAddTrackToPlaylistSaga,

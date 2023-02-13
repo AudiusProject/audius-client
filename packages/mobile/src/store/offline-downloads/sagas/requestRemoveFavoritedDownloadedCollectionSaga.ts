@@ -14,7 +14,7 @@ export function* requestRemoveFavoritedDownloadedCollectionSaga() {
   )
 }
 
-function* removeFavoritedDownloadedCollection(action: CollectionAction) {
+export function* removeFavoritedDownloadedCollection(action: CollectionAction) {
   const { collectionId } = action.payload
 
   const offlineItemsToRemove: OfflineItem[] = []

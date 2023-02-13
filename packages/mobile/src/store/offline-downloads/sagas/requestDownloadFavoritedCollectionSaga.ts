@@ -7,7 +7,7 @@ import { addOfflineItems, requestDownloadFavoritedCollection } from '../slice'
 const { getCollection } = cacheCollectionsSelectors
 
 export function* requestDownloadFavoritedCollectionSaga() {
-  takeEvery(
+  yield* takeEvery(
     requestDownloadFavoritedCollection.type,
     downloadFavoritedCollection
   )
@@ -15,6 +15,7 @@ export function* requestDownloadFavoritedCollectionSaga() {
 
 function* downloadFavoritedCollection(action: CollectionAction) {
   const { collectionId } = action.payload
+  // TODO should we fetch from api instead?
   const collection = yield* select(getCollection, { id: collectionId })
   if (!collection) return
 
@@ -27,8 +28,11 @@ function* downloadFavoritedCollection(action: CollectionAction) {
   })
 
   const {
-    playlist_contents: { track_ids }
+    playlist_contents: { track_ids },
+    tracks
   } = collection
+
+  console.log('track_ids?', track_ids.length, tracks?.length)
 
   for (const { track: trackId } of track_ids) {
     offlineItemsToAdd.push({
