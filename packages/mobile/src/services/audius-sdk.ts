@@ -1,7 +1,13 @@
 import { EventEmitter } from 'events'
 
 import { StringKeys, IntKeys } from '@audius/common'
-import { DiscoveryNodeSelector, sdk } from '@audius/sdk'
+import {
+  developmentConfig,
+  DiscoveryNodeSelector,
+  productionConfig,
+  sdk,
+  stagingConfig
+} from '@audius/sdk'
 import { keccak_256 } from '@noble/hashes/sha3'
 import * as secp from '@noble/secp256k1'
 
@@ -24,7 +30,15 @@ const getBlockList = (remoteVarKey: StringKeys) => {
 let inProgress = false
 const SDK_LOADED_EVENT_NAME = 'AUDIUS_SDK_LOADED'
 const sdkEventEmitter = new EventEmitter()
-let sdkInstance: any // ReturnType<typeof sdk>
+let sdkInstance: ReturnType<typeof sdk>
+
+const env = process.env.REACT_APP_ENVIRONMENT
+const bootstrapConfig =
+  env === 'development'
+    ? developmentConfig
+    : env === 'staging'
+    ? stagingConfig
+    : productionConfig
 
 const initSdk = async () => {
   inProgress = true
@@ -32,21 +46,24 @@ const initSdk = async () => {
   const discoveryNodeBlockList = getBlockList(
     StringKeys.DISCOVERY_NODE_BLOCK_LIST
   )
+
   const audiusSdk = sdk({
     appName: 'audius-mobile-client',
     services: {
       discoveryNodeSelector: new DiscoveryNodeSelector({
-        blocklist: discoveryNodeBlockList ?? undefined,
-        requestTimeout:
-          getRemoteVar(IntKeys.DISCOVERY_PROVIDER_SELECTION_TIMEOUT_MS) ??
-          undefined,
         healthCheckThresholds: {
+          minVersion: bootstrapConfig.minVersion,
           maxBlockDiff:
             getRemoteVar(IntKeys.DISCOVERY_NODE_MAX_BLOCK_DIFF) ?? undefined,
           maxSlotDiffPlays:
             getRemoteVar(IntKeys.DISCOVERY_NODE_MAX_SLOT_DIFF_PLAYS) ??
             undefined
-        }
+        },
+        blocklist: discoveryNodeBlockList ?? undefined,
+        bootstrapServices: bootstrapConfig.discoveryNodes,
+        requestTimeout:
+          getRemoteVar(IntKeys.DISCOVERY_PROVIDER_SELECTION_TIMEOUT_MS) ??
+          undefined
       }),
       walletApi: {
         sign: async (data: string) => {

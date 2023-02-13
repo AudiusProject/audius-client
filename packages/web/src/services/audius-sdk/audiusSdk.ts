@@ -1,4 +1,4 @@
-import { StringKeys } from '@audius/common'
+import { IntKeys, StringKeys } from '@audius/common'
 import {
   sdk,
   DiscoveryNodeSelector,
@@ -54,9 +54,17 @@ const initSdk = async () => {
     services: {
       discoveryNodeSelector: new DiscoveryNodeSelector({
         healthCheckThresholds: {
-          minVersion: bootstrapConfig.minVersion
+          minVersion: bootstrapConfig.minVersion,
+          maxBlockDiff:
+            getRemoteVar(IntKeys.DISCOVERY_NODE_MAX_BLOCK_DIFF) ?? undefined,
+          maxSlotDiffPlays:
+            getRemoteVar(IntKeys.DISCOVERY_NODE_MAX_SLOT_DIFF_PLAYS) ??
+            undefined
         },
         blocklist: discoveryNodeBlockList,
+        requestTimeout:
+          getRemoteVar(IntKeys.DISCOVERY_PROVIDER_SELECTION_TIMEOUT_MS) ??
+          undefined,
         bootstrapServices: bootstrapConfig.discoveryNodes
       }),
       walletApi: {
