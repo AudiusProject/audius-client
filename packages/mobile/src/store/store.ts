@@ -44,7 +44,6 @@ import search from './search/slice'
 import shareToStoryProgress from './share-to-story-progress/slice'
 import type { ShareToStoryProgressState } from './share-to-story-progress/slice'
 import { storeContext } from './storeContext'
-import { listeners as themeListeners } from './theme/sagas'
 import type { WalletConnectState } from './wallet-connect/slice'
 import walletConnect from './wallet-connect/slice'
 
