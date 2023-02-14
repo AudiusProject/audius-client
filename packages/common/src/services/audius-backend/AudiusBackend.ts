@@ -1178,7 +1178,10 @@ export const audiusBackend = ({
   ) {
     console.log('metadata is ', metadata)
     try {
-      return await audiusLibs.EntityManager.repostTrack(trackId, metadata)
+      return await audiusLibs.EntityManager.repostTrack(
+        trackId,
+        JSON.stringify(metadata)
+      )
     } catch (err) {
       console.error(getErrorMessage(err))
       throw err
@@ -1200,7 +1203,10 @@ export const audiusBackend = ({
   ) {
     console.log('metadata is ', metadata)
     try {
-      return audiusLibs.EntityManager.repostPlaylist(playlistId, metadata)
+      return audiusLibs.EntityManager.repostPlaylist(
+        playlistId,
+        JSON.stringify(metadata)
+      )
     } catch (err) {
       console.error(getErrorMessage(err))
       throw err
