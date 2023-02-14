@@ -35,7 +35,7 @@ type SetMessageReactionPayload = {
   userId: ID
   chatId: string
   messageId: string
-  reaction: string
+  reaction: string | null
 }
 
 const initialState: ChatState = {
@@ -130,10 +130,14 @@ const slice = createSlice({
       // Optimistically set reaction
       const { userId, messageId, reaction } = action.payload
       const encodedUserId = encodeHashId(userId)
-      state.optimisticReactions[messageId] = {
-        user_id: encodedUserId,
-        reaction,
-        created_at: dayjs().toISOString()
+      if (reaction) {
+        state.optimisticReactions[messageId] = {
+          user_id: encodedUserId,
+          reaction,
+          created_at: dayjs().toISOString()
+        }
+      } else {
+        delete state.optimisticReactions[messageId]
       }
     },
     setMessageReactionSucceeded: (
