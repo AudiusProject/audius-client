@@ -141,10 +141,6 @@ export const useCollectionLineup = (
 
   // Fetch the lineup based on reachability
   useReachabilityEffect(fetchLineup, fetchLineupOffline)
-  useReachabilityEffect(
-    () => console.log('OnlineCollectionLineup'),
-    () => console.log('OfflineCollectionLineup')
-  )
 
   return lineup
 }
