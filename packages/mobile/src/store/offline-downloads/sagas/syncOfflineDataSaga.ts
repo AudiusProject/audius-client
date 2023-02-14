@@ -14,7 +14,7 @@ import {
   removeOfflineItems
 } from '../slice'
 
-import { redownloadStaleTracksSaga } from './redownloadStaleTracksSaga'
+import { getStaleTracks } from './getStaleTracks'
 
 export function* syncOfflineDataSaga() {
   yield* take(doneLoadingFromDisk.type)
@@ -92,8 +92,9 @@ export function* syncOfflineDataSaga() {
     offlineItemsToAdd.push(...collectionsToAdd)
   }
 
-  const staleTracksToAdd = yield* redownloadStaleTracksSaga()
-  offlineItemsToAdd.push(...staleTracksToAdd)
+  const staleTracks = yield* getStaleTracks()
+
+  offlineItemsToAdd.push(...staleTracks)
 
   if (offlineItemsToAdd.length > 0) {
     yield* put(addOfflineItems({ items: offlineItemsToAdd }))
