@@ -1176,6 +1176,7 @@ export const audiusBackend = ({
     trackId: ID,
     metadata?: { is_repost_repost: boolean }
   ) {
+    console.log('metadata is ', metadata)
     try {
       return await audiusLibs.EntityManager.repostTrack(trackId, metadata)
     } catch (err) {
@@ -1197,6 +1198,7 @@ export const audiusBackend = ({
     playlistId: ID,
     metadata?: { is_repost_repost: boolean }
   ) {
+    console.log('metadata is ', metadata)
     try {
       return audiusLibs.EntityManager.repostPlaylist(playlistId, metadata)
     } catch (err) {

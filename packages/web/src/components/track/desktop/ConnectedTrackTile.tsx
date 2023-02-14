@@ -310,11 +310,12 @@ const ConnectedTrackTile = memo(
     }, [saveTrack, unsaveTrack, trackId, isFavorited])
 
     const onRepostMetadata = useMemo(() => {
-      if (isFeed) {
-        const isRepostOfARepost = followee_reposts.length !== 0
-        return { is_repost_repost: isRepostOfARepost }
-      }
-      return { is_repost_repost: false }
+      return isFeed
+        ? // If we're on the feed, and someone i follow has
+          // reposted the content i am reposting,
+          // is_repost_repost is true
+          { is_repost_repost: followee_reposts.length !== 0 }
+        : { is_repost_repost: false }
     }, [followee_reposts, isFeed])
 
     const onClickRepost = useCallback(() => {

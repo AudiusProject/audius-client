@@ -116,19 +116,18 @@ const ConnectedTrackTile = memo(
       }
     }
 
-    const getOnRepostMetadata = () => {
-      if (isFeed) {
-        const isRepostOfARepost = followee_reposts.length !== 0
-        return { is_repost_repost: isRepostOfARepost }
-      }
-      return { is_repost_repost: false }
-    }
+    const onRepostMetadata = isFeed
+      ? // If we're on the feed, and someone i follow has
+        // reposted the content i am reposting,
+        // we have a repost of a repost. is_repost_repost is true
+        { is_repost_repost: followee_reposts.length !== 0 }
+      : { is_repost_repost: false }
 
     const toggleRepost = (trackId: ID) => {
       if (has_current_user_reposted) {
         unrepostTrack(trackId)
       } else {
-        repostTrack(trackId, getOnRepostMetadata())
+        repostTrack(trackId, onRepostMetadata)
       }
     }
 

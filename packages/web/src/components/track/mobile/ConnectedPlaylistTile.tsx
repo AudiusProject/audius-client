@@ -113,11 +113,12 @@ const ConnectedPlaylistTile = memo(
     }, [collection, unsaveCollection, saveCollection])
 
     const onRepostMetadata = useMemo(() => {
-      if (isFeed) {
-        const isRepostOfARepost = collection.followee_reposts.length !== 0
-        return { is_repost_repost: isRepostOfARepost }
-      }
-      return { is_repost_repost: false }
+      return isFeed
+        ? // If we're on the feed, and someone i follow has
+          // reposted the content i am reposting,
+          // is_repost_repost is true
+          { is_repost_repost: collection.followee_reposts.length !== 0 }
+        : { is_repost_repost: false }
     }, [collection.followee_reposts, isFeed])
 
     const toggleRepost = useCallback(() => {

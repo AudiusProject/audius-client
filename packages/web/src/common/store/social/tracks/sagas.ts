@@ -141,7 +141,7 @@ export function* repostTrackAsync(
 export function* confirmRepostTrack(
   trackId: ID,
   user: User,
-  metadata: { is_repost_repost: boolean }
+  metadata?: { is_repost_repost: boolean }
 ) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* put(
