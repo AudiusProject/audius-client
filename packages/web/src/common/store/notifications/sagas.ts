@@ -145,6 +145,11 @@ export function* fetchNotifications(action: FetchNotifications) {
         getFeatureEnabled,
         FeatureFlags.SUPPORTER_DETHRONED_ENABLED
       )) as boolean | null) ?? false
+    const useDiscoveryNotifications =
+      ((yield* call(
+        getFeatureEnabled,
+        FeatureFlags.DISCOVERY_NOTIFICATIONS
+      )) as boolean | null) ?? false
 
     const notificationsResponse: NotificationsResponse = yield* call(() =>
       audiusBackendInstance.getNotifications({
@@ -153,6 +158,22 @@ export function* fetchNotifications(action: FetchNotifications) {
         withDethroned
       })
     )
+
+    if (useDiscoveryNotifications && 'notifications' in notificationsResponse) {
+      const discoveryNotifications = yield* call(() => {
+        let timestamp
+        if (lastNotification) {
+          timestamp = Math.trunc(Date.parse(lastNotification?.timestamp) / 1000)
+        }
+        return audiusBackendInstance.getDiscoveryNotifications({
+          timestamp,
+          groupIdOffset: lastNotification?.groupId
+        })
+      })
+      notificationsResponse.notifications =
+        discoveryNotifications!.notifications
+    }
+
     if ('error' in notificationsResponse) {
       yield* put(
         notificationActions.fetchNotificationsFailed(
@@ -539,6 +560,12 @@ export function* getNotifications(isFirstFetch: boolean) {
           FeatureFlags.SUPPORTER_DETHRONED_ENABLED
         )) as boolean | null) ?? false
 
+      const notifications: any[] = yield* call(() =>
+        audiusBackendInstance.getDiscoveryNotifications({
+          // limit
+          // timeOffset,
+        })
+      )
       const notificationsResponse: NotificationsResponse | undefined =
         yield* call(() =>
           audiusBackendInstance.getNotifications({
@@ -547,6 +574,9 @@ export function* getNotifications(isFirstFetch: boolean) {
             withDethroned
           })
         )
+      if (notificationsResponse && 'notifications' in notificationsResponse) {
+        notificationsResponse.notifications = notifications
+      }
       if (
         !notificationsResponse ||
         ('error' in notificationsResponse &&
