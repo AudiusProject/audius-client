@@ -17,11 +17,11 @@ import {
   mkdirSafe
 } from 'app/services/offline-downloader'
 import { DOWNLOAD_REASON_FAVORITES } from 'app/store/offline-downloads/constants'
-import { isCollectionValid } from 'app/utils/isCollectionValid'
 
 import { getCollectionOfflineDownloadStatus } from '../../../selectors'
 import type { CollectionId } from '../../../slice'
 import {
+  abandonDownload,
   errorDownload,
   OfflineDownloadStatus,
   cancelDownload,
@@ -30,6 +30,7 @@ import {
   requestDownloadQueuedItem,
   startDownload
 } from '../../../slice'
+import { isCollectionDownloadable } from '../../utils/isCollectionDownloadable'
 
 import { downloadFile } from './downloadFile'
 const { SET_UNREACHABLE } = reachabilityActions
@@ -65,6 +66,10 @@ export function* downloadCollectionWorker(collectionId: CollectionId) {
     yield* put(errorDownload({ type: 'collection', id: collectionId }))
     yield* call(removeDownloadedCollection, collectionId)
     yield* put(requestDownloadQueuedItem())
+  } else if (jobResult === OfflineDownloadStatus.ABANDONED) {
+    yield* put(abandonDownload({ type: 'collection', id: collectionId }))
+    yield* call(removeDownloadedCollection, collectionId)
+    yield* put(requestDownloadQueuedItem())
   } else if (jobResult === OfflineDownloadStatus.SUCCESS) {
     yield* put(completeDownload({ type: 'collection', id: collectionId }))
     yield* put(requestDownloadQueuedItem())
@@ -91,7 +96,7 @@ function* downloadCollectionAsync(
 
   if (!collection) return OfflineDownloadStatus.ERROR
 
-  if (!isCollectionValid(collection, currentUserId)) {
+  if (!isCollectionDownloadable(collection, currentUserId)) {
     return OfflineDownloadStatus.ABANDONED
   }
 

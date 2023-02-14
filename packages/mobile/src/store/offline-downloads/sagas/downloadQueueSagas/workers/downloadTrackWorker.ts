@@ -17,7 +17,6 @@ import {
   getLocalTrackDir,
   getLocalTrackJsonPath
 } from 'app/services/offline-downloader'
-import { isTrackValid } from 'app/utils/trackUtils'
 
 import { getTrackOfflineDownloadStatus } from '../../../selectors'
 import {
@@ -27,8 +26,10 @@ import {
   errorDownload,
   OfflineDownloadStatus,
   removeOfflineItems,
-  startDownload
+  startDownload,
+  abandonDownload
 } from '../../../slice'
+import { isTrackDownloadable } from '../../utils/isTrackDownloadable'
 
 import { downloadFile } from './downloadFile'
 const { SET_UNREACHABLE } = reachabilityActions
@@ -62,6 +63,10 @@ export function* downloadTrackWorker(trackId: ID) {
     yield* put(errorDownload({ type: 'track', id: trackId }))
     yield* call(removeDownloadedTrack, trackId)
     yield* put(requestDownloadQueuedItem())
+  } else if (jobResult === OfflineDownloadStatus.ABANDONED) {
+    yield* put(abandonDownload({ type: 'track', id: trackId }))
+    yield* call(removeDownloadedTrack, trackId)
+    yield* put(requestDownloadQueuedItem())
   } else if (jobResult === OfflineDownloadStatus.SUCCESS) {
     yield* put(
       completeDownload({ type: 'track', id: trackId, completedAt: Date.now() })
@@ -86,7 +91,7 @@ function* downloadTrackAsync(
 
   if (!track) return OfflineDownloadStatus.ERROR
 
-  if (!isTrackValid(track, currentUserId)) {
+  if (!isTrackDownloadable(track, currentUserId)) {
     return OfflineDownloadStatus.ABANDONED
   }
 

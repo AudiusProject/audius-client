@@ -1,6 +1,9 @@
 import type { ID, UserTrackMetadata } from '@audius/common'
 
-export const isTrackValid = (track: UserTrackMetadata, currentUserId: ID) => {
+export const isTrackDownloadable = (
+  track: UserTrackMetadata,
+  currentUserId: ID
+) => {
   const { is_available, is_delete, is_invalid, is_unlisted, user } = track
   const { user_id, is_deactivated } = user
   const isListed = !is_unlisted || user_id === currentUserId

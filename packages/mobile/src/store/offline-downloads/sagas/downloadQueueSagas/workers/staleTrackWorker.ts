@@ -8,6 +8,7 @@ import {
 import moment from 'moment'
 import { put, select, call, take, race } from 'typed-redux-saga'
 
+import { isTrackDownloadable } from 'app/store/offline-downloads/sagas/utils/isTrackDownloadable'
 import { getTrackOfflineDownloadStatus } from 'app/store/offline-downloads/selectors'
 import {
   completeDownload,
@@ -18,7 +19,6 @@ import {
   requestDownloadQueuedItem,
   startDownload
 } from 'app/store/offline-downloads/slice'
-import { isTrackValid } from 'app/utils/trackUtils'
 
 const { SET_UNREACHABLE } = reachabilityActions
 const { getUserId } = accountSelectors
@@ -64,10 +64,6 @@ export function* handleStaleTrack(trackId: ID) {
   })
 
   if (!latestTrack) return OfflineDownloadStatus.ERROR
-
-  if (!isTrackValid(latestTrack, currentUserId)) {
-    return OfflineDownloadStatus.ABANDONED
-  }
 
   if (moment(latestTrack.updated_at).isAfter(currentTrack.updated_at)) {
     yield* put(

@@ -1,6 +1,6 @@
 import type { ID, UserCollectionMetadata } from '@audius/common'
 
-export const isCollectionValid = (
+export const isCollectionDownloadable = (
   collection: UserCollectionMetadata,
   currentUserId: ID
 ) => {

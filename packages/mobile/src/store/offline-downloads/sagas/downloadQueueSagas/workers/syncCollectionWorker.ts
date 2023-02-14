@@ -11,6 +11,7 @@ import { call, put, race, select, take } from 'typed-redux-saga'
 
 import { DOWNLOAD_REASON_FAVORITES } from 'app/store/offline-downloads/constants'
 import { dispatch } from 'app/store/store'
+import { isCollectionValid } from 'app/utils/isCollectionValid'
 
 import {
   getCollectionSyncStatus,
