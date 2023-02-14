@@ -1,12 +1,11 @@
 import type { ReactNode } from 'react'
-import { useMemo, useCallback } from 'react'
+import { useCallback } from 'react'
 
 import type { PremiumConditions, ID } from '@audius/common'
 import {
   FollowSource,
   usersSocialActions,
   tippingActions,
-  Chain,
   useSpecialAccessEntity,
   premiumContentSelectors
 } from '@audius/common'
@@ -156,22 +155,8 @@ export const DetailsTileNoAccess = ({
   const navigation = useNavigation()
   const premiumTrackStatusMap = useSelector(getPremiumTrackStatusMap)
   const premiumTrackStatus = premiumTrackStatusMap[trackId] ?? null
-  const { nftCollection, followee, tippedUser } =
+  const { nftCollection, collectionLink, followee, tippedUser } =
     useSpecialAccessEntity(premiumConditions)
-
-  const collectionLink = useMemo(() => {
-    if (!nftCollection) return ''
-
-    const { chain, address, externalLink } = nftCollection
-    if (chain === Chain.Eth && 'slug' in nftCollection!) {
-      return `https://opensea.io/collection/${nftCollection.slug}`
-    } else if (chain === Chain.Sol) {
-      const explorerUrl = `https://explorer.solana.com/address/${address}`
-      return externalLink ? new URL(externalLink).hostname : explorerUrl
-    }
-
-    return ''
-  }, [nftCollection])
 
   const { onPress: handlePressCollection } = useLink(collectionLink)
 
@@ -275,7 +260,9 @@ export const DetailsTileNoAccess = ({
       )
     }
 
-    // should not reach here
+    console.warn(
+      'No entity for premium conditions... should not have reached here.'
+    )
     return null
   }, [
     nftCollection,
@@ -351,7 +338,9 @@ export const DetailsTileNoAccess = ({
       )
     }
 
-    // should not reach here
+    console.warn(
+      'No entity for premium conditions... should not have reached here.'
+    )
     return null
   }, [nftCollection, followee, tippedUser, handlePressCollection, styles])
 
