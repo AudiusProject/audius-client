@@ -28,6 +28,7 @@ enum MobileEventNames {
   OFFLINE_MODE_DOWNLOAD_COLLECTION_TOGGLE_ON = 'Offline Mode: Download Collection Toggle On',
   OFFLINE_MODE_DOWNLOAD_COLLECTION_TOGGLE_OFF = 'Offline Mode: Download Collection Toggle Off',
   OFFLINE_MODE_DOWNLOAD_REQUEST = 'Offline Mode: Download Item Request',
+  OFFLINE_MODE_DOWNLOAD_START = 'Offline Mode: Download Item Start',
   OFFLINE_MODE_DOWNLOAD_SUCCESS = 'Offline Mode: Download Item Success',
   OFFLINE_MODE_DOWNLOAD_FAILURE = 'Offline Mode: Download Item Failure',
   OFFLINE_MODE_REMOVE_ITEM = 'Offline Mode: Remove Item',
@@ -117,6 +118,10 @@ type OfflineModeDownloadRequest = DownloadQueueItem & {
   eventName: MobileEventNames.OFFLINE_MODE_DOWNLOAD_REQUEST
 }
 
+type OfflineModeDownloadStart = DownloadQueueItem & {
+  eventName: MobileEventNames.OFFLINE_MODE_DOWNLOAD_START
+}
+
 type OfflineModeDownloadSuccess = DownloadQueueItem & {
   eventName: MobileEventNames.OFFLINE_MODE_DOWNLOAD_SUCCESS
 }
@@ -149,6 +154,7 @@ type MobileTrackingEvents =
   | OfflineModeDownloadCollectionToggleOff
   | OfflineModeDownloadFailure
   | OfflineModeDownloadRequest
+  | OfflineModeDownloadStart
   | OfflineModeDownloadSuccess
   | OfflineModeRemoveItem
   | OfflineModePlay

@@ -50,7 +50,7 @@ function* shouldAbortDownload(trackId: ID) {
 export function* downloadTrackWorker(trackId: ID) {
   const queueItem = { type: 'track', id: trackId } as DownloadQueueItem
   track(
-    make({ eventName: EventNames.OFFLINE_MODE_DOWNLOAD_REQUEST, ...queueItem })
+    make({ eventName: EventNames.OFFLINE_MODE_DOWNLOAD_START, ...queueItem })
   )
   yield* put(startDownload(queueItem))
 
@@ -77,6 +77,12 @@ export function* downloadTrackWorker(trackId: ID) {
     yield* call(removeDownloadedTrack, trackId)
     yield* put(requestDownloadQueuedItem())
   } else if (jobResult === OfflineDownloadStatus.ABANDONED) {
+    track(
+      make({
+        eventName: EventNames.OFFLINE_MODE_DOWNLOAD_FAILURE,
+        ...queueItem
+      })
+    )
     yield* put(abandonDownload({ type: 'track', id: trackId }))
     yield* call(removeDownloadedTrack, trackId)
     yield* put(requestDownloadQueuedItem())

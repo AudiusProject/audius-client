@@ -55,7 +55,7 @@ export function* downloadCollectionWorker(collectionId: CollectionId) {
     id: collectionId
   } as DownloadQueueItem
   track(
-    make({ eventName: EventNames.OFFLINE_MODE_DOWNLOAD_REQUEST, ...queueItem })
+    make({ eventName: EventNames.OFFLINE_MODE_DOWNLOAD_START, ...queueItem })
   )
   yield* put(startDownload(queueItem))
 
@@ -82,6 +82,12 @@ export function* downloadCollectionWorker(collectionId: CollectionId) {
     yield* call(removeDownloadedCollection, collectionId)
     yield* put(requestDownloadQueuedItem())
   } else if (jobResult === OfflineDownloadStatus.ABANDONED) {
+    track(
+      make({
+        eventName: EventNames.OFFLINE_MODE_DOWNLOAD_FAILURE,
+        ...queueItem
+      })
+    )
     yield* put(abandonDownload({ type: 'collection', id: collectionId }))
     yield* call(removeDownloadedCollection, collectionId)
     yield* put(requestDownloadQueuedItem())
