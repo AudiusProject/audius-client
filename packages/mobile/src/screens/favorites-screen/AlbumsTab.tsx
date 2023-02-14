@@ -14,7 +14,8 @@ import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import type { AppState } from 'app/store'
 import {
   getOfflineTrackStatus,
-  getIsDoneLoadingFromDisk
+  getIsDoneLoadingFromDisk,
+  getOfflineCollectionsStatus
 } from 'app/store/offline-downloads/selectors'
 import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 
@@ -37,7 +38,7 @@ export const AlbumsTab = () => {
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const isDoneLoadingFromDisk = useSelector(getIsDoneLoadingFromDisk)
 
-  const offlineDownloadStatus = useProxySelector(
+  const offlineTracksStatus = useProxySelector(
     (state: AppState) => {
       if (isDoneLoadingFromDisk && isOfflineModeEnabled && !isReachable) {
         return getOfflineTrackStatus(state)
@@ -55,6 +56,7 @@ export const AlbumsTab = () => {
           return []
         }
       }
+      const offlineCollectionsStatus = getOfflineCollectionsStatus(state)
       return getAccountCollections(state, filterValue).filter((collection) => {
         if (!collection.is_album) {
           return false
@@ -64,15 +66,18 @@ export const AlbumsTab = () => {
             collection.playlist_contents.track_ids.map(
               (trackData) => trackData.track
             ) ?? []
-
-          // Don't show a playlist in Offline Mode if it has at least one track but none of the tracks have been downloaded yet
+          const collectionDownloadStatus =
+            offlineCollectionsStatus[collection.playlist_id]
+          // Don't show a playlist in Offline Mode if it has at least one track but none of the tracks have been downloaded yet OR if it is not marked for download
           return (
             collection.is_album &&
+            Boolean(collectionDownloadStatus) &&
+            collectionDownloadStatus !== OfflineDownloadStatus.INACTIVE &&
             (trackIds.length === 0 ||
               trackIds.some((t) => {
                 return (
-                  offlineDownloadStatus &&
-                  offlineDownloadStatus[t.toString()] ===
+                  offlineTracksStatus &&
+                  offlineTracksStatus[t.toString()] ===
                     OfflineDownloadStatus.SUCCESS
                 )
               }))
@@ -86,7 +91,7 @@ export const AlbumsTab = () => {
       isReachable,
       isOfflineModeEnabled,
       isDoneLoadingFromDisk,
-      offlineDownloadStatus
+      offlineTracksStatus
     ],
     shallowCompare
   )
@@ -95,9 +100,9 @@ export const AlbumsTab = () => {
     return buildCollectionIdsToNumPlayableTracksMap(
       userAlbums,
       isOfflineModeEnabled && !isReachable,
-      offlineDownloadStatus || {}
+      offlineTracksStatus || {}
     )
-  }, [isOfflineModeEnabled, isReachable, offlineDownloadStatus, userAlbums])
+  }, [isOfflineModeEnabled, isReachable, offlineTracksStatus, userAlbums])
 
   return (
     <VirtualizedScrollView listKey='favorites-albums-view'>
