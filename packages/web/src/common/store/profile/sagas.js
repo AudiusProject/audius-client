@@ -516,7 +516,6 @@ function* confirmUpdateProfile(userId, metadata) {
   yield waitForWrite()
   const apiClient = yield getContext('apiClient')
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  const localStorage = yield getContext('localStorage')
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.USERS, userId),
