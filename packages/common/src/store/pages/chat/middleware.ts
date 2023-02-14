@@ -45,26 +45,26 @@ export const chatMiddleware =
             console.log('Chat middleware WebSocket closed. Reconnecting...')
             sdk.chats.listen()
           }
-          sdk.chats.addListener('open', openListener)
-          sdk.chats.addListener('message', messageListener)
-          sdk.chats.addListener('reaction', reactionListener)
-          sdk.chats.addListener('close', closeListener)
+          sdk.chats.addEventListener('open', openListener)
+          sdk.chats.addEventListener('message', messageListener)
+          sdk.chats.addEventListener('reaction', reactionListener)
+          sdk.chats.addEventListener('close', closeListener)
           return sdk.chats.listen()
         })
       } else if (disconnect.match(action)) {
         console.log('Chat middleware detaching')
         audiusSdk().then((sdk) => {
           if (openListener) {
-            sdk.chats.removeListener('open', openListener)
+            sdk.chats.removeEventListener('open', openListener)
           }
           if (messageListener) {
-            sdk.chats.removeListener('message', messageListener)
+            sdk.chats.removeEventListener('message', messageListener)
           }
           if (reactionListener) {
-            sdk.chats.removeListener('reaction', reactionListener)
+            sdk.chats.removeEventListener('reaction', reactionListener)
           }
           if (closeListener) {
-            sdk.chats.removeListener('close', closeListener)
+            sdk.chats.removeEventListener('close', closeListener)
           }
         })
       }
