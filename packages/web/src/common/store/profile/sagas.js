@@ -32,6 +32,7 @@ import {
   takeEvery
 } from 'redux-saga/effects'
 
+import { cacheAccount } from 'common/store/account/sagas'
 import {
   fetchUsers,
   fetchUserByHandle,
@@ -552,7 +553,8 @@ function* confirmUpdateProfile(userId, metadata) {
       },
       function* (confirmedUser) {
         // Store the update in local storage so it is correct upon reload
-        yield call([localStorage, 'setAudiusAccountUser'], confirmedUser)
+        const account = yield call(audiusBackendInstance.getAccount)
+        yield call(cacheAccount, account)
         // Update the cached user so it no longer contains image upload artifacts
         // and contains updated profile picture / cover photo sizes if any
         const newMetadata = {

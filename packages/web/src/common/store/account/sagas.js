@@ -246,7 +246,7 @@ export function* fetchLocalAccountAsync() {
   }
 }
 
-function* cacheAccount(account) {
+export function* cacheAccount(account) {
   const localStorage = yield getContext('localStorage')
   const collections = account.playlists || []
 
