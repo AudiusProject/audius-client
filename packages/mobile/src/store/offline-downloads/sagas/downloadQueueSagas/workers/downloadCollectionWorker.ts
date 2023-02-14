@@ -33,9 +33,9 @@ import {
   startDownload
 } from '../../../slice'
 import { isCollectionDownloadable } from '../../utils/isCollectionDownloadable'
+import { shouldCancelJob } from '../../utils/shouldCancelJob'
 
 import { downloadFile } from './downloadFile'
-const { SET_UNREACHABLE } = reachabilityActions
 
 const { getUserId } = accountSelectors
 
@@ -62,7 +62,7 @@ export function* downloadCollectionWorker(collectionId: CollectionId) {
   const { jobResult, cancel, abort } = yield* race({
     jobResult: call(downloadCollectionAsync, collectionId),
     abort: call(shouldAbortDownload, collectionId),
-    cancel: take(SET_UNREACHABLE)
+    cancel: call(shouldCancelJob)
   })
 
   if (abort) {

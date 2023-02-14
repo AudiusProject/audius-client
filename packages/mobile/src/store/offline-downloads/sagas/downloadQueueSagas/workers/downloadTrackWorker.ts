@@ -4,8 +4,7 @@ import {
   SquareSizes,
   encodeHashId,
   accountSelectors,
-  getContext,
-  reachabilityActions
+  getContext
 } from '@audius/common'
 import RNFetchBlob from 'rn-fetch-blob'
 import { select, call, put, all, take, race } from 'typed-redux-saga'
@@ -33,9 +32,9 @@ import {
   abandonDownload
 } from '../../../slice'
 import { isTrackDownloadable } from '../../utils/isTrackDownloadable'
+import { shouldCancelJob } from '../../utils/shouldCancelJob'
 
 import { downloadFile } from './downloadFile'
-const { SET_UNREACHABLE } = reachabilityActions
 
 const { getUserId } = accountSelectors
 
@@ -57,7 +56,7 @@ export function* downloadTrackWorker(trackId: ID) {
   const { jobResult, cancel, abort } = yield* race({
     jobResult: call(downloadTrackAsync, trackId),
     abort: call(shouldAbortDownload, trackId),
-    cancel: take(SET_UNREACHABLE)
+    cancel: call(shouldCancelJob)
   })
 
   if (abort) {

@@ -19,7 +19,8 @@ import {
   startDownload
 } from 'app/store/offline-downloads/slice'
 
-const { SET_UNREACHABLE } = reachabilityActions
+import { shouldCancelJob } from '../../utils/shouldCancelJob'
+
 const { getUserId } = accountSelectors
 const { getTrack } = cacheTracksSelectors
 
@@ -28,7 +29,7 @@ export function* staleTrackWorker(trackId: ID) {
   const { jobResult, abort, cancel } = yield* race({
     jobResult: call(handleStaleTrack, trackId),
     abort: call(shouldAbortJob, trackId),
-    cancel: take(SET_UNREACHABLE)
+    cancel: call(shouldCancelJob)
   })
 
   if (abort) {
