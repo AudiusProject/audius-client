@@ -8,7 +8,6 @@ import {
   addToPlaylistUISelectors,
   newCollectionMetadata
 } from '@audius/common'
-import type { ImageProps } from 'react-native'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { getTempPlaylistId } from 'utils/tempPlaylistId'
@@ -20,6 +19,8 @@ import { AppDrawer, useDrawerState } from 'app/components/drawer'
 import { CollectionImage } from 'app/components/image/CollectionImage'
 import { useToast } from 'app/hooks/useToast'
 import { makeStyles, shadow } from 'app/styles'
+
+import type { ImageProps } from '../image/FastImage'
 
 const { addTrackToPlaylist, createPlaylist } = cacheCollectionsActions
 const { getTrackId, getTrackTitle } = addToPlaylistUISelectors
@@ -56,7 +57,7 @@ export const AddToPlaylistDrawer = () => {
   const user = useSelector(getAccountWithOwnPlaylists)
 
   const renderImage = useCallback(
-    (item) => (props: ImageProps) =>
+    (item) => (props?: ImageProps) =>
       (
         <CollectionImage
           collection={item}
