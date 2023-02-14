@@ -93,7 +93,7 @@ export const CollectionScreenDetailsTile = ({
   const userUid = useSelector(getUserUid)
 
   const fetchLineup = useCallback(() => {
-    dispatch(resetCollection(collectionId as number, collectionUid, userUid))
+    dispatch(resetCollection(collectionUid, userUid))
 
     // Need to refetch the collection after resetting
     // Will pull from cache if it exists
