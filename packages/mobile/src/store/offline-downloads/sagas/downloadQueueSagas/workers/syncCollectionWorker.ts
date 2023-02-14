@@ -11,7 +11,6 @@ import { call, put, race, select, take } from 'typed-redux-saga'
 
 import { DOWNLOAD_REASON_FAVORITES } from 'app/store/offline-downloads/constants'
 import { dispatch } from 'app/store/store'
-import { isCollectionValid } from 'app/utils/isCollectionValid'
 
 import {
   getCollectionSyncStatus,
@@ -155,6 +154,8 @@ function* syncCollection(collectionId: ID) {
     {
       collectionId,
       currentUserId,
+      // Needed to ensure APIClient doesn't abort when we become unreachable,
+      // allowing this job time to self-cancel
       abortOnUnreachable: false
     }
   )

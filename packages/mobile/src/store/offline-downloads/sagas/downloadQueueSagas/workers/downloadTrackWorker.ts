@@ -86,6 +86,8 @@ function* downloadTrackAsync(
   const track = yield* call([apiClient, apiClient.getTrack], {
     id: trackId,
     currentUserId,
+    // Needed to ensure APIClient doesn't abort when we become unreachable,
+    // allowing this job time to self-cancel
     abortOnUnreachable: false
   })
 
