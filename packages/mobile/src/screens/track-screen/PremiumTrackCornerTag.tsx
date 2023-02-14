@@ -4,10 +4,12 @@ import IconCollectibleCornerTag from 'app/assets/images/iconCollectibleCornerTag
 import IconLockedCornerTag from 'app/assets/images/iconLockedCornerTag.svg'
 import IconSpecialAccessCornerTag from 'app/assets/images/iconSpecialAccessCornerTag.svg'
 import { makeStyles } from 'app/styles'
+import { zIndex } from 'app/utils/zIndex'
 
 const useStyles = makeStyles(() => ({
   icon: {
-    position: 'absolute'
+    position: 'absolute',
+    zIndex: zIndex.PREMIUM_TRACK_TILE_CORNER_TAG
   }
 }))
 
