@@ -65,7 +65,7 @@ export function* repostTrackAsync(
   })
   yield* put(event)
 
-  yield* call(confirmRepostTrack, action.trackId, user, action.metadata || {})
+  yield* call(confirmRepostTrack, action.trackId, user, action.metadata)
 
   const tracks = yield* select(getTracks, { ids: [action.trackId] })
   const track = tracks[action.trackId]

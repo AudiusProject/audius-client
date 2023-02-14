@@ -92,7 +92,8 @@ const ConnectedPlaylistTile = memo(
     currentUserId,
     darkMode,
     showRankIcon,
-    isTrending
+    isTrending,
+    isFeed = false
   }: ConnectedPlaylistTileProps) => {
     const collection = getCollectionWithFallback(nullableCollection)
     const user = getUserWithFallback(nullableUser)
@@ -111,13 +112,21 @@ const ConnectedPlaylistTile = memo(
       }
     }, [collection, unsaveCollection, saveCollection])
 
+    const onRepostMetadata = useMemo(() => {
+      if (isFeed) {
+        const isRepostOfARepost = collection.followee_reposts.length !== 0
+        return { is_repost_repost: isRepostOfARepost }
+      }
+      return { is_repost_repost: false }
+    }, [collection.followee_reposts, isFeed])
+
     const toggleRepost = useCallback(() => {
       if (collection.has_current_user_reposted) {
         unrepostCollection(collection.playlist_id)
       } else {
-        repostCollection(collection.playlist_id)
+        repostCollection(collection.playlist_id, onRepostMetadata)
       }
-    }, [collection, unrepostCollection, repostCollection])
+    }, [collection, unrepostCollection, repostCollection, onRepostMetadata])
 
     const getRoute = useCallback(() => {
       return collection.is_album
@@ -327,8 +336,10 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(saveCollection(collectionId, FavoriteSource.TILE)),
     unsaveCollection: (collectionId: ID) =>
       dispatch(unsaveCollection(collectionId, FavoriteSource.TILE)),
-    repostCollection: (collectionId: ID) =>
-      dispatch(repostCollection(collectionId, RepostSource.TILE)),
+    repostCollection: (
+      collectionId: ID,
+      metadata: { is_repost_repost: boolean }
+    ) => dispatch(repostCollection(collectionId, RepostSource.TILE, metadata)),
     unrepostCollection: (collectionId: ID) =>
       dispatch(undoRepostCollection(collectionId, RepostSource.TILE)),
     clickOverflow: (collectionId: ID, overflowActions: OverflowAction[]) =>

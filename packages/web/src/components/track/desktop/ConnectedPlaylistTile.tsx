@@ -96,6 +96,7 @@ type OwnProps = {
   numLoadingSkeletonRows?: number
   isTrending: boolean
   showRankIcon: boolean
+  isFeed: boolean
 }
 
 type ConnectedPlaylistTileProps = OwnProps &
@@ -134,7 +135,8 @@ const ConnectedPlaylistTile = memo(
     saveCollection,
     unsaveCollection,
     isTrending,
-    showRankIcon
+    showRankIcon,
+    isFeed = false
   }: ConnectedPlaylistTileProps) => {
     const {
       is_album: isAlbum,
@@ -385,13 +387,27 @@ const ConnectedPlaylistTile = memo(
       }
     }, [saveCollection, unsaveCollection, id, isFavorited])
 
+    const onRepostMetadata = useMemo(() => {
+      if (isFeed) {
+        const isRepostOfARepost = followeeReposts.length !== 0
+        return { is_repost_repost: isRepostOfARepost }
+      }
+      return { is_repost_repost: false }
+    }, [followeeReposts, isFeed])
+
     const onClickRepost = useCallback(() => {
       if (isReposted) {
         undoRepostCollection(id)
       } else {
-        repostCollection(id)
+        repostCollection(id, onRepostMetadata)
       }
-    }, [repostCollection, undoRepostCollection, id, isReposted])
+    }, [
+      repostCollection,
+      undoRepostCollection,
+      id,
+      isReposted,
+      onRepostMetadata
+    ])
 
     const onClickShare = useCallback(() => {
       shareCollection(id)
@@ -568,8 +584,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
           source: ShareSource.TILE
         })
       ),
-    repostCollection: (id: ID) =>
-      dispatch(repostCollection(id, RepostSource.TILE)),
+    repostCollection: (id: ID, metadata: { is_repost_repost: boolean }) =>
+      dispatch(repostCollection(id, RepostSource.TILE, metadata)),
     undoRepostCollection: (id: ID) =>
       dispatch(undoRepostCollection(id, RepostSource.TILE)),
     saveCollection: (id: ID) =>
