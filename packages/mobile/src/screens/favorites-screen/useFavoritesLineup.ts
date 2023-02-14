@@ -12,8 +12,8 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useReachabilityEffect } from 'app/hooks/useReachabilityEffect'
-import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
 import { store } from 'app/store'
+import { DOWNLOAD_REASON_FAVORITES } from 'app/store/offline-downloads/constants'
 import { getOfflineTracks } from 'app/store/offline-downloads/selectors'
 
 const { getSavedTracksLineup } = savedPageSelectors
@@ -74,8 +74,16 @@ export const useFavoritesLineup = (fetchLineup: () => void) => {
     }
   }, [dispatch, isOfflineModeEnabled, offlineTracks, savedTracksUidMap])
 
+  const fetchLineupOnline = useCallback(() => {
+    // Because we do `fetchLineupMetadatasSucceeded` in fetchLineupOffline
+    // we need to manually set the lineup as loading here. This is so if the app is started
+    // offline and then reconnects, we show a spinner while loading instead of the empty message
+    dispatch(savedPageTracksLineupActions.setLoading())
+    fetchLineup()
+  }, [dispatch, fetchLineup])
+
   // Fetch the lineup based on reachability
-  useReachabilityEffect(fetchLineup, fetchLineupOffline)
+  useReachabilityEffect(fetchLineupOnline, fetchLineupOffline)
 
   return lineup
 }
