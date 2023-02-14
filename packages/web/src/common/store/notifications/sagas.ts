@@ -559,13 +559,12 @@ export function* getNotifications(isFirstFetch: boolean) {
           getFeatureEnabled,
           FeatureFlags.SUPPORTER_DETHRONED_ENABLED
         )) as boolean | null) ?? false
+      const useDiscoveryNotifications =
+        ((yield* call(
+          getFeatureEnabled,
+          FeatureFlags.DISCOVERY_NOTIFICATIONS
+        )) as boolean | null) ?? false
 
-      const notifications: any[] = yield* call(() =>
-        audiusBackendInstance.getDiscoveryNotifications({
-          // limit
-          // timeOffset,
-        })
-      )
       const notificationsResponse: NotificationsResponse | undefined =
         yield* call(() =>
           audiusBackendInstance.getNotifications({
@@ -574,8 +573,17 @@ export function* getNotifications(isFirstFetch: boolean) {
             withDethroned
           })
         )
-      if (notificationsResponse && 'notifications' in notificationsResponse) {
-        notificationsResponse.notifications = notifications
+
+      if (
+        useDiscoveryNotifications &&
+        notificationsResponse &&
+        'notifications' in notificationsResponse
+      ) {
+        const discoveryNotifications = yield* call(() => {
+          return audiusBackendInstance.getDiscoveryNotifications({})
+        })
+        notificationsResponse.notifications =
+          discoveryNotifications!.notifications
       }
       if (
         !notificationsResponse ||
