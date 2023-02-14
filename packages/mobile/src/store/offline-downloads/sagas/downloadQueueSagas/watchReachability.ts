@@ -1,7 +1,7 @@
 import { reachabilityActions } from '@audius/common'
 import { takeEvery, put, select } from 'typed-redux-saga'
 
-import { getDownloadQueue, getQueueStatus } from '../../selectors'
+import { getDownloadQueue } from '../../selectors'
 import {
   requestDownloadQueuedItem,
   QueueStatus,
