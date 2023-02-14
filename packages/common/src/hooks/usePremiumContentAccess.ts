@@ -1,11 +1,11 @@
-import { PremiumConditions, Track } from 'models'
+import { Chain, PremiumConditions, Track } from 'models'
 import { useMemo } from 'react'
 
 import { useSelector } from 'react-redux'
 import { cacheUsersSelectors } from 'store/cache'
 import { premiumContentSelectors } from 'store/premium-content'
 import { CommonState } from 'store/reducers'
-import { Nullable } from 'utils'
+import { Nullable, removeNullable } from 'utils'
 
 const { getUsers } = cacheUsersSelectors
 const { getPremiumTrackSignatureMap } = premiumContentSelectors
@@ -44,17 +44,25 @@ export const useSpecialAccessEntity = (premiumConditions: Nullable<PremiumCondit
 
   const users = useSelector((state: CommonState) =>
     getUsers(state, {
-      ids: [followUserId, tipUserId].filter((id): id is number => !!id)
+      ids: [followUserId, tipUserId].filter(removeNullable)
     })
   )
-  const followee = useMemo(
-    () => (followUserId ? users[followUserId] : null),
-    [users, followUserId]
-  )
-  const tippedUser = useMemo(
-    () => (tipUserId ? users[tipUserId] : null),
-    [users, tipUserId]
-  )
+  const followee = followUserId ? users[followUserId] : null
+  const tippedUser = tipUserId ? users[tipUserId] : null
 
-  return { nftCollection:  nftCollection ?? null, followee, tippedUser }
+  const collectionLink = useMemo(() => {
+    if (!nftCollection) return ''
+
+    const { chain, address, externalLink } = nftCollection
+    if (chain === Chain.Eth && 'slug' in nftCollection) {
+      return `https://opensea.io/collection/${nftCollection.slug}`
+    } else if (chain === Chain.Sol) {
+      const explorerUrl = `https://explorer.solana.com/address/${address}`
+      return externalLink ? new URL(externalLink).hostname : explorerUrl
+    }
+
+    return ''
+  }, [nftCollection])
+
+  return { nftCollection:  nftCollection ?? null, collectionLink, followee, tippedUser }
 }

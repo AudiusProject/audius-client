@@ -1,7 +1,5 @@
-import { useMemo } from 'react'
-
 import type { ID, PremiumConditions } from '@audius/common'
-import { cacheUsersSelectors } from '@audius/common'
+import { removeNullable, cacheUsersSelectors } from '@audius/common'
 import { useSelector } from 'react-redux'
 
 import { DetailsTileHasAccess } from './DetailsTileHasAccess'
@@ -26,17 +24,11 @@ export const DetailsTilePremiumAccess = ({
     premiumConditions ?? {}
   const users = useSelector((state) =>
     getUsers(state, {
-      ids: [followUserId, tipUserId].filter((id): id is number => !!id)
+      ids: [followUserId, tipUserId].filter(removeNullable)
     })
   )
-  const followee = useMemo(
-    () => (followUserId ? users[followUserId] : null),
-    [users, followUserId]
-  )
-  const tippedUser = useMemo(
-    () => (tipUserId ? users[tipUserId] : null),
-    [users, tipUserId]
-  )
+  const followee = followUserId ? users[followUserId] : null
+  const tippedUser = tipUserId ? users[tipUserId] : null
   const shouldDisplay =
     !!premiumConditions.nft_collection || followee || tippedUser
 
