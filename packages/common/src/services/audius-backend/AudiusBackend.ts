@@ -1172,9 +1172,13 @@ export const audiusBackend = ({
     }
   }
 
-  async function repostTrack(trackId: ID) {
+  async function repostTrack(
+    trackId: ID,
+    metadata: { is_repost_repost: boolean }
+  ) {
+    console.log('metadata is ', metadata)
     try {
-      return await audiusLibs.EntityManager.repostTrack(trackId)
+      return await audiusLibs.EntityManager.repostTrack(trackId, metadata)
     } catch (err) {
       console.error(getErrorMessage(err))
       throw err

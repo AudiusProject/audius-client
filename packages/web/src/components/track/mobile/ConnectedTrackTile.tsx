@@ -80,7 +80,8 @@ const ConnectedTrackTile = memo(
     clickOverflow,
     darkMode,
     isTrending,
-    showRankIcon
+    showRankIcon,
+    isFeed = false
   }: ConnectedTrackTileProps) => {
     const {
       is_delete,
@@ -115,11 +116,19 @@ const ConnectedTrackTile = memo(
       }
     }
 
+    const getOnRepostMetadata = () => {
+      if (isFeed) {
+        const isRepostOfARepost = followee_reposts.length !== 0
+        return { is_repost_repost: isRepostOfARepost }
+      }
+      return { is_repost_repost: false }
+    }
+
     const toggleRepost = (trackId: ID) => {
       if (has_current_user_reposted) {
         unrepostTrack(trackId)
       } else {
-        repostTrack(trackId)
+        repostTrack(trackId, getOnRepostMetadata())
       }
     }
 
@@ -260,8 +269,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(saveTrack(trackId, FavoriteSource.TILE)),
     unsaveTrack: (trackId: ID) =>
       dispatch(unsaveTrack(trackId, FavoriteSource.TILE)),
-    repostTrack: (trackId: ID) =>
-      dispatch(repostTrack(trackId, RepostSource.TILE)),
+    repostTrack: (trackId: ID, metadata: { is_repost_repost: boolean }) =>
+      dispatch(repostTrack(trackId, RepostSource.TILE, metadata)),
     unrepostTrack: (trackId: ID) =>
       dispatch(undoRepostTrack(trackId, RepostSource.TILE)),
     clickOverflow: (trackId: ID, overflowActions: OverflowAction[]) =>

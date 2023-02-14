@@ -59,6 +59,7 @@ export type TrackTileProps = TileProps & {
   artistName: string
   artistHandle: string
   artistIsVerified: boolean
+  isFeed?: boolean
   ordered?: boolean
   uploading?: boolean
   uploadPercent?: number
