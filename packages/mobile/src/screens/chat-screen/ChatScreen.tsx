@@ -5,9 +5,7 @@ import {
   chatSelectors,
   encodeUrlName,
   Status,
-  hasTail,
-  accountSelectors,
-  cacheUsersSelectors
+  hasTail
 } from '@audius/common'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
@@ -25,10 +23,7 @@ import { ChatMessageListItem } from './ChatMessageListItem'
 
 const { getChatMessages, getOtherChatUsers, getChatMessagesStatus } =
   chatSelectors
-
-const { getUsers } = cacheUsersSelectors
 const { fetchMoreMessages } = chatActions
-const { getUserId } = accountSelectors
 
 const messages = {
   title: 'Messages',
