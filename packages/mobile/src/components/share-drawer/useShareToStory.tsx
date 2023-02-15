@@ -31,6 +31,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import IconWavform from 'app/assets/images/iconWavform.svg'
 import { Button, LinearProgress, Text } from 'app/components/core'
+import { isImageUriSource } from 'app/hooks/useContentNodeImage'
 import { useToast } from 'app/hooks/useToast'
 import { make, track } from 'app/services/analytics'
 import { apiClient } from 'app/services/audius-api-client'
@@ -141,7 +142,9 @@ export const useShareToStory = ({
     stickerLoadedEventEmitter.emit(STICKER_LOADED_EVENT)
   }
   const trackImageUri =
-    (content?.type === 'track' && trackImage?.source?.uri) ?? DEFAULT_IMAGE_URL
+    content?.type === 'track' && isImageUriSource(trackImage?.source)
+      ? trackImage?.source?.uri
+      : DEFAULT_IMAGE_URL
 
   const captureStickerImage = useCallback(async () => {
     if (!isStickerImageLoadedRef.current) {
