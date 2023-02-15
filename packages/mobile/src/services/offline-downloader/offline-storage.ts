@@ -3,25 +3,23 @@ import path from 'path'
 import type {
   Collection,
   CollectionMetadata,
+  ID,
+  Nullable,
   Track,
-  User,
   UserMetadata,
   UserTrackMetadata
 } from '@audius/common'
-import { allSettled, SquareSizes } from '@audius/common'
-import RNFS, { exists, readDir, readFile } from 'react-native-fs'
+import { allSettled } from '@audius/common'
+import RNFetchBlob from 'rn-fetch-blob'
 
-import { store } from 'app/store'
-import {
-  removeCollection,
-  unloadTrack
-} from 'app/store/offline-downloads/slice'
-
-import { DOWNLOAD_REASON_FAVORITES } from './offline-downloader'
+const {
+  fs: { dirs, exists, ls, lstat, mkdir, readFile, unlink, writeFile }
+} = RNFetchBlob
 
 export type OfflineCollection = Collection & { user: UserMetadata }
 
-export const downloadsRoot = path.join(RNFS.CachesDirectoryPath, 'downloads')
+export const downloadsRoot = path.join(dirs.DocumentDir, 'downloads')
+const IMAGE_FILENAME = '1000x1000.jpg'
 
 export const getPathFromRoot = (string: string) => {
   return string.replace(downloadsRoot, '~')
@@ -52,14 +50,14 @@ export const getLocalCollectionJsonPath = (collectionId: string) => {
 export const writeCollectionJson = async (
   collectionId: string,
   collectionToWrite: CollectionMetadata,
-  user: User
+  user: UserMetadata
 ) => {
   const pathToWrite = getLocalCollectionJsonPath(collectionId)
   if (await exists(pathToWrite)) {
-    await RNFS.unlink(pathToWrite)
+    await unlink(pathToWrite)
   }
-  await RNFS.mkdir(getLocalCollectionDir(collectionId))
-  await RNFS.write(
+  await mkdirSafe(getLocalCollectionDir(collectionId))
+  await writeFile(
     pathToWrite,
     JSON.stringify({
       ...collectionToWrite,
@@ -68,28 +66,20 @@ export const writeCollectionJson = async (
   )
 }
 
-// Special case for favorites which is not a real collection with metadata
-export const writeFavoritesCollectionJson = async () => {
-  const pathToWrite = getLocalCollectionDir(DOWNLOAD_REASON_FAVORITES)
-  if (await exists(pathToWrite)) {
-    await RNFS.unlink(pathToWrite)
-  }
-  RNFS.mkdir(pathToWrite)
-}
-
 export const getCollectionJson = async (
   collectionId: string
-): Promise<OfflineCollection> => {
+): Promise<Nullable<OfflineCollection>> => {
   try {
+    const isVerified = await verifyCollection(collectionId)
+    if (!isVerified) return null
+
     const collectionJson = await readFile(
-      getLocalCollectionJsonPath(collectionId)
+      getLocalCollectionJsonPath(collectionId),
+      'utf8'
     )
     return JSON.parse(collectionJson)
   } catch (e) {
-    if (e instanceof SyntaxError) {
-      purgeDownloadedCollection(collectionId)
-    }
-    return Promise.reject(e)
+    return null
   }
 }
 
@@ -98,16 +88,7 @@ export const getOfflineCollections = async () => {
   if (!(await exists(collectionsDir))) {
     return []
   }
-  const files = await readDir(collectionsDir)
-  return files.filter((file) => file.isDirectory()).map((file) => file.name)
-}
-
-export const purgeDownloadedCollection = async (collectionId: string) => {
-  const collectionDir = getLocalCollectionDir(collectionId)
-  if (!(await exists(collectionDir))) return
-  await RNFS.unlink(collectionDir)
-  store.dispatch(removeCollection({ collectionId, isFavoritesDownload: true }))
-  store.dispatch(removeCollection({ collectionId, isFavoritesDownload: false }))
+  return await ls(collectionsDir)
 }
 
 // Track Json
@@ -118,47 +99,29 @@ export const getLocalTrackJsonPath = (trackId: string) => {
 
 // Cover Art
 
-export const getLocalCollectionCoverArtDestination = (
-  collectionId: string,
-  uri: string
-) => {
+export const getCollectionCoverArtPath = (collectionId: ID) => {
   return path.join(
-    getLocalCollectionDir(collectionId),
-    getArtFileNameFromUri(uri)
+    getLocalCollectionDir(collectionId.toString()),
+    IMAGE_FILENAME
   )
 }
 
-export const getLocalCollectionCoverArtPath = (
-  collectionId: string,
-  size: string
-) => {
-  return path.join(getLocalCollectionDir(collectionId), `${size}.jpg`)
+export const getLocalCollectionCoverArtPath = (collectionId: string) => {
+  return path.join(getLocalCollectionDir(collectionId), IMAGE_FILENAME)
 }
 
-export const getLocalTrackCoverArtDestination = (
-  trackId: string,
-  uri: string
-) => {
-  return path.join(getLocalTrackDir(trackId), getArtFileNameFromUri(uri))
+export const getLocalTrackCoverArtDestination = (trackId: ID) => {
+  return path.join(getLocalTrackDir(trackId.toString()), IMAGE_FILENAME)
 }
 
-export const getLocalTrackCoverArtPath = (trackId: string, size: string) => {
-  return path.join(getLocalTrackDir(trackId), `${size}.jpg`)
-}
-
-export const getArtFileNameFromUri = (uri: string) => {
-  // This should be "150x150.jpg" or similar
-  return uri.split('/').slice(-1)[0]
+export const getLocalTrackCoverArtPath = (trackId: string) => {
+  return path.join(getLocalTrackDir(trackId), IMAGE_FILENAME)
 }
 
 // Audio
 
-export const getLocalAudioPath = (trackId: string): string => {
-  return path.join(getLocalTrackDir(trackId), `${trackId}.mp3`)
-}
-
-export const isAudioAvailableOffline = async (trackId: string) => {
-  return await exists(getLocalAudioPath(trackId))
+export const getLocalAudioPath = (trackId: ID): string => {
+  return path.join(getLocalTrackDir(trackId.toString()), `${trackId}.mp3`)
 }
 
 // Storage management
@@ -168,55 +131,64 @@ export const listTracks = async (): Promise<string[]> => {
   if (!(await exists(tracksDir))) {
     return []
   }
-  const files = await readDir(tracksDir)
-  return files.filter((file) => file.isDirectory()).map((file) => file.name)
+  return await ls(tracksDir)
 }
 
 export const getTrackJson = async (
   trackId: string
-): Promise<Track & UserTrackMetadata> => {
+): Promise<Nullable<Track & UserTrackMetadata>> => {
   try {
-    const trackJson = await readFile(getLocalTrackJsonPath(trackId))
+    const isVerified = await verifyTrack(trackId)
+    if (!isVerified) return null
+
+    const trackJson = await readFile(getLocalTrackJsonPath(trackId), 'utf8')
     return JSON.parse(trackJson)
   } catch (e) {
-    if (e instanceof SyntaxError) {
-      purgeDownloadedTrack(trackId)
-    }
-    return Promise.reject(e)
+    return null
   }
 }
 
-export const writeTrackJson = async (
-  trackId: string,
-  trackToWrite: UserTrackMetadata
-) => {
-  const pathToWrite = getLocalTrackJsonPath(trackId)
-  if (await exists(pathToWrite)) {
-    await RNFS.unlink(pathToWrite)
-  }
-  await RNFS.write(pathToWrite, JSON.stringify(trackToWrite))
-}
-
+// TODO: Update this to verify that the JSON can be parsed properly?
 export const verifyTrack = async (
   trackId: string,
   expectTrue?: boolean
 ): Promise<boolean> => {
-  const audioFile = exists(getLocalAudioPath(trackId))
+  const audioFile = exists(getLocalAudioPath(parseInt(trackId, 10)))
   const jsonFile = exists(getLocalTrackJsonPath(trackId))
-  const artFiles = Object.values(SquareSizes).map((size) =>
-    exists(path.join(getLocalTrackDir(trackId), `${size}.jpg`))
-  )
+  const artFile = exists(path.join(getLocalTrackDir(trackId), IMAGE_FILENAME))
 
-  const results = await allSettled([audioFile, jsonFile, ...artFiles])
+  const results = await allSettled([audioFile, jsonFile, artFile])
   const booleanResults = results.map(
     (result) => result.status === 'fulfilled' && !!result.value
   )
-  const [audioExists, jsonExists, ...artExists] = booleanResults
+  const [audioExists, jsonExists, artExists] = booleanResults
 
   if (expectTrue) {
     !audioExists && console.warn(`Missing audio for ${trackId}`)
     !jsonExists && console.warn(`Missing json for ${trackId}`)
-    !artExists?.length && console.warn(`Missing art for ${trackId}`)
+    !artExists && console.warn(`Missing art for ${trackId}`)
+  }
+
+  return booleanResults.every((result) => result)
+}
+
+// TODO: Update this to verify that the JSON can be parsed properly?
+export const verifyCollection = async (
+  collectionId: string,
+  expectTrue?: boolean
+) => {
+  const artFile = exists(getLocalCollectionCoverArtPath(collectionId))
+  const jsonFile = exists(getLocalCollectionJsonPath(collectionId))
+
+  const results = await allSettled([artFile, jsonFile])
+  const booleanResults = results.map(
+    (result) => result.status === 'fulfilled' && !!result.value
+  )
+  const [artExists, jsonExists] = booleanResults
+
+  if (expectTrue) {
+    !artExists && console.warn(`Missing art for ${collectionId}`)
+    !jsonExists && console.warn(`Missing json for ${collectionId}`)
   }
 
   return booleanResults.every((result) => result)
@@ -228,8 +200,8 @@ export const purgeAllDownloads = async (withLogs?: boolean) => {
       console.log(`Before purge:`)
     }
     await readDirRec(downloadsRoot)
-    await RNFS.unlink(downloadsRoot)
-    await RNFS.mkdir(downloadsRoot)
+    await unlink(downloadsRoot)
+    await mkdirSafe(downloadsRoot)
     if (withLogs) {
       console.log(`After purge:`)
     }
@@ -237,27 +209,20 @@ export const purgeAllDownloads = async (withLogs?: boolean) => {
   }
 }
 
-export const purgeDownloadedTrack = async (trackId: string) => {
-  const trackDir = getLocalTrackDir(trackId)
-  if (!(await exists(trackDir))) return
-  await RNFS.unlink(trackDir)
-  store.dispatch(unloadTrack(trackId))
-}
-
 /** Debugging method to read cached files */
 export const readDirRec = async (path: string) => {
-  const files = await RNFS.readDir(path)
+  const files = await lstat(path)
   if (files.length === 0) {
     console.log(`${getPathFromRoot(path)} - empty`)
   }
   files.forEach((item) => {
-    if (item.isFile()) {
+    if (item.type === 'file') {
       console.log(`${getPathFromRoot(item.path)} - ${item.size} bytes`)
     }
   })
   await Promise.all(
     files.map(async (item) => {
-      if (item.isDirectory()) {
+      if (item.type === 'directory') {
         await readDirRec(item.path)
       }
     })
@@ -265,3 +230,9 @@ export const readDirRec = async (path: string) => {
 }
 
 export const readDirRoot = async () => await readDirRec(downloadsRoot)
+
+export const mkdirSafe = async (path: string) => {
+  if (!(await exists(path))) {
+    return await mkdir(path)
+  }
+}

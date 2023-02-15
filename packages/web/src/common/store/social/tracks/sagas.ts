@@ -48,6 +48,9 @@ export function* repostTrackAsync(
     yield* put(make(Name.CREATE_ACCOUNT_OPEN, { source: 'social action' }))
     return
   }
+  if (userId === action.trackId) {
+    return
+  }
 
   // Increment the repost count on the user
   const user = yield* select(getUser, { id: userId })
@@ -192,6 +195,9 @@ export function* undoRepostTrackAsync(
     yield* put(make(Name.CREATE_ACCOUNT_OPEN, { source: 'social action' }))
     return
   }
+  if (userId === action.trackId) {
+    return
+  }
 
   // Decrement the repost count
   const user = yield* select(getUser, { id: userId })
@@ -303,6 +309,9 @@ export function* saveTrackAsync(
     yield* put(signOnActions.showRequiresAccountModal())
     yield* put(signOnActions.openSignOn(false))
     yield* put(make(Name.CREATE_ACCOUNT_OPEN, { source: 'social action' }))
+    return
+  }
+  if (userId === action.trackId) {
     return
   }
 
@@ -445,6 +454,9 @@ export function* unsaveTrackAsync(
     yield* put(make(Name.CREATE_ACCOUNT_OPEN, { source: 'social action' }))
     return
   }
+  if (userId === action.trackId) {
+    return
+  }
 
   // Decrement the save count
   const user = yield* select(getUser, { id: userId })
@@ -467,6 +479,7 @@ export function* unsaveTrackAsync(
 
   const tracks = yield* select(getTracks, { ids: [action.trackId] })
   const track = tracks[action.trackId]
+
   if (track) {
     const eagerlyUpdatedMetadata: Partial<Track> = {
       has_current_user_saved: false,
@@ -550,29 +563,22 @@ export function* confirmUnsaveTrack(trackId: ID, user: User) {
 }
 
 export function* watchSetArtistPick() {
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* takeEvery(
     socialActions.SET_ARTIST_PICK,
     function* (action: ReturnType<typeof socialActions.setArtistPick>) {
       yield* waitForWrite()
       const userId = yield* select(getUserId)
 
-      // Dual write to the artist_pick_track_id field in the
-      // users table in the discovery DB. Part of the migration
-      // of the artist pick feature from the identity service
-      // to the entity manager in discovery.
       yield* put(
         cacheActions.update(Kind.USERS, [
           {
             id: userId,
             metadata: {
-              artist_pick_track_id: action.trackId,
-              _artist_pick: action.trackId
+              artist_pick_track_id: action.trackId
             }
           }
         ])
       )
-      yield* call(audiusBackendInstance.setArtistPick, action.trackId)
       const user = yield* call(waitForValue, getUser, { id: userId })
       yield fork(updateProfileAsync, { metadata: user })
 
@@ -583,27 +589,20 @@ export function* watchSetArtistPick() {
 }
 
 export function* watchUnsetArtistPick() {
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* takeEvery(socialActions.UNSET_ARTIST_PICK, function* (action) {
     yield* waitForWrite()
     const userId = yield* select(getUserId)
 
-    // Dual write to the artist_pick_track_id field in the
-    // users table in the discovery DB. Part of the migration
-    // of the artist pick feature from the identity service
-    // to the entity manager in discovery.
     yield* put(
       cacheActions.update(Kind.USERS, [
         {
           id: userId,
           metadata: {
-            artist_pick_track_id: null,
-            _artist_pick: null
+            artist_pick_track_id: null
           }
         }
       ])
     )
-    yield* call(audiusBackendInstance.setArtistPick)
     const user = yield* call(waitForValue, getUser, { id: userId })
     yield fork(updateProfileAsync, { metadata: user })
 

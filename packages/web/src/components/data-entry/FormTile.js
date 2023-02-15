@@ -22,6 +22,7 @@ import TextArea from 'components/data-entry/TextArea'
 import LabeledButton from 'components/labeled-button/LabeledButton'
 import Dropdown from 'components/navigation/Dropdown'
 import ConnectedRemixSettingsModal from 'components/remix-settings-modal/ConnectedRemixSettingsModal'
+import { RemixSettingsModalTrigger } from 'components/remix-settings-modal/RemixSettingsModalTrigger'
 import SourceFilesModal from 'components/source-files-modal/SourceFilesModal'
 import Switch from 'components/switch/Switch'
 import TrackAvailabilityModal from 'components/track-availability-modal/TrackAvailabilityModal'
@@ -33,6 +34,7 @@ import { resizeImage } from 'utils/imageProcessingUtil'
 import { moodMap } from 'utils/moods'
 
 import styles from './FormTile.module.css'
+
 const {
   ALL_RIGHTS_RESERVED_TYPE,
   computeLicense,
@@ -52,7 +54,6 @@ const messages = {
   hidden: 'Hidden',
   thisIsARemix: 'This is a Remix',
   editRemix: 'Edit',
-  hideRemixes: 'Hide Remixes on Track Page',
   trackVisibility: 'Track Visibility',
   availability: 'Availability'
 }
@@ -80,7 +81,9 @@ const TrackAvailabilityButton = (props) => {
         name='setUnlisted'
         text={props.availabilityButtonTitle}
         label={messages.availability}
-        className={styles.trackAvailabilityButton}
+        className={cn(styles.trackAvailabilityButton, {
+          [styles.error]: props.error
+        })}
         textClassName={styles.trackAvailabilityButtonText}
         onClick={() => {
           props.setIsAvailabilityModalOpen(true)
@@ -118,6 +121,7 @@ const TrackAvailabilityModalContainer = (props) => {
         onClose={() => props.setIsAvailabilityModalOpen(false)}
         didUpdateState={props.didUpdateAvailabilityState}
         metadataState={props.availabilityState}
+        isRemix={props.isRemix}
       />
     )
   }
@@ -134,6 +138,16 @@ const TrackAvailabilityModalContainer = (props) => {
 }
 
 const BasicForm = (props) => {
+  const { isEnabled: isPremiumContentEnabled } = useFlag(
+    FeatureFlags.PREMIUM_CONTENT_ENABLED
+  )
+  const {
+    remixSettingsModalVisible,
+    setRemixSettingsModalVisible,
+    isRemix,
+    setIsRemix
+  } = props
+
   const onPreviewClick = props.playing
     ? props.onStopPreview
     : props.onPlayPreview
@@ -240,16 +254,16 @@ const BasicForm = (props) => {
     )
   }
 
-  const [remixSettingsModalVisible, setRemixSettingsModalVisible] =
-    useState(false)
-  const [isRemix, setIsRemix] = useState(!!props.defaultFields.remix_of)
-
   const renderRemixSettingsModal = () => {
     return (
       <ConnectedRemixSettingsModal
         initialTrackId={
           props.defaultFields.remix_of?.tracks?.[0]?.parent_track_id
         }
+        isPremium={props.defaultFields.is_premium ?? false}
+        premiumConditions={props.defaultFields.premium_conditions ?? null}
+        isRemix={isRemix}
+        setIsRemix={setIsRemix}
         isOpen={remixSettingsModalVisible}
         onClose={(trackId) => {
           if (!trackId) {
@@ -263,21 +277,22 @@ const BasicForm = (props) => {
           }
           setRemixSettingsModalVisible(false)
         }}
+        onChangeField={props.onChangeField}
       />
     )
   }
 
   const { onChangeField } = props
   const handleRemixToggle = useCallback(() => {
-    setIsRemix((isRemix) => !isRemix)
+    setIsRemix(!isRemix)
     if (!isRemix) setRemixSettingsModalVisible(true)
     if (isRemix) {
       onChangeField('remix_of', null)
     }
-  }, [isRemix, setIsRemix, onChangeField])
+  }, [isRemix, setIsRemix, setRemixSettingsModalVisible, onChangeField])
 
   const renderRemixSwitch = () => {
-    const shouldRender = props.type === 'track'
+    const shouldRender = props.type === 'track' && !isPremiumContentEnabled
     return (
       shouldRender && (
         <div className={styles.remixSwitch}>
@@ -374,12 +389,23 @@ const BasicForm = (props) => {
       {renderBasicForm()}
       {renderBottomMenu()}
       {renderSourceFilesModal()}
-      {renderRemixSettingsModal()}
+      {!isPremiumContentEnabled && renderRemixSettingsModal()}
     </div>
   )
 }
 
 const AdvancedForm = (props) => {
+  const { isEnabled: isPremiumContentEnabled } = useFlag(
+    FeatureFlags.PREMIUM_CONTENT_ENABLED
+  )
+
+  const {
+    remixSettingsModalVisible,
+    setRemixSettingsModalVisible,
+    isRemix,
+    setIsRemix
+  } = props
+
   let availabilityButtonTitle
   let availabilityState = {
     is_premium: props.defaultFields.is_premium,
@@ -465,7 +491,37 @@ const AdvancedForm = (props) => {
         true,
       remixes: hideRemixes
     })
-    setHideRemixes((hideRemixes) => !hideRemixes)
+    setHideRemixes(!hideRemixes)
+  }
+
+  const renderRemixSettingsModal = () => {
+    return (
+      <ConnectedRemixSettingsModal
+        initialTrackId={
+          props.defaultFields.remix_of?.tracks?.[0]?.parent_track_id
+        }
+        isPremium={props.defaultFields.is_premium ?? false}
+        premiumConditions={props.defaultFields.premium_conditions ?? null}
+        isRemix={isRemix}
+        setIsRemix={setIsRemix}
+        isOpen={remixSettingsModalVisible}
+        onClose={(trackId) => {
+          if (!trackId) {
+            setIsRemix(false)
+            props.onChangeField('remix_of', null)
+          } else {
+            props.onChangeField(
+              'remix_of',
+              createRemixOfMetadata({ parentTrackId: trackId })
+            )
+          }
+          setRemixSettingsModalVisible(false)
+        }}
+        onChangeField={props.onChangeField}
+        hideRemixes={hideRemixes}
+        onToggleHideRemixes={didToggleHideRemixesState}
+      />
+    )
   }
 
   return (
@@ -477,6 +533,7 @@ const AdvancedForm = (props) => {
           setIsAvailabilityModalOpen={setIsAvailabilityModalOpen}
           didUpdateAvailabilityState={didUpdateAvailabilityState}
           availabilityState={availabilityState}
+          isRemix={!!props.defaultFields.remix_of?.tracks?.length}
         />
       )}
       <div
@@ -491,6 +548,7 @@ const AdvancedForm = (props) => {
             <TrackAvailabilityButton
               availabilityButtonTitle={availabilityButtonTitle}
               setIsAvailabilityModalOpen={setIsAvailabilityModalOpen}
+              error={props.invalidFields.premium_conditions}
             />
           )}
           <div className={styles.datePicker}>
@@ -504,17 +562,14 @@ const AdvancedForm = (props) => {
               }
             />
           </div>
-          {props.type === 'track' ? (
-            <div className={styles.hideRemixes}>
-              <div className={styles.hideRemixesText}>
-                {messages.hideRemixes}
-              </div>
-              <Switch
-                isOn={hideRemixes}
-                handleToggle={didToggleHideRemixesState}
-              />
-            </div>
-          ) : (
+          {props.type === 'track' && (
+            <RemixSettingsModalTrigger
+              onClick={() => props.setRemixSettingsModalVisible(true)}
+              hideRemixes={hideRemixes}
+              handleToggle={didToggleHideRemixesState}
+            />
+          )}
+          {props.type !== 'track' && (
             <LabeledInput
               label='UPC'
               placeholder='e.g. 123456789012'
@@ -599,6 +654,7 @@ const AdvancedForm = (props) => {
           <br />
           {props.licenseDescription}
         </div>
+        {isPremiumContentEnabled && renderRemixSettingsModal()}
       </div>
     </>
   )
@@ -624,7 +680,10 @@ class FormTile extends Component {
       length: this.props.children ? this.props.children.length : 0
     }).map(Number.call, Number),
 
-    imageProcessingError: false
+    imageProcessingError: false,
+
+    remixSettingsModalVisible: false,
+    isRemix: !!this.props.defaultFields.remix_of
   }
 
   componentDidMount() {
@@ -731,6 +790,14 @@ class FormTile extends Component {
     this.props.onChangeOrder(source.index, destination.index)
   }
 
+  setRemixSettingsModalVisible = (visible) => {
+    this.setState({ remixSettingsModalVisible: visible })
+  }
+
+  setIsRemix = (isRemix) => {
+    this.setState({ isRemix })
+  }
+
   render() {
     const {
       advancedShow,
@@ -739,7 +806,9 @@ class FormTile extends Component {
       imageProcessingError,
       allowAttribution,
       commercialUse,
-      derivativeWorks
+      derivativeWorks,
+      remixSettingsModalVisible,
+      isRemix
     } = this.state
 
     const { licenseType, licenseDescription } = license
@@ -751,6 +820,10 @@ class FormTile extends Component {
           advancedShow={advancedShow}
           onDropArtwork={this.onDropArtwork}
           imageProcessingError={imageProcessingError}
+          remixSettingsModalVisible={remixSettingsModalVisible}
+          setRemixSettingsModalVisible={this.setRemixSettingsModalVisible}
+          isRemix={isRemix}
+          setIsRemix={this.setIsRemix}
         />
         <AdvancedForm
           {...this.props}
@@ -764,6 +837,10 @@ class FormTile extends Component {
           onSelectAllowAttribution={this.onSelectAllowAttribution}
           onSelectCommercialUse={this.onSelectCommercialUse}
           onSelectDerivativeWorks={this.onSelectDerivativeWorks}
+          remixSettingsModalVisible={remixSettingsModalVisible}
+          setRemixSettingsModalVisible={this.setRemixSettingsModalVisible}
+          isRemix={isRemix}
+          setIsRemix={this.setIsRemix}
         />
         {this.props.children.length > 0 ? (
           <DragDropContext onDragEnd={this.onDragEnd}>

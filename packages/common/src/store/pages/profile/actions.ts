@@ -2,7 +2,7 @@ import { Nullable } from 'utils'
 
 import { ID, User, UserMetadata } from '../../../models'
 
-import { CollectionSortMode } from './types'
+import { CollectionSortMode, FollowType } from './types'
 
 export const FETCH_PROFILE = 'PROFILE/FETCH_PROFILE'
 export const FETCH_PROFILE_SUCCEEDED = 'PROFILE/FETCH_PROFILE_SUCCEEDED'
@@ -88,7 +88,7 @@ export function updateCurrentUserFollows(follow = false, handle: string) {
 }
 
 export function fetchFollowUsers(
-  followerGroup: User[],
+  followerGroup: FollowType,
   limit = 15,
   offset = 0,
   handle: string
@@ -140,13 +140,15 @@ export function setNotificationSubscription(
   userId: ID,
   isSubscribed: boolean,
   update = false,
-  handle?: string
+  handle?: string,
+  onFollow = true
 ) {
   return {
     type: SET_NOTIFICATION_SUBSCRIPTION,
     userId,
     isSubscribed,
     update,
-    handle
+    handle,
+    onFollow
   }
 }

@@ -20,9 +20,15 @@ const formatPlaylistCardSecondaryText = (saves: number, tracks: number) => {
 type CollectionCardProps = {
   collection: Collection
   style?: StyleProp<ViewStyle>
+  /** Override for what number to show as the # of tracks. Optional. */
+  numTracks?: number
 }
 
-export const CollectionCard = ({ collection, style }: CollectionCardProps) => {
+export const CollectionCard = ({
+  collection,
+  numTracks,
+  style
+}: CollectionCardProps) => {
   const navigation = useNavigation()
   const handlePress = useCallback(() => {
     navigation.push('Collection', { id: collection.playlist_id })
@@ -44,11 +50,11 @@ export const CollectionCard = ({ collection, style }: CollectionCardProps) => {
       style={style}
       renderImage={renderImage}
       type='collection'
-      id={collection.playlist_id.toString()}
+      id={collection.playlist_id}
       primaryText={collection.playlist_name}
       secondaryText={formatPlaylistCardSecondaryText(
         collection.save_count,
-        collection.playlist_contents.track_ids.length
+        numTracks ?? collection.playlist_contents.track_ids.length
       )}
       onPress={handlePress}
     />

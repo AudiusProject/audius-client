@@ -6,8 +6,10 @@ import {
   formatDate,
   StringAudio,
   transactionDetailsActions,
-  getContext
+  getContext,
+  Nullable
 } from '@audius/common'
+import type { InAppAudioPurchaseMetadata } from '@audius/common'
 import { AudiusLibs, full } from '@audius/sdk'
 import { call, takeLatest, put } from 'typed-redux-saga'
 
@@ -60,7 +62,7 @@ const purchaseMethods: Record<
 }
 
 const parseTransaction = (tx: full.TransactionDetails): TransactionDetails => {
-  const txType = transactionTypeMap[tx.transaction_type]
+  const txType = transactionTypeMap[tx.transactionType]
   switch (txType) {
     case TransactionType.CHALLENGE_REWARD:
     case TransactionType.TRENDING_REWARD:
@@ -68,7 +70,7 @@ const parseTransaction = (tx: full.TransactionDetails): TransactionDetails => {
         signature: tx.signature,
         transactionType: txType,
         method: challengeMethods[tx.method],
-        date: formatDate(tx.transaction_date),
+        date: formatDate(tx.transactionDate),
         change: tx.change as StringAudio,
         balance: tx.balance as StringAudio,
         metadata: tx.metadata as unknown as string
@@ -77,8 +79,8 @@ const parseTransaction = (tx: full.TransactionDetails): TransactionDetails => {
       return {
         signature: tx.signature,
         transactionType: txType,
-        method: purchaseMethods[tx.transaction_type],
-        date: formatDate(tx.transaction_date),
+        method: purchaseMethods[tx.transactionType],
+        date: formatDate(tx.transactionDate),
         change: tx.change as StringAudio,
         balance: tx.balance as StringAudio,
         metadata: undefined
@@ -89,7 +91,7 @@ const parseTransaction = (tx: full.TransactionDetails): TransactionDetails => {
         signature: tx.signature,
         transactionType: txType,
         method: sendReceiveMethods[tx.method],
-        date: formatDate(tx.transaction_date),
+        date: formatDate(tx.transactionDate),
         change: tx.change as StringAudio,
         balance: tx.balance as StringAudio,
         metadata: tx.metadata as unknown as string
@@ -123,9 +125,8 @@ function* fetchAudioTransactionsAsync() {
       if (!response) {
         return
       }
-      const txDetails: TransactionDetails[] = response.map((tx) =>
-        parseTransaction(tx)
-      )
+      const txDetails: TransactionDetails[] =
+        response.data?.map((tx) => parseTransaction(tx)) ?? []
       const { offset } = action.payload
       yield put(setAudioTransactions({ txDetails, offset }))
       const userIds = txDetails
@@ -151,6 +152,9 @@ function* fetchTransactionMetadata() {
     fetchAudioTransactionMetadata.type,
     function* (action: ReturnType<typeof fetchAudioTransactionMetadata>) {
       const { txDetails } = action.payload
+      if (txDetails.transactionType !== TransactionType.PURCHASE) {
+        return
+      }
       yield* call(waitForLibsInit)
       const libs: AudiusLibs = yield* call(audiusBackendInstance.getAudiusLibs)
       const response = yield* call(
@@ -165,7 +169,7 @@ function* fetchTransactionMetadata() {
           transactionId: txDetails.signature,
           transactionDetails: {
             ...txDetails,
-            metadata: (response as any[])[0].metadata
+            metadata: response as Nullable<InAppAudioPurchaseMetadata>
           }
         })
       )
@@ -196,7 +200,7 @@ function* fetchTransactionsCount() {
     }
     yield put(
       setAudioTransactionsCount({
-        count: response as number
+        count: response.data ?? 0
       })
     )
   })

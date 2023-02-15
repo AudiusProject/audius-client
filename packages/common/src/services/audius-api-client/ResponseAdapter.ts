@@ -38,6 +38,14 @@ export const makeUser = (
     return undefined
   }
 
+  // TODO remove conditional once all DNs are encoding the artist pick ID
+  let decoded_artist_pick_track_id: number | null
+  if (typeof user.artist_pick_track_id === 'string') {
+    decoded_artist_pick_track_id = decodeHashId(user.artist_pick_track_id)
+  } else {
+    decoded_artist_pick_track_id = user.artist_pick_track_id
+  }
+
   const balance = user.balance as StringWei
   const associated_wallets_balance =
     user.associated_wallets_balance as StringWei
@@ -58,6 +66,7 @@ export const makeUser = (
 
   const newUser = {
     ...user,
+    artist_pick_track_id: decoded_artist_pick_track_id,
     balance,
     associated_wallets_balance,
     album_count,
@@ -78,8 +87,7 @@ export const makeUser = (
     // Fields to prune
     id: undefined,
     cover_photo_legacy: undefined,
-    profile_picture_legacy: undefined,
-    artist_pick_track_id: null
+    profile_picture_legacy: undefined
   }
 
   delete newUser.id
@@ -89,16 +97,18 @@ export const makeUser = (
   return newUser
 }
 
-const makeFavorite = (favorite: APIFavorite): Favorite | undefined => {
-  const decodedSaveItemId = decodeHashId(favorite.favorite_item_id)
-  const decodedUserId = decodeHashId(favorite.user_id)
+export const makeFavorite = (favorite: APIFavorite): Favorite | undefined => {
+  const { favorite_item_id, user_id, created_at } = favorite
+  const decodedSaveItemId = decodeHashId(favorite_item_id)
+  const decodedUserId = decodeHashId(user_id)
   if (!decodedSaveItemId || !decodedUserId) {
     return undefined
   }
   return {
     save_item_id: decodedSaveItemId,
     user_id: decodedUserId,
-    save_type: favorite.favorite_type
+    save_type: favorite.favorite_type,
+    created_at
   }
 }
 

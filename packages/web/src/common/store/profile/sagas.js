@@ -517,7 +517,6 @@ function* confirmUpdateProfile(userId, metadata) {
   yield waitForWrite()
   const apiClient = yield getContext('apiClient')
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  const localStorage = yield getContext('localStorage')
   yield put(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.USERS, userId),
@@ -553,8 +552,6 @@ function* confirmUpdateProfile(userId, metadata) {
         return users[0]
       },
       function* (confirmedUser) {
-        // Store the update in local storage so it is correct upon reload
-        yield call([localStorage, 'setAudiusAccountUser'], confirmedUser)
         // Update the cached user so it no longer contains image upload artifacts
         // and contains updated profile picture / cover photo sizes if any
         const newMetadata = {
@@ -622,6 +619,9 @@ function* updateCurrentUserFollows(action) {
   )
 }
 
+// TODO after migrating subscriptions from identity -> discovery remove action.onFollow
+// and only dispatch SET_NOTIFICATION_SUBSCRIPTION when a user manually subscribes/unsubscribes
+// (not on follow)
 function* watchSetNotificationSubscription() {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   yield takeEvery(
@@ -637,10 +637,14 @@ function* watchSetNotificationSubscription() {
 
           // Dual write to discovery. Part of the migration of subscriptions
           // from identity to discovery.
-          if (action.isSubscribed) {
-            yield fork(subscribeToUserAsync, action.userId)
-          } else {
-            yield fork(unsubscribeFromUserAsync, action.userId)
+          // Discovery automatically subscribes on follow so only relay if not a subscribe
+          // on follow.
+          if (!action.onFollow) {
+            if (action.isSubscribed) {
+              yield fork(subscribeToUserAsync, action.userId)
+            } else {
+              yield fork(unsubscribeFromUserAsync, action.userId)
+            }
           }
         } catch (err) {
           const isReachable = yield select(getIsReachable)
