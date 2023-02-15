@@ -140,10 +140,9 @@ export const useShareToStory = ({
     isStickerImageLoadedRef.current = true
     stickerLoadedEventEmitter.emit(STICKER_LOADED_EVENT)
   }
-
   const trackImageUri =
-    (content?.type === 'track' && trackImage?.source?.[2]?.uri) ??
-    DEFAULT_IMAGE_URL
+    (content?.type === 'track' && trackImage?.source?.uri) ?? DEFAULT_IMAGE_URL
+
   const captureStickerImage = useCallback(async () => {
     if (!isStickerImageLoadedRef.current) {
       // Wait for the sticker component and image inside it to load. If this hasn't happened in 5 seconds, assume that it failed.
