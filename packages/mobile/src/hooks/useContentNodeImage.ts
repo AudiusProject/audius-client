@@ -10,6 +10,7 @@ import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 export type ContentNodeImageSource = {
   source: ImageSourcePropType
   handleError: () => void
+  isFallbackImage: boolean
 }
 
 export const isImageUriSource = (
@@ -44,7 +45,7 @@ const createImageSourcesForEndpoints = ({
  * Create all the sources for an image.
  * Includes legacy endpoints and optionally local sources
  */
-const createAllImageSources = ({
+export const createAllImageSources = ({
   cid,
   user,
   endpoints: providedEndpoints,
@@ -120,6 +121,7 @@ type UseContentNodeImageOptions = {
  * @returns {
  *  source: ImageSource
  *  onError: () => void
+ *  isFallbackImage: boolean
  * }
  */
 export const useContentNodeImage = ({
@@ -163,27 +165,25 @@ export const useContentNodeImage = ({
     }
   }, [imageSourceIndex, imageSources])
 
+  const showFallbackImage = useMemo(() => {
+    return !user || !cid || failedToLoad
+  }, [failedToLoad, user, cid])
+
   const source = useMemo(() => {
-    if (!user || !cid || failedToLoad) {
+    if (showFallbackImage) {
       return fallbackImageSource
     }
 
     return imageSources[imageSourceIndex]
-  }, [
-    imageSources,
-    imageSourceIndex,
-    fallbackImageSource,
-    failedToLoad,
-    user,
-    cid
-  ])
+  }, [showFallbackImage, imageSources, imageSourceIndex, fallbackImageSource])
 
   const result = useMemo(
     () => ({
       source,
-      handleError
+      handleError,
+      isFallbackImage: showFallbackImage
     }),
-    [source, handleError]
+    [source, handleError, showFallbackImage]
   )
 
   return result

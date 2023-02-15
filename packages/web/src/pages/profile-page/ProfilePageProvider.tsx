@@ -239,7 +239,6 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     if (!profile) return
     const userId = profile.user_id
     this.props.onUnfollow(userId)
-    this.props.setNotificationSubscription(userId, false)
 
     if (this.props.account) {
       this.props.updateCurrentUserFollows(false)
@@ -1040,20 +1039,34 @@ function mapDispatchToProps(dispatch: Dispatch, props: RouteComponentProps) {
     playUserFeedTrack: (uid: UID) => dispatch(feedActions.play(uid)),
     pauseUserFeedTrack: () => dispatch(feedActions.pause()),
     // Followes
-    fetchFollowUsers: (followGroup: any, limit: number, offset: number) =>
+    fetchFollowUsers: (
+      followerGroup: FollowType,
+      limit: number,
+      offset: number
+    ) =>
       dispatch(
-        profileActions.fetchFollowUsers(followGroup, limit, offset, handleLower)
+        profileActions.fetchFollowUsers(
+          followerGroup,
+          limit,
+          offset,
+          handleLower
+        )
       ),
 
     openCreatePlaylistModal: () =>
       dispatch(createPlaylistModalActions.open(undefined, true)),
-    setNotificationSubscription: (userId: ID, isSubscribed: boolean) =>
+    setNotificationSubscription: (
+      userId: ID,
+      isSubscribed: boolean,
+      onFollow = true
+    ) =>
       dispatch(
         profileActions.setNotificationSubscription(
           userId,
           isSubscribed,
           true,
-          handleLower
+          handleLower,
+          onFollow
         )
       ),
 

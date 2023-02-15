@@ -175,7 +175,7 @@ function* fetchReferrer(action) {
 
 const isRestrictedHandle = (handle) =>
   restrictedHandles.has(handle.toLowerCase())
-const isHandleCharacterCompliant = (handle) => /^[a-zA-Z0-9_]*$/.test(handle)
+const isHandleCharacterCompliant = (handle) => /^[a-zA-Z0-9_.]*$/.test(handle)
 
 function* validateHandle(action) {
   const { handle, isOauthVerified, onValidate } = action
@@ -402,7 +402,7 @@ function* signUp() {
         if (!signOn.useMetaMask && signOn.tikTokId) {
           const { error } = yield call(
             audiusBackendInstance.associateTikTokAccount,
-            handle.toLowerCase(),
+            signOn.tikTokId,
             userId,
             handle
           )

@@ -12,11 +12,11 @@ import {
   chatActions,
   chatSelectors,
   encodeHashId,
-  Status
+  Status,
+  hasTail
 } from '@audius/common'
 import type { ChatMessage, UserChat } from '@audius/sdk'
 import cn from 'classnames'
-import dayjs from 'dayjs'
 import { useDispatch } from 'react-redux'
 
 import { useSelector } from 'common/hooks/useSelector'
@@ -26,7 +26,7 @@ import styles from './ChatMessageList.module.css'
 import { ChatMessageListItem } from './ChatMessageListItem'
 import { StickyScrollList } from './StickyScrollList'
 
-const { fetchMoreMessages, markChatAsRead } = chatActions
+const { fetchMoreMessages, markChatAsRead, setActiveChat } = chatActions
 const {
   getChatMessages,
   getChatMessagesStatus,
@@ -42,7 +42,6 @@ type ChatMessageListProps = ComponentPropsWithoutRef<'div'> & {
   chatId?: string
 }
 
-const MESSAGE_GROUP_THRESHOLD_MINUTES = 2
 const SCROLL_TOP_THRESHOLD = 800
 
 const isScrolledToBottom = (element: HTMLElement) => {
@@ -52,18 +51,6 @@ const isScrolledToBottom = (element: HTMLElement) => {
 
 const isScrolledToTop = (element: HTMLElement) => {
   return element.scrollTop < SCROLL_TOP_THRESHOLD
-}
-
-/**
- * Checks to see if the message was sent within the time threshold for grouping it with the next message
- */
-const hasTail = (message: ChatMessage, newMessage?: ChatMessage) => {
-  if (!newMessage) return true
-  return (
-    message.sender_user_id !== newMessage.sender_user_id ||
-    dayjs(newMessage.created_at).diff(message.created_at, 'minutes') >=
-      MESSAGE_GROUP_THRESHOLD_MINUTES
-  )
 }
 
 /**
@@ -102,13 +89,17 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
         if (chatId && isScrolledToBottom(e.currentTarget)) {
           // Mark chat as read when the user reaches the bottom (saga handles no-op if already read)
           dispatch(markChatAsRead({ chatId }))
-        } else if (
-          chatId &&
-          isScrolledToTop(e.currentTarget) &&
-          status !== Status.LOADING
-        ) {
-          // Fetch more messages when user reaches the top
-          dispatch(fetchMoreMessages({ chatId }))
+          dispatch(setActiveChat({ chatId }))
+        } else {
+          dispatch(setActiveChat({ chatId: null }))
+          if (
+            chatId &&
+            isScrolledToTop(e.currentTarget) &&
+            status !== Status.LOADING
+          ) {
+            // Fetch more messages when user reaches the top
+            dispatch(fetchMoreMessages({ chatId }))
+          }
         }
       },
       [dispatch, chatId, status]
@@ -118,6 +109,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       if (chatId && status === Status.IDLE) {
         // Initial fetch
         dispatch(fetchMoreMessages({ chatId }))
+        dispatch(setActiveChat({ chatId }))
       }
     }, [dispatch, chatId, status])
 

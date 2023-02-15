@@ -14,7 +14,7 @@ import {
   TrackTile,
   LineupTileSkeleton
 } from 'app/components/lineup-tile'
-import { useBecomeReachable } from 'app/hooks/useReachabilityState'
+import { useReachableEffect } from 'app/hooks/useReachabilityEffect'
 import { useScrollToTop } from 'app/hooks/useScrollToTop'
 
 import { Delineator } from './Delineator'
@@ -162,6 +162,8 @@ const LineupTileView = memo(function LineupTileView({
   }
 })
 
+// Using `memo` because FlatList renders these items
+// And we want to avoid a full render when the props haven't changed
 const LineupItemTile = memo(function LineupItemTile({
   item,
   index,
@@ -285,8 +287,8 @@ export const Lineup = ({
         (includeLineupStatus ? status !== Status.LOADING : true)
 
       if (shouldLoadMore || reset) {
-        const _offset = reset ? offset : 0
-        const _page = reset ? page : 0
+        const _offset = reset ? 0 : offset
+        const _page = reset ? 0 : page
         const itemLoadCount = itemCounts.initial + _page * itemCounts.loadMore
 
         if (!reset) {
@@ -330,9 +332,9 @@ export const Lineup = ({
     ]
   )
 
-  useBecomeReachable(
+  useReachableEffect(
     useCallback(() => {
-      if (entries.length > 0 || status === Status.LOADING) return
+      if (status === Status.LOADING) return
       handleLoadMore(true)
       // using the latest creates infinite loop, and we only need the initial state
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -504,6 +506,8 @@ export const Lineup = ({
   const pullToRefreshProps =
     pullToRefresh || refreshProp ? { onRefresh: refresh, refreshing } : {}
 
+  const handleEndReached = useCallback(() => handleLoadMore(), [handleLoadMore])
+
   return (
     <View style={styles.root}>
       <SectionList
@@ -516,7 +520,7 @@ export const Lineup = ({
           lineup.hasMore ? <View style={{ height: 16 }} /> : ListFooterComponent
         }
         ListEmptyComponent={LineupEmptyComponent}
-        onEndReached={handleLoadMore as () => void}
+        onEndReached={handleEndReached}
         onEndReachedThreshold={LOAD_MORE_THRESHOLD}
         sections={sections}
         stickySectionHeadersEnabled={false}

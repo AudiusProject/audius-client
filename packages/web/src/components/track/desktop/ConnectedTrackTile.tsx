@@ -17,14 +17,14 @@ import {
   accountSelectors,
   cacheTracksSelectors,
   cacheUsersSelectors,
-  premiumContentSelectors,
   tracksSocialActions,
   shareModalUIActions,
-  playerSelectors
+  playerSelectors,
+  usePremiumContentAccess
 } from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
-import { connect, useSelector } from 'react-redux'
+import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
@@ -61,7 +61,6 @@ const { getUserFromTrack } = cacheUsersSelectors
 const { saveTrack, unsaveTrack, repostTrack, undoRepostTrack } =
   tracksSocialActions
 const { getUserHandle } = accountSelectors
-const { getPremiumTrackSignatureMap } = premiumContentSelectors
 
 type OwnProps = {
   uid: UID
@@ -111,6 +110,7 @@ const ConnectedTrackTile = memo(
     isTrending,
     showRankIcon
   }: ConnectedTrackTileProps) => {
+    const trackWithFallback = getTrackWithFallback(track)
     const {
       is_delete,
       is_unlisted: isUnlisted,
@@ -130,10 +130,10 @@ const ConnectedTrackTile = memo(
       _cover_art_sizes,
       play_count,
       duration
-    } = getTrackWithFallback(track)
+    } = trackWithFallback
 
     const {
-      _artist_pick,
+      artist_pick_track_id,
       name,
       handle,
       is_deactivated: isOwnerDeactivated
@@ -143,11 +143,11 @@ const ConnectedTrackTile = memo(
     const isTrackBuffering = isActive && isBuffering
     const isTrackPlaying = isActive && isPlaying
     const isOwner = handle === userHandle
-    const isArtistPick = showArtistPick && _artist_pick === trackId
+    const isArtistPick = showArtistPick && artist_pick_track_id === trackId
 
-    const premiumTrackSignatureMap = useSelector(getPremiumTrackSignatureMap)
-    const hasPremiumContentSignature = !!premiumTrackSignatureMap[trackId]
-    const doesUserHaveAccess = !isPremium || hasPremiumContentSignature
+    const { isUserAccessTBD, doesUserHaveAccess } =
+      usePremiumContentAccess(trackWithFallback)
+    const loading = isLoading || isUserAccessTBD
 
     const menuRef = useRef<HTMLDivElement>(null)
 
@@ -163,10 +163,10 @@ const ConnectedTrackTile = memo(
 
     const [artworkLoaded, setArtworkLoaded] = useState(false)
     useEffect(() => {
-      if (artworkLoaded && !isLoading && hasLoaded) {
+      if (artworkLoaded && !loading && hasLoaded) {
         hasLoaded(index)
       }
-    }, [artworkLoaded, hasLoaded, index, isLoading])
+    }, [artworkLoaded, hasLoaded, index, loading])
 
     const renderImage = () => {
       const artworkProps = {
@@ -177,8 +177,8 @@ const ConnectedTrackTile = memo(
         isBuffering: isTrackBuffering,
         isPlaying: isTrackPlaying,
         artworkIconClassName: styles.artworkIcon,
-        showArtworkIcon: !isLoading,
-        showSkeleton: isLoading,
+        showArtworkIcon: !loading,
+        showSkeleton: loading,
         callback: () => setArtworkLoaded(true),
         label: `${title} by ${name}`,
         doesUserHaveAccess
@@ -345,7 +345,7 @@ const ConnectedTrackTile = memo(
     const userName = renderUserName()
 
     const disableActions = false
-    const showSkeleton = isLoading
+    const showSkeleton = loading
 
     return (
       <Draggable
@@ -367,7 +367,7 @@ const ConnectedTrackTile = memo(
           isPremium={isPremium}
           premiumConditions={premiumConditions}
           doesUserHaveAccess={doesUserHaveAccess}
-          isLoading={isLoading}
+          isLoading={loading}
           isDarkMode={isDarkMode()}
           isMatrixMode={isMatrix()}
           listenCount={play_count}
@@ -382,7 +382,7 @@ const ConnectedTrackTile = memo(
           fieldVisibility={fieldVisibility}
           containerClassName={cn(styles.container, {
             [containerClassName!]: !!containerClassName,
-            [styles.loading]: isLoading,
+            [styles.loading]: loading,
             [styles.active]: isActive
           })}
           onClickTitle={onClickTitle}
@@ -393,6 +393,7 @@ const ConnectedTrackTile = memo(
           isTrending={isTrending}
           showRankIcon={showRankIcon}
           permalink={permalink}
+          trackId={trackId}
           isTrack
         />
       </Draggable>
