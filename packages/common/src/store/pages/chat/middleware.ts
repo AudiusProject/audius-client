@@ -20,13 +20,14 @@ export const chatMiddleware =
     let closeListener: ChatEvents['close'] | null = null
 
     return (next) => (action) => {
-      if (connect.match(action)) {
-        console.log('Chat middleware attaching')
-        audiusSdk().then((sdk) => {
+      let hasConnected = false
+      if (connect.match(action) && !hasConnected) {
+        console.debug('[chats] Listening...')
+        hasConnected = true
+        const fn = async () => {
+          const sdk = await audiusSdk()
           openListener = () => {
-            console.log(
-              'Chat middleware WebSocket opened. Listening for chats...'
-            )
+            console.debug('[chats] WebSocket opened. Listening for chats...')
           }
           messageListener = ({ chatId, message }) => {
             store.dispatch(addMessage({ chatId, message }))
@@ -42,7 +43,7 @@ export const chatMiddleware =
             )
           }
           closeListener = () => {
-            console.log('Chat middleware WebSocket closed. Reconnecting...')
+            console.debug('[chats] WebSocket closed. Reconnecting...')
             sdk.chats.listen()
           }
           sdk.chats.addEventListener('open', openListener)
@@ -50,10 +51,13 @@ export const chatMiddleware =
           sdk.chats.addEventListener('reaction', reactionListener)
           sdk.chats.addEventListener('close', closeListener)
           return sdk.chats.listen()
-        })
-      } else if (disconnect.match(action)) {
-        console.log('Chat middleware detaching')
-        audiusSdk().then((sdk) => {
+        }
+        fn()
+      } else if (disconnect.match(action) && hasConnected) {
+        console.debug('[chats] Unlistening...')
+        hasConnected = false
+        const fn = async () => {
+          const sdk = await audiusSdk()
           if (openListener) {
             sdk.chats.removeEventListener('open', openListener)
           }
@@ -66,7 +70,8 @@ export const chatMiddleware =
           if (closeListener) {
             sdk.chats.removeEventListener('close', closeListener)
           }
-        })
+        }
+        fn()
       }
       return next(action)
     }
