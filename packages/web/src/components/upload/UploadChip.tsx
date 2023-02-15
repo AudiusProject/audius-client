@@ -18,11 +18,17 @@ const messages = {
 
 type UploadChipProps = {
   type?: 'track' | 'album' | 'playlist'
-  // nav: For display in a nav-like column
-  // card: Looks like a 'Card'
-  // tile: Looks like a 'TrackTile'
+  /**
+   * nav: For display in a nav-like column
+   *
+   * card: Looks like a 'Card'
+   *
+   * tile: Looks like a 'TrackTile'
+   */
   variant?: 'nav' | 'card' | 'tile'
-  // Is this upload the user's first of this type
+  /**
+   * Is this upload the user's first of this type
+   * */
   isFirst?: boolean
   onClick: () => void
   isArtist?: boolean
