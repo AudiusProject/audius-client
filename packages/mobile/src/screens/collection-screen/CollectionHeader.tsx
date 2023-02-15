@@ -165,7 +165,6 @@ const OfflineCollectionHeader = (props: OfflineCollectionHeaderProps) => {
   )
 
   const showDownloadSwitchAndIndicator =
-    downloadStatus ||
     collection.has_current_user_saved ||
     collection.playlist_owner_id === currentUserId
 
