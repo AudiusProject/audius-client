@@ -4,7 +4,8 @@ import {
   useCallback,
   UIEvent,
   useEffect,
-  forwardRef
+  forwardRef,
+  useRef
 } from 'react'
 
 import {
@@ -15,7 +16,7 @@ import {
   Status,
   hasTail
 } from '@audius/common'
-import type { ChatMessage, UserChat } from '@audius/sdk'
+import type { ChatMessage } from '@audius/sdk'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
@@ -54,18 +55,30 @@ const isScrolledToTop = (element: HTMLElement) => {
 }
 
 /**
- * Checks if the current message is the first unread message in the given chat
- * Used to render the new messages separator indicator
+ * Checks if the current message:
+ * - Is the first unread message
+ * - Is by a different user than the current one
+ * - Is at the index that matches the unread count (ie there's been no new messages since)
  */
-const isFirstUnread = (
-  chat: UserChat,
-  message: ChatMessage,
-  currentUserId: string | null,
-  prevMessage?: ChatMessage
-) =>
-  message.created_at > chat.last_read_at &&
-  (!prevMessage || prevMessage.created_at <= chat.last_read_at) &&
-  message.sender_user_id !== currentUserId
+const shouldRenderUnreadIndicator = (
+  unreadCount: number,
+  lastReadAt: string | undefined,
+  currentMessageIndex: number,
+  messages: ChatMessage[],
+  currentUserId: string | null
+) => {
+  if (unreadCount === 0 || !lastReadAt) {
+    return false
+  }
+  const message = messages[currentMessageIndex]
+  const prevMessage = messages[currentMessageIndex + 1]
+  const isUnread = message.created_at > lastReadAt
+  const isPreviousMessageUnread =
+    prevMessage && prevMessage.created_at > lastReadAt
+  const isAuthor = message.sender_user_id === currentUserId
+  const isOutdated = currentMessageIndex > unreadCount - 1
+  return isUnread && !isPreviousMessageUnread && !isAuthor && !isOutdated
+}
 
 export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
   (props, forwardedRef) => {
@@ -83,6 +96,22 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     const chat = useSelector((state) => getChat(state, chatId))
     const userId = useSelector(accountSelectors.getUserId)
     const currentUserId = encodeHashId(userId)
+
+    // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
+    // Using a ref instead of state here to prevent unwanted flickers.
+    // The chat selector will trigger the rerenders necessary.
+    const unreadIndicatorRef = useRef({
+      chat_id: chat?.chat_id,
+      last_read_at: chat?.last_read_at,
+      unread_message_count: chat?.unread_message_count
+    })
+    if (chat && chatId !== unreadIndicatorRef.current.chat_id) {
+      // Update the unread indicator when chatId changes
+      unreadIndicatorRef.current = chat
+    } else if (chat && chat.unread_message_count > 0) {
+      // Update the unread indicator when new messages come, but _not_ when messages are marked as read
+      unreadIndicatorRef.current = chat
+    }
 
     const handleScroll = useCallback(
       (e: UIEvent<HTMLDivElement>) => {
@@ -133,20 +162,20 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
                   hasTail={hasTail(message, chatMessages[i - 1])}
                 />
                 {/* 
-              The separator has to come after the message to appear before it, 
-              since the message list order is reversed in CSS
-            */}
-                {chat &&
-                chat.unread_message_count &&
-                isFirstUnread(
-                  chat,
-                  message,
-                  currentUserId,
-                  chatMessages[i + 1]
+                  The separator has to come after the message to appear above it, 
+                  since the message list order is reversed in CSS
+                */}
+                {shouldRenderUnreadIndicator(
+                  unreadIndicatorRef.current.unread_message_count ?? 0,
+                  unreadIndicatorRef.current.last_read_at,
+                  i,
+                  chatMessages,
+                  currentUserId
                 ) ? (
                   <div className={styles.separator}>
                     <span className={styles.tag}>
-                      {chat.unread_message_count} {messages.newMessages}
+                      {unreadIndicatorRef.current.unread_message_count}{' '}
+                      {messages.newMessages}
                     </span>
                   </div>
                 ) : null}
