@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 import {
   explorePageActions,
   explorePageSelectors,
@@ -9,7 +11,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { ProfileList } from 'app/components/profile-list'
 
 import { TabInfo } from '../components/TabInfo'
-import { useEffect } from 'react'
 const { getExploreArtists, getExploreStatus, getArtistsStatus } =
   explorePageSelectors
 
@@ -29,7 +30,7 @@ export const ArtistsTab = () => {
     if (exploreStatus === Status.SUCCESS) {
       dispatch(fetchProfiles)
     }
-  }, [exploreStatus])
+  }, [exploreStatus, dispatch])
 
   return (
     <ProfileList

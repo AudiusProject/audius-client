@@ -1,17 +1,18 @@
+import { useEffect } from 'react'
+
 import {
   cacheUsersActions,
   profilePageActions,
   profilePageSelectors,
   Status
 } from '@audius/common'
+import { useIsFocused } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { CollectionList } from 'app/components/collection-list/CollectionList'
 
 import { EmptyProfileTile } from './EmptyProfileTile'
 import { useSelectProfile } from './selectors'
-import { useEffect } from 'react'
-import { useIsFocused } from '@react-navigation/native'
 const { getProfileAlbums, getCollectionsStatus } = profilePageSelectors
 const { fetchUserCollections } = cacheUsersActions
 const { fetchCollectionsSucceded } = profilePageActions

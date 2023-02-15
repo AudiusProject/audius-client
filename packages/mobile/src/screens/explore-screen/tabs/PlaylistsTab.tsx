@@ -1,17 +1,16 @@
+import { useEffect } from 'react'
+
 import {
   Status,
   explorePageSelectors,
   useProxySelector,
-  cacheCollectionsActions,
   explorePageActions
 } from '@audius/common'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 
 import { CollectionList } from 'app/components/collection-list'
 
 import { TabInfo } from '../components/TabInfo'
-import { useDispatch } from 'react-redux'
-import { useEffect } from 'react'
 const { getExplorePlaylists, getExploreStatus, getPlaylistsStatus } =
   explorePageSelectors
 const { fetchPlaylists } = explorePageActions
@@ -30,7 +29,7 @@ export const PlaylistsTab = () => {
     if (exploreStatus === Status.SUCCESS) {
       dispatch(fetchPlaylists())
     }
-  }, [exploreStatus])
+  }, [exploreStatus, dispatch])
 
   return (
     <CollectionList
