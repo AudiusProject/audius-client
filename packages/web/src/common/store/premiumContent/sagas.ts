@@ -181,7 +181,9 @@ function* updateNewPremiumContentSignatures({
     premiumContentSignatureMap[trackId] = premiumContentSignature
   })
 
-  yield* put(updatePremiumContentSignatures(premiumContentSignatureMap))
+  if (Object.keys(premiumContentSignatureMap).length > 0) {
+    yield* put(updatePremiumContentSignatures(premiumContentSignatureMap))
+  }
 }
 
 /**
@@ -284,7 +286,10 @@ function* updateCollectibleGatedTrackAccess(
       premiumContentSignatureMap[id] = null
     }
   })
-  yield* put(updatePremiumContentSignatures(premiumContentSignatureMap))
+
+  if (Object.keys(premiumContentSignatureMap).length > 0) {
+    yield* put(updatePremiumContentSignatures(premiumContentSignatureMap))
+  }
 
   if (!Object.keys(trackMap).length) return
 
@@ -314,7 +319,10 @@ function* updateCollectibleGatedTrackAccess(
     })
 
     // update premium content signatures
-    yield* put(updatePremiumContentSignatures(premiumContentSignatureMap))
+
+    if (Object.keys(premiumContentSignatureMap).length > 0) {
+      yield* put(updatePremiumContentSignatures(premiumContentSignatureMap))
+    }
   }
 }
 
