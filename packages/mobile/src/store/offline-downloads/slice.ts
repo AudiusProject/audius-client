@@ -23,7 +23,7 @@ export type TrackOfflineMetadataPayload = {
   offlineMetadata: OfflineTrackMetadata
 }
 
-export type DownloadQueueItem =
+export type OfflineJob =
   | { type: 'collection'; id: CollectionId }
   | { type: 'track'; id: ID }
   | { type: 'collection-sync'; id: CollectionId }
@@ -32,16 +32,16 @@ export type DownloadQueueItem =
 
 export type OfflineDownloadsState = {
   trackStatus: {
-    [key: string]: OfflineDownloadStatus
+    [Key in ID]?: OfflineDownloadStatus
   }
   collectionStatus: {
-    [key: string]: OfflineDownloadStatus
+    [Key in ID]?: OfflineDownloadStatus
   }
   collectionSyncStatus: {
     [Key in ID]?: CollectionSyncStatus
   }
   isDoneLoadingFromDisk: boolean
-  downloadQueue: DownloadQueueItem[]
+  offlineQueue: OfflineJob[]
   queueStatus: QueueStatus
   offlineTrackMetadata: Record<ID, OfflineTrackMetadata>
   offlineCollectionMetadata: {
@@ -57,7 +57,7 @@ export type RequestRemoveFavoritedDownloadedCollectionAction = PayloadAction<{
   collectionId: ID
 }>
 
-export type OfflineItem =
+export type OfflineEntry =
   | { type: 'track'; id: ID; metadata: OfflineTrackMetadata }
   | {
       type: 'collection'
@@ -71,16 +71,16 @@ export type OfflineItem =
   | { type: 'play-count'; id: ID }
   | { type: 'stale-track'; id: ID }
 
-export type RedownloadOfflineItemsAction = PayloadAction<{
-  items: DownloadQueueItem[]
+export type RedownloadOfflineEntriesAction = PayloadAction<{
+  items: OfflineJob[]
 }>
 
-export type AddOfflineItemsAction = PayloadAction<{
-  items: OfflineItem[]
+export type AddOfflineEntriesAction = PayloadAction<{
+  items: OfflineEntry[]
 }>
 
-export type RemoveOfflineItemsAction = PayloadAction<{
-  items: OfflineItem[]
+export type RemoveOfflineEntriesAction = PayloadAction<{
+  items: OfflineEntry[]
 }>
 
 export type CollectionSyncItem = { id: CollectionId }
@@ -89,11 +89,11 @@ export type CollectionAction = PayloadAction<{
   collectionId: ID
 }>
 
-export type QueueAction = PayloadAction<DownloadQueueItem>
+export type QueueAction = PayloadAction<OfflineJob>
 
 export type SyncAction = PayloadAction<{ id: CollectionId }>
 
-export type CompleteDownloadAction = PayloadAction<
+export type CompleteJobAction = PayloadAction<
   | { type: 'track'; id: ID; completedAt: number }
   | { type: 'collection'; id: CollectionId }
   | { type: 'stale-track'; id: ID; verifiedAt: number }
@@ -133,11 +133,11 @@ export enum CollectionSyncStatus {
 }
 
 const initialState: OfflineDownloadsState = {
+  isDoneLoadingFromDisk: false,
   trackStatus: {},
   collectionStatus: {},
   collectionSyncStatus: {},
-  isDoneLoadingFromDisk: false,
-  downloadQueue: [],
+  offlineQueue: [],
   queueStatus: QueueStatus.IDLE,
   offlineCollectionMetadata: {},
   offlineTrackMetadata: {}
@@ -147,8 +147,8 @@ const slice = createSlice({
   name: 'offlineDownloads',
   initialState,
   reducers: {
-    redownloadOfflineItems: (state, action: RedownloadOfflineItemsAction) => {
-      const { trackStatus, collectionStatus, downloadQueue } = state
+    redownloadOfflineItems: (state, action: RedownloadOfflineEntriesAction) => {
+      const { trackStatus, collectionStatus, offlineQueue } = state
       const { items } = action.payload
 
       for (const item of items) {
@@ -159,15 +159,15 @@ const slice = createSlice({
         } else if (type === 'track') {
           trackStatus[id] = OfflineDownloadStatus.INIT
         }
-        downloadQueue.push(item)
+        offlineQueue.push(item)
       }
     },
-    addOfflineItems: (state, action: AddOfflineItemsAction) => {
+    addOfflineEntries: (state, action: AddOfflineEntriesAction) => {
       const { items } = action.payload
       const {
         offlineTrackMetadata,
         trackStatus,
-        downloadQueue,
+        offlineQueue,
         offlineCollectionMetadata,
         collectionStatus,
         collectionSyncStatus
@@ -177,9 +177,12 @@ const slice = createSlice({
           const { type, id, metadata } = item
           addOfflineTrack(offlineTrackMetadata, id, metadata)
 
-          if (!trackStatus[id]) {
+          if (
+            !trackStatus[id] ||
+            trackStatus[id] === OfflineDownloadStatus.ERROR
+          ) {
             trackStatus[id] = OfflineDownloadStatus.INIT
-            downloadQueue.push({ type, id })
+            offlineQueue.push({ type, id })
           }
         } else if (item.type === 'collection') {
           const { type, id, metadata } = item
@@ -187,7 +190,7 @@ const slice = createSlice({
 
           if (!collectionStatus[id]) {
             collectionStatus[id] = OfflineDownloadStatus.INIT
-            downloadQueue.push({ type, id })
+            offlineQueue.push({ type, id })
           }
         } else if (item.type === 'collection-sync') {
           const { id } = item
@@ -199,26 +202,26 @@ const slice = createSlice({
             )
           ) {
             collectionSyncStatus[id] = CollectionSyncStatus.INIT
-            downloadQueue.push({ type: 'collection-sync', id })
+            offlineQueue.push({ type: 'collection-sync', id })
           }
         } else if (item.type === 'play-count') {
-          downloadQueue.push(item)
+          offlineQueue.push(item)
         } else if (item.type === 'stale-track') {
           const { id } = item
           const trackMetadata = offlineTrackMetadata[id]
           if (trackMetadata) {
             trackMetadata.last_verified_time = Date.now()
           }
-          downloadQueue.push({ type: 'stale-track', id })
+          offlineQueue.push({ type: 'stale-track', id })
         }
       }
     },
-    removeOfflineItems: (state, action: RemoveOfflineItemsAction) => {
+    removeOfflineItems: (state, action: RemoveOfflineEntriesAction) => {
       const { items } = action.payload
       const {
         offlineTrackMetadata,
         trackStatus,
-        downloadQueue,
+        offlineQueue,
         offlineCollectionMetadata,
         collectionStatus,
         collectionSyncStatus
@@ -231,16 +234,16 @@ const slice = createSlice({
 
           if (!offlineTrackMetadata[id]) {
             delete trackStatus[id]
-            const trackIndex = downloadQueue.findIndex(
+            const trackIndex = offlineQueue.findIndex(
               (queueItem) => queueItem.type === type && queueItem.id === id
             )
-            if (trackIndex !== -1) downloadQueue.splice(trackIndex, 1)
+            if (trackIndex !== -1) offlineQueue.splice(trackIndex, 1)
 
-            const staleTrackIndex = downloadQueue.findIndex(
+            const staleTrackIndex = offlineQueue.findIndex(
               (queueItem) =>
                 queueItem.type === 'stale-track' && queueItem.id === id
             )
-            if (staleTrackIndex !== -1) downloadQueue.splice(staleTrackIndex, 1)
+            if (staleTrackIndex !== -1) offlineQueue.splice(staleTrackIndex, 1)
           }
         } else if (item.type === 'collection') {
           const { id, metadata } = item
@@ -250,23 +253,23 @@ const slice = createSlice({
             delete collectionStatus[id]
             delete collectionSyncStatus[id]
 
-            const collectionIndex = downloadQueue.findIndex(
+            const collectionIndex = offlineQueue.findIndex(
               (queueItem) =>
                 queueItem.type === 'collection' && queueItem.id === id
             )
-            if (collectionIndex !== -1) downloadQueue.splice(collectionIndex, 1)
+            if (collectionIndex !== -1) offlineQueue.splice(collectionIndex, 1)
 
-            const collectionSyncIndex = downloadQueue.findIndex(
+            const collectionSyncIndex = offlineQueue.findIndex(
               (queueItem) =>
                 queueItem.type === 'collection-sync' && queueItem.id === id
             )
             if (collectionSyncIndex !== -1)
-              downloadQueue.splice(collectionSyncIndex, 1)
+              offlineQueue.splice(collectionSyncIndex, 1)
           }
         }
       }
     },
-    startDownload: (state, action: QueueAction) => {
+    startJob: (state, action: QueueAction) => {
       const { type, id } = action.payload
       if (type === 'collection') {
         state.collectionStatus[id] = OfflineDownloadStatus.LOADING
@@ -276,29 +279,29 @@ const slice = createSlice({
         // continue
       }
     },
-    completeDownload: (state, action: CompleteDownloadAction) => {
-      const item = action.payload
-      if (item.type === 'collection') {
-        state.collectionStatus[item.id] = OfflineDownloadStatus.SUCCESS
-      } else if (item.type === 'track') {
-        const { id, completedAt } = item
+    completeJob: (state, action: CompleteJobAction) => {
+      const { type, id } = action.payload
+      if (type === 'collection') {
+        state.collectionStatus[id] = OfflineDownloadStatus.SUCCESS
+      } else if (type === 'track') {
+        const { completedAt } = action.payload
         state.trackStatus[id] = OfflineDownloadStatus.SUCCESS
         const trackMetadata = state.offlineTrackMetadata[id]
         if (trackMetadata) {
           trackMetadata.last_verified_time = completedAt
           trackMetadata.download_completed_time = completedAt
         }
-      } else if (item.type === 'stale-track') {
-        const { id, verifiedAt } = item
+      } else if (type === 'stale-track') {
+        const { verifiedAt } = action.payload
         const trackMetadata = state.offlineTrackMetadata[id]
         if (trackMetadata) {
           trackMetadata.last_verified_time = verifiedAt
         }
       }
 
-      state.downloadQueue.shift()
+      state.offlineQueue.shift()
     },
-    cancelDownload: (state, action: QueueAction) => {
+    cancelJob: (state, action: QueueAction) => {
       const { type, id } = action.payload
       if (type === 'collection') {
         state.collectionStatus[id] = OfflineDownloadStatus.INIT
@@ -306,7 +309,7 @@ const slice = createSlice({
         state.trackStatus[id] = OfflineDownloadStatus.INIT
       }
     },
-    errorDownload: (state, action: QueueAction) => {
+    errorJob: (state, action: QueueAction) => {
       const { type, id } = action.payload
       if (type === 'collection') {
         state.collectionStatus[id] = OfflineDownloadStatus.ERROR
@@ -315,9 +318,9 @@ const slice = createSlice({
       } else if (type === 'stale-track') {
         // continue
       }
-      state.downloadQueue.shift()
+      state.offlineQueue.shift()
     },
-    abandonDownload: (state, action: QueueAction) => {
+    abandonJob: (state, action: QueueAction) => {
       const { type, id } = action.payload
       if (type === 'collection') {
         state.collectionStatus[id] = OfflineDownloadStatus.ABANDONED
@@ -326,7 +329,7 @@ const slice = createSlice({
       } else if (type === 'stale-track') {
         state.trackStatus[id] = OfflineDownloadStatus.ABANDONED
       }
-      state.downloadQueue.shift()
+      state.offlineQueue.shift()
     },
     startCollectionSync: (state, action: SyncAction) => {
       const { id } = action.payload
@@ -335,7 +338,7 @@ const slice = createSlice({
     completeCollectionSync: (state, action: SyncAction) => {
       const { id } = action.payload
       state.collectionSyncStatus[id] = CollectionSyncStatus.SUCCESS
-      state.downloadQueue.shift()
+      state.offlineQueue.shift()
     },
     cancelCollectionSync: (state, action: SyncAction) => {
       const { id } = action.payload
@@ -344,10 +347,10 @@ const slice = createSlice({
     errorCollectionSync: (state, action: SyncAction) => {
       const { id } = action.payload
       state.collectionSyncStatus[id] = CollectionSyncStatus.ERROR
-      state.downloadQueue.shift()
+      state.offlineQueue.shift()
     },
     completePlayCount: (state) => {
-      state.downloadQueue.shift()
+      state.offlineQueue.shift()
     },
     updateQueueStatus: (state, action: UpdateQueueStatusAction) => {
       state.queueStatus = action.payload.queueStatus
@@ -362,7 +365,7 @@ const slice = createSlice({
       state.offlineTrackMetadata = initialState.offlineTrackMetadata
       state.trackStatus = initialState.trackStatus
       state.isDoneLoadingFromDisk = initialState.isDoneLoadingFromDisk
-      state.downloadQueue = initialState.downloadQueue
+      state.offlineQueue = initialState.offlineQueue
       state.queueStatus = initialState.queueStatus
       state.offlineTrackMetadata = initialState.offlineTrackMetadata
       state.offlineCollectionMetadata = initialState.offlineCollectionMetadata
@@ -379,21 +382,21 @@ const slice = createSlice({
       _state,
       _action: RequestRemoveDownloadedCollectionAction
     ) => {},
-    requestDownloadQueuedItem: () => {}
+    requestProcessNextJob: () => {}
   }
 })
 
 export const {
-  addOfflineItems,
+  addOfflineEntries,
   removeOfflineItems,
   redownloadOfflineItems,
   doneLoadingFromDisk,
   clearOfflineDownloads,
-  startDownload,
-  completeDownload,
-  cancelDownload,
-  errorDownload,
-  abandonDownload,
+  startJob,
+  completeJob,
+  cancelJob,
+  errorJob,
+  abandonJob,
   startCollectionSync,
   completeCollectionSync,
   cancelCollectionSync,
@@ -405,7 +408,7 @@ export const {
   requestDownloadFavoritedCollection,
   requestRemoveAllDownloadedFavorites,
   requestRemoveDownloadedCollection,
-  requestDownloadQueuedItem
+  requestProcessNextJob
 } = slice.actions
 export const actions = slice.actions
 

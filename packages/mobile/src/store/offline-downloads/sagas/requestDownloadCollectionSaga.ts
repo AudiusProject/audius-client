@@ -6,8 +6,11 @@ import {
 } from '@audius/common'
 import { takeEvery, select, put, call } from 'typed-redux-saga'
 
-import type { CollectionAction, OfflineItem } from '../slice'
-import { addOfflineItems, requestDownloadCollection } from '../slice'
+import { make, track } from 'app/services/analytics'
+import { EventNames } from 'app/types/analytics'
+
+import type { CollectionAction, OfflineEntry } from '../slice'
+import { addOfflineEntries, requestDownloadCollection } from '../slice'
 
 const { saveCollection } = collectionsSocialActions
 
@@ -19,6 +22,12 @@ export function* requestDownloadCollectionSaga() {
 
 function* downloadCollection(action: CollectionAction) {
   const { collectionId } = action.payload
+  track(
+    make({
+      eventName: EventNames.OFFLINE_MODE_DOWNLOAD_COLLECTION_TOGGLE_ON,
+      collectionId
+    })
+  )
 
   const currentUserId = yield* select(getUserId)
   if (!currentUserId) return
@@ -40,7 +49,7 @@ function* downloadCollection(action: CollectionAction) {
     yield* put(saveCollection(collectionId, FavoriteSource.OFFLINE_DOWNLOAD))
   }
 
-  const offlineItemsToAdd: OfflineItem[] = []
+  const offlineItemsToAdd: OfflineEntry[] = []
 
   offlineItemsToAdd.push({
     type: 'collection',
@@ -64,5 +73,5 @@ function* downloadCollection(action: CollectionAction) {
     })
   }
 
-  yield* put(addOfflineItems({ items: offlineItemsToAdd }))
+  yield* put(addOfflineEntries({ items: offlineItemsToAdd }))
 }

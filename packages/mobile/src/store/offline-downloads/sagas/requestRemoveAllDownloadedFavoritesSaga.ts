@@ -1,12 +1,14 @@
 import { takeEvery, select, put } from 'typed-redux-saga'
 
+import { make, track } from 'app/services/analytics'
 import { DOWNLOAD_REASON_FAVORITES } from 'app/store/offline-downloads/constants'
+import { EventNames } from 'app/types/analytics'
 
 import {
   getOfflineCollectionMetadata,
   getOfflineTrackMetadata
 } from '../selectors'
-import type { OfflineItem } from '../slice'
+import type { OfflineEntry } from '../slice'
 import {
   removeOfflineItems,
   requestRemoveAllDownloadedFavorites
@@ -25,7 +27,8 @@ export function* requestRemoveAllDownloadedFavoritesSaga() {
 }
 
 function* removeAllDownloadedFavoritesWorker() {
-  const offlineItemsToRemove: OfflineItem[] = []
+  track(make({ eventName: EventNames.OFFLINE_MODE_DOWNLOAD_ALL_TOGGLE_OFF }))
+  const offlineItemsToRemove: OfflineEntry[] = []
   const offlineCollectionMetadata = yield* select(getOfflineCollectionMetadata)
   const offlineCollectionIds = Object.keys(offlineCollectionMetadata).map(
     (id) => (id === DOWNLOAD_REASON_FAVORITES ? id : parseInt(id, 10))

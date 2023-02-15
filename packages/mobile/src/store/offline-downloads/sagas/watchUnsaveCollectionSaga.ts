@@ -5,24 +5,26 @@ import {
   getIsCollectionMarkedForDownload,
   getOfflineTrackMetadata
 } from '../selectors'
-import type { CollectionAction, OfflineItem } from '../slice'
+import type { OfflineEntry } from '../slice'
 import { removeOfflineItems } from '../slice'
 
-const { UNSAVE_COLLECTION } = collectionsSocialActions
+const { UNSAVE_COLLECTION, unsaveCollection } = collectionsSocialActions
 
 export function* watchUnsaveCollectionSaga() {
   yield* takeEvery(UNSAVE_COLLECTION, removeFavoritedDownloadedCollection)
 }
 
-export function* removeFavoritedDownloadedCollection(action: CollectionAction) {
-  const { collectionId } = action.payload
+function* removeFavoritedDownloadedCollection(
+  action: ReturnType<typeof unsaveCollection>
+) {
+  const { collectionId } = action
   const isCollectionMarkedForDownload = yield* select(
     getIsCollectionMarkedForDownload(collectionId)
   )
 
   if (!isCollectionMarkedForDownload) return
 
-  const offlineItemsToRemove: OfflineItem[] = []
+  const offlineItemsToRemove: OfflineEntry[] = []
 
   offlineItemsToRemove.push({
     type: 'collection',

@@ -13,7 +13,7 @@ export const getOfflineTrackStatus = (state: AppState) =>
 
 export const getTrackOfflineDownloadStatus =
   (trackId?: number) => (state: AppState) =>
-    trackId ? state.offlineDownloads.trackStatus[trackId] : null
+    trackId ? state.offlineDownloads.trackStatus[trackId] ?? null : null
 
 export const getTrackDownloadStatus = (state: AppState, trackId: ID) =>
   state.offlineDownloads.trackStatus[trackId]
@@ -63,8 +63,8 @@ export const getOfflineCollectionMetadata = (state: AppState) =>
 export const getOfflineCollectionsStatus = (state: AppState) =>
   state.offlineDownloads.collectionStatus
 
-export const getDownloadQueue = (state: AppState) =>
-  state.offlineDownloads.downloadQueue
+export const getOfflineQueue = (state: AppState) =>
+  state.offlineDownloads.offlineQueue
 
 export const getQueueStatus = (state: AppState) =>
   state.offlineDownloads.queueStatus

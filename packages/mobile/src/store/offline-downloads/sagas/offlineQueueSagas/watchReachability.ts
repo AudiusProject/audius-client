@@ -1,9 +1,9 @@
 import { reachabilityActions } from '@audius/common'
 import { takeEvery, put, select } from 'typed-redux-saga'
 
-import { getDownloadQueue, getQueueStatus } from '../../selectors'
+import { getOfflineQueue, getQueueStatus } from '../../selectors'
 import {
-  requestDownloadQueuedItem,
+  requestProcessNextJob,
   QueueStatus,
   updateQueueStatus
 } from '../../slice'
@@ -11,16 +11,19 @@ const { SET_UNREACHABLE, SET_REACHABLE } = reachabilityActions
 
 export function* watchReachability() {
   yield* takeEvery(SET_UNREACHABLE, function* pauseQueue() {
-    yield* put(updateQueueStatus({ queueStatus: QueueStatus.PAUSED }))
+    const queueStatus = yield* select(getQueueStatus)
+
+    if (queueStatus === QueueStatus.PROCESSING) {
+      yield* put(updateQueueStatus({ queueStatus: QueueStatus.PAUSED }))
+    }
   })
 
   yield* takeEvery(SET_REACHABLE, function* startQueue() {
-    const downloadQueue = yield* select(getDownloadQueue)
-    const queueStatus = yield* select(getQueueStatus)
+    const offlineQueue = yield* select(getOfflineQueue)
 
-    if (downloadQueue.length > 0 && queueStatus === QueueStatus.PAUSED) {
+    if (offlineQueue.length > 0) {
       yield* put(updateQueueStatus({ queueStatus: QueueStatus.PROCESSING }))
-      yield* put(requestDownloadQueuedItem())
+      yield* put(requestProcessNextJob())
     }
   })
 }

@@ -10,6 +10,7 @@ import RNFetchBlob from 'rn-fetch-blob'
 import { select, call, put, take, race, all } from 'typed-redux-saga'
 
 import { createAllImageSources } from 'app/hooks/useContentNodeImage'
+import { make, track } from 'app/services/analytics'
 import {
   getCollectionCoverArtPath,
   getLocalCollectionDir,
@@ -17,18 +18,19 @@ import {
   mkdirSafe
 } from 'app/services/offline-downloader'
 import { DOWNLOAD_REASON_FAVORITES } from 'app/store/offline-downloads/constants'
+import { EventNames } from 'app/types/analytics'
 
 import { getCollectionOfflineDownloadStatus } from '../../../selectors'
-import type { CollectionId } from '../../../slice'
+import type { CollectionId, OfflineJob } from '../../../slice'
 import {
-  abandonDownload,
-  errorDownload,
+  abandonJob,
+  errorJob,
   OfflineDownloadStatus,
-  cancelDownload,
+  cancelJob,
   removeOfflineItems,
-  completeDownload,
-  requestDownloadQueuedItem,
-  startDownload
+  completeJob,
+  requestProcessNextJob,
+  startJob
 } from '../../../slice'
 import { isCollectionDownloadable } from '../../utils/isCollectionDownloadable'
 
@@ -48,7 +50,11 @@ function* shouldAbortDownload(collectionId: CollectionId) {
 }
 
 export function* downloadCollectionWorker(collectionId: CollectionId) {
-  yield* put(startDownload({ type: 'collection', id: collectionId }))
+  const queueItem: OfflineJob = { type: 'collection', id: collectionId }
+  track(
+    make({ eventName: EventNames.OFFLINE_MODE_DOWNLOAD_START, ...queueItem })
+  )
+  yield* put(startJob(queueItem))
 
   const { jobResult, cancel, abort } = yield* race({
     jobResult: call(downloadCollectionAsync, collectionId),
@@ -58,21 +64,39 @@ export function* downloadCollectionWorker(collectionId: CollectionId) {
 
   if (abort) {
     yield* call(removeDownloadedCollection, collectionId)
-    yield* put(requestDownloadQueuedItem())
+    yield* put(requestProcessNextJob())
   } else if (cancel) {
-    yield* put(cancelDownload({ type: 'collection', id: collectionId }))
+    yield* put(cancelJob(queueItem))
     yield* call(removeDownloadedCollection, collectionId)
   } else if (jobResult === OfflineDownloadStatus.ERROR) {
-    yield* put(errorDownload({ type: 'collection', id: collectionId }))
+    track(
+      make({
+        eventName: EventNames.OFFLINE_MODE_DOWNLOAD_FAILURE,
+        ...queueItem
+      })
+    )
+    yield* put(errorJob(queueItem))
     yield* call(removeDownloadedCollection, collectionId)
-    yield* put(requestDownloadQueuedItem())
+    yield* put(requestProcessNextJob())
   } else if (jobResult === OfflineDownloadStatus.ABANDONED) {
-    yield* put(abandonDownload({ type: 'collection', id: collectionId }))
+    track(
+      make({
+        eventName: EventNames.OFFLINE_MODE_DOWNLOAD_FAILURE,
+        ...queueItem
+      })
+    )
+    yield* put(abandonJob(queueItem))
     yield* call(removeDownloadedCollection, collectionId)
-    yield* put(requestDownloadQueuedItem())
+    yield* put(requestProcessNextJob())
   } else if (jobResult === OfflineDownloadStatus.SUCCESS) {
-    yield* put(completeDownload({ type: 'collection', id: collectionId }))
-    yield* put(requestDownloadQueuedItem())
+    track(
+      make({
+        eventName: EventNames.OFFLINE_MODE_DOWNLOAD_SUCCESS,
+        ...queueItem
+      })
+    )
+    yield* put(completeJob(queueItem))
+    yield* put(requestProcessNextJob())
   }
 }
 
@@ -154,5 +178,7 @@ async function writeCollectionMetadata(collection: UserCollectionMetadata) {
 
 async function removeDownloadedCollection(collectionId: CollectionId) {
   const collectionDir = getLocalCollectionDir(collectionId.toString())
+  const exists = await RNFetchBlob.fs.exists(collectionDir)
+  if (!exists) return
   return await RNFetchBlob.fs.unlink(collectionDir)
 }

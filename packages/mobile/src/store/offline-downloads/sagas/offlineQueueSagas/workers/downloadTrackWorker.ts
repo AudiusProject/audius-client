@@ -11,23 +11,26 @@ import RNFetchBlob from 'rn-fetch-blob'
 import { select, call, put, all, take, race } from 'typed-redux-saga'
 
 import { createAllImageSources } from 'app/hooks/useContentNodeImage'
+import { make, track } from 'app/services/analytics'
 import {
   getLocalAudioPath,
   getLocalTrackCoverArtDestination,
   getLocalTrackDir,
   getLocalTrackJsonPath
 } from 'app/services/offline-downloader'
+import { EventNames } from 'app/types/analytics'
 
 import { getTrackOfflineDownloadStatus } from '../../../selectors'
+import type { OfflineJob } from '../../../slice'
 import {
-  cancelDownload,
-  completeDownload,
-  requestDownloadQueuedItem,
-  errorDownload,
+  cancelJob,
+  completeJob,
+  requestProcessNextJob,
+  errorJob,
   OfflineDownloadStatus,
   removeOfflineItems,
-  startDownload,
-  abandonDownload
+  startJob,
+  abandonJob
 } from '../../../slice'
 import { isTrackDownloadable } from '../../utils/isTrackDownloadable'
 
@@ -45,7 +48,11 @@ function* shouldAbortDownload(trackId: ID) {
 }
 
 export function* downloadTrackWorker(trackId: ID) {
-  yield* put(startDownload({ type: 'track', id: trackId }))
+  const queueItem: OfflineJob = { type: 'track', id: trackId }
+  track(
+    make({ eventName: EventNames.OFFLINE_MODE_DOWNLOAD_START, ...queueItem })
+  )
+  yield* put(startJob(queueItem))
 
   const { jobResult, cancel, abort } = yield* race({
     jobResult: call(downloadTrackAsync, trackId),
@@ -55,23 +62,39 @@ export function* downloadTrackWorker(trackId: ID) {
 
   if (abort) {
     yield* call(removeDownloadedTrack, trackId)
-    yield* put(requestDownloadQueuedItem())
+    yield* put(requestProcessNextJob())
   } else if (cancel) {
-    yield* put(cancelDownload({ type: 'track', id: trackId }))
+    yield* put(cancelJob(queueItem))
     yield* call(removeDownloadedTrack, trackId)
   } else if (jobResult === OfflineDownloadStatus.ERROR) {
-    yield* put(errorDownload({ type: 'track', id: trackId }))
-    yield* call(removeDownloadedTrack, trackId)
-    yield* put(requestDownloadQueuedItem())
-  } else if (jobResult === OfflineDownloadStatus.ABANDONED) {
-    yield* put(abandonDownload({ type: 'track', id: trackId }))
-    yield* call(removeDownloadedTrack, trackId)
-    yield* put(requestDownloadQueuedItem())
-  } else if (jobResult === OfflineDownloadStatus.SUCCESS) {
-    yield* put(
-      completeDownload({ type: 'track', id: trackId, completedAt: Date.now() })
+    track(
+      make({
+        eventName: EventNames.OFFLINE_MODE_DOWNLOAD_FAILURE,
+        ...queueItem
+      })
     )
-    yield* put(requestDownloadQueuedItem())
+    yield* put(errorJob(queueItem))
+    yield* call(removeDownloadedTrack, trackId)
+    yield* put(requestProcessNextJob())
+  } else if (jobResult === OfflineDownloadStatus.ABANDONED) {
+    track(
+      make({
+        eventName: EventNames.OFFLINE_MODE_DOWNLOAD_FAILURE,
+        ...queueItem
+      })
+    )
+    yield* put(abandonJob(queueItem))
+    yield* call(removeDownloadedTrack, trackId)
+    yield* put(requestProcessNextJob())
+  } else if (jobResult === OfflineDownloadStatus.SUCCESS) {
+    track(
+      make({
+        eventName: EventNames.OFFLINE_MODE_DOWNLOAD_SUCCESS,
+        ...queueItem
+      })
+    )
+    yield* put(completeJob({ ...queueItem, completedAt: Date.now() }))
+    yield* put(requestProcessNextJob())
   }
 }
 
@@ -170,5 +193,7 @@ async function writeTrackMetadata(track: UserTrackMetadata) {
 
 async function removeDownloadedTrack(trackId: ID) {
   const trackDirectory = getLocalTrackDir(trackId.toString())
+  const exists = await RNFetchBlob.fs.exists(trackDirectory)
+  if (!exists) return
   return await RNFetchBlob.fs.unlink(trackDirectory)
 }

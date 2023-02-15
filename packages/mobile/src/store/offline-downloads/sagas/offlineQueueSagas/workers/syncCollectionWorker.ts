@@ -18,15 +18,16 @@ import {
   getOfflineTrackMetadata,
   getOfflineTrackStatus
 } from '../../../selectors'
-import type { CollectionId, OfflineItem } from '../../../slice'
+import type { CollectionId, OfflineEntry } from '../../../slice'
 import {
+  OfflineDownloadStatus,
   completeCollectionSync,
   CollectionSyncStatus,
   errorCollectionSync,
   cancelCollectionSync,
-  requestDownloadQueuedItem,
+  requestProcessNextJob,
   redownloadOfflineItems,
-  addOfflineItems,
+  addOfflineEntries,
   removeOfflineItems,
   startCollectionSync
 } from '../../../slice'
@@ -57,15 +58,15 @@ export function* syncCollectionWorker(collectionId: CollectionId) {
   })
 
   if (abort) {
-    yield* put(requestDownloadQueuedItem())
+    yield* put(requestProcessNextJob())
   } else if (cancel) {
     yield* put(cancelCollectionSync({ id: collectionId }))
   } else if (jobResult === CollectionSyncStatus.ERROR) {
     yield* put(errorCollectionSync({ id: collectionId }))
-    yield* put(requestDownloadQueuedItem())
+    yield* put(requestProcessNextJob())
   } else if (jobResult === CollectionSyncStatus.SUCCESS) {
     yield* put(completeCollectionSync({ id: collectionId }))
-    yield* put(requestDownloadQueuedItem())
+    yield* put(requestProcessNextJob())
   }
 }
 
@@ -106,7 +107,7 @@ function* syncFavoritesCollection() {
     latestFavoritedTrackIds
   )
 
-  const tracksToRemove: OfflineItem[] = trackIdsToRemove.map((trackId) => ({
+  const tracksToRemove: OfflineEntry[] = trackIdsToRemove.map((trackId) => ({
     type: 'track',
     id: trackId,
     metadata: {
@@ -126,7 +127,7 @@ function* syncFavoritesCollection() {
     offlineFavoritedTrackIds
   )
 
-  const tracksToAdd: OfflineItem[] = trackIdsToAdd.map((trackId) => ({
+  const tracksToAdd: OfflineEntry[] = trackIdsToAdd.map((trackId) => ({
     type: 'track',
     id: trackId,
     metadata: {
@@ -137,7 +138,7 @@ function* syncFavoritesCollection() {
   }))
 
   if (tracksToAdd.length > 0) {
-    yield* put(addOfflineItems({ items: tracksToAdd }))
+    yield* put(addOfflineEntries({ items: tracksToAdd }))
   }
 
   return CollectionSyncStatus.SUCCESS
@@ -202,7 +203,7 @@ function* syncCollection(collectionId: ID) {
     latestCollectionTrackIds
   )
 
-  const trackItemsToRemove: OfflineItem[] = tracksIdsToRemove.map(
+  const trackItemsToRemove: OfflineEntry[] = tracksIdsToRemove.map(
     (trackId) => ({
       type: 'track',
       id: trackId,
@@ -217,26 +218,25 @@ function* syncCollection(collectionId: ID) {
   // Add tracks
 
   const offlineTrackStatus = yield* select(getOfflineTrackStatus)
-  // TODO: determine if we want to include errored tracks
   const currentOfflineCollectionTrackIds = currentCollectionTrackIds.filter(
-    (id) => id in offlineTrackStatus
+    (id) =>
+      id in offlineTrackStatus &&
+      offlineTrackStatus[id] !== OfflineDownloadStatus.ERROR
   )
 
-  // Tracks that were added to the collection and tracks that were not queued
-  // up previously for some reason.
   const trackIdsToAdd = difference(
     latestCollectionTrackIds,
     currentOfflineCollectionTrackIds
   )
 
-  const trackItemsToAdd: OfflineItem[] = trackIdsToAdd.map((trackId) => ({
+  const trackItemsToAdd: OfflineEntry[] = trackIdsToAdd.map((trackId) => ({
     type: 'track',
     id: trackId,
     metadata: { reasons_for_download: trackDownloadReasons }
   }))
 
   if (trackItemsToAdd.length > 0) {
-    dispatch(addOfflineItems({ items: trackItemsToAdd }))
+    dispatch(addOfflineEntries({ items: trackItemsToAdd }))
   }
 
   return CollectionSyncStatus.SUCCESS
