@@ -11,6 +11,7 @@ const getExplore = (state: CommonState) => state.pages.explore
 
 export const getPlaylistIds = (state: CommonState) =>
   getExplore(state).playlists
+
 export const getProfileIds = (state: CommonState) => getExplore(state).profiles
 
 export const getExplorePlaylists = createSelector(
@@ -24,7 +25,7 @@ export const getExploreArtists = createSelector(
   getProfileIds,
   (state: CommonState) => state.users.entries,
   (artists, users) =>
-    artists.map((id) => users[id].metadata).filter(removeNullable)
+    artists.map((id) => users[id]?.metadata).filter(removeNullable)
 )
 
 export const getExploreStatus = (state: CommonState) => getExplore(state).status

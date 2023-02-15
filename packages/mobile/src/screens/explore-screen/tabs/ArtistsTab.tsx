@@ -28,7 +28,7 @@ export const ArtistsTab = () => {
 
   useEffect(() => {
     if (exploreStatus === Status.SUCCESS) {
-      dispatch(fetchProfiles)
+      dispatch(fetchProfiles())
     }
   }, [exploreStatus, dispatch])
 
