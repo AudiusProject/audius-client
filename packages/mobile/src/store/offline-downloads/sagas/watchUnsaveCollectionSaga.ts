@@ -5,7 +5,7 @@ import {
   getIsCollectionMarkedForDownload,
   getOfflineTrackMetadata
 } from '../selectors'
-import type { OfflineItem } from '../slice'
+import type { OfflineEntry } from '../slice'
 import { removeOfflineItems } from '../slice'
 
 const { UNSAVE_COLLECTION, unsaveCollection } = collectionsSocialActions
@@ -24,7 +24,7 @@ function* removeFavoritedDownloadedCollection(
 
   if (!isCollectionMarkedForDownload) return
 
-  const offlineItemsToRemove: OfflineItem[] = []
+  const offlineItemsToRemove: OfflineEntry[] = []
 
   offlineItemsToRemove.push({
     type: 'collection',

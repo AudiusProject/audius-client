@@ -1,5 +1,5 @@
 import { clearOfflineDownloadsSaga } from './sagas/clearOfflineDownloadsSaga'
-import { downloadQueueSagas } from './sagas/downloadQueueSagas/downloadQueueSagas'
+import { offlineQueueSagas } from './sagas/offlineQueueSagas/offlineQueueSagas'
 import { rehydrateOfflineDataSaga } from './sagas/rehydrateOfflineDataSaga'
 import { requestDownloadAllFavoritesSaga } from './sagas/requestDownloadAllFavoritesSaga'
 import { requestDownloadCollectionSaga } from './sagas/requestDownloadCollectionSaga'
@@ -28,7 +28,7 @@ const sagas = () => {
     requestRemoveDownloadedCollectionSaga,
 
     // Queue sagas
-    ...downloadQueueSagas(),
+    ...offlineQueueSagas(),
 
     // Track/Collection watchers
     watchSaveTrackSaga,
