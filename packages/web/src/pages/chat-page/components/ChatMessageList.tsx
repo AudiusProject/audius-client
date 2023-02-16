@@ -18,7 +18,7 @@ import {
   Status,
   hasTail
 } from '@audius/common'
-import type { ChatMessage, UserChat } from '@audius/sdk'
+import type { ChatMessage } from '@audius/sdk'
 import cn from 'classnames'
 import dayjs from 'dayjs'
 import { mergeRefs } from 'react-merge-refs'
