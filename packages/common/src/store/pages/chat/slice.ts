@@ -177,6 +177,7 @@ const slice = createSlice({
       if (!state.chatList.map[chat.chat_id]) {
         state.chatList.order.push(chat.chat_id)
         state.chatList.order = getNewChatOrder(state)
+        state.chatList.map[chat.chat_id] = chat
       }
     },
     markChatAsRead: (state, action: PayloadAction<{ chatId: string }>) => {
