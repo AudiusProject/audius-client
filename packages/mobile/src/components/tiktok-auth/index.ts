@@ -1,1 +1,1 @@
-export { TikTokAuthButton } from './TikTokAuthButtonNew'
+export { TikTokAuthButton } from './TikTokAuthButton'
