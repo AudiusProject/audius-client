@@ -13,7 +13,13 @@ import {
   audioRewardsPageSelectors,
   makeChallengeSortComparator
 } from '@audius/common'
-import { ProgressBar, ButtonType, Button, IconCheck } from '@audius/stems'
+import {
+  ProgressBar,
+  ButtonType,
+  Button,
+  IconCheck,
+  IconArrow
+} from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -23,7 +29,6 @@ import { useRemoteVar } from 'hooks/useRemoteConfig'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 
 import styles from './RewardsTile.module.css'
-import ButtonWithArrow from './components/ButtonWithArrow'
 import { Tile } from './components/ExplainerTile'
 import { getChallengeConfig } from './config'
 const { getUserChallenges, getUserChallengesLoading } =
@@ -116,52 +121,52 @@ const RewardPanel = ({
   return (
     <div
       className={wm(
-        cn(styles.rewardPanelContainer, hasDisbursed ? styles.completed : '')
+        cn(styles.rewardPanelContainer, hasDisbursed ? styles.disbursed : '')
       )}
       onClick={openRewardModal}
     >
-      <div className={wm(styles.pillContainer)}>
-        {hasCompleted && (
-          <span className={wm(styles.pillMessage)}>
-            {messages.readyToClaim}
-          </span>
-        )}
+      <div className={wm(styles.rewardPanelTop)}>
+        <div className={wm(styles.pillContainer)}>
+          {hasCompleted && (
+            <span className={wm(styles.pillMessage)}>
+              {messages.readyToClaim}
+            </span>
+          )}
+        </div>
+        <span className={wm(styles.rewardTitle)}>
+          {icon}
+          {title}
+        </span>
+        <span className={wm(styles.rewardDescription)}>
+          {description(challenge)}
+        </span>
       </div>
-      <span className={wm(styles.rewardTitle)}>
-        {icon}
-        {title}
-      </span>
-      <span className={wm(styles.rewardDescription)}>
-        {description(challenge)}
-      </span>
-      <div className={wm(styles.rewardProgress)}>
-        {shouldShowCompleted && <IconCheck className={wm(styles.iconCheck)} />}
-        <p className={styles.rewardProgressLabel}>{progressLabelFilled}</p>
-        {shouldShowProgressBar && (
-          <ProgressBar
-            className={styles.rewardProgressBar}
-            value={challenge?.current_step_count ?? 0}
-            max={challenge?.max_steps}
-          />
-        )}
-      </div>
-      {hasDisbursed ? (
+      <div className={wm(styles.rewardPanelBottom)}>
+        <div className={wm(styles.rewardProgress)}>
+          {shouldShowCompleted && (
+            <IconCheck className={wm(styles.iconCheck)} />
+          )}
+          <p className={styles.rewardProgressLabel}>{progressLabelFilled}</p>
+          {shouldShowProgressBar && (
+            <ProgressBar
+              className={styles.rewardProgressBar}
+              value={challenge?.current_step_count ?? 0}
+              max={challenge?.max_steps}
+            />
+          )}
+        </div>
         <Button
-          className={wm(cn(styles.panelButton, styles.completed))}
+          className={wm(
+            cn(styles.panelButton, hasDisbursed ? styles.disbursed : '')
+          )}
           type={buttonType}
           text={buttonMessage}
+          rightIcon={hasDisbursed ? null : <IconArrow />}
+          iconClassName={styles.buttonIcon}
           onClick={openRewardModal}
           textClassName={styles.panelButtonText}
         />
-      ) : (
-        <ButtonWithArrow
-          className={wm(styles.panelButton)}
-          type={buttonType}
-          text={buttonMessage}
-          onClick={openRewardModal}
-          textClassName={styles.panelButtonText}
-        />
-      )}
+      </div>
     </div>
   )
 }

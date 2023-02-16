@@ -139,7 +139,11 @@ export type ProfilePageProps = {
     selectedFiles: any,
     source: 'original' | 'unsplash' | 'url'
   ) => Promise<void>
-  setNotificationSubscription: (userId: ID, isSubscribed: boolean) => void
+  setNotificationSubscription: (
+    userId: ID,
+    isSubscribed: boolean,
+    onFollow: boolean
+  ) => void
   didChangeTabsFrom: (prevLabel: string, currentLabel: string) => void
   onCloseArtistRecommendations: () => void
 }
@@ -403,7 +407,7 @@ const ProfilePage = ({
               {...getLineupProps(artistTracks)}
               extraPrecedingElement={trackUploadChip}
               animateLeadingElement
-              leadingElementId={profile._artist_pick}
+              leadingElementId={profile.artist_pick_track_id}
               loadMore={loadMoreArtistTracks}
               playTrack={playArtistTrack}
               pauseTrack={pauseArtistTrack}
@@ -497,7 +501,7 @@ const ProfilePage = ({
 
   const toggleNotificationSubscription = () => {
     if (!userId) return
-    setNotificationSubscription(userId, !isSubscribed)
+    setNotificationSubscription(userId, !isSubscribed, false)
   }
 
   const getUserProfileContent = () => {
