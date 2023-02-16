@@ -92,9 +92,11 @@ function* doFetchMoreMessages(action: ReturnType<typeof fetchMoreMessages>) {
       // Only save the last response summary. Pagination is one-way
       lastResponse = response
       data = data.concat(response.data)
+      // If the unread count is greater than the previous fetched messages (next_cursor)
+      // plus this batch (limit), we should keep fetching
       hasMoreUnread =
         !!chat?.unread_message_count &&
-        chat.unread_message_count > (response.summary?.next_count ?? 0) - limit
+        chat.unread_message_count > (response.summary?.next_count ?? 0) + limit
       before = response.summary?.prev_cursor
     }
     if (!lastResponse) {
