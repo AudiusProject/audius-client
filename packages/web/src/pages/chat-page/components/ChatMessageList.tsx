@@ -76,9 +76,10 @@ const shouldRenderUnreadIndicator = (
   }
   const message = messages[currentMessageIndex]
   const prevMessage = messages[currentMessageIndex + 1]
-  const isUnread = message.created_at > lastReadAt
+  const isUnread = lastReadAt === undefined || message.created_at > lastReadAt
   const isPreviousMessageUnread =
-    prevMessage && prevMessage.created_at > lastReadAt
+    prevMessage &&
+    (lastReadAt === undefined || prevMessage.created_at > lastReadAt)
   const isAuthor = message.sender_user_id === currentUserId
   return isUnread && !isPreviousMessageUnread && !isAuthor
 }
