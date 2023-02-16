@@ -98,6 +98,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     const currentUserId = encodeHashId(userId)
     const [unreadIndicatorEl, setUnreadIndicatorEl] =
       useState<HTMLDivElement | null>(null)
+    const [, setLastScrolledChatId] = useState<string>()
 
     // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
     // Using a ref instead of state here to prevent unwanted flickers.
@@ -132,16 +133,21 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     )
 
     const scrollIntoViewOnMount = useCallback((el: HTMLDivElement) => {
-      // Can't scroll yet, as the component isn't fully rendered.
-      // Instead, queue a scroll by triggering a rerender via a state change.
-      setUnreadIndicatorEl(el)
+      if (el) {
+        el.scrollIntoView()
+        // On initial render, can't scroll yet, as the component isn't fully rendered.
+        // Instead, queue a scroll by triggering a rerender via a state change.
+        setUnreadIndicatorEl(el)
+      }
     }, [])
 
     useLayoutEffect(() => {
       if (unreadIndicatorEl) {
         unreadIndicatorEl.scrollIntoView()
+        // One more state change, this keeps chats unread until the user scrolls to the bottom on their own
+        setLastScrolledChatId(chatId)
       }
-    }, [unreadIndicatorEl])
+    }, [unreadIndicatorEl, chatId, setLastScrolledChatId])
 
     useEffect(() => {
       if (chatId && status === Status.IDLE) {
