@@ -76,7 +76,6 @@ function* doFetchMoreMessages(action: ReturnType<typeof fetchMoreMessages>) {
     // Ensure we get a chat so we can check the unread count
     yield* call(fetchChatIfNecessary, { chatId })
     const chat = yield* select((state) => getChat(state, chatId))
-    const data: ChatMessage[] = []
     const summary = yield* select((state) =>
       getChatMessagesSummary(state, chatId)
     )
@@ -85,6 +84,7 @@ function* doFetchMoreMessages(action: ReturnType<typeof fetchMoreMessages>) {
     let lastResponse: TypedCommsResponse<ChatMessage[]> | undefined
     let before = summary?.prev_cursor
     let hasMoreUnread = true
+    let data: ChatMessage[] = []
     while (hasMoreUnread) {
       const limit = 50
       const response = yield* call([sdk.chats, sdk.chats!.getMessages], {
@@ -94,7 +94,7 @@ function* doFetchMoreMessages(action: ReturnType<typeof fetchMoreMessages>) {
       })
       // Only save the last response summary. Pagination is one-way
       lastResponse = response
-      data.concat(response.data)
+      data = data.concat(response.data)
       hasMoreUnread =
         !!chat?.unread_message_count &&
         chat.unread_message_count > (response.summary?.next_count ?? 0) - limit
