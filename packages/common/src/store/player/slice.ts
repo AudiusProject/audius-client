@@ -3,6 +3,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { UID, ID, Collectible } from '../../models'
 import { Maybe, Nullable } from '../../utils'
 
+import { PlaybackRate } from './types'
+
+const PLAYBACK_RATE_LS_KEY = 'playbackRate'
+const initialPlaybackRate: PlaybackRate =
+  (window.localStorage.getItem(PLAYBACK_RATE_LS_KEY) as PlaybackRate | null) ??
+  '1x'
+
 export type PlayerState = {
   // Identifiers for the audio that's playing.
   uid: UID | null
@@ -22,6 +29,10 @@ export type PlayerState = {
   // E.g. replaying a track doesn't change uid or trackId, but counter changes.
   counter: number
 
+  // Keep 'playbackRate' in the store separately from the audio
+  // Playback rate of the audio element
+  playbackRate: PlaybackRate
+
   // Seek time into the track when a user scrubs forward or backward
   seek: number | null
 }
@@ -35,6 +46,7 @@ export const initialState: PlayerState = {
   playing: false,
   buffering: false,
   counter: 0,
+  playbackRate: initialPlaybackRate,
   seek: null
 }
 
@@ -78,6 +90,10 @@ type SetPayload = {
 
 type SeekPayload = {
   seconds: number
+}
+
+type SetPlaybackRatePayload = {
+  rate: PlaybackRate
 }
 
 type ErrorPayload = {
@@ -150,6 +166,11 @@ const slice = createSlice({
       const { seconds } = action.payload
       state.seek = seconds
     },
+    setPlaybackRate: (state, action: PayloadAction<SetPlaybackRatePayload>) => {
+      const { rate } = action.payload
+      state.playbackRate = rate
+      window.localStorage.setItem(PLAYBACK_RATE_LS_KEY, rate)
+    },
     error: (_state, _action: PayloadAction<ErrorPayload>) => {},
     incrementCount: (state) => {
       state.counter = state.counter + 1
@@ -169,6 +190,7 @@ export const {
   reset,
   resetSucceeded,
   seek,
+  setPlaybackRate,
   error,
   incrementCount
 } = slice.actions
