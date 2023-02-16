@@ -18,8 +18,9 @@ import {
   Status,
   hasTail
 } from '@audius/common'
-import type { ChatMessage } from '@audius/sdk'
+import type { ChatMessage, UserChat } from '@audius/sdk'
 import cn from 'classnames'
+import dayjs from 'dayjs'
 import { mergeRefs } from 'react-merge-refs'
 import { useDispatch } from 'react-redux'
 
@@ -64,13 +65,19 @@ const isScrolledToTop = (element: HTMLElement) => {
  * - Is the first unread message
  * - Is by a different user than the current one
  */
-const shouldRenderUnreadIndicator = (
-  unreadCount: number,
-  lastReadAt: string | undefined,
-  currentMessageIndex: number,
-  messages: ChatMessage[],
+const shouldRenderUnreadIndicator = ({
+  unreadCount,
+  lastReadAt,
+  currentMessageIndex,
+  messages,
+  currentUserId
+}: {
+  unreadCount: number
+  lastReadAt?: string
+  currentMessageIndex: number
+  messages: ChatMessage[]
   currentUserId: string | null
-) => {
+}) => {
   if (unreadCount === 0 || !lastReadAt) {
     return false
   }
@@ -201,13 +208,13 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
                   The separator has to come after the message to appear above it, 
                   since the message list order is reversed in CSS
                 */}
-                {shouldRenderUnreadIndicator(
-                  chatFrozenRef.current?.unread_message_count ?? 0,
-                  chatFrozenRef.current?.last_read_at,
-                  i,
-                  chatMessages,
+                {shouldRenderUnreadIndicator({
+                  unreadCount: chatFrozenRef.current?.unread_message_count ?? 0,
+                  lastReadAt: chatFrozenRef.current?.last_read_at,
+                  currentMessageIndex: i,
+                  messages: chatMessages,
                   currentUserId
-                ) ? (
+                }) ? (
                   <div ref={scrollIntoViewOnMount} className={styles.separator}>
                     <span className={styles.tag}>
                       {chatFrozenRef.current?.unread_message_count}{' '}
