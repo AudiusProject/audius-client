@@ -2,6 +2,7 @@ import type { Credentials, UseTikTokAuthArguments } from '@audius/common'
 import { createUseTikTokAuthHook } from '@audius/common'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import CookieManager from '@react-native-community/cookies'
+import { Linking } from 'react-native'
 import Config from 'react-native-config'
 import {
   init as tikTokInit,
@@ -10,63 +11,91 @@ import {
 } from 'react-native-tiktok'
 
 import { track, make } from 'app/services/analytics'
+import { dispatch } from 'app/store'
+import * as oauthActions from 'app/store/oauth/actions'
+import { Provider } from 'app/store/oauth/reducer'
 import { EventNames } from 'app/types/analytics'
+
+const authenticationUrl = `${Config.IDENTITY_SERVICE}/tiktok`
+
+const canOpenTikTok = () => {
+  return Linking.canOpenURL('tiktok://app')
+}
 
 export const useTikTokAuth = (args: UseTikTokAuthArguments) => {
   return createUseTikTokAuthHook({
-    authenticate: async () => {
-      return new Promise<Credentials>((resolve, reject) => {
-        track(
-          make({
-            eventName: EventNames.TIKTOK_START_OAUTH
-          })
-        )
+    authenticate: async (): Promise<Credentials> => {
+      track(
+        make({
+          eventName: EventNames.TIKTOK_START_OAUTH
+        })
+      )
 
-        // Needed for Android
-        const authListener = tikTokEvents.addListener(
-          'onAuthCompleted',
-          (resp) => {
-            resolve(resp)
-          }
-        )
-
-        return CookieManager.set(Config.IDENTITY_SERVICE, {
-          name: 'csrfState',
-          value: 'true',
-          secure: true
-        }).then(() => {
-          tikTokInit(Config.TIKTOK_APP_ID)
-          tikTokAuth(async (code, error, errorMessage) => {
-            // TODO handle error
-
-            const response = await fetch(
-              `${Config.IDENTITY_SERVICE}/tiktok/access_token`,
-              {
-                credentials: 'include',
-                method: 'POST',
-                body: JSON.stringify({
-                  code,
-                  state: 'true'
-                }),
-                headers: {
-                  'Content-Type': 'application/json'
-                }
-              }
+      // Perform WebView auth if TikTok is not installed
+      // TikTok LoginKit is supposed to handle this but it doesn't seem to work
+      if (!(await canOpenTikTok())) {
+        return new Promise((resolve, reject) => {
+          dispatch(
+            oauthActions.requestNativeOpenPopup(
+              resolve,
+              reject,
+              authenticationUrl,
+              Provider.TIKTOK
             )
+          )
+        })
+      }
 
-            if (!response.ok) {
-              reject(new Error(response.status + ' ' + (await response.text())))
+      // Needed for Android
+      // const authListener = tikTokEvents.addListener(
+      //   'onAuthCompleted',
+      //   (resp) => {
+      //     resolve(resp)
+      //   }
+      // )
+
+      // Need to set a csrf cookie because it is required for web
+      await CookieManager.set(Config.IDENTITY_SERVICE, {
+        name: 'csrfState',
+        value: 'true',
+        secure: true
+      })
+
+      tikTokInit(Config.TIKTOK_APP_ID)
+
+      return new Promise((resolve, reject) => {
+        tikTokAuth(async (code, error, errorMessage) => {
+          if (error) {
+            reject(new Error(errorMessage))
+          }
+
+          const response = await fetch(
+            `${Config.IDENTITY_SERVICE}/tiktok/access_token`,
+            {
+              credentials: 'include',
+              method: 'POST',
+              body: JSON.stringify({
+                code,
+                state: 'true'
+              }),
+              headers: {
+                'Content-Type': 'application/json'
+              }
             }
+          )
 
-            const {
-              data: { access_token, open_id, expires_in }
-            } = await response.json()
+          if (!response.ok) {
+            reject(new Error(response.status + ' ' + (await response.text())))
+          }
 
-            resolve({
-              accessToken: access_token,
-              openId: open_id,
-              expiresIn: expires_in
-            })
+          const {
+            data: { access_token, open_id, expires_in }
+          } = await response.json()
+
+          resolve({
+            accessToken: access_token,
+            openId: open_id,
+            expiresIn: expires_in
           })
         })
       })
