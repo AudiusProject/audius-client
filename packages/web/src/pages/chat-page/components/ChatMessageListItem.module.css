@@ -22,6 +22,11 @@
   background-color: var(--bubble-color);
 }
 
+.bubble a {
+  color: var(--neutral);
+  text-decoration: underline !important;
+}
+
 .bubble:hover {
   --bubble-color: var(--neutral-light-10);
   filter: var(--drop-shadow-far);
@@ -34,9 +39,6 @@
 
 .isAuthor .bubble a {
   color: var(--white);
-}
-.bubble a:hover {
-  text-decoration: underline !important;
 }
 
 .isAuthor .bubble:hover {
