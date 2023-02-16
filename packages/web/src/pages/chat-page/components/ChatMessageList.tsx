@@ -99,19 +99,14 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
 
     // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
     // Using a ref instead of state here to prevent unwanted flickers.
-    // The chat selector will trigger the rerenders necessary.
-    const unreadIndicatorRef = useRef({
-      chat_id: chat?.chat_id,
-      last_read_at: chat?.last_read_at,
-      unread_message_count: chat?.unread_message_count
-    })
-    if (chat && chatId !== unreadIndicatorRef.current.chat_id) {
-      // Update the unread indicator when chatId changes
-      unreadIndicatorRef.current = chat
-    } else if (chat && chat.unread_message_count > 0) {
-      // Update the unread indicator when new messages come, but _not_ when messages are marked as read
-      unreadIndicatorRef.current = chat
-    }
+    // The chat/chatId selectors will trigger the rerenders necessary.
+    const chatFrozenRef = useRef(chat)
+    useLayoutEffect(() => {
+      if (chat && chatId !== chatFrozenRef.current?.chat_id) {
+        // Update the unread indicator when chatId changes
+        chatFrozenRef.current = chat
+      }
+    }, [chat, chatId])
 
     const handleScroll = useCallback(
       (e: UIEvent<HTMLDivElement>) => {
@@ -166,15 +161,15 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
                   since the message list order is reversed in CSS
                 */}
                 {shouldRenderUnreadIndicator(
-                  unreadIndicatorRef.current.unread_message_count ?? 0,
-                  unreadIndicatorRef.current.last_read_at,
+                  chatFrozenRef.current?.unread_message_count ?? 0,
+                  chatFrozenRef.current?.last_read_at,
                   i,
                   chatMessages,
                   currentUserId
                 ) ? (
                   <div className={styles.separator}>
                     <span className={styles.tag}>
-                      {unreadIndicatorRef.current.unread_message_count}{' '}
+                      {chatFrozenRef.current?.unread_message_count}{' '}
                       {messages.newMessages}
                     </span>
                   </div>
