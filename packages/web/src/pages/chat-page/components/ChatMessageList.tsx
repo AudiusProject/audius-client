@@ -20,6 +20,7 @@ import {
 } from '@audius/common'
 import type { ChatMessage } from '@audius/sdk'
 import cn from 'classnames'
+import { mergeRefs } from 'react-merge-refs'
 import { useDispatch } from 'react-redux'
 
 import { useSelector } from 'common/hooks/useSelector'
@@ -28,6 +29,8 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import styles from './ChatMessageList.module.css'
 import { ChatMessageListItem } from './ChatMessageListItem'
 import { StickyScrollList } from './StickyScrollList'
+
+const SPINNER_HEIGHT = 48
 
 const { fetchMoreMessages, markChatAsRead, setActiveChat } = chatActions
 const {
@@ -100,6 +103,8 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       useState<HTMLDivElement | null>(null)
     const [, setLastScrolledChatId] = useState<string>()
 
+    const ref = useRef<HTMLDivElement>(null)
+
     // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
     // Using a ref instead of state here to prevent unwanted flickers.
     // The chat/chatId selectors will trigger the rerenders necessary.
@@ -157,9 +162,22 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       }
     }, [dispatch, chatId, status])
 
+    // Fix for if the initial load doesn't have enough messages to cause scrolling
+    useEffect(() => {
+      if (
+        chatId &&
+        ref.current &&
+        ref.current.scrollHeight - SPINNER_HEIGHT <= ref.current.clientHeight &&
+        summary &&
+        summary.prev_count > 0
+      ) {
+        dispatch(fetchMoreMessages({ chatId }))
+      }
+    }, [dispatch, chatId, summary, chatMessages])
+
     return (
       <StickyScrollList
-        ref={forwardedRef}
+        ref={mergeRefs([forwardedRef, ref])}
         onScroll={handleScroll}
         className={cn(styles.root, classNameProp)}
         resetKey={chatId}
