@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react'
 import { useCallback } from 'react'
 
-import { PremiumConditions, ID, Chain } from '@audius/common'
+import type { PremiumConditions, ID } from '@audius/common'
 import {
+  Chain,
   FollowSource,
   usersSocialActions,
   tippingActions,
