@@ -1,3 +1,5 @@
+export const PLAYBACK_RATE_LS_KEY = 'playbackRate'
+
 export type PlaybackRate =
   | '0.5x'
   | '0.8x'

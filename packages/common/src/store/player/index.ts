@@ -5,3 +5,4 @@ export {
 } from './slice'
 export * as playerSelectors from './selectors'
 export * from './types'
+export { sagas as playerSagas } from './sagas'

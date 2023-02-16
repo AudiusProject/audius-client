@@ -1,3 +1,5 @@
+import { MutableRefObject, useCallback, useMemo } from 'react'
+
 import { PlaybackRate, playerActions, playerSelectors } from '@audius/common'
 import { PopupMenu, PopupMenuItem, PopupPosition } from '@audius/stems'
 import cn from 'classnames'
@@ -23,6 +25,18 @@ export type PlaybackRateButtonProps = {
   isMobile: boolean
 }
 
+const rates: PlaybackRate[] = [
+  '0.5x',
+  '0.8x',
+  '1x',
+  '1.1x',
+  '1.2x',
+  '1.5x',
+  '2x',
+  '2.5x',
+  '3x'
+]
+
 const playbackRateIconMap: Record<PlaybackRate, typeof Icon1x> = {
   '0.5x': Icon0_5x,
   '0.8x': Icon0_8x,
@@ -37,26 +51,36 @@ const playbackRateIconMap: Record<PlaybackRate, typeof Icon1x> = {
 
 export const PlaybackRateButton = ({ isMobile }: PlaybackRateButtonProps) => {
   const dispatch = useDispatch()
-  const setRate = (rate: PlaybackRate) => dispatch(setPlaybackRate({ rate }))
+  const setRate = useCallback(
+    (rate: PlaybackRate) => dispatch(setPlaybackRate({ rate })),
+    [dispatch]
+  )
   const playbackRate = useSelector(getPlaybackRate)
   const Icon = playbackRateIconMap[playbackRate]
-  const rates: PlaybackRate[] = [
-    '0.5x',
-    '0.8x',
-    '1x',
-    '1.1x',
-    '1.2x',
-    '1.5x',
-    '2x',
-    '2.5x',
-    '3x'
-  ]
 
-  const items: PopupMenuItem[] = rates.map((rate) => ({
-    text: rate,
-    onClick: () => setRate(rate),
-    className: styles.centeredItem
-  }))
+  const items: PopupMenuItem[] = useMemo(
+    () =>
+      rates.map((rate) => ({
+        text: rate,
+        onClick: () => setRate(rate),
+        className: styles.centeredItem
+      })),
+    [setRate]
+  )
+
+  const renderButton = useCallback(
+    (ref: MutableRefObject<any>, triggerPopup: () => void) => (
+      <button
+        className={cn(styles.button, styles.playbackRateButton, {
+          [styles.buttonFixedSize]: isMobile
+        })}
+        onClick={triggerPopup}
+      >
+        <Icon className={styles.noAnimation} ref={ref} />
+      </button>
+    ),
+    [Icon, isMobile]
+  )
 
   return (
     <PopupMenu
@@ -66,16 +90,7 @@ export const PlaybackRateButton = ({ isMobile }: PlaybackRateButtonProps) => {
       hideCloseButton
       position={PopupPosition.TOP_CENTER}
       zIndex={zIndex.PLAY_BAR_POPUP_MENU}
-      renderTrigger={(ref, triggerPopup) => (
-        <button
-          className={cn(styles.button, styles.playbackRateButton, {
-            [styles.buttonFixedSize]: isMobile
-          })}
-          onClick={triggerPopup}
-        >
-          <Icon className={styles.noAnimation} ref={ref} />
-        </button>
-      )}
+      renderTrigger={renderButton}
     />
   )
 }

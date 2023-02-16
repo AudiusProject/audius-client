@@ -5,11 +5,6 @@ import { Maybe, Nullable } from '../../utils'
 
 import { PlaybackRate } from './types'
 
-const PLAYBACK_RATE_LS_KEY = 'playbackRate'
-const initialPlaybackRate: PlaybackRate =
-  (window.localStorage.getItem(PLAYBACK_RATE_LS_KEY) as PlaybackRate | null) ??
-  '1x'
-
 export type PlayerState = {
   // Identifiers for the audio that's playing.
   uid: UID | null
@@ -46,7 +41,7 @@ export const initialState: PlayerState = {
   playing: false,
   buffering: false,
   counter: 0,
-  playbackRate: initialPlaybackRate,
+  playbackRate: '1x',
   seek: null
 }
 
@@ -169,7 +164,6 @@ const slice = createSlice({
     setPlaybackRate: (state, action: PayloadAction<SetPlaybackRatePayload>) => {
       const { rate } = action.payload
       state.playbackRate = rate
-      window.localStorage.setItem(PLAYBACK_RATE_LS_KEY, rate)
     },
     error: (_state, _action: PayloadAction<ErrorPayload>) => {},
     incrementCount: (state) => {

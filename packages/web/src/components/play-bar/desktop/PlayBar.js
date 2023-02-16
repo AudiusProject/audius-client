@@ -354,7 +354,7 @@ class PlayBar extends Component {
     const favoriteText = favorited ? messages.unfavorite : messages.favorite
     const repostText = reposted ? messages.reposted : messages.repost
     const matrix = isMatrix()
-    const isPodcast = track?.genre === Genre.PODCASTS ?? false
+    const isPodcast = track?.genre === Genre.PODCASTS
     const isNewPodcastControlsEnabled = getFeatureEnabled(
       FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED
     )

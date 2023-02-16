@@ -50,12 +50,12 @@
 }
 
 .popupTitle {
-  font-size: 10px;
-  line-height: 10px;
+  font-size: var(--font-size-2xs);
+  line-height: var(--font-size-2xs);
   letter-spacing: 0.15px;
   text-transform: uppercase;
-  color: #858199;
-  padding: 8px 8px 4px;
+  color: var(--neutral);
+  padding: var(--unit-2) var(--unit-2) var(--unit);
 }
 
 .centeredItem {

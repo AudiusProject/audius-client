@@ -181,8 +181,8 @@ export function* watchPlay() {
 
       if (track.genre === Genre.PODCASTS) {
         // Make sure that the playback rate is set when playing a podcast
-        const rate = yield* select(getPlaybackRate)
-        audioPlayer.setPlaybackRate(rate)
+        const playbackRate = yield* select(getPlaybackRate)
+        audioPlayer.setPlaybackRate(playbackRate)
       } else if (audioPlayer.getPlaybackRate() !== '1x') {
         // Reset playback rate when playing a regular track
         audioPlayer.setPlaybackRate('1x')
