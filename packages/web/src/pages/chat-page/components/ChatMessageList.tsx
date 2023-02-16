@@ -196,7 +196,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
                 ) : null}
               </Fragment>
             ))}
-          {summary?.prev_count ? (
+          {!summary || summary.prev_count > 0 ? (
             <LoadingSpinner className={styles.spinner} />
           ) : null}
         </div>
