@@ -1,13 +1,16 @@
-import {
-  ChatCreateRPC,
-  ChatMessage,
-  ChatMessageRPC,
-  TypedCommsResponse
-} from '@audius/sdk'
+import { ChatMessage, ChatMessageRPC, TypedCommsResponse } from '@audius/sdk'
 import dayjs from 'dayjs'
-import { call, put, select, takeEvery, takeLatest } from 'typed-redux-saga'
+import {
+  call,
+  delay,
+  put,
+  select,
+  takeEvery,
+  takeLatest
+} from 'typed-redux-saga'
 
 import { getAccountUser, getUserId } from 'store/account/selectors'
+import { setVisibility } from 'store/ui/modals/slice'
 
 import { decodeHashId, encodeHashId } from '../../../utils'
 import { cacheUsersActions } from '../../cache'
@@ -19,6 +22,7 @@ import { actions as chatActions } from './slice'
 const {
   createChat,
   createChatSucceeded,
+  goToChat,
   fetchMoreChats,
   fetchMoreChatsSucceeded,
   fetchMoreChatsFailed,
@@ -155,17 +159,54 @@ function* doCreateChat(action: ReturnType<typeof createChat>) {
   try {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
-    const user = yield* select(getAccountUser)
-    if (!user) {
+    const currentUserId = yield* select(getUserId)
+    if (!currentUserId) {
       throw new Error('User not found')
     }
-    const res = yield* call([sdk.chats, sdk.chats.create], {
-      userId: encodeHashId(user.user_id),
-      invitedUserIds: userIds.map((id) => encodeHashId(id))
-    })
-    const chatId = (res as ChatCreateRPC).params.chat_id
-    const { data: chat } = yield* call([sdk.chats, sdk.chats.get], { chatId })
-    yield* put(createChatSucceeded({ chat }))
+    // Try to get existing chat:
+    const chatId = [currentUserId, ...userIds]
+      .map((id) => encodeHashId(id))
+      .sort()
+      .join(':')
+    try {
+      yield* call(fetchChatIfNecessary, { chatId })
+    } catch {}
+    const existingChat = yield* select((state) => getChat(state, chatId))
+    if (existingChat) {
+      // Simply navigate to the existing chat
+      yield* put(setVisibility({ modal: 'CreateChat', visible: false }))
+      yield* put(goToChat({ chatId: existingChat.chat_id }))
+    } else {
+      // Create new chat and navigate to it
+      yield* call([sdk.chats, sdk.chats.create], {
+        userId: encodeHashId(currentUserId),
+        invitedUserIds: userIds.map((id) => encodeHashId(id))
+      })
+      let chat = null
+      let i = 0
+      // Poll for new chat
+      while (i++ < 10 && !chat) {
+        try {
+          const res = yield* call([sdk.chats, sdk.chats.get], { chatId })
+          chat = res.data
+          if (!chat) {
+            throw new Error('No chat yet, polling again')
+          }
+        } catch (e) {
+          // do nothing but wait and try again
+          console.warn(e)
+          // sum(100 * i) from i = 1 to 10 = 5.5 seconds
+          yield* delay(100 * i)
+        }
+      }
+      if (chat) {
+        yield* put(createChatSucceeded({ chat }))
+        yield* put(setVisibility({ modal: 'CreateChat', visible: false }))
+        yield* put(goToChat({ chatId: chat.chat_id }))
+      } else {
+        throw new Error("Couldn't fetch chat")
+      }
+    }
   } catch (e) {
     console.error('createChatFailed', e)
   }
