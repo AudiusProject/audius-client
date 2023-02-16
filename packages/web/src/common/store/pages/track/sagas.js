@@ -134,7 +134,14 @@ function* getRestOfLineup(permalink, ownerHandle) {
 
 function* watchFetchTrack() {
   yield takeEvery(trackPageActions.FETCH_TRACK, function* (action) {
-    const { trackId, handle, slug, canBeUnlisted } = action
+    const {
+      trackId,
+      handle,
+      slug,
+      canBeUnlisted,
+      forceRetrieveFromSource,
+      withRemixes = true
+    } = action
     try {
       let track
       if (!trackId) {
@@ -142,8 +149,9 @@ function* watchFetchTrack() {
           handle,
           slug,
           withStems: true,
-          withRemixes: true,
-          withRemixParents: true
+          withRemixes,
+          withRemixParents: true,
+          forceRetrieveFromSource
         })
       } else {
         const ids = canBeUnlisted
@@ -153,13 +161,13 @@ function* watchFetchTrack() {
           trackIds: ids,
           canBeUnlisted,
           withStems: true,
-          withRemixes: true,
+          withRemixes,
           withRemixParents: true
         })
         track = tracks && tracks.length === 1 ? tracks[0] : null
       }
+      const isReachable = yield select(getIsReachable)
       if (!track) {
-        const isReachable = yield select(getIsReachable)
         if (isReachable) {
           yield put(pushRoute(NOT_FOUND_PAGE))
           return
@@ -169,12 +177,14 @@ function* watchFetchTrack() {
         // Add hero track to lineup early so that we can play it ASAP
         // (instead of waiting for the entire lineup to load)
         yield call(addTrackToLineup, track)
-        yield fork(
-          getRestOfLineup,
-          track.permalink,
-          handle || track.permalink.split('/')?.[1]
-        )
-        yield fork(getTrackRanks, track.track_id)
+        if (isReachable) {
+          yield fork(
+            getRestOfLineup,
+            track.permalink,
+            handle || track.permalink.split('/')?.[1]
+          )
+          yield fork(getTrackRanks, track.track_id)
+        }
         yield put(trackPageActions.fetchTrackSucceeded(track.track_id))
       }
     } catch (e) {

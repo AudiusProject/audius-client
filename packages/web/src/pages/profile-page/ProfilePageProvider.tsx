@@ -239,7 +239,6 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     if (!profile) return
     const userId = profile.user_id
     this.props.onUnfollow(userId)
-    this.props.setNotificationSubscription(userId, false)
 
     if (this.props.account) {
       this.props.updateCurrentUserFollows(false)
@@ -737,6 +736,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     const verified = profile ? profile.is_verified : false
     const twitterVerified = profile ? profile.twitterVerified : false
     const instagramVerified = profile ? profile.instagramVerified : false
+    const tikTokVerified = profile ? profile.tikTokVerified : false
     const created = profile
       ? moment(profile.created_at).format('YYYY')
       : moment().format('YYYY')
@@ -769,6 +769,8 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     const tikTokHandle = profile
       ? updatedTikTokHandle !== null
         ? updatedTikTokHandle
+        : profile.tikTokVerified
+        ? profile.handle
         : profile.tiktok_handle || ''
       : ''
     const website = profile
@@ -829,6 +831,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       mostUsedTags,
       twitterVerified,
       instagramVerified,
+      tikTokVerified,
 
       profile,
       status: profileLoadingStatus,
@@ -1036,20 +1039,34 @@ function mapDispatchToProps(dispatch: Dispatch, props: RouteComponentProps) {
     playUserFeedTrack: (uid: UID) => dispatch(feedActions.play(uid)),
     pauseUserFeedTrack: () => dispatch(feedActions.pause()),
     // Followes
-    fetchFollowUsers: (followGroup: any, limit: number, offset: number) =>
+    fetchFollowUsers: (
+      followerGroup: FollowType,
+      limit: number,
+      offset: number
+    ) =>
       dispatch(
-        profileActions.fetchFollowUsers(followGroup, limit, offset, handleLower)
+        profileActions.fetchFollowUsers(
+          followerGroup,
+          limit,
+          offset,
+          handleLower
+        )
       ),
 
     openCreatePlaylistModal: () =>
       dispatch(createPlaylistModalActions.open(undefined, true)),
-    setNotificationSubscription: (userId: ID, isSubscribed: boolean) =>
+    setNotificationSubscription: (
+      userId: ID,
+      isSubscribed: boolean,
+      onFollow = true
+    ) =>
       dispatch(
         profileActions.setNotificationSubscription(
           userId,
           isSubscribed,
           true,
-          handleLower
+          handleLower,
+          onFollow
         )
       ),
 

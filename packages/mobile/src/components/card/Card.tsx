@@ -11,7 +11,8 @@ import UserBadges from 'app/components/user-badges/UserBadges'
 import type { StylesProp } from 'app/styles'
 import { flexRowCentered, makeStyles } from 'app/styles'
 
-import { DownloadStatusIndicator } from '../offline-downloads'
+import type { ImageProps } from '../image/FastImage'
+import { CollectionDownloadStatusIndicator } from '../offline-downloads/CollectionDownloadStatusIndicator'
 
 export type CardType = 'user' | 'collection'
 
@@ -23,7 +24,7 @@ const useStyles = makeStyles(({ palette, typography, spacing }) => ({
     paddingTop: spacing(2),
     paddingHorizontal: spacing(1)
   },
-  cardImg: {
+  userCardImg: {
     backgroundColor: '#ddd',
     borderRadius: 6,
     overflow: 'hidden',
@@ -31,6 +32,13 @@ const useStyles = makeStyles(({ palette, typography, spacing }) => ({
   },
   userImg: {
     borderRadius: 1000
+  },
+  collectionCardImg: {
+    borderRadius: 6,
+    height: 152,
+    width: 152,
+    marginTop: spacing(2),
+    alignSelf: 'center'
   },
   textContainer: {
     paddingVertical: spacing(1)
@@ -55,10 +63,9 @@ const useStyles = makeStyles(({ palette, typography, spacing }) => ({
 }))
 
 type BaseCardProps = {
-  id?: string
   onPress: () => void
   primaryText: string
-  renderImage: () => ReactNode
+  renderImage: (options?: ImageProps) => ReactNode
   secondaryText?: string
   TileProps?: Omit<TileProps<ComponentType<LinearGradientProps>>, 'children'>
   style?: StyleProp<ViewStyle>
@@ -68,20 +75,18 @@ type BaseCardProps = {
   }>
 }
 
-type ProfileCardProps = {
+export type ProfileCardProps = BaseCardProps & {
   type: 'user'
   user: User
 }
-
-type CollectionCardProps = {
+export type CollectionCardProps = BaseCardProps & {
   type: 'collection'
+  id: number
 }
-
-export type CardProps = BaseCardProps & (ProfileCardProps | CollectionCardProps)
+export type CardProps = ProfileCardProps | CollectionCardProps
 
 export const Card = (props: CardProps) => {
   const {
-    id,
     onPress,
     primaryText,
     renderImage,
@@ -99,11 +104,20 @@ export const Card = (props: CardProps) => {
       styles={{ root: style, content: styles.cardContent }}
       {...TileProps}
     >
-      <View style={styles.imgContainer}>
-        <View style={[styles.cardImg, props.type === 'user' && styles.userImg]}>
-          {renderImage()}
+      {props.type === 'user' ? (
+        <View style={styles.imgContainer}>
+          <View
+            style={[
+              styles.userCardImg,
+              props.type === 'user' && styles.userImg
+            ]}
+          >
+            {renderImage()}
+          </View>
         </View>
-      </View>
+      ) : (
+        renderImage({ style: styles.collectionCardImg })
+      )}
       <View style={styles.textContainer}>
         <Text
           numberOfLines={1}
@@ -122,7 +136,10 @@ export const Card = (props: CardProps) => {
             {secondaryText}
           </Text>
           {props.type === 'collection' ? (
-            <DownloadStatusIndicator size={18} collectionId={id} />
+            <CollectionDownloadStatusIndicator
+              size={18}
+              collectionId={props.id}
+            />
           ) : null}
         </View>
       </View>

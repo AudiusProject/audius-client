@@ -14,10 +14,12 @@ import {
   FeatureFlags,
   encodeHashId,
   Genre,
-  tracksSocialActions
+  tracksSocialActions,
+  SquareSizes,
+  shallowCompare,
+  savedPageTracksLineupActions
 } from '@audius/common'
 import { isEqual } from 'lodash'
-import queue from 'react-native-job-queue'
 import TrackPlayer, {
   AppKilledPlaybackBehavior,
   Capability,
@@ -29,28 +31,40 @@ import TrackPlayer, {
   TrackType
 } from 'react-native-track-player'
 import { useDispatch, useSelector } from 'react-redux'
-import { useEffectOnce } from 'react-use'
+import { useEffectOnce, usePrevious } from 'react-use'
 
 import { DEFAULT_IMAGE_URL } from 'app/components/image/TrackImage'
 import { getImageSourceOptimistic } from 'app/hooks/useContentNodeImage'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
-import { getLocalTrackImageSource } from 'app/hooks/useLocalImage'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { apiClient } from 'app/services/audius-api-client'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 import {
   getLocalAudioPath,
-  isAudioAvailableOffline
+  getLocalTrackCoverArtPath
 } from 'app/services/offline-downloader'
-import type { PlayCountWorkerPayload } from 'app/services/offline-downloader/workers/playCounterWorker'
-import { PLAY_COUNTER_WORKER } from 'app/services/offline-downloader/workers/playCounterWorker'
-import { getOfflineTracks } from 'app/store/offline-downloads/selectors'
+import { DOWNLOAD_REASON_FAVORITES } from 'app/store/offline-downloads/constants'
+import {
+  getOfflineTrackStatus,
+  getIsCollectionMarkedForDownload
+} from 'app/store/offline-downloads/selectors'
+import {
+  addOfflineEntries,
+  OfflineDownloadStatus
+} from 'app/store/offline-downloads/slice'
 
 const { getUsers } = cacheUsersSelectors
 const { getTracks } = cacheTracksSelectors
 const { getPlaying, getSeek, getCurrentTrack, getCounter } = playerSelectors
 const { recordListen } = tracksSocialActions
-const { getIndex, getOrder, getRepeat, getShuffle } = queueSelectors
+const {
+  getIndex,
+  getOrder,
+  getSource,
+  getCollectionId,
+  getRepeat,
+  getShuffle
+} = queueSelectors
 const { getIsReachable } = reachabilitySelectors
 
 // TODO: These constants are the same in now playing drawer. Move them to shared location
@@ -116,23 +130,54 @@ export const Audio = () => {
   const isReachable = useSelector(getIsReachable)
   const isNotReachable = isReachable === false
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
-  const offlineTracks = useSelector(getOfflineTracks)
 
   // Queue Things
   const queueIndex = useSelector(getIndex)
   const queueShuffle = useSelector(getShuffle)
   const queueOrder = useSelector(getOrder)
+  const queueSource = useSelector(getSource)
+  const queueCollectionId = useSelector(getCollectionId)
   const queueTrackUids = queueOrder.map((trackData) => trackData.uid)
-  const queueTrackMap = useSelector((state) =>
-    getTracks(state, { uids: queueTrackUids })
+  const queueTrackIds = queueOrder.map((trackData) => trackData.id)
+  const queueTrackMap = useSelector(
+    (state) => getTracks(state, { uids: queueTrackUids }),
+    shallowCompare
   )
   const queueTracks = queueOrder.map(
     (trackData) => queueTrackMap[trackData.id] as Track
   )
   const queueTrackOwnerIds = queueTracks.map((track) => track.owner_id)
-  const queueTrackOwnersMap = useSelector((state) =>
-    getUsers(state, { ids: queueTrackOwnerIds })
+  const queueTrackOwnersMap = useSelector(
+    (state) => getUsers(state, { ids: queueTrackOwnerIds }),
+    shallowCompare
   )
+
+  const isCollectionMarkedForDownload = useSelector(
+    getIsCollectionMarkedForDownload(
+      queueSource === savedPageTracksLineupActions.prefix
+        ? DOWNLOAD_REASON_FAVORITES
+        : queueCollectionId?.toString()
+    )
+  )
+  const wasCollectionMarkedForDownload = usePrevious(
+    isCollectionMarkedForDownload
+  )
+  const didOfflineToggleChange =
+    isCollectionMarkedForDownload !== wasCollectionMarkedForDownload
+
+  // A map from trackId to offline availability
+  const offlineAvailabilityByTrackId = useSelector((state) => {
+    const offlineTrackStatus = getOfflineTrackStatus(state)
+    return queueTrackIds.reduce((result, id) => {
+      if (offlineTrackStatus[id] === OfflineDownloadStatus.SUCCESS) {
+        return {
+          ...result,
+          [id]: true
+        }
+      }
+      return result
+    }, {})
+  }, isEqual)
 
   const dispatch = useDispatch()
 
@@ -260,7 +305,9 @@ export const Audio = () => {
       if (isReachable) {
         dispatch(recordListen(trackId))
       } else if (isOfflineModeEnabled) {
-        queue.addJob<PlayCountWorkerPayload>(PLAY_COUNTER_WORKER, { trackId })
+        dispatch(
+          addOfflineEntries({ items: [{ type: 'play-count', id: trackId }] })
+        )
       }
     }, RECORD_LISTEN_SECONDS)
 
@@ -312,7 +359,12 @@ export const Audio = () => {
 
   const handleQueueChange = useCallback(async () => {
     const refUids = queueListRef.current
-    if (queueIndex === -1 || isEqual(refUids, queueTrackUids)) return
+    if (queueIndex === -1) {
+      return
+    }
+    if (isEqual(refUids, queueTrackUids) && !didOfflineToggleChange) {
+      return
+    }
 
     updatingQueueRef.current = true
     queueListRef.current = queueTrackUids
@@ -328,17 +380,16 @@ export const Audio = () => {
     const newTrackData = await Promise.all(
       newQueueTracks.map(async (track) => {
         const trackOwner = queueTrackOwnersMap[track.owner_id]
-        const trackId = track.track_id.toString()
+        const trackId = track.track_id
         const offlineTrackAvailable =
           trackId &&
           isOfflineModeEnabled &&
-          offlineTracks[trackId] &&
-          (await isAudioAvailableOffline(trackId))
+          offlineAvailabilityByTrackId[trackId]
 
         // Get Track url
         let url: string
         let isM3u8 = false
-        if (offlineTrackAvailable) {
+        if (offlineTrackAvailable && isCollectionMarkedForDownload) {
           const audioFilePath = getLocalAudioPath(trackId)
           url = `file://${audioFilePath}`
         } else if (isStreamMp3Enabled && isReachable) {
@@ -357,16 +408,18 @@ export const Audio = () => {
           })
         }
 
-        const localSource = isNotReachable
-          ? await getLocalTrackImageSource(trackId)
-          : undefined
+        const localTrackImageSource =
+          isNotReachable && track
+            ? { uri: `file://${getLocalTrackCoverArtPath(trackId.toString())}` }
+            : undefined
 
         const imageUrl =
           getImageSourceOptimistic({
             cid: track ? track.cover_art_sizes || track.cover_art : null,
             user: trackOwner,
-            localSource
-          })?.[2]?.uri ?? DEFAULT_IMAGE_URL
+            size: SquareSizes.SIZE_1000_BY_1000,
+            localSource: localTrackImageSource
+          })?.uri ?? DEFAULT_IMAGE_URL
 
         return {
           url,
@@ -388,7 +441,9 @@ export const Audio = () => {
       // NOTE: Should only happen when the user selects a new lineup so reset should never be called in the background and cause an error
       await TrackPlayer.reset()
       await TrackPlayer.add(newTrackData)
-      await TrackPlayer.skip(queueIndex)
+      if (queueIndex < newQueueTracks.length) {
+        await TrackPlayer.skip(queueIndex)
+      }
     }
 
     if (playing) await TrackPlayer.play()
@@ -398,21 +453,25 @@ export const Audio = () => {
     isOfflineModeEnabled,
     isReachable,
     isStreamMp3Enabled,
-    offlineTracks,
+    offlineAvailabilityByTrackId,
     playing,
     queueIndex,
     queueTrackOwnersMap,
     queueTrackUids,
-    queueTracks
+    queueTracks,
+    didOfflineToggleChange,
+    isCollectionMarkedForDownload
   ])
 
   const handleQueueIdxChange = useCallback(async () => {
     const playerIdx = await TrackPlayer.getCurrentTrack()
+    const queue = await TrackPlayer.getQueue()
 
     if (
       !updatingQueueRef.current &&
       queueIndex !== -1 &&
-      queueIndex !== playerIdx
+      queueIndex !== playerIdx &&
+      queueIndex < queue.length
     ) {
       await TrackPlayer.skip(queueIndex)
     }

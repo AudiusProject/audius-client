@@ -1,6 +1,6 @@
 import { Collectible, CollectiblesMetadata } from 'models/Collectible'
 import { Color } from 'models/Color'
-import { CID, ID } from 'models/Identifiers'
+import { CID } from 'models/Identifiers'
 import { CoverPhotoSizes, ProfilePictureSizes } from 'models/ImageSizes'
 import { PlaylistLibrary } from 'models/PlaylistLibrary'
 import { SolanaWalletAddress, StringWei, WalletAddress } from 'models/Wallet'
@@ -10,8 +10,8 @@ import { Timestamped } from './Timestamped'
 
 export type UserMetadata = {
   album_count: number
-  artist_pick_track_id: number | null
-  bio: string | null
+  artist_pick_track_id: Nullable<number>
+  bio: Nullable<string>
   cover_photo: Nullable<CID>
   creator_node_endpoint: Nullable<string>
   current_user_followee_follow_count: number
@@ -53,6 +53,7 @@ export type UserMetadata = {
   donation?: string
   twitterVerified?: boolean
   instagramVerified?: boolean
+  tikTokVerified?: boolean
   balance?: Nullable<StringWei>
   total_balance?: Nullable<StringWei>
   associated_wallets?: Nullable<string[]>
@@ -67,7 +68,6 @@ export type ComputedUserProperties = {
   _cover_photo_sizes: CoverPhotoSizes
   _collectionIds?: string[]
   _profile_picture_color?: Color
-  _artist_pick?: ID
   updatedProfilePicture?: { file: File; url: string }
   updatedCoverPhoto?: { file: File; url: string }
 }

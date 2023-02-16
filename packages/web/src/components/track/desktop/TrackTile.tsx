@@ -93,7 +93,8 @@ const TrackTile = memo(
     onTogglePlay,
     showRankIcon,
     permalink,
-    canOverrideBottomBar
+    isTrack,
+    trackId
   }: TrackTileProps) => {
     const hasOrdering = order !== undefined
 
@@ -110,6 +111,9 @@ const TrackTile = memo(
       ? fieldVisibility.play_count === false
       : false
 
+    const showPremiumCornerTag =
+      !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
+
     return (
       <div
         className={cn(styles.container, {
@@ -124,10 +128,18 @@ const TrackTile = memo(
           // Standalone means that this tile is not w/ a playlist
           [styles.standalone]: !!standalone
         })}
-        onClick={isLoading || isDisabled ? undefined : onTogglePlay}
+        onClick={
+          isLoading || isDisabled || (isTrack && !doesUserHaveAccess)
+            ? undefined
+            : onTogglePlay
+        }
       >
-        {isPremium && (
-          <PremiumTrackCornerTag doesUserHaveAccess={!!doesUserHaveAccess} />
+        {showPremiumCornerTag && (
+          <PremiumTrackCornerTag
+            doesUserHaveAccess={!!doesUserHaveAccess}
+            isOwner={isOwner}
+            premiumConditions={premiumConditions}
+          />
         )}
         {/* prefix ordering */}
         <RankAndIndexIndicator
@@ -144,7 +156,7 @@ const TrackTile = memo(
         >
           {artwork}
         </div>
-        {isArtistPick && (
+        {isArtistPick && !showPremiumCornerTag && (
           <TrackBannerIcon
             type={TrackBannerIconType.STAR}
             isMatrixMode={isMatrixMode}
@@ -202,17 +214,19 @@ const TrackTile = memo(
               )}
             </div>
             <div className={styles.topRight}>
-              {isPremium && (
-                <PremiumContentLabel
-                  premiumConditions={premiumConditions}
-                  doesUserHaveAccess={!!doesUserHaveAccess}
-                />
-              )}
               {isArtistPick && (
                 <div className={styles.topRightIconLabel}>
                   <IconStar className={styles.topRightIcon} />
                   {messages.artistPick}
                 </div>
+              )}
+              {!isLoading && isPremium && (
+                <PremiumContentLabel
+                  premiumConditions={premiumConditions}
+                  doesUserHaveAccess={!!doesUserHaveAccess}
+                  isOwner={isOwner}
+                  permalink={permalink}
+                />
               )}
               {isUnlisted && (
                 <div className={styles.topRightIconLabel}>
@@ -255,7 +269,8 @@ const TrackTile = memo(
             onClickRepost={onClickRepost}
             onClickFavorite={onClickFavorite}
             onClickShare={onClickShare}
-            canOverrideBottomBar={canOverrideBottomBar}
+            isTrack={isTrack}
+            trackId={trackId}
           />
         </div>
       </div>

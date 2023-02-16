@@ -1,57 +1,40 @@
 import { useCallback, useMemo } from 'react'
 
-import type { Collection, ID, Maybe, UID } from '@audius/common'
+import type { ID, Maybe, SmartCollectionVariant, UID } from '@audius/common'
 import {
-  Variant,
-  useProxySelector,
   collectionPageActions,
   playerSelectors,
   Status,
   Name,
   PlaybackSource,
   formatSecondsAsText,
-  lineupSelectors,
   collectionPageLineupActions as tracksActions,
   collectionPageSelectors,
   reachabilitySelectors
 } from '@audius/common'
-import { useFocusEffect } from '@react-navigation/native'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import type { DynamicImageProps } from 'app/components/core'
 import { Text } from 'app/components/core'
 import { DetailsTile } from 'app/components/details-tile'
 import type {
   DetailsTileDetail,
   DetailsTileProps
 } from 'app/components/details-tile/types'
-import { CollectionImage } from 'app/components/image/CollectionImage'
-import { DownloadToggle } from 'app/components/offline-downloads'
 import { TrackList } from 'app/components/track-list'
-import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
-import { useOfflineCollectionLineup } from 'app/hooks/useLoadOfflineTracks'
 import { make, track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 import { formatCount } from 'app/utils/format'
-const {
-  getCollection,
-  getCollectionTracksLineup,
-  getCollectionId,
-  getCollectionUid,
-  getUserUid
-} = collectionPageSelectors
-const { resetCollection } = collectionPageActions
-const { makeGetTableMetadatas } = lineupSelectors
+
+import { CollectionHeader } from './CollectionHeader'
+import { useCollectionLineup } from './useCollectionLineup'
+const { getCollectionUid, getUserUid } = collectionPageSelectors
+const { fetchCollection, resetCollection } = collectionPageActions
 const { getPlaying, getUid, getCurrentTrack } = playerSelectors
 const { getIsReachable } = reachabilitySelectors
 
 const messages = {
-  album: 'Album',
-  playlist: 'Playlist',
   empty: 'This playlist is empty.',
-  privatePlaylist: 'Private Playlist',
-  publishing: 'Publishing...',
   detailsPlaceholder: '---'
 }
 
@@ -74,12 +57,11 @@ type CollectionScreenDetailsTileProps = {
   isPrivate?: boolean
   isPublishing?: boolean
   extraDetails?: DetailsTileDetail[]
+  collectionId: number | SmartCollectionVariant
 } & Omit<
   DetailsTileProps,
   'descriptionLinkPressSource' | 'details' | 'headerText' | 'onPressPlay'
 >
-
-const getTracksLineup = makeGetTableMetadatas(getCollectionTracksLineup)
 
 const recordPlay = (id: Maybe<number>, play = true) => {
   track(
@@ -94,38 +76,39 @@ const recordPlay = (id: Maybe<number>, play = true) => {
 export const CollectionScreenDetailsTile = ({
   description,
   extraDetails = [],
+  collectionId,
   isAlbum,
   isPrivate,
   isPublishing,
-  renderImage: renderCustomImage,
+  renderImage,
+  trackCount,
   ...detailsTileProps
 }: CollectionScreenDetailsTileProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
 
-  const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const isReachable = useSelector(getIsReachable)
 
-  const collection = useSelector(getCollection)
   const collectionUid = useSelector(getCollectionUid)
-  const collectionId = useSelector(getCollectionId)
   const userUid = useSelector(getUserUid)
-  const { entries, status } = useProxySelector(getTracksLineup, [isReachable])
+
+  const fetchLineup = useCallback(() => {
+    dispatch(resetCollection(collectionUid, userUid))
+
+    // Need to refetch the collection after resetting
+    // Will pull from cache if it exists
+    // TODO: fix this for smart collections
+    if (typeof collectionId === 'number') {
+      dispatch(fetchCollection(collectionId))
+    }
+    dispatch(tracksActions.fetchLineupMetadatas(0, 200, false, undefined))
+  }, [dispatch, collectionUid, userUid, collectionId])
+
+  const { entries, status } = useCollectionLineup(collectionId, fetchLineup)
+  const trackUids = useMemo(() => entries.map(({ uid }) => uid), [entries])
+
   const tracksLoading = status === Status.LOADING
   const numTracks = entries.length
-
-  const handleFetchLineup = useCallback(() => {
-    dispatch(tracksActions.fetchLineupMetadatas(0, 200, false, undefined))
-  }, [dispatch])
-
-  const handleFetchCollectionLineup = useCallback(() => {
-    dispatch(resetCollection(collectionUid, userUid))
-    handleFetchLineup()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, handleFetchLineup])
-
-  useFocusEffect(handleFetchCollectionLineup)
-  useOfflineCollectionLineup(collectionId, handleFetchLineup, tracksActions)
 
   const duration = entries?.reduce(
     (duration, entry) => duration + entry.duration,
@@ -158,13 +141,6 @@ export const CollectionScreenDetailsTile = ({
 
   const isQueued = entries.some((entry) => playingUid === entry.uid)
 
-  const renderImage = useCallback(
-    (props: DynamicImageProps) => (
-      <CollectionImage collection={collection as Collection} {...props} />
-    ),
-    [collection]
-  )
-
   const handlePressPlay = useCallback(() => {
     if (isPlaying && isQueued) {
       dispatch(tracksActions.pause())
@@ -194,50 +170,22 @@ export const CollectionScreenDetailsTile = ({
     [dispatch, isPlaying, playingUid]
   )
 
-  const headerText = useMemo(() => {
-    if (isPublishing) {
-      return messages.publishing
-    }
-
-    if (isAlbum) {
-      return messages.album
-    }
-
-    if (isPrivate) {
-      return messages.privatePlaylist
-    }
-
-    return messages.playlist
-  }, [isAlbum, isPrivate, isPublishing])
-
-  const tracksForDownload = useMemo(
-    () =>
-      entries.map((track) => ({
-        trackId: track.track_id,
-        downloadReason: {
-          is_from_favorites: false,
-          collection_id: collectionId?.toString()
-        }
-      })),
-    [collectionId, entries]
+  const renderHeader = useCallback(
+    () => <CollectionHeader collectionId={collectionId} />,
+    [collectionId]
   )
-
-  const renderHeader = useCallback(() => {
-    return collection?.variant === Variant.SMART ? null : (
-      <DownloadToggle
-        collection={collection}
-        tracksForDownload={tracksForDownload}
-        labelText={headerText}
-      />
-    )
-  }, [collection, headerText, tracksForDownload])
 
   const renderTrackList = () => {
     if (tracksLoading)
       return (
         <>
           <View style={styles.trackListDivider} />
-          <TrackList hideArt showDivider showSkeleton tracks={Array(20)} />
+          <TrackList
+            hideArt
+            showDivider
+            showSkeleton
+            uids={Array(Math.min(10, trackCount ?? 0))}
+          />
         </>
       )
 
@@ -250,7 +198,7 @@ export const CollectionScreenDetailsTile = ({
           hideArt
           showDivider
           togglePlay={handlePressTrackListItemPlay}
-          tracks={entries}
+          uids={trackUids}
         />
       </>
     )
@@ -262,12 +210,13 @@ export const CollectionScreenDetailsTile = ({
       description={description}
       descriptionLinkPressSource='collection page'
       details={details}
+      hideOverflow={detailsTileProps.hideOverflow || !isReachable}
       hideListenCount={true}
+      hideRepost={!isReachable}
       isPlaying={isPlaying && isQueued}
       renderBottomContent={renderTrackList}
-      headerText={!isOfflineModeEnabled ? headerText : undefined}
-      renderHeader={isOfflineModeEnabled ? renderHeader : undefined}
-      renderImage={renderCustomImage ?? renderImage}
+      renderHeader={renderHeader}
+      renderImage={renderImage}
       onPressPlay={handlePressPlay}
     />
   )

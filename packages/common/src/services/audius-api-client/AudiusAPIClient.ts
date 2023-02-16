@@ -1,6 +1,11 @@
 import type { AudiusLibs } from '@audius/sdk/dist/native-libs'
 
-import { ID, TimeRange, StemTrackMetadata } from '../../models'
+import {
+  ID,
+  TimeRange,
+  StemTrackMetadata,
+  CollectionMetadata
+} from '../../models'
 import { SearchKind } from '../../store/pages/search-results/types'
 import { decodeHashId, encodeHashId } from '../../utils/hashIds'
 import { Nullable, removeNullable } from '../../utils/typeUtils'
@@ -16,6 +21,7 @@ import { processSearchResults } from './helper'
 import {
   APIActivity,
   APIBlockConfirmation,
+  APIFavorite,
   APIPlaylist,
   APIResponse,
   APISearch,
@@ -46,7 +52,8 @@ enum PathType {
 const ROOT_ENDPOINT_MAP = {
   feed: `/feed`,
   healthCheck: '/health_check',
-  blockConfirmation: '/block_confirmation'
+  blockConfirmation: '/block_confirmation',
+  getCollectionMetadata: '/playlists'
 }
 
 const FULL_ENDPOINT_MAP = {
@@ -78,6 +85,8 @@ const FULL_ENDPOINT_MAP = {
   userRepostsByHandle: (handle: OpaqueID) => `/users/handle/${handle}/reposts`,
   getRelatedArtists: (userId: OpaqueID) => `/users/${userId}/related`,
   getPlaylist: (playlistId: OpaqueID) => `/playlists/${playlistId}`,
+  getPlaylistByPermalink: (handle: string, slug: string) =>
+    `/playlists/by_permalink/${handle}/${slug}`,
   topGenreUsers: '/users/genre/top',
   topArtists: '/users/top',
   getTrack: (trackId: OpaqueID) => `/tracks/${trackId}`,
@@ -105,6 +114,7 @@ const ENDPOINT_MAP = {
   associatedWallets: '/users/associated_wallets',
   associatedWalletUserId: '/users/id',
   userChallenges: (userId: OpaqueID) => `/users/${userId}/challenges`,
+  userFavorites: (userId: OpaqueID) => `/users/${userId}/favorites`,
   undisbursedUserChallenges: `/challenges/undisbursed`
 }
 
@@ -121,6 +131,7 @@ type GetTrackArgs = {
     urlTitle: string
     handle: string
   }
+  abortOnUnreachable?: boolean
 }
 
 type GetTracksArgs = {
@@ -218,6 +229,7 @@ type GetPlaylistFavoriteUsersArgs = {
 type GetUserArgs = {
   userId: ID
   currentUserId: Nullable<ID>
+  abortOnUnreachable?: boolean
 }
 
 type GetUserByHandleArgs = {
@@ -239,6 +251,11 @@ type GetRelatedArtistsArgs = CurrentUserIdArg &
   PaginationArgs & {
     userId: ID
   }
+
+type GetFavoritesArgs = {
+  currentUserId: ID
+  limit?: number
+}
 
 type GetProfileListArgs = {
   profileUserId: ID
@@ -263,8 +280,20 @@ type GetUserRepostsByHandleArgs = {
   limit?: number
 }
 
+type GetCollectionMetadataArgs = {
+  collectionId: ID
+  currentUserId: ID
+  abortOnUnreachable?: boolean
+}
+
 type GetPlaylistArgs = {
   playlistId: ID
+  currentUserId: Nullable<ID>
+  abortOnUnreachable?: boolean
+}
+
+type GetPlaylistByPermalinkArgs = {
+  permalink: string
   currentUserId: Nullable<ID>
 }
 
@@ -819,7 +848,7 @@ export class AudiusAPIClient {
   }
 
   async getTrack(
-    { id, currentUserId, unlistedArgs }: GetTrackArgs,
+    { id, currentUserId, unlistedArgs, abortOnUnreachable }: GetTrackArgs,
     retry = true
   ) {
     const encodedTrackId = this._encodeOrThrow(id)
@@ -838,7 +867,10 @@ export class AudiusAPIClient {
       await this._getResponse(
         FULL_ENDPOINT_MAP.getTrack(encodedTrackId),
         args,
-        retry
+        retry,
+        undefined,
+        undefined,
+        abortOnUnreachable
       )
 
     if (!trackResponse) return null
@@ -958,7 +990,7 @@ export class AudiusAPIClient {
     return tracks
   }
 
-  async getUser({ userId, currentUserId }: GetUserArgs) {
+  async getUser({ userId, currentUserId, abortOnUnreachable }: GetUserArgs) {
     const encodedUserId = this._encodeOrThrow(userId)
     const encodedCurrentUserId = encodeHashId(currentUserId)
     this._assertInitialized()
@@ -968,7 +1000,11 @@ export class AudiusAPIClient {
 
     const response: Nullable<APIResponse<APIUser[]>> = await this._getResponse(
       FULL_ENDPOINT_MAP.getUser(encodedUserId),
-      params
+      params,
+      undefined,
+      undefined,
+      undefined,
+      abortOnUnreachable
     )
 
     if (!response) return []
@@ -1040,6 +1076,21 @@ export class AudiusAPIClient {
     return adapted
   }
 
+  async getFavorites({ currentUserId, limit }: GetFavoritesArgs) {
+    this._assertInitialized()
+    const encodedUserId = encodeHashId(currentUserId)
+    const params = { user_id: encodedUserId, limit }
+    const response = await this._getResponse<APIResponse<APIFavorite[]>>(
+      ENDPOINT_MAP.userFavorites(encodedUserId),
+      params,
+      true,
+      PathType.VersionPath
+    )
+    if (!response) return null
+    const { data } = response
+    return data.map(adapter.makeFavorite).filter(removeNullable)
+  }
+
   async getFavoritedTracks({
     profileUserId,
     currentUserId,
@@ -1067,7 +1118,7 @@ export class AudiusAPIClient {
         params
       )
 
-    if (!response) return []
+    if (!response) return null
 
     const adapted = response.data.map(({ item, ...props }) => ({
       timestamp: props.timestamp,
@@ -1163,7 +1214,31 @@ export class AudiusAPIClient {
     return adapted
   }
 
-  async getPlaylist({ playlistId, currentUserId }: GetPlaylistArgs) {
+  async getCollectionMetadata({
+    collectionId,
+    currentUserId,
+    abortOnUnreachable
+  }: GetCollectionMetadataArgs) {
+    this._assertInitialized()
+
+    const headers = { 'X-User-ID': currentUserId.toString() }
+    const params = { playlist_id: collectionId }
+    const response = await this._getResponse<APIResponse<CollectionMetadata[]>>(
+      ROOT_ENDPOINT_MAP.getCollectionMetadata,
+      params,
+      false,
+      PathType.RootPath,
+      headers,
+      abortOnUnreachable
+    )
+    return response?.data?.[0]
+  }
+
+  async getPlaylist({
+    playlistId,
+    currentUserId,
+    abortOnUnreachable
+  }: GetPlaylistArgs) {
     this._assertInitialized()
     const encodedCurrentUserId = encodeHashId(currentUserId)
     const encodedPlaylistId = this._encodeOrThrow(playlistId)
@@ -1174,6 +1249,40 @@ export class AudiusAPIClient {
     const response: Nullable<APIResponse<APIPlaylist[]>> =
       await this._getResponse(
         FULL_ENDPOINT_MAP.getPlaylist(encodedPlaylistId),
+        params,
+        undefined,
+        undefined,
+        undefined,
+        abortOnUnreachable
+      )
+
+    if (!response) return []
+
+    const adapted = response.data
+      .map(adapter.makePlaylist)
+      .filter(removeNullable)
+    return adapted
+  }
+
+  async getPlaylistByPermalink({
+    permalink,
+    currentUserId
+  }: GetPlaylistByPermalinkArgs) {
+    this._assertInitialized()
+    const encodedCurrentUserId = encodeHashId(currentUserId)
+    const params = {
+      user_id: encodedCurrentUserId || undefined
+    }
+    const splitPermalink = permalink.split('/')
+    if (splitPermalink.length !== 4) {
+      throw Error(
+        'Permalink formatted incorrectly. Should follow /<handle>/playlist/<slug> format.'
+      )
+    }
+    const [, handle, , slug] = splitPermalink
+    const response: Nullable<APIResponse<APIPlaylist[]>> =
+      await this._getResponse(
+        FULL_ENDPOINT_MAP.getPlaylistByPermalink(handle, slug),
         params
       )
 
@@ -1682,13 +1791,14 @@ export class AudiusAPIClient {
     retry = true,
     pathType: PathType = PathType.VersionFullPath,
     headers?: { [key: string]: string },
-    splitArrayParams = false
+    splitArrayParams = false,
+    abortOnUnreachable = true
   ): Promise<Nullable<T>> {
     if (this.initializationState.state !== 'initialized')
       throw new Error('_getResponse called uninitialized')
 
     // If not reachable, abort
-    if (!this.isReachable) {
+    if (!this.isReachable && abortOnUnreachable) {
       console.debug(`APIClient: Not reachable, aborting request`)
       return null
     }

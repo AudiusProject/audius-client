@@ -211,8 +211,11 @@ export type DesktopTrackTileProps = {
   /** The relative link of the track */
   permalink: string
 
-  /** Whether the bottom bar can be overridden */
-  canOverrideBottomBar?: boolean
+  /** Whether the tile is for a track */
+  isTrack?: boolean
+
+  /** Track id if track tile */
+  trackId?: ID
 }
 
 export type DesktopPlaylistTileProps = {

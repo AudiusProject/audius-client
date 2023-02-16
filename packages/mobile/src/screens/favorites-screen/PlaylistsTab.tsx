@@ -1,11 +1,11 @@
 import { useCallback, useState } from 'react'
 
-import type { CommonState } from '@audius/common'
-import { useProxySelector, reachabilitySelectors } from '@audius/common'
+import { reachabilitySelectors } from '@audius/common'
+import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated'
 import { useSelector } from 'react-redux'
 
 import { CollectionList } from 'app/components/collection-list'
-import { VirtualizedScrollView, Button } from 'app/components/core'
+import { Button, VirtualizedScrollView } from 'app/components/core'
 import { EmptyTileCTA } from 'app/components/empty-tile-cta'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
@@ -15,7 +15,7 @@ import type { FavoritesTabScreenParamList } from '../app-screen/FavoritesTabScre
 import { FilterInput } from './FilterInput'
 import { NoTracksPlaceholder } from './NoTracksPlaceholder'
 import { OfflineContentBanner } from './OfflineContentBanner'
-import { getAccountCollections } from './selectors'
+import { useCollectionScreenData } from './useCollectionScreenData'
 
 const { getIsReachable } = reachabilitySelectors
 
@@ -26,21 +26,15 @@ const messages = {
 
 export const PlaylistsTab = () => {
   const navigation = useNavigation<FavoritesTabScreenParamList>()
-  const [filterValue, setFilterValue] = useState('')
-  const isOfflineModeEnabled = useIsOfflineModeEnabled()
-  const isReachable = useSelector(getIsReachable)
-
-  const userPlaylists = useProxySelector(
-    (state: CommonState) =>
-      getAccountCollections(state, filterValue).filter(
-        (collection) => !collection.is_album
-      ),
-    [filterValue]
-  )
-
   const handleNavigateToNewPlaylist = useCallback(() => {
     navigation.push('CreatePlaylist')
   }, [navigation])
+
+  const [filterValue, setFilterValue] = useState('')
+  const { filteredCollections: userPlaylists, collectionIdsToNumTracks } =
+    useCollectionScreenData(filterValue, 'playlists')
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
+  const isReachable = useSelector(getIsReachable)
 
   return (
     <VirtualizedScrollView listKey='favorites-playlists-view'>
@@ -58,20 +52,24 @@ export const PlaylistsTab = () => {
             placeholder={messages.inputPlaceholder}
             onChangeText={setFilterValue}
           />
-          <>
-            {!isReachable && isOfflineModeEnabled ? null : (
+          {!isReachable && isOfflineModeEnabled ? null : (
+            <Animated.View layout={Layout} entering={FadeIn} exiting={FadeOut}>
               <Button
                 title='Create a New Playlist'
                 variant='commonAlt'
                 onPress={handleNavigateToNewPlaylist}
               />
-            )}
-          </>
-          <CollectionList
-            listKey='favorites-playlists'
-            scrollEnabled={false}
-            collection={userPlaylists}
-          />
+            </Animated.View>
+          )}
+
+          <Animated.View layout={Layout}>
+            <CollectionList
+              listKey='favorites-playlists'
+              scrollEnabled={false}
+              collection={userPlaylists}
+              collectionIdsToNumTracks={collectionIdsToNumTracks}
+            />
+          </Animated.View>
         </>
       )}
     </VirtualizedScrollView>

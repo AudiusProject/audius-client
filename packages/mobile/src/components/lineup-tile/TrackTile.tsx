@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 
 import type { Track, User, CommonState } from '@audius/common'
 import {
+  SquareSizes,
   accountSelectors,
   removeNullable,
   PlaybackSource,
@@ -26,7 +27,8 @@ import { TrackImage } from 'app/components/image/TrackImage'
 import type { LineupItemProps } from 'app/components/lineup-tile/types'
 import { useNavigation } from 'app/hooks/useNavigation'
 
-import type { DynamicImageProps, TileProps } from '../core'
+import type { TileProps } from '../core'
+import type { ImageProps } from '../image/FastImage'
 
 import { LineupTile } from './LineupTile'
 
@@ -92,11 +94,14 @@ export const TrackTileComponent = ({
     has_current_user_saved,
     play_count,
     title,
-    track_id
+    track_id,
+    is_premium: isPremium
   } = track
 
   const renderImage = useCallback(
-    (props: DynamicImageProps) => <TrackImage track={track} {...props} />,
+    (props: ImageProps) => (
+      <TrackImage track={track} size={SquareSizes.SIZE_150_BY_150} {...props} />
+    ),
     [track]
   )
 
@@ -117,7 +122,7 @@ export const TrackTileComponent = ({
       return
     }
     const overflowActions = [
-      OverflowAction.ADD_TO_PLAYLIST,
+      !isPremium ? OverflowAction.ADD_TO_PLAYLIST : null,
       OverflowAction.VIEW_TRACK_PAGE,
       isOnArtistsTracksTab ? null : OverflowAction.VIEW_ARTIST_PAGE,
       isOwner ? OverflowAction.EDIT_TRACK : null,
@@ -131,7 +136,7 @@ export const TrackTileComponent = ({
         overflowActions
       })
     )
-  }, [track_id, dispatch, isOnArtistsTracksTab, isOwner])
+  }, [isPremium, track_id, dispatch, isOnArtistsTracksTab, isOwner])
 
   const handlePressShare = useCallback(() => {
     if (track_id === undefined) {

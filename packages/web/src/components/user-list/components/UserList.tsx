@@ -1,6 +1,9 @@
-import { ReactNode } from 'react'
-
-import { ID, User } from '@audius/common'
+import {
+  ID,
+  SUPPORTING_USER_LIST_TAG,
+  TOP_SUPPORTERS_USER_LIST_TAG,
+  User
+} from '@audius/common'
 import cn from 'classnames'
 import InfiniteScroll from 'react-infinite-scroller'
 import Lottie from 'react-lottie'
@@ -21,13 +24,13 @@ type UserListProps = {
   users: User[]
   isMobile: boolean
   tag: string
+  otherUserId?: ID
   loadMore: () => void
   onClickArtistName: (handle: string) => void
   onFollow: (userId: ID) => void
   onUnfollow: (userId: ID) => void
   getScrollParent?: () => HTMLElement | null
   onNavigateAway?: () => void
-  renderActionButton?: (userId: ID) => ReactNode
 }
 
 const UserList = (props: UserListProps) => {
@@ -56,22 +59,28 @@ const UserList = (props: UserListProps) => {
               }}
               onNavigateAway={props.onNavigateAway}
               showPopover={!props.isMobile}
-              tag={props.tag}
-              className={styles.artistChipContainer}
               popoverMount={MountPlacement.BODY}
+              showSupportFor={
+                props.tag === TOP_SUPPORTERS_USER_LIST_TAG
+                  ? props.otherUserId
+                  : undefined
+              }
+              showSupportFrom={
+                props.tag === SUPPORTING_USER_LIST_TAG
+                  ? props.otherUserId
+                  : undefined
+              }
             />
-            {user.user_id !== props.userId
-              ? props.renderActionButton?.(user.user_id) || (
-                  <FollowButton
-                    size='small'
-                    following={user.does_current_user_follow}
-                    onFollow={() => props.onFollow(user.user_id)}
-                    onUnfollow={() => props.onUnfollow(user.user_id)}
-                    showIcon
-                    stopPropagation
-                  />
-                )
-              : null}
+            {user.user_id !== props.userId ? (
+              <FollowButton
+                size='small'
+                following={user.does_current_user_follow}
+                onFollow={() => props.onFollow(user.user_id)}
+                onUnfollow={() => props.onUnfollow(user.user_id)}
+                showIcon
+                stopPropagation
+              />
+            ) : null}
           </div>
         ))}
         {/* Only show the spacer if we're in fullscreen mode (no getScrollParent) */}

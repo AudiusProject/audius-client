@@ -44,6 +44,8 @@ export const getProfileCollectionSortMode = (
   state: CommonState,
   handle: string
 ) => getProfile(state, handle)?.collectionSortMode
+export const getCollectionsStatus = (state: CommonState, handle?: string) =>
+  getProfile(state, handle)?.collectionStatus
 export const getProfileFollowers = (state: CommonState, handle?: string) =>
   getProfile(state, handle)?.followers
 export const getProfileFollowees = (state: CommonState, handle?: string) =>
@@ -192,9 +194,10 @@ export const makeGetProfile = () => {
           })
           .filter(removeNullable) ?? (emptyList as User[])
 
+      const user = users[userId]
       return {
         profile: {
-          ...users[userId],
+          ...user,
           followers: {
             status: followers?.status ?? Status.IDLE,
             users: followersPopulated

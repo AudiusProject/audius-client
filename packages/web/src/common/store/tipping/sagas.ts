@@ -29,6 +29,7 @@ import {
   LastDismissedTip,
   LocalStorage
 } from '@audius/common'
+import { PayloadAction } from '@reduxjs/toolkit'
 import BN from 'bn.js'
 import {
   call,
@@ -54,6 +55,7 @@ const {
   convert,
   fetchRecentTips,
   fetchSupportingForUser,
+  fetchSupportersForUser,
   refreshSupport,
   sendTipFailed,
   sendTipSucceeded,
@@ -63,7 +65,8 @@ const {
   setShowTip,
   setSupportingOverridesForUser,
   setSupportersOverridesForUser,
-  fetchUserSupporter
+  fetchUserSupporter,
+  refreshTipGatedTracks
 } = tippingActions
 const {
   getOptimisticSupporters,
@@ -285,6 +288,7 @@ function* sendTipAsync() {
         source
       })
     )
+    yield put(refreshTipGatedTracks({ userId: recipient.user_id }))
 
     /**
      * Store optimistically updated supporting value for sender
@@ -406,6 +410,52 @@ function* refreshSupportAsync({
   yield put(
     setSupportersForUser({
       id: receiverUserId,
+      supportersForUser: supportersForReceiverMap
+    })
+  )
+}
+
+type FetchSupportingAction = PayloadAction<{ userId: ID }>
+
+function* fetchSupportersForUserAsync(action: FetchSupportingAction) {
+  const {
+    payload: { userId }
+  } = action
+  yield* waitForRead()
+  const apiClient = yield* getContext('apiClient')
+
+  const supportersParams: GetSupportersArgs = {
+    userId,
+    limit: MAX_PROFILE_TOP_SUPPORTERS + 1
+  }
+
+  const supportersForReceiverList = yield* call(
+    [apiClient, apiClient.getSupporters],
+    supportersParams
+  )
+
+  const userIds = supportersForReceiverList?.map((supporter) =>
+    decodeHashId(supporter.sender.id)
+  )
+  if (!userIds) return
+  yield call(fetchUsers, userIds)
+
+  const supportersForReceiverMap: Record<string, Supporter> = {}
+
+  supportersForReceiverList?.forEach((supporter) => {
+    const supporterUserId = decodeHashId(supporter.sender.id)
+    if (supporterUserId) {
+      supportersForReceiverMap[supporterUserId] = {
+        sender_id: supporterUserId,
+        rank: supporter.rank,
+        amount: supporter.amount
+      }
+    }
+  })
+
+  yield put(
+    setSupportersForUser({
+      id: userId,
       supportersForUser: supportersForReceiverMap
     })
   )
@@ -599,6 +649,10 @@ function* watchFetchSupportingForUser() {
   yield* takeEvery(fetchSupportingForUser.type, fetchSupportingForUserAsync)
 }
 
+function* watchFetchSupportersForUser() {
+  yield takeEvery(fetchSupportersForUser.type, fetchSupportersForUserAsync)
+}
+
 function* watchRefreshSupport() {
   yield* takeEvery(refreshSupport.type, refreshSupportAsync)
 }
@@ -618,6 +672,7 @@ function* watchFetchUserSupporter() {
 const sagas = () => {
   return [
     watchFetchSupportingForUser,
+    watchFetchSupportersForUser,
     watchRefreshSupport,
     watchConfirmSendTip,
     watchFetchRecentTips,

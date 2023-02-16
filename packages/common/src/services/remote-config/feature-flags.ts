@@ -18,13 +18,14 @@ export enum FeatureFlags {
   NEW_ARTIST_DASHBOARD_TABLE = 'new_artist_dashboard_table',
   BUY_AUDIO_COINBASE_ENABLED = 'buy_audio_coinbase_enabled',
   BUY_AUDIO_STRIPE_ENABLED = 'buy_audio_stripe_enabled',
-  OFFLINE_MODE_ENABLED = 'offline_mode_enabled',
+  OFFLINE_MODE_RELEASE = 'offline_mode_release',
   PREMIUM_CONTENT_ENABLED = 'premium_content_enabled',
+  ANDROID_PREMIUM_CONTENT_ENABLED = 'android_premium_content_enabled',
+  IOS_PREMIUM_CONTENT_ENABLED = 'ios_premium_content_enabled',
   NFT_GATE_ENABLED = 'nft_gate_enabled',
   SPECIAL_ACCESS_GATE_ENABLED = 'special_access_gate_enabled',
   AUTO_SUBSCRIBE_ON_FOLLOW = 'auto_subscribe_on_follow',
   STREAM_MP3 = 'stream_mp3',
-  READ_ARTIST_PICK_FROM_DISCOVERY = 'read_artist_pick_from_discovery',
   SHARE_TO_STORY = 'share_to_story_2',
   READ_SUBSCRIBERS_FROM_DISCOVERY_ENABLED = 'read_subscribers_from_discovery_enabled',
   MOBILE_WALLET_CONNECT = 'mobile_wallet_connect_final',
@@ -38,7 +39,8 @@ export enum FeatureFlags {
   FAST_CACHE = 'fast_cache',
   SAFE_FAST_CACHE = 'safe_fast_cache',
   ENTITY_MANAGER_VIEW_PLAYLIST_ENABLED = 'entity_manager_view_playlist_enabled',
-  ENTITY_MANAGER_VIEW_NOTIFICATIONS_ENABLED = 'entity_manager_view_notifications_enabled'
+  ENTITY_MANAGER_VIEW_NOTIFICATIONS_ENABLED = 'entity_manager_view_notifications_enabled',
+  SHARE_VIDEO_TO_TIKTOK = 'share_video_to_tiktok'
 }
 
 type FlagDefaults = Record<FeatureFlags, boolean>
@@ -72,13 +74,14 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.NEW_ARTIST_DASHBOARD_TABLE]: false,
   [FeatureFlags.BUY_AUDIO_COINBASE_ENABLED]: false,
   [FeatureFlags.BUY_AUDIO_STRIPE_ENABLED]: false,
-  [FeatureFlags.OFFLINE_MODE_ENABLED]: false,
+  [FeatureFlags.OFFLINE_MODE_RELEASE]: true,
   [FeatureFlags.PREMIUM_CONTENT_ENABLED]: false,
+  [FeatureFlags.ANDROID_PREMIUM_CONTENT_ENABLED]: false,
+  [FeatureFlags.IOS_PREMIUM_CONTENT_ENABLED]: false,
   [FeatureFlags.NFT_GATE_ENABLED]: false,
   [FeatureFlags.SPECIAL_ACCESS_GATE_ENABLED]: false,
   [FeatureFlags.AUTO_SUBSCRIBE_ON_FOLLOW]: false,
   [FeatureFlags.STREAM_MP3]: false,
-  [FeatureFlags.READ_ARTIST_PICK_FROM_DISCOVERY]: false,
   [FeatureFlags.SHARE_TO_STORY]: false,
   [FeatureFlags.READ_SUBSCRIBERS_FROM_DISCOVERY_ENABLED]: false,
   [FeatureFlags.MOBILE_WALLET_CONNECT]: false,
@@ -92,5 +95,6 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.FAST_CACHE]: false,
   [FeatureFlags.SAFE_FAST_CACHE]: false,
   [FeatureFlags.ENTITY_MANAGER_VIEW_PLAYLIST_ENABLED]: false,
-  [FeatureFlags.ENTITY_MANAGER_VIEW_NOTIFICATIONS_ENABLED]: false
+  [FeatureFlags.ENTITY_MANAGER_VIEW_NOTIFICATIONS_ENABLED]: false,
+  [FeatureFlags.SHARE_VIDEO_TO_TIKTOK]: false
 }
