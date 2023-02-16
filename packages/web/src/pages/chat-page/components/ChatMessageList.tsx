@@ -60,7 +60,6 @@ const isScrolledToTop = (element: HTMLElement) => {
  * Checks if the current message:
  * - Is the first unread message
  * - Is by a different user than the current one
- * - Is at the index that matches the unread count (ie there's been no new messages since)
  */
 const shouldRenderUnreadIndicator = (
   unreadCount: number,
@@ -78,8 +77,7 @@ const shouldRenderUnreadIndicator = (
   const isPreviousMessageUnread =
     prevMessage && prevMessage.created_at > lastReadAt
   const isAuthor = message.sender_user_id === currentUserId
-  const isOutdated = currentMessageIndex > unreadCount - 1
-  return isUnread && !isPreviousMessageUnread && !isAuthor && !isOutdated
+  return isUnread && !isPreviousMessageUnread && !isAuthor
 }
 
 export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
