@@ -37,6 +37,7 @@ import { useEffectOnce, usePrevious } from 'react-use'
 import { DEFAULT_IMAGE_URL } from 'app/components/image/TrackImage'
 import { getImageSourceOptimistic } from 'app/hooks/useContentNodeImage'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
+import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { apiClient } from 'app/services/audius-api-client'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
@@ -53,7 +54,6 @@ import {
   addOfflineEntries,
   OfflineDownloadStatus
 } from 'app/store/offline-downloads/slice'
-import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 
 const { getUsers } = cacheUsersSelectors
 const { getTracks } = cacheTracksSelectors
