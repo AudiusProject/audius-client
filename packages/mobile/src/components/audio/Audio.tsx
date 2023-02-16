@@ -10,6 +10,7 @@ import {
   queueActions,
   queueSelectors,
   reachabilitySelectors,
+  premiumContentSelectors,
   RepeatMode,
   FeatureFlags,
   encodeHashId,
@@ -52,6 +53,7 @@ import {
   addOfflineEntries,
   OfflineDownloadStatus
 } from 'app/store/offline-downloads/slice'
+import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 
 const { getUsers } = cacheUsersSelectors
 const { getTracks } = cacheTracksSelectors
@@ -66,6 +68,8 @@ const {
   getShuffle
 } = queueSelectors
 const { getIsReachable } = reachabilitySelectors
+
+const { getPremiumTrackSignatureMap } = premiumContentSelectors
 
 // TODO: These constants are the same in now playing drawer. Move them to shared location
 const SKIP_DURATION_SEC = 15
@@ -130,6 +134,8 @@ export const Audio = () => {
   const isReachable = useSelector(getIsReachable)
   const isNotReachable = isReachable === false
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
+  const isPremiumContentEnabled = useIsPremiumContentEnabled()
+  const premiumTrackSignatureMap = useSelector(getPremiumTrackSignatureMap)
 
   // Queue Things
   const queueIndex = useSelector(getIndex)
@@ -279,12 +285,36 @@ export const Audio = () => {
           // Figure out how to call next earlier
           next()
         } else {
-          updateQueueIndex(playerIndex)
           const track = queueTracks[playerIndex]
-          updatePlayerInfo({
-            trackId: track.track_id,
-            uid: queueTrackUids[playerIndex]
-          })
+
+          // Skip track if user does not have access i.e. for an unlocked premium track
+          const doesUserHaveAccess = (() => {
+            if (!isPremiumContentEnabled) {
+              return true
+            }
+
+            const {
+              track_id: trackId,
+              is_premium: isPremium,
+              premium_content_signature: premiumContentSignature
+            } = track
+
+            const hasPremiumContentSignature =
+              !!premiumContentSignature ||
+              !!(trackId && premiumTrackSignatureMap[trackId])
+
+            return !isPremium || hasPremiumContentSignature
+          })()
+
+          if (!doesUserHaveAccess) {
+            next()
+          } else {
+            updateQueueIndex(playerIndex)
+            updatePlayerInfo({
+              trackId: track.track_id,
+              uid: queueTrackUids[playerIndex]
+            })
+          }
         }
       }
 
