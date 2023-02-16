@@ -48,6 +48,8 @@ import {
   unsubscribeFromUserAsync
 } from 'common/store/social/users/sagas'
 import { waitForRead, waitForWrite } from 'utils/sagaHelpers'
+
+import { watchFetchProfileCollections } from './fetchProfileCollectionsSaga'
 const { refreshSupport } = tippingActions
 const { getIsReachable } = reachabilitySelectors
 const { getProfileUserId, getProfileFollowers, getProfileUser } =
@@ -293,10 +295,7 @@ function* fetchProfileAsync(action) {
     if (!isNativeMobile) {
       // Fetch user socials and collections after fetching the user itself
       yield fork(fetchUserSocials, action)
-    }
-    yield fork(fetchUserCollections, user.user_id)
-
-    if (!isNativeMobile) {
+      yield fork(fetchUserCollections, user.user_id)
       yield fork(fetchSupportersAndSupporting, user.user_id)
     }
 
@@ -324,20 +323,22 @@ function* fetchProfileAsync(action) {
       }
     }
 
-    const showArtistRecommendationsPercent =
-      getRemoteVar(DoubleKeys.SHOW_ARTIST_RECOMMENDATIONS_PERCENT) || 0
-    if (Math.random() < showArtistRecommendationsPercent) {
-      yield put(
-        artistRecommendationsActions.fetchRelatedArtists({
-          userId: user.user_id
-        })
-      )
+    if (!isNativeMobile) {
+      const showArtistRecommendationsPercent =
+        getRemoteVar(DoubleKeys.SHOW_ARTIST_RECOMMENDATIONS_PERCENT) || 0
+      if (Math.random() < showArtistRecommendationsPercent) {
+        yield put(
+          artistRecommendationsActions.fetchRelatedArtists({
+            userId: user.user_id
+          })
+        )
+      }
     }
 
-    // Delay so the page can load before we fetch mutual followers
-    yield delay(2000)
-
     if (!isNativeMobile) {
+      // Delay so the page can load before we fetch mutual followers
+      yield delay(2000)
+
       yield put(
         profileActions.fetchFollowUsers(
           FollowType.FOLLOWEE_FOLLOWS,
@@ -662,6 +663,7 @@ export default function sagas() {
     watchFetchProfile,
     watchUpdateProfile,
     watchUpdateCurrentUserFollows,
-    watchSetNotificationSubscription
+    watchSetNotificationSubscription,
+    watchFetchProfileCollections
   ]
 }

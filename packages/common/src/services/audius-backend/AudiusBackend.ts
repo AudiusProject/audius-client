@@ -1531,6 +1531,7 @@ export const audiusBackend = ({
   async function getFolloweeFollows(userId: ID, limit = 100, offset = 0) {
     let followers = []
     try {
+      await waitForLibsInit()
       followers = await audiusLibs.User.getMutualFollowers(
         limit,
         offset,
@@ -1549,7 +1550,11 @@ export const audiusBackend = ({
     return followers
   }
 
-  async function getPlaylists(userId: Nullable<ID>, playlistIds: ID[]) {
+  async function getPlaylists(
+    userId: Nullable<ID>,
+    playlistIds: Nullable<ID[]>,
+    withUsers = true
+  ): Promise<CollectionMetadata[]> {
     try {
       const playlists = await withEagerOption(
         {
@@ -1560,7 +1565,7 @@ export const audiusBackend = ({
         0,
         playlistIds,
         userId,
-        true
+        withUsers
       )
       return (playlists || []).map(getCollectionImages)
     } catch (err) {
