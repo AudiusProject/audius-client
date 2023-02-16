@@ -10,7 +10,7 @@ import {
   toastSagas,
   vipDiscordModalSagas,
   reachabilitySagas as commonReachabilitySagas,
-  searchUsersSagas
+  searchUsersModalSagas
 } from '@audius/common'
 import { all, fork } from 'redux-saga/effects'
 
@@ -176,7 +176,7 @@ export default function* rootSaga() {
     toastSagas(),
     shareSoundToTikTokModalSagas(),
     smartCollectionPageSagas(),
-    searchUsersSagas(),
+    searchUsersModalSagas(),
     stemUploadSagas(),
     themeSagas(),
     tokenDashboardSagas(),

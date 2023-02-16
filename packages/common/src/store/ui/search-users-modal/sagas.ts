@@ -36,6 +36,6 @@ function* watchSearchUsers() {
   yield* takeLatest(searchUsers, doSearchUsers)
 }
 
-export const sagas = () => {
+export default function sagas() {
   return [watchSearchUsers]
 }

@@ -8,7 +8,7 @@ import {
   shareModalUISagas as shareModalSagas,
   vipDiscordModalSagas,
   reachabilitySagas,
-  searchUsersSagas
+  searchUsersModalSagas
 } from '@audius/common'
 import addToPlaylistSagas from 'common/store/add-to-playlist/sagas'
 import analyticsSagas from 'common/store/analytics/sagas'
@@ -110,7 +110,7 @@ export default function* rootSaga() {
     ...premiumContentSagas(),
 
     // Search Users
-    ...searchUsersSagas(),
+    ...searchUsersModalSagas(),
 
     ...walletSagas(),
 
