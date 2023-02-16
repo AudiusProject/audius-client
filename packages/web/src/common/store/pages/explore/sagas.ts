@@ -64,7 +64,7 @@ function* watchFetchExplore() {
   })
 }
 
-function* watchFetchPlaylilsts() {
+function* watchFetchPlaylists() {
   yield* takeEvery(fetchPlaylists.type, function* fetchPlaylistsAsync() {
     const featuredPlaylistIds = yield* select(getPlaylistIds)
     yield* call(retrieveCollections, null, featuredPlaylistIds, false)
@@ -81,5 +81,5 @@ function* watchFetchProfiles() {
 }
 
 export default function sagas() {
-  return [watchFetchExplore, watchFetchPlaylilsts, watchFetchProfiles]
+  return [watchFetchExplore, watchFetchPlaylists, watchFetchProfiles]
 }

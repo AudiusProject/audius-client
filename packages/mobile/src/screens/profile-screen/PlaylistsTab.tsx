@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 
 import {
-  cacheUsersActions,
   profilePageActions,
-  profilePageSelectors
+  profilePageSelectors,
+  Status
 } from '@audius/common'
 import { useIsFocused } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
@@ -13,12 +13,10 @@ import { CollectionList } from 'app/components/collection-list'
 import { EmptyProfileTile } from './EmptyProfileTile'
 import { useSelectProfile } from './selectors'
 const { getProfilePlaylists, getCollectionsStatus } = profilePageSelectors
-const { fetchUserCollections } = cacheUsersActions
-const { fetchCollectionsSucceded } = profilePageActions
+const { fetchCollections } = profilePageActions
 
 export const PlaylistsTab = () => {
-  const { user_id, handle, playlist_count } = useSelectProfile([
-    'user_id',
+  const { handle, playlist_count } = useSelectProfile([
     'handle',
     'playlist_count'
   ])
@@ -30,11 +28,11 @@ export const PlaylistsTab = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    if (isFocused && playlist_count > 0 && !collectionsStatus) {
-      dispatch(fetchUserCollections(user_id))
-      dispatch(fetchCollectionsSucceded(handle))
+    if (isFocused && playlist_count > 0 && collectionsStatus === Status.IDLE) {
+      dispatch(fetchCollections(handle))
     }
-  }, [isFocused, playlist_count, collectionsStatus, dispatch, handle, user_id])
+  }, [isFocused, playlist_count, collectionsStatus, dispatch, handle])
+
   return (
     <CollectionList
       listKey='profile-playlists'

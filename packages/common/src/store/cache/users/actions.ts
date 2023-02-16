@@ -9,7 +9,6 @@ export const REMOVE_BY_HANDLE = 'CACHE/USERS/REMOVE_BY_HANDLE'
 export const FETCH_PROFILE_PICTURE = 'CACHE/USERS/FETCH_PROFILE_PICTURE'
 export const FETCH_COVER_PHOTO = 'CACHE/USERS/FETCH_COVER_PHOTO'
 export const FETCH_USER_SOCIALS = 'CACHE/USERS/FETCH_USER_SOCIALS'
-export const FETCH_USER_COLLECTIONS = 'CACHE/USERS/FETCH_USER_COLLECTIONS'
 export const FETCH_USERS = 'CACHE/USERS/FETCH'
 
 /**
@@ -38,10 +37,6 @@ export function fetchCoverPhoto(userId, size) {
 
 export function fetchUserSocials(handle) {
   return { type: FETCH_USER_SOCIALS, handle }
-}
-
-export function fetchUserCollections(userId) {
-  return { type: FETCH_USER_COLLECTIONS, userId }
 }
 
 export function fetchUsers({

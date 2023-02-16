@@ -27,7 +27,9 @@ export const UPDATE_MOST_USED_TAGS = 'PROFILE/UPDATE_MOST_USED_TAGS'
 export const SET_NOTIFICATION_SUBSCRIPTION =
   'PROFILE/SET_NOTIFICATION_SUBSCRIPTION'
 
+export const FETCH_COLLECTIONS = 'PROFILE/FETCH_COLLECTIONS'
 export const FETCH_COLLECTIONS_SUCCEEDED = 'PROFILE/FETCH_COLLECTIONS_SUCCEEDED'
+export const FETCH_COLLECTIONS_FAILED = 'PROFILE/FETCH_COLLECTIONS_FAILED'
 
 // Either handle or userId is required
 // TODO: Move this to redux toolkit
@@ -155,9 +157,23 @@ export function setNotificationSubscription(
   }
 }
 
+export function fetchCollections(handle: string) {
+  return {
+    type: FETCH_COLLECTIONS,
+    handle
+  }
+}
+
 export function fetchCollectionsSucceded(handle: string) {
   return {
     type: FETCH_COLLECTIONS_SUCCEEDED,
+    handle
+  }
+}
+
+export function fetchCollectionsFailed(handle: string) {
+  return {
+    type: FETCH_COLLECTIONS_FAILED,
     handle
   }
 }

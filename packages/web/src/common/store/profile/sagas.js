@@ -48,6 +48,8 @@ import {
   unsubscribeFromUserAsync
 } from 'common/store/social/users/sagas'
 import { waitForRead, waitForWrite } from 'utils/sagaHelpers'
+
+import { watchFetchProfileCollections } from './fetchProfileCollectionsSaga'
 const { refreshSupport } = tippingActions
 const { getIsReachable } = reachabilitySelectors
 const { getProfileUserId, getProfileFollowers, getProfileUser } =
@@ -661,6 +663,7 @@ export default function sagas() {
     watchFetchProfile,
     watchUpdateProfile,
     watchUpdateCurrentUserFollows,
-    watchSetNotificationSubscription
+    watchSetNotificationSubscription,
+    watchFetchProfileCollections
   ]
 }

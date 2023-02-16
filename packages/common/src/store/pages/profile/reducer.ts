@@ -23,7 +23,9 @@ import {
   DISMISS_PROFILE_METER,
   UPDATE_MOST_USED_TAGS,
   SET_NOTIFICATION_SUBSCRIPTION,
-  FETCH_COLLECTIONS_SUCCEEDED
+  FETCH_COLLECTIONS,
+  FETCH_COLLECTIONS_SUCCEEDED,
+  FETCH_COLLECTIONS_FAILED
 } from './actions'
 import { PREFIX as feedPrefix } from './lineups/feed/actions'
 import { PREFIX as tracksPrefix } from './lineups/tracks/actions'
@@ -210,8 +212,14 @@ const actionsMap = {
       isNotificationSubscribed: isSubscribed
     })
   },
+  [FETCH_COLLECTIONS](state, action) {
+    return updateProfile(state, action, { collectionStatus: Status.LOADING })
+  },
   [FETCH_COLLECTIONS_SUCCEEDED](state, action) {
     return updateProfile(state, action, { collectionStatus: Status.SUCCESS })
+  },
+  [FETCH_COLLECTIONS_FAILED](state, action) {
+    return updateProfile(state, action, { collectionStatus: Status.ERROR })
   }
 }
 

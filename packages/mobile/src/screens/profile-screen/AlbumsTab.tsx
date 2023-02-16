@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 
 import {
-  cacheUsersActions,
   profilePageActions,
   profilePageSelectors,
   Status
@@ -14,15 +13,10 @@ import { CollectionList } from 'app/components/collection-list/CollectionList'
 import { EmptyProfileTile } from './EmptyProfileTile'
 import { useSelectProfile } from './selectors'
 const { getProfileAlbums, getCollectionsStatus } = profilePageSelectors
-const { fetchUserCollections } = cacheUsersActions
-const { fetchCollectionsSucceded } = profilePageActions
+const { fetchCollections } = profilePageActions
 
 export const AlbumsTab = () => {
-  const { user_id, handle, album_count } = useSelectProfile([
-    'user_id',
-    'handle',
-    'album_count'
-  ])
+  const { handle, album_count } = useSelectProfile(['handle', 'album_count'])
   const albums = useSelector((state) => getProfileAlbums(state, handle))
   const collectionsStatus = useSelector((state) =>
     getCollectionsStatus(state, handle)
@@ -32,10 +26,9 @@ export const AlbumsTab = () => {
 
   useEffect(() => {
     if (isFocused && album_count > 0 && collectionsStatus === Status.IDLE) {
-      dispatch(fetchUserCollections(user_id))
-      dispatch(fetchCollectionsSucceded(handle))
+      dispatch(fetchCollections(handle))
     }
-  }, [isFocused, album_count, collectionsStatus, dispatch, handle, user_id])
+  }, [isFocused, album_count, collectionsStatus, dispatch, handle])
 
   return (
     <CollectionList

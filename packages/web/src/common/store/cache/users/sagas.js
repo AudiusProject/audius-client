@@ -164,6 +164,7 @@ export function* fetchUserByHandle(
 }
 
 /**
+ * @deprecated legacy method for web
  * @param {number} userId target user id
  */
 export function* fetchUserCollections(userId) {
@@ -431,12 +432,6 @@ function* watchFetchUserSocials() {
   yield takeEvery(userActions.FETCH_USER_SOCIALS, fetchUserSocials)
 }
 
-function* watchFetchUserCollections() {
-  yield takeEvery(userActions.FETCH_USER_COLLECTIONS, ({ userId }) =>
-    fetchUserCollections(userId)
-  )
-}
-
 function* watchFetchUsers() {
   yield takeEvery(userActions.FETCH_USERS, function* (action) {
     const { userIds, requiredFields, forceRetrieveFromSource } = action.payload
@@ -451,7 +446,6 @@ const sagas = () => {
     watchFetchCoverPhoto,
     watchSyncLocalStorageUser,
     watchFetchUserSocials,
-    watchFetchUserCollections,
     watchFetchUsers
   ]
 }
