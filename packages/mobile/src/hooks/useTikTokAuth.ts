@@ -1,7 +1,7 @@
 import type { Credentials, UseTikTokAuthArguments } from '@audius/common'
-import { createUseTikTokAuthHook } from '@audius/common'
+import { createUseTikTokAuthHook, toastActions } from '@audius/common'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import CookieManager from '@react-native-community/cookies'
+import CookieManager from '@react-native-cookies/cookies'
 import { Linking } from 'react-native'
 import Config from 'react-native-config'
 import {
@@ -22,84 +22,89 @@ const canOpenTikTok = () => {
   return Linking.canOpenURL('tiktok://app')
 }
 
-export const useTikTokAuth = (args: UseTikTokAuthArguments) => {
-  return createUseTikTokAuthHook({
-    authenticate: async (): Promise<Credentials> => {
-      track(
-        make({
-          eventName: EventNames.TIKTOK_START_OAUTH
-        })
-      )
+const authenticate = async (): Promise<Credentials> => {
+  track(
+    make({
+      eventName: EventNames.TIKTOK_START_OAUTH
+    })
+  )
 
-      // Perform WebView auth if TikTok is not installed
-      // TikTok LoginKit is supposed to handle this but it doesn't seem to work
-      if (!(await canOpenTikTok())) {
-        return new Promise((resolve, reject) => {
-          dispatch(
-            oauthActions.requestNativeOpenPopup(
-              resolve,
-              reject,
-              authenticationUrl,
-              Provider.TIKTOK
-            )
-          )
-        })
+  // Perform WebView auth if TikTok is not installed
+  // TikTok LoginKit is supposed to handle this but it doesn't seem to work
+  if (!(await canOpenTikTok())) {
+    return new Promise((resolve, reject) => {
+      dispatch(
+        oauthActions.requestNativeOpenPopup(
+          resolve,
+          reject,
+          authenticationUrl,
+          Provider.TIKTOK
+        )
+      )
+    })
+  }
+
+  // Need to set a csrf cookie because it is required for web
+  await CookieManager.set(Config.IDENTITY_SERVICE, {
+    name: 'csrfState',
+    value: 'true',
+    secure: true
+  })
+
+  tikTokInit(Config.TIKTOK_APP_ID)
+
+  return new Promise((resolve, reject) => {
+    const handleTikTokAuth = async (
+      code: string,
+      error: boolean | null,
+      errorMessage: string
+    ) => {
+      if (error) {
+        reject(new Error(errorMessage))
       }
 
-      // Needed for Android
-      // const authListener = tikTokEvents.addListener(
-      //   'onAuthCompleted',
-      //   (resp) => {
-      //     resolve(resp)
-      //   }
-      // )
-
-      // Need to set a csrf cookie because it is required for web
-      await CookieManager.set(Config.IDENTITY_SERVICE, {
-        name: 'csrfState',
-        value: 'true',
-        secure: true
-      })
-
-      tikTokInit(Config.TIKTOK_APP_ID)
-
-      return new Promise((resolve, reject) => {
-        tikTokAuth(async (code, error, errorMessage) => {
-          if (error) {
-            reject(new Error(errorMessage))
+      const response = await fetch(
+        `${Config.IDENTITY_SERVICE}/tiktok/access_token`,
+        {
+          credentials: 'include',
+          method: 'POST',
+          body: JSON.stringify({
+            code,
+            state: 'true'
+          }),
+          headers: {
+            'Content-Type': 'application/json'
           }
+        }
+      )
 
-          const response = await fetch(
-            `${Config.IDENTITY_SERVICE}/tiktok/access_token`,
-            {
-              credentials: 'include',
-              method: 'POST',
-              body: JSON.stringify({
-                code,
-                state: 'true'
-              }),
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            }
-          )
+      if (!response.ok) {
+        reject(new Error(response.status + ' ' + (await response.text())))
+      }
 
-          if (!response.ok) {
-            reject(new Error(response.status + ' ' + (await response.text())))
-          }
+      const {
+        data: { access_token, open_id, expires_in }
+      } = await response.json()
 
-          const {
-            data: { access_token, open_id, expires_in }
-          } = await response.json()
-
-          resolve({
-            accessToken: access_token,
-            openId: open_id,
-            expiresIn: expires_in
-          })
-        })
+      resolve({
+        accessToken: access_token,
+        openId: open_id,
+        expiresIn: expires_in
       })
-    },
+    }
+
+    // Needed for Android
+    tikTokEvents.addListener('onAuthCompleted', (resp) => {
+      handleTikTokAuth(resp.code, !!resp.status, resp.status)
+    })
+
+    tikTokAuth(handleTikTokAuth)
+  })
+}
+
+export const useTikTokAuth = (args: UseTikTokAuthArguments) => {
+  return createUseTikTokAuthHook({
+    authenticate,
     handleError: (e: Error) => {
       track(
         make({
