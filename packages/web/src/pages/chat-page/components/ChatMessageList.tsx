@@ -5,7 +5,9 @@ import {
   UIEvent,
   useEffect,
   forwardRef,
-  useRef
+  useRef,
+  useLayoutEffect,
+  useState
 } from 'react'
 
 import {
@@ -96,6 +98,8 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     const chat = useSelector((state) => getChat(state, chatId))
     const userId = useSelector(accountSelectors.getUserId)
     const currentUserId = encodeHashId(userId)
+    const [unreadIndicatorEl, setUnreadIndicatorEl] =
+      useState<HTMLDivElement | null>(null)
 
     // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
     // Using a ref instead of state here to prevent unwanted flickers.
@@ -128,6 +132,18 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       },
       [dispatch, chatId, status]
     )
+
+    const scrollIntoViewOnMount = useCallback((el: HTMLDivElement) => {
+      // Can't scroll yet, as the component isn't fully rendered.
+      // Instead, queue a scroll by triggering a rerender via a state change.
+      setUnreadIndicatorEl(el)
+    }, [])
+
+    useLayoutEffect(() => {
+      if (unreadIndicatorEl) {
+        unreadIndicatorEl.scrollIntoView()
+      }
+    }, [unreadIndicatorEl])
 
     useEffect(() => {
       if (chatId && status === Status.IDLE) {
@@ -167,7 +183,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
                   chatMessages,
                   currentUserId
                 ) ? (
-                  <div className={styles.separator}>
+                  <div ref={scrollIntoViewOnMount} className={styles.separator}>
                     <span className={styles.tag}>
                       {chatFrozenRef.current?.unread_message_count}{' '}
                       {messages.newMessages}
