@@ -1,17 +1,18 @@
 import type { Credentials, UseTikTokAuthArguments } from '@audius/common'
 import { createUseTikTokAuthHook } from '@audius/common'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import CookieManager from '@react-native-community/cookies'
 import Config from 'react-native-config'
-import { useDispatch } from 'react-redux'
+import {
+  init as tikTokInit,
+  auth as tikTokAuth,
+  events as tikTokEvents
+} from 'react-native-tiktok'
 
 import { track, make } from 'app/services/analytics'
-import * as oauthActions from 'app/store/oauth/actions'
-import { Provider } from 'app/store/oauth/reducer'
 import { EventNames } from 'app/types/analytics'
 
 export const useTikTokAuth = (args: UseTikTokAuthArguments) => {
-  const dispatch = useDispatch()
-
   return createUseTikTokAuthHook({
     authenticate: async () => {
       return new Promise<Credentials>((resolve, reject) => {
@@ -20,16 +21,54 @@ export const useTikTokAuth = (args: UseTikTokAuthArguments) => {
             eventName: EventNames.TIKTOK_START_OAUTH
           })
         )
-        const authenticationUrl = `${Config.IDENTITY_SERVICE}/tiktok`
 
-        dispatch(
-          oauthActions.requestNativeOpenPopup(
-            resolve,
-            reject,
-            authenticationUrl,
-            Provider.TIKTOK
-          )
+        // Needed for Android
+        const authListener = tikTokEvents.addListener(
+          'onAuthCompleted',
+          (resp) => {
+            resolve(resp)
+          }
         )
+
+        return CookieManager.set(Config.IDENTITY_SERVICE, {
+          name: 'csrfState',
+          value: 'true',
+          secure: true
+        }).then(() => {
+          tikTokInit(Config.TIKTOK_APP_ID)
+          tikTokAuth(async (code, error, errorMessage) => {
+            // TODO handle error
+
+            const response = await fetch(
+              `${Config.IDENTITY_SERVICE}/tiktok/access_token`,
+              {
+                credentials: 'include',
+                method: 'POST',
+                body: JSON.stringify({
+                  code,
+                  state: 'true'
+                }),
+                headers: {
+                  'Content-Type': 'application/json'
+                }
+              }
+            )
+
+            if (!response.ok) {
+              reject(new Error(response.status + ' ' + (await response.text())))
+            }
+
+            const {
+              data: { access_token, open_id, expires_in }
+            } = await response.json()
+
+            resolve({
+              accessToken: access_token,
+              openId: open_id,
+              expiresIn: expires_in
+            })
+          })
+        })
       })
     },
     handleError: (e: Error) => {
