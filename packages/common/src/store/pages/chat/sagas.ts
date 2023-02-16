@@ -1,4 +1,9 @@
-import { ChatCreateRPC, ChatMessageRPC } from '@audius/sdk'
+import {
+  ChatCreateRPC,
+  ChatMessage,
+  ChatMessageRPC,
+  TypedCommsResponse
+} from '@audius/sdk'
 import dayjs from 'dayjs'
 import { call, put, select, takeEvery, takeLatest } from 'typed-redux-saga'
 
@@ -42,7 +47,7 @@ function* doFetchMoreChats() {
     const before = summary?.prev_cursor
     const response = yield* call([sdk.chats, sdk.chats.getAll], {
       before,
-      limit: 10
+      limit: 30
     })
     const userIds = new Set<number>([])
     for (const chat of response.data) {
@@ -67,16 +72,46 @@ function* doFetchMoreMessages(action: ReturnType<typeof fetchMoreMessages>) {
   try {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
+
+    // Ensure we get a chat so we can check the unread count
+    yield* call(fetchChatIfNecessary, { chatId })
+    const chat = yield* select((state) => getChat(state, chatId))
+    const data: ChatMessage[] = []
     const summary = yield* select((state) =>
       getChatMessagesSummary(state, chatId)
     )
-    const before = summary?.prev_cursor
-    const response = yield* call([sdk.chats, sdk.chats!.getMessages], {
-      chatId,
-      before,
-      limit: 15
-    })
-    yield* put(fetchMoreMessagesSucceeded({ chatId, response }))
+
+    // Paginate through messages until we get to the unread indicator
+    let lastResponse: TypedCommsResponse<ChatMessage[]> | undefined
+    let before = summary?.prev_cursor
+    let hasMoreUnread = true
+    while (hasMoreUnread) {
+      const limit = 50
+      const response = yield* call([sdk.chats, sdk.chats!.getMessages], {
+        chatId,
+        before,
+        limit
+      })
+      // Only save the last response summary. Pagination is one-way
+      lastResponse = response
+      data.concat(response.data)
+      hasMoreUnread =
+        !!chat?.unread_message_count &&
+        chat.unread_message_count > (response.summary?.next_count ?? 0) - limit
+      before = response.summary?.prev_cursor
+    }
+    if (!lastResponse) {
+      throw new Error('No responses gathered')
+    }
+    yield* put(
+      fetchMoreMessagesSucceeded({
+        chatId,
+        response: {
+          ...lastResponse,
+          data
+        }
+      })
+    )
   } catch (e) {
     console.error('fetchNewChatMessagesFailed', e)
     yield* put(fetchMoreMessagesFailed({ chatId }))
@@ -206,8 +241,8 @@ function* doSendMessage(action: ReturnType<typeof sendMessage>) {
   }
 }
 
-function* fetchChatIfNecessary(action: ReturnType<typeof addMessage>) {
-  const { chatId } = action.payload
+function* fetchChatIfNecessary(args: { chatId: string }) {
+  const { chatId } = args
   const existingChat = yield* select((state) => getChat(state, chatId))
   if (!existingChat) {
     const audiusSdk = yield* getContext('audiusSdk')
@@ -220,7 +255,7 @@ function* fetchChatIfNecessary(action: ReturnType<typeof addMessage>) {
 }
 
 function* watchAddMessage() {
-  yield takeEvery(addMessage, fetchChatIfNecessary)
+  yield takeEvery(addMessage, ({ payload }) => fetchChatIfNecessary(payload))
 }
 
 function* watchSendMessage() {
