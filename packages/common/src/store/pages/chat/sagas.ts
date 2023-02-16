@@ -1,13 +1,6 @@
 import { ChatMessage, ChatMessageRPC, TypedCommsResponse } from '@audius/sdk'
 import dayjs from 'dayjs'
-import {
-  call,
-  delay,
-  put,
-  select,
-  takeEvery,
-  takeLatest
-} from 'typed-redux-saga'
+import { call, put, select, takeEvery, takeLatest } from 'typed-redux-saga'
 
 import { getAccountUser, getUserId } from 'store/account/selectors'
 import { setVisibility } from 'store/ui/modals/slice'
