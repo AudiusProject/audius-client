@@ -182,30 +182,15 @@ function* doCreateChat(action: ReturnType<typeof createChat>) {
         userId: encodeHashId(currentUserId),
         invitedUserIds: userIds.map((id) => encodeHashId(id))
       })
-      let chat = null
-      let i = 0
-      // Poll for new chat
-      while (i++ < 10 && !chat) {
-        try {
-          const res = yield* call([sdk.chats, sdk.chats.get], { chatId })
-          chat = res.data
-          if (!chat) {
-            throw new Error('No chat yet, polling again')
-          }
-        } catch (e) {
-          // do nothing but wait and try again
-          console.warn(e)
-          // sum(100 * i) from i = 1 to 10 = 5.5 seconds
-          yield* delay(100 * i)
-        }
+
+      const res = yield* call([sdk.chats, sdk.chats.get], { chatId })
+      const chat = res.data
+      if (!chat) {
+        throw new Error("Chat couldn't be found after creating")
       }
-      if (chat) {
-        yield* put(createChatSucceeded({ chat }))
-        yield* put(setVisibility({ modal: 'CreateChat', visible: false }))
-        yield* put(goToChat({ chatId: chat.chat_id }))
-      } else {
-        throw new Error("Couldn't fetch chat")
-      }
+      yield* put(createChatSucceeded({ chat }))
+      yield* put(setVisibility({ modal: 'CreateChat', visible: false }))
+      yield* put(goToChat({ chatId: chat.chat_id }))
     }
   } catch (e) {
     console.error('createChatFailed', e)
