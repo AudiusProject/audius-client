@@ -28,7 +28,10 @@ import {
   MAX_PROFILE_TOP_SUPPORTERS,
   LastDismissedTip,
   LocalStorage,
-  processAndCacheUsers
+  processAndCacheUsers,
+  solanaSelectors,
+  createUserBankIfNeeded,
+  SolanaWalletAddress
 } from '@audius/common'
 import { PayloadAction } from '@reduxjs/toolkit'
 import BN from 'bn.js'
@@ -45,9 +48,11 @@ import {
 
 import { make } from 'common/store/analytics/actions'
 import { fetchUsers } from 'common/store/cache/users/sagas'
+import { track } from 'services/analytics'
 import { waitForWrite, waitForRead } from 'utils/sagaHelpers'
 
 const { decreaseBalance } = walletActions
+const { getFeePayer } = solanaSelectors
 const { getAccountBalance } = walletSelectors
 const {
   confirmSendTip,
@@ -211,6 +216,7 @@ function* overrideSupportersForUser({
 
 function* sendTipAsync() {
   const walletClient = yield* getContext('walletClient')
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const { waitForRemoteConfig } = yield* getContext('remoteConfigInstance')
   const isNativeMobile = yield* getContext('isNativeMobile')
   yield call(waitForRemoteConfig)
@@ -230,7 +236,36 @@ function* sendTipAsync() {
   }
 
   const weiBNAmount = parseAudioInputToWei(amount) ?? (new BN('0') as BNWei)
-  const recipientWallet = recipient.spl_wallet
+  const recipientERCWallet = recipient.erc_wallet
+
+  // Create Userbanks if needed
+  const feePayerOverride = yield* select(getFeePayer)
+  if (!feePayerOverride) {
+    console.error("tippingSagas: unexpectedly couldn't get feePayerOverride")
+    return
+  }
+
+  // Gross cast here bc of broken saga types with `yield* all`
+  const [selfUserBank, recipientUserBank] = yield* all([
+    createUserBankIfNeeded(track, audiusBackendInstance, feePayerOverride),
+    createUserBankIfNeeded(
+      track,
+      audiusBackendInstance,
+      feePayerOverride,
+      recipientERCWallet
+    )
+  ]) as unknown as (SolanaWalletAddress | null)[]
+
+  if (!selfUserBank || !recipientUserBank) {
+    console.error(
+      `Missing self or recipient userbank: ${JSON.stringify({
+        selfUserBank,
+        recipientUserBank
+      })}`
+    )
+    return
+  }
+
   const weiBNBalance =
     (yield* select(getAccountBalance)) ?? (new BN('0') as BNWei)
   const waudioWeiAmount = yield* call([walletClient, 'getCurrentWAudioBalance'])
@@ -243,8 +278,8 @@ function* sendTipAsync() {
   try {
     yield put(
       make(Name.TIP_AUDIO_REQUEST, {
-        senderWallet: sender.spl_wallet,
-        recipientWallet,
+        senderWallet: selfUserBank,
+        recipientWallet: recipientUserBank,
         senderHandle: sender.handle,
         recipientHandle: recipient.handle,
         amount: weiToAudioString(weiBNAmount),
@@ -252,6 +287,7 @@ function* sendTipAsync() {
         source
       })
     )
+
     // If transferring spl wrapped audio and there are insufficent funds with only the
     // user bank balance, transfer all eth AUDIO to spl wrapped audio
     if (weiBNAmount.gt(waudioWeiAmount)) {
@@ -265,7 +301,11 @@ function* sendTipAsync() {
       yield cancel(showConvertingMessage)
     }
 
-    yield call([walletClient, 'sendWAudioTokens'], recipientWallet, weiBNAmount)
+    yield call(
+      [walletClient, 'sendWAudioTokens'],
+      recipientUserBank,
+      weiBNAmount
+    )
 
     // Only decrease store balance if we haven't already changed
     const newBalance: ReturnType<typeof getAccountBalance> = yield* select(
@@ -278,8 +318,8 @@ function* sendTipAsync() {
     yield put(sendTipSucceeded())
     yield put(
       make(Name.TIP_AUDIO_SUCCESS, {
-        senderWallet: sender.spl_wallet,
-        recipientWallet,
+        senderWallet: selfUserBank,
+        recipientWallet: recipientUserBank,
         senderHandle: sender.handle,
         recipientHandle: recipient.handle,
         amount: weiToAudioString(weiBNAmount),
@@ -315,8 +355,8 @@ function* sendTipAsync() {
     yield put(sendTipFailed({ error }))
     yield put(
       make(Name.TIP_AUDIO_FAILURE, {
-        senderWallet: sender.spl_wallet,
-        recipientWallet,
+        senderWallet: selfUserBank,
+        recipientWallet: recipientUserBank,
         senderHandle: sender.handle,
         recipientHandle: recipient.handle,
         amount: weiToAudioString(weiBNAmount),

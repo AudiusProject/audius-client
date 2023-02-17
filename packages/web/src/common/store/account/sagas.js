@@ -3,10 +3,8 @@ import {
   accountSelectors,
   cacheActions,
   profilePageActions,
-  solanaSelectors,
   accountActions,
-  recordIP,
-  createUserBankIfNeeded
+  recordIP
 } from '@audius/common'
 import {
   call,
@@ -25,7 +23,6 @@ import { waitForWrite, waitForRead } from 'utils/sagaHelpers'
 
 import disconnectedWallets from './disconnected_wallet_fix.json'
 
-const { getFeePayer } = solanaSelectors
 const { fetchProfile } = profilePageActions
 
 const {
@@ -95,9 +92,8 @@ function* recordIPIfNotRecent(handle) {
 
 // Tasks to be run on account successfully fetched, e.g.
 // recording metrics, setting user data
-function* onSignedIn({ payload: { account, isSignUp = false } }) {
+function* onSignedIn({ payload: { account } }) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  const analytics = yield getContext('analytics')
   const sentry = yield getContext('sentry')
   if (account && account.handle) {
     // Set analytics user context
@@ -122,22 +118,6 @@ function* onSignedIn({ payload: { account, isSignUp = false } }) {
   // Add playlists that might not have made it into the user's library.
   // This could happen if the user creates a new playlist and then leaves their session.
   yield fork(addPlaylistsNotInLibrary)
-
-  const feePayerOverride = yield select(getFeePayer)
-  yield call(
-    createUserBankIfNeeded,
-    analytics.track,
-    audiusBackendInstance,
-    feePayerOverride
-  )
-  if (!isSignUp) {
-    yield call(
-      createUserBankIfNeeded,
-      analytics.track,
-      audiusBackendInstance,
-      feePayerOverride
-    )
-  }
 
   // Repair users from flare-101 that were impacted and lost connected wallets
   // TODO: this should be removed after sufficient time has passed or users have gotten
