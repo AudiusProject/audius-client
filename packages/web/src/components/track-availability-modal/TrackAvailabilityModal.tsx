@@ -121,7 +121,8 @@ const TrackAvailabilityModal = ({
   const numEthCollectibles = Object.keys(ethCollectionMap).length
   const numSolCollectibles = Object.keys(solCollectionMap).length
   const hasCollectibles = numEthCollectibles + numSolCollectibles > 0
-  const isCollectibleGateDisabled = !hasCollectibles || isRemix
+  const noCollectibleGate = !hasCollectibles || isRemix || !isUpload
+  const noSpecialAccess = isRemix || !isUpload
 
   const accountUserId = useSelector(getUserId)
   const defaultSpecialAccess = useMemo(
@@ -241,7 +242,7 @@ const TrackAvailabilityModal = ({
               label={messages.specialAccess}
               description={messages.specialAccessSubtitle}
               value={TrackAvailabilityType.SPECIAL_ACCESS}
-              disabled={isRemix}
+              disabled={noSpecialAccess}
               checkedContent={
                 <SpecialAccessAvailability
                   state={metadataState}
@@ -255,7 +256,7 @@ const TrackAvailabilityModal = ({
               icon={<IconCollectible />}
               label={messages.collectibleGated}
               value={TrackAvailabilityType.COLLECTIBLE_GATED}
-              disabled={isCollectibleGateDisabled}
+              disabled={noCollectibleGate}
               description={
                 <CollectibleGatedDescription
                   hasCollectibles={hasCollectibles}
