@@ -9,6 +9,7 @@ import IconMessage from 'app/assets/images/iconMessage.svg'
 import { Screen, FlatList, ScreenContent } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { useNavigation } from 'app/hooks/useNavigation'
+import type { AppTabScreenParamList } from 'app/screens/app-screen'
 import { makeStyles } from 'app/styles'
 import { useThemePalette } from 'app/utils/theme'
 
