@@ -62,7 +62,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     paddingVertical: spacing(4.5)
   },
   searchInputText: {
-    fontWeight: '700',
+    fontFamily: typography.fontByWeight.bold,
     fontSize: typography.fontSize.large
   },
   profilePicture: {
@@ -120,7 +120,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   },
   followsYouTag: {
     fontSize: typography.fontSize.xxs,
-    fontWeight: '900',
+    fontFamily: typography.fontByWeight.heavy,
     letterSpacing: 0.64,
     textTransform: 'uppercase',
     color: palette.neutralLight4,
@@ -132,7 +132,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   }
 }))
 
-type SearchUsersScreenProps = {
+type ChatUserListScreenProps = {
   debounceMs?: number
   defaultUserList?: {
     userIds: ID[]
@@ -141,7 +141,7 @@ type SearchUsersScreenProps = {
   }
 }
 
-export const ChatUserListScreen = (props: SearchUsersScreenProps) => {
+export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
   const {
     debounceMs = DEBOUNCE_MS,
     defaultUserList = {
@@ -197,18 +197,18 @@ export const ChatUserListScreen = (props: SearchUsersScreenProps) => {
   const handlePress = (item) =>
     navigation.navigate('Chat', { chatId: item.chat_id })
 
-  const renderItem = ({ item: user, index }: { item: User; index: number }) => {
-    if (!user) {
+  const renderItem = ({ item, index }) => {
+    if (!item) {
       return <LoadingSpinner />
     }
 
     return (
-      <TouchableHighlight onPress={() => handlePress(user)}>
+      <TouchableHighlight onPress={() => handlePress(item)} key={item.key}>
         <View style={styles.userContainer}>
-          <ProfilePicture profile={user} style={styles.profilePicture} />
+          <ProfilePicture profile={item} style={styles.profilePicture} />
           <View style={styles.userNameContainer}>
-            <UserBadges user={user} nameStyle={styles.userName} />
-            <Text style={styles.handle}>@{user.handle}</Text>
+            <UserBadges user={item} nameStyle={styles.userName} />
+            <Text style={styles.handle}>@{item.handle}</Text>
             <View style={styles.followContainer}>
               <View style={styles.followersContainer}>
                 <IconUser
@@ -216,10 +216,10 @@ export const ChatUserListScreen = (props: SearchUsersScreenProps) => {
                   height={styles.iconUser.height}
                   width={styles.iconUser.width}
                 />
-                <Text style={styles.followersCount}>{user.follower_count}</Text>
+                <Text style={styles.followersCount}>{item.follower_count}</Text>
                 <Text style={styles.followers}>{messages.followers}</Text>
               </View>
-              {user.does_follow_current_user ? (
+              {item.does_follow_current_user ? (
                 <Text style={styles.followsYouTag}>{messages.followsYou}</Text>
               ) : null}
             </View>
