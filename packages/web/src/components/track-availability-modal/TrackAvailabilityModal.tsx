@@ -95,6 +95,7 @@ const CollectibleGatedDescription = ({
 type TrackAvailabilityModalProps = {
   isOpen: boolean
   isRemix: boolean
+  isUpload: boolean
   metadataState: TrackMetadataState
   didUpdateState: (newState: TrackMetadataState) => void
   onClose: () => void
@@ -105,6 +106,7 @@ type TrackAvailabilityModalProps = {
 const TrackAvailabilityModal = ({
   isOpen,
   isRemix,
+  isUpload,
   metadataState,
   didUpdateState,
   onClose
