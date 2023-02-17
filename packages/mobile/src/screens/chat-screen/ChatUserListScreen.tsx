@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 
-import type { User } from '@audius/common'
+import type { User, ID } from '@audius/common'
 import {
   searchUsersModalSelectors,
   searchUsersModalActions,
@@ -9,15 +9,19 @@ import {
   Status
 } from '@audius/common'
 import { Text, View } from 'react-native'
+import { TouchableHighlight } from 'react-native-gesture-handler'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDebounce } from 'react-use'
 
 import IconCompose from 'app/assets/images/iconCompose.svg'
 import IconSearch from 'app/assets/images/iconSearch.svg'
+import IconUser from 'app/assets/images/iconUser.svg'
 import { Screen, FlatList, ScreenContent, TextInput } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { ProfilePicture } from 'app/components/user'
 import { UserBadges } from 'app/components/user-badges'
+import { useNavigation } from 'app/hooks/useNavigation'
+import type { AppTabScreenParamList } from 'app/screens/app-screen'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -29,15 +33,15 @@ const DEBOUNCE_MS = 100
 
 const messages = {
   title: 'New Message',
-  search: 'Search Users'
+  search: 'Search Users',
+  followsYou: 'Follows You',
+  followers: 'Followers'
 }
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   rootContainer: {
-    // display: 'flex',
-    // justifyContent: 'center',
-    height: '100%',
-    backgroundColor: palette.white
+    backgroundColor: palette.white,
+    flexGrow: 1
   },
   loadingSpinner: {
     height: spacing(20),
@@ -58,35 +62,73 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     paddingVertical: spacing(4.5)
   },
   searchInputText: {
-    fontWeight: '700'
+    fontWeight: '700',
+    fontSize: typography.fontSize.large
+  },
+  profilePicture: {
+    height: spacing(18),
+    width: spacing(18)
   },
   userContainer: {
     display: 'flex',
     flexDirection: 'row',
+    alignItems: 'center',
     padding: spacing(4),
     borderBottomColor: palette.neutralLight4,
     borderBottomWidth: 1
   },
   userNameContainer: {
+    flexGrow: 1,
     display: 'flex',
     flexDirection: 'column',
-    marginTop: spacing(2),
     marginLeft: spacing(2.5)
-    // marginBottom: spacing(1)
   },
   userName: {
     fontSize: typography.fontSize.small,
     fontWeight: 'bold',
     color: palette.neutral
   },
-  ProfilePicture: {
-    height: spacing(18),
-    width: spacing(18)
+  followContainer: {
+    marginTop: spacing(1),
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
   },
   handle: {
-    marginTop: spacing(1),
     fontSize: typography.fontSize.small,
     color: palette.neutral
+  },
+  followersContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  followersCount: {
+    fontWeight: '800',
+    marginHorizontal: spacing(1),
+    color: palette.neutralLight4,
+    fontSize: typography.fontSize.small
+  },
+  followers: {
+    color: palette.neutralLight4,
+    fontSize: typography.fontSize.small
+  },
+  iconUser: {
+    height: spacing(4),
+    width: spacing(4)
+  },
+  followsYouTag: {
+    fontSize: typography.fontSize.xxs,
+    fontWeight: '900',
+    letterSpacing: 0.64,
+    textTransform: 'uppercase',
+    color: palette.neutralLight4,
+    borderWidth: 1,
+    borderRadius: spacing(1),
+    borderColor: palette.neutralLight4,
+    paddingVertical: spacing(1),
+    paddingHorizontal: spacing(2)
   }
 }))
 
@@ -96,9 +138,7 @@ type SearchUsersScreenProps = {
     userIds: ID[]
     loadMore: () => void
     loading: boolean
-    hasMore: boolean
   }
-  renderUser: (user: User, closeModal: () => void) => ReactNode
 }
 
 export const ChatUserListScreen = (props: SearchUsersScreenProps) => {
@@ -107,18 +147,17 @@ export const ChatUserListScreen = (props: SearchUsersScreenProps) => {
     defaultUserList = {
       userIds: [],
       loading: false,
-      loadMore: () => {},
-      hasMore: false
+      loadMore: () => {}
     }
-    // renderUser
   } = props
   const styles = useStyles()
   const palette = useThemeColors()
   const [query, setQuery] = useState('')
   const [hasQuery, setHasQuery] = useState(false)
+  const navigation = useNavigation<AppTabScreenParamList>()
   const dispatch = useDispatch()
 
-  const { userIds, hasMore, status } = useSelector(getUserList)
+  const { userIds, status } = useSelector(getUserList)
   const users = useProxySelector(
     (state) => {
       const ids = hasQuery ? userIds : defaultUserList.userIds
@@ -144,15 +183,49 @@ export const ChatUserListScreen = (props: SearchUsersScreenProps) => {
     [setQuery]
   )
 
-  const renderItem = ({ item, index }) => {
+  const handleLoadMore = useCallback(() => {
+    if (status === Status.LOADING || defaultUserList.loading) {
+      return
+    }
+    if (hasQuery) {
+      dispatch(searchUsers({ query }))
+    } else {
+      defaultUserList.loadMore()
+    }
+  }, [hasQuery, query, status, defaultUserList, dispatch])
+
+  const handlePress = (item) =>
+    navigation.navigate('Chat', { chatId: item.chat_id })
+
+  const renderItem = ({ item: user, index }: { item: User; index: number }) => {
+    if (!user) {
+      return <LoadingSpinner />
+    }
+
     return (
-      <View style={styles.userContainer}>
-        <ProfilePicture profile={item} style={styles.profilePicture} />
-        <View style={styles.userNameContainer}>
-          <UserBadges user={item} nameStyle={styles.userName} />
-          <Text style={styles.handle}>@{item.handle}</Text>
+      <TouchableHighlight onPress={() => handlePress(user)}>
+        <View style={styles.userContainer}>
+          <ProfilePicture profile={user} style={styles.profilePicture} />
+          <View style={styles.userNameContainer}>
+            <UserBadges user={user} nameStyle={styles.userName} />
+            <Text style={styles.handle}>@{user.handle}</Text>
+            <View style={styles.followContainer}>
+              <View style={styles.followersContainer}>
+                <IconUser
+                  fill={palette.neutralLight4}
+                  height={styles.iconUser.height}
+                  width={styles.iconUser.width}
+                />
+                <Text style={styles.followersCount}>{user.follower_count}</Text>
+                <Text style={styles.followers}>{messages.followers}</Text>
+              </View>
+              {user.does_follow_current_user ? (
+                <Text style={styles.followsYouTag}>{messages.followsYou}</Text>
+              ) : null}
+            </View>
+          </View>
         </View>
-      </View>
+      </TouchableHighlight>
     )
   }
 
@@ -173,7 +246,6 @@ export const ChatUserListScreen = (props: SearchUsersScreenProps) => {
                   fill={palette.neutralLight4}
                   width={styles.searchIcon.width}
                   height={styles.searchIcon.height}
-                  // onPress={handleSearchPress}
                 />
               )}
               styles={{
@@ -185,8 +257,9 @@ export const ChatUserListScreen = (props: SearchUsersScreenProps) => {
             />
           </View>
 
-          {status === Status.SUCCESS ? (
+          {users.length > 0 ? (
             <FlatList
+              onEndReached={handleLoadMore}
               data={users}
               renderItem={renderItem}
               keyExtractor={(user) => user.user_id}
