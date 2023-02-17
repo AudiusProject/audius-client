@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 
-import type { User, ID } from '@audius/common'
+import type { ID } from '@audius/common'
 import {
   searchUsersModalSelectors,
   searchUsersModalActions,
