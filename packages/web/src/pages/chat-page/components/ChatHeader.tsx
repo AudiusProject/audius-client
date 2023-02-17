@@ -8,7 +8,9 @@ import styles from './ChatHeader.module.css'
 import { ChatUser } from './ChatUser'
 
 const messages = {
-  header: 'Messages'
+  header: 'Messages',
+  settings: 'Settings',
+  compose: 'Compose'
 }
 
 const { getOtherChatUsers } = chatSelectors
@@ -34,9 +36,12 @@ export const ChatHeader = forwardRef<HTMLDivElement, ChatHeaderProps>(
         <div className={styles.left}>
           <h1 className={styles.header}>{messages.header}</h1>
           <div className={styles.options}>
-            <IconSettings />
             <IconButton
-              aria-label='Compose'
+              aria-label={messages.settings}
+              icon={<IconSettings className={styles.icon} />}
+            />
+            <IconButton
+              aria-label={messages.compose}
               icon={<IconCompose className={styles.icon} />}
               onClick={handleComposeClicked}
             />
