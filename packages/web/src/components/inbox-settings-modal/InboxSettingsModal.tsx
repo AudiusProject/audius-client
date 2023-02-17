@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+
 import { ChatPermission } from '@audius/sdk'
 import {
   Button,
@@ -8,6 +10,8 @@ import {
   ModalTitle,
   RadioButtonGroup
 } from '@audius/stems'
+
+import { useModalState } from 'common/hooks/useModalState'
 
 import { ModalRadioItem } from '../modal-radio/ModalRadioItem'
 
@@ -54,15 +58,15 @@ const options = [
 ]
 
 export const InboxSettingsModal = () => {
+  const [isVisible, setIsVisible] = useModalState('InboxSettings')
+  const handleClose = useCallback(() => setIsVisible(false), [setIsVisible])
   return (
     <Modal
       bodyClassName={styles.modalBody}
-      onClose={function (): void {
-        throw new Error('Function not implemented.')
-      }}
-      isOpen={false}
+      onClose={handleClose}
+      isOpen={isVisible}
     >
-      <ModalHeader>
+      <ModalHeader onClose={handleClose}>
         <ModalTitle
           title={messages.title}
           icon={<IconMessage className={styles.icon} />}
@@ -82,7 +86,7 @@ export const InboxSettingsModal = () => {
         <Button
           className={styles.doneButton}
           text={messages.done}
-          onClick={() => {}}
+          onClick={handleClose}
         />
       </ModalContent>
     </Modal>

@@ -1,8 +1,9 @@
 import { forwardRef, useCallback } from 'react'
 
-import { useProxySelector, chatSelectors, modalsActions } from '@audius/common'
+import { useProxySelector, chatSelectors } from '@audius/common'
 import { IconButton, IconCompose, IconSettings } from '@audius/stems'
-import { useDispatch } from 'react-redux'
+
+import { useModalState } from 'common/hooks/useModalState'
 
 import styles from './ChatHeader.module.css'
 import { ChatUser } from './ChatUser'
@@ -19,17 +20,20 @@ type ChatHeaderProps = { currentChatId?: string }
 
 export const ChatHeader = forwardRef<HTMLDivElement, ChatHeaderProps>(
   ({ currentChatId }, ref) => {
-    const dispatch = useDispatch()
+    const [, setCreateChatVisible] = useModalState('CreateChat')
+    const [, setInboxSettingsVisible] = useModalState('InboxSettings')
     const users = useProxySelector(
       (state) => getOtherChatUsers(state, currentChatId),
       [currentChatId]
     )
 
     const handleComposeClicked = useCallback(() => {
-      dispatch(
-        modalsActions.setVisibility({ modal: 'CreateChat', visible: true })
-      )
-    }, [dispatch])
+      setCreateChatVisible(true)
+    }, [setCreateChatVisible])
+
+    const handleSettingsClicked = useCallback(() => {
+      setInboxSettingsVisible(true)
+    }, [setInboxSettingsVisible])
 
     return (
       <div ref={ref} className={styles.root}>
@@ -39,6 +43,7 @@ export const ChatHeader = forwardRef<HTMLDivElement, ChatHeaderProps>(
             <IconButton
               aria-label={messages.settings}
               icon={<IconSettings className={styles.icon} />}
+              onClick={handleSettingsClicked}
             />
             <IconButton
               aria-label={messages.compose}

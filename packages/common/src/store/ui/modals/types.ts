@@ -31,5 +31,6 @@ export type Modals =
   | 'VipDiscord'
   | 'StripeOnRamp'
   | 'CreateChat'
+  | 'InboxSettings'
 
 export type ModalsState = { [modal in Modals]: boolean | 'closing' }
