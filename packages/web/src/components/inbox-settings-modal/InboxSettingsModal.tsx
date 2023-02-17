@@ -9,8 +9,9 @@ import {
   RadioButtonGroup
 } from '@audius/stems'
 
+import { ModalRadioItem } from '../modal-radio/ModalRadioItem'
+
 import styles from './InboxSettingsModal.module.css'
-import { ModalRadioItem } from './ModalRadioItem'
 
 const messages = {
   title: 'Inbox Settings',

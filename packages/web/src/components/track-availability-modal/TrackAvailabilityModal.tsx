@@ -26,7 +26,7 @@ import cn from 'classnames'
 import { useSelector } from 'react-redux'
 
 import { HelpCallout } from 'components/help-callout/HelpCallout'
-import { ModalRadioItem } from 'components/inbox-settings-modal/ModalRadioItem'
+import { ModalRadioItem } from 'components/modal-radio/ModalRadioItem'
 import { useFlag } from 'hooks/useRemoteConfig'
 
 import { CollectibleGatedAvailability } from './CollectibleGatedAvailability'
