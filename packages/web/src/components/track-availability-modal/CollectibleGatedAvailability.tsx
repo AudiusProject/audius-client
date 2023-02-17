@@ -15,7 +15,6 @@ import { TrackAvailabilitySelectionProps } from './types'
 const { getVerifiedUserCollections } = collectiblesSelectors
 
 const messages = {
-  collectibleGated: 'Collectible Gated',
   pickACollection: 'Pick a Collection'
 }
 

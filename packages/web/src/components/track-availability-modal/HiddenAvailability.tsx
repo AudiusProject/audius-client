@@ -4,7 +4,6 @@ import styles from './HiddenAvailability.module.css'
 import { TrackMetadataState, UnlistedTrackMetadataField } from './types'
 
 const messages = {
-  hidden: 'Hidden',
   showGenre: 'Show Genre',
   showMood: 'Show Mood',
   showTags: 'Show Tags',

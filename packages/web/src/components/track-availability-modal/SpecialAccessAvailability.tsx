@@ -12,7 +12,6 @@ import { TrackAvailabilitySelectionProps } from './types'
 const { getUserId } = accountSelectors
 
 const messages = {
-  specialAccess: 'Special Access',
   followersOnly: 'Available to Followers Only',
   supportersOnly: 'Available to Supporters Only',
   supportersInfo: 'Supporters are users who have sent you a tip'
