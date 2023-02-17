@@ -80,3 +80,4 @@ export {
   RadioButtonGroup,
   RadioButtonGroupProps
 } from './components/RadioButtonGroup'
+export { RadioButton, RadioButtonProps } from './components/RadioButton'
