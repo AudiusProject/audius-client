@@ -16,16 +16,14 @@ const messages = {
   copied: 'Copied To Clipboard!'
 }
 
-const useStyles = makeStyles(({ spacing, palette }) => ({
+const useStyles = makeStyles(({ spacing }) => ({
   root: {
-    marginTop: spacing(12),
+    marginTop: spacing(6),
     flex: 1
   },
   linkedWalletsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginLeft: spacing(2),
-    marginRight: spacing(14)
+    paddingHorizontal: spacing(6),
+    flexDirection: 'row'
   },
   divider: {
     marginVertical: spacing(3)
@@ -74,22 +72,28 @@ export const LinkedWallets = () => {
   return (
     <View style={styles.root}>
       <View style={styles.linkedWalletsHeader}>
-        <Text
-          fontSize='medium'
-          textTransform='uppercase'
-          weight='bold'
-          color='neutralLight4'
-        >
-          {messages.linkedWallets}
-        </Text>
-        <Text
-          fontSize='medium'
-          textTransform='uppercase'
-          weight='bold'
-          color='neutralLight4'
-        >
-          {messages.audio}
-        </Text>
+        <View style={{ flex: 6 }}>
+          <Text
+            fontSize='medium'
+            textTransform='uppercase'
+            weight='bold'
+            color='neutralLight4'
+          >
+            {messages.linkedWallets}
+          </Text>
+        </View>
+        <View style={{ flex: 2 }}>
+          <Text
+            style={{ textAlign: 'right' }}
+            fontSize='medium'
+            textTransform='uppercase'
+            weight='bold'
+            color='neutralLight4'
+          >
+            {messages.audio}
+          </Text>
+        </View>
+        <View style={{ flex: 2 }} />
       </View>
       <Divider style={styles.divider} />
       <FlatList
