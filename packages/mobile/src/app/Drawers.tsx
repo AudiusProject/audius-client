@@ -52,7 +52,7 @@ const useIsDrawerVisible = (visibleState: boolean | 'closing') => {
     if (visibleState === false) {
       visibilityTimeout = setTimeout(() => {
         setIsVisible(false)
-      }, 400)
+      }, 100)
     } else if (visibleState === true) {
       setIsVisible(true)
     }
