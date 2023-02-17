@@ -84,10 +84,6 @@ export const WalletConnectDrawer = () => {
     getData<'ConnectWallets'>(state)
   )
 
-  const stuff = Platform.constants
-
-  console.log('stuff?', stuff)
-
   const uri = data?.uri
 
   return (
