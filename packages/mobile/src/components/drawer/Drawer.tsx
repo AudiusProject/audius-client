@@ -267,8 +267,6 @@ export const Drawer: DrawerComponent = ({
   const [drawerHeight, setDrawerHeight] = useState(
     isFullscreen ? FULL_DRAWER_HEIGHT : 0
   )
-  // isBackgroundVisible will be true until the close animation finishes
-  const [isBackgroundVisible, setIsBackgroundVisible] = useState(false)
 
   // Initial position of the drawer when closed
   const initialPosition = FULL_DRAWER_HEIGHT + insets.bottom
@@ -350,7 +348,6 @@ export const Drawer: DrawerComponent = ({
         animationStyle,
         finished: ({ finished }) => {
           if (finished) {
-            setIsBackgroundVisible(false)
             onClosed?.()
             onFinished?.()
           }
@@ -396,7 +393,6 @@ export const Drawer: DrawerComponent = ({
     if (isOpen) {
       isOpenIntent.current = true
       slideIn(openPosition)
-      setIsBackgroundVisible(true)
     } else {
       isOpenIntent.current = false
       if (!isOpen && shouldCloseToInitialOffset) {
@@ -626,13 +622,6 @@ export const Drawer: DrawerComponent = ({
         </TouchableWithoutFeedback>
       </View>
     )
-
-    // // The background should be visible and not touchable as the drawer is closing
-    // // (isOpen is false but isBackgroundVisible is true)
-    // // This is to prevent blocking touches as the drawer is closing
-    // if (isBackgroundVisible) {
-    //   return renderBackgroundView({ pointerEvents: 'none' })
-    // }
   }
 
   const renderContent = () => {
