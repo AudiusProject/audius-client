@@ -81,7 +81,12 @@ export const CollectibleGatedAvailability = ({
       <DropdownInput
         aria-label={messages.pickACollection}
         placeholder={messages.pickACollection}
-        mount='parent'
+        mount={null}
+        popupContainer={(triggerNode: HTMLElement) =>
+          // hack to escape the collapsible container which has overflow: hidden
+          // maintains scrollability, unlike `mount={'page'}
+          triggerNode.parentNode?.parentNode?.parentNode
+        }
         menu={{ items: menuItems }}
         defaultValue={state.premium_conditions?.nft_collection?.name ?? ''}
         onSelect={(value: string) => {

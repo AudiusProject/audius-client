@@ -1,7 +1,9 @@
-import { ReactNode } from 'react'
+import { ReactNode, useContext, useEffect, useState } from 'react'
 
-import { RadioButton } from '@audius/stems'
+import { RadioButton, RadioGroupContext } from '@audius/stems'
+import { ResizeObserver } from '@juggle/resize-observer'
 import cn from 'classnames'
+import useMeasure from 'react-use-measure'
 
 import styles from './ModalRadioItem.module.css'
 
@@ -18,6 +20,23 @@ type ModalRadioItemProps = {
 export const ModalRadioItem = (props: ModalRadioItemProps) => {
   const { icon, label, title, description, value, disabled, checkedContent } =
     props
+  const [isCollapsed, setIsCollapsed] = useState(true)
+  const radioGroup = useContext(RadioGroupContext)
+
+  const [ref, bounds] = useMeasure({
+    polyfill: ResizeObserver,
+    offsetSize: true
+  })
+
+  useEffect(() => {
+    if (radioGroup) {
+      const isChecked = String(value) === String(radioGroup.value)
+      if (isCollapsed === isChecked) {
+        setIsCollapsed(!isChecked)
+      }
+    }
+  }, [radioGroup, isCollapsed, value, setIsCollapsed])
+
   return (
     <label className={cn(styles.root)}>
       <RadioButton
@@ -34,7 +53,14 @@ export const ModalRadioItem = (props: ModalRadioItemProps) => {
         </div>
         <div className={styles.optionDescription}>{description}</div>
         {checkedContent ? (
-          <div className={styles.checkedContent}>{checkedContent}</div>
+          <div
+            className={styles.collapsibleContainer}
+            style={{ height: isCollapsed ? 0 : bounds.height }}
+          >
+            <div ref={ref} className={styles.checkedContent}>
+              {checkedContent}
+            </div>
+          </div>
         ) : null}
       </div>
     </label>

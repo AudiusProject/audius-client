@@ -59,9 +59,11 @@
   fill: var(--secondary);
 }
 
-.checkedContent {
-  display: none;
-}
-.root:has(.input:checked) .checkedContent {
-  display: block;
+.collapsibleContainer {
+  /** Unfortunately, this calcluates to overflow: auto hidden; */
+  overflow: visible hidden;
+  /** Hack to hide horizontal scrollbars **/
+  padding: 0 150px;
+  margin: 0 -150px;
+  transition: height var(--quick);
 }
