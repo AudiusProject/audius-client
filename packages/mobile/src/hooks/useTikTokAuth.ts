@@ -1,5 +1,5 @@
 import type { Credentials, UseTikTokAuthArguments } from '@audius/common'
-import { createUseTikTokAuthHook, toastActions } from '@audius/common'
+import { createUseTikTokAuthHook } from '@audius/common'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import CookieManager from '@react-native-cookies/cookies'
 import { Linking } from 'react-native'
@@ -44,13 +44,6 @@ const authenticate = async (): Promise<Credentials> => {
     })
   }
 
-  // Need to set a csrf cookie because it is required for web
-  await CookieManager.set(Config.IDENTITY_SERVICE, {
-    name: 'csrfState',
-    value: 'true',
-    secure: true
-  })
-
   tikTokInit(Config.TIKTOK_APP_ID)
 
   return new Promise((resolve, reject) => {
@@ -62,6 +55,13 @@ const authenticate = async (): Promise<Credentials> => {
       if (error) {
         reject(new Error(errorMessage))
       }
+
+      // Need to set a csrf cookie because it is required for web
+      await CookieManager.set(Config.IDENTITY_SERVICE, {
+        name: 'csrfState',
+        value: 'true',
+        secure: true
+      })
 
       const response = await fetch(
         `${Config.IDENTITY_SERVICE}/tiktok/access_token`,
