@@ -25,6 +25,16 @@ const useStyles = makeStyles(({ spacing }) => ({
     paddingHorizontal: spacing(6),
     flexDirection: 'row'
   },
+  linkedWalletsText: {
+    flex: 6
+  },
+  audioAmountText: {
+    flex: 2,
+    textAlign: 'right'
+  },
+  gap: {
+    flex: 2
+  },
   divider: {
     marginVertical: spacing(3)
   }
@@ -72,28 +82,25 @@ export const LinkedWallets = () => {
   return (
     <View style={styles.root}>
       <View style={styles.linkedWalletsHeader}>
-        <View style={{ flex: 6 }}>
-          <Text
-            fontSize='medium'
-            textTransform='uppercase'
-            weight='bold'
-            color='neutralLight4'
-          >
-            {messages.linkedWallets}
-          </Text>
-        </View>
-        <View style={{ flex: 2 }}>
-          <Text
-            style={{ textAlign: 'right' }}
-            fontSize='medium'
-            textTransform='uppercase'
-            weight='bold'
-            color='neutralLight4'
-          >
-            {messages.audio}
-          </Text>
-        </View>
-        <View style={{ flex: 2 }} />
+        <Text
+          style={styles.linkedWalletsText}
+          fontSize='medium'
+          textTransform='uppercase'
+          weight='bold'
+          color='neutralLight4'
+        >
+          {messages.linkedWallets}
+        </Text>
+        <Text
+          style={styles.audioAmountText}
+          fontSize='medium'
+          textTransform='uppercase'
+          weight='bold'
+          color='neutralLight4'
+        >
+          {messages.audio}
+        </Text>
+        <View style={styles.gap} />
       </View>
       <Divider style={styles.divider} />
       <FlatList
