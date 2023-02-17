@@ -62,14 +62,19 @@ export const useStyles = makeStyles(({ palette }) => ({
     top: 24,
     left: 24
   },
-  background: {
+  backgroundRoot: {
     position: 'absolute',
-    backgroundColor: 'black',
     top: 0,
     height: '100%',
     width: '100%'
   },
-
+  background: {
+    position: 'absolute',
+    top: 0,
+    height: '100%',
+    width: '100%',
+    backgroundColor: 'black'
+  },
   skirt: {
     backgroundColor: palette.neutralLight10,
     width: '100%',
@@ -604,29 +609,30 @@ export const Drawer: DrawerComponent = ({
   })
 
   const renderBackground = () => {
-    const renderBackgroundView = (options?: { pointerEvents: 'none' }) => (
-      <Animated.View
-        pointerEvents={options?.pointerEvents}
-        style={[styles.background, { opacity: backgroundOpacityAnim.current }]}
-      />
-    )
-    // The background should be visible and touchable when the drawer is open
-    if (isOpen) {
-      return (
+    return (
+      <View
+        pointerEvents={isOpen ? undefined : 'none'}
+        style={styles.backgroundRoot}
+      >
         <TouchableWithoutFeedback
           onPress={isGestureSupported ? onClose : undefined}
         >
-          {renderBackgroundView()}
+          <Animated.View
+            style={[
+              styles.background,
+              { opacity: backgroundOpacityAnim.current }
+            ]}
+          />
         </TouchableWithoutFeedback>
-      )
-    }
+      </View>
+    )
 
-    // The background should be visible and not touchable as the drawer is closing
-    // (isOpen is false but isBackgroundVisible is true)
-    // This is to prevent blocking touches as the drawer is closing
-    if (isBackgroundVisible) {
-      return renderBackgroundView({ pointerEvents: 'none' })
-    }
+    // // The background should be visible and not touchable as the drawer is closing
+    // // (isOpen is false but isBackgroundVisible is true)
+    // // This is to prevent blocking touches as the drawer is closing
+    // if (isBackgroundVisible) {
+    //   return renderBackgroundView({ pointerEvents: 'none' })
+    // }
   }
 
   const renderContent = () => {
