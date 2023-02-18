@@ -34,12 +34,13 @@ export const add = (kind, entries, replace = false, persist = true) => ({
   persist
 })
 
-export type AddSuccededAction = {
+export type AddSuccededAction<TMetadata extends Metadata = Metadata> = {
+  type: typeof ADD_SUCCEEDED
   kind: Kind
   entries: {
     id: ID
     uid: UID
-    metadata: Metadata
+    metadata: TMetadata
     timestamp: number
   }[]
   // replace optionally replaces the entire entry instead of joining metadata

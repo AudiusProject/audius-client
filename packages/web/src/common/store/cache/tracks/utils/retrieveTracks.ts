@@ -1,7 +1,6 @@
 import {
   ID,
   Kind,
-  Status,
   Track,
   TrackMetadata,
   UserTrackMetadata,
@@ -9,10 +8,9 @@ import {
   CommonState,
   getContext,
   cacheSelectors,
-  cacheTracksActions as trackActions,
   cacheTracksSelectors
 } from '@audius/common'
-import { call, put, select, spawn } from 'typed-redux-saga'
+import { call, select, spawn } from 'typed-redux-saga'
 
 import { retrieve } from 'common/store/cache/sagas'
 import { waitForRead } from 'utils/sagaHelpers'
@@ -64,6 +62,7 @@ export function* retrieveTrackByHandleAndSlug({
         const track = yield* select(getTracksSelector, {
           permalinks
         })
+        console.log('track from cache?', track)
         return track
       },
       retrieveFromSource: function* (permalinks: string[]) {
@@ -101,19 +100,12 @@ export function* retrieveTrackByHandleAndSlug({
       onBeforeAddToCache: function* (tracks: TrackMetadata[]) {
         const audiusBackendInstance = yield* getContext('audiusBackendInstance')
         yield* addUsersFromTracks(tracks)
-        yield* put(
-          trackActions.setPermalinkStatus([
-            {
-              permalink,
-              id: tracks[0].track_id,
-              status: Status.SUCCESS
-            }
-          ])
-        )
         return tracks.map((track) => reformat(track, audiusBackendInstance))
       }
     }
   )) as { entries: { [permalink: string]: Track } }
+
+  console.log('the tracks??', tracks)
 
   const track = tracks.entries[permalink]
   if (!track || !track.track_id) return null

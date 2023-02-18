@@ -181,10 +181,7 @@ export function* retrieveCollectionByPermalink(
       })
 
       // Process any local deletions on the client
-      const metadatasWithDeleted = yield* call(
-        markCollectionDeleted,
-        metadatas!
-      )
+      const metadatasWithDeleted = yield* call(markCollectionDeleted, metadatas)
 
       return metadatasWithDeleted
     },
@@ -265,10 +262,7 @@ export function* retrieveCollections(
       }
 
       // Process any local deletions on the client
-      const metadatasWithDeleted = yield* call(
-        markCollectionDeleted,
-        metadatas!
-      )
+      const metadatasWithDeleted = yield* call(markCollectionDeleted, metadatas)
 
       return metadatasWithDeleted
     },

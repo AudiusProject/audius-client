@@ -424,7 +424,10 @@ export const asCache =
     if (action.kind && action.kind !== kind) return state
 
     const matchingReduceFunction = actionsMap[action.type]
-    if (matchingReduceFunction) return matchingReduceFunction(state, action)
+
+    if (matchingReduceFunction) {
+      state = matchingReduceFunction(state, action)
+    }
 
     return reducer(state, action)
   }
