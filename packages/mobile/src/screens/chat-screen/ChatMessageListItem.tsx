@@ -49,7 +49,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 }))
 
 type ChatMessageListItemProps = {
-  chat: UserChat
   message: ChatMessage
   hasTail: boolean
 }
