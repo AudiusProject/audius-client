@@ -19,9 +19,7 @@ import {
   hasTail,
   isEarliestUnread
 } from '@audius/common'
-import type { ChatMessage } from '@audius/sdk'
 import cn from 'classnames'
-import dayjs from 'dayjs'
 import { mergeRefs } from 'react-merge-refs'
 import { useDispatch } from 'react-redux'
 

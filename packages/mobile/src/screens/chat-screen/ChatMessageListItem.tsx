@@ -13,13 +13,12 @@ import { makeStyles } from 'app/styles'
 const { getUserId } = accountSelectors
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
-  root: {
-    display: 'flex'
-  },
   rootOtherUser: {
+    display: 'flex',
     alignItems: 'flex-start'
   },
   rootIsAuthor: {
+    display: 'flex',
     alignItems: 'flex-end'
   },
   bubble: {
@@ -50,6 +49,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 }))
 
 type ChatMessageListItemProps = {
+  chat: UserChat
   message: ChatMessage
   hasTail: boolean
 }
@@ -63,12 +63,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   const isAuthor = senderUserId === userId
 
   return (
-    <View
-      style={[
-        styles.root,
-        isAuthor ? styles.rootIsAuthor : styles.rootOtherUser
-      ]}
-    >
+    <View style={[isAuthor ? styles.rootIsAuthor : styles.rootOtherUser]}>
       <View style={[styles.bubble, isAuthor && styles.isAuthor]}>
         <Text style={isAuthor && styles.textIsAuthor}>{message.message}</Text>
       </View>
