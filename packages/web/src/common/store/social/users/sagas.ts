@@ -9,7 +9,7 @@ import {
   usersSocialActions as socialActions,
   FeatureFlags,
   profilePageActions,
-  cacheUsersActions
+  usersActions
 } from '@audius/common'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
 
@@ -56,7 +56,7 @@ export function* followUser(
   if (followedUser) {
     // Increment the followed user's follower count
     yield* put(
-      cacheUsersActions.updateUser({
+      usersActions.updateUser({
         id: action.userId,
         changes: {
           does_current_user_follow: true,
@@ -126,7 +126,7 @@ export function* confirmFollowUser(userId: ID, accountId: ID) {
         if (followedUser) {
           // Revert the incremented follower count on the followed user
           yield* put(
-            cacheUsersActions.updateUser({
+            usersActions.updateUser({
               id: userId,
               changes: {
                 does_current_user_follow: false,
@@ -173,7 +173,7 @@ export function* unfollowUser(
 
   // Decrement the follower count on the unfollowed user
   yield* put(
-    cacheUsersActions.updateUser({
+    usersActions.updateUser({
       id: action.userId,
       changes: {
         does_current_user_follow: false,
@@ -243,7 +243,7 @@ export function* confirmUnfollowUser(userId: ID, accountId: ID) {
 
         // Revert decremented follower count on unfollowed user
         yield* put(
-          cacheUsersActions.updateUser({
+          usersActions.updateUser({
             id: userId,
             changes: {
               does_current_user_follow: true,

@@ -2,12 +2,12 @@ import {
   ProfilePictureSizes,
   SquareSizes,
   useImageSize,
-  cacheUsersActions,
+  usersActions,
   imageProfilePicEmpty as profilePicEmpty
 } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
-const { fetchProfilePicture } = cacheUsersActions
+const { fetchProfilePicture } = usersActions
 
 export const useUserProfilePicture = (
   userId: number | null,

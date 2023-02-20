@@ -8,7 +8,7 @@ import {
   waitForValue,
   playlistLibraryHelpers,
   playlistLibraryActions,
-  cacheUsersActions,
+  usersActions,
   PlaylistIdentifier,
   AccountCollection,
   PlaylistLibrary
@@ -81,7 +81,7 @@ function* watchUpdatePlaylistLibrary() {
 
       const account: User = yield select(getAccountUser)
       yield put(
-        cacheUsersActions.updateUser({
+        usersActions.updateUser({
           id: account.user_id,
           changes: {
             playlist_library: removePlaylistLibraryDuplicates(playlistLibrary)

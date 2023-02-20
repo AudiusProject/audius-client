@@ -13,7 +13,7 @@ import {
   getContext,
   tracksSocialActions as socialActions,
   waitForValue,
-  cacheUsersActions
+  usersActions
 } from '@audius/common'
 import { fork } from 'redux-saga/effects'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
@@ -572,7 +572,7 @@ export function* watchSetArtistPick() {
       if (!userId) return
 
       yield* put(
-        cacheUsersActions.updateUser({
+        usersActions.updateUser({
           id: userId,
           changes: {
             artist_pick_track_id: action.trackId
@@ -596,7 +596,7 @@ export function* watchUnsetArtistPick() {
     if (!userId) return
 
     yield* put(
-      cacheUsersActions.updateUser({
+      usersActions.updateUser({
         id: userId,
         changes: {
           artist_pick_track_id: null

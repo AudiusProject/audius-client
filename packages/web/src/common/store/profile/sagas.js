@@ -19,7 +19,7 @@ import {
   MAX_PROFILE_TOP_SUPPORTERS,
   collectiblesActions,
   processAndCacheUsers,
-  cacheUsersActions
+  usersActions
 } from '@audius/common'
 import { merge } from 'lodash'
 import {
@@ -87,14 +87,14 @@ function* fetchProfileCustomizedCollectibles(user) {
     )
     if (metadata?.collectibles) {
       yield put(
-        cacheUsersActions.updateUser({
+        usersActions.updateUser({
           id: user.user_id,
           changes: metadata
         })
       )
     } else {
       yield put(
-        cacheUsersActions.updateUser({
+        usersActions.updateUser({
           id: user.user_id,
           changes: {
             ...metadata,
@@ -127,7 +127,7 @@ export function* fetchOpenSeaAssets(user) {
   }
 
   yield put(
-    cacheUsersActions.updateUser({
+    usersActions.updateUser({
       id: user.user_id,
       changes: { collectibleList }
     })
@@ -166,7 +166,7 @@ export function* fetchSolanaCollectibles(user) {
   }
 
   yield put(
-    cacheUsersActions.updateUser({
+    usersActions.updateUser({
       id: user.user_id,
       changes: { solanaCollectibleList }
     })
@@ -435,7 +435,7 @@ export function* updateProfileAsync(action) {
 
   const accountUserId = yield select(getUserId)
   yield put(
-    cacheUsersActions.updateUser({
+    usersActions.updateUser({
       id: accountUserId,
       changes: { name: metadata.name }
     })
@@ -494,7 +494,7 @@ export function* updateProfileAsync(action) {
   }
 
   yield put(
-    cacheUsersActions.updateUser({
+    usersActions.updateUser({
       id: creator.user_id,
       changes: metadata
     })
@@ -554,7 +554,7 @@ function* confirmUpdateProfile(userId, metadata) {
             confirmedUser.profile_picture_sizes
         }
         yield put(
-          cacheUsersActions.updateUser({
+          usersActions.updateUser({
             id: confirmedUser.user_id,
             changes: newMetadata
           })

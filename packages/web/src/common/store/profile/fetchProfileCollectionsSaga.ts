@@ -1,5 +1,5 @@
 import {
-  cacheUsersActions,
+  usersActions,
   getContext,
   profilePageActions,
   profilePageSelectors
@@ -50,7 +50,7 @@ function* fetchProfileCollectionsAsync(
 
     if (!isEqual(_collectionIds, latestCollectionIds)) {
       yield* put(
-        cacheUsersActions.updateUser({
+        usersActions.updateUser({
           id: user_id,
           changes: { _collectionIds: latestCollectionIds }
         })

@@ -5,7 +5,7 @@ import {
   getContext,
   reformatUser,
   UserTrack,
-  cacheUsersActions
+  usersActions
 } from '@audius/common'
 import { uniqBy } from 'lodash'
 import { put, select } from 'typed-redux-saga'
@@ -40,5 +40,5 @@ export function* addUsersFromTracks<T extends TrackMetadata & { user?: User }>(
     (user) => !(currentUserId && user.user_id === currentUserId)
   )
 
-  yield put(cacheUsersActions.addUsers({ users }))
+  yield put(usersActions.addUsers({ users }))
 }

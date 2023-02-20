@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 import type { Nullable } from '@audius/common'
 import {
   useTwitterButtonStatus,
-  cacheUsersActions,
+  usersActions,
   cacheUsersSelectors
 } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
@@ -17,7 +17,7 @@ import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { getTwitterLink } from 'app/utils/twitter'
 const { getUser } = cacheUsersSelectors
-const { fetchUserSocials } = cacheUsersActions
+const { fetchUserSocials } = usersActions
 
 const messages = {
   share: 'Share to Twitter'

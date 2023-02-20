@@ -1,6 +1,8 @@
 import {
   createEntityAdapter,
   createSlice,
+  Dictionary,
+  EntityState,
   PayloadAction
 } from '@reduxjs/toolkit'
 
@@ -14,14 +16,25 @@ type AddTracksAction = PayloadAction<{
   tracks: Track[]
 }>
 
+export type TracksState = EntityState<Track> & {
+  timestamps: Dictionary<number>
+  // TODO uids
+}
+
+const initialState: TracksState = {
+  ...tracksAdapter.getInitialState(),
+  timestamps: {}
+}
+
 const slice = createSlice({
   name: 'tracks',
-  initialState: tracksAdapter.getInitialState(),
+  initialState,
   reducers: {
     addTracks: (state, action: AddTracksAction) => {
       const { tracks } = action.payload
       tracksAdapter.upsertMany(state, tracks)
-    }
+    },
+    updateTrack: tracksAdapter.updateOne
   }
 })
 

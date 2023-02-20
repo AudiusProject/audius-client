@@ -1,6 +1,6 @@
 import {
   accountSelectors,
-  cacheUsersActions,
+  usersActions,
   Chain,
   ConfirmRemoveWalletAction,
   getContext,
@@ -104,7 +104,7 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
     yield* put(removeWalletAction({ wallet: removeWallet, chain: removeChain }))
     const updatedCID = yield* call(getAccountMetadataCID)
     yield* put(
-      cacheUsersActions.updateUser({
+      usersActions.updateUser({
         id: accountUserId!,
         changes: { ...updatedMetadata, metadata_multihash: updatedCID }
       })

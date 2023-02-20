@@ -14,7 +14,7 @@ import {
   cacheActions,
   waitForAccount,
   waitForValue,
-  cacheUsersActions
+  usersActions
 } from '@audius/common'
 import {
   call,
@@ -260,7 +260,7 @@ function* deleteTrackAsync(action) {
   )
   if (socials.pinnedTrackId === action.trackId) {
     yield put(
-      cacheUsersActions.updateUser({
+      usersActions.updateUser({
         id: userId,
         changes: {
           artist_pick_track_id: null

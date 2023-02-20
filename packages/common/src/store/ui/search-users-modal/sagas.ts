@@ -2,7 +2,7 @@ import { call, put, select, takeLatest } from 'typed-redux-saga'
 
 import { User } from 'models/User'
 import { accountSelectors } from 'store/account'
-import { processAndCacheUsers } from 'store/cache/users/utils'
+import { processAndCacheUsers } from 'store/users/utils'
 import { getContext } from 'store/effects'
 import { SearchKind } from 'store/pages/search-results/types'
 import { searchUsersModalActions, searchUsersModalSelectors } from 'store/ui'

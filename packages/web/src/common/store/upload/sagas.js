@@ -14,7 +14,7 @@ import {
   UploadType,
   ProgressStatus,
   uploadSelectors,
-  cacheUsersActions
+  usersActions
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { range } from 'lodash'
@@ -751,7 +751,7 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
         )
         const user = yield select(getUser, { id: userId })
         yield put(
-          cacheUsersActions.updateUser({
+          usersActions.updateUser({
             id: userId,
             changes: {
               _collectionIds: (user._collectionIds || []).concat(

@@ -27,7 +27,7 @@ import {
   LastDismissedTip,
   LocalStorage,
   processAndCacheUsers,
-  cacheUsersActions
+  usersActions
 } from '@audius/common'
 import { PayloadAction } from '@reduxjs/toolkit'
 import BN from 'bn.js'
@@ -73,7 +73,7 @@ const {
   getSupporters,
   getSupporting
 } = tippingSelectors
-const { updateUser } = cacheUsersActions
+const { updateUser } = usersActions
 const getAccountUser = accountSelectors.getAccountUser
 
 export const FEED_TIP_DISMISSAL_TIME_LIMIT_SEC = 30 * 24 * 60 * 60 // 30 days

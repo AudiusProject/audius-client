@@ -3,7 +3,7 @@ import {
   getContext,
   AudiusBackend,
   waitForValue,
-  cacheUsersActions
+  usersActions
 } from '@audius/common'
 import { all, fork, call, put, select, takeEvery } from 'typed-redux-saga'
 
@@ -135,7 +135,7 @@ function* watchSetSelected() {
         })
       )
       yield* put(
-        cacheUsersActions.updateUser({
+        usersActions.updateUser({
           id: user.user_id,
           changes: { creator_node_endpoint: newEndpoint }
         })

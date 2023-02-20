@@ -1,6 +1,6 @@
 import {
   accountSelectors,
-  cacheUsersActions,
+  usersActions,
   getContext,
   tokenDashboardPageActions,
   User,
@@ -58,7 +58,7 @@ export function* addWalletToUser(
 
     if (updatedCID) {
       yield* put(
-        cacheUsersActions.updateUser({
+        usersActions.updateUser({
           id: accountUserId!,
           changes: { ...updatedMetadata, metadata_multihash: updatedCID }
         })

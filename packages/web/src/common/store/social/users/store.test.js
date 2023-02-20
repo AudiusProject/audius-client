@@ -1,7 +1,4 @@
-import {
-  usersSocialActions as actions,
-  cacheUsersActions
-} from '@audius/common'
+import { usersSocialActions as actions, usersActions } from '@audius/common'
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 import * as matchers from 'redux-saga-test-plan/matchers'
@@ -43,7 +40,7 @@ describe('follow', () => {
       })
       .call(sagas.confirmFollowUser, 2, 1)
       .put(
-        cacheUsersActions.updateUser({
+        usersActions.updateUser({
           id: 2,
           changes: {
             does_current_user_follow: true,
@@ -77,7 +74,7 @@ describe('follow', () => {
       .dispatch(actions.unfollowUser(2))
       .call(sagas.confirmUnfollowUser, 2, 1)
       .put(
-        cacheUsersActions.updateUser({
+        usersActions.updateUser({
           id: 2,
           changes: {
             does_current_user_follow: false,

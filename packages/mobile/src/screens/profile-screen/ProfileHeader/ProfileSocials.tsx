@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 
-import { cacheUsersActions, useSelectTierInfo } from '@audius/common'
+import { usersActions, useSelectTierInfo } from '@audius/common'
 import { View, Animated } from 'react-native'
 import { useDispatch } from 'react-redux'
 
@@ -17,7 +17,7 @@ import {
   TwitterSocialLink
 } from './SocialLink'
 
-const { fetchUserSocials } = cacheUsersActions
+const { fetchUserSocials } = usersActions
 
 const useStyles = makeStyles(({ spacing }) => ({
   root: {

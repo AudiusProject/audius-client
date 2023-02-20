@@ -7,7 +7,7 @@ import {
   cacheConfig,
   FeatureFlags,
   Kind,
-  cacheUsersActions
+  usersActions
 } from '@audius/common'
 import { pick } from 'lodash'
 import {
@@ -22,7 +22,7 @@ import {
 import { getConfirmCalls } from 'common/store/confirmer/selectors'
 const { CACHE_PRUNE_MIN } = cacheConfig
 const { getCache } = cacheSelectors
-const { addUsers } = cacheUsersActions
+const { addUsers } = usersActions
 
 const DEFAULT_ENTRY_TTL = 5 /* min */ * 60 /* seconds */ * 1000 /* ms */
 

@@ -6,12 +6,12 @@ import {
   cacheActions,
   cacheUsersSelectors,
   cacheReducer,
-  cacheUsersActions as userActions,
+  usersActions as userActions,
   waitForValue,
   waitForAccount,
   playlistLibraryHelpers,
   reformatUser,
-  cacheUsersActions
+  usersActions
 } from '@audius/common'
 import { mergeWith } from 'lodash'
 import {
@@ -79,7 +79,7 @@ export function* upgradeToCreator() {
     }
   }
   yield put(
-    cacheUsersActions.updateUser({
+    usersActions.updateUser({
       id: user.user_id,
       changes: {
         creator_node_endpoint: newEndpoint
@@ -175,7 +175,7 @@ export function* fetchUserCollections(userId) {
 
   if (!playlistIds.length) {
     yield put(
-      cacheUsersActions.updateUser({
+      usersActions.updateUser({
         id: userId,
         changes: { _collectionIds: [] }
       })
@@ -187,7 +187,7 @@ export function* fetchUserCollections(userId) {
   )
 
   yield put(
-    cacheUsersActions.updateUser({
+    usersActions.updateUser({
       id: userId,
       changes: { _collectionIds: cachedCollectionIds }
     })
@@ -236,7 +236,7 @@ function* watchSyncLocalStorageUser() {
 // The cache respects the delta and merges the objects adding the field values
 export function* adjustUserField({ user, fieldName, delta }) {
   yield put(
-    cacheUsersActions.updateUser({
+    usersActions.updateUser({
       id: user.user_id,
       changes: {
         [fieldName]: user[fieldName] + delta
@@ -272,7 +272,7 @@ function* watchFetchProfilePicture() {
 
         if (url) {
           yield put(
-            cacheUsersActions.updateUser({
+            usersActions.updateUser({
               id,
               changes: {
                 _profile_picture_sizes: {
@@ -292,7 +292,7 @@ function* watchFetchProfilePicture() {
         )
         if (url) {
           yield put(
-            cacheUsersActions.updateUser({
+            usersActions.updateUser({
               id,
               changes: {
                 _profile_picture_sizes: {
@@ -341,7 +341,7 @@ function* watchFetchCoverPhoto() {
 
         if (url) {
           yield put(
-            cacheUsersActions.updateUser({
+            usersActions.updateUser({
               id,
               changes: {
                 _cover_photo_sizes: {
@@ -361,7 +361,7 @@ function* watchFetchCoverPhoto() {
         )
         if (url) {
           yield put(
-            cacheUsersActions.updateUser({
+            usersActions.updateUser({
               id,
               changes: {
                 _cover_photo_sizes: {
@@ -390,7 +390,7 @@ export function* fetchUserSocials({ handle }) {
   )
 
   yield put(
-    cacheUsersActions.updateUser({
+    usersActions.updateUser({
       id: user.user_id,
       changes: {
         twitter_handle: socials.twitterHandle || null,

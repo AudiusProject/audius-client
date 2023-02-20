@@ -3,7 +3,7 @@ import { put } from 'typed-redux-saga'
 import { UserMetadata } from 'models/User'
 import { AudiusBackend } from 'services/audius-backend'
 import { getContext } from 'store/effects'
-import { cacheUsersActions } from 'store/users'
+import { usersActions } from 'store/users'
 import { waitForRead } from 'utils/sagaHelpers'
 
 export function* processAndCacheUsers(users: UserMetadata[]) {
@@ -14,7 +14,7 @@ export function* processAndCacheUsers(users: UserMetadata[]) {
   })
 
   // insert users into cache
-  yield* put(cacheUsersActions.addUsers({ users: reformattedUsers }))
+  yield* put(usersActions.addUsers({ users: reformattedUsers }))
 
   return reformattedUsers
 }

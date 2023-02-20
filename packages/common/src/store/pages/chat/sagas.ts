@@ -4,7 +4,7 @@ import { call, put, select, takeEvery, takeLatest } from 'typed-redux-saga'
 
 import { getAccountUser, getUserId } from 'store/account/selectors'
 import { setVisibility } from 'store/ui/modals/slice'
-import { cacheUsersActions } from 'store/users'
+import { usersActions } from 'store/users'
 
 import { decodeHashId, encodeHashId } from '../../../utils'
 import { getContext } from '../../effects'
@@ -53,7 +53,7 @@ function* doFetchMoreChats() {
       }
     }
     yield* put(
-      cacheUsersActions.fetchUsers({
+      usersActions.fetchUsers({
         userIds: Array.from(userIds.values())
       })
     )

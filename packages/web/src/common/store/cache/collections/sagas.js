@@ -15,7 +15,7 @@ import {
   cacheActions,
   getContext,
   audioRewardsPageActions,
-  cacheUsersActions
+  usersActions
 } from '@audius/common'
 import { isEqual } from 'lodash'
 import {
@@ -138,7 +138,7 @@ function* createPlaylistAsync(action) {
     .filter((c) => c.uid !== uid)
     .concat(uid)
   yield put(
-    cacheUsersActions.updateUser({
+    usersActions.updateUser({
       id: userId,
       changes: { _collectionIds: collectionIds }
     })
@@ -208,7 +208,7 @@ function* confirmCreatePlaylist(uid, userId, formFields, source) {
         )
         const user = yield select(getUser, { id: userId })
         yield put(
-          cacheUsersActions.updateUser({
+          usersActions.updateUser({
             id: userId,
             changes: {
               _collectionIds: (user._collectionIds || [])
@@ -982,7 +982,7 @@ function* deletePlaylistAsync(action) {
 
   const user = yield select(getUser, { id: userId })
   yield put(
-    cacheUsersActions.updateUser({
+    usersActions.updateUser({
       id: userId,
       changes: {
         _collectionIds: (user._collectionIds || []).filter(

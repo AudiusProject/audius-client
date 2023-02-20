@@ -5,7 +5,7 @@ import {
   accountActions,
   recordIP,
   createUserBankIfNeeded,
-  cacheUsersActions
+  usersActions
 } from '@audius/common'
 import {
   call,
@@ -249,7 +249,7 @@ function* cacheAccount(account) {
   const localStorage = yield getContext('localStorage')
   const collections = account.playlists || []
 
-  yield put(cacheUsersActions.addUsers({ users: [account] }))
+  yield put(usersActions.addUsers({ users: [account] }))
 
   const formattedAccount = {
     userId: account.user_id,
@@ -290,7 +290,7 @@ function* associateTwitterAccount(action) {
     const { verified } = profile
     if (!account.is_verified && verified) {
       yield put(
-        cacheUsersActions.updateUser({
+        usersActions.updateUser({
           id: userId,
           changes: { is_verified: true }
         })
@@ -318,7 +318,7 @@ function* associateInstagramAccount(action) {
     const { is_verified: verified } = profile
     if (!account.is_verified && verified) {
       yield put(
-        cacheUsersActions.updateUser({
+        usersActions.updateUser({
           id: userId,
           changes: { is_verified: true }
         })
@@ -346,7 +346,7 @@ function* associateTikTokAccount(action) {
     const { is_verified: verified } = profile
     if (!account.is_verified && verified) {
       yield put(
-        cacheUsersActions.updateUser({
+        usersActions.updateUser({
           id: userId,
           changes: { is_verified: true }
         })
