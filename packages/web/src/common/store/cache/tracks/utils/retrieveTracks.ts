@@ -5,9 +5,7 @@ import {
   TrackMetadata,
   UserTrackMetadata,
   accountSelectors,
-  CommonState,
   getContext,
-  cacheSelectors,
   cacheTracksSelectors
 } from '@audius/common'
 import { call, select, spawn } from 'typed-redux-saga'
@@ -22,8 +20,8 @@ import {
 import { fetchAndProcessStems } from './fetchAndProcessStems'
 import { addUsersFromTracks } from './helpers'
 import { reformat } from './reformat'
-const { getEntryTimestamp } = cacheSelectors
-const { getTracks: getTracksSelector } = cacheTracksSelectors
+const { getTracks: getTracksSelector, getTrackTimestamps } =
+  cacheTracksSelectors
 const getUserId = accountSelectors.getUserId
 
 type UnlistedTrackRequest = { id: ID; url_title: string; handle: string }
@@ -59,11 +57,7 @@ export function* retrieveTrackByHandleAndSlug({
     {
       ids: [permalink],
       selectFromCache: function* (permalinks: string[]) {
-        const track = yield* select(getTracksSelector, {
-          permalinks
-        })
-        console.log('track from cache?', track)
-        return track
+        return yield* select(getTracksSelector, { permalinks })
       },
       retrieveFromSource: function* (permalinks: string[]) {
         yield* waitForRead()
@@ -87,15 +81,7 @@ export function* retrieveTrackByHandleAndSlug({
       shouldSetLoading: true,
       deleteExistingEntry: false,
       getEntriesTimestamp: function* (ids: ID[]) {
-        const selected = yield* select(
-          (state: CommonState, ids: ID[]) =>
-            ids.reduce((acc, id) => {
-              acc[id] = getEntryTimestamp(state, { kind: Kind.TRACKS, id })
-              return acc
-            }, {} as { [id: number]: number | null }),
-          ids
-        )
-        return selected
+        return yield* select(getTrackTimestamps, ids)
       },
       onBeforeAddToCache: function* (tracks: TrackMetadata[]) {
         const audiusBackendInstance = yield* getContext('audiusBackendInstance')
@@ -198,15 +184,7 @@ export function* retrieveTracks({
       return yield* select(getTracksSelector, { ids })
     },
     getEntriesTimestamp: function* (ids: ID[]) {
-      const selected = yield* select(
-        (state: CommonState, ids: ID[]) =>
-          ids.reduce((acc, id) => {
-            acc[id] = getEntryTimestamp(state, { kind: Kind.TRACKS, id })
-            return acc
-          }, {} as { [id: number]: number | null }),
-        ids
-      )
-      return selected
+      return yield* select(getTrackTimestamps, ids)
     },
     retrieveFromSource: function* (ids: ID[] | UnlistedTrackRequest[]) {
       yield* waitForRead()

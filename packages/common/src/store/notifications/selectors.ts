@@ -5,8 +5,8 @@ import {
   getCollection,
   getCollections
 } from 'store/cache/collections/selectors'
-import { getTrack, getTracks } from 'store/cache/tracks/selectors'
 import { CommonState } from 'store/commonStore'
+import { getTrack, getTracks } from 'store/tracks/tracksSelectors'
 import { getUser, getUsers } from 'store/users/usersSelectors'
 import { Nullable } from 'utils'
 
@@ -136,7 +136,6 @@ export const getNotificationEntity = (
         user: getUser(state, { id: userId })
       }
     }
-    return entity
   }
   return null
 }

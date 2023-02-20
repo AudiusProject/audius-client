@@ -4,10 +4,8 @@ import { Uid } from 'utils/uid'
 import { Collection } from '../../models/Collection'
 import { ID, UID } from '../../models/Identifiers'
 import { Kind } from '../../models/Kind'
-import { Track } from '../../models/Track'
 
 import { CollectionsCacheState } from './collections/types'
-import { TracksCacheState } from './tracks/types'
 
 /**
  * Selects from the cache and strips away cache-only fields.
@@ -23,19 +21,11 @@ export function getEntry(
 export function getEntry(
   state: CommonState,
   props: {
-    kind: Kind.TRACKS
-    id?: ID | null
-    uid?: UID | null
-  }
-): Track | null
-export function getEntry(
-  state: CommonState,
-  props: {
     kind: Kind
     id?: ID | null
     uid?: UID | null
   }
-): Track | Collection | null
+): Collection | null
 export function getEntry(
   state: CommonState,
   props: {
@@ -77,16 +67,12 @@ export function getAllEntries(
   state: CommonState,
   props: { kind: Kind.COLLECTIONS }
 ): { [id: string]: Collection }
-export function getAllEntries(
-  state: CommonState,
-  props: { kind: Kind.TRACKS }
-): { [id: string]: Track }
 export function getAllEntries(state: CommonState, props: { kind: Kind }) {
   const entries = getCache(state, props).entries
   return Object.keys(entries).reduce((acc, id) => {
     acc[id] = entries[id as unknown as number].metadata
     return acc
-  }, {} as { [id: string]: Track | Collection })
+  }, {} as { [id: string]: Collection })
 }
 
 export function getCache(
@@ -95,33 +81,24 @@ export function getCache(
 ): CollectionsCacheState
 export function getCache(
   state: CommonState,
-  props: { kind: Kind.TRACKS }
-): TracksCacheState
-export function getCache(
-  state: CommonState,
   props: { kind: Kind }
-): TracksCacheState | CollectionsCacheState
+): CollectionsCacheState
 export function getCache(state: CommonState, props: { kind: Kind }) {
   switch (props.kind) {
-    case Kind.TRACKS:
-      return state.tracks
     case Kind.COLLECTIONS:
       return state.collections
     default:
-      return state.tracks
+      return state.collections
   }
 }
 
 export function getId(state: CommonState, props: { kind: Kind; uid: UID }) {
   switch (props.kind) {
-    case Kind.TRACKS: {
-      return state.tracks.uids[props.uid]
-    }
     case Kind.COLLECTIONS: {
       return state.collections.uids[props.uid]
     }
     default: {
-      return state.tracks.uids[props.uid]
+      return state.collections.uids[props.uid]
     }
   }
 }

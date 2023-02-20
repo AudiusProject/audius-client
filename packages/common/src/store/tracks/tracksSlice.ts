@@ -1,29 +1,29 @@
-import {
-  createEntityAdapter,
-  createSlice,
-  Dictionary,
-  EntityState,
-  PayloadAction
-} from '@reduxjs/toolkit'
+import { createEntityAdapter, createSlice } from '@reduxjs/toolkit'
 
+import { Status } from 'models/Status'
 import { Track } from 'models/Track'
 
-const tracksAdapter = createEntityAdapter<Track>({
+import {
+  AddTracksAction,
+  AddUidsAction,
+  CheckIsDownloadableAction,
+  DeleteTrackAction,
+  DeleteTrackSucceededAction,
+  EditTrackAction,
+  FetchCoverArtAction,
+  TracksState
+} from './types'
+
+export const tracksAdapter = createEntityAdapter<Track>({
   selectId: (track) => track.track_id
 })
 
-type AddTracksAction = PayloadAction<{
-  tracks: Track[]
-}>
-
-export type TracksState = EntityState<Track> & {
-  timestamps: Dictionary<number>
-  // TODO uids
-}
-
 const initialState: TracksState = {
   ...tracksAdapter.getInitialState(),
-  timestamps: {}
+  timestamps: {},
+  permalinks: {},
+  statuses: {},
+  uids: {}
 }
 
 const slice = createSlice({
@@ -32,9 +32,33 @@ const slice = createSlice({
   reducers: {
     addTracks: (state, action: AddTracksAction) => {
       const { tracks } = action.payload
-      tracksAdapter.upsertMany(state, tracks)
+      tracksAdapter.addMany(state, tracks)
+      // Object.assign(state.uids, uids)
+
+      const now = Date.now()
+      for (const track of tracks) {
+        const { track_id, permalink } = track
+        state.permalinks[permalink.toLowerCase()] = track_id
+        state.timestamps[track_id] = now
+        state.statuses[track_id] = Status.SUCCESS
+      }
     },
-    updateTrack: tracksAdapter.updateOne
+    updateTrack: tracksAdapter.updateOne,
+    updateTracks: tracksAdapter.updateMany,
+    addUids: (state, action: AddUidsAction) => {
+      const { uids } = action.payload
+      for (const { id, uid } of uids) {
+        state.uids[uid] = id
+      }
+    },
+    editTrack: (_state, _action: EditTrackAction) => {},
+    editTrackSucceeded: () => {},
+    editTrackFailed: () => {},
+    deleteTrack: (_state, _action: DeleteTrackAction) => {},
+    deleteTrackSucceeded: (_state, _action: DeleteTrackSucceededAction) => {},
+    deleteTrackFailed: () => {},
+    fetchCoverArt: (_state, _action: FetchCoverArtAction) => {},
+    checkIsDownloadable: (_state, _action: CheckIsDownloadableAction) => {}
   }
 })
 

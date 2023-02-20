@@ -11,7 +11,8 @@ import {
   lineupActions as baseLineupActions,
   queueActions,
   playerSelectors,
-  queueSelectors
+  queueSelectors,
+  cacheTracksActions
 } from '@audius/common'
 import {
   all,
@@ -247,7 +248,7 @@ function* fetchLineupMetadatasAsync(
         yield put(cacheActions.update(Kind.COLLECTIONS, [], trackSubscriptions))
       }
       if (trackSubscribers.length > 0) {
-        yield put(cacheActions.subscribe(Kind.TRACKS, trackSubscribers))
+        yield put(cacheTracksActions.addUids({ uids: trackSubscribers }))
       }
       // Retain specified info in the lineup itself and resolve with success.
       const lineupEntries = allMetadatas

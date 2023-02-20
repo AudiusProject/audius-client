@@ -7,9 +7,10 @@ import {
   cacheConfig,
   FeatureFlags,
   Kind,
-  usersActions
+  usersActions,
+  cacheTracksActions
 } from '@audius/common'
-import { pick } from 'lodash'
+import { pick, invert, mapValues } from 'lodash'
 import {
   all,
   call,
@@ -23,6 +24,7 @@ import { getConfirmCalls } from 'common/store/confirmer/selectors'
 const { CACHE_PRUNE_MIN } = cacheConfig
 const { getCache } = cacheSelectors
 const { addUsers } = usersActions
+const { addTracks } = cacheTracksActions
 
 const DEFAULT_ENTRY_TTL = 5 /* min */ * 60 /* seconds */ * 1000 /* ms */
 
@@ -175,6 +177,13 @@ function* retrieveFromSourceThenCache({
 
     if (kind === Kind.USERS) {
       yield put(addUsers({ users: metadatas }))
+      return
+    }
+
+    if (kind === Kind.TRACKS) {
+      yield put(
+        addTracks({ tracks: metadatas, uids: mapValues(invert(uids), Number) })
+      )
       return
     }
 

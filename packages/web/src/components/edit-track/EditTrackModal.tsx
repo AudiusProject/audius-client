@@ -228,8 +228,9 @@ function mapDispatchToProps(dispatch: Dispatch) {
   return {
     goToRoute: (route: string) => dispatch(pushRoute(route)),
     onEdit: (trackId: ID, formFields: any) =>
-      dispatch(cacheTrackActions.editTrack(trackId, formFields)),
-    onDelete: (trackId: ID) => dispatch(cacheTrackActions.deleteTrack(trackId)),
+      dispatch(cacheTrackActions.editTrack({ trackId, formFields })),
+    onDelete: (trackId: ID) =>
+      dispatch(cacheTrackActions.deleteTrack({ trackId })),
     close: () => dispatch(editTrackModalActions.close()),
     uploadStems: (parentId: ID, uploads: StemUploadWithFile[]) =>
       dispatch(startStemUploads({ parentId, uploads, batchUID: uuid() }))

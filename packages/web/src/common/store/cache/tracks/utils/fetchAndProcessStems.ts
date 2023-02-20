@@ -1,13 +1,12 @@
 import {
   ID,
-  Kind,
   StemCategory,
   Stem,
   StemTrackMetadata,
   cacheTracksSelectors,
-  cacheActions,
   getContext,
-  waitForValue
+  waitForValue,
+  cacheTracksActions
 } from '@audius/common'
 import { call, put } from 'redux-saga/effects'
 
@@ -48,13 +47,9 @@ export function* fetchAndProcessStems(trackId: ID) {
   }))
 
   yield put(
-    cacheActions.update(Kind.TRACKS, [
-      {
-        id: trackId,
-        metadata: {
-          _stems: stemsUpdate
-        }
-      }
-    ])
+    cacheTracksActions.updateTrack({
+      id: trackId,
+      changes: { _stems: stemsUpdate }
+    })
   )
 }

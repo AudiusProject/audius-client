@@ -28,7 +28,7 @@ export const DeleteConfirmationDrawer = () => {
   const navigation = useNavigation()
 
   const handleConfirm = useCallback(() => {
-    dispatch(deleteTrack(trackId))
+    dispatch(deleteTrack({ trackId }))
     const currentRouteName = navigationRef.getCurrentRoute()?.name
     if (currentRouteName === 'Track') {
       navigation.goBack()

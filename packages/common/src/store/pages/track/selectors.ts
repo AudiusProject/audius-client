@@ -1,9 +1,9 @@
-import {
-  getTrack as getCachedTrack,
-  getStatus as getCachedTrackStatus
-} from 'store/cache/tracks/selectors'
 import { CommonState } from 'store/commonStore'
 import { PREFIX } from 'store/pages/track/lineup/actions'
+import {
+  getTrack as getCachedTrack,
+  getTrackStatus
+} from 'store/tracks/tracksSelectors'
 import { getUser as getCachedUser } from 'store/users/usersSelectors'
 
 import { ID, Track, User } from '../../../models'
@@ -14,17 +14,18 @@ export const getBaseState = (state: CommonState) => state.pages.track
 export const getTrackId = (state: CommonState) => getBaseState(state).trackId
 export const getTrackPermalink = (state: CommonState) =>
   getBaseState(state).trackPermalink
+
 export const getTrack = (state: CommonState, params?: { id?: ID }) => {
   if (params?.id) {
-    return getCachedTrack(state, { id: params.id })
+    return getCachedTrack(state, { id: params.id }) ?? null
   }
 
   const id = getTrackId(state)
   if (id) {
-    return getCachedTrack(state, { id })
+    return getCachedTrack(state, { id }) ?? null
   }
   const permalink = getTrackPermalink(state)
-  return getCachedTrack(state, { permalink })
+  return getCachedTrack(state, { permalink }) ?? null
 }
 
 export const getRemixParentTrack = (
@@ -49,7 +50,7 @@ export const getUser = (state: CommonState, params?: { id?: ID }) => {
   return getCachedUser(state, { id: trackId })
 }
 export const getStatus = (state: CommonState) =>
-  getCachedTrackStatus(state, { id: getTrackId(state) as ID })
+  getTrackStatus(state, { id: getTrackId(state) as ID })
 
 export const getLineup = (state: CommonState) => getBaseState(state).tracks
 export const getTrackRank = (state: CommonState) => getBaseState(state).rank

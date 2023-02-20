@@ -578,7 +578,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
         socialTracksActions.unsaveTrack(trackId, FavoriteSource.TRACK_PAGE)
       ),
     deleteTrack: (trackId: ID) =>
-      dispatch(cacheTrackActions.deleteTrack(trackId)),
+      dispatch(cacheTrackActions.deleteTrack({ trackId })),
     repostTrack: (trackId: ID) =>
       dispatch(
         socialTracksActions.repostTrack(trackId, RepostSource.TRACK_PAGE)
@@ -588,7 +588,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
         socialTracksActions.undoRepostTrack(trackId, RepostSource.TRACK_PAGE)
       ),
     editTrack: (trackId: ID, formFields: any) =>
-      dispatch(cacheTrackActions.editTrack(trackId, formFields)),
+      dispatch(cacheTrackActions.editTrack({ trackId, formFields })),
     onFollow: (userId: ID) =>
       dispatch(socialUsersActions.followUser(userId, FollowSource.TRACK_PAGE)),
     onUnfollow: (userId: ID) =>

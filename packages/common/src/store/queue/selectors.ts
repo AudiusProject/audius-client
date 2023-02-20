@@ -4,9 +4,9 @@ import { usersSelectors } from 'store/users'
 
 import { UID } from '../../models'
 import { Uid } from '../../utils/uid'
-import { cacheTracksSelectors } from '../cache'
 import { playerSelectors } from '../player'
 import { CommonState } from '../reducers'
+import { cacheTracksSelectors } from '../tracks'
 
 const { getUid: getPlayerUid, getTrackId: getPlayerTrackId } = playerSelectors
 const { getUser } = usersSelectors
@@ -65,7 +65,7 @@ export const makeGetCurrent = () => {
     (uid, source, track, user, collectible) => ({
       uid,
       source,
-      track,
+      track: track ?? null,
       user,
       collectible
     })

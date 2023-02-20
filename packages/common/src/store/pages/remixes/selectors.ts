@@ -1,6 +1,8 @@
-import { getTrack as getCachedTrack } from 'store/cache/tracks/selectors'
+import { Track } from 'models/Track'
 import { CommonState } from 'store/commonStore'
+import { getTrack as getCachedTrack } from 'store/tracks/tracksSelectors'
 import { getUserFromTrack } from 'store/users/combinedUsersSelectors'
+import { Nullable } from 'utils/typeUtils'
 
 export const getBaseState = (state: CommonState) => state.pages.remixes
 
@@ -11,7 +13,7 @@ export const getTrackId = (state: CommonState) =>
 
 export const getCount = (state: CommonState) => getBaseState(state).page.count
 
-export const getTrack = (state: CommonState) => {
+export const getTrack = (state: CommonState): Nullable<Track> => {
   const id = getTrackId(state)
   return getCachedTrack(state, { id })
 }

@@ -18,7 +18,7 @@ import { retrieveUserTracks } from './retrieveUserTracks'
 const { SET_ARTIST_PICK } = tracksSocialActions
 const { getProfileUserId, getProfileTracksLineup } = profilePageSelectors
 const { getTrack } = cacheTracksSelectors
-const { DELETE_TRACK } = cacheTracksActions
+const { deleteTrack } = cacheTracksActions
 const { getUserId, getUserHandle } = accountSelectors
 const PREFIX = tracksActions.prefix
 
@@ -82,7 +82,7 @@ function* watchSetArtistPick() {
 }
 
 function* watchDeleteTrack() {
-  yield takeEvery(DELETE_TRACK, function* (action) {
+  yield takeEvery(deleteTrack.type, function* (action) {
     const { trackId } = action
     const accountHandle = yield select(getUserHandle)
     const lineup = yield select((state) =>

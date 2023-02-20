@@ -232,12 +232,6 @@ export const FeedTipTile = () => {
     return null
   }
 
-  console.log(
-    'tip tile',
-    Object.keys(usersMap).length,
-    tipperIds.length,
-    tipperIds
-  )
   return !tipToDisplay || Object.keys(usersMap).length !== tipperIds.length ? (
     <SkeletonTile />
   ) : (

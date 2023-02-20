@@ -516,7 +516,6 @@ export function* getNotifications(isFirstFetch: boolean) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
   const getFeatureEnabled = yield* getContext('getFeatureEnabled')
-
   try {
     const isOpen = yield* select(getNotificationPanelIsOpen)
     const status = yield* select(getNotificationStatus)

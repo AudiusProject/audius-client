@@ -9,7 +9,7 @@ import {
   accountSelectors,
   averageColorActions,
   cacheTracksSelectors,
-  cacheTracksActions as trackActions,
+  cacheTracksActions,
   usersSelectors,
   cacheActions,
   waitForAccount,
@@ -104,12 +104,10 @@ function* editTrackAsync(action) {
 
   if (!isPublishing && wasUnlisted && isNowListed) {
     yield put(
-      cacheActions.update(Kind.TRACKS, [
-        {
-          id: action.trackId,
-          metadata: { _is_publishing: true }
-        }
-      ])
+      cacheTracksActions.updateTrack({
+        id: action.trackId,
+        changes: { _is_publishing: true }
+      })
     )
   }
 
@@ -134,9 +132,17 @@ function* editTrackAsync(action) {
   }
 
   yield put(
-    cacheActions.update(Kind.TRACKS, [{ id: track.track_id, metadata: track }])
+    cacheTracksActions.updateTrack({
+      id: track.track_id,
+      changes: {
+        _cover_art_sizes: {
+          ...track._cover_art_sizes,
+          [DefaultSizes.OVERRIDE]: track.artwork.url
+        }
+      }
+    })
   )
-  yield put(trackActions.editTrackSucceeded())
+  yield put(cacheTracksActions.editTrackSucceeded())
 
   // This is a new remix
   if (
@@ -166,7 +172,7 @@ function* confirmEditTrack(
       makeKindId(Kind.TRACKS, trackId),
       function* () {
         if (!wasDownloadable && isNowDownloadable) {
-          yield put(trackActions.checkIsDownloadable(trackId))
+          yield put(cacheTracksActions.checkIsDownloadable({ trackId }))
         }
 
         const { blockHash, blockNumber } = yield call(
@@ -205,12 +211,10 @@ function* confirmEditTrack(
         }
         // Update the cached track so it no longer contains image upload artifacts
         yield put(
-          cacheActions.update(Kind.TRACKS, [
-            {
-              id: confirmedTrack.track_id,
-              metadata: { ...confirmedTrack, artwork: {} }
-            }
-          ])
+          cacheTracksActions.updateTrack({
+            id: confirmedTrack.track_id,
+            changes: { ...confirmedTrack, artwork: {} }
+          })
         )
 
         // Record analytics on track edit
@@ -230,7 +234,7 @@ function* confirmEditTrack(
         }
       },
       function* () {
-        yield put(trackActions.editTrackFailed())
+        yield put(cacheTracksActions.editTrackFailed())
         // Throw so the user can't capture a bad upload state (especially for downloads).
         // TODO: Consider better update revesion logic here coupled with a toast or similar.
         throw new Error('Edit track failed')
@@ -240,7 +244,7 @@ function* confirmEditTrack(
 }
 
 function* watchEditTrack() {
-  yield takeEvery(trackActions.EDIT_TRACK, editTrackAsync)
+  yield takeEvery(cacheTracksActions.editTrack.type, editTrackAsync)
 }
 
 function* deleteTrackAsync(action) {
@@ -273,9 +277,10 @@ function* deleteTrackAsync(action) {
 
   const track = yield select(getTrack, { id: action.trackId })
   yield put(
-    cacheActions.update(Kind.TRACKS, [
-      { id: track.track_id, metadata: { _marked_deleted: true } }
-    ])
+    cacheTracksActions.updateTrack({
+      id: track.track_id,
+      changes: { _marked_deleted: true }
+    })
   )
 
   yield call(confirmDeleteTrack, track.track_id)
@@ -320,7 +325,11 @@ function* confirmDeleteTrack(trackId) {
       },
       function* (deletedTrack) {
         // NOTE: we do not delete from the cache as the track may be playing
-        yield put(trackActions.deleteTrackSucceeded(deletedTrack.track_id))
+        yield put(
+          cacheTracksActions.deleteTrackSucceeded({
+            trackId: deletedTrack.track_id
+          })
+        )
 
         // Record Delete Event
         const event = make(Name.DELETE, {
@@ -340,9 +349,10 @@ function* confirmDeleteTrack(trackId) {
       function* () {
         // On failure, do not mark the track as deleted
         yield put(
-          cacheActions.update(Kind.TRACKS, [
-            { id: trackId, metadata: { _marked_deleted: false } }
-          ])
+          cacheTracksActions.updateTrack({
+            id: trackId,
+            changes: { _marked_deleted: false }
+          })
         )
       }
     )
@@ -350,7 +360,7 @@ function* confirmDeleteTrack(trackId) {
 }
 
 function* watchDeleteTrack() {
-  yield takeEvery(trackActions.DELETE_TRACK, deleteTrackAsync)
+  yield takeEvery(cacheTracksActions.deleteTrack.type, deleteTrackAsync)
 }
 
 function* watchFetchCoverArt() {
@@ -358,14 +368,15 @@ function* watchFetchCoverArt() {
   const isNativeMobile = yield getContext('isNativeMobile')
 
   const inProgress = new Set()
-  yield takeEvery(trackActions.FETCH_COVER_ART, function* ({ trackId, size }) {
+  yield takeEvery(cacheTracksActions.fetchCoverArt.type, function* (action) {
+    const { id, size } = action.payload
     // Unique on id and size
-    const key = `${trackId}-${size}`
+    const key = `${id}-${size}`
     if (inProgress.has(key)) return
     inProgress.add(key)
 
     try {
-      let track = yield call(waitForValue, getTrack, { id: trackId })
+      const track = yield call(waitForValue, getTrack, { id })
       const user = yield call(waitForValue, getUser, { id: track.owner_id })
       if (!track || !user || (!track.cover_art_sizes && !track.cover_art))
         return
@@ -380,13 +391,17 @@ function* watchFetchCoverArt() {
         coverArtSize,
         gateways
       )
-      track = yield select(getTrack, { id: trackId })
-      track._cover_art_sizes = {
-        ...track._cover_art_sizes,
-        [coverArtSize || DefaultSizes.OVERRIDE]: url
-      }
+
       yield put(
-        cacheActions.update(Kind.TRACKS, [{ id: trackId, metadata: track }])
+        cacheTracksActions.updateTrack({
+          id,
+          changes: {
+            _cover_art_sizes: {
+              ...track._cover_art_sizes,
+              [coverArtSize || DefaultSizes.OVERRIDE]: url
+            }
+          }
+        })
       )
 
       let smallImageUrl = url
@@ -412,7 +427,7 @@ function* watchFetchCoverArt() {
         )
       }
     } catch (e) {
-      console.error(`Unable to fetch cover art for track ${trackId}`)
+      console.error(`Unable to fetch cover art for track ${id}`)
     } finally {
       inProgress.delete(key)
     }
@@ -420,49 +435,42 @@ function* watchFetchCoverArt() {
 }
 
 function* watchCheckIsDownloadable() {
-  yield takeLatest(trackActions.CHECK_IS_DOWNLOADABLE, function* (action) {
-    const trackDownload = yield getContext('trackDownload')
-    const track = yield select(getTrack, { id: action.trackId })
-    if (!track) return
+  yield takeLatest(
+    cacheTracksActions.checkIsDownloadable.type,
+    function* (action) {
+      const trackDownload = yield getContext('trackDownload')
+      const track = yield select(getTrack, { id: action.trackId })
+      if (!track) return
 
-    const user = yield select(getUser, { id: track.owner_id })
-    if (!user) return
-    if (!user.creator_node_endpoint) return
+      const user = yield select(getUser, { id: track.owner_id })
+      if (!user) return
+      if (!user.creator_node_endpoint) return
 
-    const cid = yield call(
-      [trackDownload, 'checkIfDownloadAvailable'],
-      track.track_id,
-      user.creator_node_endpoint
-    )
+      const cid = yield call(
+        [trackDownload, 'checkIfDownloadAvailable'],
+        track.track_id,
+        user.creator_node_endpoint
+      )
 
-    const updatedMetadata = {
-      ...track,
-      download: {
-        ...track.download,
-        cid
+      yield put(
+        cacheTracksActions.updateTrack({
+          id: track.track_id,
+          changes: { download: { ...track.download, cid } }
+        })
+      )
+
+      yield waitForAccount()
+      const currentUserId = yield select(getUserId)
+      if (currentUserId === user.user_id) {
+        yield call(
+          [trackDownload, 'updateTrackDownloadCID'],
+          track.track_id,
+          track,
+          cid
+        )
       }
     }
-
-    yield put(
-      cacheActions.update(Kind.TRACKS, [
-        {
-          id: track.track_id,
-          metadata: updatedMetadata
-        }
-      ])
-    )
-
-    yield waitForAccount()
-    const currentUserId = yield select(getUserId)
-    if (currentUserId === user.user_id) {
-      yield call(
-        [trackDownload, 'updateTrackDownloadCID'],
-        track.track_id,
-        track,
-        cid
-      )
-    }
-  })
+  )
 }
 
 const sagas = () => {

@@ -9,11 +9,11 @@ import {
   accountSelectors,
   cacheTracksSelectors,
   usersSelectors,
-  cacheActions,
   getContext,
   tracksSocialActions as socialActions,
   waitForValue,
-  usersActions
+  usersActions,
+  cacheTracksActions
 } from '@audius/common'
 import { fork } from 'redux-saga/effects'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
@@ -70,6 +70,7 @@ export function* repostTrackAsync(
 
   const tracks = yield* select(getTracks, { ids: [action.trackId] })
   const track = tracks[action.trackId]
+  if (!track) return
 
   const eagerlyUpdatedMetadata: Partial<Track> = {
     has_current_user_reposted: true,
@@ -94,12 +95,10 @@ export function* repostTrackAsync(
   }
 
   yield* put(
-    cacheActions.update(Kind.TRACKS, [
-      {
-        id: action.trackId,
-        metadata: eagerlyUpdatedMetadata
-      }
-    ])
+    cacheTracksActions.updateTrack({
+      id: action.trackId,
+      changes: eagerlyUpdatedMetadata
+    })
   )
 
   if (remixTrack && isCoSign) {
@@ -217,6 +216,7 @@ export function* undoRepostTrackAsync(
 
   const tracks = yield* select(getTracks, { ids: [action.trackId] })
   const track = tracks[action.trackId]
+  if (!track) return
 
   const eagerlyUpdatedMetadata: Partial<Track> = {
     has_current_user_reposted: false,
@@ -245,12 +245,10 @@ export function* undoRepostTrackAsync(
   }
 
   yield* put(
-    cacheActions.update(Kind.TRACKS, [
-      {
-        id: action.trackId,
-        metadata: eagerlyUpdatedMetadata
-      }
-    ])
+    cacheTracksActions.updateTrack({
+      id: action.trackId,
+      changes: eagerlyUpdatedMetadata
+    })
   )
 }
 
@@ -318,6 +316,7 @@ export function* saveTrackAsync(
 
   const tracks = yield* select(getTracks, { ids: [action.trackId] })
   const track = tracks[action.trackId]
+  if (!track) return
 
   if (track.has_current_user_saved) return
 
@@ -362,12 +361,10 @@ export function* saveTrackAsync(
   }
 
   yield* put(
-    cacheActions.update(Kind.TRACKS, [
-      {
-        id: action.trackId,
-        metadata: eagerlyUpdatedMetadata
-      }
-    ])
+    cacheTracksActions.updateTrack({
+      id: action.trackId,
+      changes: eagerlyUpdatedMetadata
+    })
   )
   yield* put(socialActions.saveTrackSucceeded(action.trackId))
   if (isCoSign) {
@@ -509,12 +506,10 @@ export function* unsaveTrackAsync(
     }
 
     yield* put(
-      cacheActions.update(Kind.TRACKS, [
-        {
-          id: action.trackId,
-          metadata: eagerlyUpdatedMetadata
-        }
-      ])
+      cacheTracksActions.updateTrack({
+        id: action.trackId,
+        changes: eagerlyUpdatedMetadata
+      })
     )
   }
 

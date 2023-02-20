@@ -1,6 +1,6 @@
 import { getAllEntries, getEntry } from 'store/cache/selectors'
-import { getTracks } from 'store/cache/tracks/selectors'
 import { CommonState } from 'store/commonStore'
+import { getTracks } from 'store/tracks/tracksSelectors'
 import { getUser as getUserById, getUsers } from 'store/users/usersSelectors'
 import { Uid } from 'utils/uid'
 
@@ -119,14 +119,15 @@ export const getTracksFromCollection = (
       trackUid.source = `${collectionSource}:${trackUid.source}`
       trackUid.count = i
 
-      if (!tracks[t.track]) {
+      const track = tracks[t.track]
+      if (!track) {
         console.error(`Found empty track ${t.track}`)
         return null
       }
       return {
-        ...tracks[t.track],
+        ...track,
         uid: trackUid.toString(),
-        user: users[tracks[t.track].owner_id]
+        user: users[track.owner_id]
       }
     })
     .filter(Boolean) as EnhancedCollectionTrack[]

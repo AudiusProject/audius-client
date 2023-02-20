@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect'
 
 import { Kind } from 'models'
-import { getTracksByUid } from 'store/cache/tracks/selectors'
+import { getTracksByUid } from 'store/tracks/tracksSelectors'
 import { getUsers } from 'store/users/usersSelectors'
 import { removeNullable } from 'utils/typeUtils'
 
@@ -28,10 +28,16 @@ export const makeGetTableMetadatas = <T, State>(
     getUsers,
     (lineup, trackUids, users) => {
       let deleted = lineup.deleted
+      console.log(
+        'hmm',
+        trackUids,
+        lineup.entries.map((e) => e.uid)
+      )
       const entries = lineup.entries
         .map((entry) => {
           const track = trackUids[entry.uid]
           if (track) {
+            console.log('track!', track)
             return {
               ...entry,
               ...track,

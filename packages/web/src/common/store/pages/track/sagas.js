@@ -244,7 +244,7 @@ function* watchTrackPageMakePublic() {
       }
     }
 
-    yield put(trackCacheActions.editTrack(trackId, track))
+    yield put(trackCacheActions.editTrack({ trackId, formFields: track }))
   })
 }
 

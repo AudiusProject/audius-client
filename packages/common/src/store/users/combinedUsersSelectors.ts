@@ -2,8 +2,8 @@
 
 import { ID, UID } from 'models/Identifiers'
 import { getCollection } from 'store/cache/collections/selectors'
-import { getTrack } from 'store/cache/tracks/selectors'
 import { CommonState } from 'store/commonStore'
+import { getTrack } from 'store/tracks/tracksSelectors'
 
 import { getUser } from './usersSelectors'
 

@@ -1,13 +1,12 @@
 import {
   ID,
-  Kind,
   UserTrackMetadata,
   removeNullable,
   accountSelectors,
   cacheTracksSelectors,
-  cacheActions,
   getContext,
-  waitForValue
+  waitForValue,
+  cacheTracksActions
 } from '@audius/common'
 import { select, call, put } from 'typed-redux-saga'
 
@@ -60,15 +59,13 @@ export function* fetchAndProcessRemixes(trackId: ID) {
   }))
 
   yield* put(
-    cacheActions.update(Kind.TRACKS, [
-      {
-        id: trackId,
-        metadata: {
-          _remixes: remixesUpdate,
-          _remixes_count: count
-        }
+    cacheTracksActions.updateTrack({
+      id: trackId,
+      changes: {
+        _remixes: remixesUpdate,
+        _remixes_count: count
       }
-    ])
+    })
   )
 }
 
@@ -105,13 +102,9 @@ export function* fetchAndProcessRemixParents(trackId: ID) {
   }))
 
   yield* put(
-    cacheActions.update(Kind.TRACKS, [
-      {
-        id: trackId,
-        metadata: {
-          _remix_parents: remixParentsUpdate
-        }
-      }
-    ])
+    cacheTracksActions.updateTrack({
+      id: trackId,
+      changes: { _remix_parents: remixParentsUpdate }
+    })
   )
 }

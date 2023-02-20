@@ -1,11 +1,12 @@
 import moment from 'moment'
 import { useSelector as reduxUseSelector, shallowEqual } from 'react-redux'
 
+import { getTrack, getTracks } from 'store/tracks/tracksSelectors'
+
 import { ID } from '../models/Identifiers'
 import { stemCategoryFriendlyNames, StemCategory } from '../models/Stems'
 import { Track, StemTrack } from '../models/Track'
 import { getHasAccount } from '../store/account/selectors'
-import { getTrack, getTracks } from '../store/cache/tracks/selectors'
 import { CommonState } from '../store/commonStore'
 import { getCurrentUploads } from '../store/stems-upload/selectors'
 

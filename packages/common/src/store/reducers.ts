@@ -7,8 +7,6 @@ import averageColorReducer from './average-color/slice'
 import collectionsReducer from './cache/collections/reducer'
 import { CollectionsCacheState } from './cache/collections/types'
 import { asCache } from './cache/reducer'
-import tracksReducer from './cache/tracks/reducer'
-import { TracksCacheState } from './cache/tracks/types'
 import cast from './cast/slice'
 import changePasswordReducer from './change-password/slice'
 import { ChangePasswordState } from './change-password/types'
@@ -64,6 +62,7 @@ import remixSettingsReducer, {
 import solanaReducer from './solana/slice'
 import stemsUpload from './stems-upload/slice'
 import tippingReducer from './tipping/slice'
+import { cacheTracksReducer, TracksState } from './tracks'
 import {
   searchUsersModalReducer,
   SearchUsersModalState,
@@ -109,7 +108,7 @@ import notificationsUserListReducer from './user-list/notifications/reducers'
 import repostsUserListReducer from './user-list/reposts/reducers'
 import supportingUserListReducer from './user-list/supporting/reducers'
 import topSupportersUserListReducer from './user-list/top-supporters/reducers'
-import usersReducer, { UsersState } from './users/usersSlice'
+import { usersReducer, UsersState } from './users'
 import wallet from './wallet/slice'
 
 /**
@@ -133,8 +132,7 @@ export const reducers = () => ({
   // @ts-ignore
   collections: asCache(collectionsReducer, Kind.COLLECTIONS),
   // TODO: Fix type error
-  // @ts-ignore
-  tracks: asCache(tracksReducer, Kind.TRACKS),
+  tracks: cacheTracksReducer,
   users: usersReducer,
 
   // Playback
@@ -245,7 +243,7 @@ export type CommonState = {
 
   // Cache
   collections: CollectionsCacheState
-  tracks: TracksCacheState
+  tracks: TracksState
   users: UsersState
 
   // Playback

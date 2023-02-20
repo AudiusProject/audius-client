@@ -13,13 +13,14 @@ import {
 import { User } from 'models/User'
 import { FeatureFlags } from 'services/remote-config'
 import { accountSelectors } from 'store/account'
-import { cacheActions, cacheTracksSelectors } from 'store/cache'
+import { cacheActions } from 'store/cache'
 import { collectiblesActions } from 'store/collectibles'
 import { getContext } from 'store/effects'
 import { musicConfettiActions } from 'store/music-confetti'
 import { trackPageActions } from 'store/pages'
 import { usersSocialActions } from 'store/social'
 import { tippingActions } from 'store/tipping'
+import { cacheTracksActions, cacheTracksSelectors } from 'store/tracks'
 import { parseTrackRouteFromPermalink } from 'utils'
 import { Nullable } from 'utils/typeUtils'
 
@@ -381,11 +382,13 @@ function* updateGatedTracks(trackOwnerId: ID, gate: 'follow' | 'tip') {
 
   Object.keys(cachedTracks).forEach((trackId) => {
     const id = parseInt(trackId)
+    const track = cachedTracks[id]
+    if (!track) return
     const {
       owner_id: ownerId,
       permalink,
       premium_conditions: premiumConditions
-    } = cachedTracks[id]
+    } = track
     const isGated =
       gate === 'follow'
         ? premiumConditions?.follow_user_id
@@ -419,12 +422,13 @@ function* handleUnfollowUser(
   action: ReturnType<typeof usersSocialActions.unfollowUser>
 ) {
   const statusMap: { [id: ID]: PremiumTrackStatus } = {}
-  const cachedTracks = yield* select(getTracks, {})
+  const cachedTracks = yield* select(getTracks)
 
   Object.keys(cachedTracks).forEach((trackId) => {
     const id = parseInt(trackId)
-    const { owner_id: ownerId, premium_conditions: premiumConditions } =
-      cachedTracks[id]
+    const track = cachedTracks[id]
+    if (!track) return
+    const { owner_id: ownerId, premium_conditions: premiumConditions } = track
     const isFollowGated = premiumConditions?.follow_user_id
     if (isFollowGated && ownerId === action.userId) {
       statusMap[id] = 'LOCKED'
@@ -470,18 +474,18 @@ function* handleRemovePremiumContentSignatures(
   const cachedTracks = yield* select(getTracks, {
     ids: action.payload.trackIds
   })
-  const metadatas = Object.keys(cachedTracks).map((trackId) => {
+  const updates = Object.keys(cachedTracks).map((trackId) => {
     const id = parseInt(trackId)
-    return { id, metadata: { premium_content_signature: null } }
+    return { id, changes: { premium_content_signature: null } }
   })
-  yield* put(cacheActions.update(Kind.TRACKS, metadatas))
+  yield* put(cacheTracksActions.updateTracks(updates))
 }
 
 function* watchCollectibleGatedTracks() {
   yield* takeEvery(
     [
-      cacheActions.ADD_SUCCEEDED,
-      cacheActions.UPDATE,
+      cacheTracksActions.addTracks.type,
+      cacheTracksActions.updateTrack.type,
       updateUserEthCollectibles.type,
       updateUserSolCollectibles.type
     ],

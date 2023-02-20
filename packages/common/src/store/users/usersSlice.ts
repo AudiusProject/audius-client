@@ -1,14 +1,15 @@
-import {
-  createEntityAdapter,
-  createSlice,
-  Dictionary,
-  EntityState,
-  PayloadAction
-} from '@reduxjs/toolkit'
+import { createEntityAdapter, createSlice } from '@reduxjs/toolkit'
 
-import { ID } from 'models/Identifiers'
-import { SquareSizes, WidthSizes } from 'models/ImageSizes'
 import { User } from 'models/User'
+
+import {
+  AddUsersAction,
+  FetchCoverPhotoAction,
+  FetchProfilePictureAction,
+  FetchUsersAction,
+  FetchUserSocialsAction,
+  UsersState
+} from './types'
 
 export const FETCH_USERS = 'CACHE/USERS/FETCH'
 
@@ -16,42 +17,11 @@ export const usersAdapter = createEntityAdapter<User>({
   selectId: (user) => user.user_id
 })
 
-export type UsersState = EntityState<User> & {
-  handles: Dictionary<ID>
-  timestamps: Dictionary<number>
-}
-
 const initialState: UsersState = {
   ...usersAdapter.getInitialState(),
   handles: {},
   timestamps: {}
 }
-
-type AddUsersAction = PayloadAction<{
-  users: User[]
-}>
-
-// type UpdateUserAction = PayloadAction<Update<User>>
-
-type FetchUsersAction = PayloadAction<{
-  userIds: ID[]
-  requiredFields?: any
-  forceRetrieveFromSource?: boolean
-}>
-
-type FetchUserSocialsAction = PayloadAction<{
-  handle: string
-}>
-
-type FetchCoverPhotoAction = PayloadAction<{
-  id: ID
-  size: WidthSizes
-}>
-
-type FetchProfilePictureAction = PayloadAction<{
-  id: ID
-  size: SquareSizes
-}>
 
 const slice = createSlice({
   name: 'users',

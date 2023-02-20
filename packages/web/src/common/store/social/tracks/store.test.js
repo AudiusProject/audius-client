@@ -1,6 +1,5 @@
 import {
-  Kind,
-  cacheActions,
+  cacheTracksActions,
   tracksSocialActions as actions
 } from '@audius/common'
 import { combineReducers } from 'redux'
@@ -43,15 +42,13 @@ describe('repost', () => {
       .dispatch(actions.repostTrack(1))
       .call(sagas.confirmRepostTrack, 1, repostingUser)
       .put(
-        cacheActions.update(Kind.TRACKS, [
-          {
-            id: 1,
-            metadata: {
-              has_current_user_reposted: true,
-              repost_count: 6
-            }
+        cacheTracksActions.updateTrack({
+          id: 1,
+          changes: {
+            has_current_user_reposted: true,
+            repost_count: 6
           }
-        ])
+        })
       )
       .silentRun()
   })
@@ -84,15 +81,13 @@ describe('repost', () => {
       .dispatch(actions.undoRepostTrack(1))
       .call(sagas.confirmUndoRepostTrack, 1, repostingUser)
       .put(
-        cacheActions.update(Kind.TRACKS, [
-          {
-            id: 1,
-            metadata: {
-              has_current_user_reposted: false,
-              repost_count: 4
-            }
+        cacheTracksActions.updateTrack({
+          id: 1,
+          changes: {
+            has_current_user_reposted: false,
+            repost_count: 4
           }
-        ])
+        })
       )
       .silentRun()
   })
@@ -121,15 +116,13 @@ describe('save', () => {
       .dispatch(actions.saveTrack(1))
       .call(sagas.confirmSaveTrack, 1)
       .put(
-        cacheActions.update(Kind.TRACKS, [
-          {
-            id: 1,
-            metadata: {
-              has_current_user_saved: true,
-              save_count: 6
-            }
+        cacheTracksActions.updateTrack({
+          id: 1,
+          changes: {
+            has_current_user_saved: true,
+            save_count: 6
           }
-        ])
+        })
       )
       .silentRun()
   })
@@ -156,15 +149,13 @@ describe('save', () => {
       .dispatch(actions.unsaveTrack(1))
       .call(sagas.confirmUnsaveTrack, 1)
       .put(
-        cacheActions.update(Kind.TRACKS, [
-          {
-            id: 1,
-            metadata: {
-              has_current_user_saved: false,
-              save_count: 4
-            }
+        cacheTracksActions.updateTrack({
+          id: 1,
+          changes: {
+            has_current_user_saved: false,
+            save_count: 4
           }
-        ])
+        })
       )
       .silentRun()
   })
