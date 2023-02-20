@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react'
 
 import {
-  cacheUsersSelectors,
+  usersSelectors,
   tippingSelectors,
   useProxySelector,
   removeNullable,
@@ -22,7 +22,7 @@ import { useThemeColors } from 'app/utils/theme'
 import { useSelectProfile } from '../selectors'
 const { getOptimisticSupportersForUser } = tippingSelectors
 const { fetchSupportersForUser } = tippingActions
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 
 const messages = {
   topSupporters: 'Top Supporters',

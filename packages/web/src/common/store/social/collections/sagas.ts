@@ -11,7 +11,7 @@ import {
   accountSelectors,
   accountActions,
   cacheCollectionsSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   cacheActions,
   notificationsActions as notificationActions,
   getContext,
@@ -32,7 +32,7 @@ import { waitForWrite } from 'utils/sagaHelpers'
 import watchCollectionErrors from './errorSagas'
 const { update: updatePlaylistLibrary } = playlistLibraryActions
 const { removeFromPlaylistLibrary } = playlistLibraryHelpers
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 const { getCollections, getCollection } = cacheCollectionsSelectors
 
 const { getPlaylistLibrary, getUserId } = accountSelectors

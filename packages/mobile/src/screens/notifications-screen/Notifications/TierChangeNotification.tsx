@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
 import type { TierChangeNotification as TierChangeNotificationType } from '@audius/common'
-import { cacheUsersSelectors } from '@audius/common'
+import { usersSelectors } from '@audius/common'
 import { fullProfilePage } from 'audius-client/src/utils/route'
 import { useSelector } from 'react-redux'
 
@@ -18,7 +18,7 @@ import {
   NotificationText,
   NotificationTwitterButton
 } from '../Notification'
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 const messages = {
   unlocked: 'Tier Unlocked',

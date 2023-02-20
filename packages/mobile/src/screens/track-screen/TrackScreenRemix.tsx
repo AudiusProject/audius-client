@@ -4,7 +4,7 @@ import type { ID, Track, User } from '@audius/common'
 import {
   SquareSizes,
   cacheTracksSelectors,
-  cacheUsersSelectors
+  usersSelectors
 } from '@audius/common'
 import type { StyleProp, ViewStyle } from 'react-native'
 import { Pressable, View } from 'react-native'
@@ -19,7 +19,7 @@ import UserBadges from 'app/components/user-badges'
 import { useNavigation } from 'app/hooks/useNavigation'
 import type { StylesProp } from 'app/styles'
 import { flexRowCentered, makeStyles } from 'app/styles'
-const { getUserFromTrack } = cacheUsersSelectors
+const { getUserFromTrack } = usersSelectors
 const { getTrack } = cacheTracksSelectors
 
 const messages = {

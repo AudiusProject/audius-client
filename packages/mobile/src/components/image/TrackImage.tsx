@@ -6,7 +6,7 @@ import type {
   ID,
   Maybe
 } from '@audius/common'
-import { reachabilitySelectors, cacheUsersSelectors } from '@audius/common'
+import { reachabilitySelectors, usersSelectors } from '@audius/common'
 import { useSelector } from 'react-redux'
 
 import imageEmpty from 'app/assets/images/imageBlank2x.png'
@@ -23,7 +23,7 @@ export const DEFAULT_IMAGE_URL =
   'https://download.audius.co/static-resources/preview-image.jpg'
 
 const { getIsReachable } = reachabilitySelectors
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 type UseTrackImageOptions = {
   track: Nullable<

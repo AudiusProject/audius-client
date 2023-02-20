@@ -6,7 +6,7 @@ import {
   Supporting,
   User,
   Nullable,
-  cacheUsersSelectors,
+  usersSelectors,
   imageCoverPhotoBlank,
   imageProfilePicEmpty as profilePicEmpty
 } from '@audius/common'
@@ -22,7 +22,7 @@ import { AppState } from 'store/types'
 import { TIPPING_TOP_RANK_THRESHOLD } from 'utils/constants'
 
 import styles from './SupportingTile.module.css'
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 type SupportingCardProps = {
   supporting: Supporting

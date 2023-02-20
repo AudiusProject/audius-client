@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 import {
   removeNullable,
   accountSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   profilePageSelectors
 } from '@audius/common'
 import { IconFollowing } from '@audius/stems'
@@ -24,7 +24,7 @@ import {
 import styles from './ProfileMutuals.module.css'
 const { getFolloweeFollows, getProfileUser, getProfileUserId } =
   profilePageSelectors
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 const getUserId = accountSelectors.getUserId
 
 const messages = {

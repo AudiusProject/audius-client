@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
 import {
-  cacheUsersSelectors,
+  usersSelectors,
   topSupportersUserListSelectors,
   topSupportersUserListActions
 } from '@audius/common'
@@ -17,7 +17,7 @@ import { UserList } from './UserList'
 import { UserListScreen } from './UserListScreen'
 const { setTopSupporters } = topSupportersUserListActions
 const { getUserList, getId: getSupportersId } = topSupportersUserListSelectors
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 const messages = {
   title: 'Top Supporters'

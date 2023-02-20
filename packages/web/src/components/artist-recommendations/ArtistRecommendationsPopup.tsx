@@ -1,6 +1,6 @@
 import { MutableRefObject, useContext } from 'react'
 
-import { ID, User, cacheUsersSelectors } from '@audius/common'
+import { ID, User, usersSelectors } from '@audius/common'
 import { Popup, PopupPosition } from '@audius/stems'
 import { useSelector } from 'react-redux'
 
@@ -10,7 +10,7 @@ import zIndex from 'utils/zIndex'
 
 import { ArtistRecommendations } from './ArtistRecommendations'
 import styles from './ArtistRecommendationsPopup.module.css'
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 type ArtistRecommendationsPopupProps = {
   anchorRef: MutableRefObject<HTMLElement>

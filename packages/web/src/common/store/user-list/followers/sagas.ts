@@ -1,7 +1,7 @@
 import {
   ID,
   User,
-  cacheUsersSelectors,
+  usersSelectors,
   followersUserListSelectors,
   UserListSagaFactory,
   followersUserListActions,
@@ -13,7 +13,7 @@ import { watchFollowersError } from 'common/store/user-list/followers/errorSagas
 import { createUserListProvider } from 'common/store/user-list/utils'
 const { getFollowersError } = followersUserListActions
 const { getId, getUserList, getUserIds } = followersUserListSelectors
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 const provider = createUserListProvider<User>({
   getExistingEntity: getUser,

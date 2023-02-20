@@ -5,7 +5,7 @@ import {
   useTwitterButtonStatus,
   CommonState,
   usersActions,
-  cacheUsersSelectors
+  usersSelectors
 } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -15,7 +15,7 @@ import { openTwitterLink } from 'utils/tweet'
 
 import styles from './TwitterShareButton.module.css'
 const { fetchUserSocials } = usersActions
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 const messages = {
   share: 'Share'

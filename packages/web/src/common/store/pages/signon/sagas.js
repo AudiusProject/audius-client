@@ -6,7 +6,7 @@ import {
   Genre,
   accountSelectors,
   accountActions,
-  cacheUsersSelectors,
+  usersSelectors,
   collectionsSocialActions,
   solanaSelectors,
   usersSocialActions as socialActions,
@@ -54,7 +54,7 @@ import { checkHandle } from './verifiedChecker'
 const { togglePushNotificationSetting } = settingsPageActions
 const { getFeePayer } = solanaSelectors
 const { saveCollection } = collectionsSocialActions
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 const getAccountUser = accountSelectors.getAccountUser
 
 const IS_PRODUCTION_BUILD = process.env.NODE_ENV === 'production'

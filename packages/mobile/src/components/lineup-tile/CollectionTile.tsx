@@ -19,7 +19,7 @@ import {
   FavoriteType,
   accountSelectors,
   cacheCollectionsSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   collectionsSocialActions,
   OverflowAction,
   OverflowSource,
@@ -48,7 +48,7 @@ const {
   undoRepostCollection,
   unsaveCollection
 } = collectionsSocialActions
-const { getUserFromCollection } = cacheUsersSelectors
+const { getUserFromCollection } = usersSelectors
 const { getCollection, getTracksFromCollection } = cacheCollectionsSelectors
 const getUserId = accountSelectors.getUserId
 

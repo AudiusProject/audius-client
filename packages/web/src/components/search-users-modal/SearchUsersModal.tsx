@@ -8,7 +8,7 @@ import {
 } from 'react'
 
 import {
-  cacheUsersSelectors,
+  usersSelectors,
   Modals,
   searchUsersModalSelectors,
   searchUsersModalActions,
@@ -43,7 +43,7 @@ const DEBOUNCE_MS = 100
 
 const { searchUsers } = searchUsersModalActions
 const { getUserList } = searchUsersModalSelectors
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 
 type SearchUsersModalProps = {
   modalName: Modals

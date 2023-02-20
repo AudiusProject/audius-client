@@ -3,7 +3,7 @@ import { useCallback, useEffect } from 'react'
 import type { User } from '@audius/common'
 import {
   accountSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   tippingSelectors,
   tippingActions,
   useProxySelector
@@ -26,7 +26,7 @@ import { SenderDetails } from './SenderDetails'
 
 const { setShowTip, fetchRecentTips } = tippingActions
 const { getShowTip, getTipToDisplay } = tippingSelectors
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 const { getAccountUser } = accountSelectors
 
 const useStyles = makeStyles(({ spacing, palette }) => ({

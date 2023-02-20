@@ -5,10 +5,10 @@ import { useSelector } from 'react-redux'
 import { Chain, PremiumConditions, Track } from 'models'
 import { premiumContentSelectors } from 'store/premium-content'
 import { CommonState } from 'store/reducers'
-import { cacheUsersSelectors } from 'store/users'
+import { usersSelectors } from 'store/users'
 import { Nullable, removeNullable } from 'utils'
 
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 const { getPremiumTrackSignatureMap } = premiumContentSelectors
 
 export const usePremiumContentAccess = (track: Nullable<Partial<Track>>) => {

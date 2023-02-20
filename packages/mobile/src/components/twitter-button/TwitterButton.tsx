@@ -4,7 +4,7 @@ import type { Nullable } from '@audius/common'
 import {
   useTwitterButtonStatus,
   usersActions,
-  cacheUsersSelectors
+  usersSelectors
 } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -16,7 +16,7 @@ import { track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { getTwitterLink } from 'app/utils/twitter'
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 const { fetchUserSocials } = usersActions
 
 const messages = {

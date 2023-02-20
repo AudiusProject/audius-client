@@ -1,4 +1,4 @@
-import { cacheUsersSelectors, cacheTracksSelectors } from '@audius/common'
+import { usersSelectors, cacheTracksSelectors } from '@audius/common'
 import { useField } from 'formik'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
@@ -10,7 +10,7 @@ import { makeStyles } from 'app/styles'
 import { RemixTrackPill } from '../components'
 import type { RemixOfField } from '../types'
 const { getTrack } = cacheTracksSelectors
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 const messages = {
   label: 'Remix Settings',

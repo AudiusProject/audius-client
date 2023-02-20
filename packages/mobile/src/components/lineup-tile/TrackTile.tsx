@@ -11,7 +11,7 @@ import {
   ShareSource,
   FavoriteType,
   cacheTracksSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   tracksSocialActions,
   OverflowAction,
   OverflowSource,
@@ -37,7 +37,7 @@ const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { open: openOverflowMenu } = mobileOverflowMenuUIActions
 const { repostTrack, saveTrack, undoRepostTrack, unsaveTrack } =
   tracksSocialActions
-const { getUserFromTrack } = cacheUsersSelectors
+const { getUserFromTrack } = usersSelectors
 const { getTrack } = cacheTracksSelectors
 const { getUserId } = accountSelectors
 

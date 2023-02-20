@@ -5,7 +5,7 @@ import {
   FavoriteSource,
   RepostSource,
   accountSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   tracksSocialActions,
   OverflowAction,
   OverflowSource,
@@ -19,7 +19,7 @@ import { AppState } from 'store/types'
 
 import TrackListItem, { TrackListItemProps } from './TrackListItem'
 const { open } = mobileOverflowMenuUIActions
-const { getUserFromTrack } = cacheUsersSelectors
+const { getUserFromTrack } = usersSelectors
 const { saveTrack, unsaveTrack, repostTrack, undoRepostTrack } =
   tracksSocialActions
 const getUserId = accountSelectors.getUserId

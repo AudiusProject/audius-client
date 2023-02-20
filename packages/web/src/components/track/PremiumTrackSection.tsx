@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 import {
   FeatureFlags,
   PremiumConditions,
-  cacheUsersSelectors,
+  usersSelectors,
   User,
   ID,
   Nullable,
@@ -42,7 +42,7 @@ import { SIGN_UP_PAGE } from 'utils/route'
 
 import styles from './GiantTrackTile.module.css'
 
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 const { beginTip } = tippingActions
 const { getPremiumTrackStatusMap } = premiumContentSelectors
 const { getAccountUser } = accountSelectors

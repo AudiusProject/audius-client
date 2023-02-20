@@ -9,7 +9,7 @@ import {
 
 import {
   Genre,
-  cacheUsersSelectors,
+  usersSelectors,
   queueActions,
   playerSelectors,
   playerActions
@@ -49,7 +49,7 @@ const { seek, reset } = playerActions
 
 const { getPlaying, getCurrentTrack, getCounter, getUid } = playerSelectors
 const { next, previous } = queueActions
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 const STATUS_BAR_FADE_CUTOFF = 0.6
 const SKIP_DURATION_SEC = 15

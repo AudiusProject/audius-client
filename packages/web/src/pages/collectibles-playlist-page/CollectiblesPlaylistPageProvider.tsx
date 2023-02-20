@@ -17,7 +17,7 @@ import {
   Status,
   User,
   formatSeconds,
-  cacheUsersSelectors,
+  usersSelectors,
   profilePageActions,
   CollectionTrack,
   CollectionPageTrackRecord,
@@ -48,7 +48,7 @@ const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { setCollectible } = collectibleDetailsUIActions
 const { add, clear, pause, play } = queueActions
 const { fetchProfile } = profilePageActions
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 declare global {
   interface HTMLMediaElement {

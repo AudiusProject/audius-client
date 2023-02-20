@@ -3,7 +3,7 @@ import {
   User,
   removeNullable,
   decodeHashId,
-  cacheUsersSelectors,
+  usersSelectors,
   tippingActions,
   SupportersMapForUser,
   UserListSagaFactory,
@@ -20,7 +20,7 @@ import { createUserListProvider } from 'common/store/user-list/utils'
 const { getTopSupportersError } = topSupportersUserListActions
 const { getId, getUserList, getUserIds } = topSupportersUserListSelectors
 const { setSupportersForUser } = tippingActions
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 type SupportersProcessExtraType = {
   userId: ID

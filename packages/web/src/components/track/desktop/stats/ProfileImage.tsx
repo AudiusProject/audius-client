@@ -1,6 +1,6 @@
 import { memo } from 'react'
 
-import { ID, SquareSizes, cacheUsersSelectors } from '@audius/common'
+import { ID, SquareSizes, usersSelectors } from '@audius/common'
 import cn from 'classnames'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
@@ -10,7 +10,7 @@ import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import { AppState } from 'store/types'
 
 import styles from './ProfileImage.module.css'
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 type OwnProps = {
   userId: ID

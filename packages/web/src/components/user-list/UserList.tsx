@@ -5,7 +5,7 @@ import {
   FollowSource,
   User,
   accountSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   profilePageActions,
   userListActions,
   userListSelectors,
@@ -24,7 +24,7 @@ import { profilePage } from 'utils/route'
 import UserList from './components/UserList'
 const { makeGetOptimisticUserIdsIfNeeded } = userListSelectors
 const { loadMore, reset } = userListActions
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 const { setNotificationSubscription } = profilePageActions
 const getUserId = accountSelectors.getUserId
 

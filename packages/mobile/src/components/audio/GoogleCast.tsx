@@ -4,7 +4,7 @@ import {
   castActions,
   encodeHashId,
   playerSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   SquareSizes
 } from '@audius/common'
 import {
@@ -22,7 +22,7 @@ import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 const { setIsCasting } = castActions
 const { getCurrentTrack, getPlaying, getSeek, getCounter } = playerSelectors
 
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 export const useChromecast = () => {
   const dispatch = useDispatch()

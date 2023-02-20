@@ -1,7 +1,7 @@
 import { ReactElement, useRef } from 'react'
 
 import {
-  cacheUsersSelectors,
+  usersSelectors,
   profilePageSelectors,
   topSupportersUserListSelectors,
   UserListStoreState,
@@ -48,7 +48,7 @@ const { getUserList: supportingSelector, getId: getSupportingId } =
   supportingUserListSelectors
 const { getUserList: topSupportersSelector, getId: getSupportersId } =
   topSupportersUserListSelectors
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 const { getProfileUser } = profilePageSelectors
 
 type UserListModalProps = {

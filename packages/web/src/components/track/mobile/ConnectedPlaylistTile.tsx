@@ -11,7 +11,7 @@ import {
   Track,
   accountSelectors,
   cacheCollectionsSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   collectionsSocialActions,
   OverflowAction,
   OverflowSource,
@@ -48,7 +48,7 @@ const { setRepost } = repostsUserListActions
 const { getTheme } = themeSelectors
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { open } = mobileOverflowMenuUIActions
-const { getUserFromCollection } = cacheUsersSelectors
+const { getUserFromCollection } = usersSelectors
 const {
   saveCollection,
   unsaveCollection,

@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { tippingActions, cacheUsersSelectors } from '@audius/common'
+import { tippingActions, usersSelectors } from '@audius/common'
 import { Platform } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -11,7 +11,7 @@ import { makeStyles } from 'app/styles'
 
 import { useSelectProfile } from './selectors'
 const { beginTip } = tippingActions
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 const messages = {
   title: 'Tip $AUDIO',

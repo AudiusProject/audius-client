@@ -7,7 +7,7 @@ import {
   ShareSource,
   cacheCollectionsActions,
   cacheCollectionsSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   collectionsSocialActions,
   createPlaylistModalUIActions,
   deletePlaylistConfirmationModalUIActions,
@@ -32,7 +32,7 @@ const {
   unsaveCollection,
   shareCollection
 } = collectionsSocialActions
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 const { getCollection } = cacheCollectionsSelectors
 const { publishPlaylist } = cacheCollectionsActions
 

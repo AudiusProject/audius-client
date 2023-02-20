@@ -5,7 +5,7 @@ import {
   searchUsersModalSelectors,
   searchUsersModalActions,
   useProxySelector,
-  cacheUsersSelectors,
+  usersSelectors,
   Status
 } from '@audius/common'
 import { Text, View } from 'react-native'
@@ -27,7 +27,7 @@ import { useThemeColors } from 'app/utils/theme'
 
 const { searchUsers } = searchUsersModalActions
 const { getUserList } = searchUsersModalSelectors
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 
 const DEBOUNCE_MS = 100
 

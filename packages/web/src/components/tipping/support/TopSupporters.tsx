@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 import {
   ID,
   User,
-  cacheUsersSelectors,
+  usersSelectors,
   profilePageSelectors,
   tippingSelectors,
   MAX_PROFILE_TOP_SUPPORTERS
@@ -25,7 +25,7 @@ import { AppState } from 'store/types'
 
 import styles from './TopSupporters.module.css'
 const { getOptimisticSupporters } = tippingSelectors
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 const { getProfileUser } = profilePageSelectors
 
 const messages = {

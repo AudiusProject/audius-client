@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import type { ID, User, UserListStoreState, CommonState } from '@audius/common'
 import {
-  cacheUsersSelectors,
+  usersSelectors,
   userListActions,
   userListSelectors
 } from '@audius/common'
@@ -18,7 +18,7 @@ import { makeStyles } from 'app/styles'
 import { UserListItem } from './UserListItem'
 const { makeGetOptimisticUserIdsIfNeeded } = userListSelectors
 const { loadMore, reset, setLoading } = userListActions
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 
 const useStyles = makeStyles(({ spacing }) => ({
   spinner: {

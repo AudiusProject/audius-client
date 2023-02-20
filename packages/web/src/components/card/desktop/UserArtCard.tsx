@@ -4,7 +4,7 @@ import {
   ID,
   SquareSizes,
   formatCount,
-  cacheUsersSelectors,
+  usersSelectors,
   imageBlank as placeholderArt
 } from '@audius/common'
 import cn from 'classnames'
@@ -29,7 +29,7 @@ import { profilePage } from 'utils/route'
 import { withNullGuard } from 'utils/withNullGuard'
 
 import styles from './UserArtCard.module.css'
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 const messages = {
   followers: (count: number) => `${formatCount(count)} Followers`

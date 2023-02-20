@@ -6,7 +6,7 @@ import {
   Repost,
   formatCount,
   createShallowSelector,
-  cacheUsersSelectors,
+  usersSelectors,
   CommonState
 } from '@audius/common'
 import cn from 'classnames'
@@ -18,7 +18,7 @@ import { ReactComponent as IconRepost } from 'assets/img/iconRepost.svg'
 import ProfileImage from './ProfileImage'
 import styles from './Stats.module.css'
 import StatsText, { Flavor } from './StatsText'
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 
 const MAX_REPOST_IMAGES = 3
 const makeFolloweeActionsUsers = () =>

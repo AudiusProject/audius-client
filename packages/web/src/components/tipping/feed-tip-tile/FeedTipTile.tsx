@@ -4,7 +4,7 @@ import {
   Name,
   User,
   accountSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   tippingSelectors,
   tippingActions
 } from '@audius/common'
@@ -36,7 +36,7 @@ import { NUM_FEED_TIPPERS_DISPLAYED } from 'utils/constants'
 
 import styles from './FeedTipTile.module.css'
 const { beginTip, fetchRecentTips, setShowTip } = tippingActions
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 const { getShowTip, getTipToDisplay } = tippingSelectors
 const getAccountUser = accountSelectors.getAccountUser
 

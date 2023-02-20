@@ -1,9 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
-import {
-  cacheUsersSelectors,
-  collectibleDetailsUISelectors
-} from '@audius/common'
+import { usersSelectors, collectibleDetailsUISelectors } from '@audius/common'
 import { ScrollView, View } from 'react-native'
 import { useSelector } from 'react-redux'
 
@@ -19,7 +16,7 @@ import { CollectibleDate } from './CollectibleDate'
 import { CollectibleLink } from './CollectibleLink'
 import { CollectibleMedia } from './CollectibleMedia'
 const { getCollectible, getCollectibleOwnerId } = collectibleDetailsUISelectors
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 const MODAL_NAME = 'CollectibleDetails'
 

@@ -4,7 +4,7 @@ import {
   ID,
   SquareSizes,
   cacheTracksSelectors,
-  cacheUsersSelectors
+  usersSelectors
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
@@ -17,7 +17,7 @@ import { AppState } from 'store/types'
 import { profilePage } from 'utils/route'
 import { withNullGuard } from 'utils/withNullGuard'
 const { getTrack } = cacheTracksSelectors
-const { getUserFromTrack } = cacheUsersSelectors
+const { getUserFromTrack } = usersSelectors
 
 type OwnProps = {
   trackId: ID

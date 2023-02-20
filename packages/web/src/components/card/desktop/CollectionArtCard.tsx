@@ -5,7 +5,7 @@ import {
   SquareSizes,
   accountSelectors,
   cacheCollectionsSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   imageBlank as placeholderArt
 } from '@audius/common'
 import cn from 'classnames'
@@ -35,7 +35,7 @@ import { playlistPage, albumPage, profilePage } from 'utils/route'
 import { withNullGuard } from 'utils/withNullGuard'
 
 import styles from './CollectionArtCard.module.css'
-const { getUserFromCollection } = cacheUsersSelectors
+const { getUserFromCollection } = usersSelectors
 const { getCollection } = cacheCollectionsSelectors
 const getUserId = accountSelectors.getUserId
 

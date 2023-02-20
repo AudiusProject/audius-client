@@ -7,7 +7,7 @@ import {
   cacheCollectionsSelectors,
   cacheTracksSelectors,
   cacheActions,
-  cacheUsersSelectors,
+  usersSelectors,
   lineupActions as baseLineupActions,
   queueActions,
   playerSelectors,
@@ -32,7 +32,7 @@ import { isMobileWeb } from 'common/utils/isMobileWeb'
 
 const { getSource, getUid, getPositions } = queueSelectors
 const { getUid: getCurrentPlayerTrackUid, getPlaying } = playerSelectors
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 const { getTrack, getTracks } = cacheTracksSelectors
 const { getCollection } = cacheCollectionsSelectors
 

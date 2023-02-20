@@ -6,7 +6,7 @@ import type {
   SquareSizes,
   User
 } from '@audius/common'
-import { reachabilitySelectors, cacheUsersSelectors } from '@audius/common'
+import { reachabilitySelectors, usersSelectors } from '@audius/common'
 import { useSelector } from 'react-redux'
 
 import imageEmpty from 'app/assets/images/imageBlank2x.png'
@@ -20,7 +20,7 @@ import type { FastImageProps } from './FastImage'
 import { FastImage } from './FastImage'
 
 const { getIsReachable } = reachabilitySelectors
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 type UseCollectionImageOptions = {
   collection: Nullable<

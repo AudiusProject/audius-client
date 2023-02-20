@@ -1,13 +1,13 @@
 import * as combinedUserSelectors from './combinedUsersSelectors'
-import { usersSelectors } from './usersSelectors'
+import { usersSelectors as baseUsersSelectors } from './usersSelectors'
 
 export {
   default as cacheUsersReducer,
   actions as usersActions
 } from './usersSlice'
 
-export const cacheUsersSelectors = {
-  ...usersSelectors,
+export const usersSelectors = {
+  ...baseUsersSelectors,
   ...combinedUserSelectors
 }
 

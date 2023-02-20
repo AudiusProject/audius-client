@@ -8,7 +8,7 @@ import {
   formatShareText,
   accountSelectors,
   cacheTracksSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   cacheActions,
   getContext,
   tracksSocialActions as socialActions,
@@ -28,7 +28,7 @@ import { waitForRead, waitForWrite } from 'utils/sagaHelpers'
 
 import watchTrackErrors from './errorSagas'
 import { watchRecordListen } from './recordListen'
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 const { getTrack, getTracks } = cacheTracksSelectors
 
 const { getUserId, getUserHandle } = accountSelectors

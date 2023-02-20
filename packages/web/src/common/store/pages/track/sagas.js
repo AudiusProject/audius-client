@@ -4,7 +4,7 @@ import {
   makeUid,
   cacheTracksActions as trackCacheActions,
   cacheTracksSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   trackPageActions,
   trackPageSelectors,
   trackPageLineupActions,
@@ -34,7 +34,7 @@ const { tracksActions } = trackPageLineupActions
 const { getSourceSelector, getTrack, getTrendingTrackRanks, getUser } =
   trackPageSelectors
 const { getTrack: getCachedTrack } = cacheTracksSelectors
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 
 export const TRENDING_BADGE_LIMIT = 10
 

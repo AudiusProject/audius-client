@@ -1,10 +1,10 @@
 import { createSelector } from 'reselect'
 
-import { cacheUsersSelectors } from 'store/users'
+import { usersSelectors } from 'store/users'
 
 import { cacheTracksSelectors } from '../cache'
 import { CommonState } from '../commonStore'
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 const { getTrack } = cacheTracksSelectors
 
 export const getHasTrack = (state: CommonState) => !!state.player.trackId

@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from 'react'
 
 import {
   accountSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   chatActions,
   decodeHashId,
   encodeHashId,
@@ -43,7 +43,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   const isAuthor = userId === senderUserId
   const reactionUsers = useProxySelector(
     (state) =>
-      cacheUsersSelectors.getUsers(state, {
+      usersSelectors.getUsers(state, {
         ids: message.reactions?.map((r) => decodeHashId(r.user_id)!)
       }),
     [message]

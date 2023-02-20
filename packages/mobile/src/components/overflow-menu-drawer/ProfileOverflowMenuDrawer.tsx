@@ -2,7 +2,7 @@ import type { ID, OverflowActionCallbacks, CommonState } from '@audius/common'
 import {
   FollowSource,
   ShareSource,
-  cacheUsersSelectors,
+  usersSelectors,
   usersSocialActions,
   OverflowAction,
   mobileOverflowMenuUISelectors
@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 const { getMobileOverflowModal } = mobileOverflowMenuUISelectors
 const { followUser, unfollowUser, shareUser } = usersSocialActions
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 type Props = {
   render: (callbacks: OverflowActionCallbacks) => React.ReactNode

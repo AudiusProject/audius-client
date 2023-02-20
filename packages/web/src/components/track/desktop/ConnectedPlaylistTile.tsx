@@ -21,7 +21,7 @@ import {
   Track,
   accountSelectors,
   cacheCollectionsSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   collectionsSocialActions,
   shareModalUIActions,
   playerSelectors
@@ -70,7 +70,7 @@ import Stats from './stats/Stats'
 import { Flavor } from './stats/StatsText'
 const { getUid, getBuffering, getPlaying } = playerSelectors
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
-const { getUserFromCollection } = cacheUsersSelectors
+const { getUserFromCollection } = usersSelectors
 const {
   saveCollection,
   unsaveCollection,

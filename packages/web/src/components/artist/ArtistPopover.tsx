@@ -5,7 +5,7 @@ import {
   SquareSizes,
   accountSelectors,
   CommonState,
-  cacheUsersSelectors
+  usersSelectors
 } from '@audius/common'
 import Popover from 'antd/lib/popover'
 import cn from 'classnames'
@@ -17,7 +17,7 @@ import { useOnUserProfilePicture } from 'hooks/useUserProfilePicture'
 
 import { ArtistCard } from './ArtistCard'
 import styles from './ArtistPopover.module.css'
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 const getUserId = accountSelectors.getUserId
 
 enum Placement {

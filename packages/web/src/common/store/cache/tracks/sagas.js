@@ -10,7 +10,7 @@ import {
   averageColorActions,
   cacheTracksSelectors,
   cacheTracksActions as trackActions,
-  cacheUsersSelectors,
+  usersSelectors,
   cacheActions,
   waitForAccount,
   waitForValue,
@@ -35,7 +35,7 @@ import { updateProfileAsync } from 'common/store/profile/sagas'
 import { dominantColor } from 'utils/imageProcessingUtil'
 import { waitForWrite } from 'utils/sagaHelpers'
 
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 const { getTrack } = cacheTracksSelectors
 const setDominantColors = averageColorActions.setDominantColors
 const { getAccountUser, getUserId, getUserHandle } = accountSelectors

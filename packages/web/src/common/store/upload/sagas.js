@@ -6,7 +6,7 @@ import {
   accountSelectors,
   accountActions,
   cacheTracksActions as tracksActions,
-  cacheUsersSelectors,
+  usersSelectors,
   cacheActions,
   waitForAccount,
   actionChannelDispatcher,
@@ -45,7 +45,7 @@ import { getTempPlaylistId } from 'utils/tempPlaylistId'
 import { watchUploadErrors } from './errorSagas'
 import { reportResultEvents } from './sagaHelpers'
 
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 const { getAccountUser, getUserHandle, getUserId } = accountSelectors
 const { getStems } = uploadSelectors
 

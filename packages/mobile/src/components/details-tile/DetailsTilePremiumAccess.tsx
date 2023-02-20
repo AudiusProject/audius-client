@@ -1,11 +1,11 @@
 import type { ID, PremiumConditions } from '@audius/common'
-import { removeNullable, cacheUsersSelectors } from '@audius/common'
+import { removeNullable, usersSelectors } from '@audius/common'
 import { useSelector } from 'react-redux'
 
 import { DetailsTileHasAccess } from './DetailsTileHasAccess'
 import { DetailsTileNoAccess } from './DetailsTileNoAccess'
 
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 
 type DetailsTilePremiumAccessProps = {
   trackId: ID

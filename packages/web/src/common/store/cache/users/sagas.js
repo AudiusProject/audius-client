@@ -4,7 +4,7 @@ import {
   Status,
   accountSelectors,
   cacheActions,
-  cacheUsersSelectors,
+  usersSelectors,
   cacheReducer,
   usersActions as userActions,
   waitForValue,
@@ -36,7 +36,7 @@ import { waitForWrite, waitForRead } from 'utils/sagaHelpers'
 import { pruneBlobValues } from './utils'
 const { removePlaylistLibraryTempPlaylists } = playlistLibraryHelpers
 const { mergeCustomizer } = cacheReducer
-const { getUser, getUsers, getUserTimestamps } = cacheUsersSelectors
+const { getUser, getUsers, getUserTimestamps } = usersSelectors
 const { getAccountUser, getUserId } = accountSelectors
 
 /**

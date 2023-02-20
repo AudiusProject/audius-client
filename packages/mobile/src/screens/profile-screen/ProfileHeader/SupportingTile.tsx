@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
 import type { Supporting } from '@audius/common'
-import { cacheUsersSelectors } from '@audius/common'
+import { usersSelectors } from '@audius/common'
 import { TIPPING_TOP_RANK_THRESHOLD } from 'audius-client/src/utils/constants'
 import type { StyleProp, ViewStyle } from 'react-native'
 import { ImageBackground, View } from 'react-native'
@@ -17,7 +17,7 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { useThemeColors } from 'app/utils/theme'
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
   root: {

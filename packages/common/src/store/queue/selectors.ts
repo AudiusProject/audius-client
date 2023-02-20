@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 
-import { cacheUsersSelectors } from 'store/users'
+import { usersSelectors } from 'store/users'
 
 import { UID } from '../../models'
 import { Uid } from '../../utils/uid'
@@ -9,7 +9,7 @@ import { playerSelectors } from '../player'
 import { CommonState } from '../reducers'
 
 const { getUid: getPlayerUid, getTrackId: getPlayerTrackId } = playerSelectors
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 const { getTrack } = cacheTracksSelectors
 
 export const getOrder = (state: CommonState) => state.queue.order

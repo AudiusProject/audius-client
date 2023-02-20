@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 import {
   Name,
   Nullable,
-  cacheUsersSelectors,
+  usersSelectors,
   notificationsSelectors,
   SupporterDethronedNotification as SupporterDethroned
 } from '@audius/common'
@@ -23,7 +23,7 @@ import { TwitterShareButton } from './components/TwitterShareButton'
 import { UserNameLink } from './components/UserNameLink'
 import { useGoToProfile } from './useGoToProfile'
 
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 const { getNotificationUser } = notificationsSelectors
 
 type SupporterDethronedNotificationProps = {

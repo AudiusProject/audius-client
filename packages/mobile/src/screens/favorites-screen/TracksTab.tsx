@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ID, Nullable, Track, UID, User } from '@audius/common'
 import {
   cacheTracksSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   savedPageActions,
   Status,
   FavoriteSource,
@@ -42,7 +42,7 @@ const {
 } = savedPageSelectors
 const { getIsReachable } = reachabilitySelectors
 const { getTrack } = cacheTracksSelectors
-const { getUserFromTrack } = cacheUsersSelectors
+const { getUserFromTrack } = usersSelectors
 
 const messages = {
   emptyTabText: "You haven't favorited any tracks yet.",

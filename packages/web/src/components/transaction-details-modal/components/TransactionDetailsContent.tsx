@@ -1,6 +1,6 @@
 import {
   User,
-  cacheUsersSelectors,
+  usersSelectors,
   TransactionDetails,
   TransactionMethod,
   formatAudio,
@@ -27,7 +27,7 @@ import { profilePage } from 'utils/route'
 import { Block, BlockContainer } from './Block'
 import styles from './TransactionDetailsContent.module.css'
 import { TransactionPurchaseMetadata } from './TransactionPurchaseMetadata'
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 
 const messages = {
   transaction: 'Transaction',

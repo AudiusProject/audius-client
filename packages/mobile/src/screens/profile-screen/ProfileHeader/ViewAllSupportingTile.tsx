@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 
 import {
   stringWeiToBN,
-  cacheUsersSelectors,
+  usersSelectors,
   tippingSelectors,
   MAX_PROFILE_SUPPORTING_TILES
 } from '@audius/common'
@@ -17,7 +17,7 @@ import { makeStyles } from 'app/styles'
 
 import { useSelectProfile } from '../selectors'
 const { getOptimisticSupportingForUser } = tippingSelectors
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 
 const MAX_PROFILE_SUPPORTING_VIEW_ALL_USERS = 5
 

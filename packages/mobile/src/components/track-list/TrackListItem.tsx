@@ -6,7 +6,7 @@ import {
   OverflowAction,
   OverflowSource,
   mobileOverflowMenuUIActions,
-  cacheUsersSelectors,
+  usersSelectors,
   cacheTracksSelectors,
   playerSelectors
 } from '@audius/common'
@@ -29,7 +29,7 @@ import { TablePlayButton } from './TablePlayButton'
 import { TrackArtwork } from './TrackArtwork'
 const { open: openOverflowMenu } = mobileOverflowMenuUIActions
 
-const { getUserFromTrack } = cacheUsersSelectors
+const { getUserFromTrack } = usersSelectors
 const { getTrack } = cacheTracksSelectors
 const { getPlaying, getUid } = playerSelectors
 

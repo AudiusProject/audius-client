@@ -7,7 +7,7 @@ import {
   cacheCollectionsActions,
   cacheCollectionsSelectors,
   cacheTracksSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   notificationsSelectors,
   notificationsActions,
   Notification,
@@ -58,7 +58,7 @@ const {
 } = collectionsSocialActions
 const { unsubscribeUser } = notificationsActions
 const { getTrack } = cacheTracksSelectors
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 const { getNotificationById } = notificationsSelectors
 const { getCollection } = cacheCollectionsSelectors
 const { publishPlaylist } = cacheCollectionsActions

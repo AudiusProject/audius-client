@@ -4,7 +4,7 @@ import {
   ShareSource,
   FavoriteSource,
   RepostSource,
-  cacheUsersSelectors,
+  usersSelectors,
   collectionsSocialActions as socialActions
 } from '@audius/common'
 import { PopupMenuItem } from '@audius/stems'
@@ -16,7 +16,7 @@ import * as embedModalActions from 'components/embed-modal/store/actions'
 import { open as openEditCollectionModal } from 'store/application/ui/editPlaylistModal/slice'
 import { AppState } from 'store/types'
 import { albumPage, playlistPage, profilePage } from 'utils/route'
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 type PlaylistId = number
 

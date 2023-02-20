@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 
 import type { Track } from '@audius/common'
 import {
-  cacheUsersSelectors,
+  usersSelectors,
   cacheTracksSelectors,
   hlsUtils,
   playerSelectors,
@@ -55,7 +55,7 @@ import {
   OfflineDownloadStatus
 } from 'app/store/offline-downloads/slice'
 
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 const { getTracks } = cacheTracksSelectors
 const { getPlaying, getSeek, getCurrentTrack, getCounter } = playerSelectors
 const { recordListen } = tracksSocialActions

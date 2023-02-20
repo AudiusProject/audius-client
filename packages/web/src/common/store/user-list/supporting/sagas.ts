@@ -4,7 +4,7 @@ import {
   UserMetadata,
   stringWeiToBN,
   decodeHashId,
-  cacheUsersSelectors,
+  usersSelectors,
   tippingActions,
   SupportingMapForUser,
   UserListSagaFactory,
@@ -21,7 +21,7 @@ import { createUserListProvider } from 'common/store/user-list/utils'
 const { getId, getUserList, getUserIds } = supportingUserListSelectors
 const { getSupportingError } = supportingUserListActions
 const { setSupportingForUser } = tippingActions
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 type SupportingProcessExtraType = {
   userId: ID

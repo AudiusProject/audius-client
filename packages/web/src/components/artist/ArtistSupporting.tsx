@@ -4,7 +4,7 @@ import {
   ID,
   User,
   stringWeiToBN,
-  cacheUsersSelectors,
+  usersSelectors,
   tippingSelectors,
   tippingActions,
   userListActions,
@@ -27,7 +27,7 @@ import {
 
 import styles from './ArtistSupporting.module.css'
 const { loadMore, reset } = userListActions
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 const { getOptimisticSupporting } = tippingSelectors
 const { fetchSupportingForUser } = tippingActions
 

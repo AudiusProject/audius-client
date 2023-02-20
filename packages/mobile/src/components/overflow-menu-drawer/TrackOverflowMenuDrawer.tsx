@@ -7,7 +7,7 @@ import {
   RepostSource,
   ShareSource,
   cacheTracksSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   tracksSocialActions,
   usersSocialActions,
   addToPlaylistUIActions,
@@ -26,7 +26,7 @@ const { requestOpen: openAddToPlaylistModal } = addToPlaylistUIActions
 const { followUser, unfollowUser } = usersSocialActions
 const { repostTrack, undoRepostTrack, saveTrack, unsaveTrack, shareTrack } =
   tracksSocialActions
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 const { getTrack } = cacheTracksSelectors
 
 type Props = {

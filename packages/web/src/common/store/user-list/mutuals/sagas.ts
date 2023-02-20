@@ -1,7 +1,7 @@
 import {
   ID,
   User,
-  cacheUsersSelectors,
+  usersSelectors,
   UserListSagaFactory,
   mutualsUserListActions,
   mutualsUserListSelectors,
@@ -14,7 +14,7 @@ import { watchMutualsError } from 'common/store/user-list/mutuals/errorSagas'
 import { createUserListProvider } from 'common/store/user-list/utils'
 const { getMutualsError } = mutualsUserListActions
 const { getId, getUserList, getUserIds } = mutualsUserListSelectors
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 
 type FetchMutualsConfig = {
   limit: number

@@ -4,7 +4,7 @@ import {
   Name,
   makeKindId,
   accountSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   getContext,
   usersSocialActions as socialActions,
   FeatureFlags,
@@ -22,7 +22,7 @@ import { profilePage } from 'utils/route'
 import { waitForWrite } from 'utils/sagaHelpers'
 
 import errorSagas from './errorSagas'
-const { getUsers, getUser } = cacheUsersSelectors
+const { getUsers, getUser } = usersSelectors
 const { setNotificationSubscription } = profilePageActions
 const { getUserId } = accountSelectors
 

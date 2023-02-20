@@ -12,7 +12,7 @@ import {
   accountSelectors,
   cacheCollectionsSelectors,
   cacheTracksSelectors,
-  cacheUsersSelectors,
+  usersSelectors,
   cacheActions,
   cacheSelectors,
   queueActions,
@@ -53,7 +53,7 @@ const { getTrackId: getPlayerTrackId, getUid: getPlayerUid } = playerSelectors
 const { add, clear, next, pause, play, queueAutoplay, previous, remove } =
   queueActions
 const { getId } = cacheSelectors
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 const { getTrack } = cacheTracksSelectors
 const { getCollection } = cacheCollectionsSelectors
 const getUserId = accountSelectors.getUserId

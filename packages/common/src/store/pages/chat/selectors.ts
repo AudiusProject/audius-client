@@ -4,10 +4,10 @@ import { createSelector } from 'reselect'
 import { Status } from 'models/Status'
 import { accountSelectors } from 'store/account'
 import { CommonState } from 'store/reducers'
-import { cacheUsersSelectors } from 'store/users'
+import { usersSelectors } from 'store/users'
 import { decodeHashId } from 'utils/hashIds'
 const { getUserId } = accountSelectors
-const { getUsers } = cacheUsersSelectors
+const { getUsers } = usersSelectors
 
 export const getChat = (state: CommonState, chatId?: string) =>
   chatId ? state.pages.chat.chatList.map[chatId] : undefined

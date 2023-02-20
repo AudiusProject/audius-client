@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { cacheUsersSelectors, notificationsSelectors } from '@audius/common'
+import { usersSelectors, notificationsSelectors } from '@audius/common'
 import type {
   Nullable,
   SupporterDethronedNotification as SupporterDethroned
@@ -24,7 +24,7 @@ import {
   UserNameLink
 } from '../Notification'
 
-const { getUser } = cacheUsersSelectors
+const { getUser } = usersSelectors
 const { getNotificationUser } = notificationsSelectors
 
 type SupporterDethronedNotificationProps = {
