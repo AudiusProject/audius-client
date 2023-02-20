@@ -1,17 +1,17 @@
 import {
   Kind,
-  PlaylistIdentifier,
-  PlaylistLibrary,
   PlaylistLibraryFolder,
   PlaylistLibraryIdentifier,
   User,
   makeKindId,
   accountSelectors,
-  AccountCollection,
-  cacheActions,
   waitForValue,
   playlistLibraryHelpers,
-  playlistLibraryActions
+  playlistLibraryActions,
+  cacheUsersActions,
+  PlaylistIdentifier,
+  AccountCollection,
+  PlaylistLibrary
 } from '@audius/common'
 import {
   all,
@@ -31,13 +31,17 @@ const { update } = playlistLibraryActions
 const {
   containsTempPlaylist,
   extractTempPlaylistsFromLibrary,
-  getPlaylistsNotInLibrary,
   removePlaylistLibraryDuplicates,
-  replaceTempWithResolvedPlaylists
+  replaceTempWithResolvedPlaylists,
+  getPlaylistsNotInLibrary
 } = playlistLibraryHelpers
 
-const { getAccountNavigationPlaylists, getAccountUser, getPlaylistLibrary } =
-  accountSelectors
+const {
+  getAccountUser,
+  getPlaylistLibrary,
+
+  getAccountNavigationPlaylists
+} = accountSelectors
 
 const TEMP_PLAYLIST_UPDATE_HELPER = 'TEMP_PLAYLIST_UPDATE_HELPER'
 
@@ -76,15 +80,13 @@ function* watchUpdatePlaylistLibrary() {
       const { playlistLibrary } = action.payload
 
       const account: User = yield select(getAccountUser)
-      account.playlist_library =
-        removePlaylistLibraryDuplicates(playlistLibrary)
       yield put(
-        cacheActions.update(Kind.USERS, [
-          {
-            id: account.user_id,
-            metadata: account
+        cacheUsersActions.updateUser({
+          id: account.user_id,
+          changes: {
+            playlist_library: removePlaylistLibraryDuplicates(playlistLibrary)
           }
-        ])
+        })
       )
 
       const containsTemps = containsTempPlaylist(playlistLibrary)

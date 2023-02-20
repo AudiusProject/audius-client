@@ -105,8 +105,6 @@ export function* retrieveTrackByHandleAndSlug({
     }
   )) as { entries: { [permalink: string]: Track } }
 
-  console.log('the tracks??', tracks)
-
   const track = tracks.entries[permalink]
   if (!track || !track.track_id) return null
   const trackId = track.track_id

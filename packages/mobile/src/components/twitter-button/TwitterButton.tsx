@@ -83,9 +83,9 @@ export const TwitterButton = (props: TwitterButtonProps) => {
       track(other.analytics)
     }
     if (other.type === 'dynamic') {
-      dispatch(fetchUserSocials(other.handle))
+      dispatch(fetchUserSocials({ handle: other.handle }))
       if (other.additionalHandle) {
-        dispatch(fetchUserSocials(other.additionalHandle))
+        dispatch(fetchUserSocials({ handle: other.additionalHandle }))
       }
       setLoading()
     }

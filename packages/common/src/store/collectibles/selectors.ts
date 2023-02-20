@@ -1,6 +1,13 @@
 import { createSelector } from 'reselect'
+
+import {
+  Chain,
+  Collectible,
+  EthCollectionMap,
+  ID,
+  SolCollectionMap
+} from '../../models'
 import { getUserId } from '../account/selectors'
-import { Chain, Collectible, EthCollectionMap, ID, SolCollectionMap } from '../../models'
 import { CommonState } from '../commonStore'
 
 export const getAllUserCollectibles = (state: CommonState) =>
@@ -19,7 +26,9 @@ export const getVerifiedUserCollections = createSelector(
   getAllUserCollectibles,
   getSolCollections,
   (accountUserId, allUserCollectibles, solCollections) => {
-    const collectibles = accountUserId ? allUserCollectibles[accountUserId] ?? defaultCollectibles : defaultCollectibles
+    const collectibles = accountUserId
+      ? allUserCollectibles[accountUserId] ?? defaultCollectibles
+      : defaultCollectibles
 
     // Ethereum collections
     const ethCollectionMap: EthCollectionMap = {}

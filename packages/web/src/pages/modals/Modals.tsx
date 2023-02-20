@@ -36,9 +36,14 @@ import { getClient } from 'utils/clientUtil'
 
 import { AppModal } from './AppModal'
 
-const appModalsMap = {
+const appModalsMap: { [ModalType in ModalTypes]?: ComponentType } = {
   Share: ShareModal,
-  VipDiscord: VipDiscordModal
+  VipDiscord: VipDiscordModal,
+  BuyAudio: BuyAudioModal,
+  TransactionDetails: TransactionDetailsModal,
+  StripeOnRamp: StripeOnRampModal,
+  BuyAudioRecovery: BuyAudioRecoveryModal,
+  CreateChat: CreateChatModal
 }
 
 const appModals = Object.entries(appModalsMap) as [ModalTypes, ComponentType][]
@@ -88,11 +93,6 @@ const Modals = () => {
       )}
 
       <TipAudioModal />
-      <BuyAudioModal />
-      <TransactionDetailsModal />
-      <StripeOnRampModal />
-      <BuyAudioRecoveryModal />
-      <CreateChatModal />
     </>
   )
 }

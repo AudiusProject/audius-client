@@ -1,8 +1,8 @@
 import { createSelector } from 'reselect'
 
 import { getAccountUser } from 'store/account/selectors'
-import { getUser } from 'store/cache/users/selectors'
 import { CommonState } from 'store/commonStore'
+import { getUser } from 'store/users/usersSelectors'
 import { stringAudioToBN, stringWeiToAudioBN } from 'utils/wallet'
 
 import { BadgeTier } from '../../models/BadgeTier'

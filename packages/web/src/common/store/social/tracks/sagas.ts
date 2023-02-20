@@ -12,7 +12,8 @@ import {
   cacheActions,
   getContext,
   tracksSocialActions as socialActions,
-  waitForValue
+  waitForValue,
+  cacheUsersActions
 } from '@audius/common'
 import { fork } from 'redux-saga/effects'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
@@ -568,16 +569,15 @@ export function* watchSetArtistPick() {
     function* (action: ReturnType<typeof socialActions.setArtistPick>) {
       yield* waitForWrite()
       const userId = yield* select(getUserId)
+      if (!userId) return
 
       yield* put(
-        cacheActions.update(Kind.USERS, [
-          {
-            id: userId,
-            metadata: {
-              artist_pick_track_id: action.trackId
-            }
+        cacheUsersActions.updateUser({
+          id: userId,
+          changes: {
+            artist_pick_track_id: action.trackId
           }
-        ])
+        })
       )
       const user = yield* call(waitForValue, getUser, { id: userId })
       yield fork(updateProfileAsync, { metadata: user })
@@ -593,15 +593,15 @@ export function* watchUnsetArtistPick() {
     yield* waitForWrite()
     const userId = yield* select(getUserId)
 
+    if (!userId) return
+
     yield* put(
-      cacheActions.update(Kind.USERS, [
-        {
-          id: userId,
-          metadata: {
-            artist_pick_track_id: null
-          }
+      cacheUsersActions.updateUser({
+        id: userId,
+        changes: {
+          artist_pick_track_id: null
         }
-      ])
+      })
     )
     const user = yield* call(waitForValue, getUser, { id: userId })
     yield fork(updateProfileAsync, { metadata: user })

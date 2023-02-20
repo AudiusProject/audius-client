@@ -1,10 +1,9 @@
 import {
-  Kind,
   accountSelectors,
-  cacheActions,
   getContext,
   AudiusBackend,
-  waitForValue
+  waitForValue,
+  cacheUsersActions
 } from '@audius/common'
 import { all, fork, call, put, select, takeEvery } from 'typed-redux-saga'
 
@@ -136,9 +135,10 @@ function* watchSetSelected() {
         })
       )
       yield* put(
-        cacheActions.update(Kind.USERS, [
-          { id: user.user_id, metadata: { creator_node_endpoint: newEndpoint } }
-        ])
+        cacheUsersActions.updateUser({
+          id: user.user_id,
+          changes: { creator_node_endpoint: newEndpoint }
+        })
       )
       yield* all(
         secondaries.map((s) => {

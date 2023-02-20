@@ -1,12 +1,11 @@
 import {
-  Kind,
   TrackMetadata,
   User,
-  makeUid,
   accountSelectors,
-  cacheActions,
   getContext,
-  reformatUser
+  reformatUser,
+  UserTrack,
+  cacheUsersActions
 } from '@audius/common'
 import { uniqBy } from 'lodash'
 import { put, select } from 'typed-redux-saga'
@@ -29,21 +28,17 @@ export function* addUsersFromTracks<T extends TrackMetadata & { user?: User }>(
   let users = metadataArray
     .filter((m) => m.user)
     .map((m) => {
-      const track = m as TrackMetadata & { user: User }
-      return {
-        id: track.user.user_id,
-        uid: makeUid(Kind.USERS, track.user.user_id),
-        metadata: reformatUser(track.user, audiusBackendInstance)
-      }
+      const track = m as unknown as UserTrack
+      return reformatUser(track.user, audiusBackendInstance)
     })
 
   if (!users.length) return
 
   // Don't add duplicate users or self
   users = uniqBy(users, 'id')
-  users = users.filter((user) => !(currentUserId && user.id === currentUserId))
-
-  yield put(
-    cacheActions.add(Kind.USERS, users, /* replace */ false, /* persist */ true)
+  users = users.filter(
+    (user) => !(currentUserId && user.user_id === currentUserId)
   )
+
+  yield put(cacheUsersActions.addUsers({ users }))
 }

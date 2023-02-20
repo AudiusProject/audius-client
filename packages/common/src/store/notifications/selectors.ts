@@ -6,8 +6,8 @@ import {
   getCollections
 } from 'store/cache/collections/selectors'
 import { getTrack, getTracks } from 'store/cache/tracks/selectors'
-import { getUser, getUsers } from 'store/cache/users/selectors'
 import { CommonState } from 'store/commonStore'
+import { getUser, getUsers } from 'store/users/usersSelectors'
 import { Nullable } from 'utils'
 
 import { Collection, Track } from '../../models'

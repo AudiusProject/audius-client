@@ -21,7 +21,6 @@ import SearchBar from 'components/search-bar/SearchBar'
 import { ToastContext } from 'components/toast/ToastContext'
 import ToastLinkContent from 'components/toast/mobile/ToastLinkContent'
 import { useCollectionCoverArt } from 'hooks/useCollectionCoverArt'
-import { AppState } from 'store/types'
 import { playlistPage } from 'utils/route'
 import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
@@ -48,9 +47,7 @@ const AddToPlaylistModal = () => {
   const trackId = useSelector(getTrackId)
   const trackTitle = useSelector(getTrackTitle)
   const currentCollectionId = useSelector(getCollectionId)
-  const account = useSelector((state: AppState) =>
-    getAccountWithOwnPlaylists(state)
-  )
+  const account = useSelector(getAccountWithOwnPlaylists)
 
   const [searchValue, setSearchValue] = useState('')
 

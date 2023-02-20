@@ -1,10 +1,11 @@
-import { Chain, PremiumConditions, Track } from 'models'
 import { useMemo } from 'react'
 
 import { useSelector } from 'react-redux'
-import { cacheUsersSelectors } from 'store/cache'
+
+import { Chain, PremiumConditions, Track } from 'models'
 import { premiumContentSelectors } from 'store/premium-content'
 import { CommonState } from 'store/reducers'
+import { cacheUsersSelectors } from 'store/users'
 import { Nullable, removeNullable } from 'utils'
 
 const { getUsers } = cacheUsersSelectors
@@ -38,9 +39,14 @@ export const usePremiumContentAccess = (track: Nullable<Partial<Track>>) => {
   return { isUserAccessTBD, doesUserHaveAccess }
 }
 
-export const useSpecialAccessEntity = (premiumConditions: Nullable<PremiumConditions>) => {
-  const { follow_user_id: followUserId, tip_user_id: tipUserId, nft_collection: nftCollection } =
-    premiumConditions ?? {}
+export const useSpecialAccessEntity = (
+  premiumConditions: Nullable<PremiumConditions>
+) => {
+  const {
+    follow_user_id: followUserId,
+    tip_user_id: tipUserId,
+    nft_collection: nftCollection
+  } = premiumConditions ?? {}
 
   const users = useSelector((state: CommonState) =>
     getUsers(state, {
@@ -64,5 +70,10 @@ export const useSpecialAccessEntity = (premiumConditions: Nullable<PremiumCondit
     return ''
   }, [nftCollection])
 
-  return { nftCollection:  nftCollection ?? null, collectionLink, followee, tippedUser }
+  return {
+    nftCollection: nftCollection ?? null,
+    collectionLink,
+    followee,
+    tippedUser
+  }
 }

@@ -3,7 +3,8 @@ import {
   SquareSizes,
   useImageSize,
   cacheCollectionsActions,
-  imageBlank as imageEmpty
+  imageBlank as imageEmpty,
+  ID
 } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
@@ -21,7 +22,8 @@ export const useCollectionCoverArt = (
     id: collectionId,
     sizes: coverArtSizes,
     size,
-    action: fetchCoverArt,
+    action: ({ id, size }: { id: ID; size: SquareSizes }) =>
+      fetchCoverArt(id, size),
     defaultImage
   })
 }

@@ -5,7 +5,9 @@ import {
   cacheActions,
   cacheSelectors,
   cacheConfig,
-  FeatureFlags
+  FeatureFlags,
+  Kind,
+  cacheUsersActions
 } from '@audius/common'
 import { pick } from 'lodash'
 import {
@@ -20,6 +22,7 @@ import {
 import { getConfirmCalls } from 'common/store/confirmer/selectors'
 const { CACHE_PRUNE_MIN } = cacheConfig
 const { getCache } = cacheSelectors
+const { addUsers } = cacheUsersActions
 
 const DEFAULT_ENTRY_TTL = 5 /* min */ * 60 /* seconds */ * 1000 /* ms */
 
@@ -168,6 +171,11 @@ function* retrieveFromSourceThenCache({
     const beforeAdd = yield call(onBeforeAddToCache, metadatas)
     if (beforeAdd) {
       metadatas = beforeAdd
+    }
+
+    if (kind === Kind.USERS) {
+      yield put(addUsers({ users: metadatas }))
+      return
     }
 
     // Either add or update the cache. If we're doing a cache refresh post load, it should

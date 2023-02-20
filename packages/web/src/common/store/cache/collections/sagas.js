@@ -14,7 +14,8 @@ import {
   cacheUsersSelectors,
   cacheActions,
   getContext,
-  audioRewardsPageActions
+  audioRewardsPageActions,
+  cacheUsersActions
 } from '@audius/common'
 import { isEqual } from 'lodash'
 import {
@@ -137,12 +138,10 @@ function* createPlaylistAsync(action) {
     .filter((c) => c.uid !== uid)
     .concat(uid)
   yield put(
-    cacheActions.update(Kind.USERS, [
-      {
-        id: userId,
-        metadata: { _collectionIds: collectionIds }
-      }
-    ])
+    cacheUsersActions.updateUser({
+      id: userId,
+      changes: { _collectionIds: collectionIds }
+    })
   )
 }
 
@@ -209,16 +208,14 @@ function* confirmCreatePlaylist(uid, userId, formFields, source) {
         )
         const user = yield select(getUser, { id: userId })
         yield put(
-          cacheActions.update(Kind.USERS, [
-            {
-              id: userId,
-              metadata: {
-                _collectionIds: (user._collectionIds || [])
-                  .filter((cId) => cId !== uid && confirmedPlaylist.playlist_id)
-                  .concat(confirmedPlaylist.playlist_id)
-              }
+          cacheUsersActions.updateUser({
+            id: userId,
+            changes: {
+              _collectionIds: (user._collectionIds || [])
+                .filter((cId) => cId !== uid && confirmedPlaylist.playlist_id)
+                .concat(confirmedPlaylist.playlist_id)
             }
-          ])
+          })
         )
         yield put(accountActions.removeAccountPlaylist({ collectionId: uid }))
         yield put(
@@ -985,16 +982,14 @@ function* deletePlaylistAsync(action) {
 
   const user = yield select(getUser, { id: userId })
   yield put(
-    cacheActions.update(Kind.USERS, [
-      {
-        id: userId,
-        metadata: {
-          _collectionIds: (user._collectionIds || []).filter(
-            (cId) => cId !== action.playlistId
-          )
-        }
+    cacheUsersActions.updateUser({
+      id: userId,
+      changes: {
+        _collectionIds: (user._collectionIds || []).filter(
+          (cId) => cId !== action.playlistId
+        )
       }
-    ])
+    })
   )
 }
 

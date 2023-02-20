@@ -1,11 +1,9 @@
 import {
   UserCollectionMetadata,
-  Kind,
-  makeUid,
   accountSelectors,
-  cacheActions,
   getContext,
-  reformatUser
+  reformatUser,
+  cacheUsersActions
 } from '@audius/common'
 import { uniqBy } from 'lodash'
 import { put, select } from 'typed-redux-saga'
@@ -26,17 +24,15 @@ export function* addUsersFromCollections(
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const accountUser = yield* select(getAccountUser)
   const currentUserId = accountUser?.user_id
-  let users = metadataArray.map((m) => ({
-    id: m.user.user_id,
-    uid: makeUid(Kind.USERS, m.user.user_id),
-    metadata: reformatUser(m.user, audiusBackendInstance)
-  }))
+  let users = metadataArray.map((m) =>
+    reformatUser(m.user, audiusBackendInstance)
+  )
 
   // Removes duplicates and self
-  users = uniqBy(users, 'id')
-  users = users.filter((user) => !(currentUserId && user.id === currentUserId))
-
-  yield put(
-    cacheActions.add(Kind.USERS, users, /* replace */ false, /* persist */ true)
+  users = uniqBy(users, 'user_id')
+  users = users.filter(
+    (user) => !(currentUserId && user.user_id === currentUserId)
   )
+
+  yield put(cacheUsersActions.addUsers({ users }))
 }

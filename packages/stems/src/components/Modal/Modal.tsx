@@ -132,13 +132,13 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
         headerContainerClassName ||
         showDismissButton
       ) {
-        console.warn(
-          'Header and title-related props of `Modal` have been deprecated. Use the `ModalHeader` sub-component instead.'
-        )
+        // console.warn(
+        //   'Header and title-related props of `Modal` have been deprecated. Use the `ModalHeader` sub-component instead.'
+        // )
       }
 
       if (allowScroll !== undefined) {
-        console.warn('`allowScroll` prop of `Modal` has been deprecated.')
+        // console.warn('`allowScroll` prop of `Modal` has been deprecated.')
       }
     }
   })

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo } from 'react'
 
 import { Dispatch } from 'redux'
 
+import { ID } from 'models/Identifiers'
+
 import {
   DefaultSizes,
   ImageSizesObject,
@@ -46,7 +48,7 @@ export type BaseUserImageSizeProps<
   ImageSizes extends ImageSizesObject<ImageSize>
 > = {
   // The action to dispatch to fetch the desired size
-  action: (id: number, size: ImageSize) => void
+  action: (payload: { id: ID; size: ImageSize }) => void
   // The fallback if no sizes are available
   defaultImage?: string
   // A unique id (used to prevent duplicate fetches)
@@ -202,7 +204,7 @@ export function useImageSize<
         (imageType === 'smaller' || imageType === 'undefined')
       ) {
         setPreviousId(id)
-        dispatch(action(id, size))
+        dispatch(action({ id, size }))
       }
     },
     [load, id, previousId, action, dispatch, setPreviousId, size]

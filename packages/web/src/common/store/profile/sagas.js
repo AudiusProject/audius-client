@@ -6,7 +6,6 @@ import {
   makeKindId,
   squashNewLines,
   accountSelectors,
-  cacheActions,
   profilePageSelectors,
   FollowType,
   profilePageActions as profileActions,
@@ -19,7 +18,8 @@ import {
   MAX_PROFILE_SUPPORTING_TILES,
   MAX_PROFILE_TOP_SUPPORTERS,
   collectiblesActions,
-  processAndCacheUsers
+  processAndCacheUsers,
+  cacheUsersActions
 } from '@audius/common'
 import { merge } from 'lodash'
 import {
@@ -87,24 +87,20 @@ function* fetchProfileCustomizedCollectibles(user) {
     )
     if (metadata?.collectibles) {
       yield put(
-        cacheActions.update(Kind.USERS, [
-          {
-            id: user.user_id,
-            metadata
-          }
-        ])
+        cacheUsersActions.updateUser({
+          id: user.user_id,
+          changes: metadata
+        })
       )
     } else {
       yield put(
-        cacheActions.update(Kind.USERS, [
-          {
-            id: user.user_id,
-            metadata: {
-              ...metadata,
-              collectiblesOrderUnset: true
-            }
+        cacheUsersActions.updateUser({
+          id: user.user_id,
+          changes: {
+            ...metadata,
+            collectiblesOrderUnset: true
           }
-        ])
+        })
       )
     }
   }
@@ -131,14 +127,10 @@ export function* fetchOpenSeaAssets(user) {
   }
 
   yield put(
-    cacheActions.update(Kind.USERS, [
-      {
-        id: user.user_id,
-        metadata: {
-          collectibleList
-        }
-      }
-    ])
+    cacheUsersActions.updateUser({
+      id: user.user_id,
+      changes: { collectibleList }
+    })
   )
   yield put(
     updateUserEthCollectibles({
@@ -174,12 +166,10 @@ export function* fetchSolanaCollectibles(user) {
   }
 
   yield put(
-    cacheActions.update(Kind.USERS, [
-      {
-        id: user.user_id,
-        metadata: { solanaCollectibleList }
-      }
-    ])
+    cacheUsersActions.updateUser({
+      id: user.user_id,
+      changes: { solanaCollectibleList }
+    })
   )
   yield put(
     updateUserSolCollectibles({
@@ -445,9 +435,10 @@ export function* updateProfileAsync(action) {
 
   const accountUserId = yield select(getUserId)
   yield put(
-    cacheActions.update(Kind.USERS, [
-      { id: accountUserId, metadata: { name: metadata.name } }
-    ])
+    cacheUsersActions.updateUser({
+      id: accountUserId,
+      changes: { name: metadata.name }
+    })
   )
 
   // Get existing metadata and combine with it
@@ -503,12 +494,10 @@ export function* updateProfileAsync(action) {
   }
 
   yield put(
-    cacheActions.update(Kind.USERS, [
-      {
-        id: creator.user_id,
-        metadata
-      }
-    ])
+    cacheUsersActions.updateUser({
+      id: creator.user_id,
+      changes: metadata
+    })
   )
 }
 
@@ -565,12 +554,10 @@ function* confirmUpdateProfile(userId, metadata) {
             confirmedUser.profile_picture_sizes
         }
         yield put(
-          cacheActions.update(Kind.USERS, [
-            {
-              id: confirmedUser.user_id,
-              metadata: newMetadata
-            }
-          ])
+          cacheUsersActions.updateUser({
+            id: confirmedUser.user_id,
+            changes: newMetadata
+          })
         )
         yield put(profileActions.updateProfileSucceeded(metadata.user_id))
       },

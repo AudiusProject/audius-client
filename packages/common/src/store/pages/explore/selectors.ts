@@ -1,8 +1,8 @@
 import { createSelector } from 'reselect'
 
 import { getCollections } from 'store/cache/collections/selectors'
-import { getUsers } from 'store/cache/users/selectors'
 import { CommonState } from 'store/commonStore'
+import { getUsers } from 'store/users/usersSelectors'
 
 import { UserCollection, Status, User } from '../../../models'
 import { removeNullable } from '../../../utils'
@@ -23,9 +23,8 @@ export const getExplorePlaylists = createSelector(
 
 export const getExploreArtists = createSelector(
   getProfileIds,
-  (state: CommonState) => state.users.entries,
-  (artists, users) =>
-    artists.map((id) => users[id]?.metadata).filter(removeNullable)
+  (state: CommonState) => state.users.entities,
+  (artists, users) => artists.map((id) => users[id]).filter(removeNullable)
 )
 
 export const getExploreStatus = (state: CommonState) => getExplore(state).status

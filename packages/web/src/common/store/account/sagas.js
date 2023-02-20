@@ -1,12 +1,11 @@
 import {
-  Kind,
   accountSelectors,
-  cacheActions,
   profilePageActions,
   solanaSelectors,
   accountActions,
   recordIP,
-  createUserBankIfNeeded
+  createUserBankIfNeeded,
+  cacheUsersActions
 } from '@audius/common'
 import {
   call,
@@ -250,11 +249,7 @@ function* cacheAccount(account) {
   const localStorage = yield getContext('localStorage')
   const collections = account.playlists || []
 
-  yield put(
-    cacheActions.add(Kind.USERS, [
-      { id: account.user_id, uid: 'USER_ACCOUNT', metadata: account }
-    ])
-  )
+  yield put(cacheUsersActions.addUsers({ users: [account] }))
 
   const formattedAccount = {
     userId: account.user_id,
@@ -295,9 +290,10 @@ function* associateTwitterAccount(action) {
     const { verified } = profile
     if (!account.is_verified && verified) {
       yield put(
-        cacheActions.update(Kind.USERS, [
-          { id: userId, metadata: { is_verified: true } }
-        ])
+        cacheUsersActions.updateUser({
+          id: userId,
+          changes: { is_verified: true }
+        })
       )
     }
   } catch (err) {
@@ -322,9 +318,10 @@ function* associateInstagramAccount(action) {
     const { is_verified: verified } = profile
     if (!account.is_verified && verified) {
       yield put(
-        cacheActions.update(Kind.USERS, [
-          { id: userId, metadata: { is_verified: true } }
-        ])
+        cacheUsersActions.updateUser({
+          id: userId,
+          changes: { is_verified: true }
+        })
       )
     }
   } catch (err) {
@@ -349,9 +346,10 @@ function* associateTikTokAccount(action) {
     const { is_verified: verified } = profile
     if (!account.is_verified && verified) {
       yield put(
-        cacheActions.update(Kind.USERS, [
-          { id: userId, metadata: { is_verified: true } }
-        ])
+        cacheUsersActions.updateUser({
+          id: userId,
+          changes: { is_verified: true }
+        })
       )
     }
   } catch (err) {

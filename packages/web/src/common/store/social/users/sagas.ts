@@ -4,12 +4,12 @@ import {
   Name,
   makeKindId,
   accountSelectors,
-  cacheActions,
   cacheUsersSelectors,
   getContext,
   usersSocialActions as socialActions,
   FeatureFlags,
-  profilePageActions
+  profilePageActions,
+  cacheUsersActions
 } from '@audius/common'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
 
@@ -56,15 +56,13 @@ export function* followUser(
   if (followedUser) {
     // Increment the followed user's follower count
     yield* put(
-      cacheActions.update(Kind.USERS, [
-        {
-          id: action.userId,
-          metadata: {
-            does_current_user_follow: true,
-            follower_count: followedUser.follower_count + 1
-          }
+      cacheUsersActions.updateUser({
+        id: action.userId,
+        changes: {
+          does_current_user_follow: true,
+          follower_count: followedUser.follower_count + 1
         }
-      ])
+      })
     )
   }
   // Increment the signed in user's followee count
@@ -128,15 +126,13 @@ export function* confirmFollowUser(userId: ID, accountId: ID) {
         if (followedUser) {
           // Revert the incremented follower count on the followed user
           yield* put(
-            cacheActions.update(Kind.USERS, [
-              {
-                id: userId,
-                metadata: {
-                  does_current_user_follow: false,
-                  follower_count: followedUser.follower_count - 1
-                }
+            cacheUsersActions.updateUser({
+              id: userId,
+              changes: {
+                does_current_user_follow: false,
+                follower_count: followedUser.follower_count - 1
               }
-            ])
+            })
           )
         }
 
@@ -177,15 +173,13 @@ export function* unfollowUser(
 
   // Decrement the follower count on the unfollowed user
   yield* put(
-    cacheActions.update(Kind.USERS, [
-      {
-        id: action.userId,
-        metadata: {
-          does_current_user_follow: false,
-          follower_count: unfollowedUser.follower_count - 1
-        }
+    cacheUsersActions.updateUser({
+      id: action.userId,
+      changes: {
+        does_current_user_follow: false,
+        follower_count: unfollowedUser.follower_count - 1
       }
-    ])
+    })
   )
 
   // Decrement the followee count on the current user
@@ -249,15 +243,13 @@ export function* confirmUnfollowUser(userId: ID, accountId: ID) {
 
         // Revert decremented follower count on unfollowed user
         yield* put(
-          cacheActions.update(Kind.USERS, [
-            {
-              id: userId,
-              metadata: {
-                does_current_user_follow: true,
-                follower_count: unfollowedUser.follower_count + 1
-              }
+          cacheUsersActions.updateUser({
+            id: userId,
+            changes: {
+              does_current_user_follow: true,
+              follower_count: unfollowedUser.follower_count + 1
             }
-          ])
+          })
         )
 
         // Revert decremented followee count on current user

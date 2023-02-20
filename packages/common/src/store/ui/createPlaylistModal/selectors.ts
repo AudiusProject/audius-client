@@ -1,7 +1,7 @@
 import { getCollection } from 'store/cache/collections/selectors'
 import { getTracks as getCachedTracks } from 'store/cache/tracks/selectors'
-import { getUsers } from 'store/cache/users/selectors'
 import { CommonState } from 'store/commonStore'
+import { getUsers } from 'store/users/usersSelectors'
 
 export const getBaseState = (state: CommonState) => state.ui.createPlaylistModal
 

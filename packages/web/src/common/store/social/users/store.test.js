@@ -1,7 +1,6 @@
 import {
-  Kind,
-  cacheActions,
-  usersSocialActions as actions
+  usersSocialActions as actions,
+  cacheUsersActions
 } from '@audius/common'
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
@@ -44,15 +43,13 @@ describe('follow', () => {
       })
       .call(sagas.confirmFollowUser, 2, 1)
       .put(
-        cacheActions.update(Kind.USERS, [
-          {
-            id: 2,
-            metadata: {
-              does_current_user_follow: true,
-              follower_count: 6
-            }
+        cacheUsersActions.updateUser({
+          id: 2,
+          changes: {
+            does_current_user_follow: true,
+            follower_count: 6
           }
-        ])
+        })
       )
       .silentRun()
   })
@@ -80,15 +77,13 @@ describe('follow', () => {
       .dispatch(actions.unfollowUser(2))
       .call(sagas.confirmUnfollowUser, 2, 1)
       .put(
-        cacheActions.update(Kind.USERS, [
-          {
-            id: 2,
-            metadata: {
-              does_current_user_follow: false,
-              follower_count: 4
-            }
+        cacheUsersActions.updateUser({
+          id: 2,
+          changes: {
+            does_current_user_follow: false,
+            follower_count: 4
           }
-        ])
+        })
       )
       .silentRun()
   })

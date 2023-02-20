@@ -1,5 +1,4 @@
 import {
-  Kind,
   ID,
   Name,
   Supporter,
@@ -13,7 +12,6 @@ import {
   weiToString,
   decodeHashId,
   accountSelectors,
-  cacheActions,
   RefreshSupportPayloadAction,
   tippingSelectors,
   tippingActions,
@@ -28,7 +26,8 @@ import {
   MAX_PROFILE_TOP_SUPPORTERS,
   LastDismissedTip,
   LocalStorage,
-  processAndCacheUsers
+  processAndCacheUsers,
+  cacheUsersActions
 } from '@audius/common'
 import { PayloadAction } from '@reduxjs/toolkit'
 import BN from 'bn.js'
@@ -74,7 +73,7 @@ const {
   getSupporters,
   getSupporting
 } = tippingSelectors
-const { update } = cacheActions
+const { updateUser } = cacheUsersActions
 const getAccountUser = accountSelectors.getAccountUser
 
 export const FEED_TIP_DISMISSAL_TIME_LIMIT_SEC = 30 * 24 * 60 * 60 // 30 days
@@ -114,12 +113,10 @@ function* overrideSupportingForUser({
     !supportingForSender[receiver.user_id]?.amount
   if (wasNotPreviouslySupporting) {
     yield put(
-      update(Kind.USERS, [
-        {
-          id: sender.user_id,
-          metadata: { supporting_count: sender.supporting_count + 1 }
-        }
-      ])
+      updateUser({
+        id: sender.user_id,
+        changes: { supporting_count: sender.supporting_count + 1 }
+      })
     )
   }
 
@@ -173,12 +170,10 @@ function* overrideSupportersForUser({
     !supportersForReceiver[sender.user_id]?.amount
   if (wasNotPreviouslySupported) {
     yield put(
-      update(Kind.USERS, [
-        {
-          id: receiver.user_id,
-          metadata: { supporter_count: receiver.supporter_count + 1 }
-        }
-      ])
+      updateUser({
+        id: receiver.user_id,
+        changes: { supporter_count: receiver.supporter_count + 1 }
+      })
     )
   }
 

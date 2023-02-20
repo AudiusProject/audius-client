@@ -1,8 +1,10 @@
 import { createSelector } from 'reselect'
 
+import { cacheUsersSelectors } from 'store/users'
+
 import { UID } from '../../models'
 import { Uid } from '../../utils/uid'
-import { cacheUsersSelectors, cacheTracksSelectors } from '../cache'
+import { cacheTracksSelectors } from '../cache'
 import { playerSelectors } from '../player'
 import { CommonState } from '../reducers'
 

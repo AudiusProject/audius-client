@@ -1,8 +1,8 @@
 import { createSelector } from 'reselect'
 
 import { getCollections } from 'store/cache/collections/selectors'
-import { getUsers } from 'store/cache/users/selectors'
 import { CommonState } from 'store/commonStore'
+import { getUsers } from 'store/users/usersSelectors'
 import { createShallowSelector } from 'utils/selectorHelpers'
 
 // Search Results selectors

@@ -2,9 +2,9 @@ import {
   getTrack as getCachedTrack,
   getStatus as getCachedTrackStatus
 } from 'store/cache/tracks/selectors'
-import { getUser as getCachedUser } from 'store/cache/users/selectors'
 import { CommonState } from 'store/commonStore'
 import { PREFIX } from 'store/pages/track/lineup/actions'
+import { getUser as getCachedUser } from 'store/users/usersSelectors'
 
 import { ID, Track, User } from '../../../models'
 import { Nullable } from '../../../utils/typeUtils'

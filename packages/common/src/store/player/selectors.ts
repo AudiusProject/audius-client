@@ -1,6 +1,8 @@
 import { createSelector } from 'reselect'
 
-import { cacheTracksSelectors, cacheUsersSelectors } from '../cache'
+import { cacheUsersSelectors } from 'store/users'
+
+import { cacheTracksSelectors } from '../cache'
 import { CommonState } from '../commonStore'
 const { getUser } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors

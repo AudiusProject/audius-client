@@ -9,8 +9,6 @@ import { CollectionsCacheState } from './cache/collections/types'
 import { asCache } from './cache/reducer'
 import tracksReducer from './cache/tracks/reducer'
 import { TracksCacheState } from './cache/tracks/types'
-import usersReducer from './cache/users/reducer'
-import { UsersCacheState } from './cache/users/types'
 import cast from './cast/slice'
 import changePasswordReducer from './change-password/slice'
 import { ChangePasswordState } from './change-password/types'
@@ -111,6 +109,7 @@ import notificationsUserListReducer from './user-list/notifications/reducers'
 import repostsUserListReducer from './user-list/reposts/reducers'
 import supportingUserListReducer from './user-list/supporting/reducers'
 import topSupportersUserListReducer from './user-list/top-supporters/reducers'
+import usersReducer, { UsersState } from './users/usersSlice'
 import wallet from './wallet/slice'
 
 /**
@@ -136,9 +135,7 @@ export const reducers = () => ({
   // TODO: Fix type error
   // @ts-ignore
   tracks: asCache(tracksReducer, Kind.TRACKS),
-  // TODO: Fix type error
-  // @ts-ignore
-  users: asCache(usersReducer, Kind.USERS),
+  users: usersReducer,
 
   // Playback
   queue,
@@ -249,7 +246,7 @@ export type CommonState = {
   // Cache
   collections: CollectionsCacheState
   tracks: TracksCacheState
-  users: UsersCacheState
+  users: UsersState
 
   // Playback
   queue: ReturnType<typeof queue>

@@ -13,7 +13,8 @@ import {
   uploadActions,
   UploadType,
   ProgressStatus,
-  uploadSelectors
+  uploadSelectors,
+  cacheUsersActions
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { range } from 'lodash'
@@ -750,16 +751,14 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
         )
         const user = yield select(getUser, { id: userId })
         yield put(
-          cacheActions.update(Kind.USERS, [
-            {
-              id: userId,
-              metadata: {
-                _collectionIds: (user._collectionIds || []).concat(
-                  confirmedPlaylist.playlist_id
-                )
-              }
+          cacheUsersActions.updateUser({
+            id: userId,
+            changes: {
+              _collectionIds: (user._collectionIds || []).concat(
+                confirmedPlaylist.playlist_id
+              )
             }
-          ])
+          })
         )
 
         // Add images to the collection since we're not loading it the traditional way with

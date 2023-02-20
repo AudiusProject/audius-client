@@ -49,7 +49,7 @@ export const ProfileSocials = () => {
 
   useEffect(() => {
     if (twitter_handle === undefined) {
-      dispatch(fetchUserSocials(handle))
+      dispatch(fetchUserSocials({ handle }))
     }
   }, [twitter_handle, dispatch, handle])
 

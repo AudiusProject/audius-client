@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect'
 
 import { getCollections } from 'store/cache/collections/selectors'
-import { getUser, getUsers } from 'store/cache/users/selectors'
+import { getUser, getUsers } from 'store/users/usersSelectors'
 import { removeNullable } from 'utils/typeUtils'
 
 import { CommonState } from '../commonStore'

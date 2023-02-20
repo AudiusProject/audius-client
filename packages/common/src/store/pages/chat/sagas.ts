@@ -4,9 +4,9 @@ import { call, put, select, takeEvery, takeLatest } from 'typed-redux-saga'
 
 import { getAccountUser, getUserId } from 'store/account/selectors'
 import { setVisibility } from 'store/ui/modals/slice'
+import { cacheUsersActions } from 'store/users'
 
 import { decodeHashId, encodeHashId } from '../../../utils'
-import { cacheUsersActions } from '../../cache'
 import { getContext } from '../../effects'
 
 import * as chatSelectors from './selectors'

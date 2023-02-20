@@ -1,7 +1,6 @@
 import {
-  cacheActions,
+  cacheUsersActions,
   getContext,
-  Kind,
   profilePageActions,
   profilePageSelectors
 } from '@audius/common'
@@ -45,18 +44,16 @@ function* fetchProfileCollectionsAsync(
       false
     )
 
-    const latestCollectionIds = latestCollections.map(
-      ({ playlist_id }) => playlist_id
+    const latestCollectionIds = latestCollections.map(({ playlist_id }) =>
+      playlist_id.toString()
     )
 
     if (!isEqual(_collectionIds, latestCollectionIds)) {
       yield* put(
-        cacheActions.update(Kind.USERS, [
-          {
-            id: user_id,
-            metadata: { _collectionIds: latestCollectionIds }
-          }
-        ])
+        cacheUsersActions.updateUser({
+          id: user_id,
+          changes: { _collectionIds: latestCollectionIds }
+        })
       )
     }
 

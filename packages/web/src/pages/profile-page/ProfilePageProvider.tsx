@@ -268,7 +268,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
         this.setState({ activeTab: getTabForRoute(params.tab) })
       }
     } else {
-      this.props.goToRoute(NOT_FOUND_PAGE)
+      // this.props.goToRoute(NOT_FOUND_PAGE)
     }
   }
 

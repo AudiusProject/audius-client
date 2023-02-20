@@ -1,35 +1,22 @@
 import { put } from 'typed-redux-saga'
 
-import { Kind } from 'models/Kind'
 import { UserMetadata } from 'models/User'
 import { AudiusBackend } from 'services/audius-backend'
-import { cacheActions } from 'store/cache'
 import { getContext } from 'store/effects'
-import { makeUid } from 'utils'
+import { cacheUsersActions } from 'store/users'
 import { waitForRead } from 'utils/sagaHelpers'
 
 export function* processAndCacheUsers(users: UserMetadata[]) {
   yield* waitForRead()
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  const reformattedUser = users.map((user) => {
+  const reformattedUsers = users.map((user) => {
     return reformatUser(user, audiusBackendInstance)
   })
 
   // insert users into cache
-  yield* put(
-    cacheActions.add(
-      Kind.USERS,
-      reformattedUser.map((u) => ({
-        id: u.user_id,
-        uid: makeUid(Kind.USERS, u.user_id),
-        metadata: u
-      })),
-      false,
-      true
-    )
-  )
+  yield* put(cacheUsersActions.addUsers({ users: reformattedUsers }))
 
-  return reformattedUser
+  return reformattedUsers
 }
 
 /**

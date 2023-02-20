@@ -3,8 +3,8 @@ import { createSelector } from 'reselect'
 
 import { Status } from 'models/Status'
 import { accountSelectors } from 'store/account'
-import { cacheUsersSelectors } from 'store/cache'
 import { CommonState } from 'store/reducers'
+import { cacheUsersSelectors } from 'store/users'
 import { decodeHashId } from 'utils/hashIds'
 const { getUserId } = accountSelectors
 const { getUsers } = cacheUsersSelectors

@@ -1,8 +1,8 @@
 import moment from 'moment'
 
 import { getCollections } from 'store/cache/collections/selectors'
-import { getUser, getUsers } from 'store/cache/users/selectors'
 import { CommonState } from 'store/commonStore'
+import { getUser, getUsers } from 'store/users/usersSelectors'
 import { removeNullable, createDeepEqualSelector } from 'utils'
 
 import { ID, Status, User, UserCollection } from '../../../models'
