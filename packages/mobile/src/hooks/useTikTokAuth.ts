@@ -53,7 +53,7 @@ const authenticate = async (): Promise<Credentials> => {
       errorMessage: string
     ) => {
       if (error) {
-        reject(new Error(errorMessage))
+        return reject(new Error(errorMessage))
       }
 
       // Need to set a csrf cookie because it is required for web
@@ -79,20 +79,22 @@ const authenticate = async (): Promise<Credentials> => {
         )
 
         if (!response.ok) {
-          reject(new Error(response.status + ' ' + (await response.text())))
+          return reject(
+            new Error(response.status + ' ' + (await response.text()))
+          )
         }
 
         const {
           data: { access_token, open_id, expires_in }
         } = await response.json()
 
-        resolve({
+        return resolve({
           accessToken: access_token,
           openId: open_id,
           expiresIn: expires_in
         })
       } catch (e) {
-        reject(e)
+        return reject(e)
       }
     }
 
