@@ -3,7 +3,7 @@ import {
   reachabilityActions,
   getContext,
   accountSelectors,
-  cacheTracksSelectors
+  tracksSelectors
 } from '@audius/common'
 import moment from 'moment'
 import { put, select, call, take, race } from 'typed-redux-saga'
@@ -21,7 +21,7 @@ import {
 
 const { SET_UNREACHABLE } = reachabilityActions
 const { getUserId } = accountSelectors
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 
 export function* staleTrackWorker(trackId: ID) {
   yield* put(startJob({ type: 'stale-track', id: trackId }))

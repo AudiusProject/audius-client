@@ -4,7 +4,7 @@ import {
   TrackMetadata,
   makeUid,
   getContext,
-  cacheTracksActions
+  tracksActions
 } from '@audius/common'
 import { zipObject } from 'lodash'
 import { put, call } from 'typed-redux-saga'
@@ -33,7 +33,7 @@ export function* processAndCacheTracks<T extends TrackMetadata>(
 
   // insert tracks into cache
   yield* put(
-    cacheTracksActions.addTracks({
+    tracksActions.addTracks({
       tracks: reformattedTracks,
       uids: zipObject(
         reformattedTracks.map((track) => makeUid(Kind.TRACKS, track.track_id)),

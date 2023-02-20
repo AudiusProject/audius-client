@@ -10,7 +10,7 @@ import {
   RepostSource,
   ShareSource,
   FavoriteType,
-  cacheTracksSelectors,
+  tracksSelectors,
   usersSelectors,
   tracksSocialActions,
   OverflowAction,
@@ -38,7 +38,7 @@ const { open: openOverflowMenu } = mobileOverflowMenuUIActions
 const { repostTrack, saveTrack, undoRepostTrack, unsaveTrack } =
   tracksSocialActions
 const { getUserFromTrack } = usersSelectors
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 const { getUserId } = accountSelectors
 
 export const TrackTile = (props: LineupItemProps) => {

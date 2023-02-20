@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import type { ID, Nullable, Track, UID, User } from '@audius/common'
 import {
-  cacheTracksSelectors,
+  tracksSelectors,
   usersSelectors,
   savedPageActions,
   Status,
@@ -41,7 +41,7 @@ const {
   getIsFetchingMore
 } = savedPageSelectors
 const { getIsReachable } = reachabilitySelectors
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 const { getUserFromTrack } = usersSelectors
 
 const messages = {

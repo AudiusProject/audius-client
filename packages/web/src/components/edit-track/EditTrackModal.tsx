@@ -7,7 +7,7 @@ import {
   Track,
   removeNullable,
   uuid,
-  cacheTracksActions as cacheTrackActions,
+  tracksActions as cacheTrackActions,
   stemsUploadSelectors,
   stemsUploadActions
 } from '@audius/common'

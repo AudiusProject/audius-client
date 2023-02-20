@@ -1,7 +1,7 @@
 import {
   accountSelectors,
   audioRewardsPageActions,
-  cacheTracksSelectors,
+  tracksSelectors,
   getContext,
   Name,
   tracksSocialActions
@@ -12,7 +12,7 @@ import { make } from 'common/store/analytics/actions'
 import { waitForWrite } from 'utils/sagaHelpers'
 
 const { updateOptimisticListenStreak } = audioRewardsPageActions
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 const { getUserId } = accountSelectors
 
 function* recordListen(action: { trackId: number }) {

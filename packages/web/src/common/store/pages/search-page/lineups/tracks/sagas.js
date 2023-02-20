@@ -1,5 +1,5 @@
 import {
-  cacheTracksSelectors,
+  tracksSelectors,
   searchResultsPageSelectors,
   SearchKind,
   searchResultsPageTracksLineupActions as tracksActions,
@@ -16,7 +16,7 @@ import { isMobileWeb } from 'common/utils/isMobileWeb'
 
 const { getSearchTracksLineup, getSearchResultsPageTracks } =
   searchResultsPageSelectors
-const { getTracks } = cacheTracksSelectors
+const { getTracks } = tracksSelectors
 
 function* getSearchPageResultsTracks({
   offset,

@@ -1,7 +1,7 @@
 import {
   Kind,
   makeUid,
-  cacheTracksSelectors,
+  tracksSelectors,
   savedPageTracksLineupActions as savedTracksActions,
   savedPageActions as saveActions,
   savedPageSelectors,
@@ -18,7 +18,7 @@ const { getUid: getPlayerUid } = playerSelectors
 const { SAVE_TRACK, UNSAVE_TRACK } = tracksSocialActions
 const { getLocalSaves, getLocalSave, getSavedTracksLineupUid, getSaves } =
   savedPageSelectors
-const { getTracks: getCacheTracks } = cacheTracksSelectors
+const { getTracks: getCacheTracks } = tracksSelectors
 
 const getSavedTracks = (state) => state.pages.savedPage.tracks
 

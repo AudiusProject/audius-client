@@ -4,7 +4,7 @@ import {
   FavoriteType,
   Track,
   cacheCollectionsSelectors,
-  cacheTracksSelectors,
+  tracksSelectors,
   UserListSagaFactory,
   favoritesUserListActions,
   favoritesUserListSelectors,
@@ -18,7 +18,7 @@ import { createUserListProvider } from 'common/store/user-list/utils'
 const { getId, getUserList, getUserIds, getFavoriteType } =
   favoritesUserListSelectors
 const { trackFavoriteError, playlistFavoriteError } = favoritesUserListActions
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 const { getCollection } = cacheCollectionsSelectors
 
 const getPlaylistFavorites = createUserListProvider<Collection>({

@@ -3,7 +3,7 @@ import {
   getContext,
   getErrorMessage,
   encodeHashId,
-  cacheTracksSelectors,
+  tracksSelectors,
   modalsActions,
   ShareSoundToTiktokModalStatus,
   shareSoundToTiktokModalActions,
@@ -31,7 +31,7 @@ const {
   upload
 } = shareSoundToTiktokModalActions
 const { setVisibility } = modalsActions
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 
 const TIKTOK_SHARE_SOUND_ENDPOINT =
   'https://open-api.tiktok.com/share/sound/upload/'

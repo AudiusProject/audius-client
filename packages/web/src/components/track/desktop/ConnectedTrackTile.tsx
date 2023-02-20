@@ -15,7 +15,7 @@ import {
   RepostSource,
   FavoriteSource,
   accountSelectors,
-  cacheTracksSelectors,
+  tracksSelectors,
   usersSelectors,
   tracksSocialActions,
   shareModalUIActions,
@@ -56,7 +56,7 @@ import Stats from './stats/Stats'
 import { Flavor } from './stats/StatsText'
 const { getUid, getPlaying, getBuffering } = playerSelectors
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 const { getUserFromTrack } = usersSelectors
 const { saveTrack, unsaveTrack, repostTrack, undoRepostTrack } =
   tracksSocialActions

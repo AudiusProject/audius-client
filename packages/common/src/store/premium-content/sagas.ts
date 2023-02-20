@@ -20,7 +20,7 @@ import { musicConfettiActions } from 'store/music-confetti'
 import { trackPageActions } from 'store/pages'
 import { usersSocialActions } from 'store/social'
 import { tippingActions } from 'store/tipping'
-import { cacheTracksActions, cacheTracksSelectors } from 'store/tracks'
+import { tracksActions, tracksSelectors } from 'store/tracks'
 import { parseTrackRouteFromPermalink } from 'utils'
 import { Nullable } from 'utils/typeUtils'
 
@@ -49,7 +49,7 @@ const { updateUserEthCollectibles, updateUserSolCollectibles } =
 const { getPremiumTrackSignatureMap } = premiumContentSelectors
 
 const { getAccountUser } = accountSelectors
-const { getTracks } = cacheTracksSelectors
+const { getTracks } = tracksSelectors
 
 function hasNotFetchedAllCollectibles(account: User) {
   const { collectibleList, solanaCollectibleList } = account
@@ -478,14 +478,14 @@ function* handleRemovePremiumContentSignatures(
     const id = parseInt(trackId)
     return { id, changes: { premium_content_signature: null } }
   })
-  yield* put(cacheTracksActions.updateTracks(updates))
+  yield* put(tracksActions.updateTracks(updates))
 }
 
 function* watchCollectibleGatedTracks() {
   yield* takeEvery(
     [
-      cacheTracksActions.addTracks.type,
-      cacheTracksActions.updateTrack.type,
+      tracksActions.addTracks.type,
+      tracksActions.updateTrack.type,
       updateUserEthCollectibles.type,
       updateUserSolCollectibles.type
     ],

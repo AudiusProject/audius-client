@@ -6,7 +6,7 @@ import {
   UserTrackMetadata,
   accountSelectors,
   getContext,
-  cacheTracksSelectors
+  tracksSelectors
 } from '@audius/common'
 import { call, select, spawn } from 'typed-redux-saga'
 
@@ -20,8 +20,7 @@ import {
 import { fetchAndProcessStems } from './fetchAndProcessStems'
 import { addUsersFromTracks } from './helpers'
 import { reformat } from './reformat'
-const { getTracks: getTracksSelector, getTrackTimestamps } =
-  cacheTracksSelectors
+const { getTracks: getTracksSelector, getTrackTimestamps } = tracksSelectors
 const getUserId = accountSelectors.getUserId
 
 type UnlistedTrackRequest = { id: ID; url_title: string; handle: string }

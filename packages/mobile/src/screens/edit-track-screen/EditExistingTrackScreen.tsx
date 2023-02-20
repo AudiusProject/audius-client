@@ -1,11 +1,7 @@
 import { useCallback } from 'react'
 
 import type { ExtendedTrackMetadata } from '@audius/common'
-import {
-  SquareSizes,
-  cacheTracksActions,
-  cacheTracksSelectors
-} from '@audius/common'
+import { SquareSizes, tracksActions, tracksSelectors } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useTrackImage } from 'app/components/image/TrackImage'
@@ -15,8 +11,8 @@ import { useRoute } from 'app/hooks/useRoute'
 
 import { EditTrackScreen } from './EditTrackScreen'
 
-const { getTrack } = cacheTracksSelectors
-const { editTrack } = cacheTracksActions
+const { getTrack } = tracksSelectors
+const { editTrack } = tracksActions
 
 const messages = {
   title: 'Edit Track',

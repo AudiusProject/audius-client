@@ -3,9 +3,9 @@ import { createSelector } from 'reselect'
 import { usersSelectors } from 'store/users'
 
 import { CommonState } from '../commonStore'
-import { cacheTracksSelectors } from '../tracks'
+import { tracksSelectors } from '../tracks'
 const { getUser } = usersSelectors
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 
 export const getHasTrack = (state: CommonState) => !!state.player.trackId
 export const getUid = (state: CommonState) => state.player.uid

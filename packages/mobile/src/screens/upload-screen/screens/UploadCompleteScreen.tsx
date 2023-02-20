@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react'
 import type { CommonState } from '@audius/common'
 import {
   uploadActions,
-  cacheTracksSelectors,
+  tracksSelectors,
   accountSelectors,
   trackPageActions,
   uploadSelectors
@@ -32,7 +32,7 @@ const { getTracks } = uploadSelectors
 const { reset } = uploadActions
 const { getAccountUser } = accountSelectors
 const { fetchTrack } = trackPageActions
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 
 const messages = {
   title: 'Upload',

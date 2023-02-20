@@ -1,11 +1,11 @@
 import {
   PlayableType,
   cacheCollectionsSelectors,
-  cacheTracksSelectors
+  tracksSelectors
 } from '@audius/common'
 
 import { AppState } from 'store/types'
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 const { getCollection } = cacheCollectionsSelectors
 
 export const getIsOpen = (state: AppState) =>

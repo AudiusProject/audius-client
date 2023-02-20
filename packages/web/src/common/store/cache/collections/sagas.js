@@ -10,7 +10,7 @@ import {
   cacheCollectionsSelectors,
   cacheCollectionsActions as collectionActions,
   PlaylistOperations,
-  cacheTracksSelectors,
+  tracksSelectors,
   usersSelectors,
   cacheActions,
   getContext,
@@ -43,7 +43,7 @@ import {
   retrieveCollections
 } from './utils/retrieveCollections'
 const { getUser } = usersSelectors
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 const { getCollection } = cacheCollectionsSelectors
 const { getAccountUser, getUserId } = accountSelectors
 const { setOptimisticChallengeCompleted } = audioRewardsPageActions

@@ -6,7 +6,7 @@ import {
   Nullable,
   StringKeys,
   Genre,
-  cacheTracksSelectors,
+  tracksSelectors,
   trendingPageLineupSelectors,
   trendingPageActions,
   trendingPageSelectors,
@@ -22,7 +22,7 @@ import { waitForRead } from 'utils/sagaHelpers'
 const { getLastFetchedTrendingGenre, getTrendingGenre } = trendingPageSelectors
 const { setLastFetchedTrendingGenre } = trendingPageActions
 const { getTrendingEntries } = trendingPageLineupSelectors
-const { getTracks } = cacheTracksSelectors
+const { getTracks } = tracksSelectors
 
 type RetrieveTrendingArgs = {
   timeRange: TimeRange

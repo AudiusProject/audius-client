@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 import {
   ID,
   SquareSizes,
-  cacheTracksSelectors,
+  tracksSelectors,
   usersSelectors
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
@@ -16,7 +16,7 @@ import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import { AppState } from 'store/types'
 import { profilePage } from 'utils/route'
 import { withNullGuard } from 'utils/withNullGuard'
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 const { getUserFromTrack } = usersSelectors
 
 type OwnProps = {

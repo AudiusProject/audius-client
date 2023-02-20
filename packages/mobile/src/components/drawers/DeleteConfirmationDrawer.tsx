@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { cacheTracksActions } from '@audius/common'
+import { tracksActions } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
 import { useDrawer } from 'app/hooks/useDrawer'
@@ -10,7 +10,7 @@ import { navigationRef } from '../navigation-container/NavigationContainer'
 
 import { ConfirmationDrawer } from './ConfirmationDrawer'
 
-const { deleteTrack } = cacheTracksActions
+const { deleteTrack } = tracksActions
 
 const messages = {
   header: 'Delete Track',

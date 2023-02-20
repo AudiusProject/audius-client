@@ -5,7 +5,7 @@ import {
   formatUrlName,
   accountSelectors,
   accountActions,
-  cacheTracksActions as tracksActions,
+  tracksActions,
   usersSelectors,
   cacheActions,
   waitForAccount,

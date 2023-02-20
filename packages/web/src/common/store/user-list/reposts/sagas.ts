@@ -3,7 +3,7 @@ import {
   Collection,
   Track,
   cacheCollectionsSelectors,
-  cacheTracksSelectors,
+  tracksSelectors,
   RepostType,
   UserListSagaFactory,
   repostsUserListActions,
@@ -17,7 +17,7 @@ import { createUserListProvider } from 'common/store/user-list/utils'
 const { getId, getRepostsType, getUserList, getUserIds } =
   repostsUserListSelectors
 const { trackRepostError, playlistRepostError } = repostsUserListActions
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 const { getCollection } = cacheCollectionsSelectors
 
 const getPlaylistReposts = createUserListProvider<Collection>({

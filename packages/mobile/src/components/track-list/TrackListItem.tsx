@@ -7,7 +7,7 @@ import {
   OverflowSource,
   mobileOverflowMenuUIActions,
   usersSelectors,
-  cacheTracksSelectors,
+  tracksSelectors,
   playerSelectors
 } from '@audius/common'
 import type { NativeSyntheticEvent, NativeTouchEvent } from 'react-native'
@@ -30,7 +30,7 @@ import { TrackArtwork } from './TrackArtwork'
 const { open: openOverflowMenu } = mobileOverflowMenuUIActions
 
 const { getUserFromTrack } = usersSelectors
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 const { getPlaying, getUid } = playerSelectors
 
 export type TrackItemAction = 'save' | 'overflow' | 'remove'

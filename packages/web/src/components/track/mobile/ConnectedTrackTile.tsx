@@ -7,7 +7,7 @@ import {
   ShareSource,
   FavoriteType,
   accountSelectors,
-  cacheTracksSelectors,
+  tracksSelectors,
   usersSelectors,
   tracksSocialActions,
   OverflowAction,
@@ -42,7 +42,7 @@ const { setRepost } = repostsUserListActions
 const { getTheme } = themeSelectors
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { open } = mobileOverflowMenuUIActions
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 const { getUserFromTrack } = usersSelectors
 const { saveTrack, unsaveTrack, repostTrack, undoRepostTrack } =
   tracksSocialActions

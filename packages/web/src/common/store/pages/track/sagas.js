@@ -2,8 +2,8 @@ import {
   Kind,
   StringKeys,
   makeUid,
-  cacheTracksActions as trackCacheActions,
-  cacheTracksSelectors,
+  tracksActions as trackCacheActions,
+  tracksSelectors,
   usersSelectors,
   trackPageActions,
   trackPageSelectors,
@@ -33,7 +33,7 @@ const { getIsReachable } = reachabilitySelectors
 const { tracksActions } = trackPageLineupActions
 const { getSourceSelector, getTrack, getTrendingTrackRanks, getUser } =
   trackPageSelectors
-const { getTrack: getCachedTrack } = cacheTracksSelectors
+const { getTrack: getCachedTrack } = tracksSelectors
 const { getUsers } = usersSelectors
 
 export const TRENDING_BADGE_LIMIT = 10

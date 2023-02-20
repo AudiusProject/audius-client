@@ -6,7 +6,7 @@ import {
   FollowSource,
   RepostSource,
   ShareSource,
-  cacheTracksSelectors,
+  tracksSelectors,
   usersSelectors,
   tracksSocialActions,
   usersSocialActions,
@@ -27,7 +27,7 @@ const { followUser, unfollowUser } = usersSocialActions
 const { repostTrack, undoRepostTrack, saveTrack, unsaveTrack, shareTrack } =
   tracksSocialActions
 const { getUser } = usersSelectors
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 
 type Props = {
   render: (callbacks: OverflowActionCallbacks) => JSX.Element

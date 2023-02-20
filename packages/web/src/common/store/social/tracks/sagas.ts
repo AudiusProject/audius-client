@@ -7,13 +7,13 @@ import {
   makeKindId,
   formatShareText,
   accountSelectors,
-  cacheTracksSelectors,
+  tracksSelectors,
   usersSelectors,
   getContext,
   tracksSocialActions as socialActions,
   waitForValue,
   usersActions,
-  cacheTracksActions
+  tracksActions
 } from '@audius/common'
 import { fork } from 'redux-saga/effects'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
@@ -29,7 +29,7 @@ import { waitForRead, waitForWrite } from 'utils/sagaHelpers'
 import watchTrackErrors from './errorSagas'
 import { watchRecordListen } from './recordListen'
 const { getUser } = usersSelectors
-const { getTrack, getTracks } = cacheTracksSelectors
+const { getTrack, getTracks } = tracksSelectors
 
 const { getUserId, getUserHandle } = accountSelectors
 
@@ -95,7 +95,7 @@ export function* repostTrackAsync(
   }
 
   yield* put(
-    cacheTracksActions.updateTrack({
+    tracksActions.updateTrack({
       id: action.trackId,
       changes: eagerlyUpdatedMetadata
     })
@@ -245,7 +245,7 @@ export function* undoRepostTrackAsync(
   }
 
   yield* put(
-    cacheTracksActions.updateTrack({
+    tracksActions.updateTrack({
       id: action.trackId,
       changes: eagerlyUpdatedMetadata
     })
@@ -361,7 +361,7 @@ export function* saveTrackAsync(
   }
 
   yield* put(
-    cacheTracksActions.updateTrack({
+    tracksActions.updateTrack({
       id: action.trackId,
       changes: eagerlyUpdatedMetadata
     })
@@ -506,7 +506,7 @@ export function* unsaveTrackAsync(
     }
 
     yield* put(
-      cacheTracksActions.updateTrack({
+      tracksActions.updateTrack({
         id: action.trackId,
         changes: eagerlyUpdatedMetadata
       })

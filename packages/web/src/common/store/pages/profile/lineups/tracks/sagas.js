@@ -1,8 +1,8 @@
 import {
   Kind,
   accountSelectors,
-  cacheTracksActions,
-  cacheTracksSelectors,
+  tracksActions,
+  tracksSelectors,
   profilePageSelectors,
   TracksSortMode,
   profilePageTracksLineupActions as tracksActions,
@@ -17,8 +17,8 @@ import { waitForRead } from 'utils/sagaHelpers'
 import { retrieveUserTracks } from './retrieveUserTracks'
 const { SET_ARTIST_PICK } = tracksSocialActions
 const { getProfileUserId, getProfileTracksLineup } = profilePageSelectors
-const { getTrack } = cacheTracksSelectors
-const { deleteTrack } = cacheTracksActions
+const { getTrack } = tracksSelectors
+const { deleteTrack } = tracksActions
 const { getUserId, getUserHandle } = accountSelectors
 const PREFIX = tracksActions.prefix
 

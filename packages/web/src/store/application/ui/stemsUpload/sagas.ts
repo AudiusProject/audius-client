@@ -2,7 +2,7 @@ import {
   Name,
   Track,
   User,
-  cacheTracksSelectors,
+  tracksSelectors,
   usersSelectors,
   stemsUploadActions
 } from '@audius/common'
@@ -14,7 +14,7 @@ import { handleUploads } from 'common/store/upload/sagas'
 import { createStemMetadata } from 'pages/upload-page/store/utils/stems'
 const { getUser } = usersSelectors
 const { startStemUploads, stemUploadsSucceeded } = stemsUploadActions
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 
 function* watchUploadStems() {
   yield takeEvery(

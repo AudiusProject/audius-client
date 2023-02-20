@@ -2,12 +2,12 @@ import {
   CoverArtSizes,
   SquareSizes,
   useImageSize,
-  cacheTracksActions,
+  tracksActions,
   imageBlank as imageEmpty
 } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
-const { fetchCoverArt } = cacheTracksActions
+const { fetchCoverArt } = tracksActions
 
 export const useTrackCoverArt = (
   trackId: number | null | string | undefined,

@@ -1,7 +1,4 @@
-import {
-  cacheTracksActions,
-  tracksSocialActions as actions
-} from '@audius/common'
+import { tracksActions, tracksSocialActions as actions } from '@audius/common'
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 import * as matchers from 'redux-saga-test-plan/matchers'
@@ -42,7 +39,7 @@ describe('repost', () => {
       .dispatch(actions.repostTrack(1))
       .call(sagas.confirmRepostTrack, 1, repostingUser)
       .put(
-        cacheTracksActions.updateTrack({
+        tracksActions.updateTrack({
           id: 1,
           changes: {
             has_current_user_reposted: true,
@@ -81,7 +78,7 @@ describe('repost', () => {
       .dispatch(actions.undoRepostTrack(1))
       .call(sagas.confirmUndoRepostTrack, 1, repostingUser)
       .put(
-        cacheTracksActions.updateTrack({
+        tracksActions.updateTrack({
           id: 1,
           changes: {
             has_current_user_reposted: false,
@@ -116,7 +113,7 @@ describe('save', () => {
       .dispatch(actions.saveTrack(1))
       .call(sagas.confirmSaveTrack, 1)
       .put(
-        cacheTracksActions.updateTrack({
+        tracksActions.updateTrack({
           id: 1,
           changes: {
             has_current_user_saved: true,
@@ -149,7 +146,7 @@ describe('save', () => {
       .dispatch(actions.unsaveTrack(1))
       .call(sagas.confirmUnsaveTrack, 1)
       .put(
-        cacheTracksActions.updateTrack({
+        tracksActions.updateTrack({
           id: 1,
           changes: {
             has_current_user_saved: false,

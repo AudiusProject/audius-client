@@ -5,14 +5,14 @@ import {
   makeUids,
   Uid,
   cacheCollectionsSelectors,
-  cacheTracksSelectors,
+  tracksSelectors,
   cacheActions,
   usersSelectors,
   lineupActions as baseLineupActions,
   queueActions,
   playerSelectors,
   queueSelectors,
-  cacheTracksActions
+  tracksActions
 } from '@audius/common'
 import {
   all,
@@ -34,7 +34,7 @@ import { isMobileWeb } from 'common/utils/isMobileWeb'
 const { getSource, getUid, getPositions } = queueSelectors
 const { getUid: getCurrentPlayerTrackUid, getPlaying } = playerSelectors
 const { getUsers } = usersSelectors
-const { getTrack, getTracks } = cacheTracksSelectors
+const { getTrack, getTracks } = tracksSelectors
 const { getCollection } = cacheCollectionsSelectors
 
 const getEntryId = (entry) => `${entry.kind}:${entry.id}`
@@ -248,7 +248,7 @@ function* fetchLineupMetadatasAsync(
         yield put(cacheActions.update(Kind.COLLECTIONS, [], trackSubscriptions))
       }
       if (trackSubscribers.length > 0) {
-        yield put(cacheTracksActions.addUids({ uids: trackSubscribers }))
+        yield put(tracksActions.addUids({ uids: trackSubscribers }))
       }
       // Retain specified info in the lineup itself and resolve with success.
       const lineupEntries = allMetadatas

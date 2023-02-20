@@ -2,7 +2,7 @@ import {
   Kind,
   StringKeys,
   encodeHashId,
-  cacheTracksSelectors,
+  tracksSelectors,
   usersSelectors,
   cacheActions,
   queueActions,
@@ -53,7 +53,7 @@ const { getTrackId, getUid, getCounter, getPlaying, getPlaybackRate } =
 
 const { recordListen } = tracksSocialActions
 const { getUser } = usersSelectors
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 const { getPremiumTrackSignatureMap } = premiumContentSelectors
 const { getIsReachable } = reachabilitySelectors
 

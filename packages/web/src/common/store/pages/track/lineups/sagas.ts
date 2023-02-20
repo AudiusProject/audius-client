@@ -1,6 +1,6 @@
 import {
   accountSelectors,
-  cacheTracksSelectors,
+  tracksSelectors,
   trackPageLineupActions,
   trackPageSelectors,
   waitForValue
@@ -12,7 +12,7 @@ import { retrieveUserTracks } from 'common/store/pages/profile/lineups/tracks/re
 import { waitForRead } from 'utils/sagaHelpers'
 const { PREFIX, tracksActions } = trackPageLineupActions
 const { getLineup, getSourceSelector: sourceSelector } = trackPageSelectors
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 const { getUserId } = accountSelectors
 
 function* getTracks({

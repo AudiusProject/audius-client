@@ -16,7 +16,7 @@ import {
   Uid,
   formatDate,
   accountSelectors,
-  cacheTracksActions as cacheTrackActions,
+  tracksActions as cacheTrackActions,
   lineupSelectors,
   trackPageActions,
   trackPageSelectors,

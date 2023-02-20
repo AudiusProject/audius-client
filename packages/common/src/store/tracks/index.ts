@@ -1,7 +1,7 @@
 export {
-  default as cacheTracksReducer,
-  actions as cacheTracksActions
+  default as tracksReducer,
+  actions as tracksActions
 } from './tracksSlice'
 
-export * as cacheTracksSelectors from './tracksSelectors'
+export * as tracksSelectors from './tracksSelectors'
 export * from './types'

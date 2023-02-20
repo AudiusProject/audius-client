@@ -3,17 +3,17 @@ import {
   UserTrackMetadata,
   removeNullable,
   accountSelectors,
-  cacheTracksSelectors,
+  tracksSelectors,
   getContext,
   waitForValue,
-  cacheTracksActions
+  tracksActions
 } from '@audius/common'
 import { select, call, put } from 'typed-redux-saga'
 
 import { waitForRead } from 'utils/sagaHelpers'
 
 import { processAndCacheTracks } from './processAndCacheTracks'
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 const getUserId = accountSelectors.getUserId
 
 const INITIAL_FETCH_LIMIT = 6
@@ -59,7 +59,7 @@ export function* fetchAndProcessRemixes(trackId: ID) {
   }))
 
   yield* put(
-    cacheTracksActions.updateTrack({
+    tracksActions.updateTrack({
       id: trackId,
       changes: {
         _remixes: remixesUpdate,
@@ -102,7 +102,7 @@ export function* fetchAndProcessRemixParents(trackId: ID) {
   }))
 
   yield* put(
-    cacheTracksActions.updateTrack({
+    tracksActions.updateTrack({
       id: trackId,
       changes: { _remix_parents: remixParentsUpdate }
     })

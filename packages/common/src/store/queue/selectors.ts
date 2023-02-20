@@ -6,11 +6,11 @@ import { UID } from '../../models'
 import { Uid } from '../../utils/uid'
 import { playerSelectors } from '../player'
 import { CommonState } from '../reducers'
-import { cacheTracksSelectors } from '../tracks'
+import { tracksSelectors } from '../tracks'
 
 const { getUid: getPlayerUid, getTrackId: getPlayerTrackId } = playerSelectors
 const { getUser } = usersSelectors
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 
 export const getOrder = (state: CommonState) => state.queue.order
 export const getLength = (state: CommonState) => state.queue.order.length

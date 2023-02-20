@@ -62,7 +62,7 @@ import remixSettingsReducer, {
 import solanaReducer from './solana/slice'
 import stemsUpload from './stems-upload/slice'
 import tippingReducer from './tipping/slice'
-import { cacheTracksReducer, TracksState } from './tracks'
+import { tracksReducer, TracksState } from './tracks'
 import {
   searchUsersModalReducer,
   SearchUsersModalState,
@@ -132,7 +132,7 @@ export const reducers = () => ({
   // @ts-ignore
   collections: asCache(collectionsReducer, Kind.COLLECTIONS),
   // TODO: Fix type error
-  tracks: cacheTracksReducer,
+  tracks: tracksReducer,
   users: usersReducer,
 
   // Playback

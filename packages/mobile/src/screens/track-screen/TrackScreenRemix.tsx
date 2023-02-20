@@ -1,11 +1,7 @@
 import { useCallback } from 'react'
 
 import type { ID, Track, User } from '@audius/common'
-import {
-  SquareSizes,
-  cacheTracksSelectors,
-  usersSelectors
-} from '@audius/common'
+import { SquareSizes, tracksSelectors, usersSelectors } from '@audius/common'
 import type { StyleProp, ViewStyle } from 'react-native'
 import { Pressable, View } from 'react-native'
 import { useSelector } from 'react-redux'
@@ -20,7 +16,7 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import type { StylesProp } from 'app/styles'
 import { flexRowCentered, makeStyles } from 'app/styles'
 const { getUserFromTrack } = usersSelectors
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 
 const messages = {
   by: 'By '

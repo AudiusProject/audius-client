@@ -6,7 +6,7 @@ import {
   ShareSource,
   cacheCollectionsActions,
   cacheCollectionsSelectors,
-  cacheTracksSelectors,
+  tracksSelectors,
   usersSelectors,
   notificationsSelectors,
   notificationsActions,
@@ -57,7 +57,7 @@ const {
   unsaveCollection
 } = collectionsSocialActions
 const { unsubscribeUser } = notificationsActions
-const { getTrack } = cacheTracksSelectors
+const { getTrack } = tracksSelectors
 const { getUser } = usersSelectors
 const { getNotificationById } = notificationsSelectors
 const { getCollection } = cacheCollectionsSelectors
