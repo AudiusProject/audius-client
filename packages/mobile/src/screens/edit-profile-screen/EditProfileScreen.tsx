@@ -108,7 +108,7 @@ const EditProfileForm = (props: EditProfileFormProps) => {
         <FormTextInput name='bio' label='Bio' multiline maxLength={256} />
         <FormTextInput name='location' label='Location' />
         <FormTextInput
-          editable={!isTikTokVerified}
+          editable={!isTwitterVerified}
           name='twitter_handle'
           label='Twitter Handle'
           prefix='@'
