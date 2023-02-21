@@ -128,15 +128,16 @@ const TrackTile = memo(
 
     const onClickTile = useCallback(() => {
       if (isLoading || isDisabled) {
-        return undefined
+        return
       }
 
       if (isTrack && trackId && !doesUserHaveAccess) {
         dispatch(setLockedContentId({ id: trackId }))
         setModalVisibility(true)
+        return
       }
 
-      return onTogglePlay
+      onTogglePlay()
     }, [
       dispatch,
       isLoading,
