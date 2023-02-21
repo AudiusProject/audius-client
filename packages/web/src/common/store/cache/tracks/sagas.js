@@ -11,7 +11,6 @@ import {
   tracksSelectors,
   tracksActions,
   usersSelectors,
-  cacheActions,
   waitForAccount,
   waitForValue,
   usersActions
@@ -43,10 +42,8 @@ const { getAccountUser, getUserId, getUserHandle } = accountSelectors
 function* fetchRepostInfo(entries) {
   const userIds = []
   entries.forEach((entry) => {
-    if (entry.metadata.followee_reposts) {
-      entry.metadata.followee_reposts.forEach((repost) =>
-        userIds.push(repost.user_id)
-      )
+    if (entry.followee_reposts) {
+      entry.followee_reposts.forEach((repost) => userIds.push(repost.user_id))
     }
   })
 
@@ -56,12 +53,10 @@ function* fetchRepostInfo(entries) {
 }
 
 function* watchAdd() {
-  yield takeEvery(cacheActions.ADD_SUCCEEDED, function* (action) {
-    if (action.kind === Kind.TRACKS) {
-      const isNativeMobile = yield getContext('isNativeMobile')
-      if (!isNativeMobile) {
-        yield fork(fetchRepostInfo, action.entries)
-      }
+  yield takeEvery(tracksActions.addTracks.type, function* (action) {
+    const isNativeMobile = yield getContext('isNativeMobile')
+    if (!isNativeMobile) {
+      yield fork(fetchRepostInfo, action.payload.tracks)
     }
   })
 }

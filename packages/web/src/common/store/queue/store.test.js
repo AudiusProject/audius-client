@@ -1,7 +1,5 @@
 import {
-  Kind,
   accountReducer,
-  cacheActions,
   queueReducer as reducer,
   queueActions as actions,
   RepeatMode,
@@ -587,12 +585,6 @@ describe('watchAdd', () => {
           ]
         })
       )
-      .put(
-        cacheActions.subscribe(Kind.TRACKS, [
-          { uid: 'QUEUE', id: 4 },
-          { uid: 'QUEUE', id: 5 }
-        ])
-      )
       .put(actions.persist({}))
       .silentRun()
     expect(storeState.queue).toMatchObject({
@@ -637,12 +629,6 @@ describe('watchAdd', () => {
           index: 1
         })
       )
-      .put(
-        cacheActions.subscribe(Kind.TRACKS, [
-          { uid: 'QUEUE', id: 4 },
-          { uid: 'QUEUE', id: 5 }
-        ])
-      )
       .put(actions.persist({}))
       .silentRun()
     expect(storeState.queue).toMatchObject({
@@ -681,7 +667,6 @@ describe('watchRemove', () => {
         }
       )
       .dispatch(actions.remove({ uid: 'kind:TRACKS-id:2-count:2' }))
-      .put(cacheActions.unsubscribe(Kind.TRACKS, [{ uid: 'QUEUE', id: 2 }]))
       .silentRun()
     expect(storeState.queue).toMatchObject({
       order: [

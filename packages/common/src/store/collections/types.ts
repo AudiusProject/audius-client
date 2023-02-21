@@ -18,7 +18,7 @@ export type CollectionsState = EntityState<Collection> & {
 
 export type AddCollectionsAction = PayloadAction<{
   collections: Collection[]
-  uids: Dictionary<number>
+  uids?: Dictionary<number>
 }>
 
 export type AddCollectionUidsAction = PayloadAction<{

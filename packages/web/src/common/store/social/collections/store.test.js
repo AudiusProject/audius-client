@@ -1,6 +1,5 @@
 import {
-  Kind,
-  cacheActions,
+  cacheCollectionsActions,
   collectionsSocialActions as actions
 } from '@audius/common'
 import { combineReducers } from 'redux'
@@ -42,15 +41,13 @@ describe('repost', () => {
       .dispatch(actions.repostCollection(1))
       .call(sagas.confirmRepostCollection, 2, 1, repostingUser)
       .put(
-        cacheActions.update(Kind.COLLECTIONS, [
-          {
-            id: 1,
-            metadata: {
-              has_current_user_reposted: true,
-              repost_count: 6
-            }
+        cacheCollectionsActions.updateCollection({
+          id: 1,
+          changes: {
+            has_current_user_reposted: true,
+            repost_count: 6
           }
-        ])
+        })
       )
       .silentRun()
   })
@@ -83,15 +80,13 @@ describe('repost', () => {
       .dispatch(actions.undoRepostCollection(1))
       .call(sagas.confirmUndoRepostCollection, 2, 1, repostingUser)
       .put(
-        cacheActions.update(Kind.COLLECTIONS, [
-          {
-            id: 1,
-            metadata: {
-              has_current_user_reposted: false,
-              repost_count: 4
-            }
+        cacheCollectionsActions.updateCollection({
+          id: 1,
+          changes: {
+            has_current_user_reposted: false,
+            repost_count: 4
           }
-        ])
+        })
       )
       .silentRun()
   })
@@ -134,15 +129,13 @@ describe('save', () => {
       .dispatch(actions.saveCollection(1))
       .call(sagas.confirmSaveCollection, 2, 1)
       .put(
-        cacheActions.update(Kind.COLLECTIONS, [
-          {
-            id: 1,
-            metadata: {
-              has_current_user_saved: true,
-              save_count: 6
-            }
+        cacheCollectionsActions.updateCollection({
+          id: 1,
+          changes: {
+            has_current_user_saved: true,
+            save_count: 6
           }
-        ])
+        })
       )
       .silentRun()
   })
@@ -183,15 +176,13 @@ describe('save', () => {
       .dispatch(actions.unsaveCollection(1))
       .call(sagas.confirmUnsaveCollection, 2, 1)
       .put(
-        cacheActions.update(Kind.COLLECTIONS, [
-          {
-            id: 1,
-            metadata: {
-              has_current_user_saved: false,
-              save_count: 4
-            }
+        cacheCollectionsActions.updateCollection({
+          id: 1,
+          changes: {
+            has_current_user_saved: false,
+            save_count: 4
           }
-        ])
+        })
       )
       .silentRun()
   })

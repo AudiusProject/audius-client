@@ -1,10 +1,8 @@
 import {
-  Kind,
   StringKeys,
   encodeHashId,
   tracksSelectors,
   usersSelectors,
-  cacheActions,
   queueActions,
   tracksSocialActions,
   getContext,
@@ -57,7 +55,6 @@ const { getTrack } = tracksSelectors
 const { getPremiumTrackSignatureMap } = premiumContentSelectors
 const { getIsReachable } = reachabilitySelectors
 
-const PLAYER_SUBSCRIBER_NAME = 'PLAYER'
 const RECORD_LISTEN_SECONDS = 1
 const RECORD_LISTEN_INTERVAL = 1000
 
@@ -173,11 +170,6 @@ export function* watchPlay() {
         return () => {}
       })
       yield* spawn(actionChannelDispatcher, endChannel)
-      yield* put(
-        cacheActions.subscribe(Kind.TRACKS, [
-          { uid: PLAYER_SUBSCRIBER_NAME, id: trackId }
-        ])
-      )
 
       if (track.genre === Genre.PODCASTS) {
         // Make sure that the playback rate is set when playing a podcast
@@ -272,12 +264,6 @@ export function* watchReset() {
 
 export function* watchStop() {
   yield* takeLatest(stop.type, function* (action: ReturnType<typeof stop>) {
-    const id = yield* select(getTrackId)
-    yield* put(
-      cacheActions.unsubscribe(Kind.TRACKS, [
-        { uid: PLAYER_SUBSCRIBER_NAME, id }
-      ])
-    )
     const audioPlayer = yield* getContext('audioPlayer')
     audioPlayer.stop()
   })

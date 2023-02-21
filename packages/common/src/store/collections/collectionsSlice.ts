@@ -41,9 +41,9 @@ const slice = createSlice({
   initialState,
   reducers: {
     addCollections: (state, action: AddCollectionsAction) => {
-      const { collections } = action.payload
+      const { collections, uids } = action.payload
       collectionsAdapter.addMany(state, collections)
-      // Object.assign(state.uids, uids)
+      Object.assign(state.uids, uids)
 
       const now = Date.now()
       for (const collection of collections) {

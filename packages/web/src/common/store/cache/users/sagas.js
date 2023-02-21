@@ -3,7 +3,6 @@ import {
   Kind,
   Status,
   accountSelectors,
-  cacheActions,
   usersSelectors,
   cacheReducer,
   usersActions as userActions,
@@ -200,16 +199,21 @@ export function* fetchUserCollections(userId) {
 function* watchSyncLocalStorageUser() {
   const localStorage = yield getContext('localStorage')
   function* syncLocalStorageUser(action) {
+    const { type, ...restAction } = action.payload
+
     yield waitForAccount()
     const currentUser = yield select(getAccountUser)
     if (!currentUser) return
     const currentId = currentUser.user_id
-    if (
-      action.kind === Kind.USERS &&
-      action.entries[0] &&
-      action.entries[0].id === currentId
-    ) {
-      const addedUser = action.entries[0].metadata
+
+    const wasCurrentUserUpdated =
+      type === 'users/addUsers'
+        ? restAction.users.some((user) => user.user_id === currentId)
+        : restAction.id === currentId
+
+    if (wasCurrentUserUpdated) {
+      const addedUser = yield select(getUser, { id: currentId })
+      if (!addedUser) return
       // Get existing locally stored user
       const existing = yield call([localStorage, 'getAudiusAccountUser'])
       // Merge with the new metadata
@@ -228,8 +232,8 @@ function* watchSyncLocalStorageUser() {
       yield call([localStorage, 'setAudiusAccountUser'], cleaned)
     }
   }
-  yield takeEvery(cacheActions.ADD_SUCCEEDED, syncLocalStorageUser)
-  yield takeEvery(cacheActions.UPDATE, syncLocalStorageUser)
+  yield takeEvery(usersActions.addUsers.type, syncLocalStorageUser)
+  yield takeEvery(usersActions.updateUser.type, syncLocalStorageUser)
 }
 
 // Adjusts a user's field in the cache by specifying an update as a delta.

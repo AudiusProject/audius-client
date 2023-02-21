@@ -1,11 +1,9 @@
 import {
   ID,
-  Kind,
-  makeUid,
   UserCollectionMetadata,
-  cacheActions,
   getContext,
-  CollectionMetadata
+  CollectionMetadata,
+  cacheCollectionsActions
 } from '@audius/common'
 import { put, call } from 'redux-saga/effects'
 
@@ -54,16 +52,9 @@ export function* processAndCacheCollections(
   }
 
   yield put(
-    cacheActions.add(
-      Kind.COLLECTIONS,
-      reformattedCollections.map((c) => ({
-        id: c.playlist_id,
-        uid: makeUid(Kind.COLLECTIONS, c.playlist_id),
-        metadata: c
-      })),
-      false,
-      true
-    )
+    cacheCollectionsActions.addCollections({
+      collections: reformattedCollections
+    })
   )
 
   return reformattedCollections

@@ -1,7 +1,6 @@
 import {
   Kind,
   makeUid,
-  cacheActions,
   collectionPageActions as collectionActions,
   collectionPageLineupActions as tracksActions
 } from '@audius/common'
@@ -18,7 +17,7 @@ function* watchFetchCollection() {
   yield takeLatest(collectionActions.FETCH_COLLECTION, function* (action) {
     const { id: collectionId, permalink } = action
     let retrievedCollections
-    if (permalink) {
+    if (permalink && permalink !== 'response-adapter-permalink') {
       retrievedCollections = yield call(
         retrieveCollectionByPermalink,
         permalink,
@@ -46,11 +45,6 @@ function* watchFetchCollection() {
     const collectionUid = collectionUids[collectionId]
     if (collection) {
       yield put(
-        cacheActions.subscribe(Kind.USERS, [
-          { uid: userUid, id: collection.playlist_owner_id }
-        ])
-      )
-      yield put(
         collectionActions.fetchCollectionSucceeded(
           collection.playlist_id,
           collectionUid,
@@ -67,12 +61,6 @@ function* watchFetchCollection() {
 function* watchResetCollection() {
   yield takeEvery(collectionActions.RESET_COLLECTION, function* (action) {
     yield put(tracksActions.reset())
-    yield put(
-      cacheActions.unsubscribe(Kind.COLLECTIONS, [
-        { uid: action.collectionUid }
-      ])
-    )
-    yield put(cacheActions.unsubscribe(Kind.USERS, [{ uid: action.userUid }]))
   })
 }
 

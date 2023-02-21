@@ -13,7 +13,6 @@ import {
   cacheCollectionsSelectors,
   tracksSelectors,
   usersSelectors,
-  cacheActions,
   queueActions,
   RepeatMode,
   QueueSource,
@@ -54,8 +53,6 @@ const { getUser } = usersSelectors
 const { getTrack } = tracksSelectors
 const { getCollection } = cacheCollectionsSelectors
 const getUserId = accountSelectors.getUserId
-
-const QUEUE_SUBSCRIBER_NAME = 'QUEUE'
 
 function* doesUserHaveTrackAccess(track: Nullable<Track>) {
   const getFeatureEnabled = yield* getContext('getFeatureEnabled')
@@ -446,26 +443,13 @@ export function* watchPrevious() {
   )
 }
 
-export function* watchAdd() {
-  yield* takeEvery(add.type, function* (action: ReturnType<typeof add>) {
-    const { entries } = action.payload
-
-    const subscribers = entries.map((entry) => ({
-      uid: QUEUE_SUBSCRIBER_NAME,
-      id: entry.id
-    }))
-    yield* put(cacheActions.subscribe(Kind.TRACKS, subscribers))
-  })
-}
-
 const sagas = () => {
   const sagas = [
     watchPlay,
     watchPause,
     watchNext,
     watchQueueAutoplay,
-    watchPrevious,
-    watchAdd
+    watchPrevious
   ]
   return sagas
 }

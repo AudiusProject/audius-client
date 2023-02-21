@@ -4,9 +4,8 @@ import {
   makeUid,
   makeUids,
   Uid,
-  cacheCollectionsSelectors,
+  cacheCollectionsActions,
   tracksSelectors,
-  cacheActions,
   usersSelectors,
   lineupActions as baseLineupActions,
   queueActions,
@@ -22,7 +21,6 @@ import {
   fork,
   select,
   take,
-  takeEvery,
   takeLatest,
   getContext,
   race
@@ -35,7 +33,6 @@ const { getSource, getUid, getPositions } = queueSelectors
 const { getUid: getCurrentPlayerTrackUid, getPlaying } = playerSelectors
 const { getUsers } = usersSelectors
 const { getTrack, getTracks } = tracksSelectors
-const { getCollection } = cacheCollectionsSelectors
 
 const getEntryId = (entry) => `${entry.kind}:${entry.id}`
 
@@ -242,10 +239,14 @@ function* fetchLineupMetadatasAsync(
       // We rewrote the playlist tracks with new UIDs, so we need to update them
       // in the cache.
       if (collectionsToCache.length > 0) {
-        yield put(cacheActions.update(Kind.COLLECTIONS, collectionsToCache))
-      }
-      if (trackSubscriptions.length > 0) {
-        yield put(cacheActions.update(Kind.COLLECTIONS, [], trackSubscriptions))
+        yield put(
+          cacheCollectionsActions.updateCollections(
+            collectionsToCache.map((collection) => ({
+              id: collection.playlist_id,
+              changes: collection
+            }))
+          )
+        )
       }
       if (trackSubscribers.length > 0) {
         yield put(tracksActions.addUids({ uids: trackSubscribers }))
@@ -387,56 +388,7 @@ function* reset(
   sourceSelector,
   action
 ) {
-  const lineup = yield select(lineupSelector)
-  // Remove this lineup as a subscriber from all of its tracks and collections.
-  const subscriptionsToRemove = {} // keyed by kind
-  const source = sourceSelector ? yield select(sourceSelector) : lineupPrefix
-
-  for (const entry of lineup.entries) {
-    const { kind, uid } = entry
-    if (!subscriptionsToRemove[kind]) {
-      subscriptionsToRemove[kind] = [{ uid }]
-    } else {
-      subscriptionsToRemove[kind].push({ uid })
-    }
-    if (entry.kind === Kind.COLLECTIONS) {
-      const collection = yield select(getCollection, { uid: entry.uid })
-      const removeTrackIds = collection.playlist_contents.track_ids.map(
-        ({ track: trackId }, idx) => {
-          const trackUid = new Uid(
-            Kind.TRACKS,
-            trackId,
-            Uid.makeCollectionSourceId(source, collection.playlist_id),
-            idx
-          )
-          return { UID: trackUid.toString() }
-        }
-      )
-      subscriptionsToRemove[Kind.TRACKS] = (
-        subscriptionsToRemove[Kind.TRACKS] || []
-      ).concat(removeTrackIds)
-    }
-  }
-  yield all(
-    Object.keys(subscriptionsToRemove).map((kind) =>
-      put(cacheActions.unsubscribe(kind, subscriptionsToRemove[kind]))
-    )
-  )
-
   yield put(lineupActions.resetSucceeded(action))
-}
-
-function* add(action) {
-  if (action.entry && action.id) {
-    const { kind, uid } = action.entry
-    yield put(cacheActions.subscribe(kind, [{ uid, id: action.id }]))
-  }
-}
-
-function* remove(action) {
-  if (action.kind && action.uid) {
-    yield put(cacheActions.unsubscribe(action.kind, [{ uid: action.uid }]))
-  }
 }
 
 function* updateLineupOrder(lineupPrefix, sourceSelector, action) {
@@ -595,26 +547,6 @@ export class LineupSagas {
     }
   }
 
-  watchAdd = () => {
-    const instance = this
-    return function* () {
-      yield takeEvery(
-        baseLineupActions.addPrefix(instance.prefix, baseLineupActions.ADD),
-        add
-      )
-    }
-  }
-
-  watchRemove = () => {
-    const instance = this
-    return function* () {
-      yield takeEvery(
-        baseLineupActions.addPrefix(instance.prefix, baseLineupActions.REMOVE),
-        remove
-      )
-    }
-  }
-
   watchUpdateLineupOrder = () => {
     const instance = this
     return function* () {
@@ -652,8 +584,6 @@ export class LineupSagas {
       this.watchPauseTrack(),
       this.watchTogglePlay(),
       this.watchReset(),
-      this.watchAdd(),
-      this.watchRemove(),
       this.watchUpdateLineupOrder(),
       this.watchRefreshInView()
     ]

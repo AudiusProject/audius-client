@@ -7,14 +7,14 @@ import {
   accountActions,
   tracksActions,
   usersSelectors,
-  cacheActions,
   waitForAccount,
   actionChannelDispatcher,
   uploadActions,
   UploadType,
   ProgressStatus,
   uploadSelectors,
-  usersActions
+  usersActions,
+  cacheCollectionsActions
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { range } from 'lodash'
@@ -775,17 +775,10 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
         )
         // Create a cache entry and add it to the account so the playlist shows in the left nav
         yield put(
-          cacheActions.add(
-            Kind.COLLECTIONS,
-            [
-              {
-                id: confirmedPlaylist.playlist_id,
-                uid,
-                metadata: confirmedPlaylist
-              }
-            ],
-            /* replace= */ true // forces cache update
-          )
+          cacheCollectionsActions.addCollections({
+            collections: [confirmedPlaylist],
+            uids: { [uid]: confirmedPlaylist.playlist_id }
+          })
         )
         yield put(
           accountActions.addAccountPlaylist({
@@ -804,7 +797,6 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
             kind: isAlbum ? 'album' : 'playlist'
           })
         )
-        yield put(cacheActions.setExpired(Kind.USERS, userId))
 
         // Finally, add to the library
         yield call(addPlaylistsNotInLibrary)
@@ -984,7 +976,6 @@ function* uploadSingleTrack(track) {
 
   yield waitForAccount()
   const account = yield select(getAccountUser)
-  yield put(cacheActions.setExpired(Kind.USERS, account.user_id))
 
   if (confirmedTrack.download && confirmedTrack.download.is_downloadable) {
     yield put(tracksActions.checkIsDownloadable(confirmedTrack.track_id))
@@ -1093,8 +1084,6 @@ function* uploadMultipleTracks(tracks) {
       }
     }
   }
-
-  yield put(cacheActions.setExpired(Kind.USERS, account.user_id))
 }
 
 function* uploadTracksAsync(action) {

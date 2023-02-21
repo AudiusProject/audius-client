@@ -5,19 +5,18 @@ import {
   PlaylistLibrary,
   SmartCollectionVariant,
   User,
-  makeUid,
   makeKindId,
   formatShareText,
   accountSelectors,
   accountActions,
   cacheCollectionsSelectors,
   usersSelectors,
-  cacheActions,
   notificationsActions as notificationActions,
   getContext,
   collectionsSocialActions as socialActions,
   playlistLibraryActions,
-  playlistLibraryHelpers
+  playlistLibraryHelpers,
+  cacheCollectionsActions
 } from '@audius/common'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
 
@@ -87,15 +86,13 @@ export function* repostCollectionAsync(
   )
 
   yield* put(
-    cacheActions.update(Kind.COLLECTIONS, [
-      {
-        id: action.collectionId,
-        metadata: {
-          has_current_user_reposted: true,
-          repost_count: collection.repost_count + 1
-        }
+    cacheCollectionsActions.updateCollection({
+      id: action.collectionId,
+      changes: {
+        has_current_user_reposted: true,
+        repost_count: collection.repost_count + 1
       }
-    ])
+    })
   )
 }
 
@@ -194,15 +191,13 @@ export function* undoRepostCollectionAsync(
   )
 
   yield* put(
-    cacheActions.update(Kind.COLLECTIONS, [
-      {
-        id: action.collectionId,
-        metadata: {
-          has_current_user_reposted: false,
-          repost_count: collection.repost_count - 1
-        }
+    cacheCollectionsActions.updateCollection({
+      id: action.collectionId,
+      changes: {
+        has_current_user_reposted: false,
+        repost_count: collection.repost_count - 1
       }
-    ])
+    })
   )
 }
 
@@ -346,17 +341,6 @@ export function* saveCollectionAsync(
     )
   }
 
-  const subscribedUid = makeUid(
-    Kind.COLLECTIONS,
-    collection.playlist_id,
-    'account'
-  )
-  yield* put(
-    cacheActions.subscribe(Kind.COLLECTIONS, [
-      { uid: subscribedUid, id: collection.playlist_id }
-    ])
-  )
-
   yield* put(
     accountActions.addAccountPlaylist({
       id: collection.playlist_id,
@@ -366,15 +350,13 @@ export function* saveCollectionAsync(
     })
   )
   yield* put(
-    cacheActions.update(Kind.COLLECTIONS, [
-      {
-        id: action.collectionId,
-        metadata: {
-          has_current_user_saved: true,
-          save_count: collection.save_count + 1
-        }
+    cacheCollectionsActions.updateCollection({
+      id: action.collectionId,
+      changes: {
+        has_current_user_saved: true,
+        save_count: collection.save_count + 1
       }
-    ])
+    })
   )
   yield* put(socialActions.saveCollectionSucceeded(action.collectionId))
 }
@@ -485,15 +467,13 @@ export function* unsaveCollectionAsync(
     accountActions.removeAccountPlaylist({ collectionId: action.collectionId })
   )
   yield* put(
-    cacheActions.update(Kind.COLLECTIONS, [
-      {
-        id: action.collectionId,
-        metadata: {
-          has_current_user_saved: false,
-          save_count: collection.save_count - 1
-        }
+    cacheCollectionsActions.updateCollection({
+      id: action.collectionId,
+      changes: {
+        has_current_user_saved: false,
+        save_count: collection.save_count - 1
       }
-    ])
+    })
   )
   yield* put(socialActions.unsaveCollectionSucceeded(action.collectionId))
 }

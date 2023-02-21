@@ -1,19 +1,16 @@
 import {
-  Status,
   makeUids,
-  cacheActions,
-  cacheConfig,
-  FeatureFlags,
   Kind,
   usersActions,
-  tracksActions
+  tracksActions,
+  cacheCollectionsActions
 } from '@audius/common'
 import { invert, mapValues } from 'lodash'
-import { all, call, put, takeEvery, getContext } from 'redux-saga/effects'
+import { all, call, put } from 'redux-saga/effects'
 
-const { CACHE_PRUNE_MIN } = cacheConfig
 const { addUsers } = usersActions
 const { addTracks } = tracksActions
+const { addCollections } = cacheCollectionsActions
 
 const DEFAULT_ENTRY_TTL = 5 /* min */ * 60 /* seconds */ * 1000 /* ms */
 
@@ -140,14 +137,6 @@ function* retrieveFromSourceThenCache({
   idField,
   uids
 }) {
-  if (shouldSetLoading) {
-    yield put(
-      cacheActions.setStatus(
-        kind,
-        idsToFetch.map((id) => ({ id, status: Status.LOADING }))
-      )
-    )
-  }
   let metadatas = yield call(retrieveFromSource, idsToFetch)
   if (metadatas) {
     if (!Array.isArray(metadatas)) {
@@ -175,109 +164,23 @@ function* retrieveFromSourceThenCache({
       )
       return
     }
-
-    // Either add or update the cache. If we're doing a cache refresh post load, it should
-    // be an update.
-    const cacheMetadata = metadatas.map((m) => ({
-      id: m[idField],
-      uid: uids[m[idField]],
-      metadata: m
-    }))
-
-    yield call(
-      add,
-      kind,
-      cacheMetadata,
-      // Rewrite the cache entry if we forced retrieving it from source
-      deleteExistingEntry,
-      // Always cache it persistently
-      true
-    )
+    if (kind === Kind.COLLECTIONS) {
+      yield put(
+        addCollections({
+          collections: metadatas,
+          uids: mapValues(invert(uids), Number)
+        })
+      )
+      return
+    }
 
     // Perform any side effects
     yield call(onAfterAddToCache, metadatas)
-
-    yield put(
-      cacheActions.setStatus(
-        kind,
-        idsToFetch.map((id) => ({ id, status: Status.SUCCESS }))
-      )
-    )
-  } else {
-    yield put(
-      cacheActions.setStatus(
-        kind,
-        idsToFetch.map((id) => ({ id, status: Status.ERROR }))
-      )
-    )
-  }
-}
-
-export function* add(kind, entries, replace, persist) {
-  // // Get cached things that are confirming
-  // const confirmCalls = yield select(getConfirmCalls)
-  // const cache = yield select(getCache, { kind })
-  // const confirmCallsInCache = pick(
-  //   cache.entries,
-  //   Object.keys(confirmCalls).map((kindId) => getIdFromKindId(kindId))
-  // )
-  // const entriesToAdd = []
-  // const entriesToSubscribe = []
-  // entries.forEach((entry) => {
-  //   // If something is confirming and in the cache, we probably don't
-  //   // want to replace it (unless explicit) because we would lose client
-  //   // state, e.g. "has_current_user_reposted"
-  //   if (!replace && entry.id in confirmCallsInCache) {
-  //     entriesToSubscribe.push({ uid: entry.uid, id: entry.id })
-  //   } else {
-  //     entriesToAdd.push(entry)
-  //   }
-  // })
-  // if (entriesToAdd.length > 0) {
-  //   yield put(
-  //     cacheActions.addSucceeded({
-  //       kind,
-  //       entries: entriesToAdd,
-  //       replace,
-  //       persist
-  //     })
-  //   )
-  // }
-  // if (entriesToSubscribe.length > 0) {
-  //   yield put(cacheActions.subscribe(kind, entriesToSubscribe))
-  // }
-}
-
-// Adds entries but first checks if they are confirming.
-// If they are, don't add or else we could be in an inconsistent state.
-function* watchAdd() {
-  yield takeEvery(cacheActions.ADD, function* (action) {
-    const { kind, entries, replace, persist } = action
-    yield call(add, kind, entries, replace, persist)
-  })
-}
-
-function* initializeCacheType() {
-  const remoteConfig = yield getContext('remoteConfigInstance')
-  yield call(remoteConfig.waitForRemoteConfig)
-  const fastCache = yield call(
-    remoteConfig.getFeatureEnabled,
-    FeatureFlags.FAST_CACHE
-  )
-  const safeFastCache = yield call(
-    remoteConfig.getFeatureEnabled,
-    FeatureFlags.SAFE_FAST_CACHE
-  )
-
-  if (fastCache) {
-    yield put(cacheActions.setCacheType({ cacheType: 'fast' }))
-  } else if (safeFastCache) {
-    yield put(cacheActions.setCacheType({ cacheType: 'safe-fast' }))
   }
 }
 
 const sagas = () => {
-  return [initializeCacheType, watchAdd]
+  return []
 }
 
 export default sagas

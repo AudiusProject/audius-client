@@ -12,10 +12,11 @@ import {
   PlaylistOperations,
   tracksSelectors,
   usersSelectors,
-  cacheActions,
   getContext,
   audioRewardsPageActions,
-  usersActions
+  usersActions,
+  cacheCollectionsActions,
+  tracksActions
 } from '@audius/common'
 import { isEqual } from 'lodash'
 import {
@@ -105,18 +106,10 @@ function* createPlaylistAsync(action) {
 
   const subscribedUid = yield makeUid(Kind.COLLECTIONS, uid, 'account')
   yield put(
-    cacheActions.add(
-      Kind.COLLECTIONS,
-      [
-        {
-          id: playlist.playlist_id,
-          uid: subscribedUid,
-          metadata: { ...playlist, is_album: false }
-        }
-      ],
-      /* replace= */ true, // forces cache update
-      /* persistent cache */ false // Do not persistent cache since it's missing data
-    )
+    cacheCollectionsActions.addCollections({
+      collections: [{ ...playlist, is_album: false }],
+      uids: { [subscribedUid]: playlist.playlist_id }
+    })
   )
   const user = yield select(getUser, { id: userId })
   yield put(
@@ -193,13 +186,10 @@ function* confirmCreatePlaylist(uid, userId, formFields, source) {
         // On playlist creation, copy over all fields from the temp collection
         // to retain optimistically set fields.
         yield put(
-          cacheActions.add(Kind.COLLECTIONS, [
-            {
-              id: confirmedPlaylist.playlist_id,
-              uid: subscribedUid,
-              metadata: reformattedPlaylist
-            }
-          ])
+          cacheCollectionsActions.addCollections({
+            collections: [reformattedPlaylist],
+            uids: { [subscribedUid]: reformattedPlaylist.playlist_id }
+          })
         )
         const user = yield select(getUser, { id: userId })
         yield put(
@@ -295,12 +285,10 @@ function* editPlaylistAsync(action) {
     }
   }
   yield put(
-    cacheActions.update(Kind.COLLECTIONS, [
-      {
-        id: playlist.playlist_id,
-        metadata: playlist
-      }
-    ])
+    collectionActions.updateCollection({
+      id: playlist.playlist_id,
+      changes: playlist
+    })
   )
   yield put(collectionActions.editPlaylistSucceeded())
 }
@@ -334,15 +322,13 @@ function* confirmEditPlaylist(playlistId, userId, formFields) {
       function* (confirmedPlaylist) {
         // Update the cached collection so it no longer contains image upload artifacts
         yield put(
-          cacheActions.update(Kind.COLLECTIONS, [
-            {
-              id: confirmedPlaylist.playlist_id,
-              metadata: {
-                ...reformat(confirmedPlaylist, audiusBackendInstance),
-                artwork: {}
-              }
+          collectionActions.updateCollection({
+            id: confirmedPlaylist.playlist_id,
+            changes: {
+              ...reformat(confirmedPlaylist, audiusBackendInstance),
+              artwork: {}
             }
-          ])
+          })
         )
       },
       function* ({ error, timeout, message }) {
@@ -414,17 +400,12 @@ function* addTrackToPlaylistAsync(action) {
     playlist
   )
   yield put(
-    cacheActions.update(Kind.COLLECTIONS, [
-      {
-        id: playlist.playlist_id,
-        metadata: {
-          playlist_contents: playlist.playlist_contents
-        }
+    collectionActions.updateCollection({
+      id: playlist.playlist_id,
+      changes: {
+        playlist_contents: playlist.playlist_contents
       }
-    ])
-  )
-  yield put(
-    cacheActions.subscribe(Kind.TRACKS, [{ uid: trackUid, id: trackId }])
+    })
   )
   yield put(
     setOptimisticChallengeCompleted({
@@ -494,12 +475,10 @@ function* confirmAddTrackToPlaylist(
             )
           } else {
             yield put(
-              cacheActions.update(Kind.COLLECTIONS, [
-                {
-                  id: confirmedPlaylist.playlist_id,
-                  metadata: confirmedPlaylist
-                }
-              ])
+              collectionActions.updateCollection({
+                id: confirmedPlaylist.playlist_id,
+                changes: confirmedPlaylist
+              })
             )
           }
         }
@@ -586,14 +565,12 @@ function* removeTrackFromPlaylistAsync(action) {
     playlist
   )
   yield put(
-    cacheActions.update(Kind.COLLECTIONS, [
-      {
-        id: playlist.playlist_id,
-        metadata: {
-          playlist_contents: playlist.playlist_contents
-        }
+    collectionActions.updateCollection({
+      id: playlist.playlist_id,
+      changes: {
+        playlist_contents: playlist.playlist_contents
       }
-    ])
+    })
   )
 }
 
@@ -689,12 +666,10 @@ function* confirmRemoveTrackFromPlaylist(
           playlistId: confirmedPlaylistId
         })
         yield put(
-          cacheActions.update(Kind.COLLECTIONS, [
-            {
-              id: confirmedPlaylist.playlist_id,
-              metadata: confirmedPlaylist
-            }
-          ])
+          collectionActions.updateCollection({
+            id: confirmedPlaylist.playlist_id,
+            changes: confirmedPlaylist
+          })
         )
       },
       function* ({ error, timeout, message }) {
@@ -756,12 +731,10 @@ function* orderPlaylistAsync(action) {
     updatedPlaylist
   )
   yield put(
-    cacheActions.update(Kind.COLLECTIONS, [
-      {
-        id: updatedPlaylist.playlist_id,
-        metadata: updatedPlaylist
-      }
-    ])
+    collectionActions.updateCollection({
+      id: updatedPlaylist.playlist_id,
+      changes: updatedPlaylist
+    })
   )
 }
 
@@ -820,12 +793,10 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds, playlist) {
         })
 
         yield put(
-          cacheActions.update(Kind.COLLECTIONS, [
-            {
-              id: confirmedPlaylist.playlist_id,
-              metadata: confirmedPlaylist
-            }
-          ])
+          collectionActions.updateCollection({
+            id: confirmedPlaylist.playlist_id,
+            changes: confirmedPlaylist
+          })
         )
       },
       function* ({ error, timeout, message }) {
@@ -866,12 +837,10 @@ function* publishPlaylistAsync(action) {
   const playlist = yield select(getCollection, { id: playlistId })
   playlist._is_publishing = true
   yield put(
-    cacheActions.update(Kind.COLLECTIONS, [
-      {
-        id: playlistId,
-        metadata: { _is_publishing: true }
-      }
-    ])
+    collectionActions.updateCollection({
+      id: playlistId,
+      changes: { _is_publishing: true }
+    })
   )
 
   yield call(confirmPublishPlaylist, userId, playlistId, playlist)
@@ -903,12 +872,10 @@ function* confirmPublishPlaylist(userId, playlistId, playlist) {
         confirmedPlaylist.is_private = false
         confirmedPlaylist._is_publishing = false
         yield put(
-          cacheActions.update(Kind.COLLECTIONS, [
-            {
-              id: confirmedPlaylist.playlist_id,
-              metadata: confirmedPlaylist
-            }
-          ])
+          collectionActions.updateCollection({
+            id: confirmedPlaylist.playlist_id,
+            changes: confirmedPlaylist
+          })
         )
       },
       function* ({ error, timeout, message }) {
@@ -964,12 +931,10 @@ function* deletePlaylistAsync(action) {
     // from running immediately, which would leave
     // the playlist visible before it runs.
     yield put(
-      cacheActions.update(Kind.COLLECTIONS, [
-        {
-          id: playlistId,
-          metadata: { _marked_deleted: true }
-        }
-      ])
+      collectionActions.updateCollection({
+        id: playlistId,
+        changes: { _marked_deleted: true }
+      })
     )
     yield call(confirmDeletePlaylist, userId, playlistId)
   }
@@ -1001,19 +966,16 @@ function* confirmDeleteAlbum(playlistId, trackIds, userId) {
         // Optimistically mark everything as deleted
         yield all([
           put(
-            cacheActions.update(Kind.COLLECTIONS, [
-              {
-                id: playlistId,
-                metadata: { _marked_deleted: true }
-              }
-            ])
+            collectionActions.updateCollection({
+              id: playlistId,
+              changes: { _marked_deleted: true }
+            })
           ),
           put(
-            cacheActions.update(
-              Kind.TRACKS,
-              trackIds.map((t) => ({
-                id: t.track,
-                metadata: { _marked_deleted: true }
+            tracksActions.updateTracks(
+              trackIds.map((trackId) => ({
+                id: trackId,
+                changes: { _marked_deleted: true }
               }))
             )
           ),
@@ -1037,7 +999,7 @@ function* confirmDeleteAlbum(playlistId, trackIds, userId) {
       },
       function* () {
         console.debug(`Successfully deleted album ${playlistId}`)
-        yield put(cacheActions.remove(Kind.COLLECTIONS, [playlistId]))
+        yield put(cacheCollectionsActions.removeCollection(playlistId))
       },
       function* ({ error, timeout, message }) {
         console.error(`Failed to delete album ${playlistId}`)
@@ -1048,19 +1010,16 @@ function* confirmDeleteAlbum(playlistId, trackIds, userId) {
         ])
         yield all([
           put(
-            cacheActions.update(Kind.COLLECTIONS, [
-              {
-                id: playlistId,
-                metadata: { _marked_deleted: false }
-              }
-            ])
+            collectionActions.updateCollection({
+              id: playlistId,
+              changes: { _marked_deleted: false }
+            })
           ),
           put(
-            cacheActions.update(
-              Kind.TRACKS,
-              trackIds.map((t) => ({
-                id: t.track,
-                metadata: { _marked_deleted: false }
+            tracksActions.updateTracks(
+              trackIds.map((trackId) => ({
+                id: trackId,
+                changes: { _marked_deleted: false }
               }))
             )
           ),
@@ -1094,12 +1053,10 @@ function* confirmDeletePlaylist(userId, playlistId) {
         // Optimistically mark playlist as removed
         yield all([
           put(
-            cacheActions.update(Kind.COLLECTIONS, [
-              {
-                id: playlistId,
-                metadata: { _marked_deleted: true }
-              }
-            ])
+            collectionActions.updateCollection({
+              id: playlistId,
+              changes: { _marked_deleted: true }
+            })
           ),
           put(
             accountActions.removeAccountPlaylist({ collectionId: playlistId })
@@ -1122,7 +1079,7 @@ function* confirmDeletePlaylist(userId, playlistId) {
       },
       function* () {
         console.debug(`Successfully deleted playlist ${playlistId}`)
-        yield put(cacheActions.remove(Kind.COLLECTIONS, [playlistId]))
+        yield put(cacheCollectionsActions.removeCollection(playlistId))
       },
       function* ({ error, timeout, message }) {
         console.error(`Failed to delete playlist ${playlistId}`)
@@ -1132,12 +1089,10 @@ function* confirmDeletePlaylist(userId, playlistId) {
         ])
         yield all([
           put(
-            cacheActions.update(Kind.COLLECTIONS, [
-              {
-                id: playlistId,
-                metadata: { _marked_deleted: false }
-              }
-            ])
+            collectionActions.updateCollection({
+              id: playlistId,
+              changes: { _marked_deleted: false }
+            })
           ),
           put(
             accountActions.addAccountPlaylist({
@@ -1164,21 +1119,21 @@ function* confirmDeletePlaylist(userId, playlistId) {
 function* fetchRepostInfo(entries) {
   const userIds = []
   entries.forEach((entry) => {
-    if (entry.metadata.followee_reposts) {
-      entry.metadata.followee_reposts.forEach((repost) =>
-        userIds.push(repost.user_id)
-      )
+    if (entry.followee_reposts) {
+      entry.followee_reposts.forEach((repost) => userIds.push(repost.user_id))
     }
   })
   if (userIds.length > 0) {
     const { entries: users, uids } = yield call(fetchUsers, userIds)
 
     const updates = []
-    const subscriptions = []
     entries.forEach((entry) => {
-      const followeeRepostUsers = { id: entry.id, metadata: { _followees: [] } }
+      const followeeRepostUsers = {
+        id: entry.playlist_id,
+        metadata: { _followees: [] }
+      }
       const subscriptionUids = []
-      entry.metadata.followee_reposts.forEach((repost) => {
+      entry.followee_reposts.forEach((repost) => {
         followeeRepostUsers.metadata._followees.push({
           ...repost,
           ...users[repost.user_id]
@@ -1186,32 +1141,26 @@ function* fetchRepostInfo(entries) {
         subscriptionUids.push(uids[repost.user_id])
       })
       updates.push(followeeRepostUsers)
-      if (subscriptionUids.length > 0) {
-        subscriptions.push({
-          id: entry.id,
-          kind: Kind.USERS,
-          uids: subscriptionUids
-        })
-      }
     })
 
-    yield put(cacheActions.update(Kind.COLLECTIONS, updates, subscriptions))
+    yield put(collectionActions.updateCollection(updates))
   }
 }
 
 function* watchAdd() {
-  yield takeEvery(cacheActions.ADD_SUCCEEDED, function* (action) {
-    if (action.kind === Kind.COLLECTIONS) {
-      yield fork(fetchRepostInfo, action.entries)
+  yield takeEvery(
+    cacheCollectionsActions.addCollections.type,
+    function* (action) {
+      yield fork(fetchRepostInfo, action.payload.collections)
     }
-  })
+  )
 }
 
 function* watchFetchCoverArt() {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const inProgress = new Set()
   yield takeEvery(collectionActions.fetchCoverArt.type, function* (action) {
-    const { id, size } = action.permalink
+    const { id, size } = action.payload
     // Unique on id and size
     const key = `${id}-${size}`
     if (inProgress.has(key)) return
@@ -1240,18 +1189,15 @@ function* watchFetchCoverArt() {
         gateways
       )
       yield put(
-        cacheActions.update(Kind.COLLECTIONS, [
-          {
-            id,
-            metadata: {
-              ...collection,
-              _cover_art_sizes: {
-                ...collection._cover_art_sizes,
-                [coverArtSize || DefaultSizes.OVERRIDE]: url
-              }
+        collectionActions.updateCollection({
+          id,
+          changes: {
+            _cover_art_sizes: {
+              ...collection._cover_art_sizes,
+              [coverArtSize || DefaultSizes.OVERRIDE]: url
             }
           }
-        ])
+        })
       )
     } catch (e) {
       console.error(`Unable to fetch cover art for collection ${id}`, e)
