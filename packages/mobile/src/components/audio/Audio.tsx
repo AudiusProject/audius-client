@@ -428,7 +428,7 @@ export const Audio = () => {
           trackOwner.creator_node_endpoint
         )
         url = hlsUtils.generateM3U8Variants({
-          segments: track?.track_segments ?? [],
+          segments: track.track_segments ?? [],
           gateways: ownerGateways
         })
       }
@@ -449,10 +449,10 @@ export const Audio = () => {
       return {
         url,
         type: isM3u8 ? TrackType.HLS : TrackType.Default,
-        title: track?.title,
-        artist: trackOwner?.name,
-        genre: track?.genre,
-        date: track?.created_at,
+        title: track.title,
+        artist: trackOwner.name,
+        genre: track.genre,
+        date: track.created_at,
         artwork: imageUrl,
         duration: track?.duration
       }
