@@ -11,13 +11,13 @@ const { getUsers } = cacheUsersSelectors
 const { getPremiumTrackSignatureMap } = premiumContentSelectors
 
 export const usePremiumContentAccess = (track: Nullable<Partial<Track>>) => {
-  if (!track) {
-    return { isUserAccessTBD: false, doesUserHaveAccess: true }
-  }
-
   const premiumTrackSignatureMap = useSelector(getPremiumTrackSignatureMap)
 
   const { isUserAccessTBD, doesUserHaveAccess } = useMemo(() => {
+    if (!track) {
+      return { isUserAccessTBD: false, doesUserHaveAccess: true }
+    }
+
     const trackId = track.track_id
     const isPremium = track.is_premium
     const hasPremiumContentSignature =

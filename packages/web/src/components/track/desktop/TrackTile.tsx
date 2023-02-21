@@ -145,7 +145,6 @@ const TrackTile = memo(
       isTrack,
       trackId,
       doesUserHaveAccess,
-      setLockedContentId,
       setModalVisibility,
       onTogglePlay
     ])

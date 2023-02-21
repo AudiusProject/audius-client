@@ -452,13 +452,6 @@ export const PremiumTrackSection = ({
   className,
   buttonClassName
 }: PremiumTrackSectionProps) => {
-  console.log({
-    isLoading,
-    trackId,
-    premiumConditions,
-    doesUserHaveAccess,
-    isOwner
-  })
   const { isEnabled: isPremiumContentEnabled } = useFlag(
     FeatureFlags.PREMIUM_CONTENT_ENABLED
   )
