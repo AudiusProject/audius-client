@@ -489,10 +489,7 @@ export const useShareToStory = ({
       const isAddPhotoPermGrantedResult = await check(
         PERMISSIONS.IOS.PHOTO_LIBRARY_ADD_ONLY
       )
-      if (
-        isAddPhotoPermGrantedResult === RESULTS.DENIED ||
-        isAddPhotoPermGrantedResult === RESULTS.LIMITED
-      ) {
+      if (isAddPhotoPermGrantedResult !== RESULTS.GRANTED) {
         const permissionStatus = await request(
           PERMISSIONS.IOS.PHOTO_LIBRARY_ADD_ONLY
         )
@@ -500,12 +497,6 @@ export const useShareToStory = ({
           toast({ content: messages.addToPhotoLibraryDenied, type: 'error' })
           return
         }
-      } else if (
-        isAddPhotoPermGrantedResult === RESULTS.BLOCKED ||
-        isAddPhotoPermGrantedResult === RESULTS.UNAVAILABLE
-      ) {
-        toast({ content: messages.addToPhotoLibraryBlocked, type: 'error' })
-        return
       }
     }
     setSelectedPlatform('tiktok')
