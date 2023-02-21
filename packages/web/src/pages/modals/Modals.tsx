@@ -35,6 +35,7 @@ import { CreateChatModal } from 'pages/chat-page/components/CreateChatModal'
 import { getClient } from 'utils/clientUtil'
 
 import { AppModal } from './AppModal'
+import { LockedContentModal } from 'components/locked-content-modal/LockedContentModal'
 
 const appModalsMap = {
   Share: ShareModal,
@@ -87,6 +88,7 @@ const Modals = () => {
         </>
       )}
 
+      <LockedContentModal />
       <TipAudioModal />
       <BuyAudioModal />
       <TransactionDetailsModal />

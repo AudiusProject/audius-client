@@ -19,22 +19,15 @@ const messages = {
 export const PremiumContentLabel = ({
   premiumConditions,
   doesUserHaveAccess,
-  isOwner,
-  permalink
+  isOwner
 }: {
   premiumConditions?: Nullable<PremiumConditions>
   doesUserHaveAccess: boolean
   isOwner: boolean
-  permalink: string
 }) => {
   const { isEnabled: isPremiumContentEnabled } = useFlag(
     FeatureFlags.PREMIUM_CONTENT_ENABLED
   )
-  const dispatch = useDispatch()
-
-  const handleClick = useCallback(() => {
-    dispatch(pushRoute(permalink))
-  }, [dispatch, permalink])
 
   if (!isPremiumContentEnabled) {
     return null
@@ -44,7 +37,6 @@ export const PremiumContentLabel = ({
     return premiumConditions?.nft_collection ? (
       <div
         className={cn(styles.premiumContent, styles.topRightIconLabel)}
-        onClick={handleClick}
       >
         <IconCollectible className={styles.topRightIcon} />
         {messages.collectibleGated}
@@ -52,7 +44,6 @@ export const PremiumContentLabel = ({
     ) : (
       <div
         className={cn(styles.premiumContent, styles.topRightIconLabel)}
-        onClick={handleClick}
       >
         <IconSpecialAccess className={styles.topRightIcon} />
         {messages.specialAccess}
@@ -64,7 +55,6 @@ export const PremiumContentLabel = ({
     return (
       <div
         className={cn(styles.premiumContent, styles.topRightIconLabel)}
-        onClick={handleClick}
       >
         <IconUnlocked className={styles.topRightIcon} />
         {messages.unlocked}
@@ -76,7 +66,6 @@ export const PremiumContentLabel = ({
     return (
       <div
         className={cn(styles.premiumContent, styles.topRightIconLabel)}
-        onClick={handleClick}
       >
         <IconCollectible className={styles.topRightIcon} />
         {messages.collectibleGated}
@@ -87,7 +76,6 @@ export const PremiumContentLabel = ({
   return (
     <div
       className={cn(styles.premiumContent, styles.topRightIconLabel)}
-      onClick={handleClick}
     >
       <IconSpecialAccess className={styles.topRightIcon} />
       {messages.specialAccess}
