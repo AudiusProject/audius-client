@@ -1,6 +1,5 @@
 import { h } from 'preact'
 import { useState, useContext, useCallback, useEffect } from 'preact/hooks'
-import { getIsMp3StreamOn } from '../../util/getEnv'
 import usePlayback from '../../hooks/usePlayback'
 import CollectionPlayerCard from './CollectionPlayerCard'
 import { PauseContext } from '../pausedpopover/PauseProvider'
@@ -34,9 +33,7 @@ const CollectionPlayerContainer = ({
       if (activeTrack == null) {
         return null
       }
-      const mp3StreamUrl = getIsMp3StreamOn()
-        ? getTrackStreamEndpoint(activeTrack.id)
-        : undefined
+      const mp3StreamUrl = getTrackStreamEndpoint(activeTrack.id)
 
       return {
         segments: activeTrack.trackSegments,

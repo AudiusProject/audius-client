@@ -4,6 +4,7 @@
 import Hls from 'hls.js'
 
 import fetchCID from '../util/fetchCID'
+import { getIsMp3StreamOn } from '../util/getEnv'
 import { generateM3U8, generateM3U8Variants } from '../util/hlsUtil'
 
 export const AudioError = {
@@ -176,7 +177,7 @@ class AudioStream {
     },
     forceStreamSrc
   ) => {
-    if (forceStreamSrc) {
+    if (forceStreamSrc && (getIsMp3StreamOn() || !Hls.isSupported())) {
       // TODO: Test to make sure that this doesn't break anything
       this.stop()
       const prevVolume = this.audio.volume
