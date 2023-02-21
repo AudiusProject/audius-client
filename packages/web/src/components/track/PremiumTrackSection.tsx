@@ -247,7 +247,9 @@ const LockedPremiumTrackSection = ({
         </div>
         {renderLockedDescription()}
       </div>
-      <div className={cn(styles.premiumContentSectionButton, buttonClassName)}>{renderButton()}</div>
+      <div className={cn(styles.premiumContentSectionButton, buttonClassName)}>
+        {renderButton()}
+      </div>
     </div>
   )
 }
@@ -456,7 +458,7 @@ export const PremiumTrackSection = ({
     premiumConditions,
     doesUserHaveAccess,
     isOwner
-  });
+  })
   const { isEnabled: isPremiumContentEnabled } = useFlag(
     FeatureFlags.PREMIUM_CONTENT_ENABLED
   )
@@ -498,7 +500,9 @@ export const PremiumTrackSection = ({
 
   if (doesUserHaveAccess) {
     return (
-      <div className={cn(styles.premiumContentSection, fadeIn, wrapperClassName)}>
+      <div
+        className={cn(styles.premiumContentSection, fadeIn, wrapperClassName)}
+      >
         <UnlockedPremiumTrackSection
           premiumConditions={premiumConditions}
           followee={followee}
@@ -513,7 +517,9 @@ export const PremiumTrackSection = ({
 
   if (premiumTrackStatus === 'UNLOCKING') {
     return (
-      <div className={cn(styles.premiumContentSection, fadeIn, wrapperClassName)}>
+      <div
+        className={cn(styles.premiumContentSection, fadeIn, wrapperClassName)}
+      >
         <UnlockingPremiumTrackSection
           premiumConditions={premiumConditions}
           followee={followee}

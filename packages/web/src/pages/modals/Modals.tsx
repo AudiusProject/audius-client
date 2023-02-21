@@ -16,6 +16,7 @@ import EditTrackModal from 'components/edit-track/EditTrackModal'
 import EmbedModal from 'components/embed-modal/EmbedModal'
 import { FeatureFlagOverrideModal } from 'components/feature-flag-override-modal'
 import FirstUploadModal from 'components/first-upload-modal/FirstUploadModal'
+import { LockedContentModal } from 'components/locked-content-modal/LockedContentModal'
 import PasswordResetModal from 'components/password-reset/PasswordResetModal'
 import ServiceSelectionModal from 'components/service-selection/ServiceSelectionModal'
 import { ShareModal } from 'components/share-modal/ShareModal'
@@ -35,7 +36,6 @@ import { CreateChatModal } from 'pages/chat-page/components/CreateChatModal'
 import { getClient } from 'utils/clientUtil'
 
 import { AppModal } from './AppModal'
-import { LockedContentModal } from 'components/locked-content-modal/LockedContentModal'
 
 const appModalsMap = {
   Share: ShareModal,

@@ -1,11 +1,18 @@
 import { memo, MouseEvent, useCallback } from 'react'
 
-import { formatCount, pluralize, formatSeconds, premiumContentActions } from '@audius/common'
+import {
+  formatCount,
+  pluralize,
+  formatSeconds,
+  premiumContentActions
+} from '@audius/common'
 import { IconCrown, IconHidden } from '@audius/stems'
 import cn from 'classnames'
+import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconStar } from 'assets/img/iconStar.svg'
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
+import { useModalState } from 'common/hooks/useModalState'
 import Skeleton from 'components/skeleton/Skeleton'
 
 import { PremiumTrackCornerTag } from '../PremiumTrackCornerTag'
@@ -18,8 +25,6 @@ import {
 import { BottomRow } from './BottomRow'
 import { PremiumContentLabel } from './PremiumContentLabel'
 import styles from './TrackTile.module.css'
-import { useModalState } from 'common/hooks/useModalState'
-import { useDispatch } from 'react-redux'
 
 const { setLockedContentId } = premiumContentActions
 
@@ -106,11 +111,11 @@ const TrackTile = memo(
     const hasOrdering = order !== undefined
 
     const hidePlays = fieldVisibility
-    ? fieldVisibility.play_count === false
-    : false
+      ? fieldVisibility.play_count === false
+      : false
 
-  const showPremiumCornerTag =
-    !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
+    const showPremiumCornerTag =
+      !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
 
     const onClickTitleWrapper = useCallback(
       (e: MouseEvent) => {
@@ -125,14 +130,24 @@ const TrackTile = memo(
       if (isLoading || isDisabled) {
         return undefined
       }
-      
+
       if (isTrack && trackId && !doesUserHaveAccess) {
         dispatch(setLockedContentId({ id: trackId }))
         setModalVisibility(true)
       }
 
       return onTogglePlay
-    }, [isLoading, isDisabled, isTrack, trackId, doesUserHaveAccess, setLockedContentId, setModalVisibility, onTogglePlay])
+    }, [
+      dispatch,
+      isLoading,
+      isDisabled,
+      isTrack,
+      trackId,
+      doesUserHaveAccess,
+      setLockedContentId,
+      setModalVisibility,
+      onTogglePlay
+    ])
 
     return (
       <div

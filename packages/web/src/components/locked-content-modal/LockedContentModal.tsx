@@ -1,16 +1,34 @@
-import { useCallback } from "react"
-import { IconLock, Modal, ModalContent, ModalHeader, ModalTitle } from "@audius/stems"
-import { useModalState } from "common/hooks/useModalState"
-import { useSelector } from "react-redux"
-import { cacheTracksSelectors, cacheUsersSelectors, CommonState, premiumContentSelectors, SquareSizes, Track, usePremiumContentAccess, User } from "@audius/common"
-import { IconCollectible, IconSpecialAccess } from '@audius/stems'
+import { useCallback } from 'react'
+
+import {
+  cacheTracksSelectors,
+  cacheUsersSelectors,
+  CommonState,
+  premiumContentSelectors,
+  SquareSizes,
+  Track,
+  usePremiumContentAccess,
+  User
+} from '@audius/common'
+import {
+  IconLock,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  IconCollectible,
+  IconSpecialAccess
+} from '@audius/stems'
+import { useSelector } from 'react-redux'
+
+import { useModalState } from 'common/hooks/useModalState'
+import DynamicImage from 'components/dynamic-image/DynamicImage'
+import { PremiumTrackSection } from 'components/track/PremiumTrackSection'
+import UserBadges from 'components/user-badges/UserBadges'
+import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
+import { profilePage } from 'utils/route'
 
 import styles from './LockedContentModal.module.css'
-import { PremiumTrackSection } from "components/track/PremiumTrackSection"
-import { useTrackCoverArt } from "hooks/useTrackCoverArt"
-import DynamicImage from "components/dynamic-image/DynamicImage"
-import UserBadges from "components/user-badges/UserBadges"
-import { profilePage } from "utils/route"
 
 const { getUser } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
@@ -24,8 +42,12 @@ const messages = {
   specialAccess: 'SPECIAL ACCESS'
 }
 
-const TrackDetails = ({ track, owner }: { track: Track, owner: User }) => {
-  const { track_id: trackId, title, premium_conditions: premiumConditions } = track
+const TrackDetails = ({ track, owner }: { track: Track; owner: User }) => {
+  const {
+    track_id: trackId,
+    title,
+    premium_conditions: premiumConditions
+  } = track
   const image = useTrackCoverArt(
     trackId,
     track._cover_art_sizes ?? null,
@@ -45,15 +67,16 @@ const TrackDetails = ({ track, owner }: { track: Track, owner: User }) => {
       <div>
         <div className={styles.premiumContentLabel}>
           {isCollectibleGated ? <IconCollectible /> : <IconSpecialAccess />}
-          <span>{isCollectibleGated ? messages.collectibleGated : messages.specialAccess}</span>
+          <span>
+            {isCollectibleGated
+              ? messages.collectibleGated
+              : messages.specialAccess}
+          </span>
         </div>
         <p className={styles.trackTitle}>{title}</p>
         <div className={styles.trackOwner}>
           <span className={styles.by}>By</span>
-          <a
-            className={styles.trackOwnerName}
-            href={profilePage(owner.handle)}
-          >
+          <a className={styles.trackOwnerName} href={profilePage(owner.handle)}>
             {owner.name}
           </a>
           <UserBadges
@@ -97,7 +120,10 @@ export const LockedContentModal = () => {
         dismissButtonClassName={styles.modalHeaderDismissButton}
         showDismissButton
       >
-        <ModalTitle title={messages.howToUnlock} icon={<IconLock className={styles.modalTitleIcon} />} />
+        <ModalTitle
+          title={messages.howToUnlock}
+          icon={<IconLock className={styles.modalTitleIcon} />}
+        />
       </ModalHeader>
       <ModalContent>
         {track && track.premium_conditions && owner && (
@@ -113,7 +139,8 @@ export const LockedContentModal = () => {
               className={styles.premiumTrackSection}
               buttonClassName={styles.premiumTrackSectionButton}
             />
-          </div>)}
+          </div>
+        )}
       </ModalContent>
     </Modal>
   )
