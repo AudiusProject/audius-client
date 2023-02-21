@@ -19,7 +19,7 @@ import {
   Uid,
   formatUrlName,
   accountSelectors,
-  cacheCollectionsActions,
+  collectionsActions,
   lineupSelectors,
   notificationsSelectors,
   notificationsActions,
@@ -99,7 +99,7 @@ const {
   orderPlaylist,
   publishPlaylist,
   deletePlaylist
-} = cacheCollectionsActions
+} = collectionsActions
 
 const { getUserId, getAccountCollections } = accountSelectors
 

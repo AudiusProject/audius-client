@@ -3,14 +3,14 @@ import {
   Kind,
   usersActions,
   tracksActions,
-  cacheCollectionsActions
+  collectionsActions
 } from '@audius/common'
 import { invert, mapValues } from 'lodash'
 import { all, call, put } from 'redux-saga/effects'
 
 const { addUsers } = usersActions
 const { addTracks } = tracksActions
-const { addCollections } = cacheCollectionsActions
+const { addCollections } = collectionsActions
 
 const DEFAULT_ENTRY_TTL = 5 /* min */ * 60 /* seconds */ * 1000 /* ms */
 

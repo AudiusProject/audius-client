@@ -1,5 +1,5 @@
 import type { ID } from '@audius/common'
-import { cacheCollectionsSelectors, removeNullable } from '@audius/common'
+import { collectionsSelectors, removeNullable } from '@audius/common'
 
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useProxySelector } from 'app/hooks/useProxySelector'
@@ -12,7 +12,7 @@ import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 
 import { DownloadStatusIndicator } from './DownloadStatusIndicator'
 
-const { getCollection } = cacheCollectionsSelectors
+const { getCollection } = collectionsSelectors
 
 type CollectionDownloadIndicatorProps = {
   collectionId?: number

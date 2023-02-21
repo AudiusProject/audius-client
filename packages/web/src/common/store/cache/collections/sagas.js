@@ -7,15 +7,15 @@ import {
   squashNewLines,
   accountSelectors,
   accountActions,
-  cacheCollectionsSelectors,
-  cacheCollectionsActions as collectionActions,
+  collectionsSelectors,
+  collectionsActions as collectionActions,
   PlaylistOperations,
   tracksSelectors,
   usersSelectors,
   getContext,
   audioRewardsPageActions,
   usersActions,
-  cacheCollectionsActions,
+  collectionsActions,
   tracksActions
 } from '@audius/common'
 import { isEqual } from 'lodash'
@@ -45,7 +45,7 @@ import {
 } from './utils/retrieveCollections'
 const { getUser } = usersSelectors
 const { getTrack } = tracksSelectors
-const { getCollection } = cacheCollectionsSelectors
+const { getCollection } = collectionsSelectors
 const { getAccountUser, getUserId } = accountSelectors
 const { setOptimisticChallengeCompleted } = audioRewardsPageActions
 
@@ -106,7 +106,7 @@ function* createPlaylistAsync(action) {
 
   const subscribedUid = yield makeUid(Kind.COLLECTIONS, uid, 'account')
   yield put(
-    cacheCollectionsActions.addCollections({
+    collectionsActions.addCollections({
       collections: [{ ...playlist, is_album: false }],
       uids: { [subscribedUid]: playlist.playlist_id }
     })
@@ -186,7 +186,7 @@ function* confirmCreatePlaylist(uid, userId, formFields, source) {
         // On playlist creation, copy over all fields from the temp collection
         // to retain optimistically set fields.
         yield put(
-          cacheCollectionsActions.addCollections({
+          collectionsActions.addCollections({
             collections: [reformattedPlaylist],
             uids: { [subscribedUid]: reformattedPlaylist.playlist_id }
           })
@@ -999,7 +999,7 @@ function* confirmDeleteAlbum(playlistId, trackIds, userId) {
       },
       function* () {
         console.debug(`Successfully deleted album ${playlistId}`)
-        yield put(cacheCollectionsActions.removeCollection(playlistId))
+        yield put(collectionsActions.removeCollection(playlistId))
       },
       function* ({ error, timeout, message }) {
         console.error(`Failed to delete album ${playlistId}`)
@@ -1079,7 +1079,7 @@ function* confirmDeletePlaylist(userId, playlistId) {
       },
       function* () {
         console.debug(`Successfully deleted playlist ${playlistId}`)
-        yield put(cacheCollectionsActions.removeCollection(playlistId))
+        yield put(collectionsActions.removeCollection(playlistId))
       },
       function* ({ error, timeout, message }) {
         console.error(`Failed to delete playlist ${playlistId}`)
@@ -1148,12 +1148,9 @@ function* fetchRepostInfo(entries) {
 }
 
 function* watchAdd() {
-  yield takeEvery(
-    cacheCollectionsActions.addCollections.type,
-    function* (action) {
-      yield fork(fetchRepostInfo, action.payload.collections)
-    }
-  )
+  yield takeEvery(collectionsActions.addCollections.type, function* (action) {
+    yield fork(fetchRepostInfo, action.payload.collections)
+  })
 }
 
 function* watchFetchCoverArt() {

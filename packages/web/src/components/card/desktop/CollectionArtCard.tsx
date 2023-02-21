@@ -4,7 +4,7 @@ import {
   ID,
   SquareSizes,
   accountSelectors,
-  cacheCollectionsSelectors,
+  collectionsSelectors,
   usersSelectors,
   imageBlank as placeholderArt
 } from '@audius/common'
@@ -36,7 +36,7 @@ import { withNullGuard } from 'utils/withNullGuard'
 
 import styles from './CollectionArtCard.module.css'
 const { getUserFromCollection } = usersSelectors
-const { getCollection } = cacheCollectionsSelectors
+const { getCollection } = collectionsSelectors
 const getUserId = accountSelectors.getUserId
 
 type OwnProps = {

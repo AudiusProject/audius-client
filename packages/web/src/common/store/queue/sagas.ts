@@ -10,7 +10,7 @@ import {
   makeUid,
   Uid,
   accountSelectors,
-  cacheCollectionsSelectors,
+  collectionsSelectors,
   tracksSelectors,
   usersSelectors,
   queueActions,
@@ -51,7 +51,7 @@ const { getTrackId: getPlayerTrackId, getUid: getPlayerUid } = playerSelectors
 const { add, clear, next, pause, play, queueAutoplay, previous } = queueActions
 const { getUser } = usersSelectors
 const { getTrack } = tracksSelectors
-const { getCollection } = cacheCollectionsSelectors
+const { getCollection } = collectionsSelectors
 const getUserId = accountSelectors.getUserId
 
 function* doesUserHaveTrackAccess(track: Nullable<Track>) {

@@ -10,7 +10,7 @@ import {
   FavoriteType,
   Track,
   accountSelectors,
-  cacheCollectionsSelectors,
+  collectionsSelectors,
   usersSelectors,
   collectionsSocialActions,
   OverflowAction,
@@ -55,7 +55,7 @@ const {
   repostCollection,
   undoRepostCollection
 } = collectionsSocialActions
-const { getCollection, getTracksFromCollection } = cacheCollectionsSelectors
+const { getCollection, getTracksFromCollection } = collectionsSelectors
 const getUserId = accountSelectors.getUserId
 
 type ConnectedPlaylistTileProps = PlaylistTileProps &

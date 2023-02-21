@@ -8,7 +8,7 @@ import {
   Kind,
   makeUid,
   cacheActions,
-  cacheCollectionsSelectors,
+  collectionsSelectors,
   collectionPageLineupActions,
   collectionPageSelectors,
   queueSelectors,
@@ -22,7 +22,7 @@ import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useReachabilityEffect } from 'app/hooks/useReachabilityEffect'
 import { getOfflineTrackIds } from 'app/store/offline-downloads/selectors'
 
-const { getCollection } = cacheCollectionsSelectors
+const { getCollection } = collectionsSelectors
 const { getCollectionTracksLineup } = collectionPageSelectors
 const { makeGetTableMetadatas } = lineupSelectors
 const { getPositions } = queueSelectors

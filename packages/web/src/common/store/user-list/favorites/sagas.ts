@@ -3,7 +3,7 @@ import {
   Collection,
   FavoriteType,
   Track,
-  cacheCollectionsSelectors,
+  collectionsSelectors,
   tracksSelectors,
   UserListSagaFactory,
   favoritesUserListActions,
@@ -19,7 +19,7 @@ const { getId, getUserList, getUserIds, getFavoriteType } =
   favoritesUserListSelectors
 const { trackFavoriteError, playlistFavoriteError } = favoritesUserListActions
 const { getTrack } = tracksSelectors
-const { getCollection } = cacheCollectionsSelectors
+const { getCollection } = collectionsSelectors
 
 const getPlaylistFavorites = createUserListProvider<Collection>({
   getExistingEntity: getCollection,

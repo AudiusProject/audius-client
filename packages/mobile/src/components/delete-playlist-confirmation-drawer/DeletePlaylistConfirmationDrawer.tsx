@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react'
 
 import {
-  cacheCollectionsActions,
+  collectionsActions,
   deletePlaylistConfirmationModalUISelectors
 } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import ActionDrawer from 'app/components/action-drawer'
 import { useNavigation } from 'app/hooks/useNavigation'
 const { getPlaylistId } = deletePlaylistConfirmationModalUISelectors
-const { deletePlaylist } = cacheCollectionsActions
+const { deletePlaylist } = collectionsActions
 
 export const DeletePlaylistConfirmationDrawer = () => {
   const playlistId = useSelector(getPlaylistId)

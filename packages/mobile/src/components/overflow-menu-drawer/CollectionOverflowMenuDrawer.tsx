@@ -5,8 +5,8 @@ import {
   FavoriteSource,
   RepostSource,
   ShareSource,
-  cacheCollectionsActions,
-  cacheCollectionsSelectors,
+  collectionsActions,
+  collectionsSelectors,
   usersSelectors,
   collectionsSocialActions,
   createPlaylistModalUIActions,
@@ -33,8 +33,8 @@ const {
   shareCollection
 } = collectionsSocialActions
 const { getUser } = usersSelectors
-const { getCollection } = cacheCollectionsSelectors
-const { publishPlaylist } = cacheCollectionsActions
+const { getCollection } = collectionsSelectors
+const { publishPlaylist } = collectionsActions
 
 type Props = {
   render: (callbacks: OverflowActionCallbacks) => React.ReactNode

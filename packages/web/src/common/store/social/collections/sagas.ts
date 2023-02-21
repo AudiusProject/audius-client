@@ -9,14 +9,14 @@ import {
   formatShareText,
   accountSelectors,
   accountActions,
-  cacheCollectionsSelectors,
+  collectionsSelectors,
   usersSelectors,
   notificationsActions as notificationActions,
   getContext,
   collectionsSocialActions as socialActions,
   playlistLibraryActions,
   playlistLibraryHelpers,
-  cacheCollectionsActions
+  collectionsActions
 } from '@audius/common'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
 
@@ -32,7 +32,7 @@ import watchCollectionErrors from './errorSagas'
 const { update: updatePlaylistLibrary } = playlistLibraryActions
 const { removeFromPlaylistLibrary } = playlistLibraryHelpers
 const { getUser } = usersSelectors
-const { getCollections, getCollection } = cacheCollectionsSelectors
+const { getCollections, getCollection } = collectionsSelectors
 
 const { getPlaylistLibrary, getUserId } = accountSelectors
 
@@ -86,7 +86,7 @@ export function* repostCollectionAsync(
   )
 
   yield* put(
-    cacheCollectionsActions.updateCollection({
+    collectionsActions.updateCollection({
       id: action.collectionId,
       changes: {
         has_current_user_reposted: true,
@@ -191,7 +191,7 @@ export function* undoRepostCollectionAsync(
   )
 
   yield* put(
-    cacheCollectionsActions.updateCollection({
+    collectionsActions.updateCollection({
       id: action.collectionId,
       changes: {
         has_current_user_reposted: false,
@@ -350,7 +350,7 @@ export function* saveCollectionAsync(
     })
   )
   yield* put(
-    cacheCollectionsActions.updateCollection({
+    collectionsActions.updateCollection({
       id: action.collectionId,
       changes: {
         has_current_user_saved: true,
@@ -467,7 +467,7 @@ export function* unsaveCollectionAsync(
     accountActions.removeAccountPlaylist({ collectionId: action.collectionId })
   )
   yield* put(
-    cacheCollectionsActions.updateCollection({
+    collectionsActions.updateCollection({
       id: action.collectionId,
       changes: {
         has_current_user_saved: false,

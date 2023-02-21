@@ -8,7 +8,7 @@ import {
   PlaylistLibraryFolder,
   SmartCollectionVariant,
   accountSelectors,
-  cacheCollectionsActions,
+  collectionsActions,
   notificationsSelectors,
   collectionsSocialActions,
   playlistLibraryActions,
@@ -49,7 +49,7 @@ const {
 } = playlistLibraryHelpers
 const { saveSmartCollection } = collectionsSocialActions
 const { getPlaylistUpdates } = notificationsSelectors
-const { addTrackToPlaylist } = cacheCollectionsActions
+const { addTrackToPlaylist } = collectionsActions
 const {
   getAccountCollectibles,
   getAccountNavigationPlaylists,

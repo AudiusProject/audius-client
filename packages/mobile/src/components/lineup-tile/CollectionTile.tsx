@@ -18,7 +18,7 @@ import {
   ShareSource,
   FavoriteType,
   accountSelectors,
-  cacheCollectionsSelectors,
+  collectionsSelectors,
   usersSelectors,
   collectionsSocialActions,
   OverflowAction,
@@ -49,7 +49,7 @@ const {
   unsaveCollection
 } = collectionsSocialActions
 const { getUserFromCollection } = usersSelectors
-const { getCollection, getTracksFromCollection } = cacheCollectionsSelectors
+const { getCollection, getTracksFromCollection } = collectionsSelectors
 const getUserId = accountSelectors.getUserId
 
 export const CollectionTile = (props: LineupItemProps) => {

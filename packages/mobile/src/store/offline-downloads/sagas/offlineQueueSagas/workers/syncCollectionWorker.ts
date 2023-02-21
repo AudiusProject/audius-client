@@ -1,7 +1,7 @@
 import type { DownloadReason, ID } from '@audius/common'
 import {
   reachabilityActions,
-  cacheCollectionsSelectors,
+  collectionsSelectors,
   accountSelectors,
   getContext
 } from '@audius/common'
@@ -34,7 +34,7 @@ import {
 
 const { SET_UNREACHABLE } = reachabilityActions
 const { getUserId } = accountSelectors
-const { getCollection } = cacheCollectionsSelectors
+const { getCollection } = collectionsSelectors
 
 const isTrackFavoriteReason = (downloadReason: DownloadReason) =>
   downloadReason.is_from_favorites &&

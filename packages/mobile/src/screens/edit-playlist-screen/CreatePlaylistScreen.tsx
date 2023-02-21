@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { CreatePlaylistSource, cacheCollectionsActions } from '@audius/common'
+import { CreatePlaylistSource, collectionsActions } from '@audius/common'
 import type { FormikProps } from 'formik'
 import { Formik } from 'formik'
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
@@ -14,7 +14,7 @@ import { useToast } from 'app/hooks/useToast'
 import { PlaylistDescriptionInput } from './PlaylistDescriptionInput'
 import { PlaylistImageInput } from './PlaylistImageInput'
 import { PlaylistNameInput } from './PlaylistNameInput'
-const { createPlaylist } = cacheCollectionsActions
+const { createPlaylist } = collectionsActions
 
 const messages = {
   title: 'Create Playlist',

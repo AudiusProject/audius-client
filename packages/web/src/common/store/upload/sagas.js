@@ -14,7 +14,7 @@ import {
   ProgressStatus,
   uploadSelectors,
   usersActions,
-  cacheCollectionsActions
+  collectionsActions
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { range } from 'lodash'
@@ -775,7 +775,7 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
         )
         // Create a cache entry and add it to the account so the playlist shows in the left nav
         yield put(
-          cacheCollectionsActions.addCollections({
+          collectionsActions.addCollections({
             collections: [confirmedPlaylist],
             uids: { [uid]: confirmedPlaylist.playlist_id }
           })

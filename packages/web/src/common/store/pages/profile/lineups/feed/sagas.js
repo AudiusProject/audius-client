@@ -3,7 +3,7 @@ import {
   getIdFromKindId,
   getKindFromKindId,
   accountSelectors,
-  cacheCollectionsSelectors,
+  collectionsSelectors,
   tracksSelectors,
   profilePageSelectors,
   profilePageFeedLineupActions as feedActions,
@@ -20,7 +20,7 @@ import { waitForRead } from 'utils/sagaHelpers'
 import { retrieveUserReposts } from './retrieveUserReposts'
 const { getProfileUserId, getProfileFeedLineup } = profilePageSelectors
 const { getTracks } = tracksSelectors
-const { getCollections } = cacheCollectionsSelectors
+const { getCollections } = collectionsSelectors
 const { getUserId, getUserHandle } = accountSelectors
 
 function* getReposts({ offset, limit, handle }) {

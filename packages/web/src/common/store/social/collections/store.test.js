@@ -1,5 +1,5 @@
 import {
-  cacheCollectionsActions,
+  collectionsActions,
   collectionsSocialActions as actions
 } from '@audius/common'
 import { combineReducers } from 'redux'
@@ -41,7 +41,7 @@ describe('repost', () => {
       .dispatch(actions.repostCollection(1))
       .call(sagas.confirmRepostCollection, 2, 1, repostingUser)
       .put(
-        cacheCollectionsActions.updateCollection({
+        collectionsActions.updateCollection({
           id: 1,
           changes: {
             has_current_user_reposted: true,
@@ -80,7 +80,7 @@ describe('repost', () => {
       .dispatch(actions.undoRepostCollection(1))
       .call(sagas.confirmUndoRepostCollection, 2, 1, repostingUser)
       .put(
-        cacheCollectionsActions.updateCollection({
+        collectionsActions.updateCollection({
           id: 1,
           changes: {
             has_current_user_reposted: false,
@@ -129,7 +129,7 @@ describe('save', () => {
       .dispatch(actions.saveCollection(1))
       .call(sagas.confirmSaveCollection, 2, 1)
       .put(
-        cacheCollectionsActions.updateCollection({
+        collectionsActions.updateCollection({
           id: 1,
           changes: {
             has_current_user_saved: true,
@@ -176,7 +176,7 @@ describe('save', () => {
       .dispatch(actions.unsaveCollection(1))
       .call(sagas.confirmUnsaveCollection, 2, 1)
       .put(
-        cacheCollectionsActions.updateCollection({
+        collectionsActions.updateCollection({
           id: 1,
           changes: {
             has_current_user_saved: false,

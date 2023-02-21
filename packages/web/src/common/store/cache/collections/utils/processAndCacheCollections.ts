@@ -3,7 +3,7 @@ import {
   UserCollectionMetadata,
   getContext,
   CollectionMetadata,
-  cacheCollectionsActions
+  collectionsActions
 } from '@audius/common'
 import { put, call } from 'redux-saga/effects'
 
@@ -52,7 +52,7 @@ export function* processAndCacheCollections(
   }
 
   yield put(
-    cacheCollectionsActions.addCollections({
+    collectionsActions.addCollections({
       collections: reformattedCollections
     })
   )

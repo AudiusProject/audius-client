@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react'
 import type { Collection } from '@audius/common'
 import {
   SquareSizes,
-  cacheCollectionsActions,
+  collectionsActions,
   collectionPageLineupActions as tracksActions,
   createPlaylistModalUISelectors
 } from '@audius/common'
@@ -25,7 +25,7 @@ import { PlaylistNameInput } from './PlaylistNameInput'
 import type { PlaylistValues } from './types'
 const { getMetadata, getTracks } = createPlaylistModalUISelectors
 const { editPlaylist, orderPlaylist, removeTrackFromPlaylist } =
-  cacheCollectionsActions
+  collectionsActions
 
 const useStyles = makeStyles(({ spacing }) => ({
   footer: {

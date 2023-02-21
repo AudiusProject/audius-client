@@ -5,7 +5,7 @@ import {
   Collection,
   SquareSizes,
   accountSelectors,
-  cacheCollectionsActions,
+  collectionsActions,
   collectionPageSelectors,
   addToPlaylistUISelectors,
   newCollectionMetadata
@@ -27,7 +27,7 @@ import { getTempPlaylistId } from 'utils/tempPlaylistId'
 import styles from './AddToPlaylistModal.module.css'
 const { getTrackId, getTrackTitle } = addToPlaylistUISelectors
 const { getCollectionId } = collectionPageSelectors
-const { addTrackToPlaylist, createPlaylist } = cacheCollectionsActions
+const { addTrackToPlaylist, createPlaylist } = collectionsActions
 const getAccountWithOwnPlaylists = accountSelectors.getAccountWithOwnPlaylists
 
 const messages = {

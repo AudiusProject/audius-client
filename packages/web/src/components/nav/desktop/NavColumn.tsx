@@ -15,7 +15,7 @@ import {
   Status,
   accountSelectors,
   averageColorSelectors,
-  cacheCollectionsActions,
+  collectionsActions,
   notificationsSelectors,
   notificationsActions,
   collectionsSocialActions,
@@ -92,7 +92,7 @@ const { saveTrack } = tracksSocialActions
 const { saveCollection } = collectionsSocialActions
 const { toggleNotificationPanel, updatePlaylistLastViewedAt } =
   notificationsActions
-const { addTrackToPlaylist, createPlaylist } = cacheCollectionsActions
+const { addTrackToPlaylist, createPlaylist } = collectionsActions
 const { getNotificationPanelIsOpen, getNotificationUnviewedCount } =
   notificationsSelectors
 const getDominantColorsByTrack = averageColorSelectors.getDominantColorsByTrack

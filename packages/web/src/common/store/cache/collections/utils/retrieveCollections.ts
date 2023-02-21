@@ -6,7 +6,7 @@ import {
   Nullable,
   makeUid,
   accountSelectors,
-  cacheCollectionsSelectors,
+  collectionsSelectors,
   getContext
 } from '@audius/common'
 import { chunk } from 'lodash'
@@ -19,7 +19,7 @@ import { waitForRead } from 'utils/sagaHelpers'
 import { addTracksFromCollections } from './addTracksFromCollections'
 import { addUsersFromCollections } from './addUsersFromCollections'
 import { reformat } from './reformat'
-const { getCollections } = cacheCollectionsSelectors
+const { getCollections } = collectionsSelectors
 const getUserId = accountSelectors.getUserId
 
 function* markCollectionDeleted(
@@ -121,7 +121,7 @@ export function* retrieveCollection({
 }
 
 function* selectEntriesTimestamp(ids: (ID | string)[]) {
-  return yield* select(cacheCollectionsSelectors.getCollectionTimestamps, ids)
+  return yield* select(collectionsSelectors.getCollectionTimestamps, ids)
 }
 
 export function* retrieveCollectionByPermalink(
@@ -141,7 +141,7 @@ export function* retrieveCollectionByPermalink(
     ids: [permalink],
     selectFromCache: function* (permalinks: string[]) {
       const cachedCollections = yield* select(
-        cacheCollectionsSelectors.getCollections,
+        collectionsSelectors.getCollections,
         {
           permalinks
         }

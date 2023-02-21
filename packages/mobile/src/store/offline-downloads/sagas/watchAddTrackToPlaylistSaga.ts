@@ -1,4 +1,4 @@
-import { cacheCollectionsActions } from '@audius/common'
+import { collectionsActions } from '@audius/common'
 import { put, select, takeEvery } from 'typed-redux-saga'
 
 import { getCollectionDownloadStatus } from 'app/components/offline-downloads/CollectionDownloadStatusIndicator'
@@ -8,13 +8,13 @@ import { addOfflineEntries } from '../slice'
 
 export function* watchAddTrackToPlaylistSaga() {
   yield takeEvery(
-    cacheCollectionsActions.ADD_TRACK_TO_PLAYLIST,
+    collectionsActions.ADD_TRACK_TO_PLAYLIST,
     addOfflinePlaylistTrackIfNecessary
   )
 }
 
 function* addOfflinePlaylistTrackIfNecessary(
-  action: ReturnType<typeof cacheCollectionsActions.addTrackToPlaylist>
+  action: ReturnType<typeof collectionsActions.addTrackToPlaylist>
 ) {
   const { trackId, playlistId } = action
   const collectionId =

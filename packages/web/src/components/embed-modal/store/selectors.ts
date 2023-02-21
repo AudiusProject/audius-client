@@ -1,12 +1,12 @@
 import {
   PlayableType,
-  cacheCollectionsSelectors,
+  collectionsSelectors,
   tracksSelectors
 } from '@audius/common'
 
 import { AppState } from 'store/types'
 const { getTrack } = tracksSelectors
-const { getCollection } = cacheCollectionsSelectors
+const { getCollection } = collectionsSelectors
 
 export const getIsOpen = (state: AppState) =>
   state.application.ui.embedModal.isOpen

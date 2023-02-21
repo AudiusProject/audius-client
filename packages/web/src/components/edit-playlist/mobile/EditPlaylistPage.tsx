@@ -8,7 +8,7 @@ import {
   Nullable,
   RandomImage,
   accountSelectors,
-  cacheCollectionsActions,
+  collectionsActions,
   collectionPageLineupActions as tracksActions,
   createPlaylistModalUISelectors,
   createPlaylistModalUIActions as createPlaylistActions,
@@ -41,7 +41,7 @@ import styles from './EditPlaylistPage.module.css'
 import RemovePlaylistTrackDrawer from './RemovePlaylistTrackDrawer'
 const { getMetadata, getTracks } = createPlaylistModalUISelectors
 const { createPlaylist, editPlaylist, orderPlaylist, removeTrackFromPlaylist } =
-  cacheCollectionsActions
+  collectionsActions
 const getAccountUser = accountSelectors.getAccountUser
 
 const messages = {

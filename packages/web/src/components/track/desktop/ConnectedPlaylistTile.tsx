@@ -20,7 +20,7 @@ import {
   Name,
   Track,
   accountSelectors,
-  cacheCollectionsSelectors,
+  collectionsSelectors,
   usersSelectors,
   collectionsSocialActions,
   shareModalUIActions,
@@ -77,7 +77,7 @@ const {
   repostCollection,
   undoRepostCollection
 } = collectionsSocialActions
-const { getCollection, getTracksFromCollection } = cacheCollectionsSelectors
+const { getCollection, getTracksFromCollection } = collectionsSelectors
 const getUserHandle = accountSelectors.getUserHandle
 
 type OwnProps = {

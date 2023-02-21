@@ -3,10 +3,10 @@ import * as combinedCollectionSelectors from './combinedCollectionsSelectors'
 
 export {
   default as collectionsReducer,
-  actions as cacheCollectionsActions
+  actions as collectionsActions
 } from './collectionsSlice'
 
-export const cacheCollectionsSelectors = {
+export const collectionsSelectors = {
   ...baseCollectionSelectors,
   ...combinedCollectionSelectors
 }

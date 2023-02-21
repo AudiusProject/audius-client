@@ -4,7 +4,7 @@ import {
   SquareSizes,
   CreatePlaylistSource,
   accountSelectors,
-  cacheCollectionsActions,
+  collectionsActions,
   addToPlaylistUISelectors,
   newCollectionMetadata
 } from '@audius/common'
@@ -22,7 +22,7 @@ import { makeStyles, shadow } from 'app/styles'
 
 import type { ImageProps } from '../image/FastImage'
 
-const { addTrackToPlaylist, createPlaylist } = cacheCollectionsActions
+const { addTrackToPlaylist, createPlaylist } = collectionsActions
 const { getTrackId, getTrackTitle } = addToPlaylistUISelectors
 const { getAccountWithOwnPlaylists } = accountSelectors
 

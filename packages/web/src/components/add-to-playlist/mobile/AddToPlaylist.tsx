@@ -5,7 +5,7 @@ import {
   CreatePlaylistSource,
   Collection,
   accountSelectors,
-  cacheCollectionsActions,
+  collectionsActions,
   addToPlaylistUIActions,
   addToPlaylistUISelectors,
   newCollectionMetadata
@@ -30,7 +30,7 @@ import { withNullGuard } from 'utils/withNullGuard'
 import styles from './AddToPlaylist.module.css'
 const { getTrackId, getTrackTitle } = addToPlaylistUISelectors
 const { close } = addToPlaylistUIActions
-const { addTrackToPlaylist, createPlaylist } = cacheCollectionsActions
+const { addTrackToPlaylist, createPlaylist } = collectionsActions
 const { getAccountWithOwnPlaylists } = accountSelectors
 
 const messages = {

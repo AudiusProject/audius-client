@@ -8,7 +8,7 @@ import {
   ShareSource,
   CreatePlaylistSource,
   accountSelectors,
-  cacheCollectionsActions,
+  collectionsActions,
   collectionPageSelectors,
   tracksSocialActions,
   addToPlaylistUIActions,
@@ -29,7 +29,7 @@ const { requestOpen: openAddToPlaylist } = addToPlaylistUIActions
 const { saveTrack, unsaveTrack, repostTrack, undoRepostTrack, shareTrack } =
   tracksSocialActions
 const { getCollectionId } = collectionPageSelectors
-const { createPlaylist, addTrackToPlaylist } = cacheCollectionsActions
+const { createPlaylist, addTrackToPlaylist } = collectionsActions
 const { getAccountOwnedPlaylists } = accountSelectors
 
 const messages = {

@@ -4,8 +4,8 @@ import {
   ID,
   RepostSource,
   ShareSource,
-  cacheCollectionsActions,
-  cacheCollectionsSelectors,
+  collectionsActions,
+  collectionsSelectors,
   tracksSelectors,
   usersSelectors,
   notificationsSelectors,
@@ -60,8 +60,8 @@ const { unsubscribeUser } = notificationsActions
 const { getTrack } = tracksSelectors
 const { getUser } = usersSelectors
 const { getNotificationById } = notificationsSelectors
-const { getCollection } = cacheCollectionsSelectors
-const { publishPlaylist } = cacheCollectionsActions
+const { getCollection } = collectionsSelectors
+const { publishPlaylist } = collectionsActions
 
 type ConnectedMobileOverflowModalProps = {} & ReturnType<
   typeof mapStateToProps

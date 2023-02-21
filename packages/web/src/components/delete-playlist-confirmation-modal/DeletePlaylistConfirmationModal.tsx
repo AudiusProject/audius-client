@@ -1,7 +1,7 @@
 import { useCallback, useContext, useMemo } from 'react'
 
 import {
-  cacheCollectionsActions,
+  collectionsActions,
   deletePlaylistConfirmationModalUISelectors
 } from '@audius/common'
 import { push } from 'connected-react-router'
@@ -12,7 +12,7 @@ import ActionSheetModal from 'components/action-drawer/ActionDrawer'
 import { RouterContext } from 'components/animated-switch/RouterContextProvider'
 import { TRENDING_PAGE } from 'utils/route'
 const { getPlaylistId } = deletePlaylistConfirmationModalUISelectors
-const { deletePlaylist } = cacheCollectionsActions
+const { deletePlaylist } = collectionsActions
 
 const messages = {
   delete: 'Delete',

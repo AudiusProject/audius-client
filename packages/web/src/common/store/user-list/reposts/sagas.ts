@@ -2,7 +2,7 @@ import {
   ID,
   Collection,
   Track,
-  cacheCollectionsSelectors,
+  collectionsSelectors,
   tracksSelectors,
   RepostType,
   UserListSagaFactory,
@@ -18,7 +18,7 @@ const { getId, getRepostsType, getUserList, getUserIds } =
   repostsUserListSelectors
 const { trackRepostError, playlistRepostError } = repostsUserListActions
 const { getTrack } = tracksSelectors
-const { getCollection } = cacheCollectionsSelectors
+const { getCollection } = collectionsSelectors
 
 const getPlaylistReposts = createUserListProvider<Collection>({
   getExistingEntity: getCollection,

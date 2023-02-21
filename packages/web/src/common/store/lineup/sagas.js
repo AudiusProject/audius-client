@@ -4,7 +4,7 @@ import {
   makeUid,
   makeUids,
   Uid,
-  cacheCollectionsActions,
+  collectionsActions,
   tracksSelectors,
   usersSelectors,
   lineupActions as baseLineupActions,
@@ -240,7 +240,7 @@ function* fetchLineupMetadatasAsync(
       // in the cache.
       if (collectionsToCache.length > 0) {
         yield put(
-          cacheCollectionsActions.updateCollections(
+          collectionsActions.updateCollections(
             collectionsToCache.map((collection) => ({
               id: collection.playlist_id,
               changes: collection

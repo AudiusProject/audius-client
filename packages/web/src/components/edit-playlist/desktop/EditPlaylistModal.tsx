@@ -3,8 +3,8 @@ import { useCallback, useEffect, useState } from 'react'
 import {
   ID,
   accountActions,
-  cacheCollectionsActions,
-  cacheCollectionsSelectors
+  collectionsActions,
+  collectionsSelectors
 } from '@audius/common'
 import {
   IconPlaylists,
@@ -31,8 +31,8 @@ import { FEED_PAGE, getPathname, playlistPage } from 'utils/route'
 import zIndex from 'utils/zIndex'
 
 import styles from './EditPlaylistModal.module.css'
-const { deletePlaylist, editPlaylist } = cacheCollectionsActions
-const { getCollectionWithUser } = cacheCollectionsSelectors
+const { deletePlaylist, editPlaylist } = collectionsActions
+const { getCollectionWithUser } = collectionsSelectors
 const fetchSavedPlaylists = accountActions.fetchSavedPlaylists
 
 const messages = {
