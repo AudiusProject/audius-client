@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 
-import { getCollections } from 'store/cache/collections/selectors'
+import { getCollections } from 'store/collections/collectionsSelectors'
 import { getUser, getUsers } from 'store/users/usersSelectors'
 import { removeNullable } from 'utils/typeUtils'
 
@@ -73,19 +73,21 @@ export const getAccountWithCollections = createSelector(
     return {
       ...account,
       collections: [...userPlaylists]
-        .map((collection) =>
-          collections[collection.id] &&
-          !collections[collection.id]?._marked_deleted &&
-          !collections[collection.id]?.is_delete &&
-          collection.user.id in users &&
-          !users[collection.user.id].is_deactivated
+        .map((accountCollection) => {
+          const collection = collections[accountCollection.id]
+          if (!collection) return null
+          const { _marked_deleted, is_delete } = collection
+          return !_marked_deleted &&
+            !is_delete &&
+            accountCollection.user.id in users &&
+            !users[accountCollection.user.id].is_deactivated
             ? {
-                ...collections[collection.id],
-                ownerHandle: collection.user.handle,
-                ownerName: users[collection.user.id].name
+                ...collection,
+                ownerHandle: accountCollection.user.handle,
+                ownerName: users[accountCollection.user.id].name
               }
             : null
-        )
+        })
         .filter(removeNullable)
     }
   }
@@ -116,7 +118,7 @@ export const getUserPlaylists = createSelector(
     // If we haven't cached the collection (e.g. on first load), always return it.
     // If we have cached it and it's marked delete, don't return it bc we know better now.
     return playlists.filter(
-      (p) => !collections[p.id] || !collections[p.id]._marked_deleted
+      (p) => !collections[p.id] || !collections[p.id]?._marked_deleted
     )
   }
 )
@@ -126,7 +128,7 @@ export const getAccountCollections = createSelector(
   (accountCollections, collections) => {
     return Object.keys(accountCollections).reduce((acc, cur) => {
       const track = accountCollections[cur as unknown as number]
-      if (!collections[track.id] || collections[track.id]._marked_deleted)
+      if (!collections[track.id] || collections[track.id]?._marked_deleted)
         return acc
       return {
         ...acc,
@@ -175,9 +177,14 @@ export const getAccountWithNameSortedPlaylistsAndAlbums = createSelector(
   [getAccountWithCollections],
   (account) => {
     if (!account) return undefined
-    const nameSortedCollections = account.collections.sort((a, b) =>
-      a.playlist_name.toLowerCase().localeCompare(b.playlist_name.toLowerCase())
-    )
+    const nameSortedCollections = account.collections.sort((a, b) => {
+      if (!a.playlist_name && !b.playlist_name) return 0
+      if (!a.playlist_name) return -1
+      if (!b.playlist_name) return 1
+      return a.playlist_name
+        .toLowerCase()
+        .localeCompare(b.playlist_name.toLowerCase())
+    })
     return {
       ...account,
       playlists: nameSortedCollections.filter((c) => !c.is_album),

@@ -61,41 +61,36 @@ const countTrackIds = (playlistContents, trackId) => {
 /** CREATE PLAYLIST */
 
 function* watchCreatePlaylist() {
-  yield takeLatest(collectionActions.CREATE_PLAYLIST, createPlaylistAsync)
+  yield takeLatest(collectionActions.createPlaylist.type, createPlaylistAsync)
 }
 
 function* createPlaylistAsync(action) {
+  const { playlistId, formFields, source, initTrackId } = action.payload
   yield waitForWrite()
   // Potentially grab artwork from the initializing track.
-  if (action.initTrackId) {
-    const track = yield select(getTrack, { id: action.initTrackId })
-    action.formFields._cover_art_sizes = track._cover_art_sizes
-    action.formFields.cover_art_sizes = track.cover_art_sizes
+  if (initTrackId) {
+    const track = yield select(getTrack, { id: initTrackId })
+    formFields._cover_art_sizes = track._cover_art_sizes
+    formFields.cover_art_sizes = track.cover_art_sizes
   }
 
   const userId = yield select(getUserId)
-  const uid = action.playlistId
+  const uid = playlistId
   if (!userId) {
     yield put(signOnActions.openSignOn(false))
     return
   }
   yield put(collectionActions.createPlaylistRequested())
 
-  const playlist = { playlist_id: uid, ...action.formFields }
+  const playlist = { playlist_id: uid, ...formFields }
 
   const event = make(Name.PLAYLIST_START_CREATE, {
-    source: action.source,
+    source,
     artworkSource: playlist.artwork ? playlist.artwork.source : ''
   })
   yield put(event)
 
-  yield call(
-    confirmCreatePlaylist,
-    uid,
-    userId,
-    action.formFields,
-    action.source
-  )
+  yield call(confirmCreatePlaylist, uid, userId, formFields, source)
   playlist.playlist_id = uid
   playlist.playlist_owner_id = userId
   playlist.is_private = true
@@ -250,11 +245,11 @@ function* confirmCreatePlaylist(uid, userId, formFields, source) {
         })
         yield put(event)
         yield put(
-          collectionActions.createPlaylistFailed(
-            message,
-            { userId, formFields, source },
-            { error, timeout }
-          )
+          collectionActions.createPlaylistFailed({
+            error: message,
+            params: { userId, formFields, source },
+            metadata: { error, timeout }
+          })
         )
       }
     )
@@ -264,12 +259,13 @@ function* confirmCreatePlaylist(uid, userId, formFields, source) {
 /** EDIT PLAYLIST */
 
 function* watchEditPlaylist() {
-  yield takeLatest(collectionActions.EDIT_PLAYLIST, editPlaylistAsync)
+  yield takeLatest(collectionActions.editPlaylist.type, editPlaylistAsync)
 }
 
 function* editPlaylistAsync(action) {
+  const { playlistId, formFields } = action.payload
   yield waitForWrite()
-  action.formFields.description = squashNewLines(action.formFields.description)
+  formFields.description = squashNewLines(formFields.description)
 
   const userId = yield select(getUserId)
   if (!userId) {
@@ -280,16 +276,16 @@ function* editPlaylistAsync(action) {
   // Updated the stored account playlist shortcut
   yield put(
     accountActions.renameAccountPlaylist({
-      collectionId: action.playlistId,
-      name: action.formFields.playlist_name
+      collectionId: playlistId,
+      name: formFields.playlist_name
     })
   )
 
-  const playlist = { ...action.formFields }
+  const playlist = { ...formFields }
 
-  yield call(confirmEditPlaylist, action.playlistId, userId, playlist)
+  yield call(confirmEditPlaylist, playlistId, userId, playlist)
 
-  playlist.playlist_id = action.playlistId
+  playlist.playlist_id = playlistId
   if (playlist.artwork) {
     playlist._cover_art_sizes = {
       ...playlist._cover_art_sizes
@@ -351,11 +347,11 @@ function* confirmEditPlaylist(playlistId, userId, formFields) {
       },
       function* ({ error, timeout, message }) {
         yield put(
-          collectionActions.editPlaylistFailed(
-            message,
-            { playlistId, userId, formFields },
-            { error, timeout }
-          )
+          collectionActions.editPlaylistFailed({
+            error: message,
+            params: { playlistId, userId, formFields },
+            metadata: { error, timeout }
+          })
         )
       },
       (result) => (result.playlist_id ? result.playlist_id : playlistId)
@@ -367,12 +363,13 @@ function* confirmEditPlaylist(playlistId, userId, formFields) {
 
 function* watchAddTrackToPlaylist() {
   yield takeEvery(
-    collectionActions.ADD_TRACK_TO_PLAYLIST,
+    collectionActions.addTrackToPlaylist.type,
     addTrackToPlaylistAsync
   )
 }
 
 function* addTrackToPlaylistAsync(action) {
+  const { playlistId, trackId } = action.payload
   yield waitForWrite()
   const userId = yield select(getUserId)
   if (!userId) {
@@ -387,39 +384,32 @@ function* addTrackToPlaylistAsync(action) {
   const { collections } = yield call(
     retrieveCollections,
     userId,
-    [action.playlistId],
+    [playlistId],
     true
   )
-  const playlist = collections[action.playlistId]
+  const playlist = collections[playlistId]
 
-  const trackUid = makeUid(
-    Kind.TRACKS,
-    action.trackId,
-    `collection:${action.playlistId}`
-  )
+  const trackUid = makeUid(Kind.TRACKS, trackId, `collection:${playlistId}`)
   const currentBlockNumber = yield web3.eth.getBlockNumber()
   const currentBlock = yield web3.eth.getBlock(currentBlockNumber)
 
   playlist.playlist_contents = {
     track_ids: playlist.playlist_contents.track_ids.concat({
-      track: action.trackId,
+      track: trackId,
       metadata_time: currentBlock.timestamp,
       uid: trackUid
     })
   }
-  const count = countTrackIds(playlist.playlist_contents, action.trackId)
+  const count = countTrackIds(playlist.playlist_contents, trackId)
 
-  const event = make(Name.PLAYLIST_ADD, {
-    trackId: action.trackId,
-    playlistId: action.playlistId
-  })
+  const event = make(Name.PLAYLIST_ADD, { trackId, playlistId })
   yield put(event)
 
   yield call(
     confirmAddTrackToPlaylist,
     userId,
-    action.playlistId,
-    action.trackId,
+    playlistId,
+    trackId,
     count,
     playlist
   )
@@ -434,7 +424,7 @@ function* addTrackToPlaylistAsync(action) {
     ])
   )
   yield put(
-    cacheActions.subscribe(Kind.TRACKS, [{ uid: trackUid, id: action.trackId }])
+    cacheActions.subscribe(Kind.TRACKS, [{ uid: trackUid, id: trackId }])
   )
   yield put(
     setOptimisticChallengeCompleted({
@@ -517,11 +507,11 @@ function* confirmAddTrackToPlaylist(
       function* ({ error, timeout, message }) {
         // Fail Call
         yield put(
-          collectionActions.addTrackToPlaylistFailed(
-            message,
-            { userId, playlistId, trackId, count },
-            { error, timeout }
-          )
+          collectionActions.addTrackToPlaylistFailed({
+            error: message,
+            params: { userId, playlistId, trackId, count },
+            metadata: { error, timeout }
+          })
         )
       },
       (result) => (result.playlist_id ? result.playlist_id : playlistId),
@@ -540,12 +530,13 @@ function* confirmAddTrackToPlaylist(
 
 function* watchRemoveTrackFromPlaylist() {
   yield takeEvery(
-    collectionActions.REMOVE_TRACK_FROM_PLAYLIST,
+    collectionActions.removeTrackFromPlaylist.type,
     removeTrackFromPlaylistAsync
   )
 }
 
 function* removeTrackFromPlaylistAsync(action) {
+  const { playlistId, trackId, timestamp } = action.payload
   yield waitForWrite()
   const userId = yield select(getUserId)
   if (!userId) {
@@ -553,16 +544,16 @@ function* removeTrackFromPlaylistAsync(action) {
     return
   }
 
-  const playlist = yield select(getCollection, { id: action.playlistId })
+  const playlist = yield select(getCollection, { id: playlistId })
 
   // Find the index of the track based on the track's id and timestamp
   const index = playlist.playlist_contents.track_ids.findIndex((t) => {
-    if (t.track !== action.trackId) {
+    if (t.track !== trackId) {
       return false
     }
 
     if (t.metadata_time) {
-      if (t.metadata_time === action.timestamp) {
+      if (t.metadata_time === timestamp) {
         // entity manager is enabled
         return true
       } else {
@@ -570,7 +561,7 @@ function* removeTrackFromPlaylistAsync(action) {
       }
     }
 
-    if (t.time !== action.timestamp) {
+    if (t.time !== timestamp) {
       return false
     }
 
@@ -583,13 +574,13 @@ function* removeTrackFromPlaylistAsync(action) {
 
   const track = playlist.playlist_contents.track_ids[index]
   playlist.playlist_contents.track_ids.splice(index, 1)
-  const count = countTrackIds(playlist.playlist_contents, action.trackId)
+  const count = countTrackIds(playlist.playlist_contents, trackId)
 
   yield call(
     confirmRemoveTrackFromPlaylist,
     userId,
-    action.playlistId,
-    action.trackId,
+    playlistId,
+    trackId,
     track.time,
     count,
     playlist
@@ -709,11 +700,11 @@ function* confirmRemoveTrackFromPlaylist(
       function* ({ error, timeout, message }) {
         // Fail Call
         yield put(
-          collectionActions.removeTrackFromPlaylistFailed(
-            message,
-            { userId, playlistId, trackId, timestamp, count },
-            { error, timeout }
-          )
+          collectionActions.removeTrackFromPlaylistFailed({
+            error: message,
+            params: { userId, playlistId, trackId, timestamp, count },
+            metadata: { error, timeout }
+          })
         )
       },
       (result) => (result.playlist_id ? result.playlist_id : playlistId),
@@ -731,10 +722,11 @@ function* confirmRemoveTrackFromPlaylist(
 /** ORDER PLAYLIST */
 
 function* watchOrderPlaylist() {
-  yield takeEvery(collectionActions.ORDER_PLAYLIST, orderPlaylistAsync)
+  yield takeEvery(collectionActions.orderPlaylist.type, orderPlaylistAsync)
 }
 
 function* orderPlaylistAsync(action) {
+  const { playlistId, trackIdsAndTimes } = action.payload
   yield waitForWrite()
   const userId = yield select(getUserId)
   if (!userId) {
@@ -742,14 +734,14 @@ function* orderPlaylistAsync(action) {
     return
   }
 
-  const playlist = yield select(getCollection, { id: action.playlistId })
+  const playlist = yield select(getCollection, { id: playlistId })
 
   const trackIds = []
   const updatedPlaylist = {
     ...playlist,
     playlist_contents: {
       ...playlist.playlist_contents,
-      track_ids: action.trackIdsAndTimes.map(({ id, time }) => {
+      track_ids: trackIdsAndTimes.map(({ id, time }) => {
         trackIds.push(id)
         return { track: id, time }
       })
@@ -759,7 +751,7 @@ function* orderPlaylistAsync(action) {
   yield call(
     confirmOrderPlaylist,
     userId,
-    action.playlistId,
+    playlistId,
     trackIds,
     updatedPlaylist
   )
@@ -839,11 +831,11 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds, playlist) {
       function* ({ error, timeout, message }) {
         // Fail Call
         yield put(
-          collectionActions.orderPlaylistFailed(
-            message,
-            { userId, playlistId, trackIds },
-            { error, timeout }
-          )
+          collectionActions.orderPlaylistFailed({
+            error: message,
+            params: { userId, playlistId, trackIds },
+            metadata: { error, timeout }
+          })
         )
       },
       (result) => (result.playlist_id ? result.playlist_id : playlistId),
@@ -856,10 +848,11 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds, playlist) {
 /** PUBLISH PLAYLIST */
 
 function* watchPublishPlaylist() {
-  yield takeEvery(collectionActions.PUBLISH_PLAYLIST, publishPlaylistAsync)
+  yield takeEvery(collectionActions.publishPlaylist.type, publishPlaylistAsync)
 }
 
 function* publishPlaylistAsync(action) {
+  const { playlistId } = action.payload
   yield waitForWrite()
   const userId = yield select(getUserId)
   if (!userId) {
@@ -867,21 +860,21 @@ function* publishPlaylistAsync(action) {
     return
   }
 
-  const event = make(Name.PLAYLIST_MAKE_PUBLIC, { id: action.playlistId })
+  const event = make(Name.PLAYLIST_MAKE_PUBLIC, { id: playlistId })
   yield put(event)
 
-  const playlist = yield select(getCollection, { id: action.playlistId })
+  const playlist = yield select(getCollection, { id: playlistId })
   playlist._is_publishing = true
   yield put(
     cacheActions.update(Kind.COLLECTIONS, [
       {
-        id: playlist.playlist_id,
+        id: playlistId,
         metadata: { _is_publishing: true }
       }
     ])
   )
 
-  yield call(confirmPublishPlaylist, userId, action.playlistId, playlist)
+  yield call(confirmPublishPlaylist, userId, playlistId, playlist)
 }
 
 function* confirmPublishPlaylist(userId, playlistId, playlist) {
@@ -921,11 +914,11 @@ function* confirmPublishPlaylist(userId, playlistId, playlist) {
       function* ({ error, timeout, message }) {
         // Fail Call
         yield put(
-          collectionActions.publishPlaylistFailed(
-            message,
-            { userId, playlistId },
-            { error, timeout }
-          )
+          collectionActions.publishPlaylistFailed({
+            error: message,
+            params: { userId, playlistId },
+            metadata: { error, timeout }
+          })
         )
       },
       (result) => (result.playlist_id ? result.playlist_id : playlistId)
@@ -936,10 +929,11 @@ function* confirmPublishPlaylist(userId, playlistId, playlist) {
 /** DELETE PLAYLIST */
 
 function* watchDeletePlaylist() {
-  yield takeEvery(collectionActions.DELETE_PLAYLIST, deletePlaylistAsync)
+  yield takeEvery(collectionActions.deletePlaylist.type, deletePlaylistAsync)
 }
 
 function* deletePlaylistAsync(action) {
+  const { playlistId } = action.payload
   yield waitForWrite()
   const userId = yield select(getUserId)
   if (!userId) {
@@ -950,18 +944,18 @@ function* deletePlaylistAsync(action) {
   // Depending on whether the collection is an album
   // or playlist, we should either delete all the tracks
   // or just delete the collection.
-  const collection = yield select(getCollection, { id: action.playlistId })
+  const collection = yield select(getCollection, { id: playlistId })
   if (!collection) return
 
   const isAlbum = collection.is_album
   if (isAlbum) {
     const trackIds = collection.playlist_contents.track_ids
 
-    const event = make(Name.DELETE, { kind: 'album', id: action.playlistId })
+    const event = make(Name.DELETE, { kind: 'album', id: playlistId })
     yield put(event)
-    yield call(confirmDeleteAlbum, action.playlistId, trackIds, userId)
+    yield call(confirmDeleteAlbum, playlistId, trackIds, userId)
   } else {
-    const event = make(Name.DELETE, { kind: 'playlist', id: action.playlistId })
+    const event = make(Name.DELETE, { kind: 'playlist', id: playlistId })
     yield put(event)
 
     // Preemptively mark the playlist as deleted.
@@ -972,12 +966,12 @@ function* deletePlaylistAsync(action) {
     yield put(
       cacheActions.update(Kind.COLLECTIONS, [
         {
-          id: action.playlistId,
+          id: playlistId,
           metadata: { _marked_deleted: true }
         }
       ])
     )
-    yield call(confirmDeletePlaylist, userId, action.playlistId)
+    yield call(confirmDeletePlaylist, userId, playlistId)
   }
 
   const user = yield select(getUser, { id: userId })
@@ -986,7 +980,7 @@ function* deletePlaylistAsync(action) {
       id: userId,
       changes: {
         _collectionIds: (user._collectionIds || []).filter(
-          (cId) => cId !== action.playlistId
+          (cId) => cId !== playlistId
         )
       }
     })
@@ -1080,11 +1074,11 @@ function* confirmDeleteAlbum(playlistId, trackIds, userId) {
           )
         ])
         yield put(
-          collectionActions.deletePlaylistFailed(
-            message,
-            { playlistId, trackIds, userId },
-            { error, timeout }
-          )
+          collectionActions.deletePlaylistFailed({
+            error: message,
+            params: { playlistId, trackIds, userId },
+            metadata: { error, timeout }
+          })
         )
       }
     )
@@ -1155,11 +1149,11 @@ function* confirmDeletePlaylist(userId, playlistId) {
           )
         ])
         yield put(
-          collectionActions.deletePlaylistFailed(
-            message,
-            { playlistId, userId },
-            { error, timeout }
-          )
+          collectionActions.deletePlaylistFailed({
+            error: message,
+            params: { playlistId, userId },
+            metadata: { error, timeout }
+          })
         )
       },
       (result) => (result.playlist_id ? result.playlist_id : playlistId)
@@ -1208,15 +1202,6 @@ function* fetchRepostInfo(entries) {
 function* watchAdd() {
   yield takeEvery(cacheActions.ADD_SUCCEEDED, function* (action) {
     if (action.kind === Kind.COLLECTIONS) {
-      const collectionPermalinksToIds = {}
-      action.entries
-        .filter((entry) => !!entry.metadata.permalink)
-        .forEach((entry) => {
-          collectionPermalinksToIds[entry.metadata.permalink] = entry.id
-        })
-      yield put(
-        collectionActions.setCollectionPermalinks(collectionPermalinksToIds)
-      )
       yield fork(fetchRepostInfo, action.entries)
     }
   })
@@ -1225,60 +1210,55 @@ function* watchAdd() {
 function* watchFetchCoverArt() {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const inProgress = new Set()
-  yield takeEvery(
-    collectionActions.FETCH_COVER_ART,
-    function* ({ collectionId, size }) {
-      // Unique on id and size
-      const key = `${collectionId}-${size}`
-      if (inProgress.has(key)) return
-      inProgress.add(key)
+  yield takeEvery(collectionActions.fetchCoverArt.type, function* (action) {
+    const { id, size } = action.permalink
+    // Unique on id and size
+    const key = `${id}-${size}`
+    if (inProgress.has(key)) return
+    inProgress.add(key)
 
-      try {
-        const collection = yield select(getCollection, { id: collectionId })
-        const user = yield select(getUser, { id: collection.playlist_owner_id })
-        if (
-          !collection ||
-          !user ||
-          (!collection.cover_art_sizes && !collection.cover_art)
-        )
-          return
+    try {
+      const collection = yield select(getCollection, { id })
+      const user = yield select(getUser, { id: collection.playlist_owner_id })
+      if (
+        !collection ||
+        !user ||
+        (!collection.cover_art_sizes && !collection.cover_art)
+      )
+        return
 
-        const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
-          user.creator_node_endpoint
-        )
-        const multihash = collection.cover_art_sizes || collection.cover_art
-        const coverArtSize =
-          multihash === collection.cover_art_sizes ? size : null
-        const url = yield call(
-          audiusBackendInstance.getImageUrl,
-          multihash,
-          coverArtSize,
-          gateways
-        )
-        yield put(
-          cacheActions.update(Kind.COLLECTIONS, [
-            {
-              id: collectionId,
-              metadata: {
-                ...collection,
-                _cover_art_sizes: {
-                  ...collection._cover_art_sizes,
-                  [coverArtSize || DefaultSizes.OVERRIDE]: url
-                }
+      const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
+        user.creator_node_endpoint
+      )
+      const multihash = collection.cover_art_sizes || collection.cover_art
+      const coverArtSize =
+        multihash === collection.cover_art_sizes ? size : null
+      const url = yield call(
+        audiusBackendInstance.getImageUrl,
+        multihash,
+        coverArtSize,
+        gateways
+      )
+      yield put(
+        cacheActions.update(Kind.COLLECTIONS, [
+          {
+            id,
+            metadata: {
+              ...collection,
+              _cover_art_sizes: {
+                ...collection._cover_art_sizes,
+                [coverArtSize || DefaultSizes.OVERRIDE]: url
               }
             }
-          ])
-        )
-      } catch (e) {
-        console.error(
-          `Unable to fetch cover art for collection ${collectionId}`,
-          e
-        )
-      } finally {
-        inProgress.delete(key)
-      }
+          }
+        ])
+      )
+    } catch (e) {
+      console.error(`Unable to fetch cover art for collection ${id}`, e)
+    } finally {
+      inProgress.delete(key)
     }
-  )
+  })
 }
 
 export default function sagas() {

@@ -359,7 +359,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     editPlaylist: (playlistId: ID) => dispatch(openEditPlaylist(playlistId)),
     deletePlaylist: (playlistId: ID) =>
       dispatch(openDeletePlaylist({ playlistId })),
-    publishPlaylist: (playlistId: ID) => dispatch(publishPlaylist(playlistId)),
+    publishPlaylist: (playlistId: ID) =>
+      dispatch(publishPlaylist({ playlistId })),
 
     // Users
     follow: (userId: ID) => dispatch(followUser(userId, FollowSource.OVERFLOW)),

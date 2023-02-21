@@ -52,20 +52,26 @@ const AddToPlaylistModal = () => {
   const [searchValue, setSearchValue] = useState('')
 
   const filteredPlaylists = useMemo(() => {
-    return (account?.playlists ?? []).filter(
-      (playlist: Collection) =>
-        // Don't allow adding to this playlist if already on this playlist's page.
-        playlist.playlist_id !== currentCollectionId &&
-        (searchValue
-          ? playlist.playlist_name
-              .toLowerCase()
-              .includes(searchValue.toLowerCase())
-          : true)
+    return (
+      account?.playlists?.filter(
+        (playlist: Collection) =>
+          // Don't allow adding to this playlist if already on this playlist's page.
+          playlist.playlist_id !== currentCollectionId &&
+          (searchValue
+            ? playlist.playlist_name
+                .toLowerCase()
+                .includes(searchValue.toLowerCase())
+            : true)
+      ) ?? []
     )
   }, [searchValue, account, currentCollectionId])
 
   const handlePlaylistClick = (playlist: Collection) => {
-    dispatch(addTrackToPlaylist(trackId, playlist.playlist_id))
+    if (trackId) {
+      dispatch(
+        addTrackToPlaylist({ trackId, playlistId: playlist.playlist_id })
+      )
+    }
     if (account && trackTitle) {
       toast(
         <ToastLinkContent
@@ -85,9 +91,16 @@ const AddToPlaylistModal = () => {
     })
     const tempId = getTempPlaylistId()
     dispatch(
-      createPlaylist(tempId, metadata, CreatePlaylistSource.FROM_TRACK, trackId)
+      createPlaylist({
+        playlistId: tempId,
+        formFields: metadata,
+        source: CreatePlaylistSource.FROM_TRACK,
+        initTrackId: trackId
+      })
     )
-    dispatch(addTrackToPlaylist(trackId, tempId))
+    if (trackId) {
+      dispatch(addTrackToPlaylist({ trackId, playlistId: tempId }))
+    }
     if (account && trackTitle) {
       toast(
         <ToastLinkContent

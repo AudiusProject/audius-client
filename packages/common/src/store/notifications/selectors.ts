@@ -4,7 +4,7 @@ import { getAccountUser } from 'store/account/selectors'
 import {
   getCollection,
   getCollections
-} from 'store/cache/collections/selectors'
+} from 'store/collections/collectionsSelectors'
 import { CommonState } from 'store/commonStore'
 import { getTrack, getTracks } from 'store/tracks/tracksSelectors'
 import { getUser, getUsers } from 'store/users/usersSelectors'

@@ -1,9 +1,10 @@
 import { createSelector } from 'reselect'
 
-import { getCollections } from 'store/cache/collections/selectors'
+import { getCollections } from 'store/collections/collectionsSelectors'
 import { CommonState } from 'store/commonStore'
 import { getUsers } from 'store/users/usersSelectors'
 import { createShallowSelector } from 'utils/selectorHelpers'
+import { removeNullable } from 'utils/typeUtils'
 
 // Search Results selectors
 export const getBaseState = (state: CommonState) => state.pages.searchResults
@@ -38,6 +39,7 @@ const getSearchAlbums = (state: CommonState) =>
 export const makeGetSearchAlbums = () => {
   return createShallowSelector([getSearchAlbums, getUsers], (albums, users) =>
     Object.values(albums)
+      .filter(removeNullable)
       .map((album) => {
         return {
           ...album,
@@ -55,6 +57,7 @@ export const makeGetSearchPlaylists = () => {
     [getSearchPlaylists, getUsers],
     (playlists, users) =>
       Object.values(playlists)
+        .filter(removeNullable)
         .map((playlist) => {
           return {
             ...playlist,
@@ -62,6 +65,9 @@ export const makeGetSearchPlaylists = () => {
             trackCount: (playlist.playlist_contents.track_ids || []).length
           }
         })
-        .filter((playlist) => !!playlist.user && !playlist.user.is_deactivated)
+        .filter(
+          (playlist) =>
+            playlist && !!playlist.user && !playlist.user.is_deactivated
+        )
   )
 }

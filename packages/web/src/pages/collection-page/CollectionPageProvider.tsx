@@ -867,22 +867,24 @@ function mapDispatchToProps(dispatch: Dispatch) {
     updateLineupOrder: (updatedOrderIndices: any) =>
       dispatch(tracksActions.updateLineupOrder(updatedOrderIndices)),
     editPlaylist: (playlistId: number, formFields: any) =>
-      dispatch(editPlaylist(playlistId, formFields)),
+      dispatch(editPlaylist({ playlistId, formFields })),
     removeTrackFromPlaylist: (
       trackId: number,
       playlistId: number,
       uid: string,
       timestamp: number
     ) => {
-      dispatch(removeTrackFromPlaylist(trackId, playlistId, timestamp))
+      dispatch(removeTrackFromPlaylist({ trackId, playlistId, timestamp }))
       dispatch(tracksActions.remove(Kind.TRACKS, uid))
     },
     orderPlaylist: (playlistId: number, trackIds: any, trackUids: string[]) =>
-      dispatch(orderPlaylist(playlistId, trackIds, trackUids)),
+      dispatch(
+        orderPlaylist({ playlistId, trackIdsAndTimes: trackIds, trackUids })
+      ),
     publishPlaylist: (playlistId: number) =>
-      dispatch(publishPlaylist(playlistId)),
+      dispatch(publishPlaylist({ playlistId })),
     deletePlaylist: (playlistId: number) =>
-      dispatch(deletePlaylist(playlistId)),
+      dispatch(deletePlaylist({ playlistId })),
 
     saveCollection: (playlistId: number) =>
       dispatch(

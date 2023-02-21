@@ -291,7 +291,8 @@ const PlaylistLibrary = ({
     if (!account || !playlist) return null
     const { id, name } = playlist
     const url = playlistPage(playlist.user.handle, name, id)
-    const addTrack = (trackId: ID) => dispatch(addTrackToPlaylist(trackId, id))
+    const addTrack = (trackId: ID) =>
+      dispatch(addTrackToPlaylist({ trackId, playlistId: id }))
     const isOwner = playlist.user.handle === account.handle
     const hasUpdate = updatesSet.has(id)
     return (

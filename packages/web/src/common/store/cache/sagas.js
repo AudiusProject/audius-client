@@ -1,28 +1,17 @@
 import {
   Status,
   makeUids,
-  getIdFromKindId,
   cacheActions,
-  cacheSelectors,
   cacheConfig,
   FeatureFlags,
   Kind,
   usersActions,
   tracksActions
 } from '@audius/common'
-import { pick, invert, mapValues } from 'lodash'
-import {
-  all,
-  call,
-  put,
-  select,
-  takeEvery,
-  getContext
-} from 'redux-saga/effects'
+import { invert, mapValues } from 'lodash'
+import { all, call, put, takeEvery, getContext } from 'redux-saga/effects'
 
-import { getConfirmCalls } from 'common/store/confirmer/selectors'
 const { CACHE_PRUNE_MIN } = cacheConfig
-const { getCache } = cacheSelectors
 const { addUsers } = usersActions
 const { addTracks } = tracksActions
 
@@ -225,39 +214,38 @@ function* retrieveFromSourceThenCache({
 }
 
 export function* add(kind, entries, replace, persist) {
-  // Get cached things that are confirming
-  const confirmCalls = yield select(getConfirmCalls)
-  const cache = yield select(getCache, { kind })
-  const confirmCallsInCache = pick(
-    cache.entries,
-    Object.keys(confirmCalls).map((kindId) => getIdFromKindId(kindId))
-  )
-
-  const entriesToAdd = []
-  const entriesToSubscribe = []
-  entries.forEach((entry) => {
-    // If something is confirming and in the cache, we probably don't
-    // want to replace it (unless explicit) because we would lose client
-    // state, e.g. "has_current_user_reposted"
-    if (!replace && entry.id in confirmCallsInCache) {
-      entriesToSubscribe.push({ uid: entry.uid, id: entry.id })
-    } else {
-      entriesToAdd.push(entry)
-    }
-  })
-  if (entriesToAdd.length > 0) {
-    yield put(
-      cacheActions.addSucceeded({
-        kind,
-        entries: entriesToAdd,
-        replace,
-        persist
-      })
-    )
-  }
-  if (entriesToSubscribe.length > 0) {
-    yield put(cacheActions.subscribe(kind, entriesToSubscribe))
-  }
+  // // Get cached things that are confirming
+  // const confirmCalls = yield select(getConfirmCalls)
+  // const cache = yield select(getCache, { kind })
+  // const confirmCallsInCache = pick(
+  //   cache.entries,
+  //   Object.keys(confirmCalls).map((kindId) => getIdFromKindId(kindId))
+  // )
+  // const entriesToAdd = []
+  // const entriesToSubscribe = []
+  // entries.forEach((entry) => {
+  //   // If something is confirming and in the cache, we probably don't
+  //   // want to replace it (unless explicit) because we would lose client
+  //   // state, e.g. "has_current_user_reposted"
+  //   if (!replace && entry.id in confirmCallsInCache) {
+  //     entriesToSubscribe.push({ uid: entry.uid, id: entry.id })
+  //   } else {
+  //     entriesToAdd.push(entry)
+  //   }
+  // })
+  // if (entriesToAdd.length > 0) {
+  //   yield put(
+  //     cacheActions.addSucceeded({
+  //       kind,
+  //       entries: entriesToAdd,
+  //       replace,
+  //       persist
+  //     })
+  //   )
+  // }
+  // if (entriesToSubscribe.length > 0) {
+  //   yield put(cacheActions.subscribe(kind, entriesToSubscribe))
+  // }
 }
 
 // Adds entries but first checks if they are confirming.
@@ -266,79 +254,6 @@ function* watchAdd() {
   yield takeEvery(cacheActions.ADD, function* (action) {
     const { kind, entries, replace, persist } = action
     yield call(add, kind, entries, replace, persist)
-  })
-}
-
-// Prune cache entries if there are no more subscribers.
-function* watchUnsubscribe() {
-  yield takeEvery(cacheActions.UNSUBSCRIBE, function* (action) {
-    const { kind, unsubscribers } = action
-
-    const cache = yield select(getCache, { kind })
-
-    // Remove all transitive subscriptions.
-    const transitiveSubscriptions = {} // keyed by Kind
-    unsubscribers.forEach((s) => {
-      const { id = cache.uids[s.uid] } = s
-      if (
-        id in cache.subscriptions &&
-        cache.subscribers[id] &&
-        cache.subscribers[id].size <= 1
-      ) {
-        cache.subscriptions[id].forEach((subscription) => {
-          if (!transitiveSubscriptions[subscription.kind]) {
-            transitiveSubscriptions[subscription.kind] = [
-              { uid: subscription.uid }
-            ]
-          } else {
-            transitiveSubscriptions[subscription.kind].push({
-              uid: subscription.uid
-            })
-          }
-        })
-      }
-    })
-    yield all(
-      Object.keys(transitiveSubscriptions).map((subscriptionKind) =>
-        put(
-          cacheActions.unsubscribe(
-            subscriptionKind,
-            transitiveSubscriptions[subscriptionKind]
-          )
-        )
-      )
-    )
-
-    yield put(cacheActions.unsubscribeSucceeded(kind, unsubscribers))
-  })
-}
-
-function* watchUnsubscribeSucceeded() {
-  yield takeEvery(cacheActions.UNSUBSCRIBE_SUCCEEDED, function* (action) {
-    const { kind, unsubscribers } = action
-    const cache = yield select(getCache, { kind })
-
-    const idsToRemove = []
-    unsubscribers.forEach((s) => {
-      const { id } = s
-      if (id && id in cache.subscribers && cache.subscribers[id].size === 0) {
-        idsToRemove.push(id)
-      }
-    })
-    if (idsToRemove.length > 0) {
-      yield put(cacheActions.remove(kind, idsToRemove))
-    }
-  })
-}
-
-function* watchRemove() {
-  yield takeEvery(cacheActions.REMOVE, function* (action) {
-    const { kind } = action
-    const cache = yield select(getCache, { kind })
-
-    if (cache && cache.idsToPrune && cache.idsToPrune.size >= CACHE_PRUNE_MIN) {
-      yield put(cacheActions.removeSucceeded(kind, [...cache.idsToPrune]))
-    }
   })
 }
 
@@ -362,13 +277,7 @@ function* initializeCacheType() {
 }
 
 const sagas = () => {
-  return [
-    initializeCacheType,
-    watchAdd,
-    watchUnsubscribe,
-    watchUnsubscribeSucceeded,
-    watchRemove
-  ]
+  return [initializeCacheType, watchAdd]
 }
 
 export default sagas

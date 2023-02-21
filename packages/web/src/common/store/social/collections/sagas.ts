@@ -177,6 +177,7 @@ export function* undoRepostCollectionAsync(
     ids: [action.collectionId]
   })
   const collection = collections[action.collectionId]
+  if (!collection) return
 
   const event = make(Name.UNDO_REPOST, {
     kind: collection.is_album ? 'album' : 'playlist',
@@ -322,6 +323,7 @@ export function* saveCollectionAsync(
     ids: [action.collectionId]
   })
   const collection = collections[action.collectionId]
+  if (!collection) return
   const user = yield* select(getUser, { id: collection.playlist_owner_id })
   if (!user) return
 
@@ -464,6 +466,7 @@ export function* unsaveCollectionAsync(
     ids: [action.collectionId]
   })
   const collection = collections[action.collectionId]
+  if (!collection) return
 
   const event = make(Name.UNFAVORITE, {
     kind: collection.is_album ? 'album' : 'playlist',

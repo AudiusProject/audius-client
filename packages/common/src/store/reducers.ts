@@ -1,16 +1,12 @@
 import { combineReducers } from 'redux'
 
-import { Kind } from '../models'
-
 import accountSlice from './account/slice'
 import averageColorReducer from './average-color/slice'
-import collectionsReducer from './cache/collections/reducer'
-import { CollectionsCacheState } from './cache/collections/types'
-import { asCache } from './cache/reducer'
 import cast from './cast/slice'
 import changePasswordReducer from './change-password/slice'
 import { ChangePasswordState } from './change-password/types'
 import collectiblesSlice from './collectibles/slice'
+import { collectionsReducer, CollectionsState } from './collections'
 import musicConfettiReducer, {
   MusicConfettiState
 } from './music-confetti/slice'
@@ -129,9 +125,7 @@ export const reducers = () => ({
   reachability,
 
   // Cache
-  // @ts-ignore
-  collections: asCache(collectionsReducer, Kind.COLLECTIONS),
-  // TODO: Fix type error
+  collections: collectionsReducer,
   tracks: tracksReducer,
   users: usersReducer,
 
@@ -242,7 +236,7 @@ export type CommonState = {
   // confirmer: ConfirmerState
 
   // Cache
-  collections: CollectionsCacheState
+  collections: CollectionsState
   tracks: TracksState
   users: UsersState
 

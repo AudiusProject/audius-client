@@ -1,6 +1,6 @@
 import { takeEvery, put, select } from 'typed-redux-saga'
 
-import { getCollection as getCollectionBase } from 'store/cache/collections/selectors'
+import { getCollection as getCollectionBase } from 'store/collections/collectionsSelectors'
 import { CommonState } from 'store/commonStore'
 import { getTrack as getTrackBase } from 'store/tracks/tracksSelectors'
 import { getUser as getUserBase } from 'store/users/usersSelectors'

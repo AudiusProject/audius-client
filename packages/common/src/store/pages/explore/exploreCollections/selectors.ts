@@ -1,6 +1,7 @@
-import { getCollections as getCachedCollections } from 'store/cache/collections/selectors'
+import { getCollections as getCachedCollections } from 'store/collections/collectionsSelectors'
 import { CommonState } from 'store/commonStore'
 import { getUsers } from 'store/users/usersSelectors'
+import { removeNullable } from 'utils/typeUtils'
 
 import { Collection, Status } from '../../../../models'
 import { ExploreCollectionsVariant } from '../types'
@@ -23,7 +24,9 @@ export const getCollections = (
   const collectionIds = baseState ? baseState.collectionIds : []
   const collections = getCachedCollections(state, { ids: collectionIds })
 
-  const collectionsList = collectionIds.map((id) => collections[id])
+  const collectionsList = collectionIds
+    .map((id) => collections[id])
+    .filter(removeNullable)
 
   const userIds = collectionsList.map((c: Collection) => c.playlist_owner_id)
   const users = getUsers(state, { ids: userIds })

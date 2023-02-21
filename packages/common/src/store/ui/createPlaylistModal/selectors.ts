@@ -1,4 +1,4 @@
-import { getCollection } from 'store/cache/collections/selectors'
+import { getCollection } from 'store/collections/collectionsSelectors'
 import { CommonState } from 'store/commonStore'
 import { getTracks as getCachedTracks } from 'store/tracks/tracksSelectors'
 import { getUsers } from 'store/users/usersSelectors'

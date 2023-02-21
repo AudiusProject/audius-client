@@ -1,6 +1,6 @@
 import moment from 'moment'
 
-import { getCollections } from 'store/cache/collections/selectors'
+import { getCollections } from 'store/collections/collectionsSelectors'
 import { CommonState } from 'store/commonStore'
 import { getUser, getUsers } from 'store/users/usersSelectors'
 import { removeNullable, createDeepEqualSelector } from 'utils'

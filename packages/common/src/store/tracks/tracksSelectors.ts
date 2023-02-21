@@ -72,11 +72,10 @@ export const getTracks = (
 }
 
 export const getTrackTimestamps = (state: CommonState, ids: ID[]) => {
-  const stuff = zipObject(
+  return zipObject(
     ids,
     ids.map((id) => state.tracks.timestamps[id] ?? null)
   )
-  return stuff
 }
 
 // We should simply just get tracks based on lineup-id

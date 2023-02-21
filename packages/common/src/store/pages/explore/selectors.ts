@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 
-import { getCollections } from 'store/cache/collections/selectors'
+import { getCollections } from 'store/collections/collectionsSelectors'
 import { CommonState } from 'store/commonStore'
 import { getUsers } from 'store/users/usersSelectors'
 
@@ -16,9 +16,9 @@ export const getProfileIds = (state: CommonState) => getExplore(state).profiles
 
 export const getExplorePlaylists = createSelector(
   getPlaylistIds,
-  (state: CommonState) => state.collections.entries,
+  (state: CommonState) => state.collections.entities,
   (playlists, collections) =>
-    playlists.map((id) => collections[id]?.metadata).filter(removeNullable)
+    playlists.map((id) => collections[id]).filter(removeNullable)
 )
 
 export const getExploreArtists = createSelector(
@@ -47,7 +47,7 @@ export const makeGetExplore = () => {
     (explore, collections, users) => {
       const playlists = explore.playlists
         .map((id) => collections[id])
-        .filter(Boolean)
+        .filter(removeNullable)
         .map((collection) => ({
           ...collection,
           user: users[collection.playlist_owner_id] || {}

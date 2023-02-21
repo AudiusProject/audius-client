@@ -240,7 +240,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
   return {
     goToRoute: (route: string) => dispatch(pushRoute(route)),
     addTrackToPlaylist: (trackId: ID, playlistId: ID) =>
-      dispatch(addTrackToPlaylist(trackId, playlistId)),
+      dispatch(addTrackToPlaylist({ trackId, playlistId })),
     shareTrack: (trackId: ID) =>
       dispatch(shareTrack(trackId, ShareSource.OVERFLOW)),
     saveTrack: (trackId: ID) =>
@@ -256,12 +256,12 @@ function mapDispatchToProps(dispatch: Dispatch) {
     unsetArtistPick: () => dispatch(showSetAsArtistPickConfirmation()),
     createEmptyPlaylist: (tempId: ID, name: string, trackId: ID) =>
       dispatch(
-        createPlaylist(
-          tempId,
-          newCollectionMetadata({ playlist_name: name }),
-          CreatePlaylistSource.FROM_TRACK,
-          trackId
-        )
+        createPlaylist({
+          playlistId: tempId,
+          formFields: newCollectionMetadata({ playlist_name: name }),
+          source: CreatePlaylistSource.FROM_TRACK,
+          initTrackId: trackId
+        })
       ),
     openAddToPlaylistModal: (trackId: ID, title: string) =>
       dispatch(openAddToPlaylist(trackId, title)),

@@ -37,7 +37,7 @@ const DeletePlaylistConfirmationModal = () => {
   const handleDelete = useCallback(() => {
     setStackReset(true)
     dispatch(push(TRENDING_PAGE))
-    dispatch(deletePlaylist(playlistId))
+    dispatch(deletePlaylist({ playlistId }))
     handleClose()
   }, [dispatch, setStackReset, playlistId, handleClose])
 

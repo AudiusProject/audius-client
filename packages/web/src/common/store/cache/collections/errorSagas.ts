@@ -13,21 +13,17 @@ type CollectionErrors =
 
 const errorSagas = createErrorSagas<CollectionErrors>({
   errorTypes: [
-    cacheCollectionsActions.CREATE_PLAYLIST_FAILED,
-    cacheCollectionsActions.EDIT_PLAYLIST_FAILED,
-    cacheCollectionsActions.ADD_TRACK_TO_PLAYLIST_FAILED,
-    cacheCollectionsActions.REMOVE_TRACK_FROM_PLAYLIST_FAILED,
-    cacheCollectionsActions.ORDER_PLAYLIST_FAILED,
-    cacheCollectionsActions.DELETE_PLAYLIST_FAILED,
-    cacheCollectionsActions.PUBLISH_PLAYLIST_FAILED
+    cacheCollectionsActions.createPlaylistFailed.type,
+    cacheCollectionsActions.editPlaylistFailed.type,
+    cacheCollectionsActions.addTrackToPlaylistFailed.type,
+    cacheCollectionsActions.removeTrackFromPlaylistFailed.type,
+    cacheCollectionsActions.orderPlaylistFailed.type,
+    cacheCollectionsActions.deletePlaylistFailed.type,
+    cacheCollectionsActions.publishPlaylistFailed.type
   ],
   getShouldRedirect: () => false,
   getShouldReport: () => true,
-  getAdditionalInfo: (action: CollectionErrors) => ({
-    error: action.error,
-    params: action.params,
-    metadata: action.metadata
-  })
+  getAdditionalInfo: (action: CollectionErrors) => action.payload
 })
 
 export default errorSagas

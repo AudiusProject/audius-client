@@ -447,14 +447,18 @@ function mapDispatchToProps(dispatch: Dispatch) {
     close: () => dispatch(createPlaylistActions.close()),
     createPlaylist: (tempId: number, metadata: Collection) =>
       dispatch(
-        createPlaylist(tempId, metadata, CreatePlaylistSource.CREATE_PAGE)
+        createPlaylist({
+          playlistId: tempId,
+          formFields: metadata,
+          source: CreatePlaylistSource.CREATE_PAGE
+        })
       ),
     editPlaylist: (id: ID, metadata: Collection) =>
-      dispatch(editPlaylist(id, metadata)),
-    orderPlaylist: (playlistId: ID, idsAndTimes: any) =>
-      dispatch(orderPlaylist(playlistId, idsAndTimes)),
+      dispatch(editPlaylist({ playlistId: id, formFields: metadata })),
+    orderPlaylist: (playlistId: ID, trackIdsAndTimes: any) =>
+      dispatch(orderPlaylist({ playlistId, trackIdsAndTimes })),
     removeTrack: (trackId: ID, playlistId: ID, timestamp: number) =>
-      dispatch(removeTrackFromPlaylist(trackId, playlistId, timestamp)),
+      dispatch(removeTrackFromPlaylist({ trackId, playlistId, timestamp })),
     refreshLineup: () => dispatch(tracksActions.fetchLineupMetadatas()),
     goToRoute: (route: string) => dispatch(pushRoute(route))
   }

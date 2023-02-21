@@ -167,8 +167,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   fetchSavedPlaylists: () => dispatch(fetchSavedPlaylists()),
   goToRoute: (route: string) => dispatch(pushRoute(route)),
   editPlaylist: (playlistId: ID, formFields: any) =>
-    dispatch(editPlaylist(playlistId, formFields)),
-  deletePlaylist: (playlistId: ID) => dispatch(deletePlaylist(playlistId))
+    dispatch(editPlaylist({ playlistId, formFields })),
+  deletePlaylist: (playlistId: ID) => dispatch(deletePlaylist({ playlistId }))
 })
 
 export default withRouter(

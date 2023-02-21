@@ -1,7 +1,7 @@
 // Combined users selectors, ideally should be moved elsewhere
 
 import { ID, UID } from 'models/Identifiers'
-import { getCollection } from 'store/cache/collections/selectors'
+import { getCollection } from 'store/collections/collectionsSelectors'
 import { CommonState } from 'store/commonStore'
 import { getTrack } from 'store/tracks/tracksSelectors'
 

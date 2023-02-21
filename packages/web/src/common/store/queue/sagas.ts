@@ -14,7 +14,6 @@ import {
   tracksSelectors,
   usersSelectors,
   cacheActions,
-  cacheSelectors,
   queueActions,
   RepeatMode,
   QueueSource,
@@ -50,9 +49,7 @@ const { getPremiumTrackSignatureMap } = premiumContentSelectors
 
 const { getTrackId: getPlayerTrackId, getUid: getPlayerUid } = playerSelectors
 
-const { add, clear, next, pause, play, queueAutoplay, previous, remove } =
-  queueActions
-const { getId } = cacheSelectors
+const { add, clear, next, pause, play, queueAutoplay, previous } = queueActions
 const { getUser } = usersSelectors
 const { getTrack } = tracksSelectors
 const { getCollection } = cacheCollectionsSelectors
@@ -461,19 +458,6 @@ export function* watchAdd() {
   })
 }
 
-export function* watchRemove() {
-  yield* takeEvery(remove.type, function* (action: ReturnType<typeof remove>) {
-    const { uid } = action.payload
-
-    const id = yield* select(getId, { kind: Kind.TRACKS, uid })
-    yield* put(
-      cacheActions.unsubscribe(Kind.TRACKS, [
-        { uid: QUEUE_SUBSCRIBER_NAME, id }
-      ])
-    )
-  })
-}
-
 const sagas = () => {
   const sagas = [
     watchPlay,
@@ -481,8 +465,7 @@ const sagas = () => {
     watchNext,
     watchQueueAutoplay,
     watchPrevious,
-    watchAdd,
-    watchRemove
+    watchAdd
   ]
   return sagas
 }

@@ -1,6 +1,5 @@
 import {
   ID,
-  Collection,
   CollectionMetadata,
   UserCollectionMetadata,
   Kind,
@@ -8,13 +7,10 @@ import {
   makeUid,
   accountSelectors,
   cacheCollectionsSelectors,
-  cacheSelectors,
-  cacheCollectionsActions as collectionActions,
-  CommonState,
   getContext
 } from '@audius/common'
 import { chunk } from 'lodash'
-import { all, call, select, put } from 'typed-redux-saga'
+import { all, call, select } from 'typed-redux-saga'
 
 import { retrieve } from 'common/store/cache/sagas'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
@@ -23,7 +19,6 @@ import { waitForRead } from 'utils/sagaHelpers'
 import { addTracksFromCollections } from './addTracksFromCollections'
 import { addUsersFromCollections } from './addUsersFromCollections'
 import { reformat } from './reformat'
-const { getEntryTimestamp } = cacheSelectors
 const { getCollections } = cacheCollectionsSelectors
 const getUserId = accountSelectors.getUserId
 
@@ -37,7 +32,7 @@ function* markCollectionDeleted(
     if (!(metadata.playlist_id in collections)) return metadata
     return {
       ...metadata,
-      _marked_deleted: !!collections[metadata.playlist_id]._marked_deleted
+      _marked_deleted: !!collections[metadata.playlist_id]?._marked_deleted
     }
   })
 }
@@ -126,16 +121,7 @@ export function* retrieveCollection({
 }
 
 function* selectEntriesTimestamp(ids: (ID | string)[]) {
-  const entriesTimestamps = (state: CommonState, ids: (ID | string)[]) =>
-    ids.reduce(
-      (acc: { [id: number | string]: number | null }, id: ID | string) => {
-        acc[id] = getEntryTimestamp(state, { kind: Kind.COLLECTIONS, id })
-        return acc
-      },
-      {}
-    )
-  const selectedEntries = yield* select(entriesTimestamps, ids)
-  return selectedEntries
+  return yield* select(cacheCollectionsSelectors.getCollectionTimestamps, ids)
 }
 
 export function* retrieveCollectionByPermalink(
@@ -163,10 +149,11 @@ export function* retrieveCollectionByPermalink(
       if (requiresAllTracks) {
         const keys = Object.keys(cachedCollections) as unknown as number[]
         keys.forEach((collectionId) => {
-          const fullTrackCount = cachedCollections[collectionId].track_count
-          const currentTrackCount =
-            cachedCollections[collectionId].tracks?.length ?? 0
-          if (currentTrackCount < fullTrackCount) {
+          const collection = cachedCollections[collectionId]
+          if (!collection) return
+          const { track_count, tracks } = collection
+          const currentTrackCount = tracks?.length ?? 0
+          if (currentTrackCount < track_count) {
             // Remove the collection from the res so retrieve knows to get it from source
             delete cachedCollections[collectionId]
           }
@@ -189,11 +176,6 @@ export function* retrieveCollectionByPermalink(
       const audiusBackendInstance = yield* getContext('audiusBackendInstance')
       yield* addUsersFromCollections(metadatas)
       yield* addTracksFromCollections(metadatas)
-      yield* put(
-        collectionActions.setCollectionPermalinks({
-          [permalink]: metadatas[0].playlist_id
-        })
-      )
       if (fetchTracks) {
         yield* call(retrieveTracksForCollections, metadatas, new Set())
       }
@@ -233,15 +215,15 @@ export function* retrieveCollections(
   const { entries, uids } = yield* call(retrieve, {
     ids: collectionIds,
     selectFromCache: function* (ids: ID[]) {
-      const res: {
-        [id: number]: Collection
-      } = yield* select(getCollections, { ids })
+      const res = yield* select(getCollections, { ids })
       if (requiresAllTracks) {
         const keys = Object.keys(res) as any
         keys.forEach((collectionId: number) => {
-          const fullTrackCount = res[collectionId].track_count
-          const currentTrackCount = res[collectionId].tracks?.length ?? 0
-          if (currentTrackCount < fullTrackCount) {
+          const collection = res[collectionId]
+          if (!collection) return
+          const { track_count, tracks } = collection
+          const currentTrackCount = tracks?.length ?? 0
+          if (currentTrackCount < track_count) {
             // Remove the collection from the res so retrieve knows to get it from source
             delete res[collectionId]
           }

@@ -559,14 +559,20 @@ const mapStateToProps = (state: AppState) => {
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   resetUploadState: () => dispatch(resetUploadState()),
   createPlaylist: (tempId: number, metadata: Record<string, unknown>) =>
-    dispatch(createPlaylist(tempId, metadata, CreatePlaylistSource.NAV)),
+    dispatch(
+      createPlaylist({
+        playlistId: tempId,
+        formFields: metadata,
+        source: CreatePlaylistSource.NAV
+      })
+    ),
   goToRoute: (route: string) => dispatch(pushRoute(route)),
   saveTrack: (trackId: number) =>
     dispatch(saveTrack(trackId, FavoriteSource.NAVIGATOR)),
   saveCollection: (collectionId: number) =>
     dispatch(saveCollection(collectionId, FavoriteSource.NAVIGATOR)),
   addTrackToPlaylist: (trackId: number, playlistId: number) =>
-    dispatch(addTrackToPlaylist(trackId, playlistId)),
+    dispatch(addTrackToPlaylist({ trackId, playlistId })),
   showActionRequiresAccount: () =>
     dispatch(signOnActions.showRequiresAccountModal()),
   toggleNotificationPanel: () => dispatch(toggleNotificationPanel()),

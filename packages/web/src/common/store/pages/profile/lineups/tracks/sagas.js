@@ -5,7 +5,6 @@ import {
   tracksSelectors,
   profilePageSelectors,
   TracksSortMode,
-  profilePageTracksLineupActions as tracksActions,
   profilePageTracksLineupActions as lineupActions,
   tracksSocialActions
 } from '@audius/common'
@@ -93,7 +92,7 @@ function* watchDeleteTrack() {
     )
     if (trackLineupEntry) {
       yield put(
-        tracksActions.remove(Kind.TRACKS, trackLineupEntry.uid, accountHandle)
+        lineupActions.remove(Kind.TRACKS, trackLineupEntry.uid, accountHandle)
       )
     }
   })

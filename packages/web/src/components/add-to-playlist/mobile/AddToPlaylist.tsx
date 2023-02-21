@@ -143,16 +143,16 @@ function mapStateToProps(state: AppState) {
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
     goToRoute: (route: string) => dispatch(pushRoute(route)),
-    addTrackToPlaylist: (trackId: ID, playlistId: ID | string) =>
-      dispatch(addTrackToPlaylist(trackId, playlistId)),
+    addTrackToPlaylist: (trackId: ID, playlistId: ID) =>
+      dispatch(addTrackToPlaylist({ trackId, playlistId })),
     createPlaylist: (tempId: number, metadata: Collection, trackId: ID) =>
       dispatch(
-        createPlaylist(
-          tempId,
-          metadata,
-          CreatePlaylistSource.FROM_TRACK,
-          trackId
-        )
+        createPlaylist({
+          playlistId: tempId,
+          formFields: metadata,
+          source: CreatePlaylistSource.FROM_TRACK,
+          initTrackId: trackId
+        })
       ),
     close: () => dispatch(close())
   }
