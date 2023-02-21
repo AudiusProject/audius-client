@@ -497,14 +497,22 @@ export const useShareToStory = ({
           PERMISSIONS.IOS.PHOTO_LIBRARY_ADD_ONLY
         )
         if (permissionStatus !== RESULTS.GRANTED) {
-          toast({ content: messages.addToPhotoLibraryDenied, type: 'error' })
+          toast({
+            content: messages.addToPhotoLibraryDenied,
+            timeout: 8000,
+            type: 'error'
+          })
           return
         }
       } else if (
         isAddPhotoPermGrantedResult === RESULTS.BLOCKED ||
         isAddPhotoPermGrantedResult === RESULTS.UNAVAILABLE
       ) {
-        toast({ content: messages.addToPhotoLibraryBlocked, type: 'error' })
+        toast({
+          content: messages.addToPhotoLibraryBlocked,
+          timeout: 12000,
+          type: 'error'
+        })
         return
       }
     }

@@ -36,5 +36,5 @@ export const messages = {
   addToPhotoLibraryDenied:
     'You must allow Audius to add to your photo library in order to share to TikTok.',
   addToPhotoLibraryBlocked:
-    'Sorry, this feature is not available because Audius is blocked from adding to your photo library.'
+    'Audius is blocked from adding to your photo library. Please give Audius access to Photos in your Security & Privacy settings in order to use Share to TikTok.'
 }
