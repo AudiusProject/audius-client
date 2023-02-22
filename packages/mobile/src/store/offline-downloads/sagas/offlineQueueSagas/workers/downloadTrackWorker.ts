@@ -73,10 +73,8 @@ export function* downloadTrackWorker(trackId: ID, requeueCount: number) {
       yield* put(cancelJob(queueItem))
       return
     } else if (jobResult === OfflineDownloadStatus.ERROR) {
-      if (retryCount < MAX_RETRY_COUNT - 1) {
-        console.log('OfflineQueue - looping failed job', trackId, retryCount)
-        continue
-      }
+      if (retryCount < MAX_RETRY_COUNT - 1) continue
+
       track(
         make({
           eventName: EventNames.OFFLINE_MODE_DOWNLOAD_FAILURE,
@@ -85,20 +83,8 @@ export function* downloadTrackWorker(trackId: ID, requeueCount: number) {
       )
       yield* call(removeDownloadedTrack, trackId)
       if (requeueCount < MAX_REQUEUE_COUNT - 1) {
-        console.log(
-          'OfflineQueue - failed job - requeueing',
-          trackId,
-          retryCount,
-          requeueCount
-        )
         yield* put(errorJob(queueItem))
       } else {
-        console.log(
-          'OfflineQueue - failed job - abandoning',
-          trackId,
-          retryCount,
-          requeueCount
-        )
         yield* put(abandonJob(queueItem))
       }
       yield* put(requestProcessNextJob())
@@ -150,7 +136,6 @@ function* downloadTrackAsync(
     return OfflineDownloadStatus.ABANDONED
   }
 
-  if (Math.random() < 0.75) return OfflineDownloadStatus.ERROR
   try {
     yield* all([
       call(downloadTrackCoverArt, track),

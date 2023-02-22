@@ -320,7 +320,6 @@ const slice = createSlice({
       } else if (type === 'track') {
         state.trackStatus[id] = OfflineDownloadStatus.ERROR
         // re-queue the track
-        console.log('OfflineQueue - retrying job', action.payload)
         state.offlineQueue.push({
           ...action.payload,
           requeueCount: action.payload.requeueCount + 1
