@@ -116,7 +116,6 @@ class DropdownInput extends Component {
       default:
         popupContainer = popupContainerProp ?? null
     }
-    console.log({ popupContainer })
 
     return (
       <div className={cn(styles.wrapper, style)}>
