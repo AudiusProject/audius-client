@@ -15,55 +15,105 @@
 
 default_platform(:android)
 
+PROD_PACKAGE = 'co.audius.app'
+RC_PROD_PACKAGE = 'co.audius.app.releasecandidate'
+RC_STAGING_PACKAGE = 'co.audius.app.staging.releasecandidate'
+STAGING_PACKAGE = 'co.audius.app.staging'
+CODEPUSH_APP_NAME = 'Audius-Music/Audius-Android'
+CODEPUSH_STAGING_DEPLOYMENT = 'Staging'
+CODEPUSH_RC_DEPLOYMENT = 'ReleaseCandidate'
+CODEPUSH_PROD_DEPLOYMENT = 'Production'
+
 platform :android do
-  desc "Upload a new version to the Google Play"
+  desc "Get the currently released app version name"
+  private_lane :getCurrentlyReleasedVersionName do |options|
+      version = google_play_track_release_names(
+        package_name: options[:package_name],
+        track: options[:track]
+      ).map {|v| Gem::Version.new v}.max
+      version
+  end
+
+  desc "Get the version name in app build.gradle file"
+  private_lane :getVersionNameFromBuildFile do |options|
+      re = /versionName\s+"([\d\.]+)"/
+      path = '../app/build.gradle'
+      s = File.read(path)
+      versionName = Gem::Version.new s[re, 1]
+      versionName
+  end
+  
+  desc "If needed, upload a new version to the Google Play. Otherwise, release via CodePush."
   lane :releaseCandidate do |options|
-    upload_to_play_store(
-      track: options[:track],
-      package_name: "co.audius.app.releasecandidate",
-      aab: "./app/build/outputs/bundle/releaseCandidateRelease/app-releaseCandidate-release.aab",
-      skip_upload_metadata: true,
-      skip_upload_changelogs: true,
-      skip_upload_images: true,
-      skip_upload_screenshots: true
-    )
+      build_and_upload(package_name: RC_PROD_PACKAGE, track: options[:track])
   end
 
   lane :staging do |options|
-    upload_to_play_store(
-      track: options[:track],
-      package_name: "co.audius.app.staging",
-      aab: "./app/build/outputs/bundle/stagingRelease/app-staging-release.aab",
-      skip_upload_metadata: true,
-      skip_upload_changelogs: true,
-      skip_upload_images: true,
-      skip_upload_screenshots: true
-    )
+      build_and_upload(package_name: STAGING_PACKAGE, track: options[:track])
   end
 
   lane :stagingReleaseCandidate do |options|
-    upload_to_play_store(
-      track: options[:track],
-      package_name: "co.audius.app.staging.releasecandidate",
-      aab: "./app/build/outputs/bundle/stagingReleaseCandidateRelease/app-stagingReleaseCandidate-release.aab",
-      skip_upload_metadata: true,
-      skip_upload_changelogs: true,
-      skip_upload_images: true,
-      skip_upload_screenshots: true
-    )
+      build_and_upload(package_name: RC_STAGING_PACKAGE, track: options[:track])
   end
 
   lane :prod do |options|
-    upload_to_play_store(
-      track: options[:track],
-      aab: "./app/build/outputs/bundle/prodRelease/app-prod-release.aab",
-      skip_upload_metadata: true,
-      skip_upload_changelogs: true,
-      skip_upload_images: true,
-      skip_upload_screenshots: true
-    )
+      build_and_upload(package_name: PROD_PACKAGE, track: options[:track])   
   end
 
+  private_lane :build_and_upload do |options|
+      packageName = options[:package_name]
+      if packageName === PROD_PACKAGE
+        buildType = 'bundleRelease'
+        aab = './app/build/outputs/bundle/prodRelease/app-prod-release.aab'
+        codepushDeployment = CODEPUSH_PROD_DEPLOYMENT
+        remoteDirectory = 'audius-mobile'
+      elsif packageName === RC_PROD_PACKAGE
+        buildType = 'bundleReleaseCandidateRelease'
+        aab = './app/build/outputs/bundle/releaseCandidateRelease/app-releaseCandidate-release.aab'
+        codepushDeployment = CODEPUSH_RC_DEPLOYMENT
+        remoteDirectory = 'audius-mobile-releasecandidate'
+      elsif packageName === RC_STAGING_PACKAGE
+        buildType = 'bundleStagingReleaseCandidateRelease'
+        aab = './app/build/outputs/bundle/stagingReleaseCandidateRelease/app-stagingReleaseCandidate-release.aab'
+        codepushDeployment = CODEPUSH_RC_DEPLOYMENT
+        remoteDirectory = 'audius-mobile-staging-releasecandidate'
+      elsif packageName === STAGING_PACKAGE
+        buildType = 'bundleStagingRelease'
+        aab = './app/build/outputs/bundle/stagingRelease/app-staging-release.aab'
+        codepushDeployment = CODEPUSH_STAGING_DEPLOYMENT
+        remoteDirectory = 'audius-mobile-staging'
+      end
+      releasedVersion = getCurrentlyReleasedVersionName(package_name: packageName, track: options[:track])
+      buildFileVersion = getVersionNameFromBuildFile()
+
+      if buildFileVersion > releasedVersion
+        # Build app and release via play store
+        # fetch app fastlane json config to upload to play store
+        sh("echo \"#{ENV['FASTLANE_PLAYSTORE_JSON']}\" > packages/mobile/android/app/api.txt")
+        sh("base64 --decode packages/mobile/android/app/api.txt > packages/mobile/android/app/api.json")
+
+        incrementVersionCode(package_name: packageName, track: options[:track])
+        incrementVersionName(package_name: packageName, track: options[:track])
+
+        # generating the release apk & bundle
+        sh("echo \"yes\" | sdkmanager \"platforms;android-30\" && cd packages/mobile/android && ./gradlew #{buildType}")
+        
+        sh("sudo pip install awscli")
+        sh("aws s3 sync packages/mobile/android/app/build/outputs s3://#{remoteDirectory}/android --delete")
+        upload_to_play_store(
+          track: options[:track],
+          aab: aab,
+          skip_upload_metadata: true,
+          skip_upload_changelogs: true,
+          skip_upload_images: true,
+          skip_upload_screenshots: true
+        )
+      else
+        sh("appcenter login --token #{ENV['APPCENTER_CODEPUSH_API_KEY']}")
+        sh("appcenter codepush release-react #{CODEPUSH_APP_NAME} android --deploymentName #{codepushDeployment} --targetBinaryVersion #{releasedVersion.to_s} --noDuplicateReleaseError")
+        sh("appcenter logout")
+      end
+  end
   lane :incrementVersionCode do |options|
       # Get the max existing version code
       previousVersion = google_play_track_version_codes(

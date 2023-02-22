@@ -150,7 +150,7 @@ android {
             ]
         }
         staging {
-            resValue "string", "CodePushDeploymentKey", '""'
+            resValue "string", "CodePushDeploymentKey", '"aJJpI95hNbTkgKjlCWkiPpCa2fkvqmHl1CKpU"'
             // Pre-compile run ENVFILE=.env.stage
             applicationIdSuffix ".staging"
             manifestPlaceholders = [
