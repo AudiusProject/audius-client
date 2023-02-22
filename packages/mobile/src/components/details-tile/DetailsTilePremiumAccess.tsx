@@ -1,7 +1,6 @@
 import type { ID, PremiumConditions } from '@audius/common'
 import { removeNullable, cacheUsersSelectors } from '@audius/common'
-import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
-import { ViewStyle } from 'react-native'
+import type { ViewStyle } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import { DetailsTileHasAccess } from './DetailsTileHasAccess'

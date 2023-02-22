@@ -1,10 +1,17 @@
-import { accountSelectors, modalsActions, premiumContentActions, usePremiumContentAccess } from '@audius/common'
+import { useCallback } from 'react'
+
+import {
+  accountSelectors,
+  premiumContentActions,
+  usePremiumContentAccess
+} from '@audius/common'
 import { View } from 'react-native'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 
 import type { LineupTileProps } from 'app/components/lineup-tile/types'
 import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 import { PremiumTrackCornerTag } from 'app/screens/track-screen/PremiumTrackCornerTag'
+import { setVisibility } from 'app/store/drawers/slice'
 
 import { LineupTileActionButtons } from './LineupTileActionButtons'
 import {
@@ -16,9 +23,6 @@ import { LineupTileMetadata } from './LineupTileMetadata'
 import { LineupTileRoot } from './LineupTileRoot'
 import { LineupTileStats } from './LineupTileStats'
 import { LineupTileTopRight } from './LineupTileTopRight'
-import { useCallback } from 'react'
-import { useDispatch } from 'react-redux'
-import { setVisibility } from 'app/store/drawers/slice'
 
 const { getUserId } = accountSelectors
 const { setLockedContentId } = premiumContentActions
@@ -73,19 +77,14 @@ export const LineupTile = ({
   const handlePress = useCallback(() => {
     if (isPremiumContentEnabled && trackId && !doesUserHaveAccess) {
       dispatch(setLockedContentId({ id: trackId }))
-      dispatch(
-        setVisibility({ drawer: 'LockedContent', visible: true })
-      )
+      dispatch(setVisibility({ drawer: 'LockedContent', visible: true }))
     } else {
       onPress?.()
     }
-  }, [isPremiumContentEnabled, trackId, doesUserHaveAccess, dispatch])
+  }, [isPremiumContentEnabled, trackId, doesUserHaveAccess, dispatch, onPress])
 
   return (
-    <LineupTileRoot
-      onPress={handlePress}
-      {...TileProps}
-    >
+    <LineupTileRoot onPress={handlePress} {...TileProps}>
       {isPremiumContentEnabled && premiumConditions && (
         <PremiumTrackCornerTag
           doesUserHaveAccess={doesUserHaveAccess}

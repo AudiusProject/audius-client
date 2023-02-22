@@ -1,18 +1,24 @@
+import type { CommonState, Track, User } from '@audius/common'
+import {
+  cacheTracksSelectors,
+  cacheUsersSelectors,
+  premiumContentSelectors,
+  SquareSizes,
+  usePremiumContentAccess
+} from '@audius/common'
 import { Dimensions, View } from 'react-native'
-
-import { NativeDrawer } from 'app/components/drawer'
-import { Text } from 'app/components/core'
-import { cacheTracksSelectors, cacheUsersSelectors, CommonState, premiumContentSelectors, SquareSizes, Track, usePremiumContentAccess, User } from '@audius/common'
-import IconLock from 'app/assets/images/iconLock.svg'
-import IconCollectible from 'app/assets/images/iconCollectible.svg'
-import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
-import { useColor } from 'app/utils/theme'
-import { flexRowCentered, typography } from 'app/styles'
-import { makeStyles } from 'app/styles'
-import { DetailsTilePremiumAccess } from 'app/components/details-tile/DetailsTilePremiumAccess'
 import { useSelector } from 'react-redux'
+
+import IconCollectible from 'app/assets/images/iconCollectible.svg'
+import IconLock from 'app/assets/images/iconLock.svg'
+import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
+import { Text } from 'app/components/core'
+import { DetailsTilePremiumAccess } from 'app/components/details-tile/DetailsTilePremiumAccess'
+import { NativeDrawer } from 'app/components/drawer'
 import { TrackImage } from 'app/components/image/TrackImage'
 import UserBadges from 'app/components/user-badges'
+import { makeStyles, flexRowCentered, typography } from 'app/styles'
+import { useColor } from 'app/utils/theme'
 
 const LOCKED_CONTENT_MODAL_NAME = 'LockedContent'
 
@@ -74,7 +80,7 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     marginBottom: spacing(2),
     fontFamily: typography.fontByWeight.bold,
     fontSize: typography.fontSize.medium,
-    textTransform: 'capitalize',
+    textTransform: 'capitalize'
   },
   trackOwnerContainer: {
     ...flexRowCentered()
@@ -86,36 +92,44 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
   premiumTrackSection: {
     marginBottom: 0,
     borderWidth: 0,
-    backgroundColor: 'transparent',
+    backgroundColor: 'transparent'
   }
 }))
 
 type TrackDetailsProps = {
-  track: Track,
+  track: Track
   owner: User
 }
 
-const TrackDetails = ({ track, owner}: TrackDetailsProps) => {
+const TrackDetails = ({ track, owner }: TrackDetailsProps) => {
   const styles = useStyles()
   const accentBlue = useColor('accentBlue')
   const isCollectibleGated = !!track.premium_conditions?.nft_collection
 
   return (
     <View style={styles.trackDetails}>
-      <TrackImage style={styles.trackImage} track={track} size={SquareSizes.SIZE_150_BY_150} />
+      <TrackImage
+        style={styles.trackImage}
+        track={track}
+        size={SquareSizes.SIZE_150_BY_150}
+      />
       <View>
         <View style={styles.premiumContentLabelContainer}>
-          {isCollectibleGated ? <IconCollectible fill={accentBlue} width={24} height={24} /> : <IconSpecialAccess fill={accentBlue} width={24} height={24} />}
-          <Text style={styles.premiumContentLabel}>{isCollectibleGated ? messages.collectibleGated : messages.specialAccess}</Text>
+          {isCollectibleGated ? (
+            <IconCollectible fill={accentBlue} width={24} height={24} />
+          ) : (
+            <IconSpecialAccess fill={accentBlue} width={24} height={24} />
+          )}
+          <Text style={styles.premiumContentLabel}>
+            {isCollectibleGated
+              ? messages.collectibleGated
+              : messages.specialAccess}
+          </Text>
         </View>
         <Text style={styles.trackName}>{track.title}</Text>
         <View style={styles.trackOwnerContainer}>
           <Text style={styles.trackOwner}>{owner.name}</Text>
-          <UserBadges
-            badgeSize={16}
-            user={owner}
-            hideName
-          />
+          <UserBadges badgeSize={16} user={owner} hideName />
         </View>
       </View>
     </View>
@@ -143,7 +157,9 @@ export const LockedContentDrawer = () => {
       <View style={styles.drawer}>
         <View style={styles.titleContainer}>
           <IconLock fill={neutralLight2} width={24} height={24} />
-          <Text style={styles.titleText} weight='heavy' color='neutral'>{messages.howToUnlock}</Text>
+          <Text style={styles.titleText} weight='heavy' color='neutral'>
+            {messages.howToUnlock}
+          </Text>
         </View>
         <TrackDetails track={track} owner={owner} />
         <DetailsTilePremiumAccess

@@ -9,7 +9,8 @@ import type {
   User
 } from '@audius/common'
 import { useSpecialAccessEntity } from '@audius/common'
-import { View, Text, ViewStyle } from 'react-native'
+import type { ViewStyle } from 'react-native'
+import { View, Text } from 'react-native'
 
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
 import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
@@ -91,7 +92,10 @@ type HasAccessProps = {
   style?: ViewStyle
 }
 
-const DetailsTileUnlockedSection = ({ renderDescription, style }: HasAccessProps) => {
+const DetailsTileUnlockedSection = ({
+  renderDescription,
+  style
+}: HasAccessProps) => {
   const styles = useStyles()
   const neutral = useColor('neutral')
 
@@ -281,6 +285,9 @@ export const DetailsTileHasAccess = ({
   }
 
   return (
-    <DetailsTileUnlockedSection renderDescription={renderUnlockedDescription} style={style} />
+    <DetailsTileUnlockedSection
+      renderDescription={renderUnlockedDescription}
+      style={style}
+    />
   )
 }

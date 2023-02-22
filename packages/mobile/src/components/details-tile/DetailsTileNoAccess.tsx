@@ -10,7 +10,8 @@ import {
   useSpecialAccessEntity,
   premiumContentSelectors
 } from '@audius/common'
-import { View, Text, Image, ViewStyle } from 'react-native'
+import type { ViewStyle } from 'react-native'
+import { View, Text, Image } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconExternalLink from 'app/assets/images/iconExternalLink.svg'
