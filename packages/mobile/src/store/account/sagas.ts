@@ -38,7 +38,6 @@ function* cacheUserImages(user: User) {
       .filter(removeNullable)
       .map((uri) => ({ uri }))
 
-    console.log('calling preload!', sourcesToPreload)
     yield* call(FastImage.preload, sourcesToPreload)
   } catch (e) {
     console.error('Could not cache profile images', e)
