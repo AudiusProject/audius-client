@@ -36,8 +36,6 @@ const { getLockedContentId } = premiumContentSelectors
 
 const messages = {
   howToUnlock: 'HOW TO UNLOCK',
-  unlocking: 'UNLOCKING',
-  unlocked: 'UNLOCKED',
   collectibleGated: 'COLLECTIBLE GATED',
   specialAccess: 'SPECIAL ACCESS'
 }

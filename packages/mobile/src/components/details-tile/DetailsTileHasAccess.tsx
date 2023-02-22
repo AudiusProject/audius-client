@@ -9,7 +9,7 @@ import type {
   User
 } from '@audius/common'
 import { useSpecialAccessEntity } from '@audius/common'
-import { View, Text } from 'react-native'
+import { View, Text, ViewStyle } from 'react-native'
 
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
 import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
@@ -88,14 +88,15 @@ type HasAccessProps = {
   >
   followee?: Nullable<User>
   tippedUser?: Nullable<User>
+  style?: ViewStyle
 }
 
-const DetailsTileUnlockedSection = ({ renderDescription }: HasAccessProps) => {
+const DetailsTileUnlockedSection = ({ renderDescription, style }: HasAccessProps) => {
   const styles = useStyles()
   const neutral = useColor('neutral')
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, style]}>
       <View style={styles.headerContainer}>
         <View style={styles.titleContainer}>
           <IconUnlocked fill={neutral} />
@@ -112,13 +113,14 @@ const DetailsTileOwnerSection = ({
   renderDescription,
   nftCollection,
   followee,
-  tippedUser
+  tippedUser,
+  style
 }: HasAccessProps) => {
   const styles = useStyles()
   const neutral = useColor('neutral')
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, style]}>
       <View style={styles.titleContainer}>
         {nftCollection && (
           <IconCollectible fill={neutral} width={16} height={16} />
@@ -135,15 +137,17 @@ const DetailsTileOwnerSection = ({
   )
 }
 
-type DetailsTilePremiumAccessProps = {
+type DetailsTileHasAccessProps = {
   premiumConditions: PremiumConditions
   isOwner: boolean
+  style?: ViewStyle
 }
 
 export const DetailsTileHasAccess = ({
   premiumConditions,
-  isOwner
-}: DetailsTilePremiumAccessProps) => {
+  isOwner,
+  style
+}: DetailsTileHasAccessProps) => {
   const styles = useStyles()
 
   const { nftCollection, collectionLink, followee, tippedUser } =
@@ -271,11 +275,12 @@ export const DetailsTileHasAccess = ({
         followee={followee}
         tippedUser={tippedUser}
         renderDescription={renderOwnerDescription}
+        style={style}
       />
     )
   }
 
   return (
-    <DetailsTileUnlockedSection renderDescription={renderUnlockedDescription} />
+    <DetailsTileUnlockedSection renderDescription={renderUnlockedDescription} style={style} />
   )
 }

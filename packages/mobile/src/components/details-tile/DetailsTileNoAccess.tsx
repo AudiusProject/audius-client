@@ -10,7 +10,7 @@ import {
   useSpecialAccessEntity,
   premiumContentSelectors
 } from '@audius/common'
-import { View, Text, Image } from 'react-native'
+import { View, Text, Image, ViewStyle } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconExternalLink from 'app/assets/images/iconExternalLink.svg'
@@ -127,18 +127,20 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
 type NoAccessProps = {
   renderDescription: () => ReactNode
   isUnlocking: boolean
+  style?: ViewStyle
 }
 
 const DetailsTileNoAccessSection = ({
   renderDescription,
-  isUnlocking
+  isUnlocking,
+  style
 }: NoAccessProps) => {
   const styles = useStyles()
   const neutral = useColor('neutral')
 
   if (isUnlocking) {
     return (
-      <View style={styles.root}>
+      <View style={[styles.root, style]}>
         <View style={styles.headerContainer}>
           <View style={styles.titleContainer}>
             <IconLock fill={neutral} width={16} height={16} />
@@ -152,7 +154,7 @@ const DetailsTileNoAccessSection = ({
   }
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, style]}>
       <View style={styles.titleContainer}>
         <IconLock fill={neutral} width={16} height={16} />
         <Text style={styles.title}>{messages.howToUnlock}</Text>
@@ -165,11 +167,13 @@ const DetailsTileNoAccessSection = ({
 type DetailsTileNoAccessProps = {
   premiumConditions: PremiumConditions
   trackId: ID
+  style?: ViewStyle
 }
 
 export const DetailsTileNoAccess = ({
   trackId,
-  premiumConditions
+  premiumConditions,
+  style
 }: DetailsTileNoAccessProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
@@ -382,6 +386,7 @@ export const DetailsTileNoAccess = ({
         isUnlocking ? renderUnlockingDescription : renderLockedDescription
       }
       isUnlocking={isUnlocking}
+      style={style}
     />
   )
 }

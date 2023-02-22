@@ -1,4 +1,4 @@
-import { accountSelectors, usePremiumContentAccess } from '@audius/common'
+import { accountSelectors, modalsActions, premiumContentActions, usePremiumContentAccess } from '@audius/common'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
@@ -16,8 +16,12 @@ import { LineupTileMetadata } from './LineupTileMetadata'
 import { LineupTileRoot } from './LineupTileRoot'
 import { LineupTileStats } from './LineupTileStats'
 import { LineupTileTopRight } from './LineupTileTopRight'
+import { useCallback } from 'react'
+import { useDispatch } from 'react-redux'
+import { setVisibility } from 'app/store/drawers/slice'
 
 const { getUserId } = accountSelectors
+const { setLockedContentId } = premiumContentActions
 
 export const LineupTile = ({
   children,
@@ -64,12 +68,22 @@ export const LineupTile = ({
   const premiumConditions = isTrack ? item.premium_conditions : null
   const isArtistPick = artist_pick_track_id === id
   const { doesUserHaveAccess } = usePremiumContentAccess(isTrack ? item : null)
+  const dispatch = useDispatch()
+
+  const handlePress = useCallback(() => {
+    if (isPremiumContentEnabled && trackId && !doesUserHaveAccess) {
+      dispatch(setLockedContentId({ id: trackId }))
+      dispatch(
+        setVisibility({ drawer: 'LockedContent', visible: true })
+      )
+    } else {
+      onPress?.()
+    }
+  }, [isPremiumContentEnabled, trackId, doesUserHaveAccess, dispatch])
 
   return (
     <LineupTileRoot
-      onPress={
-        !isPremiumContentEnabled || doesUserHaveAccess ? onPress : undefined
-      }
+      onPress={handlePress}
       {...TileProps}
     >
       {isPremiumContentEnabled && premiumConditions && (
