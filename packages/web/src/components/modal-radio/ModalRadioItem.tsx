@@ -56,6 +56,7 @@ export const ModalRadioItem = (props: ModalRadioItemProps) => {
           <div
             className={styles.collapsibleContainer}
             style={{ height: isCollapsed ? 0 : bounds.height }}
+            aria-hidden={isCollapsed}
           >
             <div ref={ref} className={styles.checkedContent}>
               {checkedContent}
