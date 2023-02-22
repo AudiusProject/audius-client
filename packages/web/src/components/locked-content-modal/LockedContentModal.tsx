@@ -1,13 +1,10 @@
 import { useCallback } from 'react'
 
 import {
-  cacheTracksSelectors,
-  cacheUsersSelectors,
-  CommonState,
   premiumContentActions,
-  premiumContentSelectors,
   SquareSizes,
   Track,
+  useLockedContent,
   usePremiumContentAccess,
   User
 } from '@audius/common'
@@ -20,7 +17,7 @@ import {
   IconCollectible,
   IconSpecialAccess
 } from '@audius/stems'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
@@ -31,9 +28,6 @@ import { profilePage } from 'utils/route'
 
 import styles from './LockedContentModal.module.css'
 
-const { getUser } = cacheUsersSelectors
-const { getTrack } = cacheTracksSelectors
-const { getLockedContentId } = premiumContentSelectors
 const { resetLockedContentId } = premiumContentActions
 
 const messages = {
@@ -95,13 +89,7 @@ const TrackDetails = ({ track, owner }: { track: Track; owner: User }) => {
 export const LockedContentModal = () => {
   const [isOpen, setIsOpen] = useModalState('LockedContent')
   const dispatch = useDispatch()
-  const lockedContentId = useSelector(getLockedContentId)
-  const track = useSelector((state: CommonState) =>
-    getTrack(state, { id: lockedContentId })
-  )
-  const owner = useSelector((state: CommonState) => {
-    return track?.owner_id ? getUser(state, { id: track.owner_id }) : null
-  })
+  const { track, owner } = useLockedContent()
   const { doesUserHaveAccess } = usePremiumContentAccess(track)
 
   const handleClose = useCallback(() => {

@@ -1,16 +1,14 @@
 import { useCallback } from 'react'
 
-import type { CommonState, Track, User } from '@audius/common'
+import type { Track, User } from '@audius/common'
 import {
+  useLockedContent,
   premiumContentActions,
-  cacheTracksSelectors,
-  cacheUsersSelectors,
-  premiumContentSelectors,
   SquareSizes,
   usePremiumContentAccess
 } from '@audius/common'
 import { Dimensions, View } from 'react-native'
-import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
 import IconLock from 'app/assets/images/iconLock.svg'
@@ -27,9 +25,6 @@ const LOCKED_CONTENT_MODAL_NAME = 'LockedContent'
 
 const screenWidth = Dimensions.get('screen').width
 
-const { getUser } = cacheUsersSelectors
-const { getTrack } = cacheTracksSelectors
-const { getLockedContentId } = premiumContentSelectors
 const { resetLockedContentId } = premiumContentActions
 
 const messages = {
@@ -143,21 +138,15 @@ const TrackDetails = ({ track, owner }: TrackDetailsProps) => {
 export const LockedContentDrawer = () => {
   const styles = useStyles()
   const neutralLight2 = useColor('neutralLight2')
-  const lockedContentId = useSelector(getLockedContentId)
   const dispatch = useDispatch()
-  const track = useSelector((state: CommonState) => {
-    return lockedContentId ? getTrack(state, { id: lockedContentId }) : null
-  })
-  const owner = useSelector((state: CommonState) => {
-    return track?.owner_id ? getUser(state, { id: track.owner_id }) : null
-  })
+  const { id, track, owner } = useLockedContent()
   const { doesUserHaveAccess } = usePremiumContentAccess(track)
 
   const handleClose = useCallback(() => {
     dispatch(resetLockedContentId())
   }, [dispatch])
 
-  if (!lockedContentId || !track || !track.premium_conditions || !owner) {
+  if (!id || !track || !track.premium_conditions || !owner) {
     return null
   }
 
