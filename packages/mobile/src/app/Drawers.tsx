@@ -1,5 +1,4 @@
 import type { ComponentType } from 'react'
-import { useState, useEffect } from 'react'
 
 import type { Modals } from '@audius/common'
 
