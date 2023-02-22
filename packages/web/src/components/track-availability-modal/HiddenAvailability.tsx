@@ -50,7 +50,6 @@ export const HiddenAvailability = ({
   return (
     <div className={styles.root}>
       {unlistedTrackMetadataOrder.map((field) => {
-        console.log({ field, isOn: state[field] })
         return (
           <div className={styles.switchRow} key={field}>
             <span className={styles.switchLabel}>
