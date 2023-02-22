@@ -4,6 +4,7 @@ import {
   cacheTracksSelectors,
   cacheUsersSelectors,
   CommonState,
+  premiumContentActions,
   premiumContentSelectors,
   SquareSizes,
   Track,
@@ -19,7 +20,7 @@ import {
   IconCollectible,
   IconSpecialAccess
 } from '@audius/stems'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
@@ -33,6 +34,7 @@ import styles from './LockedContentModal.module.css'
 const { getUser } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
 const { getLockedContentId } = premiumContentSelectors
+const { resetLockedContentId } = premiumContentActions
 
 const messages = {
   howToUnlock: 'HOW TO UNLOCK',
@@ -92,6 +94,7 @@ const TrackDetails = ({ track, owner }: { track: Track; owner: User }) => {
 
 export const LockedContentModal = () => {
   const [isOpen, setIsOpen] = useModalState('LockedContent')
+  const dispatch = useDispatch()
   const lockedContentId = useSelector(getLockedContentId)
   const track = useSelector((state: CommonState) =>
     getTrack(state, { id: lockedContentId })
@@ -103,7 +106,8 @@ export const LockedContentModal = () => {
 
   const handleClose = useCallback(() => {
     setIsOpen(false)
-  }, [setIsOpen])
+    dispatch(resetLockedContentId())
+  }, [setIsOpen, dispatch])
 
   return (
     <Modal

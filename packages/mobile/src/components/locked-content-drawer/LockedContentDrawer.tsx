@@ -1,5 +1,8 @@
+import { useCallback } from 'react'
+
 import type { CommonState, Track, User } from '@audius/common'
 import {
+  premiumContentActions,
   cacheTracksSelectors,
   cacheUsersSelectors,
   premiumContentSelectors,
@@ -7,7 +10,7 @@ import {
   usePremiumContentAccess
 } from '@audius/common'
 import { Dimensions, View } from 'react-native'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
 import IconLock from 'app/assets/images/iconLock.svg'
@@ -27,6 +30,7 @@ const screenWidth = Dimensions.get('screen').width
 const { getUser } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
 const { getLockedContentId } = premiumContentSelectors
+const { resetLockedContentId } = premiumContentActions
 
 const messages = {
   howToUnlock: 'HOW TO UNLOCK',
@@ -140,6 +144,7 @@ export const LockedContentDrawer = () => {
   const styles = useStyles()
   const neutralLight2 = useColor('neutralLight2')
   const lockedContentId = useSelector(getLockedContentId)
+  const dispatch = useDispatch()
   const track = useSelector((state: CommonState) => {
     return lockedContentId ? getTrack(state, { id: lockedContentId }) : null
   })
@@ -148,12 +153,16 @@ export const LockedContentDrawer = () => {
   })
   const { doesUserHaveAccess } = usePremiumContentAccess(track)
 
+  const handleClose = useCallback(() => {
+    dispatch(resetLockedContentId())
+  }, [dispatch])
+
   if (!lockedContentId || !track || !track.premium_conditions || !owner) {
     return null
   }
 
   return (
-    <NativeDrawer drawerName={LOCKED_CONTENT_MODAL_NAME}>
+    <NativeDrawer drawerName={LOCKED_CONTENT_MODAL_NAME} onClose={handleClose}>
       <View style={styles.drawer}>
         <View style={styles.titleContainer}>
           <IconLock fill={neutralLight2} width={24} height={24} />
