@@ -175,7 +175,6 @@ export const ChatScreen = () => {
       summary.prev_count > 0
     ) {
       // Fetch more messages when user reaches the top
-      console.log('handle scrollToTop fetching more')
       dispatch(fetchMoreMessages({ chatId }))
     }
   }
@@ -219,6 +218,7 @@ export const ChatScreen = () => {
                   />
                 )}
                 inverted
+                onEndReached={handleScrollToTop}
                 ref={flatListRef}
               />
             </View>
