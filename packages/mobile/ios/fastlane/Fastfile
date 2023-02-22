@@ -45,8 +45,7 @@ platform :ios do
     plistVersionNumber = Gem::Version.new get_version_number_from_plist(
       scheme: scheme
     )
-
-    currentReleasedVersionNumber, plistVersionNumber
+    return currentReleasedVersionNumber, plistVersionNumber
   end
 
   desc "Build the app"
@@ -95,8 +94,6 @@ platform :ios do
       puts "IS_PRODUCTION: #{ENV['IS_PRODUCTION']}"
       puts "ENVFILE: #{ENV['ENVFILE']}"
     end
-
-    # Increment version
 
     # Version number (e.g. 1.0.100) will be incremented by a patch version
     # from the currently live version in the app store. If a higher version number
@@ -195,9 +192,7 @@ platform :ios do
   desc "Build + upload via CodePush or TestFlight"
   lane:build_and_upload do |options|
 
-    version = get_version()
-    currentReleasedVersionNumber = version[0]
-    plistVersionNumber = version[1]
+    currentReleasedVersionNumber, plistVersionNumber = get_version()
     isVersionIncremented = plistVersionNumber > currentReleasedVersionNumber
     if !isVersionIncremented
       # Codepush to the right environment

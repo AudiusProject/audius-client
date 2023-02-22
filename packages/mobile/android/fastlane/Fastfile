@@ -93,7 +93,6 @@ platform :android do
         sh("base64 --decode packages/mobile/android/app/api.txt > packages/mobile/android/app/api.json")
 
         incrementVersionCode(package_name: packageName, track: options[:track])
-        incrementVersionName(package_name: packageName, track: options[:track])
 
         # generating the release apk & bundle
         sh("echo \"yes\" | sdkmanager \"platforms;android-30\" && cd packages/mobile/android && ./gradlew #{buildType}")
@@ -133,15 +132,12 @@ platform :android do
 
   lane :incrementVersionName do |options|
       # Get the max existing version name
-      previousVersionName = google_play_track_release_names(
+      previousVersionName = getCurrentlyReleasedVersionName(
         package_name: options[:package_name],
         track: options[:track]
-      ).map {|v| Gem::Version.new v}.max
+      )
 
-      re = /versionName\s+"([\d\.]+)"/
-      path = '../app/build.gradle'
-      s = File.read(path)
-      versionName = Gem::Version.new s[re, 1]
+      versionName = getVersionNameFromBuildFile()
 
       # If the version specified in build.gradle is greater than
       # the previous version name, there is no need to modify version name in build.gradle

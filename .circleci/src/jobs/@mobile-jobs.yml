@@ -64,7 +64,7 @@ mobile-build-staging-ios:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
   steps:
-    - mobile-bundle-ios:
+    - mobile-prepare-ios:
         build-directory: 'build-mobile-staging'
         bundle-id: 'co.audius.audiusmusic.staging'
         env: '.env.stage'
@@ -81,7 +81,7 @@ mobile-build-upload-staging-ios:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
   steps:
-    - mobile-bundle-ios:
+    - mobile-prepare-ios:
         build-directory: 'build-mobile-staging'
         bundle-id: 'co.audius.audiusmusic.staging'
         env: '.env.stage'
@@ -110,7 +110,7 @@ mobile-build-upload-production-ios:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
   steps:
-    - mobile-bundle-ios:
+    - mobile-prepare-ios:
         build-directory: 'build-mobile-production'
         bundle-id: 'co.audius.audiusmusic'
         env: '.env.prod'
@@ -126,7 +126,7 @@ mobile-build-upload-releasecandidate-ios:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
   steps:
-    - mobile-bundle-ios:
+    - mobile-prepare-ios:
         build-directory: 'build-mobile-releasecandidate'
         bundle-id: 'co.audius.audiusmusic.releasecandidate'
         env: '.env.prod'
@@ -142,7 +142,7 @@ mobile-build-upload-staging-releasecandidate-ios:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
   steps:
-    - mobile-bundle-ios:
+    - mobile-prepare-ios:
         build-directory: 'build-mobile-staging-releasecandidate'
         bundle-id: 'co.audius.audiusmusic.staging.releasecandidate'
         env: '.env.prod'

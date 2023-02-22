@@ -1,5 +1,5 @@
 # Bundle ios app and prepare to build/upload/release
-mobile-bundle-ios:
+mobile-prepare-ios:
   parameters:
     build-directory:
       default: 'build-mobile-production'
