@@ -24,7 +24,6 @@ import { all, call, put, take, takeEvery, select } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
 import { SETUP_BACKEND_SUCCEEDED } from 'common/store/backend/actions'
-import { track } from 'services/analytics'
 import { reportToSentry } from 'store/errors/reportToSentry'
 import { waitForWrite } from 'utils/sagaHelpers'
 
@@ -75,6 +74,7 @@ function* sendAsync({
   // WalletClient relies on audiusBackendInstance. Use waitForWrite to ensure it's initialized
   yield* waitForWrite()
   const walletClient = yield* getContext('walletClient')
+  const { track } = yield* getContext('analytics')
 
   const account = yield* select(getAccountUser)
   const weiBNAmount = stringWeiToBN(weiAudioAmount)

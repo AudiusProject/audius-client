@@ -37,7 +37,6 @@ import {
   delay
 } from 'typed-redux-saga'
 
-import { track } from 'services/analytics'
 import { AUDIO_PAGE } from 'utils/route'
 import { waitForRead } from 'utils/sagaHelpers'
 import {
@@ -183,6 +182,7 @@ function* claimChallengeRewardAsync(
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
   const env = yield* getContext('env')
+  const { track } = yield* getContext('analytics')
   const { claim, retryOnFailure, retryCount = 0 } = action.payload
   const { specifiers, challengeId, amount } = claim
 

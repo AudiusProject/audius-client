@@ -48,7 +48,6 @@ import {
 
 import { make } from 'common/store/analytics/actions'
 import { fetchUsers } from 'common/store/cache/users/sagas'
-import { track } from 'services/analytics'
 import { waitForWrite, waitForRead } from 'utils/sagaHelpers'
 
 const { decreaseBalance } = walletActions
@@ -219,6 +218,7 @@ function* sendTipAsync() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const { waitForRemoteConfig } = yield* getContext('remoteConfigInstance')
   const isNativeMobile = yield* getContext('isNativeMobile')
+  const { track } = yield* getContext('analytics')
   yield call(waitForRemoteConfig)
   yield* waitForWrite()
 

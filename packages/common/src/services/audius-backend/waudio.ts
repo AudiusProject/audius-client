@@ -1,4 +1,4 @@
-import { AudiusLibs } from '@audius/sdk'
+import type { AudiusLibs } from '@audius/sdk'
 
 import { AnalyticsEvent, Name, SolanaWalletAddress } from '../../models'
 
