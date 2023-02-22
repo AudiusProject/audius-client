@@ -27,7 +27,7 @@ import { formatCount } from 'app/utils/format'
 
 import { CollectionHeader } from './CollectionHeader'
 import { useCollectionLineup } from './useCollectionLineup'
-const { resetAndFetchCollection } = collectionPageActions
+const { resetAndFetchCollectionTracks } = collectionPageActions
 const { getPlaying, getUid, getCurrentTrack } = playerSelectors
 const { getIsReachable } = reachabilitySelectors
 
@@ -88,7 +88,7 @@ export const CollectionScreenDetailsTile = ({
   const isReachable = useSelector(getIsReachable)
 
   const fetchLineup = useCallback(() => {
-    dispatch(resetAndFetchCollection(collectionId))
+    dispatch(resetAndFetchCollectionTracks(collectionId))
   }, [dispatch, collectionId])
 
   const { entries, status } = useCollectionLineup(collectionId, fetchLineup)
