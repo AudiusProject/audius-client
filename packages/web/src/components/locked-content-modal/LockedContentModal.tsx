@@ -54,7 +54,8 @@ const TrackDetails = ({ track, owner }: { track: Track; owner: User }) => {
   return (
     <div className={styles.trackDetails}>
       <DynamicImage
-        wrapperClassName={styles.trackImage}
+        wrapperClassName={styles.trackImageWrapper}
+        className={styles.trackImage}
         image={image}
         aria-label={label}
       />
@@ -101,7 +102,7 @@ export const LockedContentModal = () => {
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      wrapperClassName={styles.modalWrapper}
+      bodyClassName={styles.modalBody}
       dismissOnClickOutside
     >
       <ModalHeader
