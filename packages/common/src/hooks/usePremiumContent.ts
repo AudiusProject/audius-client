@@ -38,7 +38,7 @@ export const usePremiumContentAccess = (track: Nullable<Partial<Track>>) => {
   return { isUserAccessTBD, doesUserHaveAccess }
 }
 
-export const useSpecialAccessEntity = (premiumConditions: Nullable<PremiumConditions>) => {
+export const usePremiumConditionsEntity = (premiumConditions: Nullable<PremiumConditions>) => {
   const { follow_user_id: followUserId, tip_user_id: tipUserId, nft_collection: nftCollection } =
     premiumConditions ?? {}
 
@@ -64,5 +64,5 @@ export const useSpecialAccessEntity = (premiumConditions: Nullable<PremiumCondit
     return ''
   }, [nftCollection])
 
-  return { nftCollection:  nftCollection ?? null, collectionLink, followee, tippedUser }
+  return { nftCollection: nftCollection ?? null, collectionLink, followee, tippedUser }
 }

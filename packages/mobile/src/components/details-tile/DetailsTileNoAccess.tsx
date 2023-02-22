@@ -7,7 +7,7 @@ import {
   FollowSource,
   usersSocialActions,
   tippingActions,
-  useSpecialAccessEntity,
+  usePremiumConditionsEntity,
   premiumContentSelectors
 } from '@audius/common'
 import type { ViewStyle } from 'react-native'
@@ -182,7 +182,7 @@ export const DetailsTileNoAccess = ({
   const premiumTrackStatusMap = useSelector(getPremiumTrackStatusMap)
   const premiumTrackStatus = premiumTrackStatusMap[trackId] ?? null
   const { nftCollection, collectionLink, followee, tippedUser } =
-    useSpecialAccessEntity(premiumConditions)
+    usePremiumConditionsEntity(premiumConditions)
 
   const { onPress: handlePressCollection } = useLink(collectionLink)
 

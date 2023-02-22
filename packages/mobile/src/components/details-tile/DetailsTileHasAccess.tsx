@@ -8,7 +8,7 @@ import type {
   PremiumConditionsSolNFTCollection,
   User
 } from '@audius/common'
-import { useSpecialAccessEntity } from '@audius/common'
+import { usePremiumConditionsEntity } from '@audius/common'
 import type { ViewStyle } from 'react-native'
 import { View, Text } from 'react-native'
 
@@ -155,7 +155,7 @@ export const DetailsTileHasAccess = ({
   const styles = useStyles()
 
   const { nftCollection, collectionLink, followee, tippedUser } =
-    useSpecialAccessEntity(premiumConditions)
+    usePremiumConditionsEntity(premiumConditions)
 
   const { onPress: handlePressCollection } = useLink(collectionLink)
 
