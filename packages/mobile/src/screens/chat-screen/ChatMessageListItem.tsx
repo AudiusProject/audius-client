@@ -53,20 +53,24 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     alignItems: 'flex-end'
   },
   bubble: {
-    padding: spacing(4),
+    paddingHorizontal: spacing(4),
+    paddingVertical: spacing(3),
     marginTop: spacing(2),
     backgroundColor: palette.white,
     borderRadius: spacing(3),
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
-    shadowRadius: 5,
-    fontSize: typography.fontSize.medium
+    shadowRadius: 5
   },
   isAuthor: {
     backgroundColor: palette.secondary
   },
-  textIsAuthor: {
+  message: {
+    fontSize: typography.fontSize.medium,
+    lineHeight: spacing(6)
+  },
+  messageIsAuthor: {
     color: palette.white
   },
   dateContainer: {
@@ -156,9 +160,11 @@ export const ChatMessageListItem = ({
 
   return (
     <>
-      <View style={[isAuthor ? styles.rootIsAuthor : styles.rootOtherUser]}>
+      <View style={isAuthor ? styles.rootIsAuthor : styles.rootOtherUser}>
         <View style={[styles.bubble, isAuthor && styles.isAuthor]}>
-          <Text style={isAuthor && styles.textIsAuthor}>{message.message}</Text>
+          <Text style={[styles.message, isAuthor && styles.messageIsAuthor]}>
+            {message.message}
+          </Text>
         </View>
         {hasTail && (
           <>
