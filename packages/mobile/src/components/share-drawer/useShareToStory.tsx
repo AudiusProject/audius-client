@@ -18,9 +18,10 @@ import {
 import { CreativeKit } from '@snapchat/snap-kit-react-native'
 import type { FFmpegSession } from 'ffmpeg-kit-react-native'
 import { FFmpegKit, FFmpegKitConfig, ReturnCode } from 'ffmpeg-kit-react-native'
-import { View } from 'react-native'
+import { Platform, View } from 'react-native'
 import Config from 'react-native-config'
 import RNFS from 'react-native-fs'
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions'
 import Share from 'react-native-share'
 import {
   init as initTikTokShare,
@@ -123,8 +124,6 @@ export const useShareToStory = ({
   const { toast } = useToast()
   const dispatch = useDispatch()
   const cancelRef = useRef(false)
-  const [shouldRenderShareToStorySticker, setShouldRenderShareToStorySticker] =
-    useState(false)
   const [selectedPlatform, setSelectedPlatform] =
     useState<ShareToStoryPlatform | null>(null)
   const trackTitle =
@@ -294,9 +293,6 @@ export const useShareToStory = ({
 
         // Step 1: Render and take a screenshot of the sticker:
         // Note: We have to capture the sticker image first because it doesn't work if you get the dominant colors first (mysterious).
-        if (!shouldRenderShareToStorySticker) {
-          setShouldRenderShareToStorySticker(true)
-        }
         const encodedTrackId = encodeHashId(content.track.track_id)
         const streamMp3Url = apiClient.makeUrl(
           `/tracks/${encodedTrackId}/stream`
@@ -448,7 +444,6 @@ export const useShareToStory = ({
       content,
       toggleProgressDrawer,
       captureStickerImage,
-      shouldRenderShareToStorySticker,
       pasteToInstagramApp,
       pasteToSnapchatApp,
       handleError,
@@ -484,9 +479,40 @@ export const useShareToStory = ({
   }, [handleShare])
 
   const handleShareToTikTok = useCallback(async () => {
+    if (Platform.OS === 'ios') {
+      const isAddPhotoPermGrantedResult = await check(
+        PERMISSIONS.IOS.PHOTO_LIBRARY_ADD_ONLY
+      )
+      if (
+        isAddPhotoPermGrantedResult === RESULTS.DENIED ||
+        isAddPhotoPermGrantedResult === RESULTS.LIMITED
+      ) {
+        const permissionStatus = await request(
+          PERMISSIONS.IOS.PHOTO_LIBRARY_ADD_ONLY
+        )
+        if (permissionStatus !== RESULTS.GRANTED) {
+          toast({
+            content: messages.addToPhotoLibraryDenied,
+            timeout: 8000,
+            type: 'error'
+          })
+          return
+        }
+      } else if (
+        isAddPhotoPermGrantedResult === RESULTS.BLOCKED ||
+        isAddPhotoPermGrantedResult === RESULTS.UNAVAILABLE
+      ) {
+        toast({
+          content: messages.addToPhotoLibraryBlocked,
+          timeout: 12000,
+          type: 'error'
+        })
+        return
+      }
+    }
     setSelectedPlatform('tiktok')
     await handleShare('tiktok')
-  }, [handleShare])
+  }, [handleShare, toast])
 
   return {
     handleShareToSnapchat,
@@ -494,7 +520,6 @@ export const useShareToStory = ({
     handleShareToInstagramStory,
     handleShareToTikTok,
     selectedPlatform,
-    shouldRenderShareToStorySticker,
     cancelStory
   }
 }
