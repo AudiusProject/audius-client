@@ -50,7 +50,7 @@ function* shouldAbortDownload(trackId: ID) {
   }
 }
 
-export function* downloadTrackWorker(trackId: ID, requeueCount: number) {
+export function* downloadTrackWorker(trackId: ID, requeueCount?: number) {
   const queueItem: OfflineJob = { type: 'track', id: trackId, requeueCount }
   track(
     make({ eventName: EventNames.OFFLINE_MODE_DOWNLOAD_START, ...queueItem })
@@ -82,7 +82,7 @@ export function* downloadTrackWorker(trackId: ID, requeueCount: number) {
         })
       )
       yield* call(removeDownloadedTrack, trackId)
-      if (requeueCount < MAX_REQUEUE_COUNT - 1) {
+      if ((requeueCount ?? 0) < MAX_REQUEUE_COUNT - 1) {
         yield* put(errorJob(queueItem))
       } else {
         yield* put(abandonJob(queueItem))
