@@ -34,7 +34,7 @@ function* processNextJob() {
   if (type === 'collection') {
     yield* call(downloadCollectionWorker, id)
   } else if (type === 'track') {
-    yield* call(downloadTrackWorker, id, item.retryCount)
+    yield* call(downloadTrackWorker, id, item.requeueCount)
   } else if (type === 'collection-sync') {
     yield* call(syncCollectionWorker, id)
   } else if (type === 'play-count') {

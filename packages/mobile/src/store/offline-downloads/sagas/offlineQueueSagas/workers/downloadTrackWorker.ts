@@ -40,6 +40,7 @@ const { SET_UNREACHABLE } = reachabilityActions
 const { getUserId } = accountSelectors
 
 const MAX_RETRY_COUNT = 3
+const MAX_REQUEUE_COUNT = 3
 
 function* shouldAbortDownload(trackId: ID) {
   while (true) {
@@ -49,60 +50,81 @@ function* shouldAbortDownload(trackId: ID) {
   }
 }
 
-export function* downloadTrackWorker(trackId: ID, retryCount: number) {
-  const queueItem: OfflineJob = { type: 'track', id: trackId, retryCount }
+export function* downloadTrackWorker(trackId: ID, requeueCount: number) {
+  const queueItem: OfflineJob = { type: 'track', id: trackId, requeueCount }
   track(
     make({ eventName: EventNames.OFFLINE_MODE_DOWNLOAD_START, ...queueItem })
   )
   yield* put(startJob(queueItem))
 
-  const { jobResult, cancel, abort } = yield* race({
-    jobResult: call(downloadTrackAsync, trackId),
-    abort: call(shouldAbortDownload, trackId),
-    cancel: take(SET_UNREACHABLE)
-  })
+  for (let retryCount = 0; retryCount < MAX_RETRY_COUNT; retryCount++) {
+    const { jobResult, cancel, abort } = yield* race({
+      jobResult: call(downloadTrackAsync, trackId),
+      abort: call(shouldAbortDownload, trackId),
+      cancel: take(SET_UNREACHABLE)
+    })
 
-  if (abort) {
-    yield* call(removeDownloadedTrack, trackId)
-    yield* put(requestProcessNextJob())
-  } else if (cancel) {
-    yield* call(removeDownloadedTrack, trackId)
-    yield* put(cancelJob(queueItem))
-  } else if (jobResult === OfflineDownloadStatus.ERROR) {
-    track(
-      make({
-        eventName: EventNames.OFFLINE_MODE_DOWNLOAD_FAILURE,
-        ...queueItem
-      })
-    )
-    yield* call(removeDownloadedTrack, trackId)
-    if (retryCount < MAX_RETRY_COUNT - 1) {
-      console.log('OfflineQueue - failed job - retrying', trackId, retryCount)
-      yield* put(errorJob(queueItem))
-    } else {
-      console.log('OfflineQueue - failed job - abandoning', trackId, retryCount)
+    if (abort) {
+      yield* call(removeDownloadedTrack, trackId)
+      yield* put(requestProcessNextJob())
+      return
+    } else if (cancel) {
+      yield* call(removeDownloadedTrack, trackId)
+      yield* put(cancelJob(queueItem))
+      return
+    } else if (jobResult === OfflineDownloadStatus.ERROR) {
+      if (retryCount < MAX_RETRY_COUNT - 1) {
+        console.log('OfflineQueue - looping failed job', trackId, retryCount)
+        continue
+      }
+      track(
+        make({
+          eventName: EventNames.OFFLINE_MODE_DOWNLOAD_FAILURE,
+          ...queueItem
+        })
+      )
+      yield* call(removeDownloadedTrack, trackId)
+      if (requeueCount < MAX_REQUEUE_COUNT - 1) {
+        console.log(
+          'OfflineQueue - failed job - requeueing',
+          trackId,
+          retryCount,
+          requeueCount
+        )
+        yield* put(errorJob(queueItem))
+      } else {
+        console.log(
+          'OfflineQueue - failed job - abandoning',
+          trackId,
+          retryCount,
+          requeueCount
+        )
+        yield* put(abandonJob(queueItem))
+      }
+      yield* put(requestProcessNextJob())
+      return
+    } else if (jobResult === OfflineDownloadStatus.ABANDONED) {
+      track(
+        make({
+          eventName: EventNames.OFFLINE_MODE_DOWNLOAD_FAILURE,
+          ...queueItem
+        })
+      )
       yield* put(abandonJob(queueItem))
+      yield* call(removeDownloadedTrack, trackId)
+      yield* put(requestProcessNextJob())
+      return
+    } else if (jobResult === OfflineDownloadStatus.SUCCESS) {
+      track(
+        make({
+          eventName: EventNames.OFFLINE_MODE_DOWNLOAD_SUCCESS,
+          ...queueItem
+        })
+      )
+      yield* put(completeJob({ ...queueItem, completedAt: Date.now() }))
+      yield* put(requestProcessNextJob())
+      return
     }
-    yield* put(requestProcessNextJob())
-  } else if (jobResult === OfflineDownloadStatus.ABANDONED) {
-    track(
-      make({
-        eventName: EventNames.OFFLINE_MODE_DOWNLOAD_FAILURE,
-        ...queueItem
-      })
-    )
-    yield* put(abandonJob(queueItem))
-    yield* call(removeDownloadedTrack, trackId)
-    yield* put(requestProcessNextJob())
-  } else if (jobResult === OfflineDownloadStatus.SUCCESS) {
-    track(
-      make({
-        eventName: EventNames.OFFLINE_MODE_DOWNLOAD_SUCCESS,
-        ...queueItem
-      })
-    )
-    yield* put(completeJob({ ...queueItem, completedAt: Date.now() }))
-    yield* put(requestProcessNextJob())
   }
 }
 
@@ -128,6 +150,7 @@ function* downloadTrackAsync(
     return OfflineDownloadStatus.ABANDONED
   }
 
+  if (Math.random() < 0.75) return OfflineDownloadStatus.ERROR
   try {
     yield* all([
       call(downloadTrackCoverArt, track),
