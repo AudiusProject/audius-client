@@ -122,7 +122,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       }
     }, [])
 
-    useLayoutEffect(() => {
+    useEffect(() => {
       if (unreadIndicatorEl) {
         unreadIndicatorEl.scrollIntoView()
         // One more state change, this keeps chats unread until the user scrolls to the bottom on their own
