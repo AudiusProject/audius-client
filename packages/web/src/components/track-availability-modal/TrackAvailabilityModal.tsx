@@ -59,7 +59,9 @@ const messages = {
     "Hidden tracks won't be visible to your followers. Only you will see them on your profile. Anyone who has the link will be able to listen.",
   learnMore: 'Learn More'
 }
-const LEARN_MORE_URL = ''
+
+const LEARN_MORE_URL =
+  'https://blog.audius.co/article/introducing-nft-collectible-gated-content'
 
 const defaultAvailabilityFields = {
   is_premium: false,
