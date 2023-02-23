@@ -60,7 +60,7 @@
 }
 
 .collapsibleContainer {
-  /** Unfortunately, this calcluates to overflow: auto hidden; */
+  /** Unfortunately, this calculates to overflow: auto hidden; */
   overflow: visible hidden;
   /** Hack to hide horizontal scrollbars **/
   padding: 0 150px;
