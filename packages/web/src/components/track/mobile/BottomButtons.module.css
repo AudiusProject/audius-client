@@ -72,3 +72,23 @@
   height: 32px;
   width: 32px;
 }
+
+.premiumContent {
+  display: flex;
+  gap: var(--unit-2);
+  padding: 2px var(--unit-2);
+  font-weight: var(--font-bold);
+  background: var(--white);
+  color: var(--neutral-light-4);
+  border: 1px solid var(--neutral-light-4);
+  border-radius: 2px;
+}
+
+.premiumContent svg {
+  width: var(--unit-4);
+  height: var(--unit-4);
+}
+
+.premiumContent path {
+  fill: var(--neutral-light-4) !important;
+}
