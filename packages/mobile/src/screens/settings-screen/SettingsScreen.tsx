@@ -19,6 +19,7 @@ import { AccountSettingsRow } from './AccountSettingsRow'
 import { AppearanceSettingsRow } from './AppearanceSettingsRow'
 import { CastSettingsRow } from './CastSettingsRow'
 import { Divider } from './Divider'
+import { DownloadNetworkPreferenceRow } from './DownloadNetworkPreferenceRow'
 import { SettingsRowLabel } from './SettingRowLabel'
 import { SettingsRow } from './SettingsRow'
 
@@ -99,6 +100,7 @@ export const SettingsScreen = () => {
           </SettingsRow>
           <AppearanceSettingsRow />
           {IS_IOS ? <CastSettingsRow /> : null}
+          <DownloadNetworkPreferenceRow />
           <Divider />
           <SettingsRow onPress={handlePressAbout}>
             <SettingsRowLabel
