@@ -17,7 +17,7 @@ jobs:
         - mobile-init
       filters:
         branches:
-          only: /(^main|^nkang-ota-ci)$/
+          only: /(^main|^nkang--ota-ci)$/
 
   - mobile-build-upload-releasecandidate-ios:
       context: Audius Mobile Client
@@ -58,13 +58,13 @@ jobs:
         branches:
           only: /(^release.*)$/
 
-  - mobile-build-staging-android:
-      context: Audius Mobile Client
-      requires:
-        - mobile-init
-      filters:
-        branches:
-          ignore: /(^main|^release.*)$/
+  # - mobile-build-staging-android:
+  #     context: Audius Mobile Client
+  #     requires:
+  #       - mobile-init
+  #     filters:
+  #       branches:
+  #         ignore: /(^main|^release.*)$/
 
   - mobile-build-upload-staging-android:
       context: Audius Mobile Client
@@ -72,7 +72,7 @@ jobs:
         - mobile-init
       filters:
         branches:
-          only: /^main$/
+          only: /(^main|^nkang--ota-ci)$/
 
   - mobile-build-upload-releasecandidate-android:
       context: Audius Mobile Client
