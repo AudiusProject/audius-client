@@ -338,7 +338,8 @@ export const Lineup = ({
     useCallback(() => {
       if (status === Status.LOADING || !inView) return
       handleLoadMore(true)
-    }, [status, inView, handleLoadMore])
+    }, [status, inView, handleLoadMore]),
+    false
   )
 
   // When scrolled past the end threshold of the lineup and the lineup is not loading,
@@ -537,7 +538,6 @@ export const Lineup = ({
           }
           return null
         }}
-        listKey={listKey}
         scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
       />
     </View>

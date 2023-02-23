@@ -17,6 +17,7 @@ import { EditCollectiblesDrawer } from 'app/components/edit-collectibles-drawer'
 import { EnablePushNotificationsDrawer } from 'app/components/enable-push-notifications-drawer'
 import { FeedFilterDrawer } from 'app/components/feed-filter-drawer'
 import { ForgotPasswordDrawer } from 'app/components/forgot-password-drawer'
+import { LockedContentDrawer } from 'app/components/locked-content-drawer'
 import { OverflowMenuDrawer } from 'app/components/overflow-menu-drawer'
 import { RateCtaDrawer } from 'app/components/rate-cta-drawer'
 import { ShareDrawer } from 'app/components/share-drawer'
@@ -46,10 +47,11 @@ type CommonDrawerProps = {
 /*
  * Conditionally renders the drawers hooked up to audius-client/src/common/ui/modal slice
  */
-const CommonDrawer = ({ modal: Modal, modalName }: CommonDrawerProps) => {
+const CommonDrawer = (props: CommonDrawerProps) => {
+  const { modal: Modal, modalName } = props
   const { modalState } = useDrawerState(modalName)
 
-  if (modalState === false) return null
+  if (!modalState) return null
 
   return <Modal />
 }
@@ -62,13 +64,11 @@ type NativeDrawerProps = {
 /*
  * Conditionally renders the drawers hooked up to native store/drawers slice
  */
-export const NativeDrawer = ({
-  drawer: Drawer,
-  drawerName
-}: NativeDrawerProps) => {
+export const NativeDrawer = (props: NativeDrawerProps) => {
+  const { drawer: Drawer, drawerName } = props
   const { visibleState } = useDrawer(drawerName)
 
-  if (visibleState === false) return null
+  if (!visibleState) return null
 
   return <Drawer />
 }
@@ -105,7 +105,8 @@ const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
   RateCallToAction: RateCtaDrawer,
   RemoveDownloadedCollection: RemoveDownloadedCollectionDrawer,
   RemoveDownloadedFavorites: RemoveDownloadedFavoritesDrawer,
-  UnfavoriteDownloadedCollection: UnfavoriteDownloadedCollectionDrawer
+  UnfavoriteDownloadedCollection: UnfavoriteDownloadedCollectionDrawer,
+  LockedContent: LockedContentDrawer
 }
 
 const commonDrawers = Object.entries(commonDrawersMap) as [
@@ -123,7 +124,7 @@ export const Drawers = () => {
     <>
       {commonDrawers.map(([modalName, Modal]) => {
         return (
-          <CommonDrawer modal={Modal} modalName={modalName} key={modalName} />
+          <CommonDrawer key={modalName} modal={Modal} modalName={modalName} />
         )
       })}
       {nativeDrawers.map(([drawerName, Drawer]) => (

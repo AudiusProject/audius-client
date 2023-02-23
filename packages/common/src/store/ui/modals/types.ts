@@ -32,5 +32,6 @@ export type Modals =
   | 'StripeOnRamp'
   | 'CreateChat'
   | 'InboxSettings'
+  | 'LockedContent'
 
 export type ModalsState = { [modal in Modals]: boolean | 'closing' }

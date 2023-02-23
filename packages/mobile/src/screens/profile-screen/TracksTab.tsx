@@ -50,13 +50,12 @@ export const TracksTab = () => {
     <Lineup
       selfLoad
       leadingElementId={artist_pick_track_id}
-      listKey='profile-tracks'
       actions={tracksActions}
       lineup={lineup}
       limit={track_count}
       loadMore={loadMore}
       disableTopTabScroll
-      ListEmptyComponent={<EmptyProfileTile tab='tracks' />}
+      LineupEmptyComponent={<EmptyProfileTile tab='tracks' />}
       showsVerticalScrollIndicator={false}
     />
   )

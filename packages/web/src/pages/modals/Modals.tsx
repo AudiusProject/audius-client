@@ -17,6 +17,7 @@ import EmbedModal from 'components/embed-modal/EmbedModal'
 import { FeatureFlagOverrideModal } from 'components/feature-flag-override-modal'
 import FirstUploadModal from 'components/first-upload-modal/FirstUploadModal'
 import { InboxSettingsModal } from 'components/inbox-settings-modal/InboxSettingsModal'
+import { LockedContentModal } from 'components/locked-content-modal/LockedContentModal'
 import PasswordResetModal from 'components/password-reset/PasswordResetModal'
 import ServiceSelectionModal from 'components/service-selection/ServiceSelectionModal'
 import { ShareModal } from 'components/share-modal/ShareModal'
@@ -88,6 +89,7 @@ const Modals = () => {
         </>
       )}
 
+      <LockedContentModal />
       <TipAudioModal />
       <BuyAudioModal />
       <TransactionDetailsModal />
