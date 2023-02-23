@@ -169,10 +169,10 @@
     "ios-deploy": "1.11.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
-    "@babel/preset-env": "^7.20.0",
-    "@babel/plugin-transform-react-jsx": "7.16.7",
-    "@babel/runtime": "^7.20.0",
+    "@babel/core": "7.21.0",
+    "@babel/preset-env": "7.20.2",
+    "@babel/plugin-transform-react-jsx": "7.21.0",
+    "@babel/runtime": "7.21.0",
     "@react-native-community/eslint-config": "3.2.0",
     "@svgr/plugin-svgo": "5.5.0",
     "@tsconfig/react-native": "2.0.3",

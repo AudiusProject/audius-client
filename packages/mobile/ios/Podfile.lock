@@ -182,9 +182,9 @@ PODS:
     - GoogleUtilities/Logger
   - GoogleUtilities/UserDefaults (7.10.0):
     - GoogleUtilities/Logger
-  - hermes-engine (0.71.0):
-    - hermes-engine/Pre-built (= 0.71.0)
-  - hermes-engine/Pre-built (0.71.0)
+  - hermes-engine (0.71.1):
+    - hermes-engine/Pre-built (= 0.71.1)
+  - hermes-engine/Pre-built (0.71.1)
   - JWT (3.0.0-beta.14):
     - Base64 (~> 1.1.2)
   - libevent (2.1.12)
@@ -1029,7 +1029,7 @@ SPEC CHECKSUMS:
   GoogleAppMeasurement: 4c19f031220c72464d460c9daa1fb5d1acce958e
   GoogleDataTransport: 1c8145da7117bd68bbbed00cf304edb6a24de00f
   GoogleUtilities: bad72cb363809015b1f7f19beb1f1cd23c589f95
-  hermes-engine: f6e715aa6c8bd38de6c13bc85e07b0a337edaa89
+  hermes-engine: 922ccd744f50d9bfde09e9677bf0f3b562ea5fb9
   JWT: ef71dfb03e1f842081e64dc42eef0e164f35d251
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: 8f97d3271e155c2d688875c29cd3c74908aef5f8
