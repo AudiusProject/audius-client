@@ -1,6 +1,7 @@
 import {
   memo,
   useState,
+  useMemo,
   useCallback,
   useEffect,
   MouseEvent,
@@ -19,7 +20,8 @@ import {
   cacheUsersSelectors,
   tracksSocialActions,
   shareModalUIActions,
-  playerSelectors
+  playerSelectors,
+  usePremiumContentAccess
 } from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
@@ -74,6 +76,7 @@ type OwnProps = {
   hasLoaded: (index: number) => void
   isTrending: boolean
   showRankIcon: boolean
+  isFeed: boolean
 }
 
 type ConnectedTrackTileProps = OwnProps &
@@ -107,14 +110,15 @@ const ConnectedTrackTile = memo(
     undoRepostTrack,
     shareTrack,
     isTrending,
+    isFeed = false,
     showRankIcon
   }: ConnectedTrackTileProps) => {
+    const trackWithFallback = getTrackWithFallback(track)
     const {
       is_delete,
       is_unlisted: isUnlisted,
       is_premium: isPremium,
       premium_conditions: premiumConditions,
-      premium_content_signature: premiumContentSignature,
       track_id: trackId,
       title,
       permalink,
@@ -129,10 +133,10 @@ const ConnectedTrackTile = memo(
       _cover_art_sizes,
       play_count,
       duration
-    } = getTrackWithFallback(track)
+    } = trackWithFallback
 
     const {
-      _artist_pick,
+      artist_pick_track_id,
       name,
       handle,
       is_deactivated: isOwnerDeactivated
@@ -142,9 +146,11 @@ const ConnectedTrackTile = memo(
     const isTrackBuffering = isActive && isBuffering
     const isTrackPlaying = isActive && isPlaying
     const isOwner = handle === userHandle
-    const isArtistPick = showArtistPick && _artist_pick === trackId
-    const doesUserHaveAccess =
-      !isPremium || isOwner || !!premiumContentSignature
+    const isArtistPick = showArtistPick && artist_pick_track_id === trackId
+
+    const { isUserAccessTBD, doesUserHaveAccess } =
+      usePremiumContentAccess(trackWithFallback)
+    const loading = isLoading || isUserAccessTBD
 
     const menuRef = useRef<HTMLDivElement>(null)
 
@@ -160,10 +166,10 @@ const ConnectedTrackTile = memo(
 
     const [artworkLoaded, setArtworkLoaded] = useState(false)
     useEffect(() => {
-      if (artworkLoaded && !isLoading && hasLoaded) {
+      if (artworkLoaded && !loading && hasLoaded) {
         hasLoaded(index)
       }
-    }, [artworkLoaded, hasLoaded, index, isLoading])
+    }, [artworkLoaded, hasLoaded, index, loading])
 
     const renderImage = () => {
       const artworkProps = {
@@ -174,8 +180,8 @@ const ConnectedTrackTile = memo(
         isBuffering: isTrackBuffering,
         isPlaying: isTrackPlaying,
         artworkIconClassName: styles.artworkIcon,
-        showArtworkIcon: !isLoading,
-        showSkeleton: isLoading,
+        showArtworkIcon: !loading,
+        showSkeleton: loading,
         callback: () => setArtworkLoaded(true),
         label: `${title} by ${name}`,
         doesUserHaveAccess
@@ -303,13 +309,22 @@ const ConnectedTrackTile = memo(
       }
     }, [saveTrack, unsaveTrack, trackId, isFavorited])
 
+    const onRepostMetadata = useMemo(() => {
+      return isFeed
+        ? // If we're on the feed, and someone i follow has
+          // reposted the content i am reposting,
+          // is_repost_repost is true
+          { is_repost_repost: followee_reposts.length !== 0 }
+        : { is_repost_repost: false }
+    }, [followee_reposts, isFeed])
+
     const onClickRepost = useCallback(() => {
       if (isReposted) {
         undoRepostTrack(trackId)
       } else {
-        repostTrack(trackId)
+        repostTrack(trackId, onRepostMetadata)
       }
-    }, [repostTrack, undoRepostTrack, trackId, isReposted])
+    }, [repostTrack, undoRepostTrack, trackId, isReposted, onRepostMetadata])
 
     const onClickShare = useCallback(() => {
       shareTrack(trackId)
@@ -342,7 +357,7 @@ const ConnectedTrackTile = memo(
     const userName = renderUserName()
 
     const disableActions = false
-    const showSkeleton = isLoading
+    const showSkeleton = loading
 
     return (
       <Draggable
@@ -364,7 +379,7 @@ const ConnectedTrackTile = memo(
           isPremium={isPremium}
           premiumConditions={premiumConditions}
           doesUserHaveAccess={doesUserHaveAccess}
-          isLoading={isLoading}
+          isLoading={loading}
           isDarkMode={isDarkMode()}
           isMatrixMode={isMatrix()}
           listenCount={play_count}
@@ -379,7 +394,7 @@ const ConnectedTrackTile = memo(
           fieldVisibility={fieldVisibility}
           containerClassName={cn(styles.container, {
             [containerClassName!]: !!containerClassName,
-            [styles.loading]: isLoading,
+            [styles.loading]: loading,
             [styles.active]: isActive
           })}
           onClickTitle={onClickTitle}
@@ -390,7 +405,8 @@ const ConnectedTrackTile = memo(
           isTrending={isTrending}
           showRankIcon={showRankIcon}
           permalink={permalink}
-          canOverrideBottomBar
+          trackId={trackId}
+          isTrack
         />
       </Draggable>
     )
@@ -419,8 +435,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
           source: ShareSource.TILE
         })
       ),
-    repostTrack: (trackId: ID) =>
-      dispatch(repostTrack(trackId, RepostSource.TILE)),
+    repostTrack: (trackId: ID, metadata: { is_repost_repost: boolean }) =>
+      dispatch(repostTrack(trackId, RepostSource.TILE, metadata)),
     undoRepostTrack: (trackId: ID) =>
       dispatch(undoRepostTrack(trackId, RepostSource.TILE)),
     saveTrack: (trackId: ID) =>

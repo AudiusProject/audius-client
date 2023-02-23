@@ -6,13 +6,16 @@ import {
   useState
 } from 'react'
 
+import { chatActions } from '@audius/common'
 import { IconButton, IconSend } from '@audius/stems'
 import cn from 'classnames'
+import { useDispatch } from 'react-redux'
 
 import { TextAreaV2 } from 'components/data-entry/TextAreaV2'
-import { audiusSdk } from 'services/audius-sdk'
 
 import styles from './ChatComposer.module.css'
+
+const { sendMessage } = chatActions
 
 const messages = {
   sendMessage: 'Send Message',
@@ -27,6 +30,7 @@ export type ChatComposerProps = ComponentPropsWithoutRef<'div'> & {
 
 export const ChatComposer = (props: ChatComposerProps) => {
   const { chatId } = props
+  const dispatch = useDispatch()
   const [value, setValue] = useState('')
 
   const handleChange = useCallback(
@@ -41,12 +45,11 @@ export const ChatComposer = (props: ChatComposerProps) => {
       e?.preventDefault()
       if (chatId && value) {
         const message = value
+        dispatch(sendMessage({ chatId, message }))
         setValue('')
-        const sdk = await audiusSdk()
-        await sdk.chats!.message({ chatId, message })
       }
     },
-    [chatId, value, setValue]
+    [chatId, value, setValue, dispatch]
   )
 
   // Submit when pressing enter while not holding shift
@@ -64,13 +67,14 @@ export const ChatComposer = (props: ChatComposerProps) => {
     <div className={cn(styles.root, props.className)}>
       <form className={styles.form} onSubmit={handleSubmit}>
         <TextAreaV2
+          rows={1}
           className={styles.input}
           placeholder={messages.sendMessagePlaceholder}
           onKeyDown={handleKeyDown}
           onChange={handleChange}
           value={value}
-          maxVisibleRows={3}
-          maxLength={500}
+          maxVisibleRows={10}
+          maxLength={10000}
           grows
           resize
         >

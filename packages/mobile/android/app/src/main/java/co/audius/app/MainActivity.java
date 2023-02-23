@@ -2,6 +2,8 @@ package co.audius.app;
 
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import com.bytedance.sdk.open.tiktok.TikTokOpenApiFactory;
+import com.bytedance.sdk.open.tiktok.TikTokOpenConfig;
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
@@ -54,6 +56,7 @@ public class MainActivity extends ReactActivity {
     RNBootSplash.init(this);
     super.onCreate(null);
     RNBars.init(this, "light-content");
+    TikTokOpenApiFactory.init(new TikTokOpenConfig(BuildConfig.TIKTOK_APP_ID));
 
     // lazy load Google Cast context
     CastContext.getSharedInstance(this);

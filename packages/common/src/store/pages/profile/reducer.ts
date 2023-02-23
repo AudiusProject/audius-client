@@ -2,8 +2,12 @@
 // TODO(nkang) - convert to TS
 
 import { asLineup } from 'store/lineup/reducer'
-import feedReducer from 'store/pages/profile/lineups/feed/reducer'
-import tracksReducer from 'store/pages/profile/lineups/tracks/reducer'
+import feedReducer, {
+  initialState as initialFeedLineupState
+} from 'store/pages/profile/lineups/feed/reducer'
+import tracksReducer, {
+  initialState as initialTracksLineupState
+} from 'store/pages/profile/lineups/tracks/reducer'
 import { FollowType, CollectionSortMode } from 'store/pages/profile/types'
 
 import { Status } from '../../../models'
@@ -22,7 +26,10 @@ import {
   FETCH_FOLLOW_USERS_FAILED,
   DISMISS_PROFILE_METER,
   UPDATE_MOST_USED_TAGS,
-  SET_NOTIFICATION_SUBSCRIPTION
+  SET_NOTIFICATION_SUBSCRIPTION,
+  FETCH_COLLECTIONS,
+  FETCH_COLLECTIONS_SUCCEEDED,
+  FETCH_COLLECTIONS_FAILED
 } from './actions'
 import { PREFIX as feedPrefix } from './lineups/feed/actions'
 import { PREFIX as tracksPrefix } from './lineups/tracks/actions'
@@ -37,6 +44,7 @@ const initialProfileState = {
   updateSuccess: false,
   updateError: false,
   mostUsedTags: [],
+  collectionStatus: Status.IDLE,
 
   collectionSortMode: CollectionSortMode.TIMESTAMP,
 
@@ -44,7 +52,10 @@ const initialProfileState = {
 
   [FollowType.FOLLOWERS]: { status: Status.IDLE, userIds: [] },
   [FollowType.FOLLOWEES]: { status: Status.IDLE, userIds: [] },
-  [FollowType.FOLLOWEE_FOLLOWS]: { status: Status.IDLE, userIds: [] }
+  [FollowType.FOLLOWEE_FOLLOWS]: { status: Status.IDLE, userIds: [] },
+
+  feed: initialFeedLineupState,
+  tracks: initialTracksLineupState
 }
 
 const updateProfile = (state, action, data) => {
@@ -207,6 +218,15 @@ const actionsMap = {
     return updateProfile(state, action, {
       isNotificationSubscribed: isSubscribed
     })
+  },
+  [FETCH_COLLECTIONS](state, action) {
+    return updateProfile(state, action, { collectionStatus: Status.LOADING })
+  },
+  [FETCH_COLLECTIONS_SUCCEEDED](state, action) {
+    return updateProfile(state, action, { collectionStatus: Status.SUCCESS })
+  },
+  [FETCH_COLLECTIONS_FAILED](state, action) {
+    return updateProfile(state, action, { collectionStatus: Status.ERROR })
   }
 }
 

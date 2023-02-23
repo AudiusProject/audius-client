@@ -880,15 +880,6 @@ export const audiusBackend = ({
       const account = audiusLibs.Account.getCurrentUser()
       if (!account) return null
 
-      // If reading the artist pick from discovery, set _artist_pick on
-      // the user to the value from discovery (set in artist_pick_track_id
-      // on the user).
-      // TODO after migration is complete: replace all usages of
-      // _artist_pick with artist_pick_track_id
-      const readArtistPickFromDiscoveryEnabled =
-        (await getFeatureEnabled(
-          FeatureFlags.READ_ARTIST_PICK_FROM_DISCOVERY
-        )) ?? false
       try {
         const body = await getCreatorSocialHandle(account.handle)
         account.twitter_handle = body.twitterHandle || null
@@ -896,16 +887,9 @@ export const audiusBackend = ({
         account.tiktok_handle = body.tikTokHandle || null
         account.website = body.website || null
         account.donation = body.donation || null
-        account._artist_pick =
-          (readArtistPickFromDiscoveryEnabled
-            ? account.artist_pick_track_id
-            : body.pinnedTrackId) || null
-        account.artist_pick_track_id =
-          (readArtistPickFromDiscoveryEnabled
-            ? account.artist_pick_track_id
-            : body.pinnedTrackId) || null
         account.twitterVerified = body.twitterVerified || false
         account.instagramVerified = body.instagramVerified || false
+        account.tikTokVerified = body.tikTokVerified || false
       } catch (e) {
         console.error(e)
       }
@@ -1188,9 +1172,15 @@ export const audiusBackend = ({
     }
   }
 
-  async function repostTrack(trackId: ID) {
+  async function repostTrack(
+    trackId: ID,
+    metadata?: { is_repost_repost: boolean }
+  ) {
     try {
-      return await audiusLibs.EntityManager.repostTrack(trackId)
+      return await audiusLibs.EntityManager.repostTrack(
+        trackId,
+        JSON.stringify(metadata)
+      )
     } catch (err) {
       console.error(getErrorMessage(err))
       throw err
@@ -1206,9 +1196,15 @@ export const audiusBackend = ({
     }
   }
 
-  async function repostCollection(playlistId: ID) {
+  async function repostCollection(
+    playlistId: ID,
+    metadata?: { is_repost_repost: boolean }
+  ) {
     try {
-      return audiusLibs.EntityManager.repostPlaylist(playlistId)
+      return audiusLibs.EntityManager.repostPlaylist(
+        playlistId,
+        JSON.stringify(metadata)
+      )
     } catch (err) {
       console.error(getErrorMessage(err))
       throw err
@@ -1547,6 +1543,7 @@ export const audiusBackend = ({
   async function getFolloweeFollows(userId: ID, limit = 100, offset = 0) {
     let followers = []
     try {
+      await waitForLibsInit()
       followers = await audiusLibs.User.getMutualFollowers(
         limit,
         offset,
@@ -1565,7 +1562,11 @@ export const audiusBackend = ({
     return followers
   }
 
-  async function getPlaylists(userId: Nullable<ID>, playlistIds: ID[]) {
+  async function getPlaylists(
+    userId: Nullable<ID>,
+    playlistIds: Nullable<ID[]>,
+    withUsers = true
+  ): Promise<CollectionMetadata[]> {
     try {
       const playlists = await withEagerOption(
         {
@@ -1576,7 +1577,7 @@ export const audiusBackend = ({
         0,
         playlistIds,
         userId,
-        true
+        withUsers
       )
       return (playlists || []).map(getCollectionImages)
     } catch (err) {
@@ -1857,31 +1858,6 @@ export const audiusBackend = ({
     }
   }
 
-  /**
-   * Sets the artist pick for a user
-   * @param {number?} trackId if null, unsets the artist pick
-   */
-  async function setArtistPick(trackId: Nullable<ID> = null) {
-    await waitForLibsInit()
-    try {
-      const { data, signature } = await signData()
-      return await fetch(`${identityServiceUrl}/artist_pick`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          [AuthHeaders.Message]: data,
-          [AuthHeaders.Signature]: signature
-        },
-        body: JSON.stringify({
-          trackId
-        })
-      })
-    } catch (err) {
-      console.log(getErrorMessage(err))
-      return false
-    }
-  }
-
   async function signIn(email: string, password: string) {
     await waitForLibsInit()
     return audiusLibs.Account.login(email, password)
@@ -2102,7 +2078,7 @@ export const audiusBackend = ({
   ) {
     await waitForLibsInit()
     try {
-      await audiusLibs.Account.associateTikTokAccount(tikTokId, userId, handle)
+      await audiusLibs.Account.associateTikTokUser(tikTokId, userId, handle)
       return { success: true }
     } catch (error) {
       console.error(getErrorMessage(error))
@@ -3266,7 +3242,6 @@ export const audiusBackend = ({
     sendTokens,
     sendWAudioTokens,
     sendWelcomeEmail,
-    setArtistPick,
     setCreatorNodeEndpoint,
     setup,
     setUserHandleForRelay,

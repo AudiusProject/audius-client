@@ -1,4 +1,9 @@
-import { TrackSegment, decodeHashId, hlsUtils } from '@audius/common'
+import {
+  TrackSegment,
+  decodeHashId,
+  hlsUtils,
+  PlaybackRate
+} from '@audius/common'
 import Hls from 'hls.js'
 
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
@@ -11,6 +16,8 @@ declare global {
     webkitAudioContext: typeof AudioContext
   }
 }
+
+const IS_SAFARI = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
 
 const FADE_IN_EVENT = new Event('fade-in')
 const FADE_OUT_EVENT = new Event('fade-out')
@@ -83,6 +90,7 @@ export class AudioPlayer {
   source: MediaElementAudioSourceNode | null
   gainNode: GainNode | null
   duration: number
+  playbackRate: PlaybackRate
   bufferingTimeout: ReturnType<typeof setTimeout> | null
   buffering: boolean
   onBufferingChange: (isBuffering: boolean) => void
@@ -111,6 +119,9 @@ export class AudioPlayer {
     // outside source. Audio.duration returns Infinity until all the streams are
     // concatenated together.
     this.duration = 0
+
+    // Variable to hold the playbackRate of the audio element
+    this.playbackRate = '1x'
 
     this.bufferingTimeout = null
     this.buffering = false
@@ -143,7 +154,7 @@ export class AudioPlayer {
 
   _initContext = () => {
     this.audio.addEventListener('canplay', () => {
-      if (!this.audioCtx) {
+      if (!this.audioCtx && !IS_SAFARI) {
         // Set up WebAudio API handles
         const AudioContext = window.AudioContext || window.webkitAudioContext
         try {
@@ -361,6 +372,8 @@ export class AudioPlayer {
       this.source!.connect(this.gainNode!)
     }
 
+    this._updateAudioPlaybackRate()
+
     const promise = this.audio.play()
     if (promise) {
       promise.catch((_) => {
@@ -415,6 +428,14 @@ export class AudioPlayer {
     return this.audio.currentTime
   }
 
+  getPlaybackRate = () => {
+    return this.playbackRate
+  }
+
+  getAudioPlaybackRate = () => {
+    return this.audio.playbackRate
+  }
+
   seek = (seconds: number) => {
     this.audio.currentTime = seconds
   }
@@ -422,6 +443,15 @@ export class AudioPlayer {
   setVolume = (value: number) => {
     this.audio.volume =
       (Math.pow(VOLUME_CHANGE_BASE, value) - 1) / (VOLUME_CHANGE_BASE - 1)
+  }
+
+  setPlaybackRate = (value: PlaybackRate) => {
+    this.playbackRate = value
+    this._updateAudioPlaybackRate()
+  }
+
+  _updateAudioPlaybackRate = () => {
+    this.audio.playbackRate = parseFloat(this.playbackRate)
   }
 
   _fadeIn = () => {

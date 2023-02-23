@@ -92,6 +92,10 @@ const slice = createSlice({
       _state,
       _action: PayloadAction<{ userId: ID }>
     ) => {},
+    fetchSupportersForUser: (
+      _state,
+      _action: PayloadAction<{ userId: ID }>
+    ) => {},
     beginTip: (
       state,
       action: PayloadAction<{ user: User | null; source: TipSource }>
@@ -152,6 +156,9 @@ const slice = createSlice({
     },
     setShowTip: (state, action: PayloadAction<{ show: boolean }>) => {
       state.showTip = action.payload.show
+    },
+    refreshTipGatedTracks: (_state, _action: PayloadAction<{ userId: ID }>) => {
+      // triggers saga
     }
   }
 })
@@ -163,6 +170,7 @@ export const {
   setSupportersOverridesForUser,
   refreshSupport,
   fetchSupportingForUser,
+  fetchSupportersForUser,
   beginTip,
   sendTip,
   confirmSendTip,
@@ -173,7 +181,8 @@ export const {
   fetchRecentTips,
   fetchUserSupporter,
   setTipToDisplay,
-  setShowTip
+  setShowTip,
+  refreshTipGatedTracks
 } = slice.actions
 
 export const actions = slice.actions

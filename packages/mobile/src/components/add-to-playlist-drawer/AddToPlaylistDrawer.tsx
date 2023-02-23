@@ -1,6 +1,7 @@
-import { useCallback, useContext } from 'react'
+import { useCallback } from 'react'
 
 import {
+  SquareSizes,
   CreatePlaylistSource,
   accountSelectors,
   cacheCollectionsActions,
@@ -16,8 +17,10 @@ import { Card } from 'app/components/card'
 import { CardList } from 'app/components/core'
 import { AppDrawer, useDrawerState } from 'app/components/drawer'
 import { CollectionImage } from 'app/components/image/CollectionImage'
-import { ToastContext } from 'app/components/toast/ToastContext'
+import { useToast } from 'app/hooks/useToast'
 import { makeStyles, shadow } from 'app/styles'
+
+import type { ImageProps } from '../image/FastImage'
 
 const { addTrackToPlaylist, createPlaylist } = cacheCollectionsActions
 const { getTrackId, getTrackTitle } = addToPlaylistUISelectors
@@ -46,7 +49,7 @@ const useStyles = makeStyles(() => ({
 
 export const AddToPlaylistDrawer = () => {
   const styles = useStyles()
-  const { toast } = useContext(ToastContext)
+  const { toast } = useToast()
   const dispatch = useDispatch()
   const { onClose } = useDrawerState('AddToPlaylist')
   const trackId = useSelector(getTrackId)
@@ -54,7 +57,14 @@ export const AddToPlaylistDrawer = () => {
   const user = useSelector(getAccountWithOwnPlaylists)
 
   const renderImage = useCallback(
-    (item) => () => <CollectionImage collection={item} />,
+    (item) => (props?: ImageProps) =>
+      (
+        <CollectionImage
+          collection={item}
+          size={SquareSizes.SIZE_480_BY_480}
+          {...props}
+        />
+      ),
     []
   )
 
@@ -100,6 +110,7 @@ export const AddToPlaylistDrawer = () => {
             <Card
               key={item.playlist_id}
               type='collection'
+              id={item.playlist_id}
               primaryText={item.playlist_name}
               secondaryText={user.name}
               onPress={() => {

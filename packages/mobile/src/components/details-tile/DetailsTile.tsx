@@ -1,7 +1,11 @@
 import { useCallback } from 'react'
 
-import { squashNewLines, accountSelectors } from '@audius/common'
-import type { ImageStyle } from 'react-native'
+import type { Track } from '@audius/common'
+import {
+  usePremiumContentAccess,
+  squashNewLines,
+  accountSelectors
+} from '@audius/common'
 import { TouchableOpacity, View } from 'react-native'
 import { useSelector } from 'react-redux'
 
@@ -13,10 +17,14 @@ import { Button, Hyperlink, Tile } from 'app/components/core'
 import Text from 'app/components/text'
 import UserBadges from 'app/components/user-badges'
 import { light } from 'app/haptics'
+import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { PremiumTrackCornerTag } from 'app/screens/track-screen/PremiumTrackCornerTag'
 import { flexRowCentered, makeStyles } from 'app/styles'
 
 import { DetailsTileActionButtons } from './DetailsTileActionButtons'
+import { DetailsTileHasAccess } from './DetailsTileHasAccess'
+import { DetailsTileNoAccess } from './DetailsTileNoAccess'
 import { DetailsTileStats } from './DetailsTileStats'
 import type { DetailsTileProps } from './types'
 
@@ -52,7 +60,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     textTransform: 'uppercase'
   },
 
-  coverArtWrapper: {
+  coverArt: {
     borderWidth: 1,
     borderColor: palette.neutralLight8,
     borderRadius: 4,
@@ -60,11 +68,6 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     width: 195,
     marginBottom: spacing(6),
     alignSelf: 'center'
-  },
-
-  coverArt: {
-    borderRadius: 4,
-    overflow: 'hidden'
   },
 
   title: {
@@ -185,8 +188,16 @@ export const DetailsTile = ({
   saveCount,
   headerText,
   title,
-  user
+  user,
+  track
 }: DetailsTileProps) => {
+  const isPremiumContentEnabled = useIsPremiumContentEnabled()
+  const { doesUserHaveAccess } = usePremiumContentAccess(
+    track ? (track as unknown as Track) : null
+  )
+  const { track_id: trackId, premium_conditions: premiumConditions } =
+    track ?? {}
+
   const styles = useStyles()
   const navigation = useNavigation()
 
@@ -210,6 +221,19 @@ export const DetailsTile = ({
     onPressPlay()
   }, [onPressPlay])
 
+  const renderCornerTag = () => {
+    if (isPremiumContentEnabled && premiumConditions) {
+      return (
+        <PremiumTrackCornerTag
+          doesUserHaveAccess={doesUserHaveAccess}
+          isOwner={isOwner}
+          premiumConditions={premiumConditions}
+        />
+      )
+    }
+    return null
+  }
+
   const renderDetailLabels = () => {
     return detailLabels.map((infoFact) => {
       return (
@@ -230,7 +254,7 @@ export const DetailsTile = ({
   }
 
   const innerImageElement = renderImage({
-    styles: { image: styles.coverArt as ImageStyle }
+    style: styles.coverArt
   })
 
   const imageElement = coSign ? (
@@ -242,6 +266,7 @@ export const DetailsTile = ({
   return (
     <Tile styles={{ root: styles.root, content: styles.tileContent }}>
       <View style={styles.topContent}>
+        {renderCornerTag?.()}
         {renderHeader ? (
           renderHeader()
         ) : (
@@ -250,7 +275,7 @@ export const DetailsTile = ({
           </Text>
         )}
         <View style={styles.topContentBody}>
-          <View style={styles.coverArtWrapper}>{imageElement}</View>
+          {imageElement}
           <Text style={styles.title} weight='bold'>
             {title}
           </Text>
@@ -268,15 +293,27 @@ export const DetailsTile = ({
             </TouchableOpacity>
           ) : null}
           <View style={styles.buttonSection}>
-            <Button
-              styles={{ text: styles.playButtonText }}
-              title={isPlaying ? messages.pause : messages.play}
-              size='large'
-              iconPosition='left'
-              icon={isPlaying ? IconPause : IconPlay}
-              onPress={handlePressPlay}
-              fullWidth
-            />
+            {isPremiumContentEnabled &&
+              !doesUserHaveAccess &&
+              premiumConditions &&
+              trackId && (
+                <DetailsTileNoAccess
+                  trackId={trackId}
+                  premiumConditions={premiumConditions}
+                />
+              )}
+            {!isPremiumContentEnabled ||
+              (doesUserHaveAccess && (
+                <Button
+                  styles={{ text: styles.playButtonText }}
+                  title={isPlaying ? messages.pause : messages.play}
+                  size='large'
+                  iconPosition='left'
+                  icon={isPlaying ? IconPause : IconPlay}
+                  onPress={handlePressPlay}
+                  fullWidth
+                />
+              ))}
             <DetailsTileActionButtons
               hasReposted={!!hasReposted}
               hasSaved={!!hasSaved}
@@ -291,6 +328,14 @@ export const DetailsTile = ({
               onPressShare={onPressShare}
             />
           </View>
+          {isPremiumContentEnabled &&
+            doesUserHaveAccess &&
+            premiumConditions && (
+              <DetailsTileHasAccess
+                premiumConditions={premiumConditions}
+                isOwner={isOwner}
+              />
+            )}
           <DetailsTileStats
             favoriteCount={saveCount}
             hideFavoriteCount={hideFavoriteCount}

@@ -54,13 +54,15 @@ export function* repostCollectionAsync(
     yield* put(make(Name.CREATE_ACCOUNT_OPEN, { source: 'social action' }))
     return
   }
+  if (userId === action.collectionId) {
+    return
+  }
 
   // increment the repost count on the user
   const user = yield* select(getUser, { id: userId })
   if (!user) return
 
   yield* call(adjustUserField, { user, fieldName: 'repost_count', delta: 1 })
-
   let collection = action.metadata
   if (!collection) {
     const collections = yield* select(getCollections, {
@@ -80,7 +82,8 @@ export function* repostCollectionAsync(
     confirmRepostCollection,
     collection.playlist_owner_id,
     action.collectionId,
-    user
+    user,
+    action.metadata
   )
 
   yield* put(
@@ -99,7 +102,8 @@ export function* repostCollectionAsync(
 export function* confirmRepostCollection(
   ownerId: ID,
   collectionId: ID,
-  user: User
+  user: User,
+  metadata: { is_repost_repost: boolean }
 ) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* put(
@@ -108,7 +112,8 @@ export function* confirmRepostCollection(
       function* () {
         const { blockHash, blockNumber } = yield* call(
           audiusBackendInstance.repostCollection,
-          collectionId
+          collectionId,
+          metadata
         )
         const confirmed = yield* call(
           confirmTransaction,
@@ -158,6 +163,9 @@ export function* undoRepostCollectionAsync(
     yield* put(signOnActions.openSignOn(false))
     yield* put(signOnActions.showRequiresAccountModal())
     yield* put(make(Name.CREATE_ACCOUNT_OPEN, { source: 'social action' }))
+    return
+  }
+  if (userId === action.collectionId) {
     return
   }
 
@@ -308,6 +316,9 @@ export function* saveCollectionAsync(
     yield* put(make(Name.CREATE_ACCOUNT_OPEN, { source: 'social action' }))
     return
   }
+  if (userId === action.collectionId) {
+    return
+  }
 
   const collections = yield* select(getCollections, {
     ids: [action.collectionId]
@@ -447,6 +458,10 @@ export function* unsaveCollectionAsync(
   action: ReturnType<typeof socialActions.unsaveCollection>
 ) {
   yield* call(waitForWrite)
+  const userId = yield* select(getUserId)
+  if (userId === action.collectionId) {
+    return
+  }
   const collections = yield* select(getCollections, {
     ids: [action.collectionId]
   })

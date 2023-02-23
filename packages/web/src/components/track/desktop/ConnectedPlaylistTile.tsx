@@ -34,7 +34,6 @@ import { Dispatch } from 'redux'
 
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
 import { TrackEvent, make } from 'common/store/analytics/actions'
-import { confirmSaveCollection } from 'common/store/social/collections/sagas'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import Draggable from 'components/dragndrop/Draggable'
 import { OwnProps as CollectionkMenuProps } from 'components/menu/CollectionMenu'
@@ -97,6 +96,7 @@ type OwnProps = {
   numLoadingSkeletonRows?: number
   isTrending: boolean
   showRankIcon: boolean
+  isFeed: boolean
 }
 
 type ConnectedPlaylistTileProps = OwnProps &
@@ -135,7 +135,8 @@ const ConnectedPlaylistTile = memo(
     saveCollection,
     unsaveCollection,
     isTrending,
-    showRankIcon
+    showRankIcon,
+    isFeed = false
   }: ConnectedPlaylistTileProps) => {
     const {
       is_album: isAlbum,
@@ -233,6 +234,12 @@ const ConnectedPlaylistTile = memo(
       : isAlbum
       ? albumPage(handle, title, id)
       : playlistPage(handle, title, id)
+
+    const fullHref = isLoading
+      ? ''
+      : isAlbum
+      ? fullAlbumPage(handle, title, id)
+      : fullPlaylistPage(handle, title, id)
 
     const onClickTitle = useCallback(
       (e: MouseEvent) => {
@@ -380,13 +387,28 @@ const ConnectedPlaylistTile = memo(
       }
     }, [saveCollection, unsaveCollection, id, isFavorited])
 
+    const onRepostMetadata = useMemo(() => {
+      return isFeed
+        ? // If we're on the feed, and someone i follow has
+          // reposted the content i am reposting,
+          // is_repost_repost is true
+          { is_repost_repost: followeeReposts.length !== 0 }
+        : { is_repost_repost: false }
+    }, [followeeReposts, isFeed])
+
     const onClickRepost = useCallback(() => {
       if (isReposted) {
         undoRepostCollection(id)
       } else {
-        repostCollection(id)
+        repostCollection(id, onRepostMetadata)
       }
-    }, [repostCollection, undoRepostCollection, id, isReposted])
+    }, [
+      repostCollection,
+      undoRepostCollection,
+      id,
+      isReposted,
+      onRepostMetadata
+    ])
 
     const onClickShare = useCallback(() => {
       shareCollection(id)
@@ -403,12 +425,12 @@ const ConnectedPlaylistTile = memo(
           kind={isAlbum ? 'album' : 'playlist'}
           id={id}
           isOwner={isOwner}
-          link={href}
+          link={fullHref}
         >
           {children as any}
         </Draggable>
       ),
-      [id, disableActions, title, isAlbum, isOwner, href]
+      [id, disableActions, title, isAlbum, isOwner, fullHref]
     )
 
     const renderTrackList = useCallback(() => {
@@ -563,8 +585,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
           source: ShareSource.TILE
         })
       ),
-    repostCollection: (id: ID) =>
-      dispatch(repostCollection(id, RepostSource.TILE)),
+    repostCollection: (id: ID, metadata: { is_repost_repost: boolean }) =>
+      dispatch(repostCollection(id, RepostSource.TILE, metadata)),
     undoRepostCollection: (id: ID) =>
       dispatch(undoRepostCollection(id, RepostSource.TILE)),
     saveCollection: (id: ID) =>

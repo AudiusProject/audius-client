@@ -475,10 +475,9 @@ function* confirmAddTrackToPlaylist(
         return playlistId
       },
       function* (confirmedPlaylistId) {
-        const confirmedPlaylist = (yield call(
-          retrieveCollection,
-          confirmedPlaylistId
-        ))[0]
+        const [confirmedPlaylist] = yield call(retrieveCollection, {
+          playlistId: confirmedPlaylistId
+        })
 
         const playlist = yield select(getCollection, { id: playlistId })
 
@@ -698,10 +697,9 @@ function* confirmRemoveTrackFromPlaylist(
         return confirmedPlaylistId
       },
       function* (confirmedPlaylistId) {
-        const confirmedPlaylist = (yield call(
-          retrieveCollection,
-          confirmedPlaylistId
-        ))[0]
+        const [confirmedPlaylist] = yield call(retrieveCollection, {
+          playlistId: confirmedPlaylistId
+        })
         yield put(
           cacheActions.update(Kind.COLLECTIONS, [
             {
@@ -828,10 +826,9 @@ function* confirmOrderPlaylist(userId, playlistId, trackIds, playlist) {
         return playlistId
       },
       function* (confirmedPlaylistId) {
-        const confirmedPlaylist = (yield call(
-          retrieveCollection,
-          confirmedPlaylistId
-        ))[0]
+        const [confirmedPlaylist] = yield call(retrieveCollection, {
+          playlistId: confirmedPlaylistId
+        })
 
         yield put(
           cacheActions.update(Kind.COLLECTIONS, [
@@ -1216,6 +1213,15 @@ function* fetchRepostInfo(entries) {
 function* watchAdd() {
   yield takeEvery(cacheActions.ADD_SUCCEEDED, function* (action) {
     if (action.kind === Kind.COLLECTIONS) {
+      const collectionPermalinksToIds = {}
+      action.entries
+        .filter((entry) => !!entry.metadata.permalink)
+        .forEach((entry) => {
+          collectionPermalinksToIds[entry.metadata.permalink] = entry.id
+        })
+      yield put(
+        collectionActions.setCollectionPermalinks(collectionPermalinksToIds)
+      )
       yield fork(fetchRepostInfo, action.entries)
     }
   })
@@ -1233,7 +1239,7 @@ function* watchFetchCoverArt() {
       inProgress.add(key)
 
       try {
-        let collection = yield select(getCollection, { id: collectionId })
+        const collection = yield select(getCollection, { id: collectionId })
         const user = yield select(getUser, { id: collection.playlist_owner_id })
         if (
           !collection ||
@@ -1254,14 +1260,18 @@ function* watchFetchCoverArt() {
           coverArtSize,
           gateways
         )
-        collection = yield select(getCollection, { id: collectionId })
-        collection._cover_art_sizes = {
-          ...collection._cover_art_sizes,
-          [coverArtSize || DefaultSizes.OVERRIDE]: url
-        }
         yield put(
           cacheActions.update(Kind.COLLECTIONS, [
-            { id: collectionId, metadata: collection }
+            {
+              id: collectionId,
+              metadata: {
+                ...collection,
+                _cover_art_sizes: {
+                  ...collection._cover_art_sizes,
+                  [coverArtSize || DefaultSizes.OVERRIDE]: url
+                }
+              }
+            }
           ])
         )
       } catch (e) {

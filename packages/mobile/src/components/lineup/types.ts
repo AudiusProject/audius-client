@@ -75,10 +75,17 @@ export type LineupProps = {
   isTrending?: boolean
 
   /**
+   * When `true` lineup waits until visible before fetching.
+   * This is especcially needed for lineups inside collapsible-tab-view
+   * which do not support tab-navigator lazy mode
+   */
+  lazy?: boolean
+
+  /**
    * Indicator if a track should be displayed differently (ie. artist pick)
    * The leadingElementId is displayed at the top of the lineup
    */
-  leadingElementId?: ID
+  leadingElementId?: ID | null
 
   /**
    * A custom delineator to show after the leading element

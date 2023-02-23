@@ -337,14 +337,6 @@ class GiantTrackTile extends PureComponent {
     )
   }
 
-  handleFollow = () => {
-    const { doesUserHaveAccess, isPremium, premiumConditions, onUnlock } =
-      this.props
-    if (!doesUserHaveAccess && isPremium && premiumConditions.follow_user_id) {
-      onUnlock()
-    }
-  }
-
   render() {
     const {
       playing,
@@ -377,6 +369,8 @@ class GiantTrackTile extends PureComponent {
     const { artworkLoading } = this.state
 
     const isLoading = loading || artworkLoading
+    const showPremiumCornerTag =
+      !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
 
     const overflowMenuExtraItems = []
     if (!isOwner) {
@@ -414,8 +408,12 @@ class GiantTrackTile extends PureComponent {
     return (
       <div className={styles.giantTrackTile}>
         <div className={styles.topSection}>
-          {isPremium && (
-            <PremiumTrackCornerTag doesUserHaveAccess={doesUserHaveAccess} />
+          {showPremiumCornerTag && (
+            <PremiumTrackCornerTag
+              doesUserHaveAccess={doesUserHaveAccess}
+              isOwner={isOwner}
+              premiumConditions={premiumConditions}
+            />
           )}
           <GiantArtwork
             trackId={trackId}
@@ -433,10 +431,7 @@ class GiantTrackTile extends PureComponent {
               <div className={styles.artistWrapper}>
                 <div className={cn(fadeIn)}>
                   <span>By</span>
-                  <ArtistPopover
-                    handle={artistHandle}
-                    onFollow={this.handleFollow}
-                  >
+                  <ArtistPopover handle={artistHandle}>
                     <h2 className={styles.artist} onClick={onClickArtistName}>
                       {artistName}
                       <UserBadges
@@ -473,8 +468,8 @@ class GiantTrackTile extends PureComponent {
             >
               {this.renderShareButton()}
               {this.renderMakePublicButton()}
-              {this.renderRepostButton()}
-              {this.renderFavoriteButton()}
+              {doesUserHaveAccess && this.renderRepostButton()}
+              {doesUserHaveAccess && this.renderFavoriteButton()}
               <span>
                 <Menu {...overflowMenu}>
                   {(ref, triggerPopup) => (
@@ -501,12 +496,13 @@ class GiantTrackTile extends PureComponent {
           ) : null}
         </div>
 
-        {isPremium && !isOwner && (
+        {isPremium && (
           <PremiumTrackSection
             isLoading={isLoading}
             trackId={trackId}
             premiumConditions={premiumConditions}
             doesUserHaveAccess={doesUserHaveAccess}
+            isOwner={isOwner}
           />
         )}
 
@@ -584,7 +580,6 @@ GiantTrackTile.propTypes = {
   onRepost: PropTypes.func,
   onSave: PropTypes.func,
   following: PropTypes.bool,
-  onUnlock: PropTypes.func,
   onFollow: PropTypes.func,
   onUnfollow: PropTypes.func,
   onDownload: PropTypes.func
@@ -615,7 +610,6 @@ GiantTrackTile.defaultProps = {
   onRepost: () => {},
   onSave: () => {},
   onFollow: () => {},
-  onUnlock: () => {},
   onDownload: () => {}
 }
 

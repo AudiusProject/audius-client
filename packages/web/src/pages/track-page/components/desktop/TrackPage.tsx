@@ -5,7 +5,8 @@ import {
   Track,
   User,
   trackPageLineupActions,
-  QueueItem
+  QueueItem,
+  usePremiumContentAccess
 } from '@audius/common'
 import cn from 'classnames'
 
@@ -22,6 +23,7 @@ import { getTrackDefaults, emptyStringGuard } from 'pages/track-page/utils'
 
 import Remixes from './Remixes'
 import styles from './TrackPage.module.css'
+
 const { tracksActions } = trackPageLineupActions
 
 const messages = {
@@ -51,7 +53,6 @@ export type OwnProps = {
   onHeroRepost: (isReposted: boolean, trackId: ID) => void
   onFollow: () => void
   onUnfollow: () => void
-  onUnlock: () => void
   onClickReposts: () => void
   onClickFavorites: () => void
 
@@ -96,7 +97,6 @@ const TrackPage = ({
   onSaveTrack,
   onFollow,
   onUnfollow,
-  onUnlock,
   onDownloadTrack,
   makePublic,
   onExternalLinkClick,
@@ -116,9 +116,10 @@ const TrackPage = ({
   const following = user?.does_current_user_follow ?? false
   const isSaved = heroTrack?.has_current_user_saved ?? false
   const isReposted = heroTrack?.has_current_user_reposted ?? false
-  const loading = !heroTrack
-  const doesUserHaveAccess =
-    !heroTrack?.is_premium || isOwner || !!heroTrack?.premium_content_signature
+
+  const { isUserAccessTBD, doesUserHaveAccess } =
+    usePremiumContentAccess(heroTrack)
+  const loading = !heroTrack || isUserAccessTBD
 
   const onPlay = () => onHeroPlay(heroPlaying)
   const onSave = isOwner
@@ -174,7 +175,9 @@ const TrackPage = ({
       isOwner={isOwner}
       currentUserId={userId}
       isArtistPick={
-        heroTrack && user ? user._artist_pick === heroTrack.track_id : false
+        heroTrack && user
+          ? user.artist_pick_track_id === heroTrack.track_id
+          : false
       }
       isSaved={isSaved}
       badge={badge}
@@ -197,7 +200,6 @@ const TrackPage = ({
       following={following}
       onFollow={onFollow}
       onUnfollow={onUnfollow}
-      onUnlock={onUnlock}
       download={defaults.download}
       onDownload={onDownload}
       makePublic={makePublic}

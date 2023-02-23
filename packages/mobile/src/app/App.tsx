@@ -17,9 +17,8 @@ import HCaptcha from 'app/components/hcaptcha'
 import NavigationContainer from 'app/components/navigation-container'
 import { NotificationReminder } from 'app/components/notification-reminder/NotificationReminder'
 import OAuth from 'app/components/oauth/OAuth'
-import { OfflineDownloader } from 'app/components/offline-downloads/OfflineDownloader'
 import { RateCtaReminder } from 'app/components/rate-cta-drawer/RateCtaReminder'
-import { ToastContextProvider } from 'app/components/toast/ToastContext'
+import { Toasts } from 'app/components/toasts'
 import { useEnterForeground } from 'app/hooks/useAppState'
 import { incrementSessionCount } from 'app/hooks/useSessionCount'
 import { RootScreen } from 'app/screens/root-screen'
@@ -80,21 +79,19 @@ const App = () => {
           <ThemeProvider>
             <WalletConnectProvider>
               <PortalProvider>
-                <ToastContextProvider>
-                  <ErrorBoundary>
-                    <NavigationContainer>
-                      <Airplay />
-                      <RootScreen />
-                      <Drawers />
-                      <Modals />
-                      <Audio />
-                      <OAuth />
-                      <NotificationReminder />
-                      <RateCtaReminder />
-                      <OfflineDownloader />
-                    </NavigationContainer>
-                  </ErrorBoundary>
-                </ToastContextProvider>
+                <ErrorBoundary>
+                  <NavigationContainer>
+                    <Toasts />
+                    <Airplay />
+                    <RootScreen />
+                    <Drawers />
+                    <Modals />
+                    <Audio />
+                    <OAuth />
+                    <NotificationReminder />
+                    <RateCtaReminder />
+                  </NavigationContainer>
+                </ErrorBoundary>
               </PortalProvider>
             </WalletConnectProvider>
           </ThemeProvider>

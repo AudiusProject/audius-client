@@ -1,7 +1,6 @@
 import { useState } from 'react'
 
-import type { CommonState } from '@audius/common'
-import { useProxySelector, reachabilitySelectors } from '@audius/common'
+import { reachabilitySelectors } from '@audius/common'
 import { useSelector } from 'react-redux'
 
 import { CollectionList } from 'app/components/collection-list'
@@ -12,7 +11,7 @@ import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { FilterInput } from './FilterInput'
 import { NoTracksPlaceholder } from './NoTracksPlaceholder'
 import { OfflineContentBanner } from './OfflineContentBanner'
-import { getAccountCollections } from './selectors'
+import { useCollectionScreenData } from './useCollectionScreenData'
 
 const { getIsReachable } = reachabilitySelectors
 
@@ -23,16 +22,10 @@ const messages = {
 
 export const AlbumsTab = () => {
   const [filterValue, setFilterValue] = useState('')
+  const { filteredCollections: userAlbums, collectionIdsToNumTracks } =
+    useCollectionScreenData(filterValue, 'albums')
   const isReachable = useSelector(getIsReachable)
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
-
-  const userAlbums = useProxySelector(
-    (state: CommonState) =>
-      getAccountCollections(state, filterValue).filter(
-        (collection) => collection.is_album
-      ),
-    [filterValue]
-  )
 
   return (
     <VirtualizedScrollView>
@@ -53,6 +46,7 @@ export const AlbumsTab = () => {
           <CollectionList
             scrollEnabled={false}
             collection={userAlbums}
+            collectionIdsToNumTracks={collectionIdsToNumTracks}
             style={{ marginVertical: 12 }}
           />
         </>

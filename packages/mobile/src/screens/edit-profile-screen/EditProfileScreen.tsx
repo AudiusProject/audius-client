@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react'
 
 import type { UserMetadata } from '@audius/common'
 import {
+  SquareSizes,
   accountSelectors,
   profilePageActions,
   profilePageSelectors,
@@ -21,8 +22,10 @@ import { FormTextInput, FormImageInput } from 'app/components/core'
 import { FormScreen } from 'app/components/form-screen'
 import { useUserCoverImage } from 'app/components/image/UserCoverImage'
 import { useUserImage } from 'app/components/image/UserImage'
+import { isImageUriSource } from 'app/hooks/useContentNodeImage'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
+import type { Image } from 'app/types/image'
 
 import type { ProfileValues, UpdatedProfile } from './types'
 
@@ -59,8 +62,20 @@ const useStyles = makeStyles(({ palette }) => ({
   }
 }))
 
-const EditProfileForm = (props: FormikProps<ProfileValues>) => {
-  const { handleSubmit, handleReset } = props
+type EditProfileFormProps = FormikProps<ProfileValues> & {
+  isTwitterVerified?: boolean
+  isInstagramVerified?: boolean
+  isTikTokVerified?: boolean
+}
+
+const EditProfileForm = (props: EditProfileFormProps) => {
+  const {
+    handleSubmit,
+    handleReset,
+    isTwitterVerified,
+    isInstagramVerified,
+    isTikTokVerified
+  } = props
   const styles = useStyles()
   const accountHandle = useSelector(getUserHandle)
   const navigation = useNavigation()
@@ -93,18 +108,21 @@ const EditProfileForm = (props: FormikProps<ProfileValues>) => {
         <FormTextInput name='bio' label='Bio' multiline maxLength={256} />
         <FormTextInput name='location' label='Location' />
         <FormTextInput
+          editable={!isTwitterVerified}
           name='twitter_handle'
           label='Twitter Handle'
           prefix='@'
           icon={IconTwitterBird}
         />
         <FormTextInput
+          editable={!isInstagramVerified}
           name='instagram_handle'
           label='Instagram Handle'
           prefix='@'
           icon={IconInstagram}
         />
         <FormTextInput
+          editable={!isTikTokVerified}
           name='tiktok_handle'
           label='TikTok Handle'
           prefix='@'
@@ -122,9 +140,16 @@ export const EditProfileScreen = () => {
 
   const dispatch = useDispatch()
 
+  const isTwitterVerified = profile ? profile.twitterVerified : false
+  const isInstagramVerified = profile ? profile.instagramVerified : false
+  const isTikTokVerified = profile ? profile.tikTokVerified : false
+
   const { source: coverPhotoSource } = useUserCoverImage(profile)
 
-  const { source: imageSource } = useUserImage(profile)
+  const { source: imageSource } = useUserImage({
+    user: profile,
+    size: SquareSizes.SIZE_480_BY_480
+  })
 
   const handleSubmit = useCallback(
     (values: ProfileValues) => {
@@ -172,15 +197,26 @@ export const EditProfileScreen = () => {
     tiktok_handle,
     website,
     donation,
-    cover_photo: { url: coverPhotoSource[1]?.uri },
-    profile_picture: { url: imageSource[2]?.uri }
+    cover_photo: {
+      url: isImageUriSource(coverPhotoSource) ? coverPhotoSource.uri : ''
+    } as Image,
+    profile_picture: {
+      url: isImageUriSource(imageSource) ? imageSource.uri : ''
+    } as Image
   }
 
   return (
-    <Formik
-      initialValues={initialValues}
-      onSubmit={handleSubmit}
-      component={EditProfileForm}
-    />
+    <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+      {(formikProps) => {
+        return (
+          <EditProfileForm
+            {...formikProps}
+            isTwitterVerified={isTwitterVerified}
+            isInstagramVerified={isInstagramVerified}
+            isTikTokVerified={isTikTokVerified}
+          />
+        )
+      }}
+    </Formik>
   )
 }

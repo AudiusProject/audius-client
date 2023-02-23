@@ -1,7 +1,10 @@
-import type { DynamicImageProps } from 'app/components/core'
+import { SquareSizes } from '@audius/common'
+
 import type { UserImageProps } from 'app/components/image/UserImage'
 import { UserImage } from 'app/components/image/UserImage'
 import { makeStyles } from 'app/styles'
+
+import type { FastImageProps } from '../image/FastImage'
 
 const useStyles = makeStyles(({ palette }) => ({
   profilePhoto: {
@@ -16,22 +19,19 @@ const useStyles = makeStyles(({ palette }) => ({
   }
 }))
 
-export type ProfilePictureProps = Partial<DynamicImageProps> & {
+export type ProfilePictureProps = Partial<FastImageProps> & {
   profile: UserImageProps['user']
 }
 
 export const ProfilePicture = (props: ProfilePictureProps) => {
-  const { styles: stylesProp, profile, ...other } = props
+  const { profile, style: styleProp, ...other } = props
   const styles = useStyles()
 
   return (
     <UserImage
-      immediate
       user={profile}
-      styles={{
-        ...stylesProp,
-        root: [styles.profilePhoto, stylesProp?.root]
-      }}
+      size={SquareSizes.SIZE_150_BY_150}
+      style={[styles.profilePhoto, styleProp]}
       {...other}
     />
   )

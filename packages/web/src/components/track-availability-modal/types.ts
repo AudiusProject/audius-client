@@ -25,21 +25,9 @@ export type TrackMetadataState = {
   [UnlistedTrackMetadataField.PLAYS]: boolean
 }
 
-export enum AvailabilityType {
-  PUBLIC = 'PUBLIC',
-  SPECIAL_ACCESS = 'SPECIAL_ACCESS',
-  COLLECTIBLE_GATED = 'COLLECTIBLE_GATED',
-  HIDDEN = 'HIDDEN'
-}
-
 export type TrackAvailabilitySelectionProps = {
   selected: boolean
-  metadataState: TrackMetadataState
-  updatePublicField?: () => void
-  updatePremiumContentFields?: (
-    premiumConditions: Nullable<PremiumConditions>,
-    availability: AvailabilityType
-  ) => void
-  updateUnlistedField?: () => void
-  updateHiddenField?: (field: string) => (visible: boolean) => void
+  state: TrackMetadataState
+  onStateUpdate: (...args: any[]) => any
+  disabled?: boolean
 }

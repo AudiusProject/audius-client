@@ -1,6 +1,7 @@
 import type { Track, User } from '@audius/common'
+import { SquareSizes } from '@audius/common'
 import type { StyleProp, ViewStyle } from 'react-native'
-import { Image, View } from 'react-native'
+import { View } from 'react-native'
 
 import AudiusLogo from 'app/assets/images/audiusLogoHorizontal.svg'
 import { Divider, Text } from 'app/components/core'
@@ -8,11 +9,12 @@ import UserBadges from 'app/components/user-badges'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
-import { useTrackImage } from '../image/TrackImage'
+import { TrackImage } from '../image/TrackImage'
 
 const messages = {
   by: 'by',
-  nowPlayingOn: 'Now playing on'
+  nowPlayingOn: 'Now playing on',
+  nowPlayingOnAudius: 'Now playing on Audius'
 }
 
 type ShareToStoryStickerProps = {
@@ -25,6 +27,7 @@ type ShareToStoryStickerProps = {
   style?: StyleProp<ViewStyle>
   /** Called once the image loads successfully */
   onLoad: () => void
+  omitLogo?: boolean
 }
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
@@ -52,6 +55,10 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     alignItems: 'center',
     justifyContent: 'space-between'
   },
+  belowDividerContainerCentered: {
+    justifyContent: 'center',
+    textAlign: 'center'
+  },
   title: {
     marginTop: spacing(2)
   },
@@ -71,23 +78,21 @@ export const ShareToStorySticker = ({
   user,
   artist,
   style,
-  onLoad
+  onLoad,
+  omitLogo = false
 }: ShareToStoryStickerProps) => {
   const styles = useStyles()
 
-  const trackImage = useTrackImage(track, user)
   const { neutralLight2, staticNeutralLight8 } = useThemeColors()
   return (
     <View style={[styles.container, style]}>
       <View>
-        {trackImage ? (
-          <Image
-            style={styles.trackImage}
-            onLoad={onLoad}
-            source={trackImage.source}
-            onError={trackImage.handleError}
-          />
-        ) : null}
+        <TrackImage
+          size={SquareSizes.SIZE_480_BY_480}
+          style={styles.trackImage}
+          track={track}
+          onLoad={onLoad}
+        />
         <Text
           color='staticNeutral'
           allowFontScaling={false}
@@ -117,7 +122,12 @@ export const ShareToStorySticker = ({
           />
         </View>
         <Divider color={staticNeutralLight8} width={2} />
-        <View style={styles.belowDividerContainer}>
+        <View
+          style={[
+            styles.belowDividerContainer,
+            omitLogo ? styles.belowDividerContainerCentered : {}
+          ]}
+        >
           <Text
             allowFontScaling={false}
             color='staticNeutralLight2'
@@ -126,9 +136,11 @@ export const ShareToStorySticker = ({
             textTransform='uppercase'
             style={styles.attribution}
           >
-            {messages.nowPlayingOn}
+            {omitLogo ? messages.nowPlayingOnAudius : messages.nowPlayingOn}
           </Text>
-          <AudiusLogo fill={neutralLight2} height={22} width={105} />
+          {omitLogo ? null : (
+            <AudiusLogo fill={neutralLight2} height={22} width={105} />
+          )}
         </View>
       </View>
     </View>
