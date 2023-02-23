@@ -46,10 +46,11 @@ type CommonDrawerProps = {
 /*
  * Conditionally renders the drawers hooked up to audius-client/src/common/ui/modal slice
  */
-const CommonDrawer = ({ modal: Modal, modalName }: CommonDrawerProps) => {
+const CommonDrawer = (props: CommonDrawerProps) => {
+  const { modal: Modal, modalName } = props
   const { modalState } = useDrawerState(modalName)
 
-  if (modalState === false) return null
+  if (!modalState) return null
 
   return <Modal />
 }
@@ -62,13 +63,11 @@ type NativeDrawerProps = {
 /*
  * Conditionally renders the drawers hooked up to native store/drawers slice
  */
-export const NativeDrawer = ({
-  drawer: Drawer,
-  drawerName
-}: NativeDrawerProps) => {
+export const NativeDrawer = (props: NativeDrawerProps) => {
+  const { drawer: Drawer, drawerName } = props
   const { visibleState } = useDrawer(drawerName)
 
-  if (visibleState === false) return null
+  if (!visibleState) return null
 
   return <Drawer />
 }
@@ -123,7 +122,7 @@ export const Drawers = () => {
     <>
       {commonDrawers.map(([modalName, Modal]) => {
         return (
-          <CommonDrawer modal={Modal} modalName={modalName} key={modalName} />
+          <CommonDrawer key={modalName} modal={Modal} modalName={modalName} />
         )
       })}
       {nativeDrawers.map(([drawerName, Drawer]) => (

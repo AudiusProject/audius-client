@@ -1,11 +1,14 @@
 import {
   castSagas,
   chatSagas,
+  premiumContentSagas,
   remoteConfigSagas as remoteConfig,
   deletePlaylistConfirmationModalUISagas as deletePlaylistConfirmationModalSagas,
   mobileOverflowMenuUISagas as overflowMenuSagas,
   shareModalUISagas as shareModalSagas,
-  vipDiscordModalSagas
+  vipDiscordModalSagas,
+  reachabilitySagas,
+  searchUsersModalSagas
 } from '@audius/common'
 import addToPlaylistSagas from 'common/store/add-to-playlist/sagas'
 import analyticsSagas from 'common/store/analytics/sagas'
@@ -65,6 +68,7 @@ import offlineDownloadSagas from './offline-downloads/sagas'
 import rateCtaSagas from './rate-cta/sagas'
 import settingsSagas from './settings/sagas'
 import signOutSagas from './sign-out/sagas'
+import signUpSagas from './sign-up/sagas'
 import themeSagas from './theme/sagas'
 import walletsSagas from './wallet-connect/sagas'
 
@@ -96,8 +100,17 @@ export default function* rootSaga() {
     ...signOnSagas(),
     ...signOutSagas(),
 
+    // Sign up
+    ...signUpSagas(),
+
     // Tipping
     ...tippingSagas(),
+
+    // Premium content
+    ...premiumContentSagas(),
+
+    // Search Users
+    ...searchUsersModalSagas(),
 
     ...walletSagas(),
 
@@ -150,6 +163,7 @@ export default function* rootSaga() {
     ...uploadSagas(),
     ...remixSettingsSagas(),
     ...offlineDownloadSagas(),
+    ...reachabilitySagas(),
 
     initKeyboardEvents,
     ...remoteConfig(),

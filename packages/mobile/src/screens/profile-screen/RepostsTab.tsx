@@ -5,40 +5,42 @@ import {
   profilePageFeedLineupActions as feedActions,
   useProxySelector
 } from '@audius/common'
+import { useRoute } from '@react-navigation/native'
 
 import { Lineup } from 'app/components/lineup'
 
 import { EmptyProfileTile } from './EmptyProfileTile'
+import type { ProfileTabRoutes } from './routes'
 import { useSelectProfile } from './selectors'
 
 const { getProfileFeedLineup } = profilePageSelectors
 
 export const RepostsTab = () => {
-  const { handle } = useSelectProfile(['handle'])
+  const { params } = useRoute<ProfileTabRoutes<'Reposts'>>()
+  const { lazy } = params
+  const { handle, repost_count } = useSelectProfile(['handle', 'repost_count'])
   const handleLower = handle.toLowerCase()
 
   const lineup = useProxySelector(
     (state) => getProfileFeedLineup(state, handleLower),
     [handleLower]
   )
-  const { repost_count } = useSelectProfile(['repost_count'])
 
   const extraFetchOptions = useMemo(
     () => ({ handle: handleLower }),
     [handleLower]
   )
 
-  if (!lineup) return null
-
   return (
     <Lineup
       listKey='profile-reposts'
       selfLoad
+      lazy={lazy}
       actions={feedActions}
       lineup={lineup}
       limit={repost_count}
       disableTopTabScroll
-      ListEmptyComponent={<EmptyProfileTile tab='reposts' />}
+      LineupEmptyComponent={<EmptyProfileTile tab='reposts' />}
       showsVerticalScrollIndicator={false}
       extraFetchOptions={extraFetchOptions}
     />

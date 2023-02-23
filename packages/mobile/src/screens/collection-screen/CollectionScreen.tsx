@@ -127,6 +127,7 @@ const CollectionScreenComponent = (props: CollectionScreenComponentProps) => {
   const {
     _is_publishing,
     description,
+    playlist_contents: { track_ids },
     has_current_user_reposted,
     has_current_user_saved,
     is_album,
@@ -262,6 +263,7 @@ const CollectionScreenComponent = (props: CollectionScreenComponentProps) => {
             hasReposted={has_current_user_reposted}
             hasSaved={has_current_user_saved}
             isAlbum={is_album}
+            collectionId={playlist_id}
             isPrivate={is_private}
             isPublishing={_is_publishing ?? false}
             onPressFavorites={handlePressFavorites}
@@ -273,6 +275,7 @@ const CollectionScreenComponent = (props: CollectionScreenComponentProps) => {
             renderImage={renderImage}
             repostCount={repost_count}
             saveCount={save_count}
+            trackCount={track_ids.length}
             title={playlist_name}
             user={user}
           />

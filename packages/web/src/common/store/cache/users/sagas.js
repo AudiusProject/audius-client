@@ -10,7 +10,7 @@ import {
   waitForValue,
   waitForAccount,
   playlistLibraryHelpers,
-  FeatureFlags
+  reformatUser
 } from '@audius/common'
 import { mergeWith } from 'lodash'
 import {
@@ -32,7 +32,7 @@ import {
 import { fetchServicesFailed } from 'common/store/service-selection/slice'
 import { waitForWrite, waitForRead } from 'utils/sagaHelpers'
 
-import { pruneBlobValues, reformat } from './utils'
+import { pruneBlobValues } from './utils'
 const { removePlaylistLibraryTempPlaylists } = playlistLibraryHelpers
 const { mergeCustomizer } = cacheReducer
 const { getUser, getUsers, getUserTimestamps } = cacheUsersSelectors
@@ -152,7 +152,7 @@ export function* fetchUserByHandle(
     },
     retrieveFromSource,
     onBeforeAddToCache: function (users) {
-      return users.map((user) => reformat(user, audiusBackendInstance))
+      return users.map((user) => reformatUser(user, audiusBackendInstance))
     },
     kind: Kind.USERS,
     idField: 'user_id',
@@ -165,6 +165,7 @@ export function* fetchUserByHandle(
 }
 
 /**
+ * @deprecated legacy method for web
  * @param {number} userId target user id
  */
 export function* fetchUserCollections(userId) {
@@ -412,17 +413,6 @@ export function* fetchUserSocials({ handle }) {
     user.handle
   )
 
-  // If reading the artist pick from discovery, set _artist_pick on
-  // the user to the value from discovery (set in artist_pick_track_id
-  // on the user).
-  // TODO after migration is complete: replace all usages of
-  // _artist_pick with artist_pick_track_id
-  const getFeatureEnabled = yield getContext('getFeatureEnabled')
-  const readArtistPickFromDiscoveryEnabled = yield call(
-    getFeatureEnabled,
-    FeatureFlags.READ_ARTIST_PICK_FROM_DISCOVERY
-  ) ?? false
-
   yield put(
     cacheActions.update(Kind.USERS, [
       {
@@ -432,15 +422,7 @@ export function* fetchUserSocials({ handle }) {
           instagram_handle: socials.instagramHandle || null,
           tiktok_handle: socials.tikTokHandle || null,
           website: socials.website || null,
-          donation: socials.donation || null,
-          _artist_pick:
-            (readArtistPickFromDiscoveryEnabled
-              ? user.artist_pick_track_id
-              : socials.pinnedTrackId) || null,
-          artist_pick_track_id:
-            (readArtistPickFromDiscoveryEnabled
-              ? user.artist_pick_track_id
-              : socials.pinnedTrackId) || null
+          donation: socials.donation || null
         }
       }
     ])

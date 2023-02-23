@@ -1,8 +1,10 @@
-import { accountSelectors } from '@audius/common'
+import { accountSelectors, usePremiumContentAccess } from '@audius/common'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import type { LineupTileProps } from 'app/components/lineup-tile/types'
+import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
+import { PremiumTrackCornerTag } from 'app/screens/track-screen/PremiumTrackCornerTag'
 
 import { LineupTileActionButtons } from './LineupTileActionButtons'
 import {
@@ -14,6 +16,7 @@ import { LineupTileMetadata } from './LineupTileMetadata'
 import { LineupTileRoot } from './LineupTileRoot'
 import { LineupTileStats } from './LineupTileStats'
 import { LineupTileTopRight } from './LineupTileTopRight'
+
 const { getUserId } = accountSelectors
 
 export const LineupTile = ({
@@ -45,21 +48,40 @@ export const LineupTile = ({
   isPlayingUid,
   TileProps
 }: LineupTileProps) => {
+  const isPremiumContentEnabled = useIsPremiumContentEnabled()
   const {
     has_current_user_reposted,
     has_current_user_saved,
     repost_count,
     save_count
   } = item
-  const { _artist_pick, name, user_id } = user
+  const { artist_pick_track_id, name, user_id } = user
   const currentUserId = useSelector(getUserId)
-  const isCollection = 'playlist_id' in item
-
   const isOwner = user_id === currentUserId
+  const isCollection = 'playlist_id' in item
+  const isTrack = 'track_id' in item
+  const trackId = isTrack ? item.track_id : undefined
+  const premiumConditions = isTrack ? item.premium_conditions : null
+  const isArtistPick = artist_pick_track_id === id
+  const { doesUserHaveAccess } = usePremiumContentAccess(isTrack ? item : null)
 
   return (
-    <LineupTileRoot onPress={onPress} {...TileProps}>
-      {showArtistPick && _artist_pick === id ? (
+    <LineupTileRoot
+      onPress={
+        !isPremiumContentEnabled || doesUserHaveAccess ? onPress : undefined
+      }
+      {...TileProps}
+    >
+      {isPremiumContentEnabled && premiumConditions && (
+        <PremiumTrackCornerTag
+          doesUserHaveAccess={doesUserHaveAccess}
+          isOwner={isOwner}
+          premiumConditions={premiumConditions}
+        />
+      )}
+      {(!isPremiumContentEnabled || !premiumConditions) &&
+      showArtistPick &&
+      isArtistPick ? (
         <LineupTileBannerIcon type={LineupTileBannerIconType.STAR} />
       ) : null}
       {isUnlisted ? (
@@ -68,8 +90,9 @@ export const LineupTile = ({
       <View>
         <LineupTileTopRight
           duration={duration}
-          isArtistPick={_artist_pick === id}
           isUnlisted={isUnlisted}
+          premiumConditions={premiumConditions}
+          isArtistPick={isArtistPick}
           showArtistPick={showArtistPick}
         />
         <LineupTileMetadata
@@ -105,6 +128,8 @@ export const LineupTile = ({
         isOwner={isOwner}
         isShareHidden={hideShare}
         isUnlisted={isUnlisted}
+        trackId={trackId}
+        doesUserHaveAccess={doesUserHaveAccess}
         onPressOverflow={onPressOverflow}
         onPressRepost={onPressRepost}
         onPressSave={onPressSave}

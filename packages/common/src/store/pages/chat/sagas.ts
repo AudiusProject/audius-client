@@ -1,8 +1,9 @@
-import { ChatCreateRPC } from '@audius/sdk'
+import { ChatMessage, ChatMessageRPC, TypedCommsResponse } from '@audius/sdk'
 import dayjs from 'dayjs'
-import { call, put, select, takeEvery } from 'typed-redux-saga'
+import { call, put, select, takeEvery, takeLatest } from 'typed-redux-saga'
 
-import { getAccountUser } from 'store/account/selectors'
+import { getAccountUser, getUserId } from 'store/account/selectors'
+import { setVisibility } from 'store/ui/modals/slice'
 
 import { decodeHashId, encodeHashId } from '../../../utils'
 import { cacheUsersActions } from '../../cache'
@@ -14,15 +15,24 @@ import { actions as chatActions } from './slice'
 const {
   createChat,
   createChatSucceeded,
+  goToChat,
   fetchMoreChats,
   fetchMoreChatsSucceeded,
   fetchMoreChatsFailed,
-  fetchNewChatMessages,
-  fetchNewChatMessagesSucceeded,
-  fetchNewChatMessagesFailed,
+  fetchMoreMessages,
+  fetchMoreMessagesSucceeded,
+  fetchMoreMessagesFailed,
+  fetchChatSucceeded,
   setMessageReaction,
   setMessageReactionSucceeded,
-  markChatAsRead
+  setMessageReactionFailed,
+  markChatAsRead,
+  markChatAsReadSucceeded,
+  markChatAsReadFailed,
+  sendMessage,
+  sendMessageSucceeded,
+  sendMessageFailed,
+  addMessage
 } = chatActions
 const { getChatsSummary, getChatMessagesSummary, getChat } = chatSelectors
 
@@ -32,8 +42,9 @@ function* doFetchMoreChats() {
     const sdk = yield* call(audiusSdk)
     const summary = yield* select(getChatsSummary)
     const before = summary?.prev_cursor
-    const response = yield* call([sdk.chats, sdk.chats!.getAll], {
-      before
+    const response = yield* call([sdk.chats, sdk.chats.getAll], {
+      before,
+      limit: 30
     })
     const userIds = new Set<number>([])
     for (const chat of response.data) {
@@ -53,28 +64,61 @@ function* doFetchMoreChats() {
   }
 }
 
-function* doFetchChatMessages(action: ReturnType<typeof fetchNewChatMessages>) {
+function* doFetchMoreMessages(action: ReturnType<typeof fetchMoreMessages>) {
   const { chatId } = action.payload
   try {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
+
+    // Ensure we get a chat so we can check the unread count
+    yield* call(fetchChatIfNecessary, { chatId })
+    const chat = yield* select((state) => getChat(state, chatId))
     const summary = yield* select((state) =>
       getChatMessagesSummary(state, chatId)
     )
-    const after = summary?.next_cursor
-    const response = yield* call([sdk.chats, sdk.chats!.getMessages], {
-      chatId,
-      after
-    })
-    yield* put(fetchNewChatMessagesSucceeded({ chatId, response }))
+
+    // Paginate through messages until we get to the unread indicator
+    let lastResponse: TypedCommsResponse<ChatMessage[]> | undefined
+    let before = summary?.prev_cursor
+    let hasMoreUnread = true
+    let data: ChatMessage[] = []
+    while (hasMoreUnread) {
+      const limit = 50
+      const response = yield* call([sdk.chats, sdk.chats!.getMessages], {
+        chatId,
+        before,
+        limit
+      })
+      // Only save the last response summary. Pagination is one-way
+      lastResponse = response
+      data = data.concat(response.data)
+      // If the unread count is greater than the previous fetched messages (next_cursor)
+      // plus this batch (limit), we should keep fetching
+      hasMoreUnread =
+        !!chat?.unread_message_count &&
+        chat.unread_message_count > (response.summary?.next_count ?? 0) + limit
+      before = response.summary?.prev_cursor
+    }
+    if (!lastResponse) {
+      throw new Error('No responses gathered')
+    }
+    yield* put(
+      fetchMoreMessagesSucceeded({
+        chatId,
+        response: {
+          ...lastResponse,
+          data
+        }
+      })
+    )
   } catch (e) {
     console.error('fetchNewChatMessagesFailed', e)
-    yield* put(fetchNewChatMessagesFailed({ chatId }))
+    yield* put(fetchMoreMessagesFailed({ chatId }))
   }
 }
 
 function* doSetMessageReaction(action: ReturnType<typeof setMessageReaction>) {
-  const { chatId, messageId, reaction } = action.payload
+  const { chatId, messageId, reaction, userId } = action.payload
   try {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
@@ -87,15 +131,21 @@ function* doSetMessageReaction(action: ReturnType<typeof setMessageReaction>) {
       messageId,
       reaction
     })
+    const reactionResponse = {
+      user_id: encodeHashId(userId)!,
+      reaction,
+      created_at: dayjs().toISOString()
+    }
     yield* put(
       setMessageReactionSucceeded({
-        ...action.payload,
-        userId: user?.user_id,
-        createdAt: dayjs().toISOString()
+        chatId,
+        messageId,
+        reaction: reactionResponse
       })
     )
   } catch (e) {
     console.error('setMessageReactionFailed', e)
+    yield* put(setMessageReactionFailed(action.payload))
   }
 }
 
@@ -104,17 +154,39 @@ function* doCreateChat(action: ReturnType<typeof createChat>) {
   try {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
-    const user = yield* select(getAccountUser)
-    if (!user) {
+    const currentUserId = yield* select(getUserId)
+    if (!currentUserId) {
       throw new Error('User not found')
     }
-    const res = yield* call([sdk.chats, sdk.chats.create], {
-      userId: encodeHashId(user.user_id),
-      invitedUserIds: userIds.map((id) => encodeHashId(id))
-    })
-    const chatId = (res as ChatCreateRPC).params.chat_id
-    const { data: chat } = yield* call([sdk.chats, sdk.chats.get], { chatId })
-    yield* put(createChatSucceeded({ chat }))
+    // Try to get existing chat:
+    const chatId = [currentUserId, ...userIds]
+      .map((id) => encodeHashId(id))
+      .sort()
+      .join(':')
+    try {
+      yield* call(fetchChatIfNecessary, { chatId })
+    } catch {}
+    const existingChat = yield* select((state) => getChat(state, chatId))
+    if (existingChat) {
+      // Simply navigate to the existing chat
+      yield* put(setVisibility({ modal: 'CreateChat', visible: false }))
+      yield* put(goToChat({ chatId: existingChat.chat_id }))
+    } else {
+      // Create new chat and navigate to it
+      yield* call([sdk.chats, sdk.chats.create], {
+        userId: encodeHashId(currentUserId),
+        invitedUserIds: userIds.map((id) => encodeHashId(id))
+      })
+
+      const res = yield* call([sdk.chats, sdk.chats.get], { chatId })
+      const chat = res.data
+      if (!chat) {
+        throw new Error("Chat couldn't be found after creating")
+      }
+      yield* put(createChatSucceeded({ chat }))
+      yield* put(setVisibility({ modal: 'CreateChat', visible: false }))
+      yield* put(goToChat({ chatId: chat.chat_id }))
+    }
   } catch (e) {
     console.error('createChatFailed', e)
   }
@@ -126,20 +198,97 @@ function* doMarkChatAsRead(action: ReturnType<typeof markChatAsRead>) {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
     const chat = yield* select((state) => getChat(state, chatId))
-    if (!chat || chat?.unread_message_count > 0) {
+    if (!chat || dayjs(chat?.last_read_at).isBefore(chat?.last_message_at)) {
       yield* call([sdk.chats, sdk.chats.read], { chatId })
+      yield* put(markChatAsReadSucceeded({ chatId }))
     }
   } catch (e) {
     console.error('markChatAsReadFailed', e)
+    yield* put(markChatAsReadFailed({ chatId }))
   }
 }
 
+let tempMessageIdCounter = 1
+function* doSendMessage(action: ReturnType<typeof sendMessage>) {
+  const { chatId, message } = action.payload
+  const temporaryMessageId = `temp-${tempMessageIdCounter++}`
+  try {
+    const audiusSdk = yield* getContext('audiusSdk')
+    const sdk = yield* call(audiusSdk)
+    const userId = yield* select(getUserId)
+    const currentUserId = encodeHashId(userId)
+    if (!currentUserId) {
+      return
+    }
+
+    // Optimistically add the message
+    yield* put(
+      addMessage({
+        chatId,
+        message: {
+          sender_user_id: currentUserId,
+          message_id: temporaryMessageId,
+          message,
+          reactions: [],
+          created_at: dayjs().toISOString()
+        }
+      })
+    )
+
+    const response = (yield* call([sdk.chats, sdk.chats.message], {
+      chatId,
+      message
+    })) as ChatMessageRPC
+
+    // After successful RPC, replace with real message
+    yield* put(
+      sendMessageSucceeded({
+        chatId,
+        oldMessageId: temporaryMessageId,
+        message: {
+          sender_user_id: currentUserId,
+          message_id: response.params.message_id,
+          message,
+          reactions: [],
+          created_at: dayjs().toISOString()
+        }
+      })
+    )
+  } catch (e) {
+    console.error('sendMessageFailed', e)
+    yield* put(
+      sendMessageFailed({ chatId, attemptedMessageId: temporaryMessageId })
+    )
+  }
+}
+
+function* fetchChatIfNecessary(args: { chatId: string }) {
+  const { chatId } = args
+  const existingChat = yield* select((state) => getChat(state, chatId))
+  if (!existingChat) {
+    const audiusSdk = yield* getContext('audiusSdk')
+    const sdk = yield* call(audiusSdk)
+    const { data: chat } = yield* call([sdk.chats, sdk.chats.get], { chatId })
+    if (chat) {
+      yield* put(fetchChatSucceeded({ chat }))
+    }
+  }
+}
+
+function* watchAddMessage() {
+  yield takeEvery(addMessage, ({ payload }) => fetchChatIfNecessary(payload))
+}
+
+function* watchSendMessage() {
+  yield takeEvery(sendMessage, doSendMessage)
+}
+
 function* watchFetchChats() {
-  yield takeEvery(fetchMoreChats, doFetchMoreChats)
+  yield takeLatest(fetchMoreChats, doFetchMoreChats)
 }
 
 function* watchFetchChatMessages() {
-  yield takeEvery(fetchNewChatMessages, doFetchChatMessages)
+  yield takeLatest(fetchMoreMessages, doFetchMoreMessages)
 }
 
 function* watchSetMessageReaction() {
@@ -160,6 +309,8 @@ export const sagas = () => {
     watchFetchChatMessages,
     watchSetMessageReaction,
     watchCreateChat,
-    watchMarkChatAsRead
+    watchMarkChatAsRead,
+    watchSendMessage,
+    watchAddMessage
   ]
 }

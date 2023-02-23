@@ -13,7 +13,13 @@ import {
   audioRewardsPageSelectors,
   makeChallengeSortComparator
 } from '@audius/common'
-import { ProgressBar, IconCheck } from '@audius/stems'
+import {
+  ProgressBar,
+  ButtonType,
+  Button,
+  IconCheck,
+  IconArrow
+} from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -23,7 +29,6 @@ import { useRemoteVar } from 'hooks/useRemoteConfig'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 
 import styles from './RewardsTile.module.css'
-import ButtonWithArrow from './components/ButtonWithArrow'
 import { Tile } from './components/ExplainerTile'
 import { getChallengeConfig } from './config'
 const { getUserChallenges, getUserChallengesLoading } =
@@ -70,7 +75,6 @@ const RewardPanel = ({
   const challenge = userChallenges[id]
   const shouldShowCompleted =
     challenge?.state === 'completed' || challenge?.state === 'disbursed'
-  const hasCompleted = challenge?.state === 'completed'
   const hasDisbursed = challenge?.state === 'disbursed'
   const needsDisbursement = challenge && challenge.claimableAmount > 0
   const shouldShowProgressBar =
@@ -107,47 +111,61 @@ const RewardPanel = ({
     ? messages.viewDetails
     : panelButtonText
 
+  const buttonType = needsDisbursement
+    ? ButtonType.PRIMARY_ALT
+    : hasDisbursed
+    ? ButtonType.COMMON_ALT
+    : ButtonType.COMMON
+
   return (
     <div
       className={wm(
-        cn(styles.rewardPanelContainer, hasDisbursed ? styles.completed : '')
+        cn(styles.rewardPanelContainer, hasDisbursed ? styles.disbursed : '')
       )}
       onClick={openRewardModal}
     >
-      <div className={wm(styles.pillContainer)}>
-        {hasCompleted && (
-          <span className={wm(styles.pillMessage)}>
-            {messages.readyToClaim}
-          </span>
-        )}
+      <div className={wm(styles.rewardPanelTop)}>
+        <div className={wm(styles.pillContainer)}>
+          {needsDisbursement && (
+            <span className={wm(styles.pillMessage)}>
+              {messages.readyToClaim}
+            </span>
+          )}
+        </div>
+        <span className={wm(styles.rewardTitle)}>
+          {icon}
+          {title}
+        </span>
+        <span className={wm(styles.rewardDescription)}>
+          {description(challenge)}
+        </span>
       </div>
-      <span className={wm(styles.rewardTitle)}>
-        {icon}
-        {title}
-      </span>
-      <span className={wm(styles.rewardDescription)}>
-        {description(challenge)}
-      </span>
-      <div className={wm(styles.rewardProgress)}>
-        {shouldShowCompleted && <IconCheck className={wm(styles.iconCheck)} />}
-        <p className={styles.rewardProgressLabel}>{progressLabelFilled}</p>
-        {shouldShowProgressBar && (
-          <ProgressBar
-            className={styles.rewardProgressBar}
-            value={challenge?.current_step_count ?? 0}
-            max={challenge?.max_steps}
-          />
-        )}
+      <div className={wm(styles.rewardPanelBottom)}>
+        <div className={wm(styles.rewardProgress)}>
+          {shouldShowCompleted && (
+            <IconCheck className={wm(styles.iconCheck)} />
+          )}
+          <p className={styles.rewardProgressLabel}>{progressLabelFilled}</p>
+          {shouldShowProgressBar && (
+            <ProgressBar
+              className={styles.rewardProgressBar}
+              value={challenge?.current_step_count ?? 0}
+              max={challenge?.max_steps}
+            />
+          )}
+        </div>
+        <Button
+          className={wm(
+            cn(styles.panelButton, hasDisbursed ? styles.disbursed : '')
+          )}
+          type={buttonType}
+          text={buttonMessage}
+          rightIcon={hasDisbursed ? null : <IconArrow />}
+          iconClassName={styles.buttonIcon}
+          onClick={openRewardModal}
+          textClassName={styles.panelButtonText}
+        />
       </div>
-      <ButtonWithArrow
-        className={wm(
-          cn(styles.panelButton, hasDisbursed ? styles.completed : '')
-        )}
-        completed={challenge?.state}
-        text={buttonMessage}
-        onClick={openRewardModal}
-        textClassName={styles.panelButtonText}
-      />
     </div>
   )
 }

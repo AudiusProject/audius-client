@@ -1,4 +1,9 @@
 .root {
+  flex: 1;
+  overflow-y: scroll;
+}
+
+.listRoot {
   display: flex;
   flex-direction: column-reverse;
   gap: 8px;
@@ -13,6 +18,7 @@
   justify-content: center;
   height: 0;
   margin: var(--unit-8) 0;
+  scroll-margin: var(--unit-8) 0;
   border-bottom: 1px solid var(--neutral-light-5);
 }
 
@@ -26,4 +32,9 @@
   letter-spacing: 0.5px;
   text-transform: uppercase;
   color: var(--static-white);
+}
+
+.spinner {
+  margin: auto;
+  width: var(--unit-8);
 }

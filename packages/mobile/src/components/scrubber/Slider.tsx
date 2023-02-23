@@ -1,8 +1,8 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useAppState } from '@react-native-community/hooks'
 import type { GestureResponderEvent } from 'react-native'
-import { View, Animated, PanResponder } from 'react-native'
+import { Easing, View, Animated, PanResponder } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 import TrackPlayer from 'react-native-track-player'
 import { useAsync, usePrevious } from 'react-use'
@@ -92,6 +92,7 @@ type SliderProps = {
    * and then dragging.
    */
   onDrag: (percentComplete: number) => void
+  onDragRelease: () => void
 }
 
 /**
@@ -101,7 +102,15 @@ type SliderProps = {
  * re-renders of itself, despite having to update external timestamps on "drag."
  */
 export const Slider = memo((props: SliderProps) => {
-  const { mediaKey, isPlaying, duration, onPressIn, onPressOut, onDrag } = props
+  const {
+    mediaKey,
+    isPlaying,
+    duration,
+    onPressIn,
+    onPressOut,
+    onDrag,
+    onDragRelease
+  } = props
   const styles = useStyles()
   const { primaryLight2, primaryDark2 } = useThemeColors()
 
@@ -138,7 +147,11 @@ export const Slider = memo((props: SliderProps) => {
       currentAnimation.current = Animated.timing(translationAnim, {
         toValue: railWidth,
         duration: timeRemaining,
-        useNativeDriver: true
+        easing: Easing.linear,
+        // Can't use native driver because this animation is potentially hours long,
+        // and would have to be serialized into an array to be passed to the native layer.
+        // The array exceeds the number of properties allowed in hermes
+        useNativeDriver: false
       })
       currentAnimation.current.start()
     },
@@ -159,7 +172,7 @@ export const Slider = memo((props: SliderProps) => {
       Animated.timing(translationAnim, {
         duration: 100,
         toValue: newPosition,
-        useNativeDriver: true
+        useNativeDriver: false
       }).start()
       handlePressHandleIn()
       onPressIn()
@@ -218,28 +231,40 @@ export const Slider = memo((props: SliderProps) => {
     [onPressOut, animateFromNowToEnd]
   )
 
-  const panResponder = PanResponder.create({
-    onMoveShouldSetPanResponder: () => {
-      return true
-    },
-    onPanResponderMove: (e, gestureState) => {
-      const newPosition = Math.max(
-        0,
-        Math.min(gestureState.dx + handlePosition, railWidth)
-      )
-      attachToDx(translationAnim, newPosition)(e)
-      onDrag(newPosition / railWidth)
-    },
-    onPanResponderRelease: (e, gestureState) => {
-      const newPosition = Math.max(
-        0,
-        Math.min(gestureState.dx + handlePosition, railWidth)
-      )
-      attachToDx(translationAnim, newPosition)(e)
-      setHandlePosition(newPosition)
-      onReleaseHandle(newPosition / railWidth)
-    }
-  })
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetPanResponder: () => {
+          return true
+        },
+        onPanResponderMove: (e, gestureState) => {
+          const newPosition = Math.max(
+            0,
+            Math.min(gestureState.dx + handlePosition, railWidth)
+          )
+          attachToDx(translationAnim, newPosition)(e)
+          onDrag(newPosition / railWidth)
+        },
+        onPanResponderRelease: (e, gestureState) => {
+          const newPosition = Math.max(
+            0,
+            Math.min(gestureState.dx + handlePosition, railWidth)
+          )
+          attachToDx(translationAnim, newPosition)(e)
+          setHandlePosition(newPosition)
+          onReleaseHandle(newPosition / railWidth)
+          onDragRelease()
+        }
+      }),
+    [
+      handlePosition,
+      onDrag,
+      onDragRelease,
+      onReleaseHandle,
+      railWidth,
+      translationAnim
+    ]
+  )
 
   // When the media key changes, reset the scrubber
   useEffect(() => {

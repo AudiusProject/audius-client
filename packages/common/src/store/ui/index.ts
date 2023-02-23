@@ -88,6 +88,7 @@ export {
 export * as themeSelectors from './theme/selectors'
 
 export { default as toastReducer, actions as toastActions } from './toast/slice'
+export * as toastSelectors from './toast/selectors'
 export * from './toast/types'
 export { default as toastSagas } from './toast/sagas'
 
@@ -105,3 +106,11 @@ export {
 } from './transaction-details/slice'
 export * as transactionDetailsSelectors from './transaction-details/selectors'
 export * from './transaction-details/types'
+
+export {
+  default as searchUsersModalReducer,
+  actions as searchUsersModalActions,
+  SearchUsersModalState
+} from './search-users-modal/slice'
+export * as searchUsersModalSelectors from './search-users-modal/selectors'
+export { default as searchUsersModalSagas } from './search-users-modal/sagas'

@@ -1,12 +1,16 @@
 import {
   castSagas,
+  playerSagas as commonPlayerSagas,
   chatSagas,
+  premiumContentSagas,
   remoteConfigSagas,
   deletePlaylistConfirmationModalUISagas as deletePlaylistConfirmationModalSagas,
   mobileOverflowMenuUISagas as overflowMenuSagas,
   shareModalUISagas as shareModalSagas,
   toastSagas,
-  vipDiscordModalSagas
+  vipDiscordModalSagas,
+  reachabilitySagas as commonReachabilitySagas,
+  searchUsersModalSagas
 } from '@audius/common'
 import { all, fork } from 'redux-saga/effects'
 
@@ -39,7 +43,6 @@ import trendingUndergroundSagas from 'common/store/pages/trending-underground/sa
 import trendingPageSagas from 'common/store/pages/trending/sagas'
 import playerSagas from 'common/store/player/sagas'
 import playlistLibrarySagas from 'common/store/playlist-library/sagas'
-import premiumContentSagas from 'common/store/premiumContent/sagas'
 import profileSagas from 'common/store/profile/sagas'
 import queueSagas from 'common/store/queue/sagas'
 import recoveryEmailSagas from 'common/store/recovery-email/sagas'
@@ -58,7 +61,6 @@ import followingPageSagas from 'common/store/user-list/following/sagas'
 import mutualsPageSagas from 'common/store/user-list/mutuals/sagas'
 import notificationUsersPageSagas from 'common/store/user-list/notifications/sagas'
 import repostPageSagas from 'common/store/user-list/reposts/sagas'
-import searchPageSagas from 'common/store/user-list/search/sagas'
 import supportingPageSagas from 'common/store/user-list/supporting/sagas'
 import topSupportersPageSagas from 'common/store/user-list/top-supporters/sagas'
 import walletSagas from 'common/store/wallet/sagas'
@@ -139,6 +141,7 @@ export default function* rootSaga() {
 
     // Playback
     playerSagas(),
+    commonPlayerSagas(),
     queueSagas(),
 
     // Wallet
@@ -168,17 +171,18 @@ export default function* rootSaga() {
     remixSettingsSagas(),
     repostPageSagas(),
     scrollLockSagas(),
-    searchPageSagas(),
     shareModalSagas(),
     overflowMenuSagas(),
     toastSagas(),
     shareSoundToTikTokModalSagas(),
     smartCollectionPageSagas(),
+    searchUsersModalSagas(),
     stemUploadSagas(),
     themeSagas(),
     tokenDashboardSagas(),
     userListModalSagas(),
     vipDiscordModalSagas(),
+    commonReachabilitySagas(),
 
     // Remote config
     remoteConfigSagas(),
