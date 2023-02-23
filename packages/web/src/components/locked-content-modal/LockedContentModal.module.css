@@ -1,4 +1,4 @@
-.modalWrapper > div {
+.modalBody {
   width: 720px;
 }
 
@@ -58,13 +58,13 @@
   text-transform: capitalize;
 }
 
-.trackImage {
+.trackImageWrapper {
   width: 124px;
   height: 124px;
 }
 
-.trackImage > div {
-  border-radius: 4px !important;
+.trackImage {
+  border-radius: 4px;
 }
 
 .by {

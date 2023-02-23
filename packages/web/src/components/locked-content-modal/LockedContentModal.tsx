@@ -1,12 +1,10 @@
 import { useCallback } from 'react'
 
 import {
-  cacheTracksSelectors,
-  cacheUsersSelectors,
-  CommonState,
-  premiumContentSelectors,
+  premiumContentActions,
   SquareSizes,
   Track,
+  useLockedContent,
   usePremiumContentAccess,
   User
 } from '@audius/common'
@@ -19,7 +17,7 @@ import {
   IconCollectible,
   IconSpecialAccess
 } from '@audius/stems'
-import { useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
@@ -30,14 +28,10 @@ import { profilePage } from 'utils/route'
 
 import styles from './LockedContentModal.module.css'
 
-const { getUser } = cacheUsersSelectors
-const { getTrack } = cacheTracksSelectors
-const { getLockedContentId } = premiumContentSelectors
+const { resetLockedContentId } = premiumContentActions
 
 const messages = {
   howToUnlock: 'HOW TO UNLOCK',
-  unlocking: 'UNLOCKING',
-  unlocked: 'UNLOCKED',
   collectibleGated: 'COLLECTIBLE GATED',
   specialAccess: 'SPECIAL ACCESS'
 }
@@ -60,7 +54,8 @@ const TrackDetails = ({ track, owner }: { track: Track; owner: User }) => {
   return (
     <div className={styles.trackDetails}>
       <DynamicImage
-        wrapperClassName={styles.trackImage}
+        wrapperClassName={styles.trackImageWrapper}
+        className={styles.trackImage}
         image={image}
         aria-label={label}
       />
@@ -94,24 +89,20 @@ const TrackDetails = ({ track, owner }: { track: Track; owner: User }) => {
 
 export const LockedContentModal = () => {
   const [isOpen, setIsOpen] = useModalState('LockedContent')
-  const lockedContentId = useSelector(getLockedContentId)
-  const track = useSelector((state: CommonState) =>
-    getTrack(state, { id: lockedContentId })
-  )
-  const owner = useSelector((state: CommonState) => {
-    return track?.owner_id ? getUser(state, { id: track.owner_id }) : null
-  })
+  const dispatch = useDispatch()
+  const { track, owner } = useLockedContent()
   const { doesUserHaveAccess } = usePremiumContentAccess(track)
 
   const handleClose = useCallback(() => {
     setIsOpen(false)
-  }, [setIsOpen])
+    dispatch(resetLockedContentId())
+  }, [setIsOpen, dispatch])
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      wrapperClassName={styles.modalWrapper}
+      bodyClassName={styles.modalBody}
       dismissOnClickOutside
     >
       <ModalHeader
