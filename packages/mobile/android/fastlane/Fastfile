@@ -23,6 +23,8 @@ CODEPUSH_APP_NAME = 'Audius-Music/Audius-Android'
 CODEPUSH_STAGING_DEPLOYMENT = 'Staging'
 CODEPUSH_RC_DEPLOYMENT = 'ReleaseCandidate'
 CODEPUSH_PROD_DEPLOYMENT = 'Production'
+GRADLE_FILE_PATH = '../app/build.gradle'
+VERSION_NAME_REGEX = /versionName\s+"([\d\.]+)"/
 
 platform :android do
   desc "Get the currently released app version name"
@@ -36,10 +38,8 @@ platform :android do
 
   desc "Get the version name in app build.gradle file"
   private_lane :getVersionNameFromBuildFile do |options|
-      re = /versionName\s+"([\d\.]+)"/
-      path = '../app/build.gradle'
-      s = File.read(path)
-      versionName = Gem::Version.new s[re, 1]
+      s = File.read(GRADLE_FILE_PATH)
+      versionName = Gem::Version.new s[VERSION_NAME_REGEX, 1]
       versionName
   end
   
@@ -122,7 +122,7 @@ platform :android do
 
       # Increment the version code in build.gradle by 1
       re = /versionCode\s+(\d+)/
-      path = '../app/build.gradle'
+      path = GRADLE_FILE_PATH
       s = File.read(path)
       s[re, 1] = (previousVersion + 1).to_s
       f = File.new(path, 'w')
@@ -137,7 +137,10 @@ platform :android do
         track: options[:track]
       )
 
-      versionName = getVersionNameFromBuildFile()
+      re = VERSION_NAME_REGEX
+      path = GRADLE_FILE_PATH
+      s = File.read(path)
+      versionName = Gem::Version.new s[re, 1]
 
       # If the version specified in build.gradle is greater than
       # the previous version name, there is no need to modify version name in build.gradle
