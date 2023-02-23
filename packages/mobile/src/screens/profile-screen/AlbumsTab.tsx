@@ -39,6 +39,7 @@ export const AlbumsTab = () => {
       ListEmptyComponent={<EmptyProfileTile tab='albums' />}
       disableTopTabScroll
       showsVerticalScrollIndicator={false}
+      totalCount={album_count}
     />
   )
 }
