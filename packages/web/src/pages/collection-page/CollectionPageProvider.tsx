@@ -388,7 +388,6 @@ class CollectionPage extends Component<
 
   isQueued = () => {
     const { tracks, currentQueueItem } = this.props
-    console.log('hmm2', currentQueueItem, tracks)
     return tracks.entries.some((entry) => currentQueueItem.uid === entry.uid)
   }
 

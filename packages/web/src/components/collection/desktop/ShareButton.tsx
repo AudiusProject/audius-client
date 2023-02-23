@@ -27,7 +27,6 @@ type ShareButtonProps = Partial<ButtonProps> & {
 export const ShareButton = (props: ShareButtonProps) => {
   const { collectionId, type, userId, ...other } = props
   const dispatch = useDispatch()
-  console.log('sup', collectionId, type, userId)
 
   const handleShare = useCallback(() => {
     if (typeof collectionId !== 'number') {

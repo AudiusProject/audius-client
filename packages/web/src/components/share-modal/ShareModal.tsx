@@ -39,7 +39,6 @@ export const ShareModal = () => {
   const dispatch = useDispatch()
   const record = useRecord()
   const { content, source } = useSelector(getShareState)
-  console.log('content and source?', content, source)
   const account = useSelector(getAccountUser)
 
   const { isEnabled: isShareSoundToTikTokEnabled } = useFlag(
