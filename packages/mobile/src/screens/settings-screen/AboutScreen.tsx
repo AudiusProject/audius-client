@@ -71,7 +71,7 @@ export const AboutScreen = () => {
               <Text variant='h2'>{messages.appName}</Text>
             </TouchableWithoutFeedback>
             <Text variant='body2'>
-              {messages.version} {appVersion}
+              {messages.version} {appVersion}c1
             </Text>
             <Text variant='body2'>{messages.copyright}</Text>
           </View>
