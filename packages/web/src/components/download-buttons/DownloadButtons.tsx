@@ -21,10 +21,10 @@ import {
 } from 'common/store/pages/signon/actions'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Tooltip from 'components/tooltip/Tooltip'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { useIsMobile } from 'utils/clientUtil'
 
 import styles from './DownloadButtons.module.css'
-import { useFlag } from 'hooks/useRemoteConfig'
 const { toast } = toastActions
 
 export type DownloadButtonProps = {
