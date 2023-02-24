@@ -64,10 +64,6 @@ mobile-build-staging-ios:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
   steps:
-    - mobile-prepare-ios:
-        build-directory: 'build-mobile-staging'
-        bundle-id: 'co.audius.audiusmusic.staging'
-        env: '.env.stage'
     - mobile-build-ios:
         build-directory: 'build-mobile-staging'
         bundle-id: 'co.audius.audiusmusic.staging'
@@ -81,13 +77,10 @@ mobile-build-upload-staging-ios:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
   steps:
-    - mobile-prepare-ios:
-        build-directory: 'build-mobile-staging'
-        bundle-id: 'co.audius.audiusmusic.staging'
-        env: '.env.stage'
     - mobile-release-ios:
         build-directory: 'build-mobile-staging'
         bundle-id: 'co.audius.audiusmusic.staging'
+        env: '.env.prod'
 
 mobile-build-production-ios:
   working_directory: ~/audius-client
@@ -110,13 +103,10 @@ mobile-build-upload-production-ios:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
   steps:
-    - mobile-prepare-ios:
-        build-directory: 'build-mobile-production'
-        bundle-id: 'co.audius.audiusmusic'
-        env: '.env.prod'
     - mobile-release-ios:
         build-directory: 'build-mobile-production'
         bundle-id: 'co.audius.audiusmusic'
+        env: '.env.prod'
 
 mobile-build-upload-releasecandidate-ios:
   working_directory: ~/audius-client
@@ -126,13 +116,10 @@ mobile-build-upload-releasecandidate-ios:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
   steps:
-    - mobile-prepare-ios:
-        build-directory: 'build-mobile-releasecandidate'
-        bundle-id: 'co.audius.audiusmusic.releasecandidate'
-        env: '.env.prod'
     - mobile-release-ios:
         build-directory: 'build-mobile-releasecandidate'
         bundle-id: 'co.audius.audiusmusic.releasecandidate'
+        env: '.env.prod'
 
 mobile-build-upload-staging-releasecandidate-ios:
   working_directory: ~/audius-client
@@ -142,13 +129,10 @@ mobile-build-upload-staging-releasecandidate-ios:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
   steps:
-    - mobile-prepare-ios:
-        build-directory: 'build-mobile-staging-releasecandidate'
-        bundle-id: 'co.audius.audiusmusic.staging.releasecandidate'
-        env: '.env.prod'
     - mobile-release-ios:
         build-directory: 'build-mobile-staging-releasecandidate'
         bundle-id: 'co.audius.audiusmusic.staging.releasecandidate'
+        env: '.env.prod'
 
 mobile-build-staging-android:
   working_directory: ~/audius-client
@@ -156,8 +140,6 @@ mobile-build-staging-android:
   docker:
     - image: circleci/android:api-30-node
   steps:
-    - mobile-prepare-android:
-        build-directory: 'build-mobile-staging'
     - mobile-build-android:
         build-directory: 'build-mobile-staging'
         build-type: 'bundleStagingRelease'
@@ -171,8 +153,6 @@ mobile-build-upload-staging-android:
   docker:
     - image: circleci/android:api-30-node
   steps:
-    - mobile-prepare-android:
-        build-directory: 'build-mobile-staging'
     - mobile-release-android:
         build-directory: 'build-mobile-staging'
         upload-type: 'staging'
@@ -184,8 +164,6 @@ mobile-build-upload-staging-releasecandidate-android:
   docker:
     - image: circleci/android:api-30-node
   steps:
-    - mobile-prepare-android:
-        build-directory: 'build-mobile-staging-releasecandidate'
     - mobile-release-android:
         build-directory: 'build-mobile-staging-releasecandidate'
         upload-type: 'stagingReleaseCandidate'
@@ -197,8 +175,6 @@ mobile-build-upload-releasecandidate-android:
   docker:
     - image: circleci/android:api-30-node
   steps:
-    - mobile-prepare-android:
-        build-directory: 'build-mobile-releasecandidate'
     - mobile-release-android:
         build-directory: 'build-mobile-releasecandidate'
         upload-type: 'releaseCandidate'
@@ -210,8 +186,6 @@ mobile-build-production-android:
   docker:
     - image: circleci/android:api-30-node
   steps:
-    - mobile-prepare-android:
-        build-directory: 'build-mobile-production'
     - mobile-build-android:
         build-directory: 'build-mobile-production'
         build-type: 'bundleRelease'
@@ -225,8 +199,6 @@ mobile-build-upload-production-android:
   docker:
     - image: circleci/android:api-30-node
   steps:
-    - mobile-prepare-android:
-        build-directory: 'build-mobile-production'
     - mobile-release-android:
         build-directory: 'build-mobile-production'
         upload-type: 'prod'

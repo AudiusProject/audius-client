@@ -48,10 +48,6 @@ mobile-prepare-ios:
     - run:
         name: update fastlane
         command: cd packages/mobile/ios && bundle update fastlane
-    - store_artifacts:
-        path: packages/mobile/output
-    - store_test_results:
-        path: packages/mobile/output/scan
 
 # Build ios app
 mobile-build-ios:
@@ -66,6 +62,10 @@ mobile-build-ios:
       default: '.env.prod'
       type: string
   steps:
+    - mobile-prepare-ios:
+        build-directory: <<parameters.build-directory>>
+        bundle-id: <<parameters.bundle-id>>
+        env: <<parameters.env>>
     - run:
         name: fastlane build
         command: cp packages/mobile/<<parameters.env>> packages/mobile/ios/ && cd packages/mobile/ios && bundle exec fastlane build bundle_id:<<parameters.bundle-id>>
@@ -84,10 +84,14 @@ mobile-release-ios:
     bundle-id:
       default: 'co.audius.audiusmusic'
       type: string
+    env:
+      default: '.env.prod'
+      type: string
   steps:
-    - checkout
-    - attach_workspace:
-        at: ./
+    - mobile-prepare-ios:
+        build-directory: <<parameters.build-directory>>
+        bundle-id: <<parameters.bundle-id>>
+        env: <<parameters.env>>
     - run:
         name: fastlane build and upload
         command: cd packages/mobile/ios && bundle exec fastlane build_and_upload bundle_id:<<parameters.bundle-id>>
@@ -142,6 +146,8 @@ mobile-build-android:
       default: 'audius-mobile'
       type: string
   steps:
+    - mobile-prepare-android:
+        build-directory: <<parameters.build-directory>>
     - run:
         name: increment version code
         command: |
@@ -171,9 +177,8 @@ mobile-release-android:
       default: 'alpha'
       type: string
   steps:
-    - checkout
-    - attach_workspace:
-        at: ./
+    - mobile-prepare-android:
+        build-directory: <<parameters.build-directory>>
     - run:
         name: release android
         command: |
