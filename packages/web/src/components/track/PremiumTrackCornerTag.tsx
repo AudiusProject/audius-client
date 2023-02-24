@@ -4,9 +4,9 @@ import {
   IconCollectibleCornerTag,
   IconSpecialAccessCornerTag
 } from '@audius/stems'
+import cn from 'classnames'
 
 import { useFlag } from 'hooks/useRemoteConfig'
-import cn from 'classnames'
 
 import styles from './GiantTrackTile.module.css'
 
@@ -33,9 +33,13 @@ export const PremiumTrackCornerTag = ({
 
   if (isOwner) {
     if (premiumConditions.nft_collection) {
-      return <IconCollectibleCornerTag className={cn(styles.cornerTag, className)} />
+      return (
+        <IconCollectibleCornerTag className={cn(styles.cornerTag, className)} />
+      )
     }
-    return <IconSpecialAccessCornerTag className={cn(styles.cornerTag, className)} />
+    return (
+      <IconSpecialAccessCornerTag className={cn(styles.cornerTag, className)} />
+    )
   }
 
   if (doesUserHaveAccess) {

@@ -18,7 +18,14 @@ import {
   PremiumConditions,
   Nullable
 } from '@audius/common'
-import { Button, ButtonType, IconCollectible, IconPause, IconPlay, IconSpecialAccess } from '@audius/stems'
+import {
+  Button,
+  ButtonType,
+  IconCollectible,
+  IconPause,
+  IconPlay,
+  IconSpecialAccess
+} from '@audius/stems'
 import cn from 'classnames'
 import Linkify from 'linkify-react'
 
@@ -28,6 +35,8 @@ import HoverInfo from 'components/co-sign/HoverInfo'
 import { Size } from 'components/co-sign/types'
 import DownloadButtons from 'components/download-buttons/DownloadButtons'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
+import { PremiumTrackCornerTag } from 'components/track/PremiumTrackCornerTag'
+import { PremiumTrackSection } from 'components/track/PremiumTrackSection'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useFlag } from 'hooks/useRemoteConfig'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
@@ -39,7 +48,6 @@ import HiddenTrackHeader from '../HiddenTrackHeader'
 import ActionButtonRow from './ActionButtonRow'
 import StatsButtonRow from './StatsButtonRow'
 import styles from './TrackHeader.module.css'
-import { PremiumTrackCornerTag } from 'components/track/PremiumTrackCornerTag'
 
 const messages = {
   track: 'TRACK',
@@ -325,7 +333,7 @@ const TrackHeader = ({
         <div className={cn(styles.typeLabel, styles.premiumContentLabel)}>
           {premiumConditions?.nft_collection ? (
             <IconCollectible />
-          ): (
+          ) : (
             <IconSpecialAccess />
           )}
           {premiumConditions?.nft_collection ? (
@@ -351,7 +359,9 @@ const TrackHeader = ({
         <div className={styles.hiddenTrackHeaderWrapper}>
           <HiddenTrackHeader />
         </div>
-      ) : renderHeaderText()}
+      ) : (
+        renderHeaderText()
+      )}
       {imageElement}
       <h1 className={styles.title}>{title}</h1>
       <div className={styles.artist} onClick={onClickArtistName}>
@@ -363,7 +373,24 @@ const TrackHeader = ({
         />
       </div>
       <div className={styles.buttonSection}>
-        <PlayButton playing={isPlaying} onPlay={onPlay} />
+        {isPremiumContentEnabled &&
+          !doesUserHaveAccess &&
+          premiumConditions &&
+          trackId && (
+            <PremiumTrackSection
+              isLoading={false}
+              trackId={trackId}
+              premiumConditions={premiumConditions}
+              doesUserHaveAccess={doesUserHaveAccess}
+              isOwner={false}
+              wrapperClassName={styles.premiumTrackSectionWrapper}
+              className={styles.premiumTrackSection}
+              buttonClassName={styles.premiumTrackSectionButton}
+            />
+          )}
+        {!isPremiumContentEnabled || doesUserHaveAccess ? (
+          <PlayButton playing={isPlaying} onPlay={onPlay} />
+        ) : null}
         <ActionButtonRow
           showRepost={showSocials}
           showFavorite={showSocials}
@@ -380,6 +407,24 @@ const TrackHeader = ({
           darkMode={isDarkMode()}
         />
       </div>
+      {isPremiumContentEnabled &&
+        doesUserHaveAccess &&
+        premiumConditions &&
+        trackId && (
+          <PremiumTrackSection
+            isLoading={false}
+            trackId={trackId}
+            premiumConditions={premiumConditions}
+            doesUserHaveAccess={doesUserHaveAccess}
+            isOwner={isOwner}
+            wrapperClassName={cn(
+              styles.premiumTrackSectionWrapper,
+              styles.unlockedSection
+            )}
+            className={styles.premiumTrackSection}
+            buttonClassName={styles.premiumTrackSectionButton}
+          />
+        )}
       {coSign && (
         <div className={styles.coSignInfo}>
           <HoverInfo
