@@ -99,11 +99,13 @@ const LockedPremiumTrackSection = ({
 }: PremiumTrackAccessSectionProps) => {
   const dispatch = useDispatch()
   const [modalVisibility, setModalVisibility] = useModalState('LockedContent')
+  const source = modalVisibility ? 'lockedContentModal' : 'trackPage'
+  const followSource = modalVisibility ? FollowSource.LOCKED_CONTENT_MODAL : FollowSource.TRACK_PAGE
   const account = useSelector(getAccountUser)
 
   const handleSendTip = useCallback(() => {
     if (account) {
-      dispatch(beginTip({ user: tippedUser, source: 'trackPage' }))
+      dispatch(beginTip({ user: tippedUser, source }))
     } else {
       dispatch(pushRoute(SIGN_UP_PAGE))
       dispatch(showRequiresAccountModal())
@@ -120,7 +122,7 @@ const LockedPremiumTrackSection = ({
         dispatch(
           socialActions.followUser(
             premiumConditions.follow_user_id,
-            FollowSource.TRACK_PAGE
+            followSource
           )
         )
       }

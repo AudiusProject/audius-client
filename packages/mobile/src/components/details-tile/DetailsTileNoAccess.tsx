@@ -26,6 +26,7 @@ import UserBadges from 'app/components/user-badges'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { flexRowCentered, makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
+import { useDrawer } from 'app/hooks/useDrawer'
 
 const { getPremiumTrackStatusMap } = premiumContentSelectors
 const { followUser } = usersSocialActions
@@ -179,6 +180,9 @@ export const DetailsTileNoAccess = ({
   const styles = useStyles()
   const dispatch = useDispatch()
   const navigation = useNavigation()
+  const { isOpen: isModalOpen } = useDrawer('LockedContent')
+  const source = isModalOpen ? 'lockedContentModal' : 'trackPage'
+  const followSource = isModalOpen ? FollowSource.LOCKED_CONTENT_MODAL : FollowSource.TRACK_PAGE
   const premiumTrackStatusMap = useSelector(getPremiumTrackStatusMap)
   const premiumTrackStatus = premiumTrackStatusMap[trackId] ?? null
   const { nftCollection, collectionLink, followee, tippedUser } =
@@ -188,12 +192,12 @@ export const DetailsTileNoAccess = ({
 
   const handleFollowArtist = useCallback(() => {
     if (followee) {
-      dispatch(followUser(followee.user_id, FollowSource.TRACK_PAGE))
+      dispatch(followUser(followee.user_id, followSource))
     }
   }, [followee, dispatch])
 
   const handleSendTip = useCallback(() => {
-    dispatch(beginTip({ user: tippedUser, source: 'trackPage' }))
+    dispatch(beginTip({ user: tippedUser, source }))
     navigation.navigate('TipArtist')
   }, [tippedUser, navigation, dispatch])
 
