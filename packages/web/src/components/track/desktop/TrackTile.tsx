@@ -114,12 +114,6 @@ const TrackTile = memo(
       [onClickTitle]
     )
 
-    const onClickTile = useCallback(() => {
-      if (!isLoading && !isDisabled) {
-        onTogglePlay()
-      }
-    }, [isLoading, isDisabled, onTogglePlay])
-
     return (
       <div
         className={cn(styles.container, {
@@ -134,7 +128,7 @@ const TrackTile = memo(
           // Standalone means that this tile is not w/ a playlist
           [styles.standalone]: !!standalone
         })}
-        onClick={onClickTile}
+        onClick={(!isLoading && !isDisabled) ? onTogglePlay : undefined}
       >
         {showPremiumCornerTag && (
           <PremiumTrackCornerTag
