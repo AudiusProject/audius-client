@@ -41,6 +41,7 @@ import { AppState } from 'store/types'
 import { SIGN_UP_PAGE } from 'utils/route'
 
 import styles from './GiantTrackTile.module.css'
+import { useModalState } from 'common/hooks/useModalState'
 
 const { getUsers } = cacheUsersSelectors
 const { beginTip } = tippingActions
@@ -97,6 +98,7 @@ const LockedPremiumTrackSection = ({
   buttonClassName
 }: PremiumTrackAccessSectionProps) => {
   const dispatch = useDispatch()
+  const [modalVisibility, setModalVisibility] = useModalState('LockedContent')
   const account = useSelector(getAccountUser)
 
   const handleSendTip = useCallback(() => {
@@ -106,7 +108,11 @@ const LockedPremiumTrackSection = ({
       dispatch(pushRoute(SIGN_UP_PAGE))
       dispatch(showRequiresAccountModal())
     }
-  }, [dispatch, account, tippedUser])
+
+    if (modalVisibility) {
+      setModalVisibility(false)
+    }
+  }, [dispatch, account, tippedUser, modalVisibility, setModalVisibility])
 
   const handleFollow = useCallback(() => {
     if (account) {
@@ -121,8 +127,12 @@ const LockedPremiumTrackSection = ({
     } else {
       dispatch(pushRoute(SIGN_UP_PAGE))
       dispatch(showRequiresAccountModal())
+
+      if (modalVisibility){
+        setModalVisibility(false)
+      }
     }
-  }, [dispatch, account, premiumConditions])
+  }, [dispatch, account, premiumConditions, modalVisibility, setModalVisibility])
 
   const renderLockedDescription = useCallback(() => {
     if (premiumConditions.nft_collection) {
