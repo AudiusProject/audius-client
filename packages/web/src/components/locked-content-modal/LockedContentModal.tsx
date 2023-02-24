@@ -16,6 +16,7 @@ import {
   IconCollectible,
   IconSpecialAccess
 } from '@audius/stems'
+import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
@@ -23,12 +24,11 @@ import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { PremiumTrackSection } from 'components/track/PremiumTrackSection'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
+import ModalDrawer from 'pages/audio-rewards-page/components/modals/ModalDrawer'
+import { isMobile } from 'utils/clientUtil'
 import { profilePage } from 'utils/route'
 
 import styles from './LockedContentModal.module.css'
-import ModalDrawer from 'pages/audio-rewards-page/components/modals/ModalDrawer'
-import { isMobile } from 'utils/clientUtil'
-import cn from 'classnames'
 
 const { resetLockedContentId } = premiumContentActions
 

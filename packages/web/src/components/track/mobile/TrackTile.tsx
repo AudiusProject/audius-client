@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconStar } from 'assets/img/iconStar.svg'
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
+import { useModalState } from 'common/hooks/useModalState'
 import FavoriteButton from 'components/alt-button/FavoriteButton'
 import RepostButton from 'components/alt-button/RepostButton'
 import Skeleton from 'components/skeleton/Skeleton'
@@ -29,7 +30,6 @@ import TrackBannerIcon, { TrackBannerIconType } from '../TrackBannerIcon'
 import BottomButtons from './BottomButtons'
 import styles from './TrackTile.module.css'
 import TrackTileArt from './TrackTileArt'
-import { useModalState } from 'common/hooks/useModalState'
 
 const { setLockedContentId } = premiumContentActions
 const { getPremiumTrackStatusMap } = premiumContentSelectors
@@ -139,7 +139,9 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
   const [, setModalVisibility] = useModalState('LockedContent')
   const premiumTrackStatusMap = useSelector(getPremiumTrackStatusMap)
   const trackId = isPremium ? id : null
-  const premiumTrackStatus = trackId ? premiumTrackStatusMap[trackId] : undefined
+  const premiumTrackStatus = trackId
+    ? premiumTrackStatusMap[trackId]
+    : undefined
 
   const showPremiumCornerTag =
     !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
@@ -177,7 +179,16 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
     }
 
     togglePlay(uid, id)
-  }, [showSkeleton, togglePlay, uid, id])
+  }, [
+    showSkeleton,
+    togglePlay,
+    uid,
+    id,
+    trackId,
+    doesUserHaveAccess,
+    dispatch,
+    setModalVisibility
+  ])
 
   return (
     <div className={styles.container}>
