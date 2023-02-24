@@ -92,3 +92,8 @@
 .premiumContent path {
   fill: var(--neutral-light-4) !important;
 }
+
+.spinner {
+  height: var(--unit-4);
+  width: var(--unit-4);
+}
