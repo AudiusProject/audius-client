@@ -1,3 +1,9 @@
+mobile-install-appcenter:
+  steps:
+    - run:
+        name: install appcenter
+        command: npm install -g appcenter-cli
+
 # Bundle ios app and prepare to build/upload/release
 mobile-prepare-ios:
   parameters:
@@ -17,9 +23,7 @@ mobile-prepare-ios:
     - run:
         name: update cocoapods
         command: sudo gem install cocoapods
-    - run:
-        name: install appcenter
-        command: cd packages/mobile && npm install appcenter-cli
+    - mobile-install-appcenter
     - run:
         name: copy bundle
         command: cd packages/mobile && npm run bundle:ios
@@ -81,6 +85,9 @@ mobile-release-ios:
       default: 'co.audius.audiusmusic'
       type: string
   steps:
+    - checkout
+    - attach_workspace:
+        at: ./
     - run:
         name: fastlane build and upload
         command: cd packages/mobile/ios && bundle exec fastlane build_and_upload bundle_id:<<parameters.bundle-id>>
@@ -99,9 +106,7 @@ mobile-prepare-android:
         name: migrate support libraries for androidX packages
         command: |
           cd packages/mobile && npm run jetifier
-    - run:
-        name: install appcenter
-        command: cd packages/mobile && npm install appcenter-cli
+    - mobile-install-appcenter
     - run:
         name: update bundler
         command: gem install bundler:1.17.3
@@ -166,6 +171,9 @@ mobile-release-android:
       default: 'alpha'
       type: string
   steps:
+    - checkout
+    - attach_workspace:
+        at: ./
     - run:
         name: release android
         command: |
