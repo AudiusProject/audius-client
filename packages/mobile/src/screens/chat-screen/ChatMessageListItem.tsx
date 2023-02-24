@@ -15,8 +15,7 @@ import { useThemePalette } from 'app/utils/theme'
 const { getUserId } = accountSelectors
 
 const messages = {
-  newMessage: 'New Message',
-  s: 's'
+  newMessage: 'New Message'
 }
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
@@ -82,18 +81,21 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   },
   tail: {
     display: 'flex',
-    position: 'relative',
-    marginTop: -12,
-    zIndex: -1
+    position: 'absolute',
+    zIndex: -1,
+    bottom: 47
   },
   tailIsAuthor: {
-    marginRight: -12
+    right: -spacing(3)
   },
   tailOtherUser: {
-    marginLeft: -12,
+    left: -spacing(3),
     transform: [{ scaleX: -1 }]
   }
 }))
+
+const pluralize = (message: string, shouldPluralize: boolean) =>
+  message + (shouldPluralize ? 's' : '')
 
 type ChatMessageListItemProps = {
   message: ChatMessage
@@ -123,7 +125,7 @@ export const ChatMessageListItem = ({
             {message.message}
           </Text>
         </View>
-        {hasTail && (
+        {hasTail ? (
           <>
             <View
               style={[
@@ -139,19 +141,18 @@ export const ChatMessageListItem = ({
               </Text>
             </View>
           </>
-        )}
+        ) : null}
       </View>
 
-      {isEarliestUnread && (
+      {isEarliestUnread ? (
         <View style={styles.unreadTagContainer} key='unreadTag'>
           <View style={styles.unreadSeparator} />
           <Text style={styles.unreadTag}>
-            {unreadCount} {messages.newMessage}
-            {unreadCount > 1 && messages.s}
+            {unreadCount} {pluralize(messages.newMessage, unreadCount > 1)}
           </Text>
           <View style={styles.unreadSeparator} />
         </View>
-      )}
+      ) : null}
     </>
   )
 }

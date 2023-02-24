@@ -103,7 +103,8 @@ export const ChatScreen = () => {
   const { chatId } = params
   const url = `/chat/${encodeUrlName(chatId ?? '')}`
   const [iconOpacity, setIconOpacity] = useState(ICON_BLUR)
-  const [value, setValue] = useState('')
+  const [inputMessage, setInputMessage] = useState('')
+  const [earliestUnreadIndex, setEarliestUnreadIndex] = useState()
 
   const userId = encodeHashId(useSelector(getUserId))
   const chat = useSelector((state) => getChat(state, chatId ?? ''))
@@ -123,51 +124,46 @@ export const ChatScreen = () => {
   // Using a ref instead of state here to prevent unwanted flickers.
   // The chat/chatId selectors will trigger the rerenders necessary.
   const chatFrozenRef = useRef(chat)
-  useEffect(() => {
-    if (chat && chatId !== chatFrozenRef.current?.chat_id) {
-      // Update the unread indicator when chatId changes
-      chatFrozenRef.current = chat
-    }
-  }, [chat, chatId])
 
   useEffect(() => {
     if (chatId && status === Status.IDLE) {
       // Initial fetch
       dispatch(fetchMoreMessages({ chatId }))
-      dispatch(setActiveChat({ chatId }))
     }
   }, [dispatch, chatId, status, summary])
 
-  const earliestUnreadIndex = useMemo(() => {
-    if (!chatMessages || chatMessages.length === 0) {
-      return
+  useEffect(() => {
+    // Update chatFrozenRef when entering a new chat screen
+    if (chat && chatId !== chatFrozenRef.current?.chat_id) {
+      chatFrozenRef.current = chat
     }
-    const [earliestItem] = chatMessages.filter((item, index) =>
-      isEarliestUnread({
-        unreadCount: chatFrozenRef?.current?.unread_message_count ?? 0,
-        lastReadAt: chatFrozenRef?.current?.last_read_at,
-        currentMessageIndex: index,
-        messages: chatMessages,
-        currentUserId: userId
-      })
-    )
-    return chatMessages.indexOf(earliestItem)
-  }, [chatMessages, userId])
+    // Calculate earliestUnreadIndex only once
+    if (earliestUnreadIndex === undefined && chatMessages?.length > 0) {
+      const earliestUnreadIndex = chatMessages?.findIndex((item, index) =>
+        isEarliestUnread({
+          unreadCount: chatFrozenRef?.current?.unread_message_count ?? 0,
+          lastReadAt: chatFrozenRef?.current?.last_read_at,
+          currentMessageIndex: index,
+          messages: chatMessages,
+          currentUserId: userId
+        })
+      )
+      setEarliestUnreadIndex(earliestUnreadIndex)
+    }
+  }, [chatMessages, userId, chatId, earliestUnreadIndex, chat])
 
   const handleSubmit = useCallback(
-    (value) => {
-      if (chatId && value) {
-        const message = value
+    (message) => {
+      if (chatId && message) {
         dispatch(sendMessage({ chatId, message }))
-        setValue('')
+        setInputMessage('')
         setIconOpacity(ICON_BLUR)
       }
     },
-    [chatId, setValue, dispatch]
+    [chatId, setInputMessage, dispatch]
   )
 
   const handleScrollToTop = () => {
-    dispatch(setActiveChat({ chatId: null }))
     if (
       chatId &&
       status !== Status.LOADING &&
@@ -234,7 +230,7 @@ export const ChatScreen = () => {
                   width={styles.icon.width}
                   height={styles.icon.height}
                   opacity={iconOpacity}
-                  onPress={() => handleSubmit(value)}
+                  onPress={() => handleSubmit(inputMessage)}
                 />
               )}
               styles={{
@@ -242,12 +238,12 @@ export const ChatScreen = () => {
                 input: styles.composeTextInput
               }}
               onChangeText={(text) => {
-                setValue(text)
+                setInputMessage(text)
                 text ? setIconOpacity(ICON_FOCUS) : setIconOpacity(ICON_BLUR)
               }}
               onBlur={() => setIconOpacity(ICON_BLUR)}
               multiline
-              value={value}
+              value={inputMessage}
             />
           </View>
         </View>
