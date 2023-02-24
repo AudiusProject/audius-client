@@ -19,13 +19,15 @@ import {
   repostsUserListActions,
   favoritesUserListActions,
   playerSelectors,
-  usePremiumContentAccess
+  usePremiumContentAccess,
+  FeatureFlags
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { TrackTileProps } from 'components/track/types'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { AppState } from 'store/types'
 import {
   profilePage,
@@ -112,6 +114,9 @@ const ConnectedTrackTile = memo(
 
     const isOwner = user_id === currentUserId
 
+    const { isEnabled: isPremiumContentEnabled } = useFlag(
+      FeatureFlags.PREMIUM_CONTENT_ENABLED
+    )
     const { isUserAccessTBD, doesUserHaveAccess } =
       usePremiumContentAccess(trackWithFallback)
     const loading = isBuffering || isUserAccessTBD
@@ -171,13 +176,13 @@ const ConnectedTrackTile = memo(
 
     const onClickOverflow = (trackId: ID) => {
       const repostAction =
-        !isOwner && !isPremium
+        !isOwner && (!isPremiumContentEnabled || doesUserHaveAccess)
           ? has_current_user_reposted
             ? OverflowAction.UNREPOST
             : OverflowAction.REPOST
           : null
       const favoriteAction =
-        !isOwner && !isPremium
+        !isOwner && (!isPremiumContentEnabled || doesUserHaveAccess)
           ? has_current_user_saved
             ? OverflowAction.UNFAVORITE
             : OverflowAction.FAVORITE

@@ -13,9 +13,12 @@ import {
   formatSeconds,
   formatDate,
   OverflowAction,
-  imageBlank as placeholderArt
+  imageBlank as placeholderArt,
+  FeatureFlags,
+  PremiumConditions,
+  Nullable
 } from '@audius/common'
-import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
+import { Button, ButtonType, IconCollectible, IconPause, IconPlay, IconSpecialAccess } from '@audius/stems'
 import cn from 'classnames'
 import Linkify from 'linkify-react'
 
@@ -26,6 +29,7 @@ import { Size } from 'components/co-sign/types'
 import DownloadButtons from 'components/download-buttons/DownloadButtons'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import UserBadges from 'components/user-badges/UserBadges'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { moodMap } from 'utils/moods'
 import { isDarkMode } from 'utils/theme/theme'
@@ -35,12 +39,15 @@ import HiddenTrackHeader from '../HiddenTrackHeader'
 import ActionButtonRow from './ActionButtonRow'
 import StatsButtonRow from './StatsButtonRow'
 import styles from './TrackHeader.module.css'
+import { PremiumTrackCornerTag } from 'components/track/PremiumTrackCornerTag'
 
 const messages = {
   track: 'TRACK',
   remix: 'REMIX',
   play: 'PLAY',
-  pause: 'PAUSE'
+  pause: 'PAUSE',
+  collectibleGated: 'COLLECTIBLE GATED',
+  specialAccess: 'SPECIAL ACCESS'
 }
 
 const PlayButton = (props: { playing: boolean; onPlay: () => void }) => {
@@ -90,6 +97,8 @@ type TrackHeaderProps = {
   repostCount: number
   isUnlisted: boolean
   isPremium: boolean
+  premiumConditions: Nullable<PremiumConditions>
+  doesUserHaveAccess: boolean
   isRemix: boolean
   fieldVisibility: FieldVisibility
   coSign: Remix | null
@@ -131,6 +140,8 @@ const TrackHeader = ({
   isReposted,
   isUnlisted,
   isPremium,
+  premiumConditions,
+  doesUserHaveAccess,
   isRemix,
   fieldVisibility,
   coSign,
@@ -152,6 +163,12 @@ const TrackHeader = ({
   goToFavoritesPage,
   goToRepostsPage
 }: TrackHeaderProps) => {
+  const { isEnabled: isPremiumContentEnabled } = useFlag(
+    FeatureFlags.PREMIUM_CONTENT_ENABLED
+  )
+  const showSocials =
+    !isUnlisted && (!isPremiumContentEnabled || doesUserHaveAccess)
+
   const image = useTrackCoverArt(
     trackId,
     coverArtSizes,
@@ -197,12 +214,12 @@ const TrackHeader = ({
 
   const onClickOverflow = () => {
     const overflowActions = [
-      isOwner || isUnlisted
+      isOwner || isUnlisted || (isPremiumContentEnabled && !doesUserHaveAccess)
         ? null
         : isReposted
         ? OverflowAction.UNREPOST
         : OverflowAction.REPOST,
-      isOwner || isUnlisted
+      isOwner || isUnlisted || (isPremiumContentEnabled && !doesUserHaveAccess)
         ? null
         : isSaved
         ? OverflowAction.UNFAVORITE
@@ -288,17 +305,53 @@ const TrackHeader = ({
     />
   )
 
+  const renderCornerTag = () => {
+    if (isPremiumContentEnabled && premiumConditions) {
+      return (
+        <PremiumTrackCornerTag
+          doesUserHaveAccess={doesUserHaveAccess}
+          isOwner={isOwner}
+          premiumConditions={premiumConditions}
+          className={styles.cornerTag}
+        />
+      )
+    }
+    return null
+  }
+
+  const renderHeaderText = () => {
+    if (isPremiumContentEnabled && isPremium) {
+      return (
+        <div className={cn(styles.typeLabel, styles.premiumContentLabel)}>
+          {premiumConditions?.nft_collection ? (
+            <IconCollectible />
+          ): (
+            <IconSpecialAccess />
+          )}
+          {premiumConditions?.nft_collection ? (
+            <span>{messages.collectibleGated}</span>
+          ) : (
+            <span>{messages.specialAccess}</span>
+          )}
+        </div>
+      )
+    }
+
+    return (
+      <div className={styles.typeLabel}>
+        {isRemix ? messages.remix : messages.track}
+      </div>
+    )
+  }
+
   return (
     <div className={styles.trackHeader}>
+      {renderCornerTag()}
       {isUnlisted ? (
         <div className={styles.hiddenTrackHeaderWrapper}>
           <HiddenTrackHeader />
         </div>
-      ) : (
-        <div className={styles.typeLabel}>
-          {isRemix ? messages.remix : messages.track}
-        </div>
-      )}
+      ) : renderHeaderText()}
       {imageElement}
       <h1 className={styles.title}>{title}</h1>
       <div className={styles.artist} onClick={onClickArtistName}>
@@ -312,8 +365,8 @@ const TrackHeader = ({
       <div className={styles.buttonSection}>
         <PlayButton playing={isPlaying} onPlay={onPlay} />
         <ActionButtonRow
-          showRepost={!isUnlisted}
-          showFavorite={!isUnlisted}
+          showRepost={showSocials}
+          showFavorite={showSocials}
           showShare={!isUnlisted || fieldVisibility.share}
           showOverflow
           shareToastDisabled
