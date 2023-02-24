@@ -10,7 +10,6 @@ import {
 } from '@audius/common'
 import {
   IconLock,
-  Modal,
   ModalContent,
   ModalHeader,
   ModalTitle,
@@ -27,6 +26,9 @@ import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { profilePage } from 'utils/route'
 
 import styles from './LockedContentModal.module.css'
+import ModalDrawer from 'pages/audio-rewards-page/components/modals/ModalDrawer'
+import { isMobile } from 'utils/clientUtil'
+import cn from 'classnames'
 
 const { resetLockedContentId } = premiumContentActions
 
@@ -98,18 +100,22 @@ export const LockedContentModal = () => {
     dispatch(resetLockedContentId())
   }, [setIsOpen, dispatch])
 
+  const mobile = isMobile()
+
   return (
-    <Modal
+    <ModalDrawer
       isOpen={isOpen}
       onClose={handleClose}
       bodyClassName={styles.modalBody}
       dismissOnClickOutside
+      isFullscreen={false}
+      useGradientTitle={false}
     >
       <ModalHeader
-        className={styles.modalHeader}
+        className={cn(styles.modalHeader, { [styles.mobile]: mobile })}
         onClose={handleClose}
         dismissButtonClassName={styles.modalHeaderDismissButton}
-        showDismissButton
+        showDismissButton={!mobile}
       >
         <ModalTitle
           title={messages.howToUnlock}
@@ -133,6 +139,6 @@ export const LockedContentModal = () => {
           </div>
         )}
       </ModalContent>
-    </Modal>
+    </ModalDrawer>
   )
 }

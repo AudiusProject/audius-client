@@ -6,11 +6,12 @@ import {
   formatSeconds,
   PremiumConditions,
   Nullable,
-  premiumContentSelectors
+  premiumContentSelectors,
+  premiumContentActions
 } from '@audius/common'
 import { IconCrown, IconHidden, IconTrending } from '@audius/stems'
 import cn from 'classnames'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconStar } from 'assets/img/iconStar.svg'
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
@@ -28,7 +29,9 @@ import TrackBannerIcon, { TrackBannerIconType } from '../TrackBannerIcon'
 import BottomButtons from './BottomButtons'
 import styles from './TrackTile.module.css'
 import TrackTileArt from './TrackTileArt'
+import { useModalState } from 'common/hooks/useModalState'
 
+const { setLockedContentId } = premiumContentActions
 const { getPremiumTrackStatusMap } = premiumContentSelectors
 
 const messages = {
@@ -132,9 +135,11 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
     ? props.fieldVisibility.play_count === false
     : false
 
+  const dispatch = useDispatch()
+  const [, setModalVisibility] = useModalState('LockedContent')
   const premiumTrackStatusMap = useSelector(getPremiumTrackStatusMap)
-  const premiumTrackStatus =
-    isPremium && id ? premiumTrackStatusMap[id] : undefined
+  const trackId = isPremium ? id : null
+  const premiumTrackStatus = trackId ? premiumTrackStatusMap[trackId] : undefined
 
   const showPremiumCornerTag =
     !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
@@ -164,6 +169,12 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
 
   const handleClick = useCallback(() => {
     if (showSkeleton) return
+
+    if (trackId && !doesUserHaveAccess) {
+      dispatch(setLockedContentId({ id: trackId }))
+      setModalVisibility(true)
+      return
+    }
 
     togglePlay(uid, id)
   }, [showSkeleton, togglePlay, uid, id])
