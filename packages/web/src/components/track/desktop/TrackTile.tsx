@@ -128,7 +128,7 @@ const TrackTile = memo(
           // Standalone means that this tile is not w/ a playlist
           [styles.standalone]: !!standalone
         })}
-        onClick={(!isLoading && !isDisabled) ? onTogglePlay : undefined}
+        onClick={!isLoading && !isDisabled ? onTogglePlay : undefined}
       >
         {showPremiumCornerTag && (
           <PremiumTrackCornerTag
