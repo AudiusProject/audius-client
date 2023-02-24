@@ -2,7 +2,7 @@ mobile-install-appcenter:
   steps:
     - run:
         name: install appcenter
-        command: npm install -g appcenter-cli
+        command: npm install --prefix=$HOME/.local --global appcenter-cli
 
 # Bundle ios app and prepare to build/upload/release
 mobile-prepare-ios:

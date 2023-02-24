@@ -45,7 +45,7 @@ platform :ios do
     plistVersionNumber = Gem::Version.new get_version_number_from_plist(
       scheme: options[:scheme]
     )
-    return currentReleasedVersionNumber, plistVersionNumber
+    [currentReleasedVersionNumber, plistVersionNumber]
   end
 
   desc "Build the app"
