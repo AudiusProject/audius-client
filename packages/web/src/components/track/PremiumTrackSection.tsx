@@ -31,6 +31,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconExternalLink } from 'assets/img/iconExternalLink.svg'
 import { ReactComponent as IconVerifiedGreen } from 'assets/img/iconVerifiedGreen.svg'
+import { useModalState } from 'common/hooks/useModalState'
 import { showRequiresAccountModal } from 'common/store/pages/signon/actions'
 import FollowButton from 'components/follow-button/FollowButton'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
@@ -41,7 +42,6 @@ import { AppState } from 'store/types'
 import { SIGN_UP_PAGE } from 'utils/route'
 
 import styles from './GiantTrackTile.module.css'
-import { useModalState } from 'common/hooks/useModalState'
 
 const { getUsers } = cacheUsersSelectors
 const { beginTip } = tippingActions
@@ -100,7 +100,9 @@ const LockedPremiumTrackSection = ({
   const dispatch = useDispatch()
   const [modalVisibility, setModalVisibility] = useModalState('LockedContent')
   const source = modalVisibility ? 'lockedContentModal' : 'trackPage'
-  const followSource = modalVisibility ? FollowSource.LOCKED_CONTENT_MODAL : FollowSource.TRACK_PAGE
+  const followSource = modalVisibility
+    ? FollowSource.LOCKED_CONTENT_MODAL
+    : FollowSource.TRACK_PAGE
   const account = useSelector(getAccountUser)
 
   const handleSendTip = useCallback(() => {
@@ -114,7 +116,14 @@ const LockedPremiumTrackSection = ({
     if (modalVisibility) {
       setModalVisibility(false)
     }
-  }, [dispatch, account, tippedUser, modalVisibility, setModalVisibility])
+  }, [
+    dispatch,
+    account,
+    tippedUser,
+    source,
+    modalVisibility,
+    setModalVisibility
+  ])
 
   const handleFollow = useCallback(() => {
     if (account) {
@@ -130,11 +139,18 @@ const LockedPremiumTrackSection = ({
       dispatch(pushRoute(SIGN_UP_PAGE))
       dispatch(showRequiresAccountModal())
 
-      if (modalVisibility){
+      if (modalVisibility) {
         setModalVisibility(false)
       }
     }
-  }, [dispatch, account, premiumConditions, modalVisibility, setModalVisibility])
+  }, [
+    dispatch,
+    account,
+    premiumConditions,
+    followSource,
+    modalVisibility,
+    setModalVisibility
+  ])
 
   const renderLockedDescription = useCallback(() => {
     if (premiumConditions.nft_collection) {
