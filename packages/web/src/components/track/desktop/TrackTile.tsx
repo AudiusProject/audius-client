@@ -1,18 +1,11 @@
 import { memo, MouseEvent, useCallback } from 'react'
 
-import {
-  formatCount,
-  pluralize,
-  formatSeconds,
-  premiumContentActions
-} from '@audius/common'
+import { formatCount, pluralize, formatSeconds } from '@audius/common'
 import { IconCrown, IconHidden } from '@audius/stems'
 import cn from 'classnames'
-import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconStar } from 'assets/img/iconStar.svg'
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
-import { useModalState } from 'common/hooks/useModalState'
 import Skeleton from 'components/skeleton/Skeleton'
 
 import { PremiumContentLabel } from '../PremiumContentLabel'
@@ -25,8 +18,6 @@ import {
 
 import { BottomRow } from './BottomRow'
 import styles from './TrackTile.module.css'
-
-const { setLockedContentId } = premiumContentActions
 
 const messages = {
   getPlays: (listenCount: number) => ` ${pluralize('Play', listenCount)}`,
@@ -105,9 +96,6 @@ const TrackTile = memo(
     isTrack,
     trackId
   }: TrackTileProps) => {
-    const dispatch = useDispatch()
-    const [, setModalVisibility] = useModalState('LockedContent')
-
     const hasOrdering = order !== undefined
 
     const hidePlays = fieldVisibility
@@ -127,27 +115,10 @@ const TrackTile = memo(
     )
 
     const onClickTile = useCallback(() => {
-      if (isLoading || isDisabled) {
-        return
+      if (!isLoading && !isDisabled) {
+        onTogglePlay()
       }
-
-      if (isTrack && trackId && !doesUserHaveAccess) {
-        dispatch(setLockedContentId({ id: trackId }))
-        setModalVisibility(true)
-        return
-      }
-
-      onTogglePlay()
-    }, [
-      dispatch,
-      isLoading,
-      isDisabled,
-      isTrack,
-      trackId,
-      doesUserHaveAccess,
-      setModalVisibility,
-      onTogglePlay
-    ])
+    }, [isLoading, isDisabled, onTogglePlay])
 
     return (
       <div
