@@ -23,7 +23,6 @@ mobile-prepare-ios:
     - run:
         name: update cocoapods
         command: sudo gem install cocoapods
-    - mobile-install-appcenter
     - run:
         name: copy bundle
         command: cd packages/mobile && npm run bundle:ios

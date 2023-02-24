@@ -38,13 +38,15 @@ platform :ios do
   private_lane :get_version do |options|
 
     currentReleasedVersionString = get_app_store_version_number(
-      bundle_id: 'co.audius.audiusmusic'
+      bundle_id: 'co.audius.audiusmusic',
+      country: 'us'
     )
 
     currentReleasedVersionNumber = Gem::Version.new currentReleasedVersionString
     plistVersionNumber = Gem::Version.new get_version_number_from_plist(
       scheme: options[:scheme]
     )
+    puts currentReleasedVersionNumber
     [currentReleasedVersionNumber, plistVersionNumber]
   end
 
