@@ -33,7 +33,7 @@ const {
   getChat
 } = chatSelectors
 
-const { fetchMoreMessages, sendMessage, setActiveChat } = chatActions
+const { fetchMoreMessages, sendMessage } = chatActions
 const { getUserId } = accountSelectors
 
 const messages = {
@@ -104,7 +104,9 @@ export const ChatScreen = () => {
   const url = `/chat/${encodeUrlName(chatId ?? '')}`
   const [iconOpacity, setIconOpacity] = useState(ICON_BLUR)
   const [inputMessage, setInputMessage] = useState('')
-  const [earliestUnreadIndex, setEarliestUnreadIndex] = useState()
+  const [earliestUnreadIndex, setEarliestUnreadIndex] = useState<
+    number | undefined
+  >()
 
   const userId = encodeHashId(useSelector(getUserId))
   const chat = useSelector((state) => getChat(state, chatId ?? ''))
