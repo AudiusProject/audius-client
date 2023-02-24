@@ -210,7 +210,7 @@ platform :ios do
     if !isVersionIncremented
       # Codepush to the right environment
       sh("appcenter login --token #{ENV['APPCENTER_CODEPUSH_API_KEY']}")
-      sh("appcenter codepush release #{CODEPUSH_APP_NAME} ./ios/main.jsbundle #{currentReleasedVersionNumber.to_s} --deploymentName #{codepushDeployment} --noDuplicateReleaseError")
+      sh("appcenter codepush release #{CODEPUSH_APP_NAME} ./ios/main.jsbundle #{currentReleasedVersionNumber.to_s} --deployment-name #{codepushDeployment} --no-duplicate-release-error")
       sh("appcenter logout")
     else
         # Build and upload to TestFlight
