@@ -18,6 +18,9 @@ mobile-prepare-ios:
         name: update cocoapods
         command: sudo gem install cocoapods
     - run:
+        name: install appcenter
+        command: cd packages/mobile && npm install appcenter-cli
+    - run:
         name: copy bundle
         command: cd packages/mobile && npm run bundle:ios
     - run:
@@ -79,9 +82,6 @@ mobile-release-ios:
       type: string
   steps:
     - run:
-        name: install appcenter
-        command: cd packages/mobile && npm install appcenter-cli
-    - run:
         name: fastlane build and upload
         command: cd packages/mobile/ios && bundle exec fastlane build_and_upload bundle_id:<<parameters.bundle-id>>
 
@@ -100,6 +100,9 @@ mobile-prepare-android:
         command: |
           cd packages/mobile && npm run jetifier
     - run:
+        name: install appcenter
+        command: cd packages/mobile && npm install appcenter-cli
+    - run:
         name: update bundler
         command: gem install bundler:1.17.3
     - restore_cache:
@@ -109,6 +112,11 @@ mobile-prepare-android:
         key: 1-gems-{{ checksum "packages/mobile/android/Gemfile.lock" }}
         paths:
           - packages/mobile/android/vendor/bundle
+    - run:
+        name: fetch app fastlane json config to upload to play store
+        command: |
+          echo "$FASTLANE_PLAYSTORE_JSON" > packages/mobile/android/app/api.txt
+          base64 --decode packages/mobile/android/app/api.txt > packages/mobile/android/app/api.json
 
 # Build the android app
 mobile-build-android:
@@ -129,11 +137,6 @@ mobile-build-android:
       default: 'audius-mobile'
       type: string
   steps:
-    - run:
-        name: fetch app fastlane json config to upload to play store
-        command: |
-          echo "$FASTLANE_PLAYSTORE_JSON" > packages/mobile/android/app/api.txt
-          base64 --decode packages/mobile/android/app/api.txt > packages/mobile/android/app/api.json
     - run:
         name: increment version code
         command: |
@@ -163,9 +166,6 @@ mobile-release-android:
       default: 'alpha'
       type: string
   steps:
-    - run:
-        name: install appcenter
-        command: cd packages/mobile && npm install appcenter-cli
     - run:
         name: release android
         command: |
