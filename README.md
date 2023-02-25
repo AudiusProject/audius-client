@@ -34,6 +34,21 @@
 This repo is maintained using [`lerna`](https://github.com/lerna). After cloning run:
 
 ```bash
+./scrits/init.sh
+```
+This will ensure youre running with the correct nvm and nbenv configurations, and install them if not.
+Once this finishes make sure to re-source your shell config file:
+```bash
+source ~/.zshrc
+```
+or 
+```bash
+source ~/.bashrc
+```
+
+Aferwards, run:
+
+```bash
 npm install
 ```
 
@@ -42,6 +57,7 @@ This will do the following:
 - Install root dependencies
 - Install all package dependencies using `lerna bootstrap`
 - Initialize git hooks (`npx @escape.tech/mookme init --only-hook --skip-types-selection`)
+- Install ios pods
 
 ### Running A Client
 
