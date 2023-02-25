@@ -104,9 +104,6 @@ export const ChatScreen = () => {
   const url = `/chat/${encodeUrlName(chatId ?? '')}`
   const [iconOpacity, setIconOpacity] = useState(ICON_BLUR)
   const [inputMessage, setInputMessage] = useState('')
-  const [earliestUnreadIndex, setEarliestUnreadIndex] = useState<
-    number | undefined
-  >()
 
   const userId = encodeHashId(useSelector(getUserId))
   const chat = useSelector((state) => getChat(state, chatId ?? ''))
@@ -139,9 +136,11 @@ export const ChatScreen = () => {
     if (chat && chatId !== chatFrozenRef.current?.chat_id) {
       chatFrozenRef.current = chat
     }
-    // Calculate earliestUnreadIndex only once
-    if (earliestUnreadIndex === undefined && chatMessages?.length > 0) {
-      const earliestUnreadIndex = chatMessages?.findIndex((item, index) =>
+  }, [chatId, chat])
+
+  const earliestUnreadIndex = useMemo(
+    () =>
+      chatMessages?.findIndex((item, index) =>
         isEarliestUnread({
           unreadCount: chatFrozenRef?.current?.unread_message_count ?? 0,
           lastReadAt: chatFrozenRef?.current?.last_read_at,
@@ -149,10 +148,9 @@ export const ChatScreen = () => {
           messages: chatMessages,
           currentUserId: userId
         })
-      )
-      setEarliestUnreadIndex(earliestUnreadIndex)
-    }
-  }, [chatMessages, userId, chatId, earliestUnreadIndex, chat])
+      ),
+    [chatMessages, userId]
+  )
 
   const handleSubmit = useCallback(
     (message) => {
