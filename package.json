@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "link": "lerna link",
-    "postinstall": "lerna bootstrap --no-ci && npm run build && npm run install-hooks && cd packages/mobile/ios && if command -v pod > /dev/null; then pod install; fi",
+    "preinstall": "./scripts/preinstall.sh",
+    "postinstall": "./scripts/postinstall.sh",
     "build": "lerna run build --scope=@audius/stems --scope=@audius/common",
     "install-hooks": "mookme init --only-hook --skip-types-selection",
     "lint": "lerna run lint",
@@ -44,7 +45,7 @@
     "eslint-import-resolver-alias": "1.1.2",
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-jest": "27.1.1",
-    "eslint-plugin-n": "^15.3.0",
+    "eslint-plugin-n": "^15.6.1",
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-prettier": "4.2.1",
     "eslint-plugin-promise": "6.1.0",
