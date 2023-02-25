@@ -37,7 +37,7 @@ export const remoteConfigStringDefaults: {
 } = {
   [StringKeys.AUDIUS_LOGO_VARIANT]: null,
   [StringKeys.AUDIUS_LOGO_VARIANT_CLICK_TARGET]: null,
-  [StringKeys.APP_WIDE_NOTICE_TEXT]: null,
+  [StringKeys.APP_WIDE_NOTICE_TEXT]: 'hello',
   [StringKeys.ETH_PROVIDER_URLS]: ETH_PROVIDER_URLS,
   [StringKeys.CONTENT_BLOCK_LIST]: null,
   [StringKeys.CONTENT_NODE_BLOCK_LIST]: null,
@@ -70,7 +70,8 @@ export const remoteConfigStringDefaults: {
   [StringKeys.STRIPE_ALLOWED_COUNTRIES]: '',
   [StringKeys.STRIPE_DENIED_REGIONS]: '',
   [StringKeys.COINBASE_PAY_ALLOWED_COUNTRIES_2_LETTER]: '',
-  [StringKeys.STRIPE_ALLOWED_COUNTRIES_2_LETTER]: ''
+  [StringKeys.STRIPE_ALLOWED_COUNTRIES_2_LETTER]: '',
+  [StringKeys.AUDIO_FEATURES_DEGRADED_TEXT]: null
 }
 
 export const remoteConfigDoubleDefaults: {
