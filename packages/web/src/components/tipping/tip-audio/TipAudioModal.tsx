@@ -138,7 +138,7 @@ export const TipAudioModal = () => {
       isOpen={sendStatus !== null}
       onClose={onClose}
       bodyClassName={cn(styles.modalBody, {
-        [styles.biggerModalBody]: areAudioFeaturesDegraded || true
+        [styles.biggerModalBody]: !!areAudioFeaturesDegraded
       })}
       dismissOnClickOutside={
         sendStatus !== 'SENDING' && sendStatus !== 'CONVERTING'
