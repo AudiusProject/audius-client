@@ -114,7 +114,6 @@ export const TipAudioModal = () => {
   const audioFeaturesDegradedText = useRemoteVar(
     StringKeys.AUDIO_FEATURES_DEGRADED_TEXT
   )
-  const areAudioFeaturesDegraded = !!audioFeaturesDegradedText
 
   const onClose = useCallback(() => {
     dispatch(resetSend())
@@ -138,7 +137,7 @@ export const TipAudioModal = () => {
       isOpen={sendStatus !== null}
       onClose={onClose}
       bodyClassName={cn(styles.modalBody, {
-        [styles.biggerModalBody]: !!areAudioFeaturesDegraded
+        [styles.biggerModalBody]: !!audioFeaturesDegradedText
       })}
       dismissOnClickOutside={
         sendStatus !== 'SENDING' && sendStatus !== 'CONVERTING'
