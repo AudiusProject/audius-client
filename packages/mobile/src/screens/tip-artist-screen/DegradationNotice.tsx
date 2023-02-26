@@ -10,7 +10,8 @@ import { useThemeColors } from 'app/utils/theme'
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   root: {
-    marginBottom: spacing(6),
+    marginTop: -48, // TipScreen has paddingVertical 60
+    marginBottom: spacing(12),
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
