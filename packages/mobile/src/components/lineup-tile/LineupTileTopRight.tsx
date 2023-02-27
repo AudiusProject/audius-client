@@ -106,7 +106,7 @@ export const LineupTileTopRight = ({
 
   return (
     <View style={styles.topRight}>
-      {isPremiumContentEnabled && !!premiumConditions && (
+      {isPremiumContentEnabled && !!premiumConditions ? (
         <LineupTileTopRightItem
           icon={
             premiumConditions.nft_collection
@@ -120,16 +120,16 @@ export const LineupTileTopRight = ({
           }
           color={accentBlue}
         />
-      )}
+      ) : null}
       {(!isPremiumContentEnabled || !premiumConditions) &&
-        showArtistPick &&
-        isArtistPick && (
-          <LineupTileTopRightItem
-            icon={IconStar}
-            label={messages.artistPick}
-            color={neutralLight4}
-          />
-        )}
+      showArtistPick &&
+      isArtistPick ? (
+        <LineupTileTopRightItem
+          icon={IconStar}
+          label={messages.artistPick}
+          color={neutralLight4}
+        />
+      ) : null}
       {isUnlisted && (
         <LineupTileTopRightItem
           icon={IconHidden}

@@ -221,13 +221,13 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
               {messages.artistPick}
             </div>
           )}
-          {!isLoading && isPremium && (
+          {!isLoading && isPremium ? (
             <PremiumContentLabel
               premiumConditions={premiumConditions}
               doesUserHaveAccess={!!doesUserHaveAccess}
               isOwner={isOwner}
             />
-          )}
+          ) : null}
           {props.isUnlisted && (
             <div className={styles.topRightIcon}>
               <IconHidden />

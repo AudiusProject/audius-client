@@ -374,20 +374,20 @@ const TrackHeader = ({
       </div>
       <div className={styles.buttonSection}>
         {isPremiumContentEnabled &&
-          !doesUserHaveAccess &&
-          premiumConditions &&
-          trackId && (
-            <PremiumTrackSection
-              isLoading={false}
-              trackId={trackId}
-              premiumConditions={premiumConditions}
-              doesUserHaveAccess={doesUserHaveAccess}
-              isOwner={false}
-              wrapperClassName={styles.premiumTrackSectionWrapper}
-              className={styles.premiumTrackSection}
-              buttonClassName={styles.premiumTrackSectionButton}
-            />
-          )}
+        !doesUserHaveAccess &&
+        premiumConditions &&
+        trackId ? (
+          <PremiumTrackSection
+            isLoading={false}
+            trackId={trackId}
+            premiumConditions={premiumConditions}
+            doesUserHaveAccess={doesUserHaveAccess}
+            isOwner={false}
+            wrapperClassName={styles.premiumTrackSectionWrapper}
+            className={styles.premiumTrackSection}
+            buttonClassName={styles.premiumTrackSectionButton}
+          />
+        ) : null}
         {!isPremiumContentEnabled || doesUserHaveAccess ? (
           <PlayButton playing={isPlaying} onPlay={onPlay} />
         ) : null}

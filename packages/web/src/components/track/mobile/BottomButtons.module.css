@@ -90,6 +90,10 @@
 }
 
 .premiumContent path {
+  /*
+  Overriding another line which also has !important.
+  Since this is mobile web, not super keen to spend more time cleaning this particular piece up.
+  */
   fill: var(--neutral-light-4) !important;
 }
 
