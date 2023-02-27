@@ -17,10 +17,11 @@ import {
   hasTail,
   isEarliestUnread
 } from '@audius/common'
-import { View, Text } from 'react-native'
+import { View, Text, Image } from 'react-native'
 import type { FlatList as RNFlatList } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
+import WavingHand from 'app/assets/images/emojis/waving-hand-sign.png'
 import IconSend from 'app/assets/images/iconSend.svg'
 import { TextInput, Screen, FlatList, ScreenContent } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
@@ -46,7 +47,9 @@ const { getUserId } = accountSelectors
 const messages = {
   title: 'Messages',
   startNewMessage: 'Start a New Message',
-  newMessage: 'New Message'
+  newMessage: 'New Message',
+  sayHello: 'Say Hello!',
+  firstImpressions: 'First impressions are important, so make it count!'
 }
 const ICON_BLUR = 0.5
 const ICON_FOCUS = 1
@@ -122,11 +125,58 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     paddingHorizontal: spacing(2),
     paddingVertical: spacing(1),
     borderRadius: spacing(0.5)
+  },
+  sayHelloContainer: {
+    marginTop: spacing(8),
+    marginHorizontal: spacing(6),
+    padding: spacing(6),
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: palette.white,
+    borderColor: palette.neutralLight7,
+    borderWidth: 1,
+    borderRadius: spacing(2)
+  },
+  sayHelloTextContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    marginHorizontal: spacing(6)
+  },
+  wavingHand: {
+    height: spacing(16),
+    width: spacing(16)
+  },
+  sayHelloTitle: {
+    fontSize: typography.fontSize.xxl,
+    color: palette.neutral,
+    fontFamily: typography.fontByWeight.bold,
+    lineHeight: 31
+  },
+  sayHelloText: {
+    marginTop: spacing(2),
+    marginRight: spacing(6),
+    fontSize: typography.fontSize.large,
+    lineHeight: 23,
+    color: palette.neutral
   }
 }))
 
 const pluralize = (message: string, shouldPluralize: boolean) =>
   message + (shouldPluralize ? 's' : '')
+
+const EmptyChatMessages = () => {
+  const styles = useStyles()
+  return (
+    <View style={styles.sayHelloContainer}>
+      <Image style={styles.wavingHand} source={WavingHand} />
+      <View style={styles.sayHelloTextContainer}>
+        <Text style={styles.sayHelloTitle}>{messages.sayHello}</Text>
+        <Text style={styles.sayHelloText}>{messages.firstImpressions}</Text>
+      </View>
+    </View>
+  )
+}
 
 export const ChatScreen = () => {
   const styles = useStyles()
@@ -259,9 +309,10 @@ export const ChatScreen = () => {
                     ) : null}
                   </Fragment>
                 )}
-                inverted
                 onEndReached={handleScrollToTop}
+                inverted={chatMessages?.length > 0}
                 ref={flatListRef}
+                ListEmptyComponent={() => <EmptyChatMessages />}
               />
             </View>
           ) : (
