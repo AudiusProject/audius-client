@@ -362,6 +362,8 @@
 }
 
 .bottomRow .premiumContent {
+  display: flex;
+  align-items: center;
   width: fit-content;
   padding: 2px 8px;
   border: 1px solid var(--neutral-light-4);
