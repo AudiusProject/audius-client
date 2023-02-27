@@ -384,6 +384,7 @@ const UnlockedPremiumTrackSection = ({
             <span className={styles.collectibleName} onClick={goToCollection}>
               {premiumConditions.nft_collection.name}
             </span>
+            &nbsp;
           </span>
           <span>{messages.unlockedCollectibleGatedTrackSuffix}</span>
         </div>
