@@ -201,7 +201,6 @@ export const ChatScreen = () => {
   )
 
   useEffect(() => {
-    console.log('useEffect for scroll', earliestUnreadIndex)
     if (
       earliestUnreadIndex &&
       chatMessages &&
@@ -305,7 +304,6 @@ export const ChatScreen = () => {
                   </Fragment>
                 )}
                 inverted
-                initialNumToRender={chatMessages?.length ?? 0}
                 ref={flatListRef}
                 onEndReached={handleScrollToTop}
                 onScrollToIndexFailed={handleScrollToIndexFailed}
