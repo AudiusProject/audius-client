@@ -35,8 +35,7 @@ const {
   updatePremiumContentSignatures,
   removePremiumContentSignatures,
   updatePremiumTrackStatus,
-  updatePremiumTrackStatuses,
-  refreshPremiumTrack
+  updatePremiumTrackStatuses
 } = premiumContentActions
 
 const { refreshTipGatedTracks } = tippingActions
@@ -449,17 +448,6 @@ function* handleTipGatedTracks(
   yield* call(updateGatedTracks, action.payload.userId, 'tip')
 }
 
-function* refreshPremiumTrackAccess(
-  action: ReturnType<typeof refreshPremiumTrack>
-) {
-  const { trackId, trackParams } = action.payload
-  yield* call(pollPremiumTrack, {
-    trackId,
-    trackParams,
-    frequency: PREMIUM_TRACK_POLL_FREQUENCY
-  })
-}
-
 /**
  * Remove premium content signatures from track metadata when they're
  * no longer accessible by the user.
@@ -501,10 +489,6 @@ function* watchTipGatedTracks() {
   yield* takeEvery(refreshTipGatedTracks.type, handleTipGatedTracks)
 }
 
-function* watchRefreshPremiumTrack() {
-  yield* takeEvery(refreshPremiumTrack.type, refreshPremiumTrackAccess)
-}
-
 function* watchRemovePremiumContentSignatures() {
   yield* takeEvery(
     removePremiumContentSignatures.type,
@@ -518,7 +502,6 @@ export const sagas = () => {
     watchFollowGatedTracks,
     watchUnfollowGatedTracks,
     watchTipGatedTracks,
-    watchRefreshPremiumTrack,
     watchRemovePremiumContentSignatures
   ]
 }
