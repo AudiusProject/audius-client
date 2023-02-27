@@ -311,7 +311,7 @@ export const ChatScreen = () => {
                     </Fragment>
                   )}
                   onEndReached={handleScrollToTop}
-                  inverted={chatMessages?.length > 0}
+                  inverted
                   ref={flatListRef}
                 />
               </View>
