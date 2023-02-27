@@ -53,13 +53,13 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     fontSize: typography.fontSize.xxl,
     fontFamily: typography.fontByWeight.bold,
     textAlign: 'center',
-    lineHeight: 31,
+    lineHeight: typography.fontSize.xxl * 1.3,
     color: palette.neutral
   },
   connect: {
     fontSize: typography.fontSize.medium,
     textAlign: 'center',
-    lineHeight: 21,
+    lineHeight: typography.fontSize.medium * 1.3,
     color: palette.neutral,
     marginTop: spacing(2)
   },
@@ -94,7 +94,8 @@ export const ChatListScreen = () => {
   const palette = useThemePalette()
   const dispatch = useDispatch()
   const navigation = useNavigation<AppTabScreenParamList>()
-  const chats = useSelector(getChats)
+  // const chats = useSelector(getChats)
+  const chats = []
   const chatsStatus = useSelector(getChatsStatus)
 
   useEffect(() => {

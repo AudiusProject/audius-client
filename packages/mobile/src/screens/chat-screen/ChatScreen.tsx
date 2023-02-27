@@ -151,13 +151,13 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     fontSize: typography.fontSize.xxl,
     color: palette.neutral,
     fontFamily: typography.fontByWeight.bold,
-    lineHeight: 31
+    lineHeight: typography.fontSize.xxl * 1.3
   },
   sayHelloText: {
     marginTop: spacing(2),
     marginRight: spacing(6),
     fontSize: typography.fontSize.large,
-    lineHeight: 23,
+    lineHeight: typography.fontSize.large * 1.3,
     color: palette.neutral
   }
 }))
