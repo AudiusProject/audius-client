@@ -263,6 +263,8 @@ function* sendTipAsync() {
         recipientUserBank
       })}`
     )
+
+    yield put(sendTipFailed({ error: 'Could not create userbank' }))
     return
   }
 
