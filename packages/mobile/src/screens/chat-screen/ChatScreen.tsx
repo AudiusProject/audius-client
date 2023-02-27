@@ -248,7 +248,7 @@ export const ChatScreen = () => {
   useFocusEffect(
     useCallback(() => {
       return () => {
-        // dispatch(markChatAsRead({ chatId }))
+        dispatch(markChatAsRead({ chatId }))
         dispatch(setActiveChat({ chatId }))
       }
     }, [dispatch, chatId])
