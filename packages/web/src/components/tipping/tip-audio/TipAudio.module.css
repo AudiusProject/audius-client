@@ -10,11 +10,8 @@
 
 .modalBody {
   width: 488px;
-  min-height: 492px;
+  height: 492px;
   max-height: 95vh;
-}
-.biggerModalBody {
-  min-height: 548px;
 }
 
 .modalContentContainer {
@@ -121,7 +118,6 @@
   padding: 8px 0;
   flex: 1;
   text-align: center;
-  line-height: 130%;
 }
 
 .topBanner .amount {

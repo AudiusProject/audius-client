@@ -70,8 +70,7 @@ export const remoteConfigStringDefaults: {
   [StringKeys.STRIPE_ALLOWED_COUNTRIES]: '',
   [StringKeys.STRIPE_DENIED_REGIONS]: '',
   [StringKeys.COINBASE_PAY_ALLOWED_COUNTRIES_2_LETTER]: '',
-  [StringKeys.STRIPE_ALLOWED_COUNTRIES_2_LETTER]: '',
-  [StringKeys.AUDIO_FEATURES_DEGRADED_TEXT]: null
+  [StringKeys.STRIPE_ALLOWED_COUNTRIES_2_LETTER]: ''
 }
 
 export const remoteConfigDoubleDefaults: {
