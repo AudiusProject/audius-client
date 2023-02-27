@@ -94,8 +94,7 @@ export const ChatListScreen = () => {
   const palette = useThemePalette()
   const dispatch = useDispatch()
   const navigation = useNavigation<AppTabScreenParamList>()
-  // const chats = useSelector(getChats)
-  const chats = []
+  const chats = useSelector(getChats)
   const chatsStatus = useSelector(getChatsStatus)
 
   useEffect(() => {
