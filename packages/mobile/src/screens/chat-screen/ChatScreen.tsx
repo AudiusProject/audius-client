@@ -218,7 +218,7 @@ export const ChatScreen = () => {
 
   const handleScrollToIndexFailed = (e) => {
     flatListRef.current?.scrollToOffset({
-      offset: e.highestthingy * e.averageheight,
+      offset: e.averageItemLength * e.highestMeasuredFrameIndex,
       animated: false
     })
     setTimeout(
