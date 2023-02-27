@@ -17,6 +17,7 @@ import {
   hasTail,
   isEarliestUnread
 } from '@audius/common'
+import { useFocusEffect } from '@react-navigation/native'
 import { View, Text, Image } from 'react-native'
 import type { FlatList as RNFlatList } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
@@ -41,7 +42,8 @@ const {
   getChat
 } = chatSelectors
 
-const { fetchMoreMessages, sendMessage } = chatActions
+const { fetchMoreMessages, sendMessage, setActiveChat, markChatAsRead } =
+  chatActions
 const { getUserId } = accountSelectors
 
 const messages = {
@@ -248,6 +250,38 @@ export const ChatScreen = () => {
     [chatId, setInputMessage, dispatch]
   )
 
+  useEffect(() => {
+    console.log('useEffect for scroll', earliestUnreadIndex)
+    if (
+      earliestUnreadIndex &&
+      chatMessages &&
+      earliestUnreadIndex > 0 &&
+      earliestUnreadIndex < chatMessages.length
+    ) {
+      flatListRef.current?.scrollToIndex({
+        index: earliestUnreadIndex,
+        viewPosition: 0.5,
+        animated: false
+      })
+    }
+  }, [earliestUnreadIndex, chatMessages])
+
+  const handleScrollToIndexFailed = (e) => {
+    flatListRef.current?.scrollToOffset({
+      offset: e.highestthingy * e.averageheight,
+      animated: false
+    })
+    setTimeout(
+      () =>
+        flatListRef.current?.scrollToIndex({
+          index: e.index,
+          viewPosition: 0.5,
+          animated: false
+        }),
+      10
+    )
+  }
+
   const handleScrollToTop = () => {
     if (
       chatId &&
@@ -260,6 +294,17 @@ export const ChatScreen = () => {
     }
   }
 
+  // Mark chat as read when user navigates away from screen
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        dispatch(markChatAsRead({ chatId }))
+        dispatch(setActiveChat({ chatId }))
+      }
+    }, [dispatch, chatId])
+  )
+
+  const isLoading = status === Status.LOADING && chatMessages?.length === 0
   return (
     <Screen
       url={url}
@@ -283,7 +328,7 @@ export const ChatScreen = () => {
     >
       <ScreenContent>
         <View style={styles.rootContainer}>
-          {status === Status.SUCCESS ? (
+          {!isLoading ? (
             <View style={styles.listContainer}>
               <FlatList
                 contentContainerStyle={styles.flatListContainer}
@@ -309,9 +354,11 @@ export const ChatScreen = () => {
                     ) : null}
                   </Fragment>
                 )}
-                onEndReached={handleScrollToTop}
                 inverted={chatMessages?.length > 0}
+                initialNumToRender={chatMessages?.length ?? 0}
                 ref={flatListRef}
+                onEndReached={handleScrollToTop}
+                onScrollToIndexFailed={handleScrollToIndexFailed}
                 ListEmptyComponent={() => <EmptyChatMessages />}
               />
             </View>
