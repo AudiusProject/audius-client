@@ -21,6 +21,8 @@ import type {
   RemixCreateNotification,
   RemixCreatePushNotification,
   RepostNotification,
+  RepostOfRepostNotification,
+  RepostOfRepostPushNotification,
   RepostPushNotification,
   SupporterDethronedNotification,
   SupporterRankUpNotification,
@@ -68,6 +70,8 @@ export const useNotificationNavigation = () => {
         | FollowPushNotification
         | RepostNotification
         | RepostPushNotification
+        | RepostOfRepostNotification
+        | RepostOfRepostPushNotification
         | FavoriteNotification
         | FavoritePushNotification
     ) => {
@@ -209,6 +213,7 @@ export const useNotificationNavigation = () => {
       [PushNotificationType.RepostPlaylist]: socialActionHandler,
       [PushNotificationType.RepostTrack]: socialActionHandler,
       [NotificationType.Repost]: socialActionHandler,
+      [NotificationType.RepostOfRepost]: socialActionHandler,
       [NotificationType.SupporterDethroned]: (
         notification: SupporterDethronedNotification
       ) => {
