@@ -2,7 +2,6 @@ import { useCallback } from 'react'
 
 import type { StringWei, CommonState } from '@audius/common'
 import {
-  StringKeys,
   vipDiscordModalActions,
   formatWei,
   tokenDashboardPageSelectors,
@@ -38,7 +37,7 @@ import {
   ScreenContent
 } from 'app/components/core'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useFeatureFlag, useRemoteVar } from 'app/hooks/useRemoteConfig'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -157,12 +156,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     width: 200,
     height: 200,
     marginBottom: spacing(6)
-  },
-  noticeTile: {
-    padding: spacing(2)
-  },
-  noticeTileText: {
-    color: palette.staticWhite
   }
 }))
 
@@ -174,9 +167,6 @@ export const AudioScreen = () => {
   const navigation = useNavigation()
   const { isEnabled: isMobileWalletConnectEnabled } = useFeatureFlag(
     FeatureFlags.MOBILE_WALLET_CONNECT
-  )
-  const audioFeaturesDegradedText = useRemoteVar(
-    StringKeys.AUDIO_FEATURES_DEGRADED_TEXT
   )
 
   const totalBalance = useSelector(getAccountTotalBalance)
@@ -197,22 +187,6 @@ export const AudioScreen = () => {
     useCallback(() => {
       dispatch(getBalance())
     }, [dispatch])
-  )
-
-  const renderNoticeTile = () => (
-    <Tile
-      as={LinearGradient}
-      colors={[pageHeaderGradientColor1, pageHeaderGradientColor2]}
-      start={{ x: 1, y: 1 }}
-      end={{ x: 0, y: 0 }}
-      styles={{
-        root: styles.tileRoot,
-        tile: styles.noticeTile,
-        content: styles.tileContent
-      }}
-    >
-      <Text style={styles.noticeTileText}>{audioFeaturesDegradedText}</Text>
-    </Tile>
   )
 
   const renderAudioTile = () => {
@@ -465,7 +439,6 @@ export const AudioScreen = () => {
     >
       <ScreenContent>
         <ScrollView style={styles.tiles}>
-          {audioFeaturesDegradedText ? renderNoticeTile() : null}
           {renderAudioTile()}
           {renderWalletTile()}
           {renderRewardsTile()}

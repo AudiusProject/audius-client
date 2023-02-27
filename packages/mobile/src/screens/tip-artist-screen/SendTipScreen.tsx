@@ -26,7 +26,6 @@ import { TopBarIconButton } from '../app-screen'
 import { AvailableAudio } from './AvailableAudio'
 import { BecomeFirstSupporter } from './BecomeFirstSupporter'
 import { BecomeTopSupporter } from './BecomeTopSupporter'
-import { DegradationNotice } from './DegradationNotice'
 import { ReceiverDetails } from './ReceiverDetails'
 import { TipInput } from './TipInput'
 import { TipScreen } from './TipScreen'
@@ -125,7 +124,6 @@ export const SendTipScreen = () => {
       title={Platform.OS === 'ios' ? messages.sendAudio : messages.sendTip}
       topbarLeft={<TopBarIconButton icon={IconRemove} onPress={handleBack} />}
     >
-      <DegradationNotice />
       <ReceiverDetails />
       {!hasInsufficientBalance && isFirstSupporter ? (
         <BecomeFirstSupporter />
