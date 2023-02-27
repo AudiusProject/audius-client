@@ -34,7 +34,9 @@ const initialState: ModalsState = {
   TransactionDetails: false,
   VipDiscord: false,
   StripeOnRamp: false,
-  CreateChat: false
+  CreateChat: false,
+  InboxSettings: false,
+  LockedContent: false
 }
 
 const slice = createSlice({

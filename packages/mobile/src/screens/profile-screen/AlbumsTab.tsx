@@ -34,11 +34,11 @@ export const AlbumsTab = () => {
 
   return (
     <CollectionList
-      listKey='profile-albums'
       collection={album_count > 0 ? albums : emptyAlbums}
       ListEmptyComponent={<EmptyProfileTile tab='albums' />}
       disableTopTabScroll
       showsVerticalScrollIndicator={false}
+      totalCount={album_count}
     />
   )
 }

@@ -1,15 +1,27 @@
-import { useEffect, useState } from 'react'
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useMemo,
+  Fragment
+} from 'react'
 
 import {
   chatActions,
+  accountSelectors,
   chatSelectors,
   encodeUrlName,
+  encodeHashId,
   Status,
-  hasTail
+  hasTail,
+  isEarliestUnread
 } from '@audius/common'
-import { View } from 'react-native'
+import { View, Text, Image } from 'react-native'
+import type { FlatList as RNFlatList } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
+import WavingHand from 'app/assets/images/emojis/waving-hand-sign.png'
 import IconSend from 'app/assets/images/iconSend.svg'
 import { TextInput, Screen, FlatList, ScreenContent } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
@@ -21,14 +33,26 @@ import { useThemePalette } from 'app/utils/theme'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
 
-const { getChatMessages, getOtherChatUsers, getChatMessagesStatus } =
-  chatSelectors
-const { fetchMoreMessages } = chatActions
+const {
+  getChatMessages,
+  getOtherChatUsers,
+  getChatMessagesStatus,
+  getChatMessagesSummary,
+  getChat
+} = chatSelectors
+
+const { fetchMoreMessages, sendMessage } = chatActions
+const { getUserId } = accountSelectors
 
 const messages = {
   title: 'Messages',
-  startNewMessage: 'Start a New Message'
+  startNewMessage: 'Start a New Message',
+  newMessage: 'New Message',
+  sayHello: 'Say Hello!',
+  firstImpressions: 'First impressions are important, so make it count!'
 }
+const ICON_BLUR = 0.5
+const ICON_FOCUS = 1
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   rootContainer: {
@@ -39,13 +63,11 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   },
   listContainer: {
     display: 'flex',
-    width: '100%',
     flex: 1
   },
   flatListContainer: {
     paddingHorizontal: spacing(6),
-    display: 'flex',
-    flexDirection: 'column-reverse'
+    display: 'flex'
   },
   composeView: {
     paddingVertical: spacing(2),
@@ -60,12 +82,10 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     paddingLeft: spacing(4),
     paddingRight: spacing(4),
     display: 'flex',
-    alignItems: 'flex-end'
+    alignItems: 'center'
   },
   composeTextInput: {
-    lineHeight: spacing(4),
-    fontSize: typography.fontSize.medium,
-    alignSelf: 'center'
+    fontSize: typography.fontSize.medium
   },
   icon: {
     marginBottom: 2,
@@ -82,8 +102,81 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     width: spacing(6),
     height: spacing(6),
     marginRight: spacing(2)
+  },
+  unreadTagContainer: {
+    marginVertical: spacing(6),
+    flexGrow: 1,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  unreadSeparator: {
+    height: 1,
+    backgroundColor: palette.neutralLight5,
+    flexGrow: 1
+  },
+  unreadTag: {
+    color: palette.white,
+    fontSize: typography.fontSize.xxs,
+    fontFamily: typography.fontByWeight.bold,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    backgroundColor: palette.neutralLight5,
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1),
+    borderRadius: spacing(0.5)
+  },
+  sayHelloContainer: {
+    marginTop: spacing(8),
+    marginHorizontal: spacing(6),
+    padding: spacing(6),
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: palette.white,
+    borderColor: palette.neutralLight7,
+    borderWidth: 1,
+    borderRadius: spacing(2)
+  },
+  sayHelloTextContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    marginHorizontal: spacing(6)
+  },
+  wavingHand: {
+    height: spacing(16),
+    width: spacing(16)
+  },
+  sayHelloTitle: {
+    fontSize: typography.fontSize.xxl,
+    color: palette.neutral,
+    fontFamily: typography.fontByWeight.bold,
+    lineHeight: typography.fontSize.xxl * 1.3
+  },
+  sayHelloText: {
+    marginTop: spacing(2),
+    marginRight: spacing(6),
+    fontSize: typography.fontSize.large,
+    lineHeight: typography.fontSize.large * 1.3,
+    color: palette.neutral
   }
 }))
+
+const pluralize = (message: string, shouldPluralize: boolean) =>
+  message + (shouldPluralize ? 's' : '')
+
+const EmptyChatMessages = () => {
+  const styles = useStyles()
+  return (
+    <View style={styles.sayHelloContainer}>
+      <Image style={styles.wavingHand} source={WavingHand} />
+      <View style={styles.sayHelloTextContainer}>
+        <Text style={styles.sayHelloTitle}>{messages.sayHello}</Text>
+        <Text style={styles.sayHelloText}>{messages.firstImpressions}</Text>
+      </View>
+    </View>
+  )
+}
 
 export const ChatScreen = () => {
   const styles = useStyles()
@@ -92,22 +185,80 @@ export const ChatScreen = () => {
 
   const { params } = useRoute<'Chat'>()
   const { chatId } = params
-  const url = `/chat/${encodeUrlName(chatId)}`
-  const [iconOpacity, setIconOpacity] = useState(0.5)
-  const [text, setText] = useState('')
+  const url = `/chat/${encodeUrlName(chatId ?? '')}`
+  const [iconOpacity, setIconOpacity] = useState(ICON_BLUR)
+  const [inputMessage, setInputMessage] = useState('')
 
+  const userId = encodeHashId(useSelector(getUserId))
+  const chat = useSelector((state) => getChat(state, chatId ?? ''))
+  const [otherUser] = useSelector((state) => getOtherChatUsers(state, chatId))
   const chatMessages = useSelector((state) =>
     getChatMessages(state, chatId ?? '')
   )
   const status = useSelector((state) =>
     getChatMessagesStatus(state, chatId ?? '')
   )
+  const summary = useSelector((state) =>
+    getChatMessagesSummary(state, chatId ?? '')
+  )
+  const flatListRef = useRef<RNFlatList>(null)
+  const unreadCount = chat?.unread_message_count ?? 0
+
+  // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
+  // Using a ref instead of state here to prevent unwanted flickers.
+  // The chat/chatId selectors will trigger the rerenders necessary.
+  const chatFrozenRef = useRef(chat)
 
   useEffect(() => {
-    dispatch(fetchMoreMessages({ chatId }))
-  }, [dispatch, chatId])
+    if (chatId && status === Status.IDLE) {
+      // Initial fetch
+      dispatch(fetchMoreMessages({ chatId }))
+    }
+  }, [dispatch, chatId, status, summary])
 
-  const [otherUser] = useSelector((state) => getOtherChatUsers(state, chatId))
+  useEffect(() => {
+    // Update chatFrozenRef when entering a new chat screen
+    if (chat && chatId !== chatFrozenRef.current?.chat_id) {
+      chatFrozenRef.current = chat
+    }
+  }, [chatId, chat])
+
+  const earliestUnreadIndex = useMemo(
+    () =>
+      chatMessages?.findIndex((item, index) =>
+        isEarliestUnread({
+          unreadCount: chatFrozenRef?.current?.unread_message_count ?? 0,
+          lastReadAt: chatFrozenRef?.current?.last_read_at,
+          currentMessageIndex: index,
+          messages: chatMessages,
+          currentUserId: userId
+        })
+      ),
+    [chatMessages, userId]
+  )
+
+  const handleSubmit = useCallback(
+    (message) => {
+      if (chatId && message) {
+        dispatch(sendMessage({ chatId, message }))
+        setInputMessage('')
+        setIconOpacity(ICON_BLUR)
+      }
+    },
+    [chatId, setInputMessage, dispatch]
+  )
+
+  const handleScrollToTop = () => {
+    if (
+      chatId &&
+      status !== Status.LOADING &&
+      summary &&
+      summary.prev_count > 0
+    ) {
+      // Fetch more messages when user reaches the top
+      dispatch(fetchMoreMessages({ chatId }))
+    }
+  }
 
   return (
     <Screen
@@ -128,25 +279,45 @@ export const ChatScreen = () => {
             )
           : messages.title
       }
+      topbarRight={null}
     >
       <ScreenContent>
         <View style={styles.rootContainer}>
           {status === Status.SUCCESS ? (
-            <View style={styles.listContainer}>
-              <FlatList
-                contentContainerStyle={styles.flatListContainer}
-                data={chatMessages}
-                keyExtractor={(message) => message.chat_id}
-                renderItem={({ item, index }) => {
-                  return (
-                    <ChatMessageListItem
-                      message={item}
-                      hasTail={hasTail(item, chatMessages[index - 1])}
-                    />
-                  )
-                }}
-              />
-            </View>
+            chatMessages?.length > 0 ? (
+              <View style={styles.listContainer}>
+                <FlatList
+                  contentContainerStyle={styles.flatListContainer}
+                  data={chatMessages}
+                  keyExtractor={(message) => message.chat_id}
+                  renderItem={({ item, index }) => (
+                    <Fragment>
+                      <ChatMessageListItem
+                        key={item.key}
+                        message={item}
+                        hasTail={hasTail(item, chatMessages[index - 1])}
+                        unreadCount={unreadCount}
+                      />
+                      {index === earliestUnreadIndex ? (
+                        <View style={styles.unreadTagContainer} key='unreadTag'>
+                          <View style={styles.unreadSeparator} />
+                          <Text style={styles.unreadTag}>
+                            {unreadCount}{' '}
+                            {pluralize(messages.newMessage, unreadCount > 1)}
+                          </Text>
+                          <View style={styles.unreadSeparator} />
+                        </View>
+                      ) : null}
+                    </Fragment>
+                  )}
+                  onEndReached={handleScrollToTop}
+                  inverted
+                  ref={flatListRef}
+                />
+              </View>
+            ) : (
+              <EmptyChatMessages />
+            )
           ) : (
             <LoadingSpinner />
           )}
@@ -159,6 +330,7 @@ export const ChatScreen = () => {
                   width={styles.icon.width}
                   height={styles.icon.height}
                   opacity={iconOpacity}
+                  onPress={() => handleSubmit(inputMessage)}
                 />
               )}
               styles={{
@@ -166,12 +338,12 @@ export const ChatScreen = () => {
                 input: styles.composeTextInput
               }}
               onChangeText={(text) => {
-                setText(text)
-                text ? setIconOpacity(1) : setIconOpacity(0.5)
+                setInputMessage(text)
+                text ? setIconOpacity(ICON_FOCUS) : setIconOpacity(ICON_BLUR)
               }}
-              onBlur={() => setIconOpacity(0.5)}
+              onBlur={() => setIconOpacity(ICON_BLUR)}
               multiline
-              value={text}
+              value={inputMessage}
             />
           </View>
         </View>

@@ -37,11 +37,11 @@ export const PlaylistsTab = () => {
 
   return (
     <CollectionList
-      listKey='profile-playlists'
       collection={playlist_count > 0 ? playlists : emptyPlaylists}
       ListEmptyComponent={<EmptyProfileTile tab='playlists' />}
       disableTopTabScroll
       showsVerticalScrollIndicator={false}
+      totalCount={playlist_count}
     />
   )
 }
