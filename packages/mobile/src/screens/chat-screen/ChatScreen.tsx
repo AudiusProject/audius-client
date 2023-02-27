@@ -17,12 +17,8 @@ import {
   hasTail,
   isEarliestUnread
 } from '@audius/common'
-<<<<<<< HEAD
 import { useFocusEffect } from '@react-navigation/native'
-import { View, Text } from 'react-native'
-=======
 import { View, Text, Image } from 'react-native'
->>>>>>> origin/main
 import type { FlatList as RNFlatList } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -261,6 +257,7 @@ export const ChatScreen = () => {
       earliestUnreadIndex > 0 &&
       earliestUnreadIndex < chatMessages.length
     ) {
+      console.log('trying to scroll to:', earliestUnreadIndex)
       flatListRef.current?.scrollToIndex({
         index: earliestUnreadIndex,
         viewPosition: 0.5,
@@ -301,7 +298,7 @@ export const ChatScreen = () => {
   useFocusEffect(
     useCallback(() => {
       return () => {
-        dispatch(markChatAsRead({ chatId }))
+        // dispatch(markChatAsRead({ chatId }))
         dispatch(setActiveChat({ chatId }))
       }
     }, [dispatch, chatId])
@@ -361,7 +358,7 @@ export const ChatScreen = () => {
                   onEndReached={handleScrollToTop}
                   inverted
                   ref={flatListRef}
-                onScrollToIndexFailed={handleScrollToIndexFailed}
+                  onScrollToIndexFailed={handleScrollToIndexFailed}
                 />
               </View>
             ) : (
