@@ -152,12 +152,12 @@ const TrackTile = memo(
         >
           {artwork}
         </div>
-        {isArtistPick && !showPremiumCornerTag && (
+        {isArtistPick && !showPremiumCornerTag ? (
           <TrackBannerIcon
             type={TrackBannerIconType.STAR}
             isMatrixMode={isMatrixMode}
           />
-        )}
+        ) : null}
         {isUnlisted && (
           <TrackBannerIcon
             type={TrackBannerIconType.HIDDEN}
