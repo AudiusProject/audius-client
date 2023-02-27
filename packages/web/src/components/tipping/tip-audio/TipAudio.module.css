@@ -13,7 +13,7 @@
   height: 492px;
   max-height: 95vh;
 }
-.biggerModalBody {
+.modalBody.biggerModalBody {
   height: 548px;
 }
 
