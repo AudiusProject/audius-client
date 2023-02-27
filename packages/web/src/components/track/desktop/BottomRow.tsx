@@ -123,7 +123,7 @@ export const BottomRow = ({
             {messages.locked}
           </div>
         )}
-        {!isLoading && <div>{rightActions}</div>}
+        {!isLoading ? <div>{rightActions}</div> : null}
       </div>
     )
   }
@@ -184,7 +184,7 @@ export const BottomRow = ({
           {renderShareButton()}
         </div>
       )}
-      {!isLoading && <div>{rightActions}</div>}
+      {!isLoading ? <div>{rightActions}</div> : null}
     </div>
   )
 }
