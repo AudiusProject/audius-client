@@ -17,6 +17,7 @@ import {
   hasTail,
   isEarliestUnread
 } from '@audius/common'
+import { useFocusEffect } from '@react-navigation/native'
 import { View, Text } from 'react-native'
 import type { FlatList as RNFlatList } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
@@ -247,7 +248,7 @@ export const ChatScreen = () => {
   useFocusEffect(
     useCallback(() => {
       return () => {
-        dispatch(markChatAsRead({ chatId }))
+        // dispatch(markChatAsRead({ chatId }))
         dispatch(setActiveChat({ chatId }))
       }
     }, [dispatch, chatId])
