@@ -1,10 +1,12 @@
+import { useState, useCallback } from 'react'
+
 import {
   accountSelectors,
   decodeHashId,
   formatMessageDate
 } from '@audius/common'
 import type { ChatMessage } from '@audius/sdk'
-import { View } from 'react-native'
+import { View, Pressable } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import ChatTail from 'app/assets/images/ChatTail.svg'
@@ -70,13 +72,11 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 type ChatMessageListItemProps = {
   message: ChatMessage
   hasTail: boolean
-  unreadCount: number
 }
 
 export const ChatMessageListItem = ({
   message,
-  hasTail,
-  unreadCount
+  hasTail
 }: ChatMessageListItemProps) => {
   const styles = useStyles()
   const palette = useThemePalette()
@@ -84,33 +84,42 @@ export const ChatMessageListItem = ({
   const userId = useSelector(getUserId)
   const senderUserId = decodeHashId(message.sender_user_id)
   const isAuthor = senderUserId === userId
+  const [isReactionPopupVisible, setReactionPopupVisible] = useState(false)
+
+  handleLongPress = useCallback(
+    () => setReactionPopupVisible((isVisible) => !isVisible),
+    [setReactionPopupVisible]
+  )
 
   return (
     <>
       <View style={isAuthor ? styles.rootIsAuthor : styles.rootOtherUser}>
-        <View style={[styles.bubble, isAuthor && styles.isAuthor]}>
+        <Pressable
+          style={[styles.bubble, isAuthor && styles.isAuthor]}
+          onLongPress={handleLongPress}
+        >
           <Text style={[styles.message, isAuthor && styles.messageIsAuthor]}>
             {message.message}
           </Text>
-        </View>
-        {hasTail ? (
-          <>
-            <View
-              style={[
-                styles.tail,
-                isAuthor ? styles.tailIsAuthor : styles.tailOtherUser
-              ]}
-            >
-              <ChatTail fill={isAuthor ? palette.secondary : palette.white} />
-            </View>
-            <View style={styles.dateContainer}>
-              <Text style={styles.date}>
-                {formatMessageDate(message.created_at)}
-              </Text>
-            </View>
-          </>
-        ) : null}
+        </Pressable>
       </View>
+      {hasTail ? (
+        <>
+          <View
+            style={[
+              styles.tail,
+              isAuthor ? styles.tailIsAuthor : styles.tailOtherUser
+            ]}
+          >
+            <ChatTail fill={isAuthor ? palette.secondary : palette.white} />
+          </View>
+          <View style={styles.dateContainer}>
+            <Text style={styles.date}>
+              {formatMessageDate(message.created_at)}
+            </Text>
+          </View>
+        </>
+      ) : null}
     </>
   )
 }
