@@ -116,9 +116,9 @@ const ConnectedPlaylistTile = memo(
       return isFeed
         ? // If we're on the feed, and someone i follow has
           // reposted the content i am reposting,
-          // is_repost_repost is true
-          { is_repost_repost: collection.followee_reposts.length !== 0 }
-        : { is_repost_repost: false }
+          // is_repost_of_repost is true
+          { is_repost_of_repost: collection.followee_reposts.length !== 0 }
+        : { is_repost_of_repost: false }
     }, [collection.followee_reposts, isFeed])
 
     const toggleRepost = useCallback(() => {
@@ -339,7 +339,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(unsaveCollection(collectionId, FavoriteSource.TILE)),
     repostCollection: (
       collectionId: ID,
-      metadata: { is_repost_repost: boolean }
+      metadata: { is_repost_of_repost: boolean }
     ) => dispatch(repostCollection(collectionId, RepostSource.TILE, metadata)),
     unrepostCollection: (collectionId: ID) =>
       dispatch(undoRepostCollection(collectionId, RepostSource.TILE)),

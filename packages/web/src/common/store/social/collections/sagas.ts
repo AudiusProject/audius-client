@@ -103,7 +103,7 @@ export function* confirmRepostCollection(
   ownerId: ID,
   collectionId: ID,
   user: User,
-  metadata: { is_repost_repost: boolean }
+  metadata: { is_repost_of_repost: boolean }
 ) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* put(

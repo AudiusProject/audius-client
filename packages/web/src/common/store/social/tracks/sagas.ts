@@ -67,8 +67,8 @@ export function* repostTrackAsync(
 
   yield* call(confirmRepostTrack, action.trackId, user, action.metadata)
 
-  const tracks = yield* select(getTracks, { ids: [action.trackId] })
-  const track = tracks[action.trackId]
+  const track = yield* select(getTrack, { id: action.trackId })
+  if (!track) return
 
   const eagerlyUpdatedMetadata: Partial<Track> = {
     has_current_user_reposted: true,
@@ -141,7 +141,7 @@ export function* repostTrackAsync(
 export function* confirmRepostTrack(
   trackId: ID,
   user: User,
-  metadata?: { is_repost_repost: boolean }
+  metadata?: { is_repost_of_repost: boolean }
 ) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* put(

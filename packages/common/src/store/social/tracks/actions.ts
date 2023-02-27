@@ -32,7 +32,7 @@ export const repostTrack = createCustomAction(
   (
     trackId: ID,
     source: RepostSource,
-    metadata?: { is_repost_repost: boolean }
+    metadata?: { is_repost_of_repost: boolean }
   ) => ({
     trackId,
     source,
