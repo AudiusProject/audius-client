@@ -78,12 +78,19 @@ export function* repostCollectionAsync(
   })
   yield* put(event)
 
+  const repostMetadata = action.isFeed
+    ? // If we're on the feed, and someone i follow has
+      // reposted the content i am reposting,
+      // is_repost_of_repost is true
+      { is_repost_of_repost: collection.followee_reposts.length !== 0 }
+    : { is_repost_of_repost: false }
+
   yield* call(
     confirmRepostCollection,
     collection.playlist_owner_id,
     action.collectionId,
     user,
-    action.metadata
+    repostMetadata
   )
 
   yield* put(

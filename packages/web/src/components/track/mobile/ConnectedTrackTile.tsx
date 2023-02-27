@@ -116,18 +116,11 @@ const ConnectedTrackTile = memo(
       }
     }
 
-    const onRepostMetadata = isFeed
-      ? // If we're on the feed, and someone i follow has
-        // reposted the content i am reposting,
-        // we have a repost of a repost. is_repost_of_repost is true
-        { is_repost_of_repost: followee_reposts.length !== 0 }
-      : { is_repost_of_repost: false }
-
     const toggleRepost = (trackId: ID) => {
       if (has_current_user_reposted) {
         unrepostTrack(trackId)
       } else {
-        repostTrack(trackId, onRepostMetadata)
+        repostTrack(trackId, isFeed)
       }
     }
 
@@ -268,8 +261,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(saveTrack(trackId, FavoriteSource.TILE)),
     unsaveTrack: (trackId: ID) =>
       dispatch(unsaveTrack(trackId, FavoriteSource.TILE)),
-    repostTrack: (trackId: ID, metadata: { is_repost_of_repost: boolean }) =>
-      dispatch(repostTrack(trackId, RepostSource.TILE, metadata)),
+    repostTrack: (trackId: ID, isFeed: boolean) =>
+      dispatch(repostTrack(trackId, RepostSource.TILE, isFeed)),
     unrepostTrack: (trackId: ID) =>
       dispatch(undoRepostTrack(trackId, RepostSource.TILE)),
     clickOverflow: (trackId: ID, overflowActions: OverflowAction[]) =>

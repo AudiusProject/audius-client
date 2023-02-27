@@ -65,10 +65,16 @@ export function* repostTrackAsync(
   })
   yield* put(event)
 
-  yield* call(confirmRepostTrack, action.trackId, user, action.metadata)
-
   const track = yield* select(getTrack, { id: action.trackId })
   if (!track) return
+
+  const repostMetadata = action.isFeed
+    ? // If we're on the feed, and someone i follow has
+      // reposted the content i am reposting,
+      // is_repost_of_repost is true
+      { is_repost_of_repost: track.followee_reposts.length !== 0 }
+    : { is_repost_of_repost: false }
+  yield* call(confirmRepostTrack, action.trackId, user, repostMetadata)
 
   const eagerlyUpdatedMetadata: Partial<Track> = {
     has_current_user_reposted: true,

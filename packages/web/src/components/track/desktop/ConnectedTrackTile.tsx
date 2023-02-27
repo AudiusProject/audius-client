@@ -309,22 +309,13 @@ const ConnectedTrackTile = memo(
       }
     }, [saveTrack, unsaveTrack, trackId, isFavorited])
 
-    const onRepostMetadata = useMemo(() => {
-      return isFeed
-        ? // If we're on the feed, and someone i follow has
-          // reposted the content i am reposting,
-          // is_repost_of_repost is true
-          { is_repost_of_repost: followee_reposts.length !== 0 }
-        : { is_repost_of_repost: false }
-    }, [followee_reposts, isFeed])
-
     const onClickRepost = useCallback(() => {
       if (isReposted) {
         undoRepostTrack(trackId)
       } else {
-        repostTrack(trackId, onRepostMetadata)
+        repostTrack(trackId, isFeed)
       }
-    }, [repostTrack, undoRepostTrack, trackId, isReposted, onRepostMetadata])
+    }, [repostTrack, undoRepostTrack, trackId, isReposted, isFeed])
 
     const onClickShare = useCallback(() => {
       shareTrack(trackId)
@@ -435,8 +426,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
           source: ShareSource.TILE
         })
       ),
-    repostTrack: (trackId: ID, metadata: { is_repost_of_repost: boolean }) =>
-      dispatch(repostTrack(trackId, RepostSource.TILE, metadata)),
+    repostTrack: (trackId: ID, isFeed: boolean) =>
+      dispatch(repostTrack(trackId, RepostSource.TILE, isFeed)),
     undoRepostTrack: (trackId: ID) =>
       dispatch(undoRepostTrack(trackId, RepostSource.TILE)),
     saveTrack: (trackId: ID) =>
