@@ -284,37 +284,40 @@ export const ChatScreen = () => {
       <ScreenContent>
         <View style={styles.rootContainer}>
           {status === Status.SUCCESS ? (
-            <View style={styles.listContainer}>
-              <FlatList
-                contentContainerStyle={styles.flatListContainer}
-                data={chatMessages}
-                keyExtractor={(message) => message.chat_id}
-                renderItem={({ item, index }) => (
-                  <Fragment>
-                    <ChatMessageListItem
-                      key={item.key}
-                      message={item}
-                      hasTail={hasTail(item, chatMessages[index - 1])}
-                      unreadCount={unreadCount}
-                    />
-                    {index === earliestUnreadIndex ? (
-                      <View style={styles.unreadTagContainer} key='unreadTag'>
-                        <View style={styles.unreadSeparator} />
-                        <Text style={styles.unreadTag}>
-                          {unreadCount}{' '}
-                          {pluralize(messages.newMessage, unreadCount > 1)}
-                        </Text>
-                        <View style={styles.unreadSeparator} />
-                      </View>
-                    ) : null}
-                  </Fragment>
-                )}
-                onEndReached={handleScrollToTop}
-                inverted={chatMessages?.length > 0}
-                ref={flatListRef}
-                ListEmptyComponent={() => <EmptyChatMessages />}
-              />
-            </View>
+            chatMessages?.length > 0 ? (
+              <View style={styles.listContainer}>
+                <FlatList
+                  contentContainerStyle={styles.flatListContainer}
+                  data={chatMessages}
+                  keyExtractor={(message) => message.chat_id}
+                  renderItem={({ item, index }) => (
+                    <Fragment>
+                      <ChatMessageListItem
+                        key={item.key}
+                        message={item}
+                        hasTail={hasTail(item, chatMessages[index - 1])}
+                        unreadCount={unreadCount}
+                      />
+                      {index === earliestUnreadIndex ? (
+                        <View style={styles.unreadTagContainer} key='unreadTag'>
+                          <View style={styles.unreadSeparator} />
+                          <Text style={styles.unreadTag}>
+                            {unreadCount}{' '}
+                            {pluralize(messages.newMessage, unreadCount > 1)}
+                          </Text>
+                          <View style={styles.unreadSeparator} />
+                        </View>
+                      ) : null}
+                    </Fragment>
+                  )}
+                  onEndReached={handleScrollToTop}
+                  inverted={chatMessages?.length > 0}
+                  ref={flatListRef}
+                />
+              </View>
+            ) : (
+              <EmptyChatMessages />
+            )
           ) : (
             <LoadingSpinner />
           )}
