@@ -157,7 +157,7 @@ const LockedPremiumTrackSection = ({
       return (
         <div className={styles.premiumContentSectionDescription}>
           <div>{messages.unlockCollectibleGatedTrack}</div>
-          <div className={styles.premiumContentSectionCollection}>
+          <div className={styles.premiumContentSectionCollection} onClick={goToCollection}>
             {premiumConditions.nft_collection.imageUrl && (
               <div className={styles.collectionIconsContainer}>
                 <img
@@ -171,7 +171,7 @@ const LockedPremiumTrackSection = ({
                 )}
               </div>
             )}
-            {premiumConditions.nft_collection.name}
+            <span>{premiumConditions.nft_collection.name}</span>
           </div>
         </div>
       )
