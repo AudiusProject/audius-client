@@ -60,6 +60,7 @@ import walletSagas from 'common/store/wallet/sagas'
 import { all, fork } from 'typed-redux-saga'
 
 import accountSagas from './account/sagas'
+import mobileChatSagas from './chat/sagas'
 import initKeyboardEvents from './keyboard/sagas'
 import mobileUiSagas from './mobileUi/sagas'
 import notificationsSagas from './notifications/sagas'
@@ -120,6 +121,7 @@ export default function* rootSaga() {
     // Pages
     ...trackPageSagas(),
     ...chatSagas(),
+    ...mobileChatSagas(),
     ...collectionPageSagas(),
     ...feedPageSagas(),
     ...exploreCollectionsPageSagas(),
