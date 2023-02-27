@@ -23,12 +23,14 @@ import type { FlatList as RNFlatList } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import WavingHand from 'app/assets/images/emojis/waving-hand-sign.png'
+import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconSend from 'app/assets/images/iconSend.svg'
 import { TextInput, Screen, FlatList, ScreenContent } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { ProfilePicture } from 'app/components/user'
 import { UserBadges } from 'app/components/user-badges'
 import { useRoute } from 'app/hooks/useRoute'
+import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
 import { useThemePalette } from 'app/utils/theme'
 
@@ -304,7 +306,24 @@ export const ChatScreen = () => {
     }, [dispatch, chatId])
   )
 
+  const handleKebabPress = () => {
+    dispatch(
+      setVisibility({
+        drawer: 'ChatActions',
+        visible: true,
+        data: otherUser.user_id
+      })
+    )
+  }
+
   const isLoading = status === Status.LOADING && chatMessages?.length === 0
+  const topBarRight = (
+    <IconKebabHorizontal
+      onPress={handleKebabPress}
+      fill={palette.neutralLight4}
+    />
+  )
+
   return (
     <Screen
       url={url}
@@ -324,7 +343,7 @@ export const ChatScreen = () => {
             )
           : messages.title
       }
-      topbarRight={null}
+      topbarRight={topBarRight}
     >
       <ScreenContent>
         <View style={styles.rootContainer}>

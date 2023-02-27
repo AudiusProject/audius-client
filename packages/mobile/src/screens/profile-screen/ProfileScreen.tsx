@@ -13,7 +13,7 @@ import { PortalHost } from '@gorhom/portal'
 import { Animated, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import IconShare from 'app/assets/images/iconShare.svg'
+import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import { IconButton, Screen, ScreenContent } from 'app/components/core'
 import { OfflinePlaceholder } from 'app/components/offline-placeholder'
 import { useAppTabScreen } from 'app/hooks/useAppTabScreen'
@@ -81,10 +81,10 @@ export const ProfileScreen = () => {
   const handlePressShare = useCallback(() => {
     if (profile) {
       dispatch(
-        requestOpenShareModal({
-          type: 'profile',
-          profileId: profile.user_id,
-          source: ShareSource.PAGE
+        setVisibility({
+          drawer: 'ProfileActions',
+          visible: true,
+          data: profile.user_id
         })
       )
     }
@@ -93,7 +93,7 @@ export const ProfileScreen = () => {
   const topbarRight = (
     <IconButton
       fill={neutralLight4}
-      icon={IconShare}
+      icon={IconKebabHorizontal}
       onPress={handlePressShare}
     />
   )
