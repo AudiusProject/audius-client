@@ -222,12 +222,12 @@ const TrackHeader = ({
 
   const onClickOverflow = () => {
     const overflowActions = [
-      isOwner || isUnlisted || (isPremiumContentEnabled && !doesUserHaveAccess)
+      isOwner || !showSocials
         ? null
         : isReposted
         ? OverflowAction.UNREPOST
         : OverflowAction.REPOST,
-      isOwner || isUnlisted || (isPremiumContentEnabled && !doesUserHaveAccess)
+      isOwner || !showSocials
         ? null
         : isSaved
         ? OverflowAction.UNFAVORITE
