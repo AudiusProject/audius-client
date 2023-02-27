@@ -157,7 +157,10 @@ const LockedPremiumTrackSection = ({
       return (
         <div className={styles.premiumContentSectionDescription}>
           <div>{messages.unlockCollectibleGatedTrack}</div>
-          <div className={styles.premiumContentSectionCollection} onClick={goToCollection}>
+          <div
+            className={styles.premiumContentSectionCollection}
+            onClick={goToCollection}
+          >
             {premiumConditions.nft_collection.imageUrl && (
               <div className={styles.collectionIconsContainer}>
                 <img
@@ -216,7 +219,7 @@ const LockedPremiumTrackSection = ({
       'No entity for premium conditions... should not have reached here.'
     )
     return null
-  }, [premiumConditions, followee, tippedUser])
+  }, [premiumConditions, followee, tippedUser, goToCollection])
 
   const renderButton = useCallback(() => {
     if (premiumConditions.nft_collection) {
