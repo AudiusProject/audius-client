@@ -1,4 +1,11 @@
-import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useMemo,
+  Fragment
+} from 'react'
 
 import {
   chatActions,
@@ -10,7 +17,7 @@ import {
   hasTail,
   isEarliestUnread
 } from '@audius/common'
-import { View } from 'react-native'
+import { View, Text } from 'react-native'
 import type { FlatList as RNFlatList } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -38,7 +45,8 @@ const { getUserId } = accountSelectors
 
 const messages = {
   title: 'Messages',
-  startNewMessage: 'Start a New Message'
+  startNewMessage: 'Start a New Message',
+  newMessage: 'New Message'
 }
 const ICON_BLUR = 0.5
 const ICON_FOCUS = 1
@@ -91,8 +99,34 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     width: spacing(6),
     height: spacing(6),
     marginRight: spacing(2)
+  },
+  unreadTagContainer: {
+    marginVertical: spacing(6),
+    flexGrow: 1,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  unreadSeparator: {
+    height: 1,
+    backgroundColor: palette.neutralLight5,
+    flexGrow: 1
+  },
+  unreadTag: {
+    color: palette.white,
+    fontSize: typography.fontSize.xxs,
+    fontFamily: typography.fontByWeight.bold,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    backgroundColor: palette.neutralLight5,
+    paddingHorizontal: spacing(2),
+    paddingVertical: spacing(1),
+    borderRadius: spacing(0.5)
   }
 }))
+
+const pluralize = (message: string, shouldPluralize: boolean) =>
+  message + (shouldPluralize ? 's' : '')
 
 export const ChatScreen = () => {
   const styles = useStyles()
@@ -118,6 +152,7 @@ export const ChatScreen = () => {
     getChatMessagesSummary(state, chatId ?? '')
   )
   const flatListRef = useRef<RNFlatList>(null)
+  const unreadCount = chat?.unread_message_count ?? 0
 
   // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
   // Using a ref instead of state here to prevent unwanted flickers.
@@ -205,13 +240,24 @@ export const ChatScreen = () => {
                 data={chatMessages}
                 keyExtractor={(message) => message.chat_id}
                 renderItem={({ item, index }) => (
-                  <ChatMessageListItem
-                    key={item.key}
-                    message={item}
-                    hasTail={hasTail(item, chatMessages[index - 1])}
-                    isEarliestUnread={index === earliestUnreadIndex}
-                    unreadCount={chat?.unread_message_count ?? 0}
-                  />
+                  <Fragment>
+                    <ChatMessageListItem
+                      key={item.key}
+                      message={item}
+                      hasTail={hasTail(item, chatMessages[index - 1])}
+                      unreadCount={unreadCount}
+                    />
+                    {index === earliestUnreadIndex ? (
+                      <View style={styles.unreadTagContainer} key='unreadTag'>
+                        <View style={styles.unreadSeparator} />
+                        <Text style={styles.unreadTag}>
+                          {unreadCount}{' '}
+                          {pluralize(messages.newMessage, unreadCount > 1)}
+                        </Text>
+                        <View style={styles.unreadSeparator} />
+                      </View>
+                    ) : null}
+                  </Fragment>
                 )}
                 inverted
                 onEndReached={handleScrollToTop}

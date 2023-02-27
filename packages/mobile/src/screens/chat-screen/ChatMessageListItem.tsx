@@ -14,10 +14,6 @@ import { useThemePalette } from 'app/utils/theme'
 
 const { getUserId } = accountSelectors
 
-const messages = {
-  newMessage: 'New Message'
-}
-
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   rootOtherUser: {
     display: 'flex',
@@ -56,29 +52,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     fontSize: typography.fontSize.xs,
     color: palette.neutralLight2
   },
-  unreadTagContainer: {
-    marginVertical: spacing(6),
-    flexGrow: 1,
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  unreadSeparator: {
-    height: 1,
-    backgroundColor: palette.neutralLight5,
-    flexGrow: 1
-  },
-  unreadTag: {
-    color: palette.white,
-    fontSize: typography.fontSize.xxs,
-    fontFamily: typography.fontByWeight.bold,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    backgroundColor: palette.neutralLight5,
-    paddingHorizontal: spacing(2),
-    paddingVertical: spacing(1),
-    borderRadius: spacing(0.5)
-  },
   tail: {
     display: 'flex',
     position: 'absolute',
@@ -94,20 +67,15 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   }
 }))
 
-const pluralize = (message: string, shouldPluralize: boolean) =>
-  message + (shouldPluralize ? 's' : '')
-
 type ChatMessageListItemProps = {
   message: ChatMessage
   hasTail: boolean
-  isEarliestUnread: boolean
   unreadCount: number
 }
 
 export const ChatMessageListItem = ({
   message,
   hasTail,
-  isEarliestUnread,
   unreadCount
 }: ChatMessageListItemProps) => {
   const styles = useStyles()
@@ -143,16 +111,6 @@ export const ChatMessageListItem = ({
           </>
         ) : null}
       </View>
-
-      {isEarliestUnread ? (
-        <View style={styles.unreadTagContainer} key='unreadTag'>
-          <View style={styles.unreadSeparator} />
-          <Text style={styles.unreadTag}>
-            {unreadCount} {pluralize(messages.newMessage, unreadCount > 1)}
-          </Text>
-          <View style={styles.unreadSeparator} />
-        </View>
-      ) : null}
     </>
   )
 }
