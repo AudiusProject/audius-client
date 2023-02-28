@@ -24,7 +24,6 @@ import { ProfileHeader } from './ProfileHeader'
 import { ProfileScreenSkeleton } from './ProfileScreenSkeleton'
 import { ProfileTabNavigator } from './ProfileTabNavigator'
 import { useSelectProfileRoot } from './selectors'
-// const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { fetchProfile: fetchProfileAction } = profilePageActions
 const { getProfileStatus } = profilePageSelectors
 const { getIsReachable } = reachabilitySelectors
