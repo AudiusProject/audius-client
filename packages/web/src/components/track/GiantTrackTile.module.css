@@ -462,3 +462,13 @@
   border: 1px solid var(--neutral-light-7);
   border-radius: 50%;
 }
+
+@media screen and (max-width: 1148px) {
+  .premiumContentSectionLocked {
+    flex-direction: column;
+  }
+
+  .premiumContentSectionButton {
+    width: 100%;
+  }
+}
