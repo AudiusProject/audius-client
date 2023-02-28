@@ -48,7 +48,7 @@ const selectTrackCount = (state: AppState) => {
   return getCollectionTracksLineup(state).total
 }
 
-const selectLineupLoading = (state: AppState) => {
+const selectIsLineupLoading = (state: AppState) => {
   return getCollectionTracksLineup(state).status === Status.LOADING
 }
 
@@ -138,7 +138,7 @@ export const CollectionScreenDetailsTile = ({
   const trackUids = useSelector(selectTrackUids)
   const collectionTrackCount = useSelector(selectTrackCount)
   const trackCount = trackCountProp ?? collectionTrackCount
-  const lineupLoading = useSelector(selectLineupLoading)
+  const isLineupLoading = useSelector(selectIsLineupLoading)
   const collectionDuration = useSelector(selectCollectionDuration)
   const playingUid = useSelector(getUid)
   const isQueued = useSelector(selectIsQueued)
@@ -148,23 +148,23 @@ export const CollectionScreenDetailsTile = ({
   const firstTrack = useSelector(selectFirstTrack)
 
   const details = useMemo(() => {
-    if (!lineupLoading && trackCount === 0) return []
+    if (!isLineupLoading && trackCount === 0) return []
     return [
       {
         label: 'Tracks',
-        value: lineupLoading
+        value: isLineupLoading
           ? messages.detailsPlaceholder
           : formatCount(trackCount)
       },
       {
         label: 'Duration',
-        value: lineupLoading
+        value: isLineupLoading
           ? messages.detailsPlaceholder
           : formatSecondsAsText(collectionDuration)
       },
       ...extraDetails
     ].filter(({ isHidden, value }) => !isHidden && !!value)
-  }, [lineupLoading, trackCount, collectionDuration, extraDetails])
+  }, [isLineupLoading, trackCount, collectionDuration, extraDetails])
 
   const handlePressPlay = useCallback(() => {
     if (isPlaying && isQueued) {
@@ -205,9 +205,9 @@ export const CollectionScreenDetailsTile = ({
       <TrackList
         hideArt
         showDivider
-        showSkeleton={lineupLoading}
+        showSkeleton={isLineupLoading}
         togglePlay={handlePressTrackListItemPlay}
-        uids={lineupLoading ? Array(Math.min(5, trackCount ?? 0)) : trackUids}
+        uids={isLineupLoading ? Array(Math.min(5, trackCount ?? 0)) : trackUids}
         ListHeaderComponent={
           trackCount > 0 ? <View style={styles.trackListDivider} /> : undefined
         }
@@ -216,7 +216,7 @@ export const CollectionScreenDetailsTile = ({
     )
   }, [
     handlePressTrackListItemPlay,
-    lineupLoading,
+    isLineupLoading,
     styles,
     trackUids,
     trackCount
