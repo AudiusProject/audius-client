@@ -252,14 +252,20 @@ const CollectiblesPage = (props: CollectiblesPageProps) => {
         /**
          * include collectibles returned by OpenSea which have not been stored in the user preferences
          */
-        const dedupedCollectiblesOrder = [...new Set(profile.collectibles.order)]
+        const dedupedCollectiblesOrder = [
+          ...new Set(profile.collectibles.order)
+        ]
         const metadata: CollectiblesMetadata = {
           ...profile.collectibles,
           order: dedupedCollectiblesOrder
         }
 
         // Remove duplicates in user collectibles order if any
-        if (isUserOnTheirProfile && updateProfile && profile.collectibles.order.length !== dedupedCollectiblesOrder.length) {
+        if (
+          isUserOnTheirProfile &&
+          updateProfile &&
+          profile.collectibles.order.length !== dedupedCollectiblesOrder.length
+        ) {
           updateProfile({
             ...profile,
             collectibles: metadata
@@ -298,7 +304,9 @@ const CollectiblesPage = (props: CollectiblesPageProps) => {
         const newMetadata = {
           ...metadata,
           ...newCollectiblesMap,
-          order: [...new Set(metadata.order.concat(Object.keys(newCollectiblesMap)))]
+          order: [
+            ...new Set(metadata.order.concat(Object.keys(newCollectiblesMap)))
+          ]
         }
         setCollectiblesMetadata(newMetadata)
         if (ethCollectibleList) {
@@ -316,6 +324,7 @@ const CollectiblesPage = (props: CollectiblesPageProps) => {
     ethCollectibleList,
     solanaCollectibleList,
     collectiblesMetadata,
+    isUserOnTheirProfile,
     getHasSetEthCollectibles,
     setHasSetEthCollectibles,
     getHasSetSolanaCollectibles,
@@ -362,11 +371,13 @@ const CollectiblesPage = (props: CollectiblesPageProps) => {
       setCollectiblesMetadata({
         ...collectiblesMetadata,
         [id]: collectiblesMetadata?.id ?? {},
-        order: [...new Set(
-          (collectiblesMetadata?.order ?? []).filter(
-            (tokenId) => tokenId !== id
+        order: [
+          ...new Set(
+            (collectiblesMetadata?.order ?? []).filter(
+              (tokenId) => tokenId !== id
+            )
           )
-        )]
+        ]
       })
     },
     [setCollectiblesMetadata, collectiblesMetadata]
@@ -421,11 +432,13 @@ const CollectiblesPage = (props: CollectiblesPageProps) => {
 
     setCollectiblesMetadata({
       ...collectiblesMetadata,
-      order: [...new Set(
-        newCollectibleList
-        .map((c) => c.id)
-        .filter((id) => (collectiblesMetadata?.order || []).includes(id))
-      )]
+      order: [
+        ...new Set(
+          newCollectibleList
+            .map((c) => c.id)
+            .filter((id) => (collectiblesMetadata?.order || []).includes(id))
+        )
+      ]
     })
   }
 
@@ -443,7 +456,7 @@ const CollectiblesPage = (props: CollectiblesPageProps) => {
       )
       const collectibleKeySet = new Set(Object.keys(collectibleMap))
 
-      const visible = [... new Set(collectiblesMetadata?.order ?? [])]
+      const visible = [...new Set(collectiblesMetadata?.order ?? [])]
         .filter((id) => collectibleKeySet.has(id))
         .map((id) => collectibleMap[id])
       return visible || []
@@ -463,7 +476,11 @@ const CollectiblesPage = (props: CollectiblesPageProps) => {
       const visibleCollectibleKeySet = new Set(
         getVisibleCollectibles().map((c) => c.id)
       )
-      return [...new Set(collectibleList.filter((c) => !visibleCollectibleKeySet.has(c.id)))]
+      return [
+        ...new Set(
+          collectibleList.filter((c) => !visibleCollectibleKeySet.has(c.id))
+        )
+      ]
     }
     return []
   }, [getVisibleCollectibles, collectibleList])
