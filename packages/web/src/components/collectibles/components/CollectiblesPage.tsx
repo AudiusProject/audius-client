@@ -258,7 +258,7 @@ const CollectiblesPage = (props: CollectiblesPageProps) => {
           order: dedupedCollectiblesOrder
         }
 
-        // // Remove duplicates in user collectibles order if any
+        // Remove duplicates in user collectibles order if any
         if (isUserOnTheirProfile && updateProfile && profile.collectibles.order.length !== dedupedCollectiblesOrder.length) {
           updateProfile({
             ...profile,
