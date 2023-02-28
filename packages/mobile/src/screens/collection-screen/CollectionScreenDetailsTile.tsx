@@ -30,7 +30,7 @@ import { makeStyles } from 'app/styles'
 import { formatCount } from 'app/utils/format'
 
 import { CollectionHeader } from './CollectionHeader'
-import { useCollectionLineup } from './useCollectionLineup'
+import { useFetchCollectionLineup } from './useFetchCollectionLineup'
 const { resetAndFetchCollectionTracks } = collectionPageActions
 const { getPlaying, getUid, getCurrentTrack } = playerSelectors
 const { getIsReachable } = reachabilitySelectors
@@ -133,7 +133,7 @@ export const CollectionScreenDetailsTile = ({
     dispatch(resetAndFetchCollectionTracks(collectionId))
   }, [dispatch, collectionId])
 
-  useCollectionLineup(collectionId, fetchLineup)
+  useFetchCollectionLineup(collectionId, fetchLineup)
 
   const trackUids = useSelector(selectTrackUids)
   const collectionTrackCount = useSelector(selectTrackCount)
