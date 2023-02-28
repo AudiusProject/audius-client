@@ -160,16 +160,17 @@ export function* fetchNotifications(action: FetchNotifications) {
     )
 
     if (useDiscoveryNotifications && 'notifications' in notificationsResponse) {
-      const discoveryNotifications = yield* call(() => {
-        let timestamp
-        if (lastNotification) {
-          timestamp = Math.trunc(Date.parse(lastNotification?.timestamp) / 1000)
-        }
-        return audiusBackendInstance.getDiscoveryNotifications({
+      let timestamp: number | undefined
+      if (lastNotification) {
+        timestamp = Math.trunc(Date.parse(lastNotification?.timestamp) / 1000)
+      }
+      const discoveryNotifications = yield* call(
+        audiusBackendInstance.getDiscoveryNotifications,
+        {
           timestamp,
           groupIdOffset: lastNotification?.groupId
-        })
-      })
+        }
+      )
       notificationsResponse.notifications =
         discoveryNotifications!.notifications
     }
@@ -579,9 +580,10 @@ export function* getNotifications(isFirstFetch: boolean) {
         notificationsResponse &&
         'notifications' in notificationsResponse
       ) {
-        const discoveryNotifications = yield* call(() => {
-          return audiusBackendInstance.getDiscoveryNotifications({})
-        })
+        const discoveryNotifications = yield* call(
+          audiusBackendInstance.getDiscoveryNotifications,
+          {}
+        )
         notificationsResponse.notifications =
           discoveryNotifications!.notifications
       }

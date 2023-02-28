@@ -2106,7 +2106,6 @@ export const audiusBackend = ({
   }
 
   function mapDiscoveryNotification(notification: DiscoveryNotification) {
-    console.log({ notification })
     if (notification.type === 'follow') {
       const userIds = notification.actions.map((action) => {
         const data = action.data
