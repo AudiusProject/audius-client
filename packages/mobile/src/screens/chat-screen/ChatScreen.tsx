@@ -210,6 +210,7 @@ export const ChatScreen = () => {
   // Using a ref instead of state here to prevent unwanted flickers.
   // The chat/chatId selectors will trigger the rerenders necessary.
   const chatFrozenRef = useRef(chat)
+  console.log('REED ChatScreen', chat?.unread_message_count)
 
   useEffect(() => {
     if (chatId && status === Status.IDLE) {
@@ -267,19 +268,20 @@ export const ChatScreen = () => {
   }, [earliestUnreadIndex, chatMessages])
 
   const handleScrollToIndexFailed = (e) => {
-    flatListRef.current?.scrollToOffset({
-      offset: e.averageItemLength * e.highestMeasuredFrameIndex,
-      animated: false
-    })
-    setTimeout(
-      () =>
-        flatListRef.current?.scrollToIndex({
-          index: e.index,
-          viewPosition: 0.5,
-          animated: false
-        }),
-      10
-    )
+    console.log('scroll to index failed!', e)
+
+    // flatListRef.current?.scrollToOffset({
+    //   offset: e.averageItemLength * e.highestMeasuredFrameIndex,
+    //   animated: false
+    // })
+    setTimeout(() => {
+      console.log('scrolling to index in failure handler')
+      flatListRef.current?.scrollToIndex({
+        index: e.index,
+        viewPosition: 0.5,
+        animated: false
+      })
+    }, 10)
   }
 
   const handleScrollToTop = () => {
@@ -357,6 +359,7 @@ export const ChatScreen = () => {
                   )}
                   onEndReached={handleScrollToTop}
                   inverted
+                  initialNumToRender={chatMessages?.length}
                   ref={flatListRef}
                   onScrollToIndexFailed={handleScrollToIndexFailed}
                 />
