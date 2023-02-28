@@ -1,11 +1,10 @@
 import { cacheUsersSelectors } from '@audius/common'
-import { Dimensions, View } from 'react-native'
+import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconBlockMessages from 'app/assets/images/iconBlockMessages.svg'
 import IconInfo from 'app/assets/images/iconInfo.svg'
-import Button, { ButtonType } from 'app/components/button'
-import { Text } from 'app/components/core'
+import { Text, Button } from 'app/components/core'
 import { NativeDrawer } from 'app/components/drawer'
 import type { AppState } from 'app/store'
 import { getData } from 'app/store/drawers/selectors'
@@ -17,8 +16,6 @@ import { useColor } from 'app/utils/theme'
 const { getUser } = cacheUsersSelectors
 
 const BLOCK_MESSAGES_MODAL_NAME = 'BlockMessages'
-
-const screenWidth = Dimensions.get('screen').width
 
 const messages = {
   title: 'Are you sure?',
@@ -32,39 +29,39 @@ const messages = {
 const useStyles = makeStyles(({ spacing, typography, palette }) => ({
   drawer: {
     marginVertical: spacing(6.5),
-    alignItems: 'center'
+    padding: spacing(3.5)
   },
   titleContainer: {
     ...flexRowCentered(),
     gap: spacing(3.5),
-    marginBottom: spacing(6)
+    marginBottom: spacing(6),
+    alignSelf: 'center'
   },
   title: {
     fontSize: typography.fontSize.xl,
     fontFamily: typography.fontByWeight.heavy,
     color: palette.neutralLight2,
     textTransform: 'uppercase',
-    lineHeight: typography.fontSize.xl * 1.25
+    lineHeight: typography.fontSize.xl * 1.25,
+    textAlign: 'center'
   },
   confirm: {
     fontSize: typography.fontSize.large,
     lineHeight: typography.fontSize.large * 1.5,
-    color: palette.neutral,
-    width: screenWidth - spacing(7)
+    color: palette.neutral
   },
   infoContainer: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing(4.5),
-    margin: spacing(4),
+    marginVertical: spacing(4),
     paddingVertical: spacing(2),
     paddingHorizontal: spacing(4),
     backgroundColor: palette.neutralLight9,
     borderWidth: 1,
     borderColor: palette.neutralLight7,
-    borderRadius: spacing(2),
-    width: screenWidth - spacing(7)
+    borderRadius: spacing(2)
   },
   infoText: {
     fontSize: typography.fontSize.medium,
@@ -77,19 +74,17 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
     color: palette.neutral
   },
   button: {
-    display: 'flex',
-    flexGrow: 1,
-    width: screenWidth - spacing(7),
-    marginHorizontal: spacing(10)
+    padding: spacing(4),
+    height: spacing(12)
   },
   blockButton: {
     borderColor: palette.accentRed
   },
   blockText: {
-    color: palette.accentRed
+    fontSize: typography.fontSize.large
   },
   cancelButton: {
-    marginTop: spacing(4)
+    marginTop: spacing(5.5)
   }
 }))
 
@@ -145,15 +140,22 @@ export const BlockMessagesDrawer = () => {
         <Button
           title={messages.blockUser}
           onPress={handleConfirmPress}
-          containerStyle={[styles.button, styles.blockButton]}
-          textStyle={styles.blockText}
-          type={ButtonType.COMMON}
+          variant='destructive'
+          styles={{
+            root: styles.button,
+            text: styles.blockText
+          }}
+          fullWidth
         />
         <Button
           title={messages.cancel}
           onPress={handleCancelPress}
-          containerStyle={[styles.button, styles.cancelButton]}
-          type={ButtonType.PRIMARY}
+          variant='primary'
+          styles={{
+            root: [styles.button, styles.cancelButton],
+            text: styles.blockText
+          }}
+          fullWidth
         />
       </View>
     </NativeDrawer>
