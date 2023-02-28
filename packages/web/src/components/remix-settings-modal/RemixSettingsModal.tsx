@@ -163,7 +163,7 @@ const RemixSettingsModal = ({
         setIsRemix(true)
       }
     },
-    [onEditUrl, setUrl]
+    [onEditUrl, setUrl, setIsRemix]
   )
 
   const onCloseModal = useCallback(() => {
