@@ -158,6 +158,10 @@ const RemixSettingsModal = ({
         leading: true,
         trailing: false
       })()
+      // Turn toggle on if remix link input is not empty
+      if (url) {
+        setIsRemix(true)
+      }
     },
     [onEditUrl, setUrl]
   )
@@ -228,7 +232,7 @@ const RemixSettingsModal = ({
             placeholder={messages.enterLink}
             size='large'
             onChange={onChange}
-            disabled={!isRemix || isPremium}
+            disabled={isPremium}
           />
           {url && (
             <div className={styles.bottom}>
