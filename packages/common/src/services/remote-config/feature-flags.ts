@@ -41,7 +41,7 @@ export enum FeatureFlags {
   ENTITY_MANAGER_VIEW_NOTIFICATIONS_ENABLED = 'entity_manager_view_notifications_enabled',
   SHARE_VIDEO_TO_TIKTOK = 'share_video_to_tiktok_2',
   PODCAST_CONTROL_UPDATES_ENABLED = 'podcast_control_updates_enabled',
-  LAZY_USERBANK_CREATION_ENABLED = 'lazy_userbank_creation_enabled'
+  LAZY_USERBANK_CREATION_ENABLED = 'lazy_userbank_creation_enabled',
   DISCOVERY_NOTIFICATIONS = 'discovery_notifications'
 }
 
