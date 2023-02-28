@@ -3,6 +3,11 @@ import { useEffect, useState } from 'react'
 import { accountSelectors, Status } from '@audius/common'
 import type { NavigatorScreenParams } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import {
+  getStartedSignUpProcess,
+  getFinishedSignUpProcess
+} from 'common/store/pages/signon/selectors'
+import { Pages } from 'common/store/pages/signon/types'
 import { Platform } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -30,6 +35,16 @@ export type RootScreenParamList = {
 
 const Stack = createNativeStackNavigator()
 
+const useShowHomeStack = () => {
+  const hasAccount = useSelector(getHasAccount)
+  const startedSignUpProcess = useSelector(getStartedSignUpProcess)
+  const finishedSignUpProcess = useSelector(getFinishedSignUpProcess)
+
+  // Show HomeStack if user has an account and
+  // they have finished the sign up process if they started
+  return hasAccount && (!startedSignUpProcess || finishedSignUpProcess)
+}
+
 /**
  * The top level navigator. Switches between sign on screens and main tab navigator
  * based on if the user is authed
@@ -37,7 +52,7 @@ const Stack = createNativeStackNavigator()
 export const RootScreen = () => {
   const dispatch = useDispatch()
   const accountStatus = useSelector(getAccountStatus)
-  const hasAccount = useSelector(getHasAccount)
+  const showHomeStack = useShowHomeStack()
   const { updateRequired } = useUpdateRequired()
   const [isLoaded, setIsLoaded] = useState(false)
 
@@ -69,7 +84,7 @@ export const RootScreen = () => {
         >
           {updateRequired ? (
             <Stack.Screen name='UpdateStack' component={UpdateRequiredScreen} />
-          ) : hasAccount ? (
+          ) : showHomeStack ? (
             <Stack.Screen name='HomeStack' component={AppDrawerScreen} />
           ) : (
             <Stack.Screen name='SignOnStack' component={SignOnScreen} />

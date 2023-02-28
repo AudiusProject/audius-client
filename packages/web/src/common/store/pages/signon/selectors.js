@@ -18,8 +18,10 @@ export const getToastText = (state) => state.signOn.toastText
 export const getRouteOnCompletion = (state) => state.signOn.routeOnCompletion
 export const getRouteOnExit = (state) => state.signOn.routeOnExit
 export const getAccountReady = (state) => state.signOn.accountReady
-export const getStartedSignOnProcess = (state) =>
-  state.signOn.startedSignOnProcess
+export const getStartedSignUpProcess = (state) =>
+  state.signOn.startedSignUpProcess
+export const getFinishedSignUpProcess = (state) =>
+  state.signOn.finishedSignUpProcess
 export const getReferrer = (state) => state.signOn.referrer
 
 export const getFollowArtists = (state) => state.signOn.followArtists
