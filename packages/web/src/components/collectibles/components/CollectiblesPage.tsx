@@ -252,10 +252,20 @@ const CollectiblesPage = (props: CollectiblesPageProps) => {
         /**
          * include collectibles returned by OpenSea which have not been stored in the user preferences
          */
+        const dedupedCollectiblesOrder = [...new Set(profile.collectibles.order)]
         const metadata: CollectiblesMetadata = {
           ...profile.collectibles,
-          order: [...new Set(profile.collectibles.order)]
+          order: dedupedCollectiblesOrder
         }
+
+        // // Remove duplicates in user collectibles order if any
+        if (isUserOnTheirProfile && updateProfile && profile.collectibles.order.length !== dedupedCollectiblesOrder.length) {
+          updateProfile({
+            ...profile,
+            collectibles: metadata
+          })
+        }
+
         /**
          * Update id of collectibles to use correct format
          */
