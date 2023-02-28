@@ -10,6 +10,10 @@ import { makeStyles } from 'app/styles'
 
 const { createChat } = chatActions
 
+const messages = {
+  chat: 'Chat'
+}
+
 const useStyles = makeStyles(({ spacing }) => ({
   root: {
     paddingHorizontal: 0,
@@ -37,6 +41,7 @@ export const MessageButton = (props: MessageButtonProps) => {
     <Button
       style={styles.root}
       noText
+      title={messages.chat}
       icon={IconMessage}
       variant={'common'}
       size='small'

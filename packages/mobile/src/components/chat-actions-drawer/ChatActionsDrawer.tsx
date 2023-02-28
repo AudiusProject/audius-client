@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Text } from 'app/components/core'
 import { NativeDrawer } from 'app/components/drawer'
 import { useNavigation } from 'app/hooks/useNavigation'
+import type { AppState } from 'app/store'
 import { getData } from 'app/store/drawers/selectors'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
@@ -36,14 +37,32 @@ export const ChatActionsDrawer = () => {
   const styles = useStyles()
   const dispatch = useDispatch()
   const navigation = useNavigation()
-  const userId = useSelector(getData)
+  const { userId } = useSelector((state: AppState) =>
+    getData<'ChatActions'>(state)
+  )
 
   const handleVisitProfilePress = () => {
-    navigation.navigate('Profile', { id: userId })
     dispatch(
       setVisibility({
         drawer: 'ChatActions',
         visible: false
+      })
+    )
+    navigation.navigate('Profile', { id: userId })
+  }
+
+  const handleBlockMessagesPress = () => {
+    dispatch(
+      setVisibility({
+        drawer: 'ChatActions',
+        visible: false
+      })
+    )
+    dispatch(
+      setVisibility({
+        drawer: 'BlockMessages',
+        visible: true,
+        data: { userId }
       })
     )
   }
@@ -54,7 +73,9 @@ export const ChatActionsDrawer = () => {
         <Text style={styles.text} onPress={handleVisitProfilePress}>
           {messages.visitProfile}
         </Text>
-        <Text style={styles.text}>{messages.blockMessages}</Text>
+        <Text style={styles.text} onPress={handleBlockMessagesPress}>
+          {messages.blockMessages}
+        </Text>
       </View>
     </NativeDrawer>
   )
