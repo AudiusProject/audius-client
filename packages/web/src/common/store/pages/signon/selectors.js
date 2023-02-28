@@ -1,5 +1,6 @@
-import { cacheUsersSelectors } from '@audius/common'
+import { accountSelectors, cacheUsersSelectors } from '@audius/common'
 import { createSelector } from 'reselect'
+const { getHasAccount } = accountSelectors
 const { getUsers } = cacheUsersSelectors
 
 // Sign On selectors
@@ -32,6 +33,16 @@ export const getSuggestedFollowIds = (state) => {
   const { selectedCategory, categories } = state.signOn.followArtists
   return categories[selectedCategory] || []
 }
+
+export const getHasCompletedAccount = createSelector(
+  [getHasAccount, getStartedSignUpProcess, getFinishedSignUpProcess],
+  (hasAccount, startedSignUpProcess, finishedSignUpProcess) => {
+    // If a user has started the sign up flow,
+    // only return true if they finish the flow
+    // (including selecting followees)
+    return hasAccount && (!startedSignUpProcess || finishedSignUpProcess)
+  }
+)
 
 /**
  * Each lineup that invokes this selector should pass its own selector as an argument, e.g.
