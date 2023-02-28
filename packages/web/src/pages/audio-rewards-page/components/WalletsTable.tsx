@@ -139,12 +139,14 @@ type WalletsTableProps = {
   className?: string
   hasActions?: boolean
   hideCollectibles?: boolean
+  suppressError?: boolean
 }
 
 const WalletsTable = ({
   hasActions = false,
   className,
-  hideCollectibles
+  hideCollectibles,
+  suppressError
 }: WalletsTableProps) => {
   const {
     status,
@@ -251,7 +253,9 @@ const WalletsTable = ({
           isConfirmRemoving={false}
         />
       )}
-      {errorMessage && <div className={styles.error}>{errorMessage}</div>}
+      {!suppressError && errorMessage ? (
+        <div className={styles.error}>{errorMessage}</div>
+      ) : null}
     </div>
   )
 }

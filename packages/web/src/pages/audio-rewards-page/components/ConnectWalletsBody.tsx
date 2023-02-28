@@ -75,6 +75,7 @@ const ConnectWalletsBody = ({ className }: ConnectWalletsBodyProps) => {
           className={styles.walletsContainer}
           hasActions
           hideCollectibles
+          suppressError // suppress error because we show it below, and we don't always show the WalletsTable here
         />
       )}
       {errorMessage && <div className={styles.error}>{errorMessage}</div>}
