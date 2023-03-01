@@ -55,7 +55,7 @@ export const Hyperlink = (props: HyperlinkProps) => {
   const styles = useStyles()
 
   const linkContainerRef = useRef<View>(null)
-  const linkRefs = useRef<Record<number, Text>>({})
+  const [linkRefs, setLinkRefs] = useState<Record<number, Text>>({})
   const [links, setLinks] = useState<Record<number, PositionedLink>>({})
   const [linkLayouts, setLinkLayouts] = useState<
     Record<number, LayoutRectangle>
@@ -68,13 +68,16 @@ export const Hyperlink = (props: HyperlinkProps) => {
    * android doesn't return the correct layout for nested text elements
    * */
   useEffect(() => {
-    Object.entries(linkRefs.current).forEach(([index, ref]) => {
-      ref.measureInWindow((x, y, width, height) => {
-        setLinkLayouts((linkLayouts) => ({
-          ...linkLayouts,
-          [index]: { x, y, width, height }
-        }))
-      })
+    Object.entries(links).forEach(([index]) => {
+      const linkRef = linkRefs[index]
+      if (linkRef) {
+        linkRef.measureInWindow((x, y, width, height) => {
+          setLinkLayouts((linkLayouts) => ({
+            ...linkLayouts,
+            [index]: { x, y, width, height }
+          }))
+        })
+      }
     })
 
     if (linkContainerRef.current) {
@@ -82,7 +85,7 @@ export const Hyperlink = (props: HyperlinkProps) => {
         setLinkContainerLayout({ x, y, width, height })
       )
     }
-  }, [linkRefs, linkContainerRef])
+  }, [links, linkRefs, linkContainerRef])
 
   const handlePress = useOnOpenLink(source)
 
@@ -90,17 +93,22 @@ export const Hyperlink = (props: HyperlinkProps) => {
     (text, match, index) => (
       <View
         onLayout={(e) => {
-          setLinks({
+          setLinks((links) => ({
             ...links,
             [index]: {
               text,
               match
             }
-          })
+          }))
         }}
         ref={(el) => {
-          if (linkRefs.current && el) {
-            linkRefs.current[index] = el
+          if (el) {
+            setLinkRefs((linkRefs) => {
+              if (linkRefs[index]) {
+                return linkRefs
+              }
+              return { ...linkRefs, [index]: el }
+            })
           }
         }}
         style={styles.hiddenLink}
@@ -108,7 +116,7 @@ export const Hyperlink = (props: HyperlinkProps) => {
         <Text style={[styles.linkText, styles.hiddenLinkText]}>{text}</Text>
       </View>
     ),
-    [links, styles]
+    [styles]
   )
 
   return (
