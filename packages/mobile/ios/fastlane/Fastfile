@@ -210,11 +210,15 @@ platform :ios do
     currentReleasedVersionNumber, plistVersionNumber = get_version(scheme: scheme)
     isVersionIncremented = plistVersionNumber > currentReleasedVersionNumber
     if !isVersionIncremented
-      sh("npm install -g appcenter-cli")
-      # Codepush to the right environment
-      sh("appcenter login --token #{ENV['APPCENTER_CODEPUSH_API_KEY']}")
-      sh("cd ../../ && appcenter codepush release-react -a #{CODEPUSH_APP_NAME} -t #{currentReleasedVersionNumber.to_s} -d #{codepushDeployment} --disable-duplicate-release-error")
-      sh("appcenter logout")
+      # Hacky - don't codepush to RC deployment if this lane is running for Staging RC because we assume we will codepush to RC deployment in the Prod RC job. I.e. avoid codepushing to RC deployment twice.
+      if options[:bundle_id] !== AUDIUSMUSIC_STAGING_RELEASECANDIDATE_ID
+        sh("npm install -g appcenter-cli")
+        # Codepush to the right environment
+        sh("appcenter login --token #{ENV['APPCENTER_CODEPUSH_API_KEY']}")
+        # REVERT!
+        sh("cd ../../ && appcenter codepush release-react -a #{CODEPUSH_APP_NAME} -t 1.1.58 -d #{codepushDeployment} --disable-duplicate-release-error")
+        sh("appcenter logout")
+      end
     else
         # Build and upload to TestFlight
         build(bundle_id: options[:bundle_id], current_released_version: currentReleasedVersionNumber, plist_version: plistVersionNumber)
