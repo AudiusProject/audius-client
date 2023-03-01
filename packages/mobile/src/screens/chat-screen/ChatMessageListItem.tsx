@@ -7,6 +7,12 @@ import {
 } from '@audius/common'
 import type { ChatMessage } from '@audius/sdk'
 import { View, Pressable } from 'react-native'
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger
+} from 'react-native-popup-menu'
 import { useSelector } from 'react-redux'
 
 import ChatTail from 'app/assets/images/ChatTail.svg'
@@ -84,25 +90,31 @@ export const ChatMessageListItem = ({
   const userId = useSelector(getUserId)
   const senderUserId = decodeHashId(message.sender_user_id)
   const isAuthor = senderUserId === userId
-  const [isReactionPopupVisible, setReactionPopupVisible] = useState(false)
+  // const [isReactionPopupVisible, setReactionPopupVisible] = useState(false)
 
-  handleLongPress = useCallback(
-    () => setReactionPopupVisible((isVisible) => !isVisible),
-    [setReactionPopupVisible]
-  )
+  // handleLongPress = useCallback(
+  //   () => setReactionPopupVisible((isVisible) => !isVisible),
+  //   [setReactionPopupVisible]
+  // )
 
   return (
     <>
       <View style={isAuthor ? styles.rootIsAuthor : styles.rootOtherUser}>
-        <Pressable
+        <Menu
           style={[styles.bubble, isAuthor && styles.isAuthor]}
-          onLongPress={handleLongPress}
         >
+          <MenuTrigger text='Select action' />
+      <MenuOptions>
+        <MenuOption onSelect={() => alert(`Save`)} text='Save' />
+        <MenuOption onSelect={() => alert(`Delete`)} >
+          <Text style={{color: 'red'}}>Delete</Text>
+        </MenuOption>
+        <MenuOption onSelect={() => alert(`Not called`)} disabled={true} text='Disabled' />
+      </MenuOptions>
           <Text style={[styles.message, isAuthor && styles.messageIsAuthor]}>
             {message.message}
           </Text>
-        </Pressable>
-      </View>
+      </Menu>
       {hasTail ? (
         <>
           <View
@@ -120,6 +132,7 @@ export const ChatMessageListItem = ({
           </View>
         </>
       ) : null}
+      </View>
     </>
   )
 }
