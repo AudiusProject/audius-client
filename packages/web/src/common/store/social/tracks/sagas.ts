@@ -65,10 +65,16 @@ export function* repostTrackAsync(
   })
   yield* put(event)
 
-  yield* call(confirmRepostTrack, action.trackId, user, action.metadata)
+  const track = yield* select(getTrack, { id: action.trackId })
+  if (!track) return
 
-  const tracks = yield* select(getTracks, { ids: [action.trackId] })
-  const track = tracks[action.trackId]
+  const repostMetadata = action.isFeed
+    ? // If we're on the feed, and someone i follow has
+      // reposted the content i am reposting,
+      // is_repost_of_repost is true
+      { is_repost_of_repost: track.followee_reposts.length !== 0 }
+    : { is_repost_of_repost: false }
+  yield* call(confirmRepostTrack, action.trackId, user, repostMetadata)
 
   const eagerlyUpdatedMetadata: Partial<Track> = {
     has_current_user_reposted: true,
@@ -141,7 +147,7 @@ export function* repostTrackAsync(
 export function* confirmRepostTrack(
   trackId: ID,
   user: User,
-  metadata?: { is_repost_repost: boolean }
+  metadata?: { is_repost_of_repost: boolean }
 ) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* put(
@@ -342,7 +348,12 @@ export function* saveTrackAsync(
   })
   yield* put(event)
 
-  yield* call(confirmSaveTrack, action.trackId, user)
+  const saveMetadata = action.isFeed
+    ? // If we're on the feed, and the content
+      // being saved is a repost
+      { is_save_of_repost: track.followee_reposts.length !== 0 }
+    : { is_save_of_repost: false }
+  yield* call(confirmSaveTrack, action.trackId, user, saveMetadata)
 
   const eagerlyUpdatedMetadata: Partial<Track> = {
     has_current_user_saved: true,
@@ -404,7 +415,11 @@ export function* saveTrackAsync(
   }
 }
 
-export function* confirmSaveTrack(trackId: ID, user: User) {
+export function* confirmSaveTrack(
+  trackId: ID,
+  user: User,
+  metadata?: { is_save_of_repost: boolean }
+) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* put(
     confirmerActions.requestConfirmation(
@@ -412,7 +427,8 @@ export function* confirmSaveTrack(trackId: ID, user: User) {
       function* () {
         const { blockHash, blockNumber } = yield* call(
           audiusBackendInstance.saveTrack,
-          trackId
+          trackId,
+          metadata
         )
         const confirmed = yield* call(
           confirmTransaction,
