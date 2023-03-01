@@ -3,7 +3,6 @@ set -e
 should_error=false
 
 if ! [ -z $CI ]; then
-  rm .python-version
   exit 0
 fi
 
