@@ -211,7 +211,7 @@ platform :ios do
     isVersionIncremented = plistVersionNumber > currentReleasedVersionNumber
     if !isVersionIncremented
       # Hacky - don't codepush to RC deployment if this lane is running for Staging RC because we assume we will codepush to RC deployment in the Prod RC job. I.e. avoid codepushing to RC deployment twice.
-      if options[:bundle_id] !== AUDIUSMUSIC_STAGING_RELEASECANDIDATE_ID
+      if options[:bundle_id] != AUDIUSMUSIC_STAGING_RELEASECANDIDATE_ID
         sh("npm install -g appcenter-cli")
         # Codepush to the right environment
         sh("appcenter login --token #{ENV['APPCENTER_CODEPUSH_API_KEY']}")
