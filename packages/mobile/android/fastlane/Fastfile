@@ -108,7 +108,7 @@ platform :android do
           skip_upload_screenshots: true
         )
       elsif packageName != RC_STAGING_PACKAGE
-          # ^ Hacky - don't codepush to RC deployment if this lane is running for Staging RC because we assume we will codepush to RC deployment in the Prod RC job. I.e. avoid codepushing to RC deployment twice.
+        # ^ Hacky - don't codepush to RC deployment if this lane is running for Staging RC because we assume we will codepush to RC deployment in the Prod RC job. I.e. avoid codepushing to RC deployment twice.
         # REVERT!:
         flavorReleasedVersion = getCurrentlyReleasedVersionName(package_name: packageName, track: options[:track])
         sh("appcenter login --token #{ENV['APPCENTER_CODEPUSH_API_KEY']}")
