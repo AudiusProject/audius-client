@@ -3,6 +3,7 @@ import * as Sentry from '@sentry/react-native'
 import { Platform, UIManager } from 'react-native'
 import codePush from 'react-native-code-push'
 import Config from 'react-native-config'
+import { MenuProvider } from 'react-native-popup-menu'
 import {
   SafeAreaProvider,
   initialWindowMetrics
@@ -79,19 +80,21 @@ const App = () => {
           <ThemeProvider>
             <WalletConnectProvider>
               <PortalProvider>
-                <ErrorBoundary>
-                  <NavigationContainer>
-                    <Toasts />
-                    <Airplay />
-                    <RootScreen />
-                    <Drawers />
-                    <Modals />
-                    <Audio />
-                    <OAuth />
-                    <NotificationReminder />
-                    <RateCtaReminder />
-                  </NavigationContainer>
-                </ErrorBoundary>
+                <MenuProvider>
+                  <ErrorBoundary>
+                    <NavigationContainer>
+                      <Toasts />
+                      <Airplay />
+                      <RootScreen />
+                      <Drawers />
+                      <Modals />
+                      <Audio />
+                      <OAuth />
+                      <NotificationReminder />
+                      <RateCtaReminder />
+                    </NavigationContainer>
+                  </ErrorBoundary>
+                </MenuProvider>
               </PortalProvider>
             </WalletConnectProvider>
           </ThemeProvider>
