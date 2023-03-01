@@ -6,6 +6,10 @@ if ! [ -z $CI ]; then
   exit 0
 fi
 
+if ! [ -f .python-version ]; then
+  cp .python-version-dev .python-version
+fi
+
 required_node_version=$(<.nvmrc)
 current_node_version=$(node --version)
 
