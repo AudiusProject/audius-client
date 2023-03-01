@@ -63,6 +63,9 @@ export enum PushNotificationType {
   RepostTrack = 'RepostTrack',
   RepostPlaylist = 'RepostPlaylist',
   RepostAlbum = 'RepostAlbum',
+  RepostOfRepostTrack = 'RepostOfRepostTrack',
+  RepostOfRepostPlaylist = 'RepostOfRepostPlaylist',
+  RepostOfRepostAlbum = 'RepostOfRepostAlbum',
   MilestoneListen = 'MilestoneListen',
   MilestoneRepost = 'MilestoneRepost',
   MilestoneFavorite = 'MilestoneFavorite',
@@ -193,9 +196,9 @@ export type RepostOfRepostPushNotification = {
   initiator: ID
   timestamp: string
   type:
-    | PushNotificationType.RepostAlbum
-    | PushNotificationType.RepostPlaylist
-    | PushNotificationType.RepostTrack
+    | PushNotificationType.RepostOfRepostAlbum
+    | PushNotificationType.RepostOfRepostPlaylist
+    | PushNotificationType.RepostOfRepostTrack
   actions: [
     {
       blocknumber: number
