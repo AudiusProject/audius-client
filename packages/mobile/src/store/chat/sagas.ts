@@ -11,8 +11,18 @@ function* watchGoToChat() {
       payload: { chatId }
     } = action
     if (navigationRef.isReady()) {
-      // @ts-ignore navigationRef is not parametrized correctly (PAY-954)
-      navigationRef.navigate('Chat', { chatId })
+      navigationRef.navigate('HomeStack', {
+        screen: 'App',
+        params: {
+          screen: 'profile',
+          params: {
+            screen: 'Chat',
+            params: {
+              chatId
+            }
+          }
+        }
+      })
     }
   })
 }

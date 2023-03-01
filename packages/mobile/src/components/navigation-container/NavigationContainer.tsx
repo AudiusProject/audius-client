@@ -10,6 +10,7 @@ import {
 import { useSelector } from 'react-redux'
 
 import { AppTabNavigationProvider } from 'app/screens/app-screen'
+import type { RootScreenParamList } from 'app/screens/root-screen/RootScreen'
 import { screen } from 'app/services/analytics'
 import { getPrimaryRoute } from 'app/utils/navigation'
 import { useThemeVariant } from 'app/utils/theme'
@@ -21,7 +22,7 @@ type NavigationContainerProps = {
   children: ReactNode
 }
 
-export const navigationRef = createNavigationContainerRef()
+export const navigationRef = createNavigationContainerRef<RootScreenParamList>()
 
 /**
  * NavigationContainer contains the react-navigation context
