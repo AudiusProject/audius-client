@@ -139,19 +139,16 @@ type WalletsTableProps = {
   className?: string
   hasActions?: boolean
   hideCollectibles?: boolean
-  suppressError?: boolean
 }
 
 const WalletsTable = ({
   hasActions = false,
   className,
-  hideCollectibles,
-  suppressError
+  hideCollectibles
 }: WalletsTableProps) => {
   const {
     status,
     confirmingWallet,
-    errorMessage,
     connectedEthWallets: ethWallets,
     connectedSolWallets: solWallets
   } = useSelector(getAssociatedWallets)
@@ -253,9 +250,6 @@ const WalletsTable = ({
           isConfirmRemoving={false}
         />
       )}
-      {!suppressError && errorMessage ? (
-        <div className={styles.error}>{errorMessage}</div>
-      ) : null}
     </div>
   )
 }
