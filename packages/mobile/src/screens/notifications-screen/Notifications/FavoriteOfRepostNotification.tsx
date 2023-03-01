@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import type { FavoriteNotification as FavoriteNotificationType } from '@audius/common'
+import type { FavoriteOfRepostNotification as FavoriteOfRepostNotificationType } from '@audius/common'
 import {
   formatCount,
   notificationsSelectors,
@@ -29,7 +29,7 @@ const messages = {
 }
 
 type FavoriteOfRepostNotificationProps = {
-  notification: FavoriteNotificationType
+  notification: FavoriteOfRepostNotificationType
 }
 
 export const FavoriteOfRepostNotification = (

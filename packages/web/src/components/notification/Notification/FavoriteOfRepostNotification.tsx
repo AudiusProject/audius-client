@@ -2,7 +2,7 @@ import { MouseEventHandler, useCallback } from 'react'
 
 import {
   notificationsSelectors,
-  FavoriteNotification as FavoriteNotificationType
+  FavoriteOfRepostNotification as FavoriteOfRepostNotificationType
 } from '@audius/common'
 import { push } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
@@ -32,7 +32,7 @@ const messages = {
 }
 
 type FavoriteOfRepostNotificationProps = {
-  notification: FavoriteNotificationType
+  notification: FavoriteOfRepostNotificationType
 }
 export const FavoriteOfRepostNotification = (
   props: FavoriteOfRepostNotificationProps

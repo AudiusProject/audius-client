@@ -12,7 +12,7 @@ import { AddTrackToPlaylistNotification } from './AddTrackToPlaylistNotification
 import { AnnouncementNotification } from './AnnouncementNotification'
 import { ChallengeRewardNotification } from './ChallengeRewardNotification'
 import { FavoriteNotification } from './FavoriteNotification'
-import { FavoriteOfRepostNotification } from './FavoritedOfRepostNotification'
+import { FavoriteOfRepostNotification } from './FavoriteOfRepostNotification'
 import { FollowNotification } from './FollowNotification'
 import { MilestoneNotification } from './MilestoneNotification'
 import { RemixCosignNotification } from './RemixCosignNotification'
