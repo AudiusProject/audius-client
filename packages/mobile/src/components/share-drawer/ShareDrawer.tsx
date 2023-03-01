@@ -105,6 +105,7 @@ export const ShareDrawer = () => {
     if (!content) return
     const twitterShareUrl = getTwitterShareUrl(content)
     const isSupported = await Linking.canOpenURL(twitterShareUrl)
+    console.log('twitershare url', twitterShareUrl)
     if (isSupported) {
       Linking.openURL(twitterShareUrl)
     } else {
