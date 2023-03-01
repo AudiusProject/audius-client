@@ -21,7 +21,6 @@ import FavoriteButton from 'components/alt-button/FavoriteButton'
 import RepostButton from 'components/alt-button/RepostButton'
 import Skeleton from 'components/skeleton/Skeleton'
 import { PremiumContentLabel } from 'components/track/PremiumContentLabel'
-import { PremiumTrackCornerTag } from 'components/track/PremiumTrackCornerTag'
 import { TrackTileProps } from 'components/track/types'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useFlag } from 'hooks/useRemoteConfig'
@@ -207,13 +206,6 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
 
   return (
     <div className={styles.container}>
-      {showPremiumCornerTag ? (
-        <PremiumTrackCornerTag
-          doesUserHaveAccess={!!doesUserHaveAccess}
-          isOwner={isOwner}
-          premiumConditions={premiumConditions}
-        />
-      ) : null}
       {showPremiumCornerTag && cornerTagIconType ? (
         <TrackBannerIcon type={cornerTagIconType} isMatrixMode={isMatrix} />
       ) : null}
