@@ -29,7 +29,6 @@ import Toast from 'components/toast/Toast'
 import Tooltip from 'components/tooltip/Tooltip'
 import UserBadges from 'components/user-badges/UserBadges'
 import { moodMap } from 'utils/moods'
-import { isMatrix } from 'utils/theme/theme'
 
 import Badge from './Badge'
 import { CardTitle } from './CardTitle'
@@ -39,7 +38,8 @@ import InfoLabel from './InfoLabel'
 import { PlayPauseButton } from './PlayPauseButton'
 import { PremiumTrackSection } from './PremiumTrackSection'
 import Tag from './Tag'
-import TrackBannerIcon, { TrackBannerIconType } from './TrackBannerIcon'
+import { TrackBannerIconType } from './TrackBannerIcon'
+import { GiantTrackTileCornerTag } from './GiantTrackTileCornerTag'
 
 const BUTTON_COLLAPSE_WIDTHS = {
   first: 1095,
@@ -419,10 +419,7 @@ class GiantTrackTile extends PureComponent {
       <div className={styles.giantTrackTile}>
         <div className={styles.topSection}>
           {showPremiumCornerTag && cornerTagIconType ? (
-            <TrackBannerIcon
-              type={cornerTagIconType}
-              isMatrixMode={isMatrix()}
-            />
+            <GiantTrackTileCornerTag type={cornerTagIconType} />
           ) : null}
           <GiantArtwork
             trackId={trackId}
