@@ -34,12 +34,12 @@ import Badge from './Badge'
 import { CardTitle } from './CardTitle'
 import GiantArtwork from './GiantArtwork'
 import styles from './GiantTrackTile.module.css'
+import { GiantTrackTileCornerTag } from './GiantTrackTileCornerTag'
 import InfoLabel from './InfoLabel'
 import { PlayPauseButton } from './PlayPauseButton'
 import { PremiumTrackSection } from './PremiumTrackSection'
 import Tag from './Tag'
 import { TrackBannerIconType } from './TrackBannerIcon'
-import { GiantTrackTileCornerTag } from './GiantTrackTileCornerTag'
 
 const BUTTON_COLLAPSE_WIDTHS = {
   first: 1095,
