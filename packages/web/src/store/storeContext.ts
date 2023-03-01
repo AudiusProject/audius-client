@@ -29,7 +29,7 @@ export const storeContext: CommonStoreContext = {
   getLocalStorageItem: async (key: string) => window.localStorage.getItem(key),
   setLocalStorageItem: async (key: string, value: string) =>
     window.localStorage.setItem(key, value),
-  // Note: casting return type to Promise<boolean> to maintain pairity with mobile, butj
+  // Note: casting return type to Promise<boolean> to maintain pairity with mobile, but
   // it may be best to update mobile to not be async
   getFeatureEnabled: getFeatureEnabled as unknown as (
     flag: FeatureFlags
