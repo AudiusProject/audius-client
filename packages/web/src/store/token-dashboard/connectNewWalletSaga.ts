@@ -1,4 +1,5 @@
 import { tokenDashboardPageActions } from '@audius/common'
+import * as Sentry from '@sentry/browser'
 import { put, takeEvery } from 'typed-redux-saga'
 
 import { addWalletToUser } from 'common/store/pages/token-dashboard/addWalletToUser'
@@ -10,6 +11,7 @@ import { disconnectWallet } from './disconnectWallet'
 import { establishWalletConnection } from './establishWalletConnection'
 import { getWalletAddress } from './getWalletAddress'
 import { signMessage } from './signMessage'
+
 const { connectNewWallet } = tokenDashboardPageActions
 
 const { setIsConnectingWallet, setModalState, resetStatus } =
@@ -50,9 +52,9 @@ function* handleConnectNewWallet() {
     yield* addWalletToUser(updatedUserMetadata, disconnect)
   } catch (e) {
     // Very likely we hit error path here i.e. user closes the web3 popup. Log it and restart
-    console.error(
-      `Caught error during handleConnectNewWallet:  ${e}, resetting to initial state`
-    )
+    const err = `Caught error during handleConnectNewWallet:  ${e}, resetting to initial state`
+    console.warn(err)
+    Sentry.captureException(err)
     yield* put(
       setModalState({
         modalState: {
