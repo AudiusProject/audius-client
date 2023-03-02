@@ -182,14 +182,14 @@ platform :ios do
     end
    
     # Upload to test flight
-    # pilot(
-    #   skip_waiting_for_build_processing: true,
-    #   apple_id: appleId,
-    #   app_identifier: options[:bundle_id],
-    #   ipa: ipa,
-    #   # Don't actually distribute, just upload
-    #   skip_submission: true
-    # )
+    pilot(
+      skip_waiting_for_build_processing: true,
+      apple_id: appleId,
+      app_identifier: options[:bundle_id],
+      ipa: ipa,
+      # Don't actually distribute, just upload
+      skip_submission: true
+    )
   end
 
   desc "Build + upload via CodePush or TestFlight"

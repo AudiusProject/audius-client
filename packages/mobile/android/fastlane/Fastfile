@@ -31,7 +31,7 @@ platform :android do
   private_lane :getCurrentlyReleasedVersionName do |options|
       version = google_play_track_release_names(
         package_name: options[:package_name] ? options[:package_name] : 'co.audius.app',
-        track: options[:track] ? options[:track] : 'alpha'
+        track: options[:track] ? options[:track] : 'production'
       ).map {|v| Gem::Version.new v}.max
       version
   end
