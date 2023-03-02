@@ -44,12 +44,7 @@ const {
   getChat
 } = chatSelectors
 
-<<<<<<< HEAD
-const { fetchMoreMessages, sendMessage, setActiveChat, markChatAsRead } =
-  chatActions
-=======
 const { fetchMoreMessages, sendMessage, markChatAsRead } = chatActions
->>>>>>> origin/main
 const { getUserId } = accountSelectors
 
 const messages = {
@@ -307,19 +302,11 @@ export const ChatScreen = () => {
   useFocusEffect(
     useCallback(() => {
       return () => {
-<<<<<<< HEAD
         // dispatch(markChatAsRead({ chatId }))
-        dispatch(setActiveChat({ chatId }))
-=======
-        dispatch(markChatAsRead({ chatId }))
->>>>>>> origin/main
       }
     }, [dispatch, chatId])
   )
 
-<<<<<<< HEAD
-  const isLoading = status === Status.LOADING && chatMessages?.length === 0
-=======
   const handleKebabPress = () => {
     dispatch(
       setVisibility({
@@ -337,7 +324,6 @@ export const ChatScreen = () => {
     />
   )
 
->>>>>>> origin/main
   return (
     <Screen
       url={url}
