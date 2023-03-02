@@ -12,11 +12,13 @@ import { AddTrackToPlaylistNotification } from './AddTrackToPlaylistNotification
 import { AnnouncementNotification } from './AnnouncementNotification'
 import { ChallengeRewardNotification } from './ChallengeRewardNotification'
 import { FavoriteNotification } from './FavoriteNotification'
+import { FavoriteOfRepostNotification } from './FavoriteOfRepostNotification'
 import { FollowNotification } from './FollowNotification'
 import { MilestoneNotification } from './MilestoneNotification'
 import { RemixCosignNotification } from './RemixCosignNotification'
 import { RemixCreateNotification } from './RemixCreateNotification'
 import { RepostNotification } from './RepostNotification'
+import { RepostOfRepostNotification } from './RepostOfRepostNotification'
 import { SupporterDethronedNotification } from './SupporterDethronedNotification'
 import { TierChangeNotification } from './TierChangeNotification'
 import { TipReactionNotification } from './TipReactionNotification'
@@ -91,6 +93,12 @@ export const Notification = (props: NotificationProps) => {
       }
       case NotificationType.Repost: {
         return <RepostNotification notification={notification} />
+      }
+      case NotificationType.RepostOfRepost: {
+        return <RepostOfRepostNotification notification={notification} />
+      }
+      case NotificationType.FavoriteOfRepost: {
+        return <FavoriteOfRepostNotification notification={notification} />
       }
       case NotificationType.TierChange: {
         return <TierChangeNotification notification={notification} />

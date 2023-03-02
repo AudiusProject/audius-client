@@ -140,11 +140,14 @@ export function* fetchNotifications(action: FetchNotifications) {
     const timeOffset = lastNotification
       ? lastNotification.timestamp
       : moment().toISOString()
-    const withDethroned =
-      ((yield* call(
-        getFeatureEnabled,
-        FeatureFlags.SUPPORTER_DETHRONED_ENABLED
-      )) as boolean | null) ?? false
+    const withDethroned = yield* call(
+      getFeatureEnabled,
+      FeatureFlags.SUPPORTER_DETHRONED_ENABLED
+    )
+    const useDiscoveryNotifications = yield* call(
+      getFeatureEnabled,
+      FeatureFlags.DISCOVERY_NOTIFICATIONS
+    )
 
     const notificationsResponse: NotificationsResponse = yield* call(() =>
       audiusBackendInstance.getNotifications({
@@ -153,6 +156,23 @@ export function* fetchNotifications(action: FetchNotifications) {
         withDethroned
       })
     )
+
+    if (useDiscoveryNotifications && 'notifications' in notificationsResponse) {
+      let timestamp: number | undefined
+      if (lastNotification) {
+        timestamp = Math.trunc(Date.parse(lastNotification?.timestamp) / 1000)
+      }
+      const discoveryNotifications = yield* call(
+        audiusBackendInstance.getDiscoveryNotifications,
+        {
+          timestamp,
+          groupIdOffset: lastNotification?.groupId
+        }
+      )
+      notificationsResponse.notifications =
+        discoveryNotifications!.notifications
+    }
+
     if ('error' in notificationsResponse) {
       yield* put(
         notificationActions.fetchNotificationsFailed(
@@ -533,11 +553,14 @@ export function* getNotifications(isFirstFetch: boolean) {
       )
       if (!hasAccount) return
       const timeOffset = moment().toISOString()
-      const withDethroned =
-        ((yield* call(
-          getFeatureEnabled,
-          FeatureFlags.SUPPORTER_DETHRONED_ENABLED
-        )) as boolean | null) ?? false
+      const withDethroned = yield* call(
+        getFeatureEnabled,
+        FeatureFlags.SUPPORTER_DETHRONED_ENABLED
+      )
+      const useDiscoveryNotifications = yield* call(
+        getFeatureEnabled,
+        FeatureFlags.DISCOVERY_NOTIFICATIONS
+      )
 
       const notificationsResponse: NotificationsResponse | undefined =
         yield* call(() =>
@@ -547,6 +570,19 @@ export function* getNotifications(isFirstFetch: boolean) {
             withDethroned
           })
         )
+
+      if (
+        useDiscoveryNotifications &&
+        notificationsResponse &&
+        'notifications' in notificationsResponse
+      ) {
+        const discoveryNotifications = yield* call(
+          audiusBackendInstance.getDiscoveryNotifications,
+          {}
+        )
+        notificationsResponse.notifications =
+          discoveryNotifications!.notifications
+      }
       if (
         !notificationsResponse ||
         ('error' in notificationsResponse &&
