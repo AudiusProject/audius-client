@@ -206,6 +206,7 @@ export const ChatScreen = () => {
   )
   const flatListRef = useRef<RNFlatList>(null)
   const unreadCount = chat?.unread_message_count ?? 0
+  const isLoading = status === Status.LOADING && chatMessages?.length === 0
 
   // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
   // Using a ref instead of state here to prevent unwanted flickers.
@@ -282,7 +283,6 @@ export const ChatScreen = () => {
     )
   }
 
-  const isLoading = status === Status.LOADING && chatMessages?.length === 0
   const topBarRight = (
     <IconKebabHorizontal
       onPress={handleKebabPress}
@@ -313,7 +313,7 @@ export const ChatScreen = () => {
     >
       <ScreenContent>
         <View style={styles.rootContainer}>
-          {isLoading ? (
+          {!isLoading ? (
             chatMessages?.length > 0 ? (
               <View style={styles.listContainer}>
                 <FlatList

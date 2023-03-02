@@ -29,12 +29,13 @@ const messages = {
 const useStyles = makeStyles(({ spacing, typography, palette }) => ({
   drawer: {
     marginVertical: spacing(6.5),
-    padding: spacing(3.5)
+    padding: spacing(3.5),
+    gap: spacing(4)
   },
   titleContainer: {
     ...flexRowCentered(),
     gap: spacing(3.5),
-    marginBottom: spacing(6),
+    marginBottom: spacing(2),
     alignSelf: 'center'
   },
   title: {
@@ -42,8 +43,7 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
     fontFamily: typography.fontByWeight.heavy,
     color: palette.neutralLight2,
     textTransform: 'uppercase',
-    lineHeight: typography.fontSize.xl * 1.25,
-    textAlign: 'center'
+    lineHeight: typography.fontSize.xl * 1.25
   },
   confirm: {
     fontSize: typography.fontSize.large,
@@ -55,7 +55,6 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing(4.5),
-    marginVertical: spacing(4),
     paddingVertical: spacing(2),
     paddingHorizontal: spacing(4),
     backgroundColor: palette.neutralLight9,
@@ -82,9 +81,6 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
   },
   blockText: {
     fontSize: typography.fontSize.large
-  },
-  cancelButton: {
-    marginTop: spacing(5.5)
   }
 }))
 

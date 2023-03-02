@@ -11,7 +11,7 @@ import { makeStyles } from 'app/styles'
 const { createChat } = chatActions
 
 const messages = {
-  chat: 'Chat'
+  message: 'Message'
 }
 
 const useStyles = makeStyles(({ spacing }) => ({
@@ -41,7 +41,7 @@ export const MessageButton = (props: MessageButtonProps) => {
     <Button
       style={styles.root}
       noText
-      title={messages.chat}
+      title={messages.message}
       icon={IconMessage}
       variant={'common'}
       size='small'
