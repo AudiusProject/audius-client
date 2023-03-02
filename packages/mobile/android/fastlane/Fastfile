@@ -113,7 +113,7 @@ platform :android do
         flavorReleasedVersion = getCurrentlyReleasedVersionName(package_name: packageName, track: options[:track])
         sh("appcenter login --token #{ENV['APPCENTER_CODEPUSH_API_KEY']}")
         # REVERT!:
-        sh("cd ../../ && appcenter codepush release-react -a #{CODEPUSH_APP_NAME} -d #{codepushDeployment} -t 1.1.61 --disable-duplicate-release-error")
+        sh("cd ../../ && appcenter codepush release-react -a #{CODEPUSH_APP_NAME} -d #{codepushDeployment} -t 1.1.81 --disable-duplicate-release-error")
         sh("appcenter logout")
       end
   end
