@@ -63,19 +63,23 @@ export const Hyperlink = (props: HyperlinkProps) => {
   const [linkContainerLayout, setLinkContainerLayout] =
     useState<LayoutRectangle>()
 
-  /**
-   * Need to use `measureInWindow` instead of `onLayout` or `measure` because
-   * android doesn't return the correct layout for nested text elements
-   * */
   useEffect(() => {
-    Object.entries(links).forEach(([index]) => {
-      const linkRef = linkRefs[index]
+    let layouts = {}
+    const linkKeys = Object.keys(links)
+
+    // Measure the layout of each link
+    linkKeys.forEach((key) => {
+      const linkRef = linkRefs[key]
       if (linkRef) {
+        // Need to use `measureInWindow` instead of `onLayout` or `measure` because
+        // android doesn't return the correct layout for nested text elements
         linkRef.measureInWindow((x, y, width, height) => {
-          setLinkLayouts((linkLayouts) => ({
-            ...linkLayouts,
-            [index]: { x, y, width, height }
-          }))
+          layouts = { ...layouts, [key]: { x, y, width, height } }
+
+          // If all the links have been measured, update state
+          if (linkKeys.length === Object.keys(layouts).length) {
+            setLinkLayouts(layouts)
+          }
         })
       }
     })
