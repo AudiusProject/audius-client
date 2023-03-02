@@ -373,7 +373,6 @@ class GiantTrackTile extends PureComponent {
     const isLoading = loading || artworkLoading
     const showPremiumCornerTag =
       !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
-    // isPremiumContentEnabled && !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
     const cornerTagIconType = showPremiumCornerTag
       ? isOwner
         ? premiumConditions.nft_collection
