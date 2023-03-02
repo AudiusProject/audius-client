@@ -404,7 +404,7 @@ class GiantTrackTile extends PureComponent {
         isArtistPick,
         includeEmbed: !isUnlisted,
         includeArtistPick: !isUnlisted,
-        includeAddToPlaylist: !isUnlisted,
+        includeAddToPlaylist: !isUnlisted && !isPremium,
         extraMenuItems: overflowMenuExtraItems
       }
     }

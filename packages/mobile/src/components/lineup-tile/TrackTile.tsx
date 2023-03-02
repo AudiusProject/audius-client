@@ -31,6 +31,7 @@ import type { TileProps } from '../core'
 import type { ImageProps } from '../image/FastImage'
 
 import { LineupTile } from './LineupTile'
+import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 
 const { getUid } = playerSelectors
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
@@ -72,6 +73,7 @@ export const TrackTileComponent = ({
   user,
   ...lineupTileProps
 }: TrackTileProps) => {
+  const isPremiumContentEnabled = useIsPremiumContentEnabled()
   const dispatch = useDispatch()
   const navigation = useNavigation()
   const isOnArtistsTracksTab = useNavigationState((state) => {
@@ -122,7 +124,7 @@ export const TrackTileComponent = ({
       return
     }
     const overflowActions = [
-      !isPremium ? OverflowAction.ADD_TO_PLAYLIST : null,
+      (!isPremiumContentEnabled || !isPremium) ? OverflowAction.ADD_TO_PLAYLIST : null,
       OverflowAction.VIEW_TRACK_PAGE,
       isOnArtistsTracksTab ? null : OverflowAction.VIEW_ARTIST_PAGE,
       isOwner ? OverflowAction.EDIT_TRACK : null,

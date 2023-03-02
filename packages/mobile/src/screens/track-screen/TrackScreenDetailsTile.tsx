@@ -310,8 +310,9 @@ export const TrackScreenDetailsTile = ({
   }
 
   const handlePressOverflow = () => {
+    const addToPlaylistAction = (!isPremiumContentEnabled || !isPremium) ? OverflowAction.ADD_TO_PLAYLIST : null
     const overflowActions = [
-      OverflowAction.ADD_TO_PLAYLIST,
+      addToPlaylistAction,
       user.does_current_user_follow
         ? OverflowAction.UNFOLLOW_ARTIST
         : OverflowAction.FOLLOW_ARTIST,

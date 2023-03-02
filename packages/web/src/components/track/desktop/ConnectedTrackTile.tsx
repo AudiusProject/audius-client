@@ -21,7 +21,8 @@ import {
   shareModalUIActions,
   playerSelectors,
   usePremiumContentAccess,
-  premiumContentActions
+  premiumContentActions,
+  FeatureFlags
 } from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
@@ -56,6 +57,7 @@ import styles from './ConnectedTrackTile.module.css'
 import TrackTile from './TrackTile'
 import Stats from './stats/Stats'
 import { Flavor } from './stats/StatsText'
+import { useFlag } from 'hooks/useRemoteConfig'
 const { getUid, getPlaying, getBuffering } = playerSelectors
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { getTrack } = cacheTracksSelectors
@@ -115,6 +117,7 @@ const ConnectedTrackTile = memo(
     isFeed = false,
     showRankIcon
   }: ConnectedTrackTileProps) => {
+    const { isEnabled: isPremiumContentEnabled } = useFlag(FeatureFlags.PREMIUM_CONTENT_ENABLED)
     const trackWithFallback = getTrackWithFallback(track)
     const {
       is_delete,
@@ -197,7 +200,7 @@ const ConnectedTrackTile = memo(
       const menu: Omit<TrackMenuProps, 'children'> = {
         extraMenuItems: [],
         handle,
-        includeAddToPlaylist: true,
+        includeAddToPlaylist: !isPremiumContentEnabled || !isPremium,
         includeArtistPick: handle === userHandle && !isUnlisted,
         includeEdit: handle === userHandle,
         includeEmbed: true,
