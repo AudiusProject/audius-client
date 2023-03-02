@@ -24,7 +24,8 @@ import {
   RepostType,
   repostsUserListActions,
   favoritesUserListActions,
-  reachabilitySelectors
+  reachabilitySelectors,
+  usePremiumContentAccess
 } from '@audius/common'
 import { Image, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
@@ -162,7 +163,7 @@ export const TrackScreenDetailsTile = ({
   isLineupLoading
 }: TrackScreenDetailsTileProps) => {
   const isPremiumContentEnabled = useIsPremiumContentEnabled()
-
+  const { doesUserHaveAccess } = usePremiumContentAccess(track)
   const styles = useStyles()
   const navigation = useNavigation()
   const { accentOrange, accentBlue } = useThemeColors()
@@ -200,9 +201,9 @@ export const TrackScreenDetailsTile = ({
   } = track
 
   const isOwner = owner_id === currentUserId
-  const hideFavorite = is_unlisted || (isPremiumContentEnabled && isPremium)
+  const hideFavorite = is_unlisted || (isPremiumContentEnabled && !doesUserHaveAccess)
   const hideRepost =
-    is_unlisted || !isReachable || (isPremiumContentEnabled && isPremium)
+    is_unlisted || !isReachable || (isPremiumContentEnabled && !doesUserHaveAccess)
 
   const remixParentTrackId = remix_of?.tracks?.[0]?.parent_track_id
   const isRemix = !!remixParentTrackId
