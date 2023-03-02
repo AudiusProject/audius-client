@@ -212,7 +212,6 @@ export const ChatScreen = () => {
   // Using a ref instead of state here to prevent unwanted flickers.
   // The chat/chatId selectors will trigger the rerenders necessary.
   const chatFrozenRef = useRef(chat)
-  console.log('REED ChatScreen', chat?.unread_message_count)
 
   useEffect(() => {
     if (chatId && status === Status.IDLE) {
@@ -260,7 +259,6 @@ export const ChatScreen = () => {
       earliestUnreadIndex > 0 &&
       earliestUnreadIndex < chatMessages.length
     ) {
-      console.log('trying to scroll to:', earliestUnreadIndex)
       flatListRef.current?.scrollToIndex({
         index: earliestUnreadIndex,
         viewPosition: 0.5,
@@ -270,14 +268,7 @@ export const ChatScreen = () => {
   }, [earliestUnreadIndex, chatMessages])
 
   const handleScrollToIndexFailed = (e) => {
-    console.log('scroll to index failed!', e)
-
-    // flatListRef.current?.scrollToOffset({
-    //   offset: e.averageItemLength * e.highestMeasuredFrameIndex,
-    //   animated: false
-    // })
     setTimeout(() => {
-      console.log('scrolling to index in failure handler')
       flatListRef.current?.scrollToIndex({
         index: e.index,
         viewPosition: 0.5,
@@ -302,7 +293,7 @@ export const ChatScreen = () => {
   useFocusEffect(
     useCallback(() => {
       return () => {
-        // dispatch(markChatAsRead({ chatId }))
+        dispatch(markChatAsRead({ chatId }))
       }
     }, [dispatch, chatId])
   )
@@ -362,7 +353,7 @@ export const ChatScreen = () => {
                         unreadCount={unreadCount}
                       />
                       {index === earliestUnreadIndex ? (
-                        <View style={styles.unreadTagContainer} key='unreadTag'>
+                        <View style={styles.unreadTagContainer}>
                           <View style={styles.unreadSeparator} />
                           <Text style={styles.unreadTag}>
                             {unreadCount}{' '}
