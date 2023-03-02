@@ -163,7 +163,7 @@ export const TrackScreenDetailsTile = ({
   isLineupLoading
 }: TrackScreenDetailsTileProps) => {
   const isPremiumContentEnabled = useIsPremiumContentEnabled()
-  const { doesUserHaveAccess } = usePremiumContentAccess(track)
+  const { doesUserHaveAccess } = usePremiumContentAccess(track as Track) // track is of type Track | SearchTrack but we only care about some of their common fields, maybe worth refactoring later
   const styles = useStyles()
   const navigation = useNavigation()
   const { accentOrange, accentBlue } = useThemeColors()
