@@ -148,7 +148,7 @@ export const BlockMessagesDrawer = () => {
           onPress={handleCancelPress}
           variant='primary'
           styles={{
-            root: [styles.button, styles.cancelButton],
+            root: styles.button,
             text: styles.blockText
           }}
           fullWidth
