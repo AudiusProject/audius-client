@@ -25,13 +25,13 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { TrackImage } from 'app/components/image/TrackImage'
 import type { LineupItemProps } from 'app/components/lineup-tile/types'
+import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 
 import type { TileProps } from '../core'
 import type { ImageProps } from '../image/FastImage'
 
 import { LineupTile } from './LineupTile'
-import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 
 const { getUid } = playerSelectors
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
@@ -124,7 +124,9 @@ export const TrackTileComponent = ({
       return
     }
     const overflowActions = [
-      (!isPremiumContentEnabled || !isPremium) ? OverflowAction.ADD_TO_PLAYLIST : null,
+      !isPremiumContentEnabled || !isPremium
+        ? OverflowAction.ADD_TO_PLAYLIST
+        : null,
       OverflowAction.VIEW_TRACK_PAGE,
       isOnArtistsTracksTab ? null : OverflowAction.VIEW_ARTIST_PAGE,
       isOwner ? OverflowAction.EDIT_TRACK : null,
@@ -138,7 +140,14 @@ export const TrackTileComponent = ({
         overflowActions
       })
     )
-  }, [isPremium, track_id, dispatch, isOnArtistsTracksTab, isOwner])
+  }, [
+    isPremiumContentEnabled,
+    isPremium,
+    track_id,
+    dispatch,
+    isOnArtistsTracksTab,
+    isOwner
+  ])
 
   const handlePressShare = useCallback(() => {
     if (track_id === undefined) {

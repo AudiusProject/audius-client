@@ -234,7 +234,7 @@ const TrackHeader = ({
         : isSaved
         ? OverflowAction.UNFAVORITE
         : OverflowAction.FAVORITE,
-      (!isPremiumContentEnabled || !isPremium)
+      !isPremiumContentEnabled || !isPremium
         ? OverflowAction.ADD_TO_PLAYLIST
         : null,
       isFollowing

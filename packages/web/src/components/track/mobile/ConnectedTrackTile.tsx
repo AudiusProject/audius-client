@@ -180,7 +180,10 @@ const ConnectedTrackTile = memo(
             ? OverflowAction.UNFAVORITE
             : OverflowAction.FAVORITE
           : null
-      const addToPlaylistAction = (!isPremiumContentEnabled || !isPremium) ? OverflowAction.ADD_TO_PLAYLIST : null
+      const addToPlaylistAction =
+        !isPremiumContentEnabled || !isPremium
+          ? OverflowAction.ADD_TO_PLAYLIST
+          : null
       const overflowActions = [
         repostAction,
         favoriteAction,

@@ -201,9 +201,12 @@ export const TrackScreenDetailsTile = ({
   } = track
 
   const isOwner = owner_id === currentUserId
-  const hideFavorite = is_unlisted || (isPremiumContentEnabled && !doesUserHaveAccess)
+  const hideFavorite =
+    is_unlisted || (isPremiumContentEnabled && !doesUserHaveAccess)
   const hideRepost =
-    is_unlisted || !isReachable || (isPremiumContentEnabled && !doesUserHaveAccess)
+    is_unlisted ||
+    !isReachable ||
+    (isPremiumContentEnabled && !doesUserHaveAccess)
 
   const remixParentTrackId = remix_of?.tracks?.[0]?.parent_track_id
   const isRemix = !!remixParentTrackId
@@ -310,7 +313,10 @@ export const TrackScreenDetailsTile = ({
   }
 
   const handlePressOverflow = () => {
-    const addToPlaylistAction = (!isPremiumContentEnabled || !isPremium) ? OverflowAction.ADD_TO_PLAYLIST : null
+    const addToPlaylistAction =
+      !isPremiumContentEnabled || !isPremium
+        ? OverflowAction.ADD_TO_PLAYLIST
+        : null
     const overflowActions = [
       addToPlaylistAction,
       user.does_current_user_follow

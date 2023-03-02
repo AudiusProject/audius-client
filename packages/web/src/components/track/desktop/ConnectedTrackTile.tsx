@@ -37,6 +37,7 @@ import Menu from 'components/menu/Menu'
 import { OwnProps as TrackMenuProps } from 'components/menu/TrackMenu'
 import { TrackArtwork } from 'components/track/desktop/Artwork'
 import UserBadges from 'components/user-badges/UserBadges'
+import { useFlag } from 'hooks/useRemoteConfig'
 import {
   setUsers,
   setVisibility
@@ -57,7 +58,6 @@ import styles from './ConnectedTrackTile.module.css'
 import TrackTile from './TrackTile'
 import Stats from './stats/Stats'
 import { Flavor } from './stats/StatsText'
-import { useFlag } from 'hooks/useRemoteConfig'
 const { getUid, getPlaying, getBuffering } = playerSelectors
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { getTrack } = cacheTracksSelectors
@@ -117,7 +117,9 @@ const ConnectedTrackTile = memo(
     isFeed = false,
     showRankIcon
   }: ConnectedTrackTileProps) => {
-    const { isEnabled: isPremiumContentEnabled } = useFlag(FeatureFlags.PREMIUM_CONTENT_ENABLED)
+    const { isEnabled: isPremiumContentEnabled } = useFlag(
+      FeatureFlags.PREMIUM_CONTENT_ENABLED
+    )
     const trackWithFallback = getTrackWithFallback(track)
     const {
       is_delete,
