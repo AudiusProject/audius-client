@@ -338,9 +338,8 @@ export const ChatScreen = () => {
                   data={chatMessages}
                   keyExtractor={(message) => message.chat_id}
                   renderItem={({ item, index }) => (
-                    <Fragment>
+                    <Fragment key={item.key}>
                       <ChatMessageListItem
-                        key={item.key}
                         message={item}
                         hasTail={hasTail(item, chatMessages[index - 1])}
                         unreadCount={unreadCount}
