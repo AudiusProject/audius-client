@@ -147,6 +147,8 @@ mobile-build-android:
   steps:
     - mobile-prepare-android:
         build-directory: <<parameters.build-directory>>
+    # TODO: Create Fastlane lane for building Android and call that instead
+    # (since we already have these same commands in the Fastlane file).
     - run:
         name: increment version code
         command: |
