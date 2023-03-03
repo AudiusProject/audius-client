@@ -131,6 +131,9 @@ export enum Name {
   // Note that upload is considered complete if it is explicitly rejected
   // by the node receiving the file (HTTP 403).
   TRACK_UPLOAD_COMPLETE_UPLOAD = 'Track Upload: Complete Upload',
+  TRACK_UPLOAD_COLLECTIBLE_GATED = 'Track Upload: Collectible Gated',
+  TRACK_UPLOAD_FOLLOW_GATED = 'Track Upload: Follow Gated',
+  TRACK_UPLOAD_TIP_GATED = 'Track Upload: Tip Gated',
   TRACK_UPLOAD_COPY_LINK = 'Track Upload: Copy Link',
   TRACK_UPLOAD_SHARE_WITH_FANS = 'Track Upload: Share with your fans',
   TRACK_UPLOAD_SHARE_SOUND_TO_TIKTOK = 'Track Upload: Share sound to TikTok',

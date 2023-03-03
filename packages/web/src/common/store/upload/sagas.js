@@ -834,6 +834,25 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
   )
 }
 
+function* recordGatedTracks(tracks) {
+  for(const track of tracks) {
+    const { is_premium: isPremium, premium_conditions: premiumConditions } = track
+    if (isPremium && premiumConditions) {
+      const eventName = premiumConditions.nft_collection
+        ? Name.TRACK_UPLOAD_COLLECTIBLE_GATED
+        : premiumConditions.follow_user_id
+          ? Name.TRACK_UPLOAD_FOLLOW_GATED
+          : Name.TRACK_UPLOAD_TIP_GATED
+      yield put(
+        make(eventName, {
+          count: 1,
+          kind: 'tracks'
+        })
+      )
+    }
+  }
+}
+
 function* uploadSingleTrack(track) {
   yield waitForWrite()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
@@ -955,6 +974,7 @@ function* uploadSingleTrack(track) {
           kind: 'tracks'
         })
       )
+      yield call(recordGatedTracks, [track.metadata])
     }
     return
   }
@@ -982,6 +1002,7 @@ function* uploadSingleTrack(track) {
       kind: 'tracks'
     })
   )
+  yield call(recordGatedTracks, [confirmedTrack])
 
   yield waitForAccount()
   const account = yield select(getAccountUser)
@@ -1063,6 +1084,7 @@ function* uploadMultipleTracks(tracks) {
       kind: 'tracks'
     })
   )
+  yield call(recordGatedTracks, tracksWithMetadata.map(track => track.metadata))
 
   yield waitForAccount()
   const account = yield select(getAccountUser)
