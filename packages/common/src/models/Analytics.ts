@@ -147,6 +147,9 @@ export enum Name {
   TRACK_UPLOAD_FOLLOW_GATED = 'Track Upload: Follow Gated',
   TRACK_UPLOAD_TIP_GATED = 'Track Upload: Tip Gated',
 
+  // Gated Track Listen
+  LISTEN_GATED = 'Listen: Gated',
+
   // Unlocked Collectible Gated Tracks
   COLLECTIBLE_GATED_TRACK_UNLOCKED = 'Collectible Gated: Track Unlocked',
 
@@ -991,6 +994,11 @@ type Listen = {
   trackId: string
 }
 
+type ListenGated = {
+  eventName: Name.LISTEN_GATED
+  trackId: string
+}
+
 type OnFirstPage = {
   eventName: Name.ON_FIRST_PAGE
 }
@@ -1543,6 +1551,7 @@ export type AllTrackingEvents =
   | SearchResultSelect
   | SearchTabClick
   | Listen
+  | ListenGated
   | ErrorPage
   | NotFoundPage
   | PageView

@@ -26,7 +26,8 @@ function* recordListen(action: { trackId: number }) {
 
   yield* call(audiusBackendInstance.recordTrackListen, trackId)
 
-  const event = make(Name.LISTEN, { trackId })
+  const eventName = track.is_premium ? Name.LISTEN_GATED : Name.LISTEN
+  const event = make(eventName, { trackId })
   yield* put(event)
 
   // Optimistically update the listen streak if applicable
