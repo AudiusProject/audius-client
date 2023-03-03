@@ -3,7 +3,10 @@ import {
   accountSelectors,
   Chain,
   getContext,
-  tokenDashboardPageActions
+  tokenDashboardPageActions,
+  Name,
+  getErrorMessage,
+  Nullable
 } from '@audius/common'
 import bs58 from 'bs58'
 import { checkIsNewWallet } from 'common/store/pages/token-dashboard/checkIsNewWallet'
@@ -38,6 +41,11 @@ function* connectNewWalletAsync(action: ConnectNewWalletAction) {
   if (!accountUserId) return
 
   yield* put(baseConnectNewWallet())
+
+  let eventProperties: Nullable<object> = null
+
+  const analytics = yield* getContext('analytics')
+  analytics.track({ eventName: Name.CONNECT_WALLET_NEW_WALLET_START })
 
   switch (action.payload.connectionType) {
     case null:
@@ -77,6 +85,11 @@ function* connectNewWalletAsync(action: ConnectNewWalletAction) {
           collectibleCount
         })
       )
+
+      eventProperties = {
+        chain: Chain.Sol,
+        walletAddress: public_key
+      }
 
       const message = `AudiusUserID:${accountUserId}`
 
@@ -122,6 +135,11 @@ function* connectNewWalletAsync(action: ConnectNewWalletAction) {
         })
       )
 
+      eventProperties = {
+        chain: Chain.Sol,
+        walletAddress: publicKeyEncoded
+      }
+
       break
     }
     case 'wallet-connect': {
@@ -145,13 +163,38 @@ function* connectNewWalletAsync(action: ConnectNewWalletAction) {
         })
       )
 
+      eventProperties = {
+        chain: Chain.Eth,
+        walletAddress: wallet
+      }
+
       yield* put(setConnectionStatus({ status: 'connected' }))
 
       break
     }
   }
+
+  if (eventProperties) {
+    analytics.track({
+      eventName: Name.CONNECT_WALLET_NEW_WALLET_CONNECTING,
+      properties: eventProperties
+    })
+  }
 }
 
 export function* watchConnectNewWallet() {
-  yield* takeEvery(connectNewWallet.type, connectNewWalletAsync)
+  yield* takeEvery(connectNewWallet.type, function* (action: ConnectNewWalletAction) {
+    const analytics = yield* getContext('analytics')
+    try {
+      yield* call(connectNewWalletAsync, action)
+    } catch (e) {
+      const error = `Caught error in connectNewWallet saga:  ${getErrorMessage(e)}`
+      analytics.track({
+        eventName: Name.CONNECT_WALLET_ERROR,
+        properties: {
+          error
+        }
+      })
+    }
+  })
 }
