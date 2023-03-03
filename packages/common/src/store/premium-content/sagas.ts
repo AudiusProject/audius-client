@@ -333,7 +333,6 @@ function* updateCollectibleGatedTrackAccess(
     analytics.track({
       eventName: Name.COLLECTIBLE_GATED_TRACK_UNLOCKED,
       properties: {
-        userId: account.user_id,
         count: numTrackIdsWithSignature
       }
     })
@@ -359,6 +358,7 @@ function* pollPremiumTrack({
   const { slug, handle } = trackParams ?? {}
   if (!slug || !handle) return
 
+  const analytics = yield* getContext('analytics')
   const apiClient = yield* getContext('apiClient')
 
   while (true) {
@@ -379,6 +379,21 @@ function* pollPremiumTrack({
       )
       yield* put(updatePremiumTrackStatus({ trackId, status: 'UNLOCKED' }))
       yield* put(showConfetti())
+
+      const eventName = track.premium_conditions?.follow_user_id
+        ? Name.FOLLOW_GATED_TRACK_UNLOCKED
+        : track.premium_conditions?.tip_user_id
+          ? Name.TIP_GATED_TRACK_UNLOCKED
+          : null
+      if (eventName) {
+        analytics.track({
+          eventName,
+          properties: {
+            trackId
+          }
+        })
+      }
+
       break
     }
     yield* delay(frequency)

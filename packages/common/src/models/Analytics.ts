@@ -151,8 +151,10 @@ export enum Name {
   // Gated Track Listen
   LISTEN_GATED = 'Listen: Gated',
 
-  // Unlocked Collectible Gated Tracks
+  // Unlocked Gated Tracks
   COLLECTIBLE_GATED_TRACK_UNLOCKED = 'Collectible Gated: Track Unlocked',
+  FOLLOW_GATED_TRACK_UNLOCKED = 'Follow Gated: Track Unlocked',
+  TIP_GATED_TRACK_UNLOCKED = 'Tip Gated: Track Unlocked',
 
   // Trending
   TRENDING_CHANGE_VIEW = 'Trending: Change view',
@@ -742,24 +744,6 @@ type TrackUploadCompleteUpload = {
   kind: 'tracks' | 'album' | 'playlist'
 }
 
-type TrackUploadCollectibleGated = {
-  eventName: Name.TRACK_UPLOAD_COLLECTIBLE_GATED
-  count: number
-  kind: 'tracks'
-}
-
-type TrackUploadFollowGated = {
-  eventName: Name.TRACK_UPLOAD_FOLLOW_GATED
-  count: number
-  kind: 'tracks'
-}
-
-type TrackUploadTipGated = {
-  eventName: Name.TRACK_UPLOAD_TIP_GATED
-  count: number
-  kind: 'tracks'
-}
-
 type TrackUploadSuccess = {
   eventName: Name.TRACK_UPLOAD_SUCCESS
   endpoint: string
@@ -796,6 +780,41 @@ type TrackUploadShareSoundToTikTok = {
 type TrackUploadViewTrackPage = {
   eventName: Name.TRACK_UPLOAD_VIEW_TRACK_PAGE
   uploadType: string
+}
+
+// Gated Track Uploads
+type TrackUploadCollectibleGated = {
+  eventName: Name.TRACK_UPLOAD_COLLECTIBLE_GATED
+  count: number
+  kind: 'tracks'
+}
+
+type TrackUploadFollowGated = {
+  eventName: Name.TRACK_UPLOAD_FOLLOW_GATED
+  count: number
+  kind: 'tracks'
+}
+
+type TrackUploadTipGated = {
+  eventName: Name.TRACK_UPLOAD_TIP_GATED
+  count: number
+  kind: 'tracks'
+}
+
+// Unlocked Gated Tracks
+type CollectibleGatedTrackUnlocked = {
+  eventName: Name.COLLECTIBLE_GATED_TRACK_UNLOCKED
+  count: number
+}
+
+type FollowGatedTrackUnlocked = {
+  eventName: Name.FOLLOW_GATED_TRACK_UNLOCKED
+  trackId: number
+}
+
+type TipGatedTrackUnlocked = {
+  eventName: Name.TIP_GATED_TRACK_UNLOCKED
+  trackId: number
 }
 
 // Trending
@@ -1554,6 +1573,9 @@ export type AllTrackingEvents =
   | TrackUploadShareWithFans
   | TrackUploadShareSoundToTikTok
   | TrackUploadViewTrackPage
+  | CollectibleGatedTrackUnlocked
+  | FollowGatedTrackUnlocked
+  | TipGatedTrackUnlocked
   | TrendingChangeView
   | TrendingPaginate
   | FeedChangeView
