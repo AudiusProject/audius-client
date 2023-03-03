@@ -1,7 +1,11 @@
 import type { CommonState } from '@audius/common'
-import { tokenDashboardPageSelectors,
+import {
+  tokenDashboardPageSelectors,
   getContext,
-  waitForValue, Name, getErrorMessage } from '@audius/common'
+  waitForValue,
+  Name,
+  getErrorMessage
+} from '@audius/common'
 import bs58 from 'bs58'
 import { addWalletToUser } from 'common/store/pages/token-dashboard/addWalletToUser'
 import { associateNewWallet } from 'common/store/pages/token-dashboard/associateNewWallet'

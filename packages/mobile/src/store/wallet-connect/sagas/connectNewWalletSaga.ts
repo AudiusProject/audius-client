@@ -1,12 +1,11 @@
-import type { WalletAddress } from '@audius/common'
+import type { WalletAddress, Nullable } from '@audius/common'
 import {
   accountSelectors,
   Chain,
   getContext,
   tokenDashboardPageActions,
   Name,
-  getErrorMessage,
-  Nullable
+  getErrorMessage
 } from '@audius/common'
 import bs58 from 'bs58'
 import { checkIsNewWallet } from 'common/store/pages/token-dashboard/checkIsNewWallet'
@@ -14,6 +13,8 @@ import { getWalletInfo } from 'common/store/pages/token-dashboard/getWalletInfo'
 import { Linking } from 'react-native'
 import nacl from 'tweetnacl'
 import { takeEvery, select, put, call } from 'typed-redux-saga'
+
+import type { JsonMap } from 'app/types/analytics'
 
 import { getDappKeyPair } from '../selectors'
 import {
@@ -42,7 +43,7 @@ function* connectNewWalletAsync(action: ConnectNewWalletAction) {
 
   yield* put(baseConnectNewWallet())
 
-  let eventProperties: Nullable<object> = null
+  let eventProperties: Nullable<JsonMap> = null
 
   const analytics = yield* getContext('analytics')
   analytics.track({ eventName: Name.CONNECT_WALLET_NEW_WALLET_START })
@@ -183,18 +184,23 @@ function* connectNewWalletAsync(action: ConnectNewWalletAction) {
 }
 
 export function* watchConnectNewWallet() {
-  yield* takeEvery(connectNewWallet.type, function* (action: ConnectNewWalletAction) {
-    const analytics = yield* getContext('analytics')
-    try {
-      yield* call(connectNewWalletAsync, action)
-    } catch (e) {
-      const error = `Caught error in connectNewWallet saga:  ${getErrorMessage(e)}`
-      analytics.track({
-        eventName: Name.CONNECT_WALLET_ERROR,
-        properties: {
-          error
-        }
-      })
+  yield* takeEvery(
+    connectNewWallet.type,
+    function* (action: ConnectNewWalletAction) {
+      const analytics = yield* getContext('analytics')
+      try {
+        yield* call(connectNewWalletAsync, action)
+      } catch (e) {
+        const error = `Caught error in connectNewWallet saga:  ${getErrorMessage(
+          e
+        )}`
+        analytics.track({
+          eventName: Name.CONNECT_WALLET_ERROR,
+          properties: {
+            error
+          }
+        })
+      }
     }
-  })
+  )
 }
