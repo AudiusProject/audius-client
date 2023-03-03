@@ -104,8 +104,7 @@ const App = () => {
 const AppWithSentry = Sentry.wrap(App)
 const AppWithCodePush = codePush({
   checkFrequency: codePush.CheckFrequency.ON_APP_RESUME,
-  installMode: codePush.InstallMode.ON_NEXT_RESUME,
-  minimumBackgroundDuration: 60 * 60 * 7 // => Restart the app to apply a pending update if the app is foregrounded after 7 hours of being backgrounded
+  installMode: codePush.InstallMode.ON_NEXT_RESTART
 })(AppWithSentry)
 
 export { AppWithCodePush as App }

@@ -96,14 +96,14 @@ platform :android do
         
         sh("cd ../../../../ && sudo pip install awscli")
         sh("cd ../../../../ && aws s3 sync packages/mobile/android/app/build/outputs s3://#{remoteDirectory}/android --delete")
-        # upload_to_play_store(
-        #   track: options[:track],
-        #   aab: aab,
-        #   skip_upload_metadata: true,
-        #   skip_upload_changelogs: true,
-        #   skip_upload_images: true,
-        #   skip_upload_screenshots: true
-        # )
+        upload_to_play_store(
+          track: options[:track],
+          aab: aab,
+          skip_upload_metadata: true,
+          skip_upload_changelogs: true,
+          skip_upload_images: true,
+          skip_upload_screenshots: true
+        )
       elsif packageName != RC_STAGING_PACKAGE
         # ^ Hacky - don't codepush to RC deployment if this lane is running for Staging RC because we assume we will codepush to RC deployment in the Prod RC job. I.e. avoid codepushing to RC deployment twice.
         sh("appcenter login --token #{ENV['APPCENTER_CODEPUSH_API_KEY']}")
