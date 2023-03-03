@@ -730,6 +730,24 @@ type TrackUploadCompleteUpload = {
   kind: 'tracks' | 'album' | 'playlist'
 }
 
+type TrackUploadCollectibleGated = {
+  eventName: Name.TRACK_UPLOAD_COLLECTIBLE_GATED
+  count: number
+  kind: 'tracks'
+}
+
+type TrackUploadFollowGated = {
+  eventName: Name.TRACK_UPLOAD_FOLLOW_GATED
+  count: number
+  kind: 'tracks'
+}
+
+type TrackUploadTipGated = {
+  eventName: Name.TRACK_UPLOAD_TIP_GATED
+  count: number
+  kind: 'tracks'
+}
+
 type TrackUploadSuccess = {
   eventName: Name.TRACK_UPLOAD_SUCCESS
   endpoint: string
@@ -1476,6 +1494,9 @@ export type AllTrackingEvents =
   | TrackUploadStartUploading
   | TrackUploadTrackUploading
   | TrackUploadCompleteUpload
+  | TrackUploadCollectibleGated
+  | TrackUploadFollowGated
+  | TrackUploadTipGated
   | TrackUploadSuccess
   | TrackUploadFailure
   | TrackUploadRejected
