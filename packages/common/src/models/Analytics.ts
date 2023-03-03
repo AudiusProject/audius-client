@@ -3,6 +3,7 @@ import { ID, PlayableType } from 'models/Identifiers'
 import { MonitorPayload, ServiceMonitorType } from 'models/Services'
 import { TimeRange } from 'models/TimeRange'
 import { SolanaWalletAddress, StringAudio, WalletAddress } from 'models/Wallet'
+import { Chain } from './Chain'
 
 const ANALYTICS_TRACK_EVENT = 'ANALYTICS/TRACK_EVENT'
 
@@ -305,7 +306,15 @@ export enum Name {
   // Rate & Review CTA
   RATE_CTA_DISPLAYED = 'Rate CTA: Displayed',
   RATE_CTA_RESPONSE_YES = 'Rate CTA: User Responded Yes',
-  RATE_CTA_RESPONSE_NO = 'Rate CTA: User Responded No'
+  RATE_CTA_RESPONSE_NO = 'Rate CTA: User Responded No',
+
+  // Connect Wallet
+  CONNECT_WALLET_NEW_WALLET_START = 'Connect Wallet: New Wallet Start',
+  CONNECT_WALLET_NEW_WALLET_CONNECTING = 'Connect Wallet: New Wallet Connecting',
+  CONNECT_WALLET_NEW_WALLET_CONNECTED = 'Connect Wallet: New Wallet Connected',
+  CONNECT_WALLET_ALREADY_ASSOCIATED = 'Connect Wallet: Already Associated',
+  CONNECT_WALLET_ASSOCIATION_ERROR = 'Connect Wallet: Association Error',
+  CONNECT_WALLET_ERROR = 'Connect Wallet: Error',
 }
 
 type PageView = {
@@ -1439,6 +1448,39 @@ type RewardsClaimFinishCognitoFlow = {
   source: string
 }
 
+type ConnectWalletNewWalletStart = {
+  eventName: Name.CONNECT_WALLET_NEW_WALLET_START
+}
+
+type ConnectWalletNewWalletConnecting = {
+  eventName: Name.CONNECT_WALLET_NEW_WALLET_CONNECTING
+  chain: Chain
+  walletAddress: WalletAddress
+}
+
+type ConnectWalletNewWalletConnected = {
+  eventName: Name.CONNECT_WALLET_NEW_WALLET_CONNECTED
+  chain: Chain
+  walletAddress: WalletAddress
+}
+
+type ConnectWalletAlreadyAssociated = {
+  eventName: Name.CONNECT_WALLET_ALREADY_ASSOCIATED
+  chain: Chain
+  walletAddress: WalletAddress
+}
+
+type ConnectWalletAssociationError = {
+  eventName: Name.CONNECT_WALLET_ASSOCIATION_ERROR
+  chain: Chain
+  walletAddress: WalletAddress
+}
+
+type ConnectWalletError = {
+  eventName: Name.CONNECT_WALLET_ERROR
+  error: string
+}
+
 export type BaseAnalyticsEvent = { type: typeof ANALYTICS_TRACK_EVENT }
 
 export type AllTrackingEvents =
@@ -1630,3 +1672,9 @@ export type AllTrackingEvents =
   | RateCtaResponseYes
   | RewardsClaimStartCognitoFlow
   | RewardsClaimFinishCognitoFlow
+  | ConnectWalletNewWalletStart
+  | ConnectWalletNewWalletConnecting
+  | ConnectWalletNewWalletConnected
+  | ConnectWalletAlreadyAssociated
+  | ConnectWalletAssociationError
+  | ConnectWalletError
