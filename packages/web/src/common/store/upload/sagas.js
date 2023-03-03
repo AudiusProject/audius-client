@@ -840,14 +840,18 @@ function* recordGatedTracks(tracks) {
   const eventsByGateType = {}
 
   for (const track of tracks) {
-    const { is_premium: isPremium, premium_conditions: premiumConditions } = track
+    const { is_premium: isPremium, premium_conditions: premiumConditions } =
+      track
     if (isPremium && premiumConditions) {
       if (premiumConditions.nft_collection) {
-        eventsByGateType[Name.TRACK_UPLOAD_COLLECTIBLE_GATED] = (eventsByGateType[Name.TRACK_UPLOAD_COLLECTIBLE_GATED] || 0) + 1
+        eventsByGateType[Name.TRACK_UPLOAD_COLLECTIBLE_GATED] =
+          (eventsByGateType[Name.TRACK_UPLOAD_COLLECTIBLE_GATED] || 0) + 1
       } else if (premiumConditions.follow_user_id) {
-        eventsByGateType[Name.TRACK_UPLOAD_FOLLOW_GATED] = (eventsByGateType[Name.TRACK_UPLOAD_FOLLOW_GATED] || 0) + 1
+        eventsByGateType[Name.TRACK_UPLOAD_FOLLOW_GATED] =
+          (eventsByGateType[Name.TRACK_UPLOAD_FOLLOW_GATED] || 0) + 1
       } else if (premiumConditions.tip_user_id) {
-        eventsByGateType[Name.TRACK_UPLOAD_TIP_GATED] = (eventsByGateType[Name.TRACK_UPLOAD_TIP_GATED] || 0) + 1
+        eventsByGateType[Name.TRACK_UPLOAD_TIP_GATED] =
+          (eventsByGateType[Name.TRACK_UPLOAD_TIP_GATED] || 0) + 1
       }
     }
   }
@@ -1093,7 +1097,10 @@ function* uploadMultipleTracks(tracks) {
       kind: 'tracks'
     })
   )
-  yield call(recordGatedTracks, tracksWithMetadata.map(track => track.metadata))
+  yield call(
+    recordGatedTracks,
+    tracksWithMetadata.map((track) => track.metadata)
+  )
 
   yield waitForAccount()
   const account = yield select(getAccountUser)

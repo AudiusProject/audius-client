@@ -70,7 +70,6 @@ function* handleConnectNewWallet() {
     const disconnect = () => disconnectWallet(connection)
 
     yield* addWalletToUser(updatedUserMetadata, disconnect)
-
   } catch (e) {
     // Very likely we hit error path here i.e. user closes the web3 popup. Log it and restart
     const err = `Caught error during handleConnectNewWallet:  ${e}, resetting to initial state`
