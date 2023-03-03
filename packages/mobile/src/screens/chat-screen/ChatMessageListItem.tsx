@@ -11,13 +11,9 @@ import {
   chatActions
 } from '@audius/common'
 import type { ChatMessage } from '@audius/sdk'
-import { View, Pressable } from 'react-native'
-import {
-  Menu,
-  MenuOptions,
-  MenuOption,
-  MenuTrigger
-} from 'react-native-popup-menu'
+import { View, Pressable, TouchableHighlight } from 'react-native'
+import type { Menu } from 'react-native-popup-menu'
+import { MenuOptions, MenuOption, MenuTrigger } from 'react-native-popup-menu'
 import { useDispatch, useSelector } from 'react-redux'
 
 import ChatTail from 'app/assets/images/ChatTail.svg'
@@ -36,11 +32,13 @@ const REACTION_OFFSET_HEIGHT = 15
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   rootOtherUser: {
     display: 'flex',
-    alignItems: 'flex-start'
+    alignItems: 'flex-start',
+    zIndex: 1
   },
   rootIsAuthor: {
     display: 'flex',
-    alignItems: 'flex-end'
+    alignItems: 'flex-end',
+    zIndex: 1
   },
   bubble: {
     paddingHorizontal: spacing(4),
@@ -51,7 +49,11 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
-    shadowRadius: 5
+    shadowRadius: 5,
+    zIndex: 2
+  },
+  bubbleContainer: {
+    zIndex: 2
   },
   isAuthor: {
     backgroundColor: palette.secondary
@@ -75,7 +77,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   tail: {
     display: 'flex',
     position: 'absolute',
-    zIndex: -1,
     bottom: 47
   },
   tailIsAuthor: {
@@ -97,12 +98,16 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     alignItems: 'center',
     alignSelf: 'center',
     position: 'absolute',
+    // marginTop: -30,
     // flexGrow: 1,
     // right: 1000,
     backgroundColor: palette.white,
     borderColor: palette.accentRed,
     borderWidth: 2,
-    // width: '100%',
+    borderRadius: spacing(3),
+    bottom: 100,
+    zIndex: 10,
+    width: '100%',
     marginHorizontal: spacing(4)
   },
   reactionsWrapper: {
@@ -115,7 +120,8 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   reaction: {
     height: spacing(10),
     width: spacing(10),
-    position: 'absolute'
+    position: 'absolute',
+    zIndex: 1
   }
 }))
 
@@ -144,6 +150,9 @@ export const ChatMessageListItem = ({
     width: number
     height: number
   }>()
+  const [messageHeight, setMessageHeight] = useState<number>()
+  const [shouldShowReactionPopup, setShouldShowReactionPopup] =
+    useState<boolean>(false)
   const selectedReactionValue = message.reactions?.find(
     (r) => r.user_id === encodeHashId(userId)
   )?.reaction
@@ -151,14 +160,13 @@ export const ChatMessageListItem = ({
   if (selectedReactionValue) {
     selectedReaction = reactionMap[selectedReactionValue]
   }
-  // const [isReactionPopupVisible, setReactionPopupVisible] = useState(false)
 
-  // handleLongPress = useCallback(
-  //   () => setReactionPopupVisible((isVisible) => !isVisible),
-  //   [setReactionPopupVisible]
-  // )
+  const handleLongPress = useCallback(
+    () => setShouldShowReactionPopup((isVisible) => !isVisible),
+    []
+  )
   const handleCloseReactionPopup = useCallback(
-    () => menuRef.current?.close(),
+    () => setShouldShowReactionPopup(false),
     []
   )
   const handleReactionSelected = useCallback(
@@ -186,59 +194,36 @@ export const ChatMessageListItem = ({
   return (
     <>
       <View style={isAuthor ? styles.rootIsAuthor : styles.rootOtherUser}>
-        <Menu
-          style={styles.menu}
-          // style={[styles.bubble, isAuthor && styles.isAuthor]}
-          // ref={menuRef}
+        <TouchableHighlight
+          onLongPress={handleLongPress}
+          style={styles.bubbleContainer}
         >
-          <MenuTrigger>
-            {/* text={message.message}
-            customStyles={{
-              triggerText: [styles.message, isAuthor && styles.messageIsAuthor]
-            }} */}
-            <View
-              style={[styles.bubble, isAuthor && styles.isAuthor]}
-              onLayout={(e) => {
-                console.log(e.nativeEvent.layout)
-                const { width, height } = e.nativeEvent.layout
-                setReactionPosition({
-                  width: width - REACTION_OFFSET_WIDTH,
-                  height: height - REACTION_OFFSET_HEIGHT
-                })
-              }}
-            >
-              <Text
-                style={[styles.message, isAuthor && styles.messageIsAuthor]}
-              >
-                {message.message}
-              </Text>
-            </View>
-          </MenuTrigger>
-          <MenuOptions
-            optionsContainerStyle={styles.reactionsContainer}
-            customStyles={{
-              // optionsContainer: styles.reactionsContainer,
-              optionsWrapper: styles.reactionsWrapper
+          <View
+            style={[styles.bubble, isAuthor && styles.isAuthor]}
+            onLayout={(e) => {
+              console.log(e.nativeEvent.layout)
+              const { width, height } = e.nativeEvent.layout
+              setReactionPosition({
+                width: width - REACTION_OFFSET_WIDTH,
+                height: height - REACTION_OFFSET_HEIGHT
+              })
+              setMessageHeight(height)
             }}
           >
-            {/* <View style={styles.test}> */}
+            <Text style={[styles.message, isAuthor && styles.messageIsAuthor]}>
+              {message.message}
+            </Text>
+          </View>
+        </TouchableHighlight>
+        {shouldShowReactionPopup ? (
+          <View style={[styles.reactionsContainer, { bottom: messageHeight }]}>
             <ReactionList
               selectedReaction={selectedReaction ?? null}
               onChange={handleReactionSelected}
               isVisible
             />
-            {/* </View> */}
-            {/* <MenuOption onSelect={() => alert(`Save`)} text='Save' />
-            <MenuOption onSelect={() => alert(`Delete`)}>
-              <Text style={{ color: 'red' }}>Delete</Text>
-            </MenuOption>
-            <MenuOption
-              onSelect={() => alert(`Not called`)}
-              disabled={true}
-              text='Disabled'
-            /> */}
-          </MenuOptions>
-        </Menu>
+          </View>
+        ) : null}
         {message.reactions?.length > 0 && reactionPosition
           ? message.reactions.map((reaction) => {
               if (!reaction.reaction || !(reaction.reaction in reactionMap)) {
