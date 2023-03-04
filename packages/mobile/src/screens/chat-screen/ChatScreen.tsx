@@ -17,9 +17,12 @@ import {
   hasTail,
   isEarliestUnread
 } from '@audius/common'
+import type { ReactionTypes, Nullable } from '@audius/common'
+import type { ChatMessage } from '@audius/sdk'
 import { useFocusEffect } from '@react-navigation/native'
 import { View, Text, Image } from 'react-native'
 import type { FlatList as RNFlatList } from 'react-native'
+import { TouchableHighlight } from 'react-native-gesture-handler'
 import { useDispatch, useSelector } from 'react-redux'
 
 import WavingHand from 'app/assets/images/emojis/waving-hand-sign.png'
@@ -34,6 +37,8 @@ import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
 import { useThemePalette } from 'app/utils/theme'
 
+import { ReactionList, reactionMap } from '../notifications-screen/Reaction'
+
 import { ChatMessageListItem } from './ChatMessageListItem'
 
 const {
@@ -44,7 +49,8 @@ const {
   getChat
 } = chatSelectors
 
-const { fetchMoreMessages, sendMessage, markChatAsRead } = chatActions
+const { fetchMoreMessages, sendMessage, markChatAsRead, setMessageReaction } =
+  chatActions
 const { getUserId } = accountSelectors
 
 const messages = {
@@ -66,11 +72,13 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   },
   listContainer: {
     display: 'flex',
-    flex: 1
+    flex: 1,
+    zIndex: 1
   },
   flatListContainer: {
     paddingHorizontal: spacing(6),
-    display: 'flex'
+    display: 'flex',
+    zIndex: 1
   },
   composeView: {
     paddingVertical: spacing(2),
@@ -162,6 +170,19 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     fontSize: typography.fontSize.large,
     lineHeight: typography.fontSize.large * 1.3,
     color: palette.neutral
+  },
+  reactionsContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    alignSelf: 'center',
+    position: 'absolute',
+    borderRadius: spacing(3),
+    borderColor: palette.accentRed,
+    zIndex: 10,
+    flexGrow: 1,
+    // width: '100%',
+    marginHorizontal: spacing(4),
+    backgroundColor: palette.white
   }
 }))
 
@@ -191,8 +212,12 @@ export const ChatScreen = () => {
   const url = `/chat/${encodeUrlName(chatId ?? '')}`
   const [iconOpacity, setIconOpacity] = useState(ICON_BLUR)
   const [inputMessage, setInputMessage] = useState('')
+  const [shouldShowPopup, setShouldShowPopup] = useState(false)
+  // const [top, setTop] = useState(0)
+  const [selectedReaction, setSelectedReaction] = useState<string>('')
 
-  const userId = encodeHashId(useSelector(getUserId))
+  const userId = useSelector(getUserId)
+  const userIdEncoded = encodeHashId(userId)
   const chat = useSelector((state) => getChat(state, chatId ?? ''))
   const [otherUser] = useSelector((state) => getOtherChatUsers(state, chatId))
   const chatMessages = useSelector((state) =>
@@ -205,6 +230,8 @@ export const ChatScreen = () => {
     getChatMessagesSummary(state, chatId ?? '')
   )
   const flatListRef = useRef<RNFlatList>(null)
+  const itemsRef = useRef([])
+  const messageRef = useRef<ChatMessage | null>(null)
   const unreadCount = chat?.unread_message_count ?? 0
   const isLoading = status === Status.LOADING && chatMessages?.length === 0
 
@@ -227,6 +254,12 @@ export const ChatScreen = () => {
     }
   }, [chatId, chat])
 
+  useEffect(() => {
+    if (chatMessages) {
+      itemsRef.current = itemsRef.current.slice(0, chatMessages.length)
+    }
+  }, [chatMessages])
+
   const earliestUnreadIndex = useMemo(
     () =>
       chatMessages?.findIndex((item, index) =>
@@ -235,10 +268,10 @@ export const ChatScreen = () => {
           lastReadAt: chatFrozenRef?.current?.last_read_at,
           currentMessageIndex: index,
           messages: chatMessages,
-          currentUserId: userId
+          currentUserId: userIdEncoded
         })
       ),
-    [chatMessages, userId]
+    [chatMessages, userIdEncoded]
   )
 
   const handleSubmit = useCallback(
@@ -283,12 +316,76 @@ export const ChatScreen = () => {
     )
   }
 
+  const handleReactionSelected = useCallback(
+    (message: Nullable<ChatMessage>, reaction: ReactionTypes) => {
+      console.log('REED got reaction: ', reaction)
+      if (userId && message) {
+        dispatch(
+          setMessageReaction({
+            userId,
+            chatId,
+            messageId: message.message_id,
+            reaction:
+              message.reactions?.find((r) => r.user_id === userIdEncoded)
+                ?.reaction === reaction
+                ? null
+                : reaction
+          })
+        )
+      }
+      setShouldShowPopup(false)
+    },
+    [dispatch, userIdEncoded, chatId, userId]
+  )
+
+  const handleLongPress = (itemRef) => {
+    console.log('itemRef:  ', itemRef?.current)
+    const selectedReactionValue = messageRef?.current?.reactions?.find(
+      (r) => r.user_id === encodeHashId(userId)
+    )?.reaction
+    console.log('already selected reaction: ', selectedReactionValue)
+    if (selectedReactionValue) {
+      console.log(
+        'setting selectedReaction to: ',
+        reactionMap[selectedReactionValue]
+      )
+      setSelectedReaction(selectedReactionValue)
+    }
+    itemRef?.current?.measureInWindow((fx, fy, width, height, px, py) => {
+      console.log('Component width is: ' + width)
+      console.log('Component height is: ' + height)
+      console.log('X offset to frame: ' + fx)
+      console.log('Y offset to frame: ' + fy)
+      console.log('X offset to page: ' + px)
+      console.log('Y offset to page: ' + py)
+
+      // setTop(fy)
+    })
+    setShouldShowPopup(true)
+  }
+
   const topBarRight = (
     <IconKebabHorizontal
       onPress={handleKebabPress}
       fill={palette.neutralLight4}
     />
   )
+
+  const Popup = () => {
+    return (
+      <View style={[styles.reactionsContainer]}>
+        <ReactionList
+          selectedReaction={selectedReaction as ReactionTypes}
+          onChange={(reaction) => {
+            if (reaction) {
+              handleReactionSelected(messageRef.current, reaction)
+            }
+          }}
+          isVisible={true}
+        />
+      </View>
+    )
+  }
 
   return (
     <Screen
@@ -316,18 +413,31 @@ export const ChatScreen = () => {
           {!isLoading ? (
             chatMessages?.length > 0 ? (
               <View style={styles.listContainer}>
+                {shouldShowPopup && <Popup />}
                 <FlatList
                   contentContainerStyle={styles.flatListContainer}
                   data={chatMessages}
                   keyExtractor={(message) => message.chat_id}
                   renderItem={({ item, index }) => (
                     <Fragment>
-                      <ChatMessageListItem
-                        key={item.key}
-                        message={item}
-                        hasTail={hasTail(item, chatMessages[index - 1])}
-                        unreadCount={unreadCount}
-                      />
+                      <TouchableHighlight
+                        onLongPress={() => {
+                          messageRef.current = chatMessages[index]
+                          handleLongPress(itemsRef.current[index])
+                        }}
+                      >
+                        <View
+                          ref={
+                            itemsRef?.current ? itemsRef.current[index] : null
+                          }
+                        >
+                          <ChatMessageListItem
+                            key={item.key}
+                            message={item}
+                            hasTail={hasTail(item, chatMessages[index - 1])}
+                          />
+                        </View>
+                      </TouchableHighlight>
                       {index === earliestUnreadIndex ? (
                         <View style={styles.unreadTagContainer} key='unreadTag'>
                           <View style={styles.unreadSeparator} />

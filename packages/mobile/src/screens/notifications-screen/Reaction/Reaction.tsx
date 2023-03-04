@@ -64,13 +64,21 @@ export const Reaction = (props: ReactionProps) => {
     }
   }, [status, autoPlay, isVisible])
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   if (isVisible && onMeasure) {
+  //     ref.current?.measureInWindow((x, _, width) => {
+  //       onMeasure({ x, width, reactionType })
+  //     })
+  //   }
+  // }, [isVisible, onMeasure, reactionType])
+
+  const handleLayout = () => {
     if (isVisible && onMeasure) {
       ref.current?.measureInWindow((x, _, width) => {
         onMeasure({ x, width, reactionType })
       })
     }
-  }, [isVisible, onMeasure, reactionType])
+  }
 
   useEffect(() => {
     if (previousStatus !== 'interacting' && status === 'interacting') {
@@ -118,6 +126,7 @@ export const Reaction = (props: ReactionProps) => {
         ref={(animation) => {
           animationRef.current = animation
         }}
+        onLayout={handleLayout}
         autoPlay={isVisible && autoPlay}
         loop
         source={source}
