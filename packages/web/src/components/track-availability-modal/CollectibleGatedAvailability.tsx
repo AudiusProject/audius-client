@@ -8,16 +8,17 @@ import {
 import { useSelector } from 'react-redux'
 
 import DropdownInput from 'components/data-entry/DropdownInput'
+import { HelpCallout } from 'components/help-callout/HelpCallout'
 
 import styles from './CollectibleGatedAvailability.module.css'
 import { TrackAvailabilitySelectionProps } from './types'
-import { HelpCallout } from 'components/help-callout/HelpCallout'
 
-const { getSupportedUserCollections, getHasUnsupportedCollection } = collectiblesSelectors
+const { getSupportedUserCollections, getHasUnsupportedCollection } =
+  collectiblesSelectors
 
 const messages = {
   pickACollection: 'Pick a Collection',
-  compatibilityTitle: 'Not seeing what you\'re looking for?',
+  compatibilityTitle: "Not seeing what you're looking for?",
   compatibilitySubtitle: 'Only verified Solana NFT Collections are compatible.'
 }
 
@@ -83,10 +84,12 @@ export const CollectibleGatedAvailability = ({
     return hasUnsupportedCollection ? (
       <HelpCallout
         className={styles.helpCallout}
-        content={<div>
-          <div>{messages.compatibilityTitle}</div>
-          <div>{messages.compatibilitySubtitle}</div>
-        </div>}
+        content={
+          <div>
+            <div>{messages.compatibilityTitle}</div>
+            <div>{messages.compatibilitySubtitle}</div>
+          </div>
+        }
       />
     ) : null
   }, [hasUnsupportedCollection])

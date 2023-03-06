@@ -202,15 +202,14 @@ export function* fetchSolanaCollectibles(user) {
   const validSolCollectionMints = [
     ...new Set(
       solanaCollectibleList
-        .filter(
-          (collectible) => {
-            const isFromVeririfedCollection = !!collectible.solanaChainMetadata?.collection?.verified
-            if (!hasUnsupportedCollection && !isFromVeririfedCollection) {
-              hasUnsupportedCollection = true
-            }
-            return isFromVeririfedCollection
+        .filter((collectible) => {
+          const isFromVeririfedCollection =
+            !!collectible.solanaChainMetadata?.collection?.verified
+          if (!hasUnsupportedCollection && !isFromVeririfedCollection) {
+            hasUnsupportedCollection = true
           }
-        )
+          return isFromVeririfedCollection
+        })
         .map((collectible) => {
           const key = collectible.solanaChainMetadata.collection.key
           return typeof key === 'string' ? key : key.toBase58()

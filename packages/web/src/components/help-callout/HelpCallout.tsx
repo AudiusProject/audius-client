@@ -1,9 +1,10 @@
+import { ReactNode } from 'react'
+
 import cn from 'classnames'
 
 import { ReactComponent as IconQuestionCircle } from 'assets/img/iconQuestionCircle.svg'
 
 import styles from './HelpCallout.module.css'
-import { ReactNode } from 'react'
 
 export const HelpCallout = ({
   content,

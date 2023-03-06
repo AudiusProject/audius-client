@@ -94,7 +94,11 @@ class DropdownInput extends Component {
 
     // Add dropdown footer if given
     if (footer) {
-      options.push(<div className={styles.footer} disabled>{footer}</div>)
+      options.push(
+        <div className={styles.footer} disabled>
+          {footer}
+        </div>
+      )
     }
 
     let goodDefault = false

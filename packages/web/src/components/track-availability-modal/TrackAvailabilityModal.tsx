@@ -36,7 +36,8 @@ import styles from './TrackAvailabilityModal.module.css'
 import { TrackMetadataState, UnlistedTrackMetadataField } from './types'
 
 const { getUserId } = accountSelectors
-const { getSupportedUserCollections, getHasUnsupportedCollection } = collectiblesSelectors
+const { getSupportedUserCollections, getHasUnsupportedCollection } =
+  collectiblesSelectors
 
 const messages = {
   title: 'AVAILABILITY',
@@ -54,7 +55,7 @@ const messages = {
     'Users who own a digital collectible matching your selection will have access to your track. Collectible gated content does not appear on trending or in user feeds.',
   noCollectibles:
     'No Collectibles found. To enable this option, link a wallet containing a collectible.',
-  compatibilityTitle: 'Not seeing what you\'re looking for?',
+  compatibilityTitle: "Not seeing what you're looking for?",
   compatibilitySubtitle: 'Only verified Solana NFT Collections are compatible.',
   hidden: 'Hidden',
   hiddenSubtitle:
@@ -84,13 +85,14 @@ const CollectibleGatedDescription = ({
   const hasUnsupportedCollection = useSelector(getHasUnsupportedCollection)
 
   const renderContent = useCallback(() => {
-    return  hasUnsupportedCollection
-    ? (
+    return hasUnsupportedCollection ? (
       <div>
         <div>{messages.compatibilityTitle}</div>
         <div>{messages.compatibilitySubtitle}</div>
       </div>
-    ) : messages.noCollectibles
+    ) : (
+      messages.noCollectibles
+    )
   }, [hasUnsupportedCollection])
 
   return (
