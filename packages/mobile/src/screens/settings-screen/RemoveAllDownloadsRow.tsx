@@ -1,10 +1,11 @@
 import { useCallback } from 'react'
 
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { Button } from 'app/components/core'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { setVisibility } from 'app/store/drawers/slice'
+import { getOfflineCollectionsStatus } from 'app/store/offline-downloads/selectors'
 import { makeStyles } from 'app/styles'
 
 import { SettingsRowLabel } from './SettingRowLabel'
@@ -28,6 +29,10 @@ export const RemoveAllDownloadsRow = () => {
   const dispatch = useDispatch()
   const styles = useStyles()
 
+  const offlineCollectionStatus = useSelector(getOfflineCollectionsStatus)
+  const isAnyCollectionDownloaded =
+    Object.values(offlineCollectionStatus).length > 0
+
   const handleRemoveAllDownloads = useCallback(() => {
     dispatch(
       setVisibility({
@@ -38,6 +43,7 @@ export const RemoveAllDownloadsRow = () => {
   }, [dispatch])
 
   if (!isOfflineDownloadEnabled) return null
+  if (!isAnyCollectionDownloaded) return null
 
   return (
     <SettingsRow>
