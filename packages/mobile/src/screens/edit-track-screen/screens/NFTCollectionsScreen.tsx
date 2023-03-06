@@ -8,21 +8,22 @@ import { useSelector } from 'react-redux'
 
 import IconImage from 'app/assets/images/iconImage.svg'
 import { Button, Text } from 'app/components/core'
+import { HelpCallout } from 'app/components/help-callout/HelpCallout'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles, typography } from 'app/styles'
 
 import { ListSelectionScreen } from './ListSelectionScreen'
-import { HelpCallout } from 'app/components/help-callout/HelpCallout'
 
 const messages = {
   collections: 'COLLECTIONS',
   searchCollections: 'Search Collections',
-  compatibilityTitle: 'Not seeing what you\'re looking for?',
+  compatibilityTitle: "Not seeing what you're looking for?",
   compatibilitySubtitle: 'Only verified Solana NFT Collections are compatible.',
   done: 'Done'
 }
 
-const { getSupportedUserCollections, getHasUnsupportedCollection } = collectiblesSelectors
+const { getSupportedUserCollections, getHasUnsupportedCollection } =
+  collectiblesSelectors
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
   item: {
@@ -156,9 +157,10 @@ export const NFTCollectionsScreen = () => {
             <Text>{messages.compatibilityTitle}</Text>
             <Text>{messages.compatibilitySubtitle}</Text>
           </View>
-        } />
+        }
+      />
     ) : null
-  }, [hasUnsupportedCollection])
+  }, [hasUnsupportedCollection, styles])
 
   return (
     <ListSelectionScreen

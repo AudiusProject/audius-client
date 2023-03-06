@@ -10,13 +10,12 @@ import { useSelector } from 'react-redux'
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
-import IconQuestionCircle from 'app/assets/images/iconQuestionCircle.svg'
 import { Link, Text } from 'app/components/core'
+import { HelpCallout } from 'app/components/help-callout/HelpCallout'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
 import { makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
-import { HelpCallout } from 'app/components/help-callout/HelpCallout'
 
 const messages = {
   collectibleGated: 'Collectible Gated',
@@ -203,7 +202,12 @@ export const CollectibleGatedAvailability = ({
           {messages.collectibleGatedSubtitle}
         </Text>
       </View>
-      {hasNoCollectibles ? <HelpCallout style={styles.noCollectibles} content={messages.noCollectibles} /> : null}
+      {hasNoCollectibles ? (
+        <HelpCallout
+          style={styles.noCollectibles}
+          content={messages.noCollectibles}
+        />
+      ) : null}
       <Link url={LEARN_MORE_URL} style={styles.learnMore}>
         <Text style={styles.learnMoreText}>{messages.learnMore}</Text>
         <IconArrow fill={secondary} width={16} height={16} />

@@ -3,17 +3,15 @@ import { useCallback, useMemo, useState } from 'react'
 import type { Nullable, PremiumConditions } from '@audius/common'
 import { TrackAvailabilityType, collectiblesSelectors } from '@audius/common'
 import { useField } from 'formik'
-import { View, Text } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import IconHidden from 'app/assets/images/iconHidden.svg'
-import IconQuestionCircle from 'app/assets/images/iconQuestionCircle.svg'
 import { Button } from 'app/components/core'
+import { HelpCallout } from 'app/components/help-callout/HelpCallout'
 import { useIsNFTGateEnabled } from 'app/hooks/useIsNFTGateEnabled'
 import { useIsSpecialAccessGateEnabled } from 'app/hooks/useIsSpecialAccessGateEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
-import { useColor } from 'app/utils/theme'
 
 import { CollectibleGatedAvailability } from '../components/CollectibleGatedAvailability'
 import { HiddenAvailability } from '../components/HiddenAvailability'
@@ -23,7 +21,6 @@ import type { RemixOfField } from '../types'
 
 import type { ListSelectionData } from './ListSelectionScreen'
 import { ListSelectionScreen } from './ListSelectionScreen'
-import { HelpCallout } from 'app/components/help-callout/HelpCallout'
 
 const messages = {
   title: 'Availability',
@@ -54,7 +51,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     marginTop: spacing(4),
     marginHorizontal: spacing(4),
     paddingVertical: spacing(2),
-    paddingHorizontal: spacing(4),
+    paddingHorizontal: spacing(4)
   }
 }))
 

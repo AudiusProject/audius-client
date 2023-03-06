@@ -1,10 +1,12 @@
-import { makeStyles } from "app/styles"
+import type { ReactNode } from 'react'
+
+import type { ViewStyle } from 'react-native'
+import { View } from 'react-native'
+
 import IconQuestionCircle from 'app/assets/images/iconQuestionCircle.svg'
-import { View } from "react-native"
 import { Text } from 'app/components/core'
-import { ReactNode } from "react"
-import { useColor } from "app/utils/theme"
-import { ViewStyle } from "react-native"
+import { makeStyles } from 'app/styles'
+import { useColor } from 'app/utils/theme'
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
   root: {
@@ -40,9 +42,7 @@ export const HelpCallout = ({ content, style }: HelpCalloutProps) => {
   return (
     <View style={[styles.root, style]}>
       <IconQuestionCircle style={styles.questionIcon} fill={neutral} />
-      <Text style={styles.text}>
-        {content}
-      </Text>
+      <Text style={styles.text}>{content}</Text>
     </View>
   )
 }

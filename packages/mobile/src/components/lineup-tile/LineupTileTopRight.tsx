@@ -4,11 +4,11 @@ import type { ViewStyle } from 'react-native'
 import { StyleSheet, View } from 'react-native'
 import type { SvgProps } from 'react-native-svg'
 
-import IconUnlocked from 'app/assets/images/iconUnlocked.svg'
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
 import IconHidden from 'app/assets/images/iconHidden.svg'
 import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
 import IconStar from 'app/assets/images/iconStar.svg'
+import IconUnlocked from 'app/assets/images/iconUnlocked.svg'
 import Text from 'app/components/text'
 import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 import { flexRowCentered } from 'app/styles'
@@ -130,7 +130,9 @@ export const LineupTileTopRight = ({
           color={accentBlue}
         />
       ) : null}
-      {isPremiumContentEnabled && (isOwner || !doesUserHaveAccess) && !!premiumConditions ? (
+      {isPremiumContentEnabled &&
+      (isOwner || !doesUserHaveAccess) &&
+      !!premiumConditions ? (
         <LineupTileTopRightItem
           icon={
             premiumConditions.nft_collection

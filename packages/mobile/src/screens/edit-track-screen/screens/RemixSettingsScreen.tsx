@@ -13,20 +13,18 @@ import { debounce } from 'lodash'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import IconQuestionCircle from 'app/assets/images/iconQuestionCircle.svg'
 import IconRemix from 'app/assets/images/iconRemix.svg'
 import type { TextProps } from 'app/components/core'
 import { TextInput, Divider, Button, Switch, Text } from 'app/components/core'
 import { InputErrorMessage } from 'app/components/core/InputErrorMessage'
+import { HelpCallout } from 'app/components/help-callout/HelpCallout'
 import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
 import { getTrackRoute } from 'app/utils/routes'
-import { useColor } from 'app/utils/theme'
 
 import { FormScreen, RemixTrackPill } from '../components'
 import type { RemixOfField } from '../types'
-import { HelpCallout } from 'app/components/help-callout/HelpCallout'
 
 const { getTrack, getUser, getStatus } = remixSettingsSelectors
 const { fetchTrack, fetchTrackSucceeded, reset } = remixSettingsActions
@@ -233,7 +231,8 @@ export const RemixSettingsScreen = () => {
                   </Text>
                   <Text>{messages.changeAvailbilitySuffix}</Text>
                 </View>
-              } />
+              }
+            />
           ) : null}
           <View style={styles.option}>
             <Text {...labelProps}>
