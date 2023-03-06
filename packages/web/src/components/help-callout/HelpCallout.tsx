@@ -3,12 +3,13 @@ import cn from 'classnames'
 import { ReactComponent as IconQuestionCircle } from 'assets/img/iconQuestionCircle.svg'
 
 import styles from './HelpCallout.module.css'
+import { ReactNode } from 'react'
 
 export const HelpCallout = ({
   text,
   className
 }: {
-  text: string
+  text: ReactNode
   className?: string
 }) => {
   return (
