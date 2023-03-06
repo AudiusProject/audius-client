@@ -23,6 +23,7 @@ import type { RemixOfField } from '../types'
 
 import type { ListSelectionData } from './ListSelectionScreen'
 import { ListSelectionScreen } from './ListSelectionScreen'
+import { HelpCallout } from 'app/components/help-callout/HelpCallout'
 
 const messages = {
   title: 'Availability',
@@ -54,33 +55,15 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     marginHorizontal: spacing(4),
     paddingVertical: spacing(2),
     paddingHorizontal: spacing(4),
-    backgroundColor: palette.neutralLight9,
-    borderWidth: 1,
-    borderColor: palette.neutralLight7,
-    borderRadius: spacing(2)
-  },
-  isRemixText: {
-    fontFamily: typography.fontByWeight.medium,
-    fontSize: typography.fontSize.medium,
-    color: palette.neutral
-  },
-  questionIcon: {
-    marginRight: spacing(4),
-    width: spacing(5),
-    height: spacing(5)
   }
 }))
 
 const MarkedAsRemix = () => {
   const styles = useStyles()
-  const neutral = useColor('neutral')
   const [{ value: remixOf }] = useField<RemixOfField>('remix_of')
 
   return remixOf ? (
-    <View style={styles.isRemix}>
-      <IconQuestionCircle style={styles.questionIcon} fill={neutral} />
-      <Text style={styles.isRemixText}>{messages.markedAsRemix}</Text>
-    </View>
+    <HelpCallout style={styles.isRemix} content={messages.markedAsRemix} />
   ) : null
 }
 

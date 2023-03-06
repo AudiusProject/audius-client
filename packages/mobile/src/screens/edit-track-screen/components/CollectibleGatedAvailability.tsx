@@ -16,6 +16,7 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
 import { makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
+import { HelpCallout } from 'app/components/help-callout/HelpCallout'
 
 const messages = {
   collectibleGated: 'Collectible Gated',
@@ -115,15 +116,7 @@ const useStyles = makeStyles(({ typography, spacing, palette }) => ({
     height: spacing(5)
   },
   noCollectibles: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: spacing(4),
-    paddingVertical: spacing(2),
-    paddingHorizontal: spacing(4),
-    borderWidth: 1,
-    borderColor: palette.neutralLight7,
-    borderRadius: spacing(2),
-    backgroundColor: palette.neutralLight9
+    marginTop: spacing(4)
   },
   noCollectiblesText: {
     flex: 1,
@@ -210,14 +203,7 @@ export const CollectibleGatedAvailability = ({
           {messages.collectibleGatedSubtitle}
         </Text>
       </View>
-      {hasNoCollectibles && (
-        <View style={styles.noCollectibles}>
-          <IconQuestionCircle style={styles.questionIcon} fill={neutral} />
-          <Text style={styles.noCollectiblesText}>
-            {messages.noCollectibles}
-          </Text>
-        </View>
-      )}
+      {hasNoCollectibles ? <HelpCallout style={styles.noCollectibles} content={messages.noCollectibles} /> : null}
       <Link url={LEARN_MORE_URL} style={styles.learnMore}>
         <Text style={styles.learnMoreText}>{messages.learnMore}</Text>
         <IconArrow fill={secondary} width={16} height={16} />
