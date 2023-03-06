@@ -380,7 +380,7 @@ const BasicForm = (props) => {
           })}
         >
           {renderRemixSwitch()}
-          {(!isPremiumContentEnabled || !isPremium) && renderDownloadButton()}
+          {renderDownloadButton()}
           {renderAdvancedButton()}
         </div>
       </div>
