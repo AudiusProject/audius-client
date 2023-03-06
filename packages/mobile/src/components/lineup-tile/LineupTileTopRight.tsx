@@ -123,7 +123,7 @@ export const LineupTileTopRight = ({
 
   return (
     <View style={styles.topRight}>
-      {isPremiumContentEnabled && !isOwner && doesUserHaveAccess ? (
+      {isPremiumContentEnabled && !!premiumConditions && !isOwner && doesUserHaveAccess ? (
         <LineupTileTopRightItem
           icon={IconUnlocked}
           label={messages.unlocked}
@@ -131,8 +131,8 @@ export const LineupTileTopRight = ({
         />
       ) : null}
       {isPremiumContentEnabled &&
-      (isOwner || !doesUserHaveAccess) &&
-      !!premiumConditions ? (
+      !!premiumConditions &&
+      (isOwner || !doesUserHaveAccess) ? (
         <LineupTileTopRightItem
           icon={
             premiumConditions.nft_collection
