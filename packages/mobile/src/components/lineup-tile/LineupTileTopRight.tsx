@@ -1,5 +1,5 @@
 import type { PremiumConditions, Nullable } from '@audius/common'
-import { formatSeconds } from '@audius/common'
+import { formatLineupTileDuration } from '@audius/common'
 import type { ViewStyle } from 'react-native'
 import { StyleSheet, View } from 'react-native'
 import type { SvgProps } from 'react-native-svg'
@@ -9,6 +9,7 @@ import IconHidden from 'app/assets/images/iconHidden.svg'
 import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
 import IconStar from 'app/assets/images/iconStar.svg'
 import Text from 'app/components/text'
+import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
 import { flexRowCentered } from 'app/styles'
 import { useColor, useThemeColors } from 'app/utils/theme'
 
@@ -78,6 +79,10 @@ type Props = {
    */
   isArtistPick?: boolean
   /**
+   * Whether or not the track is a podcast
+   */
+  isPodcast?: boolean
+  /**
    * Whether or not the track is unlisted (hidden)
    */
   isUnlisted?: boolean
@@ -94,17 +99,19 @@ type Props = {
 export const LineupTileTopRight = ({
   duration,
   isArtistPick,
+  isPodcast,
   isUnlisted,
   showArtistPick,
   premiumConditions
 }: Props) => {
+  const isPremiumContentEnabled = useIsPremiumContentEnabled()
   const { neutralLight4 } = useThemeColors()
   const accentBlue = useColor('accentBlue')
   const trackTileStyles = useTrackTileStyles()
 
   return (
     <View style={styles.topRight}>
-      {!!premiumConditions && (
+      {isPremiumContentEnabled && !!premiumConditions ? (
         <LineupTileTopRightItem
           icon={
             premiumConditions.nft_collection
@@ -118,14 +125,16 @@ export const LineupTileTopRight = ({
           }
           color={accentBlue}
         />
-      )}
-      {!premiumConditions && showArtistPick && isArtistPick && (
+      ) : null}
+      {(!isPremiumContentEnabled || !premiumConditions) &&
+      showArtistPick &&
+      isArtistPick ? (
         <LineupTileTopRightItem
           icon={IconStar}
           label={messages.artistPick}
           color={neutralLight4}
         />
-      )}
+      ) : null}
       {isUnlisted && (
         <LineupTileTopRightItem
           icon={IconHidden}
@@ -134,7 +143,7 @@ export const LineupTileTopRight = ({
         />
       )}
       <Text style={trackTileStyles.statText}>
-        {duration && formatSeconds(duration)}
+        {duration ? formatLineupTileDuration(duration, isPodcast) : null}
       </Text>
     </View>
   )

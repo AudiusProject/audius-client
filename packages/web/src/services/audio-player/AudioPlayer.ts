@@ -2,7 +2,8 @@ import {
   TrackSegment,
   decodeHashId,
   hlsUtils,
-  PlaybackRate
+  PlaybackRate,
+  playbackRateValueMap
 } from '@audius/common'
 import Hls from 'hls.js'
 
@@ -18,6 +19,9 @@ declare global {
 }
 
 const IS_SAFARI = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+const IS_UI_WEBVIEW = /(iPhone|iPod|iPad).*AppleWebKit/i.test(
+  navigator.userAgent
+)
 
 const FADE_IN_EVENT = new Event('fade-in')
 const FADE_OUT_EVENT = new Event('fade-out')
@@ -154,7 +158,7 @@ export class AudioPlayer {
 
   _initContext = () => {
     this.audio.addEventListener('canplay', () => {
-      if (!this.audioCtx && !IS_SAFARI) {
+      if (!this.audioCtx && !IS_SAFARI && !IS_UI_WEBVIEW) {
         // Set up WebAudio API handles
         const AudioContext = window.AudioContext || window.webkitAudioContext
         try {
@@ -451,7 +455,7 @@ export class AudioPlayer {
   }
 
   _updateAudioPlaybackRate = () => {
-    this.audio.playbackRate = parseFloat(this.playbackRate)
+    this.audio.playbackRate = playbackRateValueMap[this.playbackRate]
   }
 
   _fadeIn = () => {

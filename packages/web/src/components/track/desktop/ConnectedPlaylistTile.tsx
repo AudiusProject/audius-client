@@ -383,32 +383,17 @@ const ConnectedPlaylistTile = memo(
       if (isFavorited) {
         unsaveCollection(id)
       } else {
-        saveCollection(id)
+        saveCollection(id, isFeed)
       }
-    }, [saveCollection, unsaveCollection, id, isFavorited])
-
-    const onRepostMetadata = useMemo(() => {
-      return isFeed
-        ? // If we're on the feed, and someone i follow has
-          // reposted the content i am reposting,
-          // is_repost_repost is true
-          { is_repost_repost: followeeReposts.length !== 0 }
-        : { is_repost_repost: false }
-    }, [followeeReposts, isFeed])
+    }, [saveCollection, unsaveCollection, id, isFavorited, isFeed])
 
     const onClickRepost = useCallback(() => {
       if (isReposted) {
         undoRepostCollection(id)
       } else {
-        repostCollection(id, onRepostMetadata)
+        repostCollection(id, isFeed)
       }
-    }, [
-      repostCollection,
-      undoRepostCollection,
-      id,
-      isReposted,
-      onRepostMetadata
-    ])
+    }, [repostCollection, undoRepostCollection, id, isReposted, isFeed])
 
     const onClickShare = useCallback(() => {
       shareCollection(id)
@@ -585,12 +570,12 @@ function mapDispatchToProps(dispatch: Dispatch) {
           source: ShareSource.TILE
         })
       ),
-    repostCollection: (id: ID, metadata: { is_repost_repost: boolean }) =>
-      dispatch(repostCollection(id, RepostSource.TILE, metadata)),
+    repostCollection: (id: ID, isFeed: boolean) =>
+      dispatch(repostCollection(id, RepostSource.TILE, isFeed)),
     undoRepostCollection: (id: ID) =>
       dispatch(undoRepostCollection(id, RepostSource.TILE)),
-    saveCollection: (id: ID) =>
-      dispatch(saveCollection(id, FavoriteSource.TILE)),
+    saveCollection: (id: ID, isFeed: boolean) =>
+      dispatch(saveCollection(id, FavoriteSource.TILE, isFeed)),
     unsaveCollection: (id: ID) =>
       dispatch(unsaveCollection(id, FavoriteSource.TILE)),
 

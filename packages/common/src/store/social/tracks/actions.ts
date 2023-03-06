@@ -29,14 +29,10 @@ export const SHARE_TRACK = 'SOCIAL/SHARE_TRACK'
 
 export const repostTrack = createCustomAction(
   REPOST_TRACK,
-  (
-    trackId: ID,
-    source: RepostSource,
-    metadata?: { is_repost_repost: boolean }
-  ) => ({
+  (trackId: ID, source: RepostSource, isFeed = false) => ({
     trackId,
     source,
-    metadata
+    isFeed
   })
 )
 
@@ -52,7 +48,11 @@ export const trackRepostFailed = createCustomAction(
 
 export const saveTrack = createCustomAction(
   SAVE_TRACK,
-  (trackId: ID, source: FavoriteSource) => ({ trackId, source })
+  (trackId: ID, source: FavoriteSource, isFeed = false) => ({
+    trackId,
+    source,
+    isFeed
+  })
 )
 
 export const saveTrackSucceeded = createCustomAction(

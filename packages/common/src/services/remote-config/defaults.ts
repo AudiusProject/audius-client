@@ -29,7 +29,8 @@ export const remoteConfigIntDefaults: { [key in IntKeys]: number | null } = {
   [IntKeys.MAX_AUDIO_PURCHASE_AMOUNT]: 999,
   [IntKeys.BUY_AUDIO_WALLET_POLL_DELAY_MS]: 1000,
   [IntKeys.BUY_AUDIO_WALLET_POLL_MAX_RETRIES]: 120,
-  [IntKeys.BUY_AUDIO_SLIPPAGE]: 3
+  [IntKeys.BUY_AUDIO_SLIPPAGE]: 3,
+  [IntKeys.GATED_TRACK_POLL_INTERVAL_MS]: 1000
 }
 
 export const remoteConfigStringDefaults: {
@@ -70,7 +71,8 @@ export const remoteConfigStringDefaults: {
   [StringKeys.STRIPE_ALLOWED_COUNTRIES]: '',
   [StringKeys.STRIPE_DENIED_REGIONS]: '',
   [StringKeys.COINBASE_PAY_ALLOWED_COUNTRIES_2_LETTER]: '',
-  [StringKeys.STRIPE_ALLOWED_COUNTRIES_2_LETTER]: ''
+  [StringKeys.STRIPE_ALLOWED_COUNTRIES_2_LETTER]: '',
+  [StringKeys.AUDIO_FEATURES_DEGRADED_TEXT]: null
 }
 
 export const remoteConfigDoubleDefaults: {

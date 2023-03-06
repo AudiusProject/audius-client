@@ -1,7 +1,6 @@
 import {
   memo,
   useState,
-  useMemo,
   useCallback,
   useEffect,
   MouseEvent,
@@ -21,20 +20,25 @@ import {
   tracksSocialActions,
   shareModalUIActions,
   playerSelectors,
-  usePremiumContentAccess
+  usePremiumContentAccess,
+  premiumContentActions,
+  FeatureFlags,
+  Genre
 } from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
+import { useModalState } from 'common/hooks/useModalState'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import Draggable from 'components/dragndrop/Draggable'
 import Menu from 'components/menu/Menu'
 import { OwnProps as TrackMenuProps } from 'components/menu/TrackMenu'
 import { TrackArtwork } from 'components/track/desktop/Artwork'
 import UserBadges from 'components/user-badges/UserBadges'
+import { useFlag } from 'hooks/useRemoteConfig'
 import {
   setUsers,
   setVisibility
@@ -62,6 +66,7 @@ const { getUserFromTrack } = cacheUsersSelectors
 const { saveTrack, unsaveTrack, repostTrack, undoRepostTrack } =
   tracksSocialActions
 const { getUserHandle } = accountSelectors
+const { setLockedContentId } = premiumContentActions
 
 type OwnProps = {
   uid: UID
@@ -113,6 +118,9 @@ const ConnectedTrackTile = memo(
     isFeed = false,
     showRankIcon
   }: ConnectedTrackTileProps) => {
+    const { isEnabled: isPremiumContentEnabled } = useFlag(
+      FeatureFlags.PREMIUM_CONTENT_ENABLED
+    )
     const trackWithFallback = getTrackWithFallback(track)
     const {
       is_delete,
@@ -121,6 +129,7 @@ const ConnectedTrackTile = memo(
       premium_conditions: premiumConditions,
       track_id: trackId,
       title,
+      genre,
       permalink,
       repost_count,
       save_count,
@@ -152,6 +161,8 @@ const ConnectedTrackTile = memo(
       usePremiumContentAccess(trackWithFallback)
     const loading = isLoading || isUserAccessTBD
 
+    const dispatch = useDispatch()
+    const [, setLockedContentVisibility] = useModalState('LockedContent')
     const menuRef = useRef<HTMLDivElement>(null)
 
     const onClickStatRepost = () => {
@@ -193,7 +204,7 @@ const ConnectedTrackTile = memo(
       const menu: Omit<TrackMenuProps, 'children'> = {
         extraMenuItems: [],
         handle,
-        includeAddToPlaylist: true,
+        includeAddToPlaylist: !isPremiumContentEnabled || !isPremium,
         includeArtistPick: handle === userHandle && !isUnlisted,
         includeEdit: handle === userHandle,
         includeEmbed: true,
@@ -305,26 +316,17 @@ const ConnectedTrackTile = memo(
       if (isFavorited) {
         unsaveTrack(trackId)
       } else {
-        saveTrack(trackId)
+        saveTrack(trackId, isFeed)
       }
-    }, [saveTrack, unsaveTrack, trackId, isFavorited])
-
-    const onRepostMetadata = useMemo(() => {
-      return isFeed
-        ? // If we're on the feed, and someone i follow has
-          // reposted the content i am reposting,
-          // is_repost_repost is true
-          { is_repost_repost: followee_reposts.length !== 0 }
-        : { is_repost_repost: false }
-    }, [followee_reposts, isFeed])
+    }, [isFavorited, unsaveTrack, trackId, saveTrack, isFeed])
 
     const onClickRepost = useCallback(() => {
       if (isReposted) {
         undoRepostTrack(trackId)
       } else {
-        repostTrack(trackId, onRepostMetadata)
+        repostTrack(trackId, isFeed)
       }
-    }, [repostTrack, undoRepostTrack, trackId, isReposted, onRepostMetadata])
+    }, [repostTrack, undoRepostTrack, trackId, isReposted, isFeed])
 
     const onClickShare = useCallback(() => {
       shareTrack(trackId)
@@ -343,9 +345,25 @@ const ConnectedTrackTile = memo(
           menuRef.current
         )
         if (shouldSkipTogglePlay) return
+
+        // Show the locked content modal if gated track and user does not have access.
+        // Also skip toggle play in this case.
+        if (trackId && !doesUserHaveAccess) {
+          dispatch(setLockedContentId({ id: trackId }))
+          setLockedContentVisibility(true)
+          return
+        }
+
         togglePlay(uid, trackId)
       },
-      [togglePlay, uid, trackId]
+      [
+        togglePlay,
+        uid,
+        trackId,
+        doesUserHaveAccess,
+        dispatch,
+        setLockedContentVisibility
+      ]
     )
 
     if (is_delete || user?.is_deactivated) return null
@@ -388,6 +406,7 @@ const ConnectedTrackTile = memo(
           artwork={artwork}
           rightActions={rightActions}
           title={title}
+          genre={genre as Genre}
           userName={userName}
           duration={duration}
           stats={stats}
@@ -435,12 +454,12 @@ function mapDispatchToProps(dispatch: Dispatch) {
           source: ShareSource.TILE
         })
       ),
-    repostTrack: (trackId: ID, metadata: { is_repost_repost: boolean }) =>
-      dispatch(repostTrack(trackId, RepostSource.TILE, metadata)),
+    repostTrack: (trackId: ID, isFeed: boolean) =>
+      dispatch(repostTrack(trackId, RepostSource.TILE, isFeed)),
     undoRepostTrack: (trackId: ID) =>
       dispatch(undoRepostTrack(trackId, RepostSource.TILE)),
-    saveTrack: (trackId: ID) =>
-      dispatch(saveTrack(trackId, FavoriteSource.TILE)),
+    saveTrack: (trackId: ID, isFeed: boolean) =>
+      dispatch(saveTrack(trackId, FavoriteSource.TILE, isFeed)),
     unsaveTrack: (trackId: ID) =>
       dispatch(unsaveTrack(trackId, FavoriteSource.TILE)),
 

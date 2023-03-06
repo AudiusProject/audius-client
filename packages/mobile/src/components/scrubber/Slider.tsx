@@ -1,16 +1,20 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { playbackRateValueMap, playerSelectors } from '@audius/common'
 import { useAppState } from '@react-native-community/hooks'
 import type { GestureResponderEvent } from 'react-native'
 import { Easing, View, Animated, PanResponder } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 import TrackPlayer from 'react-native-track-player'
+import { useSelector } from 'react-redux'
 import { useAsync, usePrevious } from 'react-use'
 
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
 import { makeStyles } from 'app/styles'
 import { attachToDx } from 'app/utils/animation'
 import { useThemeColors } from 'app/utils/theme'
+
+const { getPlaybackRate } = playerSelectors
 
 // How much the handle "grows" when pressing
 const HANDLE_GROW_SCALE = 1.1
@@ -82,10 +86,11 @@ type SliderProps = {
    * Callback invoked when focus is gained on the scrubber
    */
   onPressIn: () => void
+  onPressOut: () => void
   /**
    * Callback invoked when focus is lost on the scrubber
    */
-  onPressOut: (percentComplete: number) => void
+  onNewPosition: (percentComplete: number) => void
   /**
    * Callback invoked when dragging on the scrubber. A drag
    * begins by grabbing the handle or pressing the rail
@@ -108,6 +113,7 @@ export const Slider = memo((props: SliderProps) => {
     duration,
     onPressIn,
     onPressOut,
+    onNewPosition,
     onDrag,
     onDragRelease
   } = props
@@ -142,11 +148,12 @@ export const Slider = memo((props: SliderProps) => {
   useEffect(getRailPageX, [railRef])
 
   const currentAnimation = useRef<Animated.CompositeAnimation>()
+  const playbackRate = useSelector(getPlaybackRate)
   const play = useCallback(
     (timeRemaining: number) => {
       currentAnimation.current = Animated.timing(translationAnim, {
         toValue: railWidth,
-        duration: timeRemaining,
+        duration: timeRemaining / playbackRateValueMap[playbackRate],
         easing: Easing.linear,
         // Can't use native driver because this animation is potentially hours long,
         // and would have to be serialized into an array to be passed to the native layer.
@@ -155,7 +162,7 @@ export const Slider = memo((props: SliderProps) => {
       })
       currentAnimation.current.start()
     },
-    [translationAnim, railWidth]
+    [translationAnim, railWidth, playbackRate]
   )
 
   const pause = useCallback(() => {
@@ -195,24 +202,23 @@ export const Slider = memo((props: SliderProps) => {
     [isPlaying, duration, play]
   )
 
+  const handlePressOut = useCallback(() => {
+    handlePressHandleOut()
+    onPressOut()
+  }, [handlePressHandleOut, onPressOut])
+
   const onReleaseRail = useCallback(
     (e: GestureResponderEvent) => {
       const newPosition = e.nativeEvent.pageX - railPageX
       const percentComplete = newPosition / railWidth
-      onPressOut(percentComplete)
-      handlePressHandleOut()
+      onNewPosition(percentComplete)
+      handlePressOut()
       animateFromNowToEnd(percentComplete)
     },
-    [
-      onPressOut,
-      handlePressHandleOut,
-      railPageX,
-      railWidth,
-      animateFromNowToEnd
-    ]
+    [onNewPosition, handlePressOut, railPageX, railWidth, animateFromNowToEnd]
   )
 
-  const onPressHandle = useCallback(
+  const onPressInHandle = useCallback(
     (event: GestureResponderEvent) => {
       const newPosition = event.nativeEvent.pageX - railPageX
       setHandlePosition(newPosition)
@@ -225,10 +231,10 @@ export const Slider = memo((props: SliderProps) => {
 
   const onReleaseHandle = useCallback(
     (percentComplete: number) => {
-      onPressOut(percentComplete)
+      onNewPosition(percentComplete)
       animateFromNowToEnd(percentComplete)
     },
-    [onPressOut, animateFromNowToEnd]
+    [onNewPosition, animateFromNowToEnd]
   )
 
   const panResponder = useMemo(
@@ -295,7 +301,7 @@ export const Slider = memo((props: SliderProps) => {
     } else {
       pause()
     }
-  }, [isPlaying, play, pause, mediaKey, durationRef])
+  }, [isPlaying, play, pause, mediaKey, durationRef, playbackRate])
 
   const appState = useAppState()
   const previousAppState = usePrevious(appState)
@@ -380,8 +386,8 @@ export const Slider = memo((props: SliderProps) => {
         ]}
       >
         <Animated.View
-          onTouchStart={onPressHandle}
-          onTouchEnd={handlePressHandleOut}
+          onTouchStart={onPressInHandle}
+          onTouchEnd={handlePressOut}
           hitSlop={{ top: 16, bottom: 16, right: 16, left: 16 }}
           style={[styles.handle, { transform: [{ scale: handleScale }] }]}
         />

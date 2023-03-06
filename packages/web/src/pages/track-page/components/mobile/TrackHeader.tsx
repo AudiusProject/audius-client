@@ -13,9 +13,19 @@ import {
   formatSeconds,
   formatDate,
   OverflowAction,
-  imageBlank as placeholderArt
+  imageBlank as placeholderArt,
+  FeatureFlags,
+  PremiumConditions,
+  Nullable
 } from '@audius/common'
-import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
+import {
+  Button,
+  ButtonType,
+  IconCollectible,
+  IconPause,
+  IconPlay,
+  IconSpecialAccess
+} from '@audius/stems'
 import cn from 'classnames'
 import Linkify from 'linkify-react'
 
@@ -25,10 +35,15 @@ import HoverInfo from 'components/co-sign/HoverInfo'
 import { Size } from 'components/co-sign/types'
 import DownloadButtons from 'components/download-buttons/DownloadButtons'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
+import { PremiumTrackSection } from 'components/track/PremiumTrackSection'
+import TrackBannerIcon, {
+  TrackBannerIconType
+} from 'components/track/TrackBannerIcon'
 import UserBadges from 'components/user-badges/UserBadges'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { moodMap } from 'utils/moods'
-import { isDarkMode } from 'utils/theme/theme'
+import { isDarkMode, isMatrix } from 'utils/theme/theme'
 
 import HiddenTrackHeader from '../HiddenTrackHeader'
 
@@ -40,7 +55,9 @@ const messages = {
   track: 'TRACK',
   remix: 'REMIX',
   play: 'PLAY',
-  pause: 'PAUSE'
+  pause: 'PAUSE',
+  collectibleGated: 'COLLECTIBLE GATED',
+  specialAccess: 'SPECIAL ACCESS'
 }
 
 const PlayButton = (props: { playing: boolean; onPlay: () => void }) => {
@@ -90,6 +107,8 @@ type TrackHeaderProps = {
   repostCount: number
   isUnlisted: boolean
   isPremium: boolean
+  premiumConditions: Nullable<PremiumConditions>
+  doesUserHaveAccess: boolean
   isRemix: boolean
   fieldVisibility: FieldVisibility
   coSign: Remix | null
@@ -131,6 +150,8 @@ const TrackHeader = ({
   isReposted,
   isUnlisted,
   isPremium,
+  premiumConditions,
+  doesUserHaveAccess,
   isRemix,
   fieldVisibility,
   coSign,
@@ -152,6 +173,12 @@ const TrackHeader = ({
   goToFavoritesPage,
   goToRepostsPage
 }: TrackHeaderProps) => {
+  const { isEnabled: isPremiumContentEnabled } = useFlag(
+    FeatureFlags.PREMIUM_CONTENT_ENABLED
+  )
+  const showSocials =
+    !isUnlisted && (!isPremiumContentEnabled || doesUserHaveAccess)
+
   const image = useTrackCoverArt(
     trackId,
     coverArtSizes,
@@ -197,17 +224,19 @@ const TrackHeader = ({
 
   const onClickOverflow = () => {
     const overflowActions = [
-      isOwner || isUnlisted
+      isOwner || !showSocials
         ? null
         : isReposted
         ? OverflowAction.UNREPOST
         : OverflowAction.REPOST,
-      isOwner || isUnlisted
+      isOwner || !showSocials
         ? null
         : isSaved
         ? OverflowAction.UNFAVORITE
         : OverflowAction.FAVORITE,
-      OverflowAction.ADD_TO_PLAYLIST,
+      !isPremiumContentEnabled || !isPremium
+        ? OverflowAction.ADD_TO_PLAYLIST
+        : null,
       isFollowing
         ? OverflowAction.UNFOLLOW_ARTIST
         : OverflowAction.FOLLOW_ARTIST,
@@ -288,16 +317,65 @@ const TrackHeader = ({
     />
   )
 
+  const renderCornerTag = () => {
+    const showPremiumCornerTag =
+      isPremiumContentEnabled &&
+      !isLoading &&
+      premiumConditions &&
+      (isOwner || !doesUserHaveAccess)
+    const cornerTagIconType = showPremiumCornerTag
+      ? isOwner
+        ? premiumConditions.nft_collection
+          ? TrackBannerIconType.COLLECTIBLE_GATED
+          : TrackBannerIconType.SPECIAL_ACCESS
+        : TrackBannerIconType.LOCKED
+      : null
+    if (showPremiumCornerTag && cornerTagIconType) {
+      return (
+        <TrackBannerIcon
+          type={cornerTagIconType}
+          isMatrixMode={isMatrix()}
+          className={styles.cornerTag}
+        />
+      )
+    }
+    return null
+  }
+
+  const renderHeaderText = () => {
+    if (isPremiumContentEnabled && isPremium) {
+      return (
+        <div className={cn(styles.typeLabel, styles.premiumContentLabel)}>
+          {premiumConditions?.nft_collection ? (
+            <IconCollectible />
+          ) : (
+            <IconSpecialAccess />
+          )}
+          {premiumConditions?.nft_collection ? (
+            <span>{messages.collectibleGated}</span>
+          ) : (
+            <span>{messages.specialAccess}</span>
+          )}
+        </div>
+      )
+    }
+
+    return (
+      <div className={styles.typeLabel}>
+        {isRemix ? messages.remix : messages.track}
+      </div>
+    )
+  }
+
   return (
     <div className={styles.trackHeader}>
+      {renderCornerTag()}
       {isUnlisted ? (
         <div className={styles.hiddenTrackHeaderWrapper}>
           <HiddenTrackHeader />
         </div>
       ) : (
-        <div className={styles.typeLabel}>
-          {isRemix ? messages.remix : messages.track}
-        </div>
+        renderHeaderText()
       )}
       {imageElement}
       <h1 className={styles.title}>{title}</h1>
@@ -310,10 +388,27 @@ const TrackHeader = ({
         />
       </div>
       <div className={styles.buttonSection}>
-        <PlayButton playing={isPlaying} onPlay={onPlay} />
+        {isPremiumContentEnabled &&
+        !doesUserHaveAccess &&
+        premiumConditions &&
+        trackId ? (
+          <PremiumTrackSection
+            isLoading={false}
+            trackId={trackId}
+            premiumConditions={premiumConditions}
+            doesUserHaveAccess={doesUserHaveAccess}
+            isOwner={false}
+            wrapperClassName={styles.premiumTrackSectionWrapper}
+            className={styles.premiumTrackSection}
+            buttonClassName={styles.premiumTrackSectionButton}
+          />
+        ) : null}
+        {!isPremiumContentEnabled || doesUserHaveAccess ? (
+          <PlayButton playing={isPlaying} onPlay={onPlay} />
+        ) : null}
         <ActionButtonRow
-          showRepost={!isUnlisted}
-          showFavorite={!isUnlisted}
+          showRepost={showSocials}
+          showFavorite={showSocials}
           showShare={!isUnlisted || fieldVisibility.share}
           showOverflow
           shareToastDisabled
@@ -327,6 +422,24 @@ const TrackHeader = ({
           darkMode={isDarkMode()}
         />
       </div>
+      {isPremiumContentEnabled &&
+        doesUserHaveAccess &&
+        premiumConditions &&
+        trackId && (
+          <PremiumTrackSection
+            isLoading={false}
+            trackId={trackId}
+            premiumConditions={premiumConditions}
+            doesUserHaveAccess={doesUserHaveAccess}
+            isOwner={isOwner}
+            wrapperClassName={cn(
+              styles.premiumTrackSectionWrapper,
+              styles.unlockedSection
+            )}
+            className={styles.premiumTrackSection}
+            buttonClassName={styles.premiumTrackSectionButton}
+          />
+        )}
       {coSign && (
         <div className={styles.coSignInfo}>
           <HoverInfo

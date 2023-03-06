@@ -1,7 +1,8 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 
-import type { Track } from '@audius/common'
+import type { ID, QueryParams, Track } from '@audius/common'
 import {
+  playbackRateValueMap,
   cacheUsersSelectors,
   cacheTracksSelectors,
   hlsUtils,
@@ -20,7 +21,7 @@ import {
   shallowCompare,
   savedPageTracksLineupActions
 } from '@audius/common'
-import { isEqual } from 'lodash'
+import { isEqual, range } from 'lodash'
 import TrackPlayer, {
   AppKilledPlaybackBehavior,
   Capability,
@@ -57,7 +58,8 @@ import {
 
 const { getUsers } = cacheUsersSelectors
 const { getTracks } = cacheTracksSelectors
-const { getPlaying, getSeek, getCurrentTrack, getCounter } = playerSelectors
+const { getPlaying, getSeek, getCurrentTrack, getCounter, getPlaybackRate } =
+  playerSelectors
 const { recordListen } = tracksSocialActions
 const {
   getIndex,
@@ -123,13 +125,13 @@ export const Audio = () => {
   const { isEnabled: isStreamMp3Enabled } = useFeatureFlag(
     FeatureFlags.STREAM_MP3
   )
-  // const progress = useProgress(100) // 100ms update interval
   const playbackState = usePlaybackState()
   const track = useSelector(getCurrentTrack)
   const playing = useSelector(getPlaying)
   const seek = useSelector(getSeek)
   const counter = useSelector(getCounter)
   const repeatMode = useSelector(getRepeat)
+  const playbackRate = useSelector(getPlaybackRate)
 
   const isReachable = useSelector(getIsReachable)
   const isNotReachable = isReachable === false
@@ -234,6 +236,52 @@ export const Audio = () => {
     }
   }, [reset])
 
+  // Map of user signature for gated tracks
+  const [gatedQueryParamsMap, setGatedQueryParamsMap] = useState<{
+    [trackId: ID]: QueryParams
+  }>({})
+
+  const handleGatedQueryParams = useCallback(
+    async (tracks: Track[]) => {
+      const queryParamsMap: { [trackId: ID]: QueryParams } = {}
+
+      for (const track of tracks) {
+        const {
+          track_id: trackId,
+          is_premium: isPremium,
+          premium_content_signature
+        } = track
+
+        if (gatedQueryParamsMap[trackId]) {
+          queryParamsMap[trackId] = gatedQueryParamsMap[trackId]
+        } else if (isPremiumContentEnabled && isPremium) {
+          const data = `Premium content user signature at ${Date.now()}`
+          const signature = await audiusBackendInstance.getSignature(data)
+          const premiumContentSignature =
+            premium_content_signature || premiumTrackSignatureMap[trackId]
+          queryParamsMap[trackId] = {
+            user_data: data,
+            user_signature: signature
+          }
+          if (premiumContentSignature) {
+            queryParamsMap[trackId].premium_content_signature = JSON.stringify(
+              premiumContentSignature
+            )
+          }
+        }
+      }
+
+      setGatedQueryParamsMap(queryParamsMap)
+      return queryParamsMap
+    },
+    [
+      isPremiumContentEnabled,
+      premiumTrackSignatureMap,
+      gatedQueryParamsMap,
+      setGatedQueryParamsMap
+    ]
+  )
+
   useTrackPlayerEvents(playerEvents, async (event) => {
     const duration = await TrackPlayer.getDuration()
     const position = await TrackPlayer.getPosition()
@@ -320,6 +368,10 @@ export const Audio = () => {
       const isPodcast = queueTracks[playerIndex]?.genre === Genre.PODCASTS
       if (isPodcast !== isPodcastRef.current) {
         isPodcastRef.current = isPodcast
+        // Update playback rate based on if the track is a podcast or not
+        const newRate = isPodcast ? playbackRateValueMap[playbackRate] : 1.0
+        await TrackPlayer.setRate(newRate)
+        // Update lock screen and notification controls
         await updatePlayerOptions(isPodcast)
       }
     }
@@ -398,13 +450,33 @@ export const Audio = () => {
     updatingQueueRef.current = true
     queueListRef.current = queueTrackUids
 
-    // Check if this is a new queue or we are appending to the queue
+    // Checks to allow for continuous playback while making queue updates
+    // Check if we are appending to the end of the queue
     const isQueueAppend =
       refUids.length > 0 &&
       isEqual(queueTrackUids.slice(0, refUids.length), refUids)
+    // Check if we are removing from the end of the queue
+    const isQueueRemoval =
+      refUids.length > 0 &&
+      isEqual(refUids.slice(0, queueTrackUids.length), queueTrackUids)
+
+    if (isQueueRemoval) {
+      // NOTE: There might be a case where we are trying to remove the currently playing track.
+      // Shouldn't be possible, but need to keep an eye out for that
+      const startingRemovalIndex = queueTrackUids.length
+      const removalLength = refUids.length - queueTrackUids.length
+      const removalIndexArray = range(removalLength).map(
+        (i) => i + startingRemovalIndex
+      )
+      await TrackPlayer.remove(removalIndexArray)
+      return
+    }
+
     const newQueueTracks = isQueueAppend
       ? queueTracks.slice(refUids.length)
       : queueTracks
+
+    const queryParamsMap = await handleGatedQueryParams(newQueueTracks)
 
     const newTrackData = newQueueTracks.map((track) => {
       const trackOwner = queueTrackOwnersMap[track.owner_id]
@@ -419,9 +491,17 @@ export const Audio = () => {
         const audioFilePath = getLocalAudioPath(trackId)
         url = `file://${audioFilePath}`
       } else if (isStreamMp3Enabled && isReachable) {
-        url = apiClient.makeUrl(
-          `/tracks/${encodeHashId(track.track_id)}/stream`
-        )
+        const queryParams = queryParamsMap[track.track_id]
+        if (queryParams) {
+          url = apiClient.makeUrl(
+            `/tracks/${encodeHashId(track.track_id)}/stream`,
+            queryParams
+          )
+        } else {
+          url = apiClient.makeUrl(
+            `/tracks/${encodeHashId(track.track_id)}/stream`
+          )
+        }
       } else {
         isM3u8 = true
         const ownerGateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
@@ -484,7 +564,8 @@ export const Audio = () => {
     queueTrackUids,
     queueTracks,
     didOfflineToggleChange,
-    isCollectionMarkedForDownload
+    isCollectionMarkedForDownload,
+    handleGatedQueryParams
   ])
 
   const handleQueueIdxChange = useCallback(async () => {
@@ -524,6 +605,11 @@ export const Audio = () => {
     }
   }, [repeatMode])
 
+  const handlePlaybackRateChange = useCallback(async () => {
+    if (!isPodcastRef.current) return
+    await TrackPlayer.setRate(playbackRateValueMap[playbackRate])
+  }, [playbackRate])
+
   useEffect(() => {
     if (isAudioSetup) {
       handleRepeatModeChange()
@@ -547,6 +633,10 @@ export const Audio = () => {
       handleTogglePlay()
     }
   }, [handleTogglePlay, playing, isAudioSetup])
+
+  useEffect(() => {
+    handlePlaybackRateChange()
+  }, [handlePlaybackRateChange, playbackRate])
 
   return null
 }

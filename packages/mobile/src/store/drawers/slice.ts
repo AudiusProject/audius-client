@@ -20,6 +20,10 @@ export type Drawer =
   | 'UnfavoriteDownloadedCollection'
   | 'RateCallToAction'
   | 'LockedContent'
+  | 'ChatActions'
+  | 'ProfileActions'
+  | 'BlockMessages'
+  | 'PlaybackRate'
 
 export type DrawerData = {
   EnablePushNotifications: undefined
@@ -29,6 +33,7 @@ export type DrawerData = {
   NowPlaying: undefined
   CancelEditTrack: undefined
   RateCallToAction: undefined
+  PlaybackRate: undefined
   DeleteConfirmation: {
     trackId: number
   }
@@ -41,6 +46,9 @@ export type DrawerData = {
     collectionId: ID
   }
   LockedContent: undefined
+  ChatActions: { userId: number }
+  ProfileActions: { userId: number }
+  BlockMessages: { userId: number }
 }
 
 export type DrawersState = { [drawer in Drawer]: boolean | 'closing' } & {
@@ -63,6 +71,10 @@ const initialState: DrawersState = {
   UnfavoriteDownloadedCollection: false,
   RateCallToAction: false,
   LockedContent: false,
+  ChatActions: false,
+  ProfileActions: false,
+  BlockMessages: false,
+  PlaybackRate: false,
   data: null
 }
 

@@ -3,19 +3,19 @@ import { memo, MouseEvent, useCallback } from 'react'
 import {
   formatCount,
   pluralize,
-  formatSeconds,
-  premiumContentActions
+  FeatureFlags,
+  formatLineupTileDuration,
+  Genre
 } from '@audius/common'
 import { IconCrown, IconHidden } from '@audius/stems'
 import cn from 'classnames'
-import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconStar } from 'assets/img/iconStar.svg'
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
-import { useModalState } from 'common/hooks/useModalState'
 import Skeleton from 'components/skeleton/Skeleton'
+import { useFlag } from 'hooks/useRemoteConfig'
 
-import { PremiumTrackCornerTag } from '../PremiumTrackCornerTag'
+import { PremiumContentLabel } from '../PremiumContentLabel'
 import TrackBannerIcon, { TrackBannerIconType } from '../TrackBannerIcon'
 import {
   TrackTileSize,
@@ -23,10 +23,7 @@ import {
 } from '../types'
 
 import { BottomRow } from './BottomRow'
-import { PremiumContentLabel } from './PremiumContentLabel'
 import styles from './TrackTile.module.css'
-
-const { setLockedContentId } = premiumContentActions
 
 const messages = {
   getPlays: (listenCount: number) => ` ${pluralize('Play', listenCount)}`,
@@ -86,6 +83,7 @@ const TrackTile = memo(
     rightActions,
     header,
     title,
+    genre,
     userName,
     duration,
     stats,
@@ -105,8 +103,9 @@ const TrackTile = memo(
     isTrack,
     trackId
   }: TrackTileProps) => {
-    const dispatch = useDispatch()
-    const [, setModalVisibility] = useModalState('LockedContent')
+    const { isEnabled: isPremiumContentEnabled } = useFlag(
+      FeatureFlags.PREMIUM_CONTENT_ENABLED
+    )
 
     const hasOrdering = order !== undefined
 
@@ -115,7 +114,17 @@ const TrackTile = memo(
       : false
 
     const showPremiumCornerTag =
-      !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
+      isPremiumContentEnabled &&
+      !isLoading &&
+      premiumConditions &&
+      (isOwner || !doesUserHaveAccess)
+    const cornerTagIconType = showPremiumCornerTag
+      ? isOwner
+        ? premiumConditions.nft_collection
+          ? TrackBannerIconType.COLLECTIBLE_GATED
+          : TrackBannerIconType.SPECIAL_ACCESS
+        : TrackBannerIconType.LOCKED
+      : null
 
     const onClickTitleWrapper = useCallback(
       (e: MouseEvent) => {
@@ -125,29 +134,6 @@ const TrackTile = memo(
       },
       [onClickTitle]
     )
-
-    const onClickTile = useCallback(() => {
-      if (isLoading || isDisabled) {
-        return
-      }
-
-      if (isTrack && trackId && !doesUserHaveAccess) {
-        dispatch(setLockedContentId({ id: trackId }))
-        setModalVisibility(true)
-        return
-      }
-
-      onTogglePlay()
-    }, [
-      dispatch,
-      isLoading,
-      isDisabled,
-      isTrack,
-      trackId,
-      doesUserHaveAccess,
-      setModalVisibility,
-      onTogglePlay
-    ])
 
     return (
       <div
@@ -163,15 +149,8 @@ const TrackTile = memo(
           // Standalone means that this tile is not w/ a playlist
           [styles.standalone]: !!standalone
         })}
-        onClick={onClickTile}
+        onClick={!isLoading && !isDisabled ? onTogglePlay : undefined}
       >
-        {showPremiumCornerTag && (
-          <PremiumTrackCornerTag
-            doesUserHaveAccess={!!doesUserHaveAccess}
-            isOwner={isOwner}
-            premiumConditions={premiumConditions}
-          />
-        )}
         {/* prefix ordering */}
         <RankAndIndexIndicator
           hasOrdering={hasOrdering}
@@ -187,12 +166,18 @@ const TrackTile = memo(
         >
           {artwork}
         </div>
-        {isArtistPick && !showPremiumCornerTag && (
+        {showPremiumCornerTag && cornerTagIconType ? (
+          <TrackBannerIcon
+            type={cornerTagIconType}
+            isMatrixMode={isMatrixMode}
+          />
+        ) : null}
+        {isArtistPick && !showPremiumCornerTag ? (
           <TrackBannerIcon
             type={TrackBannerIconType.STAR}
             isMatrixMode={isMatrixMode}
           />
-        )}
+        ) : null}
         {isUnlisted && (
           <TrackBannerIcon
             type={TrackBannerIconType.HIDDEN}
@@ -265,7 +250,9 @@ const TrackTile = memo(
                 </div>
               )}
               {!isLoading && duration && (
-                <div className={styles.duration}>{formatSeconds(duration)}</div>
+                <div className={styles.duration}>
+                  {formatLineupTileDuration(duration, genre === Genre.PODCASTS)}
+                </div>
               )}
             </div>
             <div className={styles.bottomRight}>

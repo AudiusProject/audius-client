@@ -26,10 +26,11 @@ export const SHARE_AUDIO_NFT_PLAYLIST = 'SOCIAL/SHARE_AUDIO_NFT_PLAYLIST'
 
 export const repostCollection = createCustomAction(
   REPOST_COLLECTION,
-  (collectionId: ID, source: RepostSource, metadata?: any) => ({
+  (collectionId: ID, source: RepostSource, isFeed = false, metadata?: any) => ({
     collectionId,
     metadata,
-    source
+    source,
+    isFeed
   })
 )
 
@@ -49,7 +50,11 @@ export const repostCollectionFailed = createCustomAction(
 
 export const saveCollection = createCustomAction(
   SAVE_COLLECTION,
-  (collectionId: ID, source: FavoriteSource) => ({ collectionId, source })
+  (collectionId: ID, source: FavoriteSource, isFeed = false) => ({
+    collectionId,
+    source,
+    isFeed
+  })
 )
 
 export const saveCollectionSucceeded = createCustomAction(

@@ -18,13 +18,17 @@ import {
   RepostType,
   repostsUserListActions,
   favoritesUserListActions,
-  playerSelectors
+  playerSelectors,
+  usePremiumContentAccess,
+  FeatureFlags,
+  Genre
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { TrackTileProps } from 'components/track/types'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { AppState } from 'store/types'
 import {
   profilePage,
@@ -83,11 +87,15 @@ const ConnectedTrackTile = memo(
     showRankIcon,
     isFeed = false
   }: ConnectedTrackTileProps) => {
+    const trackWithFallback = getTrackWithFallback(track)
     const {
       is_delete,
       is_unlisted,
+      is_premium: isPremium,
+      premium_conditions: premiumConditions,
       track_id,
       title,
+      genre,
       permalink,
       repost_count,
       save_count,
@@ -101,33 +109,33 @@ const ConnectedTrackTile = memo(
       play_count,
       _co_sign,
       duration
-    } = getTrackWithFallback(track)
+    } = trackWithFallback
 
     const { artist_pick_track_id, user_id, handle, name, is_verified } =
       getUserWithFallback(user)
 
     const isOwner = user_id === currentUserId
 
+    const { isEnabled: isPremiumContentEnabled } = useFlag(
+      FeatureFlags.PREMIUM_CONTENT_ENABLED
+    )
+    const { isUserAccessTBD, doesUserHaveAccess } =
+      usePremiumContentAccess(trackWithFallback)
+    const loading = isBuffering || isUserAccessTBD
+
     const toggleSave = (trackId: ID) => {
       if (has_current_user_saved) {
         unsaveTrack(trackId)
       } else {
-        saveTrack(trackId)
+        saveTrack(trackId, isFeed)
       }
     }
-
-    const onRepostMetadata = isFeed
-      ? // If we're on the feed, and someone i follow has
-        // reposted the content i am reposting,
-        // we have a repost of a repost. is_repost_repost is true
-        { is_repost_repost: followee_reposts.length !== 0 }
-      : { is_repost_repost: false }
 
     const toggleRepost = (trackId: ID) => {
       if (has_current_user_reposted) {
         unrepostTrack(trackId)
       } else {
-        repostTrack(trackId, onRepostMetadata)
+        repostTrack(trackId, isFeed)
       }
     }
 
@@ -162,18 +170,26 @@ const ConnectedTrackTile = memo(
       }
 
     const onClickOverflow = (trackId: ID) => {
-      const overflowActions = [
-        !isOwner
+      const repostAction =
+        !isOwner && (!isPremiumContentEnabled || doesUserHaveAccess)
           ? has_current_user_reposted
             ? OverflowAction.UNREPOST
             : OverflowAction.REPOST
-          : null,
-        !isOwner
+          : null
+      const favoriteAction =
+        !isOwner && (!isPremiumContentEnabled || doesUserHaveAccess)
           ? has_current_user_saved
             ? OverflowAction.UNFAVORITE
             : OverflowAction.FAVORITE
-          : null,
-        OverflowAction.ADD_TO_PLAYLIST,
+          : null
+      const addToPlaylistAction =
+        !isPremiumContentEnabled || !isPremium
+          ? OverflowAction.ADD_TO_PLAYLIST
+          : null
+      const overflowActions = [
+        repostAction,
+        favoriteAction,
+        addToPlaylistAction,
         OverflowAction.VIEW_TRACK_PAGE,
         OverflowAction.VIEW_ARTIST_PAGE
       ].filter(Boolean) as OverflowAction[]
@@ -194,6 +210,7 @@ const ConnectedTrackTile = memo(
         hasLoaded={hasLoaded}
         ordered={ordered}
         title={title}
+        genre={genre as Genre}
         repostCount={repost_count}
         saveCount={save_count}
         followeeReposts={followee_reposts}
@@ -219,7 +236,7 @@ const ConnectedTrackTile = memo(
         permalink={permalink}
         togglePlay={togglePlay}
         isActive={uid === playingUid}
-        isLoading={isBuffering}
+        isLoading={loading}
         isPlaying={uid === playingUid && isPlaying}
         goToArtistPage={goToArtistPage}
         goToTrackPage={goToTrackPage}
@@ -235,6 +252,9 @@ const ConnectedTrackTile = memo(
         isMatrix={isMatrix()}
         isTrending={isTrending}
         isUnlisted={is_unlisted}
+        isPremium={isPremium}
+        premiumConditions={premiumConditions}
+        doesUserHaveAccess={doesUserHaveAccess}
         showRankIcon={showRankIcon}
       />
     )
@@ -264,12 +284,12 @@ function mapDispatchToProps(dispatch: Dispatch) {
           source: ShareSource.TILE
         })
       ),
-    saveTrack: (trackId: ID) =>
-      dispatch(saveTrack(trackId, FavoriteSource.TILE)),
+    saveTrack: (trackId: ID, isFeed: boolean) =>
+      dispatch(saveTrack(trackId, FavoriteSource.TILE, isFeed)),
     unsaveTrack: (trackId: ID) =>
       dispatch(unsaveTrack(trackId, FavoriteSource.TILE)),
-    repostTrack: (trackId: ID, metadata: { is_repost_repost: boolean }) =>
-      dispatch(repostTrack(trackId, RepostSource.TILE, metadata)),
+    repostTrack: (trackId: ID, isFeed: boolean) =>
+      dispatch(repostTrack(trackId, RepostSource.TILE, isFeed)),
     unrepostTrack: (trackId: ID) =>
       dispatch(undoRepostTrack(trackId, RepostSource.TILE)),
     clickOverflow: (trackId: ID, overflowActions: OverflowAction[]) =>
