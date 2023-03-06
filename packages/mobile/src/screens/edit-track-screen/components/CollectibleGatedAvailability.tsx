@@ -25,13 +25,16 @@ const messages = {
   pickACollection: 'Pick A Collection',
   ownersOf: 'Owners Of',
   noCollectibles:
-    'No Collectibles found. To enable this option, link a wallet containing a collectible.'
+    'No Collectibles found. To enable this option, link a wallet containing a collectible.',
+  compatibilityTitle: "Not seeing what you're looking for?",
+  compatibilitySubtitle: 'Only verified Solana NFT Collections are compatible.'
 }
 
 const LEARN_MORE_URL =
   'https://blog.audius.co/article/introducing-nft-collectible-gated-content'
 
-const { getSupportedUserCollections } = collectiblesSelectors
+const { getSupportedUserCollections, getHasUnsupportedCollection } =
+  collectiblesSelectors
 
 const screenWidth = Dimensions.get('screen').width
 
@@ -159,6 +162,7 @@ export const CollectibleGatedAvailability = ({
   const { ethCollectionMap, solCollectionMap } = useSelector(
     getSupportedUserCollections
   )
+  const hasUnsupportedCollection = useSelector(getHasUnsupportedCollection)
   const numEthCollectibles = Object.keys(ethCollectionMap).length
   const numSolCollectibles = Object.keys(solCollectionMap).length
   const hasNoCollectibles = numEthCollectibles + numSolCollectibles === 0
@@ -189,6 +193,17 @@ export const CollectibleGatedAvailability = ({
     }
   }, [disabled, navigation])
 
+  const renderHelpCalloutContent = useCallback(() => {
+    return hasUnsupportedCollection ? (
+      <View>
+        <Text>{messages.compatibilityTitle}</Text>
+        <Text>{messages.compatibilitySubtitle}</Text>
+      </View>
+    ) : (
+      messages.noCollectibles
+    )
+  }, [hasUnsupportedCollection])
+
   return (
     <View style={styles.root}>
       <View style={styles.titleContainer}>
@@ -205,7 +220,7 @@ export const CollectibleGatedAvailability = ({
       {hasNoCollectibles ? (
         <HelpCallout
           style={styles.noCollectibles}
-          content={messages.noCollectibles}
+          content={renderHelpCalloutContent()}
         />
       ) : null}
       <Link url={LEARN_MORE_URL} style={styles.learnMore}>

@@ -123,7 +123,10 @@ export const LineupTileTopRight = ({
 
   return (
     <View style={styles.topRight}>
-      {isPremiumContentEnabled && !!premiumConditions && !isOwner && doesUserHaveAccess ? (
+      {isPremiumContentEnabled &&
+      !!premiumConditions &&
+      !isOwner &&
+      doesUserHaveAccess ? (
         <LineupTileTopRightItem
           icon={IconUnlocked}
           label={messages.unlocked}
