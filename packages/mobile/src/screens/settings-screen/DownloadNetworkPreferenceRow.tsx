@@ -1,38 +1,51 @@
 import { useCallback } from 'react'
 
 import { NetInfoStateType } from '@react-native-community/netinfo'
+import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import IconDownload from 'app/assets/images/iconDownload.svg'
-import { SegmentedControl } from 'app/components/core'
+import IconDownload from 'app/assets/images/iconCloudDownload.svg'
+import { Switch } from 'app/components/core'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { getDownloadNetworkTypePreference } from 'app/store/offline-downloads/selectors'
 import { setDownloadNetworkPreference } from 'app/store/offline-downloads/slice'
+import { makeStyles } from 'app/styles'
 
 import { SettingsRowLabel } from './SettingRowLabel'
 import { SettingsRow } from './SettingsRow'
-import { SettingsRowContent } from './SettingsRowContent'
+import { SettingsRowDescription } from './SettingsRowDescription'
 
 const messages = {
-  downloadNetworkPreference: 'Offline Downloads Network Preference',
-  wifi: 'Wifi Only',
-  cellular: 'Wifi and Cellular'
+  wifiOnly: 'Download on Wi-Fi Only',
+  wifiOnlyBody:
+    "When enabled, you'll only be able to download while connected to a Wi-Fi network"
 }
+
+const useStyles = makeStyles(({ palette }) => ({
+  content: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  labelOff: {
+    color: palette.neutralLight4
+  }
+}))
 
 export const DownloadNetworkPreferenceRow = () => {
   const isOfflineDownloadEnabled = useIsOfflineModeEnabled()
   const dispatch = useDispatch()
+  const styles = useStyles()
   const downloadNetworkTypePreference = useSelector(
     getDownloadNetworkTypePreference
   )
-
-  const networkTypeOptions = [
-    { key: NetInfoStateType.wifi, text: messages.wifi },
-    { key: NetInfoStateType.cellular, text: messages.cellular }
-  ]
+  const downloadOverWifiOnly =
+    downloadNetworkTypePreference === NetInfoStateType.wifi
 
   const handleSetNetworkPreference = useCallback(
-    (downloadNetworkPreference: NetInfoStateType) => {
+    (value: boolean) => {
+      const downloadNetworkPreference = value
+        ? NetInfoStateType.wifi
+        : NetInfoStateType.cellular
       dispatch(setDownloadNetworkPreference({ downloadNetworkPreference }))
     },
     [dispatch]
@@ -42,18 +55,15 @@ export const DownloadNetworkPreferenceRow = () => {
 
   return (
     <SettingsRow>
-      <SettingsRowLabel
-        label={messages.downloadNetworkPreference}
-        icon={IconDownload}
-      />
-      <SettingsRowContent>
-        <SegmentedControl
-          fullWidth
-          options={networkTypeOptions}
-          defaultSelected={downloadNetworkTypePreference}
-          onSelectOption={handleSetNetworkPreference}
+      <View style={styles.content}>
+        <SettingsRowLabel label={messages.wifiOnly} icon={IconDownload} />
+        <Switch
+          onValueChange={handleSetNetworkPreference}
+          value={downloadOverWifiOnly}
         />
-      </SettingsRowContent>
+      </View>
+
+      <SettingsRowDescription>{messages.wifiOnlyBody}</SettingsRowDescription>
     </SettingsRow>
   )
 }

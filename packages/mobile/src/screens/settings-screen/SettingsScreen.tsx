@@ -8,6 +8,7 @@ import IconInfo from 'app/assets/images/iconInfo.svg'
 import IconNotificationOn from 'app/assets/images/iconNotificationOn.svg'
 import IconSettings from 'app/assets/images/iconSettings.svg'
 import { Screen, ScreenContent, ScrollView } from 'app/components/core'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
 import { Theme } from 'app/utils/theme'
@@ -45,6 +46,7 @@ const IconProps = { height: 28, width: 28, style: { marginRight: 4 } }
 
 export const SettingsScreen = () => {
   const styles = useStyles()
+  const isOfflineDownloadEnabled = useIsOfflineModeEnabled()
 
   const navigation = useNavigation<ProfileTabScreenParamList>()
 
@@ -74,9 +76,16 @@ export const SettingsScreen = () => {
           <Image source={audiusLogoHorizontal} style={styles.logo} />
           <AccountSettingsRow />
           <Divider />
-          <SettingsRow onPress={handlePressDownloads}>
-            <SettingsRowLabel label={messages.downloads} icon={IconDownload} />
-          </SettingsRow>
+          {isOfflineDownloadEnabled ? (
+            <>
+              <SettingsRow onPress={handlePressDownloads}>
+                <SettingsRowLabel
+                  label={messages.downloads}
+                  icon={IconDownload}
+                />
+              </SettingsRow>
+            </>
+          ) : null}
           <SettingsRow onPress={handlePressNotifications}>
             <SettingsRowLabel
               label={messages.notifications}
