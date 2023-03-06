@@ -10,7 +10,6 @@ import {
 import Config from 'react-native-config'
 import { useDispatch, useSelector } from 'react-redux'
 
-import Appearance from 'app/assets/images/emojis/waning-crescent-moon.png'
 import IconMood from 'app/assets/images/iconMood.svg'
 import { SegmentedControl } from 'app/components/core'
 import { make, track } from 'app/services/analytics'

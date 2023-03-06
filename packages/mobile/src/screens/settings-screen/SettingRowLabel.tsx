@@ -10,7 +10,7 @@ import { useThemeColors } from 'app/utils/theme'
 
 const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   root: { flexDirection: 'row', alignItems: 'center' },
-  label: { ...typography.body, color: palette.neutral },
+  label: { ...typography.h4, color: palette.neutral, marginBottom: 0 },
   icon: {
     height: spacing(4),
     width: spacing(4),
