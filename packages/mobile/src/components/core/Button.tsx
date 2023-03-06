@@ -34,6 +34,7 @@ type ButtonVariant =
   | 'commonAlt'
   | 'commonSecondary'
   | 'destructive'
+  | 'destructiveAlt'
 
 type ButtonSize = 'xs' | 'small' | 'medium' | 'large'
 type ButtonCorners = 'rounded' | 'pill'
@@ -156,6 +157,19 @@ const getCustomStyles = (config: CustomStylesConfig) => {
       icon: {
         color: palette.staticWhite
       }
+    },
+    destructiveAlt: {
+      root: {
+        borderColor: palette.accentRed,
+        borderWidth: 1,
+        backgroundColor: palette.white
+      },
+      text: {
+        color: palette.accentRed
+      },
+      icon: {
+        color: palette.accentRed
+      }
     }
   }
 
@@ -164,7 +178,8 @@ const getCustomStyles = (config: CustomStylesConfig) => {
     common: variantStyles.primary,
     commonAlt: variantStyles.commonAlt,
     commonSecondary: variantStyles.secondary,
-    destructive: variantStyles.destructive
+    destructive: variantStyles.destructive,
+    destructiveAlt: variantStyles.destructiveAlt
   }
 
   const sizeStyles = {
@@ -323,7 +338,8 @@ export const Button = (props: ButtonProps) => {
       common: primaryDark1,
       commonAlt: neutralLight10,
       commonSecondary: secondaryDark1,
-      destructive: accentRedDark1
+      destructive: accentRedDark1,
+      destructiveAlt: accentRedDark1
     }[variant]
   }, [
     customColor,

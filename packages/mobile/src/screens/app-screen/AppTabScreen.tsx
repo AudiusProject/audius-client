@@ -91,7 +91,7 @@ export type AppTabScreenParamList = {
   AccountSettingsScreen: undefined
   AccountVerificationScreen: undefined
   ChangePasswordScreen: undefined
-  DownlaodSettingsScreen: undefined
+  DownloadSettingsScreen: undefined
   NotificationSettingsScreen: undefined
   AudioScreen: undefined
   Upload: undefined
@@ -260,7 +260,7 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
           component={AccountSettingsScreen}
         />
         <Stack.Screen
-          name='DownlaodSettingsScreen'
+          name='DownloadSettingsScreen'
           component={DownloadSettingsScreen}
         />
         <Stack.Screen

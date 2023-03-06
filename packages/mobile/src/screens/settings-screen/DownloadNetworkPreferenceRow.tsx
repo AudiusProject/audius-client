@@ -4,7 +4,6 @@ import { NetInfoStateType } from '@react-native-community/netinfo'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import IconDownload from 'app/assets/images/iconCloudDownload.svg'
 import { Switch } from 'app/components/core'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { getDownloadNetworkTypePreference } from 'app/store/offline-downloads/selectors'
@@ -16,9 +15,8 @@ import { SettingsRow } from './SettingsRow'
 import { SettingsRowDescription } from './SettingsRowDescription'
 
 const messages = {
-  wifiOnly: 'Download on Wi-Fi Only',
-  wifiOnlyBody:
-    "When enabled, you'll only be able to download while connected to a Wi-Fi network"
+  label: 'Download on Wi-Fi Only',
+  body: "When enabled, you'll only be able to download while connected to a Wi-Fi network"
 }
 
 const useStyles = makeStyles(({ palette }) => ({
@@ -56,14 +54,14 @@ export const DownloadNetworkPreferenceRow = () => {
   return (
     <SettingsRow>
       <View style={styles.content}>
-        <SettingsRowLabel label={messages.wifiOnly} icon={IconDownload} />
+        <SettingsRowLabel label={messages.label} />
         <Switch
           onValueChange={handleSetNetworkPreference}
           value={downloadOverWifiOnly}
         />
       </View>
 
-      <SettingsRowDescription>{messages.wifiOnlyBody}</SettingsRowDescription>
+      <SettingsRowDescription>{messages.body}</SettingsRowDescription>
     </SettingsRow>
   )
 }

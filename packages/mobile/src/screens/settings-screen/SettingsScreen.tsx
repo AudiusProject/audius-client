@@ -51,7 +51,7 @@ export const SettingsScreen = () => {
   const navigation = useNavigation<ProfileTabScreenParamList>()
 
   const handlePressDownloads = useCallback(() => {
-    navigation.push('DownlaodSettingsScreen')
+    navigation.push('DownloadSettingsScreen')
   }, [navigation])
 
   const handlePressNotifications = useCallback(() => {
