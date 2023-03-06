@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 import { Image, Platform } from 'react-native'
 
 import audiusLogoHorizontal from 'app/assets/images/Horizontal-Logo-Full-Color.png'
-import IconDownlaod from 'app/assets/images/iconDownload.svg'
+import IconDownload from 'app/assets/images/iconCloudDownload.svg'
 import IconInfo from 'app/assets/images/iconInfo.svg'
 import IconNotificationOn from 'app/assets/images/iconNotificationOn.svg'
 import IconSettings from 'app/assets/images/iconSettings.svg'
@@ -75,7 +75,7 @@ export const SettingsScreen = () => {
           <AccountSettingsRow />
           <Divider />
           <SettingsRow onPress={handlePressDownloads}>
-            <SettingsRowLabel label={messages.downloads} icon={IconDownlaod} />
+            <SettingsRowLabel label={messages.downloads} icon={IconDownload} />
           </SettingsRow>
           <SettingsRow onPress={handlePressNotifications}>
             <SettingsRowLabel

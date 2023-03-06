@@ -5,6 +5,7 @@ import { useEffectOnce } from 'react-use'
 import { Screen, ScreenContent } from 'app/components/core'
 import { remindUserToTurnOnNotifications } from 'app/components/notification-reminder/NotificationReminder'
 
+import { Divider } from './Divider'
 import { DownloadNetworkPreferenceRow } from './DownloadNetworkPreferenceRow'
 
 const { getPushNotificationSettings, getNotificationSettings } =
@@ -33,6 +34,7 @@ export const DownloadSettingsScreen = () => {
   return (
     <Screen title={messages.title} variant='secondary' topbarRight={null}>
       <ScreenContent>
+        <Divider />
         <DownloadNetworkPreferenceRow />
       </ScreenContent>
     </Screen>
