@@ -36,7 +36,7 @@ import styles from './TrackAvailabilityModal.module.css'
 import { TrackMetadataState, UnlistedTrackMetadataField } from './types'
 
 const { getUserId } = accountSelectors
-const { getVerifiedUserCollections } = collectiblesSelectors
+const { getSupportedUserCollections } = collectiblesSelectors
 
 const messages = {
   title: 'AVAILABILITY',
@@ -120,7 +120,7 @@ const TrackAvailabilityModal = ({
     FeatureFlags.SPECIAL_ACCESS_GATE_ENABLED
   )
   const { ethCollectionMap, solCollectionMap } = useSelector(
-    getVerifiedUserCollections
+    getSupportedUserCollections
   )
   const numEthCollectibles = Object.keys(ethCollectionMap).length
   const numSolCollectibles = Object.keys(solCollectionMap).length

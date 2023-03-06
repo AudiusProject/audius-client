@@ -31,7 +31,7 @@ const messages = {
 const LEARN_MORE_URL =
   'https://blog.audius.co/article/introducing-nft-collectible-gated-content'
 
-const { getVerifiedUserCollections } = collectiblesSelectors
+const { getSupportedUserCollections } = collectiblesSelectors
 
 const screenWidth = Dimensions.get('screen').width
 
@@ -165,7 +165,7 @@ export const CollectibleGatedAvailability = ({
     : neutral
 
   const { ethCollectionMap, solCollectionMap } = useSelector(
-    getVerifiedUserCollections
+    getSupportedUserCollections
   )
   const numEthCollectibles = Object.keys(ethCollectionMap).length
   const numSolCollectibles = Object.keys(solCollectionMap).length

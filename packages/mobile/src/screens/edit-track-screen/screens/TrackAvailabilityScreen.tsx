@@ -39,7 +39,7 @@ const messages = {
   done: 'Done'
 }
 
-const { getVerifiedUserCollections } = collectiblesSelectors
+const { getSupportedUserCollections } = collectiblesSelectors
 
 const publicAvailability = TrackAvailabilityType.PUBLIC
 const specialAccessAvailability = TrackAvailabilityType.SPECIAL_ACCESS
@@ -99,7 +99,7 @@ export const TrackAvailabilityScreen = () => {
   const isUpload = !trackId
 
   const { ethCollectionMap, solCollectionMap } = useSelector(
-    getVerifiedUserCollections
+    getSupportedUserCollections
   )
   const numEthCollectibles = Object.keys(ethCollectionMap).length
   const numSolCollectibles = Object.keys(solCollectionMap).length

@@ -15,7 +15,7 @@ export const getSolCollections = (state: CommonState) =>
 
 const defaultCollectibles = { [Chain.Eth]: [], [Chain.Sol]: [] }
 
-export const getVerifiedUserCollections = createSelector(
+export const getSupportedUserCollections = createSelector(
   getUserId,
   getAllUserCollectibles,
   getSolCollections,

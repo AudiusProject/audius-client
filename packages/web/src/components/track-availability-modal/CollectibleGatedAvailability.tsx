@@ -12,7 +12,7 @@ import DropdownInput from 'components/data-entry/DropdownInput'
 import styles from './CollectibleGatedAvailability.module.css'
 import { TrackAvailabilitySelectionProps } from './types'
 
-const { getVerifiedUserCollections } = collectiblesSelectors
+const { getSupportedUserCollections } = collectiblesSelectors
 
 const messages = {
   pickACollection: 'Pick a Collection'
@@ -23,7 +23,7 @@ export const CollectibleGatedAvailability = ({
   onStateUpdate
 }: TrackAvailabilitySelectionProps) => {
   const { ethCollectionMap, solCollectionMap } = useSelector(
-    getVerifiedUserCollections
+    getSupportedUserCollections
   )
 
   const ethCollectibleItems = useMemo(() => {

@@ -19,7 +19,7 @@ const messages = {
   done: 'Done'
 }
 
-const { getVerifiedUserCollections } = collectiblesSelectors
+const { getSupportedUserCollections } = collectiblesSelectors
 
 const useStyles = makeStyles(({ spacing, palette, type }) => ({
   item: {
@@ -50,7 +50,7 @@ export const NFTCollectionsScreen = () => {
   const [{ value: premiumConditions }, , { setValue: setPremiumConditions }] =
     useField<Nullable<PremiumConditions>>('premium_conditions')
   const { ethCollectionMap, solCollectionMap, collectionImageMap } =
-    useSelector(getVerifiedUserCollections)
+    useSelector(getSupportedUserCollections)
 
   const ethCollectibleItems = useMemo(() => {
     return Object.keys(ethCollectionMap)
