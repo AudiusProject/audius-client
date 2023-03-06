@@ -6,16 +6,16 @@ import styles from './HelpCallout.module.css'
 import { ReactNode } from 'react'
 
 export const HelpCallout = ({
-  text,
+  content,
   className
 }: {
-  text: ReactNode
+  content: ReactNode
   className?: string
 }) => {
   return (
     <div className={cn(styles.root, className)}>
       <IconQuestionCircle className={styles.icon} />
-      <div className={styles.text}>{text}</div>
+      <div className={styles.content}>{content}</div>
     </div>
   )
 }

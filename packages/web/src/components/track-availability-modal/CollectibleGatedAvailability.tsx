@@ -83,7 +83,7 @@ export const CollectibleGatedAvailability = ({
     return hasUnsupportedCollection ? (
       <HelpCallout
         className={styles.helpCallout}
-        text={<div>
+        content={<div>
           <div>{messages.compatibilityTitle}</div>
           <div>{messages.compatibilitySubtitle}</div>
         </div>}
