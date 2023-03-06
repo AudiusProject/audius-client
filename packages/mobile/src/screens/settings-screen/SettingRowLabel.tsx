@@ -33,7 +33,7 @@ type SettingsRowLabelProps =
 
 export const SettingsRowLabel = (props: SettingsRowLabelProps) => {
   const { label, styles: stylesProp, style } = props
-  const { neutral } = useThemeColors()
+  const { neutralLight4 } = useThemeColors()
   const styles = useStyles()
 
   const renderIcon = () => {
@@ -47,7 +47,7 @@ export const SettingsRowLabel = (props: SettingsRowLabelProps) => {
         <Icon
           height={styles.icon.height}
           width={styles.icon.width}
-          fill={neutral}
+          fill={neutralLight4}
           style={styles.icon}
         />
       )
