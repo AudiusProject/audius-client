@@ -4,6 +4,7 @@ import type { ViewStyle } from 'react-native'
 import { StyleSheet, View } from 'react-native'
 import type { SvgProps } from 'react-native-svg'
 
+import IconUnlocked from 'app/assets/images/iconUnlocked.svg'
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
 import IconHidden from 'app/assets/images/iconHidden.svg'
 import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
@@ -18,6 +19,7 @@ import { useStyles as useTrackTileStyles } from './styles'
 const messages = {
   artistPick: "Artist's Pick",
   hiddenTrack: 'Hidden Track',
+  unlocked: 'Unlocked',
   collectibleGated: 'Collectible Gated',
   specialAccess: 'Special Access'
 }
@@ -91,6 +93,14 @@ type Props = {
    */
   showArtistPick?: boolean
   /**
+   * Whether logged in user is owner
+   */
+  isOwner?: boolean
+  /**
+   * Whether logged in user has access
+   */
+  doesUserHaveAccess?: boolean
+  /**
    * Premium conditions to determine what icon and label to show
    */
   premiumConditions?: Nullable<PremiumConditions>
@@ -102,6 +112,8 @@ export const LineupTileTopRight = ({
   isPodcast,
   isUnlisted,
   showArtistPick,
+  isOwner,
+  doesUserHaveAccess,
   premiumConditions
 }: Props) => {
   const isPremiumContentEnabled = useIsPremiumContentEnabled()
@@ -111,7 +123,14 @@ export const LineupTileTopRight = ({
 
   return (
     <View style={styles.topRight}>
-      {isPremiumContentEnabled && !!premiumConditions ? (
+      {isPremiumContentEnabled && !isOwner && doesUserHaveAccess ? (
+        <LineupTileTopRightItem
+          icon={IconUnlocked}
+          label={messages.unlocked}
+          color={accentBlue}
+        />
+      ) : null}
+      {isPremiumContentEnabled && (isOwner || !doesUserHaveAccess) && !!premiumConditions ? (
         <LineupTileTopRightItem
           icon={
             premiumConditions.nft_collection
