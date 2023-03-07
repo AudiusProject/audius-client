@@ -25,6 +25,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import WavingHand from 'app/assets/images/emojis/waving-hand-sign.png'
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconSend from 'app/assets/images/iconSend.svg'
+import IconMessage from 'app/assets/images/iconMessage.svg'
 import { TextInput, Screen, FlatList, ScreenContent } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { ProfilePicture } from 'app/components/user'
@@ -334,6 +335,7 @@ export const ChatScreen = () => {
             )
           : messages.title
       }
+      icon={otherUser ? undefined : IconMessage}
       topbarRight={topBarRight}
     >
       <ScreenContent>
