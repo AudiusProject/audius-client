@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useMemo } from 'react'
+import { ChangeEvent, useCallback, useMemo, useState } from 'react'
 
 import {
   FeatureFlags,
@@ -144,13 +144,18 @@ const TrackAvailabilityModal = ({
   const numEthCollectibles = Object.keys(ethCollectionMap).length
   const numSolCollectibles = Object.keys(solCollectionMap).length
   const hasCollectibles = numEthCollectibles + numSolCollectibles > 0
-  const noCollectibleGate = !hasCollectibles || isRemix || !isUpload
+  const noCollectibleGate = !hasCollectibles || isRemix
+  const noCollectibleDropdown = !hasCollectibles || isRemix || !isUpload
   const noSpecialAccess = isRemix || !isUpload
 
   const accountUserId = useSelector(getUserId)
   const defaultSpecialAccess = useMemo(
     () => (accountUserId ? { follow_user_id: accountUserId } : null),
     [accountUserId]
+  )
+
+  const [selectedNFTCollection, setSelectedNFTCollection] = useState(
+    metadataState.premium_conditions?.nft_collection
   )
 
   let availability = TrackAvailabilityType.PUBLIC
@@ -181,6 +186,11 @@ const TrackAvailabilityModal = ({
           is_premium: true,
           premium_conditions: premiumConditions
         })
+
+        // Keep track of selected NFT collection in case the user switches back and forth between radio items
+        if (premiumConditions.nft_collection) {
+          setSelectedNFTCollection(premiumConditions.nft_collection)
+        }
       } else if (availabilityType === availability) {
       } else if (availabilityType === TrackAvailabilityType.SPECIAL_ACCESS) {
         didUpdateState({
@@ -192,11 +202,11 @@ const TrackAvailabilityModal = ({
         didUpdateState({
           ...defaultAvailabilityFields,
           is_premium: true,
-          premium_conditions: { nft_collection: undefined }
+          premium_conditions: { nft_collection: selectedNFTCollection }
         })
       }
     },
-    [didUpdateState, availability, defaultSpecialAccess]
+    [didUpdateState, availability, defaultSpecialAccess, selectedNFTCollection]
   )
 
   const updateUnlistedField = useCallback(() => {
@@ -289,7 +299,7 @@ const TrackAvailabilityModal = ({
                 <CollectibleGatedAvailability
                   state={metadataState}
                   onStateUpdate={updatePremiumContentFields}
-                  disabled={noCollectibleGate}
+                  disabled={noCollectibleDropdown}
                 />
               }
             />
