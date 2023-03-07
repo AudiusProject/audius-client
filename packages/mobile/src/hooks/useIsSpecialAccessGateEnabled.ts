@@ -8,14 +8,14 @@ import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 // release of special access content on different mobile os.
 export const useIsSpecialAccessGateEnabled = () => {
   const isIos = getIsIOS()
-  const { isEnabled: isAndroidPremiumContentEnabled } = useFeatureFlag(
+  const { isEnabled: isAndroidGatedContentEnabled } = useFeatureFlag(
     FeatureFlags.ANDROID_GATED_CONTENT_ENABLED
   )
-  const { isEnabled: isIosPremiumContentEnabled } = useFeatureFlag(
+  const { isEnabled: isIosGatedContentEnabled } = useFeatureFlag(
     FeatureFlags.IOS_GATED_CONTENT_ENABLED
   )
   return (
     useFeatureFlag(FeatureFlags.SPECIAL_ACCESS_ENABLED) &&
-    (isIos ? isIosPremiumContentEnabled : isAndroidPremiumContentEnabled)
+    (isIos ? isIosGatedContentEnabled : isAndroidGatedContentEnabled)
   )
 }

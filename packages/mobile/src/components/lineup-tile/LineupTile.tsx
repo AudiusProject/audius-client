@@ -56,7 +56,7 @@ export const LineupTile = ({
   isPlayingUid,
   TileProps
 }: LineupTileProps) => {
-  const isPremiumContentEnabled = useIsPremiumContentEnabled()
+  const isGatedContentEnabled = useIsPremiumContentEnabled()
   const {
     has_current_user_reposted,
     has_current_user_saved,
@@ -75,7 +75,7 @@ export const LineupTile = ({
   const dispatch = useDispatch()
 
   const showPremiumCornerTag =
-    isPremiumContentEnabled &&
+    isGatedContentEnabled &&
     premiumConditions &&
     (isOwner || !doesUserHaveAccess)
   const cornerTagIconType = showPremiumCornerTag
@@ -87,13 +87,13 @@ export const LineupTile = ({
     : null
 
   const handlePress = useCallback(() => {
-    if (isPremiumContentEnabled && trackId && !doesUserHaveAccess) {
+    if (isGatedContentEnabled && trackId && !doesUserHaveAccess) {
       dispatch(setLockedContentId({ id: trackId }))
       dispatch(setVisibility({ drawer: 'LockedContent', visible: true }))
     } else {
       onPress?.()
     }
-  }, [isPremiumContentEnabled, trackId, doesUserHaveAccess, dispatch, onPress])
+  }, [isGatedContentEnabled, trackId, doesUserHaveAccess, dispatch, onPress])
 
   return (
     <LineupTileRoot onPress={handlePress} {...TileProps}>

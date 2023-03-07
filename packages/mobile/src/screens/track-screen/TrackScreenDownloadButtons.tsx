@@ -102,7 +102,7 @@ export const TrackScreenDownloadButtons = ({
   trackId,
   user
 }: TrackScreenDownloadButtonsProps) => {
-  const isPremiumContentEnabled = useIsPremiumContentEnabled()
+  const isGatedContentEnabled = useIsPremiumContentEnabled()
   const dispatch = useDispatch()
 
   const handleDownload = useCallback(
@@ -137,7 +137,7 @@ export const TrackScreenDownloadButtons = ({
     return null
   }
 
-  if (isPremiumContentEnabled && !isOwner && !doesUserHaveAccess) {
+  if (isGatedContentEnabled && !isOwner && !doesUserHaveAccess) {
     return null
   }
 

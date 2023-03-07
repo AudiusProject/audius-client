@@ -116,7 +116,7 @@ const ConnectedTrackTile = memo(
 
     const isOwner = user_id === currentUserId
 
-    const { isEnabled: isPremiumContentEnabled } = useFlag(
+    const { isEnabled: isGatedContentEnabled } = useFlag(
       FeatureFlags.GATED_CONTENT_ENABLED
     )
     const { isUserAccessTBD, doesUserHaveAccess } =
@@ -171,19 +171,19 @@ const ConnectedTrackTile = memo(
 
     const onClickOverflow = (trackId: ID) => {
       const repostAction =
-        !isOwner && (!isPremiumContentEnabled || doesUserHaveAccess)
+        !isOwner && (!isGatedContentEnabled || doesUserHaveAccess)
           ? has_current_user_reposted
             ? OverflowAction.UNREPOST
             : OverflowAction.REPOST
           : null
       const favoriteAction =
-        !isOwner && (!isPremiumContentEnabled || doesUserHaveAccess)
+        !isOwner && (!isGatedContentEnabled || doesUserHaveAccess)
           ? has_current_user_saved
             ? OverflowAction.UNFAVORITE
             : OverflowAction.FAVORITE
           : null
       const addToPlaylistAction =
-        !isPremiumContentEnabled || !isPremium
+        !isGatedContentEnabled || !isPremium
           ? OverflowAction.ADD_TO_PLAYLIST
           : null
       const overflowActions = [

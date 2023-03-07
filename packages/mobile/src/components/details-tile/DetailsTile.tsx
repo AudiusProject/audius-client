@@ -195,7 +195,7 @@ export const DetailsTile = ({
   user,
   track
 }: DetailsTileProps) => {
-  const isPremiumContentEnabled = useIsPremiumContentEnabled()
+  const isGatedContentEnabled = useIsPremiumContentEnabled()
   const { doesUserHaveAccess } = usePremiumContentAccess(
     track ? (track as unknown as Track) : null
   )
@@ -227,7 +227,7 @@ export const DetailsTile = ({
 
   const renderCornerTag = () => {
     const showPremiumCornerTag =
-      isPremiumContentEnabled &&
+      isGatedContentEnabled &&
       premiumConditions &&
       (isOwner || !doesUserHaveAccess)
     const cornerTagIconType = showPremiumCornerTag
@@ -303,7 +303,7 @@ export const DetailsTile = ({
             </TouchableOpacity>
           ) : null}
           <View style={styles.buttonSection}>
-            {isPremiumContentEnabled &&
+            {isGatedContentEnabled &&
               !doesUserHaveAccess &&
               premiumConditions &&
               trackId && (
@@ -312,7 +312,7 @@ export const DetailsTile = ({
                   premiumConditions={premiumConditions}
                 />
               )}
-            {!isPremiumContentEnabled || doesUserHaveAccess ? (
+            {!isGatedContentEnabled || doesUserHaveAccess ? (
               <Button
                 styles={{ text: styles.playButtonText }}
                 title={isPlaying ? messages.pause : messages.play}
@@ -337,7 +337,7 @@ export const DetailsTile = ({
               onPressShare={onPressShare}
             />
           </View>
-          {isPremiumContentEnabled &&
+          {isGatedContentEnabled &&
             doesUserHaveAccess &&
             premiumConditions && (
               <DetailsTileHasAccess

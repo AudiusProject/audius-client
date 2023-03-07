@@ -136,7 +136,7 @@ export const Audio = () => {
   const isReachable = useSelector(getIsReachable)
   const isNotReachable = isReachable === false
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
-  const isPremiumContentEnabled = useIsPremiumContentEnabled()
+  const isGatedContentEnabled = useIsPremiumContentEnabled()
   const premiumTrackSignatureMap = useSelector(getPremiumTrackSignatureMap)
 
   // Queue Things
@@ -254,7 +254,7 @@ export const Audio = () => {
 
         if (gatedQueryParamsMap[trackId]) {
           queryParamsMap[trackId] = gatedQueryParamsMap[trackId]
-        } else if (isPremiumContentEnabled && isPremium) {
+        } else if (isGatedContentEnabled && isPremium) {
           const data = `Premium content user signature at ${Date.now()}`
           const signature = await audiusBackendInstance.getSignature(data)
           const premiumContentSignature =
@@ -275,7 +275,7 @@ export const Audio = () => {
       return queryParamsMap
     },
     [
-      isPremiumContentEnabled,
+      isGatedContentEnabled,
       premiumTrackSignatureMap,
       gatedQueryParamsMap,
       setGatedQueryParamsMap
@@ -336,7 +336,7 @@ export const Audio = () => {
 
           // Skip track if user does not have access i.e. for an unlocked premium track
           const doesUserHaveAccess = (() => {
-            if (!isPremiumContentEnabled) {
+            if (!isGatedContentEnabled) {
               return true
             }
 

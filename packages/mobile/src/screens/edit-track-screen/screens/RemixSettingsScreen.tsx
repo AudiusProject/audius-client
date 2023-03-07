@@ -93,7 +93,7 @@ const descriptionProps: TextProps = {
 }
 
 export const RemixSettingsScreen = () => {
-  const isPremiumContentEnabled = useIsPremiumContentEnabled()
+  const isGatedContentEnabled = useIsPremiumContentEnabled()
   const styles = useStyles()
   const [{ value: remixOf }, , { setValue: setRemixOf }] =
     useField<RemixOfField>('remix_of')
@@ -236,7 +236,7 @@ export const RemixSettingsScreen = () => {
           ) : null}
           <View style={styles.option}>
             <Text {...labelProps}>
-              {isPremiumContentEnabled
+              {isGatedContentEnabled
                 ? messages.markRemix
                 : messages.isRemixLabel}
             </Text>
@@ -256,7 +256,7 @@ export const RemixSettingsScreen = () => {
                 value={remixOfInput}
                 onChangeText={handleChangeLink}
                 placeholder={
-                  isPremiumContentEnabled
+                  isGatedContentEnabled
                     ? messages.enterLink
                     : messages.remixUrlPlaceholder
                 }
@@ -282,7 +282,7 @@ export const RemixSettingsScreen = () => {
         <View style={styles.setting}>
           <View style={styles.option}>
             <Text {...labelProps}>
-              {isPremiumContentEnabled
+              {isGatedContentEnabled
                 ? messages.hideRemixes
                 : messages.hideRemixLabel}
             </Text>
@@ -293,7 +293,7 @@ export const RemixSettingsScreen = () => {
             />
           </View>
           <Text {...descriptionProps}>
-            {isPremiumContentEnabled
+            {isGatedContentEnabled
               ? messages.hideRemixesDescription
               : messages.hideRemixDescription}
           </Text>

@@ -64,7 +64,7 @@ export const LineupTileActionButtons = ({
   onPressSave,
   onPressShare
 }: Props) => {
-  const isPremiumContentEnabled = useIsPremiumContentEnabled()
+  const isGatedContentEnabled = useIsPremiumContentEnabled()
   const { neutralLight4 } = useThemeColors()
   const styles = useStyles()
 
@@ -108,7 +108,7 @@ export const LineupTileActionButtons = ({
   )
 
   const showPremiumAccessStatus =
-    isPremiumContentEnabled && trackId && !doesUserHaveAccess
+    isGatedContentEnabled && trackId && !doesUserHaveAccess
   const showLeftButtons = !showPremiumAccessStatus && !isUnlisted
 
   return (

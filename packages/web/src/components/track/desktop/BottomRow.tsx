@@ -69,7 +69,7 @@ export const BottomRow = ({
   onClickFavorite,
   onClickShare
 }: BottomRowProps) => {
-  const { isEnabled: isPremiumContentEnabled } = useFlag(
+  const { isEnabled: isGatedContentEnabled } = useFlag(
     FeatureFlags.GATED_CONTENT_ENABLED
   )
   const premiumTrackStatusMap = useSelector(getPremiumTrackStatusMap)
@@ -109,7 +109,7 @@ export const BottomRow = ({
     )
   }
 
-  if (isPremiumContentEnabled && isTrack && !isLoading && !doesUserHaveAccess) {
+  if (isGatedContentEnabled && isTrack && !isLoading && !doesUserHaveAccess) {
     return (
       <div className={styles.bottomRow}>
         {premiumTrackStatus === 'UNLOCKING' ? (

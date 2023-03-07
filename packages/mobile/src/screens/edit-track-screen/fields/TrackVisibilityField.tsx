@@ -66,11 +66,11 @@ export const TrackVisibilityField = (props: TrackVisibilityFieldProps) => {
     return [messages.public]
   }, [premiumConditions, isUnlisted, fieldVisibilityLabels])
 
-  const isPremiumContentEnabled = useIsPremiumContentEnabled()
-  const label = isPremiumContentEnabled
+  const isGatedContentEnabled = useIsPremiumContentEnabled()
+  const label = isGatedContentEnabled
     ? messages.availability
     : messages.trackVisibility
-  const submenuScreenName = isPremiumContentEnabled
+  const submenuScreenName = isGatedContentEnabled
     ? 'Availability'
     : 'TrackVisibility'
 

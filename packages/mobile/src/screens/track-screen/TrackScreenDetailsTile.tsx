@@ -162,7 +162,7 @@ export const TrackScreenDetailsTile = ({
   uid,
   isLineupLoading
 }: TrackScreenDetailsTileProps) => {
-  const isPremiumContentEnabled = useIsPremiumContentEnabled()
+  const isGatedContentEnabled = useIsPremiumContentEnabled()
   const { doesUserHaveAccess } = usePremiumContentAccess(track as Track) // track is of type Track | SearchTrack but we only care about some of their common fields, maybe worth refactoring later
   const styles = useStyles()
   const navigation = useNavigation()
@@ -202,11 +202,11 @@ export const TrackScreenDetailsTile = ({
 
   const isOwner = owner_id === currentUserId
   const hideFavorite =
-    is_unlisted || (isPremiumContentEnabled && !doesUserHaveAccess)
+    is_unlisted || (isGatedContentEnabled && !doesUserHaveAccess)
   const hideRepost =
     is_unlisted ||
     !isReachable ||
-    (isPremiumContentEnabled && !doesUserHaveAccess)
+    (isGatedContentEnabled && !doesUserHaveAccess)
 
   const remixParentTrackId = remix_of?.tracks?.[0]?.parent_track_id
   const isRemix = !!remixParentTrackId
@@ -314,7 +314,7 @@ export const TrackScreenDetailsTile = ({
 
   const handlePressOverflow = () => {
     const addToPlaylistAction =
-      !isPremiumContentEnabled || !isPremium
+      !isGatedContentEnabled || !isPremium
         ? OverflowAction.ADD_TO_PLAYLIST
         : null
     const overflowActions = [
@@ -348,7 +348,7 @@ export const TrackScreenDetailsTile = ({
   }
 
   const renderHeaderText = () => {
-    if (isPremiumContentEnabled && isPremium) {
+    if (isGatedContentEnabled && isPremium) {
       return (
         <View style={styles.headerView}>
           {track.premium_conditions?.nft_collection ? (

@@ -488,7 +488,7 @@ export const PremiumTrackSection = ({
   className,
   buttonClassName
 }: PremiumTrackSectionProps) => {
-  const { isEnabled: isPremiumContentEnabled } = useFlag(
+  const { isEnabled: isGatedContentEnabled } = useFlag(
     FeatureFlags.GATED_CONTENT_ENABLED
   )
   const premiumTrackStatusMap = useSelector(getPremiumTrackStatusMap)
@@ -527,7 +527,7 @@ export const PremiumTrackSection = ({
     }
   }, [premiumConditions])
 
-  if (!isPremiumContentEnabled) return null
+  if (!isGatedContentEnabled) return null
   if (!premiumConditions) return null
   if (!shouldDisplay) return null
 

@@ -123,7 +123,7 @@ const RemixSettingsModal = ({
   hideRemixes,
   onToggleHideRemixes
 }: RemixSettingsModalProps) => {
-  const { isEnabled: isPremiumContentEnabled } = useFlag(
+  const { isEnabled: isGatedContentEnabled } = useFlag(
     FeatureFlags.GATED_CONTENT_ENABLED
   )
 
@@ -171,7 +171,7 @@ const RemixSettingsModal = ({
     onClose(trackId)
   }, [onClose, track, isInvalidTrack, url])
 
-  if (isPremiumContentEnabled) {
+  if (isGatedContentEnabled) {
     return (
       <Modal
         isOpen={isOpen}

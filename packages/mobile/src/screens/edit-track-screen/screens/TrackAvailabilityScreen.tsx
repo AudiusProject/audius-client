@@ -65,8 +65,8 @@ const MarkedAsRemix = () => {
 }
 
 export const TrackAvailabilityScreen = () => {
-  const isSpecialAccessGateEnabled = useIsSpecialAccessGateEnabled()
-  const isNFTGateEnabled = useIsNFTGateEnabled()
+  const isSpecialAccessEnabled = useIsSpecialAccessGateEnabled()
+  const isCollectibleGatedEnabled = useIsNFTGateEnabled()
 
   const navigation = useNavigation()
   const [{ value: isPremium }] = useField<boolean>('is_premium')
@@ -126,13 +126,13 @@ export const TrackAvailabilityScreen = () => {
         selected={availability === TrackAvailabilityType.PUBLIC}
       />
     ),
-    [specialAccessAvailability]: isSpecialAccessGateEnabled ? (
+    [specialAccessAvailability]: isSpecialAccessEnabled ? (
       <SpecialAccessAvailability
         selected={availability === TrackAvailabilityType.SPECIAL_ACCESS}
         disabled={noSpecialAccess}
       />
     ) : null,
-    [collectibleGatedAvailability]: isNFTGateEnabled ? (
+    [collectibleGatedAvailability]: isCollectibleGatedEnabled ? (
       <CollectibleGatedAvailability
         selected={availability === TrackAvailabilityType.COLLECTIBLE_GATED}
         disabled={noCollectibleGate}

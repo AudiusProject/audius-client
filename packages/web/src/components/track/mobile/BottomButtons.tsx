@@ -35,7 +35,7 @@ const messages = {
 }
 
 const BottomButtons = (props: BottomButtonsProps) => {
-  const { isEnabled: isPremiumContentEnabled } = useFlag(
+  const { isEnabled: isGatedContentEnabled } = useFlag(
     FeatureFlags.GATED_CONTENT_ENABLED
   )
 
@@ -100,7 +100,7 @@ const BottomButtons = (props: BottomButtonsProps) => {
     )
   }
 
-  if (isPremiumContentEnabled && props.isTrack && !props.doesUserHaveAccess) {
+  if (isGatedContentEnabled && props.isTrack && !props.doesUserHaveAccess) {
     return (
       <div className={styles.bottomButtons}>
         {premiumStatus()}

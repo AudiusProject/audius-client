@@ -116,14 +116,14 @@ export const LineupTileTopRight = ({
   doesUserHaveAccess,
   premiumConditions
 }: Props) => {
-  const isPremiumContentEnabled = useIsPremiumContentEnabled()
+  const isGatedContentEnabled = useIsPremiumContentEnabled()
   const { neutralLight4 } = useThemeColors()
   const accentBlue = useColor('accentBlue')
   const trackTileStyles = useTrackTileStyles()
 
   return (
     <View style={styles.topRight}>
-      {isPremiumContentEnabled &&
+      {isGatedContentEnabled &&
       !!premiumConditions &&
       !isOwner &&
       doesUserHaveAccess ? (
@@ -133,7 +133,7 @@ export const LineupTileTopRight = ({
           color={accentBlue}
         />
       ) : null}
-      {isPremiumContentEnabled &&
+      {isGatedContentEnabled &&
       !!premiumConditions &&
       (isOwner || !doesUserHaveAccess) ? (
         <LineupTileTopRightItem
@@ -150,7 +150,7 @@ export const LineupTileTopRight = ({
           color={accentBlue}
         />
       ) : null}
-      {(!isPremiumContentEnabled || !premiumConditions) &&
+      {(!isGatedContentEnabled || !premiumConditions) &&
       showArtistPick &&
       isArtistPick ? (
         <LineupTileTopRightItem

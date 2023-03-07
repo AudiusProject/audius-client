@@ -60,12 +60,12 @@ const ArtworkIcon = ({
   doesUserHaveAccess?: boolean
   isTrack?: boolean
 }) => {
-  const { isEnabled: isPremiumContentEnabled } = useFlag(
+  const { isEnabled: isGatedContentEnabled } = useFlag(
     FeatureFlags.GATED_CONTENT_ENABLED
   )
 
   let artworkIcon
-  if (isPremiumContentEnabled && isTrack && !doesUserHaveAccess) {
+  if (isGatedContentEnabled && isTrack && !doesUserHaveAccess) {
     artworkIcon = <IconLock />
   } else if (playStatus === PlayStatus.Buffering) {
     artworkIcon = (

@@ -131,8 +131,8 @@ const TrackAvailabilityModal = ({
   didUpdateState,
   onClose
 }: TrackAvailabilityModalProps) => {
-  const { isEnabled: isNFTGateEnabled } = useFlag(FeatureFlags.COLLECTIBLE_GATED_ENABLED)
-  const { isEnabled: isSpecialAccessGateEnabled } = useFlag(
+  const { isEnabled: isCollectibleGatedEnabled } = useFlag(FeatureFlags.COLLECTIBLE_GATED_ENABLED)
+  const { isEnabled: isSpecialAccessEnabled } = useFlag(
     FeatureFlags.SPECIAL_ACCESS_ENABLED
   )
   const { ethCollectionMap, solCollectionMap } = useSelector(
@@ -256,7 +256,7 @@ const TrackAvailabilityModal = ({
             description={messages.publicSubtitle}
             value={TrackAvailabilityType.PUBLIC}
           />
-          {isSpecialAccessGateEnabled ? (
+          {isSpecialAccessEnabled ? (
             <ModalRadioItem
               icon={<IconSpecialAccess />}
               label={messages.specialAccess}
@@ -271,7 +271,7 @@ const TrackAvailabilityModal = ({
               }
             />
           ) : null}
-          {isNFTGateEnabled ? (
+          {isCollectibleGatedEnabled ? (
             <ModalRadioItem
               icon={<IconCollectible />}
               label={messages.collectibleGated}

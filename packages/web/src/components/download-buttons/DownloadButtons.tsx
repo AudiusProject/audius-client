@@ -150,7 +150,7 @@ const DownloadButtons = ({
   onDownload,
   className
 }: DownloadButtonsProps) => {
-  const { isEnabled: isPremiumContentEnabled } = useFlag(
+  const { isEnabled: isGatedContentEnabled } = useFlag(
     FeatureFlags.GATED_CONTENT_ENABLED
   )
   const dispatch = useDispatch()
@@ -177,7 +177,7 @@ const DownloadButtons = ({
     return null
   }
 
-  if (isPremiumContentEnabled && !isOwner && !doesUserHaveAccess) {
+  if (isGatedContentEnabled && !isOwner && !doesUserHaveAccess) {
     return null
   }
 
