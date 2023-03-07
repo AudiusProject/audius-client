@@ -204,10 +204,10 @@ const ConnectedTrackTile = memo(
       const menu: Omit<TrackMenuProps, 'children'> = {
         extraMenuItems: [],
         handle,
-        includeAddToPlaylist: !isGatedContentEnabled || !isPremium,
+        includeAddToPlaylist: !isPremium,
         includeArtistPick: handle === userHandle && !isUnlisted,
         includeEdit: handle === userHandle,
-        includeEmbed: true,
+        includeEmbed: !isPremium,
         includeFavorite: false,
         includeRepost: false,
         includeShare: false,
