@@ -123,8 +123,8 @@ const RemixSettingsModal = ({
   hideRemixes,
   onToggleHideRemixes
 }: RemixSettingsModalProps) => {
-  const { isEnabled: isPremiumContentEnabled } = useFlag(
-    FeatureFlags.PREMIUM_CONTENT_ENABLED
+  const { isEnabled: isGatedContentEnabled } = useFlag(
+    FeatureFlags.GATED_CONTENT_ENABLED
   )
 
   const inputRef = useRef<HTMLInputElement>(null)
@@ -171,7 +171,7 @@ const RemixSettingsModal = ({
     onClose(trackId)
   }, [onClose, track, isInvalidTrack, url])
 
-  if (isPremiumContentEnabled) {
+  if (isGatedContentEnabled) {
     return (
       <Modal
         isOpen={isOpen}
@@ -194,7 +194,7 @@ const RemixSettingsModal = ({
           {isPremium ? (
             <HelpCallout
               className={styles.disableInfo}
-              text={`${messages.changeAvailabilityPrefix} ${
+              content={`${messages.changeAvailabilityPrefix} ${
                 'nft_collection' in (premiumConditions ?? {})
                   ? messages.collectibleGated
                   : messages.specialAccess

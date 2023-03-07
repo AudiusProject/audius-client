@@ -13,16 +13,15 @@ import { debounce } from 'lodash'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import IconQuestionCircle from 'app/assets/images/iconQuestionCircle.svg'
 import IconRemix from 'app/assets/images/iconRemix.svg'
 import type { TextProps } from 'app/components/core'
 import { TextInput, Divider, Button, Switch, Text } from 'app/components/core'
 import { InputErrorMessage } from 'app/components/core/InputErrorMessage'
-import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
+import { HelpCallout } from 'app/components/help-callout/HelpCallout'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
 import { getTrackRoute } from 'app/utils/routes'
-import { useColor } from 'app/utils/theme'
 
 import { FormScreen, RemixTrackPill } from '../components'
 import type { RemixOfField } from '../types'
@@ -75,24 +74,11 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     fontSize: typography.fontSize.large
   },
   changeAvailability: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing(16),
-    paddingVertical: spacing(2),
-    paddingHorizontal: spacing(4),
-    backgroundColor: palette.neutralLight9,
-    borderWidth: 1,
-    borderColor: palette.neutralLight7,
-    borderRadius: spacing(2)
+    marginBottom: spacing(16)
   },
   changeAvailabilityText: {
     flexDirection: 'row',
     flexWrap: 'wrap'
-  },
-  questionIcon: {
-    marginRight: spacing(4),
-    width: spacing(5),
-    height: spacing(5)
   }
 }))
 
@@ -107,9 +93,8 @@ const descriptionProps: TextProps = {
 }
 
 export const RemixSettingsScreen = () => {
-  const isPremiumContentEnabled = useIsPremiumContentEnabled()
+  const isGatedContentEnabled = useIsGatedContentEnabled()
   const styles = useStyles()
-  const neutral = useColor('neutral')
   const [{ value: remixOf }, , { setValue: setRemixOf }] =
     useField<RemixOfField>('remix_of')
   const [{ value: remixesVisible }, , { setValue: setRemixesVisible }] =
@@ -233,23 +218,25 @@ export const RemixSettingsScreen = () => {
     >
       <View>
         <View style={styles.setting}>
-          {isPremium && (
-            <View style={styles.changeAvailability}>
-              <IconQuestionCircle style={styles.questionIcon} fill={neutral} />
-              <View style={styles.changeAvailabilityText}>
-                <Text>{messages.changeAvailbilityPrefix}</Text>
-                <Text>
-                  {isCollectibleGated
-                    ? messages.collectibleGated
-                    : messages.specialAccess}
-                </Text>
-                <Text>{messages.changeAvailbilitySuffix}</Text>
-              </View>
-            </View>
-          )}
+          {isPremium ? (
+            <HelpCallout
+              style={styles.changeAvailability}
+              content={
+                <View style={styles.changeAvailabilityText}>
+                  <Text>{messages.changeAvailbilityPrefix}</Text>
+                  <Text>
+                    {isCollectibleGated
+                      ? messages.collectibleGated
+                      : messages.specialAccess}
+                  </Text>
+                  <Text>{messages.changeAvailbilitySuffix}</Text>
+                </View>
+              }
+            />
+          ) : null}
           <View style={styles.option}>
             <Text {...labelProps}>
-              {isPremiumContentEnabled
+              {isGatedContentEnabled
                 ? messages.markRemix
                 : messages.isRemixLabel}
             </Text>
@@ -269,7 +256,7 @@ export const RemixSettingsScreen = () => {
                 value={remixOfInput}
                 onChangeText={handleChangeLink}
                 placeholder={
-                  isPremiumContentEnabled
+                  isGatedContentEnabled
                     ? messages.enterLink
                     : messages.remixUrlPlaceholder
                 }
@@ -295,7 +282,7 @@ export const RemixSettingsScreen = () => {
         <View style={styles.setting}>
           <View style={styles.option}>
             <Text {...labelProps}>
-              {isPremiumContentEnabled
+              {isGatedContentEnabled
                 ? messages.hideRemixes
                 : messages.hideRemixLabel}
             </Text>
@@ -306,7 +293,7 @@ export const RemixSettingsScreen = () => {
             />
           </View>
           <Text {...descriptionProps}>
-            {isPremiumContentEnabled
+            {isGatedContentEnabled
               ? messages.hideRemixesDescription
               : messages.hideRemixDescription}
           </Text>

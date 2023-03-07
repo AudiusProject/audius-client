@@ -333,7 +333,7 @@ class GiantTrackTile extends PureComponent {
         trackId={this.props.trackId}
         isOwner={this.props.isOwner}
         following={this.props.following}
-        isPremium={this.props.isPremium}
+        doesUserHaveAccess={this.props.doesUserHaveAccess}
         onDownload={this.props.onDownload}
       />
     )
@@ -402,9 +402,9 @@ class GiantTrackTile extends PureComponent {
         includeFavorite: false,
         includeTrackPage: false,
         isArtistPick,
-        includeEmbed: !isUnlisted,
+        includeEmbed: !(isUnlisted || isPremium),
         includeArtistPick: !isUnlisted,
-        includeAddToPlaylist: !isUnlisted && !isPremium,
+        includeAddToPlaylist: !(isUnlisted || isPremium),
         extraMenuItems: overflowMenuExtraItems
       }
     }
