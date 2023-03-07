@@ -22,7 +22,6 @@ import {
   playerSelectors,
   usePremiumContentAccess,
   premiumContentActions,
-  FeatureFlags,
   Genre
 } from '@audius/common'
 import cn from 'classnames'
@@ -38,7 +37,6 @@ import Menu from 'components/menu/Menu'
 import { OwnProps as TrackMenuProps } from 'components/menu/TrackMenu'
 import { TrackArtwork } from 'components/track/desktop/Artwork'
 import UserBadges from 'components/user-badges/UserBadges'
-import { useFlag } from 'hooks/useRemoteConfig'
 import {
   setUsers,
   setVisibility
@@ -118,9 +116,6 @@ const ConnectedTrackTile = memo(
     isFeed = false,
     showRankIcon
   }: ConnectedTrackTileProps) => {
-    const { isEnabled: isGatedContentEnabled } = useFlag(
-      FeatureFlags.GATED_CONTENT_ENABLED
-    )
     const trackWithFallback = getTrackWithFallback(track)
     const {
       is_delete,
