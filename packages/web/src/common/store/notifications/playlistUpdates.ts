@@ -20,7 +20,6 @@ export function* recordPlaylistUpdatesAnalytics(playlistUpdates: ID[]) {
     const event = make(Name.PLAYLIST_LIBRARY_HAS_UPDATE, {
       count: playlistUpdates.length
     })
-    // TODO: does this actually work?
     yield* put(event)
   }
 }
