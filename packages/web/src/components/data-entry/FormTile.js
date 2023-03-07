@@ -71,7 +71,7 @@ const Divider = (props) => {
 // https://linear.app/audius/issue/PAY-813/remove-premium-content-feature-flags-after-launch
 const TrackAvailabilityButton = (props) => {
   const { isEnabled: isPremiumContentEnabled } = useFlag(
-    FeatureFlags.PREMIUM_CONTENT_ENABLED
+    FeatureFlags.GATED_CONTENT_ENABLED
   )
 
   if (isPremiumContentEnabled) {
@@ -111,7 +111,7 @@ const TrackAvailabilityButton = (props) => {
 // https://linear.app/audius/issue/PAY-813/remove-premium-content-feature-flags-after-launch
 const TrackAvailabilityModalContainer = (props) => {
   const { isEnabled: isPremiumContentEnabled } = useFlag(
-    FeatureFlags.PREMIUM_CONTENT_ENABLED
+    FeatureFlags.GATED_CONTENT_ENABLED
   )
 
   if (isPremiumContentEnabled) {
@@ -141,7 +141,7 @@ const TrackAvailabilityModalContainer = (props) => {
 
 const BasicForm = (props) => {
   const { isEnabled: isPremiumContentEnabled } = useFlag(
-    FeatureFlags.PREMIUM_CONTENT_ENABLED
+    FeatureFlags.GATED_CONTENT_ENABLED
   )
   const {
     remixSettingsModalVisible,
@@ -398,7 +398,7 @@ const BasicForm = (props) => {
 
 const AdvancedForm = (props) => {
   const { isEnabled: isPremiumContentEnabled } = useFlag(
-    FeatureFlags.PREMIUM_CONTENT_ENABLED
+    FeatureFlags.GATED_CONTENT_ENABLED
   )
 
   const {

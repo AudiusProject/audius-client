@@ -131,9 +131,9 @@ const TrackAvailabilityModal = ({
   didUpdateState,
   onClose
 }: TrackAvailabilityModalProps) => {
-  const { isEnabled: isNFTGateEnabled } = useFlag(FeatureFlags.NFT_GATE_ENABLED)
+  const { isEnabled: isNFTGateEnabled } = useFlag(FeatureFlags.COLLECTIBLE_GATED_ENABLED)
   const { isEnabled: isSpecialAccessGateEnabled } = useFlag(
-    FeatureFlags.SPECIAL_ACCESS_GATE_ENABLED
+    FeatureFlags.SPECIAL_ACCESS_ENABLED
   )
   const { ethCollectionMap, solCollectionMap } = useSelector(
     getSupportedUserCollections

@@ -21,7 +21,7 @@ export const RemixSettingsModalTrigger = (
   props: RemixSettingsModalTriggerProps
 ) => {
   const { isEnabled: isPremiumContentEnabled } = useFlag(
-    FeatureFlags.PREMIUM_CONTENT_ENABLED
+    FeatureFlags.GATED_CONTENT_ENABLED
   )
 
   if (isPremiumContentEnabled) {

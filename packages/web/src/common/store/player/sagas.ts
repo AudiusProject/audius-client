@@ -102,7 +102,7 @@ export function* watchPlay() {
       )
       const isPremiumContentEnabled = yield* call(
         getFeatureEnabled,
-        FeatureFlags.PREMIUM_CONTENT_ENABLED
+        FeatureFlags.GATED_CONTENT_ENABLED
       )
       const audiusBackendInstance = yield* getContext('audiusBackendInstance')
       const apiClient = yield* getContext('apiClient')

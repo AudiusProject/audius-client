@@ -132,7 +132,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
     genre
   } = props
   const { isEnabled: isPremiumContentEnabled } = useFlag(
-    FeatureFlags.PREMIUM_CONTENT_ENABLED
+    FeatureFlags.GATED_CONTENT_ENABLED
   )
 
   const hideShare: boolean = props.fieldVisibility

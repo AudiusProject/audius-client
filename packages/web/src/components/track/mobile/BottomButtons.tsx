@@ -36,7 +36,7 @@ const messages = {
 
 const BottomButtons = (props: BottomButtonsProps) => {
   const { isEnabled: isPremiumContentEnabled } = useFlag(
-    FeatureFlags.PREMIUM_CONTENT_ENABLED
+    FeatureFlags.GATED_CONTENT_ENABLED
   )
 
   const repostButton = () => {

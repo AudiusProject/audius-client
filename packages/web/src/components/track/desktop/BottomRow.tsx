@@ -70,7 +70,7 @@ export const BottomRow = ({
   onClickShare
 }: BottomRowProps) => {
   const { isEnabled: isPremiumContentEnabled } = useFlag(
-    FeatureFlags.PREMIUM_CONTENT_ENABLED
+    FeatureFlags.GATED_CONTENT_ENABLED
   )
   const premiumTrackStatusMap = useSelector(getPremiumTrackStatusMap)
   const premiumTrackStatus = trackId && premiumTrackStatusMap[trackId]

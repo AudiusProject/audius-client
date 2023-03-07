@@ -117,7 +117,7 @@ const ConnectedTrackTile = memo(
     const isOwner = user_id === currentUserId
 
     const { isEnabled: isPremiumContentEnabled } = useFlag(
-      FeatureFlags.PREMIUM_CONTENT_ENABLED
+      FeatureFlags.GATED_CONTENT_ENABLED
     )
     const { isUserAccessTBD, doesUserHaveAccess } =
       usePremiumContentAccess(trackWithFallback)

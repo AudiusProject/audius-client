@@ -63,7 +63,7 @@ const QUEUE_SUBSCRIBER_NAME = 'QUEUE'
 function* doesUserHaveTrackAccess(track: Nullable<Track>) {
   const getFeatureEnabled = yield* getContext('getFeatureEnabled')
   const isPremiumContentEnabled = getFeatureEnabled(
-    FeatureFlags.PREMIUM_CONTENT_ENABLED
+    FeatureFlags.GATED_CONTENT_ENABLED
   )
   if (!isPremiumContentEnabled) {
     return true

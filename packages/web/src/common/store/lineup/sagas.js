@@ -49,13 +49,13 @@ function* filterDeletes(tracksMetadata, removeDeleted) {
   yield remoteConfig.waitForUserRemoteConfig()
 
   const isPremiumContentEnabled = yield getFeatureEnabled(
-    FeatureFlags.PREMIUM_CONTENT_ENABLED
+    FeatureFlags.GATED_CONTENT_ENABLED
   )
   const isNFTGateEnabled = yield getFeatureEnabled(
-    FeatureFlags.NFT_GATE_ENABLED
+    FeatureFlags.COLLECTIBLE_GATED_ENABLED
   )
   const isSpecialAccessGateEnabled = yield getFeatureEnabled(
-    FeatureFlags.SPECIAL_ACCESS_GATE_ENABLED
+    FeatureFlags.SPECIAL_ACCESS_ENABLED
   )
 
   return tracksMetadata

@@ -9,13 +9,13 @@ import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 export const useIsPremiumContentEnabled = () => {
   const isIos = getIsIOS()
   const { isEnabled: isAndroidPremiumContentEnabled } = useFeatureFlag(
-    FeatureFlags.ANDROID_PREMIUM_CONTENT_ENABLED
+    FeatureFlags.ANDROID_GATED_CONTENT_ENABLED
   )
   const { isEnabled: isIosPremiumContentEnabled } = useFeatureFlag(
-    FeatureFlags.IOS_PREMIUM_CONTENT_ENABLED
+    FeatureFlags.IOS_GATED_CONTENT_ENABLED
   )
   return (
-    useFeatureFlag(FeatureFlags.PREMIUM_CONTENT_ENABLED) &&
+    useFeatureFlag(FeatureFlags.GATED_CONTENT_ENABLED) &&
     (isIos ? isIosPremiumContentEnabled : isAndroidPremiumContentEnabled)
   )
 }

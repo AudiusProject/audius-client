@@ -119,7 +119,7 @@ const ConnectedTrackTile = memo(
     showRankIcon
   }: ConnectedTrackTileProps) => {
     const { isEnabled: isPremiumContentEnabled } = useFlag(
-      FeatureFlags.PREMIUM_CONTENT_ENABLED
+      FeatureFlags.GATED_CONTENT_ENABLED
     )
     const trackWithFallback = getTrackWithFallback(track)
     const {
