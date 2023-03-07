@@ -124,7 +124,7 @@ export const NotificationList = () => {
     if (status !== Status.LOADING) {
       setIsRefreshing(false)
     }
-  }, [status, setIsRefreshing])
+  }, [status])
 
   const handleEndReached = useCallback(() => {
     if (status !== Status.LOADING && hasMore) {

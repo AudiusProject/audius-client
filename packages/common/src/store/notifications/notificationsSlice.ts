@@ -7,7 +7,8 @@ import {
   FetchNotificationsAction,
   FetchNotificationsFailedAction,
   Notification,
-  NotificationsState
+  NotificationsState,
+  UpdateNotificationsAction
 } from './types'
 
 export const notificationsAdapter = createEntityAdapter<Notification>({
@@ -35,6 +36,13 @@ const slice = createSlice({
     addNotifications(state, action: AddNotificationsAction) {
       const { notifications, totalUnviewed, hasMore } = action.payload
       notificationsAdapter.addMany(state, notifications)
+      state.status = Status.SUCCESS
+      state.totalUnviewed = totalUnviewed
+      state.hasMore = hasMore
+    },
+    updateNotifications(state, action: UpdateNotificationsAction) {
+      const { notifications, totalUnviewed, hasMore } = action.payload
+      notificationsAdapter.upsertMany(state, notifications)
       state.status = Status.SUCCESS
       state.totalUnviewed = totalUnviewed
       state.hasMore = hasMore

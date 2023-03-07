@@ -845,6 +845,12 @@ export type AddNotificationsAction = PayloadAction<{
   hasMore: boolean
 }>
 
+export type UpdateNotificationsAction = PayloadAction<{
+  notifications: Notification[]
+  totalUnviewed: number
+  hasMore: boolean
+}>
+
 export type FetchNotificationsAction = PayloadAction<
   | undefined
   | {

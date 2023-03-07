@@ -36,7 +36,8 @@ import styles from './TrackAvailabilityModal.module.css'
 import { TrackMetadataState, UnlistedTrackMetadataField } from './types'
 
 const { getUserId } = accountSelectors
-const { getVerifiedUserCollections } = collectiblesSelectors
+const { getSupportedUserCollections, getHasUnsupportedCollection } =
+  collectiblesSelectors
 
 const messages = {
   title: 'AVAILABILITY',
@@ -54,6 +55,8 @@ const messages = {
     'Users who own a digital collectible matching your selection will have access to your track. Collectible gated content does not appear on trending or in user feeds.',
   noCollectibles:
     'No Collectibles found. To enable this option, link a wallet containing a collectible.',
+  compatibilityTitle: "Not seeing what you're looking for?",
+  compatibilitySubtitle: 'Only verified Solana NFT Collections are compatible.',
   hidden: 'Hidden',
   hiddenSubtitle:
     "Hidden tracks won't be visible to your followers. Only you will see them on your profile. Anyone who has the link will be able to listen.",
@@ -78,21 +81,36 @@ const CollectibleGatedDescription = ({
   hasCollectibles
 }: {
   hasCollectibles: boolean
-}) => (
-  <div className={styles.innerDescription}>
-    {messages.collectibleGatedSubtitle}
-    {!hasCollectibles && <HelpCallout text={messages.noCollectibles} />}
-    <a
-      className={styles.learnMore}
-      href={LEARN_MORE_URL}
-      target='_blank'
-      rel='noreferrer'
-    >
-      <span>{messages.learnMore}</span>
-      <IconArrow className={styles.learnMoreArrow} />
-    </a>
-  </div>
-)
+}) => {
+  const hasUnsupportedCollection = useSelector(getHasUnsupportedCollection)
+
+  const renderContent = useCallback(() => {
+    return hasUnsupportedCollection ? (
+      <div>
+        <div>{messages.compatibilityTitle}</div>
+        <div>{messages.compatibilitySubtitle}</div>
+      </div>
+    ) : (
+      messages.noCollectibles
+    )
+  }, [hasUnsupportedCollection])
+
+  return (
+    <div className={styles.innerDescription}>
+      {messages.collectibleGatedSubtitle}
+      {!hasCollectibles && <HelpCallout content={renderContent()} />}
+      <a
+        className={styles.learnMore}
+        href={LEARN_MORE_URL}
+        target='_blank'
+        rel='noreferrer'
+      >
+        <span>{messages.learnMore}</span>
+        <IconArrow className={styles.learnMoreArrow} />
+      </a>
+    </div>
+  )
+}
 
 type TrackAvailabilityModalProps = {
   isOpen: boolean
@@ -100,7 +118,6 @@ type TrackAvailabilityModalProps = {
   isUpload: boolean
   metadataState: TrackMetadataState
   didUpdateState: (newState: TrackMetadataState) => void
-  onChangeField: (field: string, value: any) => void
   onClose: () => void
 }
 
@@ -112,15 +129,16 @@ const TrackAvailabilityModal = ({
   isUpload,
   metadataState,
   didUpdateState,
-  onChangeField,
   onClose
 }: TrackAvailabilityModalProps) => {
-  const { isEnabled: isNFTGateEnabled } = useFlag(FeatureFlags.NFT_GATE_ENABLED)
-  const { isEnabled: isSpecialAccessGateEnabled } = useFlag(
-    FeatureFlags.SPECIAL_ACCESS_GATE_ENABLED
+  const { isEnabled: isCollectibleGatedEnabled } = useFlag(
+    FeatureFlags.COLLECTIBLE_GATED_ENABLED
+  )
+  const { isEnabled: isSpecialAccessEnabled } = useFlag(
+    FeatureFlags.SPECIAL_ACCESS_ENABLED
   )
   const { ethCollectionMap, solCollectionMap } = useSelector(
-    getVerifiedUserCollections
+    getSupportedUserCollections
   )
   const numEthCollectibles = Object.keys(ethCollectionMap).length
   const numSolCollectibles = Object.keys(solCollectionMap).length
@@ -176,11 +194,8 @@ const TrackAvailabilityModal = ({
           premium_conditions: { nft_collection: undefined }
         })
       }
-
-      // Reset download metadata for gated track
-      onChangeField('download', null)
     },
-    [didUpdateState, availability, defaultSpecialAccess, onChangeField]
+    [didUpdateState, availability, defaultSpecialAccess]
   )
 
   const updateUnlistedField = useCallback(() => {
@@ -230,7 +245,7 @@ const TrackAvailabilityModal = ({
       </ModalHeader>
       <ModalContent>
         {isRemix ? (
-          <HelpCallout className={styles.isRemix} text={messages.isRemix} />
+          <HelpCallout className={styles.isRemix} content={messages.isRemix} />
         ) : null}
         <RadioButtonGroup
           name={'access'}
@@ -243,7 +258,7 @@ const TrackAvailabilityModal = ({
             description={messages.publicSubtitle}
             value={TrackAvailabilityType.PUBLIC}
           />
-          {isSpecialAccessGateEnabled ? (
+          {isSpecialAccessEnabled ? (
             <ModalRadioItem
               icon={<IconSpecialAccess />}
               label={messages.specialAccess}
@@ -258,7 +273,7 @@ const TrackAvailabilityModal = ({
               }
             />
           ) : null}
-          {isNFTGateEnabled ? (
+          {isCollectibleGatedEnabled ? (
             <ModalRadioItem
               icon={<IconCollectible />}
               label={messages.collectibleGated}
@@ -273,6 +288,7 @@ const TrackAvailabilityModal = ({
                 <CollectibleGatedAvailability
                   state={metadataState}
                   onStateUpdate={updatePremiumContentFields}
+                  disabled={noCollectibleGate}
                 />
               }
             />

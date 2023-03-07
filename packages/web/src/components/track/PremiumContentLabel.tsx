@@ -21,29 +21,15 @@ export const PremiumContentLabel = ({
   doesUserHaveAccess: boolean
   isOwner: boolean
 }) => {
-  const { isEnabled: isPremiumContentEnabled } = useFlag(
-    FeatureFlags.PREMIUM_CONTENT_ENABLED
+  const { isEnabled: isGatedContentEnabled } = useFlag(
+    FeatureFlags.GATED_CONTENT_ENABLED
   )
 
-  if (!isPremiumContentEnabled) {
+  if (!isGatedContentEnabled) {
     return null
   }
 
-  if (isOwner) {
-    return premiumConditions?.nft_collection ? (
-      <div className={cn(styles.premiumContent, styles.topRightIconLabel)}>
-        <IconCollectible className={styles.topRightIcon} />
-        {messages.collectibleGated}
-      </div>
-    ) : (
-      <div className={cn(styles.premiumContent, styles.topRightIconLabel)}>
-        <IconSpecialAccess className={styles.topRightIcon} />
-        {messages.specialAccess}
-      </div>
-    )
-  }
-
-  if (doesUserHaveAccess) {
+  if (!isOwner && doesUserHaveAccess) {
     return (
       <div className={cn(styles.premiumContent, styles.topRightIconLabel)}>
         <IconUnlocked className={styles.topRightIcon} />

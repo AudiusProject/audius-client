@@ -137,7 +137,7 @@ type DownloadButtonsProps = {
   ) => void
   isOwner: boolean
   following: boolean
-  isPremium: boolean
+  doesUserHaveAccess: boolean
   isHidden?: boolean
   className?: string
 }
@@ -146,12 +146,12 @@ const DownloadButtons = ({
   trackId,
   isOwner,
   following,
-  isPremium,
+  doesUserHaveAccess,
   onDownload,
   className
 }: DownloadButtonsProps) => {
-  const { isEnabled: isPremiumContentEnabled } = useFlag(
-    FeatureFlags.PREMIUM_CONTENT_ENABLED
+  const { isEnabled: isGatedContentEnabled } = useFlag(
+    FeatureFlags.GATED_CONTENT_ENABLED
   )
   const dispatch = useDispatch()
   const { location } = useHistory()
@@ -177,7 +177,7 @@ const DownloadButtons = ({
     return null
   }
 
-  if (isPremiumContentEnabled && isPremium) {
+  if (isGatedContentEnabled && !isOwner && !doesUserHaveAccess) {
     return null
   }
 

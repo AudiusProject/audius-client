@@ -6,7 +6,7 @@ import { NOTIFICATION_LIMIT_DEFAULT } from './constants'
 import { fetchNotifications } from './fetchNotifications'
 import { parseAndProcessNotifications } from './parseAndProcessNotifications'
 
-const { addNotifications, fetchNotificationsFailed, refreshNotifications } =
+const { updateNotifications, fetchNotificationsFailed, refreshNotifications } =
   notificationsActions
 
 function* refreshNotificationsWorker() {
@@ -35,7 +35,7 @@ function* refreshNotificationsWorker() {
   )
 
   const hasMore = notifications.length >= limit
-  yield* put(addNotifications({ notifications, totalUnviewed, hasMore }))
+  yield* put(updateNotifications({ notifications, totalUnviewed, hasMore }))
 }
 
 export function* watchRefreshNotifications() {

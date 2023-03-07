@@ -12,7 +12,7 @@ import { NOTIFICATION_LIMIT_DEFAULT } from './constants'
 import { fetchNotifications } from './fetchNotifications'
 import { parseAndProcessNotifications } from './parseAndProcessNotifications'
 
-const { addNotifications } = notificationsActions
+const { updateNotifications } = notificationsActions
 const { makeGetAllNotifications } = notificationsSelectors
 const getAllNotifications = makeGetAllNotifications()
 const { getBalance } = walletActions
@@ -91,7 +91,7 @@ export function* checkForNewNotificationsSaga() {
     const hasMore = notifications.length >= limit
 
     yield* put(
-      addNotifications({
+      updateNotifications({
         notifications: processedNotifications,
         totalUnviewed,
         hasMore
