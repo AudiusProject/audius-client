@@ -56,7 +56,8 @@ const messages = {
   noCollectibles:
     'No Collectibles found. To enable this option, link a wallet containing a collectible.',
   compatibilityTitle: "Not seeing what you're looking for?",
-  compatibilitySubtitle: 'Unverified Solana NFT Collections are not compatible at this time.',
+  compatibilitySubtitle:
+    'Unverified Solana NFT Collections are not compatible at this time.',
   hidden: 'Hidden',
   hiddenSubtitle:
     "Hidden tracks won't be visible to your followers. Only you will see them on your profile. Anyone who has the link will be able to listen.",

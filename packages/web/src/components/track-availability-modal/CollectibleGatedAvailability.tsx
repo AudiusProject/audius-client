@@ -19,7 +19,8 @@ const { getSupportedUserCollections, getHasUnsupportedCollection } =
 const messages = {
   pickACollection: 'Pick a Collection',
   compatibilityTitle: "Not seeing what you're looking for?",
-  compatibilitySubtitle: 'Unverified Solana NFT Collections are not compatible at this time.'
+  compatibilitySubtitle:
+    'Unverified Solana NFT Collections are not compatible at this time.'
 }
 
 export const CollectibleGatedAvailability = ({
