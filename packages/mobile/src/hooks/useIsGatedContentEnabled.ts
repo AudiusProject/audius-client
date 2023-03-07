@@ -6,7 +6,7 @@ import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 // This will be removed after the launch of premium content.
 // For now, it helps us handle feature flagging the
 // release of premium content on different mobile os.
-export const useIsPremiumContentEnabled = () => {
+export const useIsGatedContentEnabled = () => {
   const isIos = getIsIOS()
   const { isEnabled: isAndroidGatedContentEnabled } = useFeatureFlag(
     FeatureFlags.ANDROID_GATED_CONTENT_ENABLED

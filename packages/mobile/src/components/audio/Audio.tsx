@@ -38,7 +38,7 @@ import { useAsync, usePrevious } from 'react-use'
 import { DEFAULT_IMAGE_URL } from 'app/components/image/TrackImage'
 import { getImageSourceOptimistic } from 'app/hooks/useContentNodeImage'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
-import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { apiClient } from 'app/services/audius-api-client'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
@@ -136,7 +136,7 @@ export const Audio = () => {
   const isReachable = useSelector(getIsReachable)
   const isNotReachable = isReachable === false
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
-  const isGatedContentEnabled = useIsPremiumContentEnabled()
+  const isGatedContentEnabled = useIsGatedContentEnabled()
   const premiumTrackSignatureMap = useSelector(getPremiumTrackSignatureMap)
 
   // Queue Things

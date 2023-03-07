@@ -10,7 +10,7 @@ import { View } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 
 import type { LineupTileProps } from 'app/components/lineup-tile/types'
-import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { setVisibility } from 'app/store/drawers/slice'
 
 import { LineupTileActionButtons } from './LineupTileActionButtons'
@@ -56,7 +56,7 @@ export const LineupTile = ({
   isPlayingUid,
   TileProps
 }: LineupTileProps) => {
-  const isGatedContentEnabled = useIsPremiumContentEnabled()
+  const isGatedContentEnabled = useIsGatedContentEnabled()
   const {
     has_current_user_reposted,
     has_current_user_saved,

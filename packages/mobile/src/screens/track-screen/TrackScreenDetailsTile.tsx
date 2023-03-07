@@ -40,7 +40,7 @@ import type { ImageProps } from 'app/components/image/FastImage'
 import { TrackImage } from 'app/components/image/TrackImage'
 import { TrackDownloadStatusIndicator } from 'app/components/offline-downloads/TrackDownloadStatusIndicator'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
-import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { make, track as record } from 'app/services/analytics'
 import { getTrackOfflineDownloadStatus } from 'app/store/offline-downloads/selectors'
@@ -162,7 +162,7 @@ export const TrackScreenDetailsTile = ({
   uid,
   isLineupLoading
 }: TrackScreenDetailsTileProps) => {
-  const isGatedContentEnabled = useIsPremiumContentEnabled()
+  const isGatedContentEnabled = useIsGatedContentEnabled()
   const { doesUserHaveAccess } = usePremiumContentAccess(track as Track) // track is of type Track | SearchTrack but we only care about some of their common fields, maybe worth refactoring later
   const styles = useStyles()
   const navigation = useNavigation()

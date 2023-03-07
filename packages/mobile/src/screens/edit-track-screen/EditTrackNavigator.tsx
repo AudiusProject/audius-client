@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
-import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { useAppScreenOptions } from 'app/screens/app-screen/useAppScreenOptions'
 
 import { EditTrackForm } from './EditTrackForm'
@@ -24,7 +24,7 @@ const screenOptionOverrides = { headerRight: () => null }
 type EditTrackNavigatorProps = EditTrackFormProps
 
 export const EditTrackNavigator = (props: EditTrackNavigatorProps) => {
-  const isGatedContentEnabled = useIsPremiumContentEnabled()
+  const isGatedContentEnabled = useIsGatedContentEnabled()
   const screenOptions = useAppScreenOptions(screenOptionOverrides)
 
   return (

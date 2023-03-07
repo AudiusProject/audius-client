@@ -3,10 +3,10 @@ import { getIsIOS } from 'audius-client/src/utils/browser'
 
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 
-// This will be removed after the launch of special access content.
+// This will be removed after the launch of collectible gated premium content.
 // For now, it helps us handle feature flagging the
-// release of special access content on different mobile os.
-export const useIsSpecialAccessGateEnabled = () => {
+// release of collectible gated premium content on different mobile os.
+export const useIsCollectibleGatedEnabled = () => {
   const isIos = getIsIOS()
   const { isEnabled: isAndroidGatedContentEnabled } = useFeatureFlag(
     FeatureFlags.ANDROID_GATED_CONTENT_ENABLED
@@ -15,7 +15,7 @@ export const useIsSpecialAccessGateEnabled = () => {
     FeatureFlags.IOS_GATED_CONTENT_ENABLED
   )
   return (
-    useFeatureFlag(FeatureFlags.SPECIAL_ACCESS_ENABLED) &&
+    useFeatureFlag(FeatureFlags.COLLECTIBLE_GATED_ENABLED) &&
     (isIos ? isIosGatedContentEnabled : isAndroidGatedContentEnabled)
   )
 }

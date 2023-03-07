@@ -25,7 +25,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { TrackImage } from 'app/components/image/TrackImage'
 import type { LineupItemProps } from 'app/components/lineup-tile/types'
-import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 
 import type { TileProps } from '../core'
@@ -73,7 +73,7 @@ export const TrackTileComponent = ({
   user,
   ...lineupTileProps
 }: TrackTileProps) => {
-  const isGatedContentEnabled = useIsPremiumContentEnabled()
+  const isGatedContentEnabled = useIsGatedContentEnabled()
   const dispatch = useDispatch()
   const navigation = useNavigation()
   const isOnArtistsTracksTab = useNavigationState((state) => {

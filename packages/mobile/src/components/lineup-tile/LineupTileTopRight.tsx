@@ -10,7 +10,7 @@ import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
 import IconStar from 'app/assets/images/iconStar.svg'
 import IconUnlocked from 'app/assets/images/iconUnlocked.svg'
 import Text from 'app/components/text'
-import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { flexRowCentered } from 'app/styles'
 import { useColor, useThemeColors } from 'app/utils/theme'
 
@@ -116,7 +116,7 @@ export const LineupTileTopRight = ({
   doesUserHaveAccess,
   premiumConditions
 }: Props) => {
-  const isGatedContentEnabled = useIsPremiumContentEnabled()
+  const isGatedContentEnabled = useIsGatedContentEnabled()
   const { neutralLight4 } = useThemeColors()
   const accentBlue = useColor('accentBlue')
   const trackTileStyles = useTrackTileStyles()

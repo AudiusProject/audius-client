@@ -8,8 +8,8 @@ import { useSelector } from 'react-redux'
 import IconHidden from 'app/assets/images/iconHidden.svg'
 import { Button } from 'app/components/core'
 import { HelpCallout } from 'app/components/help-callout/HelpCallout'
-import { useIsNFTGateEnabled } from 'app/hooks/useIsNFTGateEnabled'
-import { useIsSpecialAccessGateEnabled } from 'app/hooks/useIsSpecialAccessGateEnabled'
+import { useIsCollectibleGatedEnabled } from 'app/hooks/useIsCollectibleGatedEnabled'
+import { useIsSpecialAccessEnabled } from 'app/hooks/useIsSpecialAccessEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
 
@@ -65,8 +65,8 @@ const MarkedAsRemix = () => {
 }
 
 export const TrackAvailabilityScreen = () => {
-  const isSpecialAccessEnabled = useIsSpecialAccessGateEnabled()
-  const isCollectibleGatedEnabled = useIsNFTGateEnabled()
+  const isSpecialAccessEnabled = useIsSpecialAccessEnabled()
+  const isCollectibleGatedEnabled = useIsCollectibleGatedEnabled()
 
   const navigation = useNavigation()
   const [{ value: isPremium }] = useField<boolean>('is_premium')

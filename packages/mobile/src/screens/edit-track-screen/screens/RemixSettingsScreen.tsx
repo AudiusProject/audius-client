@@ -18,7 +18,7 @@ import type { TextProps } from 'app/components/core'
 import { TextInput, Divider, Button, Switch, Text } from 'app/components/core'
 import { InputErrorMessage } from 'app/components/core/InputErrorMessage'
 import { HelpCallout } from 'app/components/help-callout/HelpCallout'
-import { useIsPremiumContentEnabled } from 'app/hooks/useIsPremiumContentEnabled'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
 import { getTrackRoute } from 'app/utils/routes'
@@ -93,7 +93,7 @@ const descriptionProps: TextProps = {
 }
 
 export const RemixSettingsScreen = () => {
-  const isGatedContentEnabled = useIsPremiumContentEnabled()
+  const isGatedContentEnabled = useIsGatedContentEnabled()
   const styles = useStyles()
   const [{ value: remixOf }, , { setValue: setRemixOf }] =
     useField<RemixOfField>('remix_of')
