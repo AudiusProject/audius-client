@@ -12,7 +12,6 @@ import {
   queueActions,
   playerSelectors,
   queueSelectors,
-  waitForRead,
   getContext,
   FeatureFlags
 } from '@audius/common'
@@ -46,7 +45,9 @@ function* filterDeletes(tracksMetadata, removeDeleted) {
   const tracks = yield select(getTracks)
   const users = yield select(getUsers)
   const getFeatureEnabled = yield* getContext('getFeatureEnabled')
-  yield waitForRead()
+  const remoteConfig = yield* getContext('remoteConfigInstance')
+  yield remoteConfig.waitForUserRemoteConfig()
+
   const isPremiumContentEnabled = yield getFeatureEnabled(
     FeatureFlags.PREMIUM_CONTENT_ENABLED
   )
