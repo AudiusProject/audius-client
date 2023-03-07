@@ -337,14 +337,12 @@ export const DetailsTile = ({
               onPressShare={onPressShare}
             />
           </View>
-          {isGatedContentEnabled &&
-            doesUserHaveAccess &&
-            premiumConditions && (
-              <DetailsTileHasAccess
-                premiumConditions={premiumConditions}
-                isOwner={isOwner}
-              />
-            )}
+          {isGatedContentEnabled && doesUserHaveAccess && premiumConditions && (
+            <DetailsTileHasAccess
+              premiumConditions={premiumConditions}
+              isOwner={isOwner}
+            />
+          )}
           <DetailsTileStats
             favoriteCount={saveCount}
             hideFavoriteCount={hideFavoriteCount}

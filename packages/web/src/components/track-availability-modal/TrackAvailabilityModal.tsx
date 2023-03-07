@@ -131,7 +131,9 @@ const TrackAvailabilityModal = ({
   didUpdateState,
   onClose
 }: TrackAvailabilityModalProps) => {
-  const { isEnabled: isCollectibleGatedEnabled } = useFlag(FeatureFlags.COLLECTIBLE_GATED_ENABLED)
+  const { isEnabled: isCollectibleGatedEnabled } = useFlag(
+    FeatureFlags.COLLECTIBLE_GATED_ENABLED
+  )
   const { isEnabled: isSpecialAccessEnabled } = useFlag(
     FeatureFlags.SPECIAL_ACCESS_ENABLED
   )
