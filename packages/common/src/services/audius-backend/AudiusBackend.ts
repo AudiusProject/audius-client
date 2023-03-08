@@ -2374,11 +2374,13 @@ export const audiusBackend = ({
   async function getDiscoveryNotifications({
     timestamp,
     groupIdOffset,
-    limit
+    limit,
+    validTypes
   }: {
-    timestamp?: number | undefined
-    groupIdOffset?: string | undefined
-    limit?: number | undefined
+    timestamp?: number
+    groupIdOffset?: string
+    limit?: number
+    validTypes?: string[]
   }) {
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
@@ -2394,7 +2396,8 @@ export const audiusBackend = ({
         encodedUserId,
         timestamp,
         groupId: groupIdOffset,
-        limit
+        limit,
+        validTypes
       })
 
     // TODO: update mapDiscoveryNotification to return Notification
@@ -2434,7 +2437,7 @@ export const audiusBackend = ({
         : ''
       // TODO: withRemix, withTrending, withRewards are always true and should be removed in a future release
       const notificationsResponse = await fetch(
-        `${identityServiceUrl}/notifications?${limitQuery}${timeOffsetQuery}${handleQuery}${withDethronedQuery}}&withTips=true&withRewards=true&withRemix=true&withTrendingTrack=true`,
+        `${identityServiceUrl}/notifications?${limitQuery}${timeOffsetQuery}${handleQuery}${withDethronedQuery}&withTips=true&withRewards=true&withRemix=true&withTrendingTrack=true`,
         {
           headers: {
             'Content-Type': 'application/json',

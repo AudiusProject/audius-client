@@ -1,4 +1,9 @@
-import { FeatureFlags, getContext, IntKeys } from '@audius/common'
+import {
+  FeatureFlags,
+  getContext,
+  IntKeys,
+  removeNullable
+} from '@audius/common'
 import { call, fork } from 'typed-redux-saga'
 
 import { recordPlaylistUpdatesAnalytics } from './playlistUpdates'
@@ -46,15 +51,32 @@ export function* fetchNotifications(config: FetchNotificationsParams) {
   const shouldFetchNotificationFromDiscovery =
     useDiscoveryNotifications &&
     discoveryNotificationsGenesisTimestamp &&
-    discoveryNotificationsGenesisTimestamp > Date.parse(timeOffset)
+    Date.parse(timeOffset) > discoveryNotificationsGenesisTimestamp
 
   if (shouldFetchNotificationFromDiscovery) {
     const timestampParam = Math.trunc(Date.parse(timeOffset) / 1000)
+
+    const isRepostOfRepostEnabled = yield* call(
+      getFeatureEnabled,
+      FeatureFlags.REPOST_OF_REPOST_NOTIFICATIONS
+    )
+    const isSaveOfRepostEnabled = yield* call(
+      getFeatureEnabled,
+      FeatureFlags.SAVE_OF_REPOST_NOTIFICATIONS
+    )
+
+    const validTypes = [
+      isRepostOfRepostEnabled ? 'repost_of_repost' : null,
+      isSaveOfRepostEnabled ? 'save_of_repost' : null
+    ].filter(removeNullable)
+
     const discoveryNotifications = yield* call(
       audiusBackendInstance.getDiscoveryNotifications,
       {
         timestamp: timestampParam,
-        groupIdOffset
+        groupIdOffset,
+        limit,
+        validTypes: validTypes.length > 0 ? validTypes : undefined
       }
     )
 
