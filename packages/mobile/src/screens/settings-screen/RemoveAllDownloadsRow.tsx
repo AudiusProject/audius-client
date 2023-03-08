@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 
 import { useDispatch, useSelector } from 'react-redux'
+import { createSelector } from 'reselect'
 
 import { Button } from 'app/components/core'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
@@ -24,14 +25,18 @@ const useStyles = makeStyles(({ spacing }) => ({
   }
 }))
 
+const getIsAnyCollectionDownloaded = createSelector(
+  getOfflineCollectionsStatus,
+  (offlineCollectionStatus) => {
+    return Object.values(offlineCollectionStatus).length > 0
+  }
+)
+
 export const RemoveAllDownloadsRow = () => {
   const isOfflineDownloadEnabled = useIsOfflineModeEnabled()
   const dispatch = useDispatch()
   const styles = useStyles()
-
-  const offlineCollectionStatus = useSelector(getOfflineCollectionsStatus)
-  const isAnyCollectionDownloaded =
-    Object.values(offlineCollectionStatus).length > 0
+  const isAnyCollectionDownloaded = useSelector(getIsAnyCollectionDownloaded)
 
   const handleRemoveAllDownloads = useCallback(() => {
     dispatch(

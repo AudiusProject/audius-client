@@ -77,14 +77,12 @@ export const SettingsScreen = () => {
           <AccountSettingsRow />
           <Divider />
           {isOfflineDownloadEnabled ? (
-            <>
-              <SettingsRow onPress={handlePressDownloads}>
-                <SettingsRowLabel
-                  label={messages.downloads}
-                  icon={IconDownload}
-                />
-              </SettingsRow>
-            </>
+            <SettingsRow onPress={handlePressDownloads}>
+              <SettingsRowLabel
+                label={messages.downloads}
+                icon={IconDownload}
+              />
+            </SettingsRow>
           ) : null}
           <SettingsRow onPress={handlePressNotifications}>
             <SettingsRowLabel
