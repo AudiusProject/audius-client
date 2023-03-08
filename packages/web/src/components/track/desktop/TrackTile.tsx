@@ -197,6 +197,7 @@ const TrackTile = memo(
             <div
               className={cn(
                 styles.titleRow,
+                styles.title,
                 isPremium ? styles.withPremium : null
               )}
             >
