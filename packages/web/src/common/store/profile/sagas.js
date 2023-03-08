@@ -153,56 +153,15 @@ export function* fetchOpenSeaAssets(user) {
   )
 }
 
-export function* fetchSolanaCollectiblesForWallets(wallets) {
-  const { waitForRemoteConfig } = yield getContext('remoteConfigInstance')
+// Get verified sol collections from the sol collectibles
+// and save their metadata in the redux store.
+// Also keep track of whether the user has unsupported
+// sol collections, which is the case if one of the following is true:
+// - there is a sol nft which has no verified collection metadata
+// - there a verified sol nft collection for which we could not fetch the metadata (this is an edge case e.g. we cannot fetch the metadata this collection mint address B3LDTPm6qoQmSEgar2FHUHLt6KEHEGu9eSGejoMMv5eb)
+function* computeValidSolanaCollections(solanaCollectibleList) {
   const solanaClient = yield getContext('solanaClient')
-  yield call(waitForRemoteConfig)
-  return yield call(solanaClient.getAllCollectibles, wallets)
-}
 
-export function* fetchSolanaCollectibles(user) {
-  const apiClient = yield getContext('apiClient')
-  const solanaClient = yield getContext('solanaClient')
-  const { waitForRemoteConfig } = yield getContext('remoteConfigInstance')
-  yield call(waitForRemoteConfig)
-  const { sol_wallets: solWallets } = yield apiClient.getAssociatedWallets({
-    userID: user.user_id
-  })
-  const collectiblesMap = yield call(
-    fetchSolanaCollectiblesForWallets,
-    solWallets
-  )
-
-  const solanaCollectibleList = Object.values(collectiblesMap).flat()
-  if (!solanaCollectibleList.length) {
-    console.log('profile has no Solana NFTs')
-  }
-
-  yield put(
-    cacheActions.update(Kind.USERS, [
-      {
-        id: user.user_id,
-        metadata: { solanaCollectibleList }
-      }
-    ])
-  )
-  yield put(
-    updateUserSolCollectibles({
-      userId: user.user_id,
-      userCollectibles: solanaCollectibleList
-    })
-  )
-
-  // We only need to compute valid solana collections if the NFTs are for the logged in user
-  const account = yield select(getAccountUser)
-  if (account?.user_id !== user.user_id) return
-
-  // Get verified sol collections from the sol collectibles
-  // and save their metadata in the redux store.
-  // Also keep track of whether the user has unsupported
-  // sol collections, which is the case if one of the following is true:
-  // - there is a sol nft which has no verified collection metadata
-  // - there a verified sol nft collection for which we could not fetch the metadata (this is an edge case e.g. we cannot fetch the metadata this collection mint address B3LDTPm6qoQmSEgar2FHUHLt6KEHEGu9eSGejoMMv5eb)
   let hasUnsupportedCollection = false
   const validSolCollectionMints = [
     ...new Set(
@@ -242,6 +201,52 @@ export function* fetchSolanaCollectibles(user) {
   })
   yield put(updateSolCollections({ metadatas: collectionMetadatasMap }))
   yield put(setHasUnsupportedCollection(hasUnsupportedCollection))
+}
+
+export function* fetchSolanaCollectiblesForWallets(wallets) {
+  const { waitForRemoteConfig } = yield getContext('remoteConfigInstance')
+  const solanaClient = yield getContext('solanaClient')
+  yield call(waitForRemoteConfig)
+  return yield call(solanaClient.getAllCollectibles, wallets)
+}
+
+export function* fetchSolanaCollectibles(user) {
+  const apiClient = yield getContext('apiClient')
+  const { waitForRemoteConfig } = yield getContext('remoteConfigInstance')
+  yield call(waitForRemoteConfig)
+  const { sol_wallets: solWallets } = yield apiClient.getAssociatedWallets({
+    userID: user.user_id
+  })
+  const collectiblesMap = yield call(
+    fetchSolanaCollectiblesForWallets,
+    solWallets
+  )
+
+  const solanaCollectibleList = Object.values(collectiblesMap).flat()
+  if (!solanaCollectibleList.length) {
+    console.log('profile has no Solana NFTs')
+  }
+
+  yield put(
+    cacheActions.update(Kind.USERS, [
+      {
+        id: user.user_id,
+        metadata: { solanaCollectibleList }
+      }
+    ])
+  )
+  yield put(
+    updateUserSolCollectibles({
+      userId: user.user_id,
+      userCollectibles: solanaCollectibleList
+    })
+  )
+
+  // We only need to compute valid solana collections if the NFTs are for the logged in user
+  const account = yield select(getAccountUser)
+  if (account?.user_id !== user.user_id) return
+
+  yield call(computeValidSolanaCollections, solanaCollectibleList)
 }
 
 function* fetchSupportersAndSupporting(userId) {
@@ -743,53 +748,7 @@ function* refreshWalletCollectibles(action) {
       })
     )
 
-    const solanaClient = yield getContext('solanaClient')
-
-    // Get verified sol collections from the sol collectibles
-    // and save their metadata in the redux store.
-    // Also keep track of whether the user has unsupported
-    // sol collections, which is the case if one of the following is true:
-    // - there is a sol nft which has no verified collection metadata
-    // - there a verified sol nft collection for which we could not fetch the metadata (this is an edge case e.g. we cannot fetch the metadata this collection mint address B3LDTPm6qoQmSEgar2FHUHLt6KEHEGu9eSGejoMMv5eb)
-    let hasUnsupportedCollection = false
-    const validSolCollectionMints = [
-      ...new Set(
-        solanaCollectibleList
-          .filter((collectible) => {
-            const isFromVeririfedCollection =
-              !!collectible.solanaChainMetadata?.collection?.verified
-            if (!hasUnsupportedCollection && !isFromVeririfedCollection) {
-              hasUnsupportedCollection = true
-            }
-            return isFromVeririfedCollection
-          })
-          .map((collectible) => {
-            const key = collectible.solanaChainMetadata.collection.key
-            return typeof key === 'string' ? key : key.toBase58()
-          })
-      )
-    ]
-    const collectionMetadatas = yield all(
-      validSolCollectionMints.map((mint) =>
-        call(solanaClient.getNFTMetadataFromMint, mint)
-      )
-    )
-    const collectionMetadatasMap = {}
-    collectionMetadatas.forEach((cm, i) => {
-      if (!cm) {
-        if (!hasUnsupportedCollection) {
-          hasUnsupportedCollection = true
-        }
-        return
-      }
-      const { metadata, imageUrl } = cm
-      collectionMetadatasMap[validSolCollectionMints[i]] = {
-        ...metadata.pretty(),
-        imageUrl
-      }
-    })
-    yield put(updateSolCollections({ metadatas: collectionMetadatasMap }))
-    yield put(setHasUnsupportedCollection(hasUnsupportedCollection))
+    yield call(computeValidSolanaCollections, solanaCollectibleList)
   }
 }
 
@@ -859,48 +818,7 @@ function* removeWalletCollectibles(action) {
       })
     )
 
-    const solanaClient = yield getContext('solanaClient')
-
-    // Recompute valid solana collections
-    let hasUnsupportedCollection = false
-    const validSolCollectionMints = [
-      ...new Set(
-        solanaCollectibleList
-          .filter((collectible) => {
-            const isFromVeririfedCollection =
-              !!collectible.solanaChainMetadata?.collection?.verified
-            if (!hasUnsupportedCollection && !isFromVeririfedCollection) {
-              hasUnsupportedCollection = true
-            }
-            return isFromVeririfedCollection
-          })
-          .map((collectible) => {
-            const key = collectible.solanaChainMetadata.collection.key
-            return typeof key === 'string' ? key : key.toBase58()
-          })
-      )
-    ]
-    const collectionMetadatas = yield all(
-      validSolCollectionMints.map((mint) =>
-        call(solanaClient.getNFTMetadataFromMint, mint)
-      )
-    )
-    const collectionMetadatasMap = {}
-    collectionMetadatas.forEach((cm, i) => {
-      if (!cm) {
-        if (!hasUnsupportedCollection) {
-          hasUnsupportedCollection = true
-        }
-        return
-      }
-      const { metadata, imageUrl } = cm
-      collectionMetadatasMap[validSolCollectionMints[i]] = {
-        ...metadata.pretty(),
-        imageUrl
-      }
-    })
-    yield put(updateSolCollections({ metadatas: collectionMetadatasMap }))
-    yield put(setHasUnsupportedCollection(hasUnsupportedCollection))
+    yield call(computeValidSolanaCollections, solanaCollectibleList)
   }
 }
 
