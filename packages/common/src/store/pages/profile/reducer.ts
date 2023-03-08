@@ -29,7 +29,9 @@ import {
   SET_NOTIFICATION_SUBSCRIPTION,
   FETCH_COLLECTIONS,
   FETCH_COLLECTIONS_SUCCEEDED,
-  FETCH_COLLECTIONS_FAILED
+  FETCH_COLLECTIONS_FAILED,
+  REFRESH_WALLET_COLLECTIBLES,
+  REMOVE_WALLET_COLLECTIBLES
 } from './actions'
 import { PREFIX as feedPrefix } from './lineups/feed/actions'
 import { PREFIX as tracksPrefix } from './lineups/tracks/actions'
@@ -227,6 +229,12 @@ const actionsMap = {
   },
   [FETCH_COLLECTIONS_FAILED](state, action) {
     return updateProfile(state, action, { collectionStatus: Status.ERROR })
+  },
+  [REFRESH_WALLET_COLLECTIBLES](state, action) {
+    return state
+  },
+  [REMOVE_WALLET_COLLECTIBLES](state, action) {
+    return state
   }
 }
 

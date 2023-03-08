@@ -6,6 +6,7 @@ import {
   getContext,
   Kind,
   newUserMetadata,
+  profilePageActions,
   tokenDashboardPageActions,
   walletActions
 } from '@audius/common'
@@ -26,6 +27,7 @@ const {
 } = tokenDashboardPageActions
 
 const { getBalance } = walletActions
+const { removeWalletCollectibles } = profilePageActions
 
 function* removeWallet(action: ConfirmRemoveWalletAction) {
   yield* waitForWrite()
@@ -100,6 +102,9 @@ function* removeWallet(action: ConfirmRemoveWalletAction) {
   }
 
   function* onSuccess() {
+    // Remove collectibles from removed wallet if any
+    yield* put(removeWalletCollectibles(removeChain, removeWallet))
+
     // Update the user's balance w/ the new wallet
     yield* put(getBalance())
     yield* put(removeWalletAction({ wallet: removeWallet, chain: removeChain }))

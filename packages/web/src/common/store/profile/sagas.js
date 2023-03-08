@@ -19,7 +19,8 @@ import {
   MAX_PROFILE_SUPPORTING_TILES,
   MAX_PROFILE_TOP_SUPPORTERS,
   collectiblesActions,
-  processAndCacheUsers
+  processAndCacheUsers,
+  Chain
 } from '@audius/common'
 import { merge } from 'lodash'
 import {
@@ -192,6 +193,10 @@ export function* fetchSolanaCollectibles(user) {
     })
   )
 
+  // We only need to compute valid solana collections if the NFTs are for the logged in user
+  const account = yield select(getAccountUser)
+  if (account?.user_id !== user.user_id) return
+
   // Get verified sol collections from the sol collectibles
   // and save their metadata in the redux store.
   // Also keep track of whether the user has unsupported
@@ -236,9 +241,7 @@ export function* fetchSolanaCollectibles(user) {
     }
   })
   yield put(updateSolCollections({ metadatas: collectionMetadatasMap }))
-  if (hasUnsupportedCollection) {
-    yield put(setHasUnsupportedCollection(true))
-  }
+  yield put(setHasUnsupportedCollection(hasUnsupportedCollection))
 }
 
 function* fetchSupportersAndSupporting(userId) {
@@ -676,6 +679,239 @@ function* watchSetNotificationSubscription() {
   )
 }
 
+function* fetchWalletCollectibles(chain, wallet) {
+  const collectiblesMap =
+    chain === Chain.Eth
+      ? yield call(fetchOpenSeaAssetsForWallets, [wallet])
+      : chain === Chain.Sol
+      ? yield call(fetchSolanaCollectiblesForWallets, [wallet])
+      : {}
+  return Object.values(collectiblesMap).flat()
+}
+
+function* refreshWalletCollectibles(action) {
+  const account = yield select(getAccountUser)
+  if (!account) return
+
+  const { chain, wallet } = action
+  const userId = account.user_id
+
+  const collectibles = yield call(fetchWalletCollectibles, chain, wallet)
+  if (!collectibles.length) {
+    console.log(
+      `wallet ${wallet} has no ${
+        chain === Chain.Eth ? 'assets in OpenSea' : 'Solana NFTs'
+      } `
+    )
+    return
+  }
+
+  if (chain === Chain.Eth) {
+    const collectibleList = (account.collectibleList || []).concat(collectibles)
+    yield put(
+      cacheActions.update(Kind.USERS, [
+        {
+          id: userId,
+          metadata: {
+            collectibleList
+          }
+        }
+      ])
+    )
+    yield put(
+      updateUserEthCollectibles({
+        userId,
+        userCollectibles: collectibleList
+      })
+    )
+  } else if (chain === Chain.Sol) {
+    const solanaCollectibleList = (account.solanaCollectibleList || []).concat(
+      collectibles
+    )
+    yield put(
+      cacheActions.update(Kind.USERS, [
+        {
+          id: userId,
+          metadata: { solanaCollectibleList }
+        }
+      ])
+    )
+    yield put(
+      updateUserSolCollectibles({
+        userId,
+        userCollectibles: solanaCollectibleList
+      })
+    )
+
+    const solanaClient = yield getContext('solanaClient')
+
+    // Get verified sol collections from the sol collectibles
+    // and save their metadata in the redux store.
+    // Also keep track of whether the user has unsupported
+    // sol collections, which is the case if one of the following is true:
+    // - there is a sol nft which has no verified collection metadata
+    // - there a verified sol nft collection for which we could not fetch the metadata (this is an edge case e.g. we cannot fetch the metadata this collection mint address B3LDTPm6qoQmSEgar2FHUHLt6KEHEGu9eSGejoMMv5eb)
+    let hasUnsupportedCollection = false
+    const validSolCollectionMints = [
+      ...new Set(
+        solanaCollectibleList
+          .filter((collectible) => {
+            const isFromVeririfedCollection =
+              !!collectible.solanaChainMetadata?.collection?.verified
+            if (!hasUnsupportedCollection && !isFromVeririfedCollection) {
+              hasUnsupportedCollection = true
+            }
+            return isFromVeririfedCollection
+          })
+          .map((collectible) => {
+            const key = collectible.solanaChainMetadata.collection.key
+            return typeof key === 'string' ? key : key.toBase58()
+          })
+      )
+    ]
+    const collectionMetadatas = yield all(
+      validSolCollectionMints.map((mint) =>
+        call(solanaClient.getNFTMetadataFromMint, mint)
+      )
+    )
+    const collectionMetadatasMap = {}
+    collectionMetadatas.forEach((cm, i) => {
+      if (!cm) {
+        if (!hasUnsupportedCollection) {
+          hasUnsupportedCollection = true
+        }
+        return
+      }
+      const { metadata, imageUrl } = cm
+      collectionMetadatasMap[validSolCollectionMints[i]] = {
+        ...metadata.pretty(),
+        imageUrl
+      }
+    })
+    yield put(updateSolCollections({ metadatas: collectionMetadatasMap }))
+    yield put(setHasUnsupportedCollection(hasUnsupportedCollection))
+  }
+}
+
+// Refresh a particular wallet's collectibles when user connects a wallet
+function* watchRefreshWalletCollectibles() {
+  yield takeEvery(
+    profileActions.REFRESH_WALLET_COLLECTIBLES,
+    refreshWalletCollectibles
+  )
+}
+
+function* removeWalletCollectibles(action) {
+  const account = yield select(getAccountUser)
+  if (!account) return
+
+  const { chain, wallet } = action
+  const userId = account.user_id
+
+  const toRemove = yield call(fetchWalletCollectibles, chain, wallet)
+  if (!toRemove.length) {
+    console.log(
+      `wallet ${wallet} has no ${
+        chain === Chain.Eth ? 'assets in OpenSea' : 'Solana NFTs'
+      } `
+    )
+    return
+  }
+
+  const toRemoveIdSet = new Set(toRemove.map((collectible) => collectible.id))
+
+  if (chain === Chain.Eth) {
+    const collectibleList = (account.collectibleList || []).filter(
+      (collectible) => !toRemoveIdSet.has(collectible.id)
+    )
+    yield put(
+      cacheActions.update(Kind.USERS, [
+        {
+          id: userId,
+          metadata: {
+            collectibleList
+          }
+        }
+      ])
+    )
+    yield put(
+      updateUserEthCollectibles({
+        userId,
+        userCollectibles: collectibleList
+      })
+    )
+  } else if (chain === Chain.Sol) {
+    const solanaCollectibleList = (account.solanaCollectibleList || []).filter(
+      (collectible) => !toRemoveIdSet.has(collectible.id)
+    )
+    yield put(
+      cacheActions.update(Kind.USERS, [
+        {
+          id: userId,
+          metadata: { solanaCollectibleList }
+        }
+      ])
+    )
+    yield put(
+      updateUserSolCollectibles({
+        userId,
+        userCollectibles: solanaCollectibleList
+      })
+    )
+
+    const solanaClient = yield getContext('solanaClient')
+
+    // Recompute valid solana collections
+    let hasUnsupportedCollection = false
+    const validSolCollectionMints = [
+      ...new Set(
+        solanaCollectibleList
+          .filter((collectible) => {
+            const isFromVeririfedCollection =
+              !!collectible.solanaChainMetadata?.collection?.verified
+            if (!hasUnsupportedCollection && !isFromVeririfedCollection) {
+              hasUnsupportedCollection = true
+            }
+            return isFromVeririfedCollection
+          })
+          .map((collectible) => {
+            const key = collectible.solanaChainMetadata.collection.key
+            return typeof key === 'string' ? key : key.toBase58()
+          })
+      )
+    ]
+    const collectionMetadatas = yield all(
+      validSolCollectionMints.map((mint) =>
+        call(solanaClient.getNFTMetadataFromMint, mint)
+      )
+    )
+    const collectionMetadatasMap = {}
+    collectionMetadatas.forEach((cm, i) => {
+      if (!cm) {
+        if (!hasUnsupportedCollection) {
+          hasUnsupportedCollection = true
+        }
+        return
+      }
+      const { metadata, imageUrl } = cm
+      collectionMetadatasMap[validSolCollectionMints[i]] = {
+        ...metadata.pretty(),
+        imageUrl
+      }
+    })
+    yield put(updateSolCollections({ metadatas: collectionMetadatasMap }))
+    yield put(setHasUnsupportedCollection(hasUnsupportedCollection))
+  }
+}
+
+// Remove a wallet's collectibles when user disconnects a wallet
+function* watchRemoveWalletCollectibles() {
+  yield takeEvery(
+    profileActions.REMOVE_WALLET_COLLECTIBLES,
+    removeWalletCollectibles
+  )
+}
+
 export default function sagas() {
   return [
     ...feedSagas(),
@@ -685,6 +921,8 @@ export default function sagas() {
     watchUpdateProfile,
     watchUpdateCurrentUserFollows,
     watchSetNotificationSubscription,
-    watchFetchProfileCollections
+    watchFetchProfileCollections,
+    watchRefreshWalletCollectibles,
+    watchRemoveWalletCollectibles
   ]
 }

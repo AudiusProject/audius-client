@@ -1,6 +1,6 @@
 import { Nullable } from 'utils'
 
-import { ID, User, UserMetadata } from '../../../models'
+import { Chain, ID, User, UserMetadata, WalletAddress } from '../../../models'
 
 import { CollectionSortMode, FollowType } from './types'
 
@@ -30,6 +30,9 @@ export const SET_NOTIFICATION_SUBSCRIPTION =
 export const FETCH_COLLECTIONS = 'PROFILE/FETCH_COLLECTIONS'
 export const FETCH_COLLECTIONS_SUCCEEDED = 'PROFILE/FETCH_COLLECTIONS_SUCCEEDED'
 export const FETCH_COLLECTIONS_FAILED = 'PROFILE/FETCH_COLLECTIONS_FAILED'
+
+export const REFRESH_WALLET_COLLECTIBLES = 'PROFILE/REFRESH_WALLET_COLLECTIBLES'
+export const REMOVE_WALLET_COLLECTIBLES = 'PROFILE/REMOVE_WALLET_COLLECTIBLES'
 
 // Either handle or userId is required
 // TODO: Move this to redux toolkit
@@ -175,5 +178,21 @@ export function fetchCollectionsFailed(handle: string) {
   return {
     type: FETCH_COLLECTIONS_FAILED,
     handle
+  }
+}
+
+export function refreshWalletCollectibles(chain: Chain, wallet: WalletAddress) {
+  return {
+    type: REFRESH_WALLET_COLLECTIBLES,
+    chain,
+    wallet
+  }
+}
+
+export function removeWalletCollectibles(chain: Chain, wallet: WalletAddress) {
+  return {
+    type: REMOVE_WALLET_COLLECTIBLES,
+    chain,
+    wallet
   }
 }

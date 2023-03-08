@@ -7,7 +7,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useToast } from 'app/hooks/useToast'
-const { getError, getConfirmingWalletStatus, getRemoveWallet } =
+const { getError, getConfirmingWallet, getConfirmingWalletStatus, getRemoveWallet } =
   tokenDashboardPageSelectors
 const { resetStatus, resetRemovedStatus, updateWalletError } =
   tokenDashboardPageActions
@@ -19,6 +19,7 @@ const messages = {
 
 export const useWalletStatusToasts = () => {
   const dispatch = useDispatch()
+  const confirmingWallet = useSelector(getConfirmingWallet)
   const confirmingWalletStatus = useSelector(getConfirmingWalletStatus)
   const { status: removeWalletStatus } = useSelector(getRemoveWallet)
   const errorMessage = useSelector(getError)
@@ -27,6 +28,8 @@ export const useWalletStatusToasts = () => {
 
   useEffect(() => {
     if (confirmingWalletStatus === 'Confirmed') {
+      // yes here
+      console.log('add',{confirmingWallet})
       toast({ content: messages.newWalletConnected, type: 'info' })
       dispatch(resetStatus())
     }
@@ -34,6 +37,8 @@ export const useWalletStatusToasts = () => {
 
   useEffect(() => {
     if (removeWalletStatus === 'Confirmed') {
+      // yes here
+      console.log('remove',{confirmingWallet})
       toast({ content: messages.walletRemoved, type: 'info' })
       dispatch(resetRemovedStatus())
     }

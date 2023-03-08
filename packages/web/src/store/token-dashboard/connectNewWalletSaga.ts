@@ -1,4 +1,9 @@
-import { getContext, Name, tokenDashboardPageActions } from '@audius/common'
+import {
+  getContext,
+  Name,
+  profilePageActions,
+  tokenDashboardPageActions
+} from '@audius/common'
 import * as Sentry from '@sentry/browser'
 import { put, takeEvery } from 'typed-redux-saga'
 
@@ -16,6 +21,7 @@ const { connectNewWallet } = tokenDashboardPageActions
 
 const { setIsConnectingWallet, setModalState, resetStatus } =
   tokenDashboardPageActions
+const { refreshWalletCollectibles } = profilePageActions
 
 function* handleConnectNewWallet() {
   const analytics = yield* getContext('analytics')
@@ -58,6 +64,9 @@ function* handleConnectNewWallet() {
 
     const signature = yield* signMessage(connection)
     const updatedUserMetadata = yield* associateNewWallet(signature)
+
+    // Trigger collectibles fetch in case newly connected wallet has collectibles
+    yield* put(refreshWalletCollectibles(chain, walletAddress))
 
     analytics.track({
       eventName: Name.CONNECT_WALLET_NEW_WALLET_CONNECTED,
