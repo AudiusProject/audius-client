@@ -158,7 +158,7 @@ export function* fetchOpenSeaAssets(user) {
 // Also keep track of whether the user has unsupported
 // sol collections, which is the case if one of the following is true:
 // - there is a sol nft which has no verified collection metadata
-// - there a verified sol nft collection for which we could not fetch the metadata (this is an edge case e.g. we cannot fetch the metadata this collection mint address B3LDTPm6qoQmSEgar2FHUHLt6KEHEGu9eSGejoMMv5eb)
+// - there is a verified sol nft collection for which we could not fetch the metadata (this is an edge case e.g. we cannot fetch the metadata this collection mint address B3LDTPm6qoQmSEgar2FHUHLt6KEHEGu9eSGejoMMv5eb)
 function* computeValidSolanaCollections(solanaCollectibleList) {
   const solanaClient = yield getContext('solanaClient')
 
