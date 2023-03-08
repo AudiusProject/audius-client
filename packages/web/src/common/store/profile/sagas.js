@@ -684,7 +684,7 @@ function* watchSetNotificationSubscription() {
   )
 }
 
-function* fetchWalletCollectibles(chain, wallet) {
+function* fetchWalletCollectiblesForChain(chain, wallet) {
   const collectiblesMap =
     chain === Chain.Eth
       ? yield call(fetchOpenSeaAssetsForWallets, [wallet])
@@ -701,7 +701,11 @@ function* refreshWalletCollectibles(action) {
   const { chain, wallet } = action
   const userId = account.user_id
 
-  const collectibles = yield call(fetchWalletCollectibles, chain, wallet)
+  const collectibles = yield call(
+    fetchWalletCollectiblesForChain,
+    chain,
+    wallet
+  )
   if (!collectibles.length) {
     console.log(
       `wallet ${wallet} has no ${
@@ -767,7 +771,7 @@ function* removeWalletCollectibles(action) {
   const { chain, wallet } = action
   const userId = account.user_id
 
-  const toRemove = yield call(fetchWalletCollectibles, chain, wallet)
+  const toRemove = yield call(fetchWalletCollectiblesForChain, chain, wallet)
   if (!toRemove.length) {
     console.log(
       `wallet ${wallet} has no ${
