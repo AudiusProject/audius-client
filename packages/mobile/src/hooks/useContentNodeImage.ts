@@ -90,7 +90,7 @@ export const createAllImageSources = ({
   ]
   return sourceList
 }
-
+// hooks
 /**
  * Return the first image source, usually the user's primary
  * or a local source. This is useful for cases where there is no error

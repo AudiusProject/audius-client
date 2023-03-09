@@ -33,7 +33,7 @@ export const createUseRemoteVarHook = ({
       configLoaded,
       remoteConfigInstance
     )
-
+    // aerwe
     const remoteVar = useMemo(
       () => remoteConfigInstance.getRemoteVar(key),
       // eslint-disable-next-line react-hooks/exhaustive-deps
