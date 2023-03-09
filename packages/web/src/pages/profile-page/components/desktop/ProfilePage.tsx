@@ -139,11 +139,7 @@ export type ProfilePageProps = {
     selectedFiles: any,
     source: 'original' | 'unsplash' | 'url'
   ) => Promise<void>
-  setNotificationSubscription: (
-    userId: ID,
-    isSubscribed: boolean,
-    onFollow: boolean
-  ) => void
+  setNotificationSubscription: (userId: ID, isSubscribed: boolean, update: boolean) => void
   didChangeTabsFrom: (prevLabel: string, currentLabel: string) => void
   onCloseArtistRecommendations: () => void
   onMessage?: () => void
@@ -507,7 +503,7 @@ const ProfilePage = ({
 
   const toggleNotificationSubscription = () => {
     if (!userId) return
-    setNotificationSubscription(userId, !isSubscribed, false)
+    setNotificationSubscription(userId, !isSubscribed, true)
   }
 
   const getUserProfileContent = () => {

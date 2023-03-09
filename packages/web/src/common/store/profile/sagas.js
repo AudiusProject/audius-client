@@ -605,16 +605,14 @@ function* watchSetNotificationSubscription() {
   yield takeEvery(
     profileActions.SET_NOTIFICATION_SUBSCRIPTION,
     function* (action) {
+      // Discovery automatically subscribes on follow so only update if not a subscribe
+      // on follow.
       if (action.update) {
         try {
-          // Discovery automatically subscribes on follow so only relay if not a subscribe
-          // on follow.
-          if (!action.onFollow) {
-            if (action.isSubscribed) {
-              yield fork(subscribeToUserAsync, action.userId)
-            } else {
-              yield fork(unsubscribeFromUserAsync, action.userId)
-            }
+          if (action.isSubscribed) {
+            yield fork(subscribeToUserAsync, action.userId)
+          } else {
+            yield fork(unsubscribeFromUserAsync, action.userId)
           }
         } catch (err) {
           const isReachable = yield select(getIsReachable)
