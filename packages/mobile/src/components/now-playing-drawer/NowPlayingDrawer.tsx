@@ -160,8 +160,10 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
       staticTopInset.current > INSET_STATUS_BAR_HIDE_THRESHOLD
     ) {
       if (isOpen) {
+        console.log('sup1')
         StatusBar.setHidden(true, 'fade')
       } else {
+        console.log('sup2')
         StatusBar.setHidden(false, 'fade')
       }
     }
@@ -180,10 +182,13 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
         if (gestureState.vy > 0) {
           // Dragging downwards
           if (drawerPercentOpen.current < STATUS_BAR_FADE_CUTOFF) {
+            console.log('sup3')
             StatusBar.setHidden(false, 'fade')
           }
         } else if (gestureState.vy < 0) {
           // Dragging upwards
+
+          console.log('sup4')
           if (drawerPercentOpen.current > STATUS_BAR_FADE_CUTOFF) {
             StatusBar.setHidden(true, 'fade')
           }

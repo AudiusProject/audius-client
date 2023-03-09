@@ -1,30 +1,23 @@
 import { useEffect } from 'react'
 
-import { Status } from '@audius/common'
-import { NavigationBar, StatusBar } from 'react-native-bars'
-import * as BootSplash from 'react-native-bootsplash'
+import { accountSelectors, Status } from '@audius/common'
+import { StatusBar as StatussBar } from 'react-native'
+import { NavigationBar, StatusBar as RNStatusBar } from 'react-native-bars'
+import { useSelector } from 'react-redux'
 
 import { Theme, useThemeVariant } from 'app/utils/theme'
 
+const { getAccountStatus } = accountSelectors
+
 type ThemedStatusBarProps = {
   isAppLoaded: boolean
-  accountStatus: Status
+  isSplashScreenDismissed: boolean
 }
 
-export const ThemedStatusBar = ({
-  isAppLoaded,
-  accountStatus
-}: ThemedStatusBarProps) => {
+export const StatusBar = (props: ThemedStatusBarProps) => {
+  const { isAppLoaded, isSplashScreenDismissed } = props
   const theme = useThemeVariant()
-
-  // Android does not use the SplashScreen component as different
-  // devices will render different sizes of the BootSplash.
-  // Instead of our custom SplashScreen, fade out the BootSplash screen.
-  useEffect(() => {
-    if (isAppLoaded) {
-      BootSplash.hide({ fade: true })
-    }
-  }, [isAppLoaded])
+  const accountStatus = useSelector(getAccountStatus)
 
   const onSignUpScreen = isAppLoaded && !(accountStatus === Status.SUCCESS)
   // Status & nav bar content (the buttons) should be light while in a dark theme or
@@ -37,10 +30,19 @@ export const ThemedStatusBar = ({
     theme === Theme.DARK || theme === Theme.MATRIX || onSignUpScreen
       ? 'light-content'
       : 'dark-content'
-  return (
-    <>
-      <StatusBar animated barStyle={statusBarStyle} />
-      <NavigationBar barStyle={navBarStyle} />
-    </>
-  )
+
+  useEffect(() => {
+    StatussBar.setBarStyle('light-content')
+  }, [statusBarStyle])
+
+  // Wait until splash screen in dismissed before rendering statusbar
+  // if (!isSplashScreenDismissed) return null
+  return null
+
+  // return (
+  //   <>
+  //     <RNStatusBar barStyle={statusBarStyle} />
+  //     <NavigationBar barStyle={navBarStyle} />
+  //   </>
+  // )
 }

@@ -1,6 +1,6 @@
-import type { SystemAppearance, Nullable } from '@audius/common'
-import { themeSelectors } from '@audius/common'
-import { Platform, StatusBar } from 'react-native'
+import type { Nullable } from '@audius/common'
+import { SystemAppearance, themeSelectors } from '@audius/common'
+import { StatusBar } from 'react-native'
 import { useSelector } from 'react-redux'
 
 const { getTheme, getSystemAppearance } = themeSelectors
@@ -15,19 +15,19 @@ export enum Theme {
 /**
  * Set status bar theme in a cross-platform way
  */
-export const setStatusBarTheme = (theme: 'light' | 'dark') => {
-  if (theme === 'light') {
+const setStatusBarTheme = (systemAppearance: SystemAppearance) => {
+  if (systemAppearance === 'light') {
     StatusBar.setBarStyle('dark-content')
-
-    if (Platform.OS === 'android') {
-      StatusBar.setBackgroundColor(defaultTheme.white)
-    }
+    // StatusBar.pushStackEntry({ animated: true, barStyle: 'dark-content' })
+    // if (Platform.OS === 'android') {
+    //   // StatusBar.setBackgroundColor(defaultTheme.white)
+    // }
   } else {
     StatusBar.setBarStyle('light-content')
-
-    if (Platform.OS === 'android') {
-      StatusBar.setBackgroundColor(darkTheme.white)
-    }
+    // StatusBar.pushStackEntry({ animated: true, barStyle: 'light-content' })
+    // if (Platform.OS === 'android') {
+    //   // StatusBar.setBackgroundColor(darkTheme.white)
+    // }
   }
 }
 
@@ -37,11 +37,11 @@ export const updateStatusBarTheme = (
 ) => {
   switch (theme) {
     case Theme.DEFAULT: {
-      setStatusBarTheme('light')
+      setStatusBarTheme(SystemAppearance.LIGHT)
       break
     }
     case Theme.DARK: {
-      setStatusBarTheme('dark')
+      setStatusBarTheme(SystemAppearance.DARK)
       break
     }
     case Theme.AUTO: {

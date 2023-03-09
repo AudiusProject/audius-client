@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { accountSelectors, Status } from '@audius/common'
 import type { NavigatorScreenParams } from '@react-navigation/native'
@@ -17,11 +17,9 @@ import { enterBackground, enterForeground } from 'app/store/lifecycle/actions'
 
 import { AppDrawerScreen } from '../app-drawer-screen'
 
-import { ThemedStatusBar } from './StatusBar'
+import { StatusBar } from './StatusBar'
 
 const { getAccountStatus } = accountSelectors
-
-const IS_IOS = Platform.OS === 'ios'
 
 export type RootScreenParamList = {
   HomeStack: NavigatorScreenParams<{
@@ -41,6 +39,7 @@ export const RootScreen = () => {
   const showHomeStack = useSelector(getHasCompletedAccount)
   const { updateRequired } = useUpdateRequired()
   const [isLoaded, setIsLoaded] = useState(false)
+  const [isSplashScreenDismissed, setIsSplashScreenDismissed] = useState(false)
 
   useAppState(
     () => dispatch(enterForeground()),
@@ -56,14 +55,20 @@ export const RootScreen = () => {
     }
   }, [accountStatus, setIsLoaded, isLoaded])
 
+  const handleSplashScreenDismissed = useCallback(() => {
+    setIsSplashScreenDismissed(true)
+  }, [])
+
   return (
     <>
-      {IS_IOS ? (
-        <SplashScreen canDismiss={isLoaded} />
-      ) : (
-        <ThemedStatusBar isAppLoaded={isLoaded} accountStatus={accountStatus} />
-      )}
-
+      <SplashScreen
+        canDismiss={isLoaded}
+        onDismiss={handleSplashScreenDismissed}
+      />
+      <StatusBar
+        isAppLoaded={isLoaded}
+        isSplashScreenDismissed={isSplashScreenDismissed}
+      />
       {isLoaded ? (
         <Stack.Navigator
           screenOptions={{ gestureEnabled: false, headerShown: false }}

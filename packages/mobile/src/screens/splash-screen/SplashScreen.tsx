@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
 
-import { Animated, Platform, StatusBar, StyleSheet } from 'react-native'
+import { Animated, Platform, StyleSheet } from 'react-native'
 import * as BootSplash from 'react-native-bootsplash'
+import { useAsync } from 'react-use'
 
 import SplashLogo from 'app/assets/images/bootsplash_logo.svg'
 import { makeStyles } from 'app/styles'
-import { useColor } from 'app/utils/theme'
 import { zIndex } from 'app/utils/zIndex'
 
 /**
@@ -40,21 +40,23 @@ const useStyles = makeStyles(({ palette }) => {
 
 type SplashScreenProps = {
   canDismiss: boolean
+  onDismiss: () => void
 }
 
-export const SplashScreen = ({ canDismiss }: SplashScreenProps) => {
+export const SplashScreen = (props: SplashScreenProps) => {
+  return Platform.OS === 'ios' ? (
+    <IosSplashScreen {...props} />
+  ) : (
+    <AndroidSplashScreen {...props} />
+  )
+}
+
+const IosSplashScreen = (props: SplashScreenProps) => {
+  const { canDismiss, onDismiss } = props
   const styles = useStyles()
   const opacity = useRef(new Animated.Value(1)).current
   const scale = useRef(new Animated.Value(START_SIZE)).current
   const [isShowing, setIsShowing] = useState(true)
-
-  const secondary = useColor('secondary')
-  const statusBarColor = useColor('white')
-  useEffect(() => {
-    if (Platform.OS === 'android') {
-      StatusBar.setBackgroundColor(secondary)
-    }
-  }, [secondary])
 
   useEffect(() => {
     if (canDismiss) {
@@ -62,15 +64,13 @@ export const SplashScreen = ({ canDismiss }: SplashScreenProps) => {
       BootSplash.hide()
 
       // Animate smaller, then bigger with a fade out at the same time
-      Animated.spring(scale, {
-        useNativeDriver: true,
-        tension: 10,
-        friction: 200,
-        toValue: START_SIZE * 0.8
-      }).start(() => {
-        if (Platform.OS === 'android') {
-          StatusBar.setBackgroundColor(statusBarColor, true)
-        }
+      Animated.sequence([
+        Animated.spring(scale, {
+          useNativeDriver: true,
+          tension: 10,
+          friction: 200,
+          toValue: START_SIZE * 0.8
+        }),
         Animated.parallel([
           Animated.spring(scale, {
             useNativeDriver: true,
@@ -84,12 +84,13 @@ export const SplashScreen = ({ canDismiss }: SplashScreenProps) => {
             friction: 50,
             toValue: 0
           })
-        ]).start(() => {
-          setIsShowing(false)
-        })
+        ])
+      ]).start(() => {
+        setIsShowing(false)
+        onDismiss()
       })
     }
-  }, [canDismiss, scale, opacity, statusBarColor])
+  }, [canDismiss, scale, opacity, onDismiss])
 
   return isShowing ? (
     <Animated.View
@@ -105,4 +106,20 @@ export const SplashScreen = ({ canDismiss }: SplashScreenProps) => {
       </Animated.View>
     </Animated.View>
   ) : null
+}
+
+const AndroidSplashScreen = (props: SplashScreenProps) => {
+  const { canDismiss, onDismiss } = props
+
+  // Android does not use the SplashScreen component as different
+  // devices will render different sizes of the BootSplash.
+  // Instead of our custom SplashScreen, fade out the BootSplash screen.
+  useAsync(async () => {
+    if (canDismiss) {
+      await BootSplash.hide({ fade: true })
+      onDismiss()
+    }
+  }, [canDismiss])
+
+  return null
 }
