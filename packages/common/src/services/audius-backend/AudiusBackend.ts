@@ -1223,14 +1223,6 @@ export const audiusBackend = ({
     }
   }
 
-  /**
-   * Upgrades a user to a creator
-   * @param {string} newCreatorNodeEndpoint will follow the structure 'cn1,cn2,cn3'
-   */
-  async function upgradeToCreator(newCreatorNodeEndpoint: string) {
-    return audiusLibs.User.upgradeToCreator(userNodeUrl, newCreatorNodeEndpoint)
-  }
-
   // Uploads a single track
   // Returns { trackId, error, phase }
   async function uploadTrack(
@@ -3610,7 +3602,6 @@ export const audiusBackend = ({
     updateUserSubscription,
     subscribeToUser,
     unsubscribeFromUser,
-    upgradeToCreator,
     uploadImage,
     uploadTrack,
     uploadTrackToCreatorNode,
