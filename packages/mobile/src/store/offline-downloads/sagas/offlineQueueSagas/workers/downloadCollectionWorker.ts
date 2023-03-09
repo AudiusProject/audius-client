@@ -59,19 +59,19 @@ export function* downloadCollectionWorker(collectionId: CollectionId) {
   )
   yield* put(startJob(queueItem))
 
-  const { jobResult, cancel, abort, abortJob } = yield* race({
+  const { jobResult, cancel, abortDownload, abortJob } = yield* race({
     jobResult: retryOfflineJob(
       MAX_RETRY_COUNT,
       1000,
       downloadCollectionAsync,
       collectionId
     ),
-    abort: call(shouldAbortDownload, collectionId),
+    abortDownload: call(shouldAbortDownload, collectionId),
     abortJob: call(shouldAbortJob),
     cancel: call(shouldCancelJob)
   })
 
-  if (abort || abortJob) {
+  if (abortDownload || abortJob) {
     yield* call(removeDownloadedCollection, collectionId)
     yield* put(requestProcessNextJob())
   } else if (cancel) {

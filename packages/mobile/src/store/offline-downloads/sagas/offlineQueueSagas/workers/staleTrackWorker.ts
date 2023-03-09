@@ -25,14 +25,14 @@ const { getTrack } = cacheTracksSelectors
 
 export function* staleTrackWorker(trackId: ID) {
   yield* put(startJob({ type: 'stale-track', id: trackId }))
-  const { jobResult, abort, abortJob, cancel } = yield* race({
+  const { jobResult, abortStaleTrack, abortJob, cancel } = yield* race({
     jobResult: call(handleStaleTrack, trackId),
-    abort: call(shouldAbortStaleTrack, trackId),
+    abortStaleTrack: call(shouldAbortStaleTrack, trackId),
     abortJob: call(shouldAbortJob),
     cancel: call(shouldCancelJob)
   })
 
-  if (abort || abortJob) {
+  if (abortStaleTrack || abortJob) {
     yield* put(requestProcessNextJob())
   } else if (cancel) {
     // continue
