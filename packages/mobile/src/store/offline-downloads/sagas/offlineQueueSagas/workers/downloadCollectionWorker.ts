@@ -33,6 +33,7 @@ import {
 } from '../../../slice'
 import { isCollectionDownloadable } from '../../utils/isCollectionDownloadable'
 import { retryOfflineJob } from '../../utils/retryOfflineJob'
+import { shouldAbortJob } from '../../utils/shouldAbortJob'
 import { shouldCancelJob } from '../../utils/shouldCancelJob'
 
 import { downloadFile } from './downloadFile'
@@ -58,7 +59,7 @@ export function* downloadCollectionWorker(collectionId: CollectionId) {
   )
   yield* put(startJob(queueItem))
 
-  const { jobResult, cancel, abort } = yield* race({
+  const { jobResult, cancel, abort, abortJob } = yield* race({
     jobResult: retryOfflineJob(
       MAX_RETRY_COUNT,
       1000,
@@ -66,10 +67,11 @@ export function* downloadCollectionWorker(collectionId: CollectionId) {
       collectionId
     ),
     abort: call(shouldAbortDownload, collectionId),
+    abortJob: call(shouldAbortJob),
     cancel: call(shouldCancelJob)
   })
 
-  if (abort) {
+  if (abort || abortJob) {
     yield* call(removeDownloadedCollection, collectionId)
     yield* put(requestProcessNextJob())
   } else if (cancel) {
