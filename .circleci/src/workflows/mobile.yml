@@ -49,20 +49,29 @@ jobs:
         branches:
           only: /^main$/
 
-  - mobile-hold-production-ios:
-      type: approval
+  - mobile-build-upload-production-ios-if-full-release:
+      context: Audius Mobile Client
       requires:
         - mobile-init
       filters:
         branches:
-          only: /(^release.*)$/
-  - mobile-build-upload-production-ios:
-      context: Audius Mobile Client
+          only: /(^nkang--improve-ci-cp|^release.*)$/
+
+  - mobile-hold-deploy-codepush-ios-if-ota-release:
+      type: approval
       requires:
-        - mobile-hold-production-ios
+        - mobile-build-upload-production-ios-if-full-release
       filters:
         branches:
-          only: /(^release.*)$/
+          only: /(^nkang--improve-ci-cp|^release.*)$/
+
+  - mobile-deploy-codepush-production-ios-if-ota-release:
+      context: Audius Mobile Client
+      requires:
+        - mobile-hold-deploy-codepush-ios-if-ota-release
+      filters:
+        branches:
+          only: /(^nkang--improve-ci-cp|^release.*)$/
 
   - mobile-build-staging-android:
       context: Audius Mobile Client
@@ -104,18 +113,26 @@ jobs:
         branches:
           only: /^main$/
 
-  - mobile-hold-production-android:
-      type: approval
+  - mobile-build-upload-production-android-if-full-release:
+      context: Audius Mobile Client
       requires:
         - mobile-init
       filters:
         branches:
-          only: /(^release.*)$/
+          only: /(^nkang--improve-ci-cp|^release.*)$/
 
-  - mobile-build-upload-production-android:
-      context: Audius Mobile Client
+  - mobile-hold-deploy-codepush-android-if-ota-release:
+      type: approval
       requires:
-        - mobile-hold-production-android
+        - mobile-build-upload-production-android-if-full-release
       filters:
         branches:
-          only: /(^release.*)$/
+          only: /(^nkang--improve-ci-cp|^release.*)$/
+
+  - mobile-deploy-codepush-production-android-if-ota-release:
+      context: Audius Mobile Client
+      requires:
+        - mobile-hold-deploy-codepush-android-if-ota-release
+      filters:
+        branches:
+          only: /(^nkang--improve-ci-cp|^release.*)$/
