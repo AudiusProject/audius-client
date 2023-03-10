@@ -9,6 +9,10 @@ import { SettingsRowLabel } from './SettingRowLabel'
 import { SettingsRow } from './SettingsRow'
 import { SettingsRowDescription } from './SettingsRowDescription'
 
+type DownloadAllFavoritesRowProps = {
+  onValueChange: (value: boolean) => void
+}
+
 const messages = {
   label: 'Download All Favorites',
   body: "Download your favorites so you can listen offline! Albums and playlists you've favorited can also be downloaded individually"
@@ -24,7 +28,10 @@ const useStyles = makeStyles(({ palette }) => ({
   }
 }))
 
-export const DownloadAllFavoritesRow = () => {
+export const DownloadAllFavoritesRow = (
+  props: DownloadAllFavoritesRowProps
+) => {
+  const { onValueChange } = props
   const isOfflineDownloadEnabled = useIsOfflineModeEnabled()
   const styles = useStyles()
 
@@ -34,7 +41,7 @@ export const DownloadAllFavoritesRow = () => {
     <SettingsRow>
       <View style={styles.content}>
         <SettingsRowLabel label={messages.label} />
-        <DownloadFavoritesSwitch />
+        <DownloadFavoritesSwitch onValueChange={onValueChange} />
       </View>
 
       <SettingsRowDescription>{messages.body}</SettingsRowDescription>
