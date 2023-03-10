@@ -41,6 +41,8 @@ import { ERROR_PAGE } from 'utils/route'
 import { waitForWrite } from 'utils/sagaHelpers'
 import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
+import { adjustUserField } from '../cache/users/sagas'
+
 import { watchUploadErrors } from './errorSagas'
 import { reportResultEvents } from './sagaHelpers'
 
@@ -943,7 +945,7 @@ function* uploadSingleTrack(track) {
           }
         })
       },
-      function* (confirmedTrack) {
+      function* onSuccess(confirmedTrack) {
         yield call(responseChan.put, { confirmedTrack })
       },
       function* ({ timeout, message }) {
@@ -1020,6 +1022,18 @@ function* uploadSingleTrack(track) {
   yield waitForAccount()
   const account = yield select(getAccountUser)
   yield put(cacheActions.setExpired(Kind.USERS, account.user_id))
+
+  yield put(
+    cacheActions.add(Kind.TRACKS, [
+      { id: confirmedTrack.track_id, metadata: confirmedTrack }
+    ])
+  )
+
+  yield call(adjustUserField, {
+    user: account,
+    fieldName: 'track_count',
+    delta: 1
+  })
 
   if (confirmedTrack.download && confirmedTrack.download.is_downloadable) {
     yield put(tracksActions.checkIsDownloadable(confirmedTrack.track_id))
