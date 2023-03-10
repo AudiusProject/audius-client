@@ -253,7 +253,7 @@ mobile-build-upload-production-android-if-full-release:
   steps:
     - mobile-prepare-android:
         build-directory: 'build-mobile-production'
-    - mobile-halt-if-codepush-release
+    - mobile-halt-if-codepush-release-android
     - mobile-release-android:
         build-directory: 'build-mobile-production'
         upload-type: 'prod'
