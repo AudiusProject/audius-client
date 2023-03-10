@@ -5,6 +5,7 @@ import {
   removeNullable
 } from '@audius/common'
 import { partition } from 'lodash'
+import moment from 'moment'
 import { call, fork } from 'typed-redux-saga'
 
 import { recordPlaylistUpdatesAnalytics } from './playlistUpdates'
@@ -77,7 +78,7 @@ export function* fetchNotifications(config: FetchNotificationsParams) {
         timestamp: timestampParam,
         groupIdOffset,
         limit,
-        validTypes: validTypes.length > 0 ? validTypes : undefined
+        validTypes
       }
     )
 
@@ -94,8 +95,9 @@ export function* fetchNotifications(config: FetchNotificationsParams) {
 
       if (invalidNotifications.length !== 0) {
         const newLimit = limit - validNotifications.length
-        const newTimestamp =
+        const newTimestamp = moment(
           validNotifications[validNotifications.length - 1].timestamp
+        ).toISOString()
 
         const legacyNotificationsResponse = yield* call(
           audiusBackendInstance.getNotifications,
