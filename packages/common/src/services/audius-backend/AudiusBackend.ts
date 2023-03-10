@@ -2834,9 +2834,7 @@ export const audiusBackend = ({
         const encodedUserId = encodeHashId(userId)
         const bulkResp: { user_id: string; subscriber_ids: string[] }[] =
           await audiusLibs.User.bulkGetUserSubscribers([encodedUserId])
-        const encodedSubscriberIds = bulkResp.find(
-          (user) => user.user_id === encodedUserId
-        )!.subscriber_ids
+        const encodedSubscriberIds = bulkResp[0].subscriber_ids
         const subscriberIds = encodedSubscriberIds.map((id) => decodeHashId(id))
         return subscriberIds.includes(account.user_id)
       } catch (e) {
