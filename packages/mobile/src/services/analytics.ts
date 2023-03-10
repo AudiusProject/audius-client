@@ -77,7 +77,7 @@ export const track = async ({ eventName, properties }: Track) => {
   const propertiesWithContext = {
     ...properties,
     mobileClientVersion: version,
-    mobileClientCPVersion: versionInfo
+    mobileClientVersionInclOTA: versionInfo ?? 'unknown'
   }
   amplitudeInstance.logEvent(eventName, propertiesWithContext)
 }

@@ -22,9 +22,7 @@ export const reportToSentry = async ({
 }: ReportToSentryArgs) => {
   try {
     Sentry.withScope((scope) => {
-      if (versionInfo != null) {
-        scope.setExtra('versionInfo', versionInfo)
-      }
+      scope.setExtra('mobileClientVersionInclOTA', versionInfo ?? 'unknown')
       if (level) {
         const sentryLevel = Levels[level]
         scope.setLevel(sentryLevel)
