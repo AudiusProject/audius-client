@@ -191,15 +191,14 @@ platform :ios do
     end
    
     # Upload to test flight
-    # UNCOMMENT
-    # pilot(
-    #   skip_waiting_for_build_processing: true,
-    #   apple_id: appleId,
-    #   app_identifier: options[:bundle_id],
-    #   ipa: ipa,
-    #   # Don't actually distribute, just upload
-    #   skip_submission: true
-    # )
+    pilot(
+      skip_waiting_for_build_processing: true,
+      apple_id: appleId,
+      app_identifier: options[:bundle_id],
+      ipa: ipa,
+      # Don't actually distribute, just upload
+      skip_submission: true
+    )
   end
 
   desc "Build + upload via CodePush or TestFlight"
@@ -227,8 +226,7 @@ platform :ios do
         sh("npm install -g appcenter-cli")
         # Codepush to the right environment
         sh("appcenter login --token #{ENV['APPCENTER_CODEPUSH_API_KEY']}")
-        # UNCOMMENT
-        # sh("cd ../../ && appcenter codepush release-react -a #{CODEPUSH_APP_NAME} -t #{currentReleasedVersionNumber.to_s} -d #{codepushDeployment} --disable-duplicate-release-error")
+        sh("cd ../../ && appcenter codepush release-react -a #{CODEPUSH_APP_NAME} -t #{currentReleasedVersionNumber.to_s} -d #{codepushDeployment} --disable-duplicate-release-error")
         sh("appcenter logout")
       else
         UI.message "Did not do a deployment in order to avoid pushing to Release Candidate Codepush deployment twice."

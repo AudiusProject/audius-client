@@ -3,11 +3,11 @@ jobs:
   - mobile-init:
       context: Audius Mobile Client
 
-  # - mobile-comment-native-code-change:
-  #     context: Audius Mobile Client
-  #     filters:
-  #       branches:
-  #         ignore: /(^main|^release.*)$/
+  - mobile-comment-native-code-change:
+      context: Audius Mobile Client
+      filters:
+        branches:
+          ignore: /(^main|^release.*)$/
 
   - mobile-build-staging-ios:
       context: Audius Mobile Client
@@ -119,7 +119,7 @@ jobs:
         - mobile-init
       filters:
         branches:
-          only: /(^nkang--improve-ci-cp|^release.*)$/
+          only: /(^release.*)$/
 
   - mobile-hold-deploy-codepush-android-if-ota-release:
       type: approval
@@ -127,7 +127,7 @@ jobs:
         - mobile-build-upload-production-android-if-full-release
       filters:
         branches:
-          only: /(^nkang--improve-ci-cp|^release.*)$/
+          only: /(^release.*)$/
 
   - mobile-deploy-codepush-production-android-if-ota-release:
       context: Audius Mobile Client
@@ -135,4 +135,4 @@ jobs:
         - mobile-hold-deploy-codepush-android-if-ota-release
       filters:
         branches:
-          only: /(^nkang--improve-ci-cp|^release.*)$/
+          only: /(^release.*)$/
