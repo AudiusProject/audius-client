@@ -1,6 +1,5 @@
 import type { ID } from '@audius/common'
 import {
-  reachabilityActions,
   getContext,
   accountSelectors,
   cacheTracksSelectors
@@ -19,19 +18,21 @@ import {
   startJob
 } from 'app/store/offline-downloads/slice'
 
-const { SET_UNREACHABLE } = reachabilityActions
+import { shouldAbortJob } from '../../utils/shouldAbortJob'
+import { shouldCancelJob } from '../../utils/shouldCancelJob'
 const { getUserId } = accountSelectors
 const { getTrack } = cacheTracksSelectors
 
 export function* staleTrackWorker(trackId: ID) {
   yield* put(startJob({ type: 'stale-track', id: trackId }))
-  const { jobResult, abort, cancel } = yield* race({
+  const { jobResult, abortStaleTrack, abortJob, cancel } = yield* race({
     jobResult: call(handleStaleTrack, trackId),
-    abort: call(shouldAbortJob, trackId),
-    cancel: take(SET_UNREACHABLE)
+    abortStaleTrack: call(shouldAbortStaleTrack, trackId),
+    abortJob: call(shouldAbortJob),
+    cancel: call(shouldCancelJob)
   })
 
-  if (abort) {
+  if (abortStaleTrack || abortJob) {
     yield* put(requestProcessNextJob())
   } else if (cancel) {
     // continue
@@ -75,7 +76,7 @@ export function* handleStaleTrack(trackId: ID) {
   return OfflineDownloadStatus.SUCCESS
 }
 
-function* shouldAbortJob(trackId: ID) {
+function* shouldAbortStaleTrack(trackId: ID) {
   while (true) {
     yield* take(removeOfflineItems.type)
     const trackStatus = yield* select(getTrackOfflineDownloadStatus(trackId))

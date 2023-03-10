@@ -1,6 +1,5 @@
 import type { DownloadReason, ID } from '@audius/common'
 import {
-  reachabilityActions,
   cacheCollectionsSelectors,
   accountSelectors,
   getContext
@@ -31,8 +30,9 @@ import {
   removeOfflineItems,
   startCollectionSync
 } from '../../../slice'
+import { shouldAbortJob } from '../../utils/shouldAbortJob'
+import { shouldCancelJob } from '../../utils/shouldCancelJob'
 
-const { SET_UNREACHABLE } = reachabilityActions
 const { getUserId } = accountSelectors
 const { getCollection } = cacheCollectionsSelectors
 
@@ -51,13 +51,14 @@ function* shouldAbortSync(collectionId: CollectionId) {
 export function* syncCollectionWorker(collectionId: CollectionId) {
   yield* put(startCollectionSync({ id: collectionId }))
 
-  const { jobResult, abort, cancel } = yield* race({
+  const { jobResult, abortSync, abortJob, cancel } = yield* race({
     jobResult: call(syncCollectionAsync, collectionId),
-    abort: call(shouldAbortSync, collectionId),
-    cancel: take(SET_UNREACHABLE)
+    abortSync: call(shouldAbortSync, collectionId),
+    abortJob: call(shouldAbortJob),
+    cancel: call(shouldCancelJob)
   })
 
-  if (abort) {
+  if (abortSync || abortJob) {
     yield* put(requestProcessNextJob())
   } else if (cancel) {
     yield* put(cancelCollectionSync({ id: collectionId }))
