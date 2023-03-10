@@ -138,8 +138,11 @@ mobile-build-upload-production-ios-if-full-release:
 
 mobile-deploy-codepush-production-ios-if-ota-release:
   working_directory: ~/audius-client
-  docker:
-    - image: circleci/node:14.18
+  macos:
+    xcode: '14.0.0'
+  environment:
+    FL_OUTPUT_DIR: output
+  shell: /bin/bash --login -o pipefail
   steps:
     - mobile-prepare-ios:
         build-directory: 'build-mobile-production'
@@ -269,8 +272,9 @@ mobile-build-upload-production-android-if-full-release:
 
 mobile-deploy-codepush-production-android-if-ota-release:
   working_directory: ~/audius-client
+  resource_class: large
   docker:
-    - image: circleci/node:14.18
+    - image: circleci/android:api-30-node
   steps:
     - mobile-prepare-android:
         build-directory: 'build-mobile-production'
