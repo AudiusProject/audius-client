@@ -2366,6 +2366,38 @@ export const audiusBackend = ({
         },
         ...formatBaseNotification(notification)
       }
+    } else if (notification.type === 'repost_of_repost') {
+      let entityId
+      let entityType
+      const userIds = notification.actions.map((action) => {
+        const data = action.data
+        entityId = decodeHashId(data.repost_of_repost_item_id)
+        entityType = getDiscoveryEntityType(data.type)
+        return decodeHashId(data.user_id)
+      })
+      return {
+        type: NotificationType.RepostOfRepost,
+        userIds,
+        entityId,
+        entityType,
+        ...formatBaseNotification(notification)
+      }
+    } else if (notification.type === 'save_of_repost') {
+      let entityId
+      let entityType
+      const userIds = notification.actions.map((action) => {
+        const data = action.data
+        entityId = decodeHashId(data.save_of_repost_item_id)
+        entityType = getDiscoveryEntityType(data.type)
+        return decodeHashId(data.user_id)
+      })
+      return {
+        type: NotificationType.FavoriteOfRepost,
+        userIds,
+        entityId,
+        entityType,
+        ...formatBaseNotification(notification)
+      }
     }
 
     return notification

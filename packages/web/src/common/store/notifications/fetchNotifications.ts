@@ -4,6 +4,7 @@ import {
   IntKeys,
   removeNullable
 } from '@audius/common'
+import { partition } from 'lodash'
 import { call, fork } from 'typed-redux-saga'
 
 import { recordPlaylistUpdatesAnalytics } from './playlistUpdates'
@@ -82,14 +83,37 @@ export function* fetchNotifications(config: FetchNotificationsParams) {
 
     if (discoveryNotifications) {
       const { notifications } = discoveryNotifications
-      const hasCrossedGenesisTimestamp = notifications.some(
+      const [invalidNotifications, validNotifications] = partition(
+        notifications,
         (notification) =>
           Date.parse(notification.timestamp) <
           discoveryNotificationsGenesisTimestamp
       )
 
-      if (!hasCrossedGenesisTimestamp) {
-        notificationsResponse.notifications = notifications
+      notificationsResponse.notifications = validNotifications
+
+      if (invalidNotifications.length !== 0) {
+        const newLimit = limit - validNotifications.length
+        const newTimestamp =
+          validNotifications[validNotifications.length - 1].timestamp
+
+        const legacyNotificationsResponse = yield* call(
+          audiusBackendInstance.getNotifications,
+          {
+            limit: newLimit,
+            timeOffset: newTimestamp,
+            withDethroned
+          }
+        )
+
+        if ('error' in legacyNotificationsResponse) {
+          notificationsResponse.notifications = validNotifications
+        } else {
+          notificationsResponse.notifications =
+            notificationsResponse.notifications.concat(
+              legacyNotificationsResponse.notifications
+            )
+        }
       }
     }
   }
