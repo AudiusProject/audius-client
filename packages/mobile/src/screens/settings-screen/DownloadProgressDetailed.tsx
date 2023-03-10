@@ -1,11 +1,14 @@
 import type { Collection } from '@audius/common'
 import { removeNullable, cacheCollectionsSelectors } from '@audius/common'
 import { isEqual, partition } from 'lodash'
+import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 import { createSelector } from 'reselect'
 
+import IconAlbum from 'app/assets/images/iconAlbum.svg'
 import IconNote from 'app/assets/images/iconNote.svg'
-import { Tile } from 'app/components/core'
+import IconPlaylist from 'app/assets/images/iconPlaylists.svg'
+import { Divider, Tile } from 'app/components/core'
 import { DOWNLOAD_REASON_FAVORITES } from 'app/store/offline-downloads/constants'
 import {
   getOfflineCollectionsStatus,
@@ -28,7 +31,13 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     flexDirection: 'column',
     alignItems: 'flex-end',
     justifyContent: 'center',
-    marginRight: spacing(2)
+    margin: spacing(4),
+    marginVertical: spacing(6)
+  },
+  dividerLine: {
+    marginHorizontal: spacing(6),
+    borderTopWidth: 1,
+    borderTopColor: palette.neutralLight7
   }
 }))
 
@@ -100,9 +109,12 @@ export const DownloadProgressDetailed = (
   const [albumCount, albumSuccessCount, playlistCount, playlistSuccessCount] =
     useSelector(getCollectionProgress)
 
+  if (!trackDownloads || !albumCount || !playlistCount) return <Divider />
+
   return (
     <Tile style={styles.root}>
       <FavoritesDownloadStatusIndicator switchValue={favoritesToggleValue} />
+      <View style={styles.dividerLine} />
       <DownloadProgressRow
         title='Tracks'
         icon={IconNote}
@@ -111,13 +123,13 @@ export const DownloadProgressDetailed = (
       />
       <DownloadProgressRow
         title='Albums'
-        icon={IconNote}
+        icon={IconAlbum}
         numDownloads={albumCount}
         numDownloadsSuccess={albumSuccessCount}
       />
       <DownloadProgressRow
         title='Playlists'
-        icon={IconNote}
+        icon={IconPlaylist}
         numDownloads={playlistCount}
         numDownloadsSuccess={playlistSuccessCount}
       />

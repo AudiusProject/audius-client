@@ -2,7 +2,6 @@ import { useState } from 'react'
 
 import { Screen, ScreenContent } from 'app/components/core'
 
-import { Divider } from './Divider'
 import { DownloadAllFavoritesRow } from './DownloadAllFavoritesRow'
 import { DownloadNetworkPreferenceRow } from './DownloadNetworkPreferenceRow'
 import { DownloadProgressDetailed } from './DownloadProgressDetailed'
@@ -18,7 +17,6 @@ export const DownloadSettingsScreen = () => {
   return (
     <Screen title={messages.title} variant='secondary' topbarRight={null}>
       <ScreenContent>
-        <Divider />
         <DownloadProgressDetailed favoritesToggleValue={favoritesToggleValue} />
         <DownloadAllFavoritesRow onValueChange={setToggleValue} />
         <DownloadNetworkPreferenceRow />

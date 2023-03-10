@@ -6,6 +6,7 @@ import type { SvgProps } from 'react-native-svg'
 import { Text } from 'app/components/core'
 import { ProgressBar } from 'app/components/progress-bar'
 import { makeStyles } from 'app/styles'
+import { useColor } from 'app/utils/theme'
 
 type DownloadProgressRowProps = {
   title: string
@@ -36,10 +37,11 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
 export const DownloadProgressRow = (props: DownloadProgressRowProps) => {
   const { title, icon: Icon, numDownloadsSuccess, numDownloads } = props
   const styles = useStyles()
+  const neutralLight4 = useColor('neutralLight4')
 
   return (
     <View style={styles.root}>
-      <Icon />
+      <Icon fill={neutralLight4} />
       <Text style={styles.text} color='neutral' weight='demiBold' fontSize='xs'>
         {title} {`${numDownloadsSuccess}/${numDownloads}`}
       </Text>
