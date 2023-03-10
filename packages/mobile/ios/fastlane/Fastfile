@@ -51,6 +51,7 @@ platform :ios do
   end
 
   lane :haltIfCodePushEligible do |options|
+    UI.message "Release will be through an over-the-air (Codepush) update, which can be triggered by approving the hold on the next job. Aborting full app release."
     currentReleasedVersionNumber, plistVersionNumber = get_version()
     isVersionIncremented = plistVersionNumber > currentReleasedVersionNumber
     if !isVersionIncremented
