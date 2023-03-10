@@ -116,7 +116,7 @@ export const ProfileInfo = (props: ProfileInfoProps) => {
       <EditProfileButton style={styles.followButton} />
     ) : (
       <>
-        {isChatEnabled ? <MessageButton profile={profile} /> : null}
+        {isChatEnabled && !isOwner ? <MessageButton profile={profile} /> : null}
         {does_current_user_follow ? (
           <SubscribeButton profile={profile} />
         ) : null}

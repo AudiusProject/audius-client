@@ -8,6 +8,7 @@ import {
   reachabilitySelectors,
   shareModalUIActions,
   encodeUrlName,
+  modalsActions,
   FeatureFlags
 } from '@audius/common'
 import { PortalHost } from '@gorhom/portal'
@@ -21,18 +22,18 @@ import { OfflinePlaceholder } from 'app/components/offline-placeholder'
 import { useAppTabScreen } from 'app/hooks/useAppTabScreen'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { useRoute } from 'app/hooks/useRoute'
-import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
 import { ProfileHeader } from './ProfileHeader'
 import { ProfileScreenSkeleton } from './ProfileScreenSkeleton'
 import { ProfileTabNavigator } from './ProfileTabNavigator'
-import { useSelectProfileRoot } from './selectors'
+import { getIsOwner, useSelectProfileRoot } from './selectors'
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { fetchProfile: fetchProfileAction } = profilePageActions
 const { getProfileStatus } = profilePageSelectors
 const { getIsReachable } = reachabilitySelectors
+const { setVisibility } = modalsActions
 
 const useStyles = makeStyles(() => ({
   navigator: {
@@ -53,6 +54,7 @@ export const ProfileScreen = () => {
   const handle =
     userHandle && userHandle !== 'accountUser' ? userHandle : profile?.handle
   const handleLower = handle?.toLowerCase() ?? ''
+  const isOwner = useSelector((state) => getIsOwner(state, handle ?? ''))
   const dispatch = useDispatch()
   const status = useSelector((state) => getProfileStatus(state, handleLower))
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -85,12 +87,11 @@ export const ProfileScreen = () => {
 
   const handlePressTopRight = useCallback(() => {
     if (profile) {
-      if (isChatEnabled) {
+      if (isChatEnabled && !isOwner) {
         dispatch(
           setVisibility({
-            drawer: 'ProfileActions',
-            visible: true,
-            data: { userId: profile.user_id }
+            modal: 'ProfileActions',
+            visible: true
           })
         )
       } else {
@@ -103,12 +104,12 @@ export const ProfileScreen = () => {
         )
       }
     }
-  }, [profile, dispatch, isChatEnabled])
+  }, [profile, dispatch, isChatEnabled, isOwner])
 
   const topbarRight = (
     <IconButton
       fill={neutralLight4}
-      icon={isChatEnabled ? IconKebabHorizontal : IconShare}
+      icon={isChatEnabled && !isOwner ? IconKebabHorizontal : IconShare}
       onPress={handlePressTopRight}
     />
   )
