@@ -75,6 +75,10 @@ mobile-build-staging-ios:
   shell: /bin/bash --login -o pipefail
   steps:
     - mobile-halt-if-no-native-changes # Don't need to test building if there's no native changes
+    - mobile-prepare-ios:
+        build-directory: 'build-mobile-staging'
+        bundle-id: 'co.audius.audiusmusic.staging'
+        env: '.env.stage'
     - mobile-build-ios:
         build-directory: 'build-mobile-staging'
         bundle-id: 'co.audius.audiusmusic.staging'
@@ -91,11 +95,11 @@ mobile-build-upload-staging-ios:
     - mobile-prepare-ios:
         build-directory: 'build-mobile-staging'
         bundle-id: 'co.audius.audiusmusic.staging'
-        env: '.env.prod'
+        env: '.env.stage'
     - mobile-release-ios:
         build-directory: 'build-mobile-staging'
         bundle-id: 'co.audius.audiusmusic.staging'
-        env: '.env.prod'
+        env: '.env.stage'
 
 mobile-build-production-ios:
   working_directory: ~/audius-client
@@ -186,6 +190,8 @@ mobile-build-staging-android:
   docker:
     - image: circleci/android:api-30-node
   steps:
+    - mobile-prepare-android:
+        build-directory: 'build-mobile-staging'
     - mobile-build-android:
         build-directory: 'build-mobile-staging'
         build-type: 'bundleStagingRelease'
@@ -238,6 +244,8 @@ mobile-build-production-android:
   docker:
     - image: circleci/android:api-30-node
   steps:
+    - mobile-prepare-android:
+        build-directory: 'build-mobile-production'
     - mobile-build-android:
         build-directory: 'build-mobile-production'
         build-type: 'bundleRelease'
