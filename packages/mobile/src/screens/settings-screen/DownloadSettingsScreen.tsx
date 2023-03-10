@@ -2,11 +2,10 @@ import { useState } from 'react'
 
 import { Screen, ScreenContent } from 'app/components/core'
 
-import { DownloadProgressDetailed } from '../favorites-screen/DownloadProgressDetailed'
-
 import { Divider } from './Divider'
 import { DownloadAllFavoritesRow } from './DownloadAllFavoritesRow'
 import { DownloadNetworkPreferenceRow } from './DownloadNetworkPreferenceRow'
+import { DownloadProgressDetailed } from './DownloadProgressDetailed'
 import { RemoveAllDownloadsRow } from './RemoveAllDownloadsRow'
 
 const messages = {
