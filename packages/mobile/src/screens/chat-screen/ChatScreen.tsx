@@ -12,14 +12,19 @@ import {
   accountSelectors,
   chatSelectors,
   encodeUrlName,
+  decodeHashId,
   encodeHashId,
   Status,
   hasTail,
   isEarliestUnread
 } from '@audius/common'
+import type { ReactionTypes, Nullable } from '@audius/common'
+import type { ChatMessage } from '@audius/sdk'
+import { Portal } from '@gorhom/portal'
 import { useFocusEffect } from '@react-navigation/native'
-import { View, Text, Image } from 'react-native'
+import { View, Text, Image, Dimensions, Pressable } from 'react-native'
 import type { FlatList as RNFlatList } from 'react-native'
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { useDispatch, useSelector } from 'react-redux'
 
 import WavingHand from 'app/assets/images/emojis/waving-hand-sign.png'
@@ -32,7 +37,10 @@ import { UserBadges } from 'app/components/user-badges'
 import { useRoute } from 'app/hooks/useRoute'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
 import { useThemePalette } from 'app/utils/theme'
+
+import { ReactionList } from '../notifications-screen/Reaction'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
 
@@ -44,7 +52,8 @@ const {
   getChat
 } = chatSelectors
 
-const { fetchMoreMessages, sendMessage, markChatAsRead } = chatActions
+const { fetchMoreMessages, sendMessage, markChatAsRead, setMessageReaction } =
+  chatActions
 const { getUserId } = accountSelectors
 
 const messages = {
@@ -56,6 +65,7 @@ const messages = {
 }
 const ICON_BLUR = 0.5
 const ICON_FOCUS = 1
+const REACTION_CONTAINER_HEIGHT = 100
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   rootContainer: {
@@ -65,7 +75,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     justifyContent: 'space-between'
   },
   listContainer: {
-    display: 'flex',
     flex: 1
   },
   flatListContainer: {
@@ -162,6 +171,35 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     fontSize: typography.fontSize.large,
     lineHeight: typography.fontSize.large * 1.3,
     color: palette.neutral
+  },
+  reactionsContainer: {
+    display: 'flex',
+    borderWidth: 1,
+    borderRadius: spacing(3),
+    borderColor: palette.neutralLight9,
+    zIndex: 2,
+    width: Dimensions.get('window').width - spacing(12),
+    backgroundColor: palette.white,
+    marginHorizontal: spacing(6)
+  },
+  dimBackground: {
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
+    opacity: 0.3,
+    backgroundColor: 'black',
+    zIndex: 1
+  },
+  popupContainer: {
+    position: 'absolute',
+    display: 'flex',
+    flex: 1,
+    zIndex: 2
+  },
+  popupChatMessage: {
+    position: 'absolute',
+    maxWidth: Dimensions.get('window').width - spacing(12),
+    zIndex: 3
   }
 }))
 
@@ -189,10 +227,18 @@ export const ChatScreen = () => {
   const { params } = useRoute<'Chat'>()
   const { chatId } = params
   const url = `/chat/${encodeUrlName(chatId ?? '')}`
-  const [iconOpacity, setIconOpacity] = useState(ICON_BLUR)
-  const [inputMessage, setInputMessage] = useState('')
+  const [iconOpacity, setIconOpacity] = useState<number>(ICON_BLUR)
+  const [inputMessage, setInputMessage] = useState<string>('')
+  const [shouldShowPopup, setShouldShowPopup] = useState<boolean>(false)
+  const [reactionY, setReactionY] = useState<number>(0)
+  const [messageY, setMessageY] = useState<number>(0)
+  const [selectedReaction, setSelectedReaction] = useState<string>('')
+  const [popupChatIndex, setPopupChatIndex] = useState<number | null>(null)
+  const [popupChatHasTail, setPopupChatHasTail] = useState<boolean>(false)
+  const [popupIsAuthor, setPopupIsAuthor] = useState<boolean>(false)
 
-  const userId = encodeHashId(useSelector(getUserId))
+  const userId = useSelector(getUserId)
+  const userIdEncoded = encodeHashId(userId)
   const chat = useSelector((state) => getChat(state, chatId ?? ''))
   const [otherUser] = useSelector((state) => getOtherChatUsers(state, chatId))
   const chatMessages = useSelector((state) =>
@@ -205,6 +251,9 @@ export const ChatScreen = () => {
     getChatMessagesSummary(state, chatId ?? '')
   )
   const flatListRef = useRef<RNFlatList>(null)
+  const itemsRef = useRef<(View | null)[]>([])
+  const rootContainerRef = useRef<View | null>(null)
+  const messageRef = useRef<ChatMessage | null>(null)
   const unreadCount = chat?.unread_message_count ?? 0
   const isLoading = status === Status.LOADING && chatMessages?.length === 0
 
@@ -227,6 +276,12 @@ export const ChatScreen = () => {
     }
   }, [chatId, chat])
 
+  useEffect(() => {
+    if (chatMessages) {
+      itemsRef.current = itemsRef.current.slice(0, chatMessages.length)
+    }
+  }, [chatMessages])
+
   const earliestUnreadIndex = useMemo(
     () =>
       chatMessages?.findIndex((item, index) =>
@@ -235,10 +290,10 @@ export const ChatScreen = () => {
           lastReadAt: chatFrozenRef?.current?.last_read_at,
           currentMessageIndex: index,
           messages: chatMessages,
-          currentUserId: userId
+          currentUserId: userIdEncoded
         })
       ),
-    [chatMessages, userId]
+    [chatMessages, userIdEncoded]
   )
 
   const handleSubmit = useCallback(
@@ -308,12 +363,88 @@ export const ChatScreen = () => {
     )
   }
 
+  const closeReactionPopup = useCallback(() => {
+    setShouldShowPopup(false)
+    setPopupChatIndex(null)
+  }, [setShouldShowPopup, setPopupChatIndex])
+
+  const handleReactionSelected = useCallback(
+    (message: Nullable<ChatMessage>, reaction: ReactionTypes) => {
+      if (userId && message) {
+        dispatch(
+          setMessageReaction({
+            userId,
+            chatId,
+            messageId: message.message_id,
+            reaction:
+              message.reactions?.find((r) => r.user_id === userIdEncoded)
+                ?.reaction === reaction
+                ? null
+                : reaction
+          })
+        )
+      }
+      closeReactionPopup()
+    },
+    [dispatch, userIdEncoded, chatId, userId, closeReactionPopup]
+  )
+
+  const handleLongPress = async (itemRef) => {
+    const selectedReactionValue = messageRef?.current?.reactions?.find(
+      (r) => r.user_id === encodeHashId(userId)
+    )?.reaction
+    if (selectedReactionValue) {
+      setSelectedReaction(selectedReactionValue)
+    }
+
+    const rootY: number = await new Promise<number>((resolve) => {
+      rootContainerRef.current?.measureInWindow(
+        (x, rooty, width, rootheight) => {
+          resolve(rooty)
+        }
+      )
+    })
+    const { top: messageY, height: messageHeight } = await new Promise<{
+      top: number
+      height: number
+    }>((resolve) => {
+      itemRef.measureInWindow((left, top, width, height) => {
+        resolve({ top, height })
+      })
+    })
+
+    const spaceAboveMessage = messageY - rootY
+    const showAbove = spaceAboveMessage > REACTION_CONTAINER_HEIGHT
+    const reactionY = showAbove
+      ? messageY - REACTION_CONTAINER_HEIGHT
+      : messageY + messageHeight
+    setReactionY(reactionY)
+    setMessageY(messageY)
+    setShouldShowPopup(true)
+  }
+
   const topBarRight = (
     <IconKebabHorizontal
       onPress={handleKebabPress}
       fill={palette.neutralLight4}
     />
   )
+
+  const Popup = () => {
+    return (
+      <View style={[styles.reactionsContainer, { top: reactionY }]}>
+        <ReactionList
+          selectedReaction={selectedReaction as ReactionTypes}
+          onChange={(reaction) => {
+            if (reaction) {
+              handleReactionSelected(messageRef.current, reaction)
+            }
+          }}
+          isVisible={true}
+        />
+      </View>
+    )
+  }
 
   return (
     <Screen
@@ -337,7 +468,34 @@ export const ChatScreen = () => {
       topbarRight={topBarRight}
     >
       <ScreenContent>
-        <View style={styles.rootContainer}>
+        <Portal hostName='ChatReactionsPortal'>
+          {shouldShowPopup && popupChatIndex !== null ? (
+            <>
+              <Pressable
+                style={styles.dimBackground}
+                onPress={closeReactionPopup}
+              />
+              <View style={styles.popupContainer}>
+                <Popup />
+                <ChatMessageListItem
+                  message={chatMessages[popupChatIndex]}
+                  hasTail={popupChatHasTail}
+                  shouldShowDate={false}
+                  style={[
+                    styles.popupChatMessage,
+                    {
+                      top: messageY,
+                      alignSelf: popupIsAuthor ? 'flex-end' : 'flex-start',
+                      right: popupIsAuthor ? spacing(6) : undefined,
+                      left: !popupIsAuthor ? spacing(6) : undefined
+                    }
+                  ]}
+                />
+              </View>
+            </>
+          ) : null}
+        </Portal>
+        <View style={styles.rootContainer} ref={rootContainerRef}>
           {!isLoading ? (
             chatMessages?.length > 0 ? (
               <View style={styles.listContainer}>
@@ -346,12 +504,29 @@ export const ChatScreen = () => {
                   data={chatMessages}
                   keyExtractor={(message) => message.chat_id}
                   renderItem={({ item, index }) => (
-                    <Fragment key={item.key}>
-                      <ChatMessageListItem
-                        message={item}
-                        hasTail={hasTail(item, chatMessages[index - 1])}
-                        unreadCount={unreadCount}
-                      />
+                    <Fragment>
+                      <TouchableWithoutFeedback
+                        onPress={() => {
+                          messageRef.current = chatMessages[index]
+                          setPopupChatHasTail(
+                            hasTail(item, chatMessages[index - 1])
+                          )
+                          const senderUserId = decodeHashId(item.sender_user_id)
+                          const isAuthor = senderUserId === userId
+                          setPopupIsAuthor(isAuthor)
+                          handleLongPress(itemsRef.current[index])
+                          setPopupChatIndex(index)
+                        }}
+                      >
+                        <View ref={(el) => (itemsRef.current[index] = el)}>
+                          <ChatMessageListItem
+                            key={item.key}
+                            message={item}
+                            shouldShowReaction={index !== popupChatIndex}
+                            hasTail={hasTail(item, chatMessages[index - 1])}
+                          />
+                        </View>
+                      </TouchableWithoutFeedback>
                       {index === earliestUnreadIndex ? (
                         <View style={styles.unreadTagContainer}>
                           <View style={styles.unreadSeparator} />
@@ -369,6 +544,7 @@ export const ChatScreen = () => {
                   initialNumToRender={chatMessages?.length}
                   ref={flatListRef}
                   onScrollToIndexFailed={handleScrollToIndexFailed}
+                  refreshing={status === Status.LOADING}
                 />
               </View>
             ) : (
