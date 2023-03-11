@@ -8,7 +8,7 @@ import { createSelector } from 'reselect'
 import IconAlbum from 'app/assets/images/iconAlbum.svg'
 import IconNote from 'app/assets/images/iconNote.svg'
 import IconPlaylist from 'app/assets/images/iconPlaylists.svg'
-import { Divider, Tile } from 'app/components/core'
+import { Tile } from 'app/components/core'
 import { DOWNLOAD_REASON_FAVORITES } from 'app/store/offline-downloads/constants'
 import {
   getOfflineCollectionsStatus,
@@ -18,26 +18,23 @@ import {
 import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 import { makeStyles } from 'app/styles'
 
-import { FavoritesDownloadStatusIndicator } from '../favorites-screen/FavoritesDownloadStatusIndicator'
-
+import { Divider } from './Divider'
+import { DownloadProgressHeader } from './DownloadProgressHeader'
 import { DownloadProgressRow } from './DownloadProgressRow'
 const { getCollections } = cacheCollectionsSelectors
-type DownloadProgressDetailedProps = {
-  favoritesToggleValue: boolean
-}
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   root: {
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    justifyContent: 'center',
     margin: spacing(4),
     marginVertical: spacing(6)
   },
+  content: {
+    padding: spacing(4)
+  },
   dividerLine: {
-    marginHorizontal: spacing(6),
     borderTopWidth: 1,
-    borderTopColor: palette.neutralLight7
+    borderTopColor: palette.neutralLight7,
+    marginVertical: spacing(2)
   }
 }))
 
@@ -97,11 +94,7 @@ const getCollectionProgress = createSelector(
   }
 )
 
-export const DownloadProgressDetailed = (
-  props: DownloadProgressDetailedProps
-) => {
-  const { favoritesToggleValue } = props
-
+export const DownloadProgressDetailed = () => {
   const styles = useStyles()
   const [trackDownloads, trackDownloadsSuccess] = useSelector(
     getTrackDownloadProgress
@@ -111,28 +104,35 @@ export const DownloadProgressDetailed = (
 
   if (!trackDownloads || !albumCount || !playlistCount) return <Divider />
 
+  const isDownloading =
+    trackDownloadsSuccess < trackDownloads ||
+    albumSuccessCount < albumCount ||
+    playlistSuccessCount < playlistCount
+
   return (
     <Tile style={styles.root}>
-      <FavoritesDownloadStatusIndicator switchValue={favoritesToggleValue} />
-      <View style={styles.dividerLine} />
-      <DownloadProgressRow
-        title='Tracks'
-        icon={IconNote}
-        numDownloads={trackDownloads}
-        numDownloadsSuccess={trackDownloadsSuccess}
-      />
-      <DownloadProgressRow
-        title='Albums'
-        icon={IconAlbum}
-        numDownloads={albumCount}
-        numDownloadsSuccess={albumSuccessCount}
-      />
-      <DownloadProgressRow
-        title='Playlists'
-        icon={IconPlaylist}
-        numDownloads={playlistCount}
-        numDownloadsSuccess={playlistSuccessCount}
-      />
+      <View style={styles.content}>
+        <DownloadProgressHeader isDownloading={isDownloading} />
+        <View style={styles.dividerLine} />
+        <DownloadProgressRow
+          title='Tracks'
+          icon={IconNote}
+          numDownloads={trackDownloads}
+          numDownloadsSuccess={trackDownloadsSuccess}
+        />
+        <DownloadProgressRow
+          title='Albums'
+          icon={IconAlbum}
+          numDownloads={albumCount}
+          numDownloadsSuccess={albumSuccessCount}
+        />
+        <DownloadProgressRow
+          title='Playlists'
+          icon={IconPlaylist}
+          numDownloads={playlistCount}
+          numDownloadsSuccess={playlistSuccessCount}
+        />
+      </View>
     </Tile>
   )
 }

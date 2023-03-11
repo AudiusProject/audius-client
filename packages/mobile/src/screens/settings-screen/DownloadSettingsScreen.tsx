@@ -1,5 +1,3 @@
-import { useState } from 'react'
-
 import { Screen, ScreenContent } from 'app/components/core'
 
 import { DownloadAllFavoritesRow } from './DownloadAllFavoritesRow'
@@ -12,13 +10,11 @@ const messages = {
 }
 
 export const DownloadSettingsScreen = () => {
-  const [favoritesToggleValue, setToggleValue] = useState(false)
-
   return (
     <Screen title={messages.title} variant='secondary' topbarRight={null}>
       <ScreenContent>
-        <DownloadProgressDetailed favoritesToggleValue={favoritesToggleValue} />
-        <DownloadAllFavoritesRow onValueChange={setToggleValue} />
+        <DownloadProgressDetailed />
+        <DownloadAllFavoritesRow />
         <DownloadNetworkPreferenceRow />
         <RemoveAllDownloadsRow />
       </ScreenContent>
