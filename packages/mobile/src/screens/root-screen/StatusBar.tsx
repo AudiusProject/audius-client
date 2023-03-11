@@ -16,11 +16,12 @@ export const StatusBar = (props: ThemedStatusBarProps) => {
   const theme = useThemeVariant()
   const accountStatus = useSelector(getAccountStatus)
 
+  // Status & nav bar content (the android software buttons) should be light
+  // while in a dark theme or the splash screen is still visible
+  // (it's purple and white-on-purple looks better)
   const shouldRenderLightContent =
     theme === Theme.DARK || theme === Theme.MATRIX || !isSplashScreenDismissed
 
-  // Status & nav bar content (the buttons) should be light while in a dark theme or
-  // the splash screen is still visible (it's purple and white-on-purple looks better)
   const statusBarStyle = shouldRenderLightContent
     ? 'light-content'
     : 'dark-content'
