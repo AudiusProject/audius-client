@@ -31,6 +31,7 @@ import type { DrawersState } from './drawers/slice'
 import drawers from './drawers/slice'
 import type { KeyboardState } from './keyboard/slice'
 import keyboard from './keyboard/slice'
+import { listenerMiddleware } from './listenerMiddleware'
 import mobileUi from './mobileUi/slice'
 import type { MobileUiState } from './mobileUi/slice'
 import type { OAuthState } from './oauth/reducer'
@@ -137,7 +138,7 @@ const sagaMiddleware = createSagaMiddleware({
   onError: onSagaError
 })
 
-const middlewares = [sagaMiddleware]
+const middlewares = [sagaMiddleware, listenerMiddleware.middleware]
 
 if (__DEV__) {
   const createDebugger = require('redux-flipper').default
