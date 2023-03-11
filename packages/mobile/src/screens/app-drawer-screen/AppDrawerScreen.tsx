@@ -5,8 +5,6 @@ import { createDrawerNavigator } from '@react-navigation/drawer'
 import type { DrawerNavigationHelpers } from '@react-navigation/drawer/lib/typescript/src/types'
 import { useNavigation } from '@react-navigation/native'
 import { Dimensions } from 'react-native'
-import { StatusBar } from 'react-native-bars'
-import { useEffectOnce } from 'react-use'
 
 import { AppScreen } from '../app-screen'
 

@@ -4,7 +4,6 @@ import { accountSelectors, Status } from '@audius/common'
 import type { NavigatorScreenParams } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { getHasCompletedAccount } from 'common/store/pages/signon/selectors'
-import { Platform } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import useAppState from 'app/hooks/useAppState'

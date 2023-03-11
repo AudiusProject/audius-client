@@ -30,7 +30,7 @@ const useStyles = makeStyles(({ palette }) => {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: palette.secondary
+      backgroundColor: palette.staticSecondary
     },
     logo: {
       width: RENDER_WIDTH
@@ -64,13 +64,13 @@ const IosSplashScreen = (props: SplashScreenProps) => {
       BootSplash.hide()
 
       // Animate smaller, then bigger with a fade out at the same time
-      Animated.sequence([
-        Animated.spring(scale, {
-          useNativeDriver: true,
-          tension: 10,
-          friction: 200,
-          toValue: START_SIZE * 0.8
-        }),
+      Animated.spring(scale, {
+        useNativeDriver: true,
+        tension: 10,
+        friction: 200,
+        toValue: START_SIZE * 0.8
+      }).start(() => {
+        onDismiss()
         Animated.parallel([
           Animated.spring(scale, {
             useNativeDriver: true,
@@ -84,10 +84,9 @@ const IosSplashScreen = (props: SplashScreenProps) => {
             friction: 50,
             toValue: 0
           })
-        ])
-      ]).start(() => {
-        setIsShowing(false)
-        onDismiss()
+        ]).start(() => {
+          setIsShowing(false)
+        })
       })
     }
   }, [canDismiss, scale, opacity, onDismiss])
