@@ -14,10 +14,19 @@ import { useTimeoutFn } from 'react-use'
 
 import IconClose from 'app/assets/images/iconRemove.svg'
 import type { TextInputProps, TextInputRef } from 'app/components/core'
-import { TextInput } from 'app/components/core'
+import { IconButton, TextInput } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { useDebouncedCallback } from 'app/hooks/useDebouncedCallback'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { makeStyles } from 'app/styles'
+import { useThemeColors } from 'app/utils/theme'
+
+const useStyles = makeStyles(({ spacing }) => ({
+  loadingSpinner: {
+    height: spacing(4) + 2,
+    width: spacing(4) + 2
+  }
+}))
 
 // Amount of time to wait before focusing TextInput
 // after the SearchBar renders
@@ -32,6 +41,7 @@ export const SearchBar = (props: SearchBarProps) => {
   const navigation = useNavigation()
   const inputRef = useRef<TextInputRef>(null)
   const [searchInput, setSearchInput] = useState(searchQuery)
+  const styles = useStyles()
 
   // Wait to focus TextInput to prevent keyboard animation
   // from causing UI stutter as the screen transitions in
@@ -78,9 +88,14 @@ export const SearchBar = (props: SearchBarProps) => {
   }, [dispatch])
 
   const isLoading = searchStatus === Status.LOADING
-  const icon = isLoading ? LoadingSpinner : undefined
 
-  // TODO: add end adornment
+  const { neutralLight5 } = useThemeColors()
+
+  const endAdornmentElement = isLoading ? (
+    <LoadingSpinner style={styles.loadingSpinner} />
+  ) : searchInput ? (
+    <IconButton icon={IconClose} fill={neutralLight5} onPress={handleClear} />
+  ) : undefined
 
   return (
     <TextInput
@@ -88,11 +103,9 @@ export const SearchBar = (props: SearchBarProps) => {
       ref={inputRef}
       value={searchInput}
       onChangeText={handleChangeText}
-      Icon={icon}
-      clearable={Boolean(!isLoading && searchInput)}
-      onClear={handleClear}
       onSubmitEditing={handleSubmit}
       returnKeyType='search'
+      endAdornment={endAdornmentElement}
     />
   )
 }
