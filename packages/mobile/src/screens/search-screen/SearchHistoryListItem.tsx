@@ -42,7 +42,6 @@ export const SearchHistoryListItem = (props: SearchHistoryListItemProps) => {
   const dispatch = useDispatch()
 
   const onPress = useCallback(() => {
-    dispatch(updateQuery({ query: text }))
     if (text.startsWith('#')) {
       navigation.push('TagSearch', { query: text })
     } else {
