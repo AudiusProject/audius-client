@@ -38,7 +38,7 @@ describe("Sign Up", () => {
     cy.findByRole("button", { name: /continue/i }).click({ force: true });
 
     cy.findByRole("heading", {
-      name: /tell us about yourself so others can find you/i,
+      name: /quickly complete your account by linking your other socials/i,
       level: 2,
     }).should("exist");
 
