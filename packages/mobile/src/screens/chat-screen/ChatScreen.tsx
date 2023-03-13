@@ -25,6 +25,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import { View, Text, Image, Dimensions, Pressable } from 'react-native'
 import type { FlatList as RNFlatList } from 'react-native'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
+import { measure } from 'react-native-reanimated'
 import { useDispatch, useSelector } from 'react-redux'
 
 import WavingHand from 'app/assets/images/emojis/waving-hand-sign.png'
@@ -177,29 +178,38 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     borderWidth: 1,
     borderRadius: spacing(3),
     borderColor: palette.neutralLight9,
-    zIndex: 2,
-    width: Dimensions.get('window').width - spacing(12),
+    zIndex: 4,
+    width: Dimensions.get('window').width - spacing(10),
     backgroundColor: palette.white,
-    marginHorizontal: spacing(6)
+    marginHorizontal: spacing(5)
   },
   dimBackground: {
     position: 'absolute',
     height: '100%',
     width: '100%',
+    zIndex: 3,
+    flex: 1
+  },
+  dimBackground2: {
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
     opacity: 0.3,
     backgroundColor: 'black',
-    zIndex: 1
+    zIndex: 2,
+    flex: 1
   },
   popupContainer: {
     position: 'absolute',
     display: 'flex',
     flex: 1,
-    zIndex: 2
+    zIndex: 2,
+    overflow: 'hidden'
   },
   popupChatMessage: {
     position: 'absolute',
     maxWidth: Dimensions.get('window').width - spacing(12),
-    zIndex: 3
+    zIndex: 4
   }
 }))
 
@@ -236,6 +246,8 @@ export const ChatScreen = () => {
   const [popupChatIndex, setPopupChatIndex] = useState<number | null>(null)
   const [popupChatHasTail, setPopupChatHasTail] = useState<boolean>(false)
   const [popupIsAuthor, setPopupIsAuthor] = useState<boolean>(false)
+  const [composeY, setComposeY] = useState<number>(0)
+  const [rootY, setRootY] = useState<number>(0)
 
   const userId = useSelector(getUserId)
   const userIdEncoded = encodeHashId(userId)
@@ -254,6 +266,7 @@ export const ChatScreen = () => {
   const itemsRef = useRef<(View | null)[]>([])
   const rootContainerRef = useRef<View | null>(null)
   const messageRef = useRef<ChatMessage | null>(null)
+  const composeRef = useRef<View | null>(null)
   const unreadCount = chat?.unread_message_count ?? 0
   const isLoading = status === Status.LOADING && chatMessages?.length === 0
 
@@ -364,6 +377,7 @@ export const ChatScreen = () => {
   }
 
   const closeReactionPopup = useCallback(() => {
+    console.log('Got click')
     setShouldShowPopup(false)
     setPopupChatIndex(null)
   }, [setShouldShowPopup, setPopupChatIndex])
@@ -397,7 +411,7 @@ export const ChatScreen = () => {
       setSelectedReaction(selectedReactionValue)
     }
 
-    const rootY: number = await new Promise<number>((resolve) => {
+    const measuredRootY: number = await new Promise<number>((resolve) => {
       rootContainerRef.current?.measureInWindow(
         (x, rooty, width, rootheight) => {
           resolve(rooty)
@@ -409,17 +423,19 @@ export const ChatScreen = () => {
       height: number
     }>((resolve) => {
       itemRef.measureInWindow((left, top, width, height) => {
-        resolve({ top, height })
+        resolve({ top: top - spacing(2), height })
       })
     })
+    console.log('rootY: ', measuredRootY, 'messageY: ', messageY)
 
-    const spaceAboveMessage = messageY - rootY
+    const spaceAboveMessage = messageY - measuredRootY
     const showAbove = spaceAboveMessage > REACTION_CONTAINER_HEIGHT
     const reactionY = showAbove
-      ? messageY - REACTION_CONTAINER_HEIGHT
-      : messageY + messageHeight
+      ? messageY - REACTION_CONTAINER_HEIGHT - measuredRootY + spacing(3.5)
+      : messageY + messageHeight - measuredRootY + spacing(4)
     setReactionY(reactionY)
-    setMessageY(messageY)
+    setMessageY(messageY - measuredRootY)
+    setRootY(measuredRootY)
     setShouldShowPopup(true)
   }
 
@@ -430,19 +446,55 @@ export const ChatScreen = () => {
     />
   )
 
-  const Popup = () => {
+  const ReactionPopup = () => {
+    if (popupChatIndex === null) {
+      return null
+    }
+
     return (
-      <View style={[styles.reactionsContainer, { top: reactionY }]}>
-        <ReactionList
-          selectedReaction={selectedReaction as ReactionTypes}
-          onChange={(reaction) => {
-            if (reaction) {
-              handleReactionSelected(messageRef.current, reaction)
+      <>
+        <Pressable style={styles.dimBackground2} onPress={closeReactionPopup} />
+        <View
+          style={[
+            styles.popupContainer,
+            {
+              top: rootY,
+              height: composeY - rootY
             }
-          }}
-          isVisible={true}
-        />
-      </View>
+          ]}
+        >
+          <Pressable
+            style={styles.dimBackground}
+            onPress={closeReactionPopup}
+          />
+          <ChatMessageListItem
+            message={chatMessages[popupChatIndex]}
+            hasTail={popupChatHasTail}
+            ref={() => null}
+            shouldShowDate={false}
+            style={[
+              styles.popupChatMessage,
+              {
+                top: messageY,
+                alignSelf: popupIsAuthor ? 'flex-end' : 'flex-start',
+                right: popupIsAuthor ? spacing(6) : undefined,
+                left: !popupIsAuthor ? spacing(6) : undefined
+              }
+            ]}
+          />
+          <View style={[styles.reactionsContainer, { top: reactionY }]}>
+            <ReactionList
+              selectedReaction={selectedReaction as ReactionTypes}
+              onChange={(reaction) => {
+                if (reaction) {
+                  handleReactionSelected(messageRef.current, reaction)
+                }
+              }}
+              isVisible={true}
+            />
+          </View>
+        </View>
+      </>
     )
   }
 
@@ -469,31 +521,7 @@ export const ChatScreen = () => {
     >
       <ScreenContent>
         <Portal hostName='ChatReactionsPortal'>
-          {shouldShowPopup && popupChatIndex !== null ? (
-            <>
-              <Pressable
-                style={styles.dimBackground}
-                onPress={closeReactionPopup}
-              />
-              <View style={styles.popupContainer}>
-                <Popup />
-                <ChatMessageListItem
-                  message={chatMessages[popupChatIndex]}
-                  hasTail={popupChatHasTail}
-                  shouldShowDate={false}
-                  style={[
-                    styles.popupChatMessage,
-                    {
-                      top: messageY,
-                      alignSelf: popupIsAuthor ? 'flex-end' : 'flex-start',
-                      right: popupIsAuthor ? spacing(6) : undefined,
-                      left: !popupIsAuthor ? spacing(6) : undefined
-                    }
-                  ]}
-                />
-              </View>
-            </>
-          ) : null}
+          {shouldShowPopup ? <ReactionPopup /> : null}
         </Portal>
         <View style={styles.rootContainer} ref={rootContainerRef}>
           {!isLoading ? (
@@ -518,10 +546,11 @@ export const ChatScreen = () => {
                           setPopupChatIndex(index)
                         }}
                       >
-                        <View ref={(el) => (itemsRef.current[index] = el)}>
+                        <View>
                           <ChatMessageListItem
                             key={item.key}
                             message={item}
+                            ref={(el) => (itemsRef.current[index] = el)}
                             shouldShowReaction={index !== popupChatIndex}
                             hasTail={hasTail(item, chatMessages[index - 1])}
                           />
@@ -553,7 +582,17 @@ export const ChatScreen = () => {
           ) : (
             <LoadingSpinner />
           )}
-          <View style={styles.composeView}>
+          <View
+            style={styles.composeView}
+            onLayout={() => {
+              composeRef.current?.measureInWindow(
+                (x, composeY, width, rootheight) => {
+                  setComposeY(composeY)
+                }
+              )
+            }}
+            ref={composeRef}
+          >
             <TextInput
               placeholder={messages.startNewMessage}
               Icon={() => (

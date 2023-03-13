@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import type { RefObject } from 'react'
+import { useState, forwardRef } from 'react'
 
 import type { ReactionTypes } from '@audius/common'
 import {
@@ -111,74 +112,78 @@ type ChatMessageListItemProps = {
   style?: StyleProp<ViewStyle>
 }
 
-export const ChatMessageListItem = ({
-  message,
-  hasTail,
-  shouldShowReaction = true,
-  shouldShowDate = true,
-  style: styleProp
-}: ChatMessageListItemProps) => {
-  const styles = useStyles()
-  const palette = useThemePalette()
+export const ChatMessageListItem = forwardRef<View, ChatMessageListItemProps>(
+  (props: ChatMessageListItemProps, refProp) => {
+    const {
+      message,
+      hasTail,
+      shouldShowReaction = true,
+      shouldShowDate = true,
+      style: styleProp
+    } = props
+    const styles = useStyles()
+    const palette = useThemePalette()
 
-  const userId = useSelector(getUserId)
-  const senderUserId = decodeHashId(message.sender_user_id)
-  const isAuthor = senderUserId === userId
-  const [reactionPosition, setReactionPosition] = useState<{
-    width: number
-    height: number
-  }>()
+    const userId = useSelector(getUserId)
+    const senderUserId = decodeHashId(message.sender_user_id)
+    const isAuthor = senderUserId === userId
+    const [reactionPosition, setReactionPosition] = useState<{
+      width: number
+      height: number
+    }>()
 
-  return (
-    <>
-      <View
-        style={[
-          isAuthor ? styles.rootIsAuthor : styles.rootOtherUser,
-          styleProp
-        ]}
-      >
+    return (
+      <>
         <View
-          style={[styles.bubble, isAuthor && styles.isAuthor]}
-          onLayout={(e) => {
-            const { width, height } = e.nativeEvent.layout
-            setReactionPosition({
-              width: width - REACTION_OFFSET_WIDTH,
-              height: height - REACTION_OFFSET_HEIGHT
-            })
-          }}
+          style={[
+            isAuthor ? styles.rootIsAuthor : styles.rootOtherUser,
+            styleProp
+          ]}
         >
-          <Text style={[styles.message, isAuthor && styles.messageIsAuthor]}>
-            {message.message}
-          </Text>
-        </View>
-        {shouldShowReaction && message.reactions?.length > 0 ? (
-          <ChatReaction
-            reaction={message.reactions[message.reactions.length - 1]}
-            reactionPosition={reactionPosition}
-            isAuthor={isAuthor}
-          />
-        ) : null}
-        {hasTail ? (
-          <>
-            <View
-              style={[
-                styles.tail,
-                isAuthor ? styles.tailIsAuthor : styles.tailOtherUser,
-                !shouldShowDate && { bottom: 0 }
-              ]}
-            >
-              <ChatTail fill={isAuthor ? palette.secondary : palette.white} />
-            </View>
-            {shouldShowDate ? (
-              <View style={styles.dateContainer}>
-                <Text style={styles.date}>
-                  {formatMessageDate(message.created_at)}
-                </Text>
+          <View
+            ref={refProp}
+            style={[styles.bubble, isAuthor && styles.isAuthor]}
+            onLayout={(e) => {
+              const { width, height } = e.nativeEvent.layout
+              setReactionPosition({
+                width: width - REACTION_OFFSET_WIDTH,
+                height: height - REACTION_OFFSET_HEIGHT
+              })
+            }}
+          >
+            <Text style={[styles.message, isAuthor && styles.messageIsAuthor]}>
+              {message.message}
+            </Text>
+          </View>
+          {shouldShowReaction && message.reactions?.length > 0 ? (
+            <ChatReaction
+              reaction={message.reactions[message.reactions.length - 1]}
+              reactionPosition={reactionPosition}
+              isAuthor={isAuthor}
+            />
+          ) : null}
+          {hasTail ? (
+            <>
+              <View
+                style={[
+                  styles.tail,
+                  isAuthor ? styles.tailIsAuthor : styles.tailOtherUser,
+                  !shouldShowDate && { bottom: 0 }
+                ]}
+              >
+                <ChatTail fill={isAuthor ? palette.secondary : palette.white} />
               </View>
-            ) : null}
-          </>
-        ) : null}
-      </View>
-    </>
-  )
-}
+              {shouldShowDate ? (
+                <View style={styles.dateContainer}>
+                  <Text style={styles.date}>
+                    {formatMessageDate(message.created_at)}
+                  </Text>
+                </View>
+              ) : null}
+            </>
+          ) : null}
+        </View>
+      </>
+    )
+  }
+)
