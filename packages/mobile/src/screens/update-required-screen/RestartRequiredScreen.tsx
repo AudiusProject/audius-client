@@ -3,9 +3,9 @@ import codePush from 'react-native-code-push'
 import { NewVersionPrompt } from './NewVersionPrompt'
 
 const messages = {
-  header: 'Please Restart ✨',
-  text: 'We need to apply some updates to your app.',
-  buttonText: 'Restart App'
+  header: 'Update Available ✨',
+  text: 'We need to apply some great new changes to the app.',
+  buttonText: 'Apply Updates'
 }
 
 export const RestartRequiredScreen = () => {
