@@ -1,4 +1,3 @@
-import type { RefObject } from 'react'
 import { useState, forwardRef } from 'react'
 
 import type { ReactionTypes } from '@audius/common'
@@ -7,7 +6,7 @@ import {
   decodeHashId,
   formatMessageDate
 } from '@audius/common'
-import type { ChatMessage } from '@audius/sdk'
+import type { ChatMessage, ChatMessageReaction } from '@audius/sdk'
 import type { ViewStyle, StyleProp } from 'react-native'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
@@ -15,14 +14,15 @@ import { useSelector } from 'react-redux'
 import ChatTail from 'app/assets/images/ChatTail.svg'
 import { Text } from 'app/components/core'
 import { makeStyles } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
 import { useThemePalette } from 'app/utils/theme'
 
 import { reactionMap } from '../notifications-screen/Reaction'
 
 const { getUserId } = accountSelectors
 
-const REACTION_OFFSET_WIDTH = 15
-const REACTION_OFFSET_HEIGHT = 15
+const REACTION_OFFSET_X = 13
+const REACTION_OFFSET_Y = 14
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   rootOtherUser: {
@@ -76,9 +76,13 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     transform: [{ scaleX: -1 }]
   },
   reaction: {
-    height: spacing(10),
-    width: spacing(10),
-    position: 'absolute'
+    height: spacing(8),
+    width: spacing(8),
+    position: 'absolute',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5
   }
 }))
 
@@ -90,10 +94,8 @@ const ChatReaction = ({ reaction, reactionPosition, isAuthor }) => {
   }
   const Reaction = reactionMap[reaction.reaction as ReactionTypes]
   const reactionPositionStyle = [
-    { top: reactionPosition?.height },
-    isAuthor
-      ? { right: reactionPosition?.width }
-      : { left: reactionPosition?.width }
+    { top: reactionPosition?.y },
+    isAuthor ? { right: reactionPosition?.x } : { left: reactionPosition?.x }
   ]
   return (
     <Reaction
@@ -112,6 +114,38 @@ type ChatMessageListItemProps = {
   style?: StyleProp<ViewStyle>
 }
 
+const formatChatReactions = (
+  reactions: ChatMessageReaction[],
+  isAuthor: boolean,
+  reactionPosition: { x: number; y: number }
+) => {
+  // When there are multiple reactions, shift the earlier reactions closer
+  // towards the inside of of the message body.
+  if (reactions.length > 1) {
+    return reactions.map((reaction, index) => {
+      return (
+        <ChatReaction
+          key={index}
+          reaction={reaction}
+          reactionPosition={{
+            ...reactionPosition,
+            x: reactionPosition.x - (reactions.length - 1 - index) * spacing(4)
+          }}
+          isAuthor={isAuthor}
+        />
+      )
+    })
+  } else {
+    return (
+      <ChatReaction
+        reaction={reactions[0]}
+        reactionPosition={reactionPosition}
+        isAuthor={isAuthor}
+      />
+    )
+  }
+}
+
 export const ChatMessageListItem = forwardRef<View, ChatMessageListItemProps>(
   (props: ChatMessageListItemProps, refProp) => {
     const {
@@ -127,9 +161,10 @@ export const ChatMessageListItem = forwardRef<View, ChatMessageListItemProps>(
     const userId = useSelector(getUserId)
     const senderUserId = decodeHashId(message.sender_user_id)
     const isAuthor = senderUserId === userId
+    // Offset of reactions against message body parent, using absolute position.
     const [reactionPosition, setReactionPosition] = useState<{
-      width: number
-      height: number
+      x: number
+      y: number
     }>()
 
     return (
@@ -146,8 +181,8 @@ export const ChatMessageListItem = forwardRef<View, ChatMessageListItemProps>(
             onLayout={(e) => {
               const { width, height } = e.nativeEvent.layout
               setReactionPosition({
-                width: width - REACTION_OFFSET_WIDTH,
-                height: height - REACTION_OFFSET_HEIGHT
+                x: width - REACTION_OFFSET_X,
+                y: height - REACTION_OFFSET_Y
               })
             }}
           >
@@ -155,13 +190,11 @@ export const ChatMessageListItem = forwardRef<View, ChatMessageListItemProps>(
               {message.message}
             </Text>
           </View>
-          {shouldShowReaction && message.reactions?.length > 0 ? (
-            <ChatReaction
-              reaction={message.reactions[message.reactions.length - 1]}
-              reactionPosition={reactionPosition}
-              isAuthor={isAuthor}
-            />
-          ) : null}
+          {shouldShowReaction &&
+          message.reactions?.length > 0 &&
+          reactionPosition
+            ? formatChatReactions(message.reactions, isAuthor, reactionPosition)
+            : null}
           {hasTail ? (
             <>
               <View

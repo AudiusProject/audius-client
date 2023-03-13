@@ -22,10 +22,9 @@ import type { ReactionTypes, Nullable } from '@audius/common'
 import type { ChatMessage } from '@audius/sdk'
 import { Portal } from '@gorhom/portal'
 import { useFocusEffect } from '@react-navigation/native'
-import { View, Text, Image, Dimensions, Pressable } from 'react-native'
+import { View, Text, Image } from 'react-native'
 import type { FlatList as RNFlatList } from 'react-native'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
-import { measure } from 'react-native-reanimated'
 import { useDispatch, useSelector } from 'react-redux'
 
 import WavingHand from 'app/assets/images/emojis/waving-hand-sign.png'
@@ -41,9 +40,8 @@ import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { useThemePalette } from 'app/utils/theme'
 
-import { ReactionList } from '../notifications-screen/Reaction'
-
 import { ChatMessageListItem } from './ChatMessageListItem'
+import { ReactionPopup } from './ReactionPopup'
 
 const {
   getChatMessages,
@@ -172,44 +170,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     fontSize: typography.fontSize.large,
     lineHeight: typography.fontSize.large * 1.3,
     color: palette.neutral
-  },
-  reactionsContainer: {
-    display: 'flex',
-    borderWidth: 1,
-    borderRadius: spacing(3),
-    borderColor: palette.neutralLight9,
-    zIndex: 4,
-    width: Dimensions.get('window').width - spacing(10),
-    backgroundColor: palette.white,
-    marginHorizontal: spacing(5)
-  },
-  dimBackground: {
-    position: 'absolute',
-    height: '100%',
-    width: '100%',
-    zIndex: 3,
-    flex: 1
-  },
-  dimBackground2: {
-    position: 'absolute',
-    height: '100%',
-    width: '100%',
-    opacity: 0.3,
-    backgroundColor: 'black',
-    zIndex: 2,
-    flex: 1
-  },
-  popupContainer: {
-    position: 'absolute',
-    display: 'flex',
-    flex: 1,
-    zIndex: 2,
-    overflow: 'hidden'
-  },
-  popupChatMessage: {
-    position: 'absolute',
-    maxWidth: Dimensions.get('window').width - spacing(12),
-    zIndex: 4
   }
 }))
 
@@ -377,7 +337,6 @@ export const ChatScreen = () => {
   }
 
   const closeReactionPopup = useCallback(() => {
-    console.log('Got click')
     setShouldShowPopup(false)
     setPopupChatIndex(null)
   }, [setShouldShowPopup, setPopupChatIndex])
@@ -426,7 +385,6 @@ export const ChatScreen = () => {
         resolve({ top: top - spacing(2), height })
       })
     })
-    console.log('rootY: ', measuredRootY, 'messageY: ', messageY)
 
     const spaceAboveMessage = messageY - measuredRootY
     const showAbove = spaceAboveMessage > REACTION_CONTAINER_HEIGHT
@@ -445,58 +403,6 @@ export const ChatScreen = () => {
       fill={palette.neutralLight4}
     />
   )
-
-  const ReactionPopup = () => {
-    if (popupChatIndex === null) {
-      return null
-    }
-
-    return (
-      <>
-        <Pressable style={styles.dimBackground2} onPress={closeReactionPopup} />
-        <View
-          style={[
-            styles.popupContainer,
-            {
-              top: rootY,
-              height: composeY - rootY
-            }
-          ]}
-        >
-          <Pressable
-            style={styles.dimBackground}
-            onPress={closeReactionPopup}
-          />
-          <ChatMessageListItem
-            message={chatMessages[popupChatIndex]}
-            hasTail={popupChatHasTail}
-            ref={() => null}
-            shouldShowDate={false}
-            style={[
-              styles.popupChatMessage,
-              {
-                top: messageY,
-                alignSelf: popupIsAuthor ? 'flex-end' : 'flex-start',
-                right: popupIsAuthor ? spacing(6) : undefined,
-                left: !popupIsAuthor ? spacing(6) : undefined
-              }
-            ]}
-          />
-          <View style={[styles.reactionsContainer, { top: reactionY }]}>
-            <ReactionList
-              selectedReaction={selectedReaction as ReactionTypes}
-              onChange={(reaction) => {
-                if (reaction) {
-                  handleReactionSelected(messageRef.current, reaction)
-                }
-              }}
-              isVisible={true}
-            />
-          </View>
-        </View>
-      </>
-    )
-  }
 
   return (
     <Screen
@@ -521,7 +427,22 @@ export const ChatScreen = () => {
     >
       <ScreenContent>
         <Portal hostName='ChatReactionsPortal'>
-          {shouldShowPopup ? <ReactionPopup /> : null}
+          {shouldShowPopup && popupChatIndex !== null ? (
+            <ReactionPopup
+              containerTop={rootY}
+              containerBottom={composeY}
+              messageTop={messageY}
+              reactionTop={reactionY}
+              selectedReaction={selectedReaction as ReactionTypes}
+              isAuthor={popupIsAuthor}
+              hasTail={popupChatHasTail}
+              message={chatMessages[popupChatIndex]}
+              closePopup={closeReactionPopup}
+              handleReactionSelected={(reaction) =>
+                handleReactionSelected(messageRef.current, reaction)
+              }
+            />
+          ) : null}
         </Portal>
         <View style={styles.rootContainer} ref={rootContainerRef}>
           {!isLoading ? (
@@ -530,9 +451,9 @@ export const ChatScreen = () => {
                 <FlatList
                   contentContainerStyle={styles.flatListContainer}
                   data={chatMessages}
-                  keyExtractor={(message) => message.chat_id}
+                  keyExtractor={(message) => message.message_id}
                   renderItem={({ item, index }) => (
-                    <Fragment>
+                    <Fragment key={item.message_id}>
                       <TouchableWithoutFeedback
                         onPress={() => {
                           messageRef.current = chatMessages[index]
@@ -547,8 +468,10 @@ export const ChatScreen = () => {
                         }}
                       >
                         <View>
+                          {/* When reaction popup opens, hide reaction here so it doesn't
+                          appear underneath the reaction of the message clone inside the
+                          portal. */}
                           <ChatMessageListItem
-                            key={item.key}
                             message={item}
                             ref={(el) => (itemsRef.current[index] = el)}
                             shouldShowReaction={index !== popupChatIndex}
@@ -582,6 +505,7 @@ export const ChatScreen = () => {
           ) : (
             <LoadingSpinner />
           )}
+
           <View
             style={styles.composeView}
             onLayout={() => {
