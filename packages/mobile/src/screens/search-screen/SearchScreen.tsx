@@ -1,19 +1,18 @@
 import {
   getSearch,
-  getSearchBarText,
-  getSearchBarStatus
+  getSearchBarText
 } from 'audius-client/src/common/store/search-bar/selectors'
 import { Dimensions, View } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
-import { getSearchHistory, getSearchQuery } from 'app/store/search/selectors'
+import { getSearchHistory } from 'app/store/search/selectors'
 import { makeStyles } from 'app/styles'
 
+import { EmptySearch } from './EmptySearch'
 import { SearchBar } from './SearchBar'
 import { SearchHistory } from './SearchHistory'
 import SearchResults from './SearchResults'
-import { EmptySearch } from './content/EmptySearch'
 
 const SCREEN_WIDTH = Dimensions.get('window').width
 

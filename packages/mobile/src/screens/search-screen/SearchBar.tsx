@@ -68,7 +68,7 @@ export const SearchBar = (props: SearchBarProps) => {
     [handleFetchSearch, dispatch]
   )
 
-  // Handle case where search input is set by clicking search history item
+  // Handle case where search query is set by pressing search history item
   useEffect(() => {
     if (searchInput === '' && searchQuery) {
       handleChangeText(searchQuery)
