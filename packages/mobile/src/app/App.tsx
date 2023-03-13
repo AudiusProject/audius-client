@@ -1,3 +1,5 @@
+import { useCallback, useState } from 'react'
+
 import { PortalProvider } from '@gorhom/portal'
 import * as Sentry from '@sentry/react-native'
 import { Platform, UIManager } from 'react-native'
@@ -58,9 +60,33 @@ const Modals = () => {
 }
 
 const App = () => {
+  const [
+    isPendingMandatoryCodePushUpdate,
+    setIsPendingMandatoryCodePushUpdate
+  ] = useState(false)
+
+  const codePushSync = useCallback(() => {
+    codePush.sync(
+      {
+        installMode: codePush.InstallMode.ON_NEXT_RESTART,
+        mandatoryInstallMode: codePush.InstallMode.ON_NEXT_RESTART
+        // ^ We'll manually show the mandatory update UI and prompt the user to restart the app.
+      },
+      (newStatus) => {
+        console.log('New CodePush Status: ', newStatus)
+        codePush.getUpdateMetadata(codePush.UpdateState.PENDING).then((res) => {
+          if (res != null && res.isMandatory) {
+            setIsPendingMandatoryCodePushUpdate(true)
+          }
+        })
+      }
+    )
+  }, [])
+
   // Reset libs so that we get a clean app start
   useEffectOnce(() => {
     setLibs(null)
+    codePushSync()
   })
 
   useEffectOnce(() => {
@@ -69,6 +95,7 @@ const App = () => {
 
   useEnterForeground(() => {
     forceRefreshConnectivity()
+    codePushSync()
   })
 
   return (
@@ -83,7 +110,11 @@ const App = () => {
                   <NavigationContainer>
                     <Toasts />
                     <Airplay />
-                    <RootScreen />
+                    <RootScreen
+                      isPendingMandatoryCodePushUpdate={
+                        isPendingMandatoryCodePushUpdate
+                      }
+                    />
                     <Drawers />
                     <Modals />
                     <Audio />
@@ -102,9 +133,5 @@ const App = () => {
 }
 
 const AppWithSentry = Sentry.wrap(App)
-const AppWithCodePush = codePush({
-  checkFrequency: codePush.CheckFrequency.ON_APP_RESUME,
-  installMode: codePush.InstallMode.ON_NEXT_RESTART
-})(AppWithSentry)
 
-export { AppWithCodePush as App }
+export { AppWithSentry as App }

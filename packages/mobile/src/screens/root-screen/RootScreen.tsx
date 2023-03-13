@@ -16,6 +16,7 @@ import { UpdateRequiredScreen } from 'app/screens/update-required-screen/UpdateR
 import { enterBackground, enterForeground } from 'app/store/lifecycle/actions'
 
 import { AppDrawerScreen } from '../app-drawer-screen'
+import { RestartRequiredScreen } from '../update-required-screen/RestartRequiredScreen'
 
 import { ThemedStatusBar } from './StatusBar'
 
@@ -31,15 +32,21 @@ export type RootScreenParamList = {
 
 const Stack = createNativeStackNavigator()
 
+type RootScreenProps = {
+  isPendingMandatoryCodePushUpdate?: boolean
+}
+
 /**
  * The top level navigator. Switches between sign on screens and main tab navigator
  * based on if the user is authed
  */
-export const RootScreen = () => {
+export const RootScreen = ({
+  isPendingMandatoryCodePushUpdate
+}: RootScreenProps) => {
   const dispatch = useDispatch()
   const accountStatus = useSelector(getAccountStatus)
   const showHomeStack = useSelector(getHasCompletedAccount)
-  const { updateRequired } = useUpdateRequired()
+  const { updateRequired: appUpdateRequired } = useUpdateRequired()
   const [isLoaded, setIsLoaded] = useState(false)
 
   useAppState(
@@ -68,8 +75,13 @@ export const RootScreen = () => {
         <Stack.Navigator
           screenOptions={{ gestureEnabled: false, headerShown: false }}
         >
-          {updateRequired ? (
-            <Stack.Screen name='UpdateStack' component={UpdateRequiredScreen} />
+          {appUpdateRequired || isPendingMandatoryCodePushUpdate ? (
+            <Stack.Screen
+              name='UpdateStack'
+              component={
+                appUpdateRequired ? UpdateRequiredScreen : RestartRequiredScreen
+              }
+            />
           ) : showHomeStack ? (
             <Stack.Screen name='HomeStack' component={AppDrawerScreen} />
           ) : (
