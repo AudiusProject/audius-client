@@ -28,6 +28,7 @@ import {
 } from '@audius/stems'
 import cn from 'classnames'
 
+import { useModalState } from 'common/hooks/useModalState'
 import { ChangePasswordModal } from 'components/change-password/ChangePasswordModal'
 import ConfirmationBox from 'components/confirmation-box/ConfirmationBox'
 import TabSlider from 'components/data-entry/TabSlider'
@@ -170,6 +171,7 @@ export const SettingsPage = (props: SettingsPageProps) => {
   const [isChangePasswordModalVisible, setIsChangePasswordModalVisible] =
     useState(false)
   const [emailToastText, setEmailToastText] = useState(messages.emailSent)
+  const [, setIsInboxSettingsModalVisible] = useModalState('InboxSettings')
 
   useEffect(() => {
     getNotificationSettings()
@@ -227,6 +229,10 @@ export const SettingsPage = (props: SettingsPageProps) => {
     setIsChangePasswordModalVisible(false)
   }, [setIsChangePasswordModalVisible])
 
+  const openInboxSettingsModal = useCallback(() => {
+    setIsInboxSettingsModalVisible(true)
+  }, [setIsInboxSettingsModalVisible])
+
   const appearanceOptions = useMemo(() => {
     const options = [
       {
@@ -282,6 +288,7 @@ export const SettingsPage = (props: SettingsPageProps) => {
             description={messages.inboxSettingsCardDescription}
           >
             <Button
+              onClick={openInboxSettingsModal}
               className={styles.cardButton}
               textClassName={styles.settingButtonText}
               type={ButtonType.COMMON_ALT}
