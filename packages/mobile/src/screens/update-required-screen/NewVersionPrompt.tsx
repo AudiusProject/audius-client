@@ -25,22 +25,15 @@ const useStyles = makeStyles(({ spacing }) => ({
   }
 }))
 
-type BaseNewVersionPromptProps = {
+type NewVersionPromptProps = {
   headerText: string
   contentText: string
   buttonText: string
+  /** Passing a `url` will make the CTA element a link */
+  url?: string
+  /** Passing an `onPress` callback will make the CTA element a Pressable */
+  onPress?: () => void
 }
-type NewVersionPromptProps = BaseNewVersionPromptProps &
-  (
-    | {
-        /** Passing a `url` will make the CTA element a link */
-        url: string
-      }
-    | {
-        /** Passing an `onPress` callback will make the CTA element a Pressable */
-        onPress: () => void
-      }
-  )
 
 export const NewVersionPrompt = ({
   headerText,
