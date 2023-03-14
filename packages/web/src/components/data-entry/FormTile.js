@@ -26,6 +26,7 @@ import { RemixSettingsModalTrigger } from 'components/remix-settings-modal/Remix
 import SourceFilesModal from 'components/source-files-modal/SourceFilesModal'
 import Switch from 'components/switch/Switch'
 import TrackAvailabilityModal from 'components/track-availability-modal/TrackAvailabilityModal'
+import { GatedContentUploadPromptModal } from 'components/gated-content-upload-prompt-modal/GatedContentUploadPromptModal'
 import UnlistedTrackModal from 'components/unlisted-track-modal/UnlistedTrackModal'
 import PreviewButton from 'components/upload/PreviewButton'
 import UploadArtwork from 'components/upload/UploadArtwork'
@@ -529,6 +530,15 @@ const AdvancedForm = (props) => {
 
   return (
     <>
+      {/*
+        Render the gated content upload prompt component which is responsible
+        for whether or its content will modal will be displayed.
+      */}
+      {props.type === 'track' && props.isUpload ? (
+        <GatedContentUploadPromptModal
+          onSubmit={() => setIsAvailabilityModalOpen(true)}
+        />
+      ) : null}
       {showAvailability && (
         <TrackAvailabilityModalContainer
           showHideTrackSectionInModal={props.showHideTrackSectionInModal}
