@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 
 import { SquareSizes } from '@audius/common'
+import type { SearchPlaylist, SearchTrack, SearchUser } from '@audius/common'
 import { View, Text } from 'react-native'
 import { useDispatch } from 'react-redux'
 
@@ -10,15 +11,10 @@ import { UserImage } from 'app/components/image/UserImage'
 import UserBadges from 'app/components/user-badges/UserBadges'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { addItem } from 'app/store/search/searchSlice'
-import type {
-  SearchPlaylist,
-  SearchTrack,
-  SearchUser,
-  SectionHeader
-} from 'app/store/search/types'
 import { makeStyles } from 'app/styles'
 
 import { SearchResultItem } from './SearchResult'
+import type { SectionHeader } from './SearchSectionHeader'
 
 const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   name: {

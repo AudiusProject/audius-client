@@ -12,7 +12,7 @@ import { makeStyles } from 'app/styles'
 import { EmptySearch } from './EmptySearch'
 import { SearchBar } from './SearchBar'
 import { SearchHistory } from './SearchHistory'
-import { SearchResults } from './SearchResults/SearchResults'
+import { SearchResults } from './SearchResults'
 
 const SCREEN_WIDTH = Dimensions.get('window').width
 
