@@ -12,11 +12,13 @@ import { useUpdateRequired } from 'app/hooks/useUpdateRequired'
 import type { AppScreenParamList } from 'app/screens/app-screen'
 import { SignOnScreen } from 'app/screens/signon'
 import { SplashScreen } from 'app/screens/splash-screen'
-import { UpdateRequiredScreen } from 'app/screens/update-required-screen/UpdateRequiredScreen'
+import {
+  UpdateRequiredScreen,
+  RestartRequiredScreen
+} from 'app/screens/update-required-screen'
 import { enterBackground, enterForeground } from 'app/store/lifecycle/actions'
 
 import { AppDrawerScreen } from '../app-drawer-screen'
-import { RestartRequiredScreen } from '../update-required-screen/RestartRequiredScreen'
 
 import { ThemedStatusBar } from './StatusBar'
 

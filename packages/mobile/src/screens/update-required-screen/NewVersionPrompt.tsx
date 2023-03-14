@@ -4,7 +4,7 @@ import IconDownload from 'app/assets/images/iconDownload.svg'
 import { Button, GradientText, Text } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 
-const useStyles = makeStyles(({ palette, spacing, typography }) => ({
+const useStyles = makeStyles(({ spacing }) => ({
   contentContainer: {
     paddingTop: spacing(32),
     paddingBottom: spacing(8),
@@ -25,15 +25,22 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   }
 }))
 
-type NewVersionPromptProps = {
+type BaseNewVersionPromptProps = {
   headerText: string
   contentText: string
   buttonText: string
-  /** Passing a `url` will make the CTA element a link */
-  url?: string
-  /** Passing an `onPress` callback will make the CTA element a Pressable */
-  onPress?: () => void
 }
+type NewVersionPromptProps = BaseNewVersionPromptProps &
+  (
+    | {
+        /** Passing a `url` will make the CTA element a link */
+        url: string
+      }
+    | {
+        /** Passing an `onPress` callback will make the CTA element a Pressable */
+        onPress: () => void
+      }
+  )
 
 export const NewVersionPrompt = ({
   headerText,

@@ -1,9 +1,6 @@
-import { useCallback, useState } from 'react'
-
 import { PortalProvider } from '@gorhom/portal'
 import * as Sentry from '@sentry/react-native'
 import { Platform, UIManager } from 'react-native'
-import codePush from 'react-native-code-push'
 import Config from 'react-native-config'
 import {
   SafeAreaProvider,
@@ -35,6 +32,7 @@ import {
 import { Drawers } from './Drawers'
 import ErrorBoundary from './ErrorBoundary'
 import { ThemeProvider } from './ThemeProvider'
+import { useSyncCodepush } from './useSyncCodepush'
 
 Sentry.init({
   dsn: Config.SENTRY_DSN
@@ -60,33 +58,11 @@ const Modals = () => {
 }
 
 const App = () => {
-  const [
-    isPendingMandatoryCodePushUpdate,
-    setIsPendingMandatoryCodePushUpdate
-  ] = useState(false)
-
-  const codePushSync = useCallback(() => {
-    codePush.sync(
-      {
-        installMode: codePush.InstallMode.ON_NEXT_RESTART,
-        mandatoryInstallMode: codePush.InstallMode.ON_NEXT_RESTART
-        // ^ We'll manually show the mandatory update UI and prompt the user to restart the app.
-      },
-      (newStatus) => {
-        console.log('New CodePush Status: ', newStatus)
-        codePush.getUpdateMetadata(codePush.UpdateState.PENDING).then((res) => {
-          if (res != null && res.isMandatory) {
-            setIsPendingMandatoryCodePushUpdate(true)
-          }
-        })
-      }
-    )
-  }, [])
+  const { isPendingMandatoryCodePushUpdate } = useSyncCodepush()
 
   // Reset libs so that we get a clean app start
   useEffectOnce(() => {
     setLibs(null)
-    codePushSync()
   })
 
   useEffectOnce(() => {
@@ -95,7 +71,6 @@ const App = () => {
 
   useEnterForeground(() => {
     forceRefreshConnectivity()
-    codePushSync()
   })
 
   return (
