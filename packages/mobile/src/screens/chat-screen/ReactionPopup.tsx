@@ -11,11 +11,10 @@ import { ChatMessageListItem } from './ChatMessageListItem'
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   reactionsContainer: {
-    display: 'flex',
     borderWidth: 1,
     borderRadius: spacing(3),
     borderColor: palette.neutralLight9,
-    zIndex: 4,
+    zIndex: 40,
     width: Dimensions.get('window').width - spacing(10),
     backgroundColor: palette.white,
     marginHorizontal: spacing(5)
@@ -23,8 +22,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   popupContainer: {
     position: 'absolute',
     display: 'flex',
-    flex: 1,
-    zIndex: 2,
+    zIndex: 20,
     overflow: 'hidden'
   },
   dimBackground: {
@@ -33,20 +31,18 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     width: '100%',
     opacity: 0.3,
     backgroundColor: 'black',
-    zIndex: 2,
-    flex: 1
+    zIndex: 20
   },
   innerPressable: {
     position: 'absolute',
     height: '100%',
     width: '100%',
-    zIndex: 3,
-    flex: 1
+    zIndex: 30
   },
   popupChatMessage: {
     position: 'absolute',
     maxWidth: Dimensions.get('window').width - spacing(12),
-    zIndex: 4
+    zIndex: 40
   }
 }))
 
@@ -80,7 +76,7 @@ export const ReactionPopup = ({
   return (
     <>
       <Pressable style={styles.dimBackground} onPress={closePopup} />
-      {/* This view cuts off the message body when it goes beyond the
+      {/* This View cuts off the message body when it goes beyond the
       boundaries of the flatlist view. */}
       <View
         style={[
