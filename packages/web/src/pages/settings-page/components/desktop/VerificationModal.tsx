@@ -18,7 +18,6 @@ import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconValidationX } from 'assets/img/iconValidationX.svg'
-import { ReactComponent as IconVerified } from 'assets/img/iconVerified.svg'
 import { useRecord, make, TrackEvent } from 'common/store/analytics/actions'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { InstagramAuthButton } from 'components/instagram-auth/InstagramAuthButton'
@@ -357,7 +356,6 @@ const VerificationModal = (props: VerificationModalProps) => {
           className={styles.disabledBtn}
           textClassName={styles.disabledBtnText}
           type={ButtonType.COMMON_ALT}
-          leftIcon={<IconVerified className={styles.btnIcon} />}
         />
       ) : (
         <Button
@@ -367,7 +365,6 @@ const VerificationModal = (props: VerificationModalProps) => {
           textClassName={styles.btnText}
           size={ButtonSize.MEDIUM}
           type={ButtonType.COMMON_ALT}
-          leftIcon={<IconVerified className={styles.btnIcon} />}
         />
       )}
       <Modal

@@ -17,13 +17,15 @@ import {
   Button,
   ButtonType,
   IconMail,
-  IconLock,
   IconNotification,
-  IconSignOut
+  IconSignOut,
+  IconVerified,
+  IconDownload,
+  IconMood,
+  IconSettings
 } from '@audius/stems'
 import cn from 'classnames'
 
-import audiusIcon from 'assets/img/audiusIcon.png'
 import { ChangePasswordModal } from 'components/change-password/ChangePasswordModal'
 import ConfirmationBox from 'components/confirmation-box/ConfirmationBox'
 import TabSlider from 'components/data-entry/TabSlider'
@@ -58,14 +60,40 @@ const messages = {
   copyright: COPYRIGHT_TEXT,
   emailSent: 'Email Sent!',
   emailNotSent: 'Something broke! Please try again!',
-  darkModeOn: 'On',
-  darkModeOff: 'Off',
+  darkModeOn: 'Dark',
+  darkModeOff: 'Light',
   darkModeAuto: 'Auto',
-  verifiedTitle: 'Verify your account',
-  getVerified: 'Get verified by linking a verified social account to Audius',
   matrixMode: '🕳 🐇 Matrix',
   changePassword: 'Change Password',
-  changePasswordDescription: 'Change the password to your Audius account'
+  changePasswordDescription: 'Change the password to your Audius account',
+  signOut: 'Sign Out',
+
+  appearanceCardTitle: 'Appearance',
+  inboxSettingsCardTitle: 'Inbox Settings',
+  notificationsCardTitle: 'Configure Notifications',
+  accountRecoveryCardTitle: 'Resend Recovery Email',
+  changePasswordCardTitle: 'Change Password',
+  verificationCardTitle: 'Verification',
+  desktopAppCardTitle: 'Download the Desktop App',
+
+  appearanceCardDescription:
+    'Enable dark mode or choose ‘Auto’ to change with your system settings',
+  inboxSettingsCardDescription: '',
+  notificationsCardDescription: 'Review your notification preferences',
+  accountRecoveryCardDescription:
+    'Resend your password reset email and store it safely. This email is the only way to recover your account if you forget your password.',
+  changePasswordCardDescription: 'Change the password to your Audius account',
+  verificationCardDescription:
+    'Verify your Audius profile by linking a verified account from Twitter, Instagram, or TikTok.',
+  desktopAppCardDescription:
+    'For the best experience, we reccomend downloading the Audius Desktop App',
+
+  inboxSettingsButtonText: 'Inbox Settings',
+  notificationsButtonText: 'Configure Notifications',
+  accountRecoveryButtonText: 'Resend Email',
+  changePasswordButtonText: 'Change Password',
+  verificationButtonText: 'Get Verified!',
+  desktopAppButtonText: 'Get The App'
 }
 
 type OwnProps = {
@@ -175,16 +203,16 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
 
     const options = [
       {
+        key: Theme.AUTO,
+        text: messages.darkModeAuto
+      },
+      {
         key: Theme.DEFAULT,
         text: messages.darkModeOff
       },
       {
         key: Theme.DARK,
         text: messages.darkModeOn
-      },
-      {
-        key: Theme.AUTO,
-        text: messages.darkModeAuto
       }
     ]
     if (showMatrix) {
@@ -193,8 +221,9 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
 
     return (
       <SettingsCard
-        title='Appearance'
-        description="Enable dark mode or choose 'Auto' to change with your system settings"
+        icon={<IconMood />}
+        title={messages.appearanceCardTitle}
+        description={messages.appearanceCardDescription}
       >
         <TabSlider
           className={styles.cardSlider}
@@ -240,8 +269,9 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
         <div className={styles.settings}>
           {this.renderThemeCard()}
           <SettingsCard
-            title={messages.verifiedTitle}
-            description={messages.getVerified}
+            icon={<IconVerified />}
+            title={messages.verificationCardTitle}
+            description={messages.verificationCardDescription}
           >
             <VerificationModal
               userId={userId}
@@ -256,62 +286,56 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
             />
           </SettingsCard>
           <SettingsCard
-            title='NOTIFICATIONS'
-            description='Review your notifications preferences'
+            icon={<IconNotification />}
+            title={messages.notificationsCardTitle}
+            description={messages.notificationsCardDescription}
           >
             <Button
               onClick={this.showNotificationSettings}
-              className={cn(styles.cardButton, styles.resetButton)}
+              className={styles.cardButton}
               textClassName={styles.settingButtonText}
               type={ButtonType.COMMON_ALT}
-              text='Review'
-              leftIcon={<IconNotification className={styles.reviewIcon} />}
+              text={messages.notificationsButtonText}
             />
           </SettingsCard>
           <SettingsCard
-            title='Account Recovery Email'
-            description='Resend your password reset email and store it safely. This email is the only way to recover your account if you forget your password.'
+            icon={<IconMail />}
+            title={messages.accountRecoveryCardTitle}
+            description={messages.accountRecoveryCardDescription}
           >
             <Toast
               tooltipClassName={styles.cardToast}
               text={this.state.emailToastText}
               open={!!this.state.emailToastText}
-              placement={ComponentPlacement.RIGHT}
+              placement={ComponentPlacement.BOTTOM}
               fillParent={false}
             >
               <Button
                 onClick={this.showEmailToast}
-                className={cn(styles.cardButton, styles.resetButton)}
+                className={styles.cardButton}
                 textClassName={styles.settingButtonText}
-                iconClassName={styles.resetButtonIcon}
                 type={ButtonType.COMMON_ALT}
-                text='Resend'
-                leftIcon={<IconMail />}
+                text={messages.accountRecoveryButtonText}
               />
             </Toast>
           </SettingsCard>
           {!isMobile() && !isElectron() && (
             <SettingsCard
-              title='Get Our Desktop App'
-              description='For the best experience, we recommend downloading the Audius Desktop App'
+              icon={<IconDownload />}
+              title={messages.desktopAppCardTitle}
+              description={messages.desktopAppCardDescription}
             >
               <Button
                 onClick={this.downloadDesktopApp}
-                className={cn(styles.cardButton, styles.downloadButton)}
+                className={styles.cardButton}
                 textClassName={styles.settingButtonText}
                 type={ButtonType.COMMON_ALT}
-                text='Get App'
-                leftIcon={
-                  <img
-                    alt='Audius Icon'
-                    src={audiusIcon}
-                    style={{ width: '24px', height: '24px' }}
-                  />
-                }
+                text={messages.desktopAppButtonText}
               />
             </SettingsCard>
           )}
           <SettingsCard
+            icon={<IconSettings />}
             title={messages.changePassword}
             description={messages.changePasswordDescription}
           >
@@ -320,8 +344,7 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
               className={cn(styles.cardButton, styles.changePasswordButton)}
               textClassName={styles.settingButtonText}
               type={ButtonType.COMMON_ALT}
-              text='Change'
-              leftIcon={<IconLock className={styles.changePasswordIcon} />}
+              text={messages.changePasswordButtonText}
             />
           </SettingsCard>
         </div>
@@ -331,7 +354,7 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
             textClassName={styles.signOutButtonText}
             iconClassName={styles.signOutButtonIcon}
             type={ButtonType.COMMON_ALT}
-            text='Sign Out'
+            text={messages.signOut}
             name='sign-out'
             leftIcon={<IconSignOut />}
             onClick={this.showModalSignOut}
