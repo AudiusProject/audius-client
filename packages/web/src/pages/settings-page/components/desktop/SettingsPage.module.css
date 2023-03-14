@@ -90,3 +90,7 @@
 .cardSlider {
   text-align: center;
 }
+
+.iconVerified path:nth-child(2) {
+  fill: transparent;
+}

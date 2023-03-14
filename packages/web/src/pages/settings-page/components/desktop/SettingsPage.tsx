@@ -330,7 +330,7 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
             />
           </SettingsCard>
           <SettingsCard
-            icon={<IconVerified />}
+            icon={<IconVerified className={styles.iconVerified} />}
             title={messages.verificationCardTitle}
             description={messages.verificationCardDescription}
           >
