@@ -45,7 +45,7 @@
 
 
   [FIRApp configure];
-  [RNNotifications startMonitorNotifications]; // -> Add this line
+  [RNNotifications startMonitorNotifications];
   NSString *receiverAppID = @"222B31C8";
   GCKDiscoveryCriteria *criteria = [[GCKDiscoveryCriteria alloc] initWithApplicationID:receiverAppID];
   GCKCastOptions* options = [[GCKCastOptions alloc] initWithDiscoveryCriteria:criteria];
