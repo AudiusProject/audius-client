@@ -1,6 +1,6 @@
 {
   "name": "probers",
-  "version": "0.0.1",
+  "version": "1.5.15",
   "description": "Automated client tests",
   "main": "index.js",
   "scripts": {
