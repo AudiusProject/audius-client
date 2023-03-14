@@ -95,7 +95,7 @@ web-test-staging:
         name: serve and run prober tests
         command: |
           npx serve -l 3001 -s packages/web/build-staging &
-          cd probers
+          cd packages/probers
           npm run test:ci
     - store_artifacts:
         path: /home/circleci/probers/cypress/videos
