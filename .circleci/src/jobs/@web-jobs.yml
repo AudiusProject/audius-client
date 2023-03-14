@@ -88,29 +88,7 @@ web-test-staging:
     - image: circleci/node:14.18-browsers
   resource_class: large
   steps:
-    - run:
-        name: download probers
-        command: |
-          mkdir -p ~/.ssh
-          touch ~/.ssh/config
-          echo $'Host github.com\n\tStrictHostKeyChecking no' > ~/.ssh/config
-          git clone git@github.com:AudiusProject/probers.git
-          cd probers
-    # Download and cache dependencies
-    - restore_cache:
-        keys:
-          - probers-cache-{{ checksum "probers/package-lock.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - probers-cache-
-    - run:
-        name: install probers dependencies
-        command: |
-          cd probers
-          npm ci
-    - save_cache:
-        key: probers-cache-{{ checksum "probers/package-lock.json" }}
-        paths:
-          - ./probers/node_modules
+    - checkout
     - attach_workspace:
         at: ./
     - run:
