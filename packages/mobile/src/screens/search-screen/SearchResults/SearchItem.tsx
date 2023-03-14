@@ -1,8 +1,7 @@
-import type { ReactNode } from 'react'
 import { useCallback } from 'react'
 
 import { SquareSizes } from '@audius/common'
-import { StyleSheet, View, Text } from 'react-native'
+import { View, Text } from 'react-native'
 import { useDispatch } from 'react-redux'
 
 import { CollectionImage } from 'app/components/image/CollectionImage'
@@ -14,69 +13,45 @@ import { addItem } from 'app/store/search/searchSlice'
 import type {
   SearchPlaylist,
   SearchTrack,
-  SearchUser
+  SearchUser,
+  SectionHeader
 } from 'app/store/search/types'
-import { useTheme } from 'app/utils/theme'
+import { makeStyles } from 'app/styles'
 
-import { SearchResult } from './SearchResult'
+import { SearchResultItem } from './SearchResult'
 
-export type SearchResultItem = SearchUser | SearchTrack | SearchPlaylist
-
-const styles = StyleSheet.create({
+const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   name: {
-    fontSize: 14,
-    fontFamily: 'AvenirNextLTPro-Medium'
+    ...typography.body,
+    color: palette.neutral
+  },
+  userName: {
+    ...typography.body,
+    color: palette.neutralLight4
   },
   badgeContainer: {
     flex: 1
   },
   nameContainer: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column'
+    flex: 1
   },
   userImage: {
-    borderRadius: 20,
-    height: 40,
-    width: 40,
-    marginRight: 12
+    borderRadius: spacing(5),
+    height: spacing(10),
+    width: spacing(10)
   },
   squareImage: {
-    borderRadius: 4,
-    height: 40,
-    width: 40,
-    marginRight: 12
+    borderRadius: spacing(1),
+    height: spacing(10),
+    width: spacing(10)
   }
-})
-
-type ItemContainerProps = {
-  onPress: () => void
-  children?: ReactNode
-}
-
-// const SearchResult: React.FunctionComponent<ItemContainerProps> = ({
-//   onPress,
-//   children
-// }) => {
-//   const color = useColor('neutralLight4')
-//   const backgroundColor = useColor('neutralLight8')
-//   return (
-//     <TouchableHighlight underlayColor={backgroundColor} onPress={onPress}>
-//       <View style={styles.container}>
-//         {children}
-//         <IconArrow fill={color} height={18} width={18} />
-//       </View>
-//     </TouchableHighlight>
-//   )
-// }
+}))
 
 type UserSearchResultProps = { item: SearchUser }
 
-const UserSearchResult = ({ item: user }: UserSearchResultProps) => {
-  const nameStyle = useTheme(styles.name, { color: 'neutral' })
-  const imageStyle = useTheme(styles.userImage, {
-    backgroundColor: 'neutralLight4'
-  })
+const UserSearchResult = (props: UserSearchResultProps) => {
+  const { item: user } = props
+  const styles = useStyles()
   const navigation = useNavigation()
   const dispatch = useDispatch()
 
@@ -86,28 +61,26 @@ const UserSearchResult = ({ item: user }: UserSearchResultProps) => {
   }, [user, navigation, dispatch])
 
   return (
-    <SearchResult onPress={handlePress}>
+    <SearchResultItem onPress={handlePress}>
       <UserImage
         user={user}
-        style={imageStyle}
+        style={styles.userImage}
         size={SquareSizes.SIZE_150_BY_150}
       />
       <UserBadges
         style={styles.badgeContainer}
-        nameStyle={nameStyle}
+        nameStyle={styles.name}
         user={user}
       />
-    </SearchResult>
+    </SearchResultItem>
   )
 }
 
 type TrackSearchResultProps = { item: SearchTrack }
-const TrackSearchResult = ({ item: track }: TrackSearchResultProps) => {
-  const nameStyle = useTheme(styles.name, { color: 'neutral' })
-  const userNameStyle = useTheme(styles.name, { color: 'neutralLight4' })
-  const squareImageStyles = useTheme(styles.squareImage, {
-    backgroundColor: 'neutralLight4'
-  })
+
+const TrackSearchResult = (props: TrackSearchResultProps) => {
+  const { item: track } = props
+  const styles = useStyles()
 
   const navigation = useNavigation()
   const dispatch = useDispatch()
@@ -122,36 +95,32 @@ const TrackSearchResult = ({ item: track }: TrackSearchResultProps) => {
   }, [track, navigation, dispatch])
 
   return (
-    <SearchResult onPress={handlePress}>
+    <SearchResultItem onPress={handlePress}>
       <TrackImage
         track={track}
         size={SquareSizes.SIZE_150_BY_150}
         user={track.user}
-        style={squareImageStyles}
+        style={styles.squareImage}
       />
       <View style={styles.nameContainer}>
-        <Text numberOfLines={1} style={nameStyle}>
+        <Text numberOfLines={1} style={styles.name}>
           {track.title}
         </Text>
         <UserBadges
           style={styles.badgeContainer}
-          nameStyle={userNameStyle}
+          nameStyle={styles.userName}
           user={track.user}
         />
       </View>
-    </SearchResult>
+    </SearchResultItem>
   )
 }
 
 type PlaylistSearchResultProps = { item: SearchPlaylist }
-const PlaylistSearchResult = ({
-  item: playlist
-}: PlaylistSearchResultProps) => {
-  const nameStyle = useTheme(styles.name, { color: 'neutral' })
-  const userNameStyle = useTheme(styles.name, { color: 'neutralLight4' })
-  const squareImageStyles = useTheme(styles.squareImage, {
-    backgroundColor: 'neutralLight4'
-  })
+
+const PlaylistSearchResult = (props: PlaylistSearchResultProps) => {
+  const { item: playlist } = props
+  const styles = useStyles()
 
   const navigation = useNavigation()
   const dispatch = useDispatch()
@@ -165,34 +134,32 @@ const PlaylistSearchResult = ({
   }, [playlist, navigation, dispatch])
 
   return (
-    <SearchResult onPress={handlePress}>
+    <SearchResultItem onPress={handlePress}>
       <CollectionImage
         collection={playlist}
         size={SquareSizes.SIZE_150_BY_150}
         user={playlist.user}
-        style={squareImageStyles}
+        style={styles.squareImage}
       />
       <View style={styles.nameContainer}>
-        <Text numberOfLines={1} style={nameStyle}>
+        <Text numberOfLines={1} style={styles.name}>
           {playlist.playlist_name}
         </Text>
         <UserBadges
           style={styles.badgeContainer}
-          nameStyle={userNameStyle}
+          nameStyle={styles.userName}
           user={playlist.user}
         />
       </View>
-    </SearchResult>
+    </SearchResultItem>
   )
 }
 
 type AlbumSearchResultProps = { item: SearchPlaylist }
-const AlbumSearchResult = ({ item: album }: AlbumSearchResultProps) => {
-  const nameStyle = useTheme(styles.name, { color: 'neutral' })
-  const userNameStyle = useTheme(styles.name, { color: 'neutralLight4' })
-  const squareImageStyles = useTheme(styles.squareImage, {
-    backgroundColor: 'neutralLight4'
-  })
+
+const AlbumSearchResult = (props: AlbumSearchResultProps) => {
+  const { item: album } = props
+  const styles = useStyles()
 
   const navigation = useNavigation()
   const dispatch = useDispatch()
@@ -206,30 +173,32 @@ const AlbumSearchResult = ({ item: album }: AlbumSearchResultProps) => {
   }, [album, navigation, dispatch])
 
   return (
-    <SearchResult onPress={handlePress}>
+    <SearchResultItem onPress={handlePress}>
       <CollectionImage
         collection={album}
         size={SquareSizes.SIZE_150_BY_150}
         user={album.user}
-        style={squareImageStyles}
+        style={styles.squareImage}
       />
       <View style={styles.nameContainer}>
-        <Text numberOfLines={1} style={nameStyle}>
+        <Text numberOfLines={1} style={styles.name}>
           {album.playlist_name}
         </Text>
         <UserBadges
           style={styles.badgeContainer}
-          nameStyle={userNameStyle}
+          nameStyle={styles.userName}
           user={album.user}
         />
       </View>
-    </SearchResult>
+    </SearchResultItem>
   )
 }
 
+export type SearchItemType = SearchUser | SearchTrack | SearchPlaylist
+
 type SearchItemProps = {
   type: SectionHeader
-  item: SearchUser | SearchTrack | SearchPlaylist
+  item: SearchItemType
 }
 
 export const SearchItem = ({ type, item }: SearchItemProps) => {

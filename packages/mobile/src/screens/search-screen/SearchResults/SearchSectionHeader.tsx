@@ -6,16 +6,17 @@ import { makeStyles } from 'app/styles'
 
 export type SectionHeader = keyof SearchResults
 
-const useStyles = makeStyles(({ spacing }) => ({
+const useStyles = makeStyles(({ spacing, typography }) => ({
   root: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing(3),
-    paddingVertical: spacing(4)
+    paddingVertical: spacing(4),
+    rowGap: spacing(2)
   },
   header: {
     textTransform: 'uppercase',
-    marginRight: 8
+    fontFamily: typography.fontByWeight.heavy
   }
 }))
 

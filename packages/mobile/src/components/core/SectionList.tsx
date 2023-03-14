@@ -149,36 +149,35 @@ const AnimatedSectionList = forwardRef<RNSectionList, SectionListProps>(
  * Provides either a SectionList or a CollapsibleSectionList
  * depending on whether or not the list is found in a "collapsible" header tab
  */
-export const SectionList = function SectionList<
-  ItemT,
-  SectionT = DefaultSectionT
->(props: RNSectionListProps<ItemT, SectionT>) {
-  const { ListFooterComponent, sections, ...other } = props
-  const { sceneName } = useContext(CollapsibleTabNavigatorContext)
+export const SectionList = forwardRef<RNSectionList, SectionListProps>(
+  function SectionList(props: SectionListProps, ref) {
+    const { ListFooterComponent, sections, ...other } = props
+    const { sceneName } = useContext(CollapsibleTabNavigatorContext)
 
-  const FooterComponent = ListFooterComponent ? (
-    <>
-      {ListFooterComponent}
-      <PlayBarChin />
-    </>
-  ) : (
-    PlayBarChin
-  )
+    const FooterComponent = ListFooterComponent ? (
+      <>
+        {ListFooterComponent}
+        <PlayBarChin />
+      </>
+    ) : (
+      PlayBarChin
+    )
 
-  const areSectionsEmpty = sections.every(
-    (section) => section.data.length === 0
-  )
+    const areSectionsEmpty = sections.every(
+      (section) => section.data.length === 0
+    )
 
-  const flatListProps = {
-    ...other,
-    // Need to disable refresh so scrolling the "ListEmptyComponent" doesn't trigger refresh
-    onRefresh: areSectionsEmpty ? undefined : other.onRefresh,
-    sections: areSectionsEmpty ? [] : sections,
-    ListFooterComponent: FooterComponent
+    const flatListProps = {
+      ...other,
+      // Need to disable refresh so scrolling the "ListEmptyComponent" doesn't trigger refresh
+      onRefresh: areSectionsEmpty ? undefined : other.onRefresh,
+      sections: areSectionsEmpty ? [] : sections,
+      ListFooterComponent: FooterComponent
+    }
+
+    if (sceneName) {
+      return <CollapsibleSectionList sceneName={sceneName} {...flatListProps} />
+    }
+    return <AnimatedSectionList ref={ref} {...flatListProps} />
   }
-
-  if (sceneName) {
-    return <CollapsibleSectionList sceneName={sceneName} {...flatListProps} />
-  }
-  return <AnimatedSectionList {...flatListProps} />
-}
+)

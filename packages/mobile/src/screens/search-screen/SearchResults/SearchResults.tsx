@@ -6,15 +6,8 @@ import { Divider, SectionList } from 'app/components/core'
 import type { AppState } from 'app/store'
 
 import { SearchItem } from './SearchItem'
-import type { SearchResultItem } from './SearchItem/SearchItem'
-import type { SectionHeader } from './SearchSectionHeader'
 import { SearchSectionHeader } from './SearchSectionHeader'
 import { SeeMoreResultsButton } from './SeeMoreResultsButton'
-
-type SearchResultSection = {
-  title: SectionHeader
-  data: SearchResultItem[]
-}
 
 const selectSearchResultsSections = (state: AppState) => {
   const { tracks, users, playlists, albums } = getSearch(state)
@@ -31,14 +24,14 @@ export const SearchResults = () => {
   const searchResultsSections = useSelector(selectSearchResultsSections)
 
   return (
-    <SectionList<SearchResultItem, SearchResultSection>
+    <SectionList
       onTouchStart={Keyboard.dismiss}
       keyboardShouldPersistTaps='always'
       stickySectionHeadersEnabled={false}
       sections={searchResultsSections}
       keyExtractor={(item) => {
         if ('track_id' in item) return `track-${item.track_id}`
-        else if ('user_id' in item) return `user-${item.user_id}`
+        if ('user_id' in item) return `user-${item.user_id}`
         return `playlist-${item.playlist_id}`
       }}
       renderItem={({ section: { title }, item }) => (

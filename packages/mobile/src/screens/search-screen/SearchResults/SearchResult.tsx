@@ -12,7 +12,11 @@ const useStyles = makeStyles(({ spacing }) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: spacing(2)
+    padding: spacing(2),
+    columnGap: spacing(3)
+  },
+  content: {
+    flexDirection: 'row'
   }
 }))
 
@@ -21,7 +25,7 @@ type SearchResultProps = {
   children: ReactNode
 }
 
-export const SearchResult = (props: SearchResultProps) => {
+export const SearchResultItem = (props: SearchResultProps) => {
   const { onPress, children } = props
   const { neutralLight4 } = useThemePalette()
   const styles = useStyles()
