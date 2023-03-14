@@ -14,7 +14,7 @@ const { getUserId } = accountSelectors
 const messages = {
   followersOnly: 'Available to Followers Only',
   supportersOnly: 'Available to Supporters Only',
-  supportersInfo: 'Supporters are users who have sent you a tip'
+  supportersInfo: 'Supporters are users who have sent you a tip.'
 }
 
 enum SpecialAccessType {
@@ -69,6 +69,7 @@ export const SpecialAccessAvailability = ({
         <RadioButton className={styles.radio} value={SpecialAccessType.TIP} />
         {messages.supportersOnly}
         <Tooltip
+          className={styles.tooltip}
           text={messages.supportersInfo}
           mouseEnterDelay={0.1}
           mount={'parent'}
