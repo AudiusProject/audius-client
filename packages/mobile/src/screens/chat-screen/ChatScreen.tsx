@@ -477,7 +477,7 @@ export const ChatScreen = () => {
                   data={chatMessages}
                   keyExtractor={(message) => message.message_id}
                   renderItem={({ item, index }) => (
-                    <Fragment key={item.message_id}>
+                    <Fragment key={item.key}>
                       <TouchableWithoutFeedback
                         onLongPress={() => handleMessagePress(index)}
                       >
