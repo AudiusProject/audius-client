@@ -34,7 +34,7 @@ const { show: showMusicConfetti } = musicConfettiActions
 
 const messages = {
   title: 'Verification',
-  buttonText: 'Verify',
+  buttonText: 'Get Verified!',
   description:
     'Getting verified on Audius is easy! Just link your verified Instagram, TikTok or legacy verified Twitter account and you’ll be verified immediately.',
   warning: (

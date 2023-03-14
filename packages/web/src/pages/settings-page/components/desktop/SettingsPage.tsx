@@ -97,7 +97,6 @@ const messages = {
   notificationsButtonText: 'Configure Notifications',
   accountRecoveryButtonText: 'Resend Email',
   changePasswordButtonText: 'Change Password',
-  verificationButtonText: 'Get Verified!',
   desktopAppButtonText: 'Get The App'
 }
 
