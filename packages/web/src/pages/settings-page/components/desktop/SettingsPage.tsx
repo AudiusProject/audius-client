@@ -10,7 +10,8 @@ import {
   Notifications,
   BrowserNotificationSetting,
   EmailFrequency,
-  TikTokProfile
+  TikTokProfile,
+  FeatureFlags
 } from '@audius/common'
 import {
   Modal,
@@ -35,6 +36,7 @@ import Page from 'components/page/Page'
 import { SelectedServices } from 'components/service-selection'
 import Toast from 'components/toast/Toast'
 import { ComponentPlacement } from 'components/types'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import DownloadApp from 'services/download-app/DownloadApp'
 import { isMobile, isElectron, getOS } from 'utils/clientUtil'
@@ -246,6 +248,8 @@ export const SettingsPage = (props: SettingsPageProps) => {
     return options
   }, [showMatrix])
 
+  const { isEnabled: isChatEnabled } = useFlag(FeatureFlags.CHAT_ENABLED)
+
   const header = <Header primary={messages.pageTitle} />
 
   return (
@@ -258,7 +262,7 @@ export const SettingsPage = (props: SettingsPageProps) => {
     >
       <div className={styles.settings}>
         <SettingsCard
-          className={styles.cardFull}
+          className={cn({ [styles.cardFull]: isChatEnabled })}
           icon={<IconMood />}
           title={messages.appearanceCardTitle}
           description={messages.appearanceCardDescription}
@@ -271,18 +275,20 @@ export const SettingsPage = (props: SettingsPageProps) => {
             key={`tab-slider-${appearanceOptions.length}`}
           />
         </SettingsCard>
-        <SettingsCard
-          icon={<IconMessage />}
-          title={messages.inboxSettingsCardTitle}
-          description={messages.inboxSettingsCardDescription}
-        >
-          <Button
-            className={styles.cardButton}
-            textClassName={styles.settingButtonText}
-            type={ButtonType.COMMON_ALT}
-            text={messages.inboxSettingsButtonText}
-          />
-        </SettingsCard>
+        {isChatEnabled ? (
+          <SettingsCard
+            icon={<IconMessage />}
+            title={messages.inboxSettingsCardTitle}
+            description={messages.inboxSettingsCardDescription}
+          >
+            <Button
+              className={styles.cardButton}
+              textClassName={styles.settingButtonText}
+              type={ButtonType.COMMON_ALT}
+              text={messages.inboxSettingsButtonText}
+            />
+          </SettingsCard>
+        ) : null}
         <SettingsCard
           icon={<IconNotification />}
           title={messages.notificationsCardTitle}
