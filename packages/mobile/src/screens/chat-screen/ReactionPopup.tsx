@@ -79,7 +79,6 @@ export const ReactionPopup = ({
 
   return (
     <>
-      {/* Need to have 2 pressables in order to support cutting off messages. */}
       <Pressable style={styles.dimBackground} onPress={closePopup} />
       {/* This view cuts off the message body when it goes beyond the
       boundaries of the flatlist view. */}
@@ -92,6 +91,9 @@ export const ReactionPopup = ({
           }
         ]}
       >
+        {/* This 2nd pressable ensures that clicking outside of the
+        message and reaction list, but inside of flatlist view,
+        closes the poup. */}
         <Pressable style={styles.innerPressable} onPress={closePopup} />
         <ChatMessageListItem
           message={message}

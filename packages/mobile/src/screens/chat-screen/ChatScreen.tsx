@@ -362,8 +362,20 @@ export const ChatScreen = () => {
     [dispatch, userIdEncoded, chatId, userId, closeReactionPopup]
   )
 
-  const handleLongPress = async (itemRef) => {
-    const selectedReactionValue = messageRef?.current?.reactions?.find(
+  const handleLongPress = async (index: number) => {
+    if (index < 0 || index >= chatMessages.length) {
+      return
+    }
+    const popupChatMessage = chatMessages[index]
+    const popupViewRef = itemsRef.current[index]
+    if (popupViewRef === null || popupViewRef === undefined) {
+      return
+    }
+    setPopupChatIndex(index)
+    setPopupChatHasTail(hasTail(popupChatMessage, chatMessages[index - 1]))
+    const senderUserId = decodeHashId(popupChatMessage.sender_user_id)
+    setPopupIsAuthor(senderUserId === userId)
+    const selectedReactionValue = popupChatMessage.reactions?.find(
       (r) => r.user_id === encodeHashId(userId)
     )?.reaction
     if (selectedReactionValue) {
@@ -371,18 +383,16 @@ export const ChatScreen = () => {
     }
 
     const measuredRootY: number = await new Promise<number>((resolve) => {
-      rootContainerRef.current?.measureInWindow(
-        (x, rooty, width, rootheight) => {
-          resolve(rooty)
-        }
-      )
+      rootContainerRef.current?.measureInWindow((x, y, width, rootheight) => {
+        resolve(y)
+      })
     })
     const { top: messageY, height: messageHeight } = await new Promise<{
       top: number
       height: number
     }>((resolve) => {
-      itemRef.measureInWindow((left, top, width, height) => {
-        resolve({ top: top - spacing(2), height })
+      popupViewRef.measureInWindow((x, y, width, height) => {
+        resolve({ top: y - spacing(2), height })
       })
     })
 
@@ -439,7 +449,7 @@ export const ChatScreen = () => {
               message={chatMessages[popupChatIndex]}
               closePopup={closeReactionPopup}
               handleReactionSelected={(reaction) =>
-                handleReactionSelected(messageRef.current, reaction)
+                handleReactionSelected(chatMessages[popupChatIndex], reaction)
               }
             />
           ) : null}
@@ -455,17 +465,7 @@ export const ChatScreen = () => {
                   renderItem={({ item, index }) => (
                     <Fragment key={item.message_id}>
                       <TouchableWithoutFeedback
-                        onPress={() => {
-                          messageRef.current = chatMessages[index]
-                          setPopupChatHasTail(
-                            hasTail(item, chatMessages[index - 1])
-                          )
-                          const senderUserId = decodeHashId(item.sender_user_id)
-                          const isAuthor = senderUserId === userId
-                          setPopupIsAuthor(isAuthor)
-                          handleLongPress(itemsRef.current[index])
-                          setPopupChatIndex(index)
-                        }}
+                        onPress={() => handleLongPress(index)}
                       >
                         <View>
                           {/* When reaction popup opens, hide reaction here so it doesn't
