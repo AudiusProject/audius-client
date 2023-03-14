@@ -22,7 +22,8 @@ import {
   IconVerified,
   IconDownload,
   IconMood,
-  IconSettings
+  IconSettings,
+  IconMessage
 } from '@audius/stems'
 import cn from 'classnames'
 
@@ -221,6 +222,7 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
 
     return (
       <SettingsCard
+        className={styles.cardFull}
         icon={<IconMood />}
         title={messages.appearanceCardTitle}
         description={messages.appearanceCardDescription}
@@ -269,20 +271,15 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
         <div className={styles.settings}>
           {this.renderThemeCard()}
           <SettingsCard
-            icon={<IconVerified />}
-            title={messages.verificationCardTitle}
-            description={messages.verificationCardDescription}
+            icon={<IconMessage />}
+            title={messages.inboxSettingsCardTitle}
+            description={messages.inboxSettingsCardDescription}
           >
-            <VerificationModal
-              userId={userId}
-              handle={handle}
-              name={name}
-              profilePictureSizes={profilePictureSizes}
-              goToRoute={goToRoute}
-              isVerified={isVerified}
-              onInstagramLogin={onInstagramLogin}
-              onTwitterLogin={onTwitterLogin}
-              onTikTokLogin={onTikTokLogin}
+            <Button
+              className={styles.cardButton}
+              textClassName={styles.settingButtonText}
+              type={ButtonType.COMMON_ALT}
+              text={messages.inboxSettingsButtonText}
             />
           </SettingsCard>
           <SettingsCard
@@ -319,6 +316,36 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
               />
             </Toast>
           </SettingsCard>
+          <SettingsCard
+            icon={<IconSettings />}
+            title={messages.changePassword}
+            description={messages.changePasswordDescription}
+          >
+            <Button
+              onClick={this.showChangePasswordModal}
+              className={cn(styles.cardButton, styles.changePasswordButton)}
+              textClassName={styles.settingButtonText}
+              type={ButtonType.COMMON_ALT}
+              text={messages.changePasswordButtonText}
+            />
+          </SettingsCard>
+          <SettingsCard
+            icon={<IconVerified />}
+            title={messages.verificationCardTitle}
+            description={messages.verificationCardDescription}
+          >
+            <VerificationModal
+              userId={userId}
+              handle={handle}
+              name={name}
+              profilePictureSizes={profilePictureSizes}
+              goToRoute={goToRoute}
+              isVerified={isVerified}
+              onInstagramLogin={onInstagramLogin}
+              onTwitterLogin={onTwitterLogin}
+              onTikTokLogin={onTikTokLogin}
+            />
+          </SettingsCard>
           {!isMobile() && !isElectron() && (
             <SettingsCard
               icon={<IconDownload />}
@@ -334,19 +361,6 @@ class SettingsPage extends Component<SettingsPageProps, SettingsPageState> {
               />
             </SettingsCard>
           )}
-          <SettingsCard
-            icon={<IconSettings />}
-            title={messages.changePassword}
-            description={messages.changePasswordDescription}
-          >
-            <Button
-              onClick={this.showChangePasswordModal}
-              className={cn(styles.cardButton, styles.changePasswordButton)}
-              textClassName={styles.settingButtonText}
-              type={ButtonType.COMMON_ALT}
-              text={messages.changePasswordButtonText}
-            />
-          </SettingsCard>
         </div>
         <div className={styles.version}>
           <Button

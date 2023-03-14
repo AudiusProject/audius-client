@@ -1,6 +1,9 @@
+import cn from 'classnames'
+
 import styles from './SettingsCard.module.css'
 
 type SettingsCardProps = {
+  className?: string
   icon: React.ReactNode
   title: string
   description: string
@@ -9,7 +12,7 @@ type SettingsCardProps = {
 
 export const SettingsCard = (props: SettingsCardProps) => {
   return (
-    <div className={styles.settingsCard}>
+    <div className={cn(styles.settingsCard, props.className)}>
       <div>
         <div className={styles.title}>
           {props.icon} {props.title}

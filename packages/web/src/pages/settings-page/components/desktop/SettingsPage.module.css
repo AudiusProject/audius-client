@@ -75,23 +75,18 @@
   letter-spacing: 0.5px;
 }
 
-.settingButtonText {
-  font-size: var(--font-l) !important;
+.cardFull {
+  flex: 1 1 100%;
+}
+
+.cardButton {
+  width: 100%;
+}
+
+.cardButton .settingButtonText {
+  font-size: var(--font-l);
 }
 
 .cardSlider {
   text-align: center;
-}
-.cardButton {
-  display: block;
-  width: 100%;
-  height: 52px !important;
-}
-/** Breakpoint for collapsed cards **/
-@media (max-width: 780px) {
-  .cardSlider,
-  .cardButton,
-  .cardToast {
-    margin: 8px auto;
-  }
 }
