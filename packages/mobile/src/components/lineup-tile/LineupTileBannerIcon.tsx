@@ -7,6 +7,7 @@ import IconLock from 'app/assets/images/iconLock.svg'
 import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
 import IconStar from 'app/assets/images/iconStar.svg'
 import { useThemeColors } from 'app/utils/theme'
+import { ViewStyle } from 'react-native'
 
 const styles = StyleSheet.create({
   bannerIcon: {
@@ -43,9 +44,11 @@ export enum LineupTileBannerIconType {
 }
 
 export const LineupTileBannerIcon = ({
-  type
+  type,
+  style
 }: {
-  type: LineupTileBannerIconType
+  type: LineupTileBannerIconType,
+  style?: ViewStyle
 }) => {
   const {
     neutral,
@@ -80,7 +83,7 @@ export const LineupTileBannerIcon = ({
   }[type]
 
   return (
-    <View style={styles.bannerIcon}>
+    <View style={[styles.bannerIcon, style]}>
       <LinearGradient
         colors={colors}
         style={[styles.container]}
