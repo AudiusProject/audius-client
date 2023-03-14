@@ -1,0 +1,10 @@
+probers-test-stage:
+  working_directory: ~/probers
+  docker:
+    - image: circleci/node:latest-browsers
+  steps:
+    - checkout
+    - run:
+        name: run prober tests against staging.audius.co
+        command: |
+          npm run cypress:run-stage
