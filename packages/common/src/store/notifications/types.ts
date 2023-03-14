@@ -97,7 +97,7 @@ export type EntityType = TrackEntity | CollectionEntity
 export type BaseNotification = {
   id: string
   isViewed: boolean
-  timestamp: string
+  timestamp: number
   timeLabel?: string
   // group id is a part of the notifications v2 spec
   groupId?: string
