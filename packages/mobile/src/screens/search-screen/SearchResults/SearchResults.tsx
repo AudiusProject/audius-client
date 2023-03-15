@@ -21,10 +21,10 @@ const selectSearchResultsSections = (state: AppState) => {
   const { tracks, users, playlists, albums } = getSearch(state)
 
   return [
-    { title: 'tracks' as const, data: tracks },
-    { title: 'users' as const, data: users },
-    { title: 'playlists' as const, data: playlists },
-    { title: 'albums' as const, data: albums }
+    { title: 'tracks', data: tracks },
+    { title: 'users', data: users },
+    { title: 'playlists', data: playlists },
+    { title: 'albums', data: albums }
   ].filter((section) => section.data.length > 0)
 }
 
