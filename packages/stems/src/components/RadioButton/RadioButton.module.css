@@ -32,3 +32,8 @@
   background: var(--neutral-light-7);
   border: unset;
 }
+
+.root:has(.checkedAndDisabled)::before {
+  background: var(--neutral-light-7);
+  border: 6px solid var(--secondary);
+}
