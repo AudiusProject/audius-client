@@ -15,7 +15,7 @@
   },
   "author": "",
   "license": "ISC",
-  "devDependencies": {
+  "dependencies": {
     "@testing-library/cypress": "^8.0.3",
     "cypress": "^10.10.0",
     "cypress-file-upload": "^5.0.8",
