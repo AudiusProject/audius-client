@@ -6,7 +6,8 @@ import {
   accountSelectors,
   TrackAvailabilityType,
   collectiblesSelectors,
-  Nullable
+  Nullable,
+  Track
 } from '@audius/common'
 import {
   Modal,
@@ -117,6 +118,7 @@ type TrackAvailabilityModalProps = {
   isOpen: boolean
   isRemix: boolean
   isUpload: boolean
+  initialForm: Track
   metadataState: TrackMetadataState
   didUpdateState: (newState: TrackMetadataState) => void
   onClose: () => void
@@ -128,6 +130,7 @@ const TrackAvailabilityModal = ({
   isOpen,
   isRemix,
   isUpload,
+  initialForm,
   metadataState,
   didUpdateState,
   onClose
@@ -144,9 +147,19 @@ const TrackAvailabilityModal = ({
   const numEthCollectibles = Object.keys(ethCollectionMap).length
   const numSolCollectibles = Object.keys(solCollectionMap).length
   const hasCollectibles = numEthCollectibles + numSolCollectibles > 0
-  const noCollectibleGate = !hasCollectibles || isRemix
-  const noCollectibleDropdown = !hasCollectibles || isRemix || !isUpload
-  const noSpecialAccess = isRemix || !isUpload
+
+  const initialPremiumConditions = initialForm.premium_conditions
+
+  const isInitiallySpecialAccess = !isUpload && !!(initialPremiumConditions?.follow_user_id || initialPremiumConditions?.tip_user_id)
+  const noCollectibleGate = isInitiallySpecialAccess || isRemix || !hasCollectibles
+  const noCollectibleDropdown = noCollectibleGate || !isUpload
+
+  const isInitiallyCollectibleGated = !isUpload && !!initialPremiumConditions?.nft_collection
+  const noSpecialAccess = isInitiallyCollectibleGated || isRemix
+  const noSpecialAccessOptions = noSpecialAccess || !isUpload
+
+  const isInitiallyNonHidden = !isUpload && !initialForm.is_unlisted
+  const noHidden = isInitiallyNonHidden
 
   const accountUserId = useSelector(getUserId)
   const defaultSpecialAccess = useMemo(
@@ -154,8 +167,8 @@ const TrackAvailabilityModal = ({
     [accountUserId]
   )
 
-  const [selectedNFTCollection, setSelectedNFTCollection] = useState(
-    metadataState.premium_conditions?.nft_collection
+  const [selectedPremiumConditions, setSelectedPremiumConditions] = useState(
+    metadataState.premium_conditions
   )
 
   let availability = TrackAvailabilityType.PUBLIC
@@ -187,26 +200,27 @@ const TrackAvailabilityModal = ({
           premium_conditions: premiumConditions
         })
 
-        // Keep track of selected NFT collection in case the user switches back and forth between radio items
-        if (premiumConditions.nft_collection) {
-          setSelectedNFTCollection(premiumConditions.nft_collection)
-        }
+        // Keep track of previously selected premium conditions in case the user switches back and forth between radio items
+        setSelectedPremiumConditions(premiumConditions)
       } else if (availabilityType === availability) {
       } else if (availabilityType === TrackAvailabilityType.SPECIAL_ACCESS) {
+        const isPreviouslySpecialAccess = !!(selectedPremiumConditions?.follow_user_id || selectedPremiumConditions?.tip_user_id)
         didUpdateState({
           ...defaultAvailabilityFields,
           is_premium: true,
-          premium_conditions: defaultSpecialAccess
+          premium_conditions: isPreviouslySpecialAccess
+            ? selectedPremiumConditions
+            : defaultSpecialAccess
         })
       } else if (availabilityType === TrackAvailabilityType.COLLECTIBLE_GATED) {
         didUpdateState({
           ...defaultAvailabilityFields,
           is_premium: true,
-          premium_conditions: { nft_collection: selectedNFTCollection }
+          premium_conditions: { nft_collection: selectedPremiumConditions?.nft_collection }
         })
       }
     },
-    [didUpdateState, availability, defaultSpecialAccess, selectedNFTCollection]
+    [didUpdateState, availability, selectedPremiumConditions, defaultSpecialAccess]
   )
 
   const updateUnlistedField = useCallback(() => {
@@ -243,7 +257,7 @@ const TrackAvailabilityModal = ({
   )
 
   const handleClose = useCallback(() => {
-    setSelectedNFTCollection(undefined)
+    // setSelectedPremiumConditions(null)
     onClose()
   }, [onClose])
 
@@ -289,6 +303,7 @@ const TrackAvailabilityModal = ({
                 <SpecialAccessAvailability
                   state={metadataState}
                   onStateUpdate={updatePremiumContentFields}
+                  disabled={noSpecialAccessOptions}
                 />
               }
             />
@@ -302,6 +317,7 @@ const TrackAvailabilityModal = ({
               description={
                 <CollectibleGatedDescription
                   hasCollectibles={hasCollectibles}
+                  isUpload={isUpload}
                 />
               }
               checkedContent={
@@ -316,6 +332,8 @@ const TrackAvailabilityModal = ({
           <ModalRadioItem
             icon={<IconHidden />}
             label={messages.hidden}
+            value={TrackAvailabilityType.HIDDEN}
+            disabled={noHidden}
             description={messages.hiddenSubtitle}
             checkedContent={
               <HiddenAvailability
@@ -323,7 +341,6 @@ const TrackAvailabilityModal = ({
                 toggleField={toggleHiddenField}
               />
             }
-            value={TrackAvailabilityType.HIDDEN}
           />
         </RadioButtonGroup>
         <div className={styles.doneButtonContainer}>
