@@ -19,7 +19,7 @@ type FetchNotificationsParams = {
 export function* fetchNotifications(config: FetchNotificationsParams) {
   const {
     limit,
-    timeOffset = Math.round(new Date().getTime() / 1000),
+    timeOffset = Math.round(new Date().getTime() / 1000), // current unix timestamp (sec)
     groupIdOffset
   } = config
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
@@ -49,14 +49,14 @@ export function* fetchNotifications(config: FetchNotificationsParams) {
     return notificationsResponse
   }
 
-  const discoveryNotificationsGenesisTimestamp = remoteConfig.getRemoteVar(
-    IntKeys.DISCOVERY_NOTIFICATIONS_GENESIS_TIMESTAMP
+  const discoveryNotificationsGenesisUnixTimestamp = remoteConfig.getRemoteVar(
+    IntKeys.DISCOVERY_NOTIFICATIONS_GENESIS_UNIX_TIMESTAMP
   )
 
   const shouldFetchNotificationFromDiscovery =
     useDiscoveryNotifications &&
-    discoveryNotificationsGenesisTimestamp &&
-    timeOffset > discoveryNotificationsGenesisTimestamp
+    discoveryNotificationsGenesisUnixTimestamp &&
+    timeOffset > discoveryNotificationsGenesisUnixTimestamp
 
   if (shouldFetchNotificationFromDiscovery) {
     const isRepostOfRepostEnabled = yield* call(
@@ -87,7 +87,8 @@ export function* fetchNotifications(config: FetchNotificationsParams) {
       const { notifications, totalUnread } = discoveryNotifications
       const [invalidNotifications, validNotifications] = partition(
         notifications,
-        ({ timestamp }) => timestamp < discoveryNotificationsGenesisTimestamp
+        ({ timestamp }) =>
+          timestamp < discoveryNotificationsGenesisUnixTimestamp
       )
 
       notificationsResponse.notifications = validNotifications

@@ -11,25 +11,6 @@ import {
   UpdateNotificationsAction
 } from './types'
 
-// export const notificationsAdapter = createEntityAdapter<Notification>({
-//   sortComparer: (a, b) => {
-//     const { timestamp: timestampA } = a
-//     const { timestamp: timestampB } = b
-//     const unixTimestampA =
-//       typeof timestampA === 'string' ? moment(timestampA).unix() : timestampA
-//     const unixTimestampB =
-//       typeof timestampB === 'string' ? moment(timestampB).unix() : timestampB
-
-//     console.log({ unixTimestampA, unixTimestampB })
-
-//     return unixTimestampA < unixTimestampB
-//       ? 1
-//       : unixTimestampA > unixTimestampB
-//       ? -1
-//       : 0
-//   }
-// })
-
 export const notificationsAdapter = createEntityAdapter<Notification>({
   sortComparer: (a, b) =>
     a.timestamp < b.timestamp ? 1 : a.timestamp > b.timestamp ? -1 : 0

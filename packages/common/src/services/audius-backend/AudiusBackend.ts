@@ -2117,7 +2117,7 @@ export const audiusBackend = ({
     const { timestamp, ...restNotification } = notification
     return {
       ...restNotification,
-      timestamp: Date.parse(timestamp) / 1000
+      timestamp: Math.round(Date.parse(timestamp) / 1000) // unix timestamp (sec)
     } as Notification
   }
 
