@@ -82,16 +82,17 @@ const messages = {
   desktopAppCardTitle: 'Download the Desktop App',
 
   appearanceCardDescription:
-    'Enable dark mode or choose ‘Auto’ to change with your system settings',
-  inboxSettingsCardDescription: '',
-  notificationsCardDescription: 'Review your notification preferences',
+    'Enable dark mode or choose ‘Auto’ to change with your system settings.',
+  inboxSettingsCardDescription:
+    'Configure who is able to send messages to your inbox.',
+  notificationsCardDescription: 'Review your notification preferences.',
   accountRecoveryCardDescription:
     'Resend your password reset email and store it safely. This email is the only way to recover your account if you forget your password.',
-  changePasswordCardDescription: 'Change the password to your Audius account',
+  changePasswordCardDescription: 'Change the password to your Audius account.',
   verificationCardDescription:
     'Verify your Audius profile by linking a verified account from Twitter, Instagram, or TikTok.',
   desktopAppCardDescription:
-    'For the best experience, we reccomend downloading the Audius Desktop App',
+    'For the best experience, we reccomend downloading the Audius Desktop App.',
 
   inboxSettingsButtonText: 'Inbox Settings',
   notificationsButtonText: 'Configure Notifications',
