@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { accountSelectors, Status } from '@audius/common'
 import type { NavigatorScreenParams } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { getHasCompletedAccount } from 'common/store/pages/signon/selectors'
-import { Platform } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import useAppState from 'app/hooks/useAppState'
@@ -12,16 +11,17 @@ import { useUpdateRequired } from 'app/hooks/useUpdateRequired'
 import type { AppScreenParamList } from 'app/screens/app-screen'
 import { SignOnScreen } from 'app/screens/signon'
 import { SplashScreen } from 'app/screens/splash-screen'
-import { UpdateRequiredScreen } from 'app/screens/update-required-screen/UpdateRequiredScreen'
+import {
+  UpdateRequiredScreen,
+  RestartRequiredScreen
+} from 'app/screens/update-required-screen'
 import { enterBackground, enterForeground } from 'app/store/lifecycle/actions'
 
 import { AppDrawerScreen } from '../app-drawer-screen'
 
-import { ThemedStatusBar } from './StatusBar'
+import { StatusBar } from './StatusBar'
 
 const { getAccountStatus } = accountSelectors
-
-const IS_IOS = Platform.OS === 'ios'
 
 export type RootScreenParamList = {
   HomeStack: NavigatorScreenParams<{
@@ -31,16 +31,23 @@ export type RootScreenParamList = {
 
 const Stack = createNativeStackNavigator()
 
+type RootScreenProps = {
+  isPendingMandatoryCodePushUpdate?: boolean
+}
+
 /**
  * The top level navigator. Switches between sign on screens and main tab navigator
  * based on if the user is authed
  */
-export const RootScreen = () => {
+export const RootScreen = ({
+  isPendingMandatoryCodePushUpdate
+}: RootScreenProps) => {
   const dispatch = useDispatch()
   const accountStatus = useSelector(getAccountStatus)
   const showHomeStack = useSelector(getHasCompletedAccount)
-  const { updateRequired } = useUpdateRequired()
+  const { updateRequired: appUpdateRequired } = useUpdateRequired()
   const [isLoaded, setIsLoaded] = useState(false)
+  const [isSplashScreenDismissed, setIsSplashScreenDismissed] = useState(false)
 
   useAppState(
     () => dispatch(enterForeground()),
@@ -56,20 +63,31 @@ export const RootScreen = () => {
     }
   }, [accountStatus, setIsLoaded, isLoaded])
 
+  const handleSplashScreenDismissed = useCallback(() => {
+    setIsSplashScreenDismissed(true)
+  }, [])
+
   return (
     <>
-      {IS_IOS ? (
-        <SplashScreen canDismiss={isLoaded} />
-      ) : (
-        <ThemedStatusBar isAppLoaded={isLoaded} accountStatus={accountStatus} />
-      )}
-
+      <SplashScreen
+        canDismiss={isLoaded}
+        onDismiss={handleSplashScreenDismissed}
+      />
+      <StatusBar
+        isAppLoaded={isLoaded}
+        isSplashScreenDismissed={isSplashScreenDismissed}
+      />
       {isLoaded ? (
         <Stack.Navigator
           screenOptions={{ gestureEnabled: false, headerShown: false }}
         >
-          {updateRequired ? (
-            <Stack.Screen name='UpdateStack' component={UpdateRequiredScreen} />
+          {appUpdateRequired || isPendingMandatoryCodePushUpdate ? (
+            <Stack.Screen
+              name='UpdateStack'
+              component={
+                appUpdateRequired ? UpdateRequiredScreen : RestartRequiredScreen
+              }
+            />
           ) : showHomeStack ? (
             <Stack.Screen name='HomeStack' component={AppDrawerScreen} />
           ) : (
