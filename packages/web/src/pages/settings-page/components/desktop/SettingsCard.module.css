@@ -1,7 +1,6 @@
 .settingsCard {
-  flex: 1;
-  width: 50%;
-  min-width: 300px;
+  flex: 1 1 calc(50% - var(--unit-3)); /* Leave room for gap */
+  min-width: 340px;
   border-radius: 6px;
   background-color: var(--white);
   box-shadow: 0 2px 5px -2px var(--tile-shadow-3);
@@ -45,7 +44,7 @@
 }
 
 /** Breakpoint for collapsed cards **/
-@media (max-width: 900px) {
+@media (max-width: 990px) {
   .settingsCard {
     text-align: center;
   }
