@@ -41,6 +41,7 @@ import { ERROR_PAGE } from 'utils/route'
 import { waitForWrite } from 'utils/sagaHelpers'
 import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
+import { processAndCacheTracks } from '../cache/tracks/utils'
 import { adjustUserField } from '../cache/users/sagas'
 
 import { watchUploadErrors } from './errorSagas'
@@ -1023,11 +1024,7 @@ function* uploadSingleTrack(track) {
   const account = yield select(getAccountUser)
   yield put(cacheActions.setExpired(Kind.USERS, account.user_id))
 
-  yield put(
-    cacheActions.add(Kind.TRACKS, [
-      { id: confirmedTrack.track_id, metadata: confirmedTrack }
-    ])
-  )
+  yield call(processAndCacheTracks, [confirmedTrack])
 
   yield call(adjustUserField, {
     user: account,

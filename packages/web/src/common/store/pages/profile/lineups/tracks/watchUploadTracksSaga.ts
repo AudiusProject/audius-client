@@ -2,7 +2,7 @@ import {
   accountSelectors,
   Kind,
   makeUid,
-  profilePageFeedLineupActions,
+  profilePageTracksLineupActions,
   profilePageSelectors,
   uploadActions
 } from '@audius/common'
@@ -14,7 +14,7 @@ const { getTrackSource } = profilePageSelectors
 
 type UploadTracksSucceededAction = ReturnType<typeof uploadTracksSucceeded>
 
-export function* watchUploadTracks() {
+export function* watchUploadTracksSaga() {
   yield* takeEvery(UPLOAD_TRACKS_SUCCEEDED, addUploadedTrackToLineup)
 }
 
@@ -39,7 +39,12 @@ function* addUploadedTrackToLineup(action: UploadTracksSucceededAction) {
     source
   }
 
-  yield put(
-    profilePageFeedLineupActions.add(uploadedTrackLineupEntry, track_id)
+  yield* put(
+    profilePageTracksLineupActions.add(
+      uploadedTrackLineupEntry,
+      track_id,
+      accountHandle,
+      true
+    )
   )
 }
