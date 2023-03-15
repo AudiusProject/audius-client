@@ -2,21 +2,22 @@ import { createRef, Fragment, useState, useEffect, useRef } from 'react'
 
 import { ResizeObserver } from '@juggle/resize-observer'
 import cn from 'classnames'
-import PropTypes from 'prop-types'
 import { mergeRefs } from 'react-merge-refs'
 import { useSpring, animated } from 'react-spring'
-import useMeasure from 'react-use-measure'
+import useMeasure, { RectReadOnly } from 'react-use-measure'
 
 import styles from './TabSlider.module.css'
 
-const TabSlider = (props) => {
-  const optionRefs = useRef(props.options.map((_) => createRef()))
-  const lastBounds = useRef()
+const TabSlider = (props: TabSliderProps) => {
+  const optionRefs = useRef(
+    props.options.map((_) => createRef<HTMLDivElement>())
+  )
+  const lastBounds = useRef<RectReadOnly>()
   const [selected, setSelected] = useState(props.options[0].key)
 
   const selectedOption = props.selected || selected
 
-  const onSetSelected = (option) => {
+  const onSetSelected = (option: SliderOption) => {
     // Call props function if controlled
     if (props.onSelectOption) props.onSelectOption(option)
     setSelected(option)
@@ -102,18 +103,18 @@ const TabSlider = (props) => {
   )
 }
 
-TabSlider.propTypes = {
-  fullWidth: PropTypes.bool,
-  className: PropTypes.string,
-  selected: PropTypes.any,
-  onSelectOption: PropTypes.func,
-  options: PropTypes.arrayOf(
-    PropTypes.shape({
-      key: PropTypes.any,
-      text: PropTypes.string
-    })
-  ).isRequired,
-  isMobile: PropTypes.bool
+type SliderOption = {
+  key: any
+  text: string
+}
+
+type TabSliderProps = {
+  fullWidth?: boolean
+  className?: string
+  selected?: any
+  onSelectOption?: (selected: any) => void
+  options: SliderOption[]
+  isMobile?: boolean
 }
 
 export default TabSlider
