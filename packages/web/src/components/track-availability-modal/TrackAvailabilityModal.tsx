@@ -80,9 +80,11 @@ const defaultAvailabilityFields = {
 }
 
 const CollectibleGatedDescription = ({
-  hasCollectibles
+  hasCollectibles,
+  isUpload
 }: {
   hasCollectibles: boolean
+  isUpload: boolean
 }) => {
   const hasUnsupportedCollection = useSelector(getHasUnsupportedCollection)
 
@@ -100,7 +102,9 @@ const CollectibleGatedDescription = ({
   return (
     <div className={styles.innerDescription}>
       {messages.collectibleGatedSubtitle}
-      {!hasCollectibles && <HelpCallout content={renderContent()} />}
+      {(!hasCollectibles && isUpload) ? (
+        <HelpCallout content={renderContent()} />
+      ) : null}
       <a
         className={styles.learnMore}
         href={LEARN_MORE_URL}
