@@ -1,13 +1,17 @@
 import { createRef, Fragment, useState, useEffect, useRef } from 'react'
 
+import { ResizeObserver } from '@juggle/resize-observer'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
+import { mergeRefs } from 'react-merge-refs'
 import { useSpring, animated } from 'react-spring'
+import useMeasure from 'react-use-measure'
 
 import styles from './TabSlider.module.css'
 
 const TabSlider = (props) => {
   const optionRefs = useRef(props.options.map((_) => createRef()))
+  const lastBounds = useRef()
   const [selected, setSelected] = useState(props.options[0].key)
 
   const selectedOption = props.selected || selected
@@ -22,6 +26,12 @@ const TabSlider = (props) => {
     to: { left: '0px', width: '0px' }
   }))
 
+  // Watch for resizes and repositions so that we move and resize the slider appropriately
+  const [selectedRef, bounds] = useMeasure({
+    offsetSize: true,
+    polyfill: ResizeObserver
+  })
+
   useEffect(() => {
     let selectedRefIdx = props.options.findIndex(
       (option) => option.key === selectedOption
@@ -34,7 +44,11 @@ const TabSlider = (props) => {
 
     if (optionRef) {
       const { clientWidth: width, offsetLeft: left } = optionRef
-      setAnimatedProps({ to: { left: `${left}px`, width: `${width}px` } })
+      setAnimatedProps({
+        to: { left: `${left}px`, width: `${width}px` },
+        immediate: bounds !== lastBounds.current // Don't animate on moves/resizes
+      })
+      lastBounds.current = bounds
     }
   }, [
     props.options,
@@ -42,7 +56,8 @@ const TabSlider = (props) => {
     props.selected,
     setAnimatedProps,
     selected,
-    optionRefs
+    optionRefs,
+    bounds
   ])
 
   return (
@@ -57,7 +72,11 @@ const TabSlider = (props) => {
         return (
           <Fragment key={option.key}>
             <div
-              ref={optionRefs.current[idx]}
+              ref={
+                option.key === selectedOption
+                  ? mergeRefs([optionRefs.current[idx], selectedRef])
+                  : optionRefs.current[idx]
+              }
               className={cn(styles.tab, {
                 [styles.tabFullWidth]: !!props.fullWidth
               })}
