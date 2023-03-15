@@ -102,7 +102,7 @@ const CollectibleGatedDescription = ({
   return (
     <div className={styles.innerDescription}>
       {messages.collectibleGatedSubtitle}
-      {(!hasCollectibles && isUpload) ? (
+      {!hasCollectibles && isUpload ? (
         <HelpCallout content={renderContent()} />
       ) : null}
       <a
@@ -154,11 +154,18 @@ const TrackAvailabilityModal = ({
 
   const initialPremiumConditions = initialForm.premium_conditions
 
-  const isInitiallySpecialAccess = !isUpload && !!(initialPremiumConditions?.follow_user_id || initialPremiumConditions?.tip_user_id)
-  const noCollectibleGate = isInitiallySpecialAccess || isRemix || !hasCollectibles
+  const isInitiallySpecialAccess =
+    !isUpload &&
+    !!(
+      initialPremiumConditions?.follow_user_id ||
+      initialPremiumConditions?.tip_user_id
+    )
+  const noCollectibleGate =
+    isInitiallySpecialAccess || isRemix || !hasCollectibles
   const noCollectibleDropdown = noCollectibleGate || !isUpload
 
-  const isInitiallyCollectibleGated = !isUpload && !!initialPremiumConditions?.nft_collection
+  const isInitiallyCollectibleGated =
+    !isUpload && !!initialPremiumConditions?.nft_collection
   const noSpecialAccess = isInitiallyCollectibleGated || isRemix
   const noSpecialAccessOptions = noSpecialAccess || !isUpload
 
@@ -208,7 +215,10 @@ const TrackAvailabilityModal = ({
         setSelectedPremiumConditions(premiumConditions)
       } else if (availabilityType === availability) {
       } else if (availabilityType === TrackAvailabilityType.SPECIAL_ACCESS) {
-        const isPreviouslySpecialAccess = !!(selectedPremiumConditions?.follow_user_id || selectedPremiumConditions?.tip_user_id)
+        const isPreviouslySpecialAccess = !!(
+          selectedPremiumConditions?.follow_user_id ||
+          selectedPremiumConditions?.tip_user_id
+        )
         didUpdateState({
           ...defaultAvailabilityFields,
           is_premium: true,
@@ -220,11 +230,18 @@ const TrackAvailabilityModal = ({
         didUpdateState({
           ...defaultAvailabilityFields,
           is_premium: true,
-          premium_conditions: { nft_collection: selectedPremiumConditions?.nft_collection }
+          premium_conditions: {
+            nft_collection: selectedPremiumConditions?.nft_collection
+          }
         })
       }
     },
-    [didUpdateState, availability, selectedPremiumConditions, defaultSpecialAccess]
+    [
+      didUpdateState,
+      availability,
+      selectedPremiumConditions,
+      defaultSpecialAccess
+    ]
   )
 
   const updateUnlistedField = useCallback(() => {
