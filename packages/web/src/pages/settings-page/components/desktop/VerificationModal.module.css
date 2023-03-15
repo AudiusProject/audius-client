@@ -150,7 +150,6 @@
   background-color: var(--white);
   border: 1px solid var(--neutral-light-6);
   opacity: 0.5;
-  height: 64px !important;
 }
 
 .disabledBtn:hover,
