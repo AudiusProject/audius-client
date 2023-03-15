@@ -59,7 +59,8 @@ import {
   NotificationType,
   Entity,
   Achievement,
-  Notification
+  Notification,
+  IdentityNotification
 } from '../../store'
 import { CIDCache } from '../../store/cache/CIDCache'
 import {
@@ -2110,6 +2111,16 @@ export const audiusBackend = ({
     }
   }
 
+  function mapIdentityNotification(
+    notification: IdentityNotification
+  ): Notification {
+    const { timestamp, ...restNotification } = notification
+    return {
+      ...restNotification,
+      timestamp: Date.parse(timestamp) / 1000
+    } as Notification
+  }
+
   function mapDiscoveryNotification(notification: DiscoveryNotification) {
     if (notification.type === 'follow') {
       const userIds = notification.actions.map((action) => {
@@ -2493,22 +2504,17 @@ export const audiusBackend = ({
       }
       type NotificationsResult = {
         message: 'success'
-        notifications: (Omit<Notification, 'timestamp'> & {
-          timestamp: string
-        })[]
+        notifications: IdentityNotification[]
         totalUnread: number
         playlistUpdates: number[]
       }
       const notificationsResult: NotificationsResult =
         await notificationsResponse.json()
+
       const formattedNotifications = {
         ...notificationsResult,
         notifications: notificationsResult.notifications.map(
-          (notification) =>
-            ({
-              ...notification,
-              timestamp: Date.parse(notification.timestamp) / 1000
-            } as Notification)
+          mapIdentityNotification
         )
       }
 

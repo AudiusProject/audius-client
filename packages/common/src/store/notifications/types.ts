@@ -835,6 +835,10 @@ export type Notification =
   | SupporterDethronedNotification
   | AddTrackToPlaylistNotification
 
+export type IdentityNotification = Omit<Notification, 'timestamp'> & {
+  timestamp: string
+}
+
 export interface NotificationState {
   modalNotificationId: string | undefined
   panelIsOpen: boolean
