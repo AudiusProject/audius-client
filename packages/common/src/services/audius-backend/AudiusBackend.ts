@@ -13,6 +13,7 @@ import BN from 'bn.js'
 import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
+import queryString from 'query-string'
 
 import { Env } from 'services/env'
 
@@ -58,7 +59,8 @@ import {
   NotificationType,
   Entity,
   Achievement,
-  Notification
+  Notification,
+  IdentityNotification
 } from '../../store'
 import { CIDCache } from '../../store/cache/CIDCache'
 import {
@@ -70,7 +72,6 @@ import {
   decodeHashId,
   Timer
 } from '../../utils'
-import { APIUser } from '../audius-api-client/types'
 
 import { MonitoringCallbacks } from './types'
 
@@ -1223,14 +1224,6 @@ export const audiusBackend = ({
     }
   }
 
-  /**
-   * Upgrades a user to a creator
-   * @param {string} newCreatorNodeEndpoint will follow the structure 'cn1,cn2,cn3'
-   */
-  async function upgradeToCreator(newCreatorNodeEndpoint: string) {
-    return audiusLibs.User.upgradeToCreator(userNodeUrl, newCreatorNodeEndpoint)
-  }
-
   // Uploads a single track
   // Returns { trackId, error, phase }
   async function uploadTrack(
@@ -2112,10 +2105,20 @@ export const audiusBackend = ({
     const timestamp = notification.actions[0].timestamp
     return {
       groupId: notification.group_id,
-      timestamp: new Date(timestamp * 1000).toString(),
+      timestamp,
       isViewed: notification.seen_at == null,
       id: `timestamp:${timestamp}:group_id:${notification.group_id}`
     }
+  }
+
+  function mapIdentityNotification(
+    notification: IdentityNotification
+  ): Notification {
+    const { timestamp, ...restNotification } = notification
+    return {
+      ...restNotification,
+      timestamp: Math.round(Date.parse(timestamp) / 1000) // unix timestamp (sec)
+    } as Notification
   }
 
   function mapDiscoveryNotification(notification: DiscoveryNotification) {
@@ -2421,6 +2424,7 @@ export const audiusBackend = ({
 
     type DiscoveryNotificationsResponse = {
       notifications: DiscoveryNotification[]
+      unread_count: number
     }
 
     const response: DiscoveryNotificationsResponse =
@@ -2432,9 +2436,12 @@ export const audiusBackend = ({
         validTypes
       })
 
+    const { unread_count, notifications } = response
+
     // TODO: update mapDiscoveryNotification to return Notification
     return {
-      notifications: response.notifications.map(
+      totalUnread: unread_count,
+      notifications: notifications.map(
         mapDiscoveryNotification
       ) as Notification[]
     }
@@ -2446,7 +2453,8 @@ export const audiusBackend = ({
     withDethroned
   }: {
     limit: number
-    timeOffset: string
+    // unix timestamp
+    timeOffset?: number
     withDethroned: boolean
   }) {
     await waitForLibsInit()
@@ -2457,27 +2465,35 @@ export const audiusBackend = ({
         error: new Error('User not signed in'),
         isRequestError: false
       }
+    const { handle } = account
     try {
       const { data, signature } = await signData()
-      const timeOffsetQuery = timeOffset
-        ? `&timeOffset=${encodeURI(timeOffset)}`
-        : ''
-      const limitQuery = `&limit=${limit}`
-      const handleQuery = `&handle=${account.handle}`
-      const withDethronedQuery = withDethroned
-        ? '&withSupporterDethroned=true'
-        : ''
+      const query = {
+        timeOffset: timeOffset
+          ? dayjs.unix(timeOffset).toISOString()
+          : undefined,
+        limit,
+        handle,
+        withSupporterDethroned: withDethroned,
+        withTips: true,
+        withRewards: true,
+        withRemix: true,
+        withTrendingTrack: true
+      }
+
+      const getNotificationsUrl = queryString.stringifyUrl({
+        url: `${identityServiceUrl}/notifications`,
+        query
+      })
+
       // TODO: withRemix, withTrending, withRewards are always true and should be removed in a future release
-      const notificationsResponse = await fetch(
-        `${identityServiceUrl}/notifications?${limitQuery}${timeOffsetQuery}${handleQuery}${withDethronedQuery}&withTips=true&withRewards=true&withRemix=true&withTrendingTrack=true`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            [AuthHeaders.Message]: data,
-            [AuthHeaders.Signature]: signature
-          }
+      const notificationsResponse = await fetch(getNotificationsUrl, {
+        headers: {
+          'Content-Type': 'application/json',
+          [AuthHeaders.Message]: data,
+          [AuthHeaders.Signature]: signature
         }
-      )
+      })
 
       if (notificationsResponse.status !== 200) {
         return {
@@ -2486,14 +2502,23 @@ export const audiusBackend = ({
           isRequestError: true
         }
       }
-      type Notifications = {
+      type NotificationsResult = {
         message: 'success'
-        notifications: Notification[]
+        notifications: IdentityNotification[]
         totalUnread: number
         playlistUpdates: number[]
       }
-      const notifications: Notifications = await notificationsResponse.json()
-      return notifications
+      const notificationsResult: NotificationsResult =
+        await notificationsResponse.json()
+
+      const formattedNotifications = {
+        ...notificationsResult,
+        notifications: notificationsResult.notifications.map(
+          mapIdentityNotification
+        )
+      }
+
+      return formattedNotifications
     } catch (e) {
       return {
         message: 'error',
@@ -2867,12 +2892,11 @@ export const audiusBackend = ({
     if (isreadSubscribersFromDiscoveryEnabled) {
       // Read subscribers from discovery
       try {
-        const subscribers: APIUser[] = await audiusLibs.User.getUserSubscribers(
-          encodeHashId(userId)
-        )
-        const subscriberIds = subscribers.map((subscriber) =>
-          decodeHashId(subscriber.id)
-        )
+        const encodedUserId = encodeHashId(userId)
+        const bulkResp: { user_id: string; subscriber_ids: string[] }[] =
+          await audiusLibs.User.bulkGetUserSubscribers([encodedUserId])
+        const encodedSubscriberIds = bulkResp[0].subscriber_ids
+        const subscriberIds = encodedSubscriberIds.map((id) => decodeHashId(id))
         return subscriberIds.includes(account.user_id)
       } catch (e) {
         console.error(getErrorMessage(e))
@@ -3645,7 +3669,6 @@ export const audiusBackend = ({
     updateUserSubscription,
     subscribeToUser,
     unsubscribeFromUser,
-    upgradeToCreator,
     uploadImage,
     uploadTrack,
     uploadTrackToCreatorNode,
