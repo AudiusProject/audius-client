@@ -97,6 +97,7 @@ web-test-staging:
         command: |
           npx serve -l 3001 -s packages/web/build-staging &
           cd packages/probers
+          npx cypress install
           npm run test:ci
     - store_artifacts:
         path: /home/circleci/probers/cypress/videos
