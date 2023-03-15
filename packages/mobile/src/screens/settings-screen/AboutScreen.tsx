@@ -25,7 +25,8 @@ const { version: appVersion } = packageInfo
 const messages = {
   title: 'About',
   appName: 'Audius Music',
-  version: 'Audius Version',
+  // TODO(nkang): Dummy change, change back later
+  version: 'Version',
   copyright: COPYRIGHT_TEXT,
   discord: 'Join our community on Discord',
   twitter: 'Follow us on Twitter',
