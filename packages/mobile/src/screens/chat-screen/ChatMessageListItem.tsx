@@ -99,7 +99,17 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   }
 }))
 
-const ChatReaction = ({ reaction, reactionPosition, isAuthor }) => {
+type ChatReactionProps = {
+  reaction: ChatMessageReaction
+  reactionPosition: { x: number; y: number }
+  isAuthor: boolean
+}
+
+const ChatReaction = ({
+  reaction,
+  reactionPosition,
+  isAuthor
+}: ChatReactionProps) => {
   const styles = useStyles()
 
   if (!reaction || !reaction.reaction || !(reaction.reaction in reactionMap)) {
@@ -152,15 +162,14 @@ const formatChatReactions = (
         />
       )
     })
-  } else {
-    return (
-      <ChatReaction
-        reaction={reactions[0]}
-        reactionPosition={reactionPosition}
-        isAuthor={isAuthor}
-      />
-    )
   }
+  return (
+    <ChatReaction
+      reaction={reactions[0]}
+      reactionPosition={reactionPosition}
+      isAuthor={isAuthor}
+    />
+  )
 }
 
 export const ChatMessageListItem = forwardRef<View, ChatMessageListItemProps>(

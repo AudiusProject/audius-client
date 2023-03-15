@@ -89,18 +89,17 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     borderColor: palette.neutralLight8
   },
   composeTextContainer: {
-    backgroundColor: palette.neutralLight10,
-    borderRadius: spacing(1),
-    paddingLeft: spacing(4),
-    paddingRight: spacing(4),
     display: 'flex',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: palette.neutralLight10,
+    paddingLeft: spacing(4),
+    paddingRight: spacing(3),
+    borderRadius: spacing(1)
   },
   composeTextInput: {
     fontSize: typography.fontSize.medium
   },
   icon: {
-    marginBottom: 2,
     width: spacing(5),
     height: spacing(5),
     fill: palette.primary
@@ -389,12 +388,12 @@ export const ChatScreen = () => {
 
     // Measure position of selected message to create a copy of it on top
     // of the dimmed background inside the portal.
-    const { top: messageY, height: messageHeight } = await new Promise<{
-      top: number
-      height: number
+    const { messageY, messageHeight } = await new Promise<{
+      messageY: number
+      messageHeight: number
     }>((resolve) => {
-      popupViewRef.measureInWindow((x, y, width, height) => {
-        resolve({ top: y, height })
+      popupViewRef.measureInWindow((x, messageY, width, messageHeight) => {
+        resolve({ messageY, messageHeight })
       })
     })
 
