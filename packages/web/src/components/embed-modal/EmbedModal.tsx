@@ -188,7 +188,7 @@ const EmbedModal = ({ isOpen, kind, id, metadata, close }: EmbedModalProps) => {
               <SegmentedControl
                 options={tabOptions}
                 selected={size}
-                onSelectOption={(size) => setSize(size as Size)}
+                onSelectOption={(size) => setSize(size)}
               />
             </div>
           )}

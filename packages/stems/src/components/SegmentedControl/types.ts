@@ -1,17 +1,17 @@
-export type Option = {
-  key: string
+export type Option<T> = {
+  key: T
   text: string
 }
 
-export type SegmentedControlProps = {
+export type SegmentedControlProps<T extends string> = {
   // The options to display for the tab slider
-  options: Array<Option>
+  options: Array<Option<T>>
 
   // References the key of an available option that is selected
   selected: string
 
   // Called on select option
-  onSelectOption: (key: string) => void
+  onSelectOption: (key: T) => void
 
   fullWidth?: boolean
 

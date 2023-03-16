@@ -8,7 +8,9 @@ import useMeasure, { RectReadOnly } from 'react-use-measure'
 import styles from './SegmentedControl.module.css'
 import { SegmentedControlProps } from './types'
 
-export const SegmentedControl = (props: SegmentedControlProps) => {
+export const SegmentedControl = <T extends string>(
+  props: SegmentedControlProps<T>
+) => {
   const optionRefs = useRef(
     props.options.map((_) => createRef<HTMLLabelElement>())
   )
@@ -17,7 +19,7 @@ export const SegmentedControl = (props: SegmentedControlProps) => {
   const lastBounds = useRef<RectReadOnly>()
   const selectedOption = props.selected || selected
 
-  const onSetSelected = (option: string) => {
+  const onSetSelected = (option: T) => {
     // Call props function if controlled
     if (props.onSelectOption) props.onSelectOption(option)
     setSelected(option)

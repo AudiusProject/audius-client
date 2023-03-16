@@ -178,9 +178,7 @@ const NotificationSettings = (props: NotificationSettingsProps) => {
           </div>
           <SegmentedControl
             selected={props.emailFrequency}
-            onSelectOption={(value) =>
-              props.updateEmailFrequency(value as EmailFrequency)
-            }
+            onSelectOption={props.updateEmailFrequency}
             options={emailOptions}
           />
         </div>

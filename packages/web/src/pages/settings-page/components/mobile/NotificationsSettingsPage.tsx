@@ -48,9 +48,7 @@ const NotificationsSettingsPage = ({
                   fullWidth
                   options={emailOptions}
                   selected={emailFrequency}
-                  onSelectOption={(key) =>
-                    updateEmailFrequency(key as EmailFrequency)
-                  }
+                  onSelectOption={updateEmailFrequency}
                 />
               </Row>
             </Grouping>
