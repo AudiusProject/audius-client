@@ -48,7 +48,7 @@ export const RadioButton = (props: RadioButtonProps) => {
   return (
     <div className={cn(styles.root, className)}>
       <input
-        className={cn(styles.input, inputClassName, { [styles.checkedAndDisabled]: checked && props.disabled })}
+        className={cn(styles.input, inputClassName)}
         name={name}
         checked={checked}
         type='radio'
