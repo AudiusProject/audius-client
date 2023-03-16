@@ -94,11 +94,8 @@ web-test-staging:
     - attach_workspace:
         at: ./
     - cypress/run:
-        cypress-command: |
-          cd packages/probers
-          npm run test:ci
-        start-command: |
-          npx serve -l 3001 -s packages/web/build-staging
+        cypress-command: 'cd packages/probers && npm run test:ci'
+        start-command: 'npx serve -l 3001 -s packages/web/build-staging'
     - store_artifacts:
         path: /home/circleci/probers/cypress/videos
     - store_artifacts:
