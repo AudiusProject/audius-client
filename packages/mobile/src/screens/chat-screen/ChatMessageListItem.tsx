@@ -133,15 +133,6 @@ const ChatReaction = ({
   )
 }
 
-type ChatMessageListItemProps = {
-  message: ChatMessage
-  hasTail: boolean
-  shouldShowReaction?: boolean
-  shouldShowDate?: boolean
-  style?: StyleProp<ViewStyle>
-  onLongPress?: () => void
-}
-
 const formatChatReactions = (
   reactions: ChatMessageReaction[],
   isAuthor: boolean,
@@ -175,6 +166,15 @@ const formatChatReactions = (
       isAuthor={isAuthor}
     />
   )
+}
+
+type ChatMessageListItemProps = {
+  message: ChatMessage
+  hasTail: boolean
+  shouldShowReaction?: boolean
+  shouldShowDate?: boolean
+  style?: StyleProp<ViewStyle>
+  onLongPress?: () => void
 }
 
 export const ChatMessageListItem = forwardRef<View, ChatMessageListItemProps>(
