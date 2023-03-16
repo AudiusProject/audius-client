@@ -178,8 +178,13 @@ const TrackAvailabilityModal = ({
     [accountUserId]
   )
 
-  const [selectedPremiumConditions, setSelectedPremiumConditions] = useState(
-    metadataState.premium_conditions
+  const [selectedNFTCollection, setSelectedNFTCollection] = useState(
+    metadataState.premium_conditions?.nft_collection
+  )
+  const [selectedSpecialAccessGate, setSelectedSpecialAccessGate] = useState(
+    !('nft_collection' in (metadataState.premium_conditions ?? {}))
+      ? metadataState.premium_conditions ?? defaultSpecialAccess
+      : defaultSpecialAccess
   )
 
   let availability = TrackAvailabilityType.PUBLIC
@@ -211,27 +216,26 @@ const TrackAvailabilityModal = ({
           premium_conditions: premiumConditions
         })
 
-        // Keep track of previously selected premium conditions in case the user switches back and forth between radio items
-        setSelectedPremiumConditions(premiumConditions)
+        // Keep track of previously selected collectible and special access gates
+        // in case the user switches back and forth between radio items
+        if (premiumConditions.nft_collection) {
+          setSelectedNFTCollection(premiumConditions.nft_collection)
+        } else {
+          setSelectedSpecialAccessGate(premiumConditions)
+        }
       } else if (availabilityType === availability) {
       } else if (availabilityType === TrackAvailabilityType.SPECIAL_ACCESS) {
-        const isPreviouslySpecialAccess = !!(
-          selectedPremiumConditions?.follow_user_id ||
-          selectedPremiumConditions?.tip_user_id
-        )
         didUpdateState({
           ...defaultAvailabilityFields,
           is_premium: true,
-          premium_conditions: isPreviouslySpecialAccess
-            ? selectedPremiumConditions
-            : defaultSpecialAccess
+          premium_conditions: selectedSpecialAccessGate
         })
       } else if (availabilityType === TrackAvailabilityType.COLLECTIBLE_GATED) {
         didUpdateState({
           ...defaultAvailabilityFields,
           is_premium: true,
           premium_conditions: {
-            nft_collection: selectedPremiumConditions?.nft_collection
+            nft_collection: selectedNFTCollection
           }
         })
       }
@@ -239,8 +243,8 @@ const TrackAvailabilityModal = ({
     [
       didUpdateState,
       availability,
-      selectedPremiumConditions,
-      defaultSpecialAccess
+      selectedSpecialAccessGate,
+      selectedNFTCollection
     ]
   )
 
@@ -277,20 +281,11 @@ const TrackAvailabilityModal = ({
     [updatePremiumContentFields, updateUnlistedField, updatePublicField]
   )
 
-  const handleClose = useCallback(() => {
-    // setSelectedPremiumConditions(null)
-    onClose()
-  }, [onClose])
-
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      bodyClassName={styles.modalBody}
-    >
+    <Modal isOpen={isOpen} onClose={onClose} bodyClassName={styles.modalBody}>
       <ModalHeader
         className={styles.modalHeader}
-        onClose={handleClose}
+        onClose={onClose}
         dismissButtonClassName={styles.modalHeaderDismissButton}
       >
         <ModalTitle
@@ -369,7 +364,7 @@ const TrackAvailabilityModal = ({
             type={ButtonType.PRIMARY_ALT}
             textClassName={cn(styles.doneButton)}
             text={messages.done}
-            onClick={handleClose}
+            onClick={onClose}
           />
         </div>
       </ModalContent>
