@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 
 import {
   chatActions,
@@ -16,7 +16,6 @@ import type { ChatMessage } from '@audius/sdk'
 import { Portal } from '@gorhom/portal'
 import { useFocusEffect } from '@react-navigation/native'
 import { View, Text, Image } from 'react-native'
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { useDispatch, useSelector } from 'react-redux'
 
 import WavingHand from 'app/assets/images/emojis/waving-hand-sign.png'
@@ -30,10 +29,10 @@ import { UserBadges } from 'app/components/user-badges'
 import { useRoute } from 'app/hooks/useRoute'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
-import { spacing } from 'app/styles/spacing'
 import { useThemePalette } from 'app/utils/theme'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
+import type { ReactionInfo } from './ReactionPopup'
 import { ReactionPopup } from './ReactionPopup'
 
 const {
@@ -57,8 +56,7 @@ const messages = {
 }
 const ICON_BLUR = 0.5
 const ICON_FOCUS = 1
-// Actual height is 86, leave extra room for overflowing animations and margins.
-const REACTION_CONTAINER_HEIGHT = 100
+export const REACTION_CONTAINER_HEIGHT = 70
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   rootContainer: {
@@ -130,7 +128,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     paddingVertical: spacing(1),
     borderRadius: spacing(0.5)
   },
-  sayHelloContainer: {
+  emptyContainer: {
     marginTop: spacing(8),
     marginHorizontal: spacing(6),
     padding: spacing(6),
@@ -142,7 +140,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     borderWidth: 1,
     borderRadius: spacing(2)
   },
-  sayHelloTextContainer: {
+  emptyTextContainer: {
     display: 'flex',
     flexDirection: 'column',
     marginHorizontal: spacing(6)
@@ -151,13 +149,13 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     height: spacing(16),
     width: spacing(16)
   },
-  sayHelloTitle: {
+  emptyTitle: {
     fontSize: typography.fontSize.xxl,
     color: palette.neutral,
     fontFamily: typography.fontByWeight.bold,
     lineHeight: typography.fontSize.xxl * 1.3
   },
-  sayHelloText: {
+  emptyText: {
     marginTop: spacing(2),
     marginRight: spacing(6),
     fontSize: typography.fontSize.large,
@@ -172,11 +170,11 @@ const pluralize = (message: string, shouldPluralize: boolean) =>
 const EmptyChatMessages = () => {
   const styles = useStyles()
   return (
-    <View style={styles.sayHelloContainer}>
+    <View style={styles.emptyContainer}>
       <Image style={styles.wavingHand} source={WavingHand} />
-      <View style={styles.sayHelloTextContainer}>
-        <Text style={styles.sayHelloTitle}>{messages.sayHello}</Text>
-        <Text style={styles.sayHelloText}>{messages.firstImpressions}</Text>
+      <View style={styles.emptyTextContainer}>
+        <Text style={styles.emptyTitle}>{messages.sayHello}</Text>
+        <Text style={styles.emptyText}>{messages.firstImpressions}</Text>
       </View>
     </View>
   )
@@ -190,17 +188,12 @@ export const ChatScreen = () => {
   const { params } = useRoute<'Chat'>()
   const { chatId } = params
   const url = `/chat/${encodeUrlName(chatId ?? '')}`
-  const [iconOpacity, setIconOpacity] = useState<number>(ICON_BLUR)
-  const [inputMessage, setInputMessage] = useState<string>('')
-  const [shouldShowPopup, setShouldShowPopup] = useState<boolean>(false)
-  const [reactionY, setReactionY] = useState<number>(0)
-  const [messageY, setMessageY] = useState<number>(0)
-  const [composeY, setComposeY] = useState<number>(0)
-  const [rootY, setRootY] = useState<number>(0)
-  const [selectedReaction, setSelectedReaction] = useState<string>('')
+  const [iconOpacity, setIconOpacity] = useState(ICON_BLUR)
+  const [inputMessage, setInputMessage] = useState('')
+  const [shouldShowPopup, setShouldShowPopup] = useState(false)
+  const reactionInfo = useRef<ReactionInfo>({})
+  const [selectedReaction, setSelectedReaction] = useState('')
   const [popupChatIndex, setPopupChatIndex] = useState<number | null>(null)
-  const [popupChatHasTail, setPopupChatHasTail] = useState<boolean>(false)
-  const [popupIsAuthor, setPopupIsAuthor] = useState<boolean>(false)
 
   const userId = useSelector(getUserId)
   const userIdEncoded = encodeHashId(userId)
@@ -217,7 +210,6 @@ export const ChatScreen = () => {
   )
   const flatListRef = useRef<FlatListT<ChatMessage>>(null)
   const itemsRef = useRef<(View | null)[]>([])
-  const rootContainerRef = useRef<View | null>(null)
   const composeRef = useRef<View | null>(null)
   const unreadCount = chat?.unread_message_count ?? 0
   const isLoading = status === Status.LOADING && chatMessages?.length === 0
@@ -334,6 +326,7 @@ export const ChatScreen = () => {
   const closeReactionPopup = useCallback(() => {
     setShouldShowPopup(false)
     setPopupChatIndex(null)
+    setSelectedReaction('')
   }, [setShouldShowPopup, setPopupChatIndex])
 
   const handleReactionSelected = useCallback(
@@ -369,9 +362,12 @@ export const ChatScreen = () => {
       return
     }
     setPopupChatIndex(index)
-    setPopupChatHasTail(hasTail(popupChatMessage, chatMessages[index - 1]))
+    reactionInfo.current.hasTail = hasTail(
+      popupChatMessage,
+      chatMessages[index - 1]
+    )
     const senderUserId = decodeHashId(popupChatMessage.sender_user_id)
-    setPopupIsAuthor(senderUserId === userId)
+    reactionInfo.current.isAuthor = senderUserId === userId
     const selectedReactionValue = popupChatMessage.reactions?.find(
       (r) => r.user_id === encodeHashId(userId)
     )?.reaction
@@ -381,24 +377,15 @@ export const ChatScreen = () => {
 
     // Measure position of selected message to create a copy of it on top
     // of the dimmed background inside the portal.
-    const { messageY, messageHeight } = await new Promise<{
-      messageY: number
-      messageHeight: number
-    }>((resolve) => {
-      popupViewRef.measureInWindow((x, messageY, width, messageHeight) => {
-        resolve({ messageY, messageHeight })
+    const messageTop = await new Promise<number>((resolve) => {
+      popupViewRef.measureInWindow((x, y, width, height) => {
+        resolve(y)
       })
     })
 
-    // Determine whether to show reactions popup above or below highlighted message.
-    const spaceAboveMessage = messageY - rootY
-    const shouldShowReactionsAbove =
-      spaceAboveMessage > REACTION_CONTAINER_HEIGHT
-    const reactionY = shouldShowReactionsAbove
-      ? messageY - REACTION_CONTAINER_HEIGHT - rootY + spacing(3.5)
-      : messageY + messageHeight - rootY + spacing(2)
-    setReactionY(reactionY)
-    setMessageY(messageY - rootY)
+    const reactionY = messageTop - REACTION_CONTAINER_HEIGHT
+    reactionInfo.current.reactionTop = reactionY
+    reactionInfo.current.messageTop = messageTop
     setShouldShowPopup(true)
   }
 
@@ -435,13 +422,8 @@ export const ChatScreen = () => {
         <Portal hostName='ChatReactionsPortal'>
           {shouldShowPopup && popupChatIndex !== null ? (
             <ReactionPopup
-              containerTop={rootY}
-              containerBottom={composeY}
-              messageTop={messageY}
-              reactionTop={reactionY}
+              reactionInfo={reactionInfo.current}
               selectedReaction={selectedReaction as ReactionTypes}
-              isAuthor={popupIsAuthor}
-              hasTail={popupChatHasTail}
               message={chatMessages[popupChatIndex]}
               closePopup={closeReactionPopup}
               handleReactionSelected={(reaction) =>
@@ -450,17 +432,7 @@ export const ChatScreen = () => {
             />
           ) : null}
         </Portal>
-        <View
-          style={styles.rootContainer}
-          ref={rootContainerRef}
-          onLayout={() => {
-            rootContainerRef.current?.measureInWindow(
-              (x, y, width, rootheight) => {
-                setRootY(y)
-              }
-            )
-          }}
-        >
+        <View style={styles.rootContainer}>
           {!isLoading ? (
             chatMessages?.length > 0 ? (
               <View style={styles.listContainer}>
@@ -470,21 +442,18 @@ export const ChatScreen = () => {
                   keyExtractor={(message) => message.message_id}
                   renderItem={({ item, index }) => (
                     <>
-                      <TouchableWithoutFeedback
-                        onLongPress={() => handleMessagePress(index)}
-                      >
-                        <View>
-                          {/* When reaction popup opens, hide reaction here so it doesn't
+                      <View>
+                        {/* When reaction popup opens, hide reaction here so it doesn't
                           appear underneath the reaction of the message clone inside the
                           portal. */}
-                          <ChatMessageListItem
-                            message={item}
-                            ref={(el) => (itemsRef.current[index] = el)}
-                            shouldShowReaction={index !== popupChatIndex}
-                            hasTail={hasTail(item, chatMessages[index - 1])}
-                          />
-                        </View>
-                      </TouchableWithoutFeedback>
+                        <ChatMessageListItem
+                          message={item}
+                          ref={(el) => (itemsRef.current[index] = el)}
+                          shouldShowReaction={index !== popupChatIndex}
+                          hasTail={hasTail(item, chatMessages[index - 1])}
+                          onLongPress={() => handleMessagePress(index)}
+                        />
+                      </View>
                       {index === earliestUnreadIndex ? (
                         <View style={styles.unreadTagContainer}>
                           <View style={styles.unreadSeparator} />
@@ -516,7 +485,7 @@ export const ChatScreen = () => {
             style={styles.composeView}
             onLayout={() => {
               composeRef.current?.measureInWindow((x, y, width, height) => {
-                setComposeY(y)
+                reactionInfo.current.containerBottom = y
               })
             }}
             ref={composeRef}

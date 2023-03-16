@@ -9,6 +9,7 @@ import {
 import type { ChatMessage, ChatMessageReaction } from '@audius/sdk'
 import type { ViewStyle, StyleProp } from 'react-native'
 import { View } from 'react-native'
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { useSelector } from 'react-redux'
 
 import ChatTail from 'app/assets/images/ChatTail.svg'
@@ -88,6 +89,9 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     shadowOpacity: 1,
     shadowRadius: 2
   },
+  reactionMarginBottom: {
+    marginBottom: spacing(2)
+  },
   reaction: {
     height: spacing(8),
     width: spacing(8),
@@ -135,6 +139,7 @@ type ChatMessageListItemProps = {
   shouldShowReaction?: boolean
   shouldShowDate?: boolean
   style?: StyleProp<ViewStyle>
+  onLongPress?: () => void
 }
 
 const formatChatReactions = (
@@ -179,7 +184,8 @@ export const ChatMessageListItem = forwardRef<View, ChatMessageListItemProps>(
       hasTail,
       shouldShowReaction = true,
       shouldShowDate = true,
-      style: styleProp
+      style: styleProp,
+      onLongPress
     } = props
     const styles = useStyles()
     const palette = useThemePalette()
@@ -191,7 +197,7 @@ export const ChatMessageListItem = forwardRef<View, ChatMessageListItemProps>(
     const [reactionPosition, setReactionPosition] = useState<{
       x: number
       y: number
-    }>()
+    }>({ x: 0, y: 0 })
 
     return (
       <>
@@ -201,29 +207,31 @@ export const ChatMessageListItem = forwardRef<View, ChatMessageListItemProps>(
             styleProp
           ]}
         >
-          <View
-            ref={refProp}
-            onLayout={(e) => {
-              const { width, height } = e.nativeEvent.layout
-              setReactionPosition({
-                x: width - REACTION_OFFSET_X,
-                y: height - REACTION_OFFSET_Y
-              })
-            }}
-          >
-            {/* This View is for measuring y offset and height to calculate
-            position of reactions popup. */}
+          <TouchableWithoutFeedback onPress={onLongPress}>
             <View
               ref={refProp}
-              style={[styles.bubble, isAuthor && styles.isAuthor]}
+              onLayout={(e) => {
+                const { width, height } = e.nativeEvent.layout
+                setReactionPosition({
+                  x: width - REACTION_OFFSET_X,
+                  y: height - REACTION_OFFSET_Y
+                })
+              }}
             >
-              <Text
-                style={[styles.message, isAuthor && styles.messageIsAuthor]}
+              {/* This View is for measuring y offset and height to calculate
+            position of reactions popup. */}
+              <View
+                ref={refProp}
+                style={[styles.bubble, isAuthor && styles.isAuthor]}
               >
-                {message.message}
-              </Text>
+                <Text
+                  style={[styles.message, isAuthor && styles.messageIsAuthor]}
+                >
+                  {message.message}
+                </Text>
+              </View>
             </View>
-          </View>
+          </TouchableWithoutFeedback>
           {hasTail ? (
             <>
               <View
@@ -245,11 +253,19 @@ export const ChatMessageListItem = forwardRef<View, ChatMessageListItemProps>(
               ) : null}
             </>
           ) : null}
-          {shouldShowReaction &&
-          message.reactions?.length > 0 &&
-          reactionPosition
-            ? formatChatReactions(message.reactions, isAuthor, reactionPosition)
-            : null}
+          {message.reactions?.length > 0 ? (
+            <>
+              {shouldShowReaction
+                ? formatChatReactions(
+                    message.reactions,
+                    isAuthor,
+                    reactionPosition
+                  )
+                : null}
+              {/* Add an 8px margin between messages when there are reactions. */}
+              {!hasTail ? <View style={styles.reactionMarginBottom} /> : null}
+            </>
+          ) : null}
         </View>
       </>
     )
