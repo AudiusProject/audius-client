@@ -10,7 +10,7 @@ import styles from './TabSlider.module.css'
 
 const TabSlider = (props: TabSliderProps) => {
   const optionRefs = useRef(
-    props.options.map((_) => createRef<HTMLDivElement>())
+    props.options.map((_) => createRef<HTMLLabelElement>())
   )
   const lastBounds = useRef<RectReadOnly>()
   const [selected, setSelected] = useState(props.options[0].key)
@@ -68,11 +68,16 @@ const TabSlider = (props: TabSliderProps) => {
         [styles.isMobile]: props.isMobile
       })}
     >
-      <animated.div className={styles.tabBackground} style={animatedProps} />
+      <animated.div
+        className={styles.tabBackground}
+        style={animatedProps}
+        role='radiogroup'
+        aria-label={props.label}
+      />
       {props.options.map((option, idx) => {
         return (
           <Fragment key={option.key}>
-            <div
+            <label
               ref={
                 option.key === selectedOption
                   ? mergeRefs([optionRefs.current[idx], selectedRef])
@@ -81,10 +86,17 @@ const TabSlider = (props: TabSliderProps) => {
               className={cn(styles.tab, {
                 [styles.tabFullWidth]: !!props.fullWidth
               })}
-              onClick={() => onSetSelected(option.key)}
             >
+              <input
+                type='radio'
+                checked={option.key === selectedOption}
+                onChange={(e) => {
+                  onSetSelected(option.key)
+                  console.log(option.key, e.target.value)
+                }}
+              />
               {option.text}
-            </div>
+            </label>
             <div
               className={cn(styles.separator, {
                 [styles.invisible]:
@@ -111,6 +123,7 @@ type SliderOption = {
 type TabSliderProps = {
   fullWidth?: boolean
   className?: string
+  label?: string
   selected?: any
   onSelectOption?: (selected: any) => void
   options: SliderOption[]

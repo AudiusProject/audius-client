@@ -7,8 +7,11 @@
 
 .slider {
   width: 100%;
-  padding: var(--unit-2) 3px;
   margin-top: var(--unit-4);
+}
+
+.slider label {
+  padding: var(--unit-2) var(--unit-3);
 }
 
 /* Dropzone page */

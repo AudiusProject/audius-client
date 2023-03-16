@@ -274,7 +274,8 @@ export const SettingsPage = (props: SettingsPageProps) => {
           description={messages.appearanceCardDescription}
         >
           <TabSlider
-            className={styles.cardSlider}
+            fullWidth
+            label={messages.appearanceCardTitle}
             options={appearanceOptions}
             selected={theme || Theme.DEFAULT}
             onSelectOption={(option) => toggleTheme(option)}
