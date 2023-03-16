@@ -1,6 +1,4 @@
 when: << pipeline.parameters.run-web-workflow >>
-orbs:
-  browser-tools: circleci/browser-tools@1.4.1
 jobs:
   - web-init
 
