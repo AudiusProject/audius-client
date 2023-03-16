@@ -91,7 +91,7 @@ web-test-staging:
     - checkout
     - attach_workspace:
         at: ./
-    - cypress/install
+    - cypress/install:
         install-command: 'cd packages/probers && npm ci'
     - cypress/run-tests:
         cypress-command: 'cd packages/probers && npm run test:ci'
