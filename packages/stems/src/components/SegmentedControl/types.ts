@@ -31,4 +31,9 @@ export type SegmentedControlProps = {
    * Styles applied only to active cell text
    */
   activeTextClassName?: string
+
+  /**
+   * The label for the radio group
+   */
+  label?: string
 }
