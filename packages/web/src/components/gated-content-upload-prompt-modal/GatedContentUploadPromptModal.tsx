@@ -93,7 +93,6 @@ export const GatedContentUploadPromptModal = ({
         <Button
           type={ButtonType.TEXT}
           className={styles.learnMoreButton}
-          textClassName={styles.buttonText}
           text={messages.learnMore}
           onClick={() => window.open(LEARN_MORE_URL, '_blank')}
           iconClassName={styles.learnMoreIcon}
