@@ -85,21 +85,20 @@ web-build-staging:
 
 web-test-staging:
   working_directory: ~/audius-client
-  docker:
-    - image: circleci/node:14.18-browsers
   resource_class: large
-
+  executor: cypress/default
   steps:
     - checkout
     - attach_workspace:
         at: ./
-    - cypress/run:
+    - cypress/install
+    - cypress/run-tests:
         cypress-command: 'cd packages/probers && npm run test:ci'
         start-command: 'npx serve -l 3001 -s packages/web/build-staging'
     - store_artifacts:
-        path: /home/circleci/probers/cypress/videos
+        path: /home/circleci/audius-client/packages/probers/cypress/videos
     - store_artifacts:
-        path: /home/circleci/probers/cypress/screenshots
+        path: /home/circleci/audius-client/packages/probers/cypress/screenshots
 
 web-build-production:
   working_directory: ~/audius-client
