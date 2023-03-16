@@ -92,6 +92,7 @@ web-test-staging:
     - attach_workspace:
         at: ./
     - cypress/install
+        install-command: 'cd packages/probers && npm ci'
     - cypress/run-tests:
         cypress-command: 'cd packages/probers && npm run test:ci'
         start-command: 'npx serve -l 3001 -s packages/web/build-staging'
