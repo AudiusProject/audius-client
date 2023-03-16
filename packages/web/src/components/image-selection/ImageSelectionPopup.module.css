@@ -10,10 +10,6 @@
   margin-top: var(--unit-4);
 }
 
-.slider label {
-  padding: var(--unit-2) var(--unit-3);
-}
-
 /* Dropzone page */
 
 .dropzonePage {
