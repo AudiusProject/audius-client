@@ -1,23 +1,36 @@
-import { FeatureFlags } from "@audius/common"
-import { Button, ButtonType, IconArrow, IconRocket, Modal, ModalContent, ModalHeader, ModalTitle } from "@audius/stems"
-import { useFlag } from "hooks/useRemoteConfig"
-import { useCallback, useEffect, useState } from "react"
-import { useAsync } from "react-use"
-import { localStorage } from 'services/local-storage'
+import { useCallback, useEffect, useState } from 'react'
+
+import { FeatureFlags } from '@audius/common'
+import {
+  Button,
+  ButtonType,
+  IconArrow,
+  IconRocket,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle
+} from '@audius/stems'
+import { useAsync } from 'react-use'
+
 import { ReactComponent as IconExternalLink } from 'assets/img/iconExternalLink.svg'
+import { useFlag } from 'hooks/useRemoteConfig'
+import { localStorage } from 'services/local-storage'
 
 import styles from './GatedContentUploadPromptModal.module.css'
 
 const messages = {
   title: 'NEW UPDATE!',
   subtitle: 'Control who has access to your tracks!',
-  description: 'Availability settings allow you to limit access to specific groups of users or offer exclusive content to your most dedicated fans.',
+  description:
+    'Availability settings allow you to limit access to specific groups of users or offer exclusive content to your most dedicated fans.',
   learnMore: 'Learn More',
   gotIt: 'Got It',
   checkItOut: 'Check It Out'
 }
 
-const GATED_CONTENT_UPLOAD_PROMPT_MODAL_SEEN_KEY = 'gated_content_upload_prompt_modal_seen'
+const GATED_CONTENT_UPLOAD_PROMPT_MODAL_SEEN_KEY =
+  'gated_content_upload_prompt_modal_seen'
 
 const LEARN_MORE_URL =
   'https://blog.audius.co/guide-to-audius-availability-settings'
@@ -26,7 +39,9 @@ type GatedContentUploadPromptModalProps = {
   onSubmit: () => void
 }
 
-export const GatedContentUploadPromptModal = ({ onSubmit }: GatedContentUploadPromptModalProps) => {
+export const GatedContentUploadPromptModal = ({
+  onSubmit
+}: GatedContentUploadPromptModalProps) => {
   const { isEnabled: isGatedContentEnabled } = useFlag(
     FeatureFlags.GATED_CONTENT_ENABLED
   )
