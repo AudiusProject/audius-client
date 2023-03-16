@@ -36,10 +36,8 @@ export function* confirmTransaction(blockHash: string, blockNumber: number) {
       blockNumber
     )
 
-    return block_found
+    return block_passed
       ? BlockConfirmation.CONFIRMED
-      : block_passed
-      ? BlockConfirmation.DENIED
       : BlockConfirmation.UNKNOWN
   }
 
