@@ -92,7 +92,8 @@ web-test-staging:
     - checkout
     - attach_workspace:
         at: ./
-    - browser-tools/replace-existing-chrome
+    - browser-tools/install-browser-tools:
+        replace-existing-chrome: true
     - browser-tools/install-chromedriver
     - run:
         command: |
