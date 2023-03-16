@@ -24,14 +24,14 @@ import {
   IconDownload,
   IconMood,
   IconSettings,
-  IconMessage
+  IconMessage,
+  SegmentedControl
 } from '@audius/stems'
 import cn from 'classnames'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { ChangePasswordModal } from 'components/change-password/ChangePasswordModal'
 import ConfirmationBox from 'components/confirmation-box/ConfirmationBox'
-import TabSlider from 'components/data-entry/TabSlider'
 import Header from 'components/header/desktop/Header'
 import Page from 'components/page/Page'
 import { SelectedServices } from 'components/service-selection'
@@ -273,7 +273,7 @@ export const SettingsPage = (props: SettingsPageProps) => {
           title={messages.appearanceCardTitle}
           description={messages.appearanceCardDescription}
         >
-          <TabSlider
+          <SegmentedControl
             fullWidth
             label={messages.appearanceCardTitle}
             options={appearanceOptions}

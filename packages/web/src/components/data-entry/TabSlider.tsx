@@ -92,7 +92,6 @@ const TabSlider = (props: TabSliderProps) => {
                 checked={option.key === selectedOption}
                 onChange={(e) => {
                   onSetSelected(option.key)
-                  console.log(option.key, e.target.value)
                 }}
               />
               {option.text}
