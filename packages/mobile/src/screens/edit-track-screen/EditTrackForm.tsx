@@ -33,6 +33,7 @@ import {
   AdvancedOptionsField
 } from './fields'
 import type { EditTrackFormProps } from './types'
+import type { Drawer as DrawerName } from 'app/store/drawers/slice'
 
 const messages = {
   trackName: 'Track Name',
@@ -60,6 +61,31 @@ const useStyles = makeStyles(({ spacing }) => ({
 
 export type EditTrackParams = UploadTrack
 
+type UseOneTimeDrawerProps = {
+  key: string // AsyncStorage key
+  name: DrawerName
+  disabled?: boolean
+}
+
+const useOneTimeDrawer = ({ key, name, disabled = false }: UseOneTimeDrawerProps) => {
+  if (disabled) return
+
+  const dispatch = useDispatch()
+  const { value: seen, loading } = useAsync(() =>
+    AsyncStorage.getItem(key)
+  )
+
+  useEffect(() => {
+    const shouldOpen = !loading && !seen
+    if (shouldOpen) {
+      dispatch(
+        setVisibility({ drawer: name, visible: true })
+      )
+      AsyncStorage.setItem(key, 'true')
+    }
+  }, [loading, seen, dispatch])
+}
+
 export const EditTrackForm = (props: EditTrackFormProps) => {
   const {
     handleSubmit,
@@ -77,23 +103,14 @@ export const EditTrackForm = (props: EditTrackFormProps) => {
   const navigation = useNavigation()
   const dispatch = useDispatch()
 
-  const isSpecialAccessEnabled = useIsSpecialAccessEnabled()
   const isGatedContentEnabled = useIsGatedContentEnabled()
+  const isSpecialAccessEnabled = useIsSpecialAccessEnabled()
 
-  const { value: seen, loading } = useAsync(() =>
-    AsyncStorage.getItem(GATED_CONTENT_UPLOAD_PROMPT_DRAWER_SEEN_KEY)
-  )
-
-  useEffect(() => {
-    const shouldOpen =
-      isGatedContentEnabled && isSpecialAccessEnabled && !loading && !seen
-    if (shouldOpen) {
-      dispatch(
-        setVisibility({ drawer: 'GatedContentUploadPrompt', visible: true })
-      )
-      AsyncStorage.setItem(GATED_CONTENT_UPLOAD_PROMPT_DRAWER_SEEN_KEY, 'true')
-    }
-  }, [isGatedContentEnabled, isSpecialAccessEnabled, loading, seen, dispatch])
+  useOneTimeDrawer({
+    key: GATED_CONTENT_UPLOAD_PROMPT_DRAWER_SEEN_KEY,
+    name: 'GatedContentUploadPrompt',
+    disabled: !isGatedContentEnabled || !isSpecialAccessEnabled
+  })
 
   const handlePressBack = useCallback(() => {
     if (!dirty) {
