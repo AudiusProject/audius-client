@@ -43,6 +43,7 @@ import { ShareToStoryProgressDrawer } from '../components/share-drawer/useShareT
 import { VipDiscordDrawer } from '../components/vip-discord-drawer'
 import { useDrawer } from '../hooks/useDrawer'
 import type { Drawer } from '../store/drawers/slice'
+import { GatedContentUploadPromptDrawer } from 'app/components/gated-content-upload-prompt-drawer/GatedContentUploadPromptDrawer'
 
 type CommonDrawerProps = {
   modal: ComponentType
@@ -115,6 +116,7 @@ const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
   RemoveDownloadedFavorites: RemoveDownloadedFavoritesDrawer,
   UnfavoriteDownloadedCollection: UnfavoriteDownloadedCollectionDrawer,
   LockedContent: LockedContentDrawer,
+  GatedContentUploadPrompt: GatedContentUploadPromptDrawer,
   ChatActions: ChatActionsDrawer,
   BlockMessages: BlockMessagesDrawer
 }
