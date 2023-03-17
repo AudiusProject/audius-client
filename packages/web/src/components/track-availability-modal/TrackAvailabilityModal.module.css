@@ -36,7 +36,6 @@
 
 .learnMoreButton {
   align-self: flex-start;
-  margin-bottom: var(--unit-6);
   padding: 0;
   color: var(--neutral-light-2);
 }
