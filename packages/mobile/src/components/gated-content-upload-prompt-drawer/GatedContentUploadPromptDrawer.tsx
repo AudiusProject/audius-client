@@ -8,6 +8,7 @@ import IconExternalLink from 'app/assets/images/iconExternalLink.svg'
 import IconRocket from 'app/assets/images/iconRocket.svg'
 import { Button, Text, useLink } from 'app/components/core'
 import { NativeDrawer } from 'app/components/drawer'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { setVisibility } from 'app/store/drawers/slice'
 import { flexRowCentered, makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
@@ -75,6 +76,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 export const GatedContentUploadPromptDrawer = () => {
   const styles = useStyles()
   const neutralLight4 = useColor('neutralLight4')
+  const navigation = useNavigation()
   const dispatch = useDispatch()
   const { onPress: onLearnMorePress } = useLink(LEARN_MORE_URL)
 
@@ -85,11 +87,11 @@ export const GatedContentUploadPromptDrawer = () => {
   }, [dispatch])
 
   const handleSubmit = useCallback(() => {
-    // todo: go to availability screen
     dispatch(
       setVisibility({ drawer: 'GatedContentUploadPrompt', visible: false })
     )
-  }, [dispatch])
+    navigation.push('Availability')
+  }, [dispatch, navigation])
 
   return (
     <NativeDrawer drawerName='GatedContentUploadPrompt'>
