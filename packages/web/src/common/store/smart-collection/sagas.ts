@@ -34,22 +34,34 @@ const { getUserId } = accountSelectors
 const COLLECTIONS_LIMIT = 25
 
 function* fetchHeavyRotation() {
-  const explore = yield* getContext('explore')
-  const topListens = yield* call([explore, 'getTopUserListens'])
-
+  const currentUserId = yield* select(getUserId)
+  const apiClient = yield* getContext('apiClient')
+  const userListeningHistoryMostListenedByUser = yield* call(
+    [apiClient, apiClient.getUserTrackHistory],
+    {
+      userId: currentUserId!, // userId
+      currentUserId,
+      limit: 20, // limit
+      offset: 0, // offset
+      sortMethod: 'most_listens_by_user'
+    }
+  )
+  const mostListenedTracks = userListeningHistoryMostListenedByUser.map(
+    ({ track }) => track
+  )
   const users = yield* call(
     retrieveUsers,
-    topListens.map((t) => t.userId)
+    mostListenedTracks.map((t) => t.owner_id)
   )
 
-  const trackIds = topListens
+  const trackIds = mostListenedTracks
     .filter(
       (track) =>
-        users.entries[track.userId] &&
-        !users.entries[track.userId].is_deactivated
+        users.entries[track.owner_id] &&
+        !users.entries[track.owner_id].is_deactivated
     )
     .map((listen) => ({
-      track: listen.trackId
+      track: listen.track_id
     }))
 
   return {
