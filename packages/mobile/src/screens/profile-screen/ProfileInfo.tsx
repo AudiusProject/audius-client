@@ -1,13 +1,15 @@
 import {
   accountSelectors,
   FollowSource,
-  reachabilitySelectors
+  reachabilitySelectors,
+  FeatureFlags
 } from '@audius/common'
 import { View, Text } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import { FollowButton, FollowsYouChip } from 'app/components/user'
 import UserBadges from 'app/components/user-badges'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { useRoute } from 'app/hooks/useRoute'
 import { flexRowCentered, makeStyles } from 'app/styles'
 
@@ -90,6 +92,7 @@ export const ProfileInfo = (props: ProfileInfoProps) => {
   const isReachable = useSelector(getIsReachable)
   const accountHandle = useSelector(getUserHandle)
   const styles = useStyles()
+  const { isEnabled: isChatEnabled } = useFeatureFlag(FeatureFlags.CHAT_ENABLED)
 
   const profile = useSelectProfile([
     'user_id',
@@ -113,7 +116,7 @@ export const ProfileInfo = (props: ProfileInfoProps) => {
       <EditProfileButton style={styles.followButton} />
     ) : (
       <>
-        <MessageButton profile={profile} />
+        {isChatEnabled && !isOwner ? <MessageButton profile={profile} /> : null}
         {does_current_user_follow ? (
           <SubscribeButton profile={profile} />
         ) : null}

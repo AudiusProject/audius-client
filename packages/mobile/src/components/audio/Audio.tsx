@@ -1,7 +1,8 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 
-import type { ID, QueryParams, Track } from '@audius/common'
+import type { ID, Nullable, QueryParams, Track } from '@audius/common'
 import {
+  removeNullable,
   playbackRateValueMap,
   cacheUsersSelectors,
   cacheTracksSelectors,
@@ -21,7 +22,7 @@ import {
   shallowCompare,
   savedPageTracksLineupActions
 } from '@audius/common'
-import { isEqual, range } from 'lodash'
+import { isEqual } from 'lodash'
 import TrackPlayer, {
   AppKilledPlaybackBehavior,
   Capability,
@@ -121,6 +122,17 @@ const playerEvents = [
   Event.RemoteSeek
 ]
 
+const unlistedTrackFallbackTrackData = {
+  url: 'url',
+  type: TrackType.Default,
+  title: '',
+  artist: '',
+  genre: '',
+  artwork: '',
+  imageUrl: '',
+  duration: 0
+}
+
 export const Audio = () => {
   const { isEnabled: isStreamMp3Enabled } = useFeatureFlag(
     FeatureFlags.STREAM_MP3
@@ -152,9 +164,12 @@ export const Audio = () => {
     shallowCompare
   )
   const queueTracks = queueOrder.map(
-    (trackData) => queueTrackMap[trackData.id] as Track
+    (trackData) => queueTrackMap[trackData.id] as Nullable<Track>
   )
-  const queueTrackOwnerIds = queueTracks.map((track) => track.owner_id)
+  const queueTrackOwnerIds = queueTracks
+    .map((track) => track?.owner_id)
+    .filter(removeNullable)
+
   const queueTrackOwnersMap = useSelector(
     (state) => getUsers(state, { ids: queueTrackOwnerIds }),
     shallowCompare
@@ -242,10 +257,13 @@ export const Audio = () => {
   }>({})
 
   const handleGatedQueryParams = useCallback(
-    async (tracks: Track[]) => {
+    async (tracks: Nullable<Track>[]) => {
       const queryParamsMap: { [trackId: ID]: QueryParams } = {}
 
       for (const track of tracks) {
+        if (!track) {
+          continue
+        }
         const {
           track_id: trackId,
           is_premium: isPremium,
@@ -287,7 +305,7 @@ export const Audio = () => {
     const position = await TrackPlayer.getPosition()
 
     if (event.type === Event.PlaybackError) {
-      console.error(`err ${event.code}:` + event.message)
+      console.error(`TrackPlayer Playback Error:`, event)
     }
 
     if (event.type === Event.RemotePlay || event.type === Event.RemotePause) {
@@ -340,6 +358,8 @@ export const Audio = () => {
               return true
             }
 
+            if (!track) return false
+
             const {
               track_id: trackId,
               is_premium: isPremium,
@@ -353,7 +373,7 @@ export const Audio = () => {
             return !isPremium || hasPremiumContentSignature
           })()
 
-          if (!doesUserHaveAccess) {
+          if (!track || !doesUserHaveAccess) {
             next()
           } else {
             updateQueueIndex(playerIndex)
@@ -455,22 +475,25 @@ export const Audio = () => {
     const isQueueAppend =
       refUids.length > 0 &&
       isEqual(queueTrackUids.slice(0, refUids.length), refUids)
-    // Check if we are removing from the end of the queue
-    const isQueueRemoval =
-      refUids.length > 0 &&
-      isEqual(refUids.slice(0, queueTrackUids.length), queueTrackUids)
 
-    if (isQueueRemoval) {
-      // NOTE: There might be a case where we are trying to remove the currently playing track.
-      // Shouldn't be possible, but need to keep an eye out for that
-      const startingRemovalIndex = queueTrackUids.length
-      const removalLength = refUids.length - queueTrackUids.length
-      const removalIndexArray = range(removalLength).map(
-        (i) => i + startingRemovalIndex
-      )
-      await TrackPlayer.remove(removalIndexArray)
-      return
-    }
+    // TODO: Queue removal logic was firing too often previously and causing playback issues when at the end of queues. Need to fix
+    // Check if we are removing from the end of the queue
+    // const isQueueRemoval =
+    //   refUids.length > 0 &&
+    //   isEqual(refUids.slice(0, queueTrackUids.length), queueTrackUids)
+
+    // if (isQueueRemoval) {
+    //   // NOTE: There might be a case where we are trying to remove the currently playing track.
+    //   // Shouldn't be possible, but need to keep an eye out for that
+    //   const startingRemovalIndex = queueTrackUids.length
+    //   const removalLength = refUids.length - queueTrackUids.length
+    //   const removalIndexArray = range(removalLength).map(
+    //     (i) => i + startingRemovalIndex
+    //   )
+    //   await TrackPlayer.remove(removalIndexArray)
+    //   await TrackPlayer.skip(queueIndex)
+    //   return
+    // }
 
     const newQueueTracks = isQueueAppend
       ? queueTracks.slice(refUids.length)
@@ -479,6 +502,9 @@ export const Audio = () => {
     const queryParamsMap = await handleGatedQueryParams(newQueueTracks)
 
     const newTrackData = newQueueTracks.map((track) => {
+      if (!track) {
+        return unlistedTrackFallbackTrackData
+      }
       const trackOwner = queueTrackOwnersMap[track.owner_id]
       const trackId = track.track_id
       const offlineTrackAvailable =

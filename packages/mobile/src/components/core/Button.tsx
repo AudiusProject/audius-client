@@ -1,7 +1,6 @@
 import type { ComponentType, ReactNode } from 'react'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
-import type { Nullable } from '@audius/common'
 import Color from 'color'
 import { merge } from 'lodash'
 import type {
@@ -9,10 +8,9 @@ import type {
   PressableProps,
   ViewStyle,
   TextStyle,
-  LayoutChangeEvent,
   GestureResponderEvent
 } from 'react-native'
-import { Pressable, Text, Animated, View, StyleSheet } from 'react-native'
+import { Pressable, Text, Animated, StyleSheet } from 'react-native'
 import type { SvgProps } from 'react-native-svg'
 
 import { light, medium } from 'app/haptics'
@@ -34,6 +32,7 @@ type ButtonVariant =
   | 'commonAlt'
   | 'commonSecondary'
   | 'destructive'
+  | 'destructiveAlt'
 
 type ButtonSize = 'xs' | 'small' | 'medium' | 'large'
 type ButtonCorners = 'rounded' | 'pill'
@@ -156,6 +155,19 @@ const getCustomStyles = (config: CustomStylesConfig) => {
       icon: {
         color: palette.staticWhite
       }
+    },
+    destructiveAlt: {
+      root: {
+        borderColor: palette.accentRed,
+        borderWidth: 1,
+        backgroundColor: palette.white
+      },
+      text: {
+        color: palette.accentRed
+      },
+      icon: {
+        color: palette.accentRed
+      }
     }
   }
 
@@ -164,7 +176,8 @@ const getCustomStyles = (config: CustomStylesConfig) => {
     common: variantStyles.primary,
     commonAlt: variantStyles.commonAlt,
     commonSecondary: variantStyles.secondary,
-    destructive: variantStyles.destructive
+    destructive: variantStyles.destructive,
+    destructiveAlt: variantStyles.destructiveAlt
   }
 
   const sizeStyles = {
@@ -290,8 +303,7 @@ export const Button = (props: ButtonProps) => {
     () => getCustomStyles({ isPressing, size, variant, corners, palette }),
     [isPressing, size, variant, corners, palette]
   )
-  const rootLayoutRef =
-    useRef<Nullable<{ height: number; width: number }>>(null)
+
   const {
     scale,
     handlePressIn: handlePressInScale,
@@ -323,7 +335,8 @@ export const Button = (props: ButtonProps) => {
       common: primaryDark1,
       commonAlt: neutralLight10,
       commonSecondary: secondaryDark1,
-      destructive: accentRedDark1
+      destructive: accentRedDark1,
+      destructiveAlt: accentRedDark1
     }[variant]
   }, [
     customColor,
@@ -377,15 +390,6 @@ export const Button = (props: ButtonProps) => {
     [handleHaptics, onPress]
   )
 
-  // Ensures button takes up a static height even when scaling
-  const handleRootLayout = useCallback(
-    (event: LayoutChangeEvent) => {
-      const { height, width } = event.nativeEvent.layout
-      rootLayoutRef.current = { height, width }
-    },
-    [rootLayoutRef]
-  )
-
   // @ts-ignore type issue with flattened style. iconColor prop is optional
   const { color: iconColor, ...iconStyles } = StyleSheet.flatten([
     styles.icon,
@@ -409,48 +413,46 @@ export const Button = (props: ButtonProps) => {
   const PressableComponent = url ? Link : Pressable
 
   return (
-    <View style={rootLayoutRef.current} onLayout={handleRootLayout}>
-      <Animated.View
+    <Animated.View
+      style={[
+        baseStyles.root,
+        styles.root,
+        { transform: [{ scale }], backgroundColor: color },
+        fullWidth && { width: '100%' },
+        style,
+        stylesProp?.root,
+        disabled && { backgroundColor: neutralLight7 }
+      ]}
+    >
+      <PressableComponent
+        url={url as string}
         style={[
-          baseStyles.root,
-          styles.root,
-          { transform: [{ scale }], backgroundColor: color },
+          baseStyles.button,
+          styles.button,
           fullWidth && { width: '100%' },
-          style,
-          stylesProp?.root,
-          disabled && { backgroundColor: neutralLight7 }
+          stylesProp?.button
         ]}
+        accessibilityRole='button'
+        accessibilityLabel={
+          accessibilityLabel ??
+          (noText && typeof title === 'string' ? title : undefined)
+        }
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={disabled}
+        {...other}
       >
-        <PressableComponent
-          url={url as string}
-          style={[
-            baseStyles.button,
-            styles.button,
-            fullWidth && { width: '100%' },
-            stylesProp?.button
-          ]}
-          accessibilityRole='button'
-          accessibilityLabel={
-            accessibilityLabel ??
-            (noText && typeof title === 'string' ? title : undefined)
-          }
-          onPress={handlePress}
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-          disabled={disabled}
-          {...other}
-        >
-          {iconPosition !== 'left' ? null : icon}
-          {noText ? null : typeof title === 'string' ? (
-            <Text style={[baseStyles.text, styles.text, stylesProp?.text]}>
-              {title}
-            </Text>
-          ) : (
-            title
-          )}
-          {iconPosition !== 'right' ? null : icon}
-        </PressableComponent>
-      </Animated.View>
-    </View>
+        {iconPosition !== 'left' ? null : icon}
+        {noText ? null : typeof title === 'string' ? (
+          <Text style={[baseStyles.text, styles.text, stylesProp?.text]}>
+            {title}
+          </Text>
+        ) : (
+          title
+        )}
+        {iconPosition !== 'right' ? null : icon}
+      </PressableComponent>
+    </Animated.View>
   )
 }

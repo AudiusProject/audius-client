@@ -33,6 +33,7 @@ import { TrendingFilterDrawer } from 'app/screens/trending-screen'
 
 import { useDrawerState } from '../components/drawer'
 import {
+  RemoveAllDownloadsDrawer,
   RemoveDownloadedCollectionDrawer,
   RemoveDownloadedFavoritesDrawer,
   UnfavoriteDownloadedCollectionDrawer,
@@ -97,7 +98,8 @@ const commonDrawersMap: { [Modal in Modals]?: ComponentType } = {
   AddToPlaylist: AddToPlaylistDrawer,
   AudioBreakdown: AudioBreakdownDrawer,
   DeletePlaylistConfirmation: DeletePlaylistConfirmationDrawer,
-  VipDiscord: VipDiscordDrawer
+  VipDiscord: VipDiscordDrawer,
+  ProfileActions: ProfileActionsDrawer
 }
 
 const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
@@ -108,12 +110,12 @@ const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
   ShareToStoryProgress: ShareToStoryProgressDrawer,
   RateCallToAction: RateCtaDrawer,
   PlaybackRate: PlaybackRateDrawer,
+  RemoveAllDownloads: RemoveAllDownloadsDrawer,
   RemoveDownloadedCollection: RemoveDownloadedCollectionDrawer,
   RemoveDownloadedFavorites: RemoveDownloadedFavoritesDrawer,
   UnfavoriteDownloadedCollection: UnfavoriteDownloadedCollectionDrawer,
   LockedContent: LockedContentDrawer,
   ChatActions: ChatActionsDrawer,
-  ProfileActions: ProfileActionsDrawer,
   BlockMessages: BlockMessagesDrawer
 }
 

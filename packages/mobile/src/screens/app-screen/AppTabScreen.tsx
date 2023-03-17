@@ -5,7 +5,9 @@ import type {
   FavoriteType,
   TipSource,
   NotificationType,
-  RepostType
+  RepostType,
+  SearchPlaylist,
+  SearchTrack
 } from '@audius/common'
 import type { EventArg, NavigationState } from '@react-navigation/native'
 import type { createNativeStackNavigator } from '@react-navigation/native-stack'
@@ -32,7 +34,6 @@ import {
   TopSupportersScreen,
   SupportingUsersScreen
 } from 'app/screens/user-list-screen'
-import type { SearchPlaylist, SearchTrack } from 'app/store/search/types'
 
 import { AppDrawerContext } from '../app-drawer-screen'
 import { AudioScreen } from '../audio-screen'
@@ -44,6 +45,7 @@ import {
   AccountVerificationScreen,
   ChangePasswordScreen,
   ListeningHistoryScreen,
+  DownloadSettingsScreen,
   NotificationSettingsScreen,
   SettingsScreen
 } from '../settings-screen'
@@ -90,6 +92,7 @@ export type AppTabScreenParamList = {
   AccountSettingsScreen: undefined
   AccountVerificationScreen: undefined
   ChangePasswordScreen: undefined
+  DownloadSettingsScreen: undefined
   NotificationSettingsScreen: undefined
   AudioScreen: undefined
   Upload: undefined
@@ -256,6 +259,10 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
         <Stack.Screen
           name='AccountSettingsScreen'
           component={AccountSettingsScreen}
+        />
+        <Stack.Screen
+          name='DownloadSettingsScreen'
+          component={DownloadSettingsScreen}
         />
         <Stack.Screen
           name='NotificationSettingsScreen'

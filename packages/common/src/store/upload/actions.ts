@@ -24,7 +24,6 @@ export const TOGGLE_MULTI_TRACK_NOTIFICATION =
   'UPLOAD/TOGGLE_MULTI_TRACK_NOTIFICATION'
 
 // Errors
-export const UPGRADE_TO_CREATOR_ERROR = 'UPLOAD/ERROR/UPGRADE_TO_CREATOR'
 export const SINGLE_TRACK_UPLOAD_ERROR = 'UPLOAD/ERROR/SINGLE_TRACK_UPLOAD'
 export const SINGLE_TRACK_UPLOAD_TIMEOUT_ERROR =
   'UPLOAD/ERROR/SINGLE_TRACK_UPLOAD_TIMEOUT'
@@ -74,10 +73,10 @@ export const uploadTracksRequested = (
 }
 
 export const uploadTracksSucceeded = (
-  id: number,
-  trackMetadatas: ExtendedTrackMetadata[]
+  id?: number,
+  trackMetadatas?: ExtendedTrackMetadata[]
 ) => {
-  return { type: UPLOAD_TRACKS_SUCCEEDED, id, trackMetadatas }
+  return { type: UPLOAD_TRACKS_SUCCEEDED, id: id ?? null, trackMetadatas }
 }
 
 export const uploadTrackFailed = () => {
@@ -103,11 +102,6 @@ export const undoResetState = () => {
 export const toggleMultiTrackNotification = (open = false) => {
   return { type: TOGGLE_MULTI_TRACK_NOTIFICATION, open }
 }
-
-export const upgradeToCreatorError = (error: string) => ({
-  type: UPGRADE_TO_CREATOR_ERROR,
-  error
-})
 
 export const singleTrackUploadError = (
   error: string,

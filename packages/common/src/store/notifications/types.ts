@@ -97,7 +97,7 @@ export type EntityType = TrackEntity | CollectionEntity
 export type BaseNotification = {
   id: string
   isViewed: boolean
-  timestamp: string
+  timestamp: number
   timeLabel?: string
   // group id is a part of the notifications v2 spec
   groupId?: string
@@ -131,10 +131,20 @@ export type DiscoverySaveNotificationAction = {
   user_id: string
   save_item_id: string
 }
+export type DiscoverySaveOfRepostNotificationAction = {
+  type: string
+  user_id: string
+  save_of_repost_item_id: string
+}
 export type DiscoveryRepostNotificationAction = {
   type: string
   user_id: string
   repost_item_id: string
+}
+export type DiscoveryRepostOfRepostNotificationAction = {
+  type: string
+  user_id: string
+  repost_of_repost_item_id: string
 }
 export type DiscoveryTipSendNotificationAction = {
   amount: string
@@ -304,6 +314,16 @@ export type DiscoveryMilestoneNotification = DiscoveryBaseNotification<
   | DiscoveryMilestonePlaylistNotificationAction
 >
 
+export type DiscoveryRepostOfRepostNotification = DiscoveryBaseNotification<
+  'repost_of_repost',
+  DiscoveryRepostOfRepostNotificationAction
+>
+
+export type DiscoverySaveOfRepostNotification = DiscoveryBaseNotification<
+  'save_of_repost',
+  DiscoverySaveOfRepostNotificationAction
+>
+
 export type DiscoveryNotification =
   | DiscoveryAnnouncementNotification
   | DiscoveryFollowNotification
@@ -322,6 +342,8 @@ export type DiscoveryNotification =
   | DiscoveryTierChangeNotification
   | DiscoveryCreateNotification
   | DiscoveryTrendingNotification
+  | DiscoveryRepostOfRepostNotification
+  | DiscoverySaveOfRepostNotification
 
 export type AnnouncementNotification = BaseNotification & {
   type: NotificationType.Announcement
@@ -812,6 +834,10 @@ export type Notification =
   | SupportingRankUpNotification
   | SupporterDethronedNotification
   | AddTrackToPlaylistNotification
+
+export type IdentityNotification = Omit<Notification, 'timestamp'> & {
+  timestamp: string
+}
 
 export interface NotificationState {
   modalNotificationId: string | undefined

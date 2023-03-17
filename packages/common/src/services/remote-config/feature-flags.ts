@@ -20,8 +20,8 @@ export enum FeatureFlags {
   BUY_AUDIO_STRIPE_ENABLED = 'buy_audio_stripe_enabled',
   OFFLINE_MODE_RELEASE = 'offline_mode_release',
   GATED_CONTENT_ENABLED = 'gated_content_enabled',
-  ANDROID_GATED_CONTENT_ENABLED = 'android_gated_content_enabled',
-  IOS_GATED_CONTENT_ENABLED = 'ios_gated_content_enabled',
+  ANDROID_GATED_CONTENT_ENABLED = 'android_gated_content_enabled_2',
+  IOS_GATED_CONTENT_ENABLED = 'ios_gated_content_enabled_2',
   COLLECTIBLE_GATED_ENABLED = 'collectible_gated_enabled',
   SPECIAL_ACCESS_ENABLED = 'special_access_enabled',
   AUTO_SUBSCRIBE_ON_FOLLOW = 'auto_subscribe_on_follow',
@@ -42,7 +42,9 @@ export enum FeatureFlags {
   SHARE_VIDEO_TO_TIKTOK = 'share_video_to_tiktok_2',
   PODCAST_CONTROL_UPDATES_ENABLED = 'podcast_control_updates_enabled',
   LAZY_USERBANK_CREATION_ENABLED = 'lazy_userbank_creation_enabled',
-  DISCOVERY_NOTIFICATIONS = 'discovery_notifications'
+  DISCOVERY_NOTIFICATIONS = 'discovery_notifications',
+  REPOST_OF_REPOST_NOTIFICATIONS = 'repost_of_repost_notifications',
+  SAVE_OF_REPOST_NOTIFICATIONS = 'save_of_repost_notifications'
 }
 
 type FlagDefaults = Record<FeatureFlags, boolean>
@@ -100,5 +102,7 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.SHARE_VIDEO_TO_TIKTOK]: false,
   [FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED]: false,
   [FeatureFlags.LAZY_USERBANK_CREATION_ENABLED]: false,
-  [FeatureFlags.DISCOVERY_NOTIFICATIONS]: false
+  [FeatureFlags.DISCOVERY_NOTIFICATIONS]: false,
+  [FeatureFlags.REPOST_OF_REPOST_NOTIFICATIONS]: false,
+  [FeatureFlags.SAVE_OF_REPOST_NOTIFICATIONS]: false
 }

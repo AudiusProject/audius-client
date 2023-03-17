@@ -1,17 +1,27 @@
-import { FeatureFlags, getContext, IntKeys } from '@audius/common'
+import {
+  FeatureFlags,
+  getContext,
+  IntKeys,
+  removeNullable
+} from '@audius/common'
+import { partition } from 'lodash'
 import { call, fork } from 'typed-redux-saga'
 
 import { recordPlaylistUpdatesAnalytics } from './playlistUpdates'
 
 type FetchNotificationsParams = {
   limit: number
-  // ISO string
-  timeOffset: string
+  // unix timestamp
+  timeOffset?: number
   groupIdOffset?: string
 }
 
 export function* fetchNotifications(config: FetchNotificationsParams) {
-  const { limit, timeOffset, groupIdOffset } = config
+  const {
+    limit,
+    timeOffset = Math.round(new Date().getTime() / 1000), // current unix timestamp (sec)
+    groupIdOffset
+  } = config
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const getFeatureEnabled = yield* getContext('getFeatureEnabled')
   const remoteConfig = yield* getContext('remoteConfigInstance')
@@ -39,35 +49,74 @@ export function* fetchNotifications(config: FetchNotificationsParams) {
     return notificationsResponse
   }
 
-  const discoveryNotificationsGenesisTimestamp = remoteConfig.getRemoteVar(
-    IntKeys.DISCOVERY_NOTIFICATIONS_GENESIS_TIMESTAMP
+  const discoveryNotificationsGenesisUnixTimestamp = remoteConfig.getRemoteVar(
+    IntKeys.DISCOVERY_NOTIFICATIONS_GENESIS_UNIX_TIMESTAMP
   )
 
   const shouldFetchNotificationFromDiscovery =
     useDiscoveryNotifications &&
-    discoveryNotificationsGenesisTimestamp &&
-    discoveryNotificationsGenesisTimestamp > Date.parse(timeOffset)
+    discoveryNotificationsGenesisUnixTimestamp &&
+    timeOffset > discoveryNotificationsGenesisUnixTimestamp
 
   if (shouldFetchNotificationFromDiscovery) {
-    const timestampParam = Math.trunc(Date.parse(timeOffset) / 1000)
+    const isRepostOfRepostEnabled = yield* call(
+      getFeatureEnabled,
+      FeatureFlags.REPOST_OF_REPOST_NOTIFICATIONS
+    )
+    const isSaveOfRepostEnabled = yield* call(
+      getFeatureEnabled,
+      FeatureFlags.SAVE_OF_REPOST_NOTIFICATIONS
+    )
+
+    const validTypes = [
+      isRepostOfRepostEnabled ? 'repost_of_repost' : null,
+      isSaveOfRepostEnabled ? 'save_of_repost' : null
+    ].filter(removeNullable)
+
     const discoveryNotifications = yield* call(
       audiusBackendInstance.getDiscoveryNotifications,
       {
-        timestamp: timestampParam,
-        groupIdOffset
+        timestamp: timeOffset,
+        groupIdOffset,
+        limit,
+        validTypes
       }
     )
 
     if (discoveryNotifications) {
-      const { notifications } = discoveryNotifications
-      const hasCrossedGenesisTimestamp = notifications.some(
-        (notification) =>
-          Date.parse(notification.timestamp) <
-          discoveryNotificationsGenesisTimestamp
+      const { notifications, totalUnread } = discoveryNotifications
+      const [invalidNotifications, validNotifications] = partition(
+        notifications,
+        ({ timestamp }) =>
+          timestamp < discoveryNotificationsGenesisUnixTimestamp
       )
 
-      if (!hasCrossedGenesisTimestamp) {
-        notificationsResponse.notifications = notifications
+      notificationsResponse.notifications = validNotifications
+      notificationsResponse.totalUnread = totalUnread
+
+      if (invalidNotifications.length !== 0) {
+        const newLimit = limit - validNotifications.length
+        const newTimestamp =
+          validNotifications[validNotifications.length - 1]?.timestamp ??
+          timeOffset
+
+        const legacyNotificationsResponse = yield* call(
+          audiusBackendInstance.getNotifications,
+          {
+            limit: newLimit,
+            timeOffset: newTimestamp,
+            withDethroned
+          }
+        )
+
+        if ('error' in legacyNotificationsResponse) {
+          notificationsResponse.notifications = validNotifications
+        } else {
+          notificationsResponse.notifications =
+            notificationsResponse.notifications.concat(
+              legacyNotificationsResponse.notifications
+            )
+        }
       }
     }
   }
