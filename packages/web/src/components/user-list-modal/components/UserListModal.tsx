@@ -8,6 +8,7 @@ import {
   supportingUserListSelectors,
   repostsUserListSelectors,
   notificationsUserListSelectors,
+  relatedArtistsUserListSelectors,
   NOTIFICATIONS_USER_LIST_TAG as NOTIFICATION_TAG,
   mutualsUserListSelectors,
   MUTUALS_USER_LIST_TAG as MUTUALS_TAG,
@@ -20,6 +21,7 @@ import {
   REPOSTS_USER_LIST_TAG as REPOST_TAG,
   SUPPORTING_USER_LIST_TAG as SUPPORTING_TAG,
   TOP_SUPPORTERS_USER_LIST_TAG as SUPPORTER_TAG,
+  RELATED_ARTISTS_USER_LIST_TAG as RELATED_ARTISTS_TAG,
   ID
 } from '@audius/common'
 import {
@@ -41,6 +43,8 @@ const { getUserList: favoritesSelector } = favoritesUserListSelectors
 const { getUserList: followersSelector } = followersUserListSelectors
 const { getUserList: followingSelector } = followingUserListSelectors
 const { getUserList: mutualsSelector } = mutualsUserListSelectors
+const { getUserList: relatedArtistsSelector, getId: getRelatedArtistsId } =
+  relatedArtistsUserListSelectors
 const { getPageTitle, getUserList: notificationSelector } =
   notificationsUserListSelectors
 const { getUserList: repostsSelector } = repostsUserListSelectors
@@ -64,6 +68,7 @@ const messages = {
   following: 'Following',
   topSupporters: 'Top Supporters',
   supporting: 'Supporting',
+  relatedArtists: 'Related Artists',
   mutuals: 'Mutuals'
 }
 
@@ -160,6 +165,23 @@ const UserListModal = ({
         <div className={styles.titleContainer}>
           <IconFollowing className={styles.icon} />
           <span>{messages.mutuals}</span>
+        </div>
+      )
+      break
+    case UserListType.RELATED_ARTISTS:
+      tag = RELATED_ARTISTS_TAG
+      selector = relatedArtistsSelector
+      userIdSelector = getRelatedArtistsId
+      title = (
+        <div className={styles.titleContainer}>
+          <IconTrophy className={styles.icon} />
+          {!profile && supportersUser && supportersId ? (
+            <div className={styles.titleNameContainer}>
+              <div className={styles.titleName}>{supportersUser.name}</div>
+              <span>&apos;s&nbsp;</span>
+            </div>
+          ) : null}
+          <span>{messages.topSupporters}</span>
         </div>
       )
       break

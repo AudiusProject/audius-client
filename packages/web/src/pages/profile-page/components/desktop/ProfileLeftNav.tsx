@@ -6,6 +6,7 @@ import { animated } from 'react-spring'
 
 import { useSelector } from 'common/hooks/useSelector'
 import { make, useRecord } from 'common/store/analytics/actions'
+import { RelatedArtists } from 'components/artist-recommendations/RelatedArtists'
 import Input from 'components/data-entry/Input'
 import TextArea from 'components/data-entry/TextArea'
 import { SupportingList } from 'components/tipping/support/SupportingList'
@@ -210,6 +211,7 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
         <div className={styles.profileBottomSection}>
           <TopSupporters />
           <ProfileMutuals />
+          <RelatedArtists />
           {isArtist ? <ProfileTags goToRoute={goToRoute} tags={tags} /> : null}
           {showUploadChip ? (
             <UploadChip

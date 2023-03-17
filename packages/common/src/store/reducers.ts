@@ -115,6 +115,7 @@ import followersUserListReducer from './user-list/followers/reducers'
 import followingUserListReducer from './user-list/following/reducers'
 import mutualsUserListReducer from './user-list/mutuals/reducers'
 import notificationsUserListReducer from './user-list/notifications/reducers'
+import relatedArtistsListReducer from './user-list/related-artists/reducers'
 import repostsUserListReducer from './user-list/reposts/reducers'
 import supportingUserListReducer from './user-list/supporting/reducers'
 import topSupportersUserListReducer from './user-list/top-supporters/reducers'
@@ -307,6 +308,7 @@ export type CommonState = {
       favorites: ReturnType<typeof favoritesUserListReducer>
       topSupporters: ReturnType<typeof topSupportersUserListReducer>
       supporting: ReturnType<typeof supportingUserListReducer>
+      relatedArtists: ReturnType<typeof relatedArtistsListReducer>
     }
     theme: ThemeState
     vipDiscordModal: VipDiscordModalState
