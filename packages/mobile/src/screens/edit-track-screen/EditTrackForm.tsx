@@ -1,11 +1,9 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 
 import type { UploadTrack } from '@audius/common'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Keyboard } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useDispatch } from 'react-redux'
-import { useAsync } from 'react-use'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
@@ -33,7 +31,7 @@ import {
   AdvancedOptionsField
 } from './fields'
 import type { EditTrackFormProps } from './types'
-import type { Drawer as DrawerName } from 'app/store/drawers/slice'
+import { useOneTimeDrawer } from 'app/hooks/useOneTimeDrawer'
 
 const messages = {
   trackName: 'Track Name',
@@ -60,31 +58,6 @@ const useStyles = makeStyles(({ spacing }) => ({
 }))
 
 export type EditTrackParams = UploadTrack
-
-type UseOneTimeDrawerProps = {
-  key: string // AsyncStorage key
-  name: DrawerName
-  disabled?: boolean
-}
-
-const useOneTimeDrawer = ({ key, name, disabled = false }: UseOneTimeDrawerProps) => {
-  if (disabled) return
-
-  const dispatch = useDispatch()
-  const { value: seen, loading } = useAsync(() =>
-    AsyncStorage.getItem(key)
-  )
-
-  useEffect(() => {
-    const shouldOpen = !loading && !seen
-    if (shouldOpen) {
-      dispatch(
-        setVisibility({ drawer: name, visible: true })
-      )
-      AsyncStorage.setItem(key, 'true')
-    }
-  }, [loading, seen, dispatch])
-}
 
 export const EditTrackForm = (props: EditTrackFormProps) => {
   const {
