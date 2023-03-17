@@ -55,21 +55,17 @@ export const GatedContentUploadPromptModal = ({
   )
 
   useEffect(() => {
-    const shouldOpen = seen === null
+    const shouldOpen = isGatedContentEnabled && isSpecialAccessEnabled && seen === null
     if (shouldOpen) {
       setIsOpen(true)
       localStorage.setItem(GATED_CONTENT_UPLOAD_PROMPT_MODAL_SEEN_KEY, 'true')
     }
-  }, [seen, setIsOpen])
+  }, [isGatedContentEnabled, isSpecialAccessEnabled, seen, setIsOpen])
 
   const handleSubmit = useCallback(() => {
     onSubmit()
     setIsOpen(false)
   }, [onSubmit, setIsOpen])
-
-  if (!isGatedContentEnabled || !isSpecialAccessEnabled) {
-    return
-  }
 
   return (
     <Modal
