@@ -87,9 +87,7 @@ export const GatedContentUploadPromptDrawer = () => {
   }, [dispatch])
 
   const handleSubmit = useCallback(() => {
-    dispatch(
-      setVisibility({ drawer: 'GatedContentUploadPrompt', visible: false })
-    )
+    handleClose()
     navigation.push('Availability')
   }, [dispatch, navigation])
 
