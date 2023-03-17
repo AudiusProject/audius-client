@@ -1,13 +1,15 @@
-import { NativeDrawer } from 'app/components/drawer'
-import { flexRowCentered, makeStyles } from 'app/styles'
 import { useCallback } from 'react'
-import { useDispatch } from 'react-redux'
-import { setVisibility } from 'app/store/drawers/slice'
+
 import { TouchableOpacity, View } from 'react-native'
-import { Button, Text, useLink } from 'app/components/core'
+import { useDispatch } from 'react-redux'
+
 import IconArrow from 'app/assets/images/iconArrow.svg'
-import IconRocket from 'app/assets/images/iconRocket.svg'
 import IconExternalLink from 'app/assets/images/iconExternalLink.svg'
+import IconRocket from 'app/assets/images/iconRocket.svg'
+import { Button, Text, useLink } from 'app/components/core'
+import { NativeDrawer } from 'app/components/drawer'
+import { setVisibility } from 'app/store/drawers/slice'
+import { flexRowCentered, makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
 
 const LEARN_MORE_URL =
@@ -56,7 +58,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     lineHeight: spacing(7)
   },
   button: {
-    marginBottom: spacing(6),
+    marginBottom: spacing(6)
   },
   buttonText: {
     fontSize: typography.fontSize.large
@@ -66,7 +68,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     marginBottom: spacing(6)
   },
   learnMoreIcon: {
-    marginLeft: spacing(1),
+    marginLeft: spacing(1)
   }
 }))
 
@@ -77,12 +79,16 @@ export const GatedContentUploadPromptDrawer = () => {
   const { onPress: onLearnMorePress } = useLink(LEARN_MORE_URL)
 
   const handleClose = useCallback(() => {
-    dispatch(setVisibility({ drawer: 'GatedContentUploadPrompt', visible: false }))
+    dispatch(
+      setVisibility({ drawer: 'GatedContentUploadPrompt', visible: false })
+    )
   }, [dispatch])
 
   const handleSubmit = useCallback(() => {
     // todo: go to availability screen
-    dispatch(setVisibility({ drawer: 'GatedContentUploadPrompt', visible: false }))
+    dispatch(
+      setVisibility({ drawer: 'GatedContentUploadPrompt', visible: false })
+    )
   }, [dispatch])
 
   return (
@@ -97,8 +103,15 @@ export const GatedContentUploadPromptDrawer = () => {
         <Text style={styles.subtitle}>{messages.subtitle}</Text>
         <Text style={styles.description}>{messages.description}</Text>
         <TouchableOpacity style={styles.learnMore} onPress={onLearnMorePress}>
-          <Text weight='bold' color='neutralLight4' fontSize='large'>{messages.learnMore}</Text>
-          <IconExternalLink style={styles.learnMoreIcon} width={20} height={20} fill={neutralLight4} />
+          <Text weight='bold' color='neutralLight4' fontSize='large'>
+            {messages.learnMore}
+          </Text>
+          <IconExternalLink
+            style={styles.learnMoreIcon}
+            width={20}
+            height={20}
+            fill={neutralLight4}
+          />
         </TouchableOpacity>
         <Button
           title={messages.gotIt}

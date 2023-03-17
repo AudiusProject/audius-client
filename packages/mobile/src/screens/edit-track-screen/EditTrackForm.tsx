@@ -1,15 +1,19 @@
 import { useCallback, useEffect } from 'react'
 
 import type { UploadTrack } from '@audius/common'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Keyboard } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { useDispatch } from 'react-redux'
+import { useAsync } from 'react-use'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
 import IconUpload from 'app/assets/images/iconUpload.svg'
 import { Button, Tile } from 'app/components/core'
 import { InputErrorMessage } from 'app/components/core/InputErrorMessage'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
+import { useIsSpecialAccessEnabled } from 'app/hooks/useIsSpecialAccessEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
@@ -29,10 +33,6 @@ import {
   AdvancedOptionsField
 } from './fields'
 import type { EditTrackFormProps } from './types'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { useAsync } from 'react-use'
-import { useIsSpecialAccessEnabled } from 'app/hooks/useIsSpecialAccessEnabled'
-import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 
 const messages = {
   trackName: 'Track Name',
@@ -85,9 +85,12 @@ export const EditTrackForm = (props: EditTrackFormProps) => {
   )
 
   useEffect(() => {
-    const shouldOpen = isGatedContentEnabled && isSpecialAccessEnabled && !loading && !seen
+    const shouldOpen =
+      isGatedContentEnabled && isSpecialAccessEnabled && !loading && !seen
     if (shouldOpen) {
-      dispatch(setVisibility({ drawer: 'GatedContentUploadPrompt', visible: true }))
+      dispatch(
+        setVisibility({ drawer: 'GatedContentUploadPrompt', visible: true })
+      )
       AsyncStorage.setItem(GATED_CONTENT_UPLOAD_PROMPT_DRAWER_SEEN_KEY, 'true')
     }
   }, [isGatedContentEnabled, isSpecialAccessEnabled, loading, seen, dispatch])
