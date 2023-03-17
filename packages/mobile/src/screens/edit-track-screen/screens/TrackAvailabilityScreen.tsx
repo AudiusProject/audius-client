@@ -106,7 +106,8 @@ export const TrackAvailabilityScreen = () => {
 
   const isInitiallySpecialAccess =
     !isUpload && initialAvailability === TrackAvailabilityType.SPECIAL_ACCESS
-  const noCollectibleGate = isInitiallySpecialAccess || isRemix || hasNoCollectibles
+  const noCollectibleGate =
+    isInitiallySpecialAccess || isRemix || hasNoCollectibles
   const noCollectibleDropdown = isInitiallySpecialAccess || !isUpload
 
   const isInitiallyCollectibleGated =
@@ -114,7 +115,8 @@ export const TrackAvailabilityScreen = () => {
   const noSpecialAccess = isInitiallyCollectibleGated || isRemix
   const noSpecialAccessOptions = noSpecialAccess || !isUpload
 
-  const noHidden = !isUpload && initialAvailability !== TrackAvailabilityType.HIDDEN
+  const noHidden =
+    !isUpload && initialAvailability !== TrackAvailabilityType.HIDDEN
 
   const [availability, setAvailability] =
     useState<TrackAvailabilityType>(initialAvailability)

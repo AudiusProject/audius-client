@@ -190,18 +190,18 @@ export const SpecialAccessAvailability = ({
       {selected && (
         <View style={styles.selection}>
           {disabledContent ? (
-              renderFollowersOption()
+            renderFollowersOption()
           ) : (
             <TouchableOpacity onPress={handlePressFollowers}>
               {renderFollowersOption()}
             </TouchableOpacity>
           )}
           {disabledContent ? (
-              renderSupportersOption()
+            renderSupportersOption()
           ) : (
             <TouchableOpacity onPress={handlePressSupporters}>
-            {renderSupportersOption()}
-          </TouchableOpacity>
+              {renderSupportersOption()}
+            </TouchableOpacity>
           )}
         </View>
       )}

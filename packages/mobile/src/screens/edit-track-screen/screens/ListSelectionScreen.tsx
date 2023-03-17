@@ -126,11 +126,8 @@ export const ListSelectionScreen = (props: ListSelectionProps) => {
       }
 
       if (isSelected && !allowDeselect) {
-        console.log('in viewwwwww')
         return (
-          <View
-            style={[styles.listItem, itemStyles]}
-          >
+          <View style={[styles.listItem, itemStyles]}>
             <View style={[styles.listItemContent, itemContentStyles]}>
               <RadioButton checked={isSelected} style={styles.radio} />
               {renderItemProp(info)}
