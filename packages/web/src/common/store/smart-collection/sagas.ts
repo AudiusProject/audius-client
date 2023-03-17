@@ -6,7 +6,8 @@ import {
   accountSelectors,
   smartCollectionPageActions,
   collectionPageActions,
-  getContext
+  getContext,
+  removeNullable
 } from '@audius/common'
 import { takeEvery, put, call, select } from 'typed-redux-saga'
 
@@ -46,9 +47,11 @@ function* fetchHeavyRotation() {
       sortMethod: 'most_listens_by_user'
     }
   )
-  const mostListenedTracks = userListeningHistoryMostListenedByUser.map(
-    ({ track }) => track
-  )
+
+  const mostListenedTracks = userListeningHistoryMostListenedByUser
+    .map((listeningHistoryWithTrack) => listeningHistoryWithTrack.track)
+    .filter(removeNullable)
+
   const users = yield* call(
     retrieveUsers,
     mostListenedTracks.map((t) => t.owner_id)
@@ -60,8 +63,8 @@ function* fetchHeavyRotation() {
         users.entries[track.owner_id] &&
         !users.entries[track.owner_id].is_deactivated
     )
-    .map((listen) => ({
-      track: listen.track_id
+    .map((track) => ({
+      track: track.track_id
     }))
 
   return {
