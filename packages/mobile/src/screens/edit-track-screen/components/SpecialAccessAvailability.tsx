@@ -151,6 +151,29 @@ export const SpecialAccessAvailability = ({
     }
   }, [currentUserId, setPremiumConditions])
 
+  const renderFollowersOption = () => (
+    <View style={styles.followersOnly}>
+      <RadioButton
+        checked={isFollowerGated}
+        disabled={disabled || disabledContent}
+        style={styles.radio}
+      />
+      <Text>{messages.followersOnly}</Text>
+    </View>
+  )
+
+  const renderSupportersOption = () => (
+    <View style={styles.supportersOnly}>
+      <RadioButton
+        checked={isSupporterGated}
+        disabled={disabled || disabledContent}
+        style={styles.radio}
+      />
+      <Text>{messages.supportersOnly}</Text>
+      <IconInfo style={styles.infoIcon} fill={neutralLight4} />
+    </View>
+  )
+
   return (
     <View style={styles.root}>
       <View style={styles.titleContainer}>
@@ -166,27 +189,20 @@ export const SpecialAccessAvailability = ({
       </View>
       {selected && (
         <View style={styles.selection}>
-          <TouchableOpacity onPress={handlePressFollowers}>
-            <View style={styles.followersOnly}>
-              <RadioButton
-                checked={isFollowerGated}
-                disabled={disabled || disabledContent}
-                style={styles.radio}
-              />
-              <Text>{messages.followersOnly}</Text>
-            </View>
+          {disabledContent ? (
+              renderFollowersOption()
+          ) : (
+            <TouchableOpacity onPress={handlePressFollowers}>
+              {renderFollowersOption()}
+            </TouchableOpacity>
+          )}
+          {disabledContent ? (
+              renderSupportersOption()
+          ) : (
+            <TouchableOpacity onPress={handlePressSupporters}>
+            {renderSupportersOption()}
           </TouchableOpacity>
-          <TouchableOpacity onPress={handlePressSupporters}>
-            <View style={styles.supportersOnly}>
-              <RadioButton
-                checked={isSupporterGated}
-                disabled={disabled || disabledContent}
-                style={styles.radio}
-              />
-              <Text>{messages.supportersOnly}</Text>
-              <IconInfo style={styles.infoIcon} fill={neutralLight4} />
-            </View>
-          </TouchableOpacity>
+          )}
         </View>
       )}
     </View>
