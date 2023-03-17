@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import type { UploadTrack } from '@audius/common'
 import { Keyboard } from 'react-native'
@@ -29,12 +29,19 @@ import {
   AdvancedOptionsField
 } from './fields'
 import type { EditTrackFormProps } from './types'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useAsync } from 'react-use'
+import { useIsSpecialAccessEnabled } from 'app/hooks/useIsSpecialAccessEnabled'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 
 const messages = {
   trackName: 'Track Name',
   trackNameError: 'Track Name Required',
   fixErrors: 'Fix Errors To Continue'
 }
+
+const GATED_CONTENT_UPLOAD_PROMPT_DRAWER_SEEN_KEY =
+  'gated_content_upload_prompt_drawer_seen'
 
 const useStyles = makeStyles(({ spacing }) => ({
   backButton: {
@@ -69,6 +76,21 @@ export const EditTrackForm = (props: EditTrackFormProps) => {
   const styles = useStyles()
   const navigation = useNavigation()
   const dispatch = useDispatch()
+
+  const isSpecialAccessEnabled = useIsSpecialAccessEnabled()
+  const isGatedContentEnabled = useIsGatedContentEnabled()
+
+  const { value: seen, loading } = useAsync(() =>
+    AsyncStorage.getItem(GATED_CONTENT_UPLOAD_PROMPT_DRAWER_SEEN_KEY)
+  )
+
+  useEffect(() => {
+    const shouldOpen = isGatedContentEnabled && isSpecialAccessEnabled && !loading && !seen
+    if (shouldOpen) {
+      dispatch(setVisibility({ drawer: 'GatedContentUploadPrompt', visible: true }))
+      AsyncStorage.setItem(GATED_CONTENT_UPLOAD_PROMPT_DRAWER_SEEN_KEY, 'true')
+    }
+  }, [isGatedContentEnabled, isSpecialAccessEnabled, loading, seen, dispatch])
 
   const handlePressBack = useCallback(() => {
     if (!dirty) {
