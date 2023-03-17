@@ -88,9 +88,6 @@ export const TrackAvailabilityScreen = () => {
   const numEthCollectibles = Object.keys(ethCollectionMap).length
   const numSolCollectibles = Object.keys(solCollectionMap).length
   const hasNoCollectibles = numEthCollectibles + numSolCollectibles === 0
-  const noCollectibleGate = hasNoCollectibles || isRemix
-  const noCollectibleDropdown = hasNoCollectibles || isRemix || !isUpload
-  const noSpecialAccess = isRemix || !isUpload
 
   const initialAvailability = useMemo(() => {
     if ('nft_collection' in (premiumConditions ?? {})) {
@@ -106,6 +103,18 @@ export const TrackAvailabilityScreen = () => {
     // we only care about what the initial value was here
     // eslint-disable-next-line
   }, [])
+
+  const isInitiallySpecialAccess =
+    !isUpload && initialAvailability === TrackAvailabilityType.SPECIAL_ACCESS
+  const noCollectibleGate = isInitiallySpecialAccess || isRemix || hasNoCollectibles
+  const noCollectibleDropdown = isInitiallySpecialAccess || !isUpload
+
+  const isInitiallyCollectibleGated =
+    !isUpload && initialAvailability === TrackAvailabilityType.COLLECTIBLE_GATED
+  const noSpecialAccess = isInitiallyCollectibleGated || isRemix
+  const noSpecialAccessOptions = noSpecialAccess || !isUpload
+
+  const noHidden = !isUpload && initialAvailability !== TrackAvailabilityType.HIDDEN
 
   const [availability, setAvailability] =
     useState<TrackAvailabilityType>(initialAvailability)
@@ -126,7 +135,7 @@ export const TrackAvailabilityScreen = () => {
           disabled: noCollectibleGate
         }
       : null,
-    { label: hiddenAvailability, value: hiddenAvailability }
+    { label: hiddenAvailability, value: hiddenAvailability, disabled: noHidden }
   ].filter(removeNullable)
 
   const items = {
@@ -141,6 +150,7 @@ export const TrackAvailabilityScreen = () => {
       <SpecialAccessAvailability
         selected={availability === TrackAvailabilityType.SPECIAL_ACCESS}
         disabled={noSpecialAccess}
+        disabledContent={noSpecialAccessOptions}
       />
     )
   }
@@ -156,6 +166,7 @@ export const TrackAvailabilityScreen = () => {
   items[hiddenAvailability] = (
     <HiddenAvailability
       selected={availability === TrackAvailabilityType.HIDDEN}
+      disabled={noHidden}
     />
   )
 

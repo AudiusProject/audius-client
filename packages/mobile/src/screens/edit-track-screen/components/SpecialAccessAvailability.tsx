@@ -84,11 +84,13 @@ const { getUserId } = accountSelectors
 type TrackAvailabilitySelectionProps = {
   selected: boolean
   disabled?: boolean
+  disabledContent?: boolean
 }
 
 export const SpecialAccessAvailability = ({
   selected,
-  disabled = false
+  disabled = false,
+  disabledContent = false
 }: TrackAvailabilitySelectionProps) => {
   const styles = useStyles()
   const secondary = useColor('secondary')
@@ -168,7 +170,7 @@ export const SpecialAccessAvailability = ({
             <View style={styles.followersOnly}>
               <RadioButton
                 checked={isFollowerGated}
-                disabled={disabled}
+                disabled={disabled || disabledContent}
                 style={styles.radio}
               />
               <Text>{messages.followersOnly}</Text>
@@ -178,7 +180,7 @@ export const SpecialAccessAvailability = ({
             <View style={styles.supportersOnly}>
               <RadioButton
                 checked={isSupporterGated}
-                disabled={disabled}
+                disabled={disabled || disabledContent}
                 style={styles.radio}
               />
               <Text>{messages.supportersOnly}</Text>
