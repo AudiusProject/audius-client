@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { GatedContentUploadPromptDrawer } from 'app/components/gated-content-upload-prompt-drawer'
 
+import { GatedContentUploadPromptDrawer } from 'app/components/gated-content-upload-prompt-drawer'
 import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { useAppScreenOptions } from 'app/screens/app-screen/useAppScreenOptions'
 
@@ -37,9 +37,15 @@ export const EditTrackNavigator = (props: EditTrackNavigatorProps) => {
         <Stack.Screen name='SelectGenre' component={SelectGenreScreen} />
         <Stack.Screen name='SelectMood' component={SelectMoodScreen} />
         <Stack.Screen name='RemixSettings' component={RemixSettingsScreen} />
-        <Stack.Screen name='AdvancedOptions' component={AdvancedOptionsScreen} />
+        <Stack.Screen
+          name='AdvancedOptions'
+          component={AdvancedOptionsScreen}
+        />
         {isGatedContentEnabled ? (
-          <Stack.Screen name='Availability' component={TrackAvailabilityScreen} />
+          <Stack.Screen
+            name='Availability'
+            component={TrackAvailabilityScreen}
+          />
         ) : (
           <Stack.Screen
             name='TrackVisibility'
@@ -47,7 +53,10 @@ export const EditTrackNavigator = (props: EditTrackNavigatorProps) => {
           />
         )}
         {isGatedContentEnabled && (
-          <Stack.Screen name='NFTCollections' component={NFTCollectionsScreen} />
+          <Stack.Screen
+            name='NFTCollections'
+            component={NFTCollectionsScreen}
+          />
         )}
         <Stack.Screen name='IsrcIswc' component={IsrcIswcScreen} />
         <Stack.Screen name='LicenseType' component={LicenseTypeScreen} />

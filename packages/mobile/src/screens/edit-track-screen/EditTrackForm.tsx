@@ -13,6 +13,7 @@ import { InputErrorMessage } from 'app/components/core/InputErrorMessage'
 import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { useIsSpecialAccessEnabled } from 'app/hooks/useIsSpecialAccessEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { useOneTimeDrawer } from 'app/hooks/useOneTimeDrawer'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
 
@@ -31,7 +32,6 @@ import {
   AdvancedOptionsField
 } from './fields'
 import type { EditTrackFormProps } from './types'
-import { useOneTimeDrawer } from 'app/hooks/useOneTimeDrawer'
 
 const messages = {
   trackName: 'Track Name',
