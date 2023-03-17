@@ -383,8 +383,8 @@ function* pollPremiumTrack({
       const eventName = track.premium_conditions?.follow_user_id
         ? Name.FOLLOW_GATED_TRACK_UNLOCKED
         : track.premium_conditions?.tip_user_id
-          ? Name.TIP_GATED_TRACK_UNLOCKED
-          : null
+        ? Name.TIP_GATED_TRACK_UNLOCKED
+        : null
       if (eventName) {
         analytics.track({
           eventName,
@@ -414,7 +414,9 @@ function* updateGatedTracks(trackOwnerId: ID, gate: 'follow' | 'tip') {
 
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
   yield* call(remoteConfigInstance.waitForRemoteConfig)
-  const gatedTrackPollIntervalMs = remoteConfigInstance.getRemoteVar(IntKeys.GATED_TRACK_POLL_INTERVAL_MS)
+  const gatedTrackPollIntervalMs = remoteConfigInstance.getRemoteVar(
+    IntKeys.GATED_TRACK_POLL_INTERVAL_MS
+  )
 
   const statusMap: { [id: ID]: PremiumTrackStatus } = {}
   const trackParamsMap: { [id: ID]: TrackRouteParams } = {}
@@ -446,7 +448,8 @@ function* updateGatedTracks(trackOwnerId: ID, gate: 'follow' | 'tip') {
         trackId: id,
         currentUserId,
         trackParams: trackParamsMap[id],
-        frequency: gatedTrackPollIntervalMs || DEFAULT_GATED_TRACK_POLL_INTERVAL_MS
+        frequency:
+          gatedTrackPollIntervalMs || DEFAULT_GATED_TRACK_POLL_INTERVAL_MS
       })
     })
   )
