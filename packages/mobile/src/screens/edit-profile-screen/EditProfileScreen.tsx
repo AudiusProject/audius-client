@@ -60,7 +60,7 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     width: 'auto'
   },
   textFields: {
-    paddingTop: spacing(12)
+    paddingTop: spacing(16)
   }
 }))
 
