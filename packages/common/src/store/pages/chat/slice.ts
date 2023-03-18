@@ -11,23 +11,20 @@ import dayjs from 'dayjs'
 import { ID, Status } from 'models'
 import { encodeHashId } from 'utils/hashIds'
 
-type ChatId = string
-type ChatMessageWithStatus = ChatMessage & { status?: Status }
-
 type ChatState = {
-  chats: {
+  chatList: {
     status: Status
     summary?: TypedCommsResponse<UserChat>['summary']
-    entities: Record<string, UserChat>
-    ids: string[]
+    map: Record<string, UserChat>
+    order: string[]
   }
-  messages: Record<
-    ChatId,
+  chatMessages: Record<
+    string,
     {
       status: Status
       summary?: TypedCommsResponse<ChatMessage>['summary']
-      entities: Record<string, ChatMessageWithStatus>
-      ids: string[]
+      map: Record<string, ChatMessage>
+      order: string[]
     }
   >
   optimisticReactions: Record<string, ChatMessageReaction>
@@ -43,12 +40,12 @@ type SetMessageReactionPayload = {
 }
 
 const initialState: ChatState = {
-  chats: {
+  chatList: {
     status: Status.IDLE,
-    entities: {},
-    ids: []
+    map: {},
+    order: []
   },
-  messages: {},
+  chatMessages: {},
   optimisticChatRead: {},
   optimisticReactions: {},
   activeChatId: null
@@ -58,7 +55,7 @@ const chatSortComparator = (a: UserChat, b: UserChat) =>
   dayjs(a.last_message_at).isBefore(dayjs(b.last_message_at)) ? 1 : -1
 
 const getNewChatOrder = (state: ChatState) => {
-  const allChats = Object.values(state.chats.entities)
+  const allChats = Object.values(state.chatList.map)
   return allChats.sort(chatSortComparator).map((c) => c.chat_id)
 }
 
@@ -71,40 +68,40 @@ const slice = createSlice({
     },
     createChatSucceeded: (state, action: PayloadAction<{ chat: UserChat }>) => {
       const { chat } = action.payload
-      state.chats.ids.unshift(chat.chat_id)
-      state.chats.entities[chat.chat_id] = chat
+      state.chatList.order.unshift(chat.chat_id)
+      state.chatList.map[chat.chat_id] = chat
     },
     goToChat: (_state, _action: PayloadAction<{ chatId: string }>) => {
       // triggers saga
     },
     fetchMoreChats: (state) => {
       // triggers saga
-      state.chats.status = Status.LOADING
+      state.chatList.status = Status.LOADING
     },
     fetchMoreChatsSucceeded: (
       state,
       action: PayloadAction<TypedCommsResponse<UserChat[]>>
     ) => {
-      state.chats.status = Status.SUCCESS
+      state.chatList.status = Status.SUCCESS
       for (const chat of action.payload.data) {
-        state.chats.ids.push(chat.chat_id)
-        state.chats.entities[chat.chat_id] = chat
+        state.chatList.order.push(chat.chat_id)
+        state.chatList.map[chat.chat_id] = chat
       }
-      state.chats.summary = action.payload.summary
+      state.chatList.summary = action.payload.summary
     },
     fetchMoreChatsFailed: (state) => {
-      state.chats.status = Status.ERROR
+      state.chatList.status = Status.ERROR
     },
     fetchMoreMessages: (state, action: PayloadAction<{ chatId: string }>) => {
       // triggers saga
-      if (!state.messages[action.payload.chatId]) {
-        state.messages[action.payload.chatId] = {
-          ids: [],
-          entities: {},
+      if (!state.chatMessages[action.payload.chatId]) {
+        state.chatMessages[action.payload.chatId] = {
+          order: [],
+          map: {},
           status: Status.LOADING
         }
       } else {
-        state.messages[action.payload.chatId].status = Status.LOADING
+        state.chatMessages[action.payload.chatId].status = Status.LOADING
       }
     },
     fetchMoreMessagesSucceeded: (
@@ -118,21 +115,21 @@ const slice = createSlice({
         chatId,
         response: { data, summary }
       } = action.payload
-      state.messages[chatId].status = Status.SUCCESS
+      state.chatMessages[chatId].status = Status.SUCCESS
       for (const message of data) {
-        if (!state.messages[chatId].ids.includes(message.message_id)) {
-          state.messages[chatId].ids.push(message.message_id)
+        if (!state.chatMessages[chatId].order.includes(message.message_id)) {
+          state.chatMessages[chatId].order.push(message.message_id)
         }
-        state.messages[chatId].entities[message.message_id] = message
+        state.chatMessages[chatId].map[message.message_id] = message
       }
-      state.messages[chatId].summary = summary
+      state.chatMessages[chatId].summary = summary
     },
     fetchMoreMessagesFailed: (
       state,
       action: PayloadAction<{ chatId: string }>
     ) => {
       const { chatId } = action.payload
-      state.messages[chatId].status = Status.ERROR
+      state.chatMessages[chatId].status = Status.ERROR
     },
     setMessageReaction: (
       state,
@@ -164,11 +161,11 @@ const slice = createSlice({
       const { chatId, messageId, reaction } = action.payload
       delete state.optimisticReactions[messageId]
       const existingReactions =
-        state.messages[chatId].entities[messageId].reactions ?? []
-      state.messages[chatId].entities[messageId].reactions =
+        state.chatMessages[chatId].map[messageId].reactions ?? []
+      state.chatMessages[chatId].map[messageId].reactions =
         existingReactions.filter((r) => r.user_id !== reaction.user_id)
       if (reaction.reaction !== null) {
-        state.messages[chatId].entities[messageId].reactions.push(reaction)
+        state.chatMessages[chatId].map[messageId].reactions.push(reaction)
       }
     },
     setMessageReactionFailed: (
@@ -181,17 +178,17 @@ const slice = createSlice({
     },
     fetchChatSucceeded: (state, action: PayloadAction<{ chat: UserChat }>) => {
       const { chat } = action.payload
-      if (!state.chats.entities[chat.chat_id]) {
-        state.chats.ids.push(chat.chat_id)
-        state.chats.ids = getNewChatOrder(state)
-        state.chats.entities[chat.chat_id] = chat
+      if (!state.chatList.map[chat.chat_id]) {
+        state.chatList.order.push(chat.chat_id)
+        state.chatList.order = getNewChatOrder(state)
+        state.chatList.map[chat.chat_id] = chat
       }
     },
     markChatAsRead: (state, action: PayloadAction<{ chatId: string }>) => {
       // triggers saga
       // Optimistically mark as read
       const { chatId } = action.payload
-      const existingChat = state.chats.entities[chatId]
+      const existingChat = state.chatList.map[chatId]
       if (existingChat) {
         state.optimisticChatRead[chatId] = {
           ...existingChat,
@@ -207,10 +204,10 @@ const slice = createSlice({
       // Set the true state
       const { chatId } = action.payload
       delete state.optimisticChatRead[chatId]
-      if (state.chats.entities[chatId]) {
-        state.chats.entities[chatId].last_read_at =
-          state.chats.entities[chatId].last_message_at
-        state.chats.entities[chatId].unread_message_count = 0
+      if (state.chatList.map[chatId]) {
+        state.chatList.map[chatId].last_read_at =
+          state.chatList.map[chatId].last_message_at
+        state.chatList.map[chatId].unread_message_count = 0
       }
     },
     markChatAsReadFailed: (
@@ -233,13 +230,13 @@ const slice = createSlice({
     ) => {
       // triggers saga to get chat if not exists
       const { chatId, message } = action.payload
-      if (!state.messages[chatId].ids.includes(message.message_id)) {
-        state.messages[chatId].ids.unshift(message.message_id)
+      if (!state.chatMessages[chatId].order.includes(message.message_id)) {
+        state.chatMessages[chatId].order.unshift(message.message_id)
       }
-      state.messages[chatId].entities[message.message_id] = message
-      state.chats.entities[chatId].last_message = message.message
-      state.chats.entities[chatId].last_message_at = message.created_at
-      state.chats.ids = getNewChatOrder(state)
+      state.chatMessages[chatId].map[message.message_id] = message
+      state.chatList.map[chatId].last_message = message.message
+      state.chatList.map[chatId].last_message_at = message.created_at
+      state.chatList.order = getNewChatOrder(state)
     },
     incrementUnreadCount: (
       state,
@@ -249,7 +246,7 @@ const slice = createSlice({
       // If we're actively reading, this will immediately get marked as read.
       // Ignore the unread bump to prevent flicker
       if (state.activeChatId !== chatId) {
-        state.chats.entities[chatId].unread_message_count += 1
+        state.chatList.map[chatId].unread_message_count += 1
       }
     },
     /**
@@ -274,19 +271,19 @@ const slice = createSlice({
       const { chatId, oldMessageId, newMessageId } = action.payload
 
       // Add the real message
-      if (!state.messages[chatId].ids.includes(newMessageId)) {
-        state.messages[chatId].ids.unshift(newMessageId)
+      if (!state.chatMessages[chatId].order.includes(newMessageId)) {
+        state.chatMessages[chatId].order.unshift(newMessageId)
       }
-      state.messages[chatId].entities[newMessageId] = {
-        ...state.messages[chatId].entities[oldMessageId],
+      state.chatMessages[chatId].map[newMessageId] = {
+        ...state.chatMessages[chatId].map[oldMessageId],
         message_id: newMessageId
       }
 
       // Delete the old message
-      state.messages[chatId].ids = state.messages[chatId].ids.filter(
-        (id) => id !== oldMessageId
-      )
-      delete state.messages[chatId].entities[oldMessageId]
+      state.chatMessages[chatId].order = state.chatMessages[
+        chatId
+      ].order.filter((id) => id !== oldMessageId)
+      delete state.chatMessages[chatId].map[oldMessageId]
     },
     sendMessageFailed: (
       state,
@@ -297,10 +294,10 @@ const slice = createSlice({
     ) => {
       // Delete the optimistic entry
       const { chatId, messageId } = action.payload
-      state.messages[chatId].ids = state.messages[chatId].ids.filter(
-        (id) => id !== messageId
-      )
-      delete state.messages[chatId].entities[messageId]
+      state.chatMessages[chatId].order = state.chatMessages[
+        chatId
+      ].order.filter((id) => id !== messageId)
+      delete state.chatMessages[chatId].map[messageId]
     },
     connect: (_state, _action: Action) => {
       // triggers middleware

@@ -11,41 +11,41 @@ const { getUsers } = cacheUsersSelectors
 
 // Selectors for UserChat (all chats for a user)
 export const getChatsStatus = (state: CommonState) =>
-  state.pages.chat.chats.status
+  state.pages.chat.chatList.status
 
 export const getChatsSummary = (state: CommonState) =>
-  state.pages.chat.chats.summary
+  state.pages.chat.chatList.summary
 
 export const getOptimisticReads = (state: CommonState) =>
   state.pages.chat.optimisticChatRead
 
 export const getAllChatMessages = (state: CommonState) =>
-  state.pages.chat.messages
+  state.pages.chat.chatMessages
 
 // Selectors for ChatMessage (specific chat conversations)
 export const getChatMessagesSummary = (state: CommonState, chatId: string) =>
-  state.pages.chat.messages[chatId]?.summary
+  state.pages.chat.chatMessages[chatId]?.summary
 
 export const getChatMessagesRaw = (state: CommonState, chatId: string) =>
-  state.pages.chat.messages[chatId]?.entities
+  state.pages.chat.chatMessages[chatId]?.map
 
 export const getChatMessagesOrder = (state: CommonState, chatId: string) =>
-  state.pages.chat.messages[chatId]?.ids
+  state.pages.chat.chatMessages[chatId]?.order
 
 export const getChatMessagesStatus = (state: CommonState, chatId: string) =>
-  state.pages.chat.messages[chatId]?.status ?? Status.IDLE
+  state.pages.chat.chatMessages[chatId]?.status ?? Status.IDLE
 
 export const getOptimisticReactions = (state: CommonState) =>
   state.pages.chat.optimisticReactions
 
 // Returns a UserChat that contains the ChatMessage with the given chatId
 export const getChat = (state: CommonState, chatId?: string) =>
-  chatId ? state.pages.chat.chats.entities[chatId] : undefined
+  chatId ? state.pages.chat.chatList.map[chatId] : undefined
 
-export const getChatsRaw = (state: CommonState) =>
-  state.pages.chat.chats.entities
+export const getChatsRaw = (state: CommonState) => state.pages.chat.chatList.map
 
-export const getChatsOrder = (state: CommonState) => state.pages.chat.chats.ids
+export const getChatsOrder = (state: CommonState) =>
+  state.pages.chat.chatList.order
 
 export const getChats = createSelector(
   [getChatsRaw, getChatsOrder, getAllChatMessages, getOptimisticReads],
