@@ -48,7 +48,7 @@ export const getChatsRaw = (state: CommonState) =>
 export const getChatsOrder = (state: CommonState) => state.pages.chat.chats.ids
 
 export const getChats = createSelector(
-  [getChatsRaw, getChatsOrder, getOptimisticReads],
+  [getChatsRaw, getChatsOrder, getAllChatMessages, getOptimisticReads],
   (chats, order, optimisticReads) => {
     return order?.map((chatId) => {
       let chat = chats[chatId]
