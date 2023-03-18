@@ -34,7 +34,7 @@ const {
   sendMessageFailed,
   addMessage
 } = chatActions
-const { getChatsSummary, getChatMessagesSummary, getChat } = chatSelectors
+const { getChatsSummary, getChat } = chatSelectors
 
 function* doFetchMoreChats() {
   try {
@@ -73,17 +73,14 @@ function* doFetchMoreMessages(action: ReturnType<typeof fetchMoreMessages>) {
     // Ensure we get a chat so we can check the unread count
     yield* call(fetchChatIfNecessary, { chatId })
     const chat = yield* select((state) => getChat(state, chatId))
-    const summary = yield* select((state) =>
-      getChatMessagesSummary(state, chatId)
-    )
 
     // Paginate through messages until we get to the unread indicator
     let lastResponse: TypedCommsResponse<ChatMessage[]> | undefined
-    let before = summary?.prev_cursor
+    let before = chat?.messagesSummary?.prev_cursor
     let hasMoreUnread = true
     let data: ChatMessage[] = []
     while (hasMoreUnread) {
-      const limit = 50
+      const limit = 10
       const response = yield* call([sdk.chats, sdk.chats!.getMessages], {
         chatId,
         before,
