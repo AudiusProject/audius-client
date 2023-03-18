@@ -182,7 +182,7 @@ export const SettingsPage = (props: SettingsPageProps) => {
   }, [setIsSignOutModalVisible])
 
   const closeSignOutModal = useCallback(() => {
-    setIsSignOutModalVisible(true)
+    setIsSignOutModalVisible(false)
   }, [setIsSignOutModalVisible])
 
   const openNotificationSettings = useCallback(() => {
