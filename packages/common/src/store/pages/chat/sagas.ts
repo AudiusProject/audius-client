@@ -31,6 +31,7 @@ const {
   markChatAsReadSucceeded,
   markChatAsReadFailed,
   sendMessage,
+  sendMessageSucceeded,
   sendMessageFailed,
   addMessage
 } = chatActions
@@ -239,6 +240,8 @@ function* doSendMessage(action: ReturnType<typeof sendMessage>) {
       messageId,
       message
     })
+
+    yield* put(sendMessageSucceeded({ chatId, messageId }))
   } catch (e) {
     console.error('sendMessageFailed', e)
     yield* put(sendMessageFailed({ chatId, messageId }))

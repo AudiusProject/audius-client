@@ -12,7 +12,7 @@ import { ID, Status } from 'models'
 import { encodeHashId } from 'utils/hashIds'
 
 type ChatId = string
-type ChatMessageWithStatus = ChatMessage & { status?: Status }
+export type ChatMessageWithStatus = ChatMessage & { status?: Status }
 
 type ChatState = {
   chats: {
@@ -120,7 +120,7 @@ const slice = createSlice({
       } = action.payload
       state.messages[chatId].status = Status.SUCCESS
       for (const message of data) {
-        if (!state.messages[chatId].ids.includes(message.message_id)) {
+        if (!(message.message_id in state.messages[chatId].entities)) {
           state.messages[chatId].ids.push(message.message_id)
         }
         state.messages[chatId].entities[message.message_id] = message
@@ -233,10 +233,15 @@ const slice = createSlice({
     ) => {
       // triggers saga to get chat if not exists
       const { chatId, message } = action.payload
-      if (!state.messages[chatId].ids.includes(message.message_id)) {
+      if (!(message.message_id in state.messages[chatId].entities)) {
         state.messages[chatId].ids.unshift(message.message_id)
       }
-      state.messages[chatId].entities[message.message_id] = message
+      state.messages[chatId].entities[message.message_id] = {
+        ...message,
+        status:
+          state.messages[chatId]?.entities[message.message_id]?.status ??
+          Status.LOADING
+      }
       state.chats.entities[chatId].last_message = message.message
       state.chats.entities[chatId].last_message_at = message.created_at
       state.chats.ids = getNewChatOrder(state)
@@ -267,26 +272,11 @@ const slice = createSlice({
       state,
       action: PayloadAction<{
         chatId: string
-        oldMessageId: string
-        newMessageId: string
+        messageId: string
       }>
     ) => {
-      const { chatId, oldMessageId, newMessageId } = action.payload
-
-      // Add the real message
-      if (!state.messages[chatId].ids.includes(newMessageId)) {
-        state.messages[chatId].ids.unshift(newMessageId)
-      }
-      state.messages[chatId].entities[newMessageId] = {
-        ...state.messages[chatId].entities[oldMessageId],
-        message_id: newMessageId
-      }
-
-      // Delete the old message
-      state.messages[chatId].ids = state.messages[chatId].ids.filter(
-        (id) => id !== oldMessageId
-      )
-      delete state.messages[chatId].entities[oldMessageId]
+      const { chatId, messageId } = action.payload
+      state.messages[chatId].entities[messageId].status = Status.SUCCESS
     },
     sendMessageFailed: (
       state,
@@ -295,12 +285,8 @@ const slice = createSlice({
         messageId: string
       }>
     ) => {
-      // Delete the optimistic entry
       const { chatId, messageId } = action.payload
-      state.messages[chatId].ids = state.messages[chatId].ids.filter(
-        (id) => id !== messageId
-      )
-      delete state.messages[chatId].entities[messageId]
+      state.messages[chatId].entities[messageId].status = Status.ERROR
     },
     connect: (_state, _action: Action) => {
       // triggers middleware
