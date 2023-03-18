@@ -5,28 +5,37 @@ import type {
   ChatMessageReaction,
   ChatMessageNullableReaction
 } from '@audius/sdk'
-import { Action, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import {
+  Action,
+  createSlice,
+  PayloadAction,
+  createEntityAdapter,
+  EntityState
+} from '@reduxjs/toolkit'
 import dayjs from 'dayjs'
 
 import { ID, Status } from 'models'
 import { encodeHashId } from 'utils/hashIds'
 
+type UserChatWithMessagesStatus = UserChat & {
+  messagesStatus?: Status
+  messagesSummary?: TypedCommsResponse<ChatMessage>['summary']
+}
+
+type ChatMessageWithSendStatus = ChatMessage & {
+  status?: Status
+  chat_id: string
+}
+
 type ChatState = {
-  chatList: {
+  chats: EntityState<UserChatWithMessagesStatus> & {
     status: Status
     summary?: TypedCommsResponse<UserChat>['summary']
-    map: Record<string, UserChat>
-    order: string[]
   }
-  chatMessages: Record<
-    string,
-    {
-      status: Status
-      summary?: TypedCommsResponse<ChatMessage>['summary']
-      map: Record<string, ChatMessage>
-      order: string[]
-    }
-  >
+  messages: EntityState<ChatMessageWithSendStatus> & {
+    status?: Status
+    summary?: TypedCommsResponse<ChatMessage>['summary']
+  }
   optimisticReactions: Record<string, ChatMessageReaction>
   optimisticChatRead: Record<string, UserChat>
   activeChatId: string | null
@@ -39,24 +48,32 @@ type SetMessageReactionPayload = {
   reaction: string | null
 }
 
-const initialState: ChatState = {
-  chatList: {
-    status: Status.IDLE,
-    map: {},
-    order: []
-  },
-  chatMessages: {},
-  optimisticChatRead: {},
-  optimisticReactions: {},
-  activeChatId: null
-}
-
 const chatSortComparator = (a: UserChat, b: UserChat) =>
   dayjs(a.last_message_at).isBefore(dayjs(b.last_message_at)) ? 1 : -1
 
-const getNewChatOrder = (state: ChatState) => {
-  const allChats = Object.values(state.chatList.map)
-  return allChats.sort(chatSortComparator).map((c) => c.chat_id)
+export const chatsAdapter = createEntityAdapter<UserChatWithMessagesStatus>({
+  selectId: (chat) => chat.chat_id,
+  sortComparer: chatSortComparator
+})
+
+const messageSortComparator = (a: ChatMessage, b: ChatMessage) =>
+  dayjs(a.created_at).isBefore(dayjs(b.created_at)) ? 1 : -1
+
+export const chatMessagesAdapter =
+  createEntityAdapter<ChatMessageWithSendStatus>({
+    selectId: (message) => message.message_id,
+    sortComparer: messageSortComparator
+  })
+
+const initialState: ChatState = {
+  chats: {
+    status: Status.IDLE,
+    ...chatsAdapter.getInitialState()
+  },
+  messages: chatMessagesAdapter.getInitialState(),
+  optimisticChatRead: {},
+  optimisticReactions: {},
+  activeChatId: null
 }
 
 const slice = createSlice({
@@ -68,40 +85,35 @@ const slice = createSlice({
     },
     createChatSucceeded: (state, action: PayloadAction<{ chat: UserChat }>) => {
       const { chat } = action.payload
-      state.chatList.order.unshift(chat.chat_id)
-      state.chatList.map[chat.chat_id] = chat
+      chatsAdapter.upsertOne(state.chats, chat)
     },
     goToChat: (_state, _action: PayloadAction<{ chatId: string }>) => {
       // triggers saga
     },
     fetchMoreChats: (state) => {
       // triggers saga
-      state.chatList.status = Status.LOADING
+      state.chats.status = Status.LOADING
     },
     fetchMoreChatsSucceeded: (
       state,
       action: PayloadAction<TypedCommsResponse<UserChat[]>>
     ) => {
-      state.chatList.status = Status.SUCCESS
-      for (const chat of action.payload.data) {
-        state.chatList.order.push(chat.chat_id)
-        state.chatList.map[chat.chat_id] = chat
-      }
-      state.chatList.summary = action.payload.summary
+      state.chats.status = Status.SUCCESS
+      state.chats.summary = action.payload.summary
+      chatsAdapter.addMany(state.chats, action.payload.data)
     },
     fetchMoreChatsFailed: (state) => {
-      state.chatList.status = Status.ERROR
+      state.chats.status = Status.ERROR
     },
     fetchMoreMessages: (state, action: PayloadAction<{ chatId: string }>) => {
       // triggers saga
-      if (!state.chatMessages[action.payload.chatId]) {
-        state.chatMessages[action.payload.chatId] = {
-          order: [],
-          map: {},
+      if (!state.messages[action.payload.chatId]) {
+        state.messages[action.payload.chatId] = {
+          ...chatMessagesAdapter.getInitialState(),
           status: Status.LOADING
         }
       } else {
-        state.chatMessages[action.payload.chatId].status = Status.LOADING
+        state.messages[action.payload.chatId].status = Status.LOADING
       }
     },
     fetchMoreMessagesSucceeded: (
@@ -115,21 +127,31 @@ const slice = createSlice({
         chatId,
         response: { data, summary }
       } = action.payload
-      state.chatMessages[chatId].status = Status.SUCCESS
-      for (const message of data) {
-        if (!state.chatMessages[chatId].order.includes(message.message_id)) {
-          state.chatMessages[chatId].order.push(message.message_id)
+      chatsAdapter.updateOne(state.chats, {
+        id: chatId,
+        changes: {
+          messagesStatus: Status.SUCCESS,
+          messagesSummary: summary
         }
-        state.chatMessages[chatId].map[message.message_id] = message
-      }
-      state.chatMessages[chatId].summary = summary
+      })
+      chatsAdapter.updateOne(state.chats, {
+        id: chatId,
+        changes: { messagesStatus: Status.SUCCESS, messagesSummary: summary }
+      })
+      chatMessagesAdapter.upsertMany(
+        state.messages,
+        data.map((message) => ({ ...message, chat_id: chatId }))
+      )
     },
     fetchMoreMessagesFailed: (
       state,
       action: PayloadAction<{ chatId: string }>
     ) => {
       const { chatId } = action.payload
-      state.chatMessages[chatId].status = Status.ERROR
+      chatsAdapter.updateOne(state.chats, {
+        id: chatId,
+        changes: { messagesStatus: Status.ERROR }
+      })
     },
     setMessageReaction: (
       state,
@@ -160,12 +182,25 @@ const slice = createSlice({
       // Set the true state
       const { chatId, messageId, reaction } = action.payload
       delete state.optimisticReactions[messageId]
-      const existingReactions =
-        state.chatMessages[chatId].map[messageId].reactions ?? []
-      state.chatMessages[chatId].map[messageId].reactions =
-        existingReactions.filter((r) => r.user_id !== reaction.user_id)
+
+      // Ensure the message exists
+      chatMessagesAdapter.addOne(state.messages, {
+        chat_id: chatId,
+        message_id: messageId,
+        reactions: [],
+        message: '',
+        sender_user_id: '',
+        created_at: ''
+      })
+      const existingMessage = chatMessagesAdapter
+        .getSelectors()
+        .selectById(state.messages, messageId)
+      const existingReactions = existingMessage?.reactions ?? []
+      state.messages.entities[messageId]!.reactions = existingReactions.filter(
+        (r) => r.user_id !== reaction.user_id
+      )
       if (reaction.reaction !== null) {
-        state.chatMessages[chatId].map[messageId].reactions.push(reaction)
+        state.messages.entities[messageId]!.reactions.push(reaction)
       }
     },
     setMessageReactionFailed: (
@@ -178,17 +213,15 @@ const slice = createSlice({
     },
     fetchChatSucceeded: (state, action: PayloadAction<{ chat: UserChat }>) => {
       const { chat } = action.payload
-      if (!state.chatList.map[chat.chat_id]) {
-        state.chatList.order.push(chat.chat_id)
-        state.chatList.order = getNewChatOrder(state)
-        state.chatList.map[chat.chat_id] = chat
-      }
+      chatsAdapter.upsertOne(state.chats, chat)
     },
     markChatAsRead: (state, action: PayloadAction<{ chatId: string }>) => {
       // triggers saga
       // Optimistically mark as read
       const { chatId } = action.payload
-      const existingChat = state.chatList.map[chatId]
+      const existingChat = chatsAdapter
+        .getSelectors()
+        .selectById(state.chats, chatId)
       if (existingChat) {
         state.optimisticChatRead[chatId] = {
           ...existingChat,
@@ -204,11 +237,16 @@ const slice = createSlice({
       // Set the true state
       const { chatId } = action.payload
       delete state.optimisticChatRead[chatId]
-      if (state.chatList.map[chatId]) {
-        state.chatList.map[chatId].last_read_at =
-          state.chatList.map[chatId].last_message_at
-        state.chatList.map[chatId].unread_message_count = 0
-      }
+      const existingChat = chatsAdapter
+        .getSelectors()
+        .selectById(state.chats, chatId)
+      chatsAdapter.updateOne(state.chats, {
+        id: chatId,
+        changes: {
+          last_read_at: existingChat?.last_message_at,
+          unread_message_count: 0
+        }
+      })
     },
     markChatAsReadFailed: (
       state,
@@ -230,13 +268,17 @@ const slice = createSlice({
     ) => {
       // triggers saga to get chat if not exists
       const { chatId, message } = action.payload
-      if (!state.chatMessages[chatId].order.includes(message.message_id)) {
-        state.chatMessages[chatId].order.unshift(message.message_id)
-      }
-      state.chatMessages[chatId].map[message.message_id] = message
-      state.chatList.map[chatId].last_message = message.message
-      state.chatList.map[chatId].last_message_at = message.created_at
-      state.chatList.order = getNewChatOrder(state)
+      chatMessagesAdapter.upsertOne(state.messages, {
+        ...message,
+        chat_id: chatId
+      })
+      chatsAdapter.updateOne(state.chats, {
+        id: chatId,
+        changes: {
+          last_message: message.message,
+          last_message_at: message.created_at
+        }
+      })
     },
     incrementUnreadCount: (
       state,
@@ -246,7 +288,14 @@ const slice = createSlice({
       // If we're actively reading, this will immediately get marked as read.
       // Ignore the unread bump to prevent flicker
       if (state.activeChatId !== chatId) {
-        state.chatList.map[chatId].unread_message_count += 1
+        const existingChat = chatsAdapter
+          .getSelectors()
+          .selectById(state.chats, chatId)
+        const existingUnreadCount = existingChat?.unread_message_count ?? 0
+        chatsAdapter.updateOne(state.chats, {
+          id: chatId,
+          changes: { unread_message_count: existingUnreadCount + 1 }
+        })
       }
     },
     /**
@@ -260,31 +309,6 @@ const slice = createSlice({
       const { chatId } = action.payload
       state.activeChatId = chatId
     },
-    sendMessageSucceeded: (
-      state,
-      action: PayloadAction<{
-        chatId: string
-        oldMessageId: string
-        newMessageId: string
-      }>
-    ) => {
-      const { chatId, oldMessageId, newMessageId } = action.payload
-
-      // Add the real message
-      if (!state.chatMessages[chatId].order.includes(newMessageId)) {
-        state.chatMessages[chatId].order.unshift(newMessageId)
-      }
-      state.chatMessages[chatId].map[newMessageId] = {
-        ...state.chatMessages[chatId].map[oldMessageId],
-        message_id: newMessageId
-      }
-
-      // Delete the old message
-      state.chatMessages[chatId].order = state.chatMessages[
-        chatId
-      ].order.filter((id) => id !== oldMessageId)
-      delete state.chatMessages[chatId].map[oldMessageId]
-    },
     sendMessageFailed: (
       state,
       action: PayloadAction<{
@@ -292,12 +316,12 @@ const slice = createSlice({
         messageId: string
       }>
     ) => {
-      // Delete the optimistic entry
-      const { chatId, messageId } = action.payload
-      state.chatMessages[chatId].order = state.chatMessages[
-        chatId
-      ].order.filter((id) => id !== messageId)
-      delete state.chatMessages[chatId].map[messageId]
+      // Mark message as not sent
+      const { messageId } = action.payload
+      chatMessagesAdapter.updateOne(state.messages, {
+        id: messageId,
+        changes: { status: Status.ERROR }
+      })
     },
     connect: (_state, _action: Action) => {
       // triggers middleware
