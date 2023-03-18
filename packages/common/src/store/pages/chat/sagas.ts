@@ -1,6 +1,7 @@
-import { ChatMessage, ChatMessageRPC, TypedCommsResponse } from '@audius/sdk'
+import { ChatMessage, TypedCommsResponse } from '@audius/sdk'
 import dayjs from 'dayjs'
 import { call, put, select, takeEvery, takeLatest } from 'typed-redux-saga'
+import { ulid } from 'ulid'
 
 import { getAccountUser, getUserId } from 'store/account/selectors'
 import { setVisibility } from 'store/ui/modals/slice'
@@ -30,7 +31,6 @@ const {
   markChatAsReadSucceeded,
   markChatAsReadFailed,
   sendMessage,
-  sendMessageSucceeded,
   sendMessageFailed,
   addMessage
 } = chatActions
@@ -208,10 +208,9 @@ function* doMarkChatAsRead(action: ReturnType<typeof markChatAsRead>) {
   }
 }
 
-let tempMessageIdCounter = 1
 function* doSendMessage(action: ReturnType<typeof sendMessage>) {
   const { chatId, message } = action.payload
-  const temporaryMessageId = `temp-${tempMessageIdCounter++}`
+  const messageId = ulid()
   try {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
@@ -227,7 +226,7 @@ function* doSendMessage(action: ReturnType<typeof sendMessage>) {
         chatId,
         message: {
           sender_user_id: currentUserId,
-          message_id: temporaryMessageId,
+          message_id: messageId,
           message,
           reactions: [],
           created_at: dayjs().toISOString()
@@ -235,30 +234,14 @@ function* doSendMessage(action: ReturnType<typeof sendMessage>) {
       })
     )
 
-    const response = (yield* call([sdk.chats, sdk.chats.message], {
+    yield* call([sdk.chats, sdk.chats.message], {
       chatId,
+      messageId,
       message
-    })) as ChatMessageRPC
-
-    // After successful RPC, replace with real message
-    yield* put(
-      sendMessageSucceeded({
-        chatId,
-        oldMessageId: temporaryMessageId,
-        message: {
-          sender_user_id: currentUserId,
-          message_id: response.params.message_id,
-          message,
-          reactions: [],
-          created_at: dayjs().toISOString()
-        }
-      })
-    )
+    })
   } catch (e) {
     console.error('sendMessageFailed', e)
-    yield* put(
-      sendMessageFailed({ chatId, attemptedMessageId: temporaryMessageId })
-    )
+    yield* put(sendMessageFailed({ chatId, messageId }))
   }
 }
 

@@ -23,7 +23,8 @@ type ChatState = {
     {
       status: Status
       summary?: TypedCommsResponse<ChatMessage>['summary']
-      data: ChatMessage[]
+      map: Record<string, ChatMessage>
+      order: string[]
     }
   >
   optimisticReactions: Record<string, ChatMessageReaction>
@@ -95,7 +96,8 @@ const slice = createSlice({
       // triggers saga
       if (!state.chatMessages[action.payload.chatId]) {
         state.chatMessages[action.payload.chatId] = {
-          data: [],
+          order: [],
+          map: {},
           status: Status.LOADING
         }
       } else {
@@ -114,8 +116,12 @@ const slice = createSlice({
         response: { data, summary }
       } = action.payload
       state.chatMessages[chatId].status = Status.SUCCESS
-      state.chatMessages[chatId].data =
-        state.chatMessages[chatId].data.concat(data)
+      for (const message of data) {
+        if (!state.chatMessages[chatId].order.includes(message.message_id)) {
+          state.chatMessages[chatId].order.push(message.message_id)
+        }
+        state.chatMessages[chatId].map[message.message_id] = message
+      }
       state.chatMessages[chatId].summary = summary
     },
     fetchMoreMessagesFailed: (
@@ -154,17 +160,12 @@ const slice = createSlice({
       // Set the true state
       const { chatId, messageId, reaction } = action.payload
       delete state.optimisticReactions[messageId]
-      const index = state.chatMessages[chatId].data.findIndex(
-        (message) => message.message_id === messageId
-      )
-      if (index > -1) {
-        const existingReactions =
-          state.chatMessages[chatId].data[index].reactions ?? []
-        state.chatMessages[chatId].data[index].reactions =
-          existingReactions.filter((r) => r.user_id !== reaction.user_id)
-        if (reaction.reaction !== null) {
-          state.chatMessages[chatId].data[index].reactions.push(reaction)
-        }
+      const existingReactions =
+        state.chatMessages[chatId].map[messageId].reactions ?? []
+      state.chatMessages[chatId].map[messageId].reactions =
+        existingReactions.filter((r) => r.user_id !== reaction.user_id)
+      if (reaction.reaction !== null) {
+        state.chatMessages[chatId].map[messageId].reactions.push(reaction)
       }
     },
     setMessageReactionFailed: (
@@ -229,9 +230,10 @@ const slice = createSlice({
     ) => {
       // triggers saga to get chat if not exists
       const { chatId, message } = action.payload
-      if (state.chatMessages[chatId]) {
-        state.chatMessages[chatId].data.unshift(message)
+      if (!state.chatMessages[chatId].order.includes(message.message_id)) {
+        state.chatMessages[chatId].order.unshift(message.message_id)
       }
+      state.chatMessages[chatId].map[message.message_id] = message
       state.chatList.map[chatId].last_message = message.message
       state.chatList.map[chatId].last_message_at = message.created_at
       state.chatList.order = getNewChatOrder(state)
@@ -263,31 +265,39 @@ const slice = createSlice({
       action: PayloadAction<{
         chatId: string
         oldMessageId: string
-        message: ChatMessage
+        newMessageId: string
       }>
     ) => {
-      const { chatId, oldMessageId, message } = action.payload
-      const index = state.chatMessages[chatId].data.findIndex(
-        (m) => m.message_id === oldMessageId
-      )
-      if (index > -1) {
-        state.chatMessages[chatId].data[index] = message
+      const { chatId, oldMessageId, newMessageId } = action.payload
+
+      // Add the real message
+      if (!state.chatMessages[chatId].order.includes(newMessageId)) {
+        state.chatMessages[chatId].order.unshift(newMessageId)
       }
+      state.chatMessages[chatId].map[newMessageId] = {
+        ...state.chatMessages[chatId].map[oldMessageId],
+        message_id: newMessageId
+      }
+
+      // Delete the old message
+      state.chatMessages[chatId].order = state.chatMessages[
+        chatId
+      ].order.filter((id) => id !== oldMessageId)
+      delete state.chatMessages[chatId].map[oldMessageId]
     },
     sendMessageFailed: (
       state,
       action: PayloadAction<{
         chatId: string
-        attemptedMessageId: string
+        messageId: string
       }>
     ) => {
-      const { chatId, attemptedMessageId } = action.payload
-      const index = state.chatMessages[chatId].data.findIndex(
-        (m) => m.message_id === attemptedMessageId
-      )
-      if (index > -1) {
-        delete state.chatMessages[chatId].data[index]
-      }
+      // Delete the optimistic entry
+      const { chatId, messageId } = action.payload
+      state.chatMessages[chatId].order = state.chatMessages[
+        chatId
+      ].order.filter((id) => id !== messageId)
+      delete state.chatMessages[chatId].map[messageId]
     },
     connect: (_state, _action: Action) => {
       // triggers middleware

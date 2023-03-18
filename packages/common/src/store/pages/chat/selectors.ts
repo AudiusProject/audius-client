@@ -27,7 +27,10 @@ export const getChatMessagesSummary = (state: CommonState, chatId: string) =>
   state.pages.chat.chatMessages[chatId]?.summary
 
 export const getChatMessagesRaw = (state: CommonState, chatId: string) =>
-  state.pages.chat.chatMessages[chatId]?.data
+  state.pages.chat.chatMessages[chatId]?.map
+
+export const getChatMessagesOrder = (state: CommonState, chatId: string) =>
+  state.pages.chat.chatMessages[chatId]?.order
 
 export const getChatMessagesStatus = (state: CommonState, chatId: string) =>
   state.pages.chat.chatMessages[chatId]?.status ?? Status.IDLE
@@ -39,18 +42,16 @@ export const getOptimisticReactions = (state: CommonState) =>
 export const getChat = (state: CommonState, chatId?: string) =>
   chatId ? state.pages.chat.chatList.map[chatId] : undefined
 
-export const getChatsRaw = createSelector(
-  (state: CommonState) => state.pages.chat.chatList.order,
-  (state) => state.pages.chat.chatList.map,
-  (order, map) => {
-    return order.map((chatId) => map[chatId])
-  }
-)
+export const getChatsRaw = (state: CommonState) => state.pages.chat.chatList.map
+
+export const getChatsOrder = (state: CommonState) =>
+  state.pages.chat.chatList.order
 
 export const getChats = createSelector(
-  [getChatsRaw, getAllChatMessages, getOptimisticReads],
-  (chats, optimisticReads) => {
-    return chats?.map((chat) => {
+  [getChatsRaw, getChatsOrder, getAllChatMessages, getOptimisticReads],
+  (chats, order, optimisticReads) => {
+    return order?.map((chatId) => {
+      let chat = chats[chatId]
       // If have a clientside optimistic read status, override the server status
       if (optimisticReads?.[chat.chat_id]) {
         chat = {
@@ -64,9 +65,10 @@ export const getChats = createSelector(
 )
 
 export const getChatMessages = createSelector(
-  [getChatMessagesRaw, getOptimisticReactions],
-  (messages, optimisticReactions) => {
-    return messages?.map((message) => {
+  [getChatMessagesRaw, getChatMessagesOrder, getOptimisticReactions],
+  (messages, order, optimisticReactions) => {
+    return order?.map((messageId) => {
+      const message = messages[messageId]
       const optimisticReaction = optimisticReactions[message.message_id]
       if (optimisticReaction) {
         return {

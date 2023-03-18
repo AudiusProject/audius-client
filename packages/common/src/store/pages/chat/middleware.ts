@@ -42,9 +42,9 @@ export const chatMiddleware =
               })
             )
           }
-          closeListener = () => {
+          closeListener = async () => {
             console.debug('[chats] WebSocket closed. Reconnecting...')
-            sdk.chats.listen()
+            await sdk.chats.listen()
           }
           sdk.chats.addEventListener('open', openListener)
           sdk.chats.addEventListener('message', messageListener)
