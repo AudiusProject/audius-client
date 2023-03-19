@@ -16,10 +16,10 @@ import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
+import { useFlag } from 'hooks/useRemoteConfig'
 import { AppState } from 'store/types'
 
 import TrackListItem, { TrackListItemProps } from './TrackListItem'
-import { useFlag } from 'hooks/useRemoteConfig'
 
 const { open } = mobileOverflowMenuUIActions
 const { getUserFromTrack } = cacheUsersSelectors

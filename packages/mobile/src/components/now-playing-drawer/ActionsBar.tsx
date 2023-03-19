@@ -29,6 +29,7 @@ import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconShare from 'app/assets/images/iconShare.svg'
 import { useAirplay } from 'app/components/audio/Airplay'
 import { IconButton } from 'app/components/core'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { useToast } from 'app/hooks/useToast'
@@ -37,7 +38,6 @@ import { useThemeColors } from 'app/utils/theme'
 
 import { FavoriteButton } from './FavoriteButton'
 import { RepostButton } from './RepostButton'
-import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 
 const { getAccountUser } = accountSelectors
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
@@ -173,6 +173,7 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
     }
   }, [
     track,
+    isGatedContentEnabled,
     isNewPodcastControlsEnabled,
     playbackPositionInfo?.status,
     dispatch

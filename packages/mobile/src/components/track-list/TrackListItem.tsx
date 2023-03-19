@@ -24,6 +24,7 @@ import IconRemoveTrack from 'app/assets/images/iconRemoveTrack.svg'
 import { IconButton } from 'app/components/core'
 import UserBadges from 'app/components/user-badges'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { font, makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -31,7 +32,6 @@ import { TrackDownloadStatusIndicator } from '../offline-downloads/TrackDownload
 
 import { TablePlayButton } from './TablePlayButton'
 import { TrackArtwork } from './TrackArtwork'
-import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 const { open: openOverflowMenu } = mobileOverflowMenuUIActions
 
 const { getUserFromTrack } = cacheUsersSelectors
@@ -181,8 +181,14 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
     user
   } = props
 
-  const { has_current_user_saved, is_delete, is_unlisted, title, track_id, is_premium: isPremium } =
-    track
+  const {
+    has_current_user_saved,
+    is_delete,
+    is_unlisted,
+    title,
+    track_id,
+    is_premium: isPremium
+  } = track
   const { is_deactivated, name } = user
 
   const isDeleted = is_delete || !!is_deactivated || is_unlisted
@@ -262,6 +268,8 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
     isNewPodcastControlsEnabled,
     isLongFormContent,
     playbackPositionInfo?.status,
+    isGatedContentEnabled,
+    isPremium,
     track_id
   ])
 

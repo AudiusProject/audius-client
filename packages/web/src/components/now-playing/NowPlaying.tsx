@@ -40,6 +40,7 @@ import RepeatButtonProvider from 'components/play-bar/repeat-button/RepeatButton
 import ShuffleButtonProvider from 'components/play-bar/shuffle-button/ShuffleButtonProvider'
 import { PlayButtonStatus } from 'components/play-bar/types'
 import UserBadges from 'components/user-badges/UserBadges'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { audioPlayer } from 'services/audio-player'
 import { AppState } from 'store/types'
@@ -53,7 +54,6 @@ import { withNullGuard } from 'utils/withNullGuard'
 
 import styles from './NowPlaying.module.css'
 import ActionsBar from './components/ActionsBar'
-import { useFlag } from 'hooks/useRemoteConfig'
 const { makeGetCurrent } = queueSelectors
 const { getBuffering, getCounter, getPlaying } = playerSelectors
 
@@ -294,7 +294,9 @@ const NowPlaying = g(
             ? OverflowAction.UNFAVORITE
             : OverflowAction.FAVORITE
           : null,
-        (!collectible && (!isGatedContentEnabled || !track?.is_premium)) ? OverflowAction.ADD_TO_PLAYLIST : null,
+        !collectible && (!isGatedContentEnabled || !track?.is_premium)
+          ? OverflowAction.ADD_TO_PLAYLIST
+          : null,
         track && OverflowAction.VIEW_TRACK_PAGE,
         collectible && OverflowAction.VIEW_COLLECTIBLE_PAGE,
         OverflowAction.VIEW_ARTIST_PAGE
@@ -311,6 +313,7 @@ const NowPlaying = g(
       currentUserId,
       owner_id,
       collectible,
+      isGatedContentEnabled,
       has_current_user_reposted,
       has_current_user_saved,
       track,
