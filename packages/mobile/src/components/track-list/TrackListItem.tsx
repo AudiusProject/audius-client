@@ -31,6 +31,7 @@ import { TrackDownloadStatusIndicator } from '../offline-downloads/TrackDownload
 
 import { TablePlayButton } from './TablePlayButton'
 import { TrackArtwork } from './TrackArtwork'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 const { open: openOverflowMenu } = mobileOverflowMenuUIActions
 
 const { getUserFromTrack } = cacheUsersSelectors
@@ -161,6 +162,7 @@ type TrackListItemComponentProps = TrackListItemProps & {
 }
 
 const TrackListItemComponent = (props: TrackListItemComponentProps) => {
+  const isGatedContentEnabled = useIsGatedContentEnabled()
   const {
     drag,
     hideArt,
@@ -179,7 +181,7 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
     user
   } = props
 
-  const { has_current_user_saved, is_delete, is_unlisted, title, track_id } =
+  const { has_current_user_saved, is_delete, is_unlisted, title, track_id, is_premium: isPremium } =
     track
   const { is_deactivated, name } = user
 
@@ -234,7 +236,9 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
 
   const handleOpenOverflowMenu = useCallback(() => {
     const overflowActions = [
-      OverflowAction.ADD_TO_PLAYLIST,
+      !isGatedContentEnabled || !isPremium
+        ? OverflowAction.ADD_TO_PLAYLIST
+        : null,
       isNewPodcastControlsEnabled && isLongFormContent
         ? OverflowAction.VIEW_EPISODE_PAGE
         : OverflowAction.VIEW_TRACK_PAGE,

@@ -21,7 +21,8 @@ import {
   shareModalUIActions,
   playerActions,
   playerSelectors,
-  queueSelectors
+  queueSelectors,
+  FeatureFlags
 } from '@audius/common'
 import { Scrubber } from '@audius/stems'
 import cn from 'classnames'
@@ -52,6 +53,7 @@ import { withNullGuard } from 'utils/withNullGuard'
 
 import styles from './NowPlaying.module.css'
 import ActionsBar from './components/ActionsBar'
+import { useFlag } from 'hooks/useRemoteConfig'
 const { makeGetCurrent } = queueSelectors
 const { getBuffering, getCounter, getPlaying } = playerSelectors
 
@@ -120,6 +122,9 @@ const NowPlaying = g(
     goToRoute,
     dominantColors
   }) => {
+    const { isEnabled: isGatedContentEnabled } = useFlag(
+      FeatureFlags.GATED_CONTENT_ENABLED
+    )
     const { uid, track, user, collectible } = currentQueueItem
 
     // Keep a ref for the artwork and dynamically resize the width of the
@@ -289,7 +294,7 @@ const NowPlaying = g(
             ? OverflowAction.UNFAVORITE
             : OverflowAction.FAVORITE
           : null,
-        !collectible ? OverflowAction.ADD_TO_PLAYLIST : null,
+        (!collectible && (!isGatedContentEnabled || !track?.is_premium)) ? OverflowAction.ADD_TO_PLAYLIST : null,
         track && OverflowAction.VIEW_TRACK_PAGE,
         collectible && OverflowAction.VIEW_COLLECTIBLE_PAGE,
         OverflowAction.VIEW_ARTIST_PAGE

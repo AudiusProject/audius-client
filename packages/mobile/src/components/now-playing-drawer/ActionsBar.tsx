@@ -37,6 +37,7 @@ import { useThemeColors } from 'app/utils/theme'
 
 import { FavoriteButton } from './FavoriteButton'
 import { RepostButton } from './RepostButton'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 
 const { getAccountUser } = accountSelectors
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
@@ -83,6 +84,7 @@ type ActionsBarProps = {
 }
 
 export const ActionsBar = ({ track }: ActionsBarProps) => {
+  const isGatedContentEnabled = useIsGatedContentEnabled()
   const styles = useStyles()
   const { toast } = useToast()
   const castMethod = useSelector(getCastMethod)
@@ -147,7 +149,9 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
       const isLongFormContent =
         track.genre === Genre.PODCASTS || track.genre === Genre.AUDIOBOOKS
       const overflowActions = [
-        OverflowAction.ADD_TO_PLAYLIST,
+        !isGatedContentEnabled || !track.is_premium
+          ? OverflowAction.ADD_TO_PLAYLIST
+          : null,
         isNewPodcastControlsEnabled && isLongFormContent
           ? OverflowAction.VIEW_EPISODE_PAGE
           : OverflowAction.VIEW_TRACK_PAGE,
