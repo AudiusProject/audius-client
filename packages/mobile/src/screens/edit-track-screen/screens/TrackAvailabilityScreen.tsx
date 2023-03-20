@@ -48,7 +48,7 @@ const specialAccessAvailability = TrackAvailabilityType.SPECIAL_ACCESS
 const collectibleGatedAvailability = TrackAvailabilityType.COLLECTIBLE_GATED
 const hiddenAvailability = TrackAvailabilityType.HIDDEN
 
-const useStyles = makeStyles(({ palette, spacing, typography }) => ({
+const useStyles = makeStyles(({ spacing }) => ({
   isRemix: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -104,6 +104,10 @@ export const TrackAvailabilityScreen = () => {
     // eslint-disable-next-line
   }, [])
 
+  // we only care about what the initial value was here
+  // eslint-disable-next-line
+  const initialPremiumConditions = useMemo(() => premiumConditions, [])
+
   const isInitiallySpecialAccess =
     !isUpload && initialAvailability === TrackAvailabilityType.SPECIAL_ACCESS
   const noCollectibleGate =
@@ -153,6 +157,7 @@ export const TrackAvailabilityScreen = () => {
         selected={availability === TrackAvailabilityType.SPECIAL_ACCESS}
         disabled={noSpecialAccess}
         disabledContent={noSpecialAccessOptions}
+        initialPremiumConditions={initialPremiumConditions}
       />
     )
   }
@@ -162,6 +167,7 @@ export const TrackAvailabilityScreen = () => {
         selected={availability === TrackAvailabilityType.COLLECTIBLE_GATED}
         disabled={noCollectibleGate}
         disabledContent={noCollectibleDropdown}
+        initialPremiumConditions={initialPremiumConditions}
       />
     )
   }

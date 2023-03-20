@@ -7,7 +7,8 @@ import { Text } from 'app/components/core'
 import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
 import { makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
-import { TrackAvailabilitySelectionProps } from './types'
+
+import type { TrackAvailabilitySelectionProps } from './types'
 
 const messages = {
   public: 'Public (Default)',

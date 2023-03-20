@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import type { PremiumConditions, Nullable } from '@audius/common'
 import { accountSelectors } from '@audius/common'
@@ -13,7 +13,8 @@ import { RadioButton, Text } from 'app/components/core'
 import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
 import { makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
-import { TrackAvailabilitySelectionProps } from './types'
+
+import type { TrackAvailabilitySelectionProps } from './types'
 
 const messages = {
   specialAccess: 'Special Access',
@@ -85,7 +86,8 @@ const { getUserId } = accountSelectors
 export const SpecialAccessAvailability = ({
   selected,
   disabled = false,
-  disabledContent = false
+  disabledContent = false,
+  initialPremiumConditions
 }: TrackAvailabilitySelectionProps) => {
   const styles = useStyles()
   const secondary = useColor('secondary')
@@ -106,50 +108,57 @@ export const SpecialAccessAvailability = ({
     : neutral
 
   const { set: setTrackAvailabilityFields } = useSetTrackAvailabilityFields()
-  const [{ value: premiumConditions }, , { setValue: setPremiumConditions }] =
+  const [{ value: premiumConditions }] =
     useField<Nullable<PremiumConditions>>('premium_conditions')
-  const isFollowerGated = !!premiumConditions?.follow_user_id
-  const isSupporterGated = !!premiumConditions?.tip_user_id
   const currentUserId = useSelector(getUserId)
+  const defaultSpecialAccess = currentUserId
+    ? { follow_user_id: currentUserId }
+    : null
+  const [selectedSpecialAccessGate, setSelectedSpecialAccessGate] =
+    useState<Nullable<PremiumConditions>>(null)
 
-  // If special access was not previously selected,
-  // set as follow gated and reset other fields.
+  // Set initial special access gate based on whether there was an initial gate or not,
+  // i.e. whether it's for a track upload or edit.
   useEffect(() => {
-    if (!isFollowerGated && !isSupporterGated && selected && currentUserId) {
+    setSelectedSpecialAccessGate(
+      !('nft_collection' in (initialPremiumConditions ?? {}))
+        ? initialPremiumConditions ?? defaultSpecialAccess
+        : defaultSpecialAccess
+    )
+    // we only care about what the initial value was here
+    // eslint-disable-next-line
+  }, [])
+
+  // Update special access gate when selection changes
+  useEffect(() => {
+    if (selected && selectedSpecialAccessGate) {
       setTrackAvailabilityFields(
         {
           is_premium: true,
-          premium_conditions: { follow_user_id: currentUserId },
+          premium_conditions: selectedSpecialAccessGate,
           'field_visibility.remixes': false
         },
         true
       )
     }
-  }, [
-    isFollowerGated,
-    isSupporterGated,
-    premiumConditions,
-    selected,
-    currentUserId,
-    setTrackAvailabilityFields
-  ])
+  }, [selected, selectedSpecialAccessGate, setTrackAvailabilityFields])
 
   const handlePressFollowers = useCallback(() => {
     if (currentUserId) {
-      setPremiumConditions({ follow_user_id: currentUserId })
+      setSelectedSpecialAccessGate({ follow_user_id: currentUserId })
     }
-  }, [currentUserId, setPremiumConditions])
+  }, [currentUserId])
 
   const handlePressSupporters = useCallback(() => {
     if (currentUserId) {
-      setPremiumConditions({ tip_user_id: currentUserId })
+      setSelectedSpecialAccessGate({ tip_user_id: currentUserId })
     }
-  }, [currentUserId, setPremiumConditions])
+  }, [currentUserId])
 
   const renderFollowersOption = () => (
     <View style={styles.followersOnly}>
       <RadioButton
-        checked={isFollowerGated}
+        checked={!!premiumConditions?.follow_user_id}
         disabled={disabled || disabledContent}
         style={styles.radio}
       />
@@ -160,7 +169,7 @@ export const SpecialAccessAvailability = ({
   const renderSupportersOption = () => (
     <View style={styles.supportersOnly}>
       <RadioButton
-        checked={isSupporterGated}
+        checked={!!premiumConditions?.tip_user_id}
         disabled={disabled || disabledContent}
         style={styles.radio}
       />

@@ -10,7 +10,8 @@ import { makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
 
 import { SwitchField } from '../fields'
-import { TrackAvailabilitySelectionProps } from './types'
+
+import type { TrackAvailabilitySelectionProps } from './types'
 
 const messages = {
   hidden: 'Hidden',

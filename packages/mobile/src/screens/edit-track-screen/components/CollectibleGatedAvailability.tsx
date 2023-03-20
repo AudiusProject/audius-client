@@ -16,7 +16,8 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
 import { makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
-import { TrackAvailabilitySelectionProps } from './types'
+
+import type { TrackAvailabilitySelectionProps } from './types'
 
 const messages = {
   collectibleGated: 'Collectible Gated',
@@ -139,7 +140,8 @@ const useStyles = makeStyles(({ typography, spacing, palette }) => ({
 export const CollectibleGatedAvailability = ({
   selected,
   disabled = false,
-  disabledContent = false
+  disabledContent = false,
+  initialPremiumConditions
 }: TrackAvailabilitySelectionProps) => {
   const navigation = useNavigation()
   const styles = useStyles()
