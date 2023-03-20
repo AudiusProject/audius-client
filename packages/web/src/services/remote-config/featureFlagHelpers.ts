@@ -21,5 +21,8 @@ export const getFeatureEnabled = (
   flag: FeatureFlags,
   fallbackFlag?: FeatureFlags
 ) => {
-  return getFlagEnabled(flag) || (fallbackFlag && getFlagEnabled(fallbackFlag))
+  return (
+    (getFlagEnabled(flag) || (fallbackFlag && getFlagEnabled(fallbackFlag))) ??
+    false
+  )
 }
