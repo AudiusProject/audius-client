@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import type { PushNotificationPermissions } from 'react-native'
 import { Platform } from 'react-native'
-import { Notifications } from 'react-native-notifications'
-import type { Registered, Notification } from 'react-native-notifications'
+import Config from 'react-native-config'
+// https://dev.to/edmondso006/react-native-local-ios-and-android-notifications-2c58
+import PushNotification from 'react-native-push-notification'
 
 import { track, make } from 'app/services/analytics'
 import { EventNames } from 'app/types/analytics'
@@ -18,6 +19,29 @@ type NotificationNavigation = { navigate: (notification: any) => void }
 
 // Set to true while the push notification service is registering with the os
 let isRegistering = false
+
+const getPlatformConfiguration = () => {
+  if (Platform.OS === 'android') {
+    console.info('Fcm Sender ID:', Config.FCM_SENDER_ID)
+    return {
+      senderID: Config.FCM_SENDER_ID,
+      requestPermissions: true,
+      largeIcon: 'ic_launcher',
+      smallIcon: 'ic_notification'
+    }
+  } else {
+    return {
+      // IOS ONLY (optional): default: all - Permissions to register.
+      permissions: {
+        alert: true,
+        badge: true,
+        sound: true
+      },
+      // Turn the initial permissions request off
+      requestPermissions: false
+    }
+  }
+}
 
 // Singleton class
 class PushNotifications {
@@ -38,30 +62,35 @@ class PushNotifications {
     this.navigation = navigation
   }
 
-  onNotification = (notification: Notification) => {
+  onNotification = (notification: any) => {
     console.info(`Received notification ${JSON.stringify(notification)}`)
-    const { title, body, payload } = notification
-    track(
-      make({
-        eventName: EventNames.NOTIFICATIONS_OPEN_PUSH_NOTIFICATION,
-        title,
-        body
-      })
-    )
-    this.navigation?.navigate(payload?.data?.data ?? payload?.data ?? payload)
-  }
-
-  // Method used to open the push notification that the user pressed while the app was closed
-  openInitialNotification = async () => {
-    const notification = await Notifications.getInitialNotification()
-    if (notification) {
-      console.log('Opening initial notification')
-      this.onNotification(notification)
+    if (notification.userInteraction) {
+      track(
+        make({
+          eventName: EventNames.NOTIFICATIONS_OPEN_PUSH_NOTIFICATION,
+          ...(notification.message
+            ? {
+                title: notification.message.title ?? notification.title,
+                body: notification.message.body ?? notification.message
+              }
+            : {})
+        })
+      )
+      this.navigation?.navigate(notification.data.data ?? notification.data)
     }
   }
 
-  async onRegister(event: Registered) {
-    const token = { token: event.deviceToken, os: Platform.OS }
+  // Method used to open the push notification that the user pressed while the app was closed
+  openInitialNotification = () => {
+    PushNotification.popInitialNotification((notification) => {
+      if (notification) {
+        console.log('Opening initial notification')
+        this.onNotification(notification)
+      }
+    })
+  }
+
+  async onRegister(token: Token) {
     this.token = token
     await AsyncStorage.setItem(DEVICE_TOKEN, JSON.stringify(token))
     isRegistering = false
@@ -72,10 +101,13 @@ class PushNotifications {
   }
 
   async configure() {
-    Notifications.events().registerRemoteNotificationsRegistered(
-      this.onRegister
-    )
-    Notifications.events().registerNotificationOpened(this.onNotification)
+    PushNotification.configure({
+      onNotification: this.onNotification,
+      onRegister: this.onRegister,
+
+      popInitialNotification: false,
+      ...getPlatformConfiguration()
+    })
 
     try {
       const token = await AsyncStorage.getItem(DEVICE_TOKEN)
@@ -91,25 +123,25 @@ class PushNotifications {
 
   requestPermission() {
     isRegistering = true
-    Notifications.registerRemoteNotifications()
+    PushNotification.requestPermissions()
   }
 
-  async checkPermission(
+  checkPermission(
     callback: (permissions: PushNotificationPermissions) => void
   ) {
-    Notifications.ios.checkPermissions().then(callback)
+    return PushNotification.checkPermissions(callback)
   }
 
   cancelNotif() {
-    Notifications.cancelLocalNotification(this.lastId)
+    PushNotification.cancelLocalNotification('' + this.lastId)
   }
 
   cancelAll() {
-    Notifications.ios.cancelAllLocalNotifications()
+    PushNotification.cancelAllLocalNotifications()
   }
 
   setBadgeCount(count: number) {
-    Notifications.ios.setBadgeCount(count)
+    PushNotification.setApplicationIconBadgeNumber(count)
   }
 
   async getToken() {
