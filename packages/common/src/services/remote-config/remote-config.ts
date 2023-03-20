@@ -240,12 +240,10 @@ export const remoteConfig = <
 
     try {
       if (state.didInitialize) {
-        if (isFeatureEnabled(flag)) {
-          return true
-        }
-        if (fallbackFlag && isFeatureEnabled(fallbackFlag)) {
-          return true
-        }
+        return (
+          isFeatureEnabled(flag) ||
+          (fallbackFlag && isFeatureEnabled(fallbackFlag))
+        )
       }
       return defaultVal
     } catch (err) {
