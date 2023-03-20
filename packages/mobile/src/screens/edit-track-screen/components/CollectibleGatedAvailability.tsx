@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import type { Nullable, PremiumConditions } from '@audius/common'
+import type { Nullable, PremiumConditions, PremiumConditionsEthNFTCollection, PremiumConditionsSolNFTCollection } from '@audius/common'
 import { collectiblesSelectors } from '@audius/common'
 import { useField } from 'formik'
 import { View, Image, Dimensions } from 'react-native'
@@ -177,17 +177,19 @@ export const CollectibleGatedAvailability = ({
   const nftCollection = premiumConditions?.nft_collection
 
   const [selectedNFTCollection, setSelectedNFTCollection] =
-    useState(nftCollection)
-  useEffect(() => {
-    if (nftCollection) {
-      setSelectedNFTCollection(nftCollection)
-    }
-  }, [nftCollection])
+    useState<PremiumConditionsEthNFTCollection | PremiumConditionsSolNFTCollection | undefined>(undefined)
 
-  // If collectible gated was not previously selected,
-  // set as collectible gated and reset other fields.
+  // Set initial nft collection gate based on whether there was an initial gate or not,
+  // i.e. whether it's for a track upload or edit.
   useEffect(() => {
-    if (!('nft_collection' in (premiumConditions ?? {})) && selected) {
+    setSelectedNFTCollection(initialPremiumConditions?.nft_collection)
+    // we only care about what the initial value was here
+    // eslint-disable-next-line
+  }, [])
+
+  // Update nft collection gate when availability selection changes
+  useEffect(() => {
+    if (selected) {
       setTrackAvailabilityFields(
         {
           is_premium: true,
@@ -197,12 +199,14 @@ export const CollectibleGatedAvailability = ({
         true
       )
     }
-  }, [
-    premiumConditions,
-    selected,
-    setTrackAvailabilityFields,
-    selectedNFTCollection
-  ])
+  }, [selected, selectedNFTCollection, setTrackAvailabilityFields])
+
+  // Update nft collection gate when nft collection selection changes
+  useEffect(() => {
+    if (premiumConditions?.nft_collection) {
+      setSelectedNFTCollection(premiumConditions.nft_collection)
+    }
+  }, [premiumConditions])
 
   const handlePickACollection = useCallback(() => {
     navigation.navigate('NFTCollections')
