@@ -1525,18 +1525,17 @@ export class AudiusAPIClient {
     userId,
     offset = 0,
     limit = 100,
-    sortMethod = ''
+    sortMethod
   }: GetUserTrackHistoryArgs) {
     const encodedUserId = this._encodeOrThrow(userId)
     const encodedCurrentUserId = encodeHashId(currentUserId)
     this._assertInitialized()
-    let params = {
+    const params = {
       user_id: encodedCurrentUserId || undefined,
       limit,
       offset,
-      sort_method: sortMethod || undefined
+      sort_method: sortMethod
     }
-    params = sortMethod ? { ...params, sort_method: sortMethod } : params
 
     const response: Nullable<APIResponse<APIActivity[]>> =
       await this._getResponse(

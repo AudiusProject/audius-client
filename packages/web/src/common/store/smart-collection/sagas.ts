@@ -40,10 +40,10 @@ function* fetchHeavyRotation() {
   const userListeningHistoryMostListenedByUser = yield* call(
     [apiClient, apiClient.getUserTrackHistory],
     {
-      userId: currentUserId!, // userId
+      userId: currentUserId!,
       currentUserId,
-      limit: 20, // limit
-      offset: 0, // offset
+      limit: 20,
+      offset: 0,
       sortMethod: 'most_listens_by_user'
     }
   )
@@ -61,7 +61,8 @@ function* fetchHeavyRotation() {
     .filter(
       (track) =>
         users.entries[track.owner_id] &&
-        !users.entries[track.owner_id].is_deactivated
+        !users.entries[track.owner_id].is_deactivated &&
+        !track.is_delete
     )
     .map((track) => ({
       track: track.track_id
