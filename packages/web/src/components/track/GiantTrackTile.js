@@ -326,7 +326,6 @@ class GiantTrackTile extends PureComponent {
       FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
       FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
     )
-    console.log('isNewPodcastControlEnabled', isNewPodcastControlsEnabled)
 
     return (
       <>
