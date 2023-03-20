@@ -215,8 +215,9 @@ export const remoteConfig = <
 
   /**
    * Gets whether a given feature flag is enabled.
+   * Accepts a fallback flag which will be checked if the primary flag is disabled
    */
-  function getFeatureEnabled(flag: FeatureFlags) {
+  function getFeatureEnabled(flag: FeatureFlags, fallbackFlag?: FeatureFlags) {
     const defaultVal =
       environmentFlagDefaults[environment][flag] ?? flagDefaults[flag]
 
@@ -225,15 +226,28 @@ export const remoteConfig = <
 
     const id = state.id
 
+    const isFeatureEnabled = (f: FeatureFlags) => {
+      if (!client) {
+        return defaultVal
+      }
+
+      return client.isFeatureEnabled(f, id.toString(), {
+        userId: id,
+        appVersion,
+        mobileClientVersion: mobileClientVersion ?? 'N/A'
+      })
+    }
+
     try {
-      const enabled = state.didInitialize
-        ? client.isFeatureEnabled(flag, id.toString(), {
-            userId: id,
-            appVersion,
-            mobileClientVersion: mobileClientVersion ?? 'N/A'
-          }) ?? defaultVal
-        : defaultVal
-      return enabled
+      if (state.didInitialize) {
+        if (isFeatureEnabled(flag)) {
+          return true
+        }
+        if (fallbackFlag && isFeatureEnabled(fallbackFlag)) {
+          return true
+        }
+      }
+      return defaultVal
     } catch (err) {
       return defaultVal
     }
