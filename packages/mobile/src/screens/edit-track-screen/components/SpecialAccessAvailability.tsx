@@ -146,29 +146,6 @@ export const SpecialAccessAvailability = ({
     }
   }, [currentUserId])
 
-  const renderFollowersOption = () => (
-    <View style={styles.followersOnly}>
-      <RadioButton
-        checked={!!premiumConditions?.follow_user_id}
-        disabled={disabled || disabledContent}
-        style={styles.radio}
-      />
-      <Text>{messages.followersOnly}</Text>
-    </View>
-  )
-
-  const renderSupportersOption = () => (
-    <View style={styles.supportersOnly}>
-      <RadioButton
-        checked={!!premiumConditions?.tip_user_id}
-        disabled={disabled || disabledContent}
-        style={styles.radio}
-      />
-      <Text>{messages.supportersOnly}</Text>
-      <IconInfo style={styles.infoIcon} fill={neutralLight4} />
-    </View>
-  )
-
   return (
     <View style={styles.root}>
       <View style={styles.titleContainer}>
@@ -184,20 +161,37 @@ export const SpecialAccessAvailability = ({
       </View>
       {selected && (
         <View style={styles.selection}>
-          {disabledContent ? (
-            renderFollowersOption()
-          ) : (
-            <TouchableOpacity onPress={handlePressFollowers}>
-              {renderFollowersOption()}
-            </TouchableOpacity>
-          )}
-          {disabledContent ? (
-            renderSupportersOption()
-          ) : (
-            <TouchableOpacity onPress={handlePressSupporters}>
-              {renderSupportersOption()}
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            onPress={handlePressFollowers}
+            disabled={
+              disabled || disabledContent || !!premiumConditions?.follow_user_id
+            }
+          >
+            <View style={styles.followersOnly}>
+              <RadioButton
+                checked={!!premiumConditions?.follow_user_id}
+                disabled={disabled || disabledContent}
+                style={styles.radio}
+              />
+              <Text>{messages.followersOnly}</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handlePressSupporters}
+            disabled={
+              disabled || disabledContent || !!premiumConditions?.tip_user_id
+            }
+          >
+            <View style={styles.supportersOnly}>
+              <RadioButton
+                checked={!!premiumConditions?.tip_user_id}
+                disabled={disabled || disabledContent}
+                style={styles.radio}
+              />
+              <Text>{messages.supportersOnly}</Text>
+              <IconInfo style={styles.infoIcon} fill={neutralLight4} />
+            </View>
+          </TouchableOpacity>
         </View>
       )}
     </View>
