@@ -321,7 +321,8 @@ class GiantTrackTile extends PureComponent {
       onClickReposts,
       onClickFavorites
     } = this.props
-    const isPodcast = genre === Genre.PODCASTS
+    const isLongFormContent =
+      genre === Genre.PODCASTS || genre === Genre.AUDIOBOOKS
     const isNewPodcastControlsEnabled = getFeatureEnabled(
       FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED
     )
@@ -335,7 +336,7 @@ class GiantTrackTile extends PureComponent {
           onClickReposts={onClickReposts}
           onClickFavorites={onClickFavorites}
         />
-        {isPodcast && isNewPodcastControlsEnabled
+        {isLongFormContent && isNewPodcastControlsEnabled
           ? this.renderListenCount()
           : null}
       </>
@@ -390,7 +391,8 @@ class GiantTrackTile extends PureComponent {
       userId
     } = this.props
     const { artworkLoading } = this.state
-    const isPodcast = genre === Genre.PODCASTS
+    const isLongFormContent =
+      genre === Genre.PODCASTS || genre === Genre.AUDIOBOOKS
     const isNewPodcastControlsEnabled = getFeatureEnabled(
       FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED
     )
@@ -483,10 +485,10 @@ class GiantTrackTile extends PureComponent {
               <PlayPauseButton
                 doesUserHaveAccess={doesUserHaveAccess}
                 playing={playing}
-                playbackStatus={this.props.playbackPositionInfo?.status ?? null}
                 onPlay={onPlay}
+                trackId={trackId}
               />
-              {isPodcast && isNewPodcastControlsEnabled ? (
+              {isLongFormContent && isNewPodcastControlsEnabled ? (
                 <GiantTrackTileProgressInfo
                   duration={duration}
                   trackId={trackId}

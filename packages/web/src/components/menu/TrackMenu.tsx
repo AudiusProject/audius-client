@@ -134,6 +134,9 @@ const TrackMenu = (props: TrackMenuProps) => {
       unsetArtistPick
     } = props
 
+    const isLongFormContent =
+      genre === Genre.PODCASTS || genre === Genre.AUDIOBOOKS
+
     const shareMenuItem = {
       text: messages.share,
       onClick: () => {
@@ -172,7 +175,7 @@ const TrackMenu = (props: TrackMenuProps) => {
 
     const trackPageMenuItem = {
       text:
-        genre === Genre.PODCASTS && isNewPodcastControlsEnabled
+        isLongFormContent && isNewPodcastControlsEnabled
           ? messages.visitEpisodePage
           : messages.visitTrackPage,
       onClick: () => goToRoute(trackPermalink)
@@ -243,7 +246,7 @@ const TrackMenu = (props: TrackMenuProps) => {
     }
     if (trackId && trackTitle && !isDeleted) {
       if (includeTrackPage) menu.items.push(trackPageMenuItem)
-      if (genre === Genre.PODCASTS && isNewPodcastControlsEnabled) {
+      if (isLongFormContent && isNewPodcastControlsEnabled) {
         const playbackPosition = trackPlaybackPositions[trackId]
         menu.items.push(
           playbackPosition?.status === 'COMPLETED'
