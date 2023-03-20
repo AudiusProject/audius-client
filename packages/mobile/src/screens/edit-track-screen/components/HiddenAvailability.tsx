@@ -10,6 +10,7 @@ import { makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
 
 import { SwitchField } from '../fields'
+import { TrackAvailabilitySelectionProps } from './types'
 
 const messages = {
   hidden: 'Hidden',
@@ -68,11 +69,6 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     marginTop: spacing(2)
   }
 }))
-
-type TrackAvailabilitySelectionProps = {
-  selected: boolean
-  disabled?: boolean
-}
 
 export const HiddenAvailability = ({
   selected,

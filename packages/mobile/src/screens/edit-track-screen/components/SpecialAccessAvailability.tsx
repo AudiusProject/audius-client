@@ -13,6 +13,7 @@ import { RadioButton, Text } from 'app/components/core'
 import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
 import { makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
+import { TrackAvailabilitySelectionProps } from './types'
 
 const messages = {
   specialAccess: 'Special Access',
@@ -80,12 +81,6 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
 }))
 
 const { getUserId } = accountSelectors
-
-type TrackAvailabilitySelectionProps = {
-  selected: boolean
-  disabled?: boolean
-  disabledContent?: boolean
-}
 
 export const SpecialAccessAvailability = ({
   selected,
