@@ -61,7 +61,7 @@ export const EditTrackNavigator = (props: EditTrackNavigatorProps) => {
         <Stack.Screen name='IsrcIswc' component={IsrcIswcScreen} />
         <Stack.Screen name='LicenseType' component={LicenseTypeScreen} />
       </Stack.Navigator>
-      <GatedContentUploadPromptDrawer />
+      <GatedContentUploadPromptDrawer isUpload={props.isUpload} />
     </>
   )
 }

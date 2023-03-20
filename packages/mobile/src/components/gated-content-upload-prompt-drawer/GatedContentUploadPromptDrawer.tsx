@@ -73,7 +73,11 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   }
 }))
 
-export const GatedContentUploadPromptDrawer = () => {
+export const GatedContentUploadPromptDrawer = ({
+  isUpload
+}: {
+  isUpload?: boolean
+}) => {
   const styles = useStyles()
   const neutralLight4 = useColor('neutralLight4')
   const navigation = useNavigation()
@@ -89,7 +93,9 @@ export const GatedContentUploadPromptDrawer = () => {
   const handleSubmit = useCallback(() => {
     handleClose()
     navigation.push('Availability')
-  }, [dispatch, navigation])
+  }, [handleClose, navigation])
+
+  if (!isUpload) return null
 
   return (
     <NativeDrawer drawerName='GatedContentUploadPrompt'>
