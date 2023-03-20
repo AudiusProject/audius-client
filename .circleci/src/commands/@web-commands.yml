@@ -101,7 +101,7 @@ web-distribute:
           echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --install' >> $BASH_ENV
           source $BASH_ENV
           nvm install 14.20.1
-          nvm use 14.20.1
+          nvm alias default 14.20.1
     - run:
         name: distribute
         command: |
