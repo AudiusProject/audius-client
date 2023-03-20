@@ -195,7 +195,8 @@ export const reducers = () => ({
       topSupporters: topSupportersUserListReducer,
       supporting: supportingUserListReducer,
       mutuals: mutualsUserListReducer,
-      notifications: notificationsUserListReducer
+      notifications: notificationsUserListReducer,
+      relatedArtists: relatedArtistsListReducer
     }),
     theme,
     vipDiscordModal: vipDiscordModalReducer,

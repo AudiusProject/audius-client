@@ -7,7 +7,7 @@ export type RelatedArtistsOwnState = {
 }
 
 export type RelatedArtistsPageState = {
-  RelatedArtistsPage: RelatedArtistsOwnState
+  relatedArtistsPage: RelatedArtistsOwnState
   userList: UserListStoreState
 }
 
