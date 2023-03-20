@@ -33,6 +33,7 @@ import {
 } from '@audius/stems'
 
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
+import { ReactComponent as IconUserGroup } from 'assets/img/iconUserGroup.svg'
 import { useSelector } from 'common/hooks/useSelector'
 import UserList from 'components/user-list/UserList'
 import { UserListType } from 'store/application/ui/userListModal/types'
@@ -174,14 +175,8 @@ const UserListModal = ({
       userIdSelector = getRelatedArtistsId
       title = (
         <div className={styles.titleContainer}>
-          <IconTrophy className={styles.icon} />
-          {!profile && supportersUser && supportersId ? (
-            <div className={styles.titleNameContainer}>
-              <div className={styles.titleName}>{supportersUser.name}</div>
-              <span>&apos;s&nbsp;</span>
-            </div>
-          ) : null}
-          <span>{messages.topSupporters}</span>
+          <IconUserGroup className={styles.icon} />
+          <span>{messages.relatedArtists}</span>
         </div>
       )
       break

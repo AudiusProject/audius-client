@@ -55,7 +55,7 @@ export const RelatedArtists = () => {
     if (profile) {
       dispatch(
         setUsers({
-          userListType: UserListType.SUPPORTER,
+          userListType: UserListType.RELATED_ARTISTS,
           entityType: UserListEntityType.USER,
           id: profile.user_id
         })
@@ -78,7 +78,7 @@ export const RelatedArtists = () => {
         onClick={handleClick}
         users={suggestedArtists}
         totalUserCount={profile.supporter_count}
-        limit={MAX_PROFILE_TOP_SUPPORTERS}
+        limit={MAX_PROFILE_TOP_SUPPORTERS} // TODO: make constant for related artists
         disableProfileClick
       />
     </div>
