@@ -70,18 +70,19 @@ const useStyles = makeStyles(({ spacing }) => ({
 type AudioControlsProps = {
   onNext: () => void
   onPrevious: () => void
-  isPodcast?: boolean
+  isLongFormContent?: boolean
 }
 
 export const AudioControls = ({
   onNext,
   onPrevious,
-  isPodcast = false
+  isLongFormContent = false
 }: AudioControlsProps) => {
   const dispatch = useDispatch()
 
   const { isEnabled: isNewPodcastControlsEnabled } = useFeatureFlag(
-    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
   )
   const styles = useStyles()
 
@@ -128,7 +129,7 @@ export const AudioControls = ({
   }, [dispatch])
 
   const renderRepeatButton = () => {
-    return isPodcast && isNewPodcastControlsEnabled ? (
+    return isLongFormContent && isNewPodcastControlsEnabled ? (
       <View style={styles.emptyPlaceholder} />
     ) : (
       <RepeatButton
@@ -142,7 +143,7 @@ export const AudioControls = ({
     return (
       <IconButton
         onPress={onPrevious}
-        icon={isPodcast ? IconPodcastBack : IconPrev}
+        icon={isLongFormContent ? IconPodcastBack : IconPrev}
         styles={{ root: styles.button, icon: styles.nextPrevIcons }}
       />
     )
@@ -163,13 +164,13 @@ export const AudioControls = ({
     return (
       <IconButton
         onPress={onNext}
-        icon={isPodcast ? IconPodcastForward : IconNext}
+        icon={isLongFormContent ? IconPodcastForward : IconNext}
         styles={{ root: styles.button, icon: styles.nextPrevIcons }}
       />
     )
   }
   const renderRightButton = () => {
-    return isPodcast && isNewPodcastControlsEnabled ? (
+    return isLongFormContent && isNewPodcastControlsEnabled ? (
       <View style={styles.playbackIconContainer}>
         <PlaybackRateButton
           onPress={handlePressPlaybackRate}

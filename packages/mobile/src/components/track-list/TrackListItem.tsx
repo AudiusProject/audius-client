@@ -2,6 +2,9 @@ import { memo, useCallback, useMemo, useState } from 'react'
 
 import type { ID, Track, UID, User } from '@audius/common'
 import {
+  FeatureFlags,
+  playbackPositionSelectors,
+  Genre,
   removeNullable,
   OverflowAction,
   OverflowSource,
@@ -20,6 +23,8 @@ import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconRemoveTrack from 'app/assets/images/iconRemoveTrack.svg'
 import { IconButton } from 'app/components/core'
 import UserBadges from 'app/components/user-badges'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { font, makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -32,6 +37,7 @@ const { open: openOverflowMenu } = mobileOverflowMenuUIActions
 const { getUserFromTrack } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
 const { getPlaying, getUid } = playerSelectors
+const { getTrackPosition } = playbackPositionSelectors
 
 export type TrackItemAction = 'save' | 'overflow' | 'remove'
 
@@ -156,6 +162,7 @@ type TrackListItemComponentProps = TrackListItemProps & {
 }
 
 const TrackListItemComponent = (props: TrackListItemComponentProps) => {
+  const isGatedContentEnabled = useIsGatedContentEnabled()
   const {
     drag,
     hideArt,
@@ -174,8 +181,14 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
     user
   } = props
 
-  const { has_current_user_saved, is_delete, is_unlisted, title, track_id } =
-    track
+  const {
+    has_current_user_saved,
+    is_delete,
+    is_unlisted,
+    title,
+    track_id,
+    is_premium: isPremium
+  } = track
   const { is_deactivated, name } = user
 
   const isDeleted = is_delete || !!is_deactivated || is_unlisted
@@ -216,10 +229,30 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
     }
   }
 
+  const { isEnabled: isNewPodcastControlsEnabled } = useFeatureFlag(
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
+  )
+
+  const isLongFormContent =
+    track.genre === Genre.PODCASTS || track.genre === Genre.AUDIOBOOKS
+  const playbackPositionInfo = useSelector((state) =>
+    getTrackPosition(state, { trackId: track_id })
+  )
+
   const handleOpenOverflowMenu = useCallback(() => {
     const overflowActions = [
-      OverflowAction.ADD_TO_PLAYLIST,
-      OverflowAction.VIEW_TRACK_PAGE,
+      !isGatedContentEnabled || !isPremium
+        ? OverflowAction.ADD_TO_PLAYLIST
+        : null,
+      isNewPodcastControlsEnabled && isLongFormContent
+        ? OverflowAction.VIEW_EPISODE_PAGE
+        : OverflowAction.VIEW_TRACK_PAGE,
+      isNewPodcastControlsEnabled && isLongFormContent
+        ? playbackPositionInfo?.status === 'COMPLETED'
+          ? OverflowAction.MARK_AS_UNPLAYED
+          : OverflowAction.MARK_AS_PLAYED
+        : null,
       OverflowAction.VIEW_ARTIST_PAGE
     ].filter(removeNullable)
 
@@ -230,7 +263,15 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
         overflowActions
       })
     )
-  }, [dispatch, track_id])
+  }, [
+    dispatch,
+    isNewPodcastControlsEnabled,
+    isLongFormContent,
+    playbackPositionInfo?.status,
+    isGatedContentEnabled,
+    isPremium,
+    track_id
+  ])
 
   const handlePressSave = (e: NativeSyntheticEvent<NativeTouchEvent>) => {
     e.stopPropagation()

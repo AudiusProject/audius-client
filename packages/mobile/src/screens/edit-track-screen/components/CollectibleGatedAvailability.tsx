@@ -7,15 +7,17 @@ import { View, Image, Dimensions } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { useSelector } from 'react-redux'
 
-import IconArrow from 'app/assets/images/iconArrow.svg'
 import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
-import { Link, Text } from 'app/components/core'
+import IconExternalLink from 'app/assets/images/iconExternalLink.svg'
+import { Text, useLink } from 'app/components/core'
 import { HelpCallout } from 'app/components/help-callout/HelpCallout'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useSetTrackAvailabilityFields } from 'app/hooks/useSetTrackAvailabilityFields'
 import { makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
+
+import type { TrackAvailabilitySelectionProps } from './types'
 
 const messages = {
   collectibleGated: 'Collectible Gated',
@@ -73,10 +75,10 @@ const useStyles = makeStyles(({ typography, spacing, palette }) => ({
     alignItems: 'center'
   },
   learnMoreText: {
-    marginRight: spacing(0.5),
+    marginRight: spacing(1),
     fontFamily: typography.fontByWeight.bold,
-    fontSize: typography.fontSize.small,
-    color: palette.secondary
+    fontSize: typography.fontSize.large,
+    color: palette.neutralLight4
   },
   collectionContainer: {
     marginTop: spacing(4),
@@ -129,25 +131,24 @@ const useStyles = makeStyles(({ typography, spacing, palette }) => ({
     marginRight: spacing(4),
     width: spacing(5),
     height: spacing(5)
+  },
+  learnMoreIcon: {
+    marginLeft: spacing(1)
   }
 }))
-
-type TrackAvailabilitySelectionProps = {
-  selected: boolean
-  disabled?: boolean
-  disabledContent?: boolean
-}
 
 export const CollectibleGatedAvailability = ({
   selected,
   disabled = false,
-  disabledContent = false
+  disabledContent = false,
+  initialPremiumConditions
 }: TrackAvailabilitySelectionProps) => {
   const navigation = useNavigation()
   const styles = useStyles()
   const secondary = useColor('secondary')
   const neutral = useColor('neutral')
   const neutralLight4 = useColor('neutralLight4')
+  const { onPress: onLearnMorePress } = useLink(LEARN_MORE_URL)
 
   const titleStyles: object[] = [styles.title]
   if (selected) {
@@ -173,20 +174,13 @@ export const CollectibleGatedAvailability = ({
   const { set: setTrackAvailabilityFields } = useSetTrackAvailabilityFields()
   const [{ value: premiumConditions }] =
     useField<Nullable<PremiumConditions>>('premium_conditions')
-  const nftCollection = premiumConditions?.nft_collection
+  const [selectedNFTCollection, setSelectedNFTCollection] = useState(
+    initialPremiumConditions?.nft_collection
+  )
 
-  const [selectedNFTCollection, setSelectedNFTCollection] =
-    useState(nftCollection)
+  // Update nft collection gate when availability selection changes
   useEffect(() => {
-    if (nftCollection) {
-      setSelectedNFTCollection(nftCollection)
-    }
-  }, [nftCollection])
-
-  // If collectible gated was not previously selected,
-  // set as collectible gated and reset other fields.
-  useEffect(() => {
-    if (!('nft_collection' in (premiumConditions ?? {})) && selected) {
+    if (selected) {
       setTrackAvailabilityFields(
         {
           is_premium: true,
@@ -196,12 +190,14 @@ export const CollectibleGatedAvailability = ({
         true
       )
     }
-  }, [
-    premiumConditions,
-    selected,
-    setTrackAvailabilityFields,
-    selectedNFTCollection
-  ])
+  }, [selected, selectedNFTCollection, setTrackAvailabilityFields])
+
+  // Update nft collection gate when nft collection selection changes
+  useEffect(() => {
+    if (premiumConditions?.nft_collection) {
+      setSelectedNFTCollection(premiumConditions.nft_collection)
+    }
+  }, [premiumConditions])
 
   const handlePickACollection = useCallback(() => {
     navigation.navigate('NFTCollections')
@@ -237,10 +233,17 @@ export const CollectibleGatedAvailability = ({
           content={renderHelpCalloutContent()}
         />
       ) : null}
-      <Link url={LEARN_MORE_URL} style={styles.learnMore}>
-        <Text style={styles.learnMoreText}>{messages.learnMore}</Text>
-        <IconArrow fill={secondary} width={16} height={16} />
-      </Link>
+      <TouchableOpacity style={styles.learnMore} onPress={onLearnMorePress}>
+        <Text weight='bold' color='neutralLight4' fontSize='large'>
+          {messages.learnMore}
+        </Text>
+        <IconExternalLink
+          style={styles.learnMoreIcon}
+          width={20}
+          height={20}
+          fill={neutralLight4}
+        />
+      </TouchableOpacity>
       {selected && (
         <TouchableOpacity
           onPress={handlePickACollection}
@@ -253,17 +256,19 @@ export const CollectibleGatedAvailability = ({
             </Text>
             <IconCaretRight fill={neutralLight4} width={16} height={16} />
           </View>
-          {nftCollection && (
+          {premiumConditions?.nft_collection && (
             <View>
               <Text style={styles.ownersOf}>{messages.ownersOf}</Text>
               <View style={styles.collection}>
-                {nftCollection.imageUrl && (
+                {premiumConditions.nft_collection.imageUrl && (
                   <Image
-                    source={{ uri: nftCollection.imageUrl }}
+                    source={{ uri: premiumConditions.nft_collection.imageUrl }}
                     style={styles.logo}
                   />
                 )}
-                <Text style={styles.collectionName}>{nftCollection.name}</Text>
+                <Text style={styles.collectionName}>
+                  {premiumConditions.nft_collection.name}
+                </Text>
               </View>
             </View>
           )}

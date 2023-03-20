@@ -4,6 +4,7 @@ import { TipSource } from '../../models/Analytics'
 import { ID } from '../../models/Identifiers'
 import { UserTip } from '../../models/Tipping'
 import { User } from '../../models/User'
+import type { Nullable } from '../../utils/typeUtils'
 
 import {
   RefreshSupportPayloadAction,
@@ -22,7 +23,8 @@ const initialState: TippingState = {
     user: null,
     amount: '0',
     error: null,
-    source: 'profile'
+    source: 'profile',
+    trackId: null
   },
   tipToDisplay: null,
   showTip: false
@@ -98,7 +100,11 @@ const slice = createSlice({
     ) => {},
     beginTip: (
       state,
-      action: PayloadAction<{ user: User | null; source: TipSource }>
+      action: PayloadAction<{
+        user: User | null
+        source: TipSource
+        trackId?: ID
+      }>
     ) => {
       if (!action.payload.user) {
         return
@@ -106,6 +112,7 @@ const slice = createSlice({
       state.send.status = 'SEND'
       state.send.source = action.payload.source
       state.send.user = action.payload.user
+      state.send.trackId = action.payload.trackId ?? null
     },
     sendTip: (state, action: PayloadAction<{ amount: string }>) => {
       if (state.send.status !== 'SEND') {
@@ -138,6 +145,7 @@ const slice = createSlice({
       state.send.user = null
       state.send.amount = '0'
       state.send.error = null
+      state.send.trackId = null
     },
     fetchRecentTips: (_state) => {},
     fetchUserSupporter: (
@@ -157,7 +165,10 @@ const slice = createSlice({
     setShowTip: (state, action: PayloadAction<{ show: boolean }>) => {
       state.showTip = action.payload.show
     },
-    refreshTipGatedTracks: (_state, _action: PayloadAction<{ userId: ID }>) => {
+    refreshTipGatedTracks: (
+      _state,
+      _action: PayloadAction<{ userId: ID; trackId?: Nullable<ID> }>
+    ) => {
       // triggers saga
     }
   }

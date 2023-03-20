@@ -56,8 +56,10 @@ const messages = {
   visitArtistPage: 'Visit Artist Page',
   visitTrackPage: 'Visit Track Page',
   visitEpisodePage: 'Visit Episode Page',
+  markAsPlayed: 'Mark as Played',
+  markedAsPlayed: 'Marked as Played',
   markAsUnplayed: 'Mark as Unplayed',
-  markAsPlayed: 'Mark as Played'
+  markedAsUnplayed: 'Marked as Unplayed'
 }
 
 export type OwnProps = {
@@ -93,7 +95,8 @@ const TrackMenu = (props: TrackMenuProps) => {
   const { toast } = useContext(ToastContext)
   const dispatch = useDispatch()
   const { isEnabled: isNewPodcastControlsEnabled } = useFlag(
-    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
   )
   const trackPlaybackPositions = useSelector(getTrackPositions)
 
@@ -131,6 +134,9 @@ const TrackMenu = (props: TrackMenuProps) => {
       unsaveTrack,
       unsetArtistPick
     } = props
+
+    const isLongFormContent =
+      genre === Genre.PODCASTS || genre === Genre.AUDIOBOOKS
 
     const shareMenuItem = {
       text: messages.share,
@@ -170,7 +176,7 @@ const TrackMenu = (props: TrackMenuProps) => {
 
     const trackPageMenuItem = {
       text:
-        genre === Genre.PODCASTS && isNewPodcastControlsEnabled
+        isLongFormContent && isNewPodcastControlsEnabled
           ? messages.visitEpisodePage
           : messages.visitTrackPage,
       onClick: () => goToRoute(trackPermalink)
@@ -178,18 +184,23 @@ const TrackMenu = (props: TrackMenuProps) => {
 
     const markAsUnplayedItem = {
       text: messages.markAsUnplayed,
-      onClick: () => dispatch(clearTrackPosition({ trackId }))
+      onClick: () => {
+        dispatch(clearTrackPosition({ trackId }))
+        toast(messages.markedAsUnplayed)
+      }
     }
 
     const markAsPlayedItem = {
       text: messages.markAsPlayed,
-      onClick: () =>
+      onClick: () => {
         dispatch(
           setTrackPosition({
             trackId,
             positionInfo: { status: 'COMPLETED', playbackPosition: 0 }
           })
         )
+        toast(messages.markedAsPlayed)
+      }
     }
 
     // TODO: Add back go to album when we have better album linking.
@@ -236,7 +247,7 @@ const TrackMenu = (props: TrackMenuProps) => {
     }
     if (trackId && trackTitle && !isDeleted) {
       if (includeTrackPage) menu.items.push(trackPageMenuItem)
-      if (genre === Genre.PODCASTS && isNewPodcastControlsEnabled) {
+      if (isLongFormContent && isNewPodcastControlsEnabled) {
         const playbackPosition = trackPlaybackPositions[trackId]
         menu.items.push(
           playbackPosition?.status === 'COMPLETED'

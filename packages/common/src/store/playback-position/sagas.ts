@@ -15,11 +15,14 @@ import { PlaybackPositionState, PLAYBACK_POSITION_LS_KEY } from './types'
  * Sets the playback rate from local storage when the app loads
  */
 function* setInitialPlaybackPositionState() {
+  const remoteConfigInstance = yield* getContext('remoteConfigInstance')
+  yield* call(remoteConfigInstance.waitForRemoteConfig)
   const getFeatureEnabled = yield* getContext('getFeatureEnabled')
   const getLocalStorageItem = yield* getContext('getLocalStorageItem')
   const isNewPodcastControlsEnabled = yield* call(
     getFeatureEnabled,
-    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
   )
   if (!isNewPodcastControlsEnabled) return
 
