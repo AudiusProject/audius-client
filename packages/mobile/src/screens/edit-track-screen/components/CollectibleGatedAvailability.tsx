@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import type { Nullable, PremiumConditions, PremiumConditionsEthNFTCollection, PremiumConditionsSolNFTCollection } from '@audius/common'
+import type {
+  Nullable,
+  PremiumConditions,
+  PremiumConditionsEthNFTCollection,
+  PremiumConditionsSolNFTCollection
+} from '@audius/common'
 import { collectiblesSelectors } from '@audius/common'
 import { useField } from 'formik'
 import { View, Image, Dimensions } from 'react-native'
@@ -176,8 +181,11 @@ export const CollectibleGatedAvailability = ({
     useField<Nullable<PremiumConditions>>('premium_conditions')
   const nftCollection = premiumConditions?.nft_collection
 
-  const [selectedNFTCollection, setSelectedNFTCollection] =
-    useState<PremiumConditionsEthNFTCollection | PremiumConditionsSolNFTCollection | undefined>(undefined)
+  const [selectedNFTCollection, setSelectedNFTCollection] = useState<
+    | PremiumConditionsEthNFTCollection
+    | PremiumConditionsSolNFTCollection
+    | undefined
+  >(undefined)
 
   // Set initial nft collection gate based on whether there was an initial gate or not,
   // i.e. whether it's for a track upload or edit.
