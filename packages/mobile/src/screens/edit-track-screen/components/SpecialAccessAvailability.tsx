@@ -114,20 +114,11 @@ export const SpecialAccessAvailability = ({
   const defaultSpecialAccess = currentUserId
     ? { follow_user_id: currentUserId }
     : null
-  const [selectedSpecialAccessGate, setSelectedSpecialAccessGate] =
-    useState<Nullable<PremiumConditions>>(null)
-
-  // Set initial special access gate based on whether there was an initial gate or not,
-  // i.e. whether it's for a track upload or edit.
-  useEffect(() => {
-    setSelectedSpecialAccessGate(
-      !('nft_collection' in (initialPremiumConditions ?? {}))
-        ? initialPremiumConditions ?? defaultSpecialAccess
-        : defaultSpecialAccess
-    )
-    // we only care about what the initial value was here
-    // eslint-disable-next-line
-  }, [])
+  const [selectedSpecialAccessGate, setSelectedSpecialAccessGate] = useState(
+    !('nft_collection' in (initialPremiumConditions ?? {}))
+      ? initialPremiumConditions ?? defaultSpecialAccess
+      : defaultSpecialAccess
+  )
 
   // Update special access gate when selection changes
   useEffect(() => {

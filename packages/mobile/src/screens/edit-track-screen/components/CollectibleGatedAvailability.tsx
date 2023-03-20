@@ -1,11 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import type {
-  Nullable,
-  PremiumConditions,
-  PremiumConditionsEthNFTCollection,
-  PremiumConditionsSolNFTCollection
-} from '@audius/common'
+import type { Nullable, PremiumConditions } from '@audius/common'
 import { collectiblesSelectors } from '@audius/common'
 import { useField } from 'formik'
 import { View, Image, Dimensions } from 'react-native'
@@ -179,21 +174,9 @@ export const CollectibleGatedAvailability = ({
   const { set: setTrackAvailabilityFields } = useSetTrackAvailabilityFields()
   const [{ value: premiumConditions }] =
     useField<Nullable<PremiumConditions>>('premium_conditions')
-  const nftCollection = premiumConditions?.nft_collection
-
-  const [selectedNFTCollection, setSelectedNFTCollection] = useState<
-    | PremiumConditionsEthNFTCollection
-    | PremiumConditionsSolNFTCollection
-    | undefined
-  >(undefined)
-
-  // Set initial nft collection gate based on whether there was an initial gate or not,
-  // i.e. whether it's for a track upload or edit.
-  useEffect(() => {
-    setSelectedNFTCollection(initialPremiumConditions?.nft_collection)
-    // we only care about what the initial value was here
-    // eslint-disable-next-line
-  }, [])
+  const [selectedNFTCollection, setSelectedNFTCollection] = useState(
+    initialPremiumConditions?.nft_collection
+  )
 
   // Update nft collection gate when availability selection changes
   useEffect(() => {
@@ -273,17 +256,19 @@ export const CollectibleGatedAvailability = ({
             </Text>
             <IconCaretRight fill={neutralLight4} width={16} height={16} />
           </View>
-          {nftCollection && (
+          {premiumConditions?.nft_collection && (
             <View>
               <Text style={styles.ownersOf}>{messages.ownersOf}</Text>
               <View style={styles.collection}>
-                {nftCollection.imageUrl && (
+                {premiumConditions.nft_collection.imageUrl && (
                   <Image
-                    source={{ uri: nftCollection.imageUrl }}
+                    source={{ uri: premiumConditions.nft_collection.imageUrl }}
                     style={styles.logo}
                   />
                 )}
-                <Text style={styles.collectionName}>{nftCollection.name}</Text>
+                <Text style={styles.collectionName}>
+                  {premiumConditions.nft_collection.name}
+                </Text>
               </View>
             </View>
           )}
