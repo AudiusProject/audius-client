@@ -360,13 +360,13 @@ const TrackAvailabilityModal = ({
         </RadioButtonGroup>
       </ModalContent>
       <ModalFooter className={styles.doneButtonContainer}>
-          <Button
-            type={ButtonType.PRIMARY_ALT}
-            textClassName={cn(styles.doneButton)}
-            text={messages.done}
-            onClick={onClose}
-          />
-        </ModalFooter>
+        <Button
+          type={ButtonType.PRIMARY_ALT}
+          textClassName={cn(styles.doneButton)}
+          text={messages.done}
+          onClick={onClose}
+        />
+      </ModalFooter>
     </Modal>
   )
 }

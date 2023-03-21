@@ -2,8 +2,9 @@ import { ChangeEvent, useCallback } from 'react'
 
 import { accountSelectors, TrackAvailabilityType } from '@audius/common'
 import { IconInfo, RadioButton, RadioButtonGroup } from '@audius/stems'
-import { useSelector } from 'react-redux'
 import cn from 'classnames'
+import { useSelector } from 'react-redux'
+
 import Tooltip from 'components/tooltip/Tooltip'
 
 import styles from './SpecialAccessAvailability.module.css'

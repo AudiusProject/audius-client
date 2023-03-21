@@ -43,7 +43,9 @@ export const EditTrackNavigator = (props: EditTrackNavigatorProps) => {
         />
         {isGatedContentEnabled ? (
           <Stack.Screen name='Availability'>
-            {() => <TrackAvailabilityScreen initialValues={props.initialValues} />}
+            {() => (
+              <TrackAvailabilityScreen initialValues={props.initialValues} />
+            )}
           </Stack.Screen>
         ) : (
           <Stack.Screen
@@ -60,7 +62,9 @@ export const EditTrackNavigator = (props: EditTrackNavigatorProps) => {
         <Stack.Screen name='IsrcIswc' component={IsrcIswcScreen} />
         <Stack.Screen name='LicenseType' component={LicenseTypeScreen} />
       </Stack.Navigator>
-      <GatedContentUploadPromptDrawer isUpload={!props.initialValues.track_id} />
+      <GatedContentUploadPromptDrawer
+        isUpload={!props.initialValues.track_id}
+      />
     </>
   )
 }

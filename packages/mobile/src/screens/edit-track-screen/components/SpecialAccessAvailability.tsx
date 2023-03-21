@@ -173,7 +173,9 @@ export const SpecialAccessAvailability = ({
                 disabled={isContentDisabled}
                 style={styles.radio}
               />
-              <Text style={isContentDisabled ? styles.disabledTitle : null}>{messages.followersOnly}</Text>
+              <Text style={isContentDisabled ? styles.disabledTitle : null}>
+                {messages.followersOnly}
+              </Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity
@@ -186,7 +188,9 @@ export const SpecialAccessAvailability = ({
                 disabled={isContentDisabled}
                 style={styles.radio}
               />
-              <Text style={isContentDisabled ? styles.disabledTitle : null}>{messages.supportersOnly}</Text>
+              <Text style={isContentDisabled ? styles.disabledTitle : null}>
+                {messages.supportersOnly}
+              </Text>
               <IconInfo style={styles.infoIcon} fill={neutralLight4} />
             </View>
           </TouchableOpacity>

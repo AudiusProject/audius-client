@@ -68,7 +68,11 @@ const MarkedAsRemix = () => {
   ) : null
 }
 
-export const TrackAvailabilityScreen = ({ initialValues }: { initialValues?: FormValues}) => {
+export const TrackAvailabilityScreen = ({
+  initialValues
+}: {
+  initialValues?: FormValues
+}) => {
   const isSpecialAccessEnabled = useIsSpecialAccessEnabled()
   const isCollectibleGatedEnabled = useIsCollectibleGatedEnabled()
 
@@ -104,10 +108,15 @@ export const TrackAvailabilityScreen = ({ initialValues }: { initialValues?: For
     // eslint-disable-next-line
   }, [])
 
-  const isInitiallyPublic = !isUpload && !initialValues.is_unlisted && !initialPremiumConditions
+  const isInitiallyPublic =
+    !isUpload && !initialValues.is_unlisted && !initialPremiumConditions
 
   const isInitiallySpecialAccess =
-    !isUpload && !!(initialPremiumConditions?.follow_user_id || initialPremiumConditions?.tip_user_id)
+    !isUpload &&
+    !!(
+      initialPremiumConditions?.follow_user_id ||
+      initialPremiumConditions?.tip_user_id
+    )
   const noCollectibleGate =
     isInitiallyPublic ||
     isInitiallySpecialAccess ||
