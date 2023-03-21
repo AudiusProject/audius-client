@@ -10,8 +10,8 @@
     "test:target": "env-cmd -f .env jest --runInBand",
     "test": "npm run cypress:run",
     "test:ci": "npm run cypress:run",
-    "lint:fix": "eslint --cache --fix --ext=js,jsx,ts,tsx cypress",
-    "lint": "eslint --cache --ext=js,jsx,ts,tsx cypress"
+    "lint": "eslint --cache --ext=js,jsx,ts,tsx cypress",
+    "lint:fix": "eslint --cache --fix --ext=js,jsx,ts,tsx cypress"
   },
   "author": "",
   "license": "ISC",
