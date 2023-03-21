@@ -95,18 +95,23 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   reaction: {
     height: spacing(8),
     width: spacing(8),
-    position: 'absolute',
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
     shadowRadius: 5
+  },
+  reactionContainer: {
+    position: 'absolute',
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    gap: -REACTION_SPACE_BETWEEN
   }
 }))
 
 type ChatReactionProps = {
   reaction: ChatMessageReaction
   reactionPosition: { x: number; y: number }
-  isAuthor: boolean
+  isAuthor?: boolean
 }
 
 const ChatReaction = ({
@@ -120,52 +125,7 @@ const ChatReaction = ({
     return null
   }
   const Reaction = reactionMap[reaction.reaction as ReactionTypes]
-  const reactionPositionStyle = [
-    { top: reactionPosition?.y },
-    isAuthor ? { right: reactionPosition?.x } : { left: reactionPosition?.x }
-  ]
-  return (
-    <Reaction
-      style={[styles.reaction, ...reactionPositionStyle]}
-      key={reaction.user_id}
-      isVisible
-    />
-  )
-}
-
-const formatChatReactions = (
-  reactions: ChatMessageReaction[],
-  isAuthor: boolean,
-  reactionPosition: { x: number; y: number }
-) => {
-  // When there are multiple reactions, shift the earlier reactions closer
-  // towards the inside of of the message body.
-  if (reactions.length > 1) {
-    return reactions.map((reaction, index) => {
-      return (
-        <ChatReaction
-          key={index}
-          reaction={reaction}
-          reactionPosition={{
-            ...reactionPosition,
-            // (reactions.length - 1 - index) is an "reverse index" that
-            // increases as index decreases
-            x:
-              reactionPosition.x -
-              (reactions.length - 1 - index) * REACTION_SPACE_BETWEEN
-          }}
-          isAuthor={isAuthor}
-        />
-      )
-    })
-  }
-  return (
-    <ChatReaction
-      reaction={reactions[0]}
-      reactionPosition={reactionPosition}
-      isAuthor={isAuthor}
-    />
-  )
+  return <Reaction style={styles.reaction} key={reaction.user_id} isVisible />
 }
 
 type ChatMessageListItemProps = {
@@ -198,6 +158,21 @@ export const ChatMessageListItem = forwardRef<View, ChatMessageListItemProps>(
       x: number
       y: number
     }>({ x: 0, y: 0 })
+
+    const reactionPositionStyle = [
+      { top: reactionPosition?.y },
+      isAuthor
+        ? {
+            right:
+              reactionPosition?.x +
+              (message.reactions.length - 1) * REACTION_SPACE_BETWEEN
+          }
+        : {
+            left:
+              reactionPosition?.x -
+              (message.reactions.length - 1) * REACTION_SPACE_BETWEEN
+          }
+    ]
 
     return (
       <>
@@ -255,13 +230,21 @@ export const ChatMessageListItem = forwardRef<View, ChatMessageListItemProps>(
           ) : null}
           {message.reactions?.length > 0 ? (
             <>
-              {shouldShowReaction
-                ? formatChatReactions(
-                    message.reactions,
-                    isAuthor,
-                    reactionPosition
-                  )
-                : null}
+              {shouldShowReaction ? (
+                <View
+                  style={[styles.reactionContainer, ...reactionPositionStyle]}
+                >
+                  {message.reactions.map((reaction, index) => {
+                    return (
+                      <ChatReaction
+                        key={index}
+                        reaction={reaction}
+                        reactionPosition={reactionPosition}
+                      />
+                    )
+                  })}
+                </View>
+              ) : null}
               {/* Add an 8px margin between messages when there are reactions. */}
               {!hasTail ? <View style={styles.reactionMarginBottom} /> : null}
             </>

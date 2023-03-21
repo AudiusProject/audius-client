@@ -15,10 +15,9 @@ import type { ReactionTypes, Nullable } from '@audius/common'
 import type { ChatMessage } from '@audius/sdk'
 import { Portal } from '@gorhom/portal'
 import { useFocusEffect } from '@react-navigation/native'
-import { View, Text, Image } from 'react-native'
+import { View, Text } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import WavingHand from 'app/assets/images/emojis/waving-hand-sign.png'
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconSend from 'app/assets/images/iconSend.svg'
 import type { FlatListT } from 'app/components/core'
@@ -32,6 +31,7 @@ import { makeStyles } from 'app/styles'
 import { useThemePalette } from 'app/utils/theme'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
+import { EmptyChatMessages } from './EmptyChatMessages'
 import type { ReactionInfo } from './ReactionPopup'
 import { ReactionPopup } from './ReactionPopup'
 
@@ -50,9 +50,7 @@ const { getUserId } = accountSelectors
 const messages = {
   title: 'Messages',
   startNewMessage: 'Start a New Message',
-  newMessage: 'New Message',
-  sayHello: 'Say Hello!',
-  firstImpressions: 'First impressions are important, so make it count!'
+  newMessage: 'New Message'
 }
 const ICON_BLUR = 0.5
 const ICON_FOCUS = 1
@@ -127,58 +125,11 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     paddingHorizontal: spacing(2),
     paddingVertical: spacing(1),
     borderRadius: spacing(0.5)
-  },
-  emptyContainer: {
-    marginTop: spacing(8),
-    marginHorizontal: spacing(6),
-    padding: spacing(6),
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: palette.white,
-    borderColor: palette.neutralLight7,
-    borderWidth: 1,
-    borderRadius: spacing(2)
-  },
-  emptyTextContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    marginHorizontal: spacing(6)
-  },
-  wavingHand: {
-    height: spacing(16),
-    width: spacing(16)
-  },
-  emptyTitle: {
-    fontSize: typography.fontSize.xxl,
-    color: palette.neutral,
-    fontFamily: typography.fontByWeight.bold,
-    lineHeight: typography.fontSize.xxl * 1.3
-  },
-  emptyText: {
-    marginTop: spacing(2),
-    marginRight: spacing(6),
-    fontSize: typography.fontSize.large,
-    lineHeight: typography.fontSize.large * 1.3,
-    color: palette.neutral
   }
 }))
 
 const pluralize = (message: string, shouldPluralize: boolean) =>
   message + (shouldPluralize ? 's' : '')
-
-const EmptyChatMessages = () => {
-  const styles = useStyles()
-  return (
-    <View style={styles.emptyContainer}>
-      <Image style={styles.wavingHand} source={WavingHand} />
-      <View style={styles.emptyTextContainer}>
-        <Text style={styles.emptyTitle}>{messages.sayHello}</Text>
-        <Text style={styles.emptyText}>{messages.firstImpressions}</Text>
-      </View>
-    </View>
-  )
-}
 
 export const ChatScreen = () => {
   const styles = useStyles()
@@ -227,13 +178,14 @@ export const ChatScreen = () => {
   }, [dispatch, chatId, status, summary])
 
   useEffect(() => {
-    // Update chatFrozenRef when entering a new chat screen
+    // Update chatFrozenRef when entering a new chat screen.
     if (chat && chatId !== chatFrozenRef.current?.chat_id) {
       chatFrozenRef.current = chat
     }
   }, [chatId, chat])
 
   useEffect(() => {
+    // Update refs when switching chats or if more chat messages are fetched.
     if (chatMessages) {
       itemsRef.current = itemsRef.current.slice(0, chatMessages.length)
     }
@@ -442,18 +394,16 @@ export const ChatScreen = () => {
                   keyExtractor={(message) => message.message_id}
                   renderItem={({ item, index }) => (
                     <>
-                      <View>
-                        {/* When reaction popup opens, hide reaction here so it doesn't
+                      {/* When reaction popup opens, hide reaction here so it doesn't
                           appear underneath the reaction of the message clone inside the
                           portal. */}
-                        <ChatMessageListItem
-                          message={item}
-                          ref={(el) => (itemsRef.current[index] = el)}
-                          shouldShowReaction={index !== popupChatIndex}
-                          hasTail={hasTail(item, chatMessages[index - 1])}
-                          onLongPress={() => handleMessagePress(index)}
-                        />
-                      </View>
+                      <ChatMessageListItem
+                        message={item}
+                        ref={(el) => (itemsRef.current[index] = el)}
+                        shouldShowReaction={index !== popupChatIndex}
+                        hasTail={hasTail(item, chatMessages[index - 1])}
+                        onLongPress={() => handleMessagePress(index)}
+                      />
                       {index === earliestUnreadIndex ? (
                         <View style={styles.unreadTagContainer}>
                           <View style={styles.unreadSeparator} />
