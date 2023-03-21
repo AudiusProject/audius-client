@@ -3,7 +3,7 @@ import { ChangeEvent, useCallback } from 'react'
 import { accountSelectors, TrackAvailabilityType } from '@audius/common'
 import { IconInfo, RadioButton, RadioButtonGroup } from '@audius/stems'
 import { useSelector } from 'react-redux'
-
+import cn from 'classnames'
 import Tooltip from 'components/tooltip/Tooltip'
 
 import styles from './SpecialAccessAvailability.module.css'
@@ -59,21 +59,21 @@ export const SpecialAccessAvailability = ({
       onChange={handleChange}
       value={specialAccessType}
     >
-      <label className={styles.row}>
+      <label className={cn(styles.row, { [styles.disabled]: disabled })}>
         <RadioButton
           className={styles.radio}
           value={SpecialAccessType.FOLLOW}
           disabled={disabled}
         />
-        {messages.followersOnly}
+        <span>{messages.followersOnly}</span>
       </label>
-      <label className={styles.row}>
+      <label className={cn(styles.row, { [styles.disabled]: disabled })}>
         <RadioButton
           className={styles.radio}
           value={SpecialAccessType.TIP}
           disabled={disabled}
         />
-        {messages.supportersOnly}
+        <span>{messages.supportersOnly}</span>
         <Tooltip
           className={styles.tooltip}
           text={messages.supportersInfo}
