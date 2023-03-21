@@ -1,24 +1,36 @@
-import { call, put, takeEvery } from 'typed-redux-saga'
+import { call, delay, put, select, takeEvery } from 'typed-redux-saga'
 
+import { AudioPlayer } from 'services/audio-player'
 import { FeatureFlags } from 'services/remote-config'
+import { getTrack } from 'store/cache/tracks/selectors'
 import { getContext } from 'store/effects'
+import { setTrackPosition } from 'store/playback-position/slice'
+import { Genre } from 'utils/genres'
 
+import { getPlaying, getTrackId } from './selectors'
 import { setPlaybackRate } from './slice'
 import { PlaybackRate, PLAYBACK_RATE_LS_KEY } from './types'
+
+const PLAYBACK_COMPLETE_SECONDS = 6
+const RECORD_PLAYBACK_POSITION_INTERVAL = 5000
 
 /**
  * Sets the playback rate from local storage when the app loads
  */
 function* setInitialPlaybackRate() {
+  const remoteConfigInstance = yield* getContext('remoteConfigInstance')
+  yield* call(remoteConfigInstance.waitForRemoteConfig)
+
   const getFeatureEnabled = yield* getContext('getFeatureEnabled')
   const getLocalStorageItem = yield* getContext('getLocalStorageItem')
-  const isPodcastFeaturesEnabled = yield* call(
+  const isNewPodcastControlsEnabled = yield* call(
     getFeatureEnabled,
-    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
   )
 
   const playbackRate = yield* call(getLocalStorageItem, PLAYBACK_RATE_LS_KEY)
-  const rate: PlaybackRate = isPodcastFeaturesEnabled
+  const rate: PlaybackRate = isNewPodcastControlsEnabled
     ? (playbackRate as PlaybackRate | null) ?? '1x'
     : '1x'
   yield* put(setPlaybackRate({ rate }))
@@ -38,6 +50,60 @@ function* watchSetPlaybackRate() {
   )
 }
 
+const getPlayerSeekInfo = async (audioPlayer: AudioPlayer) => {
+  const position = await audioPlayer.getPosition()
+  const duration = await audioPlayer.getDuration()
+  return {
+    position,
+    duration
+  }
+}
+
+/**
+ * Poll for saving the playback position of tracks
+ */
+function* savePlaybackPositionWorker() {
+  const remoteConfigInstance = yield* getContext('remoteConfigInstance')
+  yield* call(remoteConfigInstance.waitForRemoteConfig)
+
+  const audioPlayer = yield* getContext('audioPlayer')
+  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
+  const isNewPodcastControlsEnabled = yield* call(
+    getFeatureEnabled,
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
+  )
+
+  // eslint-disable-next-line no-unmodified-loop-condition
+  while (isNewPodcastControlsEnabled) {
+    const trackId = yield* select(getTrackId)
+    const track = yield* select(getTrack, { id: trackId })
+    const playing = yield* select(getPlaying)
+    const isLongFormContent =
+      track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
+
+    if (trackId && isLongFormContent && playing) {
+      const { position, duration } = yield* call(getPlayerSeekInfo, audioPlayer)
+      const isComplete =
+        duration > 0 && PLAYBACK_COMPLETE_SECONDS > duration - position
+      yield* put(
+        setTrackPosition({
+          trackId,
+          positionInfo: {
+            status: isComplete ? 'COMPLETED' : 'IN_PROGRESS',
+            playbackPosition: position
+          }
+        })
+      )
+    }
+    yield* delay(RECORD_PLAYBACK_POSITION_INTERVAL)
+  }
+}
+
 export const sagas = () => {
-  return [setInitialPlaybackRate, watchSetPlaybackRate]
+  return [
+    setInitialPlaybackRate,
+    watchSetPlaybackRate,
+    savePlaybackPositionWorker
+  ]
 }

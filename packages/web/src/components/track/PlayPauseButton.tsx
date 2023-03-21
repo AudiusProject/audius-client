@@ -1,49 +1,60 @@
-import { FeatureFlags, PlaybackStatus } from '@audius/common'
+import {
+  FeatureFlags,
+  ID,
+  playbackPositionSelectors,
+  CommonState
+} from '@audius/common'
 import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
+import { useSelector } from 'react-redux'
 
 import { ReactComponent as IconRepeat } from 'assets/img/iconRepeatOff.svg'
 import { useFlag } from 'hooks/useRemoteConfig'
 
 import styles from './GiantTrackTile.module.css'
 
+const { getTrackPosition } = playbackPositionSelectors
+
 type PlayPauseButtonProps = {
   doesUserHaveAccess: boolean
   playing: boolean
-  playbackStatus?: PlaybackStatus | null
+  trackId?: ID
   onPlay: () => void
 }
 
 const messages = {
-  play: 'PLAY',
-  pause: 'PAUSE',
-  resume: 'RESUME',
-  replay: 'REPLAY'
+  play: 'play',
+  pause: 'pause',
+  resume: 'resume',
+  replay: 'replay'
 }
 
 export const PlayPauseButton = ({
   doesUserHaveAccess,
   playing,
-  playbackStatus,
+  trackId,
   onPlay
 }: PlayPauseButtonProps) => {
   const { isEnabled: isGatedContentEnabled } = useFlag(
     FeatureFlags.GATED_CONTENT_ENABLED
   )
   const { isEnabled: isNewPodcastControlsEnabled } = useFlag(
-    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
+  )
+
+  const trackPlaybackInfo = useSelector((state: CommonState) =>
+    getTrackPosition(state, { trackId })
   )
 
   const playText =
-    isNewPodcastControlsEnabled && playbackStatus
-      ? playbackStatus === 'IN_PROGRESS'
+    isNewPodcastControlsEnabled && trackPlaybackInfo
+      ? trackPlaybackInfo.status === 'IN_PROGRESS'
         ? messages.resume
         : messages.replay
       : messages.play
 
   const playIcon =
-    isNewPodcastControlsEnabled &&
-    playbackStatus &&
-    playbackStatus === 'COMPLETED' ? (
+    isNewPodcastControlsEnabled && trackPlaybackInfo?.status === 'COMPLETED' ? (
       <IconRepeat />
     ) : (
       <IconPlay />
@@ -55,7 +66,7 @@ export const PlayPauseButton = ({
       className={styles.playButton}
       textClassName={styles.playButtonText}
       type={ButtonType.PRIMARY_ALT}
-      text={playing ? 'PAUSE' : playText}
+      text={playing ? messages.pause : playText}
       leftIcon={playing ? <IconPause /> : playIcon}
       onClick={onPlay}
       disabled={isGatedContentEnabled ? !doesUserHaveAccess : false}

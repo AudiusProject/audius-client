@@ -18,8 +18,7 @@ import {
   FeatureFlags,
   premiumContentSelectors,
   QueryParams,
-  Genre,
-  AudioPlayer
+  Genre
 } from '@audius/common'
 import { eventChannel } from 'redux-saga'
 import {
@@ -65,9 +64,6 @@ const { getIsReachable } = reachabilitySelectors
 const PLAYER_SUBSCRIBER_NAME = 'PLAYER'
 const RECORD_LISTEN_SECONDS = 1
 const RECORD_LISTEN_INTERVAL = 1000
-
-const PLAYBACK_COMPLETE_SECONDS = 6
-const RECORD_PLAYBACK_POSITION_INTERVAL = 5000
 
 // Set of track ids that should be forceably streamed as mp3 rather than hls because
 // their hls maybe corrupt.
@@ -187,14 +183,15 @@ export function* watchPlay() {
         ])
       )
 
-      if (track.genre === Genre.PODCASTS) {
+      if (track.genre === Genre.PODCASTS || track.genre === Genre.AUDIOBOOKS) {
         // Make sure that the playback rate is set when playing a podcast
         const playbackRate = yield* select(getPlaybackRate)
         audioPlayer.setPlaybackRate(playbackRate)
 
         const isNewPodcastControlsEnabled = yield* call(
           getFeatureEnabled,
-          FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED
+          FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
+          FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
         )
         if (isNewPodcastControlsEnabled) {
           // Set playback position for track to in progress if not already tracked
@@ -210,7 +207,10 @@ export function* watchPlay() {
               })
             )
           } else {
+            audioPlayer.play()
+            yield* put(playSucceeded({ uid, trackId }))
             yield* put(seek({ seconds: trackPlaybackInfo.playbackPosition }))
+            return
           }
         }
       } else if (audioPlayer.getPlaybackRate() !== '1x') {
@@ -434,49 +434,6 @@ function* recordListenWorker() {
   }
 }
 
-const getPlayerSeekInfo = async (audioPlayer: AudioPlayer) => {
-  const position = await audioPlayer.getPosition()
-  const duration = await audioPlayer.getDuration()
-  return {
-    position,
-    duration
-  }
-}
-
-/**
- * Poll for saving the playback position of tracks
- */
-function* savePlaybackPositionWorker() {
-  const audioPlayer = yield* getContext('audioPlayer')
-  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
-  const isNewPodcastControlsEnabled = yield* call(
-    getFeatureEnabled,
-    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED
-  )
-
-  // eslint-disable-next-line no-unmodified-loop-condition
-  while (isNewPodcastControlsEnabled) {
-    const trackId = yield* select(getTrackId)
-    const track = yield* select(getTrack, { id: trackId })
-    const playing = yield* select(getPlaying)
-
-    if (trackId && track?.genre === Genre.PODCASTS && playing) {
-      const { position, duration } = yield* call(getPlayerSeekInfo, audioPlayer)
-      const isComplete = PLAYBACK_COMPLETE_SECONDS > duration - position
-      yield* put(
-        setTrackPosition({
-          trackId,
-          positionInfo: {
-            status: isComplete ? 'COMPLETED' : 'IN_PROGRESS',
-            playbackPosition: position
-          }
-        })
-      )
-    }
-    yield* delay(RECORD_PLAYBACK_POSITION_INTERVAL)
-  }
-}
-
 const sagas = () => {
   return [
     watchPlay,
@@ -490,7 +447,6 @@ const sagas = () => {
     handleAudioErrors,
     handleAudioBuffering,
     recordListenWorker,
-    savePlaybackPositionWorker,
     errorSagas
   ]
 }

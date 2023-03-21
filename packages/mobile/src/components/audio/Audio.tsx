@@ -85,15 +85,17 @@ const defaultCapabilities = [
   Capability.SkipToNext,
   Capability.SkipToPrevious
 ]
-const podcastCapabilities = [
+const longFormContentCapabilities = [
   ...defaultCapabilities,
   Capability.JumpForward,
   Capability.JumpBackward
 ]
 
 // Set options for controlling music on the lock screen when the app is in the background
-const updatePlayerOptions = async (isPodcast = false) => {
-  const coreCapabilities = isPodcast ? podcastCapabilities : defaultCapabilities
+const updatePlayerOptions = async (isLongFormContent = false) => {
+  const coreCapabilities = isLongFormContent
+    ? longFormContentCapabilities
+    : defaultCapabilities
   return await TrackPlayer.updateOptions({
     // Media controls capabilities
     capabilities: [...coreCapabilities, Capability.Stop, Capability.SeekTo],
@@ -204,7 +206,7 @@ export const Audio = () => {
 
   const dispatch = useDispatch()
 
-  const isPodcastRef = useRef<boolean>(false)
+  const isLongFormContentRef = useRef<boolean>(false)
   const [isAudioSetup, setIsAudioSetup] = useState(false)
 
   const play = useCallback(() => dispatch(playerActions.play()), [dispatch])
@@ -385,14 +387,18 @@ export const Audio = () => {
         }
       }
 
-      const isPodcast = queueTracks[playerIndex]?.genre === Genre.PODCASTS
-      if (isPodcast !== isPodcastRef.current) {
-        isPodcastRef.current = isPodcast
+      const isLongFormContent =
+        queueTracks[playerIndex]?.genre === Genre.PODCASTS ||
+        queueTracks[playerIndex]?.genre === Genre.AUDIOBOOKS
+      if (isLongFormContent !== isLongFormContentRef.current) {
+        isLongFormContentRef.current = isLongFormContent
         // Update playback rate based on if the track is a podcast or not
-        const newRate = isPodcast ? playbackRateValueMap[playbackRate] : 1.0
+        const newRate = isLongFormContent
+          ? playbackRateValueMap[playbackRate]
+          : 1.0
         await TrackPlayer.setRate(newRate)
         // Update lock screen and notification controls
-        await updatePlayerOptions(isPodcast)
+        await updatePlayerOptions(isLongFormContent)
       }
     }
   })
@@ -415,24 +421,41 @@ export const Audio = () => {
     return () => clearTimeout(playCounterTimeout)
   }, [counter, dispatch, isOfflineModeEnabled, isReachable, track?.track_id])
 
-  // A ref to invalidate the current progress counter and prevent
-  // stale values of audio progress from propagating back to the UI.
-  const progressInvalidator = useRef(false)
+  const seekToRef = useRef<number | null>(null)
 
-  const setSeekPosition = useCallback(
-    (seek = 0) => {
-      progressInvalidator.current = true
-      TrackPlayer.seekTo(seek)
-    },
-    [progressInvalidator]
-  )
+  const setSeekPosition = useCallback(async (seekPos = 0) => {
+    const currentState = await TrackPlayer.getState()
+    const isSeekableState =
+      currentState === State.Playing || currentState === State.Ready
+
+    // Delay calling seekTo if we are not currently in a seekable state
+    // Delayed seeking is handle in handlePlayerStateChange
+    if (isSeekableState) {
+      TrackPlayer.seekTo(seekPos)
+    } else {
+      seekToRef.current = seekPos
+    }
+  }, [])
+
+  const handlePlayerStateChange = useCallback(async ({ state }) => {
+    const inSeekableState = state === State.Playing || state === State.Ready
+    const seekRefValue = seekToRef.current
+
+    if (inSeekableState && seekRefValue !== null) {
+      TrackPlayer.seekTo(seekRefValue)
+      seekToRef.current = null
+    }
+  }, [])
+
+  TrackPlayer.addEventListener(Event.PlaybackState, handlePlayerStateChange)
 
   // Seek handler
   useEffect(() => {
     if (seek !== null) {
       setSeekPosition(seek)
     }
-  }, [seek, setSeekPosition])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seek])
 
   // Keep track of the track index the last time counter was updated
   const counterTrackIndex = useRef<number | null>(null)
@@ -632,7 +655,7 @@ export const Audio = () => {
   }, [repeatMode])
 
   const handlePlaybackRateChange = useCallback(async () => {
-    if (!isPodcastRef.current) return
+    if (!isLongFormContentRef.current) return
     await TrackPlayer.setRate(playbackRateValueMap[playbackRate])
   }, [playbackRate])
 

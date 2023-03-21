@@ -21,6 +21,7 @@ export type EditTrackScreenProps = {
 export type EditTrackFormProps = FormikProps<FormValues> &
   Partial<ScreenProps> & {
     doneText?: string
+    isUpload?: boolean
   }
 
 export type RemixOfField = Nullable<{ tracks: { parent_track_id }[] }>

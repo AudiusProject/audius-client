@@ -1,5 +1,7 @@
 import type { AudiusLibs } from '@audius/sdk/dist/native-libs'
 
+import { PlaylistUpdate } from 'store/playlist-updates'
+
 import {
   ID,
   TimeRange,
@@ -77,6 +79,8 @@ const FULL_ENDPOINT_MAP = {
     `/playlists/${playlistId}/reposts`,
   playlistFavoriteUsers: (playlistId: OpaqueID) =>
     `/playlists/${playlistId}/favorites`,
+  playlistUpdates: (userId: OpaqueID) =>
+    `/notifications/${userId}/playlist_updates`,
   getUser: (userId: OpaqueID) => `/users/${userId}`,
   userByHandle: (handle: OpaqueID) => `/users/handle/${handle}`,
   userTracksByHandle: (handle: OpaqueID) => `/users/handle/${handle}/tracks`,
@@ -411,6 +415,7 @@ type GetUserTrackHistoryArgs = {
   currentUserId: Nullable<ID>
   limit?: number
   offset?: number
+  sortMethod?: string
 }
 
 type GetReactionArgs = {
@@ -1523,7 +1528,8 @@ export class AudiusAPIClient {
     currentUserId,
     userId,
     offset = 0,
-    limit = 100
+    limit = 100,
+    sortMethod
   }: GetUserTrackHistoryArgs) {
     const encodedUserId = this._encodeOrThrow(userId)
     const encodedCurrentUserId = encodeHashId(currentUserId)
@@ -1531,7 +1537,8 @@ export class AudiusAPIClient {
     const params = {
       user_id: encodedCurrentUserId || undefined,
       limit,
-      offset
+      offset,
+      sort_method: sortMethod
     }
 
     const response: Nullable<APIResponse<APIActivity[]>> =
@@ -1721,6 +1728,13 @@ export class AudiusAPIClient {
         params
       )
     return response ? response.data : null
+  }
+
+  async getPlaylistUpdates(userId: number) {
+    const response = await this._getResponse<APIResponse<PlaylistUpdate[]>>(
+      FULL_ENDPOINT_MAP.playlistUpdates(encodeHashId(userId))
+    )
+    return response?.data
   }
 
   async init() {

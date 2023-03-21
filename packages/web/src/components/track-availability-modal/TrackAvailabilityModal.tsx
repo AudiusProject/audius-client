@@ -21,11 +21,12 @@ import {
   IconSpecialAccess,
   IconVisibilityPublic,
   IconCollectible,
-  IconArrow
+  ModalFooter
 } from '@audius/stems'
 import cn from 'classnames'
 import { useSelector } from 'react-redux'
 
+import { ReactComponent as IconExternalLink } from 'assets/img/iconExternalLink.svg'
 import { HelpCallout } from 'components/help-callout/HelpCallout'
 import { ModalRadioItem } from 'components/modal-radio/ModalRadioItem'
 import { useFlag } from 'hooks/useRemoteConfig'
@@ -105,15 +106,14 @@ const CollectibleGatedDescription = ({
       {!hasCollectibles && isUpload ? (
         <HelpCallout content={renderContent()} />
       ) : null}
-      <a
-        className={styles.learnMore}
-        href={LEARN_MORE_URL}
-        target='_blank'
-        rel='noreferrer'
-      >
-        <span>{messages.learnMore}</span>
-        <IconArrow className={styles.learnMoreArrow} />
-      </a>
+      <Button
+        type={ButtonType.TEXT}
+        className={styles.learnMoreButton}
+        text={messages.learnMore}
+        onClick={() => window.open(LEARN_MORE_URL, '_blank')}
+        iconClassName={styles.learnMoreArrow}
+        rightIcon={<IconExternalLink />}
+      />
     </div>
   )
 }
@@ -169,8 +169,7 @@ const TrackAvailabilityModal = ({
   const noSpecialAccess = isInitiallyCollectibleGated || isRemix
   const noSpecialAccessOptions = noSpecialAccess || !isUpload
 
-  const isInitiallyNonHidden = !isUpload && !initialForm.is_unlisted
-  const noHidden = isInitiallyNonHidden
+  const noHidden = !isUpload && !initialForm.is_unlisted
 
   const accountUserId = useSelector(getUserId)
   const defaultSpecialAccess = useMemo(
@@ -359,15 +358,15 @@ const TrackAvailabilityModal = ({
             }
           />
         </RadioButtonGroup>
-        <div className={styles.doneButtonContainer}>
-          <Button
-            type={ButtonType.PRIMARY_ALT}
-            textClassName={cn(styles.doneButton)}
-            text={messages.done}
-            onClick={onClose}
-          />
-        </div>
       </ModalContent>
+      <ModalFooter className={styles.doneButtonContainer}>
+        <Button
+          type={ButtonType.PRIMARY_ALT}
+          textClassName={cn(styles.doneButton)}
+          text={messages.done}
+          onClick={onClose}
+        />
+      </ModalFooter>
     </Modal>
   )
 }
