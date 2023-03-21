@@ -2,6 +2,9 @@ import { useCallback, useLayoutEffect } from 'react'
 
 import type { Nullable, Track } from '@audius/common'
 import {
+  FeatureFlags,
+  playbackPositionSelectors,
+  Genre,
   removeNullable,
   FavoriteSource,
   reachabilitySelectors,
@@ -26,7 +29,9 @@ import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconShare from 'app/assets/images/iconShare.svg'
 import { useAirplay } from 'app/components/audio/Airplay'
 import { IconButton } from 'app/components/core'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { useToast } from 'app/hooks/useToast'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
@@ -41,6 +46,7 @@ const { repostTrack, saveTrack, undoRepostTrack, unsaveTrack } =
   tracksSocialActions
 const { updateMethod } = castActions
 const { getMethod: getCastMethod, getIsCasting } = castSelectors
+const { getTrackPosition } = playbackPositionSelectors
 
 const { getIsReachable } = reachabilitySelectors
 
@@ -78,6 +84,7 @@ type ActionsBarProps = {
 }
 
 export const ActionsBar = ({ track }: ActionsBarProps) => {
+  const isGatedContentEnabled = useIsGatedContentEnabled()
   const styles = useStyles()
   const { toast } = useToast()
   const castMethod = useSelector(getCastMethod)
@@ -87,6 +94,10 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
   const dispatch = useDispatch()
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const isReachable = useSelector(getIsReachable)
+  const { isEnabled: isNewPodcastControlsEnabled } = useFeatureFlag(
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
+  )
 
   useLayoutEffect(() => {
     if (Platform.OS === 'android' && castMethod === 'airplay') {
@@ -130,11 +141,25 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
     }
   }, [dispatch, track])
 
+  const playbackPositionInfo = useSelector((state) =>
+    getTrackPosition(state, { trackId: track?.track_id })
+  )
   const onPressOverflow = useCallback(() => {
     if (track) {
+      const isLongFormContent =
+        track.genre === Genre.PODCASTS || track.genre === Genre.AUDIOBOOKS
       const overflowActions = [
-        OverflowAction.ADD_TO_PLAYLIST,
-        OverflowAction.VIEW_TRACK_PAGE,
+        !isGatedContentEnabled || !track.is_premium
+          ? OverflowAction.ADD_TO_PLAYLIST
+          : null,
+        isNewPodcastControlsEnabled && isLongFormContent
+          ? OverflowAction.VIEW_EPISODE_PAGE
+          : OverflowAction.VIEW_TRACK_PAGE,
+        isNewPodcastControlsEnabled && isLongFormContent
+          ? playbackPositionInfo?.status === 'COMPLETED'
+            ? OverflowAction.MARK_AS_UNPLAYED
+            : OverflowAction.MARK_AS_PLAYED
+          : null,
         OverflowAction.VIEW_ARTIST_PAGE
       ].filter(removeNullable)
 
@@ -146,7 +171,13 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
         })
       )
     }
-  }, [track, dispatch])
+  }, [
+    track,
+    isGatedContentEnabled,
+    isNewPodcastControlsEnabled,
+    playbackPositionInfo?.status,
+    dispatch
+  ])
 
   const { openAirplayDialog } = useAirplay()
 

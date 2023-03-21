@@ -21,17 +21,17 @@ import {
   IconNotification,
   IconSignOut,
   IconVerified,
-  IconDownload,
   IconMood,
   IconSettings,
-  IconMessage
+  IconMessage,
+  SegmentedControl,
+  IconDesktop
 } from '@audius/stems'
 import cn from 'classnames'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { ChangePasswordModal } from 'components/change-password/ChangePasswordModal'
 import ConfirmationBox from 'components/confirmation-box/ConfirmationBox'
-import TabSlider from 'components/data-entry/TabSlider'
 import Header from 'components/header/desktop/Header'
 import Page from 'components/page/Page'
 import { SelectedServices } from 'components/service-selection'
@@ -182,7 +182,7 @@ export const SettingsPage = (props: SettingsPageProps) => {
   }, [setIsSignOutModalVisible])
 
   const closeSignOutModal = useCallback(() => {
-    setIsSignOutModalVisible(true)
+    setIsSignOutModalVisible(false)
   }, [setIsSignOutModalVisible])
 
   const openNotificationSettings = useCallback(() => {
@@ -273,8 +273,9 @@ export const SettingsPage = (props: SettingsPageProps) => {
           title={messages.appearanceCardTitle}
           description={messages.appearanceCardDescription}
         >
-          <TabSlider
-            className={styles.cardSlider}
+          <SegmentedControl
+            fullWidth
+            label={messages.appearanceCardTitle}
             options={appearanceOptions}
             selected={theme || Theme.DEFAULT}
             onSelectOption={(option) => toggleTheme(option)}
@@ -362,7 +363,7 @@ export const SettingsPage = (props: SettingsPageProps) => {
         </SettingsCard>
         {!isMobile() && !isElectron() && (
           <SettingsCard
-            icon={<IconDownload />}
+            icon={<IconDesktop />}
             title={messages.desktopAppCardTitle}
             description={messages.desktopAppCardDescription}
           >

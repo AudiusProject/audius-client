@@ -21,10 +21,10 @@ export type Drawer =
   | 'UnfavoriteDownloadedCollection'
   | 'RateCallToAction'
   | 'LockedContent'
+  | 'GatedContentUploadPrompt'
   | 'ChatActions'
   | 'ProfileActions'
   | 'BlockMessages'
-  | 'PlaybackRate'
 
 export type DrawerData = {
   EnablePushNotifications: undefined
@@ -48,6 +48,7 @@ export type DrawerData = {
     collectionId: ID
   }
   LockedContent: undefined
+  GatedContentUploadPrompt: undefined
   ChatActions: { userId: number }
   ProfileActions: undefined
   BlockMessages: { userId: number }
@@ -74,10 +75,10 @@ const initialState: DrawersState = {
   UnfavoriteDownloadedCollection: false,
   RateCallToAction: false,
   LockedContent: false,
+  GatedContentUploadPrompt: false,
   ChatActions: false,
   ProfileActions: false,
   BlockMessages: false,
-  PlaybackRate: false,
   data: null
 }
 

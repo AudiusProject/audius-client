@@ -19,6 +19,7 @@ import { EditCollectiblesDrawer } from 'app/components/edit-collectibles-drawer'
 import { EnablePushNotificationsDrawer } from 'app/components/enable-push-notifications-drawer'
 import { FeedFilterDrawer } from 'app/components/feed-filter-drawer'
 import { ForgotPasswordDrawer } from 'app/components/forgot-password-drawer'
+import { GatedContentUploadPromptDrawer } from 'app/components/gated-content-upload-prompt-drawer/GatedContentUploadPromptDrawer'
 import { LockedContentDrawer } from 'app/components/locked-content-drawer'
 import { OverflowMenuDrawer } from 'app/components/overflow-menu-drawer'
 import { PlaybackRateDrawer } from 'app/components/playback-rate-drawer'
@@ -99,7 +100,8 @@ const commonDrawersMap: { [Modal in Modals]?: ComponentType } = {
   AudioBreakdown: AudioBreakdownDrawer,
   DeletePlaylistConfirmation: DeletePlaylistConfirmationDrawer,
   VipDiscord: VipDiscordDrawer,
-  ProfileActions: ProfileActionsDrawer
+  ProfileActions: ProfileActionsDrawer,
+  PlaybackRate: PlaybackRateDrawer
 }
 
 const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
@@ -109,12 +111,12 @@ const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
   DeleteConfirmation: DeleteConfirmationDrawer,
   ShareToStoryProgress: ShareToStoryProgressDrawer,
   RateCallToAction: RateCtaDrawer,
-  PlaybackRate: PlaybackRateDrawer,
   RemoveAllDownloads: RemoveAllDownloadsDrawer,
   RemoveDownloadedCollection: RemoveDownloadedCollectionDrawer,
   RemoveDownloadedFavorites: RemoveDownloadedFavoritesDrawer,
   UnfavoriteDownloadedCollection: UnfavoriteDownloadedCollectionDrawer,
   LockedContent: LockedContentDrawer,
+  GatedContentUploadPrompt: GatedContentUploadPromptDrawer,
   ChatActions: ChatActionsDrawer,
   BlockMessages: BlockMessagesDrawer
 }

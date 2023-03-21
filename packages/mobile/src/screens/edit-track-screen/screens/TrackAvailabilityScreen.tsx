@@ -6,7 +6,7 @@ import {
   TrackAvailabilityType,
   collectiblesSelectors
 } from '@audius/common'
-import { useField } from 'formik'
+import { useField, useFormikContext } from 'formik'
 import { useSelector } from 'react-redux'
 
 import IconHidden from 'app/assets/images/iconHidden.svg'
@@ -21,7 +21,7 @@ import { CollectibleGatedAvailability } from '../components/CollectibleGatedAvai
 import { HiddenAvailability } from '../components/HiddenAvailability'
 import { PublicAvailability } from '../components/PublicAvailability'
 import { SpecialAccessAvailability } from '../components/SpecialAccessAvailability'
-import type { RemixOfField } from '../types'
+import type { FormValues, RemixOfField } from '../types'
 
 import type { ListSelectionData } from './ListSelectionScreen'
 import { ListSelectionScreen } from './ListSelectionScreen'
@@ -48,7 +48,7 @@ const specialAccessAvailability = TrackAvailabilityType.SPECIAL_ACCESS
 const collectibleGatedAvailability = TrackAvailabilityType.COLLECTIBLE_GATED
 const hiddenAvailability = TrackAvailabilityType.HIDDEN
 
-const useStyles = makeStyles(({ palette, spacing, typography }) => ({
+const useStyles = makeStyles(({ spacing }) => ({
   isRemix: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -73,14 +73,13 @@ export const TrackAvailabilityScreen = () => {
   const isCollectibleGatedEnabled = useIsCollectibleGatedEnabled()
 
   const navigation = useNavigation()
+  const { initialValues } = useFormikContext<FormValues>()
   const [{ value: isPremium }] = useField<boolean>('is_premium')
   const [{ value: premiumConditions }] =
     useField<Nullable<PremiumConditions>>('premium_conditions')
   const [{ value: isUnlisted }] = useField<boolean>('is_unlisted')
   const [{ value: remixOf }] = useField<RemixOfField>('remix_of')
   const isRemix = !!remixOf
-  const [{ value: trackId }] = useField<boolean>('track_id')
-  const isUpload = !trackId
 
   const { ethCollectionMap, solCollectionMap } = useSelector(
     getSupportedUserCollections
@@ -88,10 +87,9 @@ export const TrackAvailabilityScreen = () => {
   const numEthCollectibles = Object.keys(ethCollectionMap).length
   const numSolCollectibles = Object.keys(solCollectionMap).length
   const hasNoCollectibles = numEthCollectibles + numSolCollectibles === 0
-  const noCollectibleGate = hasNoCollectibles || isRemix
-  const noCollectibleDropdown = hasNoCollectibles || isRemix || !isUpload
-  const noSpecialAccess = isRemix || !isUpload
 
+  const isUpload = !initialValues?.track_id
+  const initialPremiumConditions = initialValues?.premium_conditions ?? null
   const initialAvailability = useMemo(() => {
     if ('nft_collection' in (premiumConditions ?? {})) {
       return TrackAvailabilityType.COLLECTIBLE_GATED
@@ -107,8 +105,36 @@ export const TrackAvailabilityScreen = () => {
     // eslint-disable-next-line
   }, [])
 
+  const isInitiallyPublic =
+    !isUpload && !initialValues.is_unlisted && !initialPremiumConditions
+
+  const isInitiallySpecialAccess =
+    !isUpload &&
+    !!(
+      initialPremiumConditions?.follow_user_id ||
+      initialPremiumConditions?.tip_user_id
+    )
+  const noCollectibleGate =
+    isInitiallyPublic ||
+    isInitiallySpecialAccess ||
+    isRemix ||
+    hasNoCollectibles
+  const noCollectibleDropdown = isInitiallySpecialAccess || !isUpload
+
+  const isInitiallyCollectibleGated =
+    !isUpload && !!initialPremiumConditions?.nft_collection
+  const noSpecialAccess =
+    isInitiallyPublic || isInitiallyCollectibleGated || isRemix
+  const noSpecialAccessOptions = noSpecialAccess || !isUpload
+
+  const noHidden = !isUpload && !initialValues.is_unlisted
+
   const [availability, setAvailability] =
     useState<TrackAvailabilityType>(initialAvailability)
+
+  // we only care about what the initial value was here
+  // eslint-disable-next-line
+  const previousPremiumConditions = useMemo(() => premiumConditions ?? initialPremiumConditions, [])
 
   const data: ListSelectionData[] = [
     { label: publicAvailability, value: publicAvailability },
@@ -126,7 +152,7 @@ export const TrackAvailabilityScreen = () => {
           disabled: noCollectibleGate
         }
       : null,
-    { label: hiddenAvailability, value: hiddenAvailability }
+    { label: hiddenAvailability, value: hiddenAvailability, disabled: noHidden }
   ].filter(removeNullable)
 
   const items = {
@@ -141,6 +167,8 @@ export const TrackAvailabilityScreen = () => {
       <SpecialAccessAvailability
         selected={availability === TrackAvailabilityType.SPECIAL_ACCESS}
         disabled={noSpecialAccess}
+        disabledContent={noSpecialAccessOptions}
+        previousPremiumConditions={previousPremiumConditions}
       />
     )
   }
@@ -150,12 +178,14 @@ export const TrackAvailabilityScreen = () => {
         selected={availability === TrackAvailabilityType.COLLECTIBLE_GATED}
         disabled={noCollectibleGate}
         disabledContent={noCollectibleDropdown}
+        previousPremiumConditions={previousPremiumConditions}
       />
     )
   }
   items[hiddenAvailability] = (
     <HiddenAvailability
       selected={availability === TrackAvailabilityType.HIDDEN}
+      disabled={noHidden}
     />
   )
 
