@@ -21,7 +21,6 @@ import IconRemoveTrack from 'app/assets/images/iconRemoveTrack.svg'
 import { IconButton } from 'app/components/core'
 import UserBadges from 'app/components/user-badges'
 import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { font, makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -241,12 +240,7 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
         overflowActions
       })
     )
-  }, [
-    dispatch,
-    isGatedContentEnabled,
-    isPremium,
-    track_id
-  ])
+  }, [dispatch, isGatedContentEnabled, isPremium, track_id])
 
   const handlePressSave = (e: NativeSyntheticEvent<NativeTouchEvent>) => {
     e.stopPropagation()
