@@ -6,7 +6,7 @@ import {
   TrackAvailabilityType,
   collectiblesSelectors
 } from '@audius/common'
-import { useField } from 'formik'
+import { useField, useFormikContext } from 'formik'
 import { useSelector } from 'react-redux'
 
 import IconHidden from 'app/assets/images/iconHidden.svg'
@@ -68,15 +68,12 @@ const MarkedAsRemix = () => {
   ) : null
 }
 
-export const TrackAvailabilityScreen = ({
-  initialValues
-}: {
-  initialValues?: FormValues
-}) => {
+export const TrackAvailabilityScreen = () => {
   const isSpecialAccessEnabled = useIsSpecialAccessEnabled()
   const isCollectibleGatedEnabled = useIsCollectibleGatedEnabled()
 
   const navigation = useNavigation()
+  const { initialValues } = useFormikContext<FormValues>()
   const [{ value: isPremium }] = useField<boolean>('is_premium')
   const [{ value: premiumConditions }] =
     useField<Nullable<PremiumConditions>>('premium_conditions')
