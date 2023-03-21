@@ -24,7 +24,6 @@ type UserChatWithMessagesStatus = UserChat & {
 
 type ChatMessageWithSendStatus = ChatMessage & {
   status?: Status
-  chat_id: string
 }
 
 type ChatState = {
@@ -32,10 +31,13 @@ type ChatState = {
     status: Status
     summary?: TypedCommsResponse<UserChat>['summary']
   }
-  messages: EntityState<ChatMessageWithSendStatus> & {
-    status?: Status
-    summary?: TypedCommsResponse<ChatMessage>['summary']
-  }
+  messages: Record<
+    string,
+    EntityState<ChatMessageWithSendStatus> & {
+      status?: Status
+      summary?: TypedCommsResponse<ChatMessage>['summary']
+    }
+  >
   optimisticReactions: Record<string, ChatMessageReaction>
   optimisticChatRead: Record<string, UserChat>
   activeChatId: string | null
@@ -56,6 +58,10 @@ export const chatsAdapter = createEntityAdapter<UserChatWithMessagesStatus>({
   sortComparer: chatSortComparator
 })
 
+const { selectById: getChat } = chatsAdapter.getSelectors(
+  (state: ChatState) => state.chats
+)
+
 const messageSortComparator = (a: ChatMessage, b: ChatMessage) =>
   dayjs(a.created_at).isBefore(dayjs(b.created_at)) ? 1 : -1
 
@@ -65,12 +71,14 @@ export const chatMessagesAdapter =
     sortComparer: messageSortComparator
   })
 
+const { selectById: getMessage } = chatMessagesAdapter.getSelectors()
+
 const initialState: ChatState = {
   chats: {
     status: Status.IDLE,
     ...chatsAdapter.getInitialState()
   },
-  messages: chatMessagesAdapter.getInitialState(),
+  messages: {},
   optimisticChatRead: {},
   optimisticReactions: {},
   activeChatId: null
@@ -86,6 +94,9 @@ const slice = createSlice({
     createChatSucceeded: (state, action: PayloadAction<{ chat: UserChat }>) => {
       const { chat } = action.payload
       chatsAdapter.upsertOne(state.chats, chat)
+      if (!(chat.chat_id in state.messages)) {
+        state.messages[chat.chat_id] = chatMessagesAdapter.getInitialState()
+      }
     },
     goToChat: (_state, _action: PayloadAction<{ chatId: string }>) => {
       // triggers saga
@@ -100,6 +111,11 @@ const slice = createSlice({
     ) => {
       state.chats.status = Status.SUCCESS
       state.chats.summary = action.payload.summary
+      for (const chat of action.payload.data) {
+        if (!(chat.chat_id in state.messages)) {
+          state.messages[chat.chat_id] = chatMessagesAdapter.getInitialState()
+        }
+      }
       chatsAdapter.addMany(state.chats, action.payload.data)
     },
     fetchMoreChatsFailed: (state) => {
@@ -138,10 +154,7 @@ const slice = createSlice({
         id: chatId,
         changes: { messagesStatus: Status.SUCCESS, messagesSummary: summary }
       })
-      chatMessagesAdapter.upsertMany(
-        state.messages,
-        data.map((message) => ({ ...message, chat_id: chatId }))
-      )
+      chatMessagesAdapter.upsertMany(state.messages[chatId], data)
     },
     fetchMoreMessagesFailed: (
       state,
@@ -184,17 +197,14 @@ const slice = createSlice({
       delete state.optimisticReactions[messageId]
 
       // Ensure the message exists
-      chatMessagesAdapter.addOne(state.messages, {
-        chat_id: chatId,
+      chatMessagesAdapter.addOne(state.messages[chatId], {
         message_id: messageId,
         reactions: [],
         message: '',
         sender_user_id: '',
         created_at: ''
       })
-      const existingMessage = chatMessagesAdapter
-        .getSelectors()
-        .selectById(state.messages, messageId)
+      const existingMessage = getMessage(state.messages[chatId], messageId)
       const existingReactions = existingMessage?.reactions ?? []
       state.messages.entities[messageId]!.reactions = existingReactions.filter(
         (r) => r.user_id !== reaction.user_id
@@ -219,9 +229,7 @@ const slice = createSlice({
       // triggers saga
       // Optimistically mark as read
       const { chatId } = action.payload
-      const existingChat = chatsAdapter
-        .getSelectors()
-        .selectById(state.chats, chatId)
+      const existingChat = getChat(state, chatId)
       if (existingChat) {
         state.optimisticChatRead[chatId] = {
           ...existingChat,
@@ -237,9 +245,7 @@ const slice = createSlice({
       // Set the true state
       const { chatId } = action.payload
       delete state.optimisticChatRead[chatId]
-      const existingChat = chatsAdapter
-        .getSelectors()
-        .selectById(state.chats, chatId)
+      const existingChat = getChat(state, chatId)
       chatsAdapter.updateOne(state.chats, {
         id: chatId,
         changes: {
@@ -264,13 +270,17 @@ const slice = createSlice({
     },
     addMessage: (
       state,
-      action: PayloadAction<{ chatId: string; message: ChatMessage }>
+      action: PayloadAction<{
+        chatId: string
+        message: ChatMessage
+        status?: Status
+      }>
     ) => {
       // triggers saga to get chat if not exists
-      const { chatId, message } = action.payload
-      chatMessagesAdapter.upsertOne(state.messages, {
+      const { chatId, message, status } = action.payload
+      chatMessagesAdapter.upsertOne(state.messages[chatId], {
         ...message,
-        chat_id: chatId
+        status: status ?? Status.IDLE
       })
       chatsAdapter.updateOne(state.chats, {
         id: chatId,
@@ -288,9 +298,7 @@ const slice = createSlice({
       // If we're actively reading, this will immediately get marked as read.
       // Ignore the unread bump to prevent flicker
       if (state.activeChatId !== chatId) {
-        const existingChat = chatsAdapter
-          .getSelectors()
-          .selectById(state.chats, chatId)
+        const existingChat = getChat(state, chatId)
         const existingUnreadCount = existingChat?.unread_message_count ?? 0
         chatsAdapter.updateOne(state.chats, {
           id: chatId,
@@ -317,8 +325,8 @@ const slice = createSlice({
       }>
     ) => {
       // Mark message as not sent
-      const { messageId } = action.payload
-      chatMessagesAdapter.updateOne(state.messages, {
+      const { chatId, messageId } = action.payload
+      chatMessagesAdapter.updateOne(state.messages[chatId], {
         id: messageId,
         changes: { status: Status.ERROR }
       })

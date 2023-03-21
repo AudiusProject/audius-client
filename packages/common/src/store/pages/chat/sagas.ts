@@ -12,6 +12,7 @@ import { getContext } from '../../effects'
 
 import * as chatSelectors from './selectors'
 import { actions as chatActions } from './slice'
+import { Status } from 'models/Status'
 
 const {
   createChat,
@@ -227,7 +228,8 @@ function* doSendMessage(action: ReturnType<typeof sendMessage>) {
           message,
           reactions: [],
           created_at: dayjs().toISOString()
-        }
+        },
+        status: Status.LOADING
       })
     )
 
