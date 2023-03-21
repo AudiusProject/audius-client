@@ -23,7 +23,6 @@ const useStyles = makeStyles(({ spacing }) => ({
   root: {
     flexDirection: 'row',
     alignItems: 'center'
-    // paddingHorizontal: spacing(3)
   },
   audioTier: {
     paddingLeft: spacing(3)
