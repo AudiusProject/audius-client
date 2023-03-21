@@ -42,10 +42,9 @@ export const EditTrackNavigator = (props: EditTrackNavigatorProps) => {
           component={AdvancedOptionsScreen}
         />
         {isGatedContentEnabled ? (
-          <Stack.Screen
-            name='Availability'
-            component={TrackAvailabilityScreen}
-          />
+          <Stack.Screen name='Availability'>
+            {() => <TrackAvailabilityScreen initialValues={props.initialValues} />}
+          </Stack.Screen>
         ) : (
           <Stack.Screen
             name='TrackVisibility'

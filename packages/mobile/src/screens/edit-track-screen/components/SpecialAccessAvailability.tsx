@@ -87,7 +87,7 @@ export const SpecialAccessAvailability = ({
   selected,
   disabled = false,
   disabledContent = false,
-  initialPremiumConditions
+  previousPremiumConditions
 }: TrackAvailabilitySelectionProps) => {
   const styles = useStyles()
   const secondary = useColor('secondary')
@@ -115,8 +115,8 @@ export const SpecialAccessAvailability = ({
     ? { follow_user_id: currentUserId }
     : null
   const [selectedSpecialAccessGate, setSelectedSpecialAccessGate] = useState(
-    !('nft_collection' in (initialPremiumConditions ?? {}))
-      ? initialPremiumConditions ?? defaultSpecialAccess
+    !('nft_collection' in (previousPremiumConditions ?? {}))
+      ? previousPremiumConditions ?? defaultSpecialAccess
       : defaultSpecialAccess
   )
 
