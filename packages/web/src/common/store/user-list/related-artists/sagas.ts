@@ -10,8 +10,8 @@ import {
   SupporterResponse,
   relatedArtistsUserListSelectors,
   relatedArtistsUserListActions,
-  TOP_SUPPORTERS_USER_LIST_TAG,
-  responseAdapter as adapter
+  responseAdapter as adapter,
+  RELATED_ARTISTS_USER_LIST_TAG
 } from '@audius/common'
 import { put, select } from 'typed-redux-saga'
 
@@ -89,7 +89,7 @@ function* getRelatedArtists(currentPage: number, pageSize: number) {
 }
 
 const userListSagas = UserListSagaFactory.createSagas({
-  tag: TOP_SUPPORTERS_USER_LIST_TAG,
+  tag: RELATED_ARTISTS_USER_LIST_TAG,
   fetchUsers: getRelatedArtists,
   stateSelector: getUserList,
   errorDispatcher

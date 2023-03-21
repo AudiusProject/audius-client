@@ -3,7 +3,7 @@ import { useCallback, useEffect } from 'react'
 import {
   User,
   profilePageSelectors,
-  MAX_PROFILE_TOP_SUPPORTERS,
+  MAX_PROFILE_RELATED_ARTISTS,
   CommonState,
   artistRecommendationsUISelectors as relatedArtistSelectors,
   artistRecommendationsUIActions as relatedArtistsActions
@@ -77,8 +77,8 @@ export const RelatedArtists = () => {
       <ProfilePictureListTile
         onClick={handleClick}
         users={suggestedArtists}
-        totalUserCount={profile.supporter_count}
-        limit={MAX_PROFILE_TOP_SUPPORTERS} // TODO: make constant for related artists
+        totalUserCount={suggestedArtists.length}
+        limit={MAX_PROFILE_RELATED_ARTISTS}
         disableProfileClick
       />
     </div>
