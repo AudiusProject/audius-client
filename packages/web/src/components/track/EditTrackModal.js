@@ -57,12 +57,25 @@ const EditTrackModal = ({
     onCancel()
   }
 
+  // Note that the logic in this function is different than that in the upload flow.
+  // In this edit flow, we don't update fields if it's invalid, but we do in the upload flow.
+  // Not sure if makes sense to keep logics similar.
   const updateTrack = (field, value, invalid) => {
     if (invalid) {
       setInvalidFields((oldInvalidFields) => ({
         ...oldInvalidFields,
         [field]: true
       }))
+
+      // This does not look super, but we need to still set the
+      // premium_conditions field here because the user can
+      // temporarily be in an invalid state when selecting
+      // Collectible Gated but before picking the nft collection
+      // on which the track is gated.
+      const isPremiumField = field === 'premium_conditions'
+      if (isPremiumField) {
+        setFormFields((oldFields) => ({ ...oldFields, [field]: value }))
+      }
     } else {
       setInvalidFields((oldInvalidFields) => ({
         ...oldInvalidFields,
