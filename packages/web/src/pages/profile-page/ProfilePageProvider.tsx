@@ -45,6 +45,8 @@ import { Dispatch } from 'redux'
 
 import { make, TrackEvent } from 'common/store/analytics/actions'
 import { getIsDone } from 'common/store/confirmer/selectors'
+import { ProfileMode } from 'components/stat-banner/StatBanner'
+import { StatProps } from 'components/stats/Stats'
 import * as unfollowConfirmationActions from 'components/unfollow-confirmation-modal/store/actions'
 import { getLocationPathname } from 'store/routing/selectors'
 import { AppState } from 'store/types'
@@ -398,7 +400,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     }
   }
 
-  getMode = (isOwner: boolean) => {
+  getMode = (isOwner: boolean): ProfileMode => {
     return isOwner ? (this.state.editMode ? 'editing' : 'owner') : 'visitor'
   }
 
@@ -495,7 +497,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     })
   }
 
-  getStats = (isArtist: boolean) => {
+  getStats = (isArtist: boolean): StatProps[] => {
     const {
       profile: { profile }
     } = this.props
