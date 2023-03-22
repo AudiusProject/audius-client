@@ -8,7 +8,11 @@ import {
   IconShare,
   IconPencil,
   IconKebabHorizontal,
-  IconMessage
+  IconMessage,
+  PopupMenu,
+  PopupPosition,
+  IconUnblockMessages,
+  PopupAlignment
 } from '@audius/stems'
 import cn from 'classnames'
 
@@ -28,10 +32,13 @@ const BUTTON_COLLAPSE_WIDTHS = {
 const messages = {
   more: 'More Options',
   share: 'Share',
+  shareProfile: 'Share Profile',
   edit: 'Edit Page',
   cancel: 'Cancel',
   save: 'Save Changes',
-  message: 'Send Message'
+  message: 'Send Message',
+  unblockMessages: 'Unblock Messages',
+  blockMessages: 'Block Messages'
 }
 
 export type ProfileMode = 'visitor' | 'owner' | 'editing'
@@ -132,13 +139,32 @@ export const StatBanner = (props: StatsBannerProps) => {
         <>
           {isChatEnabled ? (
             <>
-              <Button
-                type={ButtonType.COMMON}
-                size={ButtonSize.SMALL}
-                className={cn(styles.iconButton, styles.statButton)}
-                aria-label={messages.more}
-                text={<IconKebabHorizontal />}
-                onClick={() => {}}
+              <PopupMenu
+                items={[
+                  {
+                    text: messages.shareProfile,
+                    onClick: onShare!,
+                    icon: <IconShare />
+                  },
+                  {
+                    text: messages.unblockMessages,
+                    onClick: () => {},
+                    icon: <IconUnblockMessages />
+                  }
+                ]}
+                position={PopupPosition.BOTTOM_LEFT}
+                alignment={PopupAlignment.HORIZONTAL_INNER}
+                renderTrigger={(anchorRef, triggerPopup) => (
+                  <Button
+                    ref={anchorRef}
+                    type={ButtonType.COMMON}
+                    size={ButtonSize.SMALL}
+                    className={cn(styles.iconButton, styles.statButton)}
+                    aria-label={messages.more}
+                    text={<IconKebabHorizontal />}
+                    onClick={triggerPopup}
+                  />
+                )}
               />
               <Button
                 type={ButtonType.COMMON}
