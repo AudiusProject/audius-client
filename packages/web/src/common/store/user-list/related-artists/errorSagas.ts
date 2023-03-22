@@ -5,9 +5,9 @@ import * as errorActions from 'store/errors/actions'
 const { GET_RELATED_ARTISTS_ERROR, getRelatedArtistsError } =
   relatedArtistsUserListActions
 
-type handleRelatedArtistsError = ReturnType<typeof getRelatedArtistsError>
+type HandleRelatedArtistsError = ReturnType<typeof getRelatedArtistsError>
 
-export function* handleFollowersError(action: handleRelatedArtistsError) {
+export function* handleRelatedArtistsError(action: HandleRelatedArtistsError) {
   yield put(
     errorActions.handleError({
       message: action.type,
@@ -22,5 +22,5 @@ export function* handleFollowersError(action: handleRelatedArtistsError) {
 }
 
 export function* watchRelatedArtistsError() {
-  yield takeEvery([GET_RELATED_ARTISTS_ERROR], handleFollowersError)
+  yield takeEvery([GET_RELATED_ARTISTS_ERROR], handleRelatedArtistsError)
 }
