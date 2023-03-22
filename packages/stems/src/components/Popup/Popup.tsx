@@ -125,17 +125,6 @@ const getComputedOrigins = (
   const overflowBottom = wrapperY + wrapperRect.height > containerHeight
   const overflowTop = wrapperY < 0
 
-  console.log({
-    overflowBottom,
-    overflowLeft,
-    overflowRight,
-    overflowTop,
-    containerHeight,
-    containerWidth,
-    wrapperX,
-    wrapperY
-  })
-
   if (overflowRight) {
     anchorOrigin.horizontal = 'left'
     transformOrigin.horizontal = 'right'
