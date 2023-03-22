@@ -156,7 +156,7 @@ export const StatBanner = (props: StatsBannerProps) => {
                     icon: <IconUnblockMessages />
                   }
                 ]}
-                position={PopupPosition.BOTTOM_LEFT}
+                position={PopupPosition.BOTTOM_RIGHT}
                 alignment={PopupAlignment.HORIZONTAL_INNER}
                 renderTrigger={(anchorRef, triggerPopup) => (
                   <Button
