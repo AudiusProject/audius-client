@@ -10,7 +10,6 @@ import {
   IconKebabHorizontal,
   IconMessage,
   PopupMenu,
-  PopupPosition,
   IconUnblockMessages
 } from '@audius/stems'
 import cn from 'classnames'
