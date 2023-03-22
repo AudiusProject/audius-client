@@ -243,7 +243,7 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
     checkIfClickInside,
     children,
     isVisible,
-    onAfterClose = () => {},
+    onAfterClose,
     onClose,
     position,
     anchorOrigin: anchorOriginProp = defaultAnchorOrigin,
