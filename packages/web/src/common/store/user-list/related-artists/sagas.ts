@@ -12,6 +12,8 @@ import { apiClient } from 'services/audius-api-client'
 
 import { watchRelatedArtistsError } from './errorSagas'
 
+export const MAX_RELATED_ARTISTS = 30
+
 const { getUserId } = accountSelectors
 const { getRelatedArtistsError } = relatedArtistsUserListActions
 const { getId, getUserList } = relatedArtistsUserListSelectors
@@ -40,7 +42,11 @@ async function fetchRelatedArtists({
   const users = response || []
 
   const userIds = users.map((user) => user.user_id)
-  return { userIds, hasMore: users.length >= pageSize }
+  const hasMore = userIds.length > 0 && offset + pageSize < MAX_RELATED_ARTISTS
+  return {
+    userIds,
+    hasMore
+  }
 }
 
 function* errorDispatcher(error: Error) {
