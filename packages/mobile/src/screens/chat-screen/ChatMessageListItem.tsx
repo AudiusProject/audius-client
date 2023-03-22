@@ -158,6 +158,9 @@ export const ChatMessageListItem = forwardRef<View, ChatMessageListItemProps>(
         <View
           style={[
             isAuthor ? styles.rootIsAuthor : styles.rootOtherUser,
+            !hasTail && message.reactions.length > 0
+              ? styles.reactionMarginBottom
+              : null,
             styleProp
           ]}
         >
@@ -191,10 +194,6 @@ export const ChatMessageListItem = forwardRef<View, ChatMessageListItemProps>(
                           )
                         })}
                       </View>
-                    ) : null}
-                    {/* Add an 8px margin between messages when there are reactions. */}
-                    {!hasTail ? (
-                      <View style={styles.reactionMarginBottom} />
                     ) : null}
                   </>
                 ) : null}
