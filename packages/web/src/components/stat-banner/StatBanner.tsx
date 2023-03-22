@@ -11,8 +11,7 @@ import {
   IconMessage,
   PopupMenu,
   PopupPosition,
-  IconUnblockMessages,
-  PopupAlignment
+  IconUnblockMessages
 } from '@audius/stems'
 import cn from 'classnames'
 
@@ -156,8 +155,8 @@ export const StatBanner = (props: StatsBannerProps) => {
                     icon: <IconUnblockMessages />
                   }
                 ]}
-                position={PopupPosition.BOTTOM_RIGHT}
-                alignment={PopupAlignment.HORIZONTAL_INNER}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                 renderTrigger={(anchorRef, triggerPopup) => (
                   <Button
                     ref={anchorRef}
