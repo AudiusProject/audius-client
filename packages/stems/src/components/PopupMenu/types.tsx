@@ -8,6 +8,7 @@ type ApplicablePopupProps = Pick<
   | 'hideCloseButton'
   | 'zIndex'
   | 'containerRef'
+  | 'alignment'
 >
 
 export type PopupMenuProps = {

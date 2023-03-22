@@ -19,7 +19,7 @@ import { getScrollParent } from 'utils/scrollParent'
 import { standard } from 'utils/transitions'
 
 import styles from './Popup.module.css'
-import { PopupProps, Position, popupDefaultProps } from './types'
+import { PopupProps, Position, popupDefaultProps, Alignment } from './types'
 
 const messages = {
   close: 'close popup'
@@ -148,6 +148,7 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
     onAfterClose,
     onClose,
     position = Position.BOTTOM_CENTER,
+    alignment = Alignment.OUTER,
     hideCloseButton = false,
     showHeader,
     title,
@@ -201,28 +202,44 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
 
       const positionMap = {
         [Position.TOP_LEFT]: [
-          anchorRect.y - wrapperRect.height,
-          anchorRect.x - wrapperRect.width
+          alignment === Alignment.VERTICAL_INNER
+            ? anchorRect.y - wrapperRect.height + anchorRect.height
+            : anchorRect.y - wrapperRect.height,
+          alignment === Alignment.HORIZONTAL_INNER
+            ? anchorRect.x - wrapperRect.width + anchorRect.width
+            : anchorRect.x - wrapperRect.width
         ],
         [Position.TOP_CENTER]: [
           anchorRect.y - wrapperRect.height,
           anchorRect.x - wrapperRect.width / 2 + anchorRect.width / 2
         ],
         [Position.TOP_RIGHT]: [
-          anchorRect.y - wrapperRect.height,
-          anchorRect.x + anchorRect.width
+          alignment === Alignment.VERTICAL_INNER
+            ? anchorRect.y - wrapperRect.height + anchorRect.height
+            : anchorRect.y - wrapperRect.height,
+          alignment === Alignment.HORIZONTAL_INNER
+            ? anchorRect.x
+            : anchorRect.x + anchorRect.width
         ],
         [Position.BOTTOM_LEFT]: [
-          anchorRect.y + anchorRect.height,
-          anchorRect.x - wrapperRect.width
+          alignment === Alignment.VERTICAL_INNER
+            ? anchorRect.y
+            : anchorRect.y + anchorRect.height,
+          alignment === Alignment.HORIZONTAL_INNER
+            ? anchorRect.x - wrapperRect.width + anchorRect.width
+            : anchorRect.x - wrapperRect.width
         ],
         [Position.BOTTOM_CENTER]: [
           anchorRect.y + anchorRect.height,
           anchorRect.x - wrapperRect.width / 2 + anchorRect.width / 2
         ],
         [Position.BOTTOM_RIGHT]: [
-          anchorRect.y + anchorRect.height,
-          anchorRect.x + anchorRect.width
+          alignment === Alignment.VERTICAL_INNER
+            ? anchorRect.y
+            : anchorRect.y + anchorRect.height,
+          alignment === Alignment.HORIZONTAL_INNER
+            ? anchorRect.x
+            : anchorRect.x + anchorRect.width
         ]
       }
 
@@ -243,6 +260,7 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
     }
   }, [
     position,
+    alignment,
     isVisible,
     wrapperRef,
     anchorRef,

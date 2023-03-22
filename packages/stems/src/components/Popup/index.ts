@@ -1,2 +1,2 @@
 export { Popup } from './Popup'
-export { Position, PopupProps } from './types'
+export { Position, PopupProps, Alignment } from './types'

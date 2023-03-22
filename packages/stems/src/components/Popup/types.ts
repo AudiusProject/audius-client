@@ -9,6 +9,21 @@ export enum Position {
   BOTTOM_RIGHT = 'bottomRight'
 }
 
+export enum Alignment {
+  /**
+   * Align such that the popup is flush with the horizontal position of the anchor
+   */
+  HORIZONTAL_INNER = 'horizontal',
+  /**
+   * Align such that the popup is flush with the vertical position of the anchor
+   */
+  VERTICAL_INNER = 'vertical',
+  /**
+   * Align such that the popup is on a corner of the anchor
+   */
+  OUTER = 'outer'
+}
+
 export type PopupProps = {
   /**
    * A ref to the element whose position will be used to anchor the Popup
@@ -78,6 +93,11 @@ export type PopupProps = {
    * The position of the Popup relative to the trigger
    */
   position?: Position
+
+  /**
+   * The alignment of the Popup relative to the trigger (only affects non-center positions, as it's used to determine which edge to align with)
+   */
+  alignment?: Alignment
 
   /**
    * A title displayed at the top of the Popup (only visible when the header is enabled)
