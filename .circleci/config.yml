@@ -82,6 +82,7 @@ jobs:
             - ./packages/stems/node_modules
             - ./packages/common/node_modules
             - ./packages/probers/node_modules
+            - /home/circleci/.cache/Cypress
 
       - save_cache:
           key: cache-{{ .Revision }}
