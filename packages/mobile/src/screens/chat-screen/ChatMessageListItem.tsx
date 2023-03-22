@@ -15,16 +15,11 @@ import { useSelector } from 'react-redux'
 import ChatTail from 'app/assets/images/ChatTail.svg'
 import { Text } from 'app/components/core'
 import { makeStyles } from 'app/styles'
-import { spacing } from 'app/styles/spacing'
 import { useThemePalette } from 'app/utils/theme'
 
 import { reactionMap } from '../notifications-screen/Reaction'
 
 const { getUserId } = accountSelectors
-
-const REACTION_OFFSET_X = 13
-const REACTION_OFFSET_Y = 16
-const REACTION_SPACE_BETWEEN = spacing(4)
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   rootOtherUser: {
@@ -89,9 +84,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     shadowOpacity: 1,
     shadowRadius: 2
   },
-  reactionMarginBottom: {
-    marginBottom: spacing(2)
-  },
   reaction: {
     height: spacing(8),
     width: spacing(8),
@@ -101,24 +93,31 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     shadowRadius: 5
   },
   reactionContainer: {
-    position: 'absolute',
+    position: 'relative',
     display: 'flex',
     flexDirection: 'row-reverse',
-    gap: -REACTION_SPACE_BETWEEN
+    justifyContent: 'flex-end',
+    bottom: spacing(4),
+    gap: -spacing(4),
+    height: 0
+  },
+  reactionContainerIsAuthor: {
+    right: spacing(4)
+  },
+  reactionContainerOtherUser: {
+    left: spacing(4),
+    flexDirection: 'row'
+  },
+  reactionMarginBottom: {
+    marginBottom: spacing(2)
   }
 }))
 
 type ChatReactionProps = {
   reaction: ChatMessageReaction
-  reactionPosition: { x: number; y: number }
-  isAuthor?: boolean
 }
 
-const ChatReaction = ({
-  reaction,
-  reactionPosition,
-  isAuthor
-}: ChatReactionProps) => {
+const ChatReaction = ({ reaction }: ChatReactionProps) => {
   const styles = useStyles()
 
   if (!reaction || !reaction.reaction || !(reaction.reaction in reactionMap)) {
@@ -153,26 +152,6 @@ export const ChatMessageListItem = forwardRef<View, ChatMessageListItemProps>(
     const userId = useSelector(getUserId)
     const senderUserId = decodeHashId(message.sender_user_id)
     const isAuthor = senderUserId === userId
-    // Offset of reactions in relation to message body parent.
-    const [reactionPosition, setReactionPosition] = useState<{
-      x: number
-      y: number
-    }>({ x: 0, y: 0 })
-
-    const reactionPositionStyle = [
-      { top: reactionPosition?.y },
-      isAuthor
-        ? {
-            right:
-              reactionPosition?.x +
-              (message.reactions.length - 1) * REACTION_SPACE_BETWEEN
-          }
-        : {
-            left:
-              reactionPosition?.x -
-              (message.reactions.length - 1) * REACTION_SPACE_BETWEEN
-          }
-    ]
 
     return (
       <>
@@ -182,31 +161,46 @@ export const ChatMessageListItem = forwardRef<View, ChatMessageListItemProps>(
             styleProp
           ]}
         >
-          <TouchableWithoutFeedback onPress={onLongPress}>
-            <View
-              ref={refProp}
-              onLayout={(e) => {
-                const { width, height } = e.nativeEvent.layout
-                setReactionPosition({
-                  x: width - REACTION_OFFSET_X,
-                  y: height - REACTION_OFFSET_Y
-                })
-              }}
-            >
-              {/* This View is for measuring y offset and height to calculate
-            position of reactions popup. */}
-              <View
-                ref={refProp}
-                style={[styles.bubble, isAuthor && styles.isAuthor]}
-              >
-                <Text
-                  style={[styles.message, isAuthor && styles.messageIsAuthor]}
+          <View>
+            <TouchableWithoutFeedback onPress={onLongPress}>
+              <View>
+                <View
+                  style={[styles.bubble, isAuthor && styles.isAuthor]}
+                  ref={refProp}
                 >
-                  {message.message}
-                </Text>
+                  <Text
+                    style={[styles.message, isAuthor && styles.messageIsAuthor]}
+                  >
+                    {message.message}
+                  </Text>
+                </View>
+                {message.reactions?.length > 0 ? (
+                  <>
+                    {shouldShowReaction ? (
+                      <View
+                        style={[
+                          styles.reactionContainer,
+                          isAuthor
+                            ? styles.reactionContainerIsAuthor
+                            : styles.reactionContainerOtherUser
+                        ]}
+                      >
+                        {message.reactions.map((reaction, index) => {
+                          return (
+                            <ChatReaction key={index} reaction={reaction} />
+                          )
+                        })}
+                      </View>
+                    ) : null}
+                    {/* Add an 8px margin between messages when there are reactions. */}
+                    {!hasTail ? (
+                      <View style={styles.reactionMarginBottom} />
+                    ) : null}
+                  </>
+                ) : null}
               </View>
-            </View>
-          </TouchableWithoutFeedback>
+            </TouchableWithoutFeedback>
+          </View>
           {hasTail ? (
             <>
               <View
@@ -226,27 +220,6 @@ export const ChatMessageListItem = forwardRef<View, ChatMessageListItemProps>(
                   </Text>
                 </View>
               ) : null}
-            </>
-          ) : null}
-          {message.reactions?.length > 0 ? (
-            <>
-              {shouldShowReaction ? (
-                <View
-                  style={[styles.reactionContainer, ...reactionPositionStyle]}
-                >
-                  {message.reactions.map((reaction, index) => {
-                    return (
-                      <ChatReaction
-                        key={index}
-                        reaction={reaction}
-                        reactionPosition={reactionPosition}
-                      />
-                    )
-                  })}
-                </View>
-              ) : null}
-              {/* Add an 8px margin between messages when there are reactions. */}
-              {!hasTail ? <View style={styles.reactionMarginBottom} /> : null}
             </>
           ) : null}
         </View>

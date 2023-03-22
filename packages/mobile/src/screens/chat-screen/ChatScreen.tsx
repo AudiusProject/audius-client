@@ -11,7 +11,6 @@ import {
   hasTail,
   isEarliestUnread
 } from '@audius/common'
-import type { ReactionTypes, Nullable } from '@audius/common'
 import type { ChatMessage } from '@audius/sdk'
 import { Portal } from '@gorhom/portal'
 import { useFocusEffect } from '@react-navigation/native'
@@ -28,11 +27,11 @@ import { UserBadges } from 'app/components/user-badges'
 import { useRoute } from 'app/hooks/useRoute'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
 import { useThemePalette } from 'app/utils/theme'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
 import { EmptyChatMessages } from './EmptyChatMessages'
-import type { ReactionInfo } from './ReactionPopup'
 import { ReactionPopup } from './ReactionPopup'
 
 const {
@@ -43,8 +42,7 @@ const {
   getChat
 } = chatSelectors
 
-const { fetchMoreMessages, sendMessage, markChatAsRead, setMessageReaction } =
-  chatActions
+const { fetchMoreMessages, sendMessage, markChatAsRead } = chatActions
 const { getUserId } = accountSelectors
 
 const messages = {
@@ -142,8 +140,8 @@ export const ChatScreen = () => {
   const [iconOpacity, setIconOpacity] = useState(ICON_BLUR)
   const [inputMessage, setInputMessage] = useState('')
   const [shouldShowPopup, setShouldShowPopup] = useState(false)
-  const reactionInfo = useRef<ReactionInfo>({})
-  const [selectedReaction, setSelectedReaction] = useState('')
+  const messageTop = useRef(0)
+  const containerBottom = useRef(0)
   const [popupChatIndex, setPopupChatIndex] = useState<number | null>(null)
 
   const userId = useSelector(getUserId)
@@ -278,66 +276,26 @@ export const ChatScreen = () => {
   const closeReactionPopup = useCallback(() => {
     setShouldShowPopup(false)
     setPopupChatIndex(null)
-    setSelectedReaction('')
   }, [setShouldShowPopup, setPopupChatIndex])
 
-  const handleReactionSelected = useCallback(
-    (message: Nullable<ChatMessage>, reaction: ReactionTypes) => {
-      if (userId && message) {
-        dispatch(
-          setMessageReaction({
-            userId,
-            chatId,
-            messageId: message.message_id,
-            reaction:
-              message.reactions?.find((r) => r.user_id === userIdEncoded)
-                ?.reaction === reaction
-                ? null
-                : reaction
-          })
-        )
-      }
-      closeReactionPopup()
-    },
-    [dispatch, userIdEncoded, chatId, userId, closeReactionPopup]
-  )
-
-  // Calculates positions of reactions popup and highlighted chat message to display
-  // in the portal.
   const handleMessagePress = async (index: number) => {
     if (index < 0 || index >= chatMessages.length) {
       return
     }
-    const popupChatMessage = chatMessages[index]
     const popupViewRef = itemsRef.current[index]
     if (popupViewRef === null || popupViewRef === undefined) {
       return
     }
-    setPopupChatIndex(index)
-    reactionInfo.current.hasTail = hasTail(
-      popupChatMessage,
-      chatMessages[index - 1]
-    )
-    const senderUserId = decodeHashId(popupChatMessage.sender_user_id)
-    reactionInfo.current.isAuthor = senderUserId === userId
-    const selectedReactionValue = popupChatMessage.reactions?.find(
-      (r) => r.user_id === encodeHashId(userId)
-    )?.reaction
-    if (selectedReactionValue) {
-      setSelectedReaction(selectedReactionValue)
-    }
-
     // Measure position of selected message to create a copy of it on top
     // of the dimmed background inside the portal.
-    const messageTop = await new Promise<number>((resolve) => {
+    const messageY = await new Promise<number>((resolve) => {
       popupViewRef.measureInWindow((x, y, width, height) => {
         resolve(y)
       })
     })
-
-    const reactionY = messageTop - REACTION_CONTAINER_HEIGHT
-    reactionInfo.current.reactionTop = reactionY
-    reactionInfo.current.messageTop = messageTop
+    // Need to subtract spacing(2) to account for padding in message View.
+    messageTop.current = messageY - spacing(2)
+    setPopupChatIndex(index)
     setShouldShowPopup(true)
   }
 
@@ -374,13 +332,19 @@ export const ChatScreen = () => {
         <Portal hostName='ChatReactionsPortal'>
           {shouldShowPopup && popupChatIndex !== null ? (
             <ReactionPopup
-              reactionInfo={reactionInfo.current}
-              selectedReaction={selectedReaction as ReactionTypes}
+              chatId={chatId}
+              messageTop={messageTop.current}
+              containerBottom={containerBottom.current}
+              hasTail={hasTail(
+                chatMessages[popupChatIndex],
+                chatMessages[popupChatIndex - 1]
+              )}
+              isAuthor={
+                decodeHashId(chatMessages[popupChatIndex].sender_user_id) ===
+                userId
+              }
               message={chatMessages[popupChatIndex]}
               closePopup={closeReactionPopup}
-              handleReactionSelected={(reaction) =>
-                handleReactionSelected(chatMessages[popupChatIndex], reaction)
-              }
             />
           ) : null}
         </Portal>
@@ -435,7 +399,7 @@ export const ChatScreen = () => {
             style={styles.composeView}
             onLayout={() => {
               composeRef.current?.measureInWindow((x, y, width, height) => {
-                reactionInfo.current.containerBottom = y
+                containerBottom.current = y
               })
             }}
             ref={composeRef}

@@ -1,8 +1,10 @@
 import { useRef, useCallback, useEffect } from 'react'
 
-import type { ReactionTypes } from '@audius/common'
+import type { Nullable, ReactionTypes } from '@audius/common'
+import { chatActions, encodeHashId, accountSelectors } from '@audius/common'
 import type { ChatMessage } from '@audius/sdk'
 import { View, Dimensions, Pressable, Animated } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
@@ -11,6 +13,9 @@ import { ReactionList } from '../notifications-screen/Reaction'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
 import { REACTION_CONTAINER_HEIGHT } from './ChatScreen'
+
+const { getUserId } = accountSelectors
+const { setMessageReaction } = chatActions
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   reactionsContainer: {
@@ -59,33 +64,35 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 
 const BACKGROUND_OPACITY = 0.3
 
-export type ReactionInfo = {
-  messageTop?: number // Offset from top of highlighted message
-  reactionTop?: number // Offset from top of reaction popup
-  containerBottom?: number // Bottom border of highlighted content
-  hasTail?: boolean // Whether the selected chat has a tail
-  isAuthor?: boolean // Whether it was sent from the current user
-}
-
 type ReactionPopupProps = {
-  reactionInfo: ReactionInfo
-  selectedReaction: ReactionTypes
+  chatId: string
+  messageTop: number
+  containerBottom: number
+  hasTail: boolean
+  isAuthor: boolean
   message: ChatMessage
   closePopup: () => void
-  handleReactionSelected: (reaction: ReactionTypes) => void
 }
 
 export const ReactionPopup = ({
-  reactionInfo,
-  selectedReaction,
+  chatId,
+  messageTop,
+  containerBottom,
+  hasTail,
+  isAuthor,
   message,
-  closePopup,
-  handleReactionSelected
+  closePopup
 }: ReactionPopupProps) => {
   const styles = useStyles()
+  const dispatch = useDispatch()
   const backgroundOpacityAnim = useRef(new Animated.Value(0))
   const otherOpacity = useRef(new Animated.Value(0))
   const translationAnim = useRef(new Animated.Value(REACTION_CONTAINER_HEIGHT))
+  const userId = useSelector(getUserId)
+  const userIdEncoded = encodeHashId(userId)
+  const selectedReaction = message.reactions?.find(
+    (r) => r.user_id === userIdEncoded
+  )?.reaction
 
   const beginAnimation = useCallback(() => {
     Animated.spring(backgroundOpacityAnim.current, {
@@ -106,6 +113,27 @@ export const ReactionPopup = ({
     beginAnimation()
   }, [beginAnimation])
 
+  const handleReactionSelected = useCallback(
+    (message: Nullable<ChatMessage>, reaction: ReactionTypes) => {
+      if (userId && message) {
+        dispatch(
+          setMessageReaction({
+            userId,
+            chatId,
+            messageId: message.message_id,
+            reaction:
+              message.reactions?.find((r) => r.user_id === userIdEncoded)
+                ?.reaction === reaction
+                ? null
+                : reaction
+          })
+        )
+      }
+      closePopup()
+    },
+    [dispatch, userIdEncoded, chatId, userId, closePopup]
+  )
+
   return (
     <>
       <Animated.View
@@ -121,7 +149,7 @@ export const ReactionPopup = ({
         style={[
           styles.popupContainer,
           {
-            height: reactionInfo.containerBottom
+            height: containerBottom
           }
         ]}
       >
@@ -132,16 +160,16 @@ export const ReactionPopup = ({
         <Animated.View style={{ opacity: otherOpacity.current }}>
           <ChatMessageListItem
             message={message}
-            hasTail={reactionInfo.hasTail ?? false}
+            hasTail={hasTail ?? false}
             ref={() => null}
             shouldShowDate={false}
             style={[
               styles.popupChatMessage,
               {
-                top: reactionInfo.messageTop,
-                alignSelf: reactionInfo.isAuthor ? 'flex-end' : 'flex-start',
-                right: reactionInfo.isAuthor ? spacing(6) : undefined,
-                left: !reactionInfo.isAuthor ? spacing(6) : undefined
+                top: messageTop,
+                alignSelf: isAuthor ? 'flex-end' : 'flex-start',
+                right: isAuthor ? spacing(6) : undefined,
+                left: !isAuthor ? spacing(6) : undefined
               }
             ]}
           />
@@ -150,7 +178,7 @@ export const ReactionPopup = ({
           style={[
             styles.reactionsContainer,
             {
-              top: reactionInfo.reactionTop,
+              top: messageTop - REACTION_CONTAINER_HEIGHT,
               opacity: otherOpacity.current,
               transform: [
                 {
@@ -161,10 +189,10 @@ export const ReactionPopup = ({
           ]}
         >
           <ReactionList
-            selectedReaction={selectedReaction}
+            selectedReaction={selectedReaction as ReactionTypes}
             onChange={(reaction) => {
               if (reaction) {
-                handleReactionSelected(reaction)
+                handleReactionSelected(message, reaction)
               }
             }}
             isVisible={true}
