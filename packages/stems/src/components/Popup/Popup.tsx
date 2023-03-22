@@ -31,6 +31,9 @@ const messages = {
  */
 const CONTAINER_INSET_PADDING = 16
 
+/**
+ * Used to convert deprecated Position prop to transformOrigin prop
+ */
 const positionToTransformOriginMap: Record<Position, Origin> = {
   [Position.TOP_LEFT]: {
     horizontal: 'right',
@@ -58,6 +61,9 @@ const positionToTransformOriginMap: Record<Position, Origin> = {
   }
 }
 
+/**
+ * Used to convert deprecated Position prop to anchorOrigin prop
+ */
 const positionToAnchorOriginMap: Record<Position, Origin> = {
   [Position.TOP_LEFT]: {
     horizontal: 'left',
@@ -88,10 +94,11 @@ const positionToAnchorOriginMap: Record<Position, Origin> = {
 /**
  * Figures out whether the specified position would overflow the window
  * and picks a better position accordingly
- * @param {Position} anchorOrigin where the consumer specified the popup should be anchored
- * @param {ClientRect} anchorRect the content
- * @param {ClientRect} wrapperRect the wrapper of the content
- * @return {string | null} null if it would not overflow
+ * @param {Origin} anchorOrigin where the origin is on the trigger
+ * @param {Origin} transformOrigin where the origin is on the popup
+ * @param {DOMRect} anchorRect the position and size of the trigger
+ * @param {DOMRect} wrapperRect the position and size of the popup
+ * @return {{ anchorOrigin: Origin, transformOrigin: Origin }} the new origin after accounting for overflow
  */
 const getComputedOrigins = (
   anchorOrigin: Origin,
@@ -115,16 +122,19 @@ const getComputedOrigins = (
     containerHeight = window.innerHeight - CONTAINER_INSET_PADDING
   }
 
+  // Get new wrapper position
   const anchorTranslation = getOriginTranslation(anchorOrigin, anchorRect)
   const wrapperTranslation = getOriginTranslation(transformOrigin, wrapperRect)
   const wrapperX = anchorRect.x + anchorTranslation.x - wrapperTranslation.x
   const wrapperY = anchorRect.y + anchorTranslation.y - wrapperTranslation.y
 
+  // Check bounds of the wrapper in new position are inside container
   const overflowRight = wrapperX + wrapperRect.width > containerWidth
   const overflowLeft = wrapperX < 0
   const overflowBottom = wrapperY + wrapperRect.height > containerHeight
   const overflowTop = wrapperY < 0
 
+  // For all overflows, flip the position
   if (overflowRight) {
     anchorOrigin.horizontal = 'left'
     transformOrigin.horizontal = 'right'
@@ -181,6 +191,12 @@ const getAdjustedPosition = (
   return adjusted
 }
 
+/**
+ * Gets the x, y offsets for the given origin using the dimensions
+ * @param origin the relative origin
+ * @param dimensions the dimensions to use with the relative origin
+ * @returns the x and y coordinates of the new origin relative to the old one
+ */
 const getOriginTranslation = (
   origin: Origin,
   dimensions: { width: number; height: number }
@@ -288,6 +304,7 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
         containerRef
       )
       setComputedTransformOrigin(transformOriginComputed)
+
       const anchorTranslation = getOriginTranslation(
         anchorOriginComputed,
         anchorRect
