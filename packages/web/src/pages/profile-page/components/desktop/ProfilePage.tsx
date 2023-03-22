@@ -146,6 +146,7 @@ export type ProfilePageProps = {
   ) => void
   didChangeTabsFrom: (prevLabel: string, currentLabel: string) => void
   onCloseArtistRecommendations: () => void
+  onMessage: () => void
 }
 
 const ProfilePage = ({
@@ -199,6 +200,7 @@ const ProfilePage = ({
   editMode,
   areArtistRecommendationsVisible,
   onCloseArtistRecommendations,
+  onMessage,
 
   accountUserId,
   userId,
@@ -736,6 +738,7 @@ const ProfilePage = ({
             onToggleSubscribe={toggleNotificationSubscription}
             onFollow={onFollow}
             onUnfollow={onUnfollow}
+            onMessage={onMessage}
           />
           <div className={styles.inset}>
             <NavBanner

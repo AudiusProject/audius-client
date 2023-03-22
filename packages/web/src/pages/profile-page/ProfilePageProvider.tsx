@@ -34,7 +34,8 @@ import {
   newUserMetadata,
   playerSelectors,
   queueSelectors,
-  Nullable
+  Nullable,
+  chatActions
 } from '@audius/common'
 import { push as pushRoute, replace } from 'connected-react-router'
 import { UnregisterCallback } from 'history'
@@ -72,6 +73,7 @@ const {
   getProfileUserId
 } = profilePageSelectors
 const { getAccountUser } = accountSelectors
+const { createChat } = chatActions
 
 const INITIAL_UPDATE_FIELDS = {
   updatedName: null,
@@ -684,6 +686,13 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     return profile && account ? profile.user_id === account.user_id : false
   }
 
+  onMessage = () => {
+    const {
+      profile: { profile }
+    } = this.props
+    return this.props.onMessage(profile!.user_id)
+  }
+
   render() {
     const {
       profile: {
@@ -873,7 +882,8 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       updateWebsite: this.updateWebsite,
       updateDonation: this.updateDonation,
       updateCoverPhoto: this.updateCoverPhoto,
-      didChangeTabsFrom: this.didChangeTabsFrom
+      didChangeTabsFrom: this.didChangeTabsFrom,
+      onMessage: this.onMessage
     }
 
     const mobileProps = {
@@ -1110,6 +1120,9 @@ function mapDispatchToProps(dispatch: Dispatch, props: RouteComponentProps) {
         { source }
       )
       dispatch(trackEvent)
+    },
+    onMessage: (userId: ID) => {
+      dispatch(createChat({ userIds: [userId] }))
     }
   }
 }

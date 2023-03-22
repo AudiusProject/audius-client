@@ -59,6 +59,7 @@ type StatsBannerProps = {
   following?: boolean
   isSubscribed?: boolean
   onToggleSubscribe?: () => void
+  onMessage?: () => void
 }
 
 export const StatBanner = (props: StatsBannerProps) => {
@@ -79,6 +80,7 @@ export const StatBanner = (props: StatsBannerProps) => {
     onCancel,
     onFollow,
     onUnfollow,
+    onMessage,
     following,
     isSubscribed,
     onToggleSubscribe
@@ -172,7 +174,7 @@ export const StatBanner = (props: StatsBannerProps) => {
                 className={cn(styles.iconButton, styles.statButton)}
                 aria-label={messages.message}
                 text={<IconMessage />}
-                onClick={() => {}}
+                onClick={onMessage}
               />
             </>
           ) : (
