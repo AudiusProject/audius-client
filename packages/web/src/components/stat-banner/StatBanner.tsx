@@ -1,23 +1,37 @@
 import { useRef } from 'react'
 
+import { FeatureFlags } from '@audius/common'
 import {
   Button,
   ButtonSize,
   ButtonType,
   IconShare,
-  IconPencil
+  IconPencil,
+  IconKebabHorizontal,
+  IconMessage
 } from '@audius/stems'
+import cn from 'classnames'
 
 import { ArtistRecommendationsPopup } from 'components/artist-recommendations/ArtistRecommendationsPopup'
 import FollowButton from 'components/follow-button/FollowButton'
 import Stats, { StatProps } from 'components/stats/Stats'
 import SubscribeButton from 'components/subscribe-button/SubscribeButton'
+import { useFlag } from 'hooks/useRemoteConfig'
 
 import styles from './StatBanner.module.css'
 
 const BUTTON_COLLAPSE_WIDTHS = {
   first: 1066,
   second: 1140
+}
+
+const messages = {
+  more: 'More Options',
+  share: 'Share',
+  edit: 'Edit Page',
+  cancel: 'Cancel',
+  save: 'Save Changes',
+  message: 'Send Message'
 }
 
 export type ProfileMode = 'visitor' | 'owner' | 'editing'
@@ -63,92 +77,105 @@ export const StatBanner = (props: StatsBannerProps) => {
     onToggleSubscribe
   } = props
 
-  let buttonOne, buttonTwo, subscribeButton
+  let buttons = null
   const followButtonRef = useRef<HTMLDivElement>(null)
+
+  const { isEnabled: isChatEnabled } = useFlag(FeatureFlags.CHAT_ENABLED)
 
   switch (mode) {
     case 'owner':
-      buttonOne = (
-        <Button
-          size={ButtonSize.SMALL}
-          type={ButtonType.COMMON}
-          text='SHARE'
-          leftIcon={<IconShare />}
-          onClick={onShare}
-          widthToHideText={BUTTON_COLLAPSE_WIDTHS.first}
-        />
-      )
-      buttonTwo = (
-        <Button
-          key='edit'
-          className={styles.buttonTwo}
-          size={ButtonSize.SMALL}
-          type={ButtonType.SECONDARY}
-          text='EDIT PAGE'
-          leftIcon={<IconPencil />}
-          onClick={onEdit}
-          widthToHideText={BUTTON_COLLAPSE_WIDTHS.second}
-        />
+      buttons = (
+        <>
+          <Button
+            className={styles.statButton}
+            size={ButtonSize.SMALL}
+            type={ButtonType.COMMON}
+            text={messages.share}
+            leftIcon={<IconShare />}
+            onClick={onShare}
+            widthToHideText={BUTTON_COLLAPSE_WIDTHS.first}
+          />
+          <Button
+            className={cn(styles.buttonTwo, styles.statButton)}
+            size={ButtonSize.SMALL}
+            type={ButtonType.SECONDARY}
+            text={messages.edit}
+            leftIcon={<IconPencil />}
+            onClick={onEdit}
+            widthToHideText={BUTTON_COLLAPSE_WIDTHS.second}
+          />
+        </>
       )
       break
     case 'editing':
-      buttonOne = (
-        <Button
-          size={ButtonSize.SMALL}
-          type={ButtonType.COMMON}
-          text='CANCEL'
-          onClick={onCancel}
-        />
-      )
-      buttonTwo = (
-        <Button
-          key='save'
-          className={styles.buttonTwo}
-          size={ButtonSize.SMALL}
-          type={ButtonType.PRIMARY_ALT}
-          text='SAVE CHANGES'
-          onClick={onSave}
-        />
+      buttons = (
+        <>
+          <Button
+            className={styles.statButton}
+            size={ButtonSize.SMALL}
+            type={ButtonType.COMMON}
+            text={messages.cancel}
+            onClick={onCancel}
+          />
+          <Button
+            className={cn(styles.buttonTwo, styles.statButton)}
+            size={ButtonSize.SMALL}
+            type={ButtonType.PRIMARY_ALT}
+            text={messages.save}
+            onClick={onSave}
+          />
+        </>
       )
       break
     default:
-      buttonOne = (
-        <Button
-          size={ButtonSize.SMALL}
-          type={ButtonType.COMMON}
-          text='SHARE'
-          leftIcon={<IconShare />}
-          onClick={onShare}
-          widthToHideText={BUTTON_COLLAPSE_WIDTHS.first}
-        />
+      buttons = (
+        <>
+          {isChatEnabled ? (
+            <Button
+              type={ButtonType.COMMON}
+              size={ButtonSize.SMALL}
+              className={cn(styles.iconButton, styles.statButton)}
+              aria-label={messages.more}
+              text={<IconKebabHorizontal />}
+              onClick={() => {}}
+            />
+          ) : (
+            <Button
+              type={ButtonType.COMMON}
+              size={ButtonSize.SMALL}
+              className={cn(styles.statButton)}
+              text={messages.share}
+              leftIcon={<IconShare />}
+              onClick={onShare!}
+            />
+          )}
+          <div className={styles.followContainer}>
+            {onToggleSubscribe ? (
+              <SubscribeButton
+                className={styles.subscribeButton}
+                isSubscribed={isSubscribed!}
+                isFollowing={following!}
+                onToggleSubscribe={onToggleSubscribe}
+              />
+            ) : null}
+            <div ref={followButtonRef}>
+              <FollowButton
+                following={following}
+                onFollow={onFollow}
+                onUnfollow={onUnfollow}
+                widthToHideText={BUTTON_COLLAPSE_WIDTHS.second}
+                className={styles.statButton}
+              />
+              <ArtistRecommendationsPopup
+                anchorRef={followButtonRef}
+                artistId={profileId!}
+                isVisible={areArtistRecommendationsVisible}
+                onClose={onCloseArtistRecommendations!}
+              />
+            </div>
+          </div>
+        </>
       )
-      buttonTwo = (
-        <div ref={followButtonRef}>
-          <FollowButton
-            following={following}
-            onFollow={onFollow}
-            onUnfollow={onUnfollow}
-            widthToHideText={BUTTON_COLLAPSE_WIDTHS.second}
-            className={styles.followButton}
-          />
-          <ArtistRecommendationsPopup
-            anchorRef={followButtonRef}
-            artistId={profileId!}
-            isVisible={areArtistRecommendationsVisible}
-            onClose={onCloseArtistRecommendations!}
-          />
-        </div>
-      )
-      if (onToggleSubscribe) {
-        subscribeButton = (
-          <SubscribeButton
-            className={styles.subscribeButton}
-            isSubscribed={isSubscribed!}
-            isFollowing={following!}
-            onToggleSubscribe={onToggleSubscribe}
-          />
-        )
-      }
       break
   }
 
@@ -159,11 +186,7 @@ export const StatBanner = (props: StatsBannerProps) => {
           <div className={styles.stats}>
             <Stats clickable userId={profileId!} stats={stats} size='large' />
           </div>
-          <div className={styles.buttons}>
-            {buttonOne}
-            {subscribeButton}
-            {buttonTwo}
-          </div>
+          <div className={styles.buttons}>{buttons}</div>
         </div>
       ) : null}
     </div>
