@@ -37,7 +37,6 @@ export {
 export {
   Popup,
   Position as PopupPosition,
-  Alignment as PopupAlignment,
   PopupProps
 } from './components/Popup'
 export {

@@ -9,19 +9,21 @@ export enum Position {
   BOTTOM_RIGHT = 'bottomRight'
 }
 
-export enum Alignment {
-  /**
-   * Open the popup towards the anchor horizontally
-   */
-  HORIZONTAL_INNER = 'horizontal_inner',
-  /**
-   * Open the popup towards the anchor vertically
-   */
-  VERTICAL_INNER = 'vertical_inner',
-  /**
-   * Align such that the popup is on a corner of the anchor
-   */
-  OUTER = 'outer'
+export enum VerticalAlign {
+  TOP = 'top',
+  CENTER = 'center',
+  BOTTOM = 'bottom'
+}
+
+export enum HorizontalAlign {
+  LEFT = 'left',
+  CENTER = 'center',
+  RIGHT = 'right'
+}
+
+export type Origin = {
+  vertical: 'top' | 'center' | 'bottom'
+  horizontal: 'left' | 'center' | 'right'
 }
 
 export type PopupProps = {
@@ -91,16 +93,19 @@ export type PopupProps = {
 
   /**
    * The position of the Popup relative to the trigger
+   * @deprecated use transformOrigin and anchorOrigin instead
    */
   position?: Position
 
   /**
-   * The alignment of the Popup relative to the trigger:
-   * - "outer": opens away from the trigger
-   * - "horizontal_inner": opens towards the trigger horizontally
-   * - "vertical_inner": opens towards the trigger vertically
+   * The origin of the popup
    */
-  alignment?: Alignment
+  transformOrigin?: Origin
+
+  /**
+   * The origin of the anchor
+   */
+  anchorOrigin?: Origin
 
   /**
    * A title displayed at the top of the Popup (only visible when the header is enabled)
@@ -119,7 +124,15 @@ export type PopupProps = {
   zIndex?: number
 }
 
-export const popupDefaultProps = {
+export const popupDefaultProps: Partial<PopupProps> = {
+  anchorOrigin: {
+    horizontal: 'center',
+    vertical: 'bottom'
+  },
+  transformOrigin: {
+    horizontal: 'center',
+    vertical: 'top'
+  },
   animationDuration: 90,
   onAfterClose: () => {}
 }
