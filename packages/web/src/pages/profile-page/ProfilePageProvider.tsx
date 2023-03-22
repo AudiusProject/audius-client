@@ -167,6 +167,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
   componentDidUpdate(prevProps: ProfilePageProps, prevState: ProfilePageState) {
     const { pathname, profile, artistTracks, goToRoute } = this.props
     const { editMode, activeTab } = this.state
+    const isOwner = this.getIsOwner()
 
     if (profile && profile.status === Status.ERROR) {
       goToRoute(NOT_FOUND_PAGE)
@@ -178,7 +179,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       profile.profile &&
       artistTracks!.status === Status.SUCCESS
     ) {
-      if (profile.profile.track_count > 0) {
+      if (isOwner || profile.profile.track_count > 0) {
         this.setState({
           activeTab: ProfilePageTabs.TRACKS
         })
@@ -597,9 +598,11 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       didChangeTabsFrom,
       profile: { profile }
     } = this.props
+    const isOwner = this.getIsOwner()
+
     if (profile) {
       let tab = `/${currLabel.toLowerCase()}`
-      if (profile.track_count > 0) {
+      if (isOwner || profile.track_count > 0) {
         // An artist, default route is tracks
         if (currLabel === ProfilePageTabs.TRACKS) {
           tab = ''

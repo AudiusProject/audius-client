@@ -584,9 +584,10 @@ const ProfilePage = g(
           (profileHasVisibleImageOrVideoCollectibles ||
             (profileHasCollectibles && isUserOnTheirProfile)))
       ) {
-        profileTabs = isArtist
-          ? artistTabsWithCollectibles
-          : userTabsWithCollectibles
+        profileTabs =
+          isArtist || isOwner
+            ? artistTabsWithCollectibles
+            : userTabsWithCollectibles
         profileElements.push(
           <div key='collectibles' className={styles.tracksLineupContainer}>
             <CollectiblesPage

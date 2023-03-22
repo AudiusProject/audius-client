@@ -639,7 +639,7 @@ const ProfilePage = ({
   }
 
   const { headers, elements } = profile
-    ? isArtist
+    ? isArtist || isOwner
       ? getArtistProfileContent()
       : getUserProfileContent()
     : { headers: [], elements: [] }
