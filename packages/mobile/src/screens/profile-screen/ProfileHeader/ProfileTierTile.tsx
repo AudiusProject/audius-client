@@ -1,7 +1,8 @@
 import { useCallback } from 'react'
 
 import { modalsActions, useSelectTierInfo } from '@audius/common'
-import { View, ViewStyle, StyleProp } from 'react-native'
+import type { ViewStyle, StyleProp } from 'react-native'
+import { View } from 'react-native'
 import { useDispatch } from 'react-redux'
 
 import { IconAudioBadge, TierText } from 'app/components/audio-rewards'
