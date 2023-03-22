@@ -150,7 +150,9 @@ export const StatBanner = (props: StatsBannerProps) => {
                   },
                   {
                     text: messages.unblockMessages,
-                    onClick: () => {},
+                    onClick: () => {
+                      // TODO
+                    },
                     icon: <IconUnblockMessages />
                   }
                 ]}
