@@ -31,20 +31,46 @@ const messages = {
  */
 const CONTAINER_INSET_PADDING = 16
 
+const transformOriginsMap = {
+  [Position.TOP_LEFT]: {
+    [Alignment.OUTER]: 'bottom right',
+    [Alignment.HORIZONTAL_INNER]: 'bottom left',
+    [Alignment.VERTICAL_INNER]: 'top right'
+  },
+  [Position.TOP_CENTER]: {
+    [Alignment.OUTER]: 'bottom center',
+    [Alignment.HORIZONTAL_INNER]: 'bottom center',
+    [Alignment.VERTICAL_INNER]: 'bottom center'
+  },
+  [Position.TOP_RIGHT]: {
+    [Alignment.OUTER]: 'bottom left',
+    [Alignment.HORIZONTAL_INNER]: 'bottom right',
+    [Alignment.VERTICAL_INNER]: 'top left'
+  },
+  [Position.BOTTOM_LEFT]: {
+    [Alignment.OUTER]: 'top right',
+    [Alignment.HORIZONTAL_INNER]: 'top left',
+    [Alignment.VERTICAL_INNER]: 'bottom right'
+  },
+  [Position.BOTTOM_CENTER]: {
+    [Alignment.OUTER]: 'top center',
+    [Alignment.HORIZONTAL_INNER]: 'top center',
+    [Alignment.VERTICAL_INNER]: 'top center'
+  },
+  [Position.BOTTOM_RIGHT]: {
+    [Alignment.OUTER]: 'top left',
+    [Alignment.HORIZONTAL_INNER]: 'top right',
+    [Alignment.VERTICAL_INNER]: 'bottom left'
+  }
+}
+
 /**
  * Gets the css transform origin prop from the display position
  * @param {Position} position
  * @returns {string} transform origin
  */
-const getTransformOrigin = (position: Position) =>
-  ({
-    [Position.TOP_LEFT]: 'bottom right',
-    [Position.TOP_CENTER]: 'bottom center',
-    [Position.TOP_RIGHT]: 'bottom left',
-    [Position.BOTTOM_LEFT]: 'top right',
-    [Position.BOTTOM_CENTER]: 'top center',
-    [Position.BOTTOM_RIGHT]: 'top left'
-  }[position] ?? 'top center')
+const getTransformOrigin = (position: Position, alignment: Alignment) =>
+  transformOriginsMap[position]?.[alignment] ?? 'top center'
 
 /**
  * Figures out whether the specified position would overflow the window
@@ -203,11 +229,11 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
       const positionMap = {
         [Position.TOP_LEFT]: [
           alignment === Alignment.VERTICAL_INNER
-            ? anchorRect.y - wrapperRect.height + anchorRect.height
+            ? anchorRect.y
             : anchorRect.y - wrapperRect.height,
           alignment === Alignment.HORIZONTAL_INNER
             ? anchorRect.x - wrapperRect.width + anchorRect.width
-            : anchorRect.x - wrapperRect.width
+            : anchorRect.x
         ],
         [Position.TOP_CENTER]: [
           anchorRect.y - wrapperRect.height,
@@ -215,18 +241,18 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
         ],
         [Position.TOP_RIGHT]: [
           alignment === Alignment.VERTICAL_INNER
-            ? anchorRect.y - wrapperRect.height + anchorRect.height
+            ? anchorRect.y
             : anchorRect.y - wrapperRect.height,
           alignment === Alignment.HORIZONTAL_INNER
-            ? anchorRect.x
+            ? anchorRect.x - wrapperRect.width + anchorRect.width
             : anchorRect.x + anchorRect.width
         ],
         [Position.BOTTOM_LEFT]: [
           alignment === Alignment.VERTICAL_INNER
-            ? anchorRect.y
+            ? anchorRect.y - wrapperRect.height + anchorRect.height
             : anchorRect.y + anchorRect.height,
           alignment === Alignment.HORIZONTAL_INNER
-            ? anchorRect.x - wrapperRect.width + anchorRect.width
+            ? anchorRect.x
             : anchorRect.x - wrapperRect.width
         ],
         [Position.BOTTOM_CENTER]: [
@@ -235,10 +261,10 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
         ],
         [Position.BOTTOM_RIGHT]: [
           alignment === Alignment.VERTICAL_INNER
-            ? anchorRect.y
+            ? anchorRect.y - wrapperRect.height + anchorRect.height
             : anchorRect.y + anchorRect.height,
           alignment === Alignment.HORIZONTAL_INNER
-            ? anchorRect.x
+            ? anchorRect.x - wrapperRect.width + anchorRect.width
             : anchorRect.x + anchorRect.width
         ]
       }
@@ -355,7 +381,10 @@ export const Popup = forwardRef<HTMLDivElement, PopupProps>(function Popup(
                 key={key}
                 style={{
                   ...props,
-                  transformOrigin: getTransformOrigin(computedPosition)
+                  transformOrigin: getTransformOrigin(
+                    computedPosition,
+                    alignment
+                  )
                 }}
               >
                 {showHeader && (

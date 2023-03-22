@@ -11,13 +11,13 @@ export enum Position {
 
 export enum Alignment {
   /**
-   * Align such that the popup is flush with the horizontal position of the anchor
+   * Open the popup towards the anchor horizontally
    */
-  HORIZONTAL_INNER = 'horizontal',
+  HORIZONTAL_INNER = 'horizontal_inner',
   /**
-   * Align such that the popup is flush with the vertical position of the anchor
+   * Open the popup towards the anchor vertically
    */
-  VERTICAL_INNER = 'vertical',
+  VERTICAL_INNER = 'vertical_inner',
   /**
    * Align such that the popup is on a corner of the anchor
    */
@@ -95,7 +95,10 @@ export type PopupProps = {
   position?: Position
 
   /**
-   * The alignment of the Popup relative to the trigger (only affects non-center positions, as it's used to determine which edge to align with)
+   * The alignment of the Popup relative to the trigger:
+   * - "outer": opens away from the trigger
+   * - "horizontal_inner": opens towards the trigger horizontally
+   * - "vertical_inner": opens towards the trigger vertically
    */
   alignment?: Alignment
 
