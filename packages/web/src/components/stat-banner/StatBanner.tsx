@@ -131,14 +131,24 @@ export const StatBanner = (props: StatsBannerProps) => {
       buttons = (
         <>
           {isChatEnabled ? (
-            <Button
-              type={ButtonType.COMMON}
-              size={ButtonSize.SMALL}
-              className={cn(styles.iconButton, styles.statButton)}
-              aria-label={messages.more}
-              text={<IconKebabHorizontal />}
-              onClick={() => {}}
-            />
+            <>
+              <Button
+                type={ButtonType.COMMON}
+                size={ButtonSize.SMALL}
+                className={cn(styles.iconButton, styles.statButton)}
+                aria-label={messages.more}
+                text={<IconKebabHorizontal />}
+                onClick={() => {}}
+              />
+              <Button
+                type={ButtonType.COMMON}
+                size={ButtonSize.SMALL}
+                className={cn(styles.iconButton, styles.statButton)}
+                aria-label={messages.message}
+                text={<IconMessage />}
+                onClick={() => {}}
+              />
+            </>
           ) : (
             <Button
               type={ButtonType.COMMON}
