@@ -9,18 +9,6 @@ export enum Position {
   BOTTOM_RIGHT = 'bottomRight'
 }
 
-export enum VerticalAlign {
-  TOP = 'top',
-  CENTER = 'center',
-  BOTTOM = 'bottom'
-}
-
-export enum HorizontalAlign {
-  LEFT = 'left',
-  CENTER = 'center',
-  RIGHT = 'right'
-}
-
 export type Origin = {
   vertical: 'top' | 'center' | 'bottom'
   horizontal: 'left' | 'center' | 'right'
