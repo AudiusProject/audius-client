@@ -171,8 +171,7 @@ const TrackHeader = ({
   goToFavoritesPage,
   goToRepostsPage
 }: TrackHeaderProps) => {
-  const showSocials =
-    !isUnlisted && doesUserHaveAccess
+  const showSocials = !isUnlisted && doesUserHaveAccess
 
   const image = useTrackCoverArt(
     trackId,
@@ -229,9 +228,7 @@ const TrackHeader = ({
         : isSaved
         ? OverflowAction.UNFAVORITE
         : OverflowAction.FAVORITE,
-      !isPremium
-        ? OverflowAction.ADD_TO_PLAYLIST
-        : null,
+      !isPremium ? OverflowAction.ADD_TO_PLAYLIST : null,
       isFollowing
         ? OverflowAction.UNFOLLOW_ARTIST
         : OverflowAction.FOLLOW_ARTIST,
@@ -314,9 +311,7 @@ const TrackHeader = ({
 
   const renderCornerTag = () => {
     const showPremiumCornerTag =
-      !isLoading &&
-      premiumConditions &&
-      (isOwner || !doesUserHaveAccess)
+      !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
     const cornerTagIconType = showPremiumCornerTag
       ? isOwner
         ? premiumConditions.nft_collection
@@ -382,9 +377,7 @@ const TrackHeader = ({
         />
       </div>
       <div className={styles.buttonSection}>
-        {!doesUserHaveAccess &&
-        premiumConditions &&
-        trackId ? (
+        {!doesUserHaveAccess && premiumConditions && trackId ? (
           <PremiumTrackSection
             isLoading={false}
             trackId={trackId}
@@ -415,23 +408,21 @@ const TrackHeader = ({
           darkMode={isDarkMode()}
         />
       </div>
-      {doesUserHaveAccess &&
-        premiumConditions &&
-        trackId && (
-          <PremiumTrackSection
-            isLoading={false}
-            trackId={trackId}
-            premiumConditions={premiumConditions}
-            doesUserHaveAccess={doesUserHaveAccess}
-            isOwner={isOwner}
-            wrapperClassName={cn(
-              styles.premiumTrackSectionWrapper,
-              styles.unlockedSection
-            )}
-            className={styles.premiumTrackSection}
-            buttonClassName={styles.premiumTrackSectionButton}
-          />
-        )}
+      {doesUserHaveAccess && premiumConditions && trackId && (
+        <PremiumTrackSection
+          isLoading={false}
+          trackId={trackId}
+          premiumConditions={premiumConditions}
+          doesUserHaveAccess={doesUserHaveAccess}
+          isOwner={isOwner}
+          wrapperClassName={cn(
+            styles.premiumTrackSectionWrapper,
+            styles.unlockedSection
+          )}
+          className={styles.premiumTrackSection}
+          buttonClassName={styles.premiumTrackSectionButton}
+        />
+      )}
       {coSign && (
         <div className={styles.coSignInfo}>
           <HoverInfo
