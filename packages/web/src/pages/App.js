@@ -42,7 +42,6 @@ import Navigator from 'components/nav/Navigator'
 import { NotificationPage } from 'components/notification'
 import PinnedTrackConfirmation from 'components/pin-track-confirmation/PinTrackConfirmation'
 import PlayBarProvider from 'components/play-bar/PlayBarProvider'
-import ConnectedReachabilityBar from 'components/reachability-bar/ReachabilityBar'
 import { RewardClaimedToast } from 'components/reward-claimed-toast/RewardClaimedToast'
 import DesktopRoute from 'components/routes/DesktopRoute'
 import MobileRoute from 'components/routes/MobileRoute'
@@ -1001,23 +1000,21 @@ class App extends Component {
         }
 
         {/* Non-mobile */}
-        {!isMobileClient && <Konami />}
-        {!isMobileClient && <ConfirmerPreview />}
-        {!isMobileClient && <DiscoveryNodeSelection />}
-        {!isMobileClient && <Visualizer />}
-        {!isMobileClient && <PinnedTrackConfirmation />}
-        {!isMobileClient && <DevModeMananger />}
+        {!isMobileClient ? <Konami /> : null}
+        {!isMobileClient ? <ConfirmerPreview /> : null}
+        {!isMobileClient ? <DiscoveryNodeSelection /> : null}
+        {!isMobileClient ? <Visualizer /> : null}
+        {!isMobileClient ? <PinnedTrackConfirmation /> : null}
+        {!isMobileClient ? <DevModeMananger /> : null}
 
         {/* Mobile-only */}
-        {isMobileClient && <ConnectedReachabilityBar />}
-
-        {shouldShowPopover && isMobileClient && (
+        {isMobileClient && shouldShowPopover ? (
           <AppRedirectPopover
             enablePopover={isReady}
             incrementScroll={incrementScroll}
             decrementScroll={decrementScroll}
           />
-        )}
+        ) : null}
       </div>
     )
   }
