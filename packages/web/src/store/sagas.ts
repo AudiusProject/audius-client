@@ -12,11 +12,11 @@ import {
   vipDiscordModalSagas,
   reachabilitySagas as commonReachabilitySagas,
   searchUsersModalSagas,
-  solanaSagas,
-  playlistUpdatesSagas
+  solanaSagas
 } from '@audius/common'
 import { all, fork } from 'redux-saga/effects'
 
+import playlistUpdatesSagas from 'common/store/playlist-updates/sagas'
 import accountSagas from 'common/store/account/sagas'
 import addToPlaylistSagas from 'common/store/add-to-playlist/sagas'
 import analyticsSagas from 'common/store/analytics/sagas'

@@ -1,4 +1,6 @@
 import { playlistUpdatesEntityAdapter } from './playlistUpdatesSlice'
 
-export const { selectById: selectPlaylistUpdateById } =
-  playlistUpdatesEntityAdapter.getSelectors()
+export const {
+  selectById: selectPlaylistUpdateById,
+  selectTotal: selectPlaylistUpdatesTotal
+} = playlistUpdatesEntityAdapter.getSelectors()

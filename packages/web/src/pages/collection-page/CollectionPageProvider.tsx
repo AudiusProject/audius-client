@@ -22,7 +22,6 @@ import {
   cacheCollectionsActions,
   lineupSelectors,
   notificationsSelectors,
-  notificationsActionsLegacy,
   collectionPageActions as collectionActions,
   collectionPageLineupActions as tracksActions,
   collectionPageSelectors,
@@ -40,7 +39,8 @@ import {
   tracksSocialActions as socialTracksActions,
   usersSocialActions as socialUsersActions,
   playerSelectors,
-  queueSelectors
+  queueSelectors,
+  playlistUpdatesActions
 } from '@audius/common'
 import { push as pushRoute, replace } from 'connected-react-router'
 import { UnregisterCallback } from 'history'
@@ -90,7 +90,7 @@ const {
   getUserUid,
   getCollectionPermalink
 } = collectionPageSelectors
-const { updatePlaylistLastViewedAt } = notificationsActionsLegacy
+const { updatedPlaylistViewed } = playlistUpdatesActions
 const { getPlaylistUpdates } = notificationsSelectors
 const { makeGetTableMetadatas, makeGetLineupOrder } = lineupSelectors
 const {
@@ -1008,7 +1008,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
     onEditCollection: (playlistId: ID) =>
       dispatch(openEditCollectionModal(playlistId)),
     updatePlaylistLastViewedAt: (playlistId: ID) =>
-      dispatch(updatePlaylistLastViewedAt(playlistId))
+      dispatch(updatedPlaylistViewed({ playlistId }))
   }
 }
 
