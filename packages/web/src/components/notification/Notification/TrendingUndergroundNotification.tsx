@@ -69,9 +69,12 @@ export const TrendingUndergroundNotification = (
         type='static'
         url={getEntityLink(track, true)}
         shareText={shareText}
-        analytics={make(Name.NOTIFICATIONS_CLICK_MILESTONE_TWITTER_SHARE, {
-          milestone: shareText
-        })}
+        analytics={make(
+          Name.NOTIFICATIONS_CLICK_TRENDING_UNDERGROUND_TWITTER_SHARE,
+          {
+            text: shareText
+          }
+        )}
       />
       <NotificationFooter timeLabel={timeLabel} isViewed={isViewed} />
     </NotificationTile>

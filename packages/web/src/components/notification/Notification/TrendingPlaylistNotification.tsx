@@ -69,9 +69,12 @@ export const TrendingPlaylistNotification = (
         type='static'
         url={getEntityLink(playlist, true)}
         shareText={shareText}
-        analytics={make(Name.NOTIFICATIONS_CLICK_MILESTONE_TWITTER_SHARE, {
-          milestone: shareText
-        })}
+        analytics={make(
+          Name.NOTIFICATIONS_CLICK_TRENDING_PLAYLIST_TWITTER_SHARE,
+          {
+            text: shareText
+          }
+        )}
       />
       <NotificationFooter timeLabel={timeLabel} isViewed={isViewed} />
     </NotificationTile>
