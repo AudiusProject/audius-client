@@ -14,7 +14,6 @@ import {
   formatDate,
   OverflowAction,
   imageBlank as placeholderArt,
-  FeatureFlags,
   PremiumConditions,
   Nullable
 } from '@audius/common'
@@ -40,7 +39,6 @@ import TrackBannerIcon, {
   TrackBannerIconType
 } from 'components/track/TrackBannerIcon'
 import UserBadges from 'components/user-badges/UserBadges'
-import { useFlag } from 'hooks/useRemoteConfig'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { moodMap } from 'utils/moods'
 import { isDarkMode, isMatrix } from 'utils/theme/theme'
@@ -173,11 +171,8 @@ const TrackHeader = ({
   goToFavoritesPage,
   goToRepostsPage
 }: TrackHeaderProps) => {
-  const { isEnabled: isGatedContentEnabled } = useFlag(
-    FeatureFlags.GATED_CONTENT_ENABLED
-  )
   const showSocials =
-    !isUnlisted && (!isGatedContentEnabled || doesUserHaveAccess)
+    !isUnlisted && doesUserHaveAccess
 
   const image = useTrackCoverArt(
     trackId,
@@ -234,7 +229,7 @@ const TrackHeader = ({
         : isSaved
         ? OverflowAction.UNFAVORITE
         : OverflowAction.FAVORITE,
-      !isGatedContentEnabled || !isPremium
+      !isPremium
         ? OverflowAction.ADD_TO_PLAYLIST
         : null,
       isFollowing
@@ -319,7 +314,6 @@ const TrackHeader = ({
 
   const renderCornerTag = () => {
     const showPremiumCornerTag =
-      isGatedContentEnabled &&
       !isLoading &&
       premiumConditions &&
       (isOwner || !doesUserHaveAccess)
@@ -343,7 +337,7 @@ const TrackHeader = ({
   }
 
   const renderHeaderText = () => {
-    if (isGatedContentEnabled && isPremium) {
+    if (isPremium) {
       return (
         <div className={cn(styles.typeLabel, styles.premiumContentLabel)}>
           {premiumConditions?.nft_collection ? (
@@ -388,8 +382,7 @@ const TrackHeader = ({
         />
       </div>
       <div className={styles.buttonSection}>
-        {isGatedContentEnabled &&
-        !doesUserHaveAccess &&
+        {!doesUserHaveAccess &&
         premiumConditions &&
         trackId ? (
           <PremiumTrackSection
@@ -403,7 +396,7 @@ const TrackHeader = ({
             buttonClassName={styles.premiumTrackSectionButton}
           />
         ) : null}
-        {!isGatedContentEnabled || doesUserHaveAccess ? (
+        {doesUserHaveAccess ? (
           <PlayButton playing={isPlaying} onPlay={onPlay} />
         ) : null}
         <ActionButtonRow
@@ -422,8 +415,7 @@ const TrackHeader = ({
           darkMode={isDarkMode()}
         />
       </div>
-      {isGatedContentEnabled &&
-        doesUserHaveAccess &&
+      {doesUserHaveAccess &&
         premiumConditions &&
         trackId && (
           <PremiumTrackSection
