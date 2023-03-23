@@ -12,7 +12,8 @@ import {
   vipDiscordModalSagas,
   reachabilitySagas as commonReachabilitySagas,
   searchUsersModalSagas,
-  solanaSagas
+  solanaSagas,
+  playlistUpdatesSagas
 } from '@audius/common'
 import { all, fork } from 'redux-saga/effects'
 
@@ -105,6 +106,7 @@ export default function* rootSaga() {
     // Account
     accountSagas(),
     playlistLibrarySagas(),
+    playlistUpdatesSagas(),
     recoveryEmailSagas(),
     signOutSagas(),
 
