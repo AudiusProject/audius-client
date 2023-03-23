@@ -174,13 +174,8 @@ import TopSupportersPage from './top-supporters-page/TopSupportersPage'
 const { setTheme } = themeActions
 const { getTheme } = themeSelectors
 
-const {
-  getHasAccount,
-  getAccountStatus,
-  getUserId,
-  getConnectivityFailure,
-  getUserHandle
-} = accountSelectors
+const { getHasAccount, getAccountStatus, getUserId, getUserHandle } =
+  accountSelectors
 
 const MOBILE_BANNER_LOCAL_STORAGE_KEY = 'dismissMobileAppBanner'
 
@@ -382,13 +377,6 @@ class App extends Component {
     ) {
       // Let the UI flush
       setImmediate(this.props.setReady)
-    }
-
-    if (
-      prevProps.firstLoadConnectivityFailure !==
-      this.props.firstLoadConnectivityFailure
-    ) {
-      this.props.setConnectivityFailure(this.props.firstLoadConnectivityFailure)
     }
 
     if (prevProps.theme !== this.props.theme) {
@@ -1028,8 +1016,7 @@ const mapStateToProps = (state) => ({
   signOnStatus: getSignOnStatus(state),
   web3Error: getWeb3Error(state),
   theme: getTheme(state),
-  showCookieBanner: getShowCookieBanner(state),
-  firstLoadConnectivityFailure: getConnectivityFailure(state)
+  showCookieBanner: getShowCookieBanner(state)
 })
 
 const mapDispatchToProps = (dispatch) => ({

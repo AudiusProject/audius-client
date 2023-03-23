@@ -124,6 +124,7 @@ export function* fetchOpenSeaAssets(user) {
   const { wallets } = yield apiClient.getAssociatedWallets({
     userID: user.user_id
   })
+  console.log('raymont', wallets)
   const collectiblesMap = yield call(fetchOpenSeaAssetsForWallets, [
     user.wallet,
     ...wallets
