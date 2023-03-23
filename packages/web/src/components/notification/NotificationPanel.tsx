@@ -17,15 +17,15 @@ import { useSearchParam } from 'react-use'
 import loadingSpinner from 'assets/animations/loadingSpinner.json'
 import { ReactComponent as IconNotification } from 'assets/img/iconNotification.svg'
 import {
+  getModalNotification,
+  getNotificationModalIsOpen,
+  getNotificationPanelIsOpen
+} from 'store/application/ui/notifications/notificationsUISelectors'
+import {
   closeNotificationModal,
   closeNotificationPanel,
   openNotificationPanel
 } from 'store/application/ui/notifications/notificationsUISlice'
-import {
-  getModalNotification,
-  getNotificationModalIsOpen,
-  getNotificationPanelIsOpen
-} from 'store/application/ui/notifications/notificationsUiSelectors'
 import { getIsOpen as getIsUserListOpen } from 'store/application/ui/userListModal/selectors'
 import zIndex from 'utils/zIndex'
 

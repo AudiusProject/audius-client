@@ -63,7 +63,7 @@ import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import { NO_VISUALIZER_ROUTES } from 'pages/visualizer/Visualizer'
 import { openVisualizer } from 'pages/visualizer/store/slice'
 import { openNotificationPanel } from 'store/application/ui/notifications/notificationsUISlice'
-import { getNotificationPanelIsOpen } from 'store/application/ui/notifications/notificationsUiSelectors'
+import { getNotificationPanelIsOpen } from 'store/application/ui/notifications/notificationsUISelectors'
 import { getIsDragging } from 'store/dragndrop/selectors'
 import { AppState } from 'store/types'
 import {
