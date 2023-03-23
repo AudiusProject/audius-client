@@ -21,6 +21,11 @@ import {
   closeNotificationPanel,
   openNotificationPanel
 } from 'store/application/ui/notifications/notificationsUISlice'
+import {
+  getModalNotification,
+  getNotificationModalIsOpen,
+  getNotificationPanelIsOpen
+} from 'store/application/ui/notifications/notificationsUiSelectors'
 import { getIsOpen as getIsUserListOpen } from 'store/application/ui/userListModal/selectors'
 import zIndex from 'utils/zIndex'
 
@@ -30,11 +35,8 @@ import { NotificationModal } from './NotificationModal'
 import styles from './NotificationPanel.module.css'
 const { fetchNotifications } = notificationsActions
 const {
-  getModalNotification,
   getNotificationHasLoaded,
   getNotificationHasMore,
-  getNotificationModalIsOpen,
-  getNotificationPanelIsOpen,
   getNotificationStatus,
   makeGetAllNotifications
 } = notificationsSelectors

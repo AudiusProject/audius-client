@@ -63,6 +63,7 @@ import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import { NO_VISUALIZER_ROUTES } from 'pages/visualizer/Visualizer'
 import { openVisualizer } from 'pages/visualizer/store/slice'
 import { openNotificationPanel } from 'store/application/ui/notifications/notificationsUISlice'
+import { getNotificationPanelIsOpen } from 'store/application/ui/notifications/notificationsUiSelectors'
 import { getIsDragging } from 'store/dragndrop/selectors'
 import { AppState } from 'store/types'
 import {
@@ -94,8 +95,7 @@ const { getHideFolderTab, getIsOpen } = createPlaylistModalUISelectors
 const { saveTrack } = tracksSocialActions
 const { saveCollection } = collectionsSocialActions
 const { addTrackToPlaylist, createPlaylist } = cacheCollectionsActions
-const { getNotificationPanelIsOpen, getNotificationUnviewedCount } =
-  notificationsSelectors
+const { getNotificationUnviewedCount } = notificationsSelectors
 const { markAllAsViewed } = notificationsActions
 const getDominantColorsByTrack = averageColorSelectors.getDominantColorsByTrack
 const { getAccountStatus, getAccountUser, getPlaylistLibrary } =

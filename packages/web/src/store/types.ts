@@ -1,7 +1,6 @@
 import {
   averageColorReducer,
   ChangePasswordState,
-  NotificationState,
   SmartCollectionState,
   remixesPageReducer as RemixesPageReducer,
   HistoryPageState,
@@ -100,7 +99,6 @@ export type AppState = CommonState & {
   dashboard: ArtistDashboardState
   history: HistoryPageState
   collection: CollectionsPageState
-  notification: NotificationState
 
   // Playback
   queue: ReturnType<typeof QueueReducer>

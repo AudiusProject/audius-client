@@ -21,7 +21,6 @@ import {
   accountSelectors,
   cacheCollectionsActions,
   lineupSelectors,
-  notificationsSelectors,
   collectionPageActions as collectionActions,
   collectionPageLineupActions as tracksActions,
   collectionPageSelectors,
@@ -40,7 +39,8 @@ import {
   usersSocialActions as socialUsersActions,
   playerSelectors,
   queueSelectors,
-  playlistUpdatesActions
+  playlistUpdatesActions,
+  playlistUpdatesSelectors
 } from '@audius/common'
 import { push as pushRoute, replace } from 'connected-react-router'
 import { UnregisterCallback } from 'history'
@@ -75,6 +75,7 @@ import { getCollectionPageSEOFields } from 'utils/seo'
 
 import { CollectionPageProps as DesktopCollectionPageProps } from './components/desktop/CollectionPage'
 import { CollectionPageProps as MobileCollectionPageProps } from './components/mobile/CollectionPage'
+const { selectAllPlaylistUpdateIds } = playlistUpdatesSelectors
 const { makeGetCurrent } = queueSelectors
 const { getPlaying, getBuffering } = playerSelectors
 const { setFavorite } = favoritesUserListActions
@@ -91,7 +92,6 @@ const {
   getCollectionPermalink
 } = collectionPageSelectors
 const { updatedPlaylistViewed } = playlistUpdatesActions
-const { getPlaylistUpdates } = notificationsSelectors
 const { makeGetTableMetadatas, makeGetLineupOrder } = lineupSelectors
 const {
   editPlaylist,
@@ -844,7 +844,7 @@ function makeMapStateToProps() {
       playing: getPlaying(state),
       buffering: getBuffering(state),
       pathname: getLocationPathname(state),
-      playlistUpdates: getPlaylistUpdates(state)
+      playlistUpdates: selectAllPlaylistUpdateIds(state)
     }
   }
   return mapStateToProps

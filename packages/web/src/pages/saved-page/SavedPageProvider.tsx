@@ -11,7 +11,6 @@ import {
   accountSelectors,
   accountActions,
   lineupSelectors,
-  notificationsSelectors,
   savedPageTracksLineupActions as tracksActions,
   savedPageActions as saveActions,
   savedPageSelectors,
@@ -24,7 +23,8 @@ import {
   queueSelectors,
   Kind,
   LineupTrack,
-  playlistUpdatesActions
+  playlistUpdatesActions,
+  playlistUpdatesSelectors
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { debounce, isEqual } from 'lodash'
@@ -43,9 +43,9 @@ const { makeGetCurrent } = queueSelectors
 const { getPlaying, getBuffering } = playerSelectors
 const { getSavedTracksLineup, hasReachedEnd } = savedPageSelectors
 const { updatedPlaylistViewed } = playlistUpdatesActions
-const { getPlaylistUpdates } = notificationsSelectors
 const { makeGetTableMetadatas } = lineupSelectors
 
+const { selectAllPlaylistUpdateIds } = playlistUpdatesSelectors
 const { getAccountWithNameSortedPlaylistsAndAlbums } = accountSelectors
 
 const messages = {
@@ -543,7 +543,7 @@ function makeMapStateToProps() {
       currentQueueItem: getCurrentQueueItem(state),
       playing: getPlaying(state),
       buffering: getBuffering(state),
-      playlistUpdates: getPlaylistUpdates(state),
+      playlistUpdates: selectAllPlaylistUpdateIds(state),
       hasReachedEnd: hasReachedEnd(state)
     }
   }
