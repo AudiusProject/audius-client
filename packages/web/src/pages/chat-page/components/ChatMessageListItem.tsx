@@ -14,6 +14,7 @@ import type { ChatMessage } from '@audius/sdk'
 import { IconPlus, PopupPosition } from '@audius/stems'
 import cn from 'classnames'
 import Linkify from 'linkify-react'
+import { find } from 'linkifyjs'
 import { useDispatch } from 'react-redux'
 
 import { useSelector } from 'common/hooks/useSelector'
@@ -22,6 +23,7 @@ import { reactionMap } from 'components/notification/Notification/components/Rea
 import { ReactComponent as ChatTail } from '../../../assets/img/ChatTail.svg'
 
 import styles from './ChatMessageListItem.module.css'
+import { LinkPreview } from './LinkPreview'
 import { ReactionPopupMenu } from './ReactionPopupMenu'
 
 const { setMessageReaction } = chatActions
@@ -56,6 +58,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   // Derived
   const senderUserId = decodeHashId(message.sender_user_id)
   const isAuthor = userId === senderUserId
+  const links = find(message.message)
 
   // Callbacks
   const handleOpenReactionPopupButtonClicked = useCallback(
@@ -141,6 +144,14 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
         }
         onSelected={handleReactionSelected}
       />
+      {links
+        .filter((link) => link.type === 'url' && link.isLink)
+        .map((link) => (
+          <LinkPreview
+            key={`${link.value}-${link.start}-${link.end}`}
+            href={link.href}
+          />
+        ))}
       {hasTail ? (
         <div className={styles.date}>
           {formatMessageDate(message.created_at)}
