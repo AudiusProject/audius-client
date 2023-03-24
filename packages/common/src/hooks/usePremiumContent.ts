@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import { useSelector } from 'react-redux'
 
-import { Chain, PremiumConditions, Track } from 'models'
+import { Chain, ID, PremiumConditions, Track } from 'models'
 import { getAccountUser } from 'store/account/selectors'
 import { cacheTracksSelectors, cacheUsersSelectors } from 'store/cache'
 import { premiumContentSelectors } from 'store/premium-content'
@@ -42,6 +42,40 @@ export const usePremiumContentAccess = (track: Nullable<Partial<Track>>) => {
   }, [track, premiumTrackSignatureMap, user])
 
   return { isUserAccessTBD, doesUserHaveAccess }
+}
+
+export const usePremiumContentAccessMap = (tracks: Partial<Track>[]) => {
+  const premiumTrackSignatureMap = useSelector(getPremiumTrackSignatureMap)
+  const user = useSelector(getAccountUser)
+
+  const result = useMemo(() => {
+    let map: {[id: ID]: { isUserAccessTBD: boolean, doesUserHaveAccess: boolean }} = {}
+
+    tracks.forEach(track => {
+      if (!track.track_id) {
+        return
+      }
+
+      const trackId = track.track_id
+      const isPremium = track.is_premium
+      const hasPremiumContentSignature =
+        !!(track.premium_content_signature || premiumTrackSignatureMap[trackId])
+      const isCollectibleGated = !!track.premium_conditions?.nft_collection
+      const isSignatureToBeFetched =
+        isCollectibleGated &&
+        premiumTrackSignatureMap[trackId] === undefined &&
+        !!user // We're only fetching a sig if the user is logged in
+
+      map[trackId] = {
+        isUserAccessTBD: !hasPremiumContentSignature && isSignatureToBeFetched,
+        doesUserHaveAccess: !isPremium || hasPremiumContentSignature
+      }
+    })
+
+    return map
+  }, [tracks, premiumTrackSignatureMap, user])
+
+  return result
 }
 
 export const usePremiumConditionsEntity = (
