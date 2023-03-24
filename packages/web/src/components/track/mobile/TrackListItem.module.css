@@ -206,6 +206,7 @@
   fill: var(--white);
 }
 
-.lockedTrackTitle, .lockedBadges {
+.lockedTrackTitle,
+.lockedBadges {
   opacity: 0.5;
 }
