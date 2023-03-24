@@ -35,12 +35,16 @@ type ChatMessageListItemProps = {
 
 export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   const { chatId, message, hasTail } = props
+
+  // Refs
   const reactionButtonRef = useRef<HTMLDivElement>(null)
   const dispatch = useDispatch()
+
+  // State
   const [isReactionPopupVisible, setReactionPopupVisible] = useState(false)
-  const senderUserId = decodeHashId(message.sender_user_id)
+
+  // Selectors
   const userId = useSelector(getUserId)
-  const isAuthor = userId === senderUserId
   const reactionUsers = useProxySelector(
     (state) =>
       cacheUsersSelectors.getUsers(state, {
@@ -49,6 +53,11 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
     [message]
   )
 
+  // Derived
+  const senderUserId = decodeHashId(message.sender_user_id)
+  const isAuthor = userId === senderUserId
+
+  // Callbacks
   const handleOpenReactionPopupButtonClicked = useCallback(
     () => setReactionPopupVisible((isVisible) => !isVisible),
     [setReactionPopupVisible]
