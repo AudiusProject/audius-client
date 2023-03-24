@@ -14,6 +14,7 @@ const { getUser, getUsers } = cacheUsersSelectors
 const { getLockedContentId, getPremiumTrackSignatureMap } =
   premiumContentSelectors
 
+// Returns whether user has access to given track.
 export const usePremiumContentAccess = (track: Nullable<Partial<Track>>) => {
   const premiumTrackSignatureMap = useSelector(getPremiumTrackSignatureMap)
   const user = useSelector(getAccountUser)
@@ -44,6 +45,9 @@ export const usePremiumContentAccess = (track: Nullable<Partial<Track>>) => {
   return { isUserAccessTBD, doesUserHaveAccess }
 }
 
+// Similar to `usePremiumContentAccess` above, but for multiple tracks.
+// Returns a map of track id -> track access i.e.
+// {[id: ID]: { isUserAccessTBD: boolean, doesUserHaveAccess: boolean }}
 export const usePremiumContentAccessMap = (tracks: Partial<Track>[]) => {
   const premiumTrackSignatureMap = useSelector(getPremiumTrackSignatureMap)
   const user = useSelector(getAccountUser)
