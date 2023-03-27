@@ -1,4 +1,12 @@
-import { takeEvery, select, call, put, delay, all } from 'typed-redux-saga'
+import {
+  takeEvery,
+  select,
+  call,
+  put,
+  delay,
+  all,
+  fork
+} from 'typed-redux-saga'
 
 import {
   Chain,
@@ -26,6 +34,8 @@ import { Nullable } from 'utils/typeUtils'
 import * as premiumContentSelectors from './selectors'
 import { actions as premiumContentActions } from './slice'
 
+const DEFAULT_GATED_TRACK_POLL_INTERVAL_MS = 1000
+
 type TrackRouteParams =
   | { slug: string; trackId: null; handle: string }
   | { slug: null; trackId: ID; handle: null }
@@ -35,7 +45,11 @@ const {
   updatePremiumContentSignatures,
   removePremiumContentSignatures,
   updatePremiumTrackStatus,
-  updatePremiumTrackStatuses
+  updatePremiumTrackStatuses,
+  addFolloweeId,
+  removeFolloweeId,
+  addTippedUserId,
+  removeTippedUserId
 } = premiumContentActions
 
 const { refreshTipGatedTracks } = tippingActions
@@ -44,7 +58,8 @@ const { show: showConfetti } = musicConfettiActions
 const { updateUserEthCollectibles, updateUserSolCollectibles } =
   collectiblesActions
 
-const { getPremiumTrackSignatureMap } = premiumContentSelectors
+const { getPremiumTrackSignatureMap, getFolloweeIds, getTippedUserIds } =
+  premiumContentSelectors
 
 const { getAccountUser, getUserId } = accountSelectors
 const { getTracks } = cacheTracksSelectors
@@ -191,6 +206,69 @@ function* updateNewPremiumContentSignatures({
   }
 }
 
+function* handleSpecialAccessTrackSubscriptions(tracks: Track[]) {
+  const currentUserId = yield* select(getUserId)
+  if (!currentUserId) return
+
+  const followeeIds = yield* select(getFolloweeIds)
+  const tippedUserIds = yield* select(getTippedUserIds)
+
+  const statusMap: { [id: ID]: PremiumTrackStatus } = {}
+  const trackParamsMap: { [id: ID]: TrackRouteParams } = {}
+
+  const tracksThatNeedSignature = Object.values(tracks).filter((track) => {
+    const {
+      track_id: trackId,
+      owner_id: ownerId,
+      premium_conditions: premiumConditions,
+      premium_content_signature: premiumContentSignature,
+      permalink
+    } = track
+
+    // Ignore premium content signature only updates, i.e.
+    // make sure the above properties exist before proceeding.
+    if (!trackId || !ownerId || !premiumConditions || !permalink) {
+      return false
+    }
+
+    const hasNoSignature = !premiumContentSignature
+    const isFollowGated = !!premiumConditions?.follow_user_id
+    const isTipGated = !!premiumConditions?.tip_user_id
+    const shouldHaveSignature =
+      (isFollowGated && followeeIds.includes(ownerId)) ||
+      (isTipGated && tippedUserIds.includes(ownerId))
+
+    if (hasNoSignature && shouldHaveSignature) {
+      statusMap[trackId] = 'UNLOCKING'
+      trackParamsMap[trackId] = parseTrackRouteFromPermalink(permalink)
+      return true
+    }
+    return false
+  })
+
+  yield* put(updatePremiumTrackStatuses(statusMap))
+
+  const remoteConfigInstance = yield* getContext('remoteConfigInstance')
+  yield* call(remoteConfigInstance.waitForRemoteConfig)
+  const gatedTrackPollIntervalMs = remoteConfigInstance.getRemoteVar(
+    IntKeys.GATED_TRACK_POLL_INTERVAL_MS
+  )
+
+  yield* all(
+    tracksThatNeedSignature.map((track) => {
+      const trackId = track.track_id
+      return call(pollPremiumTrack, {
+        trackId,
+        currentUserId,
+        trackParams: trackParamsMap[trackId],
+        frequency:
+          gatedTrackPollIntervalMs || DEFAULT_GATED_TRACK_POLL_INTERVAL_MS,
+        isSourceTrack: false
+      })
+    })
+  )
+}
+
 /**
  * Builds a map of nft-gated track ids and relevant info to make a request to DN
  * which confirms that user owns the corresponding nft collections by returning corresponding premium content signatures.
@@ -267,6 +345,8 @@ function* updateCollectibleGatedTrackAccess(
       []
     )
   }
+
+  yield* fork(handleSpecialAccessTrackSubscriptions, Object.values(allTracks))
 
   const { trackMap, skipped } = yield* call(getTokenIdMap, {
     tracks: allTracks,
@@ -380,6 +460,9 @@ function* pollPremiumTrack({
         ])
       )
       yield* put(updatePremiumTrackStatus({ trackId, status: 'UNLOCKED' }))
+      yield* put(removeFolloweeId({ id: track.owner_id }))
+      yield* put(removeTippedUserId({ id: track.owner_id }))
+
       // Show confetti if track is unlocked from the how to unlock section on track page or modal
       if (isSourceTrack) {
         yield* put(showConfetti())
@@ -405,8 +488,6 @@ function* pollPremiumTrack({
   }
 }
 
-const DEFAULT_GATED_TRACK_POLL_INTERVAL_MS = 1000
-
 /**
  * 1. Get follow or tip gated tracks of user
  * 2. Set those track statuses to 'UNLOCKING'
@@ -420,6 +501,14 @@ function* updateGatedTracks(
 ) {
   const currentUserId = yield* select(getUserId)
   if (!currentUserId) return
+
+  // Add followee or tipped user id to gated content store to subscribe to
+  // polling their newly loaded gated track signatures.
+  if (gate === 'follow') {
+    yield* put(addFolloweeId({ id: trackOwnerId }))
+  } else {
+    yield* put(addTippedUserId({ id: trackOwnerId }))
+  }
 
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
   yield* call(remoteConfigInstance.waitForRemoteConfig)
@@ -473,6 +562,10 @@ function* updateGatedTracks(
 function* handleUnfollowUser(
   action: ReturnType<typeof usersSocialActions.unfollowUser>
 ) {
+  // Remove followee from gated content store to unsubscribe from
+  // polling their newly loaded follow gated track signatures.
+  yield* put(removeFolloweeId({ id: action.userId }))
+
   const statusMap: { [id: ID]: PremiumTrackStatus } = {}
   const cachedTracks = yield* select(getTracks, {})
 
