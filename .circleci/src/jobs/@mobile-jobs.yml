@@ -188,6 +188,7 @@ mobile-build-upload-staging-releasecandidate-ios:
   resource_class: macos.m1.large.gen1
   macos:
     xcode: '14.2.0'
+  environment:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
   steps:
