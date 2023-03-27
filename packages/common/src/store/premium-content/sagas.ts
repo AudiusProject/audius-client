@@ -206,6 +206,7 @@ function* updateNewPremiumContentSignatures({
   }
 }
 
+// Poll premium content signatures for tracks that should have them but do not yet.
 function* handleSpecialAccessTrackSubscriptions(tracks: Track[]) {
   const currentUserId = yield* select(getUserId)
   if (!currentUserId) return
@@ -270,14 +271,16 @@ function* handleSpecialAccessTrackSubscriptions(tracks: Track[]) {
 }
 
 /**
- * Builds a map of nft-gated track ids and relevant info to make a request to DN
- * which confirms that user owns the corresponding nft collections by returning corresponding premium content signatures.
- *
- * Runs when eth or sol nfts are fetched, or when new tracks have been added to the cache.
- * Halts if not all nfts have been fetched yet. Similarly, does not proceed if no tracks are in the cache yet.
- * Skips tracks whose signatures have already been previously obtained.
+ * This function runs when new tracks have been added to the cache or when eth or sol nfts are fetched.
+ * It does a bunch of things (getting gradually larger and should now be broken up):
+ * - Updates the store with new premium content signatures.
+ * - Skips tracks whose signatures have already been previously obtained.
+ * - Handles newly loading special access tracks that should have a signature but do not yet.
+ * - Builds a map of nft-gated track ids (and potentially their respective nft token ids) to
+ *   make a request to DN which confirms that user owns the corresponding nft collections by
+ *   returning corresponding premium content signatures.
  */
-function* updateCollectibleGatedTrackAccess(
+function* updateGatedTrackAccess(
   action:
     | ReturnType<typeof updateUserEthCollectibles>
     | ReturnType<typeof updateUserSolCollectibles>
@@ -346,6 +349,7 @@ function* updateCollectibleGatedTrackAccess(
     )
   }
 
+  // Handle newly loading special access tracks that should have a signature but do not yet.
   yield* fork(handleSpecialAccessTrackSubscriptions, Object.values(allTracks))
 
   const { trackMap, skipped } = yield* call(getTokenIdMap, {
@@ -619,7 +623,7 @@ function* handleRemovePremiumContentSignatures(
   yield* put(cacheActions.update(Kind.TRACKS, metadatas))
 }
 
-function* watchCollectibleGatedTracks() {
+function* watchGatedTracks() {
   yield* takeEvery(
     [
       cacheActions.ADD_SUCCEEDED,
@@ -627,7 +631,7 @@ function* watchCollectibleGatedTracks() {
       updateUserEthCollectibles.type,
       updateUserSolCollectibles.type
     ],
-    updateCollectibleGatedTrackAccess
+    updateGatedTrackAccess
   )
 }
 
@@ -652,7 +656,7 @@ function* watchRemovePremiumContentSignatures() {
 
 export const sagas = () => {
   return [
-    watchCollectibleGatedTracks,
+    watchGatedTracks,
     watchFollowGatedTracks,
     watchUnfollowGatedTracks,
     watchTipGatedTracks,
