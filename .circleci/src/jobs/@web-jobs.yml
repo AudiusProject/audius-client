@@ -248,8 +248,10 @@ web-deploy-sentry-sourcemaps:
 
 web-dist-mac-staging:
   working_directory: ~/audius-client
-  macos: # Run on osx so dmg can be created and signed.
-    xcode: '14.0.0'
+  # run on macos so dmg can be created and signed.
+  resource_class: macos.m1.large.gen1
+  macos:
+    xcode: '14.2.0'
   steps:
     - web-distribute:
         build-type: mac-publish
@@ -272,8 +274,10 @@ web-dist-linux-staging:
 
 web-dist-mac-production:
   working_directory: ~/audius-client
-  macos: # Run on osx so dmg can be created and signed.
-    xcode: '14.0.0'
+  # run on macos so dmg can be created and signed.
+  resource_class: macos.m1.large.gen1
+  macos:
+    xcode: '14.2.0'
   steps:
     - web-distribute:
         build-type: mac-publish-production

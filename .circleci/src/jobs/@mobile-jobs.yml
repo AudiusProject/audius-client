@@ -68,8 +68,10 @@ mobile-comment-native-code-change:
 
 mobile-build-staging-ios:
   working_directory: ~/audius-client
-  macos: # Run on osx so app can be created and signed.
-    xcode: '14.0.0'
+  # run on macos so app can be created and signed.
+  resource_class: macos.m1.large.gen1
+  macos:
+    xcode: '14.2.0'
   environment:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
@@ -86,8 +88,10 @@ mobile-build-staging-ios:
 
 mobile-build-upload-staging-ios:
   working_directory: ~/audius-client
-  macos: # Run on osx so app can be created and signed.
-    xcode: '14.0.0'
+  # run on macos so app can be created and signed.
+  resource_class: macos.m1.large.gen1
+  macos:
+    xcode: '14.2.0'
   environment:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
@@ -103,8 +107,10 @@ mobile-build-upload-staging-ios:
 
 mobile-build-production-ios:
   working_directory: ~/audius-client
-  macos: # Run on osx so app can be created and signed.
-    xcode: '14.0.0'
+  # run on macos so app can be created and signed.
+  resource_class: macos.m1.large.gen1
+  macos:
+    xcode: '14.2.0'
   environment:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
@@ -120,8 +126,10 @@ mobile-build-production-ios:
 
 mobile-build-upload-production-ios-if-full-release:
   working_directory: ~/audius-client
-  macos: # Run on osx so app can be created and signed.
-    xcode: '14.0.0'
+  # run on macos so app can be created and signed.
+  resource_class: macos.m1.large.gen1
+  macos:
+    xcode: '14.2.0'
   environment:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
@@ -138,8 +146,10 @@ mobile-build-upload-production-ios-if-full-release:
 
 mobile-deploy-codepush-production-ios-if-ota-release:
   working_directory: ~/audius-client
+  # run on macos so app can be created and signed.
+  resource_class: macos.m1.large.gen1
   macos:
-    xcode: '14.0.0'
+    xcode: '14.2.0'
   environment:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
@@ -155,8 +165,10 @@ mobile-deploy-codepush-production-ios-if-ota-release:
 
 mobile-build-upload-releasecandidate-ios:
   working_directory: ~/audius-client
-  macos: # Run on osx so app can be created and signed.
-    xcode: '14.0.0'
+  # run on macos so app can be created and signed.
+  resource_class: macos.m1.large.gen1
+  macos:
+    xcode: '14.2.0'
   environment:
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
@@ -172,9 +184,10 @@ mobile-build-upload-releasecandidate-ios:
 
 mobile-build-upload-staging-releasecandidate-ios:
   working_directory: ~/audius-client
-  macos: # Run on osx so app can be created and signed.
-    xcode: '14.0.0'
-  environment:
+  # run on macos so app can be created and signed.
+  resource_class: macos.m1.large.gen1
+  macos:
+    xcode: '14.2.0'
     FL_OUTPUT_DIR: output
   shell: /bin/bash --login -o pipefail
   steps:
