@@ -69,7 +69,7 @@ mobile-comment-native-code-change:
 mobile-build-staging-ios:
   working_directory: ~/audius-client
   # run on macos so app can be created and signed.
-  resource_class: macos.x86.large.gen2
+  resource_class: macos.x86.medium.gen2
   macos:
     xcode: '14.2.0'
   environment:
@@ -89,7 +89,7 @@ mobile-build-staging-ios:
 mobile-build-upload-staging-ios:
   working_directory: ~/audius-client
   # run on macos so app can be created and signed.
-  resource_class: macos.x86.large.gen2
+  resource_class: macos.x86.medium.gen2
   macos:
     xcode: '14.2.0'
   environment:
@@ -108,7 +108,7 @@ mobile-build-upload-staging-ios:
 mobile-build-production-ios:
   working_directory: ~/audius-client
   # run on macos so app can be created and signed.
-  resource_class: macos.x86.large.gen2
+  resource_class: macos.x86.medium.gen2
   macos:
     xcode: '14.2.0'
   environment:
@@ -127,7 +127,7 @@ mobile-build-production-ios:
 mobile-build-upload-production-ios-if-full-release:
   working_directory: ~/audius-client
   # run on macos so app can be created and signed.
-  resource_class: macos.x86.large.gen2
+  resource_class: macos.x86.medium.gen2
   macos:
     xcode: '14.2.0'
   environment:
@@ -147,7 +147,7 @@ mobile-build-upload-production-ios-if-full-release:
 mobile-deploy-codepush-production-ios-if-ota-release:
   working_directory: ~/audius-client
   # run on macos so app can be created and signed.
-  resource_class: macos.x86.large.gen2
+  resource_class: macos.x86.medium.gen2
   macos:
     xcode: '14.2.0'
   environment:
@@ -166,7 +166,7 @@ mobile-deploy-codepush-production-ios-if-ota-release:
 mobile-build-upload-releasecandidate-ios:
   working_directory: ~/audius-client
   # run on macos so app can be created and signed.
-  resource_class: macos.x86.large.gen2
+  resource_class: macos.x86.medium.gen2
   macos:
     xcode: '14.2.0'
   environment:
@@ -185,7 +185,7 @@ mobile-build-upload-releasecandidate-ios:
 mobile-build-upload-staging-releasecandidate-ios:
   working_directory: ~/audius-client
   # run on macos so app can be created and signed.
-  resource_class: macos.x86.large.gen2
+  resource_class: macos.x86.medium.gen2
   macos:
     xcode: '14.2.0'
   environment:
