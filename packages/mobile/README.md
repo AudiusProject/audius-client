@@ -2,13 +2,24 @@
 
 The Audius React Native mobile client
 
+## Requirements
+We recommend using [homebrew](https://brew.sh/) and [pyenv](https://github.com/pyenv/pyenv) to manage dependencies.
+```
+brew install node nvm pyenv ruby cocoapods
+# OR install cocoapods using gem
+sudo gem install cocoapods
+
+pyenv install 3.10
+pyenv global 3.10
+
+nvm install 14.20.1
+nvm use 14.20.1
+```
 ## Setup
 
 ### Extra iOS Setup
 
 ```bash
-# install cocoapods
-sudo gem install cocoapods
 
 cd ios
 pod install
@@ -18,6 +29,9 @@ cd ..
 ## Running iOS
 
 ```bash
+# Create the ios bundle. Should only have to run once.
+npm run bundle:ios
+
 # Run a simulator using a prod configuration
 npm run ios
 # Run a simulator using a stage configuration
