@@ -78,7 +78,7 @@ mobile-build-staging-ios:
   steps:
     - mobile-halt-if-no-native-changes # Don't need to test building if there's no native changes
     - macos/switch-ruby:
-        version: "2.7.6"
+        version: "2.7"
     - mobile-prepare-ios:
         build-directory: 'build-mobile-staging'
         bundle-id: 'co.audius.audiusmusic.staging'
@@ -118,7 +118,7 @@ mobile-build-production-ios:
   shell: /bin/bash --login -o pipefail
   steps:
     - macos/switch-ruby:
-        version: "2.7.6"
+        version: "2.7"
     - mobile-prepare-ios:
         build-directory: 'build-mobile-production'
         bundle-id: 'co.audius.audiusmusic'
@@ -139,7 +139,7 @@ mobile-build-upload-production-ios-if-full-release:
   shell: /bin/bash --login -o pipefail
   steps:
     - macos/switch-ruby:
-        version: "2.7.6"
+        version: "2.7"
     - mobile-prepare-ios:
         build-directory: 'build-mobile-production'
         bundle-id: 'co.audius.audiusmusic'
@@ -161,7 +161,7 @@ mobile-deploy-codepush-production-ios-if-ota-release:
   shell: /bin/bash --login -o pipefail
   steps:
     - macos/switch-ruby:
-        version: "2.7.6"
+        version: "2.7"
     - mobile-prepare-ios:
         build-directory: 'build-mobile-production'
         bundle-id: 'co.audius.audiusmusic'
@@ -182,7 +182,7 @@ mobile-build-upload-releasecandidate-ios:
   shell: /bin/bash --login -o pipefail
   steps:
     - macos/switch-ruby:
-        version: "2.7.6"
+        version: "2.7"
     - mobile-prepare-ios:
         build-directory: 'build-mobile-releasecandidate'
         bundle-id: 'co.audius.audiusmusic.releasecandidate'
@@ -203,7 +203,7 @@ mobile-build-upload-staging-releasecandidate-ios:
   shell: /bin/bash --login -o pipefail
   steps:
     - macos/switch-ruby:
-        version: "2.7.6"
+        version: "2.7"
     - mobile-prepare-ios:
         build-directory: 'build-mobile-staging-releasecandidate'
         bundle-id: 'co.audius.audiusmusic.staging.releasecandidate'

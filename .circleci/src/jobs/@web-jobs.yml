@@ -253,6 +253,8 @@ web-dist-mac-staging:
   macos:
     xcode: '14.2.0'
   steps:
+    - macos/switch-ruby:
+        version: "2.7"
     - web-distribute:
         build-type: mac-publish
 
@@ -279,6 +281,8 @@ web-dist-mac-production:
   macos:
     xcode: '14.2.0'
   steps:
+    - macos/switch-ruby:
+        version: "2.7"
     - web-distribute:
         build-type: mac-publish-production
 
