@@ -3,7 +3,6 @@ version: 2.1
 orbs:
   ruby: circleci/ruby@1.2.0
   cypress: cypress-io/cypress@3.0.0
-  macos: circleci/macos@2.3.4
 
 # the default pipeline parameters, which will be updated according to
 # the results of the path-filtering orb in config.yml
