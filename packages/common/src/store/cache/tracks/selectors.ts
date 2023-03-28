@@ -11,7 +11,7 @@ export const getTrack = (
     props.permalink &&
     state.tracks.permalinks[props.permalink.toLowerCase()]
   ) {
-    props.id = state.tracks.permalinks[props.permalink.toLowerCase()].id
+    props.id = state.tracks.permalinks[props.permalink.toLowerCase()]
   }
   return getEntry(state, {
     ...props,

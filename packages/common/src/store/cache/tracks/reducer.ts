@@ -1,31 +1,40 @@
-// @ts-nocheck
-// TODO(nkang) - convert to TS
+import { ID } from 'models/Identifiers'
+import { Cache } from 'models/Cache'
+import { Track } from 'models/Track'
 import { initialCacheState } from 'store/cache/reducer'
-import { SET_PERMALINK_STATUS } from 'store/cache/tracks/actions'
+import { AddSuccededAction, ADD_SUCCEEDED } from '../actions'
+import { TracksCacheState } from './types'
 
-const initialState = {
-  ...initialCacheState,
+const initialState: TracksCacheState = {
+  ...(initialCacheState as unknown as Cache<Track>),
   permalinks: {}
 }
 const actionsMap = {
-  [SET_PERMALINK_STATUS](state, action) {
+  [ADD_SUCCEEDED](
+    state: TracksCacheState,
+    action: AddSuccededAction<Track>
+  ): TracksCacheState {
+    const { entries } = action
+
+    const newPermalinks: Record<string, ID> = {}
+
+    for (const entry of entries) {
+      const { track_id, permalink } = entry.metadata
+
+      newPermalinks[permalink] = track_id
+    }
+
     return {
       ...state,
       permalinks: {
         ...state.permalinks,
-        ...action.statuses.reduce((permalinkStatuses, status) => {
-          permalinkStatuses[status.permalink.toLowerCase()] = {
-            id: status.id,
-            status: status.status
-          }
-          return permalinkStatuses
-        }, {})
+        ...newPermalinks
       }
     }
   }
 }
 
-const reducer = (state = initialState, action) => {
+const reducer = (state = initialState, action: AddSuccededAction<Track>) => {
   const matchingReduceFunction = actionsMap[action.type]
   if (!matchingReduceFunction) return state
   return matchingReduceFunction(state, action)
