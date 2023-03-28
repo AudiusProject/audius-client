@@ -45,6 +45,21 @@ This will do the following:
 - Initialize git hooks (`npx @escape.tech/mookme init --only-hook --skip-types-selection`)
 - Install ios pods
 
+### Required Dependencies
+The following are required to run the Audius client. We recommend [homebrew](https://brew.sh/) and [pyenv](https://github.com/pyenv/pyenv).
+
+```
+brew install node nvm pyenv 
+# Only needed for React Native (mobile) development:
+brew install ruby cocoapods
+
+pyenv install 3.10
+pyenv global 3.10
+
+nvm install 14.20.1
+nvm use 14.20.1
+```
+
 ### Running A Client
 
 Environments:
