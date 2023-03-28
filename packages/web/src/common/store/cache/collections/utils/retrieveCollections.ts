@@ -9,12 +9,11 @@ import {
   accountSelectors,
   cacheCollectionsSelectors,
   cacheSelectors,
-  cacheCollectionsActions as collectionActions,
   CommonState,
   getContext
 } from '@audius/common'
 import { chunk } from 'lodash'
-import { all, call, select, put } from 'typed-redux-saga'
+import { all, call, select } from 'typed-redux-saga'
 
 import { retrieve } from 'common/store/cache/sagas'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
@@ -192,11 +191,6 @@ export function* retrieveCollectionByPermalink(
       const audiusBackendInstance = yield* getContext('audiusBackendInstance')
       yield* addUsersFromCollections(metadatas)
       yield* addTracksFromCollections(metadatas)
-      yield* put(
-        collectionActions.setCollectionPermalinks({
-          [permalink]: metadatas[0].playlist_id
-        })
-      )
       if (fetchTracks) {
         yield* call(retrieveTracksForCollections, metadatas, new Set())
       }
