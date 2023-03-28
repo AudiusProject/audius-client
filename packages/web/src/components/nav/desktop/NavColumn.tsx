@@ -527,26 +527,28 @@ const NavColumn = ({
           onCreateAccount={onClickNavButton}
           onUpload={onClickUpload}
         />
-        <CurrentlyPlaying
-          trackId={currentQueueItem.track?.track_id ?? null}
-          trackTitle={currentQueueItem.track?.title ?? null}
-          isUnlisted={currentQueueItem.track?.is_unlisted ?? false}
-          isOwner={
-            // Note: if neither are defined, it should eval to false, so setting default to different values
-            (currentQueueItem?.user?.handle ?? null) ===
-            (account?.handle ?? undefined)
-          }
-          coverArtColor={dominantColors ? dominantColors[0] : null}
-          coverArtSizes={currentQueueItem.track?._cover_art_sizes ?? null}
-          artworkLink={
-            currentPlayerItem.collectible?.imageUrl ||
-            currentPlayerItem.collectible?.frameUrl ||
-            currentPlayerItem.collectible?.gifUrl
-          }
-          draggableLink={getTrackPageLink()}
-          onClick={onClickArtwork}
-          onShowVisualizer={onShowVisualizer}
-        />
+        {currentQueueItem.track ? (
+          <CurrentlyPlaying
+            trackId={currentQueueItem.track?.track_id ?? null}
+            trackTitle={currentQueueItem.track?.title ?? null}
+            isUnlisted={currentQueueItem.track?.is_unlisted ?? false}
+            isOwner={
+              // Note: if neither are defined, it should eval to false, so setting default to different values
+              (currentQueueItem?.user?.handle ?? null) ===
+              (account?.handle ?? undefined)
+            }
+            coverArtColor={dominantColors ? dominantColors[0] : null}
+            coverArtSizes={currentQueueItem.track?._cover_art_sizes ?? null}
+            artworkLink={
+              currentPlayerItem.collectible?.imageUrl ||
+              currentPlayerItem.collectible?.frameUrl ||
+              currentPlayerItem.collectible?.gifUrl
+            }
+            draggableLink={getTrackPageLink()}
+            onClick={onClickArtwork}
+            onShowVisualizer={onShowVisualizer}
+          />
+        ) : null}
       </div>
     </nav>
   )
