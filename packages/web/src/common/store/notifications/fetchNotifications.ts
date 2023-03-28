@@ -79,11 +79,11 @@ function* fetchDiscoveryNotifications(params: FetchNotificationsParams) {
   )
   const isTrendingPlaylistEnabled = yield* call(
     getFeatureEnabled,
-    FeatureFlags.SAVE_OF_REPOST_NOTIFICATIONS
+    FeatureFlags.TRENDING_PLAYLIST_NOTIFICATIONS
   )
   const isTrendingUndergroundEnabled = yield* call(
     getFeatureEnabled,
-    FeatureFlags.SAVE_OF_REPOST_NOTIFICATIONS
+    FeatureFlags.TRENDING_UNDERGROUND_NOTIFICATIONS
   )
 
   const validTypes = [
