@@ -69,10 +69,9 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   shadow: {
     borderBottomColor: palette.neutralLight6,
     borderBottomWidth: 3,
-    borderBottomLeftRadius: 1,
+    borderBottomLeftRadius: 1
   }
 }))
-
 
 const ChatsEmpty = ({ onPress }: { onPress: () => void }) => {
   const white = useColor('white')
