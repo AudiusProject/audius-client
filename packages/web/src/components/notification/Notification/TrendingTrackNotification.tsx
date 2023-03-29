@@ -21,18 +21,15 @@ import { NotificationTile } from './components/NotificationTile'
 import { NotificationTitle } from './components/NotificationTitle'
 import { TwitterShareButton } from './components/TwitterShareButton'
 import { IconTrending } from './components/icons'
-import { getRankSuffix, getEntityLink } from './utils'
+import { getEntityLink } from './utils'
 const { getNotificationEntity } = notificationsSelectors
 
 const messages = {
-  title: 'Trending on Audius!',
-  your: 'Your track',
+  title: "You're Trending",
   is: 'is',
   trending: 'on Trending right now!',
-  twitterShareText: (entityTitle: string, rank: number) =>
-    `My track ${entityTitle} is trending ${rank}${getRankSuffix(
-      rank
-    )} on @AudiusProject! #AudiusTrending #Audius`
+  twitterShareText: (entityTitle: string) =>
+    `My track ${entityTitle} is trending on @AudiusProject! Check it out! #Audius #AudiusTrending`
 }
 
 type TrendingTrackNotificationProps = {
@@ -44,7 +41,6 @@ export const TrendingTrackNotification = (
 ) => {
   const { notification } = props
   const { entityType, rank, timeLabel, isViewed } = notification
-  const rankSuffix = getRankSuffix(rank)
   const dispatch = useDispatch()
   const track = useSelector((state) =>
     getNotificationEntity(state, notification)
@@ -58,7 +54,7 @@ export const TrendingTrackNotification = (
 
   if (!track) return null
 
-  const shareText = messages.twitterShareText(track.title, rank)
+  const shareText = messages.twitterShareText(track.title)
 
   return (
     <NotificationTile notification={notification} onClick={handleClick}>
@@ -66,16 +62,15 @@ export const TrendingTrackNotification = (
         <NotificationTitle>{messages.title}</NotificationTitle>
       </NotificationHeader>
       <NotificationBody>
-        {messages.your} <EntityLink entity={track} entityType={entityType} />{' '}
-        {messages.is} {rank}
-        {rankSuffix} {messages.trending}
+        <EntityLink entity={track} entityType={entityType} /> {messages.is} #
+        {rank} {messages.trending}
       </NotificationBody>
       <TwitterShareButton
         type='static'
         url={getEntityLink(track, true)}
         shareText={shareText}
-        analytics={make(Name.NOTIFICATIONS_CLICK_MILESTONE_TWITTER_SHARE, {
-          milestone: shareText
+        analytics={make(Name.NOTIFICATIONS_CLICK_TRENDING_TRACK_TWITTER_SHARE, {
+          text: shareText
         })}
       />
       <NotificationFooter timeLabel={timeLabel} isViewed={isViewed} />

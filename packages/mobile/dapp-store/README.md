@@ -37,11 +37,26 @@ solana-keygen recover -o app-keypair.json
 ```
 and paste the seed phase in. There is no associated password, so press enter again. This should output the private key to the app-keypair.json file. Note this file is .gitignored, but do make sure to not check it in.
 
+### Preparing the version
+Update the version name + code to the latest release in
+[build.gradle](/packages/mobile/android/app/build.gradle)
+
+For the version, see:
+https://play.google.com/console/u/0/developers/7193943409852709836/app/4973839560150647536/tracks/production?tab=releases
+
+The version code needs to be a monotonically increasing number.
 
 ### Preparing the apk
 cd ../android
 ./gradlew app:assembleRelease
 cd ../dapp-store
+
+### Validating the release
+
+Before publishing the apk, validate the release:
+```
+npx dapp-store validate release -k app-keypair.json -b $ANDROID_HOME/build-tools/33.0.0
+```
 
 ### Publishing the apk
 ```
