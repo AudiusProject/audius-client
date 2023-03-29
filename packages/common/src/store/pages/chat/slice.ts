@@ -206,10 +206,11 @@ const slice = createSlice({
       })
       const existingMessage = getMessage(state.messages[chatId], messageId)
       const existingReactions = existingMessage?.reactions ?? []
-      state.messages[chatId].entities[messageId]!.reactions =
-        existingReactions.filter((r) => r.user_id !== reaction.user_id)
+      state.messages.entities[messageId]!.reactions = existingReactions.filter(
+        (r) => r.user_id !== reaction.user_id
+      )
       if (reaction.reaction !== null) {
-        state.messages[chatId].entities[messageId]!.reactions.push(reaction)
+        state.messages.entities[messageId]!.reactions.push(reaction)
       }
     },
     setMessageReactionFailed: (
