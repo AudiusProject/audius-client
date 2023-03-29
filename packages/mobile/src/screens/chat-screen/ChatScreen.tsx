@@ -430,11 +430,9 @@ export const ChatScreen = () => {
                   setInputMessage(text)
                   text ? setIconOpacity(ICON_FOCUS) : setIconOpacity(ICON_BLUR)
                 }}
-                onSubmitEditing={handleSubmit}
                 inputAccessoryViewID='none'
                 onBlur={() => setIconOpacity(ICON_BLUR)}
                 keyboardType='default'
-                returnKeyType='send'
                 multiline
                 value={inputMessage}
               />
