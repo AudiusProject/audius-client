@@ -116,7 +116,7 @@ export const createSession = async (config: Config): Promise<any> => {
       }
     }
 
-    const Web3Modal = (await import('web3modal')) as any
+    const { default: Web3Modal } = await import('web3modal')
     const web3Modal = new Web3Modal({ providerOptions })
 
     const provider = await web3Modal.connect()
