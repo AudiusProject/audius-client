@@ -38,7 +38,7 @@ type State = {
 }
 
 type MobileClientInfo = {
-  mobilePlatform: 'android' | 'ios'
+  mobilePlatform: 'ios' | 'android'
   mobileAppVersion: string
   codePushUpdateNumber: number | undefined
 }
@@ -50,7 +50,7 @@ export type RemoteConfigOptions<Client> = {
   setLogLevel: () => void
   environment: Environment
   appVersion: string
-  platform: 'web' | 'mobile'
+  platform: 'web' | 'mobile' | 'desktop'
   getMobileClientInfo?: () => Promise<MobileClientInfo> | MobileClientInfo
 }
 
