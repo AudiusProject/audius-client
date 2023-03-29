@@ -4,9 +4,9 @@ import {
   followersUserListSelectors,
   followersUserListActions
 } from '@audius/common'
+import { useDispatch } from 'react-redux'
 
-import IconUser from 'app/assets/images/iconUser.svg'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
+import IconUserFollowers from 'app/assets/images/iconUserFollowers.svg'
 import { useProfileRoute } from 'app/hooks/useRoute'
 
 import { UserList } from './UserList'
@@ -21,14 +21,14 @@ const messages = {
 export const FollowersScreen = () => {
   const { params } = useProfileRoute<'Followers'>()
   const { userId } = params
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
 
   const handleSetFollowers = useCallback(() => {
-    dispatchWeb(setFollowers(userId))
-  }, [dispatchWeb, userId])
+    dispatch(setFollowers(userId))
+  }, [dispatch, userId])
 
   return (
-    <UserListScreen title={messages.title} titleIcon={IconUser}>
+    <UserListScreen title={messages.title} titleIcon={IconUserFollowers}>
       <UserList
         userSelector={getUserList}
         tag='FOLLOWERS'

@@ -13,7 +13,6 @@ import {
   formatCount,
   getErrorMessage,
   accountSelectors,
-  lineupSelectors,
   profilePageSelectors,
   CollectionSortMode,
   ProfilePageTabs,
@@ -32,7 +31,11 @@ import {
   followersUserListActions,
   usersSocialActions as socialActions,
   createPlaylistModalUIActions as createPlaylistModalActions,
-  newUserMetadata
+  newUserMetadata,
+  playerSelectors,
+  queueSelectors,
+  Nullable,
+  chatActions
 } from '@audius/common'
 import { push as pushRoute, replace } from 'connected-react-router'
 import { UnregisterCallback } from 'history'
@@ -43,9 +46,9 @@ import { Dispatch } from 'redux'
 
 import { make, TrackEvent } from 'common/store/analytics/actions'
 import { getIsDone } from 'common/store/confirmer/selectors'
-import { makeGetCurrent } from 'common/store/queue/selectors'
+import { ProfileMode } from 'components/stat-banner/StatBanner'
+import { StatProps } from 'components/stats/Stats'
 import * as unfollowConfirmationActions from 'components/unfollow-confirmation-modal/store/actions'
-import { getPlaying, getBuffering } from 'store/player/selectors'
 import { getLocationPathname } from 'store/routing/selectors'
 import { AppState } from 'store/types'
 import { verifiedHandleWhitelist } from 'utils/handleWhitelist'
@@ -55,11 +58,13 @@ import { parseUserRoute } from 'utils/route/userRouteParser'
 
 import { ProfilePageProps as DesktopProfilePageProps } from './components/desktop/ProfilePage'
 import { ProfilePageProps as MobileProfilePageProps } from './components/mobile/ProfilePage'
+const { makeGetCurrent } = queueSelectors
+const { getPlaying, getBuffering } = playerSelectors
 const { setFollowers } = followersUserListActions
 const { setFollowing } = followingUserListActions
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { open } = mobileOverflowMenuUIActions
-const { makeGetRelatedArtists } = artistRecommendationsUISelectors
+const { getRelatedArtists } = artistRecommendationsUISelectors
 
 const {
   makeGetProfile,
@@ -67,8 +72,8 @@ const {
   getProfileTracksLineup,
   getProfileUserId
 } = profilePageSelectors
-const { makeGetLineupMetadatas } = lineupSelectors
-const getAccountUser = accountSelectors.getAccountUser
+const { getAccountUser } = accountSelectors
+const { createChat } = chatActions
 
 const INITIAL_UPDATE_FIELDS = {
   updatedName: null,
@@ -132,9 +137,6 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
   componentDidMount() {
     // If routing from a previous profile page
     // the lineups must be reset to refetch & update for new user
-    this.props.resetProfile()
-    this.props.resetArtistTracks()
-    this.props.resetUserFeedTracks()
     this.fetchProfile(getPathname(this.props.location))
 
     // Switching from profile page => profile page
@@ -144,9 +146,6 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
         getPathname(this.props.location) !== getPathname(location) ||
         action === 'POP'
       ) {
-        this.props.resetProfile()
-        this.props.resetArtistTracks()
-        this.props.resetUserFeedTracks()
         const params = parseUserRoute(getPathname(location))
         if (params) {
           // Fetch profile if this is a new profile page
@@ -181,7 +180,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       !activeTab &&
       profile &&
       profile.profile &&
-      artistTracks.status === Status.SUCCESS
+      artistTracks!.status === Status.SUCCESS
     ) {
       if (profile.profile.track_count > 0) {
         this.setState({
@@ -223,24 +222,6 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     }
   }
 
-  // Check that the sorted order has the _artist_pick track as the first
-  updateOrderArtistPickCheck = (tracks: Array<{ track_id: ID }>) => {
-    const {
-      profile: { profile }
-    } = this.props
-    if (!profile) return []
-    const artistPick = profile._artist_pick
-    const artistTrackIndex = tracks.findIndex(
-      (track) => track.track_id === artistPick
-    )
-    if (artistTrackIndex > -1) {
-      return [tracks[artistTrackIndex]]
-        .concat(tracks.slice(0, artistTrackIndex))
-        .concat(tracks.slice(artistTrackIndex + 1))
-    }
-    return tracks
-  }
-
   onFollow = () => {
     const {
       profile: { profile }
@@ -262,7 +243,6 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     if (!profile) return
     const userId = profile.user_id
     this.props.onUnfollow(userId)
-    this.props.setNotificationSubscription(userId, false)
 
     if (this.props.account) {
       this.props.updateCurrentUserFollows(false)
@@ -282,7 +262,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     const params = parseUserRoute(pathname)
     if (params) {
       this.props.fetchProfile(
-        params.handle,
+        params?.handle?.toLowerCase() ?? null,
         params.userId,
         forceUpdate,
         shouldSetLoading,
@@ -422,7 +402,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     }
   }
 
-  getMode = (isOwner: boolean) => {
+  getMode = (isOwner: boolean): ProfileMode => {
     return isOwner ? (this.state.editMode ? 'editing' : 'owner') : 'visitor'
   }
 
@@ -519,7 +499,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     })
   }
 
-  getStats = (isArtist: boolean) => {
+  getStats = (isArtist: boolean): StatProps[] => {
     const {
       profile: { profile }
     } = this.props
@@ -578,7 +558,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     trackUpdateSort('recent')
     this.props.loadMoreArtistTracks(
       0,
-      artistTracks.entries.length,
+      artistTracks!.entries.length,
       profile.user_id,
       TracksSortMode.RECENT
     )
@@ -595,7 +575,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     this.setState({ tracksLineupOrder: TracksSortMode.POPULAR })
     this.props.loadMoreArtistTracks(
       0,
-      artistTracks.entries.length,
+      artistTracks!.entries.length,
       profile.user_id,
       TracksSortMode.POPULAR
     )
@@ -706,6 +686,13 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     return profile && account ? profile.user_id === account.user_id : false
   }
 
+  onMessage = () => {
+    const {
+      profile: { profile }
+    } = this.props
+    return this.props.onMessage(profile!.user_id)
+  }
+
   render() {
     const {
       profile: {
@@ -760,6 +747,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     const verified = profile ? profile.is_verified : false
     const twitterVerified = profile ? profile.twitterVerified : false
     const instagramVerified = profile ? profile.instagramVerified : false
+    const tikTokVerified = profile ? profile.tikTokVerified : false
     const created = profile
       ? moment(profile.created_at).format('YYYY')
       : moment().format('YYYY')
@@ -792,6 +780,8 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     const tikTokHandle = profile
       ? updatedTikTokHandle !== null
         ? updatedTikTokHandle
+        : profile.tikTokVerified
+        ? profile.handle
         : profile.tiktok_handle || ''
       : ''
     const website = profile
@@ -852,6 +842,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       mostUsedTags,
       twitterVerified,
       instagramVerified,
+      tikTokVerified,
 
       profile,
       status: profileLoadingStatus,
@@ -891,7 +882,8 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       updateWebsite: this.updateWebsite,
       updateDonation: this.updateDonation,
       updateCoverPhoto: this.updateCoverPhoto,
-      didChangeTabsFrom: this.didChangeTabsFrom
+      didChangeTabsFrom: this.didChangeTabsFrom,
+      onMessage: this.onMessage
     }
 
     const mobileProps = {
@@ -947,34 +939,45 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
 }
 
 function makeMapStateToProps() {
-  const getArtistTracksMetadatas = makeGetLineupMetadatas(
-    getProfileTracksLineup
-  )
-  const getUserFeedMetadatas = makeGetLineupMetadatas(getProfileFeedLineup)
   const getProfile = makeGetProfile()
   const getCurrentQueueItem = makeGetCurrent()
-  const getRelatedArtists = makeGetRelatedArtists()
-  const mapStateToProps = (state: AppState) => ({
-    account: getAccountUser(state),
-    profile: getProfile(state),
-    artistTracks: getArtistTracksMetadatas(state),
-    userFeed: getUserFeedMetadatas(state),
-    currentQueueItem: getCurrentQueueItem(state),
-    playing: getPlaying(state),
-    buffering: getBuffering(state),
-    pathname: getLocationPathname(state),
-    isUserConfirming: !getIsDone(state, {
-      uid: makeKindId(Kind.USERS, getAccountUser(state)?.user_id)
-    }),
-    relatedArtists: getRelatedArtists(state, { id: getProfileUserId(state) })
-  })
+
+  const mapStateToProps = (state: AppState, props: RouteComponentProps) => {
+    const { location } = props
+    const pathname = getPathname(location)
+    const params = parseUserRoute(pathname)
+    const handleLower = params?.handle?.toLowerCase() as string
+
+    return {
+      account: getAccountUser(state),
+      // @ts-ignore getProfile doesn't strictly need a second arg
+      profile: getProfile(state, handleLower),
+      artistTracks: getProfileTracksLineup(state, handleLower),
+      userFeed: getProfileFeedLineup(state, handleLower),
+      currentQueueItem: getCurrentQueueItem(state),
+      playing: getPlaying(state),
+      buffering: getBuffering(state),
+      pathname: getLocationPathname(state),
+      isUserConfirming: !getIsDone(state, {
+        uid: makeKindId(Kind.USERS, getAccountUser(state)?.user_id)
+      }),
+      relatedArtists: getRelatedArtists(state, {
+        id: getProfileUserId(state, handleLower) ?? 0
+      })
+    }
+  }
   return mapStateToProps
 }
 
-function mapDispatchToProps(dispatch: Dispatch) {
+function mapDispatchToProps(dispatch: Dispatch, props: RouteComponentProps) {
+  const { location } = props
+  const pathname = getPathname(location)
+  const params = parseUserRoute(pathname)
+  const handleLower = params?.handle?.toLowerCase() as string
+
   return {
     fetchProfile: (
-      handle: string | null,
+      handle: Nullable<string>,
       userId: ID | null,
       forceUpdate: boolean,
       shouldSetLoading: boolean,
@@ -991,11 +994,10 @@ function mapDispatchToProps(dispatch: Dispatch) {
       ),
     updateProfile: (metadata: any) =>
       dispatch(profileActions.updateProfile(metadata)),
-    resetProfile: () => dispatch(profileActions.resetProfile()),
     goToRoute: (route: string) => dispatch(pushRoute(route)),
     replaceRoute: (route: string) => dispatch(replace(route)),
     updateCollectionOrder: (mode: CollectionSortMode) =>
-      dispatch(profileActions.updateCollectionSortMode(mode)),
+      dispatch(profileActions.updateCollectionSortMode(mode, handleLower)),
     onFollow: (userId: ID) =>
       dispatch(socialActions.followUser(userId, FollowSource.PROFILE_PAGE)),
     onUnfollow: (userId: ID) =>
@@ -1011,7 +1013,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
     onConfirmUnfollow: (userId: ID) =>
       dispatch(unfollowConfirmationActions.setOpen(userId)),
     updateCurrentUserFollows: (follow: any) =>
-      dispatch(profileActions.updateCurrentUserFollows(follow)),
+      dispatch(profileActions.updateCurrentUserFollows(follow, handleLower)),
 
     // Artist Tracks
     loadMoreArtistTracks: (
@@ -1021,32 +1023,63 @@ function mapDispatchToProps(dispatch: Dispatch) {
       sort: TracksSortMode
     ) => {
       dispatch(
-        tracksActions.fetchLineupMetadatas(offset, limit, false, {
-          userId: id,
-          sort
-        })
+        tracksActions.fetchLineupMetadatas(
+          offset,
+          limit,
+          false,
+          {
+            userId: id,
+            sort
+          },
+          { handle: handleLower }
+        )
       )
     },
-    resetArtistTracks: () => dispatch(tracksActions.reset()),
     playArtistTrack: (uid: string) => dispatch(tracksActions.play(uid)),
     pauseArtistTrack: () => dispatch(tracksActions.pause()),
     // User Feed
     loadMoreUserFeed: (offset: number, limit: number, id: ID) =>
       dispatch(
-        feedActions.fetchLineupMetadatas(offset, limit, false, { userId: id })
+        feedActions.fetchLineupMetadatas(
+          offset,
+          limit,
+          false,
+          { userId: id },
+          { handle: handleLower }
+        )
       ),
-    resetUserFeedTracks: () => dispatch(feedActions.reset()),
     playUserFeedTrack: (uid: UID) => dispatch(feedActions.play(uid)),
     pauseUserFeedTrack: () => dispatch(feedActions.pause()),
     // Followes
-    fetchFollowUsers: (followGroup: any, limit: number, offset: number) =>
-      dispatch(profileActions.fetchFollowUsers(followGroup, limit, offset)),
+    fetchFollowUsers: (
+      followerGroup: FollowType,
+      limit: number,
+      offset: number
+    ) =>
+      dispatch(
+        profileActions.fetchFollowUsers(
+          followerGroup,
+          limit,
+          offset,
+          handleLower
+        )
+      ),
 
     openCreatePlaylistModal: () =>
       dispatch(createPlaylistModalActions.open(undefined, true)),
-    setNotificationSubscription: (userId: ID, isSubscribed: boolean) =>
+    setNotificationSubscription: (
+      userId: ID,
+      isSubscribed: boolean,
+      onFollow = true
+    ) =>
       dispatch(
-        profileActions.setNotificationSubscription(userId, isSubscribed, true)
+        profileActions.setNotificationSubscription(
+          userId,
+          isSubscribed,
+          true,
+          handleLower,
+          onFollow
+        )
       ),
 
     setFollowingUserId: (userId: ID) => dispatch(setFollowing(userId)),
@@ -1087,6 +1120,9 @@ function mapDispatchToProps(dispatch: Dispatch) {
         { source }
       )
       dispatch(trackEvent)
+    },
+    onMessage: (userId: ID) => {
+      dispatch(createChat({ userIds: [userId] }))
     }
   }
 }

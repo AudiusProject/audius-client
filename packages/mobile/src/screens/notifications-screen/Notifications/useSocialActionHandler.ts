@@ -8,12 +8,10 @@ import type {
   RepostNotification
 } from '@audius/common'
 import { notificationsUserListActions } from '@audius/common'
-import { NOTIFICATION_PAGE } from 'audius-client/src/utils/route'
+import { useDispatch } from 'react-redux'
 
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { getUserRoute } from 'app/utils/routes'
+import { useNavigation } from 'app/hooks/useNavigation'
 
-import { useDrawerNavigation } from '../useDrawerNavigation'
 const { setNotificationId } = notificationsUserListActions
 
 /**
@@ -27,35 +25,23 @@ export const useSocialActionHandler = (
   const { id, type, userIds } = notification
   const firstUser = users?.[0]
   const isMultiUser = userIds.length > 1
-  const dispatchWeb = useDispatchWeb()
-  const navigation = useDrawerNavigation()
+  const dispatch = useDispatch()
+  const navigation = useNavigation()
 
   return useCallback(() => {
     if (isMultiUser) {
-      dispatchWeb(setNotificationId(id))
-      navigation.navigate({
-        native: {
-          screen: 'NotificationUsers',
-          params: {
-            id,
-            notificationType: type,
-            count: userIds.length,
-            fromNotifications: true
-          }
-        },
-        web: {
-          route: `/notification/${id}/users`,
-          fromPage: NOTIFICATION_PAGE
-        }
+      dispatch(setNotificationId(id))
+      navigation.navigate('NotificationUsers', {
+        id,
+        notificationType: type,
+        count: userIds.length,
+        fromNotifications: true
       })
     } else if (firstUser) {
-      navigation.navigate({
-        native: {
-          screen: 'Profile',
-          params: { handle: firstUser.handle, fromNotifications: true }
-        },
-        web: { route: getUserRoute(firstUser), fromPage: NOTIFICATION_PAGE }
+      navigation.navigate('Profile', {
+        handle: firstUser.handle,
+        fromNotifications: true
       })
     }
-  }, [isMultiUser, id, type, userIds, dispatchWeb, navigation, firstUser])
+  }, [isMultiUser, id, type, userIds, dispatch, navigation, firstUser])
 }

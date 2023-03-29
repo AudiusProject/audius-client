@@ -1,73 +1,72 @@
+import {
+  getSearch,
+  getSearchBarText
+} from 'audius-client/src/common/store/search-bar/selectors'
 import { Dimensions, View } from 'react-native'
 import { useSelector } from 'react-redux'
 
-import { Screen } from 'app/components/core'
-import { Header } from 'app/components/header'
-import {
-  getSearchQuery,
-  getSearchResultQuery,
-  getSearchResults
-} from 'app/store/search/selectors'
+import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
+import { getSearchHistory } from 'app/store/search/selectors'
 import { makeStyles } from 'app/styles'
 
+import { EmptySearch } from './EmptySearch'
 import { SearchBar } from './SearchBar'
-import SearchHistory from './SearchHistory'
-import SearchResults from './SearchResults'
-import EmptySearch from './content/EmptySearch'
+import { SearchHistory } from './SearchHistory'
+import { SearchResults } from './SearchResults'
 
 const SCREEN_WIDTH = Dimensions.get('window').width
 
 const useStyles = makeStyles(({ spacing }) => ({
-  topbarLeft: {
-    paddingTop: spacing(2) + 1
-  },
   topbarRight: {
     alignItems: 'flex-end',
-    width: SCREEN_WIDTH - 80
+    width: SCREEN_WIDTH - spacing(20)
   },
   searchBar: {
-    width: '100%',
-    flexGrow: 1
-  },
-  buffer: {
-    flexGrow: 1
+    width: '100%'
   }
 }))
 
 export const SearchScreen = () => {
   const styles = useStyles()
-  const searchQuery = useSelector(getSearchQuery)
-  const searchResultQuery = useSelector(getSearchResultQuery)
-  const searchResults = useSelector(getSearchResults)
-  const hasResults = Object.values(searchResults).some(
-    (result) => result && result.length > 0
+  const searchBarText = useSelector(getSearchBarText)
+  const hasResults = useSelector((state) => {
+    const { tracks, users, playlists, albums } = getSearch(state)
+    return [tracks, users, playlists, albums].some(
+      (result) => result && result.length > 0
+    )
+  })
+  const hasSearchHistory = useSelector(
+    (state) => getSearchHistory(state).length > 0
   )
 
-  const renderBody = () => {
-    if (searchQuery && hasResults) {
+  const renderSearchContent = () => {
+    if (hasResults) {
       return <SearchResults />
     }
-    if (searchQuery && searchResultQuery && !hasResults) {
-      return <EmptySearch query={searchResultQuery} />
+    if (searchBarText && !hasResults) {
+      return <EmptySearch query={searchBarText} />
     }
-    return <SearchHistory />
+    if (hasSearchHistory) {
+      return <SearchHistory />
+    }
+    return <EmptySearch />
   }
+
+  const searchBar = (
+    <View style={styles.topbarRight}>
+      <SearchBar style={styles.searchBar} />
+    </View>
+  )
 
   return (
     <Screen
-      topbarRight={
-        <View style={styles.topbarRight}>
-          <View style={styles.searchBar}>
-            <SearchBar />
-          </View>
-        </View>
-      }
+      topbarRight={searchBar}
       variant='white'
       title={null}
       headerTitle={null}
     >
-      <Header text='Search' />
-      {renderBody()}
+      <ScreenHeader text='Search' />
+      <ScreenContent unboxed>{renderSearchContent()}</ScreenContent>
     </Screen>
   )
 }

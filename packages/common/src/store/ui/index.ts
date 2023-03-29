@@ -65,18 +65,30 @@ export * as shareModalUISelectors from './share-modal/selectors'
 export { default as shareModalUISagas } from './share-modal/sagas'
 
 export {
+  default as vipDiscordModalReducer,
+  actions as vipDiscordModalActions
+} from './vip-discord-modal/slice'
+export * from './vip-discord-modal/types'
+export * as vipDiscordModalSelectors from './vip-discord-modal/selectors'
+export { default as vipDiscordModalSagas } from './vip-discord-modal/sagas'
+
+export {
   default as shareSoundToTiktokModalReducer,
   actions as shareSoundToTiktokModalActions
 } from './share-sound-to-tiktok-modal/slice'
 export * from './share-sound-to-tiktok-modal/types'
 export * as shareSoundToTiktokModalSelectors from './share-sound-to-tiktok-modal/selectors'
 
-export { default as themeReducer } from './theme/reducer'
-export * as themeActions from './theme/actions'
+export {
+  default as themeReducer,
+  actions as themeActions,
+  SetThemeAction,
+  SetSystemAppearanceAction
+} from './theme/slice'
 export * as themeSelectors from './theme/selectors'
-export * from './theme/types'
 
 export { default as toastReducer, actions as toastActions } from './toast/slice'
+export * as toastSelectors from './toast/selectors'
 export * from './toast/types'
 export { default as toastSagas } from './toast/sagas'
 
@@ -87,3 +99,18 @@ export {
 export * from './buy-audio/types'
 export * from './buy-audio/constants'
 export * as buyAudioSelectors from './buy-audio/selectors'
+
+export {
+  default as transactionDetailsReducer,
+  actions as transactionDetailsActions
+} from './transaction-details/slice'
+export * as transactionDetailsSelectors from './transaction-details/selectors'
+export * from './transaction-details/types'
+
+export {
+  default as searchUsersModalReducer,
+  actions as searchUsersModalActions,
+  SearchUsersModalState
+} from './search-users-modal/slice'
+export * as searchUsersModalSelectors from './search-users-modal/selectors'
+export { default as searchUsersModalSagas } from './search-users-modal/sagas'

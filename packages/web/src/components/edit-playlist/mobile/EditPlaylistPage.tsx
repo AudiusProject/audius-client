@@ -13,7 +13,8 @@ import {
   createPlaylistModalUISelectors,
   createPlaylistModalUIActions as createPlaylistActions,
   imageBlank as placeholderCoverArt,
-  newCollectionMetadata
+  newCollectionMetadata,
+  usePremiumContentAccessMap
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
@@ -43,8 +44,6 @@ const { getMetadata, getTracks } = createPlaylistModalUISelectors
 const { createPlaylist, editPlaylist, orderPlaylist, removeTrackFromPlaylist } =
   cacheCollectionsActions
 const getAccountUser = accountSelectors.getAccountUser
-
-const IS_NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 const messages = {
   createPlaylist: 'Create Playlist',
@@ -341,6 +340,8 @@ const EditPlaylistPage = g(
 
     useTemporaryNavContext(setters)
 
+    const trackAccessMap = usePremiumContentAccessMap(tracks ?? [])
+
     // Put together track list if necessary
     let trackList = null
     if (tracks && reorderedTracks.length > 0) {
@@ -351,6 +352,10 @@ const EditPlaylistPage = g(
           showRemoveTrackDrawer &&
           t.track_id === confirmRemoveTrack?.trackId &&
           playlistTrack?.time === confirmRemoveTrack?.timestamp
+        const { isUserAccessTBD, doesUserHaveAccess } = trackAccessMap[
+          t.track_id
+        ] ?? { isUserAccessTBD: false, doesUserHaveAccess: true }
+        const isLocked = !isUserAccessTBD && !doesUserHaveAccess
 
         return {
           isLoading: false,
@@ -359,7 +364,9 @@ const EditPlaylistPage = g(
           trackTitle: t.title,
           trackId: t.track_id,
           time: playlistTrack?.time,
+          isPremium: t.is_premium,
           isDeleted: t.is_delete || !!t.user.is_deactivated,
+          isLocked,
           isRemoveActive
         }
       })
@@ -411,10 +418,7 @@ const EditPlaylistPage = g(
                 maxLength={256}
               />
             </Grouping>
-            {/** Don't render tracklist on native mobile. Errors
-             * get thrown because of the null renderer
-             */}
-            {!IS_NATIVE_MOBILE && trackList && trackList.length > 0 && (
+            {trackList && trackList.length > 0 && (
               <Grouping>
                 <TrackList
                   tracks={trackList}

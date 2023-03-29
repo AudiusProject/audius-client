@@ -1,16 +1,16 @@
 import { Component } from 'react'
 
+import { UploadType } from '@audius/common'
 import { Button, ButtonType, IconArrow } from '@audius/stems'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 
 import { SelectedServices } from 'components/service-selection'
-import Dropzone from 'components/upload/Dropzone'
+import { Dropzone } from 'components/upload/Dropzone'
 import InvalidFileType from 'components/upload/InvalidFileType'
 
 import styles from './SelectPage.module.css'
 import TracksPreview from './TracksPreview'
-import UploadType from './uploadType'
 
 class SelectPage extends Component {
   state = {
@@ -55,7 +55,11 @@ class SelectPage extends Component {
       <div className={cn(styles.page)}>
         <div className={styles.select}>
           <div className={styles.dropzone}>
-            <Dropzone textAboveIcon={textAboveIcon} onDrop={onSelect} />
+            <Dropzone
+              textAboveIcon={textAboveIcon}
+              onDropAccepted={onSelect}
+              onDropRejected={onSelect}
+            />
             {error ? (
               <InvalidFileType
                 reason={error.reason}

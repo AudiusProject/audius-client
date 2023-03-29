@@ -8,10 +8,7 @@ import {
   cacheCollectionsSelectors,
   cacheTracksSelectors,
   cacheUsersSelectors,
-  notificationsSelectors,
-  notificationsActions,
   Notification,
-  NotificationType,
   collectionsSocialActions,
   tracksSocialActions,
   usersSocialActions,
@@ -21,13 +18,13 @@ import {
   OverflowSource,
   mobileOverflowMenuUISelectors,
   modalsActions,
-  modalsSelectors
+  modalsSelectors,
+  queueSelectors
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
-import { makeGetCurrent } from 'common/store/queue/selectors'
 import { AppState } from 'store/types'
 import {
   albumPage,
@@ -37,6 +34,8 @@ import {
 } from 'utils/route'
 
 import MobileOverflowModal from './components/MobileOverflowModal'
+
+const { makeGetCurrent } = queueSelectors
 const { setVisibility } = modalsActions
 const { getModalVisibility } = modalsSelectors
 const { getMobileOverflowModal } = mobileOverflowMenuUISelectors
@@ -54,10 +53,8 @@ const {
   undoRepostCollection,
   unsaveCollection
 } = collectionsSocialActions
-const { unsubscribeUser } = notificationsActions
 const { getTrack } = cacheTracksSelectors
 const { getUser } = cacheUsersSelectors
-const { getNotificationById } = notificationsSelectors
 const { getCollection } = cacheCollectionsSelectors
 const { publishPlaylist } = cacheCollectionsActions
 
@@ -101,7 +98,6 @@ const ConnectedMobileOverflowModal = ({
   visitCollectiblePage,
   visitPlaylistPage,
   visitAlbumPage,
-  unsubscribeUser,
   follow,
   unfollow,
   shareUser
@@ -121,7 +117,6 @@ const ConnectedMobileOverflowModal = ({
     onVisitArtistPage,
     onVisitCollectionPage,
     onVisitCollectiblePage,
-    onUnsubscribeUser,
     onFollow,
     onUnfollow
   } = ((): {
@@ -138,7 +133,6 @@ const ConnectedMobileOverflowModal = ({
     onVisitArtistPage?: () => void
     onVisitCollectiblePage?: () => void
     onVisitCollectionPage?: () => void
-    onUnsubscribeUser?: () => void
     onFollow?: () => void
     onUnfollow?: () => void
   } => {
@@ -188,16 +182,6 @@ const ConnectedMobileOverflowModal = ({
             : () => publishPlaylist(id as ID)
         }
       }
-      case OverflowSource.NOTIFICATIONS: {
-        if (!id || !notification) return {}
-        return {
-          ...(notification.type === NotificationType.UserSubscription
-            ? {
-                onUnsubscribeUser: () => unsubscribeUser(notification.userId)
-              }
-            : {})
-        }
-      }
 
       case OverflowSource.PROFILE: {
         if (!id || !handle || !artistName) return {}
@@ -229,7 +213,6 @@ const ConnectedMobileOverflowModal = ({
       onVisitArtistPage={onVisitArtistPage}
       onVisitCollectionPage={onVisitCollectionPage}
       onVisitCollectiblePage={onVisitCollectiblePage}
-      onUnsubscribeUser={onUnsubscribeUser}
       onFollow={onFollow}
       onUnfollow={onUnfollow}
     />
@@ -306,12 +289,6 @@ const getAdditionalInfo = ({
         artistName: user.name
       }
     }
-    case OverflowSource.NOTIFICATIONS: {
-      const notification = getNotificationById(state, id as string)
-      return {
-        notification
-      }
-    }
   }
 }
 
@@ -365,9 +342,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
       dispatch(unfollowUser(userId, FollowSource.OVERFLOW)),
     shareUser: (userId: ID) =>
       dispatch(shareUser(userId, ShareSource.OVERFLOW)),
-
-    // Notification
-    unsubscribeUser: (userId: ID) => dispatch(unsubscribeUser(userId)),
 
     // Routes
     addToPlaylist: (trackId: ID, title: string) =>

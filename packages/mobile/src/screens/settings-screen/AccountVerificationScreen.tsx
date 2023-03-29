@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { Status, accountSelectors } from '@audius/common'
-import { NOTIFICATION_PAGE } from 'audius-client/src/utils/route'
+import { Status, accountSelectors, BooleanKeys } from '@audius/common'
+import * as signOnActions from 'common/store/pages/signon/actions'
+import { getHandleField } from 'common/store/pages/signon/selectors'
+import type { EditableField } from 'common/store/pages/signon/types'
+import { EditingStatus } from 'common/store/pages/signon/types'
 import { Image, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -9,38 +12,39 @@ import PartyFace from 'app/assets/images/emojis/face-with-party-horn-and-party-h
 import IconInstagram from 'app/assets/images/iconInstagram.svg'
 import IconNote from 'app/assets/images/iconNote.svg'
 import IconTwitter from 'app/assets/images/iconTwitterBird.svg'
-import { Button, Screen, Text } from 'app/components/core'
+import { Button, Screen, ScreenContent, Text } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
+import { SocialButton } from 'app/components/social-button'
 import { StatusMessage } from 'app/components/status-message'
+import { TikTokAuthButton } from 'app/components/tiktok-auth'
 import { ProfilePicture } from 'app/components/user'
 import UserBadges from 'app/components/user-badges'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { MessageType } from 'app/message'
+import { useRemoteVar } from 'app/hooks/useRemoteConfig'
 import { track, make } from 'app/services/analytics'
 import * as oauthActions from 'app/store/oauth/actions'
 import {
+  getAbandoned,
   getInstagramError,
   getInstagramInfo,
+  getTikTokError,
   getTwitterError,
   getTwitterInfo
 } from 'app/store/oauth/selectors'
-import { getHandleError, getHandleIsValid } from 'app/store/signon/selectors'
 import { makeStyles } from 'app/styles'
 import { EventNames } from 'app/types/analytics'
-import { getUserRoute } from 'app/utils/routes'
-const getAccountUser = accountSelectors.getAccountUser
+const { getAccountUser } = accountSelectors
 
 const messages = {
   title: 'Verification',
   gettingVerified:
-    'Getting verified on Audius is easy! Just link your verified Twitter or Instagram account and you’ll be verified immediately.',
+    'Getting verified on Audius is easy! Just link your verified Instagram, TikTok or legacy verified Twitter account and you’ll be verified immediately.',
   handleMatch:
     'Your Audius handle must exactly match the verified handle you’re connecting.',
   verified: "You're verified!",
   verifyTwitter: 'Verify with Twitter',
   verifyInstagram: 'Verify with Instagram',
+  verifyTikTok: 'Verify with TikTok',
   backButtonText: 'Back To The Music',
   failureText: 'Sorry, unable to retrieve information'
 }
@@ -64,23 +68,8 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     textAlign: 'center',
     fontFamily: typography.fontByWeight.heavy
   },
-  buttonContainer: {
-    marginTop: spacing(3),
-    marginBottom: spacing(3),
-    height: 64,
-    minWidth: 300
-  },
-  twitterButton: {
-    backgroundColor: palette.staticTwitterBlue
-  },
-  button: {
-    paddingHorizontal: spacing(4)
-  },
-  buttonText: {
-    fontSize: 18
-  },
-  buttonIcon: {
-    marginRight: spacing(3)
+  socialButtonContainer: {
+    marginBottom: spacing(2)
   },
   profileContainer: {
     marginTop: spacing(12),
@@ -101,24 +90,51 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     width: 48,
     alignSelf: 'center',
     marginBottom: spacing(2)
+  },
+  buttonContainer: {
+    marginTop: spacing(3),
+    marginBottom: spacing(3),
+    height: 64,
+    minWidth: 300
+  },
+  twitterButton: {
+    backgroundColor: palette.staticTwitterBlue
+  },
+  button: {
+    paddingHorizontal: spacing(4)
+  },
+  buttonText: {
+    fontSize: 18
+  },
+  buttonIcon: {
+    marginRight: spacing(3)
   }
 }))
 
 export const AccountVerificationScreen = () => {
   const styles = useStyles()
   const dispatch = useDispatch()
-  const dispatchWeb = useDispatchWeb()
   const [error, setError] = useState('')
-  const [status, setStatus] = useState('')
+  const [status, setStatus] = useState<Status>(Status.IDLE)
   const [didValidateHandle, setDidValidateHandle] = useState(false)
-  const accountUser = useSelectorWeb(getAccountUser)
+  const accountUser = useSelector(getAccountUser)
   const navigation = useNavigation()
   const twitterInfo = useSelector(getTwitterInfo)
   const twitterError = useSelector(getTwitterError)
   const instagramInfo = useSelector(getInstagramInfo)
   const instagramError = useSelector(getInstagramError)
-  const handleIsValid = useSelector(getHandleIsValid)
-  const handleError = useSelector(getHandleError)
+  const tikTokError = useSelector(getTikTokError)
+  const abandoned = useSelector(getAbandoned)
+
+  const isTwitterEnabled = useRemoteVar(
+    BooleanKeys.DISPLAY_TWITTER_VERIFICATION
+  )
+  const isInstagramEnabled = useRemoteVar(
+    BooleanKeys.DISPLAY_INSTAGRAM_VERIFICATION
+  )
+  const isTikTokEnabled = useRemoteVar(BooleanKeys.DISPLAY_TIKTOK_VERIFICATION)
+
+  const handleField: EditableField = useSelector(getHandleField)
 
   const name = accountUser?.name
   const handle = accountUser?.handle
@@ -141,15 +157,9 @@ export const AccountVerificationScreen = () => {
       const handle = type === 'twitter' ? profile.screen_name : profile.username
       const verified =
         type === 'twitter' ? profile.verified : profile.is_verified
-      dispatchWeb({
-        type: MessageType.SIGN_UP_VALIDATE_HANDLE,
-        handle,
-        verified,
-        isAction: true,
-        onValidate: null
-      })
+      dispatch(signOnActions.validateHandle(handle, verified))
     },
-    [dispatchWeb, twitterInfo, instagramInfo]
+    [dispatch, twitterInfo, instagramInfo]
   )
 
   const trackOAuthComplete = useCallback(
@@ -185,64 +195,57 @@ export const AccountVerificationScreen = () => {
 
   useEffect(() => {
     if (twitterInfo) {
-      if (!handleIsValid && !didValidateHandle) {
+      if (handleField.status !== EditingStatus.SUCCESS && !didValidateHandle) {
         validateHandle('twitter')
         setDidValidateHandle(true)
-      } else if (handleError || twitterInfo.requiresUserReview) {
+      } else if (handleField.error || twitterInfo.requiresUserReview) {
         trackOAuthComplete('twitter')
-        setStatus('')
-      } else if (handleIsValid) {
+        setStatus(Status.IDLE)
+      } else if (handleField.status === EditingStatus.SUCCESS) {
         trackOAuthComplete('twitter')
         setStatus(Status.SUCCESS)
       }
     }
   }, [
     twitterInfo,
-    handleIsValid,
-    handleError,
+    handleField,
     didValidateHandle,
     validateHandle,
     trackOAuthComplete
   ])
 
   useEffect(() => {
-    if (twitterError) onVerifyFailure()
-  }, [onVerifyFailure, twitterError])
+    if (twitterError || instagramError || tikTokError) {
+      onVerifyFailure()
+    }
+  }, [onVerifyFailure, twitterError, instagramError, tikTokError])
 
   useEffect(() => {
     if (instagramInfo) {
-      if (!handleIsValid && !didValidateHandle) {
+      if (handleField.status !== EditingStatus.SUCCESS && !didValidateHandle) {
         validateHandle('instagram')
         setDidValidateHandle(true)
-      } else if (handleError || instagramInfo.requiresUserReview) {
+      } else if (handleField.error || instagramInfo.requiresUserReview) {
         trackOAuthComplete('instagram')
-        setStatus('')
-      } else if (handleIsValid) {
+        setStatus(Status.IDLE)
+      } else if (handleField.status === EditingStatus.SUCCESS) {
         trackOAuthComplete('instagram')
         setStatus(Status.SUCCESS)
       }
     }
   }, [
     instagramInfo,
-    handleIsValid,
-    handleError,
+    handleField,
     didValidateHandle,
     validateHandle,
     trackOAuthComplete
   ])
 
-  useEffect(() => {
-    if (instagramError) onVerifyFailure()
-  }, [instagramError, onVerifyFailure])
-
-  const onTwitterPress = () => {
+  const handleTwitterPress = () => {
     if (!handle) return
     onVerifyButtonPress()
     dispatch(oauthActions.setTwitterError(null))
-    dispatchWeb({
-      type: MessageType.REQUEST_TWITTER_AUTH,
-      isAction: true
-    })
+    dispatch(oauthActions.twitterAuth())
     track(
       make({
         eventName: EventNames.SETTINGS_START_TWITTER_OAUTH,
@@ -251,14 +254,11 @@ export const AccountVerificationScreen = () => {
     )
   }
 
-  const onInstagramPress = () => {
+  const handleInstagramPress = () => {
     if (!handle) return
     onVerifyButtonPress()
     dispatch(oauthActions.setInstagramError(null))
-    dispatchWeb({
-      type: MessageType.REQUEST_INSTAGRAM_AUTH,
-      isAction: true
-    })
+    dispatch(oauthActions.instagramAuth())
     track(
       make({
         eventName: EventNames.SETTINGS_START_INSTAGRAM_OAUTH,
@@ -267,13 +267,29 @@ export const AccountVerificationScreen = () => {
     )
   }
 
+  const handleTikTokPress = () => {
+    if (!handle) return
+    onVerifyButtonPress()
+    dispatch(oauthActions.setTikTokError(null))
+    dispatch(oauthActions.tikTokAuth())
+    track(
+      make({
+        eventName: EventNames.SETTINGS_START_TIKTOK_OAUTH,
+        handle
+      })
+    )
+  }
+
+  useEffect(() => {
+    if (abandoned) {
+      setStatus(Status.IDLE)
+    }
+  }, [abandoned])
+
   const goBacktoProfile = useCallback(() => {
     if (!handle) return
-    navigation.navigate({
-      native: { screen: 'Profile', params: { handle } },
-      web: { route: getUserRoute(accountUser), fromPage: NOTIFICATION_PAGE }
-    })
-  }, [accountUser, handle, navigation])
+    navigation.navigate('Profile', { handle })
+  }, [handle, navigation])
 
   if (!accountUser) return null
 
@@ -285,30 +301,35 @@ export const AccountVerificationScreen = () => {
     <View style={styles.contentContainer}>
       <Text style={styles.text}>{messages.gettingVerified}</Text>
       <Text style={styles.text}>{messages.handleMatch}</Text>
-      <Button
-        title={messages.verifyTwitter}
-        styles={{
-          root: [styles.buttonContainer, styles.twitterButton],
-          text: styles.buttonText,
-          icon: styles.buttonIcon,
-          button: styles.button
-        }}
-        onPress={onTwitterPress}
-        icon={IconTwitter}
-        iconPosition='left'
-      />
-      <Button
-        title={messages.verifyInstagram}
-        styles={{
-          root: [styles.buttonContainer],
-          text: styles.buttonText,
-          icon: styles.buttonIcon,
-          button: styles.button
-        }}
-        onPress={onInstagramPress}
-        icon={IconInstagram}
-        iconPosition='left'
-      />
+
+      {isTwitterEnabled ? (
+        <SocialButton
+          color={'#1BA1F1'}
+          fullWidth
+          icon={IconTwitter}
+          onPress={handleTwitterPress}
+          styles={{ root: styles.socialButtonContainer }}
+          title={messages.verifyTwitter}
+        />
+      ) : null}
+
+      {isInstagramEnabled ? (
+        <SocialButton
+          fullWidth
+          icon={IconInstagram}
+          onPress={handleInstagramPress}
+          styles={{ root: styles.socialButtonContainer }}
+          title={messages.verifyInstagram}
+        />
+      ) : null}
+
+      {isTikTokEnabled ? (
+        <TikTokAuthButton
+          onPress={handleTikTokPress}
+          styles={{ root: styles.socialButtonContainer }}
+          title={messages.verifyTikTok}
+        />
+      ) : null}
       {error ? (
         <StatusMessage
           style={{ alignSelf: 'center' }}
@@ -353,7 +374,7 @@ export const AccountVerificationScreen = () => {
 
   const getPageContent = () => {
     switch (status) {
-      case '':
+      case Status.IDLE:
       case Status.ERROR:
         return verifyView
       case Status.LOADING:
@@ -365,7 +386,7 @@ export const AccountVerificationScreen = () => {
 
   return (
     <Screen title={messages.title} topbarRight={null} variant='secondary'>
-      {getPageContent()}
+      <ScreenContent>{getPageContent()}</ScreenContent>
     </Screen>
   )
 }

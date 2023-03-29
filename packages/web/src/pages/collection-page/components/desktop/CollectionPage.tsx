@@ -7,22 +7,18 @@ import {
   Variant,
   Status,
   User,
-  FeatureFlags,
   CollectionTrack,
   CollectionPageTrackRecord,
   CollectionsPageType
 } from '@audius/common'
 
-import CollectionHeader from 'components/collection/desktop/CollectionHeader'
-import Page from 'components/page/Page'
 import {
   CollectiblesPlaylistTableColumn,
-  TestCollectiblesPlaylistTable
-} from 'components/test-collectibles-playlist-table/TestCollectiblesPlaylistTable'
-import { TestTracksTable } from 'components/test-tracks-table'
-import { TracksTableColumn } from 'components/test-tracks-table/TestTracksTable'
-import TracksTable from 'components/tracks-table/TracksTable'
-import { useFlag } from 'hooks/useRemoteConfig'
+  CollectiblesPlaylistTable
+} from 'components/collectibles-playlist-table/CollectiblesPlaylistTable'
+import CollectionHeader from 'components/collection/desktop/CollectionHeader'
+import Page from 'components/page/Page'
+import { TracksTable, TracksTableColumn } from 'components/tracks-table'
 import { computeCollectionMetadataProps } from 'pages/collection-page/store/utils'
 
 import styles from './CollectionPage.module.css'
@@ -55,6 +51,7 @@ export type CollectionPageProps = {
   title: string
   description: string
   canonicalUrl: string
+  structuredData?: Object
   playlistId: ID
   playing: boolean
   getPlayingUid: () => string | null
@@ -108,6 +105,7 @@ const CollectionPage = ({
   title,
   description: pageDescription,
   canonicalUrl,
+  structuredData,
   playlistId,
   allowReordering,
   playing,
@@ -141,7 +139,6 @@ const CollectionPage = ({
   onClickFavorites,
   onClickDescriptionExternalLink
 }: CollectionPageProps) => {
-  const { isEnabled: isNewTablesEnabled } = useFlag(FeatureFlags.NEW_TABLES)
   // TODO: Consider dynamic lineups, esp. for caching improvement.
   const [dataSource, playingIndex] =
     tracks.status === Status.SUCCESS
@@ -184,7 +181,6 @@ const CollectionPage = ({
   const isNftPlaylist = typeTitle === 'Audio NFT Playlist'
 
   const {
-    trackCount,
     isEmpty,
     lastModified,
     playlistName,
@@ -211,7 +207,7 @@ const CollectionPage = ({
       description={description}
       isOwner={isOwner}
       isAlbum={isAlbum}
-      numTracks={dataSource.length}
+      numTracks={tracks.entries.length}
       modified={lastModified}
       duration={duration}
       isPublished={!isPrivate}
@@ -245,7 +241,7 @@ const CollectionPage = ({
   )
 
   const TableComponent = useMemo(() => {
-    return isNftPlaylist ? TestCollectiblesPlaylistTable : TestTracksTable
+    return isNftPlaylist ? CollectiblesPlaylistTable : TracksTable
   }, [isNftPlaylist])
 
   const tracksTableColumns = useMemo<
@@ -253,17 +249,17 @@ const CollectionPage = ({
   >(
     () =>
       isNftPlaylist
-        ? ['playButton', 'collectibleName', 'chain', 'length']
+        ? ['playButton', 'collectibleName', 'chain', 'length', 'spacer']
         : [
             'playButton',
             'trackName',
             'artistName',
-            'date',
+            isAlbum ? 'date' : 'addedDate',
             'length',
             'plays',
             'overflowActions'
           ],
-    [isNftPlaylist]
+    [isAlbum, isNftPlaylist]
   )
 
   return (
@@ -271,6 +267,7 @@ const CollectionPage = ({
       title={title}
       description={pageDescription}
       canonicalUrl={canonicalUrl}
+      structuredData={structuredData}
       containerClassName={styles.pageContainer}
       scrollableSearch
     >
@@ -280,65 +277,34 @@ const CollectionPage = ({
           <EmptyPage isOwner={isOwner} text={customEmptyText} />
         ) : (
           <div className={styles.tableWrapper}>
-            {isNewTablesEnabled ? (
-              <TableComponent
-                // @ts-ignore
-                columns={tracksTableColumns}
-                maxRowNum={8}
-                wrapperClassName={styles.tracksTableWrapper}
-                key={playlistName}
-                loading={isNftPlaylist ? tracksLoading : collectionLoading}
-                userId={userId}
-                playing={playing}
-                playingIndex={playingIndex}
-                data={dataSource}
-                onClickRow={onClickRow}
-                onClickFavorite={onClickSave}
-                onClickTrackName={onClickTrackName}
-                onClickArtistName={onClickArtistName}
-                onClickRepost={onClickRepostTrack}
-                onSortTracks={onSortTracks}
-                // allowReordering={
-                //   userId !== null &&
-                //   userId === playlistOwnerId &&
-                //   allowReordering &&
-                //   !isAlbum
-                // }
-                // onReorderTracks={onReorderTracks}
-                // onClickRemove={isOwner ? onClickRemove : null}
-                // removeText={`${messages.remove} ${
-                //   isAlbum ? messages.type.album : messages.type.playlist
-                // }`}
-              />
-            ) : (
-              <TracksTable
-                key={playlistName}
-                loading={tracksLoading}
-                loadingRowsCount={trackCount}
-                columns={columns}
-                userId={userId}
-                playing={playing}
-                playingIndex={playingIndex}
-                dataSource={dataSource}
-                allowReordering={
-                  userId !== null &&
-                  userId === playlistOwnerId &&
-                  allowReordering &&
-                  !isAlbum
-                }
-                onClickRow={onClickRow}
-                onClickFavorite={onClickSave}
-                onClickTrackName={onClickTrackName}
-                onClickArtistName={onClickArtistName}
-                onClickRepost={onClickRepostTrack}
-                onSortTracks={onSortTracks}
-                onReorderTracks={onReorderTracks}
-                onClickRemove={isOwner ? onClickRemove : null}
-                removeText={`${messages.remove} ${
-                  isAlbum ? messages.type.album : messages.type.playlist
-                }`}
-              />
-            )}
+            <TableComponent
+              // @ts-ignore
+              columns={tracksTableColumns}
+              wrapperClassName={styles.tracksTableWrapper}
+              key={playlistName}
+              loading={isNftPlaylist ? collectionLoading : tracksLoading}
+              userId={userId}
+              playing={playing}
+              playingIndex={playingIndex}
+              data={dataSource}
+              onClickRow={onClickRow}
+              onClickFavorite={onClickSave}
+              onClickTrackName={onClickTrackName}
+              onClickArtistName={onClickArtistName}
+              onClickRemove={isOwner ? onClickRemove : undefined}
+              onClickRepost={onClickRepostTrack}
+              onReorderTracks={onReorderTracks}
+              onSortTracks={onSortTracks}
+              isReorderable={
+                userId !== null &&
+                userId === playlistOwnerId &&
+                allowReordering &&
+                !isAlbum
+              }
+              removeText={`${messages.remove} ${
+                isAlbum ? messages.type.album : messages.type.playlist
+              }`}
+            />
           </div>
         )}
       </div>

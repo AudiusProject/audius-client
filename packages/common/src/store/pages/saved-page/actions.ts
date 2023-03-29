@@ -1,14 +1,63 @@
 // @ts-nocheck
 // TODO(nkang) - convert to TS
 export const FETCH_SAVES = 'SAVED/FETCH_SAVES'
+export const FETCH_SAVES_REQUESTED = 'SAVED/FETCH_SAVES_REQUESTED'
 export const FETCH_SAVES_SUCCEEDED = 'SAVED/FETCH_SAVES_SUCCEEDED'
 export const FETCH_SAVES_FAILED = 'SAVED/FETCH_SAVES_FAILED'
+
+export const FETCH_MORE_SAVES = 'SAVED/FETCH_MORE_SAVES'
+export const FETCH_MORE_SAVES_SUCCEEDED = 'SAVED/FETCH_MORE_SAVES_SUCCEEDED'
+export const FETCH_MORE_SAVES_FAILED = 'SAVED/FETCH_MORE_SAVES_FAILED'
+
+// Reached the end of the list before hitting the total number of saves
+// Usually when filtering
+export const END_FETCHING = 'SAVED/END_FETCHING'
 
 export const ADD_LOCAL_SAVE = 'SAVED/ADD_LOCAL_SAVE'
 export const REMOVE_LOCAL_SAVE = 'SAVED/REMOVE_LOCAL_SAVE'
 
-export const fetchSaves = () => ({
-  type: FETCH_SAVES
+export const fetchSaves = (
+  // the filter query for the "get tracks" query
+  query = '',
+  // the sort method for the "get tracks" query
+  sortMethod = '',
+  // the sort direction for the "get tracks" query
+  sortDirection = '',
+  // the offset into the "get tracks" query
+  offset = 0,
+  // the limit for the "get tracks" query
+  limit = 50
+) => ({
+  type: FETCH_SAVES,
+  offset,
+  limit,
+  query,
+  sortMethod,
+  sortDirection
+})
+
+export const fetchMoreSaves = (
+  // the filter query for the "get tracks" query
+  query = '',
+  // the sort method for the "get tracks" query
+  sortMethod = '',
+  // the sort direction for the "get tracks" query
+  sortDirection = '',
+  // the offset into the "get tracks" query
+  offset = 0,
+  // the limit for the "get tracks" query
+  limit = 50
+) => ({
+  type: FETCH_MORE_SAVES,
+  offset,
+  limit,
+  query,
+  sortMethod,
+  sortDirection
+})
+
+export const fetchSavesRequested = () => ({
+  type: FETCH_SAVES_REQUESTED
 })
 
 export const fetchSavesSucceeded = (saves) => ({
@@ -18,6 +67,21 @@ export const fetchSavesSucceeded = (saves) => ({
 
 export const fetchSavesFailed = () => ({
   type: FETCH_SAVES_FAILED
+})
+
+export const fetchMoreSavesSucceeded = (saves, offset) => ({
+  type: FETCH_MORE_SAVES_SUCCEEDED,
+  saves,
+  offset
+})
+
+export const fetchMoreSavesFailed = () => ({
+  type: FETCH_MORE_SAVES_FAILED
+})
+
+export const endFetching = (endIndex) => ({
+  type: END_FETCHING,
+  endIndex
 })
 
 export const addLocalSave = (trackId, uid) => ({

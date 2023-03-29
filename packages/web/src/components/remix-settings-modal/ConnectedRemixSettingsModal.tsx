@@ -1,18 +1,32 @@
 import { useEffect } from 'react'
 
-import { ID, Status } from '@audius/common'
+import {
+  ID,
+  Status,
+  remixSettingsSelectors,
+  remixSettingsActions,
+  Nullable,
+  PremiumConditions
+} from '@audius/common'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import RemixSettingsModal from 'components/remix-settings-modal/RemixSettingsModal'
 import { AppState } from 'store/types'
 
-import { getTrack, getUser, getStatus } from './store/selectors'
-import { fetchTrack, fetchTrackSucceeded, reset } from './store/slice'
+const { getTrack, getUser, getStatus } = remixSettingsSelectors
+const { fetchTrack, fetchTrackSucceeded, reset } = remixSettingsActions
 
 type OwnProps = {
+  isPremium: boolean
+  premiumConditions: Nullable<PremiumConditions>
+  isRemix: boolean
+  setIsRemix: (isRemix: boolean) => void
   isOpen: boolean
   onClose: () => void
+  onChangeField: (field: string, value: any) => void
+  hideRemixes?: boolean
+  onToggleHideRemixes?: () => void
   // When opening the modal from a track that already has remix_of set,
   // the initial track id should be set to the first remix parent's track id.
   // This is used in the "edit track" flow.
@@ -25,14 +39,21 @@ type ConnectedRemixSettingsModalProps = OwnProps &
 
 const ConnectedRemixSettingsModal = ({
   initialTrackId,
+  isPremium,
+  premiumConditions,
+  isRemix,
+  setIsRemix,
   isOpen,
   onClose,
+  onChangeField,
   track,
   user,
   status,
   setInitialTrackId,
   reset,
-  onEditUrl
+  onEditUrl,
+  hideRemixes,
+  onToggleHideRemixes
 }: ConnectedRemixSettingsModalProps) => {
   useEffect(() => {
     if (isOpen && initialTrackId) {
@@ -51,10 +72,18 @@ const ConnectedRemixSettingsModal = ({
     <RemixSettingsModal
       isOpen={isOpen}
       onClose={onClose}
+      isPremium={isPremium}
+      premiumConditions={premiumConditions}
+      isRemix={isRemix}
+      setIsRemix={setIsRemix}
+      onChangeField={onChangeField}
+      reset={reset}
       track={track}
       user={user}
       isInvalidTrack={status === Status.ERROR}
       onEditUrl={onEditUrl}
+      hideRemixes={hideRemixes}
+      onToggleHideRemixes={onToggleHideRemixes}
     />
   )
 }

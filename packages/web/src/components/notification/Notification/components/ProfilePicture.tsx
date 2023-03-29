@@ -1,36 +1,37 @@
 import { MouseEventHandler, useCallback, useEffect, useState } from 'react'
 
-import {
-  SquareSizes,
-  User,
-  notificationsSelectors,
-  notificationsActions
-} from '@audius/common'
+import { SquareSizes, User } from '@audius/common'
 import cn from 'classnames'
 import { push } from 'connected-react-router'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
+import { closeNotificationPanel } from 'store/application/ui/notifications/notificationsUISlice'
 
 import styles from './ProfilePicture.module.css'
-const { toggleNotificationPanel } = notificationsActions
-const { getNotificationPanelIsOpen } = notificationsSelectors
 
 const imageLoadDelay = 250
 
 type ProfilePictureProps = {
   user: User
   className?: string
+  innerClassName?: string
   disablePopover?: boolean
   disableClick?: boolean
   stopPropagation?: boolean
 }
 
 export const ProfilePicture = (props: ProfilePictureProps) => {
-  const { user, className, disablePopover, disableClick, stopPropagation } =
-    props
+  const {
+    user,
+    className,
+    innerClassName,
+    disablePopover,
+    disableClick,
+    stopPropagation
+  } = props
   const { user_id, _profile_picture_sizes, handle } = user
   const [loadImage, setLoadImage] = useState(false)
   const dispatch = useDispatch()
@@ -38,7 +39,6 @@ export const ProfilePicture = (props: ProfilePictureProps) => {
     user_id,
     _profile_picture_sizes,
     SquareSizes.SIZE_150_BY_150,
-    undefined,
     undefined,
     loadImage
   )
@@ -65,19 +65,16 @@ export const ProfilePicture = (props: ProfilePictureProps) => {
     [stopPropagation, disableClick, dispatch, handle]
   )
 
-  const isNotificationPanelOpen = useSelector(getNotificationPanelIsOpen)
   const handleNavigateAway = useCallback(() => {
-    if (isNotificationPanelOpen) {
-      dispatch(toggleNotificationPanel())
-    }
-  }, [dispatch, isNotificationPanelOpen])
+    dispatch(closeNotificationPanel())
+  }, [dispatch])
 
   const profilePictureElement = (
     <DynamicImage
       onClick={handleClick}
       wrapperClassName={cn(styles.profilePictureWrapper, className)}
       skeletonClassName={styles.profilePictureSkeleton}
-      className={styles.profilePicture}
+      className={cn(styles.profilePicture, innerClassName)}
       image={profilePicture}
     />
   )

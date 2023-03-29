@@ -1,5 +1,8 @@
-import type { RemoteConfigState, CommonState } from '@audius/common'
+import type { CommonState, RemoteConfigState } from '@audius/common'
 import {
+  uuid,
+  toastActions,
+  ErrorLevel,
   remoteConfigReducer as remoteConfig,
   reducers as commonReducers
 } from '@audius/common'
@@ -8,84 +11,142 @@ import type { BackendState } from 'audius-client/src/common/store/backend/types'
 import confirmer from 'audius-client/src/common/store/confirmer/reducer'
 import type { ConfirmerState } from 'audius-client/src/common/store/confirmer/types'
 import signOnReducer from 'audius-client/src/common/store/pages/signon/reducer'
+import type {
+  SignOnPageState,
+  SignOnPageReducer
+} from 'audius-client/src/common/store/pages/signon/types'
+import searchBar from 'audius-client/src/common/store/search-bar/reducer'
+import type { SearchBarState } from 'audius-client/src/common/store/search-bar/types'
+import RNRestart from 'react-native-restart'
+import type { Store } from 'redux'
 import { createStore, combineReducers, applyMiddleware } from 'redux'
-import { composeWithDevTools } from 'redux-devtools-extension'
+import { persistStore } from 'redux-persist'
 import createSagaMiddleware from 'redux-saga'
 
-import type { AudioState } from './audio/reducer'
-import audio from './audio/reducer'
-import { reducer as common } from './common/reducer'
+import { reportToSentry } from 'app/utils/reportToSentry'
+
 import type { DownloadState } from './download/slice'
 import downloads from './download/slice'
 import type { DrawersState } from './drawers/slice'
 import drawers from './drawers/slice'
 import type { KeyboardState } from './keyboard/slice'
 import keyboard from './keyboard/slice'
-import type { LifecycleState } from './lifecycle/reducer'
-import lifecycle from './lifecycle/reducer'
-import type { NotificationsState } from './notifications/reducer'
-import notifications from './notifications/reducer'
 import type { OAuthState } from './oauth/reducer'
 import oauth from './oauth/reducer'
+import type { OfflineDownloadsState } from './offline-downloads/slice'
+import offlineDownloads from './offline-downloads/slice'
 import rootSaga from './sagas'
-import type { SearchState } from './search/reducer'
-import search from './search/reducer'
-import type { SignonState } from './signon/reducer'
-import signon from './signon/reducer'
+import type { SearchState } from './search/searchSlice'
+import search from './search/searchSlice'
+import shareToStoryProgress from './share-to-story-progress/slice'
+import type { ShareToStoryProgressState } from './share-to-story-progress/slice'
 import { storeContext } from './storeContext'
-import type { WebState } from './web/reducer'
-import web from './web/reducer'
+import type { WalletConnectState } from './wallet-connect/slice'
+import walletConnect from './wallet-connect/slice'
 
-export type AppState = {
-  audio: AudioState
-  signOn: ReturnType<typeof signOnReducer>
+const errorRestartTimeout = 2000
+
+const { addToast } = toastActions
+
+export type AppState = CommonState & {
+  // These also belong in CommonState but are here until we move them to the @audius/common package:
+  signOn: SignOnPageState
   backend: BackendState
   confirmer: ConfirmerState
-  common: CommonState
+  searchBar: SearchBarState
+
   drawers: DrawersState
   downloads: DownloadState
   keyboard: KeyboardState
-  lifecycle: LifecycleState
-  notifications: NotificationsState
   oauth: OAuthState
+  offlineDownloads: OfflineDownloadsState
   remoteConfig: RemoteConfigState
   search: SearchState
-  signOnLegacy: SignonState
-  web: WebState
+  walletConnect: WalletConnectState
+  shareToStoryProgress: ShareToStoryProgressState
+}
+
+const messages = {
+  error: 'Something went wrong'
+}
+
+const initializationTime = Date.now()
+
+const onSagaError = (
+  error: Error,
+  errorInfo: {
+    sagaStack: string
+  }
+) => {
+  console.error(
+    `Caught saga error: ${error} ${JSON.stringify(errorInfo, null, 4)}`
+  )
+
+  dispatch(
+    addToast({
+      content: messages.error,
+      type: 'error',
+      timeout: errorRestartTimeout,
+      key: uuid()
+    })
+  )
+
+  reportToSentry({
+    level: ErrorLevel.Fatal,
+    error,
+    additionalInfo: errorInfo
+  })
+
+  // Automatically restart the app if the session is longer
+  // than 30 seconds. Don't want to restart for shorter sessions
+  // because it could result in a restart loop
+  if (Date.now() - initializationTime > 30000) {
+    setTimeout(() => {
+      RNRestart.Restart()
+    }, errorRestartTimeout)
+  }
 }
 
 const commonStoreReducers = commonReducers()
 
-const createRootReducer = () =>
-  combineReducers({
-    ...commonStoreReducers,
-    audio,
-    backend,
-    confirmer,
-    signOn: signOnReducer,
-    common,
-    drawers,
-    downloads,
-    keyboard,
-    lifecycle,
-    notifications,
-    oauth,
-    remoteConfig,
-    search,
-    // Sign on store that is part of the mobile client
-    // Should be entirely removed in favor of the shared common
-    // sign on store
-    signOnLegacy: signon,
-    web
-  })
+const rootReducer = combineReducers({
+  ...commonStoreReducers,
+  // These also belong in common store reducers but are here until we move them to the @audius/common package:
+  backend,
+  confirmer,
+  signOn: signOnReducer as SignOnPageReducer,
+  searchBar,
 
-const sagaMiddleware = createSagaMiddleware({ context: storeContext })
-const middlewares = applyMiddleware(sagaMiddleware)
-const composeEnhancers = composeWithDevTools({ trace: true, traceLimit: 250 })
+  drawers,
+  downloads,
+  keyboard,
+  oauth,
+  offlineDownloads,
+  remoteConfig,
+  search,
+  walletConnect,
+  shareToStoryProgress
+})
+
+const sagaMiddleware = createSagaMiddleware({
+  context: storeContext,
+  onError: onSagaError
+})
+
+const middlewares = [sagaMiddleware]
+
+if (__DEV__) {
+  const createDebugger = require('redux-flipper').default
+  middlewares.push(createDebugger())
+}
+
 export const store = createStore(
-  createRootReducer(),
-  composeEnhancers(middlewares)
-)
+  rootReducer,
+  applyMiddleware(...middlewares)
+) as unknown as Store<AppState> // need to explicitly type the store for offline-mode store reference
+
+export const persistor = persistStore(store)
+
 sagaMiddleware.run(rootSaga)
 
 const { dispatch } = store

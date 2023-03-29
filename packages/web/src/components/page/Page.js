@@ -20,7 +20,7 @@ const HEADER_MARGIN_PX = 32
 const MIN_GUTTER_WIDTH = 20
 
 // Responsible for positioning the header
-const HeaderContainer = ({ header, containerRef }) => {
+const HeaderContainer = ({ header, containerRef, showSearch }) => {
   // Need to offset the header on the right side
   // the width of the scrollbar.
   const [scrollBarWidth, setScrollbarWidth] = useState(0)
@@ -66,6 +66,7 @@ const HeaderContainer = ({ header, containerRef }) => {
           // Need to set a different gradient for
           // browsers that don't support the
           // backdrop-filter frosted glass effect.
+          paddingLeft: `${scrollBarWidth}px`,
           background: isChromeOrSafari
             ? 'linear-gradient(180deg, var(--page-header-gradient-1) 0%, var(--page-header-gradient-1) 20%, var(--page-header-gradient-2) 65%)'
             : 'linear-gradient(180deg, var(--page-header-gradient-1) 0%, var(--page-header-gradient-1) 40%, var(--page-header-gradient-2-alt) 85%)'
@@ -75,7 +76,7 @@ const HeaderContainer = ({ header, containerRef }) => {
           isChromeOrSafari,
           scrollBarWidth,
           headerContainerRef,
-          topLeftElement: <SearchBar />
+          topLeftElement: showSearch ? <SearchBar /> : null
         })}
       </div>
       {/* We attach the box shadow as a separate element to
@@ -109,7 +110,7 @@ export const Page = (props) => {
             [props.containerClassName]: !!props.containerClassName
           })}
         >
-          <Helmet>
+          <Helmet encodeSpecialCharacters={false}>
             {props.title ? (
               <title>{`${props.title} ${messages.dotAudius}`}</title>
             ) : (
@@ -121,10 +122,16 @@ export const Page = (props) => {
             {props.canonicalUrl && (
               <link rel='canonical' href={props.canonicalUrl} />
             )}
+            {props.structuredData && (
+              <script type='application/ld+json'>
+                {JSON.stringify(props.structuredData)}
+              </script>
+            )}
           </Helmet>
           {props.header && (
             <HeaderContainer
               header={props.header}
+              showSearch={props.showSearch}
               containerRef={calculateHeaderHeight}
             />
           )}
@@ -167,6 +174,7 @@ Page.propTypes = {
   title: PropTypes.string,
   description: PropTypes.string,
   canonicalUrl: PropTypes.string,
+  structuredData: PropTypes.object,
   variant: PropTypes.oneOf(['inset', 'flush']),
   size: PropTypes.oneOf(['medium', 'large']),
   containerRef: PropTypes.node,
@@ -178,14 +186,16 @@ Page.propTypes = {
   // There are some pages which don't have a fixed header but still display
   // a search bar that scrolls with the page.
   scrollableSearch: PropTypes.bool,
-  children: PropTypes.node
+  children: PropTypes.node,
+  showSearch: PropTypes.bool
 }
 
 Page.defaultProps = {
   variant: 'inset',
   size: 'medium',
   fadeDuration: 200,
-  scrollableSearch: false
+  scrollableSearch: false,
+  showSearch: true
 }
 
 export default Page

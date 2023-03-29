@@ -29,7 +29,16 @@ const initialState: ModalsState = {
   AddToPlaylist: false,
   DeletePlaylistConfirmation: false,
   FeatureFlagOverride: false,
-  BuyAudio: false
+  BuyAudio: false,
+  BuyAudioRecovery: false,
+  TransactionDetails: false,
+  VipDiscord: false,
+  StripeOnRamp: false,
+  CreateChat: false,
+  InboxSettings: false,
+  LockedContent: false,
+  PlaybackRate: false,
+  ProfileActions: false
 }
 
 const slice = createSlice({

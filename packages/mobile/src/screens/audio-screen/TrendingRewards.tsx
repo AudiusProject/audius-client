@@ -4,22 +4,21 @@ import {
   modalsActions
 } from '@audius/common'
 import type {
-  TrendingRewardID,
   TrendingRewardsModalType,
-  Modals
+  Modals,
+  ChallengeRewardID
 } from '@audius/common'
 import { View } from 'react-native'
+import { useDispatch } from 'react-redux'
 
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useRemoteVar } from 'app/hooks/useRemoteConfig'
-import { makeStyles } from 'app/styles'
-import { trendingRewardsConfig } from 'app/utils/challenges'
+import { getChallengeConfig } from 'app/utils/challenges'
 
 import { Panel } from './Panel'
 const { setVisibility } = modalsActions
 const { setTrendingRewardsModalType } = audioRewardsPageActions
 
-const validRewardIds: Set<TrendingRewardID> = new Set([
+const validRewardIds: Set<ChallengeRewardID> = new Set([
   'trending-track',
   'trending-playlist',
   'top-api',
@@ -31,24 +30,19 @@ const validRewardIds: Set<TrendingRewardID> = new Set([
 const useRewardIds = () => {
   const rewardsString = useRemoteVar(StringKeys.TRENDING_REWARD_IDS)
   if (!rewardsString) return []
-  const rewards = rewardsString.split(',') as TrendingRewardID[]
-  const filteredRewards: TrendingRewardID[] = rewards.filter((reward) =>
+  const rewards = rewardsString.split(',') as ChallengeRewardID[]
+  const filteredRewards: ChallengeRewardID[] = rewards.filter((reward) =>
     validRewardIds.has(reward)
   )
   return filteredRewards
 }
 
-const useStyles = makeStyles(() => ({
-  root: {}
-}))
-
 export const TrendingRewards = () => {
-  const styles = useStyles()
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
 
   const rewardIds = useRewardIds()
 
-  const openModal = (trendingRewardId: TrendingRewardID) => {
+  const openModal = (trendingRewardId: ChallengeRewardID) => {
     let modal: Modals
     let modalType: TrendingRewardsModalType | null = null
     switch (trendingRewardId) {
@@ -68,18 +62,19 @@ export const TrendingRewards = () => {
         modalType = 'underground'
         break
       case 'verified-upload':
+      default:
         // Deprecated trending challenge
         return
     }
     if (modalType) {
-      dispatchWeb(setTrendingRewardsModalType({ modalType }))
+      dispatch(setTrendingRewardsModalType({ modalType }))
     }
-    dispatchWeb(setVisibility({ modal, visible: true }))
+    dispatch(setVisibility({ modal, visible: true }))
   }
 
   const rewardsPanels = rewardIds.map((id) => {
-    const props = trendingRewardsConfig[id]
+    const props = getChallengeConfig(id)
     return <Panel {...props} onPress={() => openModal(id)} key={props.title} />
   })
-  return <View style={styles.root}>{rewardsPanels}</View>
+  return <View>{rewardsPanels}</View>
 }

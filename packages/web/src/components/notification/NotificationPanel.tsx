@@ -4,8 +4,8 @@ import {
   Status,
   Nullable,
   notificationsSelectors,
-  notificationsActions,
-  Notification as Notifications
+  Notification as Notifications,
+  notificationsActions
 } from '@audius/common'
 import { Popup, PopupPosition, Scrollbar } from '@audius/stems'
 import cn from 'classnames'
@@ -16,6 +16,16 @@ import { useSearchParam } from 'react-use'
 
 import loadingSpinner from 'assets/animations/loadingSpinner.json'
 import { ReactComponent as IconNotification } from 'assets/img/iconNotification.svg'
+import {
+  getModalNotification,
+  getNotificationModalIsOpen,
+  getNotificationPanelIsOpen
+} from 'store/application/ui/notifications/notificationsUISelectors'
+import {
+  closeNotificationModal,
+  closeNotificationPanel,
+  openNotificationPanel
+} from 'store/application/ui/notifications/notificationsUISlice'
 import { getIsOpen as getIsUserListOpen } from 'store/application/ui/userListModal/selectors'
 import zIndex from 'utils/zIndex'
 
@@ -23,14 +33,10 @@ import { EmptyNotifications } from './EmptyNotifications'
 import { Notification } from './Notification'
 import { NotificationModal } from './NotificationModal'
 import styles from './NotificationPanel.module.css'
-const { fetchNotifications, setNotificationModal, toggleNotificationPanel } =
-  notificationsActions
+const { fetchNotifications } = notificationsActions
 const {
-  getModalNotification,
   getNotificationHasLoaded,
   getNotificationHasMore,
-  getNotificationModalIsOpen,
-  getNotificationPanelIsOpen,
   getNotificationStatus,
   makeGetAllNotifications
 } = notificationsSelectors
@@ -77,7 +83,7 @@ export const NotificationPanel = ({ anchorRef }: NotificationPanelProps) => {
   const openNotifications = useSearchParam('openNotifications')
 
   const handleCloseNotificationModal = useCallback(() => {
-    dispatch(setNotificationModal(false))
+    dispatch(closeNotificationModal())
   }, [dispatch])
 
   const loadMore = useCallback(() => {
@@ -85,8 +91,8 @@ export const NotificationPanel = ({ anchorRef }: NotificationPanelProps) => {
     dispatch(fetchNotifications())
   }, [hasMore, status, dispatch])
 
-  const handleToggleNotificationPanel = useCallback(() => {
-    dispatch(toggleNotificationPanel())
+  const handleCloseNotificationPanel = useCallback(() => {
+    dispatch(closeNotificationPanel())
   }, [dispatch])
 
   const handleCheckClickInside = useCallback(
@@ -102,9 +108,9 @@ export const NotificationPanel = ({ anchorRef }: NotificationPanelProps) => {
 
   useEffect(() => {
     if (openNotifications) {
-      handleToggleNotificationPanel()
+      dispatch(openNotificationPanel())
     }
-  }, [openNotifications, handleToggleNotificationPanel])
+  }, [openNotifications, dispatch])
 
   return (
     <>
@@ -113,7 +119,7 @@ export const NotificationPanel = ({ anchorRef }: NotificationPanelProps) => {
         className={styles.popup}
         isVisible={panelIsOpen}
         checkIfClickInside={handleCheckClickInside}
-        onClose={handleToggleNotificationPanel}
+        onClose={handleCloseNotificationPanel}
         position={PopupPosition.BOTTOM_RIGHT}
         wrapperClassName={styles.popupWrapper}
         zIndex={zIndex.NAVIGATOR_POPUP}
@@ -146,16 +152,14 @@ export const NotificationPanel = ({ anchorRef }: NotificationPanelProps) => {
                 getScrollParent={getScrollParent}
               >
                 <div className={styles.content}>
-                  {notifications
-                    .filter(({ isHidden }: any) => !isHidden)
-                    .map((notification: Notifications) => {
-                      return (
-                        <Notification
-                          key={notification.id}
-                          notification={notification}
-                        />
-                      )
-                    })}
+                  {notifications.map((notification: Notifications) => {
+                    return (
+                      <Notification
+                        key={notification.id}
+                        notification={notification}
+                      />
+                    )
+                  })}
                   {status === Status.LOADING ? (
                     <div className={styles.spinnerContainer} key={'loading'}>
                       <Lottie

@@ -3,12 +3,11 @@ import {
   trendingPlaylistsPageLineupSelectors,
   trendingPlaylistsPageLineupActions
 } from '@audius/common'
+import { useSelector } from 'react-redux'
 
 import { RewardsBanner } from 'app/components/audio-rewards'
-import { Screen } from 'app/components/core'
-import { Header } from 'app/components/header'
+import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
 import { Lineup } from 'app/components/lineup'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 const { getLineup } = trendingPlaylistsPageLineupSelectors
 const { makeGetLineupMetadatas } = lineupSelectors
 
@@ -19,18 +18,21 @@ const messages = {
 }
 
 export const TrendingPlaylistsScreen = () => {
-  const lineup = useSelectorWeb(getTrendingPlaylistsLineup)
+  const lineup = useSelector(getTrendingPlaylistsLineup)
 
   return (
     <Screen>
-      <Header text={messages.header} />
-      <Lineup
-        lineup={lineup}
-        header={<RewardsBanner type='playlists' />}
-        actions={trendingPlaylistsPageLineupActions}
-        rankIconCount={5}
-        isTrending
-      />
+      <ScreenHeader text={messages.header} />
+      <ScreenContent>
+        <Lineup
+          lineup={lineup}
+          header={<RewardsBanner type='playlists' />}
+          actions={trendingPlaylistsPageLineupActions}
+          rankIconCount={5}
+          isTrending
+          selfLoad
+        />
+      </ScreenContent>
     </Screen>
   )
 }

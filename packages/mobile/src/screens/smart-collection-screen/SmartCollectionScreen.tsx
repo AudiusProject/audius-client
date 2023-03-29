@@ -4,26 +4,33 @@ import {
   FavoriteSource,
   accountSelectors,
   smartCollectionPageSelectors,
-  findInPlaylistLibrary,
-  collectionsSocialActions
+  collectionsSocialActions,
+  smartCollectionPageActions,
+  playlistLibraryHelpers
 } from '@audius/common'
+import { useFocusEffect } from '@react-navigation/native'
 import { View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { VirtualizedScrollView } from 'app/components/core'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import type { FastImageProps } from 'app/components/image/FastImage'
 import { CollectionScreenDetailsTile } from 'app/screens/collection-screen/CollectionScreenDetailsTile'
-import type { SmartCollection as SmartCollectionsmartCollection } from 'app/screens/explore-screen/smartCollections'
+import type { SmartCollection } from 'app/screens/explore-screen/smartCollections'
 import { makeStyles } from 'app/styles'
+const { findInPlaylistLibrary } = playlistLibraryHelpers
+
 const { saveSmartCollection, unsaveSmartCollection } = collectionsSocialActions
 const { getCollection } = smartCollectionPageSelectors
 const getPlaylistLibrary = accountSelectors.getPlaylistLibrary
+const { fetchSmartCollection } = smartCollectionPageActions
 
 const useStyles = makeStyles(({ spacing }) => ({
   root: {
-    flex: 1,
     padding: spacing(3)
+  },
+  image: {
+    borderRadius: 4
   },
   imageIcon: {
     opacity: 0.3,
@@ -33,26 +40,37 @@ const useStyles = makeStyles(({ spacing }) => ({
 }))
 
 type SmartCollectionScreenProps = {
-  smartCollection: SmartCollectionsmartCollection
+  smartCollection: SmartCollection
 }
 
 /**
  * `SmartCollectionScreen` displays the details of a smart collection
  */
-export const SmartCollectionScreen = ({
-  smartCollection
-}: SmartCollectionScreenProps) => {
+export const SmartCollectionScreen = (props: SmartCollectionScreenProps) => {
+  const { smartCollection } = props
+  const {
+    variant,
+    icon: Icon,
+    title,
+    description,
+    gradientColors,
+    gradientAngle
+  } = smartCollection
   const styles = useStyles()
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
 
-  const collection = useSelectorWeb((state) =>
-    getCollection(state, { variant: smartCollection.variant })
-  )
+  const handleFetchSmartCollection = useCallback(() => {
+    dispatch(fetchSmartCollection({ variant }))
+  }, [dispatch, variant])
 
-  const playlistName = collection?.playlist_name ?? smartCollection.title
-  const description = collection?.description ?? smartCollection.description
+  useFocusEffect(handleFetchSmartCollection)
 
-  const playlistLibrary = useSelectorWeb(getPlaylistLibrary)
+  const collection = useSelector((state) => getCollection(state, { variant }))
+
+  const playlistName = collection?.playlist_name ?? title
+  const playlistDescription = collection?.description ?? description
+
+  const playlistLibrary = useSelector(getPlaylistLibrary)
 
   const isSaved = playlistLibrary
     ? !!findInPlaylistLibrary(playlistLibrary, smartCollection.variant)
@@ -60,45 +78,36 @@ export const SmartCollectionScreen = ({
 
   const handlePressSave = useCallback(() => {
     if (collection?.has_current_user_saved) {
-      dispatchWeb(
-        unsaveSmartCollection(
-          smartCollection.variant,
-          FavoriteSource.COLLECTION_PAGE
-        )
-      )
+      dispatch(unsaveSmartCollection(variant, FavoriteSource.COLLECTION_PAGE))
     } else {
-      dispatchWeb(
-        saveSmartCollection(
-          smartCollection.variant,
-          FavoriteSource.COLLECTION_PAGE
-        )
-      )
+      dispatch(saveSmartCollection(variant, FavoriteSource.COLLECTION_PAGE))
     }
-  }, [collection, smartCollection, dispatchWeb])
+  }, [collection, variant, dispatch])
 
-  const renderImage = () => {
-    const Icon = smartCollection.icon
-    return (
-      <LinearGradient
-        colors={smartCollection.gradientColors}
-        angle={smartCollection.gradientAngle}
-      >
-        {Icon ? (
-          <View style={styles.imageIcon}>
-            <Icon width='100%' height='100%' />
-          </View>
-        ) : null}
-      </LinearGradient>
-    )
-  }
+  const renderImage = useCallback(
+    ({ style }: FastImageProps) => {
+      return (
+        <LinearGradient
+          colors={gradientColors}
+          angle={gradientAngle}
+          style={[style, styles.image]}
+        >
+          {Icon ? (
+            <View style={styles.imageIcon}>
+              <Icon width='100%' height='100%' />
+            </View>
+          ) : null}
+        </LinearGradient>
+      )
+    },
+    [gradientColors, gradientAngle, styles, Icon]
+  )
 
   return (
-    <VirtualizedScrollView
-      listKey={`${playlistName}_Playlist_Screen`}
-      style={styles.root}
-    >
+    <VirtualizedScrollView style={styles.root}>
       <CollectionScreenDetailsTile
-        description={description}
+        collectionId={variant}
+        description={playlistDescription}
         hasSaved={isSaved}
         hideFavoriteCount
         hideOverflow

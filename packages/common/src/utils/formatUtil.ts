@@ -1,4 +1,5 @@
 import BN from 'bn.js'
+import dayjs from 'dayjs'
 import numeral from 'numeral'
 
 import { BNWei } from 'models/Wallet'
@@ -100,14 +101,16 @@ export const pluralize = (
 ) => `${message}${(count ?? 0) > 1 || pluralizeAnyway ? suffix : ''}`
 
 /**
- * Format a BN to the shortened $AUDIO currency without decimals
- * @param amount The wei amount
- * @returns $AUDIO The $AUDIO amount
+ * Format a $AUDIO string with commas and decimals
+ * @param amount The $AUDIO amount
+ * @param decimals Number of decimal places to display
+ * @returns The formatted $AUDIO amount
  */
-export const formatAudio = (amount: BN) => {
-  if (!BN.isBN(amount)) return ''
-  let aud = amount.div(WEI).toString()
-  aud = numeral(aud).format('0,0')
+export const formatAudio = (amount: string, decimals?: number) => {
+  const amount_num: number = parseFloat(amount)
+  let aud = (amount_num / AUDIO).toString()
+  const formatString = '0,0' + (decimals ? '.' + '0'.repeat(decimals!) : '')
+  aud = numeral(aud).format(formatString)
   return aud
 }
 
@@ -133,6 +136,7 @@ export const trimRightZeros = (number: string) => {
   return number.replace(/(\d)0+$/gm, '$1')
 }
 
+export const AUDIO = 100000000
 export const WEI = new BN('1000000000000000000')
 
 export const checkOnlyNumeric = (number: string) => {
@@ -175,3 +179,54 @@ export const parseWeiNumber = (number: string) => {
     return null
   }
 }
+
+type FormatOptions = {
+  minDecimals?: number
+  maxDecimals?: number
+  excludeCommas?: boolean
+}
+
+export const formatNumberString = (
+  number?: string,
+  options?: FormatOptions
+) => {
+  if (!number) {
+    return null
+  }
+  const parts = number.split('.')
+  const res =
+    parts.length > 1 && parts[1] !== undefined
+      ? parts[0] +
+        '.' +
+        parts[1]
+          .substring(0, options?.maxDecimals ?? parts[1].length)
+          .padEnd(options?.minDecimals ?? 0, '0')
+      : parts[0]
+  return options?.excludeCommas ? res : formatNumberCommas(res)
+}
+
+export const formatCapitalizeString = (word: string) => {
+  const lowerCase = word.toLowerCase()
+  const firstChar = word.charAt(0).toUpperCase()
+  return firstChar + lowerCase.slice(1)
+}
+
+export const formatMessageDate = (date: string) => {
+  const d = dayjs(date)
+  const today = dayjs()
+  if (d.isBefore(today, 'week')) return d.format('M/D/YY h:mm A')
+  if (d.isBefore(today, 'day')) return d.format('dddd h:mm A')
+  return d.format('h:mm A')
+}
+
+/**
+ * Generate a short base36 hash for a given string.
+ * Used to generate short hashes for for queries and urls.
+ */
+export const getHash = (str: string) =>
+  Math.abs(
+    str.split('').reduce((a, b) => {
+      a = (a << 5) - a + b.charCodeAt(0)
+      return a & a
+    }, 0)
+  ).toString(36)

@@ -1,29 +1,30 @@
-import { useContext, useState } from 'react'
+import { useCallback } from 'react'
 
 import {
+  SquareSizes,
   CreatePlaylistSource,
   accountSelectors,
   cacheCollectionsActions,
   addToPlaylistUISelectors,
   newCollectionMetadata
 } from '@audius/common'
-import { FEED_PAGE, playlistPage } from 'audius-client/src/utils/route'
-import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native'
 import { View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
 import Button, { ButtonType } from 'app/components/button'
 import { Card } from 'app/components/card'
 import { CardList } from 'app/components/core'
 import { AppDrawer, useDrawerState } from 'app/components/drawer'
-import { ToastContext } from 'app/components/toast/ToastContext'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { usePushRouteWeb } from 'app/hooks/usePushRouteWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { CollectionImage } from 'app/components/image/CollectionImage'
+import { useToast } from 'app/hooks/useToast'
 import { makeStyles, shadow } from 'app/styles'
+
+import type { ImageProps } from '../image/FastImage'
+
 const { addTrackToPlaylist, createPlaylist } = cacheCollectionsActions
 const { getTrackId, getTrackTitle } = addToPlaylistUISelectors
-const getAccountWithOwnPlaylists = accountSelectors.getAccountWithOwnPlaylists
+const { getAccountWithOwnPlaylists } = accountSelectors
 
 const messages = {
   title: 'Add To Playlist',
@@ -48,14 +49,24 @@ const useStyles = makeStyles(() => ({
 
 export const AddToPlaylistDrawer = () => {
   const styles = useStyles()
-  const { toast } = useContext(ToastContext)
-  const dispatchWeb = useDispatchWeb()
-  const pushRouteWeb = usePushRouteWeb()
+  const { toast } = useToast()
+  const dispatch = useDispatch()
   const { onClose } = useDrawerState('AddToPlaylist')
-  const trackId = useSelectorWeb(getTrackId)
-  const trackTitle = useSelectorWeb(getTrackTitle)
-  const user = useSelectorWeb(getAccountWithOwnPlaylists)
-  const [isDrawerGestureSupported, setIsDrawerGestureSupported] = useState(true)
+  const trackId = useSelector(getTrackId)
+  const trackTitle = useSelector(getTrackTitle)
+  const user = useSelector(getAccountWithOwnPlaylists)
+
+  const renderImage = useCallback(
+    (item) => (props?: ImageProps) =>
+      (
+        <CollectionImage
+          collection={item}
+          size={SquareSizes.SIZE_480_BY_480}
+          {...props}
+        />
+      ),
+    []
+  )
 
   if (!user || !trackId || !trackTitle) {
     return null
@@ -68,30 +79,19 @@ export const AddToPlaylistDrawer = () => {
       is_private: false
     })
     const tempId = getTempPlaylistId()
-    dispatchWeb(
+    dispatch(
       createPlaylist(tempId, metadata, CreatePlaylistSource.FROM_TRACK, trackId)
     )
-    dispatchWeb(addTrackToPlaylist(trackId!, tempId))
+    dispatch(addTrackToPlaylist(trackId!, tempId))
     toast({ content: messages.createdToast })
-    pushRouteWeb(playlistPage(user.handle, trackTitle, tempId), FEED_PAGE)
     onClose()
-  }
-
-  const handleScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const { y } = e.nativeEvent.contentOffset
-
-    if (isDrawerGestureSupported && y > 0) {
-      setIsDrawerGestureSupported(false)
-    } else if (!isDrawerGestureSupported && y <= 0) {
-      setIsDrawerGestureSupported(true)
-    }
   }
 
   return (
     <AppDrawer
       modalName='AddToPlaylist'
       isFullscreen
-      isGestureSupported={isDrawerGestureSupported}
+      isGestureSupported={false}
       title={messages.title}
     >
       <View>
@@ -104,23 +104,21 @@ export const AddToPlaylistDrawer = () => {
           />
         </View>
         <CardList
-          onScrollEndDrag={handleScrollEnd}
           contentContainerStyle={styles.cardList}
           data={userPlaylists}
           renderItem={({ item }) => (
             <Card
               key={item.playlist_id}
-              id={item.playlist_id}
               type='collection'
-              imageSize={item._cover_art_sizes}
+              id={item.playlist_id}
               primaryText={item.playlist_name}
               secondaryText={user.name}
               onPress={() => {
                 toast({ content: messages.addedToast })
-                dispatchWeb(addTrackToPlaylist(trackId!, item.playlist_id))
+                dispatch(addTrackToPlaylist(trackId!, item.playlist_id))
                 onClose()
               }}
-              user={user}
+              renderImage={renderImage(item)}
             />
           )}
         />

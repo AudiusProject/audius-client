@@ -1,16 +1,12 @@
 import { useCallback } from 'react'
 
-import { NOTIFICATION_PAGE } from 'audius-client/src/utils/route'
 import { TouchableOpacity } from 'react-native'
-import { useDispatch } from 'react-redux'
 
+import type { UserImageProps } from 'app/components/image/UserImage'
 import type { ProfilePictureProps as ProfilePictureBaseProps } from 'app/components/user'
 import { ProfilePicture as ProfilePictureBase } from 'app/components/user'
-import { close } from 'app/store/notifications/actions'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
-import { getUserRoute } from 'app/utils/routes'
-
-import { useDrawerNavigation } from '../useDrawerNavigation'
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   image: {
@@ -26,6 +22,7 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
 }))
 
 type ProfilePictureProps = ProfilePictureBaseProps & {
+  profile: UserImageProps['user'] & { handle: string }
   navigationType?: 'push' | 'navigate'
   interactive?: boolean
 }
@@ -39,19 +36,19 @@ export const ProfilePicture = (props: ProfilePictureProps) => {
     ...other
   } = props
   const styles = useStyles()
-  const dispatch = useDispatch()
-  const navigation = useDrawerNavigation()
+  const navigation = useNavigation()
 
   const handlePress = useCallback(() => {
-    navigation[navigationType]({
-      native: {
-        screen: 'Profile',
-        params: { handle: profile.handle, fromNotifications: true }
-      },
-      web: { route: getUserRoute(profile), fromPage: NOTIFICATION_PAGE }
-    })
-    dispatch(close())
-  }, [navigation, navigationType, profile, dispatch])
+    if (profile) {
+      const screen = 'Profile'
+      const params = {
+        handle: profile.handle,
+        fromNotifications: true
+      }
+      if (navigationType === 'push') navigation.push(screen, params)
+      if (navigationType === 'navigate') navigation.navigate(screen, params)
+    }
+  }, [navigation, navigationType, profile])
 
   const profilePictureElement = (
     <ProfilePictureBase

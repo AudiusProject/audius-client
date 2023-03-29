@@ -1,20 +1,27 @@
-import { useCallback, useRef, useLayoutEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 
-import { cacheUsersSelectors, tippingSelectors } from '@audius/common'
-import type { ID, SupportersMapForUser } from '@audius/common'
-import { LayoutAnimation, Text, View } from 'react-native'
+import {
+  cacheUsersSelectors,
+  tippingSelectors,
+  useProxySelector,
+  removeNullable,
+  tippingActions
+} from '@audius/common'
+import { Text, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconCaretRight from 'app/assets/images/iconCaretRight.svg'
 import IconTrophy from 'app/assets/images/iconTrophy.svg'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { ProfilePictureList } from 'app/screens/notifications-screen/Notification'
+import { ProfilePictureListSkeleton } from 'app/screens/notifications-screen/Notification/ProfilePictureListSkeleton'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
 import { useSelectProfile } from '../selectors'
 const { getOptimisticSupportersForUser } = tippingSelectors
+const { fetchSupportersForUser } = tippingActions
 const { getUsers } = cacheUsersSelectors
 
 const messages = {
@@ -28,7 +35,9 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   root: {
     marginVertical: spacing(2),
     paddingTop: spacing(2),
-    display: 'flex',
+    alignItems: 'center'
+  },
+  touchableRoot: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center'
@@ -41,7 +50,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     height: 28
   },
   alignRowCenter: {
-    display: 'flex',
     flexDirection: 'row',
     alignItems: 'center'
   },
@@ -61,17 +69,26 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   }
 }))
 
-const useLoadingAnimation = (isDepLoaded: () => boolean, dependency: any) => {
-  // Prevents multiple re-renders if the dependency changes.
-  const isLoaded = useRef(false)
+const useSelectTopSupporters = (userId: number) =>
+  useProxySelector(
+    (state) => {
+      const supporters = getOptimisticSupportersForUser(state, userId)
+      if (!supporters) return []
 
-  useLayoutEffect(() => {
-    if (isDepLoaded() && !isLoaded.current) {
-      isLoaded.current = true
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-    }
-  }, [dependency, isDepLoaded])
-}
+      const topSupporterIds = Object.keys(supporters)
+        .sort((id1, id2) => supporters[id1].rank - supporters[id2].rank)
+        .map((id) => supporters[id])
+        .map((supporter) => supporter.sender_id)
+
+      const supporterUsers = getUsers(state, { ids: topSupporterIds })
+
+      const topSupporters = topSupporterIds
+        .map((id) => supporterUsers[id])
+        .filter(removeNullable)
+      return topSupporters
+    },
+    [userId]
+  )
 
 export const TopSupporters = () => {
   const styles = useStyles()
@@ -81,57 +98,58 @@ export const TopSupporters = () => {
     'user_id',
     'supporter_count'
   ])
-  const supportersForProfile: SupportersMapForUser =
-    useSelectorWeb((state) => getOptimisticSupportersForUser(state, user_id)) ||
-    {}
 
-  const rankedSupporterIds = Object.keys(supportersForProfile)
-    .sort((k1, k2) => {
-      return (
-        supportersForProfile[k1 as unknown as ID].rank -
-        supportersForProfile[k2 as unknown as ID].rank
-      )
-    })
-    .map((k) => supportersForProfile[k as unknown as ID])
-    .map((s) => s.sender_id)
+  const dispatch = useDispatch()
 
-  const rankedSupporters = useSelectorWeb((state) => {
-    const usersMap = getUsers(state, { ids: rankedSupporterIds })
-    return rankedSupporterIds.map((id) => usersMap[id]).filter(Boolean)
+  const shouldFetchSupporters = useSelector((state) => {
+    return (
+      !state.tipping.supporters[user_id] &&
+      !state.tipping.supportersOverrides[user_id]
+    )
   })
 
+  useEffect(() => {
+    if (supporter_count > 0 && shouldFetchSupporters) {
+      dispatch(fetchSupportersForUser({ userId: user_id }))
+    }
+  }, [supporter_count, shouldFetchSupporters, dispatch, user_id])
+
+  const topSupporters = useSelectTopSupporters(user_id)
+
   const handlePress = useCallback(() => {
-    navigation.push({
-      native: {
-        screen: 'TopSupporters',
-        params: { userId: user_id, source: 'profile' }
-      }
-    })
+    navigation.push('TopSupporters', { userId: user_id, source: 'profile' })
   }, [navigation, user_id])
 
-  useLoadingAnimation(() => rankedSupporters.length > 0, rankedSupporters)
-
-  return rankedSupporters.length ? (
-    <TouchableOpacity style={styles.root} onPress={handlePress}>
-      <ProfilePictureList
-        users={rankedSupporters}
-        totalUserCount={supporter_count}
-        limit={MAX_PROFILE_SUPPORTERS_VIEW_ALL_USERS}
-        style={styles.profilePictureList}
-        navigationType='push'
-        interactive={false}
-        imageStyles={styles.profilePicture}
-      />
-      <View style={styles.alignRowCenter}>
-        <IconTrophy style={styles.icon} fill={neutral} />
-        <Text style={styles.viewTopSupportersText}>
-          {messages.topSupporters}
-        </Text>
-        <Text style={styles.viewTopSupportersButtonText}>
-          {messages.buttonTitle}
-        </Text>
-        <IconCaretRight fill={secondary} width={14} height={14} />
-      </View>
-    </TouchableOpacity>
+  return supporter_count ? (
+    <View style={styles.root} pointerEvents='box-none'>
+      <TouchableOpacity style={styles.touchableRoot} onPress={handlePress}>
+        {topSupporters.length > 0 ? (
+          <ProfilePictureList
+            users={topSupporters}
+            totalUserCount={supporter_count}
+            limit={MAX_PROFILE_SUPPORTERS_VIEW_ALL_USERS}
+            style={styles.profilePictureList}
+            navigationType='push'
+            interactive={false}
+            imageStyles={styles.profilePicture}
+          />
+        ) : (
+          <ProfilePictureListSkeleton
+            count={supporter_count}
+            limit={MAX_PROFILE_SUPPORTERS_VIEW_ALL_USERS}
+          />
+        )}
+        <View style={styles.alignRowCenter}>
+          <IconTrophy style={styles.icon} fill={neutral} />
+          <Text style={styles.viewTopSupportersText}>
+            {messages.topSupporters}
+          </Text>
+          <Text style={styles.viewTopSupportersButtonText}>
+            {messages.buttonTitle}
+          </Text>
+          <IconCaretRight fill={secondary} width={14} height={14} />
+        </View>
+      </TouchableOpacity>
+    </View>
   ) : null
 }

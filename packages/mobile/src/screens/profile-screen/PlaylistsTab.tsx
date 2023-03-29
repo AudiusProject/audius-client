@@ -1,24 +1,47 @@
-import { profilePageSelectors } from '@audius/common'
+import { useEffect } from 'react'
+
+import {
+  profilePageActions,
+  profilePageSelectors,
+  Status
+} from '@audius/common'
+import { useIsFocused } from '@react-navigation/native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { CollectionList } from 'app/components/collection-list'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
-import { useEmptyProfileText } from './EmptyProfileTile'
-const { getProfilePlaylists } = profilePageSelectors
+import { EmptyProfileTile } from './EmptyProfileTile'
+import { useSelectProfile } from './selectors'
+const { getProfilePlaylists, getCollectionsStatus } = profilePageSelectors
+const { fetchCollections } = profilePageActions
+
+const emptyPlaylists = []
 
 export const PlaylistsTab = () => {
-  const playlists = useSelectorWeb(getProfilePlaylists)
+  const { handle, playlist_count } = useSelectProfile([
+    'handle',
+    'playlist_count'
+  ])
+  const playlists = useSelector((state) => getProfilePlaylists(state, handle))
+  const collectionsStatus = useSelector((state) =>
+    getCollectionsStatus(state, handle)
+  )
+  const isFocused = useIsFocused()
+  const dispatch = useDispatch()
 
-  const emptyListText = useEmptyProfileText('playlists')
+  useEffect(() => {
+    if (isFocused && playlist_count > 0 && collectionsStatus === Status.IDLE) {
+      dispatch(fetchCollections(handle))
+    }
+  }, [isFocused, playlist_count, collectionsStatus, dispatch, handle])
 
   return (
     <CollectionList
-      listKey='profile-playlists'
-      collection={playlists}
-      emptyListText={emptyListText}
+      collection={playlist_count > 0 ? playlists : emptyPlaylists}
+      ListEmptyComponent={<EmptyProfileTile tab='playlists' />}
       disableTopTabScroll
-      fromPage='profile'
       showsVerticalScrollIndicator={false}
+      totalCount={playlist_count}
     />
   )
 }

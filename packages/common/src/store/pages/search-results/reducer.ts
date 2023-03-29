@@ -14,34 +14,66 @@ import {
   FetchSearchPageTagsFailedAction
 } from 'store/pages/search-results/actions'
 import { PREFIX } from 'store/pages/search-results/lineup/tracks/actions'
-import tracksReducer from 'store/pages/search-results/lineup/tracks/reducer'
+import tracksReducer, {
+  initialState as initialLineupState
+} from 'store/pages/search-results/lineup/tracks/reducer'
 
 import { Status } from '../../../models'
 
 import { SearchPageState } from './types'
 
+const calculateNewSearchResults = (
+  state: SearchPageState,
+  action:
+    | FetchSearchPageResultsSuceededAction
+    | FetchSearchPageTagsSucceededAction
+) => {
+  const query =
+    action.type === 'SEARCH/FETCH_SEARCH_PAGE_RESULTS_SUCCEEDED'
+      ? action.searchText
+      : action.tag
+  const prevStateQuery = state.searchText
+  const isTagSearch = action.type === 'SEARCH/FETCH_SEARCH_PAGE_TAGS_SUCCEEDED'
+  const keepPrevResult =
+    query === prevStateQuery && isTagSearch === state.isTagSearch
+
+  const newState = keepPrevResult
+    ? { ...state, status: Status.SUCCESS }
+    : {
+        ...initialState,
+        status: Status.SUCCESS
+      }
+
+  if (action.results) {
+    newState.searchText = query
+    newState.isTagSearch =
+      action.type === 'SEARCH/FETCH_SEARCH_PAGE_TAGS_SUCCEEDED'
+    const { tracks, albums, playlists, users } = action.results
+    if (tracks) {
+      newState.trackIds = tracks
+    }
+    if (albums) {
+      newState.albumIds = albums
+    }
+    if (playlists) {
+      newState.playlistIds = playlists
+    }
+    if (users) {
+      newState.artistIds = users
+    }
+  }
+  return newState
+}
+
 const initialState: SearchPageState = {
   status: Status.SUCCESS,
   searchText: '',
-  trackIds: [],
-  albumIds: [],
-  playlistIds: [],
-  artistIds: [],
-  tracks: {
-    entries: [],
-    order: {},
-    total: 0,
-    deleted: 0,
-    nullCount: 0,
-    status: Status.LOADING,
-    hasMore: true,
-    inView: false,
-    prefix: '',
-    page: 0,
-    isMetadataLoading: false,
-    maxEntries: null,
-    containsDeleted: false
-  }
+  isTagSearch: false,
+  trackIds: undefined,
+  albumIds: undefined,
+  playlistIds: undefined,
+  artistIds: undefined,
+  tracks: initialLineupState
 }
 
 const actionsMap = {
@@ -52,22 +84,10 @@ const actionsMap = {
     }
   },
   [FETCH_SEARCH_PAGE_RESULTS_SUCCEEDED](
-    _state: SearchPageState,
+    state: SearchPageState,
     action: FetchSearchPageResultsSuceededAction
   ) {
-    const newState = {
-      ...initialState,
-      status: Status.SUCCESS
-    }
-
-    if (action.results) {
-      newState.searchText = action.searchText
-      newState.trackIds = action.results.tracks || []
-      newState.albumIds = action.results.albums || []
-      newState.playlistIds = action.results.playlists || []
-      newState.artistIds = action.results.users || []
-    }
-    return newState
+    return calculateNewSearchResults(state, action)
   },
   [FETCH_SEARCH_PAGE_RESULTS_FAILED](
     _state: SearchPageState,
@@ -88,23 +108,10 @@ const actionsMap = {
     }
   },
   [FETCH_SEARCH_PAGE_TAGS_SUCCEEDED](
-    _state: SearchPageState,
+    state: SearchPageState,
     action: FetchSearchPageTagsSucceededAction
   ) {
-    const newState = {
-      ...initialState,
-      status: Status.SUCCESS
-    }
-
-    if (action.results) {
-      newState.searchText = action.tag
-      newState.trackIds = action.results.tracks || []
-      newState.artistIds = action.results.users || []
-      newState.albumIds = []
-      newState.playlistIds = []
-    }
-
-    return newState
+    return calculateNewSearchResults(state, action)
   },
   [FETCH_SEARCH_PAGE_TAGS_FAILED](
     _state: SearchPageState,

@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { Name, squashNewLines } from '@audius/common'
+import { ResizeObserver } from '@juggle/resize-observer'
 import cn from 'classnames'
-import { Options } from 'linkifyjs'
-import Linkify from 'linkifyjs/react'
+import Linkify from 'linkify-react'
 import { animated } from 'react-spring'
+import useMeasure from 'react-use-measure'
 
 import { ReactComponent as IconCaretDownLine } from 'assets/img/iconCaretDownLine.svg'
 import { ReactComponent as IconCaretUpLine } from 'assets/img/iconCaretUpLine.svg'
 import { make, useRecord } from 'common/store/analytics/actions'
 import { OpacityTransition } from 'components/transition-container/OpacityTransition'
-import { useSize } from 'hooks/useSize'
 
 import SocialLink, { Type } from '../SocialLink'
 
@@ -47,10 +47,11 @@ export const ProfileBio = ({
   instagramHandle,
   tikTokHandle
 }: ProfileBioProps) => {
-  const bioRef = useRef<HTMLDivElement>(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isCollapsible, setIsCollapsible] = useState(false)
-  const bioSize = useSize({ ref: bioRef })
+  const [bioRef, { height: bioSize }] = useMeasure({
+    polyfill: ResizeObserver
+  })
 
   const linkCount = [
     website,
@@ -91,7 +92,7 @@ export const ProfileBio = ({
   const record = useRecord()
 
   const onExternalLinkClick = useCallback(
-    (event) => {
+    (event: { target: { href: string } }) => {
       record(
         make(Name.LINK_CLICKING, {
           url: event.target.href,
@@ -135,7 +136,7 @@ export const ProfileBio = ({
     )
   }, [record, handle, website])
   const onClickDonation = useCallback(
-    (event) => {
+    (event: { target: { href: string } }) => {
       record(
         make(Name.PROFILE_PAGE_CLICK_DONATION, {
           handle: handle.replace('@', ''),
@@ -228,13 +229,9 @@ export const ProfileBio = ({
     </animated.div>
   )
 
-  const linkifyOptions = {
-    attributes: { onClick: onExternalLinkClick }
-  } as unknown as Options
-
   return (
     <div>
-      <Linkify options={linkifyOptions}>
+      <Linkify options={{ attributes: { onClick: onExternalLinkClick } }}>
         <div
           className={cn(styles.description, {
             [styles.truncated]: isCollapsed

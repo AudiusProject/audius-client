@@ -1,160 +1,131 @@
 import { useCallback, useEffect, useState } from 'react'
 
+import type { Name } from '@audius/common'
+import { BooleanKeys } from '@audius/common'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
+import * as signOnActions from 'common/store/pages/signon/actions'
 import {
-  Animated,
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Dimensions,
-  SafeAreaView
-} from 'react-native'
+  getEmailField,
+  getHandleField
+} from 'common/store/pages/signon/selectors'
+import { EditingStatus } from 'common/store/pages/signon/types'
+import type { EditableField } from 'common/store/pages/signon/types'
+import { Animated, View, TouchableOpacity } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { useDispatch, useSelector } from 'react-redux'
 
-import GradientSave from 'app/assets/images/gradientSave.svg'
+import IconImage from 'app/assets/images/iconImage.svg'
 import IconInstagram from 'app/assets/images/iconInstagram.svg'
 import IconTwitter from 'app/assets/images/iconTwitterBird.svg'
+import IconUser from 'app/assets/images/iconUser.svg'
 import IconVerified from 'app/assets/images/iconVerified.svg'
-import Button from 'app/components/button'
+import { Text } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { MessageType } from 'app/message/types'
+import { SocialButton } from 'app/components/social-button'
+import { TikTokAuthButton } from 'app/components/tiktok-auth'
+import { useRemoteVar } from 'app/hooks/useRemoteConfig'
+import { useToast } from 'app/hooks/useToast'
 import { track, make } from 'app/services/analytics'
 import * as oauthActions from 'app/store/oauth/actions'
 import {
   getInstagramError,
   getInstagramInfo,
+  getTikTokError,
+  getTikTokInfo,
   getTwitterError,
-  getTwitterInfo
+  getTwitterInfo,
+  getAbandoned
 } from 'app/store/oauth/selectors'
-import { getHandleError, getHandleIsValid } from 'app/store/signon/selectors'
+import { makeStyles } from 'app/styles'
 import { EventNames } from 'app/types/analytics'
-import { useColor } from 'app/utils/theme'
+import { useThemeColors } from 'app/utils/theme'
 
 import SignupHeader from './SignupHeader'
 import type { SignOnStackParamList } from './types'
 
-const styles = StyleSheet.create({
-  container: {
-    top: -45,
+const useStyles = makeStyles(({ palette, spacing }) => ({
+  screen: {
     width: '100%',
     height: '100%',
-    backgroundColor: 'white',
-    justifyContent: 'space-evenly'
+    backgroundColor: palette.staticWhite
   },
-  containerForm: {
-    left: 0,
-    width: '100%',
+  container: {
     alignItems: 'center',
-    padding: 26
+    padding: spacing(7),
+    height: '100%'
   },
-  title: {
-    color: '#7E1BCC',
-    fontSize: 18,
-    fontFamily: 'AvenirNextLTPro-Bold',
-    lineHeight: 26,
+  header: {
+    color: palette.secondary,
     textAlign: 'center',
-    paddingBottom: 12,
-    marginLeft: 22,
-    marginRight: 22
+    paddingBottom: spacing(2)
   },
-  buttonContainer: {
-    marginTop: 12,
-    marginBottom: 12,
+  socialButtonContainer: {
+    marginBottom: spacing(2)
+  },
+  tile: {
     width: '100%',
-    backgroundColor: '#CC0FE0'
+    backgroundColor: palette.neutralLight10,
+    borderWidth: 1,
+    borderColor: palette.neutralLight7,
+    borderRadius: 8,
+    padding: spacing(4),
+    marginBottom: spacing(6)
   },
-  buttonText: {
-    fontSize: 20
-  },
-  formButtonTitleContainer: {
+  tileHeader: { marginBottom: spacing(1), textTransform: 'uppercase' },
+  tileListItem: {
+    marginTop: spacing(2),
     flexDirection: 'row',
     alignItems: 'center'
   },
-  icon: {
-    height: 20,
-    width: 20,
-    marginRight: 10
+  tileListItemText: {
+    flex: 1,
+    lineHeight: 21
   },
-  instruction: {
-    color: '#858199',
-    fontSize: 14,
-    lineHeight: 21,
-    fontFamily: 'AvenirNextLTPro-Regular',
-    textAlign: 'center',
-    paddingTop: 36,
-    paddingBottom: 24,
-    width: '100%',
-    paddingLeft: 25,
-    paddingRight: 25
-  },
-  instructionLong: {
-    color: '#858199',
-    fontSize: 12,
-    lineHeight: 21,
-    fontFamily: 'AvenirNextLTPro-Regular',
-    textAlign: 'center',
-    paddingTop: 36,
-    paddingBottom: 38,
-    width: '100%'
-  },
-  bulletsContainer: {
-    marginLeft: 0,
-    paddingLeft: 0,
-    paddingBottom: 24
-  },
-  bulletpointText: {
-    color: '#858199',
-    fontSize: 18,
-    fontFamily: 'AvenirNextLTPro-Bold'
+  tileListItemIconCircle: {
+    marginRight: spacing(2),
+    height: 24,
+    width: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: palette.secondary,
+    borderRadius: 100
   },
   verifiedIcon: {
-    marginLeft: 8
+    marginRight: spacing(4)
   },
-  ifApplicable: {
-    fontSize: 10,
-    fontFamily: 'AvenirNextLTPro-Regular',
-    color: '#C2C0CC',
-    marginLeft: 34
+  manualButton: {
+    marginTop: 'auto',
+    marginBottom: spacing(7)
   },
-  gotoManualBtn: {
-    height: 32,
-    width: '100%',
-    alignItems: 'center'
-  },
-  gotoManualBtnTitle: {
-    color: '#7E1BCC',
-    fontSize: 14,
-    fontFamily: 'AvenirNextLTPro-Regular'
+  manualButtonText: {
+    color: palette.secondaryLight2
   },
   loadingIcon: {
+    alignItems: 'center',
     marginTop: 48,
     height: 48
   }
-})
+}))
 
 const messages = {
-  header: 'Tell Us About Yourself So Others Can Find You',
-  description:
-    'Quickly complete your profile by linking one of your social accounts.',
-  descriptionLong:
-    "We will autofill your name, handle, profile picture, cover photo, location, and verification. You won't use this to log-in, and Audius will never post on your behalf.",
-  twitter: 'Complete With Twitter',
-  instagram: 'Complete With Instagram',
-  manually: 'I’d rather fill out my profile manually',
-  oauthChecks: [
-    'Display Name',
-    'Handle',
-    'Profile Picture',
-    'Cover Photo',
-    'Verification'
-  ],
-  ifApplicable: '(if applicable)'
+  instagramButton: 'Complete with Instagram',
+  twitterButton: 'Complete with Twitter',
+  tiktokButton: 'Complete with TikTok',
+  header: 'Quickly Complete Your Account by Linking Your Other Socials',
+  importTileHeader: 'We will import these details',
+  importTileItemHandle: 'Handle & Display Name',
+  importTileItemPicture: 'Profile Picture & Cover Photo',
+  verifiedTileHeader: 'Verified?',
+  verifiedTileContent:
+    'If the linked account is verified, your Audius account will be verified to match!',
+  manual: "I'd rather fill out my profile manually",
+  error: 'Something went wrong, please try again'
 }
 
 let didAnimation = false
+
 const FormTitle = () => {
+  const styles = useStyles()
   let opacity = new Animated.Value(1)
   if (!didAnimation) {
     opacity = new Animated.Value(0)
@@ -168,61 +139,10 @@ const FormTitle = () => {
   }
   return (
     <Animated.View style={{ opacity }}>
-      <Text style={styles.title}>{messages.header}</Text>
+      <Text variant={'h1'} style={styles.header}>
+        {messages.header}
+      </Text>
     </Animated.View>
-  )
-}
-
-const TwitterButton = ({ onPress }: { onPress: () => void }) => {
-  return (
-    <Button
-      title={messages.twitter}
-      containerStyle={{ ...styles.buttonContainer, backgroundColor: '#1BA1F1' }}
-      textStyle={styles.buttonText}
-      onPress={onPress}
-      icon={
-        <IconTwitter style={styles.icon} fill='white' width={32} height={32} />
-      }
-      iconPosition='left'
-      underlayColor='#1BA1F1'
-    />
-  )
-}
-
-const InstagramButton = ({ onPress }: { onPress: () => void }) => {
-  return (
-    <Button
-      title={messages.instagram}
-      containerStyle={{ ...styles.buttonContainer }}
-      textStyle={styles.buttonText}
-      onPress={onPress}
-      icon={
-        <IconInstagram
-          style={styles.icon}
-          fill='white'
-          width={32}
-          height={32}
-        />
-      }
-      iconPosition='left'
-    />
-  )
-}
-
-const BulletPoint = ({ i }: { i: number }) => {
-  return (
-    <View
-      style={[
-        styles.formButtonTitleContainer,
-        { marginBottom: i === messages.oauthChecks.length ? 4 : 8 }
-      ]}
-    >
-      <GradientSave style={styles.icon} />
-      <Text style={styles.bulletpointText}>{messages.oauthChecks[i]}</Text>
-      {i === 4 && (
-        <IconVerified height={16} width={16} style={styles.verifiedIcon} />
-      )}
-    </View>
   )
 }
 
@@ -230,313 +150,352 @@ type ProfileAutoProps = NativeStackScreenProps<
   SignOnStackParamList,
   'ProfileAuto'
 >
-const ProfileAuto = ({ navigation, route }: ProfileAutoProps) => {
-  const { email, password } = route.params
+const ProfileAuto = ({ navigation }: ProfileAutoProps) => {
+  const styles = useStyles()
   const dispatch = useDispatch()
-  const dispatchWeb = useDispatchWeb()
-  const spinnerColor = useColor('neutralLight4')
+  const { toast } = useToast()
+  const { neutralLight4, staticWhite } = useThemeColors()
   const twitterInfo = useSelector(getTwitterInfo)
   const twitterError = useSelector(getTwitterError)
   const instagramInfo = useSelector(getInstagramInfo)
   const instagramError = useSelector(getInstagramError)
-  const handleIsValid = useSelector(getHandleIsValid)
-  const handleError = useSelector(getHandleError)
+  const tikTokInfo = useSelector(getTikTokInfo)
+  const tikTokError = useSelector(getTikTokError)
+  const abandoned = useSelector(getAbandoned)
+  const handleField: EditableField = useSelector(getHandleField)
+  const emailField: EditableField = useSelector(getEmailField)
+  const isTwitterEnabled = useRemoteVar(
+    BooleanKeys.DISPLAY_TWITTER_VERIFICATION
+  )
+  const isInstagramEnabled = useRemoteVar(
+    BooleanKeys.DISPLAY_INSTAGRAM_VERIFICATION
+  )
+  const isTikTokEnabled = useRemoteVar(BooleanKeys.DISPLAY_TIKTOK_VERIFICATION)
   const [isLoading, setIsLoading] = useState(false)
   const [hasNavigatedAway, setHasNavigatedAway] = useState(false)
   const [didValidateHandle, setDidValidateHandle] = useState(false)
 
-  const goTo = useCallback(
-    (page: 'ProfileManual' | 'FirstFollows') => {
-      const routeParams: any = { email }
-
-      if (page === 'ProfileManual') {
-        routeParams.password = password
-      }
-
-      if (twitterInfo) {
-        routeParams.handle = twitterInfo.profile.screen_name
-        if (page === 'ProfileManual') {
-          routeParams.twitterId = twitterInfo.twitterId
-          routeParams.name = twitterInfo.profile.name
-          routeParams.twitterScreenName = twitterInfo.profile.screen_name
-          routeParams.verified = twitterInfo.profile.verified
-          routeParams.profilePictureUrl =
-            twitterInfo.profile.profile_image_url_https ?? null
-          routeParams.coverPhotoUrl =
-            twitterInfo.profile.profile_banner_url ?? null
-        }
-      } else if (instagramInfo) {
-        routeParams.handle = instagramInfo.profile.username
-        if (page === 'ProfileManual') {
-          routeParams.instagramId = instagramInfo.instagramId
-          routeParams.name = instagramInfo.profile.full_name
-          routeParams.instagramScreenName = instagramInfo.profile.username
-          routeParams.verified = instagramInfo.profile.is_verified
-          routeParams.profilePictureUrl =
-            instagramInfo.profile.profile_pic_url_hd ?? null
-          routeParams.coverPhotoUrl = null
-        }
-      }
-
-      navigation.replace(page, routeParams)
-    },
-    [navigation, email, password, twitterInfo, instagramInfo]
-  )
-
   const validateHandle = useCallback(
-    (type: 'twitter' | 'instagram') => {
-      const info = type === 'twitter' ? twitterInfo : instagramInfo
-      if (!info) {
-        return
-      }
-      const { profile } = info
-      const handle = type === 'twitter' ? profile.screen_name : profile.username
-      const verified =
-        type === 'twitter' ? profile.verified : profile.is_verified
-      dispatchWeb({
-        type: MessageType.SIGN_UP_VALIDATE_HANDLE,
-        handle,
-        verified,
-        isAction: true,
-        onValidate: null
-      })
+    (handle: string, verified: boolean) => {
+      dispatch(signOnActions.validateHandle(handle, verified))
     },
-    [dispatchWeb, twitterInfo, instagramInfo]
+    [dispatch]
   )
 
   const trackOAuthComplete = useCallback(
-    (type: 'twitter' | 'instagram') => {
-      const info = type === 'twitter' ? twitterInfo : instagramInfo
-      if (!info) {
-        return
-      }
-      const { profile } = info
-
-      const handle = type === 'twitter' ? profile.screen_name : profile.username
-      const isVerified =
-        type === 'twitter' ? profile.verified : profile.is_verified
-      const eventName =
-        type === 'twitter'
-          ? EventNames.CREATE_ACCOUNT_COMPLETE_TWITTER
-          : EventNames.CREATE_ACCOUNT_COMPLETE_INSTAGRAM
-
+    (
+      eventName:
+        | Name.CREATE_ACCOUNT_COMPLETE_TWITTER
+        | Name.CREATE_ACCOUNT_COMPLETE_INSTAGRAM
+        | Name.CREATE_ACCOUNT_COMPLETE_TIKTOK,
+      handle: string,
+      isVerified: boolean
+    ) => {
       track(
         make({
           eventName,
           isVerified,
-          emailAddress: email,
+          emailAddress: emailField.value,
           handle
         })
       )
     },
-    [twitterInfo, instagramInfo, email]
+    [emailField]
   )
 
-  const signUp = useCallback(() => {
-    const signUpParams: any = { email, password }
+  const setOAuthInfo = useCallback(() => {
     if (twitterInfo) {
-      signUpParams.twitterId = twitterInfo.twitterId
-      signUpParams.name = twitterInfo.profile.name
-      signUpParams.handle = twitterInfo.profile.screen_name
-      signUpParams.twitterScreenName = twitterInfo.profile.screen_name
-      signUpParams.verified = twitterInfo.profile.verified
-      signUpParams.profilePictureUrl =
-        twitterInfo.profile.profile_image_url_https ?? null
-      signUpParams.coverPhotoUrl =
-        twitterInfo.profile.profile_banner_url ?? null
+      dispatch(
+        signOnActions.setTwitterProfile(
+          twitterInfo.twitterId,
+          twitterInfo.profile,
+          twitterInfo.profile.profile_image_url_https
+            ? {
+                // Replace twitter's returned image (which may vary) with the hd one
+                uri: twitterInfo.profile.profile_image_url_https.replace(
+                  /_(normal|bigger|mini)/g,
+                  ''
+                ),
+                name: 'ProfileImage',
+                type: 'image/jpeg'
+              }
+            : null,
+          twitterInfo.profile.profile_banner_url
+            ? {
+                uri: twitterInfo.profile.profile_banner_url,
+                name: 'ProfileBanner',
+                type: 'image/png'
+              }
+            : null
+        )
+      )
     } else if (instagramInfo) {
-      signUpParams.instagramId = instagramInfo.instagramId
-      signUpParams.name = instagramInfo.profile.full_name
-      signUpParams.handle = instagramInfo.profile.username
-      signUpParams.instagramScreenName = instagramInfo.profile.username
-      signUpParams.verified = instagramInfo.profile.is_verified
-      signUpParams.profilePictureUrl =
-        instagramInfo.profile.profile_pic_url_hd ?? null
-      signUpParams.coverPhotoUrl = null
+      dispatch(
+        signOnActions.setInstagramProfile(
+          instagramInfo.instagramId,
+          instagramInfo.profile,
+          instagramInfo.profile.profile_pic_url_hd
+            ? {
+                uri: instagramInfo.profile.profile_pic_url_hd,
+                name: 'ProfileImage',
+                type: 'image/jpeg'
+              }
+            : null
+        )
+      )
+    } else if (tikTokInfo) {
+      dispatch(
+        signOnActions.setTikTokProfile(
+          tikTokInfo.uuid,
+          tikTokInfo.profile,
+          tikTokInfo.profile.avatar_large_url
+            ? {
+                uri: tikTokInfo.profile.avatar_large_url,
+                name: 'ProfileImage',
+                type: 'image/jpeg'
+              }
+            : null
+        )
+      )
     }
+  }, [dispatch, twitterInfo, instagramInfo, tikTokInfo])
 
-    dispatchWeb({
-      type: MessageType.SUBMIT_SIGNUP,
-      ...signUpParams,
-      accountAlreadyExisted: false,
-      referrer: null,
-      isAction: true
-    })
-  }, [dispatchWeb, email, password, twitterInfo, instagramInfo])
+  const signUp = useCallback(() => {
+    dispatch(signOnActions.signUp())
+  }, [dispatch])
+
+  const handleProfileSet = useCallback(
+    ({
+      completeEvent,
+      handle,
+      verified,
+      requiresUserReview
+    }: {
+      completeEvent:
+        | Name.CREATE_ACCOUNT_COMPLETE_TWITTER
+        | Name.CREATE_ACCOUNT_COMPLETE_INSTAGRAM
+        | Name.CREATE_ACCOUNT_COMPLETE_TIKTOK
+      handle: string
+      verified: boolean
+      requiresUserReview: boolean
+    }) => {
+      if (handleField.status !== EditingStatus.SUCCESS && !didValidateHandle) {
+        validateHandle(handle, verified)
+        setDidValidateHandle(true)
+      } else if (
+        handleField.status === EditingStatus.FAILURE ||
+        requiresUserReview
+      ) {
+        trackOAuthComplete(completeEvent, handle, verified)
+        setOAuthInfo()
+        navigation.push('ProfileManual')
+        setHasNavigatedAway(true)
+        setIsLoading(false)
+      } else if (handleField.status === EditingStatus.SUCCESS) {
+        trackOAuthComplete(completeEvent, handle, verified)
+        setOAuthInfo()
+        signUp()
+        track(
+          make({
+            eventName: EventNames.CREATE_ACCOUNT_COMPLETE_PROFILE,
+            emailAddress: emailField.value,
+            handle
+          })
+        )
+        navigation.push('FirstFollows')
+        setHasNavigatedAway(true)
+        setIsLoading(false)
+      }
+    },
+    [
+      handleField,
+      emailField,
+      didValidateHandle,
+      validateHandle,
+      setOAuthInfo,
+      signUp,
+      navigation,
+      trackOAuthComplete
+    ]
+  )
 
   useEffect(() => {
-    if (!hasNavigatedAway && twitterInfo) {
-      if (!handleIsValid && !didValidateHandle) {
-        validateHandle('twitter')
-        setDidValidateHandle(true)
-      } else if (handleError || twitterInfo.requiresUserReview) {
-        trackOAuthComplete('twitter')
-        goTo('ProfileManual')
-        setHasNavigatedAway(true)
-        setIsLoading(false)
-      } else if (handleIsValid) {
-        trackOAuthComplete('twitter')
-        signUp()
-        goTo('FirstFollows')
-        setHasNavigatedAway(true)
-        setIsLoading(false)
+    if (!hasNavigatedAway) {
+      if (twitterInfo) {
+        handleProfileSet({
+          completeEvent: EventNames.CREATE_ACCOUNT_COMPLETE_TWITTER,
+          handle: twitterInfo.profile.screen_name,
+          verified: twitterInfo.profile.verified,
+          requiresUserReview: twitterInfo.requiresUserReview
+        })
+      } else if (instagramInfo) {
+        handleProfileSet({
+          completeEvent: EventNames.CREATE_ACCOUNT_COMPLETE_INSTAGRAM,
+          handle: instagramInfo.profile.username,
+          verified: instagramInfo.profile.is_verified,
+          requiresUserReview: instagramInfo.requiresUserReview
+        })
+      } else if (tikTokInfo) {
+        handleProfileSet({
+          completeEvent: EventNames.CREATE_ACCOUNT_COMPLETE_TIKTOK,
+          handle: tikTokInfo.profile.username,
+          verified: tikTokInfo.profile.is_verified,
+          requiresUserReview: tikTokInfo.requiresUserReview
+        })
       }
     }
   }, [
     hasNavigatedAway,
     twitterInfo,
-    handleIsValid,
-    handleError,
-    didValidateHandle,
-    validateHandle,
-    signUp,
-    goTo,
-    trackOAuthComplete
-  ])
-
-  useEffect(() => {
-    if (twitterError) {
-      setIsLoading(false)
-    }
-  }, [twitterError])
-
-  useEffect(() => {
-    if (!hasNavigatedAway && instagramInfo) {
-      if (!handleIsValid && !didValidateHandle) {
-        validateHandle('instagram')
-        setDidValidateHandle(true)
-      } else if (handleError || instagramInfo.requiresUserReview) {
-        trackOAuthComplete('instagram')
-        goTo('ProfileManual')
-        setHasNavigatedAway(true)
-        setIsLoading(false)
-      } else if (handleIsValid) {
-        trackOAuthComplete('instagram')
-        signUp()
-        goTo('FirstFollows')
-        setHasNavigatedAway(true)
-        setIsLoading(false)
-      }
-    }
-  }, [
-    hasNavigatedAway,
     instagramInfo,
-    handleIsValid,
-    handleError,
-    didValidateHandle,
-    validateHandle,
-    signUp,
-    goTo,
-    trackOAuthComplete
+    tikTokInfo,
+    handleProfileSet
   ])
 
   useEffect(() => {
-    if (instagramError) {
+    if (twitterError || instagramError || tikTokError) {
       setIsLoading(false)
+      toast({ content: messages.error })
     }
-  }, [instagramError])
+  }, [twitterError, instagramError, tikTokError, toast])
 
-  const onTwitterPress = () => {
+  const handleTwitterPress = () => {
     setIsLoading(true)
+
     dispatch(oauthActions.setTwitterError(null))
-    dispatchWeb({
-      type: MessageType.REQUEST_TWITTER_AUTH,
-      isAction: true
-    })
+    dispatch(oauthActions.twitterAuth())
     track(
       make({
         eventName: EventNames.CREATE_ACCOUNT_START_TWITTER,
-        emailAddress: email
+        emailAddress: emailField.value
       })
     )
   }
 
-  const onInstagramPress = () => {
+  const handleInstagramPress = () => {
     setIsLoading(true)
     dispatch(oauthActions.setInstagramError(null))
-    dispatchWeb({
-      type: MessageType.REQUEST_INSTAGRAM_AUTH,
-      isAction: true
-    })
+    dispatch(oauthActions.instagramAuth())
     track(
       make({
         eventName: EventNames.CREATE_ACCOUNT_START_INSTAGRAM,
-        emailAddress: email
+        emailAddress: emailField.value
       })
     )
   }
 
+  const handleTikTokPress = () => {
+    dispatch(oauthActions.setTikTokError(null))
+    setIsLoading(true)
+    track(
+      make({
+        eventName: EventNames.CREATE_ACCOUNT_START_TIKTOK,
+        emailAddress: emailField.value
+      })
+    )
+  }
+
+  const handlePressManual = useCallback(() => {
+    navigation.push('ProfileManual')
+  }, [navigation])
+
+  useEffect(() => {
+    if (abandoned) {
+      setIsLoading(false)
+    }
+  }, [abandoned])
+
   return (
-    <SafeAreaView style={{ backgroundColor: 'white' }}>
+    <SafeAreaView style={styles.screen}>
       <SignupHeader />
       <View style={styles.container}>
         {isLoading ? (
-          <View style={(styles.containerForm, { flex: 0.75 })}>
-            <FormTitle />
-            <View style={styles.loadingIcon}>
-              <LoadingSpinner color={spinnerColor} />
-            </View>
+          <View style={styles.loadingIcon}>
+            <LoadingSpinner fill={neutralLight4} />
           </View>
         ) : (
-          <View style={styles.containerForm}>
+          <>
             <FormTitle />
-            {Dimensions.get('window').height < 670 ? (
-              <Text
-                style={[
-                  styles.instruction,
-                  { paddingLeft: 0, paddingRight: 0, paddingTop: 0 }
-                ]}
-              >
-                {messages.description}
+
+            <View style={styles.tile}>
+              <Text variant={'h3'} style={styles.tileHeader}>
+                {messages.importTileHeader}
               </Text>
-            ) : null}
-
-            <TwitterButton onPress={onTwitterPress} />
-            <InstagramButton onPress={onInstagramPress} />
-
-            <View
-              style={{
-                borderBottomColor: '#ddd',
-                borderBottomWidth: StyleSheet.hairlineWidth,
-                width: '60%',
-                marginTop: 16
-              }}
-            />
-
-            {Dimensions.get('window').height < 670 ? (
-              <Text style={[styles.instructionLong]}>
-                {messages.descriptionLong}
-              </Text>
-            ) : (
-              <Text style={styles.instruction}>{messages.description}</Text>
-            )}
-
-            {Dimensions.get('window').height > 670 ? (
-              <View style={styles.bulletsContainer}>
-                {[...Array(messages.oauthChecks.length)].map((_, i) => (
-                  <BulletPoint key={i} i={i} />
-                ))}
-                <Text style={styles.ifApplicable}>{messages.ifApplicable}</Text>
+              <View style={[styles.tileListItem]}>
+                <View style={styles.tileListItemIconCircle}>
+                  <IconUser fill={staticWhite} height={16} width={16} />
+                </View>
+                <Text variant={'h4'} noGutter style={styles.tileListItemText}>
+                  {messages.importTileItemHandle}
+                </Text>
               </View>
+              <View style={[styles.tileListItem]}>
+                <View style={styles.tileListItemIconCircle}>
+                  <IconImage fill={staticWhite} height={16} width={16} />
+                </View>
+                <Text variant={'h4'} noGutter style={styles.tileListItemText}>
+                  {messages.importTileItemPicture}
+                </Text>
+              </View>
+            </View>
+
+            {isTwitterEnabled ? (
+              <SocialButton
+                color={'#1BA1F1'}
+                fullWidth
+                icon={IconTwitter}
+                onPress={handleTwitterPress}
+                styles={{ root: styles.socialButtonContainer }}
+                title={messages.twitterButton}
+              />
+            ) : null}
+            {isInstagramEnabled ? (
+              <SocialButton
+                fullWidth
+                icon={IconInstagram}
+                onPress={handleInstagramPress}
+                styles={{ root: styles.socialButtonContainer }}
+                title={messages.instagramButton}
+              />
+            ) : null}
+            {isTikTokEnabled ? (
+              <TikTokAuthButton
+                onPress={handleTikTokPress}
+                styles={{ root: styles.socialButtonContainer }}
+                title={messages.tiktokButton}
+              />
             ) : null}
 
-            <View
-              style={{
-                borderBottomColor: '#ddd',
-                borderBottomWidth: StyleSheet.hairlineWidth,
-                width: '60%',
-                marginBottom: 16
-              }}
-            />
+            <View style={[styles.tile, { marginTop: 16 }]}>
+              <Text variant={'h3'} style={styles.tileHeader}>
+                {messages.verifiedTileHeader}
+              </Text>
+              <View style={[styles.tileListItem]}>
+                <IconVerified
+                  height={24}
+                  width={24}
+                  style={styles.verifiedIcon}
+                />
+                <Text variant={'h4'} noGutter style={styles.tileListItemText}>
+                  {messages.verifiedTileContent}
+                </Text>
+              </View>
+            </View>
 
             <TouchableOpacity
-              style={styles.gotoManualBtn}
               activeOpacity={0.6}
-              onPress={() => goTo('ProfileManual')}
+              onPress={handlePressManual}
+              style={styles.manualButton}
             >
-              <Text style={styles.gotoManualBtnTitle}>{messages.manually}</Text>
+              <Text
+                fontSize='medium'
+                weight='medium'
+                style={styles.manualButtonText}
+              >
+                {messages.manual}
+              </Text>
             </TouchableOpacity>
-          </View>
+          </>
         )}
       </View>
     </SafeAreaView>

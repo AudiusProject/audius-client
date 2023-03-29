@@ -10,9 +10,12 @@ web-init:
     - create_concatenated_package_lock:
         filename: combined-package-lock.txt
 
+    - create_concatenated_patch_file:
+        filename: combined-patch-file.txt
+
     - restore_cache:
         keys:
-          - cache-{{ checksum "package-lock.json" }}-{{ checksum "combined-package-lock.txt" }}
+          - cache-{{ checksum "package-lock.json" }}-{{ checksum "combined-package-lock.txt" }}-{{ checksum "combined-patch-file.txt" }}
 
     - restore_cache:
         keys:
@@ -38,7 +41,9 @@ web-init:
     - persist_to_workspace:
         root: ./
         paths:
+          - node_modules
           - packages/web/node_modules
+          - packages/probers/node_modules
           - packages/stems/node_modules
           - packages/stems/dist
           - packages/common/node_modules
@@ -78,63 +83,24 @@ web-build-staging:
         build-directory: packages/web/build-staging
         build-name: build-staging
 
-web-build-ipfs-staging:
-  working_directory: ~/audius-client
-  docker:
-    - image: circleci/node:14.18
-  resource_class: xlarge
-  steps:
-    - web-build:
-        build-type: ipfs-stage
-        build-directory: packages/web/build-ipfs-staging
-        build-name: build-ipfs-staging
-    - run:
-        name: zip build-ipfs-staging
-        command: |
-          cd packages/web
-          zip -r build-ipfs-staging.zip ./build-ipfs-staging
-    - persist_to_workspace:
-        root: ./
-        paths:
-          - packages/web/build-ipfs-staging.zip
-
 web-test-staging:
-  working_directory: ~/
-  docker:
-    - image: circleci/node:14.18-browsers
+  working_directory: ~/audius-client
   resource_class: large
+  executor: cypress/default
   steps:
-    - run:
-        name: download probers
-        command: |
-          mkdir -p ~/.ssh
-          touch ~/.ssh/config
-          echo $'Host github.com\n\tStrictHostKeyChecking no' > ~/.ssh/config
-          git clone git@github.com:AudiusProject/probers.git
-          cd probers
-    # Download and cache dependencies
-    - restore_cache:
-        keys:
-          - probers-cache-{{ checksum "probers/package-lock.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - probers-cache-
-    - run:
-        name: install probers dependencies
-        command: |
-          cd probers
-          npm ci
-    - save_cache:
-        key: probers-cache-{{ checksum "probers/package-lock.json" }}
-        paths:
-          - ./probers/node_modules
+    - checkout
     - attach_workspace:
         at: ./
-    - run:
-        name: serve and run prober tests
-        command: |
-          npx serve -l 3001 -s packages/web/build-staging &
-          cd probers
-          npm run test:ci
+    - cypress/install:
+        install-command: 'cd packages/probers && npx cypress install'
+        install-browsers: true
+    - cypress/run-tests:
+        cypress-command: 'cd packages/probers && npx cypress run --browser chrome'
+        start-command: 'npx serve -l 3001 -s packages/web/build-staging'
+    - store_artifacts:
+        path: /home/circleci/audius-client/packages/probers/cypress/videos
+    - store_artifacts:
+        path: /home/circleci/audius-client/packages/probers/cypress/screenshots
 
 web-build-production:
   working_directory: ~/audius-client
@@ -146,26 +112,6 @@ web-build-production:
         build-type: prod-source-maps
         build-directory: packages/web/build-production
         build-name: build-production
-
-web-build-ipfs-production:
-  working_directory: ~/audius-client
-  docker:
-    - image: circleci/node:14.18
-  resource_class: xlarge
-  steps:
-    - web-build:
-        build-type: ipfs-prod
-        build-directory: packages/web/build-ipfs-production
-        build-name: build-ipfs-production
-    - run:
-        name: zip build
-        command: |
-          cd packages/web
-          zip -r build-ipfs-production.zip ./build-ipfs-production
-    - persist_to_workspace:
-        root: ./
-        paths:
-          - packages/web/build-ipfs-production.zip
 
 web-deploy-demo:
   working_directory: ~/audius-client
@@ -204,55 +150,35 @@ web-deploy-staging-s3:
 web-deploy-staging-cloudflare:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/node:14.18
+    - image: cimg/python:3.7.12-node
   steps:
     - web-deploy-cloudflare:
         build-type: staging
         environment: staging
         copy-robots: false
-
-web-deploy-ipfs-staging:
-  working_directory: ~/audius-client
-  docker:
-    - image: circleci/python:2.7-jessie
-  steps:
-    - web-deploy-ipfs:
-        build-type: staging
-
-web-update-staging-ga-ipfs-build:
-  working_directory: ~/audius-client
-  docker:
-    - image: circleci/node:14.18
-  steps:
-    - web-update-ga-ipfs-build:
-        build-type: stage
-
-web-publish-staging-build-cids:
-  working_directory: ~/audius-client
-  docker:
-    - image: circleci/python:2.7-jessie
-  steps:
-    - web-publish-build-cids:
-        build-type: staging
-
-web-update-ipfs-staging-records:
-  working_directory: ~/audius-client
-  docker:
-    - image: circleci/node:14.18
-  steps:
-    - web-update-ipfs-records:
-        dns-name: _dnslink.ipfs.staging.audius.co
-        dns-id: '${CLOUDFLARE_STAGE_SITE_IPFS_DNS_ID}'
+    - web-deploy-sourcemaps-s3
 
 web-deploy-release-candidate:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/node:14.18
+    - image: cimg/python:3.7.12-node
   steps:
     - web-deploy-cloudflare:
         build-type: production
         environment: release
         copy-robots: true
+    - web-deploy-sourcemaps-s3
+
+web-deploy-staging-release-candidate:
+  working_directory: ~/audius-client
+  docker:
+    - image: cimg/python:3.7.12-node
+  steps:
+    - web-deploy-cloudflare:
+        build-type: staging
+        environment: staging-release
+        copy-robots: true
+    - web-deploy-sourcemaps-s3
 
 web-deploy-production-s3:
   working_directory: ~/audius-client
@@ -283,45 +209,13 @@ web-deploy-production-s3:
 web-deploy-production-cloudflare:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/node:14.18
+    - image: cimg/python:3.7.12-node
   steps:
     - web-deploy-cloudflare:
         build-type: production
         environment: production
         copy-robots: true
-
-web-deploy-ipfs-production:
-  working_directory: ~/audius-client
-  docker:
-    - image: circleci/python:2.7-jessie
-  steps:
-    - web-deploy-ipfs:
-        build-type: production
-
-web-update-production-ga-ipfs-build:
-  working_directory: ~/audius-client
-  docker:
-    - image: circleci/node:14.18
-  steps:
-    - web-update-ga-ipfs-build:
-        build-type: prod
-
-web-publish-production-build-cids:
-  working_directory: ~/audius-client
-  docker:
-    - image: circleci/python:2.7-jessie
-  steps:
-    - web-publish-build-cids:
-        build-type: production
-
-web-update-ipfs-production-records:
-  working_directory: ~/audius-client
-  docker:
-    - image: circleci/node:14.18
-  steps:
-    - web-update-ipfs-records:
-        dns-name: _dnslink.ipfs.audius.co
-        dns-id: '${CLOUDFLARE_PROD_SITE_IPFS_DNS_ID}'
+    - web-deploy-sourcemaps-s3
 
 web-deploy-sentry-sourcemaps:
   working_directory: ~/audius-client
@@ -345,7 +239,7 @@ web-deploy-sentry-sourcemaps:
         name: upload-sourcemaps
         command: |
           cd packages/web
-          node_modules/.bin/sentry-cli --auth-token ${SENTRY_AUTH_TOKEN} releases --org audius --project audius-client files ${CIRCLE_SHA1} upload-sourcemaps --no-rewrite build-production
+          node_modules/.bin/sentry-cli --auth-token ${SENTRY_AUTH_TOKEN} releases --org audius --project audius-client files ${CIRCLE_SHA1} upload-sourcemaps --no-rewrite build-production/static/js
     - run:
         name: finalize-release
         command: |
@@ -355,7 +249,7 @@ web-deploy-sentry-sourcemaps:
 web-dist-mac-staging:
   working_directory: ~/audius-client
   macos: # Run on osx so dmg can be created and signed.
-    xcode: '13.3.0'
+    xcode: '14.0.0'
   steps:
     - web-distribute:
         build-type: mac-publish
@@ -363,7 +257,7 @@ web-dist-mac-staging:
 web-dist-win-staging:
   working_directory: ~/audius-client
   docker:
-    - image: electronuserland/builder:wine-mono
+    - image: electronuserland/builder:16-wine-mono-05.22
   steps:
     - web-distribute:
         build-type: win-publish
@@ -379,7 +273,7 @@ web-dist-linux-staging:
 web-dist-mac-production:
   working_directory: ~/audius-client
   macos: # Run on osx so dmg can be created and signed.
-    xcode: '13.3.0'
+    xcode: '14.0.0'
   steps:
     - web-distribute:
         build-type: mac-publish-production
@@ -387,7 +281,7 @@ web-dist-mac-production:
 web-dist-win-production:
   working_directory: ~/audius-client
   docker:
-    - image: electronuserland/builder:wine-mono
+    - image: electronuserland/builder:16-wine-mono-05.22
   steps:
     - web-distribute:
         build-type: win-publish-production

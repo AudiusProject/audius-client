@@ -1,19 +1,7 @@
-import { ID, encodeUrlName } from '@audius/common'
+import { ID, encodeUrlName, getHash } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { Location as HistoryLocation } from 'history'
 import { matchPath } from 'react-router'
-
-/**
- * Generate a short base36 hash for a given string.
- * Used to generate short hashes for for queries and urls.
- */
-export const getHash = (str: string) =>
-  Math.abs(
-    str.split('').reduce((a, b) => {
-      a = (a << 5) - a + b.charCodeAt(0)
-      return a & a
-    }, 0)
-  ).toString(36)
 
 const USE_HASH_ROUTING = process.env.REACT_APP_USE_HASH_ROUTING === 'true'
 
@@ -67,6 +55,7 @@ export const FAVORITES_PAGE = '/favorites'
 export const HISTORY_PAGE = '/history'
 export const DASHBOARD_PAGE = '/dashboard'
 export const AUDIO_PAGE = '/audio'
+export const AUDIO_TRANSACTIONS_PAGE = '/audio/transactions'
 export const UPLOAD_PAGE = '/upload'
 export const UPLOAD_ALBUM_PAGE = '/upload/album'
 export const UPLOAD_PLAYLIST_PAGE = '/upload/playlist'
@@ -81,6 +70,8 @@ export const NOTIFICATION_PAGE = '/notifications'
 export const APP_REDIRECT = '/app-redirect'
 export const CHECK_PAGE = '/check'
 export const DEACTIVATE_PAGE = '/deactivate'
+export const CHATS_PAGE = '/messages'
+export const CHAT_PAGE = '/messages/:id?'
 
 // Param routes.
 export const NOTIFICATION_USERS_PAGE = '/notification/:notificationId/users'
@@ -88,6 +79,7 @@ export const ANNOUNCEMENT_PAGE = '/notification/:notificationId'
 export const SEARCH_CATEGORY_PAGE = '/search/:query/:category'
 export const SEARCH_PAGE = '/search/:query?'
 export const PLAYLIST_PAGE = '/:handle/playlist/:playlistName'
+export const PLAYLIST_BY_PERMALINK_PAGE = '/:handle/playlist/:slug'
 export const ALBUM_PAGE = '/:handle/album/:albumName'
 export const TRACK_PAGE = '/:handle/:slug'
 export const TRACK_REMIXES_PAGE = '/:handle/:slug/remixes'
@@ -187,6 +179,7 @@ export const orderedRoutes = [
   HISTORY_PAGE,
   DASHBOARD_PAGE,
   AUDIO_PAGE,
+  AUDIO_TRANSACTIONS_PAGE,
   SETTINGS_PAGE,
   ACCOUNT_SETTINGS_PAGE,
   NOTIFICATION_SETTINGS_PAGE,
@@ -216,6 +209,7 @@ export const staticRoutes = new Set([
   HISTORY_PAGE,
   DASHBOARD_PAGE,
   AUDIO_PAGE,
+  AUDIO_TRANSACTIONS_PAGE,
   UPLOAD_PAGE,
   UPLOAD_ALBUM_PAGE,
   UPLOAD_PLAYLIST_PAGE,
@@ -272,13 +266,34 @@ export const fullAlbumPage = (handle: string, title: string, id: ID) => {
 
 export const playlistPage = (
   handle: string,
-  title: string,
-  id: ID | string
+  playlistName?: string | null,
+  playlistId?: ID | null,
+  permalink?: string | null
 ) => {
-  return `/${encodeUrlName(handle)}/playlist/${encodeUrlName(title)}-${id}`
+  // Prioritize permalink if available. If not, default to legacy routing
+  if (permalink) {
+    return permalink
+  } else if (playlistName && playlistId) {
+    return `/${encodeUrlName(handle)}/playlist/${encodeUrlName(
+      playlistName
+    )}-${playlistId}`
+  } else {
+    console.error('Missing required arguments to get PlaylistPage route.')
+    return ''
+  }
 }
-export const fullPlaylistPage = (handle: string, title: string, id: ID) => {
-  return `${BASE_URL}${playlistPage(handle, title, id)}`
+export const fullPlaylistPage = (
+  handle: string,
+  playlistName?: string | null,
+  playlistId?: ID | null,
+  permalink?: string | null
+) => {
+  return `${BASE_URL}${playlistPage(
+    handle,
+    playlistName,
+    playlistId,
+    permalink
+  )}`
 }
 
 export const audioNftPlaylistPage = (handle: string) => {
@@ -318,6 +333,10 @@ export const fullSearchResultsPage = (query: string) => {
 
 export const exploreMoodPlaylistsPage = (mood: string) => {
   return `/explore/${mood}`
+}
+
+export const chatPage = (id: string) => {
+  return `/messages/${id}`
 }
 
 export const doesMatchRoute = (route: string, exact = true) => {

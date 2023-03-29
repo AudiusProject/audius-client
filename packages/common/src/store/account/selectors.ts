@@ -20,14 +20,11 @@ export const getUserId = (state: CommonState) => state.account.userId
 export const getAccountStatus = (state: CommonState) => state.account.status
 export const getUserPlaylistOrder = (state: CommonState) =>
   state.account.orderedPlaylists
-export const getConnectivityFailure = (state: CommonState) =>
-  state.account.connectivityFailure
 export const getNeedsAccountRecovery = (state: CommonState) =>
   state.account.needsAccountRecovery
 export const getAccountToCache = (state: CommonState) => ({
   userId: state.account.userId,
-  collections: state.account.collections,
-  hasFavoritedItem: state.account.hasFavoritedItem
+  collections: state.account.collections
 })
 
 export const getAccountUser = createSelector(
@@ -172,14 +169,17 @@ export const getAccountWithAlbums = createSelector(
   }
 )
 
-export const getAccountWithPlaylistsAndAlbums = createSelector(
+export const getAccountWithNameSortedPlaylistsAndAlbums = createSelector(
   [getAccountWithCollections],
   (account) => {
     if (!account) return undefined
+    const nameSortedCollections = account.collections.sort((a, b) =>
+      a.playlist_name.toLowerCase().localeCompare(b.playlist_name.toLowerCase())
+    )
     return {
       ...account,
-      playlists: account.collections.filter((c) => !c.is_album),
-      albums: account.collections.filter((c) => c.is_album)
+      playlists: nameSortedCollections.filter((c) => !c.is_album),
+      albums: nameSortedCollections.filter((c) => c.is_album)
     }
   }
 )

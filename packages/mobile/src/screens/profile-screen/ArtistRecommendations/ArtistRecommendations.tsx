@@ -1,12 +1,15 @@
 import { Fragment, useCallback } from 'react'
 
+import type { User } from '@audius/common'
 import {
   FollowSource,
   usersSocialActions,
   artistRecommendationsUISelectors,
-  artistRecommendationsUIActions
+  artistRecommendationsUIActions,
+  useProxySelector
 } from '@audius/common'
 import { TouchableOpacity, View } from 'react-native'
+import { useDispatch } from 'react-redux'
 import { useEffectOnce } from 'react-use'
 
 import IconFollow from 'app/assets/images/iconFollow.svg'
@@ -14,9 +17,7 @@ import IconFollowing from 'app/assets/images/iconFollowing.svg'
 import IconClose from 'app/assets/images/iconRemove.svg'
 import { Button, IconButton, Text } from 'app/components/core'
 import { ProfilePicture } from 'app/components/user'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { track, make } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 import { EventNames } from 'app/types/analytics'
@@ -25,7 +26,7 @@ import { useSelectProfile } from '../selectors'
 
 import { ArtistLink } from './ArtistLink'
 const { fetchRelatedArtists } = artistRecommendationsUIActions
-const { makeGetRelatedArtists } = artistRecommendationsUISelectors
+const { getRelatedArtists } = artistRecommendationsUISelectors
 const { followUser, unfollowUser } = usersSocialActions
 
 const messages = {
@@ -81,18 +82,16 @@ type ArtistRecommendationsProps = {
   onClose: () => void
 }
 
-const getRelatedArtistIds = makeGetRelatedArtists()
-
 export const ArtistRecommendations = (props: ArtistRecommendationsProps) => {
   const { onClose } = props
   const styles = useStyles()
   const navigation = useNavigation()
   const { user_id, name } = useSelectProfile(['user_id', 'name'])
 
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
 
   useEffectOnce(() => {
-    dispatchWeb(fetchRelatedArtists({ userId: user_id }))
+    dispatch(fetchRelatedArtists({ userId: user_id }))
 
     track(
       make({
@@ -102,9 +101,9 @@ export const ArtistRecommendations = (props: ArtistRecommendationsProps) => {
     )
   })
 
-  const suggestedArtists = useSelectorWeb(
-    (state) => getRelatedArtistIds(state, { id: user_id }),
-    (a, b) => a.length === b.length
+  const suggestedArtists = useProxySelector(
+    (state) => getRelatedArtists(state, { id: user_id }),
+    [user_id]
   )
 
   const isFollowingAllArtists = suggestedArtists.every(
@@ -114,26 +113,23 @@ export const ArtistRecommendations = (props: ArtistRecommendationsProps) => {
   const handlePressFollow = useCallback(() => {
     suggestedArtists.forEach((artist) => {
       if (isFollowingAllArtists) {
-        dispatchWeb(
+        dispatch(
           unfollowUser(
             artist.user_id,
             FollowSource.ARTIST_RECOMMENDATIONS_POPUP
           )
         )
       } else {
-        dispatchWeb(
+        dispatch(
           followUser(artist.user_id, FollowSource.ARTIST_RECOMMENDATIONS_POPUP)
         )
       }
     })
-  }, [suggestedArtists, isFollowingAllArtists, dispatchWeb])
+  }, [suggestedArtists, isFollowingAllArtists, dispatch])
 
   const handlePressArtist = useCallback(
-    (artist) => () => {
-      navigation.push({
-        native: { screen: 'Profile', params: { handle: artist.handle } },
-        web: { route: `/${artist.handle}` }
-      })
+    (artist: User) => () => {
+      navigation.push('Profile', { handle: artist.handle })
     },
     [navigation]
   )

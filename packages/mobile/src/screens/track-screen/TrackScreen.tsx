@@ -1,26 +1,29 @@
+import { useCallback } from 'react'
+
 import {
-  lineupSelectors,
   trackPageLineupActions,
-  trackPageSelectors
+  trackPageActions,
+  trackPageSelectors,
+  useProxySelector,
+  reachabilitySelectors
 } from '@audius/common'
-import { trackRemixesPage } from 'audius-client/src/utils/route'
-import { omit } from 'lodash'
+import { useFocusEffect } from '@react-navigation/native'
 import { Text, View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
-import { Button, Screen } from 'app/components/core'
+import { Button, Screen, ScreenContent } from 'app/components/core'
 import { Lineup } from 'app/components/lineup'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 
 import { TrackScreenMainContent } from './TrackScreenMainContent'
+const { fetchTrack } = trackPageActions
 const { tracksActions } = trackPageLineupActions
 const { getLineup, getRemixParentTrack, getTrack, getUser } = trackPageSelectors
-const { makeGetLineupMetadatas } = lineupSelectors
-
-const getMoreByArtistLineup = makeGetLineupMetadatas(getLineup)
+const { getIsReachable } = reachabilitySelectors
 
 const messages = {
   moreBy: 'More By',
@@ -51,37 +54,39 @@ export const TrackScreen = () => {
   const styles = useStyles()
   const navigation = useNavigation()
   const { params } = useRoute<'Track'>()
+  const dispatch = useDispatch()
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
+  const isReachable = useSelector(getIsReachable)
 
-  // params is incorrectly typed and can sometimes be undefined
-  const { searchTrack } = params ?? {}
+  const { searchTrack, id, canBeUnlisted = true, handle, slug } = params ?? {}
 
-  const cachedTrack = useSelectorWeb(
-    (state) => getTrack(state, params),
-    // Omitting uneeded fields from the equality check because they are
-    // causing extra renders when added to the `track` object
-    (a, b) => {
-      const omitUneeded = <T extends object | null>(o: T) =>
-        omit(o, ['_stems', '_remix_parents'])
-      return isEqual(omitUneeded(a), omitUneeded(b))
-    }
-  )
+  const cachedTrack = useSelector((state) => getTrack(state, params))
 
-  const track = cachedTrack ?? searchTrack
+  const track = cachedTrack?.track_id ? cachedTrack : searchTrack
 
-  const cachedUser = useSelectorWeb(
-    (state) => getUser(state, { id: track?.owner_id }),
-    isEqual
+  const cachedUser = useSelector((state) =>
+    getUser(state, { id: track?.owner_id })
   )
 
   const user = cachedUser ?? searchTrack?.user
 
-  const lineup = useSelectorWeb(
-    getMoreByArtistLineup,
-    // Checking for equality between the entries themselves, because
-    // lineup reset state changes cause extra renders
-    (a, b) => (!a.entries && !b.entries) || isEqual(a.entries, b.entries)
-  )
-  const remixParentTrack = useSelectorWeb(getRemixParentTrack)
+  const lineup = useSelector(getLineup)
+
+  const remixParentTrack = useProxySelector(getRemixParentTrack, [])
+
+  const handleFetchTrack = useCallback(() => {
+    dispatch(tracksActions.reset())
+    dispatch(
+      fetchTrack(
+        id,
+        decodeURIComponent(slug ?? ''),
+        handle ?? user?.handle,
+        canBeUnlisted
+      )
+    )
+  }, [dispatch, canBeUnlisted, id, slug, handle, user?.handle])
+
+  useFocusEffect(handleFetchTrack)
 
   if (!track || !user) {
     console.warn(
@@ -94,19 +99,14 @@ export const TrackScreen = () => {
     if (!remixParentTrack) {
       return
     }
-    navigation.push({
-      native: {
-        screen: 'TrackRemixes',
-        params: { id: remixParentTrack.track_id }
-      },
-      web: { route: trackRemixesPage(remixParentTrack.permalink) }
-    })
+    navigation.push('TrackRemixes', { id: remixParentTrack.track_id })
   }
 
   const remixParentTrackId = track.remix_of?.tracks?.[0]?.parent_track_id
   const showMoreByArtistTitle =
-    (remixParentTrackId && lineup.entries.length > 2) ||
-    (!remixParentTrackId && lineup.entries.length > 1)
+    isReachable &&
+    ((remixParentTrackId && lineup.entries.length > 2) ||
+      (!remixParentTrackId && lineup.entries.length > 1))
 
   const hasValidRemixParent =
     !!remixParentTrackId &&
@@ -125,44 +125,48 @@ export const TrackScreen = () => {
   )
 
   return (
-    <Screen>
-      <Lineup
-        actions={tracksActions}
-        count={6}
-        header={
-          <TrackScreenMainContent
-            lineup={lineup}
-            remixParentTrack={remixParentTrack}
-            track={track}
-            user={user}
-            lineupHeader={
-              hasValidRemixParent ? originalTrackTitle : moreByArtistTitle
-            }
-          />
-        }
-        leadingElementId={remixParentTrack?.track_id}
-        leadingElementDelineator={
-          <>
-            <View style={styles.buttonContainer}>
-              <Button
-                title={messages.viewOtherRemixes}
-                icon={IconArrow}
-                variant='primary'
-                size='small'
-                onPress={handlePressGoToRemixes}
-                fullWidth
-                styles={{
-                  root: styles.button
-                }}
-              />
-            </View>
-            {moreByArtistTitle}
-          </>
-        }
-        lineup={lineup}
-        start={1}
-        includeLineupStatus
-      />
+    <Screen url={track?.permalink}>
+      <ScreenContent isOfflineCapable={isOfflineModeEnabled}>
+        <Lineup
+          actions={tracksActions}
+          // When offline, we don't want to render any tiles here and the
+          // current solution is to hard-code a count to show skeletons
+          count={isReachable ? 6 : 0}
+          header={
+            <TrackScreenMainContent
+              lineup={lineup}
+              remixParentTrack={remixParentTrack}
+              track={track}
+              user={user}
+              lineupHeader={
+                hasValidRemixParent ? originalTrackTitle : moreByArtistTitle
+              }
+            />
+          }
+          leadingElementId={remixParentTrack?.track_id}
+          leadingElementDelineator={
+            <>
+              <View style={styles.buttonContainer}>
+                <Button
+                  title={messages.viewOtherRemixes}
+                  icon={IconArrow}
+                  variant='primary'
+                  size='small'
+                  onPress={handlePressGoToRemixes}
+                  fullWidth
+                  styles={{
+                    root: styles.button
+                  }}
+                />
+              </View>
+              {moreByArtistTitle}
+            </>
+          }
+          lineup={lineup}
+          start={1}
+          includeLineupStatus
+        />
+      </ScreenContent>
     </Screen>
   )
 }

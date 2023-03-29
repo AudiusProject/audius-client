@@ -1,4 +1,10 @@
-import { MouseEvent, useCallback, useRef, useState } from 'react'
+import {
+  MouseEvent,
+  useCallback,
+  useRef,
+  useState,
+  MouseEventHandler
+} from 'react'
 
 import {
   CreatePlaylistSource,
@@ -7,19 +13,23 @@ import {
   SquareSizes,
   PlaylistLibrary as PlaylistLibraryType,
   Status,
-  FeatureFlags,
   accountSelectors,
   averageColorSelectors,
   cacheCollectionsActions,
   notificationsSelectors,
-  notificationsActions,
-  addFolderToLibrary,
-  constructPlaylistFolder,
   collectionsSocialActions,
   tracksSocialActions,
   createPlaylistModalUISelectors,
   createPlaylistModalUIActions as createPlaylistModalActions,
-  imageProfilePicEmpty
+  imageProfilePicEmpty,
+  playerSelectors,
+  queueSelectors,
+  playlistLibraryActions,
+  playlistLibraryHelpers,
+  uploadActions,
+  CreateAccountOpen,
+  notificationsActions,
+  playlistUpdatesActions
 } from '@audius/common'
 import { Scrollbar } from '@audius/stems'
 import { ResizeObserver } from '@juggle/resize-observer'
@@ -37,8 +47,8 @@ import { Dispatch } from 'redux'
 
 import { make, useRecord } from 'common/store/analytics/actions'
 import * as signOnActions from 'common/store/pages/signon/actions'
-import { makeGetCurrent } from 'common/store/queue/selectors'
 import CreatePlaylistModal from 'components/create-playlist/CreatePlaylistModal'
+import { PlaylistFormFields } from 'components/create-playlist/PlaylistForm'
 import { DragAutoscroller } from 'components/drag-autoscroller/DragAutoscroller'
 import Droppable from 'components/dragndrop/Droppable'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
@@ -49,14 +59,15 @@ import Pill from 'components/pill/Pill'
 import ConnectedProfileCompletionPane from 'components/profile-progress/ConnectedProfileCompletionPane'
 import Tooltip from 'components/tooltip/Tooltip'
 import UserBadges from 'components/user-badges/UserBadges'
-import { useFlag } from 'hooks/useRemoteConfig'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
-import { resetState as resetUploadState } from 'pages/upload-page/store/actions'
 import { NO_VISUALIZER_ROUTES } from 'pages/visualizer/Visualizer'
 import { openVisualizer } from 'pages/visualizer/store/slice'
+import { getNotificationPanelIsOpen } from 'store/application/ui/notifications/notificationsUISelectors'
+import {
+  openNotificationPanel,
+  closeNotificationPanel
+} from 'store/application/ui/notifications/notificationsUISlice'
 import { getIsDragging } from 'store/dragndrop/selectors'
-import { makeGetCurrent as makeGetCurrentPlayer } from 'store/player/selectors'
-import { update as updatePlaylistLibrary } from 'store/playlist-library/slice'
 import { AppState } from 'store/types'
 import {
   DASHBOARD_PAGE,
@@ -76,21 +87,25 @@ import NavAudio from './NavAudio'
 import styles from './NavColumn.module.css'
 import NavHeader from './NavHeader'
 import PlaylistLibrary from './PlaylistLibrary'
+
+const { updatedPlaylistViewed } = playlistUpdatesActions
+const { resetState: resetUploadState } = uploadActions
+const { update: updatePlaylistLibrary } = playlistLibraryActions
+const { addFolderToLibrary, constructPlaylistFolder } = playlistLibraryHelpers
+const { makeGetCurrent } = queueSelectors
+const { makeGetCurrent: makeGetCurrentPlayer } = playerSelectors
 const { getHideFolderTab, getIsOpen } = createPlaylistModalUISelectors
 const { saveTrack } = tracksSocialActions
 const { saveCollection } = collectionsSocialActions
-const { toggleNotificationPanel, updatePlaylistLastViewedAt } =
-  notificationsActions
 const { addTrackToPlaylist, createPlaylist } = cacheCollectionsActions
-const { getNotificationPanelIsOpen, getNotificationUnviewedCount } =
-  notificationsSelectors
+const { getNotificationUnviewedCount } = notificationsSelectors
+const { markAllAsViewed } = notificationsActions
 const getDominantColorsByTrack = averageColorSelectors.getDominantColorsByTrack
 const { getAccountStatus, getAccountUser, getPlaylistLibrary } =
   accountSelectors
 
 const messages = {
-  newPlaylistOrFolderTooltip: 'New Playlist or Folder',
-  newPlaylistTooltip: 'New Playlist'
+  newPlaylistOrFolderTooltip: 'New Playlist or Folder'
 }
 
 type OwnProps = {
@@ -112,7 +127,8 @@ const NavColumn = ({
   isElectron,
   notificationCount,
   notificationPanelIsOpen,
-  toggleNotificationPanel,
+  openNotificationPanel,
+  closeNotificationPanel,
   showCreatePlaylistModal,
   hideCreatePlaylistModalFolderTab,
   updatePlaylistLibrary,
@@ -130,7 +146,8 @@ const NavColumn = ({
   goToSignIn,
   goToUpload,
   showVisualizer,
-  dominantColors
+  dominantColors,
+  markAllNotificationsAsViewed
 }: NavColumnProps) => {
   const record = useRecord()
   const { location } = useHistory()
@@ -139,21 +156,22 @@ const NavColumn = ({
     polyfill: ResizeObserver
   })
   const scrollbarRef = useRef<HTMLElement | null>(null)
-  const [dragScrollingDirection, setDragScrollingDirection] =
-    useState(undefined)
-  const handleChangeDragScrollingDirection = useCallback((newDirection) => {
-    setDragScrollingDirection(newDirection)
-  }, [])
+  const [dragScrollingDirection, setDragScrollingDirection] = useState<
+    'up' | 'down' | undefined
+  >(undefined)
+  const handleChangeDragScrollingDirection = useCallback(
+    (newDirection: 'up' | 'down' | undefined) => {
+      setDragScrollingDirection(newDirection)
+    },
+    []
+  )
 
   const goToSignUp = useCallback(
-    (source) => {
+    (source: CreateAccountOpen['source']) => {
       routeToSignup()
       record(make(Name.CREATE_ACCOUNT_OPEN, { source }))
     },
     [record, routeToSignup]
-  )
-  const { isEnabled: isPlaylistFoldersEnabled } = useFlag(
-    FeatureFlags.PLAYLIST_FOLDERS
   )
 
   const onClickNavProfile = useCallback(() => goToSignIn(), [goToSignIn])
@@ -169,13 +187,26 @@ const NavColumn = ({
   }, [account, goToRoute])
 
   const onClickToggleNotificationPanel = useCallback(() => {
-    toggleNotificationPanel()
-    if (!notificationPanelIsOpen)
+    if (!notificationPanelIsOpen) {
+      openNotificationPanel()
       record(make(Name.NOTIFICATIONS_OPEN, { source: 'button' }))
-  }, [notificationPanelIsOpen, toggleNotificationPanel, record])
+    } else {
+      closeNotificationPanel()
+    }
+    if (notificationCount > 0) {
+      markAllNotificationsAsViewed()
+    }
+  }, [
+    notificationPanelIsOpen,
+    openNotificationPanel,
+    closeNotificationPanel,
+    record,
+    notificationCount,
+    markAllNotificationsAsViewed
+  ])
 
   const onCreatePlaylist = useCallback(
-    (metadata) => {
+    (metadata: PlaylistFormFields) => {
       const tempId = getTempPlaylistId()
       createPlaylist(tempId, metadata)
       closeCreatePlaylistModal()
@@ -187,7 +218,7 @@ const NavColumn = ({
   )
 
   const onCreateFolder = useCallback(
-    (folderName) => {
+    (folderName: string) => {
       const newLibrary = addFolderToLibrary(
         library,
         constructPlaylistFolder(folderName)
@@ -217,7 +248,7 @@ const NavColumn = ({
   ])
 
   const onClickNavLinkWithAccount = useCallback(
-    (e?: MouseEvent<HTMLAnchorElement>, id?: number) => {
+    (e?: MouseEvent, id?: number) => {
       if (!account) {
         e?.preventDefault()
         goToSignUp('restricted page')
@@ -229,7 +260,7 @@ const NavColumn = ({
     [account, goToSignUp, showActionRequiresAccount, updatePlaylistLastViewedAt]
   )
 
-  const updateScrollTopPosition = useCallback((difference) => {
+  const updateScrollTopPosition = useCallback((difference: number) => {
     if (scrollbarRef != null && scrollbarRef.current !== null) {
       scrollbarRef.current.scrollTop =
         scrollbarRef.current.scrollTop + difference
@@ -254,7 +285,7 @@ const NavColumn = ({
     if (route) goToRoute(route)
   }, [goToRoute, getTrackPageLink])
 
-  const onShowVisualizer = useCallback(
+  const onShowVisualizer: MouseEventHandler = useCallback(
     (e) => {
       if (NO_VISUALIZER_ROUTES.has(pathname)) return
       showVisualizer()
@@ -315,7 +346,7 @@ const NavColumn = ({
         })}
       >
         <Scrollbar
-          containerRef={(el) => {
+          containerRef={(el: HTMLElement) => {
             scrollbarRef.current = el
           }}
           className={styles.scrollable}
@@ -337,7 +368,7 @@ const NavColumn = ({
                   />
                   <div className={styles.userInfoWrapper}>
                     <div className={styles.name} onClick={goToProfile}>
-                      {name}
+                      <div className={styles.nameText}>{name}</div>
                       <UserBadges
                         userId={account.user_id}
                         badgeSize={12}
@@ -458,11 +489,7 @@ const NavColumn = ({
                     Playlists
                     <div className={styles.newPlaylist}>
                       <Tooltip
-                        text={
-                          isPlaylistFoldersEnabled
-                            ? messages.newPlaylistOrFolderTooltip
-                            : messages.newPlaylistTooltip
-                        }
+                        text={messages.newPlaylistOrFolderTooltip}
                         getPopupContainer={() =>
                           scrollbarRef.current?.parentNode
                         }
@@ -562,18 +589,20 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(addTrackToPlaylist(trackId, playlistId)),
   showActionRequiresAccount: () =>
     dispatch(signOnActions.showRequiresAccountModal()),
-  toggleNotificationPanel: () => dispatch(toggleNotificationPanel()),
+  openNotificationPanel: () => dispatch(openNotificationPanel()),
+  closeNotificationPanel: () => dispatch(closeNotificationPanel()),
   openCreatePlaylistModal: () => dispatch(createPlaylistModalActions.open()),
   closeCreatePlaylistModal: () => dispatch(createPlaylistModalActions.close()),
   updatePlaylistLastViewedAt: (playlistId: number) =>
-    dispatch(updatePlaylistLastViewedAt(playlistId)),
+    dispatch(updatedPlaylistViewed({ playlistId })),
   updatePlaylistLibrary: (newLibrary: PlaylistLibraryType) =>
     dispatch(updatePlaylistLibrary({ playlistLibrary: newLibrary })),
   goToUpload: () => dispatch(pushRoute(UPLOAD_PAGE)),
   goToDashboard: () => dispatch(pushRoute(DASHBOARD_PAGE)),
   goToSignUp: () => dispatch(signOnActions.openSignOn(/** signIn */ false)),
   goToSignIn: () => dispatch(signOnActions.openSignOn(/** signIn */ true)),
-  showVisualizer: () => dispatch(openVisualizer())
+  showVisualizer: () => dispatch(openVisualizer()),
+  markAllNotificationsAsViewed: () => dispatch(markAllAsViewed())
 })
 
 const ConnectedNavColumn = withRouter(

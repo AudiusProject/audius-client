@@ -1,20 +1,15 @@
 import { useCallback } from 'react'
 
-import {
-  cacheUsersSelectors,
-  notificationsSelectors,
-  tippingActions
-} from '@audius/common'
+import { cacheUsersSelectors, notificationsSelectors } from '@audius/common'
 import type {
   Nullable,
   SupporterDethronedNotification as SupporterDethroned
 } from '@audius/common'
+import { Platform } from 'react-native'
+import { useSelector } from 'react-redux'
 
 import IconCrownSource from 'app/assets/images/crown2x.png'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useNavigation } from 'app/hooks/useNavigation'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { make } from 'app/services/analytics'
+import { useNotificationNavigation } from 'app/hooks/useNotificationNavigation'
 import { EventNames } from 'app/types/analytics'
 
 import {
@@ -30,7 +25,6 @@ import {
 
 const { getUser } = cacheUsersSelectors
 const { getNotificationUser } = notificationsSelectors
-const { beginTip } = tippingActions
 
 type SupporterDethronedNotificationProps = {
   notification: SupporterDethroned
@@ -40,6 +34,8 @@ const messages = {
   title: "You've Been Dethroned!",
   body1: ' Dethroned You as ',
   body2: "'s #1 Top Supporter! Tip to Reclaim Your Spot?",
+  // NOTE: Send tip -> Send $AUDIO change
+  body2Alt: "'s #1 Top Supporter! Send $AUDIO to Reclaim Your Spot?", // iOS only
   twitterShare: (usurperHandle: string, supportingHandle: string) =>
     `I've been dethroned! ${usurperHandle} dethroned me as ${supportingHandle}'s #1 Top Supporter! #Audius $AUDIO #AUDIOTip`
 }
@@ -49,20 +45,18 @@ export const SupporterDethronedNotification = (
 ) => {
   const { notification } = props
   const { supportedUserId } = notification
-  const dispatchWeb = useDispatchWeb()
-  const navigation = useNavigation()
-  const usurpingUser = useSelectorWeb((state) =>
+  const navigation = useNotificationNavigation()
+  const usurpingUser = useSelector((state) =>
     getNotificationUser(state, notification)
   )
 
-  const supportedUser = useSelectorWeb((state) =>
+  const supportedUser = useSelector((state) =>
     getUser(state, { id: supportedUserId })
   )
 
   const handlePress = useCallback(() => {
-    dispatchWeb(beginTip({ user: supportedUser, source: 'dethroned' }))
-    navigation.navigate({ native: { screen: 'TipArtist' } })
-  }, [dispatchWeb, supportedUser, navigation])
+    navigation.navigate(notification)
+  }, [navigation, notification])
 
   const handleShare = useCallback(
     (usurpingHandle: string, supportingHandle?: Nullable<string>) => {
@@ -73,10 +67,10 @@ export const SupporterDethronedNotification = (
       const shareText = messages.twitterShare(usurpingHandle, supportingHandle)
       return {
         shareText,
-        analytics: make({
+        analytics: {
           eventName: EventNames.NOTIFICATIONS_CLICK_DETHRONED_TWITTER_SHARE,
           text: shareText
-        })
+        } as const
       }
     },
     []
@@ -95,7 +89,7 @@ export const SupporterDethronedNotification = (
           <UserNameLink user={usurpingUser} />
           {messages.body1}
           <UserNameLink user={supportedUser} />
-          {messages.body2}
+          {Platform.OS === 'ios' ? messages.body2Alt : messages.body2}
         </NotificationText>
       </NotificationBody>
       <NotificationTwitterButton

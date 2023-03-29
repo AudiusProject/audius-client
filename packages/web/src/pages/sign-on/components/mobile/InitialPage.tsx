@@ -12,7 +12,7 @@ import cn from 'classnames'
 import { Spring } from 'react-spring/renderprops'
 
 import djBackgroundImage from 'assets/img/2-DJ-4-3.jpg'
-import audiusLogoHorizontal from 'assets/img/Horizontal-Logo-Full-Color.png'
+import audiusLogoHorizontal from 'assets/img/Horizontal-Logo-Full-Color-Deprecated.png'
 import signupCtaImage from 'assets/img/signUpCTA.png'
 import { RouterContext } from 'components/animated-switch/RouterContextProvider'
 import Input from 'components/data-entry/Input'
@@ -22,8 +22,6 @@ import StatusMessage from 'components/status-message/StatusMessage'
 import { useDelayedEffect } from 'hooks/useDelayedEffect'
 
 import styles from './InitialPage.module.css'
-
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 const messages = {
   title: 'Sign Up For Audius',
@@ -73,7 +71,6 @@ type SignInProps = {
   onSubmitSignIn: (email: string, password: string) => void
   onEmailChange: (email: string) => void
   onPasswordChange: (password: string) => void
-  onAllowNotifications: () => void
   isLoading: boolean
   didSucceed: boolean
 }
@@ -213,8 +210,7 @@ const SignIn = ({
   onPasswordChange,
   isLoading,
   didSucceed,
-  hasAccount,
-  onAllowNotifications
+  hasAccount
 }: SignInProps) => {
   const { setStackReset } = useContext(RouterContext)
   const signInError = password.error
@@ -229,12 +225,6 @@ const SignIn = ({
     setStackReset(true)
     onSubmitSignIn(email.value, password.value)
   }, [onSubmitSignIn, email, password, setStackReset])
-
-  useEffect(() => {
-    if (didSucceed) {
-      onAllowNotifications()
-    }
-  }, [didSucceed, onAllowNotifications])
 
   return (
     <div className={styles.topContainer}>
@@ -313,7 +303,6 @@ export const InitialPage = ({
   onSubmitSignIn,
   onViewSignUp,
   onEmailSubmitted,
-  onAllowNotifications,
   hasAccount
 }: InitialPageProps) => {
   const topAreaRef = useRef<HTMLDivElement>(null)
@@ -329,11 +318,7 @@ export const InitialPage = ({
     })
   }, [topAreaRef, bottomLinkRef])
   return (
-    <div
-      className={cn(styles.container, {
-        [styles.native]: NATIVE_MOBILE
-      })}
-    >
+    <div className={styles.container}>
       <div className={styles.topSection}>
         <div className={styles.topSectionTransition} ref={topAreaRef}>
           {isSignIn ? (
@@ -346,7 +331,6 @@ export const InitialPage = ({
               onSubmitSignIn={onSubmitSignIn}
               onPasswordChange={onPasswordChange}
               onEmailChange={onEmailChange}
-              onAllowNotifications={onAllowNotifications}
               onViewSignUp={onViewSignUp}
             />
           ) : (

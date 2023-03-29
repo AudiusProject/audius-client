@@ -1,52 +1,55 @@
 import { useCallback } from 'react'
 
-import type { Remix, User } from '@audius/common'
-import { StyleSheet, View } from 'react-native'
+import { playerSelectors } from '@audius/common'
+import type { Remix, User, UID, CommonState } from '@audius/common'
+import { TouchableOpacity, View } from 'react-native'
+import { useSelector } from 'react-redux'
 
 import IconVolume from 'app/assets/images/iconVolume.svg'
-import { Pressable } from 'app/components/core'
 import Text from 'app/components/text'
 import UserBadges from 'app/components/user-badges'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useThemedStyles } from 'app/hooks/useThemedStyles'
+import { makeStyles } from 'app/styles'
 import type { GestureResponderHandler } from 'app/types/gesture'
-import type { ThemeColors } from 'app/utils/theme'
 import { useThemeColors } from 'app/utils/theme'
 
-import { LineupTileArt } from './LineupTileArt'
-import { createStyles as createTrackTileStyles } from './styles'
+import { FadeInView } from '../core'
 
-const createStyles = (themeColors: ThemeColors) =>
-  StyleSheet.create({
-    metadata: {
-      flexDirection: 'row'
-    },
-    titlesActive: {
-      color: themeColors.primary
-    },
-    titlesPressed: {
-      textDecorationLine: 'underline'
-    },
-    titleText: {
-      fontSize: 16
-    },
-    playingIndicator: {
-      marginLeft: 8
-    },
-    badge: {
-      marginLeft: 4
-    },
-    coSignLabel: {
-      position: 'absolute',
-      bottom: -3,
-      left: 96,
-      color: themeColors.primary,
-      fontSize: 12,
-      letterSpacing: 1,
-      lineHeight: 15,
-      textTransform: 'uppercase'
-    }
-  })
+import { LineupTileArt } from './LineupTileArt'
+import { useStyles as useTrackTileStyles } from './styles'
+import type { LineupTileProps } from './types'
+
+const useStyles = makeStyles(({ palette }) => ({
+  metadata: {
+    flexDirection: 'row'
+  },
+  titlesActive: {
+    color: palette.primary
+  },
+  titlesPressed: {
+    textDecorationLine: 'underline'
+  },
+  titleText: {
+    fontSize: 16
+  },
+  playingIndicator: {
+    marginLeft: 8
+  },
+  badge: {
+    marginLeft: 4
+  },
+  coSignLabel: {
+    position: 'absolute',
+    bottom: -3,
+    left: 96,
+    color: palette.primary,
+    fontSize: 12,
+    letterSpacing: 1,
+    lineHeight: 15,
+    textTransform: 'uppercase'
+  }
+}))
+const { getPlaying } = playerSelectors
 
 const messages = {
   coSign: 'Co-Sign'
@@ -55,89 +58,82 @@ const messages = {
 type Props = {
   artistName: string
   coSign?: Remix | null
-  imageUrl?: string
-  isPlaying: boolean
   onPressTitle?: GestureResponderHandler
-  setArtworkLoaded: (loaded: boolean) => void
+  renderImage: LineupTileProps['renderImage']
   title: string
   user: User
+  uid: UID
+  isPlayingUid: boolean
 }
 
 export const LineupTileMetadata = ({
   artistName,
   coSign,
-  imageUrl,
-  isPlaying,
   onPressTitle,
-  setArtworkLoaded,
+  renderImage,
   title,
-  user
+  user,
+  isPlayingUid
 }: Props) => {
   const navigation = useNavigation()
-  const styles = useThemedStyles(createStyles)
-  const trackTileStyles = useThemedStyles(createTrackTileStyles)
+  const styles = useStyles()
+  const trackTileStyles = useTrackTileStyles()
   const { primary } = useThemeColors()
 
-  const handleArtistPress = useCallback(() => {
-    navigation.push({
-      native: { screen: 'Profile', params: { handle: user.handle } },
-      web: { route: `/${user.handle}` }
-    })
-  }, [navigation, user])
+  const isActive = useSelector(
+    (state: CommonState) => getPlaying(state) && isPlayingUid
+  )
 
+  const handleArtistPress = useCallback(() => {
+    navigation.push('Profile', { handle: user.handle })
+  }, [navigation, user])
   return (
     <View style={styles.metadata}>
       <LineupTileArt
-        imageUrl={imageUrl}
-        onLoad={() => setArtworkLoaded(true)}
+        renderImage={renderImage}
         coSign={coSign}
         style={trackTileStyles.imageContainer}
       />
-      <View style={trackTileStyles.titles}>
-        <Pressable style={trackTileStyles.title} onPress={onPressTitle}>
-          {({ pressed }) => (
-            <>
-              <Text
-                style={[
-                  styles.titleText,
-                  isPlaying && styles.titlesActive,
-                  pressed && styles.titlesPressed
-                ]}
-                weight='bold'
-                numberOfLines={1}
-              >
-                {title}
-              </Text>
-              {!isPlaying ? null : (
-                <IconVolume fill={primary} style={styles.playingIndicator} />
-              )}
-            </>
-          )}
-        </Pressable>
-        <Pressable style={trackTileStyles.artist} onPress={handleArtistPress}>
-          {({ pressed }) => (
-            <>
-              <Text
-                style={[
-                  styles.titleText,
-                  isPlaying && styles.titlesActive,
-                  pressed && styles.titlesPressed
-                ]}
-                weight='medium'
-                numberOfLines={1}
-              >
-                {artistName}
-              </Text>
-              <UserBadges
-                user={user}
-                badgeSize={12}
-                style={styles.badge}
-                hideName
-              />
-            </>
-          )}
-        </Pressable>
-      </View>
+      <FadeInView
+        style={trackTileStyles.titles}
+        startOpacity={0}
+        duration={500}
+      >
+        <TouchableOpacity style={trackTileStyles.title} onPress={onPressTitle}>
+          <>
+            <Text
+              style={[styles.titleText, isActive && styles.titlesActive]}
+              weight='bold'
+              numberOfLines={1}
+            >
+              {title}
+            </Text>
+            {!isActive ? null : (
+              <IconVolume fill={primary} style={styles.playingIndicator} />
+            )}
+          </>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={trackTileStyles.artist}
+          onPress={handleArtistPress}
+        >
+          <>
+            <Text
+              style={[styles.titleText, isActive && styles.titlesActive]}
+              weight='medium'
+              numberOfLines={1}
+            >
+              {artistName}
+            </Text>
+            <UserBadges
+              user={user}
+              badgeSize={12}
+              style={styles.badge}
+              hideName
+            />
+          </>
+        </TouchableOpacity>
+      </FadeInView>
       {coSign && (
         <Text style={styles.coSignLabel} weight='heavy'>
           {messages.coSign}

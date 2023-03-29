@@ -1,3 +1,5 @@
+import { PlaybackSource } from 'models'
+
 import { ID, UID } from '../../models/Identifiers'
 import { TrackMetadata } from '../../models/Track'
 
@@ -22,6 +24,7 @@ export const UPDATE_LINEUP_ORDER = 'UPDATE_LINEUP_ORDER'
 
 export const PLAY = 'PLAY'
 export const PAUSE = 'PAUSE'
+export const TOGGLE_PLAY = 'TOGGLE_PLAY'
 
 export const RESET = 'RESET'
 export const RESET_SUCCEEDED = 'RESET_SUCCEEDED'
@@ -83,14 +86,16 @@ export class LineupActions {
     // a boolean indicating whether to overwrite cached entries the fetch may be refetching
     overwrite = false,
     // keyword args payload to send to the "get tracks" query
-    payload?: unknown
+    payload?: unknown,
+    other?: Record<string, unknown>
   ) {
     return {
       type: addPrefix(this.prefix, FETCH_LINEUP_METADATAS),
       offset,
       limit,
       overwrite,
-      payload
+      payload,
+      ...other
     }
   }
 
@@ -98,14 +103,16 @@ export class LineupActions {
     offset = 0,
     limit = 10,
     overwrite = false,
-    payload: unknown
+    payload: unknown,
+    handle?: string
   ) {
     return {
       type: addPrefix(this.prefix, FETCH_LINEUP_METADATAS_REQUESTED),
       offset,
       limit,
       overwrite,
-      payload
+      payload,
+      handle
     }
   }
 
@@ -113,8 +120,9 @@ export class LineupActions {
     entries: unknown,
     offset: number,
     limit: number,
-    deleted: boolean,
-    nullCount: boolean
+    deleted: number,
+    nullCount: number,
+    handle?: string
   ) {
     return {
       type: addPrefix(this.prefix, FETCH_LINEUP_METADATAS_SUCCEEDED),
@@ -122,7 +130,8 @@ export class LineupActions {
       offset,
       limit,
       deleted,
-      nullCount
+      nullCount,
+      handle
     }
   }
 
@@ -168,6 +177,15 @@ export class LineupActions {
     }
   }
 
+  togglePlay(uid: UID, id: ID, source: PlaybackSource) {
+    return {
+      type: addPrefix(this.prefix, TOGGLE_PLAY),
+      uid,
+      id,
+      source
+    }
+  }
+
   updateTrackMetadata(trackId: ID, metadata: TrackMetadata) {
     return {
       type: addPrefix(this.prefix, UPDATE_TRACK_METADATA),
@@ -176,10 +194,11 @@ export class LineupActions {
     }
   }
 
-  updateLineupOrder(orderedIds: UID[]) {
+  updateLineupOrder(orderedIds: UID[], handle?: string) {
     return {
       type: addPrefix(this.prefix, UPDATE_LINEUP_ORDER),
-      orderedIds
+      orderedIds,
+      handle
     }
   }
 
@@ -197,19 +216,22 @@ export class LineupActions {
     }
   }
 
-  add(entry: unknown, id: ID) {
+  add(entry: unknown, id: ID, handle?: string, shouldPrepend?: boolean) {
     return {
       type: addPrefix(this.prefix, ADD),
       entry,
-      id
+      id,
+      handle,
+      shouldPrepend
     }
   }
 
-  remove(kind: string, uid: UID) {
+  remove(kind: string, uid: UID, handle?: string) {
     return {
       type: addPrefix(this.prefix, REMOVE),
       kind,
-      uid
+      uid,
+      handle
     }
   }
 
@@ -221,7 +243,11 @@ export class LineupActions {
   }
 
   // If limit is not provided, we use whatever is in the state
-  refreshInView(overwrite = false, payload?: unknown, limit = null) {
+  refreshInView(
+    overwrite = false,
+    payload?: unknown,
+    limit: number | null = null
+  ) {
     return {
       type: addPrefix(this.prefix, REFRESH_IN_VIEW),
       overwrite,
@@ -236,10 +262,11 @@ export class LineupActions {
     }
   }
 
-  setPage = (page: number) => {
+  setPage = (page: number, handle?: string) => {
     return {
       type: addPrefix(this.prefix, SET_PAGE),
-      page
+      page,
+      handle
     }
   }
 }

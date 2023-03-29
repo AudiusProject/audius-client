@@ -117,9 +117,7 @@ export const useTikTokAuth = (args: UseTikTokAuthArguments) => {
     }
 
     const {
-      data: {
-        data: { access_token, open_id, expires_in }
-      }
+      data: { access_token, open_id, expires_in }
     } = await response.json()
 
     record(make(Name.TIKTOK_COMPLETE_OAUTH, {}))
@@ -133,6 +131,7 @@ export const useTikTokAuth = (args: UseTikTokAuthArguments) => {
   return createUseTikTokAuthHook({
     authenticate: () => {
       return new Promise<Credentials>((resolve, reject) => {
+        record(make(Name.TIKTOK_START_OAUTH, {}))
         const authenticationUrl = `${audiusBackendInstance.identityServiceUrl}/tiktok`
         const popup = openPopup()
 

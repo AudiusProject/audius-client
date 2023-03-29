@@ -1,11 +1,6 @@
 import { TipSource } from '../../models/Analytics'
 import { ID } from '../../models/Identifiers'
-import {
-  RecentTipsStorage,
-  Supporter,
-  Supporting,
-  UserTip
-} from '../../models/Tipping'
+import { Supporter, Supporting, UserTip } from '../../models/Tipping'
 import { User } from '../../models/User'
 import { StringAudio } from '../../models/Wallet'
 import { Nullable } from '../../utils/typeUtils'
@@ -53,9 +48,8 @@ export type TippingState = {
     amount: StringAudio
     error: Nullable<string>
     source: TipSource
+    trackId: Nullable<number> // in case the user is sending a tip from a gated track page / modal
   }
-  recentTips: UserTip[]
-  storage: Nullable<RecentTipsStorage> // what is cached in the web or mobile local storage
   tipToDisplay: Nullable<UserTip>
   showTip: boolean
 }

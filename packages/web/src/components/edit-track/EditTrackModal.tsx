@@ -129,9 +129,7 @@ const EditTrackModal = ({
   }
 
   const onAddStems = async (selectedStems: File[]) => {
-    const processed = (
-      await Promise.all(processFiles(selectedStems, false, () => {}))
-    )
+    const processed = (await Promise.all(processFiles(selectedStems, () => {})))
       .filter(removeNullable)
       .map((p) => ({
         ...p,
@@ -195,7 +193,9 @@ const EditTrackModal = ({
         onSave={onSaveEdit}
         onDelete={onSelectDelete}
         onCancel={onCancel}
-        showUnlistedToggle={metadata ? metadata.is_unlisted : false}
+        showUnlistedToggle={
+          metadata ? metadata.is_unlisted || metadata.is_premium : false
+        }
         stems={combinedStems}
         onDeleteStem={onDeleteStem}
         onSelectStemCategory={onSelectStemCategory}

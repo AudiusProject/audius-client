@@ -35,6 +35,8 @@ class DropdownInput extends Component {
       defaultValue,
       label,
       labelStyle,
+      dropdownStyle,
+      dropdownInputStyle,
       mount,
       layout,
       size,
@@ -43,7 +45,9 @@ class DropdownInput extends Component {
       isRequired,
       error,
       id,
-      focused = this.state.focused
+      focused = this.state.focused,
+      popupContainer: popupContainerProp,
+      footer
     } = this.props
     let { placeholder } = this.props
 
@@ -72,7 +76,7 @@ class DropdownInput extends Component {
         return (
           <Option
             key={item.text}
-            value={item.text}
+            value={item.value || item.text}
             query={item.text}
             role='option'
           >
@@ -88,6 +92,15 @@ class DropdownInput extends Component {
       }
     })
 
+    // Add dropdown footer if given
+    if (footer) {
+      options.push(
+        <div className={styles.footer} disabled>
+          {footer}
+        </div>
+      )
+    }
+
     let goodDefault = false
     menu.items.forEach((item) => {
       if (defaultValue === item || defaultValue === item.text) {
@@ -100,7 +113,7 @@ class DropdownInput extends Component {
         }
       : {}
 
-    let popupContainer = null
+    let popupContainer = popupContainerProp ?? null
     switch (mount) {
       case 'parent':
         popupContainer = (triggerNode) => triggerNode.parentNode
@@ -111,7 +124,7 @@ class DropdownInput extends Component {
         break
       }
       default:
-        popupContainer = null
+        popupContainer = popupContainerProp ?? null
     }
 
     return (
@@ -121,12 +134,12 @@ class DropdownInput extends Component {
             {label}
           </label>
         ) : null}
-        <div className={styles.dropdownInput}>
+        <div className={cn(styles.dropdownInput, dropdownInputStyle)}>
           <Select
             {...defaultValueProp}
             id={id}
             aria-label={ariaLabel}
-            dropdownClassName={cn(styles.select, style)}
+            dropdownClassName={cn(styles.select, dropdownStyle, style)}
             showSearch
             disabled={disabled}
             placeholder={
@@ -158,6 +171,8 @@ DropdownInput.propTypes = {
   menu: PropTypes.object,
   label: PropTypes.string,
   labelStyle: PropTypes.string,
+  dropdownStyle: PropTypes.string,
+  dropdownInputStyle: PropTypes.string,
   size: PropTypes.oneOf(['small', 'medium', 'large']),
   layout: PropTypes.oneOf(['horizontal', 'vertical']),
   variant: PropTypes.oneOf(['default', 'alternative']),

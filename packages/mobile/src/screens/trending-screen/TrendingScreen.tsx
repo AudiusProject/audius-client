@@ -1,21 +1,21 @@
 import { TimeRange, trendingPageSelectors } from '@audius/common'
+import { useSelector } from 'react-redux'
 
 import IconAllTime from 'app/assets/images/iconAllTime.svg'
 import IconDay from 'app/assets/images/iconDay.svg'
 import IconMonth from 'app/assets/images/iconMonth.svg'
+import IconTrending from 'app/assets/images/iconTrending.svg'
 import { RewardsBanner } from 'app/components/audio-rewards'
-import { Screen } from 'app/components/core'
-import { Header } from 'app/components/header'
+import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
 import { TopTabNavigator } from 'app/components/top-tab-bar'
-import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { useAppTabScreen } from 'app/hooks/useAppTabScreen'
 
 import { TrendingFilterButton } from './TrendingFilterButton'
 import { TrendingLineup } from './TrendingLineup'
 const { getTrendingGenre } = trendingPageSelectors
 
 const ThisWeekTab = () => {
-  const trendingGenre = useSelectorWeb(getTrendingGenre)
+  const trendingGenre = useSelector(getTrendingGenre)
   return (
     <TrendingLineup
       header={trendingGenre ? null : <RewardsBanner type='tracks' />}
@@ -54,14 +54,19 @@ const trendingScreens = [
 ]
 
 export const TrendingScreen = () => {
-  usePopToTopOnDrawerOpen()
+  useAppTabScreen()
 
   return (
     <Screen>
-      <Header text='Trending'>
+      <ScreenHeader text='Trending' icon={IconTrending}>
         <TrendingFilterButton />
-      </Header>
-      <TopTabNavigator screens={trendingScreens} />
+      </ScreenHeader>
+      <ScreenContent>
+        <TopTabNavigator
+          screens={trendingScreens}
+          screenOptions={{ lazy: true }}
+        />
+      </ScreenContent>
     </Screen>
   )
 }

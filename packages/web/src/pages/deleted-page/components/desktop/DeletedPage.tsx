@@ -15,7 +15,7 @@ import DynamicImage from 'components/dynamic-image/DynamicImage'
 import Lineup, { LineupWithoutTile } from 'components/lineup/Lineup'
 import NavBanner from 'components/nav-banner/NavBanner'
 import Page from 'components/page/Page'
-import StatBanner from 'components/stat-banner/StatBanner'
+import { StatBanner } from 'components/stat-banner/StatBanner'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useCollectionCoverArt } from 'hooks/useCollectionCoverArt'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
@@ -66,6 +66,7 @@ export type DeletedPageProps = {
   title: string
   description: string
   canonicalUrl: string
+  structuredData?: Object
   deletedByArtist: boolean
 
   playable: Playable
@@ -77,7 +78,11 @@ export type DeletedPageProps = {
 const g = withNullGuard(
   ({ playable, user, ...p }: DeletedPageProps) =>
     playable?.metadata &&
-    user && { ...p, playable: playable as NestedNonNullable<Playable>, user }
+    user && {
+      ...p,
+      playable: playable as NestedNonNullable<Playable>,
+      user
+    }
 )
 
 const DeletedPage = g(
@@ -85,6 +90,7 @@ const DeletedPage = g(
     title,
     description,
     canonicalUrl,
+    structuredData,
     playable,
     user,
     deletedByArtist = true,
@@ -172,6 +178,7 @@ const DeletedPage = g(
         title={title}
         description={description}
         canonicalUrl={canonicalUrl}
+        structuredData={structuredData}
         variant='flush'
         scrollableSearch
       >
@@ -180,7 +187,7 @@ const DeletedPage = g(
             userId={user ? user.user_id : null}
             coverPhotoSizes={user ? user._cover_photo_sizes : null}
           />
-          <StatBanner empty />
+          <StatBanner isEmpty />
           <NavBanner empty />
         </div>
         <div className={styles.contentWrapper}>

@@ -10,7 +10,8 @@ import {
   SavedPageTabs,
   SavedPageTrack,
   SavedPageCollection,
-  QueueItem
+  QueueItem,
+  usePremiumContentAccessMap
 } from '@audius/common'
 import { Button, ButtonType } from '@audius/stems'
 import cn from 'classnames'
@@ -72,7 +73,7 @@ const SCROLL_HEIGHT = 88
  */
 const useOffsetScroll = () => {
   // Set the child's height base on it's content vs window height
-  const contentRefCallback = useCallback((node) => {
+  const contentRefCallback = useCallback((node: HTMLDivElement) => {
     if (node !== null) {
       const contentHeight = (window as any).innerHeight - OFFSET_HEIGHT
       const useContentHeight = contentHeight > node.scrollHeight
@@ -108,19 +109,28 @@ const TracksLineup = ({
   onTogglePlay: (uid: UID, trackId: ID) => void
 }) => {
   const [trackEntries] = getFilteredData(tracks.entries)
-  const trackList = trackEntries.map((entry) => ({
-    isLoading: false,
-    isSaved: entry.has_current_user_saved,
-    isReposted: entry.has_current_user_reposted,
-    isActive: playingUid === entry.uid,
-    isPlaying: queuedAndPlaying && playingUid === entry.uid,
-    artistName: entry.user.name,
-    artistHandle: entry.user.handle,
-    trackTitle: entry.title,
-    trackId: entry.track_id,
-    uid: entry.uid,
-    isDeleted: entry.is_delete || !!entry.user.is_deactivated
-  }))
+  const trackAccessMap = usePremiumContentAccessMap(trackEntries)
+  const trackList = trackEntries.map((entry) => {
+    const { isUserAccessTBD, doesUserHaveAccess } = trackAccessMap[
+      entry.track_id
+    ] ?? { isUserAccessTBD: false, doesUserHaveAccess: true }
+    const isLocked = !isUserAccessTBD && !doesUserHaveAccess
+    return {
+      isLoading: false,
+      isPremium: entry.is_premium,
+      isSaved: entry.has_current_user_saved,
+      isReposted: entry.has_current_user_reposted,
+      isActive: playingUid === entry.uid,
+      isPlaying: queuedAndPlaying && playingUid === entry.uid,
+      artistName: entry.user.name,
+      artistHandle: entry.user.handle,
+      trackTitle: entry.title,
+      trackId: entry.track_id,
+      uid: entry.uid,
+      isDeleted: entry.is_delete || !!entry.user.is_deactivated,
+      isLocked
+    }
+  })
   const contentRefCallback = useOffsetScroll()
   return (
     <div className={styles.tracksLineupContainer}>

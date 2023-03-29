@@ -11,8 +11,12 @@ const shareTypeMap: Record<ShareType, string> = {
 export const messages = {
   modalTitle: (asset: ShareType) => `Share ${shareTypeMap[asset]}`,
   twitter: 'Share to Twitter',
-  tikTok: 'Share Sound to TikTok',
+  instagramStory: 'Share to Instagram Story',
+  snapchat: 'Share to Snapchat',
+  tikTokVideo: 'Share to TikTok',
+  tikTokSound: 'Share Sound to TikTok',
   copyLink: (asset: ShareType) => `Copy Link to ${shareTypeMap[asset]}`,
+  shareToStoryError: 'Sorry, something went wrong.',
   shareSheet: (asset: ShareType) => `Share ${asset} via...`,
   toast: (asset: ShareType) => `Copied Link to ${shareTypeMap[asset]}`,
   trackShareText: (title: string, handle: string) =>
@@ -23,5 +27,14 @@ export const messages = {
     `Check out ${albumName} by ${handle} @AudiusProject #Audius`,
   playlistShareText: (playlistName: string, handle: string) =>
     `Check out ${playlistName} by ${handle} @AudiusProject #Audius`,
-  nftPlaylistShareText: ''
+  loadingStoryModalTitle: 'Generating Story',
+  loadingInstagramStorySubtitle: 'Preparing to open Instagram',
+  loadingSnapchatSubtitle: 'Preparing to open Snapchat',
+  loadingTikTokSubtitle: 'Preparing to open TikTok',
+  cancel: 'Cancel',
+  nftPlaylistShareText: '',
+  addToPhotoLibraryDenied:
+    'You must allow Audius to add to your photo library in order to share to TikTok.',
+  addToPhotoLibraryBlocked:
+    'Audius is blocked from adding to your photo library. Please give Audius access to Photos in your Security & Privacy settings in order to use Share to TikTok.'
 }

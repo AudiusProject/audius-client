@@ -41,7 +41,7 @@
   flex-direction: column;
 
   color: var(--neutral);
-  font-size: var(--font-xs);
+  font-size: var(--font-s);
   overflow: hidden;
 }
 .text > .identity {
@@ -107,6 +107,13 @@
   box-shadow: none;
   border: 1px solid var(--neutral-light-4);
   color: var(--neutral-light-4);
+}
+
+.followersContainer .followsYou.darkMode {
+  box-shadow: none;
+  border: 1px solid var(--neutral-light-4);
+  color: var(--neutral-light-4);
+  background: none;
 }
 
 .tipContainer .rank {

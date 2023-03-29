@@ -1,5 +1,6 @@
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
+import type { ReactionTypes } from '@audius/common'
 import type { AnimatedLottieViewProps } from 'lottie-react-native'
 import LottieView from 'lottie-react-native'
 import type { StyleProp, View, ViewProps, ViewStyle } from 'react-native'
@@ -8,8 +9,6 @@ import { usePrevious } from 'react-use'
 
 import { light, medium } from 'app/haptics'
 import { makeStyles } from 'app/styles'
-
-import { NotificationsDrawerNavigationContext } from '../NotificationsDrawerNavigationContext'
 
 const useStyles = makeStyles(({ spacing }) => ({
   root: {
@@ -21,19 +20,27 @@ const useStyles = makeStyles(({ spacing }) => ({
 
 export type ReactionStatus = 'interacting' | 'idle' | 'selected' | 'unselected'
 
+type OnMeasureConfig = { x: number; width: number; reactionType: ReactionTypes }
+
+export type OnMeasure = (config: OnMeasureConfig) => void
+
 export type ReactionProps = ViewProps & {
+  reactionType: ReactionTypes
   autoPlay?: boolean
   source: AnimatedLottieViewProps['source']
+  scale?: number
   style?: StyleProp<ViewStyle>
   status?: ReactionStatus
-  onMeasure?: (values: { x: number; width: number }) => void
+  onMeasure?: OnMeasure
   isVisible: boolean
 }
 
 export const Reaction = (props: ReactionProps) => {
   const {
+    reactionType,
     autoPlay = true,
     source,
+    scale: scaleProp = 1.3,
     style,
     status: statusProp = 'idle',
     onMeasure,
@@ -44,42 +51,33 @@ export const Reaction = (props: ReactionProps) => {
   const [status, setStatus] = useState(statusProp)
   const animationRef = useRef<LottieView | null>(null)
   const ref = useRef<View | null>(null)
-  const { state } = useContext(NotificationsDrawerNavigationContext)
   const scale = useRef(new Animated.Value(1)).current
   const previousStatus = usePrevious(status)
-
-  const isOpen = state?.history.length === 2
 
   useEffect(() => {
     setStatus(statusProp)
   }, [statusProp])
 
   useEffect(() => {
-    if (status === 'unselected' || !isVisible || !isOpen) {
-      // Pause if off screen or unselected
+    if (status === 'unselected' || !isVisible) {
       animationRef.current?.pause()
     } else if (isVisible && autoPlay) {
       animationRef.current?.play()
     }
-  }, [status, autoPlay, isVisible, isOpen])
+  }, [status, autoPlay, isVisible])
 
-  useEffect(() => {
-    if (ref.current && isOpen) {
-      // We need to wait until drawer finishes opening before calculating
-      // layout, otherwise we calculate off-screen values
-      setTimeout(() => {
-        ref.current?.measureInWindow((x, _, width) => {
-          onMeasure?.({ x, width })
-        })
-      }, 500)
+  const handleLayout = () => {
+    if (isVisible && onMeasure) {
+      ref.current?.measureInWindow((x, _, width) => {
+        onMeasure({ x, width, reactionType })
+      })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- onMeasure changes too much
-  }, [ref, isOpen])
+  }
 
   useEffect(() => {
     if (previousStatus !== 'interacting' && status === 'interacting') {
       Animated.timing(scale, {
-        toValue: 1.3,
+        toValue: scaleProp,
         duration: 100,
         useNativeDriver: true
       }).start()
@@ -122,6 +120,7 @@ export const Reaction = (props: ReactionProps) => {
         ref={(animation) => {
           animationRef.current = animation
         }}
+        onLayout={handleLayout}
         autoPlay={isVisible && autoPlay}
         loop
         source={source}

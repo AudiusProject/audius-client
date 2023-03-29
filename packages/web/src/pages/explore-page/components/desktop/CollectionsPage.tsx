@@ -92,7 +92,7 @@ const CollectionsPage = ({
         isReposted={playlist.has_current_user_reposted}
         isSaved={playlist.has_current_user_saved}
         cardCoverImageSizes={playlist._cover_art_sizes}
-        link={
+        href={
           playlist.is_album
             ? fullAlbumPage(
                 playlist.user.handle,
@@ -110,7 +110,8 @@ const CollectionsPage = ({
         trackCount={playlist.playlist_contents.track_ids.length}
         onClickReposts={() => onClickReposts(playlist.playlist_id)}
         onClickFavorites={() => onClickFavorites(playlist.playlist_id)}
-        onClick={() =>
+        onClick={(e) => {
+          e.preventDefault()
           playlist.is_album
             ? goToRoute(
                 albumPage(
@@ -126,7 +127,7 @@ const CollectionsPage = ({
                   playlist.playlist_id
                 )
               )
-        }
+        }}
       />
     )
   })

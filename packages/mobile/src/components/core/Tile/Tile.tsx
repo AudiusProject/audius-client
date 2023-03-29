@@ -11,37 +11,34 @@ import { Animated, View } from 'react-native'
 
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
 import type { StylesProp } from 'app/styles'
-import { shadow } from 'app/styles'
-import { makeStyles } from 'app/styles/makeStyles'
+import { shadow, makeStyles } from 'app/styles'
 
 import { Pressable } from '../Pressable'
 
 const borderRadius = 8
 const shadowStyles = shadow()
 
-const useStyles = makeStyles(({ palette }) => {
-  return {
-    tile: {
-      flexDirection: 'row',
-      borderColor: palette.neutralLight8,
-      backgroundColor: palette.white,
-      borderWidth: 1,
-      borderRadius,
-      // Not using react-native-shadow-2 because it causes performance issues when rendering
-      // multiple lineups (in tabs)
-      ...shadowStyles
-    },
-    content: {
-      flex: 1
-    }
+const useStyles = makeStyles(({ palette }) => ({
+  tile: {
+    flexDirection: 'row',
+    borderColor: palette.neutralLight8,
+    backgroundColor: palette.white,
+    borderWidth: 1,
+    borderRadius,
+    // Not using react-native-shadow-2 because it causes performance issues when rendering
+    // multiple lineups (in tabs)
+    ...shadowStyles
+  },
+  content: {
+    flex: 1
   }
-})
+}))
 
 const defaultElement = View
 
 type TilePressableProps = Pick<
   PressableProps,
-  'onPress' | 'onPressIn' | 'onPressOut'
+  'onPress' | 'onPressIn' | 'onPressOut' | 'pointerEvents'
 >
 
 type TileOwnProps<TileComponentType extends ComponentType = ComponentType> =
@@ -81,6 +78,7 @@ export const Tile = <
     style,
     styles: stylesProp,
     scaleTo,
+    pointerEvents,
     ...other
   } = props
 
@@ -116,6 +114,7 @@ export const Tile = <
     >
       <TileComponent style={[styles.tile, stylesProp?.tile]} {...other}>
         <Pressable
+          pointerEvents={pointerEvents}
           style={[styles.content, stylesProp?.content, { borderRadius: 4 }]}
           onPress={onPress}
           onPressIn={handlePressIn}

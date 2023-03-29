@@ -1,16 +1,20 @@
 import { useState, useCallback, useRef, useContext } from 'react'
 
-import { RandomImage, accountSelectors, badgeTiers } from '@audius/common'
-import { Button, ButtonType, Popup } from '@audius/stems'
+import {
+  RandomImage,
+  accountSelectors,
+  badgeTiers,
+  useSelectTierInfo,
+  removeNullable
+} from '@audius/common'
+import { Button, ButtonType, Popup, SegmentedControl } from '@audius/stems'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
 
 import { ReactComponent as IconSearch } from 'assets/img/iconSearch.svg'
-import TabSlider from 'components/data-entry/TabSlider'
-import Dropzone from 'components/upload/Dropzone'
+import { Dropzone } from 'components/upload/Dropzone'
 import InvalidFileType from 'components/upload/InvalidFileType'
-import { useSelectTierInfo } from 'hooks/wallet'
 import { MainContentContext } from 'pages/MainContentContext'
 import { MIN_COLLECTIBLES_TIER } from 'pages/profile-page/ProfilePageProvider'
 import zIndex from 'utils/zIndex'
@@ -45,7 +49,7 @@ const DropzonePage = ({ error, onSelect }) => {
         className={styles.dropzone}
         iconClassName={styles.dropzoneIcon}
         allowMultiple={false}
-        onDrop={onDropzoneSelect}
+        onDropAccepted={onDropzoneSelect}
       />
       {error ? <InvalidFileType className={styles.invalidFileType} /> : null}
     </div>
@@ -125,6 +129,7 @@ const RandomPage = ({ onSelect }) => {
 }
 
 const CollectionPage = ({ onSelect, source }) => {
+  const refs = useRef({})
   const [loadedImgs, setLoadedImgs] = useState([])
   const [page, setPage] = useState(1)
   const { collectibles, collectibleList, solanaCollectibleList } =
@@ -139,7 +144,9 @@ const CollectionPage = ({ onSelect, source }) => {
   }, {})
 
   const visibleCollectibles = collectibles?.order
-    ? collectibles.order.map((id) => collectibleIdMap[id])
+    ? collectibles.order
+        .map((id) => collectibleIdMap[id])
+        .filter(removeNullable)
     : allCollectibles
 
   const imgs = visibleCollectibles.filter((c) => c.mediaType === 'IMAGE')
@@ -167,15 +174,22 @@ const CollectionPage = ({ onSelect, source }) => {
             COLLECTIBLES_PER_PAGE * (page - 1),
             COLLECTIBLES_PER_PAGE * page
           )
-          .map((collectible) => (
+          .map((collectible, i) => (
             <img
-              key={collectible.id}
+              ref={(ref) => {
+                refs.current[collectible.id + '_' + i] = ref
+              }}
+              key={collectible.id + '_' + i}
               className={cn(styles.collectibleImg, {
                 [styles.profileImg]: source === 'ProfilePicture',
-                [styles.fadeIn]: loadedImgs.includes(collectible.id)
+                [styles.fadeIn]:
+                  refs.current[collectible.id + '_' + i]?.complete ||
+                  loadedImgs.includes(collectible.imageUrl)
               })}
               src={collectible.imageUrl}
-              onLoad={() => setLoadedImgs([...loadedImgs, collectible.id])}
+              onLoad={() =>
+                setLoadedImgs([...loadedImgs, collectible.imageUrl])
+              }
               onClick={() => selectImg(collectible.imageUrl)}
             />
           ))}
@@ -283,7 +297,7 @@ const ImageSelectionPopup = ({
       zIndex={zIndex.IMAGE_SELECTION_POPUP}
       containerRef={mainContentRef}
     >
-      <TabSlider
+      <SegmentedControl
         className={styles.slider}
         options={tabSliderOptions}
         selected={page}

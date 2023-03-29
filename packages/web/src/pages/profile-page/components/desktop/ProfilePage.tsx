@@ -1,4 +1,4 @@
-import { useCallback, memo } from 'react'
+import { useCallback, memo, MouseEvent } from 'react'
 
 import {
   ID,
@@ -13,7 +13,8 @@ import {
   ProfileUser,
   ProfilePageTabs,
   profilePageFeedLineupActions as feedActions,
-  badgeTiers
+  badgeTiers,
+  useSelectTierInfo
 } from '@audius/common'
 
 import { ReactComponent as IconAlbum } from 'assets/img/iconAlbum.svg'
@@ -31,21 +32,20 @@ import Mask from 'components/mask/Mask'
 import NavBanner from 'components/nav-banner/NavBanner'
 import Page from 'components/page/Page'
 import ConnectedProfileCompletionHeroCard from 'components/profile-progress/ConnectedProfileCompletionHeroCard'
-import StatBanner from 'components/stat-banner/StatBanner'
+import { ProfileMode, StatBanner } from 'components/stat-banner/StatBanner'
+import { StatProps } from 'components/stats/Stats'
 import UploadChip from 'components/upload/UploadChip'
 import useTabs, { useTabRecalculator } from 'hooks/useTabs/useTabs'
-import { useSelectTierInfo } from 'hooks/wallet'
 import { MIN_COLLECTIBLES_TIER } from 'pages/profile-page/ProfilePageProvider'
 import EmptyTab from 'pages/profile-page/components/EmptyTab'
 import {
   albumPage,
   playlistPage,
-  profilePage,
-  fullProfilePage,
   UPLOAD_PAGE,
   UPLOAD_ALBUM_PAGE,
   UPLOAD_PLAYLIST_PAGE
 } from 'utils/route'
+import { getUserPageSEOFields } from 'utils/seo'
 
 import { DeactivatedProfileTombstone } from '../DeactivatedProfileTombstone'
 
@@ -75,6 +75,7 @@ export type ProfilePageProps = {
   tikTokHandle: string
   twitterVerified?: boolean
   instagramVerified?: boolean
+  tikTokVerified?: boolean
   website: string
   donation: string
   coverPhotoSizes: CoverPhotoSizes | null
@@ -86,8 +87,8 @@ export type ProfilePageProps = {
   dropdownDisabled: boolean
   following: boolean
   isSubscribed: boolean
-  mode: string
-  stats: Array<{ number: number; title: string; key: string }>
+  mode: ProfileMode
+  stats: StatProps[]
 
   profile: ProfileUser | null
   albums: Collection[] | null
@@ -138,9 +139,14 @@ export type ProfilePageProps = {
     selectedFiles: any,
     source: 'original' | 'unsplash' | 'url'
   ) => Promise<void>
-  setNotificationSubscription: (userId: ID, isSubscribed: boolean) => void
+  setNotificationSubscription: (
+    userId: ID,
+    isSubscribed: boolean,
+    onFollow: boolean
+  ) => void
   didChangeTabsFrom: (prevLabel: string, currentLabel: string) => void
   onCloseArtistRecommendations: () => void
+  onMessage: () => void
 }
 
 const ProfilePage = ({
@@ -194,6 +200,7 @@ const ProfilePage = ({
   editMode,
   areArtistRecommendationsVisible,
   onCloseArtistRecommendations,
+  onMessage,
 
   accountUserId,
   userId,
@@ -208,6 +215,7 @@ const ProfilePage = ({
   tikTokHandle,
   twitterVerified,
   instagramVerified,
+  tikTokVerified,
   website,
   donation,
   coverPhotoSizes,
@@ -270,7 +278,6 @@ const ProfilePage = ({
         playlistName={album.playlist_name}
         playlistId={album.playlist_id}
         id={album.playlist_id}
-        userId={album.playlist_owner_id}
         isPublic={!album.is_private}
         imageSize={album._cover_art_sizes}
         isPlaylist={!album.is_album}
@@ -283,11 +290,13 @@ const ProfilePage = ({
         cardCoverImageSizes={album._cover_art_sizes}
         isReposted={album.has_current_user_reposted}
         isSaved={album.has_current_user_saved}
-        onClick={() =>
+        href={albumPage(profile.handle, album.playlist_name, album.playlist_id)}
+        onClick={(e: MouseEvent) => {
+          e.preventDefault()
           goToRoute(
             albumPage(profile.handle, album.playlist_name, album.playlist_id)
           )
-        }
+        }}
       />
     ))
     if (isOwner) {
@@ -311,7 +320,6 @@ const ProfilePage = ({
         playlistId={playlist.playlist_id}
         id={playlist.playlist_id}
         imageSize={playlist._cover_art_sizes}
-        userId={playlist.playlist_owner_id}
         isPublic={!playlist.is_private}
         // isAlbum={playlist.is_album}
         primaryText={playlist.playlist_name}
@@ -324,7 +332,13 @@ const ProfilePage = ({
         cardCoverImageSizes={playlist._cover_art_sizes}
         isReposted={playlist.has_current_user_reposted}
         isSaved={playlist.has_current_user_saved}
-        onClick={() =>
+        href={playlistPage(
+          profile.handle,
+          playlist.playlist_name,
+          playlist.playlist_id
+        )}
+        onClick={(e: MouseEvent) => {
+          e.preventDefault()
           goToRoute(
             playlistPage(
               profile.handle,
@@ -332,7 +346,7 @@ const ProfilePage = ({
               playlist.playlist_id
             )
           )
-        }
+        }}
       />
     ))
     if (isOwner) {
@@ -342,7 +356,7 @@ const ProfilePage = ({
           type='playlist'
           variant='card'
           onClick={onClickUploadPlaylist}
-          isArtist
+          isArtist={isArtist}
           isFirst={playlistCards.length === 0}
         />
       )
@@ -382,8 +396,8 @@ const ProfilePage = ({
     const elements = [
       <div key={ProfilePageTabs.TRACKS} className={styles.tiles}>
         {renderProfileCompletionCard()}
-        {status !== Status.LOADING ? (
-          artistTracks.status !== Status.LOADING &&
+        {status === Status.SUCCESS ? (
+          artistTracks.status === Status.SUCCESS &&
           artistTracks.entries.length === 0 ? (
             <EmptyTab
               isOwner={isOwner}
@@ -395,7 +409,7 @@ const ProfilePage = ({
               {...getLineupProps(artistTracks)}
               extraPrecedingElement={trackUploadChip}
               animateLeadingElement
-              leadingElementId={profile._artist_pick}
+              leadingElementId={profile.artist_pick_track_id}
               loadMore={loadMoreArtistTracks}
               playTrack={playArtistTrack}
               pauseTrack={pauseArtistTrack}
@@ -430,8 +444,8 @@ const ProfilePage = ({
         )}
       </div>,
       <div key={ProfilePageTabs.REPOSTS} className={styles.tiles}>
-        {status !== Status.LOADING ? (
-          (userFeed.status !== Status.LOADING &&
+        {status === Status.SUCCESS ? (
+          (userFeed.status === Status.SUCCESS &&
             userFeed.entries.length === 0) ||
           profile.repost_count === 0 ? (
             <EmptyTab
@@ -489,7 +503,7 @@ const ProfilePage = ({
 
   const toggleNotificationSubscription = () => {
     if (!userId) return
-    setNotificationSubscription(userId, !isSubscribed)
+    setNotificationSubscription(userId, !isSubscribed, false)
   }
 
   const getUserProfileContent = () => {
@@ -516,7 +530,13 @@ const ProfilePage = ({
         isReposted={playlist.has_current_user_reposted}
         isSaved={playlist.has_current_user_saved}
         cardCoverImageSizes={playlist._cover_art_sizes}
-        onClick={() =>
+        href={playlistPage(
+          profile.handle,
+          playlist.playlist_name,
+          playlist.playlist_id
+        )}
+        onClick={(e: MouseEvent) => {
+          e.preventDefault()
           goToRoute(
             playlistPage(
               profile.handle,
@@ -524,7 +544,7 @@ const ProfilePage = ({
               playlist.playlist_id
             )
           )
-        }
+        }}
       />
     ))
     playlistCards.unshift(
@@ -551,7 +571,7 @@ const ProfilePage = ({
     const elements = [
       <div key={ProfilePageTabs.REPOSTS} className={styles.tiles}>
         {renderProfileCompletionCard()}
-        {(userFeed.status !== Status.LOADING &&
+        {(userFeed.status === Status.SUCCESS &&
           userFeed.entries.length === 0) ||
         profile.repost_count === 0 ? (
           <EmptyTab
@@ -635,12 +655,18 @@ const ProfilePage = ({
     initialTab: activeTab || undefined,
     elements
   })
-
+  const {
+    title = '',
+    description = '',
+    canonicalUrl = '',
+    structuredData
+  } = getUserPageSEOFields({ handle, userName: name, bio })
   return (
     <Page
-      title={name && handle ? `${name} (${handle})` : ''}
-      description={bio}
-      canonicalUrl={fullProfilePage(handle)}
+      title={title}
+      description={description}
+      canonicalUrl={canonicalUrl}
+      structuredData={structuredData}
       variant='flush'
       contentClassName={styles.profilePageWrapper}
       scrollableSearch
@@ -667,6 +693,7 @@ const ProfilePage = ({
           tikTokHandle={tikTokHandle}
           twitterVerified={!!twitterVerified}
           instagramVerified={!!instagramVerified}
+          tikTokVerified={!!tikTokVerified}
           website={website}
           donation={donation}
           created={created}
@@ -696,17 +723,12 @@ const ProfilePage = ({
         />
         <Mask show={editMode} zIndex={2}>
           <StatBanner
-            empty={!profile || profile.is_deactivated}
+            isEmpty={!profile || profile.is_deactivated}
             mode={mode}
             stats={stats}
-            userId={accountUserId}
-            handle={handle}
             profileId={profile?.user_id}
             areArtistRecommendationsVisible={areArtistRecommendationsVisible}
             onCloseArtistRecommendations={onCloseArtistRecommendations}
-            onClickArtistName={(handle: string) => {
-              goToRoute(profilePage(handle))
-            }}
             onEdit={onEdit}
             onSave={onSave}
             onShare={onShare}
@@ -716,6 +738,7 @@ const ProfilePage = ({
             onToggleSubscribe={toggleNotificationSubscription}
             onFollow={onFollow}
             onUnfollow={onUnfollow}
+            onMessage={onMessage}
           />
           <div className={styles.inset}>
             <NavBanner

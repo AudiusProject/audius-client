@@ -6,7 +6,8 @@ import {
   useEffect,
   useCallback,
   ReactChildren,
-  useRef
+  useRef,
+  MouseEventHandler
 } from 'react'
 
 import {
@@ -22,7 +23,8 @@ import {
   cacheCollectionsSelectors,
   cacheUsersSelectors,
   collectionsSocialActions,
-  shareModalUIActions
+  shareModalUIActions,
+  playerSelectors
 } from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
@@ -47,7 +49,6 @@ import {
   UserListType,
   UserListEntityType
 } from 'store/application/ui/userListModal/types'
-import { getUid, getBuffering, getPlaying } from 'store/player/selectors'
 import { AppState } from 'store/types'
 import { isDescendantElementOf } from 'utils/domUtils'
 import {
@@ -67,6 +68,7 @@ import PlaylistTile from './PlaylistTile'
 import TrackListItem from './TrackListItem'
 import Stats from './stats/Stats'
 import { Flavor } from './stats/StatsText'
+const { getUid, getBuffering, getPlaying } = playerSelectors
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { getUserFromCollection } = cacheUsersSelectors
 const {
@@ -94,6 +96,7 @@ type OwnProps = {
   numLoadingSkeletonRows?: number
   isTrending: boolean
   showRankIcon: boolean
+  isFeed: boolean
 }
 
 type ConnectedPlaylistTileProps = OwnProps &
@@ -132,7 +135,8 @@ const ConnectedPlaylistTile = memo(
     saveCollection,
     unsaveCollection,
     isTrending,
-    showRankIcon
+    showRankIcon,
+    isFeed = false
   }: ConnectedPlaylistTileProps) => {
     const {
       is_album: isAlbum,
@@ -225,17 +229,24 @@ const ConnectedPlaylistTile = memo(
         record
       ]
     )
+    const href = isLoading
+      ? ''
+      : isAlbum
+      ? albumPage(handle, title, id)
+      : playlistPage(handle, title, id)
+
+    const fullHref = isLoading
+      ? ''
+      : isAlbum
+      ? fullAlbumPage(handle, title, id)
+      : fullPlaylistPage(handle, title, id)
 
     const onClickTitle = useCallback(
       (e: MouseEvent) => {
         e.stopPropagation()
-        goToRoute(
-          isAlbum
-            ? albumPage(handle, title, id)
-            : playlistPage(handle, title, id)
-        )
+        goToRoute(href)
       },
-      [goToRoute, isAlbum, handle, title, id]
+      [goToRoute, href]
     )
 
     const [artworkLoaded, setArtworkLoaded] = useState(false)
@@ -301,7 +312,7 @@ const ConnectedPlaylistTile = memo(
         </Menu>
       )
     }
-    const onClickArtistName = useCallback(
+    const onClickArtistName: MouseEventHandler = useCallback(
       (e) => {
         e.stopPropagation()
         if (goToRoute) goToRoute(profilePage(handle))
@@ -372,17 +383,17 @@ const ConnectedPlaylistTile = memo(
       if (isFavorited) {
         unsaveCollection(id)
       } else {
-        saveCollection(id)
+        saveCollection(id, isFeed)
       }
-    }, [saveCollection, unsaveCollection, id, isFavorited])
+    }, [saveCollection, unsaveCollection, id, isFavorited, isFeed])
 
     const onClickRepost = useCallback(() => {
       if (isReposted) {
         undoRepostCollection(id)
       } else {
-        repostCollection(id)
+        repostCollection(id, isFeed)
       }
-    }, [repostCollection, undoRepostCollection, id, isReposted])
+    }, [repostCollection, undoRepostCollection, id, isReposted, isFeed])
 
     const onClickShare = useCallback(() => {
       shareCollection(id)
@@ -399,16 +410,12 @@ const ConnectedPlaylistTile = memo(
           kind={isAlbum ? 'album' : 'playlist'}
           id={id}
           isOwner={isOwner}
-          link={
-            isAlbum
-              ? fullAlbumPage(handle, title, id)
-              : fullPlaylistPage(handle, title, id)
-          }
+          link={fullHref}
         >
           {children as any}
         </Draggable>
       ),
-      [id, disableActions, title, isAlbum, handle, isOwner]
+      [id, disableActions, title, isAlbum, isOwner, fullHref]
     )
 
     const renderTrackList = useCallback(() => {
@@ -533,6 +540,7 @@ const ConnectedPlaylistTile = memo(
         trackCount={trackCount}
         isTrending={isTrending}
         showRankIcon={showRankIcon}
+        href={href}
       />
     )
   }
@@ -562,12 +570,12 @@ function mapDispatchToProps(dispatch: Dispatch) {
           source: ShareSource.TILE
         })
       ),
-    repostCollection: (id: ID) =>
-      dispatch(repostCollection(id, RepostSource.TILE)),
+    repostCollection: (id: ID, isFeed: boolean) =>
+      dispatch(repostCollection(id, RepostSource.TILE, isFeed)),
     undoRepostCollection: (id: ID) =>
       dispatch(undoRepostCollection(id, RepostSource.TILE)),
-    saveCollection: (id: ID) =>
-      dispatch(saveCollection(id, FavoriteSource.TILE)),
+    saveCollection: (id: ID, isFeed: boolean) =>
+      dispatch(saveCollection(id, FavoriteSource.TILE, isFeed)),
     unsaveCollection: (id: ID) =>
       dispatch(unsaveCollection(id, FavoriteSource.TILE)),
 

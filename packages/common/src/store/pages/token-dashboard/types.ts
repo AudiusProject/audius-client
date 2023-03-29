@@ -1,7 +1,7 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 
 import { Chain } from '../../../models/Chain'
-import { StringWei, WalletAddress } from '../../../models/Wallet'
+import { BNWei, StringWei, WalletAddress } from '../../../models/Wallet'
 import { Nullable } from '../../../utils/typeUtils'
 // TODO(nkang) Figure out how to import BNWei from here without invalidating slice.ts
 // import { BNWei } from '../../../models/Wallet'
@@ -14,6 +14,7 @@ type SendingState =
       amount: StringWei
       recipientWallet: string
       chain: Chain
+      canRecipientReceiveWAudio: CanReceiveWAudio
     }
   | {
       stage: 'AWAITING_CONVERTING_ETH_AUDIO_TO_SOL'
@@ -46,9 +47,11 @@ export type TokenDashboardPageModalState = Nullable<
   | { stage: 'DISCORD_CODE' }
 >
 
+export type CanReceiveWAudio = 'false' | 'loading' | 'true'
+
 export type AssociatedWallet = {
   address: string
-  balance: any // TODO(nkang) `any` should be `BNWei`
+  balance: BNWei
   collectibleCount: number
 }
 
@@ -59,8 +62,14 @@ export type ConfirmRemoveWalletAction = PayloadAction<{
   chain: Chain
 }>
 
+export type InputSendDataAction = PayloadAction<{
+  amount: StringWei
+  wallet: WalletAddress
+  chain: Chain
+}>
+
 export type AssociatedWalletsState = {
-  status: Nullable<'Connecting' | 'Confirming' | 'Confirmed'>
+  status: Nullable<'Connecting' | 'Connected' | 'Confirming' | 'Confirmed'>
   connectedEthWallets: Nullable<AssociatedWallets>
   connectedSolWallets: Nullable<AssociatedWallets>
   confirmingWallet: {
@@ -68,12 +77,13 @@ export type AssociatedWalletsState = {
     chain: Nullable<Chain>
     balance: Nullable<any> // TODO(nkang) `any` should be `BNWei`
     collectibleCount: Nullable<number>
+    signature: Nullable<string>
   }
   errorMessage: Nullable<string>
   removeWallet: {
     wallet: Nullable<string>
     chain: Nullable<Chain>
-    status: Nullable<'Confirming'>
+    status: Nullable<'Confirming' | 'Confirmed'>
   }
 }
 

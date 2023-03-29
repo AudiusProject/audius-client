@@ -1,44 +1,85 @@
-import { ID, explorePageActions } from '@audius/common'
-import { call, put, takeEvery } from 'redux-saga/effects'
+import {
+  ID,
+  explorePageActions,
+  getContext,
+  explorePageSelectors
+} from '@audius/common'
+import { call, put, takeEvery, select } from 'typed-redux-saga'
 
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { fetchUsers } from 'common/store/cache/users/sagas'
 import { STATIC_EXPLORE_CONTENT_URL } from 'utils/constants'
-const { fetchExplore, fetchExploreSucceeded, fetchExploreFailed } =
-  explorePageActions
+import { waitForRead } from 'utils/sagaHelpers'
+const {
+  fetchExplore,
+  fetchExploreSucceeded,
+  fetchExploreFailed,
+  fetchPlaylists,
+  fetchPlaylistsSucceded,
+  fetchProfiles,
+  fetchProfilesSucceded
+} = explorePageActions
+const { getPlaylistIds, getProfileIds } = explorePageSelectors
 
 const EXPLORE_CONTENT_URL =
   process.env.REACT_APP_EXPLORE_CONTENT_URL || STATIC_EXPLORE_CONTENT_URL
 
-export const fetchExploreContent = async () => {
-  return fetch(EXPLORE_CONTENT_URL).then((resp) => resp.json())
+type ExploreContent = {
+  featuredPlaylists: ID[]
+  featuredProfiles: ID[]
+}
+
+export const fetchExploreContent = async (
+  exploreContentUrl = EXPLORE_CONTENT_URL
+): Promise<ExploreContent> => {
+  const response = await fetch(exploreContentUrl)
+  return await response.json()
 }
 
 function* watchFetchExplore() {
-  yield takeEvery(fetchExplore.type, function* (action) {
-    yield call(waitForBackendSetup)
+  yield* takeEvery(fetchExplore.type, function* () {
+    yield* call(waitForRead)
+    const { EXPLORE_CONTENT_URL } = yield* getContext('env')
+    const isNativeMobile = yield* getContext('isNativeMobile')
     try {
-      const exploreContent: {
-        featuredPlaylists: ID[]
-        featuredProfiles: ID[]
-      } = yield call(fetchExploreContent)
-      yield call(
-        retrieveCollections,
-        null,
-        exploreContent.featuredPlaylists,
-        false
+      const exploreContent = yield* call(
+        fetchExploreContent,
+        EXPLORE_CONTENT_URL ?? STATIC_EXPLORE_CONTENT_URL
       )
-      yield call(fetchUsers, exploreContent.featuredProfiles)
+      if (!isNativeMobile) {
+        yield* call(
+          retrieveCollections,
+          null,
+          exploreContent.featuredPlaylists,
+          false
+        )
+        yield* call(fetchUsers, exploreContent.featuredProfiles)
+      }
 
-      yield put(fetchExploreSucceeded({ exploreContent }))
+      yield* put(fetchExploreSucceeded({ exploreContent }))
     } catch (e) {
       console.error(e)
-      yield put(fetchExploreFailed())
+      yield* put(fetchExploreFailed())
     }
   })
 }
 
+function* watchFetchPlaylists() {
+  yield* takeEvery(fetchPlaylists.type, function* fetchPlaylistsAsync() {
+    const featuredPlaylistIds = yield* select(getPlaylistIds)
+    yield* call(retrieveCollections, null, featuredPlaylistIds, false)
+    yield* put(fetchPlaylistsSucceded())
+  })
+}
+
+function* watchFetchProfiles() {
+  yield* takeEvery(fetchProfiles.type, function* fetchProfilesAsync() {
+    const featuredProfileIds = yield* select(getProfileIds)
+    yield* call(fetchUsers, featuredProfileIds)
+    yield* put(fetchProfilesSucceded())
+  })
+}
+
 export default function sagas() {
-  return [watchFetchExplore]
+  return [watchFetchExplore, watchFetchPlaylists, watchFetchProfiles]
 }

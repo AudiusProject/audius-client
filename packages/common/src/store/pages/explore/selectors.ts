@@ -5,8 +5,34 @@ import { getUsers } from 'store/cache/users/selectors'
 import { CommonState } from 'store/commonStore'
 
 import { UserCollection, Status, User } from '../../../models'
+import { removeNullable } from '../../../utils'
 
 const getExplore = (state: CommonState) => state.pages.explore
+
+export const getPlaylistIds = (state: CommonState) =>
+  getExplore(state).playlists
+
+export const getProfileIds = (state: CommonState) => getExplore(state).profiles
+
+export const getExplorePlaylists = createSelector(
+  getPlaylistIds,
+  (state: CommonState) => state.collections.entries,
+  (playlists, collections) =>
+    playlists.map((id) => collections[id]?.metadata).filter(removeNullable)
+)
+
+export const getExploreArtists = createSelector(
+  getProfileIds,
+  (state: CommonState) => state.users.entries,
+  (artists, users) =>
+    artists.map((id) => users[id]?.metadata).filter(removeNullable)
+)
+
+export const getExploreStatus = (state: CommonState) => getExplore(state).status
+export const getPlaylistsStatus = (state: CommonState) =>
+  getExplore(state).playlistsStatus
+export const getArtistsStatus = (state: CommonState) =>
+  getExplore(state).profilesStatus
 
 export type GetExplore = {
   playlists: UserCollection[]

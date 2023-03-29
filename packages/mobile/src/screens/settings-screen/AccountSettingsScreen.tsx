@@ -1,11 +1,14 @@
-import { useCallback, useContext } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import {
   accountSelectors,
   recoveryEmailActions,
-  modalsActions
+  recoveryEmailSelectors,
+  modalsActions,
+  Status
 } from '@audius/common'
 import { Text, View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import Door from 'app/assets/images/emojis/door.png'
 import Key from 'app/assets/images/emojis/key.png'
@@ -16,20 +19,19 @@ import IconMail from 'app/assets/images/iconMail.svg'
 import IconRemove from 'app/assets/images/iconRemove.svg'
 import IconSignOut from 'app/assets/images/iconSignOut.svg'
 import IconVerified from 'app/assets/images/iconVerified.svg'
-import { ScrollView, Screen } from 'app/components/core'
-import { ToastContext } from 'app/components/toast/ToastContext'
+import { ScrollView, Screen, ScreenContent } from 'app/components/core'
 import { ProfilePicture } from 'app/components/user'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { useToast } from 'app/hooks/useToast'
 import { makeStyles } from 'app/styles'
 
 import type { ProfileTabScreenParamList } from '../app-screen/ProfileTabScreen'
 
 import { AccountSettingsItem } from './AccountSettingsItem'
 const { resendRecoveryEmail } = recoveryEmailActions
+const { getRecoveryEmailStatus } = recoveryEmailSelectors
 const { setVisibility } = modalsActions
-const getAccountUser = accountSelectors.getAccountUser
+const { getAccountUser } = accountSelectors
 
 const messages = {
   title: 'Account',
@@ -38,6 +40,7 @@ const messages = {
     'Store your recovery email safely. This email is the only way to recover your account if you forget your password.',
   recoveryButtonTitle: 'Resend',
   recoveryEmailSent: 'Recovery Email Sent!',
+  recoveryEmailNotSent: 'Unable to send recovery email. Please try again!',
   verifyTitle: 'Get Verified',
   verifyDescription:
     'Get verified by linking a verified social account to Audius',
@@ -45,10 +48,9 @@ const messages = {
   passwordTitle: 'Change Password',
   passwordDescription: 'Change your password',
   passwordButtonTitle: 'Change',
-  deactivateAccountTitle: 'Deactivate Account',
-  deactivateAccountDescription:
-    'Deactivate your account. This cannot be undone',
-  deactivateAccountButtonTitle: 'Deactivate',
+  deactivateAccountTitle: 'Delete Account',
+  deactivateAccountDescription: 'Delete your account. This cannot be undone',
+  deactivateAccountButtonTitle: 'Delete',
   signOutTitle: 'Sign Out',
   signOutDescription:
     'Make sure you have your account recovery email stored somewhere safe before signing out!',
@@ -75,39 +77,42 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
 
 export const AccountSettingsScreen = () => {
   const styles = useStyles()
-  const { toast } = useContext(ToastContext)
-  const dispatchWeb = useDispatchWeb()
-  const accountUser = useSelectorWeb(getAccountUser)
+  const { toast } = useToast()
+  const dispatch = useDispatch()
+  const accountUser = useSelector(getAccountUser)
+  const recoveryEmailStatus = useSelector(getRecoveryEmailStatus)
   const navigation = useNavigation<ProfileTabScreenParamList>()
 
   const handlePressRecoveryEmail = useCallback(() => {
-    dispatchWeb(resendRecoveryEmail)
-    toast({ content: messages.recoveryEmailSent })
-  }, [dispatchWeb, toast])
+    dispatch(resendRecoveryEmail())
+  }, [dispatch])
+
+  useEffect(() => {
+    if (recoveryEmailStatus === Status.SUCCESS) {
+      toast({ content: messages.recoveryEmailSent })
+    }
+    if (recoveryEmailStatus === Status.ERROR) {
+      toast({ content: messages.recoveryEmailSent })
+    }
+  }, [recoveryEmailStatus, toast])
 
   const handlePressVerification = useCallback(() => {
-    navigation.push({
-      native: { screen: 'AccountVerificationScreen' },
-      web: { route: '/settings/account/verification' }
-    })
+    navigation.push('AccountVerificationScreen')
   }, [navigation])
 
   const handlePressChangePassword = useCallback(() => {
-    navigation.push({
-      native: { screen: 'ChangePasswordScreen' },
-      web: { route: '/settings/change-password' }
-    })
+    navigation.push('ChangePasswordScreen')
   }, [navigation])
 
   const openSignOutDrawer = useCallback(() => {
-    dispatchWeb(setVisibility({ modal: 'SignOutConfirmation', visible: true }))
-  }, [dispatchWeb])
+    dispatch(setVisibility({ modal: 'SignOutConfirmation', visible: true }))
+  }, [dispatch])
 
   const openDeactivateAccountDrawer = useCallback(() => {
-    dispatchWeb(
+    dispatch(
       setVisibility({ modal: 'DeactivateAccountConfirmation', visible: true })
     )
-  }, [dispatchWeb])
+  }, [dispatch])
 
   if (!accountUser) return null
 
@@ -115,53 +120,55 @@ export const AccountSettingsScreen = () => {
 
   return (
     <Screen title={messages.title} topbarRight={null} variant='secondary'>
-      <ScrollView>
-        <View style={styles.header}>
-          <ProfilePicture profile={accountUser} style={styles.profilePhoto} />
-          <Text style={styles.name}>{name}</Text>
-          <Text style={styles.handle}>@{handle}</Text>
-        </View>
-        <AccountSettingsItem
-          title={messages.recoveryTitle}
-          titleIconSource={Key}
-          description={messages.recoveryDescription}
-          buttonTitle={messages.recoveryButtonTitle}
-          buttonIcon={IconMail}
-          onPress={handlePressRecoveryEmail}
-        />
-        <AccountSettingsItem
-          title={messages.verifyTitle}
-          titleIconSource={Checkmark}
-          description={messages.verifyDescription}
-          buttonTitle={messages.verifyButtonTitle}
-          buttonIcon={IconVerified}
-          onPress={handlePressVerification}
-        />
-        <AccountSettingsItem
-          title={messages.passwordTitle}
-          titleIconSource={Lock}
-          description={messages.passwordDescription}
-          buttonTitle={messages.passwordButtonTitle}
-          buttonIcon={IconMail}
-          onPress={handlePressChangePassword}
-        />
-        <AccountSettingsItem
-          title={messages.deactivateAccountTitle}
-          titleIconSource={Door}
-          description={messages.deactivateAccountDescription}
-          buttonTitle={messages.deactivateAccountButtonTitle}
-          buttonIcon={IconRemove}
-          onPress={openDeactivateAccountDrawer}
-        />
-        <AccountSettingsItem
-          title={messages.signOutTitle}
-          titleIconSource={StopSign}
-          description={messages.signOutDescription}
-          buttonTitle={messages.signOutButtonTitle}
-          buttonIcon={IconSignOut}
-          onPress={openSignOutDrawer}
-        />
-      </ScrollView>
+      <ScreenContent>
+        <ScrollView>
+          <View style={styles.header}>
+            <ProfilePicture profile={accountUser} style={styles.profilePhoto} />
+            <Text style={styles.name}>{name}</Text>
+            <Text style={styles.handle}>@{handle}</Text>
+          </View>
+          <AccountSettingsItem
+            title={messages.recoveryTitle}
+            titleIconSource={Key}
+            description={messages.recoveryDescription}
+            buttonTitle={messages.recoveryButtonTitle}
+            buttonIcon={IconMail}
+            onPress={handlePressRecoveryEmail}
+          />
+          <AccountSettingsItem
+            title={messages.verifyTitle}
+            titleIconSource={Checkmark}
+            description={messages.verifyDescription}
+            buttonTitle={messages.verifyButtonTitle}
+            buttonIcon={IconVerified}
+            onPress={handlePressVerification}
+          />
+          <AccountSettingsItem
+            title={messages.passwordTitle}
+            titleIconSource={Lock}
+            description={messages.passwordDescription}
+            buttonTitle={messages.passwordButtonTitle}
+            buttonIcon={IconMail}
+            onPress={handlePressChangePassword}
+          />
+          <AccountSettingsItem
+            title={messages.deactivateAccountTitle}
+            titleIconSource={Door}
+            description={messages.deactivateAccountDescription}
+            buttonTitle={messages.deactivateAccountButtonTitle}
+            buttonIcon={IconRemove}
+            onPress={openDeactivateAccountDrawer}
+          />
+          <AccountSettingsItem
+            title={messages.signOutTitle}
+            titleIconSource={StopSign}
+            description={messages.signOutDescription}
+            buttonTitle={messages.signOutButtonTitle}
+            buttonIcon={IconSignOut}
+            onPress={openSignOutDrawer}
+          />
+        </ScrollView>
+      </ScreenContent>
     </Screen>
   )
 }

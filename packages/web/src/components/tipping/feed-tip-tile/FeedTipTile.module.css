@@ -33,9 +33,22 @@
   display: flex;
   align-items: center;
   font-size: var(--font-s);
+  column-gap: 10px;
+}
+.recipientContainer {
+  display: flex;
+  align-items: center;
+}
+.senderContainer {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+}
+.profilePictureWrapper {
+  cursor: pointer;
 }
 .profilePicture {
-  cursor: pointer;
+  border: 1px solid var(--neutral-light-8);
 }
 .name {
   display: flex;
@@ -60,7 +73,6 @@
 .wasTippedByContainer {
   display: flex;
   align-items: center;
-  margin-left: 10px;
 }
 .wasTippedByIcon {
   width: 14px;

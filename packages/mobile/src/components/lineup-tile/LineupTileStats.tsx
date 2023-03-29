@@ -6,24 +6,20 @@ import {
   repostsUserListActions,
   favoritesUserListActions
 } from '@audius/common'
-import {
-  FAVORITING_USERS_ROUTE,
-  REPOSTING_USERS_ROUTE
-} from 'audius-client/src/utils/route'
-import { View, Pressable, StyleSheet } from 'react-native'
+import { View, TouchableOpacity } from 'react-native'
+import { useDispatch } from 'react-redux'
 
 import IconHeart from 'app/assets/images/iconHeart.svg'
 import IconRepost from 'app/assets/images/iconRepost.svg'
+import { CollectionDownloadStatusIndicator } from 'app/components/offline-downloads/CollectionDownloadStatusIndicator'
+import { TrackDownloadStatusIndicator } from 'app/components/offline-downloads/TrackDownloadStatusIndicator'
 import Text from 'app/components/text'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import { flexRowCentered } from 'app/styles'
-import type { ThemeColors } from 'app/utils/theme'
+import { makeStyles, flexRowCentered } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
 import { LineupTileRankIcon } from './LineupTileRankIcon'
-import { createStyles as createTrackTileStyles } from './styles'
+import { useStyles as useTrackTileStyles } from './styles'
 const { setFavorite } = favoritesUserListActions
 const { setRepost } = repostsUserListActions
 
@@ -35,39 +31,38 @@ const formatPlayCount = (playCount?: number) => {
   return `${formatCount(playCount)} ${suffix}`
 }
 
-const createStyles = (themeColors: ThemeColors) =>
-  StyleSheet.create({
-    stats: {
-      flexDirection: 'row',
-      flex: 0,
-      alignItems: 'stretch',
-      paddingVertical: 2,
-      marginRight: 10,
-      height: 26
-    },
-    listenCount: {
-      ...flexRowCentered(),
-      justifyContent: 'center',
-      marginLeft: 'auto'
-    },
-    leftStats: {
-      ...flexRowCentered()
-    },
-    disabledStatItem: {
-      opacity: 0.5
-    },
-    statIcon: {
-      marginLeft: 4
-    },
-    favoriteStat: {
-      height: 14,
-      width: 14
-    },
-    repostStat: {
-      height: 16,
-      width: 16
-    }
-  })
+const useStyles = makeStyles(() => ({
+  stats: {
+    flexDirection: 'row',
+    flex: 0,
+    alignItems: 'stretch',
+    paddingVertical: 2,
+    marginRight: 10,
+    height: 26
+  },
+  listenCount: {
+    ...flexRowCentered(),
+    justifyContent: 'center',
+    marginLeft: 'auto'
+  },
+  leftStats: {
+    ...flexRowCentered()
+  },
+  disabledStatItem: {
+    opacity: 0.5
+  },
+  statIcon: {
+    marginLeft: 4
+  },
+  favoriteStat: {
+    height: 14,
+    width: 14
+  },
+  repostStat: {
+    height: 16,
+    width: 16
+  }
+}))
 
 type Props = {
   favoriteType: FavoriteType
@@ -75,6 +70,7 @@ type Props = {
   hidePlays?: boolean
   id: ID
   index: number
+  isCollection?: boolean
   isTrending?: boolean
   isUnlisted?: boolean
   playCount?: number
@@ -89,6 +85,7 @@ export const LineupTileStats = ({
   hidePlays,
   id,
   index,
+  isCollection,
   isTrending,
   isUnlisted,
   playCount,
@@ -96,32 +93,29 @@ export const LineupTileStats = ({
   saveCount,
   showRankIcon
 }: Props) => {
-  const styles = useThemedStyles(createStyles)
-  const trackTileStyles = useThemedStyles(createTrackTileStyles)
+  const styles = useStyles()
+  const trackTileStyles = useTrackTileStyles()
   const { neutralLight4 } = useThemeColors()
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
   const navigation = useNavigation()
 
   const hasEngagement = Boolean(repostCount || saveCount)
 
   const handlePressFavorites = useCallback(() => {
-    dispatchWeb(setFavorite(id, favoriteType))
-    navigation.push({
-      native: { screen: 'Favorited', params: { id, favoriteType } },
-      web: { route: FAVORITING_USERS_ROUTE }
-    })
-  }, [dispatchWeb, id, navigation, favoriteType])
+    dispatch(setFavorite(id, favoriteType))
+    navigation.push('Favorited', { id, favoriteType })
+  }, [dispatch, id, navigation, favoriteType])
 
   const handlePressReposts = useCallback(() => {
-    dispatchWeb(setRepost(id, repostType))
-    navigation.push({
-      native: {
-        screen: 'Reposts',
-        params: { id, repostType }
-      },
-      web: { route: REPOSTING_USERS_ROUTE }
-    })
-  }, [dispatchWeb, id, navigation, repostType])
+    dispatch(setRepost(id, repostType))
+    navigation.push('Reposts', { id, repostType })
+  }, [dispatch, id, navigation, repostType])
+
+  const downloadStatusIndicator = isCollection ? (
+    <CollectionDownloadStatusIndicator size={18} collectionId={id} />
+  ) : (
+    <TrackDownloadStatusIndicator size={18} trackId={id} />
+  )
 
   return (
     <View style={styles.stats}>
@@ -130,7 +124,7 @@ export const LineupTileStats = ({
       )}
       {hasEngagement && !isUnlisted && (
         <View style={styles.leftStats}>
-          <Pressable
+          <TouchableOpacity
             style={[
               trackTileStyles.statItem,
               !repostCount ? styles.disabledStatItem : {}
@@ -147,8 +141,8 @@ export const LineupTileStats = ({
               fill={neutralLight4}
               style={[styles.statIcon, styles.repostStat]}
             />
-          </Pressable>
-          <Pressable
+          </TouchableOpacity>
+          <TouchableOpacity
             style={[
               trackTileStyles.statItem,
               !saveCount ? styles.disabledStatItem : {}
@@ -165,7 +159,10 @@ export const LineupTileStats = ({
               width={14}
               fill={neutralLight4}
             />
-          </Pressable>
+          </TouchableOpacity>
+          <View style={[trackTileStyles.statItem]}>
+            {downloadStatusIndicator}
+          </View>
         </View>
       )}
       {!hidePlays && (

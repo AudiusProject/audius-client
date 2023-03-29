@@ -1,16 +1,19 @@
 import { useState } from 'react'
 
-import { accountSelectors } from '@audius/common'
-import { FAVORITES_PAGE } from 'audius-client/src/utils/route'
+import { reachabilitySelectors } from '@audius/common'
+import { useSelector } from 'react-redux'
 
 import { CollectionList } from 'app/components/collection-list'
 import { VirtualizedScrollView } from 'app/components/core'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { EmptyTileCTA } from 'app/components/empty-tile-cta'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 
-import { EmptyTab } from './EmptyTab'
 import { FilterInput } from './FilterInput'
-import type { ExtendedCollection } from './types'
-const getAccountWithAlbums = accountSelectors.getAccountWithAlbums
+import { NoTracksPlaceholder } from './NoTracksPlaceholder'
+import { OfflineContentBanner } from './OfflineContentBanner'
+import { useCollectionScreenData } from './useCollectionScreenData'
+
+const { getIsReachable } = reachabilitySelectors
 
 const messages = {
   emptyTabText: "You haven't favorited any albums yet.",
@@ -19,42 +22,32 @@ const messages = {
 
 export const AlbumsTab = () => {
   const [filterValue, setFilterValue] = useState('')
-  const user = useSelectorWeb(getAccountWithAlbums)
-
-  const matchesFilter = (playlist: ExtendedCollection) => {
-    const matchValue = filterValue.toLowerCase()
-    return (
-      playlist.playlist_name.toLowerCase().indexOf(matchValue) > -1 ||
-      playlist.ownerName.toLowerCase().indexOf(matchValue) > -1
-    )
-  }
-
-  const userAlbums = user?.albums
-    ?.filter(
-      (playlist) =>
-        playlist.is_album &&
-        playlist.ownerHandle !== user.handle &&
-        matchesFilter(playlist)
-    )
-    .map((playlist) => ({ ...playlist, user }))
+  const { filteredCollections: userAlbums, collectionIdsToNumTracks } =
+    useCollectionScreenData(filterValue, 'albums')
+  const isReachable = useSelector(getIsReachable)
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
   return (
-    <VirtualizedScrollView listKey='favorites-albums-view'>
+    <VirtualizedScrollView>
       {!userAlbums?.length && !filterValue ? (
-        <EmptyTab message={messages.emptyTabText} />
+        isOfflineModeEnabled && !isReachable ? (
+          <NoTracksPlaceholder />
+        ) : (
+          <EmptyTileCTA message={messages.emptyTabText} />
+        )
       ) : (
         <>
+          <OfflineContentBanner />
           <FilterInput
             value={filterValue}
             placeholder={messages.inputPlaceholder}
             onChangeText={setFilterValue}
           />
           <CollectionList
-            listKey='favorites-albums'
             scrollEnabled={false}
-            collection={userAlbums ?? []}
+            collection={userAlbums}
+            collectionIdsToNumTracks={collectionIdsToNumTracks}
             style={{ marginVertical: 12 }}
-            fromPage={FAVORITES_PAGE}
           />
         </>
       )}

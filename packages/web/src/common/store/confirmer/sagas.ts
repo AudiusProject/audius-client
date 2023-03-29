@@ -1,4 +1,4 @@
-import { getContext } from '@audius/common'
+import { getContext, waitForValue } from '@audius/common'
 import { call, delay, put, race, select, takeEvery } from 'redux-saga/effects'
 
 import * as confirmerActions from 'common/store/confirmer/actions'
@@ -12,7 +12,6 @@ import {
   getShouldCancelCurrentCall,
   getAreRequisiteCallsComplete
 } from 'common/store/confirmer/selectors'
-import { waitForValue } from 'utils/sagaHelpers'
 
 enum BlockConfirmation {
   CONFIRMED = 'CONFIRMED',
@@ -32,15 +31,13 @@ export function* confirmTransaction(blockHash: string, blockNumber: number) {
   if (!blockHash || !blockNumber) return true
 
   function* confirmBlock(): Generator<any, BlockConfirmation, any> {
-    const { block_found, block_passed } = yield apiClient.getBlockConfirmation(
+    const { block_passed } = yield apiClient.getBlockConfirmation(
       blockHash,
       blockNumber
     )
-
-    return block_found
+    // TODO stronger checks when moving to txhash
+    return block_passed
       ? BlockConfirmation.CONFIRMED
-      : block_passed
-      ? BlockConfirmation.DENIED
       : BlockConfirmation.UNKNOWN
   }
 

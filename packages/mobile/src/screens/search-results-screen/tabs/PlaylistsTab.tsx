@@ -1,23 +1,42 @@
-import { searchResultsPageSelectors } from '@audius/common'
+import type { CommonState } from '@audius/common'
+import {
+  searchResultsPageSelectors,
+  Status,
+  useProxySelector,
+  SearchKind
+} from '@audius/common'
 
 import { CollectionList } from 'app/components/collection-list/CollectionList'
-import { useSelectorWeb, isEqual } from 'app/hooks/useSelectorWeb'
 
-import { SearchResultsTab } from './SearchResultsTab'
-const { makeGetSearchPlaylists } = searchResultsPageSelectors
+import { EmptyResults } from '../EmptyResults'
 
-const getSearchPlaylists = makeGetSearchPlaylists()
+import { useFetchTabResultsEffect } from './useFetchTabResultsEffect'
+
+const { getSearchStatus } = searchResultsPageSelectors
+
+const selectSearchPlaylists = (state: CommonState) => {
+  const searchStatus = getSearchStatus(state)
+  if (searchStatus === Status.LOADING) return undefined
+
+  return state.pages.searchResults.playlistIds
+    ?.map((playlistId) => {
+      const playlist = state.collections.entries[playlistId].metadata
+      const user = state.users.entries[playlist.playlist_owner_id].metadata
+      const trackCount = playlist.playlist_contents.track_ids.length
+      return { ...playlist, user, trackCount }
+    })
+    .filter((playlist) => playlist.user && !playlist.user.is_deactivated)
+}
 
 export const PlaylistsTab = () => {
-  const playlists = useSelectorWeb(getSearchPlaylists, isEqual)
+  const playlists = useProxySelector(selectSearchPlaylists, [])
+  useFetchTabResultsEffect(SearchKind.PLAYLISTS)
 
   return (
-    <SearchResultsTab noResults={playlists.length === 0}>
-      <CollectionList
-        listKey='search-playlists'
-        collection={playlists}
-        fromPage='search'
-      />
-    </SearchResultsTab>
+    <CollectionList
+      isLoading={!playlists}
+      collection={playlists}
+      ListEmptyComponent={<EmptyResults />}
+    />
   )
 }

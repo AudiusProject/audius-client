@@ -1,12 +1,11 @@
 import { useCallback } from 'react'
 
 import type { AddTrackToPlaylistNotification as AddTrackToPlaylistNotificationType } from '@audius/common'
-import { notificationsSelectors } from '@audius/common'
-import { isEqual } from 'lodash'
+import { useProxySelector, notificationsSelectors } from '@audius/common'
 import { View } from 'react-native'
 
 import IconPlaylists from 'app/assets/images/iconPlaylists.svg'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { useNotificationNavigation } from 'app/hooks/useNotificationNavigation'
 
 import {
   NotificationHeader,
@@ -17,8 +16,6 @@ import {
   UserNameLink,
   ProfilePicture
 } from '../Notification'
-import { getEntityRoute, getEntityScreen } from '../Notification/utils'
-import { useDrawerNavigation } from '../useDrawerNavigation'
 const { getNotificationEntities } = notificationsSelectors
 
 const messages = {
@@ -34,23 +31,21 @@ export const AddTrackToPlaylistNotification = (
   props: AddTrackToPlaylistNotificationProps
 ) => {
   const { notification } = props
-  const entities = useSelectorWeb(
+  const navigation = useNotificationNavigation()
+  const entities = useProxySelector(
     (state) => getNotificationEntities(state, notification),
-    isEqual
+    [notification]
   )
   const { track, playlist } = entities
   const playlistOwner = playlist.user
 
-  const navigation = useDrawerNavigation()
-
   const handlePress = useCallback(() => {
     if (playlist) {
-      navigation.navigate({
-        native: getEntityScreen(playlist),
-        web: { route: getEntityRoute(playlist) }
-      })
+      navigation.navigate(notification)
     }
-  }, [playlist, navigation])
+  }, [playlist, navigation, notification])
+
+  if (!playlistOwner) return null
 
   return (
     <NotificationTile notification={notification} onPress={handlePress}>

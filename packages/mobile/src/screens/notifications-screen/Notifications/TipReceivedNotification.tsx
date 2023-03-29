@@ -12,14 +12,13 @@ import type {
   TipReceiveNotification,
   ReactionTypes
 } from '@audius/common'
-import { Image, View } from 'react-native'
+import { Image, Platform, View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import Checkmark from 'app/assets/images/emojis/white-heavy-check-mark.png'
 import IconTip from 'app/assets/images/iconTip.svg'
 import { Text } from 'app/components/core'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { make } from 'app/services/analytics'
+import { useNotificationNavigation } from 'app/hooks/useNotificationNavigation'
 import { EventNames } from 'app/types/analytics'
 
 import {
@@ -35,25 +34,28 @@ import {
 } from '../Notification'
 import { ReactionList } from '../Reaction'
 
-import { useGoToProfile } from './useGoToProfile'
 const { writeReactionValue } = reactionsUIActions
 const { makeGetReactionForSignature } = reactionsUISelectors
 const { getNotificationUser } = notificationsSelectors
 
 const messages = {
   title: 'You Received a Tip!',
+  // NOTE: Send tip -> Send $AUDIO change
+  titleAlt: 'You Received $AUDIO!', // iOS only
   sent: 'sent you a tip of',
+  sentAlt: 'sent you', // iOS only
   audio: '$AUDIO',
   sayThanks: 'Say Thanks With a Reaction',
   reactionSent: 'Reaction Sent!',
-  twitterShare: (senderHandle: string, amount: number) =>
-    `Thanks ${senderHandle} for the ${formatNumberCommas(
-      amount
-    )} $AUDIO tip on @AudiusProject! #Audius #AUDIOTip`
+  // NOTE: Send tip -> Send $AUDIO change
+  twitterShare: (senderHandle: string, amount: number, ios: boolean) =>
+    `Thanks ${senderHandle} for the ${formatNumberCommas(amount)} ${
+      ios ? '$AUDIO' : '$AUDIO tip'
+    } on @AudiusProject! #Audius ${ios ? '#AUDIO' : '#AUDIOTip'}`
 }
 
 const useSetReaction = (tipTxSignature: string) => {
-  const dispatch = useDispatchWeb()
+  const dispatch = useDispatch()
 
   const setReactionValue = useCallback(
     (reaction: Nullable<ReactionTypes>) => {
@@ -75,29 +77,31 @@ export const TipReceivedNotification = (
   const { notification, isVisible } = props
   const { amount, tipTxSignature } = notification
   const uiAmount = useUIAudio(amount)
+  const navigation = useNotificationNavigation()
 
-  const user = useSelectorWeb(
-    (state) => getNotificationUser(state, notification),
-    isEqual
-  )
+  const user = useSelector((state) => getNotificationUser(state, notification))
 
-  const reactionValue = useSelectorWeb(
-    makeGetReactionForSignature(tipTxSignature)
-  )
+  const reactionValue = useSelector(makeGetReactionForSignature(tipTxSignature))
 
   const setReactionValue = useSetReaction(tipTxSignature)
 
-  const handlePress = useGoToProfile(user)
+  const handlePress = useCallback(() => {
+    navigation.navigate(notification)
+  }, [navigation, notification])
 
   const handleTwitterShare = useCallback(
     (senderHandle: string) => {
-      const shareText = messages.twitterShare(senderHandle, uiAmount)
+      const shareText = messages.twitterShare(
+        senderHandle,
+        uiAmount,
+        Platform.OS === 'ios'
+      )
       return {
         shareText,
-        analytics: make({
+        analytics: {
           eventName: EventNames.NOTIFICATIONS_CLICK_TIP_RECEIVED_TWITTER_SHARE,
           text: shareText
-        })
+        } as const
       }
     },
     [uiAmount]
@@ -108,12 +112,15 @@ export const TipReceivedNotification = (
   return (
     <NotificationTile notification={notification} onPress={handlePress}>
       <NotificationHeader icon={IconTip}>
-        <NotificationTitle>{messages.title}</NotificationTitle>
+        <NotificationTitle>
+          {Platform.OS === 'ios' ? messages.titleAlt : messages.title}
+        </NotificationTitle>
       </NotificationHeader>
       <NotificationBody>
         <ProfilePicture profile={user} />
         <NotificationText>
-          <UserNameLink user={user} /> {messages.sent}{' '}
+          <UserNameLink user={user} />{' '}
+          {Platform.OS === 'ios' ? messages.sentAlt : messages.sent}{' '}
           <TipText value={uiAmount} />
         </NotificationText>
       </NotificationBody>

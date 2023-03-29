@@ -7,18 +7,18 @@ import {
   tippingSelectors,
   tippingActions,
   walletSelectors,
-  walletActions
+  walletActions,
+  useGetFirstOrTopSupporter
 } from '@audius/common'
 import { useFocusEffect } from '@react-navigation/native'
-import { useGetFirstOrTopSupporter } from 'audius-client/src/hooks/useGetFirstOrTopSupporter'
 import BN from 'bn.js'
+import { Platform } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import IconRemove from 'app/assets/images/iconRemove.svg'
-import { Button } from 'app/components/core'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
+import { Button, ErrorText } from 'app/components/core'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 
 import { TopBarIconButton } from '../app-screen'
@@ -26,7 +26,7 @@ import { TopBarIconButton } from '../app-screen'
 import { AvailableAudio } from './AvailableAudio'
 import { BecomeFirstSupporter } from './BecomeFirstSupporter'
 import { BecomeTopSupporter } from './BecomeTopSupporter'
-import { ErrorText } from './ErrorText'
+import { DegradationNotice } from './DegradationNotice'
 import { ReceiverDetails } from './ReceiverDetails'
 import { TipInput } from './TipInput'
 import { TipScreen } from './TipScreen'
@@ -40,6 +40,8 @@ const getAccountUser = accountSelectors.getAccountUser
 
 const messages = {
   sendTip: 'Send Tip',
+  // NOTE: Send tip -> Send $AUDIO change
+  sendAudio: 'Send $AUDIO', // iOS only
   insufficientBalance: 'Insufficient Balance'
 }
 
@@ -54,15 +56,15 @@ const zeroWei = stringWeiToBN('0' as StringWei)
 export const SendTipScreen = () => {
   const styles = useStyles()
   const [tipAmount, setTipAmount] = useState('')
-  const accountBalance = (useSelectorWeb(getAccountBalance) ??
+  const accountBalance = (useSelector(getAccountBalance) ??
     new BN('0')) as BNWei
   const navigation = useNavigation<TipArtistNavigationParamList>()
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
 
-  const account = useSelectorWeb(getAccountUser)
-  const supportersMap = useSelectorWeb(getOptimisticSupporters)
-  const supportingMap = useSelectorWeb(getOptimisticSupporting)
-  const receiver = useSelectorWeb(getSendUser)
+  const account = useSelector(getAccountUser)
+  const supportersMap = useSelector(getOptimisticSupporters)
+  const supportingMap = useSelector(getOptimisticSupporting)
+  const receiver = useSelector(getSendUser)
 
   const {
     amountToTipToBecomeTopSupporter,
@@ -82,7 +84,7 @@ export const SendTipScreen = () => {
 
   useEffect(() => {
     if (shouldFetchUserSupporter && account && receiver) {
-      dispatchWeb(
+      dispatch(
         fetchUserSupporter({
           currentUserId: account.user_id,
           userId: receiver.user_id,
@@ -90,39 +92,40 @@ export const SendTipScreen = () => {
         })
       )
     }
-  }, [shouldFetchUserSupporter, account, receiver, dispatchWeb])
+  }, [shouldFetchUserSupporter, account, receiver, dispatch])
 
   useEffect(() => {
     if (shouldFetchSupportersForReceiver && account && receiver) {
-      dispatchWeb(
+      dispatch(
         refreshSupport({
           senderUserId: account.user_id,
           receiverUserId: receiver.user_id
         })
       )
     }
-  }, [shouldFetchSupportersForReceiver, account, receiver, dispatchWeb])
+  }, [shouldFetchSupportersForReceiver, account, receiver, dispatch])
 
   const handleBack = useCallback(() => {
     navigation.goBack()
   }, [navigation])
 
   const handleSendTip = useCallback(() => {
-    dispatchWeb(sendTip({ amount: tipAmount }))
-    navigation.navigate({ native: { screen: 'ConfirmTip' } })
-  }, [dispatchWeb, tipAmount, navigation])
+    dispatch(sendTip({ amount: tipAmount }))
+    navigation.navigate('ConfirmTip')
+  }, [dispatch, tipAmount, navigation])
 
   useFocusEffect(
     useCallback(() => {
-      dispatchWeb(getBalance())
-    }, [dispatchWeb])
+      dispatch(getBalance())
+    }, [dispatch])
   )
 
   return (
     <TipScreen
-      title={messages.sendTip}
+      title={Platform.OS === 'ios' ? messages.sendAudio : messages.sendTip}
       topbarLeft={<TopBarIconButton icon={IconRemove} onPress={handleBack} />}
     >
+      <DegradationNotice />
       <ReceiverDetails />
       {!hasInsufficientBalance && isFirstSupporter ? (
         <BecomeFirstSupporter />
@@ -137,7 +140,7 @@ export const SendTipScreen = () => {
       <Button
         variant='primary'
         size='large'
-        title={messages.sendTip}
+        title={Platform.OS === 'ios' ? messages.sendAudio : messages.sendTip}
         onPress={handleSendTip}
         icon={IconArrow}
         iconPosition='right'

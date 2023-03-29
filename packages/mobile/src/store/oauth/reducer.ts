@@ -1,8 +1,9 @@
-import type { MessageType } from 'app/message'
+import type { TikTokProfile } from '@audius/common'
 
 import type { OAuthActions } from './actions'
 import {
-  OPEN_POPUP,
+  SET_TIKTOK_ERROR,
+  SET_TIKTOK_INFO,
   NATIVE_OPEN_POPUP,
   CLOSE_POPUP,
   SET_TWITTER_INFO,
@@ -11,6 +12,7 @@ import {
   SET_INSTAGRAM_ERROR,
   RESET_OAUTH_STATE
 } from './actions'
+import type { AUTH_RESPONSE_MESSAGE_TYPE } from './types'
 
 type TwitterInfo = {
   uuid: any
@@ -29,17 +31,28 @@ type InstagramInfo = {
   instagramId?: any
 }
 
+type TikTokInfo = {
+  uuid: string
+  profile: TikTokProfile
+  profileImage: { url: string; file: File } | undefined
+  requiresUserReview: boolean
+}
+
 export type OAuthState = {
   isOpen: boolean
   // Incoming message id to reply back to with OAuth results
   messageId: string | null
-  messageType: MessageType | null
+  messageType: typeof AUTH_RESPONSE_MESSAGE_TYPE | null
   url: string | null
   provider: Provider | null
   twitterInfo: TwitterInfo | null
   twitterError: any
   instagramInfo: InstagramInfo | null
   instagramError: any
+  tikTokInfo: TikTokInfo | null
+  tikTokError: any
+  // Whether the user canceled out of the oauth flow
+  abandoned: boolean
 }
 
 export enum Provider {
@@ -57,7 +70,10 @@ const initialState: OAuthState = {
   twitterInfo: null,
   twitterError: null,
   instagramInfo: null,
-  instagramError: null
+  instagramError: null,
+  tikTokInfo: null,
+  tikTokError: null,
+  abandoned: false
 }
 
 const reducer = (
@@ -65,21 +81,13 @@ const reducer = (
   action: OAuthActions
 ): OAuthState => {
   switch (action.type) {
-    case OPEN_POPUP:
-      return {
-        ...state,
-        isOpen: true,
-        messageId: action.message.id,
-        messageType: action.message.type as MessageType,
-        url: action.message.authURL,
-        provider: action.provider
-      }
     case NATIVE_OPEN_POPUP:
       return {
         ...state,
         isOpen: true,
         url: action.url,
-        provider: action.provider
+        provider: action.provider,
+        abandoned: false
       }
     case CLOSE_POPUP:
       return {
@@ -88,7 +96,8 @@ const reducer = (
         messageId: null,
         messageType: null,
         url: null,
-        provider: null
+        provider: null,
+        abandoned: action.abandoned
       }
     case SET_TWITTER_INFO:
       return {
@@ -109,6 +118,16 @@ const reducer = (
       return {
         ...state,
         instagramError: action.error
+      }
+    case SET_TIKTOK_INFO:
+      return {
+        ...state,
+        tikTokInfo: { ...action }
+      }
+    case SET_TIKTOK_ERROR:
+      return {
+        ...state,
+        tikTokError: action.error
       }
     case RESET_OAUTH_STATE:
       return { ...initialState }

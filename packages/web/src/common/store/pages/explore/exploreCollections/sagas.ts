@@ -1,32 +1,57 @@
 import {
-  Collection,
-  Status,
   accountSelectors,
+  Collection,
   explorePageCollectionsActions,
-  ExploreCollectionsVariant
+  ExploreCollectionsVariant,
+  getContext,
+  UserCollectionMetadata
 } from '@audius/common'
-import { takeEvery, call, put } from 'typed-redux-saga'
+import { uniq } from 'lodash'
+import { takeEvery, call, select, put } from 'typed-redux-saga'
 
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { processAndCacheCollections } from 'common/store/cache/collections/utils'
-import Explore from 'services/audius-backend/Explore'
+import { requiresAccount } from 'common/utils/requiresAccount'
 import { EXPLORE_PAGE } from 'utils/route'
-import { waitForValue, requiresAccount } from 'utils/sagaHelpers'
+import { waitForRead } from 'utils/sagaHelpers'
+
+const { getAccountUser } = accountSelectors
 const { fetch, fetchSucceeded } = explorePageCollectionsActions
-const getAccountStatus = accountSelectors.getAccountStatus
 
 function* fetchLetThemDJ() {
-  const collections = yield* call(Explore.getTopCollections, 'playlist', true)
+  const explore = yield* getContext('explore')
+  const user = yield* select(getAccountUser)
+  const collections = yield* call(
+    [explore, 'getTopCollections'],
+    'playlist',
+    true,
+    20,
+    user?.user_id
+  )
   return collections
 }
 
 function* fetchTopAlbums() {
-  const collections = yield* call(Explore.getTopCollections, 'album', false)
+  const explore = yield* getContext('explore')
+  const user = yield* select(getAccountUser)
+  const collections = yield* call(
+    [explore, 'getTopCollections'],
+    'album',
+    false,
+    20,
+    user?.user_id
+  )
   return collections
 }
 
 function* fetchMoodPlaylists(moods: string[]) {
-  const collections = yield* call(Explore.getTopPlaylistsForMood, moods)
+  const explore = yield* getContext('explore')
+  const user = yield* select(getAccountUser)
+  const collections = yield* call(
+    [explore, 'getTopPlaylistsForMood'],
+    moods,
+    20,
+    user?.user_id
+  )
   return collections
 }
 
@@ -41,17 +66,11 @@ const fetchMap = {
 
 function* watchFetch() {
   yield* takeEvery(fetch.type, function* (action: ReturnType<typeof fetch>) {
-    yield* call(waitForBackendSetup)
-    yield* call(
-      waitForValue,
-      getAccountStatus,
-      {},
-      (status) => status !== Status.LOADING
-    )
+    yield* waitForRead()
 
     const { variant, moods } = action.payload
 
-    let collections
+    let collections: UserCollectionMetadata[] | Collection[] | undefined
     if (variant === ExploreCollectionsVariant.MOOD) {
       collections = yield* call(
         fetchMap[ExploreCollectionsVariant.MOOD],
@@ -70,7 +89,9 @@ function* watchFetch() {
       /* shouldRetrieveTracks= */ false
     )
 
-    const collectionIds = collections.map((c: Collection) => c.playlist_id)
+    const collectionIds = uniq(
+      collections.map((c: UserCollectionMetadata | Collection) => c.playlist_id)
+    )
 
     yield* put(
       fetchSucceeded({

@@ -86,14 +86,16 @@
 }
 
 .tabBorderProvider {
+  position: relative;
   width: 100%;
+  background-color: var(--neutral-light-10);
   border-bottom: 1px solid var(--neutral-light-8);
 }
 
 .tabContainer {
   width: 100%;
   display: flex;
-  padding-top: 8px;
+  padding-top: 48px;
   margin-left: 8px;
 }
 
@@ -101,11 +103,18 @@
   margin-top: 50px;
 }
 
+.filterInputContainer {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+}
+
 .tabBodyWrapper {
   align-items: flex-start;
   transition: all 0.5s ease-in-out;
   margin: 0px;
   flex-grow: 1;
+  min-width: 0px;
 }
 
 .overflowContainer {

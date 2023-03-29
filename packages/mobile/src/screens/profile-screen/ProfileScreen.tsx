@@ -3,98 +3,89 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Status,
   ShareSource,
-  accountSelectors,
   profilePageSelectors,
   profilePageActions,
-  shareModalUIActions
+  reachabilitySelectors,
+  shareModalUIActions,
+  encodeUrlName,
+  modalsActions,
+  FeatureFlags
 } from '@audius/common'
 import { PortalHost } from '@gorhom/portal'
+import { useFocusEffect } from '@react-navigation/native'
 import { Animated, View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
-import IconCrown from 'app/assets/images/iconCrown.svg'
-import IconSettings from 'app/assets/images/iconSettings.svg'
+import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconShare from 'app/assets/images/iconShare.svg'
-import { IconButton, Screen } from 'app/components/core'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useNavigation } from 'app/hooks/useNavigation'
-import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { TopBarIconButton } from 'app/screens/app-screen'
-import { makeStyles } from 'app/styles/makeStyles'
+import { IconButton, Screen, ScreenContent } from 'app/components/core'
+import { OfflinePlaceholder } from 'app/components/offline-placeholder'
+import { useAppTabScreen } from 'app/hooks/useAppTabScreen'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+import { useRoute } from 'app/hooks/useRoute'
+import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
-import type { ProfileTabScreenParamList } from '../app-screen/ProfileTabScreen'
-
 import { ProfileHeader } from './ProfileHeader'
+import { ProfileScreenSkeleton } from './ProfileScreenSkeleton'
 import { ProfileTabNavigator } from './ProfileTabNavigator'
-import { useSelectProfileRoot } from './selectors'
+import { getIsOwner, useSelectProfileRoot } from './selectors'
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
-const { fetchProfile } = profilePageActions
+const {
+  fetchProfile: fetchProfileAction,
+  setCurrentUser: setCurrentUserAction
+} = profilePageActions
 const { getProfileStatus } = profilePageSelectors
-const getUserId = accountSelectors.getUserId
+const { getIsReachable } = reachabilitySelectors
+const { setVisibility } = modalsActions
 
-const useStyles = makeStyles(({ spacing }) => ({
+const useStyles = makeStyles(() => ({
   navigator: {
     height: '100%'
-  },
-  topBarIcons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: spacing(-2)
-  },
-  iconCrownRoot: {
-    marginLeft: spacing(1)
-  },
-  iconCrown: {
-    height: 22,
-    width: 22
   }
 }))
 
 export const ProfileScreen = () => {
-  usePopToTopOnDrawerOpen()
+  useAppTabScreen()
   const styles = useStyles()
-  const profile = useSelectProfileRoot(['user_id', 'does_current_user_follow'])
-  const accountId = useSelectorWeb(getUserId)
-  const dispatchWeb = useDispatchWeb()
-  const status = useSelectorWeb(getProfileStatus)
+  const { params } = useRoute<'Profile'>()
+  const { handle: userHandle, id } = params
+  const profile = useSelectProfileRoot([
+    'user_id',
+    'handle',
+    'does_current_user_follow'
+  ])
+  const handle =
+    userHandle && userHandle !== 'accountUser' ? userHandle : profile?.handle
+  const handleLower = handle?.toLowerCase() ?? ''
+  const isOwner = useSelector((state) => getIsOwner(state, handle ?? ''))
+  const dispatch = useDispatch()
+  const status = useSelector((state) => getProfileStatus(state, handleLower))
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const { neutralLight4, accentOrange } = useThemeColors()
-  const navigation = useNavigation<ProfileTabScreenParamList>()
+  const { neutralLight4 } = useThemeColors()
+  const isNotReachable = useSelector(getIsReachable) === false
+  const { isEnabled: isChatEnabled } = useFeatureFlag(FeatureFlags.CHAT_ENABLED)
 
-  const handlePressSettings = useCallback(() => {
-    navigation.push({
-      native: { screen: 'SettingsScreen' },
-      web: { route: '/settings' }
-    })
-  }, [navigation])
+  const setCurrentUser = useCallback(() => {
+    dispatch(setCurrentUserAction(handleLower))
+  }, [dispatch, handleLower])
 
-  const handlePressAudio = useCallback(() => {
-    navigation.push({
-      native: { screen: 'AudioScreen' },
-      web: { route: '/audio ' }
-    })
-  }, [navigation])
+  const fetchProfile = useCallback(() => {
+    dispatch(fetchProfileAction(handleLower, id ?? null, true, true, false))
+  }, [dispatch, handleLower, id])
 
-  const handlePressShare = useCallback(() => {
-    if (profile) {
-      dispatchWeb(
-        requestOpenShareModal({
-          type: 'profile',
-          profileId: profile.user_id,
-          source: ShareSource.PAGE
-        })
-      )
-    }
-  }, [profile, dispatchWeb])
+  useFocusEffect(setCurrentUser)
+
+  useEffect(() => {
+    fetchProfile()
+  }, [fetchProfile])
 
   const handleRefresh = useCallback(() => {
     if (profile) {
       setIsRefreshing(true)
-      const { handle, user_id } = profile
-      dispatchWeb(fetchProfile(handle, user_id, true, true, false))
+      fetchProfile()
     }
-  }, [profile, dispatchWeb])
+  }, [profile, fetchProfile])
 
   useEffect(() => {
     if (status === Status.SUCCESS) {
@@ -102,30 +93,32 @@ export const ProfileScreen = () => {
     }
   }, [status])
 
-  const isOwner = profile?.user_id === accountId
-
-  const topbarLeft = isOwner ? (
-    <View style={styles.topBarIcons}>
-      <TopBarIconButton
-        icon={IconSettings}
-        onPress={handlePressSettings}
-        hitSlop={{ right: 2 }}
-      />
-      <TopBarIconButton
-        styles={{ root: styles.iconCrownRoot, icon: styles.iconCrown }}
-        fill={accentOrange}
-        icon={IconCrown}
-        onPress={handlePressAudio}
-        hitSlop={{ left: 2 }}
-      />
-    </View>
-  ) : undefined
+  const handlePressTopRight = useCallback(() => {
+    if (profile) {
+      if (isChatEnabled && !isOwner) {
+        dispatch(
+          setVisibility({
+            modal: 'ProfileActions',
+            visible: true
+          })
+        )
+      } else {
+        dispatch(
+          requestOpenShareModal({
+            type: 'profile',
+            profileId: profile.user_id,
+            source: ShareSource.PAGE
+          })
+        )
+      }
+    }
+  }, [profile, dispatch, isChatEnabled, isOwner])
 
   const topbarRight = (
     <IconButton
       fill={neutralLight4}
-      icon={IconShare}
-      onPress={handlePressShare}
+      icon={isChatEnabled && !isOwner ? IconKebabHorizontal : IconShare}
+      onPress={handlePressTopRight}
     />
   )
 
@@ -137,20 +130,36 @@ export const ProfileScreen = () => {
   )
 
   return (
-    <Screen topbarLeft={topbarLeft} topbarRight={topbarRight}>
-      {!profile ? null : (
-        <>
-          <View style={styles.navigator}>
-            <PortalHost name='PullToRefreshPortalHost' />
-            <ProfileTabNavigator
-              renderHeader={renderHeader}
-              animatedValue={scrollY}
-              refreshing={isRefreshing}
-              onRefresh={handleRefresh}
-            />
-          </View>
-        </>
-      )}
+    <Screen
+      topbarRight={topbarRight}
+      url={handle && `/${encodeUrlName(handle)}`}
+    >
+      <ScreenContent isOfflineCapable>
+        {!profile ? (
+          <ProfileScreenSkeleton />
+        ) : (
+          <>
+            <View style={styles.navigator}>
+              {isNotReachable ? (
+                <>
+                  {renderHeader()}
+                  <OfflinePlaceholder />
+                </>
+              ) : (
+                <>
+                  <PortalHost name='PullToRefreshPortalHost' />
+                  <ProfileTabNavigator
+                    renderHeader={renderHeader}
+                    animatedValue={scrollY}
+                    refreshing={isRefreshing}
+                    onRefresh={handleRefresh}
+                  />
+                </>
+              )}
+            </View>
+          </>
+        )}
+      </ScreenContent>
     </Screen>
   )
 }

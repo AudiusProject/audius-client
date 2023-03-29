@@ -1,12 +1,11 @@
-import { Scrollbar } from '@audius/stems'
+import { UploadType } from '@audius/common'
+import { Scrollbar, SegmentedControl } from '@audius/stems'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 
-import TabSlider from 'components/data-entry/TabSlider'
 import TrackPreview from 'components/upload/TrackPreview'
 
 import styles from './TracksPreview.module.css'
-import UploadType from './uploadType'
 
 const uploadDescriptions = {
   [UploadType.PLAYLIST]:
@@ -24,7 +23,7 @@ const TracksPreview = (props) => {
     <div className={styles.container}>
       <div className={styles.headerContainer}>
         <div className={styles.header}>Release Type</div>
-        <TabSlider
+        <SegmentedControl
           className={styles.tabSlider}
           onSelectOption={props.setUploadType}
           selected={props.uploadType}

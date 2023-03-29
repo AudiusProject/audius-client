@@ -5,34 +5,28 @@ import type {
   TrackEntity,
   TrendingTrackNotification as TrendingTrackNotificationType
 } from '@audius/common'
-import { notificationsSelectors } from '@audius/common'
+import { Name, notificationsSelectors } from '@audius/common'
+import { useSelector } from 'react-redux'
 
 import IconTrending from 'app/assets/images/iconTrending.svg'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { getTrackRoute } from 'app/utils/routes'
+import { useNotificationNavigation } from 'app/hooks/useNotificationNavigation'
 
 import {
   EntityLink,
   NotificationHeader,
   NotificationText,
   NotificationTile,
-  NotificationTitle
+  NotificationTitle,
+  NotificationTwitterButton
 } from '../Notification'
-import { useDrawerNavigation } from '../useDrawerNavigation'
 const { getNotificationEntity } = notificationsSelectors
 
-const getRankSuffix = (rank: number) => {
-  if (rank === 1) return 'st'
-  if (rank === 2) return 'nd'
-  if (rank === 3) return 'rd'
-  return 'th'
-}
-
 const messages = {
-  title: 'Trending on Audius!',
-  your: 'Your track',
+  title: "You're Trending",
   is: 'is',
-  trending: 'on Trending right now!'
+  trending: 'on Trending right now!',
+  twitterShareText: (entityTitle: string) =>
+    `My track ${entityTitle} is trending on @AudiusProject! Check it out! #Audius #AudiusTrending`
 }
 
 type TrendingTrackNotificationProps = {
@@ -44,23 +38,22 @@ export const TrendingTrackNotification = (
 ) => {
   const { notification } = props
   const { rank } = notification
-  const rankSuffix = getRankSuffix(rank)
-  const track = useSelectorWeb(
-    (state) => getNotificationEntity(state, notification),
-    isEqual
+
+  const track = useSelector((state) =>
+    getNotificationEntity(state, notification)
   ) as Nullable<TrackEntity>
-  const navigation = useDrawerNavigation()
+
+  const navigation = useNotificationNavigation()
 
   const handlePress = useCallback(() => {
     if (track) {
-      navigation.navigate({
-        native: { screen: 'Track', params: { id: track.track_id } },
-        web: { route: getTrackRoute(track) }
-      })
+      navigation.navigate(notification)
     }
-  }, [navigation, track])
+  }, [navigation, notification, track])
 
   if (!track) return null
+
+  const shareText = messages.twitterShareText(track.title)
 
   return (
     <NotificationTile notification={notification} onPress={handlePress}>
@@ -68,9 +61,16 @@ export const TrendingTrackNotification = (
         <NotificationTitle>{messages.title}</NotificationTitle>
       </NotificationHeader>
       <NotificationText>
-        {messages.your} <EntityLink entity={track} /> {messages.is} {rank}
-        {rankSuffix} {messages.trending}
+        <EntityLink entity={track} /> {messages.is} #{rank} {messages.trending}
       </NotificationText>
+      <NotificationTwitterButton
+        type='static'
+        shareText={shareText}
+        analytics={{
+          eventName: Name.NOTIFICATIONS_CLICK_TRENDING_TRACK_TWITTER_SHARE,
+          text: shareText
+        }}
+      />
     </NotificationTile>
   )
 }

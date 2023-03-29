@@ -1,55 +1,29 @@
-import type { RefObject } from 'react'
-
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import type { PushNotificationPermissions } from 'react-native'
 import { Platform } from 'react-native'
-import Config from 'react-native-config'
-// https://dev.to/edmondso006/react-native-local-ios-and-android-notifications-2c58
-import PushNotification from 'react-native-push-notification'
+import { Notifications } from 'react-native-notifications'
+import type { Registered, Notification } from 'react-native-notifications'
 
 import { track, make } from 'app/services/analytics'
-import { dispatch } from 'app/store'
-import { open } from 'app/store/notifications/actions'
-import type { MessagePostingWebView } from 'app/types/MessagePostingWebView'
 import { EventNames } from 'app/types/analytics'
+
+import { DEVICE_TOKEN } from './constants/storage-keys'
 
 type Token = {
   token: string
   os: string
 }
 
+type NotificationNavigation = { navigate: (notification: any) => void }
+
 // Set to true while the push notification service is registering with the os
 let isRegistering = false
-// Reference to hold the web ref to push routes to
-let webRef: RefObject<MessagePostingWebView>
-
-const getPlatformConfiguration = () => {
-  if (Platform.OS === 'android') {
-    console.info('Fcm Sender ID:', Config.FCM_SENDER_ID)
-    return {
-      senderID: Config.FCM_SENDER_ID,
-      requestPermissions: true,
-      largeIcon: 'ic_launcher',
-      smallIcon: 'ic_notification'
-    }
-  } else {
-    return {
-      // IOS ONLY (optional): default: all - Permissions to register.
-      permissions: {
-        alert: true,
-        badge: true,
-        sound: true
-      },
-      // Turn the initial permissions request off
-      requestPermissions: false
-    }
-  }
-}
 
 // Singleton class
 class PushNotifications {
   lastId: number
   token: Token | null
+  navigation: NotificationNavigation | null
 
   // onNotification is a function passed in that is to be called when a
   // notification is to be emitted.
@@ -57,55 +31,54 @@ class PushNotifications {
     this.configure()
     this.lastId = 0
     this.token = null
+    this.navigation = null
   }
 
-  setWebRef(w: RefObject<MessagePostingWebView>) {
-    webRef = w
+  setNavigation = (navigation: NotificationNavigation) => {
+    this.navigation = navigation
   }
 
-  onNotification(notification: any) {
+  onNotification = (notification: Notification) => {
     console.info(`Received notification ${JSON.stringify(notification)}`)
-    if (notification.userInteraction || Platform.OS === 'android') {
-      track(
-        make({
-          eventName: EventNames.NOTIFICATIONS_OPEN_PUSH_NOTIFICATION,
-          ...(notification.message
-            ? {
-                title: notification.message.title,
-                body: notification.message.body
-              }
-            : {})
-        })
-      )
+    const { title, body, payload } = notification
+    track(
+      make({
+        eventName: EventNames.NOTIFICATIONS_OPEN_PUSH_NOTIFICATION,
+        title,
+        body
+      })
+    )
+    this.navigation?.navigate(payload?.data?.data ?? payload?.data ?? payload)
+  }
 
-      if (!webRef || !webRef.current) return
-
-      dispatch(open())
+  // Method used to open the push notification that the user pressed while the app was closed
+  openInitialNotification = async () => {
+    const notification = await Notifications.getInitialNotification()
+    if (notification) {
+      console.log('Opening initial notification')
+      this.onNotification(notification)
     }
   }
 
-  async onRegister(token: Token) {
-    console.log('REGISTER DEVICE TOKEN', token)
+  async onRegister(event: Registered) {
+    const token = { token: event.deviceToken, os: Platform.OS }
     this.token = token
-    await AsyncStorage.setItem('@device_token', JSON.stringify(token))
+    await AsyncStorage.setItem(DEVICE_TOKEN, JSON.stringify(token))
     isRegistering = false
   }
 
   deregister() {
-    AsyncStorage.removeItem('@device_token')
+    AsyncStorage.removeItem(DEVICE_TOKEN)
   }
 
   async configure() {
-    PushNotification.configure({
-      onNotification: this.onNotification,
-      onRegister: this.onRegister,
-
-      popInitialNotification: false,
-      ...getPlatformConfiguration()
-    })
+    Notifications.events().registerRemoteNotificationsRegistered(
+      this.onRegister
+    )
+    Notifications.events().registerNotificationOpened(this.onNotification)
 
     try {
-      const token = await AsyncStorage.getItem('@device_token')
+      const token = await AsyncStorage.getItem(DEVICE_TOKEN)
       if (token) {
         this.token = JSON.parse(token)
       } else {
@@ -118,25 +91,25 @@ class PushNotifications {
 
   requestPermission() {
     isRegistering = true
-    PushNotification.requestPermissions()
+    Notifications.registerRemoteNotifications()
   }
 
-  checkPermission(
+  async checkPermission(
     callback: (permissions: PushNotificationPermissions) => void
   ) {
-    return PushNotification.checkPermissions(callback)
+    Notifications.ios.checkPermissions().then(callback)
   }
 
   cancelNotif() {
-    PushNotification.cancelLocalNotifications({ id: '' + this.lastId })
+    Notifications.cancelLocalNotification(this.lastId)
   }
 
   cancelAll() {
-    PushNotification.cancelAllLocalNotifications()
+    Notifications.ios.cancelAllLocalNotifications()
   }
 
   setBadgeCount(count: number) {
-    PushNotification.setApplicationIconBadgeNumber(count)
+    Notifications.ios.setBadgeCount(count)
   }
 
   async getToken() {
@@ -146,7 +119,7 @@ class PushNotifications {
     while (isRegistering) {
       await new Promise((resolve) => setTimeout(resolve, 100))
     }
-    const token = await AsyncStorage.getItem('@device_token')
+    const token = await AsyncStorage.getItem(DEVICE_TOKEN)
     if (token) {
       return JSON.parse(token)
     }

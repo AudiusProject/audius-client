@@ -27,6 +27,9 @@ const formatValue = (value: string | undefined) => {
 
 const inputPaddingRight = 16
 
+/**
+ * @deprecated Use TokenAmountInput instead
+ */
 export const TokenValueInput = ({
   className,
   labelClassName,
@@ -69,7 +72,7 @@ export const TokenValueInput = ({
 
   const [inputPadding, setInputPadding] = useState(inputPaddingRight)
   const setLabelRef = useCallback(
-    (node) => {
+    (node: HTMLDivElement) => {
       if (node) {
         // TODO: wait for animation before getting width
         // const width = node.getBoundingClientRect().width

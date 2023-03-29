@@ -2,29 +2,32 @@ import { Amplitude } from '@amplitude/react-native'
 import Config from 'react-native-config'
 import VersionNumber from 'react-native-version-number'
 
+import { versionInfo } from 'app/utils/appVersionWithCodepush'
+
 import type { Track, Screen, AllEvents } from '../types/analytics'
 import { EventNames } from '../types/analytics'
 
 let analyticsSetupStatus: 'ready' | 'pending' | 'error' = 'pending'
 
 const AmplitudeWriteKey = Config.AMPLITUDE_WRITE_KEY
-const ampInstance = Amplitude.getInstance()
+const AmplitudeProxy = Config.AMPLITUDE_PROXY
+const amplitudeInstance = Amplitude.getInstance()
 
 export const init = async () => {
   try {
-    console.info('Analytics setup')
-    if (AmplitudeWriteKey) {
-      await ampInstance.init(AmplitudeWriteKey)
+    if (AmplitudeWriteKey && AmplitudeProxy) {
+      await amplitudeInstance.setServerUrl(AmplitudeProxy)
+      await amplitudeInstance.init(AmplitudeWriteKey)
       analyticsSetupStatus = 'ready'
-      console.info('Analytics ready')
     } else {
       analyticsSetupStatus = 'error'
-      console.info('Analytics unable to setup: missing amplitude write key')
+      console.error(
+        'Analytics unable to setup: missing amplitude write key or proxy url'
+      )
     }
   } catch (err) {
     analyticsSetupStatus = 'error'
-    console.info('Analytics error')
-    console.log(err)
+    console.error(`Amplitude error: ${err}`)
   }
 }
 
@@ -61,9 +64,8 @@ export const identify = async (
 ) => {
   const isSetup = await isAudiusSetup()
   if (!isSetup) return
-  console.info('Analytics identify', handle, traits)
-  ampInstance.setUserId(handle)
-  ampInstance.setUserProperties(traits)
+  amplitudeInstance.setUserId(handle)
+  amplitudeInstance.setUserProperties(traits)
 }
 
 // Track Event
@@ -74,10 +76,10 @@ export const track = async ({ eventName, properties }: Track) => {
   const version = VersionNumber.appVersion
   const propertiesWithContext = {
     ...properties,
-    mobileClientVersion: version
+    mobileClientVersion: version,
+    mobileClientVersionInclOTA: versionInfo ?? 'unknown'
   }
-  console.info('Analytics track', eventName, propertiesWithContext)
-  ampInstance.logEvent(eventName, propertiesWithContext)
+  amplitudeInstance.logEvent(eventName, propertiesWithContext)
 }
 
 // Screen Event
@@ -85,6 +87,5 @@ export const track = async ({ eventName, properties }: Track) => {
 export const screen = async ({ route, properties = {} }: Screen) => {
   const isSetup = await isAudiusSetup()
   if (!isSetup) return
-  console.info('Analytics screen', route, properties)
-  ampInstance.logEvent(EventNames.PAGE_VIEW, { route, ...properties })
+  amplitudeInstance.logEvent(EventNames.PAGE_VIEW, { route, ...properties })
 }

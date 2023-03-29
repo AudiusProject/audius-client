@@ -1,14 +1,14 @@
 import { useCallback } from 'react'
 
-import { modalsActions } from '@audius/common'
+import { modalsActions, useSelectTierInfo } from '@audius/common'
+import type { ViewStyle, StyleProp } from 'react-native'
 import { View } from 'react-native'
+import { useDispatch } from 'react-redux'
 
 import { IconAudioBadge, TierText } from 'app/components/audio-rewards'
 import { MODAL_NAME } from 'app/components/audio-rewards/TiersExplainerDrawer'
 import { Tile, Text } from 'app/components/core'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectTierInfo } from 'app/hooks/useSelectTierInfo'
-import { makeStyles } from 'app/styles/makeStyles'
+import { makeStyles } from 'app/styles'
 
 import { useSelectProfile } from '../selectors'
 const { setVisibility } = modalsActions
@@ -48,20 +48,21 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
 
 type ProfileTierTileProps = {
   interactive?: boolean
+  style?: StyleProp<ViewStyle>
 }
 
 export const ProfileTierTile = (props: ProfileTierTileProps) => {
-  const { interactive = true } = props
+  const { interactive = true, style } = props
   const profile = useSelectProfile(['user_id'])
   const styles = useStyles()
 
   const { tier, tierNumber } = useSelectTierInfo(profile.user_id)
 
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
 
   const handlePress = useCallback(() => {
-    dispatchWeb(setVisibility({ modal: MODAL_NAME, visible: true }))
-  }, [dispatchWeb])
+    dispatch(setVisibility({ modal: MODAL_NAME, visible: true }))
+  }, [dispatch])
 
   if (tier === 'none') return null
 
@@ -83,7 +84,7 @@ export const ProfileTierTile = (props: ProfileTierTileProps) => {
     return (
       <Tile
         styles={{
-          root: styles.root,
+          root: [styles.root, style],
           tile: styles.tile,
           content: styles.content
         }}
@@ -95,7 +96,7 @@ export const ProfileTierTile = (props: ProfileTierTileProps) => {
   }
 
   return (
-    <View pointerEvents='none' style={[styles.root, styles.viewContent]}>
+    <View pointerEvents='none' style={[styles.root, styles.viewContent, style]}>
       {content}
     </View>
   )

@@ -1,27 +1,70 @@
-import { useCallback, useRef } from 'react'
+import type { ComponentType } from 'react'
+import { useMemo, useCallback, useRef } from 'react'
 
 import type {
-  FlatList as RNFlatList,
   FlatListProps,
-  ListRenderItem
+  ListRenderItem,
+  ListRenderItemInfo
 } from 'react-native'
 import { View } from 'react-native'
 
 import { useScrollToTop } from 'app/hooks/useScrollToTop'
+import { makeStyles } from 'app/styles'
 
-import { EmptyTile } from './EmptyTile'
+import type { FlatListT } from './FlatList'
 import { FlatList } from './FlatList'
 
 export type CardListProps<ItemT> = FlatListProps<ItemT> & {
-  emptyListText?: string
+  isLoading?: boolean
+  LoadingCardComponent?: ComponentType
   disableTopTabScroll?: boolean
+  FlatListComponent?: ComponentType<FlatListProps<ItemT | LoadingCard>>
+  // If total count is known, use this to aid in rendering the right number
+  // of skeletons
+  totalCount?: number
 }
 
-export const CardList = <ItemT,>(props: CardListProps<ItemT>) => {
-  const { renderItem, emptyListText, disableTopTabScroll, data, ...other } =
-    props
+type LoadingCard = { _loading: true }
 
-  const ref = useRef<RNFlatList>(null)
+const getSkeletonData = (skeletonCount = 6): LoadingCard[] => {
+  return Array(Math.min(skeletonCount, 6)).fill({ _loading: true })
+}
+
+const DefaultLoadingCard = () => null
+
+const useStyles = makeStyles(({ spacing }) => ({
+  card: {
+    paddingTop: spacing(3),
+    paddingHorizontal: spacing(3) / 2,
+    width: '50%'
+  },
+  bottomCard: {
+    paddingBottom: spacing(3)
+  },
+  leftCard: {
+    paddingLeft: spacing(3)
+  },
+  rightCard: {
+    paddingRight: spacing(3)
+  }
+}))
+
+export function CardList<ItemT extends {}>(props: CardListProps<ItemT>) {
+  const {
+    renderItem,
+    disableTopTabScroll,
+    data: dataProp,
+    isLoading: isLoadingProp,
+    LoadingCardComponent = DefaultLoadingCard,
+    FlatListComponent = FlatList,
+    totalCount,
+    ...other
+  } = props
+
+  const styles = useStyles()
+  const ref = useRef<FlatListT<ItemT>>(null)
+  const isLoading = isLoadingProp ?? !dataProp
+
   useScrollToTop(() => {
     ref.current?.scrollToOffset({
       offset: 0,
@@ -29,32 +72,43 @@ export const CardList = <ItemT,>(props: CardListProps<ItemT>) => {
     })
   }, disableTopTabScroll)
 
-  const handleRenderItem: ListRenderItem<ItemT> = useCallback(
+  const data = useMemo(() => {
+    const skeletonData = isLoading ? getSkeletonData(totalCount) : []
+    return [...(dataProp ?? []), ...skeletonData]
+  }, [dataProp, isLoading, totalCount])
+
+  const dataLength = data.length
+
+  const handleRenderItem: ListRenderItem<ItemT | LoadingCard> = useCallback(
     (info) => {
       const { index } = info
       const isInLeftColumn = !(index % 2)
-      const isLastRow = index + 2 > (data?.length ?? 0)
-      const style = {
-        paddingTop: 12,
-        paddingBottom: isLastRow ? 12 : 0,
-        paddingHorizontal: 6,
-        [`padding${isInLeftColumn ? 'Left' : 'Right'}`]: 12,
-        width: '50%'
-      }
-      return <View style={style}>{renderItem?.(info)}</View>
+      const isLastRow = index + 2 > dataLength
+
+      const style = [
+        styles.card,
+        isLastRow && styles.bottomCard,
+        isInLeftColumn ? styles.leftCard : styles.rightCard
+      ]
+
+      const itemElement =
+        '_loading' in info.item ? (
+          <LoadingCardComponent />
+        ) : (
+          renderItem?.(info as ListRenderItemInfo<ItemT>) ?? null
+        )
+
+      return <View style={style}>{itemElement}</View>
     },
-    [renderItem, data]
+    [renderItem, dataLength, LoadingCardComponent, styles]
   )
 
   return (
-    <FlatList
+    <FlatListComponent
       ref={ref}
       data={data}
       renderItem={handleRenderItem}
       numColumns={2}
-      ListEmptyComponent={
-        emptyListText ? <EmptyTile message={emptyListText} /> : undefined
-      }
       {...other}
     />
   )

@@ -1,14 +1,24 @@
-import { FollowSource } from '@audius/common'
+import {
+  accountSelectors,
+  FollowSource,
+  reachabilitySelectors,
+  FeatureFlags
+} from '@audius/common'
 import { View, Text } from 'react-native'
+import { useSelector } from 'react-redux'
 
 import { FollowButton, FollowsYouChip } from 'app/components/user'
 import UserBadges from 'app/components/user-badges'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+import { useRoute } from 'app/hooks/useRoute'
 import { flexRowCentered, makeStyles } from 'app/styles'
 
 import { EditProfileButton } from './EditProfileButton'
+import { MessageButton } from './MessageButton'
 import { SubscribeButton } from './SubscribeButton'
-import { getIsOwner, useIsProfileLoaded, useSelectProfile } from './selectors'
+import { useSelectProfile } from './selectors'
+
+const { getUserHandle } = accountSelectors
 
 const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   username: {
@@ -77,34 +87,47 @@ type ProfileInfoProps = {
 
 export const ProfileInfo = (props: ProfileInfoProps) => {
   const { onFollow } = props
+  const { params } = useRoute<'Profile'>()
+  const { getIsReachable } = reachabilitySelectors
+  const isReachable = useSelector(getIsReachable)
+  const accountHandle = useSelector(getUserHandle)
   const styles = useStyles()
-  const isProfileLoaded = useIsProfileLoaded()
+  const { isEnabled: isChatEnabled } = useFeatureFlag(FeatureFlags.CHAT_ENABLED)
 
   const profile = useSelectProfile([
     'user_id',
     'name',
     'handle',
     'does_current_user_follow',
-    'does_follow_current_user'
+    'does_follow_current_user',
+    'is_verified'
   ])
 
   const { name, handle, does_current_user_follow, does_follow_current_user } =
     profile
 
-  const isOwner = useSelectorWeb(getIsOwner)
-  const profileButton = isOwner ? (
-    <EditProfileButton style={styles.followButton} />
-  ) : (
-    <>
-      {does_current_user_follow ? <SubscribeButton profile={profile} /> : null}
-      <FollowButton
-        style={styles.followButton}
-        profile={profile}
-        onPress={onFollow}
-        followSource={FollowSource.PROFILE_PAGE}
-      />
-    </>
-  )
+  const isOwner =
+    params.handle === 'accountUser' ||
+    params.handle?.toLowerCase() === accountHandle?.toLowerCase() ||
+    handle === accountHandle
+
+  const actionButtons =
+    isOwner && handle ? (
+      <EditProfileButton style={styles.followButton} />
+    ) : (
+      <>
+        {isChatEnabled && !isOwner ? <MessageButton profile={profile} /> : null}
+        {does_current_user_follow ? (
+          <SubscribeButton profile={profile} />
+        ) : null}
+        <FollowButton
+          style={styles.followButton}
+          profile={profile}
+          onPress={onFollow}
+          followSource={FollowSource.PROFILE_PAGE}
+        />
+      </>
+    )
 
   return (
     <View pointerEvents='box-none' style={styles.info}>
@@ -127,9 +150,9 @@ export const ProfileInfo = (props: ProfileInfoProps) => {
           {does_follow_current_user ? <FollowsYouChip /> : null}
         </View>
       </View>
-      <View style={styles.actionButtons}>
-        {isProfileLoaded ? profileButton : null}
-      </View>
+      {isReachable ? (
+        <View style={styles.actionButtons}>{actionButtons}</View>
+      ) : null}
     </View>
   )
 }

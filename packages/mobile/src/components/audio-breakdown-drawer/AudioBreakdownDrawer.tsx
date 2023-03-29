@@ -1,171 +1,95 @@
-import { useCallback } from 'react'
-
 import type { BNWei, AssociatedWallet } from '@audius/common'
 import {
   Chain,
   formatWei,
-  shortenEthAddress,
-  shortenSPLAddress,
   tokenDashboardPageSelectors,
   walletSelectors
 } from '@audius/common'
 import BN from 'bn.js'
-import {
-  StyleSheet,
-  TouchableWithoutFeedback,
-  View,
-  Animated
-} from 'react-native'
+import { View } from 'react-native'
+import { useSelector } from 'react-redux'
 
-import IconCopy from 'app/assets/images/iconCopy.svg'
 import IconInfo from 'app/assets/images/iconInfo.svg'
-import LogoEth from 'app/assets/images/logoEth.svg'
-import LogoSol from 'app/assets/images/logoSol.svg'
 import { GradientText } from 'app/components/core'
 import { AppDrawer } from 'app/components/drawer'
 import Text from 'app/components/text'
-import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import type { ThemeColors } from 'app/hooks/useThemedStyles'
-import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import share from 'app/utils/share'
+import { makeStyles } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
+
+import { Wallet } from './Wallet'
 const { getAccountBalance } = walletSelectors
 const { getAssociatedWallets } = tokenDashboardPageSelectors
 
 const AUDIO_BREAKDOWN_MODAL_NAME = 'AudioBreakdown'
 
-const createStyles = (themeColors: ThemeColors) =>
-  StyleSheet.create({
-    drawer: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      padding: 24,
-      paddingTop: 12,
-      height: '100%'
-    },
-
-    amount: {
-      fontSize: 48
-    },
-
-    total: {
-      marginTop: 8,
-      marginBottom: 24,
-      fontSize: 18,
-      color: themeColors.neutralLight4
-    },
-
-    section: {
-      width: '100%',
-      marginBottom: 24,
-      padding: 24,
-      borderRadius: 16,
-      borderWidth: 2,
-      borderColor: themeColors.neutralLight7,
-      backgroundColor: themeColors.neutralLight10
-    },
-
-    sectionTitle: {
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'center'
-    },
-
-    titleLabel: {
-      fontSize: 18,
-      color: themeColors.neutral
-    },
-
-    titleAmount: {
-      marginLeft: 12,
-      fontSize: 18
-    },
-
-    sectionDescription: {
-      marginTop: 12
-    },
-
-    description: {
-      textAlign: 'center',
-      textTransform: 'uppercase',
-      color: themeColors.neutralLight4,
-      fontSize: 12
-    },
-
-    chainIconContainer: {
-      borderWidth: 1,
-      borderColor: themeColors.neutralLight7,
-      borderRadius: 20,
-      padding: 8,
-      shadowColor: themeColors.neutralDark1,
-      shadowOpacity: 0.1,
-      shadowRadius: 2,
-      shadowOffset: {
-        height: 1,
-        width: 1
-      },
-      elevation: 5
-    },
-
-    infoIcon: {
-      marginLeft: 8
-    },
-
-    copyIcon: {
-      lineHeight: 16,
-      marginBottom: 2,
-      color: themeColors.neutralLight4,
-      marginLeft: 10
-    },
-
-    walletsHeader: {
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      paddingTop: 24,
-      paddingLeft: 24,
-      paddingRight: 24,
-      paddingBottom: 14,
-      fontSize: 16
-    },
-
-    headerLabel: {
-      color: themeColors.neutralLight4
-    },
-
-    walletsBody: {
-      paddingLeft: 24,
-      paddingRight: 24,
-      borderTopWidth: 1,
-      borderTopColor: themeColors.neutralLight8
-    },
-
-    walletRow: {
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      paddingTop: 12,
-      paddingBottom: 8,
-      alignItems: 'center',
-      fontSize: 16
-    },
-
-    linkedWallet: {
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'center'
-    },
-
-    walletAddress: {
-      marginLeft: 16,
-      fontSize: 14
-    },
-
-    linkedAmount: {
-      fontSize: 14
-    }
-  })
+const useStyles = makeStyles(({ palette, spacing, typography }) => ({
+  drawer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    padding: spacing(6),
+    paddingTop: spacing(3),
+    height: '100%'
+  },
+  amount: {
+    fontSize: 48
+  },
+  total: {
+    marginTop: spacing(2),
+    marginBottom: spacing(6),
+    fontSize: typography.fontSize.large,
+    color: palette.neutralLight4
+  },
+  section: {
+    width: '100%',
+    marginBottom: spacing(6),
+    padding: spacing(6),
+    borderRadius: spacing(4),
+    borderWidth: 2,
+    borderColor: palette.neutralLight7,
+    backgroundColor: palette.neutralLight10
+  },
+  sectionTitle: {
+    flexDirection: 'row',
+    justifyContent: 'center'
+  },
+  titleLabel: {
+    fontSize: typography.fontSize.large,
+    color: palette.neutral
+  },
+  titleAmount: {
+    marginLeft: spacing(3),
+    fontSize: typography.fontSize.large
+  },
+  sectionDescription: {
+    marginTop: spacing(3)
+  },
+  description: {
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    color: palette.neutralLight4,
+    fontSize: spacing(3)
+  },
+  infoIcon: {
+    marginLeft: 8
+  },
+  walletsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: spacing(6),
+    paddingHorizontal: spacing(6),
+    paddingBottom: 14,
+    fontSize: spacing(4)
+  },
+  headerLabel: {
+    color: palette.neutralLight4
+  },
+  walletsBody: {
+    paddingLeft: spacing(6),
+    paddingRight: spacing(6),
+    borderTopWidth: 1,
+    borderTopColor: palette.neutralLight8
+  }
+}))
 
 const messages = {
   modalTitle: '$AUDIO BREAKDOWN',
@@ -181,13 +105,13 @@ const messages = {
 }
 
 export const AudioBreakdownDrawer = () => {
-  const styles = useThemedStyles(createStyles)
+  const styles = useStyles()
 
-  const accountBalance = (useSelectorWeb(getAccountBalance, (a, b) =>
+  const accountBalance = (useSelector(getAccountBalance, (a, b) =>
     Boolean(a && b && a.eq(b))
   ) ?? new BN('0')) as BNWei
 
-  const associatedWallets = useSelectorWeb(getAssociatedWallets, isEqual)
+  const associatedWallets = useSelector(getAssociatedWallets)
   const { connectedEthWallets: ethWallets, connectedSolWallets: solWallets } =
     associatedWallets ?? {
       ethWallets: null,
@@ -256,85 +180,26 @@ export const AudioBreakdownDrawer = () => {
           </View>
 
           <View style={styles.walletsBody}>
-            {ethWallets &&
-              ethWallets.map((wallet: AssociatedWallet) => (
-                <Wallet
-                  chain={Chain.Eth}
-                  key={wallet.address}
-                  address={wallet.address}
-                  balance={wallet.balance}
-                />
-              ))}
-            {solWallets &&
-              solWallets.map((wallet: AssociatedWallet) => (
-                <Wallet
-                  chain={Chain.Sol}
-                  key={wallet.address}
-                  address={wallet.address}
-                  balance={wallet.balance}
-                />
-              ))}
+            {ethWallets?.map((wallet: AssociatedWallet) => (
+              <Wallet chain={Chain.Eth} key={wallet.address} {...wallet} />
+            ))}
+            {solWallets?.map((wallet: AssociatedWallet) => (
+              <Wallet chain={Chain.Sol} key={wallet.address} {...wallet} />
+            ))}
           </View>
 
           <View style={styles.sectionDescription}>
             <Text style={styles.description} weight='bold'>
               {messages.linkedWalletsDescription}
-              <IconInfo style={styles.infoIcon} height={12} width={12} />
+              <IconInfo
+                style={styles.infoIcon}
+                height={spacing(3)}
+                width={spacing(3)}
+              />
             </Text>
           </View>
         </View>
       </View>
     </AppDrawer>
-  )
-}
-
-type WalletProps = { chain: Chain; address: string; balance: BNWei }
-
-const Wallet = ({ chain, address, balance }: WalletProps) => {
-  // todo: use feature flag to determine whether we show sol audio
-  // const { isEnabled: solWalletAudioEnabled } = useFlag(
-  //   FeatureFlags.SOL_WALLET_AUDIO_ENABLED
-  // )
-  const solWalletAudioEnabled = false
-  const styles = useThemedStyles(createStyles)
-
-  const { scale, handlePressIn, handlePressOut } = usePressScaleAnimation(0.98)
-
-  const displayAddress =
-    chain === Chain.Eth ? shortenEthAddress : shortenSPLAddress
-
-  const handleCopy = useCallback(() => {
-    share({ url: address })
-  }, [address])
-
-  return (
-    <View style={styles.walletRow}>
-      <Animated.View style={[{ transform: [{ scale }] }]}>
-        <TouchableWithoutFeedback
-          onPress={handleCopy}
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-        >
-          <View style={styles.linkedWallet}>
-            <View style={styles.chainIconContainer}>
-              {chain === Chain.Eth ? (
-                <LogoEth height={16} width={16} />
-              ) : (
-                <LogoSol height={16} width={16} />
-              )}
-            </View>
-            <Text style={styles.walletAddress} weight='demiBold'>
-              {displayAddress(address)}
-            </Text>
-            <IconCopy style={styles.copyIcon} height={16} width={16} />
-          </View>
-        </TouchableWithoutFeedback>
-      </Animated.View>
-      {(chain === Chain.Eth || solWalletAudioEnabled) && (
-        <Text style={styles.linkedAmount} weight='demiBold'>
-          {balance}
-        </Text>
-      )}
-    </View>
   )
 }

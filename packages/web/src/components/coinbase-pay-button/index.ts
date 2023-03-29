@@ -1,3 +1,5 @@
-export { CoinbasePayButtonCustom } from './CoinbasePayButtonCustom'
 export { CoinbasePayButton } from './CoinbasePayButton'
-export { CoinbasePayButtonProvider } from './CoinbasePayButtonProvider'
+export {
+  CoinbasePayButtonProvider,
+  CoinbasePayContext
+} from './CoinbasePayButtonProvider'

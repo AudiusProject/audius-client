@@ -24,7 +24,9 @@ import {
   queueActions,
   QueueSource,
   collectibleDetailsUIActions,
-  shareModalUIActions
+  shareModalUIActions,
+  playerSelectors,
+  getHash
 } from '@audius/common'
 import cn from 'classnames'
 import { push } from 'connected-react-router'
@@ -32,17 +34,17 @@ import { useDispatch, useSelector } from 'react-redux'
 import { matchPath } from 'react-router-dom'
 
 import { useModalState } from 'common/hooks/useModalState'
-import TablePlayButton from 'components/tracks-table/TablePlayButton'
-import { AUDIO_NFT_PLAYLIST } from 'pages/smart-collection/smartCollections'
-import { getPlaying, makeGetCurrent } from 'store/player/selectors'
+import { AUDIO_NFT_PLAYLIST } from 'common/store/smart-collection/smartCollections'
+import { TablePlayButton } from 'components/table/components/TablePlayButton'
 import { getLocationPathname } from 'store/routing/selectors'
 import { AppState } from 'store/types'
-import { getHash, AUDIO_NFT_PLAYLIST_PAGE, profilePage } from 'utils/route'
+import { AUDIO_NFT_PLAYLIST_PAGE, profilePage } from 'utils/route'
 
 import { CollectionPageProps as DesktopCollectionPageProps } from '../collection-page/components/desktop/CollectionPage'
 import { CollectionPageProps as MobileCollectionPageProps } from '../collection-page/components/mobile/CollectionPage'
 
 import styles from './CollectiblesPlaylistPage.module.css'
+const { getPlaying, makeGetCurrent } = playerSelectors
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { setCollectible } = collectibleDetailsUIActions
 const { add, clear, pause, play } = queueActions

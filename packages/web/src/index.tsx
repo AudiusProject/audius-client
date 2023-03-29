@@ -1,5 +1,9 @@
-import ReactDOM from 'react-dom'
-import { render } from 'react-nil'
+/* eslint-disable import/order */
+/* eslint-disable import/first */
+import { setupTracing } from './utils/tracer'
+setupTracing()
+
+import { createRoot } from 'react-dom/client'
 
 import './index.css'
 
@@ -8,11 +12,8 @@ import './index.css'
 // when running in dev mode.
 import Root from './root'
 
-const NATIVE_NAVIGATION_ENABLED =
-  process.env.REACT_APP_NATIVE_NAVIGATION_ENABLED === 'true'
-
-if (NATIVE_NAVIGATION_ENABLED) {
-  render(<Root />)
-} else {
-  ReactDOM.render(<Root />, document.getElementById('root'))
+const container = document.getElementById('root')
+if (container) {
+  const root = createRoot(container)
+  root.render(<Root />)
 }

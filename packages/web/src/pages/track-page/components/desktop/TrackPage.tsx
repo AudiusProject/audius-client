@@ -5,7 +5,8 @@ import {
   Track,
   User,
   trackPageLineupActions,
-  QueueItem
+  QueueItem,
+  usePremiumContentAccess
 } from '@audius/common'
 import cn from 'classnames'
 
@@ -15,13 +16,14 @@ import { LineupVariant } from 'components/lineup/types'
 import NavBanner from 'components/nav-banner/NavBanner'
 import Page from 'components/page/Page'
 import SectionButton from 'components/section-button/SectionButton'
-import StatBanner from 'components/stat-banner/StatBanner'
+import { StatBanner } from 'components/stat-banner/StatBanner'
 import GiantTrackTile from 'components/track/GiantTrackTile'
 import { TrackTileSize } from 'components/track/types'
 import { getTrackDefaults, emptyStringGuard } from 'pages/track-page/utils'
 
 import Remixes from './Remixes'
 import styles from './TrackPage.module.css'
+
 const { tracksActions } = trackPageLineupActions
 
 const messages = {
@@ -34,6 +36,7 @@ export type OwnProps = {
   title: string
   description: string
   canonicalUrl: string
+  structuredData?: Object
   // Hero Track Props
   heroTrack: Track | null
   hasValidRemixParent: boolean
@@ -76,6 +79,7 @@ const TrackPage = ({
   title,
   description,
   canonicalUrl,
+  structuredData,
   hasValidRemixParent,
   // Hero Track Props
   heroTrack,
@@ -112,7 +116,10 @@ const TrackPage = ({
   const following = user?.does_current_user_follow ?? false
   const isSaved = heroTrack?.has_current_user_saved ?? false
   const isReposted = heroTrack?.has_current_user_reposted ?? false
-  const loading = !heroTrack
+
+  const { isUserAccessTBD, doesUserHaveAccess } =
+    usePremiumContentAccess(heroTrack)
+  const loading = !heroTrack || isUserAccessTBD
 
   const onPlay = () => onHeroPlay(heroPlaying)
   const onSave = isOwner
@@ -168,12 +175,17 @@ const TrackPage = ({
       isOwner={isOwner}
       currentUserId={userId}
       isArtistPick={
-        heroTrack && user ? user._artist_pick === heroTrack.track_id : false
+        heroTrack && user
+          ? user.artist_pick_track_id === heroTrack.track_id
+          : false
       }
       isSaved={isSaved}
       badge={badge}
       onExternalLinkClick={onExternalLinkClick}
       isUnlisted={defaults.isUnlisted}
+      isPremium={defaults.isPremium}
+      premiumConditions={defaults.premiumConditions}
+      doesUserHaveAccess={doesUserHaveAccess}
       isRemix={!!defaults.remixParentTrackId}
       isPublishing={defaults.isPublishing}
       fieldVisibility={defaults.fieldVisibility}
@@ -215,6 +227,7 @@ const TrackPage = ({
       title={title}
       description={description}
       canonicalUrl={canonicalUrl}
+      structuredData={structuredData}
       variant='flush'
       scrollableSearch
     >
@@ -224,7 +237,7 @@ const TrackPage = ({
           userId={user ? user.user_id : null}
           coverPhotoSizes={user ? user._cover_photo_sizes : null}
         />
-        <StatBanner empty />
+        <StatBanner isEmpty />
         <NavBanner empty />
       </div>
       <div className={styles.contentWrapper}>{renderGiantTrackTile()}</div>

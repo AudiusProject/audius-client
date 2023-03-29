@@ -11,14 +11,20 @@ import {
   SolanaWalletAddress,
   WalletAddress,
   Supporter,
-  Supporting
-} from 'models'
-import { Nullable } from 'utils'
+  Supporting,
+  UserTip,
+  PremiumConditions,
+  PremiumContentSignature,
+  ID
+} from '../../models'
+import { License, Nullable } from '../../utils'
 
 export type OpaqueID = string
 
 export type APIUser = {
   album_count: number
+  // TODO remove number type once all DNs are encoding the artist pick ID
+  artist_pick_track_id: Nullable<number | OpaqueID>
   blocknumber: number
   balance: string
   associated_wallets_balance: string
@@ -76,6 +82,7 @@ export type APIFavorite = {
   favorite_item_id: string
   favorite_type: FavoriteType
   user_id: string
+  created_at: string
 }
 
 export type APIRemix = {
@@ -109,7 +116,7 @@ export type APITrack = {
   cover_art_sizes: string
   download: Download
   isrc: Nullable<string>
-  license: Nullable<string>
+  license: Nullable<License>
   iswc: Nullable<string>
   field_visibility: FieldVisibility
   followee_reposts: APIRepost[]
@@ -127,6 +134,9 @@ export type APITrack = {
   play_count: number
   permalink: string
   is_available: boolean
+  is_premium: boolean
+  premium_conditions: Nullable<PremiumConditions>
+  premium_content_signature: Nullable<PremiumContentSignature>
 }
 
 export type APISearchTrack = Omit<
@@ -237,4 +247,15 @@ export type SupportingResponse = Omit<Supporting, 'receiver_id'> & {
 }
 export type SupporterResponse = Omit<Supporter, 'sender_id'> & {
   sender: APIUser
+}
+
+type UserTipOmitIds = 'sender_id' | 'receiver_id' | 'followee_supporter_ids'
+export type GetTipsResponse = Omit<UserTip, UserTipOmitIds> & {
+  sender: APIUser
+  receiver: APIUser
+  followee_supporters: { user_id: string }[]
+}
+
+export type GetPremiumContentSignaturesResponse = {
+  [id: ID]: PremiumContentSignature
 }

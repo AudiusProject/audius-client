@@ -1,6 +1,3 @@
-import type { RefObject } from 'react'
-import { useCallback } from 'react'
-
 import type { NativeSyntheticEvent } from 'react-native'
 import { Modal, View, Button } from 'react-native'
 import Config from 'react-native-config'
@@ -10,18 +7,9 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { closePopup, setCredentials } from 'app/store/oauth/actions'
 import { Provider } from 'app/store/oauth/reducer'
-import {
-  getUrl,
-  getIsOpen,
-  getMessageId,
-  getAuthProvider,
-  getMessageType
-} from 'app/store/oauth/selectors'
+import { getUrl, getIsOpen, getAuthProvider } from 'app/store/oauth/selectors'
 import type { Credentials } from 'app/store/oauth/types'
-import type { MessagePostingWebView } from 'app/types/MessagePostingWebView'
-import { postMessage } from 'app/utils/postMessage'
-
-const AUTH_RESPONSE = 'auth-response'
+import { AUTH_RESPONSE_MESSAGE_TYPE } from 'app/store/oauth/types'
 
 const IDENTITY_SERVICE = Config.IDENTITY_SERVICE
 
@@ -30,7 +18,7 @@ const TWITTER_POLLER = `
   const exit = () => {
     window.ReactNativeWebView.postMessage(
       JSON.stringify({
-        type: '${AUTH_RESPONSE}'
+        type: '${AUTH_RESPONSE_MESSAGE_TYPE}'
       })
     )
   }
@@ -50,7 +38,7 @@ const TWITTER_POLLER = `
 
           window.ReactNativeWebView.postMessage(
             JSON.stringify({
-              type: '${AUTH_RESPONSE}',
+              type: '${AUTH_RESPONSE_MESSAGE_TYPE}',
               oauthToken,
               oauthVerifier
             })
@@ -73,7 +61,7 @@ const INSTAGRAM_POLLER = `
   const exit = () => {
     window.ReactNativeWebView.postMessage(
       JSON.stringify({
-        type: '${AUTH_RESPONSE}'
+        type: '${AUTH_RESPONSE_MESSAGE_TYPE}'
       })
     )
   }
@@ -91,7 +79,7 @@ const INSTAGRAM_POLLER = `
 
           window.ReactNativeWebView.postMessage(
             JSON.stringify({ 
-              type: '${AUTH_RESPONSE}',
+              type: '${AUTH_RESPONSE_MESSAGE_TYPE}',
               instagramCode
             })
           )
@@ -113,7 +101,7 @@ const TIKTOK_POLLER = `
   const exit = (error) => {
     window.ReactNativeWebView.postMessage(
       JSON.stringify({
-        type: '${AUTH_RESPONSE}',
+        type: '${AUTH_RESPONSE_MESSAGE_TYPE}',
         error: error.message
       })
     )
@@ -141,13 +129,15 @@ const TIKTOK_POLLER = `
 
     const {
       data: {
-        data: { access_token, open_id, expires_in }
+        access_token,
+        open_id,
+        expires_in
       }
     } = await response.json()
 
     window.ReactNativeWebView.postMessage(
       JSON.stringify({
-        type: '${AUTH_RESPONSE}',
+        type: '${AUTH_RESPONSE_MESSAGE_TYPE}',
         accessToken: access_token,
         openId: open_id,
         expiresIn: expires_in
@@ -179,26 +169,18 @@ const TIKTOK_POLLER = `
 })();
 `
 
-type Props = {
-  webRef: RefObject<MessagePostingWebView>
-}
-
-const OAuth = ({ webRef }: Props) => {
+const OAuth = () => {
   const dispatch = useDispatch()
   const url = useSelector(getUrl)
   const isOpen = useSelector(getIsOpen)
-  const messageId = useSelector(getMessageId)
-  const messageType = useSelector(getMessageType)
   const provider = useSelector(getAuthProvider)
-
-  const close = useCallback(() => dispatch(closePopup()), [dispatch])
 
   // Handle messages coming from the web view
   const onMessageHandler = (event: NativeSyntheticEvent<WebViewMessage>) => {
-    if (event.nativeEvent.data && webRef.current) {
+    if (event.nativeEvent.data) {
       const data = JSON.parse(event.nativeEvent.data)
 
-      if (data.type === AUTH_RESPONSE) {
+      if (data.type === AUTH_RESPONSE_MESSAGE_TYPE) {
         const payloadByProvider = {
           [Provider.TWITTER]: (message: any) =>
             message.oauthToken && message.oauthVerifier
@@ -225,32 +207,13 @@ const OAuth = ({ webRef }: Props) => {
                 }
         }
 
-        const isNativeOAuth = !messageType && !messageId
         const payload = payloadByProvider[provider as Provider](data)
 
-        if (isNativeOAuth) {
-          dispatch(setCredentials(payload as Credentials))
-        } else if (messageType) {
-          postMessage(webRef.current, {
-            type: messageType,
-            id: messageId,
-            ...payload
-          })
-        }
-        close()
+        dispatch(setCredentials(payload as Credentials))
+        dispatch(closePopup(false))
       }
     }
   }
-  const onClose = useCallback(() => {
-    if (webRef.current && messageType) {
-      postMessage(webRef.current, {
-        type: messageType,
-        id: messageId,
-        error: 'Popup has been closed by user'
-      })
-    }
-    close()
-  }, [webRef, messageId, messageType, close])
 
   const injected = {
     [Provider.TWITTER]: TWITTER_POLLER,
@@ -274,7 +237,7 @@ const OAuth = ({ webRef }: Props) => {
             marginBottom: 8
           }}
         >
-          <Button onPress={onClose} title='Close' />
+          <Button onPress={() => dispatch(closePopup(true))} title='Close' />
         </View>
         <WebView
           injectedJavaScript={injected}

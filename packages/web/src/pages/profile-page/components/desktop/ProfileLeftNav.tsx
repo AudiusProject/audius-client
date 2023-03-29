@@ -58,6 +58,7 @@ type ProfileLeftNavProps = {
   onUpdateBio: (bio: string) => void
   twitterVerified: boolean
   instagramVerified: boolean
+  tikTokVerified: boolean
   tags: string[]
   isOwner: boolean
 }
@@ -88,6 +89,7 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
     onUpdateBio,
     twitterVerified,
     instagramVerified,
+    tikTokVerified,
     tags,
     isOwner
   } = props
@@ -155,6 +157,7 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
           <SocialLinkInput
             defaultValue={tikTokHandle}
             className={styles.tikTokInput}
+            isDisabled={!!tikTokVerified}
             type={Type.TIKTOK}
             onChange={onUpdateTikTokHandle}
           />
@@ -185,6 +188,7 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
       </div>
     )
   } else if (!loading && !isDeactivated) {
+    const showUploadChip = isOwner && !isArtist
     return (
       <div className={styles.about}>
         <ProfilePageBadge userId={userId} className={styles.badge} />
@@ -203,12 +207,18 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
           <OpacityTransition render={renderTipAudioButton} />
         ) : null}
         <SupportingList />
-        <TopSupporters />
-        {isArtist ? <ProfileTags goToRoute={goToRoute} tags={tags} /> : null}
-        <ProfileMutuals />
-        {isOwner && !isArtist && (
-          <UploadChip type='track' variant='nav' onClick={onClickUploadChip} />
-        )}
+        <div className={styles.profileBottomSection}>
+          <TopSupporters />
+          <ProfileMutuals />
+          {isArtist ? <ProfileTags goToRoute={goToRoute} tags={tags} /> : null}
+          {showUploadChip ? (
+            <UploadChip
+              type='track'
+              variant='nav'
+              onClick={onClickUploadChip}
+            />
+          ) : null}
+        </div>
       </div>
     )
   } else {

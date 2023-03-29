@@ -1,6 +1,11 @@
 import { ReactNode, useCallback, useEffect } from 'react'
 
-import { Name, Status } from '@audius/common'
+import {
+  deactivateAccountActions,
+  deactivateAccountSelectors,
+  Name,
+  Status
+} from '@audius/common'
 import { Button, ButtonType } from '@audius/stems'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
@@ -14,21 +19,22 @@ import { isMobile } from 'utils/clientUtil'
 import styles from './DeactivateAccountPage.module.css'
 import { DeactivateAccountPageDesktop } from './components/desktop/DeactivateAccountPage'
 import { DeactivateAccountPageMobile } from './components/mobile/DeactivateAccountPage'
-import { getDeactivateAccountStatus } from './store/selectors'
-import { deactivateAccount } from './store/slice'
+
+const { deactivateAccount } = deactivateAccountActions
+const { getDeactivateAccountStatus } = deactivateAccountSelectors
 
 export const messages = {
-  title: 'Deactivate',
-  description: 'Deactivate your account',
-  header: 'Are You Sure You Want To Deactivate Your Account?',
+  title: 'Delete',
+  description: 'Delete your account',
+  header: 'Are You Sure You Want To Delete Your Account?',
   listItems: [
     "There's no going back.",
     'This will remove all of your tracks, albums and playlists.',
     'You will not be able to re-register with the same email or handle'
   ],
-  confirmTitle: 'Deactivate Account',
+  confirmTitle: 'Delete Account',
   confirm: 'Are you sure? This cannot be undone.',
-  buttonDeactivate: 'Deactivate',
+  buttonDeactivate: 'Delete',
   buttonSafety: 'Take me back to safety',
   buttonGoBack: 'Go Back',
   errorMessage: 'Something went wrong.',

@@ -15,7 +15,7 @@ import { usePrevious } from 'react-use'
 import { light, medium } from 'app/haptics'
 import type { GestureResponderHandler } from 'app/types/gesture'
 
-type IconJSON = AnimatedLottieViewProps['source']
+export type IconJSON = AnimatedLottieViewProps['source']
 
 export type Haptics = boolean | 'light' | 'medium'
 
@@ -33,6 +33,7 @@ export type AnimatedButtonProps = {
   haptics?: Haptics
   hapticsConfig?: Haptics[]
   waitForAnimationFinish?: boolean
+  children?: ReactNode
 } & PressableProps
 
 export const AnimatedButton = ({
@@ -49,6 +50,7 @@ export const AnimatedButton = ({
   haptics,
   hapticsConfig,
   waitForAnimationFinish,
+  children,
   ...pressableProps
 }: AnimatedButtonProps) => {
   const [iconIndex, setIconIndex] = useState<number>(externalIconIndex ?? 0)
@@ -176,11 +178,11 @@ export const AnimatedButton = ({
 
   return iconJSON ? (
     <Pressable
+      hitSlop={{ top: 12, right: 12, bottom: 12, left: 12 }}
       {...pressableProps}
       disabled={isDisabled}
       onPress={handlePress}
       onLongPress={handleLongPress}
-      hitSlop={{ top: 12, right: 12, bottom: 12, left: 12 }}
       style={style}
     >
       {(pressableState) => (
@@ -189,6 +191,9 @@ export const AnimatedButton = ({
           <View style={wrapperStyle}>
             {/* The key is needed for animations to work on android  */}
             <LottieView
+              style={
+                !hasMultipleStates ? { opacity: isActive ? 1 : 0 } : undefined
+              }
               key={hasMultipleStates ? iconIndex : undefined}
               ref={(animation) => (animationRef.current = animation)}
               onAnimationFinish={handleAnimationFinish}
@@ -197,7 +202,23 @@ export const AnimatedButton = ({
               source={source}
               resizeMode={resizeMode}
             />
+            {/**
+             * Secondary animation that is visible when inactive. This ensures
+             * active->inactive transition is smooth, since Lottie onAnimationFinish
+             * does not do this smoothly and results in partially inactive states.
+             */}
+            {!hasMultipleStates ? (
+              <LottieView
+                key={isActive ? 'active' : 'inactive'}
+                style={{ opacity: isActive ? 0 : 1 }}
+                progress={0}
+                loop={false}
+                source={source}
+                resizeMode={resizeMode}
+              />
+            ) : null}
           </View>
+          {children}
         </>
       )}
     </Pressable>

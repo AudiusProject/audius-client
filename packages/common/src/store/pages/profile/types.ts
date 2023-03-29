@@ -1,4 +1,5 @@
 import { ID, UID, LineupState, Status, User } from '../../../models'
+import { Nullable } from '../../../utils/typeUtils'
 
 export enum FollowType {
   FOLLOWERS = 'followers',
@@ -21,7 +22,7 @@ export type ProfilePageFollow = {
   status: Status
 }
 
-export type ProfilePageState = {
+export type ProfileState = {
   handle: string
   userId: number
   status: Status
@@ -29,6 +30,7 @@ export type ProfilePageState = {
   updateSuccess: boolean
   updateError: boolean
   collectionIds: number[]
+  collectionStatus: Status.IDLE
   mustUsedTags: string[]
   collectionSortMode: CollectionSortMode
   profileMeterDismissed: boolean
@@ -40,6 +42,11 @@ export type ProfilePageState = {
   isNotificationSubscribed: boolean
   error?: string
   mostUsedTags: string[]
+}
+
+export type ProfilePageState = {
+  currentUser: Nullable<string>
+  entries: Record<string, ProfileState>
 }
 
 export enum ProfilePageTabs {

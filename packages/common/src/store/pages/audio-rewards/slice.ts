@@ -160,6 +160,20 @@ const slice = createSlice({
         delete userChallengeOverride.current_step_count
       }
     },
+    setOptimisticChallengeCompleted: (
+      state,
+      action: PayloadAction<{
+        challengeId: ChallengeRewardID
+        specifier: string
+      }>
+    ) => {
+      const { challengeId, specifier } = action.payload
+      state.userChallengesOverrides[challengeId] = {
+        ...state.userChallengesOverrides[challengeId],
+        specifier,
+        is_complete: true
+      }
+    },
     setTrendingRewardsModalType: (
       state,
       action: PayloadAction<{ modalType: TrendingRewardsModalType }>
@@ -277,7 +291,8 @@ export const {
   resetRewardClaimedToast,
   updateOptimisticListenStreak,
   setUserChallengeCurrentStepCount,
-  resetUserChallengeCurrentStepCount
+  resetUserChallengeCurrentStepCount,
+  setOptimisticChallengeCompleted
 } = slice.actions
 
 export default slice

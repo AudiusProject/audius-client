@@ -6,16 +6,20 @@ import { asLineup } from 'store/lineup/reducer'
 import { ID } from '../../../models/Identifiers'
 
 import { PREFIX as remixesTracksPrefix } from './lineup/actions'
-import remixesTracksReducer from './lineup/reducer'
+import remixesTracksReducer, {
+  initialState as initialLineupState
+} from './lineup/reducer'
 
 type State = {
   trackId: ID | null
   count: number | null
+  tracks: typeof initialLineupState
 }
 
 const initialState: State = {
   trackId: null,
-  count: null
+  count: null,
+  tracks: initialLineupState
 }
 
 const slice = createSlice({
@@ -27,7 +31,11 @@ const slice = createSlice({
     },
     fetchTrack: (
       _state,
-      _action: PayloadAction<{ handle: string; slug: string }>
+      _action: PayloadAction<{
+        handle?: string
+        slug?: string
+        id?: ID
+      }>
     ) => {},
     fetchTrackSucceeded: (state, action: PayloadAction<{ trackId: ID }>) => {
       const { trackId } = action.payload

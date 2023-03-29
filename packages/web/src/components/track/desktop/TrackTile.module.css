@@ -147,6 +147,15 @@
   height: 20px;
 }
 
+.withPremium {
+  margin-right: 188px;
+}
+
+.container .premiumCornerTagContainer {
+  box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.25),
+    inset 4px 4px 8px rgba(255, 255, 255, 0.2);
+}
+
 .title {
   font-style: normal;
   font-weight: var(--font-bold);
@@ -168,6 +177,13 @@
 
 .creatorRow {
   display: inline-flex;
+}
+
+.creatorRow .userName,
+.creatorRow .userName:active,
+.creatorRow .userName:hover {
+  text-decoration: inherit;
+  color: inherit;
 }
 
 .creatorRow .skeleton {
@@ -211,7 +227,7 @@
 .creatorRow .name.artistNameLink:hover {
   cursor: pointer;
   color: var(--primary);
-  text-decoration: underline;
+  text-decoration: underline !important;
   text-decoration-color: var(--primary-light-2);
 }
 
@@ -292,6 +308,44 @@
   margin-right: 12px;
 }
 
+.topRightIconLabel.premiumContent {
+  color: var(--accent-blue);
+}
+
+.topRightIconLabel.premiumContent path {
+  fill: var(--accent-blue);
+}
+
+.progressTextContainer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.progressText {
+  white-space: nowrap;
+}
+
+.progressTextSlider {
+  height: 4px;
+  width: 128px;
+}
+
+.completeText {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  color: var(--secondary);
+}
+
+.completeIcon {
+  height: 12px;
+  width: 12px;
+}
+.completeIcon path {
+  fill: var(--secondary);
+}
+
 .bottomRight {
   position: absolute;
   right: 0;
@@ -344,6 +398,27 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
+}
+
+.bottomRow .premiumContent {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  padding: 2px 8px;
+  border: 1px solid var(--neutral-light-4);
+  border-radius: 2px;
+  font-weight: var(--font-bold);
+  color: var(--neutral-light-4);
+}
+
+.bottomRow .premiumContent svg {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+
+.bottomRow .premiumContent path {
+  fill: var(--neutral-light-4);
 }
 
 .bottomRow .iconButtons {
@@ -415,4 +490,10 @@
 
 .menuContainer:active {
   transform: scale3d(0.95, 0.95, 0.95);
+}
+
+.spinner {
+  margin-right: 8px;
+  height: 16px;
+  width: 16px;
 }

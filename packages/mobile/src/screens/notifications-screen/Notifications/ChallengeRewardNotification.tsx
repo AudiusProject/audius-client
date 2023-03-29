@@ -1,9 +1,13 @@
+import { useCallback } from 'react'
+
 import type {
   ChallengeRewardID,
   ChallengeRewardNotification as ChallengeRewardNotificationType
 } from '@audius/common'
+import { Platform } from 'react-native'
 
 import IconAudius from 'app/assets/images/iconAudius.svg'
+import { useNotificationNavigation } from 'app/hooks/useNotificationNavigation'
 
 import {
   NotificationTile,
@@ -22,12 +26,14 @@ const messages = {
     'I earned $AUDIO for completing challenges on @AudiusProject #AudioRewards'
 }
 
-const challengeInfoMap: Record<
-  ChallengeRewardID,
-  { title: string; amount: number }
+const challengeInfoMap: Partial<
+  Record<
+    ChallengeRewardID,
+    { title: string; amount: number; iosTitle?: string }
+  >
 > = {
   'profile-completion': {
-    title: '✅️ Complete your Profile',
+    title: '✅️ Complete Your Profile',
     amount: 1
   },
   'listen-streak': {
@@ -39,15 +45,15 @@ const challengeInfoMap: Record<
     amount: 1
   },
   referrals: {
-    title: '📨 Invite your Friends',
+    title: '📨 Invite Your Friends',
     amount: 1
   },
   'ref-v': {
-    title: '📨 Invite your Fans',
+    title: '📨 Invite Your Fans',
     amount: 1
   },
   referred: {
-    title: '📨 Invite your Friends',
+    title: '📨 Invite Your Friends',
     amount: 1
   },
   'connect-verified': {
@@ -60,10 +66,12 @@ const challengeInfoMap: Record<
   },
   'send-first-tip': {
     title: '🤑 Send Your First Tip',
+    // NOTE: Send tip -> Send $AUDIO change
+    iosTitle: '🤑 Send Your First $AUDIO',
     amount: 2
   },
   'first-playlist': {
-    title: '✨ Create Your First Playlist',
+    title: '🎼 Create a Playlist',
     amount: 2
   }
 }
@@ -77,11 +85,22 @@ export const ChallengeRewardNotification = (
 ) => {
   const { notification } = props
   const { challengeId } = notification
-  const { title, amount } = challengeInfoMap[challengeId]
+  const info = challengeInfoMap[challengeId]
+  const navigation = useNotificationNavigation()
+
+  const handlePress = useCallback(() => {
+    navigation.navigate(notification)
+  }, [navigation, notification])
+
+  if (!info) return null
+  const { title, amount, iosTitle } = info
+
   return (
-    <NotificationTile notification={notification}>
+    <NotificationTile notification={notification} onPress={handlePress}>
       <NotificationHeader icon={IconAudius}>
-        <NotificationTitle>{title}</NotificationTitle>
+        <NotificationTitle>
+          {Platform.OS === 'ios' && iosTitle != null ? iosTitle : title}
+        </NotificationTitle>
       </NotificationHeader>
       <NotificationText>
         {messages.amountEarned(amount)}{' '}

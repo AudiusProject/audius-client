@@ -6,9 +6,12 @@ import type {
   Kind,
   Lineup as LineupData,
   Maybe,
-  LineupBaseActions
+  LineupBaseActions,
+  CommonState
 } from '@audius/common'
 import type { SectionListProps } from 'react-native'
+
+import type { PlaybackSource } from 'app/types/analytics'
 
 export enum LineupVariant {
   MAIN = 'main',
@@ -27,10 +30,6 @@ export type LineupItem = {
 
 export type LoadingLineupItem = {
   _loading: true
-}
-
-export type FeedTipLineupItem = {
-  _feedTip: true
 }
 
 export type LineupProps = {
@@ -56,22 +55,37 @@ export type LineupProps = {
   fetchPayload?: any
 
   /**
+   * Extra fetch payload (merged in with fetch action) used to pass extra information to lineup actions/reducers/sagas
+   */
+  extraFetchOptions?: Record<string, unknown>
+
+  /**
    * A header to display at the top of the lineup,
    * will scroll with the rest of the content
    */
   header?: SectionListProps<unknown>['ListHeaderComponent']
 
+  /**
+   * An optional component to render when the lineup has no contents
+   * in it.
+   */
+  LineupEmptyComponent?: SectionListProps<unknown>['ListEmptyComponent']
+
   /** Are we in a trending lineup? Allows tiles to specialize their rendering */
   isTrending?: boolean
 
-  /** Whether we are in the feed lineup */
-  isFeed?: boolean
+  /**
+   * When `true` lineup waits until visible before fetching.
+   * This is especcially needed for lineups inside collapsible-tab-view
+   * which do not support tab-navigator lazy mode
+   */
+  lazy?: boolean
 
   /**
    * Indicator if a track should be displayed differently (ie. artist pick)
    * The leadingElementId is displayed at the top of the lineup
    */
-  leadingElementId?: ID
+  leadingElementId?: ID | null
 
   /**
    * A custom delineator to show after the leading element
@@ -84,7 +98,12 @@ export type LineupProps = {
   /**
    * The Lineup object containing entries
    */
-  lineup: LineupData<LineupItem>
+  lineup?: LineupData<LineupItem>
+
+  /**
+   * The Lineup selector, allowing the lineup to select lineup itself
+   */
+  lineupSelector?: (state: CommonState) => LineupData<LineupItem>
 
   /**
    * Function called to load more entries
@@ -139,7 +158,31 @@ export type LineupProps = {
    * This helps prevent collisions with any in-flight loading from web-app
    */
   includeLineupStatus?: boolean
+  /**
+   * When `true`, add pull-to-refresh capability
+   */
+  pullToRefresh?: boolean
 } & Pick<
   SectionListProps<unknown>,
-  'showsVerticalScrollIndicator' | 'ListEmptyComponent'
+  'showsVerticalScrollIndicator' | 'ListEmptyComponent' | 'ListFooterComponent'
 >
+
+export type TogglePlayConfig = {
+  uid: UID
+  id: ID
+  source: PlaybackSource
+}
+
+export type LineupItemTileProps = Pick<
+  LineupProps,
+  'isTrending' | 'showLeadingElementArtistPick' | 'leadingElementId'
+> & {
+  rankIconCount: number
+  item: LineupItem | LoadingLineupItem
+  index: number
+  togglePlay: ({ uid, id, source }: TogglePlayConfig) => void
+}
+
+export type LineupTileViewProps = Omit<LineupItemTileProps, 'item'> & {
+  item: LineupItem
+}

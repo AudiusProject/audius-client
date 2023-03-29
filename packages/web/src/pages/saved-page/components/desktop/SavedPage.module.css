@@ -88,11 +88,10 @@
   transition: all 0.25s;
 }
 
-.tabBody {
-  left: -10px;
-}
-
 .tabElement {
   justify-content: flex-start;
-  padding: 0px 10px;
+}
+
+.albumsWrapper {
+  flex: 1 1 0;
 }

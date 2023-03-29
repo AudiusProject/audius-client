@@ -5,15 +5,13 @@ import { Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import cn from 'classnames'
 
-import { makeGetCurrent } from 'common/store/queue/selectors'
-import { getAudio, getPlaying } from 'store/player/selectors'
 import Visualizer1 from 'utils/visualizer/visualizer-1.js'
 import Toast from 'components/toast/Toast'
 
 import styles from './VisualizerProvider.module.css'
 import { MountPlacement, ComponentPlacement } from 'components/types'
-import { themeSelectors } from '@audius/common'
-const { getTheme } = themeSelectors
+import { playerSelectors, queueSelectors, themeSelectors } from '@audius/common'
+
 import { shouldShowDark } from 'utils/theme/theme'
 import { profilePage } from 'utils/route'
 import { make, TrackEvent } from 'common/store/analytics/actions'
@@ -22,13 +20,17 @@ import { Track } from '@audius/common'
 import { SquareSizes } from '@audius/common'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import PlayingTrackInfo from 'components/play-bar/desktop/components/PlayingTrackInfo'
-import AudioStream from 'audio/AudioStream'
 import { webglSupported } from './utils'
 import { averageColorSelectors } from '@audius/common'
-const getDominantColorsByTrack = averageColorSelectors.getDominantColorsByTrack
 import { ReactComponent as IconRemove } from 'assets/img/iconRemove.svg'
 import { ReactComponent as AudiusLogoHorizontal } from 'assets/img/audiusLogoHorizontal.svg'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
+import { audioPlayer } from 'services/audio-player'
+
+const { makeGetCurrent } = queueSelectors
+const { getPlaying } = playerSelectors
+const { getTheme } = themeSelectors
+const getDominantColorsByTrack = averageColorSelectors.getDominantColorsByTrack
 
 const Artwork = ({ track }: { track?: Track | null }) => {
   const { track_id, _cover_art_sizes } = track || {}
@@ -55,7 +57,6 @@ const messages = (browser: string) => ({
 const Visualizer = ({
   isVisible,
   currentQueueItem,
-  audio,
   playing,
   theme,
   dominantColors,
@@ -71,18 +72,20 @@ const Visualizer = ({
   const [showVisualizer, setShowVisualizer] = useState(false)
 
   useEffect(() => {
-    if (!(window as any).AudioContext) {
+    if (showVisualizer) {
       let browser
-      if ((window as any).webkitAudioContext) {
+      if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
         browser = 'Safari'
-      } else if (window.navigator.userAgent.indexOf('MSIE ') > 0) {
+      } else if (/MSIE/i.test(navigator.userAgent)) {
         browser = 'Internet Explorer'
-      } else {
+      } else if (!window?.AudioContext) {
         browser = 'your browser'
       }
-      setToastText(messages(browser).notSupported)
+      if (browser) {
+        setToastText(messages(browser).notSupported)
+      }
     }
-  }, [])
+  }, [showVisualizer])
 
   if (!webGLExists) {
     return null
@@ -97,9 +100,16 @@ const Visualizer = ({
 
   // Rebind audio
   useEffect(() => {
-    if (audio && (audio as AudioStream).audioCtx && playing)
-      Visualizer1?.bind(audio)
-  }, [isVisible, playing, audio, currentQueueItem])
+    if (playing) {
+      if (audioPlayer.audioCtx) {
+        Visualizer1?.bind(audioPlayer)
+      } else {
+        audioPlayer.audio.addEventListener('canplay', () => {
+          Visualizer1?.bind(audioPlayer)
+        })
+      }
+    }
+  }, [isVisible, playing, currentQueueItem])
 
   useEffect(() => {
     if (isVisible) {
@@ -224,7 +234,6 @@ const makeMapStateToProps = () => {
     const currentQueueItem = getCurrentQueueItem(state)
     return {
       currentQueueItem,
-      audio: getAudio(state),
       playing: getPlaying(state),
       theme: getTheme(state),
       dominantColors: getDominantColorsByTrack(state, {

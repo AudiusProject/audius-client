@@ -4,6 +4,8 @@ import { MonitorPayload, ServiceMonitorType } from 'models/Services'
 import { TimeRange } from 'models/TimeRange'
 import { SolanaWalletAddress, StringAudio, WalletAddress } from 'models/Wallet'
 
+import { Chain } from './Chain'
+
 const ANALYTICS_TRACK_EVENT = 'ANALYTICS/TRACK_EVENT'
 
 type JsonMap = Record<string, unknown>
@@ -30,6 +32,10 @@ export enum Name {
   CREATE_ACCOUNT_START_INSTAGRAM = 'Create Account: Start Instagram',
   // When the user continues past the "instagram connection page"
   CREATE_ACCOUNT_COMPLETE_INSTAGRAM = 'Create Account: Complete Instagram',
+  // When the user starts integrating with tiktok
+  CREATE_ACCOUNT_START_TIKTOK = 'Create Account: Start TikTok',
+  // When the user continues past the "tiktok connection page"
+  CREATE_ACCOUNT_COMPLETE_TIKTOK = 'Create Account: Complete TikTok',
   // When the user continues past the "profile info page"
   CREATE_ACCOUNT_COMPLETE_PROFILE = 'Create Account: Complete Profile',
   // When the user continues past the follow page
@@ -40,6 +46,8 @@ export enum Name {
   CREATE_ACCOUNT_FINISH = 'Create Account: Finish',
   // When the user gets rate limited during signup auth
   CREATE_ACCOUNT_RATE_LIMIT = 'Create Account: Rate Limit',
+  // When the user gets blocked by AAO during the signup path
+  CREATE_ACCOUNT_BLOCKED = 'Create Account: Blocked',
 
   // Sign in
   SIGN_IN_OPEN = 'Sign In: Open',
@@ -52,6 +60,8 @@ export enum Name {
   SETTINGS_COMPLETE_TWITTER_OAUTH = 'Settings: Complete Twitter OAuth',
   SETTINGS_START_INSTAGRAM_OAUTH = 'Settings: Start Instagram OAuth',
   SETTINGS_COMPLETE_INSTAGRAM_OAUTH = 'Settings: Complete Instagram OAuth',
+  SETTINGS_START_TIKTOK_OAUTH = 'Settings: Start TikTok OAuth',
+  SETTINGS_COMPLETE_TIKTOK_OAUTH = 'Settings: Complete TikTok OAuth',
   SETTINGS_RESEND_ACCOUNT_RECOVERY = 'Settings: Resend Account Recovery',
   SETTINGS_START_CHANGE_PASSWORD = 'Settings: Start Change Password',
   SETTINGS_COMPLETE_CHANGE_PASSWORD = 'Settings: Complete Change Password',
@@ -116,18 +126,36 @@ export enum Name {
   EMBED_OPEN = 'Embed: Open modal',
   EMBED_COPY = 'Embed: Copy',
 
-  // Upload
+  // Upload funnel / conversion
   TRACK_UPLOAD_OPEN = 'Track Upload: Open',
   TRACK_UPLOAD_START_UPLOADING = 'Track Upload: Start Upload',
   TRACK_UPLOAD_TRACK_UPLOADING = 'Track Upload: Track Uploading',
+  // Note that upload is considered complete if it is explicitly rejected
+  // by the node receiving the file (HTTP 403).
   TRACK_UPLOAD_COMPLETE_UPLOAD = 'Track Upload: Complete Upload',
   TRACK_UPLOAD_COPY_LINK = 'Track Upload: Copy Link',
   TRACK_UPLOAD_SHARE_WITH_FANS = 'Track Upload: Share with your fans',
   TRACK_UPLOAD_SHARE_SOUND_TO_TIKTOK = 'Track Upload: Share sound to TikTok',
   TRACK_UPLOAD_VIEW_TRACK_PAGE = 'Track Upload: View Track page',
+  TWEET_FIRST_UPLOAD = 'Tweet First Upload',
+
+  // Upload success tracking
   TRACK_UPLOAD_SUCCESS = 'Track Upload: Success',
   TRACK_UPLOAD_FAILURE = 'Track Upload: Failure',
-  TWEET_FIRST_UPLOAD = 'Tweet First Upload',
+  TRACK_UPLOAD_REJECTED = 'Track Upload: Rejected',
+
+  // Gated Track Uploads
+  TRACK_UPLOAD_COLLECTIBLE_GATED = 'Track Upload: Collectible Gated',
+  TRACK_UPLOAD_FOLLOW_GATED = 'Track Upload: Follow Gated',
+  TRACK_UPLOAD_TIP_GATED = 'Track Upload: Tip Gated',
+
+  // Gated Track Listen
+  LISTEN_GATED = 'Listen: Gated',
+
+  // Unlocked Gated Tracks
+  COLLECTIBLE_GATED_TRACK_UNLOCKED = 'Collectible Gated: Track Unlocked',
+  FOLLOW_GATED_TRACK_UNLOCKED = 'Follow Gated: Track Unlocked',
+  TIP_GATED_TRACK_UNLOCKED = 'Tip Gated: Track Unlocked',
 
   // Trending
   TRENDING_CHANGE_VIEW = 'Trending: Change view',
@@ -149,6 +177,9 @@ export enum Name {
   NOTIFICATIONS_CLICK_DETHRONED_TWITTER_SHARE = 'Notifications: Clicked Dethroned Twitter Share',
   NOTIFICATIONS_CLICK_SUPPORTER_RANK_UP_TWITTER_SHARE = 'Notifications: Clicked Supporter Rank Up Twitter Share',
   NOTIFICATIONS_CLICK_SUPPORTING_RANK_UP_TWITTER_SHARE = 'Notifications: Clicked Supporting Rank Up Twitter Share',
+  NOTIFICATIONS_CLICK_TRENDING_TRACK_TWITTER_SHARE = 'Notifications: Clicked Trending Track Twitter Share',
+  NOTIFICATIONS_CLICK_TRENDING_PLAYLIST_TWITTER_SHARE = 'Notifications: Clicked Trending Playlist Twitter Share',
+  NOTIFICATIONS_CLICK_TRENDING_UNDERGROUND_TWITTER_SHARE = 'Notifications: Clicked Trending Underground Twitter Share',
   NOTIFICATIONS_CLICK_ADD_TRACK_TO_PLAYLIST_TWITTER_SHARE = 'Notifications: Clicked Add Track to Playlist Twitter Share',
   NOTIFICATIONS_TOGGLE_SETTINGS = 'Notifications: Toggle Setting',
   BROWSER_NOTIFICATION_SETTINGS = 'Browser Push Notification',
@@ -271,7 +302,25 @@ export enum Name {
   BUY_AUDIO_ON_RAMP_CANCELED = 'Buy Audio: On Ramp Canceled',
   BUY_AUDIO_ON_RAMP_SUCCESS = 'Buy Audio: On Ramp Success',
   BUY_AUDIO_SUCCESS = 'Buy Audio: Success',
-  BUY_AUDIO_FAILURE = 'Buy Audio: Failure'
+  BUY_AUDIO_FAILURE = 'Buy Audio: Failure',
+
+  // Buy Audio Recovery
+  BUY_AUDIO_RECOVERY_OPENED = 'Buy Audio Recovery: Opened',
+  BUY_AUDIO_RECOVERY_SUCCESS = 'Buy Audio Recovery: Success',
+  BUY_AUDIO_RECOVERY_FAILURE = 'Buy Audio Recovery: Failure',
+
+  // Rate & Review CTA
+  RATE_CTA_DISPLAYED = 'Rate CTA: Displayed',
+  RATE_CTA_RESPONSE_YES = 'Rate CTA: User Responded Yes',
+  RATE_CTA_RESPONSE_NO = 'Rate CTA: User Responded No',
+
+  // Connect Wallet
+  CONNECT_WALLET_NEW_WALLET_START = 'Connect Wallet: New Wallet Start',
+  CONNECT_WALLET_NEW_WALLET_CONNECTING = 'Connect Wallet: New Wallet Connecting',
+  CONNECT_WALLET_NEW_WALLET_CONNECTED = 'Connect Wallet: New Wallet Connected',
+  CONNECT_WALLET_ALREADY_ASSOCIATED = 'Connect Wallet: Already Associated',
+  CONNECT_WALLET_ASSOCIATION_ERROR = 'Connect Wallet: Association Error',
+  CONNECT_WALLET_ERROR = 'Connect Wallet: Error'
 }
 
 type PageView = {
@@ -280,7 +329,7 @@ type PageView = {
 }
 
 // Create Account
-type CreateAccountOpen = {
+export type CreateAccountOpen = {
   eventName: Name.CREATE_ACCOUNT_OPEN
   source:
     | 'nav profile'
@@ -289,7 +338,7 @@ type CreateAccountOpen = {
     | 'account icon'
     | 'social action'
     | 'sign in page'
-  // todo: are we missing 'restricted page' in this list?
+    | 'restricted page'
 }
 type CreateAccountCompleteEmail = {
   eventName: Name.CREATE_ACCOUNT_COMPLETE_EMAIL
@@ -318,6 +367,14 @@ type CreateAccountCompleteInstagram = {
   isVerified: boolean
   emailAddress: string
   handle: string
+}
+type CreateAccountStartTikTok = {
+  eventName: Name.CREATE_ACCOUNT_START_TIKTOK
+  emailAddress: string
+}
+type CreateAccountCompleteTikTok = {
+  eventName: Name.CREATE_ACCOUNT_COMPLETE_TIKTOK
+  emailAddress: string
 }
 type CreateAccountCompleteProfile = {
   eventName: Name.CREATE_ACCOUNT_COMPLETE_PROFILE
@@ -382,6 +439,16 @@ type SettingsCompleteInstagramOauth = {
   username: string
   is_verified: boolean
 }
+type SettingsStartTikTokOauth = {
+  eventName: Name.SETTINGS_START_TIKTOK_OAUTH
+  handle: string
+}
+type SettingsCompleteTikTokOauth = {
+  eventName: Name.SETTINGS_COMPLETE_TIKTOK_OAUTH
+  handle: string
+  username: string
+  is_verified: boolean
+}
 type SettingsResetAccountRecovery = {
   eventName: Name.SETTINGS_RESEND_ACCOUNT_RECOVERY
 }
@@ -428,6 +495,7 @@ type ErrorPage = {
   eventName: Name.ERROR_PAGE
   error: string
   name: string
+  route?: string
 }
 type NotFoundPage = {
   eventName: Name.NOT_FOUND_PAGE
@@ -490,6 +558,7 @@ export enum FavoriteSource {
   OVERFLOW = 'overflow',
   TRACK_LIST = 'track list',
   SIGN_UP = 'sign up',
+  OFFLINE_DOWNLOAD = 'offline download',
   // Favorite triggered by some implicit action, e.g.
   // you had a smart collection and it was favorited so it
   // shows in your left-nav.
@@ -504,7 +573,9 @@ export enum FollowSource {
   OVERFLOW = 'overflow',
   USER_LIST = 'user list',
   ARTIST_RECOMMENDATIONS_POPUP = 'artist recommendations popup',
-  EMPTY_FEED = 'empty feed'
+  EMPTY_FEED = 'empty feed',
+  HOW_TO_UNLOCK_TRACK_PAGE = 'how to unlock track page',
+  HOW_TO_UNLOCK_MODAL = 'how to unlock modal'
 }
 
 type Share = {
@@ -667,6 +738,9 @@ type TrackUploadTrackUploading = {
   genre: string
   mood: string
   downloadable: 'yes' | 'no' | 'follow'
+  size: number
+  type: string
+  name: string
 }
 type TrackUploadCompleteUpload = {
   eventName: Name.TRACK_UPLOAD_COMPLETE_UPLOAD
@@ -682,6 +756,13 @@ type TrackUploadSuccess = {
 
 type TrackUploadFailure = {
   eventName: Name.TRACK_UPLOAD_FAILURE
+  endpoint: string
+  kind: 'single_track' | 'multi_track' | 'album' | 'playlist'
+  error?: string
+}
+
+type TrackUploadRejected = {
+  eventName: Name.TRACK_UPLOAD_REJECTED
   endpoint: string
   kind: 'single_track' | 'multi_track' | 'album' | 'playlist'
   error?: string
@@ -703,6 +784,41 @@ type TrackUploadShareSoundToTikTok = {
 type TrackUploadViewTrackPage = {
   eventName: Name.TRACK_UPLOAD_VIEW_TRACK_PAGE
   uploadType: string
+}
+
+// Gated Track Uploads
+type TrackUploadCollectibleGated = {
+  eventName: Name.TRACK_UPLOAD_COLLECTIBLE_GATED
+  count: number
+  kind: 'tracks'
+}
+
+type TrackUploadFollowGated = {
+  eventName: Name.TRACK_UPLOAD_FOLLOW_GATED
+  count: number
+  kind: 'tracks'
+}
+
+type TrackUploadTipGated = {
+  eventName: Name.TRACK_UPLOAD_TIP_GATED
+  count: number
+  kind: 'tracks'
+}
+
+// Unlocked Gated Tracks
+type CollectibleGatedTrackUnlocked = {
+  eventName: Name.COLLECTIBLE_GATED_TRACK_UNLOCKED
+  count: number
+}
+
+type FollowGatedTrackUnlocked = {
+  eventName: Name.FOLLOW_GATED_TRACK_UNLOCKED
+  trackId: number
+}
+
+type TipGatedTrackUnlocked = {
+  eventName: Name.TIP_GATED_TRACK_UNLOCKED
+  trackId: number
 }
 
 // Trending
@@ -776,6 +892,18 @@ type NotificationsClickSupportingRankUp = {
 }
 type NotificationsClickAddTrackToPlaylist = {
   eventName: Name.NOTIFICATIONS_CLICK_ADD_TRACK_TO_PLAYLIST_TWITTER_SHARE
+  text: string
+}
+type NotificationsClickTrendingTrack = {
+  eventName: Name.NOTIFICATIONS_CLICK_TRENDING_TRACK_TWITTER_SHARE
+  text: string
+}
+type NotificationsClickTrendingPlaylist = {
+  eventName: Name.NOTIFICATIONS_CLICK_TRENDING_PLAYLIST_TWITTER_SHARE
+  text: string
+}
+type NotificationsClickTrendingUnderground = {
+  eventName: Name.NOTIFICATIONS_CLICK_TRENDING_UNDERGROUND_TWITTER_SHARE
   text: string
 }
 type NotificationsToggleSettings = {
@@ -907,6 +1035,11 @@ type SearchTabClick = {
 }
 type Listen = {
   eventName: Name.LISTEN
+  trackId: string
+}
+
+type ListenGated = {
+  eventName: Name.LISTEN_GATED
   trackId: string
 }
 
@@ -1171,7 +1304,14 @@ type RewardsClaimUnknown = {
   error: string
 }
 
-export type TipSource = 'profile' | 'feed' | 'dethroned'
+export type TipSource =
+  | 'profile'
+  | 'feed'
+  | 'dethroned'
+  | 'buyAudio'
+  | 'trackPage'
+  | 'howToUnlockTrackPage'
+  | 'howToUnlockModal'
 
 type TipAudioRequest = {
   eventName: Name.TIP_AUDIO_REQUEST
@@ -1227,20 +1367,20 @@ type TipFeedTileDismiss = {
 
 type SocialProofOpen = {
   eventName: Name.SOCIAL_PROOF_OPEN
-  kind: 'instagram' | 'twitter'
+  kind: 'instagram' | 'twitter' | 'tiktok'
   handle: string
 }
 
 type SocialProofSuccess = {
   eventName: Name.SOCIAL_PROOF_SUCCESS
-  kind: 'instagram' | 'twitter'
+  kind: 'instagram' | 'twitter' | 'tiktok'
   handle: string
   screenName: string
 }
 
 type SocialProofError = {
   eventName: Name.SOCIAL_PROOF_ERROR
-  kind: 'instagram' | 'twitter'
+  kind: 'instagram' | 'twitter' | 'tiktok'
   handle: string
   error: string
 }
@@ -1299,6 +1439,38 @@ type BuyAudioFailure = {
   error: string
 }
 
+type BuyAudioRecoveryOpened = {
+  eventName: Name.BUY_AUDIO_RECOVERY_OPENED
+  provider: string
+  trigger: string
+  balance: string
+}
+
+type BuyAudioRecoverySuccess = {
+  eventName: Name.BUY_AUDIO_RECOVERY_SUCCESS
+  provider: string
+  audioRecovered: number
+}
+
+type BuyAudioRecoveryFailure = {
+  eventName: Name.BUY_AUDIO_RECOVERY_FAILURE
+  provider: string
+  stage: string
+  error: string
+}
+
+type RateCtaDisplayed = {
+  eventName: Name.RATE_CTA_DISPLAYED
+}
+
+type RateCtaResponseNo = {
+  eventName: Name.RATE_CTA_RESPONSE_NO
+}
+
+type RateCtaResponseYes = {
+  eventName: Name.RATE_CTA_RESPONSE_YES
+}
+
 type RewardsClaimStartCognitoFlow = {
   eventName: Name.REWARDS_CLAIM_START_COGNITO_FLOW
   handle: string | null
@@ -1311,6 +1483,39 @@ type RewardsClaimFinishCognitoFlow = {
   source: string
 }
 
+type ConnectWalletNewWalletStart = {
+  eventName: Name.CONNECT_WALLET_NEW_WALLET_START
+}
+
+type ConnectWalletNewWalletConnecting = {
+  eventName: Name.CONNECT_WALLET_NEW_WALLET_CONNECTING
+  chain: Chain
+  walletAddress: WalletAddress
+}
+
+type ConnectWalletNewWalletConnected = {
+  eventName: Name.CONNECT_WALLET_NEW_WALLET_CONNECTED
+  chain: Chain
+  walletAddress: WalletAddress
+}
+
+type ConnectWalletAlreadyAssociated = {
+  eventName: Name.CONNECT_WALLET_ALREADY_ASSOCIATED
+  chain: Chain
+  walletAddress: WalletAddress
+}
+
+type ConnectWalletAssociationError = {
+  eventName: Name.CONNECT_WALLET_ASSOCIATION_ERROR
+  chain: Chain
+  walletAddress: WalletAddress
+}
+
+type ConnectWalletError = {
+  eventName: Name.CONNECT_WALLET_ERROR
+  error: string
+}
+
 export type BaseAnalyticsEvent = { type: typeof ANALYTICS_TRACK_EVENT }
 
 export type AllTrackingEvents =
@@ -1321,6 +1526,8 @@ export type AllTrackingEvents =
   | CreateAccountCompleteTwitter
   | CreateAccountStartInstagram
   | CreateAccountCompleteInstagram
+  | CreateAccountStartTikTok
+  | CreateAccountCompleteTikTok
   | CreateAccountCompleteProfile
   | CreateAccountCompleteFollow
   | CreateAccountCompleteCreating
@@ -1333,6 +1540,8 @@ export type AllTrackingEvents =
   | SettingsCompleteTwitterOauth
   | SettingsStartInstagramOauth
   | SettingsCompleteInstagramOauth
+  | SettingsStartTikTokOauth
+  | SettingsCompleteTikTokOauth
   | SettingsResetAccountRecovery
   | SettingsStartChangePassword
   | SettingsCompleteChangePassword
@@ -1370,12 +1579,19 @@ export type AllTrackingEvents =
   | TrackUploadStartUploading
   | TrackUploadTrackUploading
   | TrackUploadCompleteUpload
+  | TrackUploadCollectibleGated
+  | TrackUploadFollowGated
+  | TrackUploadTipGated
   | TrackUploadSuccess
   | TrackUploadFailure
+  | TrackUploadRejected
   | TrackUploadCopyLink
   | TrackUploadShareWithFans
   | TrackUploadShareSoundToTikTok
   | TrackUploadViewTrackPage
+  | CollectibleGatedTrackUnlocked
+  | FollowGatedTrackUnlocked
+  | TipGatedTrackUnlocked
   | TrendingChangeView
   | TrendingPaginate
   | FeedChangeView
@@ -1392,6 +1608,9 @@ export type AllTrackingEvents =
   | NotificationsClickSupporterRankUp
   | NotificationsClickSupportingRankUp
   | NotificationsClickAddTrackToPlaylist
+  | NotificationsClickTrendingPlaylist
+  | NotificationsClickTrendingTrack
+  | NotificationsClickTrendingUnderground
   | NotificationsToggleSettings
   | ProfilePageTabClick
   | ProfilePageSort
@@ -1415,6 +1634,7 @@ export type AllTrackingEvents =
   | SearchResultSelect
   | SearchTabClick
   | Listen
+  | ListenGated
   | ErrorPage
   | NotFoundPage
   | PageView
@@ -1485,5 +1705,17 @@ export type AllTrackingEvents =
   | BuyAudioOnRampCanceled
   | BuyAudioSuccess
   | BuyAudioFailure
+  | BuyAudioRecoveryOpened
+  | BuyAudioRecoverySuccess
+  | BuyAudioRecoveryFailure
+  | RateCtaDisplayed
+  | RateCtaResponseNo
+  | RateCtaResponseYes
   | RewardsClaimStartCognitoFlow
   | RewardsClaimFinishCognitoFlow
+  | ConnectWalletNewWalletStart
+  | ConnectWalletNewWalletConnecting
+  | ConnectWalletNewWalletConnected
+  | ConnectWalletAlreadyAssociated
+  | ConnectWalletAssociationError
+  | ConnectWalletError

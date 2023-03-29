@@ -4,8 +4,6 @@ import { ID, CoverArtSizes } from '@audius/common'
 import cn from 'classnames'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 
-import { HapticFeedbackMessage } from 'services/native-mobile-interface/haptics'
-
 import TrackListItem from './ConnectedTrackListItem'
 import styles from './TrackList.module.css'
 import { TrackItemAction } from './TrackListItem'
@@ -15,6 +13,7 @@ type TrackListProps = {
   itemClassName?: string
   tracks: Array<{
     isLoading: boolean
+    isPremium?: boolean
     isSaved?: boolean
     isReposted?: boolean
     isActive?: boolean
@@ -28,6 +27,7 @@ type TrackListProps = {
     time?: number
     coverArtSizes?: CoverArtSizes
     isDeleted: boolean
+    isLocked: boolean
   }>
   showTopDivider?: boolean
   showDivider?: boolean
@@ -70,14 +70,6 @@ const TrackList = ({
     },
     [onReorder]
   )
-  const onDragStart = () => {
-    const message = new HapticFeedbackMessage()
-    message.send()
-  }
-  const onDragUpdate = () => {
-    const message = new HapticFeedbackMessage()
-    message.send()
-  }
 
   // The dividers above and belove the active track should be hidden
   const activeIndex = tracks.findIndex((track) => track.isActive)
@@ -104,12 +96,14 @@ const TrackList = ({
           isReposted={track.isReposted}
           isActive={track.isActive}
           isPlaying={track.isPlaying}
+          isPremium={track.isPremium}
           artistHandle={track.artistHandle}
           artistName={track.artistName}
           trackTitle={track.trackTitle}
           coverArtSizes={track.coverArtSizes}
           uid={track.uid}
           isDeleted={track.isDeleted}
+          isLocked={track.isLocked}
           onSave={onSave}
           isRemoveActive={track.isRemoveActive}
           onRemove={onRemove}
@@ -162,13 +156,9 @@ const TrackList = ({
       })}
     >
       {isReorderable ? (
-        <DragDropContext
-          onDragEnd={onDragEnd}
-          onDragStart={onDragStart}
-          onDragUpdate={onDragUpdate}
-        >
+        <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId='track-list-droppable' type='TRACK'>
-            {(provided: any, snapshot: any) => (
+            {(provided: any) => (
               <div ref={provided.innerRef} {...provided.droppableProps}>
                 {renderedTracks}
               </div>

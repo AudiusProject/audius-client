@@ -15,7 +15,7 @@ import {
 import { call, put, select, spawn } from 'typed-redux-saga'
 
 import { retrieve } from 'common/store/cache/sagas'
-import { waitForAccount } from 'utils/sagaHelpers'
+import { waitForRead } from 'utils/sagaHelpers'
 
 import {
   fetchAndProcessRemixes,
@@ -43,6 +43,7 @@ type RetrieveTrackByHandleAndSlugArgs = {
   withStems?: boolean
   withRemixes?: boolean
   withRemixParents?: boolean
+  forceRetrieveFromSource?: boolean
 }
 
 export function* retrieveTrackByHandleAndSlug({
@@ -50,10 +51,11 @@ export function* retrieveTrackByHandleAndSlug({
   slug,
   withStems,
   withRemixes,
-  withRemixParents
+  withRemixParents,
+  forceRetrieveFromSource = false
 }: RetrieveTrackByHandleAndSlugArgs) {
   const permalink = `/${handle}/${slug}`
-  const tracks: { entries: { [permalink: string]: Track } } = yield* call(
+  const tracks = (yield* call(
     // @ts-ignore retrieve should be refactored to ts first
     retrieve,
     {
@@ -65,8 +67,8 @@ export function* retrieveTrackByHandleAndSlug({
         return track
       },
       retrieveFromSource: function* (permalinks: string[]) {
+        yield* waitForRead()
         const apiClient = yield* getContext('apiClient')
-        yield* waitForAccount()
         const userId = yield* select(getUserId)
         const track = yield* call((args) => {
           const split = args[0].split('/')
@@ -82,7 +84,7 @@ export function* retrieveTrackByHandleAndSlug({
       },
       kind: Kind.TRACKS,
       idField: 'track_id',
-      forceRetrieveFromSource: false,
+      forceRetrieveFromSource,
       shouldSetLoading: true,
       deleteExistingEntry: false,
       getEntriesTimestamp: function* (ids: ID[]) {
@@ -111,7 +113,8 @@ export function* retrieveTrackByHandleAndSlug({
         return tracks.map((track) => reformat(track, audiusBackendInstance))
       }
     }
-  )
+  )) as { entries: { [permalink: string]: Track } }
+
   const track = tracks.entries[permalink]
   if (!track || !track.track_id) return null
   const trackId = track.track_id
@@ -152,7 +155,7 @@ export function* retrieveTracks({
   withRemixes = false,
   withRemixParents = false
 }: RetrieveTracksArgs) {
-  yield* waitForAccount()
+  yield* waitForRead()
   const currentUserId = yield* select(getUserId)
 
   // In the case of unlisted tracks, trackIds contains metadata used to fetch tracks
@@ -216,19 +219,13 @@ export function* retrieveTracks({
       return selected
     },
     retrieveFromSource: function* (ids: ID[] | UnlistedTrackRequest[]) {
+      yield* waitForRead()
       const apiClient = yield* getContext('apiClient')
-      const audiusBackendInstance = yield* getContext('audiusBackendInstance')
       let fetched: UserTrackMetadata | UserTrackMetadata[] | null | undefined
       if (canBeUnlisted) {
         const ids = trackIds as UnlistedTrackRequest[]
-        // TODO: remove the AudiusBackend
-        // branches here when we support
-        // bulk track fetches in the API.
         if (ids.length > 1) {
-          fetched = yield* call(
-            audiusBackendInstance.getTracksIncludingUnlisted,
-            trackIds as UnlistedTrackRequest[]
-          )
+          throw new Error('Can only query for single unlisted track')
         } else {
           fetched = yield* call([apiClient, 'getTrack'], {
             id: ids[0].id,
@@ -242,10 +239,9 @@ export function* retrieveTracks({
       } else {
         const ids = trackIds as number[]
         if (ids.length > 1) {
-          fetched = yield* call(audiusBackendInstance.getAllTracks, {
-            offset: 0,
-            limit: ids.length,
-            idsArray: ids as ID[]
+          fetched = yield* call([apiClient, 'getTracks'], {
+            ids,
+            currentUserId
           })
         } else {
           fetched = yield* call([apiClient, 'getTrack'], {

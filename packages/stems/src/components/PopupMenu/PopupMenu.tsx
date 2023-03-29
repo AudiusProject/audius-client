@@ -13,11 +13,23 @@ import { PopupMenuItem, PopupMenuProps } from './types'
  */
 export const PopupMenu = forwardRef<HTMLDivElement, PopupMenuProps>(
   function PopupMenu(
-    { items, onClose, position, renderTrigger, title, zIndex, containerRef },
+    {
+      items,
+      onClose,
+      position,
+      renderTrigger,
+      hideCloseButton,
+      title,
+      titleClassName,
+      zIndex,
+      containerRef,
+      anchorOrigin,
+      transformOrigin
+    },
     ref
   ) {
     const clickInsideRef = useRef<any>()
-    const anchorRef = useRef<HTMLElement>()
+    const anchorRef = useRef<HTMLElement | null>(null)
 
     const [isPopupVisible, setIsPopupVisible] = useState<boolean>(false)
 
@@ -53,12 +65,16 @@ export const PopupMenu = forwardRef<HTMLDivElement, PopupMenuProps>(
           }}
           isVisible={isPopupVisible}
           showHeader={Boolean(title)}
+          hideCloseButton={hideCloseButton}
           onClose={handlePopupClose}
           position={position}
           ref={ref}
           title={title || ''}
+          titleClassName={titleClassName}
           zIndex={zIndex}
           containerRef={containerRef}
+          transformOrigin={transformOrigin}
+          anchorOrigin={anchorOrigin}
         >
           <div className={styles.menu}>
             {items.map((item, i) => (

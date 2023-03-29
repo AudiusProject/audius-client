@@ -13,14 +13,18 @@ import {
   MilestoneNotification,
   AnnouncementNotification,
   TierChangeNotification,
+  TrendingPlaylistNotification,
   TrendingTrackNotification,
+  TrendingUndergroundNotification,
   TopSupporterNotification,
   TopSupportingNotification,
   TipReactionNotification,
   TipSentNotification,
   TipReceivedNotification,
   AddTrackToPlaylistNotification,
-  SupporterDethronedNotification
+  SupporterDethronedNotification,
+  RepostOfRepostNotification,
+  FavoriteOfRepostNotification
 } from './Notifications'
 
 type NotificationListItemProps = {
@@ -48,6 +52,10 @@ export const NotificationListItem = (props: NotificationListItemProps) => {
         return <RemixCreateNotification notification={notification} />
       case NotificationType.Repost:
         return <RepostNotification notification={notification} />
+      case NotificationType.RepostOfRepost:
+        return <RepostOfRepostNotification notification={notification} />
+      case NotificationType.FavoriteOfRepost:
+        return <FavoriteOfRepostNotification notification={notification} />
       case NotificationType.TierChange:
         return <TierChangeNotification notification={notification} />
       case NotificationType.Reaction:
@@ -70,8 +78,12 @@ export const NotificationListItem = (props: NotificationListItemProps) => {
         return <TopSupporterNotification notification={notification} />
       case NotificationType.SupportingRankUp:
         return <TopSupportingNotification notification={notification} />
+      case NotificationType.TrendingPlaylist:
+        return <TrendingPlaylistNotification notification={notification} />
       case NotificationType.TrendingTrack:
         return <TrendingTrackNotification notification={notification} />
+      case NotificationType.TrendingUnderground:
+        return <TrendingUndergroundNotification notification={notification} />
       case NotificationType.UserSubscription:
         return <UserSubscriptionNotification notification={notification} />
       case NotificationType.AddTrackToPlaylist:

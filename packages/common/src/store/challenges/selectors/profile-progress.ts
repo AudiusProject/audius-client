@@ -1,4 +1,5 @@
 import { getAccountUser } from 'store/account/selectors'
+import { getProfileUserHandle } from 'store/pages/profile/selectors'
 
 import { Status } from '../../../models/Status'
 import { CommonState } from '../../commonStore'
@@ -10,14 +11,17 @@ export const getProfileDescriptionExists = (state: CommonState) => {
 }
 
 export const getHasFavoritedItem = (state: CommonState) => {
-  return state.account.hasFavoritedItem
+  const curUser = getAccountUser(state)
+  if (!curUser) return false
+  const hasSavedTrack = (curUser.track_save_count || 0) > 0
+  const hasSavedCollection = Object.keys(state.account.collections).length > 0
+  return hasSavedTrack || hasSavedCollection
 }
 
 export const getHasReposted = (state: CommonState) => {
   const curUser = getAccountUser(state)
   if (!curUser) return false
-  // If the user has any reposts or they have reposted this session
-  return curUser.repost_count > 0 || curUser._has_reposted
+  return curUser.repost_count > 0
 }
 
 export const getNumFollowedAccounts = (state: CommonState) => {
@@ -118,8 +122,11 @@ export const getOrderedCompletionStages = (state: CommonState) => {
   ]
 }
 
-export const getProfilePageMeterDismissed = (state: CommonState) =>
-  state.pages.profile.profileMeterDismissed
+export const getProfilePageMeterDismissed = (state: CommonState) => {
+  const profileHandle = getProfileUserHandle(state)
+  if (!profileHandle) return false
+  return state.pages.profile.entries[profileHandle]?.profileMeterDismissed
+}
 
 export const getIsAccountLoaded = (state: CommonState) =>
   state.account.status === Status.SUCCESS

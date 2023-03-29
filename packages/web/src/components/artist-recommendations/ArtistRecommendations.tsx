@@ -3,8 +3,7 @@ import {
   MutableRefObject,
   ReactNode,
   useCallback,
-  useEffect,
-  useMemo
+  useEffect
 } from 'react'
 
 import {
@@ -36,7 +35,7 @@ import { useIsMobile } from 'utils/clientUtil'
 import { profilePage } from 'utils/route'
 
 import styles from './ArtistRecommendations.module.css'
-const { makeGetRelatedArtists } = artistRecommendationsUISelectors
+const { getRelatedArtists } = artistRecommendationsUISelectors
 const { fetchRelatedArtists } = artistRecommendationsUIActions
 
 export type ArtistRecommendationsProps = {
@@ -147,14 +146,12 @@ export const ArtistRecommendations = forwardRef(
       )
     }, [dispatch, artistId])
 
-    // Get the related artists
-    const getRelatedArtists = useMemo(makeGetRelatedArtists, [artistId])
     const suggestedArtists = useSelector<CommonState, User[]>((state) =>
       getRelatedArtists(state, { id: artistId })
     )
 
     // Follow/Unfollow listeners
-    const onFollowAllClicked = useCallback(() => {
+    const handleFollowAll = useCallback(() => {
       suggestedArtists.forEach((a) => {
         dispatch(
           socialActions.followUser(
@@ -164,7 +161,8 @@ export const ArtistRecommendations = forwardRef(
         )
       })
     }, [dispatch, suggestedArtists])
-    const onUnfollowAllClicked = useCallback(() => {
+
+    const handleUnfollowAll = useCallback(() => {
       suggestedArtists.forEach((a) => {
         dispatch(
           socialActions.unfollowUser(
@@ -177,7 +175,7 @@ export const ArtistRecommendations = forwardRef(
 
     // Navigate to profile pages on artist links
     const onArtistNameClicked = useCallback(
-      (handle) => {
+      (handle: string) => {
         dispatch(push(profilePage(handle)))
       },
       [dispatch]
@@ -263,8 +261,8 @@ export const ArtistRecommendations = forwardRef(
             invertedColor={true}
             messages={messages}
             size='full'
-            onFollow={onFollowAllClicked}
-            onUnfollow={onUnfollowAllClicked}
+            onFollow={handleFollowAll}
+            onUnfollow={handleUnfollowAll}
           />
         </div>
       </div>

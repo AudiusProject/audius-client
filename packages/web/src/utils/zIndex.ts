@@ -7,6 +7,9 @@
 export enum zIndex {
   // These are still set in css, added here for reference
   // TODO: use these enums
+
+  PREMIUM_TRACK_TILE_CORNER_TAG = 3,
+
   // FROSTED_HEADER_BACKGROUND = 10,
   // HEADER_CONTAINER = 13,
   // NAVIGATOR = 14,
@@ -31,7 +34,11 @@ export enum zIndex {
 
   ARTIST_POPOVER_POPUP = 20000,
 
-  FEATURE_FLAG_OVERRIDE_MODAL = 30000
+  PLAY_BAR_POPUP_MENU = 20001,
+
+  FEATURE_FLAG_OVERRIDE_MODAL = 30000,
+
+  MODAL_OVERFLOW_MENU_POPUP = 10001
 }
 
 export default zIndex

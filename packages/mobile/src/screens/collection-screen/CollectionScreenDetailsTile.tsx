@@ -1,39 +1,80 @@
 import { useCallback, useMemo } from 'react'
 
-import type { ID, UID } from '@audius/common'
+import type { ID, Maybe, SmartCollectionVariant, UID } from '@audius/common'
 import {
+  removeNullable,
+  collectionPageSelectors,
+  collectionPageActions,
+  playerSelectors,
   Status,
   Name,
   PlaybackSource,
   formatSecondsAsText,
-  lineupSelectors,
   collectionPageLineupActions as tracksActions,
-  collectionPageSelectors
+  reachabilitySelectors
 } from '@audius/common'
-import { Text, View } from 'react-native'
-import { useSelector } from 'react-redux'
+import { View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
+import { createSelector } from 'reselect'
 
+import { Text } from 'app/components/core'
 import { DetailsTile } from 'app/components/details-tile'
 import type {
   DetailsTileDetail,
   DetailsTileProps
 } from 'app/components/details-tile/types'
 import { TrackList } from 'app/components/track-list'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { make, track } from 'app/services/analytics'
-import { getPlaying, getPlayingUid, getTrack } from 'app/store/audio/selectors'
+import type { AppState } from 'app/store'
 import { makeStyles } from 'app/styles'
 import { formatCount } from 'app/utils/format'
+
+import { CollectionHeader } from './CollectionHeader'
+import { useFetchCollectionLineup } from './useFetchCollectionLineup'
+const { resetAndFetchCollectionTracks } = collectionPageActions
+const { getPlaying, getUid, getCurrentTrack } = playerSelectors
+const { getIsReachable } = reachabilitySelectors
 const { getCollectionTracksLineup } = collectionPageSelectors
-const { makeGetTableMetadatas } = lineupSelectors
+
+const selectTrackUids = createSelector(
+  (state: AppState) => getCollectionTracksLineup(state).entries,
+  (entries) => entries.map(({ uid }) => uid)
+)
+
+const selectFirstTrack = (state: AppState) =>
+  getCollectionTracksLineup(state).entries[0]
+
+const selectTrackCount = (state: AppState) => {
+  return getCollectionTracksLineup(state).total
+}
+
+const selectIsLineupLoading = (state: AppState) => {
+  return getCollectionTracksLineup(state).status === Status.LOADING
+}
+
+const selectCollectionDuration = createSelector(
+  (state: AppState) => getCollectionTracksLineup(state).entries,
+  (state: AppState) => state.tracks.entries,
+  (entries, tracks) => {
+    return entries
+      .map((entry) => tracks[entry.id]?.metadata.duration)
+      .filter(removeNullable)
+      .reduce((totalDuration, trackDuration) => {
+        return totalDuration + trackDuration
+      }, 0)
+  }
+)
+
+const selectIsQueued = createSelector(
+  selectTrackUids,
+  getUid,
+  (trackUids, playingUid) => {
+    return trackUids.some((trackUid) => playingUid === trackUid)
+  }
+)
 
 const messages = {
-  album: 'Album',
-  playlist: 'Playlist',
   empty: 'This playlist is empty.',
-  privatePlaylist: 'Private Playlist',
-  publishing: 'Publishing...',
   detailsPlaceholder: '---'
 }
 
@@ -56,14 +97,13 @@ type CollectionScreenDetailsTileProps = {
   isPrivate?: boolean
   isPublishing?: boolean
   extraDetails?: DetailsTileDetail[]
+  collectionId: number | SmartCollectionVariant
 } & Omit<
   DetailsTileProps,
   'descriptionLinkPressSource' | 'details' | 'headerText' | 'onPressPlay'
 >
 
-const getTracksLineup = makeGetTableMetadatas(getCollectionTracksLineup)
-
-const recordPlay = (id, play = true) => {
+const recordPlay = (id: Maybe<number>, play = true) => {
   track(
     make({
       eventName: play ? Name.PLAYBACK_PLAY : Name.PLAYBACK_PAUSE,
@@ -76,118 +116,111 @@ const recordPlay = (id, play = true) => {
 export const CollectionScreenDetailsTile = ({
   description,
   extraDetails = [],
+  collectionId,
   isAlbum,
   isPrivate,
   isPublishing,
+  renderImage,
+  trackCount: trackCountProp,
   ...detailsTileProps
 }: CollectionScreenDetailsTileProps) => {
   const styles = useStyles()
-  const dispatchWeb = useDispatchWeb()
-  const tracksLineup = useSelectorWeb(getTracksLineup)
-  const tracksLoading = tracksLineup.status === Status.LOADING
-  const numTracks = tracksLineup.entries.length
+  const dispatch = useDispatch()
 
-  const duration = tracksLineup.entries?.reduce(
-    (duration, entry) => duration + entry.duration,
-    0
-  )
+  const isReachable = useSelector(getIsReachable)
+
+  const fetchLineup = useCallback(() => {
+    dispatch(resetAndFetchCollectionTracks(collectionId))
+  }, [dispatch, collectionId])
+
+  useFetchCollectionLineup(collectionId, fetchLineup)
+
+  const trackUids = useSelector(selectTrackUids)
+  const collectionTrackCount = useSelector(selectTrackCount)
+  const trackCount = trackCountProp ?? collectionTrackCount
+  const isLineupLoading = useSelector(selectIsLineupLoading)
+  const collectionDuration = useSelector(selectCollectionDuration)
+  const playingUid = useSelector(getUid)
+  const isQueued = useSelector(selectIsQueued)
+  const isPlaying = useSelector(getPlaying)
+  const playingTrack = useSelector(getCurrentTrack)
+  const playingTrackId = playingTrack?.track_id
+  const firstTrack = useSelector(selectFirstTrack)
 
   const details = useMemo(() => {
-    if (!tracksLoading && numTracks === 0) return []
+    if (!isLineupLoading && trackCount === 0) return []
     return [
       {
         label: 'Tracks',
-        value: tracksLoading
+        value: isLineupLoading
           ? messages.detailsPlaceholder
-          : formatCount(numTracks)
+          : formatCount(trackCount)
       },
       {
         label: 'Duration',
-        value: tracksLoading
+        value: isLineupLoading
           ? messages.detailsPlaceholder
-          : formatSecondsAsText(duration)
+          : formatSecondsAsText(collectionDuration)
       },
       ...extraDetails
     ].filter(({ isHidden, value }) => !isHidden && !!value)
-  }, [tracksLoading, numTracks, duration, extraDetails])
-
-  const isPlaying = useSelector(getPlaying)
-  const playingUid = useSelector(getPlayingUid)
-  const playingTrack = useSelector(getTrack)
-  const trackId = playingTrack?.trackId
-
-  const isQueued = tracksLineup.entries.some(
-    (entry) => playingUid === entry.uid
-  )
+  }, [isLineupLoading, trackCount, collectionDuration, extraDetails])
 
   const handlePressPlay = useCallback(() => {
     if (isPlaying && isQueued) {
-      dispatchWeb(tracksActions.pause())
-      recordPlay(trackId, false)
+      dispatch(tracksActions.pause())
+      recordPlay(playingTrackId, false)
     } else if (!isPlaying && isQueued) {
-      dispatchWeb(tracksActions.play())
-      recordPlay(trackId)
-    } else if (tracksLineup.entries.length > 0) {
-      dispatchWeb(tracksActions.play(tracksLineup.entries[0].uid))
-      recordPlay(tracksLineup.entries[0].track_id)
+      dispatch(tracksActions.play())
+      recordPlay(playingTrackId)
+    } else if (trackCount > 0) {
+      dispatch(tracksActions.play(firstTrack.uid))
+      recordPlay(firstTrack.id)
     }
-  }, [dispatchWeb, isPlaying, trackId, tracksLineup, isQueued])
+  }, [dispatch, isPlaying, playingTrackId, isQueued, trackCount, firstTrack])
 
   const handlePressTrackListItemPlay = useCallback(
     (uid: UID, id: ID) => {
       if (isPlaying && playingUid === uid) {
-        dispatchWeb(tracksActions.pause())
+        dispatch(tracksActions.pause())
         recordPlay(id, false)
       } else if (playingUid !== uid) {
-        dispatchWeb(tracksActions.play(uid))
+        dispatch(tracksActions.play(uid))
         recordPlay(id)
       } else {
-        dispatchWeb(tracksActions.play())
+        dispatch(tracksActions.play())
         recordPlay(id)
       }
     },
-    [dispatchWeb, isPlaying, playingUid]
+    [dispatch, isPlaying, playingUid]
   )
 
-  const headerText = useMemo(() => {
-    if (isPublishing) {
-      return messages.publishing
-    }
+  const renderHeader = useCallback(
+    () => <CollectionHeader collectionId={collectionId} />,
+    [collectionId]
+  )
 
-    if (isAlbum) {
-      return messages.album
-    }
-
-    if (isPrivate) {
-      return messages.privatePlaylist
-    }
-
-    return messages.playlist
-  }, [isAlbum, isPrivate, isPublishing])
-
-  const renderTrackList = () => {
-    if (tracksLoading)
-      return (
-        <>
-          <View style={styles.trackListDivider} />
-          <TrackList hideArt showDivider showSkeleton tracks={Array(20)} />
-        </>
-      )
-
-    return tracksLineup.entries.length === 0 ? (
-      <Text style={styles.empty}>{messages.empty}</Text>
-    ) : (
-      <>
-        <View style={styles.trackListDivider} />
-        <TrackList
-          hideArt
-          showDivider
-          togglePlay={handlePressTrackListItemPlay}
-          tracks={tracksLineup.entries}
-        />
-      </>
+  const renderTrackList = useCallback(() => {
+    return (
+      <TrackList
+        hideArt
+        showDivider
+        showSkeleton={isLineupLoading}
+        togglePlay={handlePressTrackListItemPlay}
+        uids={isLineupLoading ? Array(Math.min(5, trackCount ?? 0)) : trackUids}
+        ListHeaderComponent={
+          trackCount > 0 ? <View style={styles.trackListDivider} /> : undefined
+        }
+        ListEmptyComponent={<Text style={styles.empty}>{messages.empty}</Text>}
+      />
     )
-  }
+  }, [
+    handlePressTrackListItemPlay,
+    isLineupLoading,
+    styles,
+    trackUids,
+    trackCount
+  ])
 
   return (
     <DetailsTile
@@ -195,10 +228,13 @@ export const CollectionScreenDetailsTile = ({
       description={description}
       descriptionLinkPressSource='collection page'
       details={details}
-      headerText={headerText}
+      hideOverflow={detailsTileProps.hideOverflow || !isReachable}
       hideListenCount={true}
+      hideRepost={!isReachable}
       isPlaying={isPlaying && isQueued}
       renderBottomContent={renderTrackList}
+      renderHeader={renderHeader}
+      renderImage={renderImage}
       onPressPlay={handlePressPlay}
     />
   )

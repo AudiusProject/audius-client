@@ -1,14 +1,14 @@
 import { cloneElement, useCallback, useEffect, useState } from 'react'
 
 import {
-  ChallengeRewardID,
   BadgeTier,
   BNWei,
   StringKeys,
   formatWei,
   accountSelectors,
-  challengesSelectors,
-  walletSelectors
+  walletSelectors,
+  useSelectTierInfo,
+  useAccountHasClaimableRewards
 } from '@audius/common'
 import BN from 'bn.js'
 import cn from 'classnames'
@@ -19,13 +19,11 @@ import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
 import { audioTierMapPng } from 'components/user-badges/UserBadges'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
-import { useSelectTierInfo } from 'hooks/wallet'
 import { useSelector } from 'utils/reducer'
 import { AUDIO_PAGE } from 'utils/route'
 
 import styles from './NavAudio.module.css'
 const { getAccountTotalBalance } = walletSelectors
-const { getOptimisticUserChallenges } = challengesSelectors
 const getAccountUser = accountSelectors.getAccountUser
 
 type BubbleType = 'none' | 'claim' | 'earn'
@@ -35,52 +33,21 @@ const messages = {
   claimRewards: 'Claim Rewards'
 }
 
-const validRewardIds: Set<ChallengeRewardID> = new Set([
-  'track-upload',
-  'referrals',
-  'ref-v',
-  'mobile-install',
-  'connect-verified',
-  'listen-streak',
-  'profile-completion',
-  'referred',
-  'send-first-tip',
-  'first-playlist'
-])
-
-/** Pulls rewards from remoteconfig */
-const useActiveRewardIds = () => {
-  const rewardsString = useRemoteVar(StringKeys.CHALLENGE_REWARD_IDS)
-  if (rewardsString === null) return []
-  const rewards = rewardsString.split(',') as ChallengeRewardID[]
-  const activeRewards = rewards.filter((reward) => validRewardIds.has(reward))
-  return activeRewards
-}
-
 const NavAudio = () => {
   const navigate = useNavigateToPage()
   const account = useSelector(getAccountUser)
   let totalBalance = useSelector(getAccountTotalBalance)
-  if (totalBalance === null && account?.total_balance) {
+  if (totalBalance.eq(new BN(0)) && account?.total_balance) {
     totalBalance = new BN(account?.total_balance) as BNWei
   }
-  const nonNullTotalBalance = totalBalance !== null
-
-  const positiveTotalBalance =
-    nonNullTotalBalance && totalBalance!.gt(new BN(0))
+  const positiveTotalBalance = totalBalance.gt(new BN(0))
   // we only show the audio balance and respective badge when there is an account
   // so below null-coalescing is okay
   const { tier } = useSelectTierInfo(account?.user_id ?? 0)
   const audioBadge = audioTierMapPng[tier as BadgeTier]
 
-  const optimisticUserChallenges = useSelector(getOptimisticUserChallenges)
-  const activeRewardIds = useActiveRewardIds()
-  const activeUserChallenges = Object.values(optimisticUserChallenges).filter(
-    (challenge) => activeRewardIds.includes(challenge.challenge_id)
-  )
-  const hasClaimableTokens = activeUserChallenges.some(
-    (challenge) => challenge.claimableAmount > 0
-  )
+  const challengeRewardIds = useRemoteVar(StringKeys.CHALLENGE_REWARD_IDS)
+  const hasClaimableRewards = useAccountHasClaimableRewards(challengeRewardIds)
 
   const [bubbleType, setBubbleType] = useState<BubbleType>('none')
 
@@ -89,25 +56,17 @@ const NavAudio = () => {
   }, [navigate])
 
   useEffect(() => {
-    if (hasClaimableTokens) {
+    if (hasClaimableRewards) {
       setBubbleType('claim')
-    } else if (nonNullTotalBalance && !positiveTotalBalance) {
+    } else if (!positiveTotalBalance) {
       setBubbleType('earn')
     } else {
       setBubbleType('none')
     }
-  }, [
-    setBubbleType,
-    hasClaimableTokens,
-    nonNullTotalBalance,
-    positiveTotalBalance
-  ])
+  }, [setBubbleType, hasClaimableRewards, positiveTotalBalance])
 
   if (!account) {
     return null
-  }
-  if (!nonNullTotalBalance) {
-    return <div className={styles.audio} />
   }
 
   return (

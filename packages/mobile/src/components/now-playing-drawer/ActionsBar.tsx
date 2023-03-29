@@ -1,8 +1,13 @@
 import { useCallback, useLayoutEffect } from 'react'
 
-import type { Track } from '@audius/common'
+import type { Nullable, Track } from '@audius/common'
 import {
+  FeatureFlags,
+  playbackPositionSelectors,
+  Genre,
+  removeNullable,
   FavoriteSource,
+  reachabilitySelectors,
   RepostSource,
   ShareSource,
   accountSelectors,
@@ -16,26 +21,39 @@ import {
 } from '@audius/common'
 import { View, Platform } from 'react-native'
 import { CastButton } from 'react-native-google-cast'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconAirplay from 'app/assets/images/iconAirplay.svg'
+import IconChromecast from 'app/assets/images/iconChromecast.svg'
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconShare from 'app/assets/images/iconShare.svg'
 import { useAirplay } from 'app/components/audio/Airplay'
 import { IconButton } from 'app/components/core'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+import { useToast } from 'app/hooks/useToast'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
 import { FavoriteButton } from './FavoriteButton'
 import { RepostButton } from './RepostButton'
+
+const { getAccountUser } = accountSelectors
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { open: openOverflowMenu } = mobileOverflowMenuUIActions
 const { repostTrack, saveTrack, undoRepostTrack, unsaveTrack } =
   tracksSocialActions
 const { updateMethod } = castActions
 const { getMethod: getCastMethod, getIsCasting } = castSelectors
-const getUserId = accountSelectors.getUserId
+const { getTrackPosition } = playbackPositionSelectors
+
+const { getIsReachable } = reachabilitySelectors
+
+const messages = {
+  repostProhibited: "You can't Repost your own Track!",
+  favoriteProhibited: "You can't Favorite your own Track!"
+}
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
   container: {
@@ -62,46 +80,58 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
 }))
 
 type ActionsBarProps = {
-  track: Track
+  track: Nullable<Track>
 }
 
 export const ActionsBar = ({ track }: ActionsBarProps) => {
+  const isGatedContentEnabled = useIsGatedContentEnabled()
   const styles = useStyles()
-  const currentUserId = useSelectorWeb(getUserId)
-  const castMethod = useSelectorWeb(getCastMethod)
-  const isCasting = useSelectorWeb(getIsCasting)
-  const { neutral, primary } = useThemeColors()
-  const dispatchWeb = useDispatchWeb()
+  const { toast } = useToast()
+  const castMethod = useSelector(getCastMethod)
+  const isCasting = useSelector(getIsCasting)
+  const accountUser = useSelector(getAccountUser)
+  const { neutral, neutralLight6, primary } = useThemeColors()
+  const dispatch = useDispatch()
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
+  const isReachable = useSelector(getIsReachable)
+  const { isEnabled: isNewPodcastControlsEnabled } = useFeatureFlag(
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
+  )
 
   useLayoutEffect(() => {
     if (Platform.OS === 'android' && castMethod === 'airplay') {
-      dispatchWeb(updateMethod({ method: 'chromecast' }))
+      dispatch(updateMethod({ method: 'chromecast' }))
     }
-  }, [castMethod, dispatchWeb])
+  }, [castMethod, dispatch])
 
-  const onToggleFavorite = useCallback(() => {
+  const handleFavorite = useCallback(() => {
     if (track) {
       if (track.has_current_user_saved) {
-        dispatchWeb(unsaveTrack(track.track_id, FavoriteSource.NOW_PLAYING))
+        dispatch(unsaveTrack(track.track_id, FavoriteSource.NOW_PLAYING))
+      } else if (track.owner_id === accountUser?.user_id) {
+        toast({ content: messages.favoriteProhibited })
       } else {
-        dispatchWeb(saveTrack(track.track_id, FavoriteSource.NOW_PLAYING))
+        dispatch(saveTrack(track.track_id, FavoriteSource.NOW_PLAYING))
       }
     }
-  }, [dispatchWeb, track])
+  }, [accountUser?.user_id, dispatch, toast, track])
 
-  const onToggleRepost = useCallback(() => {
+  const handleRepost = useCallback(() => {
     if (track) {
       if (track.has_current_user_reposted) {
-        dispatchWeb(undoRepostTrack(track.track_id, RepostSource.NOW_PLAYING))
+        dispatch(undoRepostTrack(track.track_id, RepostSource.NOW_PLAYING))
+      } else if (track.owner_id === accountUser?.user_id) {
+        toast({ content: messages.repostProhibited })
       } else {
-        dispatchWeb(repostTrack(track.track_id, RepostSource.NOW_PLAYING))
+        dispatch(repostTrack(track.track_id, RepostSource.NOW_PLAYING))
       }
     }
-  }, [dispatchWeb, track])
+  }, [accountUser?.user_id, dispatch, toast, track])
 
-  const onPressShare = useCallback(() => {
+  const handleShare = useCallback(() => {
     if (track) {
-      dispatchWeb(
+      dispatch(
         requestOpenShareModal({
           type: 'track',
           trackId: track.track_id,
@@ -109,29 +139,31 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
         })
       )
     }
-  }, [dispatchWeb, track])
+  }, [dispatch, track])
 
+  const playbackPositionInfo = useSelector((state) =>
+    getTrackPosition(state, { trackId: track?.track_id })
+  )
   const onPressOverflow = useCallback(() => {
     if (track) {
-      const isOwner = currentUserId === track.owner_id
+      const isLongFormContent =
+        track.genre === Genre.PODCASTS || track.genre === Genre.AUDIOBOOKS
       const overflowActions = [
-        !isOwner
-          ? track.has_current_user_reposted
-            ? OverflowAction.UNREPOST
-            : OverflowAction.REPOST
+        !isGatedContentEnabled || !track.is_premium
+          ? OverflowAction.ADD_TO_PLAYLIST
           : null,
-        !isOwner
-          ? track.has_current_user_saved
-            ? OverflowAction.UNFAVORITE
-            : OverflowAction.FAVORITE
+        isNewPodcastControlsEnabled && isLongFormContent
+          ? OverflowAction.VIEW_EPISODE_PAGE
+          : OverflowAction.VIEW_TRACK_PAGE,
+        isNewPodcastControlsEnabled && isLongFormContent
+          ? playbackPositionInfo?.status === 'COMPLETED'
+            ? OverflowAction.MARK_AS_UNPLAYED
+            : OverflowAction.MARK_AS_PLAYED
           : null,
-        OverflowAction.SHARE,
-        OverflowAction.ADD_TO_PLAYLIST,
-        OverflowAction.VIEW_TRACK_PAGE,
         OverflowAction.VIEW_ARTIST_PAGE
-      ].filter(Boolean) as OverflowAction[]
+      ].filter(removeNullable)
 
-      dispatchWeb(
+      dispatch(
         openOverflowMenu({
           source: OverflowSource.TRACKS,
           id: track.track_id,
@@ -139,7 +171,13 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
         })
       )
     }
-  }, [track, currentUserId, dispatchWeb])
+  }, [
+    track,
+    isGatedContentEnabled,
+    isNewPodcastControlsEnabled,
+    playbackPositionInfo?.status,
+    dispatch
+  ])
 
   const { openAirplayDialog } = useAirplay()
 
@@ -154,7 +192,16 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
         />
       )
     }
-    return (
+    return isOfflineModeEnabled && !isReachable ? (
+      <View style={{ ...styles.button, width: 24 }}>
+        <IconChromecast
+          fill={neutralLight6}
+          height={30}
+          width={30}
+          style={{ transform: [{ scaleX: -1 }] }}
+        />
+      </View>
+    ) : (
       <CastButton
         style={{
           ...styles.button,
@@ -168,10 +215,12 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
   const renderRepostButton = () => {
     return (
       <RepostButton
-        iconIndex={track.has_current_user_reposted ? 1 : 0}
-        onPress={onToggleRepost}
+        iconIndex={track?.has_current_user_reposted ? 1 : 0}
+        onPress={handleRepost}
         style={styles.button}
         wrapperStyle={styles.animatedIcon}
+        isDisabled={!isReachable}
+        isOwner={track?.owner_id === accountUser?.user_id}
       />
     )
   }
@@ -179,10 +228,11 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
   const renderFavoriteButton = () => {
     return (
       <FavoriteButton
-        iconIndex={track.has_current_user_saved ? 1 : 0}
-        onPress={onToggleFavorite}
+        iconIndex={track?.has_current_user_saved ? 1 : 0}
+        onPress={handleFavorite}
         style={styles.button}
         wrapperStyle={styles.animatedIcon}
+        isOwner={track?.owner_id === accountUser?.user_id}
       />
     )
   }
@@ -192,7 +242,7 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
       <IconButton
         icon={IconShare}
         styles={{ icon: styles.icon, root: styles.button }}
-        onPress={onPressShare}
+        onPress={handleShare}
       />
     )
   }
@@ -203,6 +253,7 @@ export const ActionsBar = ({ track }: ActionsBarProps) => {
         icon={IconKebabHorizontal}
         styles={{ icon: styles.icon, root: styles.button }}
         onPress={onPressOverflow}
+        isDisabled={!isReachable}
       />
     )
   }

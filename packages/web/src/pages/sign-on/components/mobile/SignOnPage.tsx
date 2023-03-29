@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react'
+import { useEffect } from 'react'
 
 import {
   ID,
@@ -6,17 +6,15 @@ import {
   AccountImage,
   InstagramProfile,
   TwitterProfile,
-  PushNotificationSetting,
-  settingsPageActions as settingPageActions
+  TikTokProfile
 } from '@audius/common'
 import cn from 'classnames'
-import { connect } from 'react-redux'
 import { animated } from 'react-spring'
 import { Transition } from 'react-spring/renderprops'
-import { Dispatch } from 'redux'
 
 import { Pages, FollowArtistsCategory } from 'common/store/pages/signon/types'
 import MobilePageContainer from 'components/mobile-page-container/MobilePageContainer'
+import ProfilePage from 'pages/sign-on/components/ProfilePage'
 import FollowPage, {
   BottomSection as FollowPageBottom
 } from 'pages/sign-on/components/mobile/FollowPage'
@@ -24,14 +22,10 @@ import Header from 'pages/sign-on/components/mobile/Header'
 import InitialPage from 'pages/sign-on/components/mobile/InitialPage'
 import NotificationPermissionsPage from 'pages/sign-on/components/mobile/NotificationPermissionsPage'
 import PasswordPage from 'pages/sign-on/components/mobile/PasswordPage'
-import ProfilePage from 'pages/sign-on/components/mobile/ProfilePage'
-import { PromptPushNotificationPermissions } from 'services/native-mobile-interface/notifications'
 import { BASE_URL, SIGN_UP_PAGE } from 'utils/route'
 
 import LoadingPage from './LoadingPage'
 import styles from './SignOnPage.module.css'
-
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 export type SignOnProps = {
   title: string
@@ -67,8 +61,15 @@ export type SignOnProps = {
     profileImg?: AccountImage,
     skipEdit?: boolean
   ) => void
+  setTikTokProfile: (
+    uuid: string,
+    profile: TikTokProfile,
+    profileImg?: AccountImage,
+    skipEdit?: boolean
+  ) => void
   recordInstagramStart: () => void
   recordTwitterStart: () => void
+  recordTikTokStart: () => void
   validateHandle: (
     handle: string,
     isOauthVerified: boolean,
@@ -113,7 +114,9 @@ const SignOnPage = ({
   onSetProfileImage,
   setTwitterProfile,
   setInstagramProfile,
+  setTikTokProfile,
   recordTwitterStart,
+  recordTikTokStart,
   recordInstagramStart,
   validateHandle,
   onAddFollows,
@@ -121,9 +124,8 @@ const SignOnPage = ({
   onAutoSelect,
   onSelectArtistCategory,
   onNextPage,
-  suggestedFollows: suggestedFollowEntries,
-  togglePushNotificationSetting
-}: SignOnProps & ReturnType<typeof mapDispatchToProps>) => {
+  suggestedFollows: suggestedFollowEntries
+}: SignOnProps) => {
   const {
     email,
     name,
@@ -142,20 +144,6 @@ const SignOnPage = ({
       onNextPage()
     }
   }, [accountReady, onNextPage, page])
-
-  const onAllowNotifications = useCallback(() => {
-    if (NATIVE_MOBILE) {
-      if (page === Pages.SIGNIN) {
-        // Trigger enable push notifs drawer
-        new PromptPushNotificationPermissions().send()
-      } else {
-        // Sign up flow
-        // Enable push notifications (will trigger device popup)
-        togglePushNotificationSetting(PushNotificationSetting.MobilePush, true)
-        onNextPage()
-      }
-    }
-  }, [togglePushNotificationSetting, onNextPage, page])
 
   const pages = {
     // Captures Pages.EMAIL and Pages.SIGNIN
@@ -182,7 +170,6 @@ const SignOnPage = ({
           onViewSignUp={onViewSignUp}
           onPasswordChange={onPasswordChange}
           onEmailChange={onEmailChange}
-          onAllowNotifications={onAllowNotifications}
           onEmailSubmitted={onEmailSubmitted}
         />
       </animated.div>
@@ -223,20 +210,22 @@ const SignOnPage = ({
       >
         <Header />
         <ProfilePage
-          name={name}
           handle={handle}
           isVerified={verified}
-          twitterId={twitterId}
+          name={name}
           onHandleChange={onHandleChange}
           onNameChange={onNameChange}
-          profileImage={profileImage}
-          setProfileImage={onSetProfileImage}
-          setTwitterProfile={setTwitterProfile}
-          setInstagramProfile={setInstagramProfile}
-          recordTwitterStart={recordTwitterStart}
-          recordInstagramStart={recordInstagramStart}
-          validateHandle={validateHandle}
           onNextPage={onNextPage}
+          profileImage={profileImage}
+          recordInstagramStart={recordInstagramStart}
+          recordTwitterStart={recordTwitterStart}
+          recordTikTokStart={recordTikTokStart}
+          setInstagramProfile={setInstagramProfile}
+          setProfileImage={onSetProfileImage}
+          setTikTokProfile={setTikTokProfile}
+          setTwitterProfile={setTwitterProfile}
+          twitterId={twitterId}
+          validateHandle={validateHandle}
         />
       </animated.div>
     ),
@@ -253,7 +242,7 @@ const SignOnPage = ({
       >
         <Header />
         <NotificationPermissionsPage
-          onAllowNotifications={onAllowNotifications}
+          onAllowNotifications={() => {}}
           onSkip={onNextPage}
         />
       </animated.div>
@@ -351,16 +340,4 @@ const SignOnPage = ({
   )
 }
 
-function mapDispatchToProps(dispatch: Dispatch) {
-  return {
-    togglePushNotificationSetting: (
-      notificationType: PushNotificationSetting,
-      isOn: boolean
-    ) =>
-      dispatch(
-        settingPageActions.togglePushNotificationSetting(notificationType, isOn)
-      )
-  }
-}
-
-export default connect(null, mapDispatchToProps)(SignOnPage)
+export default SignOnPage

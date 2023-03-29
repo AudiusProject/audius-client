@@ -6,18 +6,18 @@ import type {
   EntityType,
   MilestoneNotification as MilestoneNotificationType
 } from '@audius/common'
-import { notificationsSelectors, Achievement } from '@audius/common'
 import {
-  fullProfilePage,
-  NOTIFICATION_PAGE
-} from 'audius-client/src/utils/route'
+  notificationsSelectors,
+  Achievement,
+  useProxySelector
+} from '@audius/common'
+import { fullProfilePage } from 'audius-client/src/utils/route'
+import { useSelector } from 'react-redux'
 
 import IconTrophy from 'app/assets/images/iconTrophy.svg'
-import { useSelectorWeb, isEqual } from 'app/hooks/useSelectorWeb'
-import { make } from 'app/services/analytics'
+import { useNotificationNavigation } from 'app/hooks/useNotificationNavigation'
 import { EventNames } from 'app/types/analytics'
 import { formatCount } from 'app/utils/format'
-import { getUserRoute } from 'app/utils/routes'
 
 import {
   EntityLink,
@@ -27,8 +27,7 @@ import {
   NotificationTitle,
   NotificationTwitterButton
 } from '../Notification'
-import { getEntityRoute, getEntityScreen } from '../Notification/utils'
-import { useDrawerNavigation } from '../useDrawerNavigation'
+import { getEntityRoute } from '../Notification/utils'
 const { getNotificationEntity, getNotificationUser } = notificationsSelectors
 
 const messages = {
@@ -95,36 +94,17 @@ type MilestoneNotificationProps = {
 export const MilestoneNotification = (props: MilestoneNotificationProps) => {
   const { notification } = props
   const { achievement } = notification
-  const entity = useSelectorWeb(
+  const entity = useProxySelector(
     (state) => getNotificationEntity(state, notification),
-    isEqual
+    [notification]
   )
-  const user = useSelectorWeb((state) =>
-    getNotificationUser(state, notification)
-  )
+  const user = useSelector((state) => getNotificationUser(state, notification))
 
-  const navigation = useDrawerNavigation()
+  const navigation = useNotificationNavigation()
 
   const handlePress = useCallback(() => {
-    if (achievement === Achievement.Followers) {
-      if (user) {
-        navigation.navigate({
-          native: {
-            screen: 'Profile',
-            params: { handle: user.handle, fromNotifications: true }
-          },
-          web: { route: getUserRoute(user), fromPage: NOTIFICATION_PAGE }
-        })
-      }
-    } else {
-      if (entity) {
-        navigation.navigate({
-          native: getEntityScreen(entity),
-          web: { route: getEntityRoute(entity) }
-        })
-      }
-    }
-  }, [achievement, user, navigation, entity])
+    navigation.navigate(notification)
+  }, [navigation, notification])
 
   const renderBody = () => {
     const { achievement, value } = notification
@@ -165,10 +145,10 @@ export const MilestoneNotification = (props: MilestoneNotificationProps) => {
         type='static'
         url={link}
         shareText={text}
-        analytics={make({
+        analytics={{
           eventName: EventNames.NOTIFICATIONS_CLICK_MILESTONE_TWITTER_SHARE,
           milestone: text
-        })}
+        }}
       />
     </NotificationTile>
   )

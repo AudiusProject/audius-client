@@ -1,3 +1,5 @@
+import { MouseEventHandler } from 'react'
+
 import cn from 'classnames'
 
 import styles from './Switch.module.css'
@@ -5,14 +7,20 @@ import styles from './Switch.module.css'
 type SwitchProps = {
   isOn: boolean
   isDisabled?: boolean
-  handleToggle: () => void
+  handleToggle: MouseEventHandler<Element>
+  allowCheckedWhileDisabled?: boolean
 }
 
-const Switch = ({ isOn, handleToggle, isDisabled = false }: SwitchProps) => {
+const Switch = ({
+  isOn,
+  handleToggle,
+  isDisabled = false,
+  allowCheckedWhileDisabled
+}: SwitchProps) => {
   return (
     <div className={cn(styles.container, { [styles.disabled]: isDisabled })}>
       <input
-        checked={isDisabled ? false : isOn}
+        checked={allowCheckedWhileDisabled ? isOn : isDisabled ? false : isOn}
         className={styles.inputCheckbox}
         type='checkbox'
       />

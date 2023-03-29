@@ -1,3 +1,4 @@
+import { getContext } from '@audius/common'
 import { Action } from 'redux'
 import { eventChannel } from 'redux-saga'
 import { select, put, take, delay } from 'redux-saga/effects'
@@ -5,8 +6,6 @@ import { select, put, take, delay } from 'redux-saga/effects'
 import { getLocationPathname } from 'store/routing/selectors'
 
 import { isElectron } from './clientUtil'
-
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
 /**
  * Starts a polling daemon that triggers an action once every delay period if the tab/app is in the foreground/focus
@@ -19,24 +18,28 @@ export function* foregroundPollingDaemon(
   defaultDelayTimeMs: number,
   customDelayTimeConfig?: Record<string, number>
 ) {
+  const isNativeMobile = yield* getContext('isNativeMobile')
+
   let isBrowserInBackground = false
-  document.addEventListener(
-    'visibilitychange',
-    () => {
-      if (document.hidden) {
-        isBrowserInBackground = true
-      } else {
-        isBrowserInBackground = false
-      }
-    },
-    false
-  )
+  if (!isNativeMobile) {
+    document.addEventListener(
+      'visibilitychange',
+      () => {
+        if (document.hidden) {
+          isBrowserInBackground = true
+        } else {
+          isBrowserInBackground = false
+        }
+      },
+      false
+    )
+  }
 
   while (true) {
-    if (!isBrowserInBackground || isElectron()) {
+    if (!isBrowserInBackground || isElectron() || isNativeMobile) {
       yield put(action)
     }
-    if (customDelayTimeConfig) {
+    if (customDelayTimeConfig && !isNativeMobile) {
       const currentRoute: string = yield select(getLocationPathname)
       if (customDelayTimeConfig[currentRoute]) {
         yield delay(customDelayTimeConfig[currentRoute])
@@ -50,22 +53,6 @@ export function* foregroundPollingDaemon(
 }
 
 function createVisibilityChangeChannel() {
-  if (NATIVE_MOBILE) {
-    return eventChannel((emitter) => {
-      // The focus and visibitychange events are wonky on native mobile webviews,
-      // so poll for visiblity change instead
-      let lastHidden = true
-      const interval = setInterval(() => {
-        if (!document.hidden && lastHidden) {
-          emitter(true)
-        }
-        lastHidden = document.hidden
-      }, 500)
-      return () => {
-        clearInterval(interval)
-      }
-    })
-  }
   return eventChannel((emitter) => {
     const handleVisibilityChange = () => {
       if (!document.hidden) {

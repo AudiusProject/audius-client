@@ -1,19 +1,21 @@
-import { useContext, useEffect } from 'react'
+import { useCallback, useContext, useEffect } from 'react'
 
 import type {
   ID,
   FavoriteType,
   TipSource,
   NotificationType,
-  RepostType
+  RepostType,
+  SearchPlaylist,
+  SearchTrack
 } from '@audius/common'
 import type { EventArg, NavigationState } from '@react-navigation/native'
 import type { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { MessageType } from 'audius-client/src/services/native-mobile-interface/types'
 
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useDrawer } from 'app/hooks/useDrawer'
-import type { ContextualParams } from 'app/hooks/useNavigation'
+import { ChatListScreen } from 'app/screens/chat-screen/ChatListScreen'
+import { ChatScreen } from 'app/screens/chat-screen/ChatScreen'
+import { ChatUserListScreen } from 'app/screens/chat-screen/ChatUserListScreen'
 import { CollectionScreen } from 'app/screens/collection-screen/CollectionScreen'
 import { ProfileScreen } from 'app/screens/profile-screen'
 import {
@@ -32,20 +34,41 @@ import {
   TopSupportersScreen,
   SupportingUsersScreen
 } from 'app/screens/user-list-screen'
-import type { SearchPlaylist, SearchTrack } from 'app/store/search/types'
 
+import { AppDrawerContext } from '../app-drawer-screen'
+import { AudioScreen } from '../audio-screen'
 import { EditPlaylistScreen } from '../edit-playlist-screen/EditPlaylistScreen'
-import { NotificationsDrawerNavigationContext } from '../notifications-screen/NotificationsDrawerNavigationContext'
-import { TipArtistModal } from '../tip-artist-screen'
+import { EditProfileScreen } from '../edit-profile-screen'
+import {
+  AboutScreen,
+  AccountSettingsScreen,
+  AccountVerificationScreen,
+  ChangePasswordScreen,
+  ListeningHistoryScreen,
+  DownloadSettingsScreen,
+  NotificationSettingsScreen,
+  SettingsScreen
+} from '../settings-screen'
 import { TrackRemixesScreen } from '../track-screen/TrackRemixesScreen'
 
 import { useAppScreenOptions } from './useAppScreenOptions'
 
 export type AppTabScreenParamList = {
-  Track: { id: ID; searchTrack?: SearchTrack }
+  Track: {
+    id?: ID
+    searchTrack?: SearchTrack
+    canBeUnlisted?: boolean
+    handle?: string
+    slug?: string
+  }
   TrackRemixes: { id: ID }
-  Profile: { handle: string }
-  Collection: { id: ID; searchCollection?: SearchPlaylist }
+  Profile: { handle: string; id?: ID } | { handle?: string; id: ID }
+  Collection: {
+    id?: ID
+    collectionName?: string
+    searchCollection?: SearchPlaylist
+    collectionType?: 'playlist' | 'album'
+  }
   EditPlaylist: { id: ID }
   Favorited: { id: ID; favoriteType: FavoriteType }
   Reposts: { id: ID; repostType: RepostType }
@@ -63,6 +86,23 @@ export type AppTabScreenParamList = {
     count: number
   }
   TipArtist: undefined
+  SettingsScreen: undefined
+  AboutScreen: undefined
+  ListeningHistoryScreen: undefined
+  AccountSettingsScreen: undefined
+  AccountVerificationScreen: undefined
+  ChangePasswordScreen: undefined
+  DownloadSettingsScreen: undefined
+  NotificationSettingsScreen: undefined
+  AudioScreen: undefined
+  Upload: undefined
+  EditTrack: { id: ID }
+  WalletConnect: undefined
+  ChatList: undefined
+  ChatUserList: undefined
+  Chat: {
+    chatId: string
+  }
 }
 
 const forFade = ({ current }) => ({
@@ -89,10 +129,25 @@ type AppTabScreenProps = {
  * like track and profile
  */
 export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
-  const dispatchWeb = useDispatchWeb()
   const screenOptions = useAppScreenOptions()
-  const { drawerNavigation } = useContext(NotificationsDrawerNavigationContext)
+  const { drawerNavigation } = useContext(AppDrawerContext)
   const { isOpen: isNowPlayingDrawerOpen } = useDrawer('NowPlaying')
+
+  const handleChangeState = useCallback(
+    (event: NavigationStateEvent) => {
+      const stackRoutes = event?.data?.state?.routes
+      const isStackUnopened = stackRoutes.length === 1
+      const isStackOpened = stackRoutes.length === 2
+
+      if (isStackUnopened) {
+        drawerNavigation?.setOptions({ swipeEnabled: true })
+      }
+      if (isStackOpened) {
+        drawerNavigation?.setOptions({ swipeEnabled: false })
+      }
+    },
+    [drawerNavigation]
+  )
 
   useEffect(() => {
     drawerNavigation?.setOptions({ swipeEnabled: !isNowPlayingDrawerOpen })
@@ -101,47 +156,7 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
   return (
     <Stack.Navigator
       screenOptions={screenOptions}
-      screenListeners={{
-        state: (e: NavigationStateEvent) => {
-          const stackRoutes = e?.data?.state?.routes
-          const isStackOpen = stackRoutes.length > 1
-          if (isStackOpen) {
-            const isFromNotifs =
-              stackRoutes.length === 2 &&
-              (stackRoutes[1].params as ContextualParams)?.fromNotifications
-
-            // If coming from notifs allow swipe to open notifs drawer
-            drawerNavigation?.setOptions({ swipeEnabled: !!isFromNotifs })
-          } else {
-            // If on the first tab (or the first stack screen isn't a tab navigator),
-            // enable the drawer
-            const isOnFirstTab = !e?.data?.state.routes[0].state?.index
-            drawerNavigation?.setOptions({
-              swipeEnabled: isOnFirstTab
-            })
-          }
-        },
-        beforeRemove: (e) => {
-          // hack for now to prevent pop for some pages
-          if (
-            !e.target?.includes('EditProfile') &&
-            !e.target?.includes('EditPlaylist') &&
-            !e.target?.includes('CreatePlaylist') &&
-            !(
-              e.target?.includes('Search') &&
-              !e.target?.includes('SearchResults')
-            ) &&
-            !e.target?.includes('TipArtist') &&
-            !e.target?.includes('TopSupporters') &&
-            !e.target?.includes('SupportingUsers')
-          ) {
-            // When a screen is removed, notify the web layer to pop navigation
-            dispatchWeb({
-              type: MessageType.POP_ROUTE
-            })
-          }
-        }
-      }}
+      screenListeners={{ state: handleChangeState }}
     >
       {baseScreen(Stack)}
       <Stack.Screen
@@ -222,14 +237,6 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
         options={screenOptions}
       />
       <Stack.Screen
-        name='TipArtist'
-        component={TipArtistModal}
-        options={{
-          headerShown: false,
-          presentation: 'fullScreenModal'
-        }}
-      />
-      <Stack.Screen
         name='TopSupporters'
         component={TopSupportersScreen}
         options={screenOptions}
@@ -239,6 +246,42 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
         component={SupportingUsersScreen}
         options={screenOptions}
       />
+      <Stack.Screen name='AudioScreen' component={AudioScreen} />
+
+      <Stack.Group>
+        <Stack.Screen name='EditProfile' component={EditProfileScreen} />
+        <Stack.Screen name='SettingsScreen' component={SettingsScreen} />
+        <Stack.Screen name='AboutScreen' component={AboutScreen} />
+        <Stack.Screen
+          name='ListeningHistoryScreen'
+          component={ListeningHistoryScreen}
+        />
+        <Stack.Screen
+          name='AccountSettingsScreen'
+          component={AccountSettingsScreen}
+        />
+        <Stack.Screen
+          name='DownloadSettingsScreen'
+          component={DownloadSettingsScreen}
+        />
+        <Stack.Screen
+          name='NotificationSettingsScreen'
+          component={NotificationSettingsScreen}
+        />
+        <Stack.Screen
+          name='AccountVerificationScreen'
+          component={AccountVerificationScreen}
+        />
+        <Stack.Screen
+          name='ChangePasswordScreen'
+          component={ChangePasswordScreen}
+        />
+      </Stack.Group>
+      <Stack.Group>
+        <Stack.Screen name='ChatList' component={ChatListScreen} />
+        <Stack.Screen name='ChatUserList' component={ChatUserListScreen} />
+        <Stack.Screen name='Chat' component={ChatScreen} />
+      </Stack.Group>
     </Stack.Navigator>
   )
 }

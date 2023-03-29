@@ -1,11 +1,11 @@
 import type { BNWei } from '@audius/common'
 import { formatWei, walletSelectors } from '@audius/common'
 import BN from 'bn.js'
-import { Image, View } from 'react-native'
+import { Image, Platform, View } from 'react-native'
+import { useSelector } from 'react-redux'
 
 import TokenBadgeNoTier from 'app/assets/images/tokenBadgeNoTier.png'
 import { Text } from 'app/components/core'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 const { getAccountBalance } = walletSelectors
 
@@ -34,11 +34,13 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
 
 const messages = {
   available: 'Available to send',
-  disclaimer: '$AUDIO held in linked wallets cannot be used to tip'
+  disclaimer: '$AUDIO held in linked wallets cannot be used to tip',
+  // NOTE: Send tip -> Send $AUDIO change
+  disclaimerAlt: 'Cannot use $AUDIO held in linked wallets' // iOS only
 }
 
 export const AvailableAudio = () => {
-  const accountBalance = useSelectorWeb(getAccountBalance) ?? new BN(0)
+  const accountBalance = useSelector(getAccountBalance) ?? new BN(0)
   const styles = useStyles()
 
   return (
@@ -53,7 +55,7 @@ export const AvailableAudio = () => {
         </Text>
       </View>
       <Text variant='body2' color='neutralLight4'>
-        {messages.disclaimer}
+        {Platform.OS === 'ios' ? messages.disclaimerAlt : messages.disclaimer}
       </Text>
     </View>
   )

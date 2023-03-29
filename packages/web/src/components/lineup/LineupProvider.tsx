@@ -479,7 +479,6 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
       numPlaylistSkeletonRows,
       isTrending = false,
       isFeed = false,
-      showTip,
       rankIconCount = 0
     } = this.props
     const status = lineup.status
@@ -530,7 +529,8 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
             isLoading: !this.canLoad(index),
             hasLoaded: this.hasLoaded,
             isTrending,
-            showRankIcon: index < rankIconCount
+            showRankIcon: index < rankIconCount,
+            isFeed
           }
           if (entry.id === leadingElementId) {
             trackProps = { ...trackProps, ...leadingElementTileProps }
@@ -554,7 +554,8 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
             hasLoaded: this.hasLoaded,
             numLoadingSkeletonRows: numPlaylistSkeletonRows,
             isTrending,
-            showRankIcon: index < rankIconCount
+            showRankIcon: index < rankIconCount,
+            isFeed
           }
 
           return <this.props.playlistTile key={index} {...playlistProps} />
@@ -774,7 +775,7 @@ class LineupProvider extends PureComponent<CombinedProps, LineupProviderState> {
               threshold={loadMoreThreshold}
               element='ol'
             >
-              {isFeed && showTip ? <FeedTipTile /> : null}
+              {isFeed ? <FeedTipTile /> : null}
               {tiles.map((tile, index) => (
                 <li key={index}>{tile}</li>
               ))}

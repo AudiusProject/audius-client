@@ -7,15 +7,13 @@ import {
   audioRewardsPageActions,
   audioRewardsPageSelectors
 } from '@audius/common'
-import {
-  TRENDING_PAGE,
-  TRENDING_PLAYLISTS_PAGE,
-  TRENDING_UNDERGROUND_PAGE
-} from 'audius-client/src/utils/route'
 import type { ImageStyle } from 'react-native'
 import { Image, ScrollView, View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
+import BarChart from 'app/assets/images/emojis/chart-bar.png'
 import ChartIncreasing from 'app/assets/images/emojis/chart-increasing.png'
+import ArrowUp from 'app/assets/images/emojis/right-arrow-curving-up.png'
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import {
   SegmentedControl,
@@ -25,10 +23,8 @@ import {
   Link
 } from 'app/components/core'
 import TweetEmbed from 'app/components/tweet-embed'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRemoteVar } from 'app/hooks/useRemoteConfig'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import type { AppScreenParamList } from 'app/screens/app-screen'
 import { makeStyles } from 'app/styles'
 import { useThemeVariant } from 'app/utils/theme'
@@ -58,46 +54,28 @@ const messages = {
   buttonTextUnderground: 'Underground Trending Tracks'
 }
 
-const TRENDING_PAGES = {
-  tracks: {
-    native: { screen: 'trending' as const },
-    web: { route: TRENDING_PAGE }
-  },
-  playlists: {
-    native: {
-      screen: 'explore' as const,
-      params: { screen: 'TrendingPlaylists' as const }
-    },
-    web: { route: TRENDING_PLAYLISTS_PAGE }
-  },
-  underground: {
-    native: {
-      screen: 'explore' as const,
-      params: { screen: 'TrendingUnderground' as const }
-    },
-    web: { route: TRENDING_UNDERGROUND_PAGE }
-  }
-}
-
 const textMap = {
   playlists: {
     modalTitle: messages.playlistsModalTitle,
     title: messages.playlistTitle,
-    button: messages.buttonTextPlaylists
+    button: messages.buttonTextPlaylists,
+    icon: ArrowUp
   },
   tracks: {
     modalTitle: messages.tracksModalTitle,
     title: messages.tracksTitle,
-    button: messages.buttonTextTracks
+    button: messages.buttonTextTracks,
+    icon: ChartIncreasing
   },
   underground: {
     modalTitle: messages.undergroundModalTitle,
     title: messages.undergroundTitle,
-    button: messages.buttonTextUnderground
+    button: messages.buttonTextUnderground,
+    icon: BarChart
   }
 }
 
-const useStyles = makeStyles(({ palette, spacing, typography }) => ({
+const useStyles = makeStyles(({ spacing, typography }) => ({
   content: {
     height: '100%',
     width: '100%',
@@ -159,8 +137,8 @@ const useRewardsType = (): [
   TrendingRewardsModalType,
   (type: TrendingRewardsModalType) => void
 ] => {
-  const dispatch = useDispatchWeb()
-  const rewardsType = useSelectorWeb(getTrendingRewardsModalType)
+  const dispatch = useDispatch()
+  const rewardsType = useSelector(getTrendingRewardsModalType)
   const setTrendingRewardsType = useCallback(
     (type: TrendingRewardsModalType) => {
       dispatch(setTrendingRewardsModalType({ modalType: type }))
@@ -186,7 +164,7 @@ const useIsDark = () => {
   return themeVariant === Theme.DARK
 }
 
-export const TrendingRewardsDrawer = () => {
+export const TrendingRewardsDrawer = (titleIcon) => {
   const navigation = useNavigation<AppScreenParamList>()
   const { onClose } = useDrawerState(TRENDING_REWARDS_DRAWER_NAME)
   const styles = useStyles()
@@ -211,8 +189,20 @@ export const TrendingRewardsDrawer = () => {
   ]
 
   const handleGoToTrending = useCallback(() => {
-    const navConfig = TRENDING_PAGES[modalType]
-    navigation.navigate(navConfig)
+    switch (modalType) {
+      case 'tracks': {
+        navigation.navigate('trending', { screen: 'Trending' })
+        break
+      }
+      case 'playlists': {
+        navigation.navigate('explore', { screen: 'TrendingPlaylists' })
+        break
+      }
+      case 'underground': {
+        navigation.navigate('explore', { screen: 'TrendingUnderground' })
+        break
+      }
+    }
     onClose()
   }, [modalType, navigation, onClose])
 
@@ -221,12 +211,13 @@ export const TrendingRewardsDrawer = () => {
       modalName={TRENDING_REWARDS_DRAWER_NAME}
       isFullscreen
       isGestureSupported={false}
+      titleIcon={titleIcon}
     >
       <View style={styles.content}>
         <View style={styles.modalTitleContainer}>
           <Image
             style={styles.chartEmoji as ImageStyle}
-            source={ChartIncreasing}
+            source={textMap[modalType].icon}
           />
           <GradientText style={styles.modalTitle}>
             {textMap[modalType].modalTitle}

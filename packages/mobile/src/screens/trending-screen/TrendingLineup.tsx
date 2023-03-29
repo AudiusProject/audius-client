@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import {
   Name,
@@ -9,11 +9,10 @@ import {
   trendingPageSelectors
 } from '@audius/common'
 import { useNavigation } from '@react-navigation/native'
+import { useDispatch } from 'react-redux'
 
 import { Lineup } from 'app/components/lineup'
 import type { LineupProps } from 'app/components/lineup/types'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { make, track } from 'app/services/analytics'
 const {
   getDiscoverTrendingAllTimeLineup,
@@ -57,51 +56,35 @@ type TrendingLineupProps = BaseLineupProps & {
 
 export const TrendingLineup = (props: TrendingLineupProps) => {
   const { timeRange, ...other } = props
-  const trendingLineup = useSelectorWeb(selectorsMap[timeRange], isEqual)
-  const [isRefreshing, setIsRefreshing] = useState(false)
   const navigation = useNavigation()
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
   const trendingActions = actionsMap[timeRange]
 
   useEffect(() => {
     // @ts-ignore tabPress is not a valid event, and wasn't able to figure out a fix
     const tabPressListener = navigation.addListener('tabPress', () => {
-      dispatchWeb(setTrendingTimeRange(timeRange))
+      dispatch(setTrendingTimeRange(timeRange))
     })
 
     return tabPressListener
-  }, [navigation, dispatchWeb, timeRange])
-
-  useEffect(() => {
-    if (!trendingLineup.isMetadataLoading) {
-      setIsRefreshing(false)
-    }
-  }, [trendingLineup])
-
-  const handleRefresh = useCallback(() => {
-    setIsRefreshing(true)
-    dispatchWeb(trendingActions.refreshInView(true))
-  }, [dispatchWeb, trendingActions])
+  }, [navigation, dispatch, timeRange])
 
   const handleLoadMore = useCallback(
     (offset: number, limit: number, overwrite: boolean) => {
-      dispatchWeb(
-        trendingActions.fetchLineupMetadatas(offset, limit, overwrite)
-      )
+      dispatch(trendingActions.fetchLineupMetadatas(offset, limit, overwrite))
       track(make({ eventName: Name.FEED_PAGINATE, offset, limit }))
     },
-    [dispatchWeb, trendingActions]
+    [dispatch, trendingActions]
   )
 
   return (
     <Lineup
       isTrending
-      lineup={trendingLineup}
-      actions={trendingActions}
-      refresh={handleRefresh}
-      refreshing={isRefreshing}
-      loadMore={handleLoadMore}
       selfLoad
+      pullToRefresh
+      lineupSelector={selectorsMap[timeRange]}
+      actions={trendingActions}
+      loadMore={handleLoadMore}
       {...other}
     />
   )

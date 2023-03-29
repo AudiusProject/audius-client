@@ -5,6 +5,7 @@ import { Provider } from 'react-redux'
 import { Route, Switch } from 'react-router-dom'
 import { LastLocationProvider } from 'react-router-last-location'
 
+import { CoinbasePayButtonProvider } from 'components/coinbase-pay-button'
 import App from 'pages/App'
 import AppContext from 'pages/AppContext'
 import { AppErrorBoundary } from 'pages/AppErrorBoundary'
@@ -21,14 +22,12 @@ import './index.css'
 type AudiusAppProps = {
   setReady: () => void
   isReady: boolean
-  setConnectivityFailure: (failure: boolean) => void
   shouldShowPopover: boolean
 }
 
 const AudiusApp = ({
   setReady,
   isReady,
-  setConnectivityFailure,
   shouldShowPopover
 }: AudiusAppProps) => {
   return (
@@ -49,13 +48,14 @@ const AudiusApp = ({
                   />
                   <Route path='/'>
                     <AppErrorBoundary>
-                      <App
-                        setReady={setReady}
-                        isReady={isReady}
-                        mainContentRef={mainContentRef}
-                        setConnectivityFailure={setConnectivityFailure}
-                        shouldShowPopover={shouldShowPopover}
-                      />
+                      <CoinbasePayButtonProvider>
+                        <App
+                          setReady={setReady}
+                          isReady={isReady}
+                          mainContentRef={mainContentRef}
+                          shouldShowPopover={shouldShowPopover}
+                        />
+                      </CoinbasePayButtonProvider>
                     </AppErrorBoundary>
                   </Route>
                 </Switch>

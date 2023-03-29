@@ -20,7 +20,8 @@ import {
   themeSelectors,
   RepostType,
   favoritesUserListActions,
-  repostsUserListActions
+  repostsUserListActions,
+  playerSelectors
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
@@ -28,7 +29,6 @@ import { Dispatch } from 'redux'
 
 import { useRecord, make } from 'common/store/analytics/actions'
 import { PlaylistTileProps } from 'components/track/types'
-import { getUid, getBuffering, getPlaying } from 'store/player/selectors'
 import { AppState } from 'store/types'
 import {
   albumPage,
@@ -42,6 +42,7 @@ import { isMatrix, shouldShowDark } from 'utils/theme/theme'
 import { getCollectionWithFallback, getUserWithFallback } from '../helpers'
 
 import PlaylistTile from './PlaylistTile'
+const { getUid, getBuffering, getPlaying } = playerSelectors
 const { setFavorite } = favoritesUserListActions
 const { setRepost } = repostsUserListActions
 const { getTheme } = themeSelectors
@@ -91,7 +92,8 @@ const ConnectedPlaylistTile = memo(
     currentUserId,
     darkMode,
     showRankIcon,
-    isTrending
+    isTrending,
+    isFeed = false
   }: ConnectedPlaylistTileProps) => {
     const collection = getCollectionWithFallback(nullableCollection)
     const user = getUserWithFallback(nullableUser)
@@ -106,17 +108,17 @@ const ConnectedPlaylistTile = memo(
       if (collection.has_current_user_saved) {
         unsaveCollection(collection.playlist_id)
       } else {
-        saveCollection(collection.playlist_id)
+        saveCollection(collection.playlist_id, isFeed)
       }
-    }, [collection, unsaveCollection, saveCollection])
+    }, [collection, unsaveCollection, saveCollection, isFeed])
 
     const toggleRepost = useCallback(() => {
       if (collection.has_current_user_reposted) {
         unrepostCollection(collection.playlist_id)
       } else {
-        repostCollection(collection.playlist_id)
+        repostCollection(collection.playlist_id, isFeed)
       }
-    }, [collection, unrepostCollection, repostCollection])
+    }, [collection, unrepostCollection, repostCollection, isFeed])
 
     const getRoute = useCallback(() => {
       return collection.is_album
@@ -322,12 +324,12 @@ function mapDispatchToProps(dispatch: Dispatch) {
           source: ShareSource.TILE
         })
       ),
-    saveCollection: (collectionId: ID) =>
-      dispatch(saveCollection(collectionId, FavoriteSource.TILE)),
+    saveCollection: (collectionId: ID, isFeed: boolean) =>
+      dispatch(saveCollection(collectionId, FavoriteSource.TILE, isFeed)),
     unsaveCollection: (collectionId: ID) =>
       dispatch(unsaveCollection(collectionId, FavoriteSource.TILE)),
-    repostCollection: (collectionId: ID) =>
-      dispatch(repostCollection(collectionId, RepostSource.TILE)),
+    repostCollection: (collectionId: ID, isFeed: boolean) =>
+      dispatch(repostCollection(collectionId, RepostSource.TILE, isFeed)),
     unrepostCollection: (collectionId: ID) =>
       dispatch(undoRepostCollection(collectionId, RepostSource.TILE)),
     clickOverflow: (collectionId: ID, overflowActions: OverflowAction[]) =>

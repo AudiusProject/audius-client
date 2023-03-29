@@ -2,11 +2,10 @@ import { useCallback } from 'react'
 
 import type { CastMethod } from '@audius/common'
 import { accountSelectors, castSelectors, castActions } from '@audius/common'
+import { useDispatch, useSelector } from 'react-redux'
 
-import Appearance from 'app/assets/images/emojis/waning-crescent-moon.png'
+import IconVolume2 from 'app/assets/images/iconVolume2.svg'
 import { SegmentedControl } from 'app/components/core'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 
 import { SettingsRowLabel } from './SettingRowLabel'
 import { SettingsRow } from './SettingsRow'
@@ -14,27 +13,28 @@ import { SettingsRowContent } from './SettingsRowContent'
 import { SettingsRowDescription } from './SettingsRowDescription'
 const { updateMethod } = castActions
 const { getMethod: getCastMethod } = castSelectors
-const getAccountUser = accountSelectors.getAccountUser
+const { getAccountUser } = accountSelectors
 
 const messages = {
   cast: 'Cast to Devices',
-  castDescription: 'Select your preferred casting method',
+  castDescription:
+    'Enable casting to devices that support Chromecast. Airplay will still be available, but will require a few extra taps.',
   airplay: 'Airplay',
   chromecast: 'Chromecast'
 }
 
 export const CastSettingsRow = () => {
-  const dispatchWeb = useDispatchWeb()
-  const accountUser = useSelectorWeb(getAccountUser)
-  const castMethod = useSelectorWeb(getCastMethod)
+  const dispatch = useDispatch()
+  const accountUser = useSelector(getAccountUser)
+  const castMethod = useSelector(getCastMethod)
 
   const setCastMethod = useCallback(
     (method: CastMethod) => {
       // Changes should be persisted to async storage so that the
       // settings row value persists between sessions.
-      dispatchWeb(updateMethod({ method, persist: true }))
+      dispatch(updateMethod({ method, persist: true }))
     },
-    [dispatchWeb]
+    [dispatch]
   )
 
   if (!accountUser) return null
@@ -46,7 +46,7 @@ export const CastSettingsRow = () => {
 
   return (
     <SettingsRow>
-      <SettingsRowLabel label={messages.cast} iconSource={Appearance} />
+      <SettingsRowLabel label={messages.cast} icon={IconVolume2} />
       <SettingsRowDescription>
         {messages.castDescription}
       </SettingsRowDescription>

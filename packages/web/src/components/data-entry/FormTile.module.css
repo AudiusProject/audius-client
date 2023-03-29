@@ -121,7 +121,7 @@
 .release {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 .release > div:first-child {
   flex: 0 0 158px;
@@ -184,6 +184,22 @@
   font-weight: var(--font-demi-bold);
 }
 
+.release .trackAvailabilityButton {
+  height: 35px;
+}
+
+.release .trackAvailabilityButton.error {
+  border-color: var(--accent-red) !important;
+}
+
+.release .trackAvailabilityButton.error:hover {
+  border-color: var(--accent-red-dark-1) !important;
+}
+
+.trackAvailabilityButton .trackAvailabilityButtonText {
+  font-size: var(--font-xs);
+}
+
 .datePicker {
   margin-right: 38px;
   flex-shrink: 0;
@@ -200,18 +216,4 @@
 
 .floatRight > * {
   margin: 8px;
-}
-
-.hideRemixes {
-  display: inline-flex;
-  align-items: center;
-  margin-top: 17px;
-  height: 34px;
-}
-
-.hideRemixesText {
-  color: var(--neutral);
-  font-size: var(--font-s);
-  font-weight: var(--font-medium);
-  margin-right: 8px;
 }

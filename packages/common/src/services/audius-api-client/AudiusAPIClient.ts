@@ -1,26 +1,27 @@
 import type { AudiusLibs } from '@audius/sdk/dist/native-libs'
 
-import { ID, TimeRange, StemTrackMetadata } from 'models'
-import { AuthHeaders } from 'services/audius-backend'
 import {
-  IntKeys,
-  StringKeys,
-  RemoteConfigInstance
-} from 'services/remote-config'
-import { SearchKind } from 'store/pages/search-results/types'
-import { decodeHashId, encodeHashId } from 'utils/hashIds'
-import { Nullable, removeNullable } from 'utils/typeUtils'
-
+  ID,
+  TimeRange,
+  StemTrackMetadata,
+  CollectionMetadata
+} from '../../models'
+import { SearchKind } from '../../store/pages/search-results/types'
+import { decodeHashId, encodeHashId } from '../../utils/hashIds'
+import { Nullable, removeNullable } from '../../utils/typeUtils'
+import { AuthHeaders } from '../audius-backend'
 import type { AudiusBackend } from '../audius-backend'
 import { getEagerDiscprov } from '../audius-backend/eagerLoadUtils'
 import { Env } from '../env'
 import { LocalStorage } from '../local-storage'
+import { IntKeys, StringKeys, RemoteConfigInstance } from '../remote-config'
 
 import * as adapter from './ResponseAdapter'
 import { processSearchResults } from './helper'
 import {
   APIActivity,
   APIBlockConfirmation,
+  APIFavorite,
   APIPlaylist,
   APIResponse,
   APISearch,
@@ -28,8 +29,11 @@ import {
   APIStem,
   APITrack,
   APIUser,
+  GetPremiumContentSignaturesResponse,
+  GetTipsResponse,
   OpaqueID,
-  SupporterResponse
+  SupporterResponse,
+  SupportingResponse
 } from './types'
 
 // TODO: declare this at the root and use actual audiusLibs type
@@ -48,7 +52,8 @@ enum PathType {
 const ROOT_ENDPOINT_MAP = {
   feed: `/feed`,
   healthCheck: '/health_check',
-  blockConfirmation: '/block_confirmation'
+  blockConfirmation: '/block_confirmation',
+  getCollectionMetadata: '/playlists'
 }
 
 const FULL_ENDPOINT_MAP = {
@@ -72,6 +77,8 @@ const FULL_ENDPOINT_MAP = {
     `/playlists/${playlistId}/reposts`,
   playlistFavoriteUsers: (playlistId: OpaqueID) =>
     `/playlists/${playlistId}/favorites`,
+  playlistUpdates: (userId: OpaqueID) =>
+    `/notifications/${userId}/playlist_updates`,
   getUser: (userId: OpaqueID) => `/users/${userId}`,
   userByHandle: (handle: OpaqueID) => `/users/handle/${handle}`,
   userTracksByHandle: (handle: OpaqueID) => `/users/handle/${handle}/tracks`,
@@ -80,9 +87,12 @@ const FULL_ENDPOINT_MAP = {
   userRepostsByHandle: (handle: OpaqueID) => `/users/handle/${handle}/reposts`,
   getRelatedArtists: (userId: OpaqueID) => `/users/${userId}/related`,
   getPlaylist: (playlistId: OpaqueID) => `/playlists/${playlistId}`,
+  getPlaylistByPermalink: (handle: string, slug: string) =>
+    `/playlists/by_permalink/${handle}/${slug}`,
   topGenreUsers: '/users/genre/top',
   topArtists: '/users/top',
   getTrack: (trackId: OpaqueID) => `/tracks/${trackId}`,
+  getTracks: () => `/tracks`,
   getTrackByHandleAndSlug: `/tracks`,
   getStems: (trackId: OpaqueID) => `/tracks/${trackId}/stems`,
   getRemixes: (trackId: OpaqueID) => `/tracks/${trackId}/remixes`,
@@ -94,29 +104,41 @@ const FULL_ENDPOINT_MAP = {
     `/users/${userId}/supporters/${supporterUserId}`,
   getUserSupporting: (userId: OpaqueID, supporterUserId: OpaqueID) =>
     `/users/${userId}/supporting/${supporterUserId}`,
-  getReaction: '/reactions'
+  getReaction: '/reactions',
+  getSupporting: (userId: OpaqueID) => `/users/${userId}/supporting`,
+  getSupporters: (userId: OpaqueID) => `/users/${userId}/supporters`,
+  getTips: '/tips',
+  getPremiumContentSignatures: (userId: OpaqueID) =>
+    `/tracks/${userId}/nft-gated-signatures`
 }
 
 const ENDPOINT_MAP = {
   associatedWallets: '/users/associated_wallets',
   associatedWalletUserId: '/users/id',
   userChallenges: (userId: OpaqueID) => `/users/${userId}/challenges`,
+  userFavorites: (userId: OpaqueID) => `/users/${userId}/favorites`,
   undisbursedUserChallenges: `/challenges/undisbursed`
 }
 
 const TRENDING_LIMIT = 100
 
-type QueryParams = {
+export type QueryParams = {
   [key: string]: string | number | undefined | boolean | string[] | null
 }
 
-export type GetTrackArgs = {
+type GetTrackArgs = {
   id: ID
   currentUserId?: Nullable<ID>
   unlistedArgs?: {
     urlTitle: string
     handle: string
   }
+  abortOnUnreachable?: boolean
+}
+
+type GetTracksArgs = {
+  ids: ID[]
+  currentUserId: Nullable<ID>
 }
 
 type GetTrackByHandleAndSlugArgs = {
@@ -209,11 +231,13 @@ type GetPlaylistFavoriteUsersArgs = {
 type GetUserArgs = {
   userId: ID
   currentUserId: Nullable<ID>
+  abortOnUnreachable?: boolean
 }
 
 type GetUserByHandleArgs = {
   handle: string
   currentUserId: Nullable<ID>
+  retry?: boolean
 }
 
 type GetUserTracksByHandleArgs = {
@@ -230,11 +254,19 @@ type GetRelatedArtistsArgs = CurrentUserIdArg &
     userId: ID
   }
 
+type GetFavoritesArgs = {
+  currentUserId: ID
+  limit?: number
+}
+
 type GetProfileListArgs = {
   profileUserId: ID
   currentUserId: Nullable<ID>
   limit?: number
   offset?: number
+  query?: string
+  sortMethod?: string
+  sortDirection?: string
 }
 
 type GetTopArtistGenresArgs = {
@@ -250,8 +282,20 @@ type GetUserRepostsByHandleArgs = {
   limit?: number
 }
 
+type GetCollectionMetadataArgs = {
+  collectionId: ID
+  currentUserId: ID
+  abortOnUnreachable?: boolean
+}
+
 type GetPlaylistArgs = {
   playlistId: ID
+  currentUserId: Nullable<ID>
+  abortOnUnreachable?: boolean
+}
+
+type GetPlaylistByPermalinkArgs = {
+  permalink: string
   currentUserId: Nullable<ID>
 }
 
@@ -279,7 +323,7 @@ type GetRemixingArgs = {
 }
 
 type GetSearchArgs = {
-  currentUserId: ID
+  currentUserId: Nullable<ID>
   query: string
   kind?: SearchKind
   limit?: number
@@ -369,6 +413,7 @@ type GetUserTrackHistoryArgs = {
   currentUserId: Nullable<ID>
   limit?: number
   offset?: number
+  sortMethod?: string
 }
 
 type GetReactionArgs = {
@@ -383,6 +428,38 @@ type GetReactionResponse = [
     reacted_to: string
   }
 ]
+
+export type GetSupportingArgs = {
+  userId: ID
+  limit?: number
+  offset?: number
+}
+
+export type GetSupportersArgs = {
+  userId: ID
+  limit?: number
+  offset?: number
+}
+
+export type GetTipsArgs = {
+  userId: ID
+  limit?: number
+  offset?: number
+  receiverMinFollowers?: number
+  receiverIsVerified?: boolean
+  currentUserFollows?: 'sender' | 'receiver' | 'sender_or_receiver'
+  uniqueBy?: 'sender' | 'receiver'
+  minSlot?: number
+  maxSlot?: number
+  txSignatures?: string[]
+}
+
+export type GetPremiumContentSignaturesArgs = {
+  userId: ID
+  trackMap: {
+    [id: ID]: string[]
+  }
+}
 
 type InitializationState =
   | { state: 'uninitialized' }
@@ -420,7 +497,7 @@ type GetUserSupporterArgs = {
 
 type AudiusAPIClientConfig = {
   audiusBackendInstance: AudiusBackend
-  audiusLibs?: AudiusLibs
+  getAudiusLibs: () => Nullable<AudiusLibs>
   overrideEndpoint?: string
   remoteConfigInstance: RemoteConfigInstance
   localStorage: LocalStorage
@@ -433,26 +510,31 @@ export class AudiusAPIClient {
   }
 
   audiusBackendInstance: AudiusBackend
-  audiusLibs?: AudiusLibs
+  getAudiusLibs: () => Nullable<AudiusLibs>
   overrideEndpoint?: string
   remoteConfigInstance: RemoteConfigInstance
   localStorage: LocalStorage
   env: Env
+  isReachable?: boolean = true
 
   constructor({
     audiusBackendInstance,
-    audiusLibs,
+    getAudiusLibs,
     overrideEndpoint,
     remoteConfigInstance,
     localStorage,
     env
   }: AudiusAPIClientConfig) {
     this.audiusBackendInstance = audiusBackendInstance
-    this.audiusLibs = audiusLibs
+    this.getAudiusLibs = getAudiusLibs
     this.overrideEndpoint = overrideEndpoint
     this.remoteConfigInstance = remoteConfigInstance
     this.localStorage = localStorage
     this.env = env
+  }
+
+  setIsReachable(isReachable: boolean) {
+    this.isReachable = isReachable
   }
 
   async getTrending({
@@ -769,11 +851,11 @@ export class AudiusAPIClient {
   }
 
   async getTrack(
-    { id, currentUserId, unlistedArgs }: GetTrackArgs,
+    { id, currentUserId, unlistedArgs, abortOnUnreachable }: GetTrackArgs,
     retry = true
   ) {
     const encodedTrackId = this._encodeOrThrow(id)
-    const encodedCurrentUserId = encodeHashId(currentUserId)
+    const encodedCurrentUserId = encodeHashId(currentUserId ?? null)
 
     this._assertInitialized()
 
@@ -788,11 +870,35 @@ export class AudiusAPIClient {
       await this._getResponse(
         FULL_ENDPOINT_MAP.getTrack(encodedTrackId),
         args,
-        retry
+        retry,
+        undefined,
+        undefined,
+        abortOnUnreachable
       )
 
     if (!trackResponse) return null
     const adapted = adapter.makeTrack(trackResponse.data)
+    return adapted
+  }
+
+  async getTracks({ ids, currentUserId }: GetTracksArgs) {
+    this._assertInitialized()
+    const encodedTrackIds = ids.map((id) => this._encodeOrThrow(id))
+    const encodedCurrentUserId = encodeHashId(currentUserId)
+    const params = {
+      id: encodedTrackIds,
+      user_id: encodedCurrentUserId || undefined,
+      limit: encodedTrackIds.length
+    }
+
+    const trackResponse: Nullable<APIResponse<APITrack[]>> =
+      await this._getResponse(FULL_ENDPOINT_MAP.getTracks(), params, true)
+    if (!trackResponse) {
+      return null
+    }
+    const adapted = trackResponse.data
+      .map((track) => adapter.makeTrack(track))
+      .filter(removeNullable)
     return adapted
   }
 
@@ -887,7 +993,7 @@ export class AudiusAPIClient {
     return tracks
   }
 
-  async getUser({ userId, currentUserId }: GetUserArgs) {
+  async getUser({ userId, currentUserId, abortOnUnreachable }: GetUserArgs) {
     const encodedUserId = this._encodeOrThrow(userId)
     const encodedCurrentUserId = encodeHashId(currentUserId)
     this._assertInitialized()
@@ -897,7 +1003,11 @@ export class AudiusAPIClient {
 
     const response: Nullable<APIResponse<APIUser[]>> = await this._getResponse(
       FULL_ENDPOINT_MAP.getUser(encodedUserId),
-      params
+      params,
+      undefined,
+      undefined,
+      undefined,
+      abortOnUnreachable
     )
 
     if (!response) return []
@@ -906,7 +1016,11 @@ export class AudiusAPIClient {
     return adapted
   }
 
-  async getUserByHandle({ handle, currentUserId }: GetUserByHandleArgs) {
+  async getUserByHandle({
+    handle,
+    currentUserId,
+    retry = true
+  }: GetUserByHandleArgs) {
     const encodedCurrentUserId = encodeHashId(currentUserId)
     this._assertInitialized()
     const params = {
@@ -915,7 +1029,8 @@ export class AudiusAPIClient {
 
     const response: Nullable<APIResponse<APIUser[]>> = await this._getResponse(
       FULL_ENDPOINT_MAP.userByHandle(handle),
-      params
+      params,
+      retry
     )
 
     if (!response) return []
@@ -943,8 +1058,7 @@ export class AudiusAPIClient {
 
     let headers = {}
     if (encodedCurrentUserId && getUnlisted) {
-      const { data, signature } =
-        await this.audiusBackendInstance.signDiscoveryNodeRequest()
+      const { data, signature } = await this.audiusBackendInstance.signData()
       headers = {
         [AuthHeaders.Message]: data,
         [AuthHeaders.Signature]: signature
@@ -965,11 +1079,29 @@ export class AudiusAPIClient {
     return adapted
   }
 
+  async getFavorites({ currentUserId, limit }: GetFavoritesArgs) {
+    this._assertInitialized()
+    const encodedUserId = encodeHashId(currentUserId)
+    const params = { user_id: encodedUserId, limit }
+    const response = await this._getResponse<APIResponse<APIFavorite[]>>(
+      ENDPOINT_MAP.userFavorites(encodedUserId),
+      params,
+      true,
+      PathType.VersionPath
+    )
+    if (!response) return null
+    const { data } = response
+    return data.map(adapter.makeFavorite).filter(removeNullable)
+  }
+
   async getFavoritedTracks({
     profileUserId,
     currentUserId,
     limit,
-    offset
+    offset,
+    query,
+    sortMethod,
+    sortDirection
   }: GetProfileListArgs) {
     this._assertInitialized()
     const encodedUserId = encodeHashId(currentUserId)
@@ -977,7 +1109,10 @@ export class AudiusAPIClient {
     const params = {
       user_id: encodedUserId || undefined,
       limit,
-      offset
+      offset,
+      ...(query && { query }),
+      ...(sortMethod && { sort_method: sortMethod }),
+      ...(sortDirection && { sort_direction: sortDirection })
     }
 
     const response: Nullable<APIResponse<APIActivity[]>> =
@@ -986,7 +1121,7 @@ export class AudiusAPIClient {
         params
       )
 
-    if (!response) return []
+    if (!response) return null
 
     const adapted = response.data.map(({ item, ...props }) => ({
       timestamp: props.timestamp,
@@ -1082,7 +1217,31 @@ export class AudiusAPIClient {
     return adapted
   }
 
-  async getPlaylist({ playlistId, currentUserId }: GetPlaylistArgs) {
+  async getCollectionMetadata({
+    collectionId,
+    currentUserId,
+    abortOnUnreachable
+  }: GetCollectionMetadataArgs) {
+    this._assertInitialized()
+
+    const headers = { 'X-User-ID': currentUserId.toString() }
+    const params = { playlist_id: collectionId }
+    const response = await this._getResponse<APIResponse<CollectionMetadata[]>>(
+      ROOT_ENDPOINT_MAP.getCollectionMetadata,
+      params,
+      false,
+      PathType.RootPath,
+      headers,
+      abortOnUnreachable
+    )
+    return response?.data?.[0]
+  }
+
+  async getPlaylist({
+    playlistId,
+    currentUserId,
+    abortOnUnreachable
+  }: GetPlaylistArgs) {
     this._assertInitialized()
     const encodedCurrentUserId = encodeHashId(currentUserId)
     const encodedPlaylistId = this._encodeOrThrow(playlistId)
@@ -1093,6 +1252,40 @@ export class AudiusAPIClient {
     const response: Nullable<APIResponse<APIPlaylist[]>> =
       await this._getResponse(
         FULL_ENDPOINT_MAP.getPlaylist(encodedPlaylistId),
+        params,
+        undefined,
+        undefined,
+        undefined,
+        abortOnUnreachable
+      )
+
+    if (!response) return []
+
+    const adapted = response.data
+      .map(adapter.makePlaylist)
+      .filter(removeNullable)
+    return adapted
+  }
+
+  async getPlaylistByPermalink({
+    permalink,
+    currentUserId
+  }: GetPlaylistByPermalinkArgs) {
+    this._assertInitialized()
+    const encodedCurrentUserId = encodeHashId(currentUserId)
+    const params = {
+      user_id: encodedCurrentUserId || undefined
+    }
+    const splitPermalink = permalink.split('/')
+    if (splitPermalink.length !== 4) {
+      throw Error(
+        'Permalink formatted incorrectly. Should follow /<handle>/playlist/<slug> format.'
+      )
+    }
+    const [, handle, , slug] = splitPermalink
+    const response: Nullable<APIResponse<APIPlaylist[]>> =
+      await this._getResponse(
+        FULL_ENDPOINT_MAP.getPlaylistByPermalink(handle, slug),
         params
       )
 
@@ -1325,21 +1518,25 @@ export class AudiusAPIClient {
         PathType.RootPath,
         headers
       )
-    if (!response) return []
+    if (!response) return null
     return response.data
   }
 
   async getUserTrackHistory({
     currentUserId,
     userId,
-    limit
+    offset = 0,
+    limit = 100,
+    sortMethod
   }: GetUserTrackHistoryArgs) {
     const encodedUserId = this._encodeOrThrow(userId)
     const encodedCurrentUserId = encodeHashId(currentUserId)
-    limit = limit || 100
     this._assertInitialized()
     const params = {
-      user_id: encodedCurrentUserId || undefined
+      user_id: encodedCurrentUserId || undefined,
+      limit,
+      offset,
+      sort_method: sortMethod
     }
 
     const response: Nullable<APIResponse<APIActivity[]>> =
@@ -1405,6 +1602,152 @@ export class AudiusAPIClient {
     }))[0]
 
     return adapted
+  }
+
+  async getSupporting({ userId, limit = 25, offset = 0 }: GetSupportingArgs) {
+    const encodedUserId = this._encodeOrThrow(userId)
+    this._assertInitialized()
+    const params = {
+      limit,
+      offset
+    }
+
+    const response: Nullable<APIResponse<SupportingResponse[]>> =
+      await this._getResponse(
+        FULL_ENDPOINT_MAP.getSupporting(encodedUserId),
+        params
+      )
+    return response ? response.data : null
+  }
+
+  async getSupporters({ userId, limit = 25, offset = 0 }: GetSupportersArgs) {
+    const encodedUserId = this._encodeOrThrow(userId)
+    this._assertInitialized()
+    const params = {
+      limit,
+      offset
+    }
+
+    const response: Nullable<APIResponse<SupporterResponse[]>> =
+      await this._getResponse(
+        FULL_ENDPOINT_MAP.getSupporters(encodedUserId),
+        params
+      )
+    return response ? response.data : null
+  }
+
+  async getTips({
+    userId,
+    limit,
+    offset,
+    receiverMinFollowers,
+    receiverIsVerified,
+    currentUserFollows,
+    uniqueBy,
+    minSlot,
+    maxSlot,
+    txSignatures
+  }: GetTipsArgs) {
+    const encodedUserId = this._encodeOrThrow(userId)
+    this._assertInitialized()
+    const params = {
+      user_id: encodedUserId,
+      limit,
+      offset,
+      receiver_min_followers: receiverMinFollowers,
+      receiver_is_verififed: receiverIsVerified,
+      current_user_follows: currentUserFollows,
+      unique_by: uniqueBy,
+      min_slot: minSlot,
+      max_slot: maxSlot,
+      tx_signatures: txSignatures
+    }
+
+    const response: Nullable<APIResponse<GetTipsResponse[]>> =
+      await this._getResponse(FULL_ENDPOINT_MAP.getTips, params)
+    if (response && response.data) {
+      return response.data
+        .map((u) => {
+          const sender = adapter.makeUser(u.sender)
+          const receiver = adapter.makeUser(u.receiver)
+          // Should never happen
+          if (!sender && receiver) return null
+
+          return {
+            ...u,
+            sender: adapter.makeUser(u.sender)!,
+            receiver: adapter.makeUser(u.receiver)!,
+            // Hack alert:
+            // Don't show followee supporters yet, because they take too
+            // long to load in (requires a subsequent call to DN)
+            // followee_supporter_ids: u.followee_supporters.map(({ user_id }) =>
+            //   decodeHashId(user_id)
+            // )
+            followee_supporter_ids: []
+          }
+        })
+        .filter(removeNullable)
+    }
+    return null
+  }
+
+  async getPremiumContentSignatures({
+    userId,
+    trackMap
+  }: GetPremiumContentSignaturesArgs) {
+    if (!Object.keys(trackMap).length) return null
+
+    const encodedUserId = this._encodeOrThrow(userId)
+    this._assertInitialized()
+
+    // To avoid making a POST request and thereby introducing a new pattern in the DN,
+    // we build a param string that represents the info we need to verify nft collection ownership.
+    // The trackMap is a map of track ids -> token ids.
+    // If the nft collection is not ERC1155, then there are no token ids.
+    // We append the track ids and token ids as query params, making sure they're the same length
+    // so that DN knows which token ids belong to which track ids.
+    // Example:
+    // trackMap: { 1: [1, 2], 2: [], 3: [1]}
+    // query params: '?track_ids=1&token_ids=1-2&track_ids=2&token_ids=&track_ids=3&token_ids=1'
+    const trackIdParams: string[] = []
+    const tokenIdParams: string[] = []
+    Object.keys(trackMap).forEach((trackId) => {
+      trackIdParams.push(trackId)
+      tokenIdParams.push(trackMap[trackId].join('-'))
+    })
+    const params = {
+      track_ids: trackIdParams,
+      token_ids: tokenIdParams
+    }
+
+    const response: Nullable<APIResponse<GetPremiumContentSignaturesResponse>> =
+      await this._getResponse(
+        FULL_ENDPOINT_MAP.getPremiumContentSignatures(encodedUserId),
+        params
+      )
+    return response ? response.data : null
+  }
+
+  async getPlaylistUpdates(userId: number) {
+    type ApiPlaylistUpdate = {
+      playlist_id: string
+      updated_at: string
+      last_seen_at: string
+    }
+    type PlaylistUpdatesResponse = { playlist_updates: ApiPlaylistUpdate[] }
+    const response = await this._getResponse<
+      APIResponse<PlaylistUpdatesResponse>
+    >(FULL_ENDPOINT_MAP.playlistUpdates(encodeHashId(userId)))
+    const playlistUpdates = response?.data?.playlist_updates
+
+    if (!playlistUpdates) {
+      return null
+    }
+
+    return playlistUpdates.map((playlistUpdate) => ({
+      ...playlistUpdate,
+      playlist_id: decodeHashId(playlistUpdate.playlist_id) as number
+    }))
   }
 
   async init() {
@@ -1475,10 +1818,17 @@ export class AudiusAPIClient {
     retry = true,
     pathType: PathType = PathType.VersionFullPath,
     headers?: { [key: string]: string },
-    splitArrayParams = false
+    splitArrayParams = false,
+    abortOnUnreachable = true
   ): Promise<Nullable<T>> {
     if (this.initializationState.state !== 'initialized')
-      throw new Error('_constructURL called uninitialized')
+      throw new Error('_getResponse called uninitialized')
+
+    // If not reachable, abort
+    if (!this.isReachable && abortOnUnreachable) {
+      console.debug(`APIClient: Not reachable, aborting request`)
+      return null
+    }
 
     // If a param has a null value, remove it
     const sanitizedParams = Object.keys(params).reduce((acc, cur) => {
@@ -1488,11 +1838,10 @@ export class AudiusAPIClient {
     }, {})
 
     const formattedPath = this._formatPath(pathType, path)
-    const audiusLibs =
-      this.audiusLibs ??
-      (this.initializationState.type === 'libs' && window.audiusLibs)
-    if (audiusLibs) {
-      const data = await audiusLibs.discoveryProvider._makeRequest(
+    const audiusLibs = this.getAudiusLibs()
+
+    if (audiusLibs && this.initializationState.type === 'libs') {
+      const data = await audiusLibs.discoveryProvider?._makeRequest(
         {
           endpoint: formattedPath,
           queryParams: sanitizedParams,

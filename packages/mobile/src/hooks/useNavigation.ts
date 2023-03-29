@@ -1,81 +1,86 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 
-// eslint-disable-next-line import/no-unresolved
-import type { DrawerNavigationHelpers } from '@react-navigation/drawer/lib/typescript/src/types'
-import type { ParamListBase } from '@react-navigation/native'
-import { useNavigation as useNavigationNative } from '@react-navigation/native'
+import type {
+  ParamListBase,
+  NavigationProp as RNNavigationProp
+} from '@react-navigation/native'
+import { useNavigation as useNativeNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { isEqual } from 'lodash'
 
-import type { AppTabScreenParamList } from 'app/screens/app-screen/AppTabScreen'
+import { getNearestStackNavigator } from 'app/utils/navigation'
 
-import { usePushRouteWeb } from './usePushRouteWeb'
-
-export type ContextualParams = { fromNotifications?: boolean }
-
-type UseNavigationConfig<
-  ParamList extends ParamListBase,
-  RouteName extends keyof ParamList
-> = {
-  native: {
-    screen: RouteName
-    params?: ParamList[RouteName] & ContextualParams
-  }
-  web?: {
-    route: string
-    fromPage?: string
-    fromNativeNotifications?: string
-  }
+export type ContextualParams = {
+  fromNotifications?: boolean
+  fromAppDrawer?: boolean
 }
 
-export const useNavigation = <
-  ParamList extends ParamListBase = AppTabScreenParamList
->({
-  customNativeNavigation
-}: {
-  customNativeNavigation?: DrawerNavigationHelpers
-} = {}) => {
-  const defaultNativeNavigation =
-    useNavigationNative<NativeStackNavigationProp<ParamList>>()
-  const nativeNavigation = customNativeNavigation || defaultNativeNavigation
-  const pushRouteWeb = usePushRouteWeb()
+export type ContextualizedParamList<ParamList extends ParamListBase> = {
+  [K in keyof ParamList]: ParamList[K] & ContextualParams
+}
 
-  const performNavigation = useCallback(
-    (method) =>
-      <RouteName extends keyof ParamList>(
-        config: UseNavigationConfig<ParamList, RouteName>
-      ) => {
-        const { native, web } = config
-        method(native.screen, native.params)
-        if (web) {
-          pushRouteWeb(web.route, web.fromPage, web.fromNativeNotifications)
+type PerformNavigationConfig<
+  ParamList extends ParamListBase,
+  RouteName extends keyof ParamList = keyof ParamList
+> = [screen: RouteName, params?: ParamList[RouteName] & ContextualParams]
+
+type UseNavigationOptions<NavigationProp extends RNNavigationProp<any>> = {
+  customNavigation?: NavigationProp
+}
+
+/**
+ * Custom wrapper around react-navigation `useNavigation`
+ *
+ * Features:
+ * - Prevent duplicate navigation pushes
+ * - Apply contextual params to all routes
+ */
+export function useNavigation<
+  ParamList extends ParamListBase,
+  NavigationProp extends RNNavigationProp<ParamListBase> = NativeStackNavigationProp<ParamList>
+>(options?: UseNavigationOptions<NavigationProp>): NavigationProp {
+  const defaultNavigation = useNativeNavigation<NavigationProp>()
+
+  const lastNavAction = useRef<PerformNavigationConfig<ParamList>>()
+
+  const navigation: NavigationProp =
+    options?.customNavigation ?? defaultNavigation
+
+  // Prevent duplicate pushes by de-duping
+  // navigation actions
+  const performCustomPush = useCallback(
+    (...config: PerformNavigationConfig<ParamList>) => {
+      if (!isEqual(lastNavAction.current, config)) {
+        const stackNavigator = getNearestStackNavigator(navigation)
+
+        if (stackNavigator) {
+          // Reset lastNavAction when the transition ends
+          const unsubscribe = stackNavigator.addListener(
+            'transitionEnd',
+            (e) => {
+              lastNavAction.current = undefined
+              unsubscribe()
+            }
+          )
+
+          stackNavigator.push(...config)
+          lastNavAction.current = config
         }
-      },
-    // eslint thinks ParamList is a variable
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pushRouteWeb]
+      }
+    },
+    [navigation, lastNavAction]
   )
 
   return useMemo(
     () => ({
-      ...nativeNavigation,
-      navigate: performNavigation(nativeNavigation.navigate),
+      ...navigation,
       push:
-        'push' in nativeNavigation
-          ? performNavigation(nativeNavigation.push)
+        'push' in navigation
+          ? performCustomPush
           : () => {
               console.error('Push is not implemented for this navigator')
-            },
-      replace:
-        'replace' in nativeNavigation
-          ? performNavigation(nativeNavigation.replace)
-          : () => {
-              console.error('Replace is not implemented for this navigator')
-            },
-
-      // Notifying the web layer of the pop action
-      // is handled in `createStackScreen`
-      goBack: nativeNavigation.goBack
+            }
     }),
-    [nativeNavigation, performNavigation]
+    [navigation, performCustomPush]
   )
 }

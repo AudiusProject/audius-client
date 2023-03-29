@@ -5,30 +5,26 @@ import {
   accountSelectors,
   cacheUsersSelectors,
   tippingSelectors,
-  tippingActions
+  tippingActions,
+  useProxySelector
 } from '@audius/common'
+import { storeDismissedTipInfo } from 'common/store/tipping/sagas'
 import { View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconRemove from 'app/assets/images/iconRemove.svg'
-import { Tile } from 'app/components/core'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { MessageType } from 'app/message/types'
+import { FadeInView, Tile } from 'app/components/core'
 import { make, track } from 'app/services/analytics'
-import {
-  dismissRecentTip,
-  getRecentTipsStorage
-} from 'app/store/tipping/storageUtils'
+import { localStorage } from 'app/services/local-storage'
 import { makeStyles } from 'app/styles'
 import { EventNames } from 'app/types/analytics'
 
-import { LineupTileSkeleton } from '../lineup-tile'
-
+import { FeedTipTileSkeleton } from './FeedTipTileSkeleton'
 import { ReceiverDetails } from './ReceiverDetails'
 import { SendTipButton } from './SendTipButton'
 import { SenderDetails } from './SenderDetails'
 
-const { hideTip } = tippingActions
+const { setShowTip, fetchRecentTips } = tippingActions
 const { getShowTip, getTipToDisplay } = tippingSelectors
 const { getUsers } = cacheUsersSelectors
 const { getAccountUser } = accountSelectors
@@ -48,7 +44,6 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     justifyContent: 'space-between'
   },
   skeleton: {
-    padding: 12,
     paddingBottom: 0
   },
   iconRemove: {
@@ -60,35 +55,29 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
 
 export const FeedTipTile = () => {
   const styles = useStyles()
-  const dispatchWeb = useDispatchWeb()
-  const account = useSelectorWeb(getAccountUser)
-  const showTip = useSelectorWeb(getShowTip)
-  const tipToDisplay = useSelectorWeb(getTipToDisplay)
-  const tipperIds = tipToDisplay
-    ? [
-        tipToDisplay.sender_id,
-        tipToDisplay.receiver_id,
-        ...tipToDisplay.followee_supporter_ids
-      ]
-    : []
-  const usersMap = useSelectorWeb((state) =>
-    getUsers(state, { ids: tipToDisplay ? tipperIds : [] })
-  )
+  const dispatch = useDispatch()
+  const account = useSelector(getAccountUser)
+
+  const showTip = useSelector(getShowTip)
+
+  const { tipToDisplay, usersMap, tipperIds } = useProxySelector((state) => {
+    const tipToDisplay = getTipToDisplay(state)
+    if (!tipToDisplay) {
+      return { tipToDisplay: null, usersMap: {}, tipperIds: [] }
+    }
+    const { sender_id, receiver_id, followee_supporter_ids } = tipToDisplay
+    const tipperIds = [sender_id, receiver_id, ...followee_supporter_ids]
+    const usersMap = getUsers(state, { ids: tipperIds })
+    return { tipToDisplay, usersMap, tipperIds }
+  }, [])
 
   useEffect(() => {
-    const fetchRecentTipsAsync = async () => {
-      const storage = await getRecentTipsStorage()
-      dispatchWeb({
-        type: MessageType.FETCH_RECENT_TIPS,
-        storage
-      })
-    }
-    fetchRecentTipsAsync()
-  }, [dispatchWeb])
+    dispatch(fetchRecentTips())
+  }, [dispatch])
 
-  const handlePressClose = useCallback(() => {
-    dismissRecentTip()
-    dispatchWeb(hideTip())
+  const handlePressClose = useCallback(async () => {
+    await storeDismissedTipInfo(localStorage, tipToDisplay?.receiver_id || -1)
+    dispatch(setShowTip({ show: false }))
     if (account && tipToDisplay) {
       track(
         make({
@@ -99,32 +88,35 @@ export const FeedTipTile = () => {
         })
       )
     }
-  }, [dispatchWeb, account, tipToDisplay])
+  }, [dispatch, account, tipToDisplay])
 
   if (!showTip) {
     return null
   }
 
-  return !tipToDisplay || Object.keys(usersMap).length !== tipperIds.length ? (
-    <View style={styles.skeleton}>
-      <LineupTileSkeleton />
-    </View>
-  ) : (
+  const tipsLoading =
+    !tipToDisplay || Object.keys(usersMap).length !== tipperIds.length
+
+  if (tipsLoading) return <FeedTipTileSkeleton />
+
+  return (
     <Tile styles={{ tile: styles.tile }}>
-      <View style={styles.header}>
-        <ReceiverDetails receiver={usersMap[tipToDisplay.receiver_id]} />
-        <IconRemove {...styles.iconRemove} onPress={handlePressClose} />
-      </View>
-      <SenderDetails
-        senders={[
-          tipToDisplay.sender_id,
-          ...tipToDisplay.followee_supporter_ids
-        ]
-          .map((id) => usersMap[id])
-          .filter((user): user is User => !!user)}
-        receiver={usersMap[tipToDisplay.receiver_id]}
-      />
-      <SendTipButton receiver={usersMap[tipToDisplay.receiver_id]} />
+      <FadeInView>
+        <View style={styles.header}>
+          <ReceiverDetails receiver={usersMap[tipToDisplay.receiver_id]} />
+          <IconRemove {...styles.iconRemove} onPress={handlePressClose} />
+        </View>
+        <SenderDetails
+          senders={[
+            tipToDisplay.sender_id,
+            ...tipToDisplay.followee_supporter_ids
+          ]
+            .map((id) => usersMap[id])
+            .filter((user): user is User => !!user)}
+          receiver={usersMap[tipToDisplay.receiver_id]}
+        />
+        <SendTipButton receiver={usersMap[tipToDisplay.receiver_id]} />
+      </FadeInView>
     </Tile>
   )
 }

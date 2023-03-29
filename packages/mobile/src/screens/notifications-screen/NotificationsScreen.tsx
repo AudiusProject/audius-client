@@ -1,44 +1,44 @@
-import { memo, useEffect } from 'react'
+import { useCallback } from 'react'
 
-import { notificationsActions } from '@audius/common'
-import { useDrawerStatus } from '@react-navigation/drawer'
-import { View } from 'react-native'
-import { usePrevious } from 'react-use'
+import { notificationsActions, notificationsSelectors } from '@audius/common'
+import { useFocusEffect } from '@react-navigation/native'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { makeStyles } from 'app/styles'
+import IconNotification from 'app/assets/images/iconNotification.svg'
+import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
+import { useAppTabScreen } from 'app/hooks/useAppTabScreen'
 
 import { NotificationList } from './NotificationList'
-import { TopBar } from './TopBar'
 const { markAllAsViewed } = notificationsActions
+const { getNotificationUnviewedCount } = notificationsSelectors
 
-const useStyles = makeStyles(({ palette }) => ({
-  root: {
-    backgroundColor: palette.background,
-    height: '100%'
-  }
-}))
+const messages = {
+  header: 'Notifications'
+}
 
-/**
- * Memoized to prevent rerender during bottom-bar navigation.
- * It's rerendering because navigation context changes.
- */
-export const NotificationsScreen = memo(() => {
-  const styles = useStyles()
-  const dispatchWeb = useDispatchWeb()
-  const isDrawerOpen = useDrawerStatus() === 'open'
-  const wasDrawerOpen = usePrevious(isDrawerOpen)
+export const NotificationsScreen = () => {
+  useAppTabScreen()
+  const dispatch = useDispatch()
+  const totalUnviewed = useSelector(getNotificationUnviewedCount)
 
-  useEffect(() => {
-    if (wasDrawerOpen && !isDrawerOpen) {
-      dispatchWeb(markAllAsViewed())
+  const handleMarkAsViewed = useCallback(() => {
+    if (totalUnviewed > 0) {
+      dispatch(markAllAsViewed())
     }
-  }, [isDrawerOpen, wasDrawerOpen, dispatchWeb])
+  }, [dispatch, totalUnviewed])
+
+  useFocusEffect(handleMarkAsViewed)
 
   return (
-    <View style={styles.root}>
-      <TopBar />
-      <NotificationList />
-    </View>
+    <Screen>
+      <ScreenHeader
+        text={messages.header}
+        icon={IconNotification}
+        iconProps={{ height: 28, width: 28 }}
+      />
+      <ScreenContent>
+        <NotificationList />
+      </ScreenContent>
+    </Screen>
   )
-})
+}

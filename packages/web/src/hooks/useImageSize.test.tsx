@@ -1,17 +1,24 @@
-import { useMemo } from 'react'
-
-import { DefaultSizes, SquareSizes, useImageSize } from '@audius/common'
+import {
+  BaseUserImageSizeProps,
+  DefaultSizes,
+  ImageSizesObject,
+  SquareSizes,
+  useImageSize
+} from '@audius/common'
 import { render } from '@testing-library/react'
+import type { Dispatch } from 'redux'
 
 jest.mock('react-redux', () => ({
   useDispatch: () => () => {}
 }))
 
-const TestComponent = (
-  props: Omit<Parameters<typeof useImageSize>[0], 'dispatch'>
-) => {
-  const dispatch = () => {}
-  // @ts-ignore
+type TestComponentProps = Omit<
+  BaseUserImageSizeProps<SquareSizes, ImageSizesObject<SquareSizes>>,
+  'dispatch'
+>
+
+const TestComponent = (props: TestComponentProps) => {
+  const dispatch = (() => {}) as Dispatch<any>
   const image = useImageSize({ ...props, dispatch })
   return <div>{image ?? 'nothing'}</div>
 }
@@ -172,60 +179,6 @@ describe('useImageSize', () => {
         render(<TestComponent {...props} action={action} />)
         expect(action).not.toHaveBeenCalled()
       })
-    })
-  })
-
-  describe('if onDemand is enabled', () => {
-    const OnDemandTestComponent = (props: {
-      useImageOptions: Parameters<typeof useImageSize>[0]
-      callFunction?: boolean
-    }) => {
-      const getImage = useImageSize(props.useImageOptions)
-
-      const image = useMemo(() => {
-        if (props.callFunction) {
-          return getImage()
-        }
-      }, [getImage, props.callFunction])
-
-      return <div>{image ?? 'nothing'}</div>
-    }
-
-    const props = {
-      id: 1,
-      size: SquareSizes.SIZE_1000_BY_1000,
-      sizes: {},
-      action: () => {},
-      defaultImage: 'default',
-      onDemand: true
-    }
-
-    it('does not dispatch the action if the returned function is not called', () => {
-      const action = jest.fn()
-      const dispatch = () => {}
-      const { getByText } = render(
-        <OnDemandTestComponent
-          // @ts-ignore
-          useImageOptions={{ ...props, dispatch, action }}
-          callFunction={false}
-        />
-      )
-      getByText('nothing')
-      expect(action).not.toHaveBeenCalled()
-    })
-
-    it('dispatches the action if the returned function is not called', () => {
-      const action = jest.fn()
-      const dispatch = () => {}
-      const { getByText } = render(
-        <OnDemandTestComponent
-          // @ts-ignore
-          useImageOptions={{ ...props, dispatch, action }}
-          callFunction={true}
-        />
-      )
-      getByText('nothing')
-      expect(action).toHaveBeenCalled()
     })
   })
 })

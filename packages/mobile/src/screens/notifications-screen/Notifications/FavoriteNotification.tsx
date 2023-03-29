@@ -1,8 +1,14 @@
+import { useCallback } from 'react'
+
 import type { FavoriteNotification as FavoriteNotificationType } from '@audius/common'
-import { formatCount, notificationsSelectors } from '@audius/common'
+import {
+  formatCount,
+  notificationsSelectors,
+  useProxySelector
+} from '@audius/common'
 
 import IconHeart from 'app/assets/images/iconHeart.svg'
-import { isEqual, useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { useNotificationNavigation } from 'app/hooks/useNotificationNavigation'
 
 import {
   NotificationHeader,
@@ -14,7 +20,6 @@ import {
   EntityLink
 } from '../Notification'
 
-import { useSocialActionHandler } from './useSocialActionHandler'
 const { getNotificationEntity, getNotificationUsers } = notificationsSelectors
 
 const messages = {
@@ -30,19 +35,24 @@ type FavoriteNotificationProps = {
 export const FavoriteNotification = (props: FavoriteNotificationProps) => {
   const { notification } = props
   const { userIds, entityType } = notification
-  const users = useSelectorWeb(
+  const navigation = useNotificationNavigation()
+
+  const users = useProxySelector(
     (state) => getNotificationUsers(state, notification, USER_LENGTH_LIMIT),
-    isEqual
+    [notification]
   )
+
   const firstUser = users?.[0]
   const otherUsersCount = userIds.length - 1
 
-  const entity = useSelectorWeb(
+  const entity = useProxySelector(
     (state) => getNotificationEntity(state, notification),
-    isEqual
+    [notification]
   )
 
-  const handlePress = useSocialActionHandler(notification, users)
+  const handlePress = useCallback(() => {
+    navigation.navigate(notification)
+  }, [navigation, notification])
 
   if (!users || !firstUser || !entity) return null
 

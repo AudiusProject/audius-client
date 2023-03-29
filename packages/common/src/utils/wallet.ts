@@ -15,6 +15,8 @@ import { Nullable } from 'utils/typeUtils'
 const WEI_DECIMALS = 18 // 18 decimals on ETH AUDIO
 const SPL_DECIMALS = 8 // 8 decimals on SPL AUDIO
 
+export const zeroBNWei = new BN(0) as BNWei
+
 export const weiToAudioString = (bnWei: BNWei): StringAudio => {
   const stringAudio = formatWeiToAudioString(bnWei) as StringAudio
   return stringAudio
@@ -112,11 +114,12 @@ export const convertJSBIToAmountObject = (amount: JSBI, decimals: number) => {
   const divisor = JSBI.BigInt(10 ** decimals)
   const quotient = JSBI.divide(amount, divisor)
   const remainder = JSBI.remainder(amount, divisor)
-  const uiAmountString = JSBI.GT(remainder, 0)
+  const uiAmountString = JSBI.greaterThan(remainder, JSBI.BigInt(0))
     ? `${quotient.toString()}.${remainder.toString().padStart(decimals, '0')}`
     : quotient.toString()
   return {
     amount: JSBI.toNumber(amount),
+    amountString: amount.toString(),
     uiAmount: JSBI.toNumber(amount) / 10 ** decimals,
     uiAmountString
   }

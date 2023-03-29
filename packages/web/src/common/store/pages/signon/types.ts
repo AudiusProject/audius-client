@@ -1,13 +1,13 @@
 import { ID, User } from '@audius/common'
 
-enum EditingStatus {
+export enum EditingStatus {
   EDITING = 'editing',
   LOADING = 'loading',
   SUCCESS = 'success',
   FAILURE = 'failure'
 }
 
-interface EditableField {
+export interface EditableField {
   value: string
   error: string
   status: EditingStatus
@@ -32,6 +32,14 @@ export const artistCategories = [
   FollowArtistsCategory.POP
 ]
 
+export type FollowArtists = {
+  selectedCategory: FollowArtistsCategory
+  categories: {
+    [key in keyof typeof FollowArtistsCategory]?: ID[]
+  }
+  selectedUserIds: ID[]
+}
+
 export default interface SignOnPageState {
   email: EditableField
   name: EditableField
@@ -49,14 +57,15 @@ export default interface SignOnPageState {
   followIds: ID[]
   status: EditingStatus
   toastText: string | null
-  followArtists: {
-    selectedCategory: FollowArtistsCategory
-    categories: {
-      [key in keyof typeof FollowArtistsCategory]?: ID[]
-    }
-    selectedUserIds: ID[]
-  }
+  followArtists: FollowArtists
 }
+
+export type { SignOnPageState }
+
+export type SignOnPageReducer = (
+  state: SignOnPageState,
+  action: unknown
+) => SignOnPageState
 
 export enum Pages {
   SIGNIN = 'SIGNIN',

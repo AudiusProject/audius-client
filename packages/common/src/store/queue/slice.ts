@@ -1,9 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { RepeatMode, Queueable } from 'store/queue/types'
-import { Nullable } from 'utils/typeUtils'
-
 import { ID, UID, Collectible } from '../../models'
+import { Maybe, Nullable } from '../../utils'
+import { RepeatMode, Queueable } from '../queue/types'
 
 type State = {
   order: Queueable[]
@@ -60,19 +59,18 @@ type QueueAutoplayPayload = {
   currentUserId: Nullable<ID>
 }
 
-type PersistPayload = {}
-
 type PausePayload = {}
 
-type NextPayload = {
+type NextPayload = Maybe<{
   // Whether or not to skip if in repeat mode (passive vs. active next)
   skip?: boolean
-}
+}>
 
-type PreviousPayload = {}
+type PreviousPayload = undefined
 
 type UpdateIndexPayload = {
-  index: number
+  index?: number
+  shuffleIndex?: number
 }
 
 type RepeatPayload = {
@@ -119,24 +117,23 @@ const slice = createSlice({
       state.undershot = false
     },
     queueAutoplay: (_state, _action: PayloadAction<QueueAutoplayPayload>) => {},
-    persist: (_state, _action: PayloadAction<PersistPayload>) => {},
     // Pauses the queue
     pause: (_state, _action: PayloadAction<PausePayload>) => {},
     // Skips the next track in the queue
     next: (state, action: PayloadAction<NextPayload>) => {
-      const { skip } = action.payload
+      const skip = action.payload?.skip
 
       if (state.order.length === 0) return
+
+      if (state.repeat === RepeatMode.SINGLE && !skip) {
+        return
+      }
 
       if (state.shuffle) {
         const newShuffleIndex =
           (state.shuffleIndex + 1) % state.shuffleOrder.length
         state.shuffleIndex = newShuffleIndex
         state.index = state.shuffleOrder[newShuffleIndex]
-        return
-      }
-
-      if (state.repeat === RepeatMode.SINGLE && !skip) {
         return
       }
 
@@ -180,8 +177,9 @@ const slice = createSlice({
     // Updates the queue's index to a given value. Useful when the queue
     // is paused, but we would like to resume playback later from somewhere else.
     updateIndex: (state, action: PayloadAction<UpdateIndexPayload>) => {
-      const { index } = action.payload
-      state.index = index
+      const { index, shuffleIndex } = action.payload
+      state.index = index ?? state.index
+      state.shuffleIndex = shuffleIndex ?? state.shuffleIndex
     },
     // Changes the queue's repeat mode
     repeat: (state, action: PayloadAction<RepeatPayload>) => {
@@ -289,7 +287,6 @@ const slice = createSlice({
 export const {
   play,
   queueAutoplay,
-  persist,
   pause,
   next,
   previous,

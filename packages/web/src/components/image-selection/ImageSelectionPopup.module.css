@@ -7,7 +7,6 @@
 
 .slider {
   width: 100%;
-  padding: var(--unit-2) 3px;
   margin-top: var(--unit-4);
 }
 
@@ -160,6 +159,7 @@
   border-radius: 2px;
   transition: 0.07s ease-in-out;
   opacity: 0;
+  border: 1px solid var(--neutral-light-9);
 }
 .fadeIn {
   animation: fadeIn 0.5s forwards;

@@ -3,108 +3,45 @@ import {
   accountSelectors,
   cacheTracksActions,
   cacheTracksSelectors,
-  cacheUsersSelectors,
   profilePageSelectors,
   TracksSortMode,
   profilePageTracksLineupActions as tracksActions,
   profilePageTracksLineupActions as lineupActions,
   tracksSocialActions
 } from '@audius/common'
-import { all, call, select, takeEvery, put } from 'redux-saga/effects'
+import { call, select, takeEvery, put } from 'redux-saga/effects'
 
-import { retrieveTracks } from 'common/store/cache/tracks/utils'
-import { LineupSagas } from 'store/lineup/sagas'
-import { waitForValue, waitForAccount } from 'utils/sagaHelpers'
+import { LineupSagas } from 'common/store/lineup/sagas'
+import { waitForRead } from 'utils/sagaHelpers'
 
 import { retrieveUserTracks } from './retrieveUserTracks'
+import { watchUploadTracksSaga } from './watchUploadTracksSaga'
+
 const { SET_ARTIST_PICK } = tracksSocialActions
-const { getProfileUserId, getProfileTracksLineup, getProfileUserHandle } =
-  profilePageSelectors
-const { getUser } = cacheUsersSelectors
+const { getProfileTracksLineup, getTrackSource } = profilePageSelectors
 const { getTrack } = cacheTracksSelectors
 const { DELETE_TRACK } = cacheTracksActions
-const getUserId = accountSelectors.getUserId
+const { getUserId, getUserHandle } = accountSelectors
 const PREFIX = tracksActions.prefix
 
-function* getTracks({ offset, limit, payload }) {
-  const handle = yield select(getProfileUserHandle)
-  yield waitForAccount()
+function* getTracks({ offset, limit, payload, handle }) {
+  yield waitForRead()
   const currentUserId = yield select(getUserId)
+  const profileHandle = handle.toLowerCase()
 
-  // Wait for user to receive social handles
-  // We need to know ahead of time whether we want to request
-  // the "artist pick" track in addition to the artist's tracks.
-  // TODO: Move artist pick to chain/discprov to avoid this extra trip
-  const user = yield call(
-    waitForValue,
-    getUser,
-    {
-      handle: handle.toLowerCase()
-    },
-    (user) => 'twitter_handle' in user
-  )
-  const sort = payload.sort === TracksSortMode.POPULAR ? 'plays' : 'date'
+  const sort = payload?.sort === TracksSortMode.POPULAR ? 'plays' : 'date'
   const getUnlisted = true
 
-  if (user._artist_pick) {
-    let [pinnedTrack, processed] = yield all([
-      call(retrieveTracks, { trackIds: [user._artist_pick] }),
-      call(retrieveUserTracks, {
-        handle,
-        currentUserId,
-        sort,
-        limit,
-        offset,
-        getUnlisted
-      })
-    ])
-
-    // Pinned tracks *should* be unpinned
-    // when deleted, but just in case they're not,
-    // defend against that edge case here.
-    if (!pinnedTrack.length || pinnedTrack[0].is_delete) {
-      pinnedTrack = []
-    }
-
-    const pinnedTrackIndex = processed.findIndex(
-      (track) => track.track_id === user._artist_pick
-    )
-    if (offset === 0) {
-      // If pinned track found in tracksResponse,
-      // put it to the front of the list, slicing it out of tracksResponse.
-      if (pinnedTrackIndex !== -1) {
-        return pinnedTrack
-          .concat(processed.slice(0, pinnedTrackIndex))
-          .concat(processed.slice(pinnedTrackIndex + 1))
-      }
-      // If pinned track not in tracksResponse,
-      // add it to the front of the list.
-      return pinnedTrack.concat(processed)
-    } else {
-      // If we're paginating w/ offset > 0
-      // set the pinned track as null.
-      // This will be handled by `filterDeletes` via `nullCount`
-      if (pinnedTrackIndex !== -1) {
-        return processed.map((track, i) =>
-          i === pinnedTrackIndex ? null : track
-        )
-      }
-      return processed
-    }
-  } else {
-    const processed = yield call(retrieveUserTracks, {
-      handle,
-      currentUserId,
-      sort,
-      limit,
-      offset,
-      getUnlisted
-    })
-    return processed
-  }
+  const processed = yield call(retrieveUserTracks, {
+    handle: profileHandle,
+    currentUserId,
+    sort,
+    limit,
+    offset,
+    getUnlisted
+  })
+  return processed
 }
-
-const sourceSelector = (state) => `${PREFIX}:${getProfileUserId(state)}`
 
 class TracksSagas extends LineupSagas {
   constructor() {
@@ -115,14 +52,17 @@ class TracksSagas extends LineupSagas {
       getTracks,
       undefined,
       undefined,
-      sourceSelector
+      getTrackSource
     )
   }
 }
 
 function* watchSetArtistPick() {
   yield takeEvery(SET_ARTIST_PICK, function* (action) {
-    const lineup = yield select(getProfileTracksLineup)
+    const accountHandle = yield select(getUserHandle)
+    const lineup = yield select((state) =>
+      getProfileTracksLineup(state, accountHandle)
+    )
     const updatedOrderUid = []
     for (const [entryUid, order] of Object.entries(lineup.order)) {
       const track = yield select(getTrack, { uid: entryUid })
@@ -134,24 +74,35 @@ function* watchSetArtistPick() {
     updatedOrderUid.sort((a, b) => a.order - b.order)
     const updatedLineupOrder = updatedOrderUid.map(({ uid }) => uid)
 
-    yield put(lineupActions.updateLineupOrder(updatedLineupOrder))
+    yield put(
+      lineupActions.updateLineupOrder(updatedLineupOrder, accountHandle)
+    )
   })
 }
 
 function* watchDeleteTrack() {
   yield takeEvery(DELETE_TRACK, function* (action) {
     const { trackId } = action
-    const lineup = yield select(getProfileTracksLineup)
+    const accountHandle = yield select(getUserHandle)
+    const lineup = yield select((state) =>
+      getProfileTracksLineup(state, accountHandle)
+    )
     const trackLineupEntry = lineup.entries.find(
       (entry) => entry.id === trackId
     )
     if (trackLineupEntry) {
-      yield put(tracksActions.remove(Kind.TRACKS, trackLineupEntry.uid))
+      yield put(
+        tracksActions.remove(Kind.TRACKS, trackLineupEntry.uid, accountHandle)
+      )
     }
   })
 }
 
 export default function sagas() {
   const trackSagas = new TracksSagas().getSagas()
-  return trackSagas.concat([watchSetArtistPick, watchDeleteTrack])
+  return trackSagas.concat([
+    watchSetArtistPick,
+    watchDeleteTrack,
+    watchUploadTracksSaga
+  ])
 }

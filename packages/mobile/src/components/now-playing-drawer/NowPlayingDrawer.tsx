@@ -1,18 +1,27 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState
+} from 'react'
 
 import {
   Genre,
-  cacheTracksSelectors,
   cacheUsersSelectors,
-  queueActions
+  queueActions,
+  playerSelectors,
+  playerActions
 } from '@audius/common'
 import type {
   Animated,
   GestureResponderEvent,
   PanResponderGestureState
 } from 'react-native'
-import { View, StatusBar, Pressable } from 'react-native'
+import { Platform, View, StatusBar, Pressable } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import TrackPlayer from 'react-native-track-player'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { BOTTOM_BAR_HEIGHT } from 'app/components/bottom-tab-bar'
@@ -21,16 +30,10 @@ import Drawer, {
   FULL_DRAWER_HEIGHT
 } from 'app/components/drawer'
 import { Scrubber } from 'app/components/scrubber'
-import { useAndroidNavigationBarHeight } from 'app/hooks/useAndroidNavigationBarHeight'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useDrawer } from 'app/hooks/useDrawer'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { SEEK, seek } from 'app/store/audio/actions'
-import {
-  getPlaying,
-  getTrack as getNativeTrack
-} from 'app/store/audio/selectors'
+import { AppDrawerContext } from 'app/screens/app-drawer-screen'
+import { AppTabNavigationContext } from 'app/screens/app-screen'
 import { makeStyles } from 'app/styles'
 
 import { ActionsBar } from './ActionsBar'
@@ -41,12 +44,16 @@ import { PlayBar } from './PlayBar'
 import { TitleBar } from './TitleBar'
 import { TrackInfo } from './TrackInfo'
 import { PLAY_BAR_HEIGHT } from './constants'
+const { seek, reset } = playerActions
+
+const { getPlaying, getCurrentTrack, getCounter, getUid } = playerSelectors
 const { next, previous } = queueActions
 const { getUser } = cacheUsersSelectors
-const { getTrack } = cacheTracksSelectors
 
 const STATUS_BAR_FADE_CUTOFF = 0.6
 const SKIP_DURATION_SEC = 15
+const RESTART_THRESHOLD_SEC = 3
+
 // If the top screen inset is greater than this,
 // the status bar will be hidden when the drawer is open
 const INSET_STATUS_BAR_HIDE_THRESHOLD = 20
@@ -86,19 +93,30 @@ type NowPlayingDrawerProps = {
   translationAnim: Animated.Value
 }
 
-const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
+/**
+ * Memoized to prevent rerender during bottom-bar navigation.
+ * It's rerendering because bottomTab render function rerenders a lot.
+ */
+export const NowPlayingDrawer = memo(function NowPlayingDrawer(
+  props: NowPlayingDrawerProps
+) {
+  const { translationAnim } = props
+  const { navigation: contextNavigation } = useContext(AppTabNavigationContext)
+  const navigation = useNavigation({
+    customNavigation: contextNavigation
+  })
   const dispatch = useDispatch()
-  const dispatchWeb = useDispatchWeb()
   const insets = useSafeAreaInsets()
-  const androidNavigationBarHeight = useAndroidNavigationBarHeight()
   const staticTopInset = useRef(insets.top)
-  const bottomBarHeight = BOTTOM_BAR_HEIGHT + insets.bottom
   const styles = useStyles()
-  const navigation = useNavigation()
 
   const { isOpen, onOpen, onClose } = useDrawer('NowPlaying')
+  const playCounter = useSelector(getCounter)
+  const currentUid = useSelector(getUid)
   const isPlaying = useSelector(getPlaying)
   const [isPlayBarShowing, setIsPlayBarShowing] = useState(false)
+
+  const { drawerNavigation } = useContext(AppDrawerContext)
 
   // When audio starts playing, open the playbar to the initial offset
   useEffect(() => {
@@ -133,7 +151,10 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
   }, [staticTopInset, insets.top])
 
   useEffect(() => {
-    if (staticTopInset.current > INSET_STATUS_BAR_HIDE_THRESHOLD) {
+    if (
+      Platform.OS === 'ios' &&
+      staticTopInset.current > INSET_STATUS_BAR_HIDE_THRESHOLD
+    ) {
       if (isOpen) {
         StatusBar.setHidden(true, 'fade')
       } else {
@@ -148,7 +169,10 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
     (e: GestureResponderEvent, gestureState: PanResponderGestureState) => {
       // Do not hide the status bar for smaller insets
       // This is to prevent layout shift which breaks the animation
-      if (staticTopInset.current > INSET_STATUS_BAR_HIDE_THRESHOLD) {
+      if (
+        Platform.OS === 'ios' &&
+        staticTopInset.current > INSET_STATUS_BAR_HIDE_THRESHOLD
+      ) {
         if (gestureState.vy > 0) {
           // Dragging downwards
           if (drawerPercentOpen.current < STATUS_BAR_FADE_CUTOFF) {
@@ -156,6 +180,7 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
           }
         } else if (gestureState.vy < 0) {
           // Dragging upwards
+
           if (drawerPercentOpen.current > STATUS_BAR_FADE_CUTOFF) {
             StatusBar.setHidden(true, 'fade')
           }
@@ -165,52 +190,61 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
     [drawerPercentOpen]
   )
 
+  const onPanResponderRelease = useCallback(
+    (e: GestureResponderEvent, _gestureState: PanResponderGestureState) => {
+      // Immediately after the pan responder is released, disable the notifications drawer.
+      // Allow the effect attached to the open state changing to re-define whether it can be
+      // interacted with.
+      drawerNavigation?.setOptions({ swipeEnabled: false })
+    },
+    [drawerNavigation]
+  )
+
   const [isGestureEnabled, setIsGestureEnabled] = useState(true)
 
-  // TODO: As we move away from the audio store slice in mobile-client
-  // in favor of player/queue selectors in common, getNativeTrack calls
-  // should be replaced
-  const trackInfo = useSelector(getNativeTrack)
-  const track = useSelectorWeb((state) =>
-    getTrack(state, trackInfo ? { id: trackInfo.trackId } : {})
-  )
-  const user = useSelectorWeb((state) =>
+  const track = useSelector(getCurrentTrack)
+  const trackId = track?.track_id
+  const trackDuration = track?.duration ?? 0
+
+  const user = useSelector((state) =>
     getUser(state, track ? { id: track.owner_id } : {})
   )
-
-  const trackId = trackInfo?.trackId
   const [mediaKey, setMediaKey] = useState(0)
+
   useEffect(() => {
     setMediaKey((mediaKey) => mediaKey + 1)
-  }, [trackId])
+  }, [playCounter, currentUid])
 
-  const onNext = useCallback(() => {
-    if (track?.genre === Genre.PODCASTS) {
-      if (global.progress) {
-        const { currentTime } = global.progress
-        const newPosition = currentTime + SKIP_DURATION_SEC
-        dispatch(
-          seek({ type: SEEK, seconds: Math.min(track.duration, newPosition) })
-        )
-      }
+  const onNext = useCallback(async () => {
+    const isLongFormContent =
+      track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
+    if (isLongFormContent) {
+      const currentPosition = await TrackPlayer.getPosition()
+      const newPosition = currentPosition + SKIP_DURATION_SEC
+      dispatch(seek({ seconds: Math.min(track.duration, newPosition) }))
     } else {
-      dispatchWeb(next({ skip: true }))
+      dispatch(next({ skip: true }))
       setMediaKey((mediaKey) => mediaKey + 1)
     }
-  }, [dispatch, dispatchWeb, setMediaKey, track])
+  }, [dispatch, setMediaKey, track])
 
-  const onPrevious = useCallback(() => {
-    if (track?.genre === Genre.PODCASTS) {
-      if (global.progress) {
-        const { currentTime } = global.progress
-        const newPosition = currentTime - SKIP_DURATION_SEC
-        dispatch(seek({ type: SEEK, seconds: Math.max(0, newPosition) }))
-      }
+  const onPrevious = useCallback(async () => {
+    const currentPosition = await TrackPlayer.getPosition()
+    const isLongFormContent =
+      track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
+    if (isLongFormContent) {
+      const newPosition = currentPosition - SKIP_DURATION_SEC
+      dispatch(seek({ seconds: Math.max(0, newPosition) }))
     } else {
-      dispatchWeb(previous({}))
-      setMediaKey((mediaKey) => mediaKey + 1)
+      const shouldGoToPrevious = currentPosition < RESTART_THRESHOLD_SEC
+      if (shouldGoToPrevious) {
+        dispatch(previous())
+        setMediaKey((mediaKey) => mediaKey + 1)
+      } else {
+        dispatch(reset({ shouldAutoplay: true }))
+      }
     }
-  }, [dispatch, dispatchWeb, setMediaKey, track])
+  }, [dispatch, setMediaKey, track])
 
   const onPressScrubberIn = useCallback(() => {
     setIsGestureEnabled(false)
@@ -224,23 +258,17 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
     if (!user) {
       return
     }
-    navigation.push({
-      native: { screen: 'Profile', params: { handle: user.handle } },
-      web: { route: `/${user.handle}` }
-    })
+    navigation?.push('Profile', { handle: user.handle })
     handleDrawerCloseFromSwipe()
   }, [handleDrawerCloseFromSwipe, navigation, user])
 
   const handlePressTitle = useCallback(() => {
-    if (!track) {
+    if (!trackId) {
       return
     }
-    navigation.push({
-      native: { screen: 'Track', params: { id: track.track_id } },
-      web: { route: track.permalink }
-    })
+    navigation?.push('Track', { id: trackId })
     handleDrawerCloseFromSwipe()
-  }, [handleDrawerCloseFromSwipe, navigation, track])
+  }, [handleDrawerCloseFromSwipe, navigation, trackId])
 
   return (
     <Drawer
@@ -249,9 +277,7 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
       isOpen={isOpen}
       onClose={handleDrawerCloseFromSwipe}
       onOpen={onDrawerOpen}
-      initialOffsetPosition={
-        bottomBarHeight + PLAY_BAR_HEIGHT + androidNavigationBarHeight
-      }
+      initialOffsetPosition={BOTTOM_BAR_HEIGHT + PLAY_BAR_HEIGHT}
       shouldCloseToInitialOffset={isPlayBarShowing}
       animationStyle={DrawerAnimationStyle.SPRINGY}
       shouldBackgroundDim={false}
@@ -259,6 +285,7 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
       drawerStyle={{ overflow: 'visible' }}
       onPercentOpen={onDrawerPercentOpen}
       onPanResponderMove={onPanResponderMove}
+      onPanResponderRelease={onPanResponderRelease}
       isGestureSupported={isGestureEnabled}
       translationAnim={translationAnim}
       // Disable safe area view edges because they are handled manually
@@ -270,56 +297,51 @@ const NowPlayingDrawer = ({ translationAnim }: NowPlayingDrawerProps) => {
           { paddingTop: staticTopInset.current, paddingBottom: insets.bottom }
         ]}
       >
-        {track && user && (
-          <>
-            <View style={styles.playBarContainer}>
-              <PlayBar
-                track={track}
-                user={user}
-                onPress={onDrawerOpen}
-                translationAnim={translationAnim}
-              />
-            </View>
-            <Logo translationAnim={translationAnim} />
-            <View style={styles.titleBarContainer}>
-              <TitleBar onClose={handleDrawerCloseFromSwipe} />
-            </View>
-            <Pressable
-              onPress={handlePressTitle}
-              style={styles.artworkContainer}
-            >
-              <Artwork track={track} />
-            </Pressable>
-            <View style={styles.trackInfoContainer}>
-              <TrackInfo
-                onPressArtist={handlePressArtist}
-                onPressTitle={handlePressTitle}
-                track={track}
-                user={user}
-              />
-            </View>
-            <View style={styles.scrubberContainer}>
-              <Scrubber
-                mediaKey={`${mediaKey}`}
-                isPlaying={isPlaying}
-                onPressIn={onPressScrubberIn}
-                onPressOut={onPressScrubberOut}
-                duration={track.duration}
-              />
-            </View>
-            <View style={styles.controlsContainer}>
-              <AudioControls
-                onNext={onNext}
-                onPrevious={onPrevious}
-                isPodcast={track.genre === Genre.PODCASTS}
-              />
-              <ActionsBar track={track} />
-            </View>
-          </>
-        )}
+        <View style={styles.playBarContainer}>
+          <PlayBar
+            mediaKey={`${mediaKey}`}
+            track={track}
+            user={user}
+            onPress={onDrawerOpen}
+            translationAnim={translationAnim}
+          />
+        </View>
+        <Logo translationAnim={translationAnim} />
+        <View style={styles.titleBarContainer}>
+          <TitleBar onClose={handleDrawerCloseFromSwipe} />
+        </View>
+        <Pressable onPress={handlePressTitle} style={styles.artworkContainer}>
+          <Artwork track={track} />
+        </Pressable>
+        <View style={styles.trackInfoContainer}>
+          <TrackInfo
+            onPressArtist={handlePressArtist}
+            onPressTitle={handlePressTitle}
+            track={track}
+            user={user}
+          />
+        </View>
+        <View style={styles.scrubberContainer}>
+          <Scrubber
+            mediaKey={`${mediaKey}`}
+            isPlaying={isPlaying}
+            onPressIn={onPressScrubberIn}
+            onPressOut={onPressScrubberOut}
+            duration={trackDuration}
+          />
+        </View>
+        <View style={styles.controlsContainer}>
+          <AudioControls
+            onNext={onNext}
+            onPrevious={onPrevious}
+            isLongFormContent={
+              track?.genre === Genre.PODCASTS ||
+              track?.genre === Genre.AUDIOBOOKS
+            }
+          />
+          <ActionsBar track={track} />
+        </View>
       </View>
     </Drawer>
   )
-}
-
-export default NowPlayingDrawer
+})

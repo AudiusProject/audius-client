@@ -9,7 +9,10 @@ import {
   Repost,
   FieldVisibility,
   LineupTrack,
-  Remix
+  Remix,
+  PremiumConditions,
+  Nullable,
+  Genre
 } from '@audius/common'
 
 export enum TrackTileSize {
@@ -45,6 +48,7 @@ export type TileProps = {
 
 export type TrackTileProps = TileProps & {
   title: string
+  genre: Genre
   showArtistPick?: boolean
   showListens?: boolean
   disableActions?: boolean
@@ -57,6 +61,7 @@ export type TrackTileProps = TileProps & {
   artistName: string
   artistHandle: string
   artistIsVerified: boolean
+  isFeed?: boolean
   ordered?: boolean
   uploading?: boolean
   uploadPercent?: number
@@ -88,6 +93,7 @@ export type PlaylistTileProps = TileProps & {
   playTrack: (uid: UID) => void
   disableActions?: boolean
   ordered?: boolean
+  isFeed?: boolean
   uploading?: boolean
   uploadPercent?: number
   ownerId: ID
@@ -119,6 +125,15 @@ export type DesktopTrackTileProps = {
   /** If the track is unlisted/hidden */
   isUnlisted?: boolean
 
+  /** If the track is premium */
+  isPremium?: boolean
+
+  /** Premium conditions if track is premium */
+  premiumConditions?: Nullable<PremiumConditions>
+
+  /** If logged in user has access to track */
+  doesUserHaveAccess?: boolean
+
   /** If track metadata is loading in */
   isLoading?: boolean
 
@@ -142,6 +157,9 @@ export type DesktopTrackTileProps = {
 
   /** The beneath the header is the title, for the track's name */
   title: ReactNode
+
+  /** For updating the duration format based on if the track is a podcast */
+  genre?: Genre
 
   /** The beneath the title is the username, for the track's creator */
   userName: ReactNode
@@ -196,6 +214,15 @@ export type DesktopTrackTileProps = {
 
   /** Whether to show an icon indicating rank in lineup */
   showRankIcon: boolean
+
+  /** The relative link of the track */
+  permalink: string
+
+  /** Whether the tile is for a track */
+  isTrack?: boolean
+
+  /** Track id if track tile */
+  trackId?: ID
 }
 
 export type DesktopPlaylistTileProps = {
@@ -300,6 +327,9 @@ export type DesktopPlaylistTileProps = {
 
   /** Whether to show an icon indicating rank in lineup */
   showRankIcon: boolean
+
+  /** Relative link to playlist page */
+  href: string
 }
 
 export type SkeletonTileProps = {

@@ -7,7 +7,8 @@ import {
   accountSelectors,
   AccountImage,
   InstagramProfile,
-  TwitterProfile
+  TwitterProfile,
+  TikTokProfile
 } from '@audius/common'
 import cn from 'classnames'
 import { animated } from 'react-spring'
@@ -27,10 +28,10 @@ import SignOnModal from 'components/sign-on/SignOnModal'
 import Toast from 'components/toast/Toast'
 import { ComponentPlacement, MountPlacement } from 'components/types'
 import LoadingPage from 'pages/sign-on/components/LoadingPage'
+import ProfilePage from 'pages/sign-on/components/ProfilePage'
 import { EmailPage } from 'pages/sign-on/components/desktop/EmailPage'
 import FollowPage from 'pages/sign-on/components/desktop/FollowPage'
 import PasswordPage from 'pages/sign-on/components/desktop/PasswordPage'
-import ProfilePage from 'pages/sign-on/components/desktop/ProfilePage'
 import { SignInPage } from 'pages/sign-on/components/desktop/SignInPage'
 import StartPlatformPage from 'pages/sign-on/components/desktop/StartPlatformPage'
 import lazyWithPreload from 'utils/lazyWithPreload'
@@ -88,6 +89,12 @@ export type SignOnProps = {
     profileImg?: AccountImage,
     skipEdit?: boolean
   ) => void
+  setTikTokProfile: (
+    uuid: string,
+    profile: TikTokProfile,
+    profileImg?: AccountImage,
+    skipEdit?: boolean
+  ) => void
   validateHandle: (
     handle: string,
     isOauthVerified: boolean,
@@ -105,6 +112,7 @@ export type SignOnProps = {
   onConfigureWithMetaMask: () => void
   recordTwitterStart: () => void
   recordInstagramStart: () => void
+  recordTikTokStart: () => void
   suggestedFollows: User[]
   onSelectArtistCategory: (category: FollowArtistsCategory) => void
   onEmailSubmitted: (email: string) => void
@@ -137,7 +145,7 @@ const animatedStyle = {
  * TODO: When the user selects the metamask option, set the localStorage key 'useMetaMask' to true
  * Reference the setup function in Audius backend. A new instance of Audiusbackend will have to be created
  */
-const SignOnProvider = ({
+const SignOnPage = ({
   title,
   description,
   page,
@@ -157,6 +165,7 @@ const SignOnProvider = ({
   onSetProfileImage,
   setTwitterProfile,
   setInstagramProfile,
+  setTikTokProfile,
   validateHandle,
   onAddFollows,
   onRemoveFollows,
@@ -171,6 +180,7 @@ const SignOnProvider = ({
   suggestedFollows: suggestedFollowEntries,
   recordTwitterStart,
   recordInstagramStart,
+  recordTikTokStart,
   onSelectArtistCategory,
   onEmailSubmitted
 }: SignOnProps) => {
@@ -271,20 +281,22 @@ const SignOnProvider = ({
         }}
       >
         <ProfilePage
-          name={name}
           handle={handle}
           isVerified={verified}
-          twitterId={twitterId}
+          name={name}
           onHandleChange={onHandleChange}
           onNameChange={onNameChange}
-          profileImage={profileImage}
-          setProfileImage={onSetProfileImage}
-          setTwitterProfile={setTwitterProfile}
-          setInstagramProfile={setInstagramProfile}
-          validateHandle={validateHandle}
-          recordTwitterStart={recordTwitterStart}
-          recordInstagramStart={recordInstagramStart}
           onNextPage={onNextPage}
+          profileImage={profileImage}
+          recordInstagramStart={recordInstagramStart}
+          recordTwitterStart={recordTwitterStart}
+          recordTikTokStart={recordTikTokStart}
+          setInstagramProfile={setInstagramProfile}
+          setProfileImage={onSetProfileImage}
+          setTikTokProfile={setTikTokProfile}
+          setTwitterProfile={setTwitterProfile}
+          twitterId={twitterId}
+          validateHandle={validateHandle}
         />
       </animated.div>
     ),
@@ -489,4 +501,4 @@ const SignOnProvider = ({
   )
 }
 
-export default SignOnProvider
+export default SignOnPage

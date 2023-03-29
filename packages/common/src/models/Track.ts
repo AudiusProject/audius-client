@@ -1,5 +1,8 @@
+import { License } from 'utils/creativeCommons'
+
 import { Nullable } from '../utils/typeUtils'
 
+import { Chain } from './Chain'
 import { Favorite } from './Favorite'
 import { CID, ID, UID } from './Identifiers'
 import { CoverArtSizes } from './ImageSizes'
@@ -7,6 +10,8 @@ import { Repost } from './Repost'
 import { StemCategory } from './Stems'
 import { Timestamped } from './Timestamped'
 import { User, UserMetadata } from './User'
+
+type EpochTimeStamp = number
 
 export interface TrackSegment {
   duration: string
@@ -49,6 +54,59 @@ export type RemixOf = {
   tracks: Remix[]
 }
 
+export type TokenStandard = 'ERC721' | 'ERC1155'
+
+export type PremiumConditionsEthNFTCollection = {
+  chain: Chain.Eth
+  standard: TokenStandard
+  address: string
+  name: string
+  slug: string
+  imageUrl: Nullable<string>
+  externalLink: Nullable<string>
+}
+
+export type PremiumConditionsSolNFTCollection = {
+  chain: Chain.Sol
+  address: string
+  name: string
+  imageUrl: Nullable<string>
+  externalLink: Nullable<string>
+}
+
+export type PremiumConditions = {
+  nft_collection?:
+    | PremiumConditionsEthNFTCollection
+    | PremiumConditionsSolNFTCollection
+  follow_user_id?: number
+  tip_user_id?: number
+}
+
+export type PremiumContentSignature = {
+  data: string
+  signature: string
+}
+
+export type EthCollectionMap = {
+  [slug: string]: {
+    name: string
+    address: string
+    standard: TokenStandard
+    img: Nullable<string>
+    externalLink: Nullable<string>
+  }
+}
+
+export type SolCollectionMap = {
+  [mint: string]: {
+    name: string
+    img: Nullable<string>
+    externalLink: Nullable<string>
+  }
+}
+
+export type PremiumTrackStatus = null | 'UNLOCKING' | 'UNLOCKED' | 'LOCKED'
+
 export type TrackMetadata = {
   blocknumber: number
   activity_timestamp?: string
@@ -65,7 +123,7 @@ export type TrackMetadata = {
   has_current_user_reposted: boolean
   has_current_user_saved: boolean
   download: Nullable<Download>
-  license: Nullable<string>
+  license: Nullable<License>
   mood: Nullable<string>
   play_count: number
   owner_id: ID
@@ -79,11 +137,15 @@ export type TrackMetadata = {
   cover_art_sizes: Nullable<CID>
   is_unlisted: boolean
   is_available: boolean
+  is_premium: boolean
+  premium_conditions: Nullable<PremiumConditions>
+  premium_content_signature: Nullable<PremiumContentSignature>
   field_visibility?: FieldVisibility
   listenCount?: number
   permalink: string
 
   // Optional Fields
+  is_playlist_upload?: boolean
   is_invalid?: boolean
   stem_of?: {
     parent_track_id: ID
@@ -94,7 +156,22 @@ export type TrackMetadata = {
   // Added fields
   dateListened?: string
   duration: number
+
+  offline?: OfflineTrackMetadata
 } & Timestamped
+
+export type DownloadReason = {
+  is_from_favorites?: boolean
+  collection_id: ID | string
+}
+
+// This is available on mobile for offline tracks
+export type OfflineTrackMetadata = {
+  reasons_for_download: DownloadReason[]
+  download_completed_time?: EpochTimeStamp
+  last_verified_time?: EpochTimeStamp
+  favorite_created_at?: string
+}
 
 export type Stem = {
   track_id: ID
@@ -141,3 +218,5 @@ export type StemUserTrack = UserTrack & Required<Pick<Track, 'stem_of'>>
 // Track with known non-optional remix parent
 export type RemixTrack = Track & Required<Pick<Track, 'remix_of'>>
 export type RemixUserTrack = UserTrack & Required<Pick<Track, 'remix_of'>>
+
+export type TrackImage = Pick<Track, 'cover_art' | 'cover_art_sizes'>

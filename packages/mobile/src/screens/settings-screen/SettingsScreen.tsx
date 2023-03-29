@@ -3,10 +3,12 @@ import { useCallback } from 'react'
 import { Image, Platform } from 'react-native'
 
 import audiusLogoHorizontal from 'app/assets/images/Horizontal-Logo-Full-Color.png'
-import Bell from 'app/assets/images/emojis/bell.png'
-import Headphone from 'app/assets/images/emojis/headphone.png'
-import SpeechBalloon from 'app/assets/images/emojis/speech-balloon.png'
-import { Screen, ScrollView } from 'app/components/core'
+import IconDownload from 'app/assets/images/iconCloudDownload.svg'
+import IconInfo from 'app/assets/images/iconInfo.svg'
+import IconNotificationOn from 'app/assets/images/iconNotificationOn.svg'
+import IconSettings from 'app/assets/images/iconSettings.svg'
+import { Screen, ScreenContent, ScrollView } from 'app/components/core'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
 import { Theme } from 'app/utils/theme'
@@ -24,8 +26,8 @@ const IS_IOS = Platform.OS === 'ios'
 
 const messages = {
   title: 'Settings',
-  listeningHistory: 'Listening History',
-  notifications: 'Notifications',
+  downloads: 'Download Settings',
+  notifications: 'Configure Notifications',
   about: 'About'
 }
 
@@ -35,58 +37,68 @@ const useStyles = makeStyles(({ spacing, palette, type }) => ({
     height: 85,
     marginVertical: spacing(6),
     alignSelf: 'center',
+    resizeMode: 'contain',
     tintColor: type === Theme.DEFAULT ? undefined : palette.staticWhite
   }
 }))
 
+const IconProps = { height: 28, width: 28, style: { marginRight: 4 } }
+
 export const SettingsScreen = () => {
   const styles = useStyles()
+  const isOfflineDownloadEnabled = useIsOfflineModeEnabled()
 
   const navigation = useNavigation<ProfileTabScreenParamList>()
 
-  const handlePressHistory = useCallback(() => {
-    navigation.push({
-      native: { screen: 'ListeningHistoryScreen' },
-      web: { route: '/history' }
-    })
+  const handlePressDownloads = useCallback(() => {
+    navigation.push('DownloadSettingsScreen')
   }, [navigation])
 
   const handlePressNotifications = useCallback(() => {
-    navigation.push({
-      native: { screen: 'NotificationSettingsScreen' },
-      web: { route: '/settings/notifications' }
-    })
+    navigation.push('NotificationSettingsScreen')
   }, [navigation])
 
   const handlePressAbout = useCallback(() => {
-    navigation.push({
-      native: { screen: 'AboutScreen' },
-      web: { route: '/settings/about' }
-    })
+    navigation.push('AboutScreen')
   }, [navigation])
 
   return (
-    <Screen title={messages.title} topbarRight={null} variant='secondary'>
-      <ScrollView>
-        <Image source={audiusLogoHorizontal} style={styles.logo} />
-        <AccountSettingsRow />
-        <SettingsRow onPress={handlePressHistory}>
-          <SettingsRowLabel
-            label={messages.listeningHistory}
-            iconSource={Headphone}
-          />
-        </SettingsRow>
-        <Divider />
-        <SettingsRow onPress={handlePressNotifications}>
-          <SettingsRowLabel label={messages.notifications} iconSource={Bell} />
-        </SettingsRow>
-        <AppearanceSettingsRow />
-        {IS_IOS ? <CastSettingsRow /> : null}
-        <Divider />
-        <SettingsRow onPress={handlePressAbout}>
-          <SettingsRowLabel label={messages.about} iconSource={SpeechBalloon} />
-        </SettingsRow>
-      </ScrollView>
+    <Screen
+      variant='secondary'
+      title={messages.title}
+      icon={IconSettings}
+      IconProps={IconProps}
+      url='/settings'
+      topbarRight={null}
+    >
+      <ScreenContent isOfflineCapable>
+        <ScrollView>
+          <Image source={audiusLogoHorizontal} style={styles.logo} />
+          <AccountSettingsRow />
+          <Divider />
+          {isOfflineDownloadEnabled ? (
+            <SettingsRow onPress={handlePressDownloads}>
+              <SettingsRowLabel
+                label={messages.downloads}
+                icon={IconDownload}
+              />
+            </SettingsRow>
+          ) : null}
+          <SettingsRow onPress={handlePressNotifications}>
+            <SettingsRowLabel
+              label={messages.notifications}
+              icon={IconNotificationOn}
+            />
+          </SettingsRow>
+          <AppearanceSettingsRow />
+          {IS_IOS ? <CastSettingsRow /> : null}
+          <Divider />
+          <SettingsRow onPress={handlePressAbout}>
+            <SettingsRowLabel label={messages.about} icon={IconInfo} />
+          </SettingsRow>
+          <Divider />
+        </ScrollView>
+      </ScreenContent>
     </Screen>
   )
 }

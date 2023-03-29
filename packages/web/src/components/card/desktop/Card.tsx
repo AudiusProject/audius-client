@@ -1,4 +1,13 @@
-import { MouseEvent, useState, useEffect, useCallback, ReactNode } from 'react'
+import React, {
+  MouseEvent,
+  useState,
+  useEffect,
+  useCallback,
+  ReactNode,
+  useRef,
+  MouseEventHandler,
+  Ref
+} from 'react'
 
 import {
   ID,
@@ -20,6 +29,7 @@ import RepostFavoritesStats, {
 import UserBadges from 'components/user-badges/UserBadges'
 import { useCollectionCoverArt } from 'hooks/useCollectionCoverArt'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
+import { isDescendantElementOf } from 'utils/domUtils'
 
 import styles from './Card.module.css'
 
@@ -47,7 +57,7 @@ const cardSizeStyles = {
 type CardProps = {
   className?: string
   id: ID
-  userId: ID
+  userId?: ID
   imageSize: ProfilePictureSizes | CoverArtSizes | null
   primaryText: ReactNode
   secondaryText: ReactNode
@@ -66,14 +76,14 @@ type CardProps = {
   size: 'small' | 'medium' | 'large'
   menu?: MenuOptionType
   // For wrapping draggable
-  link?: string
+  href?: string
   // Socials
   reposts?: number
   favorites?: number
   onClickReposts?: () => void
   onClickFavorites?: () => void
   trackCount?: number
-  onClick: () => void
+  onClick: (e: MouseEvent) => void
 }
 
 const UserImage = (props: {
@@ -145,11 +155,23 @@ const Card = ({
   trackCount,
   onClickReposts,
   onClickFavorites,
-  onClick
+  onClick,
+  href
 }: CardProps) => {
   // The card is considered `setDidLoad` (and calls it) if the artwork has loaded and its
   // parent is no longer telling it that it is loading. This allows ordered loading.
   const [artworkLoaded, setArtworkLoaded] = useState(false)
+
+  const menuActionsRef = useRef<HTMLDivElement>(null)
+  const handleClick: MouseEventHandler<HTMLAnchorElement> = useCallback(
+    (e) => {
+      e.preventDefault()
+      if (isDescendantElementOf(e?.target, menuActionsRef.current)) return
+      onClick(e)
+    },
+    [menuActionsRef, onClick]
+  )
+
   useEffect(() => {
     if (artworkLoaded && setDidLoad) {
       setDidLoad(index!)
@@ -160,18 +182,12 @@ const Card = ({
     setArtworkLoaded(true)
   }, [setArtworkLoaded])
 
-  const onBottomActionsClick = (e: MouseEvent) => {
-    e.stopPropagation()
-  }
   const sizeStyles = cardSizeStyles[size]
 
   let bottomActions = null
   if (menu && (size === 'large' || size === 'medium')) {
     bottomActions = (
-      <div
-        className={sizeStyles.actionsContainer}
-        onClick={onBottomActionsClick}
-      >
+      <div className={sizeStyles.actionsContainer} ref={menuActionsRef}>
         <ActionsTab
           handle={handle}
           standalone
@@ -189,12 +205,12 @@ const Card = ({
     )
   } else if (menu && size === 'small') {
     bottomActions = (
-      <div
-        className={sizeStyles.actionsContainer}
-        onClick={onBottomActionsClick}
-      >
+      <div className={sizeStyles.actionsContainer} ref={menuActionsRef}>
         <Menu menu={menu}>
-          {(ref, triggerPopup) => (
+          {(
+            ref: Ref<SVGSVGElement>,
+            triggerPopup: MouseEventHandler<HTMLDivElement>
+          ) => (
             <div className={styles.iconContainer} onClick={triggerPopup}>
               <IconKebabHorizontal
                 className={styles.iconKebabHorizontal}
@@ -210,9 +226,10 @@ const Card = ({
   const showRepostFavoriteStats =
     !isUser && reposts && favorites && onClickReposts && onClickFavorites
   return (
-    <div
+    <a
       className={cn(className, styles.cardContainer, sizeStyles.cardContainer)}
-      onClick={onClick}
+      href={href}
+      onClick={handleClick}
     >
       <div
         className={cn(styles.coverArt, sizeStyles.coverArt, {
@@ -239,11 +256,13 @@ const Card = ({
         <div className={styles.primaryText}>{primaryText}</div>
         <div className={styles.secondaryText}>
           <div className={styles.secondaryTextContent}>{secondaryText}</div>
-          <UserBadges
-            userId={userId}
-            badgeSize={12}
-            className={styles.iconVerified}
-          />
+          {userId ? (
+            <UserBadges
+              userId={userId}
+              badgeSize={12}
+              className={styles.iconVerified}
+            />
+          ) : null}
         </div>
         {showRepostFavoriteStats ? (
           <div className={styles.stats}>
@@ -265,7 +284,7 @@ const Card = ({
         ) : null}
       </div>
       {bottomActions}
-    </div>
+    </a>
   )
 }
 

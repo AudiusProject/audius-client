@@ -1,22 +1,40 @@
 import { useCallback, useState, useEffect, MouseEvent } from 'react'
 
-import { ID, formatCount, formatSeconds } from '@audius/common'
+import {
+  ID,
+  formatCount,
+  PremiumConditions,
+  Nullable,
+  premiumContentSelectors,
+  premiumContentActions,
+  FeatureFlags,
+  formatLineupTileDuration,
+  Genre
+} from '@audius/common'
 import { IconCrown, IconHidden, IconTrending } from '@audius/stems'
 import cn from 'classnames'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconStar } from 'assets/img/iconStar.svg'
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
+import { useModalState } from 'common/hooks/useModalState'
 import FavoriteButton from 'components/alt-button/FavoriteButton'
 import RepostButton from 'components/alt-button/RepostButton'
 import Skeleton from 'components/skeleton/Skeleton'
+import { PremiumContentLabel } from 'components/track/PremiumContentLabel'
 import { TrackTileProps } from 'components/track/types'
 import UserBadges from 'components/user-badges/UserBadges'
+import { useFlag } from 'hooks/useRemoteConfig'
+import { profilePage } from 'utils/route'
 
 import TrackBannerIcon, { TrackBannerIconType } from '../TrackBannerIcon'
 
 import BottomButtons from './BottomButtons'
 import styles from './TrackTile.module.css'
 import TrackTileArt from './TrackTileArt'
+
+const { setLockedContentId } = premiumContentActions
+const { getPremiumTrackStatusMap } = premiumContentSelectors
 
 const messages = {
   artistPick: "Artist's Pick",
@@ -28,6 +46,7 @@ const messages = {
 }
 
 type ExtraProps = {
+  permalink: string
   goToTrackPage: (e: MouseEvent<HTMLElement>) => void
   goToArtistPage: (e: MouseEvent<HTMLElement>) => void
   toggleSave: (trackId: ID) => void
@@ -38,6 +57,9 @@ type ExtraProps = {
   isOwner: boolean
   darkMode: boolean
   isMatrix: boolean
+  isPremium: boolean
+  premiumConditions: Nullable<PremiumConditions>
+  doesUserHaveAccess: boolean
 }
 
 const formatListenCount = (listenCount?: number) => {
@@ -83,6 +105,7 @@ export const RankIcon = ({
 const TrackTile = (props: TrackTileProps & ExtraProps) => {
   const {
     id,
+    uid,
     index,
     showSkeleton,
     hasLoaded,
@@ -90,13 +113,27 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
     toggleRepost,
     onShare,
     onClickOverflow,
+    togglePlay,
     coSign,
     darkMode,
     isMatrix,
     userId,
+    isOwner,
+    isUnlisted,
+    isLoading,
+    isPremium,
+    premiumConditions,
+    doesUserHaveAccess,
     isTrending,
-    showRankIcon
+    showRankIcon,
+    permalink,
+    artistHandle,
+    duration,
+    genre
   } = props
+  const { isEnabled: isGatedContentEnabled } = useFlag(
+    FeatureFlags.GATED_CONTENT_ENABLED
+  )
 
   const hideShare: boolean = props.fieldVisibility
     ? props.fieldVisibility.share === false
@@ -104,6 +141,27 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
   const hidePlays = props.fieldVisibility
     ? props.fieldVisibility.play_count === false
     : false
+
+  const dispatch = useDispatch()
+  const [, setModalVisibility] = useModalState('LockedContent')
+  const premiumTrackStatusMap = useSelector(getPremiumTrackStatusMap)
+  const trackId = isPremium ? id : null
+  const premiumTrackStatus = trackId
+    ? premiumTrackStatusMap[trackId]
+    : undefined
+
+  const showPremiumCornerTag =
+    isGatedContentEnabled &&
+    !isLoading &&
+    premiumConditions &&
+    (isOwner || !doesUserHaveAccess)
+  const cornerTagIconType = showPremiumCornerTag
+    ? isOwner
+      ? premiumConditions.nft_collection
+        ? TrackBannerIconType.COLLECTIBLE_GATED
+        : TrackBannerIconType.SPECIAL_ACCESS
+      : TrackBannerIconType.LOCKED
+    : null
 
   const onToggleSave = useCallback(() => toggleSave(id), [toggleSave, id])
 
@@ -128,15 +186,43 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
     [styles.hide]: !artworkLoaded || showSkeleton
   }
 
+  const handleClick = useCallback(() => {
+    if (showSkeleton) return
+
+    if (trackId && !doesUserHaveAccess) {
+      dispatch(setLockedContentId({ id: trackId }))
+      setModalVisibility(true)
+      return
+    }
+
+    togglePlay(uid, id)
+  }, [
+    showSkeleton,
+    togglePlay,
+    uid,
+    id,
+    trackId,
+    doesUserHaveAccess,
+    dispatch,
+    setModalVisibility
+  ])
+
   return (
     <div className={styles.container}>
-      {props.showArtistPick && props.isArtistPick && (
+      {showPremiumCornerTag && cornerTagIconType ? (
+        <TrackBannerIcon
+          type={cornerTagIconType}
+          isMatrixMode={isMatrix}
+          containerClassName={styles.premiumCornerTagContainer}
+        />
+      ) : null}
+      {!showPremiumCornerTag && props.showArtistPick && props.isArtistPick ? (
         <TrackBannerIcon
           type={TrackBannerIconType.STAR}
           isMobile
           isMatrixMode={isMatrix}
         />
-      )}
+      ) : null}
       {props.isUnlisted && (
         <TrackBannerIcon
           type={TrackBannerIconType.HIDDEN}
@@ -144,13 +230,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
           isMatrixMode={isMatrix}
         />
       )}
-      <div
-        className={styles.mainContent}
-        onClick={() => {
-          if (showSkeleton) return
-          props.togglePlay(props.uid, id)
-        }}
-      >
+      <div className={styles.mainContent} onClick={handleClick}>
         <div className={cn(styles.topRight, styles.statText)}>
           {props.showArtistPick && props.isArtistPick && (
             <div className={styles.topRightIcon}>
@@ -158,6 +238,13 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
               {messages.artistPick}
             </div>
           )}
+          {!isLoading && isPremium ? (
+            <PremiumContentLabel
+              premiumConditions={premiumConditions}
+              doesUserHaveAccess={!!doesUserHaveAccess}
+              isOwner={isOwner}
+            />
+          ) : null}
           {props.isUnlisted && (
             <div className={styles.topRightIcon}>
               <IconHidden />
@@ -165,7 +252,12 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
             </div>
           )}
           <div className={cn(styles.duration, fadeIn)}>
-            {props.duration && formatSeconds(props.duration)}
+            {duration
+              ? formatLineupTileDuration(
+                  duration,
+                  genre === Genre.PODCASTS || genre === Genre.AUDIOBOOKS
+                )
+              : null}
           </div>
         </div>
         <div className={styles.metadata}>
@@ -177,6 +269,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
             coverArtSizes={props.coverArtSizes}
             coSign={coSign}
             className={styles.albumArtContainer}
+            label={`${props.title} by ${props.artistName}`}
           />
           <div
             className={cn(styles.titles, {
@@ -184,7 +277,11 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
               [styles.titlesSkeleton]: props.showSkeleton
             })}
           >
-            <div className={styles.title} onClick={props.goToTrackPage}>
+            <a
+              className={styles.title}
+              href={permalink}
+              onClick={props.goToTrackPage}
+            >
               <div className={cn(fadeIn)}>{props.title}</div>
               {props.isPlaying && <IconVolume />}
               {(!artworkLoaded || showSkeleton) && (
@@ -194,8 +291,12 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
                   height='80%'
                 />
               )}
-            </div>
-            <div className={styles.artist} onClick={props.goToArtistPage}>
+            </a>
+            <a
+              className={styles.artist}
+              href={profilePage(artistHandle)}
+              onClick={props.goToArtistPage}
+            >
               <span className={cn(fadeIn, styles.userName)}>
                 {props.artistName}
               </span>
@@ -211,7 +312,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
                   height='80%'
                 />
               )}
-            </div>
+            </a>
           </div>
           {coSign && (
             <div className={styles.coSignLabel}>{messages.coSign}</div>
@@ -293,11 +394,14 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
           toggleSave={onToggleSave}
           onShare={onClickShare}
           onClickOverflow={onClickOverflowMenu}
-          isOwner={props.isOwner}
-          isUnlisted={props.isUnlisted}
+          isOwner={isOwner}
+          isUnlisted={isUnlisted}
+          doesUserHaveAccess={doesUserHaveAccess}
+          premiumTrackStatus={premiumTrackStatus}
           isShareHidden={hideShare}
           isDarkMode={darkMode}
           isMatrixMode={isMatrix}
+          isTrack
         />
       </div>
     </div>

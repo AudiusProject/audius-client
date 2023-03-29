@@ -58,18 +58,11 @@ const EditTrackModal = ({
   }
 
   const updateTrack = (field, value, invalid) => {
-    if (invalid) {
-      setInvalidFields((oldInvalidFields) => ({
-        ...oldInvalidFields,
-        [field]: true
-      }))
-    } else {
-      setInvalidFields((oldInvalidFields) => ({
-        ...oldInvalidFields,
-        [field]: false
-      }))
-      setFormFields((oldFields) => ({ ...oldFields, [field]: value }))
-    }
+    setInvalidFields((oldInvalidFields) => ({
+      ...oldInvalidFields,
+      [field]: invalid
+    }))
+    setFormFields((oldFields) => ({ ...oldFields, [field]: value }))
   }
 
   const validateFormFields = (formFields) => {
@@ -122,6 +115,8 @@ const EditTrackModal = ({
           onDeleteStem={onDeleteStem}
           onAddStems={onAddStems}
           onSelectStemCategory={onSelectStemCategory}
+          isUpload={false}
+          initialForm={initialForm}
           showUnlistedToggle={showUnlistedToggle}
           showHideTrackSectionInModal={false}
           onOpenArtworkPopup={onOpenArtworkPopup}

@@ -1,22 +1,22 @@
 import React from 'react'
 
+import { Maybe, Nullable } from '@audius/common'
 import { TooltipPlacement } from 'antd/lib/tooltip'
+
+import { ThemeColor } from 'utils/theme/theme'
 
 export type TooltipProps = {
   children: React.ReactNode
-  // Background color can be changed by overriding
-  // `--tooltip-background-color` CSS variable
   className?: string
   // Color from theme
-  // Use getThemeColors to pass in a theme color
-  color?: string
+  color?: ThemeColor
   // determines if it should display.
   disabled?: boolean
   // Where the tooltip gets mounted.
   mount?: 'parent' | 'page' | 'body'
   // Whether the tooltip should have a custom container/mount.
   // Takes precedence over `mount`
-  getPopupContainer?: () => React.ReactNode
+  getPopupContainer?: () => Maybe<Nullable<ParentNode>>
   mouseEnterDelay?: number
   mouseLeaveDelay?: number
   placement?: TooltipPlacement

@@ -10,7 +10,8 @@ import {
   accountSelectors,
   ExploreCollectionsVariant,
   themeSelectors,
-  themeActions
+  themeActions,
+  UploadType
 } from '@audius/common'
 import cn from 'classnames'
 import { connect } from 'react-redux'
@@ -27,7 +28,7 @@ import {
 import { getStatus as getSignOnStatus } from 'common/store/pages/signon/selectors'
 import { Pages as SignOnPages } from 'common/store/pages/signon/types'
 import AppRedirectListener from 'components/app-redirect-popover/AppRedirectListener'
-import AppRedirectPopover from 'components/app-redirect-popover/components/AppRedirectPopover'
+import { AppRedirectPopover } from 'components/app-redirect-popover/components/AppRedirectPopover'
 import MobileDesktopBanner from 'components/banner/CTABanner'
 import UpdateAppBanner from 'components/banner/UpdateAppBanner'
 import Web3ErrorBanner from 'components/banner/Web3ErrorBanner'
@@ -41,7 +42,6 @@ import Navigator from 'components/nav/Navigator'
 import { NotificationPage } from 'components/notification'
 import PinnedTrackConfirmation from 'components/pin-track-confirmation/PinTrackConfirmation'
 import PlayBarProvider from 'components/play-bar/PlayBarProvider'
-import ConnectedReachabilityBar from 'components/reachability-bar/ReachabilityBar'
 import { RewardClaimedToast } from 'components/reward-claimed-toast/RewardClaimedToast'
 import DesktopRoute from 'components/routes/DesktopRoute'
 import MobileRoute from 'components/routes/MobileRoute'
@@ -49,6 +49,7 @@ import TrendingGenreSelectionPage from 'components/trending-genre-selection/Tren
 import AnnouncementPage from 'pages/announcement-page/AnnoucementPage'
 import ArtistDashboardPage from 'pages/artist-dashboard-page/ArtistDashboardPage'
 import { AudioRewardsPage } from 'pages/audio-rewards-page/AudioRewardsPage'
+import { AudioTransactionsPage } from 'pages/audio-transactions-page'
 import CheckPage from 'pages/check-page/CheckPage'
 import CollectionPage from 'pages/collection-page/CollectionPage'
 import EmptyPage from 'pages/empty-page/EmptyPage'
@@ -68,9 +69,7 @@ import TrackPage from 'pages/track-page/TrackPage'
 import TrendingPage from 'pages/trending-page/TrendingPage'
 import TrendingPlaylistsPage from 'pages/trending-playlists/TrendingPlaylistPage'
 import TrendingUndergroundPage from 'pages/trending-underground/TrendingUndergroundPage'
-import UploadType from 'pages/upload-page/components/uploadType'
 import Visualizer from 'pages/visualizer/Visualizer'
-import { ThemeChangeMessage } from 'services/native-mobile-interface/theme'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { initializeSentry } from 'services/sentry'
 import { setVisibility as setAppModalCTAVisibility } from 'store/application/ui/app-cta-modal/slice'
@@ -101,6 +100,7 @@ import {
   HISTORY_PAGE,
   DASHBOARD_PAGE,
   AUDIO_PAGE,
+  AUDIO_TRANSACTIONS_PAGE,
   UPLOAD_PAGE,
   UPLOAD_ALBUM_PAGE,
   UPLOAD_PLAYLIST_PAGE,
@@ -148,7 +148,8 @@ import {
   DEACTIVATE_PAGE,
   SUPPORTING_USERS_ROUTE,
   TOP_SUPPORTERS_USERS_ROUTE,
-  publicSiteRoutes
+  publicSiteRoutes,
+  CHAT_PAGE
 } from 'utils/route'
 import { getTheme as getSystemTheme } from 'utils/theme/theme'
 
@@ -158,6 +159,7 @@ import TopLevelPage from '../components/nav/mobile/TopLevelPage'
 import Notice from '../components/notice/Notice'
 
 import styles from './App.module.css'
+import { ChatPage } from './chat-page'
 import { CollectiblesPlaylistPage } from './collectibles-playlist-page'
 import { DeactivateAccountPage } from './deactivate-account-page/DeactivateAccountPage'
 import ExploreCollectionsPage from './explore-page/ExploreCollectionsPage'
@@ -168,16 +170,12 @@ import { SubPage } from './settings-page/components/mobile/SettingsPage'
 import SmartCollectionPage from './smart-collection/SmartCollectionPage'
 import SupportingPage from './supporting-page/SupportingPage'
 import TopSupportersPage from './top-supporters-page/TopSupportersPage'
+
 const { setTheme } = themeActions
 const { getTheme } = themeSelectors
 
-const {
-  getHasAccount,
-  getAccountStatus,
-  getUserId,
-  getConnectivityFailure,
-  getUserHandle
-} = accountSelectors
+const { getHasAccount, getAccountStatus, getUserId, getUserHandle } =
+  accountSelectors
 
 const MOBILE_BANNER_LOCAL_STORAGE_KEY = 'dismissMobileAppBanner'
 
@@ -193,7 +191,6 @@ const ConnectedMusicConfetti = lazyWithPreload(
   0
 )
 
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 export const MAIN_CONTENT_ID = 'mainContent'
 
 const includeSearch = (search) => {
@@ -209,10 +206,13 @@ class App extends Component {
     showCTABanner: false,
     showWeb3ErrorBanner: null,
 
-    showUpdateAppBanner: false,
+    // A patch version update of the web app is available
     showWebUpdateBanner: false,
-    showRequiresUpdate: false,
+    // A version update of the web app is required
     showRequiresWebUpdate: false,
+    // A minor version update of the entire electron app is required
+    showRequiresUpdate: false,
+
     isUpdating: false,
 
     initialPage: true,
@@ -255,7 +255,6 @@ class App extends Component {
       // We downloaded an update, the user can safely restart
       this.ipc.on('updateDownloaded', (event, arg) => {
         console.info('updateDownload', event, arg)
-        this.setState({ showUpdateAppBanner: true })
       })
 
       this.ipc.on('updateDownloadProgress', (event, arg) => {
@@ -278,7 +277,7 @@ class App extends Component {
         if (semver.lt(currentVersion, minAppVersion)) {
           this.setState({ showRequiresWebUpdate: true })
         } else {
-          this.setState({ showWebUpdate: true })
+          this.setState({ showWebUpdateBanner: true })
         }
       })
 
@@ -354,9 +353,7 @@ class App extends Component {
       if (prevProps.accountStatus === Status.LOADING) {
         this.pushWithToken(TRENDING_PAGE)
         // If native mobile, a saga watches for fetch account failure to push route
-        if (!NATIVE_MOBILE) {
-          this.props.openSignOn(true, SignOnPages.SIGNIN)
-        }
+        this.props.openSignOn(true, SignOnPages.SIGNIN)
         this.props.updateRouteOnSignUpCompletion(this.state.entryRoute)
       } else {
         this.pushWithToken(TRENDING_PAGE)
@@ -382,13 +379,6 @@ class App extends Component {
       setImmediate(this.props.setReady)
     }
 
-    if (
-      prevProps.firstLoadConnectivityFailure !==
-      this.props.firstLoadConnectivityFailure
-    ) {
-      this.props.setConnectivityFailure(this.props.firstLoadConnectivityFailure)
-    }
-
     if (prevProps.theme !== this.props.theme) {
       this.handleTheme()
     }
@@ -410,15 +400,6 @@ class App extends Component {
     if (this.props.theme === null) {
       this.props.setTheme(getSystemTheme() || Theme.DEFAULT)
     }
-
-    // If we're on native mobile, dispatch
-    // a message to the native layer so it can properly
-    // set it's status bar color.
-    if (NATIVE_MOBILE) {
-      const theme = this.props.theme || Theme.DEFAULT
-      const themeMessage = new ThemeChangeMessage(theme)
-      themeMessage.send()
-    }
   }
 
   pushWithToken = (route) => {
@@ -437,9 +418,6 @@ class App extends Component {
   }
 
   acceptUpdateApp = () => {
-    if (this.state.showUpdateAppBanner) {
-      this.dismissUpdateAppBanner()
-    }
     this.setState({ isUpdating: true })
     this.ipc.send('update')
   }
@@ -452,10 +430,6 @@ class App extends Component {
     }
     this.setState({ isUpdating: true })
     this.ipc.send('web-update')
-  }
-
-  dismissUpdateAppBanner = () => {
-    this.setState({ showUpdateAppBanner: false })
   }
 
   dismissUpdateWebAppBanner = () => {
@@ -487,8 +461,7 @@ class App extends Component {
 
     const {
       showCTABanner,
-      showUpdateAppBanner,
-      showWebUpdate,
+      showWebUpdateBanner,
       showWeb3ErrorBanner,
       isUpdating,
       showRequiresUpdate,
@@ -517,7 +490,7 @@ class App extends Component {
       )
 
     const showBanner =
-      showCTABanner || showUpdateAppBanner || showWeb3ErrorBanner
+      showCTABanner || showWeb3ErrorBanner || showWebUpdateBanner
     if (this.headerGutterRef.current) {
       if (showBanner) {
         this.headerGutterRef.current.classList.add(styles.bannerMargin)
@@ -531,6 +504,7 @@ class App extends Component {
     }
 
     const SwitchComponent = isMobile() ? AnimatedSwitch : Switch
+    const noScroll = matchPath(this.state.currentRoute, CHAT_PAGE)
 
     return (
       <div className={cn(styles.app, { [styles.mobileApp]: isMobileClient })}>
@@ -540,12 +514,6 @@ class App extends Component {
             onAccept={this.showDownloadAppModal}
           />
         ) : null}
-        {showUpdateAppBanner ? (
-          <UpdateAppBanner
-            onClose={this.dismissUpdateAppBanner}
-            onAccept={this.acceptUpdateApp}
-          />
-        ) : null}
         {showWeb3ErrorBanner ? (
           <Web3ErrorBanner
             alert
@@ -553,7 +521,7 @@ class App extends Component {
             onClose={this.dismissWeb3ErrorBanner}
           />
         ) : null}
-        {showWebUpdate ? (
+        {showWebUpdateBanner ? (
           <UpdateAppBanner
             onAccept={this.acceptWebUpdate}
             onClose={this.dismissUpdateWebAppBanner}
@@ -573,7 +541,8 @@ class App extends Component {
           role='main'
           className={cn(styles.mainContentWrapper, {
             [styles.bannerMargin]: showBanner,
-            [styles.mainContentWrapperMobile]: isMobileClient
+            [styles.mainContentWrapperMobile]: isMobileClient,
+            [styles.noScroll]: noScroll
           })}
         >
           {isMobileClient && <TopLevelPage />}
@@ -810,6 +779,18 @@ class App extends Component {
               />
               <Route
                 exact
+                path={AUDIO_TRANSACTIONS_PAGE}
+                isMobile={isMobileClient}
+                component={AudioTransactionsPage}
+              />
+              <Route
+                exact
+                path={CHAT_PAGE}
+                isMobile={isMobileClient}
+                component={ChatPage}
+              />
+              <Route
+                exact
                 path={DEACTIVATE_PAGE}
                 isMobile={isMobileClient}
                 component={DeactivateAccountPage}
@@ -1007,23 +988,21 @@ class App extends Component {
         }
 
         {/* Non-mobile */}
-        {!isMobileClient && <Konami />}
-        {!isMobileClient && <ConfirmerPreview />}
-        {!isMobileClient && <DiscoveryNodeSelection />}
-        {!isMobileClient && <Visualizer />}
-        {!isMobileClient && <PinnedTrackConfirmation />}
-        {!isMobileClient && <DevModeMananger />}
+        {!isMobileClient ? <Konami /> : null}
+        {!isMobileClient ? <ConfirmerPreview /> : null}
+        {!isMobileClient ? <DiscoveryNodeSelection /> : null}
+        {!isMobileClient ? <Visualizer /> : null}
+        {!isMobileClient ? <PinnedTrackConfirmation /> : null}
+        {!isMobileClient ? <DevModeMananger /> : null}
 
         {/* Mobile-only */}
-        {isMobileClient && <ConnectedReachabilityBar />}
-
-        {shouldShowPopover && isMobileClient && !NATIVE_MOBILE && (
+        {isMobileClient && shouldShowPopover ? (
           <AppRedirectPopover
             enablePopover={isReady}
             incrementScroll={incrementScroll}
             decrementScroll={decrementScroll}
           />
-        )}
+        ) : null}
       </div>
     )
   }
@@ -1037,12 +1016,11 @@ const mapStateToProps = (state) => ({
   signOnStatus: getSignOnStatus(state),
   web3Error: getWeb3Error(state),
   theme: getTheme(state),
-  showCookieBanner: getShowCookieBanner(state),
-  firstLoadConnectivityFailure: getConnectivityFailure(state)
+  showCookieBanner: getShowCookieBanner(state)
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  setTheme: (theme) => dispatch(setTheme(theme)),
+  setTheme: (theme) => dispatch(setTheme({ theme })),
   updateRouteOnSignUpCompletion: (route) =>
     dispatch(updateRouteOnSignUpCompletion(route)),
   openSignOn: (signIn = true, page = null, fields = {}) =>

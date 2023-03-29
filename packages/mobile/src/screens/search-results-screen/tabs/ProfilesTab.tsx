@@ -1,25 +1,38 @@
-import { searchResultsPageSelectors } from '@audius/common'
+import type { CommonState } from '@audius/common'
+import {
+  Status,
+  searchResultsPageSelectors,
+  SearchKind,
+  useProxySelector
+} from '@audius/common'
 
-import { ArtistCard } from 'app/components/artist-card'
-import { CardList } from 'app/components/core'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { ProfileList } from 'app/components/profile-list'
 
-import { SearchResultsTab } from './SearchResultsTab'
-const { makeGetSearchArtists } = searchResultsPageSelectors
+import { EmptyResults } from '../EmptyResults'
 
-const getSearchUsers = makeGetSearchArtists()
+import { useFetchTabResultsEffect } from './useFetchTabResultsEffect'
+
+const { getSearchStatus } = searchResultsPageSelectors
+
+const selectSearchUsers = (state: CommonState) => {
+  const searchStatus = getSearchStatus(state)
+  if (searchStatus === Status.LOADING) return undefined
+
+  return state.pages.searchResults.artistIds
+    ?.map((artistId) => state.users.entries[artistId].metadata)
+    .filter((artist) => !artist.is_deactivated)
+}
 
 export const ProfilesTab = () => {
-  const users = useSelectorWeb(getSearchUsers)
+  const users = useProxySelector(selectSearchUsers, [])
+
+  useFetchTabResultsEffect(SearchKind.USERS)
 
   return (
-    <SearchResultsTab noResults={users.length === 0}>
-      <CardList
-        data={users}
-        renderItem={({ item }) => (
-          <ArtistCard artist={item} fromPage='search' />
-        )}
-      />
-    </SearchResultsTab>
+    <ProfileList
+      isLoading={!users}
+      profiles={users}
+      ListEmptyComponent={<EmptyResults />}
+    />
   )
 }

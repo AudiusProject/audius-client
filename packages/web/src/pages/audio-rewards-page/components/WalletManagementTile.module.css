@@ -99,42 +99,28 @@
   align-self: flex-start;
 }
 
-.toggleCollapsedButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: var(--font-bold);
-  font-size: var(--font-s);
-  color: var(--neutral-light-4);
-  padding: 8px 24px;
-  gap: 5px;
-}
-.toggleCollapsedButton:hover {
-  cursor: pointer;
-}
-.toggleCollapsedButton:hover span {
-  color: var(--secondary);
-  transition: color 0.07s ease-out;
-}
-.toggleCollapsedButton:hover svg path {
-  fill: var(--secondary);
-  transition: fill 0.07s ease-out;
-}
-
-.advancedToggle {
-  width: 100%;
+.toggle {
   border-top: 1px solid var(--neutral-light-8);
+}
+.toggle .advancedToggle {
   padding-top: 20px;
 }
 
-.advancedSection {
+.moreOptions {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  padding-top: 16px;
+  padding: 24px;
+  gap: 24px;
+  border-bottom: 1px solid var(--neutral-light-8);
+}
+.moreOptionsSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
   gap: 16px;
-  border-top: 1px solid var(--neutral-light-8);
 }
 .advancedOptions {
   display: flex;
@@ -157,4 +143,32 @@
 .advancedButton.disabled {
   opacity: 0.5;
   background-color: hsla(0, 0%, 100%, 0.1);
+}
+
+.onRampButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.onRampButtons > div {
+  flex: 1;
+}
+.onRampButtonTooltipContainer,
+.onRampButton {
+  width: 100%;
+}
+.onRampButtons > div:only-child > .onRampButton {
+  transition: all 120ms ease-in-out !important;
+}
+
+.manageWalletsButton:hover,
+div > .onRampButton:not(:disabled):hover:not(:active) {
+  transform: perspective(1px) scale3d(1.01, 1.01, 1.01);
+}
+
+.tooltip :global(.ant-tooltip-inner) {
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: var(--font-m);
+  font-weight: var(--font-demi-bold);
 }

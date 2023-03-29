@@ -1,28 +1,26 @@
 import {
-  accountActions,
   reachabilityActions,
   reachabilitySelectors,
-  getContext
+  getContext,
+  accountActions
 } from '@audius/common'
 import {
   put,
   all,
-  delay,
   take,
   takeEvery,
   select,
   call,
-  race
+  race,
+  delay
 } from 'typed-redux-saga'
 
-import { RequestNetworkConnected } from 'services/native-mobile-interface/lifecycle'
+import { REACHABILITY_LONG_TIMEOUT } from 'store/reachability/sagas'
 
 import * as backendActions from './actions'
 import { watchBackendErrors } from './errorSagas'
+import { getIsSettingUp, getIsSetup } from './selectors'
 const { getIsReachable } = reachabilitySelectors
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
-
-const REACHABILITY_TIMEOUT_MS = 8 * 1000
 
 /**
  * Waits for the backend to be setup. Can be used as a blocking call in another saga,
@@ -47,40 +45,40 @@ export function* waitForBackendSetup() {
   }
 }
 
-function* awaitReachability() {
-  if (!NATIVE_MOBILE) return true
-  // Request network connection information.
-  // If we don't ask the native layer for it, it's possible that we never receive
-  // and update.
-  const message = new RequestNetworkConnected()
-  message.send()
-
+// This is specific to setupBackend. See utils in reachability sagas for general use
+export function* awaitReachability() {
+  const isNativeMobile = yield* getContext('isNativeMobile')
+  const isReachable = yield* select(getIsReachable)
+  if (isReachable || !isNativeMobile) return true
   const { action } = yield* race({
     action: take(reachabilityActions.SET_REACHABLE),
-    delay: delay(REACHABILITY_TIMEOUT_MS)
+    delay: delay(REACHABILITY_LONG_TIMEOUT)
   })
-
   return !!action
 }
 
 export function* setupBackend() {
-  const establishedReachability = yield* call(awaitReachability)
+  // Optimistically fetch account, then do it again later when we're sure we're connected
+  // This ensures we always get the cached account when starting offline if available
+  yield* put(accountActions.fetchLocalAccount())
 
+  // Init APICLient
+  const apiClient = yield* getContext('apiClient')
+  apiClient.init()
+
+  const establishedReachability = yield* call(awaitReachability)
   // If we couldn't connect, show the error page
   // and just sit here waiting for reachability.
   if (!establishedReachability) {
-    console.error('No internet connectivity')
+    console.warn('No internet connectivity')
     yield* put(accountActions.fetchAccountNoInternet())
     yield* take(reachabilityActions.SET_REACHABLE)
     console.info('Reconnected')
   }
 
-  const apiClient = yield* getContext('apiClient')
   const fingerprintClient = yield* getContext('fingerprintClient')
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
 
-  // Init APICLient
-  apiClient.init()
   // Fire-and-forget init fp
   fingerprintClient.init()
   yield* put(accountActions.fetchAccount())
@@ -91,6 +89,11 @@ export function* setupBackend() {
     yield* put(backendActions.libsError(libsError))
     return
   }
+  const isReachable = yield* select(getIsReachable)
+  // Bail out before success if we are now offline
+  // This happens when we started the app with the device offline because
+  // we optimistically assume the device is connected to optimize for the "happy path"
+  if (!isReachable) return
   yield* put(backendActions.setupBackendSucceeded(web3Error))
 }
 
@@ -98,6 +101,24 @@ function* watchSetupBackend() {
   yield* takeEvery(backendActions.SETUP, setupBackend)
 }
 
+// If not fully set up, re set-up the backend
+export function* setupBackendIfNotSetUp() {
+  const isSetup = yield* select(getIsSetup)
+  const isSettingUp = yield* select(getIsSettingUp)
+  if (!isSetup && !isSettingUp) {
+    // Try to set up again, which should block further actions until completed
+    yield* put(backendActions.setupBackend())
+  }
+}
+
+function* watchSetReachable() {
+  yield* takeEvery(reachabilityActions.SET_REACHABLE, setupBackendIfNotSetUp)
+}
+
+function* init() {
+  yield* put(backendActions.setupBackend())
+}
+
 export default function sagas() {
-  return [watchSetupBackend, watchBackendErrors]
+  return [init, watchSetupBackend, watchBackendErrors, watchSetReachable]
 }

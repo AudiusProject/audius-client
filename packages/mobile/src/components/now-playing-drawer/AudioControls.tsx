@@ -1,70 +1,93 @@
 import { useCallback } from 'react'
 
-import { queueActions, RepeatMode } from '@audius/common'
-import { getRepeat, getShuffle } from 'common/store/queue/selectors'
-import { Animated, View, StyleSheet } from 'react-native'
+import {
+  FeatureFlags,
+  modalsActions,
+  queueActions,
+  queueSelectors,
+  RepeatMode
+} from '@audius/common'
+import { Animated, View } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconNext from 'app/assets/images/iconNext.svg'
 import IconPodcastBack from 'app/assets/images/iconPodcastBack.svg'
 import IconPodcastForward from 'app/assets/images/iconPodcastForward.svg'
 import IconPrev from 'app/assets/images/iconPrev.svg'
 import { IconButton } from 'app/components/core'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { usePressScaleAnimation } from 'app/hooks/usePressScaleAnimation'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import type { ThemeColors } from 'app/utils/theme'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+import { makeStyles } from 'app/styles'
 
 import { PlayButton } from './PlayButton'
+import { PlaybackRateButton } from './PlaybackRateButton'
 import { RepeatButton } from './RepeatButton'
 import { ShuffleButton } from './ShuffleButton'
+
+const { setVisibility } = modalsActions
+const { getRepeat, getShuffle } = queueSelectors
 const { shuffle, repeat } = queueActions
 
-const createStyles = (themeColors: ThemeColors) =>
-  StyleSheet.create({
-    container: {
-      marginTop: 40,
-      height: 48,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-evenly'
-    },
-    button: {
-      flexGrow: 1,
-      display: 'flex',
-      alignItems: 'center'
-    },
-    playIcon: {
-      width: 80,
-      height: 80
-    },
-    nextPrevIcons: {
-      width: 30,
-      height: 30
-    },
-    shuffleRepeatIcons: {
-      width: 24,
-      height: 24
-    }
-  })
+const useStyles = makeStyles(({ spacing }) => ({
+  container: {
+    marginTop: spacing(10),
+    height: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly'
+  },
+  button: {
+    flexGrow: 1,
+    display: 'flex',
+    alignItems: 'center'
+  },
+  emptyPlaceholder: {
+    minHeight: 24,
+    minWidth: 24,
+    flexGrow: 1
+  },
+  playbackIconContainer: {
+    height: 24,
+    width: 24,
+    flexGrow: 1,
+    marginTop: spacing(1),
+    alignItems: 'center'
+  },
+  playIcon: {
+    width: 80,
+    height: 80
+  },
+  nextPrevIcons: {
+    width: 30,
+    height: 30
+  },
+  shuffleRepeatIcons: {
+    width: 24,
+    height: 24
+  }
+}))
 
 type AudioControlsProps = {
   onNext: () => void
   onPrevious: () => void
-  isPodcast?: boolean
+  isLongFormContent?: boolean
 }
 
 export const AudioControls = ({
   onNext,
   onPrevious,
-  isPodcast = false
+  isLongFormContent = false
 }: AudioControlsProps) => {
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
 
-  const styles = useThemedStyles(createStyles)
+  const { isEnabled: isNewPodcastControlsEnabled } = useFeatureFlag(
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
+  )
+  const styles = useStyles()
 
-  const shuffleEnabled = useSelectorWeb(getShuffle)
-  const repeatMode = useSelectorWeb(getRepeat)
+  const shuffleEnabled = useSelector(getShuffle)
+  const repeatMode = useSelector(getRepeat)
 
   const {
     scale,
@@ -79,8 +102,8 @@ export const AudioControls = ({
     } else {
       enable = true
     }
-    dispatchWeb(shuffle({ enable }))
-  }, [dispatchWeb, shuffleEnabled])
+    dispatch(shuffle({ enable }))
+  }, [dispatch, shuffleEnabled])
 
   const onPressRepeat = useCallback(() => {
     let mode: RepeatMode
@@ -98,11 +121,17 @@ export const AudioControls = ({
         // To appease ts - shouldn't actually hit this.
         mode = RepeatMode.ALL
     }
-    dispatchWeb(repeat({ mode }))
-  }, [dispatchWeb, repeatMode])
+    dispatch(repeat({ mode }))
+  }, [dispatch, repeatMode])
+
+  const handlePressPlaybackRate = useCallback(() => {
+    dispatch(setVisibility({ modal: 'PlaybackRate', visible: true }))
+  }, [dispatch])
 
   const renderRepeatButton = () => {
-    return (
+    return isLongFormContent && isNewPodcastControlsEnabled ? (
+      <View style={styles.emptyPlaceholder} />
+    ) : (
       <RepeatButton
         onPress={onPressRepeat}
         style={styles.button}
@@ -114,7 +143,7 @@ export const AudioControls = ({
     return (
       <IconButton
         onPress={onPrevious}
-        icon={isPodcast ? IconPodcastBack : IconPrev}
+        icon={isLongFormContent ? IconPodcastBack : IconPrev}
         styles={{ root: styles.button, icon: styles.nextPrevIcons }}
       />
     )
@@ -135,13 +164,20 @@ export const AudioControls = ({
     return (
       <IconButton
         onPress={onNext}
-        icon={isPodcast ? IconPodcastForward : IconNext}
+        icon={isLongFormContent ? IconPodcastForward : IconNext}
         styles={{ root: styles.button, icon: styles.nextPrevIcons }}
       />
     )
   }
-  const renderShuffleButton = () => {
-    return (
+  const renderRightButton = () => {
+    return isLongFormContent && isNewPodcastControlsEnabled ? (
+      <View style={styles.playbackIconContainer}>
+        <PlaybackRateButton
+          onPress={handlePressPlaybackRate}
+          style={styles.button}
+        />
+      </View>
+    ) : (
       <ShuffleButton
         onPress={onPressShuffle}
         style={styles.button}
@@ -155,7 +191,7 @@ export const AudioControls = ({
       {renderPreviousButton()}
       {renderPlayButton()}
       {renderNextButton()}
-      {renderShuffleButton()}
+      {renderRightButton()}
     </View>
   )
 }

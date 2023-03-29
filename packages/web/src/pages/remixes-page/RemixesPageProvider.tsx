@@ -5,21 +5,24 @@ import {
   lineupSelectors,
   remixesPageLineupActions as tracksActions,
   remixesPageActions,
-  remixesPageSelectors
+  remixesPageSelectors,
+  playerSelectors,
+  queueSelectors
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { useParams } from 'react-router'
 import { Dispatch } from 'redux'
 
-import { makeGetCurrent } from 'common/store/queue/selectors'
 import { LineupVariant } from 'components/lineup/types'
-import { getPlaying, getBuffering } from 'store/player/selectors'
 import { AppState } from 'store/types'
 import { profilePage } from 'utils/route'
 
 import { RemixesPageProps as DesktopRemixesPageProps } from './components/desktop/RemixesPage'
 import { RemixesPageProps as MobileRemixesPageProps } from './components/mobile/RemixesPage'
+
+const { makeGetCurrent } = queueSelectors
+const { getPlaying, getBuffering } = playerSelectors
 const { getTrack, getUser, getLineup, getCount } = remixesPageSelectors
 const { fetchTrack, reset } = remixesPageActions
 const { makeGetLineupMetadatas } = lineupSelectors

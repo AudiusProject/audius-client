@@ -1,17 +1,15 @@
-import { Nullable, CommonState, ErrorLevel } from '@audius/common'
+import { chatMiddleware, ErrorLevel } from '@audius/common'
+import { composeWithDevToolsLogOnlyInProduction } from '@redux-devtools/extension'
 import * as Sentry from '@sentry/browser'
 import { routerMiddleware, push as pushRoute } from 'connected-react-router'
-import { debounce, isEmpty, pick, pickBy } from 'lodash'
 import { createStore, applyMiddleware, Action, Store } from 'redux'
-import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction'
 import createSagaMiddleware from 'redux-saga'
 import createSentryMiddleware from 'redux-sentry-middleware'
 
 import { track as amplitudeTrack } from 'services/analytics/amplitude'
-import { postMessage } from 'services/native-mobile-interface/helpers'
-import { MessageType } from 'services/native-mobile-interface/types'
+import { audiusSdk } from 'services/audius-sdk'
 import { reportToSentry } from 'store/errors/reportToSentry'
-import createRootReducer, { commonStoreReducers } from 'store/reducers'
+import createRootReducer from 'store/reducers'
 import rootSaga from 'store/sagas'
 import history from 'utils/history'
 import logger from 'utils/logger'
@@ -26,9 +24,6 @@ declare global {
   }
 }
 
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
-const SYNC_DEBOUNCE_MS = 50
-
 type RootState = ReturnType<typeof store.getState>
 
 const onSagaError = (
@@ -41,18 +36,25 @@ const onSagaError = (
     `Caught saga error: ${error} ${JSON.stringify(errorInfo, null, 4)}`
   )
   store.dispatch(pushRoute(ERROR_PAGE))
+  const additionalInfo = {
+    ...errorInfo,
+    route: window.location.pathname
+  }
 
   reportToSentry({
     level: ErrorLevel.Fatal,
     error,
-    additionalInfo: errorInfo
+    additionalInfo
   })
-  amplitudeTrack(ERROR_PAGE, errorInfo)
+  amplitudeTrack(ERROR_PAGE, additionalInfo)
 }
 
 // Can't send up the entire Redux state b/c it's too fat
 // for Sentry to handle, and there is sensitive data
 const statePruner = (state: AppState) => {
+  const currentProfileHandle = state.pages.profile.currentUser ?? ''
+  const currentProfile = state.pages.profile.entries[currentProfileHandle] ?? {}
+
   return {
     account: {
       status: state.account.status,
@@ -60,12 +62,12 @@ const statePruner = (state: AppState) => {
     },
     pages: {
       profile: {
-        handle: state.pages.profile.handle,
-        status: state.pages.profile.status,
-        updateError: state.pages.profile.updateError,
-        updateSuccess: state.pages.profile.updateSuccess,
-        updating: state.pages.profile.updating,
-        userId: state.pages.profile.userId
+        handle: currentProfile.handle,
+        status: currentProfile.status,
+        updateError: currentProfile.updateError,
+        updateSuccess: currentProfile.updateSuccess,
+        updating: currentProfile.updating,
+        userId: currentProfile.userId
       }
     },
     router: {
@@ -119,76 +121,21 @@ const sagaMiddleware = createSagaMiddleware({
 })
 
 const middlewares = applyMiddleware(
+  chatMiddleware(audiusSdk),
   routerMiddleware(history),
   sagaMiddleware,
   sentryMiddleware
 )
 
-// As long as the mobile client is dependent on the web client, we need to sync
-// the common store from web -> mobile
-const commonStateKeys = Object.keys(commonStoreReducers)
-
-let aggregateStateToSync: Nullable<Partial<CommonState>> = null
-
-const debouncedPostMessage = debounce(
-  () => {
-    if (!isEmpty(aggregateStateToSync)) {
-      postMessage({
-        type: MessageType.SYNC_COMMON_STATE,
-        state: aggregateStateToSync
-      })
-      aggregateStateToSync = null
-    }
-  },
-  SYNC_DEBOUNCE_MS,
-  { leading: true }
-)
-
-const syncCommonStateToNativeMobile = (store: Store) => {
-  if (NATIVE_MOBILE) {
-    let previousState: RootState
-
-    store.subscribe(() => {
-      const state: RootState = store.getState()
-
-      // Sync entire commonState initially
-      if (!previousState) {
-        postMessage({
-          type: MessageType.SYNC_COMMON_STATE,
-          state: pick(state, commonStateKeys)
-        })
-
-        previousState = state
-        return
-      }
-
-      // Subsequently only sync the changed slices
-      const stateToSync = pickBy(
-        state,
-        (value, key) =>
-          commonStateKeys.includes(key) &&
-          value !== previousState[key as keyof RootState]
-      )
-
-      // Aggregate state to sync across debounces
-      aggregateStateToSync = aggregateStateToSync
-        ? { ...aggregateStateToSync, ...stateToSync }
-        : stateToSync
-
-      previousState = state
-
-      debouncedPostMessage()
-    })
-  }
-}
-
 const configureStore = () => {
-  const composeEnhancers = composeWithDevTools({ trace: true, traceLimit: 25 })
+  const composeEnhancers = composeWithDevToolsLogOnlyInProduction({
+    trace: true,
+    traceLimit: 25
+  })
   const store = createStore(
     createRootReducer(history),
     composeEnhancers(middlewares)
   )
-  syncCommonStateToNativeMobile(store)
   sagaMiddleware.run(rootSaga)
   return store
 }

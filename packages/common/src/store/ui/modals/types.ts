@@ -26,5 +26,14 @@ export type Modals =
   | 'DeletePlaylistConfirmation'
   | 'FeatureFlagOverride'
   | 'BuyAudio'
+  | 'BuyAudioRecovery'
+  | 'TransactionDetails'
+  | 'VipDiscord'
+  | 'StripeOnRamp'
+  | 'CreateChat'
+  | 'InboxSettings'
+  | 'LockedContent'
+  | 'PlaybackRate'
+  | 'ProfileActions'
 
 export type ModalsState = { [modal in Modals]: boolean | 'closing' }

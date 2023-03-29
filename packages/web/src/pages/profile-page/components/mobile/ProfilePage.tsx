@@ -1,4 +1,4 @@
-import { useEffect, useContext, ReactNode } from 'react'
+import { useEffect, useContext, MouseEvent, ReactNode } from 'react'
 
 import {
   ID,
@@ -13,7 +13,8 @@ import {
   ProfileUser,
   profilePageTracksLineupActions as tracksActions,
   profilePageFeedLineupActions as feedActions,
-  badgeTiers
+  badgeTiers,
+  useSelectTierInfo
 } from '@audius/common'
 import cn from 'classnames'
 
@@ -33,14 +34,13 @@ import NavContext, {
   LeftPreset,
   CenterPreset
 } from 'components/nav/store/context'
-import NetworkConnectivityMonitor from 'components/network-connectivity/NetworkConnectivityMonitor'
 import PullToRefresh from 'components/pull-to-refresh/PullToRefresh'
 import TierExplainerDrawer from 'components/user-badges/TierExplainerDrawer'
 import useAsyncPoll from 'hooks/useAsyncPoll'
 import useTabs from 'hooks/useTabs/useTabs'
-import { useSelectTierInfo } from 'hooks/wallet'
 import { MIN_COLLECTIBLES_TIER } from 'pages/profile-page/ProfilePageProvider'
-import { albumPage, playlistPage, fullProfilePage } from 'utils/route'
+import { albumPage, playlistPage } from 'utils/route'
+import { getUserPageSEOFields } from 'utils/seo'
 import { withNullGuard } from 'utils/withNullGuard'
 
 import { DeactivatedProfileTombstone } from '../DeactivatedProfileTombstone'
@@ -67,6 +67,7 @@ export type ProfilePageProps = {
   tikTokHandle: string
   twitterVerified?: boolean
   instagramVerified?: boolean
+  tikTokVerified?: boolean
   website: string
   donation: string
   coverPhotoSizes: CoverPhotoSizes | null
@@ -236,6 +237,7 @@ const ProfilePage = g(
     tikTokHandle,
     twitterVerified,
     instagramVerified,
+    tikTokVerified,
     website,
     donation,
     albums,
@@ -358,12 +360,12 @@ const ProfilePage = g(
           name={name}
           bio={bio}
           location={location}
-          isVerified={verified}
           twitterHandle={twitterHandle}
           instagramHandle={instagramHandle}
           tikTokHandle={tikTokHandle}
           twitterVerified={twitterVerified}
           instagramVerified={instagramVerified}
+          tikTokVerified={tikTokVerified}
           website={website}
           donation={donation}
           onUpdateName={updateName}
@@ -389,7 +391,13 @@ const ProfilePage = g(
             playlist.playlist_contents.track_ids.length,
             playlist.is_private
           )}
-          onClick={() =>
+          href={playlistPage(
+            profile.handle,
+            playlist.playlist_name,
+            playlist.playlist_id
+          )}
+          onClick={(e: MouseEvent) => {
+            e.preventDefault()
             goToRoute(
               playlistPage(
                 profile.handle,
@@ -397,7 +405,7 @@ const ProfilePage = g(
                 playlist.playlist_id
               )
             )
-          }
+          }}
         />
       ))
       if (isArtist) {
@@ -412,7 +420,13 @@ const ProfilePage = g(
               album.save_count,
               album.playlist_contents.track_ids.length
             )}
-            onClick={() =>
+            href={albumPage(
+              profile.handle,
+              album.playlist_name,
+              album.playlist_id
+            )}
+            onClick={(e: MouseEvent) => {
+              e.preventDefault()
               goToRoute(
                 albumPage(
                   profile.handle,
@@ -420,7 +434,7 @@ const ProfilePage = g(
                   album.playlist_id
                 )
               )
-            }
+            }}
           />
         ))
 
@@ -441,7 +455,7 @@ const ProfilePage = g(
             ) : (
               <Lineup
                 {...getLineupProps(artistTracks)}
-                leadingElementId={profile._artist_pick}
+                leadingElementId={profile.artist_pick_track_id}
                 limit={profile.track_count}
                 loadMore={loadMoreArtistTracks}
                 playTrack={playArtistTrack}
@@ -615,75 +629,75 @@ const ProfilePage = g(
       variable: status,
       value: Status.SUCCESS
     })
+    const {
+      title = '',
+      description = '',
+      canonicalUrl = '',
+      structuredData
+    } = getUserPageSEOFields({ handle, userName: name, bio })
 
     return (
       <>
-        <NetworkConnectivityMonitor
-          pageDidLoad={status !== Status.LOADING}
-          onDidRegainConnectivity={asyncRefresh}
+        <MobilePageContainer
+          title={title}
+          description={description}
+          canonicalUrl={canonicalUrl}
+          structuredData={structuredData}
+          containerClassName={styles.container}
         >
-          <MobilePageContainer
-            title={name && handle ? `${name} (${handle})` : ''}
-            description={bio}
-            canonicalUrl={fullProfilePage(handle)}
-            containerClassName={styles.container}
+          <PullToRefresh
+            fetchContent={asyncRefresh}
+            shouldPad={false}
+            overImage
+            isDisabled={isEditing || isUserConfirming}
           >
-            <PullToRefresh
-              fetchContent={asyncRefresh}
-              shouldPad={false}
-              overImage
-              isDisabled={isEditing || isUserConfirming}
-            >
-              <ProfileHeader
-                isDeactivated={profile?.is_deactivated}
-                name={name}
-                handle={handle}
-                isArtist={isArtist}
-                bio={bio}
-                verified={verified}
-                userId={profile.user_id}
-                loading={status === Status.LOADING}
-                coverPhotoSizes={coverPhotoSizes}
-                profilePictureSizes={profilePictureSizes}
-                hasProfilePicture={hasProfilePicture}
-                playlistCount={profile.playlist_count}
-                trackCount={profile.track_count}
-                followerCount={profile.follower_count}
-                followingCount={profile.followee_count}
-                doesFollowCurrentUser={!!profile.does_follow_current_user}
-                setFollowingUserId={setFollowingUserId}
-                setFollowersUserId={setFollowersUserId}
-                twitterHandle={twitterHandle}
-                instagramHandle={instagramHandle}
-                tikTokHandle={tikTokHandle}
-                website={website}
-                donation={donation}
-                followers={followers}
-                following={following}
-                isSubscribed={isSubscribed}
-                onFollow={onFollow}
-                onUnfollow={onConfirmUnfollow}
-                goToRoute={goToRoute}
-                mode={mode}
-                switchToEditMode={onEdit}
-                updatedProfilePicture={
-                  updatedProfilePicture ? updatedProfilePicture.url : null
-                }
-                updatedCoverPhoto={
-                  updatedCoverPhoto ? updatedCoverPhoto.url : null
-                }
-                onUpdateProfilePicture={updateProfilePicture}
-                onUpdateCoverPhoto={updateCoverPhoto}
-                setNotificationSubscription={setNotificationSubscription}
-                areArtistRecommendationsVisible={
-                  areArtistRecommendationsVisible
-                }
-                onCloseArtistRecommendations={onCloseArtistRecommendations}
-              />
-              {content}
-            </PullToRefresh>
-          </MobilePageContainer>
-        </NetworkConnectivityMonitor>
+            <ProfileHeader
+              isDeactivated={profile?.is_deactivated}
+              name={name}
+              handle={handle}
+              isArtist={isArtist}
+              bio={bio}
+              verified={verified}
+              userId={profile.user_id}
+              loading={status === Status.LOADING}
+              coverPhotoSizes={coverPhotoSizes}
+              profilePictureSizes={profilePictureSizes}
+              hasProfilePicture={hasProfilePicture}
+              playlistCount={profile.playlist_count}
+              trackCount={profile.track_count}
+              followerCount={profile.follower_count}
+              followingCount={profile.followee_count}
+              doesFollowCurrentUser={!!profile.does_follow_current_user}
+              setFollowingUserId={setFollowingUserId}
+              setFollowersUserId={setFollowersUserId}
+              twitterHandle={twitterHandle}
+              instagramHandle={instagramHandle}
+              tikTokHandle={tikTokHandle}
+              website={website}
+              donation={donation}
+              followers={followers}
+              following={following}
+              isSubscribed={isSubscribed}
+              onFollow={onFollow}
+              onUnfollow={onConfirmUnfollow}
+              goToRoute={goToRoute}
+              mode={mode}
+              switchToEditMode={onEdit}
+              updatedProfilePicture={
+                updatedProfilePicture ? updatedProfilePicture.url : null
+              }
+              updatedCoverPhoto={
+                updatedCoverPhoto ? updatedCoverPhoto.url : null
+              }
+              onUpdateProfilePicture={updateProfilePicture}
+              onUpdateCoverPhoto={updateCoverPhoto}
+              setNotificationSubscription={setNotificationSubscription}
+              areArtistRecommendationsVisible={areArtistRecommendationsVisible}
+              onCloseArtistRecommendations={onCloseArtistRecommendations}
+            />
+            {content}
+          </PullToRefresh>
+        </MobilePageContainer>
         <TierExplainerDrawer />
       </>
     )

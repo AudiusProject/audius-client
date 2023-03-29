@@ -13,6 +13,9 @@ import type {
 
 import type { GestureResponderHandler } from 'app/types/gesture'
 
+import type { TileProps } from '../core'
+import type { ImageProps } from '../image/FastImage'
+
 export type LineupItemProps = {
   /** Index of tile in lineup */
   index: number
@@ -23,9 +26,6 @@ export type LineupItemProps = {
   /** Is this item unlisted (hidden)? */
   isUnlisted?: boolean
 
-  /** Function to call when item & art has loaded */
-  onLoad?: (index: number) => void
-
   /** Whether or not to show the artist pick indicators */
   showArtistPick?: boolean
 
@@ -33,13 +33,7 @@ export type LineupItemProps = {
   showRankIcon?: boolean
 
   /** Function that will toggle play of a track */
-  togglePlay: (args: {
-    uid: UID
-    id: ID
-    source: PlaybackSource
-    isPlaying: boolean
-    isPlayingUid: boolean
-  }) => void
+  togglePlay: (args: { uid: UID; id: ID; source: PlaybackSource }) => void
 
   /** Uid of the item */
   uid: UID
@@ -66,17 +60,14 @@ export type LineupTileProps = Omit<LineupItemProps, 'togglePlay'> & {
   /** ID of the item */
   id: ID
 
-  /** Url of the image */
-  imageUrl?: string
-
-  /** Does the tile uid match the playing uid */
-  isPlayingUid: boolean
+  /** Render function for the image */
+  renderImage: (props: ImageProps) => ReactNode
 
   /** The item (track or collection) */
   item: Track | Collection
 
   /** Function to call when tile is pressed */
-  onPress?: (args: { isPlaying: boolean }) => void
+  onPress?: () => void
 
   /** Function to call when the overflow menu button is pressed */
   onPressOverflow?: GestureResponderHandler
@@ -104,4 +95,9 @@ export type LineupTileProps = Omit<LineupItemProps, 'togglePlay'> & {
 
   /** User associated with the item */
   user: User
+
+  /** Does the tile uid match the playing uid */
+  isPlayingUid: boolean
+
+  TileProps?: Partial<TileProps>
 }

@@ -2,14 +2,15 @@ import { useCallback, useEffect } from 'react'
 
 import { tippingSelectors, tippingActions } from '@audius/common'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { useKeepAwake } from '@sayem314/react-native-keep-awake'
+import { Platform } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconCaretLeft from 'app/assets/images/iconCaretLeft.svg'
 import IconCheck from 'app/assets/images/iconCheck.svg'
 import { Button, TextButton } from 'app/components/core'
-import loadingSpinner from 'app/components/loading-spinner'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
+import LoadingSpinner from 'app/components/loading-spinner'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 
 import { ReceiverDetails } from './ReceiverDetails'
@@ -17,12 +18,16 @@ import { SendTipStatusText } from './SendTipStatusText'
 import { TipHeader } from './TipHeader'
 import { TipScreen } from './TipScreen'
 import type { TipArtistNavigationParamList } from './navigation'
+
 const { beginTip, confirmSendTip } = tippingActions
 const { getSendTipData } = tippingSelectors
 
 const messages = {
   title: 'Confirm Tip',
+  // NOTE: Send tip -> Send $AUDIO change
+  titleAlt: 'Confirm', // iOS only
   confirm: 'Confirm Tip',
+  confirmAlt: 'Confirm', // iOS only
   goBack: 'Go Back'
 }
 
@@ -47,29 +52,30 @@ type ConfirmSendTipScreenProps = NativeStackScreenProps<
 export const ConfirmSendTipScreen = ({
   navigation: nativeNavigation
 }: ConfirmSendTipScreenProps) => {
+  useKeepAwake()
   const styles = useStyles()
   const {
     user: receiver,
     status: sendStatus,
     source
-  } = useSelectorWeb(getSendTipData)
+  } = useSelector(getSendTipData)
   const navigation = useNavigation<TipArtistNavigationParamList>()
-  const dispatchWeb = useDispatchWeb()
+  const dispatch = useDispatch()
 
   const handleConfirm = useCallback(() => {
-    dispatchWeb(confirmSendTip())
-  }, [dispatchWeb])
+    dispatch(confirmSendTip())
+  }, [dispatch])
 
   const handleGoBack = useCallback(() => {
-    dispatchWeb(beginTip({ user: receiver, source }))
+    dispatch(beginTip({ user: receiver, source }))
     navigation.goBack()
-  }, [dispatchWeb, navigation, receiver, source])
+  }, [dispatch, navigation, receiver, source])
 
   const inProgress = sendStatus === 'SENDING' || sendStatus === 'CONVERTING'
 
   useEffect(() => {
     if (sendStatus === 'SUCCESS') {
-      navigation.navigate({ native: { screen: 'TipSent' } })
+      navigation.navigate('TipSent')
     }
   }, [sendStatus, navigation])
 
@@ -83,7 +89,7 @@ export const ConfirmSendTipScreen = ({
 
   return (
     <TipScreen
-      title={messages.title}
+      title={Platform.OS === 'ios' ? messages.titleAlt : messages.title}
       topbarLeft={inProgress ? null : undefined}
     >
       <TipHeader status='confirm' />
@@ -92,9 +98,9 @@ export const ConfirmSendTipScreen = ({
       <Button
         variant='primary'
         size='large'
-        title={messages.confirm}
+        title={Platform.OS === 'ios' ? messages.confirmAlt : messages.confirm}
         onPress={handleConfirm}
-        icon={inProgress ? loadingSpinner : IconCheck}
+        icon={inProgress ? LoadingSpinner : IconCheck}
         disabled={inProgress}
         iconPosition='right'
         fullWidth

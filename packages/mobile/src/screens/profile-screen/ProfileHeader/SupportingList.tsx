@@ -1,27 +1,35 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import type { ID, Supporting } from '@audius/common'
-import { stringWeiToBN, tippingSelectors } from '@audius/common'
-import { MAX_PROFILE_SUPPORTING_TILES } from 'audius-client/src/utils/constants'
+import {
+  tippingActions,
+  useProxySelector,
+  stringWeiToBN,
+  tippingSelectors,
+  MAX_PROFILE_SUPPORTING_TILES
+} from '@audius/common'
 import { FlatList } from 'react-native'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
-import { spacing } from 'app/styles/spacing'
 
 import { useSelectProfile } from '../selectors'
 
 import { SupportingTile } from './SupportingTile'
 import { SupportingTileSkeleton } from './SupportingTileSkeleton'
 import { ViewAllSupportingTile } from './ViewAllSupportingTile'
+
 const { getOptimisticSupportingForUser } = tippingSelectors
+const { fetchSupportingForUser } = tippingActions
 
 type ViewAllData = { viewAll: true; supporting: Supporting[] }
 
 type SkeletonData = { loading: true }
 const skeletonData: SkeletonData[] = [{ loading: true }, { loading: true }]
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(({ spacing }) => ({
+  list: { marginHorizontal: spacing(-3) },
+  listContentContainer: { paddingHorizontal: spacing(2) },
   singleSupporterTile: {
     marginHorizontal: 0
   }
@@ -29,27 +37,45 @@ const useStyles = makeStyles(() => ({
 
 export const SupportingList = () => {
   const styles = useStyles()
-  const { user_id, supporting_count } = useSelectProfile(['user_id'])
-  const supportingForUser = useSelectorWeb((state) =>
-    getOptimisticSupportingForUser(state, user_id)
-  )
-  const supportingIdsSorted = useMemo(() => {
-    const ids = (
-      supportingForUser ? Object.keys(supportingForUser) : ([] as unknown)
-    ) as ID[]
-    return ids.sort((id1, id2) => {
-      const amount1BN = stringWeiToBN(supportingForUser[id1].amount)
-      const amount2BN = stringWeiToBN(supportingForUser[id2].amount)
-      return amount1BN.gte(amount2BN) ? -1 : 1
-    })
-  }, [supportingForUser])
+  const { user_id, supporting_count } = useSelectProfile([
+    'user_id',
+    'supporting_count'
+  ])
 
-  const supportingSorted = useMemo(
-    () =>
-      supportingIdsSorted
+  const dispatch = useDispatch()
+
+  const shouldFetchSupporting = useSelector((state) => {
+    return (
+      !state.tipping.supporting[user_id] &&
+      !state.tipping.supportersOverrides[user_id]
+    )
+  })
+
+  useEffect(() => {
+    if (supporting_count > 0 && shouldFetchSupporting) {
+      dispatch(fetchSupportingForUser({ userId: user_id }))
+    }
+  }, [supporting_count, shouldFetchSupporting, dispatch, user_id])
+
+  const supportingSorted = useProxySelector(
+    (state) => {
+      const supportingForUser = getOptimisticSupportingForUser(state, user_id)
+
+      const ids = (
+        supportingForUser ? Object.keys(supportingForUser) : ([] as unknown)
+      ) as ID[]
+
+      const supportingIdsSorted = ids.sort((id1, id2) => {
+        const amount1BN = stringWeiToBN(supportingForUser[id1].amount)
+        const amount2BN = stringWeiToBN(supportingForUser[id2].amount)
+        return amount1BN.gte(amount2BN) ? -1 : 1
+      })
+
+      return supportingIdsSorted
         .map((supporterId) => supportingForUser[supporterId])
-        .filter(Boolean),
-    [supportingIdsSorted, supportingForUser]
+        .filter(Boolean)
+    },
+    [user_id]
   )
 
   const supportingListData = useMemo(() => {
@@ -87,12 +113,8 @@ export const SupportingList = () => {
 
   return (
     <FlatList<Supporting | SkeletonData | ViewAllData>
-      style={{
-        marginHorizontal: spacing(-3)
-      }}
-      contentContainerStyle={{
-        paddingHorizontal: spacing(2)
-      }}
+      style={styles.list}
+      contentContainerStyle={styles.listContentContainer}
       horizontal
       showsHorizontalScrollIndicator={false}
       data={supportingListData}

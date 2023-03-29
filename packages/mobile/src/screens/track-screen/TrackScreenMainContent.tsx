@@ -1,11 +1,17 @@
 import type { ReactNode } from 'react'
 
-import type { ID, LineupState, Track, User, Nullable } from '@audius/common'
-import { trackRemixesPage } from 'audius-client/src/utils/route'
+import type {
+  ID,
+  LineupState,
+  Track,
+  User,
+  Nullable,
+  SearchTrack,
+  SearchUser
+} from '@audius/common'
 import { View } from 'react-native'
 
 import { useNavigation } from 'app/hooks/useNavigation'
-import type { SearchTrack, SearchUser } from 'app/store/search/types'
 import { makeStyles } from 'app/styles'
 
 import { TrackScreenDetailsTile } from './TrackScreenDetailsTile'
@@ -44,10 +50,7 @@ export const TrackScreenMainContent = ({
   const remixTrackIds = track._remixes?.map(({ track_id }) => track_id) ?? null
 
   const handlePressGoToRemixes = () => {
-    navigation.push({
-      native: { screen: 'TrackRemixes', params: { id: track.track_id } },
-      web: { route: trackRemixesPage(track.permalink) }
-    })
+    navigation.push('TrackRemixes', { id: track.track_id })
   }
 
   return (

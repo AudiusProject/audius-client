@@ -1,16 +1,15 @@
 import { useCallback } from 'react'
 
 import type { User } from '@audius/common'
-import { profilePageActions } from '@audius/common'
+import { profilePageSelectors, profilePageActions } from '@audius/common'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconNotification from 'app/assets/images/iconNotification.svg'
 import { Button } from 'app/components/core'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
 import { makeStyles } from 'app/styles'
 
-import { getIsSubscribed } from './selectors'
 const { setNotificationSubscription } = profilePageActions
+const { getIsSubscribed } = profilePageSelectors
 
 const messages = {
   subscribe: 'subscribe',
@@ -27,19 +26,21 @@ const useStyles = makeStyles(({ spacing }) => ({
 }))
 
 type SubscribeButtonProps = {
-  profile: User
+  profile: Pick<User, 'handle' | 'user_id'>
 }
 
 export const SubscribeButton = (props: SubscribeButtonProps) => {
   const styles = useStyles()
   const { profile } = props
-  const { user_id } = profile
-  const isSubscribed = useSelectorWeb(getIsSubscribed)
-  const dispatchWeb = useDispatchWeb()
+  const { handle, user_id } = profile
+  const isSubscribed = useSelector((state) => getIsSubscribed(state, handle))
+  const dispatch = useDispatch()
 
   const handlePress = useCallback(() => {
-    dispatchWeb(setNotificationSubscription(user_id, !isSubscribed, true))
-  }, [dispatchWeb, user_id, isSubscribed])
+    dispatch(
+      setNotificationSubscription(user_id, !isSubscribed, true, handle, false)
+    )
+  }, [dispatch, user_id, isSubscribed, handle])
 
   return (
     <Button

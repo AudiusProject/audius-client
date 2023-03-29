@@ -13,7 +13,7 @@ import { monitoringCallbacks } from 'services/serviceMonitoring'
 import { reportToSentry } from 'store/errors/reportToSentry'
 import { isElectron, isMobile } from 'utils/clientUtil'
 
-import { fetchCID } from './fetchCID'
+import { env } from '../env'
 
 declare global {
   interface Window {
@@ -27,18 +27,13 @@ declare global {
 export const audiusBackendInstance = audiusBackend({
   claimDistributionContractAddress:
     process.env.REACT_APP_CLAIM_DISTRIBUTION_CONTRACT_ADDRESS,
+  env,
   ethOwnerWallet: process.env.REACT_APP_ETH_OWNER_WALLET,
   ethProviderUrls: (process.env.REACT_APP_ETH_PROVIDER_URL || '').split(','),
   ethRegistryAddress: process.env.REACT_APP_ETH_REGISTRY_ADDRESS,
   ethTokenAddress: process.env.REACT_APP_ETH_TOKEN_ADDRESS,
-  fetchCID,
   getFeatureEnabled,
-  getHostUrl: () => {
-    const nativeMobile = process.env.REACT_APP_NATIVE_MOBILE === 'true'
-    return nativeMobile && process.env.REACT_APP_ENVIRONMENT === 'production'
-      ? `${process.env.REACT_APP_PUBLIC_PROTOCOL}//${process.env.REACT_APP_PUBLIC_HOSTNAME}`
-      : window.location.origin
-  },
+  getHostUrl: () => window.location.origin,
   getLibs: () => import('@audius/sdk/dist/legacy'),
   getWeb3Config: async (
     libs,
@@ -52,13 +47,13 @@ export const audiusBackendInstance = audiusBackend({
       ? JSON.parse(useMetaMaskSerialized)
       : false
 
-    if (useMetaMask && window.web3) {
+    if (useMetaMask && window.Web3) {
       try {
         return {
           error: false,
           web3Config: await libs.configExternalWeb3(
             registryAddress,
-            window.web3.currentProvider,
+            window.Web3.currentProvider,
             web3NetworkId,
             entityManagerAddress
           )
@@ -86,11 +81,12 @@ export const audiusBackendInstance = audiusBackend({
     }
   },
   identityServiceUrl: process.env.REACT_APP_IDENTITY_SERVICE,
+  generalAdmissionUrl: process.env.REACT_APP_GENERAL_ADMISSION,
   isElectron: isElectron(),
   isMobile: isMobile(),
   legacyUserNodeUrl: process.env.REACT_APP_LEGACY_USER_NODE,
   monitoringCallbacks,
-  nativeMobile: process.env.REACT_APP_NATIVE_MOBILE === 'true',
+  nativeMobile: false,
   onLibsInit: (libs: AudiusLibs) => {
     window.audiusLibs = libs
     const event = new CustomEvent(LIBS_INITTED_EVENT)

@@ -1,5 +1,8 @@
+import { useContext } from 'react'
+
 import type { ID, OverflowActionCallbacks, CommonState } from '@audius/common'
 import {
+  playbackPositionActions,
   FavoriteSource,
   FollowSource,
   RepostSource,
@@ -12,17 +15,18 @@ import {
   OverflowAction,
   mobileOverflowMenuUISelectors
 } from '@audius/common'
-// Importing directly from audius-client for now, this will be removed
-// when the profile page is implemented in RN
-import { profilePage } from 'audius-client/src/utils/route'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
 import { useDrawer } from 'app/hooks/useDrawer'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
+import { useToast } from 'app/hooks/useToast'
+import { AppTabNavigationContext } from 'app/screens/app-screen'
+import { setVisibility } from 'app/store/drawers/slice'
+
 const { getMobileOverflowModal } = mobileOverflowMenuUISelectors
 const { requestOpen: openAddToPlaylistModal } = addToPlaylistUIActions
 const { followUser, unfollowUser } = usersSocialActions
+const { setTrackPosition, clearTrackPosition } = playbackPositionActions
 const { repostTrack, undoRepostTrack, saveTrack, unsaveTrack, shareTrack } =
   tracksSocialActions
 const { getUser } = cacheUsersSelectors
@@ -32,23 +36,30 @@ type Props = {
   render: (callbacks: OverflowActionCallbacks) => JSX.Element
 }
 
+const messages = {
+  markedAsPlayed: 'Marked as Played',
+  markedAsUnplayed: 'Marked as Unplayed'
+}
+
 const TrackOverflowMenuDrawer = ({ render }: Props) => {
   const { onClose: closeNowPlayingDrawer } = useDrawer('NowPlaying')
-  const navigation = useNavigation()
-  const dispatchWeb = useDispatchWeb()
-  const { id: modalId } = useSelectorWeb(getMobileOverflowModal)
+  const { navigation: contextNavigation } = useContext(AppTabNavigationContext)
+  const navigation = useNavigation({ customNavigation: contextNavigation })
+  const dispatch = useDispatch()
+  const { toast } = useToast()
+  const { id: modalId } = useSelector(getMobileOverflowModal)
   const id = modalId as ID
 
-  const track = useSelectorWeb((state: CommonState) => getTrack(state, { id }))
+  const track = useSelector((state: CommonState) => getTrack(state, { id }))
 
-  const user = useSelectorWeb((state: CommonState) =>
+  const user = useSelector((state: CommonState) =>
     getUser(state, { id: track?.owner_id })
   )
 
   if (!track || !user) {
     return null
   }
-  const { owner_id, title, permalink } = track
+  const { owner_id, title } = track
   const { handle } = user
 
   if (!id || !owner_id || !handle || !title) {
@@ -57,35 +68,58 @@ const TrackOverflowMenuDrawer = ({ render }: Props) => {
 
   const callbacks = {
     [OverflowAction.REPOST]: () =>
-      dispatchWeb(repostTrack(id, RepostSource.OVERFLOW)),
+      dispatch(repostTrack(id, RepostSource.OVERFLOW)),
     [OverflowAction.UNREPOST]: () =>
-      dispatchWeb(undoRepostTrack(id, RepostSource.OVERFLOW)),
+      dispatch(undoRepostTrack(id, RepostSource.OVERFLOW)),
     [OverflowAction.FAVORITE]: () =>
-      dispatchWeb(saveTrack(id, FavoriteSource.OVERFLOW)),
+      dispatch(saveTrack(id, FavoriteSource.OVERFLOW)),
     [OverflowAction.UNFAVORITE]: () =>
-      dispatchWeb(unsaveTrack(id, FavoriteSource.OVERFLOW)),
+      dispatch(unsaveTrack(id, FavoriteSource.OVERFLOW)),
     [OverflowAction.SHARE]: () =>
-      dispatchWeb(shareTrack(id, ShareSource.OVERFLOW)),
+      dispatch(shareTrack(id, ShareSource.OVERFLOW)),
     [OverflowAction.ADD_TO_PLAYLIST]: () =>
-      dispatchWeb(openAddToPlaylistModal(id, title)),
+      dispatch(openAddToPlaylistModal(id, title)),
     [OverflowAction.VIEW_TRACK_PAGE]: () => {
       closeNowPlayingDrawer()
-      navigation.navigate({
-        native: { screen: 'Track', params: { id } },
-        web: { route: permalink }
-      })
+      navigation?.push('Track', { id })
+    },
+    [OverflowAction.VIEW_EPISODE_PAGE]: () => {
+      closeNowPlayingDrawer()
+      navigation?.push('Track', { id })
     },
     [OverflowAction.VIEW_ARTIST_PAGE]: () => {
       closeNowPlayingDrawer()
-      navigation.navigate({
-        native: { screen: 'Profile', params: { handle } },
-        web: { route: profilePage(handle) }
-      })
+      navigation?.push('Profile', { handle })
     },
     [OverflowAction.FOLLOW_ARTIST]: () =>
-      dispatchWeb(followUser(owner_id, FollowSource.OVERFLOW)),
+      dispatch(followUser(owner_id, FollowSource.OVERFLOW)),
     [OverflowAction.UNFOLLOW_ARTIST]: () =>
-      dispatchWeb(unfollowUser(owner_id, FollowSource.OVERFLOW))
+      dispatch(unfollowUser(owner_id, FollowSource.OVERFLOW)),
+    [OverflowAction.EDIT_TRACK]: () => {
+      navigation?.push('EditTrack', { id })
+    },
+    [OverflowAction.DELETE_TRACK]: () => {
+      dispatch(
+        setVisibility({
+          drawer: 'DeleteConfirmation',
+          visible: true,
+          data: { trackId: id }
+        })
+      )
+    },
+    [OverflowAction.MARK_AS_PLAYED]: () => {
+      dispatch(
+        setTrackPosition({
+          trackId: id,
+          positionInfo: { status: 'COMPLETED', playbackPosition: 0 }
+        })
+      )
+      toast({ content: messages.markedAsPlayed })
+    },
+    [OverflowAction.MARK_AS_UNPLAYED]: () => {
+      dispatch(clearTrackPosition({ trackId: id }))
+      toast({ content: messages.markedAsUnplayed })
+    }
   }
 
   return render(callbacks)

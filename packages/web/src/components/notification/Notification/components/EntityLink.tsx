@@ -5,6 +5,7 @@ import { push } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 
 import { make, useRecord } from 'common/store/analytics/actions'
+import { closeNotificationPanel } from 'store/application/ui/notifications/notificationsUISlice'
 
 import { getEntityLink } from '../utils'
 
@@ -30,6 +31,7 @@ export const useGoToEntity = (
       event.stopPropagation()
       event.preventDefault()
       const link = getEntityLink(entity)
+      dispatch(closeNotificationPanel())
       dispatch(push(link))
       record(
         make(Name.NOTIFICATIONS_CLICK_TILE, {

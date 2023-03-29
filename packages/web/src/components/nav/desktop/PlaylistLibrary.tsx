@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo, MouseEvent } from 'react'
 
 import {
   ID,
@@ -7,17 +7,14 @@ import {
   PlaylistLibrary as PlaylistLibraryType,
   PlaylistLibraryFolder,
   SmartCollectionVariant,
-  FeatureFlags,
   accountSelectors,
   cacheCollectionsActions,
-  notificationsSelectors,
-  addPlaylistToFolder,
-  containsTempPlaylist,
-  findInPlaylistLibrary,
-  getPlaylistsNotInLibrary,
-  isInsideFolder,
-  reorderPlaylistLibrary,
-  collectionsSocialActions
+  collectionsSocialActions,
+  playlistLibraryActions,
+  playlistLibraryHelpers,
+  PlaylistLibraryKind,
+  PlaylistLibraryID,
+  playlistUpdatesSelectors
 } from '@audius/common'
 import cn from 'classnames'
 import { isEmpty } from 'lodash'
@@ -25,17 +22,15 @@ import { useDispatch } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { make, useRecord } from 'common/store/analytics/actions'
-import Droppable from 'components/dragndrop/Droppable'
-import { ToastContext } from 'components/toast/ToastContext'
-import { useFlag } from 'hooks/useRemoteConfig'
 import {
   AUDIO_NFT_PLAYLIST,
   SMART_COLLECTION_MAP
-} from 'pages/smart-collection/smartCollections'
+} from 'common/store/smart-collection/smartCollections'
+import Droppable from 'components/dragndrop/Droppable'
+import { ToastContext } from 'components/toast/ToastContext'
 import { setFolderId as setEditFolderModalFolderId } from 'store/application/ui/editFolderModal/slice'
 import { open as openEditPlaylistModal } from 'store/application/ui/editPlaylistModal/slice'
 import { getIsDragging } from 'store/dragndrop/selectors'
-import { update } from 'store/playlist-library/slice'
 import { useSelector } from 'utils/reducer'
 import { audioNftPlaylistPage, getPathname, playlistPage } from 'utils/route'
 
@@ -43,8 +38,17 @@ import navColumnStyles from './NavColumn.module.css'
 import { PlaylistFolderNavItem } from './PlaylistFolderNavItem'
 import styles from './PlaylistLibrary.module.css'
 import { PlaylistNavItem, PlaylistNavLink } from './PlaylistNavItem'
+const { selectAllPlaylistUpdateIds } = playlistUpdatesSelectors
+const { update } = playlistLibraryActions
+const {
+  addPlaylistToFolder,
+  containsTempPlaylist,
+  findInPlaylistLibrary,
+  getPlaylistsNotInLibrary,
+  isInsideFolder,
+  reorderPlaylistLibrary
+} = playlistLibraryHelpers
 const { saveSmartCollection } = collectionsSocialActions
-const { getPlaylistUpdates } = notificationsSelectors
 const { addTrackToPlaylist } = cacheCollectionsActions
 const {
   getAccountCollectibles,
@@ -54,7 +58,7 @@ const {
 } = accountSelectors
 
 type PlaylistLibraryProps = {
-  onClickNavLinkWithAccount: () => void
+  onClickNavLinkWithAccount: (e?: MouseEvent, playlistId?: number) => void
 }
 
 type LibraryContentsLevelProps = {
@@ -111,13 +115,10 @@ const PlaylistLibrary = ({
   const account = useSelector(getAccountUser)
   const playlists = useSelector(getAccountNavigationPlaylists)
   const library = useSelector(getPlaylistLibrary)
-  const updates = useSelector(getPlaylistUpdates)
+  const updates = useSelector(selectAllPlaylistUpdateIds)
   const updatesSet = new Set(updates)
   const { dragging, kind: draggingKind } = useSelector(getIsDragging)
   const dispatch = useDispatch()
-  const { isEnabled: isPlaylistFoldersEnabled } = useFlag(
-    FeatureFlags.PLAYLIST_FOLDERS
-  )
   const { toast } = useContext(ToastContext)
   const record = useRecord()
   const [, setIsEditFolderModalOpen] = useModalState('EditFolder')
@@ -152,7 +153,7 @@ const PlaylistLibrary = ({
   }, [audioCollectibles, library, dispatch])
 
   const handleClickEditFolder = useCallback(
-    (folderId) => {
+    (folderId: string) => {
       dispatch(setEditFolderModalFolderId(folderId))
       setIsEditFolderModalOpen(true)
       record(make(Name.FOLDER_OPEN_EDIT, {}))
@@ -161,7 +162,7 @@ const PlaylistLibrary = ({
   )
 
   const handleClickEditPlaylist = useCallback(
-    (playlistId) => {
+    (playlistId: number) => {
       dispatch(openEditPlaylistModal(playlistId))
       record(make(Name.PLAYLIST_OPEN_EDIT_FROM_LIBRARY, {}))
     },
@@ -171,8 +172,8 @@ const PlaylistLibrary = ({
   const handleDropInFolder = useCallback(
     (
       folder: PlaylistLibraryFolder,
-      droppedKind: 'playlist' | 'library-playlist',
-      droppedId: ID | string | SmartCollectionVariant
+      droppedKind: PlaylistLibraryKind,
+      droppedId: PlaylistLibraryID
     ) => {
       if (!library) return
       const newLibrary = addPlaylistToFolder(library, droppedId, folder.id)
@@ -272,8 +273,10 @@ const PlaylistLibrary = ({
   }
 
   const onClickPlaylist = useCallback(
-    (playlistId: ID, hasUpdate: boolean) => {
-      onClickNavLinkWithAccount()
+    (e: MouseEvent, playlistId: ID, hasUpdate: boolean) => {
+      if (hasUpdate) {
+        onClickNavLinkWithAccount(e, playlistId)
+      }
       record(
         make(Name.PLAYLIST_LIBRARY_CLICKED, {
           playlistId,
@@ -304,11 +307,7 @@ const PlaylistLibrary = ({
         dragging={dragging}
         draggingKind={draggingKind}
         onClickPlaylist={onClickPlaylist}
-        onClickEdit={
-          isOwner && isPlaylistFoldersEnabled
-            ? handleClickEditPlaylist
-            : undefined
-        }
+        onClickEdit={isOwner ? handleClickEditPlaylist : undefined}
       />
     )
   }
@@ -335,7 +334,10 @@ const PlaylistLibrary = ({
             <Droppable
               className={styles.droppable}
               hoverClassName={styles.droppableHover}
-              onDrop={(draggingId, draggingKind) => {
+              onDrop={(
+                draggingId: PlaylistLibraryID,
+                draggingKind: PlaylistLibraryKind
+              ) => {
                 onReorder(
                   draggingId,
                   folder.contents[0].type === 'folder'
@@ -376,11 +378,14 @@ const PlaylistLibrary = ({
         key={-1}
         className={cn(styles.droppable, styles.top)}
         hoverClassName={styles.droppableHover}
-        onDrop={(id: ID | SmartCollectionVariant, kind) =>
+        onDrop={(id: PlaylistLibraryID, kind: PlaylistLibraryKind) =>
           onReorder(id, -1, kind)
         }
         acceptedKinds={['library-playlist', 'playlist-folder']}
       />
+      {Object.values(playlistsNotInLibrary).map((playlist) => {
+        return renderPlaylist(playlist.id)
+      })}
       {account && playlists && library ? (
         <LibraryContentsLevel
           contents={library.contents || []}
@@ -389,9 +394,6 @@ const PlaylistLibrary = ({
           renderFolder={renderFolder}
         />
       ) : null}
-      {Object.values(playlistsNotInLibrary).map((playlist) => {
-        return renderPlaylist(playlist.id)
-      })}
       {isEmpty(library?.contents) ? (
         <div className={cn(navColumnStyles.link, navColumnStyles.disabled)}>
           Create your first playlist!

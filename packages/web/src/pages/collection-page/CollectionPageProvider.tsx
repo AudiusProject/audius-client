@@ -15,13 +15,12 @@ import {
   FavoriteType,
   Kind,
   Status,
+  Nullable,
   Uid,
   formatUrlName,
   accountSelectors,
   cacheCollectionsActions,
   lineupSelectors,
-  notificationsSelectors,
-  notificationsActions,
   collectionPageActions as collectionActions,
   collectionPageLineupActions as tracksActions,
   collectionPageSelectors,
@@ -37,7 +36,11 @@ import {
   favoritesUserListActions,
   collectionsSocialActions as socialCollectionsActions,
   tracksSocialActions as socialTracksActions,
-  usersSocialActions as socialUsersActions
+  usersSocialActions as socialUsersActions,
+  playerSelectors,
+  queueSelectors,
+  playlistUpdatesActions,
+  playlistUpdatesSelectors
 } from '@audius/common'
 import { push as pushRoute, replace } from 'connected-react-router'
 import { UnregisterCallback } from 'history'
@@ -46,7 +49,6 @@ import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
 import { TrackEvent, make } from 'common/store/analytics/actions'
-import { makeGetCurrent } from 'common/store/queue/selectors'
 import DeletedPage from 'pages/deleted-page/DeletedPage'
 import { open as openEditCollectionModal } from 'store/application/ui/editPlaylistModal/slice'
 import {
@@ -57,7 +59,6 @@ import {
   UserListType,
   UserListEntityType
 } from 'store/application/ui/userListModal/types'
-import { getPlaying, getBuffering } from 'store/player/selectors'
 import { getLocationPathname } from 'store/routing/selectors'
 import { AppState } from 'store/types'
 import {
@@ -65,15 +66,18 @@ import {
   NOT_FOUND_PAGE,
   REPOSTING_USERS_ROUTE,
   FAVORITING_USERS_ROUTE,
-  fullPlaylistPage,
   playlistPage,
   albumPage,
   getPathname
 } from 'utils/route'
 import { parseCollectionRoute } from 'utils/route/collectionRouteParser'
+import { getCollectionPageSEOFields } from 'utils/seo'
 
 import { CollectionPageProps as DesktopCollectionPageProps } from './components/desktop/CollectionPage'
 import { CollectionPageProps as MobileCollectionPageProps } from './components/mobile/CollectionPage'
+const { selectAllPlaylistUpdateIds } = playlistUpdatesSelectors
+const { makeGetCurrent } = queueSelectors
+const { getPlaying, getBuffering } = playerSelectors
 const { setFavorite } = favoritesUserListActions
 const { setRepost } = repostsUserListActions
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
@@ -84,10 +88,10 @@ const {
   getCollectionTracksLineup,
   getCollectionUid,
   getUser,
-  getUserUid
+  getUserUid,
+  getCollectionPermalink
 } = collectionPageSelectors
-const { updatePlaylistLastViewedAt } = notificationsActions
-const { getPlaylistUpdates } = notificationsSelectors
+const { updatedPlaylistViewed } = playlistUpdatesActions
 const { makeGetTableMetadatas, makeGetLineupOrder } = lineupSelectors
 const {
   editPlaylist,
@@ -266,16 +270,20 @@ class CollectionPage extends Component<
     if (metadata) {
       const params = parseCollectionRoute(pathname)
       if (params) {
-        const { collectionId, title, collectionType, handle } = params
+        const { collectionId, title, collectionType, handle, permalink } =
+          params
         const newCollectionName = formatUrlName(metadata.playlist_name)
 
         const routeLacksCollectionInfo =
-          (title === null || handle === null || collectionType === null) && user
+          (title === null || handle === null || collectionType === null) &&
+          permalink == null &&
+          user
         if (routeLacksCollectionInfo) {
           // Check if we are coming from a non-canonical route and replace route if necessary.
-          const newPath = metadata.is_album
-            ? albumPage(user!.handle, metadata.playlist_name, collectionId)
-            : playlistPage(user!.handle, metadata.playlist_name, collectionId)
+          const newPath =
+            metadata.is_album && collectionId
+              ? albumPage(user!.handle, metadata.playlist_name, collectionId)
+              : playlistPage(user!.handle, metadata.playlist_name, collectionId)
           this.props.replaceRoute(newPath)
         } else {
           // Id matches or temp id matches
@@ -338,11 +346,21 @@ class CollectionPage extends Component<
 
   fetchCollection = (pathname: string, forceFetch = false) => {
     const params = parseCollectionRoute(pathname)
-    if (params) {
-      const { handle, collectionId } = params
+
+    if (params?.collectionId) {
+      const { collectionId } = params
       if (forceFetch || collectionId !== this.state.playlistId) {
         this.setState({ playlistId: collectionId as number })
-        this.props.fetchCollection(handle, collectionId as number)
+        this.props.fetchCollection(collectionId as number)
+        this.props.fetchTracks()
+      }
+    }
+
+    if (params?.permalink) {
+      const { permalink, collectionId } = params
+      if (forceFetch) {
+        this.props.setCollectionPermalink(permalink)
+        this.props.fetchCollection(collectionId, permalink)
         this.props.fetchTracks()
       }
     }
@@ -564,7 +582,9 @@ class CollectionPage extends Component<
         .map((metadata) => metadata.uid)
       this.setState({ allowReordering: false })
     }
-    this.props.updateLineupOrder(updatedOrder)
+    if (updatedOrder) {
+      this.props.updateLineupOrder(updatedOrder)
+    }
   }
 
   onReorderTracks = (source: number, destination: number) => {
@@ -718,21 +738,24 @@ class CollectionPage extends Component<
 
     const { playlistId, allowReordering } = this.state
 
-    const title = metadata?.playlist_name ?? ''
-    const description = metadata?.description ?? ''
-    const canonicalUrl =
-      user && metadata
-        ? fullPlaylistPage(
-            user?.handle,
-            metadata?.playlist_name,
-            metadata?.playlist_id
-          )
-        : ''
+    const {
+      title = '',
+      description = '',
+      canonicalUrl = '',
+      structuredData
+    } = getCollectionPageSEOFields({
+      playlistName: metadata?.playlist_name,
+      playlistId: metadata?.playlist_id,
+      userName: user?.name,
+      userHandle: user?.handle,
+      isAlbum: metadata?.is_album
+    })
 
     const childProps = {
       title,
       description,
       canonicalUrl,
+      structuredData,
       playlistId: playlistId!,
       allowReordering,
       playing,
@@ -777,6 +800,7 @@ class CollectionPage extends Component<
           title={title}
           description={description}
           canonicalUrl={canonicalUrl}
+          structuredData={structuredData}
           playable={{
             metadata,
             type: metadata?.is_album
@@ -809,6 +833,7 @@ function makeMapStateToProps() {
       tracks: getTracksLineup(state),
       collectionUid: getCollectionUid(state) || '',
       collection: getCollection(state) as Collection,
+      collectionPermalink: getCollectionPermalink(state),
       user: getUser(state),
       userUid: getUserUid(state) || '',
       status: getCollectionStatus(state) || '',
@@ -819,7 +844,7 @@ function makeMapStateToProps() {
       playing: getPlaying(state),
       buffering: getBuffering(state),
       pathname: getLocationPathname(state),
-      playlistUpdates: getPlaylistUpdates(state)
+      playlistUpdates: selectAllPlaylistUpdateIds(state)
     }
   }
   return mapStateToProps
@@ -827,10 +852,12 @@ function makeMapStateToProps() {
 
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
-    fetchCollection: (handle: string | null, id: number) =>
-      dispatch(collectionActions.fetchCollection(handle, id)),
+    fetchCollection: (id: Nullable<number>, permalink?: string) =>
+      dispatch(collectionActions.fetchCollection(id, permalink)),
     fetchTracks: () =>
       dispatch(tracksActions.fetchLineupMetadatas(0, 200, false, undefined)),
+    setCollectionPermalink: (permalink: string) =>
+      dispatch(collectionActions.setCollectionPermalink(permalink)),
     resetCollection: (collectionUid: string, userUid: string) =>
       dispatch(collectionActions.resetCollection(collectionUid, userUid)),
     goToRoute: (route: string) => dispatch(pushRoute(route)),
@@ -981,7 +1008,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
     onEditCollection: (playlistId: ID) =>
       dispatch(openEditCollectionModal(playlistId)),
     updatePlaylistLastViewedAt: (playlistId: ID) =>
-      dispatch(updatePlaylistLastViewedAt(playlistId))
+      dispatch(updatedPlaylistViewed({ playlistId }))
   }
 }
 

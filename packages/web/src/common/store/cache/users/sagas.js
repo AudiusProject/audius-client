@@ -7,84 +7,23 @@ import {
   cacheUsersSelectors,
   cacheReducer,
   cacheUsersActions as userActions,
-  removePlaylistLibraryTempPlaylists
+  waitForValue,
+  waitForAccount,
+  playlistLibraryHelpers,
+  reformatUser
 } from '@audius/common'
 import { mergeWith } from 'lodash'
-import {
-  call,
-  put,
-  race,
-  select,
-  take,
-  takeEvery,
-  getContext
-} from 'redux-saga/effects'
+import { call, put, select, takeEvery, getContext } from 'redux-saga/effects'
 
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { retrieve } from 'common/store/cache/sagas'
-import {
-  getSelectedServices,
-  getStatus
-} from 'common/store/service-selection/selectors'
-import { fetchServicesFailed } from 'common/store/service-selection/slice'
-import { waitForValue, waitForAccount } from 'utils/sagaHelpers'
+import { waitForRead } from 'utils/sagaHelpers'
 
-import { pruneBlobValues, reformat } from './utils'
+import { pruneBlobValues } from './utils'
+const { removePlaylistLibraryTempPlaylists } = playlistLibraryHelpers
 const { mergeCustomizer } = cacheReducer
 const { getUser, getUsers, getUserTimestamps } = cacheUsersSelectors
 const { getAccountUser, getUserId } = accountSelectors
-
-/**
- * If the user is not a creator, upgrade the user to a creator node.
- */
-export function* upgradeToCreator() {
-  const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  yield waitForAccount()
-  const user = yield select(getAccountUser)
-
-  // If user already has creator_node_endpoint, do not reselect replica set
-  let newEndpoint = user.creator_node_endpoint || ''
-  if (!newEndpoint) {
-    const serviceSelectionStatus = yield select(getStatus)
-    if (serviceSelectionStatus === Status.ERROR) {
-      return false
-    }
-    // Wait for service selection to finish
-    const { selectedServices } = yield race({
-      selectedServices: call(
-        waitForValue,
-        getSelectedServices,
-        {},
-        (val) => val.length > 0
-      ),
-      failure: take(fetchServicesFailed.type)
-    })
-    if (!selectedServices) {
-      return false
-    }
-    newEndpoint = selectedServices.join(',')
-
-    // Try to upgrade to creator, early return if failure
-    try {
-      console.debug(`Attempting to upgrade user ${user.user_id} to creator`)
-      yield call(audiusBackendInstance.upgradeToCreator, newEndpoint)
-    } catch (err) {
-      console.error(`Upgrade to creator failed with error: ${err}`)
-      return false
-    }
-  }
-  yield put(
-    cacheActions.update(Kind.USERS, [
-      {
-        id: user.user_id,
-        metadata: {
-          creator_node_endpoint: newEndpoint
-        }
-      }
-    ])
-  )
-  return true
-}
 
 /**
  * @param {Nullable<Array<number>>} userIds array of user ids to fetch
@@ -113,16 +52,17 @@ export function* fetchUsers(
   })
 }
 
-function* retrieveUserByHandle(handle) {
+function* retrieveUserByHandle(handle, retry) {
+  yield waitForRead()
   const apiClient = yield getContext('apiClient')
-  yield waitForAccount()
   const userId = yield select(getUserId)
   if (Array.isArray(handle)) {
     handle = handle[0]
   }
   const user = yield apiClient.getUserByHandle({
     handle,
-    currentUserId: userId
+    currentUserId: userId,
+    retry
   })
   return user
 }
@@ -132,9 +72,11 @@ export function* fetchUserByHandle(
   requiredFields,
   forceRetrieveFromSource = false,
   shouldSetLoading = true,
-  deleteExistingEntry = false
+  deleteExistingEntry = false,
+  retry = true
 ) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  const retrieveFromSource = (handle) => retrieveUserByHandle(handle, retry)
   const { entries: users } = yield call(retrieve, {
     ids: [handle],
     selectFromCache: function* (handles) {
@@ -143,9 +85,9 @@ export function* fetchUserByHandle(
     getEntriesTimestamp: function* (handles) {
       return yield select(getUserTimestamps, { handles })
     },
-    retrieveFromSource: retrieveUserByHandle,
+    retrieveFromSource,
     onBeforeAddToCache: function (users) {
-      return users.map((user) => reformat(user, audiusBackendInstance))
+      return users.map((user) => reformatUser(user, audiusBackendInstance))
     },
     kind: Kind.USERS,
     idField: 'user_id',
@@ -158,6 +100,7 @@ export function* fetchUserByHandle(
 }
 
 /**
+ * @deprecated legacy method for web
  * @param {number} userId target user id
  */
 export function* fetchUserCollections(userId) {
@@ -166,7 +109,16 @@ export function* fetchUserCollections(userId) {
   const playlists = yield call(audiusBackendInstance.getPlaylists, userId)
   const playlistIds = playlists.map((p) => p.playlist_id)
 
-  if (!playlistIds.length) return
+  if (!playlistIds.length) {
+    yield put(
+      cacheActions.update(Kind.USERS, [
+        {
+          id: userId,
+          metadata: { _collectionIds: [] }
+        }
+      ])
+    )
+  }
   const { collections } = yield call(retrieveCollections, userId, playlistIds)
   const cachedCollectionIds = Object.values(collections).map(
     (c) => c.playlist_id
@@ -395,6 +347,7 @@ export function* fetchUserSocials({ handle }) {
     audiusBackendInstance.getCreatorSocialHandle,
     user.handle
   )
+
   yield put(
     cacheActions.update(Kind.USERS, [
       {
@@ -404,8 +357,7 @@ export function* fetchUserSocials({ handle }) {
           instagram_handle: socials.instagramHandle || null,
           tiktok_handle: socials.tikTokHandle || null,
           website: socials.website || null,
-          donation: socials.donation || null,
-          _artist_pick: socials.pinnedTrackId || null
+          donation: socials.donation || null
         }
       }
     ])
@@ -416,13 +368,21 @@ function* watchFetchUserSocials() {
   yield takeEvery(userActions.FETCH_USER_SOCIALS, fetchUserSocials)
 }
 
+function* watchFetchUsers() {
+  yield takeEvery(userActions.FETCH_USERS, function* (action) {
+    const { userIds, requiredFields, forceRetrieveFromSource } = action.payload
+    yield call(fetchUsers, userIds, requiredFields, forceRetrieveFromSource)
+  })
+}
+
 const sagas = () => {
   return [
     watchAdd,
     watchFetchProfilePicture,
     watchFetchCoverPhoto,
     watchSyncLocalStorageUser,
-    watchFetchUserSocials
+    watchFetchUserSocials,
+    watchFetchUsers
   ]
 }
 

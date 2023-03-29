@@ -3,10 +3,6 @@
 .DS_Store
 
 # Env
-.env
-.env.prod
-.env.stage
-.env.dev
 .eslintcache
 .yalc
 yalc.lock
@@ -39,6 +35,7 @@ build/
 local.properties
 *.iml
 *.hprof
+.cxx/
 
 # Visual Studio Code
 #

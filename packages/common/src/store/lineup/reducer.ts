@@ -31,7 +31,7 @@ export const initialLineupState = {
   total: 0,
   deleted: 0,
   nullCount: 0,
-  status: Status.LOADING,
+  status: Status.IDLE,
   hasMore: true,
   inView: false,
   // Boolean if the lineup should remove duplicate content in entries
@@ -54,6 +54,7 @@ type FetchLineupMetadatasRequestedAction = {
   type: typeof FETCH_LINEUP_METADATAS_REQUESTED
   limit: number
   offset: number
+  handle: string
 }
 
 type FetchLineupMetadatasSucceededAction<T> = {
@@ -77,6 +78,7 @@ type UpdateLineupOrderAction = {
 type AddAction<T> = {
   type: typeof ADD
   entry: LineupStateTrack<T>
+  shouldPrepend?: boolean
 }
 
 type RemoveAction = {
@@ -200,12 +202,21 @@ export const actionsMap = {
     }
   },
   [ADD]<T>(state: LineupState<T>, action: AddAction<T>) {
+    const { entry, shouldPrepend } = action
     const newState = { ...state }
-    newState.entries = newState.entries.concat({
-      ...action.entry
-    })
     newState.order = { ...state.order }
-    newState.order[action.entry.uid] = newState.entries.length
+
+    if (shouldPrepend) {
+      newState.entries = [entry, ...newState.entries]
+      newState.entries.forEach((newEntry, index) => {
+        newState.order[newEntry.uid] = index
+      })
+    } else {
+      newState.entries = newState.entries.concat({
+        ...entry
+      })
+      newState.order[entry.uid] = newState.entries.length
+    }
     return newState
   },
   [REMOVE]<T>(state: LineupState<T>, action: RemoveAction) {
@@ -258,6 +269,9 @@ export const asLineup =
     state: LineupStateType | undefined,
     action: LineupActionType | LineupActions<EntryT>
   ): LineupStateType => {
+    if (!action.type.startsWith(prefix)) {
+      return reducer(state, action as LineupActionType)
+    }
     const baseActionType = stripPrefix(
       prefix,
       action.type

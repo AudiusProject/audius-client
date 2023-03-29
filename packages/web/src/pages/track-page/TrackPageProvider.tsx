@@ -14,8 +14,6 @@ import {
   Status,
   Track,
   Uid,
-  getCanonicalName,
-  formatSeconds,
   formatDate,
   accountSelectors,
   cacheTracksActions as cacheTrackActions,
@@ -31,14 +29,17 @@ import {
   repostsUserListActions,
   favoritesUserListActions,
   tracksSocialActions as socialTracksActions,
-  usersSocialActions as socialUsersActions
+  usersSocialActions as socialUsersActions,
+  playerSelectors,
+  queueSelectors,
+  premiumContentSelectors
 } from '@audius/common'
 import { push as pushRoute, replace } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { TrackEvent, make } from 'common/store/analytics/actions'
-import { makeGetCurrent } from 'common/store/queue/selectors'
+import { TRENDING_BADGE_LIMIT } from 'common/store/pages/track/sagas'
 import * as unfollowConfirmationActions from 'components/unfollow-confirmation-modal/store/actions'
 import DeletedPage from 'pages/deleted-page/DeletedPage'
 import {
@@ -49,7 +50,6 @@ import {
   UserListType,
   UserListEntityType
 } from 'store/application/ui/userListModal/types'
-import { getPlaying, getBuffering } from 'store/player/selectors'
 import { getLocationPathname } from 'store/routing/selectors'
 import { AppState } from 'store/types'
 import { isMobile } from 'utils/clientUtil'
@@ -60,21 +60,22 @@ import {
   FEED_PAGE,
   FAVORITING_USERS_ROUTE,
   REPOSTING_USERS_ROUTE,
-  fullTrackPage,
   trackRemixesPage
 } from 'utils/route'
 import { parseTrackRoute, TrackRouteParams } from 'utils/route/trackRouteParser'
-import { getTrackPageTitle, getTrackPageDescription } from 'utils/seo'
+import { getTrackPageSEOFields } from 'utils/seo'
 
 import StemsSEOHint from './components/StemsSEOHint'
 import { OwnProps as DesktopTrackPageProps } from './components/desktop/TrackPage'
 import { OwnProps as MobileTrackPageProps } from './components/mobile/TrackPage'
-import { TRENDING_BADGE_LIMIT } from './store/sagas'
+const { makeGetCurrent } = queueSelectors
+const { getPlaying, getBuffering } = playerSelectors
 const { setFavorite } = favoritesUserListActions
 const { setRepost } = repostsUserListActions
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { open } = mobileOverflowMenuUIActions
 const { tracksActions } = trackPageLineupActions
+const { getPremiumTrackSignatureMap } = premiumContentSelectors
 const {
   getUser,
   getLineup,
@@ -413,22 +414,18 @@ class TrackPageProvider extends Component<
       onClickReposts: this.onClickReposts,
       onClickFavorites: this.onClickFavorites
     }
-
-    const title = getTrackPageTitle({
-      title: track ? track.title : '',
-      handle: user ? user.handle : ''
-    })
-
     const releaseDate = track ? track.release_date || track.created_at : ''
-    const description = getTrackPageDescription({
-      releaseDate: releaseDate ? formatDate(releaseDate) : '',
-      description: track?.description ?? '',
-      mood: track?.mood ?? '',
-      genre: track ? getCanonicalName(track.genre) : '',
-      duration: track ? formatSeconds(track.duration) : '',
-      tags: track ? (track.tags || '').split(',').filter(Boolean) : []
+    const {
+      title = '',
+      description = '',
+      canonicalUrl = '',
+      structuredData
+    } = getTrackPageSEOFields({
+      title: track?.title,
+      permalink: track?.permalink,
+      userName: user?.name,
+      releaseDate: releaseDate ? formatDate(releaseDate) : ''
     })
-    const canonicalUrl = user && track ? fullTrackPage(track.permalink) : ''
 
     // If the track has a remix parent and it's not deleted and the original's owner is not deactivated.
     const hasValidRemixParent =
@@ -447,6 +444,7 @@ class TrackPageProvider extends Component<
           title={title}
           description={description}
           canonicalUrl={canonicalUrl}
+          structuredData={structuredData}
           playable={{ metadata: track, type: PlayableType.TRACK }}
           user={user}
           deletedByArtist={deletedByArtist}
@@ -458,6 +456,7 @@ class TrackPageProvider extends Component<
       title,
       description,
       canonicalUrl,
+      structuredData,
       heroTrack: track,
       hasValidRemixParent,
       user,
@@ -519,6 +518,7 @@ function makeMapStateToProps() {
       status: getStatus(state),
       moreByArtist: getMoreByArtistLineup(state),
       userId: getUserId(state),
+      premiumTrackSignatureMap: getPremiumTrackSignatureMap(state),
 
       currentQueueItem: getCurrentQueueItem(state),
       playing: getPlaying(state),

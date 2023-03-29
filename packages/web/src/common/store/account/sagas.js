@@ -1,63 +1,27 @@
 import {
   Kind,
-  Status,
-  USER_ID_AVAILABLE_EVENT,
   accountSelectors,
-  accountActions,
   cacheActions,
-  settingsPageActions,
   profilePageActions,
+  accountActions,
+  recordIP,
   solanaSelectors,
-  modalsActions
+  createUserBankIfNeeded,
+  getContext,
+  FeatureFlags
 } from '@audius/common'
-import {
-  call,
-  put,
-  fork,
-  select,
-  takeEvery,
-  getContext
-} from 'redux-saga/effects'
+import { call, put, fork, select, takeEvery } from 'redux-saga/effects'
 
-import { waitForBackendSetup } from 'common/store/backend/sagas'
+import { identify } from 'common/store/analytics/actions'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
-import { updateProfileAsync } from 'pages/profile-page/sagas'
-import { fetchCID } from 'services/audius-backend'
-import { recordIP } from 'services/audius-backend/RecordIP'
-import { createUserBankIfNeeded } from 'services/audius-backend/waudio'
-import { fingerprintClient } from 'services/fingerprint'
-import { SignedIn } from 'services/native-mobile-interface/lifecycle'
-import { setSentryUser } from 'services/sentry'
-import { addPlaylistsNotInLibrary } from 'store/playlist-library/sagas'
-import {
-  Permission,
-  isPushManagerAvailable,
-  isSafariPushAvailable,
-  unsubscribePushManagerBrowser,
-  getPushManagerPermission,
-  getPushManagerBrowserSubscription,
-  getSafariPushBrowser,
-  subscribePushManagerBrowser,
-  setHasRequestedBrowserPermission,
-  removeHasRequestedBrowserPermission,
-  shouldRequestBrowserPermission
-} from 'utils/browserNotifications'
-import { isElectron, isMobile } from 'utils/clientUtil'
-import { waitForAccount, waitForValue } from 'utils/sagaHelpers'
-
-import { identify } from '../analytics/actions'
+import { addPlaylistsNotInLibrary } from 'common/store/playlist-library/sagas'
+import { updateProfileAsync } from 'common/store/profile/sagas'
+import { waitForWrite, waitForRead } from 'utils/sagaHelpers'
 
 import disconnectedWallets from './disconnected_wallet_fix.json'
-import mobileSagas, { setHasSignedInOnMobile } from './mobileSagas'
 
-const { setVisibility } = modalsActions
-const { getFeePayer } = solanaSelectors
 const { fetchProfile } = profilePageActions
-const {
-  setBrowserNotificationPermission,
-  setBrowserNotificationEnabled,
-  setBrowserNotificationSettingsOn
-} = settingsPageActions
+const { getFeePayer } = solanaSelectors
 
 const {
   getUserId,
@@ -69,9 +33,40 @@ const {
   getAccountToCache
 } = accountSelectors
 
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
+const {
+  signedIn,
+  showPushNotificationConfirmation,
+  fetchAccountSucceeded,
+  fetchAccountFailed,
+  fetchAccount,
+  fetchLocalAccount,
+  twitterLogin,
+  instagramLogin,
+  tikTokLogin,
+  fetchSavedAlbums,
+  fetchSavedPlaylists,
+  addAccountPlaylist
+} = accountActions
 
 const IP_STORAGE_KEY = 'user-ip-timestamp'
+
+/**
+ * Sets the sentry user so that alerts are tied to a user
+ * @param user
+ * @param traits an object of any key-value traits to associate with the user
+ */
+const setSentryUser = (sentry, user, traits) => {
+  if (traits.isVerified) {
+    sentry.setTag('isVerified', `${traits.isVerified}`)
+  }
+  sentry.configureScope((currentScope) => {
+    currentScope.setUser({
+      id: `${user.user_id}`,
+      username: user.handle,
+      ...traits
+    })
+  })
+}
 
 function* recordIPIfNotRecent(handle) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
@@ -95,9 +90,10 @@ function* recordIPIfNotRecent(handle) {
 
 // Tasks to be run on account successfully fetched, e.g.
 // recording metrics, setting user data
-function* onFetchAccount(account) {
+function* onSignedIn({ payload: { account } }) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  const isNativeMobile = yield getContext('isNativeMobile')
+  const sentry = yield getContext('sentry')
+  const analytics = yield getContext('analytics')
   if (account && account.handle) {
     // Set analytics user context
     const traits = {
@@ -105,19 +101,12 @@ function* onFetchAccount(account) {
       trackCount: account.track_count
     }
     yield put(identify(account.handle, traits))
-    setSentryUser(account, traits)
+    setSentryUser(sentry, account, traits)
   }
 
-  if (!isNativeMobile && shouldRequestBrowserPermission()) {
-    setHasRequestedBrowserPermission()
-    yield put(accountActions.showPushNotificationConfirmation())
-  }
+  yield put(showPushNotificationConfirmation())
 
   yield fork(audiusBackendInstance.updateUserLocationTimezone)
-  if (NATIVE_MOBILE) {
-    yield fork(setHasSignedInOnMobile, account)
-    new SignedIn(account).send()
-  }
 
   // Fetch the profile so we get everything we need to populate
   // the left nav / other site-wide metadata.
@@ -129,8 +118,17 @@ function* onFetchAccount(account) {
   // This could happen if the user creates a new playlist and then leaves their session.
   yield fork(addPlaylistsNotInLibrary)
 
+  // Create userbank only if lazy is not enabled
   const feePayerOverride = yield select(getFeePayer)
-  yield call(createUserBankIfNeeded, feePayerOverride)
+  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
+  if (!getFeatureEnabled(FeatureFlags.LAZY_USERBANK_CREATION_ENABLED)) {
+    yield call(
+      createUserBankIfNeeded,
+      analytics.track,
+      audiusBackendInstance,
+      feePayerOverride
+    )
+  }
 
   // Repair users from flare-101 that were impacted and lost connected wallets
   // TODO: this should be removed after sufficient time has passed or users have gotten
@@ -142,7 +140,7 @@ function* onFetchAccount(account) {
     const cid = account.metadata_multihash ?? null
     if (cid) {
       const contentNodeMetadata = yield call(
-        fetchCID,
+        audiusBackendInstance.fetchCID,
         cid,
         gateways,
         /* cache */ false,
@@ -175,96 +173,68 @@ function* onFetchAccount(account) {
   }
 }
 
-export function* fetchAccountAsync(action) {
+export function* fetchAccountAsync({ isSignUp = false }) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const remoteConfigInstance = yield getContext('remoteConfigInstance')
-  const localStorage = yield getContext('localStorage')
   const isNativeMobile = yield getContext('isNativeMobile')
+  const isElectron = yield getContext('isElectron')
+  const fingerprintClient = yield getContext('fingerprintClient')
 
-  let fromSource = false
-  if (action) {
-    fromSource = action.fromSource
-  }
   yield put(accountActions.fetchAccountRequested())
 
-  if (!fromSource) {
-    const cachedAccount = yield call([localStorage, 'getAudiusAccount'])
-    const cachedAccountUser = yield call([localStorage, 'getAudiusAccountUser'])
-    const currentUserExists = yield call([localStorage, 'getCurrentUserExists'])
-    if (
-      cachedAccount &&
-      cachedAccountUser &&
-      !cachedAccountUser.is_deactivated
-    ) {
-      yield call(
-        cacheAccount,
-        cachedAccountUser,
-        cachedAccountUser.orderedPlaylists
-      )
-      yield put(accountActions.fetchAccountSucceeded(cachedAccount))
-    } else if (!currentUserExists) {
-      yield put(
-        accountActions.fetchAccountFailed({ reason: 'ACCOUNT_NOT_FOUND' })
-      )
-    }
-  }
-
-  const account = yield call(audiusBackendInstance.getAccount, fromSource)
-  if (!account || account.is_deactivated) {
+  const account = yield call(audiusBackendInstance.getAccount)
+  if (!account) {
     yield put(
-      accountActions.fetchAccountFailed({
-        reason: account ? 'ACCOUNT_DEACTIVATED' : 'ACCOUNT_NOT_FOUND'
+      fetchAccountFailed({
+        reason: 'ACCOUNT_NOT_FOUND'
       })
     )
-    // Clear local storage users if present
-    yield call([localStorage, 'clearAudiusAccount'])
-    yield call([localStorage, 'clearAudiusAccountUser'])
-    // If the user is not signed in
-    // Remove browser has requested push notifications.
-    if (!isNativeMobile) {
-      removeHasRequestedBrowserPermission()
-      const browserPushSubscriptionStatus = yield call(
-        fetchBrowserPushNotifcationStatus
-      )
-      if (
-        browserPushSubscriptionStatus === Permission.GRANTED &&
-        isPushManagerAvailable
-      ) {
-        const subscription = yield call(getPushManagerBrowserSubscription)
-        yield call(audiusBackendInstance.disableBrowserNotifications, {
-          subscription
-        })
-      } else if (
-        browserPushSubscriptionStatus === Permission.GRANTED &&
-        isSafariPushAvailable
-      ) {
-        const safariSubscription = yield call(getSafariPushBrowser)
-        if (safariSubscription.permission === Permission.GRANTED) {
-          yield call(
-            audiusBackendInstance.deregisterDeviceToken,
-            safariSubscription.deviceToken
-          )
-        }
-      }
-    }
+    return
+  }
+  if (account.is_deactivated) {
+    yield put(
+      fetchAccountFailed({
+        reason: 'ACCOUNT_DEACTIVATED'
+      })
+    )
     return
   }
 
-  // Set account ID and let remote-config provider
-  // know that the user id is available
+  // Set the userId in the remoteConfigInstance
   remoteConfigInstance.setUserId(account.user_id)
-  const event = new CustomEvent(USER_ID_AVAILABLE_EVENT)
-  window.dispatchEvent(event)
 
   // Fire-and-forget fp identify
-  const clientOrigin = isMobile() ? 'mobile' : isElectron() ? 'desktop' : 'web'
+  const clientOrigin = isNativeMobile
+    ? 'mobile'
+    : isElectron
+    ? 'desktop'
+    : 'web'
   fingerprintClient.identify(account.user_id, clientOrigin)
 
   yield call(recordIPIfNotRecent, account.handle)
 
-  // Cache the account and fire the onFetch callback. We're done.
+  // Cache the account and put the signedIn action. We're done.
   yield call(cacheAccount, account)
-  yield call(onFetchAccount, account)
+  yield put(signedIn({ account, isSignUp }))
+}
+
+export function* fetchLocalAccountAsync() {
+  const localStorage = yield getContext('localStorage')
+
+  yield put(accountActions.fetchAccountRequested())
+
+  const cachedAccount = yield call([localStorage, 'getAudiusAccount'])
+  const cachedAccountUser = yield call([localStorage, 'getAudiusAccountUser'])
+  const currentUserExists = yield call([localStorage, 'getCurrentUserExists'])
+  if (cachedAccount && cachedAccountUser && !cachedAccountUser.is_deactivated) {
+    yield call(
+      cacheAccount,
+      cachedAccountUser,
+      cachedAccountUser.orderedPlaylists
+    )
+  } else if (!currentUserExists) {
+    yield put(fetchAccountFailed({ reason: 'ACCOUNT_NOT_FOUND' }))
+  }
 }
 
 function* cacheAccount(account) {
@@ -277,20 +247,15 @@ function* cacheAccount(account) {
     ])
   )
 
-  const hasFavoritedItem =
-    collections.some((playlist) => playlist.user.id !== account.user_id) ||
-    account.track_save_count > 0
-
   const formattedAccount = {
     userId: account.user_id,
-    collections,
-    hasFavoritedItem
+    collections
   }
 
   yield call([localStorage, 'setAudiusAccount'], formattedAccount)
   yield call([localStorage, 'setAudiusAccountUser'], account)
 
-  yield put(accountActions.fetchAccountSucceeded(formattedAccount))
+  yield put(fetchAccountSucceeded(formattedAccount))
 }
 
 // Pull from redux cache and persist to local storage cache
@@ -303,132 +268,11 @@ export function* reCacheAccount() {
   yield call([localStorage, 'setAudiusAccountUser'], accountUser)
 }
 
-const setBrowerPushPermissionConfirmationModal = setVisibility({
-  modal: 'BrowserPushPermissionConfirmation',
-  visible: true
-})
-
-/**
- * Determine if the push notification modal should appear
- */
-export function* showPushNotificationConfirmation() {
-  const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  if (isMobile() || isElectron()) return
-  const account = yield select(getAccountUser)
-  if (!account) return
-  const browserPermission = yield call(fetchBrowserPushNotifcationStatus)
-  if (browserPermission === Permission.DEFAULT) {
-    yield put(setBrowerPushPermissionConfirmationModal)
-  } else if (browserPermission === Permission.GRANTED) {
-    if (isPushManagerAvailable) {
-      const subscription = yield call(getPushManagerBrowserSubscription)
-      const enabled = yield call(
-        audiusBackendInstance.getBrowserPushSubscription,
-        subscription.endpoint
-      )
-      if (!enabled) {
-        yield put(setBrowerPushPermissionConfirmationModal)
-      }
-    } else if (isSafariPushAvailable) {
-      try {
-        const safariPushBrowser = yield call(getSafariPushBrowser)
-        const enabled = yield call(
-          audiusBackendInstance.getBrowserPushSubscription,
-          safariPushBrowser.deviceToken
-        )
-        if (!enabled) {
-          yield put(setBrowerPushPermissionConfirmationModal)
-        }
-      } catch (err) {
-        console.log(err)
-      }
-    }
-  }
-}
-
-export function* fetchBrowserPushNotifcationStatus() {
-  if (isElectron() || isMobile()) return
-  if (isPushManagerAvailable) {
-    const permission = yield call(getPushManagerPermission)
-    return permission
-  } else if (isSafariPushAvailable) {
-    const safariSubscription = yield call(getSafariPushBrowser)
-    return safariSubscription.permission
-  }
-}
-
-export function* subscribeBrowserPushNotifcations() {
-  const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  if (isPushManagerAvailable) {
-    const pushManagerSubscription = yield call(
-      getPushManagerBrowserSubscription
-    )
-    if (pushManagerSubscription) {
-      yield put(setBrowserNotificationPermission(Permission.GRANTED))
-      yield put(setBrowserNotificationEnabled(true, false))
-      yield call(audiusBackendInstance.updateBrowserNotifications, {
-        subscription: pushManagerSubscription
-      })
-      yield put(setBrowserNotificationSettingsOn())
-    } else if (
-      window.Notification &&
-      window.Notification.permission !== Permission.DENIED
-    ) {
-      const subscription = yield call(subscribePushManagerBrowser)
-      const enabled = !!subscription
-      if (enabled) {
-        yield put(setBrowserNotificationPermission(Permission.GRANTED))
-        yield put(setBrowserNotificationEnabled(true, false))
-        yield call(audiusBackendInstance.updateBrowserNotifications, {
-          subscription
-        })
-      } else {
-        yield put(setBrowserNotificationPermission(Permission.DENIED))
-      }
-    }
-  }
-  // Note: you cannot request safari permission from saga
-  // it must be initiated from a user action (in the component)
-  if (isSafariPushAvailable) {
-    const safariSubscription = yield call(getSafariPushBrowser)
-    if (safariSubscription.permission === Permission.GRANTED) {
-      yield call(
-        audiusBackendInstance.registerDeviceToken,
-        safariSubscription.deviceToken,
-        'safari'
-      )
-      yield put(setBrowserNotificationEnabled(true, false))
-      yield put(setBrowserNotificationSettingsOn())
-    }
-  }
-}
-
-export function* unsubscribeBrowserPushNotifcations() {
-  const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  if (isPushManagerAvailable) {
-    const pushManagerSubscription = yield call(unsubscribePushManagerBrowser)
-    if (pushManagerSubscription) {
-      yield call(audiusBackendInstance.disableBrowserNotifications, {
-        subscription: pushManagerSubscription
-      })
-    }
-  } else if (isSafariPushAvailable) {
-    const safariSubscription = yield call(getSafariPushBrowser)
-    if (safariSubscription.premission === Permission.GRANTED) {
-      yield call(
-        audiusBackendInstance.deregisterDeviceToken(
-          safariSubscription.deviceToken
-        )
-      )
-    }
-  }
-}
-
 function* associateTwitterAccount(action) {
   const { uuid, profile } = action.payload
+  yield waitForWrite()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   try {
-    yield waitForAccount()
     const userId = yield select(getUserId)
     const handle = yield select(getUserHandle)
     yield call(
@@ -479,15 +323,35 @@ function* associateInstagramAccount(action) {
   }
 }
 
+function* associateTikTokAccount(action) {
+  const { uuid, profile } = action.payload
+  const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  try {
+    const userId = yield select(getUserId)
+    const handle = yield select(getUserHandle)
+    yield call(
+      audiusBackendInstance.associateTikTokAccount,
+      uuid,
+      userId,
+      handle
+    )
+
+    const account = yield select(getAccountUser)
+    const { is_verified: verified } = profile
+    if (!account.is_verified && verified) {
+      yield put(
+        cacheActions.update(Kind.USERS, [
+          { id: userId, metadata: { is_verified: true } }
+        ])
+      )
+    }
+  } catch (err) {
+    console.error(err.message)
+  }
+}
+
 function* fetchSavedAlbumsAsync() {
-  yield call(waitForBackendSetup)
-  const isAccountSet = (store) => store.account.status
-  yield call(
-    waitForValue,
-    isAccountSet,
-    null,
-    (status) => status === Status.SUCCESS
-  )
+  yield waitForRead()
   const cachedSavedAlbums = yield select(getAccountAlbumIds)
   if (cachedSavedAlbums.length > 0) {
     yield call(retrieveCollections, null, cachedSavedAlbums)
@@ -495,14 +359,7 @@ function* fetchSavedAlbumsAsync() {
 }
 
 function* fetchSavedPlaylistsAsync() {
-  yield call(waitForBackendSetup)
-  const isAccountSet = (store) => store.account.status
-  yield call(
-    waitForValue,
-    isAccountSet,
-    null,
-    (status) => status === Status.SUCCESS
-  )
+  yield waitForRead()
 
   // Fetch other people's playlists you've saved
   yield fork(function* () {
@@ -522,72 +379,51 @@ function* fetchSavedPlaylistsAsync() {
 }
 
 function* watchFetchAccount() {
-  yield takeEvery(accountActions.fetchAccount.type, fetchAccountAsync)
+  yield takeEvery(fetchAccount.type, fetchAccountAsync)
+}
+
+function* watchFetchLocalAccount() {
+  yield takeEvery(fetchLocalAccount.type, fetchLocalAccountAsync)
+}
+
+function* watchSignedIn() {
+  yield takeEvery(signedIn.type, onSignedIn)
 }
 
 function* watchTwitterLogin() {
-  yield takeEvery(accountActions.twitterLogin.type, associateTwitterAccount)
+  yield takeEvery(twitterLogin.type, associateTwitterAccount)
 }
 
 function* watchInstagramLogin() {
-  yield takeEvery(accountActions.instagramLogin.type, associateInstagramAccount)
+  yield takeEvery(instagramLogin.type, associateInstagramAccount)
+}
+
+function* watchTikTokLogin() {
+  yield takeEvery(tikTokLogin.type, associateTikTokAccount)
 }
 
 function* watchFetchSavedAlbums() {
-  yield takeEvery(accountActions.fetchSavedAlbums.type, fetchSavedAlbumsAsync)
+  yield takeEvery(fetchSavedAlbums.type, fetchSavedAlbumsAsync)
 }
 
 function* watchFetchSavedPlaylists() {
-  yield takeEvery(
-    accountActions.fetchSavedPlaylists.type,
-    fetchSavedPlaylistsAsync
-  )
+  yield takeEvery(fetchSavedPlaylists.type, fetchSavedPlaylistsAsync)
 }
 
 function* watchAddAccountPlaylist() {
-  yield takeEvery(accountActions.addAccountPlaylist.type, reCacheAccount)
-}
-
-function* getBrowserPushNotifcations() {
-  yield takeEvery(
-    accountActions.fetchBrowserPushNotifications.type,
-    fetchBrowserPushNotifcationStatus
-  )
-}
-
-function* watchShowPushNotificationConfirmation() {
-  yield takeEvery(
-    accountActions.showPushNotificationConfirmation.type,
-    showPushNotificationConfirmation
-  )
-}
-
-function* subscribeBrowserPushNotification() {
-  yield takeEvery(
-    accountActions.subscribeBrowserPushNotifications.type,
-    subscribeBrowserPushNotifcations
-  )
-}
-
-function* unsubscribeBrowserPushNotification() {
-  yield takeEvery(
-    accountActions.unsubscribeBrowserPushNotifications.type,
-    unsubscribeBrowserPushNotifcations
-  )
+  yield takeEvery(addAccountPlaylist.type, reCacheAccount)
 }
 
 export default function sagas() {
-  const sagas = [
+  return [
     watchFetchAccount,
+    watchFetchLocalAccount,
+    watchSignedIn,
     watchTwitterLogin,
     watchInstagramLogin,
+    watchTikTokLogin,
     watchFetchSavedAlbums,
     watchFetchSavedPlaylists,
-    watchShowPushNotificationConfirmation,
-    watchAddAccountPlaylist,
-    getBrowserPushNotifcations,
-    subscribeBrowserPushNotification,
-    unsubscribeBrowserPushNotification
+    watchAddAccountPlaylist
   ]
-  return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
 }

@@ -1,7 +1,15 @@
 import path from 'path'
-import { Configuration, ProvidePlugin, ResolvePluginInstance } from 'webpack'
 
-const isNative = process.env.REACT_APP_NATIVE_NAVIGATION_ENABLED === 'true'
+import {
+  Configuration,
+  ProvidePlugin,
+  ResolvePluginInstance,
+  SourceMapDevToolPlugin
+} from 'webpack'
+
+const isProd = process.env.NODE_ENV === 'production'
+
+const SOURCEMAP_URL = 'https://s3.us-west-1.amazonaws.com/sourcemaps.audius.co/'
 
 type ModuleScopePlugin = ResolvePluginInstance & {
   allowedPaths: string[]
@@ -10,7 +18,7 @@ type ModuleScopePlugin = ResolvePluginInstance & {
 // This ensures we can use the resolve.alias for react/react-dom
 function addReactToModuleScopePlugin(plugin: ModuleScopePlugin) {
   const reactLibs = ['react', 'react-dom']
-  const reactPaths = reactLibs.map(reactLib =>
+  const reactPaths = reactLibs.map((reactLib) =>
     path.resolve(__dirname, 'node_modules', reactLib)
   )
   plugin.allowedPaths = [...plugin.allowedPaths, ...reactPaths]
@@ -44,6 +52,12 @@ export default {
               exclude: /node_modules/,
               use: ['raw-loader', 'glslify-loader'],
               type: 'javascript/auto'
+            },
+            {
+              test: /\.m?js$/,
+              resolve: {
+                fullySpecified: false // disable the behavior
+              }
             }
           ]
         },
@@ -52,7 +66,15 @@ export default {
           new ProvidePlugin({
             process: 'process/browser',
             Buffer: ['buffer', 'Buffer']
-          })
+          }),
+          ...(isProd
+            ? [
+                new SourceMapDevToolPlugin({
+                  publicPath: SOURCEMAP_URL,
+                  filename: '[file].map'
+                })
+              ]
+            : [])
         ],
         experiments: {
           ...config.experiments,
@@ -78,12 +100,8 @@ export default {
           },
           alias: {
             ...config.resolve?.alias,
-            ...(isNative
-              ? { react: 'react16' }
-              : {
-                  react: path.resolve('./node_modules/react'),
-                  'react-dom': path.resolve('./node_modules/react-dom')
-                })
+            react: path.resolve('./node_modules/react'),
+            'react-dom': path.resolve('./node_modules/react-dom')
           }
         },
         ignoreWarnings: [

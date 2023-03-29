@@ -2,20 +2,20 @@ import { useCallback } from 'react'
 
 import type { Nullable } from '@audius/common'
 import {
+  makeTwitterShareUrl,
   useTwitterButtonStatus,
   cacheUsersActions,
   cacheUsersSelectors
 } from '@audius/common'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconTwitterBird from 'app/assets/images/iconTwitterBird.svg'
 import type { ButtonProps } from 'app/components/core'
 import { Button, useOnOpenLink } from 'app/components/core'
-import { useDispatchWeb } from 'app/hooks/useDispatchWeb'
-import { useSelectorWeb } from 'app/hooks/useSelectorWeb'
-import type { make } from 'app/services/analytics'
-import { track } from 'app/services/analytics'
+import { make, track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
-import { getTwitterLink } from 'app/utils/twitter'
+import { spacing } from 'app/styles/spacing'
+import type { AllEvents } from 'app/types/analytics'
 const { getUser } = cacheUsersSelectors
 const { fetchUserSocials } = cacheUsersActions
 
@@ -32,7 +32,7 @@ const useStyles = makeStyles(({ palette }) => ({
 type StaticTwitterProps = {
   type: 'static'
   shareText: string
-  analytics?: ReturnType<typeof make>
+  analytics?: AllEvents
 }
 
 type DynamicTwitterProps = {
@@ -44,7 +44,7 @@ type DynamicTwitterProps = {
     otherHandle?: Nullable<string>
   ) => Nullable<{
     shareText: string
-    analytics: ReturnType<typeof make>
+    analytics: AllEvents
   }>
 }
 
@@ -52,15 +52,17 @@ export type TwitterButtonProps = Partial<ButtonProps> &
   (StaticTwitterProps | DynamicTwitterProps)
 
 export const TwitterButton = (props: TwitterButtonProps) => {
-  const { url = null, style, ...other } = props
+  const { url = null, style, IconProps, ...other } = props
+  const { size } = other
   const styles = useStyles()
   const openLink = useOnOpenLink()
-  const dispatchWeb = useDispatchWeb()
-  const user = useSelectorWeb((state) =>
+  const dispatch = useDispatch()
+
+  const user = useSelector((state) =>
     getUser(state, { handle: 'handle' in other ? other.handle : undefined })
   )
 
-  const additionalUser = useSelectorWeb((state) =>
+  const additionalUser = useSelector((state) =>
     getUser(state, {
       handle: 'additionalHandle' in other ? other.additionalHandle : undefined
     })
@@ -78,16 +80,16 @@ export const TwitterButton = (props: TwitterButtonProps) => {
 
   const handlePress = useCallback(() => {
     if (other.type === 'static' && other.analytics) {
-      track(other.analytics)
+      track(make(other.analytics))
     }
     if (other.type === 'dynamic') {
-      dispatchWeb(fetchUserSocials(other.handle))
+      dispatch(fetchUserSocials(other.handle))
       if (other.additionalHandle) {
-        dispatchWeb(fetchUserSocials(other.additionalHandle))
+        dispatch(fetchUserSocials(other.additionalHandle))
       }
       setLoading()
     }
-  }, [other, dispatchWeb, setLoading])
+  }, [other, dispatch, setLoading])
 
   if (other.type === 'dynamic' && shareTwitterStatus === 'success') {
     const handle = twitterHandle ? `@${twitterHandle}` : userName
@@ -101,8 +103,8 @@ export const TwitterButton = (props: TwitterButtonProps) => {
 
     if (twitterData) {
       const { shareText, analytics } = twitterData
-      openLink(getTwitterLink(url, shareText))
-      track(analytics)
+      openLink(makeTwitterShareUrl(url, shareText))
+      track(make(analytics))
       setIdle()
     }
   }
@@ -115,10 +117,16 @@ export const TwitterButton = (props: TwitterButtonProps) => {
       iconPosition='left'
       url={
         other.type === 'static'
-          ? getTwitterLink(url, other.shareText)
+          ? makeTwitterShareUrl(url, other.shareText)
           : undefined
       }
       onPress={handlePress}
+      IconProps={{
+        ...(size === 'large'
+          ? { height: spacing(6), width: spacing(6) }
+          : null),
+        ...IconProps
+      }}
       {...other}
     />
   )

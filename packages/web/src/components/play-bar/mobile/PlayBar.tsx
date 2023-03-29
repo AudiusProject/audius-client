@@ -7,38 +7,34 @@ import {
   PlaybackSource,
   SquareSizes,
   queueActions,
-  tracksSocialActions
+  tracksSocialActions,
+  playerSelectors,
+  queueSelectors
 } from '@audius/common'
 import cn from 'classnames'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { make, useRecord } from 'common/store/analytics/actions'
-import { makeGetCurrent } from 'common/store/queue/selectors'
 import FavoriteButton from 'components/alt-button/FavoriteButton'
 import CoSign, { Size } from 'components/co-sign/CoSign'
 import PlayButton from 'components/play-bar/PlayButton'
 import TrackingBar from 'components/play-bar/TrackingBar'
 import { PlayButtonStatus } from 'components/play-bar/types'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
-import {
-  getAudio,
-  getBuffering,
-  getCounter,
-  getPlaying
-} from 'store/player/selectors'
-import { AudioState } from 'store/player/types'
+import { audioPlayer } from 'services/audio-player'
 import { AppState } from 'store/types'
 import { isDarkMode, isMatrix } from 'utils/theme/theme'
 
 import styles from './PlayBar.module.css'
+const { makeGetCurrent } = queueSelectors
+const { getBuffering, getCounter, getPlaying } = playerSelectors
 const { recordListen, saveTrack, unsaveTrack } = tracksSocialActions
 const { pause, play } = queueActions
 
 const SEEK_INTERVAL = 200
 
 type OwnProps = {
-  audio: AudioState
   onClickInfo: () => void
 }
 
@@ -48,7 +44,6 @@ type PlayBarProps = OwnProps &
 
 const PlayBar = ({
   currentQueueItem,
-  audio,
   isPlaying,
   isBuffering,
   play,
@@ -64,8 +59,8 @@ const PlayBar = ({
 
   useEffect(() => {
     const seekInterval = setInterval(async () => {
-      const duration = await audio?.getDuration()
-      const pos = await audio?.getPosition()
+      const duration = await audioPlayer.getDuration()
+      const pos = await audioPlayer.getPosition()
       if (duration === undefined || pos === undefined) return
 
       const position = Math.min(pos, duration)
@@ -85,7 +80,7 @@ const PlayBar = ({
     collectible?.frameUrl ??
     collectible?.gifUrl
 
-  if (!audio || ((!uid || !track) && !collectible) || !user) return null
+  if (((!uid || !track) && !collectible) || !user) return null
 
   const getDisplayInfo = () => {
     if (track && !collectible) {
@@ -198,7 +193,6 @@ function makeMapStateToProps() {
   const mapStateToProps = (state: AppState) => ({
     currentQueueItem: getCurrentQueueItem(state),
     playCounter: getCounter(state),
-    audio: getAudio(state),
     isPlaying: getPlaying(state),
     isBuffering: getBuffering(state)
   })

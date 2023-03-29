@@ -1,11 +1,11 @@
-import type { UserCollection, ShareModalContent } from '@audius/common'
+import type { ShareModalContent } from '@audius/common'
+import { makeTwitterShareUrl } from '@audius/common'
 
 import {
   getCollectionRoute,
   getTrackRoute,
   getUserRoute
 } from 'app/utils/routes'
-import { getTwitterLink } from 'app/utils/twitter'
 
 import { messages } from './messages'
 
@@ -21,17 +21,11 @@ export const getContentUrl = (content: ShareModalContent) => {
     }
     case 'album': {
       const { album, artist } = content
-      return getCollectionRoute(
-        { ...album, user: artist } as unknown as UserCollection,
-        true
-      )
+      return getCollectionRoute({ ...album, user: artist }, true)
     }
     case 'playlist': {
       const { playlist, creator } = content
-      return getCollectionRoute(
-        { ...playlist, user: creator } as unknown as UserCollection,
-        true
-      )
+      return getCollectionRoute({ ...playlist, user: creator }, true)
     }
     // TODO: add audioNFTPlaylist link
     case 'audioNftPlaylist': {
@@ -78,5 +72,5 @@ export const getTwitterShareText = (content: ShareModalContent) => {
 export const getTwitterShareUrl = (content: ShareModalContent) => {
   const url = getContentUrl(content)
   const shareText = getTwitterShareText(content)
-  return getTwitterLink(url ?? null, shareText)
+  return makeTwitterShareUrl(url ?? null, shareText)
 }

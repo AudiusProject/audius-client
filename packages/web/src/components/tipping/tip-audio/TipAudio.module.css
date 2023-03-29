@@ -8,14 +8,13 @@
   margin-left: 8px;
 }
 
-.modalHeader {
-  border-bottom: 1px solid var(--neutral-light-6);
-}
-
 .modalBody {
   width: 488px;
   height: 492px;
   max-height: 95vh;
+}
+.modalBody.biggerModalBody {
+  height: 548px;
 }
 
 .modalContentContainer {
@@ -43,14 +42,20 @@
   color: var(--neutral-light-4);
 }
 
+.container {
+  width: 100%;
+  padding: 0 var(--unit-6);
+}
+.containerFill {
+  height: 100%;
+}
 .container > div {
   margin-top: 24px;
   margin-bottom: 24px;
 }
-
-.container {
-  width: 100%;
-  padding: 0 var(--unit-6);
+.container.containerDense > div {
+  margin-top: 18px;
+  margin-bottom: 18px;
 }
 
 .flexCenter {
@@ -67,11 +72,14 @@
   margin-top: 0;
 }
 
-.becomeTopSupporter {
-  padding: 8px 0;
+.topBanner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
   font-size: var(--font-m);
   font-weight: var(--font-demi-bold);
-  color: var(--white);
+  color: var(--static-white);
   background: linear-gradient(
     315deg,
     var(--page-header-gradient-color-1) 0%,
@@ -80,14 +88,44 @@
   border-radius: 4px;
 }
 
-.becomeTopSupporterTrophy {
-  height: 16px;
-  width: 16px;
-  margin-right: 6px;
+.buyAudioButton {
+  width: 100%;
+  height: unset !important;
+  padding: 8px 0;
+}
+.buyAudioButton > .buyAudioButtonText {
+  font-size: var(--font-m);
+}
+.buyAudioButton:hover:enabled {
+  transform: scale3d(1.02, 1.02, 1.02) !important;
+}
+.buyAudioButton:active:enabled {
+  transform: scale3d(0.98, 0.98, 0.98) !important;
 }
 
-.becomeTopSupporterTrophy g path {
+.divider {
+  border-bottom: 1px solid var(--neutral-light-8);
+}
+
+.topBannerIcon svg {
+  width: 2em;
+  height: 2em;
+  margin-top: 2px;
+}
+
+.topBannerIcon svg g path {
   fill: var(--white);
+}
+
+.topBannerText {
+  padding: 8px 0;
+  flex: 1;
+  text-align: center;
+  line-height: 130%;
+}
+
+.topBanner .amount {
+  font-weight: var(--font-bold);
 }
 
 .amountToSend {
@@ -269,23 +307,6 @@
   font-weight: var(--font-demi-bold);
 }
 
-.input {
-  padding: 16px;
-  color: var(--neutral);
-  background-color: var(--neutral-light-10);
-  border: 1px solid var(--neutral-light-8);
-  font-size: var(--font-xl);
-  font-weight: var(--font-medium);
-}
-
-.rightLabel {
-  bottom: 17px;
-  right: 16px;
-  color: var(--neutral);
-  font-size: var(--font-xl);
-  font-weight: var(--font-bold);
-}
-
 .error {
   font-size: var(--font-m);
   font-weight: var(--font-demi-bold);
@@ -304,4 +325,8 @@
 }
 .buttonContainer .disabled:hover {
   background: var(--neutral-light-7) !important;
+}
+
+.buttonIcon {
+  margin: 0 2px 0 0px !important;
 }

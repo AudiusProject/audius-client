@@ -17,14 +17,18 @@ import {
   themeSelectors,
   RepostType,
   repostsUserListActions,
-  favoritesUserListActions
+  favoritesUserListActions,
+  playerSelectors,
+  usePremiumContentAccess,
+  FeatureFlags,
+  Genre
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { TrackTileProps } from 'components/track/types'
-import { getUid, getPlaying, getBuffering } from 'store/player/selectors'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { AppState } from 'store/types'
 import {
   profilePage,
@@ -36,6 +40,7 @@ import { isMatrix, shouldShowDark } from 'utils/theme/theme'
 import { getTrackWithFallback, getUserWithFallback } from '../helpers'
 
 import TrackTile from './TrackTile'
+const { getUid, getPlaying, getBuffering } = playerSelectors
 const { setFavorite } = favoritesUserListActions
 const { setRepost } = repostsUserListActions
 const { getTheme } = themeSelectors
@@ -79,13 +84,18 @@ const ConnectedTrackTile = memo(
     clickOverflow,
     darkMode,
     isTrending,
-    showRankIcon
+    showRankIcon,
+    isFeed = false
   }: ConnectedTrackTileProps) => {
+    const trackWithFallback = getTrackWithFallback(track)
     const {
       is_delete,
       is_unlisted,
+      is_premium: isPremium,
+      premium_conditions: premiumConditions,
       track_id,
       title,
+      genre,
       permalink,
       repost_count,
       save_count,
@@ -99,18 +109,29 @@ const ConnectedTrackTile = memo(
       play_count,
       _co_sign,
       duration
-    } = getTrackWithFallback(track)
+    } = trackWithFallback
 
-    const { _artist_pick, user_id, handle, name, is_verified } =
+    const { artist_pick_track_id, user_id, handle, name, is_verified } =
       getUserWithFallback(user)
 
     const isOwner = user_id === currentUserId
+
+    const { isEnabled: isGatedContentEnabled } = useFlag(
+      FeatureFlags.GATED_CONTENT_ENABLED
+    )
+    const { isEnabled: isNewPodcastControlsEnabled } = useFlag(
+      FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
+      FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
+    )
+    const { isUserAccessTBD, doesUserHaveAccess } =
+      usePremiumContentAccess(trackWithFallback)
+    const loading = isBuffering || isUserAccessTBD
 
     const toggleSave = (trackId: ID) => {
       if (has_current_user_saved) {
         unsaveTrack(trackId)
       } else {
-        saveTrack(trackId)
+        saveTrack(trackId, isFeed)
       }
     }
 
@@ -118,16 +139,18 @@ const ConnectedTrackTile = memo(
       if (has_current_user_reposted) {
         unrepostTrack(trackId)
       } else {
-        repostTrack(trackId)
+        repostTrack(trackId, isFeed)
       }
     }
 
     const goToTrackPage = (e: MouseEvent<HTMLElement>) => {
+      e.preventDefault()
       e.stopPropagation()
       goToRoute(permalink)
     }
 
     const goToArtistPage = (e: MouseEvent<HTMLElement>) => {
+      e.preventDefault()
       e.stopPropagation()
       goToRoute(profilePage(handle))
     }
@@ -151,19 +174,32 @@ const ConnectedTrackTile = memo(
       }
 
     const onClickOverflow = (trackId: ID) => {
-      const overflowActions = [
-        !isOwner
+      const isLongFormContent =
+        genre === Genre.PODCASTS || genre === Genre.AUDIOBOOKS
+
+      const repostAction =
+        !isOwner && (!isGatedContentEnabled || doesUserHaveAccess)
           ? has_current_user_reposted
             ? OverflowAction.UNREPOST
             : OverflowAction.REPOST
-          : null,
-        !isOwner
+          : null
+      const favoriteAction =
+        !isOwner && (!isGatedContentEnabled || doesUserHaveAccess)
           ? has_current_user_saved
             ? OverflowAction.UNFAVORITE
             : OverflowAction.FAVORITE
-          : null,
-        OverflowAction.ADD_TO_PLAYLIST,
-        OverflowAction.VIEW_TRACK_PAGE,
+          : null
+      const addToPlaylistAction =
+        !isGatedContentEnabled || !isPremium
+          ? OverflowAction.ADD_TO_PLAYLIST
+          : null
+      const overflowActions = [
+        repostAction,
+        favoriteAction,
+        addToPlaylistAction,
+        isNewPodcastControlsEnabled && isLongFormContent
+          ? OverflowAction.VIEW_EPISODE_PAGE
+          : OverflowAction.VIEW_TRACK_PAGE,
         OverflowAction.VIEW_ARTIST_PAGE
       ].filter(Boolean) as OverflowAction[]
 
@@ -183,6 +219,7 @@ const ConnectedTrackTile = memo(
         hasLoaded={hasLoaded}
         ordered={ordered}
         title={title}
+        genre={genre as Genre}
         repostCount={repost_count}
         saveCount={save_count}
         followeeReposts={followee_reposts}
@@ -199,15 +236,16 @@ const ConnectedTrackTile = memo(
         coSign={_co_sign}
         // Artist Pick
         showArtistPick={showArtistPick}
-        isArtistPick={_artist_pick === track_id}
+        isArtistPick={artist_pick_track_id === track_id}
         // Artist
         artistHandle={handle}
         artistName={name}
         artistIsVerified={is_verified}
         // Playback
+        permalink={permalink}
         togglePlay={togglePlay}
         isActive={uid === playingUid}
-        isLoading={isBuffering}
+        isLoading={loading}
         isPlaying={uid === playingUid && isPlaying}
         goToArtistPage={goToArtistPage}
         goToTrackPage={goToTrackPage}
@@ -223,6 +261,9 @@ const ConnectedTrackTile = memo(
         isMatrix={isMatrix()}
         isTrending={isTrending}
         isUnlisted={is_unlisted}
+        isPremium={isPremium}
+        premiumConditions={premiumConditions}
+        doesUserHaveAccess={doesUserHaveAccess}
         showRankIcon={showRankIcon}
       />
     )
@@ -252,12 +293,12 @@ function mapDispatchToProps(dispatch: Dispatch) {
           source: ShareSource.TILE
         })
       ),
-    saveTrack: (trackId: ID) =>
-      dispatch(saveTrack(trackId, FavoriteSource.TILE)),
+    saveTrack: (trackId: ID, isFeed: boolean) =>
+      dispatch(saveTrack(trackId, FavoriteSource.TILE, isFeed)),
     unsaveTrack: (trackId: ID) =>
       dispatch(unsaveTrack(trackId, FavoriteSource.TILE)),
-    repostTrack: (trackId: ID) =>
-      dispatch(repostTrack(trackId, RepostSource.TILE)),
+    repostTrack: (trackId: ID, isFeed: boolean) =>
+      dispatch(repostTrack(trackId, RepostSource.TILE, isFeed)),
     unrepostTrack: (trackId: ID) =>
       dispatch(undoRepostTrack(trackId, RepostSource.TILE)),
     clickOverflow: (trackId: ID, overflowActions: OverflowAction[]) =>

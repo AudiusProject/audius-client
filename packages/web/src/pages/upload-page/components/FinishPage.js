@@ -1,6 +1,11 @@
 import { Component } from 'react'
 
-import { DefaultSizes, imageBlank as placeholderArt } from '@audius/common'
+import {
+  DefaultSizes,
+  imageBlank as placeholderArt,
+  UploadType,
+  ProgressStatus
+} from '@audius/common'
 import { ProgressBar } from '@audius/stems'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
@@ -18,11 +23,8 @@ import { TrackTileSize } from 'components/track/types'
 import { ComponentPlacement } from 'components/types'
 import UserBadges from 'components/user-badges/UserBadges'
 
-import { ProgressStatus } from '../store/types'
-
 import styles from './FinishPage.module.css'
 import ShareBanner from './ShareBanner'
-import UploadType from './uploadType'
 
 const TOAST_DELAY_MILLIS = 5 * 1000
 
@@ -128,7 +130,10 @@ class FinishPage extends Component {
       showArtworkIcon: false,
       disableActions: true,
       uploading: true,
-      showSkeleton: false
+      showSkeleton: false,
+      onClickTitle: () => {
+        return inProgress ? undefined : onContinue()
+      }
     }
 
     const erroredTrackSet = new Set(erroredTracks)
@@ -151,8 +156,8 @@ class FinishPage extends Component {
           </div>
         )
 
-        const uploadPercent =
-          (uploadProgress[i].loaded / uploadProgress[i].total) * 100
+        const { loaded, total } = uploadProgress[i]
+        const uploadPercent = total === 0 ? 0 : (loaded / total) * 100
 
         const artwork = (
           <TrackArtwork
@@ -190,6 +195,11 @@ class FinishPage extends Component {
                   ? track.metadata.artwork.url
                   : placeholderArt
               }}
+              isTrack
+              doesUserHaveAccess
+              isOwner
+              isPremium={track.metadata.is_premium}
+              premiumConditions={track.metadata.premium_conditions}
               {...tileProps}
             />
           </div>
@@ -338,7 +348,6 @@ class FinishPage extends Component {
     )
   }
 }
-
 FinishPage.propTypes = {
   account: PropTypes.object,
   tracks: PropTypes.array,

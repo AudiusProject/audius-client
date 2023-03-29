@@ -5,11 +5,11 @@ import type {
   TrackEntity,
   RemixCreateNotification as RemixCreateNotificationType
 } from '@audius/common'
-import { notificationsSelectors } from '@audius/common'
+import { useProxySelector, notificationsSelectors } from '@audius/common'
+import { useSelector } from 'react-redux'
 
 import IconRemix from 'app/assets/images/iconRemix.svg'
-import { useSelectorWeb, isEqual } from 'app/hooks/useSelectorWeb'
-import { make } from 'app/services/analytics'
+import { useNotificationNavigation } from 'app/hooks/useNotificationNavigation'
 import { EventNames } from 'app/types/analytics'
 import { getTrackRoute } from 'app/utils/routes'
 
@@ -22,7 +22,6 @@ import {
   UserNameLink,
   NotificationTwitterButton
 } from '../Notification'
-import { useDrawerNavigation } from '../useDrawerNavigation'
 const { getNotificationEntities, getNotificationUser } = notificationsSelectors
 
 const messages = {
@@ -41,13 +40,11 @@ export const RemixCreateNotification = (
 ) => {
   const { notification } = props
   const { childTrackId, parentTrackId } = notification
-  const navigation = useDrawerNavigation()
-  const user = useSelectorWeb((state) =>
-    getNotificationUser(state, notification)
-  )
-  const tracks = useSelectorWeb(
+  const navigation = useNotificationNavigation()
+  const user = useSelector((state) => getNotificationUser(state, notification))
+  const tracks = useProxySelector(
     (state) => getNotificationEntities(state, notification),
-    isEqual
+    [notification]
   ) as EntityType[]
 
   const childTrack = tracks?.find(
@@ -63,26 +60,18 @@ export const RemixCreateNotification = (
 
   const handlePress = useCallback(() => {
     if (childTrack) {
-      navigation.navigate({
-        native: {
-          screen: 'Track',
-          params: { id: childTrack.track_id, fromNotifications: true }
-        },
-        web: {
-          route: getTrackRoute(childTrack)
-        }
-      })
+      navigation.navigate(notification)
     }
-  }, [childTrack, navigation])
+  }, [childTrack, navigation, notification])
 
   const handleTwitterShareData = useCallback(
     (handle: string | undefined) => {
       if (parentTrackTitle && handle) {
         const shareText = messages.shareTwitterText(parentTrackTitle, handle)
-        const analytics = make({
+        const analytics = {
           eventName: EventNames.NOTIFICATIONS_CLICK_REMIX_COSIGN_TWITTER_SHARE,
           text: shareText
-        })
+        } as const
         return { shareText, analytics }
       }
       return null

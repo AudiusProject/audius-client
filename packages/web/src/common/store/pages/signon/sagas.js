@@ -2,8 +2,6 @@ import {
   FavoriteSource,
   Name,
   FeatureFlags,
-  IntKeys,
-  StringKeys,
   ELECTRONIC_SUBGENRES,
   Genre,
   accountSelectors,
@@ -11,15 +9,21 @@ import {
   cacheUsersSelectors,
   collectionsSocialActions,
   solanaSelectors,
-  usersSocialActions as socialActions
+  usersSocialActions as socialActions,
+  getContext,
+  settingsPageActions,
+  MAX_HANDLE_LENGTH,
+  PushNotificationSetting,
+  getCityAndRegion,
+  processAndCacheUsers
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
+import { isEmpty } from 'lodash'
 import {
   all,
   call,
   delay,
   fork,
-  getContext,
   put,
   race,
   select,
@@ -31,27 +35,23 @@ import {
 import { fetchAccountAsync, reCacheAccount } from 'common/store/account/sagas'
 import { identify, make } from 'common/store/analytics/actions'
 import * as backendActions from 'common/store/backend/actions'
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { fetchUserByHandle, fetchUsers } from 'common/store/cache/users/sagas'
-import { processAndCacheUsers } from 'common/store/cache/users/utils'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
-import { MAX_HANDLE_LENGTH } from 'pages/sign-on/utils/formatSocialProfile'
-import { getCityAndRegion } from 'services/Location'
+import { UiErrorCode } from 'store/errors/actions'
 import { setHasRequestedBrowserPermission } from 'utils/browserNotifications'
 import { isValidEmailString } from 'utils/email'
-import { withTimeout } from 'utils/network'
 import { restrictedHandles } from 'utils/restrictedHandles'
 import { ERROR_PAGE, FEED_PAGE, SIGN_IN_PAGE, SIGN_UP_PAGE } from 'utils/route'
-import { waitForAccount } from 'utils/sagaHelpers'
+import { waitForRead, waitForWrite } from 'utils/sagaHelpers'
 
 import * as signOnActions from './actions'
 import { watchSignOnError } from './errorSagas'
-import mobileSagas from './mobileSagas'
 import { getRouteOnCompletion, getSignOn } from './selectors'
 import { FollowArtistsCategory, Pages } from './types'
 import { checkHandle } from './verifiedChecker'
+const { togglePushNotificationSetting } = settingsPageActions
 const { getFeePayer } = solanaSelectors
 const { saveCollection } = collectionsSocialActions
 const { getUsers } = cacheUsersSelectors
@@ -60,17 +60,8 @@ const getAccountUser = accountSelectors.getAccountUser
 const IS_PRODUCTION_BUILD = process.env.NODE_ENV === 'production'
 const IS_PRODUCTION = process.env.REACT_APP_ENVIRONMENT === 'production'
 const IS_STAGING = process.env.REACT_APP_ENVIRONMENT === 'staging'
-const NATIVE_MOBILE = process.env.REACT_APP_NATIVE_MOBILE
 
-const SUGGESTED_FOLLOW_USER_HANDLE_URL =
-  process.env.REACT_APP_SUGGESTED_FOLLOW_HANDLES
 const SIGN_UP_TIMEOUT_MILLIS = 20 /* min */ * 60 * 1000
-
-// Route to fetch instagram user data w/ the username
-export const getIGUserUrl = (endpoint, username) => {
-  const url = endpoint.replace('$USERNAME$', username)
-  return url
-}
 
 const messages = {
   incompleteAccount:
@@ -87,8 +78,11 @@ if (IS_PRODUCTION) {
   defaultFollowUserIds = new Set([1964])
 }
 
-export const fetchSuggestedFollowUserIds = async () => {
-  return fetch(SUGGESTED_FOLLOW_USER_HANDLE_URL).then((d) => d.json())
+export function* fetchSuggestedFollowUserIds() {
+  const env = yield getContext('env')
+  const res = yield call(fetch, env.SUGGESTED_FOLLOW_HANDLES)
+  const json = yield res.json()
+  return json
 }
 
 const followArtistCategoryGenreMappings = {
@@ -107,7 +101,7 @@ function* getArtistsToFollow() {
 }
 
 function* fetchAllFollowArtist() {
-  yield call(waitForBackendSetup)
+  yield call(waitForRead)
   try {
     // Fetch Featured Follow artists first
     const suggestedUserFollowIds = yield call(fetchSuggestedFollowUserIds)
@@ -150,6 +144,7 @@ function* fetchFollowArtistGenre(followArtistCategory) {
 }
 
 function* fetchReferrer(action) {
+  yield waitForRead()
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const { handle } = action
   if (handle) {
@@ -161,7 +156,6 @@ function* fetchReferrer(action) {
       // Check if the user is already signed in
       // If so, apply retroactive referrals
 
-      yield waitForAccount()
       const currentUser = yield select(getAccountUser)
       if (
         currentUser &&
@@ -181,39 +175,13 @@ function* fetchReferrer(action) {
 
 const isRestrictedHandle = (handle) =>
   restrictedHandles.has(handle.toLowerCase())
-const isHandleCharacterCompliant = (handle) => /^[a-zA-Z0-9_]*$/.test(handle)
-
-async function getInstagramUser(handle, remoteConfigInstance) {
-  try {
-    const profileEndpoint =
-      remoteConfigInstance.getRemoteVar(StringKeys.INSTAGRAM_API_PROFILE_URL) ||
-      'https://instagram.com/$USERNAME$/?__a=1'
-    const timeout =
-      remoteConfigInstance.getRemoteVar(
-        IntKeys.INSTAGRAM_HANDLE_CHECK_TIMEOUT
-      ) || 4000
-    const fetchIGUserUrl = getIGUserUrl(profileEndpoint, handle)
-    const igProfile = await withTimeout(fetch(fetchIGUserUrl), timeout)
-    if (!igProfile.ok) return null
-    const igProfileJson = await igProfile.json()
-    if (!igProfileJson.graphql || !igProfileJson.graphql.user) {
-      return null
-    }
-    const fields = ['username', 'is_verified']
-    return fields.reduce((profile, field) => {
-      profile[field] = igProfileJson.graphql.user[field]
-      return profile
-    }, {})
-  } catch (err) {
-    return null
-  }
-}
+const isHandleCharacterCompliant = (handle) => /^[a-zA-Z0-9_.]*$/.test(handle)
 
 function* validateHandle(action) {
   const { handle, isOauthVerified, onValidate } = action
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const remoteConfigInstance = yield getContext('remoteConfigInstance')
-  yield call(waitForBackendSetup)
+  yield call(waitForWrite)
   try {
     if (handle.length > MAX_HANDLE_LENGTH) {
       yield put(signOnActions.validateHandleFailed('tooLong'))
@@ -228,19 +196,37 @@ function* validateHandle(action) {
       if (onValidate) onValidate(true)
       return
     }
-    yield delay(300) // Wait 300 ms to debounce user input
+    yield delay(1000) // Wait 1000ms to debounce user input
 
-    let handleInUse
+    // Call fetch user by handle and do not retry if the user is not created, it will
+    // return 404 and force discovery reselection
+    const user = yield call(
+      fetchUserByHandle,
+      handle,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      false
+    )
+    const handleInUse = !isEmpty(user)
+
     if (IS_PRODUCTION_BUILD || IS_PRODUCTION) {
-      const [inUse, twitterUserQuery, instagramUser] = yield all([
-        call(audiusBackendInstance.handleInUse, handle),
+      const [twitterUserQuery, instagramUser, tikTokUser] = yield all([
         call(audiusBackendInstance.twitterHandle, handle),
-        call(getInstagramUser, handle, remoteConfigInstance)
+        call(audiusBackendInstance.instagramHandle, handle),
+        remoteConfigInstance.getFeatureEnabled(
+          FeatureFlags.VERIFY_HANDLE_WITH_TIKTOK
+        )
+          ? call(audiusBackendInstance.tiktokHandle, handle)
+          : null
       ])
+
       const handleCheckStatus = checkHandle(
         isOauthVerified,
         twitterUserQuery?.user?.profile?.[0] ?? null,
-        instagramUser || null
+        instagramUser || null,
+        tikTokUser || null
       )
 
       if (handleCheckStatus !== 'notReserved') {
@@ -248,9 +234,6 @@ function* validateHandle(action) {
         if (onValidate) onValidate(true)
         return
       }
-      handleInUse = inUse
-    } else {
-      handleInUse = yield call(audiusBackendInstance.handleInUse, handle)
     }
 
     if (handleInUse) {
@@ -272,12 +255,16 @@ function* checkEmail(action) {
     yield put(signOnActions.validateEmailFailed('characters'))
     return
   }
+
   try {
     const inUse = yield call(audiusBackendInstance.emailInUse, action.email)
     if (inUse) {
       yield put(signOnActions.goToPage(Pages.SIGNIN))
       // let mobile client know that email is in use
       yield put(signOnActions.validateEmailSucceeded(false))
+      if (action.onUnavailable) {
+        yield call(action.onUnavailable)
+      }
     } else {
       const trackEvent = make(Name.CREATE_ACCOUNT_COMPLETE_EMAIL, {
         emailAddress: action.email
@@ -285,9 +272,15 @@ function* checkEmail(action) {
       yield put(trackEvent)
       yield put(signOnActions.validateEmailSucceeded(true))
       yield put(signOnActions.goToPage(Pages.PASSWORD))
+      if (action.onAvailable) {
+        yield call(action.onAvailable)
+      }
     }
   } catch (err) {
     yield put(signOnActions.validateEmailFailed(err.message))
+    if (action.onError) {
+      yield call(action.onError)
+    }
   }
 }
 
@@ -303,23 +296,27 @@ function* signUp() {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const { waitForRemoteConfig } = yield getContext('remoteConfigInstance')
   const getFeatureEnabled = yield getContext('getFeatureEnabled')
-  yield call(waitForBackendSetup)
+
+  yield call(waitForWrite)
+
   const signOn = yield select(getSignOn)
   const location = yield call(getCityAndRegion)
   const createUserMetadata = {
-    name: signOn.name.value,
+    name: signOn.name.value.trim(),
     handle: signOn.handle.value,
     profilePicture: (signOn.profileImage && signOn.profileImage.file) || null,
     coverPhoto: (signOn.coverPhoto && signOn.coverPhoto.file) || null,
     isVerified: signOn.verified,
     location
   }
-  const name = signOn.name.value
+  const name = signOn.name.value.trim()
   const email = signOn.email.value
   const password = signOn.password.value
   const handle = signOn.handle.value
   const alreadyExisted = signOn.accountAlreadyExisted
   const referrer = signOn.referrer
+
+  yield call(audiusBackendInstance.setUserHandleForRelay, handle)
 
   const feePayerOverride = yield select(getFeePayer)
 
@@ -341,17 +338,29 @@ function* signUp() {
           // We are including 0 status code here to indicate rate limit,
           // which appears to be happening for some devices.
           const rateLimited = errorStatus === 429 || errorStatus === 0
+          const blocked = errorStatus === 403
           const params = {
             error,
             phase,
             redirectRoute: rateLimited ? SIGN_UP_PAGE : ERROR_PAGE,
-            shouldReport: !rateLimited,
+            shouldReport: !rateLimited && !blocked,
             shouldToast: rateLimited
           }
           if (rateLimited) {
             params.message = 'Please try again later'
             yield put(
               make(Name.CREATE_ACCOUNT_RATE_LIMIT, {
+                handle,
+                email,
+                location
+              })
+            )
+          }
+          if (blocked) {
+            params.message = 'User was blocked'
+            params.uiErrorCode = UiErrorCode.RELAY_BLOCKED
+            yield put(
+              make(Name.CREATE_ACCOUNT_BLOCKED, {
                 handle,
                 email,
                 location
@@ -390,6 +399,18 @@ function* signUp() {
           }
         }
 
+        if (!signOn.useMetaMask && signOn.tikTokId) {
+          const { error } = yield call(
+            audiusBackendInstance.associateTikTokAccount,
+            signOn.tikTokId,
+            userId,
+            handle
+          )
+          if (error) {
+            yield put(signOnActions.setTikTokProfileError(error))
+          }
+        }
+
         yield put(
           identify(handle, {
             name,
@@ -401,7 +422,14 @@ function* signUp() {
         yield put(signOnActions.signUpSucceededWithId(userId))
 
         const isNativeMobile = yield getContext('isNativeMobile')
-        if (!isNativeMobile) {
+        if (isNativeMobile) {
+          yield put(
+            togglePushNotificationSetting(
+              PushNotificationSetting.MobilePush,
+              true
+            )
+          )
+        } else {
           // Set the has request browser permission to true as the signon provider will open it
           setHasRequestedBrowserPermission()
         }
@@ -427,7 +455,8 @@ function* signUp() {
       },
       function* () {
         yield put(signOnActions.signUpSucceeded())
-        yield call(fetchAccountAsync)
+        yield put(signOnActions.sendWelcomeEmail(name))
+        yield call(fetchAccountAsync, { isSignUp: true })
       },
       function* ({ timeout }) {
         if (timeout) {
@@ -443,7 +472,7 @@ function* signUp() {
 
 function* signIn(action) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  yield call(waitForBackendSetup)
+  yield call(waitForRead)
   try {
     const signOn = yield select(getSignOn)
     const signInResponse = yield call(
@@ -498,7 +527,14 @@ function* signIn(action) {
       yield delay(1000)
       yield put(signOnActions.resetSignOn())
       const isNativeMobile = yield getContext('isNativeMobile')
-      if (!isNativeMobile) {
+      if (isNativeMobile) {
+        yield put(
+          togglePushNotificationSetting(
+            PushNotificationSetting.MobilePush,
+            true
+          )
+        )
+      } else {
         setHasRequestedBrowserPermission()
         yield put(accountActions.showPushNotificationConfirmation())
       }
@@ -550,7 +586,7 @@ function* signIn(action) {
 }
 
 function* followCollections(collectionIds, favoriteSource) {
-  yield call(waitForBackendSetup)
+  yield call(waitForWrite)
   try {
     const result = yield retrieveCollections(null, collectionIds)
 
@@ -567,7 +603,7 @@ function* followCollections(collectionIds, favoriteSource) {
 
 function* followArtists() {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  yield call(waitForBackendSetup)
+  yield call(waitForWrite)
   try {
     // Auto-follow Hot & New Playlist
     if (IS_PRODUCTION) {
@@ -577,11 +613,17 @@ function* followArtists() {
     }
 
     const signOn = yield select(getSignOn)
+    const referrer = signOn.referrer
+
     const {
       followArtists: { selectedUserIds }
     } = signOn
     const userIdsToFollow = [
-      ...new Set([...defaultFollowUserIds, ...selectedUserIds])
+      ...new Set([
+        ...defaultFollowUserIds,
+        ...selectedUserIds,
+        ...(referrer == null ? [] : [referrer])
+      ])
     ]
     for (const userId of userIdsToFollow) {
       yield put(socialActions.followUser(userId))
@@ -711,5 +753,5 @@ export default function sagas() {
     watchSignOnError,
     watchSendWelcomeEmail
   ]
-  return NATIVE_MOBILE ? sagas.concat(mobileSagas()) : sagas
+  return sagas
 }

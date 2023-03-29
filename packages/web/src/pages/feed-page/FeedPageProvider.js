@@ -6,7 +6,9 @@ import {
   lineupSelectors,
   feedPageLineupActions as feedActions,
   feedPageSelectors,
-  feedPageActions as discoverPageAction
+  feedPageActions as discoverPageAction,
+  playerSelectors,
+  queueSelectors
 } from '@audius/common'
 import {
   push as pushRoute,
@@ -17,10 +19,10 @@ import { withRouter, matchPath } from 'react-router-dom'
 
 import { make } from 'common/store/analytics/actions'
 import { openSignOn } from 'common/store/pages/signon/actions'
-import { makeGetCurrent } from 'common/store/queue/selectors'
-import { getPlaying, getBuffering } from 'store/player/selectors'
 import { isMobile } from 'utils/clientUtil'
 import { getPathname, TRENDING_PAGE } from 'utils/route'
+const { makeGetCurrent } = queueSelectors
+const { getPlaying, getBuffering } = playerSelectors
 const { getDiscoverFeedLineup, makeGetSuggestedFollows, getFeedFilter } =
   feedPageSelectors
 const { makeGetLineupMetadatas } = lineupSelectors
