@@ -46,18 +46,14 @@ This will do the following:
 - Install ios pods
 
 ### Required Dependencies
-The following are required to run the Audius client. We recommend [homebrew](https://brew.sh/) and [pyenv](https://github.com/pyenv/pyenv).
+The following dependencies are required to run the Audius client, and `npm install` will fail if they are not met. We recommend [homebrew](https://brew.sh/), [pyenv](https://github.com/pyenv/pyenv), and [rbenv](https://github.com/rbenv/rbenv). Don't forget to follow the instructions in the install command output (eg. adding things to your `.zshrc` or `bashrc` file).
 
 ```
-brew install node nvm pyenv 
-# Only needed for React Native (mobile) development:
-brew install ruby cocoapods
+brew install nvm pyenv rbenv
 
-pyenv install 3.10
-pyenv global 3.10
-
-nvm install 14.20.1
-nvm use 14.20.1
+nvm install
+pyenv install
+rbenv install
 ```
 
 ### Running A Client

@@ -7,6 +7,10 @@ The Audius React Native mobile client
 ### Extra iOS Setup
 
 ```bash
+# Install cocoapods using one of the below methods.
+brew install cocoapods
+sudo gem install cocoapods
+
 cd ios
 pod install
 cd ..
