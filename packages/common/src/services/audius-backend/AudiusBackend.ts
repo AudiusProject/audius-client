@@ -1,3 +1,4 @@
+import type { AudiusSdk } from '@audius/sdk'
 import { DiscoveryAPI } from '@audius/sdk/dist/core'
 import type { HedgehogConfig } from '@audius/sdk/dist/services/hedgehog'
 import type { LocalStorage } from '@audius/sdk/dist/utils/localStorage'
@@ -64,7 +65,7 @@ import {
 } from '../../store'
 import { CIDCache } from '../../store/cache/CIDCache'
 import {
-  Nullable as totalUnviewed,
+  Nullable,
   getErrorMessage,
   uuid,
   Maybe,
@@ -175,7 +176,7 @@ type TransactionReceipt = { blockHash: string; blockNumber: number }
 let preloadImageTimer: Timer
 const avoidGC: HTMLImageElement[] = []
 
-type DiscoveryProviderListener = (endpoint: totalUnviewed<string>) => void
+type DiscoveryProviderListener = (endpoint: Nullable<string>) => void
 
 type AudiusBackendSolanaConfig = Partial<{
   anchorAdminAccount: string
@@ -213,6 +214,7 @@ type WithEagerOption = (
 type WaitForLibsInit = () => Promise<unknown>
 
 type AudiusBackendParams = {
+  sdk: () => Promise<AudiusSdk>
   claimDistributionContractAddress: Maybe<string>
   imagePreloader?: (url: string) => Promise<boolean>
   env: Env
@@ -224,7 +226,7 @@ type AudiusBackendParams = {
     flag: FeatureFlags,
     fallbackFlag?: FeatureFlags
   ) => Promise<boolean | null> | null | boolean
-  getHostUrl: () => totalUnviewed<string>
+  getHostUrl: () => Nullable<string>
   getLibs: () => Promise<any>
   getWeb3Config: (
     libs: any,
@@ -269,6 +271,7 @@ type AudiusBackendParams = {
 }
 
 export const audiusBackend = ({
+  sdk,
   claimDistributionContractAddress,
   imagePreloader,
   env,
@@ -327,7 +330,7 @@ export const audiusBackend = ({
 }: AudiusBackendParams) => {
   const { getRemoteVar, waitForRemoteConfig } = remoteConfigInstance
 
-  const currentDiscoveryProvider: totalUnviewed<string> = null
+  const currentDiscoveryProvider: Nullable<string> = null
   const didSelectDiscoveryProviderListeners: DiscoveryProviderListener[] = []
 
   /**
@@ -355,7 +358,7 @@ export const audiusBackend = ({
     }
   }
 
-  function getCreatorNodeIPFSGateways(endpoint: totalUnviewed<string>) {
+  function getCreatorNodeIPFSGateways(endpoint: Nullable<string>) {
     if (endpoint) {
       return endpoint
         .split(',')
@@ -429,7 +432,7 @@ export const audiusBackend = ({
     creatorNodeGateways = [] as string[],
     cache = true,
     asUrl = true,
-    trackId: totalUnviewed<ID> = null
+    trackId: Nullable<ID> = null
   ) {
     await waitForLibsInit()
     try {
@@ -520,8 +523,8 @@ export const audiusBackend = ({
   }
 
   async function getImageUrl(
-    cid: totalUnviewed<CID>,
-    size: totalUnviewed<string>,
+    cid: Nullable<CID>,
+    size: Nullable<string>,
     gateways: string[]
   ) {
     if (!cid) return ''
@@ -668,7 +671,7 @@ export const audiusBackend = ({
     SolanaUtils = libsModule.SolanaUtils
     RewardsAttester = libsModule.RewardsAttester
     // initialize libs
-    let libsError: totalUnviewed<string> = null
+    let libsError: Nullable<string> = null
     const { web3Config } = await getWeb3Config(
       AudiusLibs,
       registryAddress,
@@ -689,7 +692,15 @@ export const audiusBackend = ({
     )
 
     try {
+      const useSdk = await getFeatureEnabled(FeatureFlags.SDK_V2)
+      let audiusSdk: Maybe<Awaited<AudiusSdk>>
+
+      if (useSdk) {
+        audiusSdk = await sdk()
+      }
+
       audiusLibs = new AudiusLibs({
+        audiusSdk,
         localStorage,
         web3Config,
         ethWeb3Config,
@@ -995,8 +1006,8 @@ export const audiusBackend = ({
     DiscoveryAPIParams<typeof DiscoveryAPI.getTracks>,
     'sort' | 'filterDeleted'
   > & {
-    sort: totalUnviewed<boolean>
-    filterDeleted: totalUnviewed<boolean>
+    sort: Nullable<boolean>
+    filterDeleted: Nullable<boolean>
   }) {
     try {
       const tracks = await withEagerOption(
@@ -1565,8 +1576,8 @@ export const audiusBackend = ({
   }
 
   async function getPlaylists(
-    userId: totalUnviewed<ID>,
-    playlistIds: totalUnviewed<ID[]>,
+    userId: Nullable<ID>,
+    playlistIds: Nullable<ID[]>,
     withUsers = true
   ): Promise<CollectionMetadata[]> {
     try {
@@ -1908,8 +1919,8 @@ export const audiusBackend = ({
       coverPhoto: File
     }
     hasWallet: boolean
-    referrer: totalUnviewed<ID>
-    feePayerOverride: totalUnviewed<string>
+    referrer: Nullable<ID>
+    feePayerOverride: Nullable<string>
   }) {
     await waitForLibsInit()
     const metadata = schemas.newUserMetadata()
@@ -2425,13 +2436,7 @@ export const audiusBackend = ({
   }) {
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
-    if (!account) {
-      return {
-        message: 'error',
-        error: new Error('User not signed in'),
-        isRequestError: false
-      }
-    }
+    if (!account) return
     const encodedUserId = encodeHashId(account.user_id)
 
     type DiscoveryNotificationsResponse = {
@@ -2452,8 +2457,7 @@ export const audiusBackend = ({
 
     // TODO: update mapDiscoveryNotification to return Notification
     return {
-      message: 'success',
-      totalUnviewed: unread_count,
+      totalUnread: unread_count,
       notifications: notifications.map(
         mapDiscoveryNotification
       ) as Notification[]
@@ -2526,7 +2530,6 @@ export const audiusBackend = ({
 
       const formattedNotifications = {
         ...notificationsResult,
-        totalUnviewed: notificationsResult.totalUnread,
         notifications: notificationsResult.notifications.map(
           mapIdentityNotification
         )
@@ -3473,7 +3476,7 @@ export const audiusBackend = ({
     endpoints: string[]
     AAOEndpoint: string
     parallelization: number
-    feePayerOverride: totalUnviewed<string>
+    feePayerOverride: Nullable<string>
     isFinalAttempt: boolean
   }) {
     await waitForLibsInit()

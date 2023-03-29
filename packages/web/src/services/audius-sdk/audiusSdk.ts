@@ -4,7 +4,8 @@ import {
   DiscoveryNodeSelector,
   stagingConfig,
   productionConfig,
-  developmentConfig
+  developmentConfig,
+  AudiusSdk
 } from '@audius/sdk'
 import { keccak_256 } from '@noble/hashes/sha3'
 import * as secp from '@noble/secp256k1'
@@ -15,7 +16,7 @@ import { remoteConfigInstance } from 'services/remote-config/remote-config-insta
 declare global {
   interface Window {
     audiusLibs: any
-    audiusSdk: ReturnType<typeof sdk>
+    audiusSdk: AudiusSdk
   }
 }
 

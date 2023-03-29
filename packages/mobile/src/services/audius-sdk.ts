@@ -31,7 +31,7 @@ const getBlockList = (remoteVarKey: StringKeys) => {
 let inProgress = false
 const SDK_LOADED_EVENT_NAME = 'AUDIUS_SDK_LOADED'
 const sdkEventEmitter = new EventEmitter()
-let sdkInstance: ReturnType<typeof sdk>
+let sdkInstance: AudiusSdk
 
 const bootstrapConfig =
   env.ENVIRONMENT === 'development'

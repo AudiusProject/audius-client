@@ -7,6 +7,7 @@ import {
   waitForLibsInit,
   withEagerOption
 } from 'services/audius-backend/eagerLoadUtils'
+import { audiusSdk } from 'services/audius-sdk'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { monitoringCallbacks } from 'services/serviceMonitoring'
@@ -25,6 +26,7 @@ declare global {
  * audiusBackend initialized for a web environment
  */
 export const audiusBackendInstance = audiusBackend({
+  sdk: audiusSdk,
   claimDistributionContractAddress:
     process.env.REACT_APP_CLAIM_DISTRIBUTION_CONTRACT_ADDRESS,
   env,
