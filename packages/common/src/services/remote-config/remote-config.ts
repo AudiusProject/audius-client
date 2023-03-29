@@ -38,7 +38,8 @@ type State = {
 }
 
 type MobileClientInfo = {
-  mobilePlatform: 'ios' | 'android'
+  /** This is the type of Platform.OS, but we only expect ios or android here */
+  mobilePlatform: 'ios' | 'android' | 'web' | 'windows' | 'macos'
   mobileAppVersion: string
   codePushUpdateNumber: number | undefined
 }

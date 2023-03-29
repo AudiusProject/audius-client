@@ -21,8 +21,7 @@ const DATA_FILE_URL = 'https://experiments.audius.co/datafiles/%s.json'
 
 /** Returns mobile platform (ios or android), mobile app version, and code push update number (if any) */
 const getMobileClientInfo = async () => {
-  const mobilePlatform =
-    Platform.OS === 'android' ? ('android' as const) : ('ios' as const)
+  const mobilePlatform = Platform.OS
   const mobileAppVersion = VersionNumber.appVersion
 
   let codePushUpdateMetadata: LocalPackage | null = null
