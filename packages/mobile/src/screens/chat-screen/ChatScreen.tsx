@@ -432,7 +432,6 @@ export const ChatScreen = () => {
                 }}
                 inputAccessoryViewID='none'
                 onBlur={() => setIconOpacity(ICON_BLUR)}
-                keyboardType='default'
                 multiline
                 value={inputMessage}
               />
