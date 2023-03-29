@@ -270,6 +270,57 @@ function* handleSpecialAccessTrackSubscriptions(tracks: Track[]) {
   )
 }
 
+// Request premium content signatures for the relevant nft-gated tracks
+// which the client believes the user should have access to.
+function* updateCollectibleGatedTracks(trackMap: { [id: ID]: string[] }) {
+  const account = yield* select(getAccountUser)
+  if (!account) return
+
+  const apiClient = yield* getContext('apiClient')
+
+  const premiumContentSignatureResponse = yield* call(
+    [apiClient, apiClient.getPremiumContentSignatures],
+    {
+      userId: account.user_id,
+      trackMap
+    }
+  )
+
+  if (premiumContentSignatureResponse) {
+    // Keep record of number of tracks that have a signature
+    // so that we can later track their metrics.
+    let numTrackIdsWithSignature = 0
+
+    const premiumContentSignatureMap: {
+      [id: ID]: Nullable<PremiumContentSignature>
+    } = { ...premiumContentSignatureResponse }
+    // Set null for tracks for which signatures did not get returned
+    // to signal that an attempt was made but the user does not have access.
+    Object.keys(trackMap).forEach((trackId) => {
+      const id = parseInt(trackId)
+      if (!premiumContentSignatureResponse[id]) {
+        premiumContentSignatureMap[id] = null
+      } else {
+        numTrackIdsWithSignature++
+      }
+    })
+
+    // Record when collectible gated tracks are in an unlocked state.
+    const analytics = yield* getContext('analytics')
+    analytics.track({
+      eventName: Name.COLLECTIBLE_GATED_TRACK_UNLOCKED,
+      properties: {
+        count: numTrackIdsWithSignature
+      }
+    })
+
+    // update premium content signatures
+    if (Object.keys(premiumContentSignatureMap).length > 0) {
+      yield* put(updatePremiumContentSignatures(premiumContentSignatureMap))
+    }
+  }
+}
+
 /**
  * This function runs when new tracks have been added to the cache or when eth or sol nfts are fetched.
  * It does a bunch of things (getting gradually larger and should now be broken up):
@@ -381,51 +432,7 @@ function* updateGatedTrackAccess(
 
   if (!Object.keys(trackMap).length) return
 
-  // request premium content signatures for the relevant nft-gated tracks
-  // which the client believes the user should have access to
-  const apiClient = yield* getContext('apiClient')
-
-  const premiumContentSignatureResponse = yield* call(
-    [apiClient, apiClient.getPremiumContentSignatures],
-    {
-      userId: account.user_id,
-      trackMap
-    }
-  )
-
-  if (premiumContentSignatureResponse) {
-    // Keep record of number of tracks that have a signature
-    // so that we can later track their metrics.
-    let numTrackIdsWithSignature = 0
-
-    const premiumContentSignatureMap: {
-      [id: ID]: Nullable<PremiumContentSignature>
-    } = { ...premiumContentSignatureResponse }
-    // Set null for tracks for which signatures did not get returned
-    // to signal that an attempt was made but the user does not have access.
-    Object.keys(trackMap).forEach((trackId) => {
-      const id = parseInt(trackId)
-      if (!premiumContentSignatureResponse[id]) {
-        premiumContentSignatureMap[id] = null
-      } else {
-        numTrackIdsWithSignature++
-      }
-    })
-
-    // Record when collectible gated tracks are in an unlocked state.
-    const analytics = yield* getContext('analytics')
-    analytics.track({
-      eventName: Name.COLLECTIBLE_GATED_TRACK_UNLOCKED,
-      properties: {
-        count: numTrackIdsWithSignature
-      }
-    })
-
-    // update premium content signatures
-    if (Object.keys(premiumContentSignatureMap).length > 0) {
-      yield* put(updatePremiumContentSignatures(premiumContentSignatureMap))
-    }
-  }
+  yield* call(updateCollectibleGatedTracks, trackMap)
 }
 
 function* pollPremiumTrack({
