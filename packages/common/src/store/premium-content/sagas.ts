@@ -498,7 +498,7 @@ function* pollPremiumTrack({
  * 3. Poll for premium content signatures for those tracks
  * 4. When the signatures are returned, set those track statuses as 'UNLOCKED'
  */
-function* updateGatedTracks(
+function* updateSpecialAccessTracks(
   trackOwnerId: ID,
   gate: 'follow' | 'tip',
   sourceTrackId?: Nullable<ID>
@@ -592,14 +592,14 @@ function* handleUnfollowUser(
 function* handleFollowUser(
   action: ReturnType<typeof usersSocialActions.followUser>
 ) {
-  yield* call(updateGatedTracks, action.userId, 'follow', action.trackId)
+  yield* call(updateSpecialAccessTracks, action.userId, 'follow', action.trackId)
 }
 
 function* handleTipGatedTracks(
   action: ReturnType<typeof refreshTipGatedTracks>
 ) {
   yield* call(
-    updateGatedTracks,
+    updateSpecialAccessTracks,
     action.payload.userId,
     'tip',
     action.payload.trackId
