@@ -1,4 +1,4 @@
-import { MouseEvent, useCallback } from 'react'
+import { CSSProperties, MouseEvent, ReactNode, useCallback } from 'react'
 
 import {
   SquareSizes,
@@ -20,6 +20,7 @@ import { NO_VISUALIZER_ROUTES } from 'pages/visualizer/Visualizer'
 import { openVisualizer } from 'pages/visualizer/store/slice'
 
 import styles from './CurrentlyPlaying.module.css'
+import { animated, useSpring } from 'react-spring/web'
 
 const { getTrackId, getCollectible } = playerSelectors
 const { getTrack } = cacheTracksSelectors
@@ -29,6 +30,26 @@ const { getDominantColorsByTrack } = averageColorSelectors
 const messages = {
   viewTrack: 'View currently playing track',
   showVisualizer: 'Show Visualizer'
+}
+
+type FadeInUpProps = {
+  children: ReactNode
+  style: CSSProperties
+}
+
+const FadeInUp = (props: FadeInUpProps) => {
+  const { children, style } = props
+
+  const slideInProps = useSpring({
+    from: { opacity: 0, height: 0 },
+    to: { opacity: 1, height: 208 }
+  })
+
+  return (
+    <animated.div className={styles.root} style={{ ...slideInProps, ...style }}>
+      {children}
+    </animated.div>
+  )
 }
 
 export const CurrentlyPlaying = () => {
@@ -103,7 +124,7 @@ export const CurrentlyPlaying = () => {
       isOwner={isOwner}
       link={permalink}
     >
-      <div className={styles.root} style={{ boxShadow: coverArtColor }}>
+      <FadeInUp style={{ boxShadow: coverArtColor }}>
         <Link to={permalink} aria-label={messages.viewTrack}>
           <DynamicImage
             useSkeleton={false}
@@ -117,7 +138,7 @@ export const CurrentlyPlaying = () => {
             />
           </DynamicImage>
         </Link>
-      </div>
+      </FadeInUp>
     </Draggable>
   )
 }
