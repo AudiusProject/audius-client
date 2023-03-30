@@ -1,124 +1,123 @@
-import { memo, useRef, MouseEvent } from 'react'
+import { MouseEvent, useCallback } from 'react'
 
-import { Color, CoverArtSizes, SquareSizes, Nullable } from '@audius/common'
-import cn from 'classnames'
+import {
+  SquareSizes,
+  playerSelectors,
+  cacheTracksSelectors,
+  CommonState,
+  accountSelectors,
+  averageColorSelectors
+} from '@audius/common'
+import { IconButton } from '@audius/stems'
+import { useDispatch, useSelector } from 'react-redux'
+import { Link, useHistory } from 'react-router-dom'
 
 import { ReactComponent as IconVisualizer } from 'assets/img/iconVisualizer.svg'
 import Draggable from 'components/dragndrop/Draggable'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
+import { NO_VISUALIZER_ROUTES } from 'pages/visualizer/Visualizer'
+import { openVisualizer } from 'pages/visualizer/store/slice'
 
 import styles from './CurrentlyPlaying.module.css'
 
-type CurrentlyPlayingProps = {
-  isOwner: boolean
-  isUnlisted: boolean
-  trackId: Nullable<number>
-  trackTitle: Nullable<string>
-  coverArtSizes: Nullable<CoverArtSizes>
-  coverArtColor: Nullable<Color>
-  artworkLink?: Nullable<string>
-  draggableLink: Nullable<string>
-  onClick: () => void
-  onShowVisualizer: (e: MouseEvent) => void
+const { getTrackId, getCollectible } = playerSelectors
+const { getTrack } = cacheTracksSelectors
+const { getUserId } = accountSelectors
+const { getDominantColorsByTrack } = averageColorSelectors
+
+const messages = {
+  viewTrack: 'View currently playing track',
+  showVisualizer: 'Show Visualizer'
 }
 
-type ArtworkStyle = {
-  backgroundImage?: string
-  backgroundColor?: string
-}
+export const CurrentlyPlaying = () => {
+  const dispatch = useDispatch()
+  const { location } = useHistory()
+  const { pathname } = location
 
-type WrapperStyle = {
-  boxShadow: string
-}
+  const trackId = useSelector(getTrackId)
+  const trackTitle = useSelector(
+    (state: CommonState) => getTrack(state, { id: trackId })?.title
+  )
 
-const CurrentlyPlaying = ({
-  isOwner,
-  isUnlisted,
-  trackId,
-  trackTitle,
-  coverArtSizes,
-  coverArtColor,
-  artworkLink,
-  draggableLink,
-  onClick,
-  onShowVisualizer
-}: CurrentlyPlayingProps) => {
-  const previousTrackId = useRef(0)
+  const isOwner = useSelector((state: CommonState) => {
+    const ownerId = getTrack(state, { id: trackId })?.owner_id
+    const accountId = getUserId(state)
+    return ownerId && accountId && ownerId === accountId
+  })
 
-  const image = useTrackCoverArt(
+  const collectibleImage = useSelector((state: CommonState) => {
+    const collectible = getCollectible(state)
+    if (collectible) {
+      const { imageUrl, frameUrl, gifUrl } = collectible
+      return imageUrl ?? frameUrl ?? gifUrl
+    }
+  })
+
+  const coverArtSizes = useSelector((state: CommonState) => {
+    return getTrack(state, { id: trackId })?._cover_art_sizes ?? null
+  })
+
+  const trackCoverArtImage = useTrackCoverArt(
     trackId,
     coverArtSizes,
     SquareSizes.SIZE_480_BY_480,
     ''
   )
 
-  let newTrack = false
-  if (trackId && trackId !== previousTrackId.current) {
-    newTrack = true
-    previousTrackId.current = trackId
-  }
+  const permalink = useSelector((state: CommonState) => {
+    return getTrack(state, { id: trackId })?.permalink
+  })
 
-  let wrapperStyle: WrapperStyle
-  let artworkStyle: ArtworkStyle
-  if (trackId) {
-    const artworkAverageColor = coverArtColor ?? { r: 13, g: 16, b: 18 }
-    wrapperStyle = {
-      boxShadow: `0 1px 20px -3px rgba(
-        ${artworkAverageColor.r},
-        ${artworkAverageColor.g},
-        ${artworkAverageColor.b}
+  const handleShowVisualizer = useCallback(
+    (event: MouseEvent) => {
+      if (NO_VISUALIZER_ROUTES.has(pathname)) return
+      event.preventDefault()
+      dispatch(openVisualizer())
+    },
+    [pathname, dispatch]
+  )
+
+  const coverArtColor = useSelector((state: CommonState) => {
+    const dominantTrackColors = getDominantColorsByTrack(state, {
+      track: getTrack(state, { id: trackId })
+    })
+    const coverArtColorMap = dominantTrackColors?.[0] ?? { r: 13, g: 16, b: 18 }
+
+    return `0 1px 20px -3px rgba(
+        ${coverArtColorMap.r},
+        ${coverArtColorMap.g},
+        ${coverArtColorMap.b}
         , 0.7)`
-    }
-    artworkStyle = {}
-  } else {
-    wrapperStyle = {
-      boxShadow: '0 1px 15px -2px var(--currently-playing-default-shadow)'
-    }
-    artworkStyle = {
-      backgroundColor: 'var(--neutral-light-8)'
-    }
-  }
+  })
+
+  if (!permalink) return null
 
   return (
     <Draggable
-      isDisabled={!trackId || isUnlisted}
+      isDisabled={!trackId}
       text={trackTitle}
       kind='track'
       id={trackId}
       isOwner={isOwner}
-      link={draggableLink}
+      link={permalink}
     >
-      <div
-        className={cn(styles.artworkWrapper, {
-          [styles.playing]: !!trackId
-        })}
-        style={wrapperStyle}
-        onClick={onClick}
-      >
-        <DynamicImage
-          useSkeleton={false}
-          image={artworkLink ?? image}
-          immediate={newTrack}
-          className={styles.artwork}
-          imageStyle={artworkStyle}
-        >
-          <div
-            className={cn(styles.bottomRightContainer, {
-              [styles.hide]: !trackId
-            })}
+      <div className={styles.root} style={{ boxShadow: coverArtColor }}>
+        <Link to={permalink} aria-label={messages.viewTrack}>
+          <DynamicImage
+            useSkeleton={false}
+            image={collectibleImage ?? trackCoverArtImage}
           >
-            <div
-              onClick={(e) => onShowVisualizer(e)}
-              className={styles.visualizerIconContainer}
-            >
-              <IconVisualizer className={styles.visualizerIcon} />
-            </div>
-          </div>
-        </DynamicImage>
+            <IconButton
+              className={styles.visualizerIconButton}
+              aria-label={messages.showVisualizer}
+              onClick={handleShowVisualizer}
+              icon={<IconVisualizer className={styles.visualizerIcon} />}
+            />
+          </DynamicImage>
+        </Link>
       </div>
     </Draggable>
   )
 }
-
-export default memo(CurrentlyPlaying)
