@@ -38,7 +38,6 @@ import { PlaylistFormFields } from 'components/create-playlist/PlaylistForm'
 import { DragAutoscroller } from 'components/drag-autoscroller/DragAutoscroller'
 import Droppable from 'components/dragndrop/Droppable'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
-import { CurrentlyPlaying } from 'components/nav/desktop/CurrentlyPlaying'
 import NavButton from 'components/nav/desktop/NavButton'
 import RouteNav from 'components/nav/desktop/RouteNav'
 import Pill from 'components/pill/Pill'
@@ -69,6 +68,7 @@ import { getTempPlaylistId } from 'utils/tempPlaylistId'
 import NavAudio from './NavAudio'
 import styles from './NavColumn.module.css'
 import NavHeader from './NavHeader'
+import { NowPlayingArtworkTile } from './NowPlayingArtworkTile'
 import PlaylistLibrary from './PlaylistLibrary'
 
 const { updatedPlaylistViewed } = playlistUpdatesActions
@@ -474,7 +474,7 @@ const NavColumn = ({
           onCreateAccount={onClickNavButton}
           onUpload={onClickUpload}
         />
-        <CurrentlyPlaying />
+        <NowPlayingArtworkTile />
       </div>
     </nav>
   )

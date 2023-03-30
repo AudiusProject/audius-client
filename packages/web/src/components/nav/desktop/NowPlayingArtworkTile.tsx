@@ -11,6 +11,7 @@ import {
 import { IconButton } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useHistory } from 'react-router-dom'
+import { animated, useSpring } from 'react-spring/web'
 
 import { ReactComponent as IconVisualizer } from 'assets/img/iconVisualizer.svg'
 import Draggable from 'components/dragndrop/Draggable'
@@ -19,8 +20,7 @@ import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { NO_VISUALIZER_ROUTES } from 'pages/visualizer/Visualizer'
 import { openVisualizer } from 'pages/visualizer/store/slice'
 
-import styles from './CurrentlyPlaying.module.css'
-import { animated, useSpring } from 'react-spring/web'
+import styles from './NowPlayingArtworkTile.module.css'
 
 const { getTrackId, getCollectible } = playerSelectors
 const { getTrack } = cacheTracksSelectors
@@ -52,7 +52,7 @@ const FadeInUp = (props: FadeInUpProps) => {
   )
 }
 
-export const CurrentlyPlaying = () => {
+export const NowPlayingArtworkTile = () => {
   const dispatch = useDispatch()
   const { location } = useHistory()
   const { pathname } = location
