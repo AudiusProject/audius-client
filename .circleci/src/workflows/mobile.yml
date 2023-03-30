@@ -23,7 +23,7 @@ jobs:
         - mobile-init
       filters:
         branches:
-          only: /(^main|^nkang--app-store-version-fix)$/
+          only: /^main$/
 
   - mobile-build-upload-releasecandidate-ios:
       context: Audius Mobile Client
