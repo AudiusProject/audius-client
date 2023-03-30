@@ -97,6 +97,15 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
       })}
     >
       <div className={styles.bubble}>
+        {links
+          .filter((link) => link.type === 'url' && link.isLink)
+          .slice(0, 1)
+          .map((link) => (
+            <LinkPreview
+              key={`${link.value}-${link.start}-${link.end}`}
+              href={link.href}
+            />
+          ))}
         <div className={styles.text}>
           <Linkify options={{ target: '_blank' }}>{message.message}</Linkify>
         </div>
@@ -144,14 +153,6 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
         }
         onSelected={handleReactionSelected}
       />
-      {links
-        .filter((link) => link.type === 'url' && link.isLink)
-        .map((link) => (
-          <LinkPreview
-            key={`${link.value}-${link.start}-${link.end}`}
-            href={link.href}
-          />
-        ))}
       {hasTail ? (
         <div className={styles.date}>
           {formatMessageDate(message.created_at)}
