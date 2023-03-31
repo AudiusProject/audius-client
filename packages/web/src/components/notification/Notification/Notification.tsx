@@ -63,7 +63,6 @@ export const Notification = (props: NotificationProps) => {
         return <RepostOfRepostNotification notification={notification} />
       }
       case NotificationType.Tastemaker: {
-        console.log('heyooo ', notification)
         return <TastemakerNotification notification={notification} />
       }
       case NotificationType.FavoriteOfRepost: {
