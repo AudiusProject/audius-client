@@ -64,7 +64,7 @@ import {
 } from '../../store'
 import { CIDCache } from '../../store/cache/CIDCache'
 import {
-  Nullable,
+  Nullable as totalUnviewed,
   getErrorMessage,
   uuid,
   Maybe,
@@ -175,11 +175,9 @@ type TransactionReceipt = { blockHash: string; blockNumber: number }
 let preloadImageTimer: Timer
 const avoidGC: HTMLImageElement[] = []
 
-type DiscoveryProviderListener = (endpoint: Nullable<string>) => void
+type DiscoveryProviderListener = (endpoint: totalUnviewed<string>) => void
 
 type AudiusBackendSolanaConfig = Partial<{
-  anchorAdminAccount: string
-  anchorProgramId: string
   claimableTokenPda: string
   claimableTokenProgramAddress: string
   rewardsManagerProgramId: string
@@ -224,7 +222,7 @@ type AudiusBackendParams = {
     flag: FeatureFlags,
     fallbackFlag?: FeatureFlags
   ) => Promise<boolean | null> | null | boolean
-  getHostUrl: () => Nullable<string>
+  getHostUrl: () => totalUnviewed<string>
   getLibs: () => Promise<any>
   getWeb3Config: (
     libs: any,
@@ -298,8 +296,6 @@ export const audiusBackend = ({
   remoteConfigInstance,
   setLocalStorageItem,
   solanaConfig: {
-    anchorAdminAccount,
-    anchorProgramId,
     claimableTokenPda,
     claimableTokenProgramAddress,
     rewardsManagerProgramId,
@@ -327,7 +323,7 @@ export const audiusBackend = ({
 }: AudiusBackendParams) => {
   const { getRemoteVar, waitForRemoteConfig } = remoteConfigInstance
 
-  const currentDiscoveryProvider: Nullable<string> = null
+  const currentDiscoveryProvider: totalUnviewed<string> = null
   const didSelectDiscoveryProviderListeners: DiscoveryProviderListener[] = []
 
   /**
@@ -355,7 +351,7 @@ export const audiusBackend = ({
     }
   }
 
-  function getCreatorNodeIPFSGateways(endpoint: Nullable<string>) {
+  function getCreatorNodeIPFSGateways(endpoint: totalUnviewed<string>) {
     if (endpoint) {
       return endpoint
         .split(',')
@@ -429,7 +425,7 @@ export const audiusBackend = ({
     creatorNodeGateways = [] as string[],
     cache = true,
     asUrl = true,
-    trackId: Nullable<ID> = null
+    trackId: totalUnviewed<ID> = null
   ) {
     await waitForLibsInit()
     try {
@@ -520,8 +516,8 @@ export const audiusBackend = ({
   }
 
   async function getImageUrl(
-    cid: Nullable<CID>,
-    size: Nullable<string>,
+    cid: totalUnviewed<CID>,
+    size: totalUnviewed<string>,
     gateways: string[]
   ) {
     if (!cid) return ''
@@ -668,7 +664,7 @@ export const audiusBackend = ({
     SolanaUtils = libsModule.SolanaUtils
     RewardsAttester = libsModule.RewardsAttester
     // initialize libs
-    let libsError: Nullable<string> = null
+    let libsError: totalUnviewed<string> = null
     const { web3Config } = await getWeb3Config(
       AudiusLibs,
       registryAddress,
@@ -678,7 +674,6 @@ export const audiusBackend = ({
     )
     const { ethWeb3Config } = getEthWeb3Config()
     const { solanaWeb3Config } = getSolanaWeb3Config()
-    const { solanaAudiusDataConfig } = getSolanaAudiusDataConfig()
     const { wormholeConfig } = getWormholeConfig()
 
     const contentNodeBlockList = getBlockList(
@@ -694,7 +689,6 @@ export const audiusBackend = ({
         web3Config,
         ethWeb3Config,
         solanaWeb3Config,
-        solanaAudiusDataConfig,
         wormholeConfig,
         discoveryProviderConfig: {
           blacklist: discoveryNodeBlockList,
@@ -802,22 +796,6 @@ export const audiusBackend = ({
         rewardsManagerProgramPDA: rewardsManagerProgramPda,
         rewardsManagerTokenPDA: rewardsManagerTokenPda,
         useRelay: true
-      })
-    }
-  }
-
-  function getSolanaAudiusDataConfig() {
-    if (!anchorProgramId || !anchorAdminAccount) {
-      return {
-        error: true
-      }
-    }
-
-    return {
-      error: false,
-      solanaAudiusDataConfig: AudiusLibs.configSolanaAudiusData({
-        programId: anchorProgramId,
-        adminAccount: anchorAdminAccount
       })
     }
   }
@@ -995,8 +973,8 @@ export const audiusBackend = ({
     DiscoveryAPIParams<typeof DiscoveryAPI.getTracks>,
     'sort' | 'filterDeleted'
   > & {
-    sort: Nullable<boolean>
-    filterDeleted: Nullable<boolean>
+    sort: totalUnviewed<boolean>
+    filterDeleted: totalUnviewed<boolean>
   }) {
     try {
       const tracks = await withEagerOption(
@@ -1565,8 +1543,8 @@ export const audiusBackend = ({
   }
 
   async function getPlaylists(
-    userId: Nullable<ID>,
-    playlistIds: Nullable<ID[]>,
+    userId: totalUnviewed<ID>,
+    playlistIds: totalUnviewed<ID[]>,
     withUsers = true
   ): Promise<CollectionMetadata[]> {
     try {
@@ -1908,8 +1886,8 @@ export const audiusBackend = ({
       coverPhoto: File
     }
     hasWallet: boolean
-    referrer: Nullable<ID>
-    feePayerOverride: Nullable<string>
+    referrer: totalUnviewed<ID>
+    feePayerOverride: totalUnviewed<string>
   }) {
     await waitForLibsInit()
     const metadata = schemas.newUserMetadata()
@@ -2425,7 +2403,13 @@ export const audiusBackend = ({
   }) {
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
-    if (!account) return
+    if (!account) {
+      return {
+        message: 'error',
+        error: new Error('User not signed in'),
+        isRequestError: false
+      }
+    }
     const encodedUserId = encodeHashId(account.user_id)
 
     type DiscoveryNotificationsResponse = {
@@ -2446,7 +2430,8 @@ export const audiusBackend = ({
 
     // TODO: update mapDiscoveryNotification to return Notification
     return {
-      totalUnread: unread_count,
+      message: 'success',
+      totalUnviewed: unread_count,
       notifications: notifications.map(
         mapDiscoveryNotification
       ) as Notification[]
@@ -2519,6 +2504,7 @@ export const audiusBackend = ({
 
       const formattedNotifications = {
         ...notificationsResult,
+        totalUnviewed: notificationsResult.totalUnread,
         notifications: notificationsResult.notifications.map(
           mapIdentityNotification
         )
@@ -3465,7 +3451,7 @@ export const audiusBackend = ({
     endpoints: string[]
     AAOEndpoint: string
     parallelization: number
-    feePayerOverride: Nullable<string>
+    feePayerOverride: totalUnviewed<string>
     isFinalAttempt: boolean
   }) {
     await waitForLibsInit()

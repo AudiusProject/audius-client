@@ -14,10 +14,11 @@ import {
 import type { ChatMessage } from '@audius/sdk'
 import { Portal } from '@gorhom/portal'
 import { useFocusEffect } from '@react-navigation/native'
-import { View, Text } from 'react-native'
+import { Platform, View, Text, KeyboardAvoidingView } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
+import IconMessage from 'app/assets/images/iconMessage.svg'
 import IconSend from 'app/assets/images/iconSend.svg'
 import type { FlatListT } from 'app/components/core'
 import { TextInput, Screen, ScreenContent, FlatList } from 'app/components/core'
@@ -58,9 +59,10 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   listContainer: {
     flex: 1
   },
-  flatListContainer: {
+  listContentContainer: {
     paddingHorizontal: spacing(6),
-    display: 'flex'
+    display: 'flex',
+    minHeight: '100%'
   },
   composeView: {
     paddingVertical: spacing(2),
@@ -74,15 +76,16 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     alignItems: 'center',
     backgroundColor: palette.neutralLight10,
     paddingLeft: spacing(4),
-    paddingRight: spacing(3),
     borderRadius: spacing(1)
   },
   composeTextInput: {
-    fontSize: typography.fontSize.medium
+    fontSize: typography.fontSize.medium,
+    lineHeight: spacing(6),
+    paddingTop: 0
   },
   icon: {
-    width: spacing(5),
-    height: spacing(5),
+    width: spacing(7),
+    height: spacing(7),
     fill: palette.primary
   },
   userBadgeTitle: {
@@ -135,7 +138,8 @@ export const ChatScreen = () => {
   const [inputMessage, setInputMessage] = useState('')
   const [shouldShowPopup, setShouldShowPopup] = useState(false)
   const messageTop = useRef(0)
-  const containerBottom = useRef(0)
+  const chatContainerBottom = useRef(0)
+  const chatContainerTop = useRef(0)
   const [popupChatIndex, setPopupChatIndex] = useState<number | null>(null)
 
   const userId = useSelector(getUserId)
@@ -148,6 +152,7 @@ export const ChatScreen = () => {
   const flatListRef = useRef<FlatListT<ChatMessage>>(null)
   const itemsRef = useRef<(View | null)[]>([])
   const composeRef = useRef<View | null>(null)
+  const chatContainerRef = useRef<View | null>(null)
   const unreadCount = chat?.unread_message_count ?? 0
   const isLoading =
     chat?.messagesStatus === Status.LOADING && chatMessages?.length === 0
@@ -314,6 +319,7 @@ export const ChatScreen = () => {
             )
           : messages.title
       }
+      icon={otherUser ? undefined : IconMessage}
       topbarRight={topBarRight}
     >
       <ScreenContent>
@@ -323,7 +329,7 @@ export const ChatScreen = () => {
             <ReactionPopup
               chatId={chatId}
               messageTop={messageTop.current}
-              containerBottom={containerBottom.current}
+              containerBottom={chatContainerBottom.current}
               hasTail={hasTail(
                 chatMessages[popupChatIndex],
                 chatMessages[popupChatIndex - 1]
@@ -337,86 +343,104 @@ export const ChatScreen = () => {
             />
           ) : null}
         </Portal>
-        <View style={styles.rootContainer}>
-          {!isLoading ? (
-            chatMessages?.length > 0 ? (
-              <View style={styles.listContainer}>
-                <FlatList
-                  contentContainerStyle={styles.flatListContainer}
-                  data={chatMessages}
-                  keyExtractor={(message) => message.message_id}
-                  renderItem={({ item, index }) => (
-                    <>
-                      {/* When reaction popup opens, hide reaction here so it doesn't
+        <View
+          ref={chatContainerRef}
+          onLayout={() => {
+            chatContainerRef.current?.measureInWindow((x, y, width, height) => {
+              chatContainerTop.current = y
+            })
+          }}
+        >
+          <KeyboardAvoidingView
+            keyboardVerticalOffset={
+              Platform.OS === 'ios' ? chatContainerTop.current : 0
+            }
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            style={styles.rootContainer}
+          >
+            {!isLoading ? (
+              chatMessages?.length > 0 ? (
+                <View style={styles.listContainer}>
+                  <FlatList
+                    contentContainerStyle={styles.listContentContainer}
+                    data={chatMessages}
+                    keyExtractor={(message) => message.message_id}
+                    renderItem={({ item, index }) => (
+                      <>
+                        {/* When reaction popup opens, hide reaction here so it doesn't
                           appear underneath the reaction of the message clone inside the
                           portal. */}
-                      <ChatMessageListItem
-                        message={item}
-                        ref={(el) => (itemsRef.current[index] = el)}
-                        shouldShowReaction={index !== popupChatIndex}
-                        hasTail={hasTail(item, chatMessages[index - 1])}
-                        onLongPress={() => handleMessagePress(index)}
-                      />
-                      {index === earliestUnreadIndex ? (
-                        <View style={styles.unreadTagContainer}>
-                          <View style={styles.unreadSeparator} />
-                          <Text style={styles.unreadTag}>
-                            {unreadCount}{' '}
-                            {pluralize(messages.newMessage, unreadCount > 1)}
-                          </Text>
-                          <View style={styles.unreadSeparator} />
-                        </View>
-                      ) : null}
-                    </>
-                  )}
-                  onEndReached={handleScrollToTop}
-                  inverted
-                  initialNumToRender={chatMessages?.length}
-                  ref={flatListRef}
-                  onScrollToIndexFailed={handleScrollToIndexFailed}
-                  refreshing={chat?.messagesStatus === Status.LOADING}
-                />
-              </View>
+                        <ChatMessageListItem
+                          message={item}
+                          ref={(el) => (itemsRef.current[index] = el)}
+                          shouldShowReaction={index !== popupChatIndex}
+                          hasTail={hasTail(item, chatMessages[index - 1])}
+                          onLongPress={() => handleMessagePress(index)}
+                        />
+                        {index === earliestUnreadIndex ? (
+                          <View style={styles.unreadTagContainer}>
+                            <View style={styles.unreadSeparator} />
+                            <Text style={styles.unreadTag}>
+                              {unreadCount}{' '}
+                              {pluralize(messages.newMessage, unreadCount > 1)}
+                            </Text>
+                            <View style={styles.unreadSeparator} />
+                          </View>
+                        ) : null}
+                      </>
+                    )}
+                    onEndReached={handleScrollToTop}
+                    inverted
+                    initialNumToRender={chatMessages?.length}
+                    ref={flatListRef}
+                    onScrollToIndexFailed={handleScrollToIndexFailed}
+                    refreshing={chat?.messagesStatus === Status.LOADING}
+                  />
+                </View>
+              ) : (
+                <EmptyChatMessages />
+              )
             ) : (
-              <EmptyChatMessages />
-            )
-          ) : (
-            <LoadingSpinner />
-          )}
+              <LoadingSpinner />
+            )}
 
-          <View
-            style={styles.composeView}
-            onLayout={() => {
-              composeRef.current?.measureInWindow((x, y, width, height) => {
-                containerBottom.current = y
-              })
-            }}
-            ref={composeRef}
-          >
-            <TextInput
-              placeholder={messages.startNewMessage}
-              Icon={() => (
-                <IconSend
-                  fill={palette.primary}
-                  width={styles.icon.width}
-                  height={styles.icon.height}
-                  opacity={iconOpacity}
-                  onPress={() => handleSubmit(inputMessage)}
-                />
-              )}
-              styles={{
-                root: styles.composeTextContainer,
-                input: styles.composeTextInput
+            <View
+              style={styles.composeView}
+              onLayout={() => {
+                composeRef.current?.measureInWindow((x, y, width, height) => {
+                  chatContainerBottom.current = y
+                })
               }}
-              onChangeText={(text) => {
-                setInputMessage(text)
-                text ? setIconOpacity(ICON_FOCUS) : setIconOpacity(ICON_BLUR)
-              }}
-              onBlur={() => setIconOpacity(ICON_BLUR)}
-              multiline
-              value={inputMessage}
-            />
-          </View>
+              ref={composeRef}
+            >
+              <TextInput
+                placeholder={messages.startNewMessage}
+                Icon={() => (
+                  <IconSend
+                    width={styles.icon.width}
+                    height={styles.icon.height}
+                    opacity={iconOpacity}
+                    fill={styles.icon.fill}
+                    onPress={() => handleSubmit(inputMessage)}
+                  />
+                )}
+                styles={{
+                  root: styles.composeTextContainer,
+                  input: [
+                    styles.composeTextInput,
+                    Platform.OS === 'ios' ? { paddingBottom: spacing(1) } : null
+                  ]
+                }}
+                onChangeText={(text) => {
+                  setInputMessage(text)
+                  text ? setIconOpacity(ICON_FOCUS) : setIconOpacity(ICON_BLUR)
+                }}
+                inputAccessoryViewID='none'
+                multiline
+                value={inputMessage}
+              />
+            </View>
+          </KeyboardAvoidingView>
         </View>
       </ScreenContent>
     </Screen>
