@@ -10,7 +10,6 @@ import {
 import { push } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 
-import { make } from 'common/store/analytics/actions'
 import { useSelector } from 'utils/reducer'
 
 import { EntityLink } from './components/EntityLink'
