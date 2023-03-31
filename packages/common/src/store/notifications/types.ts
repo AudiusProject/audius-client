@@ -13,13 +13,6 @@ import {
   StringWei
 } from '../../models'
 
-import {
-  setNotificationModal,
-  toggleNotificationPanel,
-  setPlaylistUpdates,
-  updatePlaylistLastViewedAt
-} from './actions'
-
 export enum NotificationType {
   Announcement = 'Announcement',
   UserSubscription = 'UserSubscription',
@@ -317,10 +310,24 @@ export type DiscoveryCreateNotification = DiscoveryBaseNotification<
   | DiscoveryCreateTrackNotificationAction
   | DiscoveryCreatePlaylistNotificationAction
 >
+export type DiscoveryTrendingPlaylistNotification = DiscoveryBaseNotification<
+  'trending_playlist',
+  {
+    rank: number
+    genre: string
+    playlist_id: string
+    time_range: TrendingRange
+  }
+>
 export type DiscoveryTrendingNotification = DiscoveryBaseNotification<
   'trending',
   DiscoveryTrendingNotificationAction
 >
+export type DiscoveryTrendingUndergroundNotification =
+  DiscoveryBaseNotification<
+    'trending_underground',
+    DiscoveryTrendingNotificationAction
+  >
 export type DiscoveryMilestoneNotification = DiscoveryBaseNotification<
   'milestone',
   | DiscoveryMilestoneFollowNotificationAction
@@ -355,7 +362,9 @@ export type DiscoveryNotification =
   | DiscoveryChallengeRewardNotification
   | DiscoveryTierChangeNotification
   | DiscoveryCreateNotification
+  | DiscoveryTrendingPlaylistNotification
   | DiscoveryTrendingNotification
+  | DiscoveryTrendingUndergroundNotification
   | DiscoveryRepostOfRepostNotification
   | DiscoverySaveOfRepostNotification
   | DiscoveryTastemakerNotification
@@ -882,31 +891,11 @@ export type IdentityNotification = Omit<Notification, 'timestamp'> & {
   timestamp: string
 }
 
-export interface NotificationState {
-  modalNotificationId: string | undefined
-  panelIsOpen: boolean
-  modalIsOpen: boolean
-  playlistUpdates: number[]
-}
-
 export type NotificationsState = EntityState<Notification> & {
   status: Status
   hasMore: boolean
   totalUnviewed: number
 }
-
-export type SetNotificationModal = ReturnType<typeof setNotificationModal>
-export type ToggleNotificationPanel = ReturnType<typeof toggleNotificationPanel>
-export type SetPlaylistUpdates = ReturnType<typeof setPlaylistUpdates>
-export type UpdatePlaylistLastViewedAt = ReturnType<
-  typeof updatePlaylistLastViewedAt
->
-
-export type NotificationAction =
-  | SetNotificationModal
-  | ToggleNotificationPanel
-  | SetPlaylistUpdates
-  | UpdatePlaylistLastViewedAt
 
 export type AddNotificationsAction = PayloadAction<{
   notifications: Notification[]

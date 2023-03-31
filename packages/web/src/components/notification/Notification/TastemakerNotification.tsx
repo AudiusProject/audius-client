@@ -5,8 +5,7 @@ import {
   Nullable,
   notificationsSelectors,
   TrackEntity,
-  TastemakerNotification as TastemakerNotificationType,
-  EntityType
+  TastemakerNotification as TastemakerNotificationType
 } from '@audius/common'
 import { push } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
@@ -21,7 +20,7 @@ import { NotificationHeader } from './components/NotificationHeader'
 import { NotificationTile } from './components/NotificationTile'
 import { NotificationTitle } from './components/NotificationTitle'
 import { TwitterShareButton } from './components/TwitterShareButton'
-import { IconTrending } from './components/icons'
+import { IconTastemaker } from './components/icons'
 import { getEntityLink } from './utils'
 const { getNotificationEntity, getNotificationUser } = notificationsSelectors
 
@@ -48,10 +47,6 @@ export const TastemakerNotification = (props: TastemakerNotificationProps) => {
   const trackOwnerUser = useSelector((state) =>
     getNotificationUser(state, notification)
   )
-  console.log('making notification ')
-  console.log('notification issss ', notification)
-  console.log('track isss ', track)
-  console.log('track owner user isss ', trackOwnerUser)
 
   const handleClick = useCallback(() => {
     if (track) {
@@ -59,28 +54,24 @@ export const TastemakerNotification = (props: TastemakerNotificationProps) => {
     }
   }, [dispatch, track])
 
-  // to do - add mobile version as well
   const handleShare = useCallback(
     (trackOwnerHandle: string) => {
       const trackTitle = track?.title || ''
       const shareText = messages.twitterShare(trackOwnerHandle, trackTitle)
-      const analytics = make(
-        Name.NOTIFICATIONS_CLICK_TASTEMAKER_TWITTER_SHARE,
-        {
-          text: shareText
-        }
-      )
+      const analytics = {
+        eventName: Name.NOTIFICATIONS_CLICK_TASTEMAKER_TWITTER_SHARE,
+        text: shareText
+      }
       return { shareText: track ? shareText : '', analytics }
     },
     [track]
   )
 
-  // problem - this is returning before we have time to select user and track info
-  // if (!track || !trackOwnerUser) return null
+  if (!track || !trackOwnerUser) return null
 
   return (
     <NotificationTile notification={notification} onClick={handleClick}>
-      <NotificationHeader icon={<IconTrending />}>
+      <NotificationHeader icon={<IconTastemaker />}>
         <NotificationTitle>{messages.title}</NotificationTitle>
       </NotificationHeader>
       <NotificationBody>
@@ -89,7 +80,8 @@ export const TastemakerNotification = (props: TastemakerNotificationProps) => {
       </NotificationBody>
       <TwitterShareButton
         type='dynamic'
-        handle={'trackOwnerUser.handle'}
+        handle={trackOwnerUser.handle}
+        // @ts-ignore -- TODO fix befere merge
         shareData={handleShare}
       />
       <NotificationFooter timeLabel={timeLabel} isViewed={isViewed} />

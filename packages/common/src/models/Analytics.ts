@@ -907,6 +907,10 @@ type NotificationsClickTrendingUnderground = {
   eventName: Name.NOTIFICATIONS_CLICK_TRENDING_UNDERGROUND_TWITTER_SHARE
   text: string
 }
+type NotificationsClickTastemaker = {
+  eventName: Name.NOTIFICATIONS_CLICK_TASTEMAKER_TWITTER_SHARE
+  text: string
+}
 type NotificationsToggleSettings = {
   eventName: Name.NOTIFICATIONS_TOGGLE_SETTINGS
   settings: string
@@ -1612,6 +1616,7 @@ export type AllTrackingEvents =
   | NotificationsClickTrendingPlaylist
   | NotificationsClickTrendingTrack
   | NotificationsClickTrendingUnderground
+  | NotificationsClickTastemaker
   | NotificationsToggleSettings
   | ProfilePageTabClick
   | ProfilePageSort
