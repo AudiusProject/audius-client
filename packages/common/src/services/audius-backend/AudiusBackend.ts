@@ -2189,9 +2189,8 @@ export const audiusBackend = ({
       return {
         type: NotificationType.Tastemaker,
         entityType: Entity.Track,
-        entityId: decodeHashId(data.tastemaker_item_id),
-        tastemakerUserId: decodeHashId(data.tastemaker_user_id),
-        userId: decodeHashId(data.tastemaker_item_owner_id), // owner of the tastemaker track
+        entityId: decodeHashId(data.tastemaker_item_id) as number,
+        userId: decodeHashId(data.tastemaker_item_owner_id) as number, // owner of the tastemaker track
         ...formatBaseNotification(notification)
       }
     } else if (notification.type === 'supporter_rank_up') {
@@ -2309,7 +2308,7 @@ export const audiusBackend = ({
         genre: data.genre,
         time: data.time_range,
         entityType: Entity.Playlist,
-        entityId: decodeHashId(data.playlist_id),
+        entityId: decodeHashId(data.playlist_id) as number,
         ...formatBaseNotification(notification)
       }
     } else if (notification.type === 'trending') {
@@ -2333,7 +2332,7 @@ export const audiusBackend = ({
         genre: data.genre,
         time: data.time_range,
         entityType: Entity.Track,
-        entityId: decodeHashId(data.track_id),
+        entityId: decodeHashId(data.track_id) as number,
         ...formatBaseNotification(notification)
       }
     } else if (notification.type === 'milestone') {
