@@ -149,6 +149,7 @@ export const ChatScreen = () => {
   const url = `/chat/${encodeUrlName(chatId ?? '')}`
 
   const [shouldShowPopup, setShouldShowPopup] = useState(false)
+  const firstRender = useRef(true)
   const [popupChatIndex, setPopupChatIndex] = useState<number | null>(null)
   const flatListRef = useRef<FlatListT<ChatMessage>>(null)
   const itemsRef = useRef<(View | null)[]>([])
@@ -210,17 +211,21 @@ export const ChatScreen = () => {
   )
 
   useEffect(() => {
+    // Scroll to earliest unread index, but only the first time
+    // entering this chat.
     if (
       earliestUnreadIndex &&
       chatMessages &&
       earliestUnreadIndex > 0 &&
-      earliestUnreadIndex < chatMessages.length
+      earliestUnreadIndex < chatMessages.length &&
+      firstRender.current
     ) {
       flatListRef.current?.scrollToIndex({
         index: earliestUnreadIndex,
-        viewPosition: 0.5,
+        viewPosition: 0.95,
         animated: false
       })
+      firstRender.current = false
     }
   }, [earliestUnreadIndex, chatMessages])
 
@@ -229,7 +234,7 @@ export const ChatScreen = () => {
       setTimeout(() => {
         flatListRef.current?.scrollToIndex({
           index: e.index,
-          viewPosition: 0.5,
+          viewPosition: 0.95,
           animated: false
         })
       }, 10)
@@ -253,6 +258,7 @@ export const ChatScreen = () => {
   useFocusEffect(
     useCallback(() => {
       return () => {
+        firstRender.current = false
         dispatch(markChatAsRead({ chatId }))
       }
     }, [dispatch, chatId])
@@ -401,6 +407,13 @@ export const ChatScreen = () => {
                     ref={flatListRef}
                     onScrollToIndexFailed={handleScrollToIndexFailed}
                     refreshing={chat?.messagesStatus === Status.LOADING}
+                    maintainVisibleContentPosition={{
+                      minIndexForVisible: 0,
+                      autoscrollToTopThreshold:
+                        (chatContainerBottom.current -
+                          chatContainerTop.current) /
+                        4
+                    }}
                   />
                 </View>
               ) : (
