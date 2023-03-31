@@ -1,4 +1,9 @@
-import type { AudiusSdk } from '@audius/sdk'
+import {
+  developmentConfig,
+  DiscoveryNodeSelector,
+  productionConfig,
+  stagingConfig
+} from '@audius/sdk'
 import { DiscoveryAPI } from '@audius/sdk/dist/core'
 import type { HedgehogConfig } from '@audius/sdk/dist/services/hedgehog'
 import type { LocalStorage } from '@audius/sdk/dist/utils/localStorage'
@@ -214,7 +219,6 @@ type WithEagerOption = (
 type WaitForLibsInit = () => Promise<unknown>
 
 type AudiusBackendParams = {
-  sdk: () => Promise<AudiusSdk>
   claimDistributionContractAddress: Maybe<string>
   imagePreloader?: (url: string) => Promise<boolean>
   env: Env
@@ -271,7 +275,6 @@ type AudiusBackendParams = {
 }
 
 export const audiusBackend = ({
-  sdk,
   claimDistributionContractAddress,
   imagePreloader,
   env,
@@ -691,16 +694,27 @@ export const audiusBackend = ({
       StringKeys.DISCOVERY_NODE_BLOCK_LIST
     )
 
-    try {
-      const useSdk = await getFeatureEnabled(FeatureFlags.SDK_V2)
-      let audiusSdk: Maybe<Awaited<AudiusSdk>>
+    const bootstrapConfig =
+      env.ENVIRONMENT === 'development'
+        ? developmentConfig
+        : env.ENVIRONMENT === 'staging'
+        ? stagingConfig
+        : productionConfig
 
-      if (useSdk) {
-        audiusSdk = await sdk()
-      }
+    const maxBlockDiff =
+      getRemoteVar(IntKeys.DISCOVERY_NODE_MAX_BLOCK_DIFF) ?? undefined
+    const maxSlotDiffPlays = getRemoteVar(
+      BooleanKeys.ENABLE_DISCOVERY_NODE_MAX_SLOT_DIFF_PLAYS
+    )
+      ? getRemoteVar(IntKeys.DISCOVERY_NODE_MAX_SLOT_DIFF_PLAYS)
+      : null
+
+    try {
+      const useSdkDiscoveryNodeSelector = await getFeatureEnabled(
+        FeatureFlags.SDK_V2
+      )
 
       audiusLibs = new AudiusLibs({
-        audiusSdk,
         localStorage,
         web3Config,
         ethWeb3Config,
@@ -720,14 +734,17 @@ export const audiusBackend = ({
           selectionRequestRetries: getRemoteVar(
             IntKeys.DISCOVERY_NODE_SELECTION_REQUEST_RETRIES
           ),
-          unhealthySlotDiffPlays: getRemoteVar(
-            BooleanKeys.ENABLE_DISCOVERY_NODE_MAX_SLOT_DIFF_PLAYS
-          )
-            ? getRemoteVar(IntKeys.DISCOVERY_NODE_MAX_SLOT_DIFF_PLAYS)
-            : null,
-          unhealthyBlockDiff: getRemoteVar(
-            IntKeys.DISCOVERY_NODE_MAX_BLOCK_DIFF
-          )
+          unhealthySlotDiffPlays: maxSlotDiffPlays,
+          unhealthyBlockDiff: maxBlockDiff,
+          discoveryNodeSelector: useSdkDiscoveryNodeSelector
+            ? new DiscoveryNodeSelector({
+                healthCheckThresholds: {
+                  minVersion: bootstrapConfig.minVersion,
+                  maxBlockDiff,
+                  maxSlotDiffPlays
+                }
+              })
+            : undefined
         },
         identityServiceConfig:
           AudiusLibs.configIdentityService(identityServiceUrl),
@@ -2436,7 +2453,12 @@ export const audiusBackend = ({
   }) {
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
-    if (!account) return
+    if (!account)
+      return {
+        message: 'error',
+        error: new Error('User not signed in'),
+        isRequestError: false
+      }
     const encodedUserId = encodeHashId(account.user_id)
 
     type DiscoveryNotificationsResponse = {
@@ -2457,7 +2479,7 @@ export const audiusBackend = ({
 
     // TODO: update mapDiscoveryNotification to return Notification
     return {
-      totalUnread: unread_count,
+      totalUnviewed: unread_count,
       notifications: notifications.map(
         mapDiscoveryNotification
       ) as Notification[]
