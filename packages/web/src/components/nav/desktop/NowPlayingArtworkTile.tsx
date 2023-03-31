@@ -104,8 +104,8 @@ export const NowPlayingArtworkTile = () => {
     const dominantTrackColors = getDominantColorsByTrack(state, {
       track: getTrack(state, { id: trackId })
     })
-    const coverArtColorMap = dominantTrackColors?.[0] ?? { r: 13, g: 16, b: 18 }
 
+    const coverArtColorMap = dominantTrackColors?.[0] ?? { r: 13, g: 16, b: 18 }
     return `0 1px 20px -3px rgba(
         ${coverArtColorMap.r},
         ${coverArtColorMap.g},
