@@ -26,6 +26,8 @@ export const DELETE_PLAYLIST_REQUESTED = 'DELETE_PLAYLIST_REQUESTED'
 export const DELETE_PLAYLIST_SUCCEEDED = 'DELETE_PLAYLIST_SUCCEEDED'
 export const DELETE_PLAYLIST_FAILED = 'DELETE_PLAYLIST_FAILED'
 
+export const SET_PERMALINK = 'CACHE/COLLECTION/SET_PERMALINK'
+
 export const FETCH_COVER_ART = 'TRACKS/FETCH_COVER_ART'
 
 /**
@@ -149,6 +151,10 @@ export function deletePlaylistFailed(
   metadata: Record<string, unknown>
 ) {
   return { type: DELETE_PLAYLIST_FAILED, error, params, metadata }
+}
+
+export function setPermalink(permalink: string, collectionId: ID) {
+  return { type: SET_PERMALINK, permalink, collectionId }
 }
 
 export function fetchCoverArt(collectionId: ID, size: SquareSizes) {

@@ -13,6 +13,9 @@ export const getTrack = (
   ) {
     props.id = state.tracks.permalinks[props.permalink.toLowerCase()]
   }
+  if (props.permalink) {
+    console.log('getting the id?', props.permalink, props.id)
+  }
   return getEntry(state, {
     ...props,
     kind: Kind.TRACKS

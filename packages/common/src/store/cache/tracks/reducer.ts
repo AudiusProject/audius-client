@@ -1,8 +1,11 @@
-import { ID } from 'models/Identifiers'
 import { Cache } from 'models/Cache'
+import { ID } from 'models/Identifiers'
 import { Track } from 'models/Track'
 import { initialCacheState } from 'store/cache/reducer'
+
 import { AddSuccededAction, ADD_SUCCEEDED } from '../actions'
+
+import { SET_PERMALINK, setPermalink } from './actions'
 import { TracksCacheState } from './types'
 
 const initialState: TracksCacheState = {
@@ -30,6 +33,17 @@ const actionsMap = {
         ...state.permalinks,
         ...newPermalinks
       }
+    }
+  },
+  [SET_PERMALINK](
+    state: TracksCacheState,
+    action: ReturnType<typeof setPermalink>
+  ): TracksCacheState {
+    const { permalink, trackId } = action
+
+    return {
+      ...state,
+      permalinks: { ...state.permalinks, [permalink]: trackId }
     }
   }
 }

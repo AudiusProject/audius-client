@@ -3,6 +3,7 @@ import { initialCacheState } from 'store/cache/reducer'
 import { Collection, ID } from '../../../models'
 import { AddSuccededAction, ADD_SUCCEEDED } from '../actions'
 
+import { SET_PERMALINK, setPermalink } from './actions'
 import { CollectionsCacheState } from './types'
 
 const initialState = {
@@ -33,6 +34,17 @@ const actionsMap = {
         ...state.permalinks,
         ...newPermalinks
       }
+    }
+  },
+  [SET_PERMALINK](
+    state: CollectionsCacheState,
+    action: ReturnType<typeof setPermalink>
+  ): CollectionsCacheState {
+    const { permalink, collectionId } = action
+
+    return {
+      ...state,
+      permalinks: { ...state.permalinks, [permalink]: collectionId }
     }
   }
 }
