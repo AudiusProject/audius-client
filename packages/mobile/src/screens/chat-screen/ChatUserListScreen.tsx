@@ -58,11 +58,12 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     height: spacing(5)
   },
   searchInputContainer: {
-    paddingRight: spacing(4.5),
-    paddingVertical: spacing(4.5)
+    paddingRight: spacing(5),
+    paddingLeft: spacing(4),
+    paddingVertical: spacing(5)
   },
   searchInputText: {
-    fontFamily: typography.fontByWeight.bold,
+    fontFamily: typography.fontByWeight.demiBold,
     fontSize: typography.fontSize.large
   },
   profilePicture: {
@@ -255,19 +256,16 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
               }}
               onChangeText={handleChange}
               value={query}
+              inputAccessoryViewID='none'
             />
           </View>
 
-          {users.length > 0 ? (
-            <FlatList
-              onEndReached={handleLoadMore}
-              data={users}
-              renderItem={renderItem}
-              keyExtractor={(user) => user.user_id}
-            />
-          ) : (
-            <LoadingSpinner style={styles.loadingSpinner} />
-          )}
+          <FlatList
+            onEndReached={handleLoadMore}
+            data={users}
+            renderItem={renderItem}
+            keyExtractor={(user) => user.user_id}
+          />
         </View>
       </ScreenContent>
     </Screen>
