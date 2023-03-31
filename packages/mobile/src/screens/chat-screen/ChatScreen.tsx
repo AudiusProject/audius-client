@@ -142,16 +142,21 @@ export const ChatScreen = () => {
   const styles = useStyles()
   const palette = useThemePalette()
   const dispatch = useDispatch()
+  const navigation = useNavigation<AppTabScreenParamList>()
 
   const { params } = useRoute<'Chat'>()
   const { chatId } = params
   const url = `/chat/${encodeUrlName(chatId ?? '')}`
+
   const [shouldShowPopup, setShouldShowPopup] = useState(false)
-  const messageTop = useRef(0)
-  const chatContainerBottom = useRef(0)
-  const chatContainerTop = useRef(0)
   const [popupChatIndex, setPopupChatIndex] = useState<number | null>(null)
-  const navigation = useNavigation<AppTabScreenParamList>()
+  const flatListRef = useRef<FlatListT<ChatMessage>>(null)
+  const itemsRef = useRef<(View | null)[]>([])
+  const composeRef = useRef<View | null>(null)
+  const chatContainerRef = useRef<View | null>(null)
+  const messageTop = useRef(0)
+  const chatContainerTop = useRef(0)
+  const chatContainerBottom = useRef(0)
 
   const userId = useSelector(getUserId)
   const userIdEncoded = encodeHashId(userId)
@@ -160,10 +165,6 @@ export const ChatScreen = () => {
   const chatMessages = useSelector((state) =>
     getChatMessages(state, chatId ?? '')
   )
-  const flatListRef = useRef<FlatListT<ChatMessage>>(null)
-  const itemsRef = useRef<(View | null)[]>([])
-  const composeRef = useRef<View | null>(null)
-  const chatContainerRef = useRef<View | null>(null)
   const unreadCount = chat?.unread_message_count ?? 0
   const isLoading =
     chat?.messagesStatus === Status.LOADING && chatMessages?.length === 0
@@ -276,14 +277,14 @@ export const ChatScreen = () => {
     if (index < 0 || index >= chatMessages.length) {
       return
     }
-    const popupViewRef = itemsRef.current[index]
-    if (popupViewRef === null || popupViewRef === undefined) {
+    const messageRef = itemsRef.current[index]
+    if (messageRef === null || messageRef === undefined) {
       return
     }
     // Measure position of selected message to create a copy of it on top
     // of the dimmed background inside the portal.
     const messageY = await new Promise<number>((resolve) => {
-      popupViewRef.measureInWindow((x, y, width, height) => {
+      messageRef.measureInWindow((x, y, width, height) => {
         resolve(y)
       })
     })
