@@ -68,6 +68,10 @@ export const NowPlayingArtworkTile = () => {
     return ownerId && accountId && ownerId === accountId
   })
 
+  const permalink = useSelector((state: CommonState) => {
+    return getTrack(state, { id: trackId })?.permalink
+  })
+
   const collectibleImage = useSelector((state: CommonState) => {
     const collectible = getCollectible(state)
     if (collectible) {
@@ -86,10 +90,6 @@ export const NowPlayingArtworkTile = () => {
     SquareSizes.SIZE_480_BY_480,
     ''
   )
-
-  const permalink = useSelector((state: CommonState) => {
-    return getTrack(state, { id: trackId })?.permalink
-  })
 
   const handleShowVisualizer = useCallback(
     (event: MouseEvent) => {
@@ -117,7 +117,6 @@ export const NowPlayingArtworkTile = () => {
 
   return (
     <Draggable
-      isDisabled={!trackId}
       text={trackTitle}
       kind='track'
       id={trackId}
