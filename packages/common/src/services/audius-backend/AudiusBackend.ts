@@ -2173,12 +2173,11 @@ export const audiusBackend = ({
         ...formatBaseNotification(notification)
       }
     } else if (notification.type === 'tastemaker') {
-      // console.log('hey yoooo notification is , ', notification)
       const data = notification.actions[0].data
       return {
         type: NotificationType.Tastemaker,
         entityType: Entity.Track,
-        entityId: 15543, // decodeHashId(data.tastemaker_item_id),
+        entityId: decodeHashId(data.tastemaker_item_id),
         tastemakerUserId: decodeHashId(data.tastemaker_user_id),
         userId: decodeHashId(data.tastemaker_item_owner_id), // owner of the tastemaker track
         ...formatBaseNotification(notification)
