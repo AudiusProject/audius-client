@@ -2194,6 +2194,17 @@ export const audiusBackend = ({
         reactionValue: data.reaction_value,
         ...formatBaseNotification(notification)
       }
+    } else if (notification.type === 'tastemaker') {
+      // console.log('hey yoooo notification is , ', notification)
+      const data = notification.actions[0].data
+      return {
+        type: NotificationType.Tastemaker,
+        entityType: Entity.Track,
+        entityId: data.tastemaker_item_id,
+        tastemakerUserId: data.tastemaker_user_id,
+        userId: data.tastemaker_item_owner_id, // owner of the tastemaker track
+        ...formatBaseNotification(notification)
+      }
     } else if (notification.type === 'supporter_rank_up') {
       const data = notification.actions[0].data
       const senderUserId = decodeHashId(data.receiver_user_id)

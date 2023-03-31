@@ -70,7 +70,8 @@ export function* fetchNotifications(config: FetchNotificationsParams) {
 
     const validTypes = [
       isRepostOfRepostEnabled ? 'repost_of_repost' : null,
-      isSaveOfRepostEnabled ? 'save_of_repost' : null
+      isSaveOfRepostEnabled ? 'save_of_repost' : null,
+      'tastemaker'
     ].filter(removeNullable)
 
     const discoveryNotifications = yield* call(

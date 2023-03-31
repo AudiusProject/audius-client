@@ -31,6 +31,7 @@ export enum NotificationType {
   Milestone = 'Milestone',
   RemixCreate = 'RemixCreate',
   RemixCosign = 'RemixCosign',
+  Tastemaker = 'Tastemaker',
   TrendingTrack = 'TrendingTrack',
   TrendingPlaylist = 'TrendingPlaylist',
   TrendingUnderground = 'TrendingUnderground',
@@ -71,6 +72,7 @@ export enum PushNotificationType {
   RemixCosign = 'RemixCosign',
   TrendingTrack = 'TrendingTrack',
   ChallengeReward = 'ChallengeReward',
+  Tastemaker = 'Tastemaker',
   TierChange = 'TierChange',
   PlaylistUpdate = 'PlaylistUpdate',
   Tip = 'Tip',
@@ -147,6 +149,12 @@ export type DiscoveryRepostOfRepostNotificationAction = {
   type: string
   user_id: string
   repost_of_repost_item_id: string
+}
+export type DiscoveryTastemakerNotificationAction = {
+  tastemaker_user_id: string
+  tastemaker_item_id: string
+  action: string
+  tastemaker_item_owner_id: string
 }
 export type DiscoveryTipSendNotificationAction = {
   amount: string
@@ -259,6 +267,10 @@ export type DiscoveryRepostNotification = DiscoveryBaseNotification<
   'repost',
   DiscoveryRepostNotificationAction
 >
+export type DiscoveryTastemakerNotification = DiscoveryBaseNotification<
+  'tastemaker',
+  DiscoveryTastemakerNotificationAction
+>
 export type DiscoveryTipSendNotification = DiscoveryBaseNotification<
   'tip_send',
   DiscoveryTipSendNotificationAction
@@ -346,6 +358,7 @@ export type DiscoveryNotification =
   | DiscoveryTrendingNotification
   | DiscoveryRepostOfRepostNotification
   | DiscoverySaveOfRepostNotification
+  | DiscoveryTastemakerNotification
 
 export type AnnouncementNotification = BaseNotification & {
   type: NotificationType.Announcement
@@ -686,6 +699,13 @@ export type TrendingUndergroundNotification = BaseNotification & {
   entityId: ID
 }
 
+export type TastemakerNotification = BaseNotification & {
+  type: NotificationType.Tastemaker
+  entityType: Entity.Track
+  entityId: ID
+  userId: ID // track owner id
+}
+
 export type ChallengeRewardNotification = BaseNotification & {
   type: NotificationType.ChallengeReward
   challengeId: ChallengeRewardID
@@ -844,6 +864,7 @@ export type Notification =
   | MilestoneNotification
   | RemixCreateNotification
   | RemixCosignNotification
+  | TastemakerNotification
   | TrendingPlaylistNotification
   | TrendingTrackNotification
   | TrendingUndergroundNotification
