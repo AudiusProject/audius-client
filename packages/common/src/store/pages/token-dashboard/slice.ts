@@ -293,6 +293,12 @@ const slice = createSlice({
     },
     resetRemovedStatus: (state) => {
       state.associatedWallets.removeWallet.status = null
+    },
+    resetState: (state) => {
+      state.associatedWallets = initialState.associatedWallets
+      state.discordCode = initialState.discordCode
+      state.modalState = initialState.modalState
+      state.modalVisible = initialState.modalVisible
     }
   }
 })
@@ -320,7 +326,8 @@ export const {
   resetStatus,
   resetRemovedStatus,
   transferEthAudioToSolWAudio,
-  setCanRecipientReceiveWAudio
+  setCanRecipientReceiveWAudio,
+  resetState
 } = slice.actions
 export const actions = slice.actions
 export default slice
