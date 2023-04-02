@@ -3123,9 +3123,6 @@ export const audiusBackend = ({
    * @param {playlistId} playlistId playlist id or folder id
    */
   async function updatePlaylistLastViewedAt(playlistId: ID) {
-    if (!(await getFeatureEnabled(FeatureFlags.PLAYLIST_UPDATES_ENABLED)))
-      return
-
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
     if (!account) return
@@ -3149,13 +3146,7 @@ export const audiusBackend = ({
       console.log(getErrorMessage(err))
     }
     try {
-      if (
-        await getFeatureEnabled(
-          FeatureFlags.ENTITY_MANAGER_VIEW_PLAYLIST_ENABLED
-        )
-      ) {
-        await audiusLibs.Notifications.viewPlaylist({ playlistId })
-      }
+      await audiusLibs.Notifications.viewPlaylist({ playlistId })
     } catch (err) {
       console.log(getErrorMessage(err))
     }
