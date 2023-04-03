@@ -39,7 +39,6 @@ async function copyRecursive(source: string, destination: string) {
   const items = await RNFS.readDir(source)
 
   // creates destination directory
-  console.log(`Output directory: ${destination}`)
   if (!(await RNFS.exists(destination))) {
     await RNFS.mkdir(destination)
   }
@@ -48,18 +47,13 @@ async function copyRecursive(source: string, destination: string) {
     items.map(async (item) => {
       //  item is a file
       if (item.isFile() === true) {
-        console.log(`Input file: ${item.path}`)
         const destinationFile = destination + '/' + item.name
 
-        // copies file
-        console.log(`Output file: ${destinationFile}`)
         if (!(await exists(destinationFile))) {
           await RNFS.moveFile(item.path, destinationFile)
         }
       } else {
         // item is a directory
-        console.log(`Input directory: ${item.path}`)
-
         const subDirectory = source + '/' + item.name
         const subDestinationDirectory = destination + '/' + item.name
 

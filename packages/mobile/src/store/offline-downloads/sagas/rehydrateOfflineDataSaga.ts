@@ -37,8 +37,8 @@ export function* rehydrateOfflineDataSaga() {
   const isOfflineModeEnabled = yield* call(getIsOfflineEnabled)
   if (!isOfflineModeEnabled) return
 
-  // TODO: Await migrateOfflineDataPathSaga
-  yield* call(migrateOfflineDataPathSaga)
+  // Can remove this after all clients are likely updated
+  yield* migrateOfflineDataPathSaga()
 
   const collectionsToCache: CachedCollection[] = []
   const usersToCache: CachedUser[] = []
