@@ -5,6 +5,7 @@
   "author": "Audius",
   "version": "1.5.18",
   "private": true,
+  "bustCache": true,
   "scripts": {
     "publish-scripts": "./scripts/publishScripts.sh",
     "start": "craco --max-old-space-size=12288 start",
