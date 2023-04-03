@@ -294,11 +294,8 @@ const slice = createSlice({
     resetRemovedStatus: (state) => {
       state.associatedWallets.removeWallet.status = null
     },
-    resetState: (state) => {
-      state.associatedWallets = initialState.associatedWallets
-      state.discordCode = initialState.discordCode
-      state.modalState = initialState.modalState
-      state.modalVisible = initialState.modalVisible
+    resetState: () => {
+      return initialState
     }
   }
 })
