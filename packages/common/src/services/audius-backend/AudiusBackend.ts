@@ -2558,7 +2558,6 @@ export const audiusBackend = ({
         message: 'success'
         notifications: IdentityNotification[]
         totalUnread: number
-        playlistUpdates: number[]
       }
       const notificationsResult: NotificationsResult =
         await notificationsResponse.json()
@@ -3127,30 +3126,11 @@ export const audiusBackend = ({
     const account = audiusLibs.Account.getCurrentUser()
     if (!account) return
 
-    let updatedPlaylistResponse = false
     try {
-      const { data, signature } = await signData()
-      const response = await fetch(
-        `${identityServiceUrl}/user_playlist_updates?walletAddress=${account.wallet}&playlistId=${playlistId}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            [AuthHeaders.Message]: data,
-            [AuthHeaders.Signature]: signature
-          }
-        }
-      )
-      updatedPlaylistResponse = await response.json()
+      return await audiusLibs.Notifications.viewPlaylist({ playlistId })
     } catch (err) {
       console.log(getErrorMessage(err))
     }
-    try {
-      await audiusLibs.Notifications.viewPlaylist({ playlistId })
-    } catch (err) {
-      console.log(getErrorMessage(err))
-    }
-    return updatedPlaylistResponse
   }
 
   async function updateHCaptchaScore(token: string) {
