@@ -17,6 +17,7 @@ import { useThemePalette, useColor } from 'app/utils/theme'
 import { ChatListItem } from './ChatListItem'
 
 const { getChats, getChatsStatus } = chatSelectors
+const { fetchMoreChats, connect, disconnect } = chatActions
 
 const messages = {
   title: 'Messages',
@@ -39,6 +40,9 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     height: spacing(20),
     width: spacing(20),
     alignSelf: 'center'
+  },
+  listContainer: {
+    height: '100%'
   },
   startConversationContainer: {
     marginVertical: spacing(8),
@@ -103,7 +107,14 @@ export const ChatListScreen = () => {
   const chatsStatus = useSelector(getChatsStatus)
 
   useEffect(() => {
-    dispatch(chatActions.fetchMoreChats())
+    dispatch(fetchMoreChats())
+  }, [dispatch])
+
+  useEffect(() => {
+    dispatch(connect())
+    return () => {
+      dispatch(disconnect())
+    }
   }, [dispatch])
 
   const navigateToChatUserList = () => navigation.navigate('ChatUserList')
@@ -128,6 +139,7 @@ export const ChatListScreen = () => {
           {chatsStatus === Status.SUCCESS ? (
             <FlatList
               data={chats}
+              contentContainerStyle={styles.listContainer}
               renderItem={({ item, index }) => <ChatListItem chat={item} />}
               keyExtractor={(item) => item.chat_id}
               ListEmptyComponent={() => (

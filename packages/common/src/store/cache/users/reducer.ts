@@ -1,31 +1,44 @@
-// @ts-nocheck
-// TODO(nkang) - convert to TS
+import { Cache } from 'models/Cache'
+import { ID } from 'models/Identifiers'
+import { User } from 'models/User'
 import { initialCacheState } from 'store/cache/reducer'
-import { SET_HANDLE_STATUS } from 'store/cache/users/actions'
 
-const initialState = {
-  ...initialCacheState,
+import { AddSuccededAction, ADD_SUCCEEDED } from '../actions'
+
+import type { UsersCacheState } from './types'
+
+const initialState: UsersCacheState = {
+  ...(initialCacheState as unknown as Cache<User>),
   handles: {}
 }
 
 const actionsMap = {
-  [SET_HANDLE_STATUS](state, action) {
+  [ADD_SUCCEEDED](
+    state: UsersCacheState,
+    action: AddSuccededAction<User>
+  ): UsersCacheState {
+    const { entries } = action
+
+    const newHandles: Record<string, ID> = {}
+
+    for (const entry of entries) {
+      const { user_id, handle } = entry.metadata
+      newHandles[handle] = user_id
+    }
+
     return {
       ...state,
       handles: {
         ...state.handles,
-        ...action.statuses.reduce((handleStatuses, status) => {
-          handleStatuses[status.handle.toLowerCase()] = {
-            id: status.id,
-            status: status.status
-          }
-          return handleStatuses
-        }, {})
+        ...newHandles
       }
     }
   }
 }
-const reducer = (state = initialState, action) => {
+const reducer = (
+  state: UsersCacheState = initialState,
+  action: AddSuccededAction<User>
+) => {
   const matchingReduceFunction = actionsMap[action.type]
   if (!matchingReduceFunction) return state
   return matchingReduceFunction(state, action)
