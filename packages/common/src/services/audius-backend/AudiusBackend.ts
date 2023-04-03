@@ -21,6 +21,7 @@ import placeholderCoverArt from '../../assets/img/imageBlank2x.png'
 import imageCoverPhotoBlank from '../../assets/img/imageCoverPhotoBlank.jpg'
 import placeholderProfilePicture from '../../assets/img/imageProfilePicEmpty2X.png'
 import {
+  BadgeTier,
   BNWei,
   ChallengeRewardID,
   CID,
@@ -35,6 +36,7 @@ import {
   Name,
   PlaylistTrackId,
   ProfilePictureSizes,
+  StringWei,
   Track,
   TrackMetadata,
   User,
@@ -70,7 +72,9 @@ import {
   Maybe,
   encodeHashId,
   decodeHashId,
-  Timer
+  Timer,
+  Nullable,
+  removeNullable
 } from '../../utils'
 
 import { MonitoringCallbacks } from './types'
@@ -2100,7 +2104,7 @@ export const audiusBackend = ({
     return {
       groupId: notification.group_id,
       timestamp,
-      isViewed: notification.seen_at == null,
+      isViewed: !!notification.seen_at,
       id: `timestamp:${timestamp}:group_id:${notification.group_id}`
     }
   }
@@ -2115,26 +2119,32 @@ export const audiusBackend = ({
     } as Notification
   }
 
-  function mapDiscoveryNotification(notification: DiscoveryNotification) {
+  function mapDiscoveryNotification(
+    notification: DiscoveryNotification
+  ): Notification {
     if (notification.type === 'follow') {
-      const userIds = notification.actions.map((action) => {
-        const data = action.data
-        return decodeHashId(data.follower_user_id)
-      })
+      const userIds = notification.actions
+        .map((action) => {
+          const data = action.data
+          return decodeHashId(data.follower_user_id)
+        })
+        .filter(removeNullable)
       return {
         type: NotificationType.Follow,
         userIds,
         ...formatBaseNotification(notification)
       }
     } else if (notification.type === 'repost') {
-      let entityId
-      let entityType
-      const userIds = notification.actions.map((action) => {
-        const data = action.data
-        entityId = decodeHashId(data.repost_item_id)
-        entityType = getDiscoveryEntityType(data.type)
-        return decodeHashId(data.user_id)
-      })
+      let entityId = 0
+      let entityType = Entity.Track
+      const userIds = notification.actions
+        .map((action) => {
+          const data = action.data
+          entityId = decodeHashId(data.repost_item_id) as number
+          entityType = getDiscoveryEntityType(data.type)
+          return decodeHashId(data.user_id)
+        })
+        .filter(removeNullable)
       return {
         type: NotificationType.Repost,
         userIds,
@@ -2143,14 +2153,16 @@ export const audiusBackend = ({
         ...formatBaseNotification(notification)
       }
     } else if (notification.type === 'save') {
-      let entityId
-      let entityType
-      const userIds = notification.actions.map((action) => {
-        const data = action.data
-        entityId = decodeHashId(data.save_item_id)
-        entityType = getDiscoveryEntityType(data.type)
-        return decodeHashId(data.user_id)
-      })
+      let entityId = 0
+      let entityType = Entity.Track
+      const userIds = notification.actions
+        .map((action) => {
+          const data = action.data
+          entityId = decodeHashId(data.save_item_id) as number
+          entityType = getDiscoveryEntityType(data.type)
+          return decodeHashId(data.user_id)
+        })
+        .filter(removeNullable)
       return {
         type: NotificationType.Favorite,
         userIds,
@@ -2166,7 +2178,7 @@ export const audiusBackend = ({
         type: NotificationType.TipSend,
         entityId: receiverUserId,
         entityType: Entity.User,
-        amount: amount!.toString(),
+        amount: amount!.toString() as StringWei,
         ...formatBaseNotification(notification)
       }
     } else if (notification.type === 'tip_receive') {
@@ -2176,15 +2188,24 @@ export const audiusBackend = ({
       return {
         type: NotificationType.TipReceive,
         entityId: senderUserId,
-        amount: amount!.toString(),
+        amount: amount!.toString() as StringWei,
         entityType: Entity.User,
         tipTxSignature: data.tip_tx_signature,
         reactionValue: data.reaction_value,
         ...formatBaseNotification(notification)
       }
+    } else if (notification.type === 'tastemaker') {
+      const data = notification.actions[0].data
+      return {
+        type: NotificationType.Tastemaker,
+        entityType: Entity.Track,
+        entityId: decodeHashId(data.tastemaker_item_id) as number,
+        userId: decodeHashId(data.tastemaker_item_owner_id) as number, // owner of the tastemaker track
+        ...formatBaseNotification(notification)
+      }
     } else if (notification.type === 'supporter_rank_up') {
       const data = notification.actions[0].data
-      const senderUserId = decodeHashId(data.receiver_user_id)
+      const senderUserId = decodeHashId(data.receiver_user_id) as number
       return {
         type: NotificationType.SupporterRankUp,
         entityId: senderUserId,
@@ -2194,7 +2215,7 @@ export const audiusBackend = ({
       }
     } else if (notification.type === 'supporting_rank_up') {
       const data = notification.actions[0].data
-      const receiverUserId = decodeHashId(data.receiver_user_id)
+      const receiverUserId = decodeHashId(data.receiver_user_id) as number
       return {
         type: NotificationType.SupportingRankUp,
         entityId: receiverUserId,
@@ -2207,13 +2228,13 @@ export const audiusBackend = ({
       return {
         type: NotificationType.SupporterDethroned,
         entityType: Entity.User,
-        entityId: decodeHashId(data.sender_user_id),
-        supportedUserId: decodeHashId(data.receiver_user_id),
+        entityId: decodeHashId(data.sender_user_id) as number,
+        supportedUserId: decodeHashId(data.receiver_user_id) as number,
         ...formatBaseNotification(notification)
       }
     } else if (notification.type === 'challenge_reward') {
       const data = notification.actions[0].data
-      const challengeId = data.challenge_id
+      const challengeId = data.challenge_id as ChallengeRewardID
       return {
         type: NotificationType.ChallengeReward,
         challengeId,
@@ -2222,8 +2243,8 @@ export const audiusBackend = ({
       }
     } else if (notification.type === 'tier_change') {
       const data = notification.actions[0].data
-      const tier = data.new_tier
-      const userId = decodeHashId(notification.actions[0].specifier)
+      const tier = data.new_tier as BadgeTier
+      const userId = decodeHashId(notification.actions[0].specifier) as number
       return {
         type: NotificationType.TierChange,
         tier,
@@ -2231,17 +2252,19 @@ export const audiusBackend = ({
         ...formatBaseNotification(notification)
       }
     } else if (notification.type === 'create') {
-      let entityType
-      const entityIds = notification.actions.map((action) => {
-        const data = action.data
-        if ('playlist_id' in data) {
-          entityType = data.is_album ? Entity.Album : Entity.Playlist
-          return decodeHashId(data.playlist_id)
-        }
-        entityType = Entity.Track
-        return decodeHashId(data.track_id)
-      })
-      const userId = decodeHashId(notification.actions[0].specifier)
+      let entityType: Entity = Entity.Track
+      const entityIds = notification.actions
+        .map((action) => {
+          const data = action.data
+          if ('playlist_id' in data) {
+            entityType = data.is_album ? Entity.Album : Entity.Playlist
+            return decodeHashId(data.playlist_id)
+          }
+          entityType = Entity.Track
+          return decodeHashId(data.track_id)
+        })
+        .filter(removeNullable)
+      const userId = decodeHashId(notification.actions[0].specifier) as number
       return {
         type: NotificationType.UserSubscription,
         userId,
@@ -2250,12 +2273,14 @@ export const audiusBackend = ({
         ...formatBaseNotification(notification)
       }
     } else if (notification.type === 'remix') {
-      let childTrackId, parentTrackId, trackOwnerId
+      let childTrackId = 0
+      let parentTrackId = 0
+      let trackOwnerId = 0
       notification.actions.forEach((action) => {
         const data = action.data
-        childTrackId = decodeHashId(data.track_id)
-        parentTrackId = decodeHashId(data.parent_track_id)
-        trackOwnerId = decodeHashId(data.track_owner_id)
+        childTrackId = decodeHashId(data.track_id) as number
+        parentTrackId = decodeHashId(data.parent_track_id) as number
+        trackOwnerId = decodeHashId(data.track_owner_id) as number
       })
       return {
         type: NotificationType.RemixCreate,
@@ -2268,10 +2293,12 @@ export const audiusBackend = ({
     } else if (notification.type === 'cosign') {
       const data = notification.actions[0].data
       const entityType = Entity.Track
-      const entityIds = [decodeHashId(data.parent_track_id)]
-      const childTrackId = decodeHashId(data.track_id)
-      const parentTrackUserId = decodeHashId(notification.actions[0].specifier)
-      const userId = decodeHashId(data.track_owner_id)
+      const entityIds = [decodeHashId(data.parent_track_id) as number]
+      const childTrackId = decodeHashId(data.track_id) as number
+      const parentTrackUserId = decodeHashId(
+        notification.actions[0].specifier
+      ) as number
+      const userId = decodeHashId(data.track_owner_id) as number
 
       return {
         type: NotificationType.RemixCosign,
@@ -2280,6 +2307,18 @@ export const audiusBackend = ({
         entityIds,
         parentTrackUserId,
         childTrackId,
+        ...formatBaseNotification(notification)
+      }
+    } else if (notification.type === 'trending_playlist') {
+      const data = notification.actions[0].data
+
+      return {
+        type: NotificationType.TrendingPlaylist,
+        rank: data.rank,
+        genre: data.genre,
+        time: data.time_range,
+        entityType: Entity.Playlist,
+        entityId: decodeHashId(data.playlist_id) as number,
         ...formatBaseNotification(notification)
       }
     } else if (notification.type === 'trending') {
@@ -2291,13 +2330,25 @@ export const audiusBackend = ({
         genre: data.genre,
         time: data.time_range,
         entityType: Entity.Track,
-        entityId: decodeHashId(data.track_id),
+        entityId: decodeHashId(data.track_id) as number,
+        ...formatBaseNotification(notification)
+      }
+    } else if (notification.type === 'trending_underground') {
+      const data = notification.actions[0].data
+
+      return {
+        type: NotificationType.TrendingUnderground,
+        rank: data.rank,
+        genre: data.genre,
+        time: data.time_range,
+        entityType: Entity.Track,
+        entityId: decodeHashId(data.track_id) as number,
         ...formatBaseNotification(notification)
       }
     } else if (notification.type === 'milestone') {
       const data = notification.actions[0].data
       if ('track_id' in data) {
-        let achievement
+        let achievement: Achievement
         if (data.type === 'track_repost_count') {
           achievement = Achievement.Reposts
         } else if (data.type === 'track_save_count') {
@@ -2308,13 +2359,13 @@ export const audiusBackend = ({
         return {
           type: NotificationType.Milestone,
           entityType: Entity.Track,
-          entityId: decodeHashId(data.track_id),
+          entityId: decodeHashId(data.track_id) as number,
           value: data.threshold,
           achievement,
           ...formatBaseNotification(notification)
         }
       } else if ('playlist_id' in data) {
-        let achievement
+        let achievement: Achievement
         if (data.type === 'playlist_repost_count') {
           achievement = Achievement.Reposts
         } else {
@@ -2323,16 +2374,16 @@ export const audiusBackend = ({
         return {
           type: NotificationType.Milestone,
           entityType: Entity.Playlist,
-          entityId: decodeHashId(data.playlist_id),
+          entityId: decodeHashId(data.playlist_id) as number,
           value: data.threshold,
           achievement,
           ...formatBaseNotification(notification)
         }
-      } else if ('user_id' in data) {
+      } else {
         return {
           type: NotificationType.Milestone,
           entityType: Entity.User,
-          entityId: decodeHashId(data.user_id),
+          entityId: decodeHashId(data.user_id) as number,
           achievement: Achievement.Followers,
           value: data.threshold,
           ...formatBaseNotification(notification)
@@ -2352,26 +2403,28 @@ export const audiusBackend = ({
       const data = notification.actions[0].data
       return {
         type: NotificationType.Reaction,
-        entityId: decodeHashId(data.receiver_user_id),
+        entityId: decodeHashId(data.receiver_user_id) as number,
         entityType: Entity.User,
         reactionValue: data.reaction_value,
         reactionType: data.reaction_type,
         reactedToEntity: {
           tx_signature: data.reacted_to,
-          amount: data.tip_amount,
-          tip_sender_id: decodeHashId(data.sender_user_id)
+          amount: data.tip_amount as StringWei,
+          tip_sender_id: decodeHashId(data.sender_user_id) as number
         },
         ...formatBaseNotification(notification)
       }
     } else if (notification.type === 'repost_of_repost') {
-      let entityId
-      let entityType
-      const userIds = notification.actions.map((action) => {
-        const data = action.data
-        entityId = decodeHashId(data.repost_of_repost_item_id)
-        entityType = getDiscoveryEntityType(data.type)
-        return decodeHashId(data.user_id)
-      })
+      let entityId = 0
+      let entityType = Entity.Track
+      const userIds = notification.actions
+        .map((action) => {
+          const data = action.data
+          entityId = decodeHashId(data.repost_of_repost_item_id) as number
+          entityType = getDiscoveryEntityType(data.type)
+          return decodeHashId(data.user_id)
+        })
+        .filter(removeNullable)
       return {
         type: NotificationType.RepostOfRepost,
         userIds,
@@ -2380,14 +2433,16 @@ export const audiusBackend = ({
         ...formatBaseNotification(notification)
       }
     } else if (notification.type === 'save_of_repost') {
-      let entityId
-      let entityType
-      const userIds = notification.actions.map((action) => {
-        const data = action.data
-        entityId = decodeHashId(data.save_of_repost_item_id)
-        entityType = getDiscoveryEntityType(data.type)
-        return decodeHashId(data.user_id)
-      })
+      let entityId = 0
+      let entityType = Entity.Track
+      const userIds = notification.actions
+        .map((action) => {
+          const data = action.data
+          entityId = decodeHashId(data.save_of_repost_item_id) as number
+          entityType = getDiscoveryEntityType(data.type)
+          return decodeHashId(data.user_id)
+        })
+        .filter(removeNullable)
       return {
         type: NotificationType.FavoriteOfRepost,
         userIds,
@@ -2427,7 +2482,7 @@ export const audiusBackend = ({
       unread_count: number
     }
 
-    const response: DiscoveryNotificationsResponse =
+    const response: Nullable<DiscoveryNotificationsResponse> =
       await audiusLibs.Notifications.getNotifications({
         encodedUserId,
         timestamp,
@@ -2436,9 +2491,15 @@ export const audiusBackend = ({
         validTypes
       })
 
+    if (!response)
+      return {
+        message: 'error',
+        error: new Error('Invalid Server Response'),
+        isRequestError: true
+      }
+
     const { unread_count, notifications } = response
 
-    // TODO: update mapDiscoveryNotification to return Notification
     return {
       message: 'success',
       totalUnviewed: unread_count,
@@ -2507,7 +2568,6 @@ export const audiusBackend = ({
         message: 'success'
         notifications: IdentityNotification[]
         totalUnread: number
-        playlistUpdates: number[]
       }
       const notificationsResult: NotificationsResult =
         await notificationsResponse.json()
@@ -3072,43 +3132,15 @@ export const audiusBackend = ({
    * @param {playlistId} playlistId playlist id or folder id
    */
   async function updatePlaylistLastViewedAt(playlistId: ID) {
-    if (!(await getFeatureEnabled(FeatureFlags.PLAYLIST_UPDATES_ENABLED)))
-      return
-
     await waitForLibsInit()
     const account = audiusLibs.Account.getCurrentUser()
     if (!account) return
 
-    let updatedPlaylistResponse = false
     try {
-      const { data, signature } = await signData()
-      const response = await fetch(
-        `${identityServiceUrl}/user_playlist_updates?walletAddress=${account.wallet}&playlistId=${playlistId}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            [AuthHeaders.Message]: data,
-            [AuthHeaders.Signature]: signature
-          }
-        }
-      )
-      updatedPlaylistResponse = await response.json()
+      return await audiusLibs.Notifications.viewPlaylist({ playlistId })
     } catch (err) {
       console.log(getErrorMessage(err))
     }
-    try {
-      if (
-        await getFeatureEnabled(
-          FeatureFlags.ENTITY_MANAGER_VIEW_PLAYLIST_ENABLED
-        )
-      ) {
-        await audiusLibs.Notifications.viewPlaylist({ playlistId })
-      }
-    } catch (err) {
-      console.log(getErrorMessage(err))
-    }
-    return updatedPlaylistResponse
   }
 
   async function updateHCaptchaScore(token: string) {
