@@ -258,7 +258,6 @@ export const ChatScreen = () => {
   useFocusEffect(
     useCallback(() => {
       return () => {
-        firstRender.current = false
         dispatch(markChatAsRead({ chatId }))
       }
     }, [dispatch, chatId])
