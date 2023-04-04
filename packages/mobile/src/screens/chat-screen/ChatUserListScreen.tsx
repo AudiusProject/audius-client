@@ -9,8 +9,7 @@ import {
   chatActions,
   Status
 } from '@audius/common'
-import { Text, View } from 'react-native'
-import { TouchableHighlight } from 'react-native-gesture-handler'
+import { Text, View, TouchableHighlight, TouchableOpacity } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDebounce } from 'react-use'
 
@@ -204,7 +203,7 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
     }
 
     return (
-      <TouchableHighlight onPress={() => handlePress(item)}>
+      <TouchableOpacity onPress={() => handlePress(item)}>
         <View style={styles.userContainer} key={item.key}>
           <ProfilePicture profile={item} style={styles.profilePicture} />
           <View style={styles.userNameContainer}>
@@ -226,7 +225,7 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
             </View>
           </View>
         </View>
-      </TouchableHighlight>
+      </TouchableOpacity>
     )
   }
 
