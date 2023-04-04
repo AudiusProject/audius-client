@@ -1,9 +1,3 @@
-import {
-  developmentConfig,
-  DiscoveryNodeSelector,
-  productionConfig,
-  stagingConfig
-} from '@audius/sdk'
 import { DiscoveryAPI } from '@audius/sdk/dist/core'
 import type { HedgehogConfig } from '@audius/sdk/dist/services/hedgehog'
 import type { LocalStorage } from '@audius/sdk/dist/utils/localStorage'
@@ -81,6 +75,7 @@ import {
   Nullable,
   removeNullable
 } from '../../utils'
+import type { DiscoveryNodeSelectorInstance } from '../discovery-node-selector'
 
 import { MonitoringCallbacks } from './types'
 
@@ -227,6 +222,7 @@ type AudiusBackendParams = {
   ethProviderUrls: Maybe<string[]>
   ethRegistryAddress: Maybe<string>
   ethTokenAddress: Maybe<string>
+  discoveryNodeSelectorInstance: DiscoveryNodeSelectorInstance
   getFeatureEnabled: (
     flag: FeatureFlags,
     fallbackFlag?: FeatureFlags
@@ -283,6 +279,7 @@ export const audiusBackend = ({
   ethProviderUrls,
   ethRegistryAddress,
   ethTokenAddress,
+  discoveryNodeSelectorInstance,
   getFeatureEnabled,
   getHostUrl,
   getLibs,
@@ -692,21 +689,6 @@ export const audiusBackend = ({
       StringKeys.DISCOVERY_NODE_BLOCK_LIST
     )
 
-    const bootstrapConfig =
-      env.ENVIRONMENT === 'development'
-        ? developmentConfig
-        : env.ENVIRONMENT === 'staging'
-        ? stagingConfig
-        : productionConfig
-
-    const maxBlockDiff =
-      getRemoteVar(IntKeys.DISCOVERY_NODE_MAX_BLOCK_DIFF) ?? undefined
-    const maxSlotDiffPlays = getRemoteVar(
-      BooleanKeys.ENABLE_DISCOVERY_NODE_MAX_SLOT_DIFF_PLAYS
-    )
-      ? getRemoteVar(IntKeys.DISCOVERY_NODE_MAX_SLOT_DIFF_PLAYS)
-      : null
-
     try {
       const useSdkDiscoveryNodeSelector = await getFeatureEnabled(
         FeatureFlags.SDK_V2
@@ -731,16 +713,16 @@ export const audiusBackend = ({
           selectionRequestRetries: getRemoteVar(
             IntKeys.DISCOVERY_NODE_SELECTION_REQUEST_RETRIES
           ),
-          unhealthySlotDiffPlays: maxSlotDiffPlays,
-          unhealthyBlockDiff: maxBlockDiff,
+          unhealthySlotDiffPlays: getRemoteVar(
+            BooleanKeys.ENABLE_DISCOVERY_NODE_MAX_SLOT_DIFF_PLAYS
+          )
+            ? getRemoteVar(IntKeys.DISCOVERY_NODE_MAX_SLOT_DIFF_PLAYS)
+            : null,
+          unhealthyBlockDiff:
+            getRemoteVar(IntKeys.DISCOVERY_NODE_MAX_BLOCK_DIFF) ?? undefined,
+
           discoveryNodeSelector: useSdkDiscoveryNodeSelector
-            ? new DiscoveryNodeSelector({
-                healthCheckThresholds: {
-                  minVersion: bootstrapConfig.minVersion,
-                  maxBlockDiff,
-                  maxSlotDiffPlays
-                }
-              })
+            ? await discoveryNodeSelectorInstance.getDiscoveryNodeSelector()
             : undefined
         },
         identityServiceConfig:

@@ -7,8 +7,8 @@ import Config from 'react-native-config'
 import { track } from 'app/services/analytics'
 import { reportToSentry } from 'app/utils/reportToSentry'
 
-import { audiusSdk } from './audius-sdk'
 import { createPrivateKey } from './createPrivateKey'
+import { discoveryNodeSelectorInstance } from './discovery-node-selector'
 import { withEagerOption } from './eagerLoadUtils'
 import { env } from './env'
 import {
@@ -25,13 +25,13 @@ import { remoteConfigInstance } from './remote-config/remote-config-instance'
  * audiusBackend initialized for a mobile environment
  */
 export const audiusBackendInstance = audiusBackend({
-  sdk: audiusSdk,
   claimDistributionContractAddress: Config.CLAIM_DISTRIBUTION_CONTRACT_ADDRESS,
   env,
   ethOwnerWallet: Config.ETH_OWNER_WALLET,
   ethProviderUrls: (Config.ETH_PROVIDER_URL || '').split(','),
   ethRegistryAddress: Config.ETH_REGISTRY_ADDRESS,
   ethTokenAddress: Config.ETH_TOKEN_ADDRESS,
+  discoveryNodeSelectorInstance,
   getFeatureEnabled,
   getHostUrl: () => {
     return `${Config.PUBLIC_PROTOCOL}//${Config.PUBLIC_HOSTNAME}`
