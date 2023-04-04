@@ -149,7 +149,7 @@ export const ChatScreen = () => {
   const url = `/chat/${encodeUrlName(chatId ?? '')}`
 
   const [shouldShowPopup, setShouldShowPopup] = useState(false)
-  const firstRender = useRef(true)
+  const hasScrolledToUnreadTag = useRef(true)
   const [popupChatIndex, setPopupChatIndex] = useState<number | null>(null)
   const flatListRef = useRef<FlatListT<ChatMessage>>(null)
   const itemsRef = useRef<(View | null)[]>([])
@@ -218,14 +218,14 @@ export const ChatScreen = () => {
       chatMessages &&
       earliestUnreadIndex > 0 &&
       earliestUnreadIndex < chatMessages.length &&
-      firstRender.current
+      hasScrolledToUnreadTag.current
     ) {
       flatListRef.current?.scrollToIndex({
         index: earliestUnreadIndex,
         viewPosition: 0.95,
         animated: false
       })
-      firstRender.current = false
+      hasScrolledToUnreadTag.current = false
     }
   }, [earliestUnreadIndex, chatMessages])
 
