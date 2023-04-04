@@ -41,6 +41,8 @@ const {
   addMessage,
   fetchBlockees,
   fetchBlockeesSucceeded,
+  fetchBlockers,
+  fetchBlockersSucceeded,
   unblockUser,
   blockUser,
   fetchPermissions,
@@ -285,6 +287,23 @@ function* doFetchBlockees() {
   }
 }
 
+function* doFetchBlockers() {
+  try {
+    const audiusSdk = yield* getContext('audiusSdk')
+    const sdk = yield* call(audiusSdk)
+    const { data } = yield* call([sdk.chats, sdk.chats.getBlockers])
+    yield* put(
+      fetchBlockersSucceeded({
+        blockers: data
+          .map((encodedId) => decodeHashId(encodedId))
+          .filter(removeNullable)
+      })
+    )
+  } catch (e) {
+    console.error('fetchBlockeesFailed', e)
+  }
+}
+
 function* doBlockUser(action: ReturnType<typeof blockUser>) {
   try {
     const audiusSdk = yield* getContext('audiusSdk')
@@ -360,6 +379,10 @@ function* watchFetchBlockees() {
   yield takeLatest(fetchBlockees, doFetchBlockees)
 }
 
+function* watchFetchBlockers() {
+  yield takeLatest(fetchBlockers, doFetchBlockers)
+}
+
 function* watchBlockUser() {
   yield takeEvery(blockUser, doBlockUser)
 }
@@ -382,6 +405,7 @@ export const sagas = () => {
     watchSendMessage,
     watchAddMessage,
     watchFetchBlockees,
+    watchFetchBlockers,
     watchBlockUser,
     watchUnblockUser,
     watchFetchPermissions

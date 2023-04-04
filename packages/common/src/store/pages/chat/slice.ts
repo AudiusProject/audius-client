@@ -43,6 +43,7 @@ type ChatState = {
   optimisticChatRead: Record<string, UserChat>
   activeChatId: string | null
   blockees: ID[]
+  blockers: ID[]
   permissions: Record<ID, ChatPermissionResponse>
 }
 
@@ -86,6 +87,7 @@ const initialState: ChatState = {
   optimisticReactions: {},
   activeChatId: null,
   blockees: [],
+  blockers: [],
   permissions: {}
 }
 
@@ -354,6 +356,15 @@ const slice = createSlice({
       action: PayloadAction<{ blockees: ID[] }>
     ) => {
       state.blockees = action.payload.blockees
+    },
+    fetchBlockers: (_state, _action: Action) => {
+      // triggers saga
+    },
+    fetchBlockersSucceeded: (
+      state,
+      action: PayloadAction<{ blockers: ID[] }>
+    ) => {
+      state.blockers = action.payload.blockers
     },
     blockUser: (_state, _action: PayloadAction<{ userId: ID }>) => {
       // triggers saga

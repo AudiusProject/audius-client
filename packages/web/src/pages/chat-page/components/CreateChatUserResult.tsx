@@ -48,7 +48,7 @@ const { getOptimisticSupporters, getOptimisticSupporting } = tippingSelectors
 
 const { fetchSupportersForUser } = tippingActions
 const { createChat, blockUser, unblockUser, fetchPermissions } = chatActions
-const { getBlockees, getPermissionsMap } = chatSelectors
+const { getBlockees, getBlockers, getPermissionsMap } = chatSelectors
 
 const renderTrigger = (
   anchorRef: React.MutableRefObject<any>,
@@ -69,10 +69,13 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   const supportingMap = useSelector(getOptimisticSupporting)
   const supportersMap = useSelector(getOptimisticSupporters)
   const blockeeList = useSelector(getBlockees)
-  const isBlocked = blockeeList.includes(user.user_id)
+  const blockerList = useSelector(getBlockers)
+  const isBlockee = blockeeList.includes(user.user_id)
+  const isBlocker = blockerList.includes(user.user_id)
   const permissionsMap = useSelector(getPermissionsMap)
   const isPermitted =
-    permissionsMap[user.user_id]?.current_user_has_permission ?? true
+    !isBlocker &&
+    (permissionsMap[user.user_id]?.current_user_has_permission ?? true)
 
   const handleComposeClicked = useCallback(() => {
     dispatch(createChat({ userIds: [user.user_id] }))
@@ -100,7 +103,7 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
         }
       : null,
     { icon: <IconUser />, text: messages.visit, onClick: handleVisitClicked },
-    isBlocked
+    isBlockee
       ? {
           icon: <IconUnblockMessages />,
           text: messages.unblock,
