@@ -9,7 +9,7 @@ import {
   chatActions,
   Status
 } from '@audius/common'
-import { Text, View, TouchableHighlight, TouchableOpacity } from 'react-native'
+import { Text, View, TouchableOpacity } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDebounce } from 'react-use'
 
@@ -42,10 +42,15 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     backgroundColor: palette.white,
     flexGrow: 1
   },
+  spinnerContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexGrow: 1
+  },
   loadingSpinner: {
-    height: spacing(20),
-    width: spacing(20),
-    alignSelf: 'center'
+    height: spacing(15),
+    width: spacing(15),
+    marginBottom: spacing(20)
   },
   searchContainer: {
     marginTop: spacing(8),
@@ -129,6 +134,11 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     borderColor: palette.neutralLight4,
     paddingVertical: spacing(1),
     paddingHorizontal: spacing(2)
+  },
+  shadow: {
+    borderBottomColor: palette.neutralLight6,
+    borderBottomWidth: 3,
+    borderBottomLeftRadius: 1
   }
 }))
 
@@ -165,6 +175,7 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
     },
     [hasQuery, userIds]
   )
+  const isLoading = hasQuery && status === Status.LOADING
 
   useDebounce(
     () => {
@@ -238,6 +249,7 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
       topbarRight={null}
     >
       <ScreenContent>
+        <View style={styles.shadow} />
         <View style={styles.rootContainer}>
           <View style={styles.searchContainer}>
             <TextInput
@@ -259,12 +271,18 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
             />
           </View>
 
-          <FlatList
-            onEndReached={handleLoadMore}
-            data={users}
-            renderItem={renderItem}
-            keyExtractor={(user) => user.user_id}
-          />
+          {!isLoading ? (
+            <FlatList
+              onEndReached={handleLoadMore}
+              data={users}
+              renderItem={renderItem}
+              keyExtractor={(user) => user.user_id}
+            />
+          ) : (
+            <View style={styles.spinnerContainer}>
+              <LoadingSpinner style={styles.loadingSpinner} />
+            </View>
+          )}
         </View>
       </ScreenContent>
     </Screen>
