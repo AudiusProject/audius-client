@@ -4,6 +4,7 @@ import {
   accountSelectors,
   chatActions,
   chatSelectors,
+  removeNullable,
   tippingActions,
   tippingSelectors,
   User
@@ -18,6 +19,7 @@ import {
   PopupMenu,
   PopupPosition
 } from '@audius/stems'
+import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -32,7 +34,8 @@ const messages = {
   message: 'Message This User',
   visit: "Visit User's Profile",
   block: 'Block Messages',
-  unblock: 'Unblock Messages'
+  unblock: 'Unblock Messages',
+  notPermitted: 'Cannot Be Messaged'
 }
 
 type UserResultComposeProps = {
@@ -68,6 +71,8 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   const blockeeList = useSelector(getBlockees)
   const isBlocked = blockeeList.includes(user.user_id)
   const permissionsMap = useSelector(getPermissionsMap)
+  const isPermitted =
+    permissionsMap[user.user_id]?.current_user_has_permission ?? true
 
   const handleComposeClicked = useCallback(() => {
     dispatch(createChat({ userIds: [user.user_id] }))
@@ -87,11 +92,13 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   }, [dispatch, user])
 
   const items = [
-    {
-      icon: <IconMessage />,
-      text: messages.message,
-      onClick: handleComposeClicked
-    },
+    isPermitted
+      ? {
+          icon: <IconMessage />,
+          text: messages.message,
+          onClick: handleComposeClicked
+        }
+      : null,
     { icon: <IconUser />, text: messages.visit, onClick: handleVisitClicked },
     isBlocked
       ? {
@@ -104,7 +111,7 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
           text: messages.block,
           onClick: handleBlockClicked
         }
-  ]
+  ].filter(removeNullable)
 
   useEffect(() => {
     if (
@@ -121,12 +128,21 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   }, [dispatch, user])
 
   return (
-    <div className={styles.root}>
+    <div
+      className={cn(styles.root, {
+        [styles.disabled]: !isPermitted
+      })}
+    >
       <ArtistChip
         className={styles.artistChip}
         user={user}
         showPopover={false}
         showSupportFor={currentUserId ?? undefined}
+        customChips={
+          isPermitted ? null : (
+            <div className={styles.notPermitted}>{messages.notPermitted}</div>
+          )
+        }
         onClickArtistName={handleComposeClicked}
       />
       <PopupMenu
