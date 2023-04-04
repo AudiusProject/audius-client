@@ -1,9 +1,10 @@
-import type {
+import {
   TypedCommsResponse,
   UserChat,
   ChatMessage,
   ChatMessageReaction,
-  ChatMessageNullableReaction
+  ChatMessageNullableReaction,
+  ChatPermissionResponse
 } from '@audius/sdk'
 import {
   Action,
@@ -42,6 +43,7 @@ type ChatState = {
   optimisticChatRead: Record<string, UserChat>
   activeChatId: string | null
   blockees: ID[]
+  permissions: Record<ID, ChatPermissionResponse>
 }
 
 type SetMessageReactionPayload = {
@@ -83,7 +85,8 @@ const initialState: ChatState = {
   optimisticChatRead: {},
   optimisticReactions: {},
   activeChatId: null,
-  blockees: []
+  blockees: [],
+  permissions: {}
 }
 
 const slice = createSlice({
@@ -357,6 +360,20 @@ const slice = createSlice({
     },
     unblockUser: (_state, _action: PayloadAction<{ userId: ID }>) => {
       // triggers saga
+    },
+    fetchPermissions: (_state, _action: PayloadAction<{ userIds: ID[] }>) => {
+      // triggers saga
+    },
+    fetchPermissionsSucceeded: (
+      state,
+      action: PayloadAction<{
+        permissions: Record<ID, ChatPermissionResponse>
+      }>
+    ) => {
+      state.permissions = {
+        ...state.permissions,
+        ...action.payload.permissions
+      }
     }
   }
 })

@@ -44,8 +44,8 @@ const { getUserId } = accountSelectors
 const { getOptimisticSupporters, getOptimisticSupporting } = tippingSelectors
 
 const { fetchSupportersForUser } = tippingActions
-const { createChat, blockUser, unblockUser } = chatActions
-const { getBlockees } = chatSelectors
+const { createChat, blockUser, unblockUser, fetchPermissions } = chatActions
+const { getBlockees, getPermissionsMap } = chatSelectors
 
 const renderTrigger = (
   anchorRef: React.MutableRefObject<any>,
@@ -67,6 +67,7 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   const supportersMap = useSelector(getOptimisticSupporters)
   const blockeeList = useSelector(getBlockees)
   const isBlocked = blockeeList.includes(user.user_id)
+  const permissionsMap = useSelector(getPermissionsMap)
 
   const handleComposeClicked = useCallback(() => {
     dispatch(createChat({ userIds: [user.user_id] }))
@@ -114,6 +115,10 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
       dispatch(fetchSupportersForUser({ userId: user.user_id }))
     }
   }, [dispatch, currentUserId, supportingMap, supportersMap, user])
+
+  useEffect(() => {
+    dispatch(fetchPermissions({ userIds: [user.user_id] }))
+  }, [dispatch, user])
 
   return (
     <div className={styles.root}>

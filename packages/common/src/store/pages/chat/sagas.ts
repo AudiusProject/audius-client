@@ -1,8 +1,13 @@
-import { ChatMessage, TypedCommsResponse } from '@audius/sdk'
+import {
+  ChatMessage,
+  ChatPermissionResponse,
+  TypedCommsResponse
+} from '@audius/sdk'
 import dayjs from 'dayjs'
 import { call, put, select, takeEvery, takeLatest } from 'typed-redux-saga'
 import { ulid } from 'ulid'
 
+import { ID } from 'models/Identifiers'
 import { Status } from 'models/Status'
 import { getAccountUser, getUserId } from 'store/account/selectors'
 import { setVisibility } from 'store/ui/modals/slice'
@@ -37,7 +42,9 @@ const {
   fetchBlockees,
   fetchBlockeesSucceeded,
   unblockUser,
-  blockUser
+  blockUser,
+  fetchPermissions,
+  fetchPermissionsSucceeded
 } = chatActions
 const { getChatsSummary, getChat } = chatSelectors
 
@@ -304,6 +311,23 @@ function* doUnblockUser(action: ReturnType<typeof unblockUser>) {
   }
 }
 
+function* doFetchPermissions(action: ReturnType<typeof fetchPermissions>) {
+  try {
+    const audiusSdk = yield* getContext('audiusSdk')
+    const sdk = yield* call(audiusSdk)
+    const { data } = yield* call([sdk.chats, sdk.chats.getPermissions], {
+      userIds: action.payload.userIds.map((id) => encodeHashId(id))
+    })
+    const permissions: Record<ID, ChatPermissionResponse> = {}
+    for (const key of Object.keys(data)) {
+      permissions[decodeHashId(key)!] = data[key]
+    }
+    yield* put(fetchPermissionsSucceeded({ permissions }))
+  } catch (e) {
+    console.error('fetchPermissionsFailed', e)
+  }
+}
+
 function* watchAddMessage() {
   yield takeEvery(addMessage, ({ payload }) => fetchChatIfNecessary(payload))
 }
@@ -344,6 +368,10 @@ function* watchUnblockUser() {
   yield takeEvery(unblockUser, doUnblockUser)
 }
 
+function* watchFetchPermissions() {
+  yield takeEvery(fetchPermissions, doFetchPermissions)
+}
+
 export const sagas = () => {
   return [
     watchFetchChats,
@@ -355,6 +383,7 @@ export const sagas = () => {
     watchAddMessage,
     watchFetchBlockees,
     watchBlockUser,
-    watchUnblockUser
+    watchUnblockUser,
+    watchFetchPermissions
   ]
 }
