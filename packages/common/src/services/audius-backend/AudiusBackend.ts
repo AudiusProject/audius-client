@@ -1,3 +1,4 @@
+import type { DiscoveryNodeSelector } from '@audius/sdk'
 import { DiscoveryAPI } from '@audius/sdk/dist/core'
 import type { HedgehogConfig } from '@audius/sdk/dist/services/hedgehog'
 import type { LocalStorage } from '@audius/sdk/dist/utils/localStorage'
@@ -689,11 +690,22 @@ export const audiusBackend = ({
       StringKeys.DISCOVERY_NODE_BLOCK_LIST
     )
 
-    try {
-      const useSdkDiscoveryNodeSelector = await getFeatureEnabled(
-        FeatureFlags.SDK_V2
-      )
+    const useSdkDiscoveryNodeSelector = await getFeatureEnabled(
+      FeatureFlags.SDK_V2
+    )
 
+    let discoveryNodeSelector: Maybe<DiscoveryNodeSelector>
+
+    if (useSdkDiscoveryNodeSelector) {
+      discoveryNodeSelector =
+        await discoveryNodeSelectorInstance.getDiscoveryNodeSelector()
+
+      discoveryNodeSelector.addEventListener('change', (endpoint) => {
+        discoveryProviderSelectionCallback(endpoint, [])
+      })
+    }
+
+    try {
       audiusLibs = new AudiusLibs({
         localStorage,
         web3Config,
@@ -721,9 +733,7 @@ export const audiusBackend = ({
           unhealthyBlockDiff:
             getRemoteVar(IntKeys.DISCOVERY_NODE_MAX_BLOCK_DIFF) ?? undefined,
 
-          discoveryNodeSelector: useSdkDiscoveryNodeSelector
-            ? await discoveryNodeSelectorInstance.getDiscoveryNodeSelector()
-            : undefined
+          discoveryNodeSelector
         },
         identityServiceConfig:
           AudiusLibs.configIdentityService(identityServiceUrl),
