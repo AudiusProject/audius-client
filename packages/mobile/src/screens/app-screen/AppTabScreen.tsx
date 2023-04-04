@@ -289,10 +289,10 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
         <Stack.Screen
           name='Chat'
           component={ChatScreen}
-          getId={({ params }) => {
-            // @ts-ignore
-            return params?.chatId
-          }}
+          getId={({ params }) =>
+            // @ts-ignore hard to correctly type navigation params (PAY-1141)
+            params?.chatId
+          }
         />
       </Stack.Group>
     </Stack.Navigator>
