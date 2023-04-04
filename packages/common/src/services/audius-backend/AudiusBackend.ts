@@ -2571,6 +2571,7 @@ export const audiusBackend = ({
 
       const formattedNotifications = {
         ...notificationsResult,
+        totalUnviewed: notificationsResult.totalUnread,
         notifications: notificationsResult.notifications.map(
           mapIdentityNotification
         )
