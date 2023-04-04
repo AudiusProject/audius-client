@@ -75,41 +75,46 @@ function* fetchProfileCustomizedCollectibles(user) {
   )
   const cid = user?.metadata_multihash ?? null
   if (cid) {
-    const {
-      is_verified: ignored_is_verified,
-      creator_node_endpoint: ignored_creator_node_endpoint,
-      ...metadata
-    } = yield call(
+    const metadata = yield call(
       audiusBackendInstance.fetchCID,
       cid,
       gateways,
       /* cache */ false,
       /* asUrl */ false
     )
-    if (metadata?.collectibles) {
-      yield put(
-        cacheActions.update(Kind.USERS, [
-          {
-            id: user.user_id,
-            metadata: {
-              ...metadata,
-              collectiblesOrderUnset: false
+
+    if (metadata) {
+      const {
+        is_verified: ignored_is_verified,
+        creator_node_endpoint: ignored_creator_node_endpoint,
+        ...sanitizedMetadata
+      } = metadata
+
+      if (sanitizedMetadata?.collectibles) {
+        yield put(
+          cacheActions.update(Kind.USERS, [
+            {
+              id: user.user_id,
+              metadata: {
+                ...sanitizedMetadata,
+                collectiblesOrderUnset: false
+              }
             }
-          }
-        ])
-      )
-    } else {
-      yield put(
-        cacheActions.update(Kind.USERS, [
-          {
-            id: user.user_id,
-            metadata: {
-              ...metadata,
-              collectiblesOrderUnset: true
+          ])
+        )
+      } else {
+        yield put(
+          cacheActions.update(Kind.USERS, [
+            {
+              id: user.user_id,
+              metadata: {
+                ...sanitizedMetadata,
+                collectiblesOrderUnset: true
+              }
             }
-          }
-        ])
-      )
+          ])
+        )
+      }
     }
   }
 }
