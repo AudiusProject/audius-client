@@ -2,7 +2,7 @@ set -e
 
 should_error=false
 
-if ! [ -z $CI ]; then
+if ! [ -z "$CI" ]; then
   exit 0
 fi
 
@@ -11,7 +11,7 @@ cp .python-version-dev .python-version
 required_node_version=$(<.nvmrc)
 current_node_version=$(node --version)
 
-if [ $current_node_version != $required_node_version ]; then
+if [ "$current_node_version" != "$required_node_version" ]; then
   echo "Invalid node version. Expected $required_node_version, got $current_node_version"
   should_error=true
 fi
@@ -31,6 +31,16 @@ if [[ $required_python_version =~ $current_python_version ]]; then
   echo "Invalid python version. Expected $required_python_version, got $current_python_version"
   should_error=true
 fi
+
+echo "$required_node_version"
+echo "$required_python_version"
+echo "$required_ruby_version"
+echo ""
+echo "$current_node_version"
+echo "$current_python_version"
+echo "$current_ruby_version"
+echo ""
+echo $should_error
 
 if [[ $should_error = true ]]; then
   exit 1
