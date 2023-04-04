@@ -1,22 +1,14 @@
 import { useEffect, useState } from 'react'
 
+import type { UnfurlResponse } from '@audius/sdk'
+
+import { audiusSdk } from 'services/audius-sdk'
+
 import styles from './LinkPreview.module.css'
 
 type LinkPreviewProps = {
   href: string
 }
-
-type UnfurlResponse = {
-  url: string
-  url_type: string
-  site_name: string
-  title: string
-  description: string
-  image: string
-  html: string
-  favicon: string
-}
-
 export const LinkPreview = (props: LinkPreviewProps) => {
   const { href } = props
 
@@ -26,11 +18,9 @@ export const LinkPreview = (props: LinkPreviewProps) => {
   useEffect(() => {
     const fn = async () => {
       try {
-        const res = await fetch(
-          `https://discoveryprovider.staging.audius.co/comms/unfurl?content=${href}`
-        )
-        const json = await res.json()
-        setMetadata(json[0])
+        const sdk = await audiusSdk()
+        const unfurled = await sdk.chats.unfurl({ urls: [href] })
+        setMetadata(unfurled[0])
       } catch (e) {
         console.error('Failed to unfurl url', href, e)
       }
