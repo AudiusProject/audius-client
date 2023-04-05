@@ -7,7 +7,6 @@ import {
   shareModalUISelectors,
   shareSoundToTiktokModalActions,
   tracksSocialActions,
-  usePremiumContentAccess,
   usersSocialActions
 } from '@audius/common'
 import Clipboard from '@react-native-clipboard/clipboard'
