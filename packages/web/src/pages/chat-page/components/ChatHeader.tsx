@@ -90,7 +90,9 @@ export const ChatHeader = forwardRef<HTMLDivElement, ChatHeaderProps>(
       {
         text: messages.delete,
         icon: <IconTrash />,
-        onClick: () => {}
+        onClick: () => {
+          // TODO: Store changes for chat deletion
+        }
       },
       {
         text: messages.visit,
