@@ -14,40 +14,47 @@ import {
 import type { ChatMessage } from '@audius/sdk'
 import { Portal } from '@gorhom/portal'
 import { useFocusEffect } from '@react-navigation/native'
-import { Platform, View, Text, KeyboardAvoidingView } from 'react-native'
+import {
+  Platform,
+  View,
+  Text,
+  KeyboardAvoidingView,
+  Pressable
+} from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconMessage from 'app/assets/images/iconMessage.svg'
-import IconSend from 'app/assets/images/iconSend.svg'
 import type { FlatListT } from 'app/components/core'
-import { TextInput, Screen, ScreenContent, FlatList } from 'app/components/core'
+import { Screen, ScreenContent, FlatList } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { ProfilePicture } from 'app/components/user'
 import { UserBadges } from 'app/components/user-badges'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { useThemePalette } from 'app/utils/theme'
 
+import type { AppTabScreenParamList } from '../app-screen'
+
 import { ChatMessageListItem } from './ChatMessageListItem'
+import { ChatTextInput } from './ChatTextInput'
 import { EmptyChatMessages } from './EmptyChatMessages'
 import { ReactionPopup } from './ReactionPopup'
 
 const { getChatMessages, getOtherChatUsers, getChat } = chatSelectors
 
-const { fetchMoreMessages, sendMessage, markChatAsRead } = chatActions
+const { fetchMoreMessages, markChatAsRead } = chatActions
 const { getUserId } = accountSelectors
+
+export const REACTION_CONTAINER_HEIGHT = 70
 
 const messages = {
   title: 'Messages',
-  startNewMessage: 'Start a New Message',
   newMessage: 'New Message'
 }
-const ICON_BLUR = 0.5
-const ICON_FOCUS = 1
-export const REACTION_CONTAINER_HEIGHT = 70
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   rootContainer: {
@@ -59,9 +66,15 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   listContainer: {
     flex: 1
   },
-  flatListContainer: {
+  listContentContainer: {
     paddingHorizontal: spacing(6),
-    display: 'flex'
+    display: 'flex',
+    minHeight: '100%'
+  },
+  profileTitle: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   composeView: {
     paddingVertical: spacing(2),
@@ -75,15 +88,16 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     alignItems: 'center',
     backgroundColor: palette.neutralLight10,
     paddingLeft: spacing(4),
-    paddingRight: spacing(3),
     borderRadius: spacing(1)
   },
   composeTextInput: {
-    fontSize: typography.fontSize.medium
+    fontSize: typography.fontSize.medium,
+    lineHeight: spacing(6),
+    paddingTop: 0
   },
   icon: {
-    width: spacing(5),
-    height: spacing(5),
+    width: spacing(7),
+    height: spacing(7),
     fill: palette.primary
   },
   userBadgeTitle: {
@@ -128,17 +142,22 @@ export const ChatScreen = () => {
   const styles = useStyles()
   const palette = useThemePalette()
   const dispatch = useDispatch()
+  const navigation = useNavigation<AppTabScreenParamList>()
 
   const { params } = useRoute<'Chat'>()
   const { chatId } = params
   const url = `/chat/${encodeUrlName(chatId ?? '')}`
-  const [iconOpacity, setIconOpacity] = useState(ICON_BLUR)
-  const [inputMessage, setInputMessage] = useState('')
+
   const [shouldShowPopup, setShouldShowPopup] = useState(false)
-  const messageTop = useRef(0)
-  const chatContainerBottom = useRef(0)
-  const chatContainerTop = useRef(0)
+  const hasScrolledToUnreadTag = useRef(false)
   const [popupChatIndex, setPopupChatIndex] = useState<number | null>(null)
+  const flatListRef = useRef<FlatListT<ChatMessage>>(null)
+  const itemsRef = useRef<(View | null)[]>([])
+  const composeRef = useRef<View | null>(null)
+  const chatContainerRef = useRef<View | null>(null)
+  const messageTop = useRef(0)
+  const chatContainerTop = useRef(0)
+  const chatContainerBottom = useRef(0)
 
   const userId = useSelector(getUserId)
   const userIdEncoded = encodeHashId(userId)
@@ -147,10 +166,6 @@ export const ChatScreen = () => {
   const chatMessages = useSelector((state) =>
     getChatMessages(state, chatId ?? '')
   )
-  const flatListRef = useRef<FlatListT<ChatMessage>>(null)
-  const itemsRef = useRef<(View | null)[]>([])
-  const composeRef = useRef<View | null>(null)
-  const chatContainerRef = useRef<View | null>(null)
   const unreadCount = chat?.unread_message_count ?? 0
   const isLoading =
     chat?.messagesStatus === Status.LOADING && chatMessages?.length === 0
@@ -195,29 +210,22 @@ export const ChatScreen = () => {
     [chatMessages, userIdEncoded]
   )
 
-  const handleSubmit = useCallback(
-    (message) => {
-      if (chatId && message) {
-        dispatch(sendMessage({ chatId, message }))
-        setInputMessage('')
-        setIconOpacity(ICON_BLUR)
-      }
-    },
-    [chatId, setInputMessage, dispatch]
-  )
-
   useEffect(() => {
+    // Scroll to earliest unread index, but only the first time
+    // entering this chat.
     if (
       earliestUnreadIndex &&
       chatMessages &&
       earliestUnreadIndex > 0 &&
-      earliestUnreadIndex < chatMessages.length
+      earliestUnreadIndex < chatMessages.length &&
+      !hasScrolledToUnreadTag.current
     ) {
       flatListRef.current?.scrollToIndex({
         index: earliestUnreadIndex,
-        viewPosition: 0.5,
+        viewPosition: 0.95,
         animated: false
       })
+      hasScrolledToUnreadTag.current = true
     }
   }, [earliestUnreadIndex, chatMessages])
 
@@ -226,7 +234,7 @@ export const ChatScreen = () => {
       setTimeout(() => {
         flatListRef.current?.scrollToIndex({
           index: e.index,
-          viewPosition: 0.5,
+          viewPosition: 0.95,
           animated: false
         })
       }, 10)
@@ -274,14 +282,14 @@ export const ChatScreen = () => {
     if (index < 0 || index >= chatMessages.length) {
       return
     }
-    const popupViewRef = itemsRef.current[index]
-    if (popupViewRef === null || popupViewRef === undefined) {
+    const messageRef = itemsRef.current[index]
+    if (messageRef === null || messageRef === undefined) {
       return
     }
     // Measure position of selected message to create a copy of it on top
     // of the dimmed background inside the portal.
     const messageY = await new Promise<number>((resolve) => {
-      popupViewRef.measureInWindow((x, y, width, height) => {
+      messageRef.measureInWindow((x, y, width, height) => {
         resolve(y)
       })
     })
@@ -304,7 +312,12 @@ export const ChatScreen = () => {
       headerTitle={
         otherUser
           ? () => (
-              <>
+              <Pressable
+                onPress={() =>
+                  navigation.push('Profile', { id: otherUser.user_id })
+                }
+                style={styles.profileTitle}
+              >
                 <ProfilePicture
                   profile={otherUser}
                   style={styles.profilePicture}
@@ -313,7 +326,7 @@ export const ChatScreen = () => {
                   user={otherUser}
                   nameStyle={styles.userBadgeTitle}
                 />
-              </>
+              </Pressable>
             )
           : messages.title
       }
@@ -360,7 +373,7 @@ export const ChatScreen = () => {
               chatMessages?.length > 0 ? (
                 <View style={styles.listContainer}>
                   <FlatList
-                    contentContainerStyle={styles.flatListContainer}
+                    contentContainerStyle={styles.listContentContainer}
                     data={chatMessages}
                     keyExtractor={(message) => message.message_id}
                     renderItem={({ item, index }) => (
@@ -393,6 +406,13 @@ export const ChatScreen = () => {
                     ref={flatListRef}
                     onScrollToIndexFailed={handleScrollToIndexFailed}
                     refreshing={chat?.messagesStatus === Status.LOADING}
+                    maintainVisibleContentPosition={{
+                      minIndexForVisible: 0,
+                      autoscrollToTopThreshold:
+                        (chatContainerBottom.current -
+                          chatContainerTop.current) /
+                        4
+                    }}
                   />
                 </View>
               ) : (
@@ -410,31 +430,9 @@ export const ChatScreen = () => {
                 })
               }}
               ref={composeRef}
+              pointerEvents={'box-none'}
             >
-              <TextInput
-                placeholder={messages.startNewMessage}
-                Icon={() => (
-                  <IconSend
-                    fill={palette.primary}
-                    width={styles.icon.width}
-                    height={styles.icon.height}
-                    opacity={iconOpacity}
-                    onPress={() => handleSubmit(inputMessage)}
-                  />
-                )}
-                styles={{
-                  root: styles.composeTextContainer,
-                  input: styles.composeTextInput
-                }}
-                onChangeText={(text) => {
-                  setInputMessage(text)
-                  text ? setIconOpacity(ICON_FOCUS) : setIconOpacity(ICON_BLUR)
-                }}
-                inputAccessoryViewID='none'
-                onBlur={() => setIconOpacity(ICON_BLUR)}
-                multiline
-                value={inputMessage}
-              />
+              <ChatTextInput chatId={chatId} />
             </View>
           </KeyboardAvoidingView>
         </View>

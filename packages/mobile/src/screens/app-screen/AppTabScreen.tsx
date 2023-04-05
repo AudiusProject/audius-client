@@ -46,6 +46,7 @@ import {
   ChangePasswordScreen,
   ListeningHistoryScreen,
   DownloadSettingsScreen,
+  InboxSettingsScreen,
   NotificationSettingsScreen,
   SettingsScreen
 } from '../settings-screen'
@@ -92,6 +93,7 @@ export type AppTabScreenParamList = {
   AccountSettingsScreen: undefined
   AccountVerificationScreen: undefined
   ChangePasswordScreen: undefined
+  InboxSettingsScreen: undefined
   DownloadSettingsScreen: undefined
   NotificationSettingsScreen: undefined
   AudioScreen: undefined
@@ -261,6 +263,10 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
           component={AccountSettingsScreen}
         />
         <Stack.Screen
+          name='InboxSettingsScreen'
+          component={InboxSettingsScreen}
+        />
+        <Stack.Screen
           name='DownloadSettingsScreen'
           component={DownloadSettingsScreen}
         />
@@ -280,7 +286,14 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
       <Stack.Group>
         <Stack.Screen name='ChatList' component={ChatListScreen} />
         <Stack.Screen name='ChatUserList' component={ChatUserListScreen} />
-        <Stack.Screen name='Chat' component={ChatScreen} />
+        <Stack.Screen
+          name='Chat'
+          component={ChatScreen}
+          getId={({ params }) =>
+            // @ts-ignore hard to correctly type navigation params (PAY-1141)
+            params?.chatId
+          }
+        />
       </Stack.Group>
     </Stack.Navigator>
   )
