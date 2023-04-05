@@ -258,7 +258,7 @@ export const useShareToStory = ({
           rotationDegreesInClockwise: 0,
           isAnimated: false
         },
-        attachmentUrl: `${Config.AUDIUS_URL}${trackPermalink}`
+        attachmentUrl: encodeURI(`${Config.AUDIUS_URL}${trackPermalink}`)
       }
       await CreativeKit.shareVideo(videoContent)
     },
