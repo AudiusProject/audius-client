@@ -20,7 +20,6 @@ import './services/webVitals'
 import './index.css'
 
 type AudiusAppProps = {
-  setReady: () => void
   shouldShowPopover: boolean
 }
 
