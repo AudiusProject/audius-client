@@ -144,7 +144,6 @@ const pluralize = (message: string, shouldPluralize: boolean) =>
   message + (shouldPluralize ? 's' : '')
 
 export const ChatScreen = () => {
-  console.log('rerender entire chatscreen')
   const styles = useStyles()
   const palette = useThemePalette()
   const dispatch = useDispatch()
