@@ -300,7 +300,7 @@ function* doFetchBlockers() {
       })
     )
   } catch (e) {
-    console.error('fetchBlockeesFailed', e)
+    console.error('fetchBlockersFailed', e)
   }
 }
 

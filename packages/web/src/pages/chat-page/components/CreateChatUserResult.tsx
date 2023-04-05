@@ -74,7 +74,7 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   const isBlocker = blockerList.includes(user.user_id)
   const permissionsMap = useSelector(getPermissionsMap)
   const isPermitted =
-    !isBlocker &&
+    !(isBlocker || isBlockee) &&
     (permissionsMap[user.user_id]?.current_user_has_permission ?? true)
 
   const handleComposeClicked = useCallback(() => {
