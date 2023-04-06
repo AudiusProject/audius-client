@@ -1,18 +1,16 @@
-import { useCallback, useEffect, MouseEvent } from 'react'
+import { useEffect } from 'react'
 
 import {
-  Name,
   Status,
   profilePageActions,
   profilePageSelectors
 } from '@audius/common'
-import { IconTrending, Tag } from '@audius/stems'
+import { IconTrending } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { make, useRecord } from 'common/store/analytics/actions'
+import { SearchTag } from 'components/search/SearchTag'
 import { useProfileRoute } from 'pages/profile-page/useProfileRoute'
 import { AppState } from 'store/types'
-import { searchResultsPage } from 'utils/route'
 
 import styles from './ProfileTopTags.module.css'
 const { getTopTags, getTopTagsStatus } = profilePageSelectors
@@ -47,14 +45,6 @@ export const ProfileTopTags = () => {
     }
   }, [dispatch, handle, userId])
 
-  const record = useRecord()
-  const handleClickTag = useCallback(
-    (_e: MouseEvent, tag: string) => {
-      record(make(Name.TAG_CLICKING, { tag, source: 'profile page' }))
-    },
-    [record]
-  )
-
   if (topTagsStatus === Status.SUCCESS && topTags && topTags.length > 0) {
     return (
       <div className={styles.tags}>
@@ -65,12 +55,11 @@ export const ProfileTopTags = () => {
         </div>
         <div className={styles.tagsContent}>
           {topTags.map((tag) => (
-            <Tag
-              to={searchResultsPage(`#${tag}`)}
-              onClick={handleClickTag}
+            <SearchTag
               key={tag}
               className={styles.tag}
-              textLabel={tag}
+              tag={tag}
+              source='profile page'
             />
           ))}
         </div>

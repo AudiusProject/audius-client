@@ -1,5 +1,6 @@
 .tag {
   padding: 5px 8px;
+  height: 17px;
   border-radius: 2px;
   line-height: normal;
   background-color: var(--neutral-light-4);

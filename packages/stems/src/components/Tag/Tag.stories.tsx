@@ -26,5 +26,5 @@ const Template: Story<TagProps> = (args) => {
 export const Base = Template.bind({})
 
 Base.args = {
-  textLabel: 'example tag'
+  tag: 'example tag'
 }

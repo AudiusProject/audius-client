@@ -24,8 +24,7 @@ import {
   IconCollectible,
   IconPause,
   IconPlay,
-  IconSpecialAccess,
-  Tag
+  IconSpecialAccess
 } from '@audius/stems'
 import cn from 'classnames'
 import Linkify from 'linkify-react'
@@ -36,6 +35,7 @@ import HoverInfo from 'components/co-sign/HoverInfo'
 import { Size } from 'components/co-sign/types'
 import DownloadButtons from 'components/download-buttons/DownloadButtons'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
+import { SearchTag } from 'components/search/SearchTag'
 import { PremiumTrackSection } from 'components/track/PremiumTrackSection'
 import TrackBannerIcon, {
   TrackBannerIconType
@@ -113,7 +113,6 @@ type TrackHeaderProps = {
   isRemix: boolean
   fieldVisibility: FieldVisibility
   coSign: Remix | null
-  onClickTag: (tag: string) => void
   onClickArtistName: () => void
   onClickMobileOverflow: (
     trackId: ID,
@@ -164,7 +163,6 @@ const TrackHeader = ({
   genre,
   tags,
   onClickArtistName,
-  onClickTag,
   onPlay,
   onShare,
   onSave,
@@ -254,12 +252,11 @@ const TrackHeader = ({
         {filteredTags.length > 0 ? (
           <div className={styles.tags}>
             {filteredTags.map((tag) => (
-              <Tag
-                to=''
+              <SearchTag
                 key={tag}
+                tag={tag}
                 className={styles.tag}
-                onClick={() => onClickTag(tag)}
-                textLabel={tag}
+                source='track page'
               />
             ))}
           </div>

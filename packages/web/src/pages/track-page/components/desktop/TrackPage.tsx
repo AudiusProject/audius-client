@@ -46,7 +46,6 @@ export type OwnProps = {
   badge: string | null
   onHeroPlay: (isPlaying: boolean) => void
   goToProfilePage: (handle: string) => void
-  recordSearchTagClick: (tag: string) => void
   goToAllRemixesPage: () => void
   goToParentRemixesPage: () => void
   onHeroShare: (trackId: ID) => void
@@ -89,7 +88,6 @@ const TrackPage = ({
   badge,
   onHeroPlay,
   goToProfilePage,
-  recordSearchTagClick,
   goToAllRemixesPage,
   goToParentRemixesPage,
   onHeroShare,
@@ -130,7 +128,6 @@ const TrackPage = ({
   const onShare = () => (heroTrack ? onHeroShare(heroTrack.track_id) : null)
   const onRepost = () =>
     heroTrack ? onHeroRepost(isReposted, heroTrack.track_id) : null
-  const onClickTag = (tag: string) => recordSearchTagClick(`#${tag}`)
   const onDownload = (
     trackId: ID,
     cid: CID,
@@ -192,7 +189,6 @@ const TrackPage = ({
       coSign={defaults.coSign}
       // Actions
       onClickArtistName={onClickArtistName}
-      onClickTag={onClickTag}
       onPlay={onPlay}
       onShare={onShare}
       onRepost={onRepost}
