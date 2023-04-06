@@ -467,7 +467,7 @@ class TrackPageProvider extends Component<
       badge,
       onHeroPlay: this.onHeroPlay,
       goToProfilePage: this.goToProfilePage,
-      goToSearchResultsPage: this.goToSearchResultsPage,
+      recordSearchTagClick: this.props.recordTagClick,
       goToAllRemixesPage: this.goToAllRemixesPage,
       goToParentRemixesPage: this.goToParentRemixesPage,
       onHeroRepost: this.onHeroRepost,

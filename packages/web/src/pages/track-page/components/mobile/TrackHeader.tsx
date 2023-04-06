@@ -24,7 +24,8 @@ import {
   IconCollectible,
   IconPause,
   IconPlay,
-  IconSpecialAccess
+  IconSpecialAccess,
+  Tag
 } from '@audius/stems'
 import cn from 'classnames'
 import Linkify from 'linkify-react'
@@ -253,13 +254,13 @@ const TrackHeader = ({
         {filteredTags.length > 0 ? (
           <div className={styles.tags}>
             {filteredTags.map((tag) => (
-              <h2
+              <Tag
+                to=''
                 key={tag}
-                onClick={() => onClickTag(tag)}
                 className={styles.tag}
-              >
-                {tag}
-              </h2>
+                onClick={() => onClickTag(tag)}
+                textLabel={tag}
+              />
             ))}
           </div>
         ) : null}
