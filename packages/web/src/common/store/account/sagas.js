@@ -147,7 +147,7 @@ function* onSignedIn({ payload: { account } }) {
         gateways,
         /* cache */ false,
         /* asUrl */ false,
-        /* tryDiscovery */ true
+        /* tryDiscovery */ false
       )
       const newMetadata = {
         ...account

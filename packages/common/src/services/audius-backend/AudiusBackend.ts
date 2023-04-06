@@ -1387,7 +1387,7 @@ export const audiusBackend = ({
         gateways,
         /* cache */ false,
         /* asUrl */ false,
-        /* tryDiscovery */ true
+        /* tryDiscovery */ false
       )
       if (metadata?.associated_wallets) {
         return metadata.associated_wallets
@@ -1410,7 +1410,7 @@ export const audiusBackend = ({
         gateways,
         /* cache */ false,
         /* asUrl */ false,
-        /* tryDiscovery */ true
+        /* tryDiscovery */ false
       )
       if (metadata?.associated_sol_wallets) {
         return metadata.associated_sol_wallets
@@ -1433,7 +1433,7 @@ export const audiusBackend = ({
         gateways,
         /* cache */ false,
         /* asUrl */ false,
-        /* tryDiscovery */ true
+        /* tryDiscovery */ false
       )
       return {
         associated_sol_wallets: metadata?.associated_sol_wallets ?? null,

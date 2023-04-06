@@ -85,7 +85,7 @@ function* fetchProfileCustomizedCollectibles(user) {
       gateways,
       /* cache */ false,
       /* asUrl */ false,
-      /* tryDiscovery */ true
+      /* tryDiscovery */ false
     )
     if (metadata?.collectibles) {
       yield put(
@@ -454,7 +454,7 @@ export function* updateProfileAsync(action) {
         gateways,
         /* cache */ false,
         /* asUrl */ false,
-        /* tryDiscovery */ true
+        /* tryDiscovery */ false
       )
       const collectibles = metadata.collectibles
       const playlist_library = metadata.playlist_library
