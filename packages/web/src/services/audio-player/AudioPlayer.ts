@@ -70,6 +70,7 @@ class fLoader extends Hls.DefaultConfig.loader {
             this.getFallbacks(),
             /* cache */ false,
             /* asUrl */ true,
+            /* tryDiscovery */ false,
             decodeHashId(this.getTrackId()) ?? undefined
           )
           .then((resolved) => {

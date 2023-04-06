@@ -432,17 +432,44 @@ export const audiusBackend = ({
     creatorNodeGateways = [] as string[],
     cache = true,
     asUrl = true,
+    tryDiscovery = false,
     trackId: Nullable<ID> = null
   ) {
     await waitForLibsInit()
+
+    // If requesting a url (we mean a blob url for the file),
+    // otherwise, default to JSON
+    const responseType = asUrl ? 'blob' : 'json'
+
+    // TODO read only from discovery after CID metadata migration
+    if (tryDiscovery) {
+      try {
+        const res = await audiusLibs.File.fetchCIDFromDiscovery(
+          cid,
+          responseType
+        )
+        if (res?.data) {
+          if (asUrl) {
+            const url = nativeMobile
+              ? res.config.url
+              : URL.createObjectURL(res.data)
+            if (cache) CIDCache.add(cid, url)
+            return url
+          }
+          return res.data
+        }
+      } catch (e) {
+        console.error(e)
+      }
+      // If failed to find metadata in discovery, try with content nodes
+    }
+
     try {
       const res = await audiusLibs.File.fetchCID(
         cid,
         creatorNodeGateways,
         () => {},
-        // If requesting a url (we mean a blob url for the file),
-        // otherwise, default to JSON
-        asUrl ? 'blob' : 'json',
+        responseType,
         trackId
       )
       if (asUrl) {
@@ -1359,7 +1386,8 @@ export const audiusBackend = ({
         cid,
         gateways,
         /* cache */ false,
-        /* asUrl */ false
+        /* asUrl */ false,
+        /* tryDiscovery */ true
       )
       if (metadata?.associated_wallets) {
         return metadata.associated_wallets
@@ -1381,7 +1409,8 @@ export const audiusBackend = ({
         cid,
         gateways,
         /* cache */ false,
-        /* asUrl */ false
+        /* asUrl */ false,
+        /* tryDiscovery */ true
       )
       if (metadata?.associated_sol_wallets) {
         return metadata.associated_sol_wallets
@@ -1403,7 +1432,8 @@ export const audiusBackend = ({
         cid,
         gateways,
         /* cache */ false,
-        /* asUrl */ false
+        /* asUrl */ false,
+        /* tryDiscovery */ true
       )
       return {
         associated_sol_wallets: metadata?.associated_sol_wallets ?? null,
@@ -3617,6 +3647,7 @@ export const audiusBackend = ({
     disableBrowserNotifications,
     emailInUse,
     fetchCID,
+
     fetchImageCID,
     fetchUserAssociatedEthWallets,
     fetchUserAssociatedSolWallets,
