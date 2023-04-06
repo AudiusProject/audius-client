@@ -26,10 +26,6 @@
   height: 1px;
 }
 
-.tags {
-  margin-top: 32px;
-}
-
 .tagsContent {
   display: flex;
   flex-wrap: wrap;

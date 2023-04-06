@@ -8,7 +8,7 @@ import { parseUserRoute } from 'utils/route/userRouteParser'
 
 const { getUser } = cacheUsersSelectors
 
-export const useProfileRoute = () => {
+export const useProfileParams = () => {
   const location = useLocation()
   const pathname = getPathname(location)
   const params = parseUserRoute(pathname)

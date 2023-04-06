@@ -9,7 +9,7 @@ import { IconTrending } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { SearchTag } from 'components/search/SearchTag'
-import { useProfileRoute } from 'pages/profile-page/useProfileRoute'
+import { useProfileParams } from 'pages/profile-page/useProfileParams'
 import { AppState } from 'store/types'
 
 import styles from './ProfileTopTags.module.css'
@@ -24,7 +24,7 @@ const MOST_USED_TAGS_COUNT = 5
 
 export const ProfileTopTags = () => {
   const dispatch = useDispatch()
-  const user = useProfileRoute()
+  const user = useProfileParams()
   const handle = user?.handle
   const userId = user?.user_id
 
@@ -47,7 +47,7 @@ export const ProfileTopTags = () => {
 
   if (topTagsStatus === Status.SUCCESS && topTags && topTags.length > 0) {
     return (
-      <div className={styles.tags}>
+      <div>
         <div className={styles.tagsTitleContainer}>
           <IconTrending className={styles.topTagsIcon} />
           <span className={styles.tagsTitleText}>{messages.topTags}</span>
