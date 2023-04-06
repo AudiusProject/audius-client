@@ -340,7 +340,7 @@ export const ChatScreen = () => {
     ]
   )
 
-  const mvcpProp = useMemo(
+  const maintainVisibleContentPosition = useMemo(
     () => ({
       minIndexForVisible: 0,
       autoscrollToTopThreshold:
@@ -419,7 +419,9 @@ export const ChatScreen = () => {
                     ref={flatListRef}
                     onScrollToIndexFailed={handleScrollToIndexFailed}
                     refreshing={chat?.messagesStatus === Status.LOADING}
-                    maintainVisibleContentPosition={mvcpProp}
+                    maintainVisibleContentPosition={
+                      maintainVisibleContentPosition
+                    }
                   />
                 </View>
               ) : (

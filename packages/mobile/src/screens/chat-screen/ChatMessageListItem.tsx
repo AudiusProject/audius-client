@@ -153,7 +153,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
   const isAuthor = senderUserId === userId
 
   const handleLongPress = useCallback(() => {
-    return onLongPress ? onLongPress(message.message_id) : null
+    onLongPress?.(message.message_id)
   }, [message.message_id, onLongPress])
 
   return (
@@ -195,8 +195,13 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                           : styles.reactionContainerOtherUser
                       ]}
                     >
-                      {message.reactions.map((reaction, index) => {
-                        return <ChatReaction key={index} reaction={reaction} />
+                      {message.reactions.map((reaction) => {
+                        return (
+                          <ChatReaction
+                            key={reaction.created_at}
+                            reaction={reaction}
+                          />
+                        )
                       })}
                     </View>
                   ) : null}
