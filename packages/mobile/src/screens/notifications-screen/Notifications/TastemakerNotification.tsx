@@ -14,7 +14,6 @@ import { useNotificationNavigation } from 'app/hooks/useNotificationNavigation'
 
 import {
   EntityLink,
-  NotificationBody,
   NotificationHeader,
   NotificationText,
   NotificationTile,

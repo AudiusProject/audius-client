@@ -30,7 +30,6 @@ import type {
   SupporterRankUpPushNotification,
   SupportingRankUpNotification,
   SupportingRankUpPushNotification,
-  TastemakerNotification,
   TierChangeNotification,
   TipReceiveNotification,
   TipReceivePushNotification,
