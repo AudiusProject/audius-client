@@ -19,7 +19,7 @@ import { useWalletStatusToasts } from './useWalletStatusToasts'
 const { fetchAssociatedWallets } = tokenDashboardPageActions
 
 const messages = {
-  title: 'Connect Wallets',
+  title: 'Manage Wallets',
   subtitle: 'Connect Additional Wallets With Your Account',
   text: 'Show off your NFT Collectibles and flaunt your $AUDIO with a VIP badge on your profile.',
   linkedWallets: 'Linked Wallets',
