@@ -141,13 +141,16 @@ function* onSignedIn({ payload: { account } }) {
     )
     const cid = account.metadata_multihash ?? null
     if (cid) {
+      const tryDiscovery = getFeatureEnabled(
+        FeatureFlags.GET_METADATA_FROM_DISCOVERY_ENABLED
+      )
       const contentNodeMetadata = yield call(
         audiusBackendInstance.fetchCID,
         cid,
         gateways,
         /* cache */ false,
         /* asUrl */ false,
-        /* tryDiscovery */ false
+        /* tryDiscovery */ tryDiscovery
       )
       const newMetadata = {
         ...account

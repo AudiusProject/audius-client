@@ -1382,12 +1382,16 @@ export const audiusBackend = ({
     const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
     const cid = user?.metadata_multihash ?? null
     if (cid) {
+      const tryDiscovery =
+        (await getFeatureEnabled(
+          FeatureFlags.GET_METADATA_FROM_DISCOVERY_ENABLED
+        )) ?? false
       const metadata = await fetchCID(
         cid,
         gateways,
         /* cache */ false,
         /* asUrl */ false,
-        /* tryDiscovery */ false
+        /* tryDiscovery */ tryDiscovery
       )
       if (metadata?.associated_wallets) {
         return metadata.associated_wallets
@@ -1405,12 +1409,16 @@ export const audiusBackend = ({
     const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
     const cid = user?.metadata_multihash ?? null
     if (cid) {
+      const tryDiscovery =
+        (await getFeatureEnabled(
+          FeatureFlags.GET_METADATA_FROM_DISCOVERY_ENABLED
+        )) ?? false
       const metadata = await fetchCID(
         cid,
         gateways,
         /* cache */ false,
         /* asUrl */ false,
-        /* tryDiscovery */ false
+        /* tryDiscovery */ tryDiscovery
       )
       if (metadata?.associated_sol_wallets) {
         return metadata.associated_sol_wallets
@@ -1428,12 +1436,16 @@ export const audiusBackend = ({
     const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
     const cid = user?.metadata_multihash ?? null
     if (cid) {
+      const tryDiscovery =
+        (await getFeatureEnabled(
+          FeatureFlags.GET_METADATA_FROM_DISCOVERY_ENABLED
+        )) ?? false
       const metadata = await fetchCID(
         cid,
         gateways,
         /* cache */ false,
         /* asUrl */ false,
-        /* tryDiscovery */ false
+        /* tryDiscovery */ tryDiscovery
       )
       return {
         associated_sol_wallets: metadata?.associated_sol_wallets ?? null,
