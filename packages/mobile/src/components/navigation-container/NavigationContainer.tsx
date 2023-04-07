@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
 import { useRef } from 'react'
 
-import { accountSelectors } from '@audius/common'
+import { accountSelectors, decodeHashId } from '@audius/common'
+import type { NavigationState, PartialState } from '@react-navigation/native'
 import {
   getStateFromPath,
   NavigationContainer as RNNavigationContainer,
@@ -22,6 +23,49 @@ type NavigationContainerProps = {
 }
 
 export const navigationRef = createNavigationContainerRef()
+
+const createAppTabState = (
+  state: PartialState<NavigationState>
+): PartialState<NavigationState> => ({
+  routes: [
+    {
+      name: 'HomeStack',
+      state: {
+        routes: [
+          {
+            name: 'App',
+            state: {
+              routes: [
+                {
+                  name: 'AppTabs',
+                  state
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+})
+
+const createFeedStackState = (route): PartialState<NavigationState> =>
+  createAppTabState({
+    routes: [
+      {
+        name: 'feed',
+        state: {
+          index: 1,
+          routes: [
+            {
+              name: 'Feed'
+            },
+            route
+          ]
+        }
+      }
+    ]
+  })
 
 /**
  * NavigationContainer contains the react-navigation context
@@ -140,7 +184,12 @@ const NavigationContainer = (props: NavigationContainerProps) => {
         }
       }
     },
+    // TODO: This should be unit tested
     getStateFromPath: (path, options) => {
+      const pathPart = (path: string) => (index: number) => {
+        return path.split('/')[index]
+      }
+
       // Add leading slash if it is missing
       if (path[0] !== '/') path = `/${path}`
 
@@ -169,6 +218,40 @@ const NavigationContainer = (props: NavigationContainerProps) => {
       // always go to ThisWeek
       if (path.match(/^\/trending/)) {
         path = '/trending'
+      }
+
+      // Opaque ID routes
+      // /tracks/Nz9yBb4
+      if (path.match(/^\/tracks\//)) {
+        const id = decodeHashId(pathPart(path)(2))
+        return createFeedStackState({
+          name: 'Track',
+          params: {
+            id
+          }
+        })
+      }
+
+      // /users/Nz9yBb4
+      if (path.match(/^\/users\//)) {
+        const id = decodeHashId(pathPart(path)(2))
+        return createFeedStackState({
+          name: 'Profile',
+          params: {
+            id
+          }
+        })
+      }
+
+      // /playlists/Nz9yBb4
+      if (path.match(/^\/playlists\//)) {
+        const id = decodeHashId(pathPart(path)(2))
+        return createFeedStackState({
+          name: 'Profile',
+          params: {
+            id
+          }
+        })
       }
 
       if (path.match(`^/${account?.handle}(/|$)`)) {
