@@ -23,7 +23,7 @@ import IconDiscord from 'app/assets/images/iconDiscord.svg'
 import IconInfo from 'app/assets/images/iconInfo.svg'
 import IconReceive from 'app/assets/images/iconReceive.svg'
 import IconSend from 'app/assets/images/iconSend.svg'
-import IconSettings from 'app/assets/images/iconSettings.svg'
+import IconWallet from 'app/assets/images/iconWallet.svg'
 import Bronze from 'app/assets/images/tokenBadgeBronze108.png'
 import Gold from 'app/assets/images/tokenBadgeGold108.png'
 import Platinum from 'app/assets/images/tokenBadgePlatinum108.png'
@@ -307,7 +307,7 @@ export const AudioScreen = () => {
           variant='commonAlt'
           iconPosition='left'
           size='medium'
-          icon={IconSettings}
+          icon={IconWallet}
           onPress={handlePressManageWallets}
         />
       </Tile>

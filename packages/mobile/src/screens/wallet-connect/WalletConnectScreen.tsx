@@ -3,8 +3,8 @@ import { View } from 'react-native'
 import { useDispatch } from 'react-redux'
 import { useEffectOnce } from 'react-use'
 
-import IconLink from 'app/assets/images/iconLink.svg'
 import IconRemove from 'app/assets/images/iconRemove.svg'
+import IconWallet from 'app/assets/images/iconWallet.svg'
 import { Text, Screen, ScreenContent } from 'app/components/core'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
@@ -63,7 +63,7 @@ export const WalletConnectScreen = () => {
   return (
     <Screen
       title={messages.title}
-      icon={IconLink}
+      icon={IconWallet}
       variant='white'
       topbarLeft={
         <TopBarIconButton icon={IconRemove} onPress={navigation.goBack} />
