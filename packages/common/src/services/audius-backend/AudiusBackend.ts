@@ -3659,7 +3659,6 @@ export const audiusBackend = ({
     disableBrowserNotifications,
     emailInUse,
     fetchCID,
-
     fetchImageCID,
     fetchUserAssociatedEthWallets,
     fetchUserAssociatedSolWallets,
