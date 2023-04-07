@@ -116,7 +116,7 @@ export type DesktopTrackTileProps = {
   /** If there is nothing underneath, it's standalone */
   standalone?: boolean
 
-  /** If the track is currently playing */
+  /** If the track is currently active */
   isActive: boolean
 
   /** If the button actions should be clickable */
@@ -235,8 +235,11 @@ export type DesktopPlaylistTileProps = {
   /** Prefix order number displayed on the left side of the track tile */
   order?: number
 
-  /** If the track is currently playing */
+  /** If the playlist is currently active */
   isActive: boolean
+
+  /** If the playlist is currently playing */
+  isPlaying: boolean
 
   /** If the button actions should be clickable */
   isDisabled?: boolean
