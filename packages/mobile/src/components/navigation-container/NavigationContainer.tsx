@@ -272,7 +272,6 @@ const NavigationContainer = (props: NavigationContainerProps) => {
               /^\/[^/]+\/(tracks|albums|playlists|reposts|collectibles)$/
             )
           ) {
-            console.log('HERE')
             path = `/track${path}`
           }
         }
