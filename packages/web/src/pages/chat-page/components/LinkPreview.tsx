@@ -1,32 +1,32 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
-import type { UnfurlResponse } from '@audius/sdk'
-
-import { audiusSdk } from 'services/audius-sdk'
+import { CommonState, chatActions, chatSelectors } from '@audius/common'
+import { useDispatch, useSelector } from 'react-redux'
 
 import styles from './LinkPreview.module.css'
 
+const { getUnfurlMetadata } = chatSelectors
+const { fetchLinkUnfurl } = chatActions
+
 type LinkPreviewProps = {
   href: string
+  chatId: string
+  messageId: string
 }
 export const LinkPreview = (props: LinkPreviewProps) => {
-  const { href } = props
+  const { href, chatId, messageId } = props
+  const dispatch = useDispatch()
 
-  const [metadata, setMetadata] = useState<Partial<UnfurlResponse>>()
+  const metadata = useSelector((state: CommonState) =>
+    getUnfurlMetadata(state, chatId, messageId)
+  )
   const domain = metadata?.url ? new URL(metadata?.url).hostname : ''
 
   useEffect(() => {
-    const fn = async () => {
-      try {
-        const sdk = await audiusSdk()
-        const unfurled = await sdk.chats.unfurl({ urls: [href] })
-        setMetadata(unfurled[0])
-      } catch (e) {
-        console.error('Failed to unfurl url', href, e)
-      }
+    if (!metadata) {
+      dispatch(fetchLinkUnfurl({ chatId, messageId, href }))
     }
-    fn()
-  }, [setMetadata, href])
+  }, [metadata, dispatch, chatId, messageId, href])
 
   if (!metadata) {
     return null
