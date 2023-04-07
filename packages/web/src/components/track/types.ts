@@ -122,11 +122,14 @@ export type DesktopTrackTileProps = {
   /** If the button actions should be clickable */
   isDisabled?: boolean
 
-  /** If the track is unlisted/hidden */
-  isUnlisted?: boolean
+  /** If the track is playing */
+  isPlaying?: boolean
 
   /** If the track is premium */
   isPremium?: boolean
+
+  /** If the track is unlisted/hidden */
+  isUnlisted?: boolean
 
   /** Premium conditions if track is premium */
   premiumConditions?: Nullable<PremiumConditions>
