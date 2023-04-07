@@ -193,6 +193,8 @@ const NavigationContainer = (props: NavigationContainerProps) => {
       // Add leading slash if it is missing
       if (path[0] !== '/') path = `/${path}`
 
+      path = path.replace('#embed', '')
+
       const walletConnectPath = /^\/(wallet-connect)/
       if (path.match(walletConnectPath)) {
         path = `${path.replace(
@@ -270,7 +272,8 @@ const NavigationContainer = (props: NavigationContainerProps) => {
               /^\/[^/]+\/(tracks|albums|playlists|reposts|collectibles)$/
             )
           ) {
-            path = `/track/${path}`
+            console.log('HERE')
+            path = `/track${path}`
           }
         }
 
