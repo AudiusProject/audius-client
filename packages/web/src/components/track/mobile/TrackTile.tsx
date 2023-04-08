@@ -274,7 +274,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
           />
           <div
             className={cn(styles.titles, {
-              [styles.titlesActive]: props.isActive,
+              [styles.titlesActive]: isActive,
               [styles.titlesSkeleton]: props.showSkeleton
             })}
           >
