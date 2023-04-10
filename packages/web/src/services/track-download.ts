@@ -4,8 +4,6 @@ import { audiusBackendInstance } from './audius-backend/audius-backend-instance'
 
 class TrackDownload extends TrackDownloadBase {
   async downloadTrack({ url, filename }: { url: string; filename: string }) {
-    // const audiusLibs = await this.audiusBackend.getAudiusLibs()
-    // return audiusLibs.File.downloadCID(cid, creatorNodeEndpoints, filename)
     const response = await window.fetch(url)
     if (!response.ok) {
       throw new Error('Download unsuccessful')
