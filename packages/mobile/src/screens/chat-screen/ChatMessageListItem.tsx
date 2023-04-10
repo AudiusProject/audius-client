@@ -24,7 +24,7 @@ import { LinkPreview } from './LinkPreview'
 import { REACTION_LONGPRESS_DELAY } from './constants'
 
 const { getUserId } = accountSelectors
-const { isEqualToPopupMessageId } = chatSelectors
+const { isIdEqualToReactionsPopupMessageId } = chatSelectors
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   rootOtherUser: {
@@ -163,7 +163,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
   const isAuthor = senderUserId === userId
   const isUnderneathPopup =
     useSelector((state) =>
-      isEqualToPopupMessageId(state, message.message_id)
+      isIdEqualToReactionsPopupMessageId(state, message.message_id)
     ) && !isPopup
 
   const handleLongPress = useCallback(() => {

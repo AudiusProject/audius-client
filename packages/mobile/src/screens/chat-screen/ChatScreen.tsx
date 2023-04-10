@@ -49,10 +49,11 @@ const {
   getChat,
   getChatMessageById,
   getChatMessageByIndex,
-  getPopupMessageId
+  getReactionsPopupMessageId
 } = chatSelectors
 
-const { fetchMoreMessages, markChatAsRead, setPopupMessageId } = chatActions
+const { fetchMoreMessages, markChatAsRead, setReactionsPopupMessageId } =
+  chatActions
 const { getUserId } = accountSelectors
 
 export const REACTION_CONTAINER_HEIGHT = 70
@@ -174,7 +175,7 @@ export const ChatScreen = () => {
   const unreadCount = chat?.unread_message_count ?? 0
   const isLoading =
     chat?.messagesStatus === Status.LOADING && chatMessages?.length === 0
-  const popupMessageId = useSelector(getPopupMessageId)
+  const popupMessageId = useSelector(getReactionsPopupMessageId)
   const popupMessage = useSelector((state) =>
     getChatMessageById(state, chatId, popupMessageId ?? '')
   )
@@ -280,7 +281,7 @@ export const ChatScreen = () => {
 
   const closeReactionPopup = useCallback(() => {
     setShouldShowPopup(false)
-    dispatch(setPopupMessageId({ messageId: null }))
+    dispatch(setReactionsPopupMessageId({ messageId: null }))
   }, [setShouldShowPopup, dispatch])
 
   const handleMessagePress = useCallback(
@@ -298,7 +299,7 @@ export const ChatScreen = () => {
       })
       // Need to subtract spacing(2) to account for padding in message View.
       messageTop.current = messageY - spacing(2)
-      dispatch(setPopupMessageId({ messageId: id }))
+      dispatch(setReactionsPopupMessageId({ messageId: id }))
       setShouldShowPopup(true)
     },
     [dispatch]

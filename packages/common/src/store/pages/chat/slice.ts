@@ -42,7 +42,7 @@ type ChatState = {
   blockees: ID[]
   blockers: ID[]
   permissions: Record<ID, ChatPermissionResponse>
-  popupMessageId: string | null
+  reactionsPopupMessageId: string | null
 }
 
 type SetMessageReactionPayload = {
@@ -86,7 +86,7 @@ const initialState: ChatState = {
   blockees: [],
   blockers: [],
   permissions: {},
-  popupMessageId: null
+  reactionsPopupMessageId: null
 }
 
 const slice = createSlice({
@@ -416,13 +416,13 @@ const slice = createSlice({
     },
     // Note: is not associated with any chatId because there will be at most
     // one popup message at a time. Used for reactions popup overlay in mobile.
-    setPopupMessageId: (
+    setReactionsPopupMessageId: (
       state,
       action: PayloadAction<{
         messageId: string | null
       }>
     ) => {
-      state.popupMessageId = action.payload.messageId
+      state.reactionsPopupMessageId = action.payload.messageId
     }
   }
 })
