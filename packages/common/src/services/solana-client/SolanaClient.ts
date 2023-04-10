@@ -22,7 +22,9 @@ export class SolanaClient {
     try {
       this.connection = new Connection(solanaClusterEndpoint!, 'confirmed')
     } catch (e) {
-      console.error('Could create Solana RPC connection', e)
+      if (process.env.JEST_WORKER_ID === undefined) {
+        console.error('Could not create Solana RPC connection', e)
+      }
       this.connection = null
     }
   }

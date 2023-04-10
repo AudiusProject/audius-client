@@ -18,7 +18,8 @@ const transformIncludePackages = [
   '@react-navigation',
   'autolinker',
   '@sayem314',
-  '@walletconnect'
+  '@walletconnect',
+  'ffmpeg-kit-react-native'
 ].join('|')
 
 const clientAliases = [

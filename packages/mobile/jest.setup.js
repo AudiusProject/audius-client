@@ -1,3 +1,5 @@
+const React = require('react')
+
 jest.mock('react-native/Libraries/EventEmitter/NativeEventEmitter')
 jest.mock('react-native-track-player', () => {
   return {
@@ -69,12 +71,25 @@ jest.mock('@amplitude/react-native')
 jest.mock('rn-fetch-blob')
 
 jest.mock('react-native', () => {
-  const RN = jest.requireActual('react-native') // use original implementation, which comes with mocks out of the box
+  const RN = jest.requireActual('react-native')
 
-  // mock modules/components created by assigning to NativeModules
-  RN.NativeModules.RNFetchBlob = { DocumentDir: '' }
+  RN.NativeModules.RNFetchBlob = {
+    DocumentDir: '',
+    fetchBlobForm: jest.fn(),
+    fetchBlob: jest.fn()
+  }
   RN.NativeModules.RNCNetInfo = {}
   RN.NativeModules.RNPermissions = {}
+  RN.NativeModules.RNFSManager = {}
+  RN.NativeModules.RNShare = {}
+  RN.NativeModules.RNViewShot = {}
+  RN.NativeModules.RNGestureHandlerModule = {}
+  RN.NativeModules.RNFingerprintjsPro = {
+    init: () => {}
+  }
+  RN.NativeModules.Flipper = {
+    registerPlugin: jest.fn()
+  }
 
   return RN
 })
@@ -106,3 +121,5 @@ window.Blob = Blob
 global.navigator = {
   userAgent: 'node.js'
 }
+
+jest.spyOn(React, 'useEffect').mockImplementation(React.useLayoutEffect)
