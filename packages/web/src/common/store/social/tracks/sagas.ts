@@ -638,7 +638,13 @@ export function* watchUnsetArtistPick() {
 
 /* DOWNLOAD TRACK */
 
-function* downloadTrack({ track, filename }: { track: Track, filename: string }) {
+function* downloadTrack({
+  track,
+  filename
+}: {
+  track: Track
+  filename: string
+}) {
   try {
     const audiusBackendInstance = yield* getContext('audiusBackendInstance')
     const apiClient = yield* getContext('apiClient')
@@ -654,7 +660,9 @@ function* downloadTrack({ track, filename }: { track: Track, filename: string })
       const premiumTrackSignatureMap = yield* select(
         getPremiumTrackSignatureMap
       )
-      const premiumContentSignature = track.premium_content_signature || premiumTrackSignatureMap[track.track_id]
+      const premiumContentSignature =
+        track.premium_content_signature ||
+        premiumTrackSignatureMap[track.track_id]
       queryParams.user_data = data
       queryParams.user_signature = signature
       if (premiumContentSignature) {
@@ -665,10 +673,17 @@ function* downloadTrack({ track, filename }: { track: Track, filename: string })
     }
 
     const encodedTrackId = encodeHashId(track.track_id)
-    const url = apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`, queryParams)
+    const url = apiClient.makeUrl(
+      `/tracks/${encodedTrackId}/stream`,
+      queryParams
+    )
     yield* call(trackDownload.downloadTrack, { url, filename })
   } catch (e) {
-    console.error(`Could not download track ${track.track_id}: ${(e as Error).message}. Error: ${e}`)
+    console.error(
+      `Could not download track ${track.track_id}: ${
+        (e as Error).message
+      }. Error: ${e}`
+    )
   }
 }
 

@@ -125,9 +125,7 @@ const downloadTrack = async ({ url, filename }: DownloadTrackConfig) => {
 }
 
 class TrackDownload extends TrackDownloadBase {
-  async downloadTrack(
-    { url, filename }: { url: string, filename: string }
-  ) {
+  async downloadTrack({ url, filename }: { url: string; filename: string }) {
     await downloadTrack({ filename, url })
   }
 }
