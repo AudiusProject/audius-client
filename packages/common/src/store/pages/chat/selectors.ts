@@ -130,3 +130,14 @@ export const getChatMessageById = (
   const chatMessagesState = state.pages.chat.messages[chatId]
   return selectById(chatMessagesState, messageId)
 }
+
+export const getPopupMessageId = (state: CommonState) => {
+  return state.pages.chat.popupMessageId
+}
+
+export const isEqualToPopupMessageId = createSelector(
+  [getPopupMessageId, (_state: CommonState, messageId: string) => messageId],
+  (popupMessageId: string | null, messageId: string) => {
+    return messageId === popupMessageId
+  }
+)

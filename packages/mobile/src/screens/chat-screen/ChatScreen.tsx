@@ -48,10 +48,11 @@ const {
   getOtherChatUsers,
   getChat,
   getChatMessageById,
-  getChatMessageByIndex
+  getChatMessageByIndex,
+  getPopupMessageId
 } = chatSelectors
 
-const { fetchMoreMessages, markChatAsRead } = chatActions
+const { fetchMoreMessages, markChatAsRead, setPopupMessageId } = chatActions
 const { getUserId } = accountSelectors
 
 export const REACTION_CONTAINER_HEIGHT = 70
@@ -155,7 +156,6 @@ export const ChatScreen = () => {
 
   const [shouldShowPopup, setShouldShowPopup] = useState(false)
   const hasScrolledToUnreadTag = useRef(false)
-  const [popupMessageId, setPopupMessageId] = useState('')
   const flatListRef = useRef<FlatList<ChatMessageWithExtras>>(null)
   const itemsRef = useRef<Record<string, View | null>>({})
   const composeRef = useRef<View | null>(null)
@@ -174,6 +174,7 @@ export const ChatScreen = () => {
   const unreadCount = chat?.unread_message_count ?? 0
   const isLoading =
     chat?.messagesStatus === Status.LOADING && chatMessages?.length === 0
+  const popupMessageId = useSelector(getPopupMessageId)
   const popupMessage = useSelector((state) =>
     getChatMessageById(state, chatId, popupMessageId)
   )
@@ -279,26 +280,29 @@ export const ChatScreen = () => {
 
   const closeReactionPopup = useCallback(() => {
     setShouldShowPopup(false)
-    setPopupMessageId('')
-  }, [setShouldShowPopup, setPopupMessageId])
+    dispatch(setPopupMessageId({ messageId: null }))
+  }, [setShouldShowPopup, dispatch])
 
-  const handleMessagePress = useCallback(async (id: string) => {
-    const messageRef = itemsRef.current[id]
-    if (messageRef === null || messageRef === undefined) {
-      return
-    }
-    // Measure position of selected message to create a copy of it on top
-    // of the dimmed background inside the portal.
-    const messageY = await new Promise<number>((resolve) => {
-      messageRef.measureInWindow((x, y, width, height) => {
-        resolve(y)
+  const handleMessagePress = useCallback(
+    async (id: string) => {
+      const messageRef = itemsRef.current[id]
+      if (messageRef === null || messageRef === undefined) {
+        return
+      }
+      // Measure position of selected message to create a copy of it on top
+      // of the dimmed background inside the portal.
+      const messageY = await new Promise<number>((resolve) => {
+        messageRef.measureInWindow((x, y, width, height) => {
+          resolve(y)
+        })
       })
-    })
-    // Need to subtract spacing(2) to account for padding in message View.
-    messageTop.current = messageY - spacing(2)
-    setPopupMessageId(id)
-    setShouldShowPopup(true)
-  }, [])
+      // Need to subtract spacing(2) to account for padding in message View.
+      messageTop.current = messageY - spacing(2)
+      dispatch(setPopupMessageId({ messageId: id }))
+      setShouldShowPopup(true)
+    },
+    [dispatch]
+  )
 
   const topBarRight = (
     <IconKebabHorizontal
@@ -379,7 +383,7 @@ export const ChatScreen = () => {
       <ScreenContent>
         {/* Everything inside the portal displays on top of all other screen contents. */}
         <Portal hostName='ChatReactionsPortal'>
-          {shouldShowPopup && popupMessageId && popupMessage ? (
+          {shouldShowPopup ? (
             <ReactionPopup
               chatId={chatId}
               messageTop={messageTop.current}
