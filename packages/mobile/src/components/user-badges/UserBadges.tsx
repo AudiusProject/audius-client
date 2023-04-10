@@ -43,8 +43,8 @@ export const UserBadges = (props: UserBadgesProps) => {
           height={badgeSize}
           width={badgeSize}
           style={styles.badge}
-          fill={palette.primary}
-          fillSecondary={palette.white}
+          fill={palette.staticPrimary}
+          fillSecondary={palette.staticWhite}
         />
       ) : null}
       <IconAudioBadge

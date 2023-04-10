@@ -112,7 +112,7 @@ const DetailsTileUnlockedSection = ({
         <IconVerified
           style={styles.checkIcon}
           fill={palette.accentGreen}
-          fillSecondary={palette.white}
+          fillSecondary={palette.staticWhite}
         />
       </View>
       {renderDescription()}

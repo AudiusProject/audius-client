@@ -255,7 +255,8 @@ export const ChallengeRewardsDrawer = ({
             <View style={styles.taskHeaderVerified}>
               <IconVerified
                 style={styles.subheaderIcon}
-                fill={palette.primary}
+                fill={palette.staticPrimary}
+                fillSecondary={palette.staticWhite}
               />
               <Text style={styles.subheader} weight='heavy'>
                 {messages.taskVerified}
