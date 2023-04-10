@@ -5,7 +5,7 @@ import { View, Image } from 'react-native'
 
 import { Text, Link } from 'app/components/core'
 import { audiusSdk } from 'app/services/audius-sdk'
-import { makeStyles } from 'app/styles'
+import { makeStyles, flexRowCentered } from 'app/styles'
 
 import { REACTION_LONGPRESS_DELAY } from './constants'
 
@@ -20,9 +20,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     borderRadius: spacing(3)
   },
   thumbnail: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    ...flexRowCentered(),
     width: '100%',
     maxHeight: spacing(50)
   },
@@ -87,7 +85,7 @@ export const LinkPreview = (props: LinkPreviewProps) => {
   const { href, isLinkPreviewOnly, onLongPress } = props
 
   const [metadata, setMetadata] = useState<Partial<UnfurlResponse>>()
-  const domain = metadata?.url ? new URL(metadata?.url).hostname : ''
+  const domain = metadata?.url ? new URL(metadata.url).hostname : ''
 
   useEffect(() => {
     const fn = async () => {
