@@ -60,8 +60,6 @@ export type OwnProps = {
   onSaveTrack: (isSaved: boolean, trackId: ID) => void
   onDownloadTrack: (
     trackId: ID,
-    cid: CID,
-    creatorNodeEndpoints: string,
     category?: string,
     parentTrackId?: ID
   ) => void
@@ -158,8 +156,6 @@ const TrackPage = ({
     if (!creator_node_endpoint) return
     onDownloadTrack(
       trackId,
-      cid,
-      creator_node_endpoint,
       category,
       parentTrackId
     )

@@ -594,16 +594,12 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(unfollowConfirmationActions.setOpen(userId)),
     downloadTrack: (
       trackId: ID,
-      cid: CID,
-      creatorNodeEndpoints: string,
       category?: string,
       parentTrackId?: ID
     ) => {
       dispatch(
         socialTracksActions.downloadTrack(
           trackId,
-          cid,
-          creatorNodeEndpoints,
           category
         )
       )
