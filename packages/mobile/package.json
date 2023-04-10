@@ -210,7 +210,6 @@
     "redux-flipper": "2.0.2",
     "replace-in-file": "6.3.5",
     "rn-flipper-async-storage-advanced": "1.0.4",
-    "ts-jest": "29.1.0",
     "typescript": "4.9.4"
   }
 }

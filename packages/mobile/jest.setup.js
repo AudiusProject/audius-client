@@ -1,3 +1,5 @@
+// This file sets up mocks required to test the app
+
 const React = require('react')
 
 jest.mock('react-native/Libraries/EventEmitter/NativeEventEmitter')

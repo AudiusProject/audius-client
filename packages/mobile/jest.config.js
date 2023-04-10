@@ -1,27 +1,28 @@
-const { defaults: tsjPreset } = require('ts-jest/presets')
-
+// These are required to be transformed because
+// they are ESM and jest doesn't support ESM
 const transformIncludePackages = [
-  '@react-native',
-  'react-native',
-  '@sentry',
-  'rn-flipper-async-storage-advanced',
   '@audius/sdk',
-  'rpc-websockets',
-  'uuid',
+  '@hcaptcha',
+  '@react-native',
+  '@react-navigation',
+  '@sayem314',
+  '@sentry',
+  '@walletconnect',
+  'autolinker',
+  'decode-uri-component',
+  'ffmpeg-kit-react-native',
+  'filter-obj',
   'jayson',
   'query-string',
-  'decode-uri-component',
-  'split-on-first',
-  'filter-obj',
+  'react-native',
   'rn-fetch-blob',
-  '@hcaptcha',
-  '@react-navigation',
-  'autolinker',
-  '@sayem314',
-  '@walletconnect',
-  'ffmpeg-kit-react-native'
+  'rn-flipper-async-storage-advanced',
+  'rpc-websockets',
+  'split-on-first',
+  'uuid'
 ].join('|')
 
+// These match the aliases defined in metro.config.js
 const clientAliases = [
   'assets',
   'audio',
@@ -41,9 +42,7 @@ const clientAliases = [
   {}
 )
 
-/** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
-  // ...tsjPreset,
   preset: 'react-native',
   transformIgnorePatterns: [`node_modules/(?!(${transformIncludePackages}))`],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],

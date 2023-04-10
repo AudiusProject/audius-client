@@ -1,8 +1,0 @@
-// tsconfig.spec.json
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "allowJs": true
-  }
-}
