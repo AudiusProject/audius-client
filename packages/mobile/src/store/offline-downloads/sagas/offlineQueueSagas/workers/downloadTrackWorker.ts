@@ -1,4 +1,4 @@
-import type { ID, Track, UserTrackMetadata } from '@audius/common'
+import { FeatureFlags, ID, premiumContentSelectors, QueryParams, Track, UserTrackMetadata } from '@audius/common'
 import {
   removeNullable,
   SquareSizes,
@@ -39,6 +39,7 @@ import { shouldCancelJob } from '../../utils/shouldCancelJob'
 import { downloadFile } from './downloadFile'
 
 const { getUserId } = accountSelectors
+const { getPremiumTrackSignatureMap } = premiumContentSelectors
 
 const MAX_RETRY_COUNT = 3
 const MAX_REQUEUE_COUNT = 3
@@ -148,7 +149,7 @@ function* downloadTrackAsync(
 }
 
 function* downloadTrackAudio(track: UserTrackMetadata) {
-  const { track_id, user } = track
+  const { track_id, user, premium_content_signature } = track
 
   const { creator_node_endpoint } = user
   const creatorNodeEndpoints = creator_node_endpoint?.split(',')
@@ -157,12 +158,33 @@ function* downloadTrackAudio(track: UserTrackMetadata) {
   const trackFilePath = getLocalAudioPath(track_id)
   const encodedTrackId = encodeHashId(track_id)
 
-  for (const creatorNodeEndpoint of creatorNodeEndpoints) {
-    const trackAudioUri = `${creatorNodeEndpoint}/tracks/stream/${encodedTrackId}`
-    const response = yield* call(downloadFile, trackAudioUri, trackFilePath)
-    const { status } = response.info()
-    if (status === 200) return
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+  const apiClient = yield* getContext('apiClient')
+  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
+  const isGatedContentEnabled = yield* call(() => {
+    return getFeatureEnabled(FeatureFlags.GATED_CONTENT_ENABLED)
+  })
+  const queryParams: QueryParams = { filename: `${track_id}.mp3` }
+  if (isGatedContentEnabled) {
+    const data = `Premium content user signature at ${Date.now()}`
+    const signature = yield* call(audiusBackendInstance.getSignature, data)
+    const premiumTrackSignatureMap = yield* select(
+      getPremiumTrackSignatureMap
+    )
+    const premiumContentSignature = premium_content_signature || premiumTrackSignatureMap[track_id]
+    queryParams.user_data = data
+    queryParams.user_signature = signature
+    if (premiumContentSignature) {
+      queryParams.premium_content_signature = JSON.stringify(
+        premiumContentSignature
+      )
+    }
   }
+
+  const trackAudioUri = apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`, queryParams)
+  const response = yield* call(downloadFile, trackAudioUri, trackFilePath)
+  const { status } = response.info()
+  if (status === 200) return
 
   throw new Error('Unable to download track audio')
 }
