@@ -38,6 +38,7 @@ import Button from 'app/components/button'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { remindUserToTurnOnNotifications } from 'app/components/notification-reminder/NotificationReminder'
 import useAppState from 'app/hooks/useAppState'
+import { useToast } from 'app/hooks/useToast'
 import { screen, track, make } from 'app/services/analytics'
 import { setVisibility } from 'app/store/drawers/slice'
 import { EventNames } from 'app/types/analytics'
@@ -257,12 +258,12 @@ const messages = {
   newToAudius: 'New to Audius?',
   createAccount: 'Create an Account',
   hasAccountAlready: 'Already have an account?',
-  forgotPassword: 'Forgot your password?'
+  forgotPassword: 'Forgot your password?',
+  error: 'Something went wrong, please try again later'
 }
 
 const errorMessages = {
   invalidEmail: 'Please enter a valid email',
-  emailInUse: 'Email is already in use, please sign-in',
   emptyPassword: 'Please enter a password',
   default: 'Invalid Credentials'
 }
@@ -331,7 +332,6 @@ const SignOn = ({ navigation }: SignOnProps) => {
 
   const signedIn = signOnStatus === 'success'
   const isSigninError = passwordField.error
-  const emailIsAvailable = emailField.error !== 'inUse'
   const emailIsValid = emailField.error !== 'characters'
 
   const topDrawer = useRef(new Animated.Value(-800)).current
@@ -402,7 +402,6 @@ const SignOn = ({ navigation }: SignOnProps) => {
   useEffect(() => {
     if (
       (isSignin && isSigninError && showDefaultError) ||
-      (!isSignin && !emailIsAvailable && email !== '') ||
       showInvalidEmailError ||
       showEmptyPasswordError
     ) {
@@ -419,7 +418,6 @@ const SignOn = ({ navigation }: SignOnProps) => {
     isSignin,
     isSigninError,
     showDefaultError,
-    emailIsAvailable,
     email,
     showInvalidEmailError,
     showEmptyPasswordError
@@ -460,31 +458,6 @@ const SignOn = ({ navigation }: SignOnProps) => {
           <ValidationIconX style={styles.errorIcon} />
           <Text style={styles.errorText}>{errorMessages.default}</Text>
         </Animated.View>
-      )
-    }
-    if (!isSignin && !emailIsAvailable && email !== '') {
-      return (
-        <TouchableOpacity
-          style={styles.errorButton}
-          onPress={() => {
-            switchForm(true)
-          }}
-        >
-          <Animated.View
-            style={[styles.errorContainer, { opacity: errorOpacity }]}
-          >
-            <ValidationIconX style={styles.errorIcon} />
-            <Text
-              style={[
-                styles.errorText,
-                { flex: 0, textDecorationLine: 'underline' }
-              ]}
-            >
-              {errorMessages.emailInUse}
-            </Text>
-            <Text style={[styles.errorText, { fontSize: 13 }]}> ➔</Text>
-          </Animated.View>
-        </TouchableOpacity>
       )
     }
     if (showInvalidEmailError) {
@@ -535,7 +508,7 @@ const SignOn = ({ navigation }: SignOnProps) => {
     )
   }
 
-  const switchForm = (keepEmail = false) => {
+  const switchForm = () => {
     if (!isWorking) {
       if (isSignin) {
         setFormButtonMarginTop(28)
@@ -553,10 +526,6 @@ const SignOn = ({ navigation }: SignOnProps) => {
             source: 'sign up page'
           })
         )
-      }
-
-      if (!keepEmail) {
-        setEmail('')
       }
 
       setShowInvalidEmailError(false)
@@ -610,6 +579,8 @@ const SignOn = ({ navigation }: SignOnProps) => {
   }) => {
     let opacity = new Animated.Value(1)
 
+    const { toast } = useToast()
+
     // fade the sign up/in button out and in when switch between signup and signin
     if (lastIsSignin !== isSignin) {
       opacity = new Animated.Value(0)
@@ -653,11 +624,13 @@ const SignOn = ({ navigation }: SignOnProps) => {
                     () => {
                       // On unavailable email (e.g. user exists with that email),
                       // Switch to the sign in form
-                      switchForm(true)
+                      switchForm()
                       setIsWorking(false)
                     },
                     () => {
-                      // On any unknown error, do nothing, but let the user try again
+                      // On any unknown error, toast and let the user try again
+                      // This could be due to the user being blocked by CloudFlare
+                      toast({ content: messages.error })
                       setIsWorking(false)
                     }
                   )
@@ -789,9 +762,7 @@ const SignOn = ({ navigation }: SignOnProps) => {
             <TouchableOpacity
               style={styles.switchFormBtn}
               activeOpacity={0.6}
-              onPress={() => {
-                switchForm()
-              }}
+              onPress={switchForm}
             >
               {renderFormSwitchButton()}
             </TouchableOpacity>

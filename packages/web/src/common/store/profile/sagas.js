@@ -19,7 +19,8 @@ import {
   MAX_PROFILE_SUPPORTING_TILES,
   MAX_PROFILE_TOP_SUPPORTERS,
   collectiblesActions,
-  processAndCacheUsers
+  processAndCacheUsers,
+  chatActions
 } from '@audius/common'
 import { merge } from 'lodash'
 import {
@@ -50,6 +51,7 @@ import {
 import { waitForRead, waitForWrite } from 'utils/sagaHelpers'
 
 import { watchFetchProfileCollections } from './fetchProfileCollectionsSaga'
+import { watchFetchTopTags } from './fetchTopTagsSaga'
 const { refreshSupport } = tippingActions
 const { getIsReachable } = reachabilitySelectors
 const { getProfileUserId, getProfileFollowers, getProfileUser } =
@@ -63,6 +65,8 @@ const {
   updateSolCollections,
   setHasUnsupportedCollection
 } = collectiblesActions
+
+const { fetchPermissions } = chatActions
 
 function* watchFetchProfile() {
   yield takeEvery(profileActions.FETCH_PROFILE, fetchProfileAsync)
@@ -82,35 +86,25 @@ function* fetchProfileCustomizedCollectibles(user) {
       /* cache */ false,
       /* asUrl */ false
     )
-
-    if (metadata) {
-      const {
-        is_verified: ignored_is_verified,
-        creator_node_endpoint: ignored_creator_node_endpoint,
-        ...sanitizedMetadata
-      } = metadata
-
-      if (sanitizedMetadata?.collectibles) {
-        yield put(
-          cacheActions.update(Kind.USERS, [
-            {
-              id: user.user_id,
-              metadata: {
-                ...sanitizedMetadata,
-                collectiblesOrderUnset: false
-              }
+    if (metadata?.collectibles) {
+      yield put(
+        cacheActions.update(Kind.USERS, [
+          {
+            id: user.user_id,
+            metadata: {
+              collectibles: metadata.collectibles,
+              collectiblesOrderUnset: false
             }
-          ])
-        )
-      } else {
-        yield put(
-          cacheActions.update(Kind.USERS, [
-            {
-              id: user.user_id,
-              metadata: {
-                ...sanitizedMetadata,
-                collectiblesOrderUnset: true
-              }
+          }
+        ])
+      )
+    } else {
+      yield put(
+        cacheActions.update(Kind.USERS, [
+          {
+            id: user.user_id,
+            metadata: {
+              collectiblesOrderUnset: true
             }
           ])
         )
@@ -328,6 +322,9 @@ function* fetchProfileAsync(action) {
       yield fork(fetchSupportersAndSupporting, user.user_id)
     }
 
+    // Get chat permissions
+    yield put(fetchPermissions({ userIds: [user.user_id] }))
+
     yield fork(fetchProfileCustomizedCollectibles, user)
     yield fork(fetchOpenSeaAssets, user)
     yield fork(fetchSolanaCollectibles, user)
@@ -345,12 +342,6 @@ function* fetchProfileAsync(action) {
         user.handle
       )
     )
-
-    if (!isNativeMobile) {
-      if (user.track_count > 0) {
-        yield fork(fetchMostUsedTags, user.user_id, user.track_count)
-      }
-    }
 
     if (!isNativeMobile) {
       const showArtistRecommendationsPercent =
@@ -394,36 +385,6 @@ function* watchFetchFollowUsers(action) {
       default:
     }
   })
-}
-
-const MOST_USED_TAGS_COUNT = 5
-
-// Get all the tracks & parse the tracks for the most used tags
-// NOTE: The number of user tracks is not known b/c some tracks are deleted,
-// so the number of user tracks plus a large track number are fetched
-const LARGE_TRACKCOUNT_TAGS = 100
-function* fetchMostUsedTags(userId, trackCount) {
-  const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  const trackResponse = yield call(audiusBackendInstance.getArtistTracks, {
-    offset: 0,
-    limit: trackCount + LARGE_TRACKCOUNT_TAGS,
-    userId,
-    filterDeleted: true
-  })
-  const tracks = trackResponse.filter((metadata) => !metadata.is_delete)
-  // tagUsage: { [tag: string]: number }
-  const tagUsage = {}
-  tracks.forEach((track) => {
-    if (track.tags) {
-      track.tags.split(',').forEach((tag) => {
-        tag in tagUsage ? (tagUsage[tag] += 1) : (tagUsage[tag] = 1)
-      })
-    }
-  })
-  const mostUsedTags = Object.keys(tagUsage)
-    .sort((a, b) => tagUsage[b] - tagUsage[a])
-    .slice(0, MOST_USED_TAGS_COUNT)
-  yield put(profileActions.updateMostUsedTags(mostUsedTags))
 }
 
 function* fetchFolloweeFollows(action) {
@@ -693,6 +654,7 @@ export default function sagas() {
     watchUpdateProfile,
     watchUpdateCurrentUserFollows,
     watchSetNotificationSubscription,
-    watchFetchProfileCollections
+    watchFetchProfileCollections,
+    watchFetchTopTags
   ]
 }

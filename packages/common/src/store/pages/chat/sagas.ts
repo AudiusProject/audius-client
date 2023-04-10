@@ -1,13 +1,18 @@
-import { ChatMessage, TypedCommsResponse } from '@audius/sdk'
+import {
+  ChatMessage,
+  ChatPermissionResponse,
+  TypedCommsResponse
+} from '@audius/sdk'
 import dayjs from 'dayjs'
 import { call, put, select, takeEvery, takeLatest } from 'typed-redux-saga'
 import { ulid } from 'ulid'
 
+import { ID } from 'models/Identifiers'
 import { Status } from 'models/Status'
 import { getAccountUser, getUserId } from 'store/account/selectors'
 import { setVisibility } from 'store/ui/modals/slice'
 
-import { decodeHashId, encodeHashId } from '../../../utils'
+import { decodeHashId, encodeHashId, removeNullable } from '../../../utils'
 import { cacheUsersActions } from '../../cache'
 import { getContext } from '../../effects'
 
@@ -33,7 +38,15 @@ const {
   markChatAsReadFailed,
   sendMessage,
   sendMessageFailed,
-  addMessage
+  addMessage,
+  fetchBlockees,
+  fetchBlockeesSucceeded,
+  fetchBlockers,
+  fetchBlockersSucceeded,
+  unblockUser,
+  blockUser,
+  fetchPermissions,
+  fetchPermissionsSucceeded
 } = chatActions
 const { getChatsSummary, getChat } = chatSelectors
 
@@ -257,6 +270,83 @@ function* fetchChatIfNecessary(args: { chatId: string }) {
   }
 }
 
+function* doFetchBlockees() {
+  try {
+    const audiusSdk = yield* getContext('audiusSdk')
+    const sdk = yield* call(audiusSdk)
+    const { data } = yield* call([sdk.chats, sdk.chats.getBlockees])
+    yield* put(
+      fetchBlockeesSucceeded({
+        blockees: data
+          .map((encodedId) => decodeHashId(encodedId))
+          .filter(removeNullable)
+      })
+    )
+  } catch (e) {
+    console.error('fetchBlockeesFailed', e)
+  }
+}
+
+function* doFetchBlockers() {
+  try {
+    const audiusSdk = yield* getContext('audiusSdk')
+    const sdk = yield* call(audiusSdk)
+    const { data } = yield* call([sdk.chats, sdk.chats.getBlockers])
+    yield* put(
+      fetchBlockersSucceeded({
+        blockers: data
+          .map((encodedId) => decodeHashId(encodedId))
+          .filter(removeNullable)
+      })
+    )
+  } catch (e) {
+    console.error('fetchBlockersFailed', e)
+  }
+}
+
+function* doBlockUser(action: ReturnType<typeof blockUser>) {
+  try {
+    const audiusSdk = yield* getContext('audiusSdk')
+    const sdk = yield* call(audiusSdk)
+    yield* call([sdk.chats, sdk.chats.block], {
+      userId: encodeHashId(action.payload.userId)
+    })
+    yield* put(fetchBlockees())
+  } catch (e) {
+    console.error('blockUserFailed', e)
+  }
+}
+
+function* doUnblockUser(action: ReturnType<typeof unblockUser>) {
+  try {
+    const audiusSdk = yield* getContext('audiusSdk')
+    const sdk = yield* call(audiusSdk)
+    yield* call([sdk.chats, sdk.chats.unblock], {
+      userId: encodeHashId(action.payload.userId)
+    })
+    yield* put(fetchBlockees())
+  } catch (e) {
+    console.error('unblockUserFailed', e)
+  }
+}
+
+function* doFetchPermissions(action: ReturnType<typeof fetchPermissions>) {
+  try {
+    const audiusSdk = yield* getContext('audiusSdk')
+    const sdk = yield* call(audiusSdk)
+    const { data } = yield* call([sdk.chats, sdk.chats.getPermissions], {
+      userIds: action.payload.userIds.map((id) => encodeHashId(id))
+    })
+    const permissions: Record<ID, ChatPermissionResponse> = {}
+    for (const key of Object.keys(data)) {
+      permissions[decodeHashId(key)!] = data[key]
+    }
+    yield* put(fetchPermissionsSucceeded({ permissions }))
+  } catch (e) {
+    console.error('fetchPermissionsFailed', e)
+  }
+}
+
 function* watchAddMessage() {
   yield takeEvery(addMessage, ({ payload }) => fetchChatIfNecessary(payload))
 }
@@ -285,6 +375,26 @@ function* watchMarkChatAsRead() {
   yield takeEvery(markChatAsRead, doMarkChatAsRead)
 }
 
+function* watchFetchBlockees() {
+  yield takeLatest(fetchBlockees, doFetchBlockees)
+}
+
+function* watchFetchBlockers() {
+  yield takeLatest(fetchBlockers, doFetchBlockers)
+}
+
+function* watchBlockUser() {
+  yield takeEvery(blockUser, doBlockUser)
+}
+
+function* watchUnblockUser() {
+  yield takeEvery(unblockUser, doUnblockUser)
+}
+
+function* watchFetchPermissions() {
+  yield takeEvery(fetchPermissions, doFetchPermissions)
+}
+
 export const sagas = () => {
   return [
     watchFetchChats,
@@ -293,6 +403,11 @@ export const sagas = () => {
     watchCreateChat,
     watchMarkChatAsRead,
     watchSendMessage,
-    watchAddMessage
+    watchAddMessage,
+    watchFetchBlockees,
+    watchFetchBlockers,
+    watchBlockUser,
+    watchUnblockUser,
+    watchFetchPermissions
   ]
 }

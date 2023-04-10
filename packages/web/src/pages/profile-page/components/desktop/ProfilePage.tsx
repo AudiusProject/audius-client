@@ -58,7 +58,6 @@ export type ProfilePageProps = {
   shouldMaskContent: boolean
   areArtistRecommendationsVisible: boolean
 
-  mostUsedTags: string[]
   // Computed
   accountUserId: ID | null
   isArtist: boolean
@@ -89,6 +88,7 @@ export type ProfilePageProps = {
   isSubscribed: boolean
   mode: ProfileMode
   stats: StatProps[]
+  isBlocked: boolean
 
   profile: ProfileUser | null
   albums: Collection[] | null
@@ -146,7 +146,9 @@ export type ProfilePageProps = {
   ) => void
   didChangeTabsFrom: (prevLabel: string, currentLabel: string) => void
   onCloseArtistRecommendations: () => void
-  onMessage: () => void
+  onMessage?: () => void
+  onBlock: () => void
+  onUnblock: () => void
 }
 
 const ProfilePage = ({
@@ -171,7 +173,6 @@ const ProfilePage = ({
   openCreatePlaylistModal,
   updateProfile,
 
-  mostUsedTags,
   onFollow,
   onUnfollow,
   updateName,
@@ -201,6 +202,9 @@ const ProfilePage = ({
   areArtistRecommendationsVisible,
   onCloseArtistRecommendations,
   onMessage,
+  onBlock,
+  onUnblock,
+  isBlocked,
 
   accountUserId,
   userId,
@@ -697,7 +701,6 @@ const ProfilePage = ({
           website={website}
           donation={donation}
           created={created}
-          tags={mostUsedTags || []}
           onUpdateName={updateName}
           onUpdateProfilePicture={updateProfilePicture}
           onUpdateBio={updateBio}
@@ -739,6 +742,9 @@ const ProfilePage = ({
             onFollow={onFollow}
             onUnfollow={onUnfollow}
             onMessage={onMessage}
+            isBlocked={isBlocked}
+            onBlock={onBlock}
+            onUnblock={onUnblock}
           />
           <div className={styles.inset}>
             <NavBanner
