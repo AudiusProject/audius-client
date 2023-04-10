@@ -642,6 +642,7 @@ function* downloadTrack({ track, filename }: { track: Track, filename: string })
   try {
     const audiusBackendInstance = yield* getContext('audiusBackendInstance')
     const apiClient = yield* getContext('apiClient')
+    const trackDownload = yield* getContext('trackDownload')
     const getFeatureEnabled = yield* getContext('getFeatureEnabled')
     const isGatedContentEnabled = yield* call(() => {
       return getFeatureEnabled(FeatureFlags.GATED_CONTENT_ENABLED)
@@ -664,22 +665,8 @@ function* downloadTrack({ track, filename }: { track: Track, filename: string })
     }
 
     const encodedTrackId = encodeHashId(track.track_id)
-    const response = yield* call(
-      window.fetch,
-      apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`, queryParams)
-    )
-    if (!response.ok) {
-      throw new Error('Download unsuccessful')
-    }
-
-    const downloadURL = (url: string, filename: string) => {
-      const link = document.createElement('a')
-      link.href = url
-      link.target = '_blank'
-      link.download = filename
-      link.click()
-    }
-    downloadURL(response.url, filename)
+    const url = apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`, queryParams)
+    yield* call(trackDownload.downloadTrack, { url, filename })
   } catch (e) {
     console.error(`Could not download track ${track.track_id}: ${(e as Error).message}. Error: ${e}`)
   }
