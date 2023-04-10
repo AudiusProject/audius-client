@@ -6,7 +6,7 @@ import { View, Image } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Text, Link } from 'app/components/core'
-import { makeStyles, flexRowCentered } from 'app/styles'
+import { makeStyles } from 'app/styles'
 
 import { REACTION_LONGPRESS_DELAY } from './constants'
 
@@ -24,7 +24,9 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     borderRadius: spacing(3)
   },
   thumbnail: {
-    ...flexRowCentered(),
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     width: '100%',
     maxHeight: spacing(50)
   },
