@@ -92,25 +92,19 @@ type TrackScreenDownloadButtonsProps = {
   isHidden?: boolean
   isOwner: boolean
   trackId: ID
-  user: User | SearchUser
 }
 
 export const TrackScreenDownloadButtons = ({
   following,
   doesUserHaveAccess,
   isOwner,
-  trackId,
-  user
+  trackId
 }: TrackScreenDownloadButtonsProps) => {
   const isGatedContentEnabled = useIsGatedContentEnabled()
   const dispatch = useDispatch()
 
   const handleDownload = useCallback(
     (id: ID, category?: string, parentTrackId?: ID) => {
-      const { creator_node_endpoint } = user
-      if (!creator_node_endpoint) {
-        return
-      }
       dispatch(downloadTrack(id, category))
       track(
         make({
@@ -121,7 +115,7 @@ export const TrackScreenDownloadButtons = ({
         })
       )
     },
-    [dispatch, user]
+    [dispatch]
   )
 
   const buttons = useDownloadTrackButtons({
