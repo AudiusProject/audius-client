@@ -1,17 +1,11 @@
-import { useEffect } from 'react'
-
-import { chatActions, chatSelectors } from '@audius/common'
+import { useLinkUnfurlMetadata } from '@audius/common'
 import type { GestureResponderEvent } from 'react-native'
 import { View, Image } from 'react-native'
-import { useDispatch, useSelector } from 'react-redux'
 
 import { Text, Link } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 
 import { REACTION_LONGPRESS_DELAY } from './constants'
-
-const { getUnfurlMetadata } = chatSelectors
-const { fetchLinkUnfurl } = chatActions
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   root: {
@@ -85,17 +79,8 @@ export const LinkPreview = ({
   onLongPress
 }: LinkPreviewProps) => {
   const styles = useStyles()
-  const dispatch = useDispatch()
-  const metadata = useSelector((state) =>
-    getUnfurlMetadata(state, chatId, messageId)
-  )
+  const metadata = useLinkUnfurlMetadata(chatId, messageId, href)
   const domain = metadata?.url ? new URL(metadata.url).hostname : ''
-
-  useEffect(() => {
-    if (!metadata) {
-      dispatch(fetchLinkUnfurl({ chatId, messageId, href }))
-    }
-  }, [metadata, dispatch, chatId, messageId, href])
 
   if (!metadata) {
     return null

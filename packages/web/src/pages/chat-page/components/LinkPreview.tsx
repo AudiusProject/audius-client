@@ -1,12 +1,6 @@
-import { useEffect } from 'react'
-
-import { CommonState, chatActions, chatSelectors } from '@audius/common'
-import { useDispatch, useSelector } from 'react-redux'
+import { useLinkUnfurlMetadata } from '@audius/common'
 
 import styles from './LinkPreview.module.css'
-
-const { getUnfurlMetadata } = chatSelectors
-const { fetchLinkUnfurl } = chatActions
 
 type LinkPreviewProps = {
   href: string
@@ -15,18 +9,8 @@ type LinkPreviewProps = {
 }
 export const LinkPreview = (props: LinkPreviewProps) => {
   const { href, chatId, messageId } = props
-  const dispatch = useDispatch()
-
-  const metadata = useSelector((state: CommonState) =>
-    getUnfurlMetadata(state, chatId, messageId)
-  )
+  const metadata = useLinkUnfurlMetadata(chatId, messageId, href)
   const domain = metadata?.url ? new URL(metadata?.url).hostname : ''
-
-  useEffect(() => {
-    if (!metadata) {
-      dispatch(fetchLinkUnfurl({ chatId, messageId, href }))
-    }
-  }, [metadata, dispatch, chatId, messageId, href])
 
   if (!metadata) {
     return null
