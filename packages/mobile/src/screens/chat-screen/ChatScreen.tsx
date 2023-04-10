@@ -176,7 +176,7 @@ export const ChatScreen = () => {
     chat?.messagesStatus === Status.LOADING && chatMessages?.length === 0
   const popupMessageId = useSelector(getPopupMessageId)
   const popupMessage = useSelector((state) =>
-    getChatMessageById(state, chatId, popupMessageId)
+    getChatMessageById(state, chatId, popupMessageId ?? '')
   )
 
   // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
@@ -383,12 +383,12 @@ export const ChatScreen = () => {
       <ScreenContent>
         {/* Everything inside the portal displays on top of all other screen contents. */}
         <Portal hostName='ChatReactionsPortal'>
-          {shouldShowPopup ? (
+          {shouldShowPopup && popupMessage ? (
             <ReactionPopup
               chatId={chatId}
               messageTop={messageTop.current}
               containerBottom={chatContainerBottom.current}
-              isAuthor={decodeHashId(popupMessage.sender_user_id) === userId}
+              isAuthor={decodeHashId(popupMessage?.sender_user_id) === userId}
               message={popupMessage}
               closePopup={closeReactionPopup}
             />
