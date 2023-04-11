@@ -64,20 +64,20 @@ const messages = {
   unlockCollectibleGatedTrack:
     'To unlock this track, you must link a wallet containing a collectible from:',
   aCollectibleFrom: 'A Collectible from ',
-  unlockingCollectibleGatedTrackSuffix: ' was found in a linked wallet.',
+  unlockingCollectibleGatedTrackSuffix: 'was found in a linked wallet.',
   unlockedCollectibleGatedTrackSuffix:
-    ' was found in a linked wallet. This track is now available.',
+    'was found in a linked wallet. This track is now available.',
   ownFollowGated: 'Users can unlock access by following your account!',
   unlockFollowGatedTrackPrefix: 'Follow',
   thankYouForFollowing: 'Thank you for following',
   unlockedFollowGatedTrackSuffix: '! This track is now available.',
   ownTipGated: 'Users can unlock access by sending you a tip!',
   unlockTipGatedTrackPrefix: 'Send',
-  unlockTipGatedTrackSuffix: ' a tip.',
+  unlockTipGatedTrackSuffix: 'a tip.',
   thankYouForSupporting: 'Thank you for supporting',
-  unlockingTipGatedTrackSuffix: ' by sending them a tip!',
+  unlockingTipGatedTrackSuffix: 'by sending them a tip!',
   unlockedTipGatedTrackSuffix:
-    ' by sending them a tip! This track is now available.'
+    'by sending them a tip! This track is now available.'
 }
 
 type PremiumTrackAccessSectionProps = {
@@ -216,7 +216,7 @@ const LockedPremiumTrackSection = ({
               badgeSize={14}
               useSVGTiers
             />
-            <span>{messages.unlockTipGatedTrackSuffix}</span>
+            <span className={styles.suffix}>{messages.unlockTipGatedTrackSuffix}</span>
           </div>
         </div>
       )
@@ -342,7 +342,7 @@ const UnlockingPremiumTrackSection = ({
             badgeSize={14}
             useSVGTiers
           />
-          <span>{messages.unlockingTipGatedTrackSuffix}</span>
+          <span className={styles.suffix}>{messages.unlockingTipGatedTrackSuffix}</span>
         </div>
       )
     }
@@ -438,7 +438,7 @@ const UnlockedPremiumTrackSection = ({
             badgeSize={14}
             useSVGTiers
           />
-          <span>{messages.unlockedTipGatedTrackSuffix}</span>
+          <span className={styles.suffix}>{messages.unlockedTipGatedTrackSuffix}</span>
         </div>
       )
     }

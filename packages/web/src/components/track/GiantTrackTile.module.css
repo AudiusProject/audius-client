@@ -330,6 +330,14 @@
   margin-left: 4px;
 }
 
+.badgeIcon svg {
+  margin-right: 0px !important; /* to override the !important in UserBadges */
+}
+
+.suffix {
+  margin-left: 4px;
+}
+
 .verifiedGreenIcon {
   width: 24px;
   height: 24px;
