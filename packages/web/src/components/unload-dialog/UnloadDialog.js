@@ -33,6 +33,7 @@ const UnloadDialog = (props) => {
     if (props.isConfirming) {
       const beforeUnload = (event) => {
         if (!seenModalRef.current) event.returnValue = ''
+        event.preventDefault()
       }
       window.addEventListener('beforeunload', beforeUnload)
 
