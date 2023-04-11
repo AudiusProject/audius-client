@@ -1,4 +1,4 @@
-import type { ID, QueryParams, Track, UserTrackMetadata } from '@audius/common'
+import { generateUserSignature, ID, QueryParams, Track, UserTrackMetadata } from '@audius/common'
 import {
   FeatureFlags,
   premiumContentSelectors,
@@ -168,8 +168,7 @@ function* downloadTrackAudio(track: UserTrackMetadata) {
   })
   const queryParams: QueryParams = { filename: `${track_id}.mp3` }
   if (isGatedContentEnabled) {
-    const data = `Premium content user signature at ${Date.now()}`
-    const signature = yield* call(audiusBackendInstance.getSignature, data)
+    const { data, signature } = yield* call(generateUserSignature, audiusBackendInstance)
     const premiumTrackSignatureMap = yield* select(getPremiumTrackSignatureMap)
     const premiumContentSignature =
       premium_content_signature || premiumTrackSignatureMap[track_id]

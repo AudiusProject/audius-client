@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 
-import type { ID, Nullable, QueryParams, Track } from '@audius/common'
+import { generateUserSignature, ID, Nullable, QueryParams, Track } from '@audius/common'
 import {
   removeNullable,
   playbackRateValueMap,
@@ -282,8 +282,7 @@ export const Audio = () => {
         if (gatedQueryParamsMap[trackId]) {
           queryParamsMap[trackId] = gatedQueryParamsMap[trackId]
         } else if (isGatedContentEnabled) {
-          const data = `Premium content user signature at ${Date.now()}`
-          const signature = await audiusBackendInstance.getSignature(data)
+          const { data, signature } = await generateUserSignature(audiusBackendInstance)
           const premiumContentSignature =
             premium_content_signature || premiumTrackSignatureMap[trackId]
           queryParamsMap[trackId] = {
