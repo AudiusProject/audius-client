@@ -46,7 +46,6 @@ import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
 import { make, TrackEvent } from 'common/store/analytics/actions'
-import { getIsDone } from 'common/store/confirmer/selectors'
 import { ProfileMode } from 'components/stat-banner/StatBanner'
 import { StatProps } from 'components/stats/Stats'
 import * as unfollowConfirmationActions from 'components/unfollow-confirmation-modal/store/actions'
@@ -911,7 +910,6 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     const mobileProps = {
       trackIsActive: !!currentQueueItem,
       onConfirmUnfollow: this.props.onConfirmUnfollow,
-      isUserConfirming: this.props.isUserConfirming,
       hasMadeEdit:
         updatedName !== null ||
         updatedBio !== null ||
@@ -982,9 +980,6 @@ function makeMapStateToProps() {
       playing: getPlaying(state),
       buffering: getBuffering(state),
       pathname: getLocationPathname(state),
-      isUserConfirming: !getIsDone(state, {
-        uid: makeKindId(Kind.USERS, getAccountUser(state)?.user_id)
-      }),
       relatedArtists: getRelatedArtists(state, {
         id: getProfileUserId(state, handleLower) ?? 0
       }),
