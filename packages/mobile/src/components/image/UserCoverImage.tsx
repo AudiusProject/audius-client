@@ -31,12 +31,21 @@ type CoverImageUser = Nullable<
 export const useUserCoverImage = (user: CoverImageUser) => {
   const cid = user ? user.cover_photo_sizes || user.cover_photo : null
 
-  return useContentNodeImage({
+  const contentNodeImage = useContentNodeImage({
     cid,
     user,
     size: WidthSizes.SIZE_640,
     fallbackImageSource: imageCoverPhotoBlank
   })
+
+  if (user.updatedCoverPhoto) {
+    return {
+      source: { uri: user.updatedCoverPhoto.url },
+      handleError: () => {}
+    }
+  }
+
+  return contentNodeImage
 }
 
 type UserCoverImageProps = {

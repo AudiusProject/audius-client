@@ -19,12 +19,20 @@ type UseUserImageOptions = {
 export const useUserImage = ({ user, size }: UseUserImageOptions) => {
   const cid = user ? user.profile_picture_sizes || user.profile_picture : null
 
-  return useContentNodeImage({
+  const contentNodeImage = useContentNodeImage({
     cid,
     size,
     user,
     fallbackImageSource: profilePicEmpty
   })
+
+  if (user.updatedProfilePicture) {
+    return {
+      source: { uri: user.updatedProfilePicture.url },
+      handleError: () => {}
+    }
+  }
+  return contentNodeImage
 }
 
 export type UserImageProps = UseUserImageOptions & Partial<FastImageProps>
