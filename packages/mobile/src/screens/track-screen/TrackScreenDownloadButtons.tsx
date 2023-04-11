@@ -6,13 +6,7 @@ import {
   useDownloadTrackButtons,
   tracksSocialActions
 } from '@audius/common'
-import type {
-  CID,
-  ID,
-  User,
-  ButtonType as DownloadButtonType,
-  SearchUser
-} from '@audius/common'
+import type { ID, ButtonType as DownloadButtonType } from '@audius/common'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 

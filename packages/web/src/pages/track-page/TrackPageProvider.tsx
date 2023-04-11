@@ -2,7 +2,6 @@ import { Component, ComponentType } from 'react'
 
 import {
   ID,
-  CID,
   PlayableType,
   FollowSource,
   FavoriteSource,
@@ -592,17 +591,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
       ),
     onConfirmUnfollow: (userId: ID) =>
       dispatch(unfollowConfirmationActions.setOpen(userId)),
-    downloadTrack: (
-      trackId: ID,
-      category?: string,
-      parentTrackId?: ID
-    ) => {
-      dispatch(
-        socialTracksActions.downloadTrack(
-          trackId,
-          category
-        )
-      )
+    downloadTrack: (trackId: ID, category?: string, parentTrackId?: ID) => {
+      dispatch(socialTracksActions.downloadTrack(trackId, category))
       const trackEvent: TrackEvent = make(Name.TRACK_PAGE_DOWNLOAD, {
         id: trackId,
         category,

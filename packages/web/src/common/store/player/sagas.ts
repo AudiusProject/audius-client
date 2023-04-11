@@ -145,7 +145,10 @@ export function* watchPlay() {
           getPremiumTrackSignatureMap
         )
         const premiumContentSignature = premiumTrackSignatureMap[track.track_id]
-        queryParams = yield* call(getQueryParams, { audiusBackendInstance, premiumContentSignature })
+        queryParams = yield* call(getQueryParams, {
+          audiusBackendInstance,
+          premiumContentSignature
+        })
       }
       const forceStreamMp3Url = forceStreamMp3
         ? apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`, queryParams)

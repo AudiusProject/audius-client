@@ -1,5 +1,6 @@
-import { getQueryParams, ID, QueryParams, Track, UserTrackMetadata } from '@audius/common'
+import type { ID, QueryParams, Track, UserTrackMetadata } from '@audius/common'
 import {
+  getQueryParams,
   FeatureFlags,
   premiumContentSelectors,
   removeNullable,
@@ -171,7 +172,10 @@ function* downloadTrackAudio(track: UserTrackMetadata) {
     const premiumTrackSignatureMap = yield* select(getPremiumTrackSignatureMap)
     const premiumContentSignature =
       premium_content_signature || premiumTrackSignatureMap[track_id]
-    queryParams = yield* call(getQueryParams, { audiusBackendInstance, premiumContentSignature })
+    queryParams = yield* call(getQueryParams, {
+      audiusBackendInstance,
+      premiumContentSignature
+    })
   }
   queryParams.filename = `${track_id}.mp3`
 

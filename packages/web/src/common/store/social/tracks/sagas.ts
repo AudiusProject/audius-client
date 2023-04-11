@@ -662,7 +662,10 @@ function* downloadTrack({
       const premiumContentSignature =
         track.premium_content_signature ||
         premiumTrackSignatureMap[track.track_id]
-      queryParams = yield* call(getQueryParams, { audiusBackendInstance, premiumContentSignature })
+      queryParams = yield* call(getQueryParams, {
+        audiusBackendInstance,
+        premiumContentSignature
+      })
     }
     queryParams.filename = filename
 

@@ -56,11 +56,7 @@ export type OwnProps = {
   onClickFavorites: () => void
 
   onSaveTrack: (isSaved: boolean, trackId: ID) => void
-  onDownloadTrack: (
-    trackId: ID,
-    category?: string,
-    parentTrackId?: ID
-  ) => void
+  onDownloadTrack: (trackId: ID, category?: string, parentTrackId?: ID) => void
   makePublic: (trackId: ID) => void
   // Tracks Lineup Props
   tracks: LineupState<{ id: ID }>
@@ -135,11 +131,7 @@ const TrackPage = ({
     if (!user) return
     const { creator_node_endpoint } = user
     if (!creator_node_endpoint) return
-    onDownloadTrack(
-      trackId,
-      category,
-      parentTrackId
-    )
+    onDownloadTrack(trackId, category, parentTrackId)
   }
 
   const defaults = getTrackDefaults(heroTrack)
