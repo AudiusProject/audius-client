@@ -2,6 +2,8 @@ module.exports = (api) => {
   const babelEnv = api.env()
   const plugins = [
     ['@babel/plugin-transform-react-jsx', { runtime: 'automatic' }],
+    // This is to transform react-use imports so Jest doesn't complain
+    // https://github.com/streamich/react-use/issues/483
     [
       'import',
       {

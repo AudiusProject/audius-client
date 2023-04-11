@@ -72,6 +72,15 @@ jest.mock('react-native-code-push', () => {
 jest.mock('@amplitude/react-native')
 jest.mock('rn-fetch-blob')
 
+jest.mock('@audius/common', () => {
+  const common = jest.requireActual('@audius/common')
+
+  common.SolanaClient = jest.fn()
+  return common
+})
+
+jest.mock('./src/services/analytics')
+
 jest.mock('react-native', () => {
   const RN = jest.requireActual('react-native')
 

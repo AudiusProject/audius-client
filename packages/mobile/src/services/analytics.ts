@@ -21,12 +21,9 @@ export const init = async () => {
       analyticsSetupStatus = 'ready'
     } else {
       analyticsSetupStatus = 'error'
-
-      if (process.env.JEST_WORKER_ID === undefined) {
-        console.error(
-          'Analytics unable to setup: missing amplitude write key or proxy url'
-        )
-      }
+      console.error(
+        'Analytics unable to setup: missing amplitude write key or proxy url'
+      )
     }
   } catch (err) {
     analyticsSetupStatus = 'error'
