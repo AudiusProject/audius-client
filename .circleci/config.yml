@@ -29,6 +29,7 @@ parameters:
 setup: true
 
 orbs:
+  aws-cli: circleci/aws-cli@3.1.5
   continuation: circleci/continuation@0.2.0
   path-filtering: circleci/path-filtering@0.1.1
 
