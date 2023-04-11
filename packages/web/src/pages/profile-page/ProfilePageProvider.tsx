@@ -7,9 +7,7 @@ import {
   FollowSource,
   ShareSource,
   BadgeTier,
-  Kind,
   Status,
-  makeKindId,
   formatCount,
   getErrorMessage,
   accountSelectors,
@@ -257,8 +255,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
   fetchProfile = (
     pathname: string,
     forceUpdate = false,
-    shouldSetLoading = true,
-    deleteExistingEntry = false
+    shouldSetLoading = true
   ) => {
     const params = parseUserRoute(pathname)
     if (params) {
@@ -266,8 +263,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
         params?.handle?.toLowerCase() ?? null,
         params.userId,
         forceUpdate,
-        shouldSetLoading,
-        deleteExistingEntry
+        shouldSetLoading
       )
       if (params.tab) {
         this.setState({ activeTab: getTabForRoute(params.tab) })
@@ -278,7 +274,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
   }
 
   refreshProfile = () => {
-    this.fetchProfile(getPathname(this.props.location), true, false, true)
+    this.fetchProfile(getPathname(this.props.location), true, false)
   }
 
   updateName = (name: string) => {
@@ -1002,8 +998,7 @@ function mapDispatchToProps(dispatch: Dispatch, props: RouteComponentProps) {
       handle: Nullable<string>,
       userId: ID | null,
       forceUpdate: boolean,
-      shouldSetLoading: boolean,
-      deleteExistingEntry: boolean
+      shouldSetLoading: boolean
     ) =>
       dispatch(
         profileActions.fetchProfile(
@@ -1011,7 +1006,7 @@ function mapDispatchToProps(dispatch: Dispatch, props: RouteComponentProps) {
           userId,
           forceUpdate,
           shouldSetLoading,
-          deleteExistingEntry
+          /* deleteExistingEntry */ false
         )
       ),
     updateProfile: (metadata: any) =>

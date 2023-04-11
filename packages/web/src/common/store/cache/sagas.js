@@ -5,8 +5,7 @@ import {
   cacheActions,
   cacheSelectors,
   cacheConfig,
-  FeatureFlags,
-  makeKindId
+  FeatureFlags
 } from '@audius/common'
 import { pick } from 'lodash'
 import {
@@ -99,21 +98,14 @@ export function* retrieve({
     call(getEntriesTimestamp, uniqueIds)
   ])
 
-  const confirmer = yield select(getConfirmCalls)
-  // Figure out which IDs we need to retrive from source
   const idsToFetch = []
   uniqueIds.forEach((id) => {
-    let isConfirming = false
-    if (cachedEntries?.[id]?.[idField]) {
-      isConfirming = makeKindId(kind, cachedEntries[id][idField]) in confirmer
-    }
-
     const shouldFetch =
       !(id in cachedEntries) ||
       isMissingFields(cachedEntries[id], requiredFields) ||
       isExpired(timestamps[id]) ||
       forceRetrieveFromSource
-    if (shouldFetch && !isConfirming) {
+    if (shouldFetch) {
       idsToFetch.push(id)
     }
   })

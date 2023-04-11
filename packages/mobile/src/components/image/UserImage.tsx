@@ -10,7 +10,10 @@ type UseUserImageOptions = {
   user: Nullable<
     Pick<
       User,
-      'profile_picture_sizes' | 'profile_picture' | 'creator_node_endpoint'
+      | 'profile_picture_sizes'
+      | 'profile_picture'
+      | 'creator_node_endpoint'
+      | 'updatedProfilePicture'
     >
   >
   size: SquareSizes
@@ -26,7 +29,7 @@ export const useUserImage = ({ user, size }: UseUserImageOptions) => {
     fallbackImageSource: profilePicEmpty
   })
 
-  if (user.updatedProfilePicture) {
+  if (user?.updatedProfilePicture) {
     return {
       source: { uri: user.updatedProfilePicture.url },
       handleError: () => {}
