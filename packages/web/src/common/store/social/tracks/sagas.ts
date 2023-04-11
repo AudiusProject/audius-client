@@ -17,7 +17,7 @@ import {
   FeatureFlags,
   premiumContentSelectors,
   encodeHashId,
-  generateUserSignature
+  getQueryParams
 } from '@audius/common'
 import { fork } from 'redux-saga/effects'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
@@ -654,23 +654,17 @@ function* downloadTrack({
     const isGatedContentEnabled = yield* call(() => {
       return getFeatureEnabled(FeatureFlags.GATED_CONTENT_ENABLED)
     })
-    const queryParams: QueryParams = { filename }
+    let queryParams: QueryParams = {}
     if (isGatedContentEnabled) {
-      const { data, signature } = yield* call(generateUserSignature, audiusBackendInstance)
       const premiumTrackSignatureMap = yield* select(
         getPremiumTrackSignatureMap
       )
       const premiumContentSignature =
         track.premium_content_signature ||
         premiumTrackSignatureMap[track.track_id]
-      queryParams.user_data = data
-      queryParams.user_signature = signature
-      if (premiumContentSignature) {
-        queryParams.premium_content_signature = JSON.stringify(
-          premiumContentSignature
-        )
-      }
+      queryParams = yield* call(getQueryParams, { audiusBackendInstance, premiumContentSignature })
     }
+    queryParams.filename = filename
 
     const encodedTrackId = encodeHashId(track.track_id)
     const url = apiClient.makeUrl(

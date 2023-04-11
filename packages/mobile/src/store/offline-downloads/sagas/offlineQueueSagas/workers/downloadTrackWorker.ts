@@ -1,4 +1,4 @@
-import { generateUserSignature, ID, QueryParams, Track, UserTrackMetadata } from '@audius/common'
+import { getQueryParams, ID, QueryParams, Track, UserTrackMetadata } from '@audius/common'
 import {
   FeatureFlags,
   premiumContentSelectors,
@@ -166,20 +166,14 @@ function* downloadTrackAudio(track: UserTrackMetadata) {
   const isGatedContentEnabled = yield* call(() => {
     return getFeatureEnabled(FeatureFlags.GATED_CONTENT_ENABLED)
   })
-  const queryParams: QueryParams = { filename: `${track_id}.mp3` }
+  let queryParams: QueryParams = {}
   if (isGatedContentEnabled) {
-    const { data, signature } = yield* call(generateUserSignature, audiusBackendInstance)
     const premiumTrackSignatureMap = yield* select(getPremiumTrackSignatureMap)
     const premiumContentSignature =
       premium_content_signature || premiumTrackSignatureMap[track_id]
-    queryParams.user_data = data
-    queryParams.user_signature = signature
-    if (premiumContentSignature) {
-      queryParams.premium_content_signature = JSON.stringify(
-        premiumContentSignature
-      )
-    }
+    queryParams = yield* call(getQueryParams, { audiusBackendInstance, premiumContentSignature })
   }
+  queryParams.filename = `${track_id}.mp3`
 
   const trackAudioUri = apiClient.makeUrl(
     `/tracks/${encodedTrackId}/stream`,
