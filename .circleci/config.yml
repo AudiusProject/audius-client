@@ -1,10 +1,5 @@
 version: 2.1
 
-orbs:
-  aws-cli: circleci/aws-cli@3.1.5
-  continuation: circleci/continuation@0.2.0
-  path-filtering: circleci/path-filtering@0.1.1
-
 commands:
   create_concatenated_package_lock:
     description: "Concatenate all package-lock.json files recognized by lerna.js into single file. File is used as checksum source for part of caching key."
@@ -32,6 +27,10 @@ parameters:
     default: /(^main)|(^release.*)$/
 
 setup: true
+
+orbs:
+  continuation: circleci/continuation@0.2.0
+  path-filtering: circleci/path-filtering@0.1.1
 
 jobs:
   # Generate the CircleCI continue_config.yml from .circleci/src
