@@ -1,6 +1,5 @@
 import {
   ID,
-  CID,
   LineupState,
   Track,
   User,
@@ -122,17 +121,6 @@ const TrackPage = ({
   const onShare = () => (heroTrack ? onHeroShare(heroTrack.track_id) : null)
   const onRepost = () =>
     heroTrack ? onHeroRepost(isReposted, heroTrack.track_id) : null
-  const onDownload = (
-    trackId: ID,
-    cid: CID,
-    category?: string,
-    parentTrackId?: ID
-  ) => {
-    if (!user) return
-    const { creator_node_endpoint } = user
-    if (!creator_node_endpoint) return
-    onDownloadTrack(trackId, category, parentTrackId)
-  }
 
   const defaults = getTrackDefaults(heroTrack)
 
@@ -185,7 +173,7 @@ const TrackPage = ({
       onFollow={onFollow}
       onUnfollow={onUnfollow}
       download={defaults.download}
-      onDownload={onDownload}
+      onDownload={onDownloadTrack}
       makePublic={makePublic}
       onClickReposts={onClickReposts}
       onClickFavorites={onClickFavorites}

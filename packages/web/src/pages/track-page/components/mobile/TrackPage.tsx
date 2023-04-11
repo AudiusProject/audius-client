@@ -1,7 +1,6 @@
 import { useEffect, useContext } from 'react'
 
 import {
-  CID,
   ID,
   LineupState,
   Track,
@@ -141,18 +140,6 @@ const TrackPage = ({
     <div className={styles.lineupHeader}>{messages.originalTrack}</div>
   )
 
-  const onDownload = (
-    trackId: ID,
-    cid: CID,
-    category?: string,
-    parentTrackId?: ID
-  ) => {
-    if (!user) return
-    const { creator_node_endpoint } = user
-    if (!creator_node_endpoint) return
-    onDownloadTrack(trackId, category, parentTrackId)
-  }
-
   const renderMoreByTitle = () =>
     (defaults.remixParentTrackId && entries.length > 2) ||
     (!defaults.remixParentTrackId && entries.length > 1) ? (
@@ -200,7 +187,7 @@ const TrackPage = ({
           onSave={onSave}
           onShare={onShare}
           onRepost={onRepost}
-          onDownload={onDownload}
+          onDownload={onDownloadTrack}
           isUnlisted={defaults.isUnlisted}
           isPremium={defaults.isPremium}
           premiumConditions={defaults.premiumConditions}
