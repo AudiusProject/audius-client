@@ -16,7 +16,6 @@ const USER_LENGTH_LIMIT = 9
  * use the default of spacing(10) - 2 (which is equal to 38).
  * We use the dimensions to determine how to position the
  * extra profile picture +N text.
- *
  */
 const defaultImageDimensions = { width: 38, height: 38 }
 
@@ -136,7 +135,7 @@ export const ProfilePictureList = (props: ProfilePictureListProps) => {
               }
             ]}
           >
-            <Text style={[styles.imageCount]}>
+            <Text style={styles.imageCount}>
               {`+${formatCount(remainingUsersCount)}`}
             </Text>
           </View>
