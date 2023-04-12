@@ -21,7 +21,8 @@ import {
   historyPageSelectors,
   tracksSocialActions as socialActions,
   playerSelectors,
-  queueSelectors
+  queueSelectors,
+  LineupTrack
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { isEqual } from 'lodash'
@@ -159,7 +160,7 @@ const HistoryPage = g((props) => {
   )
 
   const onClickSave = useCallback(
-    (record) => {
+    (record: any) => {
       if (!record.has_current_user_saved) {
         saveTrack(record.track_id)
       } else {
@@ -204,21 +205,21 @@ const HistoryPage = g((props) => {
   )
 
   const onClickTrackName = useCallback(
-    (record) => {
+    (record: any) => {
       goToRoute(record.permalink)
     },
     [goToRoute]
   )
 
   const onClickArtistName = useCallback(
-    (record) => {
+    (record: any) => {
       goToRoute(profilePage(record.handle))
     },
     [goToRoute]
   )
 
   const onClickRepost = useCallback(
-    (record) => {
+    (record: any) => {
       if (!record.has_current_user_reposted) {
         repostTrack(record.track_id)
       } else {
@@ -273,7 +274,7 @@ const HistoryPage = g((props) => {
     title: messages.title,
     description: messages.description,
     loading,
-    entries,
+    entries: entries as unknown as LineupTrack[],
     queuedAndPlaying,
     playingIndex,
     dataSource,
@@ -318,11 +319,11 @@ const HistoryPage = g((props) => {
   )
 })
 
-type LineupData = ReturnType<ReturnType<typeof makeGetTableMetadatas>>
+const getLineupMetadatas = makeGetTableMetadatas(getHistoryTracksLineup)
+type LineupData = ReturnType<typeof getLineupMetadatas>
 let tracksRef: LineupData
 
 const makeMapStateToProps = () => {
-  const getLineupMetadatas = makeGetTableMetadatas(getHistoryTracksLineup)
   const getCurrentQueueItem = makeGetCurrent()
   const mapStateToProps = (state: AppState) => {
     const tracks = getLineupMetadatas(state)

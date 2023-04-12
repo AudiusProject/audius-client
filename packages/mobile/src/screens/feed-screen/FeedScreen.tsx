@@ -10,11 +10,14 @@ import { useDispatch } from 'react-redux'
 
 import IconFeed from 'app/assets/images/iconFeed.svg'
 import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
+import { FeedTipTile } from 'app/components/feed-tip-tile'
 import { Lineup } from 'app/components/lineup'
 import { OnlineOnly } from 'app/components/offline-placeholder/OnlineOnly'
-import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
+import { useAppTabScreen } from 'app/hooks/useAppTabScreen'
 import { make, track } from 'app/services/analytics'
 
+import { EmptyFeedSuggestedFollows } from './EmptyFeedSuggestedFollows'
+import { EndOfFeedNotice } from './EndOfFeedNotice'
 import { FeedFilterButton } from './FeedFilterButton'
 const { getDiscoverFeedLineup } = feedPageSelectors
 const { makeGetLineupMetadatas } = lineupSelectors
@@ -26,7 +29,7 @@ const messages = {
 }
 
 export const FeedScreen = () => {
-  usePopToTopOnDrawerOpen()
+  useAppTabScreen()
 
   const dispatch = useDispatch()
 
@@ -40,21 +43,20 @@ export const FeedScreen = () => {
 
   return (
     <Screen>
-      <ScreenHeader
-        text={messages.header}
-        icon={IconFeed}
-        styles={{ icon: { marginLeft: 2 } }}
-      >
+      <ScreenHeader text={messages.header} icon={IconFeed}>
         <OnlineOnly>
           <FeedFilterButton />
         </OnlineOnly>
       </ScreenHeader>
       <ScreenContent>
         <Lineup
-          isFeed
           pullToRefresh
           delineate
           selfLoad
+          header={<FeedTipTile />}
+          hideHeaderOnEmpty
+          ListFooterComponent={<EndOfFeedNotice />}
+          LineupEmptyComponent={<EmptyFeedSuggestedFollows />}
           actions={feedActions}
           lineupSelector={getFeedLineup}
           loadMore={loadMore}

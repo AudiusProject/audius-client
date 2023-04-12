@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import type { Collection } from '@audius/common'
 import {
@@ -14,8 +14,9 @@ import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { FormScreen } from 'app/components/form-screen'
+import { useCollectionImage } from 'app/components/image/CollectionImage'
 import { TrackList } from 'app/components/track-list'
-import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
+import { isImageUriSource } from 'app/hooks/useContentNodeImage'
 import { makeStyles } from 'app/styles'
 
 import { PlaylistDescriptionInput } from './PlaylistDescriptionInput'
@@ -35,6 +36,11 @@ const useStyles = makeStyles(({ spacing }) => ({
 const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
   const { values, handleSubmit, handleReset, setFieldValue } = props
   const styles = useStyles()
+
+  const trackIds = useMemo(
+    () => values.tracks?.map(({ track_id }) => track_id),
+    [values.tracks]
+  )
 
   const handleReorder = useCallback(
     ({ data, from, to }) => {
@@ -91,7 +97,7 @@ const EditPlaylistForm = (props: FormikProps<PlaylistValues>) => {
           isReorderable
           onReorder={handleReorder}
           onRemove={handleRemove}
-          tracks={values.tracks}
+          ids={trackIds}
           trackItemAction='remove'
           ListHeaderComponent={header}
           ListFooterComponent={<View style={styles.footer} />}
@@ -108,9 +114,8 @@ export const EditPlaylistScreen = () => {
   const dispatch = useDispatch()
   const tracks = useSelector(getTracks)
 
-  const coverArt = useCollectionCoverArt({
-    id: playlist?.playlist_id,
-    sizes: playlist?._cover_art_sizes ?? null,
+  const trackImage = useCollectionImage({
+    collection: playlist,
     size: SquareSizes.SIZE_1000_BY_1000
   })
 
@@ -141,12 +146,14 @@ export const EditPlaylistScreen = () => {
 
   if (!playlist) return null
 
-  const { playlist_name, description } = playlist
-
   const initialValues = {
-    playlist_name,
-    description,
-    artwork: { url: coverArt ?? '' },
+    ...playlist,
+    artwork: {
+      url:
+        trackImage && isImageUriSource(trackImage.source)
+          ? trackImage.source.uri ?? ''
+          : ''
+    },
     removedTracks: [],
     tracks,
     track_ids: playlist.playlist_contents.track_ids

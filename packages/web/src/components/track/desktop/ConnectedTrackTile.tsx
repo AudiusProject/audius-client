@@ -4,7 +4,8 @@ import {
   useCallback,
   useEffect,
   MouseEvent,
-  useRef
+  useRef,
+  MouseEventHandler
 } from 'react'
 
 import {
@@ -18,14 +19,18 @@ import {
   cacheUsersSelectors,
   tracksSocialActions,
   shareModalUIActions,
-  playerSelectors
+  playerSelectors,
+  usePremiumContentAccess,
+  premiumContentActions,
+  Genre
 } from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
+import { useModalState } from 'common/hooks/useModalState'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import Draggable from 'components/dragndrop/Draggable'
 import Menu from 'components/menu/Menu'
@@ -58,7 +63,8 @@ const { getTrack } = cacheTracksSelectors
 const { getUserFromTrack } = cacheUsersSelectors
 const { saveTrack, unsaveTrack, repostTrack, undoRepostTrack } =
   tracksSocialActions
-const getUserHandle = accountSelectors.getUserHandle
+const { getUserHandle } = accountSelectors
+const { setLockedContentId } = premiumContentActions
 
 type OwnProps = {
   uid: UID
@@ -73,318 +79,361 @@ type OwnProps = {
   hasLoaded: (index: number) => void
   isTrending: boolean
   showRankIcon: boolean
+  isFeed: boolean
 }
 
 type ConnectedTrackTileProps = OwnProps &
   ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>
 
-const ConnectedTrackTile = memo(
-  ({
-    uid,
-    index,
-    size,
-    track,
-    user,
-    ordered,
-    showArtistPick,
-    goToRoute,
-    togglePlay,
-    isBuffering,
-    isPlaying,
-    playingUid,
-    isLoading,
-    hasLoaded,
-    containerClassName,
-    setRepostUsers,
-    setFavoriteUsers,
-    setModalVisibility,
-    userHandle,
-    saveTrack,
-    unsaveTrack,
-    repostTrack,
-    undoRepostTrack,
-    shareTrack,
-    isTrending,
-    showRankIcon
-  }: ConnectedTrackTileProps) => {
-    const {
-      is_delete,
-      is_unlisted: isUnlisted,
-      track_id: trackId,
-      title,
-      permalink,
-      repost_count,
-      save_count,
-      field_visibility: fieldVisibility,
-      followee_reposts,
-      followee_saves,
-      _co_sign: coSign,
-      has_current_user_reposted: isReposted,
-      has_current_user_saved: isFavorited,
-      _cover_art_sizes,
-      play_count,
-      duration
-    } = getTrackWithFallback(track)
+const ConnectedTrackTile = ({
+  uid,
+  index,
+  size,
+  track,
+  user,
+  ordered,
+  showArtistPick,
+  goToRoute,
+  togglePlay,
+  isBuffering,
+  isPlaying,
+  playingUid,
+  isLoading,
+  hasLoaded,
+  containerClassName,
+  setRepostUsers,
+  setFavoriteUsers,
+  setModalVisibility,
+  userHandle,
+  saveTrack,
+  unsaveTrack,
+  repostTrack,
+  undoRepostTrack,
+  shareTrack,
+  isTrending,
+  isFeed = false,
+  showRankIcon
+}: ConnectedTrackTileProps) => {
+  const trackWithFallback = getTrackWithFallback(track)
+  const {
+    is_delete,
+    is_unlisted: isUnlisted,
+    is_premium: isPremium,
+    premium_conditions: premiumConditions,
+    track_id: trackId,
+    title,
+    genre,
+    permalink,
+    repost_count,
+    save_count,
+    field_visibility: fieldVisibility,
+    followee_reposts,
+    followee_saves,
+    _co_sign: coSign,
+    has_current_user_reposted: isReposted,
+    has_current_user_saved: isFavorited,
+    _cover_art_sizes,
+    play_count,
+    duration
+  } = trackWithFallback
 
-    const {
-      _artist_pick,
-      name,
+  const {
+    artist_pick_track_id,
+    name,
+    handle,
+    is_deactivated: isOwnerDeactivated
+  } = getUserWithFallback(user)
+
+  const isActive = uid === playingUid
+  const isTrackBuffering = isActive && isBuffering
+  const isTrackPlaying = isActive && isPlaying
+  const isOwner = handle === userHandle
+  const isArtistPick = showArtistPick && artist_pick_track_id === trackId
+
+  const { isUserAccessTBD, doesUserHaveAccess } =
+    usePremiumContentAccess(trackWithFallback)
+  const loading = isLoading || isUserAccessTBD
+
+  const dispatch = useDispatch()
+  const [, setLockedContentVisibility] = useModalState('LockedContent')
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  const onClickStatRepost = () => {
+    setRepostUsers(trackId)
+    setModalVisibility()
+  }
+
+  const onClickStatFavorite = () => {
+    setFavoriteUsers(trackId)
+    setModalVisibility()
+  }
+
+  const [artworkLoaded, setArtworkLoaded] = useState(false)
+  useEffect(() => {
+    if (artworkLoaded && !loading && hasLoaded) {
+      hasLoaded(index)
+    }
+  }, [artworkLoaded, hasLoaded, index, loading])
+
+  const renderImage = () => {
+    const artworkProps = {
+      id: trackId,
+      coverArtSizes: _cover_art_sizes,
+      coSign: coSign || undefined,
+      size: 'large',
+      isBuffering: isTrackBuffering,
+      isPlaying: isTrackPlaying,
+      artworkIconClassName: styles.artworkIcon,
+      showArtworkIcon: !loading,
+      showSkeleton: loading,
+      callback: () => setArtworkLoaded(true),
+      label: `${title} by ${name}`,
+      doesUserHaveAccess
+    }
+    return <TrackArtwork {...artworkProps} />
+  }
+
+  const renderOverflowMenu = () => {
+    const menu: Omit<TrackMenuProps, 'children'> = {
+      extraMenuItems: [],
       handle,
-      is_deactivated: isOwnerDeactivated
-    } = getUserWithFallback(user)
-
-    const isActive = uid === playingUid
-    const isTrackBuffering = isActive && isBuffering
-    const isTrackPlaying = isActive && isPlaying
-    const isOwner = handle === userHandle
-    const isArtistPick = showArtistPick && _artist_pick === trackId
-
-    const menuRef = useRef<HTMLDivElement>(null)
-
-    const onClickStatRepost = () => {
-      setRepostUsers(trackId)
-      setModalVisibility()
+      includeAddToPlaylist: !isPremium,
+      includeArtistPick: handle === userHandle && !isUnlisted,
+      includeEdit: handle === userHandle,
+      includeEmbed: !isPremium,
+      includeFavorite: false,
+      includeRepost: false,
+      includeShare: false,
+      includeTrackPage: true,
+      isArtistPick,
+      isDeleted: is_delete || isOwnerDeactivated,
+      isFavorited,
+      isOwner,
+      isReposted,
+      trackId,
+      trackTitle: title,
+      genre: genre as Genre,
+      trackPermalink: permalink,
+      type: 'track'
     }
-
-    const onClickStatFavorite = () => {
-      setFavoriteUsers(trackId)
-      setModalVisibility()
-    }
-
-    const [artworkLoaded, setArtworkLoaded] = useState(false)
-    useEffect(() => {
-      if (artworkLoaded && !isLoading && hasLoaded) {
-        hasLoaded(index)
-      }
-    }, [artworkLoaded, hasLoaded, index, isLoading])
-
-    const renderImage = () => {
-      const artworkProps = {
-        id: trackId,
-        coverArtSizes: _cover_art_sizes,
-        coSign: coSign || undefined,
-        size: 'large',
-        isBuffering: isTrackBuffering,
-        isPlaying: isTrackPlaying,
-        artworkIconClassName: styles.artworkIcon,
-        showArtworkIcon: !isLoading,
-        showSkeleton: isLoading,
-        callback: () => setArtworkLoaded(true),
-        label: `${title} by ${name}`
-      }
-      return <TrackArtwork {...artworkProps} />
-    }
-
-    const renderOverflowMenu = () => {
-      const menu: Omit<TrackMenuProps, 'children'> = {
-        extraMenuItems: [],
-        handle,
-        includeAddToPlaylist: true,
-        includeArtistPick: handle === userHandle && !isUnlisted,
-        includeEdit: handle === userHandle,
-        includeEmbed: true,
-        includeFavorite: false,
-        includeRepost: false,
-        includeShare: false,
-        includeTrackPage: true,
-        isArtistPick,
-        isDeleted: is_delete || isOwnerDeactivated,
-        isFavorited,
-        isOwner,
-        isReposted,
-        trackId,
-        trackTitle: title,
-        trackPermalink: permalink,
-        type: 'track'
-      }
-
-      return (
-        <Menu menu={menu}>
-          {(ref, triggerPopup) => (
-            <div className={styles.menuContainer} ref={menuRef}>
-              <div
-                className={cn(styles.menuKebabContainer, {
-                  [styles.small]: size === TrackTileSize.SMALL,
-                  [styles.large]: size === TrackTileSize.LARGE
-                })}
-                onClick={triggerPopup}
-              >
-                <IconKebabHorizontal
-                  className={cn(styles.iconKebabHorizontal)}
-                  ref={ref}
-                />
-              </div>
-            </div>
-          )}
-        </Menu>
-      )
-    }
-
-    const onClickArtistName = useCallback(
-      (e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        if (goToRoute) goToRoute(profilePage(handle))
-      },
-      [handle, goToRoute]
-    )
-
-    const onClickTitle = useCallback(
-      (e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        if (goToRoute) goToRoute(permalink)
-      },
-      [goToRoute, permalink]
-    )
-
-    const renderUserName = () => {
-      return (
-        <div className={styles.userName}>
-          <ArtistPopover handle={handle}>
-            <a
-              className={cn(styles.name, {
-                [styles.artistNameLink]: onClickArtistName
-              })}
-              onClick={onClickArtistName}
-              href={profilePage(handle)}
-            >
-              {name}
-            </a>
-          </ArtistPopover>
-          <UserBadges
-            userId={user?.user_id ?? 0}
-            badgeSize={14}
-            className={styles.badgeWrapper}
-          />
-        </div>
-      )
-    }
-
-    const renderStats = () => {
-      const contentTitle = 'track' // undefined,  playlist or album -  undefined is track
-      const statSize = 'large'
-      return (
-        <div className={cn(styles.socialInfo)}>
-          <Stats
-            hideImage={size === TrackTileSize.SMALL}
-            count={repost_count}
-            followeeActions={followee_reposts}
-            contentTitle={contentTitle}
-            size={statSize}
-            onClick={onClickStatRepost}
-            flavor={Flavor.REPOST}
-          />
-          <Stats
-            count={save_count}
-            followeeActions={followee_saves}
-            contentTitle={contentTitle}
-            size={statSize}
-            onClick={onClickStatFavorite}
-            flavor={Flavor.FAVORITE}
-          />
-        </div>
-      )
-    }
-
-    const onClickFavorite = useCallback(() => {
-      if (isFavorited) {
-        unsaveTrack(trackId)
-      } else {
-        saveTrack(trackId)
-      }
-    }, [saveTrack, unsaveTrack, trackId, isFavorited])
-
-    const onClickRepost = useCallback(() => {
-      if (isReposted) {
-        undoRepostTrack(trackId)
-      } else {
-        repostTrack(trackId)
-      }
-    }, [repostTrack, undoRepostTrack, trackId, isReposted])
-
-    const onClickShare = useCallback(() => {
-      shareTrack(trackId)
-    }, [shareTrack, trackId])
-
-    const onTogglePlay = useCallback(
-      (e?: MouseEvent /* click event within TrackTile */) => {
-        // Skip toggle play if click event happened within track menu container
-        // because clicking on it should not affect corresponding track.
-        // We have to do this instead of stopping the event propagation
-        // because we need it to bubble up to the document to allow
-        // the document click listener to close other track/playlist tile menus
-        // that are already open.
-        const shouldSkipTogglePlay = isDescendantElementOf(
-          e?.target,
-          menuRef.current
-        )
-        if (shouldSkipTogglePlay) return
-        togglePlay(uid, trackId)
-      },
-      [togglePlay, uid, trackId]
-    )
-
-    if (is_delete || user?.is_deactivated) return null
-
-    const order = ordered && index !== undefined ? index + 1 : undefined
-    const artwork = renderImage()
-    const stats = renderStats()
-    const rightActions = renderOverflowMenu()
-    const userName = renderUserName()
-
-    const disableActions = false
-    const showSkeleton = isLoading
 
     return (
-      <Draggable
-        text={title}
-        kind='track'
-        id={trackId}
-        isOwner={isOwner}
-        isDisabled={disableActions || showSkeleton}
-        link={fullTrackPage(permalink)}
-      >
-        <TrackTile
-          size={size}
-          order={order}
-          standalone
-          isFavorited={isFavorited}
-          isReposted={isReposted}
-          isOwner={isOwner}
-          isUnlisted={isUnlisted}
-          isLoading={isLoading}
-          isDarkMode={isDarkMode()}
-          isMatrixMode={isMatrix()}
-          listenCount={play_count}
-          isActive={isActive}
-          isArtistPick={isArtistPick}
-          artwork={artwork}
-          rightActions={rightActions}
-          title={title}
-          userName={userName}
-          duration={duration}
-          stats={stats}
-          fieldVisibility={fieldVisibility}
-          containerClassName={cn(styles.container, {
-            [containerClassName!]: !!containerClassName,
-            [styles.loading]: isLoading,
-            [styles.active]: isActive
-          })}
-          onClickTitle={onClickTitle}
-          onClickRepost={onClickRepost}
-          onClickFavorite={onClickFavorite}
-          onClickShare={onClickShare}
-          onTogglePlay={onTogglePlay}
-          isTrending={isTrending}
-          showRankIcon={showRankIcon}
-          permalink={permalink}
-        />
-      </Draggable>
+      <Menu menu={menu}>
+        {(ref, triggerPopup) => (
+          <div className={styles.menuContainer} ref={menuRef}>
+            <div
+              className={cn(styles.menuKebabContainer, {
+                [styles.small]: size === TrackTileSize.SMALL,
+                [styles.large]: size === TrackTileSize.LARGE
+              })}
+              onClick={triggerPopup}
+            >
+              <IconKebabHorizontal
+                className={cn(styles.iconKebabHorizontal)}
+                ref={ref}
+              />
+            </div>
+          </div>
+        )}
+      </Menu>
     )
   }
-)
+
+  const onClickArtistName: MouseEventHandler = useCallback(
+    (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      if (goToRoute) goToRoute(profilePage(handle))
+    },
+    [handle, goToRoute]
+  )
+
+  const onClickTitle: MouseEventHandler = useCallback(
+    (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      if (goToRoute) goToRoute(permalink)
+    },
+    [goToRoute, permalink]
+  )
+
+  const renderUserName = () => {
+    return (
+      <div className={styles.userName}>
+        <ArtistPopover handle={handle}>
+          <a
+            className={cn(styles.name, {
+              [styles.artistNameLink]: onClickArtistName
+            })}
+            onClick={onClickArtistName}
+            href={profilePage(handle)}
+          >
+            {name}
+          </a>
+        </ArtistPopover>
+        <UserBadges
+          userId={user?.user_id ?? 0}
+          badgeSize={14}
+          className={styles.badgeWrapper}
+        />
+      </div>
+    )
+  }
+
+  const renderStats = () => {
+    const contentTitle = 'track' // undefined,  playlist or album -  undefined is track
+    const statSize = 'large'
+    return (
+      <div className={cn(styles.socialInfo)}>
+        <Stats
+          hideImage={size === TrackTileSize.SMALL}
+          count={repost_count}
+          followeeActions={followee_reposts}
+          contentTitle={contentTitle}
+          size={statSize}
+          onClick={onClickStatRepost}
+          flavor={Flavor.REPOST}
+        />
+        <Stats
+          count={save_count}
+          followeeActions={followee_saves}
+          contentTitle={contentTitle}
+          size={statSize}
+          onClick={onClickStatFavorite}
+          flavor={Flavor.FAVORITE}
+        />
+      </div>
+    )
+  }
+
+  const onClickFavorite = useCallback(() => {
+    if (isFavorited) {
+      unsaveTrack(trackId)
+    } else {
+      saveTrack(trackId, isFeed)
+    }
+  }, [isFavorited, unsaveTrack, trackId, saveTrack, isFeed])
+
+  const onClickRepost = useCallback(() => {
+    if (isReposted) {
+      undoRepostTrack(trackId)
+    } else {
+      repostTrack(trackId, isFeed)
+    }
+  }, [repostTrack, undoRepostTrack, trackId, isReposted, isFeed])
+
+  const onClickShare = useCallback(() => {
+    shareTrack(trackId)
+  }, [shareTrack, trackId])
+
+  const onTogglePlay = useCallback(
+    (e?: MouseEvent /* click event within TrackTile */) => {
+      // Skip toggle play if click event happened within track menu container
+      // because clicking on it should not affect corresponding track.
+      // We have to do this instead of stopping the event propagation
+      // because we need it to bubble up to the document to allow
+      // the document click listener to close other track/playlist tile menus
+      // that are already open.
+      const shouldSkipTogglePlay = isDescendantElementOf(
+        e?.target,
+        menuRef.current
+      )
+      if (shouldSkipTogglePlay) return
+
+      // Show the locked content modal if gated track and user does not have access.
+      // Also skip toggle play in this case.
+      if (trackId && !doesUserHaveAccess) {
+        dispatch(setLockedContentId({ id: trackId }))
+        setLockedContentVisibility(true)
+        return
+      }
+
+      togglePlay(uid, trackId)
+    },
+    [
+      togglePlay,
+      uid,
+      trackId,
+      doesUserHaveAccess,
+      dispatch,
+      setLockedContentVisibility
+    ]
+  )
+
+  if (is_delete || user?.is_deactivated) return null
+
+  const order = ordered && index !== undefined ? index + 1 : undefined
+  const artwork = renderImage()
+  const stats = renderStats()
+  const rightActions = renderOverflowMenu()
+  const userName = renderUserName()
+
+  const disableActions = false
+  const showSkeleton = loading
+
+  const renderTrackTile = () => (
+    <TrackTile
+      size={size}
+      order={order}
+      standalone
+      isFavorited={isFavorited}
+      isReposted={isReposted}
+      isOwner={isOwner}
+      isUnlisted={isUnlisted}
+      isPremium={isPremium}
+      premiumConditions={premiumConditions}
+      doesUserHaveAccess={doesUserHaveAccess}
+      isLoading={loading}
+      isDarkMode={isDarkMode()}
+      isMatrixMode={isMatrix()}
+      listenCount={play_count}
+      isActive={isActive}
+      isArtistPick={isArtistPick}
+      isPlaying={isTrackPlaying}
+      artwork={artwork}
+      rightActions={rightActions}
+      title={title}
+      genre={genre as Genre}
+      userName={userName}
+      duration={duration}
+      stats={stats}
+      fieldVisibility={fieldVisibility}
+      containerClassName={cn(styles.container, {
+        [containerClassName!]: !!containerClassName,
+        [styles.loading]: loading,
+        [styles.active]: isActive
+      })}
+      onClickTitle={onClickTitle}
+      onClickRepost={onClickRepost}
+      onClickFavorite={onClickFavorite}
+      onClickShare={onClickShare}
+      onTogglePlay={onTogglePlay}
+      isTrending={isTrending}
+      showRankIcon={showRankIcon}
+      permalink={permalink}
+      trackId={trackId}
+      isTrack
+    />
+  )
+
+  if (isPremium) {
+    return renderTrackTile()
+  }
+
+  return (
+    <Draggable
+      text={title}
+      kind='track'
+      id={trackId}
+      isOwner={isOwner}
+      isDisabled={disableActions || showSkeleton}
+      link={fullTrackPage(permalink)}
+    >
+      {renderTrackTile()}
+    </Draggable>
+  )
+}
 
 function mapStateToProps(state: AppState, ownProps: OwnProps) {
   return {
@@ -408,12 +457,12 @@ function mapDispatchToProps(dispatch: Dispatch) {
           source: ShareSource.TILE
         })
       ),
-    repostTrack: (trackId: ID) =>
-      dispatch(repostTrack(trackId, RepostSource.TILE)),
+    repostTrack: (trackId: ID, isFeed: boolean) =>
+      dispatch(repostTrack(trackId, RepostSource.TILE, isFeed)),
     undoRepostTrack: (trackId: ID) =>
       dispatch(undoRepostTrack(trackId, RepostSource.TILE)),
-    saveTrack: (trackId: ID) =>
-      dispatch(saveTrack(trackId, FavoriteSource.TILE)),
+    saveTrack: (trackId: ID, isFeed: boolean) =>
+      dispatch(saveTrack(trackId, FavoriteSource.TILE, isFeed)),
     unsaveTrack: (trackId: ID) =>
       dispatch(unsaveTrack(trackId, FavoriteSource.TILE)),
 
@@ -437,4 +486,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ConnectedTrackTile)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(memo(ConnectedTrackTile))

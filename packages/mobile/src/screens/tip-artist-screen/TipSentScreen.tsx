@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 
+import type { SolanaWalletAddress } from '@audius/common'
 import {
   formatNumberCommas,
   accountSelectors,
@@ -13,7 +14,6 @@ import IconCheck from 'app/assets/images/iconCheck.svg'
 import IconRemove from 'app/assets/images/iconRemove.svg'
 import { TextButton } from 'app/components/core'
 import { TwitterButton } from 'app/components/twitter-button'
-import { make } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 import { EventNames } from 'app/types/analytics'
 
@@ -97,16 +97,17 @@ export const TipSentScreen = () => {
         shareText={getTwitterShareText()}
         analytics={
           account && recipient
-            ? make({
+            ? {
                 eventName: EventNames.TIP_AUDIO_TWITTER_SHARE,
-                senderWallet: account.spl_wallet,
-                recipientWallet: recipient.spl_wallet,
+                senderWallet: account.spl_wallet ?? ('' as SolanaWalletAddress),
+                recipientWallet:
+                  recipient.spl_wallet ?? ('' as SolanaWalletAddress),
                 senderHandle: account.handle,
                 recipientHandle: recipient.handle,
                 amount: sendAmount,
                 device: 'native',
                 source
-              })
+              }
             : undefined
         }
       />

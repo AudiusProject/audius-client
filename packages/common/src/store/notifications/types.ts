@@ -1,3 +1,5 @@
+import { EntityState, PayloadAction } from '@reduxjs/toolkit'
+
 import { Nullable } from 'utils'
 
 import {
@@ -11,38 +13,21 @@ import {
   StringWei
 } from '../../models'
 
-import {
-  fetchNotifications,
-  fetchNotificationsRequested,
-  fetchNotificationsFailed,
-  fetchNotificationSucceeded,
-  refreshNotifications,
-  setNotifications,
-  setNotificationUsers,
-  fetchNotificationUsers,
-  fetchNotificationUsersRequested,
-  fetchNotificationUsersFailed,
-  fetchNotificationUsersSucceeded,
-  setTotalUnviewedToZero,
-  markAllAsViewed,
-  setNotificationModal,
-  toggleNotificationPanel,
-  subscribeUser,
-  unsubscribeUser,
-  setPlaylistUpdates,
-  updatePlaylistLastViewedAt
-} from './actions'
-
 export enum NotificationType {
   Announcement = 'Announcement',
   UserSubscription = 'UserSubscription',
   Follow = 'Follow',
   Favorite = 'Favorite',
   Repost = 'Repost',
+  RepostOfRepost = 'RepostOfRepost',
+  FavoriteOfRepost = 'FavoriteOfRepost',
   Milestone = 'Milestone',
   RemixCreate = 'RemixCreate',
   RemixCosign = 'RemixCosign',
+  Tastemaker = 'Tastemaker',
   TrendingTrack = 'TrendingTrack',
+  TrendingPlaylist = 'TrendingPlaylist',
+  TrendingUnderground = 'TrendingUnderground',
   ChallengeReward = 'ChallengeReward',
   TierChange = 'TierChange',
   Reaction = 'Reaction',
@@ -52,6 +37,45 @@ export enum NotificationType {
   SupportingRankUp = 'SupportingRankUp',
   AddTrackToPlaylist = 'AddTrackToPlaylist',
   SupporterDethroned = 'SupporterDethroned'
+}
+
+export enum PushNotificationType {
+  Follow = 'Follow',
+  FavoriteTrack = 'FavoriteTrack',
+  FavoritePlaylist = 'FavoritePlaylist',
+  FavoriteAlbum = 'FavoriteAlbum',
+  RepostTrack = 'RepostTrack',
+  RepostPlaylist = 'RepostPlaylist',
+  RepostAlbum = 'RepostAlbum',
+  RepostOfRepostTrack = 'RepostOfRepostTrack',
+  RepostOfRepostPlaylist = 'RepostOfRepostPlaylist',
+  RepostOfRepostAlbum = 'RepostOfRepostAlbum',
+  FavoriteOfRepostTrack = 'FavoriteOfRepostTrack',
+  FavoriteOfRepostPlaylist = 'FavoriteOfRepostPlaylist',
+  FavoriteOfRepostAlbum = 'FavoriteOfRepostAlbum',
+  MilestoneListen = 'MilestoneListen',
+  MilestoneRepost = 'MilestoneRepost',
+  MilestoneFavorite = 'MilestoneFavorite',
+  MilestoneFollow = 'MilestoneFollow',
+  CreateTrack = 'CreateTrack',
+  CreatePlaylist = 'CreatePlaylist',
+  CreateAlbum = 'CreateAlbum',
+  Announcement = 'Announcement',
+  RemixCreate = 'RemixCreate',
+  RemixCosign = 'RemixCosign',
+  TrendingTrack = 'TrendingTrack',
+  ChallengeReward = 'ChallengeReward',
+  Tastemaker = 'Tastemaker',
+  TierChange = 'TierChange',
+  PlaylistUpdate = 'PlaylistUpdate',
+  Tip = 'Tip',
+  TipReceive = 'TipReceive',
+  TipSend = 'TipSend',
+  Reaction = 'Reaction',
+  SupporterRankUp = 'SupporterRankUp',
+  SupportingRankUp = 'SupportingRankUp',
+  SupporterDethroned = 'SupporterDethroned',
+  AddTrackToPlaylist = 'AddTrackToPlaylist'
 }
 
 export enum Entity {
@@ -70,9 +94,280 @@ export type EntityType = TrackEntity | CollectionEntity
 export type BaseNotification = {
   id: string
   isViewed: boolean
-  timestamp: string
+  timestamp: number
   timeLabel?: string
+  // group id is a part of the notifications v2 spec
+  groupId?: string
 }
+
+export type DiscoveryBaseNotification<T, P> = {
+  type: T
+  group_id: string
+  seen_at: number | null
+  actions: DiscoveryAction<P>[]
+}
+
+export type DiscoveryAction<T> = {
+  specifier: string
+  type: string
+  timestamp: number
+  data: T
+}
+
+export type DiscoveryAnnouncementNotificationAction = {
+  title: string
+  short_description: string
+  long_description?: string
+}
+export type DiscoveryFollowNotificationAction = {
+  follower_user_id: string
+  followee_user_id: string
+}
+export type DiscoverySaveNotificationAction = {
+  type: string
+  user_id: string
+  save_item_id: string
+}
+export type DiscoverySaveOfRepostNotificationAction = {
+  type: string
+  user_id: string
+  save_of_repost_item_id: string
+}
+export type DiscoveryRepostNotificationAction = {
+  type: string
+  user_id: string
+  repost_item_id: string
+}
+export type DiscoveryRepostOfRepostNotificationAction = {
+  type: string
+  user_id: string
+  repost_of_repost_item_id: string
+}
+export type DiscoveryTastemakerNotificationAction = {
+  tastemaker_user_id: string
+  tastemaker_item_id: string
+  action: string
+  tastemaker_item_owner_id: string
+}
+export type DiscoveryTipSendNotificationAction = {
+  amount: string
+  sender_user_id: string
+  receiver_user_id: string
+  tip_tx_signature: string
+}
+export type DiscoveryTipReceiveNotificationAction = {
+  amount: string
+  sender_user_id: string
+  receiver_user_id: string
+  tip_tx_signature: string
+  reaction_value: number
+}
+
+export type DiscoveryMilestoneFollowNotificationAction = {
+  type: 'follow_count'
+  threshold: number
+  user_id: string
+}
+export type DiscoveryMilestoneTrackNotificationAction = {
+  type: 'track_repost_count' | 'track_save_count' | 'track_listen_count'
+  threshold: number
+  track_id: string
+}
+export type DiscoveryMilestonePlaylistNotificationAction = {
+  type: 'playlist_repost_count' | 'playlist_save_count'
+  threshold: number
+  playlist_id: string
+}
+export type DiscoveryRemixNotificationAction = {
+  parent_track_id: string
+  track_id: string
+  track_owner_id: string
+}
+export type DiscoveryCosignNotificationAction = {
+  parent_track_id: string
+  parent_track_owner_id: string
+  track_id: string
+  track_owner_id: string
+}
+export type DiscoverySupporterRankUpNotificationAction = {
+  rank: number
+  sender_user_id: string
+  receiver_user_id: string
+}
+export type DiscoverySupportingRankUpNotificationAction = {
+  rank: number
+  sender_user_id: string
+  receiver_user_id: string
+}
+
+export type DiscoverySupporterDethronedNotificationAction = {
+  sender_user_id: string
+  receiver_user_id: string
+  dethroned_user_id: string
+}
+
+export type DiscoveryReactionNotificationAction = {
+  reacted_to: string
+  reaction_type: 'tip'
+  sender_wallet: string
+  reaction_value: number
+  receiver_user_id: string
+  sender_user_id: string
+  tip_amount: string
+}
+
+export type DiscoveryChallengeRewardNotificationAction = {
+  amount: string
+  specifier: string
+  challenge_id: string
+}
+export type DiscoveryTierChangeNotificationAction = {
+  new_tier: string
+  new_tier_value: number
+  current_value: string
+}
+
+export type DiscoveryCreateTrackNotificationAction = {
+  track_id: string
+}
+export type DiscoveryCreatePlaylistNotificationAction = {
+  is_album: boolean
+  playlist_id: string[]
+}
+
+export type TrendingRange = 'week' | 'month' | 'year'
+
+export type DiscoveryTrendingNotificationAction = {
+  rank: number
+  genre: string
+  track_id: string
+  time_range: TrendingRange
+}
+
+export type DiscoveryAnnouncementNotification = DiscoveryBaseNotification<
+  'announcement',
+  DiscoveryAnnouncementNotificationAction
+>
+export type DiscoveryFollowNotification = DiscoveryBaseNotification<
+  'follow',
+  DiscoveryFollowNotificationAction
+>
+export type DiscoverySaveNotification = DiscoveryBaseNotification<
+  'save',
+  DiscoverySaveNotificationAction
+>
+export type DiscoveryRepostNotification = DiscoveryBaseNotification<
+  'repost',
+  DiscoveryRepostNotificationAction
+>
+export type DiscoveryTastemakerNotification = DiscoveryBaseNotification<
+  'tastemaker',
+  DiscoveryTastemakerNotificationAction
+>
+export type DiscoveryTipSendNotification = DiscoveryBaseNotification<
+  'tip_send',
+  DiscoveryTipSendNotificationAction
+>
+export type DiscoveryTipReceiveNotification = DiscoveryBaseNotification<
+  'tip_receive',
+  DiscoveryTipReceiveNotificationAction
+>
+
+export type DiscoveryRemixNotification = DiscoveryBaseNotification<
+  'remix',
+  DiscoveryRemixNotificationAction
+>
+export type DiscoveryCosignNotification = DiscoveryBaseNotification<
+  'cosign',
+  DiscoveryCosignNotificationAction
+>
+export type DiscoverySupporterRankUpNotification = DiscoveryBaseNotification<
+  'supporter_rank_up',
+  DiscoverySupporterRankUpNotificationAction
+>
+export type DiscoverySupportingRankUpNotification = DiscoveryBaseNotification<
+  'supporting_rank_up',
+  DiscoverySupportingRankUpNotificationAction
+>
+export type DiscoverySupporterDethronedNotification = DiscoveryBaseNotification<
+  'supporter_dethroned',
+  DiscoverySupporterDethronedNotificationAction
+>
+export type DiscoveryReactionNotification = DiscoveryBaseNotification<
+  'reaction',
+  DiscoveryReactionNotificationAction
+>
+export type DiscoveryChallengeRewardNotification = DiscoveryBaseNotification<
+  'challenge_reward',
+  DiscoveryChallengeRewardNotificationAction
+>
+export type DiscoveryTierChangeNotification = DiscoveryBaseNotification<
+  'tier_change',
+  DiscoveryTierChangeNotificationAction
+>
+export type DiscoveryCreateNotification = DiscoveryBaseNotification<
+  'create',
+  | DiscoveryCreateTrackNotificationAction
+  | DiscoveryCreatePlaylistNotificationAction
+>
+export type DiscoveryTrendingPlaylistNotification = DiscoveryBaseNotification<
+  'trending_playlist',
+  {
+    rank: number
+    genre: string
+    playlist_id: string
+    time_range: TrendingRange
+  }
+>
+export type DiscoveryTrendingNotification = DiscoveryBaseNotification<
+  'trending',
+  DiscoveryTrendingNotificationAction
+>
+export type DiscoveryTrendingUndergroundNotification =
+  DiscoveryBaseNotification<
+    'trending_underground',
+    DiscoveryTrendingNotificationAction
+  >
+export type DiscoveryMilestoneNotification = DiscoveryBaseNotification<
+  'milestone',
+  | DiscoveryMilestoneFollowNotificationAction
+  | DiscoveryMilestoneTrackNotificationAction
+  | DiscoveryMilestonePlaylistNotificationAction
+>
+
+export type DiscoveryRepostOfRepostNotification = DiscoveryBaseNotification<
+  'repost_of_repost',
+  DiscoveryRepostOfRepostNotificationAction
+>
+
+export type DiscoverySaveOfRepostNotification = DiscoveryBaseNotification<
+  'save_of_repost',
+  DiscoverySaveOfRepostNotificationAction
+>
+
+export type DiscoveryNotification =
+  | DiscoveryAnnouncementNotification
+  | DiscoveryFollowNotification
+  | DiscoverySaveNotification
+  | DiscoveryRepostNotification
+  | DiscoveryTipSendNotification
+  | DiscoveryTipReceiveNotification
+  | DiscoveryRemixNotification
+  | DiscoveryCosignNotification
+  | DiscoveryMilestoneNotification
+  | DiscoverySupporterRankUpNotification
+  | DiscoverySupportingRankUpNotification
+  | DiscoverySupporterDethronedNotification
+  | DiscoveryReactionNotification
+  | DiscoveryChallengeRewardNotification
+  | DiscoveryTierChangeNotification
+  | DiscoveryCreateNotification
+  | DiscoveryTrendingPlaylistNotification
+  | DiscoveryTrendingNotification
+  | DiscoveryTrendingUndergroundNotification
+  | DiscoveryRepostOfRepostNotification
+  | DiscoverySaveOfRepostNotification
+  | DiscoveryTastemakerNotification
 
 export type AnnouncementNotification = BaseNotification & {
   type: NotificationType.Announcement
@@ -85,18 +380,30 @@ export type UserSubscriptionNotification = BaseNotification & {
   type: NotificationType.UserSubscription
   userId: ID
   entityIds: ID[]
-} & (
-    | {
-        entityType: Entity.Track
-      }
-    | {
-        entityType: Entity.Playlist | Entity.Album
-      }
-  )
+  entityType: Entity
+}
 
 export type FollowNotification = BaseNotification & {
   type: NotificationType.Follow
   userIds: ID[]
+}
+
+export type FollowPushNotification = {
+  type: PushNotificationType.Follow
+  actions: [
+    {
+      blocknumber: number
+      actionEntityId: ID
+      actionEntityType: Entity.User
+    }
+  ]
+  initiator: ID
+  blocknumber: ID
+  timestamp: string
+  metadata: {
+    followee_user_id: ID
+    follower_user_id: ID
+  }
 }
 
 export type RepostNotification = BaseNotification & {
@@ -106,11 +413,117 @@ export type RepostNotification = BaseNotification & {
   entityType: Entity.Playlist | Entity.Album | Entity.Track
 }
 
+export type RepostPushNotification = {
+  blocknumber: number
+  entityId: ID
+  initiator: ID
+  timestamp: string
+  type:
+    | PushNotificationType.RepostAlbum
+    | PushNotificationType.RepostPlaylist
+    | PushNotificationType.RepostTrack
+  actions: [
+    {
+      blocknumber: number
+      actionEntityId: ID
+      actionEntityType: Entity.User
+    }
+  ]
+  metadata: {
+    entity_owner_id: ID
+    entity_type: Entity.Album | Entity.Playlist | Entity.Track
+    entity_id: ID
+  }
+}
+
+export type RepostOfRepostNotification = BaseNotification & {
+  type: NotificationType.RepostOfRepost
+  entityId: ID
+  userIds: ID[]
+  entityType: Entity.Playlist | Entity.Album | Entity.Track
+}
+
+export type RepostOfRepostPushNotification = {
+  blocknumber: number
+  entityId: ID
+  initiator: ID
+  timestamp: string
+  type:
+    | PushNotificationType.RepostOfRepostAlbum
+    | PushNotificationType.RepostOfRepostPlaylist
+    | PushNotificationType.RepostOfRepostTrack
+  actions: [
+    {
+      blocknumber: number
+      actionEntityId: ID
+      actionEntityType: Entity.User
+    }
+  ]
+  metadata: {
+    entity_owner_id: ID
+    entity_type: Entity.Album | Entity.Playlist | Entity.Track
+    entity_id: ID
+  }
+}
+
+export type FavoriteOfRepostNotification = BaseNotification & {
+  type: NotificationType.FavoriteOfRepost
+  entityId: ID
+  userIds: ID[]
+  entityType: Entity.Playlist | Entity.Album | Entity.Track
+}
+
+export type FavoriteOfRepostPushNotification = {
+  blocknumber: number
+  entityId: ID
+  initiator: ID
+  timestamp: string
+  type:
+    | PushNotificationType.FavoriteOfRepostAlbum
+    | PushNotificationType.FavoriteOfRepostPlaylist
+    | PushNotificationType.FavoriteOfRepostTrack
+  actions: [
+    {
+      blocknumber: number
+      actionEntityId: ID
+      actionEntityType: Entity.User
+    }
+  ]
+  metadata: {
+    entity_owner_id: ID
+    entity_type: Entity.Album | Entity.Playlist | Entity.Track
+    entity_id: ID
+  }
+}
+
 export type FavoriteNotification = BaseNotification & {
   type: NotificationType.Favorite
   entityId: ID
   userIds: ID[]
   entityType: Entity.Playlist | Entity.Album | Entity.Track
+}
+
+export type FavoritePushNotification = {
+  blocknumber: number
+  entityId: ID
+  initiator: ID
+  timestamp: string
+  type:
+    | PushNotificationType.FavoriteAlbum
+    | PushNotificationType.FavoritePlaylist
+    | PushNotificationType.FavoriteTrack
+  actions: [
+    {
+      blocknumber: number
+      actionEntityId: ID
+      actionEntityType: Entity.User
+    }
+  ]
+  metadata: {
+    entity_owner_id: ID
+    entity_type: Entity.Album | Entity.Playlist | Entity.Track
+    entity_id: ID
+  }
 }
 
 export enum Achievement {
@@ -138,13 +551,101 @@ export type MilestoneNotification = BaseNotification &
       }
   )
 
+export type MilestoneFollowPushNotification = {
+  // TODO: Not the full structure. Need to verify the fields that come back from identity
+  initiator: ID
+  slot: number
+  type: PushNotificationType.MilestoneFollow
+}
+
+export type MilestoneListenPushNotification = {
+  actions: [
+    {
+      // NOTE: This is actually the milestone value, not the id
+      actionEntityId: number
+      actionEntityType: Entity.Track | Entity.Album | Entity.Playlist
+    }
+  ]
+  initiator: ID
+  entityId: ID
+  slot: number
+  type: PushNotificationType.MilestoneListen
+  metadata: {
+    threshold: number
+    entity_type: Entity
+    entity_id: ID
+  }
+}
+
+export type MilestoneRepostPushNotification = {
+  actions: [
+    {
+      // NOTE: This is actually the milestone value, not the id
+      actionEntityId: number
+      actionEntityType: Entity.Track | Entity.Album | Entity.Playlist
+    }
+  ]
+  initiator: ID
+  entityId: ID
+  slot: number
+  type: PushNotificationType.MilestoneRepost
+  metadata: {
+    threshold: number
+    entity_type: Entity
+    entity_id: ID
+  }
+}
+
+export type MilestoneFavoritePushNotification = {
+  actions: [
+    {
+      // NOTE: This is actually the milestone value, not the id
+      actionEntityId: number
+      actionEntityType: Entity.Track | Entity.Album | Entity.Playlist
+    }
+  ]
+  initiator: ID
+  entityId: ID
+  slot: number
+  type: PushNotificationType.MilestoneFavorite
+  metadata: {
+    threshold: number
+    entity_type: Entity
+    entity_id: ID
+  }
+}
+
 export type RemixCreateNotification = BaseNotification & {
   type: NotificationType.RemixCreate
   userId: ID
   parentTrackId: ID
   childTrackId: ID
   entityType: Entity.Track
-  entityIds: ID[]
+}
+
+export type RemixCreatePushNotification = {
+  type: PushNotificationType.RemixCreate
+  entityId: ID
+  actions: [
+    // Parent Track User
+    {
+      actionEntityType: Entity.User
+      actionEntityId: ID
+      blocknumber: number
+    },
+    // Remixed Track
+    {
+      actionEntityType: Entity.Track
+      actionEntityId: ID
+      blocknumber: number
+    },
+    // Parent Track
+    {
+      actionEntityType: Entity.Track
+      actionEntityId: ID
+      blocknumber: number
+    }
+  ]
 }
 
 export type RemixCosignNotification = BaseNotification & {
@@ -156,6 +657,32 @@ export type RemixCosignNotification = BaseNotification & {
   entityIds: ID[]
 }
 
+export type RemixCosignPushNotification = {
+  type: PushNotificationType.RemixCosign
+  entityId: ID
+  actions: [
+    {
+      actionEntityType: Entity.User
+      actionEntityId: ID
+      blocknumber: number
+    },
+    {
+      actionEntityType: Entity.Track
+      actionEntityId: ID
+      blocknumber: number
+    }
+  ]
+}
+
+export type TrendingPlaylistNotification = BaseNotification & {
+  type: NotificationType.TrendingPlaylist
+  rank: number
+  genre: string
+  time: 'week' | 'month' | 'year'
+  entityType: Entity.Playlist
+  entityId: ID
+}
+
 export type TrendingTrackNotification = BaseNotification & {
   type: NotificationType.TrendingTrack
   rank: number
@@ -163,6 +690,22 @@ export type TrendingTrackNotification = BaseNotification & {
   time: 'week' | 'month' | 'year'
   entityType: Entity.Track
   entityId: ID
+}
+
+export type TrendingUndergroundNotification = BaseNotification & {
+  type: NotificationType.TrendingUnderground
+  rank: number
+  genre: string
+  time: 'week' | 'month' | 'year'
+  entityType: Entity.Track
+  entityId: ID
+}
+
+export type TastemakerNotification = BaseNotification & {
+  type: NotificationType.Tastemaker
+  entityType: Entity.Track
+  entityId: ID
+  userId: ID // track owner id
 }
 
 export type ChallengeRewardNotification = BaseNotification & {
@@ -191,6 +734,22 @@ export type ReactionNotification = BaseNotification & {
   }
 }
 
+export type ReactionPushNotification = {
+  type: PushNotificationType.Reaction
+  initiator: ID
+  slot: number
+  metadata: {
+    // TODO: Need to verify camelCase vs snake_case
+    reaction_value: number
+    reacted_to_entity: {
+      tx_signature: string
+      tip_sender_id: ID
+      amount: string
+    }
+    reaction_type: string
+  }
+}
+
 export type TipReceiveNotification = BaseNotification & {
   type: NotificationType.TipReceive
   amount: StringWei
@@ -200,11 +759,36 @@ export type TipReceiveNotification = BaseNotification & {
   tipTxSignature: string
 }
 
+export type TipReceivePushNotification = {
+  type: PushNotificationType.TipReceive
+  slot: number
+  initiator: ID
+  metadata: {
+    entity_id: ID
+    entity_type: Entity.User
+    amount: StringWei
+    tx_signature: string
+  }
+}
+
 export type TipSendNotification = BaseNotification & {
   type: NotificationType.TipSend
   amount: StringWei
   entityId: ID
   entityType: Entity.User
+}
+
+export type TipSendPushNotification = {
+  type: PushNotificationType.TipSend
+  slot: number
+  initiator: ID
+  metadata: {
+    // TODO: Need to verify camelCase vs snake_case
+    entityId: ID
+    entityType: Entity.User
+    amount: StringWei
+    tipTxSignature: string
+  }
 }
 
 export type SupporterRankUpNotification = BaseNotification & {
@@ -214,11 +798,33 @@ export type SupporterRankUpNotification = BaseNotification & {
   entityType: Entity.User
 }
 
+export type SupporterRankUpPushNotification = {
+  initiator: ID
+  slot: number
+  type: PushNotificationType.SupporterRankUp
+  metadata: {
+    rank: number
+    entity_type: Entity.User
+    entity_id: ID
+  }
+}
+
 export type SupportingRankUpNotification = BaseNotification & {
   type: NotificationType.SupportingRankUp
   rank: number
   entityId: ID
   entityType: Entity.User
+}
+
+export type SupportingRankUpPushNotification = {
+  initiator: ID
+  slot: number
+  type: PushNotificationType.SupportingRankUp
+  metadata: {
+    rank: number
+    entity_type: Entity.User
+    entity_id: ID
+  }
 }
 
 export type SupporterDethronedNotification = BaseNotification & {
@@ -238,16 +844,32 @@ export type AddTrackToPlaylistNotification = BaseNotification & {
   playlistOwnerId: ID
 }
 
+export type AddTrackToPlaylistPushNotification = {
+  type: PushNotificationType.AddTrackToPlaylist
+  entityId: ID
+  metadata: {
+    // TODO: Need to verify camelCase vs snake_case
+    playlistId: ID
+    trackOwnerId: ID
+    playlistOwnerId: ID
+  }
+}
+
 export type Notification =
   | AnnouncementNotification
   | UserSubscriptionNotification
   | FollowNotification
   | RepostNotification
+  | RepostOfRepostNotification
+  | FavoriteOfRepostNotification
   | FavoriteNotification
   | MilestoneNotification
   | RemixCreateNotification
   | RemixCosignNotification
+  | TastemakerNotification
+  | TrendingPlaylistNotification
   | TrendingTrackNotification
+  | TrendingUndergroundNotification
   | ChallengeRewardNotification
   | TierChangeNotification
   | ReactionNotification
@@ -258,78 +880,36 @@ export type Notification =
   | SupporterDethronedNotification
   | AddTrackToPlaylistNotification
 
-export interface NotificationState {
-  notifications: {
-    [id: string]: Notification
-  }
-  userList: {
-    userIds: ID[]
-    status?: Status
-    limit: number
-  }
-  lastTimeStamp?: string
-  allIds: string[]
-  modalNotificationId: string | undefined
-  panelIsOpen: boolean
-  modalIsOpen: boolean
-  totalUnviewed: number
-  status?: Status
-  hasMore: boolean
-  hasLoaded: boolean
-  playlistUpdates: number[]
+export type IdentityNotification = Omit<Notification, 'timestamp'> & {
+  timestamp: string
 }
 
-export type FetchNotifications = ReturnType<typeof fetchNotifications>
-export type FetchNotificationsRequested = ReturnType<
-  typeof fetchNotificationsRequested
->
-export type FetchNotificationsFailed = ReturnType<
-  typeof fetchNotificationsFailed
->
-export type FetchNotificationsSucceeded = ReturnType<
-  typeof fetchNotificationSucceeded
->
-export type RefreshNotifications = ReturnType<typeof refreshNotifications>
-export type SetNotifications = ReturnType<typeof setNotifications>
-export type SetNotificationUsers = ReturnType<typeof setNotificationUsers>
-export type FetchNotificationUsers = ReturnType<typeof fetchNotificationUsers>
-export type FetchNotificationUsersRequested = ReturnType<
-  typeof fetchNotificationUsersRequested
->
-export type FetchNotificationUsersFailed = ReturnType<
-  typeof fetchNotificationUsersFailed
->
-export type FetchNotificationUsersSucceeded = ReturnType<
-  typeof fetchNotificationUsersSucceeded
->
-export type SetTotalUnviewedToZero = ReturnType<typeof setTotalUnviewedToZero>
-export type MarkAllAsViewed = ReturnType<typeof markAllAsViewed>
-export type SetNotificationModal = ReturnType<typeof setNotificationModal>
-export type ToggleNotificationPanel = ReturnType<typeof toggleNotificationPanel>
-export type SubscribeUser = ReturnType<typeof subscribeUser>
-export type UnsubscribeUser = ReturnType<typeof unsubscribeUser>
-export type SetPlaylistUpdates = ReturnType<typeof setPlaylistUpdates>
-export type UpdatePlaylistLastViewedAt = ReturnType<
-  typeof updatePlaylistLastViewedAt
+export type NotificationsState = EntityState<Notification> & {
+  status: Status
+  hasMore: boolean
+  totalUnviewed: number
+}
+
+export type AddNotificationsAction = PayloadAction<{
+  notifications: Notification[]
+  totalUnviewed: number
+  hasMore: boolean
+}>
+
+export type UpdateNotificationsAction = PayloadAction<{
+  notifications: Notification[]
+  totalUnviewed: number
+  hasMore: boolean
+}>
+
+export type FetchNotificationsAction = PayloadAction<
+  | undefined
+  | {
+      pageSize?: number
+    }
 >
 
-export type NotificationAction =
-  | FetchNotifications
-  | FetchNotificationsRequested
-  | FetchNotificationsFailed
-  | FetchNotificationsSucceeded
-  | RefreshNotifications
-  | SetNotifications
-  | SetNotificationUsers
-  | FetchNotificationUsers
-  | FetchNotificationUsersRequested
-  | FetchNotificationUsersFailed
-  | FetchNotificationUsersSucceeded
-  | SetTotalUnviewedToZero
-  | MarkAllAsViewed
-  | SetNotificationModal
-  | ToggleNotificationPanel
-  | SubscribeUser
-  | UnsubscribeUser
-  | SetPlaylistUpdates
-  | UpdatePlaylistLastViewedAt
+export type FetchNotificationsFailedAction = PayloadAction<{
+  message: string
+  shouldReport?: boolean
+}>

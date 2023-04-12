@@ -3,16 +3,19 @@ import type { ChallengeRewardID, OptimisticUserChallenge } from '@audius/common'
 import type { ImageSourcePropType } from 'react-native'
 import { Platform } from 'react-native'
 
+import BallotBoxTick from 'app/assets/images/emojis/ballot-box-tick.png'
+import BarChart from 'app/assets/images/emojis/chart-bar.png'
 import ChartIncreasing from 'app/assets/images/emojis/chart-increasing.png'
+import Gear from 'app/assets/images/emojis/gear.png'
 import Headphone from 'app/assets/images/emojis/headphone.png'
 import IncomingEnvelope from 'app/assets/images/emojis/incoming-envelope.png'
+import IconLink from 'app/assets/images/emojis/link-symbol.png'
 import LoveLetter from 'app/assets/images/emojis/love-letter.png'
 import MobilePhoneWithArrow from 'app/assets/images/emojis/mobile-phone-with-arrow.png'
-import MoneyMouthFace from 'app/assets/images/emojis/money-mouth-face.png'
+import MoneyWings from 'app/assets/images/emojis/money-with-wings.png'
 import MultipleMusicalNotes from 'app/assets/images/emojis/multiple-musical-notes.png'
-import NerdFace from 'app/assets/images/emojis/nerd-face.png'
+import ArrowUp from 'app/assets/images/emojis/right-arrow-curving-up.png'
 import TrebleClef from 'app/assets/images/emojis/treble-clef.png'
-import WhiteHeavyCheckMark from 'app/assets/images/emojis/white-heavy-check-mark.png'
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import IconCheck from 'app/assets/images/iconCheck.svg'
 import IconUpload from 'app/assets/images/iconUpload.svg'
@@ -29,8 +32,8 @@ export const messages = {
     'Show some love to your favorite artist and send them $AUDIO', // iOS only
   sendFirstTipShortDescriptionAlt:
     'Show some love to your favorite artist and send them $AUDIO', // iOS only
-  sendFirstTipButton: 'Find Someone To Tip',
-  sendFirstTipButtonAlt: 'Find Someone To Send To' // iOS only
+  sendFirstTipButton: 'Send a Tip',
+  sendFirstTipButtonAlt: 'Find Artists to Support' // iOS only
 }
 
 export type ChallengesParamList = {
@@ -38,6 +41,7 @@ export type ChallengesParamList = {
   AccountVerificationScreen: undefined
   explore: undefined
   favorites: undefined
+  Upload: undefined
   params: { screen: string }
 }
 
@@ -60,7 +64,7 @@ export type MobileChallengeConfig = {
 const mobileChallengeConfig: Record<ChallengeRewardID, MobileChallengeConfig> =
   {
     'connect-verified': {
-      icon: WhiteHeavyCheckMark,
+      icon: IconLink,
       buttonInfo: {
         navigation: {
           screen: 'AccountVerificationScreen'
@@ -83,7 +87,7 @@ const mobileChallengeConfig: Record<ChallengeRewardID, MobileChallengeConfig> =
       icon: MobilePhoneWithArrow
     },
     'profile-completion': {
-      icon: WhiteHeavyCheckMark
+      icon: BallotBoxTick
     },
     referrals: {
       icon: IncomingEnvelope
@@ -102,7 +106,7 @@ const mobileChallengeConfig: Record<ChallengeRewardID, MobileChallengeConfig> =
       }
     },
     'send-first-tip': {
-      icon: MoneyMouthFace,
+      icon: MoneyWings,
       title:
         Platform.OS === 'ios'
           ? messages.sendFirstTipTitleAlt
@@ -121,8 +125,7 @@ const mobileChallengeConfig: Record<ChallengeRewardID, MobileChallengeConfig> =
           : messages.sendFirstTipButton,
       buttonInfo: {
         navigation: {
-          screen: 'explore',
-          params: { screen: 'HeavyRotation' }
+          screen: 'favorites'
         }
       }
     },
@@ -130,12 +133,13 @@ const mobileChallengeConfig: Record<ChallengeRewardID, MobileChallengeConfig> =
       icon: TrebleClef,
       buttonInfo: {
         navigation: {
-          screen: 'favorites'
+          screen: 'explore',
+          params: { screen: 'Explore' }
         }
       }
     },
     'trending-playlist': {
-      icon: ChartIncreasing,
+      icon: ArrowUp,
       buttonInfo: {
         renderIcon: (color) => <IconCheck fill={color} />,
         iconPosition: 'right'
@@ -149,7 +153,7 @@ const mobileChallengeConfig: Record<ChallengeRewardID, MobileChallengeConfig> =
       }
     },
     'top-api': {
-      icon: NerdFace,
+      icon: Gear,
       buttonInfo: {
         renderIcon: (color) => <IconCheck fill={color} />,
         iconPosition: 'right'
@@ -164,7 +168,7 @@ const mobileChallengeConfig: Record<ChallengeRewardID, MobileChallengeConfig> =
       }
     },
     'trending-underground': {
-      icon: ChartIncreasing,
+      icon: BarChart,
       buttonInfo: {
         renderIcon: (color) => <IconCheck fill={color} />,
         iconPosition: 'right'

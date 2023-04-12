@@ -1,10 +1,10 @@
-import type { Nullable, User } from '@audius/common'
 import { SquareSizes } from '@audius/common'
 
-import type { DynamicImageProps } from 'app/components/core'
-import { DynamicImage } from 'app/components/core'
-import { useUserProfilePicture } from 'app/hooks/useUserProfilePicture'
-import { makeStyles } from 'app/styles/makeStyles'
+import type { UserImageProps } from 'app/components/image/UserImage'
+import { UserImage } from 'app/components/image/UserImage'
+import { makeStyles } from 'app/styles'
+
+import type { FastImageProps } from '../image/FastImage'
 
 const useStyles = makeStyles(({ palette }) => ({
   profilePhoto: {
@@ -13,36 +13,25 @@ const useStyles = makeStyles(({ palette }) => ({
     borderRadius: 1000,
     borderWidth: 2,
     borderStyle: 'solid',
-    borderColor: palette.white,
+    borderColor: palette.neutralLight9,
     overflow: 'hidden',
     backgroundColor: palette.neutralLight6
   }
 }))
 
-export type ProfilePictureProps = Partial<DynamicImageProps> & {
-  profile: Nullable<Pick<User, 'user_id' | '_profile_picture_sizes' | 'handle'>>
+export type ProfilePictureProps = Partial<FastImageProps> & {
+  profile: UserImageProps['user']
 }
 
 export const ProfilePicture = (props: ProfilePictureProps) => {
-  const { styles: stylesProp, profile, ...other } = props
+  const { profile, style: styleProp, ...other } = props
   const styles = useStyles()
 
-  const profilePicture = useUserProfilePicture({
-    id: profile?.user_id,
-    sizes: profile?._profile_picture_sizes,
-    size: SquareSizes.SIZE_150_BY_150
-  })
-
   return (
-    <DynamicImage
-      immediate
-      uri={profilePicture}
-      styles={{
-        ...stylesProp,
-        root: {
-          ...styles.profilePhoto
-        }
-      }}
+    <UserImage
+      user={profile}
+      size={SquareSizes.SIZE_150_BY_150}
+      style={[styles.profilePhoto, styleProp]}
       {...other}
     />
   )

@@ -9,7 +9,7 @@ import IconPlaylists from 'app/assets/images/iconPlaylists.svg'
 import IconUser from 'app/assets/images/iconUser.svg'
 import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
 import { TopTabNavigator } from 'app/components/top-tab-bar'
-import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
+import { useAppTabScreen } from 'app/hooks/useAppTabScreen'
 
 import { ArtistsTab } from './tabs/ArtistsTab'
 import { ForYouTab } from './tabs/ForYouTab'
@@ -49,7 +49,7 @@ const exploreScreens = [
 
 const ExploreScreen = () => {
   const dispatch = useDispatch()
-  usePopToTopOnDrawerOpen()
+  useAppTabScreen()
 
   useEffectOnce(() => {
     dispatch(fetchExplore())
@@ -61,10 +61,12 @@ const ExploreScreen = () => {
         text={messages.header}
         icon={IconExplore}
         iconProps={{ height: 30 }}
-        styles={{ icon: { marginLeft: 1 } }}
       />
       <ScreenContent>
-        <TopTabNavigator screens={exploreScreens} />
+        <TopTabNavigator
+          screens={exploreScreens}
+          screenOptions={{ lazy: true }}
+        />
       </ScreenContent>
     </Screen>
   )

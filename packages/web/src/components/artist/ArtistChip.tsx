@@ -1,12 +1,6 @@
 import { ComponentPropsWithoutRef } from 'react'
 
-import {
-  ID,
-  SquareSizes,
-  User,
-  SUPPORTING_USER_LIST_TAG,
-  TOP_SUPPORTERS_USER_LIST_TAG
-} from '@audius/common'
+import { ID, SquareSizes, User } from '@audius/common'
 import cn from 'classnames'
 
 import { ArtistPopover } from 'components/artist/ArtistPopover'
@@ -17,12 +11,8 @@ import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 
 import styles from './ArtistChip.module.css'
 import { ArtistChipFollowers } from './ArtistChipFollowers'
-import { ArtistChipTips } from './ArtistChipTips'
-
-const TIP_SUPPORT_TAGS = new Set([
-  SUPPORTING_USER_LIST_TAG,
-  TOP_SUPPORTERS_USER_LIST_TAG
-])
+import { ArtistChipSupportFor } from './ArtistChipSupportFor'
+import { ArtistChipSupportFrom } from './ArtistChipSupportFrom'
 
 type ArtistIdentifierProps = {
   userId: ID
@@ -87,18 +77,22 @@ type ArtistChipProps = {
   user: User
   onClickArtistName: () => void
   showPopover?: boolean
-  tag?: string
+  showSupportFor?: ID
+  showSupportFrom?: ID
   className?: string
   popoverMount?: MountPlacement
+  customChips?: React.ReactNode
   onNavigateAway?: () => void
 }
 const ArtistChip = ({
   user,
   onClickArtistName,
   showPopover = true,
-  tag,
+  showSupportFor,
+  showSupportFrom,
   className = '',
   popoverMount = MountPlacement.PAGE,
+  customChips = null,
   onNavigateAway
 }: ArtistChipProps) => {
   const {
@@ -151,18 +145,31 @@ const ArtistChip = ({
             userId={userId}
             name={name}
             handle={handle}
-            showPopover
+            showPopover={showPopover}
             popoverMount={popoverMount}
             onNavigateAway={onNavigateAway}
           />
         </div>
-        <ArtistChipFollowers
-          followerCount={followers}
-          doesFollowCurrentUser={!!doesFollowCurrentUser}
-        />
-        {tag && TIP_SUPPORT_TAGS.has(tag) ? (
-          <ArtistChipTips artistId={user.user_id} tag={tag} />
-        ) : null}
+        {customChips || (
+          <>
+            <ArtistChipFollowers
+              followerCount={followers}
+              doesFollowCurrentUser={!!doesFollowCurrentUser}
+            />
+            {showSupportFor ? (
+              <ArtistChipSupportFor
+                artistId={user.user_id}
+                userId={showSupportFor}
+              />
+            ) : null}
+            {showSupportFrom ? (
+              <ArtistChipSupportFrom
+                artistId={user.user_id}
+                userId={showSupportFrom}
+              />
+            ) : null}
+          </>
+        )}
       </div>
     </div>
   )

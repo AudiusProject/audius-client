@@ -15,13 +15,12 @@ import {
   FavoriteType,
   Kind,
   Status,
+  Nullable,
   Uid,
   formatUrlName,
   accountSelectors,
   cacheCollectionsActions,
   lineupSelectors,
-  notificationsSelectors,
-  notificationsActions,
   collectionPageActions as collectionActions,
   collectionPageLineupActions as tracksActions,
   collectionPageSelectors,
@@ -39,7 +38,9 @@ import {
   tracksSocialActions as socialTracksActions,
   usersSocialActions as socialUsersActions,
   playerSelectors,
-  queueSelectors
+  queueSelectors,
+  playlistUpdatesActions,
+  playlistUpdatesSelectors
 } from '@audius/common'
 import { push as pushRoute, replace } from 'connected-react-router'
 import { UnregisterCallback } from 'history'
@@ -74,6 +75,7 @@ import { getCollectionPageSEOFields } from 'utils/seo'
 
 import { CollectionPageProps as DesktopCollectionPageProps } from './components/desktop/CollectionPage'
 import { CollectionPageProps as MobileCollectionPageProps } from './components/mobile/CollectionPage'
+const { selectAllPlaylistUpdateIds } = playlistUpdatesSelectors
 const { makeGetCurrent } = queueSelectors
 const { getPlaying, getBuffering } = playerSelectors
 const { setFavorite } = favoritesUserListActions
@@ -86,10 +88,10 @@ const {
   getCollectionTracksLineup,
   getCollectionUid,
   getUser,
-  getUserUid
+  getUserUid,
+  getCollectionPermalink
 } = collectionPageSelectors
-const { updatePlaylistLastViewedAt } = notificationsActions
-const { getPlaylistUpdates } = notificationsSelectors
+const { updatedPlaylistViewed } = playlistUpdatesActions
 const { makeGetTableMetadatas, makeGetLineupOrder } = lineupSelectors
 const {
   editPlaylist,
@@ -268,16 +270,20 @@ class CollectionPage extends Component<
     if (metadata) {
       const params = parseCollectionRoute(pathname)
       if (params) {
-        const { collectionId, title, collectionType, handle } = params
+        const { collectionId, title, collectionType, handle, permalink } =
+          params
         const newCollectionName = formatUrlName(metadata.playlist_name)
 
         const routeLacksCollectionInfo =
-          (title === null || handle === null || collectionType === null) && user
+          (title === null || handle === null || collectionType === null) &&
+          permalink == null &&
+          user
         if (routeLacksCollectionInfo) {
           // Check if we are coming from a non-canonical route and replace route if necessary.
-          const newPath = metadata.is_album
-            ? albumPage(user!.handle, metadata.playlist_name, collectionId)
-            : playlistPage(user!.handle, metadata.playlist_name, collectionId)
+          const newPath =
+            metadata.is_album && collectionId
+              ? albumPage(user!.handle, metadata.playlist_name, collectionId)
+              : playlistPage(user!.handle, metadata.playlist_name, collectionId)
           this.props.replaceRoute(newPath)
         } else {
           // Id matches or temp id matches
@@ -340,11 +346,21 @@ class CollectionPage extends Component<
 
   fetchCollection = (pathname: string, forceFetch = false) => {
     const params = parseCollectionRoute(pathname)
-    if (params) {
+
+    if (params?.collectionId) {
       const { collectionId } = params
       if (forceFetch || collectionId !== this.state.playlistId) {
         this.setState({ playlistId: collectionId as number })
         this.props.fetchCollection(collectionId as number)
+        this.props.fetchTracks()
+      }
+    }
+
+    if (params?.permalink) {
+      const { permalink, collectionId } = params
+      if (forceFetch) {
+        this.props.setCollectionPermalink(permalink)
+        this.props.fetchCollection(collectionId, permalink)
         this.props.fetchTracks()
       }
     }
@@ -817,6 +833,7 @@ function makeMapStateToProps() {
       tracks: getTracksLineup(state),
       collectionUid: getCollectionUid(state) || '',
       collection: getCollection(state) as Collection,
+      collectionPermalink: getCollectionPermalink(state),
       user: getUser(state),
       userUid: getUserUid(state) || '',
       status: getCollectionStatus(state) || '',
@@ -827,7 +844,7 @@ function makeMapStateToProps() {
       playing: getPlaying(state),
       buffering: getBuffering(state),
       pathname: getLocationPathname(state),
-      playlistUpdates: getPlaylistUpdates(state)
+      playlistUpdates: selectAllPlaylistUpdateIds(state)
     }
   }
   return mapStateToProps
@@ -835,10 +852,12 @@ function makeMapStateToProps() {
 
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
-    fetchCollection: (id: number) =>
-      dispatch(collectionActions.fetchCollection(id)),
+    fetchCollection: (id: Nullable<number>, permalink?: string) =>
+      dispatch(collectionActions.fetchCollection(id, permalink)),
     fetchTracks: () =>
       dispatch(tracksActions.fetchLineupMetadatas(0, 200, false, undefined)),
+    setCollectionPermalink: (permalink: string) =>
+      dispatch(collectionActions.setCollectionPermalink(permalink)),
     resetCollection: (collectionUid: string, userUid: string) =>
       dispatch(collectionActions.resetCollection(collectionUid, userUid)),
     goToRoute: (route: string) => dispatch(pushRoute(route)),
@@ -989,7 +1008,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
     onEditCollection: (playlistId: ID) =>
       dispatch(openEditCollectionModal(playlistId)),
     updatePlaylistLastViewedAt: (playlistId: ID) =>
-      dispatch(updatePlaylistLastViewedAt(playlistId))
+      dispatch(updatedPlaylistViewed({ playlistId }))
   }
 }
 

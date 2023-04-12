@@ -4,10 +4,18 @@ import {
   getIdFromKindId,
   cacheActions,
   cacheSelectors,
-  cacheConfig
+  cacheConfig,
+  FeatureFlags
 } from '@audius/common'
 import { pick } from 'lodash'
-import { all, call, put, select, takeEvery } from 'redux-saga/effects'
+import {
+  all,
+  call,
+  put,
+  select,
+  takeEvery,
+  getContext
+} from 'redux-saga/effects'
 
 import { getConfirmCalls } from 'common/store/confirmer/selectors'
 const { CACHE_PRUNE_MIN } = cacheConfig
@@ -90,15 +98,14 @@ export function* retrieve({
     call(getEntriesTimestamp, uniqueIds)
   ])
 
-  // Figure out which IDs we need to retrive from source
   const idsToFetch = []
   uniqueIds.forEach((id) => {
-    if (
+    const shouldFetch =
       !(id in cachedEntries) ||
       isMissingFields(cachedEntries[id], requiredFields) ||
       isExpired(timestamps[id]) ||
       forceRetrieveFromSource
-    ) {
+    if (shouldFetch) {
       idsToFetch.push(id)
     }
   })
@@ -221,7 +228,14 @@ export function* add(kind, entries, replace, persist) {
     }
   })
   if (entriesToAdd.length > 0) {
-    yield put(cacheActions.addSucceeded(kind, entriesToAdd, replace, persist))
+    yield put(
+      cacheActions.addSucceeded({
+        kind,
+        entries: entriesToAdd,
+        replace,
+        persist
+      })
+    )
   }
   if (entriesToSubscribe.length > 0) {
     yield put(cacheActions.subscribe(kind, entriesToSubscribe))
@@ -310,8 +324,33 @@ function* watchRemove() {
   })
 }
 
+function* initializeCacheType() {
+  const remoteConfig = yield getContext('remoteConfigInstance')
+  yield call(remoteConfig.waitForRemoteConfig)
+  const fastCache = yield call(
+    remoteConfig.getFeatureEnabled,
+    FeatureFlags.FAST_CACHE
+  )
+  const safeFastCache = yield call(
+    remoteConfig.getFeatureEnabled,
+    FeatureFlags.SAFE_FAST_CACHE
+  )
+
+  if (fastCache) {
+    yield put(cacheActions.setCacheType({ cacheType: 'fast' }))
+  } else if (safeFastCache) {
+    yield put(cacheActions.setCacheType({ cacheType: 'safe-fast' }))
+  }
+}
+
 const sagas = () => {
-  return [watchAdd, watchUnsubscribe, watchUnsubscribeSucceeded, watchRemove]
+  return [
+    initializeCacheType,
+    watchAdd,
+    watchUnsubscribe,
+    watchUnsubscribeSucceeded,
+    watchRemove
+  ]
 }
 
 export default sagas

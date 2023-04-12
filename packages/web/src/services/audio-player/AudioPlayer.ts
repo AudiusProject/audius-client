@@ -1,4 +1,10 @@
-import { TrackSegment, decodeHashId, hlsUtils } from '@audius/common'
+import {
+  TrackSegment,
+  decodeHashId,
+  hlsUtils,
+  PlaybackRate,
+  playbackRateValueMap
+} from '@audius/common'
 import Hls from 'hls.js'
 
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
@@ -12,10 +18,17 @@ declare global {
   }
 }
 
+const IS_SAFARI = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+const IS_UI_WEBVIEW = /(iPhone|iPod|iPad).*AppleWebKit/i.test(
+  navigator.userAgent
+)
+
 const FADE_IN_EVENT = new Event('fade-in')
 const FADE_OUT_EVENT = new Event('fade-out')
 const VOLUME_CHANGE_BASE = 10
-const BUFFERING_DELAY_MILLISECONDS = 500
+const BUFFERING_DELAY_MILLISECONDS = 1000
+const FADE_IN_TIME_MILLISECONDS = 320
+const FADE_OUT_TIME_MILLISECONDS = 400
 
 // In the case of audio errors, try to resume playback
 // by nudging the playhead this many seconds ahead.
@@ -43,7 +56,6 @@ export enum AudioError {
 class fLoader extends Hls.DefaultConfig.loader {
   getFallbacks = () => []
   getTrackId = () => ''
-  getPremiumContentHeaders = () => ({})
 
   constructor(config: Hls.LoaderConfig) {
     super(config)
@@ -58,8 +70,7 @@ class fLoader extends Hls.DefaultConfig.loader {
             this.getFallbacks(),
             /* cache */ false,
             /* asUrl */ true,
-            decodeHashId(this.getTrackId()) ?? undefined,
-            this.getPremiumContentHeaders() ?? undefined
+            decodeHashId(this.getTrackId()) ?? undefined
           )
           .then((resolved) => {
             const updatedContext = { ...context, url: resolved }
@@ -83,6 +94,7 @@ export class AudioPlayer {
   source: MediaElementAudioSourceNode | null
   gainNode: GainNode | null
   duration: number
+  playbackRate: PlaybackRate
   bufferingTimeout: ReturnType<typeof setTimeout> | null
   buffering: boolean
   onBufferingChange: (isBuffering: boolean) => void
@@ -111,6 +123,9 @@ export class AudioPlayer {
     // outside source. Audio.duration returns Infinity until all the streams are
     // concatenated together.
     this.duration = 0
+
+    // Variable to hold the playbackRate of the audio element
+    this.playbackRate = '1x'
 
     this.bufferingTimeout = null
     this.buffering = false
@@ -141,20 +156,20 @@ export class AudioPlayer {
     this.errorRateLimiter = new Set()
   }
 
-  _initContext = (shouldSkipAudioContext = false) => {
+  _initContext = () => {
     this.audio.addEventListener('canplay', () => {
-      if (!this.audioCtx && !shouldSkipAudioContext) {
+      if (!this.audioCtx && !IS_SAFARI && !IS_UI_WEBVIEW) {
         // Set up WebAudio API handles
         const AudioContext = window.AudioContext || window.webkitAudioContext
         try {
           this.audioCtx = new AudioContext()
           this.gainNode = this.audioCtx.createGain()
-          this.gainNode.connect(this.audioCtx.destination)
           this.source = this.audioCtx.createMediaElementSource(this.audio)
           this.source.connect(this.gainNode)
+          this.gainNode.connect(this.audioCtx.destination)
         } catch (e) {
-          console.log('error setting up audio context')
-          console.log(e)
+          console.error('error setting up audio context')
+          console.error(e)
         }
       }
 
@@ -184,7 +199,9 @@ export class AudioPlayer {
           // Set the new time to the current plus the nudge. If this nudge
           // wasn't enough, this error will be thrown again and we will just continue
           // to nudge the playhead forward until the errors stop or the song ends.
-          this.audio.currentTime = newTime
+          if (isFinite(newTime)) {
+            this.audio.currentTime = newTime
+          }
           if (wasPlaying) {
             this.audio.play()
           }
@@ -202,8 +219,7 @@ export class AudioPlayer {
       id: '',
       title: '',
       artist: '',
-      artwork: '',
-      premiumContentHeaders: {}
+      artwork: ''
     },
     forceStreamSrc: string | null = null
   ) => {
@@ -212,12 +228,18 @@ export class AudioPlayer {
       this.stop()
       const prevVolume = this.audio.volume
       this.audio = new Audio()
+
+      // Connect this.audio to the window so that 3P's can interact with it.
+      window.audio = this.audio
+
       this.gainNode = null
       this.source = null
       this.audioCtx = null
-      this._initContext(/* shouldSkipAudioContext */ true)
-      this.audio.setAttribute('preload', 'none')
-      this.audio.setAttribute('src', forceStreamSrc)
+
+      this._initContext()
+      this.audio.preload = 'none'
+      this.audio.crossOrigin = 'anonymous'
+      this.audio.src = forceStreamSrc
       this.audio.volume = prevVolume
       this.audio.onloadedmetadata = () => (this.duration = this.audio.duration)
     } else {
@@ -233,7 +255,6 @@ export class AudioPlayer {
         class creatorFLoader extends fLoader {
           getFallbacks = () => gateways as never[]
           getTrackId = () => info.id
-          getPremiumContentHeaders = () => info.premiumContentHeaders
         }
         const hlsConfig = { ...HlsConfig, fLoader: creatorFLoader }
         this.hls = new Hls(hlsConfig)
@@ -357,6 +378,8 @@ export class AudioPlayer {
       this.source!.connect(this.gainNode!)
     }
 
+    this._updateAudioPlaybackRate()
+
     const promise = this.audio.play()
     if (promise) {
       promise.catch((_) => {
@@ -366,6 +389,9 @@ export class AudioPlayer {
   }
 
   pause = () => {
+    if (this.gainNode) {
+      this.gainNode.gain.setValueAtTime(1, this.audioCtx?.currentTime ?? 0)
+    }
     this.audio.addEventListener('fade-out', this._pauseInternal)
     this._fadeOut()
   }
@@ -374,19 +400,13 @@ export class AudioPlayer {
     if (this.audioCtx && IS_CHROME_LIKE) {
       // See comment above in the `play()` method.
       this.source!.disconnect()
-    } else {
-      this.audio.pause()
     }
+    this.audio.pause()
   }
 
   stop = () => {
     this.audio.pause()
-    // Normally canplaythrough should be required to set currentTime, but in the case
-    // of setting curtingTime to zero, pushing to the end of the event loop works.
-    // This fixes issues in Firefox, in particular `the operation was aborted`
-    setTimeout(() => {
-      this.audio.currentTime = 0
-    }, 0)
+    this.audio.currentTime = 0
   }
 
   isPlaying = () => {
@@ -409,8 +429,18 @@ export class AudioPlayer {
     return this.audio.currentTime
   }
 
+  getPlaybackRate = () => {
+    return this.playbackRate
+  }
+
+  getAudioPlaybackRate = () => {
+    return this.audio.playbackRate
+  }
+
   seek = (seconds: number) => {
-    this.audio.currentTime = seconds
+    if (isFinite(seconds)) {
+      this.audio.currentTime = seconds
+    }
   }
 
   setVolume = (value: number) => {
@@ -418,15 +448,23 @@ export class AudioPlayer {
       (Math.pow(VOLUME_CHANGE_BASE, value) - 1) / (VOLUME_CHANGE_BASE - 1)
   }
 
+  setPlaybackRate = (value: PlaybackRate) => {
+    this.playbackRate = value
+    this._updateAudioPlaybackRate()
+  }
+
+  _updateAudioPlaybackRate = () => {
+    this.audio.playbackRate = playbackRateValueMap[this.playbackRate]
+  }
+
   _fadeIn = () => {
     if (this.gainNode) {
-      const fadeTime = 320
       setTimeout(() => {
         this.audio.dispatchEvent(FADE_IN_EVENT)
-      }, fadeTime)
+      }, FADE_IN_TIME_MILLISECONDS)
       this.gainNode.gain.exponentialRampToValueAtTime(
         1,
-        this.audioCtx!.currentTime + fadeTime / 1000.0
+        this.audioCtx!.currentTime + FADE_IN_TIME_MILLISECONDS / 1000.0
       )
     } else {
       this.audio.dispatchEvent(FADE_IN_EVENT)
@@ -435,13 +473,12 @@ export class AudioPlayer {
 
   _fadeOut = () => {
     if (this.gainNode) {
-      const fadeTime = 200
       setTimeout(() => {
         this.audio.dispatchEvent(FADE_OUT_EVENT)
-      }, fadeTime)
+      }, FADE_OUT_TIME_MILLISECONDS)
       this.gainNode.gain.exponentialRampToValueAtTime(
         0.001,
-        this.audioCtx!.currentTime + fadeTime / 1000.0
+        this.audioCtx!.currentTime + FADE_OUT_TIME_MILLISECONDS / 1000.0
       )
     } else {
       this.audio.dispatchEvent(FADE_OUT_EVENT)

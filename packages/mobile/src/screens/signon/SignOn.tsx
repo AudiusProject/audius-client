@@ -26,11 +26,11 @@ import {
   View
 } from 'react-native'
 import RadialGradient from 'react-native-radial-gradient'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSelector, useDispatch } from 'react-redux'
 
 import backgImage from 'app/assets/images/DJportrait.jpg'
-import audiusLogoHorizontal from 'app/assets/images/Horizontal-Logo-Full-Color.png'
+import audiusLogoHorizontal from 'app/assets/images/Horizontal-Logo-Full-Color-Deprecated.png'
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import ValidationIconX from 'app/assets/images/iconValidationX.svg'
 import signupCTA from 'app/assets/images/signUpCTA.png'
@@ -38,6 +38,7 @@ import Button from 'app/components/button'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { remindUserToTurnOnNotifications } from 'app/components/notification-reminder/NotificationReminder'
 import useAppState from 'app/hooks/useAppState'
+import { useToast } from 'app/hooks/useToast'
 import { screen, track, make } from 'app/services/analytics'
 import { setVisibility } from 'app/store/drawers/slice'
 import { EventNames } from 'app/types/analytics'
@@ -47,7 +48,6 @@ import type { SignOnStackParamList } from './types'
 
 const { getAccountUser } = accountSelectors
 const image = backgImage
-const windowWidth = Dimensions.get('window').width
 const defaultBorderColor = '#F2F2F4'
 
 const styles = StyleSheet.create({
@@ -56,34 +56,22 @@ const styles = StyleSheet.create({
     height: '100%',
     zIndex: 2,
     backgroundColor: 'white',
-    justifyContent: 'space-evenly'
+    justifyContent: 'space-between'
   },
   containerForm: {
-    position: 'absolute',
     transform: [
       {
         translateY: 0
       }
     ],
-    top: 0,
-    left: 0,
     width: '100%',
     zIndex: 5,
     backgroundColor: 'white',
     borderBottomRightRadius: 40,
     borderBottomLeftRadius: 40,
-    padding: 28,
-    paddingBottom: 38
+    padding: 50
   },
   drawerContent: { width: '100%', alignItems: 'center' },
-  containerCTA: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    width: '100%',
-    zIndex: 4,
-    alignItems: 'center'
-  },
   containerBack: {
     flex: 1,
     position: 'absolute',
@@ -128,14 +116,26 @@ const styles = StyleSheet.create({
     height: 51,
     marginTop: 24
   },
+  containerCTA: {
+    zIndex: 4,
+    flexGrow: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-between'
+  },
   signupCTAContainer: {
-    flex: 1,
-    marginTop: 32
+    flexGrow: 1
   },
   signupCTA: {
+    marginTop: 32,
+    marginBottom: 16,
     resizeMode: 'contain',
-    flex: 1,
-    width: windowWidth - 64
+    width: undefined,
+    height: undefined,
+    flex: 1
+  },
+  bottomButtons: {
+    marginTop: 16,
+    height: 80
   },
   input: {
     height: 42,
@@ -198,8 +198,7 @@ const styles = StyleSheet.create({
   },
   switchFormBtn: {
     width: '100%',
-    alignItems: 'center',
-    marginTop: 16
+    alignItems: 'center'
   },
   switchFormBtnTitle: {
     color: 'white',
@@ -209,8 +208,7 @@ const styles = StyleSheet.create({
   forgotPasswordButton: {
     padding: 6,
     alignItems: 'center',
-    marginTop: 16,
-    marginBottom: 32
+    marginTop: 16
   },
   forgotPasswordButtonTitle: {
     color: 'white',
@@ -260,17 +258,16 @@ const messages = {
   newToAudius: 'New to Audius?',
   createAccount: 'Create an Account',
   hasAccountAlready: 'Already have an account?',
-  forgotPassword: 'Forgot your password?'
+  forgotPassword: 'Forgot your password?',
+  error: 'Something went wrong, please try again later'
 }
 
 const errorMessages = {
   invalidEmail: 'Please enter a valid email',
-  emailInUse: 'Email is already in use, please sign-in',
   emptyPassword: 'Please enter a password',
   default: 'Invalid Credentials'
 }
 
-let formContainerHeight = 0
 let lastIsSignin = false
 let errorOpacity = new Animated.Value(0)
 
@@ -322,7 +319,6 @@ const SignOn = ({ navigation }: SignOnProps) => {
   const [emailBorderColor, setEmailBorderColor] = useState(defaultBorderColor)
   const [passBorderColor, setPassBorderColor] = useState(defaultBorderColor)
   const [formButtonMarginTop, setFormButtonMarginTop] = useState(28)
-  const [cpaContainerHeight, setcpaContainerHeight] = useState(0)
   const [attemptedEmail, setAttemptedEmail] = useState(false)
   const [attemptedPassword, setAttemptedPassword] = useState(false)
   const [showInvalidEmailError, setShowInvalidEmailError] = useState(false)
@@ -336,7 +332,6 @@ const SignOn = ({ navigation }: SignOnProps) => {
 
   const signedIn = signOnStatus === 'success'
   const isSigninError = passwordField.error
-  const emailIsAvailable = emailField.error !== 'inUse'
   const emailIsValid = emailField.error !== 'characters'
 
   const topDrawer = useRef(new Animated.Value(-800)).current
@@ -384,10 +379,18 @@ const SignOn = ({ navigation }: SignOnProps) => {
   useEffect(() => {
     if (signedIn && accountUser) {
       setIsWorking(false)
-      setEmail('')
-      setPassword('')
+
+      // Debounce resetting state
+      const timeout = setTimeout(() => {
+        setEmail('')
+        setPassword('')
+      }, 1000)
 
       remindUserToTurnOnNotifications(dispatch)
+
+      return () => {
+        clearTimeout(timeout)
+      }
     }
   }, [signedIn, accountUser, dispatch])
 
@@ -399,7 +402,6 @@ const SignOn = ({ navigation }: SignOnProps) => {
   useEffect(() => {
     if (
       (isSignin && isSigninError && showDefaultError) ||
-      (!isSignin && !emailIsAvailable && email !== '') ||
       showInvalidEmailError ||
       showEmptyPasswordError
     ) {
@@ -416,7 +418,6 @@ const SignOn = ({ navigation }: SignOnProps) => {
     isSignin,
     isSigninError,
     showDefaultError,
-    emailIsAvailable,
     email,
     showInvalidEmailError,
     showEmptyPasswordError
@@ -457,31 +458,6 @@ const SignOn = ({ navigation }: SignOnProps) => {
           <ValidationIconX style={styles.errorIcon} />
           <Text style={styles.errorText}>{errorMessages.default}</Text>
         </Animated.View>
-      )
-    }
-    if (!isSignin && !emailIsAvailable && email !== '') {
-      return (
-        <TouchableOpacity
-          style={styles.errorButton}
-          onPress={() => {
-            switchForm(true)
-          }}
-        >
-          <Animated.View
-            style={[styles.errorContainer, { opacity: errorOpacity }]}
-          >
-            <ValidationIconX style={styles.errorIcon} />
-            <Text
-              style={[
-                styles.errorText,
-                { flex: 0, textDecorationLine: 'underline' }
-              ]}
-            >
-              {errorMessages.emailInUse}
-            </Text>
-            <Text style={[styles.errorText, { fontSize: 13 }]}> ➔</Text>
-          </Animated.View>
-        </TouchableOpacity>
       )
     }
     if (showInvalidEmailError) {
@@ -532,7 +508,7 @@ const SignOn = ({ navigation }: SignOnProps) => {
     )
   }
 
-  const switchForm = (keepEmail = false) => {
+  const switchForm = () => {
     if (!isWorking) {
       if (isSignin) {
         setFormButtonMarginTop(28)
@@ -550,10 +526,6 @@ const SignOn = ({ navigation }: SignOnProps) => {
             source: 'sign up page'
           })
         )
-      }
-
-      if (!keepEmail) {
-        setEmail('')
       }
 
       setShowInvalidEmailError(false)
@@ -607,6 +579,8 @@ const SignOn = ({ navigation }: SignOnProps) => {
   }) => {
     let opacity = new Animated.Value(1)
 
+    const { toast } = useToast()
+
     // fade the sign up/in button out and in when switch between signup and signin
     if (lastIsSignin !== isSignin) {
       opacity = new Animated.Value(0)
@@ -643,17 +617,20 @@ const SignOn = ({ navigation }: SignOnProps) => {
                     email,
                     () => {
                       // On available email, move to create password
-                      navigation.replace('CreatePassword')
+                      dispatch(signOnActions.startSignUp())
+                      navigation.push('CreatePassword')
                       setIsWorking(false)
                     },
                     () => {
                       // On unavailable email (e.g. user exists with that email),
                       // Switch to the sign in form
-                      switchForm(true)
+                      switchForm()
                       setIsWorking(false)
                     },
                     () => {
-                      // On any unknown error, do nothing, but let the user try again
+                      // On any unknown error, toast and let the user try again
+                      // This could be due to the user being blocked by CloudFlare
+                      toast({ content: messages.error })
                       setIsWorking(false)
                     }
                   )
@@ -692,6 +669,8 @@ const SignOn = ({ navigation }: SignOnProps) => {
     dispatch(signOnActions.signIn(email, password))
   }
 
+  const insets = useSafeAreaInsets()
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
@@ -718,14 +697,8 @@ const SignOn = ({ navigation }: SignOnProps) => {
               styles.containerForm,
               { transform: [{ translateY: topDrawer }] }
             ]}
-            onLayout={(event: any) => {
-              formContainerHeight = event.nativeEvent.layout.height
-              setcpaContainerHeight(
-                Dimensions.get('window').height - formContainerHeight
-              )
-            }}
           >
-            <SafeAreaView edges={['top']} style={styles.drawerContent}>
+            <View style={styles.drawerContent}>
               <Image
                 source={audiusLogoHorizontal}
                 style={styles.audiusLogoHorizontal}
@@ -766,13 +739,15 @@ const SignOn = ({ navigation }: SignOnProps) => {
               {passwordInputField()}
               {errorView()}
               <MainButton isWorking={isWorking} isSignin={isSignin} />
-            </SafeAreaView>
+            </View>
           </Animated.View>
         </TouchableWithoutFeedback>
         <Animated.View
           style={[
             styles.containerCTA,
-            { height: cpaContainerHeight, opacity: opacityCTA }
+            {
+              opacity: opacityCTA
+            }
           ]}
         >
           {Dimensions.get('window').height < 720 ? (
@@ -783,26 +758,26 @@ const SignOn = ({ navigation }: SignOnProps) => {
             </View>
           )}
 
-          <TouchableOpacity
-            style={styles.switchFormBtn}
-            activeOpacity={0.6}
-            onPress={() => {
-              switchForm()
-            }}
-          >
-            {renderFormSwitchButton()}
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.forgotPasswordButton}
-            activeOpacity={0.6}
-            onPress={() => {
-              dispatch(
-                setVisibility({ drawer: 'ForgotPassword', visible: true })
-              )
-            }}
-          >
-            {renderForgotPasswordButton()}
-          </TouchableOpacity>
+          <View style={[styles.bottomButtons, { marginBottom: insets.bottom }]}>
+            <TouchableOpacity
+              style={styles.switchFormBtn}
+              activeOpacity={0.6}
+              onPress={switchForm}
+            >
+              {renderFormSwitchButton()}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.forgotPasswordButton}
+              activeOpacity={0.6}
+              onPress={() => {
+                dispatch(
+                  setVisibility({ drawer: 'ForgotPassword', visible: true })
+                )
+              }}
+            >
+              {renderForgotPasswordButton()}
+            </TouchableOpacity>
+          </View>
         </Animated.View>
       </View>
     </TouchableWithoutFeedback>

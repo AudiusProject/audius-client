@@ -1,6 +1,10 @@
-import { InstagramProfile, TwitterProfile } from 'store/account/types'
+import {
+  InstagramProfile,
+  TikTokProfile,
+  TwitterProfile
+} from 'store/account/types'
 
-export const MAX_HANDLE_LENGTH = 16
+export const MAX_HANDLE_LENGTH = 30
 export const MAX_DISPLAY_NAME_LENGTH = 32
 
 export const formatTwitterProfile = async (
@@ -105,15 +109,70 @@ export const formatInstagramProfile = async (
     instagramProfile.full_name.length > MAX_DISPLAY_NAME_LENGTH
   ) {
     requiresUserReview = true
-    instagramProfile.full_name = instagramProfile.full_name!.slice(
-      0,
-      MAX_DISPLAY_NAME_LENGTH
-    )
+    if (instagramProfile.full_name) {
+      instagramProfile.full_name = instagramProfile.full_name.slice(
+        0,
+        MAX_DISPLAY_NAME_LENGTH
+      )
+    }
   }
 
   return {
     profile: instagramProfile,
     profileImage,
+    requiresUserReview
+  }
+}
+
+export const formatTikTokProfile = async (
+  tikTokProfile: TikTokProfile,
+  resizeImage: (
+    image: File,
+    maxWidth?: number,
+    square?: boolean,
+    key?: string
+  ) => Promise<File>
+) => {
+  const getProfilePicture = async () => {
+    try {
+      if (tikTokProfile.avatar_large_url) {
+        const imageBlob = await fetch(tikTokProfile.avatar_large_url).then(
+          (r) => r.blob()
+        )
+        const artworkFile = new File([imageBlob], 'Artwork', {
+          type: 'image/jpeg'
+        })
+        const file = await resizeImage(artworkFile)
+        const url = URL.createObjectURL(file)
+        return { url, file }
+      }
+    } catch (e) {
+      console.error('Failed to fetch avatar_large_url', e)
+    }
+
+    return undefined
+  }
+
+  const profilePicture = await getProfilePicture()
+
+  // Truncate to MAX_HANDLE_LENGTH characters because we don't support longer handles.
+  // If the user is verifed, they won't be able to claim the status if
+  // the handle doesn't match, so just pass through.
+  let requiresUserReview = false
+  if (tikTokProfile.username.length > MAX_HANDLE_LENGTH) {
+    requiresUserReview = true
+    if (!tikTokProfile.is_verified) {
+      tikTokProfile.username = tikTokProfile.username.slice(
+        0,
+        MAX_HANDLE_LENGTH
+      )
+    }
+  }
+
+  return {
+    profile: tikTokProfile,
+    profileImage: profilePicture,
+    profileBanner: undefined,
     requiresUserReview
   }
 }

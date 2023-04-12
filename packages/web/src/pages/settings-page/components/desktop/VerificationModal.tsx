@@ -9,33 +9,33 @@ import {
   BooleanKeys,
   TwitterProfile,
   InstagramProfile,
-  musicConfettiActions
+  musicConfettiActions,
+  TikTokProfile
 } from '@audius/common'
 import { Modal, Button, ButtonType, IconNote, ButtonSize } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconValidationX } from 'assets/img/iconValidationX.svg'
-import { ReactComponent as IconVerified } from 'assets/img/iconVerified.svg'
 import { useRecord, make, TrackEvent } from 'common/store/analytics/actions'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
+import { InstagramAuthButton } from 'components/instagram-auth/InstagramAuthButton'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
+import { TikTokAuthButton } from 'components/tiktok-auth/TikTokAuthButton'
+import { TwitterAuthButton } from 'components/twitter-auth/TwitterAuthButton'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useRemoteVar } from 'hooks/useRemoteConfig'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import { profilePage } from 'utils/route'
-
-import InstagramAccountVerification from '../InstagramAccountVerified'
-import TwitterAccountVerification from '../TwitterAccountVerified'
 
 import styles from './VerificationModal.module.css'
 const { show: showMusicConfetti } = musicConfettiActions
 
 const messages = {
   title: 'Verification',
-  buttonText: 'Verify',
+  buttonText: 'Get Verified!',
   description:
-    'Getting verified on Audius is easy! Just link your verified Twitter or Instagram account and you’ll be verified immediately.',
+    'Getting verified on Audius is easy! Just link your verified Instagram, TikTok or legacy verified Twitter account and you’ll be verified immediately.',
   warning: (
     <p>
       Your Audius handle must <b>exactly</b> match the verified handle you’re
@@ -47,26 +47,38 @@ const messages = {
   backToMusic: 'Back To The Music',
   failure: 'Sorry, unable to retrieve information',
   errorHandle: 'Sorry, your handle does not match',
-  errorVerifiedTwitter: 'Your Twitter account isn’t verified',
-  errorVerifiedInstagram: 'Your Instagram account isn’t verified'
+  errorVerifiedTwitter: "Your Twitter account isn't legacy verified",
+  errorVerifiedInstagram: "Your Instagram account isn't verified",
+  errorVerifiedTikTok: "Your TikTok account isn't verified",
+  twitterVerify: 'Verify with Twitter',
+  instagramVerify: 'Verify with Instagram',
+  tiktokVerify: 'Verify with TikTok'
 }
 
 type VerifyBodyProps = {
   handle: string
   onClick: () => void
   onFailure: () => void
-  onTwitterLogin: (uuid: string, profile: any) => void
-  onInstagramLogin: (uuid: string, profile: any) => void
+  onTwitterLogin: (uuid: string, profile: TwitterProfile) => void
+  onInstagramLogin: (uuid: string, profile: InstagramProfile) => void
+  onTikTokLogin: (uuid: string, profile: TikTokProfile) => void
   error?: string
 }
 
 const VerifyBody = (props: VerifyBodyProps) => {
-  const displayInstagram = useRemoteVar(
+  const isTwitterEnabled = useRemoteVar(
+    BooleanKeys.DISPLAY_TWITTER_VERIFICATION_WEB_AND_DESKTOP
+  )
+  const isInstagramEnabled = useRemoteVar(
     BooleanKeys.DISPLAY_INSTAGRAM_VERIFICATION_WEB_AND_DESKTOP
+  )
+  const isTikTokEnabled = useRemoteVar(
+    BooleanKeys.DISPLAY_TIKTOK_VERIFICATION_WEB_AND_DESKTOP
   )
   const record = useRecord()
   const { handle, onClick } = props
-  const onTwitterClick = useCallback(() => {
+
+  const handleClickTwitter = useCallback(() => {
     onClick()
     const trackEvent: TrackEvent = make(Name.SETTINGS_START_TWITTER_OAUTH, {
       handle
@@ -74,7 +86,7 @@ const VerifyBody = (props: VerifyBodyProps) => {
     record(trackEvent)
   }, [record, onClick, handle])
 
-  const onInstagramClick = useCallback(() => {
+  const handleClickInstagram = useCallback(() => {
     onClick()
     const trackEvent: TrackEvent = make(Name.SETTINGS_START_INSTAGRAM_OAUTH, {
       handle
@@ -82,24 +94,50 @@ const VerifyBody = (props: VerifyBodyProps) => {
     record(trackEvent)
   }, [record, onClick, handle])
 
+  const handleClickTikTok = useCallback(() => {
+    onClick()
+    const trackEvent: TrackEvent = make(Name.SETTINGS_START_TIKTOK_OAUTH, {
+      handle
+    })
+    record(trackEvent)
+  }, [record, onClick, handle])
+
   return (
     <div className={styles.container}>
-      <p>{messages.description}</p>
-      <div className={styles.warning}>{messages.warning}</div>
+      <p className={styles.text}>{messages.description}</p>
+      <div className={cn(styles.text, styles.warning)}>{messages.warning}</div>
       <div className={styles.btnContainer}>
-        <TwitterAccountVerification
-          onSuccess={props.onTwitterLogin}
-          onFailure={props.onFailure}
-          className={styles.twitterClassName}
-          onClick={onTwitterClick}
-        />
-        {displayInstagram && (
-          <InstagramAccountVerification
-            onClick={onInstagramClick}
-            onSuccess={props.onInstagramLogin}
+        {isTwitterEnabled ? (
+          <TwitterAuthButton
+            onClick={handleClickTwitter}
             onFailure={props.onFailure}
+            onSuccess={props.onTwitterLogin}
+            text={messages.twitterVerify}
+            className={styles.socialButton}
+            containerClassName={styles.socialButton}
           />
-        )}
+        ) : null}
+
+        {isInstagramEnabled ? (
+          <InstagramAuthButton
+            onClick={handleClickInstagram}
+            onFailure={props.onFailure}
+            onSuccess={props.onInstagramLogin}
+            text={messages.instagramVerify}
+            className={styles.socialButton}
+            containerClassName={styles.socialButton}
+          />
+        ) : null}
+
+        {isTikTokEnabled ? (
+          <TikTokAuthButton
+            onClick={handleClickTikTok}
+            onFailure={props.onFailure}
+            onSuccess={props.onTikTokLogin}
+            text={messages.tiktokVerify}
+            className={styles.socialButton}
+          />
+        ) : null}
       </div>
       {props.error && (
         <div className={styles.error}>
@@ -188,14 +226,15 @@ type VerificationModalProps = {
   profilePictureSizes: ProfilePictureSizes | null
   isVerified?: boolean
   goToRoute: (route: string) => void
-  onInstagramLogin: (uuid: string, profile: any) => void
-  onTwitterLogin: (uuid: string, profile: any) => void
+  onInstagramLogin: (uuid: string, profile: InstagramProfile) => void
+  onTwitterLogin: (uuid: string, profile: TwitterProfile) => void
+  onTikTokLogin: (uuid: string, profile: TikTokProfile) => void
 }
 
 // A modal that allows you to toggle a track to unlisted, as
 // well as toggle individual metadata field visibility.
 const VerificationModal = (props: VerificationModalProps) => {
-  const { handle, onInstagramLogin, onTwitterLogin } = props
+  const { handle, onInstagramLogin, onTwitterLogin, onTikTokLogin } = props
   const dispatch = useDispatch()
   const [error, setError] = useState('')
   const [status, setStatus] = useState('')
@@ -256,6 +295,29 @@ const VerificationModal = (props: VerificationModalProps) => {
     [dispatch, handle, onTwitterLogin, setError, record]
   )
 
+  const tikTokLogin = useCallback(
+    (uuid: string, profile: TikTokProfile) => {
+      if (!profile.is_verified) {
+        setError(messages.errorVerifiedTikTok)
+        setStatus(Status.ERROR)
+      } else if (profile.username.toLowerCase() !== handle.toLowerCase()) {
+        setError(messages.errorHandle)
+        setStatus(Status.ERROR)
+      } else {
+        dispatch(showMusicConfetti())
+        onTikTokLogin(uuid, profile)
+        setStatus(Status.SUCCESS)
+      }
+      const trackEvent: TrackEvent = make(Name.SETTINGS_COMPLETE_TIKTOK_OAUTH, {
+        is_verified: profile.is_verified,
+        handle,
+        username: profile.username
+      })
+      record(trackEvent)
+    },
+    [dispatch, handle, onTikTokLogin, setError, record]
+  )
+
   const onOpen = useCallback(() => setIsOpen(true), [setIsOpen])
   const onClose = useCallback(() => {
     setIsOpen(false)
@@ -273,6 +335,7 @@ const VerificationModal = (props: VerificationModalProps) => {
         onFailure={onFailure}
         onInstagramLogin={instagramLogin}
         onTwitterLogin={twitterLogin}
+        onTikTokLogin={tikTokLogin}
         error={error}
       />
     )
@@ -297,7 +360,6 @@ const VerificationModal = (props: VerificationModalProps) => {
           className={styles.disabledBtn}
           textClassName={styles.disabledBtnText}
           type={ButtonType.COMMON_ALT}
-          leftIcon={<IconVerified className={styles.btnIcon} />}
         />
       ) : (
         <Button
@@ -307,7 +369,6 @@ const VerificationModal = (props: VerificationModalProps) => {
           textClassName={styles.btnText}
           size={ButtonSize.MEDIUM}
           type={ButtonType.COMMON_ALT}
-          leftIcon={<IconVerified className={styles.btnIcon} />}
         />
       )}
       <Modal

@@ -10,7 +10,8 @@ import {
   User,
   CollectionsPageType,
   CollectionTrack,
-  OverflowAction
+  OverflowAction,
+  usePremiumContentAccessMap
 } from '@audius/common'
 
 import CollectionHeader from 'components/collection/mobile/CollectionHeader'
@@ -22,7 +23,6 @@ import NavContext, {
   CenterPreset,
   RightPreset
 } from 'components/nav/store/context'
-import NetworkConnectivityMonitor from 'components/network-connectivity/NetworkConnectivityMonitor'
 import TrackList from 'components/track/mobile/TrackList'
 import { computeCollectionMetadataProps } from 'pages/collection-page/store/utils'
 
@@ -205,102 +205,106 @@ const CollectionPage = ({
 
   const playingUid = getPlayingUid()
 
-  const trackList = tracks.entries.map((entry) => ({
-    isLoading: false,
-    isSaved: entry.has_current_user_saved,
-    isReposted: entry.has_current_user_reposted,
-    isActive: playingUid === entry.uid,
-    isPlaying: queuedAndPlaying && playingUid === entry.uid,
-    artistName: entry?.user?.name,
-    artistHandle: entry?.user?.handle,
-    trackTitle: entry.title,
-    trackId: entry.track_id,
-    uid: entry.uid,
-    isDeleted: entry.is_delete || !!entry?.user?.is_deactivated
-  }))
+  const trackAccessMap = usePremiumContentAccessMap(tracks.entries)
+  const trackList = tracks.entries.map((entry) => {
+    const { isUserAccessTBD, doesUserHaveAccess } = trackAccessMap[
+      entry.track_id
+    ] ?? { isUserAccessTBD: false, doesUserHaveAccess: true }
+    const isLocked = !isUserAccessTBD && !doesUserHaveAccess
+    return {
+      isLoading: false,
+      isSaved: entry.has_current_user_saved,
+      isReposted: entry.has_current_user_reposted,
+      isActive: playingUid === entry.uid,
+      isPlaying: queuedAndPlaying && playingUid === entry.uid,
+      artistName: entry?.user?.name,
+      artistHandle: entry?.user?.handle,
+      trackTitle: entry.title,
+      trackId: entry.track_id,
+      uid: entry.uid,
+      isPremium: entry.is_premium,
+      isDeleted: entry.is_delete || !!entry?.user?.is_deactivated,
+      isLocked
+    }
+  })
 
   return (
-    <NetworkConnectivityMonitor
-      pageDidLoad={tracksLoading}
-      onDidRegainConnectivity={refresh}
+    <MobilePageContainer
+      title={title}
+      description={pageDescription}
+      canonicalUrl={canonicalUrl}
+      structuredData={structuredData}
     >
-      <MobilePageContainer
-        title={title}
-        description={pageDescription}
-        canonicalUrl={canonicalUrl}
-        structuredData={structuredData}
-      >
-        <div className={styles.collectionContent}>
-          <div>
-            <CollectionHeader
-              collectionId={playlistId}
-              userId={user?.user_id ?? 0}
-              loading={
-                typeTitle === 'Audio NFT Playlist'
-                  ? tracksLoading
-                  : collectionLoading
-              }
-              tracksLoading={tracksLoading}
-              type={typeTitle}
-              title={playlistName}
-              artistName={playlistOwnerName}
-              artistHandle={playlistOwnerHandle}
-              coverArtSizes={coverArtSizes}
-              description={description}
-              isOwner={isOwner}
-              isAlbum={isAlbum}
-              numTracks={trackList.length}
-              modified={lastModified || Date.now()}
-              duration={duration}
-              isPublished={!isPrivate}
-              isPublishing={isPublishing}
-              isSaved={isSaved}
-              saves={playlistSaveCount}
-              playing={queuedAndPlaying}
-              repostCount={playlistRepostCount}
-              isReposted={isReposted}
-              // Actions
-              onClickArtistName={onHeroTrackClickArtistName}
-              onPlay={onPlay}
-              onShare={onHeroTrackShare}
-              onSave={onHeroTrackSave}
-              onRepost={onHeroTrackRepost}
-              onClickFavorites={onClickFavorites}
-              onClickReposts={onClickReposts}
-              onClickMobileOverflow={onClickMobileOverflow}
-              // Smart collection
-              variant={variant}
-              gradient={gradient}
-              imageOverride={imageOverride}
-              icon={icon}
-            />
-          </div>
-          <div className={styles.collectionTracksContainer}>
-            {!tracksLoading ? (
-              isEmpty ? (
-                <>
-                  <div className={styles.divider}></div>
-                  <EmptyTrackList customEmptyText={customEmptyText} />
-                </>
-              ) : (
-                <TrackList
-                  containerClassName={''}
-                  itemClassName={''}
-                  tracks={trackList}
-                  showTopDivider
-                  showDivider
-                  onSave={onSave}
-                  togglePlay={togglePlay}
-                />
-              )
-            ) : null}
-            {collectionLoading && typeTitle === 'Audio NFT Playlist' ? (
-              <LoadingSpinner className={styles.spinner} />
-            ) : null}
-          </div>
+      <div className={styles.collectionContent}>
+        <div>
+          <CollectionHeader
+            collectionId={playlistId}
+            userId={user?.user_id ?? 0}
+            loading={
+              typeTitle === 'Audio NFT Playlist'
+                ? tracksLoading
+                : collectionLoading
+            }
+            tracksLoading={tracksLoading}
+            type={typeTitle}
+            title={playlistName}
+            artistName={playlistOwnerName}
+            artistHandle={playlistOwnerHandle}
+            coverArtSizes={coverArtSizes}
+            description={description}
+            isOwner={isOwner}
+            isAlbum={isAlbum}
+            numTracks={trackList.length}
+            modified={lastModified || Date.now()}
+            duration={duration}
+            isPublished={!isPrivate}
+            isPublishing={isPublishing}
+            isSaved={isSaved}
+            saves={playlistSaveCount}
+            playing={queuedAndPlaying}
+            repostCount={playlistRepostCount}
+            isReposted={isReposted}
+            // Actions
+            onClickArtistName={onHeroTrackClickArtistName}
+            onPlay={onPlay}
+            onShare={onHeroTrackShare}
+            onSave={onHeroTrackSave}
+            onRepost={onHeroTrackRepost}
+            onClickFavorites={onClickFavorites}
+            onClickReposts={onClickReposts}
+            onClickMobileOverflow={onClickMobileOverflow}
+            // Smart collection
+            variant={variant}
+            gradient={gradient}
+            imageOverride={imageOverride}
+            icon={icon}
+          />
         </div>
-      </MobilePageContainer>
-    </NetworkConnectivityMonitor>
+        <div className={styles.collectionTracksContainer}>
+          {!tracksLoading ? (
+            isEmpty ? (
+              <>
+                <div className={styles.divider}></div>
+                <EmptyTrackList customEmptyText={customEmptyText} />
+              </>
+            ) : (
+              <TrackList
+                containerClassName={''}
+                itemClassName={''}
+                tracks={trackList}
+                showTopDivider
+                showDivider
+                onSave={onSave}
+                togglePlay={togglePlay}
+              />
+            )
+          ) : null}
+          {collectionLoading && typeTitle === 'Audio NFT Playlist' ? (
+            <LoadingSpinner className={styles.spinner} />
+          ) : null}
+        </div>
+      </div>
+    </MobilePageContainer>
   )
 }
 

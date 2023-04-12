@@ -1,10 +1,11 @@
 import { combineReducers } from 'redux'
 
-import { Kind, Cache, Collection } from '../models'
+import { Kind } from '../models'
 
 import accountSlice from './account/slice'
 import averageColorReducer from './average-color/slice'
 import collectionsReducer from './cache/collections/reducer'
+import { CollectionsCacheState } from './cache/collections/types'
 import { asCache } from './cache/reducer'
 import tracksReducer from './cache/tracks/reducer'
 import { TracksCacheState } from './cache/tracks/types'
@@ -13,11 +14,15 @@ import { UsersCacheState } from './cache/users/types'
 import cast from './cast/slice'
 import changePasswordReducer from './change-password/slice'
 import { ChangePasswordState } from './change-password/types'
+import collectiblesSlice from './collectibles/slice'
 import musicConfettiReducer, {
   MusicConfettiState
 } from './music-confetti/slice'
-import notifications from './notifications/reducer'
+import { NotificationsState, notificationsReducer } from './notifications'
+import { HistoryPageState, SavedPageState } from './pages'
 import audioRewardsSlice from './pages/audio-rewards/slice'
+import audioTransactionsSlice from './pages/audio-transactions/slice'
+import { chatReducer } from './pages/chat'
 import collection from './pages/collection/reducer'
 import { CollectionsPageState } from './pages/collection/types'
 import {
@@ -45,19 +50,31 @@ import trendingPlaylists from './pages/trending-playlists/slice'
 import trendingUnderground from './pages/trending-underground/slice'
 import trending from './pages/trending/reducer'
 import { TrendingPageState } from './pages/trending/types'
+import { PlaybackPositionState } from './playback-position'
+import playbackPosition from './playback-position/slice'
 import player, { PlayerState } from './player/slice'
 import {
   playlistLibraryReducer,
   PlaylistLibraryState
 } from './playlist-library'
+import { playlistUpdatesReducer, PlaylistUpdateState } from './playlist-updates'
+import premiumContentSlice from './premium-content/slice'
 import queue from './queue/slice'
 import reachability from './reachability/reducer'
 import { ReachabilityState } from './reachability/types'
 import { recoveryEmailReducer, RecoveryEmailState } from './recovery-email'
+import remixSettingsReducer, {
+  RemixSettingsState
+} from './remix-settings/slice'
 import solanaReducer from './solana/slice'
 import stemsUpload from './stems-upload/slice'
 import tippingReducer from './tipping/slice'
-import { ToastState, TransactionDetailsState } from './ui'
+import {
+  searchUsersModalReducer,
+  SearchUsersModalState,
+  ToastState,
+  TransactionDetailsState
+} from './ui'
 import addToPlaylistReducer, {
   AddToPlaylistState
 } from './ui/add-to-playlist/reducer'
@@ -117,6 +134,7 @@ export const reducers = () => ({
   reachability,
 
   // Cache
+  // @ts-ignore
   collections: asCache(collectionsReducer, Kind.COLLECTIONS),
   // TODO: Fix type error
   // @ts-ignore
@@ -128,6 +146,7 @@ export const reducers = () => ({
   // Playback
   queue,
   player,
+  playbackPosition,
 
   // Wallet
   wallet,
@@ -137,6 +156,9 @@ export const reducers = () => ({
 
   // Playlist Library
   playlistLibrary: playlistLibraryReducer,
+  playlistUpdates: playlistUpdatesReducer,
+
+  notifications: notificationsReducer,
 
   // UI
   ui: combineReducers({
@@ -154,8 +176,10 @@ export const reducers = () => ({
     musicConfetti: musicConfettiReducer,
     nowPlaying: nowPlayingReducer,
     reactions: reactionsReducer,
+    remixSettings: remixSettingsReducer,
     shareSoundToTikTokModal: shareSoundToTikTokModalReducer,
     shareModal: shareModalReducer,
+    searchUsersModal: searchUsersModalReducer,
     toast: toastReducer,
     transactionDetails: transactionDetailsReducer,
     userList: combineReducers({
@@ -176,6 +200,8 @@ export const reducers = () => ({
   // Pages
   pages: combineReducers({
     audioRewards: audioRewardsSlice.reducer,
+    audioTransactions: audioTransactionsSlice.reducer,
+    chat: chatReducer,
     collection,
     deactivateAccount: deactivateAccountReducer,
     feed,
@@ -192,7 +218,6 @@ export const reducers = () => ({
     trendingPlaylists,
     trendingUnderground,
     settings,
-    notifications,
     remixes
   }),
 
@@ -203,6 +228,12 @@ export const reducers = () => ({
 
   // Tipping
   tipping: tippingReducer,
+
+  // Premium content
+  premiumContent: premiumContentSlice.reducer,
+
+  // Collectibles
+  collectibles: collectiblesSlice.reducer,
 
   upload
 })
@@ -222,13 +253,14 @@ export type CommonState = {
   // confirmer: ConfirmerState
 
   // Cache
-  collections: Cache<Collection>
+  collections: CollectionsCacheState
   tracks: TracksCacheState
   users: UsersCacheState
 
   // Playback
   queue: ReturnType<typeof queue>
   player: PlayerState
+  playbackPosition: PlaybackPositionState
 
   // Wallet
   wallet: ReturnType<typeof wallet>
@@ -238,6 +270,9 @@ export type CommonState = {
 
   // Playlist library
   playlistLibrary: PlaylistLibraryState
+  playlistUpdates: PlaylistUpdateState
+
+  notifications: NotificationsState
 
   ui: {
     averageColor: ReturnType<typeof averageColorReducer>
@@ -253,7 +288,9 @@ export type CommonState = {
     musicConfetti: MusicConfettiState
     nowPlaying: NowPlayingState
     reactions: ReactionsState
+    remixSettings: RemixSettingsState
     shareSoundToTikTokModal: ShareSoundToTikTokModalState
+    searchUsersModal: SearchUsersModalState
     shareModal: ShareModalState
     toast: ToastState
     transactionDetails: TransactionDetailsState
@@ -274,6 +311,8 @@ export type CommonState = {
 
   pages: {
     audioRewards: ReturnType<typeof audioRewardsSlice.reducer>
+    audioTransactions: ReturnType<typeof audioTransactionsSlice.reducer>
+    chat: ReturnType<typeof chatReducer>
     collection: CollectionsPageState
     deactivateAccount: DeactivateAccountState
     feed: FeedPageState
@@ -281,16 +320,15 @@ export type CommonState = {
     exploreCollections: ReturnType<typeof exploreCollectionsReducer>
     smartCollection: ReturnType<typeof smartCollection>
     tokenDashboard: ReturnType<typeof tokenDashboardSlice.reducer>
-    historyPage: ReturnType<typeof historyPageReducer>
+    historyPage: HistoryPageState
     track: TrackPageState
     profile: ProfilePageState
-    savedPage: ReturnType<typeof savedPageReducer>
+    savedPage: SavedPageState
     searchResults: SearchPageState
     settings: SettingsPageState
     trending: TrendingPageState
     trendingPlaylists: ReturnType<typeof trendingPlaylists>
     trendingUnderground: ReturnType<typeof trendingUnderground>
-    notifications: ReturnType<typeof notifications>
     remixes: ReturnType<typeof remixes>
   }
   solana: ReturnType<typeof solanaReducer>
@@ -299,6 +337,12 @@ export type CommonState = {
 
   // Tipping
   tipping: ReturnType<typeof tippingReducer>
+
+  // Premium content
+  premiumContent: ReturnType<typeof premiumContentSlice.reducer>
+
+  // Collectibles
+  collectibles: ReturnType<typeof collectiblesSlice.reducer>
 
   upload: UploadState
 }

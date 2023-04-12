@@ -21,6 +21,7 @@ import type {
 } from 'react-native'
 import { Platform, View, StatusBar, Pressable } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import TrackPlayer from 'react-native-track-player'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { BOTTOM_BAR_HEIGHT } from 'app/components/bottom-tab-bar'
@@ -33,7 +34,6 @@ import { useDrawer } from 'app/hooks/useDrawer'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { AppDrawerContext } from 'app/screens/app-drawer-screen'
 import { AppTabNavigationContext } from 'app/screens/app-screen'
-import { getAndroidNavigationBarHeight } from 'app/store/mobileUi/selectors'
 import { makeStyles } from 'app/styles'
 
 import { ActionsBar } from './ActionsBar'
@@ -44,14 +44,16 @@ import { PlayBar } from './PlayBar'
 import { TitleBar } from './TitleBar'
 import { TrackInfo } from './TrackInfo'
 import { PLAY_BAR_HEIGHT } from './constants'
-const { seek } = playerActions
+const { seek, reset } = playerActions
 
-const { getPlaying, getCurrentTrack, getCounter } = playerSelectors
+const { getPlaying, getCurrentTrack, getCounter, getUid } = playerSelectors
 const { next, previous } = queueActions
 const { getUser } = cacheUsersSelectors
 
 const STATUS_BAR_FADE_CUTOFF = 0.6
 const SKIP_DURATION_SEC = 15
+const RESTART_THRESHOLD_SEC = 3
+
 // If the top screen inset is greater than this,
 // the status bar will be hidden when the drawer is open
 const INSET_STATUS_BAR_HIDE_THRESHOLD = 20
@@ -105,13 +107,12 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
   })
   const dispatch = useDispatch()
   const insets = useSafeAreaInsets()
-  const androidNavigationBarHeight = useSelector(getAndroidNavigationBarHeight)
   const staticTopInset = useRef(insets.top)
-  const bottomBarHeight = BOTTOM_BAR_HEIGHT + insets.bottom
   const styles = useStyles()
 
   const { isOpen, onOpen, onClose } = useDrawer('NowPlaying')
   const playCounter = useSelector(getCounter)
+  const currentUid = useSelector(getUid)
   const isPlaying = useSelector(getPlaying)
   const [isPlayBarShowing, setIsPlayBarShowing] = useState(false)
 
@@ -179,6 +180,7 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
           }
         } else if (gestureState.vy < 0) {
           // Dragging upwards
+
           if (drawerPercentOpen.current > STATUS_BAR_FADE_CUTOFF) {
             StatusBar.setHidden(true, 'fade')
           }
@@ -202,6 +204,7 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
 
   const track = useSelector(getCurrentTrack)
   const trackId = track?.track_id
+  const trackDuration = track?.duration ?? 0
 
   const user = useSelector((state) =>
     getUser(state, track ? { id: track.owner_id } : {})
@@ -210,31 +213,36 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
 
   useEffect(() => {
     setMediaKey((mediaKey) => mediaKey + 1)
-  }, [playCounter])
+  }, [playCounter, currentUid])
 
-  const onNext = useCallback(() => {
-    if (track?.genre === Genre.PODCASTS) {
-      if (global.progress) {
-        const { currentTime } = global.progress
-        const newPosition = currentTime + SKIP_DURATION_SEC
-        dispatch(seek({ seconds: Math.min(track.duration, newPosition) }))
-      }
+  const onNext = useCallback(async () => {
+    const isLongFormContent =
+      track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
+    if (isLongFormContent) {
+      const currentPosition = await TrackPlayer.getPosition()
+      const newPosition = currentPosition + SKIP_DURATION_SEC
+      dispatch(seek({ seconds: Math.min(track.duration, newPosition) }))
     } else {
       dispatch(next({ skip: true }))
       setMediaKey((mediaKey) => mediaKey + 1)
     }
   }, [dispatch, setMediaKey, track])
 
-  const onPrevious = useCallback(() => {
-    if (track?.genre === Genre.PODCASTS) {
-      if (global.progress) {
-        const { currentTime } = global.progress
-        const newPosition = currentTime - SKIP_DURATION_SEC
-        dispatch(seek({ seconds: Math.max(0, newPosition) }))
-      }
+  const onPrevious = useCallback(async () => {
+    const currentPosition = await TrackPlayer.getPosition()
+    const isLongFormContent =
+      track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
+    if (isLongFormContent) {
+      const newPosition = currentPosition - SKIP_DURATION_SEC
+      dispatch(seek({ seconds: Math.max(0, newPosition) }))
     } else {
-      dispatch(previous())
-      setMediaKey((mediaKey) => mediaKey + 1)
+      const shouldGoToPrevious = currentPosition < RESTART_THRESHOLD_SEC
+      if (shouldGoToPrevious) {
+        dispatch(previous())
+        setMediaKey((mediaKey) => mediaKey + 1)
+      } else {
+        dispatch(reset({ shouldAutoplay: true }))
+      }
     }
   }, [dispatch, setMediaKey, track])
 
@@ -269,9 +277,7 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
       isOpen={isOpen}
       onClose={handleDrawerCloseFromSwipe}
       onOpen={onDrawerOpen}
-      initialOffsetPosition={
-        bottomBarHeight + PLAY_BAR_HEIGHT + androidNavigationBarHeight
-      }
+      initialOffsetPosition={BOTTOM_BAR_HEIGHT + PLAY_BAR_HEIGHT}
       shouldCloseToInitialOffset={isPlayBarShowing}
       animationStyle={DrawerAnimationStyle.SPRINGY}
       shouldBackgroundDim={false}
@@ -293,6 +299,7 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
       >
         <View style={styles.playBarContainer}>
           <PlayBar
+            mediaKey={`${mediaKey}`}
             track={track}
             user={user}
             onPress={onDrawerOpen}
@@ -320,14 +327,17 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
             isPlaying={isPlaying}
             onPressIn={onPressScrubberIn}
             onPressOut={onPressScrubberOut}
-            duration={track?.duration ?? 0}
+            duration={trackDuration}
           />
         </View>
         <View style={styles.controlsContainer}>
           <AudioControls
             onNext={onNext}
             onPrevious={onPrevious}
-            isPodcast={track?.genre === Genre.PODCASTS}
+            isLongFormContent={
+              track?.genre === Genre.PODCASTS ||
+              track?.genre === Genre.AUDIOBOOKS
+            }
           />
           <ActionsBar track={track} />
         </View>

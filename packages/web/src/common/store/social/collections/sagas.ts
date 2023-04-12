@@ -13,24 +13,24 @@ import {
   cacheCollectionsSelectors,
   cacheUsersSelectors,
   cacheActions,
-  notificationsActions as notificationActions,
   getContext,
   collectionsSocialActions as socialActions,
   playlistLibraryActions,
-  playlistLibraryHelpers
+  playlistLibraryHelpers,
+  playlistUpdatesActions
 } from '@audius/common'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { adjustUserField } from 'common/store/cache/users/sagas'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import { albumPage, audioNftPlaylistPage, playlistPage } from 'utils/route'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import { waitForWrite } from 'utils/sagaHelpers'
 
 import watchCollectionErrors from './errorSagas'
+const { updatedPlaylistViewed } = playlistUpdatesActions
 const { update: updatePlaylistLibrary } = playlistLibraryActions
 const { removeFromPlaylistLibrary } = playlistLibraryHelpers
 const { getUser } = cacheUsersSelectors
@@ -47,12 +47,15 @@ export function* watchRepostCollection() {
 export function* repostCollectionAsync(
   action: ReturnType<typeof socialActions.repostCollection>
 ) {
-  yield* waitForBackendAndAccount()
+  yield* waitForWrite()
   const userId = yield* select(getUserId)
   if (!userId) {
     yield* put(signOnActions.openSignOn(false))
     yield* put(signOnActions.showRequiresAccountModal())
     yield* put(make(Name.CREATE_ACCOUNT_OPEN, { source: 'social action' }))
+    return
+  }
+  if (userId === action.collectionId) {
     return
   }
 
@@ -61,7 +64,6 @@ export function* repostCollectionAsync(
   if (!user) return
 
   yield* call(adjustUserField, { user, fieldName: 'repost_count', delta: 1 })
-
   let collection = action.metadata
   if (!collection) {
     const collections = yield* select(getCollections, {
@@ -77,11 +79,19 @@ export function* repostCollectionAsync(
   })
   yield* put(event)
 
+  const repostMetadata = action.isFeed
+    ? // If we're on the feed, and someone i follow has
+      // reposted the content i am reposting,
+      // is_repost_of_repost is true
+      { is_repost_of_repost: collection.followee_reposts.length !== 0 }
+    : { is_repost_of_repost: false }
+
   yield* call(
     confirmRepostCollection,
     collection.playlist_owner_id,
     action.collectionId,
-    user
+    user,
+    repostMetadata
   )
 
   yield* put(
@@ -100,7 +110,8 @@ export function* repostCollectionAsync(
 export function* confirmRepostCollection(
   ownerId: ID,
   collectionId: ID,
-  user: User
+  user: User,
+  metadata: { is_repost_of_repost: boolean }
 ) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* put(
@@ -109,7 +120,8 @@ export function* confirmRepostCollection(
       function* () {
         const { blockHash, blockNumber } = yield* call(
           audiusBackendInstance.repostCollection,
-          collectionId
+          collectionId,
+          metadata
         )
         const confirmed = yield* call(
           confirmTransaction,
@@ -153,12 +165,15 @@ export function* watchUndoRepostCollection() {
 export function* undoRepostCollectionAsync(
   action: ReturnType<typeof socialActions.undoRepostCollection>
 ) {
-  yield* waitForBackendAndAccount()
+  yield* waitForWrite()
   const userId = yield* select(getUserId)
   if (!userId) {
     yield* put(signOnActions.openSignOn(false))
     yield* put(signOnActions.showRequiresAccountModal())
     yield* put(make(Name.CREATE_ACCOUNT_OPEN, { source: 'social action' }))
+    return
+  }
+  if (userId === action.collectionId) {
     return
   }
 
@@ -269,7 +284,7 @@ export function* watchSaveSmartCollection() {
 export function* saveSmartCollection(
   action: ReturnType<typeof socialActions.saveSmartCollection>
 ) {
-  yield* waitForBackendAndAccount()
+  yield* waitForWrite()
   const userId = yield* select(getUserId)
   if (!userId) {
     yield* put(signOnActions.showRequiresAccountModal())
@@ -301,12 +316,15 @@ export function* saveSmartCollection(
 export function* saveCollectionAsync(
   action: ReturnType<typeof socialActions.saveCollection>
 ) {
-  yield* waitForBackendAndAccount()
+  yield* waitForWrite()
   const userId = yield* select(getUserId)
   if (!userId) {
     yield* put(signOnActions.showRequiresAccountModal())
     yield* put(signOnActions.openSignOn(false))
     yield* put(make(Name.CREATE_ACCOUNT_OPEN, { source: 'social action' }))
+    return
+  }
+  if (userId === action.collectionId) {
     return
   }
 
@@ -324,16 +342,20 @@ export function* saveCollectionAsync(
   })
   yield* put(event)
 
+  const saveMetadata = action.isFeed
+    ? // If we're on the feed, and the content
+      // being saved is a repost
+      { is_save_of_repost: collection.followee_reposts.length !== 0 }
+    : { is_save_of_repost: false }
   yield* call(
     confirmSaveCollection,
     collection.playlist_owner_id,
-    action.collectionId
+    action.collectionId,
+    saveMetadata
   )
 
   if (!collection.is_album) {
-    yield* put(
-      notificationActions.updatePlaylistLastViewedAt(action.collectionId)
-    )
+    yield* put(updatedPlaylistViewed({ playlistId: action.collectionId }))
   }
 
   const subscribedUid = makeUid(
@@ -369,7 +391,11 @@ export function* saveCollectionAsync(
   yield* put(socialActions.saveCollectionSucceeded(action.collectionId))
 }
 
-export function* confirmSaveCollection(ownerId: ID, collectionId: ID) {
+export function* confirmSaveCollection(
+  ownerId: ID,
+  collectionId: ID,
+  metadata?: { is_save_of_repost: boolean }
+) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* put(
     confirmerActions.requestConfirmation(
@@ -377,7 +403,8 @@ export function* confirmSaveCollection(ownerId: ID, collectionId: ID) {
       function* () {
         const { blockHash, blockNumber } = yield* call(
           audiusBackendInstance.saveCollection,
-          collectionId
+          collectionId,
+          metadata
         )
         const confirmed = yield* call(
           confirmTransaction,
@@ -426,7 +453,7 @@ export function* watchUnsaveSmartCollection() {
 export function* unsaveSmartCollection(
   action: ReturnType<typeof socialActions.unsaveSmartCollection>
 ) {
-  yield* call(waitForBackendSetup)
+  yield* call(waitForWrite)
 
   const playlistLibrary = yield* select(getPlaylistLibrary)
   if (!playlistLibrary) return
@@ -447,7 +474,11 @@ export function* unsaveSmartCollection(
 export function* unsaveCollectionAsync(
   action: ReturnType<typeof socialActions.unsaveCollection>
 ) {
-  yield* call(waitForBackendSetup)
+  yield* call(waitForWrite)
+  const userId = yield* select(getUserId)
+  if (userId === action.collectionId) {
+    return
+  }
   const collections = yield* select(getCollections, {
     ids: [action.collectionId]
   })

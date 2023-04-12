@@ -207,7 +207,7 @@ const CollectionPage = ({
       description={description}
       isOwner={isOwner}
       isAlbum={isAlbum}
-      numTracks={dataSource.length}
+      numTracks={tracks.entries.length}
       modified={lastModified}
       duration={duration}
       isPublished={!isPrivate}
@@ -254,12 +254,12 @@ const CollectionPage = ({
             'playButton',
             'trackName',
             'artistName',
-            'date',
+            isAlbum ? 'date' : 'addedDate',
             'length',
             'plays',
             'overflowActions'
           ],
-    [isNftPlaylist]
+    [isAlbum, isNftPlaylist]
   )
 
   return (

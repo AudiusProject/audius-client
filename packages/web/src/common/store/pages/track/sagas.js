@@ -11,6 +11,7 @@ import {
   reachabilitySelectors
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
+import { keccak_256 } from 'js-sha3'
 import moment from 'moment'
 import {
   call,
@@ -21,9 +22,9 @@ import {
   takeEvery
 } from 'redux-saga/effects'
 
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveTracks } from 'common/store/cache/tracks/utils'
 import { retrieveTrackByHandleAndSlug } from 'common/store/cache/tracks/utils/retrieveTracks'
+import { waitForRead } from 'utils/sagaHelpers'
 
 import { NOT_FOUND_PAGE, trackRemixesPage } from '../../../../utils/route'
 
@@ -37,15 +38,13 @@ const { getUsers } = cacheUsersSelectors
 
 export const TRENDING_BADGE_LIMIT = 10
 
-function* watchTrackBadge() {
+function* watchFetchTrackBadge() {
   const apiClient = yield getContext('apiClient')
   const remoteConfigInstance = yield getContext('remoteConfigInstance')
-  const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  const web3 = yield call(audiusBackendInstance.getWeb3)
 
   yield takeEvery(trackPageActions.GET_TRACK_RANKS, function* (action) {
     try {
-      yield call(waitForBackendSetup)
+      yield call(waitForRead)
       yield call(remoteConfigInstance.waitForRemoteConfig)
       const TF = new Set(
         remoteConfigInstance.getRemoteVar(StringKeys.TF)?.split(',') ?? []
@@ -57,15 +56,15 @@ function* watchTrackBadge() {
         })
         if (TF.size > 0) {
           trendingRanks.week = trendingRanks.week.filter((i) => {
-            const shaId = web3.utils.sha3(i.toString())
+            const shaId = keccak_256(i.toString())
             return !TF.has(shaId)
           })
           trendingRanks.month = trendingRanks.month.filter((i) => {
-            const shaId = web3.utils.sha3(i.toString())
+            const shaId = keccak_256(i.toString())
             return !TF.has(shaId)
           })
           trendingRanks.year = trendingRanks.year.filter((i) => {
-            const shaId = web3.utils.sha3(i.toString())
+            const shaId = keccak_256(i.toString())
             return !TF.has(shaId)
           })
         }
@@ -135,7 +134,14 @@ function* getRestOfLineup(permalink, ownerHandle) {
 
 function* watchFetchTrack() {
   yield takeEvery(trackPageActions.FETCH_TRACK, function* (action) {
-    const { trackId, handle, slug, canBeUnlisted } = action
+    const {
+      trackId,
+      handle,
+      slug,
+      canBeUnlisted,
+      forceRetrieveFromSource,
+      withRemixes = true
+    } = action
     try {
       let track
       if (!trackId) {
@@ -143,8 +149,9 @@ function* watchFetchTrack() {
           handle,
           slug,
           withStems: true,
-          withRemixes: true,
-          withRemixParents: true
+          withRemixes,
+          withRemixParents: true,
+          forceRetrieveFromSource
         })
       } else {
         const ids = canBeUnlisted
@@ -154,13 +161,13 @@ function* watchFetchTrack() {
           trackIds: ids,
           canBeUnlisted,
           withStems: true,
-          withRemixes: true,
+          withRemixes,
           withRemixParents: true
         })
         track = tracks && tracks.length === 1 ? tracks[0] : null
       }
+      const isReachable = yield select(getIsReachable)
       if (!track) {
-        const isReachable = yield select(getIsReachable)
         if (isReachable) {
           yield put(pushRoute(NOT_FOUND_PAGE))
           return
@@ -170,12 +177,14 @@ function* watchFetchTrack() {
         // Add hero track to lineup early so that we can play it ASAP
         // (instead of waiting for the entire lineup to load)
         yield call(addTrackToLineup, track)
-        yield fork(
-          getRestOfLineup,
-          track.permalink,
-          handle || track.permalink.split('/')?.[1]
-        )
-        yield fork(getTrackRanks, track.track_id)
+        if (isReachable) {
+          yield fork(
+            getRestOfLineup,
+            track.permalink,
+            handle || track.permalink.split('/')?.[1]
+          )
+          yield fork(getTrackRanks, track.track_id)
+        }
         yield put(trackPageActions.fetchTrackSucceeded(track.track_id))
       }
     } catch (e) {
@@ -267,7 +276,7 @@ export default function sagas() {
     watchFetchTrack,
     watchFetchTrackSucceeded,
     watchRefetchLineup,
-    watchTrackBadge,
+    watchFetchTrackBadge,
     watchTrackPageMakePublic,
     watchGoToRemixesOfParentPage
   ]

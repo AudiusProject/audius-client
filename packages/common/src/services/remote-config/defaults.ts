@@ -29,7 +29,9 @@ export const remoteConfigIntDefaults: { [key in IntKeys]: number | null } = {
   [IntKeys.MAX_AUDIO_PURCHASE_AMOUNT]: 999,
   [IntKeys.BUY_AUDIO_WALLET_POLL_DELAY_MS]: 1000,
   [IntKeys.BUY_AUDIO_WALLET_POLL_MAX_RETRIES]: 120,
-  [IntKeys.BUY_AUDIO_SLIPPAGE]: 3
+  [IntKeys.BUY_AUDIO_SLIPPAGE]: 3,
+  [IntKeys.GATED_TRACK_POLL_INTERVAL_MS]: 1000,
+  [IntKeys.DISCOVERY_NOTIFICATIONS_GENESIS_UNIX_TIMESTAMP]: 0
 }
 
 export const remoteConfigStringDefaults: {
@@ -68,7 +70,10 @@ export const remoteConfigStringDefaults: {
   [StringKeys.COINBASE_PAY_ALLOWED_COUNTRIES]: '',
   [StringKeys.COINBASE_PAY_DENIED_REGIONS]: '',
   [StringKeys.STRIPE_ALLOWED_COUNTRIES]: '',
-  [StringKeys.STRIPE_DENIED_REGIONS]: ''
+  [StringKeys.STRIPE_DENIED_REGIONS]: '',
+  [StringKeys.COINBASE_PAY_ALLOWED_COUNTRIES_2_LETTER]: '',
+  [StringKeys.STRIPE_ALLOWED_COUNTRIES_2_LETTER]: '',
+  [StringKeys.AUDIO_FEATURES_DEGRADED_TEXT]: null
 }
 
 export const remoteConfigDoubleDefaults: {
@@ -82,10 +87,16 @@ export const remoteConfigBooleanDefaults: {
 } = {
   [BooleanKeys.DISPLAY_INSTAGRAM_VERIFICATION]: true,
   [BooleanKeys.DISPLAY_INSTAGRAM_VERIFICATION_WEB_AND_DESKTOP]: true,
+  [BooleanKeys.DISPLAY_TWITTER_VERIFICATION]: true,
+  [BooleanKeys.DISPLAY_TWITTER_VERIFICATION_WEB_AND_DESKTOP]: true,
+  [BooleanKeys.DISPLAY_TIKTOK_VERIFICATION]: true,
+  [BooleanKeys.DISPLAY_TIKTOK_VERIFICATION_WEB_AND_DESKTOP]: true,
   [BooleanKeys.DISPLAY_WEB3_PROVIDER_WALLET_CONNECT]: true,
   [BooleanKeys.DISPLAY_WEB3_PROVIDER_BITSKI]: true,
   [BooleanKeys.DISPLAY_WEB3_PROVIDER_WALLET_LINK]: true,
   [BooleanKeys.DISPLAY_SOLANA_WEB3_PROVIDER_PHANTOM]: true,
   [BooleanKeys.SKIP_ROLLOVER_NODES_SANITY_CHECK]: false,
-  [BooleanKeys.USE_AMPLITUDE]: true
+  [BooleanKeys.USE_AMPLITUDE]: true,
+  [BooleanKeys.AUDIO_TRANSACTIONS_ENABLED]: false,
+  [BooleanKeys.ENABLE_DISCOVERY_NODE_MAX_SLOT_DIFF_PLAYS]: false
 }

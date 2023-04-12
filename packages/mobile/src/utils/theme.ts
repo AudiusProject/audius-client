@@ -1,6 +1,4 @@
-import type { SystemAppearance, Nullable } from '@audius/common'
 import { themeSelectors } from '@audius/common'
-import { StatusBar } from 'react-native'
 import { useSelector } from 'react-redux'
 
 const { getTheme, getSystemAppearance } = themeSelectors
@@ -10,41 +8,6 @@ export enum Theme {
   DARK = 'dark',
   AUTO = 'auto',
   MATRIX = 'matrix'
-}
-
-/**
- * Set status bar theme in a cross-platform way
- */
-export const setStatusBarTheme = (theme: 'light' | 'dark') => {
-  if (theme === 'light') {
-    StatusBar.setBarStyle('dark-content')
-    StatusBar.setBackgroundColor(defaultTheme.white)
-  } else {
-    StatusBar.setBarStyle('light-content')
-    StatusBar.setBackgroundColor(darkTheme.white)
-  }
-}
-
-export const updateStatusBarTheme = (
-  theme: Nullable<Theme>,
-  systemAppearance: Nullable<SystemAppearance>
-) => {
-  switch (theme) {
-    case Theme.DEFAULT: {
-      setStatusBarTheme('light')
-      break
-    }
-    case Theme.DARK: {
-      setStatusBarTheme('dark')
-      break
-    }
-    case Theme.AUTO: {
-      if (systemAppearance) {
-        setStatusBarTheme(systemAppearance)
-      }
-      break
-    }
-  }
 }
 
 export const defaultTheme = {
@@ -88,15 +51,20 @@ export const defaultTheme = {
   shadow: '#E3E3E3',
   staticTwitterBlue: '#1BA1F1',
   staticWhite: '#FFFFFF',
+  staticNeutral: '#858199',
+  staticNeutralLight2: '#AAA7B8',
   staticNeutralLight8: '#F2F2F4',
   staticAccentGreenLight1: '#23AD1A',
+  staticPrimary: '#CC0FE0',
+  staticSecondary: '#7E1BCC',
   pageHeaderGradientColor1: '#5B23E1',
   pageHeaderGradientColor2: '#A22FEB',
   actionSheetText: '#7E1BCC',
   skeleton: '#F7F7F9',
   skeletonHighlight: '#F2F2F4',
   statTileText: '#C675FF',
-  progressBackground: '#D9D9D9'
+  progressBackground: '#D9D9D9',
+  accentBlue: '#1ba1f1'
 }
 
 export const darkTheme = {
@@ -140,15 +108,20 @@ export const darkTheme = {
   shadow: '#35364F',
   staticTwitterBlue: '#1BA1F1',
   staticWhite: '#FFFFFF',
+  staticNeutral: '#858199',
+  staticNeutralLight2: '#AAA7B8',
   staticNeutralLight8: '#F2F2F4',
   staticAccentGreenLight1: '#23AD1A',
+  staticPrimary: '#CC0FE0',
+  staticSecondary: '#7E1BCC',
   pageHeaderGradientColor1: '#7652CC',
   pageHeaderGradientColor2: '#B05CE6',
   actionSheetText: '#9147CC',
   skeleton: '#393A54',
   skeletonHighlight: '#3F415B',
   statTileText: '#C675FF',
-  progressBackground: '#D9D9D9'
+  progressBackground: '#D9D9D9',
+  accentBlue: '#1ba1f1'
 }
 
 export const matrixTheme = {
@@ -183,17 +156,23 @@ export const matrixTheme = {
   white: '#1F211F',
   staticTwitterBlue: '#1BA1F1',
   staticWhite: '#FFFFFF',
-  accentGreen: '#23AD1A',
+  staticNeutral: '#858199',
+  staticNeutralLight2: '#AAA7B8',
+  staticNeutralLight8: '#F2F2F4',
   staticAccentGreenLight1: '#23AD1A',
+  staticPrimary: '#CC0FE0',
+  staticSecondary: '#7E1BCC',
   pageHeaderGradientColor1: '#4FF069',
   pageHeaderGradientColor2: '#09BD51',
   actionSheetText: '#21B404',
   accentRed: '#D0021B',
   accentOrange: '#EFA947',
+  accentGreen: '#23AD1A',
   skeleton: '#1B3714',
   skeletonHighlight: '#1C5610',
   statTileText: '#184F17',
-  progressBackground: '#D9D9D9'
+  progressBackground: '#D9D9D9',
+  accentBlue: '#1ba1f1'
 }
 
 export type ThemeColors = {
@@ -237,8 +216,12 @@ export type ThemeColors = {
   shadow: string
   staticTwitterBlue: string
   staticWhite: string
+  staticNeutral: string
+  staticNeutralLight2: string
   staticNeutralLight8: string
   staticAccentGreenLight1: string
+  staticPrimary: string
+  staticSecondary: string
   pageHeaderGradientColor1: string
   pageHeaderGradientColor2: string
   actionSheetText: string
@@ -246,6 +229,7 @@ export type ThemeColors = {
   skeletonHighlight: string
   statTileText: string
   progressBackground: string
+  accentBlue: string
 }
 
 const themeColorsByThemeVariant: Record<
@@ -270,7 +254,12 @@ export const useThemeColors = () => {
   return themeColorsByThemeVariant[themeVariant]
 }
 
-export const useColor = (color: string) => {
+export const useThemePalette = () => {
+  const themeVariant = useThemeVariant()
+  return themeColorsByThemeVariant[themeVariant]
+}
+
+export const useColor = (color: string): string => {
   const theme = useThemeColors()
   return (theme as any)[color]
 }

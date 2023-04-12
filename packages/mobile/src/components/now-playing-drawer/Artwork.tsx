@@ -1,13 +1,10 @@
-import React from 'react'
-
 import type { CommonState, Nullable, Track } from '@audius/common'
 import { SquareSizes, averageColorSelectors } from '@audius/common'
-import { Dimensions, View } from 'react-native'
-import { Shadow } from 'react-native-shadow-2'
+import { Dimensions } from 'react-native'
 import { useSelector } from 'react-redux'
 
-import { DynamicImage } from 'app/components/core'
-import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
+import { Shadow } from 'app/components/core'
+import { TrackImage } from 'app/components/image/TrackImage'
 import { makeStyles } from 'app/styles'
 const { getDominantColorsByTrack } = averageColorSelectors
 
@@ -20,9 +17,6 @@ const useStyles = makeStyles(({ palette }) => ({
     marginRight: spacing,
     maxHeight: dimensions.width - spacing * 2,
     alignSelf: 'center'
-  },
-  shadow: {
-    alignSelf: 'flex-start'
   },
   image: {
     alignSelf: 'center',
@@ -42,11 +36,6 @@ type ArtworkProps = {
 
 export const Artwork = ({ track }: ArtworkProps) => {
   const styles = useStyles()
-  const image = useTrackCoverArt({
-    id: track?.track_id,
-    sizes: track?._cover_art_sizes ?? null,
-    size: SquareSizes.SIZE_1000_BY_1000
-  })
 
   const dominantColors = useSelector((state: CommonState) =>
     getDominantColorsByTrack(state, {
@@ -54,26 +43,20 @@ export const Artwork = ({ track }: ArtworkProps) => {
     })
   )
 
-  let shadowColor = 'rgba(0,0,0,0.05)'
+  let shadowColor = 'rgb(0,0,0)'
   const dominantColor = dominantColors ? dominantColors[0] : null
   if (dominantColor) {
     const { r, g, b } = dominantColor
-    shadowColor = `rgba(${r.toFixed()},${g.toFixed()},${b.toFixed()},0.1)`
+    shadowColor = `rgb(${r.toFixed()},${g.toFixed()},${b.toFixed()})`
   }
 
   return (
-    <View style={styles.root}>
-      <Shadow
-        viewStyle={styles.shadow}
-        offset={[0, 1]}
-        radius={15}
-        distance={10}
-        startColor={shadowColor}
-      >
-        <View style={styles.image}>
-          <DynamicImage uri={image} />
-        </View>
-      </Shadow>
-    </View>
+    <Shadow opacity={0.2} radius={8} color={shadowColor} style={styles.root}>
+      <TrackImage
+        style={styles.image}
+        track={track}
+        size={SquareSizes.SIZE_1000_BY_1000}
+      />
+    </Shadow>
   )
 }

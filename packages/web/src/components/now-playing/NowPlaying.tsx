@@ -21,11 +21,13 @@ import {
   shareModalUIActions,
   playerActions,
   playerSelectors,
-  queueSelectors
+  queueSelectors,
+  FeatureFlags,
+  playbackRateValueMap
 } from '@audius/common'
 import { Scrubber } from '@audius/stems'
 import cn from 'classnames'
-import { connect } from 'react-redux'
+import { connect, useSelector } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { ReactComponent as IconCaret } from 'assets/img/iconCaretRight.svg'
@@ -39,6 +41,7 @@ import RepeatButtonProvider from 'components/play-bar/repeat-button/RepeatButton
 import ShuffleButtonProvider from 'components/play-bar/shuffle-button/ShuffleButtonProvider'
 import { PlayButtonStatus } from 'components/play-bar/types'
 import UserBadges from 'components/user-badges/UserBadges'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { audioPlayer } from 'services/audio-player'
 import { AppState } from 'store/types'
@@ -53,7 +56,8 @@ import { withNullGuard } from 'utils/withNullGuard'
 import styles from './NowPlaying.module.css'
 import ActionsBar from './components/ActionsBar'
 const { makeGetCurrent } = queueSelectors
-const { getBuffering, getCounter, getPlaying } = playerSelectors
+const { getBuffering, getCounter, getPlaying, getPlaybackRate } =
+  playerSelectors
 
 const { seek, reset } = playerActions
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
@@ -120,6 +124,9 @@ const NowPlaying = g(
     goToRoute,
     dominantColors
   }) => {
+    const { isEnabled: isGatedContentEnabled } = useFlag(
+      FeatureFlags.GATED_CONTENT_ENABLED
+    )
     const { uid, track, user, collectible } = currentQueueItem
 
     // Keep a ref for the artwork and dynamically resize the width of the
@@ -141,6 +148,10 @@ const NowPlaying = g(
     const [mediaKey, setMediaKey] = useState(0)
     const seekInterval = useRef<number | undefined>(undefined)
     const [prevPlayCounter, setPrevPlayCounter] = useState<number | null>(null)
+
+    const playbackRate = useSelector(getPlaybackRate)
+    const isLongFormContent =
+      track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
 
     const startSeeking = useCallback(() => {
       clearInterval(seekInterval.current)
@@ -289,7 +300,9 @@ const NowPlaying = g(
             ? OverflowAction.UNFAVORITE
             : OverflowAction.FAVORITE
           : null,
-        !collectible ? OverflowAction.ADD_TO_PLAYLIST : null,
+        !collectible && (!isGatedContentEnabled || !track?.is_premium)
+          ? OverflowAction.ADD_TO_PLAYLIST
+          : null,
         track && OverflowAction.VIEW_TRACK_PAGE,
         collectible && OverflowAction.VIEW_COLLECTIBLE_PAGE,
         OverflowAction.VIEW_ARTIST_PAGE
@@ -306,6 +319,7 @@ const NowPlaying = g(
       currentUserId,
       owner_id,
       collectible,
+      isGatedContentEnabled,
       has_current_user_reposted,
       has_current_user_saved,
       track,
@@ -315,7 +329,9 @@ const NowPlaying = g(
     ])
 
     const onPrevious = () => {
-      if (track?.genre === Genre.PODCASTS) {
+      const isLongFormContent =
+        track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
+      if (isLongFormContent) {
         const position = timing.position
         const newPosition = position - SKIP_DURATION_SEC
         seek(Math.max(0, newPosition))
@@ -333,7 +349,9 @@ const NowPlaying = g(
     }
 
     const onNext = () => {
-      if (track?.genre === Genre.PODCASTS) {
+      const isLongFormContent =
+        track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
+      if (isLongFormContent) {
         const newPosition = timing.position + SKIP_DURATION_SEC
         seek(Math.min(newPosition, timing.duration))
         // Update mediakey so scrubber updates
@@ -419,6 +437,9 @@ const NowPlaying = g(
             totalSeconds={timing.duration}
             includeTimestamps
             onScrubRelease={seek}
+            playbackRate={
+              isLongFormContent ? playbackRateValueMap[playbackRate] : 1
+            }
             style={{
               railListenedColor: 'var(--track-slider-rail)',
               handleColor: 'var(--track-slider-handle)'

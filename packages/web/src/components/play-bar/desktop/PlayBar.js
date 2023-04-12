@@ -14,7 +14,9 @@ import {
   themeSelectors,
   playerActions,
   playerSelectors,
-  queueSelectors
+  queueSelectors,
+  FeatureFlags,
+  playbackRateValueMap
 } from '@audius/common'
 import { Scrubber } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
@@ -31,10 +33,13 @@ import RepeatButtonProvider from 'components/play-bar/repeat-button/RepeatButton
 import ShuffleButtonProvider from 'components/play-bar/shuffle-button/ShuffleButtonProvider'
 import Tooltip from 'components/tooltip/Tooltip'
 import { audioPlayer } from 'services/audio-player'
+import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { getLineupSelectorForRoute } from 'store/lineup/lineupForRoute'
 import { setupHotkeys } from 'utils/hotkeyUtil'
 import { collectibleDetailsPage, profilePage } from 'utils/route'
 import { isMatrix, shouldShowDark } from 'utils/theme/theme'
+
+import { PlaybackRateButton } from '../playback-rate-button/PlaybackRateButton'
 
 import styles from './PlayBar.module.css'
 import PlayingTrackInfo from './components/PlayingTrackInfo'
@@ -44,7 +49,8 @@ const {
   getPlaying,
   getCounter,
   getUid: getPlayingUid,
-  getBuffering
+  getBuffering,
+  getPlaybackRate
 } = playerSelectors
 
 const { seek, reset } = playerActions
@@ -240,7 +246,9 @@ class PlayBar extends Component {
       reset,
       currentQueueItem: { track }
     } = this.props
-    if (track?.genre === Genre.PODCASTS) {
+    const isLongFormContent =
+      track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
+    if (isLongFormContent) {
       const position = audioPlayer.getPosition()
       const newPosition = position - SKIP_DURATION_SEC
       seek(Math.max(0, newPosition))
@@ -264,7 +272,9 @@ class PlayBar extends Component {
       next,
       currentQueueItem: { track }
     } = this.props
-    if (track?.genre === Genre.PODCASTS) {
+    const isLongFormContent =
+      track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
+    if (isLongFormContent) {
       const duration = audioPlayer.getDuration()
       const position = audioPlayer.getPosition()
       const newPosition = position + SKIP_DURATION_SEC
@@ -288,6 +298,7 @@ class PlayBar extends Component {
       collectible,
       isPlaying,
       isBuffering,
+      playbackRate,
       userId,
       theme
     } = this.props
@@ -350,6 +361,12 @@ class PlayBar extends Component {
     const favoriteText = favorited ? messages.unfavorite : messages.favorite
     const repostText = reposted ? messages.reposted : messages.repost
     const matrix = isMatrix()
+    const isLongFormContent =
+      track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
+    const isNewPodcastControlsEnabled = getFeatureEnabled(
+      FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
+      FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
+    )
 
     return (
       <div className={styles.playBar}>
@@ -379,6 +396,9 @@ class PlayBar extends Component {
                 isPlaying={isPlaying && !isBuffering}
                 isDisabled={!uid && !collectible}
                 includeTimestamps
+                playbackRate={
+                  isLongFormContent ? playbackRateValueMap[playbackRate] : 1
+                }
                 elapsedSeconds={audioPlayer?.getPosition()}
                 totalSeconds={duration}
                 style={{
@@ -391,12 +411,14 @@ class PlayBar extends Component {
 
             <div className={styles.buttonControls}>
               <div className={styles.shuffleButton}>
-                <ShuffleButtonProvider
-                  isMatrix={matrix}
-                  darkMode={shouldShowDark(theme)}
-                  onShuffleOn={this.shuffleOn}
-                  onShuffleOff={this.shuffleOff}
-                />
+                {isLongFormContent && isNewPodcastControlsEnabled ? null : (
+                  <ShuffleButtonProvider
+                    isMatrix={matrix}
+                    darkMode={shouldShowDark(theme)}
+                    onShuffleOn={this.shuffleOn}
+                    onShuffleOff={this.shuffleOff}
+                  />
+                )}
               </div>
               <div className={styles.previousButton}>
                 <PreviousButtonProvider onClick={this.onPrevious} />
@@ -412,13 +434,17 @@ class PlayBar extends Component {
                 <NextButtonProvider onClick={this.onNext} />
               </div>
               <div className={styles.repeatButton}>
-                <RepeatButtonProvider
-                  isMatrix={matrix}
-                  darkMode={shouldShowDark(theme)}
-                  onRepeatOff={this.repeatOff}
-                  onRepeatAll={this.repeatAll}
-                  onRepeatSingle={this.repeatSingle}
-                />
+                {isLongFormContent && isNewPodcastControlsEnabled ? (
+                  <PlaybackRateButton />
+                ) : (
+                  <RepeatButtonProvider
+                    isMatrix={matrix}
+                    darkMode={shouldShowDark(theme)}
+                    onRepeatOff={this.repeatOff}
+                    onRepeatAll={this.repeatAll}
+                    onRepeatSingle={this.repeatSingle}
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -433,7 +459,7 @@ class PlayBar extends Component {
               <Tooltip
                 text={repostText}
                 disabled={isFavoriteAndRepostDisabled}
-                mount='parent'
+                mount='body'
                 placement='top'
               >
                 <span>
@@ -454,7 +480,7 @@ class PlayBar extends Component {
                 text={favoriteText}
                 disabled={isFavoriteAndRepostDisabled}
                 placement='top'
-                mount='parent'
+                mount='body'
               >
                 <span>
                   <FavoriteButton
@@ -485,6 +511,7 @@ const makeMapStateToProps = () => {
     isPlaying: getPlaying(state),
     isBuffering: getBuffering(state),
     playingUid: getPlayingUid(state),
+    playbackRate: getPlaybackRate(state),
     lineupHasTracks: getLineupHasTracks(
       getLineupSelectorForRoute(state),
       state

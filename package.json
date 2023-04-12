@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "link": "lerna link",
-    "postinstall": "lerna bootstrap --no-ci && npm run build && npm run install-hooks && cd packages/mobile/ios && if command -v pod > /dev/null; then pod install; fi",
+    "preinstall": "./scripts/preinstall.sh",
+    "postinstall": "./scripts/postinstall.sh",
     "build": "lerna run build --scope=@audius/stems --scope=@audius/common",
     "install-hooks": "mookme init --only-hook --skip-types-selection",
     "lint": "lerna run lint",
@@ -27,12 +28,15 @@
     "COMMON=====================================": "",
     "common": "cd packages/common && npm run start",
     "STEMS======================================": "",
-    "stems": "cd packages/stems && npm run start"
+    "stems": "cd packages/stems && npm run start",
+    "SDK========================================": "",
+    "sdk:update": "lerna exec -- npm-check-updates @audius/sdk -u && npm i",
+    "sdk:link": "./scripts/link-sdk.sh"
   },
   "devDependencies": {
     "@types/keyv": "4.2.0",
-    "@typescript-eslint/eslint-plugin": "5.40.0",
-    "@typescript-eslint/parser": "5.40.0",
+    "@typescript-eslint/eslint-plugin": "5.48.2",
+    "@typescript-eslint/parser": "5.48.2",
     "concurrently": "7.4.0",
     "eslint": "8.25.0",
     "eslint-config-prettier": "8.5.0",
@@ -49,10 +53,12 @@
     "eslint-plugin-react-hooks": "4.6.0",
     "eslint-plugin-standard": "4.1.0",
     "lerna": "6.0.1",
+    "npm-check-updates": "16.4.1",
+    "npm-force-resolutions": "0.0.10",
     "prettier": "2.7.1",
     "prettier-config-standard": "5.0.0",
     "standard": "17.0.0",
-    "typescript": "4.8.4",
+    "typescript": "4.9.4",
     "wait-on": "6.0.1"
   },
   "dependencies": {

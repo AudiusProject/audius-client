@@ -1,5 +1,7 @@
 import { Nullable } from '../utils/typeUtils'
 
+import { TokenStandard } from './Track'
+
 type AssetContract = {
   address: Nullable<string>
   asset_contract_type: string
@@ -8,7 +10,7 @@ type AssetContract = {
   nft_version: string
   opensea_version: Nullable<string>
   owner: Nullable<number>
-  schema_name: string
+  schema_name: TokenStandard
   symbol: string
   total_supply: number
   description: Nullable<string>
@@ -23,6 +25,14 @@ type AssetContract = {
   buyer_fee_basis_points: number
   seller_fee_basis_points: number
   payout_address: Nullable<string>
+}
+
+type AssetCollection = {
+  slug: string
+  name: string
+  description: string
+  external_url: string
+  image_url: string
 }
 
 type AssetPerson = {
@@ -50,6 +60,7 @@ export type OpenSeaAsset = {
   owner: Nullable<AssetOwner>
   creator: Nullable<AssetCreator>
   asset_contract: Nullable<AssetContract>
+  collection: Nullable<AssetCollection>
 }
 
 export type OpenSeaAssetExtended = OpenSeaAsset & { wallet: string }

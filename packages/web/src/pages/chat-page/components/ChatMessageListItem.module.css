@@ -1,0 +1,137 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit-2);
+  align-items: flex-start;
+}
+
+.root.isAuthor {
+  align-items: flex-end;
+}
+
+.bubble {
+  --bubble-color: var(--white);
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  max-width: 448px;
+  border-radius: var(--unit-3);
+  filter: var(--drop-shadow-near);
+  color: var(--netural);
+  background-color: var(--bubble-color);
+}
+
+.text a {
+  color: var(--neutral);
+  text-decoration: underline !important;
+}
+
+.bubble:hover {
+  --bubble-color: var(--neutral-light-10);
+  filter: var(--drop-shadow-far);
+}
+
+.isAuthor .bubble {
+  color: var(--white);
+  --bubble-color: var(--secondary-light-2);
+}
+
+.isAuthor .text a {
+  color: var(--white);
+}
+
+.isAuthor .bubble:hover {
+  --bubble-color: var(--secondary-light-1);
+}
+
+.text {
+  padding: var(--unit-4);
+  white-space: pre-wrap;
+  word-break: break-word;
+  text-align: left;
+  line-height: 150%;
+}
+
+.date {
+  font-size: var(--font-xs);
+  color: var(--neutral-light-2);
+  margin-bottom: var(--unit-4);
+}
+
+.reactionsButton {
+  display: flex;
+  opacity: 0;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  cursor: pointer;
+  bottom: -24px;
+  transition: opacity var(--quick);
+}
+
+.reactionsButton:not(.hasReaction) {
+  background-color: var(--white);
+  border: 1px solid var(--neutral-light-6);
+  width: var(--unit-8);
+  height: var(--unit-8);
+  bottom: -16px;
+  border-radius: 50%;
+}
+
+.root.isAuthor .reactionsButton {
+  left: -16px;
+}
+.root:not(.isAuthor) .reactionsButton {
+  right: -16px;
+  direction: rtl;
+}
+
+.root.isAuthor .reactionsButton.hasReaction {
+  left: -24px;
+}
+
+.root:not(.isAuthor) .reactionsButton.hasReaction {
+  right: -24px;
+}
+
+.bubble:hover .reactionsButton,
+.reactionsButton.isOpened,
+.reactionsButton.hasReaction {
+  opacity: 1;
+}
+
+.reactionsButton:not(.hasReaction) path {
+  width: var(--unit-6);
+  height: var(--unit-6);
+  fill: var(--secondary);
+  transition: fill var(--quick);
+}
+
+.reactionsButton:not(.hasReaction):hover path {
+  fill: var(--primary);
+}
+
+.reactionEmoji {
+  margin-inline-end: -28px;
+  filter: drop-shadow(-2px 0px 4px rgba(0, 0, 0, 0.15));
+}
+
+.tail {
+  display: flex;
+  position: absolute;
+  bottom: 0;
+}
+
+.tail svg * {
+  fill: var(--bubble-color);
+}
+
+.root:not(.isAuthor) .tail {
+  transform: scaleX(-1);
+  left: -12px;
+}
+
+.root.isAuthor .tail {
+  right: -12px;
+}

@@ -52,6 +52,12 @@ export default {
               exclude: /node_modules/,
               use: ['raw-loader', 'glslify-loader'],
               type: 'javascript/auto'
+            },
+            {
+              test: /\.m?js$/,
+              resolve: {
+                fullySpecified: false // disable the behavior
+              }
             }
           ]
         },
@@ -95,7 +101,8 @@ export default {
           alias: {
             ...config.resolve?.alias,
             react: path.resolve('./node_modules/react'),
-            'react-dom': path.resolve('./node_modules/react-dom')
+            'react-dom': path.resolve('./node_modules/react-dom'),
+            'react-router-dom': path.resolve('./node_modules/react-router-dom')
           }
         },
         ignoreWarnings: [

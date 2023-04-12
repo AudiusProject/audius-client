@@ -10,9 +10,10 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 
 import { CollectionList } from 'app/components/collection-list'
-import { Screen, ScreenHeader } from 'app/components/core'
+import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
 import { WithLoader } from 'app/components/with-loader/WithLoader'
 import type { ExploreMoodCollection } from 'app/screens/explore-screen/collections'
+import { spacing } from 'app/styles/spacing'
 const { getCollections, getStatus } = explorePageCollectionsSelectors
 const { fetch } = explorePageCollectionsActions
 
@@ -43,9 +44,14 @@ export const MoodCollectionScreen = ({
   return (
     <Screen>
       <ScreenHeader text={`${collection.title} Playlists`} />
-      <WithLoader loading={status === Status.LOADING}>
-        <CollectionList collection={exploreData} />
-      </WithLoader>
+      <ScreenContent>
+        <WithLoader loading={status === Status.LOADING}>
+          <CollectionList
+            collection={exploreData}
+            style={{ marginBottom: spacing(12) }}
+          />
+        </WithLoader>
+      </ScreenContent>
     </Screen>
   )
 }

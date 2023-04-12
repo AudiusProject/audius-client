@@ -1,3 +1,5 @@
+import type { AudiusSdk } from '@audius/sdk'
+
 import { AnalyticsEvent, LineupState, Track } from '../models'
 import { AudioPlayer } from '../services/audio-player'
 import { AudiusAPIClient } from '../services/audius-api-client'
@@ -19,8 +21,9 @@ export type CommonStoreContext = {
   getLocalStorageItem: (key: string) => Promise<string | null>
   setLocalStorageItem: (key: string, value: string) => Promise<void>
   getFeatureEnabled: (
-    flag: FeatureFlags
-  ) => Promise<boolean | null> | boolean | null
+    flag: FeatureFlags,
+    fallbackFlag?: FeatureFlags
+  ) => Promise<boolean>
   analytics: {
     init: () => Promise<void>
     track: (event: AnalyticsEvent, callback?: () => void) => Promise<void>
@@ -56,4 +59,5 @@ export type CommonStoreContext = {
   instagramRedirectUrl?: string
   share: (url: string, message?: string) => Promise<void> | void
   openSeaClient: OpenSeaClient
+  audiusSdk: () => Promise<AudiusSdk>
 }

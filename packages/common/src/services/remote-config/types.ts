@@ -142,7 +142,18 @@ export enum IntKeys {
   /**
    * The allowed slippage percentage/padding percentage for the BuyAudio Modal
    */
-  BUY_AUDIO_SLIPPAGE = 'BUY_AUDIO_SLIPPAGE'
+  BUY_AUDIO_SLIPPAGE = 'BUY_AUDIO_SLIPPAGE',
+
+  /**
+   * The interval in milliseconds between polls for gated tracks to check for access
+   */
+  GATED_TRACK_POLL_INTERVAL_MS = 'GATED_TRACK_POLL_INTERVAL_MS',
+
+  /**
+   * The start time for discovery notifications indexing, used to determine
+   * when we should rollback to identity notifications
+   */
+  DISCOVERY_NOTIFICATIONS_GENESIS_UNIX_TIMESTAMP = 'DISCOVERY_NOTIFICATIONS_GENESIS_UNIX_TIMESTAMP'
 }
 
 export enum BooleanKeys {
@@ -170,6 +181,22 @@ export enum BooleanKeys {
    * Boolean to show instagram verification on web + desktop.
    */
   DISPLAY_INSTAGRAM_VERIFICATION_WEB_AND_DESKTOP = 'DISPLAY_INSTAGRAM_VERIFICATION_WEB_AND_DESKTOP',
+  /**
+   * Boolean to show twitter verification on mobile.
+   */
+  DISPLAY_TWITTER_VERIFICATION = 'DISPLAY_TWITTER_VERIFICATION',
+  /**
+   * Boolean to show twitter verification on web + desktop.
+   */
+  DISPLAY_TWITTER_VERIFICATION_WEB_AND_DESKTOP = 'DISPLAY_TWITTER_VERIFICATION_WEB_AND_DESKTOP',
+  /**
+   * Boolean to show twitter verification on mobile.
+   */
+  DISPLAY_TIKTOK_VERIFICATION = 'DISPLAY_TIKTOK_VERIFICATION',
+  /**
+   * Boolean to show twitter verification on web + desktop.
+   */
+  DISPLAY_TIKTOK_VERIFICATION_WEB_AND_DESKTOP = 'DISPLAY_TIKTOK_VERIFICATION_WEB_AND_DESKTOP',
 
   /**
    * Boolean to skip the rollover nodes sanity check.
@@ -179,7 +206,18 @@ export enum BooleanKeys {
   /**
    * Boolean to use amplitude as the metrics tracking.
    */
-  USE_AMPLITUDE = 'USE_AMPLITUDE'
+  USE_AMPLITUDE = 'USE_AMPLITUDE',
+
+  /**
+   * Boolean to enable "Transactions" button on Audio page.
+   */
+  AUDIO_TRANSACTIONS_ENABLED = 'AUDIO_TRANSACTIONS_ENABLED',
+
+  /**
+   * Whether to enable discovery_max_slot feature. This is to prevent optimizely
+   * errors, since slot_diff_plays number key can't be set to null on optimizely side
+   */
+  ENABLE_DISCOVERY_NODE_MAX_SLOT_DIFF_PLAYS = 'ENABLE_DISCOVERY_NODE_MAX_SLOT_DIFF_PLAYS'
 }
 
 export enum DoubleKeys {
@@ -298,7 +336,16 @@ export enum StringKeys {
   STRIPE_ALLOWED_COUNTRIES = 'STRIPE_ALLOWED_COUNTRIES',
 
   /** Denied Regions for Link by Stripe */
-  STRIPE_DENIED_REGIONS = 'STRIPE_DENIED_REGIONS'
+  STRIPE_DENIED_REGIONS = 'STRIPE_DENIED_REGIONS',
+
+  /** 2-Letter ISO Country Codes of Allowed Countries for Coinbase Pay */
+  COINBASE_PAY_ALLOWED_COUNTRIES_2_LETTER = 'COINBASE_PAY_ALLOWED_COUNTRIES_2_LETTER',
+
+  /** 2-Letter ISO Country Codes of Allowed Countries for Link by Stripe */
+  STRIPE_ALLOWED_COUNTRIES_2_LETTER = 'STRIPE_ALLOWED_COUNTRIES_2_LETTER',
+
+  /** Text to display on related features when Solana/$AUDIO features are degraded */
+  AUDIO_FEATURES_DEGRADED_TEXT = 'AUDIO_FEATURES_DEGRADED_TEXT'
 }
 
 export type AllRemoteConfigKeys =

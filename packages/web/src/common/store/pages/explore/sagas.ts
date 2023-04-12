@@ -1,12 +1,25 @@
-import { ID, explorePageActions, getContext } from '@audius/common'
-import { call, put, takeEvery } from 'typed-redux-saga'
+import {
+  ID,
+  explorePageActions,
+  getContext,
+  explorePageSelectors
+} from '@audius/common'
+import { call, put, takeEvery, select } from 'typed-redux-saga'
 
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { fetchUsers } from 'common/store/cache/users/sagas'
 import { STATIC_EXPLORE_CONTENT_URL } from 'utils/constants'
-const { fetchExplore, fetchExploreSucceeded, fetchExploreFailed } =
-  explorePageActions
+import { waitForRead } from 'utils/sagaHelpers'
+const {
+  fetchExplore,
+  fetchExploreSucceeded,
+  fetchExploreFailed,
+  fetchPlaylists,
+  fetchPlaylistsSucceded,
+  fetchProfiles,
+  fetchProfilesSucceded
+} = explorePageActions
+const { getPlaylistIds, getProfileIds } = explorePageSelectors
 
 const EXPLORE_CONTENT_URL =
   process.env.REACT_APP_EXPLORE_CONTENT_URL || STATIC_EXPLORE_CONTENT_URL
@@ -25,20 +38,23 @@ export const fetchExploreContent = async (
 
 function* watchFetchExplore() {
   yield* takeEvery(fetchExplore.type, function* () {
-    yield* call(waitForBackendSetup)
+    yield* call(waitForRead)
     const { EXPLORE_CONTENT_URL } = yield* getContext('env')
+    const isNativeMobile = yield* getContext('isNativeMobile')
     try {
       const exploreContent = yield* call(
         fetchExploreContent,
         EXPLORE_CONTENT_URL ?? STATIC_EXPLORE_CONTENT_URL
       )
-      yield* call(
-        retrieveCollections,
-        null,
-        exploreContent.featuredPlaylists,
-        false
-      )
-      yield* call(fetchUsers, exploreContent.featuredProfiles)
+      if (!isNativeMobile) {
+        yield* call(
+          retrieveCollections,
+          null,
+          exploreContent.featuredPlaylists,
+          false
+        )
+        yield* call(fetchUsers, exploreContent.featuredProfiles)
+      }
 
       yield* put(fetchExploreSucceeded({ exploreContent }))
     } catch (e) {
@@ -48,6 +64,22 @@ function* watchFetchExplore() {
   })
 }
 
+function* watchFetchPlaylists() {
+  yield* takeEvery(fetchPlaylists.type, function* fetchPlaylistsAsync() {
+    const featuredPlaylistIds = yield* select(getPlaylistIds)
+    yield* call(retrieveCollections, null, featuredPlaylistIds, false)
+    yield* put(fetchPlaylistsSucceded())
+  })
+}
+
+function* watchFetchProfiles() {
+  yield* takeEvery(fetchProfiles.type, function* fetchProfilesAsync() {
+    const featuredProfileIds = yield* select(getProfileIds)
+    yield* call(fetchUsers, featuredProfileIds)
+    yield* put(fetchProfilesSucceded())
+  })
+}
+
 export default function sagas() {
-  return [watchFetchExplore]
+  return [watchFetchExplore, watchFetchPlaylists, watchFetchProfiles]
 }

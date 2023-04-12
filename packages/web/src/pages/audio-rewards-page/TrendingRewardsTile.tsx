@@ -6,6 +6,8 @@ import {
   audioRewardsPageActions,
   OptimisticUserChallenge
 } from '@audius/common'
+import { ButtonType, Button, IconArrow } from '@audius/stems'
+import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
 import { useSetVisibility } from 'common/hooks/useModalState'
@@ -13,7 +15,6 @@ import { useRemoteVar } from 'hooks/useRemoteConfig'
 import { useWithMobileStyle } from 'hooks/useWithMobileStyle'
 
 import styles from './RewardsTile.module.css'
-import ButtonWithArrow from './components/ButtonWithArrow'
 import { Tile } from './components/ExplainerTile'
 import { getChallengeConfig } from './config'
 const { setTrendingRewardsModalType } = audioRewardsPageActions
@@ -37,15 +38,23 @@ const RewardPanel = ({
   const wm = useWithMobileStyle(styles.mobile)
 
   return (
-    <div className={wm(styles.rewardPanelContainer)} onClick={onClickButton}>
+    <div
+      className={wm(
+        cn(styles.rewardPanelContainer, styles.trendingRewardPanelContainer)
+      )}
+      onClick={onClickButton}
+    >
       <span className={wm(styles.rewardTitle)}>
         {icon}
         {title}
       </span>
       <span className={wm(styles.rewardDescription)}>{description()}</span>
-      <ButtonWithArrow
+      <Button
+        type={ButtonType.COMMON_ALT}
         className={wm(styles.panelButton)}
         text={panelButtonText}
+        rightIcon={<IconArrow />}
+        iconClassName={wm(styles.buttonIcon)}
         onClick={onClickButton}
         textClassName={styles.panelButtonText}
       />

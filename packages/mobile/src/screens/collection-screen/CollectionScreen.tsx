@@ -1,14 +1,13 @@
 import { useCallback, useMemo } from 'react'
 
-import type { Collection, Nullable, User } from '@audius/common'
 import {
+  SquareSizes,
   encodeUrlName,
   removeNullable,
   FavoriteSource,
   RepostSource,
   ShareSource,
   FavoriteType,
-  SquareSizes,
   collectionPageActions,
   formatDate,
   accountSelectors,
@@ -22,17 +21,32 @@ import {
   repostsUserListActions,
   favoritesUserListActions
 } from '@audius/common'
+import type {
+  Collection,
+  Nullable,
+  User,
+  SearchPlaylist,
+  SearchUser
+} from '@audius/common'
 import { useFocusEffect } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Screen, VirtualizedScrollView } from 'app/components/core'
-import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
+import {
+  ScreenContent,
+  Screen,
+  VirtualizedScrollView
+} from 'app/components/core'
+import { CollectionImage } from 'app/components/image/CollectionImage'
+import type { ImageProps } from 'app/components/image/FastImage'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
-import type { SearchPlaylist, SearchUser } from 'app/store/search/types'
+import { setVisibility } from 'app/store/drawers/slice'
+import { getIsCollectionMarkedForDownload } from 'app/store/offline-downloads/selectors'
 import { makeStyles } from 'app/styles'
 
 import { CollectionScreenDetailsTile } from './CollectionScreenDetailsTile'
+import { CollectionScreenSkeleton } from './CollectionScreenSkeleton'
 
 const { setFavorite } = favoritesUserListActions
 const { setRepost } = repostsUserListActions
@@ -62,7 +76,12 @@ export const CollectionScreen = () => {
   const dispatch = useDispatch()
 
   // params is incorrectly typed and can sometimes be undefined
-  const { id: idParam, searchCollection, collectionName } = params ?? {}
+  const {
+    id: idParam,
+    searchCollection,
+    collectionName,
+    collectionType
+  } = params ?? {}
 
   const id = useMemo(() => {
     if (collectionName) {
@@ -94,30 +113,26 @@ export const CollectionScreen = () => {
   const collection = cachedCollection ?? searchCollection
   const user = cachedUser ?? searchCollection?.user
 
-  if (!collection || !user) {
-    // TODO: add collection-screen skeleton
-    return null
-  }
-
-  return <CollectionScreenComponent collection={collection} user={user} />
+  return !collection || !user ? (
+    <CollectionScreenSkeleton collectionType={collectionType} />
+  ) : (
+    <CollectionScreenComponent collection={collection} user={user} />
+  )
 }
 
 type CollectionScreenComponentProps = {
   collection: Collection | SearchPlaylist
   user: User | SearchUser
 }
-
-const CollectionScreenComponent = ({
-  collection,
-  user
-}: CollectionScreenComponentProps) => {
+const CollectionScreenComponent = (props: CollectionScreenComponentProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
   const navigation = useNavigation()
+  const { collection, user } = props
   const {
-    _cover_art_sizes,
     _is_publishing,
     description,
+    playlist_contents: { track_ids },
     has_current_user_reposted,
     has_current_user_saved,
     is_album,
@@ -129,6 +144,7 @@ const CollectionScreenComponent = ({
     save_count,
     updated_at
   } = collection
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
   const url = useMemo(() => {
     return `/${encodeUrlName(user.handle)}/${
@@ -136,11 +152,16 @@ const CollectionScreenComponent = ({
     }/${encodeUrlName(playlist_name)}-${playlist_id}`
   }, [user.handle, is_album, playlist_name, playlist_id])
 
-  const imageUrl = useCollectionCoverArt({
-    id: playlist_id,
-    sizes: _cover_art_sizes,
-    size: SquareSizes.SIZE_480_BY_480
-  })
+  const renderImage = useCallback(
+    (props: ImageProps) => (
+      <CollectionImage
+        collection={collection}
+        size={SquareSizes.SIZE_480_BY_480}
+        {...props}
+      />
+    ),
+    [collection]
+  )
 
   const currentUserId = useSelector(getUserId)
   const isOwner = currentUserId === playlist_owner_id
@@ -152,6 +173,10 @@ const CollectionScreenComponent = ({
       }
     ],
     [updated_at]
+  )
+
+  const isCollectionMarkedForDownload = useSelector(
+    getIsCollectionMarkedForDownload(playlist_id.toString())
   )
 
   const handlePressOverflow = useCallback(() => {
@@ -175,11 +200,26 @@ const CollectionScreenComponent = ({
 
   const handlePressSave = useCallback(() => {
     if (has_current_user_saved) {
-      dispatch(unsaveCollection(playlist_id, FavoriteSource.COLLECTION_PAGE))
+      if (isCollectionMarkedForDownload) {
+        dispatch(
+          setVisibility({
+            drawer: 'UnfavoriteDownloadedCollection',
+            visible: true,
+            data: { collectionId: playlist_id }
+          })
+        )
+      } else {
+        dispatch(unsaveCollection(playlist_id, FavoriteSource.COLLECTION_PAGE))
+      }
     } else {
       dispatch(saveCollection(playlist_id, FavoriteSource.COLLECTION_PAGE))
     }
-  }, [dispatch, playlist_id, has_current_user_saved])
+  }, [
+    dispatch,
+    playlist_id,
+    has_current_user_saved,
+    isCollectionMarkedForDownload
+  ])
 
   const handlePressShare = useCallback(() => {
     dispatch(
@@ -217,31 +257,32 @@ const CollectionScreenComponent = ({
 
   return (
     <Screen url={url}>
-      <VirtualizedScrollView
-        listKey={`playlist-${collection.playlist_id}`}
-        style={styles.root}
-      >
-        <CollectionScreenDetailsTile
-          description={description ?? ''}
-          extraDetails={extraDetails}
-          hasReposted={has_current_user_reposted}
-          hasSaved={has_current_user_saved}
-          imageUrl={imageUrl}
-          isAlbum={is_album}
-          isPrivate={is_private}
-          isPublishing={_is_publishing ?? false}
-          onPressFavorites={handlePressFavorites}
-          onPressOverflow={handlePressOverflow}
-          onPressRepost={handlePressRepost}
-          onPressReposts={handlePressReposts}
-          onPressSave={handlePressSave}
-          onPressShare={handlePressShare}
-          repostCount={repost_count}
-          saveCount={save_count}
-          title={playlist_name}
-          user={user}
-        />
-      </VirtualizedScrollView>
+      <ScreenContent isOfflineCapable={isOfflineModeEnabled}>
+        <VirtualizedScrollView style={styles.root}>
+          <CollectionScreenDetailsTile
+            description={description ?? ''}
+            extraDetails={extraDetails}
+            hasReposted={has_current_user_reposted}
+            hasSaved={has_current_user_saved}
+            isAlbum={is_album}
+            collectionId={playlist_id}
+            isPrivate={is_private}
+            isPublishing={_is_publishing ?? false}
+            onPressFavorites={handlePressFavorites}
+            onPressOverflow={handlePressOverflow}
+            onPressRepost={handlePressRepost}
+            onPressReposts={handlePressReposts}
+            onPressSave={handlePressSave}
+            onPressShare={handlePressShare}
+            renderImage={renderImage}
+            repostCount={repost_count}
+            saveCount={save_count}
+            trackCount={track_ids.length}
+            title={playlist_name}
+            user={user}
+          />
+        </VirtualizedScrollView>
+      </ScreenContent>
     </Screen>
   )
 }

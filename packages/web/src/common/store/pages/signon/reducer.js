@@ -7,6 +7,7 @@ import {
   SET_VALUE_FIELD,
   SET_TWITTER_PROFILE,
   SET_INSTAGRAM_PROFILE,
+  SET_TIKTOK_PROFILE,
   FETCH_FOLLOW_ARTISTS_SUCCEEDED,
   SET_FOLLOW_ARTIST_CATEGORY,
   VALIDATE_EMAIL,
@@ -22,6 +23,8 @@ import {
   GO_TO_PAGE,
   SET_STATUS,
   SIGN_UP,
+  START_SIGN_UP,
+  FINISH_SIGN_UP,
   SIGN_UP_SUCCEEDED,
   SIGN_UP_FAILED,
   SIGN_IN,
@@ -59,12 +62,15 @@ const initialState = {
   twitterScreenName: '',
   instagramId: '',
   instagramScreenName: '',
+  tikTokId: '',
+  tikTokScreenName: '',
   profileImage: null, // Object with file blob & url
   coverPhoto: null, // Object with file blob & url
   status: 'editing', // 'editing', 'loading', 'success', or 'failure'
   toastText: null,
   page: Pages.EMAIL,
-  startedSignOnProcess: false,
+  startedSignUpProcess: false,
+  finishedSignUpProcess: false,
   followArtists: {
     selectedCategory: FollowArtistsCategory.FEATURED,
     categories: {},
@@ -224,6 +230,25 @@ const actionsMap = {
       verified: action.profile.is_verified
     }
   },
+  [SET_TIKTOK_PROFILE](state, action) {
+    return {
+      ...state,
+      tikTokId: action.tikTokId,
+      tikTokProfile: action.tikTokProfile,
+      name: {
+        value: action.profile.display_name || '',
+        status: 'editing',
+        error: ''
+      },
+      handle: {
+        ...state.handle,
+        value: action.profile.username
+      },
+      tikTokScreenName: action.profile.display_name,
+      profileImage: action.profileImage || null,
+      verified: action.profile.is_verified
+    }
+  },
   [VALIDATE_EMAIL](state, action) {
     return {
       ...state,
@@ -291,8 +316,19 @@ const actionsMap = {
   [SIGN_UP](state, action) {
     return {
       ...state,
-      startedSignOnProcess: true,
       status: 'loading'
+    }
+  },
+  [START_SIGN_UP](state, action) {
+    return {
+      ...state,
+      startedSignUpProcess: true
+    }
+  },
+  [FINISH_SIGN_UP](state, action) {
+    return {
+      ...state,
+      finishedSignUpProcess: true
     }
   },
   [SIGN_UP_SUCCEEDED](state, action) {

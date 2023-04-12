@@ -1,16 +1,17 @@
 import { useCallback } from 'react'
 
-import type {
-  CID,
-  ID,
-  User,
-  ButtonType as DownloadButtonType
-} from '@audius/common'
 import {
   Name,
   ButtonState,
   useDownloadTrackButtons,
   tracksSocialActions
+} from '@audius/common'
+import type {
+  CID,
+  ID,
+  User,
+  ButtonType as DownloadButtonType,
+  SearchUser
 } from '@audius/common'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
@@ -18,10 +19,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import IconDownload from 'app/assets/images/iconDownload.svg'
 import { Button } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { useToast } from 'app/hooks/useToast'
 import { make, track } from 'app/services/analytics'
-import type { SearchUser } from 'app/store/search/types'
-import { makeStyles } from 'app/styles/makeStyles'
+import { makeStyles } from 'app/styles'
 const { downloadTrack } = tracksSocialActions
 
 export type DownloadButtonProps = {
@@ -87,6 +88,7 @@ const DownloadButton = ({
 
 type TrackScreenDownloadButtonsProps = {
   following: boolean
+  doesUserHaveAccess: boolean
   isHidden?: boolean
   isOwner: boolean
   trackId: ID
@@ -95,10 +97,12 @@ type TrackScreenDownloadButtonsProps = {
 
 export const TrackScreenDownloadButtons = ({
   following,
+  doesUserHaveAccess,
   isOwner,
   trackId,
   user
 }: TrackScreenDownloadButtonsProps) => {
+  const isGatedContentEnabled = useIsGatedContentEnabled()
   const dispatch = useDispatch()
 
   const handleDownload = useCallback(
@@ -130,6 +134,10 @@ export const TrackScreenDownloadButtons = ({
 
   const shouldHide = buttons.length === 0
   if (shouldHide) {
+    return null
+  }
+
+  if (isGatedContentEnabled && !isOwner && !doesUserHaveAccess) {
     return null
   }
 

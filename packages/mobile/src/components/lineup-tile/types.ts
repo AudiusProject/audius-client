@@ -13,6 +13,9 @@ import type {
 
 import type { GestureResponderHandler } from 'app/types/gesture'
 
+import type { TileProps } from '../core'
+import type { ImageProps } from '../image/FastImage'
+
 export type LineupItemProps = {
   /** Index of tile in lineup */
   index: number
@@ -22,9 +25,6 @@ export type LineupItemProps = {
 
   /** Is this item unlisted (hidden)? */
   isUnlisted?: boolean
-
-  /** Function to call when item & art has loaded */
-  onLoad?: (index: number) => void
 
   /** Whether or not to show the artist pick indicators */
   showArtistPick?: boolean
@@ -60,8 +60,8 @@ export type LineupTileProps = Omit<LineupItemProps, 'togglePlay'> & {
   /** ID of the item */
   id: ID
 
-  /** Url of the image */
-  imageUrl?: string
+  /** Render function for the image */
+  renderImage: (props: ImageProps) => ReactNode
 
   /** The item (track or collection) */
   item: Track | Collection
@@ -98,4 +98,6 @@ export type LineupTileProps = Omit<LineupItemProps, 'togglePlay'> & {
 
   /** Does the tile uid match the playing uid */
   isPlayingUid: boolean
+
+  TileProps?: Partial<TileProps>
 }

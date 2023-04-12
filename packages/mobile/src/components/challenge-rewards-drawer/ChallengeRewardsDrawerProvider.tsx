@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import type { Maybe, CommonState } from '@audius/common'
 import {
@@ -7,24 +7,22 @@ import {
   challengesSelectors,
   audioRewardsPageActions,
   ClaimStatus,
-  audioRewardsPageSelectors,
-  modalsActions
+  audioRewardsPageSelectors
 } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRemoteVar } from 'app/hooks/useRemoteConfig'
+import { useToast } from 'app/hooks/useToast'
 import type { ChallengesParamList } from 'app/utils/challenges'
 import { getChallengeConfig } from 'app/utils/challenges'
 
 import Button, { ButtonType } from '../button'
 import { useDrawerState } from '../drawer/AppDrawer'
-import { ToastContext } from '../toast/ToastContext'
 
 import { ChallengeRewardsDrawer } from './ChallengeRewardsDrawer'
 import { ProfileCompletionChecks } from './ProfileCompletionChecks'
 import { ReferralRewardContents } from './ReferralRewardContents'
-const { setVisibility } = modalsActions
 const { getChallengeRewardsModalType, getClaimStatus, getAAOErrorCode } =
   audioRewardsPageSelectors
 const { claimChallengeReward, resetAndCancelClaimReward } =
@@ -60,7 +58,7 @@ export const ChallengeRewardsDrawerProvider = () => {
   const claimStatus = useSelector(getClaimStatus)
   const aaoErrorCode = useSelector(getAAOErrorCode)
 
-  const { toast } = useContext(ToastContext)
+  const { toast } = useToast()
 
   const challenge = userChallenges ? userChallenges[modalType] : null
   const config = getChallengeConfig(modalType)
@@ -89,6 +87,7 @@ export const ChallengeRewardsDrawerProvider = () => {
   const handleNavigation = useCallback(() => {
     if (config.buttonInfo?.navigation) {
       const { screen, params } = config.buttonInfo.navigation
+      // @ts-expect-error not smart enough
       navigate(screen, params)
       handleClose()
     }
@@ -96,8 +95,8 @@ export const ChallengeRewardsDrawerProvider = () => {
 
   const openUploadModal = useCallback(() => {
     handleClose()
-    dispatch(setVisibility({ modal: 'MobileUpload', visible: true }))
-  }, [dispatch, handleClose])
+    navigate('Upload')
+  }, [handleClose, navigate])
 
   // Claim rewards button config
   const quorumSize = useRemoteVar(IntKeys.ATTESTATION_QUORUM_SIZE)
@@ -125,48 +124,52 @@ export const ChallengeRewardsDrawerProvider = () => {
 
   // Challenge drawer contents
   let contents: Maybe<React.ReactElement>
-  switch (modalType) {
-    case 'referrals':
-    case 'ref-v':
-      contents = (
-        <ReferralRewardContents isVerified={!!config.isVerifiedChallenge} />
-      )
-      break
-    case 'track-upload':
-      contents = config?.buttonInfo && (
-        <Button
-          containerStyle={styles.button}
-          title={config.panelButtonText}
-          renderIcon={config.buttonInfo.renderIcon}
-          iconPosition='right'
-          type={
-            challenge?.state === 'completed' || challenge?.state === 'disbursed'
-              ? ButtonType.COMMON
-              : ButtonType.PRIMARY
-          }
-          onPress={openUploadModal}
-        />
-      )
-      break
-    case 'profile-completion':
-      contents = (
-        <ProfileCompletionChecks
-          isComplete={hasChallengeCompleted}
-          onClose={handleClose}
-        />
-      )
-      break
-    default:
-      contents = config?.buttonInfo && (
-        <Button
-          containerStyle={styles.button}
-          title={config.panelButtonText}
-          renderIcon={config.buttonInfo.renderIcon}
-          iconPosition={config.buttonInfo.iconPosition}
-          type={hasChallengeCompleted ? ButtonType.COMMON : ButtonType.PRIMARY}
-          onPress={handleNavigation}
-        />
-      )
+  if (challenge?.state && challenge?.state !== 'completed') {
+    switch (modalType) {
+      case 'referrals':
+      case 'ref-v':
+        contents = (
+          <ReferralRewardContents isVerified={!!config.isVerifiedChallenge} />
+        )
+        break
+      case 'track-upload':
+        contents = config?.buttonInfo && (
+          <Button
+            containerStyle={styles.button}
+            title={config.panelButtonText}
+            renderIcon={config.buttonInfo.renderIcon}
+            iconPosition='right'
+            type={
+              challenge?.state === 'disbursed'
+                ? ButtonType.COMMON
+                : ButtonType.PRIMARY
+            }
+            onPress={openUploadModal}
+          />
+        )
+        break
+      case 'profile-completion':
+        contents = (
+          <ProfileCompletionChecks
+            isComplete={hasChallengeCompleted}
+            onClose={handleClose}
+          />
+        )
+        break
+      default:
+        contents = config?.buttonInfo && (
+          <Button
+            containerStyle={styles.button}
+            title={config.panelButtonText}
+            renderIcon={config.buttonInfo.renderIcon}
+            iconPosition={config.buttonInfo.iconPosition}
+            type={
+              hasChallengeCompleted ? ButtonType.COMMON : ButtonType.PRIMARY
+            }
+            onPress={handleNavigation}
+          />
+        )
+    }
   }
 
   // Bail if not on challenges page/challenges aren't loaded

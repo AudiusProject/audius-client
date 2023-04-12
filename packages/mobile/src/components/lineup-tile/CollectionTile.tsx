@@ -8,6 +8,7 @@ import type {
   CommonState
 } from '@audius/common'
 import {
+  SquareSizes,
   removeNullable,
   useProxySelector,
   playerSelectors,
@@ -16,7 +17,6 @@ import {
   RepostSource,
   ShareSource,
   FavoriteType,
-  SquareSizes,
   accountSelectors,
   cacheCollectionsSelectors,
   cacheUsersSelectors,
@@ -29,8 +29,12 @@ import {
 } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
+import { CollectionImage } from 'app/components/image/CollectionImage'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { setVisibility } from 'app/store/drawers/slice'
+import { getIsCollectionMarkedForDownload } from 'app/store/offline-downloads/selectors'
+
+import type { ImageProps } from '../image/FastImage'
 
 import { CollectionTileTrackList } from './CollectionTileTrackList'
 import { LineupTile } from './LineupTile'
@@ -113,7 +117,6 @@ const CollectionTileComponent = ({
   })
 
   const {
-    _cover_art_sizes,
     has_current_user_reposted,
     has_current_user_saved,
     is_album,
@@ -124,11 +127,20 @@ const CollectionTileComponent = ({
 
   const isOwner = playlist_owner_id === currentUserId
 
-  const imageUrl = useCollectionCoverArt({
-    id: playlist_id,
-    sizes: _cover_art_sizes,
-    size: SquareSizes.SIZE_150_BY_150
-  })
+  const isCollectionMarkedForDownload = useSelector(
+    getIsCollectionMarkedForDownload(playlist_id.toString())
+  )
+
+  const renderImage = useCallback(
+    (props: ImageProps) => (
+      <CollectionImage
+        collection={collection}
+        size={SquareSizes.SIZE_150_BY_150}
+        {...props}
+      />
+    ),
+    [collection]
+  )
 
   const handlePress = useCallback(() => {
     if (!tracks.length) return
@@ -191,11 +203,26 @@ const CollectionTileComponent = ({
       return
     }
     if (has_current_user_saved) {
-      dispatch(unsaveCollection(playlist_id, FavoriteSource.TILE))
+      if (isCollectionMarkedForDownload) {
+        dispatch(
+          setVisibility({
+            drawer: 'UnfavoriteDownloadedCollection',
+            visible: true,
+            data: { collectionId: playlist_id }
+          })
+        )
+      } else {
+        dispatch(unsaveCollection(playlist_id, FavoriteSource.TILE))
+      }
     } else {
       dispatch(saveCollection(playlist_id, FavoriteSource.TILE))
     }
-  }, [playlist_id, dispatch, has_current_user_saved])
+  }, [
+    playlist_id,
+    has_current_user_saved,
+    dispatch,
+    isCollectionMarkedForDownload
+  ])
 
   const handlePressRepost = useCallback(() => {
     if (playlist_id === undefined) {
@@ -215,7 +242,7 @@ const CollectionTileComponent = ({
       favoriteType={FavoriteType.PLAYLIST}
       repostType={RepostType.COLLECTION}
       id={playlist_id}
-      imageUrl={imageUrl}
+      renderImage={renderImage}
       isPlayingUid={isPlayingUid}
       onPress={handlePress}
       onPressOverflow={handlePressOverflow}

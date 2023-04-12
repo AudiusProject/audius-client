@@ -4,7 +4,9 @@ import React, {
   useEffect,
   useCallback,
   ReactNode,
-  useRef
+  useRef,
+  MouseEventHandler,
+  Ref
 } from 'react'
 
 import {
@@ -55,7 +57,7 @@ const cardSizeStyles = {
 type CardProps = {
   className?: string
   id: ID
-  userId: ID
+  userId?: ID
   imageSize: ProfilePictureSizes | CoverArtSizes | null
   primaryText: ReactNode
   secondaryText: ReactNode
@@ -161,7 +163,7 @@ const Card = ({
   const [artworkLoaded, setArtworkLoaded] = useState(false)
 
   const menuActionsRef = useRef<HTMLDivElement>(null)
-  const handleClick = useCallback(
+  const handleClick: MouseEventHandler<HTMLAnchorElement> = useCallback(
     (e) => {
       e.preventDefault()
       if (isDescendantElementOf(e?.target, menuActionsRef.current)) return
@@ -205,7 +207,10 @@ const Card = ({
     bottomActions = (
       <div className={sizeStyles.actionsContainer} ref={menuActionsRef}>
         <Menu menu={menu}>
-          {(ref, triggerPopup) => (
+          {(
+            ref: Ref<SVGSVGElement>,
+            triggerPopup: MouseEventHandler<HTMLDivElement>
+          ) => (
             <div className={styles.iconContainer} onClick={triggerPopup}>
               <IconKebabHorizontal
                 className={styles.iconKebabHorizontal}
@@ -251,11 +256,13 @@ const Card = ({
         <div className={styles.primaryText}>{primaryText}</div>
         <div className={styles.secondaryText}>
           <div className={styles.secondaryTextContent}>{secondaryText}</div>
-          <UserBadges
-            userId={userId}
-            badgeSize={12}
-            className={styles.iconVerified}
-          />
+          {userId ? (
+            <UserBadges
+              userId={userId}
+              badgeSize={12}
+              className={styles.iconVerified}
+            />
+          ) : null}
         </div>
         {showRepostFavoriteStats ? (
           <div className={styles.stats}>

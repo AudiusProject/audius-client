@@ -1,17 +1,13 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 
 import type { UserMetadata } from '@audius/common'
 import {
   accountSelectors,
-  SquareSizes,
-  WidthSizes,
   profilePageActions,
-  profilePageSelectors,
-  Status
+  SquareSizes
 } from '@audius/common'
 import type { FormikProps } from 'formik'
 import { Formik } from 'formik'
-import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconDonate from 'app/assets/images/iconDonate.svg'
@@ -19,20 +15,21 @@ import IconInstagram from 'app/assets/images/iconInstagram.svg'
 import IconLink from 'app/assets/images/iconLink.svg'
 import IconTikTokInverted from 'app/assets/images/iconTikTokInverted.svg'
 import IconTwitterBird from 'app/assets/images/iconTwitterBird.svg'
-import { FormTextInput, FormImageInput } from 'app/components/core'
+import { FormImageInput, FormTextInput, ScrollView } from 'app/components/core'
 import { FormScreen } from 'app/components/form-screen'
+import { useUserCoverImage } from 'app/components/image/UserCoverImage'
+import { useUserImage } from 'app/components/image/UserImage'
+import { isImageUriSource } from 'app/hooks/useContentNodeImage'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useUserCoverPhoto } from 'app/hooks/useUserCoverPhoto'
-import { useUserProfilePicture } from 'app/hooks/useUserProfilePicture'
 import { makeStyles } from 'app/styles'
+import type { Image } from 'app/types/image'
 
 import type { ProfileValues, UpdatedProfile } from './types'
 
-const { getAccountUser, getUserHandle } = accountSelectors
+const { getAccountUser } = accountSelectors
 const { updateProfile } = profilePageActions
-const { getProfileEditStatus } = profilePageSelectors
 
-const useStyles = makeStyles(({ palette }) => ({
+const useStyles = makeStyles(({ palette, spacing }) => ({
   coverPhoto: {
     height: 96,
     width: '100%',
@@ -58,30 +55,30 @@ const useStyles = makeStyles(({ palette }) => ({
   },
   profilePictureImage: {
     width: 'auto'
+  },
+  textFields: {
+    paddingTop: spacing(16)
   }
 }))
 
-const EditProfileForm = (props: FormikProps<ProfileValues>) => {
-  const { handleSubmit, handleReset } = props
+type EditProfileFormProps = FormikProps<ProfileValues> & {
+  isTwitterVerified?: boolean
+  isInstagramVerified?: boolean
+  isTikTokVerified?: boolean
+}
+
+const EditProfileForm = (props: EditProfileFormProps) => {
+  const {
+    handleSubmit,
+    handleReset,
+    isTwitterVerified,
+    isInstagramVerified,
+    isTikTokVerified
+  } = props
   const styles = useStyles()
-  const accountHandle = useSelector(getUserHandle)
-  const navigation = useNavigation()
-  const editStatus = useSelector((state) =>
-    getProfileEditStatus(state, accountHandle!)
-  )
-  useEffect(() => {
-    // Ensure we kick off the edit action before returning to profile screen
-    if (editStatus === Status.LOADING) {
-      navigation.goBack()
-    }
-  }, [editStatus, navigation])
 
   return (
-    <FormScreen
-      variant='secondary'
-      onReset={handleReset}
-      onSubmit={handleSubmit}
-    >
+    <FormScreen variant='white' onReset={handleReset} onSubmit={handleSubmit}>
       <FormImageInput
         name='cover_photo'
         styles={{ imageContainer: styles.coverPhoto }}
@@ -94,23 +91,26 @@ const EditProfileForm = (props: FormikProps<ProfileValues>) => {
           image: styles.profilePictureImage
         }}
       />
-      <View style={{ paddingTop: 64 }}>
+      <ScrollView style={styles.textFields}>
         <FormTextInput isFirstInput name='name' label='Name' />
         <FormTextInput name='bio' label='Bio' multiline maxLength={256} />
         <FormTextInput name='location' label='Location' />
         <FormTextInput
+          editable={!isTwitterVerified}
           name='twitter_handle'
           label='Twitter Handle'
           prefix='@'
           icon={IconTwitterBird}
         />
         <FormTextInput
+          editable={!isInstagramVerified}
           name='instagram_handle'
           label='Instagram Handle'
           prefix='@'
           icon={IconInstagram}
         />
         <FormTextInput
+          editable={!isTikTokVerified}
           name='tiktok_handle'
           label='TikTok Handle'
           prefix='@'
@@ -118,7 +118,7 @@ const EditProfileForm = (props: FormikProps<ProfileValues>) => {
         />
         <FormTextInput name='website' label='Website' icon={IconLink} />
         <FormTextInput name='donation' label='Donation' icon={IconDonate} />
-      </View>
+      </ScrollView>
     </FormScreen>
   )
 }
@@ -128,16 +128,16 @@ export const EditProfileScreen = () => {
 
   const dispatch = useDispatch()
 
-  const coverPhoto = useUserCoverPhoto({
-    id: profile?.user_id ?? null,
-    sizes: profile?._cover_photo_sizes ?? null,
-    size: WidthSizes.SIZE_2000
-  })
+  const isTwitterVerified = profile ? profile.twitterVerified : false
+  const isInstagramVerified = profile ? profile.instagramVerified : false
+  const isTikTokVerified = profile ? profile.tikTokVerified : false
+  const navigation = useNavigation()
 
-  const profilePicture = useUserProfilePicture({
-    id: profile?.user_id ?? null,
-    sizes: profile?._profile_picture_sizes ?? null,
-    size: SquareSizes.SIZE_150_BY_150
+  const { source: coverPhotoSource } = useUserCoverImage(profile)
+
+  const { source: imageSource } = useUserImage({
+    user: profile,
+    size: SquareSizes.SIZE_480_BY_480
   })
 
   const handleSubmit = useCallback(
@@ -158,8 +158,9 @@ export const EditProfileScreen = () => {
         newProfile.updatedProfilePicture = profile_picture
       }
       dispatch(updateProfile(newProfile as UserMetadata))
+      navigation.goBack()
     },
-    [dispatch, profile]
+    [dispatch, navigation, profile]
   )
 
   if (!profile) return null
@@ -186,15 +187,26 @@ export const EditProfileScreen = () => {
     tiktok_handle,
     website,
     donation,
-    cover_photo: { url: coverPhoto },
-    profile_picture: { url: profilePicture }
+    cover_photo: {
+      url: isImageUriSource(coverPhotoSource) ? coverPhotoSource.uri : ''
+    } as Image,
+    profile_picture: {
+      url: isImageUriSource(imageSource) ? imageSource.uri : ''
+    } as Image
   }
 
   return (
-    <Formik
-      initialValues={initialValues}
-      onSubmit={handleSubmit}
-      component={EditProfileForm}
-    />
+    <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+      {(formikProps) => {
+        return (
+          <EditProfileForm
+            {...formikProps}
+            isTwitterVerified={isTwitterVerified}
+            isInstagramVerified={isInstagramVerified}
+            isTikTokVerified={isTikTokVerified}
+          />
+        )
+      }}
+    </Formik>
   )
 }

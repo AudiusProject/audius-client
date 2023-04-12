@@ -1,17 +1,4 @@
-import { useEffect } from 'react'
-
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import {
-  getAccountReady,
-  getEmailField,
-  getHandleField
-} from 'common/store/pages/signon/selectors'
-import type { EditableField } from 'common/store/pages/signon/types'
-import { useDispatch, useSelector } from 'react-redux'
-
-import { remindUserToTurnOnNotifications } from 'app/components/notification-reminder/NotificationReminder'
-import { track, make } from 'app/services/analytics'
-import { EventNames } from 'app/types/analytics'
 
 import CreatePassword from './CreatePassword'
 import FirstFollows from './FirstFollows'
@@ -56,30 +43,10 @@ const screenOptions = {
 }
 
 export const SignOnScreen = () => {
-  const dispatch = useDispatch()
-
-  const accountReady = useSelector(getAccountReady)
-
-  const emailField: EditableField = useSelector(getEmailField)
-  const handleField: EditableField = useSelector(getHandleField)
-
-  useEffect(() => {
-    if (accountReady) {
-      track(
-        make({
-          eventName: EventNames.CREATE_ACCOUNT_FINISH,
-          emailAddress: emailField.value,
-          handle: handleField.value
-        })
-      )
-      remindUserToTurnOnNotifications(dispatch)
-    }
-  }, [accountReady, dispatch, emailField.value, handleField.value])
-
   return (
     <Stack.Navigator
       initialRouteName='SignOn'
-      screenOptions={{ animationTypeForReplace: 'push' }}
+      screenOptions={{ animationTypeForReplace: 'pop' }}
     >
       {signOnScreens.map(({ name, component }) => (
         <Stack.Screen

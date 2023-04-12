@@ -11,10 +11,14 @@ import {
   actionChannelDispatcher,
   playerActions,
   playerSelectors,
+  playbackPositionActions,
+  playbackPositionSelectors,
   reachabilitySelectors,
   Nullable,
-  getPremiumContentHeaders,
-  FeatureFlags
+  FeatureFlags,
+  premiumContentSelectors,
+  QueryParams,
+  Genre
 } from '@audius/common'
 import { eventChannel } from 'redux-saga'
 import {
@@ -27,8 +31,11 @@ import {
   delay
 } from 'typed-redux-saga'
 
+import { waitForWrite } from 'utils/sagaHelpers'
+
 import errorSagas from './errorSagas'
-const { getIsReachable } = reachabilitySelectors
+const { setTrackPosition } = playbackPositionActions
+const { getTrackPosition } = playbackPositionSelectors
 
 const {
   play,
@@ -39,16 +46,20 @@ const {
   stop,
   setBuffering,
   reset,
-  resetSuceeded,
+  resetSucceeded,
   seek,
+  setPlaybackRate,
   error: errorAction
 } = playerActions
 
-const { getTrackId, getUid, getCounter, getPlaying } = playerSelectors
+const { getTrackId, getUid, getCounter, getPlaying, getPlaybackRate } =
+  playerSelectors
 
 const { recordListen } = tracksSocialActions
 const { getUser } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
+const { getPremiumTrackSignatureMap } = premiumContentSelectors
+const { getIsReachable } = reachabilitySelectors
 
 const PLAYER_SUBSCRIBER_NAME = 'PLAYER'
 const RECORD_LISTEN_SECONDS = 1
@@ -59,41 +70,52 @@ const RECORD_LISTEN_INTERVAL = 1000
 let FORCE_MP3_STREAM_TRACK_IDS: Set<string> | null = null
 
 export function* watchPlay() {
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  const apiClient = yield* getContext('apiClient')
-  const remoteConfigInstance = yield* getContext('remoteConfigInstance')
-  const isNativeMobile = yield* getContext('isNativeMobile')
-  const isReachable = yield* select(getIsReachable)
   const getFeatureEnabled = yield* getContext('getFeatureEnabled')
-  const streamMp3IsEnabled = yield* call(
-    getFeatureEnabled,
-    FeatureFlags.STREAM_MP3
-  ) ?? false
-
   yield* takeLatest(play.type, function* (action: ReturnType<typeof play>) {
     const { uid, trackId, onEnd } = action.payload ?? {}
 
-    if (!FORCE_MP3_STREAM_TRACK_IDS) {
-      FORCE_MP3_STREAM_TRACK_IDS = new Set(
-        (
-          remoteConfigInstance.getRemoteVar(
-            StringKeys.FORCE_MP3_STREAM_TRACK_IDS
-          ) || ''
-        ).split(',')
-      )
-    }
-
     const audioPlayer = yield* getContext('audioPlayer')
+    const isNativeMobile = yield getContext('isNativeMobile')
+    const isNewPodcastControlsEnabled = yield* call(
+      getFeatureEnabled,
+      FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
+      FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
+    )
 
     if (trackId) {
       // Load and set end action.
       const track = yield* select(getTrack, { id: trackId })
+      const isReachable = yield* select(getIsReachable)
       if (!track) return
-      if (track.is_premium && !track.premium_content_signature) return
+      if (track.is_premium && !track.premium_content_signature) {
+        console.warn(
+          'Should have signature for premium track to reduce potential DN latency'
+        )
+      }
 
       const owner = yield* select(getUser, {
         id: track.owner_id
       })
+
+      if (!isReachable && isNativeMobile) {
+        // Play offline.
+        audioPlayer.play()
+        yield* put(playSucceeded({ uid, trackId }))
+        return
+      }
+
+      yield* waitForWrite()
+      const streamMp3IsEnabled = yield* call(
+        getFeatureEnabled,
+        FeatureFlags.STREAM_MP3
+      )
+      const isGatedContentEnabled = yield* call(
+        getFeatureEnabled,
+        FeatureFlags.GATED_CONTENT_ENABLED
+      )
+      const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+      const apiClient = yield* getContext('apiClient')
+      const remoteConfigInstance = yield* getContext('remoteConfigInstance')
 
       const gateways = owner
         ? audiusBackendInstance.getCreatorNodeIPFSGateways(
@@ -101,24 +123,45 @@ export function* watchPlay() {
           )
         : []
       const encodedTrackId = encodeHashId(trackId)
+
+      if (!FORCE_MP3_STREAM_TRACK_IDS) {
+        FORCE_MP3_STREAM_TRACK_IDS = new Set(
+          (
+            remoteConfigInstance.getRemoteVar(
+              StringKeys.FORCE_MP3_STREAM_TRACK_IDS
+            ) || ''
+          ).split(',')
+        )
+      }
+
       const forceStreamMp3 =
         // TODO: remove feature flag - https://github.com/AudiusProject/audius-client/pull/2147
         streamMp3IsEnabled ||
         (encodedTrackId && FORCE_MP3_STREAM_TRACK_IDS.has(encodedTrackId))
+      let queryParams: QueryParams = {}
+      if (isGatedContentEnabled) {
+        const data = `Premium content user signature at ${Date.now()}`
+        const signature = yield* call(audiusBackendInstance.getSignature, data)
+        const premiumTrackSignatureMap = yield* select(
+          getPremiumTrackSignatureMap
+        )
+        const premiumContentSignature = premiumTrackSignatureMap[track.track_id]
+        queryParams = {
+          user_data: data,
+          user_signature: signature
+        }
+        if (premiumContentSignature) {
+          queryParams.premium_content_signature = JSON.stringify(
+            premiumContentSignature
+          )
+        }
+      }
       const forceStreamMp3Url = forceStreamMp3
-        ? apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`)
+        ? apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`, queryParams)
         : null
 
-      let premiumContentHeaders = {}
-      if (isReachable || !isNativeMobile) {
-        const libs = yield* call(audiusBackendInstance.getAudiusLibs)
-        const web3Manager = libs.web3Manager
-        premiumContentHeaders = yield* call(
-          getPremiumContentHeaders,
-          track.premium_content_signature,
-          web3Manager.sign.bind(web3Manager)
-        )
-      }
+      const isLongFormContent =
+        track.genre === Genre.PODCASTS || track.genre === Genre.AUDIOBOOKS
 
       const endChannel = eventChannel((emitter) => {
         audioPlayer.load(
@@ -126,6 +169,17 @@ export function* watchPlay() {
           () => {
             if (onEnd) {
               emitter(onEnd({}))
+            }
+            if (isNewPodcastControlsEnabled && isLongFormContent) {
+              emitter(
+                setTrackPosition({
+                  trackId,
+                  positionInfo: {
+                    status: 'COMPLETED',
+                    playbackPosition: 0
+                  }
+                })
+              )
             }
           },
           // @ts-ignore a few issues with typing here...
@@ -135,8 +189,7 @@ export function* watchPlay() {
             id: encodedTrackId,
             title: track.title,
             artist: owner?.name,
-            artwork: '',
-            premiumContentHeaders
+            artwork: ''
           },
           forceStreamMp3Url
         )
@@ -148,7 +201,38 @@ export function* watchPlay() {
           { uid: PLAYER_SUBSCRIBER_NAME, id: trackId }
         ])
       )
+
+      if (isLongFormContent) {
+        // Make sure that the playback rate is set when playing a podcast
+        const playbackRate = yield* select(getPlaybackRate)
+        audioPlayer.setPlaybackRate(playbackRate)
+
+        if (isNewPodcastControlsEnabled) {
+          // Set playback position for track to in progress if not already tracked
+          const trackPlaybackInfo = yield* select(getTrackPosition, { trackId })
+          if (trackPlaybackInfo?.status !== 'IN_PROGRESS') {
+            yield* put(
+              setTrackPosition({
+                trackId,
+                positionInfo: {
+                  status: 'IN_PROGRESS',
+                  playbackPosition: 0
+                }
+              })
+            )
+          } else {
+            audioPlayer.play()
+            yield* put(playSucceeded({ uid, trackId }))
+            yield* put(seek({ seconds: trackPlaybackInfo.playbackPosition }))
+            return
+          }
+        }
+      } else if (audioPlayer.getPlaybackRate() !== '1x') {
+        // Reset playback rate when playing a regular track
+        audioPlayer.setPlaybackRate('1x')
+      }
     }
+
     // Play.
     audioPlayer.play()
     yield* put(playSucceeded({ uid, trackId }))
@@ -180,8 +264,7 @@ export function* watchCollectiblePlay() {
               collectible.imageUrl ??
               collectible.frameUrl ??
               collectible.gifUrl ??
-              '',
-            premiumContentHeaders: {}
+              ''
           },
           collectible.animationUrl
         )
@@ -227,7 +310,7 @@ export function* watchReset() {
         )
       }
     }
-    yield* put(resetSuceeded({ shouldAutoplay }))
+    yield* put(resetSucceeded({ shouldAutoplay }))
   })
 }
 
@@ -245,12 +328,49 @@ export function* watchStop() {
 }
 
 export function* watchSeek() {
+  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
+  const audioPlayer = yield* getContext('audioPlayer')
+
   yield* takeLatest(seek.type, function* (action: ReturnType<typeof seek>) {
     const { seconds } = action.payload
+    const isNewPodcastControlsEnabled = yield* call(
+      getFeatureEnabled,
+      FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
+      FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
+    )
+    const trackId = yield* select(getTrackId)
 
-    const audioPlayer = yield* getContext('audioPlayer')
     audioPlayer.seek(seconds)
+
+    if (isNewPodcastControlsEnabled && trackId) {
+      const track = yield* select(getTrack, { id: trackId })
+      const isLongFormContent =
+        track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
+
+      if (isLongFormContent) {
+        yield* put(
+          setTrackPosition({
+            trackId,
+            positionInfo: {
+              status: 'IN_PROGRESS',
+              playbackPosition: seconds
+            }
+          })
+        )
+      }
+    }
   })
+}
+
+export function* watchSetPlaybackRate() {
+  const audioPlayer = yield* getContext('audioPlayer')
+  yield* takeLatest(
+    setPlaybackRate.type,
+    function* (action: ReturnType<typeof setPlaybackRate>) {
+      const { rate } = action.payload
+      audioPlayer.setPlaybackRate(rate)
+    }
+  )
 }
 
 // NOTE: Event listeners are attached to the audio object b/c the audio can be manipulated
@@ -349,6 +469,7 @@ function* recordListenWorker() {
       if (trackId) yield* put(recordListen(trackId))
       lastSeenPlayCounter = playCounter
     }
+
     yield* delay(RECORD_LISTEN_INTERVAL)
   }
 }
@@ -361,6 +482,7 @@ const sagas = () => {
     watchStop,
     watchReset,
     watchSeek,
+    watchSetPlaybackRate,
     setAudioListeners,
     handleAudioErrors,
     handleAudioBuffering,

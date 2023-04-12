@@ -32,10 +32,6 @@ export type LoadingLineupItem = {
   _loading: true
 }
 
-export type FeedTipLineupItem = {
-  _feedTip: true
-}
-
 export type LineupProps = {
   /** Object containing lineup actions such as setPage */
   actions: LineupBaseActions
@@ -64,22 +60,37 @@ export type LineupProps = {
   extraFetchOptions?: Record<string, unknown>
 
   /**
+   * When `true` hide the header when the lineup is empty
+   */
+  hideHeaderOnEmpty?: boolean
+
+  /**
    * A header to display at the top of the lineup,
    * will scroll with the rest of the content
    */
   header?: SectionListProps<unknown>['ListHeaderComponent']
 
+  /**
+   * An optional component to render when the lineup has no contents
+   * in it.
+   */
+  LineupEmptyComponent?: SectionListProps<unknown>['ListEmptyComponent']
+
   /** Are we in a trending lineup? Allows tiles to specialize their rendering */
   isTrending?: boolean
 
-  /** Whether we are in the feed lineup */
-  isFeed?: boolean
+  /**
+   * When `true` lineup waits until visible before fetching.
+   * This is especcially needed for lineups inside collapsible-tab-view
+   * which do not support tab-navigator lazy mode
+   */
+  lazy?: boolean
 
   /**
    * Indicator if a track should be displayed differently (ie. artist pick)
    * The leadingElementId is displayed at the top of the lineup
    */
-  leadingElementId?: ID
+  leadingElementId?: ID | null
 
   /**
    * A custom delineator to show after the leading element
@@ -158,7 +169,7 @@ export type LineupProps = {
   pullToRefresh?: boolean
 } & Pick<
   SectionListProps<unknown>,
-  'showsVerticalScrollIndicator' | 'ListEmptyComponent'
+  'showsVerticalScrollIndicator' | 'ListEmptyComponent' | 'ListFooterComponent'
 >
 
 export type TogglePlayConfig = {
@@ -172,7 +183,7 @@ export type LineupItemTileProps = Pick<
   'isTrending' | 'showLeadingElementArtistPick' | 'leadingElementId'
 > & {
   rankIconCount: number
-  item: LineupItem | LoadingLineupItem | FeedTipLineupItem
+  item: LineupItem | LoadingLineupItem
   index: number
   togglePlay: ({ uid, id, source }: TogglePlayConfig) => void
 }

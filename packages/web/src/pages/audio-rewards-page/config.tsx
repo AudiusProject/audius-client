@@ -13,8 +13,8 @@ import {
   SETTINGS_PAGE,
   TRENDING_PAGE,
   UPLOAD_PAGE,
-  EXPLORE_HEAVY_ROTATION_PAGE,
-  FAVORITES_PAGE
+  FAVORITES_PAGE,
+  EXPLORE_PAGE
 } from 'utils/route'
 
 type LinkButtonType =
@@ -67,16 +67,16 @@ const linkButtonMap: Record<LinkButtonType, LinkButtonInfo> = {
     link: () => TRENDING_PAGE
   },
   sendFirstTip: {
-    label: 'Find Someone To Tip',
+    label: 'Send a Tip',
     leftIcon: null,
     rightIcon: <GoldBadgeIconImage />,
-    link: () => EXPLORE_HEAVY_ROTATION_PAGE
+    link: () => FAVORITES_PAGE
   },
   firstPlaylist: {
     label: 'Discover Some Tracks',
     leftIcon: null,
     rightIcon: <IconArrow />,
-    link: () => FAVORITES_PAGE
+    link: () => EXPLORE_PAGE
   }
 }
 
@@ -100,7 +100,7 @@ const webChallengesConfig: Record<ChallengeRewardID, WebChallengeInfo> = {
     icon: <i className='emoji large love-letter' />
   },
   'connect-verified': {
-    icon: <i className='emoji large white-heavy-check-mark' />,
+    icon: <i className='emoji large link-symbol' />,
     modalButtonInfo: {
       incomplete: linkButtonMap.verifyAccount,
       inProgress: linkButtonMap.verifyAccount,
@@ -119,7 +119,7 @@ const webChallengesConfig: Record<ChallengeRewardID, WebChallengeInfo> = {
     icon: <i className='emoji large mobile-phone-with-arrow' />
   },
   'profile-completion': {
-    icon: <i className='emoji large white-heavy-check-mark' />,
+    icon: <i className='emoji large ballot-box-tick' />,
     modalButtonInfo: {
       incomplete: linkButtonMap.profile,
       inProgress: linkButtonMap.profile,
@@ -135,7 +135,7 @@ const webChallengesConfig: Record<ChallengeRewardID, WebChallengeInfo> = {
     }
   },
   'send-first-tip': {
-    icon: <i className='emoji large money-mouth-face' />,
+    icon: <i className='emoji large money-wings' />,
     modalButtonInfo: {
       incomplete: linkButtonMap.sendFirstTip,
       inProgress: linkButtonMap.sendFirstTip,
@@ -151,19 +151,19 @@ const webChallengesConfig: Record<ChallengeRewardID, WebChallengeInfo> = {
     }
   },
   'trending-playlist': {
-    icon: <i className='emoji large chart-increasing' />
+    icon: <i className='emoji large arrow-curve-up' />
   },
   'trending-track': {
     icon: <i className='emoji large chart-increasing' />
   },
   'top-api': {
-    icon: <i className='emoji large nerd-face' />
+    icon: <i className='emoji large gear' />
   },
   'verified-upload': {
     icon: <i className='emoji large white-heavy-check-mark' />
   },
   'trending-underground': {
-    icon: <i className='emoji large chart-increasing' />
+    icon: <i className='emoji large chart-bar' />
   }
 }
 

@@ -2,13 +2,17 @@ import { useCallback } from 'react'
 
 import type { Track, User, CommonState } from '@audius/common'
 import {
+  playbackPositionSelectors,
+  FeatureFlags,
+  Genre,
+  SquareSizes,
+  accountSelectors,
   removeNullable,
   PlaybackSource,
   FavoriteSource,
   RepostSource,
   ShareSource,
   FavoriteType,
-  SquareSizes,
   cacheTracksSelectors,
   cacheUsersSelectors,
   tracksSocialActions,
@@ -22,9 +26,14 @@ import {
 import { useNavigationState } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { TrackImage } from 'app/components/image/TrackImage'
 import type { LineupItemProps } from 'app/components/lineup-tile/types'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { useTrackCoverArt } from 'app/hooks/useTrackCoverArt'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+
+import type { TileProps } from '../core'
+import type { ImageProps } from '../image/FastImage'
 
 import { LineupTile } from './LineupTile'
 
@@ -35,6 +44,8 @@ const { repostTrack, saveTrack, undoRepostTrack, unsaveTrack } =
   tracksSocialActions
 const { getUserFromTrack } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
+const { getUserId } = accountSelectors
+const { getTrackPosition } = playbackPositionSelectors
 
 export const TrackTile = (props: LineupItemProps) => {
   const { uid } = props
@@ -58,23 +69,35 @@ export const TrackTile = (props: LineupItemProps) => {
 type TrackTileProps = LineupItemProps & {
   track: Track
   user: User
+  TileProps?: Partial<TileProps>
 }
 
-const TrackTileComponent = ({
+export const TrackTileComponent = ({
   togglePlay,
   track,
   user,
   ...lineupTileProps
 }: TrackTileProps) => {
+  const isGatedContentEnabled = useIsGatedContentEnabled()
+  const { isEnabled: isNewPodcastControlsEnabled } = useFeatureFlag(
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
+    FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
+  )
   const dispatch = useDispatch()
   const navigation = useNavigation()
-  const currentScreen = useNavigationState((state) => state.history?.[0])
+  const isOnArtistsTracksTab = useNavigationState((state) => {
+    // @ts-expect-error -- history returning unknown[]
+    const currentScreen = state.history?.[0].key
+    return currentScreen?.includes('Tracks')
+  })
   const isPlayingUid = useSelector(
     (state: CommonState) => getUid(state) === lineupTileProps.uid
   )
 
+  const currentUserId = useSelector(getUserId)
+  const isOwner = currentUserId === track.owner_id
+
   const {
-    _cover_art_sizes,
     duration,
     field_visibility,
     is_unlisted,
@@ -82,17 +105,17 @@ const TrackTileComponent = ({
     has_current_user_saved,
     play_count,
     title,
-    track_id
+    track_id,
+    genre,
+    is_premium: isPremium
   } = track
 
-  // @ts-expect-error -- history returning unknown[]
-  const isOnArtistsTracksTab = currentScreen?.key.includes('Tracks')
-
-  const imageUrl = useTrackCoverArt({
-    id: track_id,
-    sizes: _cover_art_sizes,
-    size: SquareSizes.SIZE_150_BY_150
-  })
+  const renderImage = useCallback(
+    (props: ImageProps) => (
+      <TrackImage track={track} size={SquareSizes.SIZE_150_BY_150} {...props} />
+    ),
+    [track]
+  )
 
   const handlePress = useCallback(() => {
     togglePlay({
@@ -106,14 +129,31 @@ const TrackTileComponent = ({
     navigation.push('Track', { id: track_id })
   }, [navigation, track_id])
 
+  const playbackPositionInfo = useSelector((state) =>
+    getTrackPosition(state, { trackId: track_id })
+  )
   const handlePressOverflow = useCallback(() => {
     if (track_id === undefined) {
       return
     }
+    const isLongFormContent =
+      genre === Genre.PODCASTS || genre === Genre.AUDIOBOOKS
+
     const overflowActions = [
-      OverflowAction.ADD_TO_PLAYLIST,
-      OverflowAction.VIEW_TRACK_PAGE,
-      isOnArtistsTracksTab ? null : OverflowAction.VIEW_ARTIST_PAGE
+      !isGatedContentEnabled || !isPremium
+        ? OverflowAction.ADD_TO_PLAYLIST
+        : null,
+      isNewPodcastControlsEnabled && isLongFormContent
+        ? OverflowAction.VIEW_EPISODE_PAGE
+        : OverflowAction.VIEW_TRACK_PAGE,
+      isNewPodcastControlsEnabled && isLongFormContent
+        ? playbackPositionInfo?.status === 'COMPLETED'
+          ? OverflowAction.MARK_AS_UNPLAYED
+          : OverflowAction.MARK_AS_PLAYED
+        : null,
+      isOnArtistsTracksTab ? null : OverflowAction.VIEW_ARTIST_PAGE,
+      isOwner ? OverflowAction.EDIT_TRACK : null,
+      isOwner ? OverflowAction.DELETE_TRACK : null
     ].filter(removeNullable)
 
     dispatch(
@@ -123,7 +163,17 @@ const TrackTileComponent = ({
         overflowActions
       })
     )
-  }, [track_id, dispatch, isOnArtistsTracksTab])
+  }, [
+    track_id,
+    genre,
+    isGatedContentEnabled,
+    isPremium,
+    isNewPodcastControlsEnabled,
+    playbackPositionInfo?.status,
+    isOnArtistsTracksTab,
+    isOwner,
+    dispatch
+  ])
 
   const handlePressShare = useCallback(() => {
     if (track_id === undefined) {
@@ -173,7 +223,7 @@ const TrackTileComponent = ({
       hideShare={hideShare}
       hidePlays={hidePlays}
       id={track_id}
-      imageUrl={imageUrl}
+      renderImage={renderImage}
       isUnlisted={is_unlisted}
       onPress={handlePress}
       onPressOverflow={handlePressOverflow}

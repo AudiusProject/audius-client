@@ -3,11 +3,12 @@ import * as nativeLibs from '@audius/sdk/dist/native-libs'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Image } from 'react-native'
 import Config from 'react-native-config'
-import scrypt from 'react-native-scrypt'
 
 import { track } from 'app/services/analytics'
 import { reportToSentry } from 'app/utils/reportToSentry'
 
+import { createPrivateKey } from './createPrivateKey'
+import { discoveryNodeSelectorInstance } from './discovery-node-selector'
 import { withEagerOption } from './eagerLoadUtils'
 import { env } from './env'
 import {
@@ -20,42 +21,6 @@ import { monitoringCallbacks } from './monitoringCallbacks'
 import { getFeatureEnabled } from './remote-config'
 import { remoteConfigInstance } from './remote-config/remote-config-instance'
 
-function bufferFromHexString(hexString: string) {
-  const byteArray = hexString
-    .match(/.{1,2}/g)
-    ?.map((byte) => parseInt(byte, 16))
-  return new Uint8Array(byteArray as number[])
-}
-
-/**
- * Given a user encryptStr and initialization vector, generate a private key
- * @param encryptStr String to encrypt (can be user password or some kind of lookup key)
- * @param ivHex hex string iv value
- */
-const createKey = async (encryptStr: string, ivHex: string) => {
-  const N = 32768
-  const r = 8
-  const p = 1
-  const dkLen = 32
-  const encryptStrBuffer = Buffer.from(encryptStr)
-  const ivBuffer = Buffer.from(ivHex)
-
-  const derivedKey = await scrypt(
-    encryptStrBuffer,
-    ivBuffer,
-    N,
-    r,
-    p,
-    dkLen,
-    'buffer'
-  )
-  const keyHex = derivedKey.toString('hex')
-
-  // This is the private key
-  const keyBuffer = bufferFromHexString(keyHex)
-  return { keyHex, keyBuffer }
-}
-
 /**
  * audiusBackend initialized for a mobile environment
  */
@@ -66,6 +31,7 @@ export const audiusBackendInstance = audiusBackend({
   ethProviderUrls: (Config.ETH_PROVIDER_URL || '').split(','),
   ethRegistryAddress: Config.ETH_REGISTRY_ADDRESS,
   ethTokenAddress: Config.ETH_TOKEN_ADDRESS,
+  discoveryNodeSelectorInstance,
   getFeatureEnabled,
   getHostUrl: () => {
     return `${Config.PUBLIC_PROTOCOL}//${Config.PUBLIC_HOSTNAME}`
@@ -85,9 +51,10 @@ export const audiusBackendInstance = audiusBackend({
     )
   }),
   hedgehogConfig: {
-    createKey
+    createKey: createPrivateKey
   },
   identityServiceUrl: Config.IDENTITY_SERVICE,
+  generalAdmissionUrl: Config.GENERAL_ADMISSION,
   isElectron: false,
   isMobile: true,
   legacyUserNodeUrl: Config.LEGACY_USER_NODE,
@@ -106,8 +73,6 @@ export const audiusBackendInstance = audiusBackend({
   remoteConfigInstance,
   setLocalStorageItem: async (key, value) => AsyncStorage.setItem(key, value),
   solanaConfig: {
-    anchorAdminAccount: Config.ANCHOR_ADMIN_ACCOUNT,
-    anchorProgramId: Config.ANCHOR_PROGRAM_ID,
     claimableTokenPda: Config.CLAIMABLE_TOKEN_PDA,
     claimableTokenProgramAddress: Config.CLAIMABLE_TOKEN_PROGRAM_ADDRESS,
     rewardsManagerProgramId: Config.REWARDS_MANAGER_PROGRAM_ID,

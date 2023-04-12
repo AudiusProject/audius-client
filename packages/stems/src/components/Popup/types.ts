@@ -9,11 +9,16 @@ export enum Position {
   BOTTOM_RIGHT = 'bottomRight'
 }
 
+export type Origin = {
+  vertical: 'top' | 'center' | 'bottom'
+  horizontal: 'left' | 'center' | 'right'
+}
+
 export type PopupProps = {
   /**
    * A ref to the element whose position will be used to anchor the Popup
    */
-  anchorRef: MutableRefObject<HTMLElement | undefined>
+  anchorRef: MutableRefObject<HTMLElement | null>
 
   /**
    * Duration of the animations in ms
@@ -38,6 +43,11 @@ export type PopupProps = {
   className?: string
 
   /**
+   * Class name to apply to the popup title
+   */
+  titleClassName?: string
+
+  /**
    * An optional container ref that controls what the popup considers
    * to be the size of the container it belongs to. If the popup expands outside
    * the bounds of the container, it repositions itself.
@@ -55,6 +65,11 @@ export type PopupProps = {
   showHeader?: boolean
 
   /**
+   * Hide the close button when displaying the header
+   */
+  hideCloseButton?: boolean
+
+  /**
    * Fired when a close event is dispatched, but the animation is not necessarily finished
    */
   onClose: () => void
@@ -66,8 +81,19 @@ export type PopupProps = {
 
   /**
    * The position of the Popup relative to the trigger
+   * @deprecated use transformOrigin and anchorOrigin instead
    */
   position?: Position
+
+  /**
+   * The origin of the popup
+   */
+  transformOrigin?: Origin
+
+  /**
+   * The origin of the anchor
+   */
+  anchorOrigin?: Origin
 
   /**
    * A title displayed at the top of the Popup (only visible when the header is enabled)
@@ -86,7 +112,15 @@ export type PopupProps = {
   zIndex?: number
 }
 
-export const popupDefaultProps = {
+export const popupDefaultProps: Partial<PopupProps> = {
+  anchorOrigin: {
+    horizontal: 'center',
+    vertical: 'bottom'
+  },
+  transformOrigin: {
+    horizontal: 'center',
+    vertical: 'top'
+  },
   animationDuration: 90,
   onAfterClose: () => {}
 }

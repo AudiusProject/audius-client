@@ -1,15 +1,18 @@
 import { useCallback } from 'react'
 
+import { FeatureFlags } from '@audius/common'
 import { Image, Platform } from 'react-native'
 
 import audiusLogoHorizontal from 'app/assets/images/Horizontal-Logo-Full-Color.png'
-import Bell from 'app/assets/images/emojis/bell.png'
-import Headphone from 'app/assets/images/emojis/headphone.png'
-import SpeechBalloon from 'app/assets/images/emojis/speech-balloon.png'
-import Trophy from 'app/assets/images/emojis/trophy.png'
+import IconDownload from 'app/assets/images/iconCloudDownload.svg'
+import IconInfo from 'app/assets/images/iconInfo.svg'
+import IconMessage from 'app/assets/images/iconMessage.svg'
+import IconNotificationOn from 'app/assets/images/iconNotificationOn.svg'
 import IconSettings from 'app/assets/images/iconSettings.svg'
-import { Screen, ScrollView } from 'app/components/core'
+import { Screen, ScreenContent, ScrollView } from 'app/components/core'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { makeStyles } from 'app/styles'
 import { Theme } from 'app/utils/theme'
 
@@ -21,23 +24,27 @@ import { CastSettingsRow } from './CastSettingsRow'
 import { Divider } from './Divider'
 import { SettingsRowLabel } from './SettingRowLabel'
 import { SettingsRow } from './SettingsRow'
+import { SettingsRowDescription } from './SettingsRowDescription'
 
 const IS_IOS = Platform.OS === 'ios'
 
 const messages = {
   title: 'Settings',
-  audioRewards: 'Audio & Rewards',
-  listeningHistory: 'Listening History',
-  notifications: 'Notifications',
+  inbox: 'Inbox Settings',
+  inboxDescription: 'Configure who is able to send messages to your inbox.',
+  notifications: 'Configure Notifications',
+  notificationsDescription: 'Review your notification preferences.',
+  downloads: 'Download Settings',
   about: 'About'
 }
 
 const useStyles = makeStyles(({ spacing, palette, type }) => ({
   logo: {
-    width: '80%',
-    height: 85,
+    width: 200,
+    height: 48,
     marginVertical: spacing(6),
     alignSelf: 'center',
+    resizeMode: 'contain',
     tintColor: type === Theme.DEFAULT ? undefined : palette.staticWhite
   }
 }))
@@ -46,15 +53,17 @@ const IconProps = { height: 28, width: 28, style: { marginRight: 4 } }
 
 export const SettingsScreen = () => {
   const styles = useStyles()
+  const isOfflineDownloadEnabled = useIsOfflineModeEnabled()
+  const { isEnabled: isChatEnabled } = useFeatureFlag(FeatureFlags.CHAT_ENABLED)
 
   const navigation = useNavigation<ProfileTabScreenParamList>()
 
-  const handlePressRewards = useCallback(() => {
-    navigation.push('AudioScreen')
+  const handlePressInbox = useCallback(() => {
+    navigation.push('InboxSettingsScreen')
   }, [navigation])
 
-  const handlePressHistory = useCallback(() => {
-    navigation.push('ListeningHistoryScreen')
+  const handlePressDownloads = useCallback(() => {
+    navigation.push('DownloadSettingsScreen')
   }, [navigation])
 
   const handlePressNotifications = useCallback(() => {
@@ -74,29 +83,45 @@ export const SettingsScreen = () => {
       url='/settings'
       topbarRight={null}
     >
-      <ScrollView>
-        <Image source={audiusLogoHorizontal} style={styles.logo} />
-        <AccountSettingsRow />
-        <SettingsRow onPress={handlePressRewards}>
-          <SettingsRowLabel label={messages.audioRewards} iconSource={Trophy} />
-        </SettingsRow>
-        <SettingsRow onPress={handlePressHistory}>
-          <SettingsRowLabel
-            label={messages.listeningHistory}
-            iconSource={Headphone}
-          />
-        </SettingsRow>
-        <Divider />
-        <SettingsRow onPress={handlePressNotifications}>
-          <SettingsRowLabel label={messages.notifications} iconSource={Bell} />
-        </SettingsRow>
-        <AppearanceSettingsRow />
-        {IS_IOS ? <CastSettingsRow /> : null}
-        <Divider />
-        <SettingsRow onPress={handlePressAbout}>
-          <SettingsRowLabel label={messages.about} iconSource={SpeechBalloon} />
-        </SettingsRow>
-      </ScrollView>
+      <ScreenContent isOfflineCapable>
+        <ScrollView>
+          <Image source={audiusLogoHorizontal} style={styles.logo} />
+          <AccountSettingsRow />
+          <Divider />
+          <AppearanceSettingsRow />
+          {isChatEnabled ? (
+            <SettingsRow onPress={handlePressInbox}>
+              <SettingsRowLabel label={messages.inbox} icon={IconMessage} />
+              <SettingsRowDescription>
+                {messages.inboxDescription}
+              </SettingsRowDescription>
+            </SettingsRow>
+          ) : null}
+          <SettingsRow onPress={handlePressNotifications}>
+            <SettingsRowLabel
+              label={messages.notifications}
+              icon={IconNotificationOn}
+            />
+            <SettingsRowDescription>
+              {messages.notificationsDescription}
+            </SettingsRowDescription>
+          </SettingsRow>
+          {IS_IOS ? <CastSettingsRow /> : null}
+          {isOfflineDownloadEnabled ? (
+            <SettingsRow onPress={handlePressDownloads}>
+              <SettingsRowLabel
+                label={messages.downloads}
+                icon={IconDownload}
+              />
+            </SettingsRow>
+          ) : null}
+          <Divider />
+          <SettingsRow onPress={handlePressAbout}>
+            <SettingsRowLabel label={messages.about} icon={IconInfo} />
+          </SettingsRow>
+          <Divider />
+        </ScrollView>
+      </ScreenContent>
     </Screen>
   )
 }

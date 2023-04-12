@@ -1,4 +1,4 @@
-import { Collection, FieldVisibility, Track, User } from '@audius/common'
+import { Collection, FieldVisibility, Genre, Track, User } from '@audius/common'
 
 const defaultFieldVisibility: FieldVisibility = {
   genre: true,
@@ -20,12 +20,16 @@ export const getTrackWithFallback = (track: Track | null) => {
       followee_saves: [],
       duration: 0,
       save_count: 0,
+      genre: Genre.ALL,
       field_visibility: defaultFieldVisibility,
       has_current_user_reposted: false,
       has_current_user_saved: false,
       play_count: 0,
       is_delete: false,
       is_unlisted: false,
+      is_premium: false,
+      premium_conditions: null,
+      premium_content_signature: null,
       activity_timestamp: '',
       _co_sign: undefined,
       _cover_art_sizes: {
@@ -70,7 +74,7 @@ export const getCollectionWithFallback = (collection: Collection | null) => {
 export const getUserWithFallback = (user: User | null) => {
   return (
     user || {
-      _artist_pick: -1,
+      artist_pick_track_id: -1,
       name: '',
       handle: '',
       is_verified: false,

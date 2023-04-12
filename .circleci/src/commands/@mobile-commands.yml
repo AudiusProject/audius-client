@@ -1,5 +1,24 @@
-# Build the ios app
-mobile-build-ios:
+mobile-halt-if-no-native-changes:
+  steps:
+    - run:
+        name: don't do anything if no native changes
+        command: |
+          ! git diff --quiet origin/main... -- 'packages/mobile' ':!packages/mobile/src' || circleci-agent step halt
+
+mobile-halt-if-codepush-release-ios:
+  steps:
+    - run:
+        name: fastlane build
+        command: cd packages/mobile/ios && bundle exec fastlane haltIfCodePushEligible
+
+mobile-halt-if-codepush-release-android:
+  steps:
+    - run:
+        name: fastlane build
+        command: cd packages/mobile/android && bundle exec fastlane haltIfCodePushEligible
+
+# Bundle ios app and prepare to build/upload/release
+mobile-prepare-ios:
   parameters:
     build-directory:
       default: 'build-mobile-production'
@@ -26,9 +45,6 @@ mobile-build-ios:
           curl -sL https://sentry.io/get-cli/ | bash
           echo export SENTRY_BINARY=/usr/local/bin/sentry-cli >> "$BASH_ENV"
     - run:
-        name: enable Hermes
-        command: cd packages/mobile && node enableHermesiOS.js
-    - run:
         name: install pods
         command: cd packages/mobile/ios && pod install
     - run:
@@ -44,6 +60,20 @@ mobile-build-ios:
     - run:
         name: update fastlane
         command: cd packages/mobile/ios && bundle update fastlane
+
+# Build ios app
+mobile-build-ios:
+  parameters:
+    build-directory:
+      default: 'build-mobile-production'
+      type: string
+    bundle-id:
+      default: 'co.audius.audiusmusic'
+      type: string
+    env:
+      default: '.env.prod'
+      type: string
+  steps:
     - run:
         name: fastlane build
         command: cp packages/mobile/<<parameters.env>> packages/mobile/ios/ && cd packages/mobile/ios && bundle exec fastlane build bundle_id:<<parameters.bundle-id>>
@@ -52,34 +82,29 @@ mobile-build-ios:
     - store_test_results:
         path: packages/mobile/output/scan
 
-# Upload the ios app to the App Store
-mobile-upload-ios:
-  parameters:
-    bundle-id:
-      default: 'co.audius.audiusmusic'
-      type: string
-  steps:
-    - run:
-        name: fastlane upload
-        command: cd packages/mobile/ios && bundle exec fastlane upload bundle_id:<<parameters.bundle-id>>
-
-# Build the android app
-mobile-build-android:
+# If the app can be released via CodePush, release it via CodePush.
+# Otherwise, build and upload it to the App Store.
+mobile-release-ios:
   parameters:
     build-directory:
       default: 'build-mobile-production'
       type: string
-    build-type:
-      default: 'bundleRelease'
-      type: string
     bundle-id:
-      default: 'co.audius.app'
+      default: 'co.audius.audiusmusic'
       type: string
-    track:
-      default: 'beta'
+    env:
+      default: '.env.prod'
       type: string
-    remote-directory:
-      default: 'audius-mobile'
+  steps:
+    - run:
+        name: fastlane build and upload
+        command: cd packages/mobile/ios && bundle exec fastlane build_and_upload bundle_id:<<parameters.bundle-id>>
+
+# Prepare to build/upload/release Android
+mobile-prepare-android:
+  parameters:
+    build-directory:
+      default: 'build-mobile-production'
       type: string
   steps:
     - checkout
@@ -104,28 +129,54 @@ mobile-build-android:
         command: |
           echo "$FASTLANE_PLAYSTORE_JSON" > packages/mobile/android/app/api.txt
           base64 --decode packages/mobile/android/app/api.txt > packages/mobile/android/app/api.json
+
+# Build the android app
+mobile-build-android:
+  parameters:
+    build-directory:
+      default: 'build-mobile-production'
+      type: string
+    build-type:
+      default: 'bundleRelease'
+      type: string
+    bundle-id:
+      default: 'co.audius.app'
+      type: string
+    track:
+      default: 'alpha'
+      type: string
+    remote-directory:
+      default: 'audius-mobile'
+      type: string
+  steps:
+    # TODO: Create Fastlane lane for building Android and call that instead
+    # (since we already have these same commands in the Fastlane file).
     - run:
         name: increment version code
         command: |
           cd packages/mobile/android
           bundle exec fastlane incrementVersionCode package_name:<<parameters.bundle-id>> track:<<parameters.track>>
-          bundle exec fastlane incrementVersionName package_name:<<parameters.bundle-id>> track:<<parameters.track>>
     - run:
         name: generating the release apk & bundle
         command: |
           echo "yes" | sdkmanager "platforms;android-30" && cd packages/mobile/android && ./gradlew <<parameters.build-type>>
-    - run:
-        name: install-awscli
-        command: sudo pip install awscli
-    - run: aws s3 sync packages/mobile/android/app/build/outputs s3://<<parameters.remote-directory>>/android --delete
 
-# Upload the android app to the Google Play Store
-mobile-upload-android:
+# If the app can be released via CodePush, release it via CodePush.
+# Otherwise, build and upload it to the App Store.
+mobile-release-android:
   parameters:
+    build-directory:
+      default: 'build-mobile-production'
+      type: string
     upload-type:
       default: 'prod'
       type: string
+    track:
+      default: 'alpha'
+      type: string
   steps:
     - run:
-        name: Upload to Play Store
-        command: cd packages/mobile/android && bundle exec fastlane <<parameters.upload-type>>
+        name: release android
+        command: |
+          cd packages/mobile/android
+          bundle exec fastlane <<parameters.upload-type>> track:<<parameters.track>>

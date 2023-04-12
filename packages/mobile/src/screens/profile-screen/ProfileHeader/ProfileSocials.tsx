@@ -1,10 +1,12 @@
-import { Fragment, useLayoutEffect, useMemo, useRef } from 'react'
+import { Fragment, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 
-import { useSelectTierInfo } from '@audius/common'
+import { cacheUsersActions, useSelectTierInfo } from '@audius/common'
 import { View, Animated } from 'react-native'
+import { useDispatch } from 'react-redux'
 
 import { Divider } from 'app/components/core'
-import { makeStyles } from 'app/styles/makeStyles'
+import { makeStyles } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
 
 import { useSelectProfile } from '../selectors'
 
@@ -15,52 +17,75 @@ import {
   TwitterSocialLink
 } from './SocialLink'
 
-const useStyles = makeStyles(({ spacing }, { socialsCount }) => ({
+const { fetchUserSocials } = cacheUsersActions
+
+const useStyles = makeStyles(({ spacing }) => ({
   root: {
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing(3)
+    alignItems: 'center'
+  },
+  audioTier: {
+    paddingLeft: spacing(3)
   },
   socials: {
     flexDirection: 'row',
     flex: 4,
     marginVertical: spacing(3)
   },
+  socialsCentered: {
+    justifyContent: 'center'
+  },
   divider: {
-    marginVertical: spacing(1),
-    marginHorizontal: spacing(socialsCount === 2 ? 6 : 4)
+    marginVertical: spacing(1)
   }
 }))
 
 export const ProfileSocials = () => {
-  const { user_id, twitter_handle, instagram_handle, tiktok_handle } =
+  const { handle, user_id, twitter_handle, instagram_handle, tiktok_handle } =
     useSelectProfile([
+      'handle',
       'user_id',
       'twitter_handle',
       'instagram_handle',
       'tiktok_handle'
     ])
 
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    if (twitter_handle === undefined) {
+      dispatch(fetchUserSocials(handle))
+    }
+  }, [twitter_handle, dispatch, handle])
+
   const socialLinks = useMemo(() => {
     const links = [
-      [twitter_handle, 'twitter', TwitterSocialLink],
-      [instagram_handle, 'instagram', InstagramSocialLink],
-      [tiktok_handle, 'tiktok', TikTokSocialLink]
-    ] as const
-    return links.filter(([handle]) => !(handle === null || handle === ''))
+      {
+        type: 'twitter',
+        handle: twitter_handle,
+        SocialLink: TwitterSocialLink
+      },
+      {
+        type: 'instagram',
+        handle: instagram_handle,
+        SocialLink: InstagramSocialLink
+      },
+      { type: 'tiktok', handle: tiktok_handle, SocialLink: TikTokSocialLink }
+    ]
+    return links.filter(({ handle }) => !(handle === null || handle === ''))
   }, [twitter_handle, instagram_handle, tiktok_handle])
 
   const socialsCount = useMemo(() => {
-    return socialLinks.filter(([handle]) => !!handle).length
+    return socialLinks.filter(({ handle }) => !!handle).length
   }, [socialLinks])
 
-  const stylesOptions = useMemo(() => ({ socialsCount }), [socialsCount])
-  const styles = useStyles(stylesOptions)
+  const styles = useStyles()
 
   const { tier } = useSelectTierInfo(user_id)
 
   // Need to start opacity at 1 so skeleton is visible.
   const opacity = useRef(new Animated.Value(1)).current
+
   useLayoutEffect(() => {
     if (socialsCount > 0) {
       opacity.setValue(0.2)
@@ -72,27 +97,44 @@ export const ProfileSocials = () => {
     }
   }, [opacity, socialsCount])
 
+  // Renders a single social link with handle text, or renders 2/3 social links
+  // with dividers
+  const renderSocialLinks = () => {
+    if (socialsCount === 1) {
+      const { SocialLink } = socialLinks[0]
+      return <SocialLink showText />
+    }
+
+    return socialLinks.map(({ type, SocialLink }, index) => (
+      <Fragment key={type}>
+        <SocialLink showText={socialsCount === 1} />
+        {index === socialLinks.length - 1 ? null : (
+          <Divider
+            orientation='vertical'
+            style={[
+              styles.divider,
+              { marginHorizontal: spacing(socialsCount === 2 ? 6 : 4) }
+            ]}
+          />
+        )}
+      </Fragment>
+    ))
+  }
+
   return (
     <View pointerEvents='box-none' style={styles.root}>
-      <ProfileTierTile interactive={false} />
+      {tier !== 'none' ? (
+        <ProfileTierTile interactive={false} style={styles.audioTier} />
+      ) : null}
       <Animated.View
         pointerEvents='box-none'
         style={[
           styles.socials,
-          tier !== 'none' && { justifyContent: 'center' },
+          tier !== 'none' ? styles.socialsCentered : null,
           { opacity }
         ]}
       >
-        {socialLinks.map(([, name, SocialLink], index) => {
-          return (
-            <Fragment key={name}>
-              <SocialLink showText={socialsCount === 1} />
-              {index === socialLinks.length - 1 ? null : (
-                <Divider orientation='vertical' style={styles.divider} />
-              )}
-            </Fragment>
-          )
-        })}
+        {renderSocialLinks()}
       </Animated.View>
     </View>
   )

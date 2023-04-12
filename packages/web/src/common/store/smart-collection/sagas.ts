@@ -7,14 +7,14 @@ import {
   smartCollectionPageActions,
   collectionPageActions,
   getContext,
-  User
+  removeNullable
 } from '@audius/common'
 import { takeEvery, put, call, select } from 'typed-redux-saga'
 
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
 import { fetchUsers as retrieveUsers } from 'common/store/cache/users/sagas'
 import { requiresAccount } from 'common/utils/requiresAccount'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import { waitForRead } from 'utils/sagaHelpers'
 
 import { EXPLORE_PAGE } from '../../../utils/route'
 
@@ -35,22 +35,37 @@ const { getUserId } = accountSelectors
 const COLLECTIONS_LIMIT = 25
 
 function* fetchHeavyRotation() {
-  const explore = yield* getContext('explore')
-  const topListens = yield* call([explore, 'getTopUserListens'])
+  const currentUserId = yield* select(getUserId)
+  const apiClient = yield* getContext('apiClient')
+  const userListeningHistoryMostListenedByUser = yield* call(
+    [apiClient, apiClient.getUserTrackHistory],
+    {
+      userId: currentUserId!,
+      currentUserId,
+      limit: 20,
+      offset: 0,
+      sortMethod: 'most_listens_by_user'
+    }
+  )
 
-  const users = (yield* call(
+  const mostListenedTracks = userListeningHistoryMostListenedByUser
+    .map((listeningHistoryWithTrack) => listeningHistoryWithTrack.track)
+    .filter(removeNullable)
+
+  const users = yield* call(
     retrieveUsers,
-    topListens.map((t) => t.userId)
-  )) as { entries: Record<string, User> }
+    mostListenedTracks.map((t) => t.owner_id)
+  )
 
-  const trackIds = topListens
+  const trackIds = mostListenedTracks
     .filter(
       (track) =>
-        users.entries[track.userId] &&
-        !users.entries[track.userId].is_deactivated
+        users.entries[track.owner_id] &&
+        !users.entries[track.owner_id].is_deactivated &&
+        !track.is_delete
     )
-    .map((listen) => ({
-      track: listen.trackId
+    .map((track) => ({
+      track: track.track_id
     }))
 
   return {
@@ -63,7 +78,7 @@ function* fetchHeavyRotation() {
 
 function* fetchBestNewReleases() {
   const explore = yield* getContext('explore')
-  yield* waitForBackendAndAccount()
+  yield* waitForRead()
   const currentUserId = yield* select(getUserId)
   if (currentUserId == null) {
     return
@@ -114,7 +129,7 @@ function* fetchUnderTheRadar() {
 }
 
 function* fetchMostLoved() {
-  yield* waitForBackendAndAccount()
+  yield* waitForRead()
   const currentUserId = yield* select(getUserId)
   if (currentUserId == null) {
     return
@@ -140,7 +155,7 @@ function* fetchMostLoved() {
 }
 
 function* fetchFeelingLucky() {
-  yield* waitForBackendAndAccount()
+  yield* waitForRead()
   const currentUserId = yield* select(getUserId)
   const explore = yield* getContext('explore')
 
@@ -162,7 +177,7 @@ function* fetchFeelingLucky() {
 
 function* fetchRemixables() {
   const explore = yield* getContext('explore')
-  yield* waitForBackendAndAccount()
+  yield* waitForRead()
   const currentUserId = yield* select(getUserId)
   if (currentUserId == null) {
     return
@@ -233,7 +248,7 @@ function* watchFetch() {
   yield takeEvery(
     fetchSmartCollection.type,
     function* (action: ReturnType<typeof fetchSmartCollection>) {
-      yield* waitForBackendAndAccount()
+      yield* waitForRead()
 
       const { variant } = action.payload
 

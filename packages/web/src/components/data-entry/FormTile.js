@@ -4,7 +4,9 @@ import {
   GENRES,
   ELECTRONIC_PREFIX,
   getCanonicalName,
-  createRemixOfMetadata
+  createRemixOfMetadata,
+  creativeCommons,
+  FeatureFlags
 } from '@audius/common'
 import { Button, ButtonType, IconDownload, IconIndent } from '@audius/stems'
 import cn from 'classnames'
@@ -17,24 +19,30 @@ import Input from 'components/data-entry/Input'
 import LabeledInput from 'components/data-entry/LabeledInput'
 import TagInput from 'components/data-entry/TagInput'
 import TextArea from 'components/data-entry/TextArea'
+import { GatedContentUploadPromptModal } from 'components/gated-content-upload-prompt-modal/GatedContentUploadPromptModal'
 import LabeledButton from 'components/labeled-button/LabeledButton'
 import Dropdown from 'components/navigation/Dropdown'
 import ConnectedRemixSettingsModal from 'components/remix-settings-modal/ConnectedRemixSettingsModal'
+import { RemixSettingsModalTrigger } from 'components/remix-settings-modal/RemixSettingsModalTrigger'
 import SourceFilesModal from 'components/source-files-modal/SourceFilesModal'
 import Switch from 'components/switch/Switch'
+import TrackAvailabilityModal from 'components/track-availability-modal/TrackAvailabilityModal'
 import UnlistedTrackModal from 'components/unlisted-track-modal/UnlistedTrackModal'
 import PreviewButton from 'components/upload/PreviewButton'
 import UploadArtwork from 'components/upload/UploadArtwork'
-import {
-  ALL_RIGHTS_RESERVED_TYPE,
-  computeLicense,
-  computeLicenseVariables,
-  getDescriptionForType
-} from 'utils/creativeCommonsUtil'
+import { useFlag } from 'hooks/useRemoteConfig'
+import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { resizeImage } from 'utils/imageProcessingUtil'
 import { moodMap } from 'utils/moods'
 
 import styles from './FormTile.module.css'
+
+const {
+  ALL_RIGHTS_RESERVED_TYPE,
+  computeLicense,
+  computeLicenseVariables,
+  getDescriptionForType
+} = creativeCommons
 
 const MOODS = Object.keys(moodMap).map((k) => ({ text: k, el: moodMap[k] }))
 
@@ -42,11 +50,14 @@ const messages = {
   genre: 'Pick a Genre',
   mood: 'Pick a Mood',
   description: 'Description',
+  public: 'Public (Default)',
+  specialAccess: 'Special Access',
+  collectibleGated: 'Collectible Gated',
   hidden: 'Hidden',
-  public: 'Public (default)',
   thisIsARemix: 'This is a Remix',
   editRemix: 'Edit',
-  hideRemixes: 'Hide Remixes on Track Page'
+  trackVisibility: 'Track Visibility',
+  availability: 'Availability'
 }
 
 const Divider = (props) => {
@@ -58,7 +69,90 @@ const Divider = (props) => {
   )
 }
 
+// This is temporary. Will be removed along with feature flag after launch.
+// https://linear.app/audius/issue/PAY-813/remove-premium-content-feature-flags-after-launch
+const TrackAvailabilityButton = (props) => {
+  const { isEnabled: isGatedContentEnabled } = useFlag(
+    FeatureFlags.GATED_CONTENT_ENABLED
+  )
+
+  if (isGatedContentEnabled) {
+    return (
+      <LabeledButton
+        type={ButtonType.COMMON_ALT}
+        name='setUnlisted'
+        text={props.availabilityButtonTitle}
+        label={messages.availability}
+        className={cn(styles.trackAvailabilityButton, {
+          [styles.error]: props.error
+        })}
+        textClassName={styles.trackAvailabilityButtonText}
+        onClick={() => {
+          props.setIsAvailabilityModalOpen(true)
+        }}
+      />
+    )
+  }
+
+  return (
+    <LabeledButton
+      type={ButtonType.COMMON_ALT}
+      name='setUnlisted'
+      text={props.availabilityButtonTitle}
+      label={messages.trackVisibility}
+      className={styles.hiddenTrackButton}
+      textClassName={styles.hiddenTrackButtonText}
+      onClick={() => {
+        props.setIsAvailabilityModalOpen(true)
+      }}
+    />
+  )
+}
+
+// This is temporary. Will be removed along with feature flag after launch.
+// https://linear.app/audius/issue/PAY-813/remove-premium-content-feature-flags-after-launch
+const TrackAvailabilityModalContainer = (props) => {
+  const { isEnabled: isGatedContentEnabled } = useFlag(
+    FeatureFlags.GATED_CONTENT_ENABLED
+  )
+
+  if (isGatedContentEnabled) {
+    return (
+      <TrackAvailabilityModal
+        isOpen={props.isAvailabilityModalOpen}
+        onClose={() => props.setIsAvailabilityModalOpen(false)}
+        didUpdateState={props.didUpdateAvailabilityState}
+        metadataState={props.availabilityState}
+        isRemix={props.isRemix}
+        isUpload={props.isUpload}
+        initialForm={props.initialForm}
+        onChangeField={props.onChangeField}
+      />
+    )
+  }
+
+  return (
+    <UnlistedTrackModal
+      showHideTrackSwitch={props.showHideTrackSectionInModal}
+      isOpen={props.isAvailabilityModalOpen}
+      onClose={() => props.setIsAvailabilityModalOpen(false)}
+      didUpdateState={props.didUpdateAvailabilityState}
+      metadataState={props.availabilityState}
+    />
+  )
+}
+
 const BasicForm = (props) => {
+  const { isEnabled: isGatedContentEnabled } = useFlag(
+    FeatureFlags.GATED_CONTENT_ENABLED
+  )
+  const {
+    remixSettingsModalVisible,
+    setRemixSettingsModalVisible,
+    isRemix,
+    setIsRemix
+  } = props
+
   const onPreviewClick = props.playing
     ? props.onStopPreview
     : props.onPlayPreview
@@ -165,22 +259,22 @@ const BasicForm = (props) => {
     )
   }
 
-  const [remixSettingsModalVisible, setRemixSettingsModalVisible] =
-    useState(false)
-  const [isRemix, setIsRemix] = useState(!!props.defaultFields.remix_of)
-
   const renderRemixSettingsModal = () => {
     return (
       <ConnectedRemixSettingsModal
         initialTrackId={
           props.defaultFields.remix_of?.tracks?.[0]?.parent_track_id
         }
+        isPremium={props.defaultFields.is_premium ?? false}
+        premiumConditions={props.defaultFields.premium_conditions ?? null}
+        isRemix={isRemix}
+        setIsRemix={setIsRemix}
         isOpen={remixSettingsModalVisible}
         onClose={(trackId) => {
           if (!trackId) {
             setIsRemix(false)
             props.onChangeField('remix_of', null)
-          } else {
+          } else if (isRemix) {
             props.onChangeField(
               'remix_of',
               createRemixOfMetadata({ parentTrackId: trackId })
@@ -188,21 +282,22 @@ const BasicForm = (props) => {
           }
           setRemixSettingsModalVisible(false)
         }}
+        onChangeField={props.onChangeField}
       />
     )
   }
 
   const { onChangeField } = props
   const handleRemixToggle = useCallback(() => {
-    setIsRemix((isRemix) => !isRemix)
+    setIsRemix(!isRemix)
     if (!isRemix) setRemixSettingsModalVisible(true)
     if (isRemix) {
       onChangeField('remix_of', null)
     }
-  }, [isRemix, setIsRemix, onChangeField])
+  }, [isRemix, setIsRemix, setRemixSettingsModalVisible, onChangeField])
 
   const renderRemixSwitch = () => {
-    const shouldRender = props.type === 'track'
+    const shouldRender = props.type === 'track' && !isGatedContentEnabled
     return (
       shouldRender && (
         <div className={styles.remixSwitch}>
@@ -299,17 +394,32 @@ const BasicForm = (props) => {
       {renderBasicForm()}
       {renderBottomMenu()}
       {renderSourceFilesModal()}
-      {renderRemixSettingsModal()}
+      {!isGatedContentEnabled && renderRemixSettingsModal()}
     </div>
   )
 }
 
 const AdvancedForm = (props) => {
-  let unlistedState
-  let unlistedButtonTitle
-  const showUnlisted = props.type === 'track' && props.showUnlistedToggle
-  if (showUnlisted) {
-    unlistedState = {
+  const { isEnabled: isGatedContentEnabled } = useFlag(
+    FeatureFlags.GATED_CONTENT_ENABLED
+  )
+
+  const {
+    remixSettingsModalVisible,
+    setRemixSettingsModalVisible,
+    isRemix,
+    setIsRemix
+  } = props
+
+  let availabilityButtonTitle
+  let availabilityState = {
+    is_premium: props.defaultFields.is_premium,
+    premium_conditions: props.defaultFields.premium_conditions
+  }
+  const showAvailability = props.type === 'track' && props.showUnlistedToggle
+  if (showAvailability) {
+    availabilityState = {
+      ...availabilityState,
       unlisted: props.defaultFields.is_unlisted,
       genre: props.defaultFields.field_visibility.genre,
       mood: props.defaultFields.field_visibility.mood,
@@ -317,18 +427,29 @@ const AdvancedForm = (props) => {
       share: props.defaultFields.field_visibility.share,
       plays: props.defaultFields.field_visibility.play_count
     }
-    unlistedButtonTitle = unlistedState.unlisted
-      ? messages.hidden
-      : messages.public
+
+    availabilityButtonTitle = messages.public
+    if (availabilityState.unlisted) {
+      availabilityButtonTitle = messages.hidden
+    } else if (availabilityState.is_premium) {
+      if (
+        availabilityState.premium_conditions &&
+        'nft_collection' in availabilityState.premium_conditions
+      ) {
+        availabilityButtonTitle = messages.collectibleGated
+      } else {
+        availabilityButtonTitle = messages.specialAccess
+      }
+    }
   }
 
-  const [isUnlistedModalOpen, setIsUnlistedModalOpen] = useState(false)
+  const [isAvailabilityModalOpen, setIsAvailabilityModalOpen] = useState(false)
   const [hideRemixes, setHideRemixes] = useState(
     !(props.defaultFields?.field_visibility?.remixes ?? true)
   )
 
-  // Need to update two fields in the metadata.
-  const didUpdateUnlistedState = (newState) => {
+  // Update fields in the metadata.
+  const didUpdateAvailabilityState = (newState) => {
     props.onChangeField('is_unlisted', newState.unlisted)
     props.onChangeField('field_visibility', {
       genre: newState.genre,
@@ -338,44 +459,101 @@ const AdvancedForm = (props) => {
       play_count: newState.plays,
       remixes: !hideRemixes
     })
+    props.onChangeField('is_premium', newState.is_premium)
+    // Check whether the field is invalid if premium track is collectible-gated
+    // so that the user cannot proceed until they pick an nft collection.
+    const isInvalidNFTCollection =
+      'nft_collection' in (newState.premium_conditions ?? {}) &&
+      !newState.premium_conditions?.nft_collection
+    props.onChangeField(
+      'premium_conditions',
+      newState.premium_conditions,
+      isInvalidNFTCollection
+    )
   }
 
   const didToggleHideRemixesState = () => {
     props.onChangeField('field_visibility', {
       genre:
-        unlistedState?.genre ??
+        availabilityState?.genre ??
         props.defaultFields?.field_visibility?.genre ??
         true,
       mood:
-        unlistedState?.mood ??
+        availabilityState?.mood ??
         props.defaultFields?.field_visibility?.mood ??
         true,
       tags:
-        unlistedState?.tags ??
+        availabilityState?.tags ??
         props.defaultFields?.field_visibility?.tags ??
         true,
       share:
-        unlistedState?.share ??
+        availabilityState?.share ??
         props.defaultFields?.field_visibility?.share ??
         true,
       play_count:
-        unlistedState?.plays ??
+        availabilityState?.plays ??
         props.defaultFields?.field_visibility?.play_count ??
         true,
       remixes: hideRemixes
     })
-    setHideRemixes((hideRemixes) => !hideRemixes)
+    setHideRemixes(!hideRemixes)
+  }
+
+  const renderRemixSettingsModal = () => {
+    return (
+      <ConnectedRemixSettingsModal
+        initialTrackId={
+          props.defaultFields.remix_of?.tracks?.[0]?.parent_track_id
+        }
+        isPremium={props.defaultFields.is_premium ?? false}
+        premiumConditions={props.defaultFields.premium_conditions ?? null}
+        isRemix={isRemix}
+        setIsRemix={setIsRemix}
+        isOpen={remixSettingsModalVisible}
+        onClose={(trackId) => {
+          if (!trackId) {
+            setIsRemix(false)
+            props.onChangeField('remix_of', null)
+          } else if (isRemix) {
+            props.onChangeField(
+              'remix_of',
+              createRemixOfMetadata({ parentTrackId: trackId })
+            )
+          }
+          setRemixSettingsModalVisible(false)
+        }}
+        onChangeField={props.onChangeField}
+        hideRemixes={hideRemixes}
+        onToggleHideRemixes={didToggleHideRemixesState}
+      />
+    )
   }
 
   return (
     <>
-      {showUnlisted && (
-        <UnlistedTrackModal
-          showHideTrackSwitch={props.showHideTrackSectionInModal}
-          isOpen={isUnlistedModalOpen}
-          onClose={() => setIsUnlistedModalOpen(false)}
-          didUpdateState={didUpdateUnlistedState}
-          metadataState={unlistedState}
+      {/*
+        Render the gated content upload prompt component which is responsible
+        for whether or its content will modal will be displayed.
+      */}
+      {props.allowPromptModal ? (
+        <GatedContentUploadPromptModal
+          onSubmit={() => {
+            props.toggleAdvanced()
+            setIsAvailabilityModalOpen(true)
+          }}
+        />
+      ) : null}
+      {showAvailability && (
+        <TrackAvailabilityModalContainer
+          showHideTrackSectionInModal={props.showHideTrackSectionInModal}
+          isAvailabilityModalOpen={isAvailabilityModalOpen}
+          setIsAvailabilityModalOpen={setIsAvailabilityModalOpen}
+          didUpdateAvailabilityState={didUpdateAvailabilityState}
+          onChangeField={props.onChangeField}
+          availabilityState={availabilityState}
+          isRemix={!!props.defaultFields.remix_of?.tracks?.length}
+          isUpload={props.isUpload}
+          initialForm={props.initialForm}
         />
       )}
       <div
@@ -386,17 +564,11 @@ const AdvancedForm = (props) => {
       >
         <Divider label='' />
         <div className={styles.release}>
-          {showUnlisted && (
-            <LabeledButton
-              type={ButtonType.COMMON_ALT}
-              name='setUnlisted'
-              text={unlistedButtonTitle}
-              label='Track Visibility'
-              className={styles.hiddenTrackButton}
-              textClassName={styles.hiddenTrackButtonText}
-              onClick={() => {
-                setIsUnlistedModalOpen(true)
-              }}
+          {showAvailability && (
+            <TrackAvailabilityButton
+              availabilityButtonTitle={availabilityButtonTitle}
+              setIsAvailabilityModalOpen={setIsAvailabilityModalOpen}
+              error={props.invalidFields.premium_conditions}
             />
           )}
           <div className={styles.datePicker}>
@@ -410,17 +582,14 @@ const AdvancedForm = (props) => {
               }
             />
           </div>
-          {props.type === 'track' ? (
-            <div className={styles.hideRemixes}>
-              <div className={styles.hideRemixesText}>
-                {messages.hideRemixes}
-              </div>
-              <Switch
-                isOn={hideRemixes}
-                handleToggle={didToggleHideRemixesState}
-              />
-            </div>
-          ) : (
+          {props.type === 'track' && (
+            <RemixSettingsModalTrigger
+              onClick={() => props.setRemixSettingsModalVisible(true)}
+              hideRemixes={hideRemixes}
+              handleToggle={didToggleHideRemixesState}
+            />
+          )}
+          {props.type !== 'track' && (
             <LabeledInput
               label='UPC'
               placeholder='e.g. 123456789012'
@@ -505,6 +674,7 @@ const AdvancedForm = (props) => {
           <br />
           {props.licenseDescription}
         </div>
+        {isGatedContentEnabled && renderRemixSettingsModal()}
       </div>
     </>
   )
@@ -530,7 +700,10 @@ class FormTile extends Component {
       length: this.props.children ? this.props.children.length : 0
     }).map(Number.call, Number),
 
-    imageProcessingError: false
+    imageProcessingError: false,
+
+    remixSettingsModalVisible: false,
+    isRemix: !!this.props.defaultFields.remix_of
   }
 
   componentDidMount() {
@@ -591,6 +764,8 @@ class FormTile extends Component {
     try {
       let file = selectedFiles[0]
       file = await this.props.transformArtworkFunction(file)
+      const storageV2Enabled = getFeatureEnabled(FeatureFlags.STORAGE_V2)
+      if (storageV2Enabled) file.name = selectedFiles[0].name
       const url = URL.createObjectURL(file)
       this.props.onChangeField('artwork', { url, file, source }, false)
       this.setState({ imageProcessingError: false })
@@ -637,6 +812,14 @@ class FormTile extends Component {
     this.props.onChangeOrder(source.index, destination.index)
   }
 
+  setRemixSettingsModalVisible = (visible) => {
+    this.setState({ remixSettingsModalVisible: visible })
+  }
+
+  setIsRemix = (isRemix) => {
+    this.setState({ isRemix })
+  }
+
   render() {
     const {
       advancedShow,
@@ -645,7 +828,9 @@ class FormTile extends Component {
       imageProcessingError,
       allowAttribution,
       commercialUse,
-      derivativeWorks
+      derivativeWorks,
+      remixSettingsModalVisible,
+      isRemix
     } = this.state
 
     const { licenseType, licenseDescription } = license
@@ -657,9 +842,14 @@ class FormTile extends Component {
           advancedShow={advancedShow}
           onDropArtwork={this.onDropArtwork}
           imageProcessingError={imageProcessingError}
+          remixSettingsModalVisible={remixSettingsModalVisible}
+          setRemixSettingsModalVisible={this.setRemixSettingsModalVisible}
+          isRemix={isRemix}
+          setIsRemix={this.setIsRemix}
         />
         <AdvancedForm
           {...this.props}
+          toggleAdvanced={this.toggleAdvanced}
           advancedShow={advancedShow}
           advancedVisible={advancedVisible}
           licenseType={licenseType}
@@ -670,6 +860,10 @@ class FormTile extends Component {
           onSelectAllowAttribution={this.onSelectAllowAttribution}
           onSelectCommercialUse={this.onSelectCommercialUse}
           onSelectDerivativeWorks={this.onSelectDerivativeWorks}
+          remixSettingsModalVisible={remixSettingsModalVisible}
+          setRemixSettingsModalVisible={this.setRemixSettingsModalVisible}
+          isRemix={isRemix}
+          setIsRemix={this.setIsRemix}
         />
         {this.props.children.length > 0 ? (
           <DragDropContext onDragEnd={this.onDragEnd}>
@@ -726,6 +920,15 @@ FormTile.propTypes = {
   /** Transform artwork function to apply. */
   transformArtworkFunction: PropTypes.func,
 
+  /** Whether we are in the track upload flow */
+  isUpload: PropTypes.bool,
+
+  /** Whether we allow showing the gated track upload prompt modal */
+  allowPromptModal: PropTypes.bool,
+
+  /** Initial form for in case we are in the edit track modal */
+  initialForm: PropTypes.object,
+
   /** Whether to show the unlisted/public button the modal */
   showUnlistedToggle: PropTypes.bool,
   /** In the unlisted visibility modal, do we let the user toggle
@@ -768,6 +971,9 @@ FormTile.defaultProps = {
   transformArtworkFunction: resizeImage,
   onChangeOrder: () => {},
   onChangeField: () => {},
+  isUpload: true,
+  allowPromptModal: false,
+  initialForm: {},
   showUnlistedToggle: true,
   showHideTrackSectionInModal: true,
   children: [],

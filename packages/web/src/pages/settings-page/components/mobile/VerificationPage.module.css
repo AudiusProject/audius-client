@@ -16,19 +16,20 @@
   font-weight: var(--font-bold);
 }
 
+.text {
+  line-height: 22px;
+}
+
 .warning {
   margin-top: 32px;
 }
 
 .btnContainer {
+  width: 100%;
   margin-top: 48px;
   display: inline-flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.btn {
-  padding: 0px 12px;
 }
 
 .error {
@@ -129,7 +130,6 @@
   font-weight: var(--font-demi-bold);
 }
 
-.twitterBtn {
-  margin-bottom: 24px;
+.socialButton {
   width: 100%;
 }

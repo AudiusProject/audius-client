@@ -32,7 +32,8 @@ import Mask from 'components/mask/Mask'
 import NavBanner from 'components/nav-banner/NavBanner'
 import Page from 'components/page/Page'
 import ConnectedProfileCompletionHeroCard from 'components/profile-progress/ConnectedProfileCompletionHeroCard'
-import StatBanner from 'components/stat-banner/StatBanner'
+import { ProfileMode, StatBanner } from 'components/stat-banner/StatBanner'
+import { StatProps } from 'components/stats/Stats'
 import UploadChip from 'components/upload/UploadChip'
 import useTabs, { useTabRecalculator } from 'hooks/useTabs/useTabs'
 import { MIN_COLLECTIBLES_TIER } from 'pages/profile-page/ProfilePageProvider'
@@ -40,7 +41,6 @@ import EmptyTab from 'pages/profile-page/components/EmptyTab'
 import {
   albumPage,
   playlistPage,
-  profilePage,
   UPLOAD_PAGE,
   UPLOAD_ALBUM_PAGE,
   UPLOAD_PLAYLIST_PAGE
@@ -58,7 +58,6 @@ export type ProfilePageProps = {
   shouldMaskContent: boolean
   areArtistRecommendationsVisible: boolean
 
-  mostUsedTags: string[]
   // Computed
   accountUserId: ID | null
   isArtist: boolean
@@ -75,6 +74,7 @@ export type ProfilePageProps = {
   tikTokHandle: string
   twitterVerified?: boolean
   instagramVerified?: boolean
+  tikTokVerified?: boolean
   website: string
   donation: string
   coverPhotoSizes: CoverPhotoSizes | null
@@ -86,8 +86,9 @@ export type ProfilePageProps = {
   dropdownDisabled: boolean
   following: boolean
   isSubscribed: boolean
-  mode: string
-  stats: Array<{ number: number; title: string; key: string }>
+  mode: ProfileMode
+  stats: StatProps[]
+  isBlocked: boolean
 
   profile: ProfileUser | null
   albums: Collection[] | null
@@ -138,9 +139,16 @@ export type ProfilePageProps = {
     selectedFiles: any,
     source: 'original' | 'unsplash' | 'url'
   ) => Promise<void>
-  setNotificationSubscription: (userId: ID, isSubscribed: boolean) => void
+  setNotificationSubscription: (
+    userId: ID,
+    isSubscribed: boolean,
+    onFollow: boolean
+  ) => void
   didChangeTabsFrom: (prevLabel: string, currentLabel: string) => void
   onCloseArtistRecommendations: () => void
+  onMessage?: () => void
+  onBlock: () => void
+  onUnblock: () => void
 }
 
 const ProfilePage = ({
@@ -165,7 +173,6 @@ const ProfilePage = ({
   openCreatePlaylistModal,
   updateProfile,
 
-  mostUsedTags,
   onFollow,
   onUnfollow,
   updateName,
@@ -194,6 +201,10 @@ const ProfilePage = ({
   editMode,
   areArtistRecommendationsVisible,
   onCloseArtistRecommendations,
+  onMessage,
+  onBlock,
+  onUnblock,
+  isBlocked,
 
   accountUserId,
   userId,
@@ -208,6 +219,7 @@ const ProfilePage = ({
   tikTokHandle,
   twitterVerified,
   instagramVerified,
+  tikTokVerified,
   website,
   donation,
   coverPhotoSizes,
@@ -270,7 +282,6 @@ const ProfilePage = ({
         playlistName={album.playlist_name}
         playlistId={album.playlist_id}
         id={album.playlist_id}
-        userId={album.playlist_owner_id}
         isPublic={!album.is_private}
         imageSize={album._cover_art_sizes}
         isPlaylist={!album.is_album}
@@ -313,7 +324,6 @@ const ProfilePage = ({
         playlistId={playlist.playlist_id}
         id={playlist.playlist_id}
         imageSize={playlist._cover_art_sizes}
-        userId={playlist.playlist_owner_id}
         isPublic={!playlist.is_private}
         // isAlbum={playlist.is_album}
         primaryText={playlist.playlist_name}
@@ -350,7 +360,7 @@ const ProfilePage = ({
           type='playlist'
           variant='card'
           onClick={onClickUploadPlaylist}
-          isArtist
+          isArtist={isArtist}
           isFirst={playlistCards.length === 0}
         />
       )
@@ -403,7 +413,7 @@ const ProfilePage = ({
               {...getLineupProps(artistTracks)}
               extraPrecedingElement={trackUploadChip}
               animateLeadingElement
-              leadingElementId={profile._artist_pick}
+              leadingElementId={profile.artist_pick_track_id}
               loadMore={loadMoreArtistTracks}
               playTrack={playArtistTrack}
               pauseTrack={pauseArtistTrack}
@@ -497,7 +507,7 @@ const ProfilePage = ({
 
   const toggleNotificationSubscription = () => {
     if (!userId) return
-    setNotificationSubscription(userId, !isSubscribed)
+    setNotificationSubscription(userId, !isSubscribed, false)
   }
 
   const getUserProfileContent = () => {
@@ -687,10 +697,10 @@ const ProfilePage = ({
           tikTokHandle={tikTokHandle}
           twitterVerified={!!twitterVerified}
           instagramVerified={!!instagramVerified}
+          tikTokVerified={!!tikTokVerified}
           website={website}
           donation={donation}
           created={created}
-          tags={mostUsedTags || []}
           onUpdateName={updateName}
           onUpdateProfilePicture={updateProfilePicture}
           onUpdateBio={updateBio}
@@ -716,17 +726,12 @@ const ProfilePage = ({
         />
         <Mask show={editMode} zIndex={2}>
           <StatBanner
-            empty={!profile || profile.is_deactivated}
+            isEmpty={!profile || profile.is_deactivated}
             mode={mode}
             stats={stats}
-            userId={accountUserId}
-            handle={handle}
             profileId={profile?.user_id}
             areArtistRecommendationsVisible={areArtistRecommendationsVisible}
             onCloseArtistRecommendations={onCloseArtistRecommendations}
-            onClickArtistName={(handle: string) => {
-              goToRoute(profilePage(handle))
-            }}
             onEdit={onEdit}
             onSave={onSave}
             onShare={onShare}
@@ -736,6 +741,10 @@ const ProfilePage = ({
             onToggleSubscribe={toggleNotificationSubscription}
             onFollow={onFollow}
             onUnfollow={onUnfollow}
+            onMessage={onMessage}
+            isBlocked={isBlocked}
+            onBlock={onBlock}
+            onUnblock={onUnblock}
           />
           <div className={styles.inset}>
             <NavBanner

@@ -28,7 +28,7 @@ import {
 import { getStatus as getSignOnStatus } from 'common/store/pages/signon/selectors'
 import { Pages as SignOnPages } from 'common/store/pages/signon/types'
 import AppRedirectListener from 'components/app-redirect-popover/AppRedirectListener'
-import AppRedirectPopover from 'components/app-redirect-popover/components/AppRedirectPopover'
+import { AppRedirectPopover } from 'components/app-redirect-popover/components/AppRedirectPopover'
 import MobileDesktopBanner from 'components/banner/CTABanner'
 import UpdateAppBanner from 'components/banner/UpdateAppBanner'
 import Web3ErrorBanner from 'components/banner/Web3ErrorBanner'
@@ -42,7 +42,6 @@ import Navigator from 'components/nav/Navigator'
 import { NotificationPage } from 'components/notification'
 import PinnedTrackConfirmation from 'components/pin-track-confirmation/PinTrackConfirmation'
 import PlayBarProvider from 'components/play-bar/PlayBarProvider'
-import ConnectedReachabilityBar from 'components/reachability-bar/ReachabilityBar'
 import { RewardClaimedToast } from 'components/reward-claimed-toast/RewardClaimedToast'
 import DesktopRoute from 'components/routes/DesktopRoute'
 import MobileRoute from 'components/routes/MobileRoute'
@@ -149,7 +148,8 @@ import {
   DEACTIVATE_PAGE,
   SUPPORTING_USERS_ROUTE,
   TOP_SUPPORTERS_USERS_ROUTE,
-  publicSiteRoutes
+  publicSiteRoutes,
+  CHAT_PAGE
 } from 'utils/route'
 import { getTheme as getSystemTheme } from 'utils/theme/theme'
 
@@ -159,6 +159,7 @@ import TopLevelPage from '../components/nav/mobile/TopLevelPage'
 import Notice from '../components/notice/Notice'
 
 import styles from './App.module.css'
+import { ChatPage } from './chat-page'
 import { CollectiblesPlaylistPage } from './collectibles-playlist-page'
 import { DeactivateAccountPage } from './deactivate-account-page/DeactivateAccountPage'
 import ExploreCollectionsPage from './explore-page/ExploreCollectionsPage'
@@ -169,16 +170,12 @@ import { SubPage } from './settings-page/components/mobile/SettingsPage'
 import SmartCollectionPage from './smart-collection/SmartCollectionPage'
 import SupportingPage from './supporting-page/SupportingPage'
 import TopSupportersPage from './top-supporters-page/TopSupportersPage'
+
 const { setTheme } = themeActions
 const { getTheme } = themeSelectors
 
-const {
-  getHasAccount,
-  getAccountStatus,
-  getUserId,
-  getConnectivityFailure,
-  getUserHandle
-} = accountSelectors
+const { getHasAccount, getAccountStatus, getUserId, getUserHandle } =
+  accountSelectors
 
 const MOBILE_BANNER_LOCAL_STORAGE_KEY = 'dismissMobileAppBanner'
 
@@ -367,28 +364,6 @@ class App extends Component {
       this.setState({ showWeb3ErrorBanner: true })
     }
 
-    // Once the user is loaded, we can mark the page as ready for UI
-    // Alternatively, if the page is the signup page, say we're ready without a user
-    // This is necessary for the AppRedirectPopover to load
-    if (
-      (prevProps.accountStatus === Status.LOADING &&
-        this.props.accountStatus !== Status.LOADING) ||
-      matchPath(getPathname(this.props.location), {
-        path: SIGN_UP_PAGE,
-        exact: true
-      })
-    ) {
-      // Let the UI flush
-      setImmediate(this.props.setReady)
-    }
-
-    if (
-      prevProps.firstLoadConnectivityFailure !==
-      this.props.firstLoadConnectivityFailure
-    ) {
-      this.props.setConnectivityFailure(this.props.firstLoadConnectivityFailure)
-    }
-
     if (prevProps.theme !== this.props.theme) {
       this.handleTheme()
     }
@@ -462,7 +437,6 @@ class App extends Component {
   render() {
     const {
       theme,
-      isReady,
       incrementScroll,
       decrementScroll,
       shouldShowPopover,
@@ -514,6 +488,7 @@ class App extends Component {
     }
 
     const SwitchComponent = isMobile() ? AnimatedSwitch : Switch
+    const noScroll = matchPath(this.state.currentRoute, CHAT_PAGE)
 
     return (
       <div className={cn(styles.app, { [styles.mobileApp]: isMobileClient })}>
@@ -550,7 +525,8 @@ class App extends Component {
           role='main'
           className={cn(styles.mainContentWrapper, {
             [styles.bannerMargin]: showBanner,
-            [styles.mainContentWrapperMobile]: isMobileClient
+            [styles.mainContentWrapperMobile]: isMobileClient,
+            [styles.noScroll]: noScroll
           })}
         >
           {isMobileClient && <TopLevelPage />}
@@ -793,6 +769,12 @@ class App extends Component {
               />
               <Route
                 exact
+                path={CHAT_PAGE}
+                isMobile={isMobileClient}
+                component={ChatPage}
+              />
+              <Route
+                exact
                 path={DEACTIVATE_PAGE}
                 isMobile={isMobileClient}
                 component={DeactivateAccountPage}
@@ -973,11 +955,9 @@ class App extends Component {
           </Suspense>
         </div>
         <PlayBarProvider />
-
         <Suspense fallback={null}>
           <Modals />
         </Suspense>
-
         {
           <Suspense fallback={null}>
             <ConnectedMusicConfetti />
@@ -988,25 +968,20 @@ class App extends Component {
             <RewardClaimedToast />
           </Suspense>
         }
-
         {/* Non-mobile */}
-        {!isMobileClient && <Konami />}
-        {!isMobileClient && <ConfirmerPreview />}
-        {!isMobileClient && <DiscoveryNodeSelection />}
-        {!isMobileClient && <Visualizer />}
-        {!isMobileClient && <PinnedTrackConfirmation />}
-        {!isMobileClient && <DevModeMananger />}
-
+        {!isMobileClient ? <Konami /> : null}
+        {!isMobileClient ? <ConfirmerPreview /> : null}
+        {!isMobileClient ? <DiscoveryNodeSelection /> : null}
+        {!isMobileClient ? <Visualizer /> : null}
+        {!isMobileClient ? <PinnedTrackConfirmation /> : null}
+        {!isMobileClient ? <DevModeMananger /> : null}
         {/* Mobile-only */}
-        {isMobileClient && <ConnectedReachabilityBar />}
-
-        {shouldShowPopover && isMobileClient && (
+        {isMobileClient && shouldShowPopover ? (
           <AppRedirectPopover
-            enablePopover={isReady}
             incrementScroll={incrementScroll}
             decrementScroll={decrementScroll}
           />
-        )}
+        ) : null}
       </div>
     )
   }
@@ -1020,8 +995,7 @@ const mapStateToProps = (state) => ({
   signOnStatus: getSignOnStatus(state),
   web3Error: getWeb3Error(state),
   theme: getTheme(state),
-  showCookieBanner: getShowCookieBanner(state),
-  firstLoadConnectivityFailure: getConnectivityFailure(state)
+  showCookieBanner: getShowCookieBanner(state)
 })
 
 const mapDispatchToProps = (dispatch) => ({

@@ -1,95 +1,99 @@
-import { useCallback, useState } from 'react'
+import type {
+  User,
+  Track,
+  Nullable,
+  SquareSizes,
+  ID,
+  Maybe
+} from '@audius/common'
+import { reachabilitySelectors, cacheUsersSelectors } from '@audius/common'
+import { useSelector } from 'react-redux'
 
-import type { TrackImage as TrackImageType } from 'app/models/Track'
-import type { UserMultihash } from 'app/models/User'
+import imageEmpty from 'app/assets/images/imageBlank2x.png'
+import { useContentNodeImage } from 'app/hooks/useContentNodeImage'
+import { getLocalTrackCoverArtPath } from 'app/services/offline-downloader'
+import { getTrackDownloadStatus } from 'app/store/offline-downloads/selectors'
+import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
+import { useThemeColors } from 'app/utils/theme'
 
-import ImageLoader from './ImageLoader'
-import { gateways } from './utils'
+import type { FastImageProps } from './FastImage'
+import { FastImage } from './FastImage'
 
-const getTrackImageUrl = (track: TrackImageType, cNode: string) => {
-  if (track.cover_art_sizes) {
-    return `${cNode}/ipfs/${track.cover_art_sizes}/150x150.jpg`
-  }
-  if (track.cover_art) {
-    return `${cNode}/ipfs/${track.cover_art}`
-  }
-  return null
+export const DEFAULT_IMAGE_URL =
+  'https://download.audius.co/static-resources/preview-image.jpg'
+
+const { getIsReachable } = reachabilitySelectors
+const { getUser } = cacheUsersSelectors
+
+type UseTrackImageOptions = {
+  track: Nullable<
+    Pick<Track, 'track_id' | 'cover_art_sizes' | 'cover_art' | 'owner_id'>
+  >
+  size: SquareSizes
+  user?: Pick<User, 'creator_node_endpoint'>
 }
 
-const getHasImage = (track: TrackImageType) => {
-  return !!(track.cover_art_sizes || track.cover_art)
+const useLocalTrackImageUri = (trackId: Maybe<ID>) => {
+  const trackImageUri = useSelector((state) => {
+    if (!trackId) return null
+
+    const isReachable = getIsReachable(state)
+    if (isReachable) return null
+
+    const trackDownloadStatus = getTrackDownloadStatus(state, trackId)
+    const isDownloaded = trackDownloadStatus === OfflineDownloadStatus.SUCCESS
+    if (!isDownloaded) return null
+
+    return `file://${getLocalTrackCoverArtPath(trackId.toString())}`
+  })
+
+  return trackImageUri
 }
 
-const useTrackImage = (track: TrackImageType, user: UserMultihash) => {
-  const cNodes =
-    user.creator_node_endpoint !== null
-      ? user.creator_node_endpoint.split(',').filter(Boolean)
-      : gateways
-  const [didError, setDidError] = useState(
-    cNodes.length === 0 || !getHasImage(track)
+export const useTrackImage = ({ track, size, user }: UseTrackImageOptions) => {
+  const cid = track ? track.cover_art_sizes || track.cover_art : null
+
+  const selectedUser = useSelector((state) =>
+    getUser(state, { id: track?.owner_id })
   )
-  const [source, setSource] = useState(
-    didError ? null : { uri: getTrackImageUrl(track, cNodes[0]) }
-  )
-  const onError = useCallback(() => {
-    if (didError) return
-    const nodes =
-      user.creator_node_endpoint !== null
-        ? user.creator_node_endpoint.split(',').filter(Boolean)
-        : gateways
-    const numNodes = nodes.length
-    const currInd = nodes.findIndex(
-      (cn: string) => (source?.uri ?? '') === getTrackImageUrl(track, cn)
+
+  const localTrackImageUri = useLocalTrackImageUri(track?.track_id)
+
+  const contentNodeSource = useContentNodeImage({
+    cid,
+    size,
+    user: user ?? selectedUser,
+    fallbackImageSource: imageEmpty,
+    localSource: localTrackImageUri ? { uri: localTrackImageUri } : null
+  })
+
+  return contentNodeSource
+}
+
+type TrackImageProps = UseTrackImageOptions & Partial<FastImageProps>
+
+export const TrackImage = (props: TrackImageProps) => {
+  const { track, size, user, style, ...other } = props
+
+  const trackImageSource = useTrackImage({ track, size, user })
+  const { neutralLight8 } = useThemeColors()
+
+  if (!trackImageSource) return null
+
+  const { source, handleError, isFallbackImage } = trackImageSource
+
+  if (isFallbackImage) {
+    return (
+      <FastImage
+        {...other}
+        style={[style, { backgroundColor: neutralLight8 }]}
+        source={source}
+        onError={handleError}
+      />
     )
-    if (currInd !== 1 && currInd < numNodes - 1) {
-      setSource({ uri: getTrackImageUrl(track, nodes[currInd + 1]) })
-    } else {
-      // Legacy fallback for image formats (no dir cid)
-      const legacyUrls = (user.creator_node_endpoint ?? '')
-        .split(',')
-        .filter(Boolean)
-        .concat(gateways)
-        .map((gateway) => `${gateway}/ipfs/${track.cover_art_sizes}`)
-      const legacyIdx = legacyUrls.findIndex(
-        (route: string) => (source?.uri ?? '') === route
-      )
-      if (
-        track.cover_art_sizes &&
-        source?.uri?.endsWith('.jpg') &&
-        legacyUrls.length > 0
-      ) {
-        setSource({ uri: legacyUrls[0] })
-      } else if (legacyIdx !== -1 && legacyIdx < legacyUrls.length - 1) {
-        setSource({ uri: legacyUrls[legacyIdx + 1] })
-      } else {
-        setDidError(true)
-      }
-    }
-  }, [user, track, source, didError])
-  return { source, didError, onError }
-}
+  }
 
-const TrackImage = ({
-  track,
-  user,
-  imageStyle
-}: {
-  track: TrackImageType
-  user: UserMultihash
-  imageStyle?: Record<string, any>
-}) => {
-  const { source, onError, didError } = useTrackImage(track, user)
   return (
-    <ImageLoader
-      style={imageStyle}
-      source={
-        didError || source === null
-          ? require('app/assets/images/imageBlank2x.png')
-          : source
-      }
-      onError={onError}
-    />
+    <FastImage {...other} style={style} source={source} onError={handleError} />
   )
 }
-
-export default TrackImage

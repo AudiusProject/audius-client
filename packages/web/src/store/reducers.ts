@@ -15,7 +15,6 @@ import serviceSelection from 'common/store/service-selection/slice'
 import embedModal from 'components/embed-modal/store/reducers'
 import firstUploadModal from 'components/first-upload-modal/store/slice'
 import passwordReset from 'components/password-reset/store/reducer'
-import remixSettingsModal from 'components/remix-settings-modal/store/slice'
 import unfollowConfirmation from 'components/unfollow-confirmation-modal/store/reducers'
 import dashboard from 'pages/artist-dashboard-page/store/reducer'
 import deleted from 'pages/deleted-page/store/slice'
@@ -25,10 +24,12 @@ import cookieBanner from 'store/application/ui/cookieBanner/reducer'
 import editFolderModal from 'store/application/ui/editFolderModal/slice'
 import editPlaylistModal from 'store/application/ui/editPlaylistModal/slice'
 import editTrackModal from 'store/application/ui/editTrackModal/reducer'
+import notifications from 'store/application/ui/notifications/notificationsUISlice'
 import scrollLock from 'store/application/ui/scrollLock/reducer'
 import setAsArtistPickConfirmation from 'store/application/ui/setAsArtistPickConfirmation/reducer'
 import userListModal from 'store/application/ui/userListModal/slice'
 import dragndrop from 'store/dragndrop/reducer'
+import error from 'store/errors/reducers'
 
 export const commonStoreReducers = clientStoreReducers()
 
@@ -60,6 +61,9 @@ const createRootReducer = (routeHistory: History) =>
     // Playback
     queue,
 
+    // Error Page
+    error,
+
     // Remote config/flags
     remoteConfig,
     application: combineReducers({
@@ -71,11 +75,11 @@ const createRootReducer = (routeHistory: History) =>
         editTrackModal,
         embedModal,
         firstUploadModal,
-        remixSettingsModal,
         scrollLock,
         setAsArtistPickConfirmation,
         userListModal,
-        visualizer
+        visualizer,
+        notifications
       }),
       pages: combineReducers({
         deleted,

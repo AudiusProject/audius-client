@@ -5,16 +5,14 @@ import {
 } from 'store/cache/selectors'
 import { CommonState } from 'store/commonStore'
 
-import { ID, Kind, Status, UID, User } from '../../../models'
-import { getCollection } from '../collections/selectors'
-import { getTrack } from '../tracks/selectors'
+import { ID, Kind, UID, User } from '../../../models'
 
 export const getUser = (
   state: CommonState,
   props: { handle?: string | null; id?: ID | null; uid?: UID | null }
 ) => {
   if (props.handle && state.users.handles[props.handle.toLowerCase()]) {
-    props.id = state.users.handles[props.handle.toLowerCase()].id
+    props.id = state.users.handles[props.handle.toLowerCase()]
   }
   return getEntry(state, {
     ...props,
@@ -26,9 +24,6 @@ export const getUserByHandle = (
   state: CommonState,
   props: { handle: string }
 ) => state.users.handles[props.handle] || null
-
-export const getStatus = (state: CommonState, props: { id: ID }) =>
-  state.users.statuses[props.id] || null
 
 export const getUsers = (
   state: CommonState,
@@ -59,8 +54,7 @@ export const getUsers = (
   } else if (props && props.handles) {
     const users: { [handle: string]: User } = {}
     props.handles.forEach((handle) => {
-      const { id } =
-        getUserByHandle(state, { handle: handle.toLowerCase() }) || {}
+      const id = getUserByHandle(state, { handle: handle.toLowerCase() })
       if (id) {
         const user = getUser(state, { id })
         if (user) users[handle] = user
@@ -94,8 +88,7 @@ export const getUserTimestamps = (
     return entryTimestamps
   } else if (handles) {
     return handles.reduce((acc, handle) => {
-      const { id } =
-        getUserByHandle(state, { handle: handle.toLowerCase() }) || {}
+      const id = getUserByHandle(state, { handle: handle.toLowerCase() })
       if (!id) return acc
       const timestamp = getEntryTimestamp(state, { kind: Kind.USERS, id })
       if (timestamp) acc[handle] = timestamp
@@ -103,34 +96,4 @@ export const getUserTimestamps = (
     }, {} as { [handle: string]: number })
   }
   return {}
-}
-
-export const getStatuses = (state: CommonState, props: { ids: ID[] }) => {
-  const statuses: { [id: number]: Status } = {}
-  props.ids.forEach((id) => {
-    const status = getStatus(state, { id })
-    if (status) {
-      statuses[id] = status
-    }
-  })
-  return statuses
-}
-
-export const getUserFromTrack = (
-  state: CommonState,
-  props: { id?: ID | null; uid?: UID | null }
-) => {
-  const track = getTrack(state, props)
-  if (track && track.owner_id) return getUser(state, { id: track.owner_id })
-  return null
-}
-
-export const getUserFromCollection = (
-  state: CommonState,
-  props: { id?: ID | null; uid?: UID | null }
-) => {
-  const collection = getCollection(state, props)
-  if (collection && collection.playlist_owner_id)
-    return getUser(state, { id: collection.playlist_owner_id })
-  return null
 }

@@ -6,8 +6,8 @@ import { useDispatch } from 'react-redux'
 
 import { Button, Text } from 'app/components/core'
 import { AppDrawer, useDrawerState } from 'app/components/drawer/AppDrawer'
-import useSearchHistory from 'app/store/search/hooks'
 import { makeStyles } from 'app/styles'
+
 const { signOut } = signOutActions
 
 const MODAL_NAME = 'SignOutConfirmation'
@@ -38,15 +38,13 @@ const useStyles = makeStyles(({ spacing }) => ({
 export const SignOutConfirmationDrawer = () => {
   const styles = useStyles()
   const dispatch = useDispatch()
-  const { clearHistory } = useSearchHistory()
 
   const { onClose } = useDrawerState(MODAL_NAME)
 
   const handleSignOut = useCallback(() => {
     dispatch(signOut())
-    clearHistory()
     onClose()
-  }, [dispatch, clearHistory, onClose])
+  }, [dispatch, onClose])
 
   return (
     <AppDrawer modalName={MODAL_NAME} title={messages.drawerTitle}>

@@ -5,11 +5,20 @@ export const FETCH_COLLECTION = 'FETCH_COLLECTION'
 export const FETCH_COLLECTION_SUCCEEDED = 'FETCH_COLLECTION_SUCCEEDED'
 export const FETCH_COLLECTION_FAILED = 'FETCH_COLLECTION_FAILED'
 export const RESET_COLLECTION = 'RESET_COLLECTION'
+export const RESET_AND_FETCH_COLLECTION_TRACKS =
+  'RESET_AND_FETCH_COLLECTION_TRACKS'
 export const SET_SMART_COLLECTION = 'SET_SMART_COLLECTION'
+export const SET_COLLECTION_PERMALINK = 'SET_COLLECTION_PERMALINK'
 
-export const fetchCollection = (id: number) => ({
+export const setCollectionPermalink = (permalink: string) => ({
+  type: SET_COLLECTION_PERMALINK,
+  permalink
+})
+
+export const fetchCollection = (id: Nullable<number>, permalink?: string) => ({
   type: FETCH_COLLECTION,
-  id
+  id,
+  permalink
 })
 
 export const fetchCollectionSucceeded = (
@@ -35,6 +44,13 @@ export const resetCollection = (
   type: RESET_COLLECTION,
   collectionUid,
   userUid
+})
+
+export const resetAndFetchCollectionTracks = (
+  collectionId: Nullable<ID | SmartCollectionVariant>
+) => ({
+  type: RESET_AND_FETCH_COLLECTION_TRACKS,
+  collectionId
 })
 
 export const setSmartCollection = (

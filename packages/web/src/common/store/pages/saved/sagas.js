@@ -3,36 +3,38 @@ import {
   savedPageTracksLineupActions as tracksActions,
   savedPageActions as actions,
   savedPageSelectors,
-  waitForValue
-} from '@audius/common'
-import {
-  takeLatest,
-  call,
-  put,
-  fork,
-  select,
+  waitForValue,
   getContext
-} from 'redux-saga/effects'
+} from '@audius/common'
+import { takeLatest, call, put, select, fork } from 'redux-saga/effects'
 
 import { processAndCacheTracks } from 'common/store/cache/tracks/utils'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import { waitForRead } from 'utils/sagaHelpers'
 
 import tracksSagas from './lineups/sagas'
 const { getSaves } = savedPageSelectors
 const { getAccountUser } = accountSelectors
 
-function* fetchTracksLineup() {
-  yield put(tracksActions.fetchLineupMetadatas())
+function* fetchLineupMetadatas(offset, limit) {
+  const isNativeMobile = yield getContext('isNativeMobile')
+
+  // Mobile currently uses infinite scroll instead of a virtualized list
+  // so we need to apply the offset & limit
+  if (isNativeMobile) {
+    yield put(tracksActions.fetchLineupMetadatas(offset, limit))
+  } else {
+    yield put(tracksActions.fetchLineupMetadatas())
+  }
 }
 
 function* watchFetchSaves() {
-  yield waitForBackendAndAccount()
-  const apiClient = yield getContext('apiClient')
   let currentQuery = ''
   let currentSortMethod = ''
   let currentSortDirection = ''
 
   yield takeLatest(actions.FETCH_SAVES, function* (props) {
+    yield waitForRead()
+    const apiClient = yield getContext('apiClient')
     const account = yield call(waitForValue, getAccountUser)
     const userId = account.user_id
     const offset = props.offset ?? 0
@@ -49,7 +51,7 @@ function* watchFetchSaves() {
 
     // Don't refetch saves in the same session
     if (saves && saves.length && isSameParams) {
-      yield fork(fetchTracksLineup)
+      yield fork(fetchLineupMetadatas, offset, limit)
     } else {
       try {
         currentQuery = query
@@ -85,7 +87,7 @@ function* watchFetchSaves() {
         if (limit > 0 && saves.length < limit) {
           yield put(actions.endFetching(offset + saves.length))
         }
-        yield fork(fetchTracksLineup)
+        yield fork(fetchLineupMetadatas, offset, limit)
       } catch (e) {
         yield put(actions.fetchSavesFailed())
       }
@@ -94,7 +96,7 @@ function* watchFetchSaves() {
 }
 
 function* watchFetchMoreSaves() {
-  yield waitForBackendAndAccount()
+  yield waitForRead()
   const apiClient = yield getContext('apiClient')
   yield takeLatest(actions.FETCH_MORE_SAVES, function* (props) {
     const account = yield call(waitForValue, getAccountUser)
@@ -128,7 +130,7 @@ function* watchFetchMoreSaves() {
       if (limit > 0 && saves.length < limit) {
         yield put(actions.endFetching(offset + saves.length))
       }
-      yield fork(fetchTracksLineup)
+      yield fork(fetchLineupMetadatas, offset, limit)
     } catch (e) {
       yield put(actions.fetchMoreSavesFailed())
     }

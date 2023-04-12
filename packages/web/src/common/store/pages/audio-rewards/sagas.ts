@@ -22,7 +22,8 @@ import {
   waitForValue,
   Env,
   musicConfettiActions,
-  CognitoFlowResponse
+  CognitoFlowResponse,
+  createUserBankIfNeeded
 } from '@audius/common'
 import {
   call,
@@ -37,7 +38,7 @@ import {
 } from 'typed-redux-saga'
 
 import { AUDIO_PAGE } from 'utils/route'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import { waitForRead } from 'utils/sagaHelpers'
 import {
   foregroundPollingDaemon,
   visibilityPollingDaemon
@@ -181,6 +182,7 @@ function* claimChallengeRewardAsync(
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
   const env = yield* getContext('env')
+  const { track } = yield* getContext('analytics')
   const { claim, retryOnFailure, retryCount = 0 } = action.payload
   const { specifiers, challengeId, amount } = claim
 
@@ -225,6 +227,20 @@ function* claimChallengeRewardAsync(
   const feePayerOverride = yield* select(getFeePayer)
 
   if (!currentUser || !currentUser.wallet) return
+
+  // Make userbank if necessary
+  if (!feePayerOverride) {
+    console.error(
+      `claimChallengeRewardAsync: unexpectedly no fee payper override`
+    )
+    return
+  }
+  yield* call(
+    createUserBankIfNeeded,
+    track,
+    audiusBackendInstance,
+    feePayerOverride
+  )
 
   // When endpoints is unset, `submitAndEvaluateAttestations` picks for us
   const endpoints =
@@ -436,7 +452,7 @@ function* watchClaimChallengeReward() {
 }
 
 function* fetchUserChallengesAsync() {
-  yield* waitForBackendAndAccount()
+  yield* waitForRead()
   const apiClient = yield* getContext('apiClient')
   const currentUserId = yield* select(getUserId)
   if (!currentUserId) return

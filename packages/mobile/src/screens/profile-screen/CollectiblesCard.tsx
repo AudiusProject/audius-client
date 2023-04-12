@@ -1,4 +1,5 @@
-import { useCallback, useMemo } from 'react'
+import type { ReactNode } from 'react'
+import { useState, useCallback } from 'react'
 
 import type { ID, Collectible } from '@audius/common'
 import {
@@ -6,65 +7,49 @@ import {
   collectibleDetailsUIActions,
   modalsActions
 } from '@audius/common'
-import type { StyleProp, ViewStyle } from 'react-native'
+import type { ImageStyle, StyleProp, ViewStyle } from 'react-native'
 import { ImageBackground, Text, View } from 'react-native'
+import { SvgUri } from 'react-native-svg'
 import { useDispatch, useSelector } from 'react-redux'
 
-import LogoEth from 'app/assets/images/logoEth.svg'
-import LogoSol from 'app/assets/images/logoSol.svg'
 import IconPlay from 'app/assets/images/pbIconPlay.svg'
-import { Tile } from 'app/components/core'
-import { makeStyles, shadow } from 'app/styles'
+import { ChainLogo, Tile } from 'app/components/core'
+import { makeStyles } from 'app/styles'
 const { setVisibility } = modalsActions
 const { setCollectible } = collectibleDetailsUIActions
 const getUserId = accountSelectors.getUserId
 
-type UseStyleConfig = {
-  isOwned: boolean
-}
-
-const useStyles = makeStyles(
-  ({ typography, palette, spacing }, { isOwned }: UseStyleConfig) => ({
-    content: {
-      padding: spacing(4)
-    },
-    title: {
-      ...typography.h2,
-      textAlign: 'center',
-      color: palette.neutral,
-      marginTop: spacing(4)
-    },
-    image: {
-      overflow: 'hidden',
-      paddingBottom: '100%',
-      width: '100%',
-      borderRadius: 8
-    },
-    iconPlay: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      justifyContent: 'center',
-      alignItems: 'center'
-    },
-    chain: {
-      position: 'absolute',
-      bottom: spacing(3),
-      left: spacing(3),
-      height: spacing(6),
-      width: spacing(6),
-      borderRadius: 30,
-      borderWidth: 1,
-      borderColor: palette.neutralLight7,
-      backgroundColor: palette.staticWhite,
-      alignItems: 'center',
-      justifyContent: 'center',
-      ...shadow()
-    }
-  })
-)
+const useStyles = makeStyles(({ typography, palette, spacing }) => ({
+  content: {
+    padding: spacing(4)
+  },
+  title: {
+    ...typography.h2,
+    textAlign: 'center',
+    color: palette.neutral,
+    marginTop: spacing(4)
+  },
+  image: {
+    overflow: 'hidden',
+    paddingBottom: '100%',
+    width: '100%',
+    borderRadius: 8
+  },
+  iconPlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  chain: {
+    position: 'absolute',
+    bottom: spacing(3),
+    left: spacing(3)
+  }
+}))
 
 type CollectiblesCardProps = {
   collectible: Collectible
@@ -72,12 +57,50 @@ type CollectiblesCardProps = {
   style?: StyleProp<ViewStyle>
 }
 
+type CollectibleImageProps = {
+  uri: string
+  style: StyleProp<ImageStyle>
+  children?: ReactNode
+}
+
+const CollectibleImage = (props: CollectibleImageProps) => {
+  const { children, style, uri } = props
+
+  const isSvg = uri.match(/.*\.svg$/)
+  const [size, setSize] = useState(0)
+
+  return isSvg ? (
+    <View
+      onLayout={(e) => {
+        setSize(e.nativeEvent.layout.width)
+      }}
+    >
+      <SvgUri
+        height={size}
+        width={size}
+        uri={uri}
+        style={{ borderRadius: 8, overflow: 'hidden' }}
+      >
+        {children}
+      </SvgUri>
+    </View>
+  ) : (
+    <ImageBackground
+      style={style}
+      source={{
+        uri
+      }}
+    >
+      {children}
+    </ImageBackground>
+  )
+}
+
 export const CollectiblesCard = (props: CollectiblesCardProps) => {
   const { collectible, style, ownerId } = props
-  const { name, frameUrl, isOwned, mediaType, gifUrl, chain } = collectible
+  const { name, frameUrl, mediaType, gifUrl, chain } = collectible
 
-  const stylesConfig = useMemo(() => ({ isOwned }), [isOwned])
-  const styles = useStyles(stylesConfig)
+  const styles = useStyles()
 
   const dispatch = useDispatch()
   const accountId = useSelector(getUserId)
@@ -102,7 +125,7 @@ export const CollectiblesCard = (props: CollectiblesCardProps) => {
     >
       {url ? (
         <View>
-          <ImageBackground style={styles.image} source={{ uri: url }}>
+          <CollectibleImage style={styles.image} uri={url}>
             {mediaType === 'VIDEO' ? (
               <View style={styles.iconPlay}>
                 <IconPlay
@@ -113,14 +136,8 @@ export const CollectiblesCard = (props: CollectiblesCardProps) => {
                 />
               </View>
             ) : null}
-            <View style={styles.chain}>
-              {chain === 'eth' ? (
-                <LogoEth height={18} />
-              ) : (
-                <LogoSol height={16} />
-              )}
-            </View>
-          </ImageBackground>
+            <ChainLogo chain={chain} style={styles.chain} />
+          </CollectibleImage>
         </View>
       ) : null}
       <Text style={styles.title}>{name}</Text>

@@ -3,6 +3,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { UID, ID, Collectible } from '../../models'
 import { Maybe, Nullable } from '../../utils'
 
+import { PlaybackRate } from './types'
+
 export type PlayerState = {
   // Identifiers for the audio that's playing.
   uid: UID | null
@@ -22,8 +24,15 @@ export type PlayerState = {
   // E.g. replaying a track doesn't change uid or trackId, but counter changes.
   counter: number
 
+  // Keep 'playbackRate' in the store separately from the audio
+  // Playback rate of the audio element
+  playbackRate: PlaybackRate
+
   // Seek time into the track when a user scrubs forward or backward
   seek: number | null
+
+  // Counter to track seek calls for times where we seek to the same position multiple times
+  seekCounter: number
 }
 
 export const initialState: PlayerState = {
@@ -35,7 +44,9 @@ export const initialState: PlayerState = {
   playing: false,
   buffering: false,
   counter: 0,
-  seek: null
+  playbackRate: '1x',
+  seek: null,
+  seekCounter: 0
 }
 
 type PlayPayload = Maybe<{
@@ -80,6 +91,10 @@ type SeekPayload = {
   seconds: number
 }
 
+type SetPlaybackRatePayload = {
+  rate: PlaybackRate
+}
+
 type ErrorPayload = {
   error: string
   trackId: ID
@@ -106,6 +121,7 @@ const slice = createSlice({
       state.uid = uid || state.uid
       state.trackId = trackId || state.trackId
       state.collectible = null
+      state.counter = state.counter + 1
     },
     playCollectible: (
       _state,
@@ -140,7 +156,7 @@ const slice = createSlice({
       state.trackId = trackId
     },
     reset: (_state, _action: PayloadAction<ResetPayload>) => {},
-    resetSuceeded: (state, action: PayloadAction<ResetSucceededPayload>) => {
+    resetSucceeded: (state, action: PayloadAction<ResetSucceededPayload>) => {
       const { shouldAutoplay } = action.payload
       state.playing = shouldAutoplay
       state.counter = state.counter + 1
@@ -148,6 +164,11 @@ const slice = createSlice({
     seek: (state, action: PayloadAction<SeekPayload>) => {
       const { seconds } = action.payload
       state.seek = seconds
+      state.seekCounter++
+    },
+    setPlaybackRate: (state, action: PayloadAction<SetPlaybackRatePayload>) => {
+      const { rate } = action.payload
+      state.playbackRate = rate
     },
     error: (_state, _action: PayloadAction<ErrorPayload>) => {},
     incrementCount: (state) => {
@@ -166,8 +187,9 @@ export const {
   setBuffering,
   set,
   reset,
-  resetSuceeded,
+  resetSucceeded,
   seek,
+  setPlaybackRate,
   error,
   incrementCount
 } = slice.actions

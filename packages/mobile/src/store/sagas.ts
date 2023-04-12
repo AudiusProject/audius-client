@@ -1,13 +1,20 @@
 import {
   castSagas,
+  chatSagas,
+  playerSagas as commonPlayerSagas,
+  playbackPositionSagas,
+  premiumContentSagas,
   remoteConfigSagas as remoteConfig,
   deletePlaylistConfirmationModalUISagas as deletePlaylistConfirmationModalSagas,
   mobileOverflowMenuUISagas as overflowMenuSagas,
   shareModalUISagas as shareModalSagas,
-  vipDiscordModalSagas
+  vipDiscordModalSagas,
+  reachabilitySagas,
+  searchUsersModalSagas,
+  solanaSagas
 } from '@audius/common'
-import analyticsSagas from 'audius-client/src/common/store/analytics/sagas'
 import addToPlaylistSagas from 'common/store/add-to-playlist/sagas'
+import analyticsSagas from 'common/store/analytics/sagas'
 import backendSagas from 'common/store/backend/sagas'
 import collectionsSagas from 'common/store/cache/collections/sagas'
 import coreCacheSagas from 'common/store/cache/sagas'
@@ -36,12 +43,14 @@ import playlistLibrarySagas from 'common/store/playlist-library/sagas'
 import profileSagas from 'common/store/profile/sagas'
 import queueSagas from 'common/store/queue/sagas'
 import recoveryEmailSagas from 'common/store/recovery-email/sagas'
+import remixSettingsSagas from 'common/store/remix-settings/sagas'
 import searchBarSagas from 'common/store/search-bar/sagas'
 import smartCollectionPageSagas from 'common/store/smart-collection/sagas'
 import socialSagas from 'common/store/social/sagas'
 import tippingSagas from 'common/store/tipping/sagas'
 import artistRecommendationsSagas from 'common/store/ui/artist-recommendations/sagas'
 import reactionSagas from 'common/store/ui/reactions/sagas'
+import uploadSagas from 'common/store/upload/sagas'
 import favoritePageSagas from 'common/store/user-list/favorites/sagas'
 import followersPageSagas from 'common/store/user-list/followers/sagas'
 import followingPageSagas from 'common/store/user-list/following/sagas'
@@ -54,13 +63,18 @@ import walletSagas from 'common/store/wallet/sagas'
 import { all, fork } from 'typed-redux-saga'
 
 import accountSagas from './account/sagas'
+import mobileChatSagas from './chat/sagas'
 import initKeyboardEvents from './keyboard/sagas'
-import mobileUiSagas from './mobileUi/sagas'
 import notificationsSagas from './notifications/sagas'
 import oauthSagas from './oauth/sagas'
+import offlineDownloadSagas from './offline-downloads/sagas'
+import rateCtaSagas from './rate-cta/sagas'
+import { searchSagas } from './search/searchSagas'
 import settingsSagas from './settings/sagas'
 import signOutSagas from './sign-out/sagas'
+import signUpSagas from './sign-up/sagas'
 import themeSagas from './theme/sagas'
+import walletsSagas from './wallet-connect/sagas'
 
 export default function* rootSaga() {
   const sagas = [
@@ -72,7 +86,6 @@ export default function* rootSaga() {
     ...searchResultsSagas(),
 
     // Account
-
     ...accountSagas(),
     ...recoveryEmailSagas(),
     ...playlistLibrarySagas(),
@@ -84,15 +97,27 @@ export default function* rootSaga() {
     ...usersSagas(),
 
     // Playback
+    ...commonPlayerSagas(),
     ...playerSagas(),
     ...queueSagas(),
+    ...playbackPositionSagas(),
 
     // Sign in / Sign out
     ...signOnSagas(),
     ...signOutSagas(),
 
+    // Sign up
+    ...signUpSagas(),
+
     // Tipping
     ...tippingSagas(),
+    ...solanaSagas(),
+
+    // Premium content
+    ...premiumContentSagas(),
+
+    // Search Users
+    ...searchUsersModalSagas(),
 
     ...walletSagas(),
 
@@ -100,6 +125,8 @@ export default function* rootSaga() {
 
     // Pages
     ...trackPageSagas(),
+    ...chatSagas(),
+    ...mobileChatSagas(),
     ...collectionPageSagas(),
     ...feedPageSagas(),
     ...exploreCollectionsPageSagas(),
@@ -122,7 +149,6 @@ export default function* rootSaga() {
     ...historySagas(),
     ...rewardsPageSagas(),
     ...settingsSagas(),
-    ...signOutSagas(),
 
     // Cast
     ...castSagas(),
@@ -134,17 +160,23 @@ export default function* rootSaga() {
     ...changePasswordSagas(),
     ...smartCollectionPageSagas(),
     ...overflowMenuSagas(),
+    ...rateCtaSagas(),
     ...deactivateAccountSagas(),
     ...deletePlaylistConfirmationModalSagas(),
     ...shareModalSagas(),
     ...vipDiscordModalSagas(),
     ...themeSagas(),
     ...tokenDashboardSagas(),
-    ...mobileUiSagas(),
+    ...uploadSagas(),
+    ...remixSettingsSagas(),
+    ...offlineDownloadSagas(),
+    ...reachabilitySagas(),
+    ...searchSagas(),
 
     initKeyboardEvents,
     ...remoteConfig(),
-    ...oauthSagas()
+    ...oauthSagas(),
+    ...walletsSagas()
   ]
 
   yield* all(sagas.map(fork))

@@ -1,18 +1,18 @@
-import type {
-  ID,
-  CoverArtSizes,
-  ProfilePictureSizes,
-  User
-} from '@audius/common'
-import { SquareSizes } from '@audius/common'
-import type { StyleProp, ViewStyle } from 'react-native'
-import { Text, View } from 'react-native'
+import type { ComponentType, ReactNode } from 'react'
 
-import { DynamicImage, Tile } from 'app/components/core'
+import type { User } from '@audius/common'
+import type { StyleProp, TextStyle, ViewStyle } from 'react-native'
+import { Text, View } from 'react-native'
+import type { LinearGradientProps } from 'react-native-linear-gradient'
+
+import type { TileProps } from 'app/components/core'
+import { Tile } from 'app/components/core'
 import UserBadges from 'app/components/user-badges/UserBadges'
-import { useCollectionCoverArt } from 'app/hooks/useCollectionCoverArt'
-import { useUserProfilePicture } from 'app/hooks/useUserProfilePicture'
-import { makeStyles } from 'app/styles'
+import type { StylesProp } from 'app/styles'
+import { flexRowCentered, makeStyles } from 'app/styles'
+
+import type { ImageProps } from '../image/FastImage'
+import { CollectionDownloadStatusIndicator } from '../offline-downloads/CollectionDownloadStatusIndicator'
 
 export type CardType = 'user' | 'collection'
 
@@ -20,76 +20,78 @@ const useStyles = makeStyles(({ palette, typography, spacing }) => ({
   cardContent: {
     paddingHorizontal: spacing(2)
   },
-  imgContainer: {
-    paddingTop: spacing(2),
-    paddingHorizontal: spacing(1)
-  },
-  cardImg: {
-    backgroundColor: '#ddd',
+  cardImage: {
     borderRadius: 6,
-    overflow: 'hidden',
-    paddingBottom: '100%'
+    height: 152,
+    width: 152,
+    marginTop: spacing(2),
+    alignSelf: 'center'
   },
-  userImg: {
-    borderRadius: 1000
+  userImage: {
+    borderRadius: 152 / 2,
+    backgroundColor: '#ddd'
   },
   textContainer: {
     paddingVertical: spacing(1)
   },
+  primaryTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
   primaryText: {
     ...typography.h3,
+    marginBottom: 0,
     color: palette.neutral,
     textAlign: 'center',
     // needed to keep emojis from increasing text height
-    height: 18
+    lineHeight: 24,
+    height: 24
   },
   secondaryText: {
     ...typography.body2,
     color: palette.neutral,
+    marginHorizontal: spacing(1),
     textAlign: 'center'
+  },
+  secondaryTextContainer: {
+    ...flexRowCentered(),
+    justifyContent: 'center'
   }
 }))
 
-export type CardProps = {
-  id: ID
-  imageSize: ProfilePictureSizes | CoverArtSizes | null
+type BaseCardProps = {
   onPress: () => void
   primaryText: string
+  renderImage: (options?: ImageProps) => ReactNode
   secondaryText?: string
+  TileProps?: Omit<TileProps<ComponentType<LinearGradientProps>>, 'children'>
   style?: StyleProp<ViewStyle>
-  type?: CardType
+  styles?: StylesProp<{
+    primaryText: TextStyle
+    secondaryText: TextStyle
+  }>
+}
+
+export type ProfileCardProps = BaseCardProps & {
+  type: 'user'
   user: User
 }
-
-type CardImageProps = {
-  id: ID
-  imageSize: ProfilePictureSizes | CoverArtSizes | null
-  type: CardType
+export type CollectionCardProps = BaseCardProps & {
+  type: 'collection'
+  id: number
 }
-
-const CardImage = ({ id, type, imageSize }: CardImageProps) => {
-  const useImage =
-    type === 'user' ? useUserProfilePicture : useCollectionCoverArt
-
-  const image = useImage({
-    id,
-    sizes: imageSize,
-    size: SquareSizes.SIZE_150_BY_150
-  })
-
-  return <DynamicImage uri={image} />
-}
+export type CardProps = ProfileCardProps | CollectionCardProps
 
 export const Card = (props: CardProps) => {
   const {
-    id,
-    imageSize,
     onPress,
     primaryText,
+    renderImage,
     secondaryText,
     style,
-    type = 'user',
-    user
+    styles: stylesProp,
+    TileProps = {}
   } = props
 
   const styles = useStyles()
@@ -98,22 +100,37 @@ export const Card = (props: CardProps) => {
     <Tile
       onPress={onPress}
       styles={{ root: style, content: styles.cardContent }}
+      {...TileProps}
     >
-      <View style={styles.imgContainer}>
-        <View style={[styles.cardImg, type === 'user' && styles.userImg]}>
-          <CardImage imageSize={imageSize} type={type} id={id} />
-        </View>
-      </View>
+      {renderImage({
+        style: [styles.cardImage, props.type === 'user' && styles.userImage]
+      })}
       <View style={styles.textContainer}>
-        <Text numberOfLines={1} style={styles.primaryText}>
-          {primaryText}
-          {type === 'user' ? (
-            <UserBadges user={user} badgeSize={12} hideName />
+        <View style={styles.primaryTextContainer}>
+          <Text
+            numberOfLines={1}
+            style={[styles.primaryText, stylesProp?.primaryText]}
+          >
+            {primaryText}
+          </Text>
+          {props.type === 'user' ? (
+            <UserBadges user={props.user} badgeSize={12} hideName />
           ) : null}
-        </Text>
-        <Text numberOfLines={1} style={styles.secondaryText}>
-          {secondaryText}
-        </Text>
+        </View>
+        <View style={styles.secondaryTextContainer}>
+          <Text
+            numberOfLines={1}
+            style={[styles.secondaryText, stylesProp?.secondaryText]}
+          >
+            {secondaryText}
+          </Text>
+          {props.type === 'collection' ? (
+            <CollectionDownloadStatusIndicator
+              size={18}
+              collectionId={props.id}
+            />
+          ) : null}
+        </View>
       </View>
     </Tile>
   )

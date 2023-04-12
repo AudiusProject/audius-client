@@ -11,7 +11,10 @@ import {
   fetchOpenSeaAssetsForWallets,
   fetchSolanaCollectiblesForWallets
 } from 'common/store/profile/sagas'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import { waitForRead } from 'utils/sagaHelpers'
+
+import { watchRemoveWallet } from './removeWalletSaga'
+
 const { fetchAssociatedWallets, setAssociatedWallets } =
   tokenDashboardPageActions
 
@@ -39,13 +42,7 @@ function* fetchEthWalletInfo(wallets: string[]) {
   }))
 }
 
-function* fetchSplWalletInfo(wallets: string[]) {
-  const walletClient = yield* getContext('walletClient')
-  const splWalletBalances = yield* call(
-    [walletClient, 'getSolWalletBalances'],
-    wallets
-  )
-
+function* fetchSplCollectibles(wallets: string[]) {
   const collectiblesMap = (yield* call(
     fetchSolanaCollectiblesForWallets,
     wallets
@@ -56,13 +53,24 @@ function* fetchSplWalletInfo(wallets: string[]) {
   )
 
   return wallets.map((_, idx) => ({
-    ...splWalletBalances[idx],
     collectibleCount: collectibleCounts[idx]
   }))
 }
 
+function* fetchSplWalletInfo(wallets: string[]) {
+  const walletClient = yield* getContext('walletClient')
+  const splWalletBalances = yield* call(
+    [walletClient, 'getSolWalletBalances'],
+    wallets
+  )
+
+  return wallets.map((_, idx) => ({
+    ...splWalletBalances[idx]
+  }))
+}
+
 function* fetchAccountAssociatedWallets() {
-  yield* waitForBackendAndAccount()
+  yield* waitForRead()
   const apiClient = yield* getContext('apiClient')
   const accountUserId = yield* select(getUserId)
   if (!accountUserId) return
@@ -75,11 +83,13 @@ function* fetchAccountAssociatedWallets() {
   if (!associatedWallets) {
     return
   }
-  const ethWalletBalances = yield* fetchEthWalletInfo(associatedWallets.wallets)
 
+  const ethWalletBalances = yield* fetchEthWalletInfo(associatedWallets.wallets)
   const splWalletBalances = yield* fetchSplWalletInfo(
     associatedWallets.sol_wallets ?? []
   )
+
+  // Put balances first w/o collectibles
 
   yield* put(
     setAssociatedWallets({
@@ -89,7 +99,26 @@ function* fetchAccountAssociatedWallets() {
   )
   yield* put(
     setAssociatedWallets({
-      associatedWallets: splWalletBalances,
+      associatedWallets: splWalletBalances.map((b) => ({
+        ...b,
+        collectibleCount: 0
+      })),
+      chain: Chain.Sol
+    })
+  )
+
+  // Add collectibles, this can take a while if fetching metadata is slow
+
+  const splWalletCollectibles = yield* fetchSplCollectibles(
+    associatedWallets.sol_wallets ?? []
+  )
+
+  yield* put(
+    setAssociatedWallets({
+      associatedWallets: splWalletBalances.map((b, i) => ({
+        ...b,
+        collectibleCount: splWalletCollectibles[i].collectibleCount
+      })),
       chain: Chain.Sol
     })
   )
@@ -100,7 +129,7 @@ function* watchGetAssociatedWallets() {
 }
 
 const sagas = () => {
-  return [watchGetAssociatedWallets]
+  return [watchGetAssociatedWallets, watchRemoveWallet]
 }
 
 export default sagas

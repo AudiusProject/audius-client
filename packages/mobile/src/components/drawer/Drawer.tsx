@@ -16,10 +16,8 @@ import {
   View
 } from 'react-native'
 import type { Edge } from 'react-native-safe-area-context'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useSelector } from 'react-redux'
+import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context'
 
-import { getAndroidNavigationBarHeight } from 'app/store/mobileUi/selectors'
 import { makeStyles } from 'app/styles'
 import { attachToDy } from 'app/utils/animation'
 
@@ -35,52 +33,52 @@ const BACKGROUND_OPACITY = 0.5
 // Controls the amount of friction in swiping when overflowing up or down
 const OVERFLOW_FRICTION = 4
 
-export const useStyles = makeStyles(
-  ({ palette }, { zIndex = 5, shouldAnimateShadow = true }) => ({
-    drawer: {
-      backgroundColor: palette.neutralLight10,
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      elevation: zIndex,
-      zIndex,
-      shadowOpacity: shouldAnimateShadow ? 0 : MAX_SHADOW_OPACITY,
-      shadowRadius: 15,
-      borderTopRightRadius: BORDER_RADIUS,
-      borderTopLeftRadius: BORDER_RADIUS,
-      overflow: 'hidden'
-    },
-    fullDrawer: {
-      top: 0,
-      height: '100%'
-    },
-    content: {
-      height: 'auto'
-    },
-    fullScreenContent: {
-      height: '100%'
-    },
-    dismissContainer: {
-      position: 'absolute',
-      top: 24,
-      left: 24
-    },
-    background: {
-      position: 'absolute',
-      backgroundColor: 'black',
-      top: 0,
-      height: '100%',
-      width: '100%'
-    },
-
-    skirt: {
-      backgroundColor: palette.neutralLight10,
-      width: '100%',
-      height: 800
-    }
-  })
-)
+export const useStyles = makeStyles(({ palette }) => ({
+  drawer: {
+    backgroundColor: palette.neutralLight10,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    shadowRadius: 15,
+    borderTopRightRadius: BORDER_RADIUS,
+    borderTopLeftRadius: BORDER_RADIUS,
+    overflow: 'hidden'
+  },
+  fullDrawer: {
+    top: 0,
+    height: '100%'
+  },
+  content: {
+    height: 'auto'
+  },
+  fullScreenContent: {
+    height: '100%'
+  },
+  dismissContainer: {
+    position: 'absolute',
+    top: 24,
+    left: 24
+  },
+  backgroundRoot: {
+    position: 'absolute',
+    top: 0,
+    height: '100%',
+    width: '100%'
+  },
+  background: {
+    position: 'absolute',
+    top: 0,
+    height: '100%',
+    width: '100%',
+    backgroundColor: 'black'
+  },
+  skirt: {
+    backgroundColor: palette.neutralLight10,
+    width: '100%',
+    height: 800
+  }
+}))
 
 export enum DrawerAnimationStyle {
   STIFF = 'STIFF',
@@ -195,7 +193,8 @@ export const springToValue = ({
   animationStyle,
   drawerHeight,
   finished,
-  velocity
+  velocity,
+  overshootClamping
 }: {
   animation: Animated.Value
   value: number
@@ -203,6 +202,7 @@ export const springToValue = ({
   drawerHeight: number
   finished?: ({ finished }: { finished: boolean }) => void
   velocity?: number
+  overshootClamping?: boolean
 }) => {
   let tension: number
   let friction: number
@@ -215,8 +215,8 @@ export const springToValue = ({
       // Factor the height of the drawer into the spring physics.
       // Without this, short drawers tend to feel sluggish while
       // tall drawers really get going.
-      tension = 70 + 60 * (1 - drawerHeight / FULL_DRAWER_HEIGHT)
-      friction = 10 + 2 * (1 - drawerHeight / FULL_DRAWER_HEIGHT)
+      tension = 70 + 60 * (1 - Math.min(drawerHeight / FULL_DRAWER_HEIGHT, 1))
+      friction = 10 + 2 * (1 - Math.min(drawerHeight / FULL_DRAWER_HEIGHT, 1))
       break
   }
   Animated.spring(animation, {
@@ -224,7 +224,8 @@ export const springToValue = ({
     tension,
     friction,
     useNativeDriver: true,
-    velocity
+    velocity,
+    overshootClamping
   }).start(finished)
 }
 
@@ -248,7 +249,7 @@ export const Drawer: DrawerComponent = ({
   initialOffsetPosition = 0,
   shouldCloseToInitialOffset,
   shouldHaveRoundedBordersAtInitialOffset = false,
-  zIndex,
+  zIndex = 5,
   drawerStyle,
   shouldAnimateShadow,
   onPercentOpen,
@@ -257,23 +258,18 @@ export const Drawer: DrawerComponent = ({
   translationAnim: providedTranslationAnim,
   disableSafeAreaView
 }: DrawerProps) => {
-  const stylesConfig = useMemo(
-    () => ({ zIndex, shouldAnimateShadow }),
-    [zIndex, shouldAnimateShadow]
-  )
-  const styles = useStyles(stylesConfig)
-  const androidNavigationBarHeight = useSelector(getAndroidNavigationBarHeight)
+  const styles = useStyles()
+  const insets = useSafeAreaInsets()
 
   const [drawerHeight, setDrawerHeight] = useState(
     isFullscreen ? FULL_DRAWER_HEIGHT : 0
   )
-  // isBackgroundVisible will be true until the close animation finishes
-  const [isBackgroundVisible, setIsBackgroundVisible] = useState(false)
 
   // Initial position of the drawer when closed
   const initialPosition = FULL_DRAWER_HEIGHT
   // Position of the drawer when it is in an offset but closed state
-  const initialOffsetOpenPosition = FULL_DRAWER_HEIGHT - initialOffsetPosition
+  const initialOffsetOpenPosition =
+    FULL_DRAWER_HEIGHT - initialOffsetPosition - insets.bottom
   // Position of the fully opened drawer
   const openPosition = FULL_DRAWER_HEIGHT - drawerHeight
 
@@ -320,13 +316,15 @@ export const Drawer: DrawerComponent = ({
           animation: shadowAnim.current,
           value: MAX_SHADOW_OPACITY,
           drawerHeight,
-          animationStyle
+          animationStyle,
+          overshootClamping: true
         })
         springToValue({
           animation: backgroundOpacityAnim.current,
           value: BACKGROUND_OPACITY,
           drawerHeight,
-          animationStyle
+          animationStyle,
+          overshootClamping: true
         })
       }
     },
@@ -348,7 +346,6 @@ export const Drawer: DrawerComponent = ({
         animationStyle,
         finished: ({ finished }) => {
           if (finished) {
-            setIsBackgroundVisible(false)
             onClosed?.()
             onFinished?.()
           }
@@ -368,13 +365,15 @@ export const Drawer: DrawerComponent = ({
           animation: shadowAnim.current,
           value: 0,
           drawerHeight,
-          animationStyle
+          animationStyle,
+          overshootClamping: true
         })
         springToValue({
           animation: backgroundOpacityAnim.current,
           value: 0,
           drawerHeight,
-          animationStyle
+          animationStyle,
+          overshootClamping: true
         })
       }
     },
@@ -392,7 +391,6 @@ export const Drawer: DrawerComponent = ({
     if (isOpen) {
       isOpenIntent.current = true
       slideIn(openPosition)
-      setIsBackgroundVisible(true)
     } else {
       isOpenIntent.current = false
       if (!isOpen && shouldCloseToInitialOffset) {
@@ -605,31 +603,23 @@ export const Drawer: DrawerComponent = ({
   })
 
   const renderBackground = () => {
-    const renderBackgroundView = (options?: { pointerEvents: 'none' }) => (
-      <Animated.View
-        pointerEvents={options?.pointerEvents}
-        style={[styles.background, { opacity: backgroundOpacityAnim.current }]}
-      />
-    )
-    // The background should be visible and touchable when the drawer is open
-    if (isOpen) {
-      return (
+    return (
+      <View
+        pointerEvents={isOpen ? undefined : 'none'}
+        style={styles.backgroundRoot}
+      >
         <TouchableWithoutFeedback
-          onPress={() => {
-            onClose()
-          }}
+          onPress={isGestureSupported ? onClose : undefined}
         >
-          {renderBackgroundView()}
+          <Animated.View
+            style={[
+              styles.background,
+              { opacity: backgroundOpacityAnim.current }
+            ]}
+          />
         </TouchableWithoutFeedback>
-      )
-    }
-
-    // The background should be visible and not touchable as the drawer is closing
-    // (isOpen is false but isBackgroundVisible is true)
-    // This is to prevent blocking touches as the drawer is closing
-    if (isBackgroundVisible) {
-      return renderBackgroundView({ pointerEvents: 'none' })
-    }
+      </View>
+    )
   }
 
   const renderContent = () => {
@@ -647,7 +637,7 @@ export const Drawer: DrawerComponent = ({
         onLayout={(event: LayoutChangeEvent) => {
           if (!isFullscreen) {
             const { height } = event.nativeEvent.layout
-            setDrawerHeight(height + androidNavigationBarHeight)
+            setDrawerHeight(height)
           }
         }}
         {...edgeProps}
@@ -673,6 +663,8 @@ export const Drawer: DrawerComponent = ({
           drawerStyle,
           isFullscreen && styles.fullDrawer,
           {
+            elevation: zIndex,
+            zIndex,
             shadowOpacity: shouldAnimateShadow
               ? shadowAnim.current
               : MAX_SHADOW_OPACITY,

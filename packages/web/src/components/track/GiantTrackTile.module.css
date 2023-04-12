@@ -19,7 +19,6 @@
   background-color: var(--neutral-light-10);
 
   padding: 24px;
-  border-bottom: 1px solid var(--neutral-light-8);
 }
 
 .infoSection {
@@ -50,6 +49,21 @@
   line-height: 28px;
 
   user-select: none;
+}
+
+.premiumContent .typeLabel {
+  display: flex;
+  align-items: center;
+  color: var(--accent-blue);
+  letter-spacing: 2px;
+}
+
+.premiumContent svg {
+  margin-right: 10px;
+}
+
+.premiumContent path {
+  fill: var(--accent-blue);
 }
 
 .title {
@@ -114,40 +128,70 @@
 }
 
 .playButton {
-  width: 144px !important;
+  width: 180px !important;
   height: 60px !important;
   padding: 0;
   display: flex;
   justify-content: center;
-  margin-right: 40px;
+  margin-right: 24px;
 }
 
 .playButton .playButtonText {
   font-size: var(--font-xl);
   font-weight: var(--font-bold);
   letter-spacing: 0.71px;
+  text-transform: uppercase;
 }
 
-.playSection .listens {
-}
-
-.playSection .numberOfListens {
+.infoSection .numberOfListens {
   color: var(--neutral);
   font-size: var(--font-l);
   font-weight: bold;
 }
 
-.playSection .listenText {
+.infoSection .listenText {
   color: var(--neutral-light-5);
   font-size: var(--font-l);
   font-weight: bold;
   padding-left: 8px;
 }
 
-.playSection .firstListen {
+.infoSection .firstListen {
   color: var(--neutral-light-4);
   font-size: var(--font-m);
   font-weight: var(--font-medium);
+}
+
+.statsSection .numberOfListens,
+.statsSection .listenText,
+.statsSection .firstListen {
+  font-size: var(--font-m);
+}
+
+.progressText,
+.completeText {
+  color: var(--neutral-light-4);
+  font-size: var(--font-m);
+  font-weight: bold;
+}
+
+.progressTextSlider {
+  height: 4px;
+  width: 140px;
+}
+
+.completeText {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.completeTextIcon {
+  height: 18px;
+  width: 18px;
+}
+.completeTextIcon path {
+  fill: var(--neutral-light-4);
 }
 
 .commonButtonSection {
@@ -179,8 +223,130 @@
   align-items: center;
 }
 
+.premiumContentSection {
+  margin: 0 24px 24px 24px;
+  padding: 16px;
+  background: var(--white);
+  border: 1px solid var(--neutral-light-7);
+  border-radius: 8px;
+}
+
+.premiumContentSectionLocked {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.premiumContentSectionTitle {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: var(--font-heavy);
+  font-size: var(--font-m);
+}
+
+.premiumContentSectionDescription {
+  font-weight: var(--font-demi-bold);
+}
+
+.premiumContentSectionDescription > p {
+  display: flex;
+  align-items: center;
+}
+
+.premiumContentSectionDescription img {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--neutral-light-7);
+  border-radius: 4px;
+}
+
+.premiumContentSectionCollection {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  width: fit-content;
+}
+
+.premiumContentSectionCollection:hover {
+  cursor: pointer;
+}
+
+.premiumContentSectionButton {
+  display: flex;
+  width: 250px;
+}
+
+.premiumContentSectionButton button {
+  width: 100%;
+}
+
+.premiumContentSectionButton .buttonText {
+  font-size: var(--font-l);
+}
+
+.premiumContentSectionButton .buttonIcon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.premiumContentSectionButton .followButton {
+  width: 100%;
+  flex: unset;
+  max-width: none;
+  height: 46px;
+}
+
+.premiumContentSectionButton .followButton > span {
+  font-size: var(--font-l);
+}
+
+.collectibleName {
+  color: var(--secondary);
+}
+
+.collectibleName:hover {
+  cursor: pointer;
+}
+
+.lockedIcon,
+.unlockedIcon,
+.collectibleIcon,
+.specialAccessIcon {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+}
+
+.lockedIcon path,
+.unlockedIcon path,
+.collectibleIcon path,
+.specialAccessIcon path {
+  fill: var(--neutral);
+}
+
+.badgeIcon {
+  margin-left: 4px;
+}
+
+.verifiedGreenIcon {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+}
+
+.verifiedGreenIcon path:nth-child(1) {
+  fill: var(--accent-green);
+}
+
+.verifiedGreenIcon path:nth-child(2) {
+  fill: var(--static-white);
+}
+
 .bottomSection {
   padding: 20px 24px 20px;
+  border-top: 1px solid var(--neutral-light-8);
 }
 
 .infoLabelsSection {
@@ -284,4 +450,55 @@
 
 .spinner g path {
   stroke: var(--static-white) !important;
+}
+
+.premiumContentSectionDescription > div {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  line-height: 150%;
+  flex-wrap: wrap;
+}
+
+.premiumContentSectionDescription > div > span {
+  flex-shrink: 0;
+  text-align: left;
+  line-height: 150%;
+  max-width: 100%;
+}
+
+.premiumContentSectionDescription .spinner {
+  margin-right: 8px;
+  height: 24px;
+  width: 24px;
+}
+
+.premiumContentSectionDescription .spinner path {
+  stroke: var(--neutral-light-4) !important;
+}
+
+.collectionIconsContainer {
+  display: flex;
+  align-items: center;
+}
+
+.collectionChainIcon {
+  position: relative;
+  left: -8px;
+  background: var(--white);
+  padding: var(--unit-1);
+  width: var(--unit-5);
+  height: var(--unit-5);
+  border: 1px solid var(--neutral-light-7);
+  border-radius: 50%;
+}
+
+@media screen and (max-width: 1148px) {
+  .premiumContentSectionLocked {
+    flex-direction: column;
+  }
+
+  .premiumContentSectionButton {
+    width: 100%;
+  }
 }

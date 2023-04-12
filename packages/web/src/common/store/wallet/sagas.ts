@@ -12,7 +12,11 @@ import {
   walletSelectors,
   InputSendDataAction,
   walletActions,
-  getContext
+  getContext,
+  ErrorLevel,
+  createUserBankIfNeeded,
+  solanaSelectors,
+  SolanaWalletAddress
 } from '@audius/common'
 import type { AudiusLibs } from '@audius/sdk'
 import BN from 'bn.js'
@@ -20,7 +24,10 @@ import { all, call, put, take, takeEvery, select } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
 import { SETUP_BACKEND_SUCCEEDED } from 'common/store/backend/actions'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import { reportToSentry } from 'store/errors/reportToSentry'
+import { waitForWrite } from 'utils/sagaHelpers'
+
+const { getFeePayer } = solanaSelectors
 
 const ATA_SIZE = 165 // Size allocated for an associated token account
 
@@ -64,8 +71,10 @@ function* getIsBalanceFrozen() {
 function* sendAsync({
   payload: { recipientWallet, amount: weiAudioAmount, chain }
 }: ReturnType<typeof send>) {
-  yield* waitForBackendAndAccount()
+  // WalletClient relies on audiusBackendInstance. Use waitForWrite to ensure it's initialized
+  yield* waitForWrite()
   const walletClient = yield* getContext('walletClient')
+  const { track } = yield* getContext('analytics')
 
   const account = yield* select(getAccountUser)
   const weiBNAmount = stringWeiToBN(weiAudioAmount)
@@ -96,6 +105,17 @@ function* sendAsync({
         recipient: recipientWallet
       })
     )
+
+    // Ensure user has userbank
+
+    const audiusBackend = yield* getContext('audiusBackendInstance')
+    const feePayer = yield* select(getFeePayer)
+    if (!feePayer) {
+      console.error(`sendAsync: unexpectedly no fee payer`)
+      return
+    }
+    yield* call(createUserBankIfNeeded, track, audiusBackend, feePayer)
+
     // If transferring spl wrapped audio and there are insufficent funds with only the
     // user bank balance, transfer all eth AUDIO to spl wrapped audio
     if (chain === Chain.Sol && weiBNAmount.gt(waudioWeiAmount)) {
@@ -109,7 +129,7 @@ function* sendAsync({
       try {
         yield* call(
           [walletClient, 'sendWAudioTokens'],
-          recipientWallet,
+          recipientWallet as SolanaWalletAddress,
           weiBNAmount
         )
       } catch (e) {
@@ -171,61 +191,70 @@ function* getWalletBalanceAndWallets() {
 }
 
 function* fetchBalanceAsync() {
-  yield* waitForBackendAndAccount()
+  yield* waitForWrite()
   const walletClient = yield* getContext('walletClient')
   const getFeatureEnabled = yield* getContext('getFeatureEnabled')
 
   const account = yield* select(getAccountUser)
   if (!account) return
 
-  // Opt out of balance refreshes if the balance
-  // is frozen due to a recent optimistic update
-  const isBalanceFrozen = yield* call(getIsBalanceFrozen)
-  if (isBalanceFrozen) return
+  try {
+    // Opt out of balance refreshes if the balance
+    // is frozen due to a recent optimistic update
+    const isBalanceFrozen = yield* call(getIsBalanceFrozen)
+    if (isBalanceFrozen) return
 
-  const localBalanceChange: ReturnType<typeof getLocalBalanceDidChange> =
-    yield* select(getLocalBalanceDidChange)
+    const localBalanceChange: ReturnType<typeof getLocalBalanceDidChange> =
+      yield* select(getLocalBalanceDidChange)
 
-  const [currentEthAudioWeiBalance, currentSolAudioWeiBalance] = yield* all([
-    call(
-      [walletClient, 'getCurrentBalance'],
+    const [currentEthAudioWeiBalance, currentSolAudioWeiBalance] = yield* all([
+      call(
+        [walletClient, 'getCurrentBalance'],
+        /* bustCache */ localBalanceChange
+      ),
+      call([walletClient, 'getCurrentWAudioBalance'])
+    ])
+
+    const associatedWalletBalance: BNWei = yield* call(
+      [walletClient, 'getAssociatedWalletBalance'],
+      account.user_id,
       /* bustCache */ localBalanceChange
-    ),
-    call([walletClient, 'getCurrentWAudioBalance'])
-  ])
-
-  const associatedWalletBalance: BNWei = yield* call(
-    [walletClient, 'getAssociatedWalletBalance'],
-    account.user_id,
-    /* bustCache */ localBalanceChange
-  )
-
-  const audioWeiBalance = currentEthAudioWeiBalance.add(
-    currentSolAudioWeiBalance
-  ) as BNWei
-
-  const useSolAudio = yield* call(
-    getFeatureEnabled,
-    FeatureFlags.ENABLE_SPL_AUDIO
-  )
-  if (useSolAudio) {
-    const totalBalance = audioWeiBalance.add(associatedWalletBalance) as BNWei
-    yield* put(
-      setBalance({
-        balance: weiToString(audioWeiBalance),
-        totalBalance: weiToString(totalBalance)
-      })
     )
-  } else {
-    const totalBalance = currentEthAudioWeiBalance.add(
-      associatedWalletBalance
+
+    const audioWeiBalance = currentEthAudioWeiBalance.add(
+      currentSolAudioWeiBalance
     ) as BNWei
-    yield* put(
-      setBalance({
-        balance: weiToString(currentEthAudioWeiBalance),
-        totalBalance: weiToString(totalBalance)
-      })
+
+    const useSolAudio = yield* call(
+      getFeatureEnabled,
+      FeatureFlags.ENABLE_SPL_AUDIO
     )
+    if (useSolAudio) {
+      const totalBalance = audioWeiBalance.add(associatedWalletBalance) as BNWei
+      yield* put(
+        setBalance({
+          balance: weiToString(audioWeiBalance),
+          totalBalance: weiToString(totalBalance)
+        })
+      )
+    } else {
+      const totalBalance = currentEthAudioWeiBalance.add(
+        associatedWalletBalance
+      ) as BNWei
+      yield* put(
+        setBalance({
+          balance: weiToString(currentEthAudioWeiBalance),
+          totalBalance: weiToString(totalBalance)
+        })
+      )
+    }
+  } catch (err) {
+    console.error(err)
+    yield* call(reportToSentry, {
+      level: ErrorLevel.Error,
+      error: err as Error,
+      additionalInfo: { user_id: account.user_id }
+    })
   }
 }
 

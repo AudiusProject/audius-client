@@ -1,29 +1,33 @@
 import { useCallback } from 'react'
 
-import { notificationsActions } from '@audius/common'
+import { notificationsActions, notificationsSelectors } from '@audius/common'
 import { useFocusEffect } from '@react-navigation/native'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconNotification from 'app/assets/images/iconNotification.svg'
 import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
-import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
+import { useAppTabScreen } from 'app/hooks/useAppTabScreen'
 
 import { NotificationList } from './NotificationList'
 const { markAllAsViewed } = notificationsActions
+const { getNotificationUnviewedCount } = notificationsSelectors
 
 const messages = {
   header: 'Notifications'
 }
 
 export const NotificationsScreen = () => {
-  usePopToTopOnDrawerOpen()
+  useAppTabScreen()
   const dispatch = useDispatch()
+  const totalUnviewed = useSelector(getNotificationUnviewedCount)
 
-  useFocusEffect(
-    useCallback(() => {
+  const handleMarkAsViewed = useCallback(() => {
+    if (totalUnviewed > 0) {
       dispatch(markAllAsViewed())
-    }, [dispatch])
-  )
+    }
+  }, [dispatch, totalUnviewed])
+
+  useFocusEffect(handleMarkAsViewed)
 
   return (
     <Screen>
@@ -31,7 +35,6 @@ export const NotificationsScreen = () => {
         text={messages.header}
         icon={IconNotification}
         iconProps={{ height: 28, width: 28 }}
-        styles={{ icon: { marginLeft: -1 } }}
       />
       <ScreenContent>
         <NotificationList />

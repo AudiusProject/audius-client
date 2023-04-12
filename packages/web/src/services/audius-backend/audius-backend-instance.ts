@@ -7,6 +7,7 @@ import {
   waitForLibsInit,
   withEagerOption
 } from 'services/audius-backend/eagerLoadUtils'
+import { discoveryNodeSelectorInstance } from 'services/discovery-node-selector'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { monitoringCallbacks } from 'services/serviceMonitoring'
@@ -35,6 +36,7 @@ export const audiusBackendInstance = audiusBackend({
   getFeatureEnabled,
   getHostUrl: () => window.location.origin,
   getLibs: () => import('@audius/sdk/dist/legacy'),
+  discoveryNodeSelectorInstance,
   getWeb3Config: async (
     libs,
     registryAddress,
@@ -81,6 +83,7 @@ export const audiusBackendInstance = audiusBackend({
     }
   },
   identityServiceUrl: process.env.REACT_APP_IDENTITY_SERVICE,
+  generalAdmissionUrl: process.env.REACT_APP_GENERAL_ADMISSION,
   isElectron: isElectron(),
   isMobile: isMobile(),
   legacyUserNodeUrl: process.env.REACT_APP_LEGACY_USER_NODE,
@@ -100,8 +103,6 @@ export const audiusBackendInstance = audiusBackend({
   setLocalStorageItem: async (key, value) =>
     window.localStorage.setItem(key, value),
   solanaConfig: {
-    anchorAdminAccount: process.env.REACT_APP_ANCHOR_ADMIN_ACCOUNT,
-    anchorProgramId: process.env.REACT_APP_ANCHOR_PROGRAM_ID,
     claimableTokenPda: process.env.REACT_APP_CLAIMABLE_TOKEN_PDA,
     claimableTokenProgramAddress:
       process.env.REACT_APP_CLAIMABLE_TOKEN_PROGRAM_ADDRESS,

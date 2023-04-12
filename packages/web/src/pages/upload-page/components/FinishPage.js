@@ -130,7 +130,10 @@ class FinishPage extends Component {
       showArtworkIcon: false,
       disableActions: true,
       uploading: true,
-      showSkeleton: false
+      showSkeleton: false,
+      onClickTitle: () => {
+        return inProgress ? undefined : onContinue()
+      }
     }
 
     const erroredTrackSet = new Set(erroredTracks)
@@ -192,6 +195,11 @@ class FinishPage extends Component {
                   ? track.metadata.artwork.url
                   : placeholderArt
               }}
+              isTrack
+              doesUserHaveAccess
+              isOwner
+              isPremium={track.metadata.is_premium}
+              premiumConditions={track.metadata.premium_conditions}
               {...tileProps}
             />
           </div>

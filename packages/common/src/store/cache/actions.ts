@@ -1,5 +1,10 @@
 // @ts-nocheck
-// TODO(nkang) - convert to TS
+
+import { ID, UID } from 'models/Identifiers'
+import { Kind } from 'models/Kind'
+
+import { Metadata } from './types'
+
 export const ADD = 'CACHE/ADD'
 export const ADD_SUCCEEDED = 'CACHE/ADD_SUCCEEDED'
 export const UPDATE = 'CACHE/UPDATE'
@@ -11,6 +16,7 @@ export const UNSUBSCRIBE_SUCCEEDED = 'CACHE/UNSUBSCRIBE_SUCCEEDED'
 export const REMOVE = 'CACHE/REMOVE'
 export const REMOVE_SUCCEEDED = 'CACHE/REMOVE_SUCCEEDED'
 export const SET_EXPIRED = 'CACHE/SET_EXPIRED'
+export const SET_CACHE_TYPE = 'CACHE/SET_CACHE_TYPE'
 
 /**
  * Signals to add an entry to the cache.
@@ -27,19 +33,30 @@ export const add = (kind, entries, replace = false, persist = true) => ({
   persist
 })
 
+export type AddSuccededAction<EntryT extends Metadata = Metadata> = {
+  type: typeof ADD_SUCCEEDED
+  kind: Kind
+  entries: {
+    id: ID
+    uid: UID
+    metadata: EntryT
+    timestamp: number
+  }[]
+  // replace optionally replaces the entire entry instead of joining metadata
+  replace?: boolean
+  // persist optionally persists the cache entry to indexdb
+  persist?: boolean
+}
+
 /**
  * Adds entries to the cache.
- * @param {Kind} kind
- * @param {array} entries { id, uid, metadata }
- * @param {boolean} replace optionally replaces the entire entry instead of joining metadata
- * @param {boolean} persist optionally persists the cache entry to indexdb
  */
-export const addSucceeded = (
+export const addSucceeded = ({
   kind,
   entries,
   replace = false,
   persist = true
-) => ({
+}: AddSuccededAction) => ({
   type: ADD_SUCCEEDED,
   kind,
   entries,
@@ -152,4 +169,13 @@ export const setExpired = (kind, id) => ({
   type: SET_EXPIRED,
   kind,
   id
+})
+
+export type CacheType = 'normal' | 'fast' | 'safe-fast'
+
+export type SetCacheTypeAction = { cacheType: CacheType }
+
+export const setCacheType = (action: SetCacheTypeAction) => ({
+  type: SET_CACHE_TYPE,
+  ...action
 })

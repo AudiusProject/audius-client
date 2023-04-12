@@ -1,5 +1,3 @@
-import { useMemo } from 'react'
-
 import type { User } from '@audius/common'
 import { formatCount } from '@audius/common'
 import type { StyleProp, ViewStyle } from 'react-native'
@@ -8,6 +6,7 @@ import { View, Text } from 'react-native'
 import { makeStyles } from 'app/styles'
 
 import { ProfilePicture } from './ProfilePicture'
+import { PROFILE_PICTURE_BORDER_WIDTH } from './constants'
 
 const USER_LENGTH_LIMIT = 9
 
@@ -20,40 +19,39 @@ const USER_LENGTH_LIMIT = 9
  */
 const defaultImageDimensions = { width: 38, height: 38 }
 
-const useStyles = makeStyles(
-  ({ spacing, palette, typography }, { imageDimensions }) => ({
-    root: {
-      flexDirection: 'row'
-    },
-    image: {
-      marginRight: spacing(-2)
-    },
-    imageExtraRoot: {
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'center',
-      alignItems: 'center'
-    },
-    imageExtraDim: {
-      marginLeft: spacing(2.5) - imageDimensions.width,
-      backgroundColor: 'rgba(0,0,0,0.1)',
-      borderRadius: 15,
-      width: 24,
-      height: 24
-    },
-    imageCount: {
-      width: imageDimensions.width,
-      marginLeft: spacing(0.5) - imageDimensions.width,
-      textAlign: 'center',
-      color: palette.staticWhite,
-      fontSize: typography.fontSize.small,
-      fontFamily: typography.fontByWeight.bold,
-      textShadowColor: 'rgba(0,0,0,0.25)',
-      textShadowOffset: { width: 0, height: 2 },
-      textShadowRadius: 1
-    }
-  })
-)
+const useStyles = makeStyles(({ spacing, palette, typography }) => ({
+  root: {
+    flexDirection: 'row'
+  },
+  image: {
+    marginRight: spacing(-2)
+  },
+  imageExtraRoot: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  imageExtraDim: {
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    top: PROFILE_PICTURE_BORDER_WIDTH,
+    right: PROFILE_PICTURE_BORDER_WIDTH,
+    bottom: PROFILE_PICTURE_BORDER_WIDTH,
+    left: PROFILE_PICTURE_BORDER_WIDTH
+  },
+  imageCount: {
+    textAlign: 'center',
+    color: palette.staticWhite,
+    fontSize: typography.fontSize.small,
+    fontFamily: typography.fontByWeight.bold,
+    textShadowColor: 'rgba(0,0,0,0.25)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 1
+  }
+}))
 
 type ProfilePictureListProps = {
   users: User[]
@@ -63,8 +61,8 @@ type ProfilePictureListProps = {
   navigationType?: 'push' | 'navigate'
   interactive?: boolean
   imageStyles?: {
-    width?: number | string | undefined
-    height?: number | string | undefined
+    width?: number
+    height?: number
   }
 }
 
@@ -78,13 +76,17 @@ export const ProfilePictureList = (props: ProfilePictureListProps) => {
     interactive,
     imageStyles
   } = props
-  const stylesConfig = useMemo(
-    () => ({
-      imageDimensions: imageStyles || defaultImageDimensions
-    }),
-    [imageStyles]
-  )
-  const styles = useStyles(stylesConfig)
+  const imageWidth = imageStyles?.width ?? defaultImageDimensions.width
+  const imageHeight = imageStyles?.height ?? defaultImageDimensions.height
+
+  // We want the View containing the "+" count to be the size of the
+  // inside content of the ProfilePicture it is sitting above.
+  // So we will set its width and height to be the image's minus the
+  // border width, accounting for both edges.
+  const dimWidth = imageWidth - PROFILE_PICTURE_BORDER_WIDTH * 2
+  const dimHeight = imageHeight - PROFILE_PICTURE_BORDER_WIDTH * 2
+
+  const styles = useStyles()
   const showUserListDrawer = totalUserCount > limit
   /**
    * We add a +1 because the remaining users count includes
@@ -109,7 +111,7 @@ export const ProfilePictureList = (props: ProfilePictureListProps) => {
           <ProfilePicture
             profile={user}
             key={user.user_id}
-            style={{ ...styles.image, ...imageStyles }}
+            style={[styles.image, imageStyles]}
             navigationType={navigationType}
             interactive={interactive}
           />
@@ -118,14 +120,25 @@ export const ProfilePictureList = (props: ProfilePictureListProps) => {
         <View style={styles.imageExtraRoot}>
           <ProfilePicture
             profile={users[limit - 1]}
-            style={{ ...styles.image, ...imageStyles }}
+            style={[styles.image, imageStyles]}
             navigationType={navigationType}
             interactive={interactive}
           />
-          <View style={styles.imageExtraDim} />
-          <Text style={styles.imageCount}>
-            {`+${formatCount(remainingUsersCount)}`}
-          </Text>
+          <View
+            style={[
+              styles.imageExtraDim,
+              {
+                width: dimWidth,
+                height: dimHeight,
+                // borderRadius of 50% or greater gives us a circle
+                borderRadius: Math.ceil(dimWidth / 2)
+              }
+            ]}
+          >
+            <Text style={styles.imageCount}>
+              {`+${formatCount(remainingUsersCount)}`}
+            </Text>
+          </View>
         </View>
       ) : null}
     </View>

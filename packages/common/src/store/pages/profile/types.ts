@@ -30,7 +30,9 @@ export type ProfileState = {
   updateSuccess: boolean
   updateError: boolean
   collectionIds: number[]
-  mustUsedTags: string[]
+  collectionStatus: Status.IDLE
+  topTagsStatus: Status
+  topTags: string[]
   collectionSortMode: CollectionSortMode
   profileMeterDismissed: boolean
   followers: ProfilePageFollow
@@ -40,7 +42,6 @@ export type ProfileState = {
   tracks: LineupState<{ id: ID }>
   isNotificationSubscribed: boolean
   error?: string
-  mostUsedTags: string[]
 }
 
 export type ProfilePageState = {

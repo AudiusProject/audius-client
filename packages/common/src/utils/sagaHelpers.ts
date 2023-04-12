@@ -14,6 +14,8 @@ import {
 } from 'typed-redux-saga'
 import { Action } from 'typesafe-actions'
 
+import { waitForReachability } from 'store/reachability/sagas'
+
 import { Status } from '../models/Status'
 
 /**
@@ -67,10 +69,10 @@ export function* channelCanceller(
 export function* waitForValue(
   selector: (state: any, selectorArgs?: any) => any,
   args?: any,
-  customCheck: (value: any) => boolean = () => true
+  customCheck?: (value: any) => boolean
 ) {
   let value = yield* select(selector, args)
-  while (!value || !customCheck(value)) {
+  while (customCheck ? !customCheck(value) : !value) {
     yield* take()
     value = yield* select(selector, args)
   }
@@ -122,6 +124,14 @@ export function* waitForAccount() {
     waitForValue,
     (state) => state.account.status,
     null,
-    (status) => status !== Status.LOADING
+    (status) => status !== Status.LOADING && status !== Status.IDLE
   )
+}
+
+/**
+ * Required for all reads
+ */
+export function* waitForRead() {
+  yield* call(waitForReachability)
+  yield* call(waitForAccount)
 }

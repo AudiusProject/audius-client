@@ -19,7 +19,7 @@ import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import { profilePage } from 'utils/route'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import { waitForWrite } from 'utils/sagaHelpers'
 
 import errorSagas from './errorSagas'
 const { getUsers, getUser } = cacheUsersSelectors
@@ -35,7 +35,7 @@ export function* watchFollowUser() {
 export function* followUser(
   action: ReturnType<typeof socialActions.followUser>
 ) {
-  yield* waitForBackendAndAccount()
+  yield* waitForWrite()
   const getFeatureEnabled = yield* getContext('getFeatureEnabled')
 
   const accountId = yield* select(getUserId)
@@ -43,6 +43,9 @@ export function* followUser(
     yield* put(signOnActions.openSignOn(false))
     yield* put(signOnActions.showRequiresAccountModal())
     yield* put(make(Name.CREATE_ACCOUNT_OPEN, { source: 'social action' }))
+    return
+  }
+  if (accountId === action.userId) {
     return
   }
 
@@ -75,10 +78,10 @@ export function* followUser(
   yield* put(event)
 
   yield* call(confirmFollowUser, action.userId, accountId)
-  const shouldAutoSubscribe =
-    ((yield* call(getFeatureEnabled, FeatureFlags.AUTO_SUBSCRIBE_ON_FOLLOW)) as
-      | boolean
-      | null) ?? false
+  const shouldAutoSubscribe = yield* call(
+    getFeatureEnabled,
+    FeatureFlags.AUTO_SUBSCRIBE_ON_FOLLOW
+  )
   if (shouldAutoSubscribe) {
     yield* put(
       setNotificationSubscription(
@@ -156,12 +159,15 @@ export function* unfollowUser(
   action: ReturnType<typeof socialActions.unfollowUser>
 ) {
   /* Make Async Backend Call */
-  yield* waitForBackendAndAccount()
+  yield* waitForWrite()
   const accountId = yield* select(getUserId)
   if (!accountId) {
     yield* put(signOnActions.openSignOn(false))
     yield* put(signOnActions.showRequiresAccountModal())
     yield* put(make(Name.CREATE_ACCOUNT_OPEN, { source: 'social action' }))
+    return
+  }
+  if (accountId === action.userId) {
     return
   }
 
@@ -264,6 +270,102 @@ export function* confirmUnfollowUser(userId: ID, accountId: ID) {
     )
   )
 }
+
+/* SUBSCRIBE */
+
+export function* subscribeToUserAsync(userId: ID) {
+  yield* waitForWrite()
+
+  const accountId = yield* select(getUserId)
+  if (!accountId) {
+    return
+  }
+
+  yield* call(confirmSubscribeToUser, userId, accountId)
+}
+
+export function* confirmSubscribeToUser(userId: ID, accountId: ID) {
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+  yield* put(
+    confirmerActions.requestConfirmation(
+      makeKindId(Kind.USERS, userId),
+      function* () {
+        const { blockHash, blockNumber } = yield* call(
+          audiusBackendInstance.subscribeToUser,
+          userId
+        )
+        const confirmed = yield* call(
+          confirmTransaction,
+          blockHash,
+          blockNumber
+        )
+        if (!confirmed) {
+          throw new Error(
+            `Could not confirm subscribe to user for user id ${userId} and account id ${accountId}`
+          )
+        }
+        return accountId
+      },
+      function* () {},
+      function* ({ timeout, message }: { timeout: boolean; message: string }) {
+        yield* put(
+          socialActions.subscribeUserFailed(
+            userId,
+            timeout ? 'Timeout' : message
+          )
+        )
+      }
+    )
+  )
+}
+
+export function* unsubscribeFromUserAsync(userId: ID) {
+  yield* waitForWrite()
+
+  const accountId = yield* select(getUserId)
+  if (!accountId) {
+    return
+  }
+
+  yield* call(confirmUnsubscribeFromUser, userId, accountId)
+}
+
+export function* confirmUnsubscribeFromUser(userId: ID, accountId: ID) {
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+  yield* put(
+    confirmerActions.requestConfirmation(
+      makeKindId(Kind.USERS, userId),
+      function* () {
+        const { blockHash, blockNumber } = yield* call(
+          audiusBackendInstance.unsubscribeFromUser,
+          userId
+        )
+        const confirmed = yield* call(
+          confirmTransaction,
+          blockHash,
+          blockNumber
+        )
+        if (!confirmed) {
+          throw new Error(
+            `Could not confirm unsubscribe from user for user id ${userId} and account id ${accountId}`
+          )
+        }
+        return accountId
+      },
+      function* () {},
+      function* ({ timeout, message }: { timeout: boolean; message: string }) {
+        yield* put(
+          socialActions.unsubscribeUserFailed(
+            userId,
+            timeout ? 'Timeout' : message
+          )
+        )
+      }
+    )
+  )
+}
+
+/* SHARE */
 
 export function* watchShareUser() {
   yield* takeEvery(

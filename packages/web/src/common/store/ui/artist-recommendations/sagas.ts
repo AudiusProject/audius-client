@@ -4,19 +4,19 @@ import {
   DoubleKeys,
   accountSelectors,
   getContext,
-  artistRecommendationsUIActions as artistRecommendationsActions
+  artistRecommendationsUIActions as artistRecommendationsActions,
+  processAndCacheUsers
 } from '@audius/common'
 import { Action } from '@reduxjs/toolkit'
 import { shuffle } from 'lodash'
 import { call, put, select, takeEvery } from 'redux-saga/effects'
 
-import { processAndCacheUsers } from 'common/store/cache/users/utils'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import { waitForRead } from 'utils/sagaHelpers'
 
 const getUserId = accountSelectors.getUserId
 
 export function* fetchRelatedArtists(action: Action) {
-  yield* waitForBackendAndAccount()
+  yield* waitForRead()
   const apiClient = yield* getContext('apiClient')
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
   if (artistRecommendationsActions.fetchRelatedArtists.match(action)) {
@@ -55,7 +55,7 @@ export function* fetchRelatedArtists(action: Action) {
 }
 
 function* fetchTopArtists() {
-  yield* waitForBackendAndAccount()
+  yield* waitForRead()
   const apiClient = yield* getContext('apiClient')
   const currentUserId: ID = yield select(getUserId)
   const topArtists: User[] = yield apiClient.getTopArtists({
@@ -74,7 +74,7 @@ function* fetchTopArtists() {
 }
 
 function* cacheUsers(users: User[]) {
-  yield* waitForBackendAndAccount()
+  yield* waitForRead()
   const currentUserId: ID = yield select(getUserId)
   // Filter out the current user from the list to cache
   yield processAndCacheUsers(

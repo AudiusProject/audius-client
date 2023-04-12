@@ -10,8 +10,8 @@ import {
   UserTrackMetadata,
   UserMetadata,
   StringWei
-} from 'models'
-import { removeNullable, decodeHashId } from 'utils'
+} from '../../models'
+import { removeNullable, decodeHashId } from '../../utils'
 
 import {
   APIActivity,
@@ -38,6 +38,14 @@ export const makeUser = (
     return undefined
   }
 
+  // TODO remove conditional once all DNs are encoding the artist pick ID
+  let decoded_artist_pick_track_id: number | null
+  if (typeof user.artist_pick_track_id === 'string') {
+    decoded_artist_pick_track_id = decodeHashId(user.artist_pick_track_id)
+  } else {
+    decoded_artist_pick_track_id = user.artist_pick_track_id
+  }
+
   const balance = user.balance as StringWei
   const associated_wallets_balance =
     user.associated_wallets_balance as StringWei
@@ -58,6 +66,7 @@ export const makeUser = (
 
   const newUser = {
     ...user,
+    artist_pick_track_id: decoded_artist_pick_track_id,
     balance,
     associated_wallets_balance,
     album_count,
@@ -72,26 +81,34 @@ export const makeUser = (
     cover_photo: user.cover_photo_sizes || user.cover_photo_legacy,
     profile_picture: user.profile_picture_sizes || user.profile_picture_legacy,
     metadata_multihash: user.metadata_multihash || null,
-    id: undefined,
     supporter_count,
-    supporting_count
+    supporting_count,
+
+    // Fields to prune
+    id: undefined,
+    cover_photo_legacy: undefined,
+    profile_picture_legacy: undefined
   }
 
   delete newUser.id
+  delete newUser.cover_photo_legacy
+  delete newUser.profile_picture_legacy
 
   return newUser
 }
 
-const makeFavorite = (favorite: APIFavorite): Favorite | undefined => {
-  const decodedSaveItemId = decodeHashId(favorite.favorite_item_id)
-  const decodedUserId = decodeHashId(favorite.user_id)
+export const makeFavorite = (favorite: APIFavorite): Favorite | undefined => {
+  const { favorite_item_id, user_id, created_at } = favorite
+  const decodedSaveItemId = decodeHashId(favorite_item_id)
+  const decodedUserId = decodeHashId(user_id)
   if (!decodedSaveItemId || !decodedUserId) {
     return undefined
   }
   return {
     save_item_id: decodedSaveItemId,
     user_id: decodedUserId,
-    save_type: favorite.favorite_type
+    save_type: favorite.favorite_type,
+    created_at
   }
 }
 
@@ -142,7 +159,12 @@ export const makeUserlessTrack = (
 
   const remixes =
     track.remix_of.tracks?.map(makeRemix).filter(removeNullable) ?? []
-  const play_count = 'play_count' in track ? track.play_count : 0
+  const play_count =
+    'play_count' in track
+      ? typeof track.play_count === 'string'
+        ? parseInt(track.play_count, 10)
+        : track.play_count
+      : 0
   const save_count = 'favorite_count' in track ? track.favorite_count : 0
   const repost_count = 'repost_count' in track ? track.repost_count : 0
   const has_current_user_reposted =
@@ -212,7 +234,13 @@ export const makeTrack = (
 
   const remixes =
     track.remix_of.tracks?.map(makeRemix).filter(removeNullable) ?? []
-  const play_count = 'play_count' in track ? track.play_count : 0
+  const play_count =
+    'play_count' in track
+      ? typeof track.play_count === 'string'
+        ? parseInt(track.play_count, 10)
+        : track.play_count
+      : 0
+
   const save_count = 'favorite_count' in track ? track.favorite_count : 0
   const repost_count = 'repost_count' in track ? track.repost_count : 0
   const has_current_user_reposted =
@@ -241,6 +269,7 @@ export const makeTrack = (
         : null,
 
     stem_of: track.stem_of.parent_track_id === null ? null : track.stem_of,
+    premium_content_signature: track.premium_content_signature ?? null,
 
     // Fields to prune
     id: undefined,
@@ -248,7 +277,8 @@ export const makeTrack = (
     followee_favorites: undefined,
     artwork: undefined,
     downloadable: undefined,
-    favorite_count: undefined
+    favorite_count: undefined,
+    is_streamable: undefined
   }
 
   delete marshalled.id
@@ -257,6 +287,7 @@ export const makeTrack = (
   delete marshalled.artwork
   delete marshalled.downloadable
   delete marshalled.favorite_count
+  delete marshalled.is_streamable
 
   return marshalled
 }
@@ -342,6 +373,7 @@ export const makePlaylist = (
     track_count,
     total_play_count,
     playlist_contents: playlistContents,
+    permalink: 'response-adapter-permalink',
 
     // Fields to prune
     id: undefined,
@@ -422,7 +454,8 @@ export const makeStemTrack = (stem: APIStem): StemTrackMetadata | undefined => {
     is_available: true,
     is_premium: false,
     premium_conditions: null,
-    premium_content_signature: null
+    premium_content_signature: null,
+    is_playlist_upload: false
   }
 }
 

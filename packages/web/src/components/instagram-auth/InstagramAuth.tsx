@@ -1,12 +1,10 @@
 import { MouseEvent, ReactNode, useCallback } from 'react'
 
-import { StringKeys, InstagramProfile } from '@audius/common'
 import * as Sentry from '@sentry/browser'
 import cn from 'classnames'
 
-import { getIGUserUrl } from 'common/store/pages/signon/sagas'
 import 'url-search-params-polyfill'
-import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 
 const HOSTNAME = process.env.REACT_APP_PUBLIC_HOSTNAME
 const INSTAGRAM_APP_ID = process.env.REACT_APP_INSTAGRAM_APP_ID
@@ -15,6 +13,7 @@ const INSTAGRAM_REDIRECT_URL =
 const INSTAGRAM_AUTHORIZE_URL = `https://api.instagram.com/oauth/authorize?client_id=${INSTAGRAM_APP_ID}&redirect_uri=${encodeURIComponent(
   INSTAGRAM_REDIRECT_URL
 )}&scope=user_profile,user_media&response_type=code`
+const GET_USER_URL = `${audiusBackendInstance.identityServiceUrl}/instagram`
 
 // Instagram User profile fields to capture
 const igUserFields = [
@@ -33,12 +32,10 @@ const igUserFields = [
   'edge_follow'
 ]
 
-type InstagramAuthProps = {
+export type InstagramAuthProps = {
   dialogWidth?: number
   dialogHeight?: number
-  setProfileUrl: string
-  getUserUrl: string
-  onClick: () => void
+  onClick?: () => void
   onSuccess: (uuid: string, profile: any) => void
   onFailure: (error: any) => void
   style?: object
@@ -46,24 +43,11 @@ type InstagramAuthProps = {
   className?: string
   children?: ReactNode
   text?: string
-  /**
-   * Whether or not the success of this instagram auth
-   * depends on fetching metadata or not.
-   * Generally speaking, fetching metadata is not reliable,
-   * so if the purpose of this auth is just verification
-   * that the user has OAuthed, not to pull specific data,
-   * set this flag to false.
-   * Without metadata, instagram gives you very few fields:
-   * https://developers.facebook.com/docs/instagram-basic-display-api/reference/user
-   */
-  requiresProfileMetadata?: boolean
 }
 
 const InstagramAuth = ({
   dialogWidth = 400,
   dialogHeight = 740,
-  setProfileUrl,
-  getUserUrl,
   onClick = () => {},
   onSuccess = (uuid: string, profile: any) => {},
   onFailure = () => {},
@@ -71,8 +55,7 @@ const InstagramAuth = ({
   disabled = false,
   className,
   children,
-  text = 'Sign in with Instagram',
-  requiresProfileMetadata = true
+  text = 'Sign in with Instagram'
 }: InstagramAuthProps) => {
   // Opens a popup window for the instagram authentication
   const openPopup = useCallback(() => {
@@ -84,10 +67,10 @@ const InstagramAuth = ({
   }, [dialogWidth, dialogHeight])
 
   const getProfile = useCallback(
-    async (code) => {
+    async (code: string) => {
       try {
         // Fetch the profile from the graph API
-        const profileResp = await window.fetch(getUserUrl, {
+        const profileResp = await window.fetch(GET_USER_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ code })
@@ -97,57 +80,19 @@ const InstagramAuth = ({
           return onFailure(new Error('Unable to fetch information'))
         }
 
-        // Fetch the profile metadata
-        let igUserProfile: InstagramProfile
+        const igUserProfile = igUserFields.reduce((profile: any, field) => {
+          profile[field] = profileRespJson[field]
+          return profile
+        }, {})
 
-        const profileEndpoint =
-          remoteConfigInstance.getRemoteVar(
-            StringKeys.INSTAGRAM_API_PROFILE_URL
-          ) || 'https://instagram.com/$USERNAME$/?__a=1'
-        const fetchIGUserUrl = getIGUserUrl(
-          profileEndpoint,
-          profileRespJson.username
-        )
-        try {
-          const igProfile = await window.fetch(fetchIGUserUrl)
-          const igProfileJson = await igProfile.json()
-          if (!igProfileJson.graphql || !igProfileJson.graphql.user) {
-            throw new Error('Unable to fetch information')
-          }
-          igUserProfile = igUserFields.reduce((profile, field) => {
-            ;(profile as any)[field] = igProfileJson.graphql.user[field]
-            return profile
-          }, {} as InstagramProfile)
-        } catch (e) {
-          if (requiresProfileMetadata) {
-            return onFailure(e)
-          }
-
-          // Pull metadata from what we have and keep going
-          igUserProfile = igUserFields.reduce((profile, field) => {
-            ;(profile as any)[field] = profileRespJson[field]
-            return profile
-          }, {} as InstagramProfile)
-        }
-
-        const setProfileResponse = await window.fetch(setProfileUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ profile: igUserProfile })
-        })
-
-        if (!setProfileResponse.ok) {
-          return onFailure(new Error('Unable to fetch information'))
-        }
-
-        return onSuccess(igUserProfile.username, igUserProfile)
+        return onSuccess(profileRespJson.username, igUserProfile)
       } catch (err) {
         console.log(err)
         onFailure((err as Error).message)
         Sentry.captureException(`Instagram getProfile failed with ${err}`)
       }
     },
-    [getUserUrl, setProfileUrl, onSuccess, onFailure, requiresProfileMetadata]
+    [onSuccess, onFailure]
   )
 
   const polling = useCallback(

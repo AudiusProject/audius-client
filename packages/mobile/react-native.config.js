@@ -1,12 +1,19 @@
 module.exports = {
+  assets: ['./src/assets/fonts'],
   dependencies: {
-    'react-native-video': {
+    // https://github.com/react-native-community/cli/blob/0e63e750a235062cd9bc43ed6a4a2beb8f14385a/docs/autolinking.md#how-can-i-disable-autolinking-for-new-architecture-fabric-turbomodules
+    '@react-native-community/datetimepicker': {
       platforms: {
         android: {
-          sourceDir: '../node_modules/react-native-video/android-exoplayer',
-        },
-      },
+          libraryName: null,
+          componentDescriptors: null,
+          androidMkPath: null,
+          cmakeListsPath: null
+        }
+      }
     },
-  },
-  assets: ['./src/assets/fonts']
-};
+    ...(process.env.NO_FLIPPER
+      ? { 'react-native-flipper': { platforms: { ios: null } } }
+      : {})
+  }
+}

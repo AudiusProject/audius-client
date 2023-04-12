@@ -1,29 +1,24 @@
-import {
-  useProxySelector,
-  savedPageSelectors,
-  lineupSelectors,
-  FeatureFlags
-} from '@audius/common'
+import { accountActions } from '@audius/common'
+import { useDispatch } from 'react-redux'
+import { useEffectOnce } from 'react-use'
 
 import IconAlbum from 'app/assets/images/iconAlbum.svg'
 import IconFavorite from 'app/assets/images/iconFavorite.svg'
 import IconNote from 'app/assets/images/iconNote.svg'
 import IconPlaylists from 'app/assets/images/iconPlaylists.svg'
 import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
-import { DownloadToggle } from 'app/components/offline-downloads/DownloadToggle'
 import { TopTabNavigator } from 'app/components/top-tab-bar'
-import { usePopToTopOnDrawerOpen } from 'app/hooks/usePopToTopOnDrawerOpen'
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
-import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
+import { useAppTabScreen } from 'app/hooks/useAppTabScreen'
+import {
+  useIsOfflineModeEnabled,
+  useReadOfflineOverride
+} from 'app/hooks/useIsOfflineModeEnabled'
 
 import { AlbumsTab } from './AlbumsTab'
+import { FavoritesDownloadSection } from './FavoritesDownloadSection'
 import { PlaylistsTab } from './PlaylistsTab'
 import { TracksTab } from './TracksTab'
-const { makeGetTableMetadatas } = lineupSelectors
-
-const { getSavedTracksLineup } = savedPageSelectors
-
-const getTracks = makeGetTableMetadatas(getSavedTracksLineup)
+const { fetchSavedPlaylists, fetchSavedAlbums } = accountActions
 
 const messages = {
   header: 'Favorites'
@@ -48,12 +43,16 @@ const favoritesScreens = [
 ]
 
 export const FavoritesScreen = () => {
-  usePopToTopOnDrawerOpen()
-  const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
-    FeatureFlags.OFFLINE_MODE_ENABLED
-  )
+  useAppTabScreen()
+  const dispatch = useDispatch()
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
-  const savedTracks = useProxySelector(getTracks, [])
+  useReadOfflineOverride()
+
+  useEffectOnce(() => {
+    dispatch(fetchSavedPlaylists())
+    dispatch(fetchSavedAlbums())
+  })
 
   return (
     <Screen>
@@ -62,24 +61,14 @@ export const FavoritesScreen = () => {
         icon={IconFavorite}
         styles={{ icon: { marginLeft: 3 } }}
       >
-        {isOfflineModeEnabled && (
-          <DownloadToggle
-            collection={DOWNLOAD_REASON_FAVORITES}
-            tracks={savedTracks.entries}
-          />
-        )}
+        {isOfflineModeEnabled ? <FavoritesDownloadSection /> : null}
       </ScreenHeader>
-      {
-        // ScreenContent handles the offline indicator.
-        // Show favorites screen anyway when offline so users can see their downloads
-        isOfflineModeEnabled ? (
-          <TopTabNavigator screens={favoritesScreens} />
-        ) : (
-          <ScreenContent>
-            <TopTabNavigator screens={favoritesScreens} />
-          </ScreenContent>
-        )
-      }
+      <ScreenContent isOfflineCapable={isOfflineModeEnabled}>
+        <TopTabNavigator
+          screens={favoritesScreens}
+          screenOptions={{ lazy: true }}
+        />
+      </ScreenContent>
     </Screen>
   )
 }

@@ -22,12 +22,16 @@ import {
   useGetFirstOrTopSupporter,
   OnRampProvider,
   buyAudioActions,
-  FeatureFlags
+  FeatureFlags,
+  StringKeys
 } from '@audius/common'
 import {
   IconTrophy,
   TokenAmountInput,
-  TokenAmountInputChangeHandler
+  TokenAmountInputChangeHandler,
+  ButtonType,
+  Button,
+  IconArrow
 } from '@audius/stems'
 import BN from 'bn.js'
 import cn from 'classnames'
@@ -38,8 +42,7 @@ import IconNoTierBadge from 'assets/img/tokenBadgeNoTier.png'
 import { OnRampButton } from 'components/on-ramp-button'
 import Tooltip from 'components/tooltip/Tooltip'
 import { audioTierMapPng } from 'components/user-badges/UserBadges'
-import { useFlag } from 'hooks/useRemoteConfig'
-import ButtonWithArrow from 'pages/audio-rewards-page/components/ButtonWithArrow'
+import { useFlag, useRemoteVar } from 'hooks/useRemoteConfig'
 
 import { ProfileInfo } from '../../profile-info/ProfileInfo'
 
@@ -106,11 +109,11 @@ export const SendTip = () => {
     supportersMap
   })
 
-  const { isEnabled: isBuyAudioEnabled } = useFlag(
-    FeatureFlags.BUY_AUDIO_ENABLED
-  )
   const { isEnabled: isStripeBuyAudioEnabled } = useFlag(
     FeatureFlags.BUY_AUDIO_STRIPE_ENABLED
+  )
+  const audioFeaturesDegradedText = useRemoteVar(
+    StringKeys.AUDIO_FEATURES_DEGRADED_TEXT
   )
 
   useEffect(() => {
@@ -183,37 +186,34 @@ export const SendTip = () => {
     </div>
   )
 
-  const topBanner =
-    !hasInsufficientBalance && isFirstSupporter ? (
-      <TopBanner icon={<IconTrophy />} text={messages.becomeFirstSupporter} />
-    ) : !hasInsufficientBalance && amountToTipToBecomeTopSupporter ? (
-      <TopBanner
-        icon={<IconTrophy />}
-        text={
-          <>
-            {messages.becomeTopSupporterPrefix}
-            <span className={styles.amount}>
-              {formatWei(
-                amountToTipToBecomeTopSupporter ?? new BN('0'),
-                true,
-                0
-              )}
-            </span>
-            {messages.becomeTopSupporterSuffix}
-          </>
-        }
+  const topBanner = audioFeaturesDegradedText ? (
+    <TopBanner text={audioFeaturesDegradedText} />
+  ) : !hasInsufficientBalance && isFirstSupporter ? (
+    <TopBanner icon={<IconTrophy />} text={messages.becomeFirstSupporter} />
+  ) : !hasInsufficientBalance && amountToTipToBecomeTopSupporter ? (
+    <TopBanner
+      icon={<IconTrophy />}
+      text={
+        <>
+          {messages.becomeTopSupporterPrefix}
+          <span className={styles.amount}>
+            {formatWei(amountToTipToBecomeTopSupporter ?? new BN('0'), true, 0)}
+          </span>
+          {messages.becomeTopSupporterSuffix}
+        </>
+      }
+    />
+  ) : isStripeBuyAudioEnabled ? (
+    <div>
+      <OnRampButton
+        buttonPrefix={messages.buyAudioPrefix}
+        provider={OnRampProvider.STRIPE}
+        className={styles.buyAudioButton}
+        textClassName={styles.buyAudioButtonText}
+        onClick={handleBuyWithStripeClicked}
       />
-    ) : isBuyAudioEnabled && isStripeBuyAudioEnabled ? (
-      <div>
-        <OnRampButton
-          buttonPrefix={messages.buyAudioPrefix}
-          provider={OnRampProvider.STRIPE}
-          className={styles.buyAudioButton}
-          textClassName={styles.buyAudioButtonText}
-          onClick={handleBuyWithStripeClicked}
-        />
-      </div>
-    ) : null
+    </div>
+  ) : null
 
   return receiver ? (
     <div
@@ -224,9 +224,7 @@ export const SendTip = () => {
         },
         {
           [styles.containerDense]:
-            hasInsufficientBalance &&
-            isBuyAudioEnabled &&
-            isStripeBuyAudioEnabled
+            hasInsufficientBalance && isStripeBuyAudioEnabled
         }
       )}
     >
@@ -245,12 +243,15 @@ export const SendTip = () => {
       </div>
       {renderAvailableAmount()}
       <div className={cn(styles.flexCenter, styles.buttonContainer)}>
-        <ButtonWithArrow
+        <Button
           text={messages.sendATip}
+          type={ButtonType.PRIMARY_ALT}
           onClick={handleSendClick}
+          rightIcon={<IconArrow />}
           textClassName={styles.buttonText}
           className={cn(styles.buttonText, { [styles.disabled]: isDisabled })}
           disabled={isDisabled}
+          iconClassName={styles.buttonIcon}
         />
       </div>
       {hasInsufficientBalance && (

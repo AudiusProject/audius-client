@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react'
 
-import type { Track, User } from '@audius/common'
+import type { Track, User, SearchTrack, SearchUser } from '@audius/common'
 import type { TextStyle } from 'react-native'
 
-import type { SearchUser } from 'app/store/search/types'
 import type { GestureResponderHandler } from 'app/types/gesture'
+
+import type { ImageProps } from '../image/FastImage'
 
 export type DetailsTileDetail = {
   icon?: ReactNode
@@ -34,7 +35,7 @@ export type DetailsTileProps = {
   hasSaved?: boolean
 
   /** Label to be displayed at the top of the tile */
-  headerText: string
+  headerText?: string
 
   /** Hide the favorite button */
   hideFavorite?: boolean
@@ -57,11 +58,11 @@ export type DetailsTileProps = {
   /** Hide the share button */
   hideShare?: boolean
 
-  /** Url of the image */
-  imageUrl?: string
-
   /** Is the item playing */
   isPlaying?: boolean
+
+  /** Is the item loaded and in a playable state */
+  isPlayable?: boolean
 
   /** Function to call when the favorites count is pressed */
   onPressFavorites?: GestureResponderHandler
@@ -94,7 +95,7 @@ export type DetailsTileProps = {
   renderHeader?: () => ReactNode
 
   /** Render function for the image */
-  renderImage?: () => ReactNode
+  renderImage: (props: ImageProps) => ReactNode
 
   /** Amount of reposts on this item */
   repostCount?: number
@@ -102,9 +103,15 @@ export type DetailsTileProps = {
   /** Amount of favorites (saves) on this item */
   saveCount?: number
 
+  /** Amount of tracks on this item */
+  trackCount?: number
+
   /** Title of the item */
   title: string
 
   /** User associated with the item */
   user?: User | SearchUser
+
+  /** The track if tile is for a track */
+  track?: Track | SearchTrack
 }

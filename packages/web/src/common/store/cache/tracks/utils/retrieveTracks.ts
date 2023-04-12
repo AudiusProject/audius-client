@@ -1,7 +1,6 @@
 import {
   ID,
   Kind,
-  Status,
   Track,
   TrackMetadata,
   UserTrackMetadata,
@@ -9,13 +8,13 @@ import {
   CommonState,
   getContext,
   cacheSelectors,
-  cacheTracksActions as trackActions,
-  cacheTracksSelectors
+  cacheTracksSelectors,
+  cacheTracksActions
 } from '@audius/common'
 import { call, put, select, spawn } from 'typed-redux-saga'
 
 import { retrieve } from 'common/store/cache/sagas'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import { waitForRead } from 'utils/sagaHelpers'
 
 import {
   fetchAndProcessRemixes,
@@ -26,6 +25,7 @@ import { addUsersFromTracks } from './helpers'
 import { reformat } from './reformat'
 const { getEntryTimestamp } = cacheSelectors
 const { getTracks: getTracksSelector } = cacheTracksSelectors
+const { setPermalink } = cacheTracksActions
 const getUserId = accountSelectors.getUserId
 
 type UnlistedTrackRequest = { id: ID; url_title: string; handle: string }
@@ -43,6 +43,7 @@ type RetrieveTrackByHandleAndSlugArgs = {
   withStems?: boolean
   withRemixes?: boolean
   withRemixParents?: boolean
+  forceRetrieveFromSource?: boolean
 }
 
 export function* retrieveTrackByHandleAndSlug({
@@ -50,7 +51,8 @@ export function* retrieveTrackByHandleAndSlug({
   slug,
   withStems,
   withRemixes,
-  withRemixParents
+  withRemixParents,
+  forceRetrieveFromSource = false
 }: RetrieveTrackByHandleAndSlugArgs) {
   const permalink = `/${handle}/${slug}`
   const tracks = (yield* call(
@@ -65,7 +67,7 @@ export function* retrieveTrackByHandleAndSlug({
         return track
       },
       retrieveFromSource: function* (permalinks: string[]) {
-        yield* waitForBackendAndAccount()
+        yield* waitForRead()
         const apiClient = yield* getContext('apiClient')
         const userId = yield* select(getUserId)
         const track = yield* call((args) => {
@@ -82,7 +84,7 @@ export function* retrieveTrackByHandleAndSlug({
       },
       kind: Kind.TRACKS,
       idField: 'track_id',
-      forceRetrieveFromSource: false,
+      forceRetrieveFromSource,
       shouldSetLoading: true,
       deleteExistingEntry: false,
       getEntriesTimestamp: function* (ids: ID[]) {
@@ -99,15 +101,11 @@ export function* retrieveTrackByHandleAndSlug({
       onBeforeAddToCache: function* (tracks: TrackMetadata[]) {
         const audiusBackendInstance = yield* getContext('audiusBackendInstance')
         yield* addUsersFromTracks(tracks)
-        yield* put(
-          trackActions.setPermalinkStatus([
-            {
-              permalink,
-              id: tracks[0].track_id,
-              status: Status.SUCCESS
-            }
-          ])
-        )
+        const [track] = tracks
+        const isLegacyPermalink = track.permalink !== permalink
+        if (isLegacyPermalink) {
+          yield* put(setPermalink(permalink, track.track_id))
+        }
         return tracks.map((track) => reformat(track, audiusBackendInstance))
       }
     }
@@ -153,7 +151,7 @@ export function* retrieveTracks({
   withRemixes = false,
   withRemixParents = false
 }: RetrieveTracksArgs) {
-  yield* waitForBackendAndAccount()
+  yield* waitForRead()
   const currentUserId = yield* select(getUserId)
 
   // In the case of unlisted tracks, trackIds contains metadata used to fetch tracks
@@ -217,7 +215,7 @@ export function* retrieveTracks({
       return selected
     },
     retrieveFromSource: function* (ids: ID[] | UnlistedTrackRequest[]) {
-      yield* waitForBackendAndAccount()
+      yield* waitForRead()
       const apiClient = yield* getContext('apiClient')
       let fetched: UserTrackMetadata | UserTrackMetadata[] | null | undefined
       if (canBeUnlisted) {

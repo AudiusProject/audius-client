@@ -22,7 +22,7 @@ import {
   IconTikTok
 } from '@audius/stems'
 import cn from 'classnames'
-import Linkify from 'linkifyjs/react'
+import Linkify from 'linkify-react'
 
 import { ReactComponent as BadgeArtist } from 'assets/img/badgeArtist.svg'
 import { make, useRecord } from 'common/store/analytics/actions'
@@ -169,7 +169,7 @@ const ProfileHeader = ({
   const bioRef = useRef<HTMLElement | null>(null)
   const isEditing = mode === 'editing'
 
-  const bioRefCb = useCallback((node) => {
+  const bioRefCb = useCallback((node: HTMLParagraphElement) => {
     if (node !== null) {
       const ellipsisActive = isEllipsisActive(node)
       if (ellipsisActive) {
@@ -253,7 +253,7 @@ const ProfileHeader = ({
   }, [record, tikTokHandle, handle])
 
   const onExternalLinkClick = useCallback(
-    (event) => {
+    (event: { target: { href: string } }) => {
       record(
         make(Name.LINK_CLICKING, {
           url: event.target.href,
@@ -290,7 +290,7 @@ const ProfileHeader = ({
   }
 
   const onDonationLinkClick = useCallback(
-    (event) => {
+    (event: { target: { href: string } }) => {
       record(
         make(Name.PROFILE_PAGE_CLICK_DONATION, {
           handle,
@@ -441,8 +441,6 @@ const ProfileHeader = ({
             )}
           </div>
           {bio ? (
-            // https://github.com/Soapbox/linkifyjs/issues/292
-            // @ts-ignore
             <Linkify options={{ attributes: { onClick: onExternalLinkClick } }}>
               <p
                 ref={bioRefCb}

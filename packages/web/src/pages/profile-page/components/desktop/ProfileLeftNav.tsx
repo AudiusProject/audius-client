@@ -16,7 +16,7 @@ import UploadChip from 'components/upload/UploadChip'
 import ProfilePageBadge from 'components/user-badges/ProfilePageBadge'
 import { Type } from 'pages/profile-page/components/SocialLink'
 import SocialLinkInput from 'pages/profile-page/components/SocialLinkInput'
-import { ProfileTags } from 'pages/profile-page/components/desktop/ProfileTags'
+import { ProfileTopTags } from 'pages/profile-page/components/desktop/ProfileTopTags'
 import { UPLOAD_PAGE } from 'utils/route'
 
 import { ProfileBio } from './ProfileBio'
@@ -58,7 +58,7 @@ type ProfileLeftNavProps = {
   onUpdateBio: (bio: string) => void
   twitterVerified: boolean
   instagramVerified: boolean
-  tags: string[]
+  tikTokVerified: boolean
   isOwner: boolean
 }
 
@@ -88,7 +88,7 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
     onUpdateBio,
     twitterVerified,
     instagramVerified,
-    tags,
+    tikTokVerified,
     isOwner
   } = props
 
@@ -155,6 +155,7 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
           <SocialLinkInput
             defaultValue={tikTokHandle}
             className={styles.tikTokInput}
+            isDisabled={!!tikTokVerified}
             type={Type.TIKTOK}
             onChange={onUpdateTikTokHandle}
           />
@@ -185,6 +186,7 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
       </div>
     )
   } else if (!loading && !isDeactivated) {
+    const showUploadChip = isOwner && !isArtist
     return (
       <div className={styles.about}>
         <ProfilePageBadge userId={userId} className={styles.badge} />
@@ -203,12 +205,18 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
           <OpacityTransition render={renderTipAudioButton} />
         ) : null}
         <SupportingList />
-        <TopSupporters />
-        <ProfileMutuals />
-        {isArtist ? <ProfileTags goToRoute={goToRoute} tags={tags} /> : null}
-        {isOwner && !isArtist && (
-          <UploadChip type='track' variant='nav' onClick={onClickUploadChip} />
-        )}
+        <div className={styles.profileBottomSection}>
+          <TopSupporters />
+          <ProfileMutuals />
+          {isArtist ? <ProfileTopTags /> : null}
+          {showUploadChip ? (
+            <UploadChip
+              type='track'
+              variant='nav'
+              onClick={onClickUploadChip}
+            />
+          ) : null}
+        </div>
       </div>
     )
   } else {

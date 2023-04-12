@@ -16,7 +16,7 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module'
   },
-  plugins: ['react', 'react-hooks', '@typescript-eslint', 'jest', 'import'],
+  plugins: ['react', 'react-hooks', '@typescript-eslint', 'import'],
   settings: {
     'import/external-module-folders': ['node_modules', 'web'],
     'import/resolver': {
@@ -36,6 +36,15 @@ module.exports = {
       'error',
       {
         disallowTypeAnnotations: false
+      }
+    ],
+    'no-restricted-properties': [
+      'error',
+      {
+        object: 'Promise',
+        property: 'allSettled',
+        message:
+          'Do NOT use `Promise.allSettled` as it will be undefined. Use `allSettled` from `@audius/common` instead.'
       }
     ]
   }

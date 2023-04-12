@@ -2,11 +2,12 @@ import { useCallback, useContext, useEffect, useState } from 'react'
 
 import type { Notification } from '@audius/common'
 import {
+  notificationsActions,
   useProxySelector,
   Status,
-  notificationsSelectors,
-  notificationsActions
+  notificationsSelectors
 } from '@audius/common'
+import { useIsFocused } from '@react-navigation/native'
 import type { ViewToken } from 'react-native'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
@@ -58,6 +59,7 @@ const getNotifications = makeGetAllNotifications()
  * Returns a function to check the visibility for an index, and a callback for the Flatlist.
  */
 const useIsViewable = () => {
+  const isFocused = useIsFocused()
   const [viewableMap, setViewableMap] = useState<{ [index: number]: boolean }>(
     {}
   )
@@ -95,10 +97,12 @@ const useIsViewable = () => {
     []
   )
 
-  return [
-    (index: number) => viewableMap[index] !== undefined,
-    onViewableItemsChanged
-  ] as [(index: number) => boolean, typeof onViewableItemsChanged]
+  const isVisible = useCallback(
+    (index: number) => isFocused && viewableMap[index] !== undefined,
+    [isFocused, viewableMap]
+  )
+
+  return [isVisible, onViewableItemsChanged] as const
 }
 
 export const NotificationList = () => {
@@ -120,15 +124,22 @@ export const NotificationList = () => {
     if (status !== Status.LOADING) {
       setIsRefreshing(false)
     }
-  }, [status, setIsRefreshing])
+  }, [status])
 
   const handleEndReached = useCallback(() => {
     if (status !== Status.LOADING && hasMore) {
-      dispatch(fetchNotifications(NOTIFICATION_PAGE_SIZE))
+      dispatch(fetchNotifications({ pageSize: NOTIFICATION_PAGE_SIZE }))
     }
   }, [status, dispatch, hasMore])
 
   const [isVisible, visibilityCallback] = useIsViewable()
+
+  const renderItem = useCallback(
+    ({ item, index }) => (
+      <NotificationListItem notification={item} isVisible={isVisible(index)} />
+    ),
+    [isVisible]
+  )
 
   if (status === Status.SUCCESS && notifications.length === 0) {
     return <EmptyNotifications />
@@ -141,13 +152,8 @@ export const NotificationList = () => {
       refreshing={isRefreshing}
       onRefresh={handleRefresh}
       data={notifications}
-      keyExtractor={(item: Notification, index) => `${item.id} ${index}`}
-      renderItem={({ item, index }) => (
-        <NotificationListItem
-          notification={item}
-          isVisible={isVisible(index)}
-        />
-      )}
+      keyExtractor={(item: Notification) => item.id}
+      renderItem={renderItem}
       ListFooterComponent={
         status === Status.LOADING && !isRefreshing ? (
           <View style={styles.footer}>
@@ -157,7 +163,6 @@ export const NotificationList = () => {
       }
       onEndReached={handleEndReached}
       onEndReachedThreshold={0.8}
-      initialNumToRender={10}
       scrollEnabled={!gesturesDisabled}
       onViewableItemsChanged={visibilityCallback}
     />

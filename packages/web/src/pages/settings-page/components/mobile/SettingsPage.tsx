@@ -11,12 +11,13 @@ import {
   EmailFrequency,
   BrowserNotificationSetting,
   PushNotificationSetting,
-  PushNotifications
+  PushNotifications,
+  TikTokProfile
 } from '@audius/common'
+import { SegmentedControl } from '@audius/stems'
 import cn from 'classnames'
 
 import horizontalLogo from 'assets/img/settingsPageLogo.png'
-import TabSlider from 'components/data-entry/TabSlider'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import GroupableList from 'components/groupable-list/GroupableList'
 import Grouping from 'components/groupable-list/Grouping'
@@ -76,6 +77,7 @@ type OwnProps = {
   isVerified: boolean
   onInstagramLogin: (uuid: string, profile: InstagramProfile) => void
   onTwitterLogin: (uuid: string, profile: TwitterProfile) => void
+  onTikTokLogin: (uuid: string, profile: TikTokProfile) => void
   notificationSettings: Notifications
   emailFrequency: EmailFrequency
   pushNotificationSettings: PushNotifications
@@ -186,7 +188,7 @@ const SettingsPage = (props: SettingsPageProps) => {
     }
 
     return (
-      <TabSlider
+      <SegmentedControl
         isMobile
         fullWidth
         options={options}

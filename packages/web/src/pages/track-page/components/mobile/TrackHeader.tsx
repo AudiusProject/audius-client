@@ -13,11 +13,21 @@ import {
   formatSeconds,
   formatDate,
   OverflowAction,
-  imageBlank as placeholderArt
+  imageBlank as placeholderArt,
+  FeatureFlags,
+  PremiumConditions,
+  Nullable
 } from '@audius/common'
-import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
+import {
+  Button,
+  ButtonType,
+  IconCollectible,
+  IconPause,
+  IconPlay,
+  IconSpecialAccess
+} from '@audius/stems'
 import cn from 'classnames'
-import Linkify from 'linkifyjs/react'
+import Linkify from 'linkify-react'
 
 import { make, useRecord } from 'common/store/analytics/actions'
 import CoSign from 'components/co-sign/CoSign'
@@ -25,10 +35,16 @@ import HoverInfo from 'components/co-sign/HoverInfo'
 import { Size } from 'components/co-sign/types'
 import DownloadButtons from 'components/download-buttons/DownloadButtons'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
+import { SearchTag } from 'components/search/SearchTag'
+import { PremiumTrackSection } from 'components/track/PremiumTrackSection'
+import TrackBannerIcon, {
+  TrackBannerIconType
+} from 'components/track/TrackBannerIcon'
 import UserBadges from 'components/user-badges/UserBadges'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { moodMap } from 'utils/moods'
-import { isDarkMode } from 'utils/theme/theme'
+import { isDarkMode, isMatrix } from 'utils/theme/theme'
 
 import HiddenTrackHeader from '../HiddenTrackHeader'
 
@@ -40,7 +56,9 @@ const messages = {
   track: 'TRACK',
   remix: 'REMIX',
   play: 'PLAY',
-  pause: 'PAUSE'
+  pause: 'PAUSE',
+  collectibleGated: 'COLLECTIBLE GATED',
+  specialAccess: 'SPECIAL ACCESS'
 }
 
 const PlayButton = (props: { playing: boolean; onPlay: () => void }) => {
@@ -89,10 +107,12 @@ type TrackHeaderProps = {
   saveCount: number
   repostCount: number
   isUnlisted: boolean
+  isPremium: boolean
+  premiumConditions: Nullable<PremiumConditions>
+  doesUserHaveAccess: boolean
   isRemix: boolean
   fieldVisibility: FieldVisibility
   coSign: Remix | null
-  onClickTag: (tag: string) => void
   onClickArtistName: () => void
   onClickMobileOverflow: (
     trackId: ID,
@@ -129,6 +149,9 @@ const TrackHeader = ({
   isSaved,
   isReposted,
   isUnlisted,
+  isPremium,
+  premiumConditions,
+  doesUserHaveAccess,
   isRemix,
   fieldVisibility,
   coSign,
@@ -140,7 +163,6 @@ const TrackHeader = ({
   genre,
   tags,
   onClickArtistName,
-  onClickTag,
   onPlay,
   onShare,
   onSave,
@@ -150,6 +172,12 @@ const TrackHeader = ({
   goToFavoritesPage,
   goToRepostsPage
 }: TrackHeaderProps) => {
+  const { isEnabled: isGatedContentEnabled } = useFlag(
+    FeatureFlags.GATED_CONTENT_ENABLED
+  )
+  const showSocials =
+    !isUnlisted && (!isGatedContentEnabled || doesUserHaveAccess)
+
   const image = useTrackCoverArt(
     trackId,
     coverArtSizes,
@@ -182,7 +210,7 @@ const TrackHeader = ({
 
   const record = useRecord()
   const onExternalLinkClick = useCallback(
-    (event) => {
+    (event: { target: { href: string } }) => {
       record(
         make(Name.LINK_CLICKING, {
           url: event.target.href,
@@ -195,17 +223,19 @@ const TrackHeader = ({
 
   const onClickOverflow = () => {
     const overflowActions = [
-      isOwner || isUnlisted
+      isOwner || !showSocials
         ? null
         : isReposted
         ? OverflowAction.UNREPOST
         : OverflowAction.REPOST,
-      isOwner || isUnlisted
+      isOwner || !showSocials
         ? null
         : isSaved
         ? OverflowAction.UNFAVORITE
         : OverflowAction.FAVORITE,
-      OverflowAction.ADD_TO_PLAYLIST,
+      !isGatedContentEnabled || !isPremium
+        ? OverflowAction.ADD_TO_PLAYLIST
+        : null,
       isFollowing
         ? OverflowAction.UNFOLLOW_ARTIST
         : OverflowAction.FOLLOW_ARTIST,
@@ -222,13 +252,12 @@ const TrackHeader = ({
         {filteredTags.length > 0 ? (
           <div className={styles.tags}>
             {filteredTags.map((tag) => (
-              <h2
+              <SearchTag
                 key={tag}
-                onClick={() => onClickTag(tag)}
+                tag={tag}
                 className={styles.tag}
-              >
-                {tag}
-              </h2>
+                source='track page'
+              />
             ))}
           </div>
         ) : null}
@@ -243,6 +272,7 @@ const TrackHeader = ({
         trackId={trackId}
         isOwner={isOwner}
         following={isFollowing}
+        doesUserHaveAccess={doesUserHaveAccess}
         onDownload={onDownload}
       />
     )
@@ -285,16 +315,65 @@ const TrackHeader = ({
     />
   )
 
+  const renderCornerTag = () => {
+    const showPremiumCornerTag =
+      isGatedContentEnabled &&
+      !isLoading &&
+      premiumConditions &&
+      (isOwner || !doesUserHaveAccess)
+    const cornerTagIconType = showPremiumCornerTag
+      ? isOwner
+        ? premiumConditions.nft_collection
+          ? TrackBannerIconType.COLLECTIBLE_GATED
+          : TrackBannerIconType.SPECIAL_ACCESS
+        : TrackBannerIconType.LOCKED
+      : null
+    if (showPremiumCornerTag && cornerTagIconType) {
+      return (
+        <TrackBannerIcon
+          type={cornerTagIconType}
+          isMatrixMode={isMatrix()}
+          className={styles.cornerTag}
+        />
+      )
+    }
+    return null
+  }
+
+  const renderHeaderText = () => {
+    if (isGatedContentEnabled && isPremium) {
+      return (
+        <div className={cn(styles.typeLabel, styles.premiumContentLabel)}>
+          {premiumConditions?.nft_collection ? (
+            <IconCollectible />
+          ) : (
+            <IconSpecialAccess />
+          )}
+          {premiumConditions?.nft_collection ? (
+            <span>{messages.collectibleGated}</span>
+          ) : (
+            <span>{messages.specialAccess}</span>
+          )}
+        </div>
+      )
+    }
+
+    return (
+      <div className={styles.typeLabel}>
+        {isRemix ? messages.remix : messages.track}
+      </div>
+    )
+  }
+
   return (
     <div className={styles.trackHeader}>
+      {renderCornerTag()}
       {isUnlisted ? (
         <div className={styles.hiddenTrackHeaderWrapper}>
           <HiddenTrackHeader />
         </div>
       ) : (
-        <div className={styles.typeLabel}>
-          {isRemix ? messages.remix : messages.track}
-        </div>
+        renderHeaderText()
       )}
       {imageElement}
       <h1 className={styles.title}>{title}</h1>
@@ -307,10 +386,27 @@ const TrackHeader = ({
         />
       </div>
       <div className={styles.buttonSection}>
-        <PlayButton playing={isPlaying} onPlay={onPlay} />
+        {isGatedContentEnabled &&
+        !doesUserHaveAccess &&
+        premiumConditions &&
+        trackId ? (
+          <PremiumTrackSection
+            isLoading={false}
+            trackId={trackId}
+            premiumConditions={premiumConditions}
+            doesUserHaveAccess={doesUserHaveAccess}
+            isOwner={false}
+            wrapperClassName={styles.premiumTrackSectionWrapper}
+            className={styles.premiumTrackSection}
+            buttonClassName={styles.premiumTrackSectionButton}
+          />
+        ) : null}
+        {!isGatedContentEnabled || doesUserHaveAccess ? (
+          <PlayButton playing={isPlaying} onPlay={onPlay} />
+        ) : null}
         <ActionButtonRow
-          showRepost={!isUnlisted}
-          showFavorite={!isUnlisted}
+          showRepost={showSocials}
+          showFavorite={showSocials}
           showShare={!isUnlisted || fieldVisibility.share}
           showOverflow
           shareToastDisabled
@@ -324,6 +420,24 @@ const TrackHeader = ({
           darkMode={isDarkMode()}
         />
       </div>
+      {isGatedContentEnabled &&
+        doesUserHaveAccess &&
+        premiumConditions &&
+        trackId && (
+          <PremiumTrackSection
+            isLoading={false}
+            trackId={trackId}
+            premiumConditions={premiumConditions}
+            doesUserHaveAccess={doesUserHaveAccess}
+            isOwner={isOwner}
+            wrapperClassName={cn(
+              styles.premiumTrackSectionWrapper,
+              styles.unlockedSection
+            )}
+            className={styles.premiumTrackSection}
+            buttonClassName={styles.premiumTrackSectionButton}
+          />
+        )}
       {coSign && (
         <div className={styles.coSignInfo}>
           <HoverInfo
@@ -345,8 +459,6 @@ const TrackHeader = ({
         onClickReposts={onClickReposts}
       />
       {description ? (
-        // https://github.com/Soapbox/linkifyjs/issues/292
-        // @ts-ignore
         <Linkify options={{ attributes: { onClick: onExternalLinkClick } }}>
           <h3 className={styles.description}>{squashNewLines(description)}</h3>
         </Linkify>

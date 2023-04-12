@@ -1,27 +1,22 @@
-import { WidthSizes } from '@audius/common'
 import { BlurView } from '@react-native-community/blur'
 import { Animated, Platform, StyleSheet } from 'react-native'
 
 import BadgeArtist from 'app/assets/images/badgeArtist.svg'
-import { DynamicImage } from 'app/components/core'
-import { useUserCoverPhoto } from 'app/hooks/useUserCoverPhoto'
-import { makeStyles } from 'app/styles/makeStyles'
+import { UserCoverImage } from 'app/components/image/UserCoverImage'
+import { makeStyles } from 'app/styles'
 
 import { useSelectProfile } from './selectors'
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView)
 
 const useStyles = makeStyles(({ spacing }) => ({
+  coverPhoto: {
+    height: 96
+  },
   artistBadge: {
     position: 'absolute',
     top: spacing(5),
     right: spacing(3)
-  },
-  imageRoot: {
-    height: 96
-  },
-  image: {
-    height: '100%'
   }
 }))
 
@@ -43,29 +38,25 @@ const interpolateBadgeImagePosition = (scrollY: Animated.Value) =>
 
 export const CoverPhoto = ({ scrollY }: { scrollY?: Animated.Value }) => {
   const styles = useStyles()
-  const { user_id, _cover_photo_sizes, track_count } = useSelectProfile([
+  const user = useSelectProfile([
     'user_id',
-    '_cover_photo_sizes',
-    'track_count'
+    'cover_photo_sizes',
+    'cover_photo',
+    'creator_node_endpoint',
+    'track_count',
+    'updatedCoverPhoto'
   ])
 
-  const coverPhoto = useUserCoverPhoto({
-    id: user_id,
-    sizes: _cover_photo_sizes,
-    size: WidthSizes.SIZE_2000
-  })
-
-  const isDefaultImage = coverPhoto && /imageCoverPhotoBlank/.test(coverPhoto)
+  const { track_count } = user
 
   const isArtist = track_count > 0
 
   return (
     <>
-      <DynamicImage
+      <UserCoverImage
         animatedValue={scrollY}
-        uri={isDefaultImage ? `https://audius.co/${coverPhoto}` : coverPhoto}
-        styles={{ root: styles.imageRoot, image: styles.image }}
-        resizeMode={isDefaultImage ? 'repeat' : undefined}
+        style={styles.coverPhoto}
+        user={user}
       >
         {/*
           Disable blur on android because it causes a crash.
@@ -85,7 +76,7 @@ export const CoverPhoto = ({ scrollY }: { scrollY?: Animated.Value }) => {
             ]}
           />
         ) : null}
-      </DynamicImage>
+      </UserCoverImage>
       {isArtist ? (
         <Animated.View
           style={[

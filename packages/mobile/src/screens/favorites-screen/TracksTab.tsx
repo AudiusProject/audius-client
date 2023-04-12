@@ -1,97 +1,163 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import type { ID, UID } from '@audius/common'
+import type { ID, Nullable, Track, UID, User } from '@audius/common'
 import {
-  FeatureFlags,
-  useProxySelector,
+  cacheTracksSelectors,
+  cacheUsersSelectors,
   savedPageActions,
-  playerSelectors,
   Status,
   FavoriteSource,
-  Name,
   PlaybackSource,
-  lineupSelectors,
   savedPageTracksLineupActions as tracksActions,
   savedPageSelectors,
   tracksSocialActions,
   reachabilitySelectors
 } from '@audius/common'
-import { useFocusEffect } from '@react-navigation/native'
+import { isEqual, debounce } from 'lodash'
+import Animated, { Layout } from 'react-native-reanimated'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Tile, VirtualizedScrollView } from 'app/components/core'
 import { EmptyTileCTA } from 'app/components/empty-tile-cta'
+import LoadingSpinner from 'app/components/loading-spinner'
 import { TrackList } from 'app/components/track-list'
 import type { TrackMetadata } from 'app/components/track-list/types'
 import { WithLoader } from 'app/components/with-loader/WithLoader'
-import { useLoadOfflineTracks } from 'app/hooks/useLoadOfflineTracks'
-import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
-import { make, track } from 'app/services/analytics'
-import { DOWNLOAD_REASON_FAVORITES } from 'app/services/offline-downloader'
-import { getOfflineTracks } from 'app/store/offline-downloads/selectors'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { makeStyles } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
 
 import { FilterInput } from './FilterInput'
-const { getPlaying, getUid } = playerSelectors
+import { NoTracksPlaceholder } from './NoTracksPlaceholder'
+import { OfflineContentBanner } from './OfflineContentBanner'
+import { useFavoritesLineup } from './useFavoritesLineup'
 const { saveTrack, unsaveTrack } = tracksSocialActions
-const { getSavedTracksLineup, getSavedTracksStatus } = savedPageSelectors
-const { fetchSaves } = savedPageActions
-const { makeGetTableMetadatas } = lineupSelectors
+const { fetchSaves: fetchSavesAction, fetchMoreSaves } = savedPageActions
+const {
+  getSaves,
+  getLocalSaves,
+  getSavedTracksStatus,
+  getInitialFetchStatus,
+  getIsFetchingMore
+} = savedPageSelectors
 const { getIsReachable } = reachabilitySelectors
+const { getTrack } = cacheTracksSelectors
+const { getUserFromTrack } = cacheUsersSelectors
 
 const messages = {
   emptyTabText: "You haven't favorited any tracks yet.",
   inputPlaceholder: 'Filter Tracks'
 }
 
-const useStyles = makeStyles(({ palette, spacing }) => ({
+const useStyles = makeStyles(({ spacing }) => ({
   container: {
-    marginVertical: spacing(4),
-    marginHorizontal: spacing(3),
-    borderRadius: 6
+    marginBottom: spacing(4),
+    marginHorizontal: spacing(3)
   },
-  trackListContainer: {
-    backgroundColor: palette.white,
-    borderRadius: 6,
+  trackList: {
+    borderRadius: 8,
     overflow: 'hidden'
   },
   spinnerContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginVertical: 48
+    marginVertical: spacing(12)
   }
 }))
 
-const getTracks = makeGetTableMetadatas(getSavedTracksLineup)
+const FETCH_LIMIT = 50
 
 export const TracksTab = () => {
   const dispatch = useDispatch()
   const styles = useStyles()
   const isReachable = useSelector(getIsReachable)
-  const { isEnabled: isOfflineModeEnabled } = useFeatureFlag(
-    FeatureFlags.OFFLINE_MODE_ENABLED
-  )
-  const handleFetchSaves = useCallback(() => {
-    dispatch(fetchSaves())
-  }, [dispatch])
-
-  useFocusEffect(handleFetchSaves)
-  useLoadOfflineTracks(DOWNLOAD_REASON_FAVORITES)
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
   const [filterValue, setFilterValue] = useState('')
-  const isPlaying = useSelector(getPlaying)
-  const playingUid = useSelector(getUid)
+  const [fetchPage, setFetchPage] = useState(0)
   const savedTracksStatus = useSelector(getSavedTracksStatus)
-  const savedTracks = useProxySelector(getTracks, [])
-  const offlineTracks = useSelector(getOfflineTracks)
+  const initialFetch = useSelector(getInitialFetchStatus)
+  const isFetchingMore = useSelector(getIsFetchingMore)
+  const saves = useSelector(getSaves)
+  const localSaves = useSelector(getLocalSaves)
 
-  const filterTrack = (track: TrackMetadata) => {
+  const saveCount = useMemo(
+    () => saves.length + Object.keys(localSaves).length,
+    [saves, localSaves]
+  )
+
+  const isLoading = savedTracksStatus !== Status.SUCCESS
+
+  const fetchSaves = useCallback(() => {
+    dispatch(fetchSavesAction(filterValue, '', '', 0, FETCH_LIMIT))
+  }, [dispatch, filterValue])
+
+  useEffect(() => {
+    // Need to fetch saves when the filterValue (by way of fetchSaves) changes
+    if (isReachable) {
+      fetchSaves()
+    }
+  }, [isReachable, fetchSaves])
+
+  const { entries } = useFavoritesLineup(fetchSaves)
+  const trackUids = useMemo(() => entries.map(({ uid }) => uid), [entries])
+
+  const filterTrack = (
+    track: Nullable<Track>,
+    user: Nullable<User>
+  ): track is TrackMetadata => {
+    if (!track || !user) {
+      return false
+    }
+
+    if (!filterValue.length) {
+      return true
+    }
+
     const matchValue = filterValue?.toLowerCase()
     return (
       track.title?.toLowerCase().indexOf(matchValue) > -1 ||
-      track.user?.name.toLowerCase().indexOf(matchValue) > -1
+      user.name.toLowerCase().indexOf(matchValue) > -1
     )
   }
+
+  const allTracksFetched = useMemo(() => {
+    return trackUids.length === saveCount && !filterValue
+  }, [trackUids, saveCount, filterValue])
+
+  const handleMoreFetchSaves = useCallback(() => {
+    if (
+      allTracksFetched ||
+      isFetchingMore ||
+      (isOfflineModeEnabled && !isReachable) ||
+      trackUids.length < fetchPage * FETCH_LIMIT
+    ) {
+      return
+    }
+
+    const nextPage = fetchPage + 1
+    dispatch(
+      fetchMoreSaves(filterValue, '', '', nextPage * FETCH_LIMIT, FETCH_LIMIT)
+    )
+    setFetchPage(nextPage)
+  }, [
+    allTracksFetched,
+    dispatch,
+    fetchPage,
+    filterValue,
+    isFetchingMore,
+    isOfflineModeEnabled,
+    isReachable,
+    trackUids.length
+  ])
+
+  const filteredTrackUids: string[] = useSelector((state) => {
+    return trackUids.filter((uid) => {
+      const track = getTrack(state, { uid })
+      const user = getUserFromTrack(state, { uid })
+      return filterTrack(track, user)
+    })
+  }, isEqual)
 
   const onToggleSave = useCallback(
     (isSaved: boolean, trackId: ID) => {
@@ -104,71 +170,64 @@ export const TracksTab = () => {
 
   const togglePlay = useCallback(
     (uid: UID, id: ID) => {
-      if (uid !== playingUid || (uid === playingUid && !isPlaying)) {
-        dispatch(tracksActions.play(uid))
-        // TODO: store and queue events locally; upload on reconnect
-        if (!isReachable && isOfflineModeEnabled) return
-        track(
-          make({
-            eventName: Name.PLAYBACK_PLAY,
-            id: `${id}`,
-            source: PlaybackSource.FAVORITES_PAGE
-          })
-        )
-      } else if (uid === playingUid && isPlaying) {
-        dispatch(tracksActions.pause())
-        if (!isReachable && isOfflineModeEnabled) return
-        track(
-          make({
-            eventName: Name.PLAYBACK_PAUSE,
-            id: `${id}`,
-            source: PlaybackSource.FAVORITES_PAGE
-          })
-        )
-      }
+      dispatch(tracksActions.togglePlay(uid, id, PlaybackSource.FAVORITES_PAGE))
     },
-    [playingUid, isPlaying, dispatch, isReachable, isOfflineModeEnabled]
+    [dispatch]
   )
 
-  const isLoading = savedTracksStatus !== Status.SUCCESS
-  const tracks =
-    !isReachable && isOfflineModeEnabled
-      ? Object.values(offlineTracks)
-      : savedTracks.entries
-  const hasNoFavorites = tracks.length === 0
+  const handleChangeFilterValue = useMemo(() => {
+    return debounce(setFilterValue, 250)
+  }, [])
 
   return (
-    <WithLoader loading={isLoading}>
-      <VirtualizedScrollView listKey='favorites-screen'>
-        {!isLoading && hasNoFavorites && !filterValue ? (
-          <EmptyTileCTA message={messages.emptyTabText} />
+    <VirtualizedScrollView>
+      {!isLoading && filteredTrackUids.length === 0 && !filterValue ? (
+        isOfflineModeEnabled && !isReachable ? (
+          <NoTracksPlaceholder />
         ) : (
-          <>
-            <FilterInput
-              value={filterValue}
-              placeholder={messages.inputPlaceholder}
-              onChangeText={setFilterValue}
-            />
-            {tracks.length ? (
-              <Tile
-                styles={{
-                  root: styles.container,
-                  tile: styles.trackListContainer
-                }}
-              >
-                <TrackList
-                  onSave={onToggleSave}
-                  showDivider
-                  togglePlay={togglePlay}
-                  trackItemAction='save'
-                  tracks={tracks.filter(filterTrack)}
-                  hideArt
+          <EmptyTileCTA message={messages.emptyTabText} />
+        )
+      ) : (
+        <>
+          <OfflineContentBanner />
+          <FilterInput
+            placeholder={messages.inputPlaceholder}
+            onChangeText={handleChangeFilterValue}
+          />
+          <WithLoader loading={initialFetch}>
+            <Animated.View layout={Layout}>
+              {filteredTrackUids.length ? (
+                <Tile
+                  styles={{
+                    tile: styles.container
+                  }}
+                >
+                  <TrackList
+                    style={styles.trackList}
+                    hideArt
+                    onEndReached={handleMoreFetchSaves}
+                    onEndReachedThreshold={1.5}
+                    onSave={onToggleSave}
+                    showDivider
+                    togglePlay={togglePlay}
+                    trackItemAction='save'
+                    uids={filteredTrackUids}
+                  />
+                </Tile>
+              ) : null}
+              {isFetchingMore ? (
+                <LoadingSpinner
+                  style={{
+                    alignSelf: 'center',
+                    marginTop: spacing(1),
+                    marginBottom: spacing(8)
+                  }}
                 />
-              </Tile>
-            ) : null}
-          </>
-        )}
-      </VirtualizedScrollView>
-    </WithLoader>
+              ) : null}
+            </Animated.View>
+          </WithLoader>
+        </>
+      )}
+    </VirtualizedScrollView>
   )
 }

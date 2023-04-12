@@ -21,13 +21,28 @@
 
 ## Packages
 
-| Name                          | Description                              |
-| ----------------------------- | ---------------------------------------- |
-| [`web`](./packages/web)       | The Audius web and desktop application   |
-| [`mobile`](./packages/mobile) | The Audius mobile application            |
-| [`stems`](./packages/stems)   | The Audius client component library      |
-| [`common`](./packages/common) | Shared code between web and mobile       |
-| [`eslint-config-audius`](./packages/eslint-config-audius) | Shared lint configuration       |
+| Name                                                      | Description                            |
+| --------------------------------------------------------- | -------------------------------------- |
+| [`web`](./packages/web)                                   | The Audius web and desktop application |
+| [`mobile`](./packages/mobile)                             | The Audius mobile application          |
+| [`stems`](./packages/stems)                               | The Audius client component library    |
+| [`common`](./packages/common)                             | Shared code between web and mobile     |
+| [`eslint-config-audius`](./packages/eslint-config-audius) | Shared lint configuration              |
+
+### Required Dependencies
+The following dependencies are required to run the Audius client: 
+```
+node python ruby
+```
+`npm install` will fail if they are not met. We recommend [homebrew](https://brew.sh/), [pyenv](https://github.com/pyenv/pyenv), and [rbenv](https://github.com/rbenv/rbenv). Don't forget to follow the instructions in the install command output (eg. adding things to your `.zshrc` or `bashrc` file).
+
+```
+brew install nvm pyenv rbenv
+
+nvm install
+pyenv install
+rbenv install
+```
 
 ### Getting Started
 
@@ -39,17 +54,19 @@ npm install
 
 This will do the following:
 
+- Check you have the correct versions of node, ruby, and python
 - Install root dependencies
 - Install all package dependencies using `lerna bootstrap`
 - Initialize git hooks (`npx @escape.tech/mookme init --only-hook --skip-types-selection`)
+- Install ios pods
 
 ### Running A Client
 
 Environments:
 
-- *:dev runs against local services
-- *:stage runs against the staging testnet
-- *:prod runs against production infrastructure
+- \*:dev runs against local services
+- \*:stage runs against the staging testnet
+- \*:prod runs against production infrastructure
 
 ```bash
 # web
@@ -62,18 +79,61 @@ npm run desktop:dev
 npm run desktop:stage
 npm run desktop:prod
 
-# mobile (append -- --device to target a physical device)
+# mobile
+
+# ios
 npm run ios:dev
 npm run ios:stage
 npm run ios:prod
+# on a physical device
+xcrun xctrace list devices
+npm run ios:<env> -- --device "My iPhone"
 
+# android
 npm run android:dev
 npm run android:stage
 npm run android:prod
+# on a physical device
+adb devices
+npm run android:<env> -- --device "A38M608KHBK"
 
 # stems in watch mode
 npm run stems
 
 # common in watch mode
 npm run common
+```
+
+### Installing and Updating packages
+
+Installing and updating a package in a sub-package requires a special approach in a monorepo. Simply running `npm i --save some-package` in a sub-package will fail because lerna is needed to symlink local packages. Use the following command instead:
+
+```bash
+npx lerna add <package-name> [--dev] packages/<sub-repo>
+```
+
+where <package-name> is the name of the package from npm, and <sub-repo> is the name of the sub-project you want to add the package to. (use --dev if it's a dev dependency)
+
+To update a package, manually update the version in the relevant package.json, and then run `npm i` from the root. A script to upgrade `@audius/sdk` in all sub-packages is present in the root package.json:
+
+```bash
+npm run sdk:update
+```
+
+It's possible to run a modified version of this command to do more complex upgrade logic across sub-repos, so use it as a guide.
+
+
+### Linking the audius sdk
+
+To develop with the Audius [sdk](https://github.com/AudiusProject/audius-protocol/tree/main/libs) alongside the client, clone the audius-protocol repository and run the following:
+
+```bash
+cd audius-protocol
+export PROTOCOL_DIR=$(pwd)
+```
+
+```bash
+cd audius-client
+npm run sdk:link
+npm run web:stage # or similar
 ```

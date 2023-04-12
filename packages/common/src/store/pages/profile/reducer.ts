@@ -2,8 +2,12 @@
 // TODO(nkang) - convert to TS
 
 import { asLineup } from 'store/lineup/reducer'
-import feedReducer from 'store/pages/profile/lineups/feed/reducer'
-import tracksReducer from 'store/pages/profile/lineups/tracks/reducer'
+import feedReducer, {
+  initialState as initialFeedLineupState
+} from 'store/pages/profile/lineups/feed/reducer'
+import tracksReducer, {
+  initialState as initialTracksLineupState
+} from 'store/pages/profile/lineups/tracks/reducer'
 import { FollowType, CollectionSortMode } from 'store/pages/profile/types'
 
 import { Status } from '../../../models'
@@ -21,8 +25,14 @@ import {
   FETCH_FOLLOW_USERS_SUCCEEDED,
   FETCH_FOLLOW_USERS_FAILED,
   DISMISS_PROFILE_METER,
-  UPDATE_MOST_USED_TAGS,
-  SET_NOTIFICATION_SUBSCRIPTION
+  SET_NOTIFICATION_SUBSCRIPTION,
+  SET_CURRENT_USER,
+  FETCH_COLLECTIONS,
+  FETCH_COLLECTIONS_SUCCEEDED,
+  FETCH_COLLECTIONS_FAILED,
+  FETCH_TOP_TAGS,
+  FETCH_TOP_TAGS_SUCCEEDED,
+  FETCH_TOP_TAGS_FAILED
 } from './actions'
 import { PREFIX as feedPrefix } from './lineups/feed/actions'
 import { PREFIX as tracksPrefix } from './lineups/tracks/actions'
@@ -36,15 +46,20 @@ const initialProfileState = {
   updating: false,
   updateSuccess: false,
   updateError: false,
-  mostUsedTags: [],
+  topTagsStatus: Status.IDLE,
+  topTags: [],
+  collectionStatus: Status.IDLE,
 
-  collectionSortMode: CollectionSortMode.SAVE_COUNT,
+  collectionSortMode: CollectionSortMode.TIMESTAMP,
 
   profileMeterDismissed: false,
 
   [FollowType.FOLLOWERS]: { status: Status.IDLE, userIds: [] },
   [FollowType.FOLLOWEES]: { status: Status.IDLE, userIds: [] },
-  [FollowType.FOLLOWEE_FOLLOWS]: { status: Status.IDLE, userIds: [] }
+  [FollowType.FOLLOWEE_FOLLOWS]: { status: Status.IDLE, userIds: [] },
+
+  feed: initialFeedLineupState,
+  tracks: initialTracksLineupState
 }
 
 const updateProfile = (state, action, data) => {
@@ -100,6 +115,15 @@ const actionsMap = {
       userId,
       handle: profileHandle
     })
+  },
+  [SET_CURRENT_USER](state, action) {
+    const { handle } = action
+    const lowerHandle = handle.toLowerCase()
+
+    return {
+      ...state,
+      currentUser: lowerHandle
+    }
   },
   [FETCH_FOLLOW_USERS](state, action) {
     const { currentUser, entries } = state
@@ -171,10 +195,6 @@ const actionsMap = {
   [FETCH_PROFILE_FAILED](state, action) {
     return updateProfile(state, action, { status: Status.ERROR })
   },
-  [UPDATE_MOST_USED_TAGS](state, action) {
-    const { mostUsedTags } = action
-    return updateProfile(state, action, { mostUsedTags })
-  },
   [UPDATE_PROFILE](state, action) {
     return updateProfile(state, action, {
       updating: true,
@@ -207,6 +227,28 @@ const actionsMap = {
     return updateProfile(state, action, {
       isNotificationSubscribed: isSubscribed
     })
+  },
+  [FETCH_COLLECTIONS](state, action) {
+    return updateProfile(state, action, { collectionStatus: Status.LOADING })
+  },
+  [FETCH_COLLECTIONS_SUCCEEDED](state, action) {
+    return updateProfile(state, action, { collectionStatus: Status.SUCCESS })
+  },
+  [FETCH_COLLECTIONS_FAILED](state, action) {
+    return updateProfile(state, action, { collectionStatus: Status.ERROR })
+  },
+  [FETCH_TOP_TAGS](state, action) {
+    return updateProfile(state, action, { topTagsStatus: Status.LOADING })
+  },
+  [FETCH_TOP_TAGS_SUCCEEDED](state, action) {
+    const { topTags } = action
+    return updateProfile(state, action, {
+      topTagsStatus: Status.SUCCESS,
+      topTags
+    })
+  },
+  [FETCH_TOP_TAGS_FAILED](state, action) {
+    return updateProfile(state, action, { topTagsStatus: Status.ERROR })
   }
 }
 

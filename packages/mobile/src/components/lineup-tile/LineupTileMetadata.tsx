@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
 import { playerSelectors } from '@audius/common'
-import type { Remix, User, UID, CommonState } from '@audius/common'
+import type { Remix, User } from '@audius/common'
 import { TouchableOpacity, View } from 'react-native'
 import { useSelector } from 'react-redux'
 
@@ -13,8 +13,13 @@ import { makeStyles } from 'app/styles'
 import type { GestureResponderHandler } from 'app/types/gesture'
 import { useThemeColors } from 'app/utils/theme'
 
+import { FadeInView } from '../core'
+
 import { LineupTileArt } from './LineupTileArt'
 import { useStyles as useTrackTileStyles } from './styles'
+import type { LineupTileProps } from './types'
+
+const { getPlaying } = playerSelectors
 
 const useStyles = makeStyles(({ palette }) => ({
   metadata: {
@@ -46,7 +51,6 @@ const useStyles = makeStyles(({ palette }) => ({
     textTransform: 'uppercase'
   }
 }))
-const { getPlaying } = playerSelectors
 
 const messages = {
   coSign: 'Co-Sign'
@@ -55,21 +59,18 @@ const messages = {
 type Props = {
   artistName: string
   coSign?: Remix | null
-  imageUrl?: string
   onPressTitle?: GestureResponderHandler
-  setArtworkLoaded: (loaded: boolean) => void
+  renderImage: LineupTileProps['renderImage']
   title: string
   user: User
-  uid: UID
   isPlayingUid: boolean
 }
 
 export const LineupTileMetadata = ({
   artistName,
   coSign,
-  imageUrl,
   onPressTitle,
-  setArtworkLoaded,
+  renderImage,
   title,
   user,
   isPlayingUid
@@ -79,9 +80,11 @@ export const LineupTileMetadata = ({
   const trackTileStyles = useTrackTileStyles()
   const { primary } = useThemeColors()
 
-  const isActive = useSelector(
-    (state: CommonState) => getPlaying(state) && isPlayingUid
-  )
+  const isActive = isPlayingUid
+
+  const isPlaying = useSelector((state) => {
+    return getPlaying(state) && isActive
+  })
 
   const handleArtistPress = useCallback(() => {
     navigation.push('Profile', { handle: user.handle })
@@ -89,12 +92,15 @@ export const LineupTileMetadata = ({
   return (
     <View style={styles.metadata}>
       <LineupTileArt
-        imageUrl={imageUrl}
-        onLoad={() => setArtworkLoaded(true)}
+        renderImage={renderImage}
         coSign={coSign}
         style={trackTileStyles.imageContainer}
       />
-      <View style={trackTileStyles.titles}>
+      <FadeInView
+        style={trackTileStyles.titles}
+        startOpacity={0}
+        duration={500}
+      >
         <TouchableOpacity style={trackTileStyles.title} onPress={onPressTitle}>
           <>
             <Text
@@ -104,9 +110,9 @@ export const LineupTileMetadata = ({
             >
               {title}
             </Text>
-            {!isActive ? null : (
+            {isPlaying ? (
               <IconVolume fill={primary} style={styles.playingIndicator} />
-            )}
+            ) : null}
           </>
         </TouchableOpacity>
         <TouchableOpacity
@@ -129,7 +135,7 @@ export const LineupTileMetadata = ({
             />
           </>
         </TouchableOpacity>
-      </View>
+      </FadeInView>
       {coSign && (
         <Text style={styles.coSignLabel} weight='heavy'>
           {messages.coSign}

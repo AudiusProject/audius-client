@@ -8,7 +8,8 @@ import {
   InstagramProfile,
   AccountImage,
   TwitterProfile,
-  accountActions
+  accountActions,
+  TikTokProfile
 } from '@audius/common'
 import {
   push as pushRoute,
@@ -365,6 +366,11 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
     this.props.recordInstagramStart(email.value)
   }
 
+  onRecordTikTokStart = () => {
+    const { email } = this.props.fields
+    this.props.recordTikTokStart(email.value)
+  }
+
   setInstagramProfile = (
     instagramId: string,
     profile: InstagramProfile,
@@ -381,6 +387,26 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
       profile.username || 'unknown'
     )
 
+    if (skipEdit) {
+      this.onNextPage()
+    }
+  }
+
+  setTikTokProfile = (
+    tikTokId: string,
+    profile: TikTokProfile,
+    profileImg?: AccountImage,
+    skipEdit?: boolean
+  ) => {
+    const {
+      fields: { email }
+    } = this.props
+    this.props.setTikTokProfile(tikTokId, profile, profileImg)
+    this.props.recordTikTokComplete(
+      !!profile.is_verified,
+      email.value,
+      profile.username || 'unknown'
+    )
     if (skipEdit) {
       this.onNextPage()
     }
@@ -447,10 +473,12 @@ export class SignOnProvider extends Component<SignOnProps, SignOnState> {
       onViewSignUp: this.onViewSignUp,
       setTwitterProfile: this.setTwitterProfile,
       setInstagramProfile: this.setInstagramProfile,
+      setTikTokProfile: this.setTikTokProfile,
       validateHandle: this.props.validateHandle,
       onMetaMaskSignIn: this.onMetaMaskSignIn,
       recordTwitterStart: this.onRecordTwitterStart,
-      recordInstagramStart: this.onRecordInstagramStart
+      recordInstagramStart: this.onRecordInstagramStart,
+      recordTikTokStart: this.onRecordTikTokStart
     }
     if (this.props.isMobile) {
       const Children = this.props.children as ComponentType<MobileSignOnProps>
@@ -507,6 +535,12 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(
         signOnAction.setInstagramProfile(instagramId, profile, profileImage)
       ),
+    setTikTokProfile: (
+      tikTokId: string,
+      profile: TikTokProfile,
+      profileImage?: AccountImage
+    ) =>
+      dispatch(signOnAction.setTikTokProfile(tikTokId, profile, profileImage)),
     validateEmail: (email: string) =>
       dispatch(signOnAction.validateEmail(email)),
     validateHandle: (
@@ -603,6 +637,24 @@ function mapDispatchToProps(dispatch: Dispatch) {
         Name.CREATE_ACCOUNT_COMPLETE_INSTAGRAM,
         { isVerified, emailAddress, handle }
       )
+      dispatch(trackEvent)
+    },
+    recordTikTokStart: (emailAddress: string) => {
+      const trackEvent: TrackEvent = make(Name.CREATE_ACCOUNT_START_TIKTOK, {
+        emailAddress
+      })
+      dispatch(trackEvent)
+    },
+    recordTikTokComplete: (
+      isVerified: boolean,
+      emailAddress: string,
+      handle: string
+    ) => {
+      const trackEvent: TrackEvent = make(Name.CREATE_ACCOUNT_COMPLETE_TIKTOK, {
+        isVerified,
+        emailAddress,
+        handle
+      })
       dispatch(trackEvent)
     },
     recordCompleteFollow: (

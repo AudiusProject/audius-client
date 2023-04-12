@@ -1,10 +1,17 @@
-import { useState, useEffect, useRef } from 'react'
+import { useCallback } from 'react'
 
-import { accountSelectors } from '@audius/common'
-import { Animated, Easing } from 'react-native'
-import { useSelector } from 'react-redux'
+import {
+  accountSelectors,
+  Genre,
+  premiumContentActions,
+  usePremiumContentAccess
+} from '@audius/common'
+import { View } from 'react-native'
+import { useSelector, useDispatch } from 'react-redux'
 
 import type { LineupTileProps } from 'app/components/lineup-tile/types'
+import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
+import { setVisibility } from 'app/store/drawers/slice'
 
 import { LineupTileActionButtons } from './LineupTileActionButtons'
 import {
@@ -16,7 +23,9 @@ import { LineupTileMetadata } from './LineupTileMetadata'
 import { LineupTileRoot } from './LineupTileRoot'
 import { LineupTileStats } from './LineupTileStats'
 import { LineupTileTopRight } from './LineupTileTopRight'
-const getUserId = accountSelectors.getUserId
+
+const { getUserId } = accountSelectors
+const { setLockedContentId } = premiumContentActions
 
 export const LineupTile = ({
   children,
@@ -26,11 +35,9 @@ export const LineupTile = ({
   hidePlays,
   hideShare,
   id,
-  imageUrl,
   index,
   isTrending,
   isUnlisted,
-  onLoad,
   onPress,
   onPressOverflow,
   onPressRepost,
@@ -38,65 +45,91 @@ export const LineupTile = ({
   onPressShare,
   onPressTitle,
   playCount,
+  renderImage,
   repostType,
   showArtistPick,
   showRankIcon,
   title,
   item,
-  uid,
   user,
-  isPlayingUid
+  isPlayingUid,
+  TileProps
 }: LineupTileProps) => {
+  const isGatedContentEnabled = useIsGatedContentEnabled()
   const {
     has_current_user_reposted,
     has_current_user_saved,
     repost_count,
     save_count
   } = item
-  const { _artist_pick, name, user_id } = user
+  const { artist_pick_track_id, name, user_id } = user
   const currentUserId = useSelector(getUserId)
-
-  const [artworkLoaded, setArtworkLoaded] = useState(false)
-
-  const opacity = useRef(new Animated.Value(0.5)).current
-
   const isOwner = user_id === currentUserId
-  const isLoaded = artworkLoaded
-  const fadeIn = { opacity }
+  const isCollection = 'playlist_id' in item
+  const isTrack = 'track_id' in item
+  const trackId = isTrack ? item.track_id : undefined
+  const premiumConditions = isTrack ? item.premium_conditions : null
+  const isArtistPick = artist_pick_track_id === id
+  const { doesUserHaveAccess } = usePremiumContentAccess(isTrack ? item : null)
+  const dispatch = useDispatch()
 
-  useEffect(() => {
-    if (isLoaded) {
-      onLoad?.(index)
-      Animated.timing(opacity, {
-        toValue: 1,
-        easing: Easing.ease,
-        useNativeDriver: true
-      }).start()
+  const showPremiumCornerTag =
+    isGatedContentEnabled &&
+    premiumConditions &&
+    (isOwner || !doesUserHaveAccess) &&
+    !(showArtistPick && isArtistPick)
+  const cornerTagIconType = showPremiumCornerTag
+    ? isOwner
+      ? premiumConditions.nft_collection
+        ? LineupTileBannerIconType.COLLECTIBLE_GATED
+        : LineupTileBannerIconType.SPECIAL_ACCESS
+      : LineupTileBannerIconType.LOCKED
+    : null
+
+  const handlePress = useCallback(() => {
+    if (isGatedContentEnabled && trackId && !doesUserHaveAccess) {
+      dispatch(setLockedContentId({ id: trackId }))
+      dispatch(setVisibility({ drawer: 'LockedContent', visible: true }))
+    } else {
+      onPress?.()
     }
-  }, [onLoad, isLoaded, index, opacity, title])
+  }, [isGatedContentEnabled, trackId, doesUserHaveAccess, dispatch, onPress])
+
+  const isLongFormContent =
+    isTrack &&
+    (item.genre === Genre.PODCASTS || item.genre === Genre.AUDIOBOOKS)
 
   return (
-    <LineupTileRoot onPress={onPress}>
-      {showArtistPick && _artist_pick === id ? (
+    <LineupTileRoot onPress={handlePress} {...TileProps}>
+      {showPremiumCornerTag && cornerTagIconType ? (
+        <LineupTileBannerIcon
+          type={cornerTagIconType}
+          style={{ shadowRadius: 1 }}
+        />
+      ) : null}
+      {showArtistPick && isArtistPick ? (
         <LineupTileBannerIcon type={LineupTileBannerIconType.STAR} />
       ) : null}
       {isUnlisted ? (
         <LineupTileBannerIcon type={LineupTileBannerIconType.HIDDEN} />
       ) : null}
-      <Animated.View style={fadeIn}>
+      <View>
         <LineupTileTopRight
           duration={duration}
-          isArtistPick={_artist_pick === id}
+          trackId={id}
           isUnlisted={isUnlisted}
+          isOwner={isOwner}
+          doesUserHaveAccess={doesUserHaveAccess}
+          premiumConditions={premiumConditions}
+          isArtistPick={isArtistPick}
+          isLongFormContent={isLongFormContent}
           showArtistPick={showArtistPick}
         />
         <LineupTileMetadata
           artistName={name}
           coSign={coSign}
-          imageUrl={imageUrl}
+          renderImage={renderImage}
           onPressTitle={onPressTitle}
-          setArtworkLoaded={setArtworkLoaded}
-          uid={uid}
           title={title}
           user={user}
           isPlayingUid={isPlayingUid}
@@ -108,6 +141,7 @@ export const LineupTile = ({
           hidePlays={hidePlays}
           id={id}
           index={index}
+          isCollection={isCollection}
           isTrending={isTrending}
           isUnlisted={isUnlisted}
           playCount={playCount}
@@ -115,7 +149,7 @@ export const LineupTile = ({
           saveCount={save_count}
           showRankIcon={showRankIcon}
         />
-      </Animated.View>
+      </View>
       {children}
       <LineupTileActionButtons
         hasReposted={has_current_user_reposted}
@@ -123,6 +157,8 @@ export const LineupTile = ({
         isOwner={isOwner}
         isShareHidden={hideShare}
         isUnlisted={isUnlisted}
+        trackId={trackId}
+        doesUserHaveAccess={doesUserHaveAccess}
         onPressOverflow={onPressOverflow}
         onPressRepost={onPressRepost}
         onPressSave={onPressSave}

@@ -11,9 +11,9 @@ const ANIMATION_DURATION_MS = 1500
 
 type SkeletonProps = {
   // Width (css string) of the skeleton to display. Default 100%.
-  width?: string
+  width?: string | number
   // Height (css string) of the skeleton to display. Default 100%.
-  height?: string
+  height?: string | number
   // Optional style to pass in and override styles with
   style?: StyleProp<ViewStyle>
   noShimmer?: boolean
@@ -80,5 +80,13 @@ const Skeleton = ({ width, height, style, noShimmer }: SkeletonProps) => {
     </View>
   )
 }
+
+type StaticSkeletonProps = SkeletonProps
+
+export const StaticSkeleton = (props: StaticSkeletonProps) => {
+  return <Skeleton noShimmer {...props} />
+}
+
+export { Skeleton }
 
 export default Skeleton

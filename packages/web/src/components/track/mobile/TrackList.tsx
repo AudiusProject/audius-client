@@ -13,6 +13,7 @@ type TrackListProps = {
   itemClassName?: string
   tracks: Array<{
     isLoading: boolean
+    isPremium?: boolean
     isSaved?: boolean
     isReposted?: boolean
     isActive?: boolean
@@ -26,6 +27,7 @@ type TrackListProps = {
     time?: number
     coverArtSizes?: CoverArtSizes
     isDeleted: boolean
+    isLocked: boolean
   }>
   showTopDivider?: boolean
   showDivider?: boolean
@@ -94,12 +96,14 @@ const TrackList = ({
           isReposted={track.isReposted}
           isActive={track.isActive}
           isPlaying={track.isPlaying}
+          isPremium={track.isPremium}
           artistHandle={track.artistHandle}
           artistName={track.artistName}
           trackTitle={track.trackTitle}
           coverArtSizes={track.coverArtSizes}
           uid={track.uid}
           isDeleted={track.isDeleted}
+          isLocked={track.isLocked}
           onSave={onSave}
           isRemoveActive={track.isRemoveActive}
           onRemove={onRemove}

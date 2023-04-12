@@ -6,13 +6,16 @@ import {
   FETCH_SAVES_REQUESTED,
   FETCH_SAVES_SUCCEEDED,
   FETCH_SAVES_FAILED,
+  FETCH_MORE_SAVES,
   FETCH_MORE_SAVES_SUCCEEDED,
   FETCH_MORE_SAVES_FAILED,
   ADD_LOCAL_SAVE,
   REMOVE_LOCAL_SAVE,
   END_FETCHING
 } from 'store/pages/saved-page/actions'
-import tracksReducer from 'store/pages/saved-page/lineups/tracks/reducer'
+import tracksReducer, {
+  initialState as initialLineupState
+} from 'store/pages/saved-page/lineups/tracks/reducer'
 
 import { PREFIX as tracksPrefix } from './lineups/tracks/actions'
 
@@ -21,7 +24,9 @@ const initialState = {
   localSaves: {},
   saves: [],
   initialFetch: false,
-  hasReachedEnd: false
+  hasReachedEnd: false,
+  fetchingMore: false,
+  tracks: initialLineupState
 }
 
 const actionsMap = {
@@ -44,9 +49,16 @@ const actionsMap = {
       initialFetch: false
     }
   },
+  [FETCH_MORE_SAVES](state, action) {
+    return {
+      ...state,
+      fetchingMore: true
+    }
+  },
   [FETCH_SAVES_FAILED](state, action) {
     return {
       ...state,
+      fetchingMore: false,
       saves: []
     }
   },
@@ -56,6 +68,7 @@ const actionsMap = {
 
     return {
       ...state,
+      fetchingMore: false,
       saves: savesCopy
     }
   },

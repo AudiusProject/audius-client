@@ -14,6 +14,8 @@ type OverflowMenuButtonProps = {
   handle: string
   hiddenUntilHover?: boolean
   includeEdit?: boolean
+  includeAddToPlaylist?: boolean
+  includeFavorite?: boolean
   index?: number
   isArtistPick?: boolean
   isDeleted?: boolean
@@ -48,7 +50,7 @@ export const OverflowMenuButton = (props: OverflowMenuButtonProps) => {
   const removeMenuItem = {
     text: removeText,
     onClick: () => {
-      if (trackId && index && uid) {
+      if (trackId && index !== undefined && uid) {
         onRemove?.(trackId, index, uid, date?.unix())
       }
     }

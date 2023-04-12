@@ -2,11 +2,13 @@ import { Nullable } from 'utils'
 
 import { ID, User, UserMetadata } from '../../../models'
 
-import { CollectionSortMode } from './types'
+import { CollectionSortMode, FollowType } from './types'
 
 export const FETCH_PROFILE = 'PROFILE/FETCH_PROFILE'
 export const FETCH_PROFILE_SUCCEEDED = 'PROFILE/FETCH_PROFILE_SUCCEEDED'
 export const FETCH_PROFILE_FAILED = 'PROFILE/FETCH_PROFILE_FAILED'
+
+export const SET_CURRENT_USER = 'PROFILE/SET_CURRENT_USER'
 
 export const UPDATE_PROFILE = 'PROFILE/UPDATE_PROFILE'
 export const UPDATE_PROFILE_SUCCEEDED = 'PROFILE/UPDATE_PROFILE_SUCCEEDED'
@@ -23,9 +25,15 @@ export const FETCH_FOLLOW_USERS_FAILED = 'PROFILE/FETCH_FOLLOW_USERS_FAILED'
 
 export const DISMISS_PROFILE_METER = 'PROFILE/DISMISS_PROFILE_METER'
 
-export const UPDATE_MOST_USED_TAGS = 'PROFILE/UPDATE_MOST_USED_TAGS'
+export const FETCH_TOP_TAGS = 'PROFILE/FETCH_TOP_TAGS'
+export const FETCH_TOP_TAGS_SUCCEEDED = 'PROFILE/FETCH_TOP_TAGS_SUCCEEDED'
+export const FETCH_TOP_TAGS_FAILED = 'PROFILE/FETCH_TOP_TAGS_FAILED'
 export const SET_NOTIFICATION_SUBSCRIPTION =
   'PROFILE/SET_NOTIFICATION_SUBSCRIPTION'
+
+export const FETCH_COLLECTIONS = 'PROFILE/FETCH_COLLECTIONS'
+export const FETCH_COLLECTIONS_SUCCEEDED = 'PROFILE/FETCH_COLLECTIONS_SUCCEEDED'
+export const FETCH_COLLECTIONS_FAILED = 'PROFILE/FETCH_COLLECTIONS_FAILED'
 
 // Either handle or userId is required
 // TODO: Move this to redux toolkit
@@ -60,6 +68,10 @@ export function fetchProfileFailed(handle: string) {
   return { type: FETCH_PROFILE_FAILED, handle }
 }
 
+export function setCurrentUser(handle: string) {
+  return { type: SET_CURRENT_USER, handle }
+}
+
 export function updateProfile(metadata: UserMetadata) {
   return { type: UPDATE_PROFILE, metadata }
 }
@@ -88,7 +100,7 @@ export function updateCurrentUserFollows(follow = false, handle: string) {
 }
 
 export function fetchFollowUsers(
-  followerGroup: User[],
+  followerGroup: FollowType,
   limit = 15,
   offset = 0,
   handle: string
@@ -132,21 +144,63 @@ export function profileMeterDismissed() {
   return { type: DISMISS_PROFILE_METER }
 }
 
-export function updateMostUsedTags(mostUsedTags: string[]) {
-  return { type: UPDATE_MOST_USED_TAGS, mostUsedTags }
-}
-
 export function setNotificationSubscription(
   userId: ID,
   isSubscribed: boolean,
   update = false,
-  handle?: string
+  handle?: string,
+  onFollow = true
 ) {
   return {
     type: SET_NOTIFICATION_SUBSCRIPTION,
     userId,
     isSubscribed,
     update,
+    handle,
+    onFollow
+  }
+}
+
+export function fetchCollections(handle: string) {
+  return {
+    type: FETCH_COLLECTIONS,
+    handle
+  }
+}
+
+export function fetchCollectionsSucceded(handle: string) {
+  return {
+    type: FETCH_COLLECTIONS_SUCCEEDED,
+    handle
+  }
+}
+
+export function fetchCollectionsFailed(handle: string) {
+  return {
+    type: FETCH_COLLECTIONS_FAILED,
+    handle
+  }
+}
+
+export function fetchTopTags(handle: string, userId: ID) {
+  return {
+    type: FETCH_TOP_TAGS,
+    handle,
+    userId
+  }
+}
+
+export function fetchTopTagsSucceeded(handle: string, topTags: string[]) {
+  return {
+    type: FETCH_TOP_TAGS_SUCCEEDED,
+    handle,
+    topTags
+  }
+}
+
+export function fetchTopTagsFailed(handle: string) {
+  return {
+    type: FETCH_TOP_TAGS_FAILED,
     handle
   }
 }

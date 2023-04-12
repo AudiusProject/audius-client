@@ -2,21 +2,39 @@ import { useCallback, useMemo } from 'react'
 
 import type {
   AddTrackToPlaylistNotification,
+  AddTrackToPlaylistPushNotification,
   AnnouncementNotification,
   ChallengeRewardNotification,
   FavoriteNotification,
+  FavoriteOfRepostNotification,
+  FavoritePushNotification,
   FollowNotification,
+  FollowPushNotification,
+  MilestoneFavoritePushNotification,
+  MilestoneFollowPushNotification,
+  MilestoneListenPushNotification,
   MilestoneNotification,
+  MilestoneRepostPushNotification,
   ReactionNotification,
+  ReactionPushNotification,
   RemixCosignNotification,
+  RemixCosignPushNotification,
   RemixCreateNotification,
+  RemixCreatePushNotification,
   RepostNotification,
+  RepostOfRepostNotification,
+  RepostOfRepostPushNotification,
+  RepostPushNotification,
   SupporterDethronedNotification,
   SupporterRankUpNotification,
+  SupporterRankUpPushNotification,
   SupportingRankUpNotification,
+  SupportingRankUpPushNotification,
   TierChangeNotification,
   TipReceiveNotification,
+  TipReceivePushNotification,
   TipSendNotification,
+  TipSendPushNotification,
   TrendingTrackNotification,
   UserSubscriptionNotification
 } from '@audius/common'
@@ -25,7 +43,8 @@ import {
   tippingActions,
   Achievement,
   Entity,
-  NotificationType
+  NotificationType,
+  PushNotificationType
 } from '@audius/common'
 import type { AppState } from 'audius-client/src/store/types'
 import { useDispatch, useStore } from 'react-redux'
@@ -49,35 +68,123 @@ export const useNotificationNavigation = () => {
     (
       notification:
         | FollowNotification
+        | FollowPushNotification
         | RepostNotification
+        | RepostPushNotification
+        | RepostOfRepostNotification
+        | RepostOfRepostPushNotification
         | FavoriteNotification
+        | FavoritePushNotification
     ) => {
-      const { id, type, userIds } = notification
-      const firstUserId = userIds[0]
-      const isMultiUser = userIds.length > 1
+      if ('userIds' in notification) {
+        const { id, type, userIds } = notification
+        const firstUserId = userIds[0]
+        const isMultiUser = userIds.length > 1
 
-      if (isMultiUser) {
-        dispatch(setNotificationId(id))
-        navigation.navigate('NotificationUsers', {
-          id,
-          notificationType: type,
-          count: userIds.length
-        })
-      } else if (firstUserId) {
-        navigation.push('Profile', {
-          id: firstUserId
-        })
+        if (isMultiUser) {
+          dispatch(setNotificationId(id))
+          navigation.navigate('NotificationUsers', {
+            id,
+            notificationType: type,
+            count: userIds.length
+          })
+        } else if (firstUserId) {
+          navigation.navigate('Profile', { id: firstUserId })
+        }
+      } else {
+        // TODO: Need to handle the payload from identity when there are multiple users
+        navigation.navigate('Profile', { id: notification.initiator })
       }
     },
     [dispatch, navigation]
   )
 
+  const entityHandler = useCallback(
+    (
+      notification: RepostOfRepostNotification | FavoriteOfRepostNotification
+    ) => {
+      const { entityType, entityId } = notification
+      if (entityType === Entity.Track) {
+        navigation.navigate('Track', { id: entityId })
+      } else if (
+        entityType === Entity.Album ||
+        entityType === Entity.Playlist
+      ) {
+        navigation.navigate('Collection', { id: entityId })
+      }
+    },
+    [navigation]
+  )
+
+  const milestoneHandler = useCallback(
+    (
+      notification:
+        | MilestoneNotification
+        | MilestoneFollowPushNotification
+        | MilestoneListenPushNotification
+        | MilestoneFavoritePushNotification
+        | MilestoneRepostPushNotification
+    ) => {
+      if (notification.type === NotificationType.Milestone) {
+        if (notification.achievement === Achievement.Followers) {
+          navigation.navigate('Profile', { id: notification.entityId })
+        } else {
+          navigation.navigate(
+            notification.entityType === Entity.Track ? 'Track' : 'Collection',
+            { id: notification.entityId }
+          )
+        }
+      } else if (notification.type === PushNotificationType.MilestoneFollow) {
+        navigation.navigate('Profile', { id: notification.initiator })
+      } else {
+        navigation.navigate(
+          notification.actions[0].actionEntityType === Entity.Track
+            ? 'Track'
+            : 'Collection',
+          { id: notification.entityId }
+        )
+      }
+    },
+    [navigation]
+  )
+
+  const profileHandler = useCallback(
+    (
+      notification:
+        | ReactionNotification
+        | ReactionPushNotification
+        | SupporterRankUpNotification
+        | SupporterRankUpPushNotification
+        | SupportingRankUpNotification
+        | SupportingRankUpPushNotification
+        | TipReceiveNotification
+        | TipReceivePushNotification
+        | TipSendNotification
+        | TipSendPushNotification
+    ) => {
+      navigation.navigate('Profile', {
+        id:
+          'entityId' in notification
+            ? notification.entityId
+            : notification.initiator
+      })
+    },
+    [navigation]
+  )
+
   const notificationTypeHandlerMap = useMemo(
     () => ({
       [NotificationType.AddTrackToPlaylist]: (
-        notification: AddTrackToPlaylistNotification
+        notification:
+          | AddTrackToPlaylistNotification
+          | AddTrackToPlaylistPushNotification
       ) => {
-        navigation.navigate('Collection', { id: notification.playlistId })
+        navigation.navigate('Collection', {
+          id:
+            'playlistId' in notification
+              ? notification.playlistId
+              : notification.metadata.playlistId
+        })
       },
       [NotificationType.Announcement]: (
         notification: AnnouncementNotification
@@ -89,47 +196,50 @@ export const useNotificationNavigation = () => {
       ) => {
         navigation.navigate('AudioScreen')
       },
-      [NotificationType.Favorite]: (notification: FavoriteNotification) => {
-        socialActionHandler(notification)
-      },
-      [NotificationType.Follow]: (notification: FollowNotification) => {
-        socialActionHandler(notification)
-      },
-      [NotificationType.Milestone]: (notification: MilestoneNotification) => {
-        if (notification.achievement === Achievement.Followers) {
-          navigation.navigate('Profile', { id: notification.entityId })
-        } else {
-          navigation.navigate(
-            notification.entityType === Entity.Track ? 'Track' : 'Collection',
-            { id: notification.entityId }
-          )
-        }
-      },
-      [NotificationType.Reaction]: (notification: ReactionNotification) => {
-        navigation.navigate('Profile', { id: notification.entityId })
-      },
+      [PushNotificationType.FavoriteAlbum]: socialActionHandler,
+      [PushNotificationType.FavoritePlaylist]: socialActionHandler,
+      [PushNotificationType.FavoriteTrack]: socialActionHandler,
+      [NotificationType.Favorite]: socialActionHandler,
+      [NotificationType.FavoriteOfRepost]: entityHandler,
+      [NotificationType.Follow]: socialActionHandler,
+      [PushNotificationType.MilestoneFavorite]: milestoneHandler,
+      [PushNotificationType.MilestoneFollow]: milestoneHandler,
+      [PushNotificationType.MilestoneListen]: milestoneHandler,
+      [PushNotificationType.MilestoneRepost]: milestoneHandler,
+      [NotificationType.Milestone]: milestoneHandler,
+      [NotificationType.Reaction]: profileHandler,
       [NotificationType.RemixCosign]: (
-        notification: RemixCosignNotification
+        notification: RemixCosignNotification | RemixCosignPushNotification
       ) => {
         navigation.navigate('Track', {
-          // @ts-ignore - Identity notification used entityId
-          id: notification.childTrackId ?? notification.entityId
+          id:
+            'childTrackId' in notification
+              ? notification.childTrackId
+              : notification.entityId
         })
       },
       [NotificationType.RemixCreate]: (
-        notification: RemixCreateNotification
+        notification: RemixCreateNotification | RemixCreatePushNotification
       ) => {
         navigation.navigate('Track', {
-          // @ts-ignore - Identity notification used entityId
-          id: notification.childTrackId ?? notification.entityId
+          id:
+            'childTrackId' in notification
+              ? notification.childTrackId
+              : notification.entityId
         })
       },
-      [NotificationType.Repost]: (notification: RepostNotification) => {
-        socialActionHandler(notification)
-      },
+      [PushNotificationType.RepostAlbum]: socialActionHandler,
+      [PushNotificationType.RepostPlaylist]: socialActionHandler,
+      [PushNotificationType.RepostTrack]: socialActionHandler,
+      [PushNotificationType.RepostOfRepostAlbum]: socialActionHandler,
+      [PushNotificationType.RepostOfRepostPlaylist]: socialActionHandler,
+      [PushNotificationType.RepostOfRepostTrack]: socialActionHandler,
+      [NotificationType.Repost]: socialActionHandler,
+      [NotificationType.RepostOfRepost]: entityHandler,
       [NotificationType.SupporterDethroned]: (
         notification: SupporterDethronedNotification
       ) => {
+        // TODO: Need to handle the payload from identity
         const { supportedUserId } = notification
         const supportedUser = store.getState().users.entries[supportedUserId]
 
@@ -138,25 +248,13 @@ export const useNotificationNavigation = () => {
         )
         navigation.navigate('TipArtist')
       },
-      [NotificationType.SupporterRankUp]: (
-        notification: SupporterRankUpNotification
-      ) => {
-        navigation.navigate('Profile', { id: notification.entityId })
-      },
-      [NotificationType.SupportingRankUp]: (
-        notification: SupportingRankUpNotification
-      ) => {
-        navigation.navigate('Profile', { id: notification.entityId })
-      },
+      [NotificationType.SupporterRankUp]: profileHandler,
+      [NotificationType.SupportingRankUp]: profileHandler,
       [NotificationType.TierChange]: (notification: TierChangeNotification) => {
         navigation.navigate('AudioScreen')
       },
-      [NotificationType.TipReceive]: (notification: TipReceiveNotification) => {
-        navigation.navigate('Profile', { id: notification.entityId })
-      },
-      [NotificationType.TipSend]: (notification: TipSendNotification) => {
-        navigation.navigate('Profile', { id: notification.entityId })
-      },
+      [NotificationType.TipReceive]: profileHandler,
+      [NotificationType.TipSend]: profileHandler,
       [NotificationType.TrendingTrack]: (
         notification: TrendingTrackNotification
       ) => {
@@ -165,6 +263,7 @@ export const useNotificationNavigation = () => {
       [NotificationType.UserSubscription]: (
         notification: UserSubscriptionNotification
       ) => {
+        // TODO: Need to handle the payload from identity
         const multiUpload = notification.entityIds.length > 1
 
         if (notification.entityType === Entity.Track && multiUpload) {
@@ -175,13 +274,23 @@ export const useNotificationNavigation = () => {
             { id: notification.entityIds[0] }
           )
         }
-      }
+      },
+      [NotificationType.Tastemaker]: entityHandler
     }),
-    [dispatch, navigation, socialActionHandler, store]
+    [
+      dispatch,
+      milestoneHandler,
+      navigation,
+      profileHandler,
+      socialActionHandler,
+      entityHandler,
+      store
+    ]
   )
 
   const handleNavigate = useCallback(
     (notification: any) => {
+      if (!notification) return
       notificationTypeHandlerMap[notification.type]?.(notification)
     },
     [notificationTypeHandlerMap]

@@ -4,10 +4,17 @@
 // import tracksSagas from 'common/store/cache/tracks/sagas'
 // import usersSagas from 'common/store/cache/users/sagas'
 // import recoveryEmailSagas from 'common/store/recovery-email/sagas'
-import { sagas as castSagas } from 'store/cast/sagas'
-import remoteConfigSagas from 'store/remote-config/sagas'
 // import signOutSagas from 'common/store/sign-out/sagas'
 
+import { sagas as castSagas } from 'store/cast/sagas'
+import { chatSagas } from 'store/pages/chat'
+import { playbackPositionSagas } from 'store/playback-position'
+import { playerSagas } from 'store/player'
+import { premiumContentSagas } from 'store/premium-content'
+import remoteConfigSagas from 'store/remote-config/sagas'
+import { searchUsersModalSagas } from 'store/ui'
+
+import { playlistUpdatesSagas } from './playlist-updates'
 import { CommonStoreContext } from './storeContext'
 import {
   toastSagas,
@@ -31,10 +38,16 @@ export const sagas = (_ctx: CommonStoreContext) => ({
   // users: usersSagas,
   remoteConfig: remoteConfigSagas,
   cast: castSagas,
+  premiumContent: premiumContentSagas,
+  chat: chatSagas,
+  searchUsers: searchUsersModalSagas,
   toast: toastSagas,
   shareModalUI: shareModalUISagas,
   mobileOverflowMenuUI: mobileOverflowMenuUISagas,
-  deletePlaylistConfirmationModalUI: deletePlaylistConfirmationModalUISagas
+  deletePlaylistConfirmationModalUI: deletePlaylistConfirmationModalUISagas,
+  player: playerSagas,
+  playbackPosition: playbackPositionSagas,
+  playlistUpdates: playlistUpdatesSagas
 
   // signOut: signOutSagas
   // recoveryEmail: recoveryEmailSagas

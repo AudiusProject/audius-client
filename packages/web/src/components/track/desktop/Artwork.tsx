@@ -4,9 +4,14 @@ import {
   ID,
   SquareSizes,
   CoverArtSizes,
-  useLoadImageWithTimeout
+  useLoadImageWithTimeout,
+  FeatureFlags
 } from '@audius/common'
-import { PbIconPlay as IconPlay, PbIconPause as IconPause } from '@audius/stems'
+import {
+  PbIconPlay as IconPlay,
+  PbIconPause as IconPause,
+  IconLock
+} from '@audius/stems'
 import cn from 'classnames'
 import Lottie from 'react-lottie'
 
@@ -15,6 +20,7 @@ import CoSign from 'components/co-sign/CoSign'
 import { Size } from 'components/co-sign/types'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { useCollectionCoverArt } from 'hooks/useCollectionCoverArt'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 
 import styles from './Artwork.module.css'
@@ -40,17 +46,28 @@ type TileArtworkProps = {
     user: { name: string; is_verified: boolean; user_id: ID }
   }
   callback: () => void
+  doesUserHaveAccess?: boolean
 }
 
 const ArtworkIcon = ({
   playStatus,
-  artworkIconClassName
+  artworkIconClassName,
+  doesUserHaveAccess,
+  isTrack
 }: {
   playStatus: PlayStatus
   artworkIconClassName?: string
+  doesUserHaveAccess?: boolean
+  isTrack?: boolean
 }) => {
+  const { isEnabled: isGatedContentEnabled } = useFlag(
+    FeatureFlags.GATED_CONTENT_ENABLED
+  )
+
   let artworkIcon
-  if (playStatus === PlayStatus.Buffering) {
+  if (isGatedContentEnabled && isTrack && !doesUserHaveAccess) {
+    artworkIcon = <IconLock />
+  } else if (playStatus === PlayStatus.Buffering) {
     artworkIcon = (
       <div className={styles.loadingAnimation}>
         <Lottie
@@ -81,6 +98,7 @@ const ArtworkIcon = ({
 type ArtworkProps = TileArtworkProps & {
   image: any
   label?: string
+  isTrack?: boolean
 }
 
 const Artwork = memo(
@@ -93,7 +111,9 @@ const Artwork = memo(
     isPlaying,
     image,
     coSign,
-    label
+    label,
+    doesUserHaveAccess,
+    isTrack
   }: ArtworkProps) => {
     const playStatus = isBuffering
       ? PlayStatus.Buffering
@@ -115,6 +135,8 @@ const Artwork = memo(
           <ArtworkIcon
             playStatus={playStatus}
             artworkIconClassName={artworkIconClassName}
+            doesUserHaveAccess={doesUserHaveAccess}
+            isTrack={isTrack}
           />
         )}
       </DynamicImage>
@@ -150,7 +172,7 @@ export const TrackArtwork = memo((props: TileArtworkProps) => {
 
   useLoadImageWithTimeout(image, callback)
 
-  return <Artwork {...props} image={image} />
+  return <Artwork {...props} image={image} isTrack />
 })
 
 export const CollectionArtwork = memo((props: TileArtworkProps) => {

@@ -1,49 +1,30 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 
-import { playerActions } from '@audius/common'
-import moment from 'moment'
-import { StyleSheet, View } from 'react-native'
+import { formatSeconds, playerActions } from '@audius/common'
+import { View } from 'react-native'
 import { useDispatch } from 'react-redux'
 
 import Text from 'app/components/text'
-import { useThemedStyles } from 'app/hooks/useThemedStyles'
-import type { ThemeColors } from 'app/utils/theme'
+import { makeStyles } from 'app/styles'
 
+import { PositionTimestamp } from './PositionTimestamp'
 import { Slider } from './Slider'
+import { usePosition } from './usePosition'
 
 const { seek } = playerActions
 
-const SEEK_INTERVAL = 200
-
-const SECONDS_PER_MINUTE = 60
-const MINUTES_PER_HOUR = 60
-const SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR
-
-// Timeout applied when releasing the drag-handle before timestamps reset.
-const SCRUB_RELEASE_TIMEOUT_MS = 400
-
-// Pretty formats seconds into m:ss or h:mm:ss
-const formatSeconds = (seconds: number) => {
-  const utc = moment.utc(moment.duration(seconds, 'seconds').asMilliseconds())
-  if (seconds > SECONDS_PER_HOUR) {
-    return utc.format('h:mm:ss')
+const useStyles = makeStyles(({ palette }) => ({
+  root: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  timestamp: {
+    width: 50,
+    color: palette.neutral,
+    fontSize: 12,
+    flexShrink: 1
   }
-  return utc.format('m:ss')
-}
-
-const createStyles = (themeColors: ThemeColors) =>
-  StyleSheet.create({
-    root: {
-      flexDirection: 'row',
-      alignItems: 'center'
-    },
-    timestamp: {
-      width: 50,
-      color: themeColors.neutral,
-      fontSize: 12,
-      flexShrink: 1
-    }
-  })
+}))
 
 type ScrubberProps = {
   /**
@@ -72,104 +53,70 @@ type ScrubberProps = {
 /**
  * Scrubber component to control track playback & seek.
  */
-export const Scrubber = ({
-  mediaKey,
-  isPlaying,
-  duration,
-  onPressIn,
-  onPressOut
-}: ScrubberProps) => {
-  const styles = useThemedStyles(createStyles)
+export const Scrubber = (props: ScrubberProps) => {
+  const { mediaKey, isPlaying, duration, onPressIn, onPressOut } = props
+  const styles = useStyles()
   const dispatch = useDispatch()
-
-  // The left-hand timestamp
-  const [timestampStart, setTimestampStart] = useState('')
-  // The right-hand timestamp
-  const [timestampEnd, setTimestampEnd] = useState('')
-
-  const [dragSeconds, setDragSeconds] = useState<string | null>(null)
-
-  const [isDragging, setIsDragging] = useState(false)
+  const [isInteracting, setIsInteracting] = useState(false)
+  const { ref, setPosition } = usePosition(
+    mediaKey,
+    duration,
+    isPlaying,
+    isInteracting
+  )
 
   const handlePressIn = useCallback(() => {
     onPressIn()
-    setIsDragging(true)
-  }, [onPressIn, setIsDragging])
+    setIsInteracting(true)
+  }, [onPressIn])
 
-  const handlePressOut = useCallback(
-    (percentComplete) => {
-      if (global.progress) {
-        if (duration) {
-          setTimestampStart(formatSeconds(percentComplete * duration))
-          dispatch(seek({ seconds: percentComplete * duration }))
-        }
+  const handlePressOut = useCallback(() => {
+    onPressOut()
+    setIsInteracting(false)
+  }, [onPressOut])
+
+  const handleNewPosition = useCallback(
+    (percentComplete: number) => {
+      const newPosition = percentComplete * duration
+      if (duration) {
+        dispatch(seek({ seconds: newPosition }))
       }
+      setPosition(newPosition)
+      setIsInteracting(false)
       onPressOut()
-      setIsDragging(false)
-      setTimeout(() => {
-        setDragSeconds(null)
-      }, SCRUB_RELEASE_TIMEOUT_MS)
     },
-    [onPressOut, setIsDragging, dispatch, duration]
+    [onPressOut, dispatch, duration, setPosition]
   )
 
-  // Register an interval to update the start / end timestamps (duration)
-  const seekInterval = useRef<NodeJS.Timeout | null>(null)
-
-  const onDrag = useCallback(
-    (percentComplete) => {
-      if (global.progress && duration) {
-        setDragSeconds(formatSeconds(percentComplete * duration))
-      }
+  const handleDrag = useCallback(
+    (percentComplete: number) => {
+      setIsInteracting(true)
+      setPosition(percentComplete * duration)
     },
-    [duration, setDragSeconds]
+    [duration, setPosition]
   )
 
-  useEffect(() => {
-    setDragSeconds(formatSeconds(0))
-    setTimeout(() => {
-      setDragSeconds(null)
-    }, SCRUB_RELEASE_TIMEOUT_MS)
-  }, [mediaKey])
+  const handleDragRelease = useCallback(() => {
+    setIsInteracting(false)
+  }, [])
 
-  useEffect(() => {
-    if (!isDragging) {
-      seekInterval.current = setInterval(() => {
-        if (isPlaying && global.progress) {
-          const { currentTime, seekableDuration } = global.progress
-          if (seekableDuration !== undefined) {
-            setTimestampStart(formatSeconds(currentTime))
-            setTimestampEnd(formatSeconds(seekableDuration))
-          }
-        }
-      }, SEEK_INTERVAL)
-    }
-    return () => {
-      if (seekInterval.current) {
-        clearInterval(seekInterval.current)
-      }
-    }
-  }, [mediaKey, isPlaying, seekInterval, isDragging])
-
+  // TODO: disable scrubber animation when now playing is closed
+  // Disable tracking bar animation when now playing bar is open
   return (
     <View style={styles.root}>
-      <Text
-        style={[styles.timestamp, { textAlign: 'right' }]}
-        weight='regular'
-        numberOfLines={1}
-      >
-        {dragSeconds || timestampStart}
-      </Text>
+      <PositionTimestamp ref={ref} />
       <Slider
         mediaKey={mediaKey}
         isPlaying={isPlaying}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        onDrag={onDrag}
+        onNewPosition={handleNewPosition}
+        onDrag={handleDrag}
+        onDragRelease={handleDragRelease}
         duration={duration}
       />
       <Text style={styles.timestamp} weight='regular' numberOfLines={1}>
-        {timestampEnd}
+        {formatSeconds(duration)}
       </Text>
     </View>
   )

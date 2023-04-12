@@ -10,7 +10,6 @@ import {
   cacheTracksSelectors,
   cacheUsersSelectors,
   cacheActions,
-  audioRewardsPageActions,
   getContext,
   tracksSocialActions as socialActions,
   waitForValue
@@ -19,16 +18,15 @@ import { fork } from 'redux-saga/effects'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
-import { waitForBackendSetup } from 'common/store/backend/sagas'
 import { adjustUserField } from 'common/store/cache/users/sagas'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import { updateProfileAsync } from 'common/store/profile/sagas'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import { waitForRead, waitForWrite } from 'utils/sagaHelpers'
 
 import watchTrackErrors from './errorSagas'
-const { updateOptimisticListenStreak } = audioRewardsPageActions
+import { watchRecordListen } from './recordListen'
 const { getUser } = cacheUsersSelectors
 const { getTrack, getTracks } = cacheTracksSelectors
 
@@ -42,12 +40,15 @@ export function* watchRepostTrack() {
 export function* repostTrackAsync(
   action: ReturnType<typeof socialActions.repostTrack>
 ) {
-  yield* waitForBackendAndAccount()
+  yield* waitForWrite()
   const userId = yield* select(getUserId)
   if (!userId) {
     yield* put(signOnActions.openSignOn(false))
     yield* put(signOnActions.showRequiresAccountModal())
     yield* put(make(Name.CREATE_ACCOUNT_OPEN, { source: 'social action' }))
+    return
+  }
+  if (userId === action.trackId) {
     return
   }
 
@@ -64,10 +65,16 @@ export function* repostTrackAsync(
   })
   yield* put(event)
 
-  yield* call(confirmRepostTrack, action.trackId, user)
+  const track = yield* select(getTrack, { id: action.trackId })
+  if (!track) return
 
-  const tracks = yield* select(getTracks, { ids: [action.trackId] })
-  const track = tracks[action.trackId]
+  const repostMetadata = action.isFeed
+    ? // If we're on the feed, and someone i follow has
+      // reposted the content i am reposting,
+      // is_repost_of_repost is true
+      { is_repost_of_repost: track.followee_reposts.length !== 0 }
+    : { is_repost_of_repost: false }
+  yield* call(confirmRepostTrack, action.trackId, user, repostMetadata)
 
   const eagerlyUpdatedMetadata: Partial<Track> = {
     has_current_user_reposted: true,
@@ -137,7 +144,11 @@ export function* repostTrackAsync(
   }
 }
 
-export function* confirmRepostTrack(trackId: ID, user: User) {
+export function* confirmRepostTrack(
+  trackId: ID,
+  user: User,
+  metadata?: { is_repost_of_repost: boolean }
+) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* put(
     confirmerActions.requestConfirmation(
@@ -145,7 +156,8 @@ export function* confirmRepostTrack(trackId: ID, user: User) {
       function* () {
         const { blockHash, blockNumber } = yield* call(
           audiusBackendInstance.repostTrack,
-          trackId
+          trackId,
+          metadata
         )
         const confirmed = yield* call(
           confirmTransaction,
@@ -186,12 +198,15 @@ export function* watchUndoRepostTrack() {
 export function* undoRepostTrackAsync(
   action: ReturnType<typeof socialActions.undoRepostTrack>
 ) {
-  yield* waitForBackendAndAccount()
+  yield* waitForWrite()
   const userId = yield* select(getUserId)
   if (!userId) {
     yield* put(signOnActions.openSignOn(false))
     yield* put(signOnActions.showRequiresAccountModal())
     yield* put(make(Name.CREATE_ACCOUNT_OPEN, { source: 'social action' }))
+    return
+  }
+  if (userId === action.trackId) {
     return
   }
 
@@ -299,12 +314,15 @@ export function* watchSaveTrack() {
 export function* saveTrackAsync(
   action: ReturnType<typeof socialActions.saveTrack>
 ) {
-  yield* waitForBackendAndAccount()
+  yield* waitForWrite()
   const userId = yield* select(getUserId)
   if (!userId) {
     yield* put(signOnActions.showRequiresAccountModal())
     yield* put(signOnActions.openSignOn(false))
     yield* put(make(Name.CREATE_ACCOUNT_OPEN, { source: 'social action' }))
+    return
+  }
+  if (userId === action.trackId) {
     return
   }
 
@@ -330,7 +348,12 @@ export function* saveTrackAsync(
   })
   yield* put(event)
 
-  yield* call(confirmSaveTrack, action.trackId, user)
+  const saveMetadata = action.isFeed
+    ? // If we're on the feed, and the content
+      // being saved is a repost
+      { is_save_of_repost: track.followee_reposts.length !== 0 }
+    : { is_save_of_repost: false }
+  yield* call(confirmSaveTrack, action.trackId, user, saveMetadata)
 
   const eagerlyUpdatedMetadata: Partial<Track> = {
     has_current_user_saved: true,
@@ -392,7 +415,11 @@ export function* saveTrackAsync(
   }
 }
 
-export function* confirmSaveTrack(trackId: ID, user: User) {
+export function* confirmSaveTrack(
+  trackId: ID,
+  user: User,
+  metadata?: { is_save_of_repost: boolean }
+) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* put(
     confirmerActions.requestConfirmation(
@@ -400,7 +427,8 @@ export function* confirmSaveTrack(trackId: ID, user: User) {
       function* () {
         const { blockHash, blockNumber } = yield* call(
           audiusBackendInstance.saveTrack,
-          trackId
+          trackId,
+          metadata
         )
         const confirmed = yield* call(
           confirmTransaction,
@@ -439,12 +467,15 @@ export function* watchUnsaveTrack() {
 export function* unsaveTrackAsync(
   action: ReturnType<typeof socialActions.unsaveTrack>
 ) {
-  yield* waitForBackendAndAccount()
+  yield* waitForWrite()
   const userId = yield* select(getUserId)
   if (!userId) {
     yield* put(signOnActions.openSignOn(false))
     yield* put(signOnActions.showRequiresAccountModal())
     yield* put(make(Name.CREATE_ACCOUNT_OPEN, { source: 'social action' }))
+    return
+  }
+  if (userId === action.trackId) {
     return
   }
 
@@ -469,6 +500,7 @@ export function* unsaveTrackAsync(
 
   const tracks = yield* select(getTracks, { ids: [action.trackId] })
   const track = tracks[action.trackId]
+
   if (track) {
     const eagerlyUpdatedMetadata: Partial<Track> = {
       has_current_user_saved: false,
@@ -552,29 +584,22 @@ export function* confirmUnsaveTrack(trackId: ID, user: User) {
 }
 
 export function* watchSetArtistPick() {
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* takeEvery(
     socialActions.SET_ARTIST_PICK,
     function* (action: ReturnType<typeof socialActions.setArtistPick>) {
-      yield* waitForBackendAndAccount()
+      yield* waitForWrite()
       const userId = yield* select(getUserId)
 
-      // Dual write to the artist_pick_track_id field in the
-      // users table in the discovery DB. Part of the migration
-      // of the artist pick feature from the identity service
-      // to the entity manager in discovery.
       yield* put(
         cacheActions.update(Kind.USERS, [
           {
             id: userId,
             metadata: {
-              artist_pick_track_id: action.trackId,
-              _artist_pick: action.trackId
+              artist_pick_track_id: action.trackId
             }
           }
         ])
       )
-      yield* call(audiusBackendInstance.setArtistPick, action.trackId)
       const user = yield* call(waitForValue, getUser, { id: userId })
       yield fork(updateProfileAsync, { metadata: user })
 
@@ -585,63 +610,26 @@ export function* watchSetArtistPick() {
 }
 
 export function* watchUnsetArtistPick() {
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* takeEvery(socialActions.UNSET_ARTIST_PICK, function* (action) {
-    yield* waitForBackendAndAccount()
+    yield* waitForWrite()
     const userId = yield* select(getUserId)
 
-    // Dual write to the artist_pick_track_id field in the
-    // users table in the discovery DB. Part of the migration
-    // of the artist pick feature from the identity service
-    // to the entity manager in discovery.
     yield* put(
       cacheActions.update(Kind.USERS, [
         {
           id: userId,
           metadata: {
-            artist_pick_track_id: null,
-            _artist_pick: null
+            artist_pick_track_id: null
           }
         }
       ])
     )
-    yield* call(audiusBackendInstance.setArtistPick)
     const user = yield* call(waitForValue, getUser, { id: userId })
     yield fork(updateProfileAsync, { metadata: user })
 
     const event = make(Name.ARTIST_PICK_SELECT_TRACK, { id: 'none' })
     yield* put(event)
   })
-}
-
-/* RECORD LISTEN */
-
-export function* watchRecordListen() {
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  yield* takeEvery(
-    socialActions.RECORD_LISTEN,
-    function* (action: ReturnType<typeof socialActions.recordListen>) {
-      const isNativeMobile = yield* getContext('isNativeMobile')
-      if (isNativeMobile) return
-      console.debug('Listen recorded for track', action.trackId)
-
-      yield* waitForBackendAndAccount()
-      const userId = yield* select(getUserId)
-      const track = yield* select(getTrack, { id: action.trackId })
-      if (!userId || !track) return
-
-      if (userId !== track.owner_id || track.play_count < 10) {
-        yield* call(audiusBackendInstance.recordTrackListen, action.trackId)
-      }
-
-      // Record track listen analytics event
-      const event = make(Name.LISTEN, { trackId: action.trackId })
-      yield* put(event)
-
-      // Optimistically update the listen streak if applicable
-      yield* put(updateOptimisticListenStreak())
-    }
-  )
 }
 
 /* DOWNLOAD TRACK */
@@ -651,7 +639,7 @@ function* watchDownloadTrack() {
     socialActions.DOWNLOAD_TRACK,
     function* (action: ReturnType<typeof socialActions.downloadTrack>) {
       const trackDownload = yield* getContext('trackDownload')
-      yield* call(waitForBackendSetup)
+      yield* call(waitForRead)
 
       // Check if there is a logged in account and if not,
       // wait for one so we can trigger the download immediately after

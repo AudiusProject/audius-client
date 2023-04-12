@@ -72,7 +72,6 @@ const springProps = {
 }
 
 type AppRedirectPopoverProps = {
-  enablePopover: boolean
   incrementScroll: () => void
   decrementScroll: () => void
   onBeforeClickApp?: () => void
@@ -84,8 +83,7 @@ type AppRedirectPopoverProps = {
  * page in the mobile app, or redirects to the app store
  * if no app is installed.
  */
-const AppRedirectPopover = ({
-  enablePopover,
+export const AppRedirectPopover = ({
   incrementScroll,
   decrementScroll,
   onBeforeClickApp = () => {},
@@ -95,10 +93,14 @@ const AppRedirectPopover = ({
 
   const [animDelay, setAnimDelay] = useState(false)
   useEffect(() => {
-    enablePopover && setTimeout(() => setAnimDelay(true), 500)
-  }, [enablePopover])
+    setTimeout(() => setAnimDelay(true), 1000)
+  }, [])
 
-  const shouldShow = animDelay && !isDismissed && isMobile()
+  const shouldShow =
+    !matchPath(window.location.pathname, { path: '/', exact: true }) &&
+    animDelay &&
+    !isDismissed &&
+    isMobile()
 
   useEffect(() => {
     shouldShow && incrementScroll()
@@ -120,6 +122,7 @@ const AppRedirectPopover = ({
     onBeforeClickApp()
     const pathname = getPathname()
     const newHref = `https://redirect.audius.co${APP_REDIRECT}${pathname}`
+
     // If we're on the signup page, copy the URL to clipboard on app redirect
     // The app can then read the URL on load, persisting through install, to associate referrals
     if (
@@ -207,5 +210,3 @@ const AppRedirectPopover = ({
     </>
   )
 }
-
-export default AppRedirectPopover

@@ -49,18 +49,10 @@ client.query({ query }).then((response) => {
 })
 
 type AudiusAppProps = {
-  setReady: () => void
-  isReady: boolean
-  setConnectivityFailure: (failure: boolean) => void
   shouldShowPopover: boolean
 }
 
-const AudiusApp = ({
-  setReady,
-  isReady,
-  setConnectivityFailure,
-  shouldShowPopover
-}: AudiusAppProps) => {
+const AudiusApp = ({ shouldShowPopover }: AudiusAppProps) => {
   return (
     <Provider store={store}>
       <ConnectedRouter history={history}>
@@ -81,10 +73,7 @@ const AudiusApp = ({
                     <AppErrorBoundary>
                       <CoinbasePayButtonProvider>
                         <App
-                          setReady={setReady}
-                          isReady={isReady}
                           mainContentRef={mainContentRef}
-                          setConnectivityFailure={setConnectivityFailure}
                           shouldShowPopover={shouldShowPopover}
                         />
                       </CoinbasePayButtonProvider>

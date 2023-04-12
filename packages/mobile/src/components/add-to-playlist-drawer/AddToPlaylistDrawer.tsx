@@ -1,7 +1,7 @@
-import { useContext } from 'react'
+import { useCallback } from 'react'
 
-import type { User } from '@audius/common'
 import {
+  SquareSizes,
   CreatePlaylistSource,
   accountSelectors,
   cacheCollectionsActions,
@@ -16,8 +16,12 @@ import Button, { ButtonType } from 'app/components/button'
 import { Card } from 'app/components/card'
 import { CardList } from 'app/components/core'
 import { AppDrawer, useDrawerState } from 'app/components/drawer'
-import { ToastContext } from 'app/components/toast/ToastContext'
+import { CollectionImage } from 'app/components/image/CollectionImage'
+import { useToast } from 'app/hooks/useToast'
 import { makeStyles, shadow } from 'app/styles'
+
+import type { ImageProps } from '../image/FastImage'
+
 const { addTrackToPlaylist, createPlaylist } = cacheCollectionsActions
 const { getTrackId, getTrackTitle } = addToPlaylistUISelectors
 const { getAccountWithOwnPlaylists } = accountSelectors
@@ -45,12 +49,24 @@ const useStyles = makeStyles(() => ({
 
 export const AddToPlaylistDrawer = () => {
   const styles = useStyles()
-  const { toast } = useContext(ToastContext)
+  const { toast } = useToast()
   const dispatch = useDispatch()
   const { onClose } = useDrawerState('AddToPlaylist')
   const trackId = useSelector(getTrackId)
   const trackTitle = useSelector(getTrackTitle)
   const user = useSelector(getAccountWithOwnPlaylists)
+
+  const renderImage = useCallback(
+    (item) => (props?: ImageProps) =>
+      (
+        <CollectionImage
+          collection={item}
+          size={SquareSizes.SIZE_480_BY_480}
+          {...props}
+        />
+      ),
+    []
+  )
 
   if (!user || !trackId || !trackTitle) {
     return null
@@ -93,9 +109,8 @@ export const AddToPlaylistDrawer = () => {
           renderItem={({ item }) => (
             <Card
               key={item.playlist_id}
-              id={item.playlist_id}
               type='collection'
-              imageSize={item._cover_art_sizes}
+              id={item.playlist_id}
               primaryText={item.playlist_name}
               secondaryText={user.name}
               onPress={() => {
@@ -103,7 +118,7 @@ export const AddToPlaylistDrawer = () => {
                 dispatch(addTrackToPlaylist(trackId!, item.playlist_id))
                 onClose()
               }}
-              user={user as unknown as User}
+              renderImage={renderImage(item)}
             />
           )}
         />

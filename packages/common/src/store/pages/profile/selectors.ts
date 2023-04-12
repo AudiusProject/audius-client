@@ -5,9 +5,11 @@ import { getUser, getUsers } from 'store/cache/users/selectors'
 import { CommonState } from 'store/commonStore'
 import { removeNullable, createDeepEqualSelector } from 'utils'
 
-import { ID, Status, User, UserCollection } from '../../../models'
+import { Status } from '../../../models'
+import type { ID, User, UserCollection } from '../../../models'
 
 import { initialState as initialFeedState } from './lineups/feed/reducer'
+import { PREFIX as TRACKS_PREFIX } from './lineups/tracks/actions'
 import { initialState as initialTracksState } from './lineups/tracks/reducer'
 import { CollectionSortMode } from './types'
 
@@ -38,12 +40,12 @@ export const getProfileUserId = (state: CommonState, handle?: string) =>
   getProfile(state, handle)?.userId
 export const getProfileUserHandle = (state: CommonState) =>
   state.pages.profile.currentUser
-export const getProfileMostUsedTags = (state: CommonState, handle?: string) =>
-  getProfile(state, handle)?.mostUsedTags ?? ([] as string[])
 export const getProfileCollectionSortMode = (
   state: CommonState,
   handle: string
 ) => getProfile(state, handle)?.collectionSortMode
+export const getCollectionsStatus = (state: CommonState, handle?: string) =>
+  getProfile(state, handle)?.collectionStatus
 export const getProfileFollowers = (state: CommonState, handle?: string) =>
   getProfile(state, handle)?.followers
 export const getProfileFollowees = (state: CommonState, handle?: string) =>
@@ -69,6 +71,12 @@ export const getProfileFeedLineup = (state: CommonState, handle?: string) =>
 export const getProfileTracksLineup = (state: CommonState, handle?: string) =>
   getProfile(state, handle)?.tracks ?? initialTracksState
 
+export const getTopTagsStatus = (state: CommonState, handle: string) =>
+  getProfile(state, handle)?.topTagsStatus
+
+export const getTopTags = (state: CommonState, handle: string) =>
+  getProfile(state, handle)?.topTags
+
 export const getProfileCollections = createDeepEqualSelector(
   [
     (state: CommonState, handle: string) => getProfileUserId(state, handle),
@@ -76,9 +84,9 @@ export const getProfileCollections = createDeepEqualSelector(
     getCollections
   ],
   (userId, users, collections) => {
-    if (!userId) return []
+    if (!userId) return undefined
     const user: User = users[userId]
-    if (!user) return []
+    if (!user) return undefined
     const { handle, _collectionIds } = user
     const userCollections = _collectionIds
       ?.map((collectionId) => collections[collectionId as unknown as number])
@@ -92,7 +100,7 @@ export const getProfileCollections = createDeepEqualSelector(
       .map(
         (collection) => ({ ...collection, user: { handle } } as UserCollection)
       )
-    return userCollections ?? []
+    return userCollections
   }
 )
 
@@ -116,7 +124,6 @@ export const makeGetProfile = () => {
       getProfileCollectionSortMode,
       getProfileFollowers,
       getProfileFollowees,
-      getProfileMostUsedTags,
       // External
       getUsers,
       getCollections
@@ -129,7 +136,6 @@ export const makeGetProfile = () => {
       sortMode,
       followers,
       followees,
-      mostUsedTags,
       users,
       collections
     ) => {
@@ -137,7 +143,6 @@ export const makeGetProfile = () => {
         profile: null,
         playlists: null,
         albums: null,
-        mostUsedTags: [],
         isSubscribed: false,
         status
       }
@@ -192,9 +197,10 @@ export const makeGetProfile = () => {
           })
           .filter(removeNullable) ?? (emptyList as User[])
 
+      const user = users[userId]
       return {
         profile: {
-          ...users[userId],
+          ...user,
           followers: {
             status: followers?.status ?? Status.IDLE,
             users: followersPopulated
@@ -204,7 +210,6 @@ export const makeGetProfile = () => {
             users: followeesPopulated
           }
         },
-        mostUsedTags,
         playlists,
         albums,
         status,
@@ -213,3 +218,6 @@ export const makeGetProfile = () => {
     }
   )
 }
+
+export const getTrackSource = (state: CommonState, handle: string) =>
+  `${TRACKS_PREFIX}:${getProfileUserId(state, handle)}`

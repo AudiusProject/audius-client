@@ -4,8 +4,12 @@
 }
 
 .modalBodyStyle {
-  width: 736px;
-  max-width: 736px;
+  width: 400px;
+  max-width: 400px;
+}
+
+.text {
+  line-height: 20px;
 }
 
 .container {
@@ -36,15 +40,16 @@
 }
 
 .btnContainer {
+  width: 100%;
   margin-top: 24px;
-  display: inline-flex;
-  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .btn {
   height: 52px !important;
-  width: 176px;
-  margin: 4px auto;
+  width: 100%;
 }
 /** Breakpoint for settings card **/
 @media (max-width: 780px) {
@@ -58,7 +63,7 @@
 .btn .btnIcon path:first-child {
   fill: #cc0fe0 !important;
 }
-.disabledBtn .btnIcon path:first-child,
+.disabledBtn .btnIcon path:nth-child(2),
 .btn .btnIcon path:nth-child(2) {
   fill: white !important;
 }
@@ -67,17 +72,12 @@
   font-size: var(--font-l);
 }
 
-.twitterClassName {
-  margin-right: 24px;
-}
-
 .error {
   color: var(--accent-red);
   font-weight: var(--font-demi-bold);
   display: flex;
   width: 100%;
   text-align: left;
-  padding: 0px 28px;
   margin-top: 28px;
 }
 
@@ -150,7 +150,6 @@
   background-color: var(--white);
   border: 1px solid var(--neutral-light-6);
   opacity: 0.5;
-  height: 64px !important;
 }
 
 .disabledBtn:hover,
@@ -163,4 +162,9 @@
 .disabledBtn .disabledBtnText {
   color: var(--neutral);
   font-weight: var(--font-demi-bold);
+}
+
+.socialButton {
+  width: 100%;
+  margin-bottom: 4px;
 }

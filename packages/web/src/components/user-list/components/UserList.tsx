@@ -1,4 +1,9 @@
-import { ID, User } from '@audius/common'
+import {
+  ID,
+  SUPPORTING_USER_LIST_TAG,
+  TOP_SUPPORTERS_USER_LIST_TAG,
+  User
+} from '@audius/common'
 import cn from 'classnames'
 import InfiniteScroll from 'react-infinite-scroller'
 import Lottie from 'react-lottie'
@@ -19,6 +24,7 @@ type UserListProps = {
   users: User[]
   isMobile: boolean
   tag: string
+  otherUserId?: ID
   loadMore: () => void
   onClickArtistName: (handle: string) => void
   onFollow: (userId: ID) => void
@@ -53,9 +59,17 @@ const UserList = (props: UserListProps) => {
               }}
               onNavigateAway={props.onNavigateAway}
               showPopover={!props.isMobile}
-              tag={props.tag}
-              className={styles.artistChipContainer}
               popoverMount={MountPlacement.BODY}
+              showSupportFor={
+                props.tag === TOP_SUPPORTERS_USER_LIST_TAG
+                  ? props.otherUserId
+                  : undefined
+              }
+              showSupportFrom={
+                props.tag === SUPPORTING_USER_LIST_TAG
+                  ? props.otherUserId
+                  : undefined
+              }
             />
             {user.user_id !== props.userId ? (
               <FollowButton

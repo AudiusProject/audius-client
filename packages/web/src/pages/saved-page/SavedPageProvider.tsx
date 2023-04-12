@@ -11,8 +11,6 @@ import {
   accountSelectors,
   accountActions,
   lineupSelectors,
-  notificationsSelectors,
-  notificationsActions,
   savedPageTracksLineupActions as tracksActions,
   savedPageActions as saveActions,
   savedPageSelectors,
@@ -23,7 +21,10 @@ import {
   tracksSocialActions as socialActions,
   playerSelectors,
   queueSelectors,
-  Kind
+  Kind,
+  LineupTrack,
+  playlistUpdatesActions,
+  playlistUpdatesSelectors
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { debounce, isEqual } from 'lodash'
@@ -41,11 +42,11 @@ import { SavedPageProps as MobileSavedPageProps } from './components/mobile/Save
 const { makeGetCurrent } = queueSelectors
 const { getPlaying, getBuffering } = playerSelectors
 const { getSavedTracksLineup, hasReachedEnd } = savedPageSelectors
-const { updatePlaylistLastViewedAt } = notificationsActions
-const { getPlaylistUpdates } = notificationsSelectors
+const { updatedPlaylistViewed } = playlistUpdatesActions
 const { makeGetTableMetadatas } = lineupSelectors
 
-const { getAccountWithSavedPlaylistsAndAlbums } = accountSelectors
+const { selectAllPlaylistUpdateIds } = playlistUpdatesSelectors
+const { getAccountWithNameSortedPlaylistsAndAlbums } = accountSelectors
 
 const messages = {
   title: 'Favorites',
@@ -57,7 +58,7 @@ const sortMethodMap: Record<string, string> = {
   artist: 'artist_name',
   created_at: 'release_date',
   dateListened: 'last_listen_date',
-  dateSaved: 'added_date',
+  dateSaved: 'saved_date',
   time: 'length',
   plays: 'plays',
   repost_count: 'reposts'
@@ -400,10 +401,14 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
     const dataSource = this.formatMetadata(entries)
     let updatedOrder
     if (!column) {
-      const trackIdMap = this.props.tracks.entries.reduce((acc, track) => {
-        acc[track.id] = track
-        return acc
-      }, {})
+      const trackIdMap: Record<string, LineupTrack> =
+        this.props.tracks.entries.reduce(
+          (acc, track) => ({
+            ...acc,
+            [track.id]: track
+          }),
+          {}
+        )
       updatedOrder = this.state.initialOrder?.map((id) => {
         return trackIdMap[id]?.uid
       })
@@ -514,7 +519,7 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
 }
 
 type LineupData = ReturnType<ReturnType<typeof makeGetTableMetadatas>>
-type AccountData = ReturnType<typeof getAccountWithSavedPlaylistsAndAlbums>
+type AccountData = ReturnType<typeof getAccountWithNameSortedPlaylistsAndAlbums>
 let tracksRef: LineupData
 let accountRef: AccountData
 
@@ -523,7 +528,7 @@ function makeMapStateToProps() {
   const getCurrentQueueItem = makeGetCurrent()
   const mapStateToProps = (state: AppState) => {
     const tracks = getLineupMetadatas(state)
-    const account = getAccountWithSavedPlaylistsAndAlbums(state)
+    const account = getAccountWithNameSortedPlaylistsAndAlbums(state)
 
     if (!isEqual(tracksRef, tracks)) {
       tracksRef = tracks
@@ -538,7 +543,7 @@ function makeMapStateToProps() {
       currentQueueItem: getCurrentQueueItem(state),
       playing: getPlaying(state),
       buffering: getBuffering(state),
-      playlistUpdates: getPlaylistUpdates(state),
+      playlistUpdates: selectAllPlaylistUpdateIds(state),
       hasReachedEnd: hasReachedEnd(state)
     }
   }
@@ -579,7 +584,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
     fetchSavedAlbums: () => dispatch(accountActions.fetchSavedAlbums()),
     fetchSavedPlaylists: () => dispatch(accountActions.fetchSavedPlaylists()),
     updatePlaylistLastViewedAt: (playlistId: number) =>
-      dispatch(updatePlaylistLastViewedAt(playlistId)),
+      dispatch(updatedPlaylistViewed({ playlistId })),
     goToRoute: (route: string) => dispatch(pushRoute(route)),
     play: (uid?: UID) => dispatch(tracksActions.play(uid)),
     pause: () => dispatch(tracksActions.pause()),

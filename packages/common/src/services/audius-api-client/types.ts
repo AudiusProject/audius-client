@@ -14,15 +14,17 @@ import {
   Supporting,
   UserTip,
   PremiumConditions,
-  PremiumContentSignature
-} from 'models'
-import { Nullable } from 'utils'
+  PremiumContentSignature,
+  ID
+} from '../../models'
+import { License, Nullable } from '../../utils'
 
 export type OpaqueID = string
 
 export type APIUser = {
   album_count: number
-  artist_pick_track_id: Nullable<number>
+  // TODO remove number type once all DNs are encoding the artist pick ID
+  artist_pick_track_id: Nullable<number | OpaqueID>
   blocknumber: number
   balance: string
   associated_wallets_balance: string
@@ -80,6 +82,7 @@ export type APIFavorite = {
   favorite_item_id: string
   favorite_type: FavoriteType
   user_id: string
+  created_at: string
 }
 
 export type APIRemix = {
@@ -113,7 +116,7 @@ export type APITrack = {
   cover_art_sizes: string
   download: Download
   isrc: Nullable<string>
-  license: Nullable<string>
+  license: Nullable<License>
   iswc: Nullable<string>
   field_visibility: FieldVisibility
   followee_reposts: APIRepost[]
@@ -250,5 +253,9 @@ type UserTipOmitIds = 'sender_id' | 'receiver_id' | 'followee_supporter_ids'
 export type GetTipsResponse = Omit<UserTip, UserTipOmitIds> & {
   sender: APIUser
   receiver: APIUser
-  followee_supporters: APIUser[]
+  followee_supporters: { user_id: string }[]
+}
+
+export type GetPremiumContentSignaturesResponse = {
+  [id: ID]: PremiumContentSignature
 }

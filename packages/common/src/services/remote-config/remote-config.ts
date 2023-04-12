@@ -37,12 +37,22 @@ type State = {
   id: Nullable<number>
 }
 
+type MobileClientInfo = {
+  /** This is the type of Platform.OS, but we only expect ios or android here */
+  mobilePlatform: 'ios' | 'android' | 'web' | 'windows' | 'macos'
+  mobileAppVersion: string
+  codePushUpdateNumber: number | undefined
+}
+
 export type RemoteConfigOptions<Client> = {
   createOptimizelyClient: () => Promise<Client>
   getFeatureFlagSessionId: () => Promise<Nullable<number>>
   setFeatureFlagSessionId: (id: number) => Promise<void>
   setLogLevel: () => void
   environment: Environment
+  appVersion: string
+  platform: 'web' | 'mobile' | 'desktop'
+  getMobileClientInfo?: () => Promise<MobileClientInfo> | MobileClientInfo
 }
 
 export const remoteConfig = <
@@ -60,7 +70,10 @@ export const remoteConfig = <
   getFeatureFlagSessionId,
   setFeatureFlagSessionId,
   setLogLevel,
-  environment
+  environment,
+  appVersion,
+  platform,
+  getMobileClientInfo
 }: RemoteConfigOptions<Client>) => {
   const state: State = {
     didInitialize: false,
@@ -73,8 +86,11 @@ export const remoteConfig = <
   // Optimizely client
   let client: Client | undefined
 
+  /** Mobile app info if platform is mobile */
+  let mobileClientInfo: MobileClientInfo | undefined
+
   const emitter = new EventEmitter()
-  emitter.setMaxListeners(100)
+  emitter.setMaxListeners(1000)
 
   async function init() {
     // Set sessionId for feature flag bucketing
@@ -86,7 +102,9 @@ export const remoteConfig = <
     } else {
       state.id = savedSessionId
     }
-
+    mobileClientInfo = getMobileClientInfo
+      ? await getMobileClientInfo()
+      : undefined
     client = await createOptimizelyClient()
 
     client.onReady().then(() => {
@@ -207,8 +225,9 @@ export const remoteConfig = <
 
   /**
    * Gets whether a given feature flag is enabled.
+   * Accepts a fallback flag which will be checked if the primary flag is disabled
    */
-  function getFeatureEnabled(flag: FeatureFlags) {
+  function getFeatureEnabled(flag: FeatureFlags, fallbackFlag?: FeatureFlags) {
     const defaultVal =
       environmentFlagDefaults[environment][flag] ?? flagDefaults[flag]
 
@@ -217,12 +236,29 @@ export const remoteConfig = <
 
     const id = state.id
 
+    const isFeatureEnabled = (f: FeatureFlags) => {
+      if (!client) {
+        return defaultVal
+      }
+
+      return client.isFeatureEnabled(f, id.toString(), {
+        userId: id,
+        appVersion,
+        platform,
+        mobilePlatform: mobileClientInfo?.mobilePlatform ?? null,
+        mobileAppVersion: mobileClientInfo?.mobileAppVersion ?? null,
+        codePushUpdateNumber: mobileClientInfo?.codePushUpdateNumber ?? null
+      })
+    }
+
     try {
-      const enabled = state.didInitialize
-        ? client.isFeatureEnabled(flag, id.toString(), { userId: id }) ??
-          defaultVal
-        : defaultVal
-      return enabled
+      if (state.didInitialize) {
+        return (
+          isFeatureEnabled(flag) ||
+          (fallbackFlag && isFeatureEnabled(fallbackFlag))
+        )
+      }
+      return defaultVal
     } catch (err) {
       return defaultVal
     }

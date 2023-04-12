@@ -41,7 +41,9 @@ web-init:
     - persist_to_workspace:
         root: ./
         paths:
+          - node_modules
           - packages/web/node_modules
+          - packages/probers/node_modules
           - packages/stems/node_modules
           - packages/stems/dist
           - packages/common/node_modules
@@ -82,46 +84,23 @@ web-build-staging:
         build-name: build-staging
 
 web-test-staging:
-  working_directory: ~/
-  docker:
-    - image: circleci/node:14.18-browsers
+  working_directory: ~/audius-client
   resource_class: large
+  executor: cypress/default
   steps:
-    - run:
-        name: download probers
-        command: |
-          mkdir -p ~/.ssh
-          touch ~/.ssh/config
-          echo $'Host github.com\n\tStrictHostKeyChecking no' > ~/.ssh/config
-          git clone git@github.com:AudiusProject/probers.git
-          cd probers
-    # Download and cache dependencies
-    - restore_cache:
-        keys:
-          - probers-cache-{{ checksum "probers/package-lock.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - probers-cache-
-    - run:
-        name: install probers dependencies
-        command: |
-          cd probers
-          npm ci
-    - save_cache:
-        key: probers-cache-{{ checksum "probers/package-lock.json" }}
-        paths:
-          - ./probers/node_modules
+    - checkout
     - attach_workspace:
         at: ./
-    - run:
-        name: serve and run prober tests
-        command: |
-          npx serve -l 3001 -s packages/web/build-staging &
-          cd probers
-          npm run test:ci
+    - cypress/install:
+        install-command: 'cd packages/probers && npx cypress install'
+        install-browsers: true
+    - cypress/run-tests:
+        cypress-command: 'cd packages/probers && npx cypress run --browser chrome'
+        start-command: 'npx serve -l 3001 -s packages/web/build-staging'
     - store_artifacts:
-        path: /home/circleci/probers/cypress/videos
+        path: /home/circleci/audius-client/packages/probers/cypress/videos
     - store_artifacts:
-        path: /home/circleci/probers/cypress/screenshots
+        path: /home/circleci/audius-client/packages/probers/cypress/screenshots
 
 web-build-production:
   working_directory: ~/audius-client
@@ -137,10 +116,10 @@ web-build-production:
 web-deploy-demo:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/python:2.7-jessie
+    - image: cimg/python:3.7.12-node
   steps:
     - checkout
-    - web-install-awscli
+    - aws-cli/install
     - attach_workspace:
         at: ./
     - run:
@@ -152,10 +131,10 @@ web-deploy-demo:
 web-deploy-staging-s3:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/python:2.7-jessie
+    - image: cimg/python:3.7.12-node
   steps:
     - checkout
-    - web-install-awscli
+    - aws-cli/install
     - attach_workspace:
         at: ./
     - run:
@@ -190,13 +169,24 @@ web-deploy-release-candidate:
         copy-robots: true
     - web-deploy-sourcemaps-s3
 
+web-deploy-staging-release-candidate:
+  working_directory: ~/audius-client
+  docker:
+    - image: cimg/python:3.7.12-node
+  steps:
+    - web-deploy-cloudflare:
+        build-type: staging
+        environment: staging-release
+        copy-robots: true
+    - web-deploy-sourcemaps-s3
+
 web-deploy-production-s3:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/python:2.7-jessie
+    - image: cimg/python:3.7.12-node
   steps:
     - checkout
-    - web-install-awscli
+    - aws-cli/install
     - attach_workspace:
         at: ./
     - run:
@@ -249,7 +239,7 @@ web-deploy-sentry-sourcemaps:
         name: upload-sourcemaps
         command: |
           cd packages/web
-          node_modules/.bin/sentry-cli --auth-token ${SENTRY_AUTH_TOKEN} releases --org audius --project audius-client files ${CIRCLE_SHA1} upload-sourcemaps --no-rewrite sourcemaps
+          node_modules/.bin/sentry-cli --auth-token ${SENTRY_AUTH_TOKEN} releases --org audius --project audius-client files ${CIRCLE_SHA1} upload-sourcemaps --no-rewrite build-production/static/js
     - run:
         name: finalize-release
         command: |
@@ -258,9 +248,14 @@ web-deploy-sentry-sourcemaps:
 
 web-dist-mac-staging:
   working_directory: ~/audius-client
-  macos: # Run on osx so dmg can be created and signed.
-    xcode: '14.0.0'
+  # run on macos so dmg can be created and signed.
+  resource_class: macos.x86.medium.gen2
+  macos:
+    xcode: '14.2.0'
   steps:
+    - run:
+        name: Set Ruby Version
+        command: rbenv global 2.7.7 && rbenv rehash
     - web-distribute:
         build-type: mac-publish
 
@@ -282,9 +277,14 @@ web-dist-linux-staging:
 
 web-dist-mac-production:
   working_directory: ~/audius-client
-  macos: # Run on osx so dmg can be created and signed.
-    xcode: '14.0.0'
+  # run on macos so dmg can be created and signed.
+  resource_class: macos.x86.medium.gen2
+  macos:
+    xcode: '14.2.0'
   steps:
+    - run:
+        name: Set Ruby Version
+        command: rbenv global 2.7.7 && rbenv rehash
     - web-distribute:
         build-type: mac-publish-production
 

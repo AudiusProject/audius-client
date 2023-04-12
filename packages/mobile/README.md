@@ -7,8 +7,7 @@ The Audius React Native mobile client
 ### Extra iOS Setup
 
 ```bash
-# install cocoapods
-sudo gem install cocoapods
+gem install cocoapods
 
 cd ios
 pod install
@@ -18,10 +17,13 @@ cd ..
 ## Running iOS
 
 ```bash
+# Create the ios bundle. Should only have to run once.
+npm run bundle:ios
+
 # Run a simulator using a prod configuration
 npm run ios
 # Run a simulator using a stage configuration
-npm run ios:bounce
+npm run ios:stage
 # Run a simulator using a dev configuration
 npm run ios:dev
 
@@ -37,7 +39,7 @@ xcrun xctrace list devices
 # Run a simulator using a prod configuration
 npm run android
 # Run a simulator using a stage configuration
-npm run android:bounce
+npm run android:stage
 # Run a simulator using a dev configuration
 npm run android:dev
 
@@ -57,7 +59,21 @@ cd android && ./gradlew clean && cd ..
 
 ## Debugging
 
-- To debug the app, install [React Native Debugger](https://github.com/jhen0409/react-native-debugger) and enable debugging (Cmd + D) in the simulator.
+- To debug the app, install [Flipper](https://fbflipper.com/) either through their website, or using brew `brew install --cask flipper`.
+
+> Note as of time of writing, flipper is not signed correctly, and macos will prevent Flipper from opening. To override this, follow the resulting popup's instructions (go to security and confirm you want to open Flipper)
+
+We use a few different plugins as a team, make sure to install and enable the various plugins in flipper GUI
+- Hermes (default)
+- React Devtools (default)
+- Network Inspector (default)
+- Layout (default)
+- Shared Preferences Viewer (default)
+- [Redux Debugger](https://github.com/jk-gan/flipper-plugin-redux-debugger)
+- [advanced-async-storage](https://github.com/lbaldy/flipper-plugin-async-storage-advanced)
+- [performance](https://github.com/oblador/react-native-performance)
+- [react-native-performance-monitor](https://github.com/bamlab/react-native-flipper-performance-monitor)
+
 
 On Android, you can use the adb Android Studio tool or
 
@@ -68,15 +84,6 @@ adb logcat '*:V'
 
 - Sometimes the app will crash due a configuration error or something outside of the realm of JS and you won't get any helpful information from React Native. In those cases, it's time to break open XCode and run from there to pinpoint the issue.
 
-## Hermes
-
-Note that on iOS, use of [Hermes](https://reactnative.dev/docs/hermes) is disabled by default in this repo in order to allow debugging with React Native Debugger. However, Hermes is enabled in app releases. To ensure your changes will work with the Hermes engine, you can enable Hermes locally with the following command:
-
-```bash
-npm run enable-hermes:ios && pod install
-```
-
-...and then restart the app.
 
 ## Helpful
 

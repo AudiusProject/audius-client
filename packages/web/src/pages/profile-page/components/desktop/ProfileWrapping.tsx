@@ -30,10 +30,10 @@ type ProfileWrappingProps = {
   tikTokHandle: string
   twitterVerified: boolean
   instagramVerified: boolean
+  tikTokVerified: boolean
   website: string
   donation: string
   created: string
-  tags: string[]
   onUpdateName: (name: string) => void
   onUpdateProfilePicture: (
     selectedFiles: any,
@@ -71,10 +71,10 @@ const ProfileWrapping = (props: ProfileWrappingProps) => {
     tikTokHandle,
     twitterVerified,
     instagramVerified,
+    tikTokVerified,
     website,
     donation,
     created,
-    tags,
     onUpdateName,
     onUpdateProfilePicture,
     onUpdateBio,
@@ -143,10 +143,10 @@ const ProfileWrapping = (props: ProfileWrappingProps) => {
             tikTokHandle={tikTokHandle}
             twitterVerified={twitterVerified}
             instagramVerified={instagramVerified}
+            tikTokVerified={tikTokVerified}
             website={website}
             donation={donation}
             created={created}
-            tags={tags}
             onUpdateBio={onUpdateBio}
             onUpdateLocation={onUpdateLocation}
             onUpdateTwitterHandle={onUpdateTwitterHandle}

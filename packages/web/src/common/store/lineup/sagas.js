@@ -11,12 +11,13 @@ import {
   lineupActions as baseLineupActions,
   queueActions,
   playerSelectors,
-  queueSelectors
+  queueSelectors,
+  getContext,
+  FeatureFlags
 } from '@audius/common'
 import {
   all,
   call,
-  cancel,
   delay,
   put,
   fork,
@@ -24,7 +25,7 @@ import {
   take,
   takeEvery,
   takeLatest,
-  getContext
+  race
 } from 'redux-saga/effects'
 
 import { getToQueue } from 'common/store/queue/sagas'
@@ -36,8 +37,6 @@ const { getUsers } = cacheUsersSelectors
 const { getTrack, getTracks } = cacheTracksSelectors
 const { getCollection } = cacheCollectionsSelectors
 
-const makeCollectionSourceId = (source, playlistId) =>
-  `${source}:collection:${playlistId}`
 const getEntryId = (entry) => `${entry.kind}:${entry.id}`
 
 const flatten = (list) =>
@@ -45,6 +44,20 @@ const flatten = (list) =>
 function* filterDeletes(tracksMetadata, removeDeleted) {
   const tracks = yield select(getTracks)
   const users = yield select(getUsers)
+  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
+  const remoteConfig = yield* getContext('remoteConfigInstance')
+  yield call(remoteConfig.waitForRemoteConfig)
+
+  const isGatedContentEnabled = yield getFeatureEnabled(
+    FeatureFlags.GATED_CONTENT_ENABLED
+  )
+  const isCollectibleGatedEnabled = yield getFeatureEnabled(
+    FeatureFlags.COLLECTIBLE_GATED_ENABLED
+  )
+  const isSpecialAccessEnabled = yield getFeatureEnabled(
+    FeatureFlags.SPECIAL_ACCESS_ENABLED
+  )
+
   return tracksMetadata
     .map((metadata) => {
       // If the incoming metadata is null, return null
@@ -52,6 +65,24 @@ function* filterDeletes(tracksMetadata, removeDeleted) {
       if (metadata === null) {
         return null
       }
+
+      // Treat premium content as deleted when its not enabled
+      // TODO: Remove this when removing the feature flags
+      if (!isGatedContentEnabled && metadata.is_premium) {
+        return null
+      } else if (
+        !isCollectibleGatedEnabled &&
+        metadata.premium_conditions?.nft_collection
+      ) {
+        return null
+      } else if (
+        !isSpecialAccessEnabled &&
+        (metadata.premium_conditions?.follow_user_id ||
+          metadata.premium_conditions?.tip_user_id)
+      ) {
+        return null
+      }
+
       // If we said to remove deleted tracks and it is deleted, remove it
       if (removeDeleted && metadata.is_delete) return null
       // If we said to remove deleted and the track/playlist owner is deactivated, remove it
@@ -124,7 +155,7 @@ function* fetchLineupMetadatasAsync(
       )
     : initLineup.prefix
 
-  const task = yield fork(function* () {
+  function* fetchLineupMetadatasTask() {
     try {
       yield put(
         lineupActions.fetchLineupMetadatasRequested(
@@ -145,7 +176,9 @@ function* fetchLineupMetadatasAsync(
 
       const lineupMetadatasResponse = yield call(lineupMetadatasCall, action)
 
-      if (lineupMetadatasResponse === null) return
+      if (lineupMetadatasResponse === null) {
+        yield put(lineupActions.fetchLineupMetadatasFailed())
+      }
       const lineup = yield select((state) =>
         lineupSelector(state, action.handle?.toLowerCase())
       )
@@ -169,7 +202,7 @@ function* fetchLineupMetadatasAsync(
           return mapping
         }, {})
 
-      // Filter out deletes
+      // Filter out deletes (and premium content if disabled)
       const responseFilteredDeletes = yield call(
         filterDeletes,
         lineupMetadatasResponse,
@@ -229,7 +262,7 @@ function* fetchLineupMetadatasAsync(
             const uid = new Uid(
               Kind.TRACKS,
               id,
-              makeCollectionSourceId(source, metadata.playlist_id),
+              Uid.makeCollectionSourceId(source, metadata.playlist_id),
               idx
             )
             return { id, uid: uid.toString() }
@@ -284,15 +317,26 @@ function* fetchLineupMetadatasAsync(
       console.error(err)
       yield put(lineupActions.fetchLineupMetadatasFailed())
     }
-  })
-  const { source: resetSource } = yield take(
-    baseLineupActions.addPrefix(lineupPrefix, baseLineupActions.RESET)
-  )
-  // If a source is specified in the reset action, make sure it matches the lineup source
-  // If not specified, cancel the fetchTrackMetdatas
-  if (!resetSource || resetSource === initSource) {
-    yield cancel(task)
   }
+
+  function* shouldCancelTask() {
+    while (true) {
+      const { source: resetSource } = yield take(
+        baseLineupActions.addPrefix(lineupPrefix, baseLineupActions.RESET)
+      )
+
+      // If a source is specified in the reset action, make sure it matches the lineup source
+      // If not specified, cancel the fetchTrackMetdatas
+      if (!resetSource || resetSource === initSource) {
+        return true
+      }
+    }
+  }
+
+  yield race({
+    task: call(fetchLineupMetadatasTask),
+    cancel: call(shouldCancelTask)
+  })
 }
 
 function* updateQueueLineup(lineupPrefix, source, lineupEntries) {
@@ -394,7 +438,7 @@ function* reset(
           const trackUid = new Uid(
             Kind.TRACKS,
             trackId,
-            makeCollectionSourceId(source, collection.playlist_id),
+            Uid.makeCollectionSourceId(source, collection.playlist_id),
             idx
           )
           return { UID: trackUid.toString() }

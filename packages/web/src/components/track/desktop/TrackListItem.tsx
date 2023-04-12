@@ -1,6 +1,12 @@
 import { memo, MouseEvent, useRef } from 'react'
 
-import { UID, ID, formatSeconds, EnhancedCollectionTrack } from '@audius/common'
+import {
+  UID,
+  ID,
+  formatSeconds,
+  EnhancedCollectionTrack,
+  Genre
+} from '@audius/common'
 import cn from 'classnames'
 
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
@@ -112,7 +118,7 @@ const TrackListItem = ({
     includeRepost: true,
     includeShare: false,
     includeTrackPage: true,
-    isArtistPick: track.user._artist_pick === track.track_id,
+    isArtistPick: track.user.artist_pick_track_id === track.track_id,
     isDeleted: deleted,
     isFavorited: track.has_current_user_saved,
     isOwner: false,
@@ -120,6 +126,7 @@ const TrackListItem = ({
     isReposted: track.has_current_user_reposted,
     trackId: track.track_id,
     trackTitle: track.title,
+    genre: track.genre as Genre,
     trackPermalink: track.permalink,
     type: 'track'
   }
@@ -172,20 +179,21 @@ const TrackListItem = ({
         <div className={styles.duration}>
           {track.duration && formatSeconds(track.duration)}
         </div>
-        {deleted ? <div className={styles.more} style={{ width: 16 }} /> : null}
-        {!disableActions && !deleted ? (
-          <Menu menu={menu}>
-            {(ref, triggerPopup) => (
-              <div className={cn(styles.menuContainer)} ref={menuRef}>
+        <Menu menu={menu}>
+          {(ref, triggerPopup) => (
+            <div className={cn(styles.menuContainer)} ref={menuRef}>
+              {!disableActions && !deleted ? (
                 <IconKebabHorizontal
                   className={styles.iconKebabHorizontal}
                   ref={ref}
                   onClick={onMoreClick(triggerPopup)}
                 />
-              </div>
-            )}
-          </Menu>
-        ) : null}
+              ) : (
+                <div className={styles.iconKebabHorizontal} />
+              )}
+            </div>
+          )}
+        </Menu>
       </div>
     </div>
   )

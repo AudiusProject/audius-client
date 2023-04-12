@@ -63,8 +63,18 @@ web-build:
     - checkout
     - attach_workspace:
         at: ./
+    - when:
+        condition:
+          matches: { pattern: '^stage$', value: << parameters.build-type >> }
+        steps:
+          - run:
+              name: apply stage apple-app-site-association
+              command: |
+                cd packages/web/public/.well-known
+                cp apple-app-site-association-stage apple-app-site-association
     - run:
         name: build
+        no_output_timeout: 30m
         command: |
           cd packages/web
           CI=false npm run build:<< parameters.build-type >>
@@ -84,16 +94,21 @@ web-distribute:
     - attach_workspace:
         at: ./
     - run:
+        name: setup
+        # https://github.com/nvm-sh/nvm#installing-and-updating
+        command: |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+          echo 'export NVM_DIR="$HOME/.nvm"' >> $BASH_ENV
+          echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --install' >> $BASH_ENV
+          source $BASH_ENV
+          nvm install 14.20.1
+          nvm alias default 14.20.1
+    - run:
         name: distribute
         command: |
           cd packages/web
           npm run dist:<< parameters.build-type >>
 
-web-install-awscli:
-  steps:
-    - run:
-        name: install-awscli
-        command: sudo pip install awscli
 
 web-install-wrangler:
   steps:
@@ -144,11 +159,9 @@ web-deploy-cloudflare:
 
 web-deploy-sourcemaps-s3:
   steps:
-    - run:
-        name: install-awscli
-        command: pip install awscli
+    - aws-cli/install
     - attach_workspace:
         at: ./
     - run:
         name: Deploy to S3
-        command: aws s3 sync packages/web/sourcemaps s3://sourcemaps.audius.co --delete --cache-control max-age=604800
+        command: aws s3 sync packages/web/sourcemaps s3://sourcemaps.audius.co --cache-control max-age=604800

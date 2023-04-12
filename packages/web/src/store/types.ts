@@ -1,7 +1,6 @@
 import {
   averageColorReducer,
   ChangePasswordState,
-  NotificationState,
   SmartCollectionState,
   remixesPageReducer as RemixesPageReducer,
   HistoryPageState,
@@ -21,17 +20,17 @@ import {
 import { RouterState } from 'connected-react-router'
 
 import signOnReducer from 'common/store/pages/signon/reducer'
-import SearchBarState from 'common/store/search-bar/types'
+import { SearchBarState } from 'common/store/search-bar/types'
 import ServiceSelectionReducer from 'common/store/service-selection/slice'
 import { EmbedModalState } from 'components/embed-modal/store/types'
 import { FirstUploadModalState } from 'components/first-upload-modal/store/slice'
 import { PasswordResetState } from 'components/password-reset/store/types'
-import RemixSettingsModalReducer from 'components/remix-settings-modal/store/slice'
 import { UnfollowConfirmationModalState } from 'components/unfollow-confirmation-modal/store/types'
 import ArtistDashboardState from 'pages/artist-dashboard-page/store/types'
 import DeletedPageReducer from 'pages/deleted-page/store/slice'
 import VisualizerReducer from 'pages/visualizer/store/slice'
 import AppCTAModalReducer from 'store/application/ui/app-cta-modal/slice'
+import { ErrorState } from 'store/errors/reducers'
 
 import { BackendState } from '../common/store/backend/types'
 import { ConfirmerState } from '../common/store/confirmer/types'
@@ -40,6 +39,7 @@ import { CookieBannerState } from './application/ui/cookieBanner/types'
 import { EditFolderModalState } from './application/ui/editFolderModal/slice'
 import { EditPlaylistModalState } from './application/ui/editPlaylistModal/slice'
 import EditTrackModalState from './application/ui/editTrackModal/types'
+import { NotificationsUIState } from './application/ui/notifications/notificationsUISlice'
 import { ScrollLockState } from './application/ui/scrollLock/types'
 import { SetAsArtistPickConfirmationState } from './application/ui/setAsArtistPickConfirmation/types'
 import { UserListModalState } from './application/ui/userListModal/types'
@@ -75,12 +75,12 @@ export type AppState = CommonState & {
       editTrackModal: EditTrackModalState
       embedModal: EmbedModalState
       firstUploadModal: FirstUploadModalState
-      remixSettingsModal: ReturnType<typeof RemixSettingsModalReducer>
       scrollLock: ScrollLockState
       setAsArtistPickConfirmation: SetAsArtistPickConfirmationState
       stemsUpload: ReturnType<typeof StemsUploadReducer>
       userListModal: UserListModalState
       visualizer: ReturnType<typeof VisualizerReducer>
+      notifications: NotificationsUIState
     }
     pages: {
       reposts: RepostsPageState
@@ -99,7 +99,6 @@ export type AppState = CommonState & {
   dashboard: ArtistDashboardState
   history: HistoryPageState
   collection: CollectionsPageState
-  notification: NotificationState
 
   // Playback
   queue: ReturnType<typeof QueueReducer>
@@ -109,4 +108,7 @@ export type AppState = CommonState & {
 
   // Remote Config + Flags
   remoteConfig: ReturnType<typeof RemoteConfigReducer>
+
+  // Error Page
+  error: ErrorState
 }

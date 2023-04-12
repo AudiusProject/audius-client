@@ -11,7 +11,9 @@ import type { ImageStyle } from 'react-native'
 import { Image, ScrollView, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
+import BarChart from 'app/assets/images/emojis/chart-bar.png'
 import ChartIncreasing from 'app/assets/images/emojis/chart-increasing.png'
+import ArrowUp from 'app/assets/images/emojis/right-arrow-curving-up.png'
 import IconArrow from 'app/assets/images/iconArrow.svg'
 import {
   SegmentedControl,
@@ -52,27 +54,24 @@ const messages = {
   buttonTextUnderground: 'Underground Trending Tracks'
 }
 
-const TRENDING_PAGES = {
-  tracks: ['trending'] as const,
-  playlists: ['explore', { screen: 'TrendingPlaylists' as const }] as const,
-  underground: ['explore', { screen: 'TrendingUnderground' as const }] as const
-}
-
 const textMap = {
   playlists: {
     modalTitle: messages.playlistsModalTitle,
     title: messages.playlistTitle,
-    button: messages.buttonTextPlaylists
+    button: messages.buttonTextPlaylists,
+    icon: ArrowUp
   },
   tracks: {
     modalTitle: messages.tracksModalTitle,
     title: messages.tracksTitle,
-    button: messages.buttonTextTracks
+    button: messages.buttonTextTracks,
+    icon: ChartIncreasing
   },
   underground: {
     modalTitle: messages.undergroundModalTitle,
     title: messages.undergroundTitle,
-    button: messages.buttonTextUnderground
+    button: messages.buttonTextUnderground,
+    icon: BarChart
   }
 }
 
@@ -165,7 +164,7 @@ const useIsDark = () => {
   return themeVariant === Theme.DARK
 }
 
-export const TrendingRewardsDrawer = () => {
+export const TrendingRewardsDrawer = (titleIcon) => {
   const navigation = useNavigation<AppScreenParamList>()
   const { onClose } = useDrawerState(TRENDING_REWARDS_DRAWER_NAME)
   const styles = useStyles()
@@ -190,8 +189,20 @@ export const TrendingRewardsDrawer = () => {
   ]
 
   const handleGoToTrending = useCallback(() => {
-    const [screen, params] = TRENDING_PAGES[modalType]
-    navigation.navigate(screen, params!)
+    switch (modalType) {
+      case 'tracks': {
+        navigation.navigate('trending', { screen: 'Trending' })
+        break
+      }
+      case 'playlists': {
+        navigation.navigate('explore', { screen: 'TrendingPlaylists' })
+        break
+      }
+      case 'underground': {
+        navigation.navigate('explore', { screen: 'TrendingUnderground' })
+        break
+      }
+    }
     onClose()
   }, [modalType, navigation, onClose])
 
@@ -200,12 +211,13 @@ export const TrendingRewardsDrawer = () => {
       modalName={TRENDING_REWARDS_DRAWER_NAME}
       isFullscreen
       isGestureSupported={false}
+      titleIcon={titleIcon}
     >
       <View style={styles.content}>
         <View style={styles.modalTitleContainer}>
           <Image
             style={styles.chartEmoji as ImageStyle}
-            source={ChartIncreasing}
+            source={textMap[modalType].icon}
           />
           <GradientText style={styles.modalTitle}>
             {textMap[modalType].modalTitle}

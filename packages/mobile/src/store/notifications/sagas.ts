@@ -1,14 +1,13 @@
 import {
   accountSelectors,
-  notificationsActions as notificationActions,
   getContext,
-  waitForValue
+  notificationsActions
 } from '@audius/common'
-import { waitForBackendSetup } from 'audius-client/src/common/store/backend/sagas'
 import commonNotificationsSagas, {
-  getNotifications,
   getPollingIntervalMs
 } from 'audius-client/src/common/store/notifications/sagas'
+import { waitForRead, waitForWrite } from 'audius-client/src/utils/sagaHelpers'
+import { checkForNewNotificationsSaga } from 'common/store/notifications/checkForNewNotificationsSaga'
 import { AppState } from 'react-native'
 import { call, delay, select, takeEvery } from 'typed-redux-saga'
 
@@ -37,21 +36,17 @@ export function* markedAllNotificationsViewed() {
 }
 
 function* notificationPollingDaemon() {
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
-  yield* call(waitForBackendSetup)
-  yield* call(waitForValue, getHasAccount, {})
-  yield* call(audiusBackendInstance.getEmailNotificationSettings)
+  yield* call(waitForRead)
 
-  yield* takeEvery(ENTER_FOREGROUND, getNotifications, false)
+  yield* takeEvery(ENTER_FOREGROUND, checkForNewNotificationsSaga)
 
   // Set up daemon that will poll for notifications every 10s if the app is
   // in the foreground
-  const isFirstFetch = true
 
   while (true) {
     if (AppState.currentState === 'active') {
-      yield* call(getNotifications, isFirstFetch)
+      yield* call(checkForNewNotificationsSaga)
     }
     yield* delay(getPollingIntervalMs(remoteConfigInstance))
   }
@@ -59,14 +54,14 @@ function* notificationPollingDaemon() {
 
 // On enter foreground, clear the notification badges
 function* watchResetNotificationBadgeCount() {
-  yield* call(waitForBackendSetup)
+  yield* call(waitForWrite)
   yield* call(resetNotificationBadgeCount)
   yield* takeEvery(ENTER_FOREGROUND, resetNotificationBadgeCount)
 }
 
 function* watchMarkedAllNotificationsViewed() {
   yield* takeEvery(
-    notificationActions.MARKED_ALL_AS_VIEWED,
+    notificationsActions.markAllAsViewed.type,
     markedAllNotificationsViewed
   )
 }

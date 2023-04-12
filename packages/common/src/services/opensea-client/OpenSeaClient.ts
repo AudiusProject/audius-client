@@ -1,4 +1,4 @@
-import allPromisesSettled from 'promise.allsettled'
+import { allSettled } from 'utils/allSettled'
 
 import {
   Collectible,
@@ -38,7 +38,7 @@ export class OpenSeaClient {
     wallets: string[],
     limit = OPENSEA_NUM_ASSETS_LIMIT
   ): Promise<OpenSeaEventExtended[]> {
-    return Promise.allSettled(
+    return allSettled(
       wallets.map((wallet) =>
         this.getTransferredCollectiblesForWallet(wallet, limit)
       )
@@ -75,7 +75,7 @@ export class OpenSeaClient {
     wallets: string[],
     limit = OPENSEA_NUM_ASSETS_LIMIT
   ): Promise<OpenSeaEventExtended[]> {
-    return Promise.allSettled(
+    return allSettled(
       wallets.map((wallet) =>
         this.getCreatedCollectiblesForWallet(wallet, limit)
       )
@@ -112,7 +112,7 @@ export class OpenSeaClient {
     wallets: string[],
     limit = OPENSEA_NUM_ASSETS_LIMIT
   ): Promise<OpenSeaAssetExtended[]> {
-    return Promise.allSettled(
+    return allSettled(
       wallets.map((wallet) => this.getCollectiblesForWallet(wallet, limit))
     ).then((results) =>
       results
@@ -131,6 +131,8 @@ export class OpenSeaClient {
   }
 
   async getAllCollectibles(wallets: string[]): Promise<CollectibleState> {
+    const lowercasedWallets = wallets.map((wallet) => wallet.toLowerCase())
+
     return Promise.all([
       this.getCollectiblesForMultipleWallets(wallets),
       this.getCreatedCollectiblesForMultipleWallets(wallets),
@@ -227,11 +229,24 @@ export class OpenSeaClient {
           const { token_id, asset_contract } = event.asset
           const id = `${token_id}:::${asset_contract?.address ?? ''}`
           if (ownedCollectibleKeySet.has(id)) {
-            collectiblesMap[id] = {
-              ...collectiblesMap[id],
-              dateLastTransferred: event.created_date
+            // Remove collectible if it was transferred out from
+            // one of the user's wallets.
+            if (
+              lowercasedWallets.includes(
+                event.from_account.address.toLowerCase()
+              )
+            ) {
+              ownedCollectibleKeySet.delete(id)
+              delete collectiblesMap[id]
+            } else {
+              collectiblesMap[id] = {
+                ...collectiblesMap[id],
+                dateLastTransferred: event.created_date
+              }
             }
-          } else if (wallets.includes(event.to_account.address)) {
+          } else if (
+            lowercasedWallets.includes(event.to_account.address.toLowerCase())
+          ) {
             ownedCollectibleKeySet.add(id)
             collectiblesMap[id] = await transferEventToCollectible(event)
           }
@@ -251,7 +266,3 @@ export class OpenSeaClient {
     })
   }
 }
-
-;(function () {
-  if (!Promise.allSettled) Promise.allSettled = allPromisesSettled
-})()

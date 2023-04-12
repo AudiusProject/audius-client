@@ -9,7 +9,10 @@ import {
   Repost,
   FieldVisibility,
   LineupTrack,
-  Remix
+  Remix,
+  PremiumConditions,
+  Nullable,
+  Genre
 } from '@audius/common'
 
 export enum TrackTileSize {
@@ -45,6 +48,7 @@ export type TileProps = {
 
 export type TrackTileProps = TileProps & {
   title: string
+  genre: Genre
   showArtistPick?: boolean
   showListens?: boolean
   disableActions?: boolean
@@ -57,6 +61,7 @@ export type TrackTileProps = TileProps & {
   artistName: string
   artistHandle: string
   artistIsVerified: boolean
+  isFeed?: boolean
   ordered?: boolean
   uploading?: boolean
   uploadPercent?: number
@@ -88,6 +93,7 @@ export type PlaylistTileProps = TileProps & {
   playTrack: (uid: UID) => void
   disableActions?: boolean
   ordered?: boolean
+  isFeed?: boolean
   uploading?: boolean
   uploadPercent?: number
   ownerId: ID
@@ -110,14 +116,26 @@ export type DesktopTrackTileProps = {
   /** If there is nothing underneath, it's standalone */
   standalone?: boolean
 
-  /** If the track is currently playing */
+  /** If the track is currently active */
   isActive: boolean
 
   /** If the button actions should be clickable */
   isDisabled?: boolean
 
+  /** If the track is playing */
+  isPlaying?: boolean
+
+  /** If the track is premium */
+  isPremium?: boolean
+
   /** If the track is unlisted/hidden */
   isUnlisted?: boolean
+
+  /** Premium conditions if track is premium */
+  premiumConditions?: Nullable<PremiumConditions>
+
+  /** If logged in user has access to track */
+  doesUserHaveAccess?: boolean
 
   /** If track metadata is loading in */
   isLoading?: boolean
@@ -142,6 +160,9 @@ export type DesktopTrackTileProps = {
 
   /** The beneath the header is the title, for the track's name */
   title: ReactNode
+
+  /** For updating the duration format based on if the track is a podcast */
+  genre?: Genre
 
   /** The beneath the title is the username, for the track's creator */
   userName: ReactNode
@@ -199,6 +220,12 @@ export type DesktopTrackTileProps = {
 
   /** The relative link of the track */
   permalink: string
+
+  /** Whether the tile is for a track */
+  isTrack?: boolean
+
+  /** Track id if track tile */
+  trackId?: ID
 }
 
 export type DesktopPlaylistTileProps = {
@@ -208,8 +235,11 @@ export type DesktopPlaylistTileProps = {
   /** Prefix order number displayed on the left side of the track tile */
   order?: number
 
-  /** If the track is currently playing */
+  /** If the playlist is currently active */
   isActive: boolean
+
+  /** If the playlist is currently playing */
+  isPlaying: boolean
 
   /** If the button actions should be clickable */
   isDisabled?: boolean

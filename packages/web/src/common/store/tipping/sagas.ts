@@ -2,14 +2,11 @@ import {
   Kind,
   ID,
   Name,
-  RecentTipsStorage,
   Supporter,
   Supporting,
-  UserTip,
   User,
   BNWei,
   StringWei,
-  Nullable,
   parseAudioInputToWei,
   stringWeiToBN,
   weiToAudioString,
@@ -28,13 +25,21 @@ import {
   GetSupportingArgs,
   GetSupportersArgs,
   MAX_ARTIST_HOVER_TOP_SUPPORTING,
-  MAX_PROFILE_TOP_SUPPORTERS
+  MAX_PROFILE_TOP_SUPPORTERS,
+  LastDismissedTip,
+  LocalStorage,
+  processAndCacheUsers,
+  solanaSelectors,
+  createUserBankIfNeeded,
+  SolanaWalletAddress
 } from '@audius/common'
+import { PayloadAction } from '@reduxjs/toolkit'
 import BN from 'bn.js'
 import {
   call,
   delay,
   put,
+  all,
   select,
   takeEvery,
   fork,
@@ -43,27 +48,28 @@ import {
 
 import { make } from 'common/store/analytics/actions'
 import { fetchUsers } from 'common/store/cache/users/sagas'
-import { waitForBackendAndAccount } from 'utils/sagaHelpers'
+import { waitForWrite, waitForRead } from 'utils/sagaHelpers'
 
-import { updateTipsStorage } from './storageUtils'
 const { decreaseBalance } = walletActions
+const { getFeePayer } = solanaSelectors
 const { getAccountBalance } = walletSelectors
 const {
   confirmSendTip,
   convert,
   fetchRecentTips,
   fetchSupportingForUser,
+  fetchSupportersForUser,
   refreshSupport,
   sendTipFailed,
   sendTipSucceeded,
   setTipToDisplay,
-  setRecentTips,
   setSupportersForUser,
   setSupportingForUser,
-  hideTip,
+  setShowTip,
   setSupportingOverridesForUser,
   setSupportersOverridesForUser,
-  fetchUserSupporter
+  fetchUserSupporter,
+  refreshTipGatedTracks
 } = tippingActions
 const {
   getOptimisticSupporters,
@@ -75,7 +81,19 @@ const {
 const { update } = cacheActions
 const getAccountUser = accountSelectors.getAccountUser
 
-export const FEED_TIP_DISMISSAL_TIME_LIMIT = 30 * 24 * 60 * 60 * 1000 // 30 days
+export const FEED_TIP_DISMISSAL_TIME_LIMIT_SEC = 30 * 24 * 60 * 60 // 30 days
+const DISMISSED_TIP_KEY = 'dismissed-tips'
+
+export const storeDismissedTipInfo = async (
+  localStorage: LocalStorage,
+  receiverId: ID
+) => {
+  localStorage.setExpiringJSONValue(
+    DISMISSED_TIP_KEY,
+    { receiver_id: receiverId },
+    FEED_TIP_DISMISSAL_TIME_LIMIT_SEC
+  )
+}
 
 function* overrideSupportingForUser({
   amountBN,
@@ -197,10 +215,12 @@ function* overrideSupportersForUser({
 
 function* sendTipAsync() {
   const walletClient = yield* getContext('walletClient')
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const { waitForRemoteConfig } = yield* getContext('remoteConfigInstance')
   const isNativeMobile = yield* getContext('isNativeMobile')
+  const { track } = yield* getContext('analytics')
   yield call(waitForRemoteConfig)
-  yield* waitForBackendAndAccount()
+  yield* waitForWrite()
 
   const device = isNativeMobile ? 'native' : 'web'
 
@@ -210,15 +230,51 @@ function* sendTipAsync() {
   }
 
   const sendTipData = yield* select(getSendTipData)
-  const { user: recipient, amount, source } = sendTipData
+  const { user: recipient, amount, source, trackId } = sendTipData
   if (!recipient) {
     return
   }
 
   const weiBNAmount = parseAudioInputToWei(amount) ?? (new BN('0') as BNWei)
-  const recipientWallet = recipient.spl_wallet
-  const weiBNBalance: BNWei = yield* select(getAccountBalance) ??
-    (new BN('0') as BNWei)
+  const recipientERCWallet = recipient.erc_wallet ?? recipient.wallet
+
+  // Create Userbanks if needed
+  const feePayerOverride = yield* select(getFeePayer)
+  if (!feePayerOverride) {
+    console.error("tippingSagas: unexpectedly couldn't get feePayerOverride")
+    return
+  }
+
+  if (!recipientERCWallet) {
+    console.error('tippingSagas: Unexpectedly missing recipient ERC wallet')
+    return
+  }
+
+  // Gross cast here bc of broken saga types with `yield* all`
+  const [selfUserBank, recipientUserBank] = yield* all([
+    createUserBankIfNeeded(track, audiusBackendInstance, feePayerOverride),
+    createUserBankIfNeeded(
+      track,
+      audiusBackendInstance,
+      feePayerOverride,
+      recipientERCWallet
+    )
+  ]) as unknown as (SolanaWalletAddress | null)[]
+
+  if (!selfUserBank || !recipientUserBank) {
+    console.error(
+      `Missing self or recipient userbank: ${JSON.stringify({
+        selfUserBank,
+        recipientUserBank
+      })}`
+    )
+
+    yield put(sendTipFailed({ error: 'Could not create userbank' }))
+    return
+  }
+
+  const weiBNBalance =
+    (yield* select(getAccountBalance)) ?? (new BN('0') as BNWei)
   const waudioWeiAmount = yield* call([walletClient, 'getCurrentWAudioBalance'])
 
   if (weiBNAmount.gt(weiBNBalance)) {
@@ -229,8 +285,8 @@ function* sendTipAsync() {
   try {
     yield put(
       make(Name.TIP_AUDIO_REQUEST, {
-        senderWallet: sender.spl_wallet,
-        recipientWallet,
+        senderWallet: selfUserBank,
+        recipientWallet: recipientUserBank,
         senderHandle: sender.handle,
         recipientHandle: recipient.handle,
         amount: weiToAudioString(weiBNAmount),
@@ -238,6 +294,7 @@ function* sendTipAsync() {
         source
       })
     )
+
     // If transferring spl wrapped audio and there are insufficent funds with only the
     // user bank balance, transfer all eth AUDIO to spl wrapped audio
     if (weiBNAmount.gt(waudioWeiAmount)) {
@@ -251,7 +308,11 @@ function* sendTipAsync() {
       yield cancel(showConvertingMessage)
     }
 
-    yield call([walletClient, 'sendWAudioTokens'], recipientWallet, weiBNAmount)
+    yield call(
+      [walletClient, 'sendWAudioTokens'],
+      recipientUserBank,
+      weiBNAmount
+    )
 
     // Only decrease store balance if we haven't already changed
     const newBalance: ReturnType<typeof getAccountBalance> = yield* select(
@@ -264,8 +325,8 @@ function* sendTipAsync() {
     yield put(sendTipSucceeded())
     yield put(
       make(Name.TIP_AUDIO_SUCCESS, {
-        senderWallet: sender.spl_wallet,
-        recipientWallet,
+        senderWallet: selfUserBank,
+        recipientWallet: recipientUserBank,
         senderHandle: sender.handle,
         recipientHandle: recipient.handle,
         amount: weiToAudioString(weiBNAmount),
@@ -273,6 +334,7 @@ function* sendTipAsync() {
         source
       })
     )
+    yield put(refreshTipGatedTracks({ userId: recipient.user_id, trackId }))
 
     /**
      * Store optimistically updated supporting value for sender
@@ -300,8 +362,8 @@ function* sendTipAsync() {
     yield put(sendTipFailed({ error }))
     yield put(
       make(Name.TIP_AUDIO_FAILURE, {
-        senderWallet: sender.spl_wallet,
-        recipientWallet,
+        senderWallet: selfUserBank,
+        recipientWallet: recipientUserBank,
         senderHandle: sender.handle,
         recipientHandle: recipient.handle,
         amount: weiToAudioString(weiBNAmount),
@@ -319,7 +381,7 @@ function* refreshSupportAsync({
   payload: RefreshSupportPayloadAction
   type: string
 }) {
-  yield* waitForBackendAndAccount()
+  yield* waitForRead()
   const apiClient = yield* getContext('apiClient')
 
   const supportingParams: GetSupportingArgs = {
@@ -399,13 +461,59 @@ function* refreshSupportAsync({
   )
 }
 
+type FetchSupportingAction = PayloadAction<{ userId: ID }>
+
+function* fetchSupportersForUserAsync(action: FetchSupportingAction) {
+  const {
+    payload: { userId }
+  } = action
+  yield* waitForRead()
+  const apiClient = yield* getContext('apiClient')
+
+  const supportersParams: GetSupportersArgs = {
+    userId,
+    limit: MAX_PROFILE_TOP_SUPPORTERS + 1
+  }
+
+  const supportersForReceiverList = yield* call(
+    [apiClient, apiClient.getSupporters],
+    supportersParams
+  )
+
+  const userIds = supportersForReceiverList?.map((supporter) =>
+    decodeHashId(supporter.sender.id)
+  )
+  if (!userIds) return
+  yield call(fetchUsers, userIds)
+
+  const supportersForReceiverMap: Record<string, Supporter> = {}
+
+  supportersForReceiverList?.forEach((supporter) => {
+    const supporterUserId = decodeHashId(supporter.sender.id)
+    if (supporterUserId) {
+      supportersForReceiverMap[supporterUserId] = {
+        sender_id: supporterUserId,
+        rank: supporter.rank,
+        amount: supporter.amount
+      }
+    }
+  })
+
+  yield put(
+    setSupportersForUser({
+      id: userId,
+      supportersForUser: supportersForReceiverMap
+    })
+  )
+}
+
 function* fetchSupportingForUserAsync({
   payload: { userId }
 }: {
   payload: { userId: ID }
   type: string
 }) {
-  yield* waitForBackendAndAccount()
+  yield* waitForRead()
   const apiClient = yield* getContext('apiClient')
 
   /**
@@ -451,222 +559,85 @@ function* fetchSupportingForUserAsync({
   )
 }
 
-type CheckTipToDisplayResponse = {
-  tip: UserTip
-  newStorage: RecentTipsStorage
-}
-
-export const checkTipToDisplay = ({
-  storage,
-  userId,
-  recentTips
-}: {
-  storage: Nullable<RecentTipsStorage>
-  userId: ID
-  recentTips: UserTip[]
-}): Nullable<CheckTipToDisplayResponse> => {
-  if (recentTips.length === 0) {
-    return null
-  }
-
-  /**
-   * The list only comprises of recent tips.
-   * Sort the tips by least recent to parse through oldest tips first.
-   */
-  const sortedTips = recentTips.sort((tip1, tip2) => tip1.slot - tip2.slot)
-
-  /**
-   * Return oldest of the recent tips if nothing in local storage.
-   * Also set local storage values.
-   */
-  if (!storage) {
-    const oldestValidTip = sortedTips[0]
-    return {
-      tip: oldestValidTip,
-      newStorage: {
-        minSlot: oldestValidTip.slot,
-        dismissed: false,
-        lastDismissalTimestamp: null
-      }
-    }
-  }
-
-  /**
-   * Look for oldest of the recent tips that was performed by
-   * the currently logged in user.
-   * If not found, then look for oldest of the recent tips in general.
-   */
-  let validTips = sortedTips.filter((tip) => tip.slot > storage.minSlot)
-  let ownTip = validTips.find((tip) => tip.sender_id === userId)
-  if (ownTip) {
-    return {
-      tip: ownTip,
-      newStorage: {
-        minSlot: ownTip.slot,
-        dismissed: false,
-        lastDismissalTimestamp: null
-      }
-    }
-  }
-
-  let oldestValidTip = validTips.length > 0 ? validTips[0] : null
-  if (oldestValidTip) {
-    return {
-      tip: oldestValidTip,
-      newStorage: {
-        minSlot: oldestValidTip.slot,
-        dismissed: false,
-        lastDismissalTimestamp: null
-      }
-    }
-  }
-
-  /**
-   * If user tip dismissal is too old, or if user never did not
-   * dismiss the tip, and given that we have not found a recent
-   * tip, look for a tip as recent as that which the user last saw
-   * and prefer displaying a tip that was performed by user.
-   */
-  if (
-    (storage.dismissed &&
-      storage.lastDismissalTimestamp &&
-      Date.now() - storage.lastDismissalTimestamp >
-        FEED_TIP_DISMISSAL_TIME_LIMIT) ||
-    !storage.dismissed
-  ) {
-    validTips = sortedTips.filter((tip) => tip.slot === storage.minSlot)
-    ownTip = validTips.find((tip) => tip.sender_id === userId)
-    if (ownTip) {
-      return {
-        tip: ownTip,
-        newStorage: {
-          minSlot: ownTip.slot,
-          dismissed: false,
-          lastDismissalTimestamp: null
-        }
-      }
-    }
-
-    oldestValidTip = validTips.length > 0 ? validTips[0] : null
-    if (oldestValidTip) {
-      return {
-        tip: oldestValidTip,
-        newStorage: {
-          minSlot: oldestValidTip.slot,
-          dismissed: false,
-          lastDismissalTimestamp: null
-        }
-      }
-    }
-
-    /**
-     * Should never reach here because that would mean that
-     * there was previously a tip at some slot, and somehow later
-     * there were no tips at an equal or more recent slot
-     */
-    console.error(
-      `Error checking for tip to display (should not have reached here): ${{
-        storage,
-        userId,
-        recentTips
-      }}`
-    )
-    return null
-  }
-
-  return null
-}
-
-function* fetchRecentTipsAsync(action: ReturnType<typeof fetchRecentTips>) {
+// Display logic is a bit nuanced here -
+// there are 3 cases: 1 tip not dismissed, show tip,  2 tip dismissed, but show new tip, 3 tip dismissed, don't show any tip
+// the trick is to start with an empty state, NOT a loading state:
+// in case 1, we detect no/expired local storage and show loading state
+// in case 2, we initally show nothing and then directly snap to the tip tile, with no loading state, to avoid 3 states.
+// in case 3, we never show anything
+function* fetchRecentTipsAsync() {
   const apiClient = yield* getContext('apiClient')
   const localStorage = yield* getContext('localStorage')
-  const { storage } = action.payload
-  const minSlot = storage?.minSlot ?? null
 
   const account: User = yield* call(waitForValue, getAccountUser)
+
+  // Get dismissal info
+  const lastDismissedTip = yield* call(() =>
+    localStorage.getExpiringJSONValue<LastDismissedTip>(DISMISSED_TIP_KEY)
+  )
+  // If no dismissal, show loading state
+  if (!lastDismissedTip) {
+    yield put(setShowTip({ show: true }))
+  }
 
   const params: GetTipsArgs = {
     userId: account.user_id,
     currentUserFollows: 'receiver',
-    uniqueBy: 'receiver'
-  }
-  if (minSlot) {
-    params.minSlot = minSlot
+    uniqueBy: 'receiver',
+    limit: 1
   }
 
   const userTips = yield* call([apiClient, apiClient.getTips], params)
 
-  if (!userTips) {
+  if (!(userTips && userTips.length)) {
+    yield put(setShowTip({ show: false }))
     return
   }
 
-  const recentTips = userTips
-    .map((userTip) => {
-      const senderId = decodeHashId(userTip.sender.id)
-      const receiverId = decodeHashId(userTip.receiver.id)
-      if (!senderId || !receiverId) {
-        return null
-      }
+  const recentTip = {
+    ...userTips[0],
+    sender_id: userTips[0].sender.user_id,
+    receiver_id: userTips[0].receiver.user_id
+  }
 
-      const followeeSupporterIds = userTip.followee_supporters
-        .map((followee_supporter) => decodeHashId(followee_supporter.id))
-        .filter((id): id is ID => !!id)
+  // If there exists a non-expired tip dismissal
+  // and the receiver is same as current receiver, don't show the same tip
+  if (lastDismissedTip?.receiver_id === recentTip.receiver_id) {
+    yield put(setShowTip({ show: false }))
+    return
+  }
 
-      const { amount, slot, created_at, tx_signature } = userTip
+  // Otherwise, we're going to show a tip so clear out any dismissed tip state
+  yield* call(() => localStorage.removeItem(DISMISSED_TIP_KEY))
 
-      return {
-        amount,
-        sender_id: senderId,
-        receiver_id: receiverId,
-        followee_supporter_ids: followeeSupporterIds,
-        slot,
-        created_at,
-        tx_signature
-      }
+  yield call(processAndCacheUsers, [recentTip.sender, recentTip.receiver])
+
+  // Hack: no longer showing followee supporters, too slow
+  // const userIds = [...new Set([...recentTip.followee_supporter_ids])]
+  // yield call(fetchUsers, userIds)
+
+  /**
+   * We need to get supporting data for logged in user and
+   * supporters data for followee that logged in user may
+   * send a tip to.
+   * This is so that we know if and how much the logged in
+   * user has already tipped the followee, and also whether or
+   * not the logged in user is the top supporter for the
+   * followee.
+   */
+  yield put(
+    refreshSupport({
+      senderUserId: account.user_id,
+      receiverUserId: recentTip.receiver_id,
+      supportingLimit: account.supporting_count,
+      supportersLimit: MAX_PROFILE_TOP_SUPPORTERS + 1
     })
-    .filter((userTip): userTip is UserTip => !!userTip)
+  )
 
-  const result = yield* call(checkTipToDisplay, {
-    storage,
-    userId: account.user_id,
-    recentTips
-  })
-  const { tip: tipToDisplay, newStorage } = result ?? {}
-  if (newStorage) {
-    yield call(updateTipsStorage, newStorage, localStorage)
-  }
-  if (tipToDisplay) {
-    const userIds = [
-      ...new Set([
-        tipToDisplay.sender_id,
-        tipToDisplay.receiver_id,
-        ...tipToDisplay.followee_supporter_ids
-      ])
-    ]
-    yield call(fetchUsers, userIds)
-
-    /**
-     * We need to get supporting data for logged in user and
-     * supporters data for followee that logged in user may
-     * send a tip to.
-     * This is so that we know if and how much the logged in
-     * user has already tipped the followee, and also whether or
-     * not the logged in user is the top supporter for the
-     * followee.
-     */
-    yield put(
-      refreshSupport({
-        senderUserId: account.user_id,
-        receiverUserId: tipToDisplay.receiver_id,
-        supportingLimit: account.supporting_count,
-        supportersLimit: MAX_PROFILE_TOP_SUPPORTERS + 1
-      })
-    )
-    yield put(setTipToDisplay({ tipToDisplay }))
-  } else {
-    yield put(hideTip())
-  }
-  yield put(setRecentTips({ recentTips }))
+  yield all([
+    put(setShowTip({ show: true })),
+    put(setTipToDisplay({ tipToDisplay: recentTip }))
+  ])
 }
 
 function* fetchUserSupporterAsync(
@@ -724,6 +695,10 @@ function* watchFetchSupportingForUser() {
   yield* takeEvery(fetchSupportingForUser.type, fetchSupportingForUserAsync)
 }
 
+function* watchFetchSupportersForUser() {
+  yield takeEvery(fetchSupportersForUser.type, fetchSupportersForUserAsync)
+}
+
 function* watchRefreshSupport() {
   yield* takeEvery(refreshSupport.type, refreshSupportAsync)
 }
@@ -743,6 +718,7 @@ function* watchFetchUserSupporter() {
 const sagas = () => {
   return [
     watchFetchSupportingForUser,
+    watchFetchSupportersForUser,
     watchRefreshSupport,
     watchConfirmSendTip,
     watchFetchRecentTips,

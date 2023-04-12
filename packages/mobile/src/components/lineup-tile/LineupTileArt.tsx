@@ -1,40 +1,47 @@
-import { useMemo } from 'react'
-
 import type { Remix } from '@audius/common'
-import { useLoadImageWithTimeout } from '@audius/common'
-import type { ImageStyle, StyleProp, ViewStyle } from 'react-native'
+import type { StyleProp, ViewStyle } from 'react-native'
 import { View } from 'react-native'
 
 import CoSign, { Size } from 'app/components/co-sign'
-import { DynamicImage } from 'app/components/core'
+import { makeStyles } from 'app/styles'
+
+import { FadeInView } from '../core'
 
 import { useStyles as useTrackTileStyles } from './styles'
+import type { LineupTileProps } from './types'
+
+const useStyles = makeStyles(({ palette }) => ({
+  imageRoot: {
+    position: 'relative'
+  },
+  image: {
+    position: 'absolute'
+  },
+  backdrop: {
+    position: 'absolute',
+    backgroundColor: palette.skeleton
+  }
+}))
 
 type LineupTileArtProps = {
   coSign?: Remix | null
-  imageUrl?: string
-  onLoad: () => void
+  renderImage: LineupTileProps['renderImage']
   style?: StyleProp<ViewStyle>
 }
 
-export const LineupTileArt = ({
-  coSign,
-  imageUrl,
-  onLoad,
-  style
-}: LineupTileArtProps) => {
+export const LineupTileArt = (props: LineupTileArtProps) => {
+  const { coSign, renderImage, style } = props
   const trackTileStyles = useTrackTileStyles()
+  const styles = useStyles()
 
-  const imageStyles = useMemo(
-    () => ({
-      image: trackTileStyles.image as ImageStyle
-    }),
-    [trackTileStyles]
+  const imageElement = (
+    <View style={styles.imageRoot}>
+      <View style={[trackTileStyles.image, styles.backdrop]} />
+      <FadeInView style={styles.image} startOpacity={0} duration={500}>
+        {renderImage({ style: trackTileStyles.image })}
+      </FadeInView>
+    </View>
   )
-
-  useLoadImageWithTimeout(imageUrl, onLoad)
-
-  const imageElement = <DynamicImage uri={imageUrl} styles={imageStyles} />
 
   return coSign ? (
     <CoSign size={Size.SMALL} style={[style, trackTileStyles.image]}>
