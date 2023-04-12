@@ -159,6 +159,7 @@ import TopLevelPage from '../components/nav/mobile/TopLevelPage'
 import Notice from '../components/notice/Notice'
 
 import styles from './App.module.css'
+import { ApolloPage } from './apollo-page/ApolloPage'
 import { ChatPage } from './chat-page'
 import { CollectiblesPlaylistPage } from './collectibles-playlist-page'
 import { DeactivateAccountPage } from './deactivate-account-page/DeactivateAccountPage'
@@ -544,6 +545,12 @@ class App extends Component {
                   to={{ pathname: getPathname() }}
                 />
               ))}
+
+              <Route
+                exact
+                path={'/apollo-demo'}
+                render={(props) => <ApolloPage />}
+              />
 
               <Route
                 exact
