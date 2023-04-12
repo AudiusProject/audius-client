@@ -8,7 +8,6 @@ import {
   accountSelectors,
   cacheActions,
   profilePageSelectors,
-  FeatureFlags,
   FollowType,
   profilePageActions as profileActions,
   reachabilitySelectors,
@@ -80,17 +79,12 @@ function* fetchProfileCustomizedCollectibles(user) {
   )
   const cid = user?.metadata_multihash ?? null
   if (cid) {
-    const getFeatureEnabled = yield* getContext('getFeatureEnabled')
-    const tryDiscovery = getFeatureEnabled(
-      FeatureFlags.GET_METADATA_FROM_DISCOVERY_ENABLED
-    )
     const metadata = yield call(
       audiusBackendInstance.fetchCID,
       cid,
       gateways,
       /* cache */ false,
-      /* asUrl */ false,
-      /* tryDiscovery */ tryDiscovery
+      /* asUrl */ false
     )
     if (metadata?.collectibles) {
       yield put(
@@ -453,17 +447,12 @@ export function* updateProfileAsync(action) {
   const cid = metadata.metadata_multihash ?? null
   if (cid) {
     try {
-      const getFeatureEnabled = yield* getContext('getFeatureEnabled')
-      const tryDiscovery = getFeatureEnabled(
-        FeatureFlags.GET_METADATA_FROM_DISCOVERY_ENABLED
-      )
       const metadataFromIPFS = yield call(
         audiusBackendInstance.fetchCID,
         cid,
         gateways,
         /* cache */ false,
-        /* asUrl */ false,
-        /* tryDiscovery */ tryDiscovery
+        /* asUrl */ false
       )
       const collectibles = metadata.collectibles
       const playlist_library = metadata.playlist_library
