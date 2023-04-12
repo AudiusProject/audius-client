@@ -18,6 +18,7 @@ import EmptyFeed from 'pages/feed-page/components/EmptyFeed'
 import { FeedPageContentProps } from 'pages/feed-page/types'
 
 import FeedFilters from './FeedFilters'
+import { FeedPageUserTestThing } from './FeedPageUserTestThing'
 
 const initialFilters = [FeedFilter.ALL, FeedFilter.ORIGINAL, FeedFilter.REPOST]
 
@@ -97,6 +98,7 @@ const FeedPageContent = ({
         size='large'
         header={header}
       >
+        <FeedPageUserTestThing />
         <Lineup
           emptyElement={
             <EmptyFeed
