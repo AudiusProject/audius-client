@@ -6,6 +6,7 @@ import {
   StringKeys,
   formatWei,
   accountSelectors,
+  audioRewardsPageSelectors,
   walletSelectors,
   useSelectTierInfo,
   useAccountHasClaimableRewards
@@ -23,8 +24,9 @@ import { useSelector } from 'utils/reducer'
 import { AUDIO_PAGE } from 'utils/route'
 
 import styles from './NavAudio.module.css'
-const { getAccountTotalBalance } = walletSelectors
+const { getAccountTotalBalance, getAccountBalanceLoading } = walletSelectors
 const getAccountUser = accountSelectors.getAccountUser
+const { getUserChallengesLoading } = audioRewardsPageSelectors
 
 type BubbleType = 'none' | 'claim' | 'earn'
 
@@ -35,7 +37,10 @@ const messages = {
 
 const NavAudio = () => {
   const navigate = useNavigateToPage()
+  const userChallengesLoading = useSelector(getUserChallengesLoading)
   const account = useSelector(getAccountUser)
+  const balanceLoading = useSelector(getAccountBalanceLoading)
+
   let totalBalance = useSelector(getAccountTotalBalance)
   if (totalBalance.eq(new BN(0)) && account?.total_balance) {
     totalBalance = new BN(account?.total_balance) as BNWei
@@ -61,24 +66,23 @@ const NavAudio = () => {
     } else if (!positiveTotalBalance) {
       setBubbleType('earn')
     } else {
-      setBubbleType('none')
     }
   }, [setBubbleType, hasClaimableRewards, positiveTotalBalance])
 
-  if (!account) {
+  // Wait for all the states we care about to load to prevent flashing
+  // of conditional content
+  if (balanceLoading || userChallengesLoading || !account) {
     return null
   }
 
   return (
-    <div
-      className={cn(
-        styles.audio,
-        { [styles.hasBalance]: positiveTotalBalance },
-        { [styles.show]: true }
-      )}
-      onClick={goToAudioPage}
-    >
-      <div className={styles.amountContainer}>
+    <div className={styles.audio}>
+      <div
+        className={cn(styles.amountContainer, styles.interactive, {
+          [styles.hasBalance]: positiveTotalBalance
+        })}
+        onClick={goToAudioPage}
+      >
         {positiveTotalBalance && audioBadge ? (
           cloneElement(audioBadge, {
             height: 16,
@@ -103,9 +107,10 @@ const NavAudio = () => {
             item !== 'none' && (
               <animated.span
                 style={props}
-                className={cn(styles.actionBubble, {
+                className={cn(styles.actionBubble, styles.interactive, {
                   [styles.claimRewards]: item === 'claim'
                 })}
+                onClick={goToAudioPage}
               >
                 <span>
                   {item === 'claim'
