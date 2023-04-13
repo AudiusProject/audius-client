@@ -44,7 +44,7 @@ const messages = {
   unlockingCollectibleGatedSuffix: ' was found in a linked wallet.',
   lockedFollowGatedPrefix: 'Follow ',
   unlockingFollowGatedPrefix: 'Thank you for following ',
-  unlockingFollowGatedSuffix: ' !',
+  unlockingFollowGatedSuffix: '!',
   lockedTipGatedPrefix: 'Send ',
   lockedTipGatedSuffix: ' a tip.',
   unlockingTipGatedPrefix: 'Thank you for supporting ',
@@ -84,7 +84,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     color: palette.neutral,
     lineHeight: spacing(6)
   },
-  collectionName: {
+  name: {
     color: palette.secondary
   },
   collectionContainer: {
@@ -205,6 +205,13 @@ export const DetailsTileNoAccess = ({
     navigation.navigate('TipArtist')
   }, [tippedUser, navigation, dispatch, source, trackId])
 
+  const handlePressArtistName = useCallback(
+    (handle: string) => {
+      navigation.push('Profile', { handle })
+    },
+    [navigation]
+  )
+
   const renderLockedDescription = useCallback(() => {
     if (nftCollection) {
       return (
@@ -250,7 +257,12 @@ export const DetailsTileNoAccess = ({
             <Text style={styles.description}>
               {messages.lockedFollowGatedPrefix}
             </Text>
-            <Text style={styles.description}>{followee.name}</Text>
+            <Text
+              style={[styles.description, styles.name]}
+              onPress={() => handlePressArtistName(followee.handle)}
+            >
+              {followee.name}
+            </Text>
             <UserBadges
               badgeSize={16}
               user={followee}
@@ -278,7 +290,12 @@ export const DetailsTileNoAccess = ({
             <Text style={styles.description}>
               {messages.lockedTipGatedPrefix}
             </Text>
-            <Text style={styles.description}>{tippedUser.name}</Text>
+            <Text
+              style={[styles.description, styles.name]}
+              onPress={() => handlePressArtistName(tippedUser.handle)}
+            >
+              {tippedUser.name}
+            </Text>
             <UserBadges
               badgeSize={16}
               user={tippedUser}
@@ -314,6 +331,7 @@ export const DetailsTileNoAccess = ({
     handlePressCollection,
     handleFollowArtist,
     handleSendTip,
+    handlePressArtistName,
     styles
   ])
 
@@ -327,7 +345,7 @@ export const DetailsTileNoAccess = ({
             </Text>
             <Text
               onPress={handlePressCollection}
-              style={[styles.description, styles.collectionName]}
+              style={[styles.description, styles.name]}
             >
               {nftCollection.name}
             </Text>
@@ -345,7 +363,12 @@ export const DetailsTileNoAccess = ({
             <Text style={styles.description}>
               {messages.unlockingFollowGatedPrefix}
             </Text>
-            <Text style={styles.description}>{followee.name}</Text>
+            <Text
+              style={[styles.description, styles.name]}
+              onPress={() => handlePressArtistName(followee.handle)}
+            >
+              {followee.name}
+            </Text>
             <UserBadges
               badgeSize={16}
               user={followee}
@@ -366,7 +389,12 @@ export const DetailsTileNoAccess = ({
             <Text style={styles.description}>
               {messages.unlockingTipGatedPrefix}
             </Text>
-            <Text style={styles.description}>{tippedUser.name}</Text>
+            <Text
+              style={[styles.description, styles.name]}
+              onPress={() => handlePressArtistName(tippedUser.handle)}
+            >
+              {tippedUser.name}
+            </Text>
             <UserBadges
               badgeSize={16}
               user={tippedUser}
@@ -385,7 +413,14 @@ export const DetailsTileNoAccess = ({
       'No entity for premium conditions... should not have reached here.'
     )
     return null
-  }, [nftCollection, followee, tippedUser, handlePressCollection, styles])
+  }, [
+    nftCollection,
+    followee,
+    tippedUser,
+    handlePressCollection,
+    handlePressArtistName,
+    styles
+  ])
 
   const isUnlocking = premiumTrackStatus === 'UNLOCKING'
 

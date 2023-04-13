@@ -18,6 +18,7 @@ import IconUnlocked from 'app/assets/images/iconUnlocked.svg'
 import IconVerified from 'app/assets/images/iconVerified.svg'
 import { useLink } from 'app/components/core'
 import UserBadges from 'app/components/user-badges'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { flexRowCentered, makeStyles } from 'app/styles'
 import { useColor, useThemePalette } from 'app/utils/theme'
 
@@ -31,12 +32,12 @@ const messages = {
   ownerCollectibleGatedPrefix:
     'Users can unlock access by linking a wallet containing a collectible from ',
   unlockedFollowGatedPrefix: 'Thank you for following ',
-  unlockedFollowGatedSuffix: ' ! This track is now available.',
+  unlockedFollowGatedSuffix: '! This track is now available.',
   ownerFollowGated: 'Users can unlock access by following your account!',
   unlockedTipGatedPrefix: 'Thank you for supporting ',
   unlockedTipGatedSuffix:
-    ' by sending them a tip!  This track is now available.',
-  ownerTipGated: 'Users can unlock access by sending you a tip! '
+    ' by sending them a tip! This track is now available.',
+  ownerTipGated: 'Users can unlock access by sending you a tip!'
 }
 
 const useStyles = makeStyles(({ palette, spacing, typography }) => ({
@@ -77,7 +78,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     width: spacing(6),
     height: spacing(6)
   },
-  collectionName: {
+  name: {
     color: palette.secondary
   },
   bottomMargin: {
@@ -160,11 +161,19 @@ export const DetailsTileHasAccess = ({
   style
 }: DetailsTileHasAccessProps) => {
   const styles = useStyles()
+  const navigation = useNavigation()
 
   const { nftCollection, collectionLink, followee, tippedUser } =
     usePremiumConditionsEntity(premiumConditions)
 
   const { onPress: handlePressCollection } = useLink(collectionLink)
+
+  const handlePressArtistName = useCallback(
+    (handle: string) => {
+      navigation.push('Profile', { handle })
+    },
+    [navigation]
+  )
 
   const renderOwnerDescription = useCallback(() => {
     if (nftCollection) {
@@ -176,7 +185,7 @@ export const DetailsTileHasAccess = ({
             </Text>
             <Text
               onPress={handlePressCollection}
-              style={[styles.description, styles.collectionName]}
+              style={[styles.description, styles.name]}
             >
               {nftCollection.name}
             </Text>
@@ -219,7 +228,7 @@ export const DetailsTileHasAccess = ({
             </Text>
             <Text
               onPress={handlePressCollection}
-              style={[styles.description, styles.collectionName]}
+              style={[styles.description, styles.name]}
             >
               {nftCollection.name}
             </Text>
@@ -237,7 +246,12 @@ export const DetailsTileHasAccess = ({
             <Text style={styles.description}>
               {messages.unlockedFollowGatedPrefix}
             </Text>
-            <Text style={styles.description}>{followee.name}</Text>
+            <Text
+              style={[styles.description, styles.name]}
+              onPress={() => handlePressArtistName(followee.handle)}
+            >
+              {followee.name}
+            </Text>
             <UserBadges
               badgeSize={16}
               user={followee}
@@ -258,7 +272,12 @@ export const DetailsTileHasAccess = ({
             <Text style={styles.description}>
               {messages.unlockedTipGatedPrefix}
             </Text>
-            <Text style={styles.description}>{tippedUser.name}</Text>
+            <Text
+              style={[styles.description, styles.name]}
+              onPress={() => handlePressArtistName(tippedUser.handle)}
+            >
+              {tippedUser.name}
+            </Text>
             <UserBadges
               badgeSize={16}
               user={tippedUser}
@@ -277,7 +296,14 @@ export const DetailsTileHasAccess = ({
       'No entity for premium conditions... should not have reached here.'
     )
     return null
-  }, [nftCollection, followee, tippedUser, handlePressCollection, styles])
+  }, [
+    nftCollection,
+    followee,
+    tippedUser,
+    handlePressCollection,
+    handlePressArtistName,
+    styles
+  ])
 
   if (isOwner) {
     return (
