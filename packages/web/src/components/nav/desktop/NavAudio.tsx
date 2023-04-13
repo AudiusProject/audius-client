@@ -34,6 +34,36 @@ const messages = {
   claimRewards: 'Claim Rewards'
 }
 
+type RewardsActionBubbleProps = {
+  bubbleType: BubbleType
+  onClick(): void
+  style?: React.CSSProperties
+}
+
+const RewardsActionBubble = ({
+  bubbleType,
+  onClick,
+  style
+}: RewardsActionBubbleProps) => {
+  if (bubbleType === 'none') {
+    return null
+  }
+  return (
+    <animated.span
+      style={style}
+      className={cn(styles.actionBubble, styles.interactive, {
+        [styles.claimRewards]: bubbleType === 'claim'
+      })}
+      onClick={onClick}
+    >
+      <span>
+        {bubbleType === 'claim' ? messages.claimRewards : messages.earnAudio}
+      </span>
+      <IconCaretRight className={styles.actionCaret} />
+    </animated.span>
+  )
+}
+
 const RenderNavAudio = () => {
   const navigate = useNavigateToPage()
   const account = useSelector(getAccountUser)
@@ -87,22 +117,13 @@ const RenderNavAudio = () => {
           leave={{ opacity: 0 }}
           config={{ duration: 100 }}
         >
-          {(item) => (props) =>
-            item !== 'none' && (
-              <animated.span
-                style={props}
-                className={cn(styles.actionBubble, styles.interactive, {
-                  [styles.claimRewards]: item === 'claim'
-                })}
+          {(bubbleType) => (bubbleStyle) =>
+            (
+              <RewardsActionBubble
+                bubbleType={bubbleType}
+                style={bubbleStyle}
                 onClick={goToAudioPage}
-              >
-                <span>
-                  {item === 'claim'
-                    ? messages.claimRewards
-                    : messages.earnAudio}
-                </span>
-                <IconCaretRight className={styles.actionCaret} />
-              </animated.span>
+              />
             )}
         </Transition>
       </div>
