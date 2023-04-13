@@ -117,11 +117,11 @@ const RenderNavAudio = () => {
           leave={{ opacity: 0 }}
           config={{ duration: 100 }}
         >
-          {(bubbleType) => (bubbleStyle) =>
+          {(bubbleType) => (style) =>
             (
               <RewardsActionBubble
                 bubbleType={bubbleType}
-                style={bubbleStyle}
+                style={style}
                 onClick={goToAudioPage}
               />
             )}
