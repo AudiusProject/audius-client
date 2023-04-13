@@ -7,6 +7,7 @@ import { Metadata } from './types'
 
 export const ADD = 'CACHE/ADD'
 export const ADD_SUCCEEDED = 'CACHE/ADD_SUCCEEDED'
+export const ADD_ENTRIES = 'CACHE/ADD_ENTRIES'
 export const UPDATE = 'CACHE/UPDATE'
 export const INCREMENT = 'CACHE/INCREMENT'
 export const SET_STATUS = 'CACHE/SET_STATUS'
@@ -42,6 +43,23 @@ export type AddSuccededAction<EntryT extends Metadata = Metadata> = {
     metadata: EntryT
     timestamp: number
   }[]
+  // replace optionally replaces the entire entry instead of joining metadata
+  replace?: boolean
+  // persist optionally persists the cache entry to indexdb
+  persist?: boolean
+}
+
+export type AddEntriesAction<EntryT extends Metadata = Metadata> = {
+  type: typeof ADD_ENTITIES
+  kind: Kind[]
+  entries: {
+    [key: Kind]: {
+      id: ID
+      uid: UID
+      metadata: EntryT
+      timestamp: number
+    }[]
+  }
   // replace optionally replaces the entire entry instead of joining metadata
   replace?: boolean
   // persist optionally persists the cache entry to indexdb
