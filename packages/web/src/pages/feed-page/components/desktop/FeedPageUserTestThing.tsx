@@ -1,7 +1,20 @@
-import { useUserById } from '../../../../api/user/useUserById'
+import { accountSelectors } from '@audius/common'
+import { useGetUserById } from 'api/user'
+import { useSelector } from 'react-redux'
+
+const { getUserId } = accountSelectors
 
 export const FeedPageUserTestThing = () => {
-  const { user } = useUserById(395)
+  const currentUserId = useSelector(getUserId)
+  const {
+    data: user,
+    status,
+    errorMessage
+  } = useGetUserById(395, currentUserId)
 
-  return <>{user?.name}</>
+  return (
+    <>
+      {user?.name} {status} {errorMessage}
+    </>
+  )
 }

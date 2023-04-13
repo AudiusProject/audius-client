@@ -31,6 +31,8 @@ import userListModal from 'store/application/ui/userListModal/slice'
 import dragndrop from 'store/dragndrop/reducer'
 import error from 'store/errors/reducers'
 
+import userApi from '../api/user'
+
 export const commonStoreReducers = clientStoreReducers()
 
 const createRootReducer = (routeHistory: History) =>
@@ -60,6 +62,9 @@ const createRootReducer = (routeHistory: History) =>
 
     // Playback
     queue,
+
+    // UserApi
+    userApi,
 
     // Error Page
     error,
