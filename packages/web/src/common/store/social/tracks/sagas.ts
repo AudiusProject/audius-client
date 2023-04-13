@@ -425,6 +425,7 @@ export function* confirmSaveTrack(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.TRACKS, trackId),
       function* () {
+        debugger
         const { blockHash, blockNumber } = yield* call(
           audiusBackendInstance.saveTrack,
           trackId,
