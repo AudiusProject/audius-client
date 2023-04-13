@@ -224,8 +224,8 @@ const actionsMap = {
     return addEntries(state, entries, replace)
   },
   [ADD_ENTRIES](state: CacheState, action: AddEntriesAction, kind: Kind) {
-    const { entries, replace } = action
-    const matchingEntries = entries[kind]
+    const { entriesByKind, replace } = action
+    const matchingEntries = entriesByKind[kind]
     return addEntries(state, matchingEntries, replace)
   },
   [UPDATE](
@@ -433,9 +433,10 @@ export const asCache =
   ) =>
   (state: any, action: { kind: Kind | Kind[]; type: string | number }) => {
     if (
-      action.kind && typeof action.kind === 'string'
+      action.kind &&
+      (typeof action.kind === 'string'
         ? action.kind !== kind
-        : !action.kind.includes(kind)
+        : !action.kind.includes(kind))
     ) {
       return state
     }

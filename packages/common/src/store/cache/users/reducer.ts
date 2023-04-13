@@ -50,9 +50,10 @@ const actionsMap = {
     action: AddEntriesAction<User>,
     kind: Kind
   ): UsersCacheState {
-    const { entries } = action
-    const matchingEntries = entries[kind]
+    const { entriesByKind } = action
+    const matchingEntries = entriesByKind[kind]
 
+    if (!matchingEntries) return state
     return addEntries(state, matchingEntries)
   }
 }

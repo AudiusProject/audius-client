@@ -39,15 +39,21 @@ export const useUserById = (id: ID) => {
       if (!apiUser) {
         throw new Error('User not found')
       }
-      cacheActions.add(
-        Kind.USERS,
-        {
-          id,
-          uid: makeUid(Kind.USERS, id),
-          metadata: apiUser
-        },
-        false,
-        true
+      dispatch(
+        cacheActions.addEntries(
+          [Kind.USERS],
+          {
+            [Kind.USERS]: [
+              {
+                id,
+                uid: makeUid(Kind.USERS, id),
+                metadata: apiUser
+              }
+            ]
+          },
+          false,
+          true
+        )
       )
     }
     fetchWrapped()

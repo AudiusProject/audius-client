@@ -4,7 +4,12 @@ import { Kind } from 'models/Kind'
 import { Track } from 'models/Track'
 import { initialCacheState } from 'store/cache/reducer'
 
-import { AddSuccededAction, ADD_ENTRIES, ADD_SUCCEEDED } from '../actions'
+import {
+  AddEntriesAction,
+  AddSuccededAction,
+  ADD_ENTRIES,
+  ADD_SUCCEEDED
+} from '../actions'
 
 import { SET_PERMALINK, setPermalink } from './actions'
 import { TracksCacheState } from './types'
@@ -44,11 +49,13 @@ const actionsMap = {
   },
   [ADD_ENTRIES](
     state: TracksCacheState,
-    action: AddSuccededAction<Track>,
+    action: AddEntriesAction<Track>,
     kind: Kind
   ): TracksCacheState {
-    const { entries } = action
-    const matchingEntries = entries[kind]
+    const { entriesByKind } = action
+    const matchingEntries = entriesByKind[kind]
+
+    if (!matchingEntries) return state
     return addEntries(state, matchingEntries)
   },
   [SET_PERMALINK](
