@@ -1,83 +1,42 @@
 import React from 'react'
 
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client'
-import { decodeHashId } from '@audius/common'
 import { RestLink } from 'apollo-link-rest'
 
 import TrackTile from 'components/track/desktop/TrackTile'
 import { TrackTileSize } from 'components/track/types'
-import { apiClient } from 'services/audius-api-client'
-import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 
 import { useGetTrack } from './useGetTrack'
-import { useSaveTrack } from './useSaveTrack'
+import { confirmSaveTrack, useSaveTrack } from './useSaveTrack'
 
-enum BlockConfirmation {
-  CONFIRMED = 'CONFIRMED',
-  DENIED = 'DENIED',
-  UNKNOWN = 'UNKNOWN'
-}
-
-const POLLING_FREQUENCY_MILLIS = 2000
 const baseUri = 'https://discoveryprovider.audius.co/v1/full'
 
+// This map defines how each mutation is performed,
+// the lookup is based on the `path` argument to the @rest directive
 const mutations = {
-  '/track/save': async (options) => {
-    const id = decodeHashId(options.body.id)
-    // transaction
-    const { blockHash, blockNumber } = await audiusBackendInstance.saveTrack(id)
-
-    // confirmer
-    const confirmBlock = async () => {
-      const { block_passed } = await apiClient.getBlockConfirmation(
-        blockHash,
-        blockNumber
-      )
-
-      return block_passed
-        ? BlockConfirmation.CONFIRMED
-        : BlockConfirmation.UNKNOWN
-    }
-
-    let confirmation: BlockConfirmation = await confirmBlock()
-
-    // TODO If timeout, throw error
-    while (confirmation === BlockConfirmation.UNKNOWN) {
-      await new Promise((resolve) =>
-        setTimeout(resolve, POLLING_FREQUENCY_MILLIS)
-      )
-      confirmation = await confirmBlock()
-    }
-
-    if (confirmation === BlockConfirmation.CONFIRMED) {
-      // return optimisticResponse
-      return new Response(
-        JSON.stringify({ data: options.body.optimisticResponse })
-      )
-
-      // Refetch data, will this always be indexed in time?
-      //   return fetch(
-      //     `${baseUri}/tracks?handle=souljaboy&slug=soulja-boy-battlefield&user_id=D8v5P`
-      //   )
-    } else {
-      throw Error('Transaction failed')
-    }
-  }
+  '/track/save': confirmSaveTrack
 }
 
 const restLink = new RestLink({
   uri: baseUri,
+  // Overwrite the default serializer so that the `input` arg
+  // isn't stringified
   defaultSerializer: (body, headers) => {
     return { body, headers }
   },
   customFetch: async (uri, options) => {
+    // For reads, simply fetch the uri
     if (options.method === 'GET') {
       return fetch(uri)
+
+      // For writes, execute the mutation
+      // (with confirmation)
     } else if (options.method === 'POST') {
       const route = (uri as string).replace(baseUri, '')
       return mutations[route](options)
     }
   },
+  // This transformer returns the `data` field from the response
   responseTransformer: async (response) =>
     response.json().then(({ data }) => data)
 })

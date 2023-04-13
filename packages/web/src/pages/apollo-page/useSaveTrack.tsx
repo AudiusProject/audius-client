@@ -1,4 +1,9 @@
 import { gql, useMutation } from '@apollo/client'
+import { decodeHashId } from '@audius/common'
+
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
+
+import { confirmMutation } from './confirmMutation'
 
 const SAVE_TRACK = gql`
   mutation SaveTrack($id: ID!, $optimisticResponse: Track!) {
@@ -15,19 +20,23 @@ const SAVE_TRACK = gql`
 
 export const useSaveTrack = ({ id }: { id: string }) => {
   const optimisticResponse = {
-    saveTrack: {
-      id,
-      __typename: 'Track',
-      has_current_user_saved: true
-    }
+    id,
+    __typename: 'Track',
+    has_current_user_saved: true
   }
 
   return useMutation(SAVE_TRACK, {
     variables: {
       id,
-      optimisticResponse: optimisticResponse.saveTrack
+      optimisticResponse
     },
-    optimisticResponse
-    // refetchQueries: [{ query: GET_TRACK }]
+    optimisticResponse: {
+      saveTrack: optimisticResponse
+    }
   })
 }
+
+export const confirmSaveTrack = confirmMutation(async (options) => {
+  const id = decodeHashId(options.body.id)
+  return audiusBackendInstance.saveTrack(id)
+})
