@@ -22,7 +22,7 @@ export class SolanaClient {
     try {
       this.connection = new Connection(solanaClusterEndpoint!, 'confirmed')
     } catch (e) {
-      console.error('Could create Solana RPC connection', e)
+      console.error('Could not create Solana RPC connection', e)
       this.connection = null
     }
   }

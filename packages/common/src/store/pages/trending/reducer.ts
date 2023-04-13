@@ -22,7 +22,9 @@ import {
   makeInitialState
 } from './lineup/reducer'
 
-const urlParams = new URLSearchParams(window.location.search)
+const urlParams = new URLSearchParams(
+  window.location ? window.location.search : ''
+)
 const genre = urlParams.get('genre')
 const timeRange = urlParams.get('timeRange')
 

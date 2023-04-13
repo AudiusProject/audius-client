@@ -229,7 +229,7 @@ export const remoteConfig = <
    */
   function getFeatureEnabled(flag: FeatureFlags, fallbackFlag?: FeatureFlags) {
     const defaultVal =
-      environmentFlagDefaults[environment][flag] ?? flagDefaults[flag]
+      environmentFlagDefaults[environment]?.[flag] ?? flagDefaults[flag]
 
     // If the client is not ready yet, return early with `null`
     if (!client || !state.id) return defaultVal
