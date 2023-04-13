@@ -1,5 +1,6 @@
 import { gql, useMutation } from '@apollo/client'
-import { decodeHashId } from '@audius/common'
+import { decodeHashId, cacheActions, Kind } from '@audius/common'
+import { useDispatch } from 'react-redux'
 
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 
@@ -10,7 +11,7 @@ const SAVE_TRACK = gql`
     saveTrack(
       id: $id
       input: { id: $id, optimisticResponse: $optimisticResponse }
-    ) @rest(type: "Track", path: "/track/save", method: "POST", test: 1) {
+    ) @rest(type: "Track", path: "/track/save", method: "POST") {
       id
       __typename
       has_current_user_saved
@@ -19,6 +20,7 @@ const SAVE_TRACK = gql`
 `
 
 export const useSaveTrack = ({ id }: { id: string }) => {
+  const dispatch = useDispatch()
   const optimisticResponse = {
     id,
     __typename: 'Track',
@@ -32,11 +34,25 @@ export const useSaveTrack = ({ id }: { id: string }) => {
     },
     optimisticResponse: {
       saveTrack: optimisticResponse
+    },
+    update(cache, { data: { saveTrack } }) {
+      dispatch(
+        cacheActions.update(Kind.TRACKS, [
+          {
+            id: decodeHashId(saveTrack.id),
+            metadata: {
+              has_current_user_saved: saveTrack.has_current_user_saved
+            }
+          }
+        ])
+      )
     }
   })
 }
 
 export const confirmSaveTrack = confirmMutation(async (options) => {
   const id = decodeHashId(options.body.id)
-  return audiusBackendInstance.saveTrack(id)
+  if (id) {
+    return audiusBackendInstance.saveTrack(id)
+  }
 })

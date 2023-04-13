@@ -11,19 +11,19 @@ const POLLING_FREQUENCY_MILLIS = 2000
 export const confirmMutation =
   (
     performMutation: (
-      requestOptions
+      requestOptions: any
     ) => Promise<{ blockHash: string; blockNumber: number }>
   ) =>
-  async (options) => {
+  async (options: any) => {
     // transaction
     const { blockHash, blockNumber } = await performMutation(options)
 
     // confirmer
     const confirmBlock = async () => {
-      const { block_passed } = await apiClient.getBlockConfirmation(
+      const { block_passed } = (await apiClient.getBlockConfirmation(
         blockHash,
         blockNumber
-      )
+      )) as { block_passed: boolean }
 
       return block_passed
         ? BlockConfirmation.CONFIRMED

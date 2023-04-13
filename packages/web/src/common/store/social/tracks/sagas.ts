@@ -1,3 +1,4 @@
+import { gql } from '@apollo/client'
 import {
   Kind,
   ID,
@@ -12,7 +13,8 @@ import {
   cacheActions,
   getContext,
   tracksSocialActions as socialActions,
-  waitForValue
+  waitForValue,
+  encodeHashId
 } from '@audius/common'
 import { fork } from 'redux-saga/effects'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
@@ -23,6 +25,7 @@ import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import { updateProfileAsync } from 'common/store/profile/sagas'
+import { client } from 'pages/apollo-page/ApolloPage'
 import { waitForRead, waitForWrite } from 'utils/sagaHelpers'
 
 import watchTrackErrors from './errorSagas'
@@ -384,6 +387,20 @@ export function* saveTrackAsync(
       }
     ])
   )
+
+  // Update apollo cache
+  client.writeFragment({
+    id: `Track:${encodeHashId(action.trackId)}`,
+    fragment: gql`
+      fragment MyTrack on Track {
+        has_current_user_saved
+      }
+    `,
+    data: {
+      has_current_user_saved: true
+    }
+  })
+
   yield* put(socialActions.saveTrackSucceeded(action.trackId))
   if (isCoSign) {
     // Track Cosign Event
@@ -425,7 +442,6 @@ export function* confirmSaveTrack(
     confirmerActions.requestConfirmation(
       makeKindId(Kind.TRACKS, trackId),
       function* () {
-        debugger
         const { blockHash, blockNumber } = yield* call(
           audiusBackendInstance.saveTrack,
           trackId,
