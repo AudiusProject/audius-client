@@ -1,8 +1,7 @@
-import { cloneElement, useCallback, useEffect, useState } from 'react'
+import { cloneElement, useCallback } from 'react'
 
 import {
   BadgeTier,
-  BNWei,
   StringKeys,
   formatWei,
   accountSelectors,
@@ -35,16 +34,11 @@ const messages = {
   claimRewards: 'Claim Rewards'
 }
 
-const NavAudio = () => {
+const RenderNavAudio = () => {
   const navigate = useNavigateToPage()
-  const userChallengesLoading = useSelector(getUserChallengesLoading)
   const account = useSelector(getAccountUser)
-  const balanceLoading = useSelector(getAccountBalanceLoading)
 
-  let totalBalance = useSelector(getAccountTotalBalance)
-  if (totalBalance.eq(new BN(0)) && account?.total_balance) {
-    totalBalance = new BN(account?.total_balance) as BNWei
-  }
+  const totalBalance = useSelector(getAccountTotalBalance)
   const positiveTotalBalance = totalBalance.gt(new BN(0))
   // we only show the audio balance and respective badge when there is an account
   // so below null-coalescing is okay
@@ -54,25 +48,15 @@ const NavAudio = () => {
   const challengeRewardIds = useRemoteVar(StringKeys.CHALLENGE_REWARD_IDS)
   const hasClaimableRewards = useAccountHasClaimableRewards(challengeRewardIds)
 
-  const [bubbleType, setBubbleType] = useState<BubbleType>('none')
-
   const goToAudioPage = useCallback(() => {
     navigate(AUDIO_PAGE)
   }, [navigate])
 
-  useEffect(() => {
-    if (hasClaimableRewards) {
-      setBubbleType('claim')
-    } else if (!positiveTotalBalance) {
-      setBubbleType('earn')
-    } else {
-    }
-  }, [setBubbleType, hasClaimableRewards, positiveTotalBalance])
-
-  // Wait for all the states we care about to load to prevent flashing
-  // of conditional content
-  if (balanceLoading || userChallengesLoading || !account) {
-    return null
+  let bubbleType: BubbleType = 'none'
+  if (hasClaimableRewards) {
+    bubbleType = 'claim'
+  } else if (!positiveTotalBalance) {
+    bubbleType = 'earn'
   }
 
   return (
@@ -124,6 +108,20 @@ const NavAudio = () => {
       </div>
     </div>
   )
+}
+
+const NavAudio = () => {
+  const userChallengesLoading = useSelector(getUserChallengesLoading)
+  const balanceLoading = useSelector(getAccountBalanceLoading)
+  const account = useSelector(getAccountUser)
+
+  // Wait for all the states we care about to load to prevent flashing
+  // of conditional content
+  if (balanceLoading || userChallengesLoading || !account) {
+    return null
+  }
+
+  return <RenderNavAudio />
 }
 
 export default NavAudio
