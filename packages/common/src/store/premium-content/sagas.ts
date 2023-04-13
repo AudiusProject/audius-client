@@ -1,14 +1,4 @@
 import {
-  takeEvery,
-  select,
-  call,
-  put,
-  delay,
-  all,
-  fork
-} from 'typed-redux-saga'
-
-import {
   Chain,
   Collectible,
   ID,
@@ -28,6 +18,15 @@ import { getContext } from 'store/effects'
 import { musicConfettiActions } from 'store/music-confetti'
 import { usersSocialActions } from 'store/social'
 import { tippingActions } from 'store/tipping'
+import {
+  takeEvery,
+  select,
+  call,
+  put,
+  delay,
+  all,
+  fork
+} from 'typed-redux-saga'
 import { parseTrackRouteFromPermalink } from 'utils'
 import { Nullable } from 'utils/typeUtils'
 
