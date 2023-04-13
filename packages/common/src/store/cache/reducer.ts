@@ -420,8 +420,14 @@ export const asCache =
     },
     kind: Kind
   ) =>
-  (state: any, action: { kind: any; type: string | number }) => {
-    if (action.kind && action.kind !== kind) return state
+  (state: any, action: { kind: Kind | Kind[]; type: string | number }) => {
+    if (
+      action.kind && typeof action.kind === 'string'
+        ? action.kind !== kind
+        : !action.kind.includes(kind)
+    ) {
+      return state
+    }
 
     let updatedState = state
 
