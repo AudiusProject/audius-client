@@ -435,14 +435,44 @@ export const audiusBackend = ({
     trackId: Nullable<ID> = null
   ) {
     await waitForLibsInit()
+
+    // If requesting a url (we mean a blob url for the file),
+    // otherwise, default to JSON
+    const responseType = asUrl ? 'blob' : 'json'
+
+    // TODO read only from discovery after CID metadata migration
+    const getMetadataFromDiscoveryEnabled =
+      (await getFeatureEnabled(
+        FeatureFlags.GET_METADATA_FROM_DISCOVERY_ENABLED
+      )) ?? false
+    if (getMetadataFromDiscoveryEnabled) {
+      try {
+        const res = await audiusLibs.File.fetchCIDFromDiscovery(
+          cid,
+          responseType
+        )
+        if (res?.data) {
+          if (asUrl) {
+            const url = nativeMobile
+              ? res.config.url
+              : URL.createObjectURL(res.data)
+            if (cache) CIDCache.add(cid, url)
+            return url
+          }
+          return res.data
+        }
+      } catch (e) {
+        console.error(e)
+      }
+      // If failed to find metadata in discovery, try with content nodes
+    }
+
     try {
       const res = await audiusLibs.File.fetchCID(
         cid,
         creatorNodeGateways,
         () => {},
-        // If requesting a url (we mean a blob url for the file),
-        // otherwise, default to JSON
-        asUrl ? 'blob' : 'json',
+        responseType,
         trackId
       )
       if (asUrl) {
@@ -1949,8 +1979,29 @@ export const audiusBackend = ({
       setLocalStorageItem('is-mobile-user', 'true')
     }
 
+    const storageV2Enabled = await getFeatureEnabled(FeatureFlags.STORAGE_V2)
+    if (storageV2Enabled || email?.startsWith('storage_v2_test_')) {
+      return await audiusLibs.Account.signUpV2(
+        email,
+        password,
+        metadata,
+        formFields.profilePicture,
+        formFields.coverPhoto,
+        hasWallet,
+        getHostUrl(),
+        (eventName: string, properties: Record<string, unknown>) =>
+          recordAnalytics({ eventName, properties }),
+        {
+          Request: Name.CREATE_USER_BANK_REQUEST,
+          Success: Name.CREATE_USER_BANK_SUCCESS,
+          Failure: Name.CREATE_USER_BANK_FAILURE
+        },
+        feePayerOverride,
+        true
+      )
+    }
     // Returns { userId, error, phase }
-    return audiusLibs.Account.signUp(
+    return await audiusLibs.Account.signUp(
       email,
       password,
       metadata,
@@ -2224,7 +2275,7 @@ export const audiusBackend = ({
       }
     } else if (notification.type === 'supporter_rank_up') {
       const data = notification.actions[0].data
-      const senderUserId = decodeHashId(data.receiver_user_id) as number
+      const senderUserId = decodeHashId(data.sender_user_id) as number
       return {
         type: NotificationType.SupporterRankUp,
         entityId: senderUserId,

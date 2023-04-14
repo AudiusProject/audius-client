@@ -2,7 +2,6 @@ import { Component, ComponentType } from 'react'
 
 import {
   ID,
-  CID,
   PlayableType,
   FollowSource,
   FavoriteSource,
@@ -386,7 +385,8 @@ class TrackPageProvider extends Component<
       userId,
       pause,
       downloadTrack,
-      onExternalLinkClick
+      onExternalLinkClick,
+      onInternalLinkClick
     } = this.props
     const heroPlaying =
       playing &&
@@ -479,7 +479,8 @@ class TrackPageProvider extends Component<
       isBuffering: buffering,
       play: this.onMoreByArtistTracksPlay,
       pause,
-      onExternalLinkClick
+      onExternalLinkClick,
+      onInternalLinkClick
     }
 
     return (
@@ -592,21 +593,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
       ),
     onConfirmUnfollow: (userId: ID) =>
       dispatch(unfollowConfirmationActions.setOpen(userId)),
-    downloadTrack: (
-      trackId: ID,
-      cid: CID,
-      creatorNodeEndpoints: string,
-      category?: string,
-      parentTrackId?: ID
-    ) => {
-      dispatch(
-        socialTracksActions.downloadTrack(
-          trackId,
-          cid,
-          creatorNodeEndpoints,
-          category
-        )
-      )
+    downloadTrack: (trackId: ID, category?: string, parentTrackId?: ID) => {
+      dispatch(socialTracksActions.downloadTrack(trackId, category))
       const trackEvent: TrackEvent = make(Name.TRACK_PAGE_DOWNLOAD, {
         id: trackId,
         category,
@@ -622,6 +610,9 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(setRepost(trackId, RepostType.TRACK)),
     setFavoriteTrackId: (trackId: ID) =>
       dispatch(setFavorite(trackId, FavoriteType.TRACK)),
+    onInternalLinkClick: (route: string) => {
+      dispatch(pushRoute(route))
+    },
     onExternalLinkClick: (event: any) => {
       const trackEvent: TrackEvent = make(Name.LINK_CLICKING, {
         url: event.target.href,
