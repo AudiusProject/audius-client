@@ -7,7 +7,6 @@ import {
   playbackRateValueMap,
   cacheUsersSelectors,
   cacheTracksSelectors,
-  hlsUtils,
   playerSelectors,
   playerActions,
   playbackPositionActions,
@@ -143,9 +142,6 @@ const unlistedTrackFallbackTrackData = {
 }
 
 export const Audio = () => {
-  const { isEnabled: isStreamMp3Enabled } = useFeatureFlag(
-    FeatureFlags.STREAM_MP3
-  )
   const { isEnabled: isNewPodcastControlsEnabled } = useFeatureFlag(
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
@@ -583,11 +579,10 @@ export const Audio = () => {
 
       // Get Track url
       let url: string
-      let isM3u8 = false
       if (offlineTrackAvailable && isCollectionMarkedForDownload) {
         const audioFilePath = getLocalAudioPath(trackId)
         url = `file://${audioFilePath}`
-      } else if (isStreamMp3Enabled && isReachable) {
+      } else {
         const queryParams = queryParamsMap[track.track_id]
         if (queryParams) {
           url = apiClient.makeUrl(
@@ -599,15 +594,6 @@ export const Audio = () => {
             `/tracks/${encodeHashId(track.track_id)}/stream`
           )
         }
-      } else {
-        isM3u8 = true
-        const ownerGateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
-          trackOwner.creator_node_endpoint
-        )
-        url = hlsUtils.generateM3U8Variants({
-          segments: track.track_segments ?? [],
-          gateways: ownerGateways
-        })
       }
 
       const localTrackImageSource =
@@ -625,7 +611,7 @@ export const Audio = () => {
 
       return {
         url,
-        type: isM3u8 ? TrackType.HLS : TrackType.Default,
+        type: TrackType.Default,
         title: track.title,
         artist: trackOwner.name,
         genre: track.genre,
@@ -652,8 +638,6 @@ export const Audio = () => {
   }, [
     isNotReachable,
     isOfflineModeEnabled,
-    isReachable,
-    isStreamMp3Enabled,
     offlineAvailabilityByTrackId,
     playing,
     queueIndex,
