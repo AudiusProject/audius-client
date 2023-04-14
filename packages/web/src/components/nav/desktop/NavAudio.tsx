@@ -65,7 +65,8 @@ const RewardsActionBubble = ({
   )
 }
 
-/** Pulls balances from account and wallet selectors. Will prefer the wallet
+/**
+ * Pulls balances from account and wallet selectors. Will prefer the wallet
  * balance once it has loaded. Otherwise, will return the account balance if
  * available. Falls back to 0 if neither wallet or account balance are available.
  */
@@ -111,7 +112,8 @@ const NavAudio = () => {
   }
 
   let bubbleType: BubbleType = 'none'
-  /* Logic here is:
+  /*
+   * Logic here is:
    * - If user challenges have loaded and there are some to claim, show that immediately
    * - Otherwise, once wallet AND challenges have loaded (to prevent flashing),
    *   show the "earn" variant if the balance is zero.
