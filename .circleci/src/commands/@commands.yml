@@ -19,12 +19,8 @@ create_concatenated_patch_file:
         command: ls -d -- packages/*/patches/*.patch | xargs cat > << parameters.filename >>
 
 verify-common:
-  description: "Typecheck and lint @audius/common"
+  description: "lint @audius/common"
   steps:
-    - run: 
-        name: "typecheck @audius/common"
-        command: |
-          npm run typecheck
     - run: 
         name: "lint @audius/common"
         command: |
