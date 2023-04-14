@@ -1,12 +1,5 @@
 module.exports = {
-  settings: {
-    'import/resolver': {
-      node: {
-        paths: ['src'],
-        extensions: ['.js', '.jsx', '.ts', '.tsx', '.json']
-      }
-    }
-  },
+  extends: ['audius'],
   rules: {
     'no-restricted-properties': [
       'error',
@@ -16,7 +9,7 @@ module.exports = {
         message:
           'Do NOT use `Promise.allSettled` as it will be undefined. Use `allSettled` from `utils/allSettled.ts` instead.'
       }
-    ]
-  },
-  extends: ['audius']
+    ],
+    'import/no-unresolved': [2, { ignore: ['react'] }]
+  }
 }

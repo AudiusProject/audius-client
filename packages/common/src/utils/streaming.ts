@@ -1,6 +1,7 @@
-import { PremiumContentSignature } from 'models';
-import { AudiusBackend, QueryParams } from 'services/index';
-import { Nullable } from './typeUtils';
+import { PremiumContentSignature } from 'models'
+import { AudiusBackend, QueryParams } from 'services/index'
+
+import { Nullable } from './typeUtils'
 
 export async function generateUserSignature(
   audiusBackendInstance: AudiusBackend
@@ -10,7 +11,13 @@ export async function generateUserSignature(
   return { data, signature }
 }
 
-export async function getQueryParams({ audiusBackendInstance, premiumContentSignature }: { audiusBackendInstance: AudiusBackend, premiumContentSignature: Nullable<PremiumContentSignature> }) {
+export async function getQueryParams({
+  audiusBackendInstance,
+  premiumContentSignature
+}: {
+  audiusBackendInstance: AudiusBackend
+  premiumContentSignature: Nullable<PremiumContentSignature>
+}) {
   const { data, signature } = await generateUserSignature(audiusBackendInstance)
   const queryParams: QueryParams = {}
   queryParams.user_data = data

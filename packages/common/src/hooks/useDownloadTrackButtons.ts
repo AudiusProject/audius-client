@@ -40,11 +40,7 @@ type LabeledStem = Omit<Stem, 'category'> & { label: string }
 type UseDownloadTrackButtonsArgs = {
   following: boolean
   isOwner: boolean
-  onDownload: (
-    trackID: number,
-    category?: string,
-    parentTrackId?: ID
-  ) => void
+  onDownload: (trackID: number, category?: string, parentTrackId?: ID) => void
   onNotLoggedInClick?: () => void
 }
 

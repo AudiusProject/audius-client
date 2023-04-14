@@ -26,6 +26,8 @@ web-init:
         command: |
           npm run link
 
+    - verify-common
+
     - run:
         name: typecheck
         command: |

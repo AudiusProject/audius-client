@@ -36,6 +36,8 @@ mobile-init:
         command: |
           npm run link
 
+    - verify-common
+
     - run:
         name: typecheck
         command: cd packages/mobile && npm run typecheck

@@ -18,9 +18,7 @@ export class TrackDownload {
     this.audiusBackend = config.audiusBackend
   }
 
-  async downloadTrack(
-    _args: { url: string, filename: string }
-  ) {
+  async downloadTrack(_args: { url: string; filename: string }) {
     throw new Error('downloadTrack not implemented')
   }
 
