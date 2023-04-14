@@ -70,7 +70,7 @@ const useStyles = makeStyles(({ typography, spacing, palette }) => ({
   },
   learnMore: {
     marginTop: spacing(4),
-    ...flexRowCentered(),
+    ...flexRowCentered()
   },
   learnMoreText: {
     marginRight: spacing(1),
