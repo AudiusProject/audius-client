@@ -1,6 +1,11 @@
 import { useEffect } from 'react'
 
-import { getErrorMessage, Status } from '@audius/common'
+import {
+  cacheActions,
+  cacheSelectors,
+  getErrorMessage,
+  Status
+} from '@audius/common'
 import {
   Action,
   CaseReducerActions,
@@ -9,7 +14,11 @@ import {
   PayloadAction,
   Reducer
 } from '@reduxjs/toolkit'
+import { normalize } from 'normalizr'
 import { useDispatch, useSelector } from 'react-redux'
+
+import { apiResponseKeyToKind, apiResponseSchema } from './schema'
+const { addEntries } = cacheActions
 
 type Api = {
   reducer: Reducer<any, Action>
@@ -145,15 +154,26 @@ const buildEndpointHooks = (
     const key = canonincalizeParametersDefault(args)
     const queryState = useSelector((state: any) => {
       const endpointState: PerEndpointState = state[reducerPath][endpointName]
-      return endpointState[key]
+      if (!endpointState[key]) return null
+      let { nonNormalizedData, ...rest } = endpointState[key]
+      const normalizedKeys = Object.keys(nonNormalizedData ?? {})
+      if (normalizedKeys.length === 1) {
+        const kind = apiResponseKeyToKind[normalizedKeys[0]]
+        nonNormalizedData = cacheSelectors.getEntry(state, {
+          kind,
+          id: nonNormalizedData[normalizedKeys[0]]
+        })
+      }
+
+      return { nonNormalizedData, ...rest }
     })
+
     const { nonNormalizedData, status, errorMessage } = queryState ?? {
       nonNormalizedData: null,
       status: Status.IDLE,
       errorMessage: null
     }
 
-    // if nonNormalizedData is just an id, get it from cache
     const cachedData = nonNormalizedData
 
     useEffect(() => {
@@ -161,7 +181,6 @@ const buildEndpointHooks = (
         if (cachedData) return
         if (status === Status.LOADING) return
         try {
-          // dispatch loading
           dispatch(
             // @ts-ignore
             actions[`fetch${capitalize(endpointName)}Loading`]({
@@ -170,17 +189,19 @@ const buildEndpointHooks = (
           )
           const apiData = await endpoint(...args)
           if (!apiData) {
-            throw new Error('User not found')
+            throw new Error('Remote data not found')
           }
 
-          // TODO: normalize
-          // TODO: cache normalized data
-          const nonNormalizedData = apiData
+          const normalized = normalize(apiData, apiResponseSchema)
+
+          const { entities, result } = normalized
+          dispatch(addEntries(Object.keys(entities), entities))
+
           dispatch(
             // @ts-ignore
             actions[`fetch${capitalize(endpointName)}Succeeded`]({
               parameters: args,
-              nonNormalizedData
+              nonNormalizedData: result
             }) as FetchSucceededAction
           )
         } catch (e) {

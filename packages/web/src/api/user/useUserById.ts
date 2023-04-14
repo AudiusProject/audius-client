@@ -35,26 +35,33 @@ export const useUserById = (id: ID) => {
     const fetchWrapped = async () => {
       if (cachedUser) return
       if (!currentUserId) return
-      const apiUser = await fetchFromRemote(id, currentUserId)
-      if (!apiUser) {
-        throw new Error('User not found')
-      }
-      dispatch(
-        cacheActions.addEntries(
-          [Kind.USERS],
-          {
-            [Kind.USERS]: [
-              {
-                id,
-                uid: makeUid(Kind.USERS, id),
-                metadata: apiUser
-              }
-            ]
-          },
-          false,
-          true
+      try {
+        // dispatch loading
+        const apiUser = await fetchFromRemote(id, currentUserId)
+        // dispatch succeeded
+
+        if (!apiUser) {
+          throw new Error('User not found')
+        }
+        dispatch(
+          cacheActions.addEntries(
+            [Kind.USERS],
+            {
+              [Kind.USERS]: [
+                {
+                  id,
+                  uid: makeUid(Kind.USERS, id),
+                  metadata: apiUser
+                }
+              ]
+            },
+            false,
+            true
+          )
         )
-      )
+      } catch (e) {
+        // dispatch error
+      }
     }
     fetchWrapped()
   }, [cachedUser, currentUserId, dispatch, id])

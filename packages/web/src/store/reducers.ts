@@ -31,6 +31,7 @@ import userListModal from 'store/application/ui/userListModal/slice'
 import dragndrop from 'store/dragndrop/reducer'
 import error from 'store/errors/reducers'
 
+import trackApi from '../api/track'
 import userApi from '../api/user'
 
 export const commonStoreReducers = clientStoreReducers()
@@ -62,6 +63,9 @@ const createRootReducer = (routeHistory: History) =>
 
     // Playback
     queue,
+
+    // TrackApi
+    trackApi,
 
     // UserApi
     userApi,

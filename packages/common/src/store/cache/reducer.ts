@@ -226,7 +226,13 @@ const actionsMap = {
   [ADD_ENTRIES](state: CacheState, action: AddEntriesAction, kind: Kind) {
     const { entriesByKind, replace } = action
     const matchingEntries = entriesByKind[kind]
-    return addEntries(state, matchingEntries, replace)
+    const cacheableEntries = Object.entries(matchingEntries).map(
+      ([id, entry]) => ({
+        id,
+        metadata: entry
+      })
+    )
+    return addEntries(state, cacheableEntries, replace)
   },
   [UPDATE](
     state: { entries: { [x: string]: any }; subscriptions: any },
