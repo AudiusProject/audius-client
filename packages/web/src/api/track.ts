@@ -8,6 +8,7 @@ const trackApi = createApi({
   reducerPath: 'trackApi',
   endpoints: {
     async getTrackById(id: ID) {
+      alert(`Fetching track - ${id}`)
       return {
         track: await apiClient.getTrack({ id })
       }

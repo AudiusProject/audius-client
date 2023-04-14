@@ -2,6 +2,8 @@ import { accountSelectors, ID } from '@audius/common'
 import { useGetUserById } from 'api/user'
 import { useSelector } from 'react-redux'
 
+import { ArtistCard } from 'components/artist/ArtistCard'
+
 const { getUserId } = accountSelectors
 
 type FeedPageUserTestThingProps = {
@@ -20,8 +22,8 @@ export const FeedPageUserTestThing = (props: FeedPageUserTestThingProps) => {
 
   return (
     <>
-      User:
-      {user?.name} {status} {errorMessage}
+      User: {user?.user_id} {status} {errorMessage}
+      {user ? <ArtistCard artist={user} /> : null}
     </>
   )
 }

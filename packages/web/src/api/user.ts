@@ -8,6 +8,7 @@ const userApi = createApi({
   reducerPath: 'userApi',
   endpoints: {
     async getUserById(id: ID, currentUserId: ID) {
+      alert(`Fetching user - ${id}`)
       const apiUser = await apiClient.getUser({ userId: id, currentUserId })
       return apiUser?.[0]
     }

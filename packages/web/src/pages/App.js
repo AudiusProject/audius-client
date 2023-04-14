@@ -163,6 +163,7 @@ import { ChatPage } from './chat-page'
 import { CollectiblesPlaylistPage } from './collectibles-playlist-page'
 import { DeactivateAccountPage } from './deactivate-account-page/DeactivateAccountPage'
 import ExploreCollectionsPage from './explore-page/ExploreCollectionsPage'
+import { FeedPageTrackTestThing } from './feed-page/components/desktop/FeedPageTrackTestThing'
 import FollowersPage from './followers-page/FollowersPage'
 import FollowingPage from './following-page/FollowingPage'
 import SettingsPage from './settings-page/SettingsPage'
@@ -534,6 +535,11 @@ class App extends Component {
 
           <Suspense fallback={null}>
             <SwitchComponent isInitialPage={initialPage} handle={userHandle}>
+              <Route
+                exact
+                path={'/audius-query'}
+                render={() => <FeedPageTrackTestThing />}
+              />
               {publicSiteRoutes.map((route) => (
                 // Redirect all public site routes to the corresponding pathname.
                 // This is necessary first because otherwise pathnames like

@@ -1,5 +1,7 @@
 import { useGetTrackById } from 'api/track'
 
+import TrackTile from 'components/track/desktop/TrackTile'
+
 import { FeedPageUserTestThing } from './FeedPageUserTestThing'
 
 export const FeedPageTrackTestThing = () => {
@@ -13,9 +15,13 @@ export const FeedPageTrackTestThing = () => {
     <>
       Track:
       {track?.track_id} {trackStatus} {trackErrorMessage}
-      {track?.user.user_id ? (
-        <FeedPageUserTestThing userId={track?.user.user_id} />
-      ) : null}
+      <TrackTile
+        artwork={undefined}
+        title={track?.title}
+        // userName={}
+        isOwner={false}
+      />
+      {track?.user ? <FeedPageUserTestThing userId={track?.user} /> : null}
     </>
   )
 }
