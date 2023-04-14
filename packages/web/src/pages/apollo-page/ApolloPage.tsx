@@ -5,6 +5,7 @@ import {
   trackPageActions,
   cacheTracksSelectors,
   tracksSocialActions,
+  trackPageSelectors,
   CommonState,
   FavoriteSource
 } from '@audius/common'
@@ -20,6 +21,7 @@ import { confirmSaveTrack, useSaveTrack } from './useSaveTrack'
 const { getTrack } = cacheTracksSelectors
 const { fetchTrack } = trackPageActions
 const { saveTrack } = tracksSocialActions
+const { getUser } = trackPageSelectors
 
 const baseUri = 'https://discoveryprovider.audius.co/v1/full'
 
@@ -80,6 +82,7 @@ const ApolloPageContent = () => {
     <div style={{ margin: 24 }}>
       <h2 style={{ margin: 24 }}>Apollo</h2>
       <TrackTile
+        artwork={<Image />}
         isFavorited={has_current_user_saved}
         onClickFavorite={mutateFunction}
         size={TrackTileSize.LARGE}
@@ -100,12 +103,17 @@ const CacheV1TrackTile = () => {
     getTrack(state, { id })
   )
 
+  const cachedUser = useSelector((state: CommonState) =>
+    getUser(state, { id: cachedTrack?.owner_id })
+  )
+
   useEffect(() => {
     dispatch(fetchTrack(id))
   }, [dispatch])
 
   return (
     <TrackTile
+      artwork={<Image />}
       isFavorited={cachedTrack?.has_current_user_saved}
       onClickFavorite={() => {
         dispatch(saveTrack(id, FavoriteSource.TRACK_PAGE))
@@ -113,6 +121,16 @@ const CacheV1TrackTile = () => {
       size={TrackTileSize.LARGE}
       title={cachedTrack?.title}
       isActive={false}
+      userName={cachedUser?.name}
     />
   )
 }
+
+const Image = () => (
+  <img
+    style={{ height: 126, width: 126, borderRadius: 4 }}
+    src={
+      'https://blockchange-audius-content-01.bdnodes.net/ipfs/QmU5Leh2xdLJykmke8GeEPjvJRBRKuo3Aa4Bdioi1Sd3EJ/480x480.jpg'
+    }
+  />
+)
