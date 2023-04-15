@@ -1,13 +1,7 @@
 import type { ReactNode } from 'react'
 import { useCallback } from 'react'
 
-import type {
-  Nullable,
-  PremiumConditions,
-  PremiumConditionsEthNFTCollection,
-  PremiumConditionsSolNFTCollection,
-  User
-} from '@audius/common'
+import type { PremiumConditions, User } from '@audius/common'
 import { usePremiumConditionsEntity } from '@audius/common'
 import type { ViewStyle } from 'react-native'
 import { View, Text } from 'react-native'
@@ -88,11 +82,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
 
 type HasAccessProps = {
   renderDescription: () => ReactNode
-  nftCollection?: Nullable<
-    PremiumConditionsEthNFTCollection | PremiumConditionsSolNFTCollection
-  >
-  followee?: Nullable<User>
-  tippedUser?: Nullable<User>
+  isCollectibleGated?: boolean
   style?: ViewStyle
 }
 
@@ -123,9 +113,7 @@ const DetailsTileUnlockedSection = ({
 
 const DetailsTileOwnerSection = ({
   renderDescription,
-  nftCollection,
-  followee,
-  tippedUser,
+  isCollectibleGated,
   style
 }: HasAccessProps) => {
   const styles = useStyles()
@@ -134,14 +122,15 @@ const DetailsTileOwnerSection = ({
   return (
     <View style={[styles.root, style]}>
       <View style={[styles.titleContainer, styles.bottomMargin]}>
-        {nftCollection && (
+        {isCollectibleGated ? (
           <IconCollectible fill={neutral} width={16} height={16} />
-        )}
-        {(followee || tippedUser) && (
+        ) : (
           <IconSpecialAccess fill={neutral} width={16} height={16} />
         )}
         <Text style={styles.title}>
-          {nftCollection ? messages.collectibleGated : messages.specialAccess}
+          {isCollectibleGated
+            ? messages.collectibleGated
+            : messages.specialAccess}
         </Text>
       </View>
       {renderDescription()}
@@ -205,7 +194,7 @@ export const DetailsTileHasAccess = ({
     )
   }, [nftCollection, followee, handlePressCollection, styles])
 
-  const renderUnlockedArtist = useCallback(
+  const renderUnlockedSpecialAccessDescription = useCallback(
     (args: { entity: User; prefix: string; suffix: string }) => {
       const { entity, prefix, suffix } = args
       return (
@@ -254,14 +243,14 @@ export const DetailsTileHasAccess = ({
       )
     }
     if (followee) {
-      return renderUnlockedArtist({
+      return renderUnlockedSpecialAccessDescription({
         entity: followee,
         prefix: messages.unlockedFollowGatedPrefix,
         suffix: messages.unlockedFollowGatedSuffix
       })
     }
     if (tippedUser) {
-      return renderUnlockedArtist({
+      return renderUnlockedSpecialAccessDescription({
         entity: tippedUser,
         prefix: messages.unlockedTipGatedPrefix,
         suffix: messages.unlockedTipGatedSuffix
@@ -276,18 +265,16 @@ export const DetailsTileHasAccess = ({
     nftCollection,
     followee,
     tippedUser,
-    renderUnlockedArtist,
     handlePressCollection,
+    renderUnlockedSpecialAccessDescription,
     styles
   ])
 
   if (isOwner) {
     return (
       <DetailsTileOwnerSection
-        nftCollection={nftCollection}
-        followee={followee}
-        tippedUser={tippedUser}
         renderDescription={renderOwnerDescription}
+        isCollectibleGated={!!nftCollection}
         style={style}
       />
     )
