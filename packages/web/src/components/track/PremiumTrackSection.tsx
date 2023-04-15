@@ -88,15 +88,7 @@ type PremiumTrackAccessSectionProps = {
   followee: Nullable<User>
   tippedUser: Nullable<User>
   goToCollection: () => void
-  renderArtist: ({
-    handle,
-    name,
-    userId
-  }: {
-    handle: string
-    name: string
-    userId: ID
-  }) => JSX.Element
+  renderArtist: (entity: User) => JSX.Element
   isOwner: boolean
   className?: string
   buttonClassName?: string
@@ -203,11 +195,7 @@ const LockedPremiumTrackSection = ({
         <div className={styles.premiumContentSectionDescription}>
           <div>
             <span>{messages.unlockFollowGatedTrackPrefix}&nbsp;</span>
-            {renderArtist({
-              handle: followee.handle,
-              name: followee.name,
-              userId: premiumConditions.follow_user_id
-            })}
+            {renderArtist(followee)}
             <span>{messages.period}</span>
           </div>
         </div>
@@ -219,11 +207,7 @@ const LockedPremiumTrackSection = ({
         <div className={styles.premiumContentSectionDescription}>
           <div>
             <span>{messages.unlockTipGatedTrackPrefix}&nbsp;</span>
-            {renderArtist({
-              handle: tippedUser.handle,
-              name: tippedUser.name,
-              userId: premiumConditions.tip_user_id
-            })}
+            {renderArtist(tippedUser)}
             <span className={styles.suffix}>
               {messages.unlockTipGatedTrackSuffix}
             </span>
@@ -329,11 +313,7 @@ const UnlockingPremiumTrackSection = ({
         <div>
           <LoadingSpinner className={styles.spinner} />
           <span>{messages.thankYouForFollowing}&nbsp;</span>
-          {renderArtist({
-            handle: followee.handle,
-            name: followee.name,
-            userId: premiumConditions.follow_user_id
-          })}
+          {renderArtist(followee)}
           <span>{messages.exclamationMark}</span>
         </div>
       )
@@ -344,11 +324,7 @@ const UnlockingPremiumTrackSection = ({
         <div>
           <LoadingSpinner className={styles.spinner} />
           <span>{messages.thankYouForSupporting}&nbsp;</span>
-          {renderArtist({
-            handle: tippedUser.handle,
-            name: tippedUser.name,
-            userId: premiumConditions.tip_user_id
-          })}
+          {renderArtist(tippedUser)}
           <span className={styles.suffix}>
             {messages.unlockingTipGatedTrackSuffix}
           </span>
@@ -420,11 +396,7 @@ const UnlockedPremiumTrackSection = ({
         <div>
           <IconVerified className={styles.verifiedGreenIcon} />
           <span>{messages.thankYouForFollowing}&nbsp;</span>
-          {renderArtist({
-            handle: followee.handle,
-            name: followee.name,
-            userId: premiumConditions.follow_user_id
-          })}
+          {renderArtist(followee)}
           <span>{messages.unlockedFollowGatedTrackSuffix}</span>
         </div>
       )
@@ -439,11 +411,7 @@ const UnlockedPremiumTrackSection = ({
         <div>
           <IconVerified className={styles.verifiedGreenIcon} />
           <span>{messages.thankYouForSupporting}&nbsp;</span>
-          {renderArtist({
-            handle: tippedUser.handle,
-            name: tippedUser.name,
-            userId: premiumConditions.tip_user_id
-          })}
+          {renderArtist(tippedUser)}
           <span className={styles.suffix}>
             {messages.unlockedTipGatedTrackSuffix}
           </span>
@@ -550,26 +518,17 @@ export const PremiumTrackSection = ({
     }
   }, [premiumConditions])
 
-  const renderArtist = useCallback(
-    ({
-      handle,
-      name,
-      userId
-    }: {
-      handle: string
-      name: string
-      userId: ID
-    }) => (
-      <ArtistPopover handle={handle} mouseEnterDelay={0.1}>
+  const renderArtist = useCallback((entity: User) => (
+      <ArtistPopover handle={entity.handle} mouseEnterDelay={0.1}>
         <h2
           className={styles.premiumTrackOwner}
           onClick={() =>
-            dispatch(pushRoute(profilePage(emptyStringGuard(handle))))
+            dispatch(pushRoute(profilePage(emptyStringGuard(entity.handle))))
           }
         >
-          {name}
+          {entity.name}
           <UserBadges
-            userId={userId}
+            userId={entity.user_id}
             className={styles.badgeIcon}
             badgeSize={14}
             useSVGTiers
