@@ -193,30 +193,44 @@ export const DetailsTileHasAccess = ({
         </View>
       )
     }
-    if (followee) {
-      return (
-        <View style={styles.descriptionContainer}>
-          <Text>
-            <Text style={styles.description}>{messages.ownerFollowGated}</Text>
-          </Text>
-        </View>
-      )
-    }
-    if (tippedUser) {
-      return (
-        <View style={styles.descriptionContainer}>
-          <Text>
-            <Text style={styles.description}>{messages.ownerTipGated}</Text>
-          </Text>
-        </View>
-      )
-    }
 
-    console.warn(
-      'No entity for premium conditions... should not have reached here.'
+    return (
+      <View style={styles.descriptionContainer}>
+        <Text>
+          <Text style={styles.description}>
+            {followee ? messages.ownerFollowGated : messages.ownerTipGated}
+          </Text>
+        </Text>
+      </View>
     )
-    return null
-  }, [nftCollection, followee, tippedUser, handlePressCollection, styles])
+  }, [nftCollection, followee, handlePressCollection, styles])
+
+  const renderUnlockedArtist = useCallback(
+    (args: { entity: User; prefix: string; suffix: string }) => {
+      const { entity, prefix, suffix } = args
+      return (
+        <View style={styles.descriptionContainer}>
+          <Text>
+            <Text style={styles.description}>{prefix}</Text>
+            <Text
+              style={[styles.description, styles.name]}
+              onPress={() => handlePressArtistName(entity.handle)}
+            >
+              {entity.name}
+            </Text>
+            <UserBadges
+              badgeSize={16}
+              user={entity}
+              nameStyle={styles.description}
+              hideName
+            />
+            <Text style={styles.description}>{suffix}</Text>
+          </Text>
+        </View>
+      )
+    },
+    [styles, handlePressArtistName]
+  )
 
   const renderUnlockedDescription = useCallback(() => {
     if (nftCollection) {
@@ -227,8 +241,8 @@ export const DetailsTileHasAccess = ({
               {messages.unlockedCollectibleGatedPrefix}
             </Text>
             <Text
-              onPress={handlePressCollection}
               style={[styles.description, styles.name]}
+              onPress={handlePressCollection}
             >
               {nftCollection.name}
             </Text>
@@ -240,56 +254,18 @@ export const DetailsTileHasAccess = ({
       )
     }
     if (followee) {
-      return (
-        <View style={styles.descriptionContainer}>
-          <Text>
-            <Text style={styles.description}>
-              {messages.unlockedFollowGatedPrefix}
-            </Text>
-            <Text
-              style={[styles.description, styles.name]}
-              onPress={() => handlePressArtistName(followee.handle)}
-            >
-              {followee.name}
-            </Text>
-            <UserBadges
-              badgeSize={16}
-              user={followee}
-              nameStyle={styles.description}
-              hideName
-            />
-            <Text style={styles.description}>
-              {messages.unlockedFollowGatedSuffix}
-            </Text>
-          </Text>
-        </View>
-      )
+      return renderUnlockedArtist({
+        entity: followee,
+        prefix: messages.unlockedFollowGatedPrefix,
+        suffix: messages.unlockedFollowGatedSuffix
+      })
     }
     if (tippedUser) {
-      return (
-        <View style={styles.descriptionContainer}>
-          <Text>
-            <Text style={styles.description}>
-              {messages.unlockedTipGatedPrefix}
-            </Text>
-            <Text
-              style={[styles.description, styles.name]}
-              onPress={() => handlePressArtistName(tippedUser.handle)}
-            >
-              {tippedUser.name}
-            </Text>
-            <UserBadges
-              badgeSize={16}
-              user={tippedUser}
-              nameStyle={styles.description}
-              hideName
-            />
-            <Text style={styles.description}>
-              {messages.unlockedTipGatedSuffix}
-            </Text>
-          </Text>
-        </View>
-      )
+      return renderUnlockedArtist({
+        entity: tippedUser,
+        prefix: messages.unlockedTipGatedPrefix,
+        suffix: messages.unlockedTipGatedSuffix
+      })
     }
 
     console.warn(
@@ -300,8 +276,8 @@ export const DetailsTileHasAccess = ({
     nftCollection,
     followee,
     tippedUser,
+    renderUnlockedArtist,
     handlePressCollection,
-    handlePressArtistName,
     styles
   ])
 
