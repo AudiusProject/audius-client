@@ -2,11 +2,11 @@
   margin-top: 32px;
 }
 
-.trophyIcon {
+.userGroupIcon {
   width: 18px;
   height: 18px;
 }
 
-.trophyIcon path {
+.userGroupIcon path {
   fill: var(--neutral);
 }

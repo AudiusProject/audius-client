@@ -69,10 +69,10 @@ export const RelatedArtists = () => {
   }
 
   return (
-    <div className={styles.container}>
+    <div>
       <ProfilePageNavSectionTitle
         title={messages.relatedArtists}
-        titleIcon={<IconUserGroup className={styles.trophyIcon} />}
+        titleIcon={<IconUserGroup className={styles.userGroupIcon} />}
       />
       <ProfilePictureListTile
         onClick={handleClick}
