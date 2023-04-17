@@ -518,7 +518,8 @@ export const PremiumTrackSection = ({
     }
   }, [premiumConditions])
 
-  const renderArtist = useCallback((entity: User) => (
+  const renderArtist = useCallback(
+    (entity: User) => (
       <ArtistPopover handle={entity.handle} mouseEnterDelay={0.1}>
         <h2
           className={styles.premiumTrackOwner}
