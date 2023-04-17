@@ -514,8 +514,18 @@ const makeMapStateToProps = () => {
       getLineupSelectorForRoute(state),
       state
     )
+
+    // The lineup has accessibly tracks when there is at least one track
+    // the user has access to i.e. a non-gated track or an unlocked gated track.
+    // This helps us determine whether there is a playable track.
+    // For example, in the case of a gated track that the user does not have
+    // access to, the track card / tile will not be playable because the
+    // play button is disabled; however, a user can still attempt to play
+    // the track by pressing spacebar. This will prevent the track
+    // from attempting to play in that case, and consequently avoiding the
+    // infinite loading loop on the playbar.
     const lineupHasAccessibleTracks = lineupEntries.some((entry) => {
-      if (entry.kind !== Kind.TRACKS || !entry.id) return true
+      if (entry.kind !== Kind.TRACKS) return false
 
       const { id } = entry
       const {
