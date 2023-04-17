@@ -1,4 +1,4 @@
-import { ID } from 'models'
+import { ID, User } from 'models'
 import { getUsers } from 'store/cache/users/selectors'
 import { CommonState } from 'store/commonStore'
 import { removeNullable, createDeepEqualSelector } from 'utils'
@@ -23,15 +23,14 @@ export const selectRelatedArtists = (state: CommonState, props: { id: ID }) => {
   return selectRelatedArtistsById(state, props.id)
 }
 
+const emptyRelatedArtists: User[] = []
+
 export const selectRelatedArtistsUsers = createDeepEqualSelector(
   [selectRelatedArtistIds, getUsers],
   (relatedArtistIds, users) => {
-    if (!relatedArtistIds) return []
+    if (!relatedArtistIds) return emptyRelatedArtists
     const relatedArtistsPopulated = relatedArtistIds
-      .map((id) => {
-        if (id in users) return users[id]
-        return null
-      })
+      .map((id) => users[id])
       .filter(removeNullable)
     return relatedArtistsPopulated
   }

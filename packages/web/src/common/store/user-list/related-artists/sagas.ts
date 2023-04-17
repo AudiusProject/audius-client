@@ -57,7 +57,7 @@ function* errorDispatcher(error: Error) {
 }
 
 function* getRelatedArtists(currentPage: number, pageSize: number) {
-  const id: number | null = yield* select(getId)
+  const id = yield* select(getId)
   const currentUserId = yield* select(getUserId)
   if (!id || !currentUserId) return { userIds: [], hasMore: false }
 
