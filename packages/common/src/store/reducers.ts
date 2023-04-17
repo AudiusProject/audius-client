@@ -78,9 +78,6 @@ import {
 import addToPlaylistReducer, {
   AddToPlaylistState
 } from './ui/add-to-playlist/reducer'
-import artistRecommendationsReducer, {
-  ArtistRecommendationsState
-} from './ui/artist-recommendations/slice'
 import buyAudioReducer from './ui/buy-audio/slice'
 import collectibleDetailsReducer, {
   CollectibleDetailsState
@@ -95,6 +92,8 @@ import modalsReducer from './ui/modals/slice'
 import { ModalsState } from './ui/modals/types'
 import nowPlayingReducer, { NowPlayingState } from './ui/now-playing/slice'
 import reactionsReducer, { ReactionsState } from './ui/reactions/slice'
+import relatedArtistsReducer from './ui/related-artists/slice'
+import { RelatedArtistsState } from './ui/related-artists/types'
 import shareModalReducer from './ui/share-modal/slice'
 import { ShareModalState } from './ui/share-modal/types'
 import shareSoundToTikTokModalReducer from './ui/share-sound-to-tiktok-modal/slice'
@@ -167,7 +166,7 @@ export const reducers = () => ({
     addToPlaylist: addToPlaylistReducer,
     buyAudio: buyAudioReducer,
 
-    artistRecommendations: artistRecommendationsReducer,
+    relatedArtists: relatedArtistsReducer,
     changePassword: changePasswordReducer,
     createPlaylistModal: createPlaylistModalReducer,
     collectibleDetails: collectibleDetailsReducer,
@@ -280,7 +279,6 @@ export type CommonState = {
     averageColor: ReturnType<typeof averageColorReducer>
     buyAudio: ReturnType<typeof buyAudioReducer>
     addToPlaylist: AddToPlaylistState
-    artistRecommendations: ArtistRecommendationsState
     changePassword: ChangePasswordState
     createPlaylistModal: CreatePlaylistModalState
     collectibleDetails: CollectibleDetailsState
@@ -290,6 +288,7 @@ export type CommonState = {
     musicConfetti: MusicConfettiState
     nowPlaying: NowPlayingState
     reactions: ReactionsState
+    relatedArtists: RelatedArtistsState
     remixSettings: RemixSettingsState
     shareSoundToTikTokModal: ShareSoundToTikTokModalState
     searchUsersModal: SearchUsersModalState

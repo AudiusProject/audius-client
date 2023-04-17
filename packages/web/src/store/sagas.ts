@@ -12,6 +12,7 @@ import {
   vipDiscordModalSagas,
   reachabilitySagas as commonReachabilitySagas,
   searchUsersModalSagas,
+  relatedArtistsSagas,
   solanaSagas
 } from '@audius/common'
 import { all, fork } from 'redux-saga/effects'
@@ -55,7 +56,6 @@ import serviceSelectionSagas from 'common/store/service-selection/sagas'
 import smartCollectionPageSagas from 'common/store/smart-collection/sagas'
 import socialSagas from 'common/store/social/sagas'
 import tippingSagas from 'common/store/tipping/sagas'
-import artistRecommendationsSagas from 'common/store/ui/artist-recommendations/sagas'
 import reactionSagas from 'common/store/ui/reactions/sagas'
 import uploadSagas from 'common/store/upload/sagas'
 import favoritePageSagas from 'common/store/user-list/favorites/sagas'
@@ -157,7 +157,7 @@ export default function* rootSaga() {
 
     // Application
     addToPlaylistSagas(),
-    artistRecommendationsSagas(),
+    relatedArtistsSagas(),
     buyAudioSagas(),
     changePasswordSagas(),
     chatWebSagas(),

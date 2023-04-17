@@ -1,34 +1,34 @@
-import {
-  ID,
-  User,
-  DoubleKeys,
-  accountSelectors,
-  getContext,
-  artistRecommendationsUIActions as artistRecommendationsActions,
-  processAndCacheUsers
-} from '@audius/common'
-import { Action } from '@reduxjs/toolkit'
+import { PayloadAction } from '@reduxjs/toolkit'
 import { shuffle } from 'lodash'
-import { call, put, select, takeEvery } from 'redux-saga/effects'
+import { put, select, takeEvery } from 'typed-redux-saga'
 
+import { ID, User } from 'models'
+import { DoubleKeys } from 'services/remote-config'
+import { accountSelectors } from 'store/account'
+import { processAndCacheUsers } from 'store/cache'
+import { getContext } from 'store/effects'
 import { waitForRead } from 'utils/sagaHelpers'
+import { removeNullable } from 'utils/typeUtils'
+
+import { actions as relatedArtistsActions } from './slice'
 
 const getUserId = accountSelectors.getUserId
 
-export function* fetchRelatedArtists(action: Action) {
+export function* fetchRelatedArtists(action: PayloadAction<{ artistId: ID }>) {
   yield* waitForRead()
   const apiClient = yield* getContext('apiClient')
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
-  if (artistRecommendationsActions.fetchRelatedArtists.match(action)) {
-    const userId = action.payload.userId
+  if (relatedArtistsActions.fetchRelatedArtists.match(action)) {
+    const artistId = action.payload.artistId
 
-    const currentUserId: ID = yield select(getUserId)
+    const currentUserId: ID | null = yield* select(getUserId)
     const relatedArtists: User[] = yield apiClient.getRelatedArtists({
-      userId,
+      userId: artistId,
       currentUserId,
       limit: 50
     })
 
+    let showingTopArtists = false
     let filteredArtists = relatedArtists
       .filter((user) => !user.does_current_user_follow && !user.is_deactivated)
       .slice(0, 5)
@@ -38,16 +38,19 @@ export function* fetchRelatedArtists(action: Action) {
           DoubleKeys.SHOW_ARTIST_RECOMMENDATIONS_FALLBACK_PERCENT
         ) || 0
       const showTopArtists = Math.random() < showTopArtistRecommendationsPercent
+
       if (showTopArtists) {
         filteredArtists = yield fetchTopArtists()
+        showingTopArtists = true
       }
     }
     if (filteredArtists.length > 0) {
-      const relatedArtistIds: ID[] = yield call(cacheUsers, filteredArtists)
-      yield put(
-        artistRecommendationsActions.fetchRelatedArtistsSucceeded({
-          userId,
-          relatedArtistIds
+      const relatedArtistIds: ID[] = yield* cacheUsers(filteredArtists)
+      yield* put(
+        relatedArtistsActions.fetchRelatedArtistsSucceeded({
+          artistId,
+          relatedArtistIds,
+          isTopArtistsRecommendation: showingTopArtists
         })
       )
     }
@@ -57,7 +60,7 @@ export function* fetchRelatedArtists(action: Action) {
 function* fetchTopArtists() {
   yield* waitForRead()
   const apiClient = yield* getContext('apiClient')
-  const currentUserId: ID = yield select(getUserId)
+  const currentUserId: ID | null = yield* select(getUserId)
   const topArtists: User[] = yield apiClient.getTopArtists({
     currentUserId,
     limit: 50
@@ -75,17 +78,17 @@ function* fetchTopArtists() {
 
 function* cacheUsers(users: User[]) {
   yield* waitForRead()
-  const currentUserId: ID = yield select(getUserId)
+  const currentUserId: ID | null = yield* select(getUserId)
   // Filter out the current user from the list to cache
   yield processAndCacheUsers(
     users.filter((user) => user.user_id !== currentUserId)
   )
-  return users.map((f) => f.user_id)
+  return users.map((f) => f.user_id).filter(removeNullable)
 }
 
 function* watchFetchRelatedArtists() {
-  yield takeEvery(
-    artistRecommendationsActions.fetchRelatedArtists,
+  yield* takeEvery(
+    relatedArtistsActions.fetchRelatedArtists,
     fetchRelatedArtists
   )
 }

@@ -5,8 +5,8 @@ import {
   profilePageSelectors,
   MAX_PROFILE_RELATED_ARTISTS,
   CommonState,
-  artistRecommendationsUISelectors as relatedArtistSelectors,
-  artistRecommendationsUIActions as relatedArtistsActions
+  relatedArtistsUISelectors as relatedArtistSelectors,
+  relatedArtistsUIActions as relatedArtistsActions
 } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -23,7 +23,8 @@ import {
 } from 'store/application/ui/userListModal/types'
 
 import styles from './RelatedArtists.module.css'
-const { getRelatedArtists } = relatedArtistSelectors
+const { selectRelatedArtists, selectRelatedArtistsUsers } =
+  relatedArtistSelectors
 const { fetchRelatedArtists } = relatedArtistsActions
 const { getProfileUser } = profilePageSelectors
 
@@ -37,8 +38,14 @@ export const RelatedArtists = () => {
 
   const artistId = profile?.user_id
 
-  const suggestedArtists = useSelector<CommonState, User[] | null>((state) =>
-    artistId ? getRelatedArtists(state, { id: artistId }) : null
+  const suggestedArtists = useSelector((state: CommonState) =>
+    artistId ? selectRelatedArtistsUsers(state, { id: artistId }) : null
+  )
+  const isTopArtistsSuggestion = useSelector((state: CommonState) =>
+    artistId
+      ? selectRelatedArtists(state, { id: artistId })
+          ?.isTopArtistsRecommendation
+      : null
   )
 
   // Start fetching the related artists
@@ -46,7 +53,7 @@ export const RelatedArtists = () => {
     if (!artistId) return
     dispatch(
       fetchRelatedArtists({
-        userId: artistId
+        artistId
       })
     )
   }, [dispatch, artistId])
@@ -64,7 +71,12 @@ export const RelatedArtists = () => {
     }
   }, [profile, dispatch])
 
-  if (!profile || !suggestedArtists || suggestedArtists.length === 0) {
+  if (
+    !profile ||
+    !suggestedArtists ||
+    suggestedArtists.length === 0 ||
+    isTopArtistsSuggestion
+  ) {
     return null
   }
 
