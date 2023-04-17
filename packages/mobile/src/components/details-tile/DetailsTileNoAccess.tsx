@@ -206,7 +206,7 @@ export const DetailsTileNoAccess = ({
   }, [tippedUser, navigation, dispatch, source, trackId])
 
   const handlePressArtistName = useCallback(
-    (handle: string) => {
+    (handle: string) => () => {
       navigation.push('Profile', { handle })
     },
     [navigation]
@@ -216,11 +216,11 @@ export const DetailsTileNoAccess = ({
     (args: { entity: User; prefix: string; suffix?: string }) => {
       const { entity, prefix, suffix } = args
       return (
-        <Text style={styles.descriptionContainer}>
+        <View style={styles.descriptionContainer}>
           <Text style={styles.description}>{prefix}</Text>
           <Text
             style={[styles.description, styles.name]}
-            onPress={() => handlePressArtistName(entity.handle)}
+            onPress={handlePressArtistName(entity.handle)}
           >
             {entity.name}
           </Text>
@@ -231,7 +231,7 @@ export const DetailsTileNoAccess = ({
             hideName
           />
           {suffix ? <Text style={styles.description}>{suffix}</Text> : null}
-        </Text>
+        </View>
       )
     },
     [styles, handlePressArtistName]
@@ -341,7 +341,7 @@ export const DetailsTileNoAccess = ({
             <Text style={styles.description}>{prefix}</Text>
             <Text
               style={[styles.description, styles.name]}
-              onPress={() => handlePressArtistName(entity.handle)}
+              onPress={handlePressArtistName(entity.handle)}
             >
               {entity.name}
             </Text>

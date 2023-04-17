@@ -158,7 +158,7 @@ export const DetailsTileHasAccess = ({
   const { onPress: handlePressCollection } = useLink(collectionLink)
 
   const handlePressArtistName = useCallback(
-    (handle: string) => {
+    (handle: string) => () => {
       navigation.push('Profile', { handle })
     },
     [navigation]
@@ -203,7 +203,7 @@ export const DetailsTileHasAccess = ({
             <Text style={styles.description}>{prefix}</Text>
             <Text
               style={[styles.description, styles.name]}
-              onPress={() => handlePressArtistName(entity.handle)}
+              onPress={handlePressArtistName(entity.handle)}
             >
               {entity.name}
             </Text>
