@@ -1,8 +1,8 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { shuffle } from 'lodash'
-import { put, select, takeEvery } from 'typed-redux-saga'
+import { call, put, select, takeEvery } from 'typed-redux-saga'
 
-import { ID, User } from 'models'
+import { ID, UserMetadata } from 'models'
 import { DoubleKeys } from 'services/remote-config'
 import { accountSelectors } from 'store/account'
 import { processAndCacheUsers } from 'store/cache'
@@ -21,8 +21,8 @@ export function* fetchRelatedArtists(action: PayloadAction<{ artistId: ID }>) {
   if (relatedArtistsActions.fetchRelatedArtists.match(action)) {
     const artistId = action.payload.artistId
 
-    const currentUserId: ID | null = yield* select(getUserId)
-    const relatedArtists: User[] = yield apiClient.getRelatedArtists({
+    const currentUserId = yield* select(getUserId)
+    const relatedArtists = yield* call(apiClient.getRelatedArtists, {
       userId: artistId,
       currentUserId,
       limit: 50
@@ -45,7 +45,7 @@ export function* fetchRelatedArtists(action: PayloadAction<{ artistId: ID }>) {
       }
     }
     if (filteredArtists.length > 0) {
-      const relatedArtistIds: ID[] = yield* cacheUsers(filteredArtists)
+      const relatedArtistIds = yield* cacheUsers(filteredArtists)
       yield* put(
         relatedArtistsActions.fetchRelatedArtistsSucceeded({
           artistId,
@@ -60,8 +60,8 @@ export function* fetchRelatedArtists(action: PayloadAction<{ artistId: ID }>) {
 function* fetchTopArtists() {
   yield* waitForRead()
   const apiClient = yield* getContext('apiClient')
-  const currentUserId: ID | null = yield* select(getUserId)
-  const topArtists: User[] = yield apiClient.getTopArtists({
+  const currentUserId = yield* select(getUserId)
+  const topArtists = yield* call(apiClient.getTopArtists, {
     currentUserId,
     limit: 50
   })
@@ -76,9 +76,9 @@ function* fetchTopArtists() {
   return []
 }
 
-function* cacheUsers(users: User[]) {
+function* cacheUsers(users: UserMetadata[]) {
   yield* waitForRead()
-  const currentUserId: ID | null = yield* select(getUserId)
+  const currentUserId = yield* select(getUserId)
   // Filter out the current user from the list to cache
   yield processAndCacheUsers(
     users.filter((user) => user.user_id !== currentUserId)
