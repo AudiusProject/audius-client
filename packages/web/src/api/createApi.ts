@@ -4,6 +4,7 @@ import {
   cacheActions,
   cacheSelectors,
   getErrorMessage,
+  Kind,
   Status
 } from '@audius/common'
 import {
@@ -64,9 +65,14 @@ type ApiState = {
 type CreateApiConfig = {
   reducerPath: string
   endpoints: { [name: string]: Endpoint }
+  kind?: Kind
 }
 
-export const createApi = ({ reducerPath, endpoints }: CreateApiConfig) => {
+export const createApi = ({
+  reducerPath,
+  endpoints,
+  kind
+}: CreateApiConfig) => {
   const api = {
     reducerPath,
     hooks: {}
@@ -85,7 +91,7 @@ export const createApi = ({ reducerPath, endpoints }: CreateApiConfig) => {
   const slice = createSlice<ApiState, any, any>(sliceConfig)
 
   for (const [name, endpoint] of Object.entries(endpoints)) {
-    buildEndpointHooks(api, name, endpoint, slice.actions, reducerPath)
+    buildEndpointHooks(api, name, endpoint, slice.actions, reducerPath, kind)
   }
 
   api.reducer = slice.reducer
@@ -147,7 +153,8 @@ const buildEndpointHooks = (
   endpointName: string,
   endpoint: Endpoint,
   actions: CaseReducerActions<any>,
-  reducerPath: string
+  reducerPath: string,
+  kind?: Kind
 ) => {
   const useQuery = (...args: any[]) => {
     const dispatch = useDispatch()
@@ -156,12 +163,13 @@ const buildEndpointHooks = (
       const endpointState: PerEndpointState = state[reducerPath][endpointName]
       if (!endpointState[key]) return null
       let { nonNormalizedData, ...rest } = endpointState[key]
-      const normalizedKeys = Object.keys(nonNormalizedData ?? {})
-      if (normalizedKeys.length === 1) {
-        const kind = apiResponseKeyToKind[normalizedKeys[0]]
+
+      if (!nonNormalizedData && kind) {
+        // TODO: need a smarter way to indicate the id arg
+        const idFromArgs = args[0]
         nonNormalizedData = cacheSelectors.getEntry(state, {
           kind,
-          id: nonNormalizedData[normalizedKeys[0]]
+          id: idFromArgs
         })
       }
 
