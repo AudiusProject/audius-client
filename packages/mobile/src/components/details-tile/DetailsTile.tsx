@@ -1,12 +1,13 @@
 import { useCallback } from 'react'
 
-import type { Track } from '@audius/common'
+import type { CommonState, Track } from '@audius/common'
 import {
   FeatureFlags,
   Genre,
   usePremiumContentAccess,
   squashNewLines,
   accountSelectors,
+  playerSelectors,
   playbackPositionSelectors
 } from '@audius/common'
 import { TouchableOpacity, View } from 'react-native'
@@ -38,6 +39,7 @@ import { DetailsTileNoAccess } from './DetailsTileNoAccess'
 import { DetailsTileStats } from './DetailsTileStats'
 import type { DetailsTileProps } from './types'
 
+const { getTrackId } = playerSelectors
 const { getTrackPosition } = playbackPositionSelectors
 
 const messages = {
@@ -126,6 +128,11 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     textTransform: 'uppercase'
   },
 
+  playButtonIcon: {
+    height: 20,
+    width: 20
+  },
+
   infoSection: {
     flexWrap: 'wrap',
     flexDirection: 'row',
@@ -187,6 +194,7 @@ export const DetailsTile = ({
   hideRepostCount,
   hideShare,
   isPlaying,
+  isPlayable = true,
   onPressFavorites,
   onPressOverflow,
   onPressPlay,
@@ -220,6 +228,9 @@ export const DetailsTile = ({
   const navigation = useNavigation()
 
   const currentUserId = useSelector(accountSelectors.getUserId)
+  const isCurrentTrack = useSelector((state: CommonState) => {
+    return track && track.track_id === getTrackId(state)
+  })
 
   const isOwner = user?.user_id === currentUserId
   const isLongFormContent =
@@ -295,13 +306,15 @@ export const DetailsTile = ({
 
   const playText =
     isNewPodcastControlsEnabled && playbackPositionInfo?.status
-      ? playbackPositionInfo?.status === 'IN_PROGRESS'
+      ? playbackPositionInfo?.status === 'IN_PROGRESS' || isCurrentTrack
         ? messages.resume
         : messages.replay
       : messages.play
 
   const PlayIcon =
-    isNewPodcastControlsEnabled && playbackPositionInfo?.status === 'COMPLETED'
+    isNewPodcastControlsEnabled &&
+    playbackPositionInfo?.status === 'COMPLETED' &&
+    !isCurrentTrack
       ? IconRepeat
       : IconPlay
 
@@ -349,12 +362,16 @@ export const DetailsTile = ({
               )}
             {!isGatedContentEnabled || doesUserHaveAccess ? (
               <Button
-                styles={{ text: styles.playButtonText }}
+                styles={{
+                  text: styles.playButtonText,
+                  icon: styles.playButtonIcon
+                }}
                 title={isPlaying ? messages.pause : playText}
                 size='large'
                 iconPosition='left'
                 icon={isPlaying ? IconPause : PlayIcon}
                 onPress={handlePressPlay}
+                disabled={!isPlayable}
                 fullWidth
               />
             ) : null}

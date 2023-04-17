@@ -5,7 +5,8 @@ import { getUser, getUsers } from 'store/cache/users/selectors'
 import { CommonState } from 'store/commonStore'
 import { removeNullable, createDeepEqualSelector } from 'utils'
 
-import { ID, Status, User, UserCollection } from '../../../models'
+import { Status } from '../../../models'
+import type { ID, User, UserCollection } from '../../../models'
 
 import { initialState as initialFeedState } from './lineups/feed/reducer'
 import { PREFIX as TRACKS_PREFIX } from './lineups/tracks/actions'
@@ -39,8 +40,6 @@ export const getProfileUserId = (state: CommonState, handle?: string) =>
   getProfile(state, handle)?.userId
 export const getProfileUserHandle = (state: CommonState) =>
   state.pages.profile.currentUser
-export const getProfileMostUsedTags = (state: CommonState, handle?: string) =>
-  getProfile(state, handle)?.mostUsedTags ?? ([] as string[])
 export const getProfileCollectionSortMode = (
   state: CommonState,
   handle: string
@@ -71,6 +70,12 @@ export const getProfileFeedLineup = (state: CommonState, handle?: string) =>
   getProfile(state, handle)?.feed ?? initialFeedState
 export const getProfileTracksLineup = (state: CommonState, handle?: string) =>
   getProfile(state, handle)?.tracks ?? initialTracksState
+
+export const getTopTagsStatus = (state: CommonState, handle: string) =>
+  getProfile(state, handle)?.topTagsStatus
+
+export const getTopTags = (state: CommonState, handle: string) =>
+  getProfile(state, handle)?.topTags
 
 export const getProfileCollections = createDeepEqualSelector(
   [
@@ -119,7 +124,6 @@ export const makeGetProfile = () => {
       getProfileCollectionSortMode,
       getProfileFollowers,
       getProfileFollowees,
-      getProfileMostUsedTags,
       // External
       getUsers,
       getCollections
@@ -132,7 +136,6 @@ export const makeGetProfile = () => {
       sortMode,
       followers,
       followees,
-      mostUsedTags,
       users,
       collections
     ) => {
@@ -140,7 +143,6 @@ export const makeGetProfile = () => {
         profile: null,
         playlists: null,
         albums: null,
-        mostUsedTags: [],
         isSubscribed: false,
         status
       }
@@ -208,7 +210,6 @@ export const makeGetProfile = () => {
             users: followeesPopulated
           }
         },
-        mostUsedTags,
         playlists,
         albums,
         status,

@@ -29,6 +29,21 @@
 | [`common`](./packages/common)                             | Shared code between web and mobile     |
 | [`eslint-config-audius`](./packages/eslint-config-audius) | Shared lint configuration              |
 
+### Required Dependencies
+The following dependencies are required to run the Audius client: 
+```
+node python ruby
+```
+`npm install` will fail if they are not met. We recommend [homebrew](https://brew.sh/), [pyenv](https://github.com/pyenv/pyenv), and [rbenv](https://github.com/rbenv/rbenv). Don't forget to follow the instructions in the install command output (eg. adding things to your `.zshrc` or `bashrc` file).
+
+```
+brew install nvm pyenv rbenv
+
+nvm install
+pyenv install
+rbenv install
+```
+
 ### Getting Started
 
 This repo is maintained using [`lerna`](https://github.com/lerna). After cloning run:

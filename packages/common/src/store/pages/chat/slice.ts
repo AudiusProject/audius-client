@@ -1,9 +1,11 @@
-import type {
+import {
   TypedCommsResponse,
   UserChat,
   ChatMessage,
   ChatMessageReaction,
-  ChatMessageNullableReaction
+  ChatMessageNullableReaction,
+  ChatPermissionResponse,
+  UnfurlResponse
 } from '@audius/sdk'
 import {
   Action,
@@ -14,16 +16,13 @@ import {
 } from '@reduxjs/toolkit'
 import dayjs from 'dayjs'
 
-import { ID, Status } from 'models'
+import { ID, Status, ChatMessageWithExtras } from 'models'
+import { hasTail } from 'utils/chatUtils'
 import { encodeHashId } from 'utils/hashIds'
 
 type UserChatWithMessagesStatus = UserChat & {
   messagesStatus?: Status
   messagesSummary?: TypedCommsResponse<ChatMessage>['summary']
-}
-
-type ChatMessageWithSendStatus = ChatMessage & {
-  status?: Status
 }
 
 type ChatState = {
@@ -33,7 +32,7 @@ type ChatState = {
   }
   messages: Record<
     string,
-    EntityState<ChatMessageWithSendStatus> & {
+    EntityState<ChatMessageWithExtras> & {
       status?: Status
       summary?: TypedCommsResponse<ChatMessage>['summary']
     }
@@ -41,6 +40,10 @@ type ChatState = {
   optimisticReactions: Record<string, ChatMessageReaction>
   optimisticChatRead: Record<string, UserChat>
   activeChatId: string | null
+  blockees: ID[]
+  blockers: ID[]
+  permissions: Record<ID, ChatPermissionResponse>
+  reactionsPopupMessageId: string | null
 }
 
 type SetMessageReactionPayload = {
@@ -65,11 +68,10 @@ const { selectById: getChat } = chatsAdapter.getSelectors(
 const messageSortComparator = (a: ChatMessage, b: ChatMessage) =>
   dayjs(a.created_at).isBefore(dayjs(b.created_at)) ? 1 : -1
 
-export const chatMessagesAdapter =
-  createEntityAdapter<ChatMessageWithSendStatus>({
-    selectId: (message) => message.message_id,
-    sortComparer: messageSortComparator
-  })
+export const chatMessagesAdapter = createEntityAdapter<ChatMessageWithExtras>({
+  selectId: (message) => message.message_id,
+  sortComparer: messageSortComparator
+})
 
 const { selectById: getMessage } = chatMessagesAdapter.getSelectors()
 
@@ -81,7 +83,11 @@ const initialState: ChatState = {
   messages: {},
   optimisticChatRead: {},
   optimisticReactions: {},
-  activeChatId: null
+  activeChatId: null,
+  blockees: [],
+  blockers: [],
+  permissions: {},
+  reactionsPopupMessageId: null
 }
 
 const slice = createSlice({
@@ -154,7 +160,22 @@ const slice = createSlice({
         id: chatId,
         changes: { messagesStatus: Status.SUCCESS, messagesSummary: summary }
       })
-      chatMessagesAdapter.upsertMany(state.messages[chatId], data)
+      const messagesWithTail = data.map((item, index) => {
+        return { ...item, hasTail: hasTail(item, data[index - 1]) }
+      })
+      // Recalculate hasTail for latest message of new batch
+      if (state.messages[chatId].ids.length > 0) {
+        const prevEarliestMessageId =
+          state.messages[chatId].ids[state.messages[chatId].ids.length - 1]
+        const prevEarliestMessage =
+          state.messages[chatId].entities[prevEarliestMessageId]
+        const newLatestMessage = messagesWithTail[0]
+        newLatestMessage.hasTail = hasTail(
+          newLatestMessage,
+          prevEarliestMessage
+        )
+      }
+      chatMessagesAdapter.upsertMany(state.messages[chatId], messagesWithTail)
     },
     fetchMoreMessagesFailed: (
       state,
@@ -202,16 +223,21 @@ const slice = createSlice({
         reactions: [],
         message: '',
         sender_user_id: '',
-        created_at: ''
+        created_at: '',
+        hasTail: false
       })
       const existingMessage = getMessage(state.messages[chatId], messageId)
       const existingReactions = existingMessage?.reactions ?? []
-      state.messages.entities[messageId]!.reactions = existingReactions.filter(
+      const filteredReactions = existingReactions.filter(
         (r) => r.user_id !== reaction.user_id
       )
       if (reaction.reaction !== null) {
-        state.messages.entities[messageId]!.reactions.push(reaction)
+        filteredReactions.push(reaction)
       }
+      chatMessagesAdapter.updateOne(state.messages[chatId], {
+        id: messageId,
+        changes: { reactions: filteredReactions }
+      })
     },
     setMessageReactionFailed: (
       state,
@@ -278,8 +304,22 @@ const slice = createSlice({
     ) => {
       // triggers saga to get chat if not exists
       const { chatId, message, status } = action.payload
+
+      // Recalculate hasTail of previous message
+      const prevLatestMessageId = state.messages[chatId].ids[0]
+      const prevLatestMessage =
+        state.messages[chatId].entities[prevLatestMessageId]
+      if (prevLatestMessage) {
+        const prevMsgHasTail = hasTail(prevLatestMessage, message)
+        chatMessagesAdapter.updateOne(state.messages[chatId], {
+          id: prevLatestMessageId,
+          changes: { hasTail: prevMsgHasTail }
+        })
+      }
+
       chatMessagesAdapter.upsertOne(state.messages[chatId], {
         ...message,
+        hasTail: true,
         status: status ?? Status.IDLE
       })
       chatsAdapter.updateOne(state.chats, {
@@ -336,6 +376,78 @@ const slice = createSlice({
     },
     disconnect: (_state, _action: Action) => {
       // triggers middleware
+    },
+    fetchBlockees: (_state, _action: Action) => {
+      // triggers saga
+    },
+    fetchBlockeesSucceeded: (
+      state,
+      action: PayloadAction<{ blockees: ID[] }>
+    ) => {
+      state.blockees = action.payload.blockees
+    },
+    fetchBlockers: (_state, _action: Action) => {
+      // triggers saga
+    },
+    fetchBlockersSucceeded: (
+      state,
+      action: PayloadAction<{ blockers: ID[] }>
+    ) => {
+      state.blockers = action.payload.blockers
+    },
+    blockUser: (_state, _action: PayloadAction<{ userId: ID }>) => {
+      // triggers saga
+    },
+    unblockUser: (_state, _action: PayloadAction<{ userId: ID }>) => {
+      // triggers saga
+    },
+    fetchPermissions: (_state, _action: PayloadAction<{ userIds: ID[] }>) => {
+      // triggers saga
+    },
+    fetchPermissionsSucceeded: (
+      state,
+      action: PayloadAction<{
+        permissions: Record<ID, ChatPermissionResponse>
+      }>
+    ) => {
+      state.permissions = {
+        ...state.permissions,
+        ...action.payload.permissions
+      }
+    },
+    // Note: is not associated with any chatId because there will be at most
+    // one popup message at a time. Used for reactions popup overlay in mobile.
+    setReactionsPopupMessageId: (
+      state,
+      action: PayloadAction<{
+        messageId: string | null
+      }>
+    ) => {
+      state.reactionsPopupMessageId = action.payload.messageId
+    },
+    fetchLinkUnfurl: (
+      _state,
+      _action: PayloadAction<{
+        chatId: string
+        messageId: string
+        href: string
+      }>
+    ) => {
+      // triggers saga
+    },
+    fetchLinkUnfurlSucceeded: (
+      state,
+      action: PayloadAction<{
+        messageId: string
+        chatId: string
+        unfurlMetadata: Partial<UnfurlResponse>
+      }>
+    ) => {
+      const { messageId, chatId, unfurlMetadata } = action.payload
+      chatMessagesAdapter.updateOne(state.messages[chatId], {
+        id: messageId,
+        changes: { unfurlMetadata }
+      })
     }
   }
 })

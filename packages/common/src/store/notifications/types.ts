@@ -13,13 +13,6 @@ import {
   StringWei
 } from '../../models'
 
-import {
-  setNotificationModal,
-  toggleNotificationPanel,
-  setPlaylistUpdates,
-  updatePlaylistLastViewedAt
-} from './actions'
-
 export enum NotificationType {
   Announcement = 'Announcement',
   UserSubscription = 'UserSubscription',
@@ -31,7 +24,10 @@ export enum NotificationType {
   Milestone = 'Milestone',
   RemixCreate = 'RemixCreate',
   RemixCosign = 'RemixCosign',
+  Tastemaker = 'Tastemaker',
   TrendingTrack = 'TrendingTrack',
+  TrendingPlaylist = 'TrendingPlaylist',
+  TrendingUnderground = 'TrendingUnderground',
   ChallengeReward = 'ChallengeReward',
   TierChange = 'TierChange',
   Reaction = 'Reaction',
@@ -69,6 +65,7 @@ export enum PushNotificationType {
   RemixCosign = 'RemixCosign',
   TrendingTrack = 'TrendingTrack',
   ChallengeReward = 'ChallengeReward',
+  Tastemaker = 'Tastemaker',
   TierChange = 'TierChange',
   PlaylistUpdate = 'PlaylistUpdate',
   Tip = 'Tip',
@@ -145,6 +142,12 @@ export type DiscoveryRepostOfRepostNotificationAction = {
   type: string
   user_id: string
   repost_of_repost_item_id: string
+}
+export type DiscoveryTastemakerNotificationAction = {
+  tastemaker_user_id: string
+  tastemaker_item_id: string
+  action: string
+  tastemaker_item_owner_id: string
 }
 export type DiscoveryTipSendNotificationAction = {
   amount: string
@@ -229,7 +232,7 @@ export type DiscoveryCreateTrackNotificationAction = {
 }
 export type DiscoveryCreatePlaylistNotificationAction = {
   is_album: boolean
-  playlist_id: string
+  playlist_id: string[]
 }
 
 export type TrendingRange = 'week' | 'month' | 'year'
@@ -256,6 +259,10 @@ export type DiscoverySaveNotification = DiscoveryBaseNotification<
 export type DiscoveryRepostNotification = DiscoveryBaseNotification<
   'repost',
   DiscoveryRepostNotificationAction
+>
+export type DiscoveryTastemakerNotification = DiscoveryBaseNotification<
+  'tastemaker',
+  DiscoveryTastemakerNotificationAction
 >
 export type DiscoveryTipSendNotification = DiscoveryBaseNotification<
   'tip_send',
@@ -303,10 +310,24 @@ export type DiscoveryCreateNotification = DiscoveryBaseNotification<
   | DiscoveryCreateTrackNotificationAction
   | DiscoveryCreatePlaylistNotificationAction
 >
+export type DiscoveryTrendingPlaylistNotification = DiscoveryBaseNotification<
+  'trending_playlist',
+  {
+    rank: number
+    genre: string
+    playlist_id: string
+    time_range: TrendingRange
+  }
+>
 export type DiscoveryTrendingNotification = DiscoveryBaseNotification<
   'trending',
   DiscoveryTrendingNotificationAction
 >
+export type DiscoveryTrendingUndergroundNotification =
+  DiscoveryBaseNotification<
+    'trending_underground',
+    DiscoveryTrendingNotificationAction
+  >
 export type DiscoveryMilestoneNotification = DiscoveryBaseNotification<
   'milestone',
   | DiscoveryMilestoneFollowNotificationAction
@@ -341,9 +362,12 @@ export type DiscoveryNotification =
   | DiscoveryChallengeRewardNotification
   | DiscoveryTierChangeNotification
   | DiscoveryCreateNotification
+  | DiscoveryTrendingPlaylistNotification
   | DiscoveryTrendingNotification
+  | DiscoveryTrendingUndergroundNotification
   | DiscoveryRepostOfRepostNotification
   | DiscoverySaveOfRepostNotification
+  | DiscoveryTastemakerNotification
 
 export type AnnouncementNotification = BaseNotification & {
   type: NotificationType.Announcement
@@ -356,14 +380,8 @@ export type UserSubscriptionNotification = BaseNotification & {
   type: NotificationType.UserSubscription
   userId: ID
   entityIds: ID[]
-} & (
-    | {
-        entityType: Entity.Track
-      }
-    | {
-        entityType: Entity.Playlist | Entity.Album
-      }
-  )
+  entityType: Entity
+}
 
 export type FollowNotification = BaseNotification & {
   type: NotificationType.Follow
@@ -603,7 +621,6 @@ export type RemixCreateNotification = BaseNotification & {
   parentTrackId: ID
   childTrackId: ID
   entityType: Entity.Track
-  entityIds: ID[]
 }
 
 export type RemixCreatePushNotification = {
@@ -657,6 +674,15 @@ export type RemixCosignPushNotification = {
   ]
 }
 
+export type TrendingPlaylistNotification = BaseNotification & {
+  type: NotificationType.TrendingPlaylist
+  rank: number
+  genre: string
+  time: 'week' | 'month' | 'year'
+  entityType: Entity.Playlist
+  entityId: ID
+}
+
 export type TrendingTrackNotification = BaseNotification & {
   type: NotificationType.TrendingTrack
   rank: number
@@ -664,6 +690,22 @@ export type TrendingTrackNotification = BaseNotification & {
   time: 'week' | 'month' | 'year'
   entityType: Entity.Track
   entityId: ID
+}
+
+export type TrendingUndergroundNotification = BaseNotification & {
+  type: NotificationType.TrendingUnderground
+  rank: number
+  genre: string
+  time: 'week' | 'month' | 'year'
+  entityType: Entity.Track
+  entityId: ID
+}
+
+export type TastemakerNotification = BaseNotification & {
+  type: NotificationType.Tastemaker
+  entityType: Entity.Track
+  entityId: ID
+  userId: ID // track owner id
 }
 
 export type ChallengeRewardNotification = BaseNotification & {
@@ -824,7 +866,10 @@ export type Notification =
   | MilestoneNotification
   | RemixCreateNotification
   | RemixCosignNotification
+  | TastemakerNotification
+  | TrendingPlaylistNotification
   | TrendingTrackNotification
+  | TrendingUndergroundNotification
   | ChallengeRewardNotification
   | TierChangeNotification
   | ReactionNotification
@@ -839,31 +884,11 @@ export type IdentityNotification = Omit<Notification, 'timestamp'> & {
   timestamp: string
 }
 
-export interface NotificationState {
-  modalNotificationId: string | undefined
-  panelIsOpen: boolean
-  modalIsOpen: boolean
-  playlistUpdates: number[]
-}
-
 export type NotificationsState = EntityState<Notification> & {
   status: Status
   hasMore: boolean
   totalUnviewed: number
 }
-
-export type SetNotificationModal = ReturnType<typeof setNotificationModal>
-export type ToggleNotificationPanel = ReturnType<typeof toggleNotificationPanel>
-export type SetPlaylistUpdates = ReturnType<typeof setPlaylistUpdates>
-export type UpdatePlaylistLastViewedAt = ReturnType<
-  typeof updatePlaylistLastViewedAt
->
-
-export type NotificationAction =
-  | SetNotificationModal
-  | ToggleNotificationPanel
-  | SetPlaylistUpdates
-  | UpdatePlaylistLastViewedAt
 
 export type AddNotificationsAction = PayloadAction<{
   notifications: Notification[]

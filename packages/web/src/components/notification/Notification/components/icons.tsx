@@ -6,6 +6,7 @@ import { ReactComponent as IconPlaylist } from 'assets/img/iconPlaylists.svg'
 import { ReactComponent as IconRemixBase } from 'assets/img/iconRemix.svg'
 import { ReactComponent as IconRepostBase } from 'assets/img/iconRepost.svg'
 import { ReactComponent as IconStars } from 'assets/img/iconStars.svg'
+import { ReactComponent as Tastemaker } from 'assets/img/iconTastemaker.svg'
 import { ReactComponent as IconTipBase } from 'assets/img/iconTip.svg'
 import { ReactComponent as IconTrendingBase } from 'assets/img/iconTrending.svg'
 import { ReactComponent as IconTrophy } from 'assets/img/iconTrophy.svg'
@@ -39,6 +40,10 @@ export const IconRewards = ({ children }: { children: ReactNode }) => {
 
 export const IconTrending = () => {
   return <IconTrendingBase className={styles.iconTrending} />
+}
+
+export const IconTastemaker = () => {
+  return <Tastemaker className={styles.iconTrending} />
 }
 
 export const IconTier = ({ children }: { children: ReactNode }) => {

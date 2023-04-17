@@ -1,7 +1,10 @@
+import { tokenDashboardPageActions } from '@audius/common'
 import { View } from 'react-native'
+import { useDispatch } from 'react-redux'
+import { useEffectOnce } from 'react-use'
 
-import IconLink from 'app/assets/images/iconLink.svg'
 import IconRemove from 'app/assets/images/iconRemove.svg'
+import IconWallet from 'app/assets/images/iconWallet.svg'
 import { Text, Screen, ScreenContent } from 'app/components/core'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
@@ -13,8 +16,10 @@ import { LinkedWallets } from './components'
 import type { WalletConnectParamList } from './types'
 import { useWalletStatusToasts } from './useWalletStatusToasts'
 
+const { fetchAssociatedWallets } = tokenDashboardPageActions
+
 const messages = {
-  title: 'Connect Wallets',
+  title: 'Manage Wallets',
   subtitle: 'Connect Additional Wallets With Your Account',
   text: 'Show off your NFT Collectibles and flaunt your $AUDIO with a VIP badge on your profile.',
   linkedWallets: 'Linked Wallets',
@@ -48,12 +53,17 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
 export const WalletConnectScreen = () => {
   const styles = useStyles()
   const navigation = useNavigation<WalletConnectParamList>()
+  const dispatch = useDispatch()
   useWalletStatusToasts()
+
+  useEffectOnce(() => {
+    dispatch(fetchAssociatedWallets())
+  })
 
   return (
     <Screen
       title={messages.title}
-      icon={IconLink}
+      icon={IconWallet}
       variant='white'
       topbarLeft={
         <TopBarIconButton icon={IconRemove} onPress={navigation.goBack} />

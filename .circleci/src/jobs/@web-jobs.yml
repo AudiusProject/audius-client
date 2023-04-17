@@ -116,10 +116,10 @@ web-build-production:
 web-deploy-demo:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/python:2.7-jessie
+    - image: cimg/python:3.7.12-node
   steps:
     - checkout
-    - web-install-awscli
+    - aws-cli/install
     - attach_workspace:
         at: ./
     - run:
@@ -131,10 +131,10 @@ web-deploy-demo:
 web-deploy-staging-s3:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/python:2.7-jessie
+    - image: cimg/python:3.7.12-node
   steps:
     - checkout
-    - web-install-awscli
+    - aws-cli/install
     - attach_workspace:
         at: ./
     - run:
@@ -183,10 +183,10 @@ web-deploy-staging-release-candidate:
 web-deploy-production-s3:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/python:2.7-jessie
+    - image: cimg/python:3.7.12-node
   steps:
     - checkout
-    - web-install-awscli
+    - aws-cli/install
     - attach_workspace:
         at: ./
     - run:
@@ -248,9 +248,14 @@ web-deploy-sentry-sourcemaps:
 
 web-dist-mac-staging:
   working_directory: ~/audius-client
-  macos: # Run on osx so dmg can be created and signed.
-    xcode: '14.0.0'
+  # run on macos so dmg can be created and signed.
+  resource_class: macos.x86.medium.gen2
+  macos:
+    xcode: '14.2.0'
   steps:
+    - run:
+        name: Set Ruby Version
+        command: rbenv global 2.7.7 && rbenv rehash
     - web-distribute:
         build-type: mac-publish
 
@@ -272,9 +277,14 @@ web-dist-linux-staging:
 
 web-dist-mac-production:
   working_directory: ~/audius-client
-  macos: # Run on osx so dmg can be created and signed.
-    xcode: '14.0.0'
+  # run on macos so dmg can be created and signed.
+  resource_class: macos.x86.medium.gen2
+  macos:
+    xcode: '14.2.0'
   steps:
+    - run:
+        name: Set Ruby Version
+        command: rbenv global 2.7.7 && rbenv rehash
     - web-distribute:
         build-type: mac-publish-production
 

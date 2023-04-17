@@ -13,7 +13,11 @@ const { getUsers } = cacheUsersSelectors
 const { selectById: selectChatById, selectAll: selectAllChats } =
   chatsAdapter.getSelectors<CommonState>((state) => state.pages.chat.chats)
 
-const { selectAll: getAllChatMessages } = chatMessagesAdapter.getSelectors()
+const {
+  selectAll: getAllChatMessages,
+  selectById,
+  selectIds: getChatMessageIds
+} = chatMessagesAdapter.getSelectors()
 
 export const getChat = selectChatById
 
@@ -29,6 +33,13 @@ export const getOptimisticReads = (state: CommonState) =>
 
 export const getOptimisticReactions = (state: CommonState) =>
   state.pages.chat.optimisticReactions
+
+export const getBlockees = (state: CommonState) => state.pages.chat.blockees
+
+export const getBlockers = (state: CommonState) => state.pages.chat.blockers
+
+export const getPermissionsMap = (state: CommonState) =>
+  state.pages.chat.permissions
 
 export const getChats = createSelector(
   [selectAllChats, getOptimisticReads],
@@ -98,4 +109,44 @@ export const getOtherChatUsers = (state: CommonState, chatId?: string) => {
   }
   const chat = getChat(state, chatId)
   return getOtherChatUsersFromChat(state, chat)
+}
+
+export const getChatMessageByIndex = (
+  state: CommonState,
+  chatId: string,
+  messageIndex: number
+) => {
+  const chatMessagesState = state.pages.chat.messages[chatId]
+  const messageIds = getChatMessageIds(chatMessagesState)
+  const messageIdAtIndex = messageIds[messageIndex]
+  return selectById(chatMessagesState, messageIdAtIndex)
+}
+
+export const getChatMessageById = (
+  state: CommonState,
+  chatId: string,
+  messageId: string
+) => {
+  const chatMessagesState = state.pages.chat.messages[chatId]
+  return selectById(chatMessagesState, messageId)
+}
+
+export const getReactionsPopupMessageId = (state: CommonState) => {
+  return state.pages.chat.reactionsPopupMessageId
+}
+
+export const isIdEqualToReactionsPopupMessageId = (
+  state: CommonState,
+  messageId: string
+) => {
+  return messageId === getReactionsPopupMessageId(state)
+}
+
+export const getUnfurlMetadata = (
+  state: CommonState,
+  chatId: string,
+  messageId: string
+) => {
+  const message = getChatMessageById(state, chatId, messageId)
+  return message?.unfurlMetadata
 }

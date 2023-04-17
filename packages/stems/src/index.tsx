@@ -3,6 +3,7 @@ import './assets/styles/fonts.css'
 import './assets/styles/colors.css'
 import './assets/styles/animations.css'
 import './assets/styles/transforms.css'
+import './assets/styles/layers.css'
 
 export * from './components/Icons'
 
@@ -82,3 +83,5 @@ export {
   RadioGroupContext
 } from './components/RadioButtonGroup'
 export { RadioButton, RadioButtonProps } from './components/RadioButton'
+
+export { Tag, TagProps } from './components/Tag'

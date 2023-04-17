@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 
 import { chatActions, chatSelectors, Status } from '@audius/common'
 import { View, Text } from 'react-native'
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconCompose from 'app/assets/images/iconCompose.svg'
@@ -17,6 +18,7 @@ import { useThemePalette, useColor } from 'app/utils/theme'
 import { ChatListItem } from './ChatListItem'
 
 const { getChats, getChatsStatus } = chatSelectors
+const { fetchMoreChats, connect, disconnect } = chatActions
 
 const messages = {
   title: 'Messages',
@@ -39,6 +41,10 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     height: spacing(20),
     width: spacing(20),
     alignSelf: 'center'
+  },
+  listContainer: {
+    display: 'flex',
+    minHeight: '100%'
   },
   startConversationContainer: {
     marginVertical: spacing(8),
@@ -65,6 +71,11 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   },
   writeMessageButton: {
     marginTop: spacing(6)
+  },
+  shadow: {
+    borderBottomColor: palette.neutralLight6,
+    borderBottomWidth: 3,
+    borderBottomLeftRadius: 1
   }
 }))
 
@@ -98,15 +109,21 @@ export const ChatListScreen = () => {
   const chatsStatus = useSelector(getChatsStatus)
 
   useEffect(() => {
-    dispatch(chatActions.fetchMoreChats())
+    dispatch(fetchMoreChats())
+  }, [dispatch])
+
+  useEffect(() => {
+    dispatch(connect())
+    return () => {
+      dispatch(disconnect())
+    }
   }, [dispatch])
 
   const navigateToChatUserList = () => navigation.navigate('ChatUserList')
   const iconCompose = (
-    <IconCompose
-      fill={palette.neutralLight4}
-      onPress={navigateToChatUserList}
-    />
+    <TouchableWithoutFeedback onPress={navigateToChatUserList}>
+      <IconCompose fill={palette.neutralLight4} />
+    </TouchableWithoutFeedback>
   )
 
   return (
@@ -118,10 +135,12 @@ export const ChatListScreen = () => {
       topbarRight={iconCompose}
     >
       <ScreenContent>
+        <View style={styles.shadow} />
         <View style={styles.rootContainer}>
           {chatsStatus === Status.SUCCESS ? (
             <FlatList
               data={chats}
+              contentContainerStyle={styles.listContainer}
               renderItem={({ item, index }) => <ChatListItem chat={item} />}
               keyExtractor={(item) => item.chat_id}
               ListEmptyComponent={() => (

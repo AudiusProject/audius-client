@@ -11,7 +11,6 @@ import { audioPlayer } from 'services/audio-player'
 import { apiClient } from 'services/audius-api-client'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 import { audiusSdk } from 'services/audius-sdk'
-import { cognito } from 'services/cognito'
 import { env } from 'services/env'
 import { explore } from 'services/explore'
 import { fingerprintClient } from 'services/fingerprint'
@@ -26,9 +25,10 @@ import { share } from 'utils/share'
 import { getLineupSelectorForRoute } from './lineup/lineupForRoute'
 
 export const storeContext: CommonStoreContext = {
-  getLocalStorageItem: async (key: string) => window.localStorage.getItem(key),
+  getLocalStorageItem: async (key: string) =>
+    window?.localStorage?.getItem(key),
   setLocalStorageItem: async (key: string, value: string) =>
-    window.localStorage.setItem(key, value),
+    window?.localStorage?.setItem(key, value),
   // Note: casting return type to Promise<boolean> to maintain pairity with mobile, but
   // it may be best to update mobile to not be async
   getFeatureEnabled: getFeatureEnabled as unknown as (
@@ -53,7 +53,6 @@ export const storeContext: CommonStoreContext = {
     metadataProgramId: process.env.REACT_APP_METADATA_PROGRAM_ID
   }),
   sentry: Sentry,
-  cognito,
   trackDownload,
   instagramAppId: process.env.REACT_APP_INSTAGRAM_APP_ID,
   instagramRedirectUrl: process.env.REACT_APP_INSTAGRAM_REDIRECT_URL,

@@ -199,7 +199,9 @@ export class AudioPlayer {
           // Set the new time to the current plus the nudge. If this nudge
           // wasn't enough, this error will be thrown again and we will just continue
           // to nudge the playhead forward until the errors stop or the song ends.
-          this.audio.currentTime = newTime
+          if (isFinite(newTime)) {
+            this.audio.currentTime = newTime
+          }
           if (wasPlaying) {
             this.audio.play()
           }
@@ -225,6 +227,10 @@ export class AudioPlayer {
       // TODO: Test to make sure that this doesn't break anything
       this.stop()
       const prevVolume = this.audio.volume
+      if (this.audio) {
+        this.audio.src = ''
+        this.audio.remove()
+      }
       this.audio = new Audio()
 
       // Connect this.audio to the window so that 3P's can interact with it.
@@ -436,7 +442,9 @@ export class AudioPlayer {
   }
 
   seek = (seconds: number) => {
-    this.audio.currentTime = seconds
+    if (isFinite(seconds)) {
+      this.audio.currentTime = seconds
+    }
   }
 
   setVolume = (value: number) => {

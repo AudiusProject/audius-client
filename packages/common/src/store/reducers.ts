@@ -18,12 +18,7 @@ import collectiblesSlice from './collectibles/slice'
 import musicConfettiReducer, {
   MusicConfettiState
 } from './music-confetti/slice'
-import {
-  NotificationsState,
-  notificationsReducer,
-  notificationsReducerLegacy,
-  NotificationState
-} from './notifications'
+import { NotificationsState, notificationsReducer } from './notifications'
 import { HistoryPageState, SavedPageState } from './pages'
 import audioRewardsSlice from './pages/audio-rewards/slice'
 import audioTransactionsSlice from './pages/audio-transactions/slice'
@@ -164,7 +159,6 @@ export const reducers = () => ({
   playlistLibrary: playlistLibraryReducer,
   playlistUpdates: playlistUpdatesReducer,
 
-  notificationsLegacy: notificationsReducerLegacy,
   notifications: notificationsReducer,
 
   // UI
@@ -280,7 +274,6 @@ export type CommonState = {
   playlistLibrary: PlaylistLibraryState
   playlistUpdates: PlaylistUpdateState
 
-  notificationsLegacy: NotificationState
   notifications: NotificationsState
 
   ui: {

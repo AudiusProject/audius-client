@@ -1,4 +1,4 @@
-import { Suspense, useState, useEffect, useCallback, lazy } from 'react'
+import { Suspense, useState, useEffect, lazy } from 'react'
 
 import { useAsync } from 'react-use'
 
@@ -7,10 +7,6 @@ import { useIsMobile, isElectron } from 'utils/clientUtil'
 import { getPathname, HOME_PAGE, publicSiteRoutes } from 'utils/route'
 
 import Dapp from './app'
-
-const NoConnectivityPage = lazy(
-  () => import('components/no-connectivity-page/NoConnectivityPage')
-)
 
 const PublicSite = lazy(() => import('./pages/PublicSite'))
 
@@ -27,8 +23,6 @@ const isPublicSiteSubRoute = (location = window.location) => {
 const clientIsElectron = isElectron()
 
 const Root = () => {
-  const [dappReady, setDappReady] = useState(false)
-  const [connectivityFailure, setConnectivityFailure] = useState(false)
   const [renderPublicSite, setRenderPublicSite] = useState(isPublicSiteRoute())
   const isMobileClient = useIsMobile()
 
@@ -42,8 +36,6 @@ const Root = () => {
       setRenderPublicSite(isPublicSiteRoute())
     }
   }, [])
-
-  const setReady = useCallback(() => setDappReady(true), [])
 
   const [shouldShowPopover, setShouldShowPopover] = useState(true)
 
@@ -63,13 +55,7 @@ const Root = () => {
 
   return (
     <>
-      {connectivityFailure && <NoConnectivityPage />}
-      <Dapp
-        isReady={dappReady}
-        setReady={setReady}
-        setConnectivityFailure={setConnectivityFailure}
-        shouldShowPopover={shouldShowPopover}
-      />
+      <Dapp shouldShowPopover={shouldShowPopover} />
     </>
   )
 }

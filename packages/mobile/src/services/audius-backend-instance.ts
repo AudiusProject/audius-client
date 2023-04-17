@@ -8,6 +8,7 @@ import { track } from 'app/services/analytics'
 import { reportToSentry } from 'app/utils/reportToSentry'
 
 import { createPrivateKey } from './createPrivateKey'
+import { discoveryNodeSelectorInstance } from './discovery-node-selector'
 import { withEagerOption } from './eagerLoadUtils'
 import { env } from './env'
 import {
@@ -30,6 +31,7 @@ export const audiusBackendInstance = audiusBackend({
   ethProviderUrls: (Config.ETH_PROVIDER_URL || '').split(','),
   ethRegistryAddress: Config.ETH_REGISTRY_ADDRESS,
   ethTokenAddress: Config.ETH_TOKEN_ADDRESS,
+  discoveryNodeSelectorInstance,
   getFeatureEnabled,
   getHostUrl: () => {
     return `${Config.PUBLIC_PROTOCOL}//${Config.PUBLIC_HOSTNAME}`
@@ -71,8 +73,6 @@ export const audiusBackendInstance = audiusBackend({
   remoteConfigInstance,
   setLocalStorageItem: async (key, value) => AsyncStorage.setItem(key, value),
   solanaConfig: {
-    anchorAdminAccount: Config.ANCHOR_ADMIN_ACCOUNT,
-    anchorProgramId: Config.ANCHOR_PROGRAM_ID,
     claimableTokenPda: Config.CLAIMABLE_TOKEN_PDA,
     claimableTokenProgramAddress: Config.CLAIMABLE_TOKEN_PROGRAM_ADDRESS,
     rewardsManagerProgramId: Config.REWARDS_MANAGER_PROGRAM_ID,

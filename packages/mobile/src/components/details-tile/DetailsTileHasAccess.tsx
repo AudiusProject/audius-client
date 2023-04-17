@@ -15,11 +15,11 @@ import { View, Text } from 'react-native'
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
 import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
 import IconUnlocked from 'app/assets/images/iconUnlocked.svg'
-import IconVerifiedGreen from 'app/assets/images/iconVerifiedGreen.svg'
+import IconVerified from 'app/assets/images/iconVerified.svg'
 import { useLink } from 'app/components/core'
 import UserBadges from 'app/components/user-badges'
 import { flexRowCentered, makeStyles } from 'app/styles'
-import { useColor } from 'app/utils/theme'
+import { useColor, useThemePalette } from 'app/utils/theme'
 
 const messages = {
   unlocked: 'UNLOCKED',
@@ -50,11 +50,11 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   },
   headerContainer: {
     ...flexRowCentered(),
+    marginBottom: spacing(2),
     justifyContent: 'space-between'
   },
   titleContainer: {
-    ...flexRowCentered(),
-    marginBottom: spacing(2)
+    ...flexRowCentered()
   },
   title: {
     marginLeft: spacing(2),
@@ -79,6 +79,9 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   },
   collectionName: {
     color: palette.secondary
+  },
+  bottomMargin: {
+    marginBottom: spacing(2)
   }
 }))
 
@@ -97,16 +100,20 @@ const DetailsTileUnlockedSection = ({
   style
 }: HasAccessProps) => {
   const styles = useStyles()
-  const neutral = useColor('neutral')
+  const palette = useThemePalette()
 
   return (
     <View style={[styles.root, style]}>
       <View style={styles.headerContainer}>
         <View style={styles.titleContainer}>
-          <IconUnlocked fill={neutral} />
+          <IconUnlocked fill={palette.neutral} />
           <Text style={styles.title}>{messages.unlocked}</Text>
         </View>
-        <IconVerifiedGreen style={styles.checkIcon} />
+        <IconVerified
+          style={styles.checkIcon}
+          fill={palette.accentGreen}
+          fillSecondary={palette.staticWhite}
+        />
       </View>
       {renderDescription()}
     </View>
@@ -125,7 +132,7 @@ const DetailsTileOwnerSection = ({
 
   return (
     <View style={[styles.root, style]}>
-      <View style={styles.titleContainer}>
+      <View style={[styles.titleContainer, styles.bottomMargin]}>
         {nftCollection && (
           <IconCollectible fill={neutral} width={16} height={16} />
         )}

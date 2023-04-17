@@ -62,7 +62,8 @@ const QUEUE_SUBSCRIBER_NAME = 'QUEUE'
 
 function* doesUserHaveTrackAccess(track: Nullable<Track>) {
   const getFeatureEnabled = yield* getContext('getFeatureEnabled')
-  const isGatedContentEnabled = getFeatureEnabled(
+  const isGatedContentEnabled = yield* call(
+    getFeatureEnabled,
     FeatureFlags.GATED_CONTENT_ENABLED
   )
   if (!isGatedContentEnabled) {

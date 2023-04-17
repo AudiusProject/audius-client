@@ -31,6 +31,7 @@ import UnlistedTrackModal from 'components/unlisted-track-modal/UnlistedTrackMod
 import PreviewButton from 'components/upload/PreviewButton'
 import UploadArtwork from 'components/upload/UploadArtwork'
 import { useFlag } from 'hooks/useRemoteConfig'
+import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { resizeImage } from 'utils/imageProcessingUtil'
 import { moodMap } from 'utils/moods'
 
@@ -534,9 +535,12 @@ const AdvancedForm = (props) => {
         Render the gated content upload prompt component which is responsible
         for whether or its content will modal will be displayed.
       */}
-      {props.type === 'track' && props.isUpload ? (
+      {props.allowPromptModal ? (
         <GatedContentUploadPromptModal
-          onSubmit={() => setIsAvailabilityModalOpen(true)}
+          onSubmit={() => {
+            props.toggleAdvanced()
+            setIsAvailabilityModalOpen(true)
+          }}
         />
       ) : null}
       {showAvailability && (
@@ -760,6 +764,8 @@ class FormTile extends Component {
     try {
       let file = selectedFiles[0]
       file = await this.props.transformArtworkFunction(file)
+      const storageV2Enabled = getFeatureEnabled(FeatureFlags.STORAGE_V2)
+      if (storageV2Enabled) file.name = selectedFiles[0].name
       const url = URL.createObjectURL(file)
       this.props.onChangeField('artwork', { url, file, source }, false)
       this.setState({ imageProcessingError: false })
@@ -843,6 +849,7 @@ class FormTile extends Component {
         />
         <AdvancedForm
           {...this.props}
+          toggleAdvanced={this.toggleAdvanced}
           advancedShow={advancedShow}
           advancedVisible={advancedVisible}
           licenseType={licenseType}
@@ -916,6 +923,9 @@ FormTile.propTypes = {
   /** Whether we are in the track upload flow */
   isUpload: PropTypes.bool,
 
+  /** Whether we allow showing the gated track upload prompt modal */
+  allowPromptModal: PropTypes.bool,
+
   /** Initial form for in case we are in the edit track modal */
   initialForm: PropTypes.object,
 
@@ -962,6 +972,7 @@ FormTile.defaultProps = {
   onChangeOrder: () => {},
   onChangeField: () => {},
   isUpload: true,
+  allowPromptModal: false,
   initialForm: {},
   showUnlistedToggle: true,
   showHideTrackSectionInModal: true,

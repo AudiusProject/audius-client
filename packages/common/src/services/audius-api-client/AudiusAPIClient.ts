@@ -1,7 +1,5 @@
 import type { AudiusLibs } from '@audius/sdk/dist/native-libs'
 
-import { PlaylistUpdate } from 'store/playlist-updates'
-
 import {
   ID,
   TimeRange,
@@ -119,6 +117,7 @@ const ENDPOINT_MAP = {
   associatedWalletUserId: '/users/id',
   userChallenges: (userId: OpaqueID) => `/users/${userId}/challenges`,
   userFavorites: (userId: OpaqueID) => `/users/${userId}/favorites`,
+  userTags: (userId: OpaqueID) => `/users/${userId}/tags`,
   undisbursedUserChallenges: `/challenges/undisbursed`
 }
 
@@ -504,6 +503,7 @@ type AudiusAPIClientConfig = {
   remoteConfigInstance: RemoteConfigInstance
   localStorage: LocalStorage
   env: Env
+  waitForLibsInit: () => Promise<unknown>
 }
 
 export class AudiusAPIClient {
@@ -518,6 +518,7 @@ export class AudiusAPIClient {
   localStorage: LocalStorage
   env: Env
   isReachable?: boolean = true
+  waitForLibsInit: () => Promise<unknown>
 
   constructor({
     audiusBackendInstance,
@@ -525,7 +526,8 @@ export class AudiusAPIClient {
     overrideEndpoint,
     remoteConfigInstance,
     localStorage,
-    env
+    env,
+    waitForLibsInit
   }: AudiusAPIClientConfig) {
     this.audiusBackendInstance = audiusBackendInstance
     this.getAudiusLibs = getAudiusLibs
@@ -533,6 +535,7 @@ export class AudiusAPIClient {
     this.remoteConfigInstance = remoteConfigInstance
     this.localStorage = localStorage
     this.env = env
+    this.waitForLibsInit = waitForLibsInit
   }
 
   setIsReachable(isReachable: boolean) {
@@ -1440,6 +1443,16 @@ export class AudiusAPIClient {
     return challenges
   }
 
+  getUserTags = async ({ userId }: { userId: ID }) => {
+    const encodedUserId = encodeHashId(userId)
+    return await this._getResponse<APIResponse<string[]>>(
+      ENDPOINT_MAP.userTags(encodedUserId),
+      undefined,
+      false,
+      PathType.VersionPath
+    )
+  }
+
   getUndisbursedUserChallenges = async ({ userID }: { userID: ID }) => {
     this._assertInitialized()
     const encodedCurrentUserId = encodeHashId(userID)
@@ -1731,10 +1744,25 @@ export class AudiusAPIClient {
   }
 
   async getPlaylistUpdates(userId: number) {
-    const response = await this._getResponse<APIResponse<PlaylistUpdate[]>>(
-      FULL_ENDPOINT_MAP.playlistUpdates(encodeHashId(userId))
-    )
-    return response?.data
+    type ApiPlaylistUpdate = {
+      playlist_id: string
+      updated_at: string
+      last_seen_at: string
+    }
+    type PlaylistUpdatesResponse = { playlist_updates: ApiPlaylistUpdate[] }
+    const response = await this._getResponse<
+      APIResponse<PlaylistUpdatesResponse>
+    >(FULL_ENDPOINT_MAP.playlistUpdates(encodeHashId(userId)))
+    const playlistUpdates = response?.data?.playlist_updates
+
+    if (!playlistUpdates) {
+      return null
+    }
+
+    return playlistUpdates.map((playlistUpdate) => ({
+      ...playlistUpdate,
+      playlist_id: decodeHashId(playlistUpdate.playlist_id) as number
+    }))
   }
 
   async init() {
@@ -1857,9 +1885,7 @@ export class AudiusAPIClient {
       // Something went wrong with the request and we should wait for the libs
       // initialization state if needed before retrying
       if (this.initializationState.type === 'manual') {
-        // use wait for libs init from audius backend instance
-        // BEEP
-        // await waitForLibsInit()
+        await this.waitForLibsInit()
       }
       return this._getResponse(path, sanitizedParams, retry, pathType)
     }

@@ -1,7 +1,6 @@
 import {
   DefaultSizes,
   Kind,
-  Status,
   accountSelectors,
   cacheActions,
   cacheUsersSelectors,
@@ -134,24 +133,6 @@ export function* fetchUserCollections(userId) {
   )
 }
 
-function* watchAdd() {
-  yield takeEvery(cacheActions.ADD_SUCCEEDED, function* (action) {
-    if (action.kind === Kind.USERS) {
-      yield put(
-        userActions.setHandleStatus(
-          action.entries
-            .filter((entry) => !!entry.metadata.handle)
-            .map((entry) => ({
-              handle: entry.metadata.handle,
-              id: entry.id,
-              status: Status.SUCCESS
-            }))
-        )
-      )
-    }
-  })
-}
-
 // For updates and adds, sync the account user to local storage.
 // We use the same mergeCustomizer we use in cacheSagas to merge
 // with the local state.
@@ -232,17 +213,17 @@ function* watchFetchProfilePicture() {
           )
 
           if (url) {
-            const updatedUser = yield select(getUser, { id: userId })
-            const userWithProfilePicture = {
-              ...updatedUser,
-              _profile_picture_sizes: {
-                ...user._profile_picture_sizes,
-                [size]: url
-              }
-            }
             yield put(
               cacheActions.update(Kind.USERS, [
-                { id: userId, metadata: userWithProfilePicture }
+                {
+                  id: userId,
+                  metadata: {
+                    _profile_picture_sizes: {
+                      ...user._profile_picture_sizes,
+                      [size]: url
+                    }
+                  }
+                }
               ])
             )
           }
@@ -254,17 +235,17 @@ function* watchFetchProfilePicture() {
             gateways
           )
           if (url) {
-            const updatedUser = yield select(getUser, { id: userId })
-            const userWithProfilePicture = {
-              ...updatedUser,
-              _profile_picture_sizes: {
-                ...user._profile_picture_sizes,
-                [DefaultSizes.OVERRIDE]: url
-              }
-            }
             yield put(
               cacheActions.update(Kind.USERS, [
-                { id: userId, metadata: userWithProfilePicture }
+                {
+                  id: userId,
+                  metadata: {
+                    _profile_picture_sizes: {
+                      ...user._profile_picture_sizes,
+                      [DefaultSizes.OVERRIDE]: url
+                    }
+                  }
+                }
               ])
             )
           }
@@ -377,7 +358,6 @@ function* watchFetchUsers() {
 
 const sagas = () => {
   return [
-    watchAdd,
     watchFetchProfilePicture,
     watchFetchCoverPhoto,
     watchSyncLocalStorageUser,
