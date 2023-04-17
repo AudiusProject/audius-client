@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client'
+import { ApolloProvider } from '@apollo/client'
 import {
   trackPageActions,
   cacheTracksSelectors,
@@ -9,61 +9,40 @@ import {
   CommonState,
   FavoriteSource
 } from '@audius/common'
-import { RestLink } from 'apollo-link-rest'
+import { AudiusSdk } from '@audius/sdk'
 import { useDispatch, useSelector } from 'react-redux'
 
 import TrackTile from 'components/track/desktop/TrackTile'
 import { TrackTileSize } from 'components/track/types'
+import { audiusSdk } from 'services/audius-sdk'
 
 import { useGetTrack } from './useGetTrack'
-import { confirmSaveTrack, useSaveTrack } from './useSaveTrack'
+import { useSaveTrack } from './useSaveTrack'
 
 const { getTrack } = cacheTracksSelectors
 const { fetchTrack } = trackPageActions
 const { saveTrack } = tracksSocialActions
 const { getUser } = trackPageSelectors
 
-const baseUri = 'https://discoveryprovider.audius.co/v1/full'
+const useSdk = () => {
+  const [sdk, setSdk] = useState<AudiusSdk>()
 
-// This map defines how each mutation is performed,
-// the lookup is based on the `path` argument to the @rest directive
-const mutations: Record<string, (options: any) => Promise<Response>> = {
-  '/track/save': confirmSaveTrack
+  useEffect(() => {
+    audiusSdk().then(setSdk)
+  }, [])
+
+  return sdk
 }
 
-const restLink = new RestLink({
-  uri: baseUri,
-  // Overwrite the default serializer so that the `input` arg
-  // isn't stringified
-  defaultSerializer: (body, headers) => {
-    return { body, headers }
-  },
-  customFetch: async (uri, options) => {
-    // For reads, simply fetch the uri
-    if (options.method === 'GET') {
-      return fetch(uri)
-
-      // For writes, execute the mutation
-      // (with confirmation)
-    } else if (options.method === 'POST') {
-      const route = (uri as string).replace(baseUri, '')
-      return mutations[route](options)
-    }
-    throw Error('Mutation not defined')
-  },
-  // This transformer returns the `data` field from the response
-  responseTransformer: async (response) =>
-    response.json().then(({ data }: any) => data)
-})
-
-export const client = new ApolloClient({
-  link: restLink,
-  cache: new InMemoryCache()
-})
-
 export const ApolloPage = () => {
+  const sdk = useSdk()
+
+  if (!sdk) {
+    return null
+  }
+
   return (
-    <ApolloProvider client={client}>
+    <ApolloProvider client={sdk.graphql.client as any}>
       <ApolloPageContent />
     </ApolloProvider>
   )
