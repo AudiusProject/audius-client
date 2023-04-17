@@ -29,11 +29,11 @@ import {
   IconTrophy,
   IconFollowing,
   Scrollbar,
-  IconUser
+  IconUser,
+  IconUserGroup
 } from '@audius/stems'
 
 import { ReactComponent as IconTip } from 'assets/img/iconTip.svg'
-import { ReactComponent as IconUserGroup } from 'assets/img/iconUserGroup.svg'
 import { useSelector } from 'common/hooks/useSelector'
 import UserList from 'components/user-list/UserList'
 import { UserListType } from 'store/application/ui/userListModal/types'
