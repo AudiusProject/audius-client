@@ -23,8 +23,7 @@ export const getLineupEntries = <T, State>(
   selector: LineupSelector<T, State>,
   state: State
 ) => {
-  const lineup = selector(state)
-  return lineup?.entries ?? []
+  return selector(state).entries
 }
 
 export const makeGetTableMetadatas = <T, State>(
