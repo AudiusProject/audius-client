@@ -5,8 +5,7 @@ import {
   FollowSource,
   usersSocialActions,
   relatedArtistsUISelectors,
-  relatedArtistsUIActions,
-  useProxySelector
+  relatedArtistsUIActions
 } from '@audius/common'
 import { TouchableOpacity, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
