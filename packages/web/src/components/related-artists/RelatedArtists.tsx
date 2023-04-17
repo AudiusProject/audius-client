@@ -5,13 +5,15 @@ import {
   MAX_PROFILE_RELATED_ARTISTS,
   CommonState,
   relatedArtistsUISelectors as relatedArtistSelectors,
-  relatedArtistsUIActions as relatedArtistsActions
+  relatedArtistsUIActions as relatedArtistsActions,
+  FeatureFlags
 } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconUserGroup } from 'assets/img/iconUserGroup.svg'
 import { ProfilePageNavSectionTitle } from 'components/profile-page-nav-section-title/ProfilePageNavSectionTitle'
 import { ProfilePictureListTile } from 'components/profile-picture-list-tile/ProfilePictureListTile'
+import { useFlag } from 'hooks/useRemoteConfig'
 import {
   setUsers,
   setVisibility
@@ -34,6 +36,9 @@ const messages = {
 export const RelatedArtists = () => {
   const dispatch = useDispatch()
   const profile = useSelector(getProfileUser)
+  const { isEnabled: isRelatedArtistsEnabled } = useFlag(
+    FeatureFlags.RELATED_ARTISTS_ON_PROFILE_ENABLED
+  )
 
   const artistId = profile?.user_id
 
@@ -71,6 +76,7 @@ export const RelatedArtists = () => {
   }, [profile, dispatch])
 
   if (
+    !isRelatedArtistsEnabled ||
     !profile ||
     !suggestedArtists ||
     suggestedArtists.length === 0 ||
