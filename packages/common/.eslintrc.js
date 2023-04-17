@@ -9,7 +9,6 @@ module.exports = {
         message:
           'Do NOT use `Promise.allSettled` as it will be undefined. Use `allSettled` from `utils/allSettled.ts` instead.'
       }
-    ],
-    'import/no-unresolved': [2, { ignore: ['react'] }]
+    ]
   }
 }
