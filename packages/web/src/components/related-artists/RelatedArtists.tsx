@@ -1,7 +1,6 @@
 import { useCallback, useEffect } from 'react'
 
 import {
-  User,
   profilePageSelectors,
   MAX_PROFILE_RELATED_ARTISTS,
   CommonState,
