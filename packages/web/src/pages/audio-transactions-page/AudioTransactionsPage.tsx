@@ -151,7 +151,7 @@ export const AudioTransactionsPage = () => {
   const tableLoading =
     statusIsNotFinalized(audioTransactionsStatus) ||
     statusIsNotFinalized(audioTransactionsCountStatus)
-  const isEmpty = audioTransactions.length === 0
+  const isEmpty = true // audioTransactions.length === 0
 
   return (
     <Page
@@ -160,27 +160,25 @@ export const AudioTransactionsPage = () => {
       header={<Header primary={messages.headerText} />}
     >
       <div className={styles.bodyWrapper}>
+        <Disclaimer />
         {isEmpty && !tableLoading ? (
           <EmptyTable
             primaryText={messages.emptyTableText}
             secondaryText={messages.emptyTableSecondaryText}
           />
         ) : (
-          <>
-            <Disclaimer />
-            <AudioTransactionsTable
-              key='audioTransactions'
-              data={audioTransactions}
-              loading={tableLoading}
-              onSort={onSort}
-              onClickRow={onClickRow}
-              fetchMore={fetchMore}
-              isVirtualized={true}
-              totalRowCount={audioTransactionsCount}
-              scrollRef={mainContentRef}
-              fetchBatchSize={AUDIO_TRANSACTIONS_BATCH_SIZE}
-            />
-          </>
+          <AudioTransactionsTable
+            key='audioTransactions'
+            data={audioTransactions}
+            loading={tableLoading}
+            onSort={onSort}
+            onClickRow={onClickRow}
+            fetchMore={fetchMore}
+            isVirtualized={true}
+            totalRowCount={audioTransactionsCount}
+            scrollRef={mainContentRef}
+            fetchBatchSize={AUDIO_TRANSACTIONS_BATCH_SIZE}
+          />
         )}
       </div>
     </Page>
