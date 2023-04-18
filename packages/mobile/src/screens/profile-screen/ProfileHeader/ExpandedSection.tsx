@@ -12,6 +12,7 @@ import { useSelectProfile } from '../selectors'
 
 import { Bio } from './Bio'
 import { ProfileMutualsButton } from './ProfileMutualsButton'
+import { ProfileRelatedArtistsButton } from './ProfileRelatedArtistsButton'
 import { ProfileTierTile } from './ProfileTierTile'
 import { SocialsAndSites } from './SocialsAndSites'
 import { SupportingList } from './SupportingList'
@@ -41,6 +42,9 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
     marginRight: spacing(1.5),
     position: 'relative',
     bottom: 2
+  },
+  audioTier: {
+    margin: spacing(2)
   }
 }))
 
@@ -57,6 +61,7 @@ const SupportingSectionTitle = () => {
 }
 
 export const ExpandedSection = () => {
+  const styles = useStyles()
   const { supporting_count, user_id, current_user_followee_follow_count } =
     useSelectProfile([
       'supporting_count',
@@ -69,12 +74,13 @@ export const ExpandedSection = () => {
   return (
     <View pointerEvents='box-none'>
       <Bio />
+      <ProfileTierTile interactive={false} style={styles.audioTier} />
       <SocialsAndSites />
       <View style={{ flexDirection: 'row', marginVertical: spacing(2) }}>
-        <ProfileTierTile />
         {isOwner || current_user_followee_follow_count === 0 ? null : (
           <ProfileMutualsButton />
         )}
+        <ProfileRelatedArtistsButton />
       </View>
       {supporting_count > 0 ? (
         <>
