@@ -515,7 +515,7 @@ const makeMapStateToProps = () => {
       state
     )
 
-    // The lineup has accessibly tracks when there is at least one track
+    // The lineup has accessible tracks when there is at least one track
     // the user has access to i.e. a non-gated track or an unlocked gated track.
     // This helps us determine whether there is a playable track.
     // For example, in the case of a gated track that the user does not have
