@@ -1,5 +1,4 @@
 import { isEmpty } from 'lodash'
-
 import { uuid } from 'utils/uid'
 
 import { ID } from '../../models/Identifiers'
@@ -7,8 +6,7 @@ import {
   PlaylistLibrary,
   PlaylistLibraryIdentifier,
   PlaylistLibraryFolder,
-  PlaylistLibraryID,
-  PlaylistLibraryKind
+  PlaylistLibraryID
 } from '../../models/PlaylistLibrary'
 import { SmartCollectionVariant } from '../../models/SmartCollectionVariant'
 import { AccountCollection } from '../account/types'
@@ -406,7 +404,7 @@ export const reorderPlaylistLibrary = (
   library: PlaylistLibrary | PlaylistLibraryFolder,
   draggingId: PlaylistLibraryID,
   droppingId: ID | SmartCollectionVariant | string,
-  draggingKind: PlaylistLibraryKind = 'library-playlist',
+  draggingKind = 'library-playlist',
   reorderBeforeTarget = false
 ) => {
   // Find the dragging id and remove it from the library if present.
