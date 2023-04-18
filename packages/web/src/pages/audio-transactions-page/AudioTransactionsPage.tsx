@@ -151,7 +151,7 @@ export const AudioTransactionsPage = () => {
   const tableLoading =
     statusIsNotFinalized(audioTransactionsStatus) ||
     statusIsNotFinalized(audioTransactionsCountStatus)
-  const isEmpty = true // audioTransactions.length === 0
+  const isEmpty = audioTransactions.length === 0
 
   return (
     <Page
