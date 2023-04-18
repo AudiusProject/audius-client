@@ -6,6 +6,6 @@ export enum Status {
 }
 
 /** Detects if a status is in a non-terminal state */
-export function statusIsNotTerminal(status: Status) {
+export function statusIsNotFinalized(status: Status) {
   return [Status.IDLE, Status.LOADING].includes(status)
 }

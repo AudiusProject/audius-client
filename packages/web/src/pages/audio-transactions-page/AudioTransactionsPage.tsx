@@ -12,7 +12,7 @@ import {
   audioTransactionsPageActions,
   audioTransactionsPageSelectors,
   transactionDetailsActions,
-  statusIsNotTerminal
+  statusIsNotFinalized
 } from '@audius/common'
 import { full } from '@audius/sdk'
 import { IconCaretRight } from '@audius/stems'
@@ -149,8 +149,8 @@ export const AudioTransactionsPage = () => {
   )
 
   const tableLoading =
-    statusIsNotTerminal(audioTransactionsStatus) ||
-    statusIsNotTerminal(audioTransactionsCountStatus)
+    statusIsNotFinalized(audioTransactionsStatus) ||
+    statusIsNotFinalized(audioTransactionsCountStatus)
   const isEmpty = audioTransactions.length === 0
 
   return (
