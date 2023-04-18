@@ -1,12 +1,11 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { shuffle } from 'lodash'
-import { call, put, select, takeEvery } from 'typed-redux-saga'
-
 import { ID, UserMetadata } from 'models'
 import { DoubleKeys } from 'services/remote-config'
 import { accountSelectors } from 'store/account'
 import { processAndCacheUsers } from 'store/cache'
 import { getContext } from 'store/effects'
+import { call, put, select, takeEvery } from 'typed-redux-saga'
 import { waitForRead } from 'utils/sagaHelpers'
 import { removeNullable } from 'utils/typeUtils'
 
@@ -22,11 +21,14 @@ export function* fetchRelatedArtists(action: PayloadAction<{ artistId: ID }>) {
     const artistId = action.payload.artistId
 
     const currentUserId = yield* select(getUserId)
-    const relatedArtists = yield* call(apiClient.getRelatedArtists, {
-      userId: artistId,
-      currentUserId,
-      limit: 50
-    })
+    const relatedArtists = yield* call(
+      [apiClient, apiClient.getRelatedArtists],
+      {
+        userId: artistId,
+        currentUserId,
+        limit: 50
+      }
+    )
 
     let showingTopArtists = false
     let filteredArtists = relatedArtists
@@ -61,7 +63,7 @@ function* fetchTopArtists() {
   yield* waitForRead()
   const apiClient = yield* getContext('apiClient')
   const currentUserId = yield* select(getUserId)
-  const topArtists = yield* call(apiClient.getTopArtists, {
+  const topArtists = yield* call([apiClient, apiClient.getTopArtists], {
     currentUserId,
     limit: 50
   })
