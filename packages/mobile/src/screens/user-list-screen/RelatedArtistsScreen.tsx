@@ -7,7 +7,7 @@ import {
 } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
-import IconFollowing from 'app/assets/images/iconFollowing.svg'
+import IconUserGroup from 'app/assets/images/iconUserGroup.svg'
 import { useProfileRoute } from 'app/hooks/useRoute'
 
 import { UserList } from './UserList'
@@ -16,7 +16,7 @@ const { getUserList } = relatedArtistsUserListSelectors
 const { setRelatedArtists } = relatedArtistsUserListActions
 
 const messages = {
-  title: 'RelatedArtists'
+  title: 'Related Artists'
 }
 
 export const RelatedArtistsScreen = () => {
@@ -29,7 +29,7 @@ export const RelatedArtistsScreen = () => {
   }, [dispatch, userId])
 
   return (
-    <UserListScreen title={messages.title} titleIcon={IconFollowing}>
+    <UserListScreen title={messages.title} titleIcon={IconUserGroup}>
       <UserList
         userSelector={getUserList}
         tag={RELATED_ARTISTS_USER_LIST_TAG}
