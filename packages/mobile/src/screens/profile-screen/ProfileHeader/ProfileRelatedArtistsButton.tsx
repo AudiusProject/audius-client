@@ -1,20 +1,17 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 
-import {
-  relatedArtistsUIActions,
-  relatedArtistsUISelectors
-} from '@audius/common'
-import { useDispatch, useSelector } from 'react-redux'
+import { FeatureFlags, relatedArtistsUISelectors } from '@audius/common'
+import { useSelector } from 'react-redux'
 
 import IconUserGroup from 'app/assets/images/iconUserGroup.svg'
 import { Text, Tile } from 'app/components/core'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
 import { useSelectProfile } from '../selectors'
 
-const { fetchRelatedArtists } = relatedArtistsUIActions
 const { selectRelatedArtistsById } = relatedArtistsUISelectors
 
 const messages = {
@@ -43,17 +40,22 @@ export const ProfileRelatedArtistsButton = () => {
   const relatedArtists = useSelector((state) =>
     selectRelatedArtistsById(state, user_id)
   )
+  const isRelatedArtistsFeatureEnabled = useFeatureFlag(
+    FeatureFlags.RELATED_ARTISTS_ON_PROFILE_ENABLED
+  )
 
   const handlePress = useCallback(() => {
     navigation.navigate('RelatedArtists', { userId: user_id })
   }, [navigation, user_id])
 
   if (
+    !isRelatedArtistsFeatureEnabled ||
     !relatedArtists?.relatedArtistIds ||
     relatedArtists.isTopArtistsRecommendation ||
     relatedArtists.relatedArtistIds.length <= 0
   )
     return null
+
   return (
     <Tile
       styles={{ root: styles.root, tile: styles.tile, content: styles.content }}
