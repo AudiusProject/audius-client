@@ -11,6 +11,7 @@ import {
 import cn from 'classnames'
 // eslint-disable-next-line no-restricted-imports -- TODO: migrate to @react-spring/web
 import { animated } from 'react-spring'
+// eslint-disable-next-line no-restricted-imports -- TODO: migrate to @react-spring/web
 import { Transition } from 'react-spring/renderprops'
 
 import { Pages, FollowArtistsCategory } from 'common/store/pages/signon/types'

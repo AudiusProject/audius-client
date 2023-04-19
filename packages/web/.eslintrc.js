@@ -43,9 +43,9 @@ module.exports = {
     'no-restricted-imports': [
       'error',
       {
-        paths: [
+        patterns: [
           {
-            name: 'react-spring',
+            group: ['react-spring*'],
             message: 'Please use @react-spring/web instead'
           }
         ]
