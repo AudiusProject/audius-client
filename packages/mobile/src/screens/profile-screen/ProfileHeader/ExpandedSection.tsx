@@ -5,7 +5,6 @@ import { useSelector } from 'react-redux'
 import IconTip from 'app/assets/images/iconTip.svg'
 import { Divider, Text } from 'app/components/core'
 import { makeStyles } from 'app/styles'
-import { spacing } from 'app/styles/spacing'
 import { useThemeColors } from 'app/utils/theme'
 
 import { useSelectProfile } from '../selectors'
@@ -43,6 +42,11 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
     position: 'relative',
     bottom: 2
   },
+  buttonRow: {
+    flexDirection: 'row',
+    marginVertical: spacing(2),
+    gap: spacing(2)
+  },
   audioTier: {
     margin: spacing(2)
   }
@@ -76,13 +80,7 @@ export const ExpandedSection = () => {
       <Bio />
       <ProfileTierTile interactive={false} style={styles.audioTier} />
       <SocialsAndSites />
-      <View
-        style={{
-          flexDirection: 'row',
-          marginVertical: spacing(2),
-          gap: spacing(2)
-        }}
-      >
+      <View style={styles.buttonRow}>
         {isOwner || current_user_followee_follow_count === 0 ? null : (
           <ProfileMutualsButton />
         )}

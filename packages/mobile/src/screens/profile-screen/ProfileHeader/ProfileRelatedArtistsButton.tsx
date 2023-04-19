@@ -45,7 +45,7 @@ export const ProfileRelatedArtistsButton = () => {
   )
 
   const handlePress = useCallback(() => {
-    navigation.navigate('RelatedArtists', { userId: user_id })
+    navigation.push('RelatedArtists', { userId: user_id })
   }, [navigation, user_id])
 
   if (
