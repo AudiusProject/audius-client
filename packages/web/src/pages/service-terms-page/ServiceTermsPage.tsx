@@ -19,7 +19,7 @@ type ServiceTermsPageProps = {
 
 const ServiceTermsPage = (props: ServiceTermsPageProps) => {
   return (
-    <div id='termsOfUsePage' className={styles.container}>
+    <div id='serviceTermsPage' className={styles.container}>
       <NavBanner
         invertColors
         className={styles.navBanner}
