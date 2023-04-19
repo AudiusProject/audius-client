@@ -12,6 +12,7 @@ import {
   vipDiscordModalSagas,
   reachabilitySagas as commonReachabilitySagas,
   searchUsersModalSagas,
+  relatedArtistsSagas,
   solanaSagas
 } from '@audius/common'
 import { all, fork } from 'redux-saga/effects'
@@ -51,11 +52,9 @@ import queueSagas from 'common/store/queue/sagas'
 import recoveryEmailSagas from 'common/store/recovery-email/sagas'
 import remixSettingsSagas from 'common/store/remix-settings/sagas'
 import searchBarSagas from 'common/store/search-bar/sagas'
-import serviceSelectionSagas from 'common/store/service-selection/sagas'
 import smartCollectionPageSagas from 'common/store/smart-collection/sagas'
 import socialSagas from 'common/store/social/sagas'
 import tippingSagas from 'common/store/tipping/sagas'
-import artistRecommendationsSagas from 'common/store/ui/artist-recommendations/sagas'
 import reactionSagas from 'common/store/ui/reactions/sagas'
 import uploadSagas from 'common/store/upload/sagas'
 import favoritePageSagas from 'common/store/user-list/favorites/sagas'
@@ -63,6 +62,7 @@ import followersPageSagas from 'common/store/user-list/followers/sagas'
 import followingPageSagas from 'common/store/user-list/following/sagas'
 import mutualsPageSagas from 'common/store/user-list/mutuals/sagas'
 import notificationUsersPageSagas from 'common/store/user-list/notifications/sagas'
+import relatedArtistsPageSagas from 'common/store/user-list/related-artists/sagas'
 import repostPageSagas from 'common/store/user-list/reposts/sagas'
 import supportingPageSagas from 'common/store/user-list/supporting/sagas'
 import topSupportersPageSagas from 'common/store/user-list/top-supporters/sagas'
@@ -126,7 +126,6 @@ export default function* rootSaga() {
     transactionsPageSagas(),
     savedSagas(),
     searchResultsSagas(),
-    serviceSelectionSagas(),
     settingsSagas(),
     signOnSaga(),
     socialSagas(),
@@ -156,7 +155,7 @@ export default function* rootSaga() {
 
     // Application
     addToPlaylistSagas(),
-    artistRecommendationsSagas(),
+    relatedArtistsSagas(),
     buyAudioSagas(),
     changePasswordSagas(),
     chatWebSagas(),
@@ -169,6 +168,7 @@ export default function* rootSaga() {
     followingPageSagas(),
     supportingPageSagas(),
     topSupportersPageSagas(),
+    relatedArtistsPageSagas(),
     mutualsPageSagas(),
     notificationUsersPageSagas(),
     remixesSagas(),
