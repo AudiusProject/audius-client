@@ -13,7 +13,8 @@ import {
   playlistLibraryActions,
   playlistLibraryHelpers,
   PlaylistLibraryID,
-  playlistUpdatesSelectors
+  playlistUpdatesSelectors,
+  PlaylistLibraryKind
 } from '@audius/common'
 import cn from 'classnames'
 import { isEmpty } from 'lodash'
@@ -214,7 +215,7 @@ const PlaylistLibrary = ({
       record(
         make(Name.PLAYLIST_LIBRARY_REORDER, {
           containsTemporaryPlaylists: containsTempPlaylist(newLibrary),
-          kind: draggingKind as any
+          kind: draggingKind as PlaylistLibraryKind
         })
       )
       const isDroppingIntoFolder = isInsideFolder(
