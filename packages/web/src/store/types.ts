@@ -21,7 +21,6 @@ import { RouterState } from 'connected-react-router'
 
 import signOnReducer from 'common/store/pages/signon/reducer'
 import { SearchBarState } from 'common/store/search-bar/types'
-import ServiceSelectionReducer from 'common/store/service-selection/slice'
 import { EmbedModalState } from 'components/embed-modal/store/types'
 import { FirstUploadModalState } from 'components/first-upload-modal/store/slice'
 import { PasswordResetState } from 'components/password-reset/store/types'
@@ -43,7 +42,7 @@ import { NotificationsUIState } from './application/ui/notifications/notificatio
 import { ScrollLockState } from './application/ui/scrollLock/types'
 import { SetAsArtistPickConfirmationState } from './application/ui/setAsArtistPickConfirmation/types'
 import { UserListModalState } from './application/ui/userListModal/types'
-import { DragNDropState } from './dragndrop/types'
+import { DragnDropState } from './dragndrop/slice'
 const averageColor = averageColorReducer
 
 export type AppState = CommonState & {
@@ -59,8 +58,7 @@ export type AppState = CommonState & {
   passwordReset: PasswordResetState
 
   // UI
-  dragndrop: DragNDropState
-  serviceSelection: ReturnType<typeof ServiceSelectionReducer>
+  dragndrop: DragnDropState
 
   // Global
   application: {
