@@ -1,6 +1,12 @@
 import { useCallback } from 'react'
 
-import { Name, Status, accountSelectors, uploadActions } from '@audius/common'
+import {
+  Name,
+  Status,
+  accountSelectors,
+  uploadActions,
+  uploadSelectors
+} from '@audius/common'
 import {
   Button,
   ButtonType,
@@ -22,13 +28,14 @@ import styles from './NavButton.module.css'
 
 const { getAccountStatus, getAccountUser } = accountSelectors
 const { resetState: resetUploadState } = uploadActions
+const { getIsUploading } = uploadSelectors
 
 export const NavButton = () => {
   const dispatch = useDispatch()
   const record = useRecord()
   const isSignedIn = useSelector((state: AppState) => !!getAccountUser(state))
   const accountStatus = useSelector(getAccountStatus)
-  const isUploading = useSelector((state: AppState) => state.upload.uploading)
+  const isUploading = useSelector(getIsUploading)
 
   let status = 'signedOut'
   if (isSignedIn) status = 'signedIn'
@@ -47,8 +54,6 @@ export const NavButton = () => {
     dispatch(push(UPLOAD_PAGE))
     record(make(Name.TRACK_UPLOAD_OPEN, { source: 'nav' }))
   }, [isUploading, dispatch, record])
-
-  console.log(isSignedIn)
 
   let button
   switch (status) {
