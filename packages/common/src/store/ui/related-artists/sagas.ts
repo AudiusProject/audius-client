@@ -46,7 +46,7 @@ export function* fetchRelatedArtists(action: PayloadAction<{ artistId: ID }>) {
       const showTopArtists = Math.random() < showTopArtistRecommendationsPercent
 
       if (showTopArtists) {
-        suggestedFollows = yield fetchTopArtists()
+        suggestedFollows = yield* call(fetchTopArtists)
         showingTopArtists = true
       }
     }
