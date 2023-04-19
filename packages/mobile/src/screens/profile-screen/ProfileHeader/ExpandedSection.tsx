@@ -76,7 +76,13 @@ export const ExpandedSection = () => {
       <Bio />
       <ProfileTierTile interactive={false} style={styles.audioTier} />
       <SocialsAndSites />
-      <View style={{ flexDirection: 'row', marginVertical: spacing(2) }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          marginVertical: spacing(2),
+          gap: spacing(2)
+        }}
+      >
         {isOwner || current_user_followee_follow_count === 0 ? null : (
           <ProfileMutualsButton />
         )}
