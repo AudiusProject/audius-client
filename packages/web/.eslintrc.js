@@ -38,5 +38,18 @@ module.exports = {
         extensions: ['.ts', '.tsx', '.js', '.jsx', '.json']
       }
     }
+  },
+  rules: {
+    'no-restricted-imports': [
+      'error',
+      {
+        paths: [
+          {
+            name: 'react-spring',
+            message: 'Please use @react-spring/web instead'
+          }
+        ]
+      }
+    ]
   }
 }
