@@ -187,8 +187,11 @@ export const ChatScreen = () => {
   console.log(`REED chatContainerHeight ${chatContainerHeight.current}`)
 
   const keyboardShowing = (event) => {
+    // const {duration, easing, startCoordinates, endCoordinates} = event
+    console.log(`REED event keyboardShowing: ${event}`)
+    console.log('REED event keyboardShowing:', event)
     Animated.timing(keyboardHeight.current, {
-      toValue: event.endCoordinates.height,
+      toValue: -event.endCoordinates.height + 80,
       duration: event.duration,
       useNativeDriver: false
     }).start()
@@ -445,7 +448,13 @@ export const ChatScreen = () => {
           <Animated.View
             style={[
               styles.rootContainer,
-              { paddingBottom: keyboardHeight.current }
+              {
+                transform: [
+                  {
+                    translateY: keyboardHeight.current
+                  }
+                ]
+              }
             ]}
           >
             {/* <KeyboardAvoidingView
