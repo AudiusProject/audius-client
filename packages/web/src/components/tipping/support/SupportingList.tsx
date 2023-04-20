@@ -1,11 +1,10 @@
 import { useCallback } from 'react'
 
 import {
-  ID,
-  stringWeiToBN,
   profilePageSelectors,
-  tippingSelectors,
-  MAX_PROFILE_SUPPORTING_TILES
+  MAX_PROFILE_SUPPORTING_TILES,
+  useRankedSupportingForUser,
+  User
 } from '@audius/common'
 import { IconArrow } from '@audius/stems'
 import { useDispatch } from 'react-redux'
@@ -24,7 +23,6 @@ import {
 
 import styles from './SupportingList.module.css'
 import { SupportingTile } from './SupportingTile'
-const { getOptimisticSupporting } = tippingSelectors
 const { getProfileUser } = profilePageSelectors
 
 const messages = {
@@ -33,24 +31,9 @@ const messages = {
   seeMoreSuffix: ' More'
 }
 
-export const SupportingList = () => {
+const SupportingListForProfile = ({ profile }: { profile: User }) => {
   const dispatch = useDispatch()
-  const profile = useSelector(getProfileUser)
-  const supportingMap = useSelector(getOptimisticSupporting)
-  const supportingForProfile = profile?.user_id
-    ? supportingMap[profile.user_id] ?? {}
-    : {}
-  const rankedSupportingList = Object.keys(supportingForProfile)
-    .sort((k1, k2) => {
-      const amount1BN = stringWeiToBN(
-        supportingForProfile[k1 as unknown as ID].amount
-      )
-      const amount2BN = stringWeiToBN(
-        supportingForProfile[k2 as unknown as ID].amount
-      )
-      return amount1BN.gte(amount2BN) ? -1 : 1
-    })
-    .map((k) => supportingForProfile[k as unknown as ID])
+  const rankedSupportingList = useRankedSupportingForUser(profile.user_id)
 
   const handleClick = useCallback(() => {
     if (profile) {
@@ -90,4 +73,9 @@ export const SupportingList = () => {
       )}
     </div>
   ) : null
+}
+
+export const SupportingList = () => {
+  const profile = useSelector(getProfileUser)
+  return profile ? <SupportingListForProfile profile={profile} /> : null
 }

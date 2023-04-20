@@ -116,31 +116,6 @@ export const ProfilePictureList = (props: ProfilePictureListProps) => {
             interactive={interactive}
           />
         ))}
-      {showUserListDrawer ? (
-        <View style={styles.imageExtraRoot}>
-          <ProfilePicture
-            profile={users[limit - 1]}
-            style={[styles.image, imageStyles]}
-            navigationType={navigationType}
-            interactive={interactive}
-          />
-          <View
-            style={[
-              styles.imageExtraDim,
-              {
-                width: dimWidth,
-                height: dimHeight,
-                // borderRadius of 50% or greater gives us a circle
-                borderRadius: Math.ceil(dimWidth / 2)
-              }
-            ]}
-          >
-            <Text style={styles.imageCount}>
-              {`+${formatCount(remainingUsersCount)}`}
-            </Text>
-          </View>
-        </View>
-      ) : null}
     </View>
   )
 }
