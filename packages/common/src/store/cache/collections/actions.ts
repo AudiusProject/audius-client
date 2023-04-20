@@ -1,4 +1,8 @@
-import { ID, UID, Collection, SquareSizes } from '../../../models'
+import { Collection } from '@metaplex-foundation/mpl-token-metadata'
+
+import { ID, UID, SquareSizes } from '../../../models'
+
+import { EditPlaylistValues } from './types'
 
 export const CREATE_PLAYLIST = 'CREATE_PLAYLIST'
 export const CREATE_PLAYLIST_REQUESTED = 'CREATE_PLAYLIST_REQUESTED'
@@ -58,7 +62,10 @@ export function createPlaylistFailed(
   return { type: CREATE_PLAYLIST_FAILED, error, params, metadata }
 }
 
-export function editPlaylist(playlistId: number, formFields: Collection) {
+export function editPlaylist(
+  playlistId: number,
+  formFields: EditPlaylistValues
+) {
   return { type: EDIT_PLAYLIST, playlistId, formFields }
 }
 
