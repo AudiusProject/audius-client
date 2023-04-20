@@ -144,8 +144,7 @@ if (__DEV__) {
 
 export const store = createStore(
   rootReducer,
-  applyMiddleware(...middlewares),
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+  applyMiddleware(...middlewares)
 ) as unknown as Store<AppState> // need to explicitly type the store for offline-mode store reference
 
 export const persistor = persistStore(store)
