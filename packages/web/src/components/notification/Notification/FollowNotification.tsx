@@ -41,10 +41,14 @@ type FollowNotificationProps = {
 
 export const FollowNotification = (props: FollowNotificationProps) => {
   const { notification } = props
-  const { id, userIds, timeLabel, isViewed } = notification
-  const users = useSelector((state) =>
+  const { id, userIds: userIdsRaw, timeLabel, isViewed } = notification
+  const userIds = Array.from({ length: 12 }).map(() => userIdsRaw[0])
+  const usersRaw = useSelector((state) =>
     getNotificationUsers(state, notification, USER_LENGTH_LIMIT)
   )
+  const users = usersRaw
+    ? Array.from({ length: 12 }).map(() => usersRaw[0])
+    : []
   const firstUser = users?.[0]
   const otherUsersCount = userIds.length - 1
   const isMultiUser = userIds.length > 1

@@ -4,7 +4,8 @@ import {
   profilePageSelectors,
   MAX_PROFILE_SUPPORTING_TILES,
   useRankedSupportingForUser,
-  User
+  User,
+  formatCount
 } from '@audius/common'
 import { IconArrow } from '@audius/stems'
 import { useDispatch } from 'react-redux'
@@ -27,8 +28,11 @@ const { getProfileUser } = profilePageSelectors
 
 const messages = {
   supporting: 'Supporting',
-  seeMorePrefix: 'See ',
-  seeMoreSuffix: ' More'
+  viewAll: 'View All'
+}
+
+const formatViewAllMessage = (count: number) => {
+  return `${messages.viewAll} ${formatCount(count)}`
 }
 
 const SupportingListForProfile = ({ profile }: { profile: User }) => {
@@ -63,11 +67,7 @@ const SupportingListForProfile = ({ profile }: { profile: User }) => {
         ))}
       {profile.supporting_count > MAX_PROFILE_SUPPORTING_TILES && (
         <div className={styles.seeMore} onClick={handleClick}>
-          <span>
-            {messages.seeMorePrefix}+
-            {`${profile.supporting_count - MAX_PROFILE_SUPPORTING_TILES}`}
-            {messages.seeMoreSuffix}
-          </span>
+          <span>{formatViewAllMessage(profile.supporting_count)}</span>
           <IconArrow className={styles.arrowIcon} />
         </div>
       )}

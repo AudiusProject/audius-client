@@ -49,10 +49,7 @@ export const ViewAllSupportingTile = () => {
   const styles = useStyles()
   const navigation = useNavigation()
 
-  const { user_id, supporting_count } = useSelectProfile([
-    'user_id',
-    'supporting_count'
-  ])
+  const { user_id } = useSelectProfile(['user_id'])
 
   const rankedSupportingList = useRankedSupportingForUser(user_id)
 
@@ -86,7 +83,6 @@ export const ViewAllSupportingTile = () => {
     >
       <ProfilePictureList
         users={rankedSupportingUsers.slice(MAX_PROFILE_SUPPORTING_TILES)}
-        totalUserCount={supporting_count - MAX_PROFILE_SUPPORTING_TILES}
         limit={MAX_PROFILE_SUPPORTING_VIEW_ALL_USERS}
         style={styles.profilePictureList}
         navigationType='push'
