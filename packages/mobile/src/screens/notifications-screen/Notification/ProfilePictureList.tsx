@@ -33,7 +33,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     alignItems: 'center'
   },
   imageExtraDim: {
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: 'rgba(0,0,0,0.25)',
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
@@ -50,6 +50,9 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     textShadowColor: 'rgba(0,0,0,0.25)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 1
+  },
+  imageCountSmall: {
+    fontSize: typography.fontSize.xxs
   }
 }))
 
@@ -80,6 +83,8 @@ export const ProfilePictureList = (props: ProfilePictureListProps) => {
   } = props
   const imageWidth = imageStyles?.width ?? defaultImageDimensions.width
   const imageHeight = imageStyles?.height ?? defaultImageDimensions.height
+
+  const useSmallText = imageWidth < defaultImageDimensions.width
 
   // We want the View containing the "+" count to be the size of the
   // inside content of the ProfilePicture it is sitting above.
@@ -137,7 +142,12 @@ export const ProfilePictureList = (props: ProfilePictureListProps) => {
               }
             ]}
           >
-            <Text style={styles.imageCount}>
+            <Text
+              style={[
+                styles.imageCount,
+                useSmallText && styles.imageCountSmall
+              ]}
+            >
               {`+${formatCount(remainingUsersCount)}`}
             </Text>
           </View>
