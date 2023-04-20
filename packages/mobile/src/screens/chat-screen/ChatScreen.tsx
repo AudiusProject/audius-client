@@ -19,11 +19,16 @@ import {
   Text,
   KeyboardAvoidingView,
   Pressable,
-  Animated,
   FlatList,
   Keyboard,
   Easing
 } from 'react-native'
+import Animated, {
+  withTiming,
+  useAnimatedKeyboard,
+  useSharedValue,
+  useAnimatedStyle
+} from 'react-native-reanimated'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
@@ -69,7 +74,6 @@ const messages = {
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   rootContainer: {
     display: 'flex',
-    // flex: 1,
     flexDirection: 'column',
     height: '100%',
     justifyContent: 'space-between'
@@ -183,43 +187,48 @@ export const ChatScreen = () => {
   const popupMessage = useSelector((state) =>
     getChatMessageById(state, chatId, popupMessageId ?? '')
   )
-  const keyboardHeight = useRef(new Animated.Value(0))
-  const chatContainerHeight = useRef(0)
-  console.log(`REED chatContainerHeight ${chatContainerHeight.current}`)
-
-  const keyboardShowing = (event) => {
-    // const {duration, easing, startCoordinates, endCoordinates} = event
-    console.log('REED event keyboardShowing:', event)
-    Animated.timing(keyboardHeight.current, {
-      toValue: -event.endCoordinates.height + 80,
-      duration: event.duration,
-      easing: Easing.inOut(Easing.linear),
-      useNativeDriver: true
-    }).start()
-  }
-  const keyboardHiding = (event) => {
-    Animated.timing(keyboardHeight.current, {
-      toValue: 0,
-      duration: event.duration - 100,
-      easing: Easing.inOut(Easing.linear),
-      useNativeDriver: true
-    }).start()
-  }
-
+  // const keyboard = useAnimatedKeyboard()
+  // const animatedStyle = useAnimatedStyle(() => ({
+  //   transform: [{ translateY: -keyboard.height.value }]
+  // }))
   useEffect(() => {
-    const showSubscription = Keyboard.addListener(
-      'keyboardWillShow',
-      keyboardShowing
-    )
-    const hideSubscription = Keyboard.addListener(
-      'keyboardWillHide',
-      keyboardHiding
-    )
-    return () => {
-      Keyboard.removeSubscription(showSubscription)
-      Keyboard.removeSubscription(hideSubscription)
-    }
-  }, [])
+    Keyboard.setAnimationEnabled(false)
+  })
+  // const keyboardHeight = useRef(new Animated.Value(0))
+
+  // const keyboardShowing = (event) => {
+  //   // const {duration, easing, startCoordinates, endCoordinates} = event
+  //   console.log('REED event keyboardShowing:', event)
+  //   Animated.timing(keyboardHeight.current, {
+  //     toValue: -event.endCoordinates.height + 80,
+  //     duration: event.duration,
+  //     easing: Easing.inOut(Easing.linear),
+  //     useNativeDriver: true
+  //   }).start()
+  // }
+  // const keyboardHiding = (event) => {
+  //   Animated.timing(keyboardHeight.current, {
+  //     toValue: 0,
+  //     duration: event.duration - 100,
+  //     easing: Easing.inOut(Easing.linear),
+  //     useNativeDriver: true
+  //   }).start()
+  // }
+
+  // useEffect(() => {
+  //   const showSubscription = Keyboard.addListener(
+  //     'keyboardWillShow',
+  //     keyboardShowing
+  //   )
+  //   const hideSubscription = Keyboard.addListener(
+  //     'keyboardWillHide',
+  //     keyboardHiding
+  //   )
+  //   return () => {
+  //     Keyboard.removeSubscription(showSubscription)
+  //     Keyboard.removeSubscription(hideSubscription)
+  //   }
+  // }, [])
 
   // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
   // Using a ref instead of state here to prevent unwanted flickers.
@@ -443,22 +452,10 @@ export const ChatScreen = () => {
           onLayout={() => {
             chatContainerRef.current?.measureInWindow((x, y, width, height) => {
               chatContainerTop.current = y
-              chatContainerHeight.current = height
             })
           }}
         >
-          <Animated.View
-            style={[
-              styles.rootContainer,
-              {
-                transform: [
-                  {
-                    translateY: keyboardHeight.current
-                  }
-                ]
-              }
-            ]}
-          >
+          <Animated.View style={[styles.rootContainer, animatedStyle]}>
             {/* <KeyboardAvoidingView
             keyboardVerticalOffset={
               Platform.OS === 'ios' ? chatContainerTop.current : 0
