@@ -19,7 +19,9 @@ import {
   Text,
   KeyboardAvoidingView,
   Pressable,
-  FlatList
+  Animated,
+  FlatList,
+  Keyboard
 } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -66,6 +68,7 @@ const messages = {
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   rootContainer: {
     display: 'flex',
+    // flex: 1,
     flexDirection: 'column',
     height: '100%',
     justifyContent: 'space-between'
@@ -179,6 +182,39 @@ export const ChatScreen = () => {
   const popupMessage = useSelector((state) =>
     getChatMessageById(state, chatId, popupMessageId ?? '')
   )
+  const keyboardHeight = useRef(new Animated.Value(0))
+  const chatContainerHeight = useRef(0)
+  console.log(`REED chatContainerHeight ${chatContainerHeight.current}`)
+
+  const keyboardShowing = (event) => {
+    Animated.timing(keyboardHeight.current, {
+      toValue: event.endCoordinates.height,
+      duration: event.duration,
+      useNativeDriver: false
+    }).start()
+  }
+  const keyboardHiding = (event) => {
+    Animated.timing(keyboardHeight.current, {
+      toValue: 0,
+      duration: event.duration,
+      useNativeDriver: false
+    }).start()
+  }
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener(
+      'keyboardWillShow',
+      keyboardShowing
+    )
+    const hideSubscription = Keyboard.addListener(
+      'keyboardWillHide',
+      keyboardHiding
+    )
+    return () => {
+      Keyboard.removeSubscription(showSubscription)
+      Keyboard.removeSubscription(hideSubscription)
+    }
+  }, [])
 
   // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
   // Using a ref instead of state here to prevent unwanted flickers.
@@ -402,16 +438,23 @@ export const ChatScreen = () => {
           onLayout={() => {
             chatContainerRef.current?.measureInWindow((x, y, width, height) => {
               chatContainerTop.current = y
+              chatContainerHeight.current = height
             })
           }}
         >
-          <KeyboardAvoidingView
+          <Animated.View
+            style={[
+              styles.rootContainer,
+              { paddingBottom: keyboardHeight.current }
+            ]}
+          >
+            {/* <KeyboardAvoidingView
             keyboardVerticalOffset={
               Platform.OS === 'ios' ? chatContainerTop.current : 0
             }
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             style={styles.rootContainer}
-          >
+          > */}
             {!isLoading ? (
               chatMessages?.length > 0 ? (
                 <View style={styles.listContainer}>
@@ -450,7 +493,8 @@ export const ChatScreen = () => {
             >
               <ChatTextInput chatId={chatId} />
             </View>
-          </KeyboardAvoidingView>
+            {/* </KeyboardAvoidingView> */}
+          </Animated.View>
         </View>
       </ScreenContent>
     </Screen>
