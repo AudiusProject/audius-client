@@ -21,14 +21,15 @@ import {
   Pressable,
   FlatList,
   Keyboard,
+  Animated,
   Easing
 } from 'react-native'
-import Animated, {
-  withTiming,
-  useAnimatedKeyboard,
-  useSharedValue,
-  useAnimatedStyle
-} from 'react-native-reanimated'
+// import Animated, {
+//   withTiming,
+//   useAnimatedKeyboard,
+//   useSharedValue,
+//   useAnimatedStyle
+// } from 'react-native-reanimated'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
@@ -97,6 +98,15 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     backgroundColor: palette.white,
     borderTopWidth: 1,
     borderColor: palette.neutralLight8
+  },
+  whiteBackground: {
+    backgroundColor: palette.white,
+    position: 'absolute',
+    height: 500,
+    flexGrow: 1,
+    top: 0,
+    left: 0,
+    right: 0
   },
   composeTextContainer: {
     display: 'flex',
@@ -191,44 +201,42 @@ export const ChatScreen = () => {
   // const animatedStyle = useAnimatedStyle(() => ({
   //   transform: [{ translateY: -keyboard.height.value }]
   // }))
+
+  const keyboardHeight = useRef(new Animated.Value(0))
+  // const keyboardHeight = useRef(0)
+
+  const keyboardShowing = (event) => {
+    console.log('REED event keyboardShowing:', event)
+    Animated.timing(keyboardHeight.current, {
+      toValue: -event.endCoordinates.height + 84,
+      duration: event.duration - 150,
+      easing: Easing.inOut(Easing.quad),
+      useNativeDriver: true
+    }).start()
+  }
+  const keyboardHiding = (event) => {
+    Animated.timing(keyboardHeight.current, {
+      toValue: 0,
+      duration: 0,
+      easing: Easing.inOut(Easing.quad),
+      useNativeDriver: true
+    }).start()
+  }
+
   useEffect(() => {
-    Keyboard.setAnimationEnabled(false)
-  })
-  // const keyboardHeight = useRef(new Animated.Value(0))
-
-  // const keyboardShowing = (event) => {
-  //   // const {duration, easing, startCoordinates, endCoordinates} = event
-  //   console.log('REED event keyboardShowing:', event)
-  //   Animated.timing(keyboardHeight.current, {
-  //     toValue: -event.endCoordinates.height + 80,
-  //     duration: event.duration,
-  //     easing: Easing.inOut(Easing.linear),
-  //     useNativeDriver: true
-  //   }).start()
-  // }
-  // const keyboardHiding = (event) => {
-  //   Animated.timing(keyboardHeight.current, {
-  //     toValue: 0,
-  //     duration: event.duration - 100,
-  //     easing: Easing.inOut(Easing.linear),
-  //     useNativeDriver: true
-  //   }).start()
-  // }
-
-  // useEffect(() => {
-  //   const showSubscription = Keyboard.addListener(
-  //     'keyboardWillShow',
-  //     keyboardShowing
-  //   )
-  //   const hideSubscription = Keyboard.addListener(
-  //     'keyboardWillHide',
-  //     keyboardHiding
-  //   )
-  //   return () => {
-  //     Keyboard.removeSubscription(showSubscription)
-  //     Keyboard.removeSubscription(hideSubscription)
-  //   }
-  // }, [])
+    const showSubscription = Keyboard.addListener(
+      'keyboardWillShow',
+      keyboardShowing
+    )
+    const hideSubscription = Keyboard.addListener(
+      'keyboardWillHide',
+      keyboardHiding
+    )
+    return () => {
+      Keyboard.removeSubscription(showSubscription)
+      Keyboard.removeSubscription(hideSubscription)
+    }
+  }, [])
 
   // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
   // Using a ref instead of state here to prevent unwanted flickers.
@@ -455,7 +463,14 @@ export const ChatScreen = () => {
             })
           }}
         >
-          <Animated.View style={[styles.rootContainer, animatedStyle]}>
+          <Animated.View
+            style={[
+              styles.rootContainer,
+              {
+                transform: [{ translateY: keyboardHeight.current }]
+              }
+            ]}
+          >
             {/* <KeyboardAvoidingView
             keyboardVerticalOffset={
               Platform.OS === 'ios' ? chatContainerTop.current : 0
@@ -499,6 +514,7 @@ export const ChatScreen = () => {
               ref={composeRef}
               pointerEvents={'box-none'}
             >
+              <View style={styles.whiteBackground} />
               <ChatTextInput chatId={chatId} />
             </View>
             {/* </KeyboardAvoidingView> */}
