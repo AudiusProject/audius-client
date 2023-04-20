@@ -78,6 +78,7 @@ export const subscribePushManagerBrowser = async () => {
         userVisibleOnly: true,
         applicationServerKey
       })
+      console.log("subbed to push manager")
       return subscription
     }
   } catch (err) {

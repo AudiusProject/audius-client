@@ -86,6 +86,7 @@ import reachabilitySagas from 'store/reachability/sagas'
 import routingSagas from 'store/routing/sagas'
 import signOutSagas from 'store/sign-out/sagas'
 import tokenDashboardSagas from 'store/token-dashboard/sagas'
+import uncommonAccountSagas from 'store/account/sagas'
 
 import notificationSagasWeb from './notifications/sagas'
 
@@ -103,6 +104,7 @@ export default function* rootSaga() {
     routingSagas(),
 
     // Account
+    uncommonAccountSagas(),
     accountSagas(),
     playlistLibrarySagas(),
     playlistUpdatesSagas(),
