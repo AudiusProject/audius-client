@@ -8,7 +8,9 @@ const { getOptimisticSupportingForUser } = tippingSelectors
 
 /**
  * Returns a list of `Supporting` records for a given user, ordered by
- * contribution amount.
+ * contribution amount. NOTE: This hook is subject to pagination on the /supporting
+ * endpoint calls and will only return the top N results. `User.supporting_count`
+ * will contain the full count.
  */
 export const useRankedSupportingForUser = (userId: number) => {
   return useProxySelector(

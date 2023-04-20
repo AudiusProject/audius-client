@@ -49,7 +49,10 @@ export const ViewAllSupportingTile = () => {
   const styles = useStyles()
   const navigation = useNavigation()
 
-  const { user_id } = useSelectProfile(['user_id'])
+  const { user_id, supporting_count } = useSelectProfile([
+    'user_id',
+    'supporting_count'
+  ])
 
   const rankedSupportingList = useRankedSupportingForUser(user_id)
 
@@ -69,8 +72,8 @@ export const ViewAllSupportingTile = () => {
   }, [navigation, user_id])
 
   const viewAllString = useMemo(
-    () => formatViewAllMessage(rankedSupportingUsers.length),
-    [rankedSupportingUsers]
+    () => formatViewAllMessage(supporting_count),
+    [supporting_count]
   )
 
   return (
