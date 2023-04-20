@@ -21,7 +21,8 @@ import {
   Pressable,
   Animated,
   FlatList,
-  Keyboard
+  Keyboard,
+  Easing
 } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -188,19 +189,20 @@ export const ChatScreen = () => {
 
   const keyboardShowing = (event) => {
     // const {duration, easing, startCoordinates, endCoordinates} = event
-    console.log(`REED event keyboardShowing: ${event}`)
     console.log('REED event keyboardShowing:', event)
     Animated.timing(keyboardHeight.current, {
       toValue: -event.endCoordinates.height + 80,
       duration: event.duration,
-      useNativeDriver: false
+      easing: Easing.inOut(Easing.linear),
+      useNativeDriver: true
     }).start()
   }
   const keyboardHiding = (event) => {
     Animated.timing(keyboardHeight.current, {
       toValue: 0,
-      duration: event.duration,
-      useNativeDriver: false
+      duration: event.duration - 100,
+      easing: Easing.inOut(Easing.linear),
+      useNativeDriver: true
     }).start()
   }
 
