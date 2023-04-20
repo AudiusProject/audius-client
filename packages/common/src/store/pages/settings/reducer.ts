@@ -52,7 +52,7 @@ export const enabledState = {
     [PushNotificationSetting.Reposts]: true,
     [PushNotificationSetting.Remixes]: true,
     [PushNotificationSetting.Favorites]: true,
-    [PushNotificationSetting.Messages]: false
+    [PushNotificationSetting.Messages]: true
   }
 }
 export const disabledState = {
