@@ -30,7 +30,7 @@ export const initialState = {
     [BrowserNotificationSetting.Reposts]: true,
     [BrowserNotificationSetting.Favorites]: true,
     [BrowserNotificationSetting.Remixes]: true,
-    [BrowserNotificationSetting.Messages]: true
+    [BrowserNotificationSetting.Messages]: false
   },
   pushNotifications: {
     [PushNotificationSetting.MobilePush]: true,
@@ -39,9 +39,32 @@ export const initialState = {
     [PushNotificationSetting.Reposts]: true,
     [PushNotificationSetting.Remixes]: true,
     [PushNotificationSetting.Favorites]: true,
-    [PushNotificationSetting.Messages]: true
+    [PushNotificationSetting.Messages]: false
   },
   [emailFrequency]: EmailFrequency.Daily
+}
+
+export const enabledState = {
+  pushNotifications: {
+    [PushNotificationSetting.MobilePush]: true,
+    [PushNotificationSetting.MilestonesAndAchievements]: true,
+    [PushNotificationSetting.Followers]: true,
+    [PushNotificationSetting.Reposts]: true,
+    [PushNotificationSetting.Remixes]: true,
+    [PushNotificationSetting.Favorites]: true,
+    [PushNotificationSetting.Messages]: false
+  }
+}
+export const disabledState = {
+  pushNotifications: {
+    [PushNotificationSetting.MobilePush]: false,
+    [PushNotificationSetting.MilestonesAndAchievements]: false,
+    [PushNotificationSetting.Followers]: false,
+    [PushNotificationSetting.Reposts]: false,
+    [PushNotificationSetting.Remixes]: false,
+    [PushNotificationSetting.Favorites]: false,
+    [PushNotificationSetting.Messages]: false
+  }
 }
 
 const actionsMap: ActionsMap<SettingsPageState> = {

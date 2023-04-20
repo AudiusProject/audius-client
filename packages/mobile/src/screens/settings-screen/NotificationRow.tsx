@@ -48,7 +48,19 @@ export const NotificationRow = (props: NotficationRowProps) => {
 
   const handleValueChange = useCallback(
     (value: boolean) => {
-      dispatch(togglePushNotificationSetting(type, value))
+      if (type === PushNotificationSetting.MobilePush && value) {
+        // Enable all, ignoring defaults. Triggered when user manually toggles the top-level
+        // notification setting in the settings page.
+        dispatch(
+          togglePushNotificationSetting(
+            type,
+            value, // isOn
+            true // enableAll
+          )
+        )
+      } else {
+        dispatch(togglePushNotificationSetting(type, value))
+      }
     },
     [dispatch, type]
   )
