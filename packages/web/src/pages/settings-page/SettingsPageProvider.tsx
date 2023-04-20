@@ -121,6 +121,7 @@ class SettingsPage extends PureComponent<
       this.props.setBrowserNotificationSettingsOn()
     } else {
       if (isPushManagerAvailable) {
+        this.props.setBrowserNotificationEnabled(true)
         this.props.subscribeBrowserPushNotifications()
       } else if (isSafariPushAvailable) {
         // NOTE: The call call request browser permission must be done directly

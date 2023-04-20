@@ -23,6 +23,7 @@ const Switch = ({
         checked={allowCheckedWhileDisabled ? isOn : isDisabled ? false : isOn}
         className={styles.inputCheckbox}
         type='checkbox'
+        onChange={_ => {}}
       />
       <label className={styles.switchLabel} onClick={handleToggle}>
         <span className={styles.switchButton} />
