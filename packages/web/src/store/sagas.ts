@@ -17,7 +17,7 @@ import {
 } from '@audius/common'
 import { all, fork } from 'redux-saga/effects'
 
-import accountSagas from 'common/store/account/sagas'
+import accountSagas from 'store/account/sagas'
 import addToPlaylistSagas from 'common/store/add-to-playlist/sagas'
 import analyticsSagas from 'common/store/analytics/sagas'
 import backendSagas from 'common/store/backend/sagas'
@@ -86,7 +86,6 @@ import reachabilitySagas from 'store/reachability/sagas'
 import routingSagas from 'store/routing/sagas'
 import signOutSagas from 'store/sign-out/sagas'
 import tokenDashboardSagas from 'store/token-dashboard/sagas'
-import uncommonAccountSagas from 'store/account/sagas'
 
 import notificationSagasWeb from './notifications/sagas'
 
@@ -104,7 +103,6 @@ export default function* rootSaga() {
     routingSagas(),
 
     // Account
-    uncommonAccountSagas(),
     accountSagas(),
     playlistLibrarySagas(),
     playlistUpdatesSagas(),
