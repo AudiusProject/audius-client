@@ -353,9 +353,6 @@ function* fetchProfileAsync(action) {
     }
 
     if (!isNativeMobile) {
-      // Delay so the page can load before we fetch mutual followers
-      yield delay(2000)
-
       yield put(
         profileActions.fetchFollowUsers(
           FollowType.FOLLOWEE_FOLLOWS,
