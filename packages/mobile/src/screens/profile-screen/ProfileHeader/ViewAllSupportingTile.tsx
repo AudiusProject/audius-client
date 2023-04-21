@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 
 import {
   formatCount,
@@ -71,10 +71,7 @@ export const ViewAllSupportingTile = () => {
     navigation.push('SupportingUsers', { userId: user_id })
   }, [navigation, user_id])
 
-  const viewAllString = useMemo(
-    () => formatViewAllMessage(supporting_count),
-    [supporting_count]
-  )
+  const viewAllString = formatViewAllMessage(supporting_count)
 
   return (
     <Tile
