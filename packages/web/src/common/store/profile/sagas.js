@@ -26,7 +26,6 @@ import { merge } from 'lodash'
 import {
   all,
   call,
-  delay,
   fork,
   getContext,
   put,
