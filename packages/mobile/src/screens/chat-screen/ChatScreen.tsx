@@ -13,28 +13,16 @@ import {
 } from '@audius/common'
 import { Portal } from '@gorhom/portal'
 import { useFocusEffect } from '@react-navigation/native'
-import {
-  Platform,
-  View,
-  Text,
-  KeyboardAvoidingView,
-  Pressable,
-  FlatList,
-  Keyboard,
-  Animated,
-  Easing
-} from 'react-native'
-// import Animated, {
-//   withTiming,
-//   useAnimatedKeyboard,
-//   useSharedValue,
-//   useAnimatedStyle
-// } from 'react-native-reanimated'
+import { View, Text, Pressable, FlatList } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconMessage from 'app/assets/images/iconMessage.svg'
-import { Screen, ScreenContent } from 'app/components/core'
+import {
+  Screen,
+  ScreenContent,
+  KeyboardAvoidingView
+} from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { ProfilePicture } from 'app/components/user'
 import { UserBadges } from 'app/components/user-badges'
@@ -73,10 +61,7 @@ const messages = {
 }
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
-  rootContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
+  keyboardAvoiding: {
     justifyContent: 'space-between'
   },
   listContainer: {
@@ -197,46 +182,6 @@ export const ChatScreen = () => {
   const popupMessage = useSelector((state) =>
     getChatMessageById(state, chatId, popupMessageId ?? '')
   )
-  // const keyboard = useAnimatedKeyboard()
-  // const animatedStyle = useAnimatedStyle(() => ({
-  //   transform: [{ translateY: -keyboard.height.value }]
-  // }))
-
-  const keyboardHeight = useRef(new Animated.Value(0))
-  // const keyboardHeight = useRef(0)
-
-  const keyboardShowing = (event) => {
-    console.log('REED event keyboardShowing:', event)
-    Animated.timing(keyboardHeight.current, {
-      toValue: -event.endCoordinates.height + 84,
-      duration: event.duration - 150,
-      easing: Easing.inOut(Easing.quad),
-      useNativeDriver: true
-    }).start()
-  }
-  const keyboardHiding = (event) => {
-    Animated.timing(keyboardHeight.current, {
-      toValue: 0,
-      duration: 0,
-      easing: Easing.inOut(Easing.quad),
-      useNativeDriver: true
-    }).start()
-  }
-
-  useEffect(() => {
-    const showSubscription = Keyboard.addListener(
-      'keyboardWillShow',
-      keyboardShowing
-    )
-    const hideSubscription = Keyboard.addListener(
-      'keyboardWillHide',
-      keyboardHiding
-    )
-    return () => {
-      Keyboard.removeSubscription(showSubscription)
-      Keyboard.removeSubscription(hideSubscription)
-    }
-  }, [])
 
   // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
   // Using a ref instead of state here to prevent unwanted flickers.
@@ -463,21 +408,7 @@ export const ChatScreen = () => {
             })
           }}
         >
-          <Animated.View
-            style={[
-              styles.rootContainer,
-              {
-                transform: [{ translateY: keyboardHeight.current }]
-              }
-            ]}
-          >
-            {/* <KeyboardAvoidingView
-            keyboardVerticalOffset={
-              Platform.OS === 'ios' ? chatContainerTop.current : 0
-            }
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            style={styles.rootContainer}
-          > */}
+          <KeyboardAvoidingView style={styles.keyboardAvoiding}>
             {!isLoading ? (
               chatMessages?.length > 0 ? (
                 <View style={styles.listContainer}>
@@ -517,8 +448,7 @@ export const ChatScreen = () => {
               <View style={styles.whiteBackground} />
               <ChatTextInput chatId={chatId} />
             </View>
-            {/* </KeyboardAvoidingView> */}
-          </Animated.View>
+          </KeyboardAvoidingView>
         </View>
       </ScreenContent>
     </Screen>
