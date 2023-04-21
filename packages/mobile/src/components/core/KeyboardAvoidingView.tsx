@@ -20,6 +20,7 @@ type KeyboardAvoidingViewProps = {
   keyboardHidingDuration?: number
   children: React.ReactNode
 }
+
 /**
  * Handrolled implementation of KeyboardAvoidingView. Allows
  * customization of the ratio of the keyboard height by which to translate
