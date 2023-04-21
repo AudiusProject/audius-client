@@ -27,7 +27,8 @@ const { setVisibility } = modalsActions
 const {
   setBrowserNotificationPermission,
   setBrowserNotificationEnabled,
-  setBrowserNotificationSettingsOn
+  setBrowserNotificationSettingsOn,
+  setBrowserNotificationSettingsOff
 } = settingsPageActions
 
 const { getAccountUser } = accountSelectors
@@ -158,6 +159,7 @@ export function* unsubscribeBrowserPushNotifications() {
       )
     }
   }
+  yield* put(setBrowserNotificationSettingsOff())
 }
 
 function* getBrowserPushNotifications() {

@@ -36,6 +36,8 @@ export const SET_BROWSER_NOTIFICATION_ENABLED =
   'SETTINGS/SET_BROWSER_NOTIFICATION_ENABLED'
 export const SET_BROWSER_NOTIFICATION_SETTINGS_ON =
   'SETTINGS/SET_BROWSER_NOTIFICATION_SETTINGS_ON'
+export const SET_BROWSER_NOTIFICATION_SETTINGS_OFF =
+  'SETTINGS/SET_BROWSER_NOTIFICATION_SETTINGS_OFF'
 
 export const BROWSER_PUSH_NOTIFICATION_FAILED =
   'SETTINGS/BROWSER_PUSH_NOTIFICATION_FAILED'
@@ -117,6 +119,10 @@ export function setBrowserNotificationEnabled(
 
 export function setBrowserNotificationSettingsOn() {
   return { type: SET_BROWSER_NOTIFICATION_SETTINGS_ON }
+}
+
+export function setBrowserNotificationSettingsOff() {
+  return { type: SET_BROWSER_NOTIFICATION_SETTINGS_OFF }
 }
 
 export function browserPushNotificationFailed(error: string) {

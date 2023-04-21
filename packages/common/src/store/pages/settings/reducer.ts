@@ -45,6 +45,14 @@ export const initialState = {
 }
 
 export const enabledState = {
+  browserNotifications: {
+    [BrowserNotificationSetting.MilestonesAndAchievements]: true,
+    [BrowserNotificationSetting.Followers]: true,
+    [BrowserNotificationSetting.Reposts]: true,
+    [BrowserNotificationSetting.Favorites]: true,
+    [BrowserNotificationSetting.Remixes]: true,
+    [BrowserNotificationSetting.Messages]: true
+  },
   pushNotifications: {
     [PushNotificationSetting.MobilePush]: true,
     [PushNotificationSetting.MilestonesAndAchievements]: true,
@@ -56,6 +64,14 @@ export const enabledState = {
   }
 }
 export const disabledState = {
+  browserNotifications: {
+    [BrowserNotificationSetting.MilestonesAndAchievements]: false,
+    [BrowserNotificationSetting.Followers]: false,
+    [BrowserNotificationSetting.Reposts]: false,
+    [BrowserNotificationSetting.Favorites]: false,
+    [BrowserNotificationSetting.Remixes]: false,
+    [BrowserNotificationSetting.Messages]: false
+  },
   pushNotifications: {
     [PushNotificationSetting.MobilePush]: false,
     [PushNotificationSetting.MilestonesAndAchievements]: false,

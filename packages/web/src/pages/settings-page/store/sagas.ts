@@ -2,6 +2,9 @@ import {
   Name,
   getErrorMessage,
   settingsPageActions as actions,
+  settingsPageInitialState as initialState,
+  settingsPageEnabledState as enabledState,
+  settingsPageDisabledState as disabledState,
   settingsPageSelectors,
   BrowserNotificationSetting,
   getContext
@@ -142,18 +145,30 @@ function* watchSetBrowserNotificationSettingsOn() {
     actions.SET_BROWSER_NOTIFICATION_SETTINGS_ON,
     function* (action: actions.SetBrowserNotificationSettingsOn) {
       try {
-        const updatedSettings = {
-          [BrowserNotificationSetting.MilestonesAndAchievements]: true,
-          [BrowserNotificationSetting.Followers]: true,
-          [BrowserNotificationSetting.Reposts]: true,
-          [BrowserNotificationSetting.Favorites]: true,
-          [BrowserNotificationSetting.Remixes]: true,
-          [BrowserNotificationSetting.Messages]: true
-        }
-        yield* put(actions.setNotificationSettings(updatedSettings))
+        yield* put(actions.setNotificationSettings(enabledState.browserNotfications))
         yield* call(
           audiusBackendInstance.updateNotificationSettings,
-          updatedSettings
+          enabledState.browserNotifications
+        )
+      } catch (error) {
+        yield* put(
+          actions.browserPushNotificationFailed(getErrorMessage(error))
+        )
+      }
+    }
+  )
+}
+
+function* watchSetBrowserNotificationSettingsOff() {
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+  yield* takeEvery(
+    actions.SET_BROWSER_NOTIFICATION_SETTINGS_OFF,
+    function* (action: actions.SetBrowserNotificationSettingsOff) {
+      try {
+        yield* put(actions.setNotificationSettings(disabledState.browserNotfications))
+        yield* call(
+          audiusBackendInstance.updateNotificationSettings,
+          disabledState.browserNotifications
         )
       } catch (error) {
         yield* put(
@@ -201,6 +216,7 @@ export default function sagas() {
     ...commonSettingsSagas(),
     watchGetSettings,
     watchSetBrowserNotificationSettingsOn,
+    watchSetBrowserNotificationSettingsOff,
     watchToogleBrowserPushNotification,
     watchUpdateNotificationSettings
   ]
