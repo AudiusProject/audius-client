@@ -9,6 +9,7 @@ import { ProfilePicture } from './ProfilePicture'
 import { PROFILE_PICTURE_BORDER_WIDTH } from './constants'
 
 const USER_LENGTH_LIMIT = 9
+const BASE_ZINDEX = 1
 
 /**
  * Not all profile picture lists have the same profile picture size.
@@ -114,11 +115,17 @@ export const ProfilePictureList = (props: ProfilePictureListProps) => {
       {users
         .filter((u) => !u.is_deactivated)
         .slice(0, sliceLimit)
-        .map((user) => (
+        .map((user, idx) => (
           <ProfilePicture
             profile={user}
             key={user.user_id}
-            style={[styles.image, imageStyles]}
+            style={[
+              styles.image,
+              imageStyles,
+              !showUserListDrawer && {
+                zIndex: BASE_ZINDEX + users.length - idx
+              }
+            ]}
             navigationType={navigationType}
             interactive={interactive}
           />
