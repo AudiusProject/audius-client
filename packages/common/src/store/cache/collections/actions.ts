@@ -1,5 +1,3 @@
-import { Collection } from '@metaplex-foundation/mpl-token-metadata'
-
 import { ID, UID, SquareSizes } from '../../../models'
 
 import { EditPlaylistValues } from './types'
