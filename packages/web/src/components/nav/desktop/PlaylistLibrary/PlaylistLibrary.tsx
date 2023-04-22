@@ -34,10 +34,13 @@ import { DragDropKind, selectDragnDropState } from 'store/dragndrop/slice'
 import { useSelector } from 'utils/reducer'
 import { audioNftPlaylistPage, getPathname, playlistPage } from 'utils/route'
 
-import leftNavStyles from './LeftNav.module.css'
-import { PlaylistFolderNavItem } from './PlaylistFolderNavItem'
+import leftNavStyles from '../LeftNav.module.css'
+
+// import { PlaylistFolderNavItem } from './PlaylistFolderNavItem'
+import { PlaylistFolderNavItem } from './PlaylistFolderNavItem2'
 import styles from './PlaylistLibrary.module.css'
-import { PlaylistNavItem, PlaylistNavLink } from './PlaylistNavItem'
+import { PlaylistNavLink } from './PlaylistNavItem'
+import { PlaylistNavItem } from './PlaylistNavItem2'
 const { selectAllPlaylistUpdateIds } = playlistUpdatesSelectors
 const { update } = playlistLibraryActions
 const {
@@ -109,7 +112,7 @@ const LibraryContentsLevel = ({
   )
 }
 
-const PlaylistLibrary = ({
+export const PlaylistLibrary = ({
   onClickNavLinkWithAccount
 }: PlaylistLibraryProps) => {
   const account = useSelector(getAccountUser)
@@ -296,69 +299,73 @@ const PlaylistLibrary = ({
     const hasUpdate = updatesSet.has(id)
     return (
       <PlaylistNavItem
-        isInsideFolder={level > 0}
-        key={id}
-        playlist={playlist}
-        hasUpdate={hasUpdate}
-        url={url}
-        addTrack={addTrack}
-        isOwner={isOwner}
-        onReorder={onReorder}
-        dragging={dragging}
-        draggingKind={draggingKind!}
-        onClickPlaylist={onClickPlaylist}
-        onClickEdit={isOwner ? handleClickEditPlaylist : undefined}
+        key={playlistId}
+        playlistId={playlistId}
+        level={level}
+        // isInsideFolder={level > 0}
+        // key={id}
+        // playlist={playlist}
+        // hasUpdate={hasUpdate}
+        // url={url}
+        // addTrack={addTrack}
+        // isOwner={isOwner}
+        // onReorder={onReorder}
+        // dragging={dragging}
+        // draggingKind={draggingKind!}
+        // onClickPlaylist={onClickPlaylist}
+        // onClickEdit={isOwner ? handleClickEditPlaylist : undefined}
       />
     )
   }
 
   const renderFolder = (folder: PlaylistLibraryFolder, level = 0) => {
     return (
-      <PlaylistFolderNavItem
-        key={folder.id}
-        folder={folder}
-        hasUpdate={folder.contents.some(
-          (c) => c.type !== 'folder' && updatesSet.has(Number(c.playlist_id))
-        )}
-        dragging={dragging}
-        draggingKind={draggingKind!}
-        onClickEdit={handleClickEditFolder}
-        onDropBelowFolder={(folderId, draggingKind, draggingId) =>
-          onReorder(draggingId, folderId, draggingKind)
-        }
-        onDropInFolder={handleDropInFolder}
-      >
-        {isEmpty(folder.contents) ? null : (
-          <div className={styles.folderContentsContainer}>
-            {/* This is the droppable area for reordering something in the first slot of the playlist folder. */}
-            <Droppable
-              className={styles.droppable}
-              hoverClassName={styles.droppableHover}
-              onDrop={(
-                draggingId: PlaylistLibraryID,
-                draggingKind: DragDropKind
-              ) => {
-                onReorder(
-                  draggingId,
-                  folder.contents[0].type === 'folder'
-                    ? folder.contents[0].id
-                    : folder.contents[0].playlist_id,
-                  draggingKind,
-                  true
-                )
-              }}
-              acceptedKinds={['playlist-folder', 'library-playlist']}
-            />
-            <LibraryContentsLevel
-              level={level + 1}
-              contents={folder.contents}
-              renderPlaylist={renderPlaylist}
-              renderCollectionPlaylist={renderCollectionPlaylist}
-              renderFolder={renderFolder}
-            />
-          </div>
-        )}
-      </PlaylistFolderNavItem>
+      <PlaylistFolderNavItem folder={folder} isEmpty />
+      // <PlaylistFolderNavItem
+      //   key={folder.id}
+      //   folder={folder}
+      //   hasUpdate={folder.contents.some(
+      //     (c) => c.type !== 'folder' && updatesSet.has(Number(c.playlist_id))
+      //   )}
+      //   dragging={dragging}
+      //   draggingKind={draggingKind!}
+      //   onClickEdit={handleClickEditFolder}
+      //   onDropBelowFolder={(folderId, draggingKind, draggingId) =>
+      //     onReorder(draggingId, folderId, draggingKind)
+      //   }
+      //   onDropInFolder={handleDropInFolder}
+      // >
+      //   {isEmpty(folder.contents) ? null : (
+      //     <div className={styles.folderContentsContainer}>
+      //       {/* This is the droppable area for reordering something in the first slot of the playlist folder. */}
+      //       <Droppable
+      //         className={styles.droppable}
+      //         hoverClassName={styles.droppableHover}
+      //         onDrop={(
+      //           draggingId: PlaylistLibraryID,
+      //           draggingKind: DragDropKind
+      //         ) => {
+      //           onReorder(
+      //             draggingId,
+      //             folder.contents[0].type === 'folder'
+      //               ? folder.contents[0].id
+      //               : folder.contents[0].playlist_id,
+      //             draggingKind,
+      //             true
+      //           )
+      //         }}
+      //         acceptedKinds={['playlist-folder', 'library-playlist']}
+      //       />
+      //       <LibraryContentsLevel
+      //         level={level + 1}
+      //         contents={folder.contents}
+      //         renderPlaylist={renderPlaylist}
+      //         renderCollectionPlaylist={renderCollectionPlaylist}
+      //         renderFolder={renderFolder}
+      //       />
+      //     </div>
+      //   )}
+      // </PlaylistFolderNavItem>
     )
   }
 
@@ -374,15 +381,6 @@ const PlaylistLibrary = ({
   /* are rendered afterwards by sort order. */
   return (
     <>
-      <Droppable
-        key={-1}
-        className={cn(styles.droppable, styles.top)}
-        hoverClassName={styles.droppableHover}
-        onDrop={(id: PlaylistLibraryID, kind: DragDropKind) =>
-          onReorder(id, -1, kind)
-        }
-        acceptedKinds={['library-playlist', 'playlist-folder']}
-      />
       {Object.values(playlistsNotInLibrary).map((playlist) => {
         return renderPlaylist(playlist.id)
       })}
@@ -402,5 +400,3 @@ const PlaylistLibrary = ({
     </>
   )
 }
-
-export default PlaylistLibrary

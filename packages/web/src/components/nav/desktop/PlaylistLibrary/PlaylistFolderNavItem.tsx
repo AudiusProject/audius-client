@@ -24,7 +24,8 @@ import { useRecord, make } from 'common/store/analytics/actions'
 import { Draggable, Droppable } from 'components/dragndrop'
 import { DragDropKind } from 'store/dragndrop/slice'
 
-import leftNavStyles from './LeftNav.module.css'
+import leftNavStyles from '../LeftNav.module.css'
+
 import styles from './PlaylistLibrary.module.css'
 
 type PlaylistFolderNavButtonProps = ComponentPropsWithoutRef<'button'> & {

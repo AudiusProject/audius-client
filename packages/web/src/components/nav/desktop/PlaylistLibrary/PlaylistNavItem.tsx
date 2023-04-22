@@ -16,7 +16,8 @@ import UpdateDot from 'components/update-dot/UpdateDot'
 import { DragDropKind } from 'store/dragndrop/slice'
 import { getPathname } from 'utils/route'
 
-import leftNavStyles from './LeftNav.module.css'
+import leftNavStyles from '../LeftNav.module.css'
+
 import styles from './PlaylistLibrary.module.css'
 
 const messages = { recentlyUpdatedTooltip: 'Recently Updated' }

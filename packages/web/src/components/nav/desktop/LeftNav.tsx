@@ -24,7 +24,7 @@ import { ResizeObserver } from '@juggle/resize-observer'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
-import { NavLink, RouteComponentProps, withRouter } from 'react-router-dom'
+import { RouteComponentProps, withRouter } from 'react-router-dom'
 import useMeasure from 'react-use-measure'
 import { Dispatch } from 'redux'
 
@@ -55,11 +55,12 @@ import {
 import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
 import styles from './LeftNav.module.css'
+import { DroppableLeftNavItem, LeftNavItem } from './LeftNavLink'
 import NavAudio from './NavAudio'
 import { NavButton } from './NavButton'
 import { NavHeader } from './NavHeader'
 import { NowPlayingArtworkTile } from './NowPlayingArtworkTile'
-import PlaylistLibrary from './PlaylistLibrary'
+import { PlaylistLibrary } from './PlaylistLibrary'
 import { RouteNav } from './RouteNav'
 
 const { updatedPlaylistViewed } = playlistUpdatesActions
@@ -96,7 +97,7 @@ const LeftNav = ({
   showCreatePlaylistModal,
   hideCreatePlaylistModalFolderTab,
   updatePlaylistLibrary,
-  dragging: { dragging, kind, isOwner: draggingIsOwner },
+  dragging: { dragging, kind },
   saveTrack,
   saveCollection,
   accountStatus,
@@ -292,73 +293,38 @@ const LeftNav = ({
             <div className={styles.links}>
               <div className={styles.linkGroup}>
                 <div className={styles.groupHeader}>Discover</div>
-                <NavLink
+                <LeftNavItem
                   to={FEED_PAGE}
-                  activeClassName='active'
-                  className={cn(styles.link, {
-                    [styles.disabledLink]: !account || dragging
-                  })}
+                  disabled={!account}
                   onClick={onClickNavLinkWithAccount}
                 >
                   Feed
-                </NavLink>
-                <NavLink
-                  to={TRENDING_PAGE}
-                  activeClassName='active'
-                  className={cn(styles.link, {
-                    [styles.disabledLink]: dragging
-                  })}
-                >
-                  Trending
-                </NavLink>
-                <NavLink
-                  to={EXPLORE_PAGE}
-                  exact
-                  activeClassName='active'
-                  className={cn(styles.link, {
-                    [styles.disabledLink]: dragging
-                  })}
-                >
+                </LeftNavItem>
+                <LeftNavItem to={TRENDING_PAGE}>Trending</LeftNavItem>
+                <LeftNavItem to={EXPLORE_PAGE} exact>
                   Explore
-                </NavLink>
+                </LeftNavItem>
               </div>
               <div className={styles.linkGroup}>
                 <div className={styles.groupHeader}>Library</div>
-                <Droppable
-                  className={styles.droppable}
-                  hoverClassName={styles.droppableHover}
+                <DroppableLeftNavItem
+                  to={SAVED_PAGE}
+                  onClick={onClickNavLinkWithAccount}
+                  disabled={!account}
                   acceptedKinds={['track', 'album']}
                   acceptOwner={false}
                   onDrop={kind === 'album' ? saveCollection : saveTrack}
+                  forward
                 >
-                  <NavLink
-                    to={SAVED_PAGE}
-                    activeClassName='active'
-                    className={cn(styles.link, {
-                      [styles.disabledLink]:
-                        !account ||
-                        (dragging && kind === 'playlist') ||
-                        draggingIsOwner,
-                      [styles.droppableLink]:
-                        dragging &&
-                        !draggingIsOwner &&
-                        (kind === 'track' || kind === 'album')
-                    })}
-                    onClick={onClickNavLinkWithAccount}
-                  >
-                    Favorites
-                  </NavLink>
-                </Droppable>
-                <NavLink
+                  Favorites
+                </DroppableLeftNavItem>
+                <LeftNavItem
                   to={HISTORY_PAGE}
-                  activeClassName='active'
-                  className={cn(styles.link, {
-                    [styles.disabledLink]: !account || dragging
-                  })}
                   onClick={onClickNavLinkWithAccount}
+                  disabled={!account}
                 >
                   History
-                </NavLink>
+                </LeftNavItem>
               </div>
               <div className={styles.linkGroup}>
                 <Droppable
@@ -432,8 +398,10 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   goToRoute: (route: string) => dispatch(pushRoute(route)),
   saveTrack: (trackId: number) =>
     dispatch(saveTrack(trackId, FavoriteSource.NAVIGATOR)),
-  saveCollection: (collectionId: number) =>
-    dispatch(saveCollection(collectionId, FavoriteSource.NAVIGATOR)),
+  saveCollection: (collectionId: number, kind) => {
+    console.log('dropped into playlists', collectionId, kind)
+  },
+  // dispatch(saveCollection(collectionId, FavoriteSource.NAVIGATOR)),
   addTrackToPlaylist: (trackId: number, playlistId: number) =>
     dispatch(addTrackToPlaylist(trackId, playlistId)),
   showActionRequiresAccount: () =>
