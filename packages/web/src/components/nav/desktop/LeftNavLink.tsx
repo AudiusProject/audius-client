@@ -97,6 +97,7 @@ export const DroppableLeftNavItem = (props: DroppableLeftNavItemProps) => {
     acceptOwner,
     onDrop,
     stopPropagationOnDrop,
+    disabled,
     ...leftNavItemProps
   } = props
   const { kind } = useSelector(selectDragnDropState)
@@ -119,8 +120,9 @@ export const DroppableLeftNavItem = (props: DroppableLeftNavItemProps) => {
       acceptOwner={acceptOwner}
       onDrop={onDrop}
       stopPropagationOnDrop={stopPropagationOnDrop}
+      disabled={disabled}
     >
-      <LeftNavItem {...leftNavItemProps} />
+      <LeftNavItem {...leftNavItemProps} disabled={disabled} />
     </Droppable>
   )
 }

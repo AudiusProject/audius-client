@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 
 import { playlistUpdatesSelectors } from '@audius/common'
 
+import { selectDraggingKind } from 'store/dragndrop/slice'
 import { useSelector } from 'utils/reducer'
 import { playlistPage } from 'utils/route'
 
@@ -43,13 +44,15 @@ export const PlaylistNavItem = (props: PlaylistNavItemProps) => {
     console.log('dropped onto playlist', id, kind)
   }, [])
 
+  const draggingKind = useSelector(selectDraggingKind)
+
   return (
     <DroppableLeftNavItem
       to={playlistUrl}
       acceptedKinds={['track', 'playlist', 'playlist-folder']}
       onDrop={handleDrop}
       className={className}
-      disabled={!isOwnedByCurrentUser}
+      disabled={draggingKind === 'track' && !isOwnedByCurrentUser}
     >
       {playlistUpdate ? <PlaylistUpdateDot /> : null}
       <span className={level === 1 ? styles.playlistLevel1 : undefined}>
