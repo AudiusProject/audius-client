@@ -1,6 +1,5 @@
 import { useEffect, useRef, useMemo } from 'react'
 
-import { ResizeObserver } from '@juggle/resize-observer'
 import cn from 'classnames'
 import { uniqueId } from 'lodash'
 import PerfectScrollbar from 'react-perfect-scrollbar'
@@ -23,7 +22,7 @@ export const Scrollbar = ({
 }: ScrollbarProps) => {
   // Do not remove:
   // useMeasure is required for infinite scrolling to work
-  useMeasure({ polyfill: ResizeObserver })
+  useMeasure()
 
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const elementId = useMemo(() => id || uniqueId('scrollbar-'), [id])
