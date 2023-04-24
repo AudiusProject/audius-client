@@ -3,8 +3,6 @@ import {
   getErrorMessage,
   accountSelectors,
   settingsPageInitialState as initialState,
-  settingsPageEnabledState as enabledState,
-  settingsPageDisabledState as disabledState,
   settingsPageSelectors,
   PushNotificationSetting,
   settingsPageActions as actions,
@@ -28,28 +26,34 @@ export function* deregisterPushNotifications() {
 }
 
 function* enablePushNotifications(enableAll: boolean) {
+  yield* call([PushNotifications, 'requestPermission'])
+  const { token, os } = yield* call([PushNotifications, 'getToken'])
+
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  let state = initialState.pushNotifications
+  // initialState reflects db defaults
+  const newSettings = { ...initialState.pushNotifications }
   if (enableAll) {
-    // Enable all, ignoring defaults. True when user manually toggles the top-level notification setting in the settings page
-    state = enabledState.pushNotifications
+    // Enable all, ignoring defaults. True when user manually toggles the top-level
+    // notification setting in the settings page or via the reminder drawer
+    for (const key in newSettings) {
+      newSettings[key] = true
+    }
   }
-  // Enabling push notifications should enable all of the notification types
-  const newSettings = { ...state }
   yield* put(actions.setPushNotificationSettings(newSettings))
   // We need a user for this to work (and in the case of sign up, we might not
   // have one right away when this function is called)
   yield* call(waitForValue, getAccountUser)
   yield* call(audiusBackendInstance.updatePushNotificationSettings, newSettings)
 
-  yield* call([PushNotifications, 'requestPermission'])
-  const { token, os } = yield* call([PushNotifications, 'getToken'])
   yield* call(audiusBackendInstance.registerDeviceToken, token, os)
 }
 
 function* disableAllPushNotifications() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  const newSettings = { ...disabledState.pushNotifications }
+  const newSettings = { ...initialState.pushNotifications }
+  for (const key in newSettings) {
+    newSettings[key] = false
+  }
   yield* put(actions.setPushNotificationSettings(newSettings))
   yield* call(waitForValue, getAccountUser)
   yield* call(audiusBackendInstance.updatePushNotificationSettings, newSettings)
@@ -72,7 +76,11 @@ function* watchGetPushNotificationSettings() {
       const settings = (yield* call(
         audiusBackendInstance.getPushNotificationSettings
       )) as TPushNotifications
-      let pushNotificationSettings = disabledState.pushNotifications
+      let pushNotificationSettings = { ...initialState.pushNotifications }
+      for (const key in pushNotificationSettings) {
+        pushNotificationSettings[key] = false
+      }
+
       if (settings) {
         pushNotificationSettings = {
           ...settings,

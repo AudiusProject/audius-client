@@ -44,45 +44,6 @@ export const initialState = {
   [emailFrequency]: EmailFrequency.Daily
 }
 
-export const enabledState = {
-  browserNotifications: {
-    [BrowserNotificationSetting.MilestonesAndAchievements]: true,
-    [BrowserNotificationSetting.Followers]: true,
-    [BrowserNotificationSetting.Reposts]: true,
-    [BrowserNotificationSetting.Favorites]: true,
-    [BrowserNotificationSetting.Remixes]: true,
-    [BrowserNotificationSetting.Messages]: true
-  },
-  pushNotifications: {
-    [PushNotificationSetting.MobilePush]: true,
-    [PushNotificationSetting.MilestonesAndAchievements]: true,
-    [PushNotificationSetting.Followers]: true,
-    [PushNotificationSetting.Reposts]: true,
-    [PushNotificationSetting.Remixes]: true,
-    [PushNotificationSetting.Favorites]: true,
-    [PushNotificationSetting.Messages]: true
-  }
-}
-export const disabledState = {
-  browserNotifications: {
-    [BrowserNotificationSetting.MilestonesAndAchievements]: false,
-    [BrowserNotificationSetting.Followers]: false,
-    [BrowserNotificationSetting.Reposts]: false,
-    [BrowserNotificationSetting.Favorites]: false,
-    [BrowserNotificationSetting.Remixes]: false,
-    [BrowserNotificationSetting.Messages]: false
-  },
-  pushNotifications: {
-    [PushNotificationSetting.MobilePush]: false,
-    [PushNotificationSetting.MilestonesAndAchievements]: false,
-    [PushNotificationSetting.Followers]: false,
-    [PushNotificationSetting.Reposts]: false,
-    [PushNotificationSetting.Remixes]: false,
-    [PushNotificationSetting.Favorites]: false,
-    [PushNotificationSetting.Messages]: false
-  }
-}
-
 const actionsMap: ActionsMap<SettingsPageState> = {
   [SET_NOTIFICATION_SETTINGS](state, action) {
     if (!action.settings) return state

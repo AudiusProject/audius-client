@@ -3,16 +3,16 @@ import {
   getErrorMessage,
   settingsPageActions as actions,
   settingsPageInitialState as initialState,
-  settingsPageEnabledState as enabledState,
-  settingsPageDisabledState as disabledState,
   settingsPageSelectors,
   BrowserNotificationSetting,
   getContext
 } from '@audius/common'
+import type { Notifications } from 'common/store/pages/settings/types'
 import { select, call, put, takeEvery } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
 import commonSettingsSagas from 'common/store/pages/settings/sagas'
+
 import {
   Permission,
   isPushManagerAvailable,
@@ -145,10 +145,14 @@ function* watchSetBrowserNotificationSettingsOn() {
     actions.SET_BROWSER_NOTIFICATION_SETTINGS_ON,
     function* (action: actions.SetBrowserNotificationSettingsOn) {
       try {
-        yield* put(actions.setNotificationSettings(enabledState.browserNotfications))
+        const newSettings = { ...initialState.browserNotifications }
+        for (const key in newSettings) {
+          (newSettings as Notifications)[key] = true
+        }
+        yield* put(actions.setNotificationSettings(newSettings))
         yield* call(
           audiusBackendInstance.updateNotificationSettings,
-          enabledState.browserNotifications
+          newSettings
         )
       } catch (error) {
         yield* put(
@@ -165,10 +169,14 @@ function* watchSetBrowserNotificationSettingsOff() {
     actions.SET_BROWSER_NOTIFICATION_SETTINGS_OFF,
     function* (action: actions.SetBrowserNotificationSettingsOff) {
       try {
-        yield* put(actions.setNotificationSettings(disabledState.browserNotfications))
+        const newSettings = { ...initialState.browserNotifications }
+        for (const key in newSettings) {
+          (newSettings as Notifications)[key] = false
+        }
+        yield* put(actions.setNotificationSettings(newSettings))
         yield* call(
           audiusBackendInstance.updateNotificationSettings,
-          disabledState.browserNotifications
+          newSettings
         )
       } catch (error) {
         yield* put(

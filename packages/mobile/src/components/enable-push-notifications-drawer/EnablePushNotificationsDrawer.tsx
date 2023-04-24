@@ -4,6 +4,7 @@ import { settingsPageActions, PushNotificationSetting } from '@audius/common'
 import { View } from 'react-native'
 import { useDispatch } from 'react-redux'
 
+import IconMessage from 'app/assets/images/IconMessage.svg'
 import IconCoSign from 'app/assets/images/iconCoSign.svg'
 import IconFollow from 'app/assets/images/iconFollow.svg'
 import IconNotification from 'app/assets/images/iconGradientNotification.svg'
@@ -28,6 +29,7 @@ const messages = {
   coSigns: 'Co-Signs',
   remixes: 'Remixes',
   newReleases: 'New Releases',
+  messages: 'Messages',
   enable: 'Enable Notifications'
 }
 
@@ -55,6 +57,10 @@ const actions = [
   {
     label: messages.newReleases,
     icon: IconNewReleases
+  },
+  {
+    label: messages.messages,
+    icon: IconMessage
   }
 ]
 
@@ -126,7 +132,11 @@ export const EnablePushNotificationsDrawer = () => {
 
   const enablePushNotifications = useCallback(() => {
     dispatch(
-      togglePushNotificationSetting(PushNotificationSetting.MobilePush, true)
+      togglePushNotificationSetting(
+        PushNotificationSetting.MobilePush,
+        true,
+        true
+      )
     )
     onClose()
   }, [dispatch, onClose])

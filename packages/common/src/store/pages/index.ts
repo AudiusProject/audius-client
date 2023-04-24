@@ -45,8 +45,6 @@ export * as settingsPageSelectors from './settings/selectors'
 export {
   default as settingsPageReducer,
   initialState as settingsPageInitialState,
-  enabledState as settingsPageEnabledState,
-  disabledState as settingsPageDisabledState
 } from './settings/reducer'
 export * as settingsPageActions from './settings/actions'
 export * from './settings/types'
