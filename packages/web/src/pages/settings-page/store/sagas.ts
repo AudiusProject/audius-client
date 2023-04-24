@@ -4,7 +4,6 @@ import {
   settingsPageActions as actions,
   settingsPageInitialState as initialState,
   settingsPageSelectors,
-  BrowserNotificationSetting,
   getContext
 } from '@audius/common'
 import type { Notifications } from 'common/store/pages/settings/types'
@@ -12,7 +11,6 @@ import { select, call, put, takeEvery } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
 import commonSettingsSagas from 'common/store/pages/settings/sagas'
-
 import {
   Permission,
   isPushManagerAvailable,

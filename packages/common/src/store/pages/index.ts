@@ -44,7 +44,7 @@ export * from './smart-collection/types'
 export * as settingsPageSelectors from './settings/selectors'
 export {
   default as settingsPageReducer,
-  initialState as settingsPageInitialState,
+  initialState as settingsPageInitialState
 } from './settings/reducer'
 export * as settingsPageActions from './settings/actions'
 export * from './settings/types'

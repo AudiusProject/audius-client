@@ -27,7 +27,7 @@ const { setVisibility } = modalsActions
 const {
   setBrowserNotificationPermission,
   setBrowserNotificationEnabled,
-  setBrowserNotificationSettingsOn,
+  setBrowserNotificationSettingsOn
 } = settingsPageActions
 
 const { getAccountUser } = accountSelectors
