@@ -28,7 +28,6 @@ const {
   setBrowserNotificationPermission,
   setBrowserNotificationEnabled,
   setBrowserNotificationSettingsOn,
-  setBrowserNotificationSettingsOff
 } = settingsPageActions
 
 const { getAccountUser } = accountSelectors
@@ -159,7 +158,6 @@ export function* unsubscribeBrowserPushNotifications() {
       )
     }
   }
-  yield* put(setBrowserNotificationSettingsOff())
 }
 
 function* getBrowserPushNotifications() {
