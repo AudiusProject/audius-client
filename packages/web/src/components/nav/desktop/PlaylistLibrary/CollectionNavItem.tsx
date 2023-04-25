@@ -18,8 +18,8 @@ import { useSelector } from 'utils/reducer'
 
 import { LeftNavDroppable, LeftNavItem } from '../LeftNavLink'
 
+import styles from './CollectionNavItem.module.css'
 import { EditNavItemButton } from './EditNavItemButton'
-import styles from './PlaylistNavItem.module.css'
 import { PlaylistUpdateDot } from './PlaylistUpdateDot'
 
 const { addTrackToPlaylist } = cacheCollectionsActions

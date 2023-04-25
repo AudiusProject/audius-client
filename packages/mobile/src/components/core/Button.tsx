@@ -417,44 +417,42 @@ export const Button = (props: ButtonProps) => {
       style={[
         baseStyles.root,
         styles.root,
-        { backgroundColor: color },
+        { transform: [{ scale }], backgroundColor: color },
         fullWidth && { width: '100%' },
         style,
         stylesProp?.root,
         disabled && { backgroundColor: neutralLight7 }
       ]}
     >
-      <Animated.View style={{ transform: [{ scale }] }}>
-        <PressableComponent
-          url={url as string}
-          style={[
-            baseStyles.button,
-            styles.button,
-            fullWidth && { width: '100%' },
-            stylesProp?.button
-          ]}
-          accessibilityRole='button'
-          accessibilityLabel={
-            accessibilityLabel ??
-            (noText && typeof title === 'string' ? title : undefined)
-          }
-          onPress={handlePress}
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-          disabled={disabled}
-          {...other}
-        >
-          {iconPosition !== 'left' ? null : icon}
-          {noText ? null : typeof title === 'string' ? (
-            <Text style={[baseStyles.text, styles.text, stylesProp?.text]}>
-              {title}
-            </Text>
-          ) : (
-            title
-          )}
-          {iconPosition !== 'right' ? null : icon}
-        </PressableComponent>
-      </Animated.View>
+      <PressableComponent
+        url={url as string}
+        style={[
+          baseStyles.button,
+          styles.button,
+          fullWidth && { width: '100%' },
+          stylesProp?.button
+        ]}
+        accessibilityRole='button'
+        accessibilityLabel={
+          accessibilityLabel ??
+          (noText && typeof title === 'string' ? title : undefined)
+        }
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={disabled}
+        {...other}
+      >
+        {iconPosition !== 'left' ? null : icon}
+        {noText ? null : typeof title === 'string' ? (
+          <Text style={[baseStyles.text, styles.text, stylesProp?.text]}>
+            {title}
+          </Text>
+        ) : (
+          title
+        )}
+        {iconPosition !== 'right' ? null : icon}
+      </PressableComponent>
     </Animated.View>
   )
 }
