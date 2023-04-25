@@ -16,7 +16,7 @@ import { open as openEditPlaylistModal } from 'store/application/ui/editPlaylist
 import { DragDropKind, selectDraggingKind } from 'store/dragndrop/slice'
 import { useSelector } from 'utils/reducer'
 
-import { LeftNavDroppable, LeftNavItem } from '../LeftNavLink'
+import { LeftNavDroppable, LeftNavLink } from '../LeftNavLink'
 
 import styles from './CollectionNavItem.module.css'
 import { EditNavItemButton } from './EditNavItemButton'
@@ -112,7 +112,7 @@ export const CollectionNavItem = (props: CollectionNavItemProps) => {
       disabled={isDisabled}
     >
       <Draggable id={id} text={name} link={url} kind='library-playlist'>
-        <LeftNavItem
+        <LeftNavLink
           to={url}
           onClick={onClick}
           disabled={isDisabled}
@@ -131,7 +131,7 @@ export const CollectionNavItem = (props: CollectionNavItemProps) => {
               onClick={handleClickEdit}
             />
           ) : null}
-        </LeftNavItem>
+        </LeftNavLink>
       </Draggable>
     </LeftNavDroppable>
   )

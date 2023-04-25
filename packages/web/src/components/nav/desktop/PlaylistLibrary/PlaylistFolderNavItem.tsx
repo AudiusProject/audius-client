@@ -19,7 +19,7 @@ import { Draggable, Droppable } from 'components/dragndrop'
 import { setFolderId as setEditFolderModalFolderId } from 'store/application/ui/editFolderModal/slice'
 import { DragDropKind } from 'store/dragndrop/slice'
 
-import { LeftNavItem } from '../LeftNavLink'
+import { LeftNavLink } from '../LeftNavLink'
 
 import { EditNavItemButton } from './EditNavItemButton'
 import styles from './PlaylistFolderNavItem.module.css'
@@ -106,7 +106,7 @@ export const PlaylistFolderNavItem = (props: PlaylistFolderNavItemProps) => {
       hoverClassName={styles.droppableHover}
     >
       <Draggable id={id} text={name} kind='playlist-folder'>
-        <LeftNavItem
+        <LeftNavLink
           className={cn(styles.root, { [styles.dragging]: isDraggingOver })}
           onClick={toggleIsExpanded}
           onDragEnter={handleDragEnter}
@@ -145,7 +145,7 @@ export const PlaylistFolderNavItem = (props: PlaylistFolderNavItemProps) => {
               onClick={handleClickEdit}
             />
           ) : null}
-        </LeftNavItem>
+        </LeftNavLink>
         {isExpanded ? (
           <ul>
             {contents.map((content) => (

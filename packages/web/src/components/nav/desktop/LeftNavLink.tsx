@@ -10,13 +10,13 @@ import { useSelector } from 'utils/reducer'
 
 import styles from './LeftNavLink.module.css'
 
-type LeftNavItemProps =
+type LeftNavLinkProps =
   | { disabled?: boolean } & (
       | Omit<NavLinkProps, 'onDrop'>
       | Omit<ComponentProps<'div'>, 'onDrop'>
     )
 
-export const LeftNavItem = (props: LeftNavItemProps) => {
+export const LeftNavLink = (props: LeftNavLinkProps) => {
   const { disabled, className: classNameProp, ...other } = props
   const className = cn(classNameProp, styles.link, {
     [styles.disabledLink]: disabled
@@ -25,48 +25,6 @@ export const LeftNavItem = (props: LeftNavItemProps) => {
     return <NavLink {...other} activeClassName='active' className={className} />
   }
   return <div {...other} className={className} />
-}
-
-type DroppableLeftNavItemProps = LeftNavItemProps &
-  SetOptional<
-    DroppableProps,
-    'children' | 'hoverClassName' | 'activeClassName' | 'inactiveClassName'
-  >
-
-export const DroppableLeftNavItem = (props: DroppableLeftNavItemProps) => {
-  const {
-    acceptedKinds,
-    acceptOwner,
-    onDrop,
-    stopPropagationOnDrop,
-    disabled,
-    ...leftNavItemProps
-  } = props
-  const { kind } = useSelector(selectDragnDropState)
-
-  const hoverClassName =
-    kind === 'track'
-      ? styles.droppableLinkHoverTrack
-      : styles.droppableLinkHoverPlaylist
-
-  const activeClassName =
-    kind === 'track' ? styles.droppableLinkActive : undefined
-
-  return (
-    <Droppable
-      className={styles.droppableLink}
-      hoverClassName={hoverClassName}
-      activeClassName={activeClassName}
-      inactiveClassName={styles.droppableLinkInactive}
-      acceptedKinds={acceptedKinds}
-      acceptOwner={acceptOwner}
-      onDrop={onDrop}
-      stopPropagationOnDrop={stopPropagationOnDrop}
-      disabled={disabled}
-    >
-      <LeftNavItem {...leftNavItemProps} disabled={disabled} />
-    </Droppable>
-  )
 }
 
 type LeftNavDroppableProps = SetOptional<

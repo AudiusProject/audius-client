@@ -18,7 +18,7 @@ import { DragDropKind, selectDraggingKind } from 'store/dragndrop/slice'
 import { useSelector } from 'utils/reducer'
 import { playlistPage } from 'utils/route'
 
-import { LeftNavDroppable, LeftNavItem } from '../LeftNavLink'
+import { LeftNavDroppable, LeftNavLink } from '../LeftNavLink'
 
 import { EditNavItemButton } from './EditNavItemButton'
 import styles from './PlaylistNavItem.module.css'
@@ -133,7 +133,7 @@ export const PlaylistNavItem = (props: PlaylistNavItemProps) => {
         link={playlistUrl}
         kind='library-playlist'
       >
-        <LeftNavItem
+        <LeftNavLink
           to={playlistUrl}
           className={className}
           disabled={isDisabled}
@@ -152,7 +152,7 @@ export const PlaylistNavItem = (props: PlaylistNavItemProps) => {
               onClick={handleClickEdit}
             />
           ) : null}
-        </LeftNavItem>
+        </LeftNavLink>
       </Draggable>
     </LeftNavDroppable>
   )

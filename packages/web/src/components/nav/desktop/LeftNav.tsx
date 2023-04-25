@@ -54,7 +54,7 @@ import {
 import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
 import styles from './LeftNav.module.css'
-import { LeftNavDroppable, LeftNavItem } from './LeftNavLink'
+import { LeftNavDroppable, LeftNavLink } from './LeftNavLink'
 import NavAudio from './NavAudio'
 import { NavButton } from './NavButton'
 import { NavHeader } from './NavHeader'
@@ -288,17 +288,17 @@ const LeftNav = ({
             <div className={styles.links}>
               <div className={styles.linkGroup}>
                 <div className={styles.groupHeader}>Discover</div>
-                <LeftNavItem
+                <LeftNavLink
                   to={FEED_PAGE}
                   disabled={!account}
                   onClick={onClickNavLinkWithAccount}
                 >
                   Feed
-                </LeftNavItem>
-                <LeftNavItem to={TRENDING_PAGE}>Trending</LeftNavItem>
-                <LeftNavItem to={EXPLORE_PAGE} exact>
+                </LeftNavLink>
+                <LeftNavLink to={TRENDING_PAGE}>Trending</LeftNavLink>
+                <LeftNavLink to={EXPLORE_PAGE} exact>
                   Explore
-                </LeftNavItem>
+                </LeftNavLink>
               </div>
               <div className={styles.linkGroup}>
                 <div className={styles.groupHeader}>Library</div>
@@ -308,20 +308,20 @@ const LeftNav = ({
                   acceptOwner={false}
                   onDrop={kind === 'album' ? saveCollection : saveTrack}
                 >
-                  <LeftNavItem
+                  <LeftNavLink
                     to={SAVED_PAGE}
                     onClick={onClickNavLinkWithAccount}
                   >
                     Favorites
-                  </LeftNavItem>
+                  </LeftNavLink>
                 </LeftNavDroppable>
-                <LeftNavItem
+                <LeftNavLink
                   to={HISTORY_PAGE}
                   onClick={onClickNavLinkWithAccount}
                   disabled={!account}
                 >
                   History
-                </LeftNavItem>
+                </LeftNavLink>
               </div>
               <div className={styles.linkGroup}>
                 <Droppable
