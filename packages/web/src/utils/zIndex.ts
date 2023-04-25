@@ -29,6 +29,9 @@ export enum zIndex {
   // Web3 wallet connect modal
   WEB3_WALLET_CONNECT_MODAL = 10001,
 
+  // cognito flow modal
+  COGNITO_FLOW_MODAL = 10001,
+
   ARTIST_POPOVER_POPUP = 20000,
 
   PLAY_BAR_POPUP_MENU = 20001,
