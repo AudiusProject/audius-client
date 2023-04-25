@@ -1,206 +1,163 @@
-import {
-  ComponentPropsWithoutRef,
-  ReactNode,
-  useCallback,
-  useState,
-  MouseEvent
-} from 'react'
+import { useCallback, useState, MouseEvent, useEffect } from 'react'
 
-import { Name, PlaylistLibraryFolder, PlaylistLibraryID } from '@audius/common'
 import {
-  IconCaretRight,
-  IconFolder,
-  IconFolderOutline,
-  IconKebabHorizontal,
-  IconButton
-} from '@audius/stems'
-import { ResizeObserver } from '@juggle/resize-observer'
+  PlaylistLibraryFolder,
+  Name,
+  modalsActions,
+  PlaylistLibraryID,
+  playlistLibraryActions,
+  PlaylistLibraryKind
+} from '@audius/common'
+import { IconFolder, IconFolderOutline, IconCaretRight } from '@audius/stems'
 import cn from 'classnames'
-// eslint-disable-next-line no-restricted-imports -- TODO: migrate to @react-spring/web
-import { useSpring, animated } from 'react-spring'
-import useMeasure from 'react-use-measure'
+import { isEmpty } from 'lodash'
+import { useDispatch } from 'react-redux'
+import { useToggle } from 'react-use'
 
-import { useRecord, make } from 'common/store/analytics/actions'
+import { make, useRecord } from 'common/store/analytics/actions'
 import { Draggable, Droppable } from 'components/dragndrop'
+import { setFolderId as setEditFolderModalFolderId } from 'store/application/ui/editFolderModal/slice'
 import { DragDropKind } from 'store/dragndrop/slice'
 
-import leftNavStyles from '../LeftNav.module.css'
+import { LeftNavItem } from '../LeftNavLink'
 
-import styles from './PlaylistLibrary.module.css'
-
-type PlaylistFolderNavButtonProps = ComponentPropsWithoutRef<'button'> & {
-  id: string
-}
-
-const FolderNavLink = ({
-  id,
-  name,
-  children,
-  className,
-  ...buttonProps
-}: PlaylistFolderNavButtonProps) => {
-  const [isDragging, setIsDragging] = useState(false)
-  const onDrag = useCallback(() => {
-    setIsDragging(true)
-  }, [setIsDragging])
-  const onDrop = useCallback(() => {
-    setIsDragging(false)
-  }, [setIsDragging])
-
-  return (
-    <Draggable
-      id={id}
-      text={name}
-      kind='playlist-folder'
-      onDrag={onDrag}
-      onDrop={onDrop}
-    >
-      <button
-        {...buttonProps}
-        draggable={false}
-        className={cn(className, styles.navLink, {
-          [styles.dragging]: isDragging
-        })}
-      >
-        {children}
-      </button>
-    </Draggable>
-  )
-}
+import { EditNavItemButton } from './EditNavItemButton'
+import styles from './PlaylistFolderNavItem.module.css'
+import { PlaylistLibraryNavItem, keyExtractor } from './PlaylistLibraryNavItem'
+const { setVisibility } = modalsActions
+const { addToFolder } = playlistLibraryActions
 
 type PlaylistFolderNavItemProps = {
   folder: PlaylistLibraryFolder
-  hasUpdate: boolean
-  dragging: boolean
-  draggingKind: string
-  onClickEdit: (folderId: string) => void
-  onDropInFolder: (
-    folder: PlaylistLibraryFolder,
-    draggingKind: DragDropKind,
-    draggingId: PlaylistLibraryID
-  ) => void
-  onDropBelowFolder: (
-    folderId: string,
-    draggingKind: DragDropKind,
-    draggingId: PlaylistLibraryID
-  ) => void
-  children?: ReactNode
+  level: number
 }
 
-export const PlaylistFolderNavItem = ({
-  folder,
-  hasUpdate = false,
-  dragging,
-  draggingKind,
-  onClickEdit,
-  onDropBelowFolder,
-  onDropInFolder,
-  children
-}: PlaylistFolderNavItemProps) => {
-  const { id, name } = folder
-  const isDroppableKind =
-    draggingKind === 'library-playlist' || draggingKind === 'playlist'
+const longDragTimeoutMs = 1000
+
+const acceptedKinds: DragDropKind[] = ['playlist', 'library-playlist']
+
+const messages = {
+  editFolderLabel: 'More folder actions'
+}
+
+export const PlaylistFolderNavItem = (props: PlaylistFolderNavItemProps) => {
+  const { folder, level } = props
+  const { name, contents, id } = folder
+  const hasUpdate = false
+  const [isExpanded, toggleIsExpanded] = useToggle(false)
+  const [isDraggingOver, setIsDraggingOver] = useState(false)
   const [isHovering, setIsHovering] = useState(false)
-  const [isExpanded, setIsExpanded] = useState(false)
+  const isEmptyFolder = isEmpty(contents)
+  const dispatch = useDispatch()
   const record = useRecord()
-  const [ref, bounds] = useMeasure({
-    polyfill: ResizeObserver
-  })
-  const contentsStyle = useSpring({
-    height: isExpanded ? bounds.height : 0,
-    opacity: isExpanded ? 100 : 0,
-    overflow: 'hidden'
-  })
-  const handleClickFolder = () => {
-    const prevIsExpanded = isExpanded
-    setIsExpanded(!isExpanded)
-    if (prevIsExpanded) {
-      record(make(Name.PLAYLIST_LIBRARY_COLLAPSE_FOLDER, {}))
-    } else {
-      record(make(Name.PLAYLIST_LIBRARY_EXPAND_FOLDER, {}))
+
+  const handleDrop = useCallback(
+    (id: PlaylistLibraryID, kind: DragDropKind) => {
+      dispatch(
+        addToFolder({
+          folder,
+          draggingId: id,
+          draggingKind: kind as PlaylistLibraryKind
+        })
+      )
+    },
+    [dispatch, folder]
+  )
+
+  const handleDragEnter = useCallback(() => {
+    setIsDraggingOver(true)
+  }, [])
+
+  const handleDragLeave = useCallback(() => {
+    setIsDraggingOver(false)
+  }, [])
+
+  const handleMouseEnter = useCallback(() => {
+    setIsHovering(true)
+  }, [])
+
+  const handleMouseLeave = useCallback(() => {
+    setIsDraggingOver(false)
+    setIsHovering(false)
+  }, [])
+
+  const handleClickEdit = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault()
+      event.stopPropagation()
+      dispatch(setEditFolderModalFolderId(id))
+      dispatch(setVisibility({ modal: 'EditFolder', visible: true }))
+      record(make(Name.FOLDER_OPEN_EDIT, {}))
+    },
+    [dispatch, id, record]
+  )
+
+  useEffect(() => {
+    if (isDraggingOver && !isExpanded) {
+      const longDragTimeout = setTimeout(toggleIsExpanded, longDragTimeoutMs)
+      return () => clearTimeout(longDragTimeout)
     }
-  }
+  }, [isDraggingOver, isExpanded, toggleIsExpanded])
 
   return (
-    <>
-      {/* This is the droppable area for adding a playlist into a folder */}
-      <Droppable
-        className={leftNavStyles.droppable}
-        hoverClassName={leftNavStyles.droppableHover}
-        onDrop={(playlistId: PlaylistLibraryID, kind: DragDropKind) => {
-          onDropInFolder(folder, kind, playlistId)
-        }}
-        acceptedKinds={['library-playlist', 'playlist']}
-      >
-        <FolderNavLink
-          onMouseEnter={() => {
-            setIsHovering(true)
-          }}
-          onMouseLeave={() => setIsHovering(false)}
-          id={id}
-          name={name}
-          className={cn(leftNavStyles.link, leftNavStyles.editable, {
-            [leftNavStyles.droppableLink]: dragging && isDroppableKind,
-            [leftNavStyles.disabledLink]: dragging && !isDroppableKind
-          })}
-          onClick={handleClickFolder}
+    <Droppable
+      acceptedKinds={acceptedKinds}
+      onDrop={handleDrop}
+      hoverClassName={styles.droppableHover}
+    >
+      <Draggable id={id} text={name} kind='playlist-folder'>
+        <LeftNavItem
+          className={cn(styles.root, { [styles.dragging]: isDraggingOver })}
+          onClick={toggleIsExpanded}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
-          <div className={styles.libraryLinkContentContainer}>
-            {children == null ? (
-              <IconFolderOutline
-                width={12}
-                height={12}
-                className={styles.iconFolder}
-              />
-            ) : (
-              <IconFolder
-                width={12}
-                height={12}
-                className={cn(styles.iconFolder, {
-                  [styles.iconFolderUpdated]: hasUpdate
-                })}
-              />
-            )}
-            <div className={styles.libraryLinkTextContainer}>
-              <span>{name}</span>
-            </div>
-            <IconCaretRight
-              height={11}
-              width={11}
-              className={cn(styles.iconCaret, {
-                [styles.iconCaretDown]: isExpanded
+          {isEmptyFolder ? (
+            <IconFolderOutline
+              width={12}
+              height={12}
+              className={styles.iconFolder}
+            />
+          ) : (
+            <IconFolder
+              width={12}
+              height={12}
+              className={cn(styles.iconFolder, {
+                [styles.iconFolderUpdated]: hasUpdate
               })}
             />
-            <IconButton
-              aria-label='More playlist actions'
-              className={cn(styles.iconKebabHorizontal, {
-                [styles.hidden]: !isHovering || dragging
-              })}
-              icon={<IconKebabHorizontal height={11} width={11} />}
-              onClick={(e: MouseEvent) => {
-                e.preventDefault()
-                e.stopPropagation()
-                onClickEdit(id)
-              }}
-            />
+          )}
+          <div className={styles.libraryLinkTextContainer}>
+            <span>{name}</span>
           </div>
-        </FolderNavLink>
-        {children == null ? null : (
-          <animated.div style={contentsStyle}>
-            <div ref={ref}>{children}</div>
-          </animated.div>
-        )}
-      </Droppable>
-      {/* This is the droppable area for reordering something below this playlist
-      folder item. */}
-      <Droppable
-        className={styles.droppable}
-        hoverClassName={styles.droppableHover}
-        onDrop={(draggingId: PlaylistLibraryID, kind: DragDropKind) => {
-          onDropBelowFolder(id, kind, draggingId)
-        }}
-        acceptedKinds={['playlist-folder', 'library-playlist']}
-      />
-    </>
+          <IconCaretRight
+            height={11}
+            width={11}
+            className={cn(styles.iconCaret, {
+              [styles.iconCaretDown]: isExpanded
+            })}
+          />
+          {isHovering && !isDraggingOver ? (
+            <EditNavItemButton
+              aria-label={messages.editFolderLabel}
+              onClick={handleClickEdit}
+            />
+          ) : null}
+        </LeftNavItem>
+        {isExpanded ? (
+          <ul>
+            {contents.map((content) => (
+              <PlaylistLibraryNavItem
+                key={keyExtractor(content)}
+                item={content}
+                level={level + 1}
+              />
+            ))}
+          </ul>
+        ) : null}
+      </Draggable>
+    </Droppable>
   )
 }

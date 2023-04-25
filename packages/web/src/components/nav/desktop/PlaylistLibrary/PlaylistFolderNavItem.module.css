@@ -9,8 +9,11 @@
   margin-right: 8px;
 }
 
-.iconCaret,
-.iconKebabHorizontal {
+.iconFolderUpdated {
+  color: var(--secondary);
+}
+
+.iconCaret {
   flex-shrink: 0;
   margin-left: 10px;
 }

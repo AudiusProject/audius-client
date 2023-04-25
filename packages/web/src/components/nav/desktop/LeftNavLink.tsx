@@ -4,7 +4,12 @@ import cn from 'classnames'
 import { NavLink, NavLinkProps } from 'react-router-dom'
 import { SetOptional } from 'type-fest'
 
-import { Droppable, DroppableProps } from 'components/dragndrop'
+import {
+  Draggable,
+  DraggableProps,
+  Droppable,
+  DroppableProps
+} from 'components/dragndrop'
 import { selectDragnDropState } from 'store/dragndrop/slice'
 import { useSelector } from 'utils/reducer'
 
@@ -48,7 +53,7 @@ export const LeftNavButton = (props: LeftNavButtonProps) => {
 type LeftNavItemProps =
   | { disabled?: boolean } & (
       | Omit<NavLinkProps, 'onDrop'>
-      | Omit<ComponentProps<'button'>, 'onDrop'>
+      | Omit<ComponentProps<'div'>, 'onDrop'>
     )
 
 export const LeftNavItem = (props: LeftNavItemProps) => {
@@ -59,7 +64,7 @@ export const LeftNavItem = (props: LeftNavItemProps) => {
   if ('to' in other) {
     return <NavLink {...other} activeClassName='active' className={className} />
   }
-  return <button {...other} className={className} />
+  return <div {...other} className={className} />
 }
 
 type DroppableLeftNavLinkProps = Omit<LeftNavLinkProps, 'onDrop'> &
@@ -125,4 +130,37 @@ export const DroppableLeftNavItem = (props: DroppableLeftNavItemProps) => {
       <LeftNavItem {...leftNavItemProps} disabled={disabled} />
     </Droppable>
   )
+}
+
+type LeftNavDroppableProps = SetOptional<
+  DroppableProps,
+  'hoverClassName' | 'activeClassName' | 'inactiveClassName'
+>
+
+export const LeftNavDroppable = (props: LeftNavDroppableProps) => {
+  const { kind } = useSelector(selectDragnDropState)
+
+  const hoverClassName =
+    kind === 'track'
+      ? styles.droppableLinkHoverTrack
+      : styles.droppableLinkHoverPlaylist
+
+  const activeClassName =
+    kind === 'track' ? styles.droppableLinkActive : undefined
+
+  return (
+    <Droppable
+      className={styles.droppableLink}
+      hoverClassName={hoverClassName}
+      activeClassName={activeClassName}
+      inactiveClassName={styles.droppableLinkInactive}
+      {...props}
+    />
+  )
+}
+
+type LeftNavDraggableProps = DraggableProps
+
+export const LeftNavDraggable = (props: LeftNavDraggableProps) => {
+  return <Draggable {...props} />
 }

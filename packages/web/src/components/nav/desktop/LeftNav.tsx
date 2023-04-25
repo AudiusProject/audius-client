@@ -16,8 +16,7 @@ import {
   imageProfilePicEmpty,
   playlistLibraryActions,
   playlistLibraryHelpers,
-  CreateAccountOpen,
-  playlistUpdatesActions
+  CreateAccountOpen
 } from '@audius/common'
 import { Scrollbar } from '@audius/stems'
 import { ResizeObserver } from '@juggle/resize-observer'
@@ -55,7 +54,7 @@ import {
 import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
 import styles from './LeftNav.module.css'
-import { DroppableLeftNavItem, LeftNavItem } from './LeftNavLink'
+import { LeftNavDroppable, LeftNavItem, LeftNavLink } from './LeftNavLink'
 import NavAudio from './NavAudio'
 import { NavButton } from './NavButton'
 import { NavHeader } from './NavHeader'
@@ -63,7 +62,6 @@ import { NowPlayingArtworkTile } from './NowPlayingArtworkTile'
 import { PlaylistLibrary } from './PlaylistLibrary'
 import { RouteNav } from './RouteNav'
 
-const { updatedPlaylistViewed } = playlistUpdatesActions
 const { update: updatePlaylistLibrary } = playlistLibraryActions
 const { addFolderToLibrary, constructPlaylistFolder } = playlistLibraryHelpers
 const { getHideFolderTab, getIsOpen } = createPlaylistModalUISelectors
@@ -101,7 +99,6 @@ const LeftNav = ({
   saveTrack,
   saveCollection,
   accountStatus,
-  updatePlaylistLastViewedAt,
   goToRoute,
   goToSignUp: routeToSignup,
   goToSignIn
@@ -180,16 +177,14 @@ const LeftNav = ({
   ])
 
   const onClickNavLinkWithAccount = useCallback(
-    (e?: MouseEvent, id?: number) => {
+    (e?: MouseEvent) => {
       if (!account) {
         e?.preventDefault()
         goToSignUp('restricted page')
         showActionRequiresAccount()
-      } else if (id) {
-        updatePlaylistLastViewedAt(id)
       }
     },
-    [account, goToSignUp, showActionRequiresAccount, updatePlaylistLastViewedAt]
+    [account, goToSignUp, showActionRequiresAccount]
   )
 
   const updateScrollTopPosition = useCallback((difference: number) => {
@@ -307,17 +302,19 @@ const LeftNav = ({
               </div>
               <div className={styles.linkGroup}>
                 <div className={styles.groupHeader}>Library</div>
-                <DroppableLeftNavItem
-                  to={SAVED_PAGE}
-                  onClick={onClickNavLinkWithAccount}
+                <LeftNavDroppable
                   disabled={!account}
                   acceptedKinds={['track', 'album']}
                   acceptOwner={false}
                   onDrop={kind === 'album' ? saveCollection : saveTrack}
-                  forward
                 >
-                  Favorites
-                </DroppableLeftNavItem>
+                  <LeftNavLink
+                    to={SAVED_PAGE}
+                    onClick={onClickNavLinkWithAccount}
+                  >
+                    Favorites
+                  </LeftNavLink>
+                </LeftNavDroppable>
                 <LeftNavItem
                   to={HISTORY_PAGE}
                   onClick={onClickNavLinkWithAccount}
@@ -356,9 +353,7 @@ const LeftNav = ({
                       </Tooltip>
                     </div>
                   </div>
-                  <PlaylistLibrary
-                    onClickNavLinkWithAccount={onClickNavLinkWithAccount}
-                  />
+                  <PlaylistLibrary />
                 </Droppable>
               </div>
             </div>
@@ -398,18 +393,14 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   goToRoute: (route: string) => dispatch(pushRoute(route)),
   saveTrack: (trackId: number) =>
     dispatch(saveTrack(trackId, FavoriteSource.NAVIGATOR)),
-  saveCollection: (collectionId: number, kind) => {
-    console.log('dropped into playlists', collectionId, kind)
-  },
-  // dispatch(saveCollection(collectionId, FavoriteSource.NAVIGATOR)),
+  saveCollection: (collectionId: number) =>
+    dispatch(saveCollection(collectionId, FavoriteSource.NAVIGATOR)),
   addTrackToPlaylist: (trackId: number, playlistId: number) =>
     dispatch(addTrackToPlaylist(trackId, playlistId)),
   showActionRequiresAccount: () =>
     dispatch(signOnActions.showRequiresAccountModal()),
   openCreatePlaylistModal: () => dispatch(createPlaylistModalActions.open()),
   closeCreatePlaylistModal: () => dispatch(createPlaylistModalActions.close()),
-  updatePlaylistLastViewedAt: (playlistId: number) =>
-    dispatch(updatedPlaylistViewed({ playlistId })),
   updatePlaylistLibrary: (newLibrary: PlaylistLibraryType) =>
     dispatch(updatePlaylistLibrary({ playlistLibrary: newLibrary })),
   goToDashboard: () => dispatch(pushRoute(DASHBOARD_PAGE)),
