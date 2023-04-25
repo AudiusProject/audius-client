@@ -54,7 +54,7 @@ import {
 import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
 import styles from './LeftNav.module.css'
-import { LeftNavDroppable, LeftNavItem, LeftNavLink } from './LeftNavLink'
+import { LeftNavDroppable, LeftNavItem } from './LeftNavLink'
 import NavAudio from './NavAudio'
 import { NavButton } from './NavButton'
 import { NavHeader } from './NavHeader'
@@ -308,12 +308,12 @@ const LeftNav = ({
                   acceptOwner={false}
                   onDrop={kind === 'album' ? saveCollection : saveTrack}
                 >
-                  <LeftNavLink
+                  <LeftNavItem
                     to={SAVED_PAGE}
                     onClick={onClickNavLinkWithAccount}
                   >
                     Favorites
-                  </LeftNavLink>
+                  </LeftNavItem>
                 </LeftNavDroppable>
                 <LeftNavItem
                   to={HISTORY_PAGE}
