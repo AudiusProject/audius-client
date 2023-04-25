@@ -11,6 +11,7 @@ import {
 import cn from 'classnames'
 import uniqueId from 'lodash/uniqueId'
 import ReactDOM from 'react-dom'
+// eslint-disable-next-line no-restricted-imports -- TODO: migrate to @react-spring/web
 import { animated, useTransition } from 'react-spring'
 import { useEffectOnce } from 'react-use'
 
@@ -122,7 +123,10 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(function Modal(
   ref
 ) {
   useEffectOnce(() => {
-    if (process.env.NODE_ENV !== 'production') {
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      process.env.NODE_ENV !== 'development'
+    ) {
       if (
         subtitle ||
         title ||

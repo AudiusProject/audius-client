@@ -72,6 +72,7 @@ export type OwnProps = {
   play: (uid?: string) => void
   pause: () => void
   onExternalLinkClick: (url: string) => void
+  onInternalLinkClick: (url: string) => void
 }
 
 const TrackPage = ({
@@ -98,6 +99,7 @@ const TrackPage = ({
   onDownloadTrack,
   makePublic,
   onExternalLinkClick,
+  onInternalLinkClick,
   onClickReposts,
   onClickFavorites,
 
@@ -179,6 +181,7 @@ const TrackPage = ({
       isSaved={isSaved}
       badge={badge}
       onExternalLinkClick={onExternalLinkClick}
+      onInternalLinkClick={onInternalLinkClick}
       isUnlisted={defaults.isUnlisted}
       isPremium={defaults.isPremium}
       premiumConditions={defaults.premiumConditions}

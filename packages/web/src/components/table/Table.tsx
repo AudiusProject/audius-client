@@ -31,8 +31,7 @@ import { ReactComponent as IconCaretDown } from 'assets/img/iconCaretDownLine.sv
 import { ReactComponent as IconCaretLeft } from 'assets/img/iconCaretLeft.svg'
 import { ReactComponent as IconCaretRight } from 'assets/img/iconCaretRight.svg'
 import { ReactComponent as IconCaretUp } from 'assets/img/iconCaretUpLine.svg'
-import Draggable from 'components/dragndrop/Draggable'
-import Droppable from 'components/dragndrop/Droppable'
+import { Draggable, Droppable } from 'components/dragndrop'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Skeleton from 'components/skeleton/Skeleton'
 import Tooltip from 'components/tooltip/Tooltip'
@@ -277,11 +276,13 @@ export const Table = ({
         (header) => header.id === 'trackActions' || header.id === 'overflowMenu'
       )
 
+      const { key: headerGroupKey, ...headerGroupProps } =
+        headerGroup.getHeaderGroupProps()
       return (
         <tr
           className={styles.tableHeadRow}
-          {...headerGroup.getHeaderGroupProps()}
-          key={headerGroup.id}
+          {...headerGroupProps}
+          key={headerGroupKey}
         >
           <div className={styles.cellSection}>
             {headers.map(renderTableHeader)}
@@ -431,7 +432,7 @@ export const Table = ({
           onDrop={(id: ID | string, draggingKind: string, index: number) => {
             onDragEnd({ source: index, destination: row.index })
           }}
-          stopPropogationOnDrop={true}
+          stopPropagationOnDrop
           acceptedKinds={['track', 'table-row']}
         >
           <Draggable

@@ -6,6 +6,7 @@ import {
 } from '@audius/sdk'
 
 import { Env } from '../env'
+import type { CachedDiscoveryProviderType } from '../local-storage'
 import {
   BooleanKeys,
   IntKeys,
@@ -16,18 +17,21 @@ import {
 type DiscoveryNodeSelectorConfig = {
   env: Env
   remoteConfigInstance: RemoteConfigInstance
+  initialSelectedNode: Promise<CachedDiscoveryProviderType | null>
 }
 
 export class DiscoveryNodeSelectorInstance {
   private env: Env
   private remoteConfigInstance: RemoteConfigInstance
   private discoveryNodeSelectorPromise: Promise<DiscoveryNodeSelector> | null
+  private initialSelectedNode: Promise<CachedDiscoveryProviderType | null>
 
   constructor(config: DiscoveryNodeSelectorConfig) {
-    const { env, remoteConfigInstance } = config
+    const { env, remoteConfigInstance, initialSelectedNode } = config
     this.env = env
     this.remoteConfigInstance = remoteConfigInstance
     this.discoveryNodeSelectorPromise = null
+    this.initialSelectedNode = initialSelectedNode
   }
 
   private async makeDiscoveryNodeSelector() {
@@ -59,11 +63,14 @@ export class DiscoveryNodeSelectorInstance {
     const requestTimeout =
       getRemoteVar(IntKeys.DISCOVERY_PROVIDER_SELECTION_TIMEOUT_MS) ?? undefined
 
+    const initialSelectedNode = await this.initialSelectedNode
+
     return new DiscoveryNodeSelector({
       healthCheckThresholds,
       blocklist,
       requestTimeout,
-      bootstrapServices: discoveryNodes
+      bootstrapServices: discoveryNodes,
+      initialSelectedNode: initialSelectedNode?.endpoint
     })
   }
 

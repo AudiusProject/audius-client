@@ -24,7 +24,6 @@ export enum FeatureFlags {
   COLLECTIBLE_GATED_ENABLED = 'collectible_gated_enabled',
   SPECIAL_ACCESS_ENABLED = 'special_access_enabled',
   AUTO_SUBSCRIBE_ON_FOLLOW = 'auto_subscribe_on_follow',
-  STREAM_MP3 = 'stream_mp3',
   READ_SUBSCRIBERS_FROM_DISCOVERY_ENABLED = 'read_subscribers_from_discovery_enabled',
   VERIFY_HANDLE_WITH_TIKTOK = 'verify_handle_with_tiktok',
   AUDIO_TRANSACTIONS_HISTORY = 'audio_transactions_history',
@@ -43,7 +42,10 @@ export enum FeatureFlags {
   TRENDING_UNDERGROUND_NOTIFICATIONS = 'trending_underground_notifications',
   TASTEMAKER_NOTIFICATIONS = 'tastemaker_notifications',
   STORAGE_V2 = 'storage_v2',
-  SDK_V2 = 'sdk_v2'
+  SDK_V2 = 'sdk_v2',
+  GET_METADATA_FROM_DISCOVERY_ENABLED = 'get_metadata_from_discovery_enabled',
+  RELATED_ARTISTS_ON_PROFILE_ENABLED = 'related_artists_on_profile_enabled',
+  PROXY_WORMHOLE = 'proxy_wormhole'
 }
 
 type FlagDefaults = Record<FeatureFlags, boolean>
@@ -83,7 +85,6 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.COLLECTIBLE_GATED_ENABLED]: false,
   [FeatureFlags.SPECIAL_ACCESS_ENABLED]: false,
   [FeatureFlags.AUTO_SUBSCRIBE_ON_FOLLOW]: false,
-  [FeatureFlags.STREAM_MP3]: false,
   [FeatureFlags.READ_SUBSCRIBERS_FROM_DISCOVERY_ENABLED]: false,
   [FeatureFlags.VERIFY_HANDLE_WITH_TIKTOK]: false,
   [FeatureFlags.AUDIO_TRANSACTIONS_HISTORY]: false,
@@ -102,5 +103,8 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.TRENDING_UNDERGROUND_NOTIFICATIONS]: false,
   [FeatureFlags.TASTEMAKER_NOTIFICATIONS]: false,
   [FeatureFlags.STORAGE_V2]: false,
-  [FeatureFlags.SDK_V2]: false
+  [FeatureFlags.SDK_V2]: false,
+  [FeatureFlags.GET_METADATA_FROM_DISCOVERY_ENABLED]: false,
+  [FeatureFlags.RELATED_ARTISTS_ON_PROFILE_ENABLED]: false,
+  [FeatureFlags.PROXY_WORMHOLE]: false
 }

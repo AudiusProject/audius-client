@@ -21,6 +21,8 @@ export const Scrollbar = ({
   id,
   ...props
 }: ScrollbarProps) => {
+  // Do not remove:
+  // useMeasure ref is required for infinite scrolling to work
   const [ref] = useMeasure({ polyfill: ResizeObserver })
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const elementId = useMemo(() => id || uniqueId('scrollbar-'), [id])

@@ -12,10 +12,10 @@ import {
   profilePageActions as profileActions,
   reachabilitySelectors,
   tippingActions,
-  artistRecommendationsUIActions as artistRecommendationsActions,
+  relatedArtistsUIActions as relatedArtistsActions,
   waitForAccount,
   dataURLtoFile,
-  MAX_ARTIST_HOVER_TOP_SUPPORTING,
+  SUPPORTING_PAGINATION_SIZE,
   MAX_PROFILE_SUPPORTING_TILES,
   MAX_PROFILE_TOP_SUPPORTERS,
   collectiblesActions,
@@ -26,7 +26,6 @@ import { merge } from 'lodash'
 import {
   all,
   call,
-  delay,
   fork,
   getContext,
   put,
@@ -260,10 +259,7 @@ function* fetchSupportersAndSupporting(userId) {
   const supportingLimit =
     account?.user_id === userId
       ? account.supporting_count
-      : Math.max(
-          MAX_PROFILE_SUPPORTING_TILES,
-          MAX_ARTIST_HOVER_TOP_SUPPORTING
-        ) + 1
+      : Math.max(MAX_PROFILE_SUPPORTING_TILES, SUPPORTING_PAGINATION_SIZE) + 1
   yield put(
     refreshSupport({
       senderUserId: userId,
@@ -348,17 +344,14 @@ function* fetchProfileAsync(action) {
         getRemoteVar(DoubleKeys.SHOW_ARTIST_RECOMMENDATIONS_PERCENT) || 0
       if (Math.random() < showArtistRecommendationsPercent) {
         yield put(
-          artistRecommendationsActions.fetchRelatedArtists({
-            userId: user.user_id
+          relatedArtistsActions.fetchRelatedArtists({
+            artistId: user.user_id
           })
         )
       }
     }
 
     if (!isNativeMobile) {
-      // Delay so the page can load before we fetch mutual followers
-      yield delay(2000)
-
       yield put(
         profileActions.fetchFollowUsers(
           FollowType.FOLLOWEE_FOLLOWS,
