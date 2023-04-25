@@ -32,7 +32,6 @@ import { AppRedirectPopover } from 'components/app-redirect-popover/components/A
 import MobileDesktopBanner from 'components/banner/CTABanner'
 import UpdateAppBanner from 'components/banner/UpdateAppBanner'
 import Web3ErrorBanner from 'components/banner/Web3ErrorBanner'
-import ConfirmerPreview from 'components/confirmer-preview/ConfirmerPreview'
 import CookieBanner from 'components/cookie-banner/CookieBanner'
 import { DevModeMananger } from 'components/dev-mode-manager/DevModeManager'
 import { BACKGROUND_ELEMENT_ID as HEADER_BACKGROUND_GUTTER_ID } from 'components/header/desktop/Header'
@@ -50,7 +49,6 @@ import AnnouncementPage from 'pages/announcement-page/AnnoucementPage'
 import ArtistDashboardPage from 'pages/artist-dashboard-page/ArtistDashboardPage'
 import { AudioRewardsPage } from 'pages/audio-rewards-page/AudioRewardsPage'
 import { AudioTransactionsPage } from 'pages/audio-transactions-page'
-import CheckPage from 'pages/check-page/CheckPage'
 import CollectionPage from 'pages/collection-page/CollectionPage'
 import EmptyPage from 'pages/empty-page/EmptyPage'
 import ExplorePage from 'pages/explore-page/ExplorePage'
@@ -141,7 +139,6 @@ import {
   PROFILE_PAGE_REPOSTS,
   TRENDING_UNDERGROUND_PAGE,
   EXPLORE_REMIXABLES_PAGE,
-  CHECK_PAGE,
   getPathname,
   TRENDING_PLAYLISTS_PAGE_LEGACY,
   AUDIO_NFT_PLAYLIST_PAGE,
@@ -154,7 +151,6 @@ import {
 import { getTheme as getSystemTheme } from 'utils/theme/theme'
 
 import AnimatedSwitch from '../components/animated-switch/AnimatedSwitch'
-import DiscoveryNodeSelection from '../components/discovery-node-selection/DiscoveryNodeSelection'
 import TopLevelPage from '../components/nav/mobile/TopLevelPage'
 import Notice from '../components/notice/Notice'
 
@@ -364,21 +360,6 @@ class App extends Component {
       this.setState({ showWeb3ErrorBanner: true })
     }
 
-    // Once the user is loaded, we can mark the page as ready for UI
-    // Alternatively, if the page is the signup page, say we're ready without a user
-    // This is necessary for the AppRedirectPopover to load
-    if (
-      (prevProps.accountStatus === Status.LOADING &&
-        this.props.accountStatus !== Status.LOADING) ||
-      matchPath(getPathname(this.props.location), {
-        path: SIGN_UP_PAGE,
-        exact: true
-      })
-    ) {
-      // Let the UI flush
-      setImmediate(this.props.setReady)
-    }
-
     if (prevProps.theme !== this.props.theme) {
       this.handleTheme()
     }
@@ -452,7 +433,6 @@ class App extends Component {
   render() {
     const {
       theme,
-      isReady,
       incrementScroll,
       decrementScroll,
       shouldShowPopover,
@@ -801,7 +781,6 @@ class App extends Component {
                 isMobile={isMobileClient}
                 component={SettingsPage}
               />
-              <Route exact path={CHECK_PAGE} component={CheckPage} />
               <MobileRoute
                 exact
                 path={ACCOUNT_SETTINGS_PAGE}
@@ -971,34 +950,23 @@ class App extends Component {
           </Suspense>
         </div>
         <PlayBarProvider />
-
         <Suspense fallback={null}>
           <Modals />
         </Suspense>
-
-        {
-          <Suspense fallback={null}>
-            <ConnectedMusicConfetti />
-          </Suspense>
-        }
-        {
-          <Suspense fallback={null}>
-            <RewardClaimedToast />
-          </Suspense>
-        }
-
+        <Suspense fallback={null}>
+          <ConnectedMusicConfetti />
+        </Suspense>
+        <Suspense fallback={null}>
+          <RewardClaimedToast />
+        </Suspense>
         {/* Non-mobile */}
         {!isMobileClient ? <Konami /> : null}
-        {!isMobileClient ? <ConfirmerPreview /> : null}
-        {!isMobileClient ? <DiscoveryNodeSelection /> : null}
         {!isMobileClient ? <Visualizer /> : null}
         {!isMobileClient ? <PinnedTrackConfirmation /> : null}
         {!isMobileClient ? <DevModeMananger /> : null}
-
         {/* Mobile-only */}
         {isMobileClient && shouldShowPopover ? (
           <AppRedirectPopover
-            enablePopover={isReady}
             incrementScroll={incrementScroll}
             decrementScroll={decrementScroll}
           />

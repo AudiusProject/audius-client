@@ -10,6 +10,7 @@ import {
   shareModalUISagas as shareModalSagas,
   vipDiscordModalSagas,
   reachabilitySagas,
+  relatedArtistsSagas,
   searchUsersModalSagas,
   solanaSagas
 } from '@audius/common'
@@ -48,7 +49,6 @@ import searchBarSagas from 'common/store/search-bar/sagas'
 import smartCollectionPageSagas from 'common/store/smart-collection/sagas'
 import socialSagas from 'common/store/social/sagas'
 import tippingSagas from 'common/store/tipping/sagas'
-import artistRecommendationsSagas from 'common/store/ui/artist-recommendations/sagas'
 import reactionSagas from 'common/store/ui/reactions/sagas'
 import uploadSagas from 'common/store/upload/sagas'
 import favoritePageSagas from 'common/store/user-list/favorites/sagas'
@@ -56,6 +56,7 @@ import followersPageSagas from 'common/store/user-list/followers/sagas'
 import followingPageSagas from 'common/store/user-list/following/sagas'
 import mutualsPageSagas from 'common/store/user-list/mutuals/sagas'
 import notificationUsersPageSagas from 'common/store/user-list/notifications/sagas'
+import relatedArtistsPageSagas from 'common/store/user-list/related-artists/sagas'
 import repostPageSagas from 'common/store/user-list/reposts/sagas'
 import supportingPageSagas from 'common/store/user-list/supporting/sagas'
 import topSupportersPageSagas from 'common/store/user-list/top-supporters/sagas'
@@ -143,6 +144,7 @@ export default function* rootSaga() {
     ...followingPageSagas(),
     ...mutualsPageSagas(),
     ...notificationUsersPageSagas(),
+    ...relatedArtistsPageSagas(),
     ...repostPageSagas(),
     ...supportingPageSagas(),
     ...topSupportersPageSagas(),
@@ -156,7 +158,7 @@ export default function* rootSaga() {
 
     // Application
     ...addToPlaylistSagas(),
-    ...artistRecommendationsSagas(),
+    ...relatedArtistsSagas(),
     ...changePasswordSagas(),
     ...smartCollectionPageSagas(),
     ...overflowMenuSagas(),

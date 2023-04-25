@@ -1,6 +1,6 @@
 {
   "name": "eslint-config-audius",
-  "version": "1.5.12",
+  "version": "1.5.21",
   "description": "Custom eslint config for Audius.",
   "author": "Audius",
   "homepage": "https://github.com/AudiusProject/audius-client#readme",
@@ -28,6 +28,7 @@
     "eslint-config-prettier-standard": "4.0.1",
     "eslint-config-standard": "17.0.0",
     "eslint-import-resolver-alias": "1.1.2",
+    "eslint-import-resolver-typescript": "3.5.5",
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-jest": "27.1.1",
     "eslint-plugin-n": "15.3.0",

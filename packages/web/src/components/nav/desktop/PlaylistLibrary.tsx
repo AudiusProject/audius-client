@@ -12,9 +12,9 @@ import {
   collectionsSocialActions,
   playlistLibraryActions,
   playlistLibraryHelpers,
-  PlaylistLibraryKind,
   PlaylistLibraryID,
-  playlistUpdatesSelectors
+  playlistUpdatesSelectors,
+  PlaylistLibraryKind
 } from '@audius/common'
 import cn from 'classnames'
 import { isEmpty } from 'lodash'
@@ -26,15 +26,15 @@ import {
   AUDIO_NFT_PLAYLIST,
   SMART_COLLECTION_MAP
 } from 'common/store/smart-collection/smartCollections'
-import Droppable from 'components/dragndrop/Droppable'
+import { Droppable } from 'components/dragndrop'
 import { ToastContext } from 'components/toast/ToastContext'
 import { setFolderId as setEditFolderModalFolderId } from 'store/application/ui/editFolderModal/slice'
 import { open as openEditPlaylistModal } from 'store/application/ui/editPlaylistModal/slice'
-import { getIsDragging } from 'store/dragndrop/selectors'
+import { DragDropKind, selectDragnDropState } from 'store/dragndrop/slice'
 import { useSelector } from 'utils/reducer'
 import { audioNftPlaylistPage, getPathname, playlistPage } from 'utils/route'
 
-import navColumnStyles from './NavColumn.module.css'
+import leftNavStyles from './LeftNav.module.css'
 import { PlaylistFolderNavItem } from './PlaylistFolderNavItem'
 import styles from './PlaylistLibrary.module.css'
 import { PlaylistNavItem, PlaylistNavLink } from './PlaylistNavItem'
@@ -117,7 +117,7 @@ const PlaylistLibrary = ({
   const library = useSelector(getPlaylistLibrary)
   const updates = useSelector(selectAllPlaylistUpdateIds)
   const updatesSet = new Set(updates)
-  const { dragging, kind: draggingKind } = useSelector(getIsDragging)
+  const { dragging, kind: draggingKind } = useSelector(selectDragnDropState)
   const dispatch = useDispatch()
   const { toast } = useContext(ToastContext)
   const record = useRecord()
@@ -172,7 +172,7 @@ const PlaylistLibrary = ({
   const handleDropInFolder = useCallback(
     (
       folder: PlaylistLibraryFolder,
-      droppedKind: PlaylistLibraryKind,
+      droppedKind: DragDropKind,
       droppedId: PlaylistLibraryID
     ) => {
       if (!library) return
@@ -198,7 +198,7 @@ const PlaylistLibrary = ({
     (
       draggingId: ID | SmartCollectionVariant | string,
       droppingId: ID | SmartCollectionVariant | string,
-      draggingKind: 'library-playlist' | 'playlist' | 'playlist-folder',
+      draggingKind: DragDropKind,
       reorderBeforeTarget = false
     ) => {
       if (!library) return
@@ -215,7 +215,7 @@ const PlaylistLibrary = ({
       record(
         make(Name.PLAYLIST_LIBRARY_REORDER, {
           containsTemporaryPlaylists: containsTempPlaylist(newLibrary),
-          kind: draggingKind
+          kind: draggingKind as PlaylistLibraryKind
         })
       )
       const isDroppingIntoFolder = isInsideFolder(
@@ -262,8 +262,8 @@ const PlaylistLibrary = ({
         isActive={() => url === getPathname()}
         activeClassName='active'
         onClick={onClickNavLinkWithAccount}
-        className={cn(navColumnStyles.link, {
-          [navColumnStyles.disabledLink]:
+        className={cn(leftNavStyles.link, {
+          [leftNavStyles.disabledLink]:
             !account || (dragging && draggingKind !== 'library-playlist')
         })}
       >
@@ -305,7 +305,7 @@ const PlaylistLibrary = ({
         isOwner={isOwner}
         onReorder={onReorder}
         dragging={dragging}
-        draggingKind={draggingKind}
+        draggingKind={draggingKind!}
         onClickPlaylist={onClickPlaylist}
         onClickEdit={isOwner ? handleClickEditPlaylist : undefined}
       />
@@ -321,7 +321,7 @@ const PlaylistLibrary = ({
           (c) => c.type !== 'folder' && updatesSet.has(Number(c.playlist_id))
         )}
         dragging={dragging}
-        draggingKind={draggingKind}
+        draggingKind={draggingKind!}
         onClickEdit={handleClickEditFolder}
         onDropBelowFolder={(folderId, draggingKind, draggingId) =>
           onReorder(draggingId, folderId, draggingKind)
@@ -336,7 +336,7 @@ const PlaylistLibrary = ({
               hoverClassName={styles.droppableHover}
               onDrop={(
                 draggingId: PlaylistLibraryID,
-                draggingKind: PlaylistLibraryKind
+                draggingKind: DragDropKind
               ) => {
                 onReorder(
                   draggingId,
@@ -378,7 +378,7 @@ const PlaylistLibrary = ({
         key={-1}
         className={cn(styles.droppable, styles.top)}
         hoverClassName={styles.droppableHover}
-        onDrop={(id: PlaylistLibraryID, kind: PlaylistLibraryKind) =>
+        onDrop={(id: PlaylistLibraryID, kind: DragDropKind) =>
           onReorder(id, -1, kind)
         }
         acceptedKinds={['library-playlist', 'playlist-folder']}
@@ -394,8 +394,8 @@ const PlaylistLibrary = ({
           renderFolder={renderFolder}
         />
       ) : null}
-      {isEmpty(library?.contents) ? (
-        <div className={cn(navColumnStyles.link, navColumnStyles.disabled)}>
+      {isEmpty(library?.contents) && isEmpty(playlistsNotInLibrary) ? (
+        <div className={cn(leftNavStyles.link, leftNavStyles.disabled)}>
           Create your first playlist!
         </div>
       ) : null}

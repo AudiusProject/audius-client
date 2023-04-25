@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { Button, ButtonSize, ButtonType, IconArrow } from '@audius/stems'
 import cn from 'classnames'
+// eslint-disable-next-line no-restricted-imports -- TODO: migrate to @react-spring/web
 import { Spring } from 'react-spring/renderprops'
 
 import audiusLogoColored from 'assets/img/audiusLogoColored.png'
@@ -29,8 +30,7 @@ export const statusState = Object.freeze({
 })
 
 const errorMessages = {
-  characters: 'Please enter a valid email',
-  inUse: 'Email is already in use, please sign-in'
+  characters: 'Please enter a valid email'
 }
 
 type EmailPageProps = {
@@ -39,7 +39,7 @@ type EmailPageProps = {
   email: {
     value: string
     status: string
-    error: 'inUse' | 'characters'
+    error: 'characters'
   }
   onSubmit: (email: string) => void
   onEmailChange: (email: string) => void
@@ -103,7 +103,7 @@ export const EmailPage = ({
   const inputError = email.status === 'failure'
   const validInput = email.status === 'success'
   const shouldDisableInputs = isSubmitting && email.status === 'loading'
-  const showError = inputError && showValidation && email.error !== 'inUse'
+  const showError = inputError && showValidation
 
   return (
     <div

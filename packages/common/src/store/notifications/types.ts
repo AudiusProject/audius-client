@@ -232,7 +232,7 @@ export type DiscoveryCreateTrackNotificationAction = {
 }
 export type DiscoveryCreatePlaylistNotificationAction = {
   is_album: boolean
-  playlist_id: string
+  playlist_id: string[]
 }
 
 export type TrendingRange = 'week' | 'month' | 'year'
@@ -380,14 +380,8 @@ export type UserSubscriptionNotification = BaseNotification & {
   type: NotificationType.UserSubscription
   userId: ID
   entityIds: ID[]
-} & (
-    | {
-        entityType: Entity.Track
-      }
-    | {
-        entityType: Entity.Playlist | Entity.Album
-      }
-  )
+  entityType: Entity
+}
 
 export type FollowNotification = BaseNotification & {
   type: NotificationType.Follow

@@ -7,6 +7,7 @@ import {
   waitForLibsInit,
   withEagerOption
 } from 'services/audius-backend/eagerLoadUtils'
+import { discoveryNodeSelectorInstance } from 'services/discovery-node-selector'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { monitoringCallbacks } from 'services/serviceMonitoring'
@@ -14,6 +15,8 @@ import { reportToSentry } from 'store/errors/reportToSentry'
 import { isElectron, isMobile } from 'utils/clientUtil'
 
 import { env } from '../env'
+
+import { getLibs } from './getLibs'
 
 declare global {
   interface Window {
@@ -34,7 +37,8 @@ export const audiusBackendInstance = audiusBackend({
   ethTokenAddress: process.env.REACT_APP_ETH_TOKEN_ADDRESS,
   getFeatureEnabled,
   getHostUrl: () => window.location.origin,
-  getLibs: () => import('@audius/sdk/dist/legacy'),
+  getLibs: () => getLibs(remoteConfigInstance),
+  discoveryNodeSelectorInstance,
   getWeb3Config: async (
     libs,
     registryAddress,

@@ -307,7 +307,13 @@
 }
 
 .collectibleName:hover {
+  color: var(--secondary);
   cursor: pointer;
+  text-decoration: underline;
+}
+
+.collectibleName:active {
+  color: var(--secondary-dark-2);
 }
 
 .lockedIcon,
@@ -330,10 +336,26 @@
   margin-left: 4px;
 }
 
+.badgeIcon svg {
+  margin-right: 0px !important; /* to override the !important in UserBadges */
+}
+
+.suffix {
+  margin-left: 4px;
+}
+
 .verifiedGreenIcon {
   width: 24px;
   height: 24px;
   margin-right: 10px;
+}
+
+.verifiedGreenIcon path:nth-child(1) {
+  fill: var(--accent-green);
+}
+
+.verifiedGreenIcon path:nth-child(2) {
+  fill: var(--static-white);
 }
 
 .bottomSection {
@@ -483,6 +505,22 @@
   height: var(--unit-5);
   border: 1px solid var(--neutral-light-7);
   border-radius: 50%;
+}
+
+.premiumTrackOwner {
+  display: flex;
+  align-items: center;
+  color: var(--secondary);
+}
+
+.premiumTrackOwner:hover {
+  color: var(--secondary);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.premiumTrackOwner:active {
+  color: var(--secondary-dark-2);
 }
 
 @media screen and (max-width: 1148px) {

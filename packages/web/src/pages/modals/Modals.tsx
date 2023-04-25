@@ -1,4 +1,4 @@
-import { ComponentType } from 'react'
+import { ComponentType, lazy } from 'react'
 
 import { Client } from '@audius/common'
 import type { Modals as ModalTypes } from '@audius/common'
@@ -9,7 +9,9 @@ import BrowserPushConfirmationModal from 'components/browser-push-confirmation-m
 import { BuyAudioModal } from 'components/buy-audio-modal/BuyAudioModal'
 import { BuyAudioRecoveryModal } from 'components/buy-audio-modal/BuyAudioRecoveryModal'
 import CollectibleDetailsModal from 'components/collectibles/components/CollectibleDetailsModal'
+import ConfirmerPreview from 'components/confirmer-preview/ConfirmerPreview'
 import DeletePlaylistConfirmationModal from 'components/delete-playlist-confirmation-modal/DeletePlaylistConfirmationModal'
+import DiscoveryNodeSelection from 'components/discovery-node-selection/DiscoveryNodeSelection'
 import EditFolderModal from 'components/edit-folder-modal/EditFolderModal'
 import EditPlaylistModal from 'components/edit-playlist/desktop/EditPlaylistModal'
 import EditTrackModal from 'components/edit-track/EditTrackModal'
@@ -19,7 +21,6 @@ import FirstUploadModal from 'components/first-upload-modal/FirstUploadModal'
 import { InboxSettingsModal } from 'components/inbox-settings-modal/InboxSettingsModal'
 import { LockedContentModal } from 'components/locked-content-modal/LockedContentModal'
 import PasswordResetModal from 'components/password-reset/PasswordResetModal'
-import ServiceSelectionModal from 'components/service-selection/ServiceSelectionModal'
 import { ShareModal } from 'components/share-modal/ShareModal'
 import ShareSoundToTikTokModal from 'components/share-sound-to-tiktok-modal/ShareSoundToTikTokModal'
 import { StripeOnRampModal } from 'components/stripe-on-ramp-modal'
@@ -31,19 +32,48 @@ import UnloadDialog from 'components/unload-dialog/UnloadDialog'
 import TierExplainerModal from 'components/user-badges/TierExplainerModal'
 import ConnectedUserListModal from 'components/user-list-modal/ConnectedUserListModal'
 import AudioBreakdownModal from 'pages/audio-rewards-page/components/modals/AudioBreakdownModal'
-import RewardsModals from 'pages/audio-rewards-page/components/modals/RewardsModals'
+import ChallengeRewardsModal from 'pages/audio-rewards-page/components/modals/ChallengeRewards'
+import TopAPIModal from 'pages/audio-rewards-page/components/modals/TopAPI'
+import TransferAudioMobileDrawer from 'pages/audio-rewards-page/components/modals/TransferAudioMobileDrawer'
+import TrendingRewardsModal from 'pages/audio-rewards-page/components/modals/TrendingRewards'
 import { VipDiscordModal } from 'pages/audio-rewards-page/components/modals/VipDiscordModal'
 import { CreateChatModal } from 'pages/chat-page/components/CreateChatModal'
 import { getClient } from 'utils/clientUtil'
 
 import { AppModal } from './AppModal'
 
-const appModalsMap = {
+const HCaptchaModal = lazy(
+  () => import('pages/audio-rewards-page/components/modals/HCaptchaModal')
+)
+
+const commonModalsMap: { [Modal in ModalTypes]?: ComponentType } = {
   Share: ShareModal,
-  VipDiscord: VipDiscordModal
+  VipDiscord: VipDiscordModal,
+  AudioBreakdown: AudioBreakdownModal,
+  EditFolder: EditFolderModal,
+  AddToPlaylist: AddToPlaylistModal,
+  TiersExplainer: TierExplainerModal,
+  DeletePlaylistConfirmation: DeletePlaylistConfirmationModal,
+  BuyAudio: BuyAudioModal,
+  BuyAudioRecovery: BuyAudioRecoveryModal,
+  TransactionDetails: TransactionDetailsModal,
+  StripeOnRamp: StripeOnRampModal,
+  CreateChat: CreateChatModal,
+  InboxSettings: InboxSettingsModal,
+  LockedContent: LockedContentModal,
+  HCaptcha: HCaptchaModal,
+  APIRewardsExplainer: TopAPIModal,
+  TrendingRewardsExplainer: TrendingRewardsModal,
+  ChallengeRewardsExplainer: ChallengeRewardsModal,
+  TransferAudioMobileWarning: TransferAudioMobileDrawer,
+  BrowserPushPermissionConfirmation: BrowserPushConfirmationModal,
+  ShareSoundToTikTok: ShareSoundToTikTokModal
 }
 
-const appModals = Object.entries(appModalsMap) as [ModalTypes, ComponentType][]
+const commonModals = Object.entries(commonModalsMap) as [
+  ModalTypes,
+  ComponentType
+][]
 
 const Modals = () => {
   const client = getClient()
@@ -51,33 +81,26 @@ const Modals = () => {
 
   return (
     <>
-      {appModals.map(([modalName, Modal]) => {
+      {commonModals.map(([modalName, Modal]) => {
         return <AppModal key={modalName} name={modalName} modal={Modal} />
       })}
-      <ServiceSelectionModal />
       <EditTrackModal />
       <PasswordResetModal />
       <FirstUploadModal />
       <UnloadDialog />
-      <RewardsModals />
-      <ShareSoundToTikTokModal />
-      {/* Enable and use this audio breakdown modal until we get
-      the feature flags to work for native mobile */}
-      <AudioBreakdownModal />
       <CollectibleDetailsModal />
-
-      {client !== Client.ELECTRON && <BrowserPushConfirmationModal />}
 
       {!isMobileClient && (
         <>
           <EmbedModal />
           <EditPlaylistModal />
-          <EditFolderModal />
-          <AddToPlaylistModal />
-          <FeatureFlagOverrideModal />
           <ConnectedUserListModal />
           <AppCTAModal />
-          <TierExplainerModal />
+
+          {/* dev-mode hot-key modals */}
+          <ConfirmerPreview />
+          <DiscoveryNodeSelection />
+          <FeatureFlagOverrideModal />
         </>
       )}
 
@@ -85,18 +108,10 @@ const Modals = () => {
         <>
           <ConnectedMobileOverflowModal />
           <UnfollowConfirmationModal />
-          <DeletePlaylistConfirmationModal />
         </>
       )}
 
-      <LockedContentModal />
       <TipAudioModal />
-      <BuyAudioModal />
-      <TransactionDetailsModal />
-      <StripeOnRampModal />
-      <BuyAudioRecoveryModal />
-      <CreateChatModal />
-      <InboxSettingsModal />
     </>
   )
 }

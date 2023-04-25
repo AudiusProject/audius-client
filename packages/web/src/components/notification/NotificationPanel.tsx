@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect, MutableRefObject } from 'react'
+import { useRef, useCallback, useEffect, RefObject } from 'react'
 
 import {
   Status,
@@ -41,6 +41,9 @@ const {
   makeGetAllNotifications
 } = notificationsSelectors
 
+const { getNotificationUnviewedCount } = notificationsSelectors
+const { markAllAsViewed } = notificationsActions
+
 const getNotifications = makeGetAllNotifications()
 
 const scrollbarId = 'notificationsPanelScroll'
@@ -57,7 +60,7 @@ const messages = {
 }
 
 type NotificationPanelProps = {
-  anchorRef: MutableRefObject<HTMLElement>
+  anchorRef: RefObject<HTMLDivElement>
 }
 
 // The threshold of distance from the bottom of the scroll container in the
@@ -76,6 +79,7 @@ export const NotificationPanel = ({ anchorRef }: NotificationPanelProps) => {
   const isNotificationModalOpen = useSelector(getNotificationModalIsOpen)
   const modalNotification = useSelector(getModalNotification)
   const isUserListOpen = useSelector(getIsUserListOpen)
+  const unviewedNotificationCount = useSelector(getNotificationUnviewedCount)
 
   const panelRef = useRef<Nullable<HTMLDivElement>>(null)
 
@@ -98,8 +102,8 @@ export const NotificationPanel = ({ anchorRef }: NotificationPanelProps) => {
   const handleCheckClickInside = useCallback(
     (target: EventTarget) => {
       if (isUserListOpen || isNotificationModalOpen) return true
-      if (target instanceof Element) {
-        return anchorRef?.current.contains(target)
+      if (target instanceof Element && anchorRef.current) {
+        return anchorRef.current.contains(target)
       }
       return false
     },
@@ -111,6 +115,14 @@ export const NotificationPanel = ({ anchorRef }: NotificationPanelProps) => {
       dispatch(openNotificationPanel())
     }
   }, [openNotifications, dispatch])
+
+  useEffect(() => {
+    if (panelIsOpen && unviewedNotificationCount > 0) {
+      return () => {
+        dispatch(markAllAsViewed())
+      }
+    }
+  }, [panelIsOpen, unviewedNotificationCount, dispatch])
 
   return (
     <>

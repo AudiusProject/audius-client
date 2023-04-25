@@ -6,12 +6,7 @@ import {
   MouseEvent
 } from 'react'
 
-import {
-  Name,
-  PlaylistLibraryFolder,
-  PlaylistLibraryID,
-  PlaylistLibraryKind
-} from '@audius/common'
+import { Name, PlaylistLibraryFolder, PlaylistLibraryID } from '@audius/common'
 import {
   IconCaretRight,
   IconFolder,
@@ -21,17 +16,20 @@ import {
 } from '@audius/stems'
 import { ResizeObserver } from '@juggle/resize-observer'
 import cn from 'classnames'
+// eslint-disable-next-line no-restricted-imports -- TODO: migrate to @react-spring/web
 import { useSpring, animated } from 'react-spring'
 import useMeasure from 'react-use-measure'
 
 import { useRecord, make } from 'common/store/analytics/actions'
-import Draggable from 'components/dragndrop/Draggable'
-import Droppable from 'components/dragndrop/Droppable'
+import { Draggable, Droppable } from 'components/dragndrop'
+import { DragDropKind } from 'store/dragndrop/slice'
 
-import navColumnStyles from './NavColumn.module.css'
+import leftNavStyles from './LeftNav.module.css'
 import styles from './PlaylistLibrary.module.css'
 
-type PlaylistFolderNavButtonProps = ComponentPropsWithoutRef<'button'>
+type PlaylistFolderNavButtonProps = ComponentPropsWithoutRef<'button'> & {
+  id: string
+}
 
 const FolderNavLink = ({
   id,
@@ -77,12 +75,12 @@ type PlaylistFolderNavItemProps = {
   onClickEdit: (folderId: string) => void
   onDropInFolder: (
     folder: PlaylistLibraryFolder,
-    draggingKind: PlaylistLibraryKind,
+    draggingKind: DragDropKind,
     draggingId: PlaylistLibraryID
   ) => void
   onDropBelowFolder: (
     folderId: string,
-    draggingKind: PlaylistLibraryKind,
+    draggingKind: DragDropKind,
     draggingId: PlaylistLibraryID
   ) => void
   children?: ReactNode
@@ -126,9 +124,9 @@ export const PlaylistFolderNavItem = ({
     <>
       {/* This is the droppable area for adding a playlist into a folder */}
       <Droppable
-        className={navColumnStyles.droppable}
-        hoverClassName={navColumnStyles.droppableHover}
-        onDrop={(playlistId: PlaylistLibraryID, kind: PlaylistLibraryKind) => {
+        className={leftNavStyles.droppable}
+        hoverClassName={leftNavStyles.droppableHover}
+        onDrop={(playlistId: PlaylistLibraryID, kind: DragDropKind) => {
           onDropInFolder(folder, kind, playlistId)
         }}
         acceptedKinds={['library-playlist', 'playlist']}
@@ -140,9 +138,9 @@ export const PlaylistFolderNavItem = ({
           onMouseLeave={() => setIsHovering(false)}
           id={id}
           name={name}
-          className={cn(navColumnStyles.link, navColumnStyles.editable, {
-            [navColumnStyles.droppableLink]: dragging && isDroppableKind,
-            [navColumnStyles.disabledLink]: dragging && !isDroppableKind
+          className={cn(leftNavStyles.link, leftNavStyles.editable, {
+            [leftNavStyles.droppableLink]: dragging && isDroppableKind,
+            [leftNavStyles.disabledLink]: dragging && !isDroppableKind
           })}
           onClick={handleClickFolder}
         >
@@ -197,7 +195,7 @@ export const PlaylistFolderNavItem = ({
       <Droppable
         className={styles.droppable}
         hoverClassName={styles.droppableHover}
-        onDrop={(draggingId: PlaylistLibraryID, kind: PlaylistLibraryKind) => {
+        onDrop={(draggingId: PlaylistLibraryID, kind: DragDropKind) => {
           onDropBelowFolder(id, kind, draggingId)
         }}
         acceptedKinds={['playlist-folder', 'library-playlist']}

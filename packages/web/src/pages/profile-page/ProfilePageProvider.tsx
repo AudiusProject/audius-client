@@ -7,9 +7,7 @@ import {
   FollowSource,
   ShareSource,
   BadgeTier,
-  Kind,
   Status,
-  makeKindId,
   formatCount,
   getErrorMessage,
   accountSelectors,
@@ -22,7 +20,7 @@ import {
   profilePageActions as profileActions,
   profilePageTracksLineupActions as tracksActions,
   profilePageFeedLineupActions as feedActions,
-  artistRecommendationsUISelectors,
+  relatedArtistsUISelectors,
   OverflowSource,
   OverflowAction,
   mobileOverflowMenuUIActions,
@@ -35,7 +33,8 @@ import {
   playerSelectors,
   queueSelectors,
   Nullable,
-  chatActions
+  chatActions,
+  chatSelectors
 } from '@audius/common'
 import { push as pushRoute, replace } from 'connected-react-router'
 import { UnregisterCallback } from 'history'
@@ -45,7 +44,6 @@ import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
 import { make, TrackEvent } from 'common/store/analytics/actions'
-import { getIsDone } from 'common/store/confirmer/selectors'
 import { ProfileMode } from 'components/stat-banner/StatBanner'
 import { StatProps } from 'components/stats/Stats'
 import * as unfollowConfirmationActions from 'components/unfollow-confirmation-modal/store/actions'
@@ -64,7 +62,7 @@ const { setFollowers } = followersUserListActions
 const { setFollowing } = followingUserListActions
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { open } = mobileOverflowMenuUIActions
-const { getRelatedArtists } = artistRecommendationsUISelectors
+const { selectSuggestedFollowsUsers } = relatedArtistsUISelectors
 
 const {
   makeGetProfile,
@@ -73,7 +71,8 @@ const {
   getProfileUserId
 } = profilePageSelectors
 const { getAccountUser } = accountSelectors
-const { createChat } = chatActions
+const { createChat, blockUser, unblockUser } = chatActions
+const { getBlockees, getBlockers, getPermissionsMap } = chatSelectors
 
 const INITIAL_UPDATE_FIELDS = {
   updatedName: null,
@@ -256,8 +255,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
   fetchProfile = (
     pathname: string,
     forceUpdate = false,
-    shouldSetLoading = true,
-    deleteExistingEntry = false
+    shouldSetLoading = true
   ) => {
     const params = parseUserRoute(pathname)
     if (params) {
@@ -265,8 +263,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
         params?.handle?.toLowerCase() ?? null,
         params.userId,
         forceUpdate,
-        shouldSetLoading,
-        deleteExistingEntry
+        shouldSetLoading
       )
       if (params.tab) {
         this.setState({ activeTab: getTabForRoute(params.tab) })
@@ -277,7 +274,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
   }
 
   refreshProfile = () => {
-    this.fetchProfile(getPathname(this.props.location), true, false, true)
+    this.fetchProfile(getPathname(this.props.location), true, false)
   }
 
   updateName = (name: string) => {
@@ -693,6 +690,20 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     return this.props.onMessage(profile!.user_id)
   }
 
+  onBlock = () => {
+    const {
+      profile: { profile }
+    } = this.props
+    return this.props.onBlock(profile!.user_id)
+  }
+
+  onUnblock = () => {
+    const {
+      profile: { profile }
+    } = this.props
+    return this.props.onUnblock(profile!.user_id)
+  }
+
   render() {
     const {
       profile: {
@@ -700,7 +711,6 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
         status: profileLoadingStatus,
         albums,
         playlists,
-        mostUsedTags,
         isSubscribed
       },
       // Tracks
@@ -812,6 +822,12 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       activeTab === ProfilePageTabs.REPOSTS ||
       activeTab === ProfilePageTabs.COLLECTIBLES
     const following = !!profile && profile.does_current_user_follow
+    const hasChatPermission =
+      (this.props.profile.profile?.user_id &&
+        !this.props.blockerList.includes(this.props.profile.profile.user_id) &&
+        this.props.permissionsMap[this.props.profile.profile.user_id]
+          ?.current_user_has_permission) ??
+      false
 
     const childProps = {
       // Computed
@@ -839,7 +855,6 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       mode,
       stats,
       activeTab,
-      mostUsedTags,
       twitterVerified,
       instagramVerified,
       tikTokVerified,
@@ -883,13 +898,14 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       updateDonation: this.updateDonation,
       updateCoverPhoto: this.updateCoverPhoto,
       didChangeTabsFrom: this.didChangeTabsFrom,
-      onMessage: this.onMessage
+      onMessage: hasChatPermission ? this.onMessage : undefined,
+      onBlock: this.onBlock,
+      onUnblock: this.onUnblock
     }
 
     const mobileProps = {
       trackIsActive: !!currentQueueItem,
       onConfirmUnfollow: this.props.onConfirmUnfollow,
-      isUserConfirming: this.props.isUserConfirming,
       hasMadeEdit:
         updatedName !== null ||
         updatedBio !== null ||
@@ -924,7 +940,10 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
 
       openCreatePlaylistModal,
 
-      updateProfile: this.props.updateProfile
+      updateProfile: this.props.updateProfile,
+      isBlocked: this.props.profile.profile
+        ? this.props.blockeeList.includes(this.props.profile.profile.user_id)
+        : false
     }
 
     return (
@@ -957,12 +976,12 @@ function makeMapStateToProps() {
       playing: getPlaying(state),
       buffering: getBuffering(state),
       pathname: getLocationPathname(state),
-      isUserConfirming: !getIsDone(state, {
-        uid: makeKindId(Kind.USERS, getAccountUser(state)?.user_id)
-      }),
-      relatedArtists: getRelatedArtists(state, {
+      relatedArtists: selectSuggestedFollowsUsers(state, {
         id: getProfileUserId(state, handleLower) ?? 0
-      })
+      }),
+      permissionsMap: getPermissionsMap(state),
+      blockeeList: getBlockees(state),
+      blockerList: getBlockers(state)
     }
   }
   return mapStateToProps
@@ -979,8 +998,7 @@ function mapDispatchToProps(dispatch: Dispatch, props: RouteComponentProps) {
       handle: Nullable<string>,
       userId: ID | null,
       forceUpdate: boolean,
-      shouldSetLoading: boolean,
-      deleteExistingEntry: boolean
+      shouldSetLoading: boolean
     ) =>
       dispatch(
         profileActions.fetchProfile(
@@ -988,7 +1006,7 @@ function mapDispatchToProps(dispatch: Dispatch, props: RouteComponentProps) {
           userId,
           forceUpdate,
           shouldSetLoading,
-          deleteExistingEntry
+          /* deleteExistingEntry */ false
         )
       ),
     updateProfile: (metadata: any) =>
@@ -1122,6 +1140,12 @@ function mapDispatchToProps(dispatch: Dispatch, props: RouteComponentProps) {
     },
     onMessage: (userId: ID) => {
       dispatch(createChat({ userIds: [userId] }))
+    },
+    onBlock: (userId: ID) => {
+      dispatch(blockUser({ userId }))
+    },
+    onUnblock: (userId: ID) => {
+      dispatch(unblockUser({ userId }))
     }
   }
 }

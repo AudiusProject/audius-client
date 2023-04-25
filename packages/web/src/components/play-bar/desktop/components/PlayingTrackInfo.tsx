@@ -2,9 +2,10 @@ import { memo, useEffect } from 'react'
 
 import { ID, Color, ProfilePictureSizes, SquareSizes } from '@audius/common'
 import cn from 'classnames'
+// eslint-disable-next-line no-restricted-imports -- TODO: migrate to @react-spring/web
 import { animated, useSpring } from 'react-spring'
 
-import Draggable from 'components/dragndrop/Draggable'
+import { Draggable } from 'components/dragndrop'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'

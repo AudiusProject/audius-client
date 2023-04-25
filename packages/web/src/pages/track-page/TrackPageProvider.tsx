@@ -55,7 +55,6 @@ import { AppState } from 'store/types'
 import { isMobile } from 'utils/clientUtil'
 import {
   profilePage,
-  searchResultsPage,
   NOT_FOUND_PAGE,
   FEED_PAGE,
   FAVORITING_USERS_ROUTE,
@@ -339,11 +338,6 @@ class TrackPageProvider extends Component<
     this.props.goToRoute(profilePage(handle))
   }
 
-  goToSearchResultsPage = (tag: string) => {
-    this.props.goToRoute(searchResultsPage(tag))
-    this.props.recordTagClick(tag.replace('#', ''))
-  }
-
   goToParentRemixesPage = () => {
     const { goToRemixesOfParentPage, track } = this.props
     const parentTrackId = getRemixParentTrackId(track)
@@ -392,7 +386,8 @@ class TrackPageProvider extends Component<
       userId,
       pause,
       downloadTrack,
-      onExternalLinkClick
+      onExternalLinkClick,
+      onInternalLinkClick
     } = this.props
     const heroPlaying =
       playing &&
@@ -467,7 +462,6 @@ class TrackPageProvider extends Component<
       badge,
       onHeroPlay: this.onHeroPlay,
       goToProfilePage: this.goToProfilePage,
-      goToSearchResultsPage: this.goToSearchResultsPage,
       goToAllRemixesPage: this.goToAllRemixesPage,
       goToParentRemixesPage: this.goToParentRemixesPage,
       onHeroRepost: this.onHeroRepost,
@@ -486,7 +480,8 @@ class TrackPageProvider extends Component<
       isBuffering: buffering,
       play: this.onMoreByArtistTracksPlay,
       pause,
-      onExternalLinkClick
+      onExternalLinkClick,
+      onInternalLinkClick
     }
 
     return (
@@ -629,16 +624,12 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(setRepost(trackId, RepostType.TRACK)),
     setFavoriteTrackId: (trackId: ID) =>
       dispatch(setFavorite(trackId, FavoriteType.TRACK)),
+    onInternalLinkClick: (route: string) => {
+      dispatch(pushRoute(route))
+    },
     onExternalLinkClick: (event: any) => {
       const trackEvent: TrackEvent = make(Name.LINK_CLICKING, {
         url: event.target.href,
-        source: 'track page' as const
-      })
-      dispatch(trackEvent)
-    },
-    recordTagClick: (tag: string) => {
-      const trackEvent: TrackEvent = make(Name.TAG_CLICKING, {
-        tag,
         source: 'track page' as const
       })
       dispatch(trackEvent)

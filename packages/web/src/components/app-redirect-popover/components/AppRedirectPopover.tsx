@@ -2,6 +2,7 @@ import { Fragment, useState, useEffect } from 'react'
 
 import { Button, ButtonType } from '@audius/stems'
 import { matchPath } from 'react-router-dom'
+// eslint-disable-next-line no-restricted-imports -- TODO: migrate to @react-spring/web
 import { animated, useTransition } from 'react-spring'
 
 import AppIcon from 'assets/img/appIcon240.png'
@@ -72,7 +73,6 @@ const springProps = {
 }
 
 type AppRedirectPopoverProps = {
-  enablePopover: boolean
   incrementScroll: () => void
   decrementScroll: () => void
   onBeforeClickApp?: () => void
@@ -85,7 +85,6 @@ type AppRedirectPopoverProps = {
  * if no app is installed.
  */
 export const AppRedirectPopover = ({
-  enablePopover,
   incrementScroll,
   decrementScroll,
   onBeforeClickApp = () => {},
@@ -95,8 +94,8 @@ export const AppRedirectPopover = ({
 
   const [animDelay, setAnimDelay] = useState(false)
   useEffect(() => {
-    enablePopover && setTimeout(() => setAnimDelay(true), 1000)
-  }, [enablePopover])
+    setTimeout(() => setAnimDelay(true), 1000)
+  }, [])
 
   const shouldShow =
     !matchPath(window.location.pathname, { path: '/', exact: true }) &&

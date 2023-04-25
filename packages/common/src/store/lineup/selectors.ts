@@ -3,7 +3,7 @@ import { createSelector } from 'reselect'
 import { Kind } from 'models'
 import { getTracksByUid } from 'store/cache/tracks/selectors'
 import { getUsers } from 'store/cache/users/selectors'
-import { removeNullable } from 'utils/typeUtils'
+import { Nullable, removeNullable } from 'utils/typeUtils'
 
 import { LineupState } from '../../models/Lineup'
 
@@ -17,6 +17,13 @@ export const getLineupHasTracks = <T, State>(
 ) => {
   const lineup = selector(state)
   return lineup && lineup.entries.length > 0
+}
+
+export const getLineupEntries = <T, State>(
+  selector: (state: State) => Nullable<LineupState<T>>,
+  state: State
+) => {
+  return selector(state)?.entries
 }
 
 export const makeGetTableMetadatas = <T, State>(

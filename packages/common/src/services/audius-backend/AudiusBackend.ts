@@ -1,3 +1,4 @@
+import type { DiscoveryNodeSelector } from '@audius/sdk'
 import { DiscoveryAPI } from '@audius/sdk/dist/core'
 import type { HedgehogConfig } from '@audius/sdk/dist/services/hedgehog'
 import type { LocalStorage } from '@audius/sdk/dist/utils/localStorage'
@@ -10,7 +11,7 @@ import {
   TransactionInstruction
 } from '@solana/web3.js'
 import BN from 'bn.js'
-import dayjs from 'dayjs'
+import { extend, unix, tz } from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 import queryString from 'query-string'
@@ -66,7 +67,6 @@ import {
 } from '../../store'
 import { CIDCache } from '../../store/cache/CIDCache'
 import {
-  Nullable as totalUnviewed,
   getErrorMessage,
   uuid,
   Maybe,
@@ -76,6 +76,7 @@ import {
   Nullable,
   removeNullable
 } from '../../utils'
+import type { DiscoveryNodeSelectorInstance } from '../discovery-node-selector'
 
 import { MonitoringCallbacks } from './types'
 
@@ -116,8 +117,8 @@ declare global {
   }
 }
 
-dayjs.extend(utc)
-dayjs.extend(timezone)
+extend(utc)
+extend(timezone)
 
 const SEARCH_MAX_SAVED_RESULTS = 10
 const SEARCH_MAX_TOTAL_RESULTS = 50
@@ -179,7 +180,7 @@ type TransactionReceipt = { blockHash: string; blockNumber: number }
 let preloadImageTimer: Timer
 const avoidGC: HTMLImageElement[] = []
 
-type DiscoveryProviderListener = (endpoint: totalUnviewed<string>) => void
+type DiscoveryProviderListener = (endpoint: Nullable<string>) => void
 
 type AudiusBackendSolanaConfig = Partial<{
   claimableTokenPda: string
@@ -222,11 +223,12 @@ type AudiusBackendParams = {
   ethProviderUrls: Maybe<string[]>
   ethRegistryAddress: Maybe<string>
   ethTokenAddress: Maybe<string>
+  discoveryNodeSelectorInstance: DiscoveryNodeSelectorInstance
   getFeatureEnabled: (
     flag: FeatureFlags,
     fallbackFlag?: FeatureFlags
   ) => Promise<boolean | null> | null | boolean
-  getHostUrl: () => totalUnviewed<string>
+  getHostUrl: () => Nullable<string>
   getLibs: () => Promise<any>
   getWeb3Config: (
     libs: any,
@@ -278,6 +280,7 @@ export const audiusBackend = ({
   ethProviderUrls,
   ethRegistryAddress,
   ethTokenAddress,
+  discoveryNodeSelectorInstance,
   getFeatureEnabled,
   getHostUrl,
   getLibs,
@@ -327,7 +330,7 @@ export const audiusBackend = ({
 }: AudiusBackendParams) => {
   const { getRemoteVar, waitForRemoteConfig } = remoteConfigInstance
 
-  const currentDiscoveryProvider: totalUnviewed<string> = null
+  const currentDiscoveryProvider: Nullable<string> = null
   const didSelectDiscoveryProviderListeners: DiscoveryProviderListener[] = []
 
   /**
@@ -355,7 +358,7 @@ export const audiusBackend = ({
     }
   }
 
-  function getCreatorNodeIPFSGateways(endpoint: totalUnviewed<string>) {
+  function getCreatorNodeIPFSGateways(endpoint: Nullable<string>) {
     if (endpoint) {
       return endpoint
         .split(',')
@@ -429,17 +432,47 @@ export const audiusBackend = ({
     creatorNodeGateways = [] as string[],
     cache = true,
     asUrl = true,
-    trackId: totalUnviewed<ID> = null
+    trackId: Nullable<ID> = null
   ) {
     await waitForLibsInit()
+
+    // If requesting a url (we mean a blob url for the file),
+    // otherwise, default to JSON
+    const responseType = asUrl ? 'blob' : 'json'
+
+    // TODO read only from discovery after CID metadata migration
+    const getMetadataFromDiscoveryEnabled =
+      (await getFeatureEnabled(
+        FeatureFlags.GET_METADATA_FROM_DISCOVERY_ENABLED
+      )) ?? false
+    if (getMetadataFromDiscoveryEnabled) {
+      try {
+        const res = await audiusLibs.File.fetchCIDFromDiscovery(
+          cid,
+          responseType
+        )
+        if (res?.data) {
+          if (asUrl) {
+            const url = nativeMobile
+              ? res.config.url
+              : URL.createObjectURL(res.data)
+            if (cache) CIDCache.add(cid, url)
+            return url
+          }
+          return res.data
+        }
+      } catch (e) {
+        console.error(e)
+      }
+      // If failed to find metadata in discovery, try with content nodes
+    }
+
     try {
       const res = await audiusLibs.File.fetchCID(
         cid,
         creatorNodeGateways,
         () => {},
-        // If requesting a url (we mean a blob url for the file),
-        // otherwise, default to JSON
-        asUrl ? 'blob' : 'json',
+        responseType,
         trackId
       )
       if (asUrl) {
@@ -520,8 +553,8 @@ export const audiusBackend = ({
   }
 
   async function getImageUrl(
-    cid: totalUnviewed<CID>,
-    size: totalUnviewed<string>,
+    cid: Nullable<CID>,
+    size: Nullable<string>,
     gateways: string[]
   ) {
     if (!cid) return ''
@@ -668,7 +701,7 @@ export const audiusBackend = ({
     SolanaUtils = libsModule.SolanaUtils
     RewardsAttester = libsModule.RewardsAttester
     // initialize libs
-    let libsError: totalUnviewed<string> = null
+    let libsError: Nullable<string> = null
     const { web3Config } = await getWeb3Config(
       AudiusLibs,
       registryAddress,
@@ -686,6 +719,21 @@ export const audiusBackend = ({
     const discoveryNodeBlockList = getBlockList(
       StringKeys.DISCOVERY_NODE_BLOCK_LIST
     )
+
+    const useSdkDiscoveryNodeSelector = await getFeatureEnabled(
+      FeatureFlags.SDK_V2
+    )
+
+    let discoveryNodeSelector: Maybe<DiscoveryNodeSelector>
+
+    if (useSdkDiscoveryNodeSelector) {
+      discoveryNodeSelector =
+        await discoveryNodeSelectorInstance.getDiscoveryNodeSelector()
+
+      discoveryNodeSelector.addEventListener('change', (endpoint) => {
+        discoveryProviderSelectionCallback(endpoint, [])
+      })
+    }
 
     try {
       audiusLibs = new AudiusLibs({
@@ -712,9 +760,10 @@ export const audiusBackend = ({
           )
             ? getRemoteVar(IntKeys.DISCOVERY_NODE_MAX_SLOT_DIFF_PLAYS)
             : null,
-          unhealthyBlockDiff: getRemoteVar(
-            IntKeys.DISCOVERY_NODE_MAX_BLOCK_DIFF
-          )
+          unhealthyBlockDiff:
+            getRemoteVar(IntKeys.DISCOVERY_NODE_MAX_BLOCK_DIFF) ?? undefined,
+
+          discoveryNodeSelector
         },
         identityServiceConfig:
           AudiusLibs.configIdentityService(identityServiceUrl),
@@ -977,8 +1026,8 @@ export const audiusBackend = ({
     DiscoveryAPIParams<typeof DiscoveryAPI.getTracks>,
     'sort' | 'filterDeleted'
   > & {
-    sort: totalUnviewed<boolean>
-    filterDeleted: totalUnviewed<boolean>
+    sort: Nullable<boolean>
+    filterDeleted: Nullable<boolean>
   }) {
     try {
       const tracks = await withEagerOption(
@@ -1217,7 +1266,16 @@ export const audiusBackend = ({
   ) {
     const storageV2Enabled = await getFeatureEnabled(FeatureFlags.STORAGE_V2)
     if (storageV2Enabled) {
-      // do storage v2 upload
+      try {
+        return await audiusLibs.Track.uploadTrackV2(
+          trackFile,
+          coverArtFile,
+          metadata,
+          onProgress
+        )
+      } catch (e: any) {
+        return { error: e }
+      }
     } else {
       return await audiusLibs.Track.uploadTrack(
         trackFile,
@@ -1236,6 +1294,7 @@ export const audiusBackend = ({
     metadata: TrackMetadata,
     onProgress: (loaded: number, total: number) => void
   ) {
+    // TODO: Call storage v2 upload if USE_STORAGE_V2_FEATURE_FLAG is true
     return audiusLibs.Track.uploadTrackContentToCreatorNode(
       trackFile,
       coverArtFile,
@@ -1547,8 +1606,8 @@ export const audiusBackend = ({
   }
 
   async function getPlaylists(
-    userId: totalUnviewed<ID>,
-    playlistIds: totalUnviewed<ID[]>,
+    userId: Nullable<ID>,
+    playlistIds: Nullable<ID[]>,
     withUsers = true
   ): Promise<CollectionMetadata[]> {
     try {
@@ -1890,8 +1949,8 @@ export const audiusBackend = ({
       coverPhoto: File
     }
     hasWallet: boolean
-    referrer: totalUnviewed<ID>
-    feePayerOverride: totalUnviewed<string>
+    referrer: Nullable<ID>
+    feePayerOverride: Nullable<string>
   }) {
     await waitForLibsInit()
     const metadata = schemas.newUserMetadata()
@@ -1920,8 +1979,29 @@ export const audiusBackend = ({
       setLocalStorageItem('is-mobile-user', 'true')
     }
 
+    const storageV2Enabled = await getFeatureEnabled(FeatureFlags.STORAGE_V2)
+    if (storageV2Enabled || email?.startsWith('storage_v2_test_')) {
+      return await audiusLibs.Account.signUpV2(
+        email,
+        password,
+        metadata,
+        formFields.profilePicture,
+        formFields.coverPhoto,
+        hasWallet,
+        getHostUrl(),
+        (eventName: string, properties: Record<string, unknown>) =>
+          recordAnalytics({ eventName, properties }),
+        {
+          Request: Name.CREATE_USER_BANK_REQUEST,
+          Success: Name.CREATE_USER_BANK_SUCCESS,
+          Failure: Name.CREATE_USER_BANK_FAILURE
+        },
+        feePayerOverride,
+        true
+      )
+    }
     // Returns { userId, error, phase }
-    return audiusLibs.Account.signUp(
+    return await audiusLibs.Account.signUp(
       email,
       password,
       metadata,
@@ -2195,7 +2275,7 @@ export const audiusBackend = ({
       }
     } else if (notification.type === 'supporter_rank_up') {
       const data = notification.actions[0].data
-      const senderUserId = decodeHashId(data.receiver_user_id) as number
+      const senderUserId = decodeHashId(data.sender_user_id) as number
       return {
         type: NotificationType.SupporterRankUp,
         entityId: senderUserId,
@@ -2248,11 +2328,14 @@ export const audiusBackend = ({
           const data = action.data
           if ('playlist_id' in data) {
             entityType = data.is_album ? Entity.Album : Entity.Playlist
-            return decodeHashId(data.playlist_id)
+            return data.playlist_id.map((playlist_id) =>
+              decodeHashId(playlist_id)
+            )
           }
           entityType = Entity.Track
           return decodeHashId(data.track_id)
         })
+        .flat()
         .filter(removeNullable)
       const userId = decodeHashId(notification.actions[0].specifier) as number
       return {
@@ -2457,14 +2540,13 @@ export const audiusBackend = ({
     validTypes?: string[]
   }) {
     await waitForLibsInit()
-    const account = audiusLibs.Account.getCurrentUser()
-    if (!account) {
+    const account = audiusLibs.Account?.getCurrentUser()
+    if (!account)
       return {
         message: 'error',
         error: new Error('User not signed in'),
         isRequestError: false
       }
-    }
     const encodedUserId = encodeHashId(account.user_id)
 
     type DiscoveryNotificationsResponse = {
@@ -2491,7 +2573,6 @@ export const audiusBackend = ({
     const { unread_count, notifications } = response
 
     return {
-      message: 'success',
       totalUnviewed: unread_count,
       notifications: notifications.map(
         mapDiscoveryNotification
@@ -2521,9 +2602,7 @@ export const audiusBackend = ({
     try {
       const { data, signature } = await signData()
       const query = {
-        timeOffset: timeOffset
-          ? dayjs.unix(timeOffset).toISOString()
-          : undefined,
+        timeOffset: timeOffset ? unix(timeOffset).toISOString() : undefined,
         limit,
         handle,
         withSupporterDethroned: withDethroned,
@@ -3056,7 +3135,7 @@ export const audiusBackend = ({
     if (!account) return
     try {
       const { data, signature } = await signData()
-      const timezone = dayjs.tz.guess()
+      const timezone = tz.guess()
       const res = await fetch(`${identityServiceUrl}/users/update`, {
         method: 'POST',
         headers: {
@@ -3483,7 +3562,7 @@ export const audiusBackend = ({
     endpoints: string[]
     AAOEndpoint: string
     parallelization: number
-    feePayerOverride: totalUnviewed<string>
+    feePayerOverride: Nullable<string>
     isFinalAttempt: boolean
   }) {
     await waitForLibsInit()
@@ -3524,17 +3603,14 @@ export const audiusBackend = ({
         console.error(
           `Got errors in processChallenges: ${JSON.stringify(res.errors)}`
         )
-        const hcaptchaOrCognito = res.errors.find(
+        const hcaptcha = res.errors.find(
           ({ error }: { error: FailureReason }) =>
-            error === FailureReason.HCAPTCHA ||
-            error === FailureReason.COGNITO_FLOW
+            error === FailureReason.HCAPTCHA
         )
 
-        // If any of the errors are HCAPTCHA or Cognito, return that one
+        // If any of the errors are HCAPTCHA, return that one
         // Otherwise, just return the first error we saw
-        const error = hcaptchaOrCognito
-          ? hcaptchaOrCognito.error
-          : res.errors[0].error
+        const error = hcaptcha ? hcaptcha.error : res.errors[0].error
         const aaoErrorCode = res.errors[0].aaoErrorCode
 
         return { error, aaoErrorCode }

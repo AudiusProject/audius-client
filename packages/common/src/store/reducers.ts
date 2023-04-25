@@ -2,7 +2,7 @@ import { combineReducers } from 'redux'
 
 import { Kind } from '../models'
 
-import accountSlice from './account/slice'
+import account from './account/slice'
 import averageColorReducer from './average-color/slice'
 import collectionsReducer from './cache/collections/reducer'
 import { CollectionsCacheState } from './cache/collections/types'
@@ -14,7 +14,7 @@ import { UsersCacheState } from './cache/users/types'
 import cast from './cast/slice'
 import changePasswordReducer from './change-password/slice'
 import { ChangePasswordState } from './change-password/types'
-import collectiblesSlice from './collectibles/slice'
+import collectibles from './collectibles/slice'
 import musicConfettiReducer, {
   MusicConfettiState
 } from './music-confetti/slice'
@@ -58,7 +58,7 @@ import {
   PlaylistLibraryState
 } from './playlist-library'
 import { playlistUpdatesReducer, PlaylistUpdateState } from './playlist-updates'
-import premiumContentSlice from './premium-content/slice'
+import premiumContent from './premium-content/slice'
 import queue from './queue/slice'
 import reachability from './reachability/reducer'
 import { ReachabilityState } from './reachability/types'
@@ -78,9 +78,6 @@ import {
 import addToPlaylistReducer, {
   AddToPlaylistState
 } from './ui/add-to-playlist/reducer'
-import artistRecommendationsReducer, {
-  ArtistRecommendationsState
-} from './ui/artist-recommendations/slice'
 import buyAudioReducer from './ui/buy-audio/slice'
 import collectibleDetailsReducer, {
   CollectibleDetailsState
@@ -95,6 +92,8 @@ import modalsReducer from './ui/modals/slice'
 import { ModalsState } from './ui/modals/types'
 import nowPlayingReducer, { NowPlayingState } from './ui/now-playing/slice'
 import reactionsReducer, { ReactionsState } from './ui/reactions/slice'
+import relatedArtistsReducer from './ui/related-artists/slice'
+import { RelatedArtistsState } from './ui/related-artists/types'
 import shareModalReducer from './ui/share-modal/slice'
 import { ShareModalState } from './ui/share-modal/types'
 import shareSoundToTikTokModalReducer from './ui/share-sound-to-tiktok-modal/slice'
@@ -111,6 +110,7 @@ import followersUserListReducer from './user-list/followers/reducers'
 import followingUserListReducer from './user-list/following/reducers'
 import mutualsUserListReducer from './user-list/mutuals/reducers'
 import notificationsUserListReducer from './user-list/notifications/reducers'
+import relatedArtistsListReducer from './user-list/related-artists/reducers'
 import repostsUserListReducer from './user-list/reposts/reducers'
 import supportingUserListReducer from './user-list/supporting/reducers'
 import topSupportersUserListReducer from './user-list/top-supporters/reducers'
@@ -123,7 +123,7 @@ import wallet from './wallet/slice'
  * @returns an object of all reducers to be used with `combineReducers`
  */
 export const reducers = () => ({
-  account: accountSlice.reducer,
+  account,
 
   // TODO: Move to common
   // signOn: signOnReducer,
@@ -166,7 +166,7 @@ export const reducers = () => ({
     addToPlaylist: addToPlaylistReducer,
     buyAudio: buyAudioReducer,
 
-    artistRecommendations: artistRecommendationsReducer,
+    relatedArtists: relatedArtistsReducer,
     changePassword: changePasswordReducer,
     createPlaylistModal: createPlaylistModalReducer,
     collectibleDetails: collectibleDetailsReducer,
@@ -190,7 +190,8 @@ export const reducers = () => ({
       topSupporters: topSupportersUserListReducer,
       supporting: supportingUserListReducer,
       mutuals: mutualsUserListReducer,
-      notifications: notificationsUserListReducer
+      notifications: notificationsUserListReducer,
+      relatedArtists: relatedArtistsListReducer
     }),
     theme,
     vipDiscordModal: vipDiscordModalReducer,
@@ -230,16 +231,16 @@ export const reducers = () => ({
   tipping: tippingReducer,
 
   // Premium content
-  premiumContent: premiumContentSlice.reducer,
+  premiumContent,
 
   // Collectibles
-  collectibles: collectiblesSlice.reducer,
+  collectibles,
 
   upload
 })
 
 export type CommonState = {
-  account: ReturnType<typeof accountSlice.reducer>
+  account: ReturnType<typeof account>
   // TODO: Migrate to common
   // signOn: ReturnType<typeof signOnReducer>
 
@@ -278,7 +279,6 @@ export type CommonState = {
     averageColor: ReturnType<typeof averageColorReducer>
     buyAudio: ReturnType<typeof buyAudioReducer>
     addToPlaylist: AddToPlaylistState
-    artistRecommendations: ArtistRecommendationsState
     changePassword: ChangePasswordState
     createPlaylistModal: CreatePlaylistModalState
     collectibleDetails: CollectibleDetailsState
@@ -288,6 +288,7 @@ export type CommonState = {
     musicConfetti: MusicConfettiState
     nowPlaying: NowPlayingState
     reactions: ReactionsState
+    relatedArtists: RelatedArtistsState
     remixSettings: RemixSettingsState
     shareSoundToTikTokModal: ShareSoundToTikTokModalState
     searchUsersModal: SearchUsersModalState
@@ -303,6 +304,7 @@ export type CommonState = {
       favorites: ReturnType<typeof favoritesUserListReducer>
       topSupporters: ReturnType<typeof topSupportersUserListReducer>
       supporting: ReturnType<typeof supportingUserListReducer>
+      relatedArtists: ReturnType<typeof relatedArtistsListReducer>
     }
     theme: ThemeState
     vipDiscordModal: VipDiscordModalState
@@ -339,10 +341,10 @@ export type CommonState = {
   tipping: ReturnType<typeof tippingReducer>
 
   // Premium content
-  premiumContent: ReturnType<typeof premiumContentSlice.reducer>
+  premiumContent: ReturnType<typeof premiumContent>
 
   // Collectibles
-  collectibles: ReturnType<typeof collectiblesSlice.reducer>
+  collectibles: ReturnType<typeof collectibles>
 
   upload: UploadState
 }

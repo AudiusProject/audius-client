@@ -12,20 +12,20 @@ import {
   profilePageActions as profileActions,
   reachabilitySelectors,
   tippingActions,
-  artistRecommendationsUIActions as artistRecommendationsActions,
+  relatedArtistsUIActions as relatedArtistsActions,
   waitForAccount,
   dataURLtoFile,
-  MAX_ARTIST_HOVER_TOP_SUPPORTING,
+  SUPPORTING_PAGINATION_SIZE,
   MAX_PROFILE_SUPPORTING_TILES,
   MAX_PROFILE_TOP_SUPPORTERS,
   collectiblesActions,
-  processAndCacheUsers
+  processAndCacheUsers,
+  chatActions
 } from '@audius/common'
 import { merge } from 'lodash'
 import {
   all,
   call,
-  delay,
   fork,
   getContext,
   put,
@@ -50,6 +50,7 @@ import {
 import { waitForRead, waitForWrite } from 'utils/sagaHelpers'
 
 import { watchFetchProfileCollections } from './fetchProfileCollectionsSaga'
+import { watchFetchTopTags } from './fetchTopTagsSaga'
 const { refreshSupport } = tippingActions
 const { getIsReachable } = reachabilitySelectors
 const { getProfileUserId, getProfileFollowers, getProfileUser } =
@@ -64,6 +65,8 @@ const {
   setHasUnsupportedCollection
 } = collectiblesActions
 
+const { fetchPermissions } = chatActions
+
 function* watchFetchProfile() {
   yield takeEvery(profileActions.FETCH_PROFILE, fetchProfileAsync)
 }
@@ -75,11 +78,7 @@ function* fetchProfileCustomizedCollectibles(user) {
   )
   const cid = user?.metadata_multihash ?? null
   if (cid) {
-    const {
-      is_verified: ignored_is_verified,
-      creator_node_endpoint: ignored_creator_node_endpoint,
-      ...metadata
-    } = yield call(
+    const metadata = yield call(
       audiusBackendInstance.fetchCID,
       cid,
       gateways,
@@ -92,7 +91,7 @@ function* fetchProfileCustomizedCollectibles(user) {
           {
             id: user.user_id,
             metadata: {
-              ...metadata,
+              collectibles: metadata.collectibles,
               collectiblesOrderUnset: false
             }
           }
@@ -104,7 +103,6 @@ function* fetchProfileCustomizedCollectibles(user) {
           {
             id: user.user_id,
             metadata: {
-              ...metadata,
               collectiblesOrderUnset: true
             }
           }
@@ -121,35 +119,38 @@ export function* fetchOpenSeaAssetsForWallets(wallets) {
 
 export function* fetchOpenSeaAssets(user) {
   const apiClient = yield getContext('apiClient')
-  const { wallets } = yield apiClient.getAssociatedWallets({
+  const associatedWallets = yield apiClient.getAssociatedWallets({
     userID: user.user_id
   })
-  const collectiblesMap = yield call(fetchOpenSeaAssetsForWallets, [
-    user.wallet,
-    ...wallets
-  ])
-
-  const collectibleList = Object.values(collectiblesMap).flat()
-  if (!collectibleList.length) {
-    console.log('profile has no assets in OpenSea')
-  }
-
-  yield put(
-    cacheActions.update(Kind.USERS, [
-      {
-        id: user.user_id,
-        metadata: {
-          collectibleList
-        }
-      }
+  if (associatedWallets) {
+    const { wallets } = associatedWallets
+    const collectiblesMap = yield call(fetchOpenSeaAssetsForWallets, [
+      user.wallet,
+      ...wallets
     ])
-  )
-  yield put(
-    updateUserEthCollectibles({
-      userId: user.user_id,
-      userCollectibles: collectibleList
-    })
-  )
+
+    const collectibleList = Object.values(collectiblesMap).flat()
+    if (!collectibleList.length) {
+      console.log('profile has no assets in OpenSea')
+    }
+
+    yield put(
+      cacheActions.update(Kind.USERS, [
+        {
+          id: user.user_id,
+          metadata: {
+            collectibleList
+          }
+        }
+      ])
+    )
+    yield put(
+      updateUserEthCollectibles({
+        userId: user.user_id,
+        userCollectibles: collectibleList
+      })
+    )
+  }
 }
 
 export function* fetchSolanaCollectiblesForWallets(wallets) {
@@ -258,10 +259,7 @@ function* fetchSupportersAndSupporting(userId) {
   const supportingLimit =
     account?.user_id === userId
       ? account.supporting_count
-      : Math.max(
-          MAX_PROFILE_SUPPORTING_TILES,
-          MAX_ARTIST_HOVER_TOP_SUPPORTING
-        ) + 1
+      : Math.max(MAX_PROFILE_SUPPORTING_TILES, SUPPORTING_PAGINATION_SIZE) + 1
   yield put(
     refreshSupport({
       senderUserId: userId,
@@ -320,6 +318,9 @@ function* fetchProfileAsync(action) {
       yield fork(fetchSupportersAndSupporting, user.user_id)
     }
 
+    // Get chat permissions
+    yield put(fetchPermissions({ userIds: [user.user_id] }))
+
     yield fork(fetchProfileCustomizedCollectibles, user)
     yield fork(fetchOpenSeaAssets, user)
     yield fork(fetchSolanaCollectibles, user)
@@ -339,27 +340,18 @@ function* fetchProfileAsync(action) {
     )
 
     if (!isNativeMobile) {
-      if (user.track_count > 0) {
-        yield fork(fetchMostUsedTags, user.user_id, user.track_count)
-      }
-    }
-
-    if (!isNativeMobile) {
       const showArtistRecommendationsPercent =
         getRemoteVar(DoubleKeys.SHOW_ARTIST_RECOMMENDATIONS_PERCENT) || 0
       if (Math.random() < showArtistRecommendationsPercent) {
         yield put(
-          artistRecommendationsActions.fetchRelatedArtists({
-            userId: user.user_id
+          relatedArtistsActions.fetchRelatedArtists({
+            artistId: user.user_id
           })
         )
       }
     }
 
     if (!isNativeMobile) {
-      // Delay so the page can load before we fetch mutual followers
-      yield delay(2000)
-
       yield put(
         profileActions.fetchFollowUsers(
           FollowType.FOLLOWEE_FOLLOWS,
@@ -386,36 +378,6 @@ function* watchFetchFollowUsers(action) {
       default:
     }
   })
-}
-
-const MOST_USED_TAGS_COUNT = 5
-
-// Get all the tracks & parse the tracks for the most used tags
-// NOTE: The number of user tracks is not known b/c some tracks are deleted,
-// so the number of user tracks plus a large track number are fetched
-const LARGE_TRACKCOUNT_TAGS = 100
-function* fetchMostUsedTags(userId, trackCount) {
-  const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  const trackResponse = yield call(audiusBackendInstance.getArtistTracks, {
-    offset: 0,
-    limit: trackCount + LARGE_TRACKCOUNT_TAGS,
-    userId,
-    filterDeleted: true
-  })
-  const tracks = trackResponse.filter((metadata) => !metadata.is_delete)
-  // tagUsage: { [tag: string]: number }
-  const tagUsage = {}
-  tracks.forEach((track) => {
-    if (track.tags) {
-      track.tags.split(',').forEach((tag) => {
-        tag in tagUsage ? (tagUsage[tag] += 1) : (tagUsage[tag] = 1)
-      })
-    }
-  })
-  const mostUsedTags = Object.keys(tagUsage)
-    .sort((a, b) => tagUsage[b] - tagUsage[a])
-    .slice(0, MOST_USED_TAGS_COUNT)
-  yield put(profileActions.updateMostUsedTags(mostUsedTags))
 }
 
 function* fetchFolloweeFollows(action) {
@@ -685,6 +647,7 @@ export default function sagas() {
     watchUpdateProfile,
     watchUpdateCurrentUserFollows,
     watchSetNotificationSubscription,
-    watchFetchProfileCollections
+    watchFetchProfileCollections,
+    watchFetchTopTags
   ]
 }

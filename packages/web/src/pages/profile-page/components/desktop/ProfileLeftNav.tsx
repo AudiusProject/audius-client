@@ -2,12 +2,14 @@ import { useCallback } from 'react'
 
 import { ID, Name, accountSelectors } from '@audius/common'
 import cn from 'classnames'
+// eslint-disable-next-line no-restricted-imports -- TODO: migrate to @react-spring/web
 import { animated } from 'react-spring'
 
 import { useSelector } from 'common/hooks/useSelector'
 import { make, useRecord } from 'common/store/analytics/actions'
 import Input from 'components/data-entry/Input'
 import TextArea from 'components/data-entry/TextArea'
+import { RelatedArtists } from 'components/related-artists/RelatedArtists'
 import { SupportingList } from 'components/tipping/support/SupportingList'
 import { TopSupporters } from 'components/tipping/support/TopSupporters'
 import { TipAudioButton } from 'components/tipping/tip-audio/TipAudioButton'
@@ -16,7 +18,7 @@ import UploadChip from 'components/upload/UploadChip'
 import ProfilePageBadge from 'components/user-badges/ProfilePageBadge'
 import { Type } from 'pages/profile-page/components/SocialLink'
 import SocialLinkInput from 'pages/profile-page/components/SocialLinkInput'
-import { ProfileTags } from 'pages/profile-page/components/desktop/ProfileTags'
+import { ProfileTopTags } from 'pages/profile-page/components/desktop/ProfileTopTags'
 import { UPLOAD_PAGE } from 'utils/route'
 
 import { ProfileBio } from './ProfileBio'
@@ -59,7 +61,6 @@ type ProfileLeftNavProps = {
   twitterVerified: boolean
   instagramVerified: boolean
   tikTokVerified: boolean
-  tags: string[]
   isOwner: boolean
 }
 
@@ -90,7 +91,6 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
     twitterVerified,
     instagramVerified,
     tikTokVerified,
-    tags,
     isOwner
   } = props
 
@@ -210,7 +210,8 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
         <div className={styles.profileBottomSection}>
           <TopSupporters />
           <ProfileMutuals />
-          {isArtist ? <ProfileTags goToRoute={goToRoute} tags={tags} /> : null}
+          <RelatedArtists />
+          {isArtist ? <ProfileTopTags /> : null}
           {showUploadChip ? (
             <UploadChip
               type='track'

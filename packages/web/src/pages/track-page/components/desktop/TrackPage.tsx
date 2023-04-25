@@ -46,7 +46,6 @@ export type OwnProps = {
   badge: string | null
   onHeroPlay: (isPlaying: boolean) => void
   goToProfilePage: (handle: string) => void
-  goToSearchResultsPage: (tag: string) => void
   goToAllRemixesPage: () => void
   goToParentRemixesPage: () => void
   onHeroShare: (trackId: ID) => void
@@ -73,6 +72,7 @@ export type OwnProps = {
   play: (uid?: string) => void
   pause: () => void
   onExternalLinkClick: (url: string) => void
+  onInternalLinkClick: (url: string) => void
 }
 
 const TrackPage = ({
@@ -89,7 +89,6 @@ const TrackPage = ({
   badge,
   onHeroPlay,
   goToProfilePage,
-  goToSearchResultsPage,
   goToAllRemixesPage,
   goToParentRemixesPage,
   onHeroShare,
@@ -100,6 +99,7 @@ const TrackPage = ({
   onDownloadTrack,
   makePublic,
   onExternalLinkClick,
+  onInternalLinkClick,
   onClickReposts,
   onClickFavorites,
 
@@ -130,7 +130,6 @@ const TrackPage = ({
   const onShare = () => (heroTrack ? onHeroShare(heroTrack.track_id) : null)
   const onRepost = () =>
     heroTrack ? onHeroRepost(isReposted, heroTrack.track_id) : null
-  const onClickTag = (tag: string) => goToSearchResultsPage(`#${tag}`)
   const onDownload = (
     trackId: ID,
     cid: CID,
@@ -182,6 +181,7 @@ const TrackPage = ({
       isSaved={isSaved}
       badge={badge}
       onExternalLinkClick={onExternalLinkClick}
+      onInternalLinkClick={onInternalLinkClick}
       isUnlisted={defaults.isUnlisted}
       isPremium={defaults.isPremium}
       premiumConditions={defaults.premiumConditions}
@@ -192,7 +192,6 @@ const TrackPage = ({
       coSign={defaults.coSign}
       // Actions
       onClickArtistName={onClickArtistName}
-      onClickTag={onClickTag}
       onPlay={onPlay}
       onShare={onShare}
       onRepost={onRepost}

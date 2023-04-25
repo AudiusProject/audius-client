@@ -1,9 +1,7 @@
 import {
   Kind,
-  StringKeys,
   encodeHashId,
   cacheTracksSelectors,
-  cacheUsersSelectors,
   cacheActions,
   queueActions,
   tracksSocialActions,
@@ -18,7 +16,8 @@ import {
   FeatureFlags,
   premiumContentSelectors,
   QueryParams,
-  Genre
+  Genre,
+  doesUserHaveTrackAccess
 } from '@audius/common'
 import { eventChannel } from 'redux-saga'
 import {
@@ -56,7 +55,6 @@ const { getTrackId, getUid, getCounter, getPlaying, getPlaybackRate } =
   playerSelectors
 
 const { recordListen } = tracksSocialActions
-const { getUser } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
 const { getPremiumTrackSignatureMap } = premiumContentSelectors
 const { getIsReachable } = reachabilitySelectors
@@ -64,10 +62,6 @@ const { getIsReachable } = reachabilitySelectors
 const PLAYER_SUBSCRIBER_NAME = 'PLAYER'
 const RECORD_LISTEN_SECONDS = 1
 const RECORD_LISTEN_INTERVAL = 1000
-
-// Set of track ids that should be forceably streamed as mp3 rather than hls because
-// their hls maybe corrupt.
-let FORCE_MP3_STREAM_TRACK_IDS: Set<string> | null = null
 
 export function* watchPlay() {
   const getFeatureEnabled = yield* getContext('getFeatureEnabled')
@@ -81,6 +75,10 @@ export function* watchPlay() {
       FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
       FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
     )
+    const isGatedContentEnabled = yield* call(
+      getFeatureEnabled,
+      FeatureFlags.GATED_CONTENT_ENABLED
+    )
 
     if (trackId) {
       // Load and set end action.
@@ -93,10 +91,6 @@ export function* watchPlay() {
         )
       }
 
-      const owner = yield* select(getUser, {
-        id: track.owner_id
-      })
-
       if (!isReachable && isNativeMobile) {
         // Play offline.
         audioPlayer.play()
@@ -105,39 +99,11 @@ export function* watchPlay() {
       }
 
       yield* waitForWrite()
-      const streamMp3IsEnabled = yield* call(
-        getFeatureEnabled,
-        FeatureFlags.STREAM_MP3
-      )
-      const isGatedContentEnabled = yield* call(
-        getFeatureEnabled,
-        FeatureFlags.GATED_CONTENT_ENABLED
-      )
       const audiusBackendInstance = yield* getContext('audiusBackendInstance')
       const apiClient = yield* getContext('apiClient')
-      const remoteConfigInstance = yield* getContext('remoteConfigInstance')
 
-      const gateways = owner
-        ? audiusBackendInstance.getCreatorNodeIPFSGateways(
-            owner.creator_node_endpoint
-          )
-        : []
       const encodedTrackId = encodeHashId(trackId)
 
-      if (!FORCE_MP3_STREAM_TRACK_IDS) {
-        FORCE_MP3_STREAM_TRACK_IDS = new Set(
-          (
-            remoteConfigInstance.getRemoteVar(
-              StringKeys.FORCE_MP3_STREAM_TRACK_IDS
-            ) || ''
-          ).split(',')
-        )
-      }
-
-      const forceStreamMp3 =
-        // TODO: remove feature flag - https://github.com/AudiusProject/audius-client/pull/2147
-        streamMp3IsEnabled ||
-        (encodedTrackId && FORCE_MP3_STREAM_TRACK_IDS.has(encodedTrackId))
       let queryParams: QueryParams = {}
       if (isGatedContentEnabled) {
         const data = `Premium content user signature at ${Date.now()}`
@@ -156,9 +122,10 @@ export function* watchPlay() {
           )
         }
       }
-      const forceStreamMp3Url = forceStreamMp3
-        ? apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`, queryParams)
-        : null
+      const mp3Url = apiClient.makeUrl(
+        `/tracks/${encodedTrackId}/stream`,
+        queryParams
+      )
 
       const isLongFormContent =
         track.genre === Genre.PODCASTS || track.genre === Genre.AUDIOBOOKS
@@ -182,16 +149,7 @@ export function* watchPlay() {
               )
             }
           },
-          // @ts-ignore a few issues with typing here...
-          [track._first_segment],
-          gateways,
-          {
-            id: encodedTrackId,
-            title: track.title,
-            artist: owner?.name,
-            artwork: ''
-          },
-          forceStreamMp3Url
+          mp3Url
         )
         return () => {}
       })
@@ -233,9 +191,16 @@ export function* watchPlay() {
       }
     }
 
-    // Play.
-    audioPlayer.play()
-    yield* put(playSucceeded({ uid, trackId }))
+    // Play if user has access to track.
+    const track = yield* select(getTrack, { id: trackId })
+    const doesUserHaveAccess =
+      !isGatedContentEnabled || (yield* call(doesUserHaveTrackAccess, track))
+    if (doesUserHaveAccess) {
+      audioPlayer.play()
+      yield* put(playSucceeded({ uid, trackId }))
+    } else {
+      yield* put(queueActions.next({}))
+    }
   })
 }
 
@@ -252,19 +217,6 @@ export function* watchCollectiblePlay() {
             if (onEnd) {
               emitter(onEnd({}))
             }
-          },
-          [],
-          [], // Gateways
-          {
-            id: collectible.id,
-            title: collectible.name ?? 'Collectible',
-            // TODO: Add account user name here
-            artist: 'YOUR NAME HERE',
-            artwork:
-              collectible.imageUrl ??
-              collectible.frameUrl ??
-              collectible.gifUrl ??
-              ''
           },
           collectible.animationUrl
         )

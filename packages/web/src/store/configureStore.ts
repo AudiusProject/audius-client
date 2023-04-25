@@ -74,12 +74,6 @@ const statePruner = (state: AppState) => {
       action: state.router.action,
       location: state.router.location
     },
-    serviceSelection: {
-      primary: state.serviceSelection.primary,
-      secondaries: state.serviceSelection.secondaries,
-      services: state.serviceSelection.services,
-      status: state.serviceSelection.status
-    },
     signOn: {
       accountReady: state.signOn.accountReady,
       email: state.signOn.email,
@@ -130,7 +124,8 @@ const middlewares = applyMiddleware(
 const configureStore = () => {
   const composeEnhancers = composeWithDevToolsLogOnlyInProduction({
     trace: true,
-    traceLimit: 25
+    traceLimit: 25,
+    maxAge: 1000
   })
   const store = createStore(
     createRootReducer(history),
