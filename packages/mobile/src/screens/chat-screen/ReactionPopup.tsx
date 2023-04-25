@@ -66,6 +66,8 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 }))
 
 const BACKGROUND_OPACITY = 0.3
+const MOUNT_ANIMATION_DURATION_MS = 100
+const UNMOUNT_ANIMATION_DURATION_MS = 100
 
 type ReactionPopupProps = {
   chatId: string
@@ -73,7 +75,8 @@ type ReactionPopupProps = {
   containerBottom: number
   isAuthor: boolean
   message: ChatMessageWithExtras
-  closePopup: () => void
+  shouldShowPopup: boolean
+  onClose: () => void
 }
 
 export const ReactionPopup = ({
@@ -82,7 +85,8 @@ export const ReactionPopup = ({
   containerBottom,
   isAuthor,
   message,
-  closePopup
+  shouldShowPopup,
+  onClose
 }: ReactionPopupProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
@@ -95,14 +99,16 @@ export const ReactionPopup = ({
     (r) => r.user_id === userIdEncoded
   )?.reaction
 
-  const beginAnimation = useCallback(() => {
-    Animated.spring(backgroundOpacityAnim.current, {
+  const beginMountAnimation = useCallback(() => {
+    Animated.timing(backgroundOpacityAnim.current, {
       toValue: BACKGROUND_OPACITY,
-      useNativeDriver: true
+      useNativeDriver: true,
+      duration: MOUNT_ANIMATION_DURATION_MS
     }).start()
-    Animated.spring(otherOpacity.current, {
+    Animated.timing(otherOpacity.current, {
       toValue: 1,
-      useNativeDriver: true
+      useNativeDriver: true,
+      duration: MOUNT_ANIMATION_DURATION_MS
     }).start()
     Animated.spring(translationAnim.current, {
       toValue: 0,
@@ -110,9 +116,30 @@ export const ReactionPopup = ({
     }).start()
   }, [])
 
+  const beginUnmountAnimation = useCallback(() => {
+    Animated.timing(backgroundOpacityAnim.current, {
+      toValue: 0,
+      useNativeDriver: true,
+      duration: UNMOUNT_ANIMATION_DURATION_MS
+    }).start()
+    Animated.timing(otherOpacity.current, {
+      toValue: 0,
+      useNativeDriver: true,
+      duration: UNMOUNT_ANIMATION_DURATION_MS
+    }).start(onClose)
+    Animated.spring(translationAnim.current, {
+      toValue: REACTION_CONTAINER_HEIGHT,
+      useNativeDriver: true
+    }).start()
+  }, [onClose])
+
   useEffect(() => {
-    beginAnimation()
-  }, [beginAnimation])
+    beginMountAnimation()
+  }, [beginMountAnimation])
+
+  const handleClosePopup = useCallback(() => {
+    beginUnmountAnimation()
+  }, [beginUnmountAnimation])
 
   const handleReactionSelected = useCallback(
     (message: Nullable<ChatMessageWithExtras>, reaction: ReactionTypes) => {
@@ -130,12 +157,12 @@ export const ReactionPopup = ({
           })
         )
       }
-      closePopup()
+      handleClosePopup()
     },
-    [dispatch, userIdEncoded, chatId, userId, closePopup]
+    [userId, handleClosePopup, dispatch, chatId, userIdEncoded]
   )
 
-  return (
+  return shouldShowPopup ? (
     <>
       <Animated.View
         style={[
@@ -143,7 +170,7 @@ export const ReactionPopup = ({
           { opacity: backgroundOpacityAnim.current }
         ]}
       />
-      <Pressable style={styles.outerPressable} onPress={closePopup} />
+      <Pressable style={styles.outerPressable} onPress={handleClosePopup} />
       {/* This View cuts off the message body when it goes beyond the
       bottom boundary of the flatlist view. */}
       <View
@@ -157,7 +184,7 @@ export const ReactionPopup = ({
         {/* This 2nd pressable ensures that clicking outside of the
         message and reaction list, but inside of flatlist view,
         closes the popup. */}
-        <Pressable style={[styles.innerPressable]} onPress={closePopup} />
+        <Pressable style={[styles.innerPressable]} onPress={handleClosePopup} />
         <Animated.View style={{ opacity: otherOpacity.current }}>
           <ChatMessageListItem
             chatId={chatId}
@@ -204,5 +231,5 @@ export const ReactionPopup = ({
         </Animated.View>
       </View>
     </>
-  )
+  ) : null
 }
