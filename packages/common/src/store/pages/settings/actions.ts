@@ -77,14 +77,12 @@ export function toggleNotificationSetting(
 
 export function togglePushNotificationSetting(
   notificationType: PushNotificationSetting,
-  isOn?: boolean,
-  enableAll?: boolean
+  isOn?: boolean
 ) {
   return {
     type: TOGGLE_PUSH_NOTIFICATION_SETTING,
     notificationType,
-    isOn,
-    enableAll
+    isOn
   }
 }
 

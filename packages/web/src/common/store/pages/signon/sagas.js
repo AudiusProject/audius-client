@@ -33,6 +33,8 @@ import {
   takeLatest
 } from 'redux-saga/effects'
 
+import { Notifications } from 'react-native-notifications'
+
 import { fetchAccountAsync, reCacheAccount } from 'common/store/account/sagas'
 import { identify, make } from 'common/store/analytics/actions'
 import * as backendActions from 'common/store/backend/actions'
@@ -426,6 +428,7 @@ function* signUp() {
 
         const isNativeMobile = yield getContext('isNativeMobile')
         if (isNativeMobile) {
+          // Request permission to send push notifications and enable all if accepted
           yield put(
             togglePushNotificationSetting(
               PushNotificationSetting.MobilePush,
@@ -531,12 +534,18 @@ function* signIn(action) {
       yield put(signOnActions.resetSignOn())
       const isNativeMobile = yield getContext('isNativeMobile')
       if (isNativeMobile) {
-        yield put(
-          togglePushNotificationSetting(
-            PushNotificationSetting.MobilePush,
-            true
-          )
+        const hasPermissions = yield call(
+          Notifications.isRegisteredForRemoteNotifications
         )
+        if (!hasPermissions) {
+          // Request permission to send push notifications and enable all if accepted
+          yield put(
+            togglePushNotificationSetting(
+              PushNotificationSetting.MobilePush,
+              true
+            )
+          )
+        }
       } else {
         setHasRequestedBrowserPermission()
         yield put(accountActions.showPushNotificationConfirmation())

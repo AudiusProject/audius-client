@@ -25,20 +25,12 @@ export function* deregisterPushNotifications() {
   yield* call(audiusBackendInstance.deregisterDeviceToken, token)
 }
 
-function* enablePushNotifications(enableAll: boolean) {
+function* enablePushNotifications() {
   yield* call([PushNotifications, 'requestPermission'])
   const { token, os } = yield* call([PushNotifications, 'getToken'])
 
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  // initialState reflects db defaults
   const newSettings = { ...initialState.pushNotifications }
-  if (enableAll) {
-    // Enable all, ignoring defaults. True when user manually toggles the top-level
-    // notification setting in the settings page or via the reminder drawer
-    for (const key in newSettings) {
-      newSettings[key] = true
-    }
-  }
   yield* put(actions.setPushNotificationSettings(newSettings))
   // We need a user for this to work (and in the case of sign up, we might not
   // have one right away when this function is called)
@@ -48,7 +40,7 @@ function* enablePushNotifications(enableAll: boolean) {
   yield* call(audiusBackendInstance.registerDeviceToken, token, os)
 }
 
-function* disableAllPushNotifications() {
+function* disablePushNotifications() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const newSettings = { ...initialState.pushNotifications }
   for (const key in newSettings) {
@@ -109,9 +101,9 @@ function* watchUpdatePushNotificationSettings() {
       try {
         if (action.notificationType === PushNotificationSetting.MobilePush) {
           if (isOn) {
-            yield* call(enablePushNotifications, action.enableAll)
+            yield* call(enablePushNotifications)
           } else {
-            yield* call(disableAllPushNotifications)
+            yield* call(disablePushNotifications)
           }
         } else {
           if (isOn === undefined) {

@@ -94,12 +94,6 @@ class PushNotifications {
     Notifications.registerRemoteNotifications()
   }
 
-  async checkPermission(
-    callback: (permissions: PushNotificationPermissions) => void
-  ) {
-    Notifications.ios.checkPermissions().then(callback)
-  }
-
   cancelNotif() {
     Notifications.cancelLocalNotification(this.lastId)
   }

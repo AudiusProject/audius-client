@@ -289,11 +289,10 @@ function mapDispatchToProps(dispatch: Dispatch) {
       ),
     togglePushNotificationSetting: (
       notificationType: PushNotificationSetting,
-      isOn: boolean,
-      enableAll: boolean
+      isOn: boolean
     ) =>
       dispatch(
-        settingPageActions.togglePushNotificationSetting(notificationType, isOn, enableAll)
+        settingPageActions.togglePushNotificationSetting(notificationType, isOn)
       ),
     updateEmailFrequency: (frequency: EmailFrequency) =>
       dispatch(settingPageActions.updateEmailFrequency(frequency)),

@@ -90,8 +90,7 @@ type OwnProps = {
   ) => void
   togglePushNotificationSetting: (
     notificationType: PushNotificationSetting,
-    isOn: boolean,
-    enableAll: boolean
+    isOn: boolean
   ) => void
   updateEmailFrequency: (frequency: EmailFrequency) => void
   recordSignOut: (callback?: () => void) => void
