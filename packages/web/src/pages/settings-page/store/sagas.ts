@@ -6,7 +6,7 @@ import {
   settingsPageSelectors,
   getContext
 } from '@audius/common'
-import type { Notifications } from 'common/store/pages/settings/types'
+import { mapValues } from 'lodash'
 import { select, call, put, takeEvery } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
@@ -164,10 +164,12 @@ function* watchSetBrowserNotificationSettingsOff() {
     actions.SET_BROWSER_NOTIFICATION_SETTINGS_OFF,
     function* (action: actions.SetBrowserNotificationSettingsOff) {
       try {
-        const newSettings = { ...initialState.browserNotifications }
-        for (const key in newSettings) {
-          (newSettings as Notifications)[key] = false
-        }
+        const newSettings = mapValues(
+          initialState.browserNotifications,
+          function (_val: boolean) {
+            return false
+          }
+        )
         yield* put(actions.setNotificationSettings(newSettings))
         yield* call(
           audiusBackendInstance.updateNotificationSettings,

@@ -11,6 +11,7 @@ import {
 } from '@audius/common'
 import { waitForRead } from 'audius-client/src/utils/sagaHelpers'
 import commonSettingsSagas from 'common/store/pages/settings/sagas'
+import { mapValues } from 'lodash'
 import { select, call, put, takeEvery } from 'typed-redux-saga'
 
 import PushNotifications from 'app/notifications'
@@ -45,10 +46,12 @@ function* enablePushNotifications() {
 
 function* disablePushNotifications() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  const newSettings = { ...initialState.pushNotifications }
-  for (const key in newSettings) {
-    newSettings[key] = false
-  }
+  const newSettings = mapValues(
+    initialState.pushNotifications,
+    function (_val: boolean) {
+      return false
+    }
+  )
   yield* put(actions.setPushNotificationSettings(newSettings))
   yield* call(waitForValue, getAccountUser)
   yield* call(audiusBackendInstance.updatePushNotificationSettings, newSettings)
@@ -71,10 +74,12 @@ function* watchGetPushNotificationSettings() {
       const settings = (yield* call(
         audiusBackendInstance.getPushNotificationSettings
       )) as TPushNotifications
-      let pushNotificationSettings = { ...initialState.pushNotifications }
-      for (const key in pushNotificationSettings) {
-        pushNotificationSettings[key] = false
-      }
+      let pushNotificationSettings = mapValues(
+        initialState.pushNotifications,
+        function (_val: boolean) {
+          return false
+        }
+      )
 
       if (settings) {
         pushNotificationSettings = {
@@ -132,16 +137,21 @@ function* watchUpdatePushNotificationSettings() {
 }
 
 function* watchRequestPushNotificationPermissions() {
-  const hasPermissions = yield* call([PushNotifications, 'hasPermission'])
-  if (!hasPermissions) {
-    // Request permission to send push notifications and enable all if accepted
-    yield put(
-      actions.togglePushNotificationSetting(
-        PushNotificationSetting.MobilePush,
-        true
-      )
-    )
-  }
+  yield* takeEvery(
+    actions.REQUEST_PUSH_NOTIFICATION_PERMISSIONS,
+    function* (_action: actions.RequestPushNotificationPermissions) {
+      const hasPermissions = yield* call([PushNotifications, 'hasPermission'])
+      if (!hasPermissions) {
+        // Request permission to send push notifications and enable all if accepted
+        yield* put(
+          actions.togglePushNotificationSetting(
+            PushNotificationSetting.MobilePush,
+            true
+          )
+        )
+      }
+    }
+  )
 }
 
 export default function sagas() {
