@@ -1,13 +1,12 @@
 import {
   ChatMessage,
-  ChatPermissionResponse,
-  TypedCommsResponse
+  TypedCommsResponse,
+  ValidatedChatPermissions
 } from '@audius/sdk'
 import dayjs from 'dayjs'
 import { call, put, select, takeEvery, takeLatest } from 'typed-redux-saga'
 import { ulid } from 'ulid'
 
-import { ID } from 'models/Identifiers'
 import { Status } from 'models/Status'
 import { getAccountUser, getUserId } from 'store/account/selectors'
 import { setVisibility } from 'store/ui/modals/slice'
@@ -339,11 +338,17 @@ function* doFetchPermissions(action: ReturnType<typeof fetchPermissions>) {
     const { data } = yield* call([sdk.chats, sdk.chats.getPermissions], {
       userIds: action.payload.userIds.map((id) => encodeHashId(id))
     })
-    const permissions: Record<ID, ChatPermissionResponse> = {}
-    for (const key of Object.keys(data)) {
-      permissions[decodeHashId(key)!] = data[key]
-    }
-    yield* put(fetchPermissionsSucceeded({ permissions }))
+    yield* put(
+      fetchPermissionsSucceeded({
+        permissions: data.reduce(
+          (acc, p) => ({
+            ...acc,
+            [decodeHashId(p.user_id)!]: p
+          }),
+          {} as Record<string, ValidatedChatPermissions>
+        )
+      })
+    )
   } catch (e) {
     console.error('fetchPermissionsFailed', e)
   }
