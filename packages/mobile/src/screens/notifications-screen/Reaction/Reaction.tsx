@@ -6,7 +6,6 @@ import LottieView from 'lottie-react-native'
 import type {
   LayoutChangeEvent,
   StyleProp,
-  View,
   ViewProps,
   ViewStyle
 } from 'react-native'
@@ -56,7 +55,6 @@ export const Reaction = (props: ReactionProps) => {
   const styles = useStyles()
   const [status, setStatus] = useState(statusProp)
   const animationRef = useRef<LottieView | null>(null)
-  const ref = useRef<View | null>(null)
   const scale = useRef(new Animated.Value(1)).current
   const previousStatus = usePrevious(status)
 
@@ -118,7 +116,6 @@ export const Reaction = (props: ReactionProps) => {
 
   return (
     <Animated.View
-      ref={ref}
       style={[styles.root, animatedStyles, style]}
       onLayout={handleLayout}
       {...other}
