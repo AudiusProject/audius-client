@@ -42,7 +42,7 @@ type ChatState = {
   activeChatId: string | null
   blockees: ID[]
   blockers: ID[]
-  permissions: Record<string, ValidatedChatPermissions>
+  permissions: Record<ID, ValidatedChatPermissions>
   reactionsPopupMessageId: string | null
 }
 
@@ -407,7 +407,7 @@ const slice = createSlice({
     fetchPermissionsSucceeded: (
       state,
       action: PayloadAction<{
-        permissions: Record<string, ValidatedChatPermissions>
+        permissions: Record<ID, ValidatedChatPermissions>
       }>
     ) => {
       state.permissions = {
