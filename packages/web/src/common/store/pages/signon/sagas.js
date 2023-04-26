@@ -534,7 +534,7 @@ function* signIn(action) {
       if (isNativeMobile) {
         // If permissions not already enabled, request permission to send push notifications
         // and enable all if accepted
-        yield put(requestPushNotificationPermissions)
+        yield put(requestPushNotificationPermissions())
       } else {
         setHasRequestedBrowserPermission()
         yield put(accountActions.showPushNotificationConfirmation())
