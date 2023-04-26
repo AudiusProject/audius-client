@@ -144,9 +144,6 @@ function* watchSetBrowserNotificationSettingsOn() {
     function* (action: actions.SetBrowserNotificationSettingsOn) {
       try {
         const newSettings = { ...initialState.browserNotifications }
-        for (const key in newSettings) {
-          (newSettings as Notifications)[key] = true
-        }
         yield* put(actions.setNotificationSettings(newSettings))
         yield* call(
           audiusBackendInstance.updateNotificationSettings,
