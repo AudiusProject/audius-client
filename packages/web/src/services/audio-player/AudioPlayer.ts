@@ -126,7 +126,7 @@ export class AudioPlayer {
   }
 
   load = (
-    segments: TrackSegment[],
+    duration: number,
     onEnd: () => void,
     mp3Url: string | null = null
   ) => {
@@ -155,10 +155,7 @@ export class AudioPlayer {
       this.audio.onloadedmetadata = () => (this.duration = this.audio.duration)
     }
 
-    this.duration = segments.reduce(
-      (duration, segment) => duration + parseFloat(segment.duration),
-      0
-    )
+    this.duration = duration
 
     // Set audio listeners.
     if (this.endedListener) {
