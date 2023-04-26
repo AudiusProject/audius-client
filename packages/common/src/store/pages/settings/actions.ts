@@ -176,6 +176,9 @@ export type SetBrowserNotificationEnabled = ReturnType<
 export type SetBrowserNotificationSettingsOn = ReturnType<
   typeof setBrowserNotificationSettingsOn
 >
+export type SetBrowserNotificationSettingsOff = ReturnType<
+  typeof setBrowserNotificationSettingsOff
+>
 export type BrowserPushNotificationFailed = ReturnType<
   typeof browserPushNotificationFailed
 >
@@ -197,4 +200,5 @@ export type SettingActions =
   | SetBrowserNotificationPermission
   | SetBrowserNotificationEnabled
   | SetBrowserNotificationSettingsOn
+  | SetBrowserNotificationSettingsOff
   | BrowserPushNotificationFailed
