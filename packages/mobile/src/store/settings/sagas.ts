@@ -30,8 +30,11 @@ function* enablePushNotifications() {
   const { token, os } = yield* call([PushNotifications, 'getToken'])
 
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+
+  // Enabling push notifications should enable all of the notification types
   const newSettings = { ...initialState.pushNotifications }
   yield* put(actions.setPushNotificationSettings(newSettings))
+
   // We need a user for this to work (and in the case of sign up, we might not
   // have one right away when this function is called)
   yield* call(waitForValue, getAccountUser)

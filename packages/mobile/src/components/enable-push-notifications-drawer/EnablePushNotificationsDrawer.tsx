@@ -132,11 +132,7 @@ export const EnablePushNotificationsDrawer = () => {
 
   const enablePushNotifications = useCallback(() => {
     dispatch(
-      togglePushNotificationSetting(
-        PushNotificationSetting.MobilePush,
-        true,
-        true
-      )
+      togglePushNotificationSetting(PushNotificationSetting.MobilePush, true)
     )
     onClose()
   }, [dispatch, onClose])
