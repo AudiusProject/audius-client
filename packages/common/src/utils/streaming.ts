@@ -1,7 +1,8 @@
+import { select } from 'typed-redux-saga'
+
 import { PremiumContentSignature, Track } from 'models'
 import { AudiusBackend, QueryParams } from 'services/index'
 import { premiumContentSelectors } from 'store/premium-content'
-import { select } from 'typed-redux-saga'
 
 import { Nullable } from './typeUtils'
 
