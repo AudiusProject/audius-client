@@ -279,7 +279,7 @@ export const ChatScreen = () => {
     )
   }
 
-  const closeReactionPopup = useCallback(() => {
+  const onCloseReactionPopup = useCallback(() => {
     setShouldShowPopup(false)
     dispatch(setReactionsPopupMessageId({ messageId: null }))
   }, [setShouldShowPopup, dispatch])
@@ -393,7 +393,8 @@ export const ChatScreen = () => {
               containerBottom={chatContainerBottom.current}
               isAuthor={decodeHashId(popupMessage?.sender_user_id) === userId}
               message={popupMessage}
-              closePopup={closeReactionPopup}
+              shouldShowPopup={shouldShowPopup}
+              onClose={onCloseReactionPopup}
             />
           ) : null}
         </Portal>
