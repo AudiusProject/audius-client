@@ -14,7 +14,8 @@ export const TOGGLE_PUSH_NOTIFICATION_SETTING =
 export const TOGGLE_PUSH_NOTIFICATION_SETTING_FAILED =
   'SETTINGS_PAGE/TOGGLE_PUSH_NOTIFICATION_SETTING_FAILED'
 
-export const REQUEST_PUSH_NOTIFICATION_PERMISSIONS = 'SETTINGS_PAGE/REQUEST_PUSH_NOTIFICATION_PERMISSIONS'
+export const REQUEST_PUSH_NOTIFICATION_PERMISSIONS =
+  'SETTINGS_PAGE/REQUEST_PUSH_NOTIFICATION_PERMISSIONS'
 
 export const UPDATE_EMAIL_FREQUENCY = 'SETTINGS_PAGE/UPDATE_EMAIL_FREQUENCY'
 
@@ -81,11 +82,7 @@ export function togglePushNotificationSetting(
   notificationType: PushNotificationSetting,
   isOn?: boolean
 ) {
-  return {
-    type: TOGGLE_PUSH_NOTIFICATION_SETTING,
-    notificationType,
-    isOn
-  }
+  return { type: TOGGLE_PUSH_NOTIFICATION_SETTING, notificationType, isOn }
 }
 
 export function togglePushNotificationSettingFailed(
