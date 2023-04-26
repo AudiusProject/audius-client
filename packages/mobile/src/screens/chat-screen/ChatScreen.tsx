@@ -13,19 +13,16 @@ import {
 } from '@audius/common'
 import { Portal } from '@gorhom/portal'
 import { useFocusEffect } from '@react-navigation/native'
-import {
-  Platform,
-  View,
-  Text,
-  KeyboardAvoidingView,
-  Pressable,
-  FlatList
-} from 'react-native'
+import { View, Text, Pressable, FlatList } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconMessage from 'app/assets/images/iconMessage.svg'
-import { Screen, ScreenContent } from 'app/components/core'
+import {
+  Screen,
+  ScreenContent,
+  KeyboardAvoidingView
+} from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { ProfilePicture } from 'app/components/user'
 import { UserBadges } from 'app/components/user-badges'
@@ -64,10 +61,7 @@ const messages = {
 }
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
-  rootContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
+  keyboardAvoiding: {
     justifyContent: 'space-between'
   },
   listContainer: {
@@ -89,6 +83,15 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     backgroundColor: palette.white,
     borderTopWidth: 1,
     borderColor: palette.neutralLight8
+  },
+  whiteBackground: {
+    backgroundColor: palette.white,
+    position: 'absolute',
+    height: 500,
+    flexGrow: 1,
+    top: 0,
+    left: 0,
+    right: 0
   },
   composeTextContainer: {
     display: 'flex',
@@ -279,7 +282,7 @@ export const ChatScreen = () => {
     )
   }
 
-  const closeReactionPopup = useCallback(() => {
+  const onCloseReactionPopup = useCallback(() => {
     setShouldShowPopup(false)
     dispatch(setReactionsPopupMessageId({ messageId: null }))
   }, [setShouldShowPopup, dispatch])
@@ -393,7 +396,8 @@ export const ChatScreen = () => {
               containerBottom={chatContainerBottom.current}
               isAuthor={decodeHashId(popupMessage?.sender_user_id) === userId}
               message={popupMessage}
-              closePopup={closeReactionPopup}
+              shouldShowPopup={shouldShowPopup}
+              onClose={onCloseReactionPopup}
             />
           ) : null}
         </Portal>
@@ -405,13 +409,7 @@ export const ChatScreen = () => {
             })
           }}
         >
-          <KeyboardAvoidingView
-            keyboardVerticalOffset={
-              Platform.OS === 'ios' ? chatContainerTop.current : 0
-            }
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            style={styles.rootContainer}
-          >
+          <KeyboardAvoidingView style={styles.keyboardAvoiding}>
             {!isLoading ? (
               chatMessages?.length > 0 ? (
                 <View style={styles.listContainer}>
@@ -448,6 +446,7 @@ export const ChatScreen = () => {
               ref={composeRef}
               pointerEvents={'box-none'}
             >
+              <View style={styles.whiteBackground} />
               <ChatTextInput chatId={chatId} />
             </View>
           </KeyboardAvoidingView>

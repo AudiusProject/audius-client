@@ -17,7 +17,8 @@ import {
   premiumContentSelectors,
   QueryParams,
   Genre,
-  doesUserHaveTrackAccess
+  doesUserHaveTrackAccess,
+  getQueryParams
 } from '@audius/common'
 import { eventChannel } from 'redux-saga'
 import {
@@ -106,21 +107,14 @@ export function* watchPlay() {
 
       let queryParams: QueryParams = {}
       if (isGatedContentEnabled) {
-        const data = `Premium content user signature at ${Date.now()}`
-        const signature = yield* call(audiusBackendInstance.getSignature, data)
         const premiumTrackSignatureMap = yield* select(
           getPremiumTrackSignatureMap
         )
         const premiumContentSignature = premiumTrackSignatureMap[track.track_id]
-        queryParams = {
-          user_data: data,
-          user_signature: signature
-        }
-        if (premiumContentSignature) {
-          queryParams.premium_content_signature = JSON.stringify(
-            premiumContentSignature
-          )
-        }
+        queryParams = yield* call(getQueryParams, {
+          audiusBackendInstance,
+          premiumContentSignature
+        })
       }
       const mp3Url = apiClient.makeUrl(
         `/tracks/${encodedTrackId}/stream`,
@@ -132,7 +126,11 @@ export function* watchPlay() {
 
       const endChannel = eventChannel((emitter) => {
         audioPlayer.load(
-          track.track_segments,
+          track.duration ||
+            track.track_segments.reduce(
+              (duration, segment) => duration + parseFloat(segment.duration),
+              0
+            ),
           () => {
             if (onEnd) {
               emitter(onEnd({}))
@@ -212,7 +210,7 @@ export function* watchCollectiblePlay() {
       const audioPlayer = yield* getContext('audioPlayer')
       const endChannel = eventChannel((emitter) => {
         audioPlayer.load(
-          [],
+          0,
           () => {
             if (onEnd) {
               emitter(onEnd({}))
