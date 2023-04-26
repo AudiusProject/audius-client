@@ -152,7 +152,7 @@ export type TogglePushNotificationSettingFailed = ReturnType<
 export type RequestPushNotificationPermissions = ReturnType<
   typeof requestPushNotificationPermissions
 >
->
+
 export type UpdateEmailFrequency = ReturnType<typeof updateEmailFrequency>
 
 export type GetNotificationSettings = ReturnType<typeof getNotificationSettings>

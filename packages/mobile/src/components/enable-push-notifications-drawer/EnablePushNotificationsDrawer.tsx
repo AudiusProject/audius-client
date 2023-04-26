@@ -4,7 +4,7 @@ import { settingsPageActions, PushNotificationSetting } from '@audius/common'
 import { View } from 'react-native'
 import { useDispatch } from 'react-redux'
 
-import IconMessage from 'app/assets/images/IconMessage.svg'
+import IconMessage from 'app/assets/images/iconMessage.svg'
 import IconCoSign from 'app/assets/images/iconCoSign.svg'
 import IconFollow from 'app/assets/images/iconFollow.svg'
 import IconNotification from 'app/assets/images/iconGradientNotification.svg'
