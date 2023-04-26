@@ -14,6 +14,8 @@ export const TOGGLE_PUSH_NOTIFICATION_SETTING =
 export const TOGGLE_PUSH_NOTIFICATION_SETTING_FAILED =
   'SETTINGS_PAGE/TOGGLE_PUSH_NOTIFICATION_SETTING_FAILED'
 
+export const REQUEST_PUSH_NOTIFICATION_PERMISSIONS = 'SETTINGS_PAGE/REQUEST_PUSH_NOTIFICATION_PERMISSIONS'
+
 export const UPDATE_EMAIL_FREQUENCY = 'SETTINGS_PAGE/UPDATE_EMAIL_FREQUENCY'
 
 export const GET_NOTIFICATION_SETTINGS =
@@ -97,6 +99,12 @@ export function togglePushNotificationSettingFailed(
   }
 }
 
+export function requestPushNotificationPermissions() {
+  return {
+    type: REQUEST_PUSH_NOTIFICATION_PERMISSIONS
+  }
+}
+
 export function updateEmailFrequency(
   frequency: EmailFrequency,
   updateServer = true
@@ -141,6 +149,10 @@ export type TogglePushNotificationSettingFailed = ReturnType<
   typeof togglePushNotificationSettingFailed
 >
 
+export type RequestPushNotificationPermissions = ReturnType<
+  typeof requestPushNotificationPermissions
+>
+>
 export type UpdateEmailFrequency = ReturnType<typeof updateEmailFrequency>
 
 export type GetNotificationSettings = ReturnType<typeof getNotificationSettings>
@@ -174,6 +186,7 @@ export type BrowserPushNotificationFailed = ReturnType<
 export type SetAiAttribution = ReturnType<typeof setAiAttribution>
 
 export type SettingActions =
+  | RequestPushNotificationPermissions
   | ToggleNotificationSetting
   | TogglePushNotificationSetting
   | TogglePushNotificationSettingFailed

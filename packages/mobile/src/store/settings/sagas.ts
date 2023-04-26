@@ -131,10 +131,24 @@ function* watchUpdatePushNotificationSettings() {
   )
 }
 
+function* watchRequestPushNotificationPermissions() {
+  const hasPermissions = yield* call([PushNotifications, 'hasPermission'])
+  if (!hasPermissions) {
+    // Request permission to send push notifications and enable all if accepted
+    yield put(
+      actions.togglePushNotificationSetting(
+        PushNotificationSetting.MobilePush,
+        true
+      )
+    )
+  }
+}
+
 export default function sagas() {
   return [
     ...commonSettingsSagas(),
     watchGetPushNotificationSettings,
-    watchUpdatePushNotificationSettings
+    watchUpdatePushNotificationSettings,
+    watchRequestPushNotificationPermissions
   ]
 }

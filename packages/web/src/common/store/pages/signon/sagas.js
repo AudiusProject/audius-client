@@ -33,8 +33,6 @@ import {
   takeLatest
 } from 'redux-saga/effects'
 
-import { Notifications } from 'react-native-notifications'
-
 import { fetchAccountAsync, reCacheAccount } from 'common/store/account/sagas'
 import { identify, make } from 'common/store/analytics/actions'
 import * as backendActions from 'common/store/backend/actions'
@@ -54,7 +52,7 @@ import { watchSignOnError } from './errorSagas'
 import { getRouteOnCompletion, getSignOn } from './selectors'
 import { FollowArtistsCategory, Pages } from './types'
 import { checkHandle } from './verifiedChecker'
-const { togglePushNotificationSetting } = settingsPageActions
+const { requestPushNotificationPermissions, togglePushNotificationSetting } = settingsPageActions
 const { getFeePayer } = solanaSelectors
 const { saveCollection } = collectionsSocialActions
 const { getUsers } = cacheUsersSelectors
@@ -534,18 +532,9 @@ function* signIn(action) {
       yield put(signOnActions.resetSignOn())
       const isNativeMobile = yield getContext('isNativeMobile')
       if (isNativeMobile) {
-        const hasPermissions = yield call(
-          Notifications.isRegisteredForRemoteNotifications
-        )
-        if (!hasPermissions) {
-          // Request permission to send push notifications and enable all if accepted
-          yield put(
-            togglePushNotificationSetting(
-              PushNotificationSetting.MobilePush,
-              true
-            )
-          )
-        }
+        // If permissions not already enabled, request permission to send push notifications
+        // and enable all if accepted
+        yield put(requestPushNotificationPermissions)
       } else {
         setHasRequestedBrowserPermission()
         yield put(accountActions.showPushNotificationConfirmation())

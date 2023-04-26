@@ -89,6 +89,10 @@ class PushNotifications {
     }
   }
 
+  async hasPermission(): Promise<boolean> {
+    return await Notifications.isRegisteredForRemoteNotifications()
+  }
+
   requestPermission() {
     isRegistering = true
     Notifications.registerRemoteNotifications()
