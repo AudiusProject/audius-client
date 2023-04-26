@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 
 import type {
   ChatMessageWithExtras,
@@ -9,13 +9,14 @@ import { chatActions, encodeHashId, accountSelectors } from '@audius/common'
 import { View, Dimensions, Pressable, Animated } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { usePopupAnimation } from 'app/hooks/usePopupAnimation'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 
 import { ReactionList } from '../notifications-screen/Reaction'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
-import { REACTION_CONTAINER_HEIGHT } from './ChatScreen'
+import { REACTION_CONTAINER_HEIGHT } from './constants'
 
 const { getUserId } = accountSelectors
 const { setMessageReaction } = chatActions
@@ -65,10 +66,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   }
 }))
 
-const BACKGROUND_OPACITY = 0.3
-const MOUNT_ANIMATION_DURATION_MS = 100
-const UNMOUNT_ANIMATION_DURATION_MS = 100
-
 type ReactionPopupProps = {
   chatId: string
   messageTop: number
@@ -90,56 +87,18 @@ export const ReactionPopup = ({
 }: ReactionPopupProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
-  const backgroundOpacityAnim = useRef(new Animated.Value(0))
-  const otherOpacity = useRef(new Animated.Value(0))
-  const translationAnim = useRef(new Animated.Value(REACTION_CONTAINER_HEIGHT))
   const userId = useSelector(getUserId)
   const userIdEncoded = encodeHashId(userId)
   const selectedReaction = message.reactions?.find(
     (r) => r.user_id === userIdEncoded
   )?.reaction
 
-  const beginMountAnimation = useCallback(() => {
-    Animated.timing(backgroundOpacityAnim.current, {
-      toValue: BACKGROUND_OPACITY,
-      useNativeDriver: true,
-      duration: MOUNT_ANIMATION_DURATION_MS
-    }).start()
-    Animated.timing(otherOpacity.current, {
-      toValue: 1,
-      useNativeDriver: true,
-      duration: MOUNT_ANIMATION_DURATION_MS
-    }).start()
-    Animated.spring(translationAnim.current, {
-      toValue: 0,
-      useNativeDriver: true
-    }).start()
-  }, [])
-
-  const beginUnmountAnimation = useCallback(() => {
-    Animated.timing(backgroundOpacityAnim.current, {
-      toValue: 0,
-      useNativeDriver: true,
-      duration: UNMOUNT_ANIMATION_DURATION_MS
-    }).start()
-    Animated.timing(otherOpacity.current, {
-      toValue: 0,
-      useNativeDriver: true,
-      duration: UNMOUNT_ANIMATION_DURATION_MS
-    }).start(onClose)
-    Animated.spring(translationAnim.current, {
-      toValue: REACTION_CONTAINER_HEIGHT,
-      useNativeDriver: true
-    }).start()
-  }, [onClose])
-
-  useEffect(() => {
-    beginMountAnimation()
-  }, [beginMountAnimation])
-
-  const handleClosePopup = useCallback(() => {
-    beginUnmountAnimation()
-  }, [beginUnmountAnimation])
+  const [
+    backgroundOpacityAnim,
+    otherOpacityAnim,
+    translationAnim,
+    handleClosePopup
+  ] = usePopupAnimation(onClose)
 
   const handleReactionSelected = useCallback(
     (message: Nullable<ChatMessageWithExtras>, reaction: ReactionTypes) => {
@@ -185,7 +144,7 @@ export const ReactionPopup = ({
         message and reaction list, but inside of flatlist view,
         closes the popup. */}
         <Pressable style={[styles.innerPressable]} onPress={handleClosePopup} />
-        <Animated.View style={{ opacity: otherOpacity.current }}>
+        <Animated.View style={{ opacity: otherOpacityAnim.current }}>
           <ChatMessageListItem
             chatId={chatId}
             message={message}
@@ -206,7 +165,7 @@ export const ReactionPopup = ({
             styles.reactionsContainer,
             {
               top: messageTop - REACTION_CONTAINER_HEIGHT,
-              opacity: otherOpacity.current,
+              opacity: otherOpacityAnim.current,
               transform: [
                 {
                   translateY: translationAnim.current
