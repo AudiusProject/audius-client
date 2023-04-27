@@ -8,14 +8,24 @@ import {
   creativeCommons,
   FeatureFlags
 } from '@audius/common'
-import { Button, ButtonType, IconDownload, IconIndent } from '@audius/stems'
+import {
+  Button,
+  ButtonSize,
+  ButtonType,
+  IconCollectible,
+  IconDownload,
+  IconHidden,
+  IconIndent,
+  IconSpecialAccess,
+  IconVisibilityPublic
+} from '@audius/stems'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 
 import {
   AiAttributionModal,
-  AiAttributionModalTrigger
+  AiAttributionButton
 } from 'components/ai-attribution-modal'
 import DatePicker from 'components/data-entry/DatePicker'
 import DropdownInput from 'components/data-entry/DropdownInput'
@@ -76,24 +86,46 @@ const Divider = (props) => {
 // This is temporary. Will be removed along with feature flag after launch.
 // https://linear.app/audius/issue/PAY-813/remove-premium-content-feature-flags-after-launch
 const TrackAvailabilityButton = (props) => {
+  const { availabilityButtonTitle, setIsAvailabilityModalOpen } = props
   const { isEnabled: isGatedContentEnabled } = useFlag(
     FeatureFlags.GATED_CONTENT_ENABLED
   )
+
+  let LeftIcon
+
+  console.log(availabilityButtonTitle, messages.public)
+  switch (availabilityButtonTitle) {
+    case messages.public:
+      console.log('setting!')
+      LeftIcon = IconVisibilityPublic
+      break
+    case messages.collectibleGated:
+      LeftIcon = IconCollectible
+      break
+    case messages.specialAccess:
+      LeftIcon = IconSpecialAccess
+      break
+    case messages.hidden:
+      LeftIcon = IconHidden
+      break
+    default:
+      LeftIcon = IconVisibilityPublic
+      break
+  }
 
   if (isGatedContentEnabled) {
     return (
       <LabeledButton
         type={ButtonType.COMMON_ALT}
         name='setUnlisted'
-        text={props.availabilityButtonTitle}
+        text={availabilityButtonTitle}
         label={messages.availability}
-        className={cn(styles.trackAvailabilityButton, {
-          [styles.error]: props.error
-        })}
-        textClassName={styles.trackAvailabilityButtonText}
+        className={cn({ [styles.error]: props.error })}
+        size={ButtonSize.SMALL}
         onClick={() => {
-          props.setIsAvailabilityModalOpen(true)
+          setIsAvailabilityModalOpen(true)
         }}
+        leftIcon={<LeftIcon />}
       />
     )
   }
@@ -590,13 +622,6 @@ const AdvancedForm = (props) => {
       >
         <Divider label='' />
         <div className={styles.release}>
-          {showAvailability && (
-            <TrackAvailabilityButton
-              availabilityButtonTitle={availabilityButtonTitle}
-              setIsAvailabilityModalOpen={setIsAvailabilityModalOpen}
-              error={props.invalidFields.premium_conditions}
-            />
-          )}
           <div className={styles.datePicker}>
             <DatePicker
               defaultDate={
@@ -608,15 +633,24 @@ const AdvancedForm = (props) => {
               }
             />
           </div>
+          {showAvailability && (
+            <TrackAvailabilityButton
+              availabilityButtonTitle={availabilityButtonTitle}
+              setIsAvailabilityModalOpen={setIsAvailabilityModalOpen}
+              error={props.invalidFields.premium_conditions}
+            />
+          )}
           {props.type === 'track' && (
             <RemixSettingsModalTrigger
+              className={styles.releaseButton}
               onClick={() => props.setRemixSettingsModalVisible(true)}
               hideRemixes={hideRemixes}
               handleToggle={didToggleHideRemixesState}
             />
           )}
           {props.type === 'track' && (
-            <AiAttributionModalTrigger
+            <AiAttributionButton
+              className={styles.releaseButton}
               onClick={() => setAiAttributionModalVisible(true)}
             />
           )}

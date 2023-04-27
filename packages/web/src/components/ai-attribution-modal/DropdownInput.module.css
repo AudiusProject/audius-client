@@ -22,19 +22,21 @@
 .label {
   z-index: 5;
   position: absolute;
-  top: 17px;
+  pointer-events: none;
+  top: 16px;
   left: 19px;
   margin-bottom: 4px;
-  font-size: 12px;
-  line-height: 14px;
-  font-weight: 500;
+  font-size: var(--font-l);
+  line-height: 18px;
+  font-weight: var(--font-medium);
+  color: var(--neutral-light-4);
   transition: all 0.3s ease;
 }
 
 .labelFocus {
-  transform: translate(-3px, -14px);
-  z-index: 2;
-  pointer-events: none;
+  transform: translate(-3px, -8px);
+  font-size: var(--font-s);
+  line-height: 14px;
 }
 
 .dropdownInput {
@@ -171,7 +173,7 @@
 }
 
 .arrow path {
-  fill: var(--neutral);
+  fill: var(--neutral-light-4);
 }
 
 .dropdownInput :global(.ant-select-selection-item) {

@@ -1,13 +1,12 @@
 import { useCallback, useState } from 'react'
 
 import {
-  ID,
   Kind,
-  Nullable,
   SquareSizes,
   getTierForUser,
   imageProfilePicEmpty
 } from '@audius/common'
+import { SelectProps } from 'antd'
 import { useDispatch } from 'react-redux'
 import { createSelector } from 'reselect'
 
@@ -49,11 +48,12 @@ const selectSearchResults = createSelector(getSearchResults, (results) => {
   return { items }
 })
 
-export const AiAttributionDropdown = () => {
+type AiAttributionDropdownProps = SelectProps
+
+export const AiAttributionDropdown = (props: AiAttributionDropdownProps) => {
   const dispatch = useDispatch()
   const users = useSelector(selectSearchResults)
   const [searchInput, setSearchInput] = useState('')
-  const [value, setValue] = useState<Nullable<ID>>(null)
 
   const handleSearch = useCallback(
     (searchInput: string) => {
@@ -63,10 +63,6 @@ export const AiAttributionDropdown = () => {
     [dispatch]
   )
 
-  const handleSelect = useCallback((newValue: ID) => {
-    setValue(newValue)
-  }, [])
-
   return (
     <DropdownInput
       menu={users}
@@ -74,9 +70,7 @@ export const AiAttributionDropdown = () => {
       size='large'
       input={searchInput}
       onSearch={handleSearch}
-      mount='page'
-      value={value}
-      onSelect={handleSelect}
+      {...props}
     />
   )
 }

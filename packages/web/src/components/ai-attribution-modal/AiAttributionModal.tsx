@@ -1,4 +1,10 @@
+import { useCallback, useState } from 'react'
+
+import { ID, Nullable } from '@audius/common'
 import {
+  Button,
+  ButtonSize,
+  ButtonType,
   Modal,
   ModalContent,
   ModalHeader,
@@ -17,14 +23,27 @@ const messages = {
   title: 'AI Attribution',
   label: 'Mark this track as AI-generated',
   description:
-    'If your AI-generated track was trained on an existing Audius artist, you can give them credit here. Only users who have opted-in will appear in this list.'
+    'If your AI-generated track was trained on an existing Audius artist, you can give them credit here. Only users who have opted-in will appear in this list.',
+  done: 'Done'
 }
 
-type AiAttributionModalProps = ModalProps
+type AiAttributionModalProps = Omit<ModalProps, 'children'> & {
+  onChange: (aiAttributedUserId: ID) => void
+}
 
 export const AiAttributionModal = (props: AiAttributionModalProps) => {
-  const { isOpen, onClose } = props
+  const { isOpen, onClose, onChange } = props
   const [isAttributable, toggleIsAttributable] = useToggle(false)
+  const [aiAttributedUserId, setAiAttributedUserId] =
+    useState<Nullable<ID>>(null)
+
+  const handleChange = useCallback(() => {
+    if (aiAttributedUserId) {
+      onChange(aiAttributedUserId)
+    }
+    onClose()
+  }, [onChange, aiAttributedUserId, onClose])
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} bodyClassName={styles.root}>
       <ModalHeader>
@@ -40,7 +59,20 @@ export const AiAttributionModal = (props: AiAttributionModalProps) => {
           <Switch checked={isAttributable} onChange={toggleIsAttributable} />
         </label>
         <span className={styles.description}>{messages.description}</span>
-        {isAttributable ? <AiAttributionDropdown /> : null}
+        {isAttributable ? (
+          <AiAttributionDropdown
+            value={aiAttributedUserId}
+            onSelect={setAiAttributedUserId}
+          />
+        ) : null}
+        <Button
+          text={messages.done}
+          type={ButtonType.PRIMARY}
+          size={ButtonSize.MEDIUM}
+          className={styles.doneButton}
+          onClick={handleChange}
+          disabled={isAttributable && !aiAttributedUserId}
+        />
       </ModalContent>
     </Modal>
   )

@@ -21,9 +21,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  width: 40px;
-  height: 20px;
-  border-radius: 40px;
+  width: 48px;
+  height: 26px;
+  border-radius: 99px;
   position: relative;
   transition: background-color 0.2s;
   background-color: var(--neutral-light-6);
@@ -35,8 +35,8 @@
   position: absolute;
   top: 2px;
   left: 2px;
-  height: 16px;
-  width: 16px;
+  height: 22px;
+  width: 22px;
   border-radius: 50%;
   transition: 0.2s;
   background: var(--neutral-light-9);

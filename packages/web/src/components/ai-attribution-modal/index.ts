@@ -1,2 +1,2 @@
-export * from './AiAttributionModalTrigger'
+export * from './AiAttributionButton'
 export * from './AiAttributionModal'

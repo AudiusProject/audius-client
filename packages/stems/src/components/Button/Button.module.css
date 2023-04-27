@@ -37,8 +37,12 @@
   padding-right: var(--unit-4);
 }
 
-.button .icon svg {
+.button.medium .icon svg {
   width: var(--unit-6);
+}
+
+.button.small .icon svg {
+  width: var(--unit-4);
 }
 
 .button .icon path {
@@ -48,6 +52,10 @@
 
 .button .icon.left {
   margin-right: var(--unit-3);
+}
+
+.button.small .icon.left {
+  margin-right: var(--unit-2);
 }
 
 .button .icon.left.noText {
@@ -283,6 +291,10 @@
   font-size: var(--font-s);
   font-weight: var(--font-bold);
   letter-spacing: 0.5px;
+}
+
+.commonAlt.small .textLabel {
+  font-size: var(--font-xs);
 }
 
 .commonAlt .icon path,
