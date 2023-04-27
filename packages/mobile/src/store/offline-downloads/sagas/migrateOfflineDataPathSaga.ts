@@ -5,6 +5,7 @@ import RNFS from 'react-native-fs'
 import RNFetchBlob from 'rn-fetch-blob'
 import { call, put, select } from 'typed-redux-saga'
 
+import { make, track } from 'app/services/analytics'
 import { downloadsRoot } from 'app/services/offline-downloader'
 import {
   getOfflineCollectionsStatus,
@@ -13,6 +14,7 @@ import {
 } from 'app/store/offline-downloads/selectors'
 import type { OfflineJob } from 'app/store/offline-downloads/slice'
 import { redownloadOfflineItems } from 'app/store/offline-downloads/slice'
+import { EventNames } from 'app/types/analytics'
 
 import { DOWNLOAD_REASON_FAVORITES } from '../constants'
 
@@ -31,11 +33,28 @@ export function* migrateOfflineDataPathSaga() {
   if (!isOfflineModeEnabled) return
 
   const legacyFilesExist = yield* call(exists, legacyDownloadsRoot)
-  if (!legacyFilesExist) return // TODO: fire action?
+  if (!legacyFilesExist) return
+
+  track(
+    make({
+      eventName: EventNames.OFFLINE_MODE_FILEPATH_MIGRATION_STARTED
+    })
+  )
 
   try {
     yield* call(copyRecursive, legacyDownloadsRoot, downloadsRoot)
+
+    track(
+      make({
+        eventName: EventNames.OFFLINE_MODE_FILEPATH_MIGRATION_SUCCEEDED
+      })
+    )
   } catch (e) {
+    track(
+      make({
+        eventName: EventNames.OFFLINE_MODE_FILEPATH_MIGRATION_FAILED
+      })
+    )
     // If we fail, nuke the legacy directory to ensure we don't retry the process on every startup
     // also requeue everything for download
     yield* call(migrationRecovery)
@@ -58,15 +77,15 @@ async function copyRecursive(source: string, destination: string) {
     items.map(async (item) => {
       //  item is a file
       if (item.isFile() === true) {
-        const destinationFile = destination + '/' + item.name
+        const destinationFile = `${destination}/${item.name}`
 
         if (!(await exists(destinationFile))) {
           await RNFS.moveFile(item.path, destinationFile)
         }
       } else {
         // item is a directory
-        const subDirectory = source + '/' + item.name
-        const subDestinationDirectory = destination + '/' + item.name
+        const subDirectory = `${source}/${item.name}`
+        const subDestinationDirectory = `${destination}/${item.name}`
 
         await copyRecursive(subDirectory, subDestinationDirectory)
       }
