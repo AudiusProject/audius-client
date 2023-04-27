@@ -1,13 +1,22 @@
 import path from 'path'
 
+import { difference } from 'lodash'
 import RNFS from 'react-native-fs'
 import RNFetchBlob from 'rn-fetch-blob'
-import { call } from 'typed-redux-saga'
+import { call, put, select } from 'typed-redux-saga'
 
 import { downloadsRoot } from 'app/services/offline-downloader'
+import {
+  getOfflineCollectionsStatus,
+  getOfflineQueue,
+  getOfflineTrackStatus
+} from 'app/store/offline-downloads/selectors'
+import type { OfflineJob } from 'app/store/offline-downloads/slice'
+import { redownloadOfflineItems } from 'app/store/offline-downloads/slice'
+
+import { DOWNLOAD_REASON_FAVORITES } from '../constants'
 
 import { getIsOfflineEnabled } from './getIsOfflineEnabled'
-
 const {
   fs: { dirs, unlink, exists }
 } = RNFetchBlob
@@ -26,8 +35,11 @@ export function* migrateOfflineDataPathSaga() {
 
   try {
     yield* call(copyRecursive, legacyDownloadsRoot, downloadsRoot)
-  } finally {
+  } catch (e) {
     // If we fail, nuke the legacy directory to ensure we don't retry the process on every startup
+    // also requeue everything for download
+    yield* call(migrationRecovery)
+  } finally {
     yield* call(unlink, legacyDownloadsRoot)
   }
 }
@@ -60,4 +72,24 @@ async function copyRecursive(source: string, destination: string) {
       }
     })
   )
+}
+
+export function* migrationRecovery() {
+  const queueJobs: OfflineJob[] = yield* select(getOfflineQueue)
+  const collections = yield* select(getOfflineCollectionsStatus)
+  const tracks = yield* select(getOfflineTrackStatus)
+
+  const collectionJobs: OfflineJob[] = Object.keys(collections)
+    .filter((collectionId) => collectionId !== DOWNLOAD_REASON_FAVORITES)
+    .map((collectionId) => ({
+      id: parseInt(collectionId),
+      type: 'collection'
+    }))
+  const trackJobs: OfflineJob[] = Object.keys(tracks).map((trackId) => ({
+    id: parseInt(trackId),
+    type: 'track'
+  }))
+
+  const newJobs = difference([...collectionJobs, ...trackJobs], queueJobs)
+  yield* put(redownloadOfflineItems({ items: newJobs }))
 }
