@@ -2339,7 +2339,14 @@ export const audiusBackend = ({
         })
         .flat()
         .filter(removeNullable)
-      const userId = decodeHashId(notification.actions[0].specifier) as number
+      // playlist owner ids are the specifier of the playlist create notif
+      const userId =
+        entityType !== Entity.Track
+          ? // album/playlist create notifications store album owner
+            // id as the specifier
+            (decodeHashId(notification.actions[0].specifier) as number)
+          : // track create notifs store track owner id in the group id
+            parseInt(notification.group_id.split(':')[3])
       return {
         type: NotificationType.UserSubscription,
         userId,
