@@ -148,7 +148,8 @@ import {
   SUPPORTING_USERS_ROUTE,
   TOP_SUPPORTERS_USERS_ROUTE,
   publicSiteRoutes,
-  CHAT_PAGE
+  CHAT_PAGE,
+  PROFILE_PAGE_AI_ATTRIBUTED_TRACKS
 } from 'utils/route'
 import { getTheme as getSystemTheme } from 'utils/theme/theme'
 
@@ -866,6 +867,11 @@ class App extends Component {
                     containerRef={this.props.mainContentRef.current}
                   />
                 )}
+              />
+              <Route
+                exact
+                path={PROFILE_PAGE_AI_ATTRIBUTED_TRACKS}
+                render={(props) => <div>{'hello'}</div>}
               />
 
               <Route exact path={TRACK_PAGE} component={TrackPage} />

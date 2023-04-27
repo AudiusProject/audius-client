@@ -325,6 +325,9 @@ export const profilePage = (handle: string) => {
 export const fullProfilePage = (handle: string) => {
   return `${BASE_URL}${profilePage(handle)}`
 }
+export const profilePageAiAttributedTracks = (handle: string) => {
+  return `${profilePage(handle)}/ai`
+}
 
 export const searchResultsPage = (query: string) => {
   return `/search/${query}`
