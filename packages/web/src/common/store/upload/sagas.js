@@ -501,12 +501,18 @@ export function* handleUploads({
     // If it's not a collection, rejoice because we have the trackId already.
     // Otherwise, save our metadata and continue on.
     if (isCollection) {
+      const trackObj = idToTrackMap[originalId]
+      const metadata = {
+        ...trackObj.metadata,
+        is_playlist_upload: isCollection
+      }
       creatorNodeMetadata.push({
         metadataMultihash,
         metadataFileUUID,
         transcodedTrackCID,
         transcodedTrackUUID,
-        originalId
+        originalId,
+        metadata
       })
     } else {
       const trackObj = idToTrackMap[originalId]

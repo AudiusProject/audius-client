@@ -1315,7 +1315,11 @@ export const audiusBackend = ({
    * Associates tracks with user on creatorNode
    */
   async function registerUploadedTracks(
-    uploadedTracks: { metadataMultihash: string; metadataFileUUID: string }[]
+    uploadedTracks: {
+      metadataMultihash: string
+      metadataFileUUID: string
+      metadata: TrackMetadata
+    }[]
   ) {
     return audiusLibs.Track.addTracksToChainAndCnode(uploadedTracks)
   }
