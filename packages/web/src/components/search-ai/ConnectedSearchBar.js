@@ -4,7 +4,6 @@ import {
   Name,
   SquareSizes,
   getTierForUser,
-  imageBlank as placeholderArt,
   imageProfilePicEmpty as profilePicEmpty
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
