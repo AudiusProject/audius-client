@@ -43,7 +43,7 @@ const slice = createSlice({
       const { userIds, limit } = action.payload
       state.userList.userIds = state.userList.userIds.concat(userIds)
       state.userList.status = Status.SUCCESS
-      state.userList.hasMore = userIds.length >= limit
+      state.userList.hasMore = userIds.length === limit
     }
   }
 })
