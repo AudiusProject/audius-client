@@ -119,7 +119,9 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
   }, [dispatch])
 
   useEffect(() => {
-    dispatch(fetchPermissions({ userIds }))
+    if (userIds.length > 0) {
+      dispatch(fetchPermissions({ userIds }))
+    }
   }, [dispatch, userIds])
 
   useDebounce(
