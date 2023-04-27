@@ -125,10 +125,7 @@ export const ChatUserListItem = ({ user }: ChatUserListItemProps) => {
   return (
     <TouchableOpacity onPress={() => handlePress(user)} disabled={!isPermitted}>
       <View style={styles.border}>
-        <View
-          style={[styles.userContainer, !isPermitted ? styles.dim : null]}
-          key={user.key}
-        >
+        <View style={[styles.userContainer, !isPermitted ? styles.dim : null]}>
           <ProfilePicture profile={user} style={styles.profilePicture} />
           <View style={styles.userNameContainer}>
             <UserBadges user={user} nameStyle={styles.userName} />
