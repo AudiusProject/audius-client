@@ -44,8 +44,18 @@ export const AiAttributionModal = (props: AiAttributionModalProps) => {
     onClose()
   }, [onChange, aiAttributedUserId, onClose])
 
+  const handleClose = useCallback(() => {
+    onClose()
+    toggleIsAttributable(false)
+  }, [onClose, toggleIsAttributable])
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} bodyClassName={styles.root}>
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      bodyClassName={styles.root}
+      dismissOnClickOutside={false}
+    >
       <ModalHeader>
         <ModalTitle
           title={messages.title}

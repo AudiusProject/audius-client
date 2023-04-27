@@ -93,10 +93,8 @@ const TrackAvailabilityButton = (props) => {
 
   let LeftIcon
 
-  console.log(availabilityButtonTitle, messages.public)
   switch (availabilityButtonTitle) {
     case messages.public:
-      console.log('setting!')
       LeftIcon = IconVisibilityPublic
       break
     case messages.collectibleGated:
@@ -583,6 +581,9 @@ const AdvancedForm = (props) => {
       <AiAttributionModal
         isOpen={aiAttributionModalVisible}
         onClose={() => setAiAttributionModalVisible(false)}
+        onChange={(aiAttributionUserId) =>
+          props.onChangeField('ai_attribution_user_id', aiAttributionUserId)
+        }
       />
     )
   }
