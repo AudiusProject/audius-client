@@ -46,13 +46,13 @@ export function* migrateOfflineDataPathSaga() {
 
     track(
       make({
-        eventName: EventNames.OFFLINE_MODE_FILEPATH_MIGRATION_SUCCEEDED
+        eventName: EventNames.OFFLINE_MODE_FILEPATH_MIGRATION_SUCCESS
       })
     )
   } catch (e) {
     track(
       make({
-        eventName: EventNames.OFFLINE_MODE_FILEPATH_MIGRATION_FAILED
+        eventName: EventNames.OFFLINE_MODE_FILEPATH_MIGRATION_FAILURE
       })
     )
     // If we fail, nuke the legacy directory to ensure we don't retry the process on every startup

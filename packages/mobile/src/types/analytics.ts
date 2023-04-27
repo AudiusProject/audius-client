@@ -142,6 +142,16 @@ type OfflineModePlay = {
   trackId: ID
 }
 
+type OfflineFilePathMigrationStarted = {
+  eventName: MobileEventNames.OFFLINE_MODE_FILEPATH_MIGRATION_STARTED
+}
+type OfflineFilePathMigrationSucceess = {
+  eventName: MobileEventNames.OFFLINE_MODE_FILEPATH_MIGRATION_SUCCESS
+}
+type OfflineFilePathMigrationFailed = {
+  eventName: MobileEventNames.OFFLINE_MODE_FILEPATH_MIGRATION_FAILURE
+}
+
 type MobileTrackingEvents =
   | NotificationsOpenPushNotification
   | AppError
@@ -161,6 +171,9 @@ type MobileTrackingEvents =
   | OfflineModeDownloadSuccess
   | OfflineModeRemoveItem
   | OfflineModePlay
+  | OfflineFilePathMigrationStarted
+  | OfflineFilePathMigrationSucceess
+  | OfflineFilePathMigrationFailed
 
 export type AllEvents = CommonTrackingEvents | MobileTrackingEvents
 
