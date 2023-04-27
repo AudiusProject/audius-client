@@ -50,6 +50,7 @@ import profileSagas from 'common/store/profile/sagas'
 import queueSagas from 'common/store/queue/sagas'
 import recoveryEmailSagas from 'common/store/recovery-email/sagas'
 import remixSettingsSagas from 'common/store/remix-settings/sagas'
+import searchAiBarSagas from 'common/store/search-ai-bar/sagas'
 import searchBarSagas from 'common/store/search-bar/sagas'
 import smartCollectionPageSagas from 'common/store/smart-collection/sagas'
 import socialSagas from 'common/store/social/sagas'
@@ -97,6 +98,7 @@ export default function* rootSaga() {
     backendSagas(),
     confirmerSagas(),
     searchBarSagas(),
+    searchAiBarSagas(),
 
     cookieBannerSagas(),
     reachabilitySagas(),

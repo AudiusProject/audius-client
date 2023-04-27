@@ -148,7 +148,8 @@ import {
   SUPPORTING_USERS_ROUTE,
   TOP_SUPPORTERS_USERS_ROUTE,
   publicSiteRoutes,
-  CHAT_PAGE
+  CHAT_PAGE,
+  PROFILE_PAGE_AI_ATTRIBUTED_TRACKS
 } from 'utils/route'
 import { getTheme as getSystemTheme } from 'utils/theme/theme'
 
@@ -168,6 +169,8 @@ import { SubPage } from './settings-page/components/mobile/SettingsPage'
 import SmartCollectionPage from './smart-collection/SmartCollectionPage'
 import SupportingPage from './supporting-page/SupportingPage'
 import TopSupportersPage from './top-supporters-page/TopSupportersPage'
+
+import { AiAttributionModal } from 'components/ai-attribution-modal'
 
 const { setTheme } = themeActions
 const { getTheme } = themeSelectors
@@ -952,6 +955,7 @@ class App extends Component {
             </SwitchComponent>
           </Suspense>
         </div>
+        <AiAttributionModal isOpen />
         <PlayBarProvider />
         <Suspense fallback={null}>
           <Modals />

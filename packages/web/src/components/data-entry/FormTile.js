@@ -13,6 +13,10 @@ import cn from 'classnames'
 import PropTypes from 'prop-types'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 
+import {
+  AiAttributionModal,
+  AiAttributionModalTrigger
+} from 'components/ai-attribution-modal'
 import DatePicker from 'components/data-entry/DatePicker'
 import DropdownInput from 'components/data-entry/DropdownInput'
 import Input from 'components/data-entry/Input'
@@ -149,6 +153,8 @@ const BasicForm = (props) => {
   const {
     remixSettingsModalVisible,
     setRemixSettingsModalVisible,
+    aiAttributionModalVisible,
+    setAiAttributionModalVisible,
     isRemix,
     setIsRemix
   } = props
@@ -287,6 +293,14 @@ const BasicForm = (props) => {
     )
   }
 
+  const renderAiAttributionModal = () => {
+    return (
+      <AiAttributionModal
+        isOpen={aiAttributionModalVisible}
+        onClose={() => setAiAttributionModalVisible(false)}
+      />
+    )
+  }
   const { onChangeField } = props
   const handleRemixToggle = useCallback(() => {
     setIsRemix(!isRemix)
@@ -395,6 +409,7 @@ const BasicForm = (props) => {
       {renderBottomMenu()}
       {renderSourceFilesModal()}
       {!isGatedContentEnabled && renderRemixSettingsModal()}
+      {renderAiAttributionModal()}
     </div>
   )
 }
@@ -407,6 +422,8 @@ const AdvancedForm = (props) => {
   const {
     remixSettingsModalVisible,
     setRemixSettingsModalVisible,
+    aiAttributionModalVisible,
+    setAiAttributionModalVisible,
     isRemix,
     setIsRemix
   } = props
@@ -529,6 +546,15 @@ const AdvancedForm = (props) => {
     )
   }
 
+  const renderAiAttributionModal = () => {
+    return (
+      <AiAttributionModal
+        isOpen={aiAttributionModalVisible}
+        onClose={() => setAiAttributionModalVisible(false)}
+      />
+    )
+  }
+
   return (
     <>
       {/*
@@ -587,6 +613,11 @@ const AdvancedForm = (props) => {
               onClick={() => props.setRemixSettingsModalVisible(true)}
               hideRemixes={hideRemixes}
               handleToggle={didToggleHideRemixesState}
+            />
+          )}
+          {props.type === 'track' && (
+            <AiAttributionModalTrigger
+              onClick={() => setAiAttributionModalVisible(true)}
             />
           )}
           {props.type !== 'track' && (
@@ -675,6 +706,7 @@ const AdvancedForm = (props) => {
           {props.licenseDescription}
         </div>
         {isGatedContentEnabled && renderRemixSettingsModal()}
+        {renderAiAttributionModal()}
       </div>
     </>
   )
@@ -703,6 +735,7 @@ class FormTile extends Component {
     imageProcessingError: false,
 
     remixSettingsModalVisible: false,
+    aiAttributionModalVisible: false,
     isRemix: !!this.props.defaultFields.remix_of
   }
 
@@ -816,6 +849,10 @@ class FormTile extends Component {
     this.setState({ remixSettingsModalVisible: visible })
   }
 
+  setAiAttributionModalVisible = (visible) => {
+    this.setState({ aiAttributionModalVisible: visible })
+  }
+
   setIsRemix = (isRemix) => {
     this.setState({ isRemix })
   }
@@ -830,6 +867,7 @@ class FormTile extends Component {
       commercialUse,
       derivativeWorks,
       remixSettingsModalVisible,
+      aiAttributionModalVisible,
       isRemix
     } = this.state
 
@@ -844,6 +882,8 @@ class FormTile extends Component {
           imageProcessingError={imageProcessingError}
           remixSettingsModalVisible={remixSettingsModalVisible}
           setRemixSettingsModalVisible={this.setRemixSettingsModalVisible}
+          aiAttributionModalVisible={aiAttributionModalVisible}
+          setAiAttributionModalVisible={this.setAiAttributionModalVisible}
           isRemix={isRemix}
           setIsRemix={this.setIsRemix}
         />
@@ -862,6 +902,8 @@ class FormTile extends Component {
           onSelectDerivativeWorks={this.onSelectDerivativeWorks}
           remixSettingsModalVisible={remixSettingsModalVisible}
           setRemixSettingsModalVisible={this.setRemixSettingsModalVisible}
+          aiAttributionModalVisible={aiAttributionModalVisible}
+          setAiAttributionModalVisible={this.setAiAttributionModalVisible}
           isRemix={isRemix}
           setIsRemix={this.setIsRemix}
         />

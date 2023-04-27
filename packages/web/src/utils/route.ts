@@ -92,6 +92,7 @@ export const PROFILE_PAGE_REPOSTS = '/:handle/reposts'
 export const PROFILE_PAGE_COLLECTIBLES = '/:handle/collectibles'
 export const PROFILE_PAGE_COLLECTIBLE_DETAILS =
   '/:handle/collectibles/:collectibleId'
+export const PROFILE_PAGE_AI_ATTRIBUTED_TRACKS = '/:handle/ai'
 // Opaque id routes
 export const TRACK_ID_PAGE = '/tracks/:id'
 export const USER_ID_PAGE = '/users/:id'

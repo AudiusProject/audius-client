@@ -56,6 +56,7 @@ export type AppState = CommonState & {
   backend: BackendState
   confirmer: ConfirmerState
   searchBar: SearchBarState
+  searchAiBar: SearchAiBarState
 
   drawers: DrawersState
   downloads: DownloadState

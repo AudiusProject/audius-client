@@ -122,10 +122,10 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  column-gap: var(--unit-8);
 }
 .release > div:first-child {
   flex: 0 0 158px;
-  margin-right: 38px;
 }
 .release > div:last-child {
   flex: 1 auto;
@@ -201,7 +201,6 @@
 }
 
 .datePicker {
-  margin-right: 38px;
   flex-shrink: 0;
 }
 
