@@ -3,6 +3,12 @@
   width: 100%;
   position: relative;
   display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.userInfo {
+  display: inline-flex;
 }
 
 .imageContainer {
@@ -41,10 +47,13 @@
   justify-content: center;
 }
 
+.disabled {
+  opacity: 0.4;
+}
+
 .primaryContainer {
   display: inline-flex;
   align-items: center;
-  color: var(--neutral);
   font-family: var(--font-family);
   font-size: var(--font-xs);
   font-weight: var(--font-medium);

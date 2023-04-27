@@ -3,12 +3,14 @@ import {
   ModalContent,
   ModalHeader,
   ModalProps,
-  ModalTitle
+  ModalTitle,
+  Switch
 } from '@audius/stems'
+import { useToggle } from 'react-use'
 
 import { ReactComponent as IconRobot } from 'assets/img/robot.svg'
-import AiSearchBar from 'components/search-ai/ConnectedSearchBar'
 
+import { AiAttributionDropdown } from './AiAttributionDropdown'
 import styles from './AiAttributionModal.module.css'
 
 const messages = {
@@ -22,18 +24,23 @@ type AiAttributionModalProps = ModalProps
 
 export const AiAttributionModal = (props: AiAttributionModalProps) => {
   const { isOpen, onClose } = props
+  const [isAttributable, toggleIsAttributable] = useToggle(false)
   return (
     <Modal isOpen={isOpen} onClose={onClose} bodyClassName={styles.root}>
       <ModalHeader>
         <ModalTitle
           title={messages.title}
-          icon={<IconRobot className={styles.icon} />}
+          titleClassName={styles.title}
+          icon={<IconRobot className={styles.titleIcon} />}
         />
       </ModalHeader>
-      <ModalContent>
-        <div style={{ height: 1000, width: 300 }}>
-          <AiSearchBar />
-        </div>
+      <ModalContent className={styles.content} forward>
+        <label className={styles.switchLabel}>
+          <span className={styles.switchLabelText}>{messages.label}</span>
+          <Switch checked={isAttributable} onChange={toggleIsAttributable} />
+        </label>
+        <span className={styles.description}>{messages.description}</span>
+        {isAttributable ? <AiAttributionDropdown /> : null}
       </ModalContent>
     </Modal>
   )

@@ -59,6 +59,9 @@ export {
   SegmentedControlProps as TabSliderProps,
   Option
 } from './components/SegmentedControl'
+
+export { Switch, SwitchProps } from './components/Switch'
+
 export {
   TokenValueSlider,
   TokenValueSliderProps

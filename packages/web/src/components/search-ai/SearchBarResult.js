@@ -1,6 +1,7 @@
 import { useState, useEffect, memo } from 'react'
 
 import { Kind, imageBlank as placeholderArt } from '@audius/common'
+import { Tag } from '@audius/stems'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 
@@ -8,8 +9,11 @@ import DynamicImage from 'components/dynamic-image/DynamicImage'
 import UserBadges from 'components/user-badges/UserBadges'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
 
-import searchBarStyles from './SearchBar.module.css'
 import styles from './SearchBarResult.module.css'
+
+const messages = {
+  disabledTag: 'Ai Attrib. Not Enabled'
+}
 
 const Image = memo((props) => {
   const { defaultImage, imageMultihash, size, isUser } = props
@@ -64,57 +68,62 @@ const SearchBarResult = memo((props) => {
     size,
     defaultImage,
     isVerifiedUser,
-    tier
+    tier,
+    allowAiAttribution
   } = props
   const isUser = kind === Kind.USERS
 
   return (
     <div className={styles.searchBarResultContainer}>
-      <Image
-        kind={kind}
-        isUser={isUser}
-        id={id}
-        sizes={sizes}
-        imageMultihash={imageMultihash}
-        creatorNodeEndpoint={creatorNodeEndpoint}
-        defaultImage={defaultImage}
-        size={size}
-      />
-      <div className={styles.textContainer}>
-        <span
-          className={cn(styles.primaryContainer, searchBarStyles.resultText)}
+      <span className={styles.userInfo}>
+        <Image
+          kind={kind}
+          isUser={isUser}
+          id={id}
+          sizes={sizes}
+          imageMultihash={imageMultihash}
+          creatorNodeEndpoint={creatorNodeEndpoint}
+          defaultImage={defaultImage}
+          size={size}
+        />
+        <div
+          className={cn(styles.textContainer, {
+            [styles.disabled]: !allowAiAttribution
+          })}
         >
-          <div className={styles.primaryText}>{primary}</div>
-          {isUser && (
-            <UserBadges
-              className={styles.verified}
-              userId={userId}
-              badgeSize={12}
-              isVerifiedOverride={isVerifiedUser}
-              overrideTier={tier}
-            />
-          )}
-        </span>
-        {secondary ? (
           <span
-            className={cn(
-              styles.secondaryContainer,
-              searchBarStyles.resultText
-            )}
+            className={cn(styles.primaryContainer, {
+              [styles.hoverable]: allowAiAttribution
+            })}
           >
-            <span>{secondary}</span>
-            {!isUser && (
+            <div className={styles.primaryText}>{primary}</div>
+            {isUser && (
               <UserBadges
                 className={styles.verified}
                 userId={userId}
-                badgeSize={10}
+                badgeSize={12}
                 isVerifiedOverride={isVerifiedUser}
                 overrideTier={tier}
               />
             )}
           </span>
-        ) : null}
-      </div>
+          {secondary ? (
+            <span className={cn(styles.secondaryContainer)}>
+              <span>{secondary}</span>
+              {!isUser && (
+                <UserBadges
+                  className={styles.verified}
+                  userId={userId}
+                  badgeSize={10}
+                  isVerifiedOverride={isVerifiedUser}
+                  overrideTier={tier}
+                />
+              )}
+            </span>
+          ) : null}
+        </div>
+      </span>
+      {!allowAiAttribution ? <Tag tag={messages.disabledTag} /> : null}
     </div>
   )
 })

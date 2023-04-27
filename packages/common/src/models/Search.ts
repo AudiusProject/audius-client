@@ -18,6 +18,7 @@ type BaseUser = Pick<
 export type SearchUser = UserMultihash &
   UserImage &
   BaseUser & {
+    allow_ai_attribution?: boolean
     album_count: null
     bio: string
     followee_count: null
