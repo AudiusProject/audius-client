@@ -13,7 +13,7 @@ import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
 const { createChat } = chatActions
-const { isPermittedForUser } = chatSelectors
+const { getCanMessageUser } = chatSelectors
 
 const messages = {
   followsYou: 'Follows You',
@@ -107,8 +107,8 @@ export const ChatUserListItem = ({ user }: ChatUserListItemProps) => {
   const styles = useStyles()
   const palette = useThemeColors()
   const dispatch = useDispatch()
-  const isPermitted = useSelector((state) =>
-    isPermittedForUser(state, user.user_id)
+  const canMessageUser = useSelector((state) =>
+    getCanMessageUser(state, user.user_id)
   )
 
   const handlePress = useCallback(
@@ -123,16 +123,21 @@ export const ChatUserListItem = ({ user }: ChatUserListItemProps) => {
   }
 
   return (
-    <TouchableOpacity onPress={() => handlePress(user)} disabled={!isPermitted}>
+    <TouchableOpacity
+      onPress={() => handlePress(user)}
+      disabled={!canMessageUser}
+    >
       <View style={styles.border}>
-        <View style={[styles.userContainer, !isPermitted ? styles.dim : null]}>
+        <View
+          style={[styles.userContainer, !canMessageUser ? styles.dim : null]}
+        >
           <ProfilePicture profile={user} style={styles.profilePicture} />
           <View style={styles.userNameContainer}>
             <UserBadges user={user} nameStyle={styles.userName} />
             <Text style={styles.handle}>@{user.handle}</Text>
             <View style={styles.followContainer}>
               <View style={styles.followersContainer}>
-                {isPermitted ? (
+                {canMessageUser ? (
                   <>
                     <IconUser
                       fill={palette.neutralLight4}
@@ -148,7 +153,7 @@ export const ChatUserListItem = ({ user }: ChatUserListItemProps) => {
                   <Text style={styles.userName}>{messages.cannotMessage}</Text>
                 )}
               </View>
-              {user.does_follow_current_user && isPermitted ? (
+              {user.does_follow_current_user && canMessageUser ? (
                 <Text style={styles.followsYouTag}>{messages.followsYou}</Text>
               ) : null}
             </View>
