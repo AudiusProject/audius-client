@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 
 import { chatActions, chatSelectors } from '@audius/common'
 import type { User } from '@audius/common'
