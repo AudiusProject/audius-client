@@ -26,6 +26,7 @@ import {
 import LoadingSpinner from 'app/components/loading-spinner'
 import { ProfilePicture } from 'app/components/user'
 import { UserBadges } from 'app/components/user-badges'
+import { light } from 'app/haptics'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
 import { setVisibility } from 'app/store/drawers/slice'
@@ -282,7 +283,7 @@ export const ChatScreen = () => {
     )
   }
 
-  const closeReactionPopup = useCallback(() => {
+  const onCloseReactionPopup = useCallback(() => {
     setShouldShowPopup(false)
     dispatch(setReactionsPopupMessageId({ messageId: null }))
   }, [setShouldShowPopup, dispatch])
@@ -304,6 +305,7 @@ export const ChatScreen = () => {
       messageTop.current = messageY - spacing(2)
       dispatch(setReactionsPopupMessageId({ messageId: id }))
       setShouldShowPopup(true)
+      light()
     },
     [dispatch]
   )
@@ -396,7 +398,8 @@ export const ChatScreen = () => {
               containerBottom={chatContainerBottom.current}
               isAuthor={decodeHashId(popupMessage?.sender_user_id) === userId}
               message={popupMessage}
-              closePopup={closeReactionPopup}
+              shouldShowPopup={shouldShowPopup}
+              onClose={onCloseReactionPopup}
             />
           ) : null}
         </Portal>

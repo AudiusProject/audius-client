@@ -577,10 +577,12 @@ export const audiusBackend = ({
     return {
       ...track,
       // TODO: This method should be renamed as it does more than images.
-      duration: track.track_segments.reduce(
-        (duration, segment) => duration + parseFloat(segment.duration),
-        0
-      ),
+      duration:
+        track.duration ||
+        track.track_segments.reduce(
+          (duration, segment) => duration + parseFloat(segment.duration),
+          0
+        ),
       _cover_art_sizes: coverArtSizes
     }
   }
@@ -1264,8 +1266,13 @@ export const audiusBackend = ({
     metadata: TrackMetadata,
     onProgress: (loaded: number, total: number) => void
   ) {
-    const storageV2Enabled = await getFeatureEnabled(FeatureFlags.STORAGE_V2)
-    if (storageV2Enabled) {
+    const storageV2SignupEnabled = await getFeatureEnabled(
+      FeatureFlags.STORAGE_V2_SIGNUP
+    )
+    const storageV2UploadEnabled = await getFeatureEnabled(
+      FeatureFlags.STORAGE_V2_TRACK_UPLOAD
+    )
+    if (storageV2SignupEnabled || storageV2UploadEnabled) {
       try {
         return await audiusLibs.Track.uploadTrackV2(
           trackFile,
@@ -1294,7 +1301,6 @@ export const audiusBackend = ({
     metadata: TrackMetadata,
     onProgress: (loaded: number, total: number) => void
   ) {
-    // TODO: Call storage v2 upload if USE_STORAGE_V2_FEATURE_FLAG is true
     return audiusLibs.Track.uploadTrackContentToCreatorNode(
       trackFile,
       coverArtFile,
@@ -1979,8 +1985,10 @@ export const audiusBackend = ({
       setLocalStorageItem('is-mobile-user', 'true')
     }
 
-    const storageV2Enabled = await getFeatureEnabled(FeatureFlags.STORAGE_V2)
-    if (storageV2Enabled || email?.startsWith('storage_v2_test_')) {
+    const storageV2SignupEnabled = await getFeatureEnabled(
+      FeatureFlags.STORAGE_V2_SIGNUP
+    )
+    if (storageV2SignupEnabled) {
       return await audiusLibs.Account.signUpV2(
         email,
         password,
@@ -2337,7 +2345,14 @@ export const audiusBackend = ({
         })
         .flat()
         .filter(removeNullable)
-      const userId = decodeHashId(notification.actions[0].specifier) as number
+      // playlist owner ids are the specifier of the playlist create notif
+      const userId =
+        entityType === Entity.Track
+          ? // track create notifs store track owner id in the group id
+            parseInt(notification.group_id.split(':')[3])
+          : // album/playlist create notifications store album owner
+            // id as the specifier
+            (decodeHashId(notification.actions[0].specifier) as number)
       return {
         type: NotificationType.UserSubscription,
         userId,
