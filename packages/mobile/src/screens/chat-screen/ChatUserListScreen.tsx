@@ -102,7 +102,7 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
   const [hasQuery, setHasQuery] = useState(false)
   const dispatch = useDispatch()
 
-  const { userIds, status } = useSelector(getUserList)
+  const { userIds, hasMore, status } = useSelector(getUserList)
   const users = useProxySelector(
     (state) => {
       const ids = hasQuery ? userIds : defaultUserList.userIds
@@ -139,7 +139,7 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
   )
 
   const handleLoadMore = useCallback(() => {
-    if (status === Status.LOADING || defaultUserList.loading) {
+    if (status === Status.LOADING || defaultUserList.loading || !hasMore) {
       return
     }
     if (hasQuery) {
@@ -147,7 +147,7 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
     } else {
       defaultUserList.loadMore()
     }
-  }, [hasQuery, query, status, defaultUserList, dispatch])
+  }, [status, defaultUserList, hasMore, hasQuery, dispatch, query])
 
   return (
     <Screen
