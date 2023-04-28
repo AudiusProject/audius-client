@@ -2,12 +2,13 @@ import { useCallback } from 'react'
 
 import { ID, Name, accountSelectors } from '@audius/common'
 import cn from 'classnames'
+
 // eslint-disable-next-line no-restricted-imports -- TODO: migrate to @react-spring/web
 import { animated } from 'react-spring'
 
 import { useSelector } from 'common/hooks/useSelector'
 import { make, useRecord } from 'common/store/analytics/actions'
-import { AiGeneratedButton } from 'components/ai-generated-button/AiGeneratedButton'
+import { AiGeneratedCallout } from 'components/ai-generated-button/AiGeneratedCallout'
 import Input from 'components/data-entry/Input'
 import TextArea from 'components/data-entry/TextArea'
 import { RelatedArtists } from 'components/related-artists/RelatedArtists'
@@ -210,8 +211,8 @@ export const ProfileLeftNav = (props: ProfileLeftNavProps) => {
           <OpacityTransition render={renderTipAudioButton} />
         ) : null}
         {allowAiAttribution ? (
-          <div className={styles.aiGeneratedButtonContainer}>
-            <AiGeneratedButton handle={handle} />
+          <div className={styles.aiGeneratedCalloutContainer}>
+            <AiGeneratedCallout handle={handle} />
           </div>
         ) : null}
         <SupportingList />
