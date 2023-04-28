@@ -27,6 +27,7 @@ import usersSagas from 'common/store/cache/users/sagas'
 import changePasswordSagas from 'common/store/change-password/sagas'
 import confirmerSagas from 'common/store/confirmer/sagas'
 import notificationSagas from 'common/store/notifications/sagas'
+import aiSagas from 'common/store/pages/ai/sagas'
 import rewardsPageSagas from 'common/store/pages/audio-rewards/sagas'
 import transactionsPageSagas from 'common/store/pages/audio-transactions/sagas'
 import collectionSagas from 'common/store/pages/collection/sagas'
@@ -112,6 +113,7 @@ export default function* rootSaga() {
     signOutSagas(),
 
     // Pages
+    aiSagas(),
     collectionSagas(),
     chatSagas(),
     dashboardSagas(),

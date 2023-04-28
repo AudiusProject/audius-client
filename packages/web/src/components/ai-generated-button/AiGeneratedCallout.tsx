@@ -5,7 +5,7 @@ import { push as pushRoute } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 
 import { ReactComponent as IconArrow } from 'assets/img/iconArrow.svg'
-import { ReactComponent as IconRobot } from 'assets/img/robot.svg'
+import { ReactComponent as IconRobot } from 'assets/img/iconRobot.svg'
 import { profilePageAiAttributedTracks } from 'utils/route'
 
 import styles from './AiGeneratedCallout.module.css'

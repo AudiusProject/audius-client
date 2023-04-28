@@ -45,6 +45,7 @@ import { RewardClaimedToast } from 'components/reward-claimed-toast/RewardClaime
 import DesktopRoute from 'components/routes/DesktopRoute'
 import MobileRoute from 'components/routes/MobileRoute'
 import TrendingGenreSelectionPage from 'components/trending-genre-selection/TrendingGenreSelectionPage'
+import { AiAttributedTracksPage } from 'pages/ai-attributed-tracks-page'
 import AnnouncementPage from 'pages/announcement-page/AnnoucementPage'
 import ArtistDashboardPage from 'pages/artist-dashboard-page/ArtistDashboardPage'
 import { AudioRewardsPage } from 'pages/audio-rewards-page/AudioRewardsPage'
@@ -871,7 +872,7 @@ class App extends Component {
               <Route
                 exact
                 path={PROFILE_PAGE_AI_ATTRIBUTED_TRACKS}
-                render={(props) => <div>{'hello'}</div>}
+                component={AiAttributedTracksPage}
               />
 
               <Route exact path={TRACK_PAGE} component={TrackPage} />

@@ -1,6 +1,6 @@
 import { Button, ButtonProps, ButtonSize, ButtonType } from '@audius/stems'
 
-import { ReactComponent as IconRobot } from 'assets/img/robot.svg'
+import { ReactComponent as IconRobot } from 'assets/img/iconRobot.svg'
 
 const messages = {
   aiAttribution: 'AI Attribution',

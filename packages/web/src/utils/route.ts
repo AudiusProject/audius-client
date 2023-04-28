@@ -260,6 +260,10 @@ export const fullTrackRemixesPage = (permalink: string) => {
   return `${fullTrackPage(permalink)}/remixes`
 }
 
+export const fullAiPage = (handle: string) => {
+  return `${fullProfilePage(handle)}/ai`
+}
+
 export const albumPage = (handle: string, title: string, id: ID) => {
   return `/${encodeUrlName(handle)}/album/${encodeUrlName(title)}-${id}`
 }
