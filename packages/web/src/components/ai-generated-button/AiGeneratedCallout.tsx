@@ -23,7 +23,7 @@ export const AiGeneratedCallout = ({ handle }: { handle: string }) => {
   }, [dispatch, handle])
 
   return (
-    <div className={styles.root}>
+    <div className={styles.root} onClick={handleClick}>
       <div className={styles.title}>
         <IconRobot className={styles.iconRobot} />
         {messages.title}
