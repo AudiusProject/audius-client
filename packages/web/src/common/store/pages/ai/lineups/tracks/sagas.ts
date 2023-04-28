@@ -30,7 +30,7 @@ function* getTracks({
   yield* waitForRead()
 
   const currentUserId = yield* select(getUserId)
-  const tracks = yield* call([apiClient, apiClient.getUserTracksByHandle], {
+  const tracks = yield* call([apiClient, apiClient.getUserAiTracksByHandle], {
     handle: aiUserHandle,
     offset,
     limit,

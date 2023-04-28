@@ -5,7 +5,8 @@ import {
   accountSelectors,
   audiusBackend,
   cacheActions,
-  Kind
+  Kind,
+  collectionPageSelectors
 } from '@audius/common'
 import { call, put, takeEvery, select } from 'typed-redux-saga'
 
