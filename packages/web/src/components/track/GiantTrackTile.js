@@ -37,6 +37,7 @@ import UserBadges from 'components/user-badges/UserBadges'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { moodMap } from 'utils/moods'
 
+import { AiTrackSection } from './AiTrackSection'
 import Badge from './Badge'
 import { CardTitle } from './CardTitle'
 import GiantArtwork from './GiantArtwork'
@@ -554,7 +555,7 @@ class GiantTrackTile extends PureComponent {
           </div>
         </div>
 
-        {isPremium && (
+        {isPremium ? (
           <PremiumTrackSection
             isLoading={isLoading}
             trackId={trackId}
@@ -562,7 +563,11 @@ class GiantTrackTile extends PureComponent {
             doesUserHaveAccess={doesUserHaveAccess}
             isOwner={isOwner}
           />
-        )}
+        ) : null}
+
+        {aiAttributionUserId ? (
+          <AiTrackSection attributedUserId={aiAttributionUserId} />
+        ) : null}
 
         <div className={cn(styles.bottomSection, fadeIn)}>
           <div className={styles.infoLabelsSection}>
