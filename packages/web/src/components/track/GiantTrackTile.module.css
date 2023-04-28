@@ -332,12 +332,24 @@
   fill: var(--neutral);
 }
 
+.badges {
+  display: flex;
+  position: absolute;
+  right: 24px;
+  justify-content: flex-end;
+}
+
 .badgeIcon {
   margin-left: 4px;
 }
 
 .badgeIcon svg {
   margin-right: 0px !important; /* to override the !important in UserBadges */
+}
+
+.badgeAi {
+  background: linear-gradient(180deg, #1FD187 0%, #0FC578 100%), #1FD187;
+  margin-right: 8px;
 }
 
 .suffix {
@@ -384,11 +396,6 @@
 
 .description > a {
   color: var(--primary);
-}
-
-.badgePlacement {
-  position: absolute;
-  right: 24px;
 }
 
 .tagSection {

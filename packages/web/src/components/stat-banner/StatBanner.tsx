@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { useRef } from 'react'
 
 import { FeatureFlags } from '@audius/common'
 import {
@@ -14,15 +14,12 @@ import {
   IconBlockMessages
 } from '@audius/stems'
 import cn from 'classnames'
-import { push } from 'connected-react-router'
-import { useDispatch } from 'react-redux'
 
 import { ArtistRecommendationsPopup } from 'components/artist-recommendations/ArtistRecommendationsPopup'
 import FollowButton from 'components/follow-button/FollowButton'
 import Stats, { StatProps } from 'components/stats/Stats'
 import SubscribeButton from 'components/subscribe-button/SubscribeButton'
 import { useFlag } from 'hooks/useRemoteConfig'
-import { PROFILE_PAGE_AI_ATTRIBUTED_TRACKS } from 'utils/route'
 
 import styles from './StatBanner.module.css'
 
@@ -34,7 +31,6 @@ const BUTTON_COLLAPSE_WIDTHS = {
 const messages = {
   more: 'More Options',
   share: 'Share',
-  aiAttributed: 'AI Tracks',
   shareProfile: 'Share Profile',
   edit: 'Edit Page',
   cancel: 'Cancel',
@@ -94,29 +90,10 @@ export const StatBanner = (props: StatsBannerProps) => {
     isSubscribed,
     onToggleSubscribe
   } = props
-
-  const dispatch = useDispatch()
-
   let buttons = null
   const followButtonRef = useRef<HTMLDivElement>(null)
 
   const { isEnabled: isChatEnabled } = useFlag(FeatureFlags.CHAT_ENABLED)
-
-  const handleGoToAiAttributePage = useCallback(() => {
-    dispatch(push(PROFILE_PAGE_AI_ATTRIBUTED_TRACKS))
-  }, [dispatch])
-
-  const aiAttributionButtonElement = (
-    <Button
-      className={styles.statButton}
-      size={ButtonSize.SMALL}
-      type={ButtonType.COMMON}
-      text={messages.aiAttributed}
-      leftIcon={<IconShare />}
-      onClick={handleGoToAiAttributePage}
-      widthToHideText={BUTTON_COLLAPSE_WIDTHS.first}
-    />
-  )
 
   switch (mode) {
     case 'owner':
@@ -139,7 +116,6 @@ export const StatBanner = (props: StatsBannerProps) => {
             onClick={onEdit}
             widthToHideText={BUTTON_COLLAPSE_WIDTHS.second}
           />
-          {aiAttributionButtonElement}
         </>
       )
       break
@@ -223,7 +199,6 @@ export const StatBanner = (props: StatsBannerProps) => {
             />
           )}
 
-          {aiAttributionButtonElement}
           <div className={styles.followContainer}>
             {onToggleSubscribe ? (
               <SubscribeButton

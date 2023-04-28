@@ -23,6 +23,7 @@ import cn from 'classnames'
 import Linkify from 'linkify-react'
 import PropTypes from 'prop-types'
 
+import { ReactComponent as IconRobot } from 'assets/img/robot.svg'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import DownloadButtons from 'components/download-buttons/DownloadButtons'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
@@ -64,7 +65,8 @@ const messages = {
   repostedButtonText: 'reposted',
   unplayed: 'Unplayed',
   timeLeft: 'left',
-  played: 'Played'
+  played: 'Played',
+  generatedWithAi: 'Generated With AI'
 }
 
 class GiantTrackTile extends PureComponent {
@@ -386,6 +388,7 @@ class GiantTrackTile extends PureComponent {
       isArtistPick,
       isUnlisted,
       isPremium,
+      aiAttributionUserId,
       premiumConditions,
       doesUserHaveAccess,
       onExternalLinkClick,
@@ -537,9 +540,18 @@ class GiantTrackTile extends PureComponent {
               </span>
             </div>
           </div>
-          {badge ? (
-            <Badge className={styles.badgePlacement} textLabel={badge} />
-          ) : null}
+          <div className={styles.badges}>
+            {aiAttributionUserId ? (
+              <Badge
+                icon={<IconRobot />}
+                className={styles.badgeAi}
+                textLabel={messages.generatedWithAi}
+              />
+            ) : null}
+            {badge ? (
+              <Badge className={styles.badgePlacement} textLabel={badge} />
+            ) : null}
+          </div>
         </div>
 
         {isPremium && (
