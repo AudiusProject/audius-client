@@ -11,6 +11,7 @@ import { isMatrix } from 'utils/theme/theme'
 import { withNullGuard } from 'utils/withNullGuard'
 
 import styles from './AiPage.module.css'
+import { ShareAiTracksTile } from './ShareAiTracksTile'
 
 const messages = {
   aiAttributed: 'Tracks generated with AI trained on music',
@@ -65,7 +66,7 @@ const AiPage = g(({ title, user, getLineupProps, goToArtistPage }) => {
       canonicalUrl={fullAiPage(user.handle)}
       header={renderHeader()}
     >
-      <Lineup {...getLineupProps()} />
+      <Lineup {...getLineupProps()} endOfLineup={<ShareAiTracksTile />} />
     </Page>
   )
 })
