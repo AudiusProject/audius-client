@@ -1287,7 +1287,7 @@ export const audiusBackend = ({
   }
 
   // Used to upload multiple tracks as part of an album/playlist
-  // Returns { metadataMultihash, metadataFileUUID, transcodedTrackCID, transcodedTrackUUID }
+  // Returns { metadataMultihash, metadataFileUUID, transcodedTrackCID, transcodedTrackUUID, metadata }
   async function uploadTrackToCreatorNode(
     trackFile: File,
     coverArtFile: File,

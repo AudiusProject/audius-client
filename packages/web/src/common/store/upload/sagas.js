@@ -267,7 +267,8 @@ function* uploadWorker(requestChan, respChan, progressChan) {
       metadataMultihash,
       metadataFileUUID,
       transcodedTrackCID,
-      transcodedTrackUUID
+      transcodedTrackUUID,
+      metadata
     }) {
       console.debug({
         metadataMultihash,
@@ -284,7 +285,8 @@ function* uploadWorker(requestChan, respChan, progressChan) {
         metadataMultihash,
         metadataFileUUID,
         transcodedTrackCID,
-        transcodedTrackUUID
+        transcodedTrackUUID,
+        metadata
       }
 
       console.debug(`Finished creator node upload of: ${JSON.stringify(resp)}`)
@@ -476,7 +478,8 @@ export function* handleUploads({
       metadataMultihash,
       metadataFileUUID,
       transcodedTrackCID,
-      transcodedTrackUUID
+      transcodedTrackUUID,
+      metadata
     } = yield take(respChan)
 
     if (error) {
@@ -501,11 +504,6 @@ export function* handleUploads({
     // If it's not a collection, rejoice because we have the trackId already.
     // Otherwise, save our metadata and continue on.
     if (isCollection) {
-      const trackObj = idToTrackMap[originalId]
-      const metadata = {
-        ...trackObj.metadata,
-        is_playlist_upload: isCollection
-      }
       creatorNodeMetadata.push({
         metadataMultihash,
         metadataFileUUID,
