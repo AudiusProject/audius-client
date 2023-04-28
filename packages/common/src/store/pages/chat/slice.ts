@@ -5,7 +5,8 @@ import {
   ChatMessageReaction,
   ChatMessageNullableReaction,
   UnfurlResponse,
-  ValidatedChatPermissions
+  ValidatedChatPermissions,
+  ChatPermission
 } from '@audius/sdk'
 import {
   Action,
@@ -413,6 +414,22 @@ const slice = createSlice({
       state.permissions = {
         ...state.permissions,
         ...action.payload.permissions
+      }
+    },
+    setPermissions: (
+      state,
+      action: PayloadAction<{
+        userId: ID
+        permissions: ChatPermission
+      }>
+    ) => {
+      state.permissions = {
+        ...state.permissions,
+        [action.payload.userId]: {
+          current_user_has_permission: true,
+          permits: action.payload.permissions,
+          user_id: encodeHashId(action.payload.userId)
+        }
       }
     },
     // Note: is not associated with any chatId because there will be at most

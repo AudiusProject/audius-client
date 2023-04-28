@@ -1,22 +1,39 @@
-import { View } from 'react-native'
+import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+
+import {
+  accountSelectors,
+  chatActions,
+  chatSelectors,
+  Status
+} from '@audius/common'
+import type { ID } from '@audius/common'
+import type { ValidatedChatPermissions } from '@audius/sdk'
+import { ChatPermission } from '@audius/sdk'
+import { TouchableOpacity, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconMessage from 'app/assets/images/iconMessage.svg'
 import { RadioButton, Text, Screen, ScreenContent } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 
+const { fetchPermissions, setPermissions } = chatActions
+const { getUserChatPermissions } = chatSelectors
+const { getUserId } = accountSelectors
+
 const messages = {
   title: 'Inbox Settings',
-  allowAllTitle: 'Allow Messages from Everyone',
-  allowAllText:
+  allTitle: 'Allow Messages from Everyone',
+  allDescription:
     'Anyone can send you a direct message, regardless of whether you follow them or not.',
-  followsTitle: 'Only Allow Messages From People You Follow',
-  followsText: 'Only users that you follow can send you direct messages.',
-  supportersTitle: 'Only Allow Messages From Your Supporters',
-  supportersText:
+  followeeTitle: 'Only Allow Messages From People You Follow',
+  followeeDescription:
+    'Only users that you follow can send you direct messages.',
+  tipperTitle: 'Only Allow Messages From Your Supporters',
+  tipperDescription:
     'Only users who have tipped you can send you direct messages.',
   noneTitle: 'No One Can Message You',
-  noneText:
+  noneDescription:
     'No one will be able to send you direct messages. Note that you will still be able to send messages to others.'
 }
 
@@ -64,8 +81,53 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   }
 }))
 
+const options = [
+  {
+    title: messages.allTitle,
+    description: messages.allDescription,
+    value: ChatPermission.ALL
+  },
+  {
+    title: messages.followeeTitle,
+    description: messages.followeeDescription,
+    value: ChatPermission.FOLLOWEES
+  },
+  {
+    title: messages.tipperTitle,
+    description: messages.tipperDescription,
+    value: ChatPermission.TIPPERS
+  },
+  {
+    title: messages.noneTitle,
+    description: messages.noneDescription,
+    value: ChatPermission.NONE
+  }
+]
+
 export const InboxSettingsScreen = () => {
   const styles = useStyles()
+  const dispatch = useDispatch()
+  const permissions: Record<ID, ValidatedChatPermissions> = useSelector(
+    getUserChatPermissions
+  )
+  const userId = useSelector(getUserId)
+  const currentPermission = userId ? permissions[userId]?.permits : null
+
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchPermissions({ userIds: [userId] }))
+    }
+  }, [dispatch, userId])
+
+  const handlePress = useCallback(
+    (value) => {
+      if (userId) {
+        dispatch(setPermissions({ userId, permissions: value }))
+      }
+    },
+    [dispatch, userId]
+  )
+
   return (
     <Screen
       title={messages.title}
@@ -76,50 +138,29 @@ export const InboxSettingsScreen = () => {
       <View style={styles.shadow} />
       <ScreenContent>
         <ScrollView>
-          <View style={styles.settingsRow}>
-            <View style={styles.settingsContent}>
-              <View style={styles.radioTitleRow}>
-                <RadioButton checked={false} style={styles.radio} />
-                <Text style={styles.title}>{messages.allowAllTitle}</Text>
-              </View>
-              <View>
-                <Text style={styles.text}>{messages.allowAllText}</Text>
-              </View>
-            </View>
-          </View>
-          <View style={styles.settingsRow}>
-            <View style={styles.settingsContent}>
-              <View style={styles.radioTitleRow}>
-                <RadioButton checked={false} style={styles.radio} />
-                <Text style={styles.title}>{messages.followsTitle}</Text>
-              </View>
-              <View>
-                <Text style={styles.text}>{messages.followsText}</Text>
-              </View>
-            </View>
-          </View>
-          <View style={styles.settingsRow}>
-            <View style={styles.settingsContent}>
-              <View style={styles.radioTitleRow}>
-                <RadioButton checked={false} style={styles.radio} />
-                <Text style={styles.title}>{messages.supportersTitle}</Text>
-              </View>
-              <View>
-                <Text style={styles.text}>{messages.supportersText}</Text>
-              </View>
-            </View>
-          </View>
-          <View style={styles.settingsRow}>
-            <View style={styles.settingsContent}>
-              <View style={styles.radioTitleRow}>
-                <RadioButton checked={false} style={styles.radio} />
-                <Text style={styles.title}>{messages.noneTitle}</Text>
-              </View>
-              <View>
-                <Text style={styles.text}>{messages.noneText}</Text>
-              </View>
-            </View>
-          </View>
+          {options.map((opt) => {
+            return (
+              <TouchableOpacity
+                onPress={() => handlePress(opt.value)}
+                key={opt.value}
+              >
+                <View style={styles.settingsRow}>
+                  <View style={styles.settingsContent}>
+                    <View style={styles.radioTitleRow}>
+                      <RadioButton
+                        checked={currentPermission === opt.value}
+                        style={styles.radio}
+                      />
+                      <Text style={styles.title}>{opt.title}</Text>
+                    </View>
+                    <View>
+                      <Text style={styles.text}>{opt.description}</Text>
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            )
+          })}
         </ScrollView>
       </ScreenContent>
     </Screen>
