@@ -5,7 +5,6 @@ import type { UserChat } from '@audius/sdk'
 import { View, TouchableHighlight } from 'react-native'
 
 import { Text } from 'app/components/core'
-import LoadingSpinner from 'app/components/loading-spinner'
 import { ProfilePicture } from 'app/components/user'
 import { UserBadges } from 'app/components/user-badges'
 import { useNavigation } from 'app/hooks/useNavigation'

@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 
 import { chatActions, chatSelectors, Status } from '@audius/common'
-import type { UserChat } from '@audius/sdk'
 import { View, Text } from 'react-native'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { useDispatch, useSelector } from 'react-redux'
