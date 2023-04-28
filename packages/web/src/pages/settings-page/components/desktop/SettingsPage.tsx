@@ -11,7 +11,8 @@ import {
   BrowserNotificationSetting,
   EmailFrequency,
   TikTokProfile,
-  FeatureFlags
+  FeatureFlags,
+  removeNullable
 } from '@audius/common'
 import {
   Modal,
@@ -25,7 +26,8 @@ import {
   IconSettings,
   IconMessage,
   SegmentedControl,
-  IconDesktop
+  IconDesktop,
+  IconRobot
 } from '@audius/stems'
 import cn from 'classnames'
 
@@ -72,6 +74,7 @@ const messages = {
   changePasswordDescription: 'Change the password to your Audius account',
   signOut: 'Sign Out',
 
+  aiGeneratedCardTitle: 'AI Generated music',
   appearanceCardTitle: 'Appearance',
   inboxSettingsCardTitle: 'Inbox Settings',
   notificationsCardTitle: 'Configure Notifications',
@@ -80,6 +83,8 @@ const messages = {
   verificationCardTitle: 'Verification',
   desktopAppCardTitle: 'Download the Desktop App',
 
+  aiGeneratedCardDescription:
+    'Opt in to allow AI models to be trained on your likeness, and to let users credit you in their AI generated works.',
   appearanceCardDescription:
     'Enable dark mode or choose ‘Auto’ to change with your system settings.',
   inboxSettingsCardDescription:
@@ -93,6 +98,7 @@ const messages = {
   desktopAppCardDescription:
     'For the best experience, we reccomend downloading the Audius Desktop App.',
 
+  aiGeneratedButtonText: 'AI Generated Music Settings',
   inboxSettingsButtonText: 'Inbox Settings',
   notificationsButtonText: 'Configure Notifications',
   accountRecoveryButtonText: 'Resend Email',
@@ -171,6 +177,9 @@ export const SettingsPage = (props: SettingsPageProps) => {
     useState(false)
   const [emailToastText, setEmailToastText] = useState(messages.emailSent)
   const [, setIsInboxSettingsModalVisible] = useModalState('InboxSettings')
+  const [, setIsAIAttributionSettingsModalVisible] = useModalState(
+    'AiAttributionSettings'
+  )
 
   useEffect(() => {
     getNotificationSettings()
@@ -232,6 +241,10 @@ export const SettingsPage = (props: SettingsPageProps) => {
     setIsInboxSettingsModalVisible(true)
   }, [setIsInboxSettingsModalVisible])
 
+  const openAiAttributionSettingsModal = useCallback(() => {
+    setIsAIAttributionSettingsModalVisible(true)
+  }, [setIsAIAttributionSettingsModalVisible])
+
   const appearanceOptions = useMemo(() => {
     const options = [
       {
@@ -254,6 +267,13 @@ export const SettingsPage = (props: SettingsPageProps) => {
   }, [showMatrix])
 
   const { isEnabled: isChatEnabled } = useFlag(FeatureFlags.CHAT_ENABLED)
+  const { isEnabled: isAiAttributionEnabled } = useFlag(
+    FeatureFlags.AI_ATTRIBUTION
+  )
+
+  const hasOddCardCount = Boolean(
+    [isChatEnabled, isAiAttributionEnabled].filter(removeNullable).length % 2
+  )
 
   const header = <Header primary={messages.pageTitle} />
 
@@ -267,7 +287,7 @@ export const SettingsPage = (props: SettingsPageProps) => {
     >
       <div className={styles.settings}>
         <SettingsCard
-          className={cn({ [styles.cardFull]: isChatEnabled })}
+          className={cn({ [styles.cardFull]: hasOddCardCount })}
           icon={<IconMood />}
           title={messages.appearanceCardTitle}
           description={messages.appearanceCardDescription}
@@ -343,6 +363,21 @@ export const SettingsPage = (props: SettingsPageProps) => {
             text={messages.changePasswordButtonText}
           />
         </SettingsCard>
+        {isAiAttributionEnabled ? (
+          <SettingsCard
+            icon={<IconRobot />}
+            title={messages.aiGeneratedCardTitle}
+            description={messages.aiGeneratedCardDescription}
+          >
+            <Button
+              onClick={openAiAttributionSettingsModal}
+              className={styles.cardButton}
+              textClassName={styles.settingButtonText}
+              type={ButtonType.COMMON_ALT}
+              text={messages.aiGeneratedButtonText}
+            />
+          </SettingsCard>
+        ) : null}
         <SettingsCard
           icon={<IconVerified className={styles.iconVerified} />}
           title={messages.verificationCardTitle}

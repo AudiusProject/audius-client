@@ -1,9 +1,9 @@
 import { useEffect, useContext } from 'react'
 
 import { User } from '@audius/common'
+import { IconRobot } from '@audius/stems'
 import cn from 'classnames'
 
-import { ReactComponent as IconRobot } from 'assets/img/iconRobot.svg'
 import Header from 'components/header/mobile/Header'
 import { HeaderContext } from 'components/header/mobile/HeaderContextProvider'
 import Lineup, { LineupWithoutTile } from 'components/lineup/Lineup'
@@ -76,8 +76,7 @@ const AiPage = g(({ title, user, getLineupProps, goToArtistPage }) => {
             />
           </span>
         </div>
-        <Lineup {...getLineupProps()} />
-        <ShareAiTracksTile />
+        <Lineup {...getLineupProps()} endOfLineup={<ShareAiTracksTile />} />
       </div>
     </MobilePageContainer>
   )

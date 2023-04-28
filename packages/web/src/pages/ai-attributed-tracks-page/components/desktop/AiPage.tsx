@@ -1,7 +1,7 @@
 import { User } from '@audius/common'
+import { IconRobot } from '@audius/stems'
 import cn from 'classnames'
 
-import { ReactComponent as IconRobot } from 'assets/img/iconRobot.svg'
 import Header from 'components/header/desktop/Header'
 import Lineup, { LineupWithoutTile } from 'components/lineup/Lineup'
 import Page from 'components/page/Page'

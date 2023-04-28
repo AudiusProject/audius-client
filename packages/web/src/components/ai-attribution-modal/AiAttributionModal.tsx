@@ -10,11 +10,10 @@ import {
   ModalHeader,
   ModalProps,
   ModalTitle,
-  Switch
+  Switch,
+  IconRobot
 } from '@audius/stems'
 import { useToggle } from 'react-use'
-
-import { ReactComponent as IconRobot } from 'assets/img/iconRobot.svg'
 
 import { AiAttributionDropdown } from './AiAttributionDropdown'
 import styles from './AiAttributionModal.module.css'

@@ -45,7 +45,8 @@ export enum FeatureFlags {
   SDK_V2 = 'sdk_v2',
   GET_METADATA_FROM_DISCOVERY_ENABLED = 'get_metadata_from_discovery_enabled',
   RELATED_ARTISTS_ON_PROFILE_ENABLED = 'related_artists_on_profile_enabled',
-  PROXY_WORMHOLE = 'proxy_wormhole'
+  PROXY_WORMHOLE = 'proxy_wormhole',
+  AI_ATTRIBUTION = 'ai_attribution'
 }
 
 type FlagDefaults = Record<FeatureFlags, boolean>
@@ -106,5 +107,6 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.SDK_V2]: false,
   [FeatureFlags.GET_METADATA_FROM_DISCOVERY_ENABLED]: false,
   [FeatureFlags.RELATED_ARTISTS_ON_PROFILE_ENABLED]: false,
-  [FeatureFlags.PROXY_WORMHOLE]: false
+  [FeatureFlags.PROXY_WORMHOLE]: false,
+  [FeatureFlags.AI_ATTRIBUTION]: false
 }

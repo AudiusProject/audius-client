@@ -140,7 +140,7 @@ const ProfileWrapping = (props: ProfileWrappingProps) => {
             handle={handle}
             bio={bio}
             location={location}
-            allowAiAtribution={allowAiAttribution}
+            allowAiAttribution={allowAiAttribution}
             twitterHandle={twitterHandle}
             instagramHandle={instagramHandle}
             tikTokHandle={tikTokHandle}

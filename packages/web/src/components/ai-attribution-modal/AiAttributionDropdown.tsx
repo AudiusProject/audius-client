@@ -22,7 +22,7 @@ const selectSearchResults = createSelector(getSearchResults, (results) => {
     .map((user) => ({
       text: user.name,
       value: user.user_id,
-      disabled: !user.allow_ai_attribution && user.user_id !== 12372,
+      disabled: !user.allow_ai_attribution,
       el: (
         <SearchBarResult
           // @ts-ignore
@@ -38,9 +38,7 @@ const selectSearchResults = createSelector(getSearchResults, (results) => {
           isVerifiedUser={user.is_verified}
           // @ts-ignore
           tier={getTierForUser(user)}
-          allowAiAttribution={
-            user.allow_ai_attribution || user.user_id === 12372
-          }
+          allowAiAttribution={user.allow_ai_attribution}
         />
       )
     }))
