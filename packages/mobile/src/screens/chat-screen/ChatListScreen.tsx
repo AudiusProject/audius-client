@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 
 import { chatActions, chatSelectors, Status } from '@audius/common'
+import type { UserChat } from '@audius/sdk'
 import { View, Text } from 'react-native'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { useDispatch, useSelector } from 'react-redux'
@@ -33,14 +34,15 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     display: 'flex',
     flexGrow: 1
   },
-  spinnerContainer: {
-    height: spacing(28),
-    padding: spacing(10)
+  loadingSpinnerContainer: {
+    display: 'flex',
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   loadingSpinner: {
-    height: spacing(20),
-    width: spacing(20),
-    alignSelf: 'center'
+    height: spacing(10),
+    width: spacing(10)
   },
   listContainer: {
     display: 'flex',
@@ -105,7 +107,7 @@ export const ChatListScreen = () => {
   const palette = useThemePalette()
   const dispatch = useDispatch()
   const navigation = useNavigation<AppTabScreenParamList>()
-  const chats = useSelector(getChats)
+  const chats: UserChat[] = useSelector(getChats)
   const chatsStatus = useSelector(getChatsStatus)
 
   useEffect(() => {
@@ -141,14 +143,14 @@ export const ChatListScreen = () => {
             <FlatList
               data={chats}
               contentContainerStyle={styles.listContainer}
-              renderItem={({ item, index }) => <ChatListItem chat={item} />}
-              keyExtractor={(item) => item.chat_id}
+              renderItem={({ item }) => <ChatListItem chat={item} />}
+              keyExtractor={(chat) => chat.chat_id}
               ListEmptyComponent={() => (
                 <ChatsEmpty onPress={navigateToChatUserList} />
               )}
             />
           ) : (
-            <View style={styles.spinnerContainer}>
+            <View style={styles.loadingSpinnerContainer}>
               <LoadingSpinner style={styles.loadingSpinner} />
             </View>
           )}

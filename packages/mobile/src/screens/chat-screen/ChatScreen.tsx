@@ -9,7 +9,8 @@ import {
   decodeHashId,
   encodeHashId,
   Status,
-  isEarliestUnread
+  isEarliestUnread,
+  statusIsNotFinalized
 } from '@audius/common'
 import { Portal } from '@gorhom/portal'
 import { useFocusEffect } from '@react-navigation/native'
@@ -143,6 +144,16 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     paddingHorizontal: spacing(2),
     paddingVertical: spacing(1),
     borderRadius: spacing(0.5)
+  },
+  loadingSpinnerContainer: {
+    display: 'flex',
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  LoadingSpinner: {
+    height: spacing(15),
+    width: spacing(15)
   }
 }))
 
@@ -178,7 +189,8 @@ export const ChatScreen = () => {
   )
   const unreadCount = chat?.unread_message_count ?? 0
   const isLoading =
-    chat?.messagesStatus === Status.LOADING && chatMessages?.length === 0
+    statusIsNotFinalized(chat?.messagesStatus ?? Status.IDLE) &&
+    chatMessages?.length === 0
   const popupMessageId = useSelector(getReactionsPopupMessageId)
   const popupMessage = useSelector((state) =>
     getChatMessageById(state, chatId, popupMessageId ?? '')
@@ -190,7 +202,7 @@ export const ChatScreen = () => {
   const chatFrozenRef = useRef(chat)
 
   useEffect(() => {
-    if (chatId && (chat?.messagesStatus ?? Status.IDLE) === Status.IDLE) {
+    if (chatId && statusIsNotFinalized(chat?.messagesStatus ?? Status.IDLE)) {
       // Initial fetch
       dispatch(fetchMoreMessages({ chatId }))
     }
@@ -435,7 +447,9 @@ export const ChatScreen = () => {
                 <EmptyChatMessages />
               )
             ) : (
-              <LoadingSpinner />
+              <View style={styles.loadingSpinnerContainer}>
+                <LoadingSpinner style={styles.loadingSpinner} />
+              </View>
             )}
 
             <View
