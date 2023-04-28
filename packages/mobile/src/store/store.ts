@@ -37,6 +37,8 @@ import type { OAuthState } from './oauth/reducer'
 import oauth from './oauth/reducer'
 import type { OfflineDownloadsState } from './offline-downloads/slice'
 import offlineDownloads from './offline-downloads/slice'
+import type { OwnProfileState } from './own-profile/slice'
+import ownProfile from './own-profile/slice'
 import rootSaga from './sagas'
 import type { SearchState } from './search/searchSlice'
 import search from './search/searchSlice'
@@ -62,6 +64,7 @@ export type AppState = CommonState & {
   keyboard: KeyboardState
   oauth: OAuthState
   offlineDownloads: OfflineDownloadsState
+  ownProfile: OwnProfileState
   remoteConfig: RemoteConfigState
   search: SearchState
   walletConnect: WalletConnectState
@@ -124,6 +127,7 @@ const rootReducer = combineReducers({
   keyboard,
   oauth,
   offlineDownloads,
+  ownProfile,
   remoteConfig,
   search,
   walletConnect,

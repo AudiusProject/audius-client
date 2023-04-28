@@ -967,6 +967,12 @@ function makeMapStateToProps() {
     const params = parseUserRoute(pathname)
     const handleLower = params?.handle?.toLowerCase() as string
 
+    const profile = getProfile(state, handleLower)
+    const account = getAccountUser(state)
+    const ownUserTrackCount =
+      account?.user_id === profile.profile?.user_id
+        ? getOwnTrackCount(state)
+        : null
     return {
       account: getAccountUser(state),
       profile: getProfile(state, handleLower),

@@ -69,6 +69,7 @@ import initKeyboardEvents from './keyboard/sagas'
 import notificationsSagas from './notifications/sagas'
 import oauthSagas from './oauth/sagas'
 import offlineDownloadSagas from './offline-downloads/sagas'
+import ownProfileSagas from './own-profile/sagas'
 import rateCtaSagas from './rate-cta/sagas'
 import { searchSagas } from './search/searchSagas'
 import settingsSagas from './settings/sagas'
@@ -137,6 +138,7 @@ export default function* rootSaga() {
     ...trendingUndergroundSagas(),
     ...savedSagas(),
     ...profileSagas(),
+    ...ownProfileSagas(),
     ...reactionSagas(),
     ...socialSagas(),
     ...favoritePageSagas(),
