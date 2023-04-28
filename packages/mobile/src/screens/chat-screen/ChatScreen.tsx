@@ -151,9 +151,9 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     justifyContent: 'center',
     alignItems: 'center'
   },
-  LoadingSpinner: {
-    height: spacing(15),
-    width: spacing(15)
+  loadingSpinner: {
+    height: spacing(10),
+    width: spacing(10)
   }
 }))
 
