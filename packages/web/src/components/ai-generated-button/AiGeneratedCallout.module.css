@@ -11,7 +11,7 @@
 .title {
   padding: 10px 4px;
   display: flex;
-  background: linear-gradient(180deg, #1FD187 0%, #0FC578 100%);
+  background: linear-gradient(180deg, #1fd187 0%, #0fc578 100%);
   align-items: center;
   color: var(--static-white);
   font-weight: var(--font-bold);
