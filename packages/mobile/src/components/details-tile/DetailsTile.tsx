@@ -34,6 +34,7 @@ import {
 
 import { DetailsProgressInfo } from './DetailsProgressInfo'
 import { DetailsTileActionButtons } from './DetailsTileActionButtons'
+import { DetailsTileAiAttribution } from './DetailsTileAiAttribution'
 import { DetailsTileHasAccess } from './DetailsTileHasAccess'
 import { DetailsTileNoAccess } from './DetailsTileNoAccess'
 import { DetailsTileStats } from './DetailsTileStats'
@@ -221,8 +222,14 @@ export const DetailsTile = ({
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
   )
+  // const { isEnabled: isAiGeneratedTracksEnabled } = useFeatureFlag(
+  //   FeatureFlags.AI_ATTRIBUTION
+  // )
+  const isAiGeneratedTracksEnabled = true
   const { track_id: trackId, premium_conditions: premiumConditions } =
     track ?? {}
+
+  const aiAttributionUserId = 2
 
   const styles = useStyles()
   const navigation = useNavigation()
@@ -389,6 +396,9 @@ export const DetailsTile = ({
               onPressShare={onPressShare}
             />
           </View>
+          {isAiGeneratedTracksEnabled && aiAttributionUserId ? (
+            <DetailsTileAiAttribution userId={aiAttributionUserId} />
+          ) : null}
           {isGatedContentEnabled && doesUserHaveAccess && premiumConditions && (
             <DetailsTileHasAccess
               premiumConditions={premiumConditions}
