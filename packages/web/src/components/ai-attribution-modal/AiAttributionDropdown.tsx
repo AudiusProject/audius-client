@@ -39,6 +39,8 @@ const selectSearchResults = createSelector(getSearchResults, (results) => {
           // @ts-ignore
           tier={getTierForUser(user)}
           allowAiAttribution={user.allow_ai_attribution}
+          name={user.name}
+          handle={user.handle}
         />
       )
     }))

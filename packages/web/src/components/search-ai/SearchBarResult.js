@@ -1,18 +1,33 @@
-import { useState, useEffect, memo } from 'react'
+import { useState, useEffect, memo, useCallback } from 'react'
 
-import { Kind, imageBlank as placeholderArt } from '@audius/common'
+import {
+  Kind,
+  imageBlank as placeholderArt,
+  cacheUsersActions,
+  cacheUsersSelectors
+} from '@audius/common'
 import { Tag } from '@audius/stems'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
+import { useDispatch } from 'react-redux'
 
+import { useSelector } from 'common/hooks/useSelector'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
+import { TwitterShareButton } from 'components/notification/Notification/components/TwitterShareButton'
+import { TwitterButton } from 'components/social-button'
 import UserBadges from 'components/user-badges/UserBadges'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
+import { openTwitterLink } from 'utils/tweet'
 
 import styles from './SearchBarResult.module.css'
 
+const HOSTNAME = process.env.REACT_APP_PUBLIC_HOSTNAME
+const PROTOCOL = process.env.REACT_APP_PUBLIC_PROTOCOL
+
 const messages = {
-  disabledTag: 'Ai Attrib. Not Enabled'
+  disabledTag: 'Ai Attrib. Not Enabled',
+  tweet: (handle) =>
+    `Hey ${handle}, imagine AI generated tracks inspired by your sound! 🤖 Enable AI generated music on @AudiusMusic and see what your fans create using your tunes as their muse. #AudiusAI`
 }
 
 const Image = memo((props) => {
@@ -69,9 +84,29 @@ const SearchBarResult = memo((props) => {
     defaultImage,
     isVerifiedUser,
     tier,
-    allowAiAttribution
+    allowAiAttribution,
+    name,
+    handle
   } = props
   const isUser = kind === Kind.USERS
+  const { fetchUserSocials } = cacheUsersActions
+  const { getUser } = cacheUsersSelectors
+  const dispatch = useDispatch()
+  const user = useSelector((state) => getUser(state, { handle }))
+
+  useEffect(() => {
+    dispatch(fetchUserSocials(handle))
+  }, [dispatch, fetchUserSocials, handle])
+
+  const handleTweet = useCallback(() => {
+    const url = `${PROTOCOL}//${HOSTNAME}/${handle}`
+    const text = openTwitterLink(url, text)
+  }, [handle, name, user])
+
+  const handleTwitterShare = useCallback((handle: string) => {
+    const shareText = messages.tweet(handle)
+    return { shareText }
+  }, [])
 
   return (
     <div className={styles.searchBarResultContainer}>
@@ -123,7 +158,19 @@ const SearchBarResult = memo((props) => {
           ) : null}
         </div>
       </span>
-      {!allowAiAttribution ? <Tag tag={messages.disabledTag} /> : null}
+      {!allowAiAttribution ? (
+        <>
+          <Tag tag={messages.disabledTag} />
+          <TwitterShareButton
+            className={styles.twitterButton}
+            type='dynamic'
+            handle={handle}
+            name={name}
+            shareData={handleTwitterShare}
+            hideText
+          />
+        </>
+      ) : null}
     </div>
   )
 })
