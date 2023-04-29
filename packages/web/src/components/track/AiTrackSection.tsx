@@ -6,27 +6,27 @@ import {
   cacheUsersSelectors,
   cacheUsersActions
 } from '@audius/common'
+import { Button, ButtonType } from '@audius/stems'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 
+import { ReactComponent as IconArrow } from 'assets/img/iconArrow.svg'
 import { ReactComponent as IconRobot } from 'assets/img/robot.svg'
 import { useSelector } from 'common/hooks/useSelector'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import UserBadges from 'components/user-badges/UserBadges'
 import { emptyStringGuard } from 'pages/track-page/utils'
-import { profilePage } from 'utils/route'
+import { profilePage, profilePageAiAttributedTracks } from 'utils/route'
 
 import styles from './AiTrackSection.module.css'
 const { getUser } = cacheUsersSelectors
 const { fetchUsers } = cacheUsersActions
 
-const AI_TRACK_LEARN_MORE = '' // TODO(AI)
-
 const messages = {
   title: 'Generated With AI',
   description: 'This song was made by an AI that has been trained to imitate',
-  learnMore: 'Learn More'
+  viewMore: 'View More'
 }
 
 type AiTrackSectionProps = {
@@ -68,9 +68,11 @@ export const AiTrackSection = ({
     ),
     [dispatch]
   )
-  const handleClickLearnMore = useCallback(() => {
-    window.open(AI_TRACK_LEARN_MORE, '_blank')
-  }, [])
+  const handleClickViewMore = useCallback(() => {
+    dispatch(
+      pushRoute(profilePageAiAttributedTracks(emptyStringGuard(user?.handle)))
+    )
+  }, [dispatch, user])
 
   return (
     <div className={cn(className, styles.root)}>
@@ -82,9 +84,13 @@ export const AiTrackSection = ({
         {messages.description}
         {user ? renderArtist(user) : null}
       </div>
-      <div className={styles.link} onClick={handleClickLearnMore}>
-        {messages.learnMore}
-      </div>
+      <Button
+        className={styles.button}
+        type={ButtonType.TEXT}
+        rightIcon={<IconArrow className={styles.iconArrow} />}
+        text={<div className={styles.buttonText}>{messages.viewMore}</div>}
+        onClick={handleClickViewMore}
+      />
     </div>
   )
 }
