@@ -229,8 +229,6 @@ export const DetailsTile = ({
   const { track_id: trackId, premium_conditions: premiumConditions } =
     track ?? {}
 
-  const aiAttributionUserId = 2
-
   const styles = useStyles()
   const navigation = useNavigation()
 
@@ -242,6 +240,10 @@ export const DetailsTile = ({
   const isOwner = user?.user_id === currentUserId
   const isLongFormContent =
     track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
+  // const aiAttributionUserId = track
+  //   ? (track as unknown as Track).ai_attribution_user_id
+  //   : null
+  const aiAttributionUserId = 2
 
   const handlePressArtistName = useCallback(() => {
     if (!user) {

@@ -109,5 +109,6 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.RELATED_ARTISTS_ON_PROFILE_ENABLED]: false,
   [FeatureFlags.PROXY_WORMHOLE]: false,
   [FeatureFlags.STORAGE_V2_TRACK_UPLOAD]: false,
-  [FeatureFlags.STORAGE_V2_SIGNUP]: false
+  [FeatureFlags.STORAGE_V2_SIGNUP]: false,
+  [FeatureFlags.AI_ATTRIBUTION]: false
 }

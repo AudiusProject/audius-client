@@ -3,12 +3,13 @@ import { useEffect } from 'react'
 import type { ID } from '@audius/common'
 import { aiPageActions, aiPageSelectors } from '@audius/common'
 import { View } from 'react-native'
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { useDispatch, useSelector } from 'react-redux'
-import { AUDIUS_DOCS_LINK } from 'utils/route'
 
 import IconRobot from 'app/assets/images/iconRobot.svg'
-import { Text, Link } from 'app/components/core'
+import { Text } from 'app/components/core'
 import UserBadges from 'app/components/user-badges'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -18,7 +19,7 @@ const { getAiUser } = aiPageSelectors
 const messages = {
   title: 'Generated with AI',
   description: 'This song was made by an AI that has been trained to imitate ',
-  learnMore: 'Learn More'
+  viewMore: 'View More'
 }
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
@@ -54,7 +55,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   badges: {
     paddingTop: spacing(4)
   },
-  learnMore: {
+  viewMore: {
     fontSize: typography.fontSize.small,
     lineHeight: typography.fontSize.small * 1.2,
     color: palette.secondary
@@ -64,6 +65,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 export const DetailsTileAiAttribution = ({ userId }: { userId: ID }) => {
   const styles = useStyles()
   const { neutral } = useThemeColors()
+  const navigation = useNavigation()
 
   const dispatch = useDispatch()
   const user = useSelector(getAiUser)
@@ -74,6 +76,10 @@ export const DetailsTileAiAttribution = ({ userId }: { userId: ID }) => {
       dispatch(reset())
     }
   }, [dispatch, userId])
+
+  const handleViewMorePress = () => {
+    navigation.navigate('AiGeneratedTracks', { userId })
+  }
 
   return user ? (
     <View style={styles.root}>
@@ -86,9 +92,9 @@ export const DetailsTileAiAttribution = ({ userId }: { userId: ID }) => {
         <Text style={styles.userBadgeTitle}>{user.name}</Text>
         <UserBadges user={user} hideName style={styles.badges} badgeSize={12} />
       </Text>
-      <Link url={AUDIUS_DOCS_LINK}>
-        <Text style={styles.learnMore}>{messages.learnMore}</Text>
-      </Link>
+      <TouchableWithoutFeedback onPress={handleViewMorePress}>
+        <Text style={styles.viewMore}>{messages.viewMore}</Text>
+      </TouchableWithoutFeedback>
     </View>
   ) : null
 }
