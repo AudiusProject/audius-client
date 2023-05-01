@@ -134,6 +134,7 @@ class DropdownInput extends Component {
         <div className={cn(styles.dropdownInput, dropdownInputStyle)}>
           <Select
             {...defaultValueProp}
+            value={value}
             id={id}
             aria-label={ariaLabel}
             dropdownClassName={cn(styles.select, dropdownStyle, style)}
