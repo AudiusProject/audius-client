@@ -1,11 +1,6 @@
-import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 
-import {
-  accountSelectors,
-  chatActions,
-  chatSelectors,
-  Status
-} from '@audius/common'
+import { accountSelectors, chatActions, chatSelectors } from '@audius/common'
 import type { ID } from '@audius/common'
 import type { ValidatedChatPermissions } from '@audius/sdk'
 import { ChatPermission } from '@audius/sdk'
