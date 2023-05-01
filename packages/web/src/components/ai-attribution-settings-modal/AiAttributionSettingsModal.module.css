@@ -38,3 +38,9 @@
 .doneButton {
   align-self: center;
 }
+
+.eula {
+  border: 1px solid var(--neutral-light-4);
+  border-radius: 4px;
+  padding: 24px 32px 32px;
+}
