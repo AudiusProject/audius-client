@@ -19,7 +19,7 @@ export default {
   decorators: [reactRouterDecorator]
 }
 
-const Template: Story<TagProps> = (args) => {
+const Template: Story<TagProps<'span'>> = (args) => {
   return <Tag {...args} />
 }
 
