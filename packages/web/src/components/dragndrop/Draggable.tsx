@@ -1,4 +1,4 @@
-import { DragEvent, ReactNode, useCallback } from 'react'
+import { ReactElement, useCallback, useEffect, useRef } from 'react'
 
 import { ID } from '@audius/common'
 import { useDispatch } from 'react-redux'
@@ -13,7 +13,7 @@ const messages = {
   defaultText: 'Untitled'
 }
 
-export type DraggableProps = {
+type DraggableProps = {
   isDisabled?: boolean
   isOwner?: boolean
   text?: string
@@ -21,7 +21,7 @@ export type DraggableProps = {
   kind: DragDropKind
   id: ID | string // One of trackId, collectionId, userId
   index?: number
-  children: ReactNode
+  children: ReactElement
   onDrag?: () => void
   onDrop?: () => void
 }
@@ -40,11 +40,11 @@ export const Draggable = (props: DraggableProps) => {
     children,
     ...otherProps // passed to child
   } = props
+  const draggableRef = useRef<HTMLDivElement | null>(null)
   const dispatch = useDispatch()
 
   const handleDragStart = useCallback(
-    (e: DragEvent) => {
-      e.stopPropagation()
+    (e: any) => {
       dispatch(drag({ kind, id, isOwner, index }))
 
       const dt = e.dataTransfer
@@ -84,12 +84,27 @@ export const Draggable = (props: DraggableProps) => {
     onDrop?.()
   }, [dispatch, onDrop])
 
+  useEffect(() => {
+    const draggableElement = draggableRef.current
+    if (draggableElement) {
+      draggableElement.addEventListener('dragstart', handleDragStart, false)
+      draggableElement.addEventListener('dragend', handleDragEnd, false)
+      return () => {
+        draggableElement.removeEventListener(
+          'dragstart',
+          handleDragStart,
+          false
+        )
+        draggableElement.removeEventListener('dragend', handleDragEnd, false)
+      }
+    }
+  }, [handleDragStart, handleDragEnd])
+
   return (
     <div
       draggable={!isDisabled}
+      ref={draggableRef}
       className={styles.draggable}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
       {...otherProps}
     >
       {children}
