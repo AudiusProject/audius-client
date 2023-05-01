@@ -37,10 +37,23 @@
 
 .doneButton {
   align-self: center;
+  width: 100%;
+}
+
+.markdownFrame {
+  background: var(--background);
+  box-shadow: inset 0px 0px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  padding: 24px 24px 0px 24px;
+  margin-bottom: 24px;
 }
 
 .eula {
-  border: 1px solid var(--neutral-light-4);
-  border-radius: 4px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px 16px 0px 0px;
   padding: 24px 32px 32px;
+  background: var(--white);
+  scroll-padding-right: 4px;
 }

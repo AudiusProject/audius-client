@@ -21,7 +21,12 @@ export const ShareAiTracksTile = () => {
             <span className={styles.description}>{messages.description}</span>
           </span>
         </div>
-        <a href={AUDIUS_AI_BLOG_LINK} className={styles.learnMore}>
+        <a
+          target='_blank'
+          href={AUDIUS_AI_BLOG_LINK}
+          className={styles.learnMore}
+          rel='noreferrer'
+        >
           {messages.learnMore}
         </a>
       </div>
