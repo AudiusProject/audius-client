@@ -348,7 +348,12 @@
 }
 
 .badgeAi {
-  background: linear-gradient(180deg, #1fd187 0%, #0fc578 100%), #1fd187;
+  background: linear-gradient(
+      180deg,
+      var(--ai-primary) 0%,
+      var(--ai-secondary) 100%
+    ),
+    var(--ai-primary);
   margin-right: 8px;
 }
 
