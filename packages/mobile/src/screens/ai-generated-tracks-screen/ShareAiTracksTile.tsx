@@ -24,7 +24,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     ...shadow()
   },
   title: {
-    display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing(4)

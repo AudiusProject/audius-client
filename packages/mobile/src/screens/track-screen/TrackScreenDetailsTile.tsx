@@ -195,13 +195,13 @@ export const TrackScreenDetailsTile = ({
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
   )
-  // const { isEnabled: isAiGeneratedTracksEnabled } = useFeatureFlag(
-  //   FeatureFlags.AI_ATTRIBUTION
-  // )
-  const isAiGeneratedTracksEnabled = true
+  const { isEnabled: isAiGeneratedTracksEnabled } = useFeatureFlag(
+    FeatureFlags.AI_ATTRIBUTION
+  )
   const styles = useStyles()
   const navigation = useNavigation()
-  const { accentOrange, accentBlue, white } = useThemeColors()
+  const { accentOrange, accentBlue, white, aiPrimary, aiSecondary } =
+    useThemeColors()
 
   const isOfflineEnabled = useIsOfflineModeEnabled()
   const isReachable = useSelector(getIsReachable)
@@ -438,7 +438,7 @@ export const TrackScreenDetailsTile = ({
     return (
       <LinearGradient
         style={styles.aiAttributedHeader}
-        colors={['#1FD187', '#0FC578']}
+        colors={[aiPrimary, aiSecondary]}
         useAngle
         angle={180}
       >
