@@ -30,13 +30,15 @@ const messages = {
 }
 
 type AiTrackSectionProps = {
-  className: string
   attributedUserId: ID
+  className?: string
+  descriptionClassName?: string
 }
 
 export const AiTrackSection = ({
   attributedUserId,
-  className
+  className,
+  descriptionClassName
 }: AiTrackSectionProps) => {
   const dispatch = useDispatch()
   const user = useSelector((state) => getUser(state, { id: attributedUserId }))
@@ -49,7 +51,11 @@ export const AiTrackSection = ({
 
   const renderArtist = useCallback(
     (entity: User) => (
-      <ArtistPopover handle={entity.handle} mouseEnterDelay={0.1}>
+      <ArtistPopover
+        component='span'
+        handle={entity.handle}
+        mouseEnterDelay={0.1}
+      >
         <h2
           className={styles.attributedUser}
           onClick={() =>
@@ -80,7 +86,7 @@ export const AiTrackSection = ({
         <IconRobot className={styles.iconRobot} />
         {messages.title}
       </div>
-      <div className={styles.description}>
+      <div className={cn(descriptionClassName, styles.description)}>
         {messages.description}
         {user ? renderArtist(user) : null}
       </div>

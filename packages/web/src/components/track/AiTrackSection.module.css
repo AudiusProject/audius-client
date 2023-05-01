@@ -33,6 +33,7 @@
   font-weight: var(--font-medium);
   color: var(--neutral);
   margin-bottom: 16px;
+  text-align: left;
 }
 
 .link {

@@ -49,7 +49,7 @@
 }
 
 .link {
-  margin: 0px 4px;
+  margin: 0 4px 0 0;
   color: var(--secondary);
   display: flex;
   align-items: center;
