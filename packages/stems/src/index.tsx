@@ -13,12 +13,7 @@ export {
   Type as ButtonType,
   Size as ButtonSize
 } from './components/Button'
-export {
-  IconButton,
-  IconButtonProps,
-  IconButtonButtonProps,
-  IconButtonAnchorProps
-} from './components/IconButton'
+export { IconButton, IconButtonProps } from './components/IconButton'
 export {
   PillButton,
   PillButtonProps,
