@@ -121,11 +121,9 @@ export const InboxSettingsScreen = () => {
 
   const handlePress = useCallback(
     (value) => {
-      if (userId) {
-        dispatch(setPermissions({ userId, permissions: value }))
-      }
+      dispatch(setPermissions({ permissions: value }))
     },
-    [dispatch, userId]
+    [dispatch]
   )
 
   return (

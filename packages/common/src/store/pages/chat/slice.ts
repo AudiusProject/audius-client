@@ -417,19 +417,22 @@ const slice = createSlice({
       }
     },
     setPermissions: (
+      _state,
+      _action: PayloadAction<{
+        permissions: ChatPermission
+      }>
+    ) => {
+      // triggers saga
+    },
+    setPermissionsSucceeded: (
       state,
       action: PayloadAction<{
-        userId: ID
-        permissions: ChatPermission
+        permissions: Record<ID, ValidatedChatPermissions>
       }>
     ) => {
       state.permissions = {
         ...state.permissions,
-        [action.payload.userId]: {
-          current_user_has_permission: true,
-          permits: action.payload.permissions,
-          user_id: encodeHashId(action.payload.userId)
-        }
+        ...action.payload.permissions
       }
     },
     // Note: is not associated with any chatId because there will be at most

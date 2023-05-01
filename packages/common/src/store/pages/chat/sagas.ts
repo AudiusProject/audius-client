@@ -48,6 +48,7 @@ const {
   fetchPermissions,
   fetchPermissionsSucceeded,
   setPermissions,
+  setPermissionsSucceeded,
   fetchLinkUnfurl,
   fetchLinkUnfurlSucceeded
 } = chatActions
@@ -363,6 +364,21 @@ function* doSetPermissions(action: ReturnType<typeof setPermissions>) {
     yield* call([sdk.chats, sdk.chats.permit], {
       permit: action.payload.permissions
     })
+    const currentUserId = yield* select(getUserId)
+    if (!currentUserId) {
+      throw new Error('currentUserId not found')
+    }
+    yield* put(
+      setPermissionsSucceeded({
+        permissions: {
+          [currentUserId]: {
+            current_user_has_permission: true,
+            permits: action.payload.permissions,
+            user_id: encodeHashId(currentUserId)
+          }
+        }
+      })
+    )
   } catch (e) {
     console.error('setPermissionsFailed', e)
   }
