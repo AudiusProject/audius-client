@@ -9,11 +9,11 @@ type BaseIconButtonProps = {
   'aria-label': string
 }
 
-export type IconButtonAnchorProps = BaseIconButtonProps & {
+type IconButtonAnchorProps = BaseIconButtonProps & {
   href: string
 } & ComponentPropsWithoutRef<'a'>
 
-export type IconButtonButtonProps = BaseIconButtonProps &
+type IconButtonButtonProps = BaseIconButtonProps &
   ComponentPropsWithoutRef<'button'>
 
 export type IconButtonProps = IconButtonAnchorProps | IconButtonButtonProps

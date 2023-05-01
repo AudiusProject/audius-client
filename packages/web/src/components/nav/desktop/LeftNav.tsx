@@ -16,14 +16,15 @@ import {
   imageProfilePicEmpty,
   playlistLibraryActions,
   playlistLibraryHelpers,
-  CreateAccountOpen
+  CreateAccountOpen,
+  playlistUpdatesActions
 } from '@audius/common'
 import { Scrollbar } from '@audius/stems'
 import { ResizeObserver } from '@juggle/resize-observer'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
-import { RouteComponentProps, withRouter } from 'react-router-dom'
+import { NavLink, RouteComponentProps, withRouter } from 'react-router-dom'
 import useMeasure from 'react-use-measure'
 import { Dispatch } from 'redux'
 
@@ -54,14 +55,14 @@ import {
 import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
 import styles from './LeftNav.module.css'
-import { LeftNavDroppable, LeftNavLink } from './LeftNavLink'
 import NavAudio from './NavAudio'
 import { NavButton } from './NavButton'
 import { NavHeader } from './NavHeader'
 import { NowPlayingArtworkTile } from './NowPlayingArtworkTile'
-import { PlaylistLibrary } from './PlaylistLibrary'
+import PlaylistLibrary from './PlaylistLibrary'
 import { RouteNav } from './RouteNav'
 
+const { updatedPlaylistViewed } = playlistUpdatesActions
 const { update: updatePlaylistLibrary } = playlistLibraryActions
 const { addFolderToLibrary, constructPlaylistFolder } = playlistLibraryHelpers
 const { getHideFolderTab, getIsOpen } = createPlaylistModalUISelectors
@@ -95,10 +96,11 @@ const LeftNav = ({
   showCreatePlaylistModal,
   hideCreatePlaylistModalFolderTab,
   updatePlaylistLibrary,
-  dragging: { dragging, kind },
+  dragging: { dragging, kind, isOwner: draggingIsOwner },
   saveTrack,
   saveCollection,
   accountStatus,
+  updatePlaylistLastViewedAt,
   goToRoute,
   goToSignUp: routeToSignup,
   goToSignIn
@@ -177,14 +179,16 @@ const LeftNav = ({
   ])
 
   const onClickNavLinkWithAccount = useCallback(
-    (e?: MouseEvent) => {
+    (e?: MouseEvent, id?: number) => {
       if (!account) {
         e?.preventDefault()
         goToSignUp('restricted page')
         showActionRequiresAccount()
+      } else if (id) {
+        updatePlaylistLastViewedAt(id)
       }
     },
-    [account, goToSignUp, showActionRequiresAccount]
+    [account, goToSignUp, showActionRequiresAccount, updatePlaylistLastViewedAt]
   )
 
   const updateScrollTopPosition = useCallback((difference: number) => {
@@ -288,40 +292,73 @@ const LeftNav = ({
             <div className={styles.links}>
               <div className={styles.linkGroup}>
                 <div className={styles.groupHeader}>Discover</div>
-                <LeftNavLink
+                <NavLink
                   to={FEED_PAGE}
-                  disabled={!account}
+                  activeClassName='active'
+                  className={cn(styles.link, {
+                    [styles.disabledLink]: !account || dragging
+                  })}
                   onClick={onClickNavLinkWithAccount}
                 >
                   Feed
-                </LeftNavLink>
-                <LeftNavLink to={TRENDING_PAGE}>Trending</LeftNavLink>
-                <LeftNavLink to={EXPLORE_PAGE} exact>
+                </NavLink>
+                <NavLink
+                  to={TRENDING_PAGE}
+                  activeClassName='active'
+                  className={cn(styles.link, {
+                    [styles.disabledLink]: dragging
+                  })}
+                >
+                  Trending
+                </NavLink>
+                <NavLink
+                  to={EXPLORE_PAGE}
+                  exact
+                  activeClassName='active'
+                  className={cn(styles.link, {
+                    [styles.disabledLink]: dragging
+                  })}
+                >
                   Explore
-                </LeftNavLink>
+                </NavLink>
               </div>
               <div className={styles.linkGroup}>
                 <div className={styles.groupHeader}>Library</div>
-                <LeftNavDroppable
-                  disabled={!account}
+                <Droppable
+                  className={styles.droppable}
+                  hoverClassName={styles.droppableHover}
                   acceptedKinds={['track', 'album']}
                   acceptOwner={false}
                   onDrop={kind === 'album' ? saveCollection : saveTrack}
                 >
-                  <LeftNavLink
+                  <NavLink
                     to={SAVED_PAGE}
+                    activeClassName='active'
+                    className={cn(styles.link, {
+                      [styles.disabledLink]:
+                        !account ||
+                        (dragging && kind === 'playlist') ||
+                        draggingIsOwner,
+                      [styles.droppableLink]:
+                        dragging &&
+                        !draggingIsOwner &&
+                        (kind === 'track' || kind === 'album')
+                    })}
                     onClick={onClickNavLinkWithAccount}
                   >
                     Favorites
-                  </LeftNavLink>
-                </LeftNavDroppable>
-                <LeftNavLink
+                  </NavLink>
+                </Droppable>
+                <NavLink
                   to={HISTORY_PAGE}
+                  activeClassName='active'
+                  className={cn(styles.link, {
+                    [styles.disabledLink]: !account || dragging
+                  })}
                   onClick={onClickNavLinkWithAccount}
-                  disabled={!account}
                 >
                   History
-                </LeftNavLink>
+                </NavLink>
               </div>
               <div className={styles.linkGroup}>
                 <Droppable
@@ -353,7 +390,9 @@ const LeftNav = ({
                       </Tooltip>
                     </div>
                   </div>
-                  <PlaylistLibrary />
+                  <PlaylistLibrary
+                    onClickNavLinkWithAccount={onClickNavLinkWithAccount}
+                  />
                 </Droppable>
               </div>
             </div>
@@ -401,6 +440,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(signOnActions.showRequiresAccountModal()),
   openCreatePlaylistModal: () => dispatch(createPlaylistModalActions.open()),
   closeCreatePlaylistModal: () => dispatch(createPlaylistModalActions.close()),
+  updatePlaylistLastViewedAt: (playlistId: number) =>
+    dispatch(updatedPlaylistViewed({ playlistId })),
   updatePlaylistLibrary: (newLibrary: PlaylistLibraryType) =>
     dispatch(updatePlaylistLibrary({ playlistLibrary: newLibrary })),
   goToDashboard: () => dispatch(pushRoute(DASHBOARD_PAGE)),

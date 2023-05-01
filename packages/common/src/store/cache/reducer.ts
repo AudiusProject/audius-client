@@ -83,8 +83,7 @@ const unwrapEntry = (entry: { metadata: any }) => {
 const forceUpdateKeys = new Set([
   'field_visibility',
   'followee_reposts',
-  'followee_saves',
-  'playlist_library'
+  'followee_saves'
 ])
 
 // Customize lodash recursive merge to never merge
