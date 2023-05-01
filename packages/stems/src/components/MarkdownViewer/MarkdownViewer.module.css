@@ -78,6 +78,7 @@
 
 .root ol li {
   margin-bottom: 24px;
+  padding-left: 8px;
 }
 
 .root ol li ol {
@@ -92,8 +93,5 @@
 
 .root ul li {
   margin-bottom: 24px;
-}
-
-.root ol li {
-  margin-bottom: 24px;
+  padding-left: 8px;
 }
