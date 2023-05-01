@@ -1,5 +1,5 @@
 import RobotFace from 'assets/img/robotFace.png'
-import { AUDIUS_DOCS_LINK } from 'utils/route'
+import { AUDIUS_AI_BLOG_LINK } from 'utils/route'
 
 import styles from './ShareAiTracksTile.module.css'
 
@@ -19,7 +19,7 @@ export const ShareAiTracksTile = () => {
           <span className={styles.titleText}>{messages.title}</span>
         </div>
         <span className={styles.description}>{messages.description}</span>
-        <a href={AUDIUS_DOCS_LINK} className={styles.learnMore}>
+        <a href={AUDIUS_AI_BLOG_LINK} className={styles.learnMore}>
           {messages.learnMore}
         </a>
       </div>

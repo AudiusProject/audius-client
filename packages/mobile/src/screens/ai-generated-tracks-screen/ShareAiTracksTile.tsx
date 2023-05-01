@@ -1,9 +1,11 @@
 import { View, Image } from 'react-native'
-import { AUDIUS_DOCS_LINK } from 'utils/route'
 
 import RobotFace from 'app/assets/images/robotFace.png'
 import { Text, Link } from 'app/components/core'
 import { makeStyles, shadow } from 'app/styles'
+
+const AUDIUS_AI_BLOG_LINK =
+  'https://help.audius.co/help/What-should-I-know-about-AI-generated-music-on-Audius'
 
 const messages = {
   title: 'Share Your AI-Generated Tracks',
@@ -62,7 +64,7 @@ export const ShareAiTracksTile = () => {
         <Text style={styles.titleText}>{messages.title}</Text>
       </View>
       <Text style={styles.description}>{messages.description}</Text>
-      <Link url={AUDIUS_DOCS_LINK} style={styles.learnMoreLink}>
+      <Link url={AUDIUS_AI_BLOG_LINK} style={styles.learnMoreLink}>
         <Text style={styles.learnMore}>{messages.learnMore}</Text>
       </Link>
     </View>
