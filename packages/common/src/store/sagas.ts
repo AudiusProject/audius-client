@@ -17,6 +17,7 @@ import {
   toastSagas,
   deletePlaylistConfirmationModalUISagas,
   publishPlaylistConfirmationModalUISagas,
+  ownProfileSagas,
   mobileOverflowMenuUISagas,
   shareModalUISagas
 } from 'store/ui'
@@ -45,6 +46,7 @@ export const sagas = (_ctx: CommonStoreContext) => ({
   toast: toastSagas,
   shareModalUI: shareModalUISagas,
   mobileOverflowMenuUI: mobileOverflowMenuUISagas,
+  ownProfile: ownProfileSagas,
   deletePlaylistConfirmationModalUI: deletePlaylistConfirmationModalUISagas,
   publishPlaylistConfirmationModalUI: publishPlaylistConfirmationModalUISagas,
   player: playerSagas,

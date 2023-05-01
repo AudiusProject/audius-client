@@ -34,7 +34,9 @@ import {
   queueSelectors,
   Nullable,
   chatActions,
-  chatSelectors
+  chatSelectors,
+  ownProfileActions,
+  ownProfileSelectors
 } from '@audius/common'
 import { push as pushRoute, replace } from 'connected-react-router'
 import { UnregisterCallback } from 'history'
@@ -63,6 +65,8 @@ const { setFollowing } = followingUserListActions
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
 const { open } = mobileOverflowMenuUIActions
 const { selectSuggestedFollowsUsers } = relatedArtistsUISelectors
+const { fetchTrackCount } = ownProfileActions
+const { getOwnTrackCount } = ownProfileSelectors
 
 const {
   makeGetProfile,
@@ -137,6 +141,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     // If routing from a previous profile page
     // the lineups must be reset to refetch & update for new user
     this.fetchProfile(getPathname(this.props.location))
+    this.props.fetchOwnTrackCount()
 
     // Switching from profile page => profile page
     this.unlisten = this.props.history.listen((location, action) => {
@@ -168,37 +173,46 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
   }
 
   componentDidUpdate(prevProps: ProfilePageProps, prevState: ProfilePageState) {
-    const { pathname, profile, artistTracks, goToRoute } = this.props
+    const {
+      pathname,
+      profile,
+      artistTracks,
+      goToRoute,
+      ownTrackCount,
+      account
+    } = this.props
     const { editMode, activeTab } = this.state
 
     if (profile && profile.status === Status.ERROR) {
       goToRoute(NOT_FOUND_PAGE)
     }
 
-    if (
-      !activeTab &&
-      profile &&
-      profile.profile &&
-      artistTracks!.status === Status.SUCCESS
-    ) {
-      if (profile.profile.track_count > 0) {
-        this.setState({
-          activeTab: ProfilePageTabs.TRACKS
-        })
-      } else {
+    const isOwnProfile = account?.user_id === profile.profile?.user_id
+    const hasTracks =
+      (profile.profile && profile.profile.track_count > 0) ||
+      (isOwnProfile && ownTrackCount && ownTrackCount > 0)
+
+    if (!isOwnProfile || ownTrackCount !== null) {
+      if (
+        !activeTab &&
+        profile &&
+        profile.profile &&
+        artistTracks!.status === Status.SUCCESS
+      ) {
+        if (hasTracks) {
+          this.setState({
+            activeTab: ProfilePageTabs.TRACKS
+          })
+        } else {
+          this.setState({
+            activeTab: ProfilePageTabs.REPOSTS
+          })
+        }
+      } else if (!activeTab && profile && profile.profile && !hasTracks) {
         this.setState({
           activeTab: ProfilePageTabs.REPOSTS
         })
       }
-    } else if (
-      !activeTab &&
-      profile &&
-      profile.profile &&
-      !(profile.profile.track_count > 0)
-    ) {
-      this.setState({
-        activeTab: ProfilePageTabs.REPOSTS
-      })
     }
 
     // Replace the URL with the properly formatted /handle route
@@ -596,11 +610,12 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
   didChangeTabsFrom = (prevLabel: string, currLabel: string) => {
     const {
       didChangeTabsFrom,
-      profile: { profile }
+      profile: { profile },
+      ownTrackCount
     } = this.props
     if (profile) {
       let tab = `/${currLabel.toLowerCase()}`
-      if (profile.track_count > 0) {
+      if (profile.track_count > 0 || (ownTrackCount && ownTrackCount > 0)) {
         // An artist, default route is tracks
         if (currLabel === ProfilePageTabs.TRACKS) {
           tab = ''
@@ -671,8 +686,14 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
   }
 
   getIsArtist = () => {
-    const { profile } = this.props.profile
-    return !!profile && profile.track_count > 0
+    const {
+      profile: { profile },
+      ownTrackCount
+    } = this.props
+    return !!(
+      (profile && profile.track_count > 0) ||
+      (ownTrackCount && ownTrackCount > 0)
+    )
   }
 
   getIsOwner = () => {
@@ -969,7 +990,7 @@ function makeMapStateToProps() {
 
     const profile = getProfile(state, handleLower)
     const account = getAccountUser(state)
-    const ownUserTrackCount =
+    const ownTrackCount =
       account?.user_id === profile.profile?.user_id
         ? getOwnTrackCount(state)
         : null
@@ -987,7 +1008,8 @@ function makeMapStateToProps() {
       }),
       chatPermissions: getUserChatPermissions(state),
       blockeeList: getBlockees(state),
-      blockerList: getBlockers(state)
+      blockerList: getBlockers(state),
+      ownTrackCount
     }
   }
   return mapStateToProps
@@ -1015,6 +1037,9 @@ function mapDispatchToProps(dispatch: Dispatch, props: RouteComponentProps) {
           /* deleteExistingEntry */ false
         )
       ),
+    fetchOwnTrackCount: () => {
+      dispatch(fetchTrackCount())
+    },
     updateProfile: (metadata: any) =>
       dispatch(profileActions.updateProfile(metadata)),
     goToRoute: (route: string) => dispatch(pushRoute(route)),

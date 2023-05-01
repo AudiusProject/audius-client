@@ -1,6 +1,7 @@
-import type { Nullable } from '@audius/common'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
+
+import { Nullable } from 'utils/index'
 
 export type OwnProfileState = typeof initialState
 
@@ -13,7 +14,7 @@ const initialState: State = {
 }
 
 const slice = createSlice({
-  name: 'ownProfileTracks',
+  name: 'ownProfile',
   initialState,
   reducers: {
     fetchTrackCount: () => {},
@@ -24,5 +25,6 @@ const slice = createSlice({
 })
 
 export const { fetchTrackCount, setTrackCount } = slice.actions
+export const actions = slice.actions
 
 export default slice.reducer
