@@ -44,6 +44,9 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     lineHeight: typography.body.fontSize * 1.3,
     marginVertical: spacing(4)
   },
+  learnMoreLink: {
+    alignSelf: 'flex-start'
+  },
   learnMore: {
     fontSize: typography.fontSize.medium,
     lineHeight: typography.body.fontSize * 1.2,
@@ -60,7 +63,7 @@ export const ShareAiTracksTile = () => {
         <Text style={styles.titleText}>{messages.title}</Text>
       </View>
       <Text style={styles.description}>{messages.description}</Text>
-      <Link url={AUDIUS_DOCS_LINK}>
+      <Link url={AUDIUS_DOCS_LINK} style={styles.learnMoreLink}>
         <Text style={styles.learnMore}>{messages.learnMore}</Text>
       </Link>
     </View>

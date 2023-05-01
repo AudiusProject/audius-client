@@ -431,7 +431,7 @@ export const TrackScreenDetailsTile = ({
   }
 
   const renderAiHeader = () => {
-    if (!isAiGeneratedTracksEnabled) {
+    if (!isAiGeneratedTracksEnabled || !track.ai_attribution_user_id) {
       return null
     }
 

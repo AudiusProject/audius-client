@@ -48,6 +48,7 @@
   font-weight: var(--font-medium);
   color: var(--secondary);
   text-align: left;
+  align-self: flex-start;
 }
 
 .learnMore:active,

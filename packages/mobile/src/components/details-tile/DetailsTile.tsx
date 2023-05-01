@@ -222,10 +222,9 @@ export const DetailsTile = ({
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
   )
-  // const { isEnabled: isAiGeneratedTracksEnabled } = useFeatureFlag(
-  //   FeatureFlags.AI_ATTRIBUTION
-  // )
-  const isAiGeneratedTracksEnabled = true
+  const { isEnabled: isAiGeneratedTracksEnabled } = useFeatureFlag(
+    FeatureFlags.AI_ATTRIBUTION
+  )
   const { track_id: trackId, premium_conditions: premiumConditions } =
     track ?? {}
 
@@ -240,10 +239,7 @@ export const DetailsTile = ({
   const isOwner = user?.user_id === currentUserId
   const isLongFormContent =
     track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
-  // const aiAttributionUserId = track
-  //   ? (track as unknown as Track).ai_attribution_user_id
-  //   : null
-  const aiAttributionUserId = 2
+  const aiAttributionUserId = track?.ai_attribution_user_id
 
   const handlePressArtistName = useCallback(() => {
     if (!user) {
