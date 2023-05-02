@@ -38,6 +38,7 @@ const initialState: ModalsState = {
   LockedContent: false,
   PlaybackRate: false,
   ProfileActions: false,
+  PublishPlaylistConfirmation: false,
   AiAttributionSettings: false
 }
 

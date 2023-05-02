@@ -196,9 +196,13 @@ export const DetailsTile = ({
   hideShare,
   isPlaying,
   isPlayable = true,
+  isPlaylist = false,
+  isPublished = true,
+  onPressEdit,
   onPressFavorites,
   onPressOverflow,
   onPressPlay,
+  onPressPublish,
   onPressRepost,
   onPressReposts,
   onPressSave,
@@ -388,10 +392,14 @@ export const DetailsTile = ({
               hideRepost={hideRepost}
               hideShare={hideShare}
               isOwner={isOwner}
+              isPlaylist={isPlaylist}
+              isPublished={isPublished}
+              onPressEdit={onPressEdit}
               onPressOverflow={onPressOverflow}
               onPressRepost={onPressRepost}
               onPressSave={onPressSave}
               onPressShare={onPressShare}
+              onPressPublish={onPressPublish}
             />
           </View>
           {isAiGeneratedTracksEnabled && aiAttributionUserId ? (
