@@ -12,10 +12,10 @@ import { createSelector } from 'reselect'
 
 import { fetchSearch } from 'common/store/search-ai-bar/actions'
 import { getSearchResults } from 'common/store/search-ai-bar/selectors'
-import SearchBarResult from 'components/search-ai/SearchBarResult'
 import { useSelector } from 'utils/reducer'
 
 import DropdownInput from './DropdownInput'
+import SearchBarResult from './SearchBarResult'
 
 const selectSearchResults = createSelector(getSearchResults, (results) => {
   const items = results

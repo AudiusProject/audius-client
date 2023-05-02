@@ -39,7 +39,7 @@ export const NotificationModal = (props: NotificationModalProps) => {
         </div>
         <Scrollbar className={styles.scrollContent}>
           <div className={styles.body}>
-            <MarkdownViewer markdown={notification.longDescription} />
+            <MarkdownViewer markdown={notification.longDescription ?? ''} />
           </div>
         </Scrollbar>
       </div>

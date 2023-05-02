@@ -3,17 +3,15 @@ import {
   settingsPageActions as actions,
   getContext,
   accountSelectors,
-  audiusBackend,
   cacheActions,
-  Kind,
-  collectionPageSelectors
+  Kind
 } from '@audius/common'
 import { call, put, takeEvery, select } from 'typed-redux-saga'
 
 import { waitForWrite } from 'utils/sagaHelpers'
 
 import errorSagas from './errorSagas'
-const { internalGetAccountUser, getAccountUser } = accountSelectors
+const { getAccountUser } = accountSelectors
 
 function* watchGetSettings() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')

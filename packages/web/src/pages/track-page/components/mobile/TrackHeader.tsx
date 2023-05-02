@@ -116,7 +116,7 @@ type TrackHeaderProps = {
   isRemix: boolean
   fieldVisibility: FieldVisibility
   coSign: Remix | null
-  aiAttributedUserId: ID
+  aiAttributedUserId: Nullable<ID>
   onClickArtistName: () => void
   onClickMobileOverflow: (
     trackId: ID,

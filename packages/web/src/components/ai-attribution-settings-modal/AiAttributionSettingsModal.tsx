@@ -13,7 +13,6 @@ import {
   MarkdownViewer
 } from '@audius/stems'
 import { useDispatch } from 'react-redux'
-import { useToggle } from 'react-use'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { useSelector } from 'utils/reducer'

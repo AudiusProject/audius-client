@@ -3,26 +3,19 @@ import { useState, useEffect, memo, useCallback } from 'react'
 import {
   Kind,
   imageBlank as placeholderArt,
-  cacheUsersActions,
-  cacheUsersSelectors
+  cacheUsersActions
 } from '@audius/common'
 import { Tag } from '@audius/stems'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 import { useDispatch } from 'react-redux'
 
-import { useSelector } from 'common/hooks/useSelector'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { TwitterShareButton } from 'components/notification/Notification/components/TwitterShareButton'
-import { TwitterButton } from 'components/social-button'
 import UserBadges from 'components/user-badges/UserBadges'
 import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
-import { openTwitterLink } from 'utils/tweet'
 
 import styles from './SearchBarResult.module.css'
-
-const HOSTNAME = process.env.REACT_APP_PUBLIC_HOSTNAME
-const PROTOCOL = process.env.REACT_APP_PUBLIC_PROTOCOL
 
 const messages = {
   disabledTag: 'Ai Attrib. Not Enabled',
@@ -90,20 +83,13 @@ const SearchBarResult = memo((props) => {
   } = props
   const isUser = kind === Kind.USERS
   const { fetchUserSocials } = cacheUsersActions
-  const { getUser } = cacheUsersSelectors
   const dispatch = useDispatch()
-  const user = useSelector((state) => getUser(state, { handle }))
 
   useEffect(() => {
     dispatch(fetchUserSocials(handle))
   }, [dispatch, fetchUserSocials, handle])
 
-  const handleTweet = useCallback(() => {
-    const url = `${PROTOCOL}//${HOSTNAME}/${handle}`
-    const text = openTwitterLink(url, text)
-  }, [handle, name, user])
-
-  const handleTwitterShare = useCallback((handle: string) => {
+  const handleTwitterShare = useCallback((handle) => {
     const shareText = messages.tweet(handle)
     return { shareText }
   }, [])

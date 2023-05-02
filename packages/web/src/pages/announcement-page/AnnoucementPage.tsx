@@ -1,6 +1,9 @@
 import { useEffect, useContext } from 'react'
 
-import { notificationsSelectors, Notification } from '@audius/common'
+import {
+  notificationsSelectors,
+  AnnouncementNotification
+} from '@audius/common'
 import { MarkdownViewer } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
@@ -50,24 +53,19 @@ const AnnouncementPage = (props: AnnouncementPageProps) => {
     >
       <Header className={styles.header} title={notification.title} />
       <div className={styles.body}>
-        <MarkdownViewer markdown={notification.longDescription} />
+        <MarkdownViewer markdown={notification.longDescription ?? ''} />
       </div>
     </MobilePageContainer>
   )
 }
 
-function mapStateToProps(
-  state: AppState,
-  ownProps: OwnProps
-): {
-  notification: Notification | undefined
-} {
+function mapStateToProps(state: AppState, ownProps: OwnProps) {
   const {
     params: { notificationId }
   } = ownProps.match
   return {
     notification: notificationId
-      ? getNotificationById(state, notificationId)
+      ? (getNotificationById(state, notificationId) as AnnouncementNotification)
       : undefined
   }
 }
