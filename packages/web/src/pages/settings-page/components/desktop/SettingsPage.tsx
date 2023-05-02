@@ -12,7 +12,8 @@ import {
   EmailFrequency,
   TikTokProfile,
   FeatureFlags,
-  removeNullable
+  removeNullable,
+  settingsPageSelectors
 } from '@audius/common'
 import {
   Modal,
@@ -43,6 +44,7 @@ import { audiusBackendInstance } from 'services/audius-backend/audius-backend-in
 import DownloadApp from 'services/download-app/DownloadApp'
 import { isMobile, isElectron, getOS } from 'utils/clientUtil'
 import { COPYRIGHT_TEXT } from 'utils/copyright'
+import { useSelector } from 'utils/reducer'
 
 import packageInfo from '../../../../../package.json'
 
@@ -51,6 +53,7 @@ import SettingsCard from './SettingsCard'
 import styles from './SettingsPage.module.css'
 import VerificationModal from './VerificationModal'
 
+const { getAllowAiAttribution } = settingsPageSelectors
 const { version } = packageInfo
 
 const SIGN_OUT_MODAL_TEXT = `
@@ -98,6 +101,7 @@ const messages = {
   desktopAppCardDescription:
     'For the best experience, we reccomend downloading the Audius Desktop App.',
 
+  aiGeneratedEnabled: 'Enabled',
   aiGeneratedButtonText: 'AI Generated Music Settings',
   inboxSettingsButtonText: 'Inbox Settings',
   notificationsButtonText: 'Configure Notifications',
@@ -267,6 +271,7 @@ export const SettingsPage = (props: SettingsPageProps) => {
   }, [showMatrix])
 
   const { isEnabled: isChatEnabled } = useFlag(FeatureFlags.CHAT_ENABLED)
+  const allowAiAttribution = useSelector(getAllowAiAttribution)
   const { isEnabled: isAiAttributionEnabled } = useFlag(
     FeatureFlags.AI_ATTRIBUTION
   )
@@ -369,6 +374,11 @@ export const SettingsPage = (props: SettingsPageProps) => {
             title={messages.aiGeneratedCardTitle}
             description={messages.aiGeneratedCardDescription}
           >
+            {allowAiAttribution ? (
+              <span className={styles.aiAttributionEnabled}>
+                {messages.aiGeneratedEnabled}
+              </span>
+            ) : null}
             <Button
               onClick={openAiAttributionSettingsModal}
               className={styles.cardButton}
