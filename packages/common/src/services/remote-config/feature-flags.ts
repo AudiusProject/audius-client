@@ -46,7 +46,10 @@ export enum FeatureFlags {
   RELATED_ARTISTS_ON_PROFILE_ENABLED = 'related_artists_on_profile_enabled',
   PROXY_WORMHOLE = 'proxy_wormhole',
   STORAGE_V2_TRACK_UPLOAD = 'storage_v2_track_upload',
-  STORAGE_V2_SIGNUP = 'storage_v2_signup'
+  STORAGE_V2_SIGNUP = 'storage_v2_signup',
+  PLAYLIST_UPDATES_PRE_QA = 'playlist_updates_pre_qa',
+  PLAYLIST_UPDATES_POST_QA = 'playlist_updates_post_qa',
+  AI_ATTRIBUTION = 'ai_attribution'
 }
 
 type FlagDefaults = Record<FeatureFlags, boolean>
@@ -108,5 +111,12 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.RELATED_ARTISTS_ON_PROFILE_ENABLED]: false,
   [FeatureFlags.PROXY_WORMHOLE]: false,
   [FeatureFlags.STORAGE_V2_TRACK_UPLOAD]: false,
+<<<<<<< HEAD
   [FeatureFlags.STORAGE_V2_SIGNUP]: false
+=======
+  [FeatureFlags.STORAGE_V2_SIGNUP]: false,
+  [FeatureFlags.PLAYLIST_UPDATES_PRE_QA]: false,
+  [FeatureFlags.PLAYLIST_UPDATES_POST_QA]: false,
+  [FeatureFlags.AI_ATTRIBUTION]: false
+>>>>>>> a586435fb ([C-2554] Add AI Attribution (#3296))
 }
