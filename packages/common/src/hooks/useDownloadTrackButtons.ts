@@ -281,7 +281,6 @@ export const useDownloadTrackButtons = ({
     stemButtonsLength: stemButtons.length,
     track
   })
-  console.log({ originalTrackButton })
 
   return [...(originalTrackButton ? [originalTrackButton] : []), ...stemButtons]
 }
