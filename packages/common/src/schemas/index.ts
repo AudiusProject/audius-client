@@ -98,6 +98,7 @@ export const newCollectionMetadata = (fields?: any, validate = false) => {
 }
 
 const userMetadataSchema = {
+  allow_ai_attribution: false,
   wallet: '',
   name: null,
   handle: '',
