@@ -91,7 +91,6 @@ import { MobileOverflowModalState } from './ui/mobile-overflow-menu/types'
 import modalsReducer from './ui/modals/slice'
 import { ModalsState } from './ui/modals/types'
 import nowPlayingReducer, { NowPlayingState } from './ui/now-playing/slice'
-import ownProfileReducer, { OwnProfileState } from './ui/own-profile/slice'
 import publishPlaylistConfirmationReducer from './ui/publish-playlist-confirmation-modal/slice'
 import { PublishPlaylistConfirmationModalState } from './ui/publish-playlist-confirmation-modal/types'
 import reactionsReducer, { ReactionsState } from './ui/reactions/slice'
@@ -179,7 +178,6 @@ export const reducers = () => ({
     modals: modalsReducer,
     musicConfetti: musicConfettiReducer,
     nowPlaying: nowPlayingReducer,
-    ownProfile: ownProfileReducer,
     reactions: reactionsReducer,
     remixSettings: remixSettingsReducer,
     shareSoundToTikTokModal: shareSoundToTikTokModalReducer,
@@ -293,7 +291,6 @@ export type CommonState = {
     modals: ModalsState
     musicConfetti: MusicConfettiState
     nowPlaying: NowPlayingState
-    ownProfile: OwnProfileState
     reactions: ReactionsState
     relatedArtists: RelatedArtistsState
     remixSettings: RemixSettingsState

@@ -49,11 +49,6 @@ export {
   actions as nowPlayingUIActions
 } from './now-playing/slice'
 
-export * as ownProfileSelectors from './own-profile/selectors'
-export { actions as ownProfileActions } from './own-profile/slice'
-export { default as ownProfileReducer } from './own-profile/slice'
-export { default as ownProfileSagas } from './own-profile/sagas'
-
 export * as publishPlaylistConfirmationModalUISelectors from './publish-playlist-confirmation-modal/selectors'
 export {
   default as publishPlaylistConfirmationModalUIReducer,
