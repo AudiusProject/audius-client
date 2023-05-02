@@ -172,7 +172,7 @@ export const ChatScreen = () => {
   const chatContainerTop = useRef(0)
   const chatContainerBottom = useRef(0)
 
-  const hasTrack = useSelector(getHasTrack)
+  const hasCurrentlyPlayingTrack = useSelector(getHasTrack)
   const userId = useSelector(getUserId)
   const userIdEncoded = encodeHashId(userId)
   const chat = useSelector((state) => getChat(state, chatId ?? ''))
@@ -418,7 +418,7 @@ export const ChatScreen = () => {
           <KeyboardAvoidingView
             style={[
               styles.keyboardAvoiding,
-              hasTrack ? { bottom: PLAY_BAR_HEIGHT } : null
+              hasCurrentlyPlayingTrack ? { bottom: PLAY_BAR_HEIGHT } : null
             ]}
           >
             {!isLoading ? (
