@@ -4,7 +4,7 @@ import {
   getContext,
   removeNullable
 } from '@audius/common'
-import { concat, flatMap, zip, zipWith } from 'lodash'
+import { flatMap, zip } from 'lodash'
 import {
   all,
   call,
