@@ -50,8 +50,7 @@ mobile-prepare-ios:
         name: install pods
         command: |
           cd packages/mobile/ios
-          pod repo update
-          pod install
+          pod install --deployment
     - save_cache:
         key: pods-{{ checksum "packages/mobile/ios/Podfile.lock" }}
         paths:
