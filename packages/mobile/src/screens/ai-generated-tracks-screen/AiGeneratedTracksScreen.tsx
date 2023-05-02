@@ -6,13 +6,14 @@ import {
   aiPageActions,
   aiPageSelectors
 } from '@audius/common'
-import { View } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconRobot from 'app/assets/images/iconRobot.svg'
 import { Text, Screen, ScreenContent, ScreenHeader } from 'app/components/core'
 import { Lineup } from 'app/components/lineup'
 import UserBadges from 'app/components/user-badges'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { useProfileRoute } from 'app/hooks/useRoute'
 import { makeStyles } from 'app/styles'
 
@@ -49,6 +50,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 
 export const AiGeneratedTracksScreen = () => {
   const styles = useStyles()
+  const navigation = useNavigation()
   const { params } = useProfileRoute<'AiGeneratedTracks'>()
   const { userId } = params
   const dispatch = useDispatch()
@@ -86,6 +88,10 @@ export const AiGeneratedTracksScreen = () => {
     [dispatch, user]
   )
 
+  const handleGoToProfile = useCallback(() => {
+    navigation.navigate('Profile', { id: userId })
+  }, [navigation, userId])
+
   return (
     <Screen>
       <ScreenHeader text={messages.header} icon={IconRobot} />
@@ -95,7 +101,9 @@ export const AiGeneratedTracksScreen = () => {
             user ? (
               <View style={styles.headerTextContainer}>
                 <Text>{messages.headerText}</Text>
-                <UserBadges user={user} nameStyle={styles.userBadgeTitle} />
+                <TouchableOpacity onPress={handleGoToProfile}>
+                  <UserBadges user={user} nameStyle={styles.userBadgeTitle} />
+                </TouchableOpacity>
               </View>
             ) : null
           }
