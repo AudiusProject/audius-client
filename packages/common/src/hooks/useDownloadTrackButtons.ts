@@ -209,8 +209,7 @@ const makeDownloadOriginalButton = ({
   }
 
   const label = messages.getDownloadTrack(stemButtonsLength)
-  const config: DownloadButtonConfig = {
-    state: ButtonState.PROCESSING,
+  const config = {
     label,
     type: ButtonType.TRACK
   }
@@ -223,24 +222,17 @@ const makeDownloadOriginalButton = ({
     }
   }
 
-  if (track.download.cid) {
-    return {
-      ...config,
-      state: isLoggedIn
-        ? ButtonState.DOWNLOADABLE
-        : ButtonState.LOG_IN_REQUIRED,
-      onClick: () => {
-        if (!isLoggedIn) {
-          onNotLoggedInClick?.()
-        }
-        onDownload(track.track_id)
+  return {
+    ...config,
+    state: isLoggedIn ? ButtonState.DOWNLOADABLE : ButtonState.LOG_IN_REQUIRED,
+    onClick: () => {
+      if (!isLoggedIn) {
+        onNotLoggedInClick?.()
       }
+      onDownload(track.track_id)
     }
   }
-
-  return config
 }
-
 export const useDownloadTrackButtons = ({
   following,
   isOwner,
@@ -289,6 +281,7 @@ export const useDownloadTrackButtons = ({
     stemButtonsLength: stemButtons.length,
     track
   })
+  console.log({ originalTrackButton })
 
   return [...(originalTrackButton ? [originalTrackButton] : []), ...stemButtons]
 }
