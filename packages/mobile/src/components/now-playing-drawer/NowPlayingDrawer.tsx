@@ -19,7 +19,7 @@ import type {
   GestureResponderEvent,
   PanResponderGestureState
 } from 'react-native'
-import { Platform, View, StatusBar, Pressable } from 'react-native'
+import { Keyboard, Platform, View, StatusBar, Pressable } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import TrackPlayer from 'react-native-track-player'
 import { useDispatch, useSelector } from 'react-redux'
@@ -32,6 +32,7 @@ import Drawer, {
 import { Scrubber } from 'app/components/scrubber'
 import { useDrawer } from 'app/hooks/useDrawer'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { useRoute } from 'app/hooks/useRoute'
 import { AppDrawerContext } from 'app/screens/app-drawer-screen'
 import { AppTabNavigationContext } from 'app/screens/app-screen'
 import { makeStyles } from 'app/styles'
@@ -117,6 +118,13 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
   const [isPlayBarShowing, setIsPlayBarShowing] = useState(false)
 
   const { drawerNavigation } = useContext(AppDrawerContext)
+  // Don't show shadow when we're in chat screen, so that the drawer appears
+  // at same level as the chat screen textinput
+  const route = useRoute()
+  const isInChatScreen = route.name === 'Chat'
+  console.log(
+    `REED route: ${JSON.stringify(route)} isInChatScreen: ${isInChatScreen}`
+  )
 
   // When audio starts playing, open the playbar to the initial offset
   useEffect(() => {
@@ -130,6 +138,7 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
   }, [onClose])
 
   const onDrawerOpen = useCallback(() => {
+    Keyboard.dismiss()
     onOpen()
   }, [onOpen])
 
@@ -281,6 +290,7 @@ export const NowPlayingDrawer = memo(function NowPlayingDrawer(
       shouldCloseToInitialOffset={isPlayBarShowing}
       animationStyle={DrawerAnimationStyle.SPRINGY}
       shouldBackgroundDim={false}
+      shouldShowShadow={!isInChatScreen}
       shouldAnimateShadow={false}
       drawerStyle={{ overflow: 'visible' }}
       onPercentOpen={onDrawerPercentOpen}
