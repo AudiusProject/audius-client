@@ -69,7 +69,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     alignItems: 'center'
   },
   followersCount: {
-    fontWeight: '800',
+    fontWeight: 'bold',
     marginHorizontal: spacing(1),
     color: palette.neutralLight4,
     fontSize: typography.fontSize.small
