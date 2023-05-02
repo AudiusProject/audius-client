@@ -16,8 +16,6 @@ import Text from 'app/components/text'
 import { makeStyles } from 'app/styles'
 import { zIndex } from 'app/utils/zIndex'
 
-import { KeyboardAvoidingView } from '../core'
-
 import { PlayButton } from './PlayButton'
 import { TrackingBar } from './TrackingBar'
 import { NOW_PLAYING_HEIGHT, PLAY_BAR_HEIGHT } from './constants'
@@ -28,8 +26,8 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
   root: {
     width: '100%',
     height: PLAY_BAR_HEIGHT,
-    alignItems: 'center'
-    // zIndex: zIndex.PLAY_BAR
+    alignItems: 'center',
+    zIndex: zIndex.PLAY_BAR
   },
   container: {
     height: '100%',
@@ -134,46 +132,44 @@ export const PlayBar = (props: PlayBarProps) => {
   })
 
   return (
-    <KeyboardAvoidingView>
-      <Animated.View style={[styles.root, { opacity: rootOpacityAnimation }]}>
-        <TrackingBar
-          duration={track?.duration ?? 0}
-          mediaKey={mediaKey}
-          translateYAnimation={translationAnim}
-        />
-        <View style={styles.container}>
-          {renderFavoriteButton()}
-          <TouchableOpacity
-            activeOpacity={1}
-            style={styles.trackInfo}
-            onPress={onPress}
-          >
-            {track ? (
-              <TrackImage
-                style={styles.artwork}
-                track={track}
-                size={SquareSizes.SIZE_150_BY_150}
-              />
-            ) : null}
-            <View style={styles.trackText}>
-              <Text numberOfLines={1} weight='bold' style={styles.title}>
-                {track?.title ?? ''}
-              </Text>
-              <Text
-                weight='bold'
-                style={styles.separator}
-                accessibilityElementsHidden
-              >
-                {track ? '•' : ''}
-              </Text>
-              <Text numberOfLines={1} weight='medium' style={styles.artist}>
-                {user?.name ?? ''}
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <PlayButton wrapperStyle={styles.playIcon} />
-        </View>
-      </Animated.View>
-    </KeyboardAvoidingView>
+    <Animated.View style={[styles.root, { opacity: rootOpacityAnimation }]}>
+      <TrackingBar
+        duration={track?.duration ?? 0}
+        mediaKey={mediaKey}
+        translateYAnimation={translationAnim}
+      />
+      <View style={styles.container}>
+        {renderFavoriteButton()}
+        <TouchableOpacity
+          activeOpacity={1}
+          style={styles.trackInfo}
+          onPress={onPress}
+        >
+          {track ? (
+            <TrackImage
+              style={styles.artwork}
+              track={track}
+              size={SquareSizes.SIZE_150_BY_150}
+            />
+          ) : null}
+          <View style={styles.trackText}>
+            <Text numberOfLines={1} weight='bold' style={styles.title}>
+              {track?.title ?? ''}
+            </Text>
+            <Text
+              weight='bold'
+              style={styles.separator}
+              accessibilityElementsHidden
+            >
+              {track ? '•' : ''}
+            </Text>
+            <Text numberOfLines={1} weight='medium' style={styles.artist}>
+              {user?.name ?? ''}
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <PlayButton wrapperStyle={styles.playIcon} />
+      </View>
+    </Animated.View>
   )
 }

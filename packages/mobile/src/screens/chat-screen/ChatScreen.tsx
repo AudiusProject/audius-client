@@ -32,6 +32,7 @@ import { light } from 'app/haptics'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
 import { setVisibility } from 'app/store/drawers/slice'
+import { getIsKeyboardOpen } from 'app/store/keyboard/selectors'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { useThemePalette } from 'app/utils/theme'
@@ -171,6 +172,7 @@ export const ChatScreen = () => {
   const messageTop = useRef(0)
   const chatContainerTop = useRef(0)
   const chatContainerBottom = useRef(0)
+  const isKeyboardOpen = useSelector(getIsKeyboardOpen)
 
   const hasCurrentlyPlayingTrack = useSelector(getHasTrack)
   const userId = useSelector(getUserId)
@@ -416,6 +418,7 @@ export const ChatScreen = () => {
           }}
         >
           <KeyboardAvoidingView
+            keyboardShowingOffset={PLAY_BAR_HEIGHT}
             style={[
               styles.keyboardAvoiding,
               hasCurrentlyPlayingTrack ? { bottom: PLAY_BAR_HEIGHT } : null
