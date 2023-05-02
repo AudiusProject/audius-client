@@ -31,7 +31,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     marginBottom: spacing(4)
   },
   title: {
-    display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing(2)
