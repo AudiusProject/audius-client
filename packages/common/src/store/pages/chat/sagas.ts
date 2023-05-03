@@ -47,8 +47,6 @@ const {
   blockUser,
   fetchPermissions,
   fetchPermissionsSucceeded,
-  setPermissions,
-  setPermissionsSucceeded,
   fetchLinkUnfurl,
   fetchLinkUnfurlSucceeded
 } = chatActions
@@ -357,33 +355,6 @@ function* doFetchPermissions(action: ReturnType<typeof fetchPermissions>) {
   }
 }
 
-function* doSetPermissions(action: ReturnType<typeof setPermissions>) {
-  try {
-    const audiusSdk = yield* getContext('audiusSdk')
-    const sdk = yield* call(audiusSdk)
-    yield* call([sdk.chats, sdk.chats.permit], {
-      permit: action.payload.permissions
-    })
-    const currentUserId = yield* select(getUserId)
-    if (!currentUserId) {
-      throw new Error('currentUserId not found')
-    }
-    yield* put(
-      setPermissionsSucceeded({
-        permissions: {
-          [currentUserId]: {
-            current_user_has_permission: true,
-            permits: action.payload.permissions,
-            user_id: encodeHashId(currentUserId)
-          }
-        }
-      })
-    )
-  } catch (e) {
-    console.error('setPermissionsFailed', e)
-  }
-}
-
 function* doFetchLinkUnfurlMetadata(
   action: ReturnType<typeof fetchLinkUnfurl>
 ) {
@@ -456,10 +427,6 @@ function* watchFetchPermissions() {
   yield takeEvery(fetchPermissions, doFetchPermissions)
 }
 
-function* watchSetPermissions() {
-  yield takeEvery(setPermissions, doSetPermissions)
-}
-
 function* watchFetchLinkUnfurlMetadata() {
   yield takeEvery(fetchLinkUnfurl, doFetchLinkUnfurlMetadata)
 }
@@ -478,7 +445,6 @@ export const sagas = () => {
     watchBlockUser,
     watchUnblockUser,
     watchFetchPermissions,
-    watchFetchLinkUnfurlMetadata,
-    watchSetPermissions
+    watchFetchLinkUnfurlMetadata
   ]
 }

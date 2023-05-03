@@ -1,18 +1,20 @@
-import { useCallback, useEffect } from 'react'
-
-import { accountSelectors, chatActions, chatSelectors } from '@audius/common'
+import {
+  accountSelectors,
+  chatSelectors,
+  useSetInboxPermissions
+} from '@audius/common'
 import type { ID } from '@audius/common'
 import type { ValidatedChatPermissions } from '@audius/sdk'
 import { ChatPermission } from '@audius/sdk'
 import { TouchableOpacity, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
+import { audiusSdk } from 'services/audius-sdk'
 
 import IconMessage from 'app/assets/images/iconMessage.svg'
 import { RadioButton, Text, Screen, ScreenContent } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 
-const { fetchPermissions, setPermissions } = chatActions
 const { getUserChatPermissions } = chatSelectors
 const { getUserId } = accountSelectors
 
@@ -99,27 +101,18 @@ const options = [
   }
 ]
 
-export const InboxSettingsScreen = () => {
+export const InboxSettingsScreen = async () => {
   const styles = useStyles()
-  const dispatch = useDispatch()
   const permissions: Record<ID, ValidatedChatPermissions> = useSelector(
     getUserChatPermissions
   )
   const userId = useSelector(getUserId)
-  const currentPermission = userId ? permissions[userId]?.permits : null
+  const initialPermission = userId ? permissions[userId]?.permits : undefined
 
-  useEffect(() => {
-    if (userId) {
-      dispatch(fetchPermissions({ userIds: [userId] }))
-    }
-  }, [dispatch, userId])
-
-  const handlePress = useCallback(
-    (value) => {
-      dispatch(setPermissions({ permissions: value }))
-    },
-    [dispatch]
-  )
+  const { currentPermission, setCurrentPermission } = useSetInboxPermissions({
+    audiusSdk,
+    initialPermission
+  })
 
   return (
     <Screen
@@ -134,7 +127,7 @@ export const InboxSettingsScreen = () => {
           {options.map((opt) => {
             return (
               <TouchableOpacity
-                onPress={() => handlePress(opt.value)}
+                onPress={() => setCurrentPermission(opt.value)}
                 key={opt.value}
               >
                 <View style={styles.settingsRow}>
