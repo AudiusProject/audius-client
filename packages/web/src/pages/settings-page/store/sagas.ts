@@ -2,7 +2,6 @@ import {
   Name,
   getErrorMessage,
   settingsPageActions as actions,
-  settingsPageInitialState as initialState,
   settingsPageSelectors,
   BrowserNotificationSetting,
   getContext
