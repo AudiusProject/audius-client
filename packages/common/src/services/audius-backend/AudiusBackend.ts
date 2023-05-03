@@ -1726,15 +1726,18 @@ export const audiusBackend = ({
         metadata_time: currentBlock.timestamp
       }))
       const writeMetadataThroughChainEnabled =
-        (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ?? false
-      const response = await audiusLibs.EntityManager.createPlaylist({
-        ...metadata,
-        playlist_id: playlistId,
-        playlist_contents: { track_ids: playlistTracks },
-        is_album: isAlbum,
-        is_private: isPrivate,
+        (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
+        false
+      const response = await audiusLibs.EntityManager.createPlaylist(
+        {
+          ...metadata,
+          playlist_id: playlistId,
+          playlist_contents: { track_ids: playlistTracks },
+          is_album: isAlbum,
+          is_private: isPrivate
+        },
         writeMetadataThroughChainEnabled
-      })
+      )
       const { blockHash, blockNumber, error } = response
       if (error) return { playlistId, error }
       return { blockHash, blockNumber, playlistId }
@@ -1765,8 +1768,13 @@ export const audiusBackend = ({
 
   async function orderPlaylist(playlist: any) {
     try {
+      const writeMetadataThroughChainEnabled =
+        (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ?? false
       const { blockHash, blockNumber } =
-        await audiusLibs.EntityManager.updatePlaylist(playlist)
+        await audiusLibs.EntityManager.updatePlaylist(
+          playlist,
+          writeMetadataThroughChainEnabled
+        )
       return { blockHash, blockNumber }
     } catch (error) {
       console.error(getErrorMessage(error))
@@ -1777,11 +1785,16 @@ export const audiusBackend = ({
   async function publishPlaylist(playlist: Collection) {
     try {
       playlist.is_private = false
+      const writeMetadataThroughChainEnabled =
+        (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ?? false
       const { blockHash, blockNumber } =
-        await audiusLibs.EntityManager.updatePlaylist({
-          ...playlist,
-          is_private: false
-        })
+        await audiusLibs.EntityManager.updatePlaylist(
+          {
+            ...playlist,
+            is_private: false
+          },
+          writeMetadataThroughChainEnabled
+        )
       return { blockHash, blockNumber }
     } catch (error) {
       console.error(getErrorMessage(error))
@@ -1791,8 +1804,13 @@ export const audiusBackend = ({
 
   async function addPlaylistTrack(playlist: Collection) {
     try {
+      const writeMetadataThroughChainEnabled =
+        (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ?? false
       const { blockHash, blockNumber } =
-        await audiusLibs.EntityManager.updatePlaylist(playlist)
+        await audiusLibs.EntityManager.updatePlaylist(
+          playlist,
+          writeMetadataThroughChainEnabled
+        )
       return { blockHash, blockNumber }
     } catch (error) {
       console.error(getErrorMessage(error))
@@ -1802,8 +1820,13 @@ export const audiusBackend = ({
 
   async function deletePlaylistTrack(playlist: Collection) {
     try {
+      const writeMetadataThroughChainEnabled =
+        (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ?? false
       const { blockHash, blockNumber } =
-        await audiusLibs.EntityManager.updatePlaylist(playlist)
+        await audiusLibs.EntityManager.updatePlaylist(
+          playlist,
+          writeMetadataThroughChainEnabled
+        )
       return { blockHash, blockNumber }
     } catch (error) {
       console.error(getErrorMessage(error))
