@@ -1,20 +1,22 @@
+import { useEffect, useState } from 'react'
+
 import {
+  useSetInboxPermissions,
   accountSelectors,
-  chatSelectors,
-  useSetInboxPermissions
+  chatActions,
+  chatSelectors
 } from '@audius/common'
-import type { ID } from '@audius/common'
-import type { ValidatedChatPermissions } from '@audius/sdk'
 import { ChatPermission } from '@audius/sdk'
 import { TouchableOpacity, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
-import { useSelector } from 'react-redux'
-import { audiusSdk } from 'services/audius-sdk'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconMessage from 'app/assets/images/iconMessage.svg'
 import { RadioButton, Text, Screen, ScreenContent } from 'app/components/core'
+import { audiusSdk } from 'app/services/audius-sdk'
 import { makeStyles } from 'app/styles'
 
+const { fetchPermissions } = chatActions
 const { getUserChatPermissions } = chatSelectors
 const { getUserId } = accountSelectors
 
@@ -101,18 +103,16 @@ const options = [
   }
 ]
 
-export const InboxSettingsScreen = async () => {
+export const InboxSettingsScreen = () => {
   const styles = useStyles()
-  const permissions: Record<ID, ValidatedChatPermissions> = useSelector(
-    getUserChatPermissions
-  )
-  const userId = useSelector(getUserId)
-  const initialPermission = userId ? permissions[userId]?.permits : undefined
+  const { setAndSavePermissions, localPermission, doFetchPermissions } =
+    useSetInboxPermissions({
+      audiusSdk
+    })
 
-  const { currentPermission, setCurrentPermission } = useSetInboxPermissions({
-    audiusSdk,
-    initialPermission
-  })
+  useEffect(() => {
+    doFetchPermissions()
+  }, [doFetchPermissions])
 
   return (
     <Screen
@@ -121,32 +121,32 @@ export const InboxSettingsScreen = async () => {
       topbarRight={null}
       icon={IconMessage}
     >
-      <View style={styles.shadow} />
       <ScreenContent>
         <ScrollView>
-          {options.map((opt) => {
-            return (
-              <TouchableOpacity
-                onPress={() => setCurrentPermission(opt.value)}
-                key={opt.value}
-              >
-                <View style={styles.settingsRow}>
-                  <View style={styles.settingsContent}>
-                    <View style={styles.radioTitleRow}>
-                      <RadioButton
-                        checked={currentPermission === opt.value}
-                        style={styles.radio}
-                      />
-                      <Text style={styles.title}>{opt.title}</Text>
-                    </View>
-                    <View>
-                      <Text style={styles.text}>{opt.description}</Text>
-                    </View>
+          {options.map((opt) => (
+            <TouchableOpacity
+              onPress={() => {
+                const newPermission = opt.value as ChatPermission
+                setAndSavePermissions(newPermission)
+              }}
+              key={opt.title}
+            >
+              <View style={styles.settingsRow}>
+                <View style={styles.settingsContent}>
+                  <View style={styles.radioTitleRow}>
+                    <RadioButton
+                      checked={localPermission === opt.value}
+                      style={styles.radio}
+                    />
+                    <Text style={styles.title}>{opt.title}</Text>
+                  </View>
+                  <View>
+                    <Text style={styles.text}>{opt.description}</Text>
                   </View>
                 </View>
-              </TouchableOpacity>
-            )
-          })}
+              </View>
+            </TouchableOpacity>
+          ))}
         </ScrollView>
       </ScreenContent>
     </Screen>
