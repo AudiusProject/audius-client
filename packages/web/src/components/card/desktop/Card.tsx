@@ -54,7 +54,7 @@ const cardSizeStyles = {
   }
 }
 
-type CardProps = {
+export type CardProps = {
   className?: string
   id: ID
   userId?: ID

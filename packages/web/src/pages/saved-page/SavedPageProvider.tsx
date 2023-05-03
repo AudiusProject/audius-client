@@ -7,7 +7,6 @@ import {
   FavoriteSource,
   PlaybackSource,
   Name,
-  formatCount,
   accountSelectors,
   accountActions,
   lineupSelectors,
@@ -430,12 +429,6 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
     })
   }
 
-  formatCardSecondaryText = (saves: number, tracks: number) => {
-    const savesText = saves === 1 ? 'Favorite' : 'Favorites'
-    const tracksText = tracks === 1 ? 'Track' : 'Tracks'
-    return `${formatCount(saves)} ${savesText} • ${tracks} ${tracksText}`
-  }
-
   render() {
     const isQueued = this.isQueued()
     const playingUid = this.getPlayingUid()
@@ -488,7 +481,6 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
       onPlay: this.onPlay,
       onSortTracks: this.onSortTracks,
       onChangeTab: this.onChangeTab,
-      formatCardSecondaryText: this.formatCardSecondaryText,
       onClickRemove: null
     }
 
