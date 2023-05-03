@@ -165,7 +165,7 @@ export const getCanChat = createSelector(
     getBlockees,
     getBlockers,
     getChatPermissions,
-    (_state: CommonState, userId: ID) => {
+    (_state: CommonState, userId?: ID) => {
       return userId
     }
   ],
@@ -176,9 +176,21 @@ export const getCanChat = createSelector(
     chatPermissions,
     userId
   ): { canChat: boolean; callToAction: ChatPermissionAction } => {
-    const currentUserPermissions = currentUserId
-      ? chatPermissions[currentUserId]
-      : null
+    if (!currentUserId) {
+      return {
+        canChat: false,
+        callToAction: ChatPermissionAction.SIGN_UP
+      }
+    }
+    if (!userId) {
+      return {
+        canChat: false,
+        callToAction: ChatPermissionAction.NONE
+      }
+    }
+
+    const currentUserPermissions = chatPermissions[currentUserId]
+
     const userPermissions = chatPermissions[userId]
     const isBlockee = blockees.includes(userId)
     const isBlocker = blockers.includes(userId)

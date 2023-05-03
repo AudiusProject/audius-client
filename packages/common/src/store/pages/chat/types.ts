@@ -11,5 +11,7 @@ export enum ChatPermissionAction {
   /** Current user can change inbox settings from NONE */
   CHANGE_SETTINGS,
   /** Current user can unblock user */
-  UNBLOCK
+  UNBLOCK,
+  /** User is signed out and needs to sign in */
+  SIGN_UP
 }
