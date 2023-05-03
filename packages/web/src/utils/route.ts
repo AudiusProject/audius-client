@@ -69,6 +69,7 @@ export const ERROR_PAGE = '/error'
 export const OAUTH_LOGIN_PAGE = '/oauth/auth'
 export const NOTIFICATION_PAGE = '/notifications'
 export const APP_REDIRECT = '/app-redirect'
+export const CHECK_PAGE = '/check'
 export const DEACTIVATE_PAGE = '/deactivate'
 export const CHATS_PAGE = '/messages'
 export const CHAT_PAGE = '/messages/:id?'
@@ -91,6 +92,7 @@ export const PROFILE_PAGE_REPOSTS = '/:handle/reposts'
 export const PROFILE_PAGE_COLLECTIBLES = '/:handle/collectibles'
 export const PROFILE_PAGE_COLLECTIBLE_DETAILS =
   '/:handle/collectibles/:collectibleId'
+export const PROFILE_PAGE_AI_ATTRIBUTED_TRACKS = '/:handle/ai'
 // Opaque id routes
 export const TRACK_ID_PAGE = '/tracks/:id'
 export const USER_ID_PAGE = '/users/:id'
@@ -120,6 +122,8 @@ export const AUDIUS_PRESS_LINK = 'https://brand.audius.co'
 export const AUDIUS_MERCH_LINK = 'https://merch.audius.co/'
 export const AUDIUS_REMIX_CONTESTS_LINK = 'https://remix.audius.co/'
 export const AUDIUS_BLOG_LINK = 'https://blog.audius.co/'
+export const AUDIUS_AI_BLOG_LINK =
+  'https://help.audius.co/help/What-should-I-know-about-AI-generated-music-on-Audius'
 
 // Org Links
 export const AUDIUS_ORG = 'https://audius.org'
@@ -258,6 +262,10 @@ export const fullTrackRemixesPage = (permalink: string) => {
   return `${fullTrackPage(permalink)}/remixes`
 }
 
+export const fullAiPage = (handle: string) => {
+  return `${fullProfilePage(handle)}/ai`
+}
+
 export const albumPage = (handle: string, title: string, id: ID) => {
   return `/${encodeUrlName(handle)}/album/${encodeUrlName(title)}-${id}`
 }
@@ -322,6 +330,9 @@ export const profilePage = (handle: string) => {
 }
 export const fullProfilePage = (handle: string) => {
   return `${BASE_URL}${profilePage(handle)}`
+}
+export const profilePageAiAttributedTracks = (handle: string) => {
+  return `${profilePage(handle)}/ai`
 }
 
 export const searchResultsPage = (query: string) => {

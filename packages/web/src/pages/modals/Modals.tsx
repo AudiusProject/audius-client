@@ -4,6 +4,7 @@ import { Client } from '@audius/common'
 import type { Modals as ModalTypes } from '@audius/common'
 
 import AddToPlaylistModal from 'components/add-to-playlist/desktop/AddToPlaylistModal'
+import { AiAttributionSettingsModal } from 'components/ai-attribution-settings-modal'
 import AppCTAModal from 'components/app-cta-modal/AppCTAModal'
 import BrowserPushConfirmationModal from 'components/browser-push-confirmation-modal/BrowserPushConfirmationModal'
 import { BuyAudioModal } from 'components/buy-audio-modal/BuyAudioModal'
@@ -57,7 +58,6 @@ const commonModalsMap: { [Modal in ModalTypes]?: ComponentType } = {
   BuyAudio: BuyAudioModal,
   BuyAudioRecovery: BuyAudioRecoveryModal,
   TransactionDetails: TransactionDetailsModal,
-  StripeOnRamp: StripeOnRampModal,
   CreateChat: CreateChatModal,
   InboxSettings: InboxSettingsModal,
   LockedContent: LockedContentModal,
@@ -67,7 +67,8 @@ const commonModalsMap: { [Modal in ModalTypes]?: ComponentType } = {
   ChallengeRewardsExplainer: ChallengeRewardsModal,
   TransferAudioMobileWarning: TransferAudioMobileDrawer,
   BrowserPushPermissionConfirmation: BrowserPushConfirmationModal,
-  ShareSoundToTikTok: ShareSoundToTikTokModal
+  ShareSoundToTikTok: ShareSoundToTikTokModal,
+  AiAttributionSettings: AiAttributionSettingsModal
 }
 
 const commonModals = Object.entries(commonModalsMap) as [
@@ -89,6 +90,7 @@ const Modals = () => {
       <FirstUploadModal />
       <UnloadDialog />
       <CollectibleDetailsModal />
+      <StripeOnRampModal />
 
       {!isMobileClient && (
         <>

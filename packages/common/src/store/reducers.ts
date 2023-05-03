@@ -20,6 +20,7 @@ import musicConfettiReducer, {
 } from './music-confetti/slice'
 import { NotificationsState, notificationsReducer } from './notifications'
 import { HistoryPageState, SavedPageState } from './pages'
+import ai from './pages/ai/slice'
 import audioRewardsSlice from './pages/audio-rewards/slice'
 import audioTransactionsSlice from './pages/audio-transactions/slice'
 import { chatReducer } from './pages/chat'
@@ -91,6 +92,8 @@ import { MobileOverflowModalState } from './ui/mobile-overflow-menu/types'
 import modalsReducer from './ui/modals/slice'
 import { ModalsState } from './ui/modals/types'
 import nowPlayingReducer, { NowPlayingState } from './ui/now-playing/slice'
+import publishPlaylistConfirmationReducer from './ui/publish-playlist-confirmation-modal/slice'
+import { PublishPlaylistConfirmationModalState } from './ui/publish-playlist-confirmation-modal/types'
 import reactionsReducer, { ReactionsState } from './ui/reactions/slice'
 import relatedArtistsReducer from './ui/related-artists/slice'
 import { RelatedArtistsState } from './ui/related-artists/types'
@@ -171,6 +174,7 @@ export const reducers = () => ({
     createPlaylistModal: createPlaylistModalReducer,
     collectibleDetails: collectibleDetailsReducer,
     deletePlaylistConfirmationModal: deletePlaylistConfirmationReducer,
+    publishPlaylistConfirmationModal: publishPlaylistConfirmationReducer,
     mobileOverflowModal: mobileOverflowModalReducer,
     modals: modalsReducer,
     musicConfetti: musicConfettiReducer,
@@ -200,6 +204,7 @@ export const reducers = () => ({
 
   // Pages
   pages: combineReducers({
+    ai,
     audioRewards: audioRewardsSlice.reducer,
     audioTransactions: audioTransactionsSlice.reducer,
     chat: chatReducer,
@@ -283,6 +288,7 @@ export type CommonState = {
     createPlaylistModal: CreatePlaylistModalState
     collectibleDetails: CollectibleDetailsState
     deletePlaylistConfirmationModal: DeletePlaylistConfirmationModalState
+    publishPlaylistConfirmationModal: PublishPlaylistConfirmationModalState
     mobileOverflowModal: MobileOverflowModalState
     modals: ModalsState
     musicConfetti: MusicConfettiState
@@ -312,6 +318,7 @@ export type CommonState = {
   }
 
   pages: {
+    ai: ReturnType<typeof ai>
     audioRewards: ReturnType<typeof audioRewardsSlice.reducer>
     audioTransactions: ReturnType<typeof audioTransactionsSlice.reducer>
     chat: ReturnType<typeof chatReducer>

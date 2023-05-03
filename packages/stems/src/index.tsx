@@ -13,7 +13,12 @@ export {
   Type as ButtonType,
   Size as ButtonSize
 } from './components/Button'
-export { IconButton, IconButtonProps } from './components/IconButton'
+export {
+  IconButton,
+  IconButtonProps,
+  IconButtonButtonProps,
+  IconButtonAnchorProps
+} from './components/IconButton'
 export {
   PillButton,
   PillButtonProps,
@@ -54,6 +59,9 @@ export {
   SegmentedControlProps as TabSliderProps,
   Option
 } from './components/SegmentedControl'
+
+export { Switch, SwitchProps } from './components/Switch'
+
 export {
   TokenValueSlider,
   TokenValueSliderProps
@@ -85,3 +93,8 @@ export {
 export { RadioButton, RadioButtonProps } from './components/RadioButton'
 
 export { Tag, TagProps } from './components/Tag'
+
+export {
+  MarkdownViewer,
+  MarkdownViewerProps
+} from './components/MarkdownViewer'

@@ -5,7 +5,6 @@ import {
   formatUrlName,
   accountSelectors,
   accountActions,
-  cacheTracksActions as tracksActions,
   cacheUsersSelectors,
   cacheActions,
   waitForAccount,
@@ -267,7 +266,8 @@ function* uploadWorker(requestChan, respChan, progressChan) {
       metadataMultihash,
       metadataFileUUID,
       transcodedTrackCID,
-      transcodedTrackUUID
+      transcodedTrackUUID,
+      metadata
     }) {
       console.debug({
         metadataMultihash,
@@ -284,7 +284,8 @@ function* uploadWorker(requestChan, respChan, progressChan) {
         metadataMultihash,
         metadataFileUUID,
         transcodedTrackCID,
-        transcodedTrackUUID
+        transcodedTrackUUID,
+        metadata
       }
 
       console.debug(`Finished creator node upload of: ${JSON.stringify(resp)}`)
@@ -476,7 +477,8 @@ export function* handleUploads({
       metadataMultihash,
       metadataFileUUID,
       transcodedTrackCID,
-      transcodedTrackUUID
+      transcodedTrackUUID,
+      metadata
     } = yield take(respChan)
 
     if (error) {
@@ -506,7 +508,8 @@ export function* handleUploads({
         metadataFileUUID,
         transcodedTrackCID,
         transcodedTrackUUID,
-        originalId
+        originalId,
+        metadata
       })
     } else {
       const trackObj = idToTrackMap[originalId]
@@ -1031,10 +1034,6 @@ function* uploadSingleTrack(track) {
     fieldName: 'track_count',
     delta: 1
   })
-
-  if (confirmedTrack.download && confirmedTrack.download.is_downloadable) {
-    yield put(tracksActions.checkIsDownloadable(confirmedTrack.track_id))
-  }
 
   // If the hide remixes is turned on, send analytics event
   if (

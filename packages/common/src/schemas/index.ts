@@ -6,6 +6,7 @@ const trackMetadataSchema = {
   track_cid: null,
   owner_id: null,
   title: null,
+  duration: null,
   length: null,
   cover_art: null,
   cover_art_sizes: null,
@@ -43,7 +44,8 @@ const trackMetadataSchema = {
   isrc: null,
   iswc: null,
   download: null,
-  is_playlist_upload: false
+  is_playlist_upload: false,
+  ai_attribution_user_id: null
 }
 
 export const newTrackMetadata = (fields, validate = false) => {
@@ -98,6 +100,7 @@ export const newCollectionMetadata = (fields?: any, validate = false) => {
 }
 
 const userMetadataSchema = {
+  allow_ai_attribution: false,
   wallet: '',
   name: null,
   handle: '',
