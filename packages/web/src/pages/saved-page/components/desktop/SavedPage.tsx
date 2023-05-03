@@ -95,7 +95,7 @@ const AlbumCard = ({ album, index, isLoading, setDidLoad }: AlbumCardProps) => {
 const AlbumsTabContent = () => {
   const goToRoute = useGoToRoute()
 
-  const { data: albums, status, fetchMore } = useSavedAlbumsDetails()
+  const { data: albums } = useSavedAlbumsDetails()
   const { isLoading, setDidLoad } = useOrderedLoad(albums.length)
   const cards = albums.map((album, i) => {
     return (
