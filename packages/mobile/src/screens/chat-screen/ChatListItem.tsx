@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 
 import { chatSelectors, useProxySelector } from '@audius/common'
-import type { UserChat } from '@audius/sdk'
 import { View, TouchableHighlight } from 'react-native'
 
 import { Text } from 'app/components/core'
@@ -12,7 +11,7 @@ import { makeStyles } from 'app/styles'
 
 import type { AppTabScreenParamList } from '../app-screen'
 
-const { getOtherChatUsersFromChat } = chatSelectors
+const { getSingleOtherChatUser, getChat } = chatSelectors
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   root: {
@@ -60,36 +59,39 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   }
 }))
 
-export const ChatListItem = ({ chat }: { chat: UserChat }) => {
-  const currentChatId = chat.chat_id
+export const ChatListItem = ({ chatId }: { chatId: string }) => {
   const navigation = useNavigation<AppTabScreenParamList>()
   const styles = useStyles()
 
-  const user = useProxySelector(
-    (state) => getOtherChatUsersFromChat(state, chat),
-    [chat]
-  )[0]
+  const chat = useProxySelector((state) => getChat(state, chatId), [chatId])
+  const otherUser = useProxySelector(
+    (state) => getSingleOtherChatUser(state, chatId),
+    [chatId]
+  )
 
   const handlePress = useCallback(() => {
-    navigation.push('Chat', { chatId: currentChatId })
-  }, [navigation, currentChatId])
+    navigation.push('Chat', { chatId })
+  }, [navigation, chatId])
 
   return (
     <TouchableHighlight onPress={handlePress}>
       <View style={styles.root}>
-        {user ? (
+        {otherUser ? (
           <>
             <View style={styles.contentRoot}>
-              <ProfilePicture profile={user} style={styles.profilePicture} />
+              <ProfilePicture
+                profile={otherUser}
+                style={styles.profilePicture}
+              />
               <View style={styles.userContainer}>
                 <View style={styles.userNameContainer}>
-                  <Text style={styles.userName}>{user.name}</Text>
-                  <UserBadges user={user} hideName />
+                  <Text style={styles.userName}>{otherUser.name}</Text>
+                  <UserBadges user={otherUser} hideName />
                 </View>
-                <Text style={styles.handle}>@{user.handle}</Text>
+                <Text style={styles.handle}>@{otherUser.handle}</Text>
               </View>
             </View>
-            <Text numberOfLines={1}>{chat.last_message}</Text>
+            <Text numberOfLines={1}>{chat?.last_message}</Text>
           </>
         ) : null}
       </View>

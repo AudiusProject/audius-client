@@ -10,8 +10,8 @@ import {
   encodeHashId,
   Status,
   isEarliestUnread,
-  statusIsNotFinalized
-  playerSelectors,
+  statusIsNotFinalized,
+  playerSelectors
 } from '@audius/common'
 import { Portal } from '@gorhom/portal'
 import { useFocusEffect } from '@react-navigation/native'
@@ -193,20 +193,21 @@ export const ChatScreen = () => {
   )
   const unreadCount = chat?.unread_message_count ?? 0
   const isLoading =
-    statusIsNotFinalized(chat?.messagesStatus ?? Status.IDLE) &&
-    chatMessages?.length === 0
+    chat?.messagesStatus === Status.IDLE && chatMessages?.length === 0
   const popupMessageId = useSelector(getReactionsPopupMessageId)
   const popupMessage = useSelector((state) =>
-    getChatMessageById(state, chatId, popupMessageId ?? '')
+    getChatMessageById(state, chatId ?? '', popupMessageId ?? '')
   )
 
+  console.log(`REED chatMessages.length: ${chatMessages.length}`)
+  console.log(`REED chatId: ${chatId}`)
   // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
   // Using a ref instead of state here to prevent unwanted flickers.
   // The chat/chatId selectors will trigger the rerenders necessary.
   const chatFrozenRef = useRef(chat)
 
   useEffect(() => {
-    if (chatId && statusIsNotFinalized(chat?.messagesStatus ?? Status.IDLE)) {
+    if (chatId && (chat?.messagesStatus ?? Status.IDLE) === Status.IDLE) {
       // Initial fetch
       dispatch(fetchMoreMessages({ chatId }))
     }
@@ -434,28 +435,28 @@ export const ChatScreen = () => {
               hasCurrentlyPlayingTrack ? { bottom: PLAY_BAR_HEIGHT } : null
             ]}
           >
-            {!isLoading ? (
-              chatMessages?.length > 0 ? (
-                <View style={styles.listContainer}>
-                  <FlatList
-                    contentContainerStyle={styles.listContentContainer}
-                    data={chatMessages}
-                    keyExtractor={(message) => message.message_id}
-                    renderItem={renderItem}
-                    onEndReached={handleScrollToTop}
-                    inverted
-                    initialNumToRender={chatMessages?.length}
-                    ref={flatListRef}
-                    onScrollToIndexFailed={handleScrollToIndexFailed}
-                    refreshing={chat?.messagesStatus === Status.LOADING}
-                    maintainVisibleContentPosition={
-                      maintainVisibleContentPosition
-                    }
-                  />
-                </View>
-              ) : (
-                <EmptyChatMessages />
-              )
+            {chat?.messagesStatus === Status.SUCCESS &&
+            chatMessages?.length === 0 ? (
+              <EmptyChatMessages />
+            ) : null}
+            {chatMessages?.length > 0 ? (
+              <View style={styles.listContainer}>
+                <FlatList
+                  contentContainerStyle={styles.listContentContainer}
+                  data={chatMessages}
+                  keyExtractor={(message) => message.message_id}
+                  renderItem={renderItem}
+                  onEndReached={handleScrollToTop}
+                  inverted
+                  initialNumToRender={chatMessages?.length}
+                  ref={flatListRef}
+                  onScrollToIndexFailed={handleScrollToIndexFailed}
+                  refreshing={chat?.messagesStatus === Status.LOADING}
+                  maintainVisibleContentPosition={
+                    maintainVisibleContentPosition
+                  }
+                />
+              </View>
             ) : (
               <View style={styles.loadingSpinnerContainer}>
                 <LoadingSpinner style={styles.loadingSpinner} />

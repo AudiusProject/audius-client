@@ -142,7 +142,7 @@ export const ChatListScreen = () => {
             <FlatList
               data={chats}
               contentContainerStyle={styles.listContainer}
-              renderItem={({ item }) => <ChatListItem chat={item} />}
+              renderItem={({ item }) => <ChatListItem chatId={item.chat_id} />}
               keyExtractor={(chat) => chat.chat_id}
               ListEmptyComponent={() => (
                 <ChatsEmpty onPress={navigateToChatUserList} />
