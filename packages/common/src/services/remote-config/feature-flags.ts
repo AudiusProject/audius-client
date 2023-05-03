@@ -111,12 +111,8 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.RELATED_ARTISTS_ON_PROFILE_ENABLED]: false,
   [FeatureFlags.PROXY_WORMHOLE]: false,
   [FeatureFlags.STORAGE_V2_TRACK_UPLOAD]: false,
-<<<<<<< HEAD
-  [FeatureFlags.STORAGE_V2_SIGNUP]: false
-=======
   [FeatureFlags.STORAGE_V2_SIGNUP]: false,
   [FeatureFlags.PLAYLIST_UPDATES_PRE_QA]: false,
   [FeatureFlags.PLAYLIST_UPDATES_POST_QA]: false,
   [FeatureFlags.AI_ATTRIBUTION]: false
->>>>>>> a586435fb ([C-2554] Add AI Attribution (#3296))
 }
