@@ -5,8 +5,7 @@ import {
   ChatMessageReaction,
   ChatMessageNullableReaction,
   UnfurlResponse,
-  ValidatedChatPermissions,
-  ChatPermission
+  ValidatedChatPermissions
 } from '@audius/sdk'
 import {
   Action,
@@ -406,25 +405,6 @@ const slice = createSlice({
       // triggers saga
     },
     fetchPermissionsSucceeded: (
-      state,
-      action: PayloadAction<{
-        permissions: Record<ID, ValidatedChatPermissions>
-      }>
-    ) => {
-      state.permissions = {
-        ...state.permissions,
-        ...action.payload.permissions
-      }
-    },
-    setPermissions: (
-      _state,
-      _action: PayloadAction<{
-        permissions: ChatPermission
-      }>
-    ) => {
-      // triggers saga
-    },
-    setPermissionsSucceeded: (
       state,
       action: PayloadAction<{
         permissions: Record<ID, ValidatedChatPermissions>
