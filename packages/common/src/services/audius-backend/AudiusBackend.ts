@@ -1329,7 +1329,7 @@ export const audiusBackend = ({
         onProgress
       )
       return {
-        updatedMetadata,
+        metadata: updatedMetadata,
 
         // We don't need these properties, but the confirmer expects them.
         // TODO: Remove after v2 is fully rolled out and v1 is removed
@@ -1355,7 +1355,7 @@ export const audiusBackend = ({
         transcodedTrackCID,
         metadataFileUUID,
         transcodedTrackUUID,
-        updatedMetadata: null
+        metadata: null
       }
     }
   }
