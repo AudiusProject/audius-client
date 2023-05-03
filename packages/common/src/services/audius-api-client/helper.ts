@@ -15,9 +15,9 @@ const AUTOCOMPLETE_TOTAL_RESULTS = 3
  * ensuring that no item is duplicated in the resulting list (deduped by `uniqueKey`). The final list length is capped
  * at `maxTotal` items.
  */
-const combineLists = <T>(
-  savedList: Array<T>,
-  normalList: Array<T>,
+const combineLists = (
+  savedList: Array<Record<string, any>>,
+  normalList: Array<Record<string, any>>,
   uniqueKey: string,
   maxSaved: number,
   maxTotal: number
