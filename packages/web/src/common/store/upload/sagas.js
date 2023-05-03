@@ -267,13 +267,15 @@ function* uploadWorker(requestChan, respChan, progressChan) {
       metadataMultihash,
       metadataFileUUID,
       transcodedTrackCID,
-      transcodedTrackUUID
+      transcodedTrackUUID,
+      updatedMetadata
     }) {
       console.debug({
         metadataMultihash,
         metadataFileUUID,
         transcodedTrackCID,
-        transcodedTrackUUID
+        transcodedTrackUUID,
+        updatedMetadata
       })
 
       // Don't tell the progress channel we're done yet, because we need
@@ -284,7 +286,8 @@ function* uploadWorker(requestChan, respChan, progressChan) {
         metadataMultihash,
         metadataFileUUID,
         transcodedTrackCID,
-        transcodedTrackUUID
+        transcodedTrackUUID,
+        updatedMetadata
       }
 
       console.debug(`Finished creator node upload of: ${JSON.stringify(resp)}`)
@@ -476,7 +479,8 @@ export function* handleUploads({
       metadataMultihash,
       metadataFileUUID,
       transcodedTrackCID,
-      transcodedTrackUUID
+      transcodedTrackUUID,
+      updatedMetadata
     } = yield take(respChan)
 
     if (error) {
@@ -506,7 +510,8 @@ export function* handleUploads({
         metadataFileUUID,
         transcodedTrackCID,
         transcodedTrackUUID,
-        originalId
+        originalId,
+        updatedMetadata
       })
     } else {
       const trackObj = idToTrackMap[originalId]
@@ -680,7 +685,7 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
     audiusBackendInstance.uploadImage,
     collectionMetadata.artwork.file
   )
-  collectionMetadata.cover_art_sizes = coverArtResp.dirCID
+  collectionMetadata.cover_art_sizes = coverArtResp.id ?? coverArtResp.dirCID
 
   // Then upload tracks
   const tracksWithMetadata = tracks.map((track) => {
