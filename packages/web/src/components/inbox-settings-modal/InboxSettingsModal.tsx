@@ -75,7 +75,7 @@ export const InboxSettingsModal = () => {
   const dispatch = useDispatch()
   const permissions = useSelector(getUserChatPermissions)
   const userId = useSelector(getUserId)
-  const currentPermission = userId ? permissions[userId]?.permits : null
+  const currentPermission = permissions?.permits
   const [isVisible, setIsVisible] = useModalState('InboxSettings')
   const handleClose = useCallback(() => setIsVisible(false), [setIsVisible])
   const [permission, setPermission] = useState<ChatPermission>(
