@@ -1339,24 +1339,12 @@ export const audiusBackend = ({
         transcodedTrackUUID: ''
       }
     } else {
-      const {
-        metadataMultihash,
-        transcodedTrackCID,
-        metadataFileUUID,
-        transcodedTrackUUID
-      } = await audiusLibs.Track.uploadTrackContentToCreatorNode(
+      return await audiusLibs.Track.uploadTrackContentToCreatorNode(
         trackFile,
         coverArtFile,
         metadata,
         onProgress
       )
-      return {
-        metadataMultihash,
-        transcodedTrackCID,
-        metadataFileUUID,
-        transcodedTrackUUID,
-        metadata: null
-      }
     }
   }
 
