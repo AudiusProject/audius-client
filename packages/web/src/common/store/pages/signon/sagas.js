@@ -52,7 +52,9 @@ import { watchSignOnError } from './errorSagas'
 import { getRouteOnCompletion, getSignOn } from './selectors'
 import { FollowArtistsCategory, Pages } from './types'
 import { checkHandle } from './verifiedChecker'
-const { requestPushNotificationPermissions, togglePushNotificationSetting } = settingsPageActions
+
+const { requestPushNotificationPermissions, togglePushNotificationSetting } =
+  settingsPageActions
 const { getFeePayer } = solanaSelectors
 const { saveCollection } = collectionsSocialActions
 const { getUsers } = cacheUsersSelectors
