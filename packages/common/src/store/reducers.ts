@@ -67,6 +67,9 @@ import { recoveryEmailReducer, RecoveryEmailState } from './recovery-email'
 import remixSettingsReducer, {
   RemixSettingsState
 } from './remix-settings/slice'
+import savedCollectionsReducer, {
+  SavedCollectionsState
+} from './saved-collections/slice'
 import solanaReducer from './solana/slice'
 import stemsUpload from './stems-upload/slice'
 import tippingReducer from './tipping/slice'
@@ -145,6 +148,8 @@ export const reducers = () => ({
   // TODO: Fix type error
   // @ts-ignore
   users: asCache(usersReducer, Kind.USERS),
+
+  savedCollections: savedCollectionsReducer,
 
   // Playback
   queue,
@@ -262,6 +267,8 @@ export type CommonState = {
   collections: CollectionsCacheState
   tracks: TracksCacheState
   users: UsersCacheState
+
+  savedCollections: SavedCollectionsState
 
   // Playback
   queue: ReturnType<typeof queue>
