@@ -723,7 +723,7 @@ export const audiusBackend = ({
     )
 
     const useSdkDiscoveryNodeSelector = await getFeatureEnabled(
-      FeatureFlags.SDK_V2
+      FeatureFlags.SDK_DISCOVERY_NODE_SELECTOR
     )
 
     let discoveryNodeSelector: Maybe<DiscoveryNodeSelector>
@@ -731,6 +731,13 @@ export const audiusBackend = ({
     if (useSdkDiscoveryNodeSelector) {
       discoveryNodeSelector =
         await discoveryNodeSelectorInstance.getDiscoveryNodeSelector()
+
+      const initialSelectedNode =
+        await discoveryNodeSelectorInstance.initialSelectedNode
+
+      if (initialSelectedNode) {
+        discoveryProviderSelectionCallback(initialSelectedNode.endpoint, [])
+      }
 
       discoveryNodeSelector.addEventListener('change', (endpoint) => {
         discoveryProviderSelectionCallback(endpoint, [])
@@ -1304,7 +1311,7 @@ export const audiusBackend = ({
 
   // Used to upload multiple tracks as part of an album/playlist.
   // V2: Returns { metadataMultihash, updatedMetadata }
-  // LEGACY: Returns { metadataMultihash, metadataFileUUID, transcodedTrackCID, transcodedTrackUUID }
+  // LEGACY: Returns { metadataMultihash, metadataFileUUID, transcodedTrackCID, transcodedTrackUUID, metadata }
   async function uploadTrackToCreatorNode(
     trackFile: File,
     coverArtFile: File,
@@ -1365,9 +1372,9 @@ export const audiusBackend = ({
    */
   async function registerUploadedTracks(
     uploadedTracks: {
-      metadataMultihash?: string
-      metadataFileUUID?: string
-      updatedMetadata?: TrackMetadata
+      metadataMultihash: string
+      metadataFileUUID: string
+      metadata: TrackMetadata
     }[]
   ) {
     const storageV2UploadEnabled = await getFeatureEnabled(
@@ -1375,7 +1382,7 @@ export const audiusBackend = ({
     )
     if (storageV2UploadEnabled) {
       return await audiusLibs.Track.addTracksToChainV2(
-        uploadedTracks.map((t) => t.updatedMetadata)
+        uploadedTracks.map((t) => t.metadata)
       )
     } else {
       return await audiusLibs.Track.addTracksToChainAndCnode(uploadedTracks)

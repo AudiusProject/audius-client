@@ -5,7 +5,6 @@ import {
   formatUrlName,
   accountSelectors,
   accountActions,
-  cacheTracksActions as tracksActions,
   cacheUsersSelectors,
   cacheActions,
   waitForAccount,
@@ -268,14 +267,14 @@ function* uploadWorker(requestChan, respChan, progressChan) {
       metadataFileUUID,
       transcodedTrackCID,
       transcodedTrackUUID,
-      updatedMetadata
+      metadata
     }) {
       console.debug({
         metadataMultihash,
         metadataFileUUID,
         transcodedTrackCID,
         transcodedTrackUUID,
-        updatedMetadata
+        metadata
       })
 
       // Don't tell the progress channel we're done yet, because we need
@@ -287,7 +286,7 @@ function* uploadWorker(requestChan, respChan, progressChan) {
         metadataFileUUID,
         transcodedTrackCID,
         transcodedTrackUUID,
-        updatedMetadata
+        metadata
       }
 
       console.debug(`Finished creator node upload of: ${JSON.stringify(resp)}`)
@@ -480,7 +479,7 @@ export function* handleUploads({
       metadataFileUUID,
       transcodedTrackCID,
       transcodedTrackUUID,
-      updatedMetadata
+      metadata
     } = yield take(respChan)
 
     if (error) {
@@ -511,7 +510,7 @@ export function* handleUploads({
         transcodedTrackCID,
         transcodedTrackUUID,
         originalId,
-        updatedMetadata
+        metadata
       })
     } else {
       const trackObj = idToTrackMap[originalId]
@@ -1036,10 +1035,6 @@ function* uploadSingleTrack(track) {
     fieldName: 'track_count',
     delta: 1
   })
-
-  if (confirmedTrack.download && confirmedTrack.download.is_downloadable) {
-    yield put(tracksActions.checkIsDownloadable(confirmedTrack.track_id))
-  }
 
   // If the hide remixes is turned on, send analytics event
   if (
