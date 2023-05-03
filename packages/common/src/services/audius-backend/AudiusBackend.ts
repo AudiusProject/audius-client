@@ -723,7 +723,7 @@ export const audiusBackend = ({
     )
 
     const useSdkDiscoveryNodeSelector = await getFeatureEnabled(
-      FeatureFlags.SDK_V2
+      FeatureFlags.SDK_DISCOVERY_NODE_SELECTOR
     )
 
     let discoveryNodeSelector: Maybe<DiscoveryNodeSelector>
@@ -731,6 +731,13 @@ export const audiusBackend = ({
     if (useSdkDiscoveryNodeSelector) {
       discoveryNodeSelector =
         await discoveryNodeSelectorInstance.getDiscoveryNodeSelector()
+
+      const initialSelectedNode =
+        await discoveryNodeSelectorInstance.initialSelectedNode
+
+      if (initialSelectedNode) {
+        discoveryProviderSelectionCallback(initialSelectedNode.endpoint, [])
+      }
 
       discoveryNodeSelector.addEventListener('change', (endpoint) => {
         discoveryProviderSelectionCallback(endpoint, [])
@@ -1294,7 +1301,7 @@ export const audiusBackend = ({
   }
 
   // Used to upload multiple tracks as part of an album/playlist
-  // Returns { metadataMultihash, metadataFileUUID, transcodedTrackCID, transcodedTrackUUID }
+  // Returns { metadataMultihash, metadataFileUUID, transcodedTrackCID, transcodedTrackUUID, metadata }
   async function uploadTrackToCreatorNode(
     trackFile: File,
     coverArtFile: File,
@@ -1321,7 +1328,11 @@ export const audiusBackend = ({
    * Associates tracks with user on creatorNode
    */
   async function registerUploadedTracks(
-    uploadedTracks: { metadataMultihash: string; metadataFileUUID: string }[]
+    uploadedTracks: {
+      metadataMultihash: string
+      metadataFileUUID: string
+      metadata: TrackMetadata
+    }[]
   ) {
     return audiusLibs.Track.addTracksToChainAndCnode(uploadedTracks)
   }
@@ -1335,13 +1346,26 @@ export const audiusBackend = ({
     metadata: TrackMetadata & { artwork: { file: File } }
   ) {
     const cleanedMetadata = schemas.newTrackMetadata(metadata, true)
+    const storageV2UploadEnabled = await getFeatureEnabled(
+      FeatureFlags.STORAGE_V2_TRACK_UPLOAD
+    )
 
-    if (metadata.artwork) {
-      const resp = await audiusLibs.File.uploadImage(metadata.artwork.file)
-      cleanedMetadata.cover_art_sizes = resp.dirCID
+    if (storageV2UploadEnabled) {
+      if (metadata.artwork) {
+        const resp = await audiusLibs.creatorNode.uploadTrackCoverArtV2(
+          metadata.artwork.file,
+          () => {}
+        )
+        cleanedMetadata.cover_art_sizes = resp.id
+      }
+      return await audiusLibs.Track.updateTrackV2(cleanedMetadata)
+    } else {
+      if (metadata.artwork) {
+        const resp = await audiusLibs.File.uploadImage(metadata.artwork.file)
+        cleanedMetadata.cover_art_sizes = resp.dirCID
+      }
+      return await audiusLibs.Track.updateTrack(cleanedMetadata)
     }
-
-    return await audiusLibs.Track.updateTrack(cleanedMetadata)
   }
 
   async function getCreators(ids: ID[]) {
