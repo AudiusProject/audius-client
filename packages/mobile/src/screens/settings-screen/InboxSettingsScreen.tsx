@@ -1,24 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
-import {
-  useSetInboxPermissions,
-  accountSelectors,
-  chatActions,
-  chatSelectors
-} from '@audius/common'
+import { useSetInboxPermissions } from '@audius/common'
 import { ChatPermission } from '@audius/sdk'
 import { TouchableOpacity, View } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
-import { useDispatch, useSelector } from 'react-redux'
 
 import IconMessage from 'app/assets/images/iconMessage.svg'
 import { RadioButton, Text, Screen, ScreenContent } from 'app/components/core'
 import { audiusSdk } from 'app/services/audius-sdk'
 import { makeStyles } from 'app/styles'
-
-const { fetchPermissions } = chatActions
-const { getUserChatPermissions } = chatSelectors
-const { getUserId } = accountSelectors
 
 const messages = {
   title: 'Inbox Settings',
