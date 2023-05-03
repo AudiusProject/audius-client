@@ -1,26 +1,54 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import { useDispatch, useSelector } from 'react-redux'
 
-import { accountActions } from '../store/account'
-import { savedSelectors } from '../store/saved'
+import { Status } from 'models/Status'
 
-const { fetchSavedPlaylists, fetchSavedAlbums } = accountActions
+import { accountActions } from '../store/account'
+import {
+  savedCollectionsActions,
+  savedCollectionsSelectors
+} from '../store/saved-collections'
+
+const { fetchSavedPlaylists } = accountActions
+const { fetchCollections } = savedCollectionsActions
+
+const {
+  getAccountAlbums,
+  getSavedAlbumsState,
+  getAlbumsWithDetails,
+  getAccountPlaylists
+} = savedCollectionsSelectors
+const PAGE_SIZE = 10
 
 export function useSavedAlbums() {
-  return useSelector(savedSelectors.getAccountAlbums)
+  return useSelector(getAccountAlbums)
 }
 
 export function useSavedAlbumsDetails() {
   const dispatch = useDispatch()
+  const { unfetched: unfetchedAlbums, fetched: albumsWithDetails } =
+    useSelector(getAlbumsWithDetails)
+  const albumsDetails = useSelector(getSavedAlbumsState)
 
-  useEffect(() => {
-    dispatch(fetchSavedAlbums())
-  }, [dispatch])
+  const fetchMore = useCallback(() => {
+    if (
+      albumsDetails.status === Status.LOADING ||
+      unfetchedAlbums.length === 0
+    ) {
+      return
+    }
+    const ids = unfetchedAlbums
+      .slice(0, Math.min(PAGE_SIZE, unfetchedAlbums.length))
+      .map((c) => c.id)
+    dispatch(fetchCollections({ type: 'albums', ids }))
+  }, [albumsDetails.status, unfetchedAlbums, dispatch])
+
+  return { albumsWithDetails, fetchMore }
 }
 
 export function useSavedPlaylists() {
-  return useSelector(savedSelectors.getAccountPlaylists)
+  return useSelector(getAccountPlaylists)
 }
 
 export function useSavedPlaylistsDetails() {
