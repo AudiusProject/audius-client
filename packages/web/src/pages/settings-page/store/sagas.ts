@@ -4,9 +4,9 @@ import {
   settingsPageActions as actions,
   settingsPageInitialState as initialState,
   settingsPageSelectors,
+  BrowserNotificationSetting,
   getContext
 } from '@audius/common'
-import { mapValues } from 'lodash'
 import { select, call, put, takeEvery } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
@@ -143,11 +143,18 @@ function* watchSetBrowserNotificationSettingsOn() {
     actions.SET_BROWSER_NOTIFICATION_SETTINGS_ON,
     function* (action: actions.SetBrowserNotificationSettingsOn) {
       try {
-        const newSettings = { ...initialState.browserNotifications }
-        yield* put(actions.setNotificationSettings(newSettings))
+        const updatedSettings = {
+          [BrowserNotificationSetting.MilestonesAndAchievements]: true,
+          [BrowserNotificationSetting.Followers]: true,
+          [BrowserNotificationSetting.Reposts]: true,
+          [BrowserNotificationSetting.Favorites]: true,
+          [BrowserNotificationSetting.Remixes]: true,
+          [BrowserNotificationSetting.Messages]: true
+        }
+        yield* put(actions.setNotificationSettings(updatedSettings))
         yield* call(
           audiusBackendInstance.updateNotificationSettings,
-          newSettings
+          updatedSettings
         )
       } catch (error) {
         yield* put(
@@ -164,16 +171,18 @@ function* watchSetBrowserNotificationSettingsOff() {
     actions.SET_BROWSER_NOTIFICATION_SETTINGS_OFF,
     function* (action: actions.SetBrowserNotificationSettingsOff) {
       try {
-        const newSettings = mapValues(
-          initialState.browserNotifications,
-          function (_val: boolean) {
-            return false
-          }
-        )
-        yield* put(actions.setNotificationSettings(newSettings))
+        const updatedSettings = {
+          [BrowserNotificationSetting.MilestonesAndAchievements]: false,
+          [BrowserNotificationSetting.Followers]: false,
+          [BrowserNotificationSetting.Reposts]: false,
+          [BrowserNotificationSetting.Favorites]: false,
+          [BrowserNotificationSetting.Remixes]: false,
+          [BrowserNotificationSetting.Messages]: false
+        }
+        yield* put(actions.setNotificationSettings(updatedSettings))
         yield* call(
           audiusBackendInstance.updateNotificationSettings,
-          newSettings
+          updatedSettings
         )
       } catch (error) {
         yield* put(

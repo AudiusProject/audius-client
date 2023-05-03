@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import type { PushNotificationPermissions } from 'react-native'
 import { Platform } from 'react-native'
 import { Notifications } from 'react-native-notifications'
 import type { Registered, Notification } from 'react-native-notifications'
