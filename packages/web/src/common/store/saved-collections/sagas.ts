@@ -30,6 +30,6 @@ function* watchFetchCollections() {
   yield takeEvery(fetchCollections.type, fetchCollectionsAsync)
 }
 
-export const sagas = () => {
+export default function sagas() {
   return [watchFetchCollections]
 }
