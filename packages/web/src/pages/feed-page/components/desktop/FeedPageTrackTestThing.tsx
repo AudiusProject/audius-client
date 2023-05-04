@@ -5,10 +5,11 @@ import { FeedPageUserTestThing } from './FeedPageUserTestThing'
 
 export const FeedPageTrackTestThing = () => {
   const {
-    data: track,
+    data,
     status: trackStatus,
     errorMessage: trackErrorMessage
   } = useGetTrackById({ id: 2523 })
+  const track = data ? data.track : null
 
   return (
     <>
@@ -21,7 +22,9 @@ export const FeedPageTrackTestThing = () => {
         // userName={}
         isOwner={false}
       />
-      {track?.user ? <FeedPageUserTestThing userId={track?.user} /> : null}
+      {track?.user ? (
+        <FeedPageUserTestThing userId={track?.user.user_id} />
+      ) : null}
     </>
   )
 }
