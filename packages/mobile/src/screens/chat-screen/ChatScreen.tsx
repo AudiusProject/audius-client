@@ -10,7 +10,6 @@ import {
   encodeHashId,
   Status,
   isEarliestUnread,
-  statusIsNotFinalized,
   playerSelectors
 } from '@audius/common'
 import { Portal } from '@gorhom/portal'
@@ -70,7 +69,8 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     justifyContent: 'space-between'
   },
   listContainer: {
-    flex: 1
+    flexGrow: 1,
+    flexShrink: 1
   },
   listContentContainer: {
     paddingHorizontal: spacing(6),
@@ -193,14 +193,13 @@ export const ChatScreen = () => {
   )
   const unreadCount = chat?.unread_message_count ?? 0
   const isLoading =
-    chat?.messagesStatus === Status.IDLE && chatMessages?.length === 0
+    (chat?.messagesStatus ?? Status.LOADING) === Status.LOADING &&
+    chatMessages?.length === 0
   const popupMessageId = useSelector(getReactionsPopupMessageId)
   const popupMessage = useSelector((state) =>
     getChatMessageById(state, chatId ?? '', popupMessageId ?? '')
   )
 
-  console.log(`REED chatMessages.length: ${chatMessages.length}`)
-  console.log(`REED chatId: ${chatId}`)
   // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
   // Using a ref instead of state here to prevent unwanted flickers.
   // The chat/chatId selectors will trigger the rerenders necessary.
@@ -338,26 +337,29 @@ export const ChatScreen = () => {
   // appear underneath the reaction of the message clone inside the
   // portal.
   const renderItem = useCallback(
-    ({ item }) => (
-      <>
-        <ChatMessageListItem
-          message={item}
-          chatId={chatId}
-          itemsRef={itemsRef}
-          isPopup={false}
-          onLongPress={handleMessagePress}
-        />
-        {item.message_id === earliestUnreadMessageId ? (
-          <View style={styles.unreadTagContainer}>
-            <View style={styles.unreadSeparator} />
-            <Text style={styles.unreadTag}>
-              {unreadCount} {pluralize(messages.newMessage, unreadCount > 1)}
-            </Text>
-            <View style={styles.unreadSeparator} />
-          </View>
-        ) : null}
-      </>
-    ),
+    ({ item }) => {
+      console.log(`REED rendering item: ${item.message_id}`)
+      return (
+        <>
+          <ChatMessageListItem
+            message={item}
+            chatId={chatId}
+            itemsRef={itemsRef}
+            isPopup={false}
+            onLongPress={handleMessagePress}
+          />
+          {item.message_id === earliestUnreadMessageId ? (
+            <View style={styles.unreadTagContainer}>
+              <View style={styles.unreadSeparator} />
+              <Text style={styles.unreadTag}>
+                {unreadCount} {pluralize(messages.newMessage, unreadCount > 1)}
+              </Text>
+              <View style={styles.unreadSeparator} />
+            </View>
+          ) : null}
+        </>
+      )
+    },
     [
       earliestUnreadMessageId,
       handleMessagePress,
@@ -439,7 +441,7 @@ export const ChatScreen = () => {
             chatMessages?.length === 0 ? (
               <EmptyChatMessages />
             ) : null}
-            {chatMessages?.length > 0 ? (
+            {!isLoading ? (
               <View style={styles.listContainer}>
                 <FlatList
                   contentContainerStyle={styles.listContentContainer}
