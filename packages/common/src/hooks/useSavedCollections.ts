@@ -20,7 +20,7 @@ const {
   getAccountPlaylists
 } = savedCollectionsSelectors
 
-const PAGE_SIZE = 10
+const DEFAULT_PAGE_SIZE = 50
 
 export function useSavedAlbums() {
   return useSelector(getAccountAlbums)
@@ -31,7 +31,12 @@ export function useSavedAlbums() {
  * based on that.
  * Option 2: Bake filter into selectors which drive this. Downside: Can't use this in multiple places...
  */
-export function useSavedAlbumsDetails() {
+type UseSavedAlbumDetailsConfig = {
+  pageSize?: number
+}
+export function useSavedAlbumsDetails({
+  pageSize = DEFAULT_PAGE_SIZE
+}: UseSavedAlbumDetailsConfig) {
   const dispatch = useDispatch()
   const [hasFetched, setHasFetched] = useState(false)
   const { unfetched: unfetchedAlbums, fetched: albumsWithDetails } =
@@ -43,20 +48,21 @@ export function useSavedAlbumsDetails() {
       return
     }
     const ids = unfetchedAlbums
-      .slice(0, Math.min(PAGE_SIZE, unfetchedAlbums.length))
+      .slice(0, Math.min(pageSize, unfetchedAlbums.length))
       .map((c) => c.id)
     dispatch(fetchCollections({ type: 'albums', ids }))
     setHasFetched(true)
-  }, [status, unfetchedAlbums, dispatch, setHasFetched])
+  }, [status, unfetchedAlbums, pageSize, dispatch, setHasFetched])
 
   // Fetch first page if we don't have any items fetched yet
   // Needs to wait for at least some albums to be fetchable
   useEffect(() => {
     if (
       !hasFetched &&
-      status !== Status.LOADING &&
+      // TODO: This check should change once InfiniteScroll is implemented
+      status !== Status.LOADING /* &&
       unfetchedAlbums.length > 0 &&
-      albumsWithDetails.length === 0
+      albumsWithDetails.length === 0 */
     ) {
       fetchMore()
     }
