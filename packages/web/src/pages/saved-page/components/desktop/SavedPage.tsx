@@ -95,7 +95,9 @@ const AlbumCard = ({ album, index, isLoading, setDidLoad }: AlbumCardProps) => {
 const AlbumsTabContent = () => {
   const goToRoute = useGoToRoute()
 
-  const { data: albums } = useSavedAlbumsDetails()
+  // Temporarily requesting large page size to ensure we get all albums
+  // until the list is updated to use `InfinteScroll`
+  const { data: albums } = useSavedAlbumsDetails({ pageSize: 9999 })
   const { isLoading, setDidLoad } = useOrderedLoad(albums.length)
   const cards = albums.map((album, i) => {
     return (
