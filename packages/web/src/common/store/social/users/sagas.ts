@@ -8,7 +8,6 @@ import {
   cacheUsersSelectors,
   getContext,
   usersSocialActions as socialActions,
-  FeatureFlags,
   profilePageActions
 } from '@audius/common'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
@@ -36,7 +35,6 @@ export function* followUser(
   action: ReturnType<typeof socialActions.followUser>
 ) {
   yield* waitForWrite()
-  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
 
   const accountId = yield* select(getUserId)
   if (!accountId) {
