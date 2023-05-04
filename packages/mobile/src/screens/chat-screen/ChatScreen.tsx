@@ -68,6 +68,8 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   keyboardAvoiding: {
     justifyContent: 'space-between'
   },
+  // Weird RN bug? flex: 1 did not appear to set flexGrow: 1 as expected,
+  // so had to set manually instead.
   listContainer: {
     flexGrow: 1,
     flexShrink: 1
@@ -438,7 +440,11 @@ export const ChatScreen = () => {
             chatMessages?.length === 0 ? (
               <EmptyChatMessages />
             ) : null}
-            {!isLoading ? (
+            {isLoading ? (
+              <View style={styles.loadingSpinnerContainer}>
+                <LoadingSpinner style={styles.loadingSpinner} />
+              </View>
+            ) : (
               <View style={styles.listContainer}>
                 <FlatList
                   contentContainerStyle={styles.listContentContainer}
@@ -455,10 +461,6 @@ export const ChatScreen = () => {
                     maintainVisibleContentPosition
                   }
                 />
-              </View>
-            ) : (
-              <View style={styles.loadingSpinnerContainer}>
-                <LoadingSpinner style={styles.loadingSpinner} />
               </View>
             )}
 
