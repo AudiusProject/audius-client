@@ -79,8 +79,8 @@ const {
   selectIds: getAllMessageIds
 } = chatMessagesAdapter.getSelectors()
 
-// Index of message for which to recalculate the hasTail property
-// of the _previous_ message
+// Recalculate hasTail for the message at index - 1 (the previous message of
+// the message at index).
 const recalculatePreviousMessageHasTail = (
   chatState: EntityState<ChatMessageWithExtras>,
   index: number
@@ -90,11 +90,11 @@ const recalculatePreviousMessageHasTail = (
   const prevMessageId = messageIds[index + 1]
   const prevMessage = chatMessages[prevMessageId]
   if (!prevMessage) return
-  const messageId = messageIds[index]
-  const message = chatMessages[messageId]
+  const newMessageId = messageIds[index]
+  const newMessage = chatMessages[newMessageId]
   chatMessagesAdapter.updateOne(chatState, {
     id: prevMessageId,
-    changes: { hasTail: hasTail(prevMessage, message) }
+    changes: { hasTail: hasTail(prevMessage, newMessage) }
   })
 }
 
