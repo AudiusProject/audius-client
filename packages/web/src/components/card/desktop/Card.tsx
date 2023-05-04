@@ -113,6 +113,7 @@ const CollectionImage = (props: {
   isLoading?: boolean
   callback?: () => void
 }) => {
+  const { callback: imageLoadedCallback } = props
   const image = useCollectionCoverArt(
     props.id,
     props.imageSize,
@@ -120,7 +121,11 @@ const CollectionImage = (props: {
     placeholderArt
   )
 
-  if (image && props.callback) props.callback()
+  useEffect(() => {
+    if (image && imageLoadedCallback) {
+      imageLoadedCallback()
+    }
+  }, [image, imageLoadedCallback])
 
   return (
     <DynamicImage
