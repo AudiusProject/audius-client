@@ -45,10 +45,12 @@ type ChatMessageListProps = ComponentPropsWithoutRef<'div'> & {
 }
 
 const SCROLL_TOP_THRESHOLD = 800
+const SCROLL_BOTTOM_THRESHOLD = 32
 
 const isScrolledToBottom = (element: HTMLElement) => {
   const { scrollTop, clientHeight, scrollHeight } = element
-  return scrollTop + clientHeight >= scrollHeight
+  console.log(scrollTop, clientHeight, scrollTop + clientHeight, scrollHeight)
+  return scrollTop + clientHeight >= scrollHeight - SCROLL_BOTTOM_THRESHOLD
 }
 
 const isScrolledToTop = (element: HTMLElement) => {
