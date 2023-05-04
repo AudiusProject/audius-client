@@ -18,7 +18,7 @@ import {
 import { normalize } from 'normalizr'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { apiResponseKeyToKind, apiResponseSchema } from './schema'
+import { apiResponseSchema } from './schema'
 const { addEntries } = cacheActions
 
 type Api = {
@@ -30,10 +30,15 @@ type Api = {
 
 type SliceConfig = CreateSliceOptions<any, any, any>
 
-type Endpoint = (...args: any[]) => Promise<any>
+type EndpointOptions = {}
+
+type EndpointConfig = {
+  fetch: (args: any) => Promise<any>
+  options?: EndpointOptions
+}
 
 type FetchBaseAction = {
-  parameters: any[]
+  args: any[]
 }
 type FetchLoadingAction = PayloadAction<FetchBaseAction & {}>
 type FetchErrorAction = PayloadAction<
@@ -64,7 +69,7 @@ type ApiState = {
 
 type CreateApiConfig = {
   reducerPath: string
-  endpoints: { [name: string]: Endpoint }
+  endpoints: { [name: string]: EndpointConfig }
   kind?: Kind
 }
 
@@ -99,8 +104,8 @@ export const createApi = ({
   return api
 }
 
-const canonincalizeParametersDefault = (parameters: any[]) => {
-  return parameters.map((parameters) => parameters.toString()).join(';')
+const getKeyFromArgs = (args: any) => {
+  return JSON.stringify(args)
 }
 
 const addEndpointToSlice = (sliceConfig: SliceConfig, endpointName: string) => {
@@ -114,8 +119,8 @@ const addEndpointToSlice = (sliceConfig: SliceConfig, endpointName: string) => {
       state: ApiState,
       action: FetchLoadingAction
     ) => {
-      const { parameters } = action.payload
-      const key = canonincalizeParametersDefault(parameters)
+      const { args } = action.payload
+      const key = getKeyFromArgs(args)
       if (!state[endpointName][key]) {
         state[endpointName][key] = initState
       }
@@ -125,8 +130,8 @@ const addEndpointToSlice = (sliceConfig: SliceConfig, endpointName: string) => {
       state: ApiState,
       action: FetchErrorAction
     ) => {
-      const { parameters, errorMessage } = action.payload
-      const key = canonincalizeParametersDefault(parameters)
+      const { args, errorMessage } = action.payload
+      const key = getKeyFromArgs(args)
       if (!state[endpointName][key]) {
         state[endpointName][key] = initState
       }
@@ -137,8 +142,8 @@ const addEndpointToSlice = (sliceConfig: SliceConfig, endpointName: string) => {
       state: ApiState,
       action: FetchSucceededAction
     ) => {
-      const { parameters, nonNormalizedData } = action.payload
-      const key = canonincalizeParametersDefault(parameters)
+      const { args, nonNormalizedData } = action.payload
+      const key = getKeyFromArgs(args)
       if (!state[endpointName][key]) {
         state[endpointName][key] = initState
       }
@@ -151,14 +156,14 @@ const addEndpointToSlice = (sliceConfig: SliceConfig, endpointName: string) => {
 const buildEndpointHooks = (
   api: Api,
   endpointName: string,
-  endpoint: Endpoint,
+  endpoint: EndpointConfig,
   actions: CaseReducerActions<any>,
   reducerPath: string,
   kind?: Kind
 ) => {
-  const useQuery = (...args: any[]) => {
+  const useQuery = (args: any) => {
     const dispatch = useDispatch()
-    const key = canonincalizeParametersDefault(args)
+    const key = getKeyFromArgs(args)
     const queryState = useSelector((state: any) => {
       const endpointState: PerEndpointState = state[reducerPath][endpointName]
       if (!endpointState[key]) return null
@@ -173,6 +178,8 @@ const buildEndpointHooks = (
         })
       }
 
+      // TODO: Be careful of rerendering because of the new object
+      // maybe have override for equality function
       return { nonNormalizedData, ...rest }
     })
 
@@ -195,7 +202,7 @@ const buildEndpointHooks = (
               parameters: args
             }) as FetchLoadingAction
           )
-          const apiData = await endpoint(...args)
+          const apiData = await endpoint.fetch(args)
           if (!apiData) {
             throw new Error('Remote data not found')
           }

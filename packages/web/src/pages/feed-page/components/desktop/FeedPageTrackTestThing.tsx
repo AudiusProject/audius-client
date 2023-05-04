@@ -1,5 +1,4 @@
 import { useGetTrackById } from 'api/track'
-
 import TrackTile from 'components/track/desktop/TrackTile'
 
 import { FeedPageUserTestThing } from './FeedPageUserTestThing'
@@ -9,12 +8,13 @@ export const FeedPageTrackTestThing = () => {
     data: track,
     status: trackStatus,
     errorMessage: trackErrorMessage
-  } = useGetTrackById(2523)
+  } = useGetTrackById({ id: 2523 })
 
   return (
     <>
       Track:
       {track?.track_id} {trackStatus} {trackErrorMessage}
+      {/* @ts-ignore */}
       <TrackTile
         artwork={undefined}
         title={track?.title}
