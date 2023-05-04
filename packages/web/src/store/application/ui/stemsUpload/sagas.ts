@@ -9,7 +9,7 @@ import {
 import { takeEvery, put, call, select } from 'redux-saga/effects'
 
 import { make } from 'common/store/analytics/actions'
-import { retrieveTracks } from 'common/store/cache/tracks/utils'
+import { retrieveTrackByHandleAndSlug } from 'common/store/cache/tracks/utils/retrieveTracks'
 import { handleUploads } from 'common/store/upload/sagas'
 import { createStemMetadata } from 'pages/upload-page/store/utils/stems'
 const { getUser } = cacheUsersSelectors
@@ -59,12 +59,10 @@ function* watchUploadStems() {
       // Retrieve the parent track to refresh stems
       const track: Track = yield select(getTrack, { id: parentId })
       const ownerUser: User = yield select(getUser, { id: track.owner_id })
-      yield call(retrieveTracks, {
-        trackIds: [
-          { id: parentId, handle: ownerUser.handle, url_title: track.title }
-        ],
-        withStems: true,
-        canBeUnlisted: true
+      yield call(retrieveTrackByHandleAndSlug, {
+        handle: ownerUser.handle,
+        slug: track.title,
+        withStems: true
       })
     }
   )

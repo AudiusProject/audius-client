@@ -237,7 +237,7 @@ class TrackPageProvider extends Component<
     if (slug && handle) {
       this.props.setTrackPermalink(`/${handle}/${slug}`)
     }
-    this.props.fetchTrack(trackId, slug || '', handle || '', !!(slug && handle))
+    this.props.fetchTrack(trackId, slug || '', handle || '')
     if (handle) {
       this.setState({ ownerHandle: handle })
     }
@@ -529,15 +529,8 @@ function makeMapStateToProps() {
 
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
-    fetchTrack: (
-      trackId: number | null,
-      slug: string,
-      ownerHandle: string,
-      canBeUnlisted: boolean
-    ) =>
-      dispatch(
-        trackPageActions.fetchTrack(trackId, slug, ownerHandle, canBeUnlisted)
-      ),
+    fetchTrack: (trackId: number | null, slug: string, ownerHandle: string) =>
+      dispatch(trackPageActions.fetchTrack(trackId, slug, ownerHandle)),
     setTrackId: (trackId: number) =>
       dispatch(trackPageActions.setTrackId(trackId)),
     setTrackPermalink: (permalink: string) =>

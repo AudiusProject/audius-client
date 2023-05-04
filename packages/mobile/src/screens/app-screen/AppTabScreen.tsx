@@ -60,7 +60,6 @@ export type AppTabScreenParamList = {
   Track: {
     id?: ID
     searchTrack?: SearchTrack
-    canBeUnlisted?: boolean
     handle?: string
     slug?: string
   }

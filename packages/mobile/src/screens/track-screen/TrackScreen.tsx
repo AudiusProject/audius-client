@@ -58,7 +58,7 @@ export const TrackScreen = () => {
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const isReachable = useSelector(getIsReachable)
 
-  const { searchTrack, id, canBeUnlisted = true, handle, slug } = params ?? {}
+  const { searchTrack, id, handle, slug } = params ?? {}
 
   const cachedTrack = useSelector((state) => getTrack(state, params))
 
@@ -77,14 +77,9 @@ export const TrackScreen = () => {
   const handleFetchTrack = useCallback(() => {
     dispatch(tracksActions.reset())
     dispatch(
-      fetchTrack(
-        id,
-        decodeURIComponent(slug ?? ''),
-        handle ?? user?.handle,
-        canBeUnlisted
-      )
+      fetchTrack(id, decodeURIComponent(slug ?? ''), handle ?? user?.handle)
     )
-  }, [dispatch, canBeUnlisted, id, slug, handle, user?.handle])
+  }, [dispatch, id, slug, handle, user?.handle])
 
   useFocusEffect(handleFetchTrack)
 

@@ -38,7 +38,6 @@ export const fetchTrack = (
   trackId: Nullable<number>,
   slug?: string,
   handle?: string,
-  canBeUnlisted?: boolean,
   forceRetrieveFromSource?: boolean,
   withRemixes?: boolean
 ) => ({
@@ -46,7 +45,6 @@ export const fetchTrack = (
   trackId,
   slug,
   handle,
-  canBeUnlisted,
   forceRetrieveFromSource,
   withRemixes
 })

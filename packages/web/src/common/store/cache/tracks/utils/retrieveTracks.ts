@@ -28,10 +28,8 @@ const { getTracks: getTracksSelector } = cacheTracksSelectors
 const { setPermalink } = cacheTracksActions
 const getUserId = accountSelectors.getUserId
 
-type UnlistedTrackRequest = { id: ID; url_title: string; handle: string }
 type RetrieveTracksArgs = {
-  trackIds: ID[] | UnlistedTrackRequest[]
-  canBeUnlisted?: boolean
+  trackIds: ID[]
   withStems?: boolean
   withRemixes?: boolean
   withRemixParents?: boolean
@@ -146,8 +144,6 @@ export function* retrieveTrackByHandleAndSlug({
  */
 export function* retrieveTracks({
   trackIds,
-  canBeUnlisted = false,
-  withStems = false,
   withRemixes = false,
   withRemixParents = false
 }: RetrieveTracksArgs) {
@@ -155,29 +151,13 @@ export function* retrieveTracks({
   const currentUserId = yield* select(getUserId)
 
   // In the case of unlisted tracks, trackIds contains metadata used to fetch tracks
-  const ids = canBeUnlisted
-    ? (trackIds as UnlistedTrackRequest[]).map(({ id }) => id)
-    : (trackIds as ID[])
-
-  if (canBeUnlisted && withStems) {
-    yield* spawn(function* () {
-      if (ids.length > 1) {
-        console.warn('Stems endpoint only supports fetching single tracks')
-        return
-      }
-      const trackId = ids[0]
-      if (!trackId) return
-      yield* call(fetchAndProcessStems, trackId)
-    })
-  }
-
   if (withRemixes) {
     yield* spawn(function* () {
-      if (ids.length > 1) {
+      if (trackIds.length > 1) {
         console.warn('Remixes endpoint only supports fetching single tracks')
         return
       }
-      const trackId = ids[0]
+      const trackId = trackIds[0]
       if (!trackId) return
       yield* call(fetchAndProcessRemixes, trackId)
     })
@@ -185,13 +165,13 @@ export function* retrieveTracks({
 
   if (withRemixParents) {
     yield* spawn(function* () {
-      if (ids.length > 1) {
+      if (trackIds.length > 1) {
         console.warn(
           'Remix parents endpoint only supports fetching single tracks'
         )
         return
       }
-      const trackId = ids[0]
+      const trackId = trackIds[0]
       if (!trackId) return
       yield* call(fetchAndProcessRemixParents, trackId)
     })
@@ -199,7 +179,7 @@ export function* retrieveTracks({
 
   // @ts-ignore retrieve should be refactored to ts first
   const tracks: { entries: { [id: number]: Track } } = yield* call(retrieve, {
-    ids,
+    ids: trackIds,
     selectFromCache: function* (ids: ID[]) {
       return yield* select(getTracksSelector, { ids })
     },
@@ -214,37 +194,20 @@ export function* retrieveTracks({
       )
       return selected
     },
-    retrieveFromSource: function* (ids: ID[] | UnlistedTrackRequest[]) {
+    retrieveFromSource: function* (ids: ID[]) {
       yield* waitForRead()
       const apiClient = yield* getContext('apiClient')
       let fetched: UserTrackMetadata | UserTrackMetadata[] | null | undefined
-      if (canBeUnlisted) {
-        const ids = trackIds as UnlistedTrackRequest[]
-        if (ids.length > 1) {
-          throw new Error('Can only query for single unlisted track')
-        } else {
-          fetched = yield* call([apiClient, 'getTrack'], {
-            id: ids[0].id,
-            currentUserId,
-            unlistedArgs: {
-              urlTitle: ids[0].url_title,
-              handle: ids[0].handle
-            }
-          })
-        }
+      if (ids.length > 1) {
+        fetched = yield* call([apiClient, 'getTracks'], {
+          ids,
+          currentUserId
+        })
       } else {
-        const ids = trackIds as number[]
-        if (ids.length > 1) {
-          fetched = yield* call([apiClient, 'getTracks'], {
-            ids,
-            currentUserId
-          })
-        } else {
-          fetched = yield* call([apiClient, 'getTrack'], {
-            id: ids[0],
-            currentUserId
-          })
-        }
+        fetched = yield* call([apiClient, 'getTrack'], {
+          id: ids[0],
+          currentUserId
+        })
       }
       return fetched
     },
@@ -260,5 +223,5 @@ export function* retrieveTracks({
     }
   })
 
-  return ids.map((id) => tracks.entries[id]).filter(Boolean)
+  return trackIds.map((id) => tracks.entries[id]).filter(Boolean)
 }

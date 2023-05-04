@@ -138,13 +138,12 @@ function* watchFetchTrack() {
       trackId,
       handle,
       slug,
-      canBeUnlisted,
       forceRetrieveFromSource,
       withRemixes = true
     } = action
     try {
       let track
-      if (!trackId) {
+      if (handle && slug) {
         track = yield call(retrieveTrackByHandleAndSlug, {
           handle,
           slug,
@@ -153,18 +152,17 @@ function* watchFetchTrack() {
           withRemixParents: true,
           forceRetrieveFromSource
         })
-      } else {
-        const ids = canBeUnlisted
-          ? [{ id: trackId, url_title: slug, handle }]
-          : [trackId]
+      } else if (trackId) {
+        const ids = [trackId]
         const tracks = yield call(retrieveTracks, {
           trackIds: ids,
-          canBeUnlisted,
           withStems: true,
           withRemixes,
           withRemixParents: true
         })
         track = tracks && tracks.length === 1 ? tracks[0] : null
+      } else {
+        return
       }
       const isReachable = yield select(getIsReachable)
       if (!track) {

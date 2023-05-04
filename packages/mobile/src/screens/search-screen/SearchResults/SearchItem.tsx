@@ -85,8 +85,7 @@ const TrackSearchResult = (props: TrackSearchResultProps) => {
     dispatch(addItem({ searchItem: track.title }))
     navigation.push('Track', {
       id: track.track_id,
-      searchTrack: track,
-      canBeUnlisted: false
+      searchTrack: track
     })
   }, [track, navigation, dispatch])
 
