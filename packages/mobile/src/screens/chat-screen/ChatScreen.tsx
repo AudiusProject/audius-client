@@ -337,29 +337,26 @@ export const ChatScreen = () => {
   // appear underneath the reaction of the message clone inside the
   // portal.
   const renderItem = useCallback(
-    ({ item }) => {
-      console.log(`REED rendering item: ${item.message_id}`)
-      return (
-        <>
-          <ChatMessageListItem
-            message={item}
-            chatId={chatId}
-            itemsRef={itemsRef}
-            isPopup={false}
-            onLongPress={handleMessagePress}
-          />
-          {item.message_id === earliestUnreadMessageId ? (
-            <View style={styles.unreadTagContainer}>
-              <View style={styles.unreadSeparator} />
-              <Text style={styles.unreadTag}>
-                {unreadCount} {pluralize(messages.newMessage, unreadCount > 1)}
-              </Text>
-              <View style={styles.unreadSeparator} />
-            </View>
-          ) : null}
-        </>
-      )
-    },
+    ({ item }) => (
+      <>
+        <ChatMessageListItem
+          message={item}
+          chatId={chatId}
+          itemsRef={itemsRef}
+          isPopup={false}
+          onLongPress={handleMessagePress}
+        />
+        {item.message_id === earliestUnreadMessageId ? (
+          <View style={styles.unreadTagContainer}>
+            <View style={styles.unreadSeparator} />
+            <Text style={styles.unreadTag}>
+              {unreadCount} {pluralize(messages.newMessage, unreadCount > 1)}
+            </Text>
+            <View style={styles.unreadSeparator} />
+          </View>
+        ) : null}
+      </>
+    ),
     [
       earliestUnreadMessageId,
       handleMessagePress,
