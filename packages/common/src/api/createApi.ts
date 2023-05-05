@@ -1,11 +1,10 @@
 import { useContext, useEffect } from 'react'
 
 import { CaseReducerActions, createSlice } from '@reduxjs/toolkit'
-import { isEqual, mapValues, zipObject } from 'lodash'
+import { isEqual } from 'lodash'
 import { denormalize, normalize } from 'normalizr'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { Kind } from 'models/Kind'
 import { Status } from 'models/Status'
 import { CommonState } from 'store/reducers'
 import { getErrorMessage } from 'utils/error'
@@ -20,15 +19,19 @@ import {
   ApiState,
   CreateApiConfig,
   EndpointConfig,
-  EntityMap,
   FetchErrorAction,
   FetchLoadingAction,
   FetchSucceededAction,
   PerEndpointState,
   PerKeyState,
-  SliceConfig,
-  StrippedEntityMap
+  SliceConfig
 } from './types'
+import {
+  capitalize,
+  getKeyFromFetchArgs,
+  selectRehydrateEntityMap,
+  stripEntityMap
+} from './utils'
 const { addEntries } = cacheActions
 
 export const createApi = ({ reducerPath, endpoints }: CreateApiConfig) => {
@@ -56,10 +59,6 @@ export const createApi = ({ reducerPath, endpoints }: CreateApiConfig) => {
   api.reducer = slice.reducer
 
   return api
-}
-
-const getKeyFromFetchArgs = (fetchArgs: any) => {
-  return JSON.stringify(fetchArgs)
 }
 
 const addEndpointToSlice = (sliceConfig: SliceConfig, endpointName: string) => {
@@ -115,12 +114,15 @@ const buildEndpointHooks = (
   actions: CaseReducerActions<any>,
   reducerPath: string
 ) => {
+  // Hook to be returned as use<EndpointName>
   const useQuery = (fetchArgs: any) => {
     const dispatch = useDispatch()
     const key = getKeyFromFetchArgs(fetchArgs)
     const queryState = useSelector((state: any) => {
       const endpointState: PerEndpointState =
         state.api[reducerPath][endpointName]
+
+      // Retrieve data from cache if lookup args provided
       if (!endpointState[key]) {
         if (
           !endpoint.options?.idArgKey ||
@@ -138,6 +140,8 @@ const buildEndpointHooks = (
           kind,
           id: idAsNumber
         })
+
+        // cache hit
         if (initialCachedEntity) {
           const { result, entities } = normalize(
             { [schemaKey]: initialCachedEntity },
@@ -147,15 +151,13 @@ const buildEndpointHooks = (
             nonNormalizedData: result,
             status: Status.SUCCESS,
             strippedEntityMap: stripEntityMap(entities),
-            isInitialValue: true
+            isInitialValue: true,
+            errorMessage: undefined
           }
         }
       }
-      const { nonNormalizedData, ...rest } = endpointState[key]
 
-      // TODO: Be careful of rerendering because of the new object
-      // maybe have override for equality function
-      return { nonNormalizedData, isInitialValue: false, ...rest }
+      return { ...endpointState[key] }
     }, isEqual)
 
     const {
@@ -170,6 +172,7 @@ const buildEndpointHooks = (
       errorMessage: null
     }
 
+    // Rehydrate local nonNormalizedData using entities from global normalized cache
     let cachedData = useSelector((state: CommonState) => {
       const rehydratedEntityMap =
         strippedEntityMap && selectRehydrateEntityMap(state, strippedEntityMap)
@@ -219,8 +222,6 @@ const buildEndpointHooks = (
             }) as FetchSucceededAction
           )
         } catch (e) {
-          // TODO: debugging only
-          console.error(e)
           dispatch(
             // @ts-ignore
             actions[`fetch${capitalize(endpointName)}Error`]({
@@ -249,45 +250,4 @@ const buildEndpointHooks = (
     return { data: cachedData, status, errorMessage }
   }
   api.hooks[`use${capitalize(endpointName)}`] = useQuery
-}
-
-const stripEntityMap = (entities: EntityMap): StrippedEntityMap => {
-  return mapValues(
-    entities,
-    (entityType) => entityType && Object.keys(entityType)
-  )
-}
-
-const selectRehydrateEntityMap = (
-  state: CommonState,
-  strippedEntityMap: StrippedEntityMap
-): EntityMap | null => {
-  try {
-    return mapValues(
-      strippedEntityMap,
-      (entityIds, kind) =>
-        entityIds &&
-        zipObject(
-          entityIds,
-          entityIds.map((entityId) => {
-            const cachedEntity = cacheSelectors.getEntry(state, {
-              kind: Kind[kind as keyof typeof Kind],
-              id: parseInt(entityId)
-            })
-            // TODO: reject if not all entities are populated
-            if (!cachedEntity) throw new Error('missing entity')
-            return cachedEntity
-          })
-        )
-    )
-  } catch (e) {
-    if ((e as Error).message !== 'missing entity') {
-      throw e
-    }
-    return null
-  }
-}
-
-export function capitalize(str: string) {
-  return str.replace(str[0], str[0].toUpperCase())
 }
