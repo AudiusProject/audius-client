@@ -21,11 +21,7 @@ import { store } from './store/configureStore'
 import './services/webVitals'
 import './index.css'
 
-type AudiusAppProps = {
-  shouldShowPopover: boolean
-}
-
-const AudiusApp = ({ shouldShowPopover }: AudiusAppProps) => {
+const AudiusApp = () => {
   return (
     <Provider store={store}>
       <AudiusQueryContext.Provider value={{ apiClient }}>
@@ -46,10 +42,7 @@ const AudiusApp = ({ shouldShowPopover }: AudiusAppProps) => {
                     <Route path='/'>
                       <AppErrorBoundary>
                         <CoinbasePayButtonProvider>
-                          <App
-                            mainContentRef={mainContentRef}
-                            shouldShowPopover={shouldShowPopover}
-                          />
+                          <App mainContentRef={mainContentRef} />
                         </CoinbasePayButtonProvider>
                       </AppErrorBoundary>
                     </Route>
