@@ -14,18 +14,14 @@ export const FeedPageUserTestThing = (props: FeedPageUserTestThingProps) => {
   const { userId } = props
   const currentUserId = useSelector(getUserId)
 
-  const {
-    data: user,
-    status,
-    errorMessage
-  } = useGetUserById({
+  const { data: user, status } = useGetUserById({
     id: userId,
     currentUserId
   })
 
   return (
     <>
-      User: {user?.user_id} {status} {errorMessage}
+      User: {user?.user_id} {status}
       {/* @ts-ignore */}
       {user ? <ArtistCard artist={user} /> : null}
     </>

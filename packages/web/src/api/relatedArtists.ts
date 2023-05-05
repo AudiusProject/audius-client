@@ -11,7 +11,10 @@ const relatedArtistsApi = createApi({
           userId: artistId,
           limit: 50
         })
-      })
+      }),
+      options: {
+        schemaKey: 'users'
+      }
     }
   }
 })
