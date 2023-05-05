@@ -33,8 +33,6 @@ function* fetchCollectionsAsync(
   const { type, ids } = action.payload
   yield waitForRead()
 
-  // TODO: How do we catch errors?
-  // TODO: What happens if we don't return all the collections requested?
   yield* fetchCollectionChunks(ids)
 
   yield put(
