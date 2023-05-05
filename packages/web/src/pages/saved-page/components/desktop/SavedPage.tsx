@@ -98,8 +98,8 @@ const AlbumsTabContent = () => {
     return (
       <AlbumCard
         index={i}
-        isLoading={isLoading(i)}
-        setDidLoad={setDidLoad}
+        // isLoading={isLoading(i)}
+        // setDidLoad={setDidLoad}
         key={album.playlist_id}
         album={album}
       />

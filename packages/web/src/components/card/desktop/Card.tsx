@@ -18,6 +18,7 @@ import {
   imageBlank as placeholderArt
 } from '@audius/common'
 import cn from 'classnames'
+import { useInView } from 'react-intersection-observer'
 
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
 import ActionsTab from 'components/actions-tab/ActionsTab'
@@ -161,6 +162,13 @@ const Card = ({
   // The card is considered `setDidLoad` (and calls it) if the artwork has loaded and its
   // parent is no longer telling it that it is loading. This allows ordered loading.
   const [artworkLoaded, setArtworkLoaded] = useState(false)
+  const [hasBeenInView, setHasBeenInView] = useState(false)
+  const { ref: inViewRef, inView } = useInView()
+  useEffect(() => {
+    if (!hasBeenInView && inView) {
+      setHasBeenInView(true)
+    }
+  }, [inView, hasBeenInView, setHasBeenInView])
 
   const menuActionsRef = useRef<HTMLDivElement>(null)
   const handleClick: MouseEventHandler<HTMLAnchorElement> = useCallback(
@@ -227,6 +235,7 @@ const Card = ({
     !isUser && reposts && favorites && onClickReposts && onClickFavorites
   return (
     <a
+      ref={inViewRef}
       className={cn(className, styles.cardContainer, sizeStyles.cardContainer)}
       href={href}
       onClick={handleClick}
@@ -236,21 +245,22 @@ const Card = ({
           [styles.userCardImage]: isUser
         })}
       >
-        {isUser ? (
-          <UserImage
-            isLoading={isLoading}
-            callback={artworkCallback}
-            id={id}
-            imageSize={imageSize as ProfilePictureSizes}
-          />
-        ) : (
-          <CollectionImage
-            isLoading={isLoading}
-            callback={() => setArtworkLoaded(true)}
-            id={id}
-            imageSize={imageSize as CoverArtSizes}
-          />
-        )}
+        {hasBeenInView &&
+          (isUser ? (
+            <UserImage
+              isLoading={isLoading}
+              callback={artworkCallback}
+              id={id}
+              imageSize={imageSize as ProfilePictureSizes}
+            />
+          ) : (
+            <CollectionImage
+              isLoading={isLoading}
+              callback={() => setArtworkLoaded(true)}
+              id={id}
+              imageSize={imageSize as CoverArtSizes}
+            />
+          ))}
       </div>
       <div className={sizeStyles.textContainer}>
         <div className={styles.primaryText}>{primaryText}</div>
