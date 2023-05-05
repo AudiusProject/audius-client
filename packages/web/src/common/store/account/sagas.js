@@ -380,7 +380,7 @@ function* fetchSavedPlaylistsAsync() {
   yield fork(function* () {
     const ownPlaylists = yield select(getAccountOwnedPlaylistIds)
     if (ownPlaylists.length > 0) {
-      yield fetchCollectionChunks(ownPlaylists)
+      yield* fetchCollectionChunks(ownPlaylists)
     }
   })
 }
