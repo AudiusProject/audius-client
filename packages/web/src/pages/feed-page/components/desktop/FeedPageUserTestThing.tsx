@@ -18,7 +18,7 @@ export const FeedPageUserTestThing = (props: FeedPageUserTestThingProps) => {
     data: user,
     status,
     errorMessage
-  } = useGetUserById(userId, currentUserId)
+  } = useGetUserById({ id: userId, currentUserId })
 
   return (
     <>

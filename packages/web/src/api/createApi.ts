@@ -9,7 +9,7 @@ import {
   CommonState
 } from '@audius/common'
 import { CaseReducerActions, createSlice } from '@reduxjs/toolkit'
-import { mapValues, zipObject } from 'lodash'
+import { isEqual, mapValues, zipObject } from 'lodash'
 import { denormalize, normalize } from 'normalizr'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -146,13 +146,13 @@ const buildEndpointHooks = (
         errorMessage: null
       }
 
-    const rehydratedEntityMap = useSelector(
-      (state: CommonState) =>
+    const cachedData = useSelector((state: CommonState) => {
+      const rehydratedEntityMap =
         strippedEntityMap && selectRehydrateEntityMap(state, strippedEntityMap)
-    )
-    const cachedData = rehydratedEntityMap
-      ? denormalize(nonNormalizedData, apiResponseSchema, rehydratedEntityMap)
-      : nonNormalizedData
+      return rehydratedEntityMap
+        ? denormalize(nonNormalizedData, apiResponseSchema, rehydratedEntityMap)
+        : nonNormalizedData
+    }, isEqual)
 
     useEffect(() => {
       const fetchWrapped = async () => {
@@ -183,6 +183,8 @@ const buildEndpointHooks = (
             }) as FetchSucceededAction
           )
         } catch (e) {
+          // TODO: debugging only
+          console.error(e)
           dispatch(
             // @ts-ignore
             actions[`fetch${capitalize(endpointName)}Error`]({

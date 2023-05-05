@@ -1,12 +1,9 @@
-import { Kind } from '@audius/common'
-
 import { apiClient } from 'services/audius-api-client'
 
 import { createApi } from './createApi'
 
 const userApi = createApi({
   reducerPath: 'userApi',
-  kind: Kind.USERS,
   endpoints: {
     getUserById: {
       fetch: async ({ id, currentUserId }) => {
