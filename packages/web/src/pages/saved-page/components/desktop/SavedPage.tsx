@@ -1,8 +1,7 @@
 import { useCallback, useContext } from 'react'
 
 import {
-  Collection,
-  CommonState,
+  CollectionWithOwner,
   ID,
   Lineup,
   SavedPageTabs as ProfileTabs,
@@ -13,7 +12,6 @@ import {
   TrackRecord,
   UID,
   User,
-  cacheUsersSelectors,
   savedPageSelectors,
   useSavedAlbumsDetails
 } from '@audius/common'
@@ -41,28 +39,25 @@ import { formatCardSecondaryText } from '../utils'
 import styles from './SavedPage.module.css'
 
 const { getInitialFetchStatus } = savedPageSelectors
-const { getUser } = cacheUsersSelectors
 
 const messages = {
   filterPlaceholder: 'Filter Tracks'
 }
 
 type AlbumCardProps = Pick<CardProps, 'index' | 'isLoading' | 'setDidLoad'> & {
-  album: Collection
+  album: CollectionWithOwner
 }
 
 const AlbumCard = ({ album, index, isLoading, setDidLoad }: AlbumCardProps) => {
   const goToRoute = useGoToRoute()
-  const user = useSelector((state: CommonState) =>
-    getUser(state, { id: album.playlist_owner_id })
-  )
-  const ownerHandle = user?.handle || ''
 
   const handleClick = useCallback(() => {
-    if (ownerHandle) {
-      goToRoute(albumPage(ownerHandle, album.playlist_name, album.playlist_id))
+    if (album.ownerHandle) {
+      goToRoute(
+        albumPage(album.ownerHandle, album.playlist_name, album.playlist_id)
+      )
     }
-  }, [ownerHandle, goToRoute, album.playlist_name, album.playlist_id])
+  }, [album.playlist_name, album.playlist_id, album.ownerHandle, goToRoute])
 
   return (
     <Card
@@ -78,7 +73,7 @@ const AlbumCard = ({ album, index, isLoading, setDidLoad }: AlbumCardProps) => {
       playlistId={album.playlist_id}
       isPlaylist={false}
       isPublic={!album.is_private}
-      handle={ownerHandle}
+      handle={album.ownerHandle}
       primaryText={album.playlist_name}
       secondaryText={formatCardSecondaryText(
         album.save_count,
@@ -154,7 +149,6 @@ export type SavedPageProps = {
   onPlay: () => void
   onSortTracks: (sorters: any) => void
   onChangeTab: (tab: ProfileTabs) => void
-  formatCardSecondaryText: (saves: number, tracks: number) => string
   allTracksFetched: boolean
   filterText: string
   initialOrder: UID[] | null
@@ -195,7 +189,6 @@ const SavedPage = ({
   onSortChange,
   allTracksFetched,
   filterText,
-  formatCardSecondaryText,
   onChangeTab,
   onClickRow,
   onClickSave,

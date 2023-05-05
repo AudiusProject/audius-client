@@ -14,10 +14,11 @@ import {
 import { call, put, fork, select, takeEvery } from 'redux-saga/effects'
 
 import { identify } from 'common/store/analytics/actions'
-import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { addPlaylistsNotInLibrary } from 'common/store/playlist-library/sagas'
 import { updateProfileAsync } from 'common/store/profile/sagas'
 import { waitForWrite, waitForRead } from 'utils/sagaHelpers'
+
+import { fetchCollectionChunks } from '../saved-collections/sagas'
 
 import disconnectedWallets from './disconnected_wallet_fix.json'
 
@@ -360,7 +361,7 @@ function* fetchSavedAlbumsAsync() {
   yield waitForRead()
   const cachedSavedAlbums = yield select(getAccountAlbumIds)
   if (cachedSavedAlbums.length > 0) {
-    yield call(retrieveCollections, null, cachedSavedAlbums)
+    yield* fetchCollectionChunks(cachedSavedAlbums)
   }
 }
 
@@ -371,7 +372,7 @@ function* fetchSavedPlaylistsAsync() {
   yield fork(function* () {
     const savedPlaylists = yield select(getAccountSavedPlaylistIds)
     if (savedPlaylists.length > 0) {
-      yield call(retrieveCollections, null, savedPlaylists)
+      yield* fetchCollectionChunks(savedPlaylists)
     }
   })
 
@@ -379,7 +380,7 @@ function* fetchSavedPlaylistsAsync() {
   yield fork(function* () {
     const ownPlaylists = yield select(getAccountOwnedPlaylistIds)
     if (ownPlaylists.length > 0) {
-      yield call(retrieveCollections, null, ownPlaylists)
+      yield fetchCollectionChunks(ownPlaylists)
     }
   })
 }

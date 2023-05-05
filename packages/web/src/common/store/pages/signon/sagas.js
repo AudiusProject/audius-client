@@ -1,21 +1,21 @@
 import {
-  FavoriteSource,
-  Name,
-  FeatureFlags,
   ELECTRONIC_SUBGENRES,
+  FavoriteSource,
+  FeatureFlags,
   Genre,
-  accountSelectors,
+  MAX_HANDLE_LENGTH,
+  Name,
+  PushNotificationSetting,
   accountActions,
+  accountSelectors,
   cacheUsersSelectors,
   collectionsSocialActions,
-  solanaSelectors,
-  usersSocialActions as socialActions,
-  getContext,
-  settingsPageActions,
-  MAX_HANDLE_LENGTH,
-  PushNotificationSetting,
   getCityAndRegion,
+  getContext,
   processAndCacheUsers,
+  settingsPageActions,
+  usersSocialActions as socialActions,
+  solanaSelectors,
   toastActions
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
@@ -36,10 +36,10 @@ import {
 import { fetchAccountAsync, reCacheAccount } from 'common/store/account/sagas'
 import { identify, make } from 'common/store/analytics/actions'
 import * as backendActions from 'common/store/backend/actions'
-import { retrieveCollections } from 'common/store/cache/collections/utils'
 import { fetchUserByHandle, fetchUsers } from 'common/store/cache/users/sagas'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
+import { fetchCollectionChunks } from 'common/store/saved-collections/sagas'
 import { UiErrorCode } from 'store/errors/actions'
 import { setHasRequestedBrowserPermission } from 'utils/browserNotifications'
 import { isValidEmailString } from 'utils/email'
@@ -591,7 +591,7 @@ function* signIn(action) {
 function* followCollections(collectionIds, favoriteSource) {
   yield call(waitForWrite)
   try {
-    const result = yield retrieveCollections(null, collectionIds)
+    const result = yield* fetchCollectionChunks(collectionIds)
 
     for (let i = 0; i < collectionIds.length; i++) {
       const id = collectionIds[i]

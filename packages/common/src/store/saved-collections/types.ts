@@ -1,3 +1,4 @@
+import { Collection } from '../../models/Collection'
 import { ID } from '../../models/Identifiers'
 
 type CollectionType = 'albums' | 'playlists'
@@ -13,4 +14,8 @@ export type FetchCollectionsSucceededPayload = {
 
 export type FetchCollectionsFailedPayload = {
   type: CollectionType
+}
+
+export type CollectionWithOwner = Collection & {
+  ownerHandle: string
 }
