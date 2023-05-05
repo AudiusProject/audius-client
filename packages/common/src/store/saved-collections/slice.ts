@@ -8,7 +8,6 @@ import {
   FetchCollectionsSucceededPayload
 } from './types'
 
-// TODO: Do we need a tracking index for each type to know when we've hit the end?
 export type CollectionListState = {
   status: Status
 }
@@ -31,7 +30,6 @@ const slice = createSlice({
   name: 'saved-collections',
   initialState,
   reducers: {
-    // TODO: Use a begin action to prevent multiple in flight?
     fetchCollections: (
       state,
       action: PayloadAction<FetchCollectionsPayload>
@@ -49,7 +47,6 @@ const slice = createSlice({
       state,
       action: PayloadAction<FetchCollectionsFailedPayload>
     ) => {
-      // TODO: message
       state[action.payload.type].status = Status.ERROR
     }
   }
