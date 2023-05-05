@@ -1,10 +1,13 @@
 import { createSelector } from '@reduxjs/toolkit'
 
-import { Collection } from '../../models/Collection'
+import { getUsers } from 'store/cache/users/selectors'
+
 import { AccountCollection } from '../account'
 import { getAccountStatus } from '../account/selectors'
 import { getCollections } from '../cache/collections/selectors'
 import { CommonState } from '../commonStore'
+
+import { CollectionWithOwner } from './types'
 
 const getAccountCollections = (state: CommonState) => state.account.collections
 export const getSavedAlbumsState = (state: CommonState) =>
@@ -21,17 +24,20 @@ export const getAccountAlbums = createSelector(
 )
 
 type GetAlbumsWithDetailsResult = {
-  fetched: Collection[]
+  fetched: CollectionWithOwner[]
   unfetched: AccountCollection[]
 }
 export const getAlbumsWithDetails = createSelector(
-  [getAccountAlbums, getCollections],
-  (albums, collections) => {
+  [getAccountAlbums, getCollections, getUsers],
+  (albums, collections, users) => {
     // TODO: Might want to read status, what happens for failed loads of parts of the collection?
     return albums.data.reduce<GetAlbumsWithDetailsResult>(
       (acc, cur) => {
-        if (collections[cur.id]) {
-          acc.fetched.push(collections[cur.id])
+        const collectionMetadata = collections[cur.id]
+        if (collectionMetadata) {
+          const ownerHandle =
+            users[collectionMetadata.playlist_owner_id]?.handle ?? ''
+          acc.fetched.push({ ...collections[cur.id], ownerHandle })
         } else {
           acc.unfetched.push(cur)
         }
