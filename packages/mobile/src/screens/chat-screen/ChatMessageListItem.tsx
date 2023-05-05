@@ -191,31 +191,16 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                     : null
                 }
               >
-                {message.hasTail ? (
-                  <ChatTail
-                    fill={
-                      isAuthor && !isLinkPreviewOnly
-                        ? palette.secondary
-                        : palette.white
-                    }
-                    style={[
-                      styles.tail,
-                      isAuthor ? styles.tailIsAuthor : styles.tailOtherUser
-                    ]}
+                {link ? (
+                  <LinkPreview
+                    key={`${link.value}-${link.start}-${link.end}`}
+                    chatId={chatId}
+                    messageId={message.message_id}
+                    href={link.href}
+                    isLinkPreviewOnly={isLinkPreviewOnly}
+                    onLongPress={handleLongPress}
                   />
                 ) : null}
-                <View>
-                  {link ? (
-                    <LinkPreview
-                      key={`${link.value}-${link.start}-${link.end}`}
-                      chatId={chatId}
-                      messageId={message.message_id}
-                      href={link.href}
-                      isLinkPreviewOnly={isLinkPreviewOnly}
-                      onLongPress={handleLongPress}
-                    />
-                  ) : null}
-                </View>
                 {!isLinkPreviewOnly ? (
                   <Hyperlink
                     text={message.message}
@@ -233,6 +218,19 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                   />
                 ) : null}
               </View>
+              {message.hasTail ? (
+                <ChatTail
+                  fill={
+                    isAuthor && !isLinkPreviewOnly
+                      ? palette.secondary
+                      : palette.white
+                  }
+                  style={[
+                    styles.tail,
+                    isAuthor ? styles.tailIsAuthor : styles.tailOtherUser
+                  ]}
+                />
+              ) : null}
               {message.reactions?.length > 0 ? (
                 <>
                   {!isUnderneathPopup ? (
