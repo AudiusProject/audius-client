@@ -45,7 +45,7 @@ const { requestOpen: openDeletePlaylist } =
   deletePlaylistConfirmationModalUIActions
 const { open: openEditPlaylist } = createPlaylistModalUIActions
 const { requestOpen: openAddToPlaylist } = addToPlaylistUIActions
-const { followUser, shareUser, unfollowUser } = usersSocialActions
+const { followUser, unfollowUser } = usersSocialActions
 const { repostTrack, saveTrack, undoRepostTrack, unsaveTrack } =
   tracksSocialActions
 const {
