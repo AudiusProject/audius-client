@@ -7,8 +7,11 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { Kind } from 'models/Kind'
 import { Status } from 'models/Status'
-import { cacheActions, cacheSelectors, CommonState } from 'store/index'
-import { getErrorMessage } from 'utils'
+import { CommonState } from 'store/reducers'
+import { getErrorMessage } from 'utils/error'
+
+import * as cacheActions from '../store/cache/actions'
+import * as cacheSelectors from '../store/cache/selectors'
 
 import { AudiusQueryContext } from './AudiusQueryContext'
 import { apiResponseSchema } from './schema'
@@ -116,7 +119,8 @@ const buildEndpointHooks = (
     const dispatch = useDispatch()
     const key = getKeyFromFetchArgs(fetchArgs)
     const queryState = useSelector((state: any) => {
-      const endpointState: PerEndpointState = state[reducerPath][endpointName]
+      const endpointState: PerEndpointState =
+        state.api[reducerPath][endpointName]
       if (!endpointState[key]) {
         if (
           !endpoint.options?.idArgKey ||

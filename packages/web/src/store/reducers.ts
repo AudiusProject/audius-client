@@ -61,15 +61,6 @@ const createRootReducer = (routeHistory: History) =>
     // Playback
     queue,
 
-    // RelatedArtistsApi
-    relatedArtistsApi,
-
-    // TrackApi
-    trackApi,
-
-    // UserApi
-    userApi,
-
     // Error Page
     error,
 
