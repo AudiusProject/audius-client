@@ -30,11 +30,7 @@ import {
 } from './types'
 const { addEntries } = cacheActions
 
-export const createApi = ({
-  reducerPath,
-  endpoints,
-  kind
-}: CreateApiConfig) => {
+export const createApi = ({ reducerPath, endpoints }: CreateApiConfig) => {
   const api = {
     reducerPath,
     hooks: {}
@@ -53,14 +49,7 @@ export const createApi = ({
   const slice = createSlice<ApiState, any, any>(sliceConfig)
 
   for (const [endpointName, endpoint] of Object.entries(endpoints)) {
-    buildEndpointHooks(
-      api,
-      endpointName,
-      endpoint,
-      slice.actions,
-      reducerPath,
-      kind
-    )
+    buildEndpointHooks(api, endpointName, endpoint, slice.actions, reducerPath)
   }
 
   api.reducer = slice.reducer
@@ -123,30 +112,63 @@ const buildEndpointHooks = (
   endpointName: string,
   endpoint: EndpointConfig,
   actions: CaseReducerActions<any>,
-  reducerPath: string,
-  kind?: Kind
+  reducerPath: string
 ) => {
   const useQuery = (fetchArgs: any) => {
     const dispatch = useDispatch()
     const key = getKeyFromFetchArgs(fetchArgs)
     const queryState = useSelector((state: any) => {
       const endpointState: PerEndpointState = state[reducerPath][endpointName]
-      if (!endpointState[key]) return null
+      if (!endpointState[key]) {
+        if (
+          !endpoint.options?.idArgKey ||
+          !endpoint.options?.kind ||
+          !endpoint.options?.schemaKey
+        )
+          return null
+        const { kind, idArgKey, schemaKey } = endpoint.options
+        if (!fetchArgs[idArgKey]) return null
+        const idAsNumber =
+          typeof fetchArgs[idArgKey] === 'number'
+            ? parseInt(fetchArgs[idArgKey])
+            : fetchArgs[idArgKey]
+        const initialCachedEntity = cacheSelectors.getEntry(state, {
+          kind,
+          id: idAsNumber
+        })
+        if (initialCachedEntity) {
+          const { result, entities } = normalize(
+            { [schemaKey]: initialCachedEntity },
+            apiResponseSchema
+          )
+          return {
+            nonNormalizedData: result,
+            status: Status.SUCCESS,
+            strippedEntityMap: stripEntityMap(entities),
+            isInitialValue: true
+          }
+        }
+      }
       const { nonNormalizedData, ...rest } = endpointState[key]
 
       // TODO: Be careful of rerendering because of the new object
       // maybe have override for equality function
-      return { nonNormalizedData, ...rest }
-    })
+      return { nonNormalizedData, isInitialValue: false, ...rest }
+    }, isEqual)
 
-    const { nonNormalizedData, status, errorMessage, strippedEntityMap } =
-      queryState ?? {
-        nonNormalizedData: null,
-        status: Status.IDLE,
-        errorMessage: null
-      }
+    const {
+      nonNormalizedData,
+      status,
+      errorMessage,
+      strippedEntityMap,
+      isInitialValue
+    } = queryState ?? {
+      nonNormalizedData: null,
+      status: Status.IDLE,
+      errorMessage: null
+    }
 
-    const cachedData = useSelector((state: CommonState) => {
+    let cachedData = useSelector((state: CommonState) => {
       const rehydratedEntityMap =
         strippedEntityMap && selectRehydrateEntityMap(state, strippedEntityMap)
       return rehydratedEntityMap
@@ -155,6 +177,17 @@ const buildEndpointHooks = (
     }, isEqual)
 
     useEffect(() => {
+      if (isInitialValue) {
+        dispatch(
+          // @ts-ignore
+          actions[`fetch${capitalize(endpointName)}Succeeded`]({
+            fetchArgs,
+            nonNormalizedData,
+            strippedEntityMap
+          }) as FetchSucceededAction
+        )
+      }
+
       const fetchWrapped = async () => {
         if (cachedData) return
         if (status === Status.LOADING) return
@@ -195,7 +228,19 @@ const buildEndpointHooks = (
         }
       }
       fetchWrapped()
-    }, [fetchArgs, cachedData, dispatch, status])
+    }, [
+      fetchArgs,
+      cachedData,
+      dispatch,
+      status,
+      isInitialValue,
+      nonNormalizedData,
+      strippedEntityMap
+    ])
+
+    if (endpoint.options?.schemaKey) {
+      cachedData = cachedData?.[endpoint.options?.schemaKey]
+    }
 
     return { data: cachedData, status, errorMessage }
   }

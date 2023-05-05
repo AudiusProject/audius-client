@@ -15,7 +15,11 @@ export type Api = {
 
 export type SliceConfig = CreateSliceOptions<any, any, any>
 
-type EndpointOptions = {}
+type EndpointOptions = {
+  idArgKey?: string
+  schemaKey?: string
+  kind?: Kind
+}
 
 export type EndpointConfig = {
   fetch: (fetchArgs: any) => Promise<any>
@@ -68,5 +72,4 @@ export type ApiState = {
 export type CreateApiConfig = {
   reducerPath: string
   endpoints: { [name: string]: EndpointConfig }
-  kind?: Kind
 }
