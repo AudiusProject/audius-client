@@ -448,9 +448,7 @@ export const ChatScreen = () => {
               styles.keyboardAvoiding,
               hasCurrentlyPlayingTrack ? { bottom: PLAY_BAR_HEIGHT } : null
             ]}
-            onKeyboardHideCallback={() =>
-              measureView(composeRef, chatContainerBottom)
-            }
+            onKeyboardHide={() => measureView(composeRef, chatContainerBottom)}
           >
             {chat?.messagesStatus === Status.SUCCESS &&
             chatMessages?.length === 0 ? (
