@@ -38,7 +38,10 @@ type ChatState = {
     }
   >
   optimisticReactions: Record<string, ChatMessageReaction>
-  optimisticChatRead: Record<string, UserChat>
+  optimisticChatRead: Record<
+    string,
+    Pick<UserChat, 'last_read_at' | 'unread_message_count'>
+  >
   activeChatId: string | null
   blockees: ID[]
   blockers: ID[]
@@ -260,9 +263,8 @@ const slice = createSlice({
       const existingChat = getChat(state, chatId)
       if (existingChat) {
         state.optimisticChatRead[chatId] = {
-          ...existingChat,
           last_read_at: existingChat.last_message_at,
-          unread_message_count: existingChat.unread_message_count
+          unread_message_count: 0
         }
       }
     },
@@ -311,7 +313,7 @@ const slice = createSlice({
       if (state.messages[chatId] && state.messages[chatId].ids.length > 0) {
         const prevLatestMessageId = state.messages[chatId].ids[0]
         const prevLatestMessage = getMessage(
-          state.chats[chatId],
+          state.messages[chatId],
           prevLatestMessageId
         )!
         const prevMsgHasTail = hasTail(prevLatestMessage, message)

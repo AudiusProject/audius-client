@@ -14,11 +14,11 @@ export const FeedPageUserTestThing = (props: FeedPageUserTestThingProps) => {
   const { userId } = props
   const currentUserId = useSelector(getUserId)
 
-  const {
-    data: user,
-    status,
-    errorMessage
-  } = useGetUserById({ id: userId, currentUserId })
+  const { data, status, errorMessage } = useGetUserById({
+    id: userId,
+    currentUserId
+  })
+  const user = data?.user
 
   return (
     <>
