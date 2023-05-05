@@ -38,6 +38,10 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   bubble: {
     marginTop: spacing(2),
     backgroundColor: palette.white,
+    shadowColor: 'black',
+    shadowOffset: { width: -2, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
     borderRadius: spacing(3)
   },
   isAuthor: {
@@ -66,23 +70,29 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   link: {
     textDecorationLine: 'underline'
   },
-  shadow: {
-    shadowColor: 'black',
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 3 }
-  },
   tail: {
     display: 'flex',
     position: 'absolute',
-    bottom: -0.4
+    bottom: 47
   },
   tailIsAuthor: {
-    right: -18
+    right: -spacing(3)
   },
   tailOtherUser: {
-    left: -18,
+    left: -spacing(3),
     transform: [{ scaleX: -1 }]
+  },
+  tailShadow: {
+    position: 'absolute',
+    bottom: 0,
+    left: spacing(3),
+    backgroundColor: palette.background,
+    height: 0.2,
+    width: spacing(3),
+    shadowColor: 'black',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 2
   },
   reaction: {
     height: spacing(8),
@@ -182,85 +192,83 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
             onLongPress={handleLongPress}
             delayLongPress={REACTION_LONGPRESS_DELAY}
           >
-            <View style={styles.shadow}>
-              <View
-                style={[styles.bubble, isAuthor && styles.isAuthor]}
-                ref={
-                  itemsRef
-                    ? (el) => (itemsRef.current[message.message_id] = el)
-                    : null
-                }
-              >
-                {message.hasTail ? (
-                  <ChatTail
-                    fill={
-                      isAuthor && !isLinkPreviewOnly
-                        ? palette.secondary
-                        : palette.white
-                    }
-                    style={[
-                      styles.tail,
-                      isAuthor ? styles.tailIsAuthor : styles.tailOtherUser
-                    ]}
-                  />
-                ) : null}
-                <View>
-                  {link ? (
-                    <LinkPreview
-                      key={`${link.value}-${link.start}-${link.end}`}
-                      chatId={chatId}
-                      messageId={message.message_id}
-                      href={link.href}
-                      isLinkPreviewOnly={isLinkPreviewOnly}
-                      onLongPress={handleLongPress}
-                    />
-                  ) : null}
-                </View>
-                {!isLinkPreviewOnly ? (
-                  <Hyperlink
-                    text={message.message}
-                    styles={{
-                      root: [
-                        styles.message,
-                        isAuthor && styles.messageIsAuthor
-                      ],
-                      link: [
-                        styles.message,
-                        styles.link,
-                        isAuthor && styles.messageIsAuthor
-                      ]
-                    }}
+            <View
+              style={[styles.bubble, isAuthor && styles.isAuthor]}
+              ref={
+                itemsRef
+                  ? (el) => (itemsRef.current[message.message_id] = el)
+                  : null
+              }
+            >
+              <View>
+                {link ? (
+                  <LinkPreview
+                    key={`${link.value}-${link.start}-${link.end}`}
+                    chatId={chatId}
+                    messageId={message.message_id}
+                    href={link.href}
+                    isLinkPreviewOnly={isLinkPreviewOnly}
+                    onLongPress={handleLongPress}
                   />
                 ) : null}
               </View>
-              {message.reactions?.length > 0 ? (
-                <>
-                  {!isUnderneathPopup ? (
-                    <View
-                      style={[
-                        styles.reactionContainer,
-                        isAuthor
-                          ? styles.reactionContainerIsAuthor
-                          : styles.reactionContainerOtherUser
-                      ]}
-                    >
-                      {message.reactions.map((reaction) => {
-                        return (
-                          <ChatReaction
-                            key={reaction.created_at}
-                            reaction={reaction}
-                          />
-                        )
-                      })}
-                    </View>
-                  ) : null}
-                </>
+              {!isLinkPreviewOnly ? (
+                <Hyperlink
+                  text={message.message}
+                  styles={{
+                    root: [styles.message, isAuthor && styles.messageIsAuthor],
+                    link: [
+                      styles.message,
+                      styles.link,
+                      isAuthor && styles.messageIsAuthor
+                    ]
+                  }}
+                />
               ) : null}
             </View>
+            {message.reactions?.length > 0 ? (
+              <>
+                {!isUnderneathPopup ? (
+                  <View
+                    style={[
+                      styles.reactionContainer,
+                      isAuthor
+                        ? styles.reactionContainerIsAuthor
+                        : styles.reactionContainerOtherUser
+                    ]}
+                  >
+                    {message.reactions.map((reaction) => {
+                      return (
+                        <ChatReaction
+                          key={reaction.created_at}
+                          reaction={reaction}
+                        />
+                      )
+                    })}
+                  </View>
+                ) : null}
+              </>
+            ) : null}
           </Pressable>
         </View>
         {message.hasTail ? (
           <>
+            <View
+              style={[
+                styles.tail,
+                isAuthor ? styles.tailIsAuthor : styles.tailOtherUser,
+                isPopup && { bottom: 0 }
+              ]}
+            >
+              <View style={styles.tailShadow} />
+              <ChatTail
+                fill={
+                  isAuthor && !isLinkPreviewOnly
+                    ? palette.secondary
+                    : palette.white
+                }
+              />
+            </View>
             {!isPopup ? (
               <View style={styles.dateContainer}>
                 <Text style={styles.date}>
