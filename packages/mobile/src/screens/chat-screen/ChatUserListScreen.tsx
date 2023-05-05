@@ -75,6 +75,9 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     borderBottomColor: palette.neutralLight6,
     borderBottomWidth: 3,
     borderBottomLeftRadius: 1
+  },
+  flatListContainer: {
+    minHeight: '100%'
   }
 }))
 
@@ -111,7 +114,8 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
     },
     [hasQuery, userIds]
   )
-  const isLoading = hasQuery && status === Status.LOADING
+  const isLoading =
+    hasQuery && status === Status.LOADING && userIds.length === 0
 
   useEffect(() => {
     dispatch(fetchBlockees())
@@ -188,6 +192,7 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
               data={users}
               renderItem={({ item }) => <ChatUserListItem user={item} />}
               keyExtractor={(user: User) => user.handle}
+              contentContainerStyle={styles.flatListContainer}
             />
           ) : (
             <View style={styles.spinnerContainer}>

@@ -118,10 +118,6 @@ export const ChatUserListItem = ({ user }: ChatUserListItemProps) => {
     [dispatch]
   )
 
-  if (!user) {
-    return <LoadingSpinner />
-  }
-
   return (
     <TouchableOpacity
       onPress={() => handlePress(user)}
