@@ -3,12 +3,12 @@ import { useCallback } from 'react'
 import {
   profilePageSelectors,
   MAX_PROFILE_RELATED_ARTISTS,
-  FeatureFlags
+  FeatureFlags,
+  useGetRelatedArtists
 } from '@audius/common'
 import { IconUserGroup } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { useGetRelatedArtists } from 'api/relatedArtists'
 import { ProfilePageNavSectionTitle } from 'components/profile-page-nav-section-title/ProfilePageNavSectionTitle'
 import { ProfilePictureListTile } from 'components/profile-picture-list-tile/ProfilePictureListTile'
 import { useFlag } from 'hooks/useRemoteConfig'

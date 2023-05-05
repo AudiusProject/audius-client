@@ -1,18 +1,16 @@
-import { useEffect } from 'react'
+import { useContext, useEffect } from 'react'
 
-import {
-  cacheActions,
-  cacheSelectors,
-  getErrorMessage,
-  Kind,
-  Status,
-  CommonState
-} from '@audius/common'
 import { CaseReducerActions, createSlice } from '@reduxjs/toolkit'
 import { isEqual, mapValues, zipObject } from 'lodash'
 import { denormalize, normalize } from 'normalizr'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { Kind } from 'models/Kind'
+import { Status } from 'models/Status'
+import { cacheActions, cacheSelectors, CommonState } from 'store/index'
+import { getErrorMessage } from 'utils'
+
+import { AudiusQueryContext } from './AudiusQueryContext'
 import { apiResponseSchema } from './schema'
 import {
   Api,
@@ -176,6 +174,7 @@ const buildEndpointHooks = (
         : nonNormalizedData
     }, isEqual)
 
+    const context = useContext(AudiusQueryContext)
     useEffect(() => {
       if (isInitialValue) {
         dispatch(
@@ -189,7 +188,7 @@ const buildEndpointHooks = (
       }
 
       const fetchWrapped = async () => {
-        if (cachedData) return
+        if (cachedData || !context) return
         if (status === Status.LOADING) return
         try {
           dispatch(
@@ -198,7 +197,7 @@ const buildEndpointHooks = (
               fetchArgs
             }) as FetchLoadingAction
           )
-          const apiData = await endpoint.fetch(fetchArgs)
+          const apiData = await endpoint.fetch(fetchArgs, context)
           if (!apiData) {
             throw new Error('Remote data not found')
           }
@@ -235,7 +234,8 @@ const buildEndpointHooks = (
       status,
       isInitialValue,
       nonNormalizedData,
-      strippedEntityMap
+      strippedEntityMap,
+      context
     ])
 
     if (endpoint.options?.schemaKey) {
@@ -257,7 +257,7 @@ const stripEntityMap = (entities: EntityMap): StrippedEntityMap => {
 const selectRehydrateEntityMap = (
   state: CommonState,
   strippedEntityMap: StrippedEntityMap
-): EntityMap | undefined => {
+): EntityMap | null => {
   try {
     return mapValues(
       strippedEntityMap,
@@ -280,6 +280,7 @@ const selectRehydrateEntityMap = (
     if ((e as Error).message !== 'missing entity') {
       throw e
     }
+    return null
   }
 }
 

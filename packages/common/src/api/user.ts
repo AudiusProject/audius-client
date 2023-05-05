@@ -1,6 +1,4 @@
-import { Kind } from '@audius/common'
-
-import { apiClient } from 'services/audius-api-client'
+import { Kind } from 'models'
 
 import { createApi } from './createApi'
 
@@ -8,7 +6,7 @@ const userApi = createApi({
   reducerPath: 'userApi',
   endpoints: {
     getUserById: {
-      fetch: async ({ id, currentUserId }) => {
+      fetch: async ({ id, currentUserId }, { apiClient }) => {
         const apiUser = await apiClient.getUser({ userId: id, currentUserId })
         return {
           user: apiUser?.[0]

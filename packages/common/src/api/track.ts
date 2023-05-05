@@ -1,12 +1,10 @@
-import { apiClient } from 'services/audius-api-client'
-
 import { createApi } from './createApi'
 
 const trackApi = createApi({
   reducerPath: 'trackApi',
   endpoints: {
     getTrackById: {
-      fetch: async ({ id }) => {
+      fetch: async ({ id }, { apiClient }) => {
         return {
           track: await apiClient.getTrack({ id })
         }

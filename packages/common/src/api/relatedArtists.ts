@@ -1,12 +1,10 @@
-import { apiClient } from 'services/audius-api-client'
-
 import { createApi } from './createApi'
 
 const relatedArtistsApi = createApi({
   reducerPath: 'relatedArtistsApi',
   endpoints: {
     getRelatedArtists: {
-      fetch: async ({ artistId }) => ({
+      fetch: async ({ artistId }, { apiClient }) => ({
         users: await apiClient.getRelatedArtists({
           userId: artistId,
           limit: 50

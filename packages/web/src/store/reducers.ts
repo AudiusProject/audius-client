@@ -31,10 +31,6 @@ import userListModal from 'store/application/ui/userListModal/slice'
 import dragndrop from 'store/dragndrop/slice'
 import error from 'store/errors/reducers'
 
-import relatedArtistsApi from '../api/relatedArtists'
-import trackApi from '../api/track'
-import userApi from '../api/user'
-
 export const commonStoreReducers = clientStoreReducers()
 
 const createRootReducer = (routeHistory: History) =>

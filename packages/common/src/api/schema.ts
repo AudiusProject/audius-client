@@ -1,5 +1,6 @@
-import { Kind } from '@audius/common'
 import { schema } from 'normalizr'
+
+import { Kind } from 'models/Kind'
 
 export const userSchema = new schema.Entity(
   Kind.USERS,

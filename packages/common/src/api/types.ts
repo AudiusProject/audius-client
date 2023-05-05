@@ -1,10 +1,13 @@
-import { Kind, Status } from '@audius/common'
 import {
   Action,
   CreateSliceOptions,
   PayloadAction,
   Reducer
 } from '@reduxjs/toolkit'
+
+import { Kind, Status } from 'models'
+
+import { AudiusQueryContextType } from './AudiusQueryContext'
 
 export type Api = {
   reducer: Reducer<any, Action>
@@ -22,7 +25,7 @@ type EndpointOptions = {
 }
 
 export type EndpointConfig = {
-  fetch: (fetchArgs: any) => Promise<any>
+  fetch: (fetchArgs: any, context: AudiusQueryContextType) => Promise<any>
   options?: EndpointOptions
 }
 
