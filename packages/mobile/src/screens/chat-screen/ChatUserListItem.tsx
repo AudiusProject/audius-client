@@ -6,7 +6,6 @@ import { Text, View, TouchableOpacity } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconUser from 'app/assets/images/iconUser.svg'
-import LoadingSpinner from 'app/components/loading-spinner'
 import { ProfilePicture } from 'app/components/user'
 import { UserBadges } from 'app/components/user-badges'
 import { makeStyles } from 'app/styles'
