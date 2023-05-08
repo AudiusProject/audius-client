@@ -13,23 +13,22 @@ import type { AppTabScreenParamList } from '../app-screen'
 
 const { getSingleOtherChatUser, getChat } = chatSelectors
 
+const messages = {
+  new: 'new'
+}
+
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   root: {
-    height: spacing(28),
     paddingVertical: spacing(4),
     paddingHorizontal: spacing(6),
     backgroundColor: palette.white,
     borderColor: palette.neutralLight8,
     borderBottomWidth: 1
   },
-  loadingSpinnerContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
   contentRoot: {
     display: 'flex',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    justifyContent: 'space-between'
   },
   profilePicture: {
     width: spacing(12),
@@ -38,6 +37,10 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     borderColor: palette.neutralLight9
   },
   userContainer: {
+    display: 'flex',
+    flexDirection: 'row'
+  },
+  userTextContainer: {
     display: 'flex',
     flexDirection: 'column',
     paddingTop: 2,
@@ -56,8 +59,32 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   },
   handle: {
     fontSize: typography.fontSize.small
+  },
+  unreadCountContainer: {
+    paddingVertical: spacing(1.5),
+    paddingHorizontal: spacing(2),
+    borderRadius: spacing(0.5),
+    backgroundColor: palette.secondary
+  },
+  unreadCount: {
+    fontSize: typography.fontSize.xxs,
+    textTransform: 'uppercase',
+    fontWeight: 'bold',
+    color: palette.white,
+    letterSpacing: 0.5
   }
 }))
+
+const clipMessageCount = (count: number): string => {
+  if (count > 9) {
+    return '9+'
+  }
+  return count.toString()
+}
+
+const removeLeadingWhitespace = (message: string): string => {
+  return message.replace(/^\s+/, '')
+}
 
 export const ChatListItem = ({ chatId }: { chatId: string }) => {
   const navigation = useNavigation<AppTabScreenParamList>()
@@ -79,19 +106,35 @@ export const ChatListItem = ({ chatId }: { chatId: string }) => {
         {otherUser ? (
           <>
             <View style={styles.contentRoot}>
-              <ProfilePicture
-                profile={otherUser}
-                style={styles.profilePicture}
-              />
               <View style={styles.userContainer}>
-                <View style={styles.userNameContainer}>
-                  <Text style={styles.userName}>{otherUser.name}</Text>
-                  <UserBadges user={otherUser} hideName />
+                <ProfilePicture
+                  profile={otherUser}
+                  style={styles.profilePicture}
+                />
+                <View style={styles.userTextContainer}>
+                  <View style={styles.userNameContainer}>
+                    <Text style={styles.userName}>{otherUser.name}</Text>
+                    <UserBadges user={otherUser} hideName />
+                  </View>
+                  <Text style={styles.handle}>@{otherUser.handle}</Text>
                 </View>
-                <Text style={styles.handle}>@{otherUser.handle}</Text>
               </View>
+              {chat?.unread_message_count && chat?.unread_message_count > 0 ? (
+                <View>
+                  <View style={styles.unreadCountContainer}>
+                    <Text style={styles.unreadCount}>
+                      {clipMessageCount(chat?.unread_message_count ?? 0)}{' '}
+                      {messages.new}
+                    </Text>
+                  </View>
+                </View>
+              ) : null}
             </View>
-            <Text numberOfLines={1}>{chat?.last_message}</Text>
+            <Text numberOfLines={1}>
+              {chat?.last_message
+                ? removeLeadingWhitespace(chat?.last_message)
+                : null}
+            </Text>
           </>
         ) : null}
       </View>
