@@ -74,12 +74,23 @@ export const RootScreen = ({
   // Prefetch chats
   useEffect(() => {
     dispatch(fetchMoreChats())
-  })
+  }, [dispatch])
 
   // Prefetch messages for initial loaded chats
   useEffect(() => {
-    if (chats.length > 0) {
-      chats.map((chat) => dispatch(fetchMoreMessages({ chatId: chat.chat_id })))
+    if (
+      chats.length > 0 &&
+      chats.every(
+        (chat) => !chat.messagesStatus || chat.messagesStatus === Status.IDLE
+      )
+    ) {
+      chats.map((chat) => {
+        console.log(
+          `REED fetching messages for chat ${chat.chat_id} with status ${chat.messagesStatus}}`
+        )
+        dispatch(fetchMoreMessages({ chatId: chat.chat_id }))
+        return null
+      })
     }
   }, [chats, dispatch])
 
