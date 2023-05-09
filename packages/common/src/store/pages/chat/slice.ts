@@ -79,7 +79,7 @@ const {
   selectIds: getAllMessageIds
 } = chatMessagesAdapter.getSelectors()
 
-// Recalculate hasTail for the message at index - 1 (the previous message of
+// Recalculate hasTail for the message at index + 1 (the previous message of
 // the message at index).
 const recalculatePreviousMessageHasTail = (
   chatState: EntityState<ChatMessageWithExtras>,
