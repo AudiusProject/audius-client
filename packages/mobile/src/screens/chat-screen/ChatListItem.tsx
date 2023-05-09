@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 
 import { chatSelectors, useProxySelector } from '@audius/common'
 import { View, TouchableHighlight } from 'react-native'
@@ -75,15 +75,15 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   }
 }))
 
-const clipMessageCount = (count: number): string => {
+const clipMessageCount = (count: number) => {
   if (count > 9) {
     return '9+'
   }
   return count.toString()
 }
 
-const removeLeadingWhitespace = (message: string): string => {
-  return message.replace(/^\s+/, '')
+const useRemoveLeadingWhitespace = (message: string) => {
+  return useMemo(() => message.replace(/^\s+/, ''), [message])
 }
 
 export const ChatListItem = ({ chatId }: { chatId: string }) => {
@@ -95,6 +95,7 @@ export const ChatListItem = ({ chatId }: { chatId: string }) => {
     (state) => getSingleOtherChatUser(state, chatId),
     [chatId]
   )
+  const lastMessage = useRemoveLeadingWhitespace(chat?.last_message ?? '')
 
   const handlePress = useCallback(() => {
     navigation.push('Chat', { chatId })
@@ -130,11 +131,7 @@ export const ChatListItem = ({ chatId }: { chatId: string }) => {
                 </View>
               ) : null}
             </View>
-            <Text numberOfLines={1}>
-              {chat?.last_message
-                ? removeLeadingWhitespace(chat?.last_message)
-                : null}
-            </Text>
+            <Text numberOfLines={1}>{lastMessage}</Text>
           </>
         ) : null}
       </View>
