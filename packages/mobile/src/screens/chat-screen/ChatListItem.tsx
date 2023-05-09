@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { chatSelectors, useProxySelector } from '@audius/common'
 import { View, TouchableHighlight } from 'react-native'
