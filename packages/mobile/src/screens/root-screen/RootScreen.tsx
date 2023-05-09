@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { accountSelectors, Status } from '@audius/common'
+import {
+  accountSelectors,
+  chatSelectors,
+  chatActions,
+  Status
+} from '@audius/common'
 import type { NavigatorScreenParams } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { getHasCompletedAccount } from 'common/store/pages/signon/selectors'
@@ -22,6 +27,8 @@ import { AppDrawerScreen } from '../app-drawer-screen'
 import { StatusBar } from './StatusBar'
 
 const { getAccountStatus } = accountSelectors
+const { fetchMoreChats, fetchMoreMessages } = chatActions
+const { getChats } = chatSelectors
 
 export type RootScreenParamList = {
   HomeStack: NavigatorScreenParams<{
@@ -48,6 +55,7 @@ export const RootScreen = ({
   const { updateRequired: appUpdateRequired } = useUpdateRequired()
   const [isLoaded, setIsLoaded] = useState(false)
   const [isSplashScreenDismissed, setIsSplashScreenDismissed] = useState(false)
+  const chats = useSelector(getChats)
 
   useAppState(
     () => dispatch(enterForeground()),
@@ -62,6 +70,18 @@ export const RootScreen = ({
       setIsLoaded(true)
     }
   }, [accountStatus, setIsLoaded, isLoaded])
+
+  // Prefetch chats
+  useEffect(() => {
+    dispatch(fetchMoreChats())
+  })
+
+  // Prefetch messages for initial loaded chats
+  useEffect(() => {
+    if (chats.length > 0) {
+      chats.map((chat) => dispatch(fetchMoreMessages({ chatId: chat.chat_id })))
+    }
+  }, [chats, dispatch])
 
   const handleSplashScreenDismissed = useCallback(() => {
     setIsSplashScreenDismissed(true)

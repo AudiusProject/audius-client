@@ -92,6 +92,11 @@ export const getChatMessages = createSelector(
   }
 )
 
+export const getHasUnreadMessages = (state: CommonState) => {
+  const chats = getChats(state)
+  return chats?.some((chat) => chat.unread_message_count > 0)
+}
+
 export const getOtherChatUsersFromChat = (
   state: CommonState,
   chat?: UserChat
