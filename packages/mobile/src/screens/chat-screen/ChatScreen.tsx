@@ -390,6 +390,10 @@ export const ChatScreen = () => {
     []
   )
 
+  const measureChatContainerBottom = useCallback(() => {
+    measureView(composeRef, chatContainerBottom)
+  }, [])
+
   return (
     <Screen
       url={url}
@@ -448,7 +452,7 @@ export const ChatScreen = () => {
               styles.keyboardAvoiding,
               hasCurrentlyPlayingTrack ? { bottom: PLAY_BAR_HEIGHT } : null
             ]}
-            onKeyboardHide={() => measureView(composeRef, chatContainerBottom)}
+            onKeyboardHide={measureChatContainerBottom}
           >
             {chat?.messagesStatus === Status.SUCCESS &&
             chatMessages?.length === 0 ? (
@@ -480,9 +484,7 @@ export const ChatScreen = () => {
 
             <View
               style={styles.composeView}
-              onLayout={() => {
-                measureView(composeRef, chatContainerBottom)
-              }}
+              onLayout={measureChatContainerBottom}
               ref={composeRef}
               pointerEvents={'box-none'}
             >
