@@ -110,10 +110,6 @@ export const ChatListScreen = () => {
   const chatsStatus = useSelector(getChatsStatus)
 
   useEffect(() => {
-    dispatch(fetchMoreChats())
-  }, [dispatch])
-
-  useEffect(() => {
     dispatch(connect())
     return () => {
       dispatch(disconnect())
