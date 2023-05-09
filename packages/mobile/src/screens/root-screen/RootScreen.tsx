@@ -1,11 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import {
-  accountSelectors,
-  chatSelectors,
-  chatActions,
-  Status
-} from '@audius/common'
+import { accountSelectors, chatActions, Status } from '@audius/common'
 import type { NavigatorScreenParams } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { getHasCompletedAccount } from 'common/store/pages/signon/selectors'
@@ -27,8 +22,7 @@ import { AppDrawerScreen } from '../app-drawer-screen'
 import { StatusBar } from './StatusBar'
 
 const { getAccountStatus } = accountSelectors
-const { fetchMoreChats, fetchMoreMessages } = chatActions
-const { getChats } = chatSelectors
+const { fetchMoreChats, connect, disconnect } = chatActions
 
 export type RootScreenParamList = {
   HomeStack: NavigatorScreenParams<{
@@ -55,7 +49,6 @@ export const RootScreen = ({
   const { updateRequired: appUpdateRequired } = useUpdateRequired()
   const [isLoaded, setIsLoaded] = useState(false)
   const [isSplashScreenDismissed, setIsSplashScreenDismissed] = useState(false)
-  const chats = useSelector(getChats)
 
   useAppState(
     () => dispatch(enterForeground()),
@@ -71,28 +64,18 @@ export const RootScreen = ({
     }
   }, [accountStatus, setIsLoaded, isLoaded])
 
+  // Connect to chats websockets
+  useEffect(() => {
+    dispatch(connect())
+    return () => {
+      dispatch(disconnect())
+    }
+  }, [dispatch])
+
   // Prefetch chats
   useEffect(() => {
     dispatch(fetchMoreChats())
   }, [dispatch])
-
-  // Prefetch messages for initial loaded chats
-  useEffect(() => {
-    if (
-      chats.length > 0 &&
-      chats.every(
-        (chat) => !chat.messagesStatus || chat.messagesStatus === Status.IDLE
-      )
-    ) {
-      chats.map((chat) => {
-        console.log(
-          `REED fetching messages for chat ${chat.chat_id} with status ${chat.messagesStatus}}`
-        )
-        dispatch(fetchMoreMessages({ chatId: chat.chat_id }))
-        return null
-      })
-    }
-  }, [chats, dispatch])
 
   const handleSplashScreenDismissed = useCallback(() => {
     setIsSplashScreenDismissed(true)

@@ -392,7 +392,7 @@ function* watchFetchChats() {
 }
 
 function* watchFetchChatMessages() {
-  yield takeLatest(fetchMoreMessages, doFetchMoreMessages)
+  yield takeEvery(fetchMoreMessages, doFetchMoreMessages)
 }
 
 function* watchSetMessageReaction() {
