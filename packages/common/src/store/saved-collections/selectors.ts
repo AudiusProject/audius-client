@@ -27,7 +27,8 @@ type GetAlbumsWithDetailsResult = {
   fetched: CollectionWithOwner[]
   unfetched: AccountCollection[]
 }
-export const getAlbumsWithDetails = createSelector(
+/** Returns a mapped list of albums for which we have fetched full details */
+export const getFetchedAlbumsWithDetails = createSelector(
   [getAccountAlbums, getCollections, getUsers],
   (albums, collections, users) => {
     // TODO: Might want to read status, what happens for failed loads of parts of the collection?

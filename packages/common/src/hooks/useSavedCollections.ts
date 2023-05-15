@@ -16,7 +16,7 @@ const { fetchCollections } = savedCollectionsActions
 const {
   getAccountAlbums,
   getSavedAlbumsState,
-  getAlbumsWithDetails,
+  getFetchedAlbumsWithDetails,
   getAccountPlaylists
 } = savedCollectionsSelectors
 
@@ -40,7 +40,7 @@ export function useSavedAlbumsDetails({
   const dispatch = useDispatch()
   const [hasFetched, setHasFetched] = useState(false)
   const { unfetched: unfetchedAlbums, fetched: albumsWithDetails } =
-    useSelector(getAlbumsWithDetails)
+    useSelector(getFetchedAlbumsWithDetails)
   const { status } = useSelector(getSavedAlbumsState)
 
   const fetchMore = useCallback(() => {

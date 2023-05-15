@@ -18,7 +18,7 @@ import { addPlaylistsNotInLibrary } from 'common/store/playlist-library/sagas'
 import { updateProfileAsync } from 'common/store/profile/sagas'
 import { waitForWrite, waitForRead } from 'utils/sagaHelpers'
 
-import { fetchCollectionChunks } from '../saved-collections/sagas'
+import { retrieveCollections } from '../cache/collections/utils'
 
 import disconnectedWallets from './disconnected_wallet_fix.json'
 
@@ -365,7 +365,7 @@ function* fetchSavedAlbumsAsync() {
   yield waitForRead()
   const cachedSavedAlbums = yield select(getAccountAlbumIds)
   if (cachedSavedAlbums.length > 0) {
-    yield* fetchCollectionChunks(cachedSavedAlbums)
+    yield* call(retrieveCollections, cachedSavedAlbums)
   }
 }
 
@@ -376,7 +376,7 @@ function* fetchSavedPlaylistsAsync() {
   yield fork(function* () {
     const savedPlaylists = yield select(getAccountSavedPlaylistIds)
     if (savedPlaylists.length > 0) {
-      yield* fetchCollectionChunks(savedPlaylists)
+      yield* call(retrieveCollections, savedPlaylists)
     }
   })
 
@@ -384,7 +384,7 @@ function* fetchSavedPlaylistsAsync() {
   yield fork(function* () {
     const ownPlaylists = yield select(getAccountOwnedPlaylistIds)
     if (ownPlaylists.length > 0) {
-      yield* fetchCollectionChunks(ownPlaylists)
+      yield* call(retrieveCollections, ownPlaylists)
     }
   })
 }

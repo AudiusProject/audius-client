@@ -1,12 +1,22 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
+import { ID } from '../../models/Identifiers'
 import { Status } from '../../models/Status'
 
-import {
-  FetchCollectionsFailedPayload,
-  FetchCollectionsPayload,
-  FetchCollectionsSucceededPayload
-} from './types'
+import { CollectionType } from './types'
+
+type FetchCollectionsPayload = {
+  type: CollectionType
+  ids: ID[]
+}
+
+type FetchCollectionsSucceededPayload = {
+  type: CollectionType
+}
+
+type FetchCollectionsFailedPayload = {
+  type: CollectionType
+}
 
 export type CollectionListState = {
   status: Status

@@ -454,7 +454,6 @@ export type SavedPageProps = {
   fetchSavedTracks: () => void
   resetSavedTracks: () => void
   updateLineupOrder: (updatedOrderIndices: UID[]) => void
-  getFilteredAlbums: (albums: SavedPageCollection[]) => SavedPageCollection[]
   getFilteredPlaylists: (
     playlists: SavedPageCollection[]
   ) => SavedPageCollection[]

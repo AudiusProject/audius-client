@@ -41,7 +41,12 @@ import styles from './SavedPage.module.css'
 const { getInitialFetchStatus } = savedPageSelectors
 
 const messages = {
-  filterPlaceholder: 'Filter Tracks'
+  filterPlaceholder: 'Filter Tracks',
+  emptyAlbumsHeader: 'You haven’t favorited any albums yet.',
+  emptyAlbumsBody: 'Once you have, this is where you’ll find them!',
+  emptyTracksHeader: 'You haven’t favorited any tracks yet.',
+  emptyTracksBody: 'Once you have, this is where you’ll find them!',
+  goToTrending: 'Go to Trending'
 }
 
 type AlbumCardProps = Pick<CardProps, 'index' | 'isLoading' | 'setDidLoad'> & {
@@ -110,9 +115,9 @@ const AlbumsTabContent = () => {
     <CardLineup cards={cards} cardsClassName={styles.cardsContainer} />
   ) : (
     <EmptyTable
-      primaryText='You haven’t favorited any albums yet.'
-      secondaryText='Once you have, this is where you’ll find them!'
-      buttonLabel='Go to Trending'
+      primaryText={messages.emptyAlbumsHeader}
+      secondaryText={messages.emptyAlbumsBody}
+      buttonLabel={messages.goToTrending}
       onClick={() => goToRoute('/trending')}
     />
   )
@@ -275,9 +280,9 @@ const SavedPage = ({
     elements: [
       isEmpty && !tracksLoading ? (
         <EmptyTable
-          primaryText='You haven’t favorited any tracks yet.'
-          secondaryText='Once you have, this is where you’ll find them!'
-          buttonLabel='Go to Trending'
+          primaryText={messages.emptyTracksHeader}
+          secondaryText={messages.emptyTracksBody}
+          buttonLabel={messages.goToTrending}
           onClick={() => goToRoute('/trending')}
         />
       ) : (

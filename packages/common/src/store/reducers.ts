@@ -68,9 +68,7 @@ import { recoveryEmailReducer, RecoveryEmailState } from './recovery-email'
 import remixSettingsReducer, {
   RemixSettingsState
 } from './remix-settings/slice'
-import savedCollectionsReducer, {
-  SavedCollectionsState
-} from './saved-collections/slice'
+import savedCollectionsReducer from './saved-collections/slice'
 import solanaReducer from './solana/slice'
 import stemsUpload from './stems-upload/slice'
 import tippingReducer from './tipping/slice'
@@ -273,7 +271,7 @@ export type CommonState = {
 
   // TODO: missing types for internally managed api slice state
   api: any
-  savedCollections: SavedCollectionsState
+  savedCollections: ReturnType<typeof savedCollectionsReducer>
 
   // Playback
   queue: ReturnType<typeof queue>

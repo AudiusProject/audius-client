@@ -237,18 +237,6 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
     return [filteredMetadata, filteredIndex]
   }
 
-  getFilteredAlbums = (
-    albums: SavedPageCollection[]
-  ): SavedPageCollection[] => {
-    const filterText = this.state.filterText
-    return albums.filter(
-      (item: SavedPageCollection) =>
-        item.playlist_name.toLowerCase().indexOf(filterText.toLowerCase()) >
-          -1 ||
-        item.ownerHandle.toLowerCase().indexOf(filterText.toLowerCase()) > -1
-    )
-  }
-
   getFilteredPlaylists = (
     playlists: SavedPageCollection[]
   ): SavedPageCollection[] => {
@@ -489,7 +477,6 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
 
       onSave: this.onSave,
       onTogglePlay: this.onTogglePlay,
-      getFilteredAlbums: this.getFilteredAlbums,
       getFilteredPlaylists: this.getFilteredPlaylists
     }
 
