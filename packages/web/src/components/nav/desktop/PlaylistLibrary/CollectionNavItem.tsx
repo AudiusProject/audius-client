@@ -133,7 +133,7 @@ export const CollectionNavItem = (props: CollectionNavItemProps) => {
           </span>
           <EditNavItemButton
             className={cn(styles.editPlaylistButton, {
-              [styles.isVisible]: isOwned && isHovering && !isDraggingOver
+              [styles.editable]: isOwned && isHovering && !isDraggingOver
             })}
             aria-label={messages.editPlaylistLabel}
             onClick={handleClickEdit}
