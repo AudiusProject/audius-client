@@ -1,5 +1,4 @@
 .root {
-  /* position left = -(6px width + 4px margin-right on update dot element) so that list items stay aligned */
   position: absolute;
   left: calc(32px - 10px);
 }
