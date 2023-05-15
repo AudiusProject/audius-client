@@ -6,6 +6,7 @@ import { accountSelectors } from 'store/account'
 import { cacheUsersSelectors } from 'store/cache'
 import { CommonState } from 'store/reducers'
 import { decodeHashId } from 'utils/hashIds'
+import { Maybe } from 'utils/typeUtils'
 
 import { chatMessagesAdapter, chatsAdapter } from './slice'
 import { ChatPermissionAction } from './types'
@@ -175,7 +176,7 @@ export const getCanChat = createSelector(
     getBlockees,
     getBlockers,
     getChatPermissions,
-    (_state: CommonState, userId?: ID) => {
+    (_state: CommonState, userId: Maybe<ID>) => {
       return userId
     }
   ],

@@ -2,8 +2,9 @@ import { useCallback } from 'react'
 
 import { chatActions, chatSelectors } from '@audius/common'
 import type { User } from '@audius/common'
+import { useSelector } from 'audius-client/src/common/hooks/useSelector'
 import { Text, View, TouchableOpacity } from 'react-native'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import IconUser from 'app/assets/images/iconUser.svg'
 import { ProfilePicture } from 'app/components/user'
