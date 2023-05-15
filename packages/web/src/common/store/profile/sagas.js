@@ -20,7 +20,8 @@ import {
   MAX_PROFILE_TOP_SUPPORTERS,
   collectiblesActions,
   processAndCacheUsers,
-  chatActions
+  chatActions,
+  FeatureFlags
 } from '@audius/common'
 import { merge } from 'lodash'
 import {
@@ -274,6 +275,8 @@ function* fetchProfileAsync(action) {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const isNativeMobile = yield getContext('isNativeMobile')
   const { getRemoteVar } = yield getContext('remoteConfigInstance')
+  const getFeatureEnabled = yield getContext('getFeatureEnabled')
+  const isChatEnabled = yield call(getFeatureEnabled, FeatureFlags.CHAT_ENABLED)
 
   try {
     let user
@@ -319,7 +322,9 @@ function* fetchProfileAsync(action) {
     }
 
     // Get chat permissions
-    yield put(fetchPermissions({ userIds: [user.user_id] }))
+    if (isChatEnabled) {
+      yield put(fetchPermissions({ userIds: [user.user_id] }))
+    }
 
     yield fork(fetchProfileCustomizedCollectibles, user)
     yield fork(fetchOpenSeaAssets, user)
@@ -601,32 +606,18 @@ function* updateCurrentUserFollows(action) {
   )
 }
 
-// TODO after migrating subscriptions from identity -> discovery remove action.onFollow
-// and only dispatch SET_NOTIFICATION_SUBSCRIPTION when a user manually subscribes/unsubscribes
-// (not on follow)
 function* watchSetNotificationSubscription() {
-  const audiusBackendInstance = yield getContext('audiusBackendInstance')
   yield takeEvery(
     profileActions.SET_NOTIFICATION_SUBSCRIPTION,
     function* (action) {
+      // Discovery automatically subscribes on follow so only update if not a subscribe
+      // on follow.
       if (action.update) {
         try {
-          yield call(
-            audiusBackendInstance.updateUserSubscription,
-            action.userId,
-            action.isSubscribed
-          )
-
-          // Dual write to discovery. Part of the migration of subscriptions
-          // from identity to discovery.
-          // Discovery automatically subscribes on follow so only relay if not a subscribe
-          // on follow.
-          if (!action.onFollow) {
-            if (action.isSubscribed) {
-              yield fork(subscribeToUserAsync, action.userId)
-            } else {
-              yield fork(unsubscribeFromUserAsync, action.userId)
-            }
+          if (action.isSubscribed) {
+            yield fork(subscribeToUserAsync, action.userId)
+          } else {
+            yield fork(unsubscribeFromUserAsync, action.userId)
           }
         } catch (err) {
           const isReachable = yield select(getIsReachable)

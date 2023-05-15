@@ -86,54 +86,29 @@ export class AudioPlayer {
     this.onError = (e, data) => {}
   }
 
-  _initContext = () => {
-    this.audio.addEventListener('canplay', () => {
-      if (!this.audioCtx && !IS_SAFARI && !IS_UI_WEBVIEW) {
-        // Set up WebAudio API handles
-        const AudioContext = window.AudioContext || window.webkitAudioContext
-        try {
-          this.audioCtx = new AudioContext()
-          this.gainNode = this.audioCtx.createGain()
-          this.source = this.audioCtx.createMediaElementSource(this.audio)
-          this.source.connect(this.gainNode)
-          this.gainNode.connect(this.audioCtx.destination)
-        } catch (e) {
-          console.error('error setting up audio context')
-          console.error(e)
-        }
-      }
-
-      clearTimeout(this.bufferingTimeout!)
-      this.buffering = false
-      this.onBufferingChange(this.buffering)
-    })
-
-    this.audio.onerror = (e) => {
-      this.onError(AudioError.AUDIO, e)
-
-      // Handle audio errors by trying to nudge the playhead and re attach media.
-      // Simply nudging the media doesn't work.
-      //
-      // This kind of error only seems to manifest on chrome because, as they say
-      // "We tend to be more strict about decoding errors than other browsers.
-      // Ignoring them will lead to a/v sync issues."
-      // https://bugs.chromium.org/p/chromium/issues/detail?id=1071899
-    }
-  }
-
   load = (
     duration: number,
     onEnd: () => void,
     mp3Url: string | null = null
   ) => {
     if (mp3Url) {
-      // TODO: Test to make sure that this doesn't break anything
       this.stop()
       const prevVolume = this.audio.volume
+
+      // Remove the current audio element to fix an issue in chrome
+      // where playing tracks quickly in succession breaks
       if (this.audio) {
+        // Remove listeners first so src = '' does not throw an error
+        this.audio.removeAllListeners?.()
+
         this.audio.src = ''
         this.audio.remove()
       }
+
+      if (this.bufferingTimeout) {
+        clearTimeout(this.bufferingTimeout)
+      }
+
       this.audio = new Audio()
 
       // Connect this.audio to the window so that 3P's can interact with it.
@@ -143,7 +118,32 @@ export class AudioPlayer {
       this.source = null
       this.audioCtx = null
 
-      this._initContext()
+      this.audio.addEventListener('canplay', () => {
+        if (!this.audioCtx && !IS_SAFARI && !IS_UI_WEBVIEW) {
+          // Set up WebAudio API handles
+          const AudioContext = window.AudioContext || window.webkitAudioContext
+          try {
+            this.audioCtx = new AudioContext()
+            this.gainNode = this.audioCtx.createGain()
+            this.source = this.audioCtx.createMediaElementSource(this.audio)
+            this.source.connect(this.gainNode)
+            this.gainNode.connect(this.audioCtx.destination)
+          } catch (e) {
+            console.error('error setting up audio context')
+            console.error(e)
+          }
+        }
+
+        if (this.bufferingTimeout) {
+          clearTimeout(this.bufferingTimeout)
+        }
+        this.buffering = false
+        this.onBufferingChange(this.buffering)
+      })
+
+      this.audio.onerror = (e) => {
+        this.onError(AudioError.AUDIO, e)
+      }
       this.audio.preload = 'none'
       this.audio.crossOrigin = 'anonymous'
       this.audio.src = mp3Url

@@ -23,8 +23,6 @@ export enum FeatureFlags {
   IOS_GATED_CONTENT_ENABLED = 'ios_gated_content_enabled_2',
   COLLECTIBLE_GATED_ENABLED = 'collectible_gated_enabled',
   SPECIAL_ACCESS_ENABLED = 'special_access_enabled',
-  AUTO_SUBSCRIBE_ON_FOLLOW = 'auto_subscribe_on_follow',
-  READ_SUBSCRIBERS_FROM_DISCOVERY_ENABLED = 'read_subscribers_from_discovery_enabled',
   VERIFY_HANDLE_WITH_TIKTOK = 'verify_handle_with_tiktok',
   AUDIO_TRANSACTIONS_HISTORY = 'audio_transactions_history',
   RATE_CTA_ENABLED = 'rate_cta_enabled_v2',
@@ -49,7 +47,8 @@ export enum FeatureFlags {
   STORAGE_V2_SIGNUP = 'storage_v2_signup',
   PLAYLIST_UPDATES_PRE_QA = 'playlist_updates_pre_qa',
   PLAYLIST_UPDATES_POST_QA = 'playlist_updates_post_qa',
-  AI_ATTRIBUTION = 'ai_attribution'
+  AI_ATTRIBUTION = 'ai_attribution',
+  WRITE_METADATA_THROUGH_CHAIN = 'write_metadata_through_chain'
 }
 
 type FlagDefaults = Record<FeatureFlags, boolean>
@@ -88,8 +87,6 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.IOS_GATED_CONTENT_ENABLED]: false,
   [FeatureFlags.COLLECTIBLE_GATED_ENABLED]: false,
   [FeatureFlags.SPECIAL_ACCESS_ENABLED]: false,
-  [FeatureFlags.AUTO_SUBSCRIBE_ON_FOLLOW]: false,
-  [FeatureFlags.READ_SUBSCRIBERS_FROM_DISCOVERY_ENABLED]: false,
   [FeatureFlags.VERIFY_HANDLE_WITH_TIKTOK]: false,
   [FeatureFlags.AUDIO_TRANSACTIONS_HISTORY]: false,
   [FeatureFlags.RATE_CTA_ENABLED]: false,
@@ -114,5 +111,6 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.STORAGE_V2_SIGNUP]: false,
   [FeatureFlags.PLAYLIST_UPDATES_PRE_QA]: false,
   [FeatureFlags.PLAYLIST_UPDATES_POST_QA]: false,
-  [FeatureFlags.AI_ATTRIBUTION]: false
+  [FeatureFlags.AI_ATTRIBUTION]: false,
+  [FeatureFlags.WRITE_METADATA_THROUGH_CHAIN]: false
 }

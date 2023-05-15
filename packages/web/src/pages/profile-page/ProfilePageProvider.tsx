@@ -1115,15 +1115,14 @@ function mapDispatchToProps(dispatch: Dispatch, props: RouteComponentProps) {
     setNotificationSubscription: (
       userId: ID,
       isSubscribed: boolean,
-      onFollow = true
+      update = false
     ) =>
       dispatch(
         profileActions.setNotificationSubscription(
           userId,
           isSubscribed,
-          true,
-          handleLower,
-          onFollow
+          update,
+          handleLower
         )
       ),
 
