@@ -90,6 +90,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     minHeight: '100%'
   },
   emptyContainer: {
+    marginTop: spacing(6),
     margin: spacing(2),
     padding: spacing(6),
     display: 'flex',
