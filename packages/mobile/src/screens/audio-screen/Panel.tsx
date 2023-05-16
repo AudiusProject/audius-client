@@ -120,7 +120,6 @@ export const Panel = ({
   const stepCount = challenge?.max_steps ?? 0
   const shouldShowCompleted =
     challenge?.state === 'completed' || challenge?.state === 'disbursed'
-  const hasCompleted = challenge?.state === 'completed'
   const hasDisbursed = challenge?.state === 'disbursed'
   const shouldShowProgressBar =
     stepCount > 1 && challenge?.challenge_type !== 'aggregate' && !hasDisbursed
