@@ -22,7 +22,8 @@ import { AppDrawerScreen } from '../app-drawer-screen'
 import { StatusBar } from './StatusBar'
 
 const { getAccountStatus } = accountSelectors
-const { fetchMoreChats, connect, disconnect } = chatActions
+const { fetchMoreChats, fetchUnreadMessagesCount, connect, disconnect } =
+  chatActions
 
 export type RootScreenParamList = {
   HomeStack: NavigatorScreenParams<{
@@ -64,18 +65,17 @@ export const RootScreen = ({
     }
   }, [accountStatus, setIsLoaded, isLoaded])
 
-  // Connect to chats websockets
+  // Connect to chats websockets and prefetch chats
   useEffect(() => {
-    dispatch(connect())
+    if (isLoaded && accountStatus === Status.SUCCESS) {
+      dispatch(connect())
+      dispatch(fetchMoreChats())
+      dispatch(fetchUnreadMessagesCount())
+    }
     return () => {
       dispatch(disconnect())
     }
-  }, [dispatch])
-
-  // Prefetch chats
-  useEffect(() => {
-    dispatch(fetchMoreChats())
-  }, [dispatch])
+  }, [dispatch, isLoaded, accountStatus])
 
   const handleSplashScreenDismissed = useCallback(() => {
     setIsSplashScreenDismissed(true)
