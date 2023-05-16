@@ -18,6 +18,7 @@ import {
   Api,
   ApiState,
   CreateApiConfig,
+  DefaultEndpointDefinitions,
   EndpointConfig,
   FetchErrorAction,
   FetchLoadingAction,
@@ -34,11 +35,34 @@ import {
 } from './utils'
 const { addEntries } = cacheActions
 
-export const createApi = ({ reducerPath, endpoints }: CreateApiConfig) => {
+export const createApi = <
+  SchemaKey extends string,
+  SchemaReturn,
+  argsT,
+  dataT extends { [key in SchemaKey]: SchemaReturn },
+  EndpointDefinitions extends DefaultEndpointDefinitions<
+    SchemaKey,
+    SchemaReturn,
+    argsT,
+    dataT
+  >
+>({
+  reducerPath,
+  endpoints
+}: {
+  reducerPath: any
+  endpoints: EndpointDefinitions
+}) => {
   const api = {
     reducerPath,
     hooks: {}
-  } as unknown as Api
+  } as unknown as Api<
+    SchemaKey,
+    SchemaReturn,
+    argsT,
+    dataT,
+    EndpointDefinitions
+  >
 
   const sliceConfig: SliceConfig = {
     name: reducerPath,

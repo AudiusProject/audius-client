@@ -9,24 +9,61 @@ import { Kind, Status } from 'models'
 
 import { AudiusQueryContextType } from './AudiusQueryContext'
 
-export type Api = {
+export type DefaultEndpointDefinitions<
+  SchemaKey extends string,
+  SchemaReturn,
+  argsT,
+  dataT extends { [key in SchemaKey]: SchemaReturn }
+> = {
+  [key: string]: EndpointConfig<SchemaKey, SchemaReturn, argsT, dataT>
+}
+
+export type Api<
+  SchemaKey extends string,
+  SchemaReturn,
+  argsT,
+  dataT extends { [key in SchemaKey]: SchemaReturn },
+  EndpointDefinitions extends DefaultEndpointDefinitions<
+    SchemaKey,
+    SchemaReturn,
+    argsT,
+    dataT
+  >
+> = {
   reducer: Reducer<any, Action>
   hooks: {
-    [key: string]: (...fetchArgs: any[]) => any
+    [Property in keyof EndpointDefinitions as `use${Capitalize<
+      string & Property
+    >}`]: (
+      fetchArgs: Parameters<EndpointDefinitions[Property]['fetch']>[0]
+    ) => ReturnType<
+      EndpointDefinitions[Property]['fetch']
+    >[EndpointDefinitions[Property]['options']['schemaKey']]
+
+    // EndpointDefinitions[Property]['options']['schemaKey'] extends string
+    //   ? ReturnType<
+    //       EndpointDefinitions[Property]['fetch']
+    //     >[EndpointDefinitions[Property]['options']['schemaKey']]
+    //   : ReturnType<EndpointDefinitions[Property]['fetch']>
   }
 }
 
 export type SliceConfig = CreateSliceOptions<any, any, any>
 
-type EndpointOptions = {
+type EndpointOptions<SchemaKey extends string> = {
   idArgKey?: string
-  schemaKey?: string
+  schemaKey: SchemaKey
   kind?: Kind
 }
 
-export type EndpointConfig<argsT, dataT> = {
+export type EndpointConfig<
+  SchemaKey extends string,
+  SchemaReturn,
+  argsT,
+  dataT extends { [key in SchemaKey]: SchemaReturn }
+> = {
   fetch: (fetchArgs: argsT, context: AudiusQueryContextType) => Promise<dataT>
-  options?: EndpointOptions
+  options: EndpointOptions<SchemaKey>
 }
 
 export type EntityMap = {
