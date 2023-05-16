@@ -107,15 +107,15 @@ const addEndpointToSlice = (sliceConfig: SliceConfig, endpointName: string) => {
   }
 }
 
-const buildEndpointHooks = (
+const buildEndpointHooks = <argsT, dataT>(
   api: Api,
   endpointName: string,
-  endpoint: EndpointConfig,
+  endpoint: EndpointConfig<argsT, dataT>,
   actions: CaseReducerActions<any>,
   reducerPath: string
 ) => {
   // Hook to be returned as use<EndpointName>
-  const useQuery = (fetchArgs: any) => {
+  const useQuery = (fetchArgs: argsT) => {
     const dispatch = useDispatch()
     const key = getKeyFromFetchArgs(fetchArgs)
     const queryState = useSelector((state: any) => {
@@ -173,7 +173,7 @@ const buildEndpointHooks = (
     }
 
     // Rehydrate local nonNormalizedData using entities from global normalized cache
-    let cachedData = useSelector((state: CommonState) => {
+    let cachedData: dataT = useSelector((state: CommonState) => {
       const rehydratedEntityMap =
         strippedEntityMap && selectRehydrateEntityMap(state, strippedEntityMap)
       return rehydratedEntityMap

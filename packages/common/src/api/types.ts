@@ -24,8 +24,8 @@ type EndpointOptions = {
   kind?: Kind
 }
 
-export type EndpointConfig = {
-  fetch: (fetchArgs: any, context: AudiusQueryContextType) => Promise<any>
+export type EndpointConfig<argsT, dataT> = {
+  fetch: (fetchArgs: argsT, context: AudiusQueryContextType) => Promise<dataT>
   options?: EndpointOptions
 }
 
@@ -74,5 +74,5 @@ export type ApiState = {
 
 export type CreateApiConfig = {
   reducerPath: string
-  endpoints: { [name: string]: EndpointConfig }
+  endpoints: { [name: string]: EndpointConfig<any, any> }
 }
