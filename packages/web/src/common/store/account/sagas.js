@@ -365,7 +365,7 @@ function* fetchSavedAlbumsAsync() {
   yield waitForRead()
   const cachedSavedAlbums = yield select(getAccountAlbumIds)
   if (cachedSavedAlbums.length > 0) {
-    yield* call(retrieveCollections, cachedSavedAlbums)
+    yield call(retrieveCollections, cachedSavedAlbums)
   }
 }
 
@@ -376,7 +376,7 @@ function* fetchSavedPlaylistsAsync() {
   yield fork(function* () {
     const savedPlaylists = yield select(getAccountSavedPlaylistIds)
     if (savedPlaylists.length > 0) {
-      yield* call(retrieveCollections, savedPlaylists)
+      yield call(retrieveCollections, savedPlaylists)
     }
   })
 
@@ -384,7 +384,7 @@ function* fetchSavedPlaylistsAsync() {
   yield fork(function* () {
     const ownPlaylists = yield select(getAccountOwnedPlaylistIds)
     if (ownPlaylists.length > 0) {
-      yield* call(retrieveCollections, ownPlaylists)
+      yield call(retrieveCollections, ownPlaylists)
     }
   })
 }
