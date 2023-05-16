@@ -38,6 +38,7 @@ type ChatState = {
     }
   >
   unreadMessagesCount: number
+  optimisticUnreadMessagesCount?: number
   optimisticReactions: Record<string, ChatMessageReaction>
   optimisticChatRead: Record<
     string,
@@ -140,6 +141,7 @@ const slice = createSlice({
       action: PayloadAction<{ unreadMessagesCount: number }>
     ) => {
       state.unreadMessagesCount = action.payload.unreadMessagesCount
+      state.optimisticUnreadMessagesCount = action.payload.unreadMessagesCount
     },
     fetchUnreadMessagesCountFailed: (_state) => {},
     goToChat: (_state, _action: PayloadAction<{ chatId: string }>) => {
@@ -166,7 +168,6 @@ const slice = createSlice({
       state.chats.status = Status.ERROR
     },
     fetchMoreMessages: (state, action: PayloadAction<{ chatId: string }>) => {
-      console.log(`REED fetchMoreMessages`)
       // triggers saga
       if (!state.messages[action.payload.chatId]) {
         state.messages[action.payload.chatId] = {
@@ -295,6 +296,13 @@ const slice = createSlice({
           last_read_at: existingChat.last_message_at,
           unread_message_count: 0
         }
+        if (state.optimisticUnreadMessagesCount) {
+          state.optimisticUnreadMessagesCount -=
+            existingChat.unread_message_count
+        } else {
+          state.optimisticUnreadMessagesCount =
+            state.unreadMessagesCount - existingChat.unread_message_count
+        }
       }
     },
     markChatAsReadSucceeded: (
@@ -304,6 +312,7 @@ const slice = createSlice({
       // Set the true state
       const { chatId } = action.payload
       delete state.optimisticChatRead[chatId]
+      delete state.optimisticUnreadMessagesCount
       const existingChat = getChat(state, chatId)
       chatsAdapter.updateOne(state.chats, {
         id: chatId,
@@ -320,6 +329,7 @@ const slice = createSlice({
       // Reset our optimism :(
       const { chatId } = action.payload
       delete state.optimisticChatRead[chatId]
+      delete state.optimisticUnreadMessagesCount
     },
     sendMessage: (
       _state,
@@ -376,7 +386,11 @@ const slice = createSlice({
           changes: { unread_message_count: existingUnreadCount + 1 }
         })
       }
-      state.unreadMessagesCount += 1
+      if (state.optimisticUnreadMessagesCount) {
+        state.optimisticUnreadMessagesCount += 1
+      } else {
+        state.optimisticUnreadMessagesCount = state.unreadMessagesCount + 1
+      }
     },
     /**
      * Marks the chat as currently being read.
