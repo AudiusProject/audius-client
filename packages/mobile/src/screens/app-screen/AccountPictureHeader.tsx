@@ -16,7 +16,7 @@ import { useRemoteVar } from 'app/hooks/useRemoteConfig'
 import { makeStyles } from 'app/styles'
 
 const { getAccountUser } = accountSelectors
-const { getUnreadMessagesCount } = chatSelectors
+const { getHasUnreadMessages } = chatSelectors
 
 const useStyles = makeStyles(({ spacing, palette }) => ({
   root: {
@@ -53,8 +53,8 @@ export const AccountPictureHeader = (props: AccountPictureHeaderProps) => {
   const accountUser = useSelector(getAccountUser)
   const challengeRewardIds = useRemoteVar(StringKeys.CHALLENGE_REWARD_IDS)
   const hasClaimableRewards = useAccountHasClaimableRewards(challengeRewardIds)
-  const unreadMessagesCount = useSelector(getUnreadMessagesCount)
-  const showNotificationBubble = hasClaimableRewards || unreadMessagesCount > 0
+  const hasUnreadMessages = useSelector(getHasUnreadMessages)
+  const showNotificationBubble = hasClaimableRewards || hasUnreadMessages
 
   const opacity = Animated.interpolateNode(
     drawerProgress as Adaptable<number>,
