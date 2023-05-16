@@ -19,6 +19,7 @@ import {
   Status,
   UID,
   User,
+  statusIsNotFinalized,
   usePremiumContentAccessMap,
   useSavedAlbumsDetails
 } from '@audius/common'
@@ -34,6 +35,7 @@ import Card from 'components/card/mobile/Card'
 import Header from 'components/header/mobile/Header'
 import { HeaderContext } from 'components/header/mobile/HeaderContextProvider'
 import CardLineup from 'components/lineup/CardLineup'
+import InfiniteCardLineup from 'components/lineup/InfiniteCardLineup'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import MobilePageContainer from 'components/mobile-page-container/MobilePageContainer'
 import { useMainPageHeader } from 'components/nav/store/context'
@@ -243,9 +245,14 @@ const AlbumCard = ({ album }: AlbumCardProps) => {
 
 const AlbumCardLineup = () => {
   const goToRoute = useGoToRoute()
-  // Temporarily requesting large page size to ensure we get all albums
-  // until the list is updated to use `InfinteScroll`
-  const { data: albums } = useSavedAlbumsDetails({ pageSize: 9999 })
+
+  const {
+    data: albums,
+    status,
+    hasMore,
+    fetchMore
+  } = useSavedAlbumsDetails({ pageSize: 20 })
+
   const [filterText, setFilterText] = useState('')
   const filteredAlbums = useMemo(
     () => filterCollections(albums, { filterText }),
@@ -268,7 +275,7 @@ const AlbumCardLineup = () => {
 
   return (
     <div className={styles.cardLineupContainer}>
-      {albums.length === 0 ? (
+      {!statusIsNotFinalized(status) && albums.length === 0 ? (
         <EmptyTab
           message={
             <>
@@ -292,7 +299,12 @@ const AlbumCardLineup = () => {
           </div>
           {filteredAlbums.length > 0 && (
             <div className={styles.cardsContainer}>
-              <CardLineup cards={albumCards} />
+              <InfiniteCardLineup
+                hasMore={hasMore}
+                loadMore={fetchMore}
+                cardsClassName={styles.cardLineup}
+                cards={albumCards}
+              />
             </div>
           )}
         </div>
@@ -454,7 +466,6 @@ export type SavedPageProps = {
     playlists: SavedPageCollection[]
   ) => SavedPageCollection[]
 
-  fetchSavedAlbums: () => void
   goToRoute: (route: string) => void
   repostTrack: (trackId: ID) => void
   undoRepostTrack: (trackId: ID) => void

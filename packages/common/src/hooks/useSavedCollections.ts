@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -38,7 +38,7 @@ export function useSavedAlbumsDetails({
   pageSize = DEFAULT_PAGE_SIZE
 }: UseSavedAlbumDetailsConfig) {
   const dispatch = useDispatch()
-  const [hasFetched, setHasFetched] = useState(false)
+
   const { unfetched: unfetchedAlbums, fetched: albumsWithDetails } =
     useSelector(getFetchedAlbumsWithDetails)
   const { status } = useSelector(getSavedAlbumsState)
@@ -51,24 +51,14 @@ export function useSavedAlbumsDetails({
       .slice(0, Math.min(pageSize, unfetchedAlbums.length))
       .map((c) => c.id)
     dispatch(fetchCollections({ type: 'albums', ids }))
-    setHasFetched(true)
-  }, [status, unfetchedAlbums, pageSize, dispatch, setHasFetched])
+  }, [status, unfetchedAlbums, pageSize, dispatch])
 
-  // Fetch first page if we don't have any items fetched yet
-  // Needs to wait for at least some albums to be fetchable
-  useEffect(() => {
-    if (
-      !hasFetched &&
-      // TODO: This check should change once InfiniteScroll is implemented
-      status !== Status.LOADING /* &&
-      unfetchedAlbums.length > 0 &&
-      albumsWithDetails.length === 0 */
-    ) {
-      fetchMore()
-    }
-  }, [albumsWithDetails, status, hasFetched, unfetchedAlbums, fetchMore])
-
-  return { data: albumsWithDetails, status, fetchMore }
+  return {
+    data: albumsWithDetails,
+    status,
+    hasMore: unfetchedAlbums.length > 0,
+    fetchMore
+  }
 }
 
 export function useSavedPlaylists() {

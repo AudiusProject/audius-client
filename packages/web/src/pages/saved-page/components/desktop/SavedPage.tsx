@@ -13,6 +13,7 @@ import {
   UID,
   User,
   savedPageSelectors,
+  statusIsNotFinalized,
   useSavedAlbumsDetails
 } from '@audius/common'
 import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
@@ -23,7 +24,7 @@ import { ReactComponent as IconNote } from 'assets/img/iconNote.svg'
 import Card, { CardProps } from 'components/card/desktop/Card'
 import FilterInput from 'components/filter-input/FilterInput'
 import Header from 'components/header/desktop/Header'
-import CardLineup from 'components/lineup/CardLineup'
+import InfiniteCardLineup from 'components/lineup/InfiniteCardLineup'
 import Page from 'components/page/Page'
 import { dateSorter } from 'components/table'
 import { TracksTable, TracksTableColumn } from 'components/tracks-table'
@@ -95,15 +96,20 @@ const AlbumCard = ({ album, index, isLoading, setDidLoad }: AlbumCardProps) => {
 const AlbumsTabContent = () => {
   const goToRoute = useGoToRoute()
 
-  // Temporarily requesting large page size to ensure we get all albums
-  // until the list is updated to use `InfinteScroll`
-  const { data: albums } = useSavedAlbumsDetails({ pageSize: 9999 })
-  const { isLoading, setDidLoad } = useOrderedLoad(albums.length)
+  const {
+    data: albums,
+    status,
+    hasMore,
+    fetchMore
+  } = useSavedAlbumsDetails({ pageSize: 20 })
+  const { isLoading: isAlbumLoading, setDidLoad } = useOrderedLoad(
+    albums.length
+  )
   const cards = albums.map((album, i) => {
     return (
       <AlbumCard
         index={i}
-        isLoading={isLoading(i)}
+        isLoading={isAlbumLoading(i)}
         setDidLoad={setDidLoad}
         key={album.playlist_id}
         album={album}
@@ -111,14 +117,23 @@ const AlbumsTabContent = () => {
     )
   })
 
-  return cards.length > 0 ? (
-    <CardLineup cards={cards} cardsClassName={styles.cardsContainer} />
-  ) : (
-    <EmptyTable
-      primaryText={messages.emptyAlbumsHeader}
-      secondaryText={messages.emptyAlbumsBody}
-      buttonLabel={messages.goToTrending}
-      onClick={() => goToRoute('/trending')}
+  if (!statusIsNotFinalized(status) && cards.length === 0) {
+    return (
+      <EmptyTable
+        primaryText={messages.emptyAlbumsHeader}
+        secondaryText={messages.emptyAlbumsBody}
+        buttonLabel={messages.goToTrending}
+        onClick={() => goToRoute('/trending')}
+      />
+    )
+  }
+
+  return (
+    <InfiniteCardLineup
+      hasMore={hasMore}
+      loadMore={fetchMore}
+      cards={cards}
+      cardsClassName={styles.cardsContainer}
     />
   )
 }
