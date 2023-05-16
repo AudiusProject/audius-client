@@ -194,21 +194,17 @@ const slice = createSlice({
         return
       }
 
+      // Update the summary to include the min of next_cursor/next_count and
+      // prev_cursor/prev_count.
       const existingSummary = state.chats.entities[chatId]?.messagesSummary
-      const summaryToUse = { ...summary }
-      if (summary.next_count > (existingSummary?.next_count ?? -1)) {
+      const summaryToUse = { ...summary, ...existingSummary }
+      if (summary.next_count < (existingSummary?.next_count ?? Infinity)) {
         summaryToUse.next_count = summary.next_count
         summaryToUse.next_cursor = summary.next_cursor
-      } else if (existingSummary) {
-        summaryToUse.next_count = existingSummary.next_count
-        summaryToUse.next_cursor = existingSummary.next_cursor
       }
       if (summary.prev_count < (existingSummary?.prev_count ?? Infinity)) {
         summaryToUse.prev_count = summary.prev_count
         summaryToUse.prev_cursor = summary.prev_cursor
-      } else if (existingSummary) {
-        summaryToUse.prev_count = existingSummary.prev_count
-        summaryToUse.prev_cursor = existingSummary.prev_cursor
       }
 
       chatsAdapter.updateOne(state.chats, {
