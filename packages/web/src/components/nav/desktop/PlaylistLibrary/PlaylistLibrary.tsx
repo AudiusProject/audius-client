@@ -17,7 +17,7 @@ import * as signOnActions from 'common/store/pages/signon/actions'
 import { Droppable } from 'components/dragndrop'
 import Pill from 'components/pill/Pill'
 import { Tooltip } from 'components/tooltip'
-import { selectDraggingKind } from 'store/dragndrop/slice'
+import { DragDropKind, selectDraggingKind } from 'store/dragndrop/slice'
 import { useSelector } from 'utils/reducer'
 
 import { GroupHeader } from '../GroupHeader'
@@ -35,6 +35,8 @@ const messages = {
   newPlaylist: 'New',
   newPlaylistOrFolderTooltip: 'New Playlist or Folder'
 }
+
+const acceptedKinds: DragDropKind[] = ['playlist']
 
 type PlaylistLibraryProps = {
   scrollbarRef: MutableRefObject<HTMLElement | null>
@@ -69,6 +71,11 @@ export const PlaylistLibrary = (props: PlaylistLibraryProps) => {
     }
   }, [isSignedIn, dispatch, record])
 
+  const getTooltipPopupContainer = useCallback(
+    () => scrollbarRef.current?.parentNode,
+    [scrollbarRef]
+  )
+
   if (!library || isEmpty(library?.contents)) {
     return <EmptyLibraryNavLink />
   }
@@ -78,7 +85,7 @@ export const PlaylistLibrary = (props: PlaylistLibraryProps) => {
       className={styles.droppable}
       hoverClassName={styles.droppableHover}
       onDrop={handleDrop}
-      acceptedKinds={['playlist']}
+      acceptedKinds={acceptedKinds}
     >
       <GroupHeader
         className={cn({
@@ -88,7 +95,7 @@ export const PlaylistLibrary = (props: PlaylistLibraryProps) => {
         {messages.header}
         <Tooltip
           text={messages.newPlaylistOrFolderTooltip}
-          getPopupContainer={() => scrollbarRef.current?.parentNode}
+          getPopupContainer={getTooltipPopupContainer}
         >
           <Pill
             className={styles.newPlaylist}

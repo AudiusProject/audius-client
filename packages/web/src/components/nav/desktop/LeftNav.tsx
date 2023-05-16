@@ -36,7 +36,7 @@ import DynamicImage from 'components/dynamic-image/DynamicImage'
 import ConnectedProfileCompletionPane from 'components/profile-progress/ConnectedProfileCompletionPane'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
-import { selectDragnDropState } from 'store/dragndrop/slice'
+import { selectDraggingKind } from 'store/dragndrop/slice'
 import { AppState } from 'store/types'
 import {
   DASHBOARD_PAGE,
@@ -88,13 +88,12 @@ const LeftNav = ({
   showActionRequiresAccount,
   createPlaylist,
   library,
-  openCreatePlaylistModal,
   closeCreatePlaylistModal,
   isElectron,
   showCreatePlaylistModal,
   hideCreatePlaylistModalFolderTab,
   updatePlaylistLibrary,
-  dragging: { dragging, kind },
+  draggingKind,
   saveTrack,
   saveCollection,
   accountStatus,
@@ -287,7 +286,7 @@ const LeftNav = ({
                   disabled={!account}
                   acceptedKinds={['track', 'album']}
                   acceptOwner={false}
-                  onDrop={kind === 'album' ? saveCollection : saveTrack}
+                  onDrop={draggingKind === 'album' ? saveCollection : saveTrack}
                 >
                   <LeftNavLink
                     to={SAVED_PAGE}
@@ -331,7 +330,7 @@ const mapStateToProps = (state: AppState) => {
   return {
     account: getAccountUser(state),
     accountStatus: getAccountStatus(state),
-    dragging: selectDragnDropState(state),
+    draggingKind: selectDraggingKind(state),
     library: getPlaylistLibrary(state),
     showCreatePlaylistModal: getIsOpen(state),
     hideCreatePlaylistModalFolderTab: getHideFolderTab(state)
@@ -350,7 +349,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(addTrackToPlaylist(trackId, playlistId)),
   showActionRequiresAccount: () =>
     dispatch(signOnActions.showRequiresAccountModal()),
-  openCreatePlaylistModal: () => dispatch(createPlaylistModalActions.open()),
   closeCreatePlaylistModal: () => dispatch(createPlaylistModalActions.close()),
   updatePlaylistLibrary: (newLibrary: PlaylistLibraryType) =>
     dispatch(updatePlaylistLibrary({ playlistLibrary: newLibrary })),
