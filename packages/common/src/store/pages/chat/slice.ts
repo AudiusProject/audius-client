@@ -373,6 +373,7 @@ const slice = createSlice({
           changes: { unread_message_count: existingUnreadCount + 1 }
         })
       }
+      state.unreadMessagesCount += 1
     },
     /**
      * Marks the chat as currently being read.
