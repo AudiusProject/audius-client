@@ -1,4 +1,5 @@
 import { Kind } from 'models'
+import { parseTrackRouteFromPermalink } from 'utils/stringUtils'
 import { createApi } from './createApi'
 
 const trackApi = createApi({
@@ -16,8 +17,9 @@ const trackApi = createApi({
         schemaKey: 'track'
       }
     },
-    getTrackByHandleAndSlug: {
-      fetch: async ({ handle, slug, currentUserId }, { apiClient }) => {
+    getTrackByPermalink: {
+      fetch: async ({ permalink, currentUserId }, { apiClient }) => {
+        const { handle, slug } = parseTrackRouteFromPermalink(permalink)
         return {
           track: await apiClient.getTrackByHandleAndSlug({
             handle,
@@ -27,7 +29,7 @@ const trackApi = createApi({
         }
       },
       options: {
-        idArgKey: 'id',
+        permalinkArgKey: 'permalink',
         kind: Kind.TRACKS,
         schemaKey: 'track'
       }
@@ -35,5 +37,5 @@ const trackApi = createApi({
   }
 })
 
-export const { useGetTrackById, useGetTrackByHandleAndSlug } = trackApi.hooks
+export const { useGetTrackById, useGetTrackByPermalink } = trackApi.hooks
 export default trackApi.reducer
