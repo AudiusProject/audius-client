@@ -46,6 +46,12 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
   })
   const messagesRef = useRef<HTMLDivElement>(null)
 
+  const scrollGutterOffsets = {
+    marginTop: `-${headerBounds.height}px`,
+    paddingTop: `${headerBounds.height}px`,
+    scrollPaddingTop: `${headerBounds.height}px`
+  }
+
   // Navigate to new chats
   // Scroll to bottom if active chat is clicked again
   const handleChatClicked = useCallback(
@@ -95,18 +101,19 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
             <>
               <ChatMessageList
                 ref={messagesRef}
-                style={{
-                  marginTop: `-${headerBounds.height}px`,
-                  paddingTop: `${headerBounds.height}px`,
-                  scrollPaddingTop: `${headerBounds.height}px`
-                }}
+                style={scrollGutterOffsets}
                 className={styles.messageList}
                 chatId={currentChatId}
               />
               <ChatComposer chatId={currentChatId} />
             </>
           ) : (
-            <CreateChatPrompt />
+            <div
+              className={styles.scrollGutterContainer}
+              style={scrollGutterOffsets}
+            >
+              <CreateChatPrompt />
+            </div>
           )}
         </div>
       </div>

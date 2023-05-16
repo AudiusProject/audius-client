@@ -40,6 +40,11 @@
   flex-direction: column;
 }
 
+.scrollGutterContainer {
+  flex: 1;
+  overflow-y: scroll;
+}
+
 @media (max-width: 1080px) {
   .chatList {
     width: 96px;

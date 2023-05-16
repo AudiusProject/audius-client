@@ -19,6 +19,7 @@ import {
 } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
+import { useScrollbarWidth } from 'react-use'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { profilePage } from 'utils/route'
@@ -54,6 +55,7 @@ export const ChatHeader = forwardRef<HTMLDivElement, ChatHeaderProps>(
     const user: User | null = users[0] ?? null
     const blockeeList = useSelector(getBlockees)
     const isBlocked = user && blockeeList.includes(user.user_id)
+    const scrollbarWidth = useScrollbarWidth()
 
     const handleComposeClicked = useCallback(() => {
       setCreateChatVisible(true)
@@ -102,7 +104,11 @@ export const ChatHeader = forwardRef<HTMLDivElement, ChatHeaderProps>(
     ]
 
     return (
-      <div ref={ref} className={styles.root}>
+      <div
+        ref={ref}
+        className={styles.root}
+        style={{ marginLeft: 0 - (scrollbarWidth ?? 0) }}
+      >
         <div className={styles.left}>
           <h1 className={styles.header}>{messages.header}</h1>
           <div className={styles.options}>

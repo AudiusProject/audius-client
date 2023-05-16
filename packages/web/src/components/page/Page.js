@@ -1,11 +1,11 @@
-import { cloneElement, useRef, useState, useEffect, useCallback } from 'react'
+import { cloneElement, useRef, useState, useEffect } from 'react'
 
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 import { Helmet } from 'react-helmet'
 // eslint-disable-next-line no-restricted-imports -- TODO: migrate to @react-spring/web
 import { Spring } from 'react-spring/renderprops'
-import calcScrollbarWidth from 'scrollbar-width'
+import { useScrollbarWidth } from 'react-use'
 
 import SearchBar from 'components/search-bar/ConnectedSearchBar'
 
@@ -17,25 +17,12 @@ const messages = {
 }
 
 const HEADER_MARGIN_PX = 32
-// Pixels on the right side of the header to account for potential scrollbars
-const MIN_GUTTER_WIDTH = 20
 
 // Responsible for positioning the header
 const HeaderContainer = ({ header, containerRef, showSearch }) => {
   // Need to offset the header on the right side
   // the width of the scrollbar.
-  const [scrollBarWidth, setScrollbarWidth] = useState(0)
-
-  const refreshScrollWidth = useCallback(() => {
-    const width = calcScrollbarWidth(true)
-    // For some odd reason, narrow windows ONLY in Firefox
-    // return 0 width for the scroll bars.
-    setScrollbarWidth(width > 0 ? width : MIN_GUTTER_WIDTH)
-  }, [])
-
-  useEffect(() => {
-    refreshScrollWidth()
-  }, [refreshScrollWidth])
+  const scrollBarWidth = useScrollbarWidth()
 
   // Only Safari & Chrome support the CSS
   // frosted glasss effect.
