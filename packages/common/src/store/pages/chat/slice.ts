@@ -37,6 +37,7 @@ type ChatState = {
       summary?: TypedCommsResponse<ChatMessage>['summary']
     }
   >
+  unreadMessagesCount: number
   optimisticReactions: Record<string, ChatMessageReaction>
   optimisticChatRead: Record<
     string,
@@ -107,6 +108,7 @@ const initialState: ChatState = {
     ...chatsAdapter.getInitialState()
   },
   messages: {},
+  unreadMessagesCount: 0,
   optimisticChatRead: {},
   optimisticReactions: {},
   activeChatId: null,
@@ -130,6 +132,16 @@ const slice = createSlice({
         state.messages[chat.chat_id] = chatMessagesAdapter.getInitialState()
       }
     },
+    fetchUnreadMessagesCount: (_state) => {
+      // triggers saga
+    },
+    fetchUnreadMessagesCountSucceeded: (
+      state,
+      action: PayloadAction<{ unreadMessagesCount: number }>
+    ) => {
+      state.unreadMessagesCount = action.payload.unreadMessagesCount
+    },
+    fetchUnreadMessagesCountFailed: (_state) => {},
     goToChat: (_state, _action: PayloadAction<{ chatId: string }>) => {
       // triggers saga
     },

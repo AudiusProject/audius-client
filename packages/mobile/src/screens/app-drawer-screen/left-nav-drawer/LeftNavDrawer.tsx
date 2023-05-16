@@ -27,7 +27,7 @@ import { AccountDetails } from './AccountDetails'
 import { LeftNavLink } from './LeftNavLink'
 import { VanityMetrics } from './VanityMetrics'
 const { getAccountUser } = accountSelectors
-const { getHasUnreadMessages } = chatSelectors
+const { getUnreadMessagesCount } = chatSelectors
 
 const messages = {
   profile: 'Profile',
@@ -68,7 +68,7 @@ const WrappedLeftNavDrawer = () => {
   const styles = useStyles()
   const challengeRewardIds = useRemoteVar(StringKeys.CHALLENGE_REWARD_IDS)
   const hasClaimableRewards = useAccountHasClaimableRewards(challengeRewardIds)
-  const hasUnreadMessages = useSelector(getHasUnreadMessages)
+  const unreadMessagesCount = useSelector(getUnreadMessagesCount)
   const { isEnabled: isChatEnabled } = useFeatureFlag(FeatureFlags.CHAT_ENABLED)
 
   return (
@@ -88,7 +88,7 @@ const WrappedLeftNavDrawer = () => {
           to='ChatList'
           params={{}}
         >
-          {hasUnreadMessages ? (
+          {unreadMessagesCount > 0 ? (
             <View style={styles.notificationBubble} />
           ) : null}
         </LeftNavLink>

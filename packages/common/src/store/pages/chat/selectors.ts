@@ -26,6 +26,9 @@ const {
 export const getChat = selectChatById
 
 // Selectors for UserChat (all chats for a user)
+export const getUnreadMessagesCount = (state: CommonState) =>
+  state.pages.chat.unreadMessagesCount
+
 export const getChatsStatus = (state: CommonState) =>
   state.pages.chat.chats.status
 
@@ -91,11 +94,6 @@ export const getChatMessages = createSelector(
     })
   }
 )
-
-export const getHasUnreadMessages = (state: CommonState) => {
-  const chats = getChats(state)
-  return chats?.some((chat) => chat.unread_message_count > 0)
-}
 
 export const getOtherChatUsersFromChat = (
   state: CommonState,
