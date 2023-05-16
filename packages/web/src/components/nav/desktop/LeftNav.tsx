@@ -32,11 +32,8 @@ import * as signOnActions from 'common/store/pages/signon/actions'
 import CreatePlaylistModal from 'components/create-playlist/CreatePlaylistModal'
 import { PlaylistFormFields } from 'components/create-playlist/PlaylistForm'
 import { DragAutoscroller } from 'components/drag-autoscroller/DragAutoscroller'
-import { Droppable } from 'components/dragndrop'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
-import Pill from 'components/pill/Pill'
 import ConnectedProfileCompletionPane from 'components/profile-progress/ConnectedProfileCompletionPane'
-import Tooltip from 'components/tooltip/Tooltip'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
 import { selectDragnDropState } from 'store/dragndrop/slice'
@@ -53,6 +50,7 @@ import {
 } from 'utils/route'
 import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
+import { GroupHeader } from './GroupHeader'
 import styles from './LeftNav.module.css'
 import { LeftNavDroppable, LeftNavLink } from './LeftNavLink'
 import NavAudio from './NavAudio'
@@ -72,7 +70,8 @@ const { getAccountStatus, getAccountUser, getPlaylistLibrary } =
   accountSelectors
 
 const messages = {
-  newPlaylistOrFolderTooltip: 'New Playlist or Folder'
+  discover: 'Discover',
+  library: 'Library'
 }
 
 type OwnProps = {
@@ -157,24 +156,6 @@ const LeftNav = ({
     },
     [library, updatePlaylistLibrary, closeCreatePlaylistModal]
   )
-
-  const openCreatePlaylist = useCallback(() => {
-    if (account) {
-      openCreatePlaylistModal()
-      record(
-        make(Name.PLAYLIST_OPEN_CREATE, { source: CreatePlaylistSource.NAV })
-      )
-    } else {
-      goToSignUp('social action')
-      showActionRequiresAccount()
-    }
-  }, [
-    account,
-    openCreatePlaylistModal,
-    goToSignUp,
-    showActionRequiresAccount,
-    record
-  ])
 
   const onClickNavLinkWithAccount = useCallback(
     (e?: MouseEvent) => {
@@ -287,7 +268,7 @@ const LeftNav = ({
 
             <div className={styles.links}>
               <div className={styles.linkGroup}>
-                <div className={styles.groupHeader}>Discover</div>
+                <GroupHeader>{messages.discover}</GroupHeader>
                 <LeftNavLink
                   to={FEED_PAGE}
                   disabled={!account}
@@ -301,7 +282,7 @@ const LeftNav = ({
                 </LeftNavLink>
               </div>
               <div className={styles.linkGroup}>
-                <div className={styles.groupHeader}>Library</div>
+                <GroupHeader>{messages.library}</GroupHeader>
                 <LeftNavDroppable
                   disabled={!account}
                   acceptedKinds={['track', 'album']}
@@ -324,37 +305,7 @@ const LeftNav = ({
                 </LeftNavLink>
               </div>
               <div className={styles.linkGroup}>
-                <Droppable
-                  className={styles.droppableGroup}
-                  hoverClassName={styles.droppableGroupHover}
-                  onDrop={saveCollection}
-                  acceptedKinds={['playlist']}
-                >
-                  <div
-                    className={cn(styles.groupHeader, {
-                      [styles.droppableLink]: dragging && kind === 'playlist'
-                    })}
-                  >
-                    Playlists
-                    <div className={styles.newPlaylist}>
-                      <Tooltip
-                        text={messages.newPlaylistOrFolderTooltip}
-                        getPopupContainer={() =>
-                          scrollbarRef.current?.parentNode
-                        }
-                      >
-                        <span>
-                          <Pill
-                            text='New'
-                            icon='save'
-                            onClick={openCreatePlaylist}
-                          />
-                        </span>
-                      </Tooltip>
-                    </div>
-                  </div>
-                  <PlaylistLibrary />
-                </Droppable>
+                <PlaylistLibrary scrollbarRef={scrollbarRef} />
               </div>
             </div>
           </DragAutoscroller>
