@@ -1,9 +1,11 @@
 import { useCallback, useMemo } from 'react'
 
+import { deletePlaylistConfirmationModalUIActions } from '@audius/common'
 import type { EditPlaylistValues } from '@audius/common'
 import type { FormikProps } from 'formik'
 import { View, Text } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { useDispatch } from 'react-redux'
 
 import IconCaretLeft from 'app/assets/images/iconCaretLeft.svg'
 import IconTrash from 'app/assets/images/iconTrash.svg'
@@ -18,6 +20,10 @@ import { FormScreen } from '../page-form-screen'
 import { PlaylistDescriptionInput } from './PlaylistDescriptionInput'
 import { PlaylistImageInput } from './PlaylistImageInput'
 import { PlaylistNameInput } from './PlaylistNameInput'
+
+const { requestOpen: openDeletePlaylist } =
+  deletePlaylistConfirmationModalUIActions
+
 const messages = {
   screenTitle: 'Edit Playlist',
   reorderTitle: 'Drag to Reorder',
@@ -73,10 +79,18 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   }
 }))
 
-export const EditPlaylistForm = (props: FormikProps<EditPlaylistValues>) => {
-  const { values, handleSubmit, handleReset, setFieldValue } = props
+export const EditPlaylistForm = (
+  props: FormikProps<EditPlaylistValues> & { playlistId: number }
+) => {
+  const { playlistId, values, handleSubmit, handleReset, setFieldValue } = props
   const styles = useStyles()
   const navigation = useNavigation()
+  const dispatch = useDispatch()
+
+  const openDeleteDrawer = useCallback(() => {
+    dispatch(openDeletePlaylist({ playlistId }))
+    navigation.goBack()
+  }, [dispatch, playlistId, navigation])
 
   const trackIds = useMemo(
     () => values.tracks?.map(({ track_id }) => track_id),
@@ -145,7 +159,7 @@ export const EditPlaylistForm = (props: FormikProps<EditPlaylistValues>) => {
         title={messages.deletePlaylist}
         icon={IconTrash}
         iconPosition='left'
-        onPress={() => {}}
+        onPress={openDeleteDrawer}
         styles={{
           root: styles.deleteButtonRoot,
           text: styles.deleteButtonText
@@ -153,20 +167,6 @@ export const EditPlaylistForm = (props: FormikProps<EditPlaylistValues>) => {
       />
     </View>
   )
-
-  // const handlePressBack = useCallback(() => {
-  //   if (!dirty) {
-  //     navigation.goBack()
-  //   } else {
-  //     Keyboard.dismiss()
-  //     dispatch(
-  //       setVisibility({
-  //         drawer: 'CancelEditTrack',
-  //         visible: true
-  //       })
-  //     )
-  //   }
-  // }, [dirty, navigation, dispatch])
 
   return (
     <FormScreen

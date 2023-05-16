@@ -71,7 +71,12 @@ export const EditPlaylistScreen = () => {
 
   return (
     <Formik initialValues={initialValues} onSubmit={handleSubmit}>
-      {(formikProps) => <EditPlaylistNavigator {...formikProps} />}
+      {(formikProps) => (
+        <EditPlaylistNavigator
+          {...formikProps}
+          playlistId={playlist.playlist_id}
+        />
+      )}
     </Formik>
   )
 }

@@ -11,7 +11,7 @@ const Stack = createNativeStackNavigator()
 const screenOptionOverrides = { headerRight: () => null }
 
 export const EditPlaylistNavigator = (
-  props: FormikProps<EditPlaylistValues>
+  props: FormikProps<EditPlaylistValues> & { playlistId: number }
 ) => {
   const screenOptions = useAppScreenOptions(screenOptionOverrides)
 

@@ -359,14 +359,14 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
               />
             </View>
           ) : null}
-          {isReorderable && (
+          {isReorderable ? (
             <IconDrag
               fill={themeColors.neutralLight4}
               height={20}
               width={20}
               style={styles.dragIcon}
             />
-          )}
+          ) : null}
           <View
             style={[
               styles.nameArtistContainer,
