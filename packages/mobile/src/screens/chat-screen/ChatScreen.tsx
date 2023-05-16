@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import type { RefObject, MutableRefObject } from 'react'
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 
 import type { ChatMessageWithExtras } from '@audius/common'
 import {
@@ -164,6 +165,15 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 
 const pluralize = (message: string, shouldPluralize: boolean) =>
   message + (shouldPluralize ? 's' : '')
+
+const measureView = (
+  viewRef: RefObject<View>,
+  measurementRef: MutableRefObject<number>
+) => {
+  viewRef.current?.measureInWindow((x, y, width, height) => {
+    measurementRef.current = y
+  })
+}
 
 export const ChatScreen = () => {
   const styles = useStyles()
@@ -384,6 +394,10 @@ export const ChatScreen = () => {
     []
   )
 
+  const measureChatContainerBottom = useCallback(() => {
+    measureView(composeRef, chatContainerBottom)
+  }, [])
+
   return (
     <Screen
       url={url}
@@ -442,6 +456,7 @@ export const ChatScreen = () => {
               styles.keyboardAvoiding,
               hasCurrentlyPlayingTrack ? { bottom: PLAY_BAR_HEIGHT } : null
             ]}
+            onKeyboardHide={measureChatContainerBottom}
           >
             {chat?.messagesStatus === Status.SUCCESS &&
             chatMessages?.length === 0 ? (
@@ -473,11 +488,7 @@ export const ChatScreen = () => {
 
             <View
               style={styles.composeView}
-              onLayout={() => {
-                composeRef.current?.measureInWindow((x, y, width, height) => {
-                  chatContainerBottom.current = y
-                })
-              }}
+              onLayout={measureChatContainerBottom}
               ref={composeRef}
               pointerEvents={'box-none'}
             >
