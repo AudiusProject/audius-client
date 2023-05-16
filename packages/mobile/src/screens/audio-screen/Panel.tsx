@@ -124,6 +124,7 @@ export const Panel = ({
   const hasDisbursed = challenge?.state === 'disbursed'
   const shouldShowProgressBar =
     stepCount > 1 && challenge?.challenge_type !== 'aggregate' && !hasDisbursed
+  const needsDisbursement = challenge && challenge.claimableAmount > 0
 
   const shouldShowProgress = !!progressLabel
   let progressLabelFilled: string | null = null
@@ -148,13 +149,13 @@ export const Panel = ({
     }
   }
 
-  const buttonType = hasCompleted
+  const buttonType = needsDisbursement
     ? 'primary'
     : hasDisbursed
     ? 'commonAlt'
     : 'common'
 
-  const buttonMessage = hasCompleted
+  const buttonMessage = needsDisbursement
     ? messages.claimReward
     : hasDisbursed
     ? messages.viewDetails
@@ -167,7 +168,7 @@ export const Panel = ({
       activeOpacity={0.7}
     >
       <View style={styles.pillContainer}>
-        {hasCompleted ? (
+        {needsDisbursement ? (
           <Text style={styles.pillMessage}>{messages.readyToClaim}</Text>
         ) : null}
       </View>
