@@ -93,7 +93,10 @@ export const getChatMessages = createSelector(
 )
 
 /**
- * Get the number of unread messages across all chats, including optimistic reads
+ * Get the number of unread messages across all chats, including optimistic reads.
+ * Note: This will not reflect an accurate unread messages count, but rather is used
+ * to coalesce count fetched from backend + optimistic reads, to be used in
+ * getHasUnreadMessages.
  */
 export const getUnreadMessagesCount = createSelector(
   [getChats, (state: CommonState) => state.pages.chat.unreadMessagesCount],
