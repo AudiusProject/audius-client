@@ -126,9 +126,8 @@ export const ChatListScreen = () => {
         (chat) => !chat.messagesStatus || chat.messagesStatus === Status.IDLE
       )
     ) {
-      chats.slice(0, CHATS_MESSAGES_PREFETCH_LIMIT).map((chat) => {
+      chats.slice(0, CHATS_MESSAGES_PREFETCH_LIMIT).forEach((chat) => {
         dispatch(fetchMoreMessages({ chatId: chat.chat_id }))
-        return null
       })
     }
   }, [chats, dispatch])

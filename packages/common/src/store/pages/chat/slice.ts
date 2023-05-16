@@ -84,7 +84,7 @@ const {
 } = chatMessagesAdapter.getSelectors()
 
 // Recalculate hasTail for the message at index + 1 (the previous message of
-// the message at index).
+// the message at the given index).
 const recalculatePreviousMessageHasTail = (
   chatState: EntityState<ChatMessageWithExtras>,
   index: number
@@ -166,6 +166,7 @@ const slice = createSlice({
       state.chats.status = Status.ERROR
     },
     fetchMoreMessages: (state, action: PayloadAction<{ chatId: string }>) => {
+      console.log(`REED fetchMoreMessages`)
       // triggers saga
       if (!state.messages[action.payload.chatId]) {
         state.messages[action.payload.chatId] = {
@@ -187,24 +188,27 @@ const slice = createSlice({
         chatId,
         response: { data, summary }
       } = action.payload
-      chatsAdapter.updateOne(state.chats, {
-        id: chatId,
-        changes: {
-          messagesStatus: Status.SUCCESS,
-          messagesSummary: summary
-        }
-      })
-      chatsAdapter.updateOne(state.chats, {
-        id: chatId,
-        changes: { messagesStatus: Status.SUCCESS, messagesSummary: summary }
-      })
+      if (!summary) {
+        console.error('fetchMoreMessagesSucceeded: no summary')
+        return
+      }
+      const existingSummary = state.chats.entities[chatId]?.messagesSummary
+      if (summary.next_count > (existingSummary?.next_count ?? -1)) {
+        chatsAdapter.updateOne(state.chats, {
+          id: chatId,
+          changes: {
+            messagesStatus: Status.SUCCESS,
+            messagesSummary: summary
+          }
+        })
+      }
       const messagesWithTail = data.map((item, index) => {
         return { ...item, hasTail: hasTail(item, data[index - 1]) }
       })
       chatMessagesAdapter.upsertMany(state.messages[chatId], messagesWithTail)
       recalculatePreviousMessageHasTail(
         state.messages[chatId],
-        state.messages[chatId].ids.length - 1 - data.length
+        summary.next_count - 1
       )
     },
     fetchMoreMessagesFailed: (

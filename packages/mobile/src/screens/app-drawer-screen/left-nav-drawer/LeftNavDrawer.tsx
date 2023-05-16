@@ -1,5 +1,8 @@
+import { useEffect } from 'react'
+
 import type { User } from '@audius/common'
 import {
+  chatActions,
   FeatureFlags,
   StringKeys,
   accountSelectors,
@@ -9,7 +12,7 @@ import {
 import type { DrawerContentComponentProps } from '@react-navigation/drawer'
 import { DrawerContentScrollView } from '@react-navigation/drawer'
 import { View } from 'react-native'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import IconCrown from 'app/assets/images/iconCrown.svg'
 import IconListeningHistory from 'app/assets/images/iconListeningHistory.svg'
@@ -26,8 +29,10 @@ import { AppDrawerContextProvider } from '../AppDrawerContext'
 import { AccountDetails } from './AccountDetails'
 import { LeftNavLink } from './LeftNavLink'
 import { VanityMetrics } from './VanityMetrics'
+
 const { getAccountUser } = accountSelectors
 const { getUnreadMessagesCount } = chatSelectors
+const { fetchUnreadMessagesCount } = chatActions
 
 const messages = {
   profile: 'Profile',
@@ -65,11 +70,16 @@ export const LeftNavDrawer = (props: AccountDrawerProps) => {
 }
 
 const WrappedLeftNavDrawer = () => {
+  const dispatch = useDispatch()
   const styles = useStyles()
   const challengeRewardIds = useRemoteVar(StringKeys.CHALLENGE_REWARD_IDS)
   const hasClaimableRewards = useAccountHasClaimableRewards(challengeRewardIds)
   const unreadMessagesCount = useSelector(getUnreadMessagesCount)
   const { isEnabled: isChatEnabled } = useFeatureFlag(FeatureFlags.CHAT_ENABLED)
+
+  useEffect(() => {
+    dispatch(fetchUnreadMessagesCount())
+  }, [dispatch])
 
   return (
     <DrawerContentScrollView>
