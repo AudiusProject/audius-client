@@ -22,7 +22,7 @@ import {
   FetchErrorAction,
   FetchLoadingAction,
   FetchSucceededAction,
-  HookOptions,
+  QueryHookOptions,
   PerEndpointState,
   PerKeyState,
   SliceConfig
@@ -113,7 +113,7 @@ const buildEndpointHooks = (
   reducerPath: string
 ) => {
   // Hook to be returned as use<EndpointName>
-  const useQuery = (fetchArgs: any, hookOptions?: HookOptions) => {
+  const useQuery = (fetchArgs: any, hookOptions?: QueryHookOptions) => {
     const dispatch = useDispatch()
     const key = getKeyFromFetchArgs(fetchArgs)
     const queryState = useSelector((state: any) => {

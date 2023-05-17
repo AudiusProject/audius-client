@@ -61,7 +61,9 @@ const purchaseMethods: Record<
   'purchase unknown': TransactionMethod.RECEIVE
 }
 
-const parseTransaction = (tx: full.TransactionDetails): TransactionDetails => {
+export const parseTransaction = (
+  tx: full.TransactionDetails
+): TransactionDetails => {
   const txType = transactionTypeMap[tx.transactionType]
   switch (txType) {
     case TransactionType.CHALLENGE_REWARD:
