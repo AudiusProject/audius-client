@@ -87,49 +87,53 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       }
     }, [chat, chatId])
 
+    const scrollHandler = useCallback(
+      (e: UIEvent<HTMLDivElement>) => {
+        if (!chatId) return
+
+        // Handle case where scrolled to bottom
+        if (isScrolledNearBottom(e.currentTarget)) {
+          // Mark chat as read when the user reaches the bottom (saga handles no-op if already read)
+          dispatch(markChatAsRead({ chatId }))
+          dispatch(setActiveChat({ chatId }))
+        } else {
+          dispatch(setActiveChat({ chatId: null }))
+
+          if (chat?.messagesSummary?.prev_count === undefined) {
+            return
+          }
+
+          if (
+            chatCanFetchMoreMessages(
+              chat?.messagesStatus,
+              chat?.messagesSummary?.prev_count
+            ) &&
+            isScrolledNearTop(e.currentTarget)
+          ) {
+            // Fetch more messages when user reaches the top
+            dispatch(fetchMoreMessages({ chatId }))
+          }
+        }
+      },
+      [dispatch, chatId, chat?.messagesStatus, chat?.messagesSummary]
+    )
+
     // Memoize the creation of throttled scroll handler, to avoid
     // creating a new throttled function each time and because useCallback
     // doesn't like receiving a non-inlined fn
     // https://dmitripavlutin.com/react-throttle-debounce/
-    const handleScroll = useMemo(
+    const throttledScrollHandler = useMemo(
       () =>
-        throttle(
-          (e: UIEvent<HTMLDivElement>) => {
-            if (!chatId) return
-
-            // Handle case where scrolled to bottom
-            if (isScrolledNearBottom(e.currentTarget)) {
-              // Mark chat as read when the user reaches the bottom (saga handles no-op if already read)
-              dispatch(markChatAsRead({ chatId }))
-              dispatch(setActiveChat({ chatId }))
-            } else {
-              dispatch(setActiveChat({ chatId: null }))
-
-              if (chat?.messagesSummary?.prev_count === undefined) {
-                return
-              }
-
-              if (
-                chatCanFetchMoreMessages(
-                  chat?.messagesStatus,
-                  chat?.messagesSummary?.prev_count
-                ) &&
-                isScrolledNearTop(e.currentTarget)
-              ) {
-                // Fetch more messages when user reaches the top
-                dispatch(fetchMoreMessages({ chatId }))
-              }
-            }
-          },
-          THROTTLE_DURATION_MS,
-          { leading: true, trailing: false }
-        ),
-      [dispatch, chatId, chat?.messagesStatus, chat?.messagesSummary]
+        throttle(scrollHandler, THROTTLE_DURATION_MS, {
+          leading: true,
+          trailing: false
+        }),
+      [scrollHandler]
     )
 
     // Cancel any throttled scrolls when component dismounts
     useEffect(() => () => {
-      handleScroll.cancel()
+      throttledScrollHandler.cancel()
     })
 
     const scrollIntoViewOnMount = useCallback((el: HTMLDivElement) => {
@@ -178,7 +182,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     return (
       <StickyScrollList
         ref={mergeRefs([forwardedRef, ref])}
-        onScroll={handleScroll}
+        onScroll={throttledScrollHandler}
         className={cn(styles.root, classNameProp)}
         resetKey={chatId}
         updateKey={chatMessages}
