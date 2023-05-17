@@ -8,6 +8,9 @@ const trackApi = createApi({
         return {
           track: await apiClient.getTrack({ id })
         }
+      },
+      options: {
+        schemaKey: 'track' as const
       }
     }
   }

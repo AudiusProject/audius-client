@@ -9,61 +9,32 @@ import { Kind, Status } from 'models'
 
 import { AudiusQueryContextType } from './AudiusQueryContext'
 
-export type DefaultEndpointDefinitions<
-  SchemaKey extends string,
-  SchemaReturn,
-  argsT,
-  dataT extends { [key in SchemaKey]: SchemaReturn }
-> = {
-  [key: string]: EndpointConfig<SchemaKey, SchemaReturn, argsT, dataT>
+export type DefaultEndpointDefinitions = {
+  [key: string]: EndpointConfig<any, any>
 }
 
-export type Api<
-  SchemaKey extends string,
-  SchemaReturn,
-  argsT,
-  dataT extends { [key in SchemaKey]: SchemaReturn },
-  EndpointDefinitions extends DefaultEndpointDefinitions<
-    SchemaKey,
-    SchemaReturn,
-    argsT,
-    dataT
-  >
-> = {
+export type Api<EndpointDefinitions extends DefaultEndpointDefinitions> = {
   reducer: Reducer<any, Action>
   hooks: {
     [Property in keyof EndpointDefinitions as `use${Capitalize<
       string & Property
     >}`]: (
       fetchArgs: Parameters<EndpointDefinitions[Property]['fetch']>[0]
-    ) => ReturnType<
-      EndpointDefinitions[Property]['fetch']
-    >[EndpointDefinitions[Property]['options']['schemaKey']]
-
-    // EndpointDefinitions[Property]['options']['schemaKey'] extends string
-    //   ? ReturnType<
-    //       EndpointDefinitions[Property]['fetch']
-    //     >[EndpointDefinitions[Property]['options']['schemaKey']]
-    //   : ReturnType<EndpointDefinitions[Property]['fetch']>
+    ) => ReturnType<EndpointDefinitions[Property]['fetch']>
   }
 }
 
 export type SliceConfig = CreateSliceOptions<any, any, any>
 
-type EndpointOptions<SchemaKey extends string> = {
+type EndpointOptions = {
   idArgKey?: string
-  schemaKey: SchemaKey
+  schemaKey: string
   kind?: Kind
 }
 
-export type EndpointConfig<
-  SchemaKey extends string,
-  SchemaReturn,
-  argsT,
-  dataT extends { [key in SchemaKey]: SchemaReturn }
-> = {
+export type EndpointConfig<argsT, dataT> = {
   fetch: (fetchArgs: argsT, context: AudiusQueryContextType) => Promise<dataT>
-  options: EndpointOptions<SchemaKey>
+  options: EndpointOptions
 }
 
 export type EntityMap = {

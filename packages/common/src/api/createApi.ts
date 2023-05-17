@@ -17,7 +17,6 @@ import { apiResponseSchema } from './schema'
 import {
   Api,
   ApiState,
-  CreateApiConfig,
   DefaultEndpointDefinitions,
   EndpointConfig,
   FetchErrorAction,
@@ -36,16 +35,7 @@ import {
 const { addEntries } = cacheActions
 
 export const createApi = <
-  SchemaKey extends string,
-  SchemaReturn,
-  argsT,
-  dataT extends { [key in SchemaKey]: SchemaReturn },
-  EndpointDefinitions extends DefaultEndpointDefinitions<
-    SchemaKey,
-    SchemaReturn,
-    argsT,
-    dataT
-  >
+  EndpointDefinitions extends DefaultEndpointDefinitions
 >({
   reducerPath,
   endpoints
@@ -56,13 +46,7 @@ export const createApi = <
   const api = {
     reducerPath,
     hooks: {}
-  } as unknown as Api<
-    SchemaKey,
-    SchemaReturn,
-    argsT,
-    dataT,
-    EndpointDefinitions
-  >
+  } as unknown as Api<EndpointDefinitions>
 
   const sliceConfig: SliceConfig = {
     name: reducerPath,
@@ -131,8 +115,12 @@ const addEndpointToSlice = (sliceConfig: SliceConfig, endpointName: string) => {
   }
 }
 
-const buildEndpointHooks = <argsT, dataT>(
-  api: Api,
+const buildEndpointHooks = <
+  EndpointDefinitions extends DefaultEndpointDefinitions,
+  argsT,
+  dataT
+>(
+  api: Api<EndpointDefinitions>,
   endpointName: string,
   endpoint: EndpointConfig<argsT, dataT>,
   actions: CaseReducerActions<any>,
