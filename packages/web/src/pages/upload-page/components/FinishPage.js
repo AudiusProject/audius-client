@@ -15,7 +15,7 @@ import Toast from 'components/toast/Toast'
 import {
   TrackArtwork,
   CollectionArtwork
-} from 'components/track/desktop/Artwork'
+} from 'components/track/Artwork'
 import PlaylistTile from 'components/track/desktop/PlaylistTile'
 import TrackListItem from 'components/track/desktop/TrackListItem'
 import TrackTile from 'components/track/desktop/TrackTile'

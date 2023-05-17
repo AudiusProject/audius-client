@@ -131,6 +131,8 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
     artistHandle,
     duration,
     genre,
+    isPlaying,
+    isBuffering,
     isDM
   } = props
   const { isEnabled: isGatedContentEnabled } = useFlag(
@@ -265,13 +267,16 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
         <div className={styles.metadata}>
           <TrackTileArt
             id={props.id}
-            isTrack={true}
+            isTrack
+            isPlaying={isPlaying}
+            isBuffering={isBuffering}
             callback={() => setArtworkLoaded(true)}
             showSkeleton={showSkeleton}
             coverArtSizes={props.coverArtSizes}
             coSign={coSign}
             className={styles.albumArtContainer}
             label={`${props.title} by ${props.artistName}`}
+            artworkIconClassName={styles.artworkIcon}
           />
           <div
             className={cn(styles.titles, {
