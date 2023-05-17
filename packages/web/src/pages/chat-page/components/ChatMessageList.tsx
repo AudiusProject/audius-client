@@ -7,7 +7,8 @@ import {
   forwardRef,
   useRef,
   useLayoutEffect,
-  useState
+  useState,
+  useMemo
 } from 'react'
 
 import {
@@ -17,9 +18,11 @@ import {
   encodeHashId,
   Status,
   hasTail,
-  isEarliestUnread
+  isEarliestUnread,
+  chatCanFetchMoreMessages
 } from '@audius/common'
 import cn from 'classnames'
+import { throttle } from 'lodash'
 import { mergeRefs } from 'react-merge-refs'
 import { useDispatch } from 'react-redux'
 
@@ -46,13 +49,14 @@ type ChatMessageListProps = ComponentPropsWithoutRef<'div'> & {
 
 const SCROLL_TOP_THRESHOLD = 800
 const SCROLL_BOTTOM_THRESHOLD = 32
+const THROTTLE_DURATION_MS = 500
 
-const isScrolledToBottom = (element: HTMLElement) => {
+const isScrolledNearBottom = (element: HTMLElement) => {
   const { scrollTop, clientHeight, scrollHeight } = element
   return scrollTop + clientHeight >= scrollHeight - SCROLL_BOTTOM_THRESHOLD
 }
 
-const isScrolledToTop = (element: HTMLElement) => {
+const isScrolledNearTop = (element: HTMLElement) => {
   return element.scrollTop < SCROLL_TOP_THRESHOLD
 }
 
@@ -83,26 +87,50 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       }
     }, [chat, chatId])
 
-    const handleScroll = useCallback(
-      (e: UIEvent<HTMLDivElement>) => {
-        if (chatId && isScrolledToBottom(e.currentTarget)) {
-          // Mark chat as read when the user reaches the bottom (saga handles no-op if already read)
-          dispatch(markChatAsRead({ chatId }))
-          dispatch(setActiveChat({ chatId }))
-        } else {
-          dispatch(setActiveChat({ chatId: null }))
-          if (
-            chatId &&
-            isScrolledToTop(e.currentTarget) &&
-            chat?.messagesStatus !== Status.LOADING
-          ) {
-            // Fetch more messages when user reaches the top
-            dispatch(fetchMoreMessages({ chatId }))
-          }
-        }
-      },
-      [dispatch, chatId, chat?.messagesStatus]
+    // Memoize the creation of throttled scroll handler, to avoid
+    // creating a new throttled function each time and because useCallback
+    // doesn't like receiving a non-inlined fn
+    // https://dmitripavlutin.com/react-throttle-debounce/
+    const handleScroll = useMemo(
+      () =>
+        throttle(
+          (e: UIEvent<HTMLDivElement>) => {
+            if (!chatId) return
+
+            // Handle case where scrolled to bottom
+            if (isScrolledNearBottom(e.currentTarget)) {
+              // Mark chat as read when the user reaches the bottom (saga handles no-op if already read)
+              dispatch(markChatAsRead({ chatId }))
+              dispatch(setActiveChat({ chatId }))
+            } else {
+              dispatch(setActiveChat({ chatId: null }))
+
+              if (chat?.messagesSummary?.prev_count === undefined) {
+                return
+              }
+
+              if (
+                chatCanFetchMoreMessages(
+                  chat?.messagesStatus,
+                  chat?.messagesSummary?.prev_count
+                ) &&
+                isScrolledNearTop(e.currentTarget)
+              ) {
+                // Fetch more messages when user reaches the top
+                dispatch(fetchMoreMessages({ chatId }))
+              }
+            }
+          },
+          THROTTLE_DURATION_MS,
+          { leading: true, trailing: false }
+        ),
+      [dispatch, chatId, chat?.messagesStatus, chat?.messagesSummary]
     )
+
+    // Cancel any throttled scrolls when component dismounts
+    useEffect(() => () => {
+      handleScroll.cancel()
+    })
 
     const scrollIntoViewOnMount = useCallback((el: HTMLDivElement) => {
       if (el) {
