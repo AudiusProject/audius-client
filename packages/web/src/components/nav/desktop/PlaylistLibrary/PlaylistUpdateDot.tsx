@@ -7,14 +7,18 @@ const messages = { recentlyUpdatedTooltip: 'Recently Updated' }
 
 export const PlaylistUpdateDot = () => {
   return (
-    <Tooltip
-      className={styles.tooltip}
-      shouldWrapContent={true}
-      shouldDismissOnClick={false}
-      mouseEnterDelay={0.1}
-      text={messages.recentlyUpdatedTooltip}
-    >
-      <UpdateDot className={styles.root} />
-    </Tooltip>
+    <div className={styles.root}>
+      <Tooltip
+        className={styles.tooltip}
+        shouldWrapContent={true}
+        shouldDismissOnClick={false}
+        mouseEnterDelay={0.1}
+        text={messages.recentlyUpdatedTooltip}
+      >
+        <div>
+          <UpdateDot />
+        </div>
+      </Tooltip>
+    </div>
   )
 }
