@@ -1,9 +1,15 @@
 import { useMemo } from 'react'
 
+import type { CollectionType } from '@audius/common'
 import {
+  cacheCollectionsSelectors,
+  filterCollections,
   reachabilitySelectors,
   shallowCompare,
-  useProxySelector
+  useFetchedSavedCollections,
+  useProxySelector,
+  useSavedAlbums,
+  useSavedPlaylists
 } from '@audius/common'
 import { useSelector } from 'react-redux'
 
@@ -16,15 +22,18 @@ import {
 } from 'app/store/offline-downloads/selectors'
 import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 
-import { getAccountCollections } from './selectors'
-import { buildCollectionIdsToNumPlayableTracksMap } from './utils'
-
 const { getIsReachable } = reachabilitySelectors
+const { getCollection } = cacheCollectionsSelectors
 
-export const useCollectionScreenData = (
-  filterValue = '',
-  collectionType: 'albums' | 'playlists'
-) => {
+type UseCollectionScreenDataConfig = {
+  filterValue?: string
+  collectionType: CollectionType
+}
+
+export const useCollectionScreenData = ({
+  collectionType,
+  filterValue = ''
+}: UseCollectionScreenDataConfig) => {
   const isDoneLoadingFromDisk = useSelector(getIsDoneLoadingFromDisk)
   const isReachable = useSelector(getIsReachable)
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
@@ -38,23 +47,52 @@ export const useCollectionScreenData = (
     },
     [isReachable, isOfflineModeEnabled, isDoneLoadingFromDisk]
   )
+  const { data: accountAlbums } = useSavedAlbums()
+  const { data: accountPlaylists } = useSavedPlaylists()
 
-  const filteredCollections = useProxySelector(
+  // TODO: Need to use this status somewhere?
+  const unfilteredCollections =
+    collectionType === 'albums' ? accountAlbums : accountPlaylists
+
+  const collectionIds = useMemo(
+    () =>
+      filterCollections(unfilteredCollections, {
+        filterText: filterValue
+      }).map((c) => c.id),
+    [unfilteredCollections, filterValue]
+  )
+
+  const {
+    data: fetchedCollectionIds,
+    fetchMore,
+    hasMore,
+    status
+  } = useFetchedSavedCollections({
+    collectionIds,
+    type: collectionType,
+    pageSize: 20
+  })
+
+  const availableCollectionIds = useProxySelector(
     (state: AppState) => {
-      if (isOfflineModeEnabled && !isReachable) {
-        if (!isDoneLoadingFromDisk) {
-          return []
-        }
+      if (!isOfflineModeEnabled || isReachable) {
+        return fetchedCollectionIds
       }
+
+      if (!isDoneLoadingFromDisk) {
+        return []
+      }
+
       const offlineCollectionsStatus = getOfflineCollectionsStatus(state)
-      return getAccountCollections(state, filterValue).filter((collection) => {
-        const isCollectionCorrectType =
-          collectionType === 'albums'
-            ? collection.is_album
-            : !collection.is_album
-        if (!isCollectionCorrectType) {
+      return fetchedCollectionIds.filter((collectionId) => {
+        const collection = getCollection(state, { id: collectionId })
+        if (collection == null) {
+          console.error(
+            `Unexpected missing fetched collection: ${collectionId}`
+          )
           return false
         }
+
         if (isOfflineModeEnabled && !isReachable) {
           const trackIds =
             collection.playlist_contents.track_ids.map(
@@ -64,7 +102,6 @@ export const useCollectionScreenData = (
             offlineCollectionsStatus[collection.playlist_id]
           // Don't show a playlist in Offline Mode if it has at least one track but none of the tracks have been downloaded yet OR if it is not marked for download
           return (
-            isCollectionCorrectType &&
             Boolean(collectionDownloadStatus) &&
             collectionDownloadStatus !== OfflineDownloadStatus.INACTIVE &&
             (trackIds.length === 0 ||
@@ -81,7 +118,7 @@ export const useCollectionScreenData = (
       })
     },
     [
-      filterValue,
+      fetchedCollectionIds,
       isReachable,
       isOfflineModeEnabled,
       isDoneLoadingFromDisk,
@@ -89,21 +126,23 @@ export const useCollectionScreenData = (
     ],
     shallowCompare
   )
-  const numPlayableTracksMap = useMemo(() => {
-    return buildCollectionIdsToNumPlayableTracksMap(
-      filteredCollections,
-      isOfflineModeEnabled && !isReachable,
-      offlineTracksStatus || {}
-    )
-  }, [
-    isOfflineModeEnabled,
-    isReachable,
-    offlineTracksStatus,
-    filteredCollections
-  ])
+  // const numPlayableTracksMap = useMemo(() => {
+  //   return buildCollectionIdsToNumPlayableTracksMap(
+  //     filteredCollections,
+  //     isOfflineModeEnabled && !isReachable,
+  //     offlineTracksStatus || {}
+  //   )
+  // }, [
+  //   isOfflineModeEnabled,
+  //   isReachable,
+  //   offlineTracksStatus,
+  //   filteredCollections
+  // ])
 
   return {
-    filteredCollections,
-    collectionIdsToNumTracks: numPlayableTracksMap
+    collectionIds: availableCollectionIds,
+    hasMore,
+    fetchMore,
+    status
   }
 }

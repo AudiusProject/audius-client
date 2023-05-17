@@ -8,7 +8,7 @@ import {
 } from 'react'
 
 import {
-  AccountCollection,
+  filterCollections,
   CommonState,
   ID,
   Lineup,
@@ -198,27 +198,6 @@ const TracksLineup = ({
       ) : null}
     </div>
   )
-}
-
-type FilterCollectionsOptions = {
-  filterText?: string
-}
-
-const filterCollections = (
-  collections: AccountCollection[],
-  { filterText = '' }: FilterCollectionsOptions
-) => {
-  return collections.filter((item: AccountCollection) => {
-    if (filterText) {
-      const matchesPlaylistName =
-        item.name.toLowerCase().indexOf(filterText.toLowerCase()) > -1
-      const matchesOwnerName =
-        item.user.handle.toLowerCase().indexOf(filterText.toLowerCase()) > -1
-
-      return matchesPlaylistName || matchesOwnerName
-    }
-    return true
-  })
 }
 
 type AlbumCardProps = {

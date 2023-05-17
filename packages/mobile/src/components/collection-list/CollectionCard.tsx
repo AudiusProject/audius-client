@@ -1,8 +1,9 @@
-import { useCallback } from 'react'
+import { createElement, useCallback } from 'react'
 
-import type { Collection } from '@audius/common'
-import { SquareSizes } from '@audius/common'
+import type { Collection, CommonState, ID } from '@audius/common'
+import { cacheCollectionsSelectors, SquareSizes } from '@audius/common'
 import type { StyleProp, ViewStyle } from 'react-native'
+import { useSelector } from 'react-redux'
 
 import { Card } from 'app/components/card'
 import { CollectionImage } from 'app/components/image/CollectionImage'
@@ -11,24 +12,33 @@ import { formatCount } from 'app/utils/format'
 
 import type { ImageProps } from '../image/FastImage'
 
+const { getCollection } = cacheCollectionsSelectors
+
 const formatPlaylistCardSecondaryText = (saves: number, tracks: number) => {
   const savesText = saves === 1 ? 'Favorite' : 'Favorites'
   const tracksText = tracks === 1 ? 'Track' : 'Tracks'
   return `${formatCount(saves)} ${savesText} • ${tracks} ${tracksText}`
 }
 
-type CollectionCardProps = {
+type FullCollectionCardProps = {
   collection: Collection
   style?: StyleProp<ViewStyle>
   /** Override for what number to show as the # of tracks. Optional. */
   numTracks?: number
 }
 
-export const CollectionCard = ({
+type CollectionCardWithIdProps = {
+  collectionId: ID
+  style?: StyleProp<ViewStyle>
+}
+
+type CollectionCardProps = FullCollectionCardProps | CollectionCardWithIdProps
+
+const FullCollectionCard = ({
   collection,
   numTracks,
   style
-}: CollectionCardProps) => {
+}: FullCollectionCardProps) => {
   const navigation = useNavigation()
   const handlePress = useCallback(() => {
     navigation.push('Collection', { id: collection.playlist_id })
@@ -59,4 +69,28 @@ export const CollectionCard = ({
       onPress={handlePress}
     />
   )
+}
+
+const CollectionCardWithId = ({
+  collectionId,
+  style
+}: CollectionCardWithIdProps) => {
+  const collection = useSelector((state: CommonState) =>
+    getCollection(state, { id: collectionId })
+  )
+  return collection ? (
+    <FullCollectionCard collection={collection} style={style} />
+  ) : null
+}
+
+function isCollectionCardWithIdProps(
+  props: CollectionCardProps
+): props is CollectionCardWithIdProps {
+  return (props as CollectionCardWithIdProps).collectionId !== undefined
+}
+
+export const CollectionCard = (props: CollectionCardProps) => {
+  return isCollectionCardWithIdProps(props)
+    ? createElement(CollectionCardWithId, props)
+    : createElement(FullCollectionCard, props)
 }

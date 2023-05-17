@@ -22,8 +22,10 @@ const messages = {
 
 export const AlbumsTab = () => {
   const [filterValue, setFilterValue] = useState('')
-  const { filteredCollections: userAlbums, collectionIdsToNumTracks } =
-    useCollectionScreenData(filterValue, 'albums')
+  const { collectionIds: userAlbums } = useCollectionScreenData({
+    filterValue,
+    collectionType: 'albums'
+  })
   const isReachable = useSelector(getIsReachable)
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
@@ -45,8 +47,7 @@ export const AlbumsTab = () => {
           />
           <CollectionList
             scrollEnabled={false}
-            collection={userAlbums}
-            collectionIdsToNumTracks={collectionIdsToNumTracks}
+            collectionIds={userAlbums}
             style={{ marginVertical: 12 }}
           />
         </>

@@ -31,8 +31,10 @@ export const PlaylistsTab = () => {
   }, [navigation])
 
   const [filterValue, setFilterValue] = useState('')
-  const { filteredCollections: userPlaylists, collectionIdsToNumTracks } =
-    useCollectionScreenData(filterValue, 'playlists')
+  const { collectionIds: userPlaylists } = useCollectionScreenData({
+    filterValue,
+    collectionType: 'albums'
+  })
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const isReachable = useSelector(getIsReachable)
 
@@ -65,8 +67,7 @@ export const PlaylistsTab = () => {
           <Animated.View layout={Layout}>
             <CollectionList
               scrollEnabled={false}
-              collection={userPlaylists}
-              collectionIdsToNumTracks={collectionIdsToNumTracks}
+              collectionIds={userPlaylists}
             />
           </Animated.View>
         </>
