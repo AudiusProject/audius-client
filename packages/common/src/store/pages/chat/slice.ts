@@ -141,7 +141,7 @@ const slice = createSlice({
       action: PayloadAction<{ unreadMessagesCount: number }>
     ) => {
       state.unreadMessagesCount = action.payload.unreadMessagesCount
-      state.optimisticUnreadMessagesCount = action.payload.unreadMessagesCount
+      delete state.optimisticUnreadMessagesCount
     },
     fetchUnreadMessagesCountFailed: (_state) => {},
     goToChat: (_state, _action: PayloadAction<{ chatId: string }>) => {
@@ -325,6 +325,7 @@ const slice = createSlice({
       delete state.optimisticChatRead[chatId]
       delete state.optimisticUnreadMessagesCount
       const existingChat = getChat(state, chatId)
+      state.unreadMessagesCount -= existingChat?.unread_message_count ?? 0
       chatsAdapter.updateOne(state.chats, {
         id: chatId,
         changes: {
