@@ -246,6 +246,7 @@ const ConnectedTrackTile = ({
       isActive={uid === playingUid}
       isLoading={loading}
       isPlaying={uid === playingUid && isPlaying}
+      isBuffering={isBuffering}
       goToArtistPage={goToArtistPage}
       goToTrackPage={goToTrackPage}
       toggleSave={toggleSave}

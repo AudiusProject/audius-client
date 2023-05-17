@@ -24,6 +24,23 @@
   border: none;
 }
 
+.container.dm:hover {
+  transform: scale3d(1.005, 1.005, 1.005);
+}
+
+.container .artworkIcon,
+.container .artworkIcon circle {
+  opacity: 0;
+}
+
+.container:hover .artworkIcon {
+  opacity: 0.75;
+}
+
+.container .artworkIcon path {
+  fill: var(--static-white);
+}
+
 .container:active {
   box-shadow: 0 0 1px 0 var(--tile-shadow-1),
     0 2px 3px -2px var(--tile-shadow-3);
@@ -179,7 +196,8 @@
 }
 
 .title:hover {
-  color: inherit;
+  color: var(--primary);
+  text-decoration: underline !important;
 }
 
 .title:active {
@@ -206,8 +224,8 @@
 }
 
 .artist:hover {
-  color: inherit;
-  text-decoration: none;
+  color: var(--primary);
+  text-decoration: underline !important;
 }
 
 .artist:active {
