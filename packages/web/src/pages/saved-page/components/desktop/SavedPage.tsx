@@ -209,7 +209,6 @@ export type SavedPageProps = {
   fetchSavedTracks: () => void
   resetSavedTracks: () => void
   updateLineupOrder: (updatedOrderIndices: UID[]) => void
-  fetchSavedAlbums: () => void
   goToRoute: (route: string) => void
   play: (uid?: UID) => void
   pause: () => void
