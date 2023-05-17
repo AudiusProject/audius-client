@@ -24,17 +24,22 @@ export type Api<EndpointDefinitions extends DefaultEndpointDefinitions> = {
   }
 }
 
+export type CreateApiConfig = {
+  reducerPath: string
+  endpoints: { [name: string]: EndpointConfig<any, any> }
+}
+
 export type SliceConfig = CreateSliceOptions<any, any, any>
 
 type EndpointOptions = {
   idArgKey?: string
-  schemaKey: string
+  schemaKey?: string
   kind?: Kind
 }
 
 export type EndpointConfig<argsT, dataT> = {
   fetch: (fetchArgs: argsT, context: AudiusQueryContextType) => Promise<dataT>
-  options: EndpointOptions
+  options?: EndpointOptions
 }
 
 export type EntityMap = {
@@ -78,9 +83,4 @@ export type PerEndpointState = {
 
 export type ApiState = {
   [key: string]: PerEndpointState
-}
-
-export type CreateApiConfig = {
-  reducerPath: string
-  endpoints: { [name: string]: EndpointConfig<any, any> }
 }
