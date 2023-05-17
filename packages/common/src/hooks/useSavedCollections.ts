@@ -4,9 +4,8 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { ID } from 'models/Identifiers'
 import { Status } from 'models/Status'
-import { CommonState } from 'store/index'
-import { getFetchedCollectionIds } from 'store/saved-collections/selectors'
 
+import { CommonState } from '../store'
 import {
   CollectionType,
   savedCollectionsActions,
@@ -15,8 +14,13 @@ import {
 
 const { fetchCollections } = savedCollectionsActions
 
-const { getAccountAlbums, getSavedCollectionsState, getAccountPlaylists } =
-  savedCollectionsSelectors
+const {
+  getAccountAlbums,
+  getSavedCollectionsState,
+  getFetchedCollectionIds,
+  getVisibleCollectionIds,
+  getAccountPlaylists
+} = savedCollectionsSelectors
 
 const DEFAULT_PAGE_SIZE = 50
 
@@ -58,14 +62,19 @@ export function useFetchedSavedCollections({
   const { status } = useSelector((state: CommonState) =>
     getSavedCollectionsState(state, type)
   )
-  const fetchedCollectionIDs = useSelector(getFetchedCollectionIds)
+  const fetchedCollectionIds = useSelector(getFetchedCollectionIds)
+  const visibleCollectionIds = useSelector(getVisibleCollectionIds)
 
   const { unfetched, fetched } = useMemo(() => {
-    const fetchedSet = new Set(fetchedCollectionIDs)
+    const fetchedSet = new Set(fetchedCollectionIds)
     return collectionIds.reduce<{ fetched: ID[]; unfetched: ID[] }>(
       (accum, id) => {
         if (fetchedSet.has(id)) {
-          accum.fetched.push(id)
+          // Don't return hidden collections in the fetched list, but we also
+          // shouldn't add them to the unfetched list
+          if (visibleCollectionIds.has(id)) {
+            accum.fetched.push(id)
+          }
         } else {
           accum.unfetched.push(id)
         }
@@ -73,7 +82,7 @@ export function useFetchedSavedCollections({
       },
       { fetched: [], unfetched: [] }
     )
-  }, [collectionIds, fetchedCollectionIDs])
+  }, [collectionIds, fetchedCollectionIds, visibleCollectionIds])
 
   const fetchMore = useCallback(() => {
     if (status === Status.LOADING || unfetched.length === 0) {

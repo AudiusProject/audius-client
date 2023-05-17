@@ -18,7 +18,7 @@ import { AlbumsTab } from './AlbumsTab'
 import { FavoritesDownloadSection } from './FavoritesDownloadSection'
 import { PlaylistsTab } from './PlaylistsTab'
 import { TracksTab } from './TracksTab'
-const { fetchSavedPlaylists, fetchSavedAlbums } = accountActions
+const { fetchSavedPlaylists } = accountActions
 
 const messages = {
   header: 'Favorites'
@@ -51,7 +51,6 @@ export const FavoritesScreen = () => {
 
   useEffectOnce(() => {
     dispatch(fetchSavedPlaylists())
-    dispatch(fetchSavedAlbums())
   })
 
   return (
