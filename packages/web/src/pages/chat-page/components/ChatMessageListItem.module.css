@@ -54,6 +54,10 @@
   user-select: text;
 }
 
+.text.topBorder {
+  border-top: 1px solid var(--secondary-dark-1);
+}
+
 .date {
   font-size: var(--font-xs);
   color: var(--neutral-light-2);

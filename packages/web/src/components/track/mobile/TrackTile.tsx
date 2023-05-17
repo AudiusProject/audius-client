@@ -130,7 +130,8 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
     permalink,
     artistHandle,
     duration,
-    genre
+    genre,
+    isDM
   } = props
   const { isEnabled: isGatedContentEnabled } = useFlag(
     FeatureFlags.GATED_CONTENT_ENABLED
@@ -209,7 +210,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
   ])
 
   return (
-    <div className={styles.container}>
+    <div className={cn(styles.container, { [styles.dm]: isDM })}>
       {showPremiumCornerTag && cornerTagIconType ? (
         <TrackBannerIcon
           type={cornerTagIconType}
@@ -388,22 +389,24 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
             {formatListenCount(props.listenCount)}
           </div>
         </div>
-        <BottomButtons
-          hasSaved={props.hasCurrentUserSaved}
-          hasReposted={props.hasCurrentUserReposted}
-          toggleRepost={onToggleRepost}
-          toggleSave={onToggleSave}
-          onShare={onClickShare}
-          onClickOverflow={onClickOverflowMenu}
-          isOwner={isOwner}
-          isUnlisted={isUnlisted}
-          doesUserHaveAccess={doesUserHaveAccess}
-          premiumTrackStatus={premiumTrackStatus}
-          isShareHidden={hideShare}
-          isDarkMode={darkMode}
-          isMatrixMode={isMatrix}
-          isTrack
-        />
+        {!isDM ?(
+          <BottomButtons
+            hasSaved={props.hasCurrentUserSaved}
+            hasReposted={props.hasCurrentUserReposted}
+            toggleRepost={onToggleRepost}
+            toggleSave={onToggleSave}
+            onShare={onClickShare}
+            onClickOverflow={onClickOverflowMenu}
+            isOwner={isOwner}
+            isUnlisted={isUnlisted}
+            doesUserHaveAccess={doesUserHaveAccess}
+            premiumTrackStatus={premiumTrackStatus}
+            isShareHidden={hideShare}
+            isDarkMode={darkMode}
+            isMatrixMode={isMatrix}
+            isTrack
+          />
+        ) : null}
       </div>
     </div>
   )
