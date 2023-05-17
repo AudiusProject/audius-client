@@ -1,12 +1,12 @@
-import { useCallback, useEffect, useState, useContext } from 'react'
+import { useCallback, useState, useContext } from 'react'
 
 import {
   useAllPaginatedQuery,
+  useGetAudioTransactionCount,
   useGetAudioTransactionHistory,
   TransactionDetails,
   TransactionType,
   audioTransactionsPageActions,
-  audioTransactionsPageSelectors,
   transactionDetailsActions,
   statusIsNotFinalized
 } from '@audius/common'
@@ -20,13 +20,9 @@ import Header from 'components/header/desktop/Header'
 import Page from 'components/page/Page'
 import EmptyTable from 'components/tracks-table/EmptyTable'
 import { MainContentContext } from 'pages/MainContentContext'
-import { useSelector } from 'utils/reducer'
 
 import styles from './AudioTransactionsPage.module.css'
-const { fetchAudioTransactionMetadata, fetchAudioTransactionsCount } =
-  audioTransactionsPageActions
-const { getAudioTransactionsCount, getAudioTransactionsCountStatus } =
-  audioTransactionsPageSelectors
+const { fetchAudioTransactionMetadata } = audioTransactionsPageActions
 const { fetchTransactionDetailsSucceeded } = transactionDetailsActions
 
 const messages = {
@@ -40,7 +36,7 @@ const messages = {
   moreInfo: 'More Info'
 }
 
-const AUDIO_TRANSACTIONS_BATCH_SIZE = 2
+const AUDIO_TRANSACTIONS_BATCH_SIZE = 50
 
 const Disclaimer = () => {
   const setVisibility = useSetVisibility()
@@ -71,18 +67,9 @@ export const AudioTransactionsPage = () => {
   const dispatch = useDispatch()
   const setVisibility = useSetVisibility()
 
-  const audioTransactionsCount: number = useSelector(getAudioTransactionsCount)
-  const audioTransactionsCountStatus = useSelector(
-    getAudioTransactionsCountStatus
-  )
-
-  useEffect(() => {
-    dispatch(fetchAudioTransactionsCount())
-  }, [dispatch])
-
   const {
     data: audioTransactions,
-    status,
+    status: transactionHistoryStatus,
     loadMore
   } = useAllPaginatedQuery(
     useGetAudioTransactionHistory,
@@ -92,6 +79,9 @@ export const AudioTransactionsPage = () => {
     },
     AUDIO_TRANSACTIONS_BATCH_SIZE
   )
+
+  const { data: audioTransactionCount, status: transactionCountStatus } =
+    useGetAudioTransactionCount()
 
   // Defaults: sort method = date, sort direction = desc
   const onSort = useCallback(
@@ -131,8 +121,8 @@ export const AudioTransactionsPage = () => {
   )
 
   const tableLoading =
-    statusIsNotFinalized(status) ||
-    statusIsNotFinalized(audioTransactionsCountStatus)
+    statusIsNotFinalized(transactionHistoryStatus) ||
+    statusIsNotFinalized(transactionCountStatus)
   const isEmpty = audioTransactions.length === 0
 
   return (
@@ -157,7 +147,7 @@ export const AudioTransactionsPage = () => {
             onClickRow={onClickRow}
             fetchMore={loadMore}
             isVirtualized={true}
-            totalRowCount={audioTransactionsCount}
+            totalRowCount={audioTransactionCount ?? 0}
             scrollRef={mainContentRef}
             fetchBatchSize={AUDIO_TRANSACTIONS_BATCH_SIZE}
           />

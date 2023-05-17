@@ -7,7 +7,7 @@ import { AudiusBackend } from 'services/index'
 
 export type AudiusQueryContextType = {
   apiClient: AudiusAPIClient
-  audiusSdk: AudiusSdk
+  audiusSdk: () => Promise<AudiusSdk>
   audiusBackend: AudiusBackend
 }
 

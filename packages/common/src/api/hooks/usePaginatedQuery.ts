@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 
+import { isEqual } from 'lodash'
+import { useCustomCompareEffect } from 'react-use'
+
 import { Status } from 'models/Status'
 
 import { QueryHookResults } from '../types'
@@ -27,16 +30,16 @@ export const usePaginatedQuery = <
 }
 
 export const useAllPaginatedQuery = <
-  Data extends [],
+  Data,
   ArgsType extends { limit: number; offset: number },
-  HookType extends (args: ArgsType) => QueryHookResults<Data>
+  HookType extends (args: ArgsType) => QueryHookResults<Data[]>
 >(
   useQueryHook: HookType,
   baseArgs: Omit<ArgsType, 'limit' | 'offset'>,
   pageSize: number
 ) => {
   const [page, setPage] = useState(0)
-  const [allData, setAllData] = useState([])
+  const [allData, setAllData] = useState<Data[]>([])
   const args = {
     ...baseArgs,
     limit: pageSize,
@@ -44,17 +47,22 @@ export const useAllPaginatedQuery = <
   } as ArgsType
   const result = useQueryHook(args)
   useEffect(() => {
-    const { status, data } = result
-    if (status !== Status.SUCCESS) return
-    setAllData((allData) => [...allData, ...data])
-  }, [result])
+    if (result.status !== Status.SUCCESS) return
+    setAllData((allData) => [...allData, ...result.data])
+  }, [result.status, result.data])
 
-  useEffect(() => {
-    setAllData([])
-  }, [baseArgs])
+  useCustomCompareEffect(
+    () => {
+      setAllData([])
+    },
+    [baseArgs],
+    isEqual
+  )
 
   return {
     ...result,
+    // TODO: add another status for reloading
+    status: allData?.length > 0 ? Status.SUCCESS : result.status,
     data: allData,
     loadMore: () => setPage(page + 1),
     hasMore:

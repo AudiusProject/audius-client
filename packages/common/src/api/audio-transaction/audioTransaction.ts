@@ -15,23 +15,47 @@ const audiotransactionApi = createApi({
         const { data, signature } =
           await audiusBackend.signDiscoveryNodeRequest()
 
-        const response =
-          await audiusSdk.full.transactions.getAudioTransactionHistory({
+        const sdk = await audiusSdk()
+        const response = await sdk.full.transactions.getAudioTransactionHistory(
+          {
             encodedDataMessage: data,
             encodedDataSignature: signature,
             sortMethod,
             sortDirection,
             limit,
             offset
-          })
+          }
+        )
         const txDetails: TransactionDetails[] =
           response.data?.map((tx) => parseTransaction(tx)) ?? []
 
-        return txDetails
+        return { transactions: txDetails }
+      },
+      options: {
+        schemaKey: 'transactions'
+      }
+    },
+    getAudioTransactionCount: {
+      fetch: async (_args, { audiusBackend, audiusSdk }) => {
+        const { data, signature } =
+          await audiusBackend.signDiscoveryNodeRequest()
+
+        const sdk = await audiusSdk()
+        const response =
+          await sdk.full.transactions.getAudioTransactionHistoryCount({
+            encodedDataMessage: data,
+            encodedDataSignature: signature
+          })
+
+        return { transactionCount: response.data }
+      },
+      options: {
+        schemaKey: 'transactionCount'
       }
     }
   }
 })
 
-export const { useGetAudioTransactionHistory } = audiotransactionApi.hooks
+export const { useGetAudioTransactionHistory, useGetAudioTransactionCount } =
+  audiotransactionApi.hooks
 export default audiotransactionApi.reducer
