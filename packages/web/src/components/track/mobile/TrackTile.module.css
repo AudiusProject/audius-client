@@ -16,6 +16,14 @@
   margin: 0px auto 12px;
 }
 
+.container.dm {
+  min-height: unset;
+  margin-bottom: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border: none;
+}
+
 .container:active {
   box-shadow: 0 0 1px 0 var(--tile-shadow-1),
     0 2px 3px -2px var(--tile-shadow-3);

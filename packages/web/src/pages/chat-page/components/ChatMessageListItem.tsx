@@ -10,13 +10,13 @@ import {
   useProxySelector,
   formatMessageDate,
   isAudiusUrl,
-  getPathFromAudiusUrl
+  getPathFromAudiusUrl,
+  Kind,
+  useTrackOrPlaylist
 } from '@audius/common'
 import type { ChatMessage } from '@audius/sdk'
 import { IconPlus, PopupPosition } from '@audius/stems'
 import cn from 'classnames'
-import { push as pushRoute } from 'connected-react-router'
-import Linkify from 'linkify-react'
 import { find } from 'linkifyjs'
 import { useDispatch } from 'react-redux'
 
@@ -26,8 +26,12 @@ import { reactionMap } from 'components/notification/Notification/components/Rea
 import { ReactComponent as ChatTail } from '../../../assets/img/ChatTail.svg'
 
 import styles from './ChatMessageListItem.module.css'
+import { ChatMessageTrack } from './ChatMessageTrack'
+import { ChatMessagePlaylist } from './ChatMessagePlaylist'
 import { LinkPreview } from './LinkPreview'
 import { ReactionPopupMenu } from './ReactionPopupMenu'
+import Linkify from 'linkify-react'
+import { push as pushRoute } from 'connected-react-router'
 
 const { setMessageReaction } = chatActions
 const { getUserId } = accountSelectors
@@ -62,6 +66,10 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   const senderUserId = decodeHashId(message.sender_user_id)
   const isAuthor = userId === senderUserId
   const links = find(message.message)
+  const { kind, track, trackStatus, trackError, playlist, playlistStatus, playlistError } = useTrackOrPlaylist(message)
+  const isTrackLink = kind === Kind.TRACKS
+  const isPlaylistLink = kind === Kind.COLLECTIONS
+  const showsLink = links.length > 0 || isTrackLink || isPlaylistLink
 
   // Callbacks
   const handleOpenReactionPopupButtonClicked = useCallback(
@@ -92,6 +100,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
     },
     [dispatch, handleCloseReactionPopup, userId, chatId, message]
   )
+
   const onClickInternalLink = useCallback(
     (url: string) => {
       dispatch(pushRoute(url))
@@ -117,7 +126,21 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
               messageId={message.message_id}
             />
           ))}
-        <div className={styles.text}>
+        {isTrackLink ? (
+          <ChatMessageTrack
+            track={track}
+            status={trackStatus}
+            errorMessage={trackError}
+          />
+        ) : null}
+        {isPlaylistLink ? (
+          <ChatMessagePlaylist
+            playlist={playlist}
+            status={playlistStatus}
+            errorMessage={playlistError}
+          />
+        ) : null}
+        <div className={cn(styles.text, { [styles.topBorder]: showsLink })}>
           <Linkify
             options={{
               attributes: {
