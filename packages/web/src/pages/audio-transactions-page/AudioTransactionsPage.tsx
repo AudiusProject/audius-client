@@ -1,12 +1,8 @@
-import {
-  useCallback,
-  useEffect,
-  useState,
-  useContext,
-  useLayoutEffect
-} from 'react'
+import { useCallback, useEffect, useState, useContext } from 'react'
 
 import {
+  useAllPaginatedQuery,
+  useGetAudioTransactionHistory,
   TransactionDetails,
   TransactionType,
   audioTransactionsPageActions,
@@ -27,17 +23,10 @@ import { MainContentContext } from 'pages/MainContentContext'
 import { useSelector } from 'utils/reducer'
 
 import styles from './AudioTransactionsPage.module.css'
-const {
-  fetchAudioTransactions,
-  fetchAudioTransactionMetadata,
-  fetchAudioTransactionsCount
-} = audioTransactionsPageActions
-const {
-  getAudioTransactions,
-  getAudioTransactionsStatus,
-  getAudioTransactionsCount,
-  getAudioTransactionsCountStatus
-} = audioTransactionsPageSelectors
+const { fetchAudioTransactionMetadata, fetchAudioTransactionsCount } =
+  audioTransactionsPageActions
+const { getAudioTransactionsCount, getAudioTransactionsCountStatus } =
+  audioTransactionsPageSelectors
 const { fetchTransactionDetailsSucceeded } = transactionDetailsActions
 
 const messages = {
@@ -51,7 +40,7 @@ const messages = {
   moreInfo: 'More Info'
 }
 
-const AUDIO_TRANSACTIONS_BATCH_SIZE = 50
+const AUDIO_TRANSACTIONS_BATCH_SIZE = 2
 
 const Disclaimer = () => {
   const setVisibility = useSetVisibility()
@@ -70,8 +59,6 @@ const Disclaimer = () => {
 }
 
 export const AudioTransactionsPage = () => {
-  const [offset, setOffset] = useState(0)
-  const [limit, setLimit] = useState(AUDIO_TRANSACTIONS_BATCH_SIZE)
   const [sortMethod, setSortMethod] =
     useState<full.GetAudioTransactionHistorySortMethodEnum>(
       full.GetAudioTransactionHistorySortMethodEnum.Date
@@ -84,9 +71,6 @@ export const AudioTransactionsPage = () => {
   const dispatch = useDispatch()
   const setVisibility = useSetVisibility()
 
-  const audioTransactions: (TransactionDetails | {})[] =
-    useSelector(getAudioTransactions)
-  const audioTransactionsStatus = useSelector(getAudioTransactionsStatus)
   const audioTransactionsCount: number = useSelector(getAudioTransactionsCount)
   const audioTransactionsCountStatus = useSelector(
     getAudioTransactionsCountStatus
@@ -96,11 +80,18 @@ export const AudioTransactionsPage = () => {
     dispatch(fetchAudioTransactionsCount())
   }, [dispatch])
 
-  useLayoutEffect(() => {
-    dispatch(
-      fetchAudioTransactions({ offset, limit, sortMethod, sortDirection })
-    )
-  }, [dispatch, offset, limit, sortMethod, sortDirection])
+  const {
+    data: audioTransactions,
+    status,
+    loadMore
+  } = useAllPaginatedQuery(
+    useGetAudioTransactionHistory,
+    {
+      sortMethod,
+      sortDirection
+    },
+    AUDIO_TRANSACTIONS_BATCH_SIZE
+  )
 
   // Defaults: sort method = date, sort direction = desc
   const onSort = useCallback(
@@ -115,17 +106,8 @@ export const AudioTransactionsPage = () => {
           ? full.GetAudioTransactionHistorySortDirectionEnum.Asc
           : full.GetAudioTransactionHistorySortDirectionEnum.Desc
       setSortDirection(sortDirectionRes)
-      setOffset(0)
     },
     [setSortMethod, setSortDirection]
-  )
-
-  const fetchMore = useCallback(
-    (offset: number, limit: number) => {
-      setOffset(offset)
-      setLimit(limit)
-    },
-    [setOffset, setLimit]
   )
 
   const onClickRow = useCallback(
@@ -149,7 +131,7 @@ export const AudioTransactionsPage = () => {
   )
 
   const tableLoading =
-    statusIsNotFinalized(audioTransactionsStatus) ||
+    statusIsNotFinalized(status) ||
     statusIsNotFinalized(audioTransactionsCountStatus)
   const isEmpty = audioTransactions.length === 0
 
@@ -173,7 +155,7 @@ export const AudioTransactionsPage = () => {
             loading={tableLoading}
             onSort={onSort}
             onClickRow={onClickRow}
-            fetchMore={fetchMore}
+            fetchMore={loadMore}
             isVirtualized={true}
             totalRowCount={audioTransactionsCount}
             scrollRef={mainContentRef}

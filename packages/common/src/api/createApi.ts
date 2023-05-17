@@ -117,6 +117,11 @@ const buildEndpointHooks = (
     const dispatch = useDispatch()
     const key = getKeyFromFetchArgs(fetchArgs)
     const queryState = useSelector((state: any) => {
+      if (!state.api[reducerPath]) {
+        throw new Error(
+          `State for ${reducerPath} is undefined - did you forget to register the reducer in common/src/api/reducers.ts?`
+        )
+      }
       const endpointState: PerEndpointState =
         state.api[reducerPath][endpointName]
 

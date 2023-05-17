@@ -19,7 +19,10 @@ export const usePaginatedQuery = <
   return {
     ...result,
     loadMore: () => setPage(page + 1),
-    hasMore: result.data.length < pageSize
+    hasMore:
+      result.status === Status.IDLE ||
+      (!result.data && result.status === Status.LOADING) ||
+      result.data?.length < pageSize
   }
 }
 
@@ -29,22 +32,34 @@ export const useAllPaginatedQuery = <
   HookType extends (args: ArgsType) => QueryHookResults<Data>
 >(
   useQueryHook: HookType,
-  baseArgs: Exclude<ArgsType, 'limit' | 'offset'>,
+  baseArgs: Omit<ArgsType, 'limit' | 'offset'>,
   pageSize: number
 ) => {
   const [page, setPage] = useState(0)
   const [allData, setAllData] = useState([])
-  const args = { ...baseArgs, limit: pageSize, offset: page * pageSize }
+  const args = {
+    ...baseArgs,
+    limit: pageSize,
+    offset: page * pageSize
+  } as ArgsType
   const result = useQueryHook(args)
   useEffect(() => {
     const { status, data } = result
     if (status !== Status.SUCCESS) return
-    setAllData([...allData, ...data])
-  }, [allData, result])
+    setAllData((allData) => [...allData, ...data])
+  }, [result])
+
+  useEffect(() => {
+    setAllData([])
+  }, [baseArgs])
+
   return {
     ...result,
     data: allData,
     loadMore: () => setPage(page + 1),
-    hasMore: result.data.length < pageSize
+    hasMore:
+      result.status === Status.IDLE ||
+      (!result.data && result.status === Status.LOADING) ||
+      result.data?.length < pageSize
   }
 }

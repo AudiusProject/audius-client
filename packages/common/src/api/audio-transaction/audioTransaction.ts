@@ -5,7 +5,7 @@ import { createApi } from '../createApi'
 import { parseTransaction } from './utils'
 
 const audiotransactionApi = createApi({
-  reducerPath: 'audiotransactionApi',
+  reducerPath: 'audioTransactionApi',
   endpoints: {
     getAudioTransactionHistory: {
       fetch: async (
@@ -33,5 +33,5 @@ const audiotransactionApi = createApi({
   }
 })
 
-export const { getAudioTransactionHistory } = audiotransactionApi.hooks
+export const { useGetAudioTransactionHistory } = audiotransactionApi.hooks
 export default audiotransactionApi.reducer
