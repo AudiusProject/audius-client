@@ -49,7 +49,7 @@ const { getOptimisticSupporters, getOptimisticSupporting } = tippingSelectors
 
 const { fetchSupportersForUser } = tippingActions
 const { createChat, blockUser, unblockUser, fetchPermissions } = chatActions
-const { getBlockees, getCanChat } = chatSelectors
+const { getBlockees, getCanCreateChat } = chatSelectors
 
 const renderTrigger = (
   anchorRef: React.MutableRefObject<any>,
@@ -72,7 +72,9 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   const blockeeList = useSelector(getBlockees)
   const isBlockee = blockeeList.includes(user.user_id)
 
-  const { canChat } = useSelector((state) => getCanChat(state, user.user_id))
+  const { canCreateChat } = useSelector((state) =>
+    getCanCreateChat(state, user.user_id)
+  )
 
   const handleComposeClicked = useCallback(() => {
     if (canChat) {
@@ -94,7 +96,7 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   }, [dispatch, user])
 
   const items = [
-    canChat
+    canCreateChat
       ? {
           icon: <IconMessage />,
           text: messages.message,
@@ -132,7 +134,7 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   return (
     <div
       className={cn(styles.root, {
-        [styles.disabled]: !canChat
+        [styles.disabled]: !canCreateChat
       })}
     >
       <ArtistChip
@@ -141,7 +143,7 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
         showPopover={false}
         showSupportFor={currentUserId ?? undefined}
         customChips={
-          canChat ? null : (
+          canCreateChat ? null : (
             <div className={styles.notPermitted}>{messages.notPermitted}</div>
           )
         }
