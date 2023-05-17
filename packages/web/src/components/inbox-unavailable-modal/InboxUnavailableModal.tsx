@@ -3,7 +3,7 @@ import { ReactNode, useCallback } from 'react'
 import {
   ChatPermissionAction,
   User,
-  // chatActions,
+  chatActions,
   chatSelectors,
   tippingActions
 } from '@audius/common'
@@ -16,7 +16,8 @@ import {
   Button,
   ModalContent,
   ModalFooter,
-  ButtonType
+  ButtonType,
+  IconUnblockMessages
 } from '@audius/stems'
 import { useDispatch } from 'react-redux'
 
@@ -28,7 +29,7 @@ import { profilePage } from 'utils/route'
 
 import styles from './InboxUnavailableModal.module.css'
 
-// const { unblockUser, createChat } = chatActions
+const { unblockUser, createChat } = chatActions
 
 const messages = {
   title: 'Inbox Unavailable',
@@ -43,7 +44,7 @@ const messages = {
   ),
   tipButton: 'Send $AUDIO',
   unblockContent: 'You cannot send messages to users you have blocked.',
-  unblockButton: 'Learn More'
+  unblockButton: 'Unblock'
 }
 
 const actionToContent = (
@@ -70,7 +71,7 @@ const actionToContent = (
       return {
         content: messages.unblockContent,
         buttonText: messages.unblockButton,
-        buttonIcon: null
+        buttonIcon: <IconUnblockMessages />
       }
     default:
       return {
@@ -128,18 +129,18 @@ export const InboxUnavailableModal = ({
   const { callToAction } = useSelector((state) =>
     getCanChat(state, user.user_id)
   )
-  const hasAction = callToAction === ChatPermissionAction.TIP
-  // TODO: add `|| callToAction === ChatPermissionAction.UNBLOCK`
+  const hasAction =
+    callToAction === ChatPermissionAction.TIP ||
+    callToAction === ChatPermissionAction.UNBLOCK
 
   const handleClick = useCallback(() => {
     if (callToAction === ChatPermissionAction.TIP) {
       dispatch(beginTip({ user, source: 'inboxUnavailableModal' }))
       onClose()
     } else if (callToAction === ChatPermissionAction.UNBLOCK) {
-      // TODO: Pending Design/Product feedback, uncomment this and turn into Unblock button
-      // dispatch(unblockUser({ userId: user.user_id }))
-      // dispatch(createChat({ userIds: [user.user_id] }))
-      // onClose()
+      dispatch(unblockUser({ userId: user.user_id }))
+      dispatch(createChat({ userIds: [user.user_id] }))
+      onClose()
     } else {
       // TODO: Link to blog post
     }
