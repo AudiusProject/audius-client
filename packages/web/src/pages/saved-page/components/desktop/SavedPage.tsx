@@ -1,7 +1,8 @@
-import { useCallback, useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 
 import {
-  CollectionWithOwner,
+  cacheCollectionsSelectors,
+  cacheUsersSelectors,
   ID,
   Lineup,
   SavedPageTabs as ProfileTabs,
@@ -14,7 +15,9 @@ import {
   User,
   savedPageSelectors,
   statusIsNotFinalized,
-  useSavedAlbumsDetails
+  useFetchedSavedCollections,
+  useSavedAlbums,
+  CommonState
 } from '@audius/common'
 import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
 import { useSelector } from 'react-redux'
@@ -40,6 +43,8 @@ import { formatCardSecondaryText } from '../utils'
 import styles from './SavedPage.module.css'
 
 const { getInitialFetchStatus } = savedPageSelectors
+const { getCollection } = cacheCollectionsSelectors
+const { getUser } = cacheUsersSelectors
 
 const messages = {
   filterPlaceholder: 'Filter Tracks',
@@ -51,21 +56,34 @@ const messages = {
 }
 
 type AlbumCardProps = Pick<CardProps, 'index' | 'isLoading' | 'setDidLoad'> & {
-  album: CollectionWithOwner
+  albumId: ID
 }
 
-const AlbumCard = ({ album, index, isLoading, setDidLoad }: AlbumCardProps) => {
+const AlbumCard = ({
+  albumId,
+  index,
+  isLoading,
+  setDidLoad
+}: AlbumCardProps) => {
   const goToRoute = useGoToRoute()
+  const album = useSelector((state: CommonState) =>
+    getCollection(state, { id: albumId })
+  )
+  const ownerHandle = useSelector((state: CommonState) => {
+    if (album == null) {
+      return ''
+    }
+    const user = getUser(state, { id: album.playlist_owner_id })
+    return user?.handle ?? ''
+  })
 
   const handleClick = useCallback(() => {
-    if (album.ownerHandle) {
-      goToRoute(
-        albumPage(album.ownerHandle, album.playlist_name, album.playlist_id)
-      )
+    if (ownerHandle && album) {
+      goToRoute(albumPage(ownerHandle, album.playlist_name, album.playlist_id))
     }
-  }, [album.playlist_name, album.playlist_id, album.ownerHandle, goToRoute])
+  }, [album, ownerHandle, goToRoute])
 
-  return (
+  return album ? (
     <Card
       index={index}
       isLoading={isLoading}
@@ -79,7 +97,7 @@ const AlbumCard = ({ album, index, isLoading, setDidLoad }: AlbumCardProps) => {
       playlistId={album.playlist_id}
       isPlaylist={false}
       isPublic={!album.is_private}
-      handle={album.ownerHandle}
+      handle={ownerHandle}
       primaryText={album.playlist_name}
       secondaryText={formatCardSecondaryText(
         album.save_count,
@@ -90,29 +108,39 @@ const AlbumCard = ({ album, index, isLoading, setDidLoad }: AlbumCardProps) => {
       cardCoverImageSizes={album._cover_art_sizes}
       onClick={handleClick}
     />
-  )
+  ) : null
 }
 
 const AlbumsTabContent = () => {
   const goToRoute = useGoToRoute()
 
+  const { data: savedAlbums } = useSavedAlbums()
+  const savedAlbumIds = useMemo(
+    () => savedAlbums.map((a) => a.id),
+    [savedAlbums]
+  )
+
   const {
-    data: albums,
+    data: fetchedAlbumIds,
     status,
     hasMore,
     fetchMore
-  } = useSavedAlbumsDetails({ pageSize: 20 })
+  } = useFetchedSavedCollections({
+    collectionIds: savedAlbumIds,
+    type: 'albums',
+    pageSize: 20
+  })
   const { isLoading: isAlbumLoading, setDidLoad } = useOrderedLoad(
-    albums.length
+    fetchedAlbumIds.length
   )
-  const cards = albums.map((album, i) => {
+  const cards = fetchedAlbumIds.map((id, i) => {
     return (
       <AlbumCard
         index={i}
         isLoading={isAlbumLoading(i)}
         setDidLoad={setDidLoad}
-        key={album.playlist_id}
-        album={album}
+        key={id}
+        albumId={id}
       />
     )
   })
