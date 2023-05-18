@@ -173,7 +173,8 @@ export const InboxUnavailableDrawer = () => {
   const handleTipPress = useCallback(() => {
     dispatch(beginTip({ user, source: 'profile' }))
     navigation.navigate('TipArtist')
-  }, [dispatch, navigation, user])
+    closeDrawer()
+  }, [closeDrawer, dispatch, navigation, user])
 
   const actionToButtonsMap = useMemo(() => {
     return {
