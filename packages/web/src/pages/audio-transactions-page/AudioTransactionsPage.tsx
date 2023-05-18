@@ -141,7 +141,7 @@ export const AudioTransactionsPage = () => {
         ) : (
           <AudioTransactionsTable
             key='audioTransactions'
-            data={audioTransactions}
+            data={audioTransactions as TransactionDetails[]}
             loading={tableLoading}
             onSort={onSort}
             onClickRow={onClickRow}
