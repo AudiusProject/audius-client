@@ -519,6 +519,12 @@ const slice = createSlice({
       const { chatId } = action.payload
       chatsAdapter.removeOne(state.chats, chatId)
       chatMessagesAdapter.removeAll(state.messages[chatId])
+    },
+    fetchChatRecheckPermissions: (
+      _state,
+      _action: PayloadAction<{ chatId: string }>
+    ) => {
+      // triggers saga
     }
   }
 })

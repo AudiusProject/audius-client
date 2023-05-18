@@ -33,6 +33,7 @@ const {
   fetchUnreadMessagesCountSucceeded,
   fetchUnreadMessagesCountFailed,
   goToChat,
+  fetchChatRecheckPermissions,
   fetchMoreChats,
   fetchMoreChatsSucceeded,
   fetchMoreChatsFailed,
@@ -298,6 +299,20 @@ function* fetchChatIfNecessary(args: { chatId: string }) {
   }
 }
 
+function* doFetchChatRecheckPermissions(args: { chatId: string }) {
+  const { chatId } = args
+  const existingChat = yield* select((state) => getChat(state, chatId))
+  const audiusSdk = yield* getContext('audiusSdk')
+  const sdk = yield* call(audiusSdk)
+  const { data: chat } = yield* call([sdk.chats, sdk.chats.get], { chatId })
+  if (
+    !existingChat ||
+    (chat && chat.recheck_permissions !== existingChat.recheck_permissions)
+  ) {
+    yield* put(fetchChatSucceeded({ chat }))
+  }
+}
+
 function* doFetchBlockees() {
   try {
     const audiusSdk = yield* getContext('audiusSdk')
@@ -432,6 +447,12 @@ function* watchAddMessage() {
   yield takeEvery(addMessage, ({ payload }) => fetchChatIfNecessary(payload))
 }
 
+function* watchFetchChat() {
+  yield takeEvery(fetchChatRecheckPermissions, ({ payload }) =>
+    doFetchChatRecheckPermissions(payload)
+  )
+}
+
 function* watchSendMessage() {
   yield takeEvery(sendMessage, doSendMessage)
 }
@@ -487,6 +508,7 @@ function* watchDeleteChat() {
 export const sagas = () => {
   return [
     watchFetchUnreadMessagesCount,
+    watchFetchChat,
     watchFetchChats,
     watchFetchChatMessages,
     watchSetMessageReaction,
