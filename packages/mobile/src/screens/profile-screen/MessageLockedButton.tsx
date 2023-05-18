@@ -1,28 +1,15 @@
 import { useCallback } from 'react'
 
-import type { User, ID } from '@audius/common'
-import { chatSelectors } from '@audius/common'
-import { useDispatch, useSelector } from 'react-redux'
+import type { User } from '@audius/common'
+import { useDispatch } from 'react-redux'
 
 import IconMessageLocked from 'app/assets/images/iconMessageLocked.svg'
 import { Button } from 'app/components/core'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
 
-const { getUserChatPermissions, getBlockers, getBlockees } = chatSelectors
-
 const messages = {
-  inboxUnavailable: 'Inbox Unavailable',
-  blocker: 'You can no longer send messages to this person.',
-  blockee: 'You cannot send messages to users you have blocked.',
-  followGated1: 'You must follow',
-  followGated2:
-    'or change your inbox settings before you can send them messages.',
-  tipGated1: 'You must send',
-  tipGated2: 'a tip before you can send them messages.',
-  ownSettings:
-    'Your current Inbox Settings are preventing you from sending or receiving messages.',
-  learnMore: 'Learn More'
+  inboxUnavailable: 'Inbox Unavailable'
 }
 
 const useStyles = makeStyles(({ palette, spacing }) => ({
