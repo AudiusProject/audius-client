@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 
 import type { ChatMessageWithExtras } from '@audius/common'
 import {
+  chatCanFetchMoreMessages,
   chatActions,
   accountSelectors,
   chatSelectors,
@@ -217,12 +218,16 @@ export const ChatScreen = () => {
   // The chat/chatId selectors will trigger the rerenders necessary.
   const chatFrozenRef = useRef(chat)
 
+  // Initial fetch, but only if messages weren't fetched on app load
   useEffect(() => {
-    if (chatId && (chat?.messagesStatus ?? Status.IDLE) === Status.IDLE) {
-      // Initial fetch
+    if (
+      chatId &&
+      (chat?.messagesStatus ?? Status.IDLE) === Status.IDLE &&
+      chatMessages.length === 0
+    ) {
       dispatch(fetchMoreMessages({ chatId }))
     }
-  }, [dispatch, chatId, chat])
+  }, [dispatch, chatId, chat, chatMessages.length])
 
   useEffect(() => {
     // Update chatFrozenRef when entering a new chat screen.
@@ -279,18 +284,18 @@ export const ChatScreen = () => {
     }, 10)
   }, [])
 
-  const shouldFetchMoreMessages =
-    chatId &&
-    chat?.messagesStatus !== Status.LOADING &&
-    chat?.messagesSummary &&
-    chat?.messagesSummary.prev_count > 0
-
   const handleScrollToTop = useCallback(() => {
-    if (shouldFetchMoreMessages) {
+    if (
+      chatId &&
+      chatCanFetchMoreMessages(
+        chat?.messagesStatus,
+        chat?.messagesSummary?.prev_count
+      )
+    ) {
       // Fetch more messages when user reaches the top
       dispatch(fetchMoreMessages({ chatId }))
     }
-  }, [chatId, dispatch, shouldFetchMoreMessages])
+  }, [chat?.messagesStatus, chat?.messagesSummary, chatId, dispatch])
 
   // Mark chat as read when user navigates away from screen
   useFocusEffect(
@@ -428,6 +433,7 @@ export const ChatScreen = () => {
             <ReactionPopup
               chatId={chatId}
               messageTop={messageTop.current}
+              containerTop={chatContainerTop.current}
               containerBottom={chatContainerBottom.current}
               isAuthor={decodeHashId(popupMessage?.sender_user_id) === userId}
               message={popupMessage}

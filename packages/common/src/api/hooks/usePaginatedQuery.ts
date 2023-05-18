@@ -25,7 +25,7 @@ export const usePaginatedQuery = <
     hasMore:
       result.status === Status.IDLE ||
       (!result.data && result.status === Status.LOADING) ||
-      result.data?.length < pageSize
+      result.data?.length === pageSize
   }
 }
 
@@ -68,6 +68,6 @@ export const useAllPaginatedQuery = <
     hasMore:
       result.status === Status.IDLE ||
       (!result.data && result.status === Status.LOADING) ||
-      result.data?.length < pageSize
+      result.data?.length === pageSize
   }
 }

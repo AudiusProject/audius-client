@@ -119,7 +119,7 @@ const buildEndpointHooks = (
     const queryState = useSelector((state: any) => {
       if (!state.api[reducerPath]) {
         throw new Error(
-          `State for ${reducerPath} is undefined - did you forget to register the reducer in common/src/api/reducers.ts?`
+          `State for ${reducerPath} is undefined - did you forget to register the reducer in @audius/common/src/api/reducers.ts?`
         )
       }
       const endpointState: PerEndpointState =
