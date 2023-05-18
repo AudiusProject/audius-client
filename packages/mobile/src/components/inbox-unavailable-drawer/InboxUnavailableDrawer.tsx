@@ -216,9 +216,7 @@ export const InboxUnavailableDrawer = () => {
     closeDrawer
   ])
 
-  if (!user) return
-
-  const content = mapActionToContent(callToAction, user, styles)
+  const content = mapActionToContent(callToAction, user!, styles)
 
   return (
     <NativeDrawer drawerName={INBOX_UNAVAILABLE_MODAL_NAME}>
