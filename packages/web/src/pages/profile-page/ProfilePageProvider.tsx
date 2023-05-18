@@ -1016,7 +1016,9 @@ function makeMapStateToProps() {
       relatedArtists: selectSuggestedFollowsUsers(state, {
         id: getProfileUserId(state, handleLower) ?? 0
       }),
-      chatPermissions: getCanCreateChat(state, profile.profile?.user_id),
+      chatPermissions: getCanCreateChat(state, {
+        userId: profile.profile?.user_id
+      }),
       blockeeList: getBlockees(state),
       blockerList: getBlockers(state),
       accountHasTracks

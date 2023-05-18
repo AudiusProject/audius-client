@@ -73,7 +73,7 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   const isBlockee = blockeeList.includes(user.user_id)
 
   const { canCreateChat } = useSelector((state) =>
-    getCanCreateChat(state, user.user_id)
+    getCanCreateChat(state, { userId: user.user_id })
   )
 
   const handleComposeClicked = useCallback(() => {

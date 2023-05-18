@@ -27,7 +27,7 @@ import { ChatList } from './components/ChatList'
 import { ChatMessageList } from './components/ChatMessageList'
 import { CreateChatPrompt } from './components/CreateChatPrompt'
 
-const { getOtherChatUsers, getCanCreateChat, getChat } = chatSelectors
+const { getOtherChatUsers, getCanSendMessage } = chatSelectors
 const { connect, disconnect, fetchPermissions } = chatActions
 
 const messages = {
@@ -78,22 +78,12 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
     (state) => getOtherChatUsers(state, currentChatId),
     [currentChatId]
   )
-  const { canCreateChat, callToAction } = useSelector((state) =>
-    getCanCreateChat(state, users[0]?.user_id)
+  const { canSendMessage, callToAction } = useSelector((state) =>
+    getCanSendMessage(state, {
+      userId: users[0]?.user_id,
+      chatId: currentChatId
+    })
   )
-  const chat = useSelector(getChat)
-
-  console.log({
-    recheck: chat?.recheck_permissions,
-    canCreateChat,
-    action: ChatPermissionAction[callToAction].toString()
-  })
-  const canChat =
-    (!chat?.recheck_permissions || canCreateChat) &&
-    !(
-      callToAction === ChatPermissionAction.NONE ||
-      callToAction === ChatPermissionAction.UNBLOCK
-    )
 
   // Get the height of the header so we can slide the messages list underneath it for the blur effect
   const [headerRef, headerBounds] = useMeasure({
@@ -165,7 +155,7 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
                 className={styles.messageList}
                 chatId={currentChatId}
               />
-              {canChat ? (
+              {canSendMessage ? (
                 <ChatComposer chatId={currentChatId} />
               ) : users.length > 0 ? (
                 <InboxUnavailableMessage

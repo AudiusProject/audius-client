@@ -108,7 +108,7 @@ export const ChatUserListItem = ({ user }: ChatUserListItemProps) => {
   const palette = useThemeColors()
   const dispatch = useDispatch()
   const { canCreateChat } = useSelector((state) =>
-    getCanCreateChat(state, user.user_id)
+    getCanCreateChat(state, { userId: user.user_id })
   )
 
   const handlePress = useCallback(

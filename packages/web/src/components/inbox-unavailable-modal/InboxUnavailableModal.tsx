@@ -93,7 +93,7 @@ export const InboxUnavailableModal = ({
 }) => {
   const dispatch = useDispatch()
   const { callToAction } = useSelector((state) =>
-    getCanCreateChat(state, user.user_id)
+    getCanCreateChat(state, { userId: user.user_id })
   )
   const hasAction =
     callToAction === ChatPermissionAction.TIP ||
