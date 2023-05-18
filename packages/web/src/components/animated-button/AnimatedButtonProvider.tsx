@@ -53,9 +53,6 @@ const AnimatedButton = ({
   disableAnimationOnMount = true
 }: AnimatedButtonProps) => {
   const [isPaused, setIsPaused] = useState(true)
-  // The key suffix is used to reset the animation (i.e. time = 0)
-  const [keySuffix, setKeySuffix] = useState(0)
-
   const [getDidMount, setDidMount] = useInstanceVar(false)
 
   useEffect(() => {
@@ -64,7 +61,6 @@ const AnimatedButton = ({
         setIsPaused(false)
       }
     } else {
-      setKeySuffix((keySuffix) => keySuffix + 1)
       setIsPaused(true)
     }
   }, [isActive, disableAnimationOnMount, getDidMount])
