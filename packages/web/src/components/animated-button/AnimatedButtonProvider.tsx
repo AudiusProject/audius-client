@@ -43,7 +43,6 @@ const AnimatedButton = ({
   href,
   isActive,
   isMatrix,
-  uniqueKey,
   isDisabled = false,
   className = '',
   activeClassName = '',
