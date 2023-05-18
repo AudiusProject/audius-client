@@ -1,11 +1,7 @@
 import { useCallback } from 'react'
 
 import type { Collection } from '@audius/common'
-import {
-  newCollectionMetadata,
-  CreatePlaylistSource,
-  cacheCollectionsActions
-} from '@audius/common'
+import { CreatePlaylistSource, cacheCollectionsActions } from '@audius/common'
 import type { FormikProps } from 'formik'
 import { Formik } from 'formik'
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
@@ -64,12 +60,7 @@ export const CreatePlaylistScreen = () => {
   const dispatch = useDispatch()
   const handleSubmit = useCallback(
     (values: CreatePlaylistValues) => {
-      dispatch(
-        createPlaylist(
-          newCollectionMetadata(values),
-          CreatePlaylistSource.FAVORITES_PAGE
-        )
-      )
+      dispatch(createPlaylist(values, CreatePlaylistSource.FAVORITES_PAGE))
       toast({ content: messages.playlistCreatedToast })
     },
     [dispatch, toast]

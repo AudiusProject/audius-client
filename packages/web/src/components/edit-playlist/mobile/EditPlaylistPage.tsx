@@ -17,7 +17,6 @@ import {
   usePremiumContentAccessMap,
   EditPlaylistValues
 } from '@audius/common'
-import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
@@ -69,8 +68,6 @@ const g = withNullGuard((props: EditPlaylistPageProps) => {
 const EditPlaylistPage = g(
   ({
     close,
-    goToRoute,
-    account,
     createPlaylist,
     metadata,
     tracks,
@@ -257,8 +254,6 @@ const EditPlaylistPage = g(
       formFields,
       createPlaylist,
       close,
-      account,
-      goToRoute,
       metadata,
       editPlaylist,
       hasReordered,
@@ -470,8 +465,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
       dispatch(orderPlaylist(playlistId, idsAndTimes)),
     removeTrack: (trackId: ID, playlistId: ID, timestamp: number) =>
       dispatch(removeTrackFromPlaylist(trackId, playlistId, timestamp)),
-    refreshLineup: () => dispatch(tracksActions.fetchLineupMetadatas()),
-    goToRoute: (route: string) => dispatch(pushRoute(route))
+    refreshLineup: () => dispatch(tracksActions.fetchLineupMetadatas())
   }
 }
 

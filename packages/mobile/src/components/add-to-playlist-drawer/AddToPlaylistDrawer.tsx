@@ -5,8 +5,7 @@ import {
   CreatePlaylistSource,
   accountSelectors,
   cacheCollectionsActions,
-  addToPlaylistUISelectors,
-  newCollectionMetadata
+  addToPlaylistUISelectors
 } from '@audius/common'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
@@ -73,9 +72,7 @@ export const AddToPlaylistDrawer = () => {
   const userPlaylists = user.playlists ?? []
 
   const addToNewPlaylist = () => {
-    const metadata = newCollectionMetadata({
-      playlist_name: trackTitle
-    })
+    const metadata = { playlist_name: trackTitle }
     dispatch(createPlaylist(metadata, CreatePlaylistSource.FROM_TRACK, trackId))
     toast({ content: messages.createdToast })
     onClose()

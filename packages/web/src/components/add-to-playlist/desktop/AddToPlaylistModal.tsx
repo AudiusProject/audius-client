@@ -7,8 +7,7 @@ import {
   accountSelectors,
   cacheCollectionsActions,
   collectionPageSelectors,
-  addToPlaylistUISelectors,
-  newCollectionMetadata
+  addToPlaylistUISelectors
 } from '@audius/common'
 import { Modal, Scrollbar } from '@audius/stems'
 import cn from 'classnames'
@@ -80,7 +79,8 @@ const AddToPlaylistModal = () => {
   }
 
   const handleCreatePlaylist = () => {
-    const metadata = newCollectionMetadata({ playlist_name: trackTitle })
+    if (!trackTitle) return
+    const metadata = { playlist_name: trackTitle }
     dispatch(
       createPlaylist(
         metadata,

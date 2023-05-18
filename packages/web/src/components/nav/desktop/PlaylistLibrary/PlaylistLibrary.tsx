@@ -3,15 +3,17 @@ import { MutableRefObject, useCallback } from 'react'
 import {
   CreatePlaylistSource,
   FavoriteSource,
+  Name,
   accountSelectors,
-  cacheCollectionsActions,
   collectionsSocialActions,
-  newCollectionMetadata
+  createPlaylistModalUIActions
 } from '@audius/common'
 import cn from 'classnames'
 import { isEmpty } from 'lodash'
 import { useDispatch } from 'react-redux'
 
+import { make, useRecord } from 'common/store/analytics/actions'
+import * as signOnActions from 'common/store/pages/signon/actions'
 import { Droppable } from 'components/dragndrop'
 import Pill from 'components/pill/Pill'
 import { Tooltip } from 'components/tooltip'
@@ -25,9 +27,8 @@ import styles from './PlaylistLibrary.module.css'
 import { PlaylistLibraryNavItem, keyExtractor } from './PlaylistLibraryNavItem'
 import { useAddAudioNftPlaylistToLibrary } from './useAddAudioNftPlaylistToLibrary'
 
-const { getPlaylistLibrary } = accountSelectors
+const { getPlaylistLibrary, getHasAccount } = accountSelectors
 const { saveCollection } = collectionsSocialActions
-const { createPlaylist } = cacheCollectionsActions
 
 const messages = {
   header: 'Playlists',
@@ -47,6 +48,8 @@ export const PlaylistLibrary = (props: PlaylistLibraryProps) => {
   const library = useSelector(getPlaylistLibrary)
   const dispatch = useDispatch()
   const draggingKind = useSelector(selectDraggingKind)
+  const isSignedIn = useSelector(getHasAccount)
+  const record = useRecord()
 
   useAddAudioNftPlaylistToLibrary()
 
@@ -57,23 +60,22 @@ export const PlaylistLibrary = (props: PlaylistLibraryProps) => {
     [dispatch]
   )
 
-  const handleCreatePlaylist = useCallback(async () => {
-    dispatch(
-      createPlaylist(
-        newCollectionMetadata({ playlist_name: messages.newPlaylist }),
-        CreatePlaylistSource.NAV
+  const handleCreatePlaylist = useCallback(() => {
+    if (isSignedIn) {
+      dispatch(createPlaylistModalUIActions.open())
+      record(
+        make(Name.PLAYLIST_OPEN_CREATE, { source: CreatePlaylistSource.NAV })
       )
-    )
-  }, [dispatch])
+    } else {
+      dispatch(signOnActions.openSignOn(/** signIn */ false))
+      dispatch(signOnActions.showRequiresAccountModal())
+    }
+  }, [isSignedIn, dispatch, record])
 
   const getTooltipPopupContainer = useCallback(
     () => scrollbarRef.current?.parentNode,
     [scrollbarRef]
   )
-
-  if (!library || isEmpty(library?.contents)) {
-    return <EmptyLibraryNavLink />
-  }
 
   return (
     <Droppable
@@ -99,13 +101,17 @@ export const PlaylistLibrary = (props: PlaylistLibraryProps) => {
           />
         </Tooltip>
       </GroupHeader>
-      {library.contents.map((content) => (
-        <PlaylistLibraryNavItem
-          key={keyExtractor(content)}
-          item={content}
-          level={0}
-        />
-      ))}
+      {!library || isEmpty(library?.contents) ? (
+        <EmptyLibraryNavLink onClick={handleCreatePlaylist} />
+      ) : (
+        library.contents.map((content) => (
+          <PlaylistLibraryNavItem
+            key={keyExtractor(content)}
+            item={content}
+            level={0}
+          />
+        ))
+      )}
     </Droppable>
   )
 }

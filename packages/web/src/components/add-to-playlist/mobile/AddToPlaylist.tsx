@@ -7,8 +7,7 @@ import {
   accountSelectors,
   cacheCollectionsActions,
   addToPlaylistUIActions,
-  addToPlaylistUISelectors,
-  newCollectionMetadata
+  addToPlaylistUISelectors
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
@@ -96,9 +95,7 @@ const AddToPlaylist = g(
     })
 
     const addToNewPlaylist = useCallback(() => {
-      const metadata = newCollectionMetadata({
-        playlist_name: trackTitle
-      })
+      const metadata = { playlist_name: trackTitle }
       createPlaylist(metadata, trackId!)
       toast(messages.createdToast)
       close()
@@ -130,7 +127,7 @@ function mapDispatchToProps(dispatch: Dispatch) {
     goToRoute: (route: string) => dispatch(pushRoute(route)),
     addTrackToPlaylist: (trackId: ID, playlistId: ID | string) =>
       dispatch(addTrackToPlaylist(trackId, playlistId)),
-    createPlaylist: (metadata: Collection, trackId: ID) =>
+    createPlaylist: (metadata: Partial<Collection>, trackId: ID) =>
       dispatch(
         createPlaylist(metadata, CreatePlaylistSource.FROM_TRACK, trackId)
       ),

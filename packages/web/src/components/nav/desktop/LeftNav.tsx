@@ -135,7 +135,7 @@ const LeftNav = ({
       createPlaylist(metadata)
       closeCreatePlaylistModal()
     },
-    [account, createPlaylist, closeCreatePlaylistModal, goToRoute]
+    [createPlaylist, closeCreatePlaylistModal]
   )
 
   const onCreateFolder = useCallback(

@@ -10,7 +10,6 @@ import {
   cacheCollectionsSelectors,
   cacheCollectionsActions as collectionActions,
   PlaylistOperations,
-  cacheTracksSelectors,
   cacheUsersSelectors,
   cacheActions,
   getContext,
@@ -34,13 +33,9 @@ import { fetchUsers } from 'common/store/cache/users/sagas'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
-import { addPlaylistsNotInLibrary } from 'common/store/playlist-library/sagas'
 import { waitForWrite } from 'utils/sagaHelpers'
 
-import {
-  createPlaylistSaga,
-  watchPlaylistCreateRequested
-} from './createPlaylistSaga'
+import { createPlaylistSaga } from './createPlaylistSaga'
 import { reformat } from './utils'
 import {
   retrieveCollection,
@@ -49,7 +44,6 @@ import {
 
 const { manualClearToast, addToast } = toastActions
 const { getUser } = cacheUsersSelectors
-const { getTrack } = cacheTracksSelectors
 const { getCollection } = cacheCollectionsSelectors
 const { getAccountUser, getUserId } = accountSelectors
 const { setOptimisticChallengeCompleted } = audioRewardsPageActions

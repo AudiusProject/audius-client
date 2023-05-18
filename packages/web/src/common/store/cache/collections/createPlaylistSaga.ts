@@ -15,7 +15,8 @@ import {
   cacheTracksSelectors,
   decodeHashId,
   getContext,
-  makeKindId
+  makeKindId,
+  newCollectionMetadata
 } from '@audius/common'
 import { call, put, select, takeLatest } from 'typed-redux-saga'
 
@@ -47,17 +48,18 @@ function* createPlaylistWorker(
   yield* waitForWrite()
   const userId = yield* call(ensureLoggedIn)
   const { initTrackId, formFields, source, noticeType } = action
+  const playlist = newCollectionMetadata(formFields)
   const playlistId = yield* call(getUnclaimedPlaylistId)
   if (!playlistId) return
 
   const initTrack = yield* select(getTrack, { id: initTrackId })
 
   if (initTrack) {
-    formFields._cover_art_sizes = initTrack._cover_art_sizes
-    formFields.cover_art_sizes = initTrack.cover_art_sizes
+    playlist._cover_art_sizes = initTrack._cover_art_sizes
+    playlist.cover_art_sizes = initTrack.cover_art_sizes
   }
 
-  yield* call(optimisticalySavePlaylist, playlistId, formFields, initTrack)
+  yield* call(optimisticalySavePlaylist, playlistId, playlist, initTrack)
   yield* put(
     cacheCollectionsActions.createPlaylistRequested(playlistId, noticeType)
   )
@@ -65,11 +67,10 @@ function* createPlaylistWorker(
     createAndConfirmPlaylist,
     playlistId,
     userId,
-    formFields as PlaylistFormFields,
+    playlist as PlaylistFormFields,
     initTrack,
     source
   )
-  yield* put(cacheCollectionsActions.createPlaylistSucceeded())
 }
 
 function* getUnclaimedPlaylistId() {
@@ -158,7 +159,7 @@ function* createAndConfirmPlaylist(
       ? formFields.artwork.source
       : formFields.cover_art_sizes
   })
-  yield put(event)
+  yield* put(event)
 
   function* confirmPlaylist() {
     const { blockHash, blockNumber, error } = yield* call(
@@ -178,27 +179,18 @@ function* createAndConfirmPlaylist(
       )
     }
 
+    // Merge the confirmed playlist with the optimistic playlist, preferring
+    // optimistic data in case other unconfirmed edits have been made.
     const [confirmedPlaylist] = yield* call(getPlaylists, userId, [playlistId])
-
-    // Immediately after confirming the playlist,
-    // create a new playlist reference and mark the temporary one as moved.
-    // This will trigger the page to refresh, etc. with the new ID url.
-    // Even if there are other actions confirming for this particular
-    // playlist, those will just file in afterwards.
-
     const optimisticPlaylist = yield* select(getCollection, { id: playlistId })
 
-    // The reformatted playlist is the combination of the results we get back
-    // from the confirmation, plus any writes that may be in the confirmer still.
     const reformattedPlaylist = {
       ...reformat(confirmedPlaylist, audiusBackendInstance),
       ...optimisticPlaylist,
       playlist_id: confirmedPlaylist.playlist_id
     }
 
-    // On playlist creation, copy over all fields from the temp collection
-    // to retain optimistically set fields.
-    yield put(
+    yield* put(
       cacheActions.update(Kind.COLLECTIONS, [
         {
           id: confirmedPlaylist.playlist_id,
@@ -209,11 +201,15 @@ function* createAndConfirmPlaylist(
 
     yield* call(addPlaylistsNotInLibrary)
 
-    const event = make(Name.PLAYLIST_COMPLETE_CREATE, {
-      source,
-      status: 'success'
-    })
-    yield put(event)
+    yield* put(
+      make(Name.PLAYLIST_COMPLETE_CREATE, {
+        source,
+        status: 'success'
+      })
+    )
+
+    yield* put(cacheCollectionsActions.createPlaylistSucceeded())
+
     return confirmedPlaylist
   }
 
@@ -225,12 +221,13 @@ function* createAndConfirmPlaylist(
 
   function* onError(result: OnErrorResult) {
     const { message, error, timeout } = result
-    const event = make(Name.PLAYLIST_COMPLETE_CREATE, {
-      source,
-      status: 'failure'
-    })
-    yield put(event)
-    yield put(
+    yield* put(
+      make(Name.PLAYLIST_COMPLETE_CREATE, {
+        source,
+        status: 'failure'
+      })
+    )
+    yield* put(
       cacheCollectionsActions.createPlaylistFailed(
         error,
         { userId, formFields, source },

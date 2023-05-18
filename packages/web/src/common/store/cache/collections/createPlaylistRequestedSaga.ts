@@ -22,7 +22,6 @@ export function* createPlaylistRequestedSaga() {
     ) {
       const { playlistId, noticeType } = action
       const playlist = yield* select(getCollection, { id: playlistId })
-      console.log('sup', action)
       if (!playlist?.permalink) return
 
       const { permalink } = playlist
