@@ -188,9 +188,7 @@ export const getCanCreateChat = createSelector(
     getBlockees,
     getBlockers,
     getChatPermissions,
-    (_state: CommonState, userId: Maybe<ID>) => {
-      return userId
-    }
+    (_: CommonState, { userId }: { userId: Maybe<ID> }) => userId
   ],
   (
     currentUserId,
@@ -238,6 +236,55 @@ export const getCanCreateChat = createSelector(
     return {
       canCreateChat,
       callToAction: action
+    }
+  }
+)
+
+export const getCanSendMessage = createSelector(
+  [
+    getBlockees,
+    getBlockers,
+    getCanCreateChat,
+    (_state: CommonState, { userId }: { userId: Maybe<ID> }) => userId,
+    (state: CommonState, { chatId }: { chatId: Maybe<string> }) =>
+      chatId ? getChat(state, chatId)?.recheck_permissions : false
+  ],
+  (
+    blockees,
+    blockers,
+    { canCreateChat, callToAction: createChatCallToAction },
+    userId,
+    recheckPermissions
+  ) => {
+    if (!userId) {
+      return {
+        canSendMessage: false,
+        callToAction: ChatPermissionAction.NONE
+      }
+    }
+    const isBlockee = blockees.includes(userId)
+    const isBlocker = blockers.includes(userId)
+    if (isBlocker) {
+      return {
+        canSendMessage: false,
+        callToAction: ChatPermissionAction.NONE
+      }
+    }
+    if (isBlockee) {
+      return {
+        canSendMessage: false,
+        callToAction: ChatPermissionAction.UNBLOCK
+      }
+    }
+    if (recheckPermissions && !canCreateChat) {
+      return {
+        canSendMessage: false,
+        callToAction: createChatCallToAction
+      }
+    }
+    return {
+      canSendMessage: true,
+      callToAction: ChatPermissionAction.NOT_APPLICABLE
     }
   }
 )
