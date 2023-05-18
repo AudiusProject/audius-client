@@ -123,7 +123,23 @@ export const AudioTransactionsPage = () => {
   const tableLoading =
     statusIsNotFinalized(transactionHistoryStatus) ||
     statusIsNotFinalized(transactionCountStatus)
-  const isEmpty = audioTransactions.length === 0
+  const isEmpty = !audioTransactions || audioTransactions.length === 0
+  const displayEmptyState = isEmpty && !tableLoading
+
+  const filledAudioTransactions = [
+    ...(audioTransactions ?? []),
+    ...Array(
+      (audioTransactionCount ?? 0) - (audioTransactions ?? []).length
+    ).fill({})
+  ]
+
+  console.log(`AudioTransactionPage`, {
+    displayEmptyState,
+    tableLoading,
+    isEmpty,
+    audioTransactions,
+    filledAudioTransactions
+  })
 
   return (
     <Page
@@ -133,7 +149,10 @@ export const AudioTransactionsPage = () => {
     >
       <div className={styles.bodyWrapper}>
         <Disclaimer />
-        {isEmpty && !tableLoading ? (
+        <div>audioTransactionCount: {audioTransactionCount}</div>
+        <div>audioTransactions: {audioTransactions?.length}</div>
+        <div>filledAudioTransactions: {filledAudioTransactions?.length}</div>
+        {displayEmptyState ? (
           <EmptyTable
             primaryText={messages.emptyTableText}
             secondaryText={messages.emptyTableSecondaryText}
@@ -141,7 +160,7 @@ export const AudioTransactionsPage = () => {
         ) : (
           <AudioTransactionsTable
             key='audioTransactions'
-            data={audioTransactions as TransactionDetails[]}
+            data={(filledAudioTransactions as TransactionDetails[]) ?? []}
             loading={tableLoading}
             onSort={onSort}
             onClickRow={onClickRow}
