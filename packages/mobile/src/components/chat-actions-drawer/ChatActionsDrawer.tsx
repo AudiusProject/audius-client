@@ -19,9 +19,7 @@ const messages = {
 
 const useStyles = makeStyles(({ spacing, typography, palette }) => ({
   drawer: {
-    marginVertical: spacing(7),
-    alignItems: 'center',
-    width: '100%'
+    marginVertical: spacing(7)
   },
   text: {
     fontSize: 21,
