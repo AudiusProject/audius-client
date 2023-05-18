@@ -1,20 +1,22 @@
-import type { ComponentType, ReactNode } from 'react'
+import type { ReactNode } from 'react'
+import { useCallback, useMemo } from 'react'
 
-import type { User } from '@audius/common'
+import type { ID, User } from '@audius/common'
 import {
   chatSelectors,
+  chatActions,
+  tippingActions,
   cacheUsersSelectors,
   ChatPermissionAction
 } from '@audius/common'
-import type { TextStyle } from 'react-native'
 import { View } from 'react-native'
-import type { SvgProps } from 'react-native-svg'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconMessageLocked from 'app/assets/images/iconMessageLocked.svg'
 import IconTip from 'app/assets/images/iconTip.svg'
 import { Text, Button } from 'app/components/core'
 import { NativeDrawer } from 'app/components/drawer'
+import { useNavigation } from 'app/hooks/useNavigation'
 import { getData } from 'app/store/drawers/selectors'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles, flexRowCentered } from 'app/styles'
@@ -22,8 +24,10 @@ import { useColor } from 'app/utils/theme'
 
 import { UserBadges } from '../user-badges'
 
+const { unblockUser } = chatActions
 const { getCanChat } = chatSelectors
 const { getUser } = cacheUsersSelectors
+const { beginTip } = tippingActions
 
 const INBOX_UNAVAILABLE_MODAL_NAME = 'InboxUnavailable'
 
@@ -39,8 +43,10 @@ const messages = {
   ),
   noAction: 'You can no longer send messages to ',
   info: 'This will not affect their ability to view your profile or interact with your content.',
+  unblockUser: 'Unblock User',
   learnMore: 'Learn More',
-  sendAudio: 'Send $AUDIO'
+  sendAudio: 'Send $AUDIO',
+  cancel: 'Cancel'
 }
 
 const useStyles = makeStyles(({ spacing, typography, palette }) => ({
@@ -90,7 +96,7 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
     fontSize: typography.fontSize.large,
     fontFamily: typography.fontByWeight.bold
   },
-  buttonTextTip: {
+  buttonTextWhite: {
     color: palette.white
   },
   border: {
@@ -99,83 +105,119 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
   }
 }))
 
-const actionToContent = (
+const mapActionToContent = (
   callToAction: ChatPermissionAction,
   user: User,
   styles: ReturnType<typeof useStyles>
-): {
-  content: ReactNode
-  buttonVariant: 'common' | 'primary'
-  buttonIcon?: ComponentType<SvgProps>
-  buttonStyle?: TextStyle
-} => {
+) => {
   switch (callToAction) {
     case ChatPermissionAction.NONE:
-      return {
-        content: (
-          <>
-            {messages.noAction}
+      return (
+        <>
+          {messages.noAction}
+          <UserBadges
+            user={user}
+            nameStyle={styles.callToActionText}
+            as={Text}
+          />
+        </>
+      )
+    case ChatPermissionAction.TIP:
+      return (
+        <>
+          {messages.tipGated(
             <UserBadges
               user={user}
               nameStyle={styles.callToActionText}
               as={Text}
             />
-          </>
-        ),
-        buttonVariant: 'common'
-      }
-    case ChatPermissionAction.TIP:
-      return {
-        content: (
-          <>
-            {messages.tipGated(
-              <UserBadges
-                user={user}
-                nameStyle={styles.callToActionText}
-                as={Text}
-              />
-            )}
-          </>
-        ),
-        buttonVariant: 'primary',
-        buttonIcon: IconTip,
-        buttonStyle: styles.buttonTextTip
-      }
+          )}
+        </>
+      )
     case ChatPermissionAction.UNBLOCK:
-      return {
-        content: <>{messages.blockee}</>,
-        buttonVariant: 'common'
-      }
+      return <>{messages.blockee}</>
     default:
-      return { content: null, buttonVariant: 'common' }
+      return null
   }
 }
 
 export const InboxUnavailableDrawer = () => {
+  const dispatch = useDispatch()
+  const navigation = useNavigation()
   const styles = useStyles()
   const neutralLight2 = useColor('neutralLight2')
-  const dispatch = useDispatch()
-  const { userId } = useSelector((state) => getData<'InboxUnavailable'>(state))
-  const { callToAction } = useSelector((state) => getCanChat(state, userId))
-  const isTipGated = callToAction === ChatPermissionAction.TIP
-  const user = useSelector((state) => getUser(state, { id: userId }))
 
-  const handleLearnMorePress = () => {
+  const { userId } = useSelector((state) => getData<'InboxUnavailable'>(state))
+  const user = useSelector((state) => getUser(state, { id: userId }))
+  const { callToAction } = useSelector((state) => getCanChat(state, userId))
+
+  const closeDrawer = useCallback(() => {
     dispatch(
       setVisibility({
         drawer: 'InboxUnavailable',
         visible: false
       })
     )
-  }
+  }, [dispatch])
+
+  const handleUnblockPress = useCallback(() => {
+    dispatch(unblockUser({ userId }))
+    closeDrawer()
+  }, [dispatch, userId, closeDrawer])
+
+  const handleLearnMorePress = useCallback(() => {
+    // TODO: Link to blog
+    closeDrawer()
+  }, [closeDrawer])
+
+  const handleTipPress = useCallback(() => {
+    dispatch(beginTip({ user, source: 'profile' }))
+    navigation.navigate('TipArtist')
+  }, [dispatch, navigation, user])
+
+  const actionToButtonsMap = useMemo(() => {
+    return {
+      [ChatPermissionAction.NONE]: [
+        {
+          buttonTitle: messages.learnMore,
+          buttonPress: handleLearnMorePress,
+          buttonVariant: 'common'
+        }
+      ],
+      [ChatPermissionAction.TIP]: [
+        {
+          buttonTitle: messages.sendAudio,
+          buttonPress: handleTipPress,
+          buttonVariant: 'primary',
+          buttonIcon: IconTip,
+          buttonTextStyle: styles.buttonTextWhite
+        }
+      ],
+      [ChatPermissionAction.UNBLOCK]: [
+        {
+          buttonTitle: messages.unblockUser,
+          buttonPress: handleUnblockPress,
+          buttonVariant: 'primary',
+          buttonTextStyle: styles.buttonTextWhite
+        },
+        {
+          buttonTitle: messages.cancel,
+          buttonPress: closeDrawer,
+          buttonVariant: 'common'
+        }
+      ]
+    }
+  }, [
+    handleLearnMorePress,
+    handleTipPress,
+    styles.buttonTextWhite,
+    handleUnblockPress,
+    closeDrawer
+  ])
 
   if (!user) return
 
-  const { content, buttonVariant, buttonIcon, buttonStyle } = actionToContent(
-    callToAction,
-    user,
-    styles
-  )
+  const content = mapActionToContent(callToAction, user, styles)
 
   return (
     <NativeDrawer drawerName={INBOX_UNAVAILABLE_MODAL_NAME}>
@@ -186,18 +228,29 @@ export const InboxUnavailableDrawer = () => {
         </View>
         <View style={styles.border} />
         <Text style={styles.callToActionText}>{content}</Text>
-        <Button
-          title={isTipGated ? messages.sendAudio : messages.learnMore}
-          onPress={handleLearnMorePress}
-          variant={buttonVariant}
-          styles={{
-            root: styles.button,
-            text: [styles.buttonText, buttonStyle]
-          }}
-          icon={buttonIcon}
-          iconPosition='left'
-          fullWidth
-        />
+        {actionToButtonsMap[callToAction].map(
+          ({
+            buttonTitle,
+            buttonPress,
+            buttonVariant,
+            buttonIcon,
+            buttonTextStyle
+          }) => (
+            <Button
+              key={buttonTitle}
+              title={buttonTitle}
+              onPress={buttonPress}
+              variant={buttonVariant}
+              icon={buttonIcon}
+              iconPosition='left'
+              styles={{
+                root: styles.button,
+                text: [styles.buttonText, buttonTextStyle]
+              }}
+              fullWidth
+            />
+          )
+        )}
       </View>
     </NativeDrawer>
   )
