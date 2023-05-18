@@ -394,7 +394,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
             {formatListenCount(props.listenCount)}
           </div>
         </div>
-        {!isDM ?(
+        {!isDM ? (
           <BottomButtons
             hasSaved={props.hasCurrentUserSaved}
             hasReposted={props.hasCurrentUserReposted}

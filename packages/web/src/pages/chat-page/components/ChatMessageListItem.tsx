@@ -17,6 +17,8 @@ import {
 import type { ChatMessage } from '@audius/sdk'
 import { IconPlus, PopupPosition } from '@audius/stems'
 import cn from 'classnames'
+import { push as pushRoute } from 'connected-react-router'
+import Linkify from 'linkify-react'
 import { find } from 'linkifyjs'
 import { useDispatch } from 'react-redux'
 
@@ -26,12 +28,10 @@ import { reactionMap } from 'components/notification/Notification/components/Rea
 import { ReactComponent as ChatTail } from '../../../assets/img/ChatTail.svg'
 
 import styles from './ChatMessageListItem.module.css'
-import { ChatMessageTrack } from './ChatMessageTrack'
 import { ChatMessagePlaylist } from './ChatMessagePlaylist'
+import { ChatMessageTrack } from './ChatMessageTrack'
 import { LinkPreview } from './LinkPreview'
 import { ReactionPopupMenu } from './ReactionPopupMenu'
-import Linkify from 'linkify-react'
-import { push as pushRoute } from 'connected-react-router'
 
 const { setMessageReaction } = chatActions
 const { getUserId } = accountSelectors
@@ -66,7 +66,15 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   const senderUserId = decodeHashId(message.sender_user_id)
   const isAuthor = userId === senderUserId
   const links = find(message.message)
-  const { kind, track, trackStatus, trackError, playlist, playlistStatus, playlistError } = useTrackOrPlaylist(message)
+  const {
+    kind,
+    track,
+    trackStatus,
+    trackError,
+    playlist,
+    playlistStatus,
+    playlistError
+  } = useTrackOrPlaylist(message)
   const isTrackLink = kind === Kind.TRACKS
   const isPlaylistLink = kind === Kind.COLLECTIONS
   const showsLink = links.length > 0 || isTrackLink || isPlaylistLink
