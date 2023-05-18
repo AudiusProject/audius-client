@@ -29,6 +29,7 @@
     "electron:localhost": "electron . localhost",
     "pack": "electron-builder --dir",
     "preinstall": "npm-force-resolutions",
+    "postinstall": "npx patch-package",
     "dist": "node ./scripts/dist.js --mac --win --linux",
     "dist:mac": "node ./scripts/dist.js --mac",
     "dist:win": "node ./scripts/dist.js --win",
