@@ -35,8 +35,6 @@ import useHasChangedRoute from 'hooks/useHasChangedRoute'
 import UploadStub from 'pages/profile-page/components/mobile/UploadStub'
 import { AppState } from 'store/types'
 import { resizeImage } from 'utils/imageProcessingUtil'
-import { playlistPage } from 'utils/route'
-import { getTempPlaylistId } from 'utils/tempPlaylistId'
 import { withNullGuard } from 'utils/withNullGuard'
 
 import styles from './EditPlaylistPage.module.css'
@@ -248,13 +246,12 @@ const EditPlaylistPage = g(
         close()
       } else {
         // Create new playlist
-        const tempId = getTempPlaylistId()
-        createPlaylist(tempId, formFields)
+        createPlaylist(formFields)
         toast(messages.toast)
         close()
-        goToRoute(
-          playlistPage(account.handle, formFields.playlist_name, tempId)
-        )
+        // goToRoute(
+        //   playlistPage(account.handle, formFields.playlist_name, tempId)
+        // )
       }
     }, [
       formFields,
@@ -465,10 +462,8 @@ function mapStateToProps(state: AppState) {
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
     close: () => dispatch(createPlaylistActions.close()),
-    createPlaylist: (tempId: number, metadata: Collection) =>
-      dispatch(
-        createPlaylist(tempId, metadata, CreatePlaylistSource.CREATE_PAGE)
-      ),
+    createPlaylist: (metadata: Collection) =>
+      dispatch(createPlaylist(metadata, CreatePlaylistSource.CREATE_PAGE)),
     editPlaylist: (id: ID, metadata: EditPlaylistValues) =>
       dispatch(editPlaylist(id, metadata)),
     orderPlaylist: (playlistId: ID, idsAndTimes: any) =>

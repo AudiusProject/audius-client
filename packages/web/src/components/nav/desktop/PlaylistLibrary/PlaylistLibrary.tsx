@@ -3,17 +3,15 @@ import { MutableRefObject, useCallback } from 'react'
 import {
   CreatePlaylistSource,
   FavoriteSource,
-  Name,
   accountSelectors,
+  cacheCollectionsActions,
   collectionsSocialActions,
-  createPlaylistModalUIActions
+  newCollectionMetadata
 } from '@audius/common'
 import cn from 'classnames'
 import { isEmpty } from 'lodash'
 import { useDispatch } from 'react-redux'
 
-import { make, useRecord } from 'common/store/analytics/actions'
-import * as signOnActions from 'common/store/pages/signon/actions'
 import { Droppable } from 'components/dragndrop'
 import Pill from 'components/pill/Pill'
 import { Tooltip } from 'components/tooltip'
@@ -27,12 +25,14 @@ import styles from './PlaylistLibrary.module.css'
 import { PlaylistLibraryNavItem, keyExtractor } from './PlaylistLibraryNavItem'
 import { useAddAudioNftPlaylistToLibrary } from './useAddAudioNftPlaylistToLibrary'
 
-const { getPlaylistLibrary, getHasAccount } = accountSelectors
+const { getPlaylistLibrary } = accountSelectors
 const { saveCollection } = collectionsSocialActions
+const { createPlaylist } = cacheCollectionsActions
 
 const messages = {
   header: 'Playlists',
-  newPlaylist: 'New',
+  new: 'New',
+  newPlaylist: 'New Playlist',
   newPlaylistOrFolderTooltip: 'New Playlist or Folder'
 }
 
@@ -47,8 +47,6 @@ export const PlaylistLibrary = (props: PlaylistLibraryProps) => {
   const library = useSelector(getPlaylistLibrary)
   const dispatch = useDispatch()
   const draggingKind = useSelector(selectDraggingKind)
-  const isSignedIn = useSelector(getHasAccount)
-  const record = useRecord()
 
   useAddAudioNftPlaylistToLibrary()
 
@@ -59,17 +57,14 @@ export const PlaylistLibrary = (props: PlaylistLibraryProps) => {
     [dispatch]
   )
 
-  const handleCreatePlaylist = useCallback(() => {
-    if (isSignedIn) {
-      dispatch(createPlaylistModalUIActions.open())
-      record(
-        make(Name.PLAYLIST_OPEN_CREATE, { source: CreatePlaylistSource.NAV })
+  const handleCreatePlaylist = useCallback(async () => {
+    dispatch(
+      createPlaylist(
+        newCollectionMetadata({ playlist_name: messages.newPlaylist }),
+        CreatePlaylistSource.NAV
       )
-    } else {
-      dispatch(signOnActions.openSignOn(/** signIn */ false))
-      dispatch(signOnActions.showRequiresAccountModal())
-    }
-  }, [isSignedIn, dispatch, record])
+    )
+  }, [dispatch])
 
   const getTooltipPopupContainer = useCallback(
     () => scrollbarRef.current?.parentNode,
@@ -88,7 +83,7 @@ export const PlaylistLibrary = (props: PlaylistLibraryProps) => {
       acceptedKinds={acceptedKinds}
     >
       <GroupHeader
-        className={cn({
+        className={cn(styles.header, {
           [styles.droppableLink]: draggingKind === 'playlist'
         })}
       >
@@ -98,8 +93,7 @@ export const PlaylistLibrary = (props: PlaylistLibraryProps) => {
           getPopupContainer={getTooltipPopupContainer}
         >
           <Pill
-            className={styles.newPlaylist}
-            text={messages.newPlaylist}
+            text={messages.new}
             icon='save'
             onClick={handleCreatePlaylist}
           />
