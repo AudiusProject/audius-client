@@ -214,13 +214,6 @@ export const AudioTransactionsTable = ({
 
   const getRowClassName = useCallback(() => '', [])
 
-  console.log('Table stuff', {
-    length: data?.length,
-    loading,
-    fetchMore,
-    columns,
-    totalRowCount
-  })
   return (
     <Table
       wrapperClassName={wrapperClassName}

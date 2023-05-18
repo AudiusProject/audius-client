@@ -133,14 +133,6 @@ export const AudioTransactionsPage = () => {
     ).fill({})
   ]
 
-  console.log(`AudioTransactionPage`, {
-    displayEmptyState,
-    tableLoading,
-    isEmpty,
-    audioTransactions,
-    filledAudioTransactions
-  })
-
   return (
     <Page
       title={messages.pageTitle}
@@ -149,9 +141,6 @@ export const AudioTransactionsPage = () => {
     >
       <div className={styles.bodyWrapper}>
         <Disclaimer />
-        <div>audioTransactionCount: {audioTransactionCount}</div>
-        <div>audioTransactions: {audioTransactions?.length}</div>
-        <div>filledAudioTransactions: {filledAudioTransactions?.length}</div>
         {displayEmptyState ? (
           <EmptyTable
             primaryText={messages.emptyTableText}
