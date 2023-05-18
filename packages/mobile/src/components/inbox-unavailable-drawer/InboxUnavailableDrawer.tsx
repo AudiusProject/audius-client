@@ -1,10 +1,14 @@
+import type { ComponentType, ReactNode } from 'react'
+
 import type { User } from '@audius/common'
 import {
   chatSelectors,
   cacheUsersSelectors,
   ChatPermissionAction
 } from '@audius/common'
+import type { TextStyle } from 'react-native'
 import { View } from 'react-native'
+import type { SvgProps } from 'react-native-svg'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconMessageLocked from 'app/assets/images/iconMessageLocked.svg'
@@ -26,8 +30,13 @@ const INBOX_UNAVAILABLE_MODAL_NAME = 'InboxUnavailable'
 const messages = {
   title: 'Inbox Unavailable',
   blockee: 'You cannot send messages to users you have blocked.',
-  tipGated1: 'You must send ',
-  tipGated2: ' a tip before you can send them messages.',
+  tipGated: (displayName: ReactNode) => (
+    <>
+      {'You must send '}
+      {displayName}
+      {' a tip before you can send them messages.'}
+    </>
+  ),
   noAction: 'You can no longer send messages to ',
   info: 'This will not affect their ability to view your profile or interact with your content.',
   learnMore: 'Learn More',
@@ -90,36 +99,55 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
   }
 }))
 
-const getCallToActionText = (
+const actionToContent = (
   callToAction: ChatPermissionAction,
   user: User,
   styles: ReturnType<typeof useStyles>
-) => {
+): {
+  content: ReactNode
+  buttonVariant: 'common' | 'primary'
+  buttonIcon?: ComponentType<SvgProps>
+  buttonStyle?: TextStyle
+} => {
   switch (callToAction) {
     case ChatPermissionAction.NONE:
-      return (
-        <>
-          {messages.noAction}
-          <UserBadges
-            user={user}
-            nameStyle={styles.callToActionText}
-            as={Text}
-          />
-        </>
-      )
+      return {
+        content: (
+          <>
+            {messages.noAction}
+            <UserBadges
+              user={user}
+              nameStyle={styles.callToActionText}
+              as={Text}
+            />
+          </>
+        ),
+        buttonVariant: 'common'
+      }
     case ChatPermissionAction.TIP:
-      return (
-        <>
-          {messages.tipGated1}
-          {user.name}
-          <UserBadges user={user} hideName />
-          {messages.tipGated2}
-        </>
-      )
+      return {
+        content: (
+          <>
+            {messages.tipGated(
+              <UserBadges
+                user={user}
+                nameStyle={styles.callToActionText}
+                as={Text}
+              />
+            )}
+          </>
+        ),
+        buttonVariant: 'primary',
+        buttonIcon: IconTip,
+        buttonStyle: styles.buttonTextTip
+      }
     case ChatPermissionAction.UNBLOCK:
-      return <>{messages.blockee}</>
+      return {
+        content: <>{messages.blockee}</>,
+        buttonVariant: 'common'
+      }
     default:
-      return ''
+      return { content: null, buttonVariant: 'common' }
   }
 }
 
@@ -143,6 +171,12 @@ export const InboxUnavailableDrawer = () => {
 
   if (!user) return
 
+  const { content, buttonVariant, buttonIcon, buttonStyle } = actionToContent(
+    callToAction,
+    user,
+    styles
+  )
+
   return (
     <NativeDrawer drawerName={INBOX_UNAVAILABLE_MODAL_NAME}>
       <View style={styles.drawer}>
@@ -151,18 +185,16 @@ export const InboxUnavailableDrawer = () => {
           <Text style={styles.title}>{messages.title}</Text>
         </View>
         <View style={styles.border} />
-        <Text style={styles.callToActionText}>
-          {getCallToActionText(callToAction, user, styles)}
-        </Text>
+        <Text style={styles.callToActionText}>{content}</Text>
         <Button
           title={isTipGated ? messages.sendAudio : messages.learnMore}
           onPress={handleLearnMorePress}
-          variant={isTipGated ? 'primary' : 'common'}
+          variant={buttonVariant}
           styles={{
             root: styles.button,
-            text: [styles.buttonText, isTipGated ? styles.buttonTextTip : null]
+            text: [styles.buttonText, buttonStyle]
           }}
-          icon={isTipGated ? IconTip : undefined}
+          icon={buttonIcon}
           iconPosition='left'
           fullWidth
         />
