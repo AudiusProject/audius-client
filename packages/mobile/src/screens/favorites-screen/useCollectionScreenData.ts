@@ -14,11 +14,11 @@ import {
 import { useSelector } from 'react-redux'
 
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
+import { useOfflineTracksStatus } from 'app/hooks/useOfflineTrackStatus'
 import type { AppState } from 'app/store'
 import {
   getIsDoneLoadingFromDisk,
-  getOfflineCollectionsStatus,
-  getOfflineTrackStatus
+  getOfflineCollectionsStatus
 } from 'app/store/offline-downloads/selectors'
 import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 
@@ -37,16 +37,8 @@ export const useCollectionScreenData = ({
   const isDoneLoadingFromDisk = useSelector(getIsDoneLoadingFromDisk)
   const isReachable = useSelector(getIsReachable)
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
-  const offlineTracksStatus = useProxySelector(
-    (state: AppState) => {
-      if (isDoneLoadingFromDisk && isOfflineModeEnabled && !isReachable) {
-        return getOfflineTrackStatus(state)
-      }
-      // We don't need offline download status when we're not offline. This saves us rerenders while we're downloading things and updating the offline download slice.
-      return undefined
-    },
-    [isReachable, isOfflineModeEnabled, isDoneLoadingFromDisk]
-  )
+  const offlineTracksStatus = useOfflineTracksStatus()
+
   const { data: accountAlbums } = useSavedAlbums()
   const { data: accountPlaylists } = useSavedPlaylists()
 
@@ -126,18 +118,6 @@ export const useCollectionScreenData = ({
     ],
     shallowCompare
   )
-  // const numPlayableTracksMap = useMemo(() => {
-  //   return buildCollectionIdsToNumPlayableTracksMap(
-  //     filteredCollections,
-  //     isOfflineModeEnabled && !isReachable,
-  //     offlineTracksStatus || {}
-  //   )
-  // }, [
-  //   isOfflineModeEnabled,
-  //   isReachable,
-  //   offlineTracksStatus,
-  //   filteredCollections
-  // ])
 
   return {
     collectionIds: availableCollectionIds,

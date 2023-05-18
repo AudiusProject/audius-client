@@ -1,18 +1,26 @@
-import { createElement, useCallback } from 'react'
+import { createElement, useCallback, useMemo } from 'react'
 
 import type { Collection, CommonState, ID } from '@audius/common'
-import { cacheCollectionsSelectors, SquareSizes } from '@audius/common'
+import {
+  SquareSizes,
+  cacheCollectionsSelectors,
+  reachabilitySelectors
+} from '@audius/common'
 import type { StyleProp, ViewStyle } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import { Card } from 'app/components/card'
 import { CollectionImage } from 'app/components/image/CollectionImage'
+import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { useOfflineTracksStatus } from 'app/hooks/useOfflineTrackStatus'
+import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 import { formatCount } from 'app/utils/format'
 
 import type { ImageProps } from '../image/FastImage'
 
 const { getCollection } = cacheCollectionsSelectors
+const { getIsReachable } = reachabilitySelectors
 
 const formatPlaylistCardSecondaryText = (saves: number, tracks: number) => {
   const savesText = saves === 1 ? 'Favorite' : 'Favorites'
@@ -71,6 +79,32 @@ const FullCollectionCard = ({
   )
 }
 
+/** Detects offline state and returns downloaded track count if appropriate */
+const useTrackCountWithOfflineOverride = (collection: Collection | null) => {
+  const isReachable = useSelector(getIsReachable)
+  const isOfflineModeEnabled = useIsOfflineModeEnabled()
+  const offlineTrackStatus = useOfflineTracksStatus()
+
+  const useOfflineValue = isOfflineModeEnabled && !isReachable
+
+  return useMemo(() => {
+    if (!collection) {
+      return 0
+    }
+    if (!useOfflineValue) {
+      return collection.playlist_contents.track_ids.length
+    }
+    const trackIds =
+      collection.playlist_contents?.track_ids?.map(
+        (trackData) => trackData.track
+      ) ?? []
+    return trackIds.filter(
+      (trackId) =>
+        offlineTrackStatus[trackId.toString()] === OfflineDownloadStatus.SUCCESS
+    ).length
+  }, [collection, useOfflineValue, offlineTrackStatus])
+}
+
 const CollectionCardWithId = ({
   collectionId,
   style
@@ -78,8 +112,14 @@ const CollectionCardWithId = ({
   const collection = useSelector((state: CommonState) =>
     getCollection(state, { id: collectionId })
   )
+
+  const numTracks = useTrackCountWithOfflineOverride(collection)
   return collection ? (
-    <FullCollectionCard collection={collection} style={style} />
+    <FullCollectionCard
+      collection={collection}
+      numTracks={numTracks}
+      style={style}
+    />
   ) : null
 }
 
