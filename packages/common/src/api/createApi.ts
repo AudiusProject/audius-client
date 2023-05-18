@@ -1,7 +1,7 @@
 import { useContext, useEffect } from 'react'
 
 import { CaseReducerActions, createSlice } from '@reduxjs/toolkit'
-import { isEqual } from 'lodash'
+import { isEqual, isEmpty } from 'lodash'
 import { denormalize, normalize } from 'normalizr'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -126,7 +126,7 @@ const buildEndpointHooks = (
         state.api[reducerPath][endpointName]
 
       // Retrieve data from cache if lookup args provided
-      if (!endpointState[key]) {
+      if (isEmpty(endpointState[key])) {
         if (
           !endpoint.options?.idArgKey ||
           !endpoint.options?.kind ||

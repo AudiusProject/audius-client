@@ -1,16 +1,16 @@
 import {
-  User,
-  cacheUsersSelectors,
   TransactionDetails,
   TransactionMethod,
   formatAudio,
   TransactionType,
   formatCapitalizeString,
-  ChallengeRewardID
+  ChallengeRewardID,
+  useGetUserById,
+  statusIsNotFinalized
 } from '@audius/common'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
-import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import { ReactComponent as LogoStripeLink } from 'assets/img/LogoStripeLink.svg'
 import { ReactComponent as LogoCoinbase } from 'assets/img/coinbase-pay/LogoCoinbase.svg'
@@ -21,13 +21,11 @@ import { isChangePositive } from 'components/audio-transactions-table/AudioTrans
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import UserBadges from 'components/user-badges/UserBadges'
 import { getChallengeConfig } from 'pages/audio-rewards-page/config'
-import { AppState } from 'store/types'
 import { profilePage } from 'utils/route'
 
 import { Block, BlockContainer } from './Block'
 import styles from './TransactionDetailsContent.module.css'
 import { TransactionPurchaseMetadata } from './TransactionPurchaseMetadata'
-const { getUsers } = cacheUsersSelectors
 
 const messages = {
   transaction: 'Transaction',
@@ -65,10 +63,8 @@ type UserDetailsProps = {
 const UserDetails = ({ userId }: UserDetailsProps) => {
   const setVisibility = useSetVisibility()
   const dispatch = useDispatch()
-  const usersMap = useSelector<AppState, { [id: number]: User }>((state) =>
-    getUsers(state, { ids: [userId] })
-  )
-  const isLoading = Object.keys(usersMap).length === 0
+  const { data: user, status } = useGetUserById({ id: userId })
+  const isLoading = statusIsNotFinalized(status)
   return (
     <>
       {isLoading ? (
@@ -78,10 +74,10 @@ const UserDetails = ({ userId }: UserDetailsProps) => {
           className={styles.name}
           onClick={() => {
             setVisibility('TransactionDetails')(false)
-            dispatch(pushRoute(profilePage(usersMap[userId].handle)))
+            dispatch(pushRoute(profilePage(user.handle)))
           }}
         >
-          <span>{usersMap[userId].name}</span>
+          <span>{user.name}</span>
           <UserBadges
             userId={userId}
             className={styles.badge}

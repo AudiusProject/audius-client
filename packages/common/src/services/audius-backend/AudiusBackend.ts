@@ -3649,26 +3649,6 @@ export const audiusBackend = ({
     return waudioBalance
   }
 
-  async function getAudioTransactionsCount() {
-    try {
-      const { data, signature } = await signDiscoveryNodeRequest()
-      const res = await fetch(
-        `${currentDiscoveryProvider}/v1/full/transactions`,
-        {
-          headers: {
-            encodedDataMessage: data,
-            encodedDataSignature: signature
-          }
-        }
-      )
-      const json = await res.json()
-      return json
-    } catch (e) {
-      console.error(e)
-      return 0
-    }
-  }
-
   /**
    * Aggregate, submit, and evaluate attestations for a given challenge for a user
    */
@@ -3804,7 +3784,6 @@ export const audiusBackend = ({
     getAccount,
     getAddressTotalStakedBalance,
     getAddressWAudioBalance,
-    getAudioTransactionsCount,
     getAddressSolBalance,
     getAssociatedTokenAccountInfo,
     getAllTracks,
