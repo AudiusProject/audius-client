@@ -2,6 +2,14 @@ import { TrackDownload as TrackDownloadBase } from '@audius/common'
 
 import { audiusBackendInstance } from './audius-backend/audius-backend-instance'
 
+function isMobileSafari() {
+  if (!navigator) return false
+  return (
+    navigator.userAgent.match(/(iPod|iPhone|iPad)/) &&
+    navigator.userAgent.match(/AppleWebKit/)
+  )
+}
+
 class TrackDownload extends TrackDownloadBase {
   async downloadTrack({ url, filename }: { url: string; filename: string }) {
     const response = await window.fetch(url)
@@ -13,7 +21,9 @@ class TrackDownload extends TrackDownloadBase {
       if (document) {
         const link = document.createElement('a')
         link.href = url
-        link.target = '_blank'
+        if (!isMobileSafari()) {
+          link.target = '_blank'
+        }
         link.download = filename
         link.click()
       } else {
