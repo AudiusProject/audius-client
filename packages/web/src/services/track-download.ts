@@ -21,6 +21,8 @@ class TrackDownload extends TrackDownloadBase {
       if (document) {
         const link = document.createElement('a')
         link.href = url
+        // taget=_blank does not work on ios safari and will cause the download to be
+        // unresponsive.
         if (!isMobileSafari()) {
           link.target = '_blank'
         }
