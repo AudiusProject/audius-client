@@ -1,5 +1,4 @@
 import { cacheUsersSelectors, chatActions, chatSelectors } from '@audius/common'
-import type { ID } from '@audius/common'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -98,7 +97,7 @@ export const BlockMessagesDrawer = () => {
   )
   const user = useSelector((state) => getUser(state, { id: userId }))
   // Assuming blockees have already been fetched in ProfileActionsDrawer.
-  const blockeeList: ID[] = useSelector(getBlockees)
+  const blockeeList = useSelector(getBlockees)
   const isBlockee = blockeeList.includes(userId)
 
   const handleConfirmPress = () => {
