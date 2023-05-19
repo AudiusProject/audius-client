@@ -84,6 +84,7 @@ const ConnectedTrackTile = ({
   darkMode,
   isTrending,
   showRankIcon,
+  isActive,
   isFeed = false,
   isDM = false
 }: ConnectedTrackTileProps) => {
@@ -243,9 +244,9 @@ const ConnectedTrackTile = ({
       // Playback
       permalink={permalink}
       togglePlay={togglePlay}
-      isActive={uid === playingUid}
+      isActive={uid === playingUid || isActive}
       isLoading={loading}
-      isPlaying={uid === playingUid && isPlaying}
+      isPlaying={uid === playingUid || isPlaying}
       isBuffering={isBuffering}
       goToArtistPage={goToArtistPage}
       goToTrackPage={goToTrackPage}

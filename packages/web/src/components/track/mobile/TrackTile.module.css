@@ -17,6 +17,7 @@
 }
 
 .container.dm {
+  min-width: 448px;
   min-height: unset;
   margin-bottom: 0;
   border-bottom-left-radius: 0;

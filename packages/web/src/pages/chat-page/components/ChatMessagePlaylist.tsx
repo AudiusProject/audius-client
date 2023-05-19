@@ -1,8 +1,9 @@
-import { Collection, Status } from "@audius/common"
+import { Collection, Status } from '@audius/common'
+
 import MobilePlaylistTile from 'components/track/mobile/ConnectedPlaylistTile'
 
 type ChatMessagePlaylistProps = {
-  playlist: Collection
+  playlist: Collection | undefined | null
   status: Status
   errorMessage: string | null | undefined
 }
@@ -18,16 +19,11 @@ export const ChatMessagePlaylist = ({
       <div>error</div>
     )
   }
-  // maybe add an abstraction layer that uses web track tile -> mobile track tile
-  // get mobile track tile props
-  // - uid
-  // - index,
-  // - size,
   // - numLoadingSkeletonRows
-  // - isTrending
-  // - showRankIcon
   return (
     <div>yolo</div>
+    // You may wonder why we use the mobile web track tile here.
+    // It's simply because the DMs track tile uses the mobile web version.
     // <MobilePlaylistTile />
   )
 }
