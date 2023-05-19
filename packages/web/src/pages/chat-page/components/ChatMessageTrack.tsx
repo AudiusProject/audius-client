@@ -1,81 +1,28 @@
-import { useCallback, useEffect, useState } from 'react'
-
 import {
-  useGetPlaylistByPermalink,
-  useGetTrackByPermalink,
-  getPathFromPlaylistUrl,
-  getPathFromTrackUrl,
-  isPlaylistUrl,
-  isTrackUrl,
   Kind,
-  Nullable,
-  accountSelectors,
   Status,
   makeUid,
-  Track
+  Track,
+  queueSelectors,
+  playerSelectors,
+  Name,
+  PlaybackSource,
+  queueActions,
+  QueueSource
 } from '@audius/common'
-import { ChatMessage } from '@audius/sdk'
-import { useSelector } from 'react-redux'
+import { make } from 'common/store/analytics/actions'
 
 import MobileTrackTile from 'components/track/mobile/ConnectedTrackTile'
-import { TrackTileSize } from 'components/track/types'
-const { getUserId } = accountSelectors
+import { useCallback } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
-export const useAudiusTrackOrPlaylist = (message: ChatMessage) => {
-  const currentUserId = useSelector(getUserId)
-  const [trackPermalink, setTrackPermalink] =
-    useState<Nullable<string>>('/saliou_2/prem1')
-  const [playlistPermalink, setPlaylistPermalink] = useState<Nullable<string>>(
-    '/ray60/playlist/test-555'
-  )
-  const [kind, setKind] = useState<Kind>(Kind.EMPTY)
+const { makeGetCurrent } = queueSelectors
+const { getPlaying } = playerSelectors
+const { add, play, pause } = queueActions
 
-  const {
-    data: track,
-    status: trackStatus,
-    errorMessage: trackError
-  } = useGetTrackByPermalink({
-    permalink: trackPermalink,
-    currentUserId
-  })
-  // console.log('TRACK IS', track)
-
-  const {
-    data: playlist,
-    status: playlistStatus,
-    errorMessage: playlistError
-  } = useGetPlaylistByPermalink({
-    permalink: playlistPermalink,
-    currentUserId
-  })
-  // console.log('PLAYLIST IS', playlist)
-
-  useEffect(() => {
-    if (isPlaylistUrl(message.message)) {
-      const permalink = getPathFromPlaylistUrl(message.message)
-      if (permalink) {
-        setPlaylistPermalink(permalink)
-        setKind(Kind.COLLECTIONS)
-      }
-    } else if (isTrackUrl(message.message)) {
-      const permalink = getPathFromTrackUrl(message.message)
-      if (permalink) {
-        setTrackPermalink(permalink)
-        setKind(Kind.TRACKS)
-      }
-    }
-  }, [message])
-
-  // console.log({
-  //   msg: message.message, kind, playlist, playlistStatus, playlistError, track, trackStatus, trackError
-  // })
-  return {
-    kind, playlist, playlistStatus, playlistError, track, trackStatus, trackError
-  }
-}
 
 type ChatMessageTrackProps = {
-  track: Track
+  track: Track | undefined | null
   status: Status
   errorMessage: string | null | undefined
 }
@@ -85,6 +32,47 @@ export const ChatMessageTrack = ({
   status,
   errorMessage
 }: ChatMessageTrackProps) => {
+  const dispatch = useDispatch()
+  const currentQueueItem = useSelector(makeGetCurrent())
+  const uid = track ? makeUid(Kind.TRACKS, track.track_id) : ''
+  const playing = useSelector(getPlaying)
+  const isTrackPlaying =
+    playing &&
+    !!track &&
+    !!currentQueueItem.track &&
+    currentQueueItem.track.track_id === track.track_id
+
+  const recordAnalytics = useCallback(({ name, source }: { name: Name, source: PlaybackSource }) => {
+    if (!track) return
+    dispatch(
+      make(
+        name,
+        {
+          id: `${track.track_id}`,
+          source
+        }
+      )
+    )
+  }, [dispatch, track])
+
+  const onTogglePlay = useCallback(() => {
+    if (!track) return
+    if (isTrackPlaying) {
+      dispatch(pause({}))
+      recordAnalytics({ name: Name.PLAYBACK_PAUSE, source: PlaybackSource.DM_TRACK })
+    } else if (
+      currentQueueItem.uid !== uid &&
+      currentQueueItem.track &&
+      currentQueueItem.track.track_id === track.track_id
+    ) {
+      dispatch(play({}))
+      recordAnalytics({ name: Name.PLAYBACK_PLAY, source: PlaybackSource.DM_TRACK })
+    } else {
+      dispatch(add({ entries: [{ id: track.track_id, uid, source: QueueSource.DM_TRACKS }] }))
+      dispatch(play({ uid }))
+      recordAnalytics({ name: Name.PLAYBACK_PLAY, source: PlaybackSource.DM_TRACK })
+    }
+  }, [dispatch, recordAnalytics, isTrackPlaying, currentQueueItem, uid])
 
   if (status === Status.ERROR) {
     return (
@@ -92,45 +80,21 @@ export const ChatMessageTrack = ({
       <div>error</div>
     )
   }
-  // maybe add an abstraction layer that uses web track tile -> mobile track tile
-  // get mobile track tile props
-  // - uid
-  // - index,
-  // - size,
-  // - ordered,
-  // - isTrending
-  // - showRankIcon
+
   return (
-    // <div>waddup</div>
+    // You may wonder why we use the mobile web track tile here.
+    // It's simply because the DMs track tile uses the mobile web version.
     <MobileTrackTile
       index={0}
-      togglePlay={() => { }}
-      uid={makeUid(Kind.TRACKS, track?.track_id)}
+      togglePlay={onTogglePlay}
+      uid={uid}
       isLoading={status === Status.LOADING || status === Status.IDLE}
-      hasLoaded={() => { }}
+      hasLoaded={() => {}}
       isTrending={false}
       showRankIcon={false}
       showArtistPick={false}
+      isActive={isTrackPlaying}
       isDM
-
-    // title=''
-    // id={1}
-    // userId={1}
-    // repostCount={0}
-    // followeeReposts={[]}
-    // followeeSaves={[]}
-    // hasCurrentUserReposted={false}
-    // hasCurrentUserSaved={false}
-    // duration={0}
-    // coverArtSizes={undefined}
-    // isActive={false}
-    // genre={"/Users/saliou/audius-client/packages/common/dist/utils/genres".ALL}
-    // saveCount={0}
-    // artistIsVerified={false}
-    // isPlaying={false}
-    // goToRoute={function (route: string): void {
-    //   throw new Error('Function not implemented.');
-    // } }
     />
   )
 }

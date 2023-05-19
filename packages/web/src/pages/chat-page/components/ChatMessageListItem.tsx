@@ -78,7 +78,8 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   } = useTrackOrPlaylist(message)
   const isTrackLink = kind === Kind.TRACKS
   const isPlaylistLink = kind === Kind.COLLECTIONS
-  const showsLink = links.length > 0 || isTrackLink || isPlaylistLink
+  const isTrackOrPlaylistLink = isTrackLink || isPlaylistLink
+  const showsLink = links.length > 0 || isTrackOrPlaylistLink
 
   // Callbacks
   const handleOpenReactionPopupButtonClicked = useCallback(
@@ -167,7 +168,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
           [styles.nonInteractive]: !canSendMessage
         })}
       >
-        {links
+        {!isTrackOrPlaylistLink ? links
           .filter((link) => link.type === 'url' && link.isLink)
           .slice(0, 1)
           .map((link) => (
@@ -177,7 +178,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
               chatId={chatId}
               messageId={message.message_id}
             />
-          ))}
+          )) : null}
         {isTrackLink ? (
           <ChatMessageTrack
             track={track}
