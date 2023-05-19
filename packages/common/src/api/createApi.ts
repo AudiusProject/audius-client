@@ -220,8 +220,8 @@ const buildEndpointHooks = (
       }
 
       const fetchWrapped = async () => {
-        if (cachedData || !context) return
-        if (status === Status.LOADING) return
+        if (!context) return
+        if (status !== Status.IDLE) return
         if (hookOptions?.disabled) return
 
         try {
