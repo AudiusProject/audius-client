@@ -77,10 +77,10 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   )
 
   const handleComposeClicked = useCallback(() => {
-    if (canChat) {
+    if (canCreateChat) {
       dispatch(createChat({ userIds: [user.user_id] }))
     }
-  }, [dispatch, user, canChat])
+  }, [dispatch, user, canCreateChat])
 
   const handleVisitClicked = useCallback(() => {
     dispatch(pushRoute(profilePage(user.handle)))
