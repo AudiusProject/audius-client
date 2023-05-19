@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+
 import {
   Kind,
   Status,
@@ -10,16 +12,14 @@ import {
   queueActions,
   QueueSource
 } from '@audius/common'
-import { make } from 'common/store/analytics/actions'
-
-import MobileTrackTile from 'components/track/mobile/ConnectedTrackTile'
-import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+
+import { make } from 'common/store/analytics/actions'
+import MobileTrackTile from 'components/track/mobile/ConnectedTrackTile'
 
 const { makeGetCurrent } = queueSelectors
 const { getPlaying } = playerSelectors
 const { add, play, pause } = queueActions
-
 
 type ChatMessageTrackProps = {
   track: Track | undefined | null
@@ -42,37 +42,50 @@ export const ChatMessageTrack = ({
     !!currentQueueItem.track &&
     currentQueueItem.track.track_id === track.track_id
 
-  const recordAnalytics = useCallback(({ name, source }: { name: Name, source: PlaybackSource }) => {
-    if (!track) return
-    dispatch(
-      make(
-        name,
-        {
+  const recordAnalytics = useCallback(
+    ({ name, source }: { name: Name; source: PlaybackSource }) => {
+      if (!track) return
+      dispatch(
+        make(name, {
           id: `${track.track_id}`,
           source
-        }
+        })
       )
-    )
-  }, [dispatch, track])
+    },
+    [dispatch, track]
+  )
 
   const onTogglePlay = useCallback(() => {
     if (!track) return
     if (isTrackPlaying) {
       dispatch(pause({}))
-      recordAnalytics({ name: Name.PLAYBACK_PAUSE, source: PlaybackSource.DM_TRACK })
+      recordAnalytics({
+        name: Name.PLAYBACK_PAUSE,
+        source: PlaybackSource.DM_TRACK
+      })
     } else if (
       currentQueueItem.uid !== uid &&
       currentQueueItem.track &&
       currentQueueItem.track.track_id === track.track_id
     ) {
       dispatch(play({}))
-      recordAnalytics({ name: Name.PLAYBACK_PLAY, source: PlaybackSource.DM_TRACK })
+      recordAnalytics({
+        name: Name.PLAYBACK_PLAY,
+        source: PlaybackSource.DM_TRACK
+      })
     } else {
-      dispatch(add({ entries: [{ id: track.track_id, uid, source: QueueSource.DM_TRACKS }] }))
+      dispatch(
+        add({
+          entries: [{ id: track.track_id, uid, source: QueueSource.DM_TRACKS }]
+        })
+      )
       dispatch(play({ uid }))
-      recordAnalytics({ name: Name.PLAYBACK_PLAY, source: PlaybackSource.DM_TRACK })
+      recordAnalytics({
+        name: Name.PLAYBACK_PLAY,
+        source: PlaybackSource.DM_TRACK
+      })
     }
-  }, [dispatch, recordAnalytics, isTrackPlaying, currentQueueItem, uid])
+  }, [dispatch, recordAnalytics, track, isTrackPlaying, currentQueueItem, uid])
 
   if (status === Status.ERROR) {
     return (
