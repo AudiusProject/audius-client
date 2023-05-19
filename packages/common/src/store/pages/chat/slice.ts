@@ -295,6 +295,9 @@ const slice = createSlice({
     },
     fetchChatSucceeded: (state, action: PayloadAction<{ chat: UserChat }>) => {
       const { chat } = action.payload
+      if (dayjs(chat.cleared_history_at).isAfter(chat.last_message_at)) {
+        chat.last_message = ''
+      }
       chatsAdapter.upsertOne(state.chats, chat)
     },
     markChatAsRead: (state, action: PayloadAction<{ chatId: string }>) => {
