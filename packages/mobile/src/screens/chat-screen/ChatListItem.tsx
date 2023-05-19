@@ -11,6 +11,8 @@ import { makeStyles } from 'app/styles'
 
 import type { AppTabScreenParamList } from '../app-screen'
 
+import { ChatListItemSkeleton } from './ChatListItemSkeleton'
+
 const { getSingleOtherChatUser, getChat } = chatSelectors
 
 const messages = {
@@ -133,7 +135,9 @@ export const ChatListItem = ({ chatId }: { chatId: string }) => {
             </View>
             <Text numberOfLines={1}>{lastMessage}</Text>
           </>
-        ) : null}
+        ) : (
+          <ChatListItemSkeleton />
+        )}
       </View>
     </TouchableHighlight>
   )
