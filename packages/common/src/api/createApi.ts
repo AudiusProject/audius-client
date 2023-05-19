@@ -221,7 +221,8 @@ const buildEndpointHooks = (
 
       const fetchWrapped = async () => {
         if (!context) return
-        if ([Status.LOADING, Status.ERROR, Status.SUCCESS].includes(status)) return
+        if ([Status.LOADING, Status.ERROR, Status.SUCCESS].includes(status))
+          return
         if (hookOptions?.disabled) return
 
         try {
