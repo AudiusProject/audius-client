@@ -108,7 +108,7 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
 const mapActionToContent = (
   callToAction: ChatPermissionAction,
   styles: ReturnType<typeof useStyles>,
-  user?: User
+  user: User | null
 ) => {
   switch (callToAction) {
     case ChatPermissionAction.NONE:
@@ -220,7 +220,7 @@ export const InboxUnavailableDrawer = () => {
     closeDrawer
   ])
 
-  const content = mapActionToContent(callToAction, user, styles)
+  const content = mapActionToContent(callToAction, styles, user)
 
   return (
     <NativeDrawer drawerName={INBOX_UNAVAILABLE_MODAL_NAME}>
