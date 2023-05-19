@@ -515,7 +515,7 @@ const slice = createSlice({
     deleteChatSucceeded: (state, action: PayloadAction<{ chatId: string }>) => {
       const { chatId } = action.payload
       chatsAdapter.removeOne(state.chats, chatId)
-      // chatMessagesAdapter.removeAll(state.messages[chatId])
+      chatMessagesAdapter.removeAll(state.messages[chatId])
     }
   }
 })

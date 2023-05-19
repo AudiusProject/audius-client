@@ -157,13 +157,13 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       if (
         chatId &&
         (chat?.messagesStatus === Status.IDLE ||
-          chat?.messagesStatus === undefined)
+          (chat && chat.messagesStatus === undefined))
       ) {
         // Initial fetch
         dispatch(fetchMoreMessages({ chatId }))
         dispatch(setActiveChat({ chatId }))
       }
-    }, [dispatch, chatId, chat?.messagesStatus])
+    }, [dispatch, chatId, chat])
 
     // Fix for if the initial load doesn't have enough messages to cause scrolling
     useEffect(() => {
