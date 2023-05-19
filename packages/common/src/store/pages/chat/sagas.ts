@@ -4,7 +4,14 @@ import {
   ValidatedChatPermissions
 } from '@audius/sdk'
 import dayjs from 'dayjs'
-import { call, put, select, takeEvery, takeLatest } from 'typed-redux-saga'
+import {
+  call,
+  delay,
+  put,
+  select,
+  takeEvery,
+  takeLatest
+} from 'typed-redux-saga'
 import { ulid } from 'ulid'
 
 import { ID } from 'models/Identifiers'
@@ -412,6 +419,9 @@ function* doDeleteChat(action: ReturnType<typeof deleteChat>) {
     })
     // Go to chat root page
     yield* put(goToChat({}))
+    // Wait for render
+    yield* delay(1)
+    // NOW delete the chat - otherwise we refetch it right away
     yield* put(deleteChatSucceeded({ chatId }))
   } catch (e) {
     console.error('deleteChat failed', e, { chatId })

@@ -69,7 +69,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     )
     const chat = useSelector((state) => getChat(state, chatId ?? ''))
     const userId = useSelector(accountSelectors.getUserId)
-    const currentUserId = encodeHashId(userId)
+    const currentUserId = userId ? encodeHashId(userId) : null
     const [unreadIndicatorEl, setUnreadIndicatorEl] =
       useState<HTMLDivElement | null>(null)
     const [, setLastScrolledChatId] = useState<string>()
@@ -157,13 +157,13 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       if (
         chatId &&
         (chat?.messagesStatus === Status.IDLE ||
-          (chat && chat.messagesStatus === undefined))
+          chat?.messagesStatus === undefined)
       ) {
         // Initial fetch
         dispatch(fetchMoreMessages({ chatId }))
         dispatch(setActiveChat({ chatId }))
       }
-    }, [dispatch, chatId, chat])
+    }, [dispatch, chatId, chat?.messagesStatus])
 
     // Fix for if the initial load doesn't have enough messages to cause scrolling
     useEffect(() => {
@@ -179,6 +179,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     }, [dispatch, chatId, chat, chatMessages])
 
     const unreadMessageCount = chatFrozenRef.current?.unread_message_count ?? 0
+    console.log('chatId', chatId)
     return (
       <StickyScrollList
         ref={mergeRefs([forwardedRef, ref])}
