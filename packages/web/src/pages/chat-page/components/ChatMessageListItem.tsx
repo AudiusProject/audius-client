@@ -124,17 +124,19 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
       })}
     >
       <div className={styles.bubble}>
-        {!isTrackOrPlaylistLink ? links
-          .filter((link) => link.type === 'url' && link.isLink)
-          .slice(0, 1)
-          .map((link) => (
-            <LinkPreview
-              key={`${link.value}-${link.start}-${link.end}`}
-              href={link.href}
-              chatId={chatId}
-              messageId={message.message_id}
-            />
-          )) : null}
+        {!isTrackOrPlaylistLink
+          ? links
+              .filter((link) => link.type === 'url' && link.isLink)
+              .slice(0, 1)
+              .map((link) => (
+                <LinkPreview
+                  key={`${link.value}-${link.start}-${link.end}`}
+                  href={link.href}
+                  chatId={chatId}
+                  messageId={message.message_id}
+                />
+              ))
+          : null}
         {isTrackLink ? (
           <ChatMessageTrack
             track={track}
