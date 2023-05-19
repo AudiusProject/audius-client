@@ -107,30 +107,34 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
 
 const mapActionToContent = (
   callToAction: ChatPermissionAction,
-  user: User,
-  styles: ReturnType<typeof useStyles>
+  styles: ReturnType<typeof useStyles>,
+  user?: User
 ) => {
   switch (callToAction) {
     case ChatPermissionAction.NONE:
       return (
         <>
           {messages.noAction}
-          <UserBadges
-            user={user}
-            nameStyle={styles.callToActionText}
-            as={Text}
-          />
+          {user ? (
+            <UserBadges
+              user={user}
+              nameStyle={styles.callToActionText}
+              as={Text}
+            />
+          ) : null}
         </>
       )
     case ChatPermissionAction.TIP:
       return (
         <>
           {messages.tipGated(
-            <UserBadges
-              user={user}
-              nameStyle={styles.callToActionText}
-              as={Text}
-            />
+            user ? (
+              <UserBadges
+                user={user}
+                nameStyle={styles.callToActionText}
+                as={Text}
+              />
+            ) : null
           )}
         </>
       )
@@ -216,7 +220,7 @@ export const InboxUnavailableDrawer = () => {
     closeDrawer
   ])
 
-  const content = mapActionToContent(callToAction, user!, styles)
+  const content = mapActionToContent(callToAction, user, styles)
 
   return (
     <NativeDrawer drawerName={INBOX_UNAVAILABLE_MODAL_NAME}>
