@@ -1,6 +1,7 @@
 import { sdk, AudiusSdk } from '@audius/sdk'
 import { keccak_256 } from '@noble/hashes/sha3'
 import * as secp from '@noble/secp256k1'
+import { signTypedData } from 'eth-sig-util'
 
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 import { discoveryNodeSelectorInstance } from 'services/discovery-node-selector'
@@ -22,15 +23,27 @@ const initSdk = async () => {
     services: {
       discoveryNodeSelector:
         await discoveryNodeSelectorInstance.getDiscoveryNodeSelector(),
-      walletApi: {
-        sign: async (data: string) => {
+      auth: {
+        sign: async (data) => {
           await waitForLibsInit()
           return await secp.sign(
-            keccak_256(data),
+            keccak_256(JSON.stringify(data)),
             window.audiusLibs.hedgehog.getWallet().privateKey,
             {
               recovered: true,
               der: false
+            }
+          )
+        },
+        signTransaction: async (data) => {
+          await waitForLibsInit()
+          return signTypedData(
+            Buffer.from(
+              window.audiusLibs.hedgehog.getWallet().privateKey,
+              'hex'
+            ),
+            {
+              data: data as any
             }
           )
         },
@@ -44,10 +57,7 @@ const initSdk = async () => {
         },
         getAddress: async () => {
           await waitForLibsInit()
-          return (
-            window.audiusLibs?.hedgehog?.getWallet()?.getAddress().toString() ??
-            ''
-          )
+          return window.audiusLibs?.hedgehog?.wallet.getAddressString() ?? ''
         }
       }
     }
