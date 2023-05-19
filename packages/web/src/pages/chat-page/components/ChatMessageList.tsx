@@ -179,7 +179,6 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     }, [dispatch, chatId, chat, chatMessages])
 
     const unreadMessageCount = chatFrozenRef.current?.unread_message_count ?? 0
-    console.log('chatId', chatId)
     return (
       <StickyScrollList
         ref={mergeRefs([forwardedRef, ref])}

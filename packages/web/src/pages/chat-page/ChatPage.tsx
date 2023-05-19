@@ -78,6 +78,7 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
     (state) => getOtherChatUsers(state, currentChatId),
     [currentChatId]
   )
+  const firstOtherUser = users[0]
   const { canSendMessage, callToAction } = useSelector((state) =>
     getCanSendMessage(state, {
       userId: users[0]?.user_id,
@@ -116,17 +117,17 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
   }, [dispatch])
 
   useEffect(() => {
-    if (users[0]?.user_id) {
-      dispatch(fetchPermissions({ userIds: [users[0].user_id] }))
+    if (firstOtherUser) {
+      dispatch(fetchPermissions({ userIds: [firstOtherUser.user_id] }))
     }
-  }, [dispatch, users])
+  }, [dispatch, firstOtherUser])
 
   if (!isChatEnabled) {
     return null
   }
   return (
     <Page
-      title={`${users.length > 0 ? users[0].name + ' •' : ''} ${
+      title={`${firstOtherUser ? firstOtherUser.name + ' •' : ''} ${
         messages.messages
       }`}
       containerClassName={styles.page}
@@ -157,9 +158,9 @@ export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
               />
               {canSendMessage ? (
                 <ChatComposer chatId={currentChatId} />
-              ) : users.length > 0 ? (
+              ) : firstOtherUser ? (
                 <InboxUnavailableMessage
-                  user={users[0]}
+                  user={firstOtherUser}
                   action={callToAction}
                 />
               ) : null}
