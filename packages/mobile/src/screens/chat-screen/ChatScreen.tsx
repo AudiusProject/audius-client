@@ -193,6 +193,8 @@ export const ChatScreen = () => {
   const composeRef = useRef<View | null>(null)
   const chatContainerRef = useRef<View | null>(null)
   const messageTop = useRef(0)
+  const messageWidth = useRef(0)
+  const messageHeight = useRef(0)
   const chatContainerTop = useRef(0)
   const chatContainerBottom = useRef(0)
 
@@ -330,13 +332,19 @@ export const ChatScreen = () => {
       }
       // Measure position of selected message to create a copy of it on top
       // of the dimmed background inside the portal.
-      const messageY = await new Promise<number>((resolve) => {
+      const { messageY, messageW, messageH } = await new Promise<{
+        messageY: number
+        messageW: number
+        messageH: number
+      }>((resolve) => {
         messageRef.measureInWindow((x, y, width, height) => {
-          resolve(y)
+          resolve({ messageY: y, messageW: width, messageH: height })
         })
       })
       // Need to subtract spacing(2) to account for padding in message View.
       messageTop.current = messageY - spacing(2)
+      messageHeight.current = messageH
+      messageWidth.current = messageW
       dispatch(setReactionsPopupMessageId({ messageId: id }))
       setShouldShowPopup(true)
       light()
@@ -433,6 +441,8 @@ export const ChatScreen = () => {
             <ReactionPopup
               chatId={chatId}
               messageTop={messageTop.current}
+              messageHeight={messageHeight.current}
+              messageWidth={messageWidth.current}
               containerTop={chatContainerTop.current}
               containerBottom={chatContainerBottom.current}
               isAuthor={decodeHashId(popupMessage?.sender_user_id) === userId}
