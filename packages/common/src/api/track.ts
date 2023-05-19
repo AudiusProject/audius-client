@@ -1,5 +1,6 @@
 import { Kind } from 'models'
 import { parseTrackRouteFromPermalink } from 'utils/stringUtils'
+
 import { createApi } from './createApi'
 
 const trackApi = createApi({

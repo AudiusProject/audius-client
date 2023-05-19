@@ -1,4 +1,5 @@
-import { Kind } from 'models';
+import { Kind } from 'models'
+
 import { createApi } from './createApi'
 
 const collectionApi = createApi({
@@ -7,10 +8,12 @@ const collectionApi = createApi({
     getPlaylistByPermalink: {
       fetch: async ({ permalink, currentUserId }, { apiClient }) => {
         return {
-          collection: (await apiClient.getPlaylistByPermalink({
-            permalink,
-            currentUserId
-          }))[0]
+          collection: (
+            await apiClient.getPlaylistByPermalink({
+              permalink,
+              currentUserId
+            })
+          )[0]
         }
       },
       options: {

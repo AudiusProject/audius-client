@@ -10,7 +10,8 @@ const playlistUrlRegex =
   // eslint-disable-next-line no-useless-escape
   /^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?(staging\.)?(audius\.co)(\/[\S]+\/playlist\/[\S]+)$/gim
 
-export const isPlaylistUrl = (url: string) => new RegExp(playlistUrlRegex).test(url)
+export const isPlaylistUrl = (url: string) =>
+  new RegExp(playlistUrlRegex).test(url)
 export const getPathFromPlaylistUrl = (url: string) => {
   const results = new RegExp(trackUrlRegex).exec(url)
   if (!results) return null

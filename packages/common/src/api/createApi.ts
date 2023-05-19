@@ -5,7 +5,10 @@ import { isEqual } from 'lodash'
 import { denormalize, normalize } from 'normalizr'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { Kind } from 'models/Kind'
 import { Status } from 'models/Status'
+import { getCollection } from 'store/cache/collections/selectors'
+import { getTrack } from 'store/cache/tracks/selectors'
 import { CommonState } from 'store/reducers'
 import { getErrorMessage } from 'utils/error'
 
@@ -33,9 +36,6 @@ import {
   selectRehydrateEntityMap,
   stripEntityMap
 } from './utils'
-import { Kind } from 'models/Kind'
-import { getTrack } from 'store/cache/tracks/selectors'
-import { getCollection } from 'store/cache/collections/selectors'
 const { addEntries } = cacheActions
 
 export const createApi = ({ reducerPath, endpoints }: CreateApiConfig) => {
@@ -140,17 +140,16 @@ const buildEndpointHooks = (
         if (idArgKey && !fetchArgs[idArgKey]) return null
         if (permalinkArgKey && !fetchArgs[permalinkArgKey]) return null
 
-        const idAsNumber =
-          idArgKey
+        const idAsNumber = idArgKey
           ? typeof fetchArgs[idArgKey] === 'number'
             ? parseInt(fetchArgs[idArgKey])
             : fetchArgs[idArgKey]
           : null
         const idCachedEntity = idAsNumber
           ? cacheSelectors.getEntry(state, {
-            kind,
-            id: idAsNumber
-          })
+              kind,
+              id: idAsNumber
+            })
           : null
 
         let permalinkCachedEntity = null
