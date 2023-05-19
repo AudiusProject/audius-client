@@ -154,7 +154,7 @@ export const InboxUnavailableDrawer = () => {
   const { userId } = useSelector((state) => getData<'InboxUnavailable'>(state))
   const user = useSelector((state) => getUser(state, { id: userId }))
   const { callToAction } = useSelector((state) =>
-    getCanCreateChat(state, userId)
+    getCanCreateChat(state, { userId })
   )
 
   const closeDrawer = useCallback(() => {

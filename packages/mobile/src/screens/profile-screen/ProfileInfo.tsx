@@ -114,7 +114,7 @@ export const ProfileInfo = (props: ProfileInfoProps) => {
     getProfileUserId(state, params.handle)
   )
   const { canCreateChat } = useSelector((state) =>
-    getCanCreateChat(state, profileUserId)
+    getCanCreateChat(state, { userId: profileUserId })
   )
 
   useEffect(() => {
