@@ -89,7 +89,6 @@ export const CollectionNavItem = (props: CollectionNavItemProps) => {
 
   const handleDrop = useCallback(
     (draggingId: PlaylistLibraryID, kind: DragDropKind) => {
-      console.log('dropping?')
       if (kind === 'track') {
         dispatch(addTrackToPlaylist(draggingId as ID, id))
       } else {

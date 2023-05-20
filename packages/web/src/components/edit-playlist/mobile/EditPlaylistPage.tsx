@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useContext } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 import {
   ID,
@@ -27,7 +27,6 @@ import GroupableList from 'components/groupable-list/GroupableList'
 import Grouping from 'components/groupable-list/Grouping'
 import TextElement, { Type } from 'components/nav/mobile/TextElement'
 import { useTemporaryNavContext } from 'components/nav/store/context'
-import { ToastContext } from 'components/toast/ToastContext'
 import TrackList from 'components/track/mobile/TrackList'
 import { useCollectionCoverArt } from 'hooks/useCollectionCoverArt'
 import useHasChangedRoute from 'hooks/useHasChangedRoute'
@@ -48,8 +47,7 @@ const messages = {
   editPlaylist: 'Edit Playlist',
   randomPhoto: 'Get Random Artwork',
   placeholderName: 'My Playlist',
-  placeholderDescription: 'Give your playlist a description',
-  toast: 'Playlist Created!'
+  placeholderDescription: 'Give your playlist a description'
 }
 
 const initialFormFields = {
@@ -83,7 +81,6 @@ const EditPlaylistPage = g(
       artwork: { url: '' }
     }
 
-    const { toast } = useContext(ToastContext)
     const [formFields, setFormFields] = useState(
       initialMetadata || initialFormFields
     )
@@ -244,11 +241,7 @@ const EditPlaylistPage = g(
       } else {
         // Create new playlist
         createPlaylist(formFields)
-        toast(messages.toast)
         close()
-        // goToRoute(
-        //   playlistPage(account.handle, formFields.playlist_name, tempId)
-        // )
       }
     }, [
       formFields,
@@ -260,7 +253,6 @@ const EditPlaylistPage = g(
       reorderedTracks,
       orderPlaylist,
       refreshLineup,
-      toast,
       removeTrack,
       removedTracks
     ])
@@ -458,7 +450,14 @@ function mapDispatchToProps(dispatch: Dispatch) {
   return {
     close: () => dispatch(createPlaylistActions.close()),
     createPlaylist: (metadata: Collection) =>
-      dispatch(createPlaylist(metadata, CreatePlaylistSource.CREATE_PAGE)),
+      dispatch(
+        createPlaylist(
+          metadata,
+          CreatePlaylistSource.CREATE_PAGE,
+          undefined,
+          'toast'
+        )
+      ),
     editPlaylist: (id: ID, metadata: EditPlaylistValues) =>
       dispatch(editPlaylist(id, metadata)),
     orderPlaylist: (playlistId: ID, idsAndTimes: any) =>
