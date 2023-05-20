@@ -35,29 +35,40 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   userNameContainer: {
     display: 'flex',
     flexDirection: 'row',
-    marginBottom: spacing(1)
+    marginBottom: spacing(3)
   },
   userName: {
-    height: spacing(5),
-    width: spacing(30)
+    height: spacing(4),
+    width: spacing(25),
+    borderRadius: spacing(12)
   },
   handle: {
-    height: spacing(4),
-    width: spacing(20)
+    height: spacing(3),
+    width: spacing(22),
+    borderRadius: spacing(12)
   },
   latestMessage: {
     marginTop: spacing(2),
     height: spacing(4),
-    width: spacing(50)
+    width: spacing(57),
+    borderRadius: spacing(12)
   }
 }))
 
-export const ChatListItemSkeleton = () => {
+export const ChatListItemSkeleton = ({
+  shouldFade = false,
+  index = 0
+}: {
+  shouldFade?: boolean
+  index?: number
+}) => {
   const styles = useStyles()
 
   return (
-    <>
-      <View style={styles.contentRoot}>
+    <View
+      style={[styles.root, shouldFade ? { opacity: (4 - index) * 0.25 } : null]}
+    >
+      <View style={[styles.contentRoot]}>
         <View style={styles.userContainer}>
           <Skeleton style={styles.profilePicture} />
           <View style={styles.userTextContainer}>
@@ -69,6 +80,6 @@ export const ChatListItemSkeleton = () => {
         </View>
       </View>
       <Skeleton style={styles.latestMessage} />
-    </>
+    </View>
   )
 }
