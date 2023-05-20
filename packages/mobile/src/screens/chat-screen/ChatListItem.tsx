@@ -19,7 +19,7 @@ const messages = {
   new: 'new'
 }
 
-const useStyles = makeStyles(({ spacing, palette, typography }) => ({
+export const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   root: {
     paddingVertical: spacing(4),
     paddingHorizontal: spacing(6),
