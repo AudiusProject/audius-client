@@ -88,7 +88,11 @@ export const ChatActionsDrawer = () => {
         </View>
         <View style={styles.row}>
           <TouchableOpacity onPress={handleBlockMessagesPress}>
-            <Text style={styles.text}>{messages.blockMessages}</Text>
+            <Text style={styles.text}>
+              {doesBlockUser
+                ? messages.unblockMessages
+                : messages.blockMessages}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
