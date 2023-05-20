@@ -4,6 +4,7 @@ import { chatActions, chatSelectors, Status } from '@audius/common'
 import { View, Text } from 'react-native'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { useDispatch, useSelector } from 'react-redux'
+import { number } from 'yup'
 
 import IconCompose from 'app/assets/images/iconCompose.svg'
 import IconMessage from 'app/assets/images/iconMessage.svg'
@@ -17,7 +18,12 @@ import { useThemePalette, useColor } from 'app/utils/theme'
 import { ChatListItem } from './ChatListItem'
 import { ChatListItemSkeleton } from './ChatListItemSkeleton'
 
-const { getChats, getChatsStatus, getAllOtherChatUsers } = chatSelectors
+const {
+  getChats,
+  getChatsStatus,
+  getAllOtherChatUsers,
+  getNumberOfFetchChatRequests
+} = chatSelectors
 const { fetchMoreMessages, fetchMoreChats } = chatActions
 
 const CHATS_MESSAGES_PREFETCH_LIMIT = 10
@@ -113,11 +119,12 @@ export const ChatListScreen = () => {
   const otherUsers = useSelector(getAllOtherChatUsers)
 
   // If this is the first fetch, we want to show the loading skeleton that
-  // fades out. Otherwise, we want to show skeletons for each incoming chat.
-  const isInitialLoad = chats.length === 8
-  const isLoading = false
-  // (chatsStatus ?? Status.LOADING) === Status.LOADING ||
-  // otherUsers.some((user) => !user)
+  // fades out. Otherwise, we want to show a skeleton in each incoming chat row.
+  const numberOfFetchChatRequests = useSelector(getNumberOfFetchChatRequests)
+  const isLoading =
+    numberOfFetchChatRequests <= 1 &&
+    ((chatsStatus ?? Status.LOADING) === Status.LOADING ||
+      otherUsers.some((user) => !user))
   const navigateToChatUserList = () => navigation.navigate('ChatUserList')
   const iconCompose = (
     <TouchableWithoutFeedback onPress={navigateToChatUserList}>
@@ -154,14 +161,16 @@ export const ChatListScreen = () => {
       <ScreenContent>
         <View style={styles.shadow} />
         <View style={styles.rootContainer}>
-          {isLoading && isInitialLoad ? (
-            ['', '', '', ''].map((_, index) => (
-              <ChatListItemSkeleton
-                key={index}
-                index={index}
-                shouldFade={true}
-              />
-            ))
+          {isLoading ? (
+            Array(4)
+              .fill(null)
+              .map((_, index) => (
+                <ChatListItemSkeleton
+                  key={index}
+                  index={index}
+                  shouldFade={true}
+                />
+              ))
           ) : (
             <FlatList
               data={chats}

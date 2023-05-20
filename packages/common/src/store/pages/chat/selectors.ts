@@ -303,3 +303,7 @@ export const getCanSendMessage = createSelector(
     }
   }
 )
+
+export const getNumberOfFetchChatRequests = (state: CommonState) => {
+  return state.pages.chat.numberOfFetchChatRequests
+}
