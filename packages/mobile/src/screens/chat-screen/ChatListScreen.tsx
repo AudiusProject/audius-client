@@ -4,7 +4,6 @@ import { chatActions, chatSelectors, Status } from '@audius/common'
 import { View, Text } from 'react-native'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { useDispatch, useSelector } from 'react-redux'
-import { number } from 'yup'
 
 import IconCompose from 'app/assets/images/iconCompose.svg'
 import IconMessage from 'app/assets/images/iconMessage.svg'
