@@ -369,7 +369,6 @@ const slice = createSlice({
       // and abort early, relying on the saga
       // to fetch the chat
       if (!(chatId in state.messages)) {
-        console.info('addMessage: no chatId')
         return
       }
 
