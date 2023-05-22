@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 
 import type {
   ChatMessageWithExtras,
@@ -7,19 +7,18 @@ import type {
 } from '@audius/common'
 import { chatActions, encodeHashId, accountSelectors } from '@audius/common'
 import Clipboard from '@react-native-clipboard/clipboard'
-import { View, Text, Dimensions, Pressable, Animated } from 'react-native'
+import { View, Dimensions, Pressable, Animated } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
-import IconCopy from 'app/assets/images/iconCopy2.svg'
 import { usePopupAnimation } from 'app/hooks/usePopupAnimation'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
-import { useThemeColors } from 'app/utils/theme'
 import { zIndex } from 'app/utils/zIndex'
 
 import { ReactionList } from '../notifications-screen/Reaction'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
+import { CopyMessagesButton } from './CopyMessagesButton'
 import {
   REACTION_CONTAINER_HEIGHT,
   REACTION_CONTAINER_TOP_OFFSET
@@ -27,10 +26,6 @@ import {
 
 const { getUserId } = accountSelectors
 const { setMessageReaction } = chatActions
-
-const messages = {
-  copy: 'Copy Message'
-}
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   dimBackground: {
@@ -122,13 +117,11 @@ export const ReactionPopup = ({
 }: ReactionPopupProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
-  const { white } = useThemeColors()
   const userId = useSelector(getUserId)
   const userIdEncoded = encodeHashId(userId)
   const selectedReaction = message.reactions?.find(
     (r) => r.user_id === userIdEncoded
   )?.reaction
-  const [isPressed, setIsPressed] = useState(false)
 
   const [
     backgroundOpacityAnim,
@@ -205,29 +198,13 @@ export const ReactionPopup = ({
             ]}
           />
         </Animated.View>
-        <Pressable
+        <CopyMessagesButton
+          isAuthor={isAuthor}
+          messageTop={messageTop}
+          containerTop={containerTop}
+          messageHeight={messageHeight}
           onPress={() => handleCopyPress(message.message)}
-          onPressIn={() => setIsPressed(true)}
-          onPressOut={() => setIsPressed(false)}
-          style={[
-            styles.copyPressableContainer,
-            {
-              top: messageTop - containerTop + messageHeight + spacing(2.5),
-              right: isAuthor ? spacing(6) : undefined,
-              left: isAuthor ? undefined : spacing(6)
-            }
-          ]}
-        >
-          <Animated.View
-            style={[
-              styles.copyAnimatedContainer,
-              { opacity: isPressed ? 0.5 : 1 }
-            ]}
-          >
-            <IconCopy fill={white} height={12} width={12} />
-            <Text style={styles.copyText}>{messages.copy}</Text>
-          </Animated.View>
-        </Pressable>
+        />
         <Animated.View
           style={[
             styles.reactionsContainer,
