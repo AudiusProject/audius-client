@@ -15,6 +15,7 @@ import { usePopupAnimation } from 'app/hooks/usePopupAnimation'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { useThemeColors } from 'app/utils/theme'
+import { zIndex } from 'app/utils/zIndex'
 
 import { ReactionList } from '../notifications-screen/Reaction'
 
@@ -32,44 +33,44 @@ const messages = {
 }
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
-  reactionsContainer: {
-    borderWidth: 1,
-    borderRadius: spacing(12),
-    borderColor: palette.neutralLight9,
-    zIndex: 40,
-    width: Dimensions.get('window').width - spacing(10),
-    backgroundColor: palette.white,
-    marginHorizontal: spacing(5)
-  },
-  popupContainer: {
-    position: 'absolute',
-    display: 'flex',
-    zIndex: 20,
-    overflow: 'hidden'
-  },
   dimBackground: {
     position: 'absolute',
     height: '100%',
     width: '100%',
-    zIndex: 10,
+    zIndex: zIndex.CHAT_REACTIONS_POPUP_DIM_BACKGROUND,
     backgroundColor: 'black'
+  },
+  popupContainer: {
+    position: 'absolute',
+    display: 'flex',
+    zIndex: zIndex.CHAT_REACTIONS_POPUP_CLOSE_PRESSABLES,
+    overflow: 'hidden'
   },
   outerPressable: {
     position: 'absolute',
     height: '100%',
     width: '100%',
-    zIndex: 20
+    zIndex: zIndex.CHAT_REACTIONS_POPUP_CLOSE_PRESSABLES
   },
   innerPressable: {
     position: 'absolute',
     height: '100%',
     width: '100%',
-    zIndex: 30
+    zIndex: zIndex.CHAT_REACTIONS_POPUP_CLOSE_PRESSABLES
+  },
+  reactionsContainer: {
+    borderWidth: 1,
+    borderRadius: spacing(12),
+    borderColor: palette.neutralLight9,
+    zIndex: zIndex.CHAT_REACTIONS_POPUP_CONTENT,
+    width: Dimensions.get('window').width - spacing(10),
+    backgroundColor: palette.white,
+    marginHorizontal: spacing(5)
   },
   popupChatMessage: {
     position: 'absolute',
     maxWidth: Dimensions.get('window').width - spacing(12),
-    zIndex: 40
+    zIndex: zIndex.CHAT_REACTIONS_POPUP_CONTENT
   },
   emoji: {
     height: spacing(17)
@@ -80,33 +81,25 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing(1.5),
-    zIndex: 100
+    zIndex: zIndex.CHAT_REACTIONS_POPUP_CONTENT
   },
   copyAnimatedContainer: {
     dipslay: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing(1.5),
-    zIndex: 100
+    zIndex: zIndex.CHAT_REACTIONS_POPUP_CONTENT
   },
   copyText: {
     fontSize: typography.fontSize.xs,
     fontFamily: typography.fontByWeight.bold,
-    color: palette.white,
-    zIndex: 100
-  },
-  icon: {
-    height: spacing(3),
-    width: spacing(3),
-    fill: palette.white,
-    a: 'asdf'
+    color: palette.white
   }
 }))
 
 type ReactionPopupProps = {
   chatId: string
   messageTop: number
-  messageWidth: number
   messageHeight: number
   containerTop: number
   containerBottom: number
@@ -119,7 +112,6 @@ type ReactionPopupProps = {
 export const ReactionPopup = ({
   chatId,
   messageTop,
-  messageWidth,
   messageHeight,
   containerTop,
   containerBottom,
@@ -182,13 +174,7 @@ export const ReactionPopup = ({
           { opacity: backgroundOpacityAnim.current }
         ]}
       />
-      <Pressable
-        style={styles.outerPressable}
-        onPress={() => {
-          console.log('parent press')
-          handleClosePopup()
-        }}
-      />
+      <Pressable style={styles.outerPressable} onPress={handleClosePopup} />
       {/* This View cuts off the message body when it goes beyond the
       bottom boundary of the flatlist view. */}
       <View
@@ -203,31 +189,21 @@ export const ReactionPopup = ({
         {/* This 2nd pressable ensures that clicking outside of the
         message and reaction list, but inside of flatlist view,
         closes the popup. */}
-        <Pressable
-          style={[styles.innerPressable]}
-          onPress={() => {
-            console.log('inner press')
-            handleClosePopup()
-          }}
-        />
-        <Animated.View
-          style={{ opacity: otherOpacityAnim.current, zIndex: 40 }}
-        >
-          <View>
-            <ChatMessageListItem
-              chatId={chatId}
-              message={message}
-              isPopup={true}
-              style={[
-                styles.popupChatMessage,
-                {
-                  top: messageTop - containerTop,
-                  right: isAuthor ? spacing(6) : undefined,
-                  left: !isAuthor ? spacing(6) : undefined
-                }
-              ]}
-            />
-          </View>
+        <Pressable style={styles.innerPressable} onPress={handleClosePopup} />
+        <Animated.View style={{ opacity: otherOpacityAnim.current }}>
+          <ChatMessageListItem
+            chatId={chatId}
+            message={message}
+            isPopup={true}
+            style={[
+              styles.popupChatMessage,
+              {
+                top: messageTop - containerTop,
+                right: isAuthor ? spacing(6) : undefined,
+                left: !isAuthor ? spacing(6) : undefined
+              }
+            ]}
+          />
         </Animated.View>
         <Pressable
           onPress={() => handleCopyPress(message.message)}
