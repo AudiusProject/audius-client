@@ -1,4 +1,4 @@
-import { ComponentProps, MouseEventHandler } from 'react'
+import { ComponentProps } from 'react'
 
 import { PopupProps } from '../Popup'
 
