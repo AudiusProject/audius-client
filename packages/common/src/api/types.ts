@@ -20,7 +20,13 @@ export type Api<EndpointDefinitions extends DefaultEndpointDefinitions> = {
       string & Property
     >}`]: (
       fetchArgs: Parameters<EndpointDefinitions[Property]['fetch']>[0]
-    ) => ReturnType<EndpointDefinitions[Property]['fetch']>
+    ) => EndpointDefinitions[Property]['options'] extends { schemaKey: string }
+      ? Promise<
+          Awaited<
+            ReturnType<EndpointDefinitions[Property]['fetch']>
+          >[EndpointDefinitions[Property]['options']['schemaKey']]
+        >
+      : ReturnType<EndpointDefinitions[Property]['fetch']>
   }
 }
 
@@ -39,7 +45,10 @@ type EndpointOptions = {
 }
 
 export type EndpointConfig<argsT, dataT> = {
-  fetch: (fetchArgs: argsT, context: AudiusQueryContextType) => Promise<dataT>
+  fetch: (
+    fetchArgs: argsT,
+    context: AudiusQueryContextType
+  ) => Promise<{ [key: string]: dataT }>
   options?: EndpointOptions
 }
 
