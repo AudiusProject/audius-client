@@ -37,6 +37,8 @@ type ChatState = {
       summary?: TypedCommsResponse<ChatMessage>['summary']
     }
   >
+  unreadMessagesCount: number
+  optimisticUnreadMessagesCount?: number
   optimisticReactions: Record<string, ChatMessageReaction>
   optimisticChatRead: Record<
     string,
@@ -83,7 +85,7 @@ const {
 } = chatMessagesAdapter.getSelectors()
 
 // Recalculate hasTail for the message at index + 1 (the previous message of
-// the message at index).
+// the message at the given index).
 const recalculatePreviousMessageHasTail = (
   chatState: EntityState<ChatMessageWithExtras>,
   index: number
@@ -107,6 +109,7 @@ const initialState: ChatState = {
     ...chatsAdapter.getInitialState()
   },
   messages: {},
+  unreadMessagesCount: 0,
   optimisticChatRead: {},
   optimisticReactions: {},
   activeChatId: null,
@@ -130,7 +133,18 @@ const slice = createSlice({
         state.messages[chat.chat_id] = chatMessagesAdapter.getInitialState()
       }
     },
-    goToChat: (_state, _action: PayloadAction<{ chatId: string }>) => {
+    fetchUnreadMessagesCount: (_state) => {
+      // triggers saga
+    },
+    fetchUnreadMessagesCountSucceeded: (
+      state,
+      action: PayloadAction<{ unreadMessagesCount: number }>
+    ) => {
+      state.unreadMessagesCount = action.payload.unreadMessagesCount
+      delete state.optimisticUnreadMessagesCount
+    },
+    fetchUnreadMessagesCountFailed: (_state) => {},
+    goToChat: (_state, _action: PayloadAction<{ chatId?: string }>) => {
       // triggers saga
     },
     fetchMoreChats: (state) => {
@@ -175,16 +189,30 @@ const slice = createSlice({
         chatId,
         response: { data, summary }
       } = action.payload
+      if (!summary) {
+        console.error('fetchMoreMessagesSucceeded: no summary')
+        return
+      }
+
+      // Update the summary to include the min of next_cursor/next_count and
+      // prev_cursor/prev_count.
+      const existingSummary = state.chats.entities[chatId]?.messagesSummary
+      const summaryToUse = { ...summary, ...existingSummary }
+      if (summary.next_count < (existingSummary?.next_count ?? Infinity)) {
+        summaryToUse.next_count = summary.next_count
+        summaryToUse.next_cursor = summary.next_cursor
+      }
+      if (summary.prev_count < (existingSummary?.prev_count ?? Infinity)) {
+        summaryToUse.prev_count = summary.prev_count
+        summaryToUse.prev_cursor = summary.prev_cursor
+      }
+
       chatsAdapter.updateOne(state.chats, {
         id: chatId,
         changes: {
           messagesStatus: Status.SUCCESS,
-          messagesSummary: summary
+          messagesSummary: summaryToUse
         }
-      })
-      chatsAdapter.updateOne(state.chats, {
-        id: chatId,
-        changes: { messagesStatus: Status.SUCCESS, messagesSummary: summary }
       })
       const messagesWithTail = data.map((item, index) => {
         return { ...item, hasTail: hasTail(item, data[index - 1]) }
@@ -192,7 +220,7 @@ const slice = createSlice({
       chatMessagesAdapter.upsertMany(state.messages[chatId], messagesWithTail)
       recalculatePreviousMessageHasTail(
         state.messages[chatId],
-        state.messages[chatId].ids.length - 1 - data.length
+        summary.next_count - 1
       )
     },
     fetchMoreMessagesFailed: (
@@ -267,6 +295,9 @@ const slice = createSlice({
     },
     fetchChatSucceeded: (state, action: PayloadAction<{ chat: UserChat }>) => {
       const { chat } = action.payload
+      if (dayjs(chat.cleared_history_at).isAfter(chat.last_message_at)) {
+        chat.last_message = ''
+      }
       chatsAdapter.upsertOne(state.chats, chat)
     },
     markChatAsRead: (state, action: PayloadAction<{ chatId: string }>) => {
@@ -279,6 +310,13 @@ const slice = createSlice({
           last_read_at: existingChat.last_message_at,
           unread_message_count: 0
         }
+        if (state.optimisticUnreadMessagesCount) {
+          state.optimisticUnreadMessagesCount -=
+            existingChat.unread_message_count
+        } else {
+          state.optimisticUnreadMessagesCount =
+            state.unreadMessagesCount - existingChat.unread_message_count
+        }
       }
     },
     markChatAsReadSucceeded: (
@@ -288,7 +326,9 @@ const slice = createSlice({
       // Set the true state
       const { chatId } = action.payload
       delete state.optimisticChatRead[chatId]
+      delete state.optimisticUnreadMessagesCount
       const existingChat = getChat(state, chatId)
+      state.unreadMessagesCount -= existingChat?.unread_message_count ?? 0
       chatsAdapter.updateOne(state.chats, {
         id: chatId,
         changes: {
@@ -304,6 +344,7 @@ const slice = createSlice({
       // Reset our optimism :(
       const { chatId } = action.payload
       delete state.optimisticChatRead[chatId]
+      delete state.optimisticUnreadMessagesCount
     },
     sendMessage: (
       _state,
@@ -336,7 +377,9 @@ const slice = createSlice({
           id: chatId,
           changes: {
             last_message: message.message,
-            last_message_at: message.created_at
+            last_message_at: message.created_at,
+            // If a new message comes through, we don't need to recheck permissions anymore
+            recheck_permissions: false
           }
         })
         recalculatePreviousMessageHasTail(state.messages[chatId], 0)
@@ -359,6 +402,11 @@ const slice = createSlice({
           id: chatId,
           changes: { unread_message_count: existingUnreadCount + 1 }
         })
+      }
+      if (state.optimisticUnreadMessagesCount) {
+        state.optimisticUnreadMessagesCount += 1
+      } else {
+        state.optimisticUnreadMessagesCount = state.unreadMessagesCount + 1
       }
     },
     /**
@@ -463,6 +511,14 @@ const slice = createSlice({
         id: messageId,
         changes: { unfurlMetadata }
       })
+    },
+    deleteChat: (_state, _action: PayloadAction<{ chatId: string }>) => {
+      // triggers saga
+    },
+    deleteChatSucceeded: (state, action: PayloadAction<{ chatId: string }>) => {
+      const { chatId } = action.payload
+      chatsAdapter.removeOne(state.chats, chatId)
+      chatMessagesAdapter.removeAll(state.messages[chatId])
     }
   }
 })

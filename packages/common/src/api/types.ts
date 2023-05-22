@@ -33,6 +33,7 @@ export type SliceConfig = CreateSliceOptions<any, any, any>
 
 type EndpointOptions = {
   idArgKey?: string
+  permalinkArgKey?: string
   schemaKey?: string
   kind?: Kind
 }
@@ -83,4 +84,14 @@ export type PerEndpointState = {
 
 export type ApiState = {
   [key: string]: PerEndpointState
+}
+
+export type QueryHookOptions = {
+  disabled?: boolean
+}
+
+export type QueryHookResults<Data> = {
+  data: Data
+  status: Status
+  errorMessage: string
 }

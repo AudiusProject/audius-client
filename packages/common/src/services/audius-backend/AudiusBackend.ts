@@ -1,4 +1,7 @@
-import type { DiscoveryNodeSelector } from '@audius/sdk'
+import type {
+  AudiusLibs as AudiusLibsType,
+  DiscoveryNodeSelector
+} from '@audius/sdk'
 import { DiscoveryAPI } from '@audius/sdk/dist/core'
 import type { HedgehogConfig } from '@audius/sdk/dist/services/hedgehog'
 import type { LocalStorage } from '@audius/sdk/dist/utils/localStorage'
@@ -1765,9 +1768,9 @@ export const audiusBackend = ({
 
   async function createPlaylist(
     playlistId: ID,
-    metadata: Collection,
+    metadata: Partial<Collection>,
     isAlbum = false,
-    trackIds = [],
+    trackIds: ID[] = [],
     isPrivate = true
   ) {
     // Creating an album is automatically public.
@@ -3758,6 +3761,11 @@ export const audiusBackend = ({
     return audiusLibs
   }
 
+  async function getAudiusLibsTyped() {
+    await waitForLibsInit()
+    return audiusLibs as AudiusLibsType
+  }
+
   async function getWeb3() {
     const audiusLibs = await getAudiusLibs()
     return audiusLibs.web3Manager.getWeb3()
@@ -3771,7 +3779,7 @@ export const audiusBackend = ({
   return {
     addDiscoveryProviderSelectionListener,
     addPlaylistTrack,
-    audiusLibs,
+    audiusLibs: audiusLibs as AudiusLibsType,
     associateAudiusUserForAuth,
     associateInstagramAccount,
     associateTwitterAccount,
@@ -3807,6 +3815,7 @@ export const audiusBackend = ({
     getAllTracks,
     getArtistTracks,
     getAudiusLibs,
+    getAudiusLibsTyped,
     getBalance,
     getBrowserPushNotificationSettings,
     getBrowserPushSubscription,

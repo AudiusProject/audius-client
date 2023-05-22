@@ -7,7 +7,8 @@ import {
   forwardRef,
   useRef,
   useLayoutEffect,
-  useState
+  useState,
+  useMemo
 } from 'react'
 
 import {
@@ -17,9 +18,11 @@ import {
   encodeHashId,
   Status,
   hasTail,
-  isEarliestUnread
+  isEarliestUnread,
+  chatCanFetchMoreMessages
 } from '@audius/common'
 import cn from 'classnames'
+import { throttle } from 'lodash'
 import { mergeRefs } from 'react-merge-refs'
 import { useDispatch } from 'react-redux'
 
@@ -37,7 +40,7 @@ const { fetchMoreMessages, markChatAsRead, setActiveChat } = chatActions
 const { getChatMessages, getChat } = chatSelectors
 
 const messages = {
-  newMessages: 'New Messages'
+  newMessages: (count: number) => `${count} New Message${count > 1 ? 's' : ''}`
 }
 
 type ChatMessageListProps = ComponentPropsWithoutRef<'div'> & {
@@ -46,13 +49,14 @@ type ChatMessageListProps = ComponentPropsWithoutRef<'div'> & {
 
 const SCROLL_TOP_THRESHOLD = 800
 const SCROLL_BOTTOM_THRESHOLD = 32
+const THROTTLE_DURATION_MS = 500
 
-const isScrolledToBottom = (element: HTMLElement) => {
+const isScrolledNearBottom = (element: HTMLElement) => {
   const { scrollTop, clientHeight, scrollHeight } = element
   return scrollTop + clientHeight >= scrollHeight - SCROLL_BOTTOM_THRESHOLD
 }
 
-const isScrolledToTop = (element: HTMLElement) => {
+const isScrolledNearTop = (element: HTMLElement) => {
   return element.scrollTop < SCROLL_TOP_THRESHOLD
 }
 
@@ -65,7 +69,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     )
     const chat = useSelector((state) => getChat(state, chatId ?? ''))
     const userId = useSelector(accountSelectors.getUserId)
-    const currentUserId = encodeHashId(userId)
+    const currentUserId = userId ? encodeHashId(userId) : null
     const [unreadIndicatorEl, setUnreadIndicatorEl] =
       useState<HTMLDivElement | null>(null)
     const [, setLastScrolledChatId] = useState<string>()
@@ -83,26 +87,54 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       }
     }, [chat, chatId])
 
-    const handleScroll = useCallback(
+    const scrollHandler = useCallback(
       (e: UIEvent<HTMLDivElement>) => {
-        if (chatId && isScrolledToBottom(e.currentTarget)) {
+        if (!chatId) return
+
+        // Handle case where scrolled to bottom
+        if (isScrolledNearBottom(e.currentTarget)) {
           // Mark chat as read when the user reaches the bottom (saga handles no-op if already read)
           dispatch(markChatAsRead({ chatId }))
           dispatch(setActiveChat({ chatId }))
         } else {
           dispatch(setActiveChat({ chatId: null }))
+
+          if (chat?.messagesSummary?.prev_count === undefined) {
+            return
+          }
+
           if (
-            chatId &&
-            isScrolledToTop(e.currentTarget) &&
-            chat?.messagesStatus !== Status.LOADING
+            chatCanFetchMoreMessages(
+              chat?.messagesStatus,
+              chat?.messagesSummary?.prev_count
+            ) &&
+            isScrolledNearTop(e.currentTarget)
           ) {
             // Fetch more messages when user reaches the top
             dispatch(fetchMoreMessages({ chatId }))
           }
         }
       },
-      [dispatch, chatId, chat?.messagesStatus]
+      [dispatch, chatId, chat?.messagesStatus, chat?.messagesSummary]
     )
+
+    // Memoize the creation of throttled scroll handler, to avoid
+    // creating a new throttled function each time and because useCallback
+    // doesn't like receiving a non-inlined fn
+    // https://dmitripavlutin.com/react-throttle-debounce/
+    const throttledScrollHandler = useMemo(
+      () =>
+        throttle(scrollHandler, THROTTLE_DURATION_MS, {
+          leading: true,
+          trailing: false
+        }),
+      [scrollHandler]
+    )
+
+    // Cancel any throttled scrolls when component dismounts
+    useEffect(() => () => {
+      throttledScrollHandler.cancel()
+    })
 
     const scrollIntoViewOnMount = useCallback((el: HTMLDivElement) => {
       if (el) {
@@ -146,10 +178,11 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       }
     }, [dispatch, chatId, chat, chatMessages])
 
+    const unreadMessageCount = chatFrozenRef.current?.unread_message_count ?? 0
     return (
       <StickyScrollList
         ref={mergeRefs([forwardedRef, ref])}
-        onScroll={handleScroll}
+        onScroll={throttledScrollHandler}
         className={cn(styles.root, classNameProp)}
         resetKey={chatId}
         updateKey={chatMessages}
@@ -169,12 +202,12 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
                   message={message}
                   hasTail={hasTail(message, chatMessages[i - 1])}
                 />
-                {/* 
-                  The separator has to come after the message to appear above it, 
+                {/*
+                  The separator has to come after the message to appear above it,
                   since the message list order is reversed in CSS
                 */}
                 {isEarliestUnread({
-                  unreadCount: chatFrozenRef.current?.unread_message_count ?? 0,
+                  unreadCount: unreadMessageCount,
                   lastReadAt: chatFrozenRef.current?.last_read_at,
                   currentMessageIndex: i,
                   messages: chatMessages,
@@ -182,8 +215,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
                 }) ? (
                   <div ref={scrollIntoViewOnMount} className={styles.separator}>
                     <span className={styles.tag}>
-                      {chatFrozenRef.current?.unread_message_count}{' '}
-                      {messages.newMessages}
+                      {messages.newMessages(unreadMessageCount)}
                     </span>
                   </div>
                 ) : null}

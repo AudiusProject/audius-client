@@ -32,27 +32,23 @@ import * as signOnActions from 'common/store/pages/signon/actions'
 import CreatePlaylistModal from 'components/create-playlist/CreatePlaylistModal'
 import { PlaylistFormFields } from 'components/create-playlist/PlaylistForm'
 import { DragAutoscroller } from 'components/drag-autoscroller/DragAutoscroller'
-import { Droppable } from 'components/dragndrop'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
-import Pill from 'components/pill/Pill'
 import ConnectedProfileCompletionPane from 'components/profile-progress/ConnectedProfileCompletionPane'
-import Tooltip from 'components/tooltip/Tooltip'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
-import { selectDragnDropState } from 'store/dragndrop/slice'
+import { selectDraggingKind } from 'store/dragndrop/slice'
 import { AppState } from 'store/types'
 import {
   DASHBOARD_PAGE,
   EXPLORE_PAGE,
   FEED_PAGE,
   HISTORY_PAGE,
-  playlistPage,
   profilePage,
   SAVED_PAGE,
   TRENDING_PAGE
 } from 'utils/route'
-import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
+import { GroupHeader } from './GroupHeader'
 import styles from './LeftNav.module.css'
 import { LeftNavDroppable, LeftNavLink } from './LeftNavLink'
 import NavAudio from './NavAudio'
@@ -72,7 +68,8 @@ const { getAccountStatus, getAccountUser, getPlaylistLibrary } =
   accountSelectors
 
 const messages = {
-  newPlaylistOrFolderTooltip: 'New Playlist or Folder'
+  discover: 'Discover',
+  library: 'Library'
 }
 
 type OwnProps = {
@@ -89,13 +86,12 @@ const LeftNav = ({
   showActionRequiresAccount,
   createPlaylist,
   library,
-  openCreatePlaylistModal,
   closeCreatePlaylistModal,
   isElectron,
   showCreatePlaylistModal,
   hideCreatePlaylistModalFolderTab,
   updatePlaylistLibrary,
-  dragging: { dragging, kind },
+  draggingKind,
   saveTrack,
   saveCollection,
   accountStatus,
@@ -136,14 +132,10 @@ const LeftNav = ({
 
   const onCreatePlaylist = useCallback(
     (metadata: PlaylistFormFields) => {
-      const tempId = getTempPlaylistId()
-      createPlaylist(tempId, metadata)
+      createPlaylist(metadata)
       closeCreatePlaylistModal()
-      if (account) {
-        goToRoute(playlistPage(account.handle, metadata.playlist_name, tempId))
-      }
     },
-    [account, createPlaylist, closeCreatePlaylistModal, goToRoute]
+    [createPlaylist, closeCreatePlaylistModal]
   )
 
   const onCreateFolder = useCallback(
@@ -157,24 +149,6 @@ const LeftNav = ({
     },
     [library, updatePlaylistLibrary, closeCreatePlaylistModal]
   )
-
-  const openCreatePlaylist = useCallback(() => {
-    if (account) {
-      openCreatePlaylistModal()
-      record(
-        make(Name.PLAYLIST_OPEN_CREATE, { source: CreatePlaylistSource.NAV })
-      )
-    } else {
-      goToSignUp('social action')
-      showActionRequiresAccount()
-    }
-  }, [
-    account,
-    openCreatePlaylistModal,
-    goToSignUp,
-    showActionRequiresAccount,
-    record
-  ])
 
   const onClickNavLinkWithAccount = useCallback(
     (e?: MouseEvent) => {
@@ -287,7 +261,7 @@ const LeftNav = ({
 
             <div className={styles.links}>
               <div className={styles.linkGroup}>
-                <div className={styles.groupHeader}>Discover</div>
+                <GroupHeader>{messages.discover}</GroupHeader>
                 <LeftNavLink
                   to={FEED_PAGE}
                   disabled={!account}
@@ -301,12 +275,12 @@ const LeftNav = ({
                 </LeftNavLink>
               </div>
               <div className={styles.linkGroup}>
-                <div className={styles.groupHeader}>Library</div>
+                <GroupHeader>{messages.library}</GroupHeader>
                 <LeftNavDroppable
                   disabled={!account}
                   acceptedKinds={['track', 'album']}
                   acceptOwner={false}
-                  onDrop={kind === 'album' ? saveCollection : saveTrack}
+                  onDrop={draggingKind === 'album' ? saveCollection : saveTrack}
                 >
                   <LeftNavLink
                     to={SAVED_PAGE}
@@ -324,37 +298,7 @@ const LeftNav = ({
                 </LeftNavLink>
               </div>
               <div className={styles.linkGroup}>
-                <Droppable
-                  className={styles.droppableGroup}
-                  hoverClassName={styles.droppableGroupHover}
-                  onDrop={saveCollection}
-                  acceptedKinds={['playlist']}
-                >
-                  <div
-                    className={cn(styles.groupHeader, {
-                      [styles.droppableLink]: dragging && kind === 'playlist'
-                    })}
-                  >
-                    Playlists
-                    <div className={styles.newPlaylist}>
-                      <Tooltip
-                        text={messages.newPlaylistOrFolderTooltip}
-                        getPopupContainer={() =>
-                          scrollbarRef.current?.parentNode
-                        }
-                      >
-                        <span>
-                          <Pill
-                            text='New'
-                            icon='save'
-                            onClick={openCreatePlaylist}
-                          />
-                        </span>
-                      </Tooltip>
-                    </div>
-                  </div>
-                  <PlaylistLibrary />
-                </Droppable>
+                <PlaylistLibrary scrollbarRef={scrollbarRef} />
               </div>
             </div>
           </DragAutoscroller>
@@ -380,7 +324,7 @@ const mapStateToProps = (state: AppState) => {
   return {
     account: getAccountUser(state),
     accountStatus: getAccountStatus(state),
-    dragging: selectDragnDropState(state),
+    draggingKind: selectDraggingKind(state),
     library: getPlaylistLibrary(state),
     showCreatePlaylistModal: getIsOpen(state),
     hideCreatePlaylistModalFolderTab: getHideFolderTab(state)
@@ -388,8 +332,8 @@ const mapStateToProps = (state: AppState) => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  createPlaylist: (tempId: number, metadata: Record<string, unknown>) =>
-    dispatch(createPlaylist(tempId, metadata, CreatePlaylistSource.NAV)),
+  createPlaylist: (metadata: PlaylistFormFields) =>
+    dispatch(createPlaylist(metadata, CreatePlaylistSource.NAV)),
   goToRoute: (route: string) => dispatch(pushRoute(route)),
   saveTrack: (trackId: number) =>
     dispatch(saveTrack(trackId, FavoriteSource.NAVIGATOR)),
@@ -399,7 +343,6 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
     dispatch(addTrackToPlaylist(trackId, playlistId)),
   showActionRequiresAccount: () =>
     dispatch(signOnActions.showRequiresAccountModal()),
-  openCreatePlaylistModal: () => dispatch(createPlaylistModalActions.open()),
   closeCreatePlaylistModal: () => dispatch(createPlaylistModalActions.close()),
   updatePlaylistLibrary: (newLibrary: PlaylistLibraryType) =>
     dispatch(updatePlaylistLibrary({ playlistLibrary: newLibrary })),

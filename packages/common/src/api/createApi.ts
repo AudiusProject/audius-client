@@ -5,7 +5,10 @@ import { isEqual } from 'lodash'
 import { denormalize, normalize } from 'normalizr'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { Kind } from 'models/Kind'
 import { Status } from 'models/Status'
+import { getCollection } from 'store/cache/collections/selectors'
+import { getTrack } from 'store/cache/tracks/selectors'
 import { CommonState } from 'store/reducers'
 import { getErrorMessage } from 'utils/error'
 
@@ -22,6 +25,7 @@ import {
   FetchErrorAction,
   FetchLoadingAction,
   FetchSucceededAction,
+  QueryHookOptions,
   PerEndpointState,
   PerKeyState,
   SliceConfig
@@ -82,10 +86,9 @@ const addEndpointToSlice = (sliceConfig: SliceConfig, endpointName: string) => {
     ) => {
       const { fetchArgs } = action.payload
       const key = getKeyFromFetchArgs(fetchArgs)
-      if (!state[endpointName][key]) {
-        state[endpointName][key] = initState
-      }
-      state[endpointName][key].status = Status.LOADING
+      const scopedState = { ...state[endpointName][key] } ?? initState
+      scopedState.status = Status.LOADING
+      state[endpointName][key] = scopedState
     },
     [`fetch${capitalize(endpointName)}Error`]: (
       state: ApiState,
@@ -93,11 +96,10 @@ const addEndpointToSlice = (sliceConfig: SliceConfig, endpointName: string) => {
     ) => {
       const { fetchArgs, errorMessage } = action.payload
       const key = getKeyFromFetchArgs(fetchArgs)
-      if (!state[endpointName][key]) {
-        state[endpointName][key] = initState
-      }
-      state[endpointName][key].status = Status.ERROR
-      state[endpointName][key].errorMessage = errorMessage
+      const scopedState = { ...state[endpointName][key] } ?? initState
+      scopedState.status = Status.ERROR
+      scopedState.errorMessage = errorMessage
+      state[endpointName][key] = scopedState
     },
     [`fetch${capitalize(endpointName)}Succeeded`]: (
       state: ApiState,
@@ -105,12 +107,11 @@ const addEndpointToSlice = (sliceConfig: SliceConfig, endpointName: string) => {
     ) => {
       const { fetchArgs, nonNormalizedData, strippedEntityMap } = action.payload
       const key = getKeyFromFetchArgs(fetchArgs)
-      if (!state[endpointName][key]) {
-        state[endpointName][key] = initState
-      }
-      state[endpointName][key].status = Status.SUCCESS
-      state[endpointName][key].nonNormalizedData = nonNormalizedData
-      state[endpointName][key].strippedEntityMap = strippedEntityMap
+      const scopedState = { ...state[endpointName][key] } ?? initState
+      scopedState.status = Status.SUCCESS
+      scopedState.nonNormalizedData = nonNormalizedData
+      scopedState.strippedEntityMap = strippedEntityMap
+      state[endpointName][key] = scopedState
     }
   }
 }
@@ -127,36 +128,60 @@ const buildEndpointHooks = <
   reducerPath: string
 ) => {
   // Hook to be returned as use<EndpointName>
-  const useQuery = (fetchArgs: argsT) => {
+  const useQuery = (fetchArgs: argsT, hookOptions?: QueryHookOptions) => {
     const dispatch = useDispatch()
     const key = getKeyFromFetchArgs(fetchArgs)
     const queryState = useSelector((state: any) => {
+      if (!state.api[reducerPath]) {
+        throw new Error(
+          `State for ${reducerPath} is undefined - did you forget to register the reducer in @audius/common/src/api/reducers.ts?`
+        )
+      }
       const endpointState: PerEndpointState =
         state.api[reducerPath][endpointName]
 
       // Retrieve data from cache if lookup args provided
       if (!endpointState[key]) {
         if (
-          !endpoint.options?.idArgKey ||
+          !(endpoint.options?.idArgKey || endpoint.options?.permalinkArgKey) ||
           !endpoint.options?.kind ||
           !endpoint.options?.schemaKey
         )
           return null
-        const { kind, idArgKey, schemaKey } = endpoint.options
-        if (!fetchArgs[idArgKey]) return null
-        const idAsNumber =
-          typeof fetchArgs[idArgKey] === 'number'
+        const { kind, idArgKey, permalinkArgKey, schemaKey } = endpoint.options
+        if (idArgKey && !fetchArgs[idArgKey]) return null
+        if (permalinkArgKey && !fetchArgs[permalinkArgKey]) return null
+
+        const idAsNumber = idArgKey
+          ? typeof fetchArgs[idArgKey] === 'number'
             ? parseInt(fetchArgs[idArgKey])
             : fetchArgs[idArgKey]
-        const initialCachedEntity = cacheSelectors.getEntry(state, {
-          kind,
-          id: idAsNumber
-        })
+          : null
+        const idCachedEntity = idAsNumber
+          ? cacheSelectors.getEntry(state, {
+              kind,
+              id: idAsNumber
+            })
+          : null
+
+        let permalinkCachedEntity = null
+        if (kind === Kind.TRACKS && permalinkArgKey) {
+          permalinkCachedEntity = getTrack(state, {
+            permalink: fetchArgs[permalinkArgKey]
+          })
+        }
+        if (kind === Kind.COLLECTIONS && permalinkArgKey) {
+          permalinkCachedEntity = getCollection(state, {
+            permalink: fetchArgs[permalinkArgKey]
+          })
+        }
+
+        const cachedEntity = idCachedEntity || permalinkCachedEntity
 
         // cache hit
-        if (initialCachedEntity) {
+        if (cachedEntity) {
           const { result, entities } = normalize(
-            { [schemaKey]: initialCachedEntity },
+            { [schemaKey]: cachedEntity },
             apiResponseSchema
           )
           return {
@@ -207,8 +232,11 @@ const buildEndpointHooks = <
       }
 
       const fetchWrapped = async () => {
-        if (cachedData || !context) return
-        if (status === Status.LOADING) return
+        if (!context) return
+        if ([Status.LOADING, Status.ERROR, Status.SUCCESS].includes(status))
+          return
+        if (hookOptions?.disabled) return
+
         try {
           dispatch(
             // @ts-ignore
@@ -252,7 +280,8 @@ const buildEndpointHooks = <
       isInitialValue,
       nonNormalizedData,
       strippedEntityMap,
-      context
+      context,
+      hookOptions?.disabled
     ])
 
     if (endpoint.options?.schemaKey) {

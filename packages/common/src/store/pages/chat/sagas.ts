@@ -4,7 +4,14 @@ import {
   ValidatedChatPermissions
 } from '@audius/sdk'
 import dayjs from 'dayjs'
-import { call, put, select, takeEvery, takeLatest } from 'typed-redux-saga'
+import {
+  call,
+  delay,
+  put,
+  select,
+  takeEvery,
+  takeLatest
+} from 'typed-redux-saga'
 import { ulid } from 'ulid'
 
 import { ID } from 'models/Identifiers'
@@ -22,6 +29,9 @@ import { actions as chatActions } from './slice'
 const {
   createChat,
   createChatSucceeded,
+  fetchUnreadMessagesCount,
+  fetchUnreadMessagesCountSucceeded,
+  fetchUnreadMessagesCountFailed,
   goToChat,
   fetchMoreChats,
   fetchMoreChatsSucceeded,
@@ -48,9 +58,25 @@ const {
   fetchPermissions,
   fetchPermissionsSucceeded,
   fetchLinkUnfurl,
-  fetchLinkUnfurlSucceeded
+  fetchLinkUnfurlSucceeded,
+  deleteChat,
+  deleteChatSucceeded
 } = chatActions
 const { getChatsSummary, getChat, getUnfurlMetadata } = chatSelectors
+
+function* doFetchUnreadMessagesCount() {
+  try {
+    const audiusSdk = yield* getContext('audiusSdk')
+    const sdk = yield* call(audiusSdk)
+    const response = yield* call([sdk.chats, sdk.chats.getUnreadCount])
+    yield* put(
+      fetchUnreadMessagesCountSucceeded({ unreadMessagesCount: response.data })
+    )
+  } catch (e) {
+    console.error('fetchUnreadMessagesCountFailed', e)
+    yield* put(fetchUnreadMessagesCountFailed())
+  }
+}
 
 function* doFetchMoreChats() {
   try {
@@ -379,6 +405,29 @@ function* doFetchLinkUnfurlMetadata(
   }
 }
 
+function* watchFetchUnreadMessagesCount() {
+  yield takeLatest(fetchUnreadMessagesCount, () => doFetchUnreadMessagesCount())
+}
+
+function* doDeleteChat(action: ReturnType<typeof deleteChat>) {
+  const { chatId } = action.payload
+  try {
+    const audiusSdk = yield* getContext('audiusSdk')
+    const sdk = yield* call(audiusSdk)
+    yield* call([sdk.chats, sdk.chats.delete], {
+      chatId
+    })
+    // Go to chat root page
+    yield* put(goToChat({}))
+    // Wait for render
+    yield* delay(1)
+    // NOW delete the chat - otherwise we refetch it right away
+    yield* put(deleteChatSucceeded({ chatId }))
+  } catch (e) {
+    console.error('deleteChat failed', e, { chatId })
+  }
+}
+
 function* watchAddMessage() {
   yield takeEvery(addMessage, ({ payload }) => fetchChatIfNecessary(payload))
 }
@@ -392,7 +441,7 @@ function* watchFetchChats() {
 }
 
 function* watchFetchChatMessages() {
-  yield takeLatest(fetchMoreMessages, doFetchMoreMessages)
+  yield takeEvery(fetchMoreMessages, doFetchMoreMessages)
 }
 
 function* watchSetMessageReaction() {
@@ -431,8 +480,13 @@ function* watchFetchLinkUnfurlMetadata() {
   yield takeEvery(fetchLinkUnfurl, doFetchLinkUnfurlMetadata)
 }
 
+function* watchDeleteChat() {
+  yield takeEvery(deleteChat, doDeleteChat)
+}
+
 export const sagas = () => {
   return [
+    watchFetchUnreadMessagesCount,
     watchFetchChats,
     watchFetchChatMessages,
     watchSetMessageReaction,
@@ -445,6 +499,7 @@ export const sagas = () => {
     watchBlockUser,
     watchUnblockUser,
     watchFetchPermissions,
-    watchFetchLinkUnfurlMetadata
+    watchFetchLinkUnfurlMetadata,
+    watchDeleteChat
   ]
 }
