@@ -331,13 +331,12 @@ export const ChatScreen = () => {
       }
       // Measure position of selected message to create a copy of it on top
       // of the dimmed background inside the portal.
-      const { messageY, messageW, messageH } = await new Promise<{
+      const { messageY, messageH } = await new Promise<{
         messageY: number
-        messageW: number
         messageH: number
       }>((resolve) => {
         messageRef.measureInWindow((x, y, width, height) => {
-          resolve({ messageY: y, messageW: width, messageH: height })
+          resolve({ messageY: y, messageH: height })
         })
       })
       // Need to subtract spacing(2) to account for padding in message View.
