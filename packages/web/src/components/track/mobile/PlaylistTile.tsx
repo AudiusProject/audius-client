@@ -134,7 +134,8 @@ const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
     numLoadingSkeletonRows,
     isTrending,
     showRankIcon,
-    trackCount
+    trackCount,
+    isDM
   } = props
   const [artworkLoaded, setArtworkLoaded] = useState(false)
   useEffect(() => {
@@ -150,7 +151,7 @@ const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={cn(styles.container, { [styles.dm]: isDM })}>
       <div className={styles.mainContent} onClick={props.togglePlay}>
         <div className={cn(styles.duration, styles.statText, fadeIn)}>
           {formatLineupTileDuration(props.duration)}
@@ -255,19 +256,21 @@ const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
           numLoadingSkeletonRows={numLoadingSkeletonRows}
           trackCount={trackCount}
         />
-        <div className={cn(fadeIn)}>
-          <BottomButtons
-            hasSaved={props.hasCurrentUserSaved}
-            hasReposted={props.hasCurrentUserReposted}
-            toggleSave={props.toggleSave}
-            toggleRepost={props.toggleRepost}
-            onShare={props.onShare}
-            onClickOverflow={props.onClickOverflow}
-            isOwner={props.isOwner}
-            isDarkMode={props.darkMode}
-            isMatrixMode={props.isMatrix}
-          />
-        </div>
+        {!isDM ? (
+          <div className={cn(fadeIn)}>
+            <BottomButtons
+              hasSaved={props.hasCurrentUserSaved}
+              hasReposted={props.hasCurrentUserReposted}
+              toggleSave={props.toggleSave}
+              toggleRepost={props.toggleRepost}
+              onShare={props.onShare}
+              onClickOverflow={props.onClickOverflow}
+              isOwner={props.isOwner}
+              isDarkMode={props.darkMode}
+              isMatrixMode={props.isMatrix}
+            />
+          </div>
+        ) : null}
       </div>
     </div>
   )
