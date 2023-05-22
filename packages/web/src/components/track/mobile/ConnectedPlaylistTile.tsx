@@ -92,7 +92,8 @@ const ConnectedPlaylistTile = ({
   darkMode,
   showRankIcon,
   isTrending,
-  isFeed = false
+  isFeed = false,
+  isDM = false
 }: ConnectedPlaylistTileProps) => {
   const collection = getCollectionWithFallback(nullableCollection)
   const user = getUserWithFallback(nullableUser)
@@ -287,6 +288,7 @@ const ConnectedPlaylistTile = ({
       isMatrix={isMatrix()}
       isTrending={isTrending}
       showRankIcon={showRankIcon}
+      isDM={isDM}
     />
   )
 }
