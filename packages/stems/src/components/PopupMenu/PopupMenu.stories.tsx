@@ -19,6 +19,7 @@ const Template: Story<PopupMenuProps> = (args) => {
         return (
           <Button
             text='Click me'
+            // @ts-ignore
             ref={anchorRef}
             onClick={triggerPopup}
             {...triggerProps}
