@@ -33,6 +33,19 @@
     0 2px 3px -2px var(--tile-shadow-3);
 }
 
+.container .artworkIcon,
+.container .artworkIcon circle {
+  opacity: 0;
+}
+
+.container:hover .artworkIcon {
+  opacity: 0.75;
+}
+
+.container .artworkIcon path {
+  fill: var(--static-white);
+}
+
 .mainContent {
   display: flex;
   flex-direction: column;
