@@ -2,7 +2,6 @@ import {
   castSagas,
   playerSagas as commonPlayerSagas,
   playbackPositionSagas,
-  chatSagas,
   premiumContentSagas,
   remoteConfigSagas,
   deletePlaylistConfirmationModalUISagas as deletePlaylistConfirmationModalSagas,
@@ -70,6 +69,7 @@ import repostPageSagas from 'common/store/user-list/reposts/sagas'
 import supportingPageSagas from 'common/store/user-list/supporting/sagas'
 import topSupportersPageSagas from 'common/store/user-list/top-supporters/sagas'
 import walletSagas from 'common/store/wallet/sagas'
+import chatSagas from 'common/store/pages/chat/sagas'
 import firstUploadModalSagas from 'components/first-upload-modal/store/sagas'
 import passwordResetSagas from 'components/password-reset/store/sagas'
 import shareSoundToTikTokModalSagas from 'components/share-sound-to-tiktok-modal/store/sagas'

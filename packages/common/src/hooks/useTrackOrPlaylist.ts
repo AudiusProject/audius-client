@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react'
 import { ChatMessage } from '@audius/sdk'
 import { useSelector } from 'react-redux'
 
-import { Kind } from 'models'
-import { useGetPlaylistById, useGetTrackByPermalink } from 'src/api'
+import { Kind, ID, Status } from 'models'
+import { useGetTrackByPermalink } from 'src/api'
 import { getUserId } from 'store/account/selectors'
+import { chatActions } from 'store/pages/chat'
 import { Nullable } from 'utils/typeUtils'
 import {
   getPathFromPlaylistUrl,
@@ -13,13 +14,22 @@ import {
   isPlaylistUrl,
   isTrackUrl
 } from 'utils/urlUtils'
+import { useDispatch } from 'react-redux'
+import { getCollection } from 'store/cache/collections/selectors'
+import { CommonState } from 'store/index'
+
+const { fetchCollection } = chatActions
 
 export const useTrackOrPlaylist = (message: ChatMessage) => {
+  const dispatch = useDispatch()
   const currentUserId = useSelector(getUserId)
   const [trackPermalink, setTrackPermalink] = useState<Nullable<string>>(null)
   const [playlistId, setPlaylistId] =
-    useState<Nullable<string>>(null)
+    useState<Nullable<ID>>(null)
   const [kind, setKind] = useState<Kind>(Kind.EMPTY)
+
+  const playlist = useSelector((state: CommonState) => getCollection(state, { id: playlistId }))
+  const playlistStatus = playlist ? Status.SUCCESS : Status.LOADING
 
   const {
     data: track,
@@ -30,21 +40,22 @@ export const useTrackOrPlaylist = (message: ChatMessage) => {
     currentUserId
   })
 
-  const {
-    data: playlist,
-    status: playlistStatus,
-    errorMessage: playlistError
-  } = useGetPlaylistById({
-    playlistId,
-    currentUserId
-  })
+  // const {
+  //   data: playlist,
+  //   status: playlistStatus,
+  //   errorMessage: playlistError
+  // } = useGetPlaylistById({
+  //   playlistId,
+  //   currentUserId
+  // })
 
   useEffect(() => {
     if (isPlaylistUrl(message.message)) {
       const permalink = getPathFromPlaylistUrl(message.message)
       if (permalink) {
         const playlistNameWithId = permalink.split('/').slice(-1)[0]
-        const playlistId = playlistNameWithId.split('-').slice(-1)[0]
+        const playlistId = parseInt(playlistNameWithId.split('-').slice(-1)[0])
+        dispatch(fetchCollection({ id: playlistId }))
         setPlaylistId(playlistId)
         setKind(Kind.COLLECTIONS)
       }
@@ -61,7 +72,7 @@ export const useTrackOrPlaylist = (message: ChatMessage) => {
     kind,
     playlist,
     playlistStatus,
-    playlistError,
+    playlistError: undefined,
     track,
     trackStatus,
     trackError
