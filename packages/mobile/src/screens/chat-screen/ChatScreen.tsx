@@ -41,6 +41,7 @@ import type { AppTabScreenParamList } from '../app-screen'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
 import { ChatTextInput } from './ChatTextInput'
+import { ChatUnavailable } from './ChatUnavailable'
 import { EmptyChatMessages } from './EmptyChatMessages'
 import { ReactionPopup } from './ReactionPopup'
 
@@ -50,11 +51,18 @@ const {
   getChat,
   getChatMessageById,
   getChatMessageByIndex,
-  getReactionsPopupMessageId
+  getReactionsPopupMessageId,
+  getCanSendMessage
 } = chatSelectors
-
-const { fetchMoreMessages, markChatAsRead, setReactionsPopupMessageId } =
-  chatActions
+const {
+  fetchMoreMessages,
+  markChatAsRead,
+  setReactionsPopupMessageId,
+  fetchBlockers,
+  fetchBlockees,
+  fetchPermissions,
+  fetchChatIfNecessary
+} = chatActions
 const { getUserId } = accountSelectors
 const { getHasTrack } = playerSelectors
 
@@ -212,6 +220,9 @@ export const ChatScreen = () => {
   const popupMessage = useSelector((state) =>
     getChatMessageById(state, chatId ?? '', popupMessageId ?? '')
   )
+  const { canSendMessage } = useSelector((state) =>
+    getCanSendMessage(state, { userId: otherUser.user_id, chatId })
+  )
 
   // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
   // Using a ref instead of state here to prevent unwanted flickers.
@@ -242,6 +253,18 @@ export const ChatScreen = () => {
       dispatch(markChatAsRead({ chatId }))
     }
   }, [chatId, dispatch])
+
+  // Fetch all permissions, blockers/blockees, and recheck_permissions flag
+  useEffect(() => {
+    dispatch(fetchBlockees())
+    dispatch(fetchBlockers())
+    if (otherUser.user_id) {
+      dispatch(fetchPermissions({ userIds: [otherUser.user_id] }))
+    }
+    if (chatId) {
+      dispatch(fetchChatIfNecessary({ chatId, bustCache: true }))
+    }
+  }, [chatId, dispatch, otherUser.user_id])
 
   // Find earliest unread message to display unread tag correctly
   const earliestUnreadIndex = useMemo(
@@ -431,7 +454,7 @@ export const ChatScreen = () => {
       <ScreenContent>
         {/* Everything inside the portal displays on top of all other screen contents. */}
         <Portal hostName='ChatReactionsPortal'>
-          {shouldShowPopup && popupMessage ? (
+          {canSendMessage && shouldShowPopup && popupMessage ? (
             <ReactionPopup
               chatId={chatId}
               messageTop={messageTop.current}
@@ -491,15 +514,19 @@ export const ChatScreen = () => {
               </View>
             )}
 
-            <View
-              style={styles.composeView}
-              onLayout={measureChatContainerBottom}
-              ref={composeRef}
-              pointerEvents={'box-none'}
-            >
-              <View style={styles.whiteBackground} />
-              <ChatTextInput chatId={chatId} />
-            </View>
+            {canSendMessage ? (
+              <View
+                style={styles.composeView}
+                onLayout={measureChatContainerBottom}
+                ref={composeRef}
+                pointerEvents={'box-none'}
+              >
+                <View style={styles.whiteBackground} />
+                <ChatTextInput chatId={chatId} />
+              </View>
+            ) : (
+              <ChatUnavailable chatId={chatId} />
+            )}
           </KeyboardAvoidingView>
         </View>
       </ScreenContent>
