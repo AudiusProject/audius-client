@@ -176,13 +176,18 @@ const ConnectedPlaylistTile = ({
 
   const togglePlay = useCallback(() => {
     if (uploading) return
+
+    const source = isDM
+      ? PlaybackSource.DM_PLAYLIST_TRACK
+      : PlaybackSource.PLAYLIST_TILE_TRACK
+
     if (!isPlaying || !isActive) {
       if (isActive) {
         playTrack(playingUid!)
         record(
           make(Name.PLAYBACK_PLAY, {
             id: `${playingTrackId}`,
-            source: PlaybackSource.PLAYLIST_TILE_TRACK
+            source
           })
         )
       } else {
@@ -193,7 +198,7 @@ const ConnectedPlaylistTile = ({
         record(
           make(Name.PLAYBACK_PLAY, {
             id: `${trackId}`,
-            source: PlaybackSource.PLAYLIST_TILE_TRACK
+            source
           })
         )
       }
@@ -202,7 +207,7 @@ const ConnectedPlaylistTile = ({
       record(
         make(Name.PLAYBACK_PAUSE, {
           id: `${playingTrackId}`,
-          source: PlaybackSource.PLAYLIST_TILE_TRACK
+          source
         })
       )
     }
@@ -295,9 +300,9 @@ const ConnectedPlaylistTile = ({
 
 function mapStateToProps(state: AppState, ownProps: PlaylistTileProps) {
   return {
-    collection: getCollection(state, { uid: ownProps.uid }),
+    collection: ownProps.collection ?? getCollection(state, { uid: ownProps.uid }),
+    tracks: ownProps.tracks ?? getTracksFromCollection(state, { uid: ownProps.uid }),
     user: getUserFromCollection(state, { uid: ownProps.uid }),
-    tracks: getTracksFromCollection(state, { uid: ownProps.uid }),
     playingUid: getUid(state),
     isBuffering: getBuffering(state),
     isPlaying: getPlaying(state),
