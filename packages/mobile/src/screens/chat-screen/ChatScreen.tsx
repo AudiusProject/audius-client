@@ -15,7 +15,6 @@ import {
   playerSelectors
 } from '@audius/common'
 import { Portal } from '@gorhom/portal'
-import { useFocusEffect } from '@react-navigation/native'
 import { Keyboard, View, Text, Pressable, FlatList } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -237,6 +236,13 @@ export const ChatScreen = () => {
     }
   }, [chatId, chat])
 
+  // Mark chat as read when user enters this screen.
+  useEffect(() => {
+    if (chatId) {
+      dispatch(markChatAsRead({ chatId }))
+    }
+  }, [chatId, dispatch])
+
   // Find earliest unread message to display unread tag correctly
   const earliestUnreadIndex = useMemo(
     () =>
@@ -297,15 +303,6 @@ export const ChatScreen = () => {
       dispatch(fetchMoreMessages({ chatId }))
     }
   }, [chat?.messagesStatus, chat?.messagesSummary, chatId, dispatch])
-
-  // Mark chat as read when user navigates away from screen
-  useFocusEffect(
-    useCallback(() => {
-      return () => {
-        dispatch(markChatAsRead({ chatId }))
-      }
-    }, [dispatch, chatId])
-  )
 
   const handleTopRightPress = () => {
     Keyboard.dismiss()
