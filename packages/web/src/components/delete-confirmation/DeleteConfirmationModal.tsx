@@ -1,5 +1,13 @@
 import { Nullable } from '@audius/common'
-import { Modal, Button, ButtonSize, ButtonType } from '@audius/stems'
+import {
+  Modal,
+  Button,
+  ButtonSize,
+  ButtonType,
+  ModalHeader,
+  ModalTitle,
+  ModalContent
+} from '@audius/stems'
 
 import styles from './DeleteConfirmationModal.module.css'
 
@@ -24,17 +32,11 @@ const DeleteConfirmationModal = (props: DeleteConfirmationModalProps) => {
       : props.customDescription
 
   return (
-    <Modal
-      title={props.title}
-      isOpen={props.visible}
-      onClose={props.onCancel}
-      bodyClassName={styles.modalBody}
-      titleClassName={styles.modalTitle}
-      headerContainerClassName={styles.modalHeader}
-      showDismissButton
-      showTitleHeader
-    >
-      <div className={styles.container}>
+    <Modal isOpen={props.visible} onClose={props.onCancel}>
+      <ModalHeader>
+        <ModalTitle title={props.title} />
+      </ModalHeader>
+      <ModalContent>
         <div className={styles.text}>
           <div className={styles.header}>{header}</div>
           <div className={styles.description}>{description}</div>
@@ -57,7 +59,7 @@ const DeleteConfirmationModal = (props: DeleteConfirmationModalProps) => {
             onClick={props.onCancel}
           />
         </div>
-      </div>
+      </ModalContent>
     </Modal>
   )
 }
