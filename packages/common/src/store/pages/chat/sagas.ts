@@ -33,7 +33,7 @@ const {
   fetchUnreadMessagesCountSucceeded,
   fetchUnreadMessagesCountFailed,
   goToChat,
-  fetchChatRecheckPermissions,
+  fetchChatIfNecessary,
   fetchMoreChats,
   fetchMoreChatsSucceeded,
   fetchMoreChatsFailed,
@@ -114,7 +114,7 @@ function* doFetchMoreMessages(action: ReturnType<typeof fetchMoreMessages>) {
     const sdk = yield* call(audiusSdk)
 
     // Ensure we get a chat so we can check the unread count
-    yield* call(fetchChatIfNecessary, { chatId })
+    yield* call(doFetchChatIfNecessary, { chatId })
     const chat = yield* select((state) => getChat(state, chatId))
 
     // Paginate through messages until we get to the unread indicator
@@ -204,7 +204,7 @@ function* doCreateChat(action: ReturnType<typeof createChat>) {
       .sort()
       .join(':')
     try {
-      yield* call(fetchChatIfNecessary, { chatId })
+      yield* call(doFetchChatIfNecessary, { chatId })
     } catch {}
     const existingChat = yield* select((state) => getChat(state, chatId))
     if (existingChat) {
@@ -286,7 +286,10 @@ function* doSendMessage(action: ReturnType<typeof sendMessage>) {
   }
 }
 
-function* fetchChatIfNecessary(args: { chatId: string; bustCache?: boolean }) {
+function* doFetchChatIfNecessary(args: {
+  chatId: string
+  bustCache?: boolean
+}) {
   const { chatId, bustCache = false } = args
   const existingChat = yield* select((state) => getChat(state, chatId))
   if (!existingChat || bustCache) {
@@ -433,9 +436,9 @@ function* watchAddMessage() {
   yield takeEvery(addMessage, ({ payload }) => fetchChatIfNecessary(payload))
 }
 
-function* watchFetchChatRecheckPermissions() {
-  yield takeEvery(fetchChatRecheckPermissions, ({ payload }) =>
-    fetchChatIfNecessary({ ...payload, bustCache: true })
+function* watchFetchChatIfNecessary() {
+  yield takeEvery(fetchChatIfNecessary, ({ payload }) =>
+    doFetchChatIfNecessary(payload)
   )
 }
 
@@ -494,7 +497,7 @@ function* watchDeleteChat() {
 export const sagas = () => {
   return [
     watchFetchUnreadMessagesCount,
-    watchFetchChatRecheckPermissions,
+    watchFetchChatIfNecessary,
     watchFetchChats,
     watchFetchChatMessages,
     watchSetMessageReaction,

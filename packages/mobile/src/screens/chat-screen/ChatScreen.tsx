@@ -62,7 +62,7 @@ const {
   fetchBlockers,
   fetchBlockees,
   fetchPermissions,
-  fetchChatRecheckPermissions
+  fetchChatIfNecessary
 } = chatActions
 const { getUserId } = accountSelectors
 const { getHasTrack } = playerSelectors
@@ -255,7 +255,7 @@ export const ChatScreen = () => {
       dispatch(fetchPermissions({ userIds: [otherUser.user_id] }))
     }
     if (chatId) {
-      dispatch(fetchChatRecheckPermissions({ chatId }))
+      dispatch(fetchChatIfNecessary({ chatId, bustCache: true }))
     }
   }, [chatId, dispatch, otherUser.user_id])
 
@@ -522,7 +522,7 @@ export const ChatScreen = () => {
                 <ChatTextInput chatId={chatId} />
               </View>
             ) : (
-              <ChatUnavailable user={otherUser} chatId={chatId} />
+              <ChatUnavailable chatId={chatId} />
             )}
           </KeyboardAvoidingView>
         </View>

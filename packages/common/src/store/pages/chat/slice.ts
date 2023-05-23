@@ -293,9 +293,9 @@ const slice = createSlice({
       const { messageId } = action.payload
       delete state.optimisticReactions[messageId]
     },
-    fetchChatRecheckPermissions: (
+    fetchChatIfNecessary: (
       _state,
-      _action: PayloadAction<{ chatId: string }>
+      _action: PayloadAction<{ chatId: string; bustCache?: boolean }>
     ) => {
       // triggers saga
     },
