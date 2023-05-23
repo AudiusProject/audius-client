@@ -74,8 +74,11 @@ export const createApi = <
   return api
 }
 
-const addEndpointToSlice = (sliceConfig: SliceConfig, endpointName: string) => {
-  const initState: PerKeyState = {
+const addEndpointToSlice = <NormalizedData>(
+  sliceConfig: SliceConfig,
+  endpointName: string
+) => {
+  const initState: PerKeyState<NormalizedData> = {
     status: Status.IDLE
   }
   sliceConfig.initialState[endpointName] = {}
@@ -135,13 +138,13 @@ const buildEndpointHooks = <
   ): QueryHookResults<Data> => {
     const dispatch = useDispatch()
     const key = getKeyFromFetchArgs(fetchArgs)
-    const queryState = useSelector((state: any) => {
+    const queryState = useSelector((state: CommonState) => {
       if (!state.api[reducerPath]) {
         throw new Error(
           `State for ${reducerPath} is undefined - did you forget to register the reducer in @audius/common/src/api/reducers.ts?`
         )
       }
-      const endpointState: PerEndpointState =
+      const endpointState: PerEndpointState<any> =
         state.api[reducerPath][endpointName]
 
       // Retrieve data from cache if lookup args provided

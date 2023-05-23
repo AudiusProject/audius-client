@@ -73,14 +73,14 @@ export type FetchSucceededAction = PayloadAction<
 >
 
 export type ApiState = {
-  [key: string]: PerEndpointState
+  [key: string]: PerEndpointState<any>
 }
-export type PerEndpointState = {
-  [key: string]: PerKeyState
+export type PerEndpointState<NormalizedData> = {
+  [key: string]: PerKeyState<NormalizedData>
 }
-export type PerKeyState = {
+export type PerKeyState<NormalizedData> = {
   status: Status
-  nonNormalizedData?: any
+  nonNormalizedData?: NormalizedData
   strippedEntityMap?: StrippedEntityMap
   errorMessage?: string
 }
