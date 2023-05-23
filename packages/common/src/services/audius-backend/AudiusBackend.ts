@@ -439,16 +439,14 @@ export const audiusBackend = ({
 
     try {
       const res = await audiusLibs.File.fetchCIDFromDiscovery(cid, responseType)
-      if (res?.data) {
-        if (asUrl) {
-          const url = nativeMobile
-            ? res.config.url
-            : URL.createObjectURL(res.data)
-          if (cache) CIDCache.add(cid, url)
-          return url
-        }
-        return res.data
+      if (asUrl) {
+        const url = nativeMobile
+          ? res.config.url
+          : URL.createObjectURL(res.data)
+        if (cache) CIDCache.add(cid, url)
+        return url
       }
+      return res?.data ?? null
     } catch (e) {
       const message = getErrorMessage(e)
       if (message === 'Unauthorized') {
