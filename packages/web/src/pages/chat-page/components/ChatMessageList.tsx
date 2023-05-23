@@ -76,6 +76,12 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
 
     const ref = useRef<HTMLDivElement>(null)
 
+    // On first load, mark chat as read
+    useEffect(() => {
+      if (!chatId) return
+      dispatch(markChatAsRead({ chatId }))
+    }, [chatId, dispatch])
+
     // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
     // Using a ref instead of state here to prevent unwanted flickers.
     // The chat/chatId selectors will trigger the rerenders necessary.
