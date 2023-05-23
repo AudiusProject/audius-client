@@ -80,7 +80,7 @@ export const ChatMessagePlaylist = ({
       isLoading={false}
       isTrending={false}
       showRankIcon={false}
-      isDM
+      isChat
 
       // numLoadingSkeletonRows={numPlaylistSkeletonRows}
     />

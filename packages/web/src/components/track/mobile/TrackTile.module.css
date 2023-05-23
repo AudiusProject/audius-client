@@ -16,7 +16,7 @@
   margin: 0px auto 12px;
 }
 
-.container.dm {
+.container.chat {
   min-width: 448px;
   min-height: unset;
   margin-bottom: 0;
@@ -25,7 +25,7 @@
   border: none;
 }
 
-.container.dm:hover {
+.container.chat:hover {
   transform: scale3d(1.005, 1.005, 1.005);
 }
 

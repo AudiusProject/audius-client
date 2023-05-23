@@ -135,7 +135,7 @@ const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
     isTrending,
     showRankIcon,
     trackCount,
-    isDM
+    isChat
   } = props
   const [artworkLoaded, setArtworkLoaded] = useState(false)
   useEffect(() => {
@@ -151,7 +151,7 @@ const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
   }
 
   return (
-    <div className={cn(styles.container, { [styles.dm]: isDM })}>
+    <div className={cn(styles.container, { [styles.chat]: isChat })}>
       <div className={styles.mainContent} onClick={props.togglePlay}>
         <div className={cn(styles.duration, styles.statText, fadeIn)}>
           {formatLineupTileDuration(props.duration)}
@@ -259,7 +259,7 @@ const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
           numLoadingSkeletonRows={numLoadingSkeletonRows}
           trackCount={trackCount}
         />
-        {!isDM ? (
+        {!isChat ? (
           <div className={cn(fadeIn)}>
             <BottomButtons
               hasSaved={props.hasCurrentUserSaved}
