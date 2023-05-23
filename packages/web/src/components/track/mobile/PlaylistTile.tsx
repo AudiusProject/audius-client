@@ -95,14 +95,14 @@ const TrackList = ({
           track={track}
         />
       ))}
-      {trackCount && trackCount > 5 && (
+      {(trackCount && trackCount > DISPLAY_TRACK_COUNT && trackCount > tracks.length) ? (
         <>
           <div className={styles.trackItemDivider}></div>
           <div className={cn(styles.trackItem, styles.trackItemMore)}>
             {`+${trackCount - tracks.length} more tracks`}
           </div>
         </>
-      )}
+      ) : null}
     </div>
   )
 }
