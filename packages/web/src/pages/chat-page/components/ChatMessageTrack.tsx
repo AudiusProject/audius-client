@@ -19,7 +19,7 @@ import MobileTrackTile from 'components/track/mobile/ConnectedTrackTile'
 
 const { makeGetCurrent } = queueSelectors
 const { getPlaying } = playerSelectors
-const { add, play, pause } = queueActions
+const { clear, add, play, pause } = queueActions
 
 type ChatMessageTrackProps = {
   track: Track | undefined | null
@@ -74,6 +74,7 @@ export const ChatMessageTrack = ({
         source: PlaybackSource.DM_TRACK
       })
     } else {
+      dispatch(clear({}))
       dispatch(
         add({
           entries: [{ id: track.track_id, uid, source: QueueSource.DM_TRACKS }]
