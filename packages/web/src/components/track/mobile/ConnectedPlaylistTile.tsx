@@ -178,7 +178,7 @@ const ConnectedPlaylistTile = ({
     if (uploading) return
 
     const source = isDM
-      ? PlaybackSource.DM_PLAYLIST_TRACK
+      ? PlaybackSource.CHAT_PLAYLIST_TRACK
       : PlaybackSource.PLAYLIST_TILE_TRACK
 
     if (!isPlaying || !isActive) {

@@ -61,7 +61,7 @@ export const ChatMessageTrack = ({
       dispatch(pause({}))
       recordAnalytics({
         name: Name.PLAYBACK_PAUSE,
-        source: PlaybackSource.DM_TRACK
+        source: PlaybackSource.CHAT_TRACK
       })
     } else if (
       currentQueueItem.uid !== uid &&
@@ -71,19 +71,19 @@ export const ChatMessageTrack = ({
       dispatch(play({}))
       recordAnalytics({
         name: Name.PLAYBACK_PLAY,
-        source: PlaybackSource.DM_TRACK
+        source: PlaybackSource.CHAT_TRACK
       })
     } else {
       dispatch(clear({}))
       dispatch(
         add({
-          entries: [{ id: track.track_id, uid, source: QueueSource.DM_TRACKS }]
+          entries: [{ id: track.track_id, uid, source: QueueSource.CHAT_TRACKS }]
         })
       )
       dispatch(play({ uid }))
       recordAnalytics({
         name: Name.PLAYBACK_PLAY,
-        source: PlaybackSource.DM_TRACK
+        source: PlaybackSource.CHAT_TRACK
       })
     }
   }, [dispatch, recordAnalytics, track, isTrackPlaying, currentQueueItem, uid])
@@ -97,7 +97,7 @@ export const ChatMessageTrack = ({
 
   return (
     // You may wonder why we use the mobile web track tile here.
-    // It's simply because the DMs track tile uses the mobile web version.
+    // It's simply because the DMs track tile uses the same design as mobile web.
     <MobileTrackTile
       index={0}
       togglePlay={onTogglePlay}

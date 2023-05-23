@@ -33,13 +33,13 @@ export const ChatMessagePlaylist = ({
     ...track,
     id: track.track_id,
     uid: uidMap[track.track_id],
-    source: QueueSource.DM_PLAYLIST_TRACKS,
+    source: QueueSource.CHAT_PLAYLIST_TRACKS,
     user: currentUser
   })) ?? []
   const entries = playlist?.tracks?.map(track => ({
     id: track.track_id,
     uid: uidMap[track.track_id],
-    source: QueueSource.DM_PLAYLIST_TRACKS
+    source: QueueSource.CHAT_PLAYLIST_TRACKS
   })) ?? []
 
   const playTrack = useCallback((uid: string) => {
