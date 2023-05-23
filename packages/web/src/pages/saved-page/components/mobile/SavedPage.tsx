@@ -25,7 +25,7 @@ import {
   statusIsNotFinalized,
   useFetchedSavedCollections,
   usePremiumContentAccessMap,
-  useSavedAlbums
+  useAccountAlbums
 } from '@audius/common'
 import { Button, ButtonType } from '@audius/stems'
 import cn from 'classnames'
@@ -40,7 +40,7 @@ import Card from 'components/card/mobile/Card'
 import Header from 'components/header/mobile/Header'
 import { HeaderContext } from 'components/header/mobile/HeaderContextProvider'
 import CardLineup from 'components/lineup/CardLineup'
-import InfiniteCardLineup from 'components/lineup/InfiniteCardLineup'
+import { InfiniteCardLineup } from 'components/lineup/InfiniteCardLineup'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import MobilePageContainer from 'components/mobile-page-container/MobilePageContainer'
 import { useMainPageHeader } from 'components/nav/store/context'
@@ -242,7 +242,7 @@ const AlbumCard = ({ albumId }: AlbumCardProps) => {
 const AlbumCardLineup = () => {
   const goToRoute = useGoToRoute()
 
-  const { data: unfilteredAlbums } = useSavedAlbums()
+  const { data: unfilteredAlbums } = useAccountAlbums()
   const [filterText, setFilterText] = useState('')
   const filteredAlbumIds = useMemo(
     () => filterCollections(unfilteredAlbums, { filterText }).map((a) => a.id),

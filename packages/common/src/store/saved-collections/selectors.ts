@@ -38,6 +38,7 @@ export const getVisibleCollectionIds = createSelector(
       if (!shouldHideCollection) {
         accum.add(collection.playlist_id)
       }
+
       return accum
     }, new Set<ID>())
   }

@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -24,17 +24,24 @@ const {
 
 const DEFAULT_PAGE_SIZE = 50
 
-export function useSavedAlbums() {
+/** Selects a list of albums saved to the account. Records include only id/name information
+ * for the collection and owning user **/
+export function useAccountAlbums() {
   return useSelector(getAccountAlbums)
 }
 
-export function useSavedPlaylists() {
+/** Selects a list of playlists saved to the account. Records include only id/name information
+ * for the collection and owning user **/
+export function useAccountPlaylists() {
   return useSelector(getAccountPlaylists)
 }
 
 type UseFetchedCollectionsConfig = {
+  /** Full list of collection IDs to be fetched, will be batched into pages */
   collectionIds: ID[]
+  /** Type of collections (album or playlist) */
   type: CollectionType
+  /** (Optional) Maximum number of records to fetch with each call. Defaults to 50 */
   pageSize?: number
 }
 
@@ -58,6 +65,7 @@ export function useFetchedSavedCollections({
   pageSize = DEFAULT_PAGE_SIZE
 }: UseFetchedCollectionsConfig): UseFetchedSavedCollectionsResult {
   const dispatch = useDispatch()
+  const [hasFetched, setHasFetched] = useState(false)
 
   const { status } = useSelector((state: CommonState) =>
     getSavedCollectionsState(state, type)
@@ -91,6 +99,24 @@ export function useFetchedSavedCollections({
     const ids = unfetched.slice(0, Math.min(pageSize, unfetched.length))
     dispatch(fetchCollections({ type, ids }))
   }, [status, unfetched, pageSize, type, dispatch])
+
+  // Trigger fetch of first page when we change parameters
+  useEffect(() => {
+    if (status !== Status.LOADING && !hasFetched && collectionIds.length > 0) {
+      setHasFetched(true)
+      dispatch(
+        fetchCollections({
+          type,
+          ids: collectionIds.slice(0, Math.min(pageSize, collectionIds.length))
+        })
+      )
+    }
+  }, [status, hasFetched, collectionIds, pageSize, type, dispatch])
+
+  // Reset fetch status when parameters change to trigger a new fetch
+  useEffect(() => {
+    setHasFetched(false)
+  }, [collectionIds, type])
 
   return {
     data: fetched,

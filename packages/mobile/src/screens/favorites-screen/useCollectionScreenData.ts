@@ -8,8 +8,8 @@ import {
   shallowCompare,
   useFetchedSavedCollections,
   useProxySelector,
-  useSavedAlbums,
-  useSavedPlaylists
+  useAccountAlbums,
+  useAccountPlaylists
 } from '@audius/common'
 import { useSelector } from 'react-redux'
 
@@ -39,10 +39,9 @@ export const useCollectionScreenData = ({
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const offlineTracksStatus = useOfflineTracksStatus()
 
-  const { data: accountAlbums } = useSavedAlbums()
-  const { data: accountPlaylists } = useSavedPlaylists()
+  const { data: accountAlbums } = useAccountAlbums()
+  const { data: accountPlaylists } = useAccountPlaylists()
 
-  // TODO: Need to use this status somewhere?
   const unfilteredCollections =
     collectionType === 'albums' ? accountAlbums : accountPlaylists
 

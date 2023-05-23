@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 
-import { reachabilitySelectors } from '@audius/common'
+import { reachabilitySelectors, statusIsNotFinalized } from '@audius/common'
 import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated'
 import { useSelector } from 'react-redux'
 
@@ -13,6 +13,7 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import type { FavoritesTabScreenParamList } from '../app-screen/FavoritesTabScreen'
 
 import { FilterInput } from './FilterInput'
+import { LoadingMoreSpinner } from './LoadingMoreSpinner'
 import { NoTracksPlaceholder } from './NoTracksPlaceholder'
 import { OfflineContentBanner } from './OfflineContentBanner'
 import { useCollectionScreenData } from './useCollectionScreenData'
@@ -31,16 +32,31 @@ export const PlaylistsTab = () => {
   }, [navigation])
 
   const [filterValue, setFilterValue] = useState('')
-  const { collectionIds: userPlaylists } = useCollectionScreenData({
+  const {
+    collectionIds: userPlaylists,
+    hasMore,
+    fetchMore,
+    status
+  } = useCollectionScreenData({
     filterValue,
-    collectionType: 'albums'
+    collectionType: 'playlists'
   })
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const isReachable = useSelector(getIsReachable)
 
+  const handleEndReached = useCallback(() => {
+    if (hasMore) {
+      fetchMore()
+    }
+  }, [hasMore, fetchMore])
+
+  const loadingSpinner = <LoadingMoreSpinner />
+
   return (
     <VirtualizedScrollView>
-      {!userPlaylists?.length && !filterValue ? (
+      {!statusIsNotFinalized(status) &&
+      !userPlaylists?.length &&
+      !filterValue ? (
         isOfflineModeEnabled && !isReachable ? (
           <NoTracksPlaceholder />
         ) : (
@@ -66,8 +82,13 @@ export const PlaylistsTab = () => {
 
           <Animated.View layout={Layout}>
             <CollectionList
+              onEndReached={handleEndReached}
+              onEndReachedThreshold={1}
               scrollEnabled={false}
               collectionIds={userPlaylists}
+              ListFooterComponent={
+                statusIsNotFinalized(status) ? loadingSpinner : null
+              }
             />
           </Animated.View>
         </>

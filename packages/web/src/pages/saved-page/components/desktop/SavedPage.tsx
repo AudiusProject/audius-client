@@ -16,7 +16,7 @@ import {
   savedPageSelectors,
   statusIsNotFinalized,
   useFetchedSavedCollections,
-  useSavedAlbums,
+  useAccountAlbums,
   CommonState
 } from '@audius/common'
 import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
@@ -27,7 +27,7 @@ import { ReactComponent as IconNote } from 'assets/img/iconNote.svg'
 import Card, { CardProps } from 'components/card/desktop/Card'
 import FilterInput from 'components/filter-input/FilterInput'
 import Header from 'components/header/desktop/Header'
-import InfiniteCardLineup from 'components/lineup/InfiniteCardLineup'
+import { InfiniteCardLineup } from 'components/lineup/InfiniteCardLineup'
 import Page from 'components/page/Page'
 import { dateSorter } from 'components/table'
 import { TracksTable, TracksTableColumn } from 'components/tracks-table'
@@ -114,7 +114,7 @@ const AlbumCard = ({
 const AlbumsTabContent = () => {
   const goToRoute = useGoToRoute()
 
-  const { data: savedAlbums } = useSavedAlbums()
+  const { data: savedAlbums } = useAccountAlbums()
   const savedAlbumIds = useMemo(
     () => savedAlbums.map((a) => a.id),
     [savedAlbums]
