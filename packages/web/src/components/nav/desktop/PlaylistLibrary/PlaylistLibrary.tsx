@@ -22,6 +22,7 @@ import { useSelector } from 'utils/reducer'
 
 import { GroupHeader } from '../GroupHeader'
 
+import { CreateButton } from './CreateButton'
 import { EmptyLibraryNavLink } from './EmptyLibraryNavLink'
 import styles from './PlaylistLibrary.module.css'
 import { PlaylistLibraryNavItem, keyExtractor } from './PlaylistLibraryNavItem'
@@ -72,11 +73,6 @@ export const PlaylistLibrary = (props: PlaylistLibraryProps) => {
     }
   }, [isSignedIn, dispatch, record])
 
-  const getTooltipPopupContainer = useCallback(
-    () => scrollbarRef.current?.parentNode,
-    [scrollbarRef]
-  )
-
   return (
     <Droppable
       className={styles.droppable}
@@ -90,16 +86,7 @@ export const PlaylistLibrary = (props: PlaylistLibraryProps) => {
         })}
       >
         {messages.header}
-        <Tooltip
-          text={messages.newPlaylistOrFolderTooltip}
-          getPopupContainer={getTooltipPopupContainer}
-        >
-          <Pill
-            text={messages.new}
-            icon='save'
-            onClick={handleCreatePlaylist}
-          />
-        </Tooltip>
+        <CreateButton scrollbarRef={scrollbarRef} />
       </GroupHeader>
       {!library || isEmpty(library?.contents) ? (
         <EmptyLibraryNavLink onClick={handleCreatePlaylist} />
