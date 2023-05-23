@@ -12,7 +12,8 @@ import {
   Remix,
   PremiumConditions,
   Nullable,
-  Genre
+  Genre,
+  Collection
 } from '@audius/common'
 
 export enum TrackTileSize {
@@ -90,6 +91,7 @@ export type PlaylistTileProps = TileProps & {
   saveCount: number
   tracks: LineupTrack[]
   trackCount: number
+  collection?: Nullable<Collection>
   showArtworkIcon?: boolean
   showSkeleton?: boolean
   pauseTrack: () => void
