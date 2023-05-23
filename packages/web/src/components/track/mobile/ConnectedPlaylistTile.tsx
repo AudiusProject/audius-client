@@ -93,7 +93,7 @@ const ConnectedPlaylistTile = ({
   showRankIcon,
   isTrending,
   isFeed = false,
-  isDM = false
+  isChat = false
 }: ConnectedPlaylistTileProps) => {
   const collection = getCollectionWithFallback(nullableCollection)
   const user = getUserWithFallback(nullableUser)
@@ -177,7 +177,7 @@ const ConnectedPlaylistTile = ({
   const togglePlay = useCallback(() => {
     if (uploading) return
 
-    const source = isDM
+    const source = isChat
       ? PlaybackSource.CHAT_PLAYLIST_TRACK
       : PlaybackSource.PLAYLIST_TILE_TRACK
 
@@ -293,7 +293,7 @@ const ConnectedPlaylistTile = ({
       isMatrix={isMatrix()}
       isTrending={isTrending}
       showRankIcon={showRankIcon}
-      isDM={isDM}
+      isChat={isChat}
     />
   )
 }

@@ -133,7 +133,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
     genre,
     isPlaying,
     isBuffering,
-    isDM
+    isChat
   } = props
   const { isEnabled: isGatedContentEnabled } = useFlag(
     FeatureFlags.GATED_CONTENT_ENABLED
@@ -212,7 +212,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
   ])
 
   return (
-    <div className={cn(styles.container, { [styles.dm]: isDM })}>
+    <div className={cn(styles.container, { [styles.chat]: isChat })}>
       {showPremiumCornerTag && cornerTagIconType ? (
         <TrackBannerIcon
           type={cornerTagIconType}
@@ -394,7 +394,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
             {formatListenCount(props.listenCount)}
           </div>
         </div>
-        {!isDM ? (
+        {!isChat ? (
           <BottomButtons
             hasSaved={props.hasCurrentUserSaved}
             hasReposted={props.hasCurrentUserReposted}
