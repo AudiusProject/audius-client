@@ -28,7 +28,8 @@ import {
   QueryHookOptions,
   PerEndpointState,
   PerKeyState,
-  SliceConfig
+  SliceConfig,
+  QueryHookResults
 } from './types'
 import {
   capitalize,
@@ -44,7 +45,7 @@ export const createApi = <
   reducerPath,
   endpoints
 }: {
-  reducerPath: any
+  reducerPath: string
   endpoints: EndpointDefinitions
 }) => {
   const api = {
@@ -128,7 +129,10 @@ const buildEndpointHooks = <
   reducerPath: string
 ) => {
   // Hook to be returned as use<EndpointName>
-  const useQuery = (fetchArgs: Args, hookOptions?: QueryHookOptions) => {
+  const useQuery = (
+    fetchArgs: Args,
+    hookOptions?: QueryHookOptions
+  ): QueryHookResults<Data> => {
     const dispatch = useDispatch()
     const key = getKeyFromFetchArgs(fetchArgs)
     const queryState = useSelector((state: any) => {
@@ -205,8 +209,7 @@ const buildEndpointHooks = <
       isInitialValue
     } = queryState ?? {
       nonNormalizedData: null,
-      status: Status.IDLE,
-      errorMessage: null
+      status: Status.IDLE
     }
 
     // Rehydrate local nonNormalizedData using entities from global normalized cache

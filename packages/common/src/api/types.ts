@@ -20,16 +20,10 @@ export type Api<EndpointDefinitions extends DefaultEndpointDefinitions> = {
       string & Property
     >}`]: (
       fetchArgs: Parameters<EndpointDefinitions[Property]['fetch']>[0]
-    ) => ApiHookResponse<
+    ) => QueryHookResults<
       Awaited<ReturnType<EndpointDefinitions[Property]['fetch']>>
     >
   }
-}
-
-export type ApiHookResponse<Data> = {
-  data: Data
-  status: Status
-  errorMessage: string
 }
 
 export type CreateApiConfig = {
@@ -63,7 +57,7 @@ export type StrippedEntityMap = {
 }
 
 type FetchBaseAction = {
-  fetchArgs: any[]
+  fetchArgs: any
 }
 export type FetchLoadingAction = PayloadAction<FetchBaseAction & {}>
 export type FetchErrorAction = PayloadAction<
@@ -73,25 +67,22 @@ export type FetchErrorAction = PayloadAction<
 >
 export type FetchSucceededAction = PayloadAction<
   FetchBaseAction & {
-    id: any
     nonNormalizedData: any
     strippedEntityMap: StrippedEntityMap
   }
 >
 
+export type ApiState = {
+  [key: string]: PerEndpointState
+}
+export type PerEndpointState = {
+  [key: string]: PerKeyState
+}
 export type PerKeyState = {
   status: Status
   nonNormalizedData?: any
   strippedEntityMap?: StrippedEntityMap
   errorMessage?: string
-}
-
-export type PerEndpointState = {
-  [key: string]: PerKeyState
-}
-
-export type ApiState = {
-  [key: string]: PerEndpointState
 }
 
 export type QueryHookOptions = {
@@ -101,5 +92,5 @@ export type QueryHookOptions = {
 export type QueryHookResults<Data> = {
   data: Data
   status: Status
-  errorMessage: string
+  errorMessage?: string
 }
