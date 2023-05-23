@@ -6,7 +6,6 @@ import { useSelector } from 'react-redux'
 import { CollectionList } from 'app/components/collection-list'
 import { VirtualizedScrollView } from 'app/components/core'
 import { EmptyTileCTA } from 'app/components/empty-tile-cta'
-import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 
 import { FilterInput } from './FilterInput'
 import { LoadingMoreSpinner } from './LoadingMoreSpinner'
@@ -33,20 +32,19 @@ export const AlbumsTab = () => {
     collectionType: 'albums'
   })
   const isReachable = useSelector(getIsReachable)
-  const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
   const handleEndReached = useCallback(() => {
-    if (hasMore) {
+    if (isReachable && hasMore) {
       fetchMore()
     }
-  }, [hasMore, fetchMore])
+  }, [isReachable, hasMore, fetchMore])
 
   const loadingSpinner = <LoadingMoreSpinner />
 
   return (
     <VirtualizedScrollView>
       {!statusIsNotFinalized(status) && !userAlbums?.length && !filterValue ? (
-        isOfflineModeEnabled && !isReachable ? (
+        !isReachable ? (
           <NoTracksPlaceholder />
         ) : (
           <EmptyTileCTA message={messages.emptyTabText} />
@@ -65,7 +63,9 @@ export const AlbumsTab = () => {
             scrollEnabled={false}
             collectionIds={userAlbums}
             ListFooterComponent={
-              statusIsNotFinalized(status) ? loadingSpinner : null
+              statusIsNotFinalized(status) && isReachable
+                ? loadingSpinner
+                : null
             }
             style={{ marginVertical: 12 }}
           />

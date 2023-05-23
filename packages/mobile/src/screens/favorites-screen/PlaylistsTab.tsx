@@ -7,7 +7,6 @@ import { useSelector } from 'react-redux'
 import { CollectionList } from 'app/components/collection-list'
 import { Button, VirtualizedScrollView } from 'app/components/core'
 import { EmptyTileCTA } from 'app/components/empty-tile-cta'
-import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 
 import type { FavoritesTabScreenParamList } from '../app-screen/FavoritesTabScreen'
@@ -41,14 +40,13 @@ export const PlaylistsTab = () => {
     filterValue,
     collectionType: 'playlists'
   })
-  const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const isReachable = useSelector(getIsReachable)
 
   const handleEndReached = useCallback(() => {
-    if (hasMore) {
+    if (isReachable && hasMore) {
       fetchMore()
     }
-  }, [hasMore, fetchMore])
+  }, [isReachable, hasMore, fetchMore])
 
   const loadingSpinner = <LoadingMoreSpinner />
 
@@ -57,7 +55,7 @@ export const PlaylistsTab = () => {
       {!statusIsNotFinalized(status) &&
       !userPlaylists?.length &&
       !filterValue ? (
-        isOfflineModeEnabled && !isReachable ? (
+        !isReachable ? (
           <NoTracksPlaceholder />
         ) : (
           <EmptyTileCTA message={messages.emptyTabText} />
@@ -70,7 +68,7 @@ export const PlaylistsTab = () => {
             placeholder={messages.inputPlaceholder}
             onChangeText={setFilterValue}
           />
-          {!isReachable && isOfflineModeEnabled ? null : (
+          {!isReachable ? null : (
             <Animated.View layout={Layout} entering={FadeIn} exiting={FadeOut}>
               <Button
                 title='Create a New Playlist'
@@ -87,7 +85,9 @@ export const PlaylistsTab = () => {
               scrollEnabled={false}
               collectionIds={userPlaylists}
               ListFooterComponent={
-                statusIsNotFinalized(status) ? loadingSpinner : null
+                statusIsNotFinalized(status) && !isReachable
+                  ? loadingSpinner
+                  : null
               }
             />
           </Animated.View>
