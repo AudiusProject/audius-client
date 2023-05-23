@@ -278,7 +278,8 @@ function* doSendMessage(action: ReturnType<typeof sendMessage>) {
           reactions: [],
           created_at: dayjs().toISOString()
         },
-        status: Status.LOADING
+        status: Status.LOADING,
+        isSelfMessage: true
       })
     )
 
