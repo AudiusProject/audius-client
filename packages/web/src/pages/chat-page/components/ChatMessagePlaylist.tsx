@@ -64,12 +64,11 @@ export const ChatMessagePlaylist = ({
       playTrack={playTrack}
       pauseTrack={pauseTrack}
       hasLoaded={() => {}}
-      isLoading={false}
+      isLoading={status === Status.LOADING || status === Status.IDLE}
       isTrending={false}
       showRankIcon={false}
+      numLoadingSkeletonRows={tracksWithUids.length}
       isChat
-
-      // numLoadingSkeletonRows={numPlaylistSkeletonRows}
     />
   )
 }

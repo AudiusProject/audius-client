@@ -232,6 +232,8 @@ export type RetrieveCollectionsConfig = {
    * In the case where a collection is already cached with partial tracks, use this flag to refetch from source.
    */
   requiresAllTracks?: boolean
+  // whether to retrieve from source i.e. make DN request to get tracks
+  forceRetrieveFromSource?: boolean
 }
 /**
  * Retrieves collections from the cache or from source. If requesting more than
@@ -310,7 +312,7 @@ export function* retrieveCollections(
     },
     kind: Kind.COLLECTIONS,
     idField: 'playlist_id',
-    forceRetrieveFromSource: false,
+    forceRetrieveFromSource: !!config?.forceRetrieveFromSource,
     shouldSetLoading: true,
     deleteExistingEntry: false
   })

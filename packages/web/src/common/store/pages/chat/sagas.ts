@@ -1,5 +1,5 @@
 import { chatActions, chatSagas, waitForRead } from "@audius/common"
-import { call, takeEvery } from 'typed-redux-saga'
+import { call, takeLatest } from 'typed-redux-saga'
 import { retrieveCollections } from '../../cache/collections/utils'
 
 const { fetchCollection } = chatActions
@@ -9,11 +9,11 @@ function* doFetchCollection(
 ) {
   yield waitForRead()
 
-  yield* call(retrieveCollections, [action.payload.id])
+  yield* call(retrieveCollections, [action.payload.id], { forceRetrieveFromSource: true })
 }
 
 function* watchFetchCollection() {
-  yield takeEvery(fetchCollection, doFetchCollection)
+  yield takeLatest(fetchCollection, doFetchCollection)
 }
 
 export default function sagas() {

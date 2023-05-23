@@ -232,12 +232,13 @@ const buildEndpointHooks = (
               fetchArgs
             }) as FetchLoadingAction
           )
-          const apiData = await endpoint.fetch(fetchArgs, context)
+          const apiResult = await endpoint.fetch(fetchArgs, context)
+          const apiData = endpoint.options?.schemaKey ? apiResult[endpoint.options.schemaKey] : apiResult
           if (!apiData) {
             throw new Error('Remote data not found')
           }
 
-          const { entities, result } = normalize(apiData, apiResponseSchema)
+          const { entities, result } = normalize(apiResult, apiResponseSchema)
           dispatch(addEntries(Object.keys(entities), entities))
           const strippedEntityMap = stripEntityMap(entities)
 
