@@ -78,8 +78,9 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
 
     // On first load, mark chat as read
     useEffect(() => {
-      if (!chatId) return
-      dispatch(markChatAsRead({ chatId }))
+      if (chatId) {
+        dispatch(markChatAsRead({ chatId }))
+      }
     }, [chatId, dispatch])
 
     // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
