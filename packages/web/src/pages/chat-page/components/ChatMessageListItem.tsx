@@ -12,6 +12,7 @@ import {
   isAudiusUrl,
   getPathFromAudiusUrl,
   Kind,
+  Status,
   useTrackOrPlaylist
 } from '@audius/common'
 import type { ChatMessage } from '@audius/sdk'
@@ -75,10 +76,10 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
     playlistStatus,
     playlistError
   } = useTrackOrPlaylist(message)
-  const isTrackLink = kind === Kind.TRACKS
-  const isPlaylistLink = kind === Kind.COLLECTIONS
-  const isTrackOrPlaylistLink = isTrackLink || isPlaylistLink
-  const showsLink = links.length > 0 || isTrackOrPlaylistLink
+  const showTrackTile = kind === Kind.TRACKS && trackStatus !== Status.ERROR
+  const showPlaylistTile = kind === Kind.COLLECTIONS && playlistStatus !== Status.ERROR
+  const showTile = showTrackTile || showPlaylistTile
+  const showsLink = links.length > 0 || showTile
 
   // Callbacks
   const handleOpenReactionPopupButtonClicked = useCallback(
@@ -124,7 +125,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
       })}
     >
       <div className={styles.bubble}>
-        {!isTrackOrPlaylistLink
+        {!showTile
           ? links
               .filter((link) => link.type === 'url' && link.isLink)
               .slice(0, 1)
@@ -137,14 +138,14 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
                 />
               ))
           : null}
-        {isTrackLink ? (
+        {showTrackTile ? (
           <ChatMessageTrack
             track={track}
             status={trackStatus}
             errorMessage={trackError}
           />
         ) : null}
-        {isPlaylistLink ? (
+        {showPlaylistTile ? (
           <ChatMessagePlaylist
             playlist={playlist}
             status={playlistStatus}

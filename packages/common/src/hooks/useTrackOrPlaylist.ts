@@ -26,10 +26,11 @@ export const useTrackOrPlaylist = (message: ChatMessage) => {
   const [trackPermalink, setTrackPermalink] = useState<Nullable<string>>(null)
   const [playlistId, setPlaylistId] =
     useState<Nullable<ID>>(null)
+  const [playlistStatus, setPlaylistStatus] = useState<Status>(Status.LOADING)
+  const [playlistError, setPlaylistError] = useState<Nullable<string>>(null)
   const [kind, setKind] = useState<Kind>(Kind.EMPTY)
 
   const playlist = useSelector((state: CommonState) => getCollection(state, { id: playlistId }))
-  const playlistStatus = playlist ? Status.SUCCESS : Status.LOADING
 
   const {
     data: track,
@@ -50,14 +51,25 @@ export const useTrackOrPlaylist = (message: ChatMessage) => {
   // })
 
   useEffect(() => {
+    if (playlist) {
+      setPlaylistStatus(Status.SUCCESS)
+    }
+  })
+
+  useEffect(() => {
     if (hasPlaylistUrl(message.message)) {
       const permalink = getPathFromPlaylistUrl(message.message)
       if (permalink) {
         const playlistNameWithId = permalink.split('/').slice(-1)[0]
         const playlistId = parseInt(playlistNameWithId.split('-').slice(-1)[0])
-        dispatch(fetchCollection({ id: playlistId }))
-        setPlaylistId(playlistId)
-        setKind(Kind.COLLECTIONS)
+        if (playlistId) {
+          dispatch(fetchCollection({ id: playlistId }))
+          setPlaylistId(playlistId)
+          setKind(Kind.COLLECTIONS)
+        } else {
+          setPlaylistStatus(Status.ERROR)
+          setPlaylistError('No playlist id')
+        }
       }
     } else if (hasTrackUrl(message.message)) {
       const permalink = getPathFromTrackUrl(message.message)
@@ -72,7 +84,7 @@ export const useTrackOrPlaylist = (message: ChatMessage) => {
     kind,
     playlist,
     playlistStatus,
-    playlistError: undefined,
+    playlistError,
     track,
     trackStatus,
     trackError
