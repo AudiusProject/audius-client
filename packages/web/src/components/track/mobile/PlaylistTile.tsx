@@ -164,6 +164,9 @@ const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
             callback={() => setArtworkLoaded(true)}
             coverArtSizes={props.coverArtSizes}
             className={styles.albumArtContainer}
+            isPlaying={props.isPlaying}
+            isBuffering={props.isLoading}
+            artworkIconClassName={styles.artworkIcon}
           />
           <div
             className={cn(styles.titles, {
