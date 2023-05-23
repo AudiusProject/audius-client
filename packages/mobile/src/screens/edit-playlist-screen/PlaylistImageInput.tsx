@@ -13,7 +13,7 @@ const useStyles = makeStyles(({ spacing }) => ({
   root: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing(8)
+    paddingVertical: spacing(4)
   }
 }))
 

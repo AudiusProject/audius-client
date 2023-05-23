@@ -5,7 +5,10 @@ import { isEqual, isEmpty } from 'lodash'
 import { denormalize, normalize } from 'normalizr'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { Kind } from 'models/Kind'
 import { Status } from 'models/Status'
+import { getCollection } from 'store/cache/collections/selectors'
+import { getTrack } from 'store/cache/tracks/selectors'
 import { CommonState } from 'store/reducers'
 import { getErrorMessage } from 'utils/error'
 
@@ -17,7 +20,7 @@ import { apiResponseSchema } from './schema'
 import {
   Api,
   ApiState,
-  CreateApiConfig,
+  DefaultEndpointDefinitions,
   EndpointConfig,
   FetchErrorAction,
   FetchLoadingAction,
@@ -25,7 +28,8 @@ import {
   QueryHookOptions,
   PerEndpointState,
   PerKeyState,
-  SliceConfig
+  SliceConfig,
+  QueryHookResults
 } from './types'
 import {
   capitalize,
@@ -35,11 +39,19 @@ import {
 } from './utils'
 const { addEntries } = cacheActions
 
-export const createApi = ({ reducerPath, endpoints }: CreateApiConfig) => {
+export const createApi = <
+  EndpointDefinitions extends DefaultEndpointDefinitions
+>({
+  reducerPath,
+  endpoints
+}: {
+  reducerPath: string
+  endpoints: EndpointDefinitions
+}) => {
   const api = {
     reducerPath,
     hooks: {}
-  } as unknown as Api
+  } as unknown as Api<EndpointDefinitions>
 
   const sliceConfig: SliceConfig = {
     name: reducerPath,
@@ -62,8 +74,11 @@ export const createApi = ({ reducerPath, endpoints }: CreateApiConfig) => {
   return api
 }
 
-const addEndpointToSlice = (sliceConfig: SliceConfig, endpointName: string) => {
-  const initState: PerKeyState = {
+const addEndpointToSlice = <NormalizedData>(
+  sliceConfig: SliceConfig,
+  endpointName: string
+) => {
+  const initState: PerKeyState<NormalizedData> = {
     status: Status.IDLE
   }
   sliceConfig.initialState[endpointName] = {}
@@ -105,49 +120,75 @@ const addEndpointToSlice = (sliceConfig: SliceConfig, endpointName: string) => {
   }
 }
 
-const buildEndpointHooks = (
-  api: Api,
+const buildEndpointHooks = <
+  EndpointDefinitions extends DefaultEndpointDefinitions,
+  Args,
+  Data
+>(
+  api: Api<EndpointDefinitions>,
   endpointName: string,
-  endpoint: EndpointConfig,
+  endpoint: EndpointConfig<Args, Data>,
   actions: CaseReducerActions<any>,
   reducerPath: string
 ) => {
   // Hook to be returned as use<EndpointName>
-  const useQuery = (fetchArgs: any, hookOptions?: QueryHookOptions) => {
+  const useQuery = (
+    fetchArgs: Args,
+    hookOptions?: QueryHookOptions
+  ): QueryHookResults<Data> => {
     const dispatch = useDispatch()
     const key = getKeyFromFetchArgs(fetchArgs)
-    const queryState = useSelector((state: any) => {
+    const queryState = useSelector((state: CommonState) => {
       if (!state.api[reducerPath]) {
         throw new Error(
           `State for ${reducerPath} is undefined - did you forget to register the reducer in @audius/common/src/api/reducers.ts?`
         )
       }
-      const endpointState: PerEndpointState =
+      const endpointState: PerEndpointState<any> =
         state.api[reducerPath][endpointName]
 
       // Retrieve data from cache if lookup args provided
       if (isEmpty(endpointState[key])) {
         if (
-          !endpoint.options?.idArgKey ||
+          !(endpoint.options?.idArgKey || endpoint.options?.permalinkArgKey) ||
           !endpoint.options?.kind ||
           !endpoint.options?.schemaKey
         )
           return null
-        const { kind, idArgKey, schemaKey } = endpoint.options
-        if (!fetchArgs[idArgKey]) return null
-        const idAsNumber =
-          typeof fetchArgs[idArgKey] === 'number'
+        const { kind, idArgKey, permalinkArgKey, schemaKey } = endpoint.options
+        if (idArgKey && !fetchArgs[idArgKey]) return null
+        if (permalinkArgKey && !fetchArgs[permalinkArgKey]) return null
+
+        const idAsNumber = idArgKey
+          ? typeof fetchArgs[idArgKey] === 'number'
             ? parseInt(fetchArgs[idArgKey])
             : fetchArgs[idArgKey]
-        const initialCachedEntity = cacheSelectors.getEntry(state, {
-          kind,
-          id: idAsNumber
-        })
+          : null
+        const idCachedEntity = idAsNumber
+          ? cacheSelectors.getEntry(state, {
+              kind,
+              id: idAsNumber
+            })
+          : null
+
+        let permalinkCachedEntity = null
+        if (kind === Kind.TRACKS && permalinkArgKey) {
+          permalinkCachedEntity = getTrack(state, {
+            permalink: fetchArgs[permalinkArgKey]
+          })
+        }
+        if (kind === Kind.COLLECTIONS && permalinkArgKey) {
+          permalinkCachedEntity = getCollection(state, {
+            permalink: fetchArgs[permalinkArgKey]
+          })
+        }
+
+        const cachedEntity = idCachedEntity || permalinkCachedEntity
 
         // cache hit
-        if (initialCachedEntity) {
+        if (cachedEntity) {
           const { result, entities } = normalize(
-            { [schemaKey]: initialCachedEntity },
+            { [schemaKey]: cachedEntity },
             apiResponseSchema
           )
           return {
@@ -171,12 +212,11 @@ const buildEndpointHooks = (
       isInitialValue
     } = queryState ?? {
       nonNormalizedData: null,
-      status: Status.IDLE,
-      errorMessage: null
+      status: Status.IDLE
     }
 
     // Rehydrate local nonNormalizedData using entities from global normalized cache
-    let cachedData = useSelector((state: CommonState) => {
+    let cachedData: Data = useSelector((state: CommonState) => {
       const rehydratedEntityMap =
         strippedEntityMap && selectRehydrateEntityMap(state, strippedEntityMap)
       return rehydratedEntityMap
@@ -198,8 +238,9 @@ const buildEndpointHooks = (
       }
 
       const fetchWrapped = async () => {
-        if (cachedData || !context) return
-        if (status === Status.LOADING) return
+        if (!context) return
+        if ([Status.LOADING, Status.ERROR, Status.SUCCESS].includes(status))
+          return
         if (hookOptions?.disabled) return
 
         try {
@@ -214,7 +255,10 @@ const buildEndpointHooks = (
             throw new Error('Remote data not found')
           }
 
-          const { entities, result } = normalize(apiData, apiResponseSchema)
+          const { entities, result } = normalize(
+            { [endpoint.options.schemaKey]: apiData },
+            apiResponseSchema
+          )
           dispatch(addEntries(Object.keys(entities), entities))
           const strippedEntityMap = stripEntityMap(entities)
 

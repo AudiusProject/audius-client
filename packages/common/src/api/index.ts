@@ -1,6 +1,7 @@
 export * from './AudiusQueryContext'
 export * from './relatedArtists'
 export * from './track'
+export * from './collection'
 export * from './user'
 export * from './audio-transaction'
 export * from './hooks'

@@ -30,7 +30,10 @@ import {
 } from 'redux-saga/effects'
 
 import { make } from 'common/store/analytics/actions'
-import { reformat } from 'common/store/cache/collections/utils'
+import {
+  getUnclaimedPlaylistId,
+  reformat
+} from 'common/store/cache/collections/utils'
 import { trackNewRemixEvent } from 'common/store/cache/tracks/sagas'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
@@ -38,7 +41,6 @@ import { addPlaylistsNotInLibrary } from 'common/store/playlist-library/sagas'
 import { updateAndFlattenStems } from 'pages/upload-page/store/utils/stems'
 import { ERROR_PAGE } from 'utils/route'
 import { waitForWrite } from 'utils/sagaHelpers'
-import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
 import { processAndCacheTracks } from '../cache/tracks/utils'
 import { adjustUserField } from '../cache/users/sagas'
@@ -706,6 +708,14 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
     return
   }
 
+  const playlistId = yield call(getUnclaimedPlaylistId)
+  if (error) {
+    console.debug(
+      'Error getting an unclaimed playlist id, not going to create a playlist.'
+    )
+    return
+  }
+
   // Finally, create the playlist
   yield put(
     confirmerActions.requestConfirmation(
@@ -714,10 +724,9 @@ function* uploadCollection(tracks, userId, collectionMetadata, isAlbum) {
         console.debug('Creating playlist')
         // Uploaded collections are always public
         const isPrivate = false
-        const tempPlaylistId = getTempPlaylistId()
-        const { blockHash, blockNumber, playlistId, error } = yield call(
+        const { blockHash, blockNumber, error } = yield call(
           audiusBackendInstance.createPlaylist,
-          tempPlaylistId,
+          playlistId,
           collectionMetadata,
           isAlbum,
           trackIds,

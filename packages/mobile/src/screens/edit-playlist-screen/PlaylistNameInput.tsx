@@ -1,4 +1,4 @@
-import { FormTextInput } from 'app/components/core'
+import { TextField } from '../edit-track-screen/fields'
 
 const messages = {
   label: 'Name',
@@ -7,9 +7,8 @@ const messages = {
 
 export const PlaylistNameInput = () => {
   return (
-    <FormTextInput
+    <TextField
       required
-      isFirstInput
       name='playlist_name'
       label={messages.label}
       placeholder={messages.placeholder}
