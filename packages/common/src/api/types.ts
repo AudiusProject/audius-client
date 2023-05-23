@@ -20,14 +20,16 @@ export type Api<EndpointDefinitions extends DefaultEndpointDefinitions> = {
       string & Property
     >}`]: (
       fetchArgs: Parameters<EndpointDefinitions[Property]['fetch']>[0]
-    ) => EndpointDefinitions[Property]['options'] extends { schemaKey: string }
-      ? Promise<
-          Awaited<
-            ReturnType<EndpointDefinitions[Property]['fetch']>
-          >[EndpointDefinitions[Property]['options']['schemaKey']]
-        >
-      : ReturnType<EndpointDefinitions[Property]['fetch']>
+    ) => ApiHookResponse<
+      Awaited<ReturnType<EndpointDefinitions[Property]['fetch']>>
+    >
   }
+}
+
+export type ApiHookResponse<Data> = {
+  data: Data
+  status: Status
+  errorMessage: string
 }
 
 export type CreateApiConfig = {
@@ -40,16 +42,13 @@ export type SliceConfig = CreateSliceOptions<any, any, any>
 type EndpointOptions = {
   idArgKey?: string
   permalinkArgKey?: string
-  schemaKey?: string
+  schemaKey: string
   kind?: Kind
 }
 
-export type EndpointConfig<argsT, dataT> = {
-  fetch: (
-    fetchArgs: argsT,
-    context: AudiusQueryContextType
-  ) => Promise<{ [key: string]: dataT }>
-  options?: EndpointOptions
+export type EndpointConfig<Args, Data> = {
+  fetch: (fetchArgs: Args, context: AudiusQueryContextType) => Promise<Data>
+  options: EndpointOptions
 }
 
 export type EntityMap = {

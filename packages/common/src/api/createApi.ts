@@ -249,7 +249,10 @@ const buildEndpointHooks = <
             throw new Error('Remote data not found')
           }
 
-          const { entities, result } = normalize(apiData, apiResponseSchema)
+          const { entities, result } = normalize(
+            { [endpoint.options.schemaKey]: apiData },
+            apiResponseSchema
+          )
           dispatch(addEntries(Object.keys(entities), entities))
           const strippedEntityMap = stripEntityMap(entities)
 
