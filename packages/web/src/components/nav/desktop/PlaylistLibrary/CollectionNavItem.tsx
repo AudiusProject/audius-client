@@ -8,6 +8,7 @@ import {
   PlaylistLibraryKind,
   PlaylistLibraryID
 } from '@audius/common'
+import { PopupMenuItem } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
@@ -24,14 +25,15 @@ import { useSelector } from 'utils/reducer'
 import { LeftNavDroppable, LeftNavLink } from '../LeftNavLink'
 
 import styles from './CollectionNavItem.module.css'
-import { EditNavItemButton } from './EditNavItemButton'
+import { NavItemKebabButton } from './NavItemKebabButton'
 import { PlaylistUpdateDot } from './PlaylistUpdateDot'
 
 const { addTrackToPlaylist } = cacheCollectionsActions
 const { reorder } = playlistLibraryActions
 
 const messages = {
-  editPlaylistLabel: 'Edit playlist'
+  editPlaylistLabel: 'Edit playlist',
+  edit: 'Edit'
 }
 
 const acceptedKinds: DragDropKind[] = [
@@ -87,6 +89,13 @@ export const CollectionNavItem = (props: CollectionNavItemProps) => {
     [dispatch, id, record]
   )
 
+  const kebabItems: PopupMenuItem[] = [
+    {
+      text: messages.edit,
+      onClick: handleClickEdit
+    }
+  ]
+
   const handleDrop = useCallback(
     (draggingId: PlaylistLibraryID, kind: DragDropKind) => {
       if (kind === 'track') {
@@ -136,12 +145,13 @@ export const CollectionNavItem = (props: CollectionNavItemProps) => {
           >
             {name}
           </span>
-          <EditNavItemButton
+          <NavItemKebabButton
             className={cn(styles.editPlaylistButton, {
               [styles.editable]: isOwned && isHovering && !isDraggingOver
             })}
             aria-label={messages.editPlaylistLabel}
             onClick={handleClickEdit}
+            items={kebabItems}
           />
         </LeftNavLink>
       </Draggable>

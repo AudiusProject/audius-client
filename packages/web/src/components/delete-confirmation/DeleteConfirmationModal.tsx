@@ -1,11 +1,9 @@
-import { memo } from 'react'
-
 import { Nullable } from '@audius/common'
 import { Modal, Button, ButtonSize, ButtonType } from '@audius/stems'
 
 import styles from './DeleteConfirmationModal.module.css'
 
-type DeleteConfirmationModalProps = {
+export type DeleteConfirmationModalProps = {
   title: string
   customHeader?: Nullable<string>
   customDescription?: Nullable<string>
@@ -64,4 +62,4 @@ const DeleteConfirmationModal = (props: DeleteConfirmationModalProps) => {
   )
 }
 
-export default memo(DeleteConfirmationModal)
+export default DeleteConfirmationModal
