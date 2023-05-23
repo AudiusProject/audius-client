@@ -8,9 +8,9 @@ export const getPathFromAudiusUrl = (url: string) =>
 
 const playlistUrlRegex =
   // eslint-disable-next-line no-useless-escape
-  /^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?(staging\.)?(audius\.co)(\/[\S]+\/playlist\/[\S]+)$/gim
+  /(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?(staging\.)?(audius\.co)(\/[\S]+\/playlist\/[\S]+)/gim
 
-export const isPlaylistUrl = (url: string) =>
+export const hasPlaylistUrl = (url: string) =>
   new RegExp(playlistUrlRegex).test(url)
 export const getPathFromPlaylistUrl = (url: string) => {
   const results = new RegExp(trackUrlRegex).exec(url)
@@ -20,9 +20,9 @@ export const getPathFromPlaylistUrl = (url: string) => {
 
 const trackUrlRegex =
   // eslint-disable-next-line no-useless-escape
-  /^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?(staging\.)?(audius\.co)(\/[\S]+\/[\S]+)$/gim
+  /(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?(staging\.)?(audius\.co)(\/[\S]+\/[\S]+)/gim
 
-export const isTrackUrl = (url: string) => new RegExp(trackUrlRegex).test(url)
+export const hasTrackUrl = (url: string) => new RegExp(trackUrlRegex).test(url)
 export const getPathFromTrackUrl = (url: string) => {
   const results = new RegExp(trackUrlRegex).exec(url)
   if (!results) return null

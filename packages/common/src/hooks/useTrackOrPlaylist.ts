@@ -11,8 +11,8 @@ import { Nullable } from 'utils/typeUtils'
 import {
   getPathFromPlaylistUrl,
   getPathFromTrackUrl,
-  isPlaylistUrl,
-  isTrackUrl
+  hasPlaylistUrl,
+  hasTrackUrl
 } from 'utils/urlUtils'
 import { useDispatch } from 'react-redux'
 import { getCollection } from 'store/cache/collections/selectors'
@@ -50,7 +50,7 @@ export const useTrackOrPlaylist = (message: ChatMessage) => {
   // })
 
   useEffect(() => {
-    if (isPlaylistUrl(message.message)) {
+    if (hasPlaylistUrl(message.message)) {
       const permalink = getPathFromPlaylistUrl(message.message)
       if (permalink) {
         const playlistNameWithId = permalink.split('/').slice(-1)[0]
@@ -59,7 +59,7 @@ export const useTrackOrPlaylist = (message: ChatMessage) => {
         setPlaylistId(playlistId)
         setKind(Kind.COLLECTIONS)
       }
-    } else if (isTrackUrl(message.message)) {
+    } else if (hasTrackUrl(message.message)) {
       const permalink = getPathFromTrackUrl(message.message)
       if (permalink) {
         setTrackPermalink(permalink)
