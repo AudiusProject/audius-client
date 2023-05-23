@@ -48,7 +48,7 @@ type ChatMessageListProps = ComponentPropsWithoutRef<'div'> & {
 }
 
 const SCROLL_TOP_THRESHOLD = 800
-const SCROLL_BOTTOM_THRESHOLD = 32
+const SCROLL_BOTTOM_THRESHOLD = 80
 const THROTTLE_DURATION_MS = 500
 
 const isScrolledNearBottom = (element: HTMLElement) => {
@@ -98,7 +98,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
         if (!chatId) return
 
         // Handle case where scrolled to bottom
-        if (isScrolledNearBottom(e.currentTarget)) {
+        if (isScrolledNearBottom(e.target as HTMLDivElement)) {
           // Mark chat as read when the user reaches the bottom (saga handles no-op if already read)
           dispatch(markChatAsRead({ chatId }))
           dispatch(setActiveChat({ chatId }))
@@ -114,7 +114,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
               chat?.messagesStatus,
               chat?.messagesSummary?.prev_count
             ) &&
-            isScrolledNearTop(e.currentTarget)
+            isScrolledNearTop(e.target as HTMLDivElement)
           ) {
             // Fetch more messages when user reaches the top
             dispatch(fetchMoreMessages({ chatId }))
@@ -132,7 +132,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       () =>
         throttle(scrollHandler, THROTTLE_DURATION_MS, {
           leading: true,
-          trailing: false
+          trailing: true
         }),
       [scrollHandler]
     )
