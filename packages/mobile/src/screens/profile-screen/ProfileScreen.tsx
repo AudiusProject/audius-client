@@ -48,7 +48,6 @@ const useStyles = makeStyles(() => ({
 }))
 
 export const ProfileScreen = () => {
-  useAppTabScreen()
   const styles = useStyles()
   const { params } = useRoute<'Profile'>()
   const { handle: userHandle, id } = params

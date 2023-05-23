@@ -130,6 +130,11 @@ type AppTabScreenProps = {
   Stack: ReturnType<typeof createNativeStackNavigator>
 }
 
+export let lastNavAction: any
+export const setLastNavAction = (action: any) => {
+  lastNavAction = action
+}
+
 /**
  * This is the base tab screen that includes common screens
  * like track and profile
@@ -155,6 +160,16 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
     [drawerNavigation]
   )
 
+  /**
+   * Reset lastNavAction on transitionEnd
+   * Need to do this via screenListeners on the Navigator because listening
+   * via navigation.addListener inside a screen does not always
+   * catch events from other screens
+   */
+  const handleTransitionEnd = useCallback(() => {
+    lastNavAction = undefined
+  }, [])
+
   useEffect(() => {
     drawerNavigation?.setOptions({ swipeEnabled: !isNowPlayingDrawerOpen })
   }, [drawerNavigation, isNowPlayingDrawerOpen])
@@ -162,7 +177,10 @@ export const AppTabScreen = ({ baseScreen, Stack }: AppTabScreenProps) => {
   return (
     <Stack.Navigator
       screenOptions={screenOptions}
-      screenListeners={{ state: handleChangeState }}
+      screenListeners={{
+        state: handleChangeState,
+        transitionEnd: handleTransitionEnd
+      }}
     >
       {baseScreen(Stack)}
       <Stack.Screen
