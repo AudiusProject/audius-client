@@ -105,7 +105,6 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.TRENDING_UNDERGROUND_NOTIFICATIONS]: false,
   [FeatureFlags.TASTEMAKER_NOTIFICATIONS]: false,
   [FeatureFlags.SDK_DISCOVERY_NODE_SELECTOR]: false,
-  [FeatureFlags.GET_METADATA_FROM_DISCOVERY_ENABLED]: false,
   [FeatureFlags.RELATED_ARTISTS_ON_PROFILE_ENABLED]: false,
   [FeatureFlags.PROXY_WORMHOLE]: false,
   [FeatureFlags.STORAGE_V2_TRACK_UPLOAD]: false,

@@ -430,62 +430,25 @@ export const audiusBackend = ({
     })
   }
 
-  async function fetchCID(
-    cid: CID,
-    creatorNodeGateways = [] as string[],
-    cache = true,
-    asUrl = true,
-    trackId: Nullable<ID> = null
-  ) {
+  async function fetchCID(cid: CID, cache = true, asUrl = true) {
     await waitForLibsInit()
 
     // If requesting a url (we mean a blob url for the file),
     // otherwise, default to JSON
     const responseType = asUrl ? 'blob' : 'json'
 
-    // TODO read only from discovery after CID metadata migration
-    const getMetadataFromDiscoveryEnabled =
-      (await getFeatureEnabled(
-        FeatureFlags.GET_METADATA_FROM_DISCOVERY_ENABLED
-      )) ?? false
-    if (getMetadataFromDiscoveryEnabled) {
-      try {
-        const res = await audiusLibs.File.fetchCIDFromDiscovery(
-          cid,
-          responseType
-        )
-        if (res?.data) {
-          if (asUrl) {
-            const url = nativeMobile
-              ? res.config.url
-              : URL.createObjectURL(res.data)
-            if (cache) CIDCache.add(cid, url)
-            return url
-          }
-          return res.data
-        }
-      } catch (e) {
-        console.error(e)
-      }
-      // If failed to find metadata in discovery, try with content nodes
-    }
-
     try {
-      const res = await audiusLibs.File.fetchCID(
-        cid,
-        creatorNodeGateways,
-        () => {},
-        responseType,
-        trackId
-      )
-      if (asUrl) {
-        const url = nativeMobile
-          ? res.config.url
-          : URL.createObjectURL(res.data)
-        if (cache) CIDCache.add(cid, url)
-        return url
+      const res = await audiusLibs.File.fetchCIDFromDiscovery(cid, responseType)
+      if (res?.data) {
+        if (asUrl) {
+          const url = nativeMobile
+            ? res.config.url
+            : URL.createObjectURL(res.data)
+          if (cache) CIDCache.add(cid, url)
+          return url
+        }
+        return res.data
       }
-      return res?.data ?? null
     } catch (e) {
       const message = getErrorMessage(e)
       if (message === 'Unauthorized') {
