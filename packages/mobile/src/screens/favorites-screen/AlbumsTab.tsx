@@ -61,7 +61,7 @@ export const AlbumsTab = () => {
           />
           <CollectionList
             onEndReached={handleEndReached}
-            onEndReachedThreshold={1}
+            onEndReachedThreshold={0.5}
             scrollEnabled={false}
             collectionIds={userAlbums}
             ListFooterComponent={
