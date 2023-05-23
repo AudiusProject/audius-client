@@ -293,6 +293,12 @@ const slice = createSlice({
       const { messageId } = action.payload
       delete state.optimisticReactions[messageId]
     },
+    fetchChatRecheckPermissions: (
+      _state,
+      _action: PayloadAction<{ chatId: string }>
+    ) => {
+      // triggers saga
+    },
     fetchChatSucceeded: (state, action: PayloadAction<{ chat: UserChat }>) => {
       const { chat } = action.payload
       if (dayjs(chat.cleared_history_at).isAfter(chat.last_message_at)) {
@@ -519,12 +525,6 @@ const slice = createSlice({
       const { chatId } = action.payload
       chatsAdapter.removeOne(state.chats, chatId)
       chatMessagesAdapter.removeAll(state.messages[chatId])
-    },
-    fetchChatRecheckPermissions: (
-      _state,
-      _action: PayloadAction<{ chatId: string }>
-    ) => {
-      // triggers saga
     }
   }
 })

@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from 'react'
 
-import type { User } from '@audius/common'
 import { chatSelectors, ChatPermissionAction } from '@audius/common'
 import { View, Text } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
@@ -10,10 +9,10 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
 
-const { getCanSendMessage } = chatSelectors
+const { getCanSendMessage, getOtherChatUsers } = chatSelectors
 
 const messages = {
-  noAction: 'You can no longer send messages to asdf asdf asdf adsf asdf ',
+  noAction: 'You can no longer send messages to ',
   tip1: 'You must send ',
   tip2: ' a tip before you can send them messages.',
   blockee: 'You cannot send messages to users you have blocked. ',
@@ -40,16 +39,16 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 }))
 
 type ChatUnavailableProps = {
-  user: User
   chatId: string
 }
 
-export const ChatUnavailable = ({ user, chatId }: ChatUnavailableProps) => {
+export const ChatUnavailable = ({ chatId }: ChatUnavailableProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
   const navigation = useNavigation()
+  const [otherUser] = useSelector((state) => getOtherChatUsers(state, chatId))
   const { callToAction } = useSelector((state) =>
-    getCanSendMessage(state, { userId: user.user_id, chatId })
+    getCanSendMessage(state, { userId: otherUser.user_id, chatId })
   )
 
   // TODO: link to blog
@@ -60,19 +59,19 @@ export const ChatUnavailable = ({ user, chatId }: ChatUnavailableProps) => {
       setVisibility({
         drawer: 'BlockMessages',
         visible: true,
-        data: { userId: user.user_id }
+        data: { userId: otherUser.user_id }
       })
     )
-  }, [dispatch, user])
+  }, [dispatch, otherUser])
 
-  const mapActionToProps = useMemo(() => {
+  const mapChatPermissionActionToContent = useMemo(() => {
     return {
       [ChatPermissionAction.NONE]: () => (
         <>
           <Text style={styles.unavailableText}>
             {messages.noAction}
             <UserBadges
-              user={user}
+              user={otherUser}
               as={Text}
               nameStyle={styles.unavailableText}
             />
@@ -91,11 +90,11 @@ export const ChatUnavailable = ({ user, chatId }: ChatUnavailableProps) => {
             {messages.tip1}
             <Text
               onPress={() =>
-                navigation.navigate('Profile', { id: user.user_id })
+                navigation.navigate('Profile', { id: otherUser.user_id })
               }
             >
               <UserBadges
-                user={user}
+                user={otherUser}
                 as={Text}
                 nameStyle={[styles.unavailableText, styles.link]}
               />
@@ -125,8 +124,12 @@ export const ChatUnavailable = ({ user, chatId }: ChatUnavailableProps) => {
     navigation,
     styles.link,
     styles.unavailableText,
-    user
+    otherUser
   ])
 
-  return <View style={styles.root}>{mapActionToProps[callToAction]()}</View>
+  return (
+    <View style={styles.root}>
+      {mapChatPermissionActionToContent[callToAction]()}
+    </View>
+  )
 }

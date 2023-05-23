@@ -193,14 +193,20 @@ export const getCanCreateChat = createSelector(
     getBlockees,
     getBlockers,
     getChatPermissions,
-    (_: CommonState, { userId }: { userId: Maybe<ID> }) => userId
+    (_: CommonState, { userId }: { userId: Maybe<ID> }) => userId,
+    (state: CommonState, { userId }: { userId: Maybe<ID> }) => {
+      if (!userId) return null
+      const usersMap = getUsers(state, { ids: [userId] })
+      return usersMap[userId]
+    }
   ],
   (
     currentUserId,
     blockees,
     blockers,
     chatPermissions,
-    userId
+    userId,
+    user
   ): { canCreateChat: boolean; callToAction: ChatPermissionAction } => {
     if (!currentUserId) {
       return {
@@ -230,6 +236,11 @@ export const getCanCreateChat = createSelector(
       } else if (
         userPermissions.permits === ChatPermission.NONE ||
         blockers.includes(userId)
+      ) {
+        action = ChatPermissionAction.NONE
+      } else if (
+        userPermissions.permits === ChatPermission.FOLLOWEES &&
+        !user?.does_current_user_follow
       ) {
         action = ChatPermissionAction.NONE
       } else if (blockees.includes(userId)) {

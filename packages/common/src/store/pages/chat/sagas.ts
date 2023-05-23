@@ -286,30 +286,16 @@ function* doSendMessage(action: ReturnType<typeof sendMessage>) {
   }
 }
 
-function* fetchChatIfNecessary(args: { chatId: string }) {
-  const { chatId } = args
+function* fetchChatIfNecessary(args: { chatId: string; bustCache?: boolean }) {
+  const { chatId, bustCache = false } = args
   const existingChat = yield* select((state) => getChat(state, chatId))
-  if (!existingChat) {
+  if (!existingChat || bustCache) {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
     const { data: chat } = yield* call([sdk.chats, sdk.chats.get], { chatId })
     if (chat) {
       yield* put(fetchChatSucceeded({ chat }))
     }
-  }
-}
-
-function* doFetchChatRecheckPermissions(args: { chatId: string }) {
-  const { chatId } = args
-  const existingChat = yield* select((state) => getChat(state, chatId))
-  const audiusSdk = yield* getContext('audiusSdk')
-  const sdk = yield* call(audiusSdk)
-  const { data: chat } = yield* call([sdk.chats, sdk.chats.get], { chatId })
-  if (
-    !existingChat ||
-    (chat && chat.recheck_permissions !== existingChat.recheck_permissions)
-  ) {
-    yield* put(fetchChatSucceeded({ chat }))
   }
 }
 
@@ -447,9 +433,9 @@ function* watchAddMessage() {
   yield takeEvery(addMessage, ({ payload }) => fetchChatIfNecessary(payload))
 }
 
-function* watchFetchChat() {
+function* watchFetchChatRecheckPermissions() {
   yield takeEvery(fetchChatRecheckPermissions, ({ payload }) =>
-    doFetchChatRecheckPermissions(payload)
+    fetchChatIfNecessary({ ...payload, bustCache: true })
   )
 }
 
@@ -508,7 +494,7 @@ function* watchDeleteChat() {
 export const sagas = () => {
   return [
     watchFetchUnreadMessagesCount,
-    watchFetchChat,
+    watchFetchChatRecheckPermissions,
     watchFetchChats,
     watchFetchChatMessages,
     watchSetMessageReaction,
