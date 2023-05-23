@@ -400,7 +400,6 @@ const slice = createSlice({
       recalculatePreviousMessageHasTail(state.messages[chatId], 0)
 
       // Handle unread counts
-
       if (!isSelfMessage) {
         // If we're actively reading, this will immediately get marked as read.
         // Ignore the unread bump to prevent flicker

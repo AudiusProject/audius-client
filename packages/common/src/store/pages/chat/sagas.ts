@@ -249,6 +249,8 @@ function* doMarkChatAsRead(action: ReturnType<typeof markChatAsRead>) {
       yield* call([sdk.chats, sdk.chats.read], { chatId })
       yield* put(markChatAsReadSucceeded({ chatId }))
     } else {
+      // Mark the write as 'failed' in this case (just means we already marked this as read somehow)
+      // to delete the optimistic read status
       yield* put(markChatAsReadFailed({ chatId }))
     }
   } catch (e) {
