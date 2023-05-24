@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   line-height: normal;
-  overflow: hidden;
+  width: 100%;
 }
 
 .level1 {
