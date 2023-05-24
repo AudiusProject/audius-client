@@ -211,6 +211,10 @@ export type LineupTrack = UserTrack & {
   uid: UID
 }
 
+export type UIDUserTrackMetadata = UserTrackMetadata & {
+  uid: UID
+}
+
 // Track with known non-optional stem
 export type StemTrackMetadata = TrackMetadata & Required<Pick<Track, 'stem_of'>>
 export type StemTrack = Track & Required<Pick<Track, 'stem_of'>>

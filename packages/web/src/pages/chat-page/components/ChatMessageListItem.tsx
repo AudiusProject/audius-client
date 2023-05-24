@@ -12,8 +12,8 @@ import {
   isAudiusUrl,
   getPathFromAudiusUrl,
   useCanSendMessage,
-  Kind,
-  useTrackOrPlaylist
+  isTrackUrl,
+  isPlaylistUrl
 } from '@audius/common'
 import type { ChatMessage } from '@audius/sdk'
 import { IconPlus, PopupPosition } from '@audius/stems'
@@ -67,19 +67,6 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   const senderUserId = decodeHashId(message.sender_user_id)
   const isAuthor = userId === senderUserId
   const links = find(message.message)
-  const {
-    kind,
-    track,
-    trackStatus,
-    trackError,
-    playlist,
-    playlistStatus,
-    playlistError
-  } = useTrackOrPlaylist(message)
-  const isTrackLink = kind === Kind.TRACKS
-  const isPlaylistLink = kind === Kind.COLLECTIONS
-  const isTrackOrPlaylistLink = isTrackLink || isPlaylistLink
-  const showsLink = links.length > 0 || isTrackOrPlaylistLink
 
   // Callbacks
   const handleOpenReactionPopupButtonClicked = useCallback(
@@ -168,32 +155,32 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
           [styles.nonInteractive]: !canSendMessage
         })}
       >
-        {!isTrackOrPlaylistLink ? links
+        {links
           .filter((link) => link.type === 'url' && link.isLink)
           .slice(0, 1)
-          .map((link) => (
-            <LinkPreview
-              key={`${link.value}-${link.start}-${link.end}`}
-              href={link.href}
-              chatId={chatId}
-              messageId={message.message_id}
-            />
-          )) : null}
-        {isTrackLink ? (
-          <ChatMessageTrack
-            track={track}
-            status={trackStatus}
-            errorMessage={trackError}
-          />
-        ) : null}
-        {isPlaylistLink ? (
-          <ChatMessagePlaylist
-            playlist={playlist}
-            status={playlistStatus}
-            errorMessage={playlistError}
-          />
-        ) : null}
-        <div className={cn(styles.text, { [styles.topBorder]: showsLink })}>
+          .map((link) => {
+            if (isPlaylistUrl(link.value)) {
+              return (
+                <ChatMessagePlaylist link={link.value} isAuthor={isAuthor} />
+              )
+            }
+            if (isTrackUrl(link.value)) {
+              return (
+                <ChatMessageTrack link={link.value} isAuthor={isAuthor} />
+              )
+            }
+            return (
+              <LinkPreview
+                key={`${link.value}-${link.start}-${link.end}`}
+                href={link.href}
+                chatId={chatId}
+                messageId={message.message_id}
+                className={styles.linkPreview}
+              />
+            )
+          })
+        }
+        <div className={styles.text}>
           <Linkify
             options={{
               attributes: {

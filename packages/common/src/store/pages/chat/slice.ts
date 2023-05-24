@@ -60,10 +60,6 @@ type SetMessageReactionPayload = {
   reaction: string | null
 }
 
-type FetchCollectionPayload = {
-  id: ID
-}
-
 const chatSortComparator = (a: UserChat, b: UserChat) =>
   dayjs(a.last_message_at).isBefore(dayjs(b.last_message_at)) ? 1 : -1
 
@@ -551,9 +547,6 @@ const slice = createSlice({
       const { chatId } = action.payload
       chatsAdapter.removeOne(state.chats, chatId)
       chatMessagesAdapter.removeAll(state.messages[chatId])
-    },
-    fetchCollection: (_state, _action: PayloadAction<FetchCollectionPayload>) => {
-      // triggers saga
     }
   }
 })

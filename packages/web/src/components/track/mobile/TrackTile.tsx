@@ -325,7 +325,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
             <div className={styles.coSignLabel}>{messages.coSign}</div>
           )}
         </div>
-        {coSign && (
+        {coSign && !isChat ? (
           <div className={styles.coSignText}>
             <div className={styles.name}>
               {coSign.user.name}
@@ -340,7 +340,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
               hasFavorited: coSign.has_remix_author_saved
             })}
           </div>
-        )}
+        ) : null}
         <div className={cn(styles.stats, styles.statText)}>
           <RankIcon
             showCrown={showRankIcon}
@@ -356,7 +356,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
                   [styles.isHidden]: props.isUnlisted
                 })}
                 onClick={
-                  props.repostCount ? props.makeGoToRepostsPage(id) : undefined
+                  props.repostCount && !isChat ? props.makeGoToRepostsPage(id) : undefined
                 }
               >
                 {formatCount(props.repostCount)}
@@ -365,6 +365,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
                   isMatrixMode={isMatrix}
                   isDarkMode={darkMode}
                   className={styles.repostButton}
+                  wrapperClassName={styles.repostButtonWrapper}
                 />
               </div>
               <div
@@ -373,7 +374,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
                   [styles.isHidden]: props.isUnlisted
                 })}
                 onClick={
-                  props.saveCount ? props.makeGoToFavoritesPage(id) : undefined
+                  props.saveCount && !isChat ? props.makeGoToFavoritesPage(id) : undefined
                 }
               >
                 {formatCount(props.saveCount)}
@@ -382,6 +383,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
                   isDarkMode={darkMode}
                   isMatrixMode={isMatrix}
                   className={styles.favoriteButton}
+                  wrapperClassName={styles.favoriteButtonWrapper}
                 />
               </div>
             </>

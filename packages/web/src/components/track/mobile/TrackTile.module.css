@@ -23,6 +23,7 @@
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   border: none;
+  box-shadow: none;
 }
 
 .container.chat:hover {
@@ -101,6 +102,11 @@
 
 .disabledStatItem {
   opacity: 0.5;
+}
+
+.chat .statItem:active {
+  color: unset;
+  transform: scale(1);
 }
 
 .listenCount {
@@ -355,10 +361,18 @@
   fill: var(--neutral-light-4);
 }
 
+.chat .favoriteButtonWrapper:hover {
+  transform: scale3d(1, 1, 1);
+}
+
 .favoriteButton {
   height: 14px;
   width: 14px;
   margin-left: 4px;
+}
+
+.chat .repostButtonWrapper:hover {
+  transform: scale3d(1, 1, 1);
 }
 
 .repostButton {
