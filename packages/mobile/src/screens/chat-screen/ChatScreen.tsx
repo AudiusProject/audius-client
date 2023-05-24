@@ -15,7 +15,6 @@ import {
   playerSelectors
 } from '@audius/common'
 import { Portal } from '@gorhom/portal'
-import { useFocusEffect } from '@react-navigation/native'
 import { Keyboard, View, Text, Pressable, FlatList } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -42,6 +41,7 @@ import type { AppTabScreenParamList } from '../app-screen'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
 import { ChatTextInput } from './ChatTextInput'
+import { ChatUnavailable } from './ChatUnavailable'
 import { EmptyChatMessages } from './EmptyChatMessages'
 import { ReactionPopup } from './ReactionPopup'
 
@@ -51,11 +51,18 @@ const {
   getChat,
   getChatMessageById,
   getChatMessageByIndex,
-  getReactionsPopupMessageId
+  getReactionsPopupMessageId,
+  getCanSendMessage
 } = chatSelectors
-
-const { fetchMoreMessages, markChatAsRead, setReactionsPopupMessageId } =
-  chatActions
+const {
+  fetchMoreMessages,
+  markChatAsRead,
+  setReactionsPopupMessageId,
+  fetchBlockers,
+  fetchBlockees,
+  fetchPermissions,
+  fetchChatIfNecessary
+} = chatActions
 const { getUserId } = accountSelectors
 const { getHasTrack } = playerSelectors
 
@@ -193,6 +200,7 @@ export const ChatScreen = () => {
   const composeRef = useRef<View | null>(null)
   const chatContainerRef = useRef<View | null>(null)
   const messageTop = useRef(0)
+  const messageHeight = useRef(0)
   const chatContainerTop = useRef(0)
   const chatContainerBottom = useRef(0)
 
@@ -211,6 +219,9 @@ export const ChatScreen = () => {
   const popupMessageId = useSelector(getReactionsPopupMessageId)
   const popupMessage = useSelector((state) =>
     getChatMessageById(state, chatId ?? '', popupMessageId ?? '')
+  )
+  const { canSendMessage } = useSelector((state) =>
+    getCanSendMessage(state, { userId: otherUser.user_id, chatId })
   )
 
   // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
@@ -235,6 +246,25 @@ export const ChatScreen = () => {
       chatFrozenRef.current = chat
     }
   }, [chatId, chat])
+
+  // Mark chat as read when user enters this screen.
+  useEffect(() => {
+    if (chatId) {
+      dispatch(markChatAsRead({ chatId }))
+    }
+  }, [chatId, dispatch])
+
+  // Fetch all permissions, blockers/blockees, and recheck_permissions flag
+  useEffect(() => {
+    dispatch(fetchBlockees())
+    dispatch(fetchBlockers())
+    if (otherUser.user_id) {
+      dispatch(fetchPermissions({ userIds: [otherUser.user_id] }))
+    }
+    if (chatId) {
+      dispatch(fetchChatIfNecessary({ chatId, bustCache: true }))
+    }
+  }, [chatId, dispatch, otherUser.user_id])
 
   // Find earliest unread message to display unread tag correctly
   const earliestUnreadIndex = useMemo(
@@ -297,15 +327,6 @@ export const ChatScreen = () => {
     }
   }, [chat?.messagesStatus, chat?.messagesSummary, chatId, dispatch])
 
-  // Mark chat as read when user navigates away from screen
-  useFocusEffect(
-    useCallback(() => {
-      return () => {
-        dispatch(markChatAsRead({ chatId }))
-      }
-    }, [dispatch, chatId])
-  )
-
   const handleTopRightPress = () => {
     Keyboard.dismiss()
     dispatch(
@@ -330,13 +351,17 @@ export const ChatScreen = () => {
       }
       // Measure position of selected message to create a copy of it on top
       // of the dimmed background inside the portal.
-      const messageY = await new Promise<number>((resolve) => {
+      const { messageY, messageH } = await new Promise<{
+        messageY: number
+        messageH: number
+      }>((resolve) => {
         messageRef.measureInWindow((x, y, width, height) => {
-          resolve(y)
+          resolve({ messageY: y, messageH: height })
         })
       })
       // Need to subtract spacing(2) to account for padding in message View.
       messageTop.current = messageY - spacing(2)
+      messageHeight.current = messageH
       dispatch(setReactionsPopupMessageId({ messageId: id }))
       setShouldShowPopup(true)
       light()
@@ -429,10 +454,11 @@ export const ChatScreen = () => {
       <ScreenContent>
         {/* Everything inside the portal displays on top of all other screen contents. */}
         <Portal hostName='ChatReactionsPortal'>
-          {shouldShowPopup && popupMessage ? (
+          {canSendMessage && shouldShowPopup && popupMessage ? (
             <ReactionPopup
               chatId={chatId}
               messageTop={messageTop.current}
+              messageHeight={messageHeight.current}
               containerTop={chatContainerTop.current}
               containerBottom={chatContainerBottom.current}
               isAuthor={decodeHashId(popupMessage?.sender_user_id) === userId}
@@ -488,15 +514,19 @@ export const ChatScreen = () => {
               </View>
             )}
 
-            <View
-              style={styles.composeView}
-              onLayout={measureChatContainerBottom}
-              ref={composeRef}
-              pointerEvents={'box-none'}
-            >
-              <View style={styles.whiteBackground} />
-              <ChatTextInput chatId={chatId} />
-            </View>
+            {canSendMessage ? (
+              <View
+                style={styles.composeView}
+                onLayout={measureChatContainerBottom}
+                ref={composeRef}
+                pointerEvents={'box-none'}
+              >
+                <View style={styles.whiteBackground} />
+                <ChatTextInput chatId={chatId} />
+              </View>
+            ) : (
+              <ChatUnavailable chatId={chatId} />
+            )}
           </KeyboardAvoidingView>
         </View>
       </ScreenContent>
