@@ -212,6 +212,7 @@ const ConnectedPlaylistTile = ({
       )
     }
   }, [
+    isChat,
     isPlaying,
     tracks,
     playTrack,
@@ -300,8 +301,10 @@ const ConnectedPlaylistTile = ({
 
 function mapStateToProps(state: AppState, ownProps: PlaylistTileProps) {
   return {
-    collection: ownProps.collection ?? getCollection(state, { uid: ownProps.uid }),
-    tracks: ownProps.tracks ?? getTracksFromCollection(state, { uid: ownProps.uid }),
+    collection:
+      ownProps.collection ?? getCollection(state, { uid: ownProps.uid }),
+    tracks:
+      ownProps.tracks ?? getTracksFromCollection(state, { uid: ownProps.uid }),
     user: getUserFromCollection(state, { uid: ownProps.uid }),
     playingUid: getUid(state),
     isBuffering: getBuffering(state),

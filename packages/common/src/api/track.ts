@@ -39,9 +39,10 @@ const trackApi = createApi({
         kind: Kind.TRACKS,
         schemaKey: 'tracks'
       }
-    },
+    }
   }
 })
 
-export const { useGetTrackById, useGetTrackByPermalink, useGetTracksByIds } = trackApi.hooks
+export const { useGetTrackById, useGetTrackByPermalink, useGetTracksByIds } =
+  trackApi.hooks
 export const trackApiReducer = trackApi.reducer

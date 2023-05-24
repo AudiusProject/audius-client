@@ -1,9 +1,23 @@
-import { Kind, Status, makeUid, ID, QueueSource, playerSelectors, queueActions, getPathFromPlaylistUrl, useGetPlaylistById, accountSelectors, useGetTracksByIds } from '@audius/common'
+import { useCallback, useMemo } from 'react'
+
+import {
+  Kind,
+  Status,
+  makeUid,
+  ID,
+  QueueSource,
+  playerSelectors,
+  queueActions,
+  getPathFromPlaylistUrl,
+  useGetPlaylistById,
+  accountSelectors,
+  useGetTracksByIds
+} from '@audius/common'
+import cn from 'classnames'
+import { useDispatch, useSelector } from 'react-redux'
 
 import MobilePlaylistTile from 'components/track/mobile/ConnectedPlaylistTile'
-import { useCallback, useMemo } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import cn from 'classnames'
+
 import styles from './ChatMessagePlaylist.module.css'
 
 const { getUserId } = accountSelectors
@@ -15,7 +29,10 @@ type ChatMessagePlaylistProps = {
   isAuthor: boolean
 }
 
-export const ChatMessagePlaylist = ({ link, isAuthor }: ChatMessagePlaylistProps) => {
+export const ChatMessagePlaylist = ({
+  link,
+  isAuthor
+}: ChatMessagePlaylistProps) => {
   const dispatch = useDispatch()
   const currentUserId = useSelector(getUserId)
   const playingUid = useSelector(getUid)
@@ -23,22 +40,24 @@ export const ChatMessagePlaylist = ({ link, isAuthor }: ChatMessagePlaylistProps
   const permalink = getPathFromPlaylistUrl(link)
   const playlistNameWithId = permalink?.split('/').slice(-1)[0] ?? ''
   const playlistId = parseInt(playlistNameWithId.split('-').slice(-1)[0])
-  const {
-    data: playlist,
-    status
-  } = useGetPlaylistById({
-    playlistId,
-    currentUserId
-  }, { disabled: !playlistId })
+  const { data: playlist, status } = useGetPlaylistById(
+    {
+      playlistId,
+      currentUserId
+    },
+    { disabled: !playlistId }
+  )
 
   const uid = playlist ? makeUid(Kind.COLLECTIONS, playlist.playlist_id) : ''
-  const trackIds = playlist?.playlist_contents?.track_ids?.map(t => t.track) ?? []
-  const {
-    data: tracks
-  } = useGetTracksByIds({
-    ids: trackIds,
-    currentUserId
-  }, { disabled: !trackIds.length })
+  const trackIds =
+    playlist?.playlist_contents?.track_ids?.map((t) => t.track) ?? []
+  const { data: tracks } = useGetTracksByIds(
+    {
+      ids: trackIds,
+      currentUserId
+    },
+    { disabled: !trackIds.length }
+  )
   const playlistTracks = tracks ?? []
 
   const uidMap = useMemo(() => {
@@ -46,6 +65,7 @@ export const ChatMessagePlaylist = ({ link, isAuthor }: ChatMessagePlaylistProps
       result[id] = makeUid(Kind.TRACKS, id)
       return result
     }, {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playlist?.playlist_id])
   const tracksWithUids = playlistTracks.map((track) => ({
     ...track,
@@ -58,17 +78,18 @@ export const ChatMessagePlaylist = ({ link, isAuthor }: ChatMessagePlaylistProps
     source: QueueSource.CHAT_PLAYLIST_TRACKS
   }))
 
-  const playTrack = useCallback((uid: string) => {
-    if (playingUid !== uid) {
-      dispatch(clear({}))
-      dispatch(
-        add({ entries })
-      )
-      dispatch(play({ uid }))
-    } else {
-      dispatch(play({}))
-    }
-  }, [dispatch, playingUid, entries])
+  const playTrack = useCallback(
+    (uid: string) => {
+      if (playingUid !== uid) {
+        dispatch(clear({}))
+        dispatch(add({ entries }))
+        dispatch(play({ uid }))
+      } else {
+        dispatch(play({}))
+      }
+    },
+    [dispatch, playingUid, entries]
+  )
 
   const pauseTrack = useCallback(() => {
     dispatch(pause({}))

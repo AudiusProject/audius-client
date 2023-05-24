@@ -1,7 +1,7 @@
 import { useLinkUnfurlMetadata } from '@audius/common'
+import cn from 'classnames'
 
 import styles from './LinkPreview.module.css'
-import cn from 'classnames'
 
 type LinkPreviewProps = {
   href: string
@@ -24,12 +24,7 @@ export const LinkPreview = (props: LinkPreviewProps) => {
     <a
       className={cn(styles.root, props.className)}
       href={href}
-      title={
-        title ||
-        siteName ||
-        description ||
-        'View Image'
-      }
+      title={title || siteName || description || 'View Image'}
       target={'_blank'}
       rel='noreferrer'
     >
@@ -42,9 +37,7 @@ export const LinkPreview = (props: LinkPreviewProps) => {
           ) : null}
           <span className={styles.domain}>{domain}</span>
           <span className={styles.text}>
-            {title ? (
-              <span className={styles.title}>{title}</span>
-            ) : null}
+            {title ? <span className={styles.title}>{title}</span> : null}
             {description ? (
               <span className={styles.description}>{description}</span>
             ) : null}
@@ -52,11 +45,7 @@ export const LinkPreview = (props: LinkPreviewProps) => {
         </>
       ) : image ? (
         <span>
-          <img
-            className={styles.image}
-            src={image}
-            alt={siteName}
-          />
+          <img className={styles.image} src={image} alt={siteName} />
         </span>
       ) : null}
     </a>

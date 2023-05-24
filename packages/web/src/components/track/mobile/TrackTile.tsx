@@ -356,7 +356,9 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
                   [styles.isHidden]: props.isUnlisted
                 })}
                 onClick={
-                  props.repostCount && !isChat ? props.makeGoToRepostsPage(id) : undefined
+                  props.repostCount && !isChat
+                    ? props.makeGoToRepostsPage(id)
+                    : undefined
                 }
               >
                 {formatCount(props.repostCount)}
@@ -374,7 +376,9 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
                   [styles.isHidden]: props.isUnlisted
                 })}
                 onClick={
-                  props.saveCount && !isChat ? props.makeGoToFavoritesPage(id) : undefined
+                  props.saveCount && !isChat
+                    ? props.makeGoToFavoritesPage(id)
+                    : undefined
                 }
               >
                 {formatCount(props.saveCount)}

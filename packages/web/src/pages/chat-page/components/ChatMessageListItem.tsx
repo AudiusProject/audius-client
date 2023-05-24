@@ -161,12 +161,20 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
           .map((link) => {
             if (isPlaylistUrl(link.value)) {
               return (
-                <ChatMessagePlaylist link={link.value} isAuthor={isAuthor} />
+                <ChatMessagePlaylist
+                  key={`${link.value}-${link.start}-${link.end}`}
+                  link={link.value}
+                  isAuthor={isAuthor}
+                />
               )
             }
             if (isTrackUrl(link.value)) {
               return (
-                <ChatMessageTrack link={link.value} isAuthor={isAuthor} />
+                <ChatMessageTrack
+                  key={`${link.value}-${link.start}-${link.end}`}
+                  link={link.value}
+                  isAuthor={isAuthor}
+                />
               )
             }
             return (
@@ -178,8 +186,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
                 className={styles.linkPreview}
               />
             )
-          })
-        }
+          })}
         <div className={styles.text}>
           <Linkify
             options={{

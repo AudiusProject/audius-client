@@ -95,7 +95,7 @@ const TrackList = ({
           track={track}
         />
       ))}
-      {(trackCount && trackCount > DISPLAY_TRACK_COUNT) ? (
+      {trackCount && trackCount > DISPLAY_TRACK_COUNT ? (
         <>
           <div className={styles.trackItemDivider}></div>
           <div className={cn(styles.trackItem, styles.trackItemMore)}>
@@ -229,7 +229,7 @@ const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
                   isMatrixMode={props.isMatrix}
                   className={styles.favoriteButton}
                   wrapperClassName={styles.favoriteButtonWrapper}
-                  />
+                />
               </div>
               <div
                 className={cn(styles.statItem, fadeIn, {

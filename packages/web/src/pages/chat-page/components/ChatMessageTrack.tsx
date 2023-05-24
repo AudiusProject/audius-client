@@ -4,7 +4,6 @@ import {
   Kind,
   Status,
   makeUid,
-  Track,
   queueSelectors,
   playerSelectors,
   Name,
@@ -15,11 +14,12 @@ import {
   useGetTrackByPermalink,
   getPathFromTrackUrl
 } from '@audius/common'
+import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { make } from 'common/store/analytics/actions'
 import MobileTrackTile from 'components/track/mobile/ConnectedTrackTile'
-import cn from 'classnames'
+
 import styles from './ChatMessageTrack.module.css'
 
 const { getUserId } = accountSelectors
@@ -39,13 +39,13 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
   const playing = useSelector(getPlaying)
   const permalink = getPathFromTrackUrl(link)
 
-  const {
-    data: track,
-    status
-  } = useGetTrackByPermalink({
-    permalink,
-    currentUserId
-  }, { disabled: !permalink })
+  const { data: track, status } = useGetTrackByPermalink(
+    {
+      permalink,
+      currentUserId
+    },
+    { disabled: !permalink }
+  )
 
   const uid = useMemo(() => {
     return track ? makeUid(Kind.TRACKS, track.track_id) : ''
@@ -91,7 +91,9 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
       dispatch(clear({}))
       dispatch(
         add({
-          entries: [{ id: track.track_id, uid, source: QueueSource.CHAT_TRACKS }]
+          entries: [
+            { id: track.track_id, uid, source: QueueSource.CHAT_TRACKS }
+          ]
         })
       )
       dispatch(play({ uid }))
@@ -111,7 +113,7 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
         togglePlay={onTogglePlay}
         uid={uid}
         isLoading={status === Status.LOADING || status === Status.IDLE}
-        hasLoaded={() => { }}
+        hasLoaded={() => {}}
         isTrending={false}
         showRankIcon={false}
         showArtistPick={false}
