@@ -9,7 +9,7 @@ function* doFetchCollection(
 ) {
   yield waitForRead()
 
-  yield* call(retrieveCollections, [action.payload.id], { forceRetrieveFromSource: true })
+  yield* call(retrieveCollections, [action.payload.id])
 }
 
 function* watchFetchCollection() {
