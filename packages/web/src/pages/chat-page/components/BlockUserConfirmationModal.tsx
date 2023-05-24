@@ -23,7 +23,7 @@ const { blockUser } = chatActions
 
 const messages = {
   title: 'Are you sure?',
-  confirm: 'Confirm',
+  confirm: 'Block User',
   cancel: 'Cancel',
   content: (user: User) => (
     <>
@@ -68,13 +68,13 @@ export const BlockUserConfirmationModal = ({
       <ModalFooter className={styles.footer}>
         <Button
           className={styles.button}
-          type={ButtonType.COMMON_ALT}
+          type={ButtonType.PRIMARY}
           text={messages.cancel}
           onClick={onClose}
         />
         <Button
           className={styles.button}
-          type={ButtonType.PRIMARY_ALT}
+          type={ButtonType.DESTRUCTIVE}
           text={messages.confirm}
           onClick={handleConfirmClicked}
         />
