@@ -253,10 +253,10 @@ export const ChatScreen = () => {
   useEffect(() => {
     dispatch(fetchBlockees())
     dispatch(fetchBlockers())
-    if (otherUser.user_id) {
+    if (otherUser?.user_id) {
       dispatch(fetchPermissions({ userIds: [otherUser.user_id] }))
     }
-  }, [chatId, dispatch, otherUser.user_id])
+  }, [chatId, dispatch, otherUser])
 
   // Find earliest unread message to display unread tag correctly
   const earliestUnreadIndex = useMemo(
@@ -325,7 +325,7 @@ export const ChatScreen = () => {
       setVisibility({
         drawer: 'ChatActions',
         visible: true,
-        data: { userId: otherUser.user_id }
+        data: { userId: otherUser.user_id, chatId }
       })
     )
   }
@@ -442,7 +442,7 @@ export const ChatScreen = () => {
                 />
               </TouchableOpacity>
             )
-          : messages.title
+          : () => <Text style={styles.userBadgeTitle}>{messages.title}</Text>
       }
       icon={otherUser ? undefined : IconMessage}
       topbarRight={topBarRight}
