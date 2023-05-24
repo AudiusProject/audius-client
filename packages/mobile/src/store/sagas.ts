@@ -1,5 +1,6 @@
 import {
   castSagas,
+  chatSagas,
   playerSagas as commonPlayerSagas,
   playbackPositionSagas,
   premiumContentSagas,
@@ -61,7 +62,6 @@ import repostPageSagas from 'common/store/user-list/reposts/sagas'
 import supportingPageSagas from 'common/store/user-list/supporting/sagas'
 import topSupportersPageSagas from 'common/store/user-list/top-supporters/sagas'
 import walletSagas from 'common/store/wallet/sagas'
-import chatSagas from 'common/store/pages/chat/sagas'
 import { all, fork } from 'typed-redux-saga'
 
 import collectionsSagas from 'app/store/cache/collections/sagas'
