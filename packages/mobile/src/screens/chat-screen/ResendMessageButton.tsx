@@ -53,9 +53,16 @@ export const ResendMessageButton = ({
 
   const handleErrorPress = useCallback(() => {
     if (message) {
-      dispatch(sendMessage({ chatId, message: message.message }))
+      dispatch(
+        sendMessage({
+          chatId,
+          message: message.message,
+          messageId,
+          resend: true
+        })
+      )
     }
-  }, [chatId, dispatch, message])
+  }, [chatId, dispatch, message, messageId])
 
   return (
     <TouchableOpacity onPress={handleErrorPress}>

@@ -355,10 +355,22 @@ const slice = createSlice({
       delete state.optimisticUnreadMessagesCount
     },
     sendMessage: (
-      _state,
-      _action: PayloadAction<{ chatId: string; message: string }>
+      state,
+      action: PayloadAction<{
+        chatId: string
+        message: string
+        resend?: boolean
+        messageId?: string // Required if resend = true
+      }>
     ) => {
       // triggers saga which will add a message optimistically and replace it after success
+      const { chatId, messageId, resend = false } = action.payload
+      if (resend && messageId) {
+        chatMessagesAdapter.updateOne(state.messages[chatId], {
+          id: messageId,
+          changes: { status: Status.LOADING }
+        })
+      }
     },
     addMessage: (
       state,
