@@ -48,12 +48,10 @@ import { ReactionPopup } from './ReactionPopup'
 
 const {
   getChatMessages,
-  getOtherChatUsers,
   getChat,
   getChatMessageById,
   getChatMessageByIndex,
-  getReactionsPopupMessageId,
-  getCanSendMessage
+  getReactionsPopupMessageId
 } = chatSelectors
 const {
   fetchMoreMessages,
