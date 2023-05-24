@@ -90,13 +90,6 @@ export const ChatMessageTrack = ({
     }
   }, [dispatch, recordAnalytics, track, isTrackPlaying, currentQueueItem, uid])
 
-  if (status === Status.ERROR) {
-    return (
-      // todo
-      <div>error</div>
-    )
-  }
-
   return (
     // You may wonder why we use the mobile web track tile here.
     // It's simply because the DMs track tile uses the same design as mobile web.
