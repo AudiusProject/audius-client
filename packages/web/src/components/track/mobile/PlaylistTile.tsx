@@ -217,7 +217,7 @@ const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
                   [styles.disabledStatItem]: !props.saveCount
                 })}
                 onClick={
-                  props.saveCount
+                  props.saveCount && !isChat
                     ? props.makeGoToFavoritesPage(props.id)
                     : undefined
                 }
@@ -228,14 +228,15 @@ const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
                   isDarkMode={props.darkMode}
                   isMatrixMode={props.isMatrix}
                   className={styles.favoriteButton}
-                />
+                  wrapperClassName={styles.favoriteButtonWrapper}
+                  />
               </div>
               <div
                 className={cn(styles.statItem, fadeIn, {
                   [styles.disabledStatItem]: !props.repostCount
                 })}
                 onClick={
-                  props.repostCount
+                  props.repostCount && !isChat
                     ? props.makeGoToRepostsPage(props.id)
                     : undefined
                 }
@@ -246,6 +247,7 @@ const PlaylistTile = (props: PlaylistTileProps & ExtraProps) => {
                   isDarkMode={props.darkMode}
                   isMatrixMode={props.isMatrix}
                   className={styles.repostButton}
+                  wrapperClassName={styles.repostButtonWrapper}
                 />
               </div>
             </>

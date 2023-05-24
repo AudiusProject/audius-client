@@ -94,6 +94,11 @@
   fill: var(--primary);
 }
 
+.chat .statItem:active {
+  color: unset;
+  transform: scale(1);
+}
+
 .overflowButton {
   position: relative;
   top: -2px;
@@ -283,10 +288,18 @@
   color: var(--neutral-light-4);
 }
 
+.chat .favoriteButtonWrapper:hover {
+  transform: scale3d(1, 1, 1);
+}
+
 .favoriteButton {
   height: 14px;
   width: 14px;
   margin-left: 4px;
+}
+
+.chat .repostButtonWrapper:hover {
+  transform: scale3d(1, 1, 1);
 }
 
 .repostButton {
