@@ -158,12 +158,11 @@ export const ReactionPopup = ({
     [userId, handleClosePopup, dispatch, chatId, userIdEncoded]
   )
 
-  const { message: messageText } = message
   const handleCopyPress = useCallback(() => {
-    Clipboard.setString(messageText)
+    Clipboard.setString(message.message)
     handleClosePopup()
     toast({ content: messages.messageCopied, type: 'info' })
-  }, [messageText, handleClosePopup, toast])
+  }, [message.message, handleClosePopup, toast])
 
   const handleReactionChanged = useCallback(
     (reaction) => {
