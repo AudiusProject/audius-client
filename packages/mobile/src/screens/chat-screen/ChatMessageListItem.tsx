@@ -28,7 +28,7 @@ import { REACTION_LONGPRESS_DELAY } from './constants'
 const { getUserId } = accountSelectors
 const { isIdEqualToReactionsPopupMessageId } = chatSelectors
 
-const TAIL_SIZE = 7
+const TAIL_HORIZONTAL_OFFSET = 7
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   rootOtherUser: {
@@ -82,10 +82,10 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     bottom: 0
   },
   tailIsAuthor: {
-    right: -TAIL_SIZE
+    right: -TAIL_HORIZONTAL_OFFSET
   },
   tailOtherUser: {
-    left: -TAIL_SIZE,
+    left: -TAIL_HORIZONTAL_OFFSET,
     transform: [{ scaleX: -1 }]
   },
   reaction: {
