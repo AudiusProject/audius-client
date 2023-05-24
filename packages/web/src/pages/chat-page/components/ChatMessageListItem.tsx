@@ -128,6 +128,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
                 width={48}
                 height={48}
                 title={reactionUsers[decodeHashId(reaction.user_id)!]?.name}
+                disableClickAnimation
               />
             )
           })
