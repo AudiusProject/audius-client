@@ -18,10 +18,10 @@ export const Icon = ({
 }: IconProps) => {
   return decorator ? (
     <span className={styles.iconContainer}>
-      <IconComponent />
+      <IconComponent {...iconProps} />
       <span className={styles.iconDecoration}>{decorator}</span>
     </span>
   ) : (
-    React.createElement(IconComponent, iconProps)
+    <IconComponent {...iconProps} />
   )
 }
