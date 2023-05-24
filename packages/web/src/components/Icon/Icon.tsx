@@ -17,10 +17,10 @@ export const Icon = ({
   ...iconProps
 }: IconProps) => {
   return decorator ? (
-    <div className={styles.iconContainer}>
+    <span className={styles.iconContainer}>
       <IconComponent />
-      <div className={styles.iconDecoration}>{decorator}</div>
-    </div>
+      <span className={styles.iconDecoration}>{decorator}</span>
+    </span>
   ) : (
     React.createElement(IconComponent, iconProps)
   )
