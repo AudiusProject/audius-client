@@ -165,22 +165,20 @@ export const CollectionNavItem = (props: CollectionNavItemProps) => {
             onMouseLeave={handleMouseLeave}
             className={styles.root}
           >
-            {hasUpdate ? <PlaylistUpdateDot /> : null}
             <span
-              className={cn(styles.collectionName, {
-                [styles.playlistLevel1]: level === 1
+              className={cn(styles.content, {
+                [styles.level1]: level === 1
               })}
             >
-              {name}
+              {hasUpdate ? <PlaylistUpdateDot /> : null}
+              <span className={styles.collectionName}>{name}</span>
+              <NavItemKebabButton
+                visible={isOwned && isHovering && !isDraggingOver}
+                aria-label={messages.editPlaylistLabel}
+                onClick={handleClickEdit}
+                items={kebabItems}
+              />
             </span>
-            <NavItemKebabButton
-              className={cn(styles.editPlaylistButton, {
-                [styles.editable]: isOwned && isHovering && !isDraggingOver
-              })}
-              aria-label={messages.editPlaylistLabel}
-              onClick={handleClickEdit}
-              items={kebabItems}
-            />
           </LeftNavLink>
         </Draggable>
       </LeftNavDroppable>
