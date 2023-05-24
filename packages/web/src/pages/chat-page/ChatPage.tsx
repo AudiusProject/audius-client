@@ -5,6 +5,7 @@ import {
   ChatPermissionAction,
   chatSelectors,
   FeatureFlags,
+  ID,
   useProxySelector,
   User
 } from '@audius/common'
@@ -70,21 +71,31 @@ const InboxUnavailableMessage = ({
   }
 }
 
-export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
-  const currentChatId = match.params.id
-  const dispatch = useDispatch()
-  const { isEnabled: isChatEnabled } = useFlag(FeatureFlags.CHAT_ENABLED)
+/**
+ * Returns whether or not the current user can send messages to the current chat
+ */
+export const useCanSendMessage = (currentChatId?: string) => {
   const users = useProxySelector(
     (state) => getOtherChatUsers(state, currentChatId),
     [currentChatId]
   )
   const firstOtherUser = users[0]
+
   const { canSendMessage, callToAction } = useSelector((state) =>
     getCanSendMessage(state, {
       userId: users[0]?.user_id,
       chatId: currentChatId
     })
   )
+  return { canSendMessage, callToAction, firstOtherUser }
+}
+
+export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {
+  const currentChatId = match.params.id
+  const dispatch = useDispatch()
+  const { isEnabled: isChatEnabled } = useFlag(FeatureFlags.CHAT_ENABLED)
+  const { firstOtherUser, canSendMessage, callToAction } =
+    useCanSendMessage(currentChatId)
 
   // Get the height of the header so we can slide the messages list underneath it for the blur effect
   const [headerRef, headerBounds] = useMeasure({
