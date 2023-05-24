@@ -22,7 +22,6 @@ import { EmptyTileCTA } from 'app/components/empty-tile-cta'
 import { TrackList } from 'app/components/track-list'
 import type { TrackMetadata } from 'app/components/track-list/types'
 import { WithLoader } from 'app/components/with-loader/WithLoader'
-import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { makeStyles } from 'app/styles'
 
 import { FilterInput } from './FilterInput'
@@ -70,7 +69,6 @@ export const TracksTab = () => {
   const dispatch = useDispatch()
   const styles = useStyles()
   const isReachable = useSelector(getIsReachable)
-  const isOfflineModeEnabled = useIsOfflineModeEnabled()
 
   const [filterValue, setFilterValue] = useState('')
   const [fetchPage, setFetchPage] = useState(0)
@@ -128,7 +126,7 @@ export const TracksTab = () => {
     if (
       allTracksFetched ||
       isFetchingMore ||
-      (isOfflineModeEnabled && !isReachable) ||
+      !isReachable ||
       trackUids.length < fetchPage * FETCH_LIMIT
     ) {
       return
@@ -145,7 +143,6 @@ export const TracksTab = () => {
     fetchPage,
     filterValue,
     isFetchingMore,
-    isOfflineModeEnabled,
     isReachable,
     trackUids.length
   ])
@@ -183,7 +180,7 @@ export const TracksTab = () => {
   return (
     <VirtualizedScrollView>
       {!isLoading && filteredTrackUids.length === 0 && !filterValue ? (
-        isOfflineModeEnabled && !isReachable ? (
+        !isReachable ? (
           <NoTracksPlaceholder />
         ) : (
           <EmptyTileCTA message={messages.emptyTabText} />

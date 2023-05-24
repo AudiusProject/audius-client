@@ -11,7 +11,6 @@ import { useSelector } from 'react-redux'
 
 import { Card } from 'app/components/card'
 import { CollectionImage } from 'app/components/image/CollectionImage'
-import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useOfflineTracksStatus } from 'app/hooks/useOfflineTrackStatus'
 import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
@@ -82,16 +81,13 @@ const FullCollectionCard = ({
 /** Detects offline state and returns downloaded track count if appropriate */
 const useTrackCountWithOfflineOverride = (collection: Collection | null) => {
   const isReachable = useSelector(getIsReachable)
-  const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const offlineTrackStatus = useOfflineTracksStatus()
-
-  const useOfflineValue = isOfflineModeEnabled && !isReachable
 
   return useMemo(() => {
     if (!collection) {
       return 0
     }
-    if (!useOfflineValue) {
+    if (!isReachable) {
       return collection.playlist_contents.track_ids.length
     }
     const trackIds =
@@ -102,7 +98,7 @@ const useTrackCountWithOfflineOverride = (collection: Collection | null) => {
       (trackId) =>
         offlineTrackStatus[trackId.toString()] === OfflineDownloadStatus.SUCCESS
     ).length
-  }, [collection, useOfflineValue, offlineTrackStatus])
+  }, [collection, isReachable, offlineTrackStatus])
 }
 
 const CollectionCardWithId = ({

@@ -5,10 +5,7 @@ import IconPlaylists from 'app/assets/images/iconPlaylists.svg'
 import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
 import { TopTabNavigator } from 'app/components/top-tab-bar'
 import { useAppTabScreen } from 'app/hooks/useAppTabScreen'
-import {
-  useIsOfflineModeEnabled,
-  useReadOfflineOverride
-} from 'app/hooks/useIsOfflineModeEnabled'
+import { useReadOfflineOverride } from 'app/hooks/useIsOfflineModeEnabled'
 
 import { AlbumsTab } from './AlbumsTab'
 import { FavoritesDownloadSection } from './FavoritesDownloadSection'
@@ -39,8 +36,6 @@ const favoritesScreens = [
 
 export const FavoritesScreen = () => {
   useAppTabScreen()
-  const isOfflineModeEnabled = useIsOfflineModeEnabled()
-
   useReadOfflineOverride()
 
   return (
@@ -50,9 +45,9 @@ export const FavoritesScreen = () => {
         icon={IconFavorite}
         styles={{ icon: { marginLeft: 3 } }}
       >
-        {isOfflineModeEnabled ? <FavoritesDownloadSection /> : null}
+        <FavoritesDownloadSection />
       </ScreenHeader>
-      <ScreenContent isOfflineCapable={isOfflineModeEnabled}>
+      <ScreenContent isOfflineCapable={true}>
         <TopTabNavigator
           screens={favoritesScreens}
           screenOptions={{ lazy: true }}

@@ -13,7 +13,6 @@ import {
 } from '@audius/common'
 import { useSelector } from 'react-redux'
 
-import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useOfflineTracksStatus } from 'app/hooks/useOfflineTrackStatus'
 import type { AppState } from 'app/store'
 import {
@@ -36,7 +35,6 @@ export const useCollectionScreenData = ({
 }: UseCollectionScreenDataConfig) => {
   const isDoneLoadingFromDisk = useSelector(getIsDoneLoadingFromDisk)
   const isReachable = useSelector(getIsReachable)
-  const isOfflineModeEnabled = useIsOfflineModeEnabled()
   const offlineTracksStatus = useOfflineTracksStatus()
 
   const { data: accountAlbums } = useAccountAlbums()
@@ -66,7 +64,7 @@ export const useCollectionScreenData = ({
 
   const availableCollectionIds = useProxySelector(
     (state: AppState) => {
-      if (!isOfflineModeEnabled || isReachable) {
+      if (isReachable) {
         return fetchedCollectionIds
       }
 
@@ -84,7 +82,7 @@ export const useCollectionScreenData = ({
           return false
         }
 
-        if (isOfflineModeEnabled && !isReachable) {
+        if (!isReachable) {
           const trackIds =
             collection.playlist_contents.track_ids.map(
               (trackData) => trackData.track
@@ -111,7 +109,6 @@ export const useCollectionScreenData = ({
     [
       fetchedCollectionIds,
       isReachable,
-      isOfflineModeEnabled,
       isDoneLoadingFromDisk,
       offlineTracksStatus
     ],
