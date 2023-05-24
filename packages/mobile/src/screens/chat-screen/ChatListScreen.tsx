@@ -1,11 +1,6 @@
 import { useCallback, useEffect } from 'react'
 
-import {
-  chatActions,
-  chatSelectors,
-  Status,
-  useProxySelector
-} from '@audius/common'
+import { chatActions, chatSelectors, Status } from '@audius/common'
 import { View, Text } from 'react-native'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { useDispatch, useSelector } from 'react-redux'
@@ -22,7 +17,7 @@ import { useThemePalette, useColor } from 'app/utils/theme'
 import { ChatListItem } from './ChatListItem'
 import { ChatListItemSkeleton } from './ChatListItemSkeleton'
 
-const { getChats, getChatsStatus, getAllOtherChatUsers } = chatSelectors
+const { getChats, getChatsStatus } = chatSelectors
 const { fetchMoreMessages, fetchMoreChats } = chatActions
 
 const CHATS_MESSAGES_PREFETCH_LIMIT = 10
