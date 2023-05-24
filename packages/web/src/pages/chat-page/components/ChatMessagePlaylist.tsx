@@ -97,8 +97,8 @@ export const ChatMessagePlaylist = ({
 
   return playlist ? (
     <div className={cn(styles.container, { [styles.isAuthor]: isAuthor })}>
-      {/* You may wonder why we use the mobile web track tile here.
-      It's simply because the DMs track tile uses the mobile web version. */}
+      {/* You may wonder why we use the mobile web playlist tile here.
+      It's simply because the chat playlist tile uses the same design as mobile web. */}
       <MobilePlaylistTile
         index={0}
         uid={uid}

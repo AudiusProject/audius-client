@@ -107,7 +107,7 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
   return track ? (
     <div className={cn(styles.container, { [styles.isAuthor]: isAuthor })}>
       {/* You may wonder why we use the mobile web track tile here.
-      It's simply because the DMs track tile uses the same design as mobile web. */}
+      It's simply because the chat track tile uses the same design as mobile web. */}
       <MobileTrackTile
         index={0}
         togglePlay={onTogglePlay}
