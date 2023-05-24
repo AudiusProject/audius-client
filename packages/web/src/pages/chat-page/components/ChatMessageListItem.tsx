@@ -144,7 +144,11 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
         [styles.isAuthor]: isAuthor
       })}
     >
-      <div className={styles.bubble}>
+      <div
+        className={cn(styles.bubble, {
+          [styles.nonInteractive]: !canSendMessage
+        })}
+      >
         {links
           .filter((link) => link.type === 'url' && link.isLink)
           .slice(0, 1)

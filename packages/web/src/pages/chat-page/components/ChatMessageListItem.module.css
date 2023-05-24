@@ -26,7 +26,7 @@
   text-decoration: underline !important;
 }
 
-.bubble:hover {
+.bubble:not(.nonInteractive):hover {
   --bubble-color: var(--neutral-light-10);
   filter: var(--drop-shadow-far);
 }
