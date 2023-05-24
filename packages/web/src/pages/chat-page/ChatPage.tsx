@@ -5,7 +5,6 @@ import {
   ChatPermissionAction,
   chatSelectors,
   FeatureFlags,
-  ID,
   useProxySelector,
   User
 } from '@audius/common'
