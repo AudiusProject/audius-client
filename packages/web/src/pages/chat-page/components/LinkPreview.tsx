@@ -1,11 +1,13 @@
 import { useLinkUnfurlMetadata } from '@audius/common'
 
 import styles from './LinkPreview.module.css'
+import cn from 'classnames'
 
 type LinkPreviewProps = {
   href: string
   chatId: string
   messageId: string
+  className?: string
 }
 export const LinkPreview = (props: LinkPreviewProps) => {
   const { href, chatId, messageId } = props
@@ -18,7 +20,7 @@ export const LinkPreview = (props: LinkPreviewProps) => {
 
   return (
     <a
-      className={styles.root}
+      className={cn(styles.root, props.className)}
       href={href}
       title={
         metadata.title ||
