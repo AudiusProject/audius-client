@@ -11,10 +11,12 @@ type LinkPreviewProps = {
 }
 export const LinkPreview = (props: LinkPreviewProps) => {
   const { href, chatId, messageId } = props
-  const metadata = useLinkUnfurlMetadata(chatId, messageId, href)
+  const metadata = useLinkUnfurlMetadata(chatId, messageId, href) ?? {}
   const domain = metadata?.url ? new URL(metadata?.url).hostname : ''
+  const { description, title, image, site_name: siteName } = metadata
+  const hasMetadata = !!(description || title || image)
 
-  if (!metadata) {
+  if (!hasMetadata) {
     return null
   }
 
@@ -23,37 +25,37 @@ export const LinkPreview = (props: LinkPreviewProps) => {
       className={cn(styles.root, props.className)}
       href={href}
       title={
-        metadata.title ||
-        metadata.site_name ||
-        metadata.description ||
+        title ||
+        siteName ||
+        description ||
         'View Image'
       }
       target={'_blank'}
       rel='noreferrer'
     >
-      {metadata.description || metadata.title ? (
+      {description || title ? (
         <>
-          {metadata.image ? (
+          {image ? (
             <span className={styles.thumbnail}>
-              <img src={metadata.image} alt={metadata.site_name} />
+              <img src={image} alt={siteName} />
             </span>
           ) : null}
           <span className={styles.domain}>{domain}</span>
           <span className={styles.text}>
-            {metadata.title ? (
-              <span className={styles.title}>{metadata.title}</span>
+            {title ? (
+              <span className={styles.title}>{title}</span>
             ) : null}
-            {metadata.description ? (
-              <span className={styles.description}>{metadata.description}</span>
+            {description ? (
+              <span className={styles.description}>{description}</span>
             ) : null}
           </span>
         </>
-      ) : metadata.image ? (
+      ) : image ? (
         <span>
           <img
             className={styles.image}
-            src={metadata.image}
-            alt={metadata.site_name}
+            src={image}
+            alt={siteName}
           />
         </span>
       ) : null}
