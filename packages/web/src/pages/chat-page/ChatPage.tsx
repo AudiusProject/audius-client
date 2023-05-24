@@ -3,9 +3,8 @@ import { useCallback, useEffect, useRef } from 'react'
 import {
   chatActions,
   ChatPermissionAction,
-  chatSelectors,
   FeatureFlags,
-  useProxySelector,
+  useCanSendMessage,
   User
 } from '@audius/common'
 import { ResizeObserver } from '@juggle/resize-observer'
@@ -14,7 +13,6 @@ import { useDispatch } from 'react-redux'
 import { RouteComponentProps } from 'react-router-dom'
 import useMeasure from 'react-use-measure'
 
-import { useSelector } from 'common/hooks/useSelector'
 import Page from 'components/page/Page'
 import { UserNameAndBadges } from 'components/user-name-and-badges/UserNameAndBadges'
 import { useFlag } from 'hooks/useRemoteConfig'
@@ -27,7 +25,6 @@ import { ChatList } from './components/ChatList'
 import { ChatMessageList } from './components/ChatMessageList'
 import { CreateChatPrompt } from './components/CreateChatPrompt'
 
-const { getOtherChatUsers, getCanSendMessage } = chatSelectors
 const { connect, disconnect, fetchPermissions } = chatActions
 
 const messages = {
@@ -68,25 +65,6 @@ const InboxUnavailableMessage = ({
         </div>
       )
   }
-}
-
-/**
- * Returns whether or not the current user can send messages to the current chat
- */
-export const useCanSendMessage = (currentChatId?: string) => {
-  const users = useProxySelector(
-    (state) => getOtherChatUsers(state, currentChatId),
-    [currentChatId]
-  )
-  const firstOtherUser = users[0]
-
-  const { canSendMessage, callToAction } = useSelector((state) =>
-    getCanSendMessage(state, {
-      userId: users[0]?.user_id,
-      chatId: currentChatId
-    })
-  )
-  return { canSendMessage, callToAction, firstOtherUser }
 }
 
 export const ChatPage = ({ match }: RouteComponentProps<{ id?: string }>) => {

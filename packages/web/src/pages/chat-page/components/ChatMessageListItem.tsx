@@ -10,7 +10,8 @@ import {
   useProxySelector,
   formatMessageDate,
   isAudiusUrl,
-  getPathFromAudiusUrl
+  getPathFromAudiusUrl,
+  useCanSendMessage
 } from '@audius/common'
 import type { ChatMessage } from '@audius/sdk'
 import { IconPlus, PopupPosition } from '@audius/stems'
@@ -24,7 +25,6 @@ import { useSelector } from 'common/hooks/useSelector'
 import { reactionMap } from 'components/notification/Notification/components/Reaction'
 
 import { ReactComponent as ChatTail } from '../../../assets/img/ChatTail.svg'
-import { useCanSendMessage } from '../ChatPage'
 
 import styles from './ChatMessageListItem.module.css'
 import { LinkPreview } from './LinkPreview'

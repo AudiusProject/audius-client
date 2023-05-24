@@ -1,6 +1,10 @@
 import { useCallback, useMemo } from 'react'
 
-import { chatSelectors, ChatPermissionAction } from '@audius/common'
+import {
+  chatSelectors,
+  ChatPermissionAction,
+  useCanSendMessage
+} from '@audius/common'
 import { View, Text } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -46,10 +50,8 @@ export const ChatUnavailable = ({ chatId }: ChatUnavailableProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
   const navigation = useNavigation()
-  const [otherUser] = useSelector((state) => getOtherChatUsers(state, chatId))
-  const { callToAction } = useSelector((state) =>
-    getCanSendMessage(state, { userId: otherUser.user_id, chatId })
-  )
+
+  const { firstOtherUser: otherUser, callToAction } = useCanSendMessage(chatId)
 
   // TODO: link to blog
   const handleLearnMorePress = useCallback(() => {}, [])
