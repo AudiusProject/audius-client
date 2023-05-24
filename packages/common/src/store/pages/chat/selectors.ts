@@ -133,16 +133,6 @@ export const getSingleOtherChatUser = (state: CommonState, chatId?: string) => {
   return getOtherChatUsers(state, chatId)[0]
 }
 
-export const getAllOtherChatUsers = createSelector(
-  [(state) => state, getChats],
-  (state, chats) => {
-    return chats.map((chat) => {
-      const otherUser = getOtherChatUsersFromChat(state, chat)
-      return otherUser[0]
-    })
-  }
-)
-
 export const getChatMessageByIndex = (
   state: CommonState,
   chatId: string,

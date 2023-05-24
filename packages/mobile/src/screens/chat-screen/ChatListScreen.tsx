@@ -1,6 +1,11 @@
 import { useCallback, useEffect } from 'react'
 
-import { chatActions, chatSelectors, Status } from '@audius/common'
+import {
+  chatActions,
+  chatSelectors,
+  Status,
+  useProxySelector
+} from '@audius/common'
 import { View, Text } from 'react-native'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
 import { useDispatch, useSelector } from 'react-redux'
@@ -110,14 +115,11 @@ export const ChatListScreen = () => {
   const navigation = useNavigation<AppTabScreenParamList>()
   const chats = useSelector(getChats)
   const chatsStatus = useSelector(getChatsStatus)
-  const otherUsers = useSelector(getAllOtherChatUsers)
 
-  // If this is the first fetch, we want to show the loading skeleton that
-  // fades out. Otherwise, we want to show a skeleton in each incoming chat row.
+  // If this is the first fetch, we want to show the fade-out loading skeleton
+  // On subsequent loads, we want to show a skeleton in each incoming chat row.
   const isLoadingFirstTime =
-    (!chats || chats.length === 0) &&
-    ((chatsStatus ?? Status.LOADING) === Status.LOADING ||
-      otherUsers.some((user) => !user))
+    chats.length === 0 && (chatsStatus ?? Status.LOADING) === Status.LOADING
   const navigateToChatUserList = () => navigation.navigate('ChatUserList')
   const iconCompose = (
     <TouchableWithoutFeedback onPress={navigateToChatUserList}>
@@ -140,8 +142,9 @@ export const ChatListScreen = () => {
   }, [chats, dispatch])
 
   const handleLoadMore = useCallback(() => {
+    if (chatsStatus === Status.LOADING) return
     dispatch(fetchMoreChats())
-  }, [dispatch])
+  }, [chatsStatus, dispatch])
 
   return (
     <Screen

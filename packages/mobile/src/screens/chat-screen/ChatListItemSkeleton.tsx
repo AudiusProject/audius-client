@@ -34,12 +34,15 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   }
 }))
 
+// When the ChatList is loading for the first time we want to show a fading out effect
+// for the skeleton items. But on subsequent loads, we want to show the skeleton items
+// at full opacity and set shouldFade = false.
 export const ChatListItemSkeleton = ({
   shouldFade = false,
   index = 0
 }: {
   shouldFade?: boolean
-  index?: number
+  index?: number // Required when shouldFade = true
 }) => {
   const styles = useStyles()
   const ChatListItemStyles = useChatListItemStyles()
@@ -48,6 +51,7 @@ export const ChatListItemSkeleton = ({
     <View
       style={[
         ChatListItemStyles.root,
+        // Only the first 4 items will be visible and have decreasing opacity.
         shouldFade ? { opacity: (4 - index) * 0.25 } : null
       ]}
     >
