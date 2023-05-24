@@ -1,4 +1,4 @@
-import { Kind, Status, makeUid, ID, QueueSource, playerSelectors, queueActions, getPathFromPlaylistUrl, useGetPlaylistById, accountSelectors, UserTrackMetadata } from '@audius/common'
+import { Kind, Status, makeUid, ID, QueueSource, playerSelectors, queueActions, getPathFromPlaylistUrl, useGetPlaylistById, accountSelectors, useGetTracksByIds } from '@audius/common'
 
 import MobilePlaylistTile from 'components/track/mobile/ConnectedPlaylistTile'
 import { useCallback, useMemo } from 'react'
@@ -18,6 +18,8 @@ type ChatMessagePlaylistProps = {
 export const ChatMessagePlaylist = ({ link, isAuthor }: ChatMessagePlaylistProps) => {
   const dispatch = useDispatch()
   const currentUserId = useSelector(getUserId)
+  const playingUid = useSelector(getUid)
+
   const permalink = getPathFromPlaylistUrl(link)
   const playlistNameWithId = permalink?.split('/').slice(-1)[0] ?? ''
   const playlistId = parseInt(playlistNameWithId.split('-').slice(-1)[0])
@@ -29,12 +31,19 @@ export const ChatMessagePlaylist = ({ link, isAuthor }: ChatMessagePlaylistProps
     currentUserId
   }, { disabled: !playlistId })
 
-  const playingUid = useSelector(getUid)
   const uid = playlist ? makeUid(Kind.COLLECTIONS, playlist.playlist_id) : ''
-  const playlistTracks = playlist?.tracks ?? []
+  const trackIds = playlist?.playlist_contents?.track_ids?.map(t => t.track) ?? []
+  const {
+    data: tracks
+  } = useGetTracksByIds({
+    ids: trackIds,
+    currentUserId
+  }, { disabled: !trackIds.length })
+  const playlistTracks = tracks ?? []
+
   const uidMap = useMemo(() => {
-    return playlistTracks.reduce((result: { [id: ID]: string }, track) => {
-      result[track.track_id] = makeUid(Kind.TRACKS, track.track_id)
+    return trackIds.reduce((result: { [id: ID]: string }, id) => {
+      result[id] = makeUid(Kind.TRACKS, id)
       return result
     }, {})
   }, [playlist?.playlist_id])
