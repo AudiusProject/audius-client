@@ -81,7 +81,7 @@ const FullCollectionCard = ({
 /** Detects offline state and returns downloaded track count if appropriate */
 const useTrackCountWithOfflineOverride = (collection: Collection | null) => {
   const isReachable = useSelector(getIsReachable)
-  const offlineTrackStatus = useOfflineTracksStatus()
+  const offlineTrackStatus = useOfflineTracksStatus({ skipIfOnline: true })
 
   return useMemo(() => {
     if (!collection) {

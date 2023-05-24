@@ -35,7 +35,7 @@ export const useCollectionScreenData = ({
 }: UseCollectionScreenDataConfig) => {
   const isDoneLoadingFromDisk = useSelector(getIsDoneLoadingFromDisk)
   const isReachable = useSelector(getIsReachable)
-  const offlineTracksStatus = useOfflineTracksStatus()
+  const offlineTracksStatus = useOfflineTracksStatus({ skipIfOnline: true })
 
   const { data: accountAlbums } = useAccountAlbums()
   const { data: accountPlaylists } = useAccountPlaylists()
@@ -72,7 +72,6 @@ export const useCollectionScreenData = ({
         return []
       }
 
-      const offlineCollectionsStatus = getOfflineCollectionsStatus(state)
       return fetchedCollectionIds.filter((collectionId) => {
         const collection = getCollection(state, { id: collectionId })
         if (collection == null) {
@@ -83,6 +82,7 @@ export const useCollectionScreenData = ({
         }
 
         if (!isReachable) {
+          const offlineCollectionsStatus = getOfflineCollectionsStatus(state)
           const trackIds =
             collection.playlist_contents.track_ids.map(
               (trackData) => trackData.track

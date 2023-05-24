@@ -11,17 +11,27 @@ const { getIsReachable } = reachabilitySelectors
 
 const emptyTrackStatus = {}
 
-export function useOfflineTracksStatus() {
+type UseOfflineTrackStatusConfig = {
+  /* Return empty if we are online. Useful as a performance optimization */
+  skipIfOnline?: boolean
+}
+
+/** Returns a mapping of tracks to their offline download status. Can be configured
+ * to skip updates when online as a performance optimization
+ */
+export function useOfflineTracksStatus({
+  skipIfOnline = false
+}: UseOfflineTrackStatusConfig = {}) {
   const isDoneLoadingFromDisk = useSelector(getIsDoneLoadingFromDisk)
   const isReachable = useSelector(getIsReachable)
+  const skipUpdate = skipIfOnline && isReachable
   return useProxySelector(
     (state: AppState) => {
-      if (isDoneLoadingFromDisk && !isReachable) {
-        return getOfflineTrackStatus(state)
+      if (skipUpdate || !isDoneLoadingFromDisk) {
+        return emptyTrackStatus
       }
-      // We don't need offline download status when we're not offline. This saves us rerenders while we're downloading things and updating the offline download slice.
-      return emptyTrackStatus
+      return getOfflineTrackStatus(state)
     },
-    [isReachable, isDoneLoadingFromDisk]
+    [skipUpdate, isDoneLoadingFromDisk]
   )
 }
