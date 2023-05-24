@@ -1,7 +1,6 @@
 import { Kind } from 'models'
+import { createApi } from 'src/audius-query/createApi'
 import { parseTrackRouteFromPermalink } from 'utils/stringUtils'
-
-import { createApi } from './createApi'
 
 const trackApi = createApi({
   reducerPath: 'trackApi',
