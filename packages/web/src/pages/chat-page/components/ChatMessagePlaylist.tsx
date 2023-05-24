@@ -36,7 +36,7 @@ export const ChatMessagePlaylist = ({ link, isAuthor }: ChatMessagePlaylistProps
       result[track.track_id] = makeUid(Kind.TRACKS, track.track_id)
       return result
     }, {}) ?? []
-  }, [playlist])
+  }, [playlist?.playlist_id])
   const tracksWithUids = playlist?.tracks?.map((track: UserTrackMetadata) => ({
     ...track,
     id: track.track_id,
