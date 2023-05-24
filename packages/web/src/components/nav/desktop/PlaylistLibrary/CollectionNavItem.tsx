@@ -143,7 +143,10 @@ export const CollectionNavItem = (props: CollectionNavItemProps) => {
   const draggingKind = useSelector(selectDraggingKind)
   const draggingId = useSelector(selectDraggingId)
 
-  const isDisabled = (draggingKind === 'track' && !isOwned) || draggingId === id
+  const isDisabled =
+    (draggingKind === 'track' && !isOwned) ||
+    draggingId === id ||
+    (draggingKind === 'playlist-folder' && level > 0)
 
   if (!name || !url) return null
 
