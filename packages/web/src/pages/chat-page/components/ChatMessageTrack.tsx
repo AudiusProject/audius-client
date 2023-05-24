@@ -45,7 +45,7 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
   } = useGetTrackByPermalink({
     permalink,
     currentUserId
-  })
+  }, { disabled: !permalink })
 
   const uid = useMemo(() => {
     return track ? makeUid(Kind.TRACKS, track.track_id) : ''

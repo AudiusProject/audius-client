@@ -27,26 +27,27 @@ export const ChatMessagePlaylist = ({ link, isAuthor }: ChatMessagePlaylistProps
   } = useGetPlaylistById({
     playlistId,
     currentUserId
-  })
+  }, { disabled: !playlistId })
 
   const playingUid = useSelector(getUid)
   const uid = playlist ? makeUid(Kind.COLLECTIONS, playlist.playlist_id) : ''
+  const playlistTracks = playlist?.tracks ?? []
   const uidMap = useMemo(() => {
-    return playlist?.tracks?.reduce((result: { [id: ID]: string }, track: UserTrackMetadata) => {
+    return playlistTracks.reduce((result: { [id: ID]: string }, track) => {
       result[track.track_id] = makeUid(Kind.TRACKS, track.track_id)
       return result
-    }, {}) ?? []
+    }, {})
   }, [playlist?.playlist_id])
-  const tracksWithUids = playlist?.tracks?.map((track: UserTrackMetadata) => ({
+  const tracksWithUids = playlistTracks.map((track) => ({
     ...track,
     id: track.track_id,
     uid: uidMap[track.track_id]
-  })) ?? []
-  const entries = playlist?.tracks?.map((track: UserTrackMetadata) => ({
+  }))
+  const entries = playlistTracks.map((track) => ({
     id: track.track_id,
     uid: uidMap[track.track_id],
     source: QueueSource.CHAT_PLAYLIST_TRACKS
-  })) ?? []
+  }))
 
   const playTrack = useCallback((uid: string) => {
     if (playingUid !== uid) {

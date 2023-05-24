@@ -6,14 +6,12 @@ const collectionApi = createApi({
   endpoints: {
     getPlaylistById: {
       fetch: async ({ playlistId, currentUserId }, { apiClient }) => {
-        return {
-          collection: (
-            await apiClient.getPlaylist({
-              playlistId,
-              currentUserId
-            })
-          )[0]
-        }
+        return (
+          await apiClient.getPlaylist({
+            playlistId,
+            currentUserId
+          })
+        )[0]
       },
       options: {
         idArgKey: 'playlistId',
