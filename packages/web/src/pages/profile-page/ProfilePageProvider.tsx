@@ -960,7 +960,6 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       onClickMobileOverflow: this.props.clickOverflow
     }
 
-    console.log({ chatPermissions: this.props.chatPermissions })
     const desktopProps = {
       editMode,
       shouldMaskContent,
