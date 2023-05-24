@@ -29,8 +29,7 @@ type ChatMessageTrackProps = {
 
 export const ChatMessageTrack = ({
   track,
-  status,
-  errorMessage
+  status
 }: ChatMessageTrackProps) => {
   const dispatch = useDispatch()
   const currentQueueItem = useSelector(makeGetCurrent())

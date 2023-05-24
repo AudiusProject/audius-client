@@ -1,4 +1,4 @@
-import { Collection, Kind, Status, makeUid, ID, queueSelectors, QueueSource, playerSelectors, queueActions, accountSelectors } from '@audius/common'
+import { Collection, Kind, Status, makeUid, ID, QueueSource, playerSelectors, queueActions } from '@audius/common'
 
 import MobilePlaylistTile from 'components/track/mobile/ConnectedPlaylistTile'
 import { useCallback, useMemo } from 'react'
@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from 'react-redux'
 
 const { getUid } = playerSelectors
 const { clear, add, play, pause } = queueActions
-const { getAccountUser } = accountSelectors
 
 type ChatMessagePlaylistProps = {
   playlist: Collection | undefined | null
@@ -16,11 +15,9 @@ type ChatMessagePlaylistProps = {
 
 export const ChatMessagePlaylist = ({
   playlist,
-  status,
-  errorMessage
+  status
 }: ChatMessagePlaylistProps) => {
   const dispatch = useDispatch()
-  const currentUser = useSelector(getAccountUser)
   const playingUid = useSelector(getUid)
   const uid = playlist ? makeUid(Kind.COLLECTIONS, playlist.playlist_id) : ''
   const uidMap = useMemo(() => {
@@ -32,9 +29,7 @@ export const ChatMessagePlaylist = ({
   const tracksWithUids = playlist?.tracks?.map(track => ({
     ...track,
     id: track.track_id,
-    uid: uidMap[track.track_id],
-    source: QueueSource.CHAT_PLAYLIST_TRACKS,
-    user: currentUser
+    uid: uidMap[track.track_id]
   })) ?? []
   const entries = playlist?.tracks?.map(track => ({
     id: track.track_id,
@@ -65,7 +60,6 @@ export const ChatMessagePlaylist = ({
       index={0}
       uid={uid}
       collection={playlist}
-      // @ts-ignore
       tracks={tracksWithUids}
       playTrack={playTrack}
       pauseTrack={pauseTrack}
