@@ -261,8 +261,8 @@ function* doMarkChatAsRead(action: ReturnType<typeof markChatAsRead>) {
 }
 
 function* doSendMessage(action: ReturnType<typeof sendMessage>) {
-  const { chatId, message, messageId, resend = false } = action.payload
-  const messageIdToUse = resend && messageId ? messageId : ulid()
+  const { chatId, message, resendMessageId } = action.payload
+  const messageIdToUse = resendMessageId ?? ulid()
   try {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
@@ -273,22 +273,20 @@ function* doSendMessage(action: ReturnType<typeof sendMessage>) {
     }
 
     // Optimistically add the message
-    if (!resend) {
-      yield* put(
-        addMessage({
-          chatId,
-          message: {
-            sender_user_id: currentUserId,
-            message_id: messageIdToUse,
-            message,
-            reactions: [],
-            created_at: dayjs().toISOString()
-          },
-          status: Status.LOADING,
-          isSelfMessage: true
-        })
-      )
-    }
+    yield* put(
+      addMessage({
+        chatId,
+        message: {
+          sender_user_id: currentUserId,
+          message_id: messageIdToUse,
+          message,
+          reactions: [],
+          created_at: dayjs().toISOString()
+        },
+        status: Status.LOADING,
+        isSelfMessage: true
+      })
+    )
 
     yield* call([sdk.chats, sdk.chats.message], {
       chatId,

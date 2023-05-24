@@ -57,12 +57,11 @@ export const ResendMessageButton = ({
         sendMessage({
           chatId,
           message: message.message,
-          messageId,
-          resend: true
+          resendMessageId: message.message_id
         })
       )
     }
-  }, [chatId, dispatch, message, messageId])
+  }, [chatId, dispatch, message])
 
   return (
     <TouchableOpacity onPress={handleErrorPress}>

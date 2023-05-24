@@ -359,15 +359,14 @@ const slice = createSlice({
       action: PayloadAction<{
         chatId: string
         message: string
-        resend?: boolean
-        messageId?: string // Required if resend = true
+        resendMessageId?: string // Required if resend = true
       }>
     ) => {
       // triggers saga which will add a message optimistically and replace it after success
-      const { chatId, messageId, resend = false } = action.payload
-      if (resend && messageId) {
+      const { chatId, resendMessageId } = action.payload
+      if (resendMessageId) {
         chatMessagesAdapter.updateOne(state.messages[chatId], {
-          id: messageId,
+          id: resendMessageId,
           changes: { status: Status.LOADING }
         })
       }
