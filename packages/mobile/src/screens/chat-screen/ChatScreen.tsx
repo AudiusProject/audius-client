@@ -212,7 +212,6 @@ export const ChatScreen = () => {
   const chatMessages = useSelector((state) =>
     getChatMessages(state, chatId ?? '')
   )
-  const unreadCount = chat?.unread_message_count ?? 0
   const isLoading =
     (chat?.messagesStatus ?? Status.LOADING) === Status.LOADING &&
     chatMessages?.length === 0
@@ -260,9 +259,6 @@ export const ChatScreen = () => {
     dispatch(fetchBlockers())
     if (otherUser.user_id) {
       dispatch(fetchPermissions({ userIds: [otherUser.user_id] }))
-    }
-    if (chatId) {
-      dispatch(fetchChatIfNecessary({ chatId, bustCache: true }))
     }
   }, [chatId, dispatch, otherUser.user_id])
 
@@ -389,11 +385,16 @@ export const ChatScreen = () => {
           isPopup={false}
           onLongPress={handleMessagePress}
         />
-        {item.message_id === earliestUnreadMessageId ? (
+        {item.message_id === earliestUnreadMessageId &&
+        chatFrozenRef.current?.unread_message_count ? (
           <View style={styles.unreadTagContainer}>
             <View style={styles.unreadSeparator} />
             <Text style={styles.unreadTag}>
-              {unreadCount} {pluralize(messages.newMessage, unreadCount > 1)}
+              {chatFrozenRef.current?.unread_message_count}{' '}
+              {pluralize(
+                messages.newMessage,
+                chatFrozenRef.current?.unread_message_count > 1
+              )}
             </Text>
             <View style={styles.unreadSeparator} />
           </View>
@@ -406,8 +407,7 @@ export const ChatScreen = () => {
       chatId,
       styles.unreadSeparator,
       styles.unreadTag,
-      styles.unreadTagContainer,
-      unreadCount
+      styles.unreadTagContainer
     ]
   )
 
