@@ -20,4 +20,4 @@ const userApi = createApi({
 })
 
 export const { useGetUserById } = userApi.hooks
-export default userApi.reducer
+export const userApiReducer = userApi.reducer

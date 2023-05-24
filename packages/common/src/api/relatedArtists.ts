@@ -17,4 +17,4 @@ const relatedArtistsApi = createApi({
 })
 
 export const { useGetRelatedArtists } = relatedArtistsApi.hooks
-export default relatedArtistsApi.reducer
+export const relatedArtistApiReducer = relatedArtistsApi.reducer

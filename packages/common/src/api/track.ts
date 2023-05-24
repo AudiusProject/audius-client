@@ -35,4 +35,4 @@ const trackApi = createApi({
 })
 
 export const { useGetTrackById, useGetTrackByPermalink } = trackApi.hooks
-export default trackApi.reducer
+export const trackApiReducer = trackApi.reducer

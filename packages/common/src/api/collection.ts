@@ -24,4 +24,4 @@ const collectionApi = createApi({
 })
 
 export const { useGetPlaylistByPermalink } = collectionApi.hooks
-export default collectionApi.reducer
+export const collectionApiReducer = collectionApi.reducer
