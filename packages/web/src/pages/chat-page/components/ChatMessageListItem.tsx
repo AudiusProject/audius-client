@@ -76,10 +76,12 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
     playlistStatus,
     playlistError
   } = useTrackOrPlaylist(message)
-  const showTrackTile = kind === Kind.TRACKS && trackStatus !== Status.ERROR
-  const showPlaylistTile = kind === Kind.COLLECTIONS && playlistStatus !== Status.ERROR
+  const hasTrackTile = kind === Kind.TRACKS && trackStatus !== Status.ERROR
+  const hasPlaylistTile = kind === Kind.COLLECTIONS && playlistStatus !== Status.ERROR
+  const showTrackTile = hasTrackTile && !hasPlaylistTile
+  const showPlaylistTile = hasPlaylistTile && !hasTrackTile
   const showTile = showTrackTile || showPlaylistTile
-  const showsLink = links.length > 0 || showTile
+  const showLink = links.length > 0 || showTile
 
   // Callbacks
   const handleOpenReactionPopupButtonClicked = useCallback(
@@ -152,7 +154,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
             errorMessage={playlistError}
           />
         ) : null}
-        <div className={cn(styles.text, { [styles.topBorder]: showsLink })}>
+        <div className={cn(styles.text, { [styles.topBorder]: showLink })}>
           <Linkify
             options={{
               attributes: {
