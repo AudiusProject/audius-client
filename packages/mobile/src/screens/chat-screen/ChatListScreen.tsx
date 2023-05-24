@@ -17,12 +17,7 @@ import { useThemePalette, useColor } from 'app/utils/theme'
 import { ChatListItem } from './ChatListItem'
 import { ChatListItemSkeleton } from './ChatListItemSkeleton'
 
-const {
-  getChats,
-  getChatsStatus,
-  getAllOtherChatUsers,
-  getNumberOfFetchChatRequests
-} = chatSelectors
+const { getChats, getChatsStatus, getAllOtherChatUsers } = chatSelectors
 const { fetchMoreMessages, fetchMoreChats } = chatActions
 
 const CHATS_MESSAGES_PREFETCH_LIMIT = 10
@@ -119,9 +114,8 @@ export const ChatListScreen = () => {
 
   // If this is the first fetch, we want to show the loading skeleton that
   // fades out. Otherwise, we want to show a skeleton in each incoming chat row.
-  const numberOfFetchChatRequests = useSelector(getNumberOfFetchChatRequests)
-  const isLoading =
-    numberOfFetchChatRequests <= 1 &&
+  const isLoadingFirstTime =
+    (!chats || chats.length === 0) &&
     ((chatsStatus ?? Status.LOADING) === Status.LOADING ||
       otherUsers.some((user) => !user))
   const navigateToChatUserList = () => navigation.navigate('ChatUserList')
@@ -160,7 +154,7 @@ export const ChatListScreen = () => {
       <ScreenContent>
         <View style={styles.shadow} />
         <View style={styles.rootContainer}>
-          {isLoading ? (
+          {isLoadingFirstTime ? (
             Array(4)
               .fill(null)
               .map((_, index) => (

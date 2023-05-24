@@ -49,7 +49,6 @@ type ChatState = {
   blockers: ID[]
   permissions: Record<ID, ValidatedChatPermissions>
   reactionsPopupMessageId: string | null
-  numberOfFetchChatRequests: number
 }
 
 type SetMessageReactionPayload = {
@@ -117,8 +116,7 @@ const initialState: ChatState = {
   blockees: [],
   blockers: [],
   permissions: {},
-  reactionsPopupMessageId: null,
-  numberOfFetchChatRequests: 0
+  reactionsPopupMessageId: null
 }
 
 const slice = createSlice({
@@ -151,7 +149,6 @@ const slice = createSlice({
     },
     fetchMoreChats: (state) => {
       // triggers saga
-      state.numberOfFetchChatRequests += 1
       state.chats.status = Status.LOADING
     },
     fetchMoreChatsSucceeded: (
