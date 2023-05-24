@@ -54,7 +54,7 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
     playing &&
     !!track &&
     !!currentQueueItem.track &&
-    currentQueueItem.track.track_id === track.track_id
+    currentQueueItem.uid === uid
 
   const recordAnalytics = useCallback(
     ({ name, source }: { name: Name; source: PlaybackSource }) => {
@@ -80,7 +80,7 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
     } else if (
       currentQueueItem.uid !== uid &&
       currentQueueItem.track &&
-      currentQueueItem.track.track_id === track.track_id
+      currentQueueItem.uid === uid
     ) {
       dispatch(play({}))
       recordAnalytics({
