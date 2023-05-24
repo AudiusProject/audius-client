@@ -4,10 +4,8 @@ import { ChatMessage } from '@audius/sdk'
 import { useSelector } from 'react-redux'
 
 import { Kind, ID } from 'models'
-// import { Kind, ID, Status } from 'models'
 import { useGetTrackByPermalink, useGetPlaylistById } from 'src/api'
 import { getUserId } from 'store/account/selectors'
-// import { chatActions } from 'store/pages/chat'
 import { Nullable } from 'utils/typeUtils'
 import {
   getPathFromPlaylistUrl,
@@ -15,23 +13,12 @@ import {
   hasPlaylistUrl,
   hasTrackUrl
 } from 'utils/urlUtils'
-// import { useDispatch } from 'react-redux'
-// import { getCollection } from 'store/cache/collections/selectors'
-// import { CommonState } from 'store/index'
-
-// const { fetchCollection } = chatActions
 
 export const useTrackOrPlaylist = (message: ChatMessage) => {
-  // const dispatch = useDispatch()
   const currentUserId = useSelector(getUserId)
   const [trackPermalink, setTrackPermalink] = useState<Nullable<string>>(null)
   const [playlistId, setPlaylistId] =
     useState<Nullable<ID>>(null)
-  // Given we need playlist id to fetch the playlist (for now, until the playlist by migration work is complete),
-  // we add the below states to handle scenarios where the message is an audius-playlist-url-like but there is
-  // no playlist id in the url.
-  // const [playlistStatus, setPlaylistStatus] = useState<Status>(Status.LOADING)
-  // const [playlistError, setPlaylistError] = useState<Nullable<string>>(null)
   const [kind, setKind] = useState<Kind>(Kind.EMPTY)
 
   const {
@@ -61,10 +48,6 @@ export const useTrackOrPlaylist = (message: ChatMessage) => {
         if (playlistId) {
           setPlaylistId(playlistId)
           setKind(Kind.COLLECTIONS)
-        //   dispatch(fetchCollection({ id: playlistId }))
-        // } else {
-        //   setPlaylistStatus(Status.ERROR)
-        //   setPlaylistError('No playlist id')
         }
       }
     } else if (hasTrackUrl(message.message)) {
