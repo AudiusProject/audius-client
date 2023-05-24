@@ -325,7 +325,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
             <div className={styles.coSignLabel}>{messages.coSign}</div>
           )}
         </div>
-        {coSign && (
+        {coSign && !isChat ? (
           <div className={styles.coSignText}>
             <div className={styles.name}>
               {coSign.user.name}
@@ -340,7 +340,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
               hasFavorited: coSign.has_remix_author_saved
             })}
           </div>
-        )}
+        ) : null}
         <div className={cn(styles.stats, styles.statText)}>
           <RankIcon
             showCrown={showRankIcon}
