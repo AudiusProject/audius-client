@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import {
   Kind,
@@ -34,7 +34,9 @@ export const ChatMessageTrack = ({
 }: ChatMessageTrackProps) => {
   const dispatch = useDispatch()
   const currentQueueItem = useSelector(makeGetCurrent())
-  const uid = track ? makeUid(Kind.TRACKS, track.track_id) : ''
+  const uid = useMemo(() => {
+    return track ? makeUid(Kind.TRACKS, track.track_id) : ''
+  }, [track])
   const playing = useSelector(getPlaying)
   const isTrackPlaying =
     playing &&
