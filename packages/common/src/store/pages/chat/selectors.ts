@@ -22,6 +22,12 @@ const {
   selectIds: getChatMessageIds
 } = chatMessagesAdapter.getSelectors()
 
+const getOtherUserIdsFromChat = (chat: UserChat, currentUserId: ID | null) =>
+  chat.chat_members
+    .filter((u) => decodeHashId(u.user_id) !== currentUserId)
+    .map((u) => decodeHashId(u.user_id) ?? -1)
+    .filter((u) => u > -1)
+
 /**
  * Gets a single chat (without optimistic read status)
  */
@@ -111,10 +117,7 @@ export const getOtherChatUsersFromChat = (
     return []
   }
   const currentUserId = getUserId(state)
-  const ids = chat.chat_members
-    .filter((u) => decodeHashId(u.user_id) !== currentUserId)
-    .map((u) => decodeHashId(u.user_id) ?? -1)
-    .filter((u) => u > -1)
+  const ids = getOtherUserIdsFromChat(chat, currentUserId)
   const users = getUsers(state, {
     ids
   })
@@ -247,28 +250,29 @@ export const getCanCreateChat = createSelector(
 
 export const getCanSendMessage = createSelector(
   [
+    getUserId,
     getBlockees,
     getBlockers,
     getCanCreateChat,
-    (_state: CommonState, { userId }: { userId: Maybe<ID> }) => userId,
     (state: CommonState, { chatId }: { chatId: Maybe<string> }) =>
-      chatId ? getChat(state, chatId)?.recheck_permissions : false
+      chatId ? getChat(state, chatId) : null
   ],
   (
+    currentUserId,
     blockees,
     blockers,
     { canCreateChat, callToAction: createChatCallToAction },
-    userId,
-    recheckPermissions
+    chat
   ) => {
-    if (!userId) {
+    if (!chat) {
       return {
         canSendMessage: false,
         callToAction: ChatPermissionAction.NONE
       }
     }
-    const isBlockee = blockees.includes(userId)
-    const isBlocker = blockers.includes(userId)
+    const otherUserIds = getOtherUserIdsFromChat(chat, currentUserId)
+    const isBlockee = otherUserIds.find((userId) => blockees.includes(userId))
+    const isBlocker = otherUserIds.find((userId) => blockers.includes(userId))
     if (isBlocker) {
       return {
         canSendMessage: false,
@@ -281,7 +285,7 @@ export const getCanSendMessage = createSelector(
         callToAction: ChatPermissionAction.UNBLOCK
       }
     }
-    if (recheckPermissions && !canCreateChat) {
+    if (chat.recheck_permissions && !canCreateChat) {
       return {
         canSendMessage: false,
         callToAction: createChatCallToAction

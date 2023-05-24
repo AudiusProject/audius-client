@@ -201,6 +201,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
                   chatId={chatId}
                   message={message}
                   hasTail={hasTail(message, chatMessages[i - 1])}
+                  canReact={true}
                 />
                 {/*
                   The separator has to come after the message to appear above it,

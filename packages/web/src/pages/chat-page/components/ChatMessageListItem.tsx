@@ -36,10 +36,11 @@ type ChatMessageListItemProps = {
   chatId: string
   message: ChatMessage
   hasTail: boolean
+  canReact: boolean
 }
 
 export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
-  const { chatId, message, hasTail } = props
+  const { chatId, message, hasTail, canReact } = props
 
   // Refs
   const reactionButtonRef = useRef<HTMLDivElement>(null)
@@ -139,35 +140,37 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
             {message.message}
           </Linkify>
         </div>
-        <div
-          ref={reactionButtonRef}
-          className={cn(styles.reactionsButton, {
-            [styles.isOpened]: isReactionPopupVisible,
-            [styles.hasReaction]:
-              message.reactions && message.reactions.length > 0
-          })}
-          onClick={handleOpenReactionPopupButtonClicked}
-        >
-          {message.reactions?.length > 0 ? (
-            message.reactions.map((reaction) => {
-              if (!reaction.reaction || !(reaction.reaction in reactionMap)) {
-                return null
-              }
-              const Reaction = reactionMap[reaction.reaction as ReactionTypes]
-              return (
-                <Reaction
-                  className={styles.reactionEmoji}
-                  key={reaction.user_id}
-                  width={48}
-                  height={48}
-                  title={reactionUsers[decodeHashId(reaction.user_id)!]?.name}
-                />
-              )
-            })
-          ) : (
-            <IconPlus className={styles.addReactionIcon} />
-          )}
-        </div>
+        {canReact ? (
+          <div
+            ref={reactionButtonRef}
+            className={cn(styles.reactionsButton, {
+              [styles.isOpened]: isReactionPopupVisible,
+              [styles.hasReaction]:
+                message.reactions && message.reactions.length > 0
+            })}
+            onClick={handleOpenReactionPopupButtonClicked}
+          >
+            {message.reactions?.length > 0 ? (
+              message.reactions.map((reaction) => {
+                if (!reaction.reaction || !(reaction.reaction in reactionMap)) {
+                  return null
+                }
+                const Reaction = reactionMap[reaction.reaction as ReactionTypes]
+                return (
+                  <Reaction
+                    className={styles.reactionEmoji}
+                    key={reaction.user_id}
+                    width={48}
+                    height={48}
+                    title={reactionUsers[decodeHashId(reaction.user_id)!]?.name}
+                  />
+                )
+              })
+            ) : (
+              <IconPlus className={styles.addReactionIcon} />
+            )}
+          </div>
+        ) : null}
         {hasTail ? (
           <div className={styles.tail}>
             <ChatTail />
