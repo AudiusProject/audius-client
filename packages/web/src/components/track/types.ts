@@ -9,7 +9,6 @@ import {
   Repost,
   FieldVisibility,
   LineupTrack,
-  UIDUserTrackMetadata,
   Remix,
   PremiumConditions,
   Nullable,
@@ -90,7 +89,7 @@ export type PlaylistTileProps = TileProps & {
   artistIsVerified: boolean
   activeTrackUid: UID | null
   saveCount: number
-  tracks: LineupTrack[] | UIDUserTrackMetadata[]
+  tracks: LineupTrack[]
   trackCount: number
   collection?: Nullable<Collection>
   showArtworkIcon?: boolean

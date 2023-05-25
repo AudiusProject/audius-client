@@ -47,6 +47,11 @@ export const ChatMessagePlaylist = ({
     },
     { disabled: !playlistId }
   )
+  const collection = playlist ? {
+    ...playlist,
+    // todo: make sure good value is passed in here
+    _cover_art_sizes: {}
+  } : null
 
   const uid = playlist ? makeUid(Kind.COLLECTIONS, playlist.playlist_id) : ''
   const trackIds =
@@ -69,6 +74,13 @@ export const ChatMessagePlaylist = ({
   }, [playlist?.playlist_id])
   const tracksWithUids = playlistTracks.map((track) => ({
     ...track,
+    // todo: make sure good value is passed in here
+    _cover_art_sizes: {},
+    user: {
+      ...track.user,
+      _profile_picture_sizes: {},
+      _cover_photo_sizes: {},
+    },
     id: track.track_id,
     uid: uidMap[track.track_id]
   }))
@@ -102,7 +114,7 @@ export const ChatMessagePlaylist = ({
       <MobilePlaylistTile
         index={0}
         uid={uid}
-        collection={playlist}
+        collection={collection}
         tracks={tracksWithUids}
         playTrack={playTrack}
         pauseTrack={pauseTrack}
