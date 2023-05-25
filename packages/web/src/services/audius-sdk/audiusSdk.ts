@@ -34,7 +34,7 @@ const initSdk = async () => {
             }
           )
         },
-        signTransaction: async (data) => {
+        signTransaction: async () => {
           return 'Not implemented'
         },
         getSharedSecret: async (publicKey: string | Uint8Array) => {
