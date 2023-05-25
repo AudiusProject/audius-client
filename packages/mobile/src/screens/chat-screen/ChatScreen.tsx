@@ -60,8 +60,7 @@ const {
   setReactionsPopupMessageId,
   fetchBlockers,
   fetchBlockees,
-  fetchPermissions,
-  fetchChatIfNecessary
+  fetchPermissions
 } = chatActions
 const { getUserId } = accountSelectors
 const { getHasTrack } = playerSelectors

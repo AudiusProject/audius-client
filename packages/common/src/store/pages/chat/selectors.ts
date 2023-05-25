@@ -41,14 +41,20 @@ export const getBlockers = (state: CommonState) => state.pages.chat.blockers
 const getChatPermissions = (state: CommonState) => state.pages.chat.permissions
 
 // Gets a chat and its optimistic read status
-export const getChat = (state: CommonState, chatId: string) => {
-  const chat = selectChatById(state, chatId)
-  if (!chat) return undefined
-  return {
-    ...chat,
-    ...state.pages.chat.optimisticChatRead[chatId]
+export const getChat = createSelector(
+  [
+    (state: CommonState, chatId: string) => selectChatById(state, chatId),
+    getOptimisticReads,
+    (_: CommonState, chatId: string) => chatId
+  ],
+  (chat, optimisticReads, chatId) => {
+    if (!chat) return undefined
+    return {
+      ...chat,
+      ...optimisticReads[chatId]
+    }
   }
-}
+)
 
 /**
  * Gets all chats and their optimistic read status
