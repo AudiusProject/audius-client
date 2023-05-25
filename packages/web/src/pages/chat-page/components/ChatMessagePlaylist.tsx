@@ -21,7 +21,7 @@ import MobilePlaylistTile from 'components/track/mobile/ConnectedPlaylistTile'
 import styles from './ChatMessagePlaylist.module.css'
 
 const { getUserId } = accountSelectors
-const { getUid } = playerSelectors
+const { getUid, getTrackId } = playerSelectors
 const { clear, add, play, pause } = queueActions
 
 type ChatMessagePlaylistProps = {
@@ -36,6 +36,7 @@ export const ChatMessagePlaylist = ({
   const dispatch = useDispatch()
   const currentUserId = useSelector(getUserId)
   const playingUid = useSelector(getUid)
+  const playingTrackId = useSelector(getTrackId)
 
   const permalink = getPathFromPlaylistUrl(link)
   const playlistNameWithId = permalink?.split('/').slice(-1)[0] ?? ''
@@ -47,11 +48,13 @@ export const ChatMessagePlaylist = ({
     },
     { disabled: !playlistId }
   )
-  const collection = playlist ? {
-    ...playlist,
-    // todo: make sure good value is passed in here
-    _cover_art_sizes: {}
-  } : null
+  const collection = playlist
+    ? {
+        ...playlist,
+        // todo: make sure good value is passed in here
+        _cover_art_sizes: {}
+      }
+    : null
 
   const uid = playlist ? makeUid(Kind.COLLECTIONS, playlist.playlist_id) : ''
   const trackIds =
@@ -79,7 +82,7 @@ export const ChatMessagePlaylist = ({
     user: {
       ...track.user,
       _profile_picture_sizes: {},
-      _cover_photo_sizes: {},
+      _cover_photo_sizes: {}
     },
     id: track.track_id,
     uid: uidMap[track.track_id]
@@ -123,6 +126,8 @@ export const ChatMessagePlaylist = ({
         isTrending={false}
         showRankIcon={false}
         numLoadingSkeletonRows={tracksWithUids.length}
+        togglePlay={() => {}}
+        playingTrackId={playingTrackId}
         isChat
       />
     </div>

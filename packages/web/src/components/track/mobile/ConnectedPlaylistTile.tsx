@@ -58,7 +58,35 @@ const {
 const { getCollection, getTracksFromCollection } = cacheCollectionsSelectors
 const getUserId = accountSelectors.getUserId
 
-type ConnectedPlaylistTileProps = PlaylistTileProps &
+type OwnProps = Omit<
+  PlaylistTileProps,
+  | 'id'
+  | 'userId'
+  | 'duration'
+  | 'artistName'
+  | 'genre'
+  | 'artistHandle'
+  | 'isPublic'
+  | 'repostCount'
+  | 'saveCount'
+  | 'trackCount'
+  | 'ownerId'
+  | 'coverArtSizes'
+  | 'isActive'
+  | 'isPlaying'
+  | 'contentTitle'
+  | 'activeTrackUid'
+  | 'followeeReposts'
+  | 'followeeSaves'
+  | 'hasCurrentUserReposted'
+  | 'hasCurrentUserSaved'
+  | 'isAlbum'
+  | 'playlistTitle'
+  | 'artistIsVerified'
+  | 'goToRoute'
+>
+
+type ConnectedPlaylistTileProps = OwnProps &
   ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>
 
@@ -299,7 +327,7 @@ const ConnectedPlaylistTile = ({
   )
 }
 
-function mapStateToProps(state: AppState, ownProps: PlaylistTileProps) {
+function mapStateToProps(state: AppState, ownProps: OwnProps) {
   return {
     collection:
       ownProps.collection ?? getCollection(state, { uid: ownProps.uid }),
