@@ -1,8 +1,11 @@
+import { useState, useCallback, MouseEventHandler } from 'react'
+
 import { User, ChatPermissionAction } from '@audius/common'
 
 import { UserNameAndBadges } from 'components/user-name-and-badges/UserNameAndBadges'
 
 import styles from './InboxUnavailableMessage.module.css'
+import { UnblockUserConfirmationModal } from './UnblockUserConfirmationModal'
 
 const messages = {
   tip: (user: User) => (
@@ -17,7 +20,8 @@ const messages = {
       You can no longer send messages to <UserNameAndBadges user={user} />
     </>
   ),
-  learnMore: 'Learn More.'
+  learnMore: 'Learn More.',
+  unblockUser: 'Unblock User.'
 }
 
 export const InboxUnavailableMessage = ({
@@ -27,6 +31,23 @@ export const InboxUnavailableMessage = ({
   user: User
   action: ChatPermissionAction
 }) => {
+  const [
+    isUnblockUserConfirmationModalVisible,
+    setIsUnblockUserConfirmationModalVisible
+  ] = useState(false)
+
+  const handleUnblockClicked: MouseEventHandler = useCallback(
+    (e) => {
+      e.preventDefault()
+      setIsUnblockUserConfirmationModalVisible(true)
+    },
+    [setIsUnblockUserConfirmationModalVisible]
+  )
+
+  const handleCloseUnblockUserConfirmationModal = useCallback(() => {
+    setIsUnblockUserConfirmationModalVisible(false)
+  }, [setIsUnblockUserConfirmationModalVisible])
+
   switch (action) {
     case ChatPermissionAction.TIP:
       return <div className={styles.root}>{messages.tip(user)}</div>
@@ -34,9 +55,14 @@ export const InboxUnavailableMessage = ({
       return (
         <div className={styles.root}>
           {messages.unblock}{' '}
-          <a href='#' target='_blank'>
-            {messages.learnMore}
+          <a href='#' onClick={handleUnblockClicked}>
+            {messages.unblockUser}
           </a>
+          <UnblockUserConfirmationModal
+            user={user}
+            isVisible={isUnblockUserConfirmationModalVisible}
+            onClose={handleCloseUnblockUserConfirmationModal}
+          />
         </div>
       )
     default:
