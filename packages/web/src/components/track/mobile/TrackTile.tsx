@@ -290,7 +290,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
               onClick={props.goToTrackPage}
             >
               <div className={cn(fadeIn)}>{props.title}</div>
-              {isPlaying && <IconVolume />}
+              {isPlaying ? <IconVolume /> : null}
               {(!artworkLoaded || showSkeleton) && (
                 <Skeleton
                   className={styles.skeleton}
