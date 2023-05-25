@@ -1650,7 +1650,7 @@ export const audiusBackend = ({
       }
     } catch (err) {
       console.error(getErrorMessage(err))
-      return false
+      throw err
     }
   }
 
