@@ -31,12 +31,7 @@ import {
   SliceConfig,
   QueryHookResults
 } from './types'
-import {
-  capitalize,
-  getKeyFromFetchArgs,
-  selectRehydrateEntityMap,
-  stripEntityMap
-} from './utils'
+import { capitalize, getKeyFromFetchArgs, selectCommonEntityMap } from './utils'
 const { addEntries } = cacheActions
 
 export const createApi = <
@@ -109,12 +104,11 @@ const addEndpointToSlice = <NormalizedData>(
       state: ApiState,
       action: FetchSucceededAction
     ) => {
-      const { fetchArgs, nonNormalizedData, strippedEntityMap } = action.payload
+      const { fetchArgs, nonNormalizedData } = action.payload
       const key = getKeyFromFetchArgs(fetchArgs)
       const scopedState = { ...state[endpointName][key] } ?? initState
       scopedState.status = Status.SUCCESS
       scopedState.nonNormalizedData = nonNormalizedData
-      scopedState.strippedEntityMap = strippedEntityMap
       state[endpointName][key] = scopedState
     }
   }
@@ -187,14 +181,13 @@ const buildEndpointHooks = <
 
         // cache hit
         if (cachedEntity) {
-          const { result, entities } = normalize(
+          const { result } = normalize(
             { [schemaKey]: cachedEntity },
             apiResponseSchema
           )
           return {
             nonNormalizedData: result,
             status: Status.SUCCESS,
-            strippedEntityMap: stripEntityMap(entities),
             isInitialValue: true,
             errorMessage: undefined
           }
@@ -204,24 +197,16 @@ const buildEndpointHooks = <
       return { ...endpointState[key] }
     }, isEqual)
 
-    const {
-      nonNormalizedData,
-      status,
-      errorMessage,
-      strippedEntityMap,
-      isInitialValue
-    } = queryState ?? {
-      nonNormalizedData: null,
-      status: Status.IDLE
-    }
+    const { nonNormalizedData, status, errorMessage, isInitialValue } =
+      queryState ?? {
+        nonNormalizedData: null,
+        status: Status.IDLE
+      }
 
     // Rehydrate local nonNormalizedData using entities from global normalized cache
     let cachedData: Data = useSelector((state: CommonState) => {
-      const rehydratedEntityMap =
-        strippedEntityMap && selectRehydrateEntityMap(state, strippedEntityMap)
-      return rehydratedEntityMap
-        ? denormalize(nonNormalizedData, apiResponseSchema, rehydratedEntityMap)
-        : nonNormalizedData
+      const entityMap = selectCommonEntityMap(state, endpoint.options.kind)
+      return denormalize(nonNormalizedData, apiResponseSchema, entityMap)
     }, isEqual)
 
     const context = useContext(AudiusQueryContext)
@@ -231,8 +216,7 @@ const buildEndpointHooks = <
           // @ts-ignore
           actions[`fetch${capitalize(endpointName)}Succeeded`]({
             fetchArgs,
-            nonNormalizedData,
-            strippedEntityMap
+            nonNormalizedData
           }) as FetchSucceededAction
         )
       }
@@ -260,14 +244,12 @@ const buildEndpointHooks = <
             apiResponseSchema
           )
           dispatch(addEntries(Object.keys(entities), entities))
-          const strippedEntityMap = stripEntityMap(entities)
 
           dispatch(
             // @ts-ignore
             actions[`fetch${capitalize(endpointName)}Succeeded`]({
               fetchArgs,
-              nonNormalizedData: result,
-              strippedEntityMap
+              nonNormalizedData: result
             }) as FetchSucceededAction
           )
         } catch (e) {
@@ -288,7 +270,6 @@ const buildEndpointHooks = <
       status,
       isInitialValue,
       nonNormalizedData,
-      strippedEntityMap,
       context,
       hookOptions?.disabled
     ])
