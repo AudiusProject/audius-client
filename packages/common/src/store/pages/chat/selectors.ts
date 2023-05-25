@@ -43,7 +43,7 @@ const getChatPermissions = (state: CommonState) => state.pages.chat.permissions
 // Gets a chat and its optimistic read status
 export const getChat = createSelector(
   [
-    (state: CommonState, chatId: string) => selectChatById(state, chatId),
+    selectChatById,
     getOptimisticReads,
     (_: CommonState, chatId: string) => chatId
   ],
@@ -55,6 +55,8 @@ export const getChat = createSelector(
     }
   }
 )
+
+export const getNonOptimisticChat = selectChatById
 
 /**
  * Gets all chats and their optimistic read status
