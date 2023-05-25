@@ -52,7 +52,28 @@ const { saveTrack, unsaveTrack, repostTrack, undoRepostTrack } =
   tracksSocialActions
 const getUserId = accountSelectors.getUserId
 
-type ConnectedTrackTileProps = TrackTileProps &
+type OwnProps = Omit<
+  TrackTileProps,
+  | 'id'
+  | 'title'
+  | 'userId'
+  | 'genre'
+  | 'duration'
+  | 'artistName'
+  | 'artistHandle'
+  | 'repostCount'
+  | 'saveCount'
+  | 'coverArtSizes'
+  | 'followeeReposts'
+  | 'followeeSaves'
+  | 'hasCurrentUserReposted'
+  | 'hasCurrentUserSaved'
+  | 'artistIsVerified'
+  | 'isPlaying'
+  | 'goToRoute'
+>
+
+type ConnectedTrackTileProps = OwnProps &
   ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>
 
@@ -271,7 +292,7 @@ const ConnectedTrackTile = ({
   )
 }
 
-function mapStateToProps(state: AppState, ownProps: TrackTileProps) {
+function mapStateToProps(state: AppState, ownProps: OwnProps) {
   return {
     track: getTrack(state, { uid: ownProps.uid }),
     user: getUserFromTrack(state, { uid: ownProps.uid }),
