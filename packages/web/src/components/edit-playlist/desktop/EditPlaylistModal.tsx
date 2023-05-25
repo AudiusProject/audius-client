@@ -87,6 +87,11 @@ const EditPlaylistModal = ({
     setIsArtworkPopupOpen(false)
   }, [setIsArtworkPopupOpen])
 
+  const handleDelete = useCallback(() => {
+    setShowDeleteConfirmation(false)
+    onClose()
+  }, [onClose])
+
   return (
     <>
       <Modal
@@ -120,8 +125,9 @@ const EditPlaylistModal = ({
       {collectionId ? (
         <DeleteCollectionConfirmationModal
           collectionId={collectionId}
-          isOpen={showDeleteConfirmation}
-          onClose={onCancelDelete}
+          visible={showDeleteConfirmation}
+          onCancel={onCancelDelete}
+          onDelete={handleDelete}
         />
       ) : null}
     </>

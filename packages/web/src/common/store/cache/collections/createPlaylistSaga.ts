@@ -128,6 +128,8 @@ function* optimisticalySavePlaylist(
       user: { id: user_id, handle }
     })
   )
+
+  yield* call(addPlaylistsNotInLibrary)
 }
 
 function* createAndConfirmPlaylist(
