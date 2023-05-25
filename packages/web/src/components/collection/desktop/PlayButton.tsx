@@ -21,7 +21,7 @@ export const PlayButton = (props: PlayButtonProps) => {
 
   return (
     <Button
-      className={cn(styles.playAllButton, styles.buttonSpacing, {
+      className={cn(styles.playAllButton, {
         [styles.buttonFormatting]: isPlaying
       })}
       textClassName={styles.buttonTextFormatting}

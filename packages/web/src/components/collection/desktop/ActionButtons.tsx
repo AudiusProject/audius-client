@@ -1,5 +1,7 @@
 import { ID, Nullable, SmartCollectionVariant, Variant } from '@audius/common'
+import cn from 'classnames'
 
+import styles from './CollectionHeader.module.css'
 import { OwnerActionButtons } from './OwnerActionButtons'
 import { PlayButton } from './PlayButton'
 import { SmartCollectionActionButtons } from './SmartCollectionActionButtons'
@@ -13,6 +15,7 @@ type ActionButtonProps = {
   playing: boolean
   isEmptyPlaylist: boolean
   userId: ID
+  tracksLoading: boolean
 }
 
 export const ActionButtons = (props: ActionButtonProps) => {
@@ -23,7 +26,8 @@ export const ActionButtons = (props: ActionButtonProps) => {
     onPlay,
     playing,
     isEmptyPlaylist,
-    userId
+    userId,
+    tracksLoading
   } = props
 
   let actionButtons: Nullable<JSX.Element> = null
@@ -44,11 +48,16 @@ export const ActionButtons = (props: ActionButtonProps) => {
   }
 
   return (
-    <>
+    <div
+      className={cn(styles.actionButtons, {
+        [styles.show]: !tracksLoading,
+        [styles.hide]: tracksLoading
+      })}
+    >
       {isEmptyPlaylist ? null : (
         <PlayButton onPlay={onPlay} playing={playing} />
       )}
       {actionButtons}
-    </>
+    </div>
   )
 }

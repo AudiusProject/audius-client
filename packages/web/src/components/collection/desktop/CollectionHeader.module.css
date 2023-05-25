@@ -93,10 +93,11 @@
   top: 2px;
 }
 
-.buttonSection {
-  margin-top: 14px;
+.actionButtons {
+  margin-top: var(--unit-4);
   display: flex;
   align-items: center;
+  column-gap: var(--unit-4);
 }
 
 .infoLabelsSection {
@@ -159,10 +160,6 @@
 }
 .inputWrapper :global(.ant-input-prefix) > svg g path {
   fill: var(--neutral-light-4);
-}
-
-.buttonSpacing {
-  margin-right: 16px;
 }
 
 .buttonFormatting {

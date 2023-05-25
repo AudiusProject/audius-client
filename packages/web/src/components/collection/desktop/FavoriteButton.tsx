@@ -82,18 +82,16 @@ export const FavoriteButton = (props: FavoriteButtonProps) => {
       disabled={isOwner || saveCount === 0}
       text={isSaved ? messages.unfavorite : messages.favorite}
     >
-      <div className={styles.buttonSpacing}>
-        <Button
-          className={cn(styles.buttonSpacing, styles.buttonFormatting)}
-          textClassName={styles.buttonTextFormatting}
-          type={type ?? (isSaved ? ButtonType.SECONDARY : ButtonType.COMMON)}
-          text={isSaved ? messages.favorited : messages.favorite}
-          leftIcon={<IconHeart />}
-          onClick={handleFavorite}
-          widthToHideText={BUTTON_COLLAPSE_WIDTHS.second}
-          {...other}
-        />
-      </div>
+      <Button
+        className={cn(styles.buttonFormatting)}
+        textClassName={styles.buttonTextFormatting}
+        type={type ?? (isSaved ? ButtonType.SECONDARY : ButtonType.COMMON)}
+        text={isSaved ? messages.favorited : messages.favorite}
+        leftIcon={<IconHeart />}
+        onClick={handleFavorite}
+        widthToHideText={BUTTON_COLLAPSE_WIDTHS.second}
+        {...other}
+      />
     </Tooltip>
   )
 }

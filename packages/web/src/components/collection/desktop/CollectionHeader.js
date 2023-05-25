@@ -9,7 +9,6 @@ import {
 } from '@audius/common'
 import cn from 'classnames'
 import Linkify from 'linkify-react'
-import PropTypes from 'prop-types'
 
 import { ReactComponent as IconFilter } from 'assets/img/iconFilter.svg'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
@@ -188,24 +187,16 @@ class CollectionHeader extends PureComponent {
             <div className={cn(styles.statsRow, fadeIn)}>
               {this.renderStatsRow(isLoading)}
             </div>
-            <div
-              className={cn(styles.buttonSection, {
-                [styles.show]: !tracksLoading,
-                [styles.hide]: tracksLoading
-              })}
-            >
-              {!tracksLoading ? (
-                <ActionButtons
-                  playing={playing}
-                  variant={variant}
-                  isOwner={isOwner}
-                  userId={userId}
-                  collectionId={collectionId}
-                  onPlay={onPlay}
-                  isEmptyPlaylist={numTracks === 0}
-                />
-              ) : null}
-            </div>
+            <ActionButtons
+              playing={playing}
+              variant={variant}
+              isOwner={isOwner}
+              userId={userId}
+              collectionId={collectionId}
+              onPlay={onPlay}
+              isEmptyPlaylist={numTracks === 0}
+              tracksLoading={tracksLoading}
+            />
           </div>
           {this.props.onFilterChange ? (
             <div className={styles.inputWrapper}>
@@ -225,46 +216,6 @@ class CollectionHeader extends PureComponent {
   }
 }
 
-CollectionHeader.propTypes = {
-  collectionId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  index: PropTypes.number,
-  loading: PropTypes.bool,
-  tracksLoading: PropTypes.bool,
-  playing: PropTypes.bool,
-  active: PropTypes.bool,
-  type: PropTypes.oneOf(['playlist', 'album']),
-  title: PropTypes.string,
-  artistName: PropTypes.string,
-  artistHandle: PropTypes.string,
-  coverArtSizes: PropTypes.object,
-  tags: PropTypes.array,
-  description: PropTypes.string,
-  userId: PropTypes.number,
-
-  isOwner: PropTypes.bool,
-  isAlbum: PropTypes.bool,
-  hasTracks: PropTypes.bool,
-  isPublished: PropTypes.bool,
-  isPublishing: PropTypes.bool,
-  isSaved: PropTypes.bool,
-  reposts: PropTypes.number,
-  saves: PropTypes.number,
-
-  // Actions
-  onClickArtistName: PropTypes.func,
-  onFilterChange: PropTypes.func,
-  onPlay: PropTypes.func,
-  onEdit: PropTypes.func,
-  onClickDescriptionExternalLink: PropTypes.func,
-  onClickDescriptionInternalLink: PropTypes.func,
-
-  // Smart collection
-  variant: PropTypes.any, // CollectionVariant
-  gradient: PropTypes.string,
-  icon: PropTypes.any,
-  imageOverride: PropTypes.string
-}
-
 CollectionHeader.defaultProps = {
   index: 0,
   loading: false,
@@ -278,14 +229,11 @@ CollectionHeader.defaultProps = {
   isAlbum: false,
   hasTracks: false,
   isPublished: false,
-  isPublishing: false,
-  isSaved: false,
 
   reposts: 0,
   saves: 0,
 
-  onPlay: () => {},
-  onEdit: () => {}
+  onPlay: () => {}
 }
 
 export default CollectionHeader

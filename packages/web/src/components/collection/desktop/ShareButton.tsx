@@ -55,7 +55,7 @@ export const ShareButton = (props: ShareButtonProps) => {
 
   return (
     <Button
-      className={cn(styles.buttonSpacing, styles.buttonFormatting)}
+      className={cn(styles.buttonFormatting)}
       textClassName={styles.buttonTextFormatting}
       type={type ?? ButtonType.COMMON}
       text={messages.share}

@@ -81,16 +81,15 @@ export const OverflowMenuButton = (props: OverflowMenuButtonProps) => {
   return (
     <Menu menu={overflowMenu}>
       {(ref, triggerPopup) => (
-        <div className={cn(styles.buttonSpacing)} ref={ref}>
-          <Button
-            className={cn(styles.buttonFormatting)}
-            leftIcon={<IconKebabHorizontal />}
-            onClick={triggerPopup}
-            text={null}
-            textClassName={styles.buttonTextFormatting}
-            type={ButtonType.COMMON}
-          />
-        </div>
+        <Button
+          ref={ref}
+          className={cn(styles.buttonFormatting)}
+          leftIcon={<IconKebabHorizontal />}
+          onClick={triggerPopup}
+          text={null}
+          textClassName={styles.buttonTextFormatting}
+          type={ButtonType.COMMON}
+        />
       )}
     </Menu>
   )

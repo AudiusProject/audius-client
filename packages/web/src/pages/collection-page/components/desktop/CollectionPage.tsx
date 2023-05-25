@@ -168,7 +168,9 @@ const CollectionPage = ({
     playlistName,
     description,
     isPrivate,
-    isAlbum
+    isAlbum,
+    playlistSaveCount,
+    playlistRepostCount
   } = computeCollectionMetadataProps(metadata)
 
   const topSection = (
@@ -184,10 +186,13 @@ const CollectionPage = ({
       coverArtSizes={coverArtSizes}
       description={description}
       isOwner={isOwner}
+      isAlbum={isAlbum}
       numTracks={tracks.entries.length}
       modified={lastModified}
       duration={duration}
       isPublished={!isPrivate}
+      reposts={playlistRepostCount}
+      saves={playlistSaveCount}
       playing={queuedAndPlaying}
       // Actions
       onClickArtistName={onHeroTrackClickArtistName}

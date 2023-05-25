@@ -43,7 +43,7 @@ export const PublishButton = (props: PublishButtonProps) => {
 
   return (
     <Button
-      className={cn(styles.buttonSpacing, styles.buttonFormatting)}
+      className={cn(styles.buttonFormatting)}
       textClassName={styles.buttonTextFormatting}
       type={_is_publishing ? ButtonType.DISABLED : ButtonType.COMMON}
       text={_is_publishing ? messages.publishing : messages.publish}

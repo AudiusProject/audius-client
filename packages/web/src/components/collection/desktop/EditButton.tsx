@@ -27,7 +27,7 @@ export const EditButton = (props: EditButtonProps) => {
 
   return (
     <Button
-      className={cn(styles.buttonSpacing, styles.buttonFormatting)}
+      className={cn(styles.buttonFormatting)}
       textClassName={styles.buttonTextFormatting}
       type={ButtonType.COMMON}
       text={messages.edit}

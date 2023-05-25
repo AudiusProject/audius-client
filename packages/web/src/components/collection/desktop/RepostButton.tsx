@@ -50,23 +50,19 @@ export const RepostButton = (props: RepostButtonProps) => {
     <Tooltip
       text={has_current_user_reposted ? messages.unrepost : messages.repost}
     >
-      <div className={styles.buttonSpacing}>
-        <Button
-          type={
-            type ??
-            (has_current_user_reposted
-              ? ButtonType.SECONDARY
-              : ButtonType.COMMON)
-          }
-          className={styles.buttonFormatting}
-          textClassName={styles.buttonTextFormatting}
-          text={has_current_user_reposted ? messages.reposted : messages.repost}
-          leftIcon={<IconRepost />}
-          onClick={handleRepost}
-          widthToHideText={BUTTON_COLLAPSE_WIDTHS.third}
-          {...other}
-        />
-      </div>
+      <Button
+        type={
+          type ??
+          (has_current_user_reposted ? ButtonType.SECONDARY : ButtonType.COMMON)
+        }
+        className={styles.buttonFormatting}
+        textClassName={styles.buttonTextFormatting}
+        text={has_current_user_reposted ? messages.reposted : messages.repost}
+        leftIcon={<IconRepost />}
+        onClick={handleRepost}
+        widthToHideText={BUTTON_COLLAPSE_WIDTHS.third}
+        {...other}
+      />
     </Tooltip>
   )
 }
