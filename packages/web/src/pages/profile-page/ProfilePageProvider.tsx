@@ -118,6 +118,8 @@ type ProfilePageState = {
   tracksLineupOrder: TracksSortMode
   areArtistRecommendationsVisible: boolean
   showInboxUnavailableModal: boolean
+  showBlockUserConfirmationModal: boolean
+  showUnblockUserConfirmationModal: boolean
 }
 
 export const MIN_COLLECTIBLES_TIER: BadgeTier = 'silver'
@@ -132,6 +134,8 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     tracksLineupOrder: TracksSortMode.RECENT,
     areArtistRecommendationsVisible: false,
     showInboxUnavailableModal: false,
+    showBlockUserConfirmationModal: false,
+    showUnblockUserConfirmationModal: false,
     ...INITIAL_UPDATE_FIELDS
   }
 
@@ -271,6 +275,14 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
 
   onCloseInboxUnavailableModal = () => {
     this.setState({ showInboxUnavailableModal: false })
+  }
+
+  onCloseBlockUserConfirmationModal = () => {
+    this.setState({ showBlockUserConfirmationModal: false })
+  }
+
+  onCloseUnblockUserConfirmationModal = () => {
+    this.setState({ showUnblockUserConfirmationModal: false })
   }
 
   fetchProfile = (
@@ -725,17 +737,11 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
   }
 
   onBlock = () => {
-    const {
-      profile: { profile }
-    } = this.props
-    return this.props.onBlock(profile!.user_id)
+    return this.setState({ showBlockUserConfirmationModal: true })
   }
 
   onUnblock = () => {
-    const {
-      profile: { profile }
-    } = this.props
-    return this.props.onUnblock(profile!.user_id)
+    return this.setState({ showUnblockUserConfirmationModal: true })
   }
 
   render() {
@@ -974,7 +980,13 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
         : false,
       canCreateChat: this.props.chatPermissions.canCreateChat,
       showInboxUnavailableModal: this.state.showInboxUnavailableModal,
-      onCloseInboxUnavailableModal: this.onCloseInboxUnavailableModal
+      onCloseInboxUnavailableModal: this.onCloseInboxUnavailableModal,
+      showBlockUserConfirmationModal: this.state.showBlockUserConfirmationModal,
+      onCloseBlockUserConfirmationModal: this.onCloseBlockUserConfirmationModal,
+      showUnblockUserConfirmationModal:
+        this.state.showUnblockUserConfirmationModal,
+      onCloseUnblockUserConfirmationModal:
+        this.onCloseUnblockUserConfirmationModal
     }
 
     return (
