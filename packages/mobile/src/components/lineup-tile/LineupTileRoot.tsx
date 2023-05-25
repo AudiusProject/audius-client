@@ -5,7 +5,7 @@ import { Tile } from 'app/components/core'
 
 const styles = StyleSheet.create({
   tile: {
-    minHeight: 152
+    minHeight: 72
   }
 })
 

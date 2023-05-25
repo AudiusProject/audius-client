@@ -37,6 +37,9 @@ export type LineupItemProps = {
 
   /** Uid of the item */
   uid: UID
+
+  /** Whether user is in chat screen */
+  isChat?: boolean
 }
 
 export type LineupTileProps = Omit<LineupItemProps, 'togglePlay'> & {

@@ -53,6 +53,7 @@ export const LineupTile = ({
   item,
   user,
   isPlayingUid,
+  isChat,
   TileProps
 }: LineupTileProps) => {
   const isGatedContentEnabled = useIsGatedContentEnabled()
@@ -151,19 +152,21 @@ export const LineupTile = ({
         />
       </View>
       {children}
-      <LineupTileActionButtons
-        hasReposted={has_current_user_reposted}
-        hasSaved={has_current_user_saved}
-        isOwner={isOwner}
-        isShareHidden={hideShare}
-        isUnlisted={isUnlisted}
-        trackId={trackId}
-        doesUserHaveAccess={doesUserHaveAccess}
-        onPressOverflow={onPressOverflow}
-        onPressRepost={onPressRepost}
-        onPressSave={onPressSave}
-        onPressShare={onPressShare}
-      />
+      {!isChat ? (
+        <LineupTileActionButtons
+          hasReposted={has_current_user_reposted}
+          hasSaved={has_current_user_saved}
+          isOwner={isOwner}
+          isShareHidden={hideShare}
+          isUnlisted={isUnlisted}
+          trackId={trackId}
+          doesUserHaveAccess={doesUserHaveAccess}
+          onPressOverflow={onPressOverflow}
+          onPressRepost={onPressRepost}
+          onPressSave={onPressSave}
+          onPressShare={onPressShare}
+        />
+      ) : null}
     </LineupTileRoot>
   )
 }

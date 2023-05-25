@@ -6,7 +6,9 @@ import {
   accountSelectors,
   chatSelectors,
   decodeHashId,
-  formatMessageDate
+  formatMessageDate,
+  isPlaylistUrl,
+  isTrackUrl
 } from '@audius/common'
 import type { ChatMessageReaction } from '@audius/sdk'
 import { find } from 'linkifyjs'
@@ -23,6 +25,8 @@ import { reactionMap } from '../notifications-screen/Reaction'
 import { LinkPreview } from './LinkPreview'
 import { ResendMessageButton } from './ResendMessageButton'
 import { REACTION_LONGPRESS_DELAY } from './constants'
+import { ChatMessagePlaylist } from './ChatMessagePlaylist'
+import { ChatMessageTrack } from './ChatMessageTrack'
 
 const { getUserId } = accountSelectors
 const { isIdEqualToReactionsPopupMessageId } = chatSelectors
@@ -233,19 +237,42 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                     : null
                 }
               >
-                {link ? (
-                  <LinkPreview
-                    key={`${link.value}-${link.start}-${link.end}`}
-                    chatId={chatId}
-                    messageId={message.message_id}
-                    href={link.href}
-                    isLinkPreviewOnly={isLinkPreviewOnly}
-                    onLongPress={handleLongPress}
-                    onPressIn={handlePressIn}
-                    onPressOut={handlePressOut}
-                    isPressed={isPressed}
-                  />
-                ) : null}
+                {links
+                  .filter((link) => link.type === 'url' && link.isLink)
+                  .slice(0, 1)
+                  .map((link) => {
+                    if (isPlaylistUrl(link.value)) {
+                      return (
+                        <ChatMessagePlaylist
+                          key={`${link.value}-${link.start}-${link.end}`}
+                          link={link.value}
+                          isAuthor={isAuthor}
+                        />
+                      )
+                    }
+                    if (isTrackUrl(link.value)) {
+                      return (
+                        <ChatMessageTrack
+                          key={`${link.value}-${link.start}-${link.end}`}
+                          link={link.value}
+                          isAuthor={isAuthor}
+                        />
+                      )
+                    }
+                    return (
+                      <LinkPreview
+                      key={`${link.value}-${link.start}-${link.end}`}
+                      chatId={chatId}
+                      messageId={message.message_id}
+                      href={link.href}
+                      isLinkPreviewOnly={isLinkPreviewOnly}
+                      onLongPress={handleLongPress}
+                      onPressIn={handlePressIn}
+                      onPressOut={handlePressOut}
+                      isPressed={isPressed}
+                    />
+                    )
+                  })}
                 {!isLinkPreviewOnly ? (
                   <Hyperlink
                     text={message.message}
