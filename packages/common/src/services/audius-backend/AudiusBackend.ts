@@ -2296,6 +2296,22 @@ export const audiusBackend = ({
         reactionValue: data.reaction_value,
         ...formatBaseNotification(notification)
       }
+    } else if (notification.type === 'track_added_to_playlist') {
+      let trackId = 0
+      let playlistId = 0
+      notification.actions.filter(removeNullable).forEach((action) => {
+        const data = action.data
+        if (data.track_id && data.playlist_id) {
+          trackId = decodeHashId(data.track_id) as ID
+          playlistId = decodeHashId(data.playlist_id) as ID
+        }
+      })
+      return {
+        type: NotificationType.AddTrackToPlaylist,
+        trackId,
+        playlistId,
+        ...formatBaseNotification(notification)
+      }
     } else if (notification.type === 'tastemaker') {
       const data = notification.actions[0].data
       return {
@@ -2562,6 +2578,8 @@ export const audiusBackend = ({
         entityType,
         ...formatBaseNotification(notification)
       }
+    } else {
+      console.error('Notification does not match an expected type.')
     }
 
     return notification

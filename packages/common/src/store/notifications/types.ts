@@ -144,6 +144,7 @@ export type DiscoveryRepostOfRepostNotificationAction = {
   repost_of_repost_item_id: string
 }
 export type DiscoveryTastemakerNotificationAction = {
+  type: 'tastemaker'
   tastemaker_user_id: string
   tastemaker_item_id: string
   action: string
@@ -161,6 +162,11 @@ export type DiscoveryTipReceiveNotificationAction = {
   receiver_user_id: string
   tip_tx_signature: string
   reaction_value: number
+}
+export type DiscoveryAddTrackToPlaylistNotificationAction = {
+  playlist_id: string
+  track_id: string
+  type: 'track_added_to_playlist'
 }
 
 export type DiscoveryMilestoneFollowNotificationAction = {
@@ -263,6 +269,10 @@ export type DiscoveryRepostNotification = DiscoveryBaseNotification<
 export type DiscoveryTastemakerNotification = DiscoveryBaseNotification<
   'tastemaker',
   DiscoveryTastemakerNotificationAction
+>
+export type DiscoveryAddTrackToPlaylistNotification = DiscoveryBaseNotification<
+  'track_added_to_playlist',
+  DiscoveryAddTrackToPlaylistNotificationAction
 >
 export type DiscoveryTipSendNotification = DiscoveryBaseNotification<
   'tip_send',
@@ -367,6 +377,7 @@ export type DiscoveryNotification =
   | DiscoveryTrendingUndergroundNotification
   | DiscoveryRepostOfRepostNotification
   | DiscoverySaveOfRepostNotification
+  | DiscoveryAddTrackToPlaylistNotification
   | DiscoveryTastemakerNotification
 
 export type AnnouncementNotification = BaseNotification & {
@@ -841,7 +852,6 @@ export type AddTrackToPlaylistNotification = BaseNotification & {
   type: NotificationType.AddTrackToPlaylist
   trackId: ID
   playlistId: ID
-  playlistOwnerId: ID
 }
 
 export type AddTrackToPlaylistPushNotification = {

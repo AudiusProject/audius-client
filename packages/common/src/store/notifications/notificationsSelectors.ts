@@ -137,7 +137,7 @@ export const getNotificationEntities = <
     const track = getTrack(state, { id: notification.trackId })
     const currentUser = getAccountUser(state)
     const playlist = getCollection(state, { id: notification.playlistId })
-    const playlistOwner = getUser(state, { id: notification.playlistOwnerId })
+    const playlistOwner = getUser(state, { id: playlist?.playlist_owner_id })
     return {
       track: { ...track, user: currentUser },
       playlist: { ...playlist, user: playlistOwner }
