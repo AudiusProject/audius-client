@@ -8,7 +8,7 @@ import { BUTTON_COLLAPSE_WIDTHS } from './utils'
 
 const messages = {
   play: 'Play',
-  pause: 'PAuse'
+  pause: 'Pause'
 }
 
 type PlayButtonProps = {
