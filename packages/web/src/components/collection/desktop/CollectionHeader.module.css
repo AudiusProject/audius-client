@@ -200,6 +200,17 @@
   mix-blend-mode: overlay;
 }
 
+.imageEditButtonWrapper {
+  opacity: 0;
+  transition: opacity var(--calm);
+  position: absolute;
+  bottom: var(--unit-4);
+}
+
+.coverArtWrapper:hover .imageEditButtonWrapper {
+  opacity: 1;
+}
+
 .spinner {
   display: block;
   height: var(--unit-5);

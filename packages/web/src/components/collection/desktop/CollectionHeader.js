@@ -110,6 +110,7 @@ class CollectionHeader extends PureComponent {
             gradient={gradient}
             icon={icon}
             imageOverride={imageOverride}
+            isOwner={isOwner}
           />
           <div className={styles.infoSection}>
             <div className={cn(styles.typeLabel, fadeIn)}>

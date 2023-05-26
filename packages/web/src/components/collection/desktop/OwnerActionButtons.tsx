@@ -18,9 +18,12 @@ type OwnerActionButtonProps = {
 
 export const OwnerActionButtons = (props: OwnerActionButtonProps) => {
   const { collectionId } = props
-  const { track_count, is_private, is_album } = useSelector(
-    (state: CommonState) => getCollection(state, { id: collectionId })
+  const collection = useSelector((state: CommonState) =>
+    getCollection(state, { id: collectionId })
   ) as Collection
+  const { track_count, is_private, is_album } = collection
+
+  console.log(collection)
 
   return (
     <>
