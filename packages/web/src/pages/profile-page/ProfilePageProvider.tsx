@@ -35,7 +35,8 @@ import {
   queueSelectors,
   Nullable,
   chatActions,
-  chatSelectors
+  chatSelectors,
+  ChatPermissionAction
 } from '@audius/common'
 import { push as pushRoute, replace } from 'connected-react-router'
 import { UnregisterCallback } from 'history'
@@ -45,6 +46,10 @@ import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
 import { make, TrackEvent } from 'common/store/analytics/actions'
+import {
+  openSignOn,
+  showRequiresAccountModal
+} from 'common/store/pages/signon/actions'
 import { ProfileMode } from 'components/stat-banner/StatBanner'
 import { StatProps } from 'components/stats/Stats'
 import * as unfollowConfirmationActions from 'components/unfollow-confirmation-modal/store/actions'
@@ -118,6 +123,8 @@ type ProfilePageState = {
   tracksLineupOrder: TracksSortMode
   areArtistRecommendationsVisible: boolean
   showInboxUnavailableModal: boolean
+  showBlockUserConfirmationModal: boolean
+  showUnblockUserConfirmationModal: boolean
 }
 
 export const MIN_COLLECTIBLES_TIER: BadgeTier = 'silver'
@@ -132,6 +139,8 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     tracksLineupOrder: TracksSortMode.RECENT,
     areArtistRecommendationsVisible: false,
     showInboxUnavailableModal: false,
+    showBlockUserConfirmationModal: false,
+    showUnblockUserConfirmationModal: false,
     ...INITIAL_UPDATE_FIELDS
   }
 
@@ -271,6 +280,14 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
 
   onCloseInboxUnavailableModal = () => {
     this.setState({ showInboxUnavailableModal: false })
+  }
+
+  onCloseBlockUserConfirmationModal = () => {
+    this.setState({ showBlockUserConfirmationModal: false })
+  }
+
+  onCloseUnblockUserConfirmationModal = () => {
+    this.setState({ showUnblockUserConfirmationModal: false })
   }
 
   fetchProfile = (
@@ -717,6 +734,13 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     const {
       profile: { profile }
     } = this.props
+    // Handle logged-out case, redirect to signup
+    if (
+      this.props.chatPermissions.callToAction === ChatPermissionAction.SIGN_UP
+    ) {
+      return this.props.redirectUnauthenticatedAction()
+    }
+
     if (this.props.chatPermissions?.canCreateChat) {
       return this.props.onMessage(profile!.user_id)
     } else {
@@ -725,17 +749,11 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
   }
 
   onBlock = () => {
-    const {
-      profile: { profile }
-    } = this.props
-    return this.props.onBlock(profile!.user_id)
+    return this.setState({ showBlockUserConfirmationModal: true })
   }
 
   onUnblock = () => {
-    const {
-      profile: { profile }
-    } = this.props
-    return this.props.onUnblock(profile!.user_id)
+    return this.setState({ showUnblockUserConfirmationModal: true })
   }
 
   render() {
@@ -972,9 +990,19 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       isBlocked: this.props.profile.profile
         ? this.props.blockeeList.includes(this.props.profile.profile.user_id)
         : false,
-      canCreateChat: this.props.chatPermissions.canCreateChat,
+      canCreateChat:
+        // In the signed out case, we show the chat button (but redirect to signup)
+        this.props.chatPermissions.canCreateChat ||
+        this.props.chatPermissions.callToAction ===
+          ChatPermissionAction.SIGN_UP,
       showInboxUnavailableModal: this.state.showInboxUnavailableModal,
-      onCloseInboxUnavailableModal: this.onCloseInboxUnavailableModal
+      onCloseInboxUnavailableModal: this.onCloseInboxUnavailableModal,
+      showBlockUserConfirmationModal: this.state.showBlockUserConfirmationModal,
+      onCloseBlockUserConfirmationModal: this.onCloseBlockUserConfirmationModal,
+      showUnblockUserConfirmationModal:
+        this.state.showUnblockUserConfirmationModal,
+      onCloseUnblockUserConfirmationModal:
+        this.onCloseUnblockUserConfirmationModal
     }
 
     return (
@@ -1188,6 +1216,10 @@ function mapDispatchToProps(dispatch: Dispatch, props: RouteComponentProps) {
     },
     onUnblock: (userId: ID) => {
       dispatch(unblockUser({ userId }))
+    },
+    redirectUnauthenticatedAction: () => {
+      dispatch(openSignOn())
+      dispatch(showRequiresAccountModal())
     }
   }
 }
