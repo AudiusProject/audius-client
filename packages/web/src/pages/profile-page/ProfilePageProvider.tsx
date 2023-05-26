@@ -35,7 +35,8 @@ import {
   queueSelectors,
   Nullable,
   chatActions,
-  chatSelectors
+  chatSelectors,
+  ChatPermissionAction
 } from '@audius/common'
 import { push as pushRoute, replace } from 'connected-react-router'
 import { UnregisterCallback } from 'history'
@@ -45,6 +46,10 @@ import { withRouter, RouteComponentProps } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
 import { make, TrackEvent } from 'common/store/analytics/actions'
+import {
+  openSignOn,
+  showRequiresAccountModal
+} from 'common/store/pages/signon/actions'
 import { ProfileMode } from 'components/stat-banner/StatBanner'
 import { StatProps } from 'components/stats/Stats'
 import * as unfollowConfirmationActions from 'components/unfollow-confirmation-modal/store/actions'
@@ -74,7 +79,7 @@ const {
 } = profilePageSelectors
 const { getAccountUser, getAccountHasTracks } = accountSelectors
 const { createChat, blockUser, unblockUser } = chatActions
-const { getBlockees, getBlockers, getUserChatPermissions } = chatSelectors
+const { getBlockees, getBlockers, getCanCreateChat } = chatSelectors
 
 const INITIAL_UPDATE_FIELDS = {
   updatedName: null,
@@ -117,6 +122,9 @@ type ProfilePageState = {
   updatedDonation: string | null
   tracksLineupOrder: TracksSortMode
   areArtistRecommendationsVisible: boolean
+  showInboxUnavailableModal: boolean
+  showBlockUserConfirmationModal: boolean
+  showUnblockUserConfirmationModal: boolean
 }
 
 export const MIN_COLLECTIBLES_TIER: BadgeTier = 'silver'
@@ -130,6 +138,9 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     shouldMaskContent: false,
     tracksLineupOrder: TracksSortMode.RECENT,
     areArtistRecommendationsVisible: false,
+    showInboxUnavailableModal: false,
+    showBlockUserConfirmationModal: false,
+    showUnblockUserConfirmationModal: false,
     ...INITIAL_UPDATE_FIELDS
   }
 
@@ -265,6 +276,18 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
 
   onCloseArtistRecommendations = () => {
     this.setState({ areArtistRecommendationsVisible: false })
+  }
+
+  onCloseInboxUnavailableModal = () => {
+    this.setState({ showInboxUnavailableModal: false })
+  }
+
+  onCloseBlockUserConfirmationModal = () => {
+    this.setState({ showBlockUserConfirmationModal: false })
+  }
+
+  onCloseUnblockUserConfirmationModal = () => {
+    this.setState({ showUnblockUserConfirmationModal: false })
   }
 
   fetchProfile = (
@@ -711,21 +734,26 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     const {
       profile: { profile }
     } = this.props
-    return this.props.onMessage(profile!.user_id)
+    // Handle logged-out case, redirect to signup
+    if (
+      this.props.chatPermissions.callToAction === ChatPermissionAction.SIGN_UP
+    ) {
+      return this.props.redirectUnauthenticatedAction()
+    }
+
+    if (this.props.chatPermissions?.canCreateChat) {
+      return this.props.onMessage(profile!.user_id)
+    } else {
+      this.setState({ showInboxUnavailableModal: true })
+    }
   }
 
   onBlock = () => {
-    const {
-      profile: { profile }
-    } = this.props
-    return this.props.onBlock(profile!.user_id)
+    return this.setState({ showBlockUserConfirmationModal: true })
   }
 
   onUnblock = () => {
-    const {
-      profile: { profile }
-    } = this.props
-    return this.props.onUnblock(profile!.user_id)
+    return this.setState({ showUnblockUserConfirmationModal: true })
   }
 
   render() {
@@ -846,12 +874,6 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       activeTab === ProfilePageTabs.REPOSTS ||
       activeTab === ProfilePageTabs.COLLECTIBLES
     const following = !!profile && profile.does_current_user_follow
-    const hasChatPermission =
-      (this.props.profile.profile?.user_id &&
-        !this.props.blockerList.includes(this.props.profile.profile.user_id) &&
-        this.props.chatPermissions[this.props.profile.profile!.user_id]
-          ?.current_user_has_permission) ??
-      false
 
     const childProps = {
       // Computed
@@ -922,7 +944,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       updateDonation: this.updateDonation,
       updateCoverPhoto: this.updateCoverPhoto,
       didChangeTabsFrom: this.didChangeTabsFrom,
-      onMessage: hasChatPermission ? this.onMessage : undefined,
+      onMessage: this.onMessage,
       onBlock: this.onBlock,
       onUnblock: this.onUnblock
     }
@@ -967,7 +989,20 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
       updateProfile: this.props.updateProfile,
       isBlocked: this.props.profile.profile
         ? this.props.blockeeList.includes(this.props.profile.profile.user_id)
-        : false
+        : false,
+      canCreateChat:
+        // In the signed out case, we show the chat button (but redirect to signup)
+        this.props.chatPermissions.canCreateChat ||
+        this.props.chatPermissions.callToAction ===
+          ChatPermissionAction.SIGN_UP,
+      showInboxUnavailableModal: this.state.showInboxUnavailableModal,
+      onCloseInboxUnavailableModal: this.onCloseInboxUnavailableModal,
+      showBlockUserConfirmationModal: this.state.showBlockUserConfirmationModal,
+      onCloseBlockUserConfirmationModal: this.onCloseBlockUserConfirmationModal,
+      showUnblockUserConfirmationModal:
+        this.state.showUnblockUserConfirmationModal,
+      onCloseUnblockUserConfirmationModal:
+        this.onCloseUnblockUserConfirmationModal
     }
 
     return (
@@ -1009,7 +1044,9 @@ function makeMapStateToProps() {
       relatedArtists: selectSuggestedFollowsUsers(state, {
         id: getProfileUserId(state, handleLower) ?? 0
       }),
-      chatPermissions: getUserChatPermissions(state),
+      chatPermissions: getCanCreateChat(state, {
+        userId: profile.profile?.user_id
+      }),
       blockeeList: getBlockees(state),
       blockerList: getBlockers(state),
       accountHasTracks
@@ -1179,6 +1216,10 @@ function mapDispatchToProps(dispatch: Dispatch, props: RouteComponentProps) {
     },
     onUnblock: (userId: ID) => {
       dispatch(unblockUser({ userId }))
+    },
+    redirectUnauthenticatedAction: () => {
+      dispatch(openSignOn())
+      dispatch(showRequiresAccountModal())
     }
   }
 }

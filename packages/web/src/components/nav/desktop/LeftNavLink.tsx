@@ -10,7 +10,7 @@ import { useSelector } from 'utils/reducer'
 
 import styles from './LeftNavLink.module.css'
 
-type LeftNavLinkProps =
+export type LeftNavLinkProps =
   | { disabled?: boolean } & (
       | Omit<NavLinkProps, 'onDrop'>
       | Omit<ComponentProps<'div'>, 'onDrop'>
@@ -21,6 +21,7 @@ export const LeftNavLink = (props: LeftNavLinkProps) => {
   const className = cn(classNameProp, styles.link, {
     [styles.disabledLink]: disabled
   })
+
   if ('to' in other) {
     return <NavLink {...other} activeClassName='active' className={className} />
   }
@@ -41,7 +42,9 @@ export const LeftNavDroppable = (props: LeftNavDroppableProps) => {
       : styles.droppableLinkHoverPlaylist
 
   const activeClassName =
-    kind === 'track' ? styles.droppableLinkActive : undefined
+    kind === 'track'
+      ? cn(styles.droppableLinkActive, 'droppableLinkActive')
+      : undefined
 
   return (
     <Droppable

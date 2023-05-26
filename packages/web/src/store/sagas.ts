@@ -21,7 +21,7 @@ import { all, fork } from 'redux-saga/effects'
 import addToPlaylistSagas from 'common/store/add-to-playlist/sagas'
 import analyticsSagas from 'common/store/analytics/sagas'
 import backendSagas from 'common/store/backend/sagas'
-import collectionsSagas from 'common/store/cache/collections/sagas'
+import collectionsSagas from 'common/store/cache/collections/webSagas'
 import coreCacheSagas from 'common/store/cache/sagas'
 import tracksSagas from 'common/store/cache/tracks/sagas'
 import usersSagas from 'common/store/cache/users/sagas'
@@ -52,6 +52,7 @@ import profileSagas from 'common/store/profile/sagas'
 import queueSagas from 'common/store/queue/sagas'
 import recoveryEmailSagas from 'common/store/recovery-email/sagas'
 import remixSettingsSagas from 'common/store/remix-settings/sagas'
+import savedCollectionsSagas from 'common/store/saved-collections/sagas'
 import searchAiBarSagas from 'common/store/search-ai-bar/sagas'
 import searchBarSagas from 'common/store/search-bar/sagas'
 import smartCollectionPageSagas from 'common/store/smart-collection/sagas'
@@ -145,6 +146,7 @@ export default function* rootSaga() {
     collectionsSagas(),
     tracksSagas(),
     usersSagas(),
+    savedCollectionsSagas(),
 
     // Playback
     playerSagas(),

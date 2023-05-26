@@ -2,16 +2,13 @@ import { type AudiusSdk, ChatEvents } from '@audius/sdk'
 import { Middleware } from 'redux'
 
 import { Status } from 'models/Status'
+import { getUserId } from 'store/account/selectors'
+import { encodeHashId } from 'utils/hashIds'
 
 import { actions as chatActions } from './slice'
 
-const {
-  connect,
-  disconnect,
-  addMessage,
-  incrementUnreadCount,
-  setMessageReactionSucceeded
-} = chatActions
+const { connect, disconnect, addMessage, setMessageReactionSucceeded } =
+  chatActions
 
 export const chatMiddleware =
   (audiusSdk: () => Promise<AudiusSdk>): Middleware =>
@@ -32,10 +29,17 @@ export const chatMiddleware =
             console.debug('[chats] WebSocket opened. Listening for chats...')
           }
           messageListener = ({ chatId, message }) => {
+            const currentUserId = getUserId(store.getState())
+            const isSelfMessage =
+              message.sender_user_id === encodeHashId(currentUserId)
             store.dispatch(
-              addMessage({ chatId, message, status: Status.SUCCESS })
+              addMessage({
+                chatId,
+                message,
+                status: Status.SUCCESS,
+                isSelfMessage
+              })
             )
-            store.dispatch(incrementUnreadCount({ chatId }))
           }
           reactionListener = ({ chatId, messageId, reaction }) => {
             store.dispatch(

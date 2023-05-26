@@ -3,12 +3,12 @@ import { useCallback } from 'react'
 import { RandomImage } from '@audius/common'
 import { useField } from 'formik'
 
-import IconCamera from 'app/assets/images/iconCamera.svg'
+import IconSearch from 'app/assets/images/iconSearch.svg'
 import { TextButton } from 'app/components/core'
 import { flexRowCentered, makeStyles } from 'app/styles'
 
 const messages = {
-  getRandomArt: 'Get Random Artwork'
+  getRandomArt: 'Find artwork for me'
 }
 
 const blobToBase64 = (blob: Blob) => {
@@ -23,7 +23,10 @@ const useStyles = makeStyles(({ spacing }) => ({
   root: {
     ...flexRowCentered(),
     justifyContent: 'center',
-    marginTop: spacing(2)
+    marginTop: spacing(4)
+  },
+  icon: {
+    marginRight: spacing(2)
   }
 }))
 
@@ -56,10 +59,10 @@ export const RandomImageInput = (props: RandomImageInputProps) => {
     <TextButton
       variant='secondary'
       title={messages.getRandomArt}
-      icon={IconCamera}
+      icon={IconSearch}
       iconPosition='left'
       onPress={handlePress}
-      style={styles.root}
+      styles={{ root: styles.root, icon: styles.icon }}
     />
   )
 }

@@ -6,69 +6,102 @@ import type {
   ReactionTypes
 } from '@audius/common'
 import { chatActions, encodeHashId, accountSelectors } from '@audius/common'
+import Clipboard from '@react-native-clipboard/clipboard'
 import { View, Dimensions, Pressable, Animated } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { usePopupAnimation } from 'app/hooks/usePopupAnimation'
+import { useToast } from 'app/hooks/useToast'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
+import { zIndex } from 'app/utils/zIndex'
 
 import { ReactionList } from '../notifications-screen/Reaction'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
-import { REACTION_CONTAINER_HEIGHT } from './constants'
+import { CopyMessagesButton } from './CopyMessagesButton'
+import {
+  REACTION_CONTAINER_HEIGHT,
+  REACTION_CONTAINER_TOP_OFFSET
+} from './constants'
 
 const { getUserId } = accountSelectors
 const { setMessageReaction } = chatActions
 
+const messages = {
+  messageCopied: 'Message copied to clipboard'
+}
+
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
-  reactionsContainer: {
-    borderWidth: 1,
-    borderRadius: spacing(12),
-    borderColor: palette.neutralLight9,
-    zIndex: 40,
-    width: Dimensions.get('window').width - spacing(10),
-    backgroundColor: palette.white,
-    marginHorizontal: spacing(5)
-  },
-  popupContainer: {
-    position: 'absolute',
-    display: 'flex',
-    zIndex: 20,
-    overflow: 'hidden'
-  },
   dimBackground: {
     position: 'absolute',
     height: '100%',
     width: '100%',
-    zIndex: 10,
+    zIndex: zIndex.CHAT_REACTIONS_POPUP_DIM_BACKGROUND,
     backgroundColor: 'black'
+  },
+  popupContainer: {
+    position: 'absolute',
+    display: 'flex',
+    zIndex: zIndex.CHAT_REACTIONS_POPUP_CLOSE_PRESSABLES,
+    overflow: 'hidden'
   },
   outerPressable: {
     position: 'absolute',
     height: '100%',
     width: '100%',
-    zIndex: 20
+    zIndex: zIndex.CHAT_REACTIONS_POPUP_CLOSE_PRESSABLES
   },
   innerPressable: {
     position: 'absolute',
     height: '100%',
     width: '100%',
-    zIndex: 30
+    zIndex: zIndex.CHAT_REACTIONS_POPUP_CLOSE_PRESSABLES
+  },
+  reactionsContainer: {
+    borderWidth: 1,
+    borderRadius: spacing(12),
+    borderColor: palette.neutralLight9,
+    zIndex: zIndex.CHAT_REACTIONS_POPUP_CONTENT,
+    width: Dimensions.get('window').width - spacing(10),
+    backgroundColor: palette.white,
+    marginHorizontal: spacing(5)
   },
   popupChatMessage: {
     position: 'absolute',
     maxWidth: Dimensions.get('window').width - spacing(12),
-    zIndex: 40
+    zIndex: zIndex.CHAT_REACTIONS_POPUP_CONTENT
   },
   emoji: {
     height: spacing(17)
+  },
+  copyPressableContainer: {
+    position: 'absolute',
+    dipslay: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing(1.5),
+    zIndex: zIndex.CHAT_REACTIONS_POPUP_CONTENT
+  },
+  copyAnimatedContainer: {
+    dipslay: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing(1.5),
+    zIndex: zIndex.CHAT_REACTIONS_POPUP_CONTENT
+  },
+  copyText: {
+    fontSize: typography.fontSize.xs,
+    fontFamily: typography.fontByWeight.bold,
+    color: palette.white
   }
 }))
 
 type ReactionPopupProps = {
   chatId: string
   messageTop: number
+  messageHeight: number
+  containerTop: number
   containerBottom: number
   isAuthor: boolean
   message: ChatMessageWithExtras
@@ -79,6 +112,8 @@ type ReactionPopupProps = {
 export const ReactionPopup = ({
   chatId,
   messageTop,
+  messageHeight,
+  containerTop,
   containerBottom,
   isAuthor,
   message,
@@ -88,6 +123,8 @@ export const ReactionPopup = ({
   const styles = useStyles()
   const dispatch = useDispatch()
   const userId = useSelector(getUserId)
+  const { toast } = useToast()
+
   const userIdEncoded = encodeHashId(userId)
   const selectedReaction = message.reactions?.find(
     (r) => r.user_id === userIdEncoded
@@ -121,7 +158,26 @@ export const ReactionPopup = ({
     [userId, handleClosePopup, dispatch, chatId, userIdEncoded]
   )
 
-  return shouldShowPopup ? (
+  const handleCopyPress = useCallback(() => {
+    Clipboard.setString(message.message)
+    handleClosePopup()
+    toast({ content: messages.messageCopied, type: 'info' })
+  }, [message.message, handleClosePopup, toast])
+
+  const handleReactionChanged = useCallback(
+    (reaction) => {
+      if (reaction) {
+        handleReactionSelected(message, reaction)
+      }
+    },
+    [message, handleReactionSelected]
+  )
+
+  if (!shouldShowPopup) {
+    return null
+  }
+
+  return (
     <>
       <Animated.View
         style={[
@@ -136,14 +192,15 @@ export const ReactionPopup = ({
         style={[
           styles.popupContainer,
           {
-            height: containerBottom
+            height: containerBottom - containerTop,
+            top: containerTop
           }
         ]}
       >
         {/* This 2nd pressable ensures that clicking outside of the
         message and reaction list, but inside of flatlist view,
         closes the popup. */}
-        <Pressable style={[styles.innerPressable]} onPress={handleClosePopup} />
+        <Pressable style={styles.innerPressable} onPress={handleClosePopup} />
         <Animated.View style={{ opacity: otherOpacityAnim.current }}>
           <ChatMessageListItem
             chatId={chatId}
@@ -152,19 +209,30 @@ export const ReactionPopup = ({
             style={[
               styles.popupChatMessage,
               {
-                top: messageTop,
-                alignSelf: isAuthor ? 'flex-end' : 'flex-start',
+                top: messageTop - containerTop,
                 right: isAuthor ? spacing(6) : undefined,
                 left: !isAuthor ? spacing(6) : undefined
               }
             ]}
           />
         </Animated.View>
+        <CopyMessagesButton
+          isAuthor={isAuthor}
+          messageTop={messageTop}
+          containerTop={containerTop}
+          messageHeight={messageHeight}
+          onPress={handleCopyPress}
+        />
         <Animated.View
           style={[
             styles.reactionsContainer,
             {
-              top: messageTop - REACTION_CONTAINER_HEIGHT,
+              top: Math.max(
+                messageTop - containerTop - REACTION_CONTAINER_HEIGHT,
+                containerTop -
+                  REACTION_CONTAINER_HEIGHT -
+                  REACTION_CONTAINER_TOP_OFFSET
+              ),
               opacity: otherOpacityAnim.current,
               transform: [
                 {
@@ -176,11 +244,7 @@ export const ReactionPopup = ({
         >
           <ReactionList
             selectedReaction={selectedReaction as ReactionTypes}
-            onChange={(reaction) => {
-              if (reaction) {
-                handleReactionSelected(message, reaction)
-              }
-            }}
+            onChange={handleReactionChanged}
             isVisible={shouldShowPopup}
             scale={1.6}
             style={{
@@ -190,5 +254,5 @@ export const ReactionPopup = ({
         </Animated.View>
       </View>
     </>
-  ) : null
+  )
 }

@@ -1,20 +1,35 @@
-import { ReactNode, useCallback, useEffect, useContext } from 'react'
+import {
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
+} from 'react'
 
 import {
+  AccountCollection,
+  CommonState,
   ID,
-  UID,
-  Name,
   Lineup,
-  Status,
-  User,
+  Name,
+  QueueItem,
+  SavedPageCollection,
   SavedPageTabs,
   SavedPageTrack,
-  SavedPageCollection,
-  QueueItem,
-  usePremiumContentAccessMap
+  Status,
+  UID,
+  User,
+  cacheCollectionsSelectors,
+  cacheUsersSelectors,
+  statusIsNotFinalized,
+  useFetchedSavedCollections,
+  usePremiumContentAccessMap,
+  useSavedAlbums
 } from '@audius/common'
 import { Button, ButtonType } from '@audius/stems'
 import cn from 'classnames'
+import { useSelector } from 'react-redux'
 
 import { ReactComponent as IconAlbum } from 'assets/img/iconAlbum.svg'
 import { ReactComponent as IconFilter } from 'assets/img/iconFilter.svg'
@@ -25,16 +40,23 @@ import Card from 'components/card/mobile/Card'
 import Header from 'components/header/mobile/Header'
 import { HeaderContext } from 'components/header/mobile/HeaderContextProvider'
 import CardLineup from 'components/lineup/CardLineup'
+import InfiniteCardLineup from 'components/lineup/InfiniteCardLineup'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import MobilePageContainer from 'components/mobile-page-container/MobilePageContainer'
 import { useMainPageHeader } from 'components/nav/store/context'
 import TrackList from 'components/track/mobile/TrackList'
 import { TrackItemAction } from 'components/track/mobile/TrackListItem'
+import { useGoToRoute } from 'hooks/useGoToRoute'
 import useTabs from 'hooks/useTabs/useTabs'
-import { albumPage, TRENDING_PAGE, playlistPage } from 'utils/route'
+import { TRENDING_PAGE, albumPage, playlistPage } from 'utils/route'
+
+import { formatCardSecondaryText } from '../utils'
 
 import NewPlaylistButton from './NewPlaylistButton'
 import styles from './SavedPage.module.css'
+
+const { getCollection } = cacheCollectionsSelectors
+const { getUser } = cacheUsersSelectors
 
 const emptyTabMessages = {
   afterSaved: "Once you have, this is where you'll find them!",
@@ -110,27 +132,29 @@ const TracksLineup = ({
 }) => {
   const [trackEntries] = getFilteredData(tracks.entries)
   const trackAccessMap = usePremiumContentAccessMap(trackEntries)
-  const trackList = trackEntries.map((entry) => {
-    const { isUserAccessTBD, doesUserHaveAccess } = trackAccessMap[
-      entry.track_id
-    ] ?? { isUserAccessTBD: false, doesUserHaveAccess: true }
-    const isLocked = !isUserAccessTBD && !doesUserHaveAccess
-    return {
-      isLoading: false,
-      isPremium: entry.is_premium,
-      isSaved: entry.has_current_user_saved,
-      isReposted: entry.has_current_user_reposted,
-      isActive: playingUid === entry.uid,
-      isPlaying: queuedAndPlaying && playingUid === entry.uid,
-      artistName: entry.user.name,
-      artistHandle: entry.user.handle,
-      trackTitle: entry.title,
-      trackId: entry.track_id,
-      uid: entry.uid,
-      isDeleted: entry.is_delete || !!entry.user.is_deactivated,
-      isLocked
-    }
-  })
+  const trackList = trackEntries
+    .filter((t) => t.track_id)
+    .map((entry) => {
+      const { isUserAccessTBD, doesUserHaveAccess } = trackAccessMap[
+        entry.track_id
+      ] ?? { isUserAccessTBD: false, doesUserHaveAccess: true }
+      const isLocked = !isUserAccessTBD && !doesUserHaveAccess
+      return {
+        isLoading: false,
+        isPremium: entry.is_premium,
+        isSaved: entry.has_current_user_saved,
+        isReposted: entry.has_current_user_reposted,
+        isActive: playingUid === entry.uid,
+        isPlaying: queuedAndPlaying && playingUid === entry.uid,
+        artistName: entry.user.name,
+        artistHandle: entry.user.handle,
+        trackTitle: entry.title,
+        trackId: entry.track_id,
+        uid: entry.uid,
+        isDeleted: entry.is_delete || !!entry.user.is_deactivated,
+        isLocked
+      }
+    })
   const contentRefCallback = useOffsetScroll()
   return (
     <div className={styles.tracksLineupContainer}>
@@ -176,50 +200,104 @@ const TracksLineup = ({
   )
 }
 
-const AlbumCardLineup = ({
-  albums,
-  goToTrending,
-  onFilterChange,
-  filterText,
-  goToRoute,
-  getFilteredAlbums,
-  formatCardSecondaryText
-}: {
-  albums: SavedPageCollection[]
-  goToTrending: () => void
-  onFilterChange: (e: any) => void
-  filterText: string
-  formatCardSecondaryText: (saves: number, tracks: number) => string
-  getFilteredAlbums: (albums: SavedPageCollection[]) => SavedPageCollection[]
-  goToRoute: (route: string) => void
-}) => {
-  const filteredAlbums = getFilteredAlbums(albums || [])
-  const albumCards = filteredAlbums.map((album) => {
-    return (
-      <Card
-        key={album.playlist_id}
-        id={album.playlist_id}
-        userId={album.playlist_owner_id}
-        imageSize={album._cover_art_sizes}
-        primaryText={album.playlist_name}
-        secondaryText={formatCardSecondaryText(
-          album.save_count,
-          album.playlist_contents.track_ids.length
-        )}
-        onClick={() =>
-          goToRoute(
-            albumPage(album.ownerHandle, album.playlist_name, album.playlist_id)
-          )
-        }
-      />
-    )
+type FilterCollectionsOptions = {
+  filterText?: string
+}
+
+const filterCollections = (
+  collections: AccountCollection[],
+  { filterText = '' }: FilterCollectionsOptions
+) => {
+  return collections.filter((item: AccountCollection) => {
+    if (filterText) {
+      const matchesPlaylistName =
+        item.name.toLowerCase().indexOf(filterText.toLowerCase()) > -1
+      const matchesOwnerName =
+        item.user.handle.toLowerCase().indexOf(filterText.toLowerCase()) > -1
+
+      return matchesPlaylistName || matchesOwnerName
+    }
+    return true
+  })
+}
+
+type AlbumCardProps = {
+  albumId: ID
+}
+
+const AlbumCard = ({ albumId }: AlbumCardProps) => {
+  const goToRoute = useGoToRoute()
+  const album = useSelector((state: CommonState) =>
+    getCollection(state, { id: albumId })
+  )
+  const ownerHandle = useSelector((state: CommonState) => {
+    if (album == null) {
+      return ''
+    }
+    const user = getUser(state, { id: album.playlist_owner_id })
+    return user?.handle ?? ''
+  })
+
+  const handleClick = useCallback(() => {
+    if (album && ownerHandle) {
+      goToRoute(albumPage(ownerHandle, album.playlist_name, album.playlist_id))
+    }
+  }, [album, ownerHandle, goToRoute])
+
+  return album ? (
+    <Card
+      key={album.playlist_id}
+      id={album.playlist_id}
+      userId={album.playlist_owner_id}
+      imageSize={album._cover_art_sizes}
+      primaryText={album.playlist_name}
+      secondaryText={formatCardSecondaryText(
+        album.save_count,
+        album.playlist_contents.track_ids.length
+      )}
+      onClick={handleClick}
+    />
+  ) : null
+}
+
+const AlbumCardLineup = () => {
+  const goToRoute = useGoToRoute()
+
+  const { data: unfilteredAlbums } = useSavedAlbums()
+  const [filterText, setFilterText] = useState('')
+  const filteredAlbumIds = useMemo(
+    () => filterCollections(unfilteredAlbums, { filterText }).map((a) => a.id),
+    [unfilteredAlbums, filterText]
+  )
+
+  const {
+    data: fetchedAlbumIds,
+    status,
+    hasMore,
+    fetchMore
+  } = useFetchedSavedCollections({
+    collectionIds: filteredAlbumIds,
+    type: 'albums',
+    pageSize: 20
+  })
+
+  const handleGoToTrending = useCallback(
+    () => goToRoute(TRENDING_PAGE),
+    [goToRoute]
+  )
+  const handleFilterChange = ({
+    target: { value }
+  }: React.ChangeEvent<HTMLInputElement>) => setFilterText(value)
+
+  const albumCards = fetchedAlbumIds.map((id) => {
+    return <AlbumCard key={id} albumId={id} />
   })
 
   const contentRefCallback = useOffsetScroll()
 
   return (
     <div className={styles.cardLineupContainer}>
-      {albums.length === 0 ? (
+      {!statusIsNotFinalized(status) && unfilteredAlbums.length === 0 ? (
         <EmptyTab
           message={
             <>
@@ -227,7 +305,7 @@ const AlbumCardLineup = ({
               <i className={cn('emoji', 'face-with-monocle', styles.emoji)} />
             </>
           }
-          onClick={goToTrending}
+          onClick={handleGoToTrending}
         />
       ) : (
         <div ref={contentRefCallback} className={styles.tabContainer}>
@@ -235,15 +313,17 @@ const AlbumCardLineup = ({
             <div className={styles.searchInnerContainer}>
               <input
                 placeholder={messages.filterAlbums}
-                onChange={onFilterChange}
+                onChange={handleFilterChange}
                 value={filterText}
               />
               <IconFilter className={styles.iconFilter} />
             </div>
           </div>
-          {filteredAlbums.length > 0 && (
+          {fetchedAlbumIds.length > 0 && (
             <div className={styles.cardsContainer}>
-              <CardLineup
+              <InfiniteCardLineup
+                hasMore={hasMore}
+                loadMore={fetchMore}
                 cardsClassName={styles.cardLineup}
                 cards={albumCards}
               />
@@ -262,7 +342,6 @@ const PlaylistCardLineup = ({
   filterText,
   goToRoute,
   getFilteredPlaylists,
-  formatCardSecondaryText,
   playlistUpdates,
   updatePlaylistLastViewedAt
 }: {
@@ -270,7 +349,6 @@ const PlaylistCardLineup = ({
   goToTrending: () => void
   onFilterChange: (e: any) => void
   filterText: string
-  formatCardSecondaryText: (saves: number, tracks: number) => string
   getFilteredPlaylists: (
     playlists: SavedPageCollection[]
   ) => SavedPageCollection[]
@@ -347,10 +425,7 @@ const PlaylistCardLineup = ({
           <NewPlaylistButton />
           {filteredPlaylists.length > 0 && (
             <div className={styles.cardsContainer}>
-              <CardLineup
-                cardsClassName={styles.cardLineup}
-                cards={playlistCards}
-              />
+              <CardLineup cards={playlistCards} />
             </div>
           )}
         </div>
@@ -409,12 +484,10 @@ export type SavedPageProps = {
   fetchSavedTracks: () => void
   resetSavedTracks: () => void
   updateLineupOrder: (updatedOrderIndices: UID[]) => void
-  getFilteredAlbums: (albums: SavedPageCollection[]) => SavedPageCollection[]
   getFilteredPlaylists: (
     playlists: SavedPageCollection[]
   ) => SavedPageCollection[]
 
-  fetchSavedAlbums: () => void
   goToRoute: (route: string) => void
   repostTrack: (trackId: ID) => void
   undoRepostTrack: (trackId: ID) => void
@@ -437,11 +510,9 @@ const SavedPage = ({
   isQueued,
   onTogglePlay,
   getFilteredData,
-  getFilteredAlbums,
   getFilteredPlaylists,
   onFilterChange,
   filterText,
-  formatCardSecondaryText,
   onSave,
   playlistUpdates,
   updatePlaylistLastViewedAt
@@ -464,16 +535,7 @@ const SavedPage = ({
       onSave={onSave}
       onTogglePlay={onTogglePlay}
     />,
-    <AlbumCardLineup
-      key='albumLineup'
-      getFilteredAlbums={getFilteredAlbums}
-      albums={account ? account.albums : []}
-      goToTrending={goToTrending}
-      onFilterChange={onFilterChange}
-      filterText={filterText}
-      goToRoute={goToRoute}
-      formatCardSecondaryText={formatCardSecondaryText}
-    />,
+    <AlbumCardLineup key='albumLineup' />,
     <PlaylistCardLineup
       key='playlistLineup'
       getFilteredPlaylists={getFilteredPlaylists}
@@ -482,7 +544,6 @@ const SavedPage = ({
       onFilterChange={onFilterChange}
       filterText={filterText}
       goToRoute={goToRoute}
-      formatCardSecondaryText={formatCardSecondaryText}
       playlistUpdates={playlistUpdates}
       updatePlaylistLastViewedAt={updatePlaylistLastViewedAt}
     />

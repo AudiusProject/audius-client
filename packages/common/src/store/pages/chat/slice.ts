@@ -25,20 +25,27 @@ type UserChatWithMessagesStatus = UserChat & {
   messagesSummary?: TypedCommsResponse<ChatMessage>['summary']
 }
 
+type ChatID = string
+
 type ChatState = {
   chats: EntityState<UserChatWithMessagesStatus> & {
     status: Status
     summary?: TypedCommsResponse<UserChat>['summary']
   }
   messages: Record<
-    string,
+    ChatID,
     EntityState<ChatMessageWithExtras> & {
       status?: Status
       summary?: TypedCommsResponse<ChatMessage>['summary']
     }
   >
+  unreadMessagesCount: number
+  optimisticUnreadMessagesCount?: number
   optimisticReactions: Record<string, ChatMessageReaction>
-  optimisticChatRead: Record<string, UserChat>
+  optimisticChatRead: Record<
+    string,
+    Pick<UserChat, 'last_read_at' | 'unread_message_count'>
+  >
   activeChatId: string | null
   blockees: ID[]
   blockers: ID[]
@@ -73,7 +80,30 @@ export const chatMessagesAdapter = createEntityAdapter<ChatMessageWithExtras>({
   sortComparer: messageSortComparator
 })
 
-const { selectById: getMessage } = chatMessagesAdapter.getSelectors()
+const {
+  selectById: getMessage,
+  selectEntities: getAllMessages,
+  selectIds: getAllMessageIds
+} = chatMessagesAdapter.getSelectors()
+
+// Recalculate hasTail for the message at index + 1 (the previous message of
+// the message at the given index).
+const recalculatePreviousMessageHasTail = (
+  chatState: EntityState<ChatMessageWithExtras>,
+  index: number
+): void => {
+  const messageIds = getAllMessageIds(chatState)
+  const chatMessages = getAllMessages(chatState)
+  const prevMessageId = messageIds[index + 1]
+  const prevMessage = chatMessages[prevMessageId]
+  if (!prevMessage) return
+  const newMessageId = messageIds[index]
+  const newMessage = chatMessages[newMessageId]
+  chatMessagesAdapter.updateOne(chatState, {
+    id: prevMessageId,
+    changes: { hasTail: hasTail(prevMessage, newMessage) }
+  })
+}
 
 const initialState: ChatState = {
   chats: {
@@ -81,6 +111,7 @@ const initialState: ChatState = {
     ...chatsAdapter.getInitialState()
   },
   messages: {},
+  unreadMessagesCount: 0,
   optimisticChatRead: {},
   optimisticReactions: {},
   activeChatId: null,
@@ -104,7 +135,18 @@ const slice = createSlice({
         state.messages[chat.chat_id] = chatMessagesAdapter.getInitialState()
       }
     },
-    goToChat: (_state, _action: PayloadAction<{ chatId: string }>) => {
+    fetchUnreadMessagesCount: (_state) => {
+      // triggers saga
+    },
+    fetchUnreadMessagesCountSucceeded: (
+      state,
+      action: PayloadAction<{ unreadMessagesCount: number }>
+    ) => {
+      state.unreadMessagesCount = action.payload.unreadMessagesCount
+      delete state.optimisticUnreadMessagesCount
+    },
+    fetchUnreadMessagesCountFailed: (_state) => {},
+    goToChat: (_state, _action: PayloadAction<{ chatId?: string }>) => {
       // triggers saga
     },
     fetchMoreChats: (state) => {
@@ -149,35 +191,39 @@ const slice = createSlice({
         chatId,
         response: { data, summary }
       } = action.payload
+      if (!summary) {
+        console.error('fetchMoreMessagesSucceeded: no summary')
+        return
+      }
+
+      // Update the summary to include the min of next_cursor/next_count and
+      // prev_cursor/prev_count.
+      const existingSummary = state.chats.entities[chatId]?.messagesSummary
+      const summaryToUse = { ...summary, ...existingSummary }
+      if (summary.next_count < (existingSummary?.next_count ?? Infinity)) {
+        summaryToUse.next_count = summary.next_count
+        summaryToUse.next_cursor = summary.next_cursor
+      }
+      if (summary.prev_count < (existingSummary?.prev_count ?? Infinity)) {
+        summaryToUse.prev_count = summary.prev_count
+        summaryToUse.prev_cursor = summary.prev_cursor
+      }
+
       chatsAdapter.updateOne(state.chats, {
         id: chatId,
         changes: {
           messagesStatus: Status.SUCCESS,
-          messagesSummary: summary
+          messagesSummary: summaryToUse
         }
-      })
-      chatsAdapter.updateOne(state.chats, {
-        id: chatId,
-        changes: { messagesStatus: Status.SUCCESS, messagesSummary: summary }
       })
       const messagesWithTail = data.map((item, index) => {
         return { ...item, hasTail: hasTail(item, data[index - 1]) }
       })
-      // Recalculate hasTail for latest message of new batch
-      if (state.messages[chatId] && state.messages[chatId].ids.length > 0) {
-        const prevEarliestMessageId =
-          state.messages[chatId].ids[state.messages[chatId].ids.length - 1]
-        const prevEarliestMessage = getMessage(
-          state.messages[chatId],
-          prevEarliestMessageId
-        )
-        const newLatestMessage = messagesWithTail[0]
-        newLatestMessage.hasTail = hasTail(
-          newLatestMessage,
-          prevEarliestMessage
-        )
-      }
       chatMessagesAdapter.upsertMany(state.messages[chatId], messagesWithTail)
+      recalculatePreviousMessageHasTail(
+        state.messages[chatId],
+        summary.next_count - 1
+      )
     },
     fetchMoreMessagesFailed: (
       state,
@@ -249,8 +295,17 @@ const slice = createSlice({
       const { messageId } = action.payload
       delete state.optimisticReactions[messageId]
     },
+    fetchChatIfNecessary: (
+      _state,
+      _action: PayloadAction<{ chatId: string; bustCache?: boolean }>
+    ) => {
+      // triggers saga
+    },
     fetchChatSucceeded: (state, action: PayloadAction<{ chat: UserChat }>) => {
       const { chat } = action.payload
+      if (dayjs(chat.cleared_history_at).isAfter(chat.last_message_at)) {
+        chat.last_message = ''
+      }
       chatsAdapter.upsertOne(state.chats, chat)
     },
     markChatAsRead: (state, action: PayloadAction<{ chatId: string }>) => {
@@ -260,9 +315,15 @@ const slice = createSlice({
       const existingChat = getChat(state, chatId)
       if (existingChat) {
         state.optimisticChatRead[chatId] = {
-          ...existingChat,
           last_read_at: existingChat.last_message_at,
-          unread_message_count: existingChat.unread_message_count
+          unread_message_count: 0
+        }
+        if (state.optimisticUnreadMessagesCount) {
+          state.optimisticUnreadMessagesCount -=
+            existingChat.unread_message_count
+        } else {
+          state.optimisticUnreadMessagesCount =
+            state.unreadMessagesCount - existingChat.unread_message_count
         }
       }
     },
@@ -273,7 +334,9 @@ const slice = createSlice({
       // Set the true state
       const { chatId } = action.payload
       delete state.optimisticChatRead[chatId]
+      delete state.optimisticUnreadMessagesCount
       const existingChat = getChat(state, chatId)
+      state.unreadMessagesCount -= existingChat?.unread_message_count ?? 0
       chatsAdapter.updateOne(state.chats, {
         id: chatId,
         changes: {
@@ -289,39 +352,53 @@ const slice = createSlice({
       // Reset our optimism :(
       const { chatId } = action.payload
       delete state.optimisticChatRead[chatId]
+      delete state.optimisticUnreadMessagesCount
     },
     sendMessage: (
-      _state,
-      _action: PayloadAction<{ chatId: string; message: string }>
+      state,
+      action: PayloadAction<{
+        chatId: string
+        message: string
+        resendMessageId?: string
+      }>
     ) => {
       // triggers saga which will add a message optimistically and replace it after success
+      const { chatId, resendMessageId } = action.payload
+      if (resendMessageId) {
+        chatMessagesAdapter.updateOne(state.messages[chatId], {
+          id: resendMessageId,
+          changes: { status: Status.LOADING }
+        })
+      }
     },
     addMessage: (
       state,
       action: PayloadAction<{
         chatId: string
         message: ChatMessage
+        isSelfMessage: boolean
         status?: Status
       }>
     ) => {
       // triggers saga to get chat if not exists
-      const { chatId, message, status } = action.payload
+      const { chatId, message, status, isSelfMessage } = action.payload
 
-      // Recalculate hasTail of previous message
-      if (state.messages[chatId] && state.messages[chatId].ids.length > 0) {
-        const prevLatestMessageId = state.messages[chatId].ids[0]
-        const prevLatestMessage = getMessage(
-          state.messages[chatId],
-          prevLatestMessageId
-        )!
-        const prevMsgHasTail = hasTail(prevLatestMessage, message)
-        chatMessagesAdapter.updateOne(state.messages[chatId], {
-          id: prevLatestMessageId,
-          changes: { hasTail: prevMsgHasTail }
-        })
+      // If no chatId, don't add the message
+      // and abort early, relying on the saga
+      // to fetch the chat
+      if (!(chatId in state.messages)) {
+        return
       }
 
-      chatMessagesAdapter.upsertOne(state.messages[chatId], {
+      // Return early if we've seen this message
+      const existingMessage = getMessage(
+        state.messages[chatId],
+        message.message_id
+      )
+      if (existingMessage) return
+
+      // Add the message
+      chatMessagesAdapter.addOne(state.messages[chatId], {
         ...message,
         hasTail: true,
         status: status ?? Status.IDLE
@@ -330,24 +407,34 @@ const slice = createSlice({
         id: chatId,
         changes: {
           last_message: message.message,
-          last_message_at: message.created_at
+          last_message_at: message.created_at,
+          // If a new message comes through, we don't need to recheck permissions anymore
+          recheck_permissions: false
         }
       })
-    },
-    incrementUnreadCount: (
-      state,
-      action: PayloadAction<{ chatId: string }>
-    ) => {
-      const { chatId } = action.payload
-      // If we're actively reading, this will immediately get marked as read.
-      // Ignore the unread bump to prevent flicker
-      if (state.activeChatId !== chatId) {
-        const existingChat = getChat(state, chatId)
-        const existingUnreadCount = existingChat?.unread_message_count ?? 0
-        chatsAdapter.updateOne(state.chats, {
-          id: chatId,
-          changes: { unread_message_count: existingUnreadCount + 1 }
-        })
+
+      // Recalculate tails
+      recalculatePreviousMessageHasTail(state.messages[chatId], 0)
+
+      // Handle unread counts
+      if (!isSelfMessage) {
+        // If we're actively reading, this will immediately get marked as read.
+        // Ignore the unread bump to prevent flicker
+        if (state.activeChatId !== chatId) {
+          const existingChat = getChat(state, chatId)
+          const optimisticRead = state.optimisticChatRead[chatId]
+          const existingUnreadCount = optimisticRead
+            ? optimisticRead.unread_message_count
+            : existingChat?.unread_message_count ?? 0
+          chatsAdapter.updateOne(state.chats, {
+            id: chatId,
+            changes: { unread_message_count: existingUnreadCount + 1 }
+          })
+        }
+
+        // Web or mobile: update optimistic unread count
+        state.optimisticUnreadMessagesCount =
+          (state.optimisticUnreadMessagesCount ?? state.unreadMessagesCount) + 1
       }
     },
     /**
@@ -452,6 +539,14 @@ const slice = createSlice({
         id: messageId,
         changes: { unfurlMetadata }
       })
+    },
+    deleteChat: (_state, _action: PayloadAction<{ chatId: string }>) => {
+      // triggers saga
+    },
+    deleteChatSucceeded: (state, action: PayloadAction<{ chatId: string }>) => {
+      const { chatId } = action.payload
+      chatsAdapter.removeOne(state.chats, chatId)
+      chatMessagesAdapter.removeAll(state.messages[chatId])
     }
   }
 })

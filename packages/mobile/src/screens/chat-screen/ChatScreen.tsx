@@ -1,7 +1,10 @@
-import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import type { RefObject, MutableRefObject } from 'react'
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 
 import type { ChatMessageWithExtras } from '@audius/common'
 import {
+  useCanSendMessage,
+  chatCanFetchMoreMessages,
   chatActions,
   accountSelectors,
   chatSelectors,
@@ -9,12 +12,11 @@ import {
   decodeHashId,
   encodeHashId,
   Status,
-  playerSelectors,
-  isEarliestUnread
+  isEarliestUnread,
+  playerSelectors
 } from '@audius/common'
 import { Portal } from '@gorhom/portal'
-import { useFocusEffect } from '@react-navigation/native'
-import { View, Text, Pressable, FlatList } from 'react-native'
+import { Keyboard, View, Text, Pressable, FlatList } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
@@ -40,20 +42,25 @@ import type { AppTabScreenParamList } from '../app-screen'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
 import { ChatTextInput } from './ChatTextInput'
+import { ChatUnavailable } from './ChatUnavailable'
 import { EmptyChatMessages } from './EmptyChatMessages'
 import { ReactionPopup } from './ReactionPopup'
 
 const {
   getChatMessages,
-  getOtherChatUsers,
   getChat,
   getChatMessageById,
   getChatMessageByIndex,
   getReactionsPopupMessageId
 } = chatSelectors
-
-const { fetchMoreMessages, markChatAsRead, setReactionsPopupMessageId } =
-  chatActions
+const {
+  fetchMoreMessages,
+  markChatAsRead,
+  setReactionsPopupMessageId,
+  fetchBlockers,
+  fetchBlockees,
+  fetchPermissions
+} = chatActions
 const { getUserId } = accountSelectors
 const { getHasTrack } = playerSelectors
 
@@ -68,8 +75,11 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   keyboardAvoiding: {
     justifyContent: 'space-between'
   },
+  // Weird RN bug? flex: 1 did not appear to set flexGrow: 1 as expected,
+  // so had to set manually instead.
   listContainer: {
-    flex: 1
+    flexGrow: 1,
+    flexShrink: 1
   },
   listContentContainer: {
     paddingHorizontal: spacing(6),
@@ -146,11 +156,30 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     paddingHorizontal: spacing(2),
     paddingVertical: spacing(1),
     borderRadius: spacing(0.5)
+  },
+  loadingSpinnerContainer: {
+    display: 'flex',
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  loadingSpinner: {
+    height: spacing(10),
+    width: spacing(10)
   }
 }))
 
 const pluralize = (message: string, shouldPluralize: boolean) =>
   message + (shouldPluralize ? 's' : '')
+
+const measureView = (
+  viewRef: RefObject<View>,
+  measurementRef: MutableRefObject<number>
+) => {
+  viewRef.current?.measureInWindow((x, y, width, height) => {
+    measurementRef.current = y
+  })
+}
 
 export const ChatScreen = () => {
   const styles = useStyles()
@@ -169,6 +198,7 @@ export const ChatScreen = () => {
   const composeRef = useRef<View | null>(null)
   const chatContainerRef = useRef<View | null>(null)
   const messageTop = useRef(0)
+  const messageHeight = useRef(0)
   const chatContainerTop = useRef(0)
   const chatContainerBottom = useRef(0)
 
@@ -176,29 +206,34 @@ export const ChatScreen = () => {
   const userId = useSelector(getUserId)
   const userIdEncoded = encodeHashId(userId)
   const chat = useSelector((state) => getChat(state, chatId ?? ''))
-  const [otherUser] = useSelector((state) => getOtherChatUsers(state, chatId))
   const chatMessages = useSelector((state) =>
     getChatMessages(state, chatId ?? '')
   )
-  const unreadCount = chat?.unread_message_count ?? 0
   const isLoading =
-    chat?.messagesStatus === Status.LOADING && chatMessages?.length === 0
+    (chat?.messagesStatus ?? Status.LOADING) === Status.LOADING &&
+    chatMessages?.length === 0
   const popupMessageId = useSelector(getReactionsPopupMessageId)
   const popupMessage = useSelector((state) =>
-    getChatMessageById(state, chatId, popupMessageId ?? '')
+    getChatMessageById(state, chatId ?? '', popupMessageId ?? '')
   )
+  const { canSendMessage, firstOtherUser: otherUser } =
+    useCanSendMessage(chatId)
 
   // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
   // Using a ref instead of state here to prevent unwanted flickers.
   // The chat/chatId selectors will trigger the rerenders necessary.
   const chatFrozenRef = useRef(chat)
 
+  // Initial fetch, but only if messages weren't fetched on app load
   useEffect(() => {
-    if (chatId && (chat?.messagesStatus ?? Status.IDLE) === Status.IDLE) {
-      // Initial fetch
+    if (
+      chatId &&
+      (chat?.messagesStatus ?? Status.IDLE) === Status.IDLE &&
+      chatMessages.length === 0
+    ) {
       dispatch(fetchMoreMessages({ chatId }))
     }
-  }, [dispatch, chatId, chat])
+  }, [dispatch, chatId, chat, chatMessages.length])
 
   useEffect(() => {
     // Update chatFrozenRef when entering a new chat screen.
@@ -206,6 +241,22 @@ export const ChatScreen = () => {
       chatFrozenRef.current = chat
     }
   }, [chatId, chat])
+
+  // Mark chat as read when user enters this screen.
+  useEffect(() => {
+    if (chatId) {
+      dispatch(markChatAsRead({ chatId }))
+    }
+  }, [chatId, dispatch])
+
+  // Fetch all permissions, blockers/blockees, and recheck_permissions flag
+  useEffect(() => {
+    dispatch(fetchBlockees())
+    dispatch(fetchBlockers())
+    if (otherUser.user_id) {
+      dispatch(fetchPermissions({ userIds: [otherUser.user_id] }))
+    }
+  }, [chatId, dispatch, otherUser.user_id])
 
   // Find earliest unread message to display unread tag correctly
   const earliestUnreadIndex = useMemo(
@@ -255,29 +306,21 @@ export const ChatScreen = () => {
     }, 10)
   }, [])
 
-  const shouldFetchMoreMessages =
-    chatId &&
-    chat?.messagesStatus !== Status.LOADING &&
-    chat?.messagesSummary &&
-    chat?.messagesSummary.prev_count > 0
-
   const handleScrollToTop = useCallback(() => {
-    if (shouldFetchMoreMessages) {
+    if (
+      chatId &&
+      chatCanFetchMoreMessages(
+        chat?.messagesStatus,
+        chat?.messagesSummary?.prev_count
+      )
+    ) {
       // Fetch more messages when user reaches the top
       dispatch(fetchMoreMessages({ chatId }))
     }
-  }, [chatId, dispatch, shouldFetchMoreMessages])
-
-  // Mark chat as read when user navigates away from screen
-  useFocusEffect(
-    useCallback(() => {
-      return () => {
-        dispatch(markChatAsRead({ chatId }))
-      }
-    }, [dispatch, chatId])
-  )
+  }, [chat?.messagesStatus, chat?.messagesSummary, chatId, dispatch])
 
   const handleTopRightPress = () => {
+    Keyboard.dismiss()
     dispatch(
       setVisibility({
         drawer: 'ChatActions',
@@ -300,13 +343,17 @@ export const ChatScreen = () => {
       }
       // Measure position of selected message to create a copy of it on top
       // of the dimmed background inside the portal.
-      const messageY = await new Promise<number>((resolve) => {
+      const { messageY, messageH } = await new Promise<{
+        messageY: number
+        messageH: number
+      }>((resolve) => {
         messageRef.measureInWindow((x, y, width, height) => {
-          resolve(y)
+          resolve({ messageY: y, messageH: height })
         })
       })
       // Need to subtract spacing(2) to account for padding in message View.
       messageTop.current = messageY - spacing(2)
+      messageHeight.current = messageH
       dispatch(setReactionsPopupMessageId({ messageId: id }))
       setShouldShowPopup(true)
       light()
@@ -334,11 +381,16 @@ export const ChatScreen = () => {
           isPopup={false}
           onLongPress={handleMessagePress}
         />
-        {item.message_id === earliestUnreadMessageId ? (
+        {item.message_id === earliestUnreadMessageId &&
+        chatFrozenRef.current?.unread_message_count ? (
           <View style={styles.unreadTagContainer}>
             <View style={styles.unreadSeparator} />
             <Text style={styles.unreadTag}>
-              {unreadCount} {pluralize(messages.newMessage, unreadCount > 1)}
+              {chatFrozenRef.current?.unread_message_count}{' '}
+              {pluralize(
+                messages.newMessage,
+                chatFrozenRef.current?.unread_message_count > 1
+              )}
             </Text>
             <View style={styles.unreadSeparator} />
           </View>
@@ -351,8 +403,7 @@ export const ChatScreen = () => {
       chatId,
       styles.unreadSeparator,
       styles.unreadTag,
-      styles.unreadTagContainer,
-      unreadCount
+      styles.unreadTagContainer
     ]
   )
 
@@ -364,6 +415,10 @@ export const ChatScreen = () => {
     }),
     []
   )
+
+  const measureChatContainerBottom = useCallback(() => {
+    measureView(composeRef, chatContainerBottom)
+  }, [])
 
   return (
     <Screen
@@ -395,10 +450,12 @@ export const ChatScreen = () => {
       <ScreenContent>
         {/* Everything inside the portal displays on top of all other screen contents. */}
         <Portal hostName='ChatReactionsPortal'>
-          {shouldShowPopup && popupMessage ? (
+          {canSendMessage && shouldShowPopup && popupMessage ? (
             <ReactionPopup
               chatId={chatId}
               messageTop={messageTop.current}
+              messageHeight={messageHeight.current}
+              containerTop={chatContainerTop.current}
               containerBottom={chatContainerBottom.current}
               isAuthor={decodeHashId(popupMessage?.sender_user_id) === userId}
               message={popupMessage}
@@ -416,51 +473,57 @@ export const ChatScreen = () => {
           }}
         >
           <KeyboardAvoidingView
-            keyboardShowingOffset={PLAY_BAR_HEIGHT}
+            keyboardShowingOffset={
+              hasCurrentlyPlayingTrack ? PLAY_BAR_HEIGHT : 0
+            }
             style={[
               styles.keyboardAvoiding,
               hasCurrentlyPlayingTrack ? { bottom: PLAY_BAR_HEIGHT } : null
             ]}
+            onKeyboardHide={measureChatContainerBottom}
           >
-            {!isLoading ? (
-              chatMessages?.length > 0 ? (
-                <View style={styles.listContainer}>
-                  <FlatList
-                    contentContainerStyle={styles.listContentContainer}
-                    data={chatMessages}
-                    keyExtractor={(message) => message.message_id}
-                    renderItem={renderItem}
-                    onEndReached={handleScrollToTop}
-                    inverted
-                    initialNumToRender={chatMessages?.length}
-                    ref={flatListRef}
-                    onScrollToIndexFailed={handleScrollToIndexFailed}
-                    refreshing={chat?.messagesStatus === Status.LOADING}
-                    maintainVisibleContentPosition={
-                      maintainVisibleContentPosition
-                    }
-                  />
-                </View>
-              ) : (
-                <EmptyChatMessages />
-              )
+            {chat?.messagesStatus === Status.SUCCESS &&
+            chatMessages?.length === 0 ? (
+              <EmptyChatMessages />
+            ) : null}
+            {isLoading ? (
+              <View style={styles.loadingSpinnerContainer}>
+                <LoadingSpinner style={styles.loadingSpinner} />
+              </View>
             ) : (
-              <LoadingSpinner />
+              <View style={styles.listContainer}>
+                <FlatList
+                  contentContainerStyle={styles.listContentContainer}
+                  data={chatMessages}
+                  keyExtractor={(message) => message.message_id}
+                  renderItem={renderItem}
+                  onEndReached={handleScrollToTop}
+                  inverted
+                  initialNumToRender={chatMessages?.length}
+                  ref={flatListRef}
+                  onScrollToIndexFailed={handleScrollToIndexFailed}
+                  refreshing={chat?.messagesStatus === Status.LOADING}
+                  maintainVisibleContentPosition={
+                    maintainVisibleContentPosition
+                  }
+                  ListHeaderComponent={
+                    canSendMessage ? null : <ChatUnavailable chatId={chatId} />
+                  }
+                />
+              </View>
             )}
 
-            <View
-              style={styles.composeView}
-              onLayout={() => {
-                composeRef.current?.measureInWindow((x, y, width, height) => {
-                  chatContainerBottom.current = y
-                })
-              }}
-              ref={composeRef}
-              pointerEvents={'box-none'}
-            >
-              <View style={styles.whiteBackground} />
-              <ChatTextInput chatId={chatId} />
-            </View>
+            {canSendMessage ? (
+              <View
+                style={styles.composeView}
+                onLayout={measureChatContainerBottom}
+                ref={composeRef}
+                pointerEvents={'box-none'}
+              >
+                <View style={styles.whiteBackground} />
+                <ChatTextInput chatId={chatId} />
+              </View>
+            ) : null}
           </KeyboardAvoidingView>
         </View>
       </ScreenContent>

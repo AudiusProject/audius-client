@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 
-import { FeatureFlags } from '@audius/common'
+import { FeatureFlags, ID } from '@audius/common'
 import {
   Button,
   ButtonSize,
@@ -11,7 +11,8 @@ import {
   IconMessage,
   PopupMenu,
   IconUnblockMessages,
-  IconBlockMessages
+  IconBlockMessages,
+  IconMessageLocked
 } from '@audius/stems'
 import cn from 'classnames'
 
@@ -58,10 +59,70 @@ type StatsBannerProps = {
   following?: boolean
   isSubscribed?: boolean
   onToggleSubscribe?: () => void
+  canCreateChat?: boolean
   onMessage?: () => void
   onBlock?: () => void
   onUnblock?: () => void
   isBlocked?: boolean
+  accountUserId?: number | null
+}
+
+type StatsMenuPopupProps = {
+  onShare: () => void
+  accountUserId?: ID | null
+  isBlocked?: boolean
+  onBlock: () => void
+  onUnblock: () => void
+}
+
+const StatsPopupMenu = ({
+  onShare,
+  accountUserId,
+  isBlocked,
+  onBlock,
+  onUnblock
+}: StatsMenuPopupProps) => {
+  const menuItems = [
+    {
+      text: messages.shareProfile,
+      onClick: onShare,
+      icon: <IconShare />
+    }
+  ]
+
+  if (accountUserId) {
+    menuItems.push(
+      isBlocked
+        ? {
+            text: messages.unblockMessages,
+            onClick: onUnblock,
+            icon: <IconUnblockMessages />
+          }
+        : {
+            text: messages.blockMessages,
+            onClick: onBlock,
+            icon: <IconBlockMessages />
+          }
+    )
+  }
+  return (
+    <PopupMenu
+      items={menuItems}
+      transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      renderTrigger={(anchorRef, triggerPopup) => (
+        <Button
+          ref={anchorRef}
+          type={ButtonType.COMMON}
+          size={ButtonSize.SMALL}
+          className={cn(styles.iconButton, styles.statButton)}
+          aria-label={messages.more}
+          text={<IconKebabHorizontal />}
+          onClick={triggerPopup}
+        />
+      )}
+    />
+  )
 }
 
 export const StatBanner = (props: StatsBannerProps) => {
@@ -83,10 +144,12 @@ export const StatBanner = (props: StatsBannerProps) => {
     onFollow,
     onUnfollow,
     following,
+    canCreateChat,
     onMessage,
     onBlock,
     onUnblock,
     isBlocked,
+    accountUserId,
     isSubscribed,
     onToggleSubscribe
   } = props
@@ -142,48 +205,24 @@ export const StatBanner = (props: StatsBannerProps) => {
     default:
       buttons = (
         <>
-          {isChatEnabled ? (
+          {isChatEnabled && onShare && onUnblock && onBlock ? (
             <>
-              <PopupMenu
-                items={[
-                  {
-                    text: messages.shareProfile,
-                    onClick: onShare!,
-                    icon: <IconShare />
-                  },
-                  isBlocked
-                    ? {
-                        text: messages.unblockMessages,
-                        onClick: onUnblock!,
-                        icon: <IconUnblockMessages />
-                      }
-                    : {
-                        text: messages.blockMessages,
-                        onClick: onBlock!,
-                        icon: <IconBlockMessages />
-                      }
-                ]}
-                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                renderTrigger={(anchorRef, triggerPopup) => (
-                  <Button
-                    ref={anchorRef}
-                    type={ButtonType.COMMON}
-                    size={ButtonSize.SMALL}
-                    className={cn(styles.iconButton, styles.statButton)}
-                    aria-label={messages.more}
-                    text={<IconKebabHorizontal />}
-                    onClick={triggerPopup}
-                  />
-                )}
+              <StatsPopupMenu
+                onShare={onShare}
+                accountUserId={accountUserId}
+                isBlocked={isBlocked}
+                onBlock={onBlock}
+                onUnblock={onUnblock}
               />
               {onMessage ? (
                 <Button
                   type={ButtonType.COMMON}
                   size={ButtonSize.SMALL}
-                  className={cn(styles.iconButton, styles.statButton)}
+                  className={cn(styles.iconButton, styles.statButton, {
+                    [styles.disabled]: !canCreateChat
+                  })}
                   aria-label={messages.message}
-                  text={<IconMessage />}
+                  text={canCreateChat ? <IconMessage /> : <IconMessageLocked />}
                   onClick={onMessage}
                 />
               ) : null}

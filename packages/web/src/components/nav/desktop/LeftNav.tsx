@@ -1,21 +1,14 @@
 import { MouseEvent, useCallback, useRef, useState } from 'react'
 
 import {
-  CreatePlaylistSource,
   FavoriteSource,
   Name,
   SquareSizes,
-  PlaylistLibrary as PlaylistLibraryType,
   Status,
   accountSelectors,
-  cacheCollectionsActions,
   collectionsSocialActions,
   tracksSocialActions,
-  createPlaylistModalUISelectors,
-  createPlaylistModalUIActions as createPlaylistModalActions,
   imageProfilePicEmpty,
-  playlistLibraryActions,
-  playlistLibraryHelpers,
   CreateAccountOpen
 } from '@audius/common'
 import { Scrollbar } from '@audius/stems'
@@ -29,30 +22,23 @@ import { Dispatch } from 'redux'
 
 import { make, useRecord } from 'common/store/analytics/actions'
 import * as signOnActions from 'common/store/pages/signon/actions'
-import CreatePlaylistModal from 'components/create-playlist/CreatePlaylistModal'
-import { PlaylistFormFields } from 'components/create-playlist/PlaylistForm'
 import { DragAutoscroller } from 'components/drag-autoscroller/DragAutoscroller'
-import { Droppable } from 'components/dragndrop'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
-import Pill from 'components/pill/Pill'
 import ConnectedProfileCompletionPane from 'components/profile-progress/ConnectedProfileCompletionPane'
-import Tooltip from 'components/tooltip/Tooltip'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useUserProfilePicture } from 'hooks/useUserProfilePicture'
-import { selectDragnDropState } from 'store/dragndrop/slice'
+import { selectDraggingKind } from 'store/dragndrop/slice'
 import { AppState } from 'store/types'
 import {
-  DASHBOARD_PAGE,
   EXPLORE_PAGE,
   FEED_PAGE,
   HISTORY_PAGE,
-  playlistPage,
   profilePage,
   SAVED_PAGE,
   TRENDING_PAGE
 } from 'utils/route'
-import { getTempPlaylistId } from 'utils/tempPlaylistId'
 
+import { GroupHeader } from './GroupHeader'
 import styles from './LeftNav.module.css'
 import { LeftNavDroppable, LeftNavLink } from './LeftNavLink'
 import NavAudio from './NavAudio'
@@ -62,17 +48,13 @@ import { NowPlayingArtworkTile } from './NowPlayingArtworkTile'
 import { PlaylistLibrary } from './PlaylistLibrary'
 import { RouteNav } from './RouteNav'
 
-const { update: updatePlaylistLibrary } = playlistLibraryActions
-const { addFolderToLibrary, constructPlaylistFolder } = playlistLibraryHelpers
-const { getHideFolderTab, getIsOpen } = createPlaylistModalUISelectors
 const { saveTrack } = tracksSocialActions
 const { saveCollection } = collectionsSocialActions
-const { addTrackToPlaylist, createPlaylist } = cacheCollectionsActions
-const { getAccountStatus, getAccountUser, getPlaylistLibrary } =
-  accountSelectors
+const { getAccountStatus, getAccountUser } = accountSelectors
 
 const messages = {
-  newPlaylistOrFolderTooltip: 'New Playlist or Folder'
+  discover: 'Discover',
+  library: 'Library'
 }
 
 type OwnProps = {
@@ -87,15 +69,8 @@ type NavColumnProps = OwnProps &
 const LeftNav = ({
   account,
   showActionRequiresAccount,
-  createPlaylist,
-  library,
-  openCreatePlaylistModal,
-  closeCreatePlaylistModal,
   isElectron,
-  showCreatePlaylistModal,
-  hideCreatePlaylistModalFolderTab,
-  updatePlaylistLibrary,
-  dragging: { dragging, kind },
+  draggingKind,
   saveTrack,
   saveCollection,
   accountStatus,
@@ -133,48 +108,6 @@ const LeftNav = ({
       goToRoute(profilePage(account.handle))
     }
   }, [account, goToRoute])
-
-  const onCreatePlaylist = useCallback(
-    (metadata: PlaylistFormFields) => {
-      const tempId = getTempPlaylistId()
-      createPlaylist(tempId, metadata)
-      closeCreatePlaylistModal()
-      if (account) {
-        goToRoute(playlistPage(account.handle, metadata.playlist_name, tempId))
-      }
-    },
-    [account, createPlaylist, closeCreatePlaylistModal, goToRoute]
-  )
-
-  const onCreateFolder = useCallback(
-    (folderName: string) => {
-      const newLibrary = addFolderToLibrary(
-        library,
-        constructPlaylistFolder(folderName)
-      )
-      updatePlaylistLibrary(newLibrary)
-      closeCreatePlaylistModal()
-    },
-    [library, updatePlaylistLibrary, closeCreatePlaylistModal]
-  )
-
-  const openCreatePlaylist = useCallback(() => {
-    if (account) {
-      openCreatePlaylistModal()
-      record(
-        make(Name.PLAYLIST_OPEN_CREATE, { source: CreatePlaylistSource.NAV })
-      )
-    } else {
-      goToSignUp('social action')
-      showActionRequiresAccount()
-    }
-  }, [
-    account,
-    openCreatePlaylistModal,
-    goToSignUp,
-    showActionRequiresAccount,
-    record
-  ])
 
   const onClickNavLinkWithAccount = useCallback(
     (e?: MouseEvent) => {
@@ -287,7 +220,7 @@ const LeftNav = ({
 
             <div className={styles.links}>
               <div className={styles.linkGroup}>
-                <div className={styles.groupHeader}>Discover</div>
+                <GroupHeader>{messages.discover}</GroupHeader>
                 <LeftNavLink
                   to={FEED_PAGE}
                   disabled={!account}
@@ -301,12 +234,12 @@ const LeftNav = ({
                 </LeftNavLink>
               </div>
               <div className={styles.linkGroup}>
-                <div className={styles.groupHeader}>Library</div>
+                <GroupHeader>{messages.library}</GroupHeader>
                 <LeftNavDroppable
                   disabled={!account}
                   acceptedKinds={['track', 'album']}
                   acceptOwner={false}
-                  onDrop={kind === 'album' ? saveCollection : saveTrack}
+                  onDrop={draggingKind === 'album' ? saveCollection : saveTrack}
                 >
                   <LeftNavLink
                     to={SAVED_PAGE}
@@ -324,48 +257,11 @@ const LeftNav = ({
                 </LeftNavLink>
               </div>
               <div className={styles.linkGroup}>
-                <Droppable
-                  className={styles.droppableGroup}
-                  hoverClassName={styles.droppableGroupHover}
-                  onDrop={saveCollection}
-                  acceptedKinds={['playlist']}
-                >
-                  <div
-                    className={cn(styles.groupHeader, {
-                      [styles.droppableLink]: dragging && kind === 'playlist'
-                    })}
-                  >
-                    Playlists
-                    <div className={styles.newPlaylist}>
-                      <Tooltip
-                        text={messages.newPlaylistOrFolderTooltip}
-                        getPopupContainer={() =>
-                          scrollbarRef.current?.parentNode
-                        }
-                      >
-                        <span>
-                          <Pill
-                            text='New'
-                            icon='save'
-                            onClick={openCreatePlaylist}
-                          />
-                        </span>
-                      </Tooltip>
-                    </div>
-                  </div>
-                  <PlaylistLibrary />
-                </Droppable>
+                <PlaylistLibrary scrollbarRef={scrollbarRef} />
               </div>
             </div>
           </DragAutoscroller>
         </Scrollbar>
-        <CreatePlaylistModal
-          visible={showCreatePlaylistModal}
-          onCreatePlaylist={onCreatePlaylist}
-          onCreateFolder={onCreateFolder}
-          onCancel={closeCreatePlaylistModal}
-          hideFolderTab={hideCreatePlaylistModalFolderTab}
-        />
       </div>
       <div className={styles.navAnchor}>
         {profileCompletionMeter}
@@ -380,30 +276,18 @@ const mapStateToProps = (state: AppState) => {
   return {
     account: getAccountUser(state),
     accountStatus: getAccountStatus(state),
-    dragging: selectDragnDropState(state),
-    library: getPlaylistLibrary(state),
-    showCreatePlaylistModal: getIsOpen(state),
-    hideCreatePlaylistModalFolderTab: getHideFolderTab(state)
+    draggingKind: selectDraggingKind(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  createPlaylist: (tempId: number, metadata: Record<string, unknown>) =>
-    dispatch(createPlaylist(tempId, metadata, CreatePlaylistSource.NAV)),
   goToRoute: (route: string) => dispatch(pushRoute(route)),
   saveTrack: (trackId: number) =>
     dispatch(saveTrack(trackId, FavoriteSource.NAVIGATOR)),
   saveCollection: (collectionId: number) =>
     dispatch(saveCollection(collectionId, FavoriteSource.NAVIGATOR)),
-  addTrackToPlaylist: (trackId: number, playlistId: number) =>
-    dispatch(addTrackToPlaylist(trackId, playlistId)),
   showActionRequiresAccount: () =>
     dispatch(signOnActions.showRequiresAccountModal()),
-  openCreatePlaylistModal: () => dispatch(createPlaylistModalActions.open()),
-  closeCreatePlaylistModal: () => dispatch(createPlaylistModalActions.close()),
-  updatePlaylistLibrary: (newLibrary: PlaylistLibraryType) =>
-    dispatch(updatePlaylistLibrary({ playlistLibrary: newLibrary })),
-  goToDashboard: () => dispatch(pushRoute(DASHBOARD_PAGE)),
   goToSignUp: () => dispatch(signOnActions.openSignOn(/** signIn */ false)),
   goToSignIn: () => dispatch(signOnActions.openSignOn(/** signIn */ true))
 })

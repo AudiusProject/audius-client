@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux'
 
+import apiReducer from '../api/reducer'
 import { Kind } from '../models'
 
 import account from './account/slice'
@@ -67,6 +68,7 @@ import { recoveryEmailReducer, RecoveryEmailState } from './recovery-email'
 import remixSettingsReducer, {
   RemixSettingsState
 } from './remix-settings/slice'
+import savedCollectionsReducer from './saved-collections/slice'
 import solanaReducer from './solana/slice'
 import stemsUpload from './stems-upload/slice'
 import tippingReducer from './tipping/slice'
@@ -128,6 +130,8 @@ import wallet from './wallet/slice'
 export const reducers = () => ({
   account,
 
+  api: apiReducer,
+
   // TODO: Move to common
   // signOn: signOnReducer,
   // backend,
@@ -145,6 +149,8 @@ export const reducers = () => ({
   // TODO: Fix type error
   // @ts-ignore
   users: asCache(usersReducer, Kind.USERS),
+
+  savedCollections: savedCollectionsReducer,
 
   // Playback
   queue,
@@ -262,6 +268,10 @@ export type CommonState = {
   collections: CollectionsCacheState
   tracks: TracksCacheState
   users: UsersCacheState
+
+  // TODO: missing types for internally managed api slice state
+  api: any
+  savedCollections: ReturnType<typeof savedCollectionsReducer>
 
   // Playback
   queue: ReturnType<typeof queue>

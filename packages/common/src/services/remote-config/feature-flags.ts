@@ -39,7 +39,7 @@ export enum FeatureFlags {
   TRENDING_PLAYLIST_NOTIFICATIONS = 'trending_playlist_notifications',
   TRENDING_UNDERGROUND_NOTIFICATIONS = 'trending_underground_notifications',
   TASTEMAKER_NOTIFICATIONS = 'tastemaker_notifications',
-  SDK_DISCOVERY_NODE_SELECTOR = 'sdk_discovery_node_selector',
+  SDK_DISCOVERY_NODE_SELECTOR = 'sdk_discovery_node_selector_2',
   GET_METADATA_FROM_DISCOVERY_ENABLED = 'get_metadata_from_discovery_enabled',
   RELATED_ARTISTS_ON_PROFILE_ENABLED = 'related_artists_on_profile_enabled',
   PROXY_WORMHOLE = 'proxy_wormhole',
@@ -47,7 +47,8 @@ export enum FeatureFlags {
   STORAGE_V2_SIGNUP = 'storage_v2_signup',
   PLAYLIST_UPDATES_PRE_QA = 'playlist_updates_pre_qa',
   PLAYLIST_UPDATES_POST_QA = 'playlist_updates_post_qa',
-  AI_ATTRIBUTION = 'ai_attribution'
+  AI_ATTRIBUTION = 'ai_attribution',
+  WRITE_METADATA_THROUGH_CHAIN = 'write_metadata_through_chain'
 }
 
 type FlagDefaults = Record<FeatureFlags, boolean>
@@ -110,5 +111,6 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.STORAGE_V2_SIGNUP]: false,
   [FeatureFlags.PLAYLIST_UPDATES_PRE_QA]: false,
   [FeatureFlags.PLAYLIST_UPDATES_POST_QA]: false,
-  [FeatureFlags.AI_ATTRIBUTION]: false
+  [FeatureFlags.AI_ATTRIBUTION]: false,
+  [FeatureFlags.WRITE_METADATA_THROUGH_CHAIN]: false
 }

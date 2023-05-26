@@ -6,7 +6,6 @@ import {
   FavoriteSource,
   RepostSource,
   ShareSource,
-  CreatePlaylistSource,
   accountSelectors,
   cacheCollectionsActions,
   collectionPageSelectors,
@@ -14,9 +13,9 @@ import {
   playbackPositionSelectors,
   tracksSocialActions,
   addToPlaylistUIActions,
-  newCollectionMetadata,
   Genre,
-  FeatureFlags
+  FeatureFlags,
+  CommonState
 } from '@audius/common'
 import { PopupMenuItem } from '@audius/stems'
 import { push as pushRoute } from 'connected-react-router'
@@ -34,10 +33,10 @@ const { requestOpen: openAddToPlaylist } = addToPlaylistUIActions
 const { saveTrack, unsaveTrack, repostTrack, undoRepostTrack, shareTrack } =
   tracksSocialActions
 const { getCollectionId } = collectionPageSelectors
-const { createPlaylist, addTrackToPlaylist } = cacheCollectionsActions
-const { getAccountOwnedPlaylists } = accountSelectors
+const { addTrackToPlaylist } = cacheCollectionsActions
+const { getAccountOwnedPlaylists, getUserId } = accountSelectors
 const { clearTrackPosition, setTrackPosition } = playbackPositionActions
-const { getTrackPositions } = playbackPositionSelectors
+const { getUserTrackPositions } = playbackPositionSelectors
 
 const messages = {
   addToNewPlaylist: 'Add to New Playlist',
@@ -94,11 +93,15 @@ export type TrackMenuProps = OwnProps &
 const TrackMenu = (props: TrackMenuProps) => {
   const { toast } = useContext(ToastContext)
   const dispatch = useDispatch()
+  const currentUserId = useSelector(getUserId)
   const { isEnabled: isNewPodcastControlsEnabled } = useFlag(
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
   )
-  const trackPlaybackPositions = useSelector(getTrackPositions)
+
+  const trackPlaybackPositions = useSelector((state: CommonState) =>
+    getUserTrackPositions(state, { userId: currentUserId })
+  )
 
   const getMenu = () => {
     const {
@@ -185,7 +188,7 @@ const TrackMenu = (props: TrackMenuProps) => {
     const markAsUnplayedItem = {
       text: messages.markAsUnplayed,
       onClick: () => {
-        dispatch(clearTrackPosition({ trackId }))
+        dispatch(clearTrackPosition({ userId: currentUserId, trackId }))
         toast(messages.markedAsUnplayed)
       }
     }
@@ -195,6 +198,7 @@ const TrackMenu = (props: TrackMenuProps) => {
       onClick: () => {
         dispatch(
           setTrackPosition({
+            userId: currentUserId,
             trackId,
             positionInfo: { status: 'COMPLETED', playbackPosition: 0 }
           })
@@ -248,7 +252,7 @@ const TrackMenu = (props: TrackMenuProps) => {
     if (trackId && trackTitle && !isDeleted) {
       if (includeTrackPage) menu.items.push(trackPageMenuItem)
       if (isLongFormContent && isNewPodcastControlsEnabled) {
-        const playbackPosition = trackPlaybackPositions[trackId]
+        const playbackPosition = trackPlaybackPositions?.[trackId]
         menu.items.push(
           playbackPosition?.status === 'COMPLETED'
             ? markAsUnplayedItem
@@ -309,15 +313,6 @@ function mapDispatchToProps(dispatch: Dispatch) {
     setArtistPick: (trackId: ID) =>
       dispatch(showSetAsArtistPickConfirmation(trackId)),
     unsetArtistPick: () => dispatch(showSetAsArtistPickConfirmation()),
-    createEmptyPlaylist: (tempId: ID, name: string, trackId: ID) =>
-      dispatch(
-        createPlaylist(
-          tempId,
-          newCollectionMetadata({ playlist_name: name }),
-          CreatePlaylistSource.FROM_TRACK,
-          trackId
-        )
-      ),
     openAddToPlaylistModal: (trackId: ID, title: string) =>
       dispatch(openAddToPlaylist(trackId, title)),
     openEditTrackModal: (trackId: ID) =>

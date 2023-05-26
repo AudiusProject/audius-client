@@ -7,7 +7,6 @@ import {
   FavoriteSource,
   PlaybackSource,
   Name,
-  formatCount,
   accountSelectors,
   accountActions,
   lineupSelectors,
@@ -122,7 +121,6 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
       this.state.sortMethod,
       this.state.sortDirection
     )
-    this.props.fetchSavedAlbums()
     if (isMobile()) {
       this.props.fetchSavedPlaylists()
     }
@@ -237,18 +235,6 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
         ? filteredMetadata.findIndex((metadata) => metadata.uid === playingUid)
         : playingIndex
     return [filteredMetadata, filteredIndex]
-  }
-
-  getFilteredAlbums = (
-    albums: SavedPageCollection[]
-  ): SavedPageCollection[] => {
-    const filterText = this.state.filterText
-    return albums.filter(
-      (item: SavedPageCollection) =>
-        item.playlist_name.toLowerCase().indexOf(filterText.toLowerCase()) >
-          -1 ||
-        item.ownerHandle.toLowerCase().indexOf(filterText.toLowerCase()) > -1
-    )
   }
 
   getFilteredPlaylists = (
@@ -430,12 +416,6 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
     })
   }
 
-  formatCardSecondaryText = (saves: number, tracks: number) => {
-    const savesText = saves === 1 ? 'Favorite' : 'Favorites'
-    const tracksText = tracks === 1 ? 'Track' : 'Tracks'
-    return `${formatCount(saves)} ${savesText} • ${tracks} ${tracksText}`
-  }
-
   render() {
     const isQueued = this.isQueued()
     const playingUid = this.getPlayingUid()
@@ -463,7 +443,6 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
       fetchSavedTracks: this.props.fetchSavedTracks,
       resetSavedTracks: this.props.resetSavedTracks,
       updateLineupOrder: this.props.updateLineupOrder,
-      fetchSavedAlbums: this.props.fetchSavedAlbums,
       goToRoute: this.props.goToRoute,
       play: this.props.play,
       pause: this.props.pause,
@@ -488,7 +467,6 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
       onPlay: this.onPlay,
       onSortTracks: this.onSortTracks,
       onChangeTab: this.onChangeTab,
-      formatCardSecondaryText: this.formatCardSecondaryText,
       onClickRemove: null
     }
 
@@ -498,7 +476,6 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
 
       onSave: this.onSave,
       onTogglePlay: this.onTogglePlay,
-      getFilteredAlbums: this.getFilteredAlbums,
       getFilteredPlaylists: this.getFilteredPlaylists
     }
 
@@ -581,7 +558,6 @@ function mapDispatchToProps(dispatch: Dispatch) {
     resetSavedTracks: () => dispatch(tracksActions.reset()),
     updateLineupOrder: (updatedOrderIndices: UID[]) =>
       dispatch(tracksActions.updateLineupOrder(updatedOrderIndices)),
-    fetchSavedAlbums: () => dispatch(accountActions.fetchSavedAlbums()),
     fetchSavedPlaylists: () => dispatch(accountActions.fetchSavedPlaylists()),
     updatePlaylistLastViewedAt: (playlistId: number) =>
       dispatch(updatedPlaylistViewed({ playlistId })),

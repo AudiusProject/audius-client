@@ -26,6 +26,7 @@ import { make, useRecord } from 'common/store/analytics/actions'
 import Card from 'components/card/desktop/Card'
 import CollectiblesPage from 'components/collectibles/components/CollectiblesPage'
 import CoverPhoto from 'components/cover-photo/CoverPhoto'
+import { InboxUnavailableModal } from 'components/inbox-unavailable-modal/InboxUnavailableModal'
 import CardLineup from 'components/lineup/CardLineup'
 import Lineup from 'components/lineup/Lineup'
 import Mask from 'components/mask/Mask'
@@ -36,6 +37,8 @@ import { ProfileMode, StatBanner } from 'components/stat-banner/StatBanner'
 import { StatProps } from 'components/stats/Stats'
 import UploadChip from 'components/upload/UploadChip'
 import useTabs, { useTabRecalculator } from 'hooks/useTabs/useTabs'
+import { BlockUserConfirmationModal } from 'pages/chat-page/components/BlockUserConfirmationModal'
+import { UnblockUserConfirmationModal } from 'pages/chat-page/components/UnblockUserConfirmationModal'
 import { MIN_COLLECTIBLES_TIER } from 'pages/profile-page/ProfilePageProvider'
 import EmptyTab from 'pages/profile-page/components/EmptyTab'
 import {
@@ -89,6 +92,10 @@ export type ProfilePageProps = {
   mode: ProfileMode
   stats: StatProps[]
   isBlocked: boolean
+  canCreateChat: boolean
+  showInboxUnavailableModal: boolean
+  showBlockUserConfirmationModal: boolean
+  showUnblockUserConfirmationModal: boolean
 
   profile: ProfileUser | null
   albums: Collection[] | null
@@ -146,9 +153,12 @@ export type ProfilePageProps = {
   ) => void
   didChangeTabsFrom: (prevLabel: string, currentLabel: string) => void
   onCloseArtistRecommendations: () => void
-  onMessage?: () => void
+  onMessage: () => void
   onBlock: () => void
   onUnblock: () => void
+  onCloseInboxUnavailableModal: () => void
+  onCloseBlockUserConfirmationModal: () => void
+  onCloseUnblockUserConfirmationModal: () => void
 }
 
 const ProfilePage = ({
@@ -201,10 +211,19 @@ const ProfilePage = ({
   editMode,
   areArtistRecommendationsVisible,
   onCloseArtistRecommendations,
+  canCreateChat,
   onMessage,
   onBlock,
   onUnblock,
   isBlocked,
+
+  // Chat modals
+  showInboxUnavailableModal,
+  onCloseInboxUnavailableModal,
+  showBlockUserConfirmationModal,
+  onCloseBlockUserConfirmationModal,
+  showUnblockUserConfirmationModal,
+  onCloseUnblockUserConfirmationModal,
 
   accountUserId,
   userId,
@@ -742,8 +761,10 @@ const ProfilePage = ({
             onToggleSubscribe={toggleNotificationSubscription}
             onFollow={onFollow}
             onUnfollow={onUnfollow}
+            canCreateChat={canCreateChat}
             onMessage={onMessage}
             isBlocked={isBlocked}
+            accountUserId={accountUserId}
             onBlock={onBlock}
             onUnblock={onUnblock}
           />
@@ -769,6 +790,25 @@ const ProfilePage = ({
           </div>
         </Mask>
       </div>
+      {profile ? (
+        <>
+          <InboxUnavailableModal
+            user={profile}
+            isVisible={showInboxUnavailableModal}
+            onClose={onCloseInboxUnavailableModal}
+          />
+          <BlockUserConfirmationModal
+            user={profile}
+            isVisible={showBlockUserConfirmationModal}
+            onClose={onCloseBlockUserConfirmationModal}
+          />
+          <UnblockUserConfirmationModal
+            user={profile}
+            isVisible={showUnblockUserConfirmationModal}
+            onClose={onCloseUnblockUserConfirmationModal}
+          />
+        </>
+      ) : null}
     </Page>
   )
 }
