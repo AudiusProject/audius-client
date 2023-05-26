@@ -217,6 +217,7 @@ const buildEndpointHooks = <
 
     // Rehydrate local nonNormalizedData using entities from global normalized cache
     let cachedData: Data = useSelector((state: CommonState) => {
+      if (hookOptions?.shallow) return nonNormalizedData
       const rehydratedEntityMap =
         strippedEntityMap && selectRehydrateEntityMap(state, strippedEntityMap)
       return rehydratedEntityMap
@@ -283,7 +284,6 @@ const buildEndpointHooks = <
       fetchWrapped()
     }, [
       fetchArgs,
-      cachedData,
       dispatch,
       status,
       isInitialValue,
