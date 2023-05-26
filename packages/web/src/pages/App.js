@@ -1,4 +1,4 @@
-import { lazy, createRef, Component, Suspense } from 'react'
+import { lazy, Component, Suspense } from 'react'
 
 import {
   Client,
@@ -34,6 +34,7 @@ import UpdateAppBanner from 'components/banner/UpdateAppBanner'
 import Web3ErrorBanner from 'components/banner/Web3ErrorBanner'
 import CookieBanner from 'components/cookie-banner/CookieBanner'
 import { DevModeMananger } from 'components/dev-mode-manager/DevModeManager'
+import { DesktopHeaderContext } from 'components/header/desktop/HeaderGutter'
 import { HeaderContextConsumer } from 'components/header/mobile/HeaderContextProvider'
 import Konami from 'components/konami/Konami'
 import Navigator from 'components/nav/Navigator'
@@ -170,8 +171,6 @@ import SmartCollectionPage from './smart-collection/SmartCollectionPage'
 import SupportingPage from './supporting-page/SupportingPage'
 import TopSupportersPage from './top-supporters-page/TopSupportersPage'
 
-import { DesktopHeaderContext } from 'components/header/desktop/HeaderGutter'
-
 const { setTheme } = themeActions
 const { getTheme } = themeSelectors
 
@@ -222,8 +221,6 @@ class App extends Component {
   }
 
   ipc = null
-
-  headerGutterRef = createRef()
 
   scrollToTop = () => {
     this.props.mainContentRef.current &&
