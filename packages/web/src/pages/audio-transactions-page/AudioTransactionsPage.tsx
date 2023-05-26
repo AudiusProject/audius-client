@@ -81,7 +81,7 @@ export const AudioTransactionsPage = () => {
   )
 
   const { data: audioTransactionCount, status: transactionCountStatus } =
-    useGetAudioTransactionCount()
+    useGetAudioTransactionCount({})
 
   // Defaults: sort method = date, sort direction = desc
   const onSort = useCallback(

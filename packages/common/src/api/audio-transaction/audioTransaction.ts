@@ -28,7 +28,7 @@ const audiotransactionApi = createApi({
         const txDetails: TransactionDetails[] =
           response.data?.map((tx) => parseTransaction(tx)) ?? []
 
-        return { transactions: txDetails }
+        return txDetails
       },
       options: {
         schemaKey: 'transactions'
@@ -46,7 +46,7 @@ const audiotransactionApi = createApi({
             encodedDataSignature: signature
           })
 
-        return { transactionCount: response.data }
+        return response.data
       },
       options: {
         schemaKey: 'transactionCount'
