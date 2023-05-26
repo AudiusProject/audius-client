@@ -101,7 +101,7 @@ export const LineupTile = ({
     (item.genre === Genre.PODCASTS || item.genre === Genre.AUDIOBOOKS)
 
   return (
-    <LineupTileRoot onPress={handlePress} {...TileProps}>
+    <LineupTileRoot onPress={handlePress} {...TileProps} isChat={isChat}>
       {showPremiumCornerTag && cornerTagIconType ? (
         <LineupTileBannerIcon
           type={cornerTagIconType}

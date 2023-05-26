@@ -77,16 +77,6 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
         name: Name.PLAYBACK_PAUSE,
         source: PlaybackSource.CHAT_TRACK
       })
-    } else if (
-      currentQueueItem.uid !== uid &&
-      currentQueueItem.track &&
-      currentQueueItem.uid === uid
-    ) {
-      dispatch(play({}))
-      recordAnalytics({
-        name: Name.PLAYBACK_PLAY,
-        source: PlaybackSource.CHAT_TRACK
-      })
     } else {
       dispatch(clear({}))
       dispatch(
