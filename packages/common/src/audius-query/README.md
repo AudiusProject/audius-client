@@ -71,7 +71,7 @@
 
       _Note: A schema key is required, though any unreserved key can be used if the data does not contain any of the entities stored in the entity cache (i.e. any of the `Kinds` from [Kind.ts](/packages/common/src/models/Kind.ts))_
 
-    - **`kind`** - in combination with either `idArgKey`, or `permalinkArgKey`, allows local cache hits for single entities. If an entity with the matching `kind` and the `id` or `permalink` exists in cache, we will return that instead of calling the fetch function. See [enable single entity cache hits](#enable-single-entity-cache-hits) below
+    - **`kind`** - in combination with either `idArgKey` or `permalinkArgKey`, allows local cache hits for single entities. If an entity with the matching `kind` and the `id` or `permalink` exists in cache, we will return that instead of calling the fetch function. See [enable single entity cache hits](#enable-single-entity-cache-hits) below
       - **`idArgKey`** - `fetchArgs[idArgKey]` must contain the id of the entity
       - **`permalinkArgKey`** - `fetchArgs[permalinkArgKey]` must contain the permalink of the entity
       - **`idListArgKey`** - works like `idArgKey` but for endpoints that return a list entities
