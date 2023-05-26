@@ -35,7 +35,7 @@ const trackApi = createApi({
         return await apiClient.getTracks({ ids, currentUserId })
       },
       options: {
-        idArgKey: 'ids',
+        idListArgKey: 'ids',
         kind: Kind.TRACKS,
         schemaKey: 'tracks'
       }
