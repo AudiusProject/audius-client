@@ -18,12 +18,14 @@ export const selectCommonEntityMap = (
   kind?: Kind
 ): EntityMap | null => {
   const entityMap: EntityMap = {
-    users: cacheSelectors.getAllEntries(state, { kind: Kind.USERS })
+    [Kind.USERS]: cacheSelectors.getAllEntries(state, { kind: Kind.USERS })
   }
   if (kind === Kind.USERS) return entityMap
-  entityMap.tracks = cacheSelectors.getAllEntries(state, { kind: Kind.TRACKS })
+  entityMap[Kind.TRACKS] = cacheSelectors.getAllEntries(state, {
+    kind: Kind.TRACKS
+  })
   if (kind === Kind.TRACKS) return entityMap
-  entityMap.collections = cacheSelectors.getAllEntries(state, {
+  entityMap[Kind.COLLECTIONS] = cacheSelectors.getAllEntries(state, {
     kind: Kind.COLLECTIONS
   })
   return entityMap
