@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useState } from 'react'
 
 import type { ReactionTypes, ChatMessageWithExtras } from '@audius/common'
 import {
@@ -11,13 +11,12 @@ import {
 import type { ChatMessageReaction } from '@audius/sdk'
 import { find } from 'linkifyjs'
 import type { ViewStyle, StyleProp } from 'react-native'
-import { Pressable, View } from 'react-native'
+import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import ChatTail from 'app/assets/images/ChatTail.svg'
-import { Hyperlink, Text } from 'app/components/core'
+import { Pressable, Hyperlink, Text } from 'app/components/core'
 import { makeStyles } from 'app/styles'
-import { useThemePalette } from 'app/utils/theme'
 
 import { reactionMap } from '../notifications-screen/Reaction'
 
@@ -45,7 +44,13 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     borderRadius: spacing(3)
   },
   isAuthor: {
-    backgroundColor: palette.secondary
+    backgroundColor: palette.secondaryLight2
+  },
+  pressed: {
+    backgroundColor: palette.neutralLight10
+  },
+  pressedIsAuthor: {
+    backgroundColor: palette.secondaryLight1
   },
   message: {
     marginHorizontal: spacing(4),
@@ -152,7 +157,6 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
     itemsRef
   } = props
   const styles = useStyles()
-  const palette = useThemePalette()
 
   const userId = useSelector(getUserId)
   const senderUserId = decodeHashId(message.sender_user_id)
@@ -161,6 +165,15 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
     useSelector((state) =>
       isIdEqualToReactionsPopupMessageId(state, message.message_id)
     ) && !isPopup
+  const [isPressed, setIsPressed] = useState(false)
+
+  const handlePressIn = useCallback(() => {
+    setIsPressed(true)
+  }, [setIsPressed])
+
+  const handlePressOut = useCallback(() => {
+    setIsPressed(false)
+  }, [setIsPressed])
 
   const handleLongPress = useCallback(() => {
     if (message.status !== Status.ERROR) {
@@ -187,10 +200,20 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
           <Pressable
             onLongPress={handleLongPress}
             delayLongPress={REACTION_LONGPRESS_DELAY}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
           >
             <View style={styles.shadow}>
               <View
-                style={[styles.bubble, isAuthor && styles.isAuthor]}
+                style={[
+                  styles.bubble,
+                  isAuthor ? styles.isAuthor : null,
+                  isPressed
+                    ? isAuthor
+                      ? styles.pressedIsAuthor
+                      : styles.pressed
+                    : null
+                ]}
                 ref={
                   itemsRef
                     ? (el) => (itemsRef.current[message.message_id] = el)
@@ -205,6 +228,9 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                     href={link.href}
                     isLinkPreviewOnly={isLinkPreviewOnly}
                     onLongPress={handleLongPress}
+                    onPressIn={handlePressIn}
+                    onPressOut={handlePressOut}
+                    isPressed={isPressed}
                   />
                 ) : null}
                 {!isLinkPreviewOnly ? (
@@ -227,9 +253,13 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
               {message.hasTail ? (
                 <ChatTail
                   fill={
-                    isAuthor && !isLinkPreviewOnly
-                      ? palette.secondary
-                      : palette.white
+                    isPressed
+                      ? isAuthor && !isLinkPreviewOnly
+                        ? styles.pressedIsAuthor.backgroundColor
+                        : styles.pressed.backgroundColor
+                      : isAuthor && !isLinkPreviewOnly
+                      ? styles.isAuthor.backgroundColor
+                      : styles.bubble.backgroundColor
                   }
                   style={[
                     styles.tail,
