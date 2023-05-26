@@ -19,7 +19,8 @@ export type Api<EndpointDefinitions extends DefaultEndpointDefinitions> = {
     [Property in keyof EndpointDefinitions as `use${Capitalize<
       string & Property
     >}`]: (
-      fetchArgs: Parameters<EndpointDefinitions[Property]['fetch']>[0]
+      fetchArgs: Parameters<EndpointDefinitions[Property]['fetch']>[0],
+      options?: QueryHookOptions
     ) => QueryHookResults<
       Awaited<ReturnType<EndpointDefinitions[Property]['fetch']>>
     >
@@ -52,9 +53,6 @@ export type EntityMap = {
       }
     | undefined
 }
-export type StrippedEntityMap = {
-  [x: string]: string[] | undefined
-}
 
 type FetchBaseAction = {
   fetchArgs: any
@@ -68,7 +66,6 @@ export type FetchErrorAction = PayloadAction<
 export type FetchSucceededAction = PayloadAction<
   FetchBaseAction & {
     nonNormalizedData: any
-    strippedEntityMap: StrippedEntityMap
   }
 >
 
@@ -81,12 +78,12 @@ export type PerEndpointState<NormalizedData> = {
 export type PerKeyState<NormalizedData> = {
   status: Status
   nonNormalizedData?: NormalizedData
-  strippedEntityMap?: StrippedEntityMap
   errorMessage?: string
 }
 
 export type QueryHookOptions = {
   disabled?: boolean
+  shallow?: boolean
 }
 
 export type QueryHookResults<Data> = {

@@ -1,13 +1,12 @@
 import { Kind } from 'models'
+import { createApi } from 'src/audius-query/createApi'
 import { parseTrackRouteFromPermalink } from 'utils/stringUtils'
-
-import { createApi } from './createApi'
 
 const trackApi = createApi({
   reducerPath: 'trackApi',
   endpoints: {
     getTrackById: {
-      fetch: async ({ id }: { id: number }, { apiClient }) => {
+      fetch: async ({ id }, { apiClient }) => {
         return await apiClient.getTrack({ id })
       },
       options: {
@@ -30,9 +29,20 @@ const trackApi = createApi({
         kind: Kind.TRACKS,
         schemaKey: 'track'
       }
+    },
+    getTracksByIds: {
+      fetch: async ({ ids, currentUserId }, { apiClient }) => {
+        return await apiClient.getTracks({ ids, currentUserId })
+      },
+      options: {
+        idArgKey: 'ids',
+        kind: Kind.TRACKS,
+        schemaKey: 'tracks'
+      }
     }
   }
 })
 
-export const { useGetTrackById, useGetTrackByPermalink } = trackApi.hooks
-export default trackApi.reducer
+export const { useGetTrackById, useGetTrackByPermalink, useGetTracksByIds } =
+  trackApi.hooks
+export const trackApiReducer = trackApi.reducer

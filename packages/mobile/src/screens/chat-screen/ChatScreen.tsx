@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 
 import type { ChatMessageWithExtras } from '@audius/common'
 import {
+  useCanSendMessage,
   chatCanFetchMoreMessages,
   chatActions,
   accountSelectors,
@@ -15,8 +16,7 @@ import {
   playerSelectors
 } from '@audius/common'
 import { Portal } from '@gorhom/portal'
-import { useFocusEffect } from '@react-navigation/native'
-import { Keyboard, View, Text, Pressable, FlatList } from 'react-native'
+import { Keyboard, View, Text, FlatList, TouchableOpacity } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
@@ -42,20 +42,25 @@ import type { AppTabScreenParamList } from '../app-screen'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
 import { ChatTextInput } from './ChatTextInput'
+import { ChatUnavailable } from './ChatUnavailable'
 import { EmptyChatMessages } from './EmptyChatMessages'
 import { ReactionPopup } from './ReactionPopup'
 
 const {
   getChatMessages,
-  getOtherChatUsers,
   getChat,
   getChatMessageById,
   getChatMessageByIndex,
   getReactionsPopupMessageId
 } = chatSelectors
-
-const { fetchMoreMessages, markChatAsRead, setReactionsPopupMessageId } =
-  chatActions
+const {
+  fetchMoreMessages,
+  markChatAsRead,
+  setReactionsPopupMessageId,
+  fetchBlockers,
+  fetchBlockees,
+  fetchPermissions
+} = chatActions
 const { getUserId } = accountSelectors
 const { getHasTrack } = playerSelectors
 
@@ -201,11 +206,9 @@ export const ChatScreen = () => {
   const userId = useSelector(getUserId)
   const userIdEncoded = encodeHashId(userId)
   const chat = useSelector((state) => getChat(state, chatId ?? ''))
-  const [otherUser] = useSelector((state) => getOtherChatUsers(state, chatId))
   const chatMessages = useSelector((state) =>
     getChatMessages(state, chatId ?? '')
   )
-  const unreadCount = chat?.unread_message_count ?? 0
   const isLoading =
     (chat?.messagesStatus ?? Status.LOADING) === Status.LOADING &&
     chatMessages?.length === 0
@@ -213,6 +216,8 @@ export const ChatScreen = () => {
   const popupMessage = useSelector((state) =>
     getChatMessageById(state, chatId ?? '', popupMessageId ?? '')
   )
+  const { canSendMessage, firstOtherUser: otherUser } =
+    useCanSendMessage(chatId)
 
   // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
   // Using a ref instead of state here to prevent unwanted flickers.
@@ -236,6 +241,22 @@ export const ChatScreen = () => {
       chatFrozenRef.current = chat
     }
   }, [chatId, chat])
+
+  // Mark chat as read when user enters this screen.
+  useEffect(() => {
+    if (chatId) {
+      dispatch(markChatAsRead({ chatId }))
+    }
+  }, [chatId, dispatch])
+
+  // Fetch all permissions, blockers/blockees, and recheck_permissions flag
+  useEffect(() => {
+    dispatch(fetchBlockees())
+    dispatch(fetchBlockers())
+    if (otherUser.user_id) {
+      dispatch(fetchPermissions({ userIds: [otherUser.user_id] }))
+    }
+  }, [chatId, dispatch, otherUser.user_id])
 
   // Find earliest unread message to display unread tag correctly
   const earliestUnreadIndex = useMemo(
@@ -297,15 +318,6 @@ export const ChatScreen = () => {
       dispatch(fetchMoreMessages({ chatId }))
     }
   }, [chat?.messagesStatus, chat?.messagesSummary, chatId, dispatch])
-
-  // Mark chat as read when user navigates away from screen
-  useFocusEffect(
-    useCallback(() => {
-      return () => {
-        dispatch(markChatAsRead({ chatId }))
-      }
-    }, [dispatch, chatId])
-  )
 
   const handleTopRightPress = () => {
     Keyboard.dismiss()
@@ -369,11 +381,16 @@ export const ChatScreen = () => {
           isPopup={false}
           onLongPress={handleMessagePress}
         />
-        {item.message_id === earliestUnreadMessageId ? (
+        {item.message_id === earliestUnreadMessageId &&
+        chatFrozenRef.current?.unread_message_count ? (
           <View style={styles.unreadTagContainer}>
             <View style={styles.unreadSeparator} />
             <Text style={styles.unreadTag}>
-              {unreadCount} {pluralize(messages.newMessage, unreadCount > 1)}
+              {chatFrozenRef.current?.unread_message_count}{' '}
+              {pluralize(
+                messages.newMessage,
+                chatFrozenRef.current?.unread_message_count > 1
+              )}
             </Text>
             <View style={styles.unreadSeparator} />
           </View>
@@ -386,8 +403,7 @@ export const ChatScreen = () => {
       chatId,
       styles.unreadSeparator,
       styles.unreadTag,
-      styles.unreadTagContainer,
-      unreadCount
+      styles.unreadTagContainer
     ]
   )
 
@@ -410,7 +426,7 @@ export const ChatScreen = () => {
       headerTitle={
         otherUser
           ? () => (
-              <Pressable
+              <TouchableOpacity
                 onPress={() =>
                   navigation.push('Profile', { id: otherUser.user_id })
                 }
@@ -424,7 +440,7 @@ export const ChatScreen = () => {
                   user={otherUser}
                   nameStyle={styles.userBadgeTitle}
                 />
-              </Pressable>
+              </TouchableOpacity>
             )
           : messages.title
       }
@@ -434,7 +450,7 @@ export const ChatScreen = () => {
       <ScreenContent>
         {/* Everything inside the portal displays on top of all other screen contents. */}
         <Portal hostName='ChatReactionsPortal'>
-          {shouldShowPopup && popupMessage ? (
+          {canSendMessage && shouldShowPopup && popupMessage ? (
             <ReactionPopup
               chatId={chatId}
               messageTop={messageTop.current}
@@ -490,19 +506,25 @@ export const ChatScreen = () => {
                   maintainVisibleContentPosition={
                     maintainVisibleContentPosition
                   }
+                  ListHeaderComponent={
+                    canSendMessage ? null : <ChatUnavailable chatId={chatId} />
+                  }
+                  scrollEnabled={!shouldShowPopup}
                 />
               </View>
             )}
 
-            <View
-              style={styles.composeView}
-              onLayout={measureChatContainerBottom}
-              ref={composeRef}
-              pointerEvents={'box-none'}
-            >
-              <View style={styles.whiteBackground} />
-              <ChatTextInput chatId={chatId} />
-            </View>
+            {canSendMessage ? (
+              <View
+                style={styles.composeView}
+                onLayout={measureChatContainerBottom}
+                ref={composeRef}
+                pointerEvents={'box-none'}
+              >
+                <View style={styles.whiteBackground} />
+                <ChatTextInput chatId={chatId} />
+              </View>
+            ) : null}
           </KeyboardAvoidingView>
         </View>
       </ScreenContent>

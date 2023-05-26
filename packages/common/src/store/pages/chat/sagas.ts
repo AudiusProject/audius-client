@@ -34,6 +34,7 @@ const {
   fetchUnreadMessagesCountSucceeded,
   fetchUnreadMessagesCountFailed,
   goToChat,
+  fetchChatIfNecessary,
   fetchMoreChats,
   fetchMoreChatsSucceeded,
   fetchMoreChatsFailed,
@@ -63,7 +64,8 @@ const {
   deleteChat,
   deleteChatSucceeded
 } = chatActions
-const { getChatsSummary, getChat, getUnfurlMetadata } = chatSelectors
+const { getChatsSummary, getChat, getUnfurlMetadata, getNonOptimisticChat } =
+  chatSelectors
 
 /**
  * Helper to dispatch actions for fetching chat users
@@ -121,7 +123,7 @@ function* doFetchMoreMessages(action: ReturnType<typeof fetchMoreMessages>) {
     const sdk = yield* call(audiusSdk)
 
     // Ensure we get a chat so we can check the unread count
-    yield* call(fetchChatIfNecessary, { chatId })
+    yield* call(doFetchChatIfNecessary, { chatId })
     const chat = yield* select((state) => getChat(state, chatId))
 
     // Paginate through messages until we get to the unread indicator
@@ -211,7 +213,7 @@ function* doCreateChat(action: ReturnType<typeof createChat>) {
       .sort()
       .join(':')
     try {
-      yield* call(fetchChatIfNecessary, { chatId })
+      yield* call(doFetchChatIfNecessary, { chatId })
     } catch {}
     const existingChat = yield* select((state) => getChat(state, chatId))
     if (existingChat) {
@@ -244,10 +246,16 @@ function* doMarkChatAsRead(action: ReturnType<typeof markChatAsRead>) {
   try {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
-    const chat = yield* select((state) => getChat(state, chatId))
-    if (!chat || !dayjs(chat?.last_read_at).isAfter(chat?.last_message_at)) {
+    // Use non-optimistic chat here so that the calculation of whether to mark
+    // the chat as read or not are consistent with values in backend
+    const chat = yield* select((state) => getNonOptimisticChat(state, chatId))
+    if (!chat || dayjs(chat?.last_read_at).isBefore(chat?.last_message_at)) {
       yield* call([sdk.chats, sdk.chats.read], { chatId })
       yield* put(markChatAsReadSucceeded({ chatId }))
+    } else {
+      // Mark the write as 'failed' in this case (just means we already marked this as read somehow)
+      // to delete the optimistic read status
+      yield* put(markChatAsReadFailed({ chatId }))
     }
   } catch (e) {
     console.error('markChatAsReadFailed', e)
@@ -256,12 +264,12 @@ function* doMarkChatAsRead(action: ReturnType<typeof markChatAsRead>) {
 }
 
 function* doSendMessage(action: ReturnType<typeof sendMessage>) {
-  const { chatId, message } = action.payload
-  const messageId = ulid()
+  const { chatId, message, resendMessageId } = action.payload
+  const messageIdToUse = resendMessageId ?? ulid()
+  const userId = yield* select(getUserId)
   try {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
-    const userId = yield* select(getUserId)
     const currentUserId = encodeHashId(userId)
     if (!currentUserId) {
       return
@@ -273,30 +281,41 @@ function* doSendMessage(action: ReturnType<typeof sendMessage>) {
         chatId,
         message: {
           sender_user_id: currentUserId,
-          message_id: messageId,
+          message_id: messageIdToUse,
           message,
           reactions: [],
           created_at: dayjs().toISOString()
         },
-        status: Status.LOADING
+        status: Status.LOADING,
+        isSelfMessage: true
       })
     )
 
     yield* call([sdk.chats, sdk.chats.message], {
       chatId,
-      messageId,
+      messageId: messageIdToUse,
       message
     })
   } catch (e) {
     console.error('sendMessageFailed', e)
-    yield* put(sendMessageFailed({ chatId, messageId }))
+    yield* put(sendMessageFailed({ chatId, messageId: messageIdToUse }))
+
+    // Refetch permissions and blocking on failed message send
+    yield* put(fetchBlockees())
+    yield* put(fetchBlockers())
+    if (userId) {
+      yield* put(fetchPermissions({ userIds: [userId] }))
+    }
   }
 }
 
-function* fetchChatIfNecessary(args: { chatId: string }) {
-  const { chatId } = args
+function* doFetchChatIfNecessary(args: {
+  chatId: string
+  bustCache?: boolean
+}) {
+  const { chatId, bustCache = false } = args
   const existingChat = yield* select((state) => getChat(state, chatId))
-  if (!existingChat) {
+  if (!existingChat || bustCache) {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
     const { data: chat } = yield* call([sdk.chats, sdk.chats.get], { chatId })
@@ -369,6 +388,10 @@ function* doUnblockUser(action: ReturnType<typeof unblockUser>) {
 
 function* doFetchPermissions(action: ReturnType<typeof fetchPermissions>) {
   try {
+    const currentUserId = yield* select(getUserId)
+    if (!currentUserId) {
+      return
+    }
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
     const { data } = yield* call([sdk.chats, sdk.chats.getPermissions], {
@@ -441,6 +464,12 @@ function* watchAddMessage() {
   yield takeEvery(addMessage, ({ payload }) => fetchChatIfNecessary(payload))
 }
 
+function* watchFetchChatIfNecessary() {
+  yield takeEvery(fetchChatIfNecessary, ({ payload }) =>
+    doFetchChatIfNecessary(payload)
+  )
+}
+
 function* watchSendMessage() {
   yield takeEvery(sendMessage, doSendMessage)
 }
@@ -496,6 +525,7 @@ function* watchDeleteChat() {
 export const sagas = () => {
   return [
     watchFetchUnreadMessagesCount,
+    watchFetchChatIfNecessary,
     watchFetchChats,
     watchFetchChatMessages,
     watchSetMessageReaction,

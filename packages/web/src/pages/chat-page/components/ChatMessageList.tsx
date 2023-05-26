@@ -19,7 +19,8 @@ import {
   Status,
   hasTail,
   isEarliestUnread,
-  chatCanFetchMoreMessages
+  chatCanFetchMoreMessages,
+  useCanSendMessage
 } from '@audius/common'
 import cn from 'classnames'
 import { throttle } from 'lodash'
@@ -31,6 +32,7 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 
 import styles from './ChatMessageList.module.css'
 import { ChatMessageListItem } from './ChatMessageListItem'
+import { InboxUnavailableMessage } from './InboxUnavailableMessage'
 import { SendMessagePrompt } from './SendMessagePrompt'
 import { StickyScrollList } from './StickyScrollList'
 
@@ -48,7 +50,7 @@ type ChatMessageListProps = ComponentPropsWithoutRef<'div'> & {
 }
 
 const SCROLL_TOP_THRESHOLD = 800
-const SCROLL_BOTTOM_THRESHOLD = 32
+const SCROLL_BOTTOM_THRESHOLD = 80
 const THROTTLE_DURATION_MS = 500
 
 const isScrolledNearBottom = (element: HTMLElement) => {
@@ -67,6 +69,8 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     const chatMessages = useSelector((state) =>
       getChatMessages(state, chatId ?? '')
     )
+    const { firstOtherUser, canSendMessage, callToAction } =
+      useCanSendMessage(chatId)
     const chat = useSelector((state) => getChat(state, chatId ?? ''))
     const userId = useSelector(accountSelectors.getUserId)
     const currentUserId = userId ? encodeHashId(userId) : null
@@ -75,6 +79,13 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
     const [, setLastScrolledChatId] = useState<string>()
 
     const ref = useRef<HTMLDivElement>(null)
+
+    // On first load, mark chat as read
+    useEffect(() => {
+      if (chatId) {
+        dispatch(markChatAsRead({ chatId }))
+      }
+    }, [chatId, dispatch])
 
     // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
     // Using a ref instead of state here to prevent unwanted flickers.
@@ -92,7 +103,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
         if (!chatId) return
 
         // Handle case where scrolled to bottom
-        if (isScrolledNearBottom(e.currentTarget)) {
+        if (isScrolledNearBottom(e.target as HTMLDivElement)) {
           // Mark chat as read when the user reaches the bottom (saga handles no-op if already read)
           dispatch(markChatAsRead({ chatId }))
           dispatch(setActiveChat({ chatId }))
@@ -108,7 +119,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
               chat?.messagesStatus,
               chat?.messagesSummary?.prev_count
             ) &&
-            isScrolledNearTop(e.currentTarget)
+            isScrolledNearTop(e.target as HTMLDivElement)
           ) {
             // Fetch more messages when user reaches the top
             dispatch(fetchMoreMessages({ chatId }))
@@ -126,7 +137,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       () =>
         throttle(scrollHandler, THROTTLE_DURATION_MS, {
           leading: true,
-          trailing: false
+          trailing: true
         }),
       [scrollHandler]
     )
@@ -187,9 +198,16 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
         resetKey={chatId}
         updateKey={chatMessages}
         stickToBottom
+        scrollBottomThreshold={SCROLL_BOTTOM_THRESHOLD}
         {...other}
       >
         <div className={styles.listRoot}>
+          {!canSendMessage && firstOtherUser ? (
+            <InboxUnavailableMessage
+              user={firstOtherUser}
+              action={callToAction}
+            />
+          ) : null}
           {chat?.messagesStatus === Status.SUCCESS &&
           chatMessages?.length === 0 ? (
             <SendMessagePrompt />

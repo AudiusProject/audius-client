@@ -533,7 +533,8 @@ export enum ShareSource {
   TILE = 'tile',
   PAGE = 'page',
   NOW_PLAYING = 'now playing',
-  OVERFLOW = 'overflow'
+  OVERFLOW = 'overflow',
+  LEFT_NAV = 'left-nav'
 }
 export enum RepostSource {
   TILE = 'tile',
@@ -641,7 +642,8 @@ export enum CreatePlaylistSource {
   NAV = 'nav',
   CREATE_PAGE = 'create page',
   FROM_TRACK = 'from track',
-  FAVORITES_PAGE = 'favorites page'
+  FAVORITES_PAGE = 'favorites page',
+  PROFILE_PAGE = 'profile page'
 }
 
 type PlaylistAdd = {
@@ -979,8 +981,8 @@ export enum PlaybackSource {
   FAVORITES_PAGE = 'favorites page',
   PASSIVE = 'passive',
   EMBED_PLAYER = 'embed player',
-  DM_TRACK = 'dm_track',
-  DM_PLAYLIST_TRACK = 'dm_playlist_track'
+  CHAT_TRACK = 'chat_track',
+  CHAT_PLAYLIST_TRACK = 'chat_playlist_track'
 }
 
 type PlaybackPlay = {
