@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 
-import { FeatureFlags } from '@audius/common'
+import { FeatureFlags, ID } from '@audius/common'
 import {
   Button,
   ButtonSize,
@@ -69,7 +69,7 @@ type StatsBannerProps = {
 
 type StatsMenuPopupProps = {
   onShare: () => void
-  accountUserId?: number | null
+  accountUserId?: ID | null
   isBlocked?: boolean
   onBlock: () => void
   onUnblock: () => void
