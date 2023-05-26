@@ -852,6 +852,7 @@ export type AddTrackToPlaylistNotification = BaseNotification & {
   type: NotificationType.AddTrackToPlaylist
   trackId: ID
   playlistId: ID
+  playlistOwnerId: ID
 }
 
 export type AddTrackToPlaylistPushNotification = {
