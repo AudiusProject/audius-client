@@ -1,6 +1,5 @@
+import { createApi } from 'src/audius-query/createApi'
 import { TransactionDetails } from 'store/ui/transaction-details/types'
-
-import { createApi } from '../createApi'
 
 import { parseTransaction } from './utils'
 
@@ -58,4 +57,4 @@ const audiotransactionApi = createApi({
 
 export const { useGetAudioTransactionHistory, useGetAudioTransactionCount } =
   audiotransactionApi.hooks
-export default audiotransactionApi.reducer
+export const audioTransactionApiReducer = audiotransactionApi.reducer
