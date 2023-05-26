@@ -32,6 +32,7 @@ import {
   QueryHookResults
 } from './types'
 import { capitalize, getKeyFromFetchArgs, selectCommonEntityMap } from './utils'
+import { useProxySelector } from 'hooks/useProxySelector'
 const { addEntries } = cacheActions
 
 export const createApi = <
@@ -204,10 +205,13 @@ const buildEndpointHooks = <
       }
 
     // Rehydrate local nonNormalizedData using entities from global normalized cache
-    let cachedData: Data = useSelector((state: CommonState) => {
-      const entityMap = selectCommonEntityMap(state, endpoint.options.kind)
-      return denormalize(nonNormalizedData, apiResponseSchema, entityMap)
-    }, isEqual)
+    let cachedData: Data = useProxySelector(
+      (state: CommonState) => {
+        const entityMap = selectCommonEntityMap(state, endpoint.options.kind)
+        return denormalize(nonNormalizedData, apiResponseSchema, entityMap)
+      },
+      [nonNormalizedData, apiResponseSchema, endpoint.options.kind]
+    )
 
     const context = useContext(AudiusQueryContext)
     useEffect(() => {
