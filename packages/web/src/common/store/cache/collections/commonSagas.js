@@ -714,8 +714,9 @@ function* confirmPublishPlaylist(
         )
         if (dismissToastKey) {
           yield* put(manualClearToast({ key: dismissToastKey }))
-          yield* put(addToast({ content: 'Your playlist is now public!' }))
         }
+
+        yield* put(addToast({ content: 'Your playlist is now public!' }))
       },
       function* ({ error, timeout, message }) {
         // Fail Call

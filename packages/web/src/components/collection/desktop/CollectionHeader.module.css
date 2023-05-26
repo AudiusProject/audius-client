@@ -97,7 +97,7 @@
   margin-top: var(--unit-4);
   display: flex;
   align-items: center;
-  column-gap: var(--unit-4);
+  column-gap: var(--unit-2);
 }
 
 .infoLabelsSection {
@@ -170,12 +170,6 @@
   text-transform: uppercase;
 }
 
-.buttonFormatting .buttonTextFormatting {
-  font-size: var(--font-s);
-  font-weight: var(--font-bold);
-  letter-spacing: 0.5px;
-}
-
 .hide {
   opacity: 0;
 }
@@ -208,10 +202,10 @@
 
 .spinner {
   display: block;
-  height: 16px;
-  width: 16px;
+  height: var(--unit-5);
+  width: var(--unit-5);
 }
 
 .spinner g path {
-  stroke: var(--static-white) !important;
+  stroke: var(--white);
 }

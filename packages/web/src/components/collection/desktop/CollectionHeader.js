@@ -18,8 +18,8 @@ import Skeleton from 'components/skeleton/Skeleton'
 import InfoLabel from 'components/track/InfoLabel'
 import UserBadges from 'components/user-badges/UserBadges'
 
-import { ActionButtons } from './ActionButtons'
 import { Artwork } from './Artwork'
+import { CollectionActionButtons } from './CollectionActionButtons'
 import styles from './CollectionHeader.module.css'
 
 const messages = {
@@ -187,7 +187,7 @@ class CollectionHeader extends PureComponent {
             <div className={cn(styles.statsRow, fadeIn)}>
               {this.renderStatsRow(isLoading)}
             </div>
-            <ActionButtons
+            <CollectionActionButtons
               playing={playing}
               variant={variant}
               isOwner={isOwner}
