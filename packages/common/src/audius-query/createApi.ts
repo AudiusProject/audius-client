@@ -217,9 +217,11 @@ const buildEndpointHooks = <
 
     // Rehydrate local nonNormalizedData using entities from global normalized cache
     let cachedData: Data = useSelector((state: CommonState) => {
-      if (hookOptions?.shallow) return nonNormalizedData
+      if (hookOptions?.shallow && !endpoint.options.kind)
+        return nonNormalizedData
       const rehydratedEntityMap =
-        strippedEntityMap && selectRehydrateEntityMap(state, strippedEntityMap)
+        strippedEntityMap &&
+        selectRehydrateEntityMap(state, strippedEntityMap, endpoint)
       return rehydratedEntityMap
         ? denormalize(nonNormalizedData, apiResponseSchema, rehydratedEntityMap)
         : nonNormalizedData
