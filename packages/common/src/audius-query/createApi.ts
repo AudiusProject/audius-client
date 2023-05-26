@@ -5,6 +5,7 @@ import { isEqual } from 'lodash'
 import { denormalize, normalize } from 'normalizr'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { useProxySelector } from 'hooks/useProxySelector'
 import { Kind } from 'models/Kind'
 import { Status } from 'models/Status'
 import { getCollection } from 'store/cache/collections/selectors'
@@ -32,7 +33,6 @@ import {
   QueryHookResults
 } from './types'
 import { capitalize, getKeyFromFetchArgs, selectCommonEntityMap } from './utils'
-import { useProxySelector } from 'hooks/useProxySelector'
 const { addEntries } = cacheActions
 
 export const createApi = <
