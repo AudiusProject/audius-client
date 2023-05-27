@@ -126,12 +126,19 @@ export const AudioTransactionsPage = () => {
   const isEmpty = !audioTransactions || audioTransactions.length === 0
   const displayEmptyState = isEmpty && !tableLoading
 
-  const filledAudioTransactions = [
-    ...(audioTransactions ?? []),
-    ...Array(
-      (audioTransactionCount ?? 0) - (audioTransactions ?? []).length
-    ).fill({})
-  ]
+  let filledAudioTransactions
+  try {
+    filledAudioTransactions = tableLoading
+      ? []
+      : [
+          ...(audioTransactions ?? []),
+          ...Array(
+            (audioTransactionCount ?? 0) - (audioTransactions ?? []).length
+          ).fill({})
+        ]
+  } catch (e) {
+    console.log(e)
+  }
 
   return (
     <Page

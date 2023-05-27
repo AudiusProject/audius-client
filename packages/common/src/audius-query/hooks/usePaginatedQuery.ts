@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { isEqual } from 'lodash'
 import { useCustomCompareEffect } from 'react-use'
@@ -53,6 +53,7 @@ export const useAllPaginatedQuery = <
 
   useCustomCompareEffect(
     () => {
+      console.log('paginatedHook - resetting data')
       setAllData([])
       setPage(0)
     },
@@ -60,17 +61,31 @@ export const useAllPaginatedQuery = <
     isEqual
   )
 
+  const loadMore = useCallback(() => {
+    result.status === Status.SUCCESS && setPage(page + 1)
+    console.log('paginatedHook - loading more')
+  }, [page, result.status])
+
+  const hasMore =
+    result.status === Status.IDLE ||
+    (!result.data && result.status === Status.LOADING) ||
+    result.data?.length === pageSize
+
+  console.log('paginatedHook', {
+    page,
+    baseArgs,
+    args,
+    result,
+    allData,
+    hasMore
+  })
+
   return {
     ...result,
     // TODO: add another status for reloading
     status: allData?.length > 0 ? Status.SUCCESS : result.status,
     data: allData,
-    loadMore: () => {
-      result.status === Status.SUCCESS && setPage(page + 1)
-    },
-    hasMore:
-      result.status === Status.IDLE ||
-      (!result.data && result.status === Status.LOADING) ||
-      result.data?.length === pageSize
+    loadMore,
+    hasMore
   }
 }
