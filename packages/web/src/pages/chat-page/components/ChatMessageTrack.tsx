@@ -4,15 +4,13 @@ import {
   Kind,
   Status,
   makeUid,
-  queueSelectors,
-  playerSelectors,
   Name,
   PlaybackSource,
-  queueActions,
   QueueSource,
   accountSelectors,
   useGetTrackByPermalink,
-  getPathFromTrackUrl
+  getPathFromTrackUrl,
+  useTrackPlayer
 } from '@audius/common'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
@@ -23,9 +21,6 @@ import MobileTrackTile from 'components/track/mobile/ConnectedTrackTile'
 import styles from './ChatMessageTrack.module.css'
 
 const { getUserId } = accountSelectors
-const { makeGetCurrent } = queueSelectors
-const { getPlaying } = playerSelectors
-const { clear, add, play, pause } = queueActions
 
 type ChatMessageTrackProps = {
   link: string
@@ -35,8 +30,6 @@ type ChatMessageTrackProps = {
 export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
   const dispatch = useDispatch()
   const currentUserId = useSelector(getUserId)
-  const currentQueueItem = useSelector(makeGetCurrent())
-  const playing = useSelector(getPlaying)
   const permalink = getPathFromTrackUrl(link)
 
   const { data: track, status } = useGetTrackByPermalink(
@@ -48,13 +41,8 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
   )
 
   const uid = useMemo(() => {
-    return track ? makeUid(Kind.TRACKS, track.track_id) : ''
+    return track ? makeUid(Kind.TRACKS, track.track_id) : null
   }, [track])
-  const isTrackPlaying =
-    playing &&
-    !!track &&
-    !!currentQueueItem.track &&
-    currentQueueItem.uid === uid
 
   const recordAnalytics = useCallback(
     ({ name, source }: { name: Name; source: PlaybackSource }) => {
@@ -69,38 +57,35 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
     [dispatch, track]
   )
 
-  const onTogglePlay = useCallback(() => {
-    if (!track) return
-    if (isTrackPlaying) {
-      dispatch(pause({}))
-      recordAnalytics({
-        name: Name.PLAYBACK_PAUSE,
-        source: PlaybackSource.CHAT_TRACK
-      })
-    } else {
-      dispatch(clear({}))
-      dispatch(
-        add({
-          entries: [
-            { id: track.track_id, uid, source: QueueSource.CHAT_TRACKS }
-          ]
-        })
-      )
-      dispatch(play({ uid }))
-      recordAnalytics({
-        name: Name.PLAYBACK_PLAY,
-        source: PlaybackSource.CHAT_TRACK
-      })
-    }
-  }, [dispatch, recordAnalytics, track, isTrackPlaying, currentQueueItem, uid])
+  const recordPlay = useCallback(() => {
+    recordAnalytics({
+      name: Name.PLAYBACK_PLAY,
+      source: PlaybackSource.CHAT_TRACK
+    })
+  }, [recordAnalytics])
 
-  return track ? (
+  const recordPause = useCallback(() => {
+    recordAnalytics({
+      name: Name.PLAYBACK_PAUSE,
+      source: PlaybackSource.CHAT_TRACK
+    })
+  }, [recordAnalytics])
+
+  const { togglePlay, isTrackPlaying } = useTrackPlayer({
+    id: track?.track_id ?? null,
+    uid,
+    queueSource: QueueSource.CHAT_TRACKS,
+    recordPlay,
+    recordPause
+  })
+
+  return track && uid ? (
     <div className={cn(styles.container, { [styles.isAuthor]: isAuthor })}>
       {/* You may wonder why we use the mobile web track tile here.
       It's simply because the chat track tile uses the same design as mobile web. */}
       <MobileTrackTile
         index={0}
-        togglePlay={onTogglePlay}
+        togglePlay={togglePlay}
         uid={uid}
         isLoading={status === Status.LOADING || status === Status.IDLE}
         hasLoaded={() => {}}
