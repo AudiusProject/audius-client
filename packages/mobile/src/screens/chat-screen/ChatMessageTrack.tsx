@@ -1,11 +1,22 @@
-import { TrackTile } from 'app/components/lineup-tile'
-import { Kind, PlaybackSource, QueueSource, accountSelectors, getPathFromTrackUrl, makeUid, useGetTrackByPermalink, useTrackPlayer } from "@audius/common"
-import { useSelector } from "react-redux"
-import { useCallback, useMemo } from "react"
+import { useCallback, useMemo } from 'react'
 
-const { getUserId } = accountSelectors
+import {
+  Kind,
+  PlaybackSource,
+  QueueSource,
+  accountSelectors,
+  getPathFromTrackUrl,
+  makeUid,
+  useGetTrackByPermalink,
+  useTrackPlayer
+} from '@audius/common'
+import { useSelector } from 'react-redux'
+
+import { TrackTile } from 'app/components/lineup-tile'
 import { make, track as trackEvent } from 'app/services/analytics'
 import { EventNames } from 'app/types/analytics'
+
+const { getUserId } = accountSelectors
 
 type ChatMessageTrackProps = {
   link: string
@@ -16,24 +27,28 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
   const currentUserId = useSelector(getUserId)
 
   const permalink = getPathFromTrackUrl(link)
-  const { data: track, status } = useGetTrackByPermalink(
+  const { data: track } = useGetTrackByPermalink(
     {
       permalink,
       currentUserId
     },
     { disabled: !permalink }
   )
-  const item = track ? {
-    ...track,
-    // todo: make sure good value is passed in here
-    _cover_art_sizes: {}
-  } : null
-  const user = track ? {
-    ...track.user,
-    // todo: make sure good values are passed in here
-    _profile_picture_sizes: {},
-    _cover_photo_sizes: {}
-  } : null
+  const item = track
+    ? {
+        ...track,
+        // todo: make sure good value is passed in here
+        _cover_art_sizes: {}
+      }
+    : null
+  const user = track
+    ? {
+        ...track.user,
+        // todo: make sure good values are passed in here
+        _profile_picture_sizes: {},
+        _cover_photo_sizes: {}
+      }
+    : null
 
   const uid = useMemo(() => {
     return track ? makeUid(Kind.TRACKS, track.track_id) : null

@@ -18,5 +18,10 @@ type LineupTileRootProps = TileProps & {
 }
 
 export const LineupTileRoot = (props: LineupTileRootProps) => {
-  return <Tile {...props} styles={{ tile: [styles.tile, props.isChat ? styles.chat : undefined] }} />
+  return (
+    <Tile
+      {...props}
+      styles={{ tile: [styles.tile, props.isChat ? styles.chat : undefined] }}
+    />
+  )
 }

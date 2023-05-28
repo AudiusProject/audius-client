@@ -22,11 +22,11 @@ import { makeStyles } from 'app/styles'
 
 import { reactionMap } from '../notifications-screen/Reaction'
 
+import { ChatMessagePlaylist } from './ChatMessagePlaylist'
+import { ChatMessageTrack } from './ChatMessageTrack'
 import { LinkPreview } from './LinkPreview'
 import { ResendMessageButton } from './ResendMessageButton'
 import { REACTION_LONGPRESS_DELAY } from './constants'
-import { ChatMessagePlaylist } from './ChatMessagePlaylist'
-import { ChatMessageTrack } from './ChatMessageTrack'
 
 const { getUserId } = accountSelectors
 const { isIdEqualToReactionsPopupMessageId } = chatSelectors

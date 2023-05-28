@@ -1,4 +1,5 @@
-import { View } from "react-native"
+import { View } from 'react-native'
+
 import { Text } from 'app/components/core'
 
 type ChatMessageTrackProps = {
@@ -6,7 +7,10 @@ type ChatMessageTrackProps = {
   isAuthor: boolean
 }
 
-export const ChatMessagePlaylist = ({ link, isAuthor }: ChatMessageTrackProps) => {
+export const ChatMessagePlaylist = ({
+  link,
+  isAuthor
+}: ChatMessageTrackProps) => {
   return (
     <View>
       <Text>playlist</Text>
