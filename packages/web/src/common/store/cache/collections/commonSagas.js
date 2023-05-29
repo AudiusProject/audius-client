@@ -14,7 +14,8 @@ import {
   cacheActions,
   getContext,
   audioRewardsPageActions,
-  toastActions
+  toastActions,
+  cacheTracksSelectors
 } from '@audius/common'
 import { isEqual } from 'lodash'
 import {
@@ -37,6 +38,7 @@ import {
   addPlaylistsNotInLibrary,
   removePlaylistFromLibrary
 } from 'common/store/playlist-library/sagas'
+import { ensureLoggedIn } from 'common/utils/ensureLoggedIn'
 import { waitForWrite } from 'utils/sagaHelpers'
 
 import { createPlaylistSaga } from './createPlaylistSaga'
@@ -49,6 +51,7 @@ import {
 const { manualClearToast, addToast } = toastActions
 const { getUser } = cacheUsersSelectors
 const { getCollection } = cacheCollectionsSelectors
+const { getTrack } = cacheTracksSelectors
 const { getAccountUser, getUserId } = accountSelectors
 const { setOptimisticChallengeCompleted } = audioRewardsPageActions
 
@@ -175,21 +178,31 @@ function* watchAddTrackToPlaylist() {
 
 function* addTrackToPlaylistAsync(action) {
   yield waitForWrite()
-  const userId = yield select(getUserId)
-  if (!userId) {
-    yield put(signOnActions.openSignOn(false))
-    return
-  }
+  const userId = yield call(ensureLoggedIn)
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const web3 = yield call(audiusBackendInstance.getWeb3)
 
   // Retrieve tracks with the the collection so we confirm with the
   // most up-to-date information.
+
   const { collections } = yield call(retrieveCollections, [action.playlistId], {
     userId,
     fetchTracks: true
   })
   const playlist = collections[action.playlistId]
+
+  const track = yield select(getTrack, { id: action.trackId })
+
+  console.log('this showing up?', {
+    track,
+    _covert_art: playlist._cover_art_sizes,
+    cover_art: playlist.cover_art_sizes
+  })
+
+  if (track && !playlist.cover_art_sizes) {
+    playlist._cover_art_sizes = track._cover_art_sizes
+    playlist.cover_art_sizes = track.cover_art_sizes
+  }
 
   const trackUid = makeUid(
     Kind.TRACKS,
@@ -227,7 +240,8 @@ function* addTrackToPlaylistAsync(action) {
       {
         id: playlist.playlist_id,
         metadata: {
-          playlist_contents: playlist.playlist_contents
+          playlist_contents: playlist.playlist_contents,
+          track_count: count
         }
       }
     ])
@@ -383,7 +397,8 @@ function* removeTrackFromPlaylistAsync(action) {
       {
         id: playlist.playlist_id,
         metadata: {
-          playlist_contents: playlist.playlist_contents
+          playlist_contents: playlist.playlist_contents,
+          track_count: count
         }
       }
     ])
