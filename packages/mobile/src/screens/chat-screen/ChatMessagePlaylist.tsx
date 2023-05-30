@@ -1,6 +1,21 @@
 import { useCallback, useMemo } from 'react'
+
+import type { ID } from '@audius/common'
+import {
+  Kind,
+  Name,
+  PlaybackSource,
+  QueueSource,
+  accountSelectors,
+  getPathFromPlaylistUrl,
+  makeUid,
+  playerSelectors,
+  queueActions,
+  useGetPlaylistById,
+  useGetTracksByIds
+} from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
-import { ID, Kind, Name, PlaybackSource, QueueSource, accountSelectors, getPathFromPlaylistUrl, makeUid, playerSelectors, queueActions, useGetPlaylistById, useGetTracksByIds } from '@audius/common'
+
 import { CollectionTile } from 'app/components/lineup-tile'
 import { make, track as trackEvent } from 'app/services/analytics'
 
@@ -22,7 +37,7 @@ export const ChatMessagePlaylist = ({
   const isPlaying = useSelector(getPlaying)
   const playingTrackId = useSelector(getTrackId)
   const playingUid = useSelector(getUid)
-  
+
   const permalink = getPathFromPlaylistUrl(link)
   const playlistNameWithId = permalink?.split('/').slice(-1)[0] ?? ''
   const playlistId = parseInt(playlistNameWithId.split('-').slice(-1)[0])
@@ -91,7 +106,13 @@ export const ChatMessagePlaylist = ({
   }, [dispatch])
 
   const recordAnalytics = useCallback(
-    ({eventName, id }: { eventName: Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE, id: ID }) => {
+    ({
+      eventName,
+      id
+    }: {
+      eventName: Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE
+      id: ID
+    }) => {
       trackEvent(
         make({
           eventName,
