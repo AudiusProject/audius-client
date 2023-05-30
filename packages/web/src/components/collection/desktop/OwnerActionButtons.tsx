@@ -23,8 +23,6 @@ export const OwnerActionButtons = (props: OwnerActionButtonProps) => {
   ) as Collection
   const { track_count, is_private, is_album } = collection
 
-  console.log(collection)
-
   return (
     <>
       <EditButton

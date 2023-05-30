@@ -1,6 +1,6 @@
 .root {
   font-size: var(--font-l);
   font-weight: var(--font-medium);
-  line-height: 150%;
+  line-height: 1.5;
   color: var(--neutral);
 }

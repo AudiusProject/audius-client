@@ -198,12 +198,6 @@ function* addTrackToPlaylistAsync(action) {
 
   const track = yield select(getTrack, { id: action.trackId })
 
-  console.log('this showing up?', {
-    track,
-    _covert_art: playlist._cover_art_sizes,
-    cover_art: playlist.cover_art_sizes
-  })
-
   if (track && !playlist.cover_art_sizes) {
     playlist._cover_art_sizes = track._cover_art_sizes
     playlist.cover_art_sizes = track.cover_art_sizes
