@@ -48,12 +48,16 @@ import {
   retrieveCollections
 } from './utils/retrieveCollections'
 
-const { manualClearToast, addToast } = toastActions
+const { manualClearToast, addToast, toast } = toastActions
 const { getUser } = cacheUsersSelectors
 const { getCollection } = cacheCollectionsSelectors
 const { getTrack } = cacheTracksSelectors
 const { getAccountUser, getUserId } = accountSelectors
 const { setOptimisticChallengeCompleted } = audioRewardsPageActions
+
+const messages = {
+  editToast: 'Changes saved!'
+}
 
 /** Counts instances of trackId in a playlist. */
 const countTrackIds = (playlistContents, trackId) => {
@@ -111,6 +115,7 @@ function* editPlaylistAsync(action) {
     ])
   )
   yield put(collectionActions.editPlaylistSucceeded())
+  yield put(toast({ content: messages.editToast }))
 }
 
 function* confirmEditPlaylist(playlistId, userId, formFields) {
