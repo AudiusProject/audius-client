@@ -253,10 +253,10 @@ export const ChatScreen = () => {
   useEffect(() => {
     dispatch(fetchBlockees())
     dispatch(fetchBlockers())
-    if (otherUser?.user_id) {
+    if (otherUser.user_id) {
       dispatch(fetchPermissions({ userIds: [otherUser.user_id] }))
     }
-  }, [chatId, dispatch, otherUser])
+  }, [chatId, dispatch, otherUser.user_id])
 
   // Find earliest unread message to display unread tag correctly
   const earliestUnreadIndex = useMemo(
