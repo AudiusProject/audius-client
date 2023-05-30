@@ -2432,17 +2432,20 @@ export const audiusBackend = ({
     } else if (notification.type === 'track_added_to_playlist') {
       let trackId = 0
       let playlistId = 0
+      let playlistOwnerId = 0
       notification.actions.filter(removeNullable).forEach((action) => {
         const data = action.data
         if (data.track_id && data.playlist_id) {
           trackId = decodeHashId(data.track_id) as ID
           playlistId = decodeHashId(data.playlist_id) as ID
+          playlistOwnerId = decodeHashId(data.playlist_owner_id) as ID
         }
       })
       return {
         type: NotificationType.AddTrackToPlaylist,
         trackId,
         playlistId,
+        playlistOwnerId,
         ...formatBaseNotification(notification)
       }
     } else if (notification.type === 'tastemaker') {

@@ -166,6 +166,7 @@ export type DiscoveryTipReceiveNotificationAction = {
 export type DiscoveryAddTrackToPlaylistNotificationAction = {
   playlist_id: string
   track_id: string
+  playlist_owner_id: string
   type: 'track_added_to_playlist'
 }
 
