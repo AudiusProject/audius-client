@@ -102,6 +102,7 @@ const CollectionTileComponent = ({
   togglePlay,
   tracks,
   user,
+  isChat,
   ...lineupTileProps
 }: CollectionTileProps) => {
   const dispatch = useDispatch()
@@ -148,7 +149,7 @@ const CollectionTileComponent = ({
     togglePlay({
       uid: currentTrack?.uid ?? tracks[0]?.uid ?? null,
       id: currentTrack?.track_id ?? tracks[0]?.track_id ?? null,
-      source: PlaybackSource.PLAYLIST_TILE_TRACK
+      source: isChat ? PlaybackSource.CHAT_PLAYLIST_TRACK : PlaybackSource.PLAYLIST_TILE_TRACK
     })
   }, [currentTrack, togglePlay, tracks])
 
@@ -253,6 +254,7 @@ const CollectionTileComponent = ({
       title={playlist_name}
       item={collection}
       user={user}
+      isChat={isChat}
     >
       <CollectionTileTrackList tracks={tracks} onPress={handlePressTitle} />
     </LineupTile>
