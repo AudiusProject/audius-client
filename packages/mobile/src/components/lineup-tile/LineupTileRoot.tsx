@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native'
+import { Dimensions, StyleSheet } from 'react-native'
 
 import type { TileProps } from 'app/components/core'
 import { Tile } from 'app/components/core'
@@ -8,6 +8,7 @@ const styles = StyleSheet.create({
     minHeight: 72
   },
   chat: {
+    width: Dimensions.get('window').width - 48,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0
   }
