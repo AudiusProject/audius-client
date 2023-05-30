@@ -45,38 +45,23 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
   }, [track])
 
   const recordAnalytics = useCallback(
-    ({ name, source }: { name: Name; source: PlaybackSource }) => {
+    (name: Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE) => {
       if (!track) return
       dispatch(
         make(name, {
           id: `${track.track_id}`,
-          source
+          source: PlaybackSource.CHAT_TRACK
         })
       )
     },
     [dispatch, track]
   )
 
-  const recordPlay = useCallback(() => {
-    recordAnalytics({
-      name: Name.PLAYBACK_PLAY,
-      source: PlaybackSource.CHAT_TRACK
-    })
-  }, [recordAnalytics])
-
-  const recordPause = useCallback(() => {
-    recordAnalytics({
-      name: Name.PLAYBACK_PAUSE,
-      source: PlaybackSource.CHAT_TRACK
-    })
-  }, [recordAnalytics])
-
   const { togglePlay, isTrackPlaying } = useTrackPlayer({
     id: track?.track_id ?? null,
     uid,
-    queueSource: QueueSource.CHAT_TRACKS,
-    recordPlay,
-    recordPause
+    source: QueueSource.CHAT_TRACKS,
+    recordAnalytics
   })
 
   return track && uid ? (

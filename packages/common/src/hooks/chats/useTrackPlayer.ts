@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 
 import { useDispatch, useSelector } from 'react-redux'
 
-import { ID } from 'models'
+import { ID, Name } from 'models'
 import { getPlaying } from 'store/player/selectors'
 import { QueueSource, queueActions } from 'store/queue'
 import { makeGetCurrent } from 'store/queue/selectors'
@@ -13,15 +13,13 @@ const { clear, add, play, pause } = queueActions
 export const useTrackPlayer = ({
   id,
   uid,
-  queueSource,
-  recordPlay,
-  recordPause
+  source,
+  recordAnalytics
 }: {
   id: Nullable<ID>
   uid: Nullable<string>
-  queueSource: QueueSource
-  recordPlay?: () => void
-  recordPause?: () => void
+  source: QueueSource
+  recordAnalytics: (name: Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE) => void
 }) => {
   const dispatch = useDispatch()
   const currentQueueItem = useSelector(makeGetCurrent())
@@ -33,18 +31,18 @@ export const useTrackPlayer = ({
     if (!id || !uid) return
     if (isTrackPlaying) {
       dispatch(pause({}))
-      recordPause?.()
+      recordAnalytics(Name.PLAYBACK_PAUSE)
     } else {
       dispatch(clear({}))
       dispatch(
         add({
-          entries: [{ id, uid, source: queueSource }]
+          entries: [{ id, uid, source }]
         })
       )
       dispatch(play({ uid }))
-      recordPlay?.()
+      recordAnalytics(Name.PLAYBACK_PLAY)
     }
-  }, [dispatch, recordPlay, recordPause, isTrackPlaying, id, uid, queueSource])
+  }, [dispatch, recordAnalytics, isTrackPlaying, id, uid, source])
 
   return { togglePlay, isTrackPlaying }
 }

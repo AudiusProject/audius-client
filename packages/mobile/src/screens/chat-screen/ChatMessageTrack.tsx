@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
+import type { Name } from '@audius/common'
 import {
   Kind,
   PlaybackSource,
@@ -14,7 +15,6 @@ import { useSelector } from 'react-redux'
 
 import { TrackTile } from 'app/components/lineup-tile'
 import { make, track as trackEvent } from 'app/services/analytics'
-import { EventNames } from 'app/types/analytics'
 
 const { getUserId } = accountSelectors
 
@@ -54,30 +54,25 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
     return track ? makeUid(Kind.TRACKS, track.track_id) : null
   }, [track])
 
-  const recordPlay = useCallback(() => {
-    trackEvent(
-      make({
-        eventName: EventNames.PLAYBACK_PLAY,
-        source: PlaybackSource.CHAT_TRACK
-      })
-    )
-  }, [])
-
-  const recordPause = useCallback(() => {
-    trackEvent(
-      make({
-        eventName: EventNames.PLAYBACK_PAUSE,
-        source: PlaybackSource.CHAT_TRACK
-      })
-    )
-  }, [])
+  const recordAnalytics = useCallback(
+    (eventName: Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE) => {
+      if (!track) return
+      trackEvent(
+        make({
+          eventName,
+          id: `${track.track_id}`,
+          source: PlaybackSource.CHAT_TRACK
+        })
+      )
+    },
+    [track]
+  )
 
   const { togglePlay } = useTrackPlayer({
     id: track?.track_id ?? null,
     uid,
-    queueSource: QueueSource.CHAT_TRACKS,
-    recordPlay,
-    recordPause
+    source: QueueSource.CHAT_TRACKS,
+    recordAnalytics
   })
 
   return item && user && uid ? (
