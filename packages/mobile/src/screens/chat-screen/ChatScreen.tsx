@@ -485,8 +485,8 @@ export const ChatScreen = () => {
     () => ({
       minIndexForVisible: 0,
       autoscrollToTopThreshold: getAutoscrollThreshold({
-        top: chatContainerBottom.current,
-        bottom: chatContainerTop.current
+        top: chatContainerTop.current,
+        bottom: chatContainerBottom.current
       })
     }),
     []
