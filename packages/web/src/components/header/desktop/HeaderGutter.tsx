@@ -1,11 +1,10 @@
 import { useContext, createContext } from 'react'
 
 import cn from 'classnames'
-import { head } from 'lodash'
 
 import { usePortal } from 'hooks/usePortal'
 
-import styles from './Header.module.css'
+import styles from './HeaderGutter.module.css'
 
 const BACKGROUND_ELEMENT_HEIGHT_PX = 161
 export const BACKGROUND_ELEMENT_ID = 'headerPadding'
