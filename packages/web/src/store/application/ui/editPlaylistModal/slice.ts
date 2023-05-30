@@ -26,10 +26,12 @@ const slice = createSlice({
   initialState,
   reducers: {
     open: (state, action: OpenPayload) => {
-      const { collectionId, initialFocusedField = 'name' } = action.payload
+      const { collectionId, initialFocusedField } = action.payload
       state.isOpen = true
       state.collectionId = collectionId
-      state.initialFocusedField = initialFocusedField
+      if (initialFocusedField) {
+        state.initialFocusedField = initialFocusedField
+      }
     },
     close: (state) => {
       state.isOpen = false

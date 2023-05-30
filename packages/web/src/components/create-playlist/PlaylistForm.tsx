@@ -178,6 +178,7 @@ const PlaylistForm = ({
         />
         <div className={styles.form}>
           <Input
+            autoFocus={initialFocusedField === 'name'}
             variant='elevatedPlaceholder'
             placeholder={`${isAlbum ? 'Album' : 'Playlist'} Name`}
             defaultValue={formFields.playlist_name || ''}

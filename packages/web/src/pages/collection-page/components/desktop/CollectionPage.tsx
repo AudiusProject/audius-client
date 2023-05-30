@@ -16,7 +16,7 @@ import {
   CollectiblesPlaylistTableColumn,
   CollectiblesPlaylistTable
 } from 'components/collectibles-playlist-table/CollectiblesPlaylistTable'
-import CollectionHeader from 'components/collection/desktop/CollectionHeader'
+import { CollectionHeader } from 'components/collection/desktop/CollectionHeader'
 import Page from 'components/page/Page'
 import { TracksTable, TracksTableColumn } from 'components/tracks-table'
 import { computeCollectionMetadataProps } from 'pages/collection-page/store/utils'

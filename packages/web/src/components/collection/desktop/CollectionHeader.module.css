@@ -46,15 +46,42 @@
 }
 
 .title {
-  color: var(--neutral);
-  font-size: 36px;
-  line-height: 40px;
-  min-height: 40px;
-  font-weight: var(--font-bold);
-  margin-bottom: 4px;
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  column-gap: var(--unit-2);
+  margin-bottom: var(--unit-1);
   width: 100%;
-  user-select: none;
   position: relative;
+}
+
+.editableTitle {
+  cursor: pointer;
+}
+
+.titleHeader {
+  color: var(--neutral);
+  font-size: var(--font-4xl);
+  line-height: 40px;
+  font-weight: var(--font-bold);
+  transition: color var(--quick);
+}
+
+.editableTitle:hover .titleHeader {
+  color: var(--neutral-light-4);
+}
+
+.editIcon {
+  opacity: 0;
+  transition: opacity var(--quick);
+}
+
+.editIcon path {
+  fill: var(--neutral-light-4);
+}
+
+.editableTitle:hover .editIcon {
+  opacity: 1;
 }
 
 .artistWrapper {
