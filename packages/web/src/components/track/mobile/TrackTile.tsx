@@ -325,7 +325,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
             <div className={styles.coSignLabel}>{messages.coSign}</div>
           )}
         </div>
-        {coSign && !isChat ? (
+        {coSign ? (
           <div className={styles.coSignText}>
             <div className={styles.name}>
               {coSign.user.name}
