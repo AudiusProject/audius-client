@@ -55,14 +55,18 @@ const getUserId = accountSelectors.getUserId
 export const CollectionTile = (props: LineupItemProps) => {
   const { uid, collection: collectionOverride, tracks: tracksOverride } = props
 
-  const collection = collectionOverride ?? useProxySelector(
-    (state) => getCollection(state, { uid }),
-    [uid]
+  const collection = useProxySelector(
+    (state) => {
+      return collectionOverride ?? getCollection(state, { uid })
+    },
+    [collectionOverride, uid]
   )
 
-  const tracks = tracksOverride ?? useProxySelector(
-    (state) => getTracksFromCollection(state, { uid }),
-    [uid]
+  const tracks = useProxySelector(
+    (state) => {
+      return tracksOverride ?? getTracksFromCollection(state, { uid })
+    },
+    [tracksOverride, uid]
   )
 
   const user = useProxySelector(

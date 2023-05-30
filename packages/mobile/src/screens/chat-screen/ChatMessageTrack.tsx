@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
-import type { Name } from '@audius/common'
+import type { ID, Name } from '@audius/common'
 import {
   Kind,
   PlaybackSource,
@@ -9,7 +9,7 @@ import {
   getPathFromTrackUrl,
   makeUid,
   useGetTrackByPermalink,
-  useTrackPlayer
+  useToggleTrack
 } from '@audius/common'
 import { useSelector } from 'react-redux'
 
@@ -55,12 +55,18 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
   }, [track?.track_id])
 
   const recordAnalytics = useCallback(
-    (eventName: Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE) => {
+    ({
+      name,
+      id
+    }: {
+      name: Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE
+      id: ID
+    }) => {
       if (!track) return
       trackEvent(
         make({
-          eventName,
-          id: `${track.track_id}`,
+          eventName: name,
+          id: `${id}`,
           source: PlaybackSource.CHAT_TRACK
         })
       )
@@ -68,7 +74,7 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
     [track]
   )
 
-  const { togglePlay } = useTrackPlayer({
+  const { togglePlay } = useToggleTrack({
     id: track?.track_id ?? null,
     uid,
     source: QueueSource.CHAT_TRACKS,

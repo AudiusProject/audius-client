@@ -10,7 +10,8 @@ import {
   accountSelectors,
   useGetTrackByPermalink,
   getPathFromTrackUrl,
-  useTrackPlayer
+  useToggleTrack,
+  ID
 } from '@audius/common'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
@@ -45,11 +46,11 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
   }, [track?.track_id])
 
   const recordAnalytics = useCallback(
-    (name: Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE) => {
+    ({ name, id }: { name: (Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE), id: ID }) => {
       if (!track) return
       dispatch(
         make(name, {
-          id: `${track.track_id}`,
+          id: `${id}`,
           source: PlaybackSource.CHAT_TRACK
         })
       )
@@ -57,7 +58,7 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
     [dispatch, track]
   )
 
-  const { togglePlay, isTrackPlaying } = useTrackPlayer({
+  const { togglePlay, isTrackPlaying } = useToggleTrack({
     id: track?.track_id ?? null,
     uid,
     source: QueueSource.CHAT_TRACKS,

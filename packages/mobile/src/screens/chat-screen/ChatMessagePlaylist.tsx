@@ -1,27 +1,26 @@
 import { useCallback, useMemo } from 'react'
 
-import type { ID } from '@audius/common'
+import type { ID, Name } from '@audius/common'
 import {
   Kind,
-  Name,
   PlaybackSource,
   QueueSource,
   accountSelectors,
   getPathFromPlaylistUrl,
   makeUid,
   playerSelectors,
-  queueActions,
   useGetPlaylistById,
-  useGetTracksByIds
+  useGetTracksByIds,
+  usePlayTrack,
+  usePauseTrack
 } from '@audius/common'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 
 import { CollectionTile } from 'app/components/lineup-tile'
 import { make, track as trackEvent } from 'app/services/analytics'
 
 const { getUserId } = accountSelectors
 const { getUid, getPlaying, getTrackId } = playerSelectors
-const { clear, add, play, pause } = queueActions
 
 type ChatMessageTrackProps = {
   link: string
@@ -32,7 +31,6 @@ export const ChatMessagePlaylist = ({
   link,
   isAuthor
 }: ChatMessageTrackProps) => {
-  const dispatch = useDispatch()
   const currentUserId = useSelector(getUserId)
   const isPlaying = useSelector(getPlaying)
   const playingTrackId = useSelector(getTrackId)
@@ -49,12 +47,12 @@ export const ChatMessagePlaylist = ({
     { disabled: !playlistId }
   )
   const collection = playlist
-  ? {
-      ...playlist,
-      // todo: make sure good value is passed in here
-      _cover_art_sizes: {}
-    }
-  : null
+    ? {
+        ...playlist,
+        // todo: make sure good value is passed in here
+        _cover_art_sizes: {}
+      }
+    : null
 
   const uid = playlist ? makeUid(Kind.COLLECTIONS, playlist.playlist_id) : null
   const trackIds =
@@ -95,34 +93,17 @@ export const ChatMessagePlaylist = ({
 
   const isActive = playingUid !== null && playingUid === uid
 
-  const playTrack = useCallback(
-    (uid: string) => {
-      if (playingUid !== uid) {
-        dispatch(clear({}))
-        dispatch(add({ entries }))
-        dispatch(play({ uid }))
-      } else {
-        dispatch(play({}))
-      }
-    },
-    [dispatch, playingUid, entries]
-  )
-
-  const pauseTrack = useCallback(() => {
-    dispatch(pause({}))
-  }, [dispatch])
-
   const recordAnalytics = useCallback(
     ({
-      eventName,
+      name,
       id
     }: {
-      eventName: Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE
+      name: Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE
       id: ID
     }) => {
       trackEvent(
         make({
-          eventName,
+          eventName: name,
           id: `${id}`,
           source: PlaybackSource.CHAT_PLAYLIST_TRACK
         })
@@ -131,34 +112,34 @@ export const ChatMessagePlaylist = ({
     []
   )
 
+  const playTrack = usePlayTrack(recordAnalytics)
+  const pauseTrack = usePauseTrack(recordAnalytics)
+
   const togglePlay = useCallback(() => {
     if (!isPlaying || !isActive) {
       if (isActive) {
-        playTrack(playingUid!)
-        recordAnalytics({ eventName: Name.PLAYBACK_PLAY, id: playingTrackId! })
+        playTrack({ id: playingTrackId!, uid: playingUid!, entries })
       } else {
         const trackUid = tracksWithUids[0] ? tracksWithUids[0].uid : null
         const trackId = tracksWithUids[0] ? tracksWithUids[0].track_id : null
         if (!trackUid || !trackId) return
-        playTrack(trackUid)
-        recordAnalytics({ eventName: Name.PLAYBACK_PLAY, id: trackId })
+        playTrack({ id: trackId, uid: trackUid, entries })
       }
     } else {
-      pauseTrack()
-      recordAnalytics({ eventName: Name.PLAYBACK_PAUSE, id: playingTrackId! })
+      pauseTrack(playingTrackId!)
     }
   }, [
     isPlaying,
     isActive,
     playingUid,
     playingTrackId,
+    entries,
     tracksWithUids,
     playTrack,
-    pauseTrack,
-    recordAnalytics
+    pauseTrack
   ])
 
-  return playlist && uid ? (
+  return collection && uid ? (
     <CollectionTile
       index={0}
       togglePlay={togglePlay}

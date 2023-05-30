@@ -3,46 +3,90 @@ import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ID, Name } from 'models'
-import { getPlaying } from 'store/player/selectors'
-import { QueueSource, queueActions } from 'store/queue'
+import { getPlaying, getUid } from 'store/player/selectors'
+import { QueueSource, Queueable, queueActions } from 'store/queue'
 import { makeGetCurrent } from 'store/queue/selectors'
 import { Nullable } from 'utils'
 
 const { clear, add, play, pause } = queueActions
 
-export const useTrackPlayer = ({
+type RecordAnalytics = ({
+  name,
+  id
+}: {
+  name: Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE
+  id: ID
+}) => void
+
+type UseToggleTrack = {
+  id: Nullable<ID>
+  uid: Nullable<string>
+  source: QueueSource
+} & {
+  recordAnalytics: RecordAnalytics
+}
+
+export const usePlayTrack = (recordAnalytics?: RecordAnalytics) => {
+  const dispatch = useDispatch()
+  const playingUid = useSelector(getUid)
+
+  const playTrack = useCallback(
+    ({ id, uid, entries }: { id?: ID; uid: string; entries: Queueable[] }) => {
+      if (playingUid !== uid) {
+        dispatch(clear({}))
+        dispatch(add({ entries }))
+        dispatch(play({ uid }))
+      } else {
+        dispatch(play({}))
+      }
+      if (recordAnalytics && id) {
+        recordAnalytics({ name: Name.PLAYBACK_PLAY, id })
+      }
+    },
+    [dispatch, recordAnalytics, playingUid]
+  )
+
+  return playTrack
+}
+
+export const usePauseTrack = (recordAnalytics?: RecordAnalytics) => {
+  const dispatch = useDispatch()
+
+  const pauseTrack = useCallback(
+    (id?: ID) => {
+      dispatch(pause({}))
+      if (recordAnalytics && id) {
+        recordAnalytics({ name: Name.PLAYBACK_PLAY, id })
+      }
+    },
+    [dispatch, recordAnalytics]
+  )
+
+  return pauseTrack
+}
+
+export const useToggleTrack = ({
   id,
   uid,
   source,
   recordAnalytics
-}: {
-  id: Nullable<ID>
-  uid: Nullable<string>
-  source: QueueSource
-  recordAnalytics: (name: Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE) => void
-}) => {
-  const dispatch = useDispatch()
+}: UseToggleTrack) => {
   const currentQueueItem = useSelector(makeGetCurrent())
   const playing = useSelector(getPlaying)
   const isTrackPlaying =
     playing && !!currentQueueItem.track && currentQueueItem.uid === uid
 
+  const playTrack = usePlayTrack(recordAnalytics)
+  const pauseTrack = usePauseTrack(recordAnalytics)
+
   const togglePlay = useCallback(() => {
     if (!id || !uid) return
     if (isTrackPlaying) {
-      dispatch(pause({}))
-      recordAnalytics(Name.PLAYBACK_PAUSE)
+      pauseTrack(id)
     } else {
-      dispatch(clear({}))
-      dispatch(
-        add({
-          entries: [{ id, uid, source }]
-        })
-      )
-      dispatch(play({ uid }))
-      recordAnalytics(Name.PLAYBACK_PLAY)
+      playTrack({ id, uid, entries: [{ id, uid, source }] })
     }
-  }, [dispatch, recordAnalytics, isTrackPlaying, id, uid, source])
+  }, [playTrack, pauseTrack, isTrackPlaying, id, uid, source])
 
   return { togglePlay, isTrackPlaying }
 }
