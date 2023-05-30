@@ -144,6 +144,7 @@ export const LineupTile = ({
           index={index}
           isCollection={isCollection}
           isTrending={isTrending}
+          isChat={isChat}
           isUnlisted={isUnlisted}
           playCount={playCount}
           repostCount={repost_count}

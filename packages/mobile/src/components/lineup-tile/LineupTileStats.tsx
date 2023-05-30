@@ -72,6 +72,7 @@ type Props = {
   index: number
   isCollection?: boolean
   isTrending?: boolean
+  isChat?: boolean
   isUnlisted?: boolean
   playCount?: number
   repostCount: number
@@ -87,6 +88,7 @@ export const LineupTileStats = ({
   index,
   isCollection,
   isTrending,
+  isChat,
   isUnlisted,
   playCount,
   repostCount,
@@ -129,7 +131,7 @@ export const LineupTileStats = ({
               trackTileStyles.statItem,
               !repostCount ? styles.disabledStatItem : null
             ]}
-            disabled={!repostCount}
+            disabled={!repostCount || isChat}
             onPress={handlePressReposts}
           >
             <Text style={trackTileStyles.statText}>
@@ -147,7 +149,7 @@ export const LineupTileStats = ({
               trackTileStyles.statItem,
               !saveCount ? styles.disabledStatItem : null
             ]}
-            disabled={!saveCount}
+            disabled={!saveCount || isChat}
             onPress={handlePressFavorites}
           >
             <Text style={trackTileStyles.statText}>
