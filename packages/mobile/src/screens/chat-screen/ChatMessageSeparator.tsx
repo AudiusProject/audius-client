@@ -28,7 +28,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   }
 }))
 
-export const Indicator = ({ content }: { content: string }) => {
+export const ChatMessageSeparator = ({ content }: { content: string }) => {
   const styles = useStyles()
 
   return (

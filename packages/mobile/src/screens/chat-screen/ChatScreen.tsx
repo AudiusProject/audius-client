@@ -41,10 +41,10 @@ import { useThemePalette } from 'app/utils/theme'
 import type { AppTabScreenParamList } from '../app-screen'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
+import { ChatMessageSeparator } from './ChatMessageSeparator'
 import { ChatTextInput } from './ChatTextInput'
 import { ChatUnavailable } from './ChatUnavailable'
 import { EmptyChatMessages } from './EmptyChatMessages'
-import { Indicator } from './Indicator'
 import { ReactionPopup } from './ReactionPopup'
 import { END_REACHED_OFFSET } from './constants'
 
@@ -373,7 +373,7 @@ export const ChatScreen = () => {
         />
         {item.message_id === earliestUnreadMessageId &&
         chatFrozenRef.current?.unread_message_count ? (
-          <Indicator
+          <ChatMessageSeparator
             content={
               chatFrozenRef.current?.unread_message_count +
               pluralize(
@@ -500,7 +500,7 @@ export const ChatScreen = () => {
                   }
                   ListFooterComponent={
                     shouldShowEndReachedIndicator ? (
-                      <Indicator content={messages.endReached} />
+                      <ChatMessageSeparator content={messages.endReached} />
                     ) : null
                   }
                   scrollEnabled={!shouldShowPopup}
