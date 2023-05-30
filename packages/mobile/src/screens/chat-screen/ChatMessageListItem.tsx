@@ -121,6 +121,20 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     marginBottom: spacing(2)
   }
 }))
+const useGetTailColor = (
+  isAuthor: boolean,
+  isPressed: boolean,
+  isLinkPreviewOnly
+) => {
+  const styles = useStyles()
+  return isPressed
+    ? isAuthor && !isLinkPreviewOnly
+      ? styles.pressedIsAuthor.backgroundColor
+      : styles.pressed.backgroundColor
+    : isAuthor && !isLinkPreviewOnly
+    ? styles.isAuthor.backgroundColor
+    : styles.bubble.backgroundColor
+}
 
 type ChatReactionProps = {
   reaction: ChatMessageReaction
@@ -157,15 +171,18 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
     itemsRef
   } = props
   const styles = useStyles()
-
   const userId = useSelector(getUserId)
   const senderUserId = decodeHashId(message.sender_user_id)
   const isAuthor = senderUserId === userId
+  const [isPressed, setIsPressed] = useState(false)
+  const links = find(message.message)
+  const link = links.filter((link) => link.type === 'url' && link.isLink)[0]
+  const isLinkPreviewOnly = link && link.value === message.message
+  const tailColor = useGetTailColor(isAuthor, isPressed, isLinkPreviewOnly)
   const isUnderneathPopup =
     useSelector((state) =>
       isIdEqualToReactionsPopupMessageId(state, message.message_id)
     ) && !isPopup
-  const [isPressed, setIsPressed] = useState(false)
 
   const handlePressIn = useCallback(() => {
     setIsPressed(true)
@@ -180,10 +197,6 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
       onLongPress?.(message.message_id)
     }
   }, [message.message_id, message.status, onLongPress])
-
-  const links = find(message.message)
-  const link = links.filter((link) => link.type === 'url' && link.isLink)[0]
-  const isLinkPreviewOnly = link && link.value === message.message
 
   return (
     <>
@@ -252,15 +265,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
               </View>
               {message.hasTail ? (
                 <ChatTail
-                  fill={
-                    isPressed
-                      ? isAuthor && !isLinkPreviewOnly
-                        ? styles.pressedIsAuthor.backgroundColor
-                        : styles.pressed.backgroundColor
-                      : isAuthor && !isLinkPreviewOnly
-                      ? styles.isAuthor.backgroundColor
-                      : styles.bubble.backgroundColor
-                  }
+                  fill={tailColor}
                   style={[
                     styles.tail,
                     isAuthor ? styles.tailIsAuthor : styles.tailOtherUser
