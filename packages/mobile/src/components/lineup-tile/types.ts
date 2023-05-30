@@ -7,6 +7,7 @@ import type {
   Collection,
   FavoriteType,
   Track,
+  LineupTrack,
   User,
   RepostType
 } from '@audius/common'
@@ -40,6 +41,12 @@ export type LineupItemProps = {
 
   /** Whether user is in chat screen */
   isChat?: boolean
+
+  /** Optionally passed in collection to override  */
+  collection?: Collection
+
+  /**  */
+  tracks?: LineupTrack[]
 }
 
 export type LineupTileProps = Omit<LineupItemProps, 'togglePlay'> & {

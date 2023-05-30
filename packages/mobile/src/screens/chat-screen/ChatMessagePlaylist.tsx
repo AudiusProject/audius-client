@@ -48,6 +48,13 @@ export const ChatMessagePlaylist = ({
     },
     { disabled: !playlistId }
   )
+  const collection = playlist
+  ? {
+      ...playlist,
+      // todo: make sure good value is passed in here
+      _cover_art_sizes: {}
+    }
+  : null
 
   const uid = playlist ? makeUid(Kind.COLLECTIONS, playlist.playlist_id) : null
   const trackIds =
@@ -156,6 +163,8 @@ export const ChatMessagePlaylist = ({
       index={0}
       togglePlay={togglePlay}
       uid={uid}
+      collection={collection}
+      tracks={tracksWithUids}
       isTrending={false}
       showArtistPick={false}
       showRankIcon={false}

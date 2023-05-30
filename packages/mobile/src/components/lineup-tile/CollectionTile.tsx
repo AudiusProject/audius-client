@@ -53,14 +53,14 @@ const { getCollection, getTracksFromCollection } = cacheCollectionsSelectors
 const getUserId = accountSelectors.getUserId
 
 export const CollectionTile = (props: LineupItemProps) => {
-  const { uid } = props
+  const { uid, collection: collectionOverride, tracks: tracksOverride } = props
 
-  const collection = useProxySelector(
+  const collection = collectionOverride ?? useProxySelector(
     (state) => getCollection(state, { uid }),
     [uid]
   )
 
-  const tracks = useProxySelector(
+  const tracks = tracksOverride ?? useProxySelector(
     (state) => getTracksFromCollection(state, { uid }),
     [uid]
   )

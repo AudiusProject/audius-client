@@ -52,7 +52,7 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
 
   const uid = useMemo(() => {
     return track ? makeUid(Kind.TRACKS, track.track_id) : null
-  }, [track])
+  }, [track?.track_id])
 
   const recordAnalytics = useCallback(
     (eventName: Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE) => {
