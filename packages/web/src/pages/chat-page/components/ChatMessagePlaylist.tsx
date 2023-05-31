@@ -92,12 +92,15 @@ export const ChatMessagePlaylist = ({
   }))
 
   const play = usePlayTrack()
-  const playTrack = useCallback((uid: string) => {
-    play({ uid, entries })
-  }, [play, entries])
+  const playTrack = useCallback(
+    (uid: string) => {
+      play({ uid, entries })
+    },
+    [play, entries]
+  )
 
   const pauseTrack = usePauseTrack()
-  
+
   return collection && uid ? (
     <div className={cn(styles.container, { [styles.isAuthor]: isAuthor })}>
       {/* You may wonder why we use the mobile web playlist tile here.

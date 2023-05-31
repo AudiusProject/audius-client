@@ -43,10 +43,17 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
 
   const uid = useMemo(() => {
     return track ? makeUid(Kind.TRACKS, track.track_id) : null
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [track?.track_id])
 
   const recordAnalytics = useCallback(
-    ({ name, id }: { name: (Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE), id: ID }) => {
+    ({
+      name,
+      id
+    }: {
+      name: Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE
+      id: ID
+    }) => {
       if (!track) return
       dispatch(
         make(name, {
