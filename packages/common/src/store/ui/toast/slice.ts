@@ -25,7 +25,7 @@ const slice = createSlice({
     /**
      * Internal method for the saga to track individual toasts by key
      */
-    scheduleDismissal: (state, action: AddToastAction) => {
+    registerToast: (state, action: AddToastAction) => {
       const toast = action.payload
       state.toasts.push(toast)
     },
@@ -51,7 +51,7 @@ const slice = createSlice({
 export const {
   toast,
   dismissToast,
-  scheduleDismissal,
+  registerToast,
   clearToasts,
   manualClearToast
 } = slice.actions
