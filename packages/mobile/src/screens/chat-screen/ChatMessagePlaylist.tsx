@@ -17,20 +17,17 @@ import {
 import { useSelector } from 'react-redux'
 
 import { CollectionTile } from 'app/components/lineup-tile'
+import type { ChatMessageTileProps } from 'app/screens/chat-screen/ChatMessageTrack'
 import { make, track as trackEvent } from 'app/services/analytics'
 
 const { getUserId } = accountSelectors
 const { getUid, getPlaying, getTrackId } = playerSelectors
 
-type ChatMessageTrackProps = {
-  link: string
-  isAuthor: boolean
-}
-
 export const ChatMessagePlaylist = ({
   link,
-  isAuthor
-}: ChatMessageTrackProps) => {
+  isAuthor,
+  onFail
+}: ChatMessageTileProps) => {
   const currentUserId = useSelector(getUserId)
   const isPlaying = useSelector(getPlaying)
   const playingTrackId = useSelector(getTrackId)
@@ -139,7 +136,12 @@ export const ChatMessagePlaylist = ({
     pauseTrack
   ])
 
-  return collection && uid ? (
+  if (!collection || !uid) {
+    onFail?.()
+    return null
+  }
+
+  return (
     <CollectionTile
       index={0}
       togglePlay={togglePlay}
@@ -151,5 +153,5 @@ export const ChatMessagePlaylist = ({
       showRankIcon={false}
       isChat
     />
-  ) : null
+  )
 }

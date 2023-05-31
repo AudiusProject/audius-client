@@ -18,12 +18,17 @@ import { make, track as trackEvent } from 'app/services/analytics'
 
 const { getUserId } = accountSelectors
 
-type ChatMessageTrackProps = {
+export type ChatMessageTileProps = {
   link: string
   isAuthor: boolean
+  onFail: () => void
 }
 
-export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
+export const ChatMessageTrack = ({
+  link,
+  isAuthor,
+  onFail
+}: ChatMessageTileProps) => {
   const currentUserId = useSelector(getUserId)
 
   const permalink = getPathFromTrackUrl(link)
@@ -82,7 +87,12 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
     recordAnalytics
   })
 
-  return item && user && uid ? (
+  if (!item || !user || !uid) {
+    onFail?.()
+    return null
+  }
+
+  return (
     <TrackTile
       index={0}
       togglePlay={togglePlay}
@@ -92,5 +102,5 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
       showRankIcon={false}
       isChat
     />
-  ) : null
+  )
 }

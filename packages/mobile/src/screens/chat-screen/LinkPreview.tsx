@@ -75,6 +75,7 @@ type LinkPreviewProps = {
   onLongPress: (event: GestureResponderEvent) => void
   onPressIn: (event: GestureResponderEvent) => void
   onPressOut: (event: GestureResponderEvent) => void
+  onFail?: () => void
 }
 
 export const LinkPreview = ({
@@ -85,11 +86,18 @@ export const LinkPreview = ({
   isPressed = false,
   onLongPress,
   onPressIn,
-  onPressOut
+  onPressOut,
+  onFail
 }: LinkPreviewProps) => {
   const styles = useStyles()
   const metadata = useLinkUnfurlMetadata(chatId, messageId, href)
+  const { description, title, site_name: siteName, image } = metadata || {}
+  const willRender = !!(description || title || image)
   const domain = metadata?.url ? new URL(metadata.url).hostname : ''
+
+  if (!willRender) {
+    onFail?.()
+  }
 
   if (!metadata) {
     return null
@@ -110,14 +118,14 @@ export const LinkPreview = ({
           isLinkPreviewOnly ? styles.rootIsLinkPreviewOnly : null
         ]}
       >
-        {metadata.description || metadata.title ? (
+        {description || title ? (
           <>
-            {metadata.image ? (
+            {image ? (
               <View style={styles.thumbnail}>
                 <Image
-                  source={{ uri: metadata.image }}
+                  source={{ uri: image }}
                   style={styles.image}
-                  alt={metadata.site_name}
+                  alt={siteName}
                 />
               </View>
             ) : null}
@@ -132,24 +140,22 @@ export const LinkPreview = ({
             <View
               style={[styles.textContainer, isPressed ? styles.pressed : null]}
             >
-              {metadata.title ? (
-                <Text style={styles.title}>{metadata.title}</Text>
-              ) : null}
-              {metadata.description ? (
+              {title ? <Text style={styles.title}>{title}</Text> : null}
+              {description ? (
                 <Text numberOfLines={1} style={styles.description}>
-                  {metadata.description}
+                  {description}
                 </Text>
               ) : (
                 <View style={styles.noDescriptionMarginBottom} />
               )}
             </View>
           </>
-        ) : metadata.image ? (
+        ) : image ? (
           <View>
             <Image
               style={styles.image}
-              source={{ uri: metadata.image }}
-              alt={metadata.site_name}
+              source={{ uri: image }}
+              alt={siteName}
             />
           </View>
         ) : null}
