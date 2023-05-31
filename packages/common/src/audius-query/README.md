@@ -74,6 +74,7 @@
     - **`kind`** - in combination with either `idArgKey` or `permalinkArgKey`, allows local cache hits for single entities. If an entity with the matching `kind` and the `id` or `permalink` exists in cache, we will return that instead of calling the fetch function. See [enable single entity cache hits](#enable-single-entity-cache-hits) below
       - **`idArgKey`** - `fetchArgs[idArgKey]` must contain the id of the entity
       - **`permalinkArgKey`** - `fetchArgs[permalinkArgKey]` must contain the permalink of the entity
+      - **`idListArgKey`** - works like `idArgKey` but for endpoints that return a list entities
 
 1.  Export hooks
 
@@ -126,6 +127,13 @@
       <DisplayComponent data={someData} />
     )
     ```
+
+### Hook options
+
+Hooks accept an options object as the optional second argument
+
+- `disabled` - prevents calling the remote fetch function while disabled is false. This is useful if some arguments may not be loaded yet
+- `shallow` - skips pulling subentities out of the cache. (e.g. get a track but not the full user inside `track.user`). Omitted subentities will be replaced by id references.
 
 ## Cacheing
 

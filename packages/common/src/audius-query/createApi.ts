@@ -1,16 +1,18 @@
 import { useContext, useEffect } from 'react'
 
 import { CaseReducerActions, createSlice } from '@reduxjs/toolkit'
-import { isEqual } from 'lodash'
+import { isEqual, mapValues } from 'lodash'
 import { denormalize, normalize } from 'normalizr'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { useProxySelector } from 'hooks/useProxySelector'
 import { Kind } from 'models/Kind'
 import { Status } from 'models/Status'
 import { getCollection } from 'store/cache/collections/selectors'
 import { getTrack } from 'store/cache/tracks/selectors'
 import { CommonState } from 'store/reducers'
 import { getErrorMessage } from 'utils/error'
+import { removeNullable } from 'utils/typeUtils'
 
 import * as cacheActions from '../store/cache/actions'
 import * as cacheSelectors from '../store/cache/selectors'
@@ -31,12 +33,7 @@ import {
   SliceConfig,
   QueryHookResults
 } from './types'
-import {
-  capitalize,
-  getKeyFromFetchArgs,
-  selectRehydrateEntityMap,
-  stripEntityMap
-} from './utils'
+import { capitalize, getKeyFromFetchArgs, selectCommonEntityMap } from './utils'
 const { addEntries } = cacheActions
 
 export const createApi = <
@@ -109,12 +106,11 @@ const addEndpointToSlice = <NormalizedData>(
       state: ApiState,
       action: FetchSucceededAction
     ) => {
-      const { fetchArgs, nonNormalizedData, strippedEntityMap } = action.payload
+      const { fetchArgs, nonNormalizedData } = action.payload
       const key = getKeyFromFetchArgs(fetchArgs)
       const scopedState = { ...state[endpointName][key] } ?? initState
       scopedState.status = Status.SUCCESS
       scopedState.nonNormalizedData = nonNormalizedData
-      scopedState.strippedEntityMap = strippedEntityMap
       state[endpointName][key] = scopedState
     }
   }
@@ -150,51 +146,64 @@ const buildEndpointHooks = <
       // Retrieve data from cache if lookup args provided
       if (!endpointState[key]) {
         if (
-          !(endpoint.options?.idArgKey || endpoint.options?.permalinkArgKey) ||
+          !(
+            endpoint.options?.idArgKey ||
+            endpoint.options?.idListArgKey ||
+            endpoint.options?.permalinkArgKey
+          ) ||
           !endpoint.options?.kind ||
           !endpoint.options?.schemaKey
         )
           return null
-        const { kind, idArgKey, permalinkArgKey, schemaKey } = endpoint.options
-        if (idArgKey && !fetchArgs[idArgKey]) return null
-        if (permalinkArgKey && !fetchArgs[permalinkArgKey]) return null
+        const { kind, idArgKey, idListArgKey, permalinkArgKey, schemaKey } =
+          endpoint.options
 
-        const idAsNumber = idArgKey
-          ? typeof fetchArgs[idArgKey] === 'number'
-            ? parseInt(fetchArgs[idArgKey])
-            : fetchArgs[idArgKey]
-          : null
-        const idCachedEntity = idAsNumber
-          ? cacheSelectors.getEntry(state, {
-              kind,
-              id: idAsNumber
+        let cachedData = null
+        if (idArgKey && fetchArgs[idArgKey]) {
+          const idAsNumber =
+            typeof fetchArgs[idArgKey] === 'number'
+              ? fetchArgs[idArgKey]
+              : parseInt(fetchArgs[idArgKey])
+          cachedData = cacheSelectors.getEntry(state, {
+            kind,
+            id: idAsNumber
+          })
+        } else if (permalinkArgKey && fetchArgs[permalinkArgKey]) {
+          if (kind === Kind.TRACKS) {
+            cachedData = getTrack(state, {
+              permalink: fetchArgs[permalinkArgKey]
             })
-          : null
-
-        let permalinkCachedEntity = null
-        if (kind === Kind.TRACKS && permalinkArgKey) {
-          permalinkCachedEntity = getTrack(state, {
-            permalink: fetchArgs[permalinkArgKey]
-          })
+          } else if (kind === Kind.COLLECTIONS) {
+            cachedData = getCollection(state, {
+              permalink: fetchArgs[permalinkArgKey]
+            })
+          }
+        } else if (idListArgKey && fetchArgs[idListArgKey]) {
+          const idsAsNumbers: number[] = fetchArgs[idListArgKey].map(
+            (id: string | number) =>
+              typeof id === 'number' ? id : parseInt(id)
+          )
+          const allEntities = mapValues(
+            cacheSelectors.getCache(state, { kind }).entries,
+            'metadata'
+          )
+          const entityHits = idsAsNumbers
+            .map((id) => allEntities[id])
+            .filter(removeNullable)
+          if (entityHits.length === idsAsNumbers.length) {
+            cachedData = entityHits
+          }
         }
-        if (kind === Kind.COLLECTIONS && permalinkArgKey) {
-          permalinkCachedEntity = getCollection(state, {
-            permalink: fetchArgs[permalinkArgKey]
-          })
-        }
-
-        const cachedEntity = idCachedEntity || permalinkCachedEntity
 
         // cache hit
-        if (cachedEntity) {
-          const { result, entities } = normalize(
-            { [schemaKey]: cachedEntity },
+        if (cachedData) {
+          const { result } = normalize(
+            { [schemaKey]: cachedData },
             apiResponseSchema
           )
           return {
             nonNormalizedData: result,
             status: Status.SUCCESS,
-            strippedEntityMap: stripEntityMap(entities),
             isInitialValue: true,
             errorMessage: undefined
           }
@@ -204,25 +213,26 @@ const buildEndpointHooks = <
       return { ...endpointState[key] }
     }, isEqual)
 
-    const {
-      nonNormalizedData,
-      status,
-      errorMessage,
-      strippedEntityMap,
-      isInitialValue
-    } = queryState ?? {
-      nonNormalizedData: null,
-      status: Status.IDLE
-    }
+    const { nonNormalizedData, status, errorMessage, isInitialValue } =
+      queryState ?? {
+        nonNormalizedData: null,
+        status: Status.IDLE
+      }
 
     // Rehydrate local nonNormalizedData using entities from global normalized cache
-    let cachedData: Data = useSelector((state: CommonState) => {
-      const rehydratedEntityMap =
-        strippedEntityMap && selectRehydrateEntityMap(state, strippedEntityMap)
-      return rehydratedEntityMap
-        ? denormalize(nonNormalizedData, apiResponseSchema, rehydratedEntityMap)
-        : nonNormalizedData
-    }, isEqual)
+    let cachedData: Data = useProxySelector(
+      (state: CommonState) => {
+        if (hookOptions?.shallow && !endpoint.options.kind)
+          return nonNormalizedData
+        const entityMap = selectCommonEntityMap(
+          state,
+          endpoint.options.kind,
+          hookOptions?.shallow
+        )
+        return denormalize(nonNormalizedData, apiResponseSchema, entityMap)
+      },
+      [nonNormalizedData, apiResponseSchema, endpoint.options.kind]
+    )
 
     const context = useContext(AudiusQueryContext)
     useEffect(() => {
@@ -231,8 +241,7 @@ const buildEndpointHooks = <
           // @ts-ignore
           actions[`fetch${capitalize(endpointName)}Succeeded`]({
             fetchArgs,
-            nonNormalizedData,
-            strippedEntityMap
+            nonNormalizedData
           }) as FetchSucceededAction
         )
       }
@@ -260,14 +269,12 @@ const buildEndpointHooks = <
             apiResponseSchema
           )
           dispatch(addEntries(Object.keys(entities), entities))
-          const strippedEntityMap = stripEntityMap(entities)
 
           dispatch(
             // @ts-ignore
             actions[`fetch${capitalize(endpointName)}Succeeded`]({
               fetchArgs,
-              nonNormalizedData: result,
-              strippedEntityMap
+              nonNormalizedData: result
             }) as FetchSucceededAction
           )
         } catch (e) {
@@ -283,12 +290,10 @@ const buildEndpointHooks = <
       fetchWrapped()
     }, [
       fetchArgs,
-      cachedData,
       dispatch,
       status,
       isInitialValue,
       nonNormalizedData,
-      strippedEntityMap,
       context,
       hookOptions?.disabled
     ])

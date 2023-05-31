@@ -36,6 +36,7 @@ export type SliceConfig = CreateSliceOptions<any, any, any>
 
 type EndpointOptions = {
   idArgKey?: string
+  idListArgKey?: string
   permalinkArgKey?: string
   schemaKey: string
   kind?: Kind
@@ -53,9 +54,6 @@ export type EntityMap = {
       }
     | undefined
 }
-export type StrippedEntityMap = {
-  [x: string]: string[] | undefined
-}
 
 type FetchBaseAction = {
   fetchArgs: any
@@ -69,7 +67,6 @@ export type FetchErrorAction = PayloadAction<
 export type FetchSucceededAction = PayloadAction<
   FetchBaseAction & {
     nonNormalizedData: any
-    strippedEntityMap: StrippedEntityMap
   }
 >
 
@@ -82,12 +79,12 @@ export type PerEndpointState<NormalizedData> = {
 export type PerKeyState<NormalizedData> = {
   status: Status
   nonNormalizedData?: NormalizedData
-  strippedEntityMap?: StrippedEntityMap
   errorMessage?: string
 }
 
 export type QueryHookOptions = {
   disabled?: boolean
+  shallow?: boolean
 }
 
 export type QueryHookResults<Data> = {
