@@ -29,7 +29,7 @@ const initSdk = async () => {
         sign: async (data) => {
           await waitForLibsInit()
           return await secp.sign(
-            keccak_256(JSON.stringify(data)),
+            keccak_256(data),
             window.audiusLibs.hedgehog.getWallet().privateKey,
             {
               recovered: true,

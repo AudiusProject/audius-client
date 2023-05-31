@@ -7,7 +7,7 @@ import {
 
 import { env } from './env'
 
-const bootstrapConfig =
+const servicesConfig =
   env.ENVIRONMENT === 'development'
     ? developmentConfig
     : env.ENVIRONMENT === 'staging'
@@ -15,7 +15,7 @@ const bootstrapConfig =
     : productionConfig
 
 export const entityManagerInstance = new EntityManager({
-  contractAddress: bootstrapConfig.entityManagerContractAddress,
-  web3ProviderUrl: bootstrapConfig.web3ProviderUrl,
-  identityServiceUrl: bootstrapConfig.identityServiceEndpoint
+  contractAddress: servicesConfig.entityManagerContractAddress,
+  web3ProviderUrl: servicesConfig.web3ProviderUrl,
+  identityServiceUrl: servicesConfig.identityServiceEndpoint
 })

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 
-import { encodeHashId, accountSelectors } from '@audius/common'
+import { encodeHashId, accountSelectors, FeatureFlags } from '@audius/common'
 import {
   CreateGrantRequest,
   CreateDeveloperAppRequest,
@@ -8,9 +8,12 @@ import {
 } from '@audius/sdk'
 
 import { useSelector } from 'common/hooks/useSelector'
+import { useFlag } from 'hooks/useRemoteConfig'
+import NotFoundPage from 'pages/not-found-page/NotFoundPage'
 import { audiusSdk } from 'services/audius-sdk'
 
 import styles from './DeveloperPage.module.css'
+
 const { getAccountUser } = accountSelectors
 
 // TODO: Move to saga, add confirmation (unless we confirm in SDK itself)
@@ -56,6 +59,9 @@ export const DeveloperPage = () => {
     apiKey: string
     apiSecret: string
   }>(null)
+  const { isEnabled: isDeveloperAppsPageEnabled } = useFlag(
+    FeatureFlags.DEVELOPER_APPS_PAGE
+  )
   const [deleteSuccess, setDeleteSuccess] = useState<boolean | null>(null)
   const currentUserId = useSelector((state) => {
     return getAccountUser(state)?.user_id
@@ -109,6 +115,9 @@ export const DeveloperPage = () => {
     setDeleteSuccess(true)
   }, [createAppResult, currentUserId])
 
+  if (!isDeveloperAppsPageEnabled) {
+    return <NotFoundPage />
+  }
   return (
     <div className={styles.container}>
       <button onClick={() => handleSubmitDeveloperApp(false)}>
