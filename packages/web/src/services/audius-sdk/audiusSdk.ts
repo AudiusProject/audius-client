@@ -5,6 +5,7 @@ import { signTypedData } from 'eth-sig-util'
 
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 import { discoveryNodeSelectorInstance } from 'services/discovery-node-selector'
+import { entityManagerInstance } from 'services/entity-manager'
 
 declare global {
   interface Window {
@@ -23,6 +24,7 @@ const initSdk = async () => {
     services: {
       discoveryNodeSelector:
         await discoveryNodeSelectorInstance.getDiscoveryNodeSelector(),
+      entityManager: entityManagerInstance,
       auth: {
         sign: async (data) => {
           await waitForLibsInit()
