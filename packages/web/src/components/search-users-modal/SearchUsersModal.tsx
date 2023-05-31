@@ -157,9 +157,11 @@ export const SearchUsersModal = (props: SearchUsersModalProps) => {
             loader={<LoadingSpinner className={styles.spinner} />}
             threshold={48}
           >
-            {users.length > 0
-              ? users.map((user) => renderUser(user, handleClose))
-              : renderEmpty()}
+            {!hasQuery &&
+            !defaultUserList.loading &&
+            defaultUserList.userIds.length === 0
+              ? renderEmpty()
+              : users.map((user) => renderUser(user, handleClose))}
           </InfiniteScroll>
         </Scrollbar>
       </div>
