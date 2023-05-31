@@ -345,7 +345,7 @@ export const ChatScreen = () => {
   // If most recent message changes and we are scrolled up, fire a toast
   useEffect(() => {
     if (
-      newestReceivedMessageId != null &&
+      newestReceivedMessageId &&
       newestReceivedMessageId !== newestMessageId.current
     ) {
       newestMessageId.current = newestReceivedMessageId
