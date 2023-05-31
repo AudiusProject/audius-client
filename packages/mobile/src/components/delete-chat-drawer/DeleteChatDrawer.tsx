@@ -18,11 +18,11 @@ const { deleteChat } = chatActions
 const DELETE_CHAT_MODAL_NAME = 'DeleteChat'
 
 const messages = {
-  title: 'Delete Thread',
+  title: 'Delete Conversation',
   description:
     'Are you sure you want to delete this thread? \n\nOther people in the conversation will still be able to see it.  This can’t be undone.',
   deleteMessages: 'Are you sure you want to delete this chat?',
-  deleteButton: 'Delete Thread',
+  deleteButton: 'Delete Conversation',
   cancel: 'Cancel'
 }
 
