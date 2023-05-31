@@ -173,6 +173,8 @@ import SmartCollectionPage from './smart-collection/SmartCollectionPage'
 import SupportingPage from './supporting-page/SupportingPage'
 import TopSupportersPage from './top-supporters-page/TopSupportersPage'
 
+import { ChatListener } from 'components/chat-listener/ChatListener'
+
 const { setTheme } = themeActions
 const { getTheme } = themeSelectors
 
@@ -478,6 +480,7 @@ class App extends Component {
 
     return (
       <DesktopHeaderContext.Provider value={{ offsetForBanner: showBanner }}>
+        <ChatListener />
         <div className={cn(styles.app, { [styles.mobileApp]: isMobileClient })}>
           {showCTABanner ? (
             <MobileDesktopBanner
