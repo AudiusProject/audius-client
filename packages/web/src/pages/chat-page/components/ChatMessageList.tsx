@@ -87,6 +87,8 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
       polyfill: ResizeObserver
     })
 
+    const isScrollable = messageListHeight > (ref.current?.clientHeight ?? 0)
+
     // On first load, mark chat as read
     useEffect(() => {
       if (chatId) {
@@ -248,7 +250,7 @@ export const ChatMessageList = forwardRef<HTMLDivElement, ChatMessageListProps>(
             ))}
           {!chat?.messagesSummary || chat.messagesSummary.prev_count > 0 ? (
             <LoadingSpinner className={styles.spinner} />
-          ) : messageListHeight > (ref.current?.clientHeight ?? 0) ? (
+          ) : isScrollable ? (
             <div className={styles.separator}>
               <span className={styles.tag}>{messages.endOfMessages}</span>
             </div>
