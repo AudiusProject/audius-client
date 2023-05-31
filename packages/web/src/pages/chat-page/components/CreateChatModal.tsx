@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 
 import {
   accountSelectors,
@@ -6,7 +6,8 @@ import {
   userListActions,
   FOLLOWERS_USER_LIST_TAG,
   followersUserListActions,
-  followersUserListSelectors
+  followersUserListSelectors,
+  User
 } from '@audius/common'
 import { IconCompose } from '@audius/stems'
 import { useDispatch } from 'react-redux'
@@ -26,6 +27,18 @@ const { getAccountUser } = accountSelectors
 const { fetchBlockers } = chatActions
 
 const CREATE_CHAT_MODAL = 'CreateChat'
+
+const titleProps = { title: messages.title, icon: <IconCompose /> }
+
+const renderUser = (user: User, closeModal: () => void) => (
+  <MessageUserSearchResult
+    key={user.user_id}
+    user={user}
+    closeModal={closeModal}
+  />
+)
+
+const renderEmpty = () => <CreateChatEmptyResults />
 
 export const CreateChatModal = () => {
   const dispatch = useDispatch()
@@ -53,24 +66,23 @@ export const CreateChatModal = () => {
     }
   }, [dispatch, isVisible])
 
+  const defaultUserList = useMemo(
+    () => ({
+      userIds,
+      loadMore,
+      loading,
+      hasMore
+    }),
+    [userIds, loadMore, loading, hasMore]
+  )
+
   return (
     <SearchUsersModal
       modalName={CREATE_CHAT_MODAL}
-      titleProps={{ title: messages.title, icon: <IconCompose /> }}
-      defaultUserList={{
-        userIds,
-        loadMore,
-        loading,
-        hasMore
-      }}
-      renderUser={(user, closeModal) => (
-        <MessageUserSearchResult
-          key={user.user_id}
-          user={user}
-          closeModal={closeModal}
-        />
-      )}
-      renderEmpty={() => <CreateChatEmptyResults />}
+      titleProps={titleProps}
+      defaultUserList={defaultUserList}
+      renderUser={renderUser}
+      renderEmpty={renderEmpty}
     />
   )
 }
