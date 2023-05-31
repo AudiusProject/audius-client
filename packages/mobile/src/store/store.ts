@@ -48,7 +48,7 @@ import walletConnect from './wallet-connect/slice'
 
 const errorRestartTimeout = 2000
 
-const { addToast } = toastActions
+const { toast } = toastActions
 
 export type AppState = CommonState & {
   // These also belong in CommonState but are here until we move them to the @audius/common package:
@@ -85,11 +85,10 @@ const onSagaError = (
   )
 
   dispatch(
-    addToast({
+    toast({
       content: messages.error,
       type: 'error',
-      timeout: errorRestartTimeout,
-      key: uuid()
+      timeout: errorRestartTimeout
     })
   )
 
