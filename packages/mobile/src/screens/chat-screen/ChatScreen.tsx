@@ -1,30 +1,38 @@
-import type { RefObject, MutableRefObject } from 'react'
-import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import type { MutableRefObject, RefObject } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import type { ChatMessageWithExtras } from '@audius/common'
 import {
-  useCanSendMessage,
-  chatCanFetchMoreMessages,
-  chatActions,
+  Status,
   accountSelectors,
+  chatActions,
+  chatCanFetchMoreMessages,
   chatSelectors,
-  encodeUrlName,
   decodeHashId,
   encodeHashId,
-  Status,
+  encodeUrlName,
   isEarliestUnread,
-  playerSelectors
+  playerSelectors,
+  useCanSendMessage
 } from '@audius/common'
 import { Portal } from '@gorhom/portal'
-import { Keyboard, View, Text, FlatList, TouchableOpacity } from 'react-native'
+import type { FlatListProps } from 'react-native'
+import {
+  FlatList,
+  Keyboard,
+  Platform,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconMessage from 'app/assets/images/iconMessage.svg'
 import {
+  KeyboardAvoidingView,
   Screen,
-  ScreenContent,
-  KeyboardAvoidingView
+  ScreenContent
 } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { PLAY_BAR_HEIGHT } from 'app/components/now-playing-drawer'
@@ -33,6 +41,7 @@ import { UserBadges } from 'app/components/user-badges'
 import { light } from 'app/haptics'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
+import { useToast } from 'app/hooks/useToast'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
@@ -41,10 +50,17 @@ import { useThemePalette } from 'app/utils/theme'
 import type { AppTabScreenParamList } from '../app-screen'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
+import { ChatMessageSeparator } from './ChatMessageSeparator'
 import { ChatTextInput } from './ChatTextInput'
 import { ChatUnavailable } from './ChatUnavailable'
 import { EmptyChatMessages } from './EmptyChatMessages'
 import { ReactionPopup } from './ReactionPopup'
+import { END_REACHED_OFFSET } from './constants'
+
+type ChatFlatListProps = FlatListProps<ChatMessageWithExtras>
+type ChatListEventHandler<K extends keyof ChatFlatListProps> = NonNullable<
+  ChatFlatListProps[K]
+>
 
 const {
   getChatMessages,
@@ -65,10 +81,13 @@ const { getUserId } = accountSelectors
 const { getHasTrack } = playerSelectors
 
 export const REACTION_CONTAINER_HEIGHT = 70
+const NEW_MESSAGE_TOAST_SCROLL_THRESHOLD = 100
 
 const messages = {
   title: 'Messages',
-  newMessage: 'New Message'
+  endReached: 'You’ve reached the end\nof the message history',
+  newMessage: 'New Message',
+  newMessageReceived: 'New Message!'
 }
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
@@ -134,29 +153,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     height: spacing(6),
     marginRight: spacing(2)
   },
-  unreadTagContainer: {
-    marginVertical: spacing(6),
-    flexGrow: 1,
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  unreadSeparator: {
-    height: 1,
-    backgroundColor: palette.neutralLight5,
-    flexGrow: 1
-  },
-  unreadTag: {
-    color: palette.white,
-    fontSize: typography.fontSize.xxs,
-    fontFamily: typography.fontByWeight.bold,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    backgroundColor: palette.neutralLight5,
-    paddingHorizontal: spacing(2),
-    paddingVertical: spacing(1),
-    borderRadius: spacing(0.5)
-  },
   loadingSpinnerContainer: {
     display: 'flex',
     flexGrow: 1,
@@ -181,10 +177,31 @@ const measureView = (
   })
 }
 
+type ContainerLayoutStatus = {
+  top: number
+  bottom: number
+}
+
+const getAutoscrollThreshold = ({ top, bottom }: ContainerLayoutStatus) => {
+  return (bottom - top) / 4
+}
+
+// On iOS, the user will be auto-scrolled on new messages if they are within a certain
+// distance of the beginning. We don't need a toast in those scenarios.
+// In all others, use a fixed threshold
+const getNewMessageToastThreshold = (
+  containerLayout: ContainerLayoutStatus
+) => {
+  return Platform.OS === 'ios'
+    ? getAutoscrollThreshold(containerLayout)
+    : NEW_MESSAGE_TOAST_SCROLL_THRESHOLD
+}
+
 export const ChatScreen = () => {
   const styles = useStyles()
   const palette = useThemePalette()
   const dispatch = useDispatch()
+  const { toast } = useToast()
   const navigation = useNavigation<AppTabScreenParamList>()
 
   const { params } = useRoute<'Chat'>()
@@ -201,6 +218,9 @@ export const ChatScreen = () => {
   const messageHeight = useRef(0)
   const chatContainerTop = useRef(0)
   const chatContainerBottom = useRef(0)
+  const scrollPosition = useRef(0)
+  const newestMessageId = useRef('')
+  const flatListInnerHeight = useRef(0)
 
   const hasCurrentlyPlayingTrack = useSelector(getHasTrack)
   const userId = useSelector(getUserId)
@@ -212,6 +232,15 @@ export const ChatScreen = () => {
   const isLoading =
     (chat?.messagesStatus ?? Status.LOADING) === Status.LOADING &&
     chatMessages?.length === 0
+  // Only show the end reached indicator if there are no previous messages and
+  // flatlist is scrollable. Add an offset to the screen height because flatListInnerHeight
+  // starts at screen height due to height: 100% css property.
+  const shouldShowEndReachedIndicator =
+    !(chat?.messagesSummary?.prev_count ?? true) &&
+    flatListInnerHeight.current - chatContainerTop.current >
+      chatContainerBottom.current -
+        chatContainerTop.current +
+        END_REACHED_OFFSET
   const popupMessageId = useSelector(getReactionsPopupMessageId)
   const popupMessage = useSelector((state) =>
     getChatMessageById(state, chatId ?? '', popupMessageId ?? '')
@@ -296,7 +325,35 @@ export const ChatScreen = () => {
     }
   }, [earliestUnreadIndex, chatMessages])
 
-  const handleScrollToIndexFailed = useCallback((e) => {
+  const newestReceivedMessageId = useMemo(() => {
+    const idx = chatMessages.findIndex(
+      (chat) => chat.sender_user_id !== userIdEncoded
+    )
+    return idx >= 0 ? chatMessages[idx].message_id : null
+  }, [chatMessages, userIdEncoded])
+
+  // If most recent message changes and we are scrolled up, fire a toast
+  useEffect(() => {
+    if (
+      newestReceivedMessageId &&
+      newestReceivedMessageId !== newestMessageId.current
+    ) {
+      newestMessageId.current = newestReceivedMessageId
+      if (
+        scrollPosition.current >
+        getNewMessageToastThreshold({
+          bottom: chatContainerBottom.current,
+          top: chatContainerTop.current
+        })
+      ) {
+        toast({ content: messages.newMessageReceived, type: 'info' })
+      }
+    }
+  }, [newestReceivedMessageId, newestMessageId, scrollPosition, toast])
+
+  const handleScrollToIndexFailed = useCallback<
+    ChatListEventHandler<'onScrollToIndexFailed'>
+  >((e) => {
     setTimeout(() => {
       flatListRef.current?.scrollToIndex({
         index: e.index,
@@ -319,13 +376,20 @@ export const ChatScreen = () => {
     }
   }, [chat?.messagesStatus, chat?.messagesSummary, chatId, dispatch])
 
+  const handleScroll = useCallback<ChatListEventHandler<'onScroll'>>(
+    (event) => {
+      scrollPosition.current = event.nativeEvent.contentOffset.y
+    },
+    [scrollPosition]
+  )
+
   const handleTopRightPress = () => {
     Keyboard.dismiss()
     dispatch(
       setVisibility({
         drawer: 'ChatActions',
         visible: true,
-        data: { userId: otherUser.user_id }
+        data: { userId: otherUser.user_id, chatId }
       })
     )
   }
@@ -383,35 +447,28 @@ export const ChatScreen = () => {
         />
         {item.message_id === earliestUnreadMessageId &&
         chatFrozenRef.current?.unread_message_count ? (
-          <View style={styles.unreadTagContainer}>
-            <View style={styles.unreadSeparator} />
-            <Text style={styles.unreadTag}>
-              {chatFrozenRef.current?.unread_message_count}{' '}
-              {pluralize(
+          <ChatMessageSeparator
+            content={
+              chatFrozenRef.current?.unread_message_count +
+              pluralize(
                 messages.newMessage,
                 chatFrozenRef.current?.unread_message_count > 1
-              )}
-            </Text>
-            <View style={styles.unreadSeparator} />
-          </View>
+              )
+            }
+          />
         ) : null}
       </>
     ),
-    [
-      earliestUnreadMessageId,
-      handleMessagePress,
-      chatId,
-      styles.unreadSeparator,
-      styles.unreadTag,
-      styles.unreadTagContainer
-    ]
+    [earliestUnreadMessageId, handleMessagePress, chatId]
   )
 
   const maintainVisibleContentPosition = useMemo(
     () => ({
       minIndexForVisible: 0,
-      autoscrollToTopThreshold:
-        (chatContainerBottom.current - chatContainerTop.current) / 4
+      autoscrollToTopThreshold: getAutoscrollThreshold({
+        top: chatContainerTop.current,
+        bottom: chatContainerBottom.current
+      })
     }),
     []
   )
@@ -419,6 +476,13 @@ export const ChatScreen = () => {
   const measureChatContainerBottom = useCallback(() => {
     measureView(composeRef, chatContainerBottom)
   }, [])
+
+  const handleOnContentSizeChanged = useCallback(
+    (_contentWidth, contentHeight) => {
+      flatListInnerHeight.current = contentHeight
+    },
+    []
+  )
 
   return (
     <Screen
@@ -442,7 +506,7 @@ export const ChatScreen = () => {
                 />
               </TouchableOpacity>
             )
-          : messages.title
+          : () => <Text style={styles.userBadgeTitle}>{messages.title}</Text>
       }
       icon={otherUser ? undefined : IconMessage}
       topbarRight={topBarRight}
@@ -496,11 +560,13 @@ export const ChatScreen = () => {
                   contentContainerStyle={styles.listContentContainer}
                   data={chatMessages}
                   keyExtractor={(message) => message.message_id}
+                  onContentSizeChange={handleOnContentSizeChanged}
                   renderItem={renderItem}
                   onEndReached={handleScrollToTop}
                   inverted
                   initialNumToRender={chatMessages?.length}
                   ref={flatListRef}
+                  onScroll={handleScroll}
                   onScrollToIndexFailed={handleScrollToIndexFailed}
                   refreshing={chat?.messagesStatus === Status.LOADING}
                   maintainVisibleContentPosition={
@@ -508,6 +574,11 @@ export const ChatScreen = () => {
                   }
                   ListHeaderComponent={
                     canSendMessage ? null : <ChatUnavailable chatId={chatId} />
+                  }
+                  ListFooterComponent={
+                    shouldShowEndReachedIndicator ? (
+                      <ChatMessageSeparator content={messages.endReached} />
+                    ) : null
                   }
                   scrollEnabled={!shouldShowPopup}
                 />
