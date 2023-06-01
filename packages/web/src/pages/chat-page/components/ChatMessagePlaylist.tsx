@@ -73,23 +73,27 @@ export const ChatMessagePlaylist = ({
     }, {})
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playlist?.playlist_id])
-  const tracksWithUids = playlistTracks.map((track) => ({
-    ...track,
-    // todo: make sure good value is passed in here
-    _cover_art_sizes: {},
-    user: {
-      ...track.user,
-      _profile_picture_sizes: {},
-      _cover_photo_sizes: {}
-    },
-    id: track.track_id,
-    uid: uidMap[track.track_id]
-  }))
-  const entries = playlistTracks.map((track) => ({
-    id: track.track_id,
-    uid: uidMap[track.track_id],
-    source: QueueSource.CHAT_PLAYLIST_TRACKS
-  }))
+  const tracksWithUids = useMemo(() => {
+    return playlistTracks.map((track) => ({
+      ...track,
+      // todo: make sure good value is passed in here
+      _cover_art_sizes: {},
+      user: {
+        ...track.user,
+        _profile_picture_sizes: {},
+        _cover_photo_sizes: {}
+      },
+      id: track.track_id,
+      uid: uidMap[track.track_id]
+    }))
+  }, [playlistTracks, uidMap])
+  const entries = useMemo(() => {
+    return playlistTracks.map((track) => ({
+      id: track.track_id,
+      uid: uidMap[track.track_id],
+      source: QueueSource.CHAT_PLAYLIST_TRACKS
+    }))
+  }, [playlistTracks, uidMap])
 
   const play = usePlayTrack()
   const playTrack = useCallback(
