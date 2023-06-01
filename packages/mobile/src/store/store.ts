@@ -1,6 +1,5 @@
 import type { CommonState, RemoteConfigState } from '@audius/common'
 import {
-  uuid,
   toastActions,
   ErrorLevel,
   remoteConfigReducer as remoteConfig,
