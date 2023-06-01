@@ -7,6 +7,7 @@ import { getPlaying, getUid } from 'store/player/selectors'
 import { QueueSource, Queueable, queueActions } from 'store/queue'
 import { makeGetCurrent } from 'store/queue/selectors'
 import { Nullable } from 'utils'
+import { TrackPlayback } from './types'
 
 const { clear, add, play, pause } = queueActions
 
@@ -14,7 +15,7 @@ type RecordAnalytics = ({
   name,
   id
 }: {
-  name: Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE
+  name: TrackPlayback
   id: ID
 }) => void
 
@@ -22,7 +23,6 @@ type UseToggleTrack = {
   id: Nullable<ID>
   uid: Nullable<string>
   source: QueueSource
-} & {
   recordAnalytics: RecordAnalytics
 }
 

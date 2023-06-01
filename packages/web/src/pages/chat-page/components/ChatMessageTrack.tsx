@@ -4,14 +4,14 @@ import {
   Kind,
   Status,
   makeUid,
-  Name,
   PlaybackSource,
   QueueSource,
   accountSelectors,
   useGetTrackByPermalink,
   getPathFromTrackUrl,
   useToggleTrack,
-  ID
+  ID,
+  TrackPlayback
 } from '@audius/common'
 import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
@@ -51,7 +51,7 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
       name,
       id
     }: {
-      name: Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE
+      name: TrackPlayback
       id: ID
     }) => {
       if (!track) return

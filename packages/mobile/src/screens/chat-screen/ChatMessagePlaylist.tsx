@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
-import type { ID, Name } from '@audius/common'
+import type { ID, Name, TrackPlayback } from '@audius/common'
 import {
   Kind,
   PlaybackSource,
@@ -95,7 +95,7 @@ export const ChatMessagePlaylist = ({
       name,
       id
     }: {
-      name: Name.PLAYBACK_PLAY | Name.PLAYBACK_PAUSE
+      name: TrackPlayback
       id: ID
     }) => {
       trackEvent(
