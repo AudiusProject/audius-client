@@ -325,31 +325,31 @@ export const ChatScreen = () => {
     }
   }, [earliestUnreadIndex, chatMessages])
 
-  const newestReceivedMessageId = useMemo(() => {
-    const idx = chatMessages.findIndex(
-      (chat) => chat.sender_user_id !== userIdEncoded
-    )
-    return idx >= 0 ? chatMessages[idx].message_id : null
-  }, [chatMessages, userIdEncoded])
+  const newestMessage = chatMessages.length > 0 ? chatMessages[0] : null
 
   // If most recent message changes and we are scrolled up, fire a toast
   useEffect(() => {
-    if (
-      newestReceivedMessageId &&
-      newestReceivedMessageId !== newestMessageId.current
-    ) {
-      newestMessageId.current = newestReceivedMessageId
+    if (newestMessage && newestMessage.message_id !== newestMessageId.current) {
+      newestMessageId.current = newestMessage.message_id
+      // Only fire toasts for received messages, which we can only compute if
+      // we have a valid userId
+      const isReceivedMessage =
+        userIdEncoded && newestMessage.sender_user_id !== userIdEncoded
       if (
+        isReceivedMessage &&
         scrollPosition.current >
-        getNewMessageToastThreshold({
-          bottom: chatContainerBottom.current,
-          top: chatContainerTop.current
-        })
+          getNewMessageToastThreshold({
+            bottom: chatContainerBottom.current,
+            top: chatContainerTop.current
+          })
       ) {
-        toast({ content: messages.newMessageReceived, type: 'info' })
+        toast({
+          content: messages.newMessageReceived,
+          type: 'info'
+        })
       }
     }
-  }, [newestReceivedMessageId, newestMessageId, scrollPosition, toast])
+  }, [newestMessage, newestMessageId, scrollPosition, userIdEncoded, toast])
 
   const handleScrollToIndexFailed = useCallback<
     ChatListEventHandler<'onScrollToIndexFailed'>
