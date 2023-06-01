@@ -6,19 +6,22 @@ const messages = {
   followsYou: 'Follows You'
 }
 
+type FollowsYouBadgeProps = {
+  className?: string
+  /** For badges appearing in a list, expose a variant with a transparent background */
+  variant?: 'standard' | 'list'
+}
+
 const FollowsYouBadge = ({
   className = '',
-  transparentBackground = false
-}: {
-  className?: string
-  transparentBackground?: boolean
-}) => {
+  variant = 'standard'
+}: FollowsYouBadgeProps) => {
   const wm = useWithMobileStyle(styles.mobile)
   return (
     <div
       className={wm(
         styles.badge,
-        { [styles.transparentBackground]: transparentBackground },
+        { [styles.transparentBackground]: variant === 'list' },
         className
       )}
     >
