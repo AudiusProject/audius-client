@@ -189,10 +189,6 @@
   fill: var(--neutral-light-4);
 }
 
-.buttonFormatting {
-  padding: 0 16px;
-}
-
 .buttonTextFormatting {
   text-transform: uppercase;
 }

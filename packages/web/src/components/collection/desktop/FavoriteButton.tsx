@@ -11,7 +11,6 @@ import {
   FavoriteSource
 } from '@audius/common'
 import { Button, ButtonProps, ButtonType, IconHeart } from '@audius/stems'
-import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Tooltip } from 'components/tooltip'
@@ -83,7 +82,6 @@ export const FavoriteButton = (props: FavoriteButtonProps) => {
       text={isSaved ? messages.unfavorite : messages.favorite}
     >
       <Button
-        className={cn(styles.buttonFormatting)}
         textClassName={styles.buttonTextFormatting}
         type={type ?? (isSaved ? ButtonType.SECONDARY : ButtonType.COMMON)}
         text={isSaved ? messages.favorited : messages.favorite}

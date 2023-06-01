@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 
 import { Button, ButtonProps, ButtonType, IconPencil } from '@audius/stems'
-import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
 import { open as openEditCollectionModal } from 'store/application/ui/editPlaylistModal/slice'
@@ -27,7 +26,6 @@ export const EditButton = (props: EditButtonProps) => {
 
   return (
     <Button
-      className={cn(styles.buttonFormatting)}
       textClassName={styles.buttonTextFormatting}
       type={ButtonType.COMMON}
       text={messages.edit}

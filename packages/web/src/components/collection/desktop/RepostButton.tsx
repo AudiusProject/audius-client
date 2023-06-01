@@ -55,7 +55,6 @@ export const RepostButton = (props: RepostButtonProps) => {
           type ??
           (has_current_user_reposted ? ButtonType.SECONDARY : ButtonType.COMMON)
         }
-        className={styles.buttonFormatting}
         textClassName={styles.buttonTextFormatting}
         text={has_current_user_reposted ? messages.reposted : messages.repost}
         leftIcon={<IconRepost />}

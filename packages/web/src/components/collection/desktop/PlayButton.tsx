@@ -1,7 +1,6 @@
 import { MouseEventHandler } from 'react'
 
 import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
-import cn from 'classnames'
 
 import styles from './CollectionHeader.module.css'
 import { BUTTON_COLLAPSE_WIDTHS } from './utils'
@@ -21,16 +20,13 @@ export const PlayButton = (props: PlayButtonProps) => {
 
   return (
     <Button
-      className={cn(styles.playAllButton, {
-        [styles.buttonFormatting]: isPlaying
-      })}
+      className={styles.playAllButton}
       textClassName={styles.buttonTextFormatting}
       type={ButtonType.PRIMARY_ALT}
       text={isPlaying ? messages.pause : messages.play}
       leftIcon={isPlaying ? <IconPause /> : <IconPlay />}
       onClick={onPlay}
       widthToHideText={BUTTON_COLLAPSE_WIDTHS.first}
-      minWidth={132}
     />
   )
 }

@@ -4,7 +4,6 @@ import {
   CommonState
 } from '@audius/common'
 import { Button, ButtonProps, ButtonType, IconRocket } from '@audius/stems'
-import cn from 'classnames'
 import { useSelector } from 'react-redux'
 import { useToggle } from 'react-use'
 
@@ -39,7 +38,6 @@ export const PublishButton = (props: PublishButtonProps) => {
 
   const publishButtonElement = (
     <Button
-      className={cn(styles.buttonFormatting)}
       textClassName={styles.buttonTextFormatting}
       type={_is_publishing ? ButtonType.DISABLED : ButtonType.COMMON}
       text={

@@ -7,7 +7,6 @@ import {
   SmartCollectionVariant
 } from '@audius/common'
 import { Button, ButtonProps, ButtonType, IconShare } from '@audius/stems'
-import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
 import styles from './CollectionHeader.module.css'
@@ -55,7 +54,6 @@ export const ShareButton = (props: ShareButtonProps) => {
 
   return (
     <Button
-      className={cn(styles.buttonFormatting)}
       textClassName={styles.buttonTextFormatting}
       type={type ?? ButtonType.COMMON}
       text={messages.share}
