@@ -81,7 +81,7 @@ export const ChatMessageTrack = ({
   )
 
   const { togglePlay } = useToggleTrack({
-    id: track?.track_id ?? null,
+    id: track?.track_id,
     uid,
     source: QueueSource.CHAT_TRACKS,
     recordAnalytics

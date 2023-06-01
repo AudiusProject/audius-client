@@ -20,10 +20,10 @@ type RecordAnalytics = ({
 }) => void
 
 type UseToggleTrack = {
-  id: Nullable<ID>
   uid: Nullable<string>
   source: QueueSource
   recordAnalytics: RecordAnalytics
+  id?: Nullable<ID>
 }
 
 export const usePlayTrack = (recordAnalytics?: RecordAnalytics) => {
@@ -66,10 +66,10 @@ export const usePauseTrack = (recordAnalytics?: RecordAnalytics) => {
 }
 
 export const useToggleTrack = ({
-  id,
   uid,
   source,
-  recordAnalytics
+  recordAnalytics,
+  id
 }: UseToggleTrack) => {
   const currentQueueItem = useSelector(makeGetCurrent())
   const playing = useSelector(getPlaying)
