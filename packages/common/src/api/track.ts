@@ -21,7 +21,10 @@ const trackApi = createApi({
         { permalink, currentUserId }: { permalink: Nullable<string>; currentUserId: Nullable<ID> },
         { apiClient }
       ) => {
-        if (!permalink) return
+        if (!permalink) {
+          console.error('Attempting to get track but permalink is null...')
+          return
+        }
         const { handle, slug } = parseTrackRouteFromPermalink(permalink)
         return await apiClient.getTrackByHandleAndSlug({
           handle,
