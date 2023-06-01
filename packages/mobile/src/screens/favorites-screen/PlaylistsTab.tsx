@@ -93,7 +93,7 @@ export const PlaylistsTab = () => {
               scrollEnabled={false}
               collectionIds={userPlaylists}
               ListFooterComponent={
-                statusIsNotFinalized(status) && !isReachable
+                statusIsNotFinalized(status) && isReachable
                   ? loadingSpinner
                   : null
               }
