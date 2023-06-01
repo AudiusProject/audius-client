@@ -21,7 +21,7 @@ const FollowsYouBadge = ({
     <div
       className={wm(
         styles.badge,
-        { [styles.transparentBackground]: variant === 'list' },
+        { [styles.list]: variant === 'list' },
         className
       )}
     >
