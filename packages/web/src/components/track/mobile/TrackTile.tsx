@@ -20,6 +20,7 @@ import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
 import { useModalState } from 'common/hooks/useModalState'
 import FavoriteButton from 'components/alt-button/FavoriteButton'
 import RepostButton from 'components/alt-button/RepostButton'
+import { ArtistPopover } from 'components/artist/ArtistPopover'
 import Skeleton from 'components/skeleton/Skeleton'
 import { PremiumContentLabel } from 'components/track/PremiumContentLabel'
 import { TrackTileProps } from 'components/track/types'
@@ -304,9 +305,11 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
               href={profilePage(artistHandle)}
               onClick={props.goToArtistPage}
             >
-              <span className={cn(fadeIn, styles.userName)}>
-                {props.artistName}
-              </span>
+              <div className={cn(fadeIn, styles.userName)}>
+                <ArtistPopover handle={artistHandle}>
+                  <span onClick={props.goToArtistPage}>{props.artistName}</span>
+                </ArtistPopover>
+              </div>
               <UserBadges
                 userId={userId}
                 badgeSize={12}
