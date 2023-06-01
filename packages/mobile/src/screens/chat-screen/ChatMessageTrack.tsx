@@ -21,13 +21,13 @@ const { getUserId } = accountSelectors
 export type ChatMessageTileProps = {
   link: string
   isAuthor: boolean
-  onFail: () => void
+  onEmpty: () => void
 }
 
 export const ChatMessageTrack = ({
   link,
   isAuthor,
-  onFail
+  onEmpty
 }: ChatMessageTileProps) => {
   const currentUserId = useSelector(getUserId)
 
@@ -88,7 +88,7 @@ export const ChatMessageTrack = ({
   })
 
   if (!item || !user || !uid) {
-    onFail?.()
+    onEmpty?.()
     return null
   }
 

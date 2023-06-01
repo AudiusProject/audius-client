@@ -26,7 +26,7 @@ const { getUid, getPlaying, getTrackId } = playerSelectors
 export const ChatMessagePlaylist = ({
   link,
   isAuthor,
-  onFail
+  onEmpty
 }: ChatMessageTileProps) => {
   const currentUserId = useSelector(getUserId)
   const isPlaying = useSelector(getPlaying)
@@ -137,7 +137,7 @@ export const ChatMessagePlaylist = ({
   ])
 
   if (!collection || !uid) {
-    onFail?.()
+    onEmpty?.()
     return null
   }
 

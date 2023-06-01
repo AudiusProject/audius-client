@@ -75,7 +75,7 @@ type LinkPreviewProps = {
   onLongPress: (event: GestureResponderEvent) => void
   onPressIn: (event: GestureResponderEvent) => void
   onPressOut: (event: GestureResponderEvent) => void
-  onFail?: () => void
+  onEmpty?: () => void
 }
 
 export const LinkPreview = ({
@@ -87,7 +87,7 @@ export const LinkPreview = ({
   onLongPress,
   onPressIn,
   onPressOut,
-  onFail
+  onEmpty
 }: LinkPreviewProps) => {
   const styles = useStyles()
   const metadata = useLinkUnfurlMetadata(chatId, messageId, href)
@@ -96,7 +96,7 @@ export const LinkPreview = ({
   const domain = metadata?.url ? new URL(metadata.url).hostname : ''
 
   if (!willRender) {
-    onFail?.()
+    onEmpty?.()
   }
 
   if (!metadata) {

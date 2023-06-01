@@ -180,14 +180,14 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
   const senderUserId = decodeHashId(message.sender_user_id)
   const isAuthor = senderUserId === userId
   const [isPressed, setIsPressed] = useState(false)
-  const [hasLinkPreviewFailed, setHasLinkPreviewFailed] = useState(false)
+  const [emptyLinkPreview, setEmptyLinkPreview] = useState(false)
   const links = find(message.message)
   const link = links.filter((link) => link.type === 'url' && link.isLink)[0]
   const isLinkPreviewOnly = link && link.value === message.message
   const tailColor = useGetTailColor(
     isAuthor,
     isPressed,
-    isLinkPreviewOnly && !hasLinkPreviewFailed
+    isLinkPreviewOnly && !emptyLinkPreview
   )
   const isUnderneathPopup =
     useSelector((state) =>
@@ -208,8 +208,8 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
     }
   }, [message.message_id, message.status, onLongPress])
 
-  const onLinkPreviewFail = useCallback(() => {
-    setHasLinkPreviewFailed(true)
+  const onLinkPreviewEmpty = useCallback(() => {
+    setEmptyLinkPreview(true)
   }, [link])
 
   return (
@@ -252,14 +252,14 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                     key={`${link.value}-${link.start}-${link.end}`}
                     link={link.value}
                     isAuthor={isAuthor}
-                    onFail={onLinkPreviewFail}
+                    onEmpty={onLinkPreviewEmpty}
                   />
                 ) : isTrackUrl(link?.value) ? (
                   <ChatMessageTrack
                     key={`${link.value}-${link.start}-${link.end}`}
                     link={link.value}
                     isAuthor={isAuthor}
-                    onFail={onLinkPreviewFail}
+                    onEmpty={onLinkPreviewEmpty}
                   />
                 ) : link ? (
                   <LinkPreview
@@ -272,10 +272,10 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                     onPressIn={handlePressIn}
                     onPressOut={handlePressOut}
                     isPressed={isPressed}
-                    onFail={onLinkPreviewFail}
+                    onEmpty={onLinkPreviewEmpty}
                   />
                 ) : null}
-                {!isLinkPreviewOnly || hasLinkPreviewFailed ? (
+                {!isLinkPreviewOnly || emptyLinkPreview ? (
                   <Hyperlink
                     text={message.message}
                     styles={{
