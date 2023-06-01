@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
-import type { ID, Name, TrackPlayback } from '@audius/common'
+import type { ID, TrackPlayback } from '@audius/common'
 import {
   Kind,
   PlaybackSource,
@@ -61,7 +61,6 @@ export const ChatMessagePlaylist = ({
     },
     { disabled: !trackIds.length }
   )
-  const playlistTracks = tracks ?? []
 
   const uidMap = useMemo(() => {
     return trackIds.reduce((result: { [id: ID]: string }, id) => {
@@ -71,7 +70,7 @@ export const ChatMessagePlaylist = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playlist?.playlist_id])
   const tracksWithUids = useMemo(() => {
-    return playlistTracks.map((track) => ({
+    return (tracks || []).map((track) => ({
       ...track,
       // todo: make sure good value is passed in here
       _cover_art_sizes: {},
@@ -83,25 +82,19 @@ export const ChatMessagePlaylist = ({
       id: track.track_id,
       uid: uidMap[track.track_id]
     }))
-  }, [playlistTracks, uidMap])
+  }, [tracks, uidMap])
   const entries = useMemo(() => {
-    return playlistTracks.map((track) => ({
+    return (tracks || []).map((track) => ({
       id: track.track_id,
       uid: uidMap[track.track_id],
       source: QueueSource.CHAT_PLAYLIST_TRACKS
     }))
-  }, [playlistTracks, uidMap])
+  }, [tracks, uidMap])
 
   const isActive = playingUid !== null && playingUid === uid
 
   const recordAnalytics = useCallback(
-    ({
-      name,
-      id
-    }: {
-      name: TrackPlayback
-      id: ID
-    }) => {
+    ({ name, id }: { name: TrackPlayback; id: ID }) => {
       trackEvent(
         make({
           eventName: name,

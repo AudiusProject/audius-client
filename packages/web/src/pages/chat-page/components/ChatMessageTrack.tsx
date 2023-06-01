@@ -47,13 +47,7 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
   }, [trackId])
 
   const recordAnalytics = useCallback(
-    ({
-      name,
-      id
-    }: {
-      name: TrackPlayback
-      id: ID
-    }) => {
+    ({ name, id }: { name: TrackPlayback; id: ID }) => {
       if (!track) return
       dispatch(
         make(name, {

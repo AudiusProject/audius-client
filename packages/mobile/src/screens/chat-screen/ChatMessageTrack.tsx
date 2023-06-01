@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
-import type { ID, Name, TrackPlayback } from '@audius/common'
+import type { ID, TrackPlayback } from '@audius/common'
 import {
   Kind,
   PlaybackSource,
@@ -61,13 +61,7 @@ export const ChatMessageTrack = ({
   }, [trackId])
 
   const recordAnalytics = useCallback(
-    ({
-      name,
-      id
-    }: {
-      name: TrackPlayback
-      id: ID
-    }) => {
+    ({ name, id }: { name: TrackPlayback; id: ID }) => {
       if (!track) return
       trackEvent(
         make({
