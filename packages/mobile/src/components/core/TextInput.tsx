@@ -73,9 +73,7 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
     padding: 0
   },
   icon: {
-    fill: palette.neutralLight5,
-    height: spacing(5),
-    width: spacing(5)
+    fill: palette.neutralLight5
   },
   placeholderText: {
     color: palette.neutralLight4
@@ -333,24 +331,11 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
                   right: spacing(2)
                 }}
               >
-                <IconCloseAlt
-                  style={{
-                    height: styles.icon.height,
-                    width: styles.icon.width
-                  }}
-                  fill={styles.icon.fill}
-                  height={styles.icon.height}
-                  width={styles.icon.width}
-                />
+                <IconCloseAlt fill={styles.icon.fill} />
               </TouchableWithoutFeedback>
             </Animated.View>
           ) : Icon ? (
-            <Icon
-              style={{ height: styles.icon.height, width: styles.icon.width }}
-              fill={styles.icon.fill}
-              height={styles.icon.height}
-              width={styles.icon.width}
-            />
+            <Icon fill={styles.icon.fill} />
           ) : null}
           {endAdornment ? (
             <View style={styles.endAdornment}>{endAdornment}</View>
