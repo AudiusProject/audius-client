@@ -27,10 +27,6 @@
   height: var(--unit-12);
 }
 
-.button.medium .textLabel {
-  font-size: var(--font-l);
-}
-
 .button.small {
   height: var(--unit-8);
 }
@@ -55,6 +51,10 @@
 }
 
 .button .icon.left {
+  margin-right: var(--unit-3);
+}
+
+.button.small .icon.left {
   margin-right: var(--unit-2);
 }
 
@@ -63,7 +63,7 @@
 }
 
 .button .icon.right {
-  margin-left: var(--unit-2);
+  margin-left: var(--unit-3);
 }
 
 .button .icon.right.noText {

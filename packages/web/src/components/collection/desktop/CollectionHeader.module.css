@@ -189,10 +189,6 @@
   fill: var(--neutral-light-4);
 }
 
-.buttonTextFormatting {
-  text-transform: uppercase;
-}
-
 .hide {
   opacity: 0;
 }
@@ -242,4 +238,13 @@
 
 .spinner g path {
   stroke: var(--white);
+}
+
+.collectionButtonText {
+  font-size: var(--font-l) !important;
+  text-transform: uppercase;
+}
+
+.collectionButtonIcon {
+  margin-right: var(--unit-2) !important;
 }

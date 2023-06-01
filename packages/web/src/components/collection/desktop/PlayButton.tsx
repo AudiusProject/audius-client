@@ -1,8 +1,8 @@
 import { MouseEventHandler } from 'react'
 
-import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
+import { ButtonType, IconPause, IconPlay } from '@audius/stems'
 
-import styles from './CollectionHeader.module.css'
+import { CollectionActionButton } from './CollectionActionButton'
 import { BUTTON_COLLAPSE_WIDTHS } from './utils'
 
 const messages = {
@@ -19,9 +19,7 @@ export const PlayButton = (props: PlayButtonProps) => {
   const { onPlay, playing: isPlaying } = props
 
   return (
-    <Button
-      className={styles.playAllButton}
-      textClassName={styles.buttonTextFormatting}
+    <CollectionActionButton
       type={ButtonType.PRIMARY_ALT}
       text={isPlaying ? messages.pause : messages.play}
       leftIcon={isPlaying ? <IconPause /> : <IconPlay />}
