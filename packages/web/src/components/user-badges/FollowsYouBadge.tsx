@@ -6,10 +6,24 @@ const messages = {
   followsYou: 'Follows You'
 }
 
-const FollowsYouBadge = ({ className = '' }: { className?: string }) => {
+const FollowsYouBadge = ({
+  className = '',
+  transparentBackground = false
+}: {
+  className?: string
+  transparentBackground?: boolean
+}) => {
   const wm = useWithMobileStyle(styles.mobile)
   return (
-    <div className={wm(styles.badge, className)}>{messages.followsYou}</div>
+    <div
+      className={wm(
+        styles.badge,
+        { [styles.transparentBackground]: transparentBackground },
+        className
+      )}
+    >
+      {messages.followsYou}
+    </div>
   )
 }
 
