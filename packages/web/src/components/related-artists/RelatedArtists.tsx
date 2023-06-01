@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 
+import type { User } from '@audius/common'
 import {
   profilePageSelectors,
   MAX_PROFILE_RELATED_ARTISTS,
@@ -37,7 +38,10 @@ export const RelatedArtists = () => {
 
   const artistId = profile?.user_id
 
-  const { data: relatedArtists } = useGetRelatedArtists({ artistId })
+  const { data: relatedArtists } = useGetRelatedArtists(
+    { artistId: artistId! },
+    { disabled: !artistId }
+  )
 
   const handleClick = useCallback(() => {
     if (profile) {
@@ -69,7 +73,7 @@ export const RelatedArtists = () => {
       />
       <ProfilePictureListTile
         onClick={handleClick}
-        users={relatedArtists}
+        users={relatedArtists as User[]}
         totalUserCount={relatedArtists.length}
         limit={MAX_PROFILE_RELATED_ARTISTS}
         disableProfileClick

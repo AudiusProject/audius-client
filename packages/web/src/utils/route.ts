@@ -62,6 +62,7 @@ export const UPLOAD_ALBUM_PAGE = '/upload/album'
 export const UPLOAD_PLAYLIST_PAGE = '/upload/playlist'
 export const SETTINGS_PAGE = '/settings'
 export const HOME_PAGE = '/'
+export const DEVELOPER_PAGE = '/developer-apps'
 export const NOT_FOUND_PAGE = '/404'
 export const SIGN_IN_PAGE = '/signin'
 export const SIGN_UP_PAGE = '/signup'
@@ -150,7 +151,9 @@ export const authenticatedRoutes = [
   HISTORY_PAGE,
   UPLOAD_PAGE,
   SETTINGS_PAGE,
-  DEACTIVATE_PAGE
+  DEACTIVATE_PAGE,
+  CHATS_PAGE,
+  CHAT_PAGE
 ]
 
 export const publicSiteRoutes = [

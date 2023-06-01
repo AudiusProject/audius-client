@@ -1,16 +1,16 @@
-import { Kind } from 'models'
-
-import { createApi } from './createApi'
+import { ID, Kind } from 'models'
+import { createApi } from 'src/audius-query/createApi'
 
 const userApi = createApi({
   reducerPath: 'userApi',
   endpoints: {
     getUserById: {
-      fetch: async ({ id, currentUserId }, { apiClient }) => {
+      fetch: async (
+        { id, currentUserId }: { id: ID; currentUserId: ID },
+        { apiClient }
+      ) => {
         const apiUser = await apiClient.getUser({ userId: id, currentUserId })
-        return {
-          user: apiUser?.[0]
-        }
+        return apiUser?.[0]
       },
       options: {
         idArgKey: 'id',
@@ -22,4 +22,4 @@ const userApi = createApi({
 })
 
 export const { useGetUserById } = userApi.hooks
-export default userApi.reducer
+export const userApiReducer = userApi.reducer

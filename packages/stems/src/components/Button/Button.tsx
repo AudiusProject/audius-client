@@ -23,7 +23,8 @@ const TYPE_STYLE_MAP = {
   [Type.DISABLED]: styles.disabled,
   [Type.GLASS]: styles.glass,
   [Type.WHITE]: styles.white,
-  [Type.TEXT]: styles.textButton
+  [Type.TEXT]: styles.textButton,
+  [Type.DESTRUCTIVE]: styles.destructive
 }
 
 /**
@@ -48,6 +49,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       iconClassName,
       textClassName,
       'aria-label': ariaLabelProp,
+      fullWidth,
       ...other
     },
     ref
@@ -103,7 +105,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           {
             [styles.noIcon]: !leftIcon && !rightIcon,
             [styles.disabled]: disabled,
-            [styles.includeHoverAnimations]: includeHoverAnimations
+            [styles.includeHoverAnimations]: includeHoverAnimations,
+            [styles.fullWidth]: fullWidth
           },
           className
         )}

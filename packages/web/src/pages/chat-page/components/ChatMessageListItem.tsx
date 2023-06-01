@@ -10,10 +10,14 @@ import {
   useProxySelector,
   formatMessageDate,
   isAudiusUrl,
-  getPathFromAudiusUrl
+  getPathFromAudiusUrl,
+  isTrackUrl,
+  isPlaylistUrl,
+  ChatMessageWithExtras,
+  Status,
+  useCanSendMessage
 } from '@audius/common'
-import type { ChatMessage } from '@audius/sdk'
-import { IconPlus, PopupPosition } from '@audius/stems'
+import { IconError, IconPlus, PopupPosition } from '@audius/stems'
 import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import Linkify from 'linkify-react'
@@ -26,16 +30,22 @@ import { reactionMap } from 'components/notification/Notification/components/Rea
 import { ReactComponent as ChatTail } from '../../../assets/img/ChatTail.svg'
 
 import styles from './ChatMessageListItem.module.css'
+import { ChatMessagePlaylist } from './ChatMessagePlaylist'
+import { ChatMessageTrack } from './ChatMessageTrack'
 import { LinkPreview } from './LinkPreview'
 import { ReactionPopupMenu } from './ReactionPopupMenu'
 
-const { setMessageReaction } = chatActions
+const { setMessageReaction, sendMessage } = chatActions
 const { getUserId } = accountSelectors
 
 type ChatMessageListItemProps = {
   chatId: string
-  message: ChatMessage
+  message: ChatMessageWithExtras
   hasTail: boolean
+}
+
+const messages = {
+  error: 'Message Failed to Send. Click to Retry.'
 }
 
 export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
@@ -92,6 +102,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
     },
     [dispatch, handleCloseReactionPopup, userId, chatId, message]
   )
+
   const onClickInternalLink = useCallback(
     (url: string) => {
       dispatch(pushRoute(url))
@@ -99,24 +110,98 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
     [dispatch]
   )
 
+  const handleResendClicked = useCallback(() => {
+    dispatch(
+      sendMessage({
+        chatId,
+        message: message.message,
+        resendMessageId: message.message_id
+      })
+    )
+  }, [dispatch, chatId, message.message, message.message_id])
+
+  // Only render reactions if user has message permissions
+  const { canSendMessage } = useCanSendMessage(chatId)
+  const renderReactions = () => {
+    if (!canSendMessage) return null
+
+    return (
+      <div
+        ref={reactionButtonRef}
+        className={cn(styles.reactionsButton, {
+          [styles.isOpened]: isReactionPopupVisible,
+          [styles.hasReaction]:
+            message.reactions && message.reactions.length > 0
+        })}
+        onClick={handleOpenReactionPopupButtonClicked}
+      >
+        {message.reactions?.length > 0 ? (
+          message.reactions.map((reaction) => {
+            if (!reaction.reaction || !(reaction.reaction in reactionMap)) {
+              return null
+            }
+            const Reaction = reactionMap[reaction.reaction as ReactionTypes]
+            return (
+              <Reaction
+                className={styles.reactionEmoji}
+                key={reaction.user_id}
+                width={48}
+                height={48}
+                title={reactionUsers[decodeHashId(reaction.user_id)!]?.name}
+                disableClickAnimation
+              />
+            )
+          })
+        ) : (
+          <IconPlus className={styles.addReactionIcon} />
+        )}
+      </div>
+    )
+  }
+
   return (
     <div
       className={cn(styles.root, {
         [styles.isAuthor]: isAuthor
       })}
     >
-      <div className={styles.bubble}>
+      <div
+        className={cn(styles.bubble, {
+          [styles.nonInteractive]: !canSendMessage
+        })}
+      >
         {links
           .filter((link) => link.type === 'url' && link.isLink)
           .slice(0, 1)
-          .map((link) => (
-            <LinkPreview
-              key={`${link.value}-${link.start}-${link.end}`}
-              href={link.href}
-              chatId={chatId}
-              messageId={message.message_id}
-            />
-          ))}
+          .map((link) => {
+            if (isPlaylistUrl(link.value)) {
+              return (
+                <ChatMessagePlaylist
+                  key={`${link.value}-${link.start}-${link.end}`}
+                  link={link.value}
+                  isAuthor={isAuthor}
+                />
+              )
+            }
+            if (isTrackUrl(link.value)) {
+              return (
+                <ChatMessageTrack
+                  key={`${link.value}-${link.start}-${link.end}`}
+                  link={link.value}
+                  isAuthor={isAuthor}
+                />
+              )
+            }
+            return (
+              <LinkPreview
+                key={`${link.value}-${link.start}-${link.end}`}
+                href={link.href}
+                chatId={chatId}
+                messageId={message.message_id}
+                className={styles.linkPreview}
+              />
+            )
+          })}
         <div className={styles.text}>
           <Linkify
             options={{
@@ -131,7 +216,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
                   }
                 }
               },
-              target: (href, type, tokens) => {
+              target: (href) => {
                 return isAudiusUrl(href) ? '' : '_blank'
               }
             }}
@@ -139,52 +224,33 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
             {message.message}
           </Linkify>
         </div>
-        <div
-          ref={reactionButtonRef}
-          className={cn(styles.reactionsButton, {
-            [styles.isOpened]: isReactionPopupVisible,
-            [styles.hasReaction]:
-              message.reactions && message.reactions.length > 0
-          })}
-          onClick={handleOpenReactionPopupButtonClicked}
-        >
-          {message.reactions?.length > 0 ? (
-            message.reactions.map((reaction) => {
-              if (!reaction.reaction || !(reaction.reaction in reactionMap)) {
-                return null
-              }
-              const Reaction = reactionMap[reaction.reaction as ReactionTypes]
-              return (
-                <Reaction
-                  className={styles.reactionEmoji}
-                  key={reaction.user_id}
-                  width={48}
-                  height={48}
-                  title={reactionUsers[decodeHashId(reaction.user_id)!]?.name}
-                />
-              )
-            })
-          ) : (
-            <IconPlus className={styles.addReactionIcon} />
-          )}
-        </div>
+        {renderReactions()}
         {hasTail ? (
           <div className={styles.tail}>
             <ChatTail />
           </div>
         ) : null}
       </div>
-      <ReactionPopupMenu
-        anchorRef={reactionButtonRef}
-        isVisible={isReactionPopupVisible}
-        onClose={handleCloseReactionPopup}
-        position={
-          isAuthor ? PopupPosition.BOTTOM_RIGHT : PopupPosition.BOTTOM_LEFT
-        }
-        onSelected={handleReactionSelected}
-      />
-      {hasTail ? (
-        <div className={styles.date}>
+      {canSendMessage ? (
+        <ReactionPopupMenu
+          anchorRef={reactionButtonRef}
+          isVisible={isReactionPopupVisible}
+          onClose={handleCloseReactionPopup}
+          position={
+            isAuthor ? PopupPosition.BOTTOM_RIGHT : PopupPosition.BOTTOM_LEFT
+          }
+          onSelected={handleReactionSelected}
+        />
+      ) : null}
+      {message.status === Status.ERROR ? (
+        <div
+          className={cn(styles.meta, styles.error)}
+          onClick={handleResendClicked}
+        >
+          <IconError /> {messages.error}
+        </div>
+      ) : hasTail ? (
+        <div className={styles.meta}>
           {formatMessageDate(message.created_at)}
         </div>
       ) : null}

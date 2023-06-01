@@ -17,7 +17,7 @@
 
 /* Update box-shadow to be slightly darker */
 .page > div:first-child > div:last-child {
-  box-shadow: 1px 2px 5px rgba(133, 129, 153, 0.25);
+  box-shadow: 1px 2px 5px -1px rgba(133, 129, 153, 0.25);
 }
 
 .layout {
@@ -38,20 +38,6 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-}
-
-.inboxUnavailableMessage {
-  line-height: 130%;
-  padding: var(--unit-2);
-  font-weight: var(--font-medium);
-}
-
-.inboxUnavailableMessage a {
-  color: var(--secondary);
-}
-
-.inboxUnavailableMessage a:hover {
-  color: var(--primary);
 }
 
 @media (max-width: 1080px) {

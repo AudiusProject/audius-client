@@ -1,3 +1,5 @@
+import { ComponentProps, MouseEvent } from 'react'
+
 import { PopupProps } from '../Popup'
 
 type ApplicablePopupProps = Pick<
@@ -30,8 +32,13 @@ export type PopupMenuProps = {
    */
   renderTrigger: (
     anchorRef: React.MutableRefObject<any>,
-    triggerPopup: () => void
+    triggerPopup: () => void,
+    triggerProps: Partial<ComponentProps<'button'>>
   ) => React.ReactNode
+  /**
+   * Providing an id is necessary for proper a11y
+   */
+  id?: string
 } & ApplicablePopupProps
 
 export type PopupMenuItem = {
@@ -53,7 +60,7 @@ export type PopupMenuItem = {
   /**
    * A function triggered when the menu item is clicked
    */
-  onClick: () => void
+  onClick: (event: MouseEvent<HTMLLIElement>) => void
 
   /**
    * The text of the menu item

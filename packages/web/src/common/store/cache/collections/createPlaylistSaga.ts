@@ -13,7 +13,6 @@ import {
   cacheCollectionsActions,
   cacheCollectionsSelectors,
   cacheTracksSelectors,
-  decodeHashId,
   getContext,
   makeKindId,
   newCollectionMetadata
@@ -30,6 +29,7 @@ import { playlistPage } from 'utils/route'
 import { waitForWrite } from 'utils/sagaHelpers'
 
 import { reformat } from './utils'
+import { getUnclaimedPlaylistId } from './utils/getUnclaimedPlaylistId'
 
 const { getAccountUser } = accountSelectors
 const { getTrack } = cacheTracksSelectors
@@ -73,19 +73,6 @@ function* createPlaylistWorker(
   )
 }
 
-function* getUnclaimedPlaylistId() {
-  const { getAudiusLibsTyped } = yield* getContext('audiusBackendInstance')
-  const audiusLibs = yield* call(getAudiusLibsTyped)
-  if (!audiusLibs.discoveryProvider) return
-
-  const unclaimedId = yield* call(
-    [audiusLibs.discoveryProvider, audiusLibs.discoveryProvider.getUnclaimedId],
-    'playlists'
-  )
-  if (!unclaimedId) return
-  return decodeHashId(unclaimedId)
-}
-
 function* optimisticalySavePlaylist(
   playlistId: ID,
   formFields: Partial<CollectionMetadata>,
@@ -107,6 +94,7 @@ function* optimisticalySavePlaylist(
       ? [{ time: initTrack?.duration, track: initTrack.track_id }]
       : []
   }
+  playlist.track_count = initTrack ? 1 : 0
   playlist.permalink = playlistPage(handle, playlist.playlist_name, playlistId)
   if (playlist.artwork) {
     playlist._cover_art_sizes = {
@@ -141,6 +129,8 @@ function* optimisticalySavePlaylist(
       user: { id: user_id, handle }
     })
   )
+
+  yield* call(addPlaylistsNotInLibrary)
 }
 
 function* createAndConfirmPlaylist(

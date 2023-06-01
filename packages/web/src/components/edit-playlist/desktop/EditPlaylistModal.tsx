@@ -13,27 +13,25 @@ import {
   ModalHeader,
   ModalTitle
 } from '@audius/stems'
-import { push as pushRoute } from 'connected-react-router'
 import { connect } from 'react-redux'
-import { RouteComponentProps, withRouter } from 'react-router-dom'
 import { Dispatch } from 'redux'
 
 import PlaylistForm from 'components/create-playlist/PlaylistForm'
-import DeleteConfirmationModal from 'components/delete-confirmation/DeleteConfirmationModal'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
+import { DeleteCollectionConfirmationModal } from 'components/nav/desktop/PlaylistLibrary/DeleteCollectionConfirmationModal'
 import {
   getCollectionId,
+  getInitialFocusedField,
   getIsOpen
 } from 'store/application/ui/editPlaylistModal/selectors'
 import { close } from 'store/application/ui/editPlaylistModal/slice'
 import { AppState } from 'store/types'
-import { FEED_PAGE, getPathname, playlistPage } from 'utils/route'
 import zIndex from 'utils/zIndex'
 
 import styles from './EditPlaylistModal.module.css'
-const { deletePlaylist, editPlaylist } = cacheCollectionsActions
+const { editPlaylist } = cacheCollectionsActions
 const { getCollectionWithUser } = cacheCollectionsSelectors
-const fetchSavedPlaylists = accountActions.fetchSavedPlaylists
+const { fetchSavedPlaylists } = accountActions
 
 const messages = {
   edit: 'Edit',
@@ -50,47 +48,30 @@ const messages = {
 
 type OwnProps = {}
 type EditPlaylistModalProps = OwnProps &
-  RouteComponentProps &
   ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>
 
-const EditPlaylistModal = ({
-  isOpen,
-  collectionId,
-  collection,
-  location,
-  onClose,
-  fetchSavedPlaylists,
-  editPlaylist,
-  deletePlaylist,
-  goToRoute
-}: EditPlaylistModalProps) => {
+const EditPlaylistModal = (props: EditPlaylistModalProps) => {
+  const {
+    isOpen,
+    initialFocusedField,
+    collectionId,
+    collection,
+    onClose,
+    fetchSavedPlaylists,
+    editPlaylist
+  } = props
+
   useEffect(() => {
     if (collection == null && collectionId != null) {
       fetchSavedPlaylists()
     }
   }, [collection, collectionId, fetchSavedPlaylists])
 
-  const {
-    playlist_id: playlistId,
-    is_album: isAlbum,
-    playlist_name: title,
-    user
-  } = collection || {}
-  const { handle } = user || {}
+  const { playlist_id: playlistId, is_album: isAlbum } = collection || {}
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const onClickDelete = () => setShowDeleteConfirmation(true)
   const onCancelDelete = () => setShowDeleteConfirmation(false)
-  const onDelete = () => {
-    setShowDeleteConfirmation(false)
-    onClose()
-    deletePlaylist(playlistId!)
-    if (handle && title) {
-      const playlistRoute = playlistPage(handle, title, playlistId!)
-      // If on the playlist page, direct user to feed
-      if (getPathname(location) === playlistRoute) goToRoute(FEED_PAGE)
-    }
-  }
   const onSaveEdit = (formFields: any) => {
     editPlaylist(playlistId!, formFields)
     onClose()
@@ -120,7 +101,7 @@ const EditPlaylistModal = ({
         onClose={onClose}
         zIndex={zIndex.EDIT_PLAYLIST_MODAL}
       >
-        <ModalHeader onClose={onClose}>
+        <ModalHeader>
           <ModalTitle icon={<IconPlaylists />} title={editPlaylistModalTitle} />
         </ModalHeader>
         <ModalContent>
@@ -129,6 +110,7 @@ const EditPlaylistModal = ({
           ) : (
             <PlaylistForm
               isEditMode
+              initialFocusedField={initialFocusedField}
               onCloseArtworkPopup={onCloseArtworkPopup}
               onOpenArtworkPopup={onOpenArtworkPopup}
               metadata={collection}
@@ -140,15 +122,13 @@ const EditPlaylistModal = ({
           )}
         </ModalContent>
       </Modal>
-      <DeleteConfirmationModal
-        title={`${messages.delete} ${
-          isAlbum ? messages.title.album : messages.title.playlist
-        }`}
-        entity={isAlbum ? messages.type.album : messages.type.playlist}
-        visible={showDeleteConfirmation}
-        onDelete={onDelete}
-        onCancel={onCancelDelete}
-      />
+      {collectionId ? (
+        <DeleteCollectionConfirmationModal
+          collectionId={collectionId}
+          isOpen={showDeleteConfirmation}
+          onClose={onCancelDelete}
+        />
+      ) : null}
     </>
   )
 }
@@ -157,6 +137,7 @@ const mapStateToProps = (state: AppState) => {
   const collectionId = getCollectionId(state)
   return {
     isOpen: getIsOpen(state),
+    initialFocusedField: getInitialFocusedField(state),
     collectionId: getCollectionId(state),
     collection: getCollectionWithUser(state, { id: collectionId || undefined })
   }
@@ -165,12 +146,8 @@ const mapStateToProps = (state: AppState) => {
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   onClose: () => dispatch(close()),
   fetchSavedPlaylists: () => dispatch(fetchSavedPlaylists()),
-  goToRoute: (route: string) => dispatch(pushRoute(route)),
   editPlaylist: (playlistId: ID, formFields: any) =>
-    dispatch(editPlaylist(playlistId, formFields)),
-  deletePlaylist: (playlistId: ID) => dispatch(deletePlaylist(playlistId))
+    dispatch(editPlaylist(playlistId, formFields))
 })
 
-export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(EditPlaylistModal)
-)
+export default connect(mapStateToProps, mapDispatchToProps)(EditPlaylistModal)

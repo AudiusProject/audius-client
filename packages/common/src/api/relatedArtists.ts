@@ -1,15 +1,15 @@
-import { createApi } from './createApi'
+import { ID } from 'models/Identifiers'
+import { createApi } from 'src/audius-query/createApi'
 
 const relatedArtistsApi = createApi({
   reducerPath: 'relatedArtistsApi',
   endpoints: {
     getRelatedArtists: {
-      fetch: async ({ artistId }, { apiClient }) => ({
-        users: await apiClient.getRelatedArtists({
+      fetch: async ({ artistId }: { artistId: ID }, { apiClient }) =>
+        await apiClient.getRelatedArtists({
           userId: artistId,
           limit: 50
-        })
-      }),
+        }),
       options: {
         schemaKey: 'users'
       }
@@ -18,4 +18,4 @@ const relatedArtistsApi = createApi({
 })
 
 export const { useGetRelatedArtists } = relatedArtistsApi.hooks
-export default relatedArtistsApi.reducer
+export const relatedArtistsApiReducer = relatedArtistsApi.reducer

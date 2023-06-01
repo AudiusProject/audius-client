@@ -1,30 +1,38 @@
-import type { RefObject, MutableRefObject } from 'react'
-import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import type { MutableRefObject, RefObject } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import type { ChatMessageWithExtras } from '@audius/common'
 import {
-  chatCanFetchMoreMessages,
-  chatActions,
+  Status,
   accountSelectors,
+  chatActions,
+  chatCanFetchMoreMessages,
   chatSelectors,
-  encodeUrlName,
   decodeHashId,
   encodeHashId,
-  Status,
+  encodeUrlName,
   isEarliestUnread,
-  playerSelectors
+  playerSelectors,
+  useCanSendMessage
 } from '@audius/common'
 import { Portal } from '@gorhom/portal'
-import { useFocusEffect } from '@react-navigation/native'
-import { Keyboard, View, Text, Pressable, FlatList } from 'react-native'
+import type { FlatListProps } from 'react-native'
+import {
+  FlatList,
+  Keyboard,
+  Platform,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconMessage from 'app/assets/images/iconMessage.svg'
 import {
+  KeyboardAvoidingView,
   Screen,
-  ScreenContent,
-  KeyboardAvoidingView
+  ScreenContent
 } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { PLAY_BAR_HEIGHT } from 'app/components/now-playing-drawer'
@@ -33,6 +41,7 @@ import { UserBadges } from 'app/components/user-badges'
 import { light } from 'app/haptics'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
+import { useToast } from 'app/hooks/useToast'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
@@ -41,29 +50,45 @@ import { useThemePalette } from 'app/utils/theme'
 import type { AppTabScreenParamList } from '../app-screen'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
+import { ChatMessageSeparator } from './ChatMessageSeparator'
 import { ChatTextInput } from './ChatTextInput'
+import { ChatUnavailable } from './ChatUnavailable'
 import { EmptyChatMessages } from './EmptyChatMessages'
 import { ReactionPopup } from './ReactionPopup'
+import { END_REACHED_OFFSET } from './constants'
+
+type ChatFlatListProps = FlatListProps<ChatMessageWithExtras>
+type ChatListEventHandler<K extends keyof ChatFlatListProps> = NonNullable<
+  ChatFlatListProps[K]
+>
 
 const {
   getChatMessages,
-  getOtherChatUsers,
   getChat,
   getChatMessageById,
   getChatMessageByIndex,
   getReactionsPopupMessageId
 } = chatSelectors
-
-const { fetchMoreMessages, markChatAsRead, setReactionsPopupMessageId } =
-  chatActions
+const {
+  fetchMoreMessages,
+  markChatAsRead,
+  setReactionsPopupMessageId,
+  fetchBlockers,
+  fetchBlockees,
+  fetchPermissions
+} = chatActions
 const { getUserId } = accountSelectors
 const { getHasTrack } = playerSelectors
 
 export const REACTION_CONTAINER_HEIGHT = 70
+const NEW_MESSAGE_TOAST_SCROLL_THRESHOLD = 100
 
 const messages = {
   title: 'Messages',
-  newMessage: 'New Message'
+  endReached: 'End of Message History',
+  newMessage: (numMessages: number) =>
+    `${numMessages} New Message${numMessages > 1 ? 's' : ''}`,
+  newMessageReceived: 'New Message!'
 }
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
@@ -129,29 +154,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     height: spacing(6),
     marginRight: spacing(2)
   },
-  unreadTagContainer: {
-    marginVertical: spacing(6),
-    flexGrow: 1,
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  unreadSeparator: {
-    height: 1,
-    backgroundColor: palette.neutralLight5,
-    flexGrow: 1
-  },
-  unreadTag: {
-    color: palette.white,
-    fontSize: typography.fontSize.xxs,
-    fontFamily: typography.fontByWeight.bold,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    backgroundColor: palette.neutralLight5,
-    paddingHorizontal: spacing(2),
-    paddingVertical: spacing(1),
-    borderRadius: spacing(0.5)
-  },
   loadingSpinnerContainer: {
     display: 'flex',
     flexGrow: 1,
@@ -164,9 +166,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   }
 }))
 
-const pluralize = (message: string, shouldPluralize: boolean) =>
-  message + (shouldPluralize ? 's' : '')
-
 const measureView = (
   viewRef: RefObject<View>,
   measurementRef: MutableRefObject<number>
@@ -176,10 +175,31 @@ const measureView = (
   })
 }
 
+type ContainerLayoutStatus = {
+  top: number
+  bottom: number
+}
+
+const getAutoscrollThreshold = ({ top, bottom }: ContainerLayoutStatus) => {
+  return (bottom - top) / 4
+}
+
+// On iOS, the user will be auto-scrolled on new messages if they are within a certain
+// distance of the beginning. We don't need a toast in those scenarios.
+// In all others, use a fixed threshold
+const getNewMessageToastThreshold = (
+  containerLayout: ContainerLayoutStatus
+) => {
+  return Platform.OS === 'ios'
+    ? getAutoscrollThreshold(containerLayout)
+    : NEW_MESSAGE_TOAST_SCROLL_THRESHOLD
+}
+
 export const ChatScreen = () => {
   const styles = useStyles()
   const palette = useThemePalette()
   const dispatch = useDispatch()
+  const { toast } = useToast()
   const navigation = useNavigation<AppTabScreenParamList>()
 
   const { params } = useRoute<'Chat'>()
@@ -193,25 +213,38 @@ export const ChatScreen = () => {
   const composeRef = useRef<View | null>(null)
   const chatContainerRef = useRef<View | null>(null)
   const messageTop = useRef(0)
+  const messageHeight = useRef(0)
   const chatContainerTop = useRef(0)
   const chatContainerBottom = useRef(0)
+  const scrollPosition = useRef(0)
+  const newestMessageId = useRef('')
+  const flatListInnerHeight = useRef(0)
 
   const hasCurrentlyPlayingTrack = useSelector(getHasTrack)
   const userId = useSelector(getUserId)
   const userIdEncoded = encodeHashId(userId)
   const chat = useSelector((state) => getChat(state, chatId ?? ''))
-  const [otherUser] = useSelector((state) => getOtherChatUsers(state, chatId))
   const chatMessages = useSelector((state) =>
     getChatMessages(state, chatId ?? '')
   )
-  const unreadCount = chat?.unread_message_count ?? 0
   const isLoading =
     (chat?.messagesStatus ?? Status.LOADING) === Status.LOADING &&
     chatMessages?.length === 0
+  // Only show the end reached indicator if there are no previous messages and
+  // flatlist is scrollable. Add an offset to the screen height because flatListInnerHeight
+  // starts at screen height due to height: 100% css property.
+  const shouldShowEndReachedIndicator =
+    !(chat?.messagesSummary?.prev_count ?? true) &&
+    flatListInnerHeight.current - chatContainerTop.current >
+      chatContainerBottom.current -
+        chatContainerTop.current +
+        END_REACHED_OFFSET
   const popupMessageId = useSelector(getReactionsPopupMessageId)
   const popupMessage = useSelector((state) =>
     getChatMessageById(state, chatId ?? '', popupMessageId ?? '')
   )
+  const { canSendMessage, firstOtherUser: otherUser } =
+    useCanSendMessage(chatId)
 
   // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
   // Using a ref instead of state here to prevent unwanted flickers.
@@ -235,6 +268,22 @@ export const ChatScreen = () => {
       chatFrozenRef.current = chat
     }
   }, [chatId, chat])
+
+  // Mark chat as read when user enters this screen.
+  useEffect(() => {
+    if (chatId) {
+      dispatch(markChatAsRead({ chatId }))
+    }
+  }, [chatId, dispatch])
+
+  // Fetch all permissions, blockers/blockees, and recheck_permissions flag
+  useEffect(() => {
+    dispatch(fetchBlockees())
+    dispatch(fetchBlockers())
+    if (otherUser.user_id) {
+      dispatch(fetchPermissions({ userIds: [otherUser.user_id] }))
+    }
+  }, [chatId, dispatch, otherUser.user_id])
 
   // Find earliest unread message to display unread tag correctly
   const earliestUnreadIndex = useMemo(
@@ -274,7 +323,35 @@ export const ChatScreen = () => {
     }
   }, [earliestUnreadIndex, chatMessages])
 
-  const handleScrollToIndexFailed = useCallback((e) => {
+  const newestReceivedMessageId = useMemo(() => {
+    const idx = chatMessages.findIndex(
+      (chat) => chat.sender_user_id !== userIdEncoded
+    )
+    return idx >= 0 ? chatMessages[idx].message_id : null
+  }, [chatMessages, userIdEncoded])
+
+  // If most recent message changes and we are scrolled up, fire a toast
+  useEffect(() => {
+    if (
+      newestReceivedMessageId &&
+      newestReceivedMessageId !== newestMessageId.current
+    ) {
+      newestMessageId.current = newestReceivedMessageId
+      if (
+        scrollPosition.current >
+        getNewMessageToastThreshold({
+          bottom: chatContainerBottom.current,
+          top: chatContainerTop.current
+        })
+      ) {
+        toast({ content: messages.newMessageReceived, type: 'info' })
+      }
+    }
+  }, [newestReceivedMessageId, newestMessageId, scrollPosition, toast])
+
+  const handleScrollToIndexFailed = useCallback<
+    ChatListEventHandler<'onScrollToIndexFailed'>
+  >((e) => {
     setTimeout(() => {
       flatListRef.current?.scrollToIndex({
         index: e.index,
@@ -297,13 +374,11 @@ export const ChatScreen = () => {
     }
   }, [chat?.messagesStatus, chat?.messagesSummary, chatId, dispatch])
 
-  // Mark chat as read when user navigates away from screen
-  useFocusEffect(
-    useCallback(() => {
-      return () => {
-        dispatch(markChatAsRead({ chatId }))
-      }
-    }, [dispatch, chatId])
+  const handleScroll = useCallback<ChatListEventHandler<'onScroll'>>(
+    (event) => {
+      scrollPosition.current = event.nativeEvent.contentOffset.y
+    },
+    [scrollPosition]
   )
 
   const handleTopRightPress = () => {
@@ -312,7 +387,7 @@ export const ChatScreen = () => {
       setVisibility({
         drawer: 'ChatActions',
         visible: true,
-        data: { userId: otherUser.user_id }
+        data: { userId: otherUser.user_id, chatId }
       })
     )
   }
@@ -330,13 +405,17 @@ export const ChatScreen = () => {
       }
       // Measure position of selected message to create a copy of it on top
       // of the dimmed background inside the portal.
-      const messageY = await new Promise<number>((resolve) => {
+      const { messageY, messageH } = await new Promise<{
+        messageY: number
+        messageH: number
+      }>((resolve) => {
         messageRef.measureInWindow((x, y, width, height) => {
-          resolve(y)
+          resolve({ messageY: y, messageH: height })
         })
       })
       // Need to subtract spacing(2) to account for padding in message View.
       messageTop.current = messageY - spacing(2)
+      messageHeight.current = messageH
       dispatch(setReactionsPopupMessageId({ messageId: id }))
       setShouldShowPopup(true)
       light()
@@ -364,33 +443,26 @@ export const ChatScreen = () => {
           isPopup={false}
           onLongPress={handleMessagePress}
         />
-        {item.message_id === earliestUnreadMessageId ? (
-          <View style={styles.unreadTagContainer}>
-            <View style={styles.unreadSeparator} />
-            <Text style={styles.unreadTag}>
-              {unreadCount} {pluralize(messages.newMessage, unreadCount > 1)}
-            </Text>
-            <View style={styles.unreadSeparator} />
-          </View>
+        {item.message_id === earliestUnreadMessageId &&
+        chatFrozenRef.current?.unread_message_count ? (
+          <ChatMessageSeparator
+            content={messages.newMessage(
+              chatFrozenRef.current?.unread_message_count
+            )}
+          />
         ) : null}
       </>
     ),
-    [
-      earliestUnreadMessageId,
-      handleMessagePress,
-      chatId,
-      styles.unreadSeparator,
-      styles.unreadTag,
-      styles.unreadTagContainer,
-      unreadCount
-    ]
+    [earliestUnreadMessageId, handleMessagePress, chatId]
   )
 
   const maintainVisibleContentPosition = useMemo(
     () => ({
       minIndexForVisible: 0,
-      autoscrollToTopThreshold:
-        (chatContainerBottom.current - chatContainerTop.current) / 4
+      autoscrollToTopThreshold: getAutoscrollThreshold({
+        top: chatContainerTop.current,
+        bottom: chatContainerBottom.current
+      })
     }),
     []
   )
@@ -399,13 +471,20 @@ export const ChatScreen = () => {
     measureView(composeRef, chatContainerBottom)
   }, [])
 
+  const handleOnContentSizeChanged = useCallback(
+    (contentWidth, contentHeight) => {
+      flatListInnerHeight.current = contentHeight
+    },
+    []
+  )
+
   return (
     <Screen
       url={url}
       headerTitle={
         otherUser
           ? () => (
-              <Pressable
+              <TouchableOpacity
                 onPress={() =>
                   navigation.push('Profile', { id: otherUser.user_id })
                 }
@@ -419,9 +498,9 @@ export const ChatScreen = () => {
                   user={otherUser}
                   nameStyle={styles.userBadgeTitle}
                 />
-              </Pressable>
+              </TouchableOpacity>
             )
-          : messages.title
+          : () => <Text style={styles.userBadgeTitle}>{messages.title}</Text>
       }
       icon={otherUser ? undefined : IconMessage}
       topbarRight={topBarRight}
@@ -429,10 +508,11 @@ export const ChatScreen = () => {
       <ScreenContent>
         {/* Everything inside the portal displays on top of all other screen contents. */}
         <Portal hostName='ChatReactionsPortal'>
-          {shouldShowPopup && popupMessage ? (
+          {canSendMessage && shouldShowPopup && popupMessage ? (
             <ReactionPopup
               chatId={chatId}
               messageTop={messageTop.current}
+              messageHeight={messageHeight.current}
               containerTop={chatContainerTop.current}
               containerBottom={chatContainerBottom.current}
               isAuthor={decodeHashId(popupMessage?.sender_user_id) === userId}
@@ -474,29 +554,42 @@ export const ChatScreen = () => {
                   contentContainerStyle={styles.listContentContainer}
                   data={chatMessages}
                   keyExtractor={(message) => message.message_id}
+                  onContentSizeChange={handleOnContentSizeChanged}
                   renderItem={renderItem}
                   onEndReached={handleScrollToTop}
                   inverted
                   initialNumToRender={chatMessages?.length}
                   ref={flatListRef}
+                  onScroll={handleScroll}
                   onScrollToIndexFailed={handleScrollToIndexFailed}
                   refreshing={chat?.messagesStatus === Status.LOADING}
                   maintainVisibleContentPosition={
                     maintainVisibleContentPosition
                   }
+                  ListHeaderComponent={
+                    canSendMessage ? null : <ChatUnavailable chatId={chatId} />
+                  }
+                  ListFooterComponent={
+                    shouldShowEndReachedIndicator ? (
+                      <ChatMessageSeparator content={messages.endReached} />
+                    ) : null
+                  }
+                  scrollEnabled={!shouldShowPopup}
                 />
               </View>
             )}
 
-            <View
-              style={styles.composeView}
-              onLayout={measureChatContainerBottom}
-              ref={composeRef}
-              pointerEvents={'box-none'}
-            >
-              <View style={styles.whiteBackground} />
-              <ChatTextInput chatId={chatId} />
-            </View>
+            {canSendMessage ? (
+              <View
+                style={styles.composeView}
+                onLayout={measureChatContainerBottom}
+                ref={composeRef}
+                pointerEvents={'box-none'}
+              >
+                <View style={styles.whiteBackground} />
+                <ChatTextInput chatId={chatId} />
+              </View>
+            ) : null}
           </KeyboardAvoidingView>
         </View>
       </ScreenContent>

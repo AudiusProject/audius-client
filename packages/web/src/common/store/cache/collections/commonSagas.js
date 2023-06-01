@@ -14,7 +14,8 @@ import {
   cacheActions,
   getContext,
   audioRewardsPageActions,
-  toastActions
+  toastActions,
+  cacheTracksSelectors
 } from '@audius/common'
 import { isEqual } from 'lodash'
 import {
@@ -33,6 +34,11 @@ import { fetchUsers } from 'common/store/cache/users/sagas'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
+import {
+  addPlaylistsNotInLibrary,
+  removePlaylistFromLibrary
+} from 'common/store/playlist-library/sagas'
+import { ensureLoggedIn } from 'common/utils/ensureLoggedIn'
 import { waitForWrite } from 'utils/sagaHelpers'
 
 import { createPlaylistSaga } from './createPlaylistSaga'
@@ -42,11 +48,16 @@ import {
   retrieveCollections
 } from './utils/retrieveCollections'
 
-const { manualClearToast, addToast } = toastActions
+const { manualClearToast, addToast, toast } = toastActions
 const { getUser } = cacheUsersSelectors
 const { getCollection } = cacheCollectionsSelectors
+const { getTrack } = cacheTracksSelectors
 const { getAccountUser, getUserId } = accountSelectors
 const { setOptimisticChallengeCompleted } = audioRewardsPageActions
+
+const messages = {
+  editToast: 'Changes saved!'
+}
 
 /** Counts instances of trackId in a playlist. */
 const countTrackIds = (playlistContents, trackId) => {
@@ -104,6 +115,7 @@ function* editPlaylistAsync(action) {
     ])
   )
   yield put(collectionActions.editPlaylistSucceeded())
+  yield put(toast({ content: messages.editToast }))
 }
 
 function* confirmEditPlaylist(playlistId, userId, formFields) {
@@ -171,21 +183,25 @@ function* watchAddTrackToPlaylist() {
 
 function* addTrackToPlaylistAsync(action) {
   yield waitForWrite()
-  const userId = yield select(getUserId)
-  if (!userId) {
-    yield put(signOnActions.openSignOn(false))
-    return
-  }
+  const userId = yield call(ensureLoggedIn)
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const web3 = yield call(audiusBackendInstance.getWeb3)
 
   // Retrieve tracks with the the collection so we confirm with the
   // most up-to-date information.
+
   const { collections } = yield call(retrieveCollections, [action.playlistId], {
     userId,
     fetchTracks: true
   })
   const playlist = collections[action.playlistId]
+
+  const track = yield select(getTrack, { id: action.trackId })
+
+  if (track && !playlist.cover_art_sizes) {
+    playlist._cover_art_sizes = track._cover_art_sizes
+    playlist.cover_art_sizes = track.cover_art_sizes
+  }
 
   const trackUid = makeUid(
     Kind.TRACKS,
@@ -223,7 +239,8 @@ function* addTrackToPlaylistAsync(action) {
       {
         id: playlist.playlist_id,
         metadata: {
-          playlist_contents: playlist.playlist_contents
+          playlist_contents: playlist.playlist_contents,
+          track_count: count
         }
       }
     ])
@@ -379,7 +396,8 @@ function* removeTrackFromPlaylistAsync(action) {
       {
         id: playlist.playlist_id,
         metadata: {
-          playlist_contents: playlist.playlist_contents
+          playlist_contents: playlist.playlist_contents,
+          track_count: count
         }
       }
     ])
@@ -710,8 +728,9 @@ function* confirmPublishPlaylist(
         )
         if (dismissToastKey) {
           yield* put(manualClearToast({ key: dismissToastKey }))
-          yield* put(addToast({ content: 'Your playlist is now public!' }))
         }
+
+        yield* put(addToast({ content: 'Your playlist is now public!' }))
       },
       function* ({ error, timeout, message }) {
         // Fail Call
@@ -909,6 +928,8 @@ function* confirmDeletePlaylist(userId, playlistId) {
           )
         ])
 
+        yield call(removePlaylistFromLibrary, playlistId)
+
         const { blockHash, blockNumber, error } = yield call(
           audiusBackendInstance.deletePlaylist,
           playlistId
@@ -951,6 +972,7 @@ function* confirmDeletePlaylist(userId, playlistId) {
             })
           )
         ])
+        yield call(addPlaylistsNotInLibrary)
         yield put(
           collectionActions.deletePlaylistFailed(
             message,

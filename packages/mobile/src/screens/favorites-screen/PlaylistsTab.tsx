@@ -1,6 +1,11 @@
 import { useCallback, useState } from 'react'
 
-import { reachabilitySelectors, statusIsNotFinalized } from '@audius/common'
+import {
+  CreatePlaylistSource,
+  FeatureFlags,
+  reachabilitySelectors,
+  statusIsNotFinalized
+} from '@audius/common'
 import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated'
 import { useSelector } from 'react-redux'
 
@@ -8,6 +13,7 @@ import { CollectionList } from 'app/components/collection-list'
 import { Button, VirtualizedScrollView } from 'app/components/core'
 import { EmptyTileCTA } from 'app/components/empty-tile-cta'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 
 import type { FavoritesTabScreenParamList } from '../app-screen/FavoritesTabScreen'
 
@@ -29,6 +35,9 @@ export const PlaylistsTab = () => {
   const handleNavigateToNewPlaylist = useCallback(() => {
     navigation.push('CreatePlaylist')
   }, [navigation])
+  const { isEnabled: isPlaylistUpdatesEnabled } = useFeatureFlag(
+    FeatureFlags.PLAYLIST_UPDATES_PRE_QA
+  )
 
   const [filterValue, setFilterValue] = useState('')
   const {
@@ -68,7 +77,7 @@ export const PlaylistsTab = () => {
             placeholder={messages.inputPlaceholder}
             onChangeText={setFilterValue}
           />
-          {!isReachable ? null : (
+          {!isReachable || isPlaylistUpdatesEnabled ? null : (
             <Animated.View layout={Layout} entering={FadeIn} exiting={FadeOut}>
               <Button
                 title='Create a New Playlist'
@@ -77,7 +86,6 @@ export const PlaylistsTab = () => {
               />
             </Animated.View>
           )}
-
           <Animated.View layout={Layout}>
             <CollectionList
               onEndReached={handleEndReached}
@@ -89,6 +97,8 @@ export const PlaylistsTab = () => {
                   ? loadingSpinner
                   : null
               }
+              showCreatePlaylistTile={isPlaylistUpdatesEnabled && !!isReachable}
+              createPlaylistSource={CreatePlaylistSource.FAVORITES_PAGE}
             />
           </Animated.View>
         </>

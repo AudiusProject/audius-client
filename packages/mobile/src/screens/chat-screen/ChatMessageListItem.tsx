@@ -1,7 +1,8 @@
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useState } from 'react'
 
 import type { ReactionTypes, ChatMessageWithExtras } from '@audius/common'
 import {
+  Status,
   accountSelectors,
   chatSelectors,
   decodeHashId,
@@ -10,24 +11,23 @@ import {
 import type { ChatMessageReaction } from '@audius/sdk'
 import { find } from 'linkifyjs'
 import type { ViewStyle, StyleProp } from 'react-native'
-import { Pressable, View } from 'react-native'
+import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import ChatTail from 'app/assets/images/ChatTail.svg'
-import { Hyperlink, Text } from 'app/components/core'
+import { Pressable, Hyperlink, Text } from 'app/components/core'
 import { makeStyles } from 'app/styles'
-import { useThemePalette } from 'app/utils/theme'
 
 import { reactionMap } from '../notifications-screen/Reaction'
 
 import { LinkPreview } from './LinkPreview'
+import { ResendMessageButton } from './ResendMessageButton'
 import { REACTION_LONGPRESS_DELAY } from './constants'
 
 const { getUserId } = accountSelectors
 const { isIdEqualToReactionsPopupMessageId } = chatSelectors
 
-const TAIL_BOTTOM_OFFSET = -0.4
-const TAIL_SIZE = 18
+const TAIL_HORIZONTAL_OFFSET = 7
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   rootOtherUser: {
@@ -44,7 +44,13 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     borderRadius: spacing(3)
   },
   isAuthor: {
-    backgroundColor: palette.secondary
+    backgroundColor: palette.secondaryLight2
+  },
+  pressed: {
+    backgroundColor: palette.neutralLight10
+  },
+  pressedIsAuthor: {
+    backgroundColor: palette.secondaryLight1
   },
   message: {
     marginHorizontal: spacing(4),
@@ -78,13 +84,13 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   tail: {
     display: 'flex',
     position: 'absolute',
-    bottom: TAIL_BOTTOM_OFFSET
+    bottom: 0
   },
   tailIsAuthor: {
-    right: -TAIL_SIZE
+    right: -TAIL_HORIZONTAL_OFFSET
   },
   tailOtherUser: {
-    left: -TAIL_SIZE,
+    left: -TAIL_HORIZONTAL_OFFSET,
     transform: [{ scaleX: -1 }]
   },
   reaction: {
@@ -115,6 +121,21 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     marginBottom: spacing(2)
   }
 }))
+
+const useGetTailColor = (
+  isAuthor: boolean,
+  isPressed: boolean,
+  isLinkPreviewOnly
+) => {
+  const styles = useStyles()
+  return isPressed
+    ? isAuthor && !isLinkPreviewOnly
+      ? styles.pressedIsAuthor.backgroundColor
+      : styles.pressed.backgroundColor
+    : isAuthor && !isLinkPreviewOnly
+    ? styles.isAuthor.backgroundColor
+    : styles.bubble.backgroundColor
+}
 
 type ChatReactionProps = {
   reaction: ChatMessageReaction
@@ -151,23 +172,32 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
     itemsRef
   } = props
   const styles = useStyles()
-  const palette = useThemePalette()
-
   const userId = useSelector(getUserId)
   const senderUserId = decodeHashId(message.sender_user_id)
   const isAuthor = senderUserId === userId
+  const [isPressed, setIsPressed] = useState(false)
+  const links = find(message.message)
+  const link = links.filter((link) => link.type === 'url' && link.isLink)[0]
+  const isLinkPreviewOnly = link && link.value === message.message
+  const tailColor = useGetTailColor(isAuthor, isPressed, isLinkPreviewOnly)
   const isUnderneathPopup =
     useSelector((state) =>
       isIdEqualToReactionsPopupMessageId(state, message.message_id)
     ) && !isPopup
 
-  const handleLongPress = useCallback(() => {
-    onLongPress?.(message.message_id)
-  }, [message.message_id, onLongPress])
+  const handlePressIn = useCallback(() => {
+    setIsPressed(true)
+  }, [setIsPressed])
 
-  const links = find(message.message)
-  const link = links.filter((link) => link.type === 'url' && link.isLink)[0]
-  const isLinkPreviewOnly = link && link.value === message.message
+  const handlePressOut = useCallback(() => {
+    setIsPressed(false)
+  }, [setIsPressed])
+
+  const handleLongPress = useCallback(() => {
+    if (message.status !== Status.ERROR) {
+      onLongPress?.(message.message_id)
+    }
+  }, [message.message_id, message.status, onLongPress])
 
   return (
     <>
@@ -184,10 +214,20 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
           <Pressable
             onLongPress={handleLongPress}
             delayLongPress={REACTION_LONGPRESS_DELAY}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
           >
             <View style={styles.shadow}>
               <View
-                style={[styles.bubble, isAuthor && styles.isAuthor]}
+                style={[
+                  styles.bubble,
+                  isAuthor ? styles.isAuthor : null,
+                  isPressed
+                    ? isAuthor
+                      ? styles.pressedIsAuthor
+                      : styles.pressed
+                    : null
+                ]}
                 ref={
                   itemsRef
                     ? (el) => (itemsRef.current[message.message_id] = el)
@@ -202,6 +242,9 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                     href={link.href}
                     isLinkPreviewOnly={isLinkPreviewOnly}
                     onLongPress={handleLongPress}
+                    onPressIn={handlePressIn}
+                    onPressOut={handlePressOut}
+                    isPressed={isPressed}
                   />
                 ) : null}
                 {!isLinkPreviewOnly ? (
@@ -223,11 +266,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
               </View>
               {message.hasTail ? (
                 <ChatTail
-                  fill={
-                    isAuthor && !isLinkPreviewOnly
-                      ? palette.secondary
-                      : palette.white
-                  }
+                  fill={tailColor}
                   style={[
                     styles.tail,
                     isAuthor ? styles.tailIsAuthor : styles.tailOtherUser
@@ -260,12 +299,17 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
             </View>
           </Pressable>
         </View>
+        {isAuthor && message.status === Status.ERROR ? (
+          <ResendMessageButton messageId={message.message_id} chatId={chatId} />
+        ) : null}
         {message.hasTail ? (
           <>
             {!isPopup ? (
               <View style={styles.dateContainer}>
                 <Text style={styles.date}>
-                  {formatMessageDate(message.created_at)}
+                  {isUnderneathPopup
+                    ? ' '
+                    : formatMessageDate(message.created_at)}
                 </Text>
               </View>
             ) : null}

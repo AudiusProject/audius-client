@@ -10,7 +10,8 @@ export enum Type {
   DISABLED = 'disabled',
   GLASS = 'glass',
   WHITE = 'white',
-  TEXT = 'text'
+  TEXT = 'text',
+  DESTRUCTIVE = 'destructive'
 }
 
 export enum Size {
@@ -77,6 +78,11 @@ export type ButtonProps = {
    * to keep a certain width while text length changes
    */
   minWidth?: number
+
+  /**
+   * If provided, allow button to take up full width of container
+   */
+  fullWidth?: boolean
 
   /**
    * Class name to apply to the icon

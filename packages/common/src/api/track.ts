@@ -1,16 +1,13 @@
-import { Kind } from 'models'
+import { ID, Kind } from 'models'
+import { createApi } from 'src/audius-query/createApi'
 import { parseTrackRouteFromPermalink } from 'utils/stringUtils'
-
-import { createApi } from './createApi'
 
 const trackApi = createApi({
   reducerPath: 'trackApi',
   endpoints: {
     getTrackById: {
-      fetch: async ({ id }, { apiClient }) => {
-        return {
-          track: await apiClient.getTrack({ id })
-        }
+      fetch: async ({ id }: { id: ID }, { apiClient }) => {
+        return await apiClient.getTrack({ id })
       },
       options: {
         idArgKey: 'id',
@@ -19,24 +16,39 @@ const trackApi = createApi({
       }
     },
     getTrackByPermalink: {
-      fetch: async ({ permalink, currentUserId }, { apiClient }) => {
+      fetch: async (
+        { permalink, currentUserId }: { permalink: string; currentUserId: ID },
+        { apiClient }
+      ) => {
         const { handle, slug } = parseTrackRouteFromPermalink(permalink)
-        return {
-          track: await apiClient.getTrackByHandleAndSlug({
-            handle,
-            slug,
-            currentUserId
-          })
-        }
+        return await apiClient.getTrackByHandleAndSlug({
+          handle,
+          slug,
+          currentUserId
+        })
       },
       options: {
         permalinkArgKey: 'permalink',
         kind: Kind.TRACKS,
         schemaKey: 'track'
       }
+    },
+    getTracksByIds: {
+      fetch: async (
+        { ids, currentUserId }: { ids: ID[]; currentUserId: ID },
+        { apiClient }
+      ) => {
+        return await apiClient.getTracks({ ids, currentUserId })
+      },
+      options: {
+        idListArgKey: 'ids',
+        kind: Kind.TRACKS,
+        schemaKey: 'tracks'
+      }
     }
   }
 })
 
-export const { useGetTrackById, useGetTrackByPermalink } = trackApi.hooks
-export default trackApi.reducer
+export const { useGetTrackById, useGetTrackByPermalink, useGetTracksByIds } =
+  trackApi.hooks
+export const trackApiReducer = trackApi.reducer

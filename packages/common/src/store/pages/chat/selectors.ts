@@ -22,12 +22,6 @@ const {
   selectIds: getChatMessageIds
 } = chatMessagesAdapter.getSelectors()
 
-/**
- * Gets a single chat (without optimistic read status)
- */
-export const getChat = selectChatById
-
-// Selectors for UserChat (all chats for a user)
 export const getChatsStatus = (state: CommonState) =>
   state.pages.chat.chats.status
 
@@ -45,6 +39,24 @@ export const getBlockees = (state: CommonState) => state.pages.chat.blockees
 export const getBlockers = (state: CommonState) => state.pages.chat.blockers
 
 const getChatPermissions = (state: CommonState) => state.pages.chat.permissions
+
+// Gets a chat and its optimistic read status
+export const getChat = createSelector(
+  [
+    selectChatById,
+    getOptimisticReads,
+    (_: CommonState, chatId: string) => chatId
+  ],
+  (chat, optimisticReads, chatId) => {
+    if (!chat) return undefined
+    return {
+      ...chat,
+      ...optimisticReads[chatId]
+    }
+  }
+)
+
+export const getNonOptimisticChat = selectChatById
 
 /**
  * Gets all chats and their optimistic read status
@@ -193,14 +205,18 @@ export const getCanCreateChat = createSelector(
     getBlockees,
     getBlockers,
     getChatPermissions,
-    (_: CommonState, { userId }: { userId: Maybe<ID> }) => userId
+    (state: CommonState, { userId }: { userId: Maybe<ID> }) => {
+      if (!userId) return null
+      const usersMap = getUsers(state, { ids: [userId] })
+      return usersMap[userId]
+    }
   ],
   (
     currentUserId,
     blockees,
     blockers,
     chatPermissions,
-    userId
+    user
   ): { canCreateChat: boolean; callToAction: ChatPermissionAction } => {
     if (!currentUserId) {
       return {
@@ -208,20 +224,20 @@ export const getCanCreateChat = createSelector(
         callToAction: ChatPermissionAction.SIGN_UP
       }
     }
-    if (!userId) {
+    if (!user) {
       return {
         canCreateChat: false,
         callToAction: ChatPermissionAction.NONE
       }
     }
 
-    const userPermissions = chatPermissions[userId]
-    const isBlockee = blockees.includes(userId)
-    const isBlocker = blockers.includes(userId)
+    const userPermissions = chatPermissions[user.user_id]
+    const isBlockee = blockees.includes(user.user_id)
+    const isBlocker = blockers.includes(user.user_id)
     const canCreateChat =
       !isBlockee &&
       !isBlocker &&
-      (userPermissions?.current_user_has_permission ?? false)
+      (userPermissions?.current_user_has_permission ?? true)
 
     let action = ChatPermissionAction.NOT_APPLICABLE
     if (!canCreateChat) {
@@ -229,10 +245,15 @@ export const getCanCreateChat = createSelector(
         action = ChatPermissionAction.WAIT
       } else if (
         userPermissions.permits === ChatPermission.NONE ||
-        blockers.includes(userId)
+        blockers.includes(user.user_id)
       ) {
         action = ChatPermissionAction.NONE
-      } else if (blockees.includes(userId)) {
+      } else if (
+        userPermissions.permits === ChatPermission.FOLLOWEES &&
+        !user?.does_current_user_follow
+      ) {
+        action = ChatPermissionAction.NONE
+      } else if (blockees.includes(user.user_id)) {
         action = ChatPermissionAction.UNBLOCK
       } else if (userPermissions.permits === ChatPermission.TIPPERS) {
         action = ChatPermissionAction.TIP
