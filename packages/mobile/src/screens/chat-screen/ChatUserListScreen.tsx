@@ -71,7 +71,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   searchInputContainer: {
     paddingRight: spacing(5),
     paddingLeft: spacing(4),
-    paddingVertical: spacing(5)
+    paddingVertical: spacing(6)
   },
   searchInputText: {
     fontFamily: typography.fontByWeight.demiBold,
@@ -198,6 +198,10 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
     [setQuery]
   )
 
+  const handleClear = useCallback(() => {
+    setQuery('')
+  }, [setQuery])
+
   const handleLoadMore = useCallback(() => {
     if (status === Status.LOADING || defaultUserList.loading || !hasMore) {
       return
@@ -237,6 +241,8 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
               onChangeText={handleChange}
               value={query}
               inputAccessoryViewID='none'
+              clearable={true}
+              onClear={handleClear}
             />
           </View>
 
