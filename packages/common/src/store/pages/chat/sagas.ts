@@ -257,7 +257,11 @@ function* doMarkChatAsRead(action: ReturnType<typeof markChatAsRead>) {
     // Use non-optimistic chat here so that the calculation of whether to mark
     // the chat as read or not are consistent with values in backend
     const chat = yield* select((state) => getNonOptimisticChat(state, chatId))
-    if (!chat || dayjs(chat?.last_read_at).isBefore(chat?.last_message_at)) {
+    if (
+      !chat ||
+      !chat?.last_read_at ||
+      dayjs(chat?.last_read_at).isBefore(chat?.last_message_at)
+    ) {
       yield* call([sdk.chats, sdk.chats.read], { chatId })
       yield* put(markChatAsReadSucceeded({ chatId }))
     } else {
@@ -445,10 +449,6 @@ function* doFetchLinkUnfurlMetadata(
   }
 }
 
-function* watchFetchUnreadMessagesCount() {
-  yield takeLatest(fetchUnreadMessagesCount, () => doFetchUnreadMessagesCount())
-}
-
 function* doDeleteChat(action: ReturnType<typeof deleteChat>) {
   const { chatId } = action.payload
   try {
@@ -468,8 +468,12 @@ function* doDeleteChat(action: ReturnType<typeof deleteChat>) {
   }
 }
 
+function* watchFetchUnreadMessagesCount() {
+  yield takeLatest(fetchUnreadMessagesCount, () => doFetchUnreadMessagesCount())
+}
+
 function* watchAddMessage() {
-  yield takeEvery(addMessage, ({ payload }) => fetchChatIfNecessary(payload))
+  yield takeEvery(addMessage, ({ payload }) => doFetchChatIfNecessary(payload))
 }
 
 function* watchFetchChatIfNecessary() {
