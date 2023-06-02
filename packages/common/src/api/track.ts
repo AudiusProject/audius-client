@@ -18,7 +18,10 @@ const trackApi = createApi({
     },
     getTrackByPermalink: {
       fetch: async (
-        { permalink, currentUserId }: { permalink: Nullable<string>; currentUserId: Nullable<ID> },
+        {
+          permalink,
+          currentUserId
+        }: { permalink: Nullable<string>; currentUserId: Nullable<ID> },
         { apiClient }
       ) => {
         if (!permalink) {

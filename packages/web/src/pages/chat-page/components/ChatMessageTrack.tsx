@@ -21,7 +21,12 @@ import MobileTrackTile from 'components/track/mobile/ConnectedTrackTile'
 
 const { getUserId } = accountSelectors
 
-export const ChatMessageTrack = ({ link, onEmpty, onSuccess, className }: ChatMessageTileProps) => {
+export const ChatMessageTrack = ({
+  link,
+  onEmpty,
+  onSuccess,
+  className
+}: ChatMessageTileProps) => {
   const dispatch = useDispatch()
   const currentUserId = useSelector(getUserId)
   const permalink = getPathFromTrackUrl(link)
