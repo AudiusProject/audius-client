@@ -6,6 +6,9 @@ import { versionInfo } from 'app/utils/appVersionWithCodepush'
 
 import type { Track, Screen, AllEvents } from '../types/analytics'
 import { EventNames } from '../types/analytics'
+import packageInfo from '../../package.json'
+
+const { version: clientVersion } = packageInfo
 
 let analyticsSetupStatus: 'ready' | 'pending' | 'error' = 'pending'
 
@@ -76,6 +79,7 @@ export const track = async ({ eventName, properties }: Track) => {
   const version = VersionNumber.appVersion
   const propertiesWithContext = {
     ...properties,
+    clientVersion,
     mobileClientVersion: version,
     mobileClientVersionInclOTA: versionInfo ?? 'unknown'
   }
