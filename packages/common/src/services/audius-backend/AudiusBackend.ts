@@ -2436,9 +2436,13 @@ export const audiusBackend = ({
       notification.actions.filter(removeNullable).forEach((action) => {
         const data = action.data
         if (data.track_id && data.playlist_id) {
-          trackId = decodeHashId(data.track_id) as ID
-          playlistId = decodeHashId(data.playlist_id) as ID
-          playlistOwnerId = decodeHashId(data.playlist_owner_id) as ID
+          trackId = data.track_id ? (decodeHashId(data.track_id) as ID) : 0
+          playlistId = data.playlist_id
+            ? (decodeHashId(data.playlist_id) as ID)
+            : 0
+          playlistOwnerId = data.playlist_owner_id
+            ? (decodeHashId(data.playlist_owner_id) as ID)
+            : 0
         }
       })
       return {
