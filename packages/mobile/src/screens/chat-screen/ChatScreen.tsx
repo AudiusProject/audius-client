@@ -54,6 +54,7 @@ import { ChatMessageSeparator } from './ChatMessageSeparator'
 import { ChatTextInput } from './ChatTextInput'
 import { ChatUnavailable } from './ChatUnavailable'
 import { EmptyChatMessages } from './EmptyChatMessages'
+import { HeaderShadow } from './HeaderShadow'
 import { ReactionPopup } from './ReactionPopup'
 import { END_REACHED_OFFSET } from './constants'
 
@@ -217,7 +218,7 @@ export const ChatScreen = () => {
   const chatContainerTop = useRef(0)
   const chatContainerBottom = useRef(0)
   const scrollPosition = useRef(0)
-  const newestMessageId = useRef('')
+  const latestMessageId = useRef('')
   const flatListInnerHeight = useRef(0)
 
   const hasCurrentlyPlayingTrack = useSelector(getHasTrack)
@@ -323,31 +324,31 @@ export const ChatScreen = () => {
     }
   }, [earliestUnreadIndex, chatMessages])
 
-  const newestReceivedMessageId = useMemo(() => {
-    const idx = chatMessages.findIndex(
-      (chat) => chat.sender_user_id !== userIdEncoded
-    )
-    return idx >= 0 ? chatMessages[idx].message_id : null
-  }, [chatMessages, userIdEncoded])
+  const latestMessage = chatMessages.length > 0 ? chatMessages[0] : null
 
   // If most recent message changes and we are scrolled up, fire a toast
   useEffect(() => {
-    if (
-      newestReceivedMessageId &&
-      newestReceivedMessageId !== newestMessageId.current
-    ) {
-      newestMessageId.current = newestReceivedMessageId
+    if (latestMessage && latestMessage.message_id !== latestMessageId.current) {
+      latestMessageId.current = latestMessage.message_id
+      // Only fire toasts for received messages, which we can only compute if
+      // we have a valid userId
+      const isReceivedMessage =
+        userIdEncoded && latestMessage.sender_user_id !== userIdEncoded
       if (
+        isReceivedMessage &&
         scrollPosition.current >
-        getNewMessageToastThreshold({
-          bottom: chatContainerBottom.current,
-          top: chatContainerTop.current
-        })
+          getNewMessageToastThreshold({
+            bottom: chatContainerBottom.current,
+            top: chatContainerTop.current
+          })
       ) {
-        toast({ content: messages.newMessageReceived, type: 'info' })
+        toast({
+          content: messages.newMessageReceived,
+          type: 'info'
+        })
       }
     }
-  }, [newestReceivedMessageId, newestMessageId, scrollPosition, toast])
+  }, [latestMessage, latestMessageId, scrollPosition, userIdEncoded, toast])
 
   const handleScrollToIndexFailed = useCallback<
     ChatListEventHandler<'onScrollToIndexFailed'>
@@ -506,6 +507,7 @@ export const ChatScreen = () => {
       topbarRight={topBarRight}
     >
       <ScreenContent>
+        <HeaderShadow />
         {/* Everything inside the portal displays on top of all other screen contents. */}
         <Portal hostName='ChatReactionsPortal'>
           {canSendMessage && shouldShowPopup && popupMessage ? (
