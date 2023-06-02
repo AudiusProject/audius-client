@@ -4,9 +4,9 @@ import VersionNumber from 'react-native-version-number'
 
 import { versionInfo } from 'app/utils/appVersionWithCodepush'
 
+import packageInfo from '../../package.json'
 import type { Track, Screen, AllEvents } from '../types/analytics'
 import { EventNames } from '../types/analytics'
-import packageInfo from '../../package.json'
 
 const { version: clientVersion } = packageInfo
 
