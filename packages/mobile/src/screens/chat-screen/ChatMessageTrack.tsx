@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
-import type { ID, TrackPlayback } from '@audius/common'
+import type { ChatMessageTileProps, ID, TrackPlayback } from '@audius/common'
 import {
   Kind,
   PlaybackSource,
@@ -18,15 +18,8 @@ import { make, track as trackEvent } from 'app/services/analytics'
 
 const { getUserId } = accountSelectors
 
-export type ChatMessageTileProps = {
-  link: string
-  isAuthor: boolean
-  onEmpty: () => void
-}
-
 export const ChatMessageTrack = ({
   link,
-  isAuthor,
   onEmpty
 }: ChatMessageTileProps) => {
   const currentUserId = useSelector(getUserId)

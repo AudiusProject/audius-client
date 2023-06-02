@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
-import type { ID, TrackPlayback } from '@audius/common'
+import type { ChatMessageTileProps, ID, TrackPlayback } from '@audius/common'
 import {
   Kind,
   PlaybackSource,
@@ -17,7 +17,6 @@ import {
 import { useSelector } from 'react-redux'
 
 import { CollectionTile } from 'app/components/lineup-tile'
-import type { ChatMessageTileProps } from 'app/screens/chat-screen/ChatMessageTrack'
 import { make, track as trackEvent } from 'app/services/analytics'
 
 const { getUserId } = accountSelectors
@@ -25,7 +24,6 @@ const { getUid, getPlaying, getTrackId } = playerSelectors
 
 export const ChatMessagePlaylist = ({
   link,
-  isAuthor,
   onEmpty
 }: ChatMessageTileProps) => {
   const currentUserId = useSelector(getUserId)

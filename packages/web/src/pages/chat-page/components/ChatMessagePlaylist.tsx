@@ -12,12 +12,12 @@ import {
   accountSelectors,
   useGetTracksByIds,
   usePlayTrack,
-  usePauseTrack
+  usePauseTrack,
+  ChatMessageTileProps
 } from '@audius/common'
 import { useSelector } from 'react-redux'
 
 import MobilePlaylistTile from 'components/track/mobile/ConnectedPlaylistTile'
-import { ChatMessageTileProps } from 'pages/chat-page/components/ChatMessageTrack'
 
 const { getUserId } = accountSelectors
 const { getTrackId } = playerSelectors

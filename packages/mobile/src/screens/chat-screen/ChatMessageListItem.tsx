@@ -251,14 +251,12 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                   <ChatMessagePlaylist
                     key={`${link.value}-${link.start}-${link.end}`}
                     link={link.value}
-                    isAuthor={isAuthor}
                     onEmpty={onLinkPreviewEmpty}
                   />
                 ) : isTrackUrl(link?.value) ? (
                   <ChatMessageTrack
                     key={`${link.value}-${link.start}-${link.end}`}
                     link={link.value}
-                    isAuthor={isAuthor}
                     onEmpty={onLinkPreviewEmpty}
                   />
                 ) : link ? (

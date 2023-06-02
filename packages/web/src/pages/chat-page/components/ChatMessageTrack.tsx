@@ -11,7 +11,8 @@ import {
   getPathFromTrackUrl,
   useToggleTrack,
   ID,
-  TrackPlayback
+  TrackPlayback,
+  ChatMessageTileProps
 } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -19,13 +20,6 @@ import { make } from 'common/store/analytics/actions'
 import MobileTrackTile from 'components/track/mobile/ConnectedTrackTile'
 
 const { getUserId } = accountSelectors
-
-export type ChatMessageTileProps = {
-  link: string
-  onEmpty?: () => void
-  onSuccess?: () => void
-  className?: string
-}
 
 export const ChatMessageTrack = ({ link, onEmpty, onSuccess, className }: ChatMessageTileProps) => {
   const dispatch = useDispatch()
