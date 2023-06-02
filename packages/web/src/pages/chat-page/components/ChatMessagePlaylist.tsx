@@ -13,7 +13,8 @@ import {
   useGetTracksByIds,
   usePlayTrack,
   usePauseTrack,
-  ChatMessageTileProps
+  ChatMessageTileProps,
+  parsePlaylistIdFromPermalink
 } from '@audius/common'
 import { useSelector } from 'react-redux'
 
@@ -31,9 +32,9 @@ export const ChatMessagePlaylist = ({
   const currentUserId = useSelector(getUserId)
   const playingTrackId = useSelector(getTrackId)
 
-  const permalink = getPathFromPlaylistUrl(link)
-  const playlistNameWithId = permalink?.split('/').slice(-1)[0] ?? ''
-  const playlistId = parseInt(playlistNameWithId.split('-').slice(-1)[0])
+  const playlistId = parsePlaylistIdFromPermalink(
+    getPathFromPlaylistUrl(link) ?? ''
+  )
   const { data: playlist, status } = useGetPlaylistById(
     {
       playlistId,

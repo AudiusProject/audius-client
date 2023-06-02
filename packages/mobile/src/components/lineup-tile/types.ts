@@ -45,7 +45,7 @@ export type LineupItemProps = {
   /** Optionally passed in collection to override  */
   collection?: Collection
 
-  /**  */
+  /** Optionally passed in tracks to override  */
   tracks?: LineupTrack[]
 }
 

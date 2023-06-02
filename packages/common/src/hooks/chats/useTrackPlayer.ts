@@ -67,7 +67,7 @@ export const usePauseTrack = (recordAnalytics?: RecordAnalytics) => {
     (id?: ID) => {
       dispatch(pause({}))
       if (recordAnalytics && id) {
-        recordAnalytics({ name: Name.PLAYBACK_PLAY, id })
+        recordAnalytics({ name: Name.PLAYBACK_PAUSE, id })
       }
     },
     [dispatch, recordAnalytics]
@@ -113,7 +113,7 @@ export const useToggleTrack = ({
   const currentQueueItem = useSelector(makeGetCurrent())
   const playing = useSelector(getPlaying)
   const isTrackPlaying =
-    playing && !!currentQueueItem.track && currentQueueItem.uid === uid
+    playing && currentQueueItem.track && currentQueueItem.uid === uid
 
   const playTrack = usePlayTrack(recordAnalytics)
   const pauseTrack = usePauseTrack(recordAnalytics)
