@@ -157,6 +157,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
     )
     const labelAnimation = useRef(new Animated.Value(isLabelActive ? 16 : 18))
     const borderFocusAnimation = useRef(new Animated.Value(isFocused ? 1 : 0))
+    const iconProps = { ...styles.icon, ...iconProp }
 
     const hideInputAccessory =
       (hideInputAccessoryProp ?? returnKeyType === 'search') ||
@@ -336,17 +337,17 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
                 }}
               >
                 <IconCloseAlt
-                  fill={iconProp?.fill ?? styles.icon.fill}
-                  height={iconProp?.height ?? styles.icon.height}
-                  width={iconProp?.width ?? styles.icon.width}
+                  fill={iconProps.fill}
+                  height={iconProps.height}
+                  width={iconProps.width}
                 />
               </TouchableWithoutFeedback>
             </Animated.View>
           ) : Icon ? (
             <Icon
-              fill={iconProp?.fill ?? styles.icon.fill}
-              height={iconProp?.height ?? styles.icon.height}
-              width={iconProp?.width ?? styles.icon.width}
+              fill={iconProps.fill}
+              height={iconProps.height}
+              width={iconProps.width}
             />
           ) : null}
           {endAdornment ? (
