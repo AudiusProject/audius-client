@@ -229,7 +229,7 @@ platform :ios do
     currentReleasedVersionNumber, plistVersionNumber = get_version(scheme: scheme)
     isVersionIncremented = plistVersionNumber > currentReleasedVersionNumber
     packageJson = File.open "../../package.json"
-    packageJsonData = JSON.load file
+    packageJsonData = JSON.load packageJson
     if !isVersionIncremented
       # Hacky - don't codepush to RC deployment if this lane is running for Staging RC because we assume we will codepush to RC deployment in the Prod RC job. I.e. avoid codepushing to RC deployment twice.
       if options[:bundle_id] != AUDIUSMUSIC_STAGING_RELEASECANDIDATE_ID

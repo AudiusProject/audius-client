@@ -97,7 +97,7 @@ platform :android do
       releasedVersion = getCurrentlyReleasedVersionName()
       buildFileVersion = getVersionNameFromBuildFile()
       packageJson = File.open "../../package.json"
-      packageJsonData = JSON.load file
+      packageJsonData = JSON.load packageJson
 
       if buildFileVersion > releasedVersion
         UI.message "Doing a full build and release (not over-the-air/Codepush)"
