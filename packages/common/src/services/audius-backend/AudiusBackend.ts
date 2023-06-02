@@ -1542,7 +1542,7 @@ export const audiusBackend = ({
           const resp = await audiusLibs.File.uploadImage(
             newMetadata.updatedProfilePicture.file,
             undefined,
-            null,
+            null
           )
           newMetadata.profile_picture_sizes = resp.dirCID
         }
@@ -1558,7 +1558,7 @@ export const audiusBackend = ({
           const resp = await audiusLibs.File.uploadImage(
             newMetadata.updatedCoverPhoto.file,
             false,
-            null,
+            null
           )
           newMetadata.cover_photo_sizes = resp.dirCID
         }
