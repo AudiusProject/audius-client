@@ -26,6 +26,14 @@ type UseToggleTrack = {
   id?: Nullable<ID>
 }
 
+/**
+ * Hook that exposes a function to play a track.
+ * Optionally records a track play analytics event.
+ *
+ * @param {Function} recordAnalytics Function that tracks play event
+ *
+ * @returns {Function} the function that plays the track
+ */
 export const usePlayTrack = (recordAnalytics?: RecordAnalytics) => {
   const dispatch = useDispatch()
   const playingUid = useSelector(getUid)
@@ -49,6 +57,14 @@ export const usePlayTrack = (recordAnalytics?: RecordAnalytics) => {
   return playTrack
 }
 
+/**
+ * Hook that exposes a function to pause a track.
+ * Optionally records a track pause analytics event.
+ *
+ * @param {Function} recordAnalytics Function that tracks pause event
+ *
+ * @returns {Function} the function that pauses the track
+ */
 export const usePauseTrack = (recordAnalytics?: RecordAnalytics) => {
   const dispatch = useDispatch()
 
@@ -65,6 +81,34 @@ export const usePauseTrack = (recordAnalytics?: RecordAnalytics) => {
   return pauseTrack
 }
 
+/**
+ * Represents that props passed into the useToggleTrack hook.
+ *
+ * @typedef {Object} UseToggleTrackProps
+ * @property {string} uid the uid of the track (nullable)
+ * @property {string} source the queue source
+ * @property {Function} recordAnalytics the function that tracks the event
+ * @property {number} id the id of the track (nullable and optional)
+ */
+
+/**
+ * Represents that props passed into the useToggleTrack hook.
+ *
+ * @typedef {Object} UseToggleTrackResult
+ * @property {Function} togglePlay the function that toggles the track i.e. play/pause
+ * @property {boolean} isTrackPlaying whether the track is playing or paused
+ */
+
+/**
+ * Hook that exposes a togglePlay function and isTrackPlaying boolean
+ * to facilitate the playing / pausing of a track.
+ * Also records the play / pause action as an analytics event.
+ * Leverages the useTrackPlay and useTrackPause hooks.
+ *
+ * @param {UseToggleTrackProps} param Object passed into function
+ *
+ * @returns {UseToggleTrackResult} the object that contains togglePlay and isTrackPlaying
+ */
 export const useToggleTrack = ({
   uid,
   source,
