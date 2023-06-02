@@ -334,6 +334,7 @@ function* doFetchChatIfNecessary(args: {
     if (chat) {
       yield* fetchUsersForChats([chat])
       yield* put(fetchChatSucceeded({ chat }))
+      yield* put(fetchUnreadMessagesCount())
     }
   }
 }
