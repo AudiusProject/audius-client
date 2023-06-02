@@ -104,7 +104,7 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.TRENDING_UNDERGROUND_NOTIFICATIONS]: false,
   [FeatureFlags.TASTEMAKER_NOTIFICATIONS]: false,
   [FeatureFlags.SDK_DISCOVERY_NODE_SELECTOR]: false,
-  [FeatureFlags.GET_METADATA_FROM_DISCOVERY_ENABLED]: false,
+  [FeatureFlags.GET_METADATA_FROM_DISCOVERY_ENABLED]: true,
   [FeatureFlags.RELATED_ARTISTS_ON_PROFILE_ENABLED]: false,
   [FeatureFlags.PROXY_WORMHOLE]: false,
   [FeatureFlags.STORAGE_V2_TRACK_UPLOAD]: false,
@@ -112,5 +112,5 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.PLAYLIST_UPDATES_PRE_QA]: false,
   [FeatureFlags.PLAYLIST_UPDATES_POST_QA]: false,
   [FeatureFlags.AI_ATTRIBUTION]: false,
-  [FeatureFlags.WRITE_METADATA_THROUGH_CHAIN]: false
+  [FeatureFlags.WRITE_METADATA_THROUGH_CHAIN]: true
 }

@@ -680,7 +680,7 @@ export const audiusBackend = ({
   async function sanityChecks(audiusLibs: any) {
     const writeMetadataThroughChainEnabled =
       (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-      false
+      true
     try {
       const sanityCheckOptions = {
         skipRollover: getRemoteVar(
@@ -1290,7 +1290,7 @@ export const audiusBackend = ({
     )
     const writeMetadataThroughChainEnabled =
       (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-      false
+      true
     if (storageV2SignupEnabled || storageV2UploadEnabled) {
       try {
         const { trackId, updatedMetadata, txReceipt } =
@@ -1388,7 +1388,7 @@ export const audiusBackend = ({
     } else {
       const writeMetadataThroughChainEnabled =
         (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-        false
+        true
       return await audiusLibs.Track.addTracksToChainAndCnode(
         uploadedTracks,
         writeMetadataThroughChainEnabled
@@ -1405,7 +1405,7 @@ export const audiusBackend = ({
     } else {
       const writeMetadataThroughChainEnabled =
         (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-        false
+        true
       return await audiusLibs.File.uploadImage(
         file,
         undefined,
@@ -1425,7 +1425,7 @@ export const audiusBackend = ({
     )
     const writeMetadataThroughChainEnabled =
       (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-      false
+      true
 
     if (storageV2UploadEnabled) {
       if (metadata.artwork) {
@@ -1569,7 +1569,7 @@ export const audiusBackend = ({
 
     const writeMetadataThroughChainEnabled =
       (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-      false
+      true
     const storageV2UploadEnabled = await getFeatureEnabled(
       FeatureFlags.STORAGE_V2_TRACK_UPLOAD
     )
@@ -1751,7 +1751,7 @@ export const audiusBackend = ({
       )
       const writeMetadataThroughChainEnabled =
         (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-        false
+        true
       const response = await audiusLibs.EntityManager.createPlaylist(
         {
           ...metadata,
@@ -1781,7 +1781,7 @@ export const audiusBackend = ({
     try {
       const writeMetadataThroughChainEnabled =
         (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-        false
+        true
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.updatePlaylist(
           metadata,
@@ -1803,7 +1803,7 @@ export const audiusBackend = ({
     try {
       const writeMetadataThroughChainEnabled =
         (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-        false
+        true
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.updatePlaylist(
           playlist,
@@ -1825,7 +1825,7 @@ export const audiusBackend = ({
       playlist.is_private = false
       const writeMetadataThroughChainEnabled =
         (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-        false
+        true
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.updatePlaylist(
           {
@@ -1849,7 +1849,7 @@ export const audiusBackend = ({
     try {
       const writeMetadataThroughChainEnabled =
         (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-        false
+        true
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.updatePlaylist(
           playlist,
@@ -1870,7 +1870,7 @@ export const audiusBackend = ({
     try {
       const writeMetadataThroughChainEnabled =
         (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-        false
+        true
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.updatePlaylist(
           playlist,
@@ -2163,7 +2163,7 @@ export const audiusBackend = ({
     }
     const writeMetadataThroughChainEnabled =
       (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-      false
+      true
     // Returns { userId, error, phase }
     return await audiusLibs.Account.signUp(
       email,
