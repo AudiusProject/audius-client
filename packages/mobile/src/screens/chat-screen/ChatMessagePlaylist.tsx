@@ -24,7 +24,8 @@ const { getUid, getPlaying, getTrackId } = playerSelectors
 
 export const ChatMessagePlaylist = ({
   link,
-  onEmpty
+  onEmpty,
+  onSuccess
 }: ChatMessageTileProps) => {
   const currentUserId = useSelector(getUserId)
   const isPlaying = useSelector(getPlaying)
@@ -131,7 +132,9 @@ export const ChatMessagePlaylist = ({
     pauseTrack
   ])
 
-  if (!collection || !uid) {
+  if (collection && uid) {
+    onSuccess?.()
+  } else {
     onEmpty?.()
     return null
   }

@@ -20,7 +20,8 @@ const { getUserId } = accountSelectors
 
 export const ChatMessageTrack = ({
   link,
-  onEmpty
+  onEmpty,
+  onSuccess
 }: ChatMessageTileProps) => {
   const currentUserId = useSelector(getUserId)
 
@@ -74,7 +75,9 @@ export const ChatMessageTrack = ({
     recordAnalytics
   })
 
-  if (!item || !user || !uid) {
+  if (item && user && uid) {
+    onSuccess?.()
+  } else {
     onEmpty?.()
     return null
   }

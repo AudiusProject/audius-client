@@ -210,7 +210,11 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
 
   const onLinkPreviewEmpty = useCallback(() => {
     setEmptyLinkPreview(true)
-  }, [link])
+  }, [link?.value])
+
+  const onLinkPreviewSuccess = useCallback(() => {
+    setEmptyLinkPreview(false)
+  }, [link?.value])
 
   return (
     <>
@@ -252,12 +256,14 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                     key={`${link.value}-${link.start}-${link.end}`}
                     link={link.value}
                     onEmpty={onLinkPreviewEmpty}
+                    onSuccess={onLinkPreviewSuccess}
                   />
                 ) : isTrackUrl(link?.value) ? (
                   <ChatMessageTrack
                     key={`${link.value}-${link.start}-${link.end}`}
                     link={link.value}
                     onEmpty={onLinkPreviewEmpty}
+                    onSuccess={onLinkPreviewSuccess}
                   />
                 ) : link ? (
                   <LinkPreview
@@ -271,6 +277,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                     onPressOut={handlePressOut}
                     isPressed={isPressed}
                     onEmpty={onLinkPreviewEmpty}
+                    onSuccess={onLinkPreviewSuccess}
                   />
                 ) : null}
                 {!isLinkPreviewOnly || emptyLinkPreview ? (
