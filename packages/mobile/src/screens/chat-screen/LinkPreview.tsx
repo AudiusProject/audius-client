@@ -70,7 +70,7 @@ type LinkPreviewProps = {
   chatId: string
   messageId: string
   href: string
-  isLinkPreviewOnly: boolean
+  hideMessage: boolean
   isPressed: boolean
   onLongPress: (event: GestureResponderEvent) => void
   onPressIn: (event: GestureResponderEvent) => void
@@ -83,7 +83,7 @@ export const LinkPreview = ({
   chatId,
   messageId,
   href,
-  isLinkPreviewOnly,
+  hideMessage,
   isPressed = false,
   onLongPress,
   onPressIn,
@@ -116,7 +116,7 @@ export const LinkPreview = ({
         style={[
           styles.root,
           isPressed ? styles.pressed : null,
-          isLinkPreviewOnly ? styles.rootIsLinkPreviewOnly : null
+          hideMessage ? styles.rootIsLinkPreviewOnly : null
         ]}
       >
         {description || title ? (

@@ -74,7 +74,8 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   const isAuthor = userId === senderUserId
   const links = find(message.message)
   const link = links.filter((link) => link.type === 'url' && link.isLink)[0]
-  const isLinkPreviewOnly = link && link.value === message.message
+  const linkValue = link?.value
+  const isLinkPreviewOnly = linkValue === message.message
   const hideMessage = isLinkPreviewOnly && !emptyLinkPreview
 
   // Callbacks
@@ -125,12 +126,16 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   }, [dispatch, chatId, message.message, message.message_id])
 
   const onLinkPreviewEmpty = useCallback(() => {
-    setEmptyLinkPreview(true)
-  }, [link?.value])
+    if (linkValue) {
+      setEmptyLinkPreview(true)
+    }
+  }, [linkValue])
 
   const onLinkPreviewSuccess = useCallback(() => {
-    setEmptyLinkPreview(false)
-  }, [link?.value])
+    if (linkValue) {
+      setEmptyLinkPreview(false)
+    }
+  }, [linkValue])
 
   // Only render reactions if user has message permissions
   const { canSendMessage } = useCanSendMessage(chatId)
@@ -183,14 +188,14 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
           [styles.hideMessage]: hideMessage
         })}
       >
-        {isPlaylistUrl(link?.value) ? (
+        {isPlaylistUrl(linkValue) ? (
           <ChatMessagePlaylist
             className={styles.unfurl}
             link={link.value}
             onEmpty={onLinkPreviewEmpty}
             onSuccess={onLinkPreviewSuccess}
           />
-        ) : isTrackUrl(link?.value) ? (
+        ) : isTrackUrl(linkValue) ? (
           <ChatMessageTrack
             className={styles.unfurl}
             link={link.value}
