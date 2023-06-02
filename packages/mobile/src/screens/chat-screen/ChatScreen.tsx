@@ -219,7 +219,7 @@ export const ChatScreen = () => {
   const chatContainerTop = useRef(0)
   const chatContainerBottom = useRef(0)
   const scrollPosition = useRef(0)
-  const newestMessageId = useRef('')
+  const latestMessageId = useRef('')
   const flatListInnerHeight = useRef(0)
 
   const hasCurrentlyPlayingTrack = useSelector(getHasTrack)
@@ -325,16 +325,16 @@ export const ChatScreen = () => {
     }
   }, [earliestUnreadIndex, chatMessages])
 
-  const newestMessage = chatMessages.length > 0 ? chatMessages[0] : null
+  const latestMessage = chatMessages.length > 0 ? chatMessages[0] : null
 
   // If most recent message changes and we are scrolled up, fire a toast
   useEffect(() => {
-    if (newestMessage && newestMessage.message_id !== newestMessageId.current) {
-      newestMessageId.current = newestMessage.message_id
+    if (latestMessage && latestMessage.message_id !== latestMessageId.current) {
+      latestMessageId.current = latestMessage.message_id
       // Only fire toasts for received messages, which we can only compute if
       // we have a valid userId
       const isReceivedMessage =
-        userIdEncoded && newestMessage.sender_user_id !== userIdEncoded
+        userIdEncoded && latestMessage.sender_user_id !== userIdEncoded
       if (
         isReceivedMessage &&
         scrollPosition.current >
@@ -349,7 +349,7 @@ export const ChatScreen = () => {
         })
       }
     }
-  }, [newestMessage, newestMessageId, scrollPosition, userIdEncoded, toast])
+  }, [latestMessage, latestMessageId, scrollPosition, userIdEncoded, toast])
 
   const handleScrollToIndexFailed = useCallback<
     ChatListEventHandler<'onScrollToIndexFailed'>
