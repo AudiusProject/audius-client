@@ -25,7 +25,6 @@ import {
 } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import { makeStyles } from 'app/styles'
-import { useThemeColors } from 'app/utils/theme'
 
 import { ChatUserListItem } from './ChatUserListItem'
 
@@ -154,7 +153,6 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
     }
   } = props
   const styles = useStyles()
-  const palette = useThemeColors()
   const [query, setQuery] = useState('')
   const [hasQuery, setHasQuery] = useState(false)
   const dispatch = useDispatch()
