@@ -73,7 +73,9 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
     padding: 0
   },
   icon: {
-    fill: palette.neutralLight5
+    fill: palette.neutralLight5,
+    width: spacing(4),
+    height: spacing(4)
   },
   placeholderText: {
     color: palette.neutralLight4
@@ -113,6 +115,7 @@ export type TextInputProps = RNTextInputProps & {
     input: TextStyle
     labelText: TextStyle
   }>
+  iconProp?: Pick<SvgProps, 'fill' | 'width' | 'height'>
   hideInputAccessory?: boolean
 }
 
@@ -132,6 +135,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
       styles: stylesProp,
       label,
       Icon,
+      iconProp,
       clearable,
       onClear,
       startAdornment,
@@ -318,7 +322,7 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
             }
             {...other}
           />
-          {value && clearable ? (
+          {clearable && value ? (
             <Animated.View style={[{ transform: [{ scale }] }]}>
               <TouchableWithoutFeedback
                 onPress={handlePressIcon}
@@ -331,11 +335,19 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
                   right: spacing(2)
                 }}
               >
-                <IconCloseAlt fill={styles.icon.fill} />
+                <IconCloseAlt
+                  fill={iconProp?.fill ?? styles.icon.fill}
+                  height={iconProp?.height ?? styles.icon.height}
+                  width={iconProp?.width ?? styles.icon.width}
+                />
               </TouchableWithoutFeedback>
             </Animated.View>
           ) : Icon ? (
-            <Icon fill={styles.icon.fill} />
+            <Icon
+              fill={iconProp?.fill ?? styles.icon.fill}
+              height={iconProp?.height ?? styles.icon.height}
+              width={iconProp?.width ?? styles.icon.width}
+            />
           ) : null}
           {endAdornment ? (
             <View style={styles.endAdornment}>{endAdornment}</View>

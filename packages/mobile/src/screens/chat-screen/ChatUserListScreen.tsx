@@ -114,6 +114,10 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   emptyDescription: {
     fontSize: typography.fontSize.large,
     lineHeight: typography.fontSize.large * 1.3
+  },
+  icon: {
+    height: spacing(6),
+    width: spacing(6)
   }
 }))
 
@@ -223,11 +227,12 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
           <View style={styles.searchContainer}>
             <TextInput
               placeholder={messages.search}
-              Icon={() => <IconSearch fill={palette.neutralLight4} />}
+              Icon={IconSearch}
               styles={{
                 root: styles.searchInputContainer,
                 input: styles.searchInputText
               }}
+              iconProp={styles.icon}
               onChangeText={handleChange}
               value={query}
               inputAccessoryViewID='none'
