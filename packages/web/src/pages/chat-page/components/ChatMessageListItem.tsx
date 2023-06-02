@@ -57,6 +57,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
 
   // State
   const [isReactionPopupVisible, setReactionPopupVisible] = useState(false)
+  const [emptyLinkPreview, setEmptyLinkPreview] = useState(false)
 
   // Selectors
   const userId = useSelector(getUserId)
@@ -72,6 +73,9 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   const senderUserId = decodeHashId(message.sender_user_id)
   const isAuthor = userId === senderUserId
   const links = find(message.message)
+  const link = links.filter((link) => link.type === 'url' && link.isLink)[0]
+  const isLinkPreviewOnly = link && link.value === message.message
+  const hideMessage = isLinkPreviewOnly && !emptyLinkPreview
 
   // Callbacks
   const handleOpenReactionPopupButtonClicked = useCallback(
@@ -120,6 +124,14 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
     )
   }, [dispatch, chatId, message.message, message.message_id])
 
+  const onLinkPreviewEmpty = useCallback(() => {
+    setEmptyLinkPreview(true)
+  }, [link?.value])
+
+  const onLinkPreviewSuccess = useCallback(() => {
+    setEmptyLinkPreview(false)
+  }, [link?.value])
+
   // Only render reactions if user has message permissions
   const { canSendMessage } = useCanSendMessage(chatId)
   const renderReactions = () => {
@@ -167,63 +179,58 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
     >
       <div
         className={cn(styles.bubble, {
-          [styles.nonInteractive]: !canSendMessage
+          [styles.nonInteractive]: !canSendMessage,
+          [styles.hideMessage]: hideMessage
         })}
       >
-        {links
-          .filter((link) => link.type === 'url' && link.isLink)
-          .slice(0, 1)
-          .map((link) => {
-            if (isPlaylistUrl(link.value)) {
-              return (
-                <ChatMessagePlaylist
-                  key={`${link.value}-${link.start}-${link.end}`}
-                  link={link.value}
-                  isAuthor={isAuthor}
-                />
-              )
-            }
-            if (isTrackUrl(link.value)) {
-              return (
-                <ChatMessageTrack
-                  key={`${link.value}-${link.start}-${link.end}`}
-                  link={link.value}
-                  isAuthor={isAuthor}
-                />
-              )
-            }
-            return (
-              <LinkPreview
-                key={`${link.value}-${link.start}-${link.end}`}
-                href={link.href}
-                chatId={chatId}
-                messageId={message.message_id}
-                className={styles.linkPreview}
-              />
-            )
-          })}
-        <div className={styles.text}>
-          <Linkify
-            options={{
-              attributes: {
-                onClick: (event: React.MouseEvent<HTMLAnchorElement>) => {
-                  const url = event.currentTarget.href
+        {isPlaylistUrl(link?.value) ? (
+          <ChatMessagePlaylist
+            className={styles.unfurl}
+            link={link.value}
+            onEmpty={onLinkPreviewEmpty}
+            onSuccess={onLinkPreviewSuccess}
+          />
+        ) : isTrackUrl(link?.value) ? (
+          <ChatMessageTrack
+            className={styles.unfurl}
+            link={link.value}
+            onEmpty={onLinkPreviewEmpty}
+            onSuccess={onLinkPreviewSuccess}
+          />
+        ) : link ? (
+          <LinkPreview
+            className={styles.unfurl}
+            href={link.href}
+            chatId={chatId}
+            messageId={message.message_id}
+            onEmpty={onLinkPreviewEmpty}
+            onSuccess={onLinkPreviewSuccess}
+          />
+        ) : null}
+        {!hideMessage ? (
+          <div className={styles.text}>
+            <Linkify
+              options={{
+                attributes: {
+                  onClick: (event: React.MouseEvent<HTMLAnchorElement>) => {
+                    const url = event.currentTarget.href
 
-                  if (isAudiusUrl(url)) {
-                    const path = getPathFromAudiusUrl(url)
-                    event.nativeEvent.preventDefault()
-                    onClickInternalLink(path ?? '/')
+                    if (isAudiusUrl(url)) {
+                      const path = getPathFromAudiusUrl(url)
+                      event.nativeEvent.preventDefault()
+                      onClickInternalLink(path ?? '/')
+                    }
                   }
+                },
+                target: (href) => {
+                  return isAudiusUrl(href) ? '' : '_blank'
                 }
-              },
-              target: (href) => {
-                return isAudiusUrl(href) ? '' : '_blank'
-              }
-            }}
-          >
-            {message.message}
-          </Linkify>
-        </div>
+              }}
+            >
+              {message.message}
+            </Linkify>
+          </div>
+        ) : null}
         {renderReactions()}
         {hasTail ? (
           <div className={styles.tail}>

@@ -13,22 +13,21 @@ import {
   ID,
   TrackPlayback
 } from '@audius/common'
-import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { make } from 'common/store/analytics/actions'
 import MobileTrackTile from 'components/track/mobile/ConnectedTrackTile'
 
-import styles from './ChatMessageTrack.module.css'
-
 const { getUserId } = accountSelectors
 
-type ChatMessageTrackProps = {
+export type ChatMessageTileProps = {
   link: string
-  isAuthor: boolean
+  onEmpty?: () => void
+  onSuccess?: () => void
+  className?: string
 }
 
-export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
+export const ChatMessageTrack = ({ link, onEmpty, onSuccess, className }: ChatMessageTileProps) => {
   const dispatch = useDispatch()
   const currentUserId = useSelector(getUserId)
   const permalink = getPathFromTrackUrl(link)
@@ -66,8 +65,15 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
     recordAnalytics
   })
 
-  return track && uid ? (
-    <div className={cn(styles.container, { [styles.isAuthor]: isAuthor })}>
+  if (track && uid) {
+    onSuccess?.()
+  } else {
+    onEmpty?.()
+    return null
+  }
+
+  return (
+    <div className={className}>
       {/* You may wonder why we use the mobile web track tile here.
       It's simply because the chat track tile uses the same design as mobile web. */}
       <MobileTrackTile
@@ -83,5 +89,5 @@ export const ChatMessageTrack = ({ link, isAuthor }: ChatMessageTrackProps) => {
         isChat
       />
     </div>
-  ) : null
+  )
 }

@@ -14,25 +14,20 @@ import {
   usePlayTrack,
   usePauseTrack
 } from '@audius/common'
-import cn from 'classnames'
 import { useSelector } from 'react-redux'
 
 import MobilePlaylistTile from 'components/track/mobile/ConnectedPlaylistTile'
-
-import styles from './ChatMessagePlaylist.module.css'
+import { ChatMessageTileProps } from 'pages/chat-page/components/ChatMessageTrack'
 
 const { getUserId } = accountSelectors
 const { getTrackId } = playerSelectors
 
-type ChatMessagePlaylistProps = {
-  link: string
-  isAuthor: boolean
-}
-
 export const ChatMessagePlaylist = ({
   link,
-  isAuthor
-}: ChatMessagePlaylistProps) => {
+  onEmpty,
+  onSuccess,
+  className
+}: ChatMessageTileProps) => {
   const currentUserId = useSelector(getUserId)
   const playingTrackId = useSelector(getTrackId)
 
@@ -104,8 +99,15 @@ export const ChatMessagePlaylist = ({
 
   const pauseTrack = usePauseTrack()
 
-  return collection && uid ? (
-    <div className={cn(styles.container, { [styles.isAuthor]: isAuthor })}>
+  if (collection && uid) {
+    onSuccess?.()
+  } else {
+    onEmpty?.()
+    return null
+  }
+
+  return (
+    <div className={className}>
       {/* You may wonder why we use the mobile web playlist tile here.
       It's simply because the chat playlist tile uses the same design as mobile web. */}
       <MobilePlaylistTile
@@ -125,5 +127,5 @@ export const ChatMessagePlaylist = ({
         isChat
       />
     </div>
-  ) : null
+  )
 }

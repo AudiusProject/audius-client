@@ -7,16 +7,22 @@ type LinkPreviewProps = {
   href: string
   chatId: string
   messageId: string
+  onEmpty?: () => void
+  onSuccess?: () => void
   className?: string
 }
 export const LinkPreview = (props: LinkPreviewProps) => {
-  const { href, chatId, messageId } = props
+  const { href, chatId, messageId, onEmpty, onSuccess } = props
   const metadata = useLinkUnfurlMetadata(chatId, messageId, href) ?? {}
+  const { description, title, site_name: siteName, image } = metadata
+  console.log({ description, title, site_name: siteName, image, href })
+  const willRender = !!(description || title || image)
   const domain = metadata?.url ? new URL(metadata?.url).hostname : ''
-  const { description, title, image, site_name: siteName } = metadata
-  const hasMetadata = !!(description || title || image)
 
-  if (!hasMetadata) {
+  if (willRender) {
+    onSuccess?.()
+  } else {
+    onEmpty?.()
     return null
   }
 
