@@ -58,12 +58,12 @@ export const PlaylistsTab = () => {
   }, [isReachable, hasMore, fetchMore])
 
   const loadingSpinner = <LoadingMoreSpinner />
+  const noItemsLoaded =
+    !statusIsNotFinalized(status) && !userPlaylists?.length && !filterValue
 
   return (
     <VirtualizedScrollView>
-      {!statusIsNotFinalized(status) &&
-      !userPlaylists?.length &&
-      !filterValue ? (
+      {noItemsLoaded ? (
         !isReachable ? (
           <NoTracksPlaceholder />
         ) : (

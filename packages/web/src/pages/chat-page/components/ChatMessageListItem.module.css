@@ -17,9 +17,9 @@
   max-width: 448px;
   border-radius: var(--unit-3);
   filter: var(--drop-shadow-near);
-  color: var(--netural);
+  color: var(--static-netural);
   background-color: var(--bubble-color);
-  transition: background-color var(--quick), filter var(--quick);
+  transition: background-color var(--calm), filter var(--calm);
 }
 
 .text a {
@@ -33,12 +33,12 @@
 }
 
 .isAuthor .bubble {
-  color: var(--white);
+  color: var(--static-white);
   --bubble-color: var(--secondary-light-2);
 }
 
 .isAuthor .text a {
-  color: var(--white);
+  color: var(--static-white);
 }
 
 .isAuthor .bubble:hover {
@@ -121,8 +121,12 @@
   transition: fill var(--quick);
 }
 
+.reactionsButton:not(.hasReaction):hover {
+  transform: scale(1.1);
+}
+
 .reactionsButton:not(.hasReaction):hover path {
-  fill: var(--primary);
+  fill: var(--secondary-dark-2);
 }
 
 .reactionsButton:not(.hasReaction):active {
@@ -132,6 +136,14 @@
 .reactionEmoji {
   margin-inline-end: -28px;
   filter: drop-shadow(-2px 0px 4px rgba(0, 0, 0, 0.15));
+}
+
+.reactionEmoji:hover {
+  transform: scale(1.1);
+}
+
+.reactionEmoji:active {
+  transform: scale(0.6);
 }
 
 .tail {
