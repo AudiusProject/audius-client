@@ -1419,15 +1419,9 @@ export const audiusBackend = ({
    * @returns Object The associated wallets mapping of address to nested signature
    */
   async function fetchUserAssociatedEthWallets(user: User) {
-    const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
     const cid = user?.metadata_multihash ?? null
     if (cid) {
-      const metadata = await fetchCID(
-        cid,
-        gateways,
-        /* cache */ false,
-        /* asUrl */ false
-      )
+      const metadata = await fetchCID(cid, /* cache */ false, /* asUrl */ false)
       if (metadata?.associated_wallets) {
         return metadata.associated_wallets
       }
@@ -1441,15 +1435,9 @@ export const audiusBackend = ({
    * @returns Object The associated wallets mapping of address to nested signature
    */
   async function fetchUserAssociatedSolWallets(user: User) {
-    const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
     const cid = user?.metadata_multihash ?? null
     if (cid) {
-      const metadata = await fetchCID(
-        cid,
-        gateways,
-        /* cache */ false,
-        /* asUrl */ false
-      )
+      const metadata = await fetchCID(cid, /* cache */ false, /* asUrl */ false)
       if (metadata?.associated_sol_wallets) {
         return metadata.associated_sol_wallets
       }
@@ -1463,15 +1451,9 @@ export const audiusBackend = ({
    * @returns Object The associated wallets mapping of address to nested signature
    */
   async function fetchUserAssociatedWallets(user: User) {
-    const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
     const cid = user?.metadata_multihash ?? null
     if (cid) {
-      const metadata = await fetchCID(
-        cid,
-        gateways,
-        /* cache */ false,
-        /* asUrl */ false
-      )
+      const metadata = await fetchCID(cid, /* cache */ false, /* asUrl */ false)
       return {
         associated_sol_wallets: metadata?.associated_sol_wallets ?? null,
         associated_wallets: metadata?.associated_wallets ?? null

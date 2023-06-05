@@ -40,7 +40,6 @@ export enum FeatureFlags {
   TRENDING_UNDERGROUND_NOTIFICATIONS = 'trending_underground_notifications',
   TASTEMAKER_NOTIFICATIONS = 'tastemaker_notifications',
   SDK_DISCOVERY_NODE_SELECTOR = 'sdk_discovery_node_selector_2',
-  GET_METADATA_FROM_DISCOVERY_ENABLED = 'get_metadata_from_discovery_enabled',
   RELATED_ARTISTS_ON_PROFILE_ENABLED = 'related_artists_on_profile_enabled',
   PROXY_WORMHOLE = 'proxy_wormhole',
   STORAGE_V2_TRACK_UPLOAD = 'storage_v2_track_upload',
