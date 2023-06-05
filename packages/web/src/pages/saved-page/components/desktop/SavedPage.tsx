@@ -114,7 +114,7 @@ const AlbumCard = ({
 const AlbumsTabContent = () => {
   const goToRoute = useGoToRoute()
 
-  const { data: savedAlbums } = useAccountAlbums()
+  const { data: savedAlbums, status: accountAlbumsStatus } = useAccountAlbums()
   const savedAlbumIds = useMemo(
     () => savedAlbums.map((a) => a.id),
     [savedAlbums]
@@ -145,7 +145,11 @@ const AlbumsTabContent = () => {
     )
   })
 
-  if (!statusIsNotFinalized(status) && cards.length === 0) {
+  const noSavedAlbums =
+    accountAlbumsStatus === Status.SUCCESS && savedAlbumIds.length === 0
+  const noFetchedResults = !statusIsNotFinalized(status) && cards.length === 0
+
+  if (noSavedAlbums || noFetchedResults) {
     return (
       <EmptyTable
         primaryText={messages.emptyAlbumsHeader}

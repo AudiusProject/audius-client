@@ -22,7 +22,6 @@ import {
   User,
   cacheCollectionsSelectors,
   cacheUsersSelectors,
-  statusIsNotFinalized,
   useFetchedSavedCollections,
   usePremiumContentAccessMap,
   useAccountAlbums
@@ -242,7 +241,8 @@ const AlbumCard = ({ albumId }: AlbumCardProps) => {
 const AlbumCardLineup = () => {
   const goToRoute = useGoToRoute()
 
-  const { data: unfilteredAlbums } = useAccountAlbums()
+  const { data: unfilteredAlbums, status: accountAlbumsStatus } =
+    useAccountAlbums()
   const [filterText, setFilterText] = useState('')
   const filteredAlbumIds = useMemo(
     () => filterCollections(unfilteredAlbums, { filterText }).map((a) => a.id),
@@ -251,7 +251,6 @@ const AlbumCardLineup = () => {
 
   const {
     data: fetchedAlbumIds,
-    status,
     hasMore,
     fetchMore
   } = useFetchedSavedCollections({
@@ -274,9 +273,12 @@ const AlbumCardLineup = () => {
 
   const contentRefCallback = useOffsetScroll()
 
+  const noSavedAlbums =
+    accountAlbumsStatus === Status.SUCCESS && unfilteredAlbums.length === 0
+
   return (
     <div className={styles.cardLineupContainer}>
-      {!statusIsNotFinalized(status) && unfilteredAlbums.length === 0 ? (
+      {noSavedAlbums ? (
         <EmptyTab
           message={
             <>

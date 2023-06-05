@@ -2,6 +2,8 @@ import { useMemo } from 'react'
 
 import type { CollectionType } from '@audius/common'
 import {
+  Status,
+  statusIsNotFinalized,
   cacheCollectionsSelectors,
   filterCollections,
   reachabilitySelectors,
@@ -37,10 +39,10 @@ export const useCollectionsScreenData = ({
   const isReachable = useSelector(getIsReachable)
   const offlineTracksStatus = useOfflineTracksStatus({ skipIfOnline: true })
 
-  const { data: accountAlbums } = useAccountAlbums()
-  const { data: accountPlaylists } = useAccountPlaylists()
+  const accountAlbums = useAccountAlbums()
+  const accountPlaylists = useAccountPlaylists()
 
-  const unfilteredCollections =
+  const { data: unfilteredCollections, status: accountCollectionsStatus } =
     collectionType === 'albums' ? accountAlbums : accountPlaylists
 
   const collectionIds = useMemo(
@@ -55,7 +57,7 @@ export const useCollectionsScreenData = ({
     data: fetchedCollectionIds,
     fetchMore,
     hasMore,
-    status
+    status: fetchedStatus
   } = useFetchedSavedCollections({
     collectionIds,
     type: collectionType,
@@ -115,7 +117,15 @@ export const useCollectionsScreenData = ({
     shallowCompare
   )
 
+  // Fetching won't be triggered if the user has no saved collections, so short-circuit to Success
+  const status =
+    !statusIsNotFinalized(accountCollectionsStatus) &&
+    unfilteredCollections.length === 0
+      ? Status.SUCCESS
+      : fetchedStatus
+
   return {
+    accountCollectionsStatus,
     collectionIds: availableCollectionIds,
     hasMore,
     fetchMore,
