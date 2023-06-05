@@ -21,7 +21,7 @@ import { FilterInput } from './FilterInput'
 import { LoadingMoreSpinner } from './LoadingMoreSpinner'
 import { NoTracksPlaceholder } from './NoTracksPlaceholder'
 import { OfflineContentBanner } from './OfflineContentBanner'
-import { useCollectionScreenData } from './useCollectionScreenData'
+import { useCollectionsScreenData } from './useCollectionsScreenData'
 
 const { getIsReachable } = reachabilitySelectors
 
@@ -45,7 +45,7 @@ export const PlaylistsTab = () => {
     hasMore,
     fetchMore,
     status
-  } = useCollectionScreenData({
+  } = useCollectionsScreenData({
     filterValue,
     collectionType: 'playlists'
   })

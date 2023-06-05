@@ -24,15 +24,15 @@ import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 const { getIsReachable } = reachabilitySelectors
 const { getCollection } = cacheCollectionsSelectors
 
-type UseCollectionScreenDataConfig = {
+type UseCollectionsScreenDataConfig = {
   filterValue?: string
   collectionType: CollectionType
 }
 
-export const useCollectionScreenData = ({
+export const useCollectionsScreenData = ({
   collectionType,
   filterValue = ''
-}: UseCollectionScreenDataConfig) => {
+}: UseCollectionsScreenDataConfig) => {
   const isDoneLoadingFromDisk = useSelector(getIsDoneLoadingFromDisk)
   const isReachable = useSelector(getIsReachable)
   const offlineTracksStatus = useOfflineTracksStatus({ skipIfOnline: true })
