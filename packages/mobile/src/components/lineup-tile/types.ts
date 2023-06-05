@@ -11,12 +11,12 @@ import type {
   User,
   RepostType
 } from '@audius/common'
+import type { StyleProp, ViewStyle } from 'react-native'
 
 import type { GestureResponderHandler } from 'app/types/gesture'
 
 import type { TileProps } from '../core'
 import type { ImageProps } from '../image/FastImage'
-import { StyleProp, ViewStyle } from 'react-native'
 
 export type LineupItemProps = {
   /** Index of tile in lineup */

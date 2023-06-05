@@ -12,8 +12,8 @@ import {
 } from '@audius/common'
 import type { ChatMessageReaction } from '@audius/sdk'
 import { find } from 'linkifyjs'
-import { ViewStyle, StyleProp, Dimensions } from 'react-native'
-import { View } from 'react-native'
+import type { ViewStyle, StyleProp } from 'react-native'
+import { Dimensions, View } from 'react-native'
 import { useSelector } from 'react-redux'
 
 import ChatTail from 'app/assets/images/ChatTail.svg'
@@ -232,8 +232,8 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
 
   const chatStyles = !hideMessage
     ? isAuthor
-      ? { ...styles.unfurl, ...styles.unfurlAuthor}
-      : { ...styles.unfurl, ...styles.unfurlOtherUser}
+      ? { ...styles.unfurl, ...styles.unfurlAuthor }
+      : { ...styles.unfurl, ...styles.unfurlOtherUser }
     : styles.unfurl
 
   return (
@@ -300,7 +300,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                     isPressed={isPressed}
                     onEmpty={onLinkPreviewEmpty}
                     onSuccess={onLinkPreviewSuccess}
-                    style={{ ...chatStyles, borderBottomWidth: 1 } }
+                    style={{ ...chatStyles, borderBottomWidth: 1 }}
                   />
                 ) : null}
                 {!hideMessage ? (
