@@ -447,7 +447,7 @@ export const audiusBackend = ({
     const getMetadataFromDiscoveryEnabled =
       (await getFeatureEnabled(
         FeatureFlags.GET_METADATA_FROM_DISCOVERY_ENABLED
-      )) ?? false
+      )) ?? true
     if (getMetadataFromDiscoveryEnabled) {
       try {
         const res = await audiusLibs.File.fetchCIDFromDiscovery(
