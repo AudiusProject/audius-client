@@ -112,8 +112,11 @@ export const useToggleTrack = ({
 }: UseToggleTrack) => {
   const currentQueueItem = useSelector(makeGetCurrent())
   const playing = useSelector(getPlaying)
-  const isTrackPlaying =
-    playing && currentQueueItem.track && currentQueueItem.uid === uid
+  const isTrackPlaying = !!(
+    playing &&
+    currentQueueItem.track &&
+    currentQueueItem.uid === uid
+  )
 
   const playTrack = usePlayTrack(recordAnalytics)
   const pauseTrack = usePauseTrack(recordAnalytics)
