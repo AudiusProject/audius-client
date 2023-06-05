@@ -1,5 +1,4 @@
 import { reachabilitySelectors, useProxySelector } from '@audius/common'
-import { useSelector } from 'react-redux'
 
 import type { AppState } from 'app/store'
 import {
@@ -22,16 +21,17 @@ type UseOfflineTrackStatusConfig = {
 export function useOfflineTracksStatus({
   skipIfOnline = false
 }: UseOfflineTrackStatusConfig = {}) {
-  const isDoneLoadingFromDisk = useSelector(getIsDoneLoadingFromDisk)
-  const isReachable = useSelector(getIsReachable)
-  const skipUpdate = skipIfOnline && isReachable
   return useProxySelector(
     (state: AppState) => {
+      const isReachable = getIsReachable(state)
+      const isDoneLoadingFromDisk = getIsDoneLoadingFromDisk(state)
+
+      const skipUpdate = skipIfOnline && isReachable
       if (skipUpdate || !isDoneLoadingFromDisk) {
         return emptyTrackStatus
       }
       return getOfflineTrackStatus(state)
     },
-    [skipUpdate, isDoneLoadingFromDisk]
+    [skipIfOnline]
   )
 }
