@@ -1,5 +1,5 @@
 import { useLinkUnfurlMetadata } from '@audius/common'
-import type { GestureResponderEvent } from 'react-native'
+import type { GestureResponderEvent, ViewStyle } from 'react-native'
 import { View, Image } from 'react-native'
 
 import { Text, Link } from 'app/components/core'
@@ -77,6 +77,7 @@ type LinkPreviewProps = {
   onPressOut: (event: GestureResponderEvent) => void
   onEmpty?: () => void
   onSuccess?: () => void
+  style?: ViewStyle
 }
 
 export const LinkPreview = ({
@@ -89,7 +90,8 @@ export const LinkPreview = ({
   onPressIn,
   onPressOut,
   onEmpty,
-  onSuccess
+  onSuccess,
+  style
 }: LinkPreviewProps) => {
   const styles = useStyles()
   const metadata = useLinkUnfurlMetadata(chatId, messageId, href)
@@ -116,7 +118,8 @@ export const LinkPreview = ({
         style={[
           styles.root,
           isPressed ? styles.pressed : null,
-          hideMessage ? styles.rootIsLinkPreviewOnly : null
+          hideMessage ? styles.rootIsLinkPreviewOnly : null,
+          style
         ]}
       >
         {description || title ? (

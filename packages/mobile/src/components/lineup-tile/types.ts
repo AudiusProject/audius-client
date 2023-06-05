@@ -16,6 +16,7 @@ import type { GestureResponderHandler } from 'app/types/gesture'
 
 import type { TileProps } from '../core'
 import type { ImageProps } from '../image/FastImage'
+import { StyleProp, ViewStyle } from 'react-native'
 
 export type LineupItemProps = {
   /** Index of tile in lineup */
@@ -47,6 +48,9 @@ export type LineupItemProps = {
 
   /** Optionally passed in tracks to override  */
   tracks?: LineupTrack[]
+
+  /** Passed in styles */
+  styles?: StyleProp<ViewStyle>
 }
 
 export type LineupTileProps = Omit<LineupItemProps, 'togglePlay'> & {

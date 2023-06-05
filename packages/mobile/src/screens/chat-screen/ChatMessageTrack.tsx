@@ -21,7 +21,8 @@ const { getUserId } = accountSelectors
 export const ChatMessageTrack = ({
   link,
   onEmpty,
-  onSuccess
+  onSuccess,
+  styles
 }: ChatMessageTileProps) => {
   const currentUserId = useSelector(getUserId)
 
@@ -90,6 +91,7 @@ export const ChatMessageTrack = ({
       isTrending={false}
       showArtistPick={false}
       showRankIcon={false}
+      styles={styles}
       isChat
     />
   )

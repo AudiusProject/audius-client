@@ -26,7 +26,8 @@ const { getUid, getPlaying, getTrackId } = playerSelectors
 export const ChatMessagePlaylist = ({
   link,
   onEmpty,
-  onSuccess
+  onSuccess,
+  styles
 }: ChatMessageTileProps) => {
   const currentUserId = useSelector(getUserId)
   const isPlaying = useSelector(getPlaying)
@@ -150,6 +151,7 @@ export const ChatMessagePlaylist = ({
       isTrending={false}
       showArtistPick={false}
       showRankIcon={false}
+      styles={styles}
       isChat
     />
   )

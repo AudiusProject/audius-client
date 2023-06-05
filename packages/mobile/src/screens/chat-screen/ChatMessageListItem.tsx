@@ -12,7 +12,7 @@ import {
 } from '@audius/common'
 import type { ChatMessageReaction } from '@audius/sdk'
 import { find } from 'linkifyjs'
-import type { ViewStyle, StyleProp } from 'react-native'
+import { ViewStyle, StyleProp, Dimensions } from 'react-native'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
@@ -123,6 +123,18 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   },
   reactionMarginBottom: {
     marginBottom: spacing(2)
+  },
+  unfurl: {
+    width: Dimensions.get('window').width - 48,
+    minHeight: 72,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0
+  },
+  unfurlAuthor: {
+    borderBottomColor: palette.secondaryDark1
+  },
+  unfurlOtherUser: {
+    borderBottomColor: palette.neutralLight7
   }
 }))
 
@@ -218,6 +230,12 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
     }
   }, [linkValue])
 
+  const chatStyles = !hideMessage
+    ? isAuthor
+      ? { ...styles.unfurl, ...styles.unfurlAuthor}
+      : { ...styles.unfurl, ...styles.unfurlOtherUser}
+    : styles.unfurl
+
   return (
     <>
       <View
@@ -259,6 +277,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                     link={link.value}
                     onEmpty={onLinkPreviewEmpty}
                     onSuccess={onLinkPreviewSuccess}
+                    styles={chatStyles}
                   />
                 ) : isTrackUrl(linkValue) ? (
                   <ChatMessageTrack
@@ -266,6 +285,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                     link={link.value}
                     onEmpty={onLinkPreviewEmpty}
                     onSuccess={onLinkPreviewSuccess}
+                    styles={chatStyles}
                   />
                 ) : link ? (
                   <LinkPreview
@@ -280,6 +300,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                     isPressed={isPressed}
                     onEmpty={onLinkPreviewEmpty}
                     onSuccess={onLinkPreviewSuccess}
+                    style={{ ...chatStyles, borderBottomWidth: 1 } }
                   />
                 ) : null}
                 {!hideMessage ? (

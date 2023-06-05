@@ -6,7 +6,7 @@ import {
   premiumContentActions,
   usePremiumContentAccess
 } from '@audius/common'
-import { Dimensions, View, StyleSheet } from 'react-native'
+import { View } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 
 import type { LineupTileProps } from 'app/components/lineup-tile/types'
@@ -26,15 +26,6 @@ import { LineupTileTopRight } from './LineupTileTopRight'
 
 const { getUserId } = accountSelectors
 const { setLockedContentId } = premiumContentActions
-
-const styles = StyleSheet.create({
-  chat: {
-    width: Dimensions.get('window').width - 48,
-    minHeight: 72,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0
-  }
-})
 
 export const LineupTile = ({
   children,
@@ -63,6 +54,7 @@ export const LineupTile = ({
   user,
   isPlayingUid,
   isChat,
+  styles,
   TileProps
 }: LineupTileProps) => {
   const isGatedContentEnabled = useIsGatedContentEnabled()
@@ -110,7 +102,11 @@ export const LineupTile = ({
     (item.genre === Genre.PODCASTS || item.genre === Genre.AUDIOBOOKS)
 
   return (
-    <LineupTileRoot onPress={handlePress} {...TileProps} style={isChat ? styles.chat : undefined}>
+    <LineupTileRoot
+      onPress={handlePress}
+      style={styles}
+      {...TileProps}
+    >
       {showPremiumCornerTag && cornerTagIconType ? (
         <LineupTileBannerIcon
           type={cornerTagIconType}
