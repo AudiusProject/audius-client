@@ -80,12 +80,10 @@ export const ReactionList = (props: ReactionListProps) => {
 
       // based on the current x0 and moveX, determine which reaction the
       // user is interacting with.
-      const currentReaction = positionEntries.find(
-        ([reaction, { x, width }]) => {
-          const currentPosition = (moveX || x0) - xOffset.current
-          return currentPosition > x && currentPosition <= x + width
-        }
-      )
+      const currentReaction = positionEntries.find(([, { x, width }]) => {
+        const currentPosition = (moveX || x0) - xOffset.current
+        return currentPosition > x && currentPosition <= x + width
+      })
 
       if (currentReaction) {
         const [reactionType] = currentReaction
