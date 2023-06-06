@@ -30,7 +30,7 @@ export const TextField = (props: TextFieldProps) => {
         //   input: [styles.input, stylesProp?.input],
         //   labelText: [styles.labelText, stylesProp?.labelText]
         // }}
-        value={value}
+        defaultValue={value}
         onChangeText={onChange(name)}
         onBlur={onBlur(name)}
         returnKeyType='done'
