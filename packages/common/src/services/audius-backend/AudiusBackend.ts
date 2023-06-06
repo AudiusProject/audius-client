@@ -430,54 +430,15 @@ export const audiusBackend = ({
     })
   }
 
-  async function fetchCID(
-    cid: CID,
-    creatorNodeGateways = [] as string[],
-    cache = true,
-    asUrl = true,
-    trackId: Nullable<ID> = null
-  ) {
+  async function fetchCID(cid: CID, cache = true, asUrl = true) {
     await waitForLibsInit()
 
     // If requesting a url (we mean a blob url for the file),
     // otherwise, default to JSON
     const responseType = asUrl ? 'blob' : 'json'
 
-    // TODO read only from discovery after CID metadata migration
-    const getMetadataFromDiscoveryEnabled =
-      (await getFeatureEnabled(
-        FeatureFlags.GET_METADATA_FROM_DISCOVERY_ENABLED
-      )) ?? false
-    if (getMetadataFromDiscoveryEnabled) {
-      try {
-        const res = await audiusLibs.File.fetchCIDFromDiscovery(
-          cid,
-          responseType
-        )
-        if (res?.data) {
-          if (asUrl) {
-            const url = nativeMobile
-              ? res.config.url
-              : URL.createObjectURL(res.data)
-            if (cache) CIDCache.add(cid, url)
-            return url
-          }
-          return res.data
-        }
-      } catch (e) {
-        console.error(e)
-      }
-      // If failed to find metadata in discovery, try with content nodes
-    }
-
     try {
-      const res = await audiusLibs.File.fetchCID(
-        cid,
-        creatorNodeGateways,
-        () => {},
-        responseType,
-        trackId
-      )
+      const res = await audiusLibs.File.fetchCIDFromDiscovery(cid, responseType)
       if (asUrl) {
         const url = nativeMobile
           ? res.config.url
@@ -678,15 +639,9 @@ export const audiusBackend = ({
   }
 
   async function sanityChecks(audiusLibs: any) {
-    const writeMetadataThroughChainEnabled =
-      (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-      false
     try {
       const sanityCheckOptions = {
-        skipRollover: getRemoteVar(
-          BooleanKeys.SKIP_ROLLOVER_NODES_SANITY_CHECK
-        ),
-        writeMetadataThroughChain: writeMetadataThroughChainEnabled
+        skipRollover: getRemoteVar(BooleanKeys.SKIP_ROLLOVER_NODES_SANITY_CHECK)
       }
       const sanityChecks = new SanityChecks(audiusLibs, sanityCheckOptions)
       await sanityChecks.run(
@@ -1280,9 +1235,6 @@ export const audiusBackend = ({
     const storageV2UploadEnabled = await getFeatureEnabled(
       FeatureFlags.STORAGE_V2_TRACK_UPLOAD
     )
-    const writeMetadataThroughChainEnabled =
-      (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-      false
     if (storageV2SignupEnabled || storageV2UploadEnabled) {
       try {
         const { trackId, updatedMetadata, txReceipt } =
@@ -1308,8 +1260,7 @@ export const audiusBackend = ({
         trackFile,
         coverArtFile,
         metadata,
-        onProgress,
-        writeMetadataThroughChainEnabled
+        onProgress
       )
     }
   }
@@ -1378,13 +1329,7 @@ export const audiusBackend = ({
         uploadedTracks.map((t) => t.metadata)
       )
     } else {
-      const writeMetadataThroughChainEnabled =
-        (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-        false
-      return await audiusLibs.Track.addTracksToChainAndCnode(
-        uploadedTracks,
-        writeMetadataThroughChainEnabled
-      )
+      return await audiusLibs.Track.addTracksToChainAndCnode(uploadedTracks)
     }
   }
 
@@ -1395,15 +1340,7 @@ export const audiusBackend = ({
     if (storageV2UploadEnabled) {
       return await audiusLibs.creatorNode.uploadTrackCoverArtV2(file, () => {})
     } else {
-      const writeMetadataThroughChainEnabled =
-        (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-        false
-      return await audiusLibs.File.uploadImage(
-        file,
-        undefined,
-        null,
-        writeMetadataThroughChainEnabled
-      )
+      return await audiusLibs.File.uploadImage(file, undefined, null)
     }
   }
 
@@ -1415,9 +1352,6 @@ export const audiusBackend = ({
     const storageV2UploadEnabled = await getFeatureEnabled(
       FeatureFlags.STORAGE_V2_TRACK_UPLOAD
     )
-    const writeMetadataThroughChainEnabled =
-      (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-      false
 
     if (storageV2UploadEnabled) {
       if (metadata.artwork) {
@@ -1433,15 +1367,11 @@ export const audiusBackend = ({
         const resp = await audiusLibs.File.uploadImage(
           metadata.artwork.file,
           undefined,
-          null,
-          writeMetadataThroughChainEnabled
+          null
         )
         cleanedMetadata.cover_art_sizes = resp.dirCID
       }
-      return await audiusLibs.Track.updateTrack(
-        cleanedMetadata,
-        writeMetadataThroughChainEnabled
-      )
+      return await audiusLibs.Track.updateTrack(cleanedMetadata)
     }
   }
 
@@ -1489,15 +1419,9 @@ export const audiusBackend = ({
    * @returns Object The associated wallets mapping of address to nested signature
    */
   async function fetchUserAssociatedEthWallets(user: User) {
-    const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
     const cid = user?.metadata_multihash ?? null
     if (cid) {
-      const metadata = await fetchCID(
-        cid,
-        gateways,
-        /* cache */ false,
-        /* asUrl */ false
-      )
+      const metadata = await fetchCID(cid, /* cache */ false, /* asUrl */ false)
       if (metadata?.associated_wallets) {
         return metadata.associated_wallets
       }
@@ -1511,15 +1435,9 @@ export const audiusBackend = ({
    * @returns Object The associated wallets mapping of address to nested signature
    */
   async function fetchUserAssociatedSolWallets(user: User) {
-    const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
     const cid = user?.metadata_multihash ?? null
     if (cid) {
-      const metadata = await fetchCID(
-        cid,
-        gateways,
-        /* cache */ false,
-        /* asUrl */ false
-      )
+      const metadata = await fetchCID(cid, /* cache */ false, /* asUrl */ false)
       if (metadata?.associated_sol_wallets) {
         return metadata.associated_sol_wallets
       }
@@ -1533,15 +1451,9 @@ export const audiusBackend = ({
    * @returns Object The associated wallets mapping of address to nested signature
    */
   async function fetchUserAssociatedWallets(user: User) {
-    const gateways = getCreatorNodeIPFSGateways(user.creator_node_endpoint)
     const cid = user?.metadata_multihash ?? null
     if (cid) {
-      const metadata = await fetchCID(
-        cid,
-        gateways,
-        /* cache */ false,
-        /* asUrl */ false
-      )
+      const metadata = await fetchCID(cid, /* cache */ false, /* asUrl */ false)
       return {
         associated_sol_wallets: metadata?.associated_sol_wallets ?? null,
         associated_wallets: metadata?.associated_wallets ?? null
@@ -1559,9 +1471,6 @@ export const audiusBackend = ({
       newMetadata.associated_sol_wallets ||
       associatedWallets?.associated_sol_wallets
 
-    const writeMetadataThroughChainEnabled =
-      (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-      false
     const storageV2UploadEnabled = await getFeatureEnabled(
       FeatureFlags.STORAGE_V2_TRACK_UPLOAD
     )
@@ -1576,8 +1485,7 @@ export const audiusBackend = ({
           const resp = await audiusLibs.File.uploadImage(
             newMetadata.updatedProfilePicture.file,
             undefined,
-            null,
-            writeMetadataThroughChainEnabled
+            null
           )
           newMetadata.profile_picture_sizes = resp.dirCID
         }
@@ -1593,8 +1501,7 @@ export const audiusBackend = ({
           const resp = await audiusLibs.File.uploadImage(
             newMetadata.updatedCoverPhoto.file,
             false,
-            null,
-            writeMetadataThroughChainEnabled
+            null
           )
           newMetadata.cover_photo_sizes = resp.dirCID
         }
@@ -1633,11 +1540,7 @@ export const audiusBackend = ({
         return { blockHash, blockNumber, userId }
       } else {
         const { blockHash, blockNumber, userId } =
-          await audiusLibs.User.updateCreator(
-            newMetadata.user_id,
-            newMetadata,
-            writeMetadataThroughChainEnabled
-          )
+          await audiusLibs.User.updateCreator(newMetadata.user_id, newMetadata)
         return { blockHash, blockNumber, userId }
       }
     } catch (err) {
@@ -1741,9 +1644,6 @@ export const audiusBackend = ({
       const storageV2UploadEnabled = await getFeatureEnabled(
         FeatureFlags.STORAGE_V2_TRACK_UPLOAD
       )
-      const writeMetadataThroughChainEnabled =
-        (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-        false
       const response = await audiusLibs.EntityManager.createPlaylist(
         {
           ...metadata,
@@ -1752,8 +1652,7 @@ export const audiusBackend = ({
           is_album: isAlbum,
           is_private: isPrivate
         },
-        storageV2UploadEnabled,
-        writeMetadataThroughChainEnabled
+        storageV2UploadEnabled
       )
       const { blockHash, blockNumber, error } = response
       if (error) return { playlistId, error }
@@ -1771,14 +1670,10 @@ export const audiusBackend = ({
       FeatureFlags.STORAGE_V2_TRACK_UPLOAD
     )
     try {
-      const writeMetadataThroughChainEnabled =
-        (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-        false
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.updatePlaylist(
           metadata,
-          storageV2UploadEnabled,
-          writeMetadataThroughChainEnabled
+          storageV2UploadEnabled
         )
 
       return { blockHash, blockNumber }
@@ -1793,14 +1688,10 @@ export const audiusBackend = ({
       FeatureFlags.STORAGE_V2_TRACK_UPLOAD
     )
     try {
-      const writeMetadataThroughChainEnabled =
-        (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-        false
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.updatePlaylist(
           playlist,
-          storageV2UploadEnabled,
-          writeMetadataThroughChainEnabled
+          storageV2UploadEnabled
         )
       return { blockHash, blockNumber }
     } catch (error) {
@@ -1815,17 +1706,13 @@ export const audiusBackend = ({
     )
     try {
       playlist.is_private = false
-      const writeMetadataThroughChainEnabled =
-        (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-        false
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.updatePlaylist(
           {
             ...playlist,
             is_private: false
           },
-          storageV2UploadEnabled,
-          writeMetadataThroughChainEnabled
+          storageV2UploadEnabled
         )
       return { blockHash, blockNumber }
     } catch (error) {
@@ -1839,14 +1726,10 @@ export const audiusBackend = ({
       FeatureFlags.STORAGE_V2_TRACK_UPLOAD
     )
     try {
-      const writeMetadataThroughChainEnabled =
-        (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-        false
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.updatePlaylist(
           playlist,
-          storageV2UploadEnabled,
-          writeMetadataThroughChainEnabled
+          storageV2UploadEnabled
         )
       return { blockHash, blockNumber }
     } catch (error) {
@@ -1860,14 +1743,10 @@ export const audiusBackend = ({
       FeatureFlags.STORAGE_V2_TRACK_UPLOAD
     )
     try {
-      const writeMetadataThroughChainEnabled =
-        (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-        false
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.updatePlaylist(
           playlist,
-          storageV2UploadEnabled,
-          writeMetadataThroughChainEnabled
+          storageV2UploadEnabled
         )
       return { blockHash, blockNumber }
     } catch (error) {
@@ -2153,9 +2032,6 @@ export const audiusBackend = ({
         true
       )
     }
-    const writeMetadataThroughChainEnabled =
-      (await getFeatureEnabled(FeatureFlags.WRITE_METADATA_THROUGH_CHAIN)) ??
-      false
     // Returns { userId, error, phase }
     return await audiusLibs.Account.signUp(
       email,
@@ -2173,8 +2049,7 @@ export const audiusBackend = ({
         Failure: Name.CREATE_USER_BANK_FAILURE
       },
       feePayerOverride,
-      true,
-      writeMetadataThroughChainEnabled
+      true
     )
   }
 
@@ -2419,6 +2294,29 @@ export const audiusBackend = ({
         entityType: Entity.User,
         tipTxSignature: data.tip_tx_signature,
         reactionValue: data.reaction_value,
+        ...formatBaseNotification(notification)
+      }
+    } else if (notification.type === 'track_added_to_playlist') {
+      let trackId = 0
+      let playlistId = 0
+      let playlistOwnerId = 0
+      notification.actions.filter(removeNullable).forEach((action) => {
+        const data = action.data
+        if (data.track_id && data.playlist_id) {
+          trackId = data.track_id ? (decodeHashId(data.track_id) as ID) : 0
+          playlistId = data.playlist_id
+            ? (decodeHashId(data.playlist_id) as ID)
+            : 0
+          playlistOwnerId = data.playlist_owner_id
+            ? (decodeHashId(data.playlist_owner_id) as ID)
+            : 0
+        }
+      })
+      return {
+        type: NotificationType.AddTrackToPlaylist,
+        trackId,
+        playlistId,
+        playlistOwnerId,
         ...formatBaseNotification(notification)
       }
     } else if (notification.type === 'tastemaker') {
@@ -2687,6 +2585,8 @@ export const audiusBackend = ({
         entityType,
         ...formatBaseNotification(notification)
       }
+    } else {
+      console.error('Notification does not match an expected type.')
     }
 
     return notification

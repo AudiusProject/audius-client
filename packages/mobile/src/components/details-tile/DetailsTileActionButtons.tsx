@@ -1,5 +1,7 @@
-import { FeatureFlags } from '@audius/common'
+import type { CommonState, ID } from '@audius/common'
+import { FeatureFlags, cacheCollectionsSelectors } from '@audius/common'
 import { View } from 'react-native'
+import { useSelector } from 'react-redux'
 
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconPencil from 'app/assets/images/iconPencil.svg'
@@ -13,12 +15,18 @@ import { flexRowCentered, makeStyles } from 'app/styles'
 import type { GestureResponderHandler } from 'app/types/gesture'
 import { useThemeColors } from 'app/utils/theme'
 
-// const messages = {
-//   publishButtonDisabledContent: 'You must add at least 1 track.',
-//   shareButtonDisabledContent: 'You can’t share an empty playlist.'
-// }
+const { getCollecitonHasHiddenTracks, getIsCollectionEmpty } =
+  cacheCollectionsSelectors
+
+const messages = {
+  publishButtonEmptyDisabledContent: 'You must add at least 1 track.',
+  publishButtonHiddenDisabledContent:
+    'You cannot make a playlist with hidden tracks public.',
+  shareButtonDisabledContent: 'You can’t share an empty playlist.'
+}
 
 type DetailsTileActionButtonsProps = {
+  collectionId?: ID
   hasReposted: boolean
   hasSaved: boolean
   isOwner: boolean
@@ -57,6 +65,10 @@ const useStyles = makeStyles(({ palette }) => ({
     position: 'relative',
     bottom: 1,
     marginHorizontal: 16
+  },
+
+  editButtonIcon: {
+    width: 27
   }
 }))
 
@@ -64,6 +76,7 @@ const useStyles = makeStyles(({ palette }) => ({
  * The action buttons on track and playlist screens
  */
 export const DetailsTileActionButtons = ({
+  collectionId,
   hasReposted,
   hasSaved,
   isPlaylist,
@@ -81,9 +94,15 @@ export const DetailsTileActionButtons = ({
   onPressShare
 }: DetailsTileActionButtonsProps) => {
   const styles = useStyles()
-  const { neutralLight4 } = useThemeColors()
+  const { neutralLight2 } = useThemeColors()
   const { isEnabled: isPlaylistUpdatesEnabled } = useFeatureFlag(
     FeatureFlags.PLAYLIST_UPDATES_PRE_QA
+  )
+  const isCollectionEmpty = useSelector((state: CommonState) =>
+    getIsCollectionEmpty(state, { id: collectionId })
+  )
+  const collectionHasHiddenTracks = useSelector((state: CommonState) =>
+    getCollecitonHasHiddenTracks(state, { id: collectionId })
   )
 
   const repostButton = (
@@ -106,12 +125,10 @@ export const DetailsTileActionButtons = ({
 
   const shareButton = (
     <IconButton
-      fill={neutralLight4}
+      fill={neutralLight2}
       icon={IconShare}
-      isDisabled={!isPublished}
-      // TODO: Add isDisabled based on if playlist is publishable logic
-      // Needs to check for hidden tracks and things like that
-      // disabledPressToastContent={messages.shareButtonDisabledContent}
+      isDisabled={isCollectionEmpty}
+      disabledPressToastContent={messages.shareButtonDisabledContent}
       onPress={onPressShare}
       styles={{ icon: [styles.actionButton, { height: 24, width: 24 }] }}
     />
@@ -119,7 +136,7 @@ export const DetailsTileActionButtons = ({
 
   const overflowMenu = (
     <IconButton
-      fill={neutralLight4}
+      fill={neutralLight2}
       icon={IconKebabHorizontal}
       onPress={onPressOverflow}
       styles={{ icon: styles.actionButton }}
@@ -128,21 +145,23 @@ export const DetailsTileActionButtons = ({
 
   const editButton = (
     <IconButton
-      fill={neutralLight4}
+      fill={neutralLight2}
       icon={IconPencil}
       onPress={onPressEdit}
-      styles={{ icon: styles.actionButton }}
+      styles={{ icon: [styles.actionButton, styles.editButtonIcon] }}
     />
   )
 
   const publishButton = (
     <IconButton
-      fill={neutralLight4}
+      fill={neutralLight2}
       icon={IconRocket}
-      // TODO: Add isDisabled based on if playlist is publishable logic
-      // Needs to check for hidden tracks and things like that
-      // isDisabled
-      // disabledPressToastContent={messages.publishButtonDisabledContent}
+      isDisabled={isCollectionEmpty || collectionHasHiddenTracks}
+      disabledPressToastContent={
+        collectionHasHiddenTracks
+          ? messages.publishButtonHiddenDisabledContent
+          : messages.publishButtonEmptyDisabledContent
+      }
       onPress={onPressPublish}
       styles={{ icon: styles.actionButton }}
     />

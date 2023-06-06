@@ -1,8 +1,7 @@
 import { useCallback, useEffect } from 'react'
 
 import { chatActions, chatSelectors, Status } from '@audius/common'
-import { View, Text } from 'react-native'
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
+import { View, Text, TouchableOpacity } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconCompose from 'app/assets/images/iconCompose.svg'
@@ -16,6 +15,7 @@ import { useThemePalette, useColor } from 'app/utils/theme'
 
 import { ChatListItem } from './ChatListItem'
 import { ChatListItemSkeleton } from './ChatListItemSkeleton'
+import { HeaderShadow } from './HeaderShadow'
 
 const { getChats, getChatsStatus } = chatSelectors
 const { fetchMoreMessages, fetchMoreChats } = chatActions
@@ -74,11 +74,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   },
   writeMessageButton: {
     marginTop: spacing(6)
-  },
-  shadow: {
-    borderBottomColor: palette.neutralLight6,
-    borderBottomWidth: 3,
-    borderBottomLeftRadius: 1
   }
 }))
 
@@ -118,9 +113,9 @@ export const ChatListScreen = () => {
     chats.length === 0 && (chatsStatus ?? Status.LOADING) === Status.LOADING
   const navigateToChatUserList = () => navigation.navigate('ChatUserList')
   const iconCompose = (
-    <TouchableWithoutFeedback onPress={navigateToChatUserList}>
+    <TouchableOpacity onPress={navigateToChatUserList}>
       <IconCompose fill={palette.neutralLight4} />
-    </TouchableWithoutFeedback>
+    </TouchableOpacity>
   )
 
   // Prefetch messages for initial loaded chats
@@ -151,7 +146,7 @@ export const ChatListScreen = () => {
       topbarRight={iconCompose}
     >
       <ScreenContent>
-        <View style={styles.shadow} />
+        <HeaderShadow />
         <View style={styles.rootContainer}>
           {isLoadingFirstTime ? (
             Array(4)

@@ -40,7 +40,6 @@ export enum FeatureFlags {
   TRENDING_UNDERGROUND_NOTIFICATIONS = 'trending_underground_notifications',
   TASTEMAKER_NOTIFICATIONS = 'tastemaker_notifications',
   SDK_DISCOVERY_NODE_SELECTOR = 'sdk_discovery_node_selector_2',
-  GET_METADATA_FROM_DISCOVERY_ENABLED = 'get_metadata_from_discovery_enabled',
   RELATED_ARTISTS_ON_PROFILE_ENABLED = 'related_artists_on_profile_enabled',
   PROXY_WORMHOLE = 'proxy_wormhole',
   STORAGE_V2_TRACK_UPLOAD = 'storage_v2_track_upload',
@@ -48,7 +47,6 @@ export enum FeatureFlags {
   PLAYLIST_UPDATES_PRE_QA = 'playlist_updates_pre_qa',
   PLAYLIST_UPDATES_POST_QA = 'playlist_updates_post_qa',
   AI_ATTRIBUTION = 'ai_attribution',
-  WRITE_METADATA_THROUGH_CHAIN = 'write_metadata_through_chain',
   DEVELOPER_APPS_PAGE = 'developer_apps_page',
   UPLOAD_REDESIGN_ENABLED = 'upload_redesign_enabled'
 }
@@ -106,7 +104,6 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.TRENDING_UNDERGROUND_NOTIFICATIONS]: false,
   [FeatureFlags.TASTEMAKER_NOTIFICATIONS]: false,
   [FeatureFlags.SDK_DISCOVERY_NODE_SELECTOR]: false,
-  [FeatureFlags.GET_METADATA_FROM_DISCOVERY_ENABLED]: false,
   [FeatureFlags.RELATED_ARTISTS_ON_PROFILE_ENABLED]: false,
   [FeatureFlags.PROXY_WORMHOLE]: false,
   [FeatureFlags.STORAGE_V2_TRACK_UPLOAD]: false,
@@ -114,7 +111,6 @@ export const flagDefaults: FlagDefaults = {
   [FeatureFlags.PLAYLIST_UPDATES_PRE_QA]: false,
   [FeatureFlags.PLAYLIST_UPDATES_POST_QA]: false,
   [FeatureFlags.AI_ATTRIBUTION]: false,
-  [FeatureFlags.WRITE_METADATA_THROUGH_CHAIN]: false,
   [FeatureFlags.DEVELOPER_APPS_PAGE]: false,
   [FeatureFlags.UPLOAD_REDESIGN_ENABLED]: false
 }
