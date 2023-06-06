@@ -105,8 +105,8 @@ export const ChatListScreen = () => {
   const navigation = useNavigation<AppTabScreenParamList>()
   const chats = useSelector(getChats)
   const chatsStatus = useSelector(getChatsStatus)
-
   const hasMore = useSelector(getHasMoreChats)
+
   // If this is the first fetch, we want to show the fade-out loading skeleton
   // On subsequent loads, we want to show a skeleton in each incoming chat row.
   const isLoadingFirstTime =

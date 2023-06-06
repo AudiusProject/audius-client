@@ -57,7 +57,12 @@ export const ChatList = (props: ChatListProps) => {
         hasMore={hasMore}
         useWindow={false}
         loader={
-          <LoadingSpinner key={'loading-spinner'} className={styles.spinner} />
+          hasLoadedOnce ? (
+            <LoadingSpinner
+              key={'loading-spinner'}
+              className={styles.spinner}
+            />
+          ) : undefined
         }
       >
         {chats?.length > 0 ? (
