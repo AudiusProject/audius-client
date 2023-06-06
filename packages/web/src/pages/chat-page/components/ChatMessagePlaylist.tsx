@@ -125,7 +125,7 @@ export const ChatMessagePlaylist = ({
         numLoadingSkeletonRows={tracksWithUids.length}
         togglePlay={() => {}}
         playingTrackId={playingTrackId}
-        isChat
+        variant='readonly'
       />
     </div>
   )

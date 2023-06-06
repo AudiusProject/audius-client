@@ -134,7 +134,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
     genre,
     isPlaying,
     isBuffering,
-    isChat
+    variant
   } = props
   const { isEnabled: isGatedContentEnabled } = useFlag(
     FeatureFlags.GATED_CONTENT_ENABLED
@@ -212,8 +212,10 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
     setModalVisibility
   ])
 
+  const isReadonly = variant === 'readonly'
+
   return (
-    <div className={cn(styles.container, { [styles.chat]: isChat })}>
+    <div className={cn(styles.container, { [styles.readonly]: isReadonly })}>
       {showPremiumCornerTag && cornerTagIconType ? (
         <TrackBannerIcon
           type={cornerTagIconType}
@@ -359,7 +361,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
                   [styles.isHidden]: props.isUnlisted
                 })}
                 onClick={
-                  props.repostCount && !isChat
+                  props.repostCount && !isReadonly
                     ? props.makeGoToRepostsPage(id)
                     : undefined
                 }
@@ -379,7 +381,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
                   [styles.isHidden]: props.isUnlisted
                 })}
                 onClick={
-                  props.saveCount && !isChat
+                  props.saveCount && !isReadonly
                     ? props.makeGoToFavoritesPage(id)
                     : undefined
                 }
@@ -403,7 +405,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
             {formatListenCount(props.listenCount)}
           </div>
         </div>
-        {!isChat ? (
+        {!isReadonly ? (
           <BottomButtons
             hasSaved={props.hasCurrentUserSaved}
             hasReposted={props.hasCurrentUserReposted}

@@ -85,7 +85,7 @@ export const ChatMessageTrack = ({
         showRankIcon={false}
         showArtistPick={false}
         isActive={isTrackPlaying}
-        isChat
+        variant='readonly'
       />
     </div>
   )
