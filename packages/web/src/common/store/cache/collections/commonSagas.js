@@ -3,7 +3,6 @@ import {
   DefaultSizes,
   Kind,
   makeKindId,
-  makeUid,
   squashNewLines,
   accountSelectors,
   accountActions,
@@ -13,11 +12,8 @@ import {
   cacheUsersSelectors,
   cacheActions,
   getContext,
-  audioRewardsPageActions,
-  toastActions,
-  cacheTracksSelectors
+  toastActions
 } from '@audius/common'
-import { isEqual } from 'lodash'
 import {
   all,
   call,
@@ -38,22 +34,18 @@ import {
   addPlaylistsNotInLibrary,
   removePlaylistFromLibrary
 } from 'common/store/playlist-library/sagas'
-import { ensureLoggedIn } from 'common/utils/ensureLoggedIn'
 import { waitForWrite } from 'utils/sagaHelpers'
 
+import { watchAddTrackToPlaylist } from './addTrackToPlaylistSaga'
 import { createPlaylistSaga } from './createPlaylistSaga'
+import { fixInvalidTracksInPlaylist } from './fixInvalidTracksInPlaylist'
 import { reformat } from './utils'
-import {
-  retrieveCollection,
-  retrieveCollections
-} from './utils/retrieveCollections'
+import { retrieveCollection } from './utils/retrieveCollections'
 
 const { manualClearToast, toast } = toastActions
 const { getUser } = cacheUsersSelectors
 const { getCollection } = cacheCollectionsSelectors
-const { getTrack } = cacheTracksSelectors
 const { getAccountUser, getUserId } = accountSelectors
-const { setOptimisticChallengeCompleted } = audioRewardsPageActions
 
 const messages = {
   editToast: 'Changes saved!'
@@ -124,6 +116,7 @@ function* confirmEditPlaylist(playlistId, userId, formFields) {
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
       function* (confirmedPlaylistId) {
+        console.log('hmmm', formFields)
         const { blockHash, blockNumber, error } = yield call(
           audiusBackendInstance.updatePlaylist,
           {
@@ -168,182 +161,6 @@ function* confirmEditPlaylist(playlistId, userId, formFields) {
         )
       },
       (result) => (result.playlist_id ? result.playlist_id : playlistId)
-    )
-  )
-}
-
-/** ADD TRACK TO PLAYLIST */
-
-function* watchAddTrackToPlaylist() {
-  yield takeEvery(
-    collectionActions.ADD_TRACK_TO_PLAYLIST,
-    addTrackToPlaylistAsync
-  )
-}
-
-function* addTrackToPlaylistAsync(action) {
-  yield waitForWrite()
-  const userId = yield call(ensureLoggedIn)
-  const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  const web3 = yield call(audiusBackendInstance.getWeb3)
-
-  // Retrieve tracks with the the collection so we confirm with the
-  // most up-to-date information.
-
-  const { collections } = yield call(retrieveCollections, [action.playlistId], {
-    userId,
-    fetchTracks: true
-  })
-  const playlist = collections[action.playlistId]
-
-  const track = yield select(getTrack, { id: action.trackId })
-
-  if (track && !playlist.cover_art_sizes) {
-    playlist._cover_art_sizes = track._cover_art_sizes
-    playlist.cover_art_sizes = track.cover_art_sizes
-  }
-
-  const trackUid = makeUid(
-    Kind.TRACKS,
-    action.trackId,
-    `collection:${action.playlistId}`
-  )
-  const currentBlockNumber = yield web3.eth.getBlockNumber()
-  const currentBlock = yield web3.eth.getBlock(currentBlockNumber)
-
-  playlist.playlist_contents = {
-    track_ids: playlist.playlist_contents.track_ids.concat({
-      track: action.trackId,
-      metadata_time: currentBlock.timestamp,
-      uid: trackUid
-    })
-  }
-  const count = countTrackIds(playlist.playlist_contents, action.trackId)
-
-  const event = make(Name.PLAYLIST_ADD, {
-    trackId: action.trackId,
-    playlistId: action.playlistId
-  })
-  yield put(event)
-
-  yield call(
-    confirmAddTrackToPlaylist,
-    userId,
-    action.playlistId,
-    action.trackId,
-    count,
-    playlist
-  )
-  yield put(
-    cacheActions.update(Kind.COLLECTIONS, [
-      {
-        id: playlist.playlist_id,
-        metadata: {
-          playlist_contents: playlist.playlist_contents,
-          track_count: count
-        }
-      }
-    ])
-  )
-  yield put(
-    cacheActions.subscribe(Kind.TRACKS, [{ uid: trackUid, id: action.trackId }])
-  )
-  yield put(
-    setOptimisticChallengeCompleted({
-      challengeId: 'first-playlist',
-      specifier: userId
-    })
-  )
-}
-
-function* confirmAddTrackToPlaylist(
-  userId,
-  playlistId,
-  trackId,
-  count,
-  playlist
-) {
-  const audiusBackendInstance = yield getContext('audiusBackendInstance')
-
-  yield put(
-    confirmerActions.requestConfirmation(
-      makeKindId(Kind.COLLECTIONS, playlistId),
-      function* (confirmedPlaylistId) {
-        const { blockHash, blockNumber, error } = yield call(
-          audiusBackendInstance.addPlaylistTrack,
-          playlist
-        )
-        if (error) throw error
-
-        const confirmed = yield call(confirmTransaction, blockHash, blockNumber)
-        if (!confirmed) {
-          throw new Error(
-            `Could not confirm add playlist track for playlist id ${playlistId} and track id ${trackId}`
-          )
-        }
-        return playlistId
-      },
-      function* (confirmedPlaylistId) {
-        const [confirmedPlaylist] = yield call(retrieveCollection, {
-          playlistId: confirmedPlaylistId
-        })
-
-        const playlist = yield select(getCollection, { id: playlistId })
-
-        /** Since "add track" calls are parallelized, tracks may be added
-         * out of order. Here we check if tracks made it in the intended order;
-         * if not, we reorder them into the correct order.
-         */
-        const numberOfTracksMatch =
-          confirmedPlaylist.playlist_contents.track_ids.length ===
-          playlist.playlist_contents.track_ids.length
-
-        const confirmedPlaylistHasTracks =
-          confirmedPlaylist.playlist_contents.track_ids.length > 0
-
-        if (numberOfTracksMatch && confirmedPlaylistHasTracks) {
-          const confirmedPlaylistTracks =
-            confirmedPlaylist.playlist_contents.track_ids.map((t) => t.track)
-          const cachedPlaylistTracks = playlist.playlist_contents.track_ids.map(
-            (t) => t.track
-          )
-          if (!isEqual(confirmedPlaylistTracks, cachedPlaylistTracks)) {
-            yield call(
-              confirmOrderPlaylist,
-              userId,
-              playlistId,
-              cachedPlaylistTracks
-            )
-          } else {
-            yield put(
-              cacheActions.update(Kind.COLLECTIONS, [
-                {
-                  id: confirmedPlaylist.playlist_id,
-                  metadata: confirmedPlaylist
-                }
-              ])
-            )
-          }
-        }
-      },
-      function* ({ error, timeout, message }) {
-        // Fail Call
-        yield put(
-          collectionActions.addTrackToPlaylistFailed(
-            message,
-            { userId, playlistId, trackId, count },
-            { error, timeout }
-          )
-        )
-      },
-      (result) => (result.playlist_id ? result.playlist_id : playlistId),
-      undefined,
-      {
-        operationId: PlaylistOperations.ADD_TRACK,
-        parallelizable: false,
-        useOnlyLastSuccessCall: false,
-        squashable: true
-      }
     )
   )
 }
@@ -402,33 +219,6 @@ function* removeTrackFromPlaylistAsync(action) {
       }
     ])
   )
-}
-
-// Removes the invalid track ids from the playlist by calling `dangerouslySetPlaylistOrder`
-function* fixInvalidTracksInPlaylist(playlistId, invalidTrackIds) {
-  yield waitForWrite()
-  const audiusBackendInstance = yield getContext('audiusBackendInstance')
-  const apiClient = yield getContext('apiClient')
-  const removedTrackIds = new Set(invalidTrackIds)
-
-  const playlist = yield select(getCollection, { id: playlistId })
-
-  const trackIds = playlist.playlist_contents.track_ids
-    .map(({ track }) => track)
-    .filter((id) => !removedTrackIds.has(id))
-  const { error } = yield call(
-    audiusBackendInstance.dangerouslySetPlaylistOrder,
-    playlistId,
-    trackIds
-  )
-  if (error) throw error
-
-  const currentUserId = yield select(getUserId)
-  const playlists = yield apiClient.getPlaylist({
-    playlistId,
-    currentUserId
-  })
-  return playlists[0]
 }
 
 function* confirmRemoveTrackFromPlaylist(

@@ -126,7 +126,9 @@ export const CollectionNavItem = (props: CollectionNavItemProps) => {
   const handleDrop = useCallback(
     (draggingId: PlaylistLibraryID, kind: DragDropKind) => {
       if (kind === 'track') {
-        dispatch(addTrackToPlaylist(draggingId as ID, id))
+        if (typeof id === 'number') {
+          dispatch(addTrackToPlaylist(draggingId as ID, id))
+        }
       } else {
         dispatch(
           reorder({
