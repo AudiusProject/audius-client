@@ -60,55 +60,39 @@ export const ChatTextInput = ({ chatId }: ChatTextInputProps) => {
   const { primary, primaryDark2, accentRed, accentBlue } = useThemeColors()
 
   const [inputMessage, setInputMessage] = useState('')
-  const [isPressed, setIsPressed] = useState(false)
+  const hasLength = inputMessage.length > 0
   const hasCurrentlyPlayingTrack = useSelector(getHasTrack)
-  console.log(`REED inputMessage: ${inputMessage} isPressed: ${isPressed}`)
 
-  const handleSubmit = useCallback(
-    (message) => {
-      console.log(`REED onPress firing`)
-      if (chatId && message) {
-        setInputMessage('')
-        dispatch(sendMessage({ chatId, message }))
-      }
-    },
-    [chatId, dispatch]
+  const handleSubmit = useCallback(() => {
+    if (chatId && inputMessage) {
+      dispatch(sendMessage({ chatId, message: inputMessage }))
+      setInputMessage('')
+    }
+  }, [inputMessage, chatId, dispatch])
+
+  const renderIcon = () => (
+    <Pressable
+      onPress={handleSubmit}
+      style={({ pressed }) => [
+        styles.iconCircle,
+        {
+          backgroundColor: pressed && hasLength ? accentRed : accentBlue,
+          opacity: hasLength ? ICON_FOCUS : ICON_BLUR
+        }
+      ]}
+    >
+      <IconSend
+        width={styles.icon.width}
+        height={styles.icon.height}
+        fill={styles.icon.fill}
+      />
+    </Pressable>
   )
-
-  const handlePressIn = useCallback(() => {
-    console.log('REED onPressIn')
-    setIsPressed(true)
-  }, [])
-
-  const handlePressOut = useCallback(() => {
-    console.log('REED onPressOut')
-    setIsPressed(false)
-  }, [])
 
   return (
     <TextInput
       placeholder={messages.startNewMessage}
-      Icon={() => (
-        <Pressable
-          onPress={() => handleSubmit(inputMessage)}
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-          style={[
-            styles.iconCircle,
-            {
-              backgroundColor:
-                isPressed && inputMessage ? accentRed : accentBlue,
-              opacity: inputMessage ? ICON_FOCUS : ICON_BLUR
-            }
-          ]}
-        >
-          <IconSend
-            width={styles.icon.width}
-            height={styles.icon.height}
-            fill={styles.icon.fill}
-          />
-        </Pressable>
-      )}
+      Icon={renderIcon}
       styles={{
         root: styles.composeTextContainer,
         input: [
@@ -117,9 +101,7 @@ export const ChatTextInput = ({ chatId }: ChatTextInputProps) => {
           { maxHeight: hasCurrentlyPlayingTrack ? spacing(70) : spacing(80) }
         ]
       }}
-      onChangeText={(text) => {
-        setInputMessage(text)
-      }}
+      onChangeText={setInputMessage}
       inputAccessoryViewID='none'
       multiline
       value={inputMessage}
