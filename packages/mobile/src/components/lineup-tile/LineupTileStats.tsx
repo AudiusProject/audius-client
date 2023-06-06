@@ -20,6 +20,7 @@ import { useThemeColors } from 'app/utils/theme'
 
 import { LineupTileRankIcon } from './LineupTileRankIcon'
 import { useStyles as useTrackTileStyles } from './styles'
+import { LineupItemVariant } from './types'
 const { setFavorite } = favoritesUserListActions
 const { setRepost } = repostsUserListActions
 
@@ -72,7 +73,7 @@ type Props = {
   index: number
   isCollection?: boolean
   isTrending?: boolean
-  isChat?: boolean
+  variant?: LineupItemVariant
   isUnlisted?: boolean
   playCount?: number
   repostCount: number
@@ -88,7 +89,7 @@ export const LineupTileStats = ({
   index,
   isCollection,
   isTrending,
-  isChat,
+  variant,
   isUnlisted,
   playCount,
   repostCount,
@@ -119,6 +120,8 @@ export const LineupTileStats = ({
     <TrackDownloadStatusIndicator size={18} trackId={id} />
   )
 
+  const isReadonly = variant === 'readonly'
+
   return (
     <View style={styles.stats}>
       {isTrending ? (
@@ -131,7 +134,7 @@ export const LineupTileStats = ({
               trackTileStyles.statItem,
               !repostCount ? styles.disabledStatItem : null
             ]}
-            disabled={!repostCount || isChat}
+            disabled={!repostCount || isReadonly}
             onPress={handlePressReposts}
           >
             <Text style={trackTileStyles.statText}>
@@ -149,7 +152,7 @@ export const LineupTileStats = ({
               trackTileStyles.statItem,
               !saveCount ? styles.disabledStatItem : null
             ]}
-            disabled={!saveCount || isChat}
+            disabled={!saveCount || isReadonly}
             onPress={handlePressFavorites}
           >
             <Text style={trackTileStyles.statText}>

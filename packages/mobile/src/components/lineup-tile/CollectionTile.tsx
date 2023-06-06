@@ -106,7 +106,7 @@ const CollectionTileComponent = ({
   togglePlay,
   tracks,
   user,
-  isChat,
+  variant,
   ...lineupTileProps
 }: CollectionTileProps) => {
   const dispatch = useDispatch()
@@ -258,7 +258,7 @@ const CollectionTileComponent = ({
       title={playlist_name}
       item={collection}
       user={user}
-      isChat={isChat}
+      variant={variant}
     >
       <CollectionTileTrackList tracks={tracks} onPress={handlePressTitle} />
     </LineupTile>

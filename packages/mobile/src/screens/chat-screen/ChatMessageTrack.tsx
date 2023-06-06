@@ -92,7 +92,7 @@ export const ChatMessageTrack = ({
       showArtistPick={false}
       showRankIcon={false}
       styles={styles}
-      isChat
+      variant='readonly'
     />
   )
 }

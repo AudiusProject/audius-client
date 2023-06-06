@@ -76,7 +76,7 @@ export const TrackTileComponent = ({
   togglePlay,
   track,
   user,
-  isChat,
+  variant,
   ...lineupTileProps
 }: TrackTileProps) => {
   const isGatedContentEnabled = useIsGatedContentEnabled()
@@ -236,7 +236,7 @@ export const TrackTileComponent = ({
       title={title}
       item={track}
       user={user}
-      isChat={isChat}
+      variant={variant}
     />
   )
 }

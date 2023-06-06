@@ -53,7 +53,7 @@ export const LineupTile = ({
   item,
   user,
   isPlayingUid,
-  isChat,
+  variant,
   styles,
   TileProps
 }: LineupTileProps) => {
@@ -101,6 +101,8 @@ export const LineupTile = ({
     isTrack &&
     (item.genre === Genre.PODCASTS || item.genre === Genre.AUDIOBOOKS)
 
+  const isReadonly = variant === 'readonly'
+
   return (
     <LineupTileRoot onPress={handlePress} style={styles} {...TileProps}>
       {showPremiumCornerTag && cornerTagIconType ? (
@@ -145,7 +147,7 @@ export const LineupTile = ({
           index={index}
           isCollection={isCollection}
           isTrending={isTrending}
-          isChat={isChat}
+          variant={variant}
           isUnlisted={isUnlisted}
           playCount={playCount}
           repostCount={repost_count}
@@ -154,7 +156,7 @@ export const LineupTile = ({
         />
       </View>
       {children}
-      {!isChat ? (
+      {!isReadonly ? (
         <LineupTileActionButtons
           hasReposted={has_current_user_reposted}
           hasSaved={has_current_user_saved}

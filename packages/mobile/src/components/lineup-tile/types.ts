@@ -18,6 +18,12 @@ import type { GestureResponderHandler } from 'app/types/gesture'
 import type { TileProps } from '../core'
 import type { ImageProps } from '../image/FastImage'
 
+/**
+ * Optional variant to modify the lineup item features and styles
+ * The 'readonly' variant will remove the action buttons on the tile
+ */
+export type LineupItemVariant = 'readonly'
+
 export type LineupItemProps = {
   /** Index of tile in lineup */
   index: number
@@ -40,8 +46,8 @@ export type LineupItemProps = {
   /** Uid of the item */
   uid: UID
 
-  /** Whether user is in chat screen */
-  isChat?: boolean
+  /** Optionally passed in variant */
+  variant?: LineupItemVariant
 
   /** Optionally passed in collection to override  */
   collection?: Collection
