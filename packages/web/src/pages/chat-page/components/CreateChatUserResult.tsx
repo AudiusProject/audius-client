@@ -19,7 +19,6 @@ import {
   PopupMenu,
   PopupPosition
 } from '@audius/stems'
-import cn from 'classnames'
 import { push as pushRoute } from 'connected-react-router'
 import { useDispatch } from 'react-redux'
 
@@ -41,7 +40,8 @@ const messages = {
 
 type UserResultComposeProps = {
   user: User
-  closeModal: () => void
+  closeParentModal: () => void
+  openInboxUnavailableModal: (user: User) => void
 }
 
 const { getUserId } = accountSelectors
@@ -65,7 +65,7 @@ const renderTrigger = (
 
 export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   const dispatch = useDispatch()
-  const { user, closeModal } = props
+  const { user, closeParentModal, openInboxUnavailableModal } = props
   const currentUserId = useSelector(getUserId)
   const supportingMap = useSelector(getOptimisticSupporting)
   const supportersMap = useSelector(getOptimisticSupporters)
@@ -79,13 +79,15 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   const handleComposeClicked = useCallback(() => {
     if (canCreateChat) {
       dispatch(createChat({ userIds: [user.user_id] }))
+    } else {
+      openInboxUnavailableModal(user)
     }
-  }, [dispatch, user, canCreateChat])
+  }, [dispatch, user, canCreateChat, openInboxUnavailableModal])
 
   const handleVisitClicked = useCallback(() => {
     dispatch(pushRoute(profilePage(user.handle)))
-    closeModal()
-  }, [dispatch, user, closeModal])
+    closeParentModal()
+  }, [dispatch, user, closeParentModal])
 
   const handleBlockClicked = useCallback(() => {
     dispatch(blockUser({ userId: user.user_id }))
@@ -136,11 +138,7 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   }
 
   return (
-    <div
-      className={cn(styles.root, {
-        [styles.disabled]: !canCreateChat
-      })}
-    >
+    <div className={styles.root}>
       <ArtistChip
         className={styles.artistChip}
         user={user}
@@ -148,7 +146,10 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
         showSupportFor={currentUserId ?? undefined}
         customChips={
           canCreateChat ? null : (
-            <div className={styles.notPermitted}>{messages.notPermitted}</div>
+            <div className={styles.notPermitted}>
+              <IconBlockMessages className={styles.icon} />
+              <span>{messages.notPermitted}</span>
+            </div>
           )
         }
         onClickArtistName={handleComposeClicked}
