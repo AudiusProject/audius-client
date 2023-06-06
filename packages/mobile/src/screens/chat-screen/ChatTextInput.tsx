@@ -1,8 +1,7 @@
 import { useCallback, useState } from 'react'
 
 import { chatActions, playerSelectors } from '@audius/common'
-import { Platform, Pressable, View } from 'react-native'
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
+import { Platform, Pressable } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconSend from 'app/assets/images/iconSend.svg'
