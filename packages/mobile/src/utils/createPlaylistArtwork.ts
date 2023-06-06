@@ -32,8 +32,6 @@ export async function createPlaylistArtwork(imageUrls: string[]) {
     }
   }
 
-  newImage.toString()
-
   const fileName = 'playlist-artwork'
   const url = `${dirs.DocumentDir}/${fileName}.jpg`
   const imageContents = await newImage.getBase64Async(mimeType)
