@@ -38,15 +38,15 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     paddingTop: 0
   },
   icon: {
-    width: spacing(4),
-    height: spacing(4),
+    width: spacing(5),
+    height: spacing(5),
     fill: palette.white
   },
   iconCircle: {
     borderRadius: spacing(5),
-    paddingVertical: spacing(2),
-    paddingLeft: 7,
-    paddingRight: 9
+    paddingVertical: spacing(1.5),
+    paddingLeft: 5,
+    paddingRight: 7
   }
 }))
 
@@ -57,7 +57,7 @@ type ChatTextInputProps = {
 export const ChatTextInput = ({ chatId }: ChatTextInputProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
-  const { primary, primaryDark2, accentRed, accentBlue } = useThemeColors()
+  const { primary, primaryDark2 } = useThemeColors()
 
   const [inputMessage, setInputMessage] = useState('')
   const hasLength = inputMessage.length > 0
@@ -76,7 +76,7 @@ export const ChatTextInput = ({ chatId }: ChatTextInputProps) => {
       style={({ pressed }) => [
         styles.iconCircle,
         {
-          backgroundColor: pressed && hasLength ? accentRed : accentBlue,
+          backgroundColor: pressed && hasLength ? primaryDark2 : primary,
           opacity: hasLength ? ICON_FOCUS : ICON_BLUR
         }
       ]}
