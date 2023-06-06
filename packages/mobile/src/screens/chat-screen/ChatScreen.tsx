@@ -244,8 +244,8 @@ export const ChatScreen = () => {
   const popupMessage = useSelector((state) =>
     getChatMessageById(state, chatId ?? '', popupMessageId ?? '')
   )
-  const { canSendMessage, firstOtherUser: otherUser } =
-    useCanSendMessage(chatId)
+  const { canSendMessage, firstOtherUser } = useCanSendMessage(chatId)
+  const otherUser = firstOtherUser ?? {}
 
   // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
   // Using a ref instead of state here to prevent unwanted flickers.
