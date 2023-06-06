@@ -89,7 +89,8 @@ export class Explore {
         limit,
         with_users: true,
         filter: FeedFilter.ORIGINAL,
-        tracks_only: true
+        tracks_only: true,
+        current_user_id: currentUserId
       })) as UserTrackMetadata[] | null
       if (!lineupItems) return []
 

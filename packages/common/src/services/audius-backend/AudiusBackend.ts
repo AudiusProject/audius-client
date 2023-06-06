@@ -1193,6 +1193,32 @@ export const audiusBackend = ({
     }
   }
 
+  // TODO(C-2719)
+  async function getCreators(ids: ID[]) {
+    try {
+      if (ids.length === 0) return []
+      const creators: User[] = await withEagerOption(
+        {
+          normal: (libs) => libs.User.getUsers,
+          eager: DiscoveryAPI.getUsers
+        },
+        ids.length,
+        0,
+        ids
+      )
+      if (!creators) {
+        return []
+      }
+
+      return Promise.all(
+        creators.map(async (creator: User) => getUserImages(creator))
+      )
+    } catch (err) {
+      console.error(getErrorMessage(err))
+      return []
+    }
+  }
+
   async function getSocialHandles(handle: string) {
     try {
       const res = await fetch(
@@ -3410,6 +3436,7 @@ export const audiusBackend = ({
     getClaimDistributionAmount,
     getCollectionImages,
     getCreatorNodeIPFSGateways,
+    getCreators,
     getSocialHandles,
     getEmailNotificationSettings,
     getFolloweeFollows,
