@@ -78,8 +78,8 @@ export const ReactionList = (props: ReactionListProps) => {
         positions.current
       ) as PositionEntries
 
-      // based on the current x0 and moveX, determine which reaction the
-      // user is interacting with.
+      // Based on the current x0 and moveX, determine which reaction the user
+      // is interacting with. Offset by the distance from the left edge of screen.
       const currentReaction = positionEntries.find(([, { x, width }]) => {
         const currentPosition = (moveX || x0) - xOffset.current
         return currentPosition > x && currentPosition <= x + width
