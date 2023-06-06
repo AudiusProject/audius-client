@@ -28,6 +28,9 @@ export const getChatsStatus = (state: CommonState) =>
 export const getChatsSummary = (state: CommonState) =>
   state.pages.chat.chats.summary
 
+export const getHasMoreChats = (state: CommonState) =>
+  state.pages.chat.chats.hasMore
+
 export const getOptimisticReads = (state: CommonState) =>
   state.pages.chat.optimisticChatRead
 

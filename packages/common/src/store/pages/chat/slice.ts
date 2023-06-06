@@ -31,6 +31,7 @@ type ChatID = string
 type ChatState = {
   chats: EntityState<UserChatWithMessagesStatus> & {
     status: Status
+    hasMore: boolean
     summary?: TypedCommsResponse<UserChat>['summary']
   }
   messages: Record<
@@ -108,6 +109,7 @@ const recalculatePreviousMessageHasTail = (
 
 const initialState: ChatState = {
   chats: {
+    hasMore: true,
     status: Status.IDLE,
     ...chatsAdapter.getInitialState()
   },
@@ -158,8 +160,11 @@ const slice = createSlice({
       state,
       action: PayloadAction<TypedCommsResponse<UserChat[]>>
     ) => {
+      const { summary } = action.payload
       state.chats.status = Status.SUCCESS
-      state.chats.summary = action.payload.summary
+      state.chats.summary = summary
+      state.chats.hasMore =
+        summary?.prev_count !== undefined && summary.prev_count > 0
       for (const chat of action.payload.data) {
         if (!(chat.chat_id in state.messages)) {
           state.messages[chat.chat_id] = chatMessagesAdapter.getInitialState()
