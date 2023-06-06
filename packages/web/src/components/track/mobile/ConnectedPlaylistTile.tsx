@@ -121,7 +121,7 @@ const ConnectedPlaylistTile = ({
   showRankIcon,
   isTrending,
   variant,
-  isFeed = false,
+  isFeed = false
 }: ConnectedPlaylistTileProps) => {
   const collection = getCollectionWithFallback(nullableCollection)
   const user = getUserWithFallback(nullableUser)

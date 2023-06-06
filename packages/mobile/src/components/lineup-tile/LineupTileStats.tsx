@@ -20,7 +20,7 @@ import { useThemeColors } from 'app/utils/theme'
 
 import { LineupTileRankIcon } from './LineupTileRankIcon'
 import { useStyles as useTrackTileStyles } from './styles'
-import { LineupItemVariant } from './types'
+import type { LineupItemVariant } from './types'
 const { setFavorite } = favoritesUserListActions
 const { setRepost } = repostsUserListActions
 
