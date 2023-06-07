@@ -8,12 +8,7 @@
 }
 
 .input {
-  padding: var(--unit-1) var(--unit-4);
-}
-
-.input textarea {
-  /* Compensate for the larger icon */
-  line-height: 200%;
+  padding: var(--unit-2) var(--unit-4);
 }
 
 .icon {
