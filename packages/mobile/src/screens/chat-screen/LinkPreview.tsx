@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 import { useLinkUnfurlMetadata } from '@audius/common'
 import type { GestureResponderEvent, ViewStyle } from 'react-native'
 import { View, Image } from 'react-native'
@@ -99,14 +101,15 @@ export const LinkPreview = ({
   const willRender = !!(description || title || image)
   const domain = metadata?.url ? new URL(metadata.url).hostname : ''
 
-  if (willRender) {
-    onSuccess?.()
-  } else {
-    onEmpty?.()
-    return null
-  }
+  useEffect(() => {
+    if (willRender) {
+      onSuccess?.()
+    } else {
+      onEmpty?.()
+    }
+  }, [willRender, onSuccess, onEmpty])
 
-  return (
+  return willRender ? (
     <Link
       url={href}
       delayLongPress={REACTION_LONGPRESS_DELAY}
@@ -165,5 +168,5 @@ export const LinkPreview = ({
         ) : null}
       </View>
     </Link>
-  )
+  ) : null
 }

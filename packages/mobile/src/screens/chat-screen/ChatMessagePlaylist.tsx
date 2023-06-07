@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useEffect } from 'react'
 
 import type { ChatMessageTileProps, ID, TrackPlayback } from '@audius/common'
 import {
@@ -44,13 +44,15 @@ export const ChatMessagePlaylist = ({
     },
     { disabled: !playlistId }
   )
-  const collection = playlist
-    ? {
-        ...playlist,
-        // todo: make sure good value is passed in here
-        _cover_art_sizes: {}
-      }
-    : null
+  const collection = useMemo(() => {
+    return playlist
+      ? {
+          ...playlist,
+          // todo: make sure good value is passed in here
+          _cover_art_sizes: {}
+        }
+      : null
+  }, [playlist])
 
   const uid = playlist ? makeUid(Kind.COLLECTIONS, playlist.playlist_id) : null
   const trackIds =
@@ -134,14 +136,15 @@ export const ChatMessagePlaylist = ({
     pauseTrack
   ])
 
-  if (collection && uid) {
-    onSuccess?.()
-  } else {
-    onEmpty?.()
-    return null
-  }
+  useEffect(() => {
+    if (collection && uid) {
+      onSuccess?.()
+    } else {
+      onEmpty?.()
+    }
+  }, [collection, uid, onSuccess, onEmpty])
 
-  return (
+  return collection && uid ? (
     <CollectionTile
       index={0}
       togglePlay={togglePlay}
@@ -154,5 +157,5 @@ export const ChatMessagePlaylist = ({
       styles={styles}
       variant='readonly'
     />
-  )
+  ) : null
 }

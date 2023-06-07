@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 
 import type { ChatMessageTileProps, ID, TrackPlayback } from '@audius/common'
 import {
@@ -34,21 +34,26 @@ export const ChatMessageTrack = ({
     },
     { disabled: !permalink }
   )
-  const item = track
-    ? {
-        ...track,
-        // todo: make sure good value is passed in here
-        _cover_art_sizes: {}
-      }
-    : null
-  const user = track
-    ? {
-        ...track.user,
-        // todo: make sure good values are passed in here
-        _profile_picture_sizes: {},
-        _cover_photo_sizes: {}
-      }
-    : null
+  const item = useMemo(() => {
+    return track
+      ? {
+          ...track,
+          // todo: make sure good value is passed in here
+          _cover_art_sizes: {}
+        }
+      : null
+  }, [track])
+
+  const user = useMemo(() => {
+    return track
+      ? {
+          ...track.user,
+          // todo: make sure good values are passed in here
+          _profile_picture_sizes: {},
+          _cover_photo_sizes: {}
+        }
+      : null
+  }, [track])
 
   const trackId = track?.track_id
   const uid = useMemo(() => {
@@ -76,14 +81,15 @@ export const ChatMessageTrack = ({
     recordAnalytics
   })
 
-  if (item && user && uid) {
-    onSuccess?.()
-  } else {
-    onEmpty?.()
-    return null
-  }
+  useEffect(() => {
+    if (item && user && uid) {
+      onSuccess?.()
+    } else {
+      onEmpty?.()
+    }
+  }, [item, user, uid, onSuccess, onEmpty])
 
-  return (
+  return item && user && uid ? (
     <TrackTile
       index={0}
       togglePlay={togglePlay}
@@ -94,5 +100,5 @@ export const ChatMessageTrack = ({
       styles={styles}
       variant='readonly'
     />
-  )
+  ) : null
 }

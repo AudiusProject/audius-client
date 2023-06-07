@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useEffect } from 'react'
 
 import {
   Kind,
@@ -42,13 +42,15 @@ export const ChatMessagePlaylist = ({
     },
     { disabled: !playlistId || !currentUserId }
   )
-  const collection = playlist
-    ? {
-        ...playlist,
-        // todo: make sure good value is passed in here
-        _cover_art_sizes: {}
-      }
-    : null
+  const collection = useMemo(() => {
+    return playlist
+      ? {
+          ...playlist,
+          // todo: make sure good value is passed in here
+          _cover_art_sizes: {}
+        }
+      : null
+  }, [playlist])
 
   const uid = playlist ? makeUid(Kind.COLLECTIONS, playlist.playlist_id) : null
   const trackIds =
@@ -100,14 +102,15 @@ export const ChatMessagePlaylist = ({
 
   const pauseTrack = usePauseTrack()
 
-  if (collection && uid) {
-    onSuccess?.()
-  } else {
-    onEmpty?.()
-    return null
-  }
+  useEffect(() => {
+    if (collection && uid) {
+      onSuccess?.()
+    } else {
+      onEmpty?.()
+    }
+  }, [collection, uid, onSuccess, onEmpty])
 
-  return (
+  return collection && uid ? (
     <div className={className}>
       {/* You may wonder why we use the mobile web playlist tile here.
       It's simply because the chat playlist tile uses the same design as mobile web. */}
@@ -128,5 +131,5 @@ export const ChatMessagePlaylist = ({
         variant='readonly'
       />
     </div>
-  )
+  ) : null
 }

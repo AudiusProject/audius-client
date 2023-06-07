@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 
 import {
   Kind,
@@ -64,14 +64,15 @@ export const ChatMessageTrack = ({
     recordAnalytics
   })
 
-  if (track && uid) {
-    onSuccess?.()
-  } else {
-    onEmpty?.()
-    return null
-  }
+  useEffect(() => {
+    if (track && uid) {
+      onSuccess?.()
+    } else {
+      onEmpty?.()
+    }
+  }, [track, uid, onSuccess, onEmpty])
 
-  return (
+  return track && uid ? (
     <div className={className}>
       {/* You may wonder why we use the mobile web track tile here.
       It's simply because the chat track tile uses the same design as mobile web. */}
@@ -88,5 +89,5 @@ export const ChatMessageTrack = ({
         variant='readonly'
       />
     </div>
-  )
+  ) : null
 }

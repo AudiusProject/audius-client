@@ -17,7 +17,7 @@ type RecordAnalytics = ({ name, id }: { name: TrackPlayback; id: ID }) => void
 type UseToggleTrack = {
   uid: Nullable<string>
   source: QueueSource
-  recordAnalytics: RecordAnalytics
+  recordAnalytics?: RecordAnalytics
   id?: Nullable<ID>
 }
 

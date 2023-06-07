@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 import { useLinkUnfurlMetadata } from '@audius/common'
 import cn from 'classnames'
 
@@ -15,18 +17,18 @@ export const LinkPreview = (props: LinkPreviewProps) => {
   const { href, chatId, messageId, onEmpty, onSuccess } = props
   const metadata = useLinkUnfurlMetadata(chatId, messageId, href) ?? {}
   const { description, title, site_name: siteName, image } = metadata
-  console.log({ description, title, site_name: siteName, image, href })
   const willRender = !!(description || title || image)
   const domain = metadata?.url ? new URL(metadata?.url).hostname : ''
 
-  if (willRender) {
-    onSuccess?.()
-  } else {
-    onEmpty?.()
-    return null
-  }
+  useEffect(() => {
+    if (willRender) {
+      onSuccess?.()
+    } else {
+      onEmpty?.()
+    }
+  }, [willRender, onSuccess, onEmpty])
 
-  return (
+  return willRender ? (
     <a
       className={cn(styles.root, props.className)}
       href={href}
@@ -55,5 +57,5 @@ export const LinkPreview = (props: LinkPreviewProps) => {
         </span>
       ) : null}
     </a>
-  )
+  ) : null
 }
