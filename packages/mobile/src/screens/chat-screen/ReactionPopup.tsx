@@ -223,6 +223,7 @@ export const ReactionPopup = ({
         <Animated.View
           style={[
             styles.reactionsContainer,
+            styles.popupChatMessage,
             {
               top: Math.max(
                 messageTop - containerTop - REACTION_CONTAINER_HEIGHT,
