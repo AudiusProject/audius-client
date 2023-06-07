@@ -3,6 +3,7 @@ import { useCallback, useEffect } from 'react'
 import {
   accountSelectors,
   chatActions,
+  ChatPermissionAction,
   chatSelectors,
   removeNullable,
   tippingActions,
@@ -14,6 +15,7 @@ import {
   IconButton,
   IconKebabHorizontal,
   IconMessage,
+  IconTipping,
   IconUnblockMessages,
   IconUser,
   PopupMenu,
@@ -35,7 +37,9 @@ const messages = {
   visit: "Visit User's Profile",
   block: 'Block Messages',
   unblock: 'Unblock Messages',
-  notPermitted: 'Cannot Be Messaged'
+  notPermitted: 'Cannot Be Messaged',
+  sendTipRequired: 'Send a Tip to Message',
+  unblockRequired: 'Unblock to Message'
 }
 
 type UserResultComposeProps = {
@@ -63,6 +67,32 @@ const renderTrigger = (
   />
 )
 
+const renderCustomChip = (callToAction: ChatPermissionAction) => {
+  switch (callToAction) {
+    case ChatPermissionAction.TIP:
+      return (
+        <div className={styles.notPermitted}>
+          <IconTipping className={styles.icon} />
+          <span>{messages.sendTipRequired}</span>
+        </div>
+      )
+    case ChatPermissionAction.UNBLOCK:
+      return (
+        <div className={styles.notPermitted}>
+          <IconUnblockMessages className={styles.icon} />
+          <span>{messages.unblockRequired}</span>
+        </div>
+      )
+    default:
+      return (
+        <div className={styles.notPermitted}>
+          <IconBlockMessages className={styles.icon} />
+          <span>{messages.notPermitted}</span>
+        </div>
+      )
+  }
+}
+
 export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   const dispatch = useDispatch()
   const { user, closeParentModal, openInboxUnavailableModal } = props
@@ -72,7 +102,7 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   const blockeeList = useSelector(getBlockees)
   const isBlockee = blockeeList.includes(user.user_id)
 
-  const { canCreateChat } = useSelector((state) =>
+  const { canCreateChat, callToAction } = useSelector((state) =>
     getCanCreateChat(state, { userId: user.user_id })
   )
 
@@ -144,14 +174,7 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
         user={user}
         showPopover={false}
         showSupportFor={currentUserId ?? undefined}
-        customChips={
-          canCreateChat ? null : (
-            <div className={styles.notPermitted}>
-              <IconBlockMessages className={styles.icon} />
-              <span>{messages.notPermitted}</span>
-            </div>
-          )
-        }
+        customChips={canCreateChat ? null : renderCustomChip(callToAction)}
         onClickArtistName={handleComposeClicked}
       />
       <PopupMenu
