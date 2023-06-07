@@ -37,7 +37,7 @@ export const TextField = (props: TextFieldProps) => {
         {...other}
       />
       {/* TODO: styling */}
-      {error && touched && errorMessage ? { errorMessage } : null}
+      {error && touched && errorMessage ? errorMessage : null}
     </>
   )
 }

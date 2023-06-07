@@ -1,3 +1,5 @@
+import { useCallback } from 'react'
+
 import { ExtendedTrackMetadata, Nullable } from '@audius/common'
 import { Button, ButtonType, IconArrow } from '@audius/stems'
 import { Formik } from 'formik'
@@ -10,6 +12,7 @@ import { TrackForUpload } from './types'
 
 type EditPageProps = {
   tracks: TrackForUpload[]
+  setTracks: (tracks: TrackForUpload[]) => void
   onContinue: () => void
 }
 export type FormValues = ExtendedTrackMetadata & {
@@ -32,12 +35,13 @@ const EditTrackSchema = Yup.object().shape({
     // })
     .nullable(),
   trackArtwork: Yup.string().nullable(),
-  genre: Yup.string().required('Required'),
+  //   genre: Yup.string().required('Required'),
+  genre: Yup.string(),
   description: Yup.string().max(1000).nullable()
 })
 
 export const EditPageNew = (props: EditPageProps) => {
-  const { tracks, onContinue } = props
+  const { tracks, setTracks, onContinue } = props
 
   const initialValues: FormValues = {
     ...tracks[0].metadata,
@@ -49,10 +53,18 @@ export const EditPageNew = (props: EditPageProps) => {
     }
   }
 
+  const onSubmit = useCallback(
+    (values: FormValues) => {
+      setTracks([{ ...tracks[0], metadata: values }])
+      onContinue()
+    },
+    [onContinue, setTracks, tracks]
+  )
+
   return (
     <Formik<FormValues>
       initialValues={initialValues}
-      onSubmit={onContinue}
+      onSubmit={onSubmit}
       validationSchema={EditTrackSchema}
     >
       {(formikProps) => (
