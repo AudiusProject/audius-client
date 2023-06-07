@@ -139,7 +139,7 @@ export const ReactionPopup = ({
 
   const handleReactionSelected = useCallback(
     (message: Nullable<ChatMessageWithExtras>, reaction: ReactionTypes) => {
-      if (userId && message) {
+      if (userId && message && reaction) {
         dispatch(
           setMessageReaction({
             userId,
