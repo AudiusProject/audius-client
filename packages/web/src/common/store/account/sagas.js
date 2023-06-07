@@ -9,13 +9,15 @@ import {
   createUserBankIfNeeded,
   getContext,
   FeatureFlags,
-  chatActions
+  chatActions,
+  ErrorLevel
 } from '@audius/common'
 import { call, put, fork, select, takeEvery } from 'redux-saga/effects'
 
 import { identify } from 'common/store/analytics/actions'
 import { addPlaylistsNotInLibrary } from 'common/store/playlist-library/sagas'
 import { updateProfileAsync } from 'common/store/profile/sagas'
+import { reportToSentry } from 'store/errors/reportToSentry'
 import { waitForWrite, waitForRead } from 'utils/sagaHelpers'
 
 import { retrieveCollections } from '../cache/collections/utils'
@@ -30,7 +32,6 @@ const {
   getUserId,
   getUserHandle,
   getAccountUser,
-  getAccountAlbumIds,
   getAccountSavedPlaylistIds,
   getAccountOwnedPlaylistIds,
   getAccountToCache
@@ -46,7 +47,6 @@ const {
   twitterLogin,
   instagramLogin,
   tikTokLogin,
-  fetchSavedAlbums,
   fetchSavedPlaylists,
   addAccountPlaylist
 } = accountActions
@@ -123,7 +123,7 @@ function* onSignedIn({ payload: { account } }) {
 
   // Create userbank only if lazy is not enabled
   const feePayerOverride = yield select(getFeePayer)
-  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
+  const getFeatureEnabled = yield getContext('getFeatureEnabled')
   if (!getFeatureEnabled(FeatureFlags.LAZY_USERBANK_CREATION_ENABLED)) {
     yield call(
       createUserBankIfNeeded,
@@ -236,7 +236,7 @@ export function* fetchLocalAccountAsync() {
       cachedAccountUser.orderedPlaylists
     )
   } else if (!currentUserExists) {
-    yield put(fetchAccountFailed({ reason: 'ACCOUNT_NOT_FOUND' }))
+    yield put(fetchAccountFailed({ reason: 'ACCOUNT_NOT_FOUND_LOCAL' }))
   }
 }
 
@@ -361,14 +361,6 @@ function* associateTikTokAccount(action) {
   }
 }
 
-function* fetchSavedAlbumsAsync() {
-  yield waitForRead()
-  const cachedSavedAlbums = yield select(getAccountAlbumIds)
-  if (cachedSavedAlbums.length > 0) {
-    yield call(retrieveCollections, cachedSavedAlbums)
-  }
-}
-
 function* fetchSavedPlaylistsAsync() {
   yield waitForRead()
 
@@ -393,6 +385,19 @@ function* watchFetchAccount() {
   yield takeEvery(fetchAccount.type, fetchAccountAsync)
 }
 
+function* watchFetchAccountFailed() {
+  yield takeEvery(accountActions.fetchAccountFailed.type, function* (action) {
+    const userId = yield select(getUserId)
+    if (userId) {
+      yield call(reportToSentry, {
+        level: ErrorLevel.Error,
+        error: new Error(`Fetch account failed: ${action.payload.reason}`),
+        additionalInfo: { userId }
+      })
+    }
+  })
+}
+
 function* watchFetchLocalAccount() {
   yield takeEvery(fetchLocalAccount.type, fetchLocalAccountAsync)
 }
@@ -413,10 +418,6 @@ function* watchTikTokLogin() {
   yield takeEvery(tikTokLogin.type, associateTikTokAccount)
 }
 
-function* watchFetchSavedAlbums() {
-  yield takeEvery(fetchSavedAlbums.type, fetchSavedAlbumsAsync)
-}
-
 function* watchFetchSavedPlaylists() {
   yield takeEvery(fetchSavedPlaylists.type, fetchSavedPlaylistsAsync)
 }
@@ -429,11 +430,11 @@ export default function sagas() {
   return [
     watchFetchAccount,
     watchFetchLocalAccount,
+    watchFetchAccountFailed,
     watchSignedIn,
     watchTwitterLogin,
     watchInstagramLogin,
     watchTikTokLogin,
-    watchFetchSavedAlbums,
     watchFetchSavedPlaylists,
     watchAddAccountPlaylist
   ]

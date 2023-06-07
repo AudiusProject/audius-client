@@ -1,8 +1,7 @@
 import { useCallback, useEffect } from 'react'
 
 import { chatActions, chatSelectors, Status } from '@audius/common'
-import { View, Text } from 'react-native'
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler'
+import { View, Text, TouchableOpacity } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconCompose from 'app/assets/images/iconCompose.svg'
@@ -18,7 +17,7 @@ import { ChatListItem } from './ChatListItem'
 import { ChatListItemSkeleton } from './ChatListItemSkeleton'
 import { HeaderShadow } from './HeaderShadow'
 
-const { getChats, getChatsStatus } = chatSelectors
+const { getChats, getChatsStatus, getHasMoreChats } = chatSelectors
 const { fetchMoreMessages, fetchMoreChats } = chatActions
 
 const CHATS_MESSAGES_PREFETCH_LIMIT = 10
@@ -105,7 +104,9 @@ export const ChatListScreen = () => {
   const dispatch = useDispatch()
   const navigation = useNavigation<AppTabScreenParamList>()
   const chats = useSelector(getChats)
+  const nonEmptyChats = chats.filter((chat) => !!chat.last_message)
   const chatsStatus = useSelector(getChatsStatus)
+  const hasMore = useSelector(getHasMoreChats)
 
   // If this is the first fetch, we want to show the fade-out loading skeleton
   // On subsequent loads, we want to show a skeleton in each incoming chat row.
@@ -113,9 +114,9 @@ export const ChatListScreen = () => {
     chats.length === 0 && (chatsStatus ?? Status.LOADING) === Status.LOADING
   const navigateToChatUserList = () => navigation.navigate('ChatUserList')
   const iconCompose = (
-    <TouchableWithoutFeedback onPress={navigateToChatUserList}>
+    <TouchableOpacity onPress={navigateToChatUserList}>
       <IconCompose fill={palette.neutralLight4} />
-    </TouchableWithoutFeedback>
+    </TouchableOpacity>
   )
 
   // Prefetch messages for initial loaded chats
@@ -133,9 +134,9 @@ export const ChatListScreen = () => {
   }, [chats, dispatch])
 
   const handleLoadMore = useCallback(() => {
-    if (chatsStatus === Status.LOADING) return
+    if (chatsStatus === Status.LOADING || !hasMore) return
     dispatch(fetchMoreChats())
-  }, [chatsStatus, dispatch])
+  }, [hasMore, chatsStatus, dispatch])
 
   return (
     <Screen
@@ -160,7 +161,7 @@ export const ChatListScreen = () => {
               ))
           ) : (
             <FlatList
-              data={chats}
+              data={nonEmptyChats}
               contentContainerStyle={styles.listContainer}
               renderItem={({ item }) => <ChatListItem chatId={item.chat_id} />}
               keyExtractor={(chat) => chat.chat_id}
