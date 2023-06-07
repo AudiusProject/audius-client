@@ -388,7 +388,6 @@ function* watchFetchAccount() {
 function* watchFetchAccountFailed() {
   yield takeEvery(accountActions.fetchAccountFailed.type, function* (action) {
     const userId = yield select(getUserId)
-    console.log('fetch account', userId, action, reportToSentry)
     if (userId) {
       yield call(reportToSentry, {
         level: ErrorLevel.Error,
