@@ -7,7 +7,7 @@ import {
   chatSelectors,
   decodeHashId,
   formatMessageDate,
-  isPlaylistUrl,
+  isCollectionUrl,
   isTrackUrl
 } from '@audius/common'
 import type { ChatMessageReaction } from '@audius/sdk'
@@ -276,7 +276,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                       : null
                   }
                 >
-                  {isPlaylistUrl(linkValue) ? (
+                  {isCollectionUrl(linkValue) ? (
                     <ChatMessagePlaylist
                       key={`${link.value}-${link.start}-${link.end}`}
                       link={link.value}

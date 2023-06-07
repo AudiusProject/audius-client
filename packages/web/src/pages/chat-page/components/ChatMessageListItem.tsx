@@ -12,7 +12,7 @@ import {
   isAudiusUrl,
   getPathFromAudiusUrl,
   isTrackUrl,
-  isPlaylistUrl,
+  isCollectionUrl,
   ChatMessageWithExtras,
   Status,
   useCanSendMessage
@@ -190,7 +190,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
           [styles.hideMessage]: hideMessage
         })}
       >
-        {isPlaylistUrl(linkValue) ? (
+        {isCollectionUrl(linkValue) ? (
           <ChatMessagePlaylist
             className={styles.unfurl}
             link={link.value}
