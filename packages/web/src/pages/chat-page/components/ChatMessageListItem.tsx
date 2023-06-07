@@ -178,6 +178,11 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
     )
   }
 
+  const unfurlStyles = {
+    [styles.unfurlAuthor]: !hideMessage && isAuthor,
+    [styles.unfurlOtherUser]: !hideMessage && !isAuthor
+  }
+
   return (
     <div
       className={cn(styles.root, {
@@ -192,21 +197,21 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
       >
         {isCollectionUrl(linkValue) ? (
           <ChatMessagePlaylist
-            className={styles.unfurl}
+            className={cn(unfurlStyles)}
             link={link.value}
             onEmpty={onLinkPreviewEmpty}
             onSuccess={onLinkPreviewSuccess}
           />
         ) : isTrackUrl(linkValue) ? (
           <ChatMessageTrack
-            className={styles.unfurl}
+            className={cn(unfurlStyles)}
             link={link.value}
             onEmpty={onLinkPreviewEmpty}
             onSuccess={onLinkPreviewSuccess}
           />
         ) : link ? (
           <LinkPreview
-            className={styles.unfurl}
+            className={cn(unfurlStyles)}
             href={link.href}
             chatId={chatId}
             messageId={message.message_id}

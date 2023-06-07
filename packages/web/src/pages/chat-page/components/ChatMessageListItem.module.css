@@ -54,11 +54,11 @@
   user-select: text;
 }
 
-:not(.isAuthor) :not(.hideMessage) .unfurl {
+.unfurlOtherUser {
   border-bottom: 1px solid var(--neutral-light-7);
 }
 
-.isAuthor :not(.hideMessage) .unfurl {
+.unfurlAuthor {
   border-bottom: 1px solid var(--secondary-dark-1);
 }
 
