@@ -18,6 +18,7 @@
   display: flex;
   align-items: center;
   gap: var(--unit-2);
+  width: fit-content;
   padding: var(--unit-2) var(--unit-4);
   background: var(--neutral-light-9);
   border: 1px solid var(--neutral-light-7);
