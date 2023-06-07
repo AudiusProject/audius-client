@@ -27,6 +27,7 @@ import LoadingSpinner from 'app/components/loading-spinner'
 import { makeStyles } from 'app/styles'
 
 import { ChatUserListItem } from './ChatUserListItem'
+import { HeaderShadow } from './HeaderShadow'
 
 const { searchUsers } = searchUsersModalActions
 const { getUserList } = searchUsersModalSelectors
@@ -75,11 +76,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   profilePicture: {
     height: spacing(18),
     width: spacing(18)
-  },
-  shadow: {
-    borderBottomColor: palette.neutralLight6,
-    borderBottomWidth: 3,
-    borderBottomLeftRadius: 1
   },
   flatListContainer: {
     minHeight: '100%'
@@ -220,7 +216,7 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
       topbarRight={null}
     >
       <ScreenContent>
-        <View style={styles.shadow} onTouchStart={Keyboard.dismiss} />
+        <HeaderShadow />
         <View style={styles.rootContainer}>
           <View style={styles.searchContainer}>
             <TextInput
