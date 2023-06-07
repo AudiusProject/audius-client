@@ -386,12 +386,14 @@ function* watchFetchAccount() {
 }
 
 function* watchFetchAccountFailed() {
-  yield* takeEvery(accountActions.fetchAccountFailed.type, function* (action) {
-    if (action.reason !== 'ACCOUNT_NOT_FOUND_LOCAL') {
-      yield* call(reportToSentry, {
+  yield takeEvery(accountActions.fetchAccountFailed.type, function* (action) {
+    const userId = yield select(getUserId)
+    console.log('fetch account', userId, action, reportToSentry)
+    if (userId) {
+      yield call(reportToSentry, {
         level: ErrorLevel.Error,
-        error: `Fetch account failed ${action.reason}`,
-        additionalInfo: {}
+        error: new Error(`Fetch account failed: ${action.payload.reason}`),
+        additionalInfo: { userId }
       })
     }
   })
