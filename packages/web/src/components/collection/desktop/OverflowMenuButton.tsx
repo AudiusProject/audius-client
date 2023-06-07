@@ -9,6 +9,7 @@ import {
   usersSocialActions
 } from '@audius/common'
 import { Button, ButtonType, IconKebabHorizontal } from '@audius/stems'
+import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
 import Menu from 'components/menu/Menu'
@@ -82,6 +83,7 @@ export const OverflowMenuButton = (props: OverflowMenuButtonProps) => {
       {(ref, triggerPopup) => (
         <Button
           ref={ref}
+          className={cn(styles.buttonFormatting)}
           leftIcon={<IconKebabHorizontal />}
           onClick={triggerPopup}
           text={null}

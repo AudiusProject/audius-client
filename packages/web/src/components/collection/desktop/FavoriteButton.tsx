@@ -10,12 +10,13 @@ import {
   collectionsSocialActions,
   FavoriteSource
 } from '@audius/common'
-import { ButtonProps, ButtonType, IconHeart } from '@audius/stems'
+import { Button, ButtonProps, ButtonType, IconHeart } from '@audius/stems'
+import cn from 'classnames'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Tooltip } from 'components/tooltip'
 
-import { CollectionActionButton } from './CollectionActionButton'
+import styles from './CollectionHeader.module.css'
 import { BUTTON_COLLAPSE_WIDTHS } from './utils'
 
 const { getCollection } = collectionPageSelectors
@@ -81,7 +82,9 @@ export const FavoriteButton = (props: FavoriteButtonProps) => {
       disabled={isOwner || saveCount === 0}
       text={isSaved ? messages.unfavorite : messages.favorite}
     >
-      <CollectionActionButton
+      <Button
+        className={cn(styles.buttonFormatting)}
+        textClassName={styles.buttonTextFormatting}
         type={type ?? (isSaved ? ButtonType.SECONDARY : ButtonType.COMMON)}
         text={isSaved ? messages.favorited : messages.favorite}
         leftIcon={<IconHeart />}

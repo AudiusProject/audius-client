@@ -6,10 +6,11 @@ import {
   ShareSource,
   SmartCollectionVariant
 } from '@audius/common'
-import { ButtonProps, ButtonType, IconShare } from '@audius/stems'
+import { Button, ButtonProps, ButtonType, IconShare } from '@audius/stems'
+import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
-import { CollectionActionButton } from './CollectionActionButton'
+import styles from './CollectionHeader.module.css'
 import { BUTTON_COLLAPSE_WIDTHS } from './utils'
 
 const { requestOpen: requestOpenShareModal } = shareModalUIActions
@@ -53,7 +54,9 @@ export const ShareButton = (props: ShareButtonProps) => {
   }, [dispatch, collectionId, userId])
 
   return (
-    <CollectionActionButton
+    <Button
+      className={cn(styles.buttonFormatting)}
+      textClassName={styles.buttonTextFormatting}
       type={type ?? ButtonType.COMMON}
       text={messages.share}
       leftIcon={<IconShare />}
