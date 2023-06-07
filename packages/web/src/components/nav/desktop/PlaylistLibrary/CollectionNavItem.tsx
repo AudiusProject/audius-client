@@ -91,7 +91,7 @@ export const CollectionNavItem = (props: CollectionNavItemProps) => {
       event.stopPropagation()
       // Can only edit user owned playlists
       if (typeof id === 'number') {
-        dispatch(openEditPlaylistModal({ collectionId: id }))
+        dispatch(openEditPlaylistModal(id))
         record(make(Name.PLAYLIST_OPEN_EDIT_FROM_LIBRARY, {}))
       }
     },

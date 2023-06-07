@@ -1,42 +1,29 @@
-import { ID, Nullable } from '@audius/common'
+import { ID } from '@audius/common'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-
-export type FocusableFields = 'name' | 'description' | 'artwork'
 
 export type EditPlaylistModalState = {
   isOpen: boolean
   collectionId: ID | null
-  initialFocusedField: Nullable<FocusableFields>
 }
 
 const initialState: EditPlaylistModalState = {
   isOpen: false,
-  collectionId: null,
-  initialFocusedField: null
+  collectionId: null
 }
 
-type OpenPayload = PayloadAction<{
-  collectionId: ID
-  // Which field in edit-playlist form should be autofocused
-  initialFocusedField?: 'name' | 'description' | 'artwork'
-}>
+type OpenPayload = ID
 
 const slice = createSlice({
   name: 'application/ui/editPlaylistModal',
   initialState,
   reducers: {
-    open: (state, action: OpenPayload) => {
-      const { collectionId, initialFocusedField } = action.payload
+    open: (state, action: PayloadAction<OpenPayload>) => {
       state.isOpen = true
-      state.collectionId = collectionId
-      if (initialFocusedField) {
-        state.initialFocusedField = initialFocusedField
-      }
+      state.collectionId = action.payload
     },
     close: (state) => {
       state.isOpen = false
       state.collectionId = null
-      state.initialFocusedField = null
     }
   }
 })

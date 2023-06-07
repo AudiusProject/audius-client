@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 
-import { Button, ButtonType, IconPencil } from '@audius/stems'
+import { Button, IconCamera, ButtonType } from '@audius/stems'
 import cn from 'classnames'
 import PropTypes from 'prop-types'
 import ReactDropzone from 'react-dropzone'
@@ -20,6 +20,7 @@ const messages = {
 const ImageSelectionButton = ({
   wrapperClassName,
   buttonClassName,
+  isMobile,
   hasImage,
   imageName,
   error,
@@ -29,11 +30,10 @@ const ImageSelectionButton = ({
   onClick,
   onAfterClose,
   onSelect,
-  source,
-  defaultPopupOpen = false
+  source
 }) => {
   const anchorRef = useRef()
-  const [showModal, setShowModal] = useState(defaultPopupOpen)
+  const [showModal, setShowModal] = useState(false)
 
   const closeModal = () => {
     setShowModal(false)
@@ -70,7 +70,7 @@ const ImageSelectionButton = ({
               [styles.hide]: showModal
             })}
             text={buttonText}
-            leftIcon={<IconPencil />}
+            leftIcon={<IconCamera />}
             type={ButtonType.WHITE}
             onClick={handleClick}
           />
@@ -98,7 +98,7 @@ const ImageSelectionButton = ({
                 [styles.hide]: hasImage
               })}
               text={buttonText}
-              leftIcon={<IconPencil />}
+              leftIcon={<IconCamera />}
               type={ButtonType.WHITE}
               onClick={handleClick}
             />
@@ -124,12 +124,12 @@ ImageSelectionButton.propTypes = {
   onOpenPopup: PropTypes.func,
   onClosePopup: PropTypes.func,
   onClick: PropTypes.func,
-  defaultPopupOpen: PropTypes.bool,
   ...ImageSelectionProps
 }
 
 ImageSelectionButton.defaultProps = {
   hasImage: false,
+  isMobile: false,
   includePopup: true,
   onClick: () => {},
   ...ImageSelectionDefaults

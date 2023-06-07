@@ -29,7 +29,6 @@ export {
   Modal,
   ModalContent,
   ModalContentPages,
-  ModalContentText,
   ModalHeader,
   ModalTitle,
   ModalProps,

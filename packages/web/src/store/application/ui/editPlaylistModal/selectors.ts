@@ -8,7 +8,3 @@ export const getIsOpen = (state: AppState) => {
 export const getCollectionId = (state: AppState) => {
   return getBase(state).collectionId
 }
-
-export const getInitialFocusedField = (state: AppState) => {
-  return getBase(state).initialFocusedField
-}

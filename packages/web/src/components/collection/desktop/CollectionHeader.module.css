@@ -46,42 +46,15 @@
 }
 
 .title {
-  all: unset;
-  display: inline-flex;
-  align-items: center;
-  column-gap: var(--unit-2);
-  margin-bottom: var(--unit-1);
-  width: 100%;
-  position: relative;
-}
-
-.editableTitle {
-  cursor: pointer;
-}
-
-.titleHeader {
   color: var(--neutral);
-  font-size: var(--font-4xl);
+  font-size: 36px;
   line-height: 40px;
+  min-height: 40px;
   font-weight: var(--font-bold);
-  transition: color var(--quick);
-}
-
-.editableTitle:hover .titleHeader {
-  color: var(--neutral-light-4);
-}
-
-.editIcon {
-  opacity: 0;
-  transition: opacity var(--quick);
-}
-
-.editIcon path {
-  fill: var(--neutral-light-4);
-}
-
-.editableTitle:hover .editIcon {
-  opacity: 1;
+  margin-bottom: 4px;
+  width: 100%;
+  user-select: none;
+  position: relative;
 }
 
 .artistWrapper {
@@ -124,7 +97,7 @@
   margin-top: var(--unit-4);
   display: flex;
   align-items: center;
-  column-gap: var(--unit-2);
+  column-gap: var(--unit-4);
 }
 
 .infoLabelsSection {
@@ -197,6 +170,12 @@
   text-transform: uppercase;
 }
 
+.buttonFormatting .buttonTextFormatting {
+  font-size: var(--font-s);
+  font-weight: var(--font-bold);
+  letter-spacing: 0.5px;
+}
+
 .hide {
   opacity: 0;
 }
@@ -227,23 +206,12 @@
   mix-blend-mode: overlay;
 }
 
-.imageEditButtonWrapper {
-  opacity: 0;
-  transition: opacity var(--calm);
-  position: absolute;
-  bottom: var(--unit-4);
-}
-
-.coverArtWrapper:hover .imageEditButtonWrapper {
-  opacity: 1;
-}
-
 .spinner {
   display: block;
-  height: var(--unit-5);
-  width: var(--unit-5);
+  height: 16px;
+  width: 16px;
 }
 
 .spinner g path {
-  stroke: var(--white);
+  stroke: var(--static-white) !important;
 }

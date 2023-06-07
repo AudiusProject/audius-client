@@ -1007,8 +1007,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
         })
       ),
     setModalVisibility: () => dispatch(setVisibility(true)),
-    onEditCollection: (collectionId: ID) =>
-      dispatch(openEditCollectionModal({ collectionId })),
+    onEditCollection: (playlistId: ID) =>
+      dispatch(openEditCollectionModal(playlistId)),
     updatePlaylistLastViewedAt: (playlistId: ID) =>
       dispatch(updatedPlaylistViewed({ playlistId })),
     onClickDescriptionInternalLink: (path: string) => dispatch(pushRoute(path))

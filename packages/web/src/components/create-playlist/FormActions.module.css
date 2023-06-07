@@ -8,9 +8,13 @@
   justify-content: center;
 }
 
+.buttonsLeft {
+  display: inline-flex;
+}
+
 .buttonsRight {
   display: inline-flex;
-  column-gap: var(--unit-4);
+  justify-content: flex-end;
 }
 
 .deleteButton {
@@ -19,4 +23,16 @@
 
 .deleteButton .deleteButtonText {
   color: var(--accent-red);
+}
+
+.saveChangesButton {
+  margin-left: 24px;
+}
+
+.cancelButton {
+  border-color: var(--neutral-light-6);
+}
+
+.cancelButton .cancelButtonText {
+  color: var(--neutral-light-1);
 }

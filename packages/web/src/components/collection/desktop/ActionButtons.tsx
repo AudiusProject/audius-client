@@ -7,7 +7,7 @@ import { PlayButton } from './PlayButton'
 import { SmartCollectionActionButtons } from './SmartCollectionActionButtons'
 import { ViewerActionButtons } from './ViewerActionButtons'
 
-type CollectionActionButtonProps = {
+type ActionButtonProps = {
   collectionId: ID | SmartCollectionVariant
   variant?: Variant
   isOwner?: boolean
@@ -18,7 +18,7 @@ type CollectionActionButtonProps = {
   tracksLoading: boolean
 }
 
-export const CollectionActionButtons = (props: CollectionActionButtonProps) => {
+export const ActionButtons = (props: ActionButtonProps) => {
   const {
     variant,
     isOwner,

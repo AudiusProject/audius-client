@@ -60,7 +60,6 @@ const UploadArtwork = (props) => {
           open={showTip}
         >
           <ImageSelectionButton
-            defaultPopupOpen={props.defaultPopupOpen}
             imageName={messages.imageName}
             hasImage={!!props.artworkUrl}
             error={props.imageProcessingError}
@@ -84,8 +83,7 @@ UploadArtwork.propTypes = {
   imageProcessingError: PropTypes.bool,
   onOpenPopup: PropTypes.func,
   onClosePopup: PropTypes.func,
-  mount: PropTypes.oneOf(['parent', 'page', 'body']),
-  defaultPopupOpen: PropTypes.bool
+  mount: PropTypes.oneOf(['parent', 'page', 'body'])
 }
 
 UploadArtwork.defaultProps = {

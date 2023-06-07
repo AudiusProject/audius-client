@@ -1,18 +1,11 @@
-import { ComponentType, SVGProps, useCallback, useEffect } from 'react'
+import { ComponentType, SVGProps, useEffect } from 'react'
 
 import { CoverArtSizes, SquareSizes } from '@audius/common'
-import { Button, ButtonType, IconPencil } from '@audius/stems'
-import { useDispatch } from 'react-redux'
 
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { useCollectionCoverArt } from 'hooks/useCollectionCoverArt'
-import { open as openEditCollectionModal } from 'store/application/ui/editPlaylistModal/slice'
 
 import styles from './CollectionHeader.module.css'
-
-const messages = {
-  changeArtwork: 'Change Artwork'
-}
 
 type ArtworkProps = {
   collectionId: number
@@ -21,7 +14,6 @@ type ArtworkProps = {
   gradient?: string
   icon: ComponentType<SVGProps<SVGSVGElement>>
   imageOverride?: string
-  isOwner: boolean
 }
 
 export const Artwork = (props: ArtworkProps) => {
@@ -31,11 +23,8 @@ export const Artwork = (props: ArtworkProps) => {
     callback,
     gradient,
     icon: Icon,
-    imageOverride,
-    isOwner
+    imageOverride
   } = props
-
-  const dispatch = useDispatch()
 
   const image = useCollectionCoverArt(
     collectionId,
@@ -48,31 +37,16 @@ export const Artwork = (props: ArtworkProps) => {
     if (image || gradient || imageOverride) callback()
   }, [image, callback, gradient, imageOverride])
 
-  const handleEditArtwork = useCallback(() => {
-    dispatch(
-      openEditCollectionModal({ collectionId, initialFocusedField: 'artwork' })
-    )
-  }, [dispatch, collectionId])
-
   return (
-    <DynamicImage
-      wrapperClassName={styles.coverArtWrapper}
-      className={styles.coverArt}
-      image={gradient || imageOverride || image}
-    >
-      {Icon ? (
-        <Icon className={styles.imageIcon} style={{ background: gradient }} />
-      ) : null}
-      {isOwner ? (
-        <span className={styles.imageEditButtonWrapper}>
-          <Button
-            type={ButtonType.WHITE}
-            text={messages.changeArtwork}
-            onClick={handleEditArtwork}
-            leftIcon={<IconPencil />}
-          />
-        </span>
-      ) : null}
-    </DynamicImage>
+    <div className={styles.coverArtWrapper}>
+      <DynamicImage
+        className={styles.coverArt}
+        image={gradient || imageOverride || image}
+      >
+        {Icon ? (
+          <Icon className={styles.imageIcon} style={{ background: gradient }} />
+        ) : null}
+      </DynamicImage>
+    </div>
   )
 }

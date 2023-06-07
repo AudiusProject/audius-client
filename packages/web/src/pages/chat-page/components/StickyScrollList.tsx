@@ -118,8 +118,7 @@ export const StickyScrollList = forwardRef<
     didUpdate,
     updateKey,
     stickToTop,
-    stickToBottom,
-    scrollBottomThreshold
+    stickToBottom
   ])
 
   return (

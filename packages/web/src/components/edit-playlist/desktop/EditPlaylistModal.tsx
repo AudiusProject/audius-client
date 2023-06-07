@@ -21,7 +21,6 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { DeleteCollectionConfirmationModal } from 'components/nav/desktop/PlaylistLibrary/DeleteCollectionConfirmationModal'
 import {
   getCollectionId,
-  getInitialFocusedField,
   getIsOpen
 } from 'store/application/ui/editPlaylistModal/selectors'
 import { close } from 'store/application/ui/editPlaylistModal/slice'
@@ -31,7 +30,7 @@ import zIndex from 'utils/zIndex'
 import styles from './EditPlaylistModal.module.css'
 const { editPlaylist } = cacheCollectionsActions
 const { getCollectionWithUser } = cacheCollectionsSelectors
-const { fetchSavedPlaylists } = accountActions
+const fetchSavedPlaylists = accountActions.fetchSavedPlaylists
 
 const messages = {
   edit: 'Edit',
@@ -51,17 +50,14 @@ type EditPlaylistModalProps = OwnProps &
   ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>
 
-const EditPlaylistModal = (props: EditPlaylistModalProps) => {
-  const {
-    isOpen,
-    initialFocusedField,
-    collectionId,
-    collection,
-    onClose,
-    fetchSavedPlaylists,
-    editPlaylist
-  } = props
-
+const EditPlaylistModal = ({
+  isOpen,
+  collectionId,
+  collection,
+  onClose,
+  fetchSavedPlaylists,
+  editPlaylist
+}: EditPlaylistModalProps) => {
   useEffect(() => {
     if (collection == null && collectionId != null) {
       fetchSavedPlaylists()
@@ -115,7 +111,6 @@ const EditPlaylistModal = (props: EditPlaylistModalProps) => {
           ) : (
             <PlaylistForm
               isEditMode
-              initialFocusedField={initialFocusedField}
               onCloseArtworkPopup={onCloseArtworkPopup}
               onOpenArtworkPopup={onOpenArtworkPopup}
               metadata={collection}
@@ -143,7 +138,6 @@ const mapStateToProps = (state: AppState) => {
   const collectionId = getCollectionId(state)
   return {
     isOpen: getIsOpen(state),
-    initialFocusedField: getInitialFocusedField(state),
     collectionId: getCollectionId(state),
     collection: getCollectionWithUser(state, { id: collectionId || undefined })
   }

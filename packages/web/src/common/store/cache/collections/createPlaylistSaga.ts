@@ -94,7 +94,6 @@ function* optimisticalySavePlaylist(
       ? [{ time: initTrack?.duration, track: initTrack.track_id }]
       : []
   }
-  playlist.track_count = initTrack ? 1 : 0
   playlist.permalink = playlistPage(handle, playlist.playlist_name, playlistId)
   if (playlist.artwork) {
     playlist._cover_art_sizes = {
@@ -129,8 +128,6 @@ function* optimisticalySavePlaylist(
       user: { id: user_id, handle }
     })
   )
-
-  yield* call(addPlaylistsNotInLibrary)
 }
 
 function* createAndConfirmPlaylist(

@@ -178,8 +178,8 @@ function mapDispatchToProps(dispatch: Dispatch) {
     goToRoute: (route: string) => dispatch(pushRoute(route)),
     shareCollection: (playlistId: PlaylistId) =>
       dispatch(socialActions.shareCollection(playlistId, ShareSource.OVERFLOW)),
-    editCollection: (collectionId: ID) =>
-      dispatch(openEditCollectionModal({ collectionId })),
+    editCollection: (playlistId: ID) =>
+      dispatch(openEditCollectionModal(playlistId)),
     saveCollection: (playlistId: PlaylistId) =>
       dispatch(
         socialActions.saveCollection(playlistId, FavoriteSource.OVERFLOW)
