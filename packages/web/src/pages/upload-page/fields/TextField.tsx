@@ -30,9 +30,9 @@ export const TextField = (props: TextFieldProps) => {
         //   input: [styles.input, stylesProp?.input],
         //   labelText: [styles.labelText, stylesProp?.labelText]
         // }}
-        defaultValue={value}
-        onChangeText={onChange(name)}
-        onBlur={onBlur(name)}
+        defaultValue={value ?? undefined}
+        onChange={onChange(name)}
+        onBlur={(e: any) => onBlur(name)(e)}
         returnKeyType='done'
         {...other}
       />

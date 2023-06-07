@@ -73,6 +73,7 @@ export const EditPageNew = (props: EditPageProps) => {
           <div className={styles.continue}>
             <Button
               type={ButtonType.PRIMARY_ALT}
+              buttonType='submit'
               text='Continue'
               name='continue'
               rightIcon={<IconArrow />}

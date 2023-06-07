@@ -45,7 +45,8 @@ export const UploadPageNew = (props: UploadPageProps) => {
       )
       break
     case Phase.FINISH:
-      page = <>{JSON.stringify(tracks[0].metadata, null, 2)}</>
+      console.log(tracks)
+      page = <>{JSON.stringify(tracks, null, 2)}</>
   }
   return (
     <Page
