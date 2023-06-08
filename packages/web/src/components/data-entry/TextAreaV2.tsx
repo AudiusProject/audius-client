@@ -10,6 +10,7 @@ import cn from 'classnames'
 import { mergeRefs } from 'react-merge-refs'
 
 import styles from './TextAreaV2.module.css'
+import { useFocusState } from './useFocusState'
 
 export enum TextAreaSize {
   MEDIUM,
@@ -61,6 +62,8 @@ export const TextAreaV2 = forwardRef<HTMLTextAreaElement, TextAreaV2Props>(
       className,
       value,
       children,
+      onFocus: onFocusProp,
+      onBlur: onBlurProp,
       ...other
     } = props
 
@@ -92,6 +95,13 @@ export const TextAreaV2 = forwardRef<HTMLTextAreaElement, TextAreaV2Props>(
       }
     }, [textareaRef, heightBuffer])
 
+    /**
+     * Since Firefox doesn't support the :has() pseudo selector,
+     * manually track the focused state and use classes for focus
+     */
+    const [isFocused, handleFocus, handleBlur] =
+      useFocusState<HTMLTextAreaElement>(onFocusProp, onBlurProp)
+
     useEffect(() => {
       // Even though we always "grow" the text area,
       // the maxHeight of the container will cause a scrollbar to appear if necesary
@@ -101,13 +111,20 @@ export const TextAreaV2 = forwardRef<HTMLTextAreaElement, TextAreaV2Props>(
     return (
       <div
         ref={rootRef}
-        className={cn(styles.root, style, className)}
+        className={cn(
+          styles.root,
+          { [styles.focused]: isFocused },
+          style,
+          className
+        )}
         style={{ maxHeight }}
       >
         <textarea
           ref={mergeRefs([textareaRef, forwardedRef])}
           maxLength={maxLength ?? undefined}
           value={value}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           {...other}
         />
         <div className={styles.bottom}>

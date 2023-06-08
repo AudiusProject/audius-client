@@ -1,14 +1,9 @@
-import {
-  ComponentPropsWithoutRef,
-  MutableRefObject,
-  RefCallback,
-  useState,
-  useCallback
-} from 'react'
+import { ComponentPropsWithoutRef, MutableRefObject, RefCallback } from 'react'
 
 import cn from 'classnames'
 
 import styles from './InputV2.module.css'
+import { useFocusState } from './useFocusState'
 
 export enum InputV2Size {
   SMALL,
@@ -49,6 +44,8 @@ export const InputV2 = (props: InputV2Props) => {
     error,
     inputClassName,
     disabled,
+    onFocus: onFocusProp,
+    onBlur: onBlurProp,
     ...other
   } = props
 
@@ -68,15 +65,12 @@ export const InputV2 = (props: InputV2Props) => {
 
   /**
    * Since Firefox doesn't support the :has() pseudo selector,
-   * manually track the focused state and use classes for required and disabled
+   * manually track the focused state and use classes for focus, required, and disabled
    */
-  const [isFocused, setIsFocused] = useState(false)
-  const handleFocus = useCallback(() => {
-    setIsFocused(true)
-  }, [setIsFocused])
-  const handleBlur = useCallback(() => {
-    setIsFocused(false)
-  }, [setIsFocused])
+  const [isFocused, handleFocus, handleBlur] = useFocusState(
+    onFocusProp,
+    onBlurProp
+  )
 
   const input = (
     <input
