@@ -3,7 +3,9 @@ import {
   ComponentPropsWithoutRef,
   FormEvent,
   useCallback,
-  useState
+  useState,
+  useRef,
+  useEffect
 } from 'react'
 
 import { chatActions } from '@audius/common'
@@ -49,6 +51,7 @@ export const ChatComposer = (props: ChatComposerProps) => {
   const { chatId, onMessageSent } = props
   const dispatch = useDispatch()
   const [value, setValue] = useState('')
+  const ref = useRef<HTMLTextAreaElement>(null)
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -81,10 +84,17 @@ export const ChatComposer = (props: ChatComposerProps) => {
     [handleSubmit]
   )
 
+  useEffect(() => {
+    if (chatId) {
+      ref.current?.focus()
+    }
+  }, [ref, chatId])
+
   return (
     <div className={cn(styles.root, props.className)}>
       <form className={styles.form} onSubmit={handleSubmit}>
         <TextAreaV2
+          ref={ref}
           rows={1}
           className={styles.input}
           placeholder={messages.sendMessagePlaceholder}
