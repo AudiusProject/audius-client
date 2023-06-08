@@ -43,20 +43,13 @@ export const chatMiddleware =
             )
           }
           reactionListener = ({ chatId, messageId, reaction }) => {
-            const message = getChatMessageById(
-              store.getState(),
-              chatId,
-              messageId
+            store.dispatch(
+              setMessageReactionSucceeded({
+                chatId,
+                messageId,
+                reaction
+              })
             )
-            if (message) {
-              store.dispatch(
-                setMessageReactionSucceeded({
-                  chatId,
-                  messageId,
-                  reaction
-                })
-              )
-            }
           }
           closeListener = async () => {
             console.debug('[chats] WebSocket closed. Reconnecting...')
@@ -69,26 +62,6 @@ export const chatMiddleware =
           return sdk.chats.listen()
         }
         fn()
-      } else if (disconnect.match(action) && hasConnected) {
-        console.debug('[chats] Unlistening...')
-        hasConnected = false
-        const fn = async () => {
-          const sdk = await audiusSdk()
-          if (openListener) {
-            sdk.chats.removeEventListener('open', openListener)
-          }
-          if (messageListener) {
-            sdk.chats.removeEventListener('message', messageListener)
-          }
-          if (reactionListener) {
-            sdk.chats.removeEventListener('reaction', reactionListener)
-          }
-          if (closeListener) {
-            sdk.chats.removeEventListener('close', closeListener)
-          }
-        }
-        fn()
-      }
-      return next(action)
+      } else return next(action)
     }
   }
