@@ -5,7 +5,6 @@ import { Status } from 'models/Status'
 import { getUserId } from 'store/account/selectors'
 import { encodeHashId } from 'utils/hashIds'
 
-import { getChatMessageById } from './selectors'
 import { actions as chatActions } from './slice'
 
 const { connect, disconnect, addMessage, setMessageReactionSucceeded } =
@@ -62,6 +61,26 @@ export const chatMiddleware =
           return sdk.chats.listen()
         }
         fn()
-      } else return next(action)
+      } else if (disconnect.match(action) && hasConnected) {
+        console.debug('[chats] Unlistening...')
+        hasConnected = false
+        const fn = async () => {
+          const sdk = await audiusSdk()
+          if (openListener) {
+            sdk.chats.removeEventListener('open', openListener)
+          }
+          if (messageListener) {
+            sdk.chats.removeEventListener('message', messageListener)
+          }
+          if (reactionListener) {
+            sdk.chats.removeEventListener('reaction', reactionListener)
+          }
+          if (closeListener) {
+            sdk.chats.removeEventListener('close', closeListener)
+          }
+        }
+        fn()
+      }
+      return next(action)
     }
   }
