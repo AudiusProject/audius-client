@@ -174,7 +174,6 @@ type ChatMessageListItemProps = {
   chatId: string
   isPopup: boolean
   style?: StyleProp<ViewStyle>
-  messageHeight?: number
   onLongPress?: (id: string) => void
   handleClosePopup?: () => void
   itemsRef?: any
@@ -188,7 +187,6 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
     chatId,
     isPopup = false,
     style: styleProp,
-    messageHeight = 0,
     onLongPress,
     handleClosePopup,
     itemsRef
@@ -254,121 +252,119 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
         ]}
       >
         <View>
-          {isUnderneathPopup ? (
-            <View style={{ height: messageHeight + MESSAGE_MARGINS }} />
-          ) : (
-            <Pressable
-              onLongPress={handleLongPress}
-              delayLongPress={REACTION_LONGPRESS_DELAY}
-              onPressIn={isPopup ? handleClosePopup : handlePressIn}
-              onPressOut={isPopup ? handleClosePopup : handlePressOut}
-            >
-              <View style={styles.shadow}>
-                <View style={styles.shadow2}>
-                  <View
-                    style={[
-                      styles.bubble,
-                      isAuthor ? styles.isAuthor : null,
-                      isPressed
-                        ? isAuthor
-                          ? styles.pressedIsAuthor
-                          : styles.pressed
-                        : null
-                    ]}
-                    ref={
-                      itemsRef
-                        ? (el) => (itemsRef.current[message.message_id] = el)
-                        : null
-                    }
-                  >
-                    {isPlaylistUrl(linkValue) ? (
-                      <ChatMessagePlaylist
-                        key={`${link.value}-${link.start}-${link.end}`}
-                        link={link.value}
-                        onEmpty={onLinkPreviewEmpty}
-                        onSuccess={onLinkPreviewSuccess}
-                        styles={chatStyles}
-                      />
-                    ) : isTrackUrl(linkValue) ? (
-                      <ChatMessageTrack
-                        key={`${link.value}-${link.start}-${link.end}`}
-                        link={link.value}
-                        onEmpty={onLinkPreviewEmpty}
-                        onSuccess={onLinkPreviewSuccess}
-                        styles={chatStyles}
-                      />
-                    ) : link ? (
-                      <LinkPreview
-                        key={`${link.value}-${link.start}-${link.end}`}
-                        chatId={chatId}
-                        messageId={message.message_id}
-                        href={link.href}
-                        hideMessage={hideMessage}
-                        onLongPress={handleLongPress}
-                        onPressIn={handlePressIn}
-                        onPressOut={handlePressOut}
-                        isPressed={isPressed}
-                        onEmpty={onLinkPreviewEmpty}
-                        onSuccess={onLinkPreviewSuccess}
-                        style={{
-                          ...chatStyles,
-                          borderBottomWidth: hideMessage ? 0 : 1
-                        }}
-                      />
-                    ) : null}
-                    {!hideMessage ? (
-                      <Hyperlink
-                        text={message.message}
-                        styles={{
-                          root: [
-                            styles.message,
-                            isAuthor && styles.messageIsAuthor
-                          ],
-                          link: [
-                            styles.message,
-                            styles.link,
-                            isAuthor && styles.messageIsAuthor
-                          ]
-                        }}
-                      />
-                    ) : null}
-                  </View>
-                  {message.hasTail ? (
-                    <ChatTail
-                      fill={tailColor}
-                      style={[
-                        styles.tail,
-                        isAuthor ? styles.tailIsAuthor : styles.tailOtherUser
-                      ]}
+          <Pressable
+            onLongPress={handleLongPress}
+            delayLongPress={REACTION_LONGPRESS_DELAY}
+            onPressIn={isPopup ? handleClosePopup : handlePressIn}
+            onPressOut={isPopup ? handleClosePopup : handlePressOut}
+            style={{ opacity: isUnderneathPopup ? 0 : 1 }}
+          >
+            <View style={styles.shadow}>
+              <View style={styles.shadow2}>
+                <View
+                  style={[
+                    styles.bubble,
+                    isAuthor ? styles.isAuthor : null,
+                    isPressed
+                      ? isAuthor
+                        ? styles.pressedIsAuthor
+                        : styles.pressed
+                      : null
+                  ]}
+                  ref={
+                    itemsRef
+                      ? (el) => (itemsRef.current[message.message_id] = el)
+                      : null
+                  }
+                >
+                  {isPlaylistUrl(linkValue) ? (
+                    <ChatMessagePlaylist
+                      key={`${link.value}-${link.start}-${link.end}`}
+                      link={link.value}
+                      onEmpty={onLinkPreviewEmpty}
+                      onSuccess={onLinkPreviewSuccess}
+                      styles={chatStyles}
+                    />
+                  ) : isTrackUrl(linkValue) ? (
+                    <ChatMessageTrack
+                      key={`${link.value}-${link.start}-${link.end}`}
+                      link={link.value}
+                      onEmpty={onLinkPreviewEmpty}
+                      onSuccess={onLinkPreviewSuccess}
+                      styles={chatStyles}
+                    />
+                  ) : link ? (
+                    <LinkPreview
+                      key={`${link.value}-${link.start}-${link.end}`}
+                      chatId={chatId}
+                      messageId={message.message_id}
+                      href={link.href}
+                      hideMessage={hideMessage}
+                      onLongPress={handleLongPress}
+                      onPressIn={handlePressIn}
+                      onPressOut={handlePressOut}
+                      isPressed={isPressed}
+                      onEmpty={onLinkPreviewEmpty}
+                      onSuccess={onLinkPreviewSuccess}
+                      style={{
+                        ...chatStyles,
+                        borderBottomWidth: hideMessage ? 0 : 1
+                      }}
                     />
                   ) : null}
-                  {message.reactions?.length > 0 ? (
-                    <>
-                      {!isUnderneathPopup ? (
-                        <View
-                          style={[
-                            styles.reactionContainer,
-                            isAuthor
-                              ? styles.reactionContainerIsAuthor
-                              : styles.reactionContainerOtherUser
-                          ]}
-                        >
-                          {message.reactions.map((reaction) => {
-                            return (
-                              <ChatReaction
-                                key={reaction.created_at}
-                                reaction={reaction}
-                              />
-                            )
-                          })}
-                        </View>
-                      ) : null}
-                    </>
+                  {!hideMessage ? (
+                    <Hyperlink
+                      text={message.message}
+                      styles={{
+                        root: [
+                          styles.message,
+                          isAuthor && styles.messageIsAuthor
+                        ],
+                        link: [
+                          styles.message,
+                          styles.link,
+                          isAuthor && styles.messageIsAuthor
+                        ]
+                      }}
+                    />
                   ) : null}
                 </View>
+                {message.hasTail ? (
+                  <ChatTail
+                    fill={tailColor}
+                    style={[
+                      styles.tail,
+                      isAuthor ? styles.tailIsAuthor : styles.tailOtherUser
+                    ]}
+                  />
+                ) : null}
+                {message.reactions?.length > 0 ? (
+                  <>
+                    {!isUnderneathPopup ? (
+                      <View
+                        style={[
+                          styles.reactionContainer,
+                          isAuthor
+                            ? styles.reactionContainerIsAuthor
+                            : styles.reactionContainerOtherUser
+                        ]}
+                      >
+                        {message.reactions.map((reaction) => {
+                          return (
+                            <ChatReaction
+                              key={reaction.created_at}
+                              reaction={reaction}
+                            />
+                          )
+                        })}
+                      </View>
+                    ) : null}
+                  </>
+                ) : null}
               </View>
-            </Pressable>
-          )}
+            </View>
+          </Pressable>
+          {/* )} */}
         </View>
         {isAuthor && message.status === Status.ERROR ? (
           <ResendMessageButton messageId={message.message_id} chatId={chatId} />
