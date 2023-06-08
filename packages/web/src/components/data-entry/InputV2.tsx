@@ -1,4 +1,10 @@
-import { ComponentPropsWithoutRef, MutableRefObject, RefCallback } from 'react'
+import {
+  ComponentPropsWithoutRef,
+  MutableRefObject,
+  RefCallback,
+  useState,
+  useCallback
+} from 'react'
 
 import cn from 'classnames'
 
@@ -42,6 +48,7 @@ export const InputV2 = (props: InputV2Props) => {
     warning: warningProp,
     error,
     inputClassName,
+    disabled,
     ...other
   } = props
 
@@ -59,20 +66,44 @@ export const InputV2 = (props: InputV2Props) => {
     [styles.error]: error
   }
 
+  /**
+   * Since Firefox doesn't support the :has() pseudo selector,
+   * manually track the focused state and use classes for required and disabled
+   */
+  const [isFocused, setIsFocused] = useState(false)
+  const handleFocus = useCallback(() => {
+    setIsFocused(true)
+  }, [setIsFocused])
+  const handleBlur = useCallback(() => {
+    setIsFocused(false)
+  }, [setIsFocused])
+
   const input = (
     <input
+      onFocus={handleFocus}
+      onBlur={handleBlur}
       ref={inputRef}
       placeholder={!elevatePlaceholder ? placeholder : undefined}
       required={required}
       className={inputClassName}
       value={value}
       maxLength={maxLength}
+      disabled={disabled}
       {...other}
     />
   )
 
   return (
-    <div className={cn(styles.root, style, className)}>
+    <div
+      className={cn(
+        styles.root,
+        { [styles.focused]: isFocused },
+        { [styles.disabled]: disabled },
+        { [styles.required]: required },
+        style,
+        className
+      )}
+    >
       {elevatePlaceholder ? (
         <label className={styles.elevatedPlaceholderLabel}>
           <span
