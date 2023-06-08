@@ -1,5 +1,5 @@
 import type { MutableRefObject, RefObject } from 'react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import type { ChatMessageWithExtras } from '@audius/common'
 import {
