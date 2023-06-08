@@ -34,7 +34,8 @@
 .root:hover > textarea {
   border-color: var(--neutral-light-6);
 }
-.root:has(textarea:focus) {
+/* Using .focus class since Firefox doesn't support :has() */
+.root.focus {
   border-color: var(--secondary);
 }
 .root.error {
@@ -73,4 +74,10 @@
   flex-direction: column;
   align-items: flex-end;
   gap: var(--unit-1);
+}
+
+.children {
+  display: flex;
+  align-items: center;
+  overflow: visible;
 }

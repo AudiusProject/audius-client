@@ -270,15 +270,10 @@ const slice = createSlice({
       delete state.optimisticReactions[messageId]
 
       // Ensure the message exists
-      chatMessagesAdapter.addOne(state.messages[chatId], {
-        message_id: messageId,
-        reactions: [],
-        message: '',
-        sender_user_id: '',
-        created_at: '',
-        hasTail: false
-      })
       const existingMessage = getMessage(state.messages[chatId], messageId)
+      if (!existingMessage) {
+        return
+      }
       const existingReactions = existingMessage?.reactions ?? []
       const filteredReactions = existingReactions.filter(
         (r) => r.user_id !== reaction.user_id
@@ -301,7 +296,7 @@ const slice = createSlice({
     },
     fetchChatIfNecessary: (
       _state,
-      _action: PayloadAction<{ chatId: string; bustCache?: boolean }>
+      _action: PayloadAction<{ chatId: string }>
     ) => {
       // triggers saga
     },
