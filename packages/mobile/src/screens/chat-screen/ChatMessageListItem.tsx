@@ -364,7 +364,6 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
               </View>
             </View>
           </Pressable>
-          {/* )} */}
         </View>
         {isAuthor && message.status === Status.ERROR ? (
           <ResendMessageButton messageId={message.message_id} chatId={chatId} />
