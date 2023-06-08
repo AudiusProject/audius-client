@@ -67,7 +67,7 @@ export const ChatComposer = (props: ChatComposerProps) => {
         onMessageSent()
       }
     },
-    [chatId, value, setValue, dispatch]
+    [chatId, value, setValue, dispatch, onMessageSent]
   )
 
   // Submit when pressing enter while not holding shift
