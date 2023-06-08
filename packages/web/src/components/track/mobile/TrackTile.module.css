@@ -26,10 +26,6 @@
   box-shadow: none;
 }
 
-.container.readonly:hover {
-  transform: scale3d(1.005, 1.005, 1.005);
-}
-
 .container .artworkIcon,
 .container .artworkIcon circle {
   opacity: 0;
