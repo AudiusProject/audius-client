@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 import type {
   ChatMessageWithExtras,
@@ -106,7 +106,6 @@ type ReactionPopupProps = {
   messageHeight: number
   isAuthor: boolean
   message: ChatMessageWithExtras
-  shouldShowPopup: boolean
   onClose: () => void
 }
 
@@ -120,7 +119,6 @@ export const ReactionPopup = ({
   messageHeight,
   isAuthor,
   message,
-  shouldShowPopup,
   onClose
 }: ReactionPopupProps) => {
   const styles = useStyles()
@@ -188,10 +186,6 @@ export const ReactionPopup = ({
     [message, handleReactionSelected]
   )
 
-  if (!shouldShowPopup) {
-    return null
-  }
-
   return (
     <>
       <Animated.View
@@ -206,8 +200,7 @@ export const ReactionPopup = ({
           {
             height: containerBottom - containerTop,
             top: containerTop
-          },
-          { opacity: otherOpacityAnim }
+          }
         ]}
       >
         {/* This 2nd pressable ensures that clicking outside of the
@@ -228,13 +221,15 @@ export const ReactionPopup = ({
           ]}
           handleClosePopup={handleClosePopup}
         />
-        <CopyMessagesButton
-          isAuthor={isAuthor}
-          messageTop={messageTop}
-          containerTop={containerTop}
-          messageHeight={messageHeight}
-          onPress={handleCopyPress}
-        />
+        <Animated.View style={{ opacity: otherOpacityAnim }}>
+          <CopyMessagesButton
+            isAuthor={isAuthor}
+            messageTop={messageTop}
+            containerTop={containerTop}
+            messageHeight={messageHeight}
+            onPress={handleCopyPress}
+          />
+        </Animated.View>
         <Animated.View
           style={[
             styles.reactionsContainer,
@@ -250,13 +245,14 @@ export const ReactionPopup = ({
                   translateY: translationAnim
                 }
               ]
-            }
+            },
+            { opacity: otherOpacityAnim }
           ]}
         >
           <ReactionList
             selectedReaction={selectedReaction as ReactionTypes}
             onChange={handleReactionChanged}
-            isVisible={shouldShowPopup}
+            isVisible={true}
             scale={1.6}
             style={{
               emoji: styles.emoji
