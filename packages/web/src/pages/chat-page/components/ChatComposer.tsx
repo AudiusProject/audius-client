@@ -26,6 +26,7 @@ const ENTER_KEY = 'Enter'
 
 export type ChatComposerProps = ComponentPropsWithoutRef<'div'> & {
   chatId?: string
+  onMessageSent: () => void
 }
 
 const MAX_MESSAGE_LENGTH = 10000
@@ -45,7 +46,7 @@ export const ChatSendButton = ({ disabled }: ChatSendButtonProps) => {
 }
 
 export const ChatComposer = (props: ChatComposerProps) => {
-  const { chatId } = props
+  const { chatId, onMessageSent } = props
   const dispatch = useDispatch()
   const [value, setValue] = useState('')
 
@@ -63,6 +64,7 @@ export const ChatComposer = (props: ChatComposerProps) => {
         const message = value
         dispatch(sendMessage({ chatId, message }))
         setValue('')
+        onMessageSent()
       }
     },
     [chatId, value, setValue, dispatch]
