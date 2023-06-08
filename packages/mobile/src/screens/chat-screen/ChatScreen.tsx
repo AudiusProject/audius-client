@@ -469,6 +469,7 @@ export const ChatScreen = () => {
           chatId={chatId}
           itemsRef={itemsRef}
           isPopup={false}
+          messageHeight={messageHeight.current}
           onLongPress={handleMessagePress}
         />
         {item.message_id === earliestUnreadMessageId &&
