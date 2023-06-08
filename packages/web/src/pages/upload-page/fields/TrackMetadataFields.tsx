@@ -1,9 +1,7 @@
-import {
-  GENRES,
-  ELECTRONIC_PREFIX,
-  getCanonicalName,
-  FeatureFlags
-} from '@audius/common'
+import { useState } from 'react'
+
+import { GENRES, getCanonicalName, FeatureFlags } from '@audius/common'
+import { useField } from 'formik'
 
 import DropdownInput from 'components/data-entry/DropdownInput'
 import Input from 'components/data-entry/Input'
@@ -12,6 +10,7 @@ import TextArea from 'components/data-entry/TextArea'
 import PreviewButton from 'components/upload/PreviewButton'
 import UploadArtwork from 'components/upload/UploadArtwork'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
+import { resizeImage } from 'utils/imageProcessingUtil'
 import { moodMap } from 'utils/moods'
 
 import styles from './TrackMetadataFields.module.css'
@@ -33,28 +32,21 @@ const messages = {
 }
 
 type TrackMetadataFieldsProps = {
-  /** The image returned from useTrackCoverArt */
-  coverArt: string
-  /** If image processing resulted in an error. */
-  imageProcessingError: boolean
-  isPlaylist: boolean
-  onChangeOrder: Function
-  /** Whether or not to show a preview button. */
-  showPreview: boolean
   /** Whether or not the preview is playing. */
   playing: boolean
-  type: 'track' | 'album' | 'playlist'
-  /** Transform artwork function to apply. */
-  transformArtworkFunction: Function
-
-  /** callback when artwork popup is opened */
-  onOpenArtworkPopup: Function
-
-  /** callback when artwork popup is closed */
-  onCloseArtworkPopup: Function
+  // type: 'track' | 'album' | 'playlist'
+  type: 'track'
 }
 
 const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
+  const [imageProcessingError, setImageProcessingError] = useState(false)
+  const [artworkField] = useField('artwork')
+  const [titleField, titleMeta] = useField('title')
+  const [genreField, genreMeta] = useField('genre')
+  const [moodField, moodMeta] = useField('mood')
+  const [tagsField, tagsMeta] = useField('tags')
+  const [descriptionField, descriptionMeta] = useField('description')
+
   const onPreviewClick = props.playing
     ? props.onStopPreview
     : props.onPlayPreview
@@ -62,25 +54,21 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
   const onDropArtwork = async (selectedFiles, source) => {
     try {
       let file = selectedFiles[0]
-      file = await this.props.transformArtworkFunction(file)
-      const storageV2SignupEnabled = await getFeatureEnabled(
+      file = await resizeImage(file)
+      const storageV2SignupEnabled = getFeatureEnabled(
         FeatureFlags.STORAGE_V2_SIGNUP
       )
-      const storageV2UploadEnabled = await getFeatureEnabled(
+      const storageV2UploadEnabled = getFeatureEnabled(
         FeatureFlags.STORAGE_V2_TRACK_UPLOAD
       )
       if (storageV2SignupEnabled || storageV2UploadEnabled) {
         file.name = selectedFiles[0].name
       }
       const url = URL.createObjectURL(file)
-      this.props.onChangeField('artwork', { url, file, source }, false)
-      this.setState({ imageProcessingError: false })
+      artworkField.onChange({ url, file, source })
+      setImageProcessingError(false)
     } catch (err) {
-      const {
-        defaultFields: { artwork }
-      } = this.props
-      this.props.onChangeField('artwork', { ...artwork }, false)
-      this.setState({ imageProcessingError: true })
+      setImageProcessingError(true)
     }
   }
 
@@ -89,16 +77,10 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
       <div className={styles.basic}>
         <div className={styles.preview}>
           <UploadArtwork
-            artworkUrl={
-              props.defaultFields.artwork
-                ? props.defaultFields.artwork.url
-                : props.coverArt
-            }
-            onDropArtwork={props.onDropArtwork}
-            error={props.invalidFields.artwork}
-            imageProcessingError={props.imageProcessingError}
-            onOpenPopup={props.onOpenArtworkPopup}
-            onClosePopup={props.onCloseArtworkPopup}
+            artworkUrl={artworkField.value}
+            onDropArtwork={onDropArtwork}
+            // error={props.invalidFields.artwork}
+            imageProcessingError={imageProcessingError}
           />
         </div>
         <div className={styles.form}>
@@ -109,29 +91,13 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
               placeholder={`${
                 props.type.charAt(0).toUpperCase() + props.type.slice(1)
               } Name`}
-              defaultValue={
-                props.isPlaylist
-                  ? props.defaultFields.playlist_name
-                  : props.defaultFields.title
-              }
-              isRequired={
-                props.isPlaylist
-                  ? props.requiredFields.playlist_name
-                  : props.requiredFields.title
-              }
+              defaultValue={titleMeta.initialValue}
+              // isRequired={}
               characterLimit={64}
-              error={
-                props.isPlaylist
-                  ? props.invalidFields.playlist_name
-                  : props.invalidFields.title
-              }
+              error={titleMeta.error}
               variant={'elevatedPlaceholder'}
-              onChange={(value) =>
-                props.onChangeField(
-                  props.isPlaylist ? 'playlist_name' : 'title',
-                  value
-                )
-              }
+              onChange={titleField.onChange}
+              onBlur={titleField.onBlur}
             />
           </div>
           <div className={styles.categorization}>
@@ -140,44 +106,37 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
               placeholder={messages.genre}
               mount='parent'
               menu={{ items: GENRES }}
-              defaultValue={getCanonicalName(props.defaultFields.genre) || ''}
-              isRequired={props.requiredFields.genre}
-              error={props.invalidFields.genre}
-              onSelect={(value) =>
-                props.onChangeField(
-                  'genre',
-                  value.replace(ELECTRONIC_PREFIX, '')
-                )
-              }
+              defaultValue={getCanonicalName(genreField.value) || ''}
+              // isRequired={}
+              error={genreMeta.error}
+              onSelect={genreField.onChange}
               size='large'
             />
             <DropdownInput
               placeholder='Pick a Mood'
               mount='parent'
               menu={{ items: MOODS }}
-              defaultValue={props.defaultFields.mood || ''}
-              isRequired={props.requiredFields.mood}
-              error={props.invalidFields.mood}
-              onSelect={(value) => props.onChangeField('mood', value)}
+              defaultValue={moodMeta.initialValue}
+              // isRequired={}
+              error={moodMeta.error}
+              onSelect={moodField.onChange}
               size='large'
             />
           </div>
           <div className={styles.tags}>
             <TagInput
-              defaultTags={(props.defaultFields.tags || '')
+              defaultTags={(tagsMeta.initialValue || '')
                 .split(',')
                 .filter((t) => t)}
-              onChangeTags={(value) =>
-                props.onChangeField('tags', [...value].join(','))
-              }
+              onChangeTags={(value) => tagsField.onChange([...value].join(','))}
             />
           </div>
           <div className={styles.description}>
             <TextArea
               className={styles.textArea}
               placeholder='Description'
-              defaultValue={props.defaultFields.description || ''}
-              onChange={(value) => props.onChangeField('description', value)}
+              defaultValue={descriptionMeta.initialValue || ''}
+              onChange={descriptionField.onChange}
               characterLimit={1000}
             />
           </div>
@@ -189,11 +148,9 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
   const renderBottomMenu = () => {
     return (
       <div className={styles.menu}>
-        {props.type === 'track' && props.showPreview ? (
-          <div>
-            <PreviewButton playing={props.playing} onClick={onPreviewClick} />
-          </div>
-        ) : null}
+        <div>
+          <PreviewButton playing={props.playing} onClick={onPreviewClick} />
+        </div>
       </div>
     )
   }

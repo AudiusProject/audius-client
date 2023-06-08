@@ -5,7 +5,7 @@ import { Button, ButtonType, IconArrow } from '@audius/stems'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
 
-import { EditTrackMetadataField } from '../fields/EditTrackMetadataField'
+import TrackMetadataFields from '../fields/TrackMetadataFields'
 
 import styles from './EditPage.module.css'
 import { TrackForUpload } from './types'
@@ -69,7 +69,7 @@ export const EditPageNew = (props: EditPageProps) => {
     >
       {(formikProps) => (
         <div className={styles.edit}>
-          <EditTrackMetadataField />
+          <TrackMetadataFields playing={false} type='track' />
           <div className={styles.continue}>
             <Button
               type={ButtonType.PRIMARY_ALT}
