@@ -253,7 +253,8 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
               renderItem={({ item }) => <ChatUserListItem user={item} />}
               keyExtractor={(user: User) => user.handle}
               contentContainerStyle={styles.flatListContainer}
-              ListEmptyComponent={<ListEmpty />}
+              // Only show empty component if there is no search query
+              ListEmptyComponent={query ? null : <ListEmpty />}
               keyboardShouldPersistTaps='always'
             />
           ) : (
