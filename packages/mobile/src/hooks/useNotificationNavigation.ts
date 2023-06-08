@@ -77,8 +77,6 @@ export const useNotificationNavigation = () => {
         | RepostOfRepostPushNotification
         | FavoriteNotification
         | FavoritePushNotification
-        | MessagePushNotification
-        | MessageReactionPushNotification
     ) => {
       if ('userIds' in notification) {
         const { id, type, userIds } = notification
