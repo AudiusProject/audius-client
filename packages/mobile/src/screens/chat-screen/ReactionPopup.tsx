@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 import type {
   ChatMessageWithExtras,
@@ -126,6 +126,7 @@ export const ReactionPopup = ({
   const userId = useSelector(getUserId)
   const { toast } = useToast()
 
+  const newReaction = useRef<string>()
   const userIdEncoded = encodeHashId(userId)
   const selectedReaction = message.reactions?.find(
     (r) => r.user_id === userIdEncoded
@@ -143,32 +144,42 @@ export const ReactionPopup = ({
       ? addAndroidOffset(containerTopProp)
       : containerTopProp
 
+  const handleClose = useCallback(() => {
+    // If the user selected a new reaction, dispatch with that reaction before closing
+    // Prevents jitters
+    if (userId && message && newReaction.current) {
+      dispatch(
+        setMessageReaction({
+          userId,
+          chatId,
+          messageId: message.message_id,
+          reaction:
+            message.reactions?.find((r) => r.user_id === userIdEncoded)
+              ?.reaction === newReaction.current
+              ? null
+              : newReaction.current
+        })
+      )
+    }
+    onClose()
+  }, [userId, message, newReaction, onClose, dispatch, chatId, userIdEncoded])
+
   const [
     backgroundOpacityAnim,
     otherOpacityAnim,
     translationAnim,
     handleClosePopup
-  ] = usePopupAnimation(onClose)
+  ] = usePopupAnimation(handleClose)
 
   const handleReactionSelected = useCallback(
     (message: Nullable<ChatMessageWithExtras>, reaction: ReactionTypes) => {
       if (userId && message) {
-        dispatch(
-          setMessageReaction({
-            userId,
-            chatId,
-            messageId: message.message_id,
-            reaction:
-              message.reactions?.find((r) => r.user_id === userIdEncoded)
-                ?.reaction === reaction
-                ? null
-                : reaction
-          })
-        )
+        // Wait until after unmount animation to dispatch the new reaction
+        newReaction.current = reaction
       }
       handleClosePopup()
     },
-    [userId, handleClosePopup, dispatch, chatId, userIdEncoded]
+    [userId, handleClosePopup]
   )
 
   const handleCopyPress = useCallback(() => {
