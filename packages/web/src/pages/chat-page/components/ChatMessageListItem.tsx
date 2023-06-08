@@ -57,7 +57,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
 
   // State
   const [isReactionPopupVisible, setReactionPopupVisible] = useState(false)
-  const [emptyLinkPreview, setEmptyLinkPreview] = useState(false)
+  const [emptyUnfurl, setEmptyUnfurl] = useState(false)
 
   // Selectors
   const userId = useSelector(getUserId)
@@ -75,8 +75,8 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   const links = find(message.message)
   const link = links.filter((link) => link.type === 'url' && link.isLink)[0]
   const linkValue = link?.value
-  const isLinkPreviewOnly = linkValue === message.message
-  const hideMessage = isLinkPreviewOnly && !emptyLinkPreview
+  const isUnfurlOnly = linkValue === message.message
+  const hideMessage = isUnfurlOnly && !emptyUnfurl
 
   // Callbacks
   const handleOpenReactionPopupButtonClicked = useCallback(
@@ -125,15 +125,15 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
     )
   }, [dispatch, chatId, message.message, message.message_id])
 
-  const onLinkPreviewEmpty = useCallback(() => {
+  const onUnfurlEmpty = useCallback(() => {
     if (linkValue) {
-      setEmptyLinkPreview(true)
+      setEmptyUnfurl(true)
     }
   }, [linkValue])
 
-  const onLinkPreviewSuccess = useCallback(() => {
+  const onUnfurlSuccess = useCallback(() => {
     if (linkValue) {
-      setEmptyLinkPreview(false)
+      setEmptyUnfurl(false)
     }
   }, [linkValue])
 
@@ -199,15 +199,15 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
           <ChatMessagePlaylist
             className={cn(unfurlStyles)}
             link={link.value}
-            onEmpty={onLinkPreviewEmpty}
-            onSuccess={onLinkPreviewSuccess}
+            onEmpty={onUnfurlEmpty}
+            onSuccess={onUnfurlSuccess}
           />
         ) : isTrackUrl(linkValue) ? (
           <ChatMessageTrack
             className={cn(unfurlStyles)}
             link={link.value}
-            onEmpty={onLinkPreviewEmpty}
-            onSuccess={onLinkPreviewSuccess}
+            onEmpty={onUnfurlEmpty}
+            onSuccess={onUnfurlSuccess}
           />
         ) : link ? (
           <LinkPreview
@@ -215,8 +215,8 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
             href={link.href}
             chatId={chatId}
             messageId={message.message_id}
-            onEmpty={onLinkPreviewEmpty}
-            onSuccess={onLinkPreviewSuccess}
+            onEmpty={onUnfurlEmpty}
+            onSuccess={onUnfurlSuccess}
           />
         ) : null}
         {!hideMessage ? (
