@@ -32,6 +32,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   image: {
     display: 'flex',
     flexGrow: 1,
+    width: '100%',
     minWidth: spacing(12),
     minHeight: spacing(50)
   },
