@@ -9,7 +9,7 @@ import {
   cacheUsersSelectors,
   Status
 } from '@audius/common'
-import { View, Image, Keyboard } from 'react-native'
+import { View, Image } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDebounce } from 'react-use'
 
