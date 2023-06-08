@@ -5,6 +5,7 @@ import { Status } from 'models/Status'
 import { getUserId } from 'store/account/selectors'
 import { encodeHashId } from 'utils/hashIds'
 
+import { getChatMessageById } from './selectors'
 import { actions as chatActions } from './slice'
 
 const { connect, disconnect, addMessage, setMessageReactionSucceeded } =
@@ -42,13 +43,20 @@ export const chatMiddleware =
             )
           }
           reactionListener = ({ chatId, messageId, reaction }) => {
-            store.dispatch(
-              setMessageReactionSucceeded({
-                chatId,
-                messageId,
-                reaction
-              })
+            const message = getChatMessageById(
+              store.getState(),
+              chatId,
+              messageId
             )
+            if (message) {
+              store.dispatch(
+                setMessageReactionSucceeded({
+                  chatId,
+                  messageId,
+                  reaction
+                })
+              )
+            }
           }
           closeListener = async () => {
             console.debug('[chats] WebSocket closed. Reconnecting...')
