@@ -19,6 +19,7 @@ import { useSelector } from 'react-redux'
 import ChatTail from 'app/assets/images/ChatTail.svg'
 import { Pressable, Hyperlink, Text } from 'app/components/core'
 import { makeStyles } from 'app/styles'
+import { useThemeColors } from 'app/utils/theme'
 
 import { reactionMap } from '../notifications-screen/Reaction'
 
@@ -128,15 +129,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   },
   unfurl: {
     width: Dimensions.get('window').width - 48,
-    minHeight: 72,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0
-  },
-  unfurlAuthor: {
-    borderBottomColor: palette.secondaryDark1
-  },
-  unfurlOtherUser: {
-    borderBottomColor: palette.neutralLight7
+    minHeight: 72
   }
 }))
 
@@ -236,18 +229,21 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
     }
   }, [linkValue])
 
-  const unfurlBorderStyles = isAuthor
-    ? { ...styles.unfurlAuthor }
-    : { ...styles.unfurlOtherUser }
+  const { secondaryDark1, neutralLight7 } = useThemeColors()
+
+  const borderBottomColor = isAuthor ? secondaryDark1 : neutralLight7
   const borderBottomWidth = hideMessage
     ? 0
     : isCollection || isTrack
     ? undefined
     : 1
+  const borderBottomRadius = hideMessage ? undefined : 0
   const unfurlStyles = {
     ...styles.unfurl,
-    ...unfurlBorderStyles,
-    borderBottomWidth
+    borderBottomColor,
+    borderBottomWidth,
+    borderBottomLeftRadius: borderBottomRadius,
+    borderBottomRightRadius: borderBottomRadius
   }
 
   return (
