@@ -141,7 +141,7 @@ const ListEmpty = () => {
   )
 }
 
-function useDefaultUserList() {
+const useDefaultUserList = () => {
   const dispatch = useDispatch()
   const currentUser = useSelector(getAccountUser)
   const { hasMore, loading, userIds } = useSelector(
@@ -168,7 +168,7 @@ function useDefaultUserList() {
   }
 }
 
-function useQueryUserList(query: string) {
+const useQueryUserList = (query: string) => {
   const dispatch = useDispatch()
   const { userIds, status, hasMore } = useSelector(getUserList)
 
