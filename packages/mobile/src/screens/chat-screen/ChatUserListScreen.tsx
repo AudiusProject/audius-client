@@ -61,8 +61,12 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   },
   searchContainer: {
     marginTop: spacing(8),
-    marginHorizontal: spacing(2),
-    marginBottom: spacing(2)
+    paddingHorizontal: spacing(2),
+    paddingBottom: spacing(2)
+  },
+  searchBorder: {
+    borderBottomColor: palette.neutralLight8,
+    borderBottomWidth: 1
   },
   searchInputContainer: {
     paddingRight: spacing(5),
@@ -218,7 +222,14 @@ export const ChatUserListScreen = (props: ChatUserListScreenProps) => {
       <ScreenContent>
         <HeaderShadow />
         <View style={styles.rootContainer}>
-          <View style={styles.searchContainer}>
+          <View
+            style={[
+              styles.searchContainer,
+              // Only show the border below the search input if
+              // there are scrollable users below
+              users?.length ? styles.searchBorder : null
+            ]}
+          >
             <TextInput
               placeholder={messages.search}
               Icon={IconSearch}
