@@ -36,7 +36,9 @@ import type {
   TipSendNotification,
   TipSendPushNotification,
   TrendingTrackNotification,
-  UserSubscriptionNotification
+  UserSubscriptionNotification,
+  MessagePushNotification,
+  MessageReactionPushNotification
 } from '@audius/common'
 import {
   notificationsUserListActions,
@@ -75,6 +77,8 @@ export const useNotificationNavigation = () => {
         | RepostOfRepostPushNotification
         | FavoriteNotification
         | FavoritePushNotification
+        | MessagePushNotification
+        | MessageReactionPushNotification
     ) => {
       if ('userIds' in notification) {
         const { id, type, userIds } = notification
@@ -167,6 +171,17 @@ export const useNotificationNavigation = () => {
           'entityId' in notification
             ? notification.entityId
             : notification.initiator
+      })
+    },
+    [navigation]
+  )
+
+  const messagesHandler = useCallback(
+    (
+      notification: MessagePushNotification | MessageReactionPushNotification
+    ) => {
+      navigation.navigate('Chat', {
+        chatId: notification.chatId
       })
     },
     [navigation]
@@ -280,7 +295,9 @@ export const useNotificationNavigation = () => {
           )
         }
       },
-      [NotificationType.Tastemaker]: entityHandler
+      [NotificationType.Tastemaker]: entityHandler,
+      [PushNotificationType.Message]: messagesHandler,
+      [PushNotificationType.MessageReaction]: messagesHandler
     }),
     [
       dispatch,
@@ -289,6 +306,7 @@ export const useNotificationNavigation = () => {
       profileHandler,
       socialActionHandler,
       entityHandler,
+      messagesHandler,
       store
     ]
   )
