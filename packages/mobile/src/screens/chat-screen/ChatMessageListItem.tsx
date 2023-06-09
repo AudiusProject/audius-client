@@ -224,7 +224,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
   }, [setIsPressed])
 
   const handleLongPress = useCallback(() => {
-    if (message && message.status !== Status.ERROR) {
+    if (message && message.status !== Status.ERROR && ) {
       onLongPress?.(message.message_id)
     }
   }, [message, onLongPress])
@@ -246,10 +246,6 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
       ? { ...styles.unfurl, ...styles.unfurlAuthor }
       : { ...styles.unfurl, ...styles.unfurlOtherUser }
     : styles.unfurl
-
-  console.log(
-    `REED message: ${JSON.stringify(message?.reactions)} isPopup: ${isPopup}`
-  )
 
   return message ? (
     <>
