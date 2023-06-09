@@ -24,10 +24,9 @@ import Linkify from 'linkify-react'
 import { find } from 'linkifyjs'
 import { useDispatch } from 'react-redux'
 
+import { ReactComponent as ChatTail } from 'assets/img/ChatTail.svg'
 import { useSelector } from 'common/hooks/useSelector'
 import { reactionMap } from 'components/notification/Notification/components/Reaction'
-
-import { ReactComponent as ChatTail } from '../../../assets/img/ChatTail.svg'
 
 import styles from './ChatMessageListItem.module.css'
 import { ChatMessagePlaylist } from './ChatMessagePlaylist'

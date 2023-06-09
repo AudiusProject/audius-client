@@ -16,9 +16,9 @@ import { useModalState } from 'common/hooks/useModalState'
 import { useSelector } from 'common/hooks/useSelector'
 import { InboxUnavailableModal } from 'components/inbox-unavailable-modal/InboxUnavailableModal'
 import { SearchUsersModal } from 'components/search-users-modal/SearchUsersModal'
-import { MessageUserSearchResult } from 'pages/chat-page/components/CreateChatUserResult'
 
 import { CreateChatEmptyResults } from './CreateChatEmptyResults'
+import { MessageUserSearchResult } from './CreateChatUserResult'
 
 const messages = {
   title: 'New Message'
