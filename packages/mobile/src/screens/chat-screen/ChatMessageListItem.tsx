@@ -224,7 +224,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
   }, [setIsPressed])
 
   const handleLongPress = useCallback(() => {
-    if (message && message.status !== Status.ERROR && ) {
+    if (message && message.status !== Status.ERROR) {
       onLongPress?.(message.message_id)
     }
   }, [message, onLongPress])
