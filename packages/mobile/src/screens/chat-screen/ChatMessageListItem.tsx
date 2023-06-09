@@ -317,7 +317,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                   ) : null}
                   {!hideMessage ? (
                     <Hyperlink
-                      text={messageId}
+                      text={message.message}
                       styles={{
                         root: [
                           styles.message,
