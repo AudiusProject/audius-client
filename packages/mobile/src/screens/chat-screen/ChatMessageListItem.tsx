@@ -241,8 +241,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
   const { secondaryDark1, neutralLight7 } = useThemeColors()
 
   const borderBottomColor = isAuthor ? secondaryDark1 : neutralLight7
-  const borderBottomWidth =
-    hideMessage || isCollection || isTrack ? undefined : 1
+  const borderBottomWidth = hideMessage || isCollection || isTrack ? 0 : 1
   const unfurlStyles = {
     ...styles.unfurl,
     borderBottomColor,
