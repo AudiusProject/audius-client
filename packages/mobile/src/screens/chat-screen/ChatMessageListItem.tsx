@@ -30,7 +30,7 @@ import { ResendMessageButton } from './ResendMessageButton'
 import { REACTION_LONGPRESS_DELAY } from './constants'
 
 const { getUserId } = accountSelectors
-const { isIdEqualToReactionsPopupMessageId } = chatSelectors
+const { isIdEqualToReactionsPopupMessageId, getChatMessageById } = chatSelectors
 
 const TAIL_HORIZONTAL_OFFSET = 7
 
@@ -174,7 +174,7 @@ const ChatReaction = ({ reaction }: ChatReactionProps) => {
 }
 
 type ChatMessageListItemProps = {
-  message: ChatMessageWithExtras
+  messageId: string
   chatId: string
   isPopup: boolean
   style?: StyleProp<ViewStyle>
@@ -187,7 +187,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
   props: ChatMessageListItemProps
 ) {
   const {
-    message,
+    messageId,
     chatId,
     isPopup = false,
     style: styleProp,
@@ -197,19 +197,22 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
   } = props
   const styles = useStyles()
   const userId = useSelector(getUserId)
-  const senderUserId = decodeHashId(message.sender_user_id)
+  const message = useSelector((state) =>
+    getChatMessageById(state, chatId, messageId)
+  )
+  const senderUserId = message ? decodeHashId(message.sender_user_id) : null
   const isAuthor = senderUserId === userId
   const [isPressed, setIsPressed] = useState(false)
   const [emptyLinkPreview, setEmptyLinkPreview] = useState(false)
-  const links = find(message.message)
+  const links = find(message?.message ?? '')
   const link = links.filter((link) => link.type === 'url' && link.isLink)[0]
   const linkValue = link?.value
-  const isLinkPreviewOnly = linkValue === message.message
+  const isLinkPreviewOnly = linkValue === message?.message
   const hideMessage = isLinkPreviewOnly && !emptyLinkPreview
   const tailColor = useGetTailColor(isAuthor, isPressed, hideMessage)
   const isUnderneathPopup =
     useSelector((state) =>
-      isIdEqualToReactionsPopupMessageId(state, message.message_id)
+      isIdEqualToReactionsPopupMessageId(state, message?.message_id ?? '')
     ) && !isPopup
 
   const handlePressIn = useCallback(() => {
@@ -221,10 +224,10 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
   }, [setIsPressed])
 
   const handleLongPress = useCallback(() => {
-    if (message.status !== Status.ERROR) {
+    if ((message?.status ?? Status.IDLE) !== Status.ERROR && message) {
       onLongPress?.(message.message_id)
     }
-  }, [message.message_id, message.status, onLongPress])
+  }, [message, onLongPress])
 
   const onLinkPreviewEmpty = useCallback(() => {
     if (linkValue) {
@@ -244,7 +247,11 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
       : { ...styles.unfurl, ...styles.unfurlOtherUser }
     : styles.unfurl
 
-  return (
+  console.log(
+    `REED message: ${JSON.stringify(message?.reactions)} isPopup: ${isPopup}`
+  )
+
+  return message ? (
     <>
       <View
         style={[
@@ -353,7 +360,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                             : styles.reactionContainerOtherUser
                         ]}
                       >
-                        {message.reactions.map((reaction) => {
+                        {message?.reactions.map((reaction) => {
                           return (
                             <ChatReaction
                               key={reaction.created_at}
@@ -387,5 +394,5 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
         ) : null}
       </View>
     </>
-  )
+  ) : null
 })

@@ -462,7 +462,7 @@ export const ChatScreen = () => {
     ({ item }) => (
       <>
         <ChatMessageListItem
-          message={item}
+          messageId={item.message_id}
           chatId={chatId}
           itemsRef={itemsRef}
           isPopup={false}
