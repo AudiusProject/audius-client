@@ -105,8 +105,9 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     flexShrink: 1
   },
   listContentContainer: {
-    paddingHorizontal: spacing(6),
-    display: 'flex'
+    display: 'flex',
+    flexGrow: 1,
+    paddingHorizontal: spacing(6)
   },
   profileTitle: {
     display: 'flex',
@@ -577,10 +578,6 @@ export const ChatScreen = () => {
             ]}
             onKeyboardHide={measureChatContainerBottom}
           >
-            {chat?.messagesStatus === Status.SUCCESS &&
-            chatMessages?.length === 0 ? (
-              <EmptyChatMessages />
-            ) : null}
             {isLoading ? (
               <View style={styles.loadingSpinnerContainer}>
                 <LoadingSpinner style={styles.loadingSpinner} />
@@ -604,6 +601,7 @@ export const ChatScreen = () => {
                   maintainVisibleContentPosition={
                     maintainVisibleContentPosition
                   }
+                  ListEmptyComponent={<EmptyChatMessages />}
                   ListHeaderComponent={
                     canSendMessage ? null : <ChatUnavailable chatId={chatId} />
                   }
