@@ -193,7 +193,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
   const links = find(message.message)
   const link = links.filter((link) => link.type === 'url' && link.isLink)[0]
   const linkValue = link?.value
-  const isUnfurlOnly = linkValue === message.message
+  const isUnfurlOnly = linkValue === message.message.trim()
   const hideMessage = isUnfurlOnly && !emptyUnfurl
   const isCollection = isCollectionUrl(linkValue)
   const isTrack = isTrackUrl(linkValue)

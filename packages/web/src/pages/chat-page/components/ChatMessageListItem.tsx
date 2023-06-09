@@ -75,7 +75,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   const links = find(message.message)
   const link = links.filter((link) => link.type === 'url' && link.isLink)[0]
   const linkValue = link?.value
-  const isUnfurlOnly = linkValue === message.message
+  const isUnfurlOnly = linkValue === message.message.trim()
   const hideMessage = isUnfurlOnly && !emptyUnfurl
 
   // Callbacks
@@ -178,10 +178,10 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
     )
   }
 
-  const unfurlStyles = {
+  const unfurlClassNames = cn({
     [styles.unfurlAuthor]: !hideMessage && isAuthor,
     [styles.unfurlOtherUser]: !hideMessage && !isAuthor
-  }
+  })
 
   return (
     <div
@@ -197,21 +197,21 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
       >
         {isCollectionUrl(linkValue) ? (
           <ChatMessagePlaylist
-            className={cn(unfurlStyles)}
+            className={unfurlClassNames}
             link={link.value}
             onEmpty={onUnfurlEmpty}
             onSuccess={onUnfurlSuccess}
           />
         ) : isTrackUrl(linkValue) ? (
           <ChatMessageTrack
-            className={cn(unfurlStyles)}
+            className={unfurlClassNames}
             link={link.value}
             onEmpty={onUnfurlEmpty}
             onSuccess={onUnfurlSuccess}
           />
         ) : link ? (
           <LinkPreview
-            className={cn(unfurlStyles)}
+            className={unfurlClassNames}
             href={link.href}
             chatId={chatId}
             messageId={message.message_id}
