@@ -429,6 +429,9 @@ export const ChatScreen = () => {
       if (messageRef === null || messageRef === undefined) {
         return
       }
+      if (!canSendMessage) {
+        return
+      }
       // Measure position of selected message to create a copy of it on top
       // of the dimmed background inside the portal.
       const { messageY, messageH } = await new Promise<{
