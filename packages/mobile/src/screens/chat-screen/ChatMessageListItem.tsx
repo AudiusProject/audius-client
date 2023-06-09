@@ -212,7 +212,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
   const tailColor = useGetTailColor(isAuthor, isPressed, hideMessage)
   const isUnderneathPopup =
     useSelector((state) =>
-      isIdEqualToReactionsPopupMessageId(state, message?.message_id ?? '')
+      isIdEqualToReactionsPopupMessageId(state, messageId)
     ) && !isPopup
 
   const handlePressIn = useCallback(() => {
@@ -224,10 +224,10 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
   }, [setIsPressed])
 
   const handleLongPress = useCallback(() => {
-    if (message && message.status !== Status.ERROR) {
-      onLongPress?.(message.message_id)
+    if (message?.status !== Status.ERROR) {
+      onLongPress?.(messageId)
     }
-  }, [message, onLongPress])
+  }, [message?.status, messageId, onLongPress])
 
   const onLinkPreviewEmpty = useCallback(() => {
     if (linkValue) {
@@ -279,9 +279,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                       : null
                   ]}
                   ref={
-                    itemsRef
-                      ? (el) => (itemsRef.current[message.message_id] = el)
-                      : null
+                    itemsRef ? (el) => (itemsRef.current[messageId] = el) : null
                   }
                 >
                   {isPlaylistUrl(linkValue) ? (
@@ -304,7 +302,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                     <LinkPreview
                       key={`${link.value}-${link.start}-${link.end}`}
                       chatId={chatId}
-                      messageId={message.message_id}
+                      messageId={messageId}
                       href={link.href}
                       hideMessage={hideMessage}
                       onLongPress={handleLongPress}
@@ -321,7 +319,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
                   ) : null}
                   {!hideMessage ? (
                     <Hyperlink
-                      text={message.message}
+                      text={messageId}
                       styles={{
                         root: [
                           styles.message,
@@ -373,7 +371,7 @@ export const ChatMessageListItem = memo(function ChatMessageListItem(
           </Pressable>
         </View>
         {isAuthor && message.status === Status.ERROR ? (
-          <ResendMessageButton messageId={message.message_id} chatId={chatId} />
+          <ResendMessageButton messageId={messageId} chatId={chatId} />
         ) : null}
         {message.hasTail ? (
           <>
