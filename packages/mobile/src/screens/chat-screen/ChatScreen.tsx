@@ -448,7 +448,7 @@ export const ChatScreen = () => {
       dispatch(setReactionsPopupMessageId({ messageId: id }))
       light()
     },
-    [dispatch]
+    [canSendMessage, dispatch]
   )
 
   const topBarRight = (

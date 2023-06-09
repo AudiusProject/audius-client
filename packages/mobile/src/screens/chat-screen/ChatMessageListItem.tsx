@@ -1,6 +1,6 @@
 import { memo, useCallback, useState } from 'react'
 
-import type { ReactionTypes, ChatMessageWithExtras } from '@audius/common'
+import type { ReactionTypes } from '@audius/common'
 import {
   Status,
   accountSelectors,
