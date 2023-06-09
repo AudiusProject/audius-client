@@ -11,24 +11,18 @@ import PreviewButton from 'components/upload/PreviewButton'
 import UploadArtwork from 'components/upload/UploadArtwork'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { resizeImage } from 'utils/imageProcessingUtil'
-import { moodMap } from 'utils/moods'
+import { moodMap as untypedMoodMap } from 'utils/moods'
 
 import styles from './TrackMetadataFields.module.css'
 
-const MOODS = Object.keys(moodMap).map((k) => ({ text: k, el: moodMap[k] }))
+const moodMap: Record<string, JSX.Element> = untypedMoodMap
+const MOODS = Object.keys(moodMap).map((k) => ({
+  text: k,
+  el: moodMap[k]
+}))
 
 const messages = {
-  genre: 'Pick a Genre',
-  mood: 'Pick a Mood',
-  description: 'Description',
-  public: 'Public (Default)',
-  specialAccess: 'Special Access',
-  collectibleGated: 'Collectible Gated',
-  hidden: 'Hidden',
-  thisIsARemix: 'This is a Remix',
-  editRemix: 'Edit',
-  trackVisibility: 'Track Visibility',
-  availability: 'Availability'
+  genre: 'Pick a Genre'
 }
 
 type TrackMetadataFieldsProps = {
@@ -40,18 +34,17 @@ type TrackMetadataFieldsProps = {
 
 const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
   const [imageProcessingError, setImageProcessingError] = useState(false)
-  const [artworkField] = useField('artwork')
-  const [titleField, titleMeta] = useField('title')
-  const [genreField, genreMeta] = useField('genre')
-  const [moodField, moodMeta] = useField('mood')
-  const [tagsField, tagsMeta] = useField('tags')
-  const [descriptionField, descriptionMeta] = useField('description')
+  const [artworkField, , artworkHelpers] = useField('artwork')
+  const [titleField, titleMeta, titleHelpers] = useField('title')
+  const [genreField, genreMeta, genreHelpers] = useField('genre')
+  const [, moodMeta, moodHelpers] = useField('mood')
+  const [, tagsMeta, tagsHelpers] = useField('tags')
+  const [, descriptionMeta, descriptionHelpers] = useField('description')
 
-  const onPreviewClick = props.playing
-    ? props.onStopPreview
-    : props.onPlayPreview
+  // TODO: implement preview
+  const onPreviewClick = () => {}
 
-  const onDropArtwork = async (selectedFiles, source) => {
+  const onDropArtwork = async (selectedFiles: File[], source: string) => {
     try {
       let file = selectedFiles[0]
       file = await resizeImage(file)
@@ -62,10 +55,11 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
         FeatureFlags.STORAGE_V2_TRACK_UPLOAD
       )
       if (storageV2SignupEnabled || storageV2UploadEnabled) {
+        // @ts-ignore
         file.name = selectedFiles[0].name
       }
       const url = URL.createObjectURL(file)
-      artworkField.onChange({ url, file, source })
+      artworkHelpers.setValue({ url, file, source })
       setImageProcessingError(false)
     } catch (err) {
       setImageProcessingError(true)
@@ -77,9 +71,8 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
       <div className={styles.basic}>
         <div className={styles.preview}>
           <UploadArtwork
-            artworkUrl={artworkField.value}
+            artworkUrl={artworkField.value?.url}
             onDropArtwork={onDropArtwork}
-            // error={props.invalidFields.artwork}
             imageProcessingError={imageProcessingError}
           />
         </div>
@@ -92,11 +85,10 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
                 props.type.charAt(0).toUpperCase() + props.type.slice(1)
               } Name`}
               defaultValue={titleMeta.initialValue}
-              // isRequired={}
               characterLimit={64}
-              error={titleMeta.error}
+              error={!!titleMeta.error}
               variant={'elevatedPlaceholder'}
-              onChange={titleField.onChange}
+              onChange={titleHelpers.setValue}
               onBlur={titleField.onBlur}
             />
           </div>
@@ -107,9 +99,8 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
               mount='parent'
               menu={{ items: GENRES }}
               defaultValue={getCanonicalName(genreField.value) || ''}
-              // isRequired={}
-              error={genreMeta.error}
-              onSelect={genreField.onChange}
+              error={!!genreMeta.error}
+              onSelect={genreHelpers.setValue}
               size='large'
             />
             <DropdownInput
@@ -117,9 +108,8 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
               mount='parent'
               menu={{ items: MOODS }}
               defaultValue={moodMeta.initialValue}
-              // isRequired={}
-              error={moodMeta.error}
-              onSelect={moodField.onChange}
+              error={!!moodMeta.error}
+              onSelect={moodHelpers.setValue}
               size='large'
             />
           </div>
@@ -127,8 +117,10 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
             <TagInput
               defaultTags={(tagsMeta.initialValue || '')
                 .split(',')
-                .filter((t) => t)}
-              onChangeTags={(value) => tagsField.onChange([...value].join(','))}
+                .filter((t: string | null) => t)}
+              onChangeTags={(value: string[]) =>
+                tagsHelpers.setValue([...value].join(','))
+              }
             />
           </div>
           <div className={styles.description}>
@@ -136,7 +128,7 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
               className={styles.textArea}
               placeholder='Description'
               defaultValue={descriptionMeta.initialValue || ''}
-              onChange={descriptionField.onChange}
+              onChange={descriptionHelpers.setValue}
               characterLimit={1000}
             />
           </div>
