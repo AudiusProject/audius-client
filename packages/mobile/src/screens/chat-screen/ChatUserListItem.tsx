@@ -1,14 +1,21 @@
 import { useCallback } from 'react'
 
-import { chatActions, accountSelectors, chatSelectors } from '@audius/common'
 import type { User } from '@audius/common'
+import {
+  chatActions,
+  accountSelectors,
+  chatSelectors,
+  ChatPermissionAction
+} from '@audius/common'
 import { useSelector } from 'audius-client/src/common/hooks/useSelector'
 import { Text, View, TouchableOpacity } from 'react-native'
 import { useDispatch } from 'react-redux'
 
+import IconBlockMessages from 'app/assets/images/iconBlockMessages.svg'
 import IconUser from 'app/assets/images/iconUser.svg'
 import { ProfilePicture } from 'app/components/user'
 import { UserBadges } from 'app/components/user-badges'
+import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -19,7 +26,9 @@ const { getUserId } = accountSelectors
 const messages = {
   followsYou: 'Follows You',
   followers: 'Followers',
-  cannotMessage: 'Cannot Be Messaged'
+  ctaNone: 'Cannot Be Messaged',
+  ctaTip: 'Send a Tip To Message',
+  ctaBlock: 'Blocked'
 }
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
@@ -81,7 +90,13 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   },
   iconUser: {
     height: spacing(4),
-    width: spacing(4)
+    width: spacing(4),
+    fill: palette.neutralLight4
+  },
+  iconBlock: {
+    height: spacing(4),
+    width: spacing(4),
+    fill: palette.neutral
   },
   followsYouTag: {
     fontSize: typography.fontSize.xxs,
@@ -95,10 +110,28 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     paddingVertical: spacing(1),
     paddingHorizontal: spacing(2)
   },
+  ctaContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing(2),
+    backgroundColor: palette.neutralLight9,
+    borderWidth: 1,
+    borderColor: palette.neutralLight7,
+    borderRadius: spacing(1),
+    paddingHorizontal: spacing(4),
+    paddingVertical: spacing(2)
+  },
   dim: {
     opacity: 0.5
   }
 }))
+
+const ctaToTextMap = {
+  [ChatPermissionAction.TIP]: messages.ctaTip,
+  [ChatPermissionAction.UNBLOCK]: messages.ctaBlock,
+  [ChatPermissionAction.NONE]: messages.ctaNone
+}
 
 type ChatUserListItemProps = {
   user: User
@@ -106,19 +139,27 @@ type ChatUserListItemProps = {
 
 export const ChatUserListItem = ({ user }: ChatUserListItemProps) => {
   const styles = useStyles()
-  const palette = useThemeColors()
   const dispatch = useDispatch()
   const currentUserId = useSelector(getUserId)
-  const { canCreateChat } = useSelector((state) =>
+  const { callToAction, canCreateChat } = useSelector((state) =>
     getCanCreateChat(state, { userId: user.user_id })
   )
 
-  const handlePress = useCallback(
-    (user) => {
-      dispatch(createChat({ userIds: [user.user_id] }))
-    },
-    [dispatch]
-  )
+  const handlePress = useCallback(() => {
+    dispatch(createChat({ userIds: [user.user_id] }))
+  }, [dispatch, user.user_id])
+
+  const handleNotPermittedPress = useCallback(() => {
+    if (user.user_id) {
+      dispatch(
+        setVisibility({
+          drawer: 'InboxUnavailable',
+          visible: true,
+          data: { userId: user.user_id }
+        })
+      )
+    }
+  }, [dispatch, user.user_id])
 
   if (currentUserId === user.user_id) {
     return null
@@ -126,14 +167,14 @@ export const ChatUserListItem = ({ user }: ChatUserListItemProps) => {
 
   return (
     <TouchableOpacity
-      onPress={() => handlePress(user)}
-      disabled={!canCreateChat}
+      onPress={canCreateChat ? handlePress : handleNotPermittedPress}
     >
       <View style={styles.border}>
-        <View
-          style={[styles.userContainer, !canCreateChat ? styles.dim : null]}
-        >
-          <ProfilePicture profile={user} style={styles.profilePicture} />
+        <View style={styles.userContainer}>
+          <ProfilePicture
+            profile={user}
+            style={[styles.profilePicture, !canCreateChat ? styles.dim : null]}
+          />
           <View style={styles.userNameContainer}>
             <UserBadges user={user} nameStyle={styles.userName} />
             <Text style={styles.handle}>@{user.handle}</Text>
@@ -142,7 +183,7 @@ export const ChatUserListItem = ({ user }: ChatUserListItemProps) => {
                 {canCreateChat ? (
                   <>
                     <IconUser
-                      fill={palette.neutralLight4}
+                      fill={styles.iconUser.fill}
                       height={styles.iconUser.height}
                       width={styles.iconUser.width}
                     />
@@ -152,7 +193,16 @@ export const ChatUserListItem = ({ user }: ChatUserListItemProps) => {
                     <Text style={styles.followers}>{messages.followers}</Text>
                   </>
                 ) : (
-                  <Text style={styles.userName}>{messages.cannotMessage}</Text>
+                  <View style={styles.ctaContainer}>
+                    <IconBlockMessages
+                      fill={styles.iconBlock.fill}
+                      width={styles.iconBlock.width}
+                      height={styles.iconBlock.height}
+                    />
+                    <Text style={styles.userName}>
+                      {ctaToTextMap[callToAction]}
+                    </Text>
+                  </View>
                 )}
               </View>
               {user.does_follow_current_user && canCreateChat ? (
