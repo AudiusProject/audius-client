@@ -15,6 +15,7 @@ import IconVerified from '../../assets/img/iconVerified.svg'
 import styles from './CollectionPlayerCard.module.css'
 import { isBItem } from '../../util/bitems'
 import { getArtworkUrl } from '../../util/getArtworkUrl'
+import { decodeHashId } from '../../util/hashids'
 
 const CollectionListRow = ({
   playingState,
@@ -91,7 +92,9 @@ const CollectionPlayerCard = ({
   isTwitter
 }) => {
   const makeOnTogglePlay = (index) => () => onTogglePlay(index)
-  const permalink = stripLeadingSlash(collection.permalink)
+  const permalink = `${stripLeadingSlash(collection.permalink)}-${decodeHashId(
+    collection?.id
+  )}`
   return (
     <Card
       isTwitter={isTwitter}
