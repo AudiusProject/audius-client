@@ -12,7 +12,7 @@ const messages = {
   noAction: (userName: string) =>
     `You can no longer send messages to ${userName}. `,
   tip1: 'You must send ',
-  tip2: 'tip before you can send them messages.',
+  tip2: ' a tip before you can send them messages.',
   blockee: 'You cannot send messages to users you have blocked. ',
   learnMore: 'Learn More.',
   unblockUser: 'Unblock User.'
