@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
 
-import type { User } from '@audius/common'
 import {
   chatActions,
   accountSelectors,
