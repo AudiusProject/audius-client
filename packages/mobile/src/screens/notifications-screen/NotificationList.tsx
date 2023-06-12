@@ -24,7 +24,7 @@ const { fetchNotifications, refreshNotifications } = notificationsActions
 const {
   getNotificationHasMore,
   getNotificationStatus,
-  makeGetAllNotifications
+  selectAllNotifications
 } = notificationsSelectors
 
 const NOTIFICATION_PAGE_SIZE = 10
@@ -51,8 +51,6 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     color: palette.neutralLight4
   }
 }))
-
-const getNotifications = makeGetAllNotifications()
 
 /**
  * Hook to handle tracking visibility for notification items, by index.
@@ -108,7 +106,7 @@ const useIsViewable = () => {
 export const NotificationList = () => {
   const styles = useStyles()
   const dispatch = useDispatch()
-  const notifications = useProxySelector(getNotifications, [])
+  const notifications = useSelector(selectAllNotifications)
   const status = useSelector(getNotificationStatus)
   const hasMore = useSelector(getNotificationHasMore)
   const [isRefreshing, setIsRefreshing] = useState(false)
