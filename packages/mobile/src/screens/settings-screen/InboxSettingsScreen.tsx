@@ -3,7 +3,10 @@ import { useEffect } from 'react'
 import { useSetInboxPermissions } from '@audius/common'
 import { ChatPermission } from '@audius/sdk'
 import { TouchableOpacity, View } from 'react-native'
-import { ScrollView } from 'react-native-gesture-handler'
+import {
+  ScrollView,
+  TouchableWithoutFeedback
+} from 'react-native-gesture-handler'
 
 import IconMessage from 'app/assets/images/iconMessage.svg'
 import { RadioButton, Text, Screen, ScreenContent } from 'app/components/core'
@@ -67,6 +70,9 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     borderBottomColor: palette.neutralLight7,
     borderBottomWidth: 2,
     borderBottomLeftRadius: 1
+  },
+  scrollContainer: {
+    backgroundColor: palette.white
   }
 }))
 
@@ -112,8 +118,8 @@ export const InboxSettingsScreen = () => {
       icon={IconMessage}
     >
       <ScreenContent>
-        <ScrollView>
-          {options.map((opt) => (
+        <ScrollView style={styles.scrollContainer}>
+          {options.map((opt, index) => (
             <TouchableOpacity
               onPress={() => {
                 const newPermission = opt.value as ChatPermission
@@ -122,7 +128,15 @@ export const InboxSettingsScreen = () => {
               key={opt.title}
             >
               <View style={styles.settingsRow}>
-                <View style={styles.settingsContent}>
+                <View
+                  style={[
+                    styles.settingsContent,
+                    // Hide bottom border on last element
+                    index === options.length - 1
+                      ? { borderBottomWidth: 0 }
+                      : null
+                  ]}
+                >
                   <View style={styles.radioTitleRow}>
                     <RadioButton
                       checked={localPermission === opt.value}
