@@ -19,7 +19,7 @@ app:
     - purpose: icon
       uri: ./media/app_icon.png
 release:
-  address: 7XpzTDUzFChQzMDvxk7UhLgiDmU76sTgV1LR4t9pnpgz
+  address: APkBBQBUrFn9xL812E5bEgBTbZ3rBTLGHgrpE657rMko
   media:
     - purpose: icon
       uri: ./media/publisher_icon.png
