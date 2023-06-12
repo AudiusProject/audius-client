@@ -12,12 +12,12 @@ import { Text, View, TouchableOpacity } from 'react-native'
 import { useDispatch } from 'react-redux'
 
 import IconBlockMessages from 'app/assets/images/iconBlockMessages.svg'
+import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconUser from 'app/assets/images/iconUser.svg'
 import { ProfilePicture } from 'app/components/user'
 import { UserBadges } from 'app/components/user-badges'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
-import { useThemeColors } from 'app/utils/theme'
 
 const { createChat } = chatActions
 const { getCanCreateChat } = chatSelectors
@@ -50,11 +50,22 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     alignItems: 'center',
     padding: spacing(4)
   },
-  userNameContainer: {
+  userDetailsContainer: {
     flexGrow: 1,
     display: 'flex',
     flexDirection: 'column',
     marginLeft: spacing(2.5),
+    gap: spacing(1)
+  },
+  topHalfContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  userNameContainer: {
+    flexGrow: 1,
+    display: 'flex',
+    flexDirection: 'column',
     gap: spacing(1)
   },
   userName: {
@@ -78,6 +89,18 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     flexDirection: 'row',
     alignItems: 'center'
   },
+  ctaContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing(2),
+    backgroundColor: palette.neutralLight9,
+    borderWidth: 1,
+    borderColor: palette.neutralLight7,
+    borderRadius: spacing(1),
+    paddingHorizontal: spacing(4),
+    paddingVertical: spacing(1.5)
+  },
   followersCount: {
     fontWeight: 'bold',
     marginHorizontal: spacing(1),
@@ -98,6 +121,11 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     width: spacing(4),
     fill: palette.neutral
   },
+  iconKebab: {
+    height: spacing(6),
+    width: spacing(6),
+    fill: palette.neutral
+  },
   followsYouTag: {
     fontSize: typography.fontSize.xxs,
     fontFamily: typography.fontByWeight.heavy,
@@ -109,18 +137,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     borderColor: palette.neutralLight4,
     paddingVertical: spacing(1),
     paddingHorizontal: spacing(2)
-  },
-  ctaContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing(2),
-    backgroundColor: palette.neutralLight9,
-    borderWidth: 1,
-    borderColor: palette.neutralLight7,
-    borderRadius: spacing(1),
-    paddingHorizontal: spacing(4),
-    paddingVertical: spacing(2)
   },
   dim: {
     opacity: 0.5
@@ -161,6 +177,18 @@ export const ChatUserListItem = ({ user }: ChatUserListItemProps) => {
     }
   }, [dispatch, user.user_id])
 
+  const handleKebabPress = useCallback(() => {
+    if (user.user_id) {
+      dispatch(
+        setVisibility({
+          drawer: 'CreateChatActions',
+          visible: true,
+          data: { userId: user.user_id }
+        })
+      )
+    }
+  }, [dispatch, user.user_id])
+
   if (currentUserId === user.user_id) {
     return null
   }
@@ -175,9 +203,20 @@ export const ChatUserListItem = ({ user }: ChatUserListItemProps) => {
             profile={user}
             style={[styles.profilePicture, !canCreateChat ? styles.dim : null]}
           />
-          <View style={styles.userNameContainer}>
-            <UserBadges user={user} nameStyle={styles.userName} />
-            <Text style={styles.handle}>@{user.handle}</Text>
+          <View style={styles.userDetailsContainer}>
+            <View style={styles.topHalfContainer}>
+              <View style={styles.userNameContainer}>
+                <UserBadges user={user} nameStyle={styles.userName} />
+                <Text style={styles.handle}>@{user.handle}</Text>
+              </View>
+              <TouchableOpacity onPress={handleKebabPress}>
+                <IconKebabHorizontal
+                  height={styles.iconKebab.height}
+                  width={styles.iconKebab.width}
+                  fill={styles.iconKebab.fill}
+                />
+              </TouchableOpacity>
+            </View>
             <View style={styles.followContainer}>
               <View style={styles.followersContainer}>
                 {canCreateChat ? (
