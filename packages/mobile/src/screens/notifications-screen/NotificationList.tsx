@@ -3,7 +3,6 @@ import { useCallback, useContext, useEffect, useState } from 'react'
 import type { Notification } from '@audius/common'
 import {
   notificationsActions,
-  useProxySelector,
   Status,
   notificationsSelectors
 } from '@audius/common'
