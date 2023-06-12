@@ -5,10 +5,11 @@ import {
   chatActions,
   accountSelectors,
   chatSelectors,
-  ChatPermissionAction
+  ChatPermissionAction,
+  cacheUsersSelectors
 } from '@audius/common'
 import { useSelector } from 'audius-client/src/common/hooks/useSelector'
-import { Text, View, TouchableOpacity } from 'react-native'
+import { Text, View, TouchableOpacity, Keyboard } from 'react-native'
 import { useDispatch } from 'react-redux'
 
 import IconBlockMessages from 'app/assets/images/iconBlockMessages.svg'
@@ -22,6 +23,7 @@ import { makeStyles } from 'app/styles'
 const { createChat } = chatActions
 const { getCanCreateChat } = chatSelectors
 const { getUserId } = accountSelectors
+const { getUser } = cacheUsersSelectors
 
 const messages = {
   followsYou: 'Follows You',
@@ -150,23 +152,28 @@ const ctaToTextMap = {
 }
 
 type ChatUserListItemProps = {
-  user: User
+  userId: number
 }
 
-export const ChatUserListItem = ({ user }: ChatUserListItemProps) => {
+export const ChatUserListItem = ({ userId }: ChatUserListItemProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
+  const user = useSelector((state) => getUser(state, { id: userId }))
   const currentUserId = useSelector(getUserId)
   const { callToAction, canCreateChat } = useSelector((state) =>
-    getCanCreateChat(state, { userId: user.user_id })
+    getCanCreateChat(state, { userId: user?.user_id })
   )
 
   const handlePress = useCallback(() => {
-    dispatch(createChat({ userIds: [user.user_id] }))
-  }, [dispatch, user.user_id])
+    if (user?.user_id) {
+      Keyboard.dismiss()
+      dispatch(createChat({ userIds: [user.user_id] }))
+    }
+  }, [dispatch, user?.user_id])
 
   const handleNotPermittedPress = useCallback(() => {
-    if (user.user_id) {
+    if (user?.user_id) {
+      Keyboard.dismiss()
       dispatch(
         setVisibility({
           drawer: 'InboxUnavailable',
@@ -175,10 +182,11 @@ export const ChatUserListItem = ({ user }: ChatUserListItemProps) => {
         })
       )
     }
-  }, [dispatch, user.user_id])
+  }, [dispatch, user?.user_id])
 
   const handleKebabPress = useCallback(() => {
-    if (user.user_id) {
+    if (user?.user_id) {
+      Keyboard.dismiss()
       dispatch(
         setVisibility({
           drawer: 'CreateChatActions',
@@ -187,9 +195,9 @@ export const ChatUserListItem = ({ user }: ChatUserListItemProps) => {
         })
       )
     }
-  }, [dispatch, user.user_id])
+  }, [dispatch, user?.user_id])
 
-  if (currentUserId === user.user_id) {
+  if (!user || currentUserId === user?.user_id) {
     return null
   }
 
