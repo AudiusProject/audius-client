@@ -3,10 +3,7 @@ import { useEffect } from 'react'
 import { useSetInboxPermissions } from '@audius/common'
 import { ChatPermission } from '@audius/sdk'
 import { TouchableOpacity, View } from 'react-native'
-import {
-  ScrollView,
-  TouchableWithoutFeedback
-} from 'react-native-gesture-handler'
+import { ScrollView } from 'react-native-gesture-handler'
 
 import IconMessage from 'app/assets/images/iconMessage.svg'
 import { RadioButton, Text, Screen, ScreenContent } from 'app/components/core'
