@@ -1,0 +1,22 @@
+.editForm {
+  width: 100%;
+  background-color: var(--white);
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.04), 0px 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.continue {
+  margin-top: 24px;
+  /* TODO: flex */
+  text-align: right;
+}
+
+.continueButton .continueButtonText {
+  font-weight: var(--font-bold);
+  font-size: var(--font-l);
+}

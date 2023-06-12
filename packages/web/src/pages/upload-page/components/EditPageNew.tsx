@@ -5,9 +5,11 @@ import { Button, ButtonType, IconArrow } from '@audius/stems'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
 
+import PreviewButton from 'components/upload/PreviewButton'
+
 import TrackMetadataFields from '../fields/TrackMetadataFields'
 
-import styles from './EditPage.module.css'
+import styles from './EditPageNew.module.css'
 import { TrackForUpload } from './types'
 
 type EditPageProps = {
@@ -68,8 +70,11 @@ export const EditPageNew = (props: EditPageProps) => {
       validationSchema={EditTrackSchema}
     >
       {(formikProps) => (
-        <div className={styles.edit}>
-          <TrackMetadataFields playing={false} type='track' />
+        <>
+          <div className={styles.editForm}>
+            <TrackMetadataFields playing={false} type='track' />
+            <PreviewButton playing={false} onClick={() => {}} />
+          </div>
           <div className={styles.continue}>
             <Button
               type={ButtonType.PRIMARY_ALT}
@@ -82,7 +87,7 @@ export const EditPageNew = (props: EditPageProps) => {
               className={styles.continueButton}
             />
           </div>
-        </div>
+        </>
       )}
     </Formik>
   )

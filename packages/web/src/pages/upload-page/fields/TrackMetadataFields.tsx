@@ -7,7 +7,6 @@ import DropdownInput from 'components/data-entry/DropdownInput'
 import Input from 'components/data-entry/Input'
 import TagInput from 'components/data-entry/TagInput'
 import TextArea from 'components/data-entry/TextArea'
-import PreviewButton from 'components/upload/PreviewButton'
 import UploadArtwork from 'components/upload/UploadArtwork'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { resizeImage } from 'utils/imageProcessingUtil'
@@ -41,9 +40,6 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
   const [, tagsMeta, tagsHelpers] = useField('tags')
   const [, descriptionMeta, descriptionHelpers] = useField('description')
 
-  // TODO: implement preview
-  const onPreviewClick = () => {}
-
   const onDropArtwork = async (selectedFiles: File[], source: string) => {
     try {
       let file = selectedFiles[0]
@@ -66,91 +62,72 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
     }
   }
 
-  const renderBasicForm = () => {
-    return (
-      <div className={styles.basic}>
-        <div className={styles.preview}>
-          <UploadArtwork
-            artworkUrl={artworkField.value?.url}
-            onDropArtwork={onDropArtwork}
-            imageProcessingError={imageProcessingError}
+  return (
+    <div className={styles.basic}>
+      <div className={styles.artwork}>
+        <UploadArtwork
+          artworkUrl={artworkField.value?.url}
+          onDropArtwork={onDropArtwork}
+          imageProcessingError={imageProcessingError}
+        />
+      </div>
+      <div className={styles.fields}>
+        <div className={styles.trackName}>
+          <Input
+            name='name'
+            id='track-name-input'
+            placeholder={`${
+              props.type.charAt(0).toUpperCase() + props.type.slice(1)
+            } Name`}
+            defaultValue={titleMeta.initialValue}
+            characterLimit={64}
+            error={!!titleMeta.error}
+            variant={'elevatedPlaceholder'}
+            onChange={titleHelpers.setValue}
+            onBlur={titleField.onBlur}
           />
         </div>
-        <div className={styles.form}>
-          <div className={styles.trackName}>
-            <Input
-              name='name'
-              id='track-name-input'
-              placeholder={`${
-                props.type.charAt(0).toUpperCase() + props.type.slice(1)
-              } Name`}
-              defaultValue={titleMeta.initialValue}
-              characterLimit={64}
-              error={!!titleMeta.error}
-              variant={'elevatedPlaceholder'}
-              onChange={titleHelpers.setValue}
-              onBlur={titleField.onBlur}
-            />
-          </div>
-          <div className={styles.categorization}>
-            <DropdownInput
-              aria-label={messages.genre}
-              placeholder={messages.genre}
-              mount='parent'
-              menu={{ items: GENRES }}
-              defaultValue={getCanonicalName(genreField.value) || ''}
-              error={!!genreMeta.error}
-              onSelect={genreHelpers.setValue}
-              size='large'
-            />
-            <DropdownInput
-              placeholder='Pick a Mood'
-              mount='parent'
-              menu={{ items: MOODS }}
-              defaultValue={moodMeta.initialValue}
-              error={!!moodMeta.error}
-              onSelect={moodHelpers.setValue}
-              size='large'
-            />
-          </div>
-          <div className={styles.tags}>
-            <TagInput
-              defaultTags={(tagsMeta.initialValue || '')
-                .split(',')
-                .filter((t: string | null) => t)}
-              onChangeTags={(value: string[]) =>
-                tagsHelpers.setValue([...value].join(','))
-              }
-            />
-          </div>
-          <div className={styles.description}>
-            <TextArea
-              className={styles.textArea}
-              placeholder='Description'
-              defaultValue={descriptionMeta.initialValue || ''}
-              onChange={descriptionHelpers.setValue}
-              characterLimit={1000}
-            />
-          </div>
+        <div className={styles.categorization}>
+          <DropdownInput
+            aria-label={messages.genre}
+            placeholder={messages.genre}
+            mount='parent'
+            menu={{ items: GENRES }}
+            defaultValue={getCanonicalName(genreField.value) || ''}
+            error={!!genreMeta.error}
+            onSelect={genreHelpers.setValue}
+            size='large'
+          />
+          <DropdownInput
+            placeholder='Pick a Mood'
+            mount='parent'
+            menu={{ items: MOODS }}
+            defaultValue={moodMeta.initialValue}
+            error={!!moodMeta.error}
+            onSelect={moodHelpers.setValue}
+            size='large'
+          />
+        </div>
+        <div className={styles.tags}>
+          <TagInput
+            defaultTags={(tagsMeta.initialValue || '')
+              .split(',')
+              .filter((t: string | null) => t)}
+            onChangeTags={(value: string[]) =>
+              tagsHelpers.setValue([...value].join(','))
+            }
+          />
+        </div>
+        <div className={styles.description}>
+          <TextArea
+            className={styles.textArea}
+            placeholder='Description'
+            defaultValue={descriptionMeta.initialValue || ''}
+            onChange={descriptionHelpers.setValue}
+            characterLimit={1000}
+          />
         </div>
       </div>
-    )
-  }
-
-  const renderBottomMenu = () => {
-    return (
-      <div className={styles.menu}>
-        <div>
-          <PreviewButton playing={props.playing} onClick={onPreviewClick} />
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className={styles.basicContainer}>
-      {renderBasicForm()}
-      {renderBottomMenu()}
     </div>
   )
 }
