@@ -33,22 +33,21 @@ const useStyles = makeStyles(({ typography, palette, spacing }) => ({
   name: {
     ...flexRowCentered(),
     marginRight: spacing(2),
-    height: spacing(6),
     marginBottom: spacing(1)
   },
   username: {
     ...typography.h1,
-    color: palette.neutral
+    color: palette.neutral,
+    marginBottom: 0 // Override h1 bottom margin for this layout to work
   },
   badges: {
-    marginBottom: 6,
+    marginTop: 2,
     marginLeft: 2,
     flexGrow: 1
   },
   handleInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignContent: 'center',
     flexShrink: 1
   },
   handle: {
