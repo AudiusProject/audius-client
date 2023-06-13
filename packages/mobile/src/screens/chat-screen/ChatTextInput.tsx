@@ -82,8 +82,8 @@ export const ChatTextInput = ({
             ? pressed
               ? primaryDark2
               : primary
-            : // Setting opacity directly affects the opacity of the icon on
-              // Android, this workaround keeps the icon always white.
+            : // Setting opacity style affects both the background and icon
+              // on Android, this workaround keeps the icon always white.
               convertHexToRGBA(primary, 50)
         }
       ]}
