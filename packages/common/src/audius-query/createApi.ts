@@ -14,7 +14,7 @@ import { getCollection } from 'store/cache/collections/selectors'
 import { getTrack } from 'store/cache/tracks/selectors'
 import { CommonState } from 'store/reducers'
 import { getErrorMessage } from 'utils/error'
-import { removeNullable } from 'utils/typeUtils'
+import { Nullable, removeNullable } from 'utils/typeUtils'
 
 import * as cacheActions from '../store/cache/actions'
 import * as cacheSelectors from '../store/cache/selectors'
@@ -133,6 +133,96 @@ const addEndpointToSlice = <NormalizedData>(
   }
 }
 
+const useQueryState = <Args, Data>(
+  fetchArgs: Nullable<Args>,
+  reducerPath: string,
+  endpointName: string,
+  endpoint: EndpointConfig<Args, Data>
+) => {
+  return useSelector((state: CommonState) => {
+    if (!state.api[reducerPath]) {
+      throw new Error(
+        `State for ${reducerPath} is undefined - did you forget to register the reducer in @audius/common/src/api/reducers.ts?`
+      )
+    }
+
+    if (!fetchArgs) return null
+
+    const key = getKeyFromFetchArgs(fetchArgs)
+
+    const endpointState: PerEndpointState<any> =
+      state.api[reducerPath][endpointName]
+
+    // Retrieve data from cache if lookup args provided
+    if (!endpointState[key]) {
+      if (
+        !(
+          endpoint.options?.idArgKey ||
+          endpoint.options?.idListArgKey ||
+          endpoint.options?.permalinkArgKey
+        ) ||
+        !endpoint.options?.kind ||
+        !endpoint.options?.schemaKey
+      )
+        return null
+      const { kind, idArgKey, idListArgKey, permalinkArgKey, schemaKey } =
+        endpoint.options
+
+      let cachedData = null
+      if (idArgKey && fetchArgs[idArgKey]) {
+        const idAsNumber =
+          typeof fetchArgs[idArgKey] === 'number'
+            ? fetchArgs[idArgKey]
+            : parseInt(fetchArgs[idArgKey])
+        cachedData = cacheSelectors.getEntry(state, {
+          kind,
+          id: idAsNumber
+        })
+      } else if (permalinkArgKey && fetchArgs[permalinkArgKey]) {
+        if (kind === Kind.TRACKS) {
+          cachedData = getTrack(state, {
+            permalink: fetchArgs[permalinkArgKey]
+          })
+        } else if (kind === Kind.COLLECTIONS) {
+          cachedData = getCollection(state, {
+            permalink: fetchArgs[permalinkArgKey]
+          })
+        }
+      } else if (idListArgKey && fetchArgs[idListArgKey]) {
+        const idsAsNumbers: number[] = fetchArgs[idListArgKey].map(
+          (id: string | number) => (typeof id === 'number' ? id : parseInt(id))
+        )
+        const allEntities = mapValues(
+          cacheSelectors.getCache(state, { kind }).entries,
+          'metadata'
+        )
+        const entityHits = idsAsNumbers
+          .map((id) => allEntities[id])
+          .filter(removeNullable)
+        if (entityHits.length === idsAsNumbers.length) {
+          cachedData = entityHits
+        }
+      }
+
+      // cache hit
+      if (cachedData) {
+        const { result } = normalize(
+          { [schemaKey]: cachedData },
+          apiResponseSchema
+        )
+        return {
+          nonNormalizedData: result,
+          status: Status.SUCCESS,
+          isInitialValue: true,
+          errorMessage: undefined
+        }
+      }
+    }
+
+    return { ...endpointState[key] }
+  }, isEqual)
+}
+
 const buildEndpointHooks = <
   EndpointDefinitions extends DefaultEndpointDefinitions,
   Args,
@@ -150,85 +240,12 @@ const buildEndpointHooks = <
     hookOptions?: QueryHookOptions
   ): QueryHookResults<Data> => {
     const dispatch = useDispatch()
-    const key = getKeyFromFetchArgs(fetchArgs)
-    const queryState = useSelector((state: CommonState) => {
-      if (!state.api[reducerPath]) {
-        throw new Error(
-          `State for ${reducerPath} is undefined - did you forget to register the reducer in @audius/common/src/api/reducers.ts?`
-        )
-      }
-      const endpointState: PerEndpointState<any> =
-        state.api[reducerPath][endpointName]
-
-      // Retrieve data from cache if lookup args provided
-      if (!endpointState[key]) {
-        if (
-          !(
-            endpoint.options?.idArgKey ||
-            endpoint.options?.idListArgKey ||
-            endpoint.options?.permalinkArgKey
-          ) ||
-          !endpoint.options?.kind ||
-          !endpoint.options?.schemaKey
-        )
-          return null
-        const { kind, idArgKey, idListArgKey, permalinkArgKey, schemaKey } =
-          endpoint.options
-
-        let cachedData = null
-        if (idArgKey && fetchArgs[idArgKey]) {
-          const idAsNumber =
-            typeof fetchArgs[idArgKey] === 'number'
-              ? fetchArgs[idArgKey]
-              : parseInt(fetchArgs[idArgKey])
-          cachedData = cacheSelectors.getEntry(state, {
-            kind,
-            id: idAsNumber
-          })
-        } else if (permalinkArgKey && fetchArgs[permalinkArgKey]) {
-          if (kind === Kind.TRACKS) {
-            cachedData = getTrack(state, {
-              permalink: fetchArgs[permalinkArgKey]
-            })
-          } else if (kind === Kind.COLLECTIONS) {
-            cachedData = getCollection(state, {
-              permalink: fetchArgs[permalinkArgKey]
-            })
-          }
-        } else if (idListArgKey && fetchArgs[idListArgKey]) {
-          const idsAsNumbers: number[] = fetchArgs[idListArgKey].map(
-            (id: string | number) =>
-              typeof id === 'number' ? id : parseInt(id)
-          )
-          const allEntities = mapValues(
-            cacheSelectors.getCache(state, { kind }).entries,
-            'metadata'
-          )
-          const entityHits = idsAsNumbers
-            .map((id) => allEntities[id])
-            .filter(removeNullable)
-          if (entityHits.length === idsAsNumbers.length) {
-            cachedData = entityHits
-          }
-        }
-
-        // cache hit
-        if (cachedData) {
-          const { result } = normalize(
-            { [schemaKey]: cachedData },
-            apiResponseSchema
-          )
-          return {
-            nonNormalizedData: result,
-            status: Status.SUCCESS,
-            isInitialValue: true,
-            errorMessage: undefined
-          }
-        }
-      }
-
-      return { ...endpointState[key] }
-    }, isEqual)
+    const queryState = useQueryState(
+      fetchArgs,
+      reducerPath,
+      endpointName,
+      endpoint
+    )
 
     const { nonNormalizedData, status, errorMessage, isInitialValue } =
       queryState ?? {
@@ -343,86 +360,14 @@ const buildEndpointHooks = <
     QueryHookResults<Data>
   ] => {
     const dispatch = useDispatch()
-    const [fetchArgs, setFetchArgs] = useState({})
+    const [fetchArgs, setFetchArgs] = useState<Args | null>(null)
     const key = getKeyFromFetchArgs(fetchArgs)
-    const queryState = useSelector((state: CommonState) => {
-      if (!state.api[reducerPath]) {
-        throw new Error(
-          `State for ${reducerPath} is undefined - did you forget to register the reducer in @audius/common/src/api/reducers.ts?`
-        )
-      }
-      const endpointState: PerEndpointState<any> =
-        state.api[reducerPath][endpointName]
-
-      // Retrieve data from cache if lookup args provided
-      if (!endpointState[key]) {
-        if (
-          !(
-            endpoint.options?.idArgKey ||
-            endpoint.options?.idListArgKey ||
-            endpoint.options?.permalinkArgKey
-          ) ||
-          !endpoint.options?.kind ||
-          !endpoint.options?.schemaKey
-        )
-          return null
-        const { kind, idArgKey, idListArgKey, permalinkArgKey, schemaKey } =
-          endpoint.options
-
-        let cachedData = null
-        if (idArgKey && fetchArgs[idArgKey]) {
-          const idAsNumber =
-            typeof fetchArgs[idArgKey] === 'number'
-              ? fetchArgs[idArgKey]
-              : parseInt(fetchArgs[idArgKey])
-          cachedData = cacheSelectors.getEntry(state, {
-            kind,
-            id: idAsNumber
-          })
-        } else if (permalinkArgKey && fetchArgs[permalinkArgKey]) {
-          if (kind === Kind.TRACKS) {
-            cachedData = getTrack(state, {
-              permalink: fetchArgs[permalinkArgKey]
-            })
-          } else if (kind === Kind.COLLECTIONS) {
-            cachedData = getCollection(state, {
-              permalink: fetchArgs[permalinkArgKey]
-            })
-          }
-        } else if (idListArgKey && fetchArgs[idListArgKey]) {
-          const idsAsNumbers: number[] = fetchArgs[idListArgKey].map(
-            (id: string | number) =>
-              typeof id === 'number' ? id : parseInt(id)
-          )
-          const allEntities = mapValues(
-            cacheSelectors.getCache(state, { kind }).entries,
-            'metadata'
-          )
-          const entityHits = idsAsNumbers
-            .map((id) => allEntities[id])
-            .filter(removeNullable)
-          if (entityHits.length === idsAsNumbers.length) {
-            cachedData = entityHits
-          }
-        }
-
-        // cache hit
-        if (cachedData) {
-          const { result } = normalize(
-            { [schemaKey]: cachedData },
-            apiResponseSchema
-          )
-          return {
-            nonNormalizedData: result,
-            status: Status.SUCCESS,
-            isInitialValue: true,
-            errorMessage: undefined
-          }
-        }
-      }
-
-      return { ...endpointState[key] }
-    }, isEqual)
+    const queryState = useQueryState(
+      fetchArgs,
+      reducerPath,
+      endpointName,
+      endpoint
+    )
 
     const { nonNormalizedData, status, errorMessage } = queryState ?? {
       nonNormalizedData: null,
@@ -446,24 +391,31 @@ const buildEndpointHooks = <
 
     const context = useContext(AudiusQueryContext)
 
+    // TODO: combine with useQuery implementation
     const fetchWrapped = useCallback(
-      async (fetchArgs: any) => {
-        if (!context) return
-        if ([Status.LOADING, Status.ERROR, Status.SUCCESS].includes(status))
+      async (newFetchArgs: any) => {
+        const newKey = getKeyFromFetchArgs(newFetchArgs)
+
+        if (key === newKey) {
           return
+        } else {
+          setFetchArgs(newFetchArgs)
+        }
+
+        if (!context) return
         if (hookOptions?.disabled) return
 
         try {
           dispatch(
             // @ts-ignore
             actions[`fetch${capitalize(endpointName)}Loading`]({
-              fetchArgs
+              fetchArgs: newFetchArgs
             }) as FetchLoadingAction
           )
 
-          endpoint.onQueryStarted?.(fetchArgs, { dispatch })
+          endpoint.onQueryStarted?.(newFetchArgs, { dispatch })
 
-          const apiData = await endpoint.fetch(fetchArgs, context)
+          const apiData = await endpoint.fetch(newFetchArgs, context)
           if (!apiData) {
             throw new Error('Remote data not found')
           }
@@ -483,24 +435,25 @@ const buildEndpointHooks = <
           dispatch(
             // @ts-ignore
             actions[`fetch${capitalize(endpointName)}Succeeded`]({
-              fetchArgs,
+              fetchArgs: newFetchArgs,
               nonNormalizedData
             }) as FetchSucceededAction
           )
 
-          endpoint.onQuerySuccess?.(nonNormalizedData, fetchArgs, { dispatch })
+          endpoint.onQuerySuccess?.(nonNormalizedData, newFetchArgs, {
+            dispatch
+          })
         } catch (e) {
           dispatch(
             // @ts-ignore
             actions[`fetch${capitalize(endpointName)}Error`]({
-              fetchArgs,
+              fetchArgs: newFetchArgs,
               errorMessage: getErrorMessage(e)
             }) as FetchErrorAction
           )
         }
-        setFetchArgs(fetchArgs)
       },
-      [dispatch, status, context, hookOptions?.disabled]
+      [key, dispatch, context, hookOptions?.disabled]
     )
 
     if (endpoint.options?.schemaKey) {
