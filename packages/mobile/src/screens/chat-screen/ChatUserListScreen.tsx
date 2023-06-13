@@ -120,6 +120,9 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   icon: {
     height: spacing(6),
     width: spacing(6)
+  },
+  footerPadding: {
+    height: spacing(30)
   }
 }))
 
@@ -279,12 +282,15 @@ export const ChatUserListScreen = () => {
               onEndReached={handleLoadMore}
               maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
               data={users}
-              renderItem={({ item }) => <ChatUserListItem user={item} />}
+              renderItem={({ item }) => (
+                <ChatUserListItem userId={item.user_id} />
+              )}
               keyExtractor={(user: User) => user.handle}
               contentContainerStyle={styles.flatListContainer}
               // Only show empty component if there is no search query
               ListEmptyComponent={query ? null : <ListEmpty />}
               keyboardShouldPersistTaps='always'
+              ListFooterComponent={<View style={styles.footerPadding} />}
             />
           )}
         </View>
