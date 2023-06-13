@@ -71,7 +71,8 @@ export const reformat = <T extends TrackMetadata>(
 ): Track => {
   const t = track
   const withoutUser = omit(t, 'user')
-  const withImages = audiusBackendInstance.getTrackImages(withoutUser)
+  const withUserId = { ...withoutUser, user: t.owner_id }
+  const withImages = audiusBackendInstance.getTrackImages(withUserId)
   const withCosign = setIsCoSigned(withImages)
   const withFieldVisibility = setFieldVisibility(withCosign)
 

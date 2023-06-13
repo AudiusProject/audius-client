@@ -85,7 +85,6 @@ export type PerKeyState<NormalizedData> = {
 export type QueryHookOptions = {
   disabled?: boolean
   shallow?: boolean
-  skipInitialCache?: boolean
   debug?: boolean
 }
 
