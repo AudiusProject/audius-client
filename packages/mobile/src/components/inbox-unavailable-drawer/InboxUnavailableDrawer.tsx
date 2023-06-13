@@ -151,7 +151,7 @@ export const InboxUnavailableDrawer = () => {
   const styles = useStyles()
   const neutralLight2 = useColor('neutralLight2')
 
-  const { userId, navigateToChat } = useSelector((state) =>
+  const { userId, shouldOpenChat } = useSelector((state) =>
     getData<'InboxUnavailable'>(state)
   )
   const user = useSelector((state) => getUser(state, { id: userId }))
@@ -170,11 +170,11 @@ export const InboxUnavailableDrawer = () => {
 
   const handleUnblockPress = useCallback(() => {
     dispatch(unblockUser({ userId }))
-    if (navigateToChat) {
+    if (shouldOpenChat) {
       dispatch(createChat({ userIds: [userId] }))
     }
     closeDrawer()
-  }, [dispatch, userId, navigateToChat, closeDrawer])
+  }, [dispatch, userId, shouldOpenChat, closeDrawer])
 
   const handleLearnMorePress = useCallback(() => {
     // TODO: Link to blog

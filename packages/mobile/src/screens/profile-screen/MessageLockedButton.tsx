@@ -38,7 +38,7 @@ export const MessageLockedButton = (props: MessageLockedButtonProps) => {
       setVisibility({
         drawer: 'InboxUnavailable',
         visible: true,
-        data: { userId, navigateToChat: true }
+        data: { userId, shouldOpenChat: true }
       })
     )
   }, [dispatch, userId])
