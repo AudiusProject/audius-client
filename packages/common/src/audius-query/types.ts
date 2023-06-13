@@ -86,6 +86,7 @@ export type QueryHookOptions = {
   disabled?: boolean
   shallow?: boolean
   skipInitialCache?: boolean
+  debug?: boolean
 }
 
 export type QueryHookResults<Data> = {
