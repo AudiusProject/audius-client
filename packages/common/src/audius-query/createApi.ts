@@ -144,7 +144,7 @@ const buildEndpointHooks = <
         state.api[reducerPath][endpointName]
 
       // Retrieve data from cache if lookup args provided
-      if (!endpointState[key]) {
+      if (!endpointState[key] && !hookOptions?.skipInitialCache) {
         if (
           !(
             endpoint.options?.idArgKey ||
