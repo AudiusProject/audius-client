@@ -309,7 +309,7 @@ const buildEndpointHooks = <
         } catch (e) {
           dispatch(
             // @ts-ignore
-            actions({
+            actions[`fetch${capitalize(endpointName)}Error`]({
               fetchArgs,
               errorMessage: getErrorMessage(e)
             }) as FetchErrorAction
@@ -492,7 +492,7 @@ const buildEndpointHooks = <
         } catch (e) {
           dispatch(
             // @ts-ignore
-            actions({
+            actions[`fetch${capitalize(endpointName)}Error`]({
               fetchArgs,
               errorMessage: getErrorMessage(e)
             }) as FetchErrorAction
