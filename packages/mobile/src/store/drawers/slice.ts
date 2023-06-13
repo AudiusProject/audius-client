@@ -56,10 +56,10 @@ export type DrawerData = {
   ChatActions: { userId: number; chatId: string }
   CreateChatActions: { userId: number }
   ProfileActions: undefined
-  BlockMessages: { userId: number }
+  BlockMessages: { userId: number; navigateToChat: boolean }
   DeleteChat: { chatId: string }
   SupportersInfo: undefined
-  InboxUnavailable: { userId: number }
+  InboxUnavailable: { userId: number; navigateToChat: boolean }
 }
 
 export type DrawersState = { [drawer in Drawer]: boolean | 'closing' } & {

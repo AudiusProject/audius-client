@@ -17,7 +17,7 @@ import { useColor } from 'app/utils/theme'
 
 const { getUser } = cacheUsersSelectors
 const { getDoesBlockUser } = chatSelectors
-const { blockUser, unblockUser } = chatActions
+const { blockUser, unblockUser, createChat } = chatActions
 
 const BLOCK_MESSAGES_MODAL_NAME = 'BlockMessages'
 
@@ -106,7 +106,7 @@ export const BlockMessagesDrawer = () => {
   const neutralLight2 = useColor('neutralLight2')
   const neutral = useColor('neutral')
   const dispatch = useDispatch()
-  const { userId } = useSelector((state: AppState) =>
+  const { userId, navigateToChat } = useSelector((state: AppState) =>
     getData<'BlockMessages'>(state)
   )
   const user = useSelector((state) => getUser(state, { id: userId }))
@@ -116,6 +116,9 @@ export const BlockMessagesDrawer = () => {
   const handleConfirmPress = useCallback(() => {
     if (doesBlockUser) {
       dispatch(unblockUser({ userId }))
+      if (navigateToChat) {
+        dispatch(createChat({ userIds: [userId] }))
+      }
     } else {
       dispatch(blockUser({ userId }))
     }
@@ -125,7 +128,7 @@ export const BlockMessagesDrawer = () => {
         visible: false
       })
     )
-  }, [dispatch, doesBlockUser, userId])
+  }, [dispatch, doesBlockUser, navigateToChat, userId])
 
   const handleCancelPress = useCallback(() => {
     dispatch(
