@@ -20,7 +20,7 @@ import { getLibs } from './getLibs'
 
 declare global {
   interface Window {
-    audiusLibs: any
+    audiusLibs: AudiusLibs
   }
 }
 
