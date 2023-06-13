@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
-import AudioStream from '../audio/AudioStream'
+import { AudioPlayer } from '../audio/AudioPlayer'
 import { PlayingState } from '../components/playbutton/PlayButton'
 import { recordPlay, recordPause } from '../analytics/analytics'
 import { sendPostMessage } from '../api/util'
@@ -19,11 +19,11 @@ const usePlayback = (id, onAfterAudioEnd) => {
   const [mediaKey, setMediaKey] = useState(0)
   const playingStateRef = useRef(PlayingState.Stopped)
 
-  // The AudioStream must be initialized in response
+  // The AudioPlayer must be initialized in response
   // to a user event to avoid angering the Chrome gods.
   const audioRef = useRef(null)
   const initAudio = () => {
-    audioRef.current = new AudioStream()
+    audioRef.current = new AudioPlayer()
   }
   // We may need to manually trigger a rerender in the case
   // that the playingStateRef changes. We need to store the playingState
@@ -76,23 +76,11 @@ const usePlayback = (id, onAfterAudioEnd) => {
   }
 
   const loadTrack = useCallback(
-    ({ segments, gateways, title, artistName, mp3StreamUrl }) => {
+    ({ mp3StreamUrl }) => {
       if (!audioRef.current) {
         throw new Error('Init not called')
       }
-      audioRef.current.load(
-        segments,
-        onAudioEnd,
-        [],
-        gateways,
-        {
-          id,
-          title,
-          artist: artistName,
-          artwork: ''
-        },
-        mp3StreamUrl
-      )
+      audioRef.current.load(0, onAudioEnd, mp3StreamUrl)
       const newTiming = {
         position: 0,
         duration: audioRef.current.getDuration()
@@ -206,7 +194,7 @@ const usePlayback = (id, onAfterAudioEnd) => {
     setPlayingStateRef(PlayingState.Stopped)
 
     setTiming((t) => ({ position: 0, duration: t.duration }))
-  }, [audioRef, setTiming])
+  }, [audioRef, setTiming, setPlayingStateRef])
 
   stopRef.current = stop
 
