@@ -72,7 +72,7 @@ export const ChatMessagePlaylist = ({
       ids: trackIds,
       currentUserId: currentUserId!
     },
-    { disabled: !trackIds.length || !currentUserId, skipInitialCache: true }
+    { disabled: !trackIds.length || !currentUserId }
   )
 
   const uidMap = useMemo(() => {
