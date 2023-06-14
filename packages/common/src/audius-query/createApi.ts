@@ -19,7 +19,10 @@ import { Nullable, removeNullable } from 'utils/typeUtils'
 import * as cacheActions from '../store/cache/actions'
 import * as cacheSelectors from '../store/cache/selectors'
 
-import { AudiusQueryContext } from './AudiusQueryContext'
+import {
+  AudiusQueryContext,
+  AudiusQueryContextType
+} from './AudiusQueryContext'
 import { apiResponseSchema } from './schema'
 import {
   Api,
@@ -223,6 +226,84 @@ const useQueryState = <Args, Data>(
   }, isEqual)
 }
 
+// Rehydrate local nonNormalizedData using entities from global normalized cache
+const useCacheData = <Args, Data>(
+  endpoint: EndpointConfig<Args, Data>,
+  nonNormalizedData: any,
+  hookOptions?: QueryHookOptions
+) => {
+  return useProxySelector(
+    (state: CommonState) => {
+      if (hookOptions?.shallow && !endpoint.options.kind)
+        return nonNormalizedData
+      const entityMap = selectCommonEntityMap(
+        state,
+        endpoint.options.kind,
+        hookOptions?.shallow
+      )
+      return denormalize(
+        nonNormalizedData,
+        apiResponseSchema,
+        entityMap
+      ) as Data
+    },
+    [nonNormalizedData, apiResponseSchema, endpoint.options.kind]
+  )
+}
+
+const fetchData = async <Args, Data>(
+  fetchArgs: Args,
+  endpoint: EndpointConfig<Args, Data>,
+  context: AudiusQueryContextType,
+  dispatch: Dispatch
+) => {
+  try {
+    dispatch(
+      // @ts-ignore
+      actions[`fetch${capitalize(endpointName)}Loading`]({
+        fetchArgs
+      }) as FetchLoadingAction
+    )
+
+    endpoint.onQueryStarted?.(fetchArgs, { dispatch })
+
+    const apiData = await endpoint.fetch(fetchArgs, context)
+    if (!apiData) {
+      throw new Error('Remote data not found')
+    }
+
+    let data: any
+    if (endpoint.options.schemaKey) {
+      const { entities, result } = normalize(
+        { [endpoint.options.schemaKey]: apiData },
+        apiResponseSchema
+      )
+      data = result
+      dispatch(addEntries(Object.keys(entities), entities))
+    } else {
+      data = apiData
+    }
+
+    dispatch(
+      // @ts-ignore
+      actions[`fetch${capitalize(endpointName)}Succeeded`]({
+        fetchArgs,
+        nonNormalizedData: data
+      }) as FetchSucceededAction
+    )
+
+    endpoint.onQuerySuccess?.(data, fetchArgs, { dispatch })
+  } catch (e) {
+    dispatch(
+      // @ts-ignore
+      actions[`fetch${capitalize(endpointName)}Error`]({
+        fetchArgs,
+        errorMessage: getErrorMessage(e)
+      }) as FetchErrorAction
+    )
+  }
+}
+
 const buildEndpointHooks = <
   EndpointDefinitions extends DefaultEndpointDefinitions,
   Args,
@@ -253,20 +334,7 @@ const buildEndpointHooks = <
         status: Status.IDLE
       }
 
-    // Rehydrate local nonNormalizedData using entities from global normalized cache
-    let cachedData: Data = useProxySelector(
-      (state: CommonState) => {
-        if (hookOptions?.shallow && !endpoint.options.kind)
-          return nonNormalizedData
-        const entityMap = selectCommonEntityMap(
-          state,
-          endpoint.options.kind,
-          hookOptions?.shallow
-        )
-        return denormalize(nonNormalizedData, apiResponseSchema, entityMap)
-      },
-      [nonNormalizedData, apiResponseSchema, endpoint.options.kind]
-    )
+    let cachedData = useCacheData(endpoint, nonNormalizedData, hookOptions)
 
     const context = useContext(AudiusQueryContext)
 
@@ -287,51 +355,7 @@ const buildEndpointHooks = <
           return
         if (hookOptions?.disabled) return
 
-        try {
-          dispatch(
-            // @ts-ignore
-            actions[`fetch${capitalize(endpointName)}Loading`]({
-              fetchArgs
-            }) as FetchLoadingAction
-          )
-
-          endpoint.onQueryStarted?.(fetchArgs, { dispatch })
-
-          const apiData = await endpoint.fetch(fetchArgs, context)
-          if (!apiData) {
-            throw new Error('Remote data not found')
-          }
-
-          let nonNormalizedData: any
-          if (endpoint.options.schemaKey) {
-            const { entities, result } = normalize(
-              { [endpoint.options.schemaKey]: apiData },
-              apiResponseSchema
-            )
-            nonNormalizedData = result
-            dispatch(addEntries(Object.keys(entities), entities))
-          } else {
-            nonNormalizedData = apiData
-          }
-
-          dispatch(
-            // @ts-ignore
-            actions[`fetch${capitalize(endpointName)}Succeeded`]({
-              fetchArgs,
-              nonNormalizedData
-            }) as FetchSucceededAction
-          )
-
-          endpoint.onQuerySuccess?.(nonNormalizedData, fetchArgs, { dispatch })
-        } catch (e) {
-          dispatch(
-            // @ts-ignore
-            actions[`fetch${capitalize(endpointName)}Error`]({
-              fetchArgs,
-              errorMessage: getErrorMessage(e)
-            }) as FetchErrorAction
-          )
-        }
+        fetchData(fetchArgs, endpoint, context, dispatch)
       }
 
       fetchWrapped()
@@ -374,24 +398,9 @@ const buildEndpointHooks = <
       status: Status.IDLE
     }
 
-    // Rehydrate local nonNormalizedData using entities from global normalized cache
-    let cachedData: Data = useProxySelector(
-      (state: CommonState) => {
-        if (hookOptions?.shallow && !endpoint.options.kind)
-          return nonNormalizedData
-        const entityMap = selectCommonEntityMap(
-          state,
-          endpoint.options.kind,
-          hookOptions?.shallow
-        )
-        return denormalize(nonNormalizedData, apiResponseSchema, entityMap)
-      },
-      [nonNormalizedData, apiResponseSchema, endpoint.options.kind]
-    )
-
+    let cachedData = useCacheData(endpoint, nonNormalizedData, hookOptions)
     const context = useContext(AudiusQueryContext)
 
-    // TODO: combine with useQuery implementation
     const fetchWrapped = useCallback(
       async (newFetchArgs: any) => {
         const newKey = getKeyFromFetchArgs(newFetchArgs)
@@ -405,53 +414,7 @@ const buildEndpointHooks = <
         if (!context) return
         if (hookOptions?.disabled) return
 
-        try {
-          dispatch(
-            // @ts-ignore
-            actions[`fetch${capitalize(endpointName)}Loading`]({
-              fetchArgs: newFetchArgs
-            }) as FetchLoadingAction
-          )
-
-          endpoint.onQueryStarted?.(newFetchArgs, { dispatch })
-
-          const apiData = await endpoint.fetch(newFetchArgs, context)
-          if (!apiData) {
-            throw new Error('Remote data not found')
-          }
-
-          let nonNormalizedData: any
-          if (endpoint.options.schemaKey) {
-            const { entities, result } = normalize(
-              { [endpoint.options.schemaKey]: apiData },
-              apiResponseSchema
-            )
-            nonNormalizedData = result
-            dispatch(addEntries(Object.keys(entities), entities))
-          } else {
-            nonNormalizedData = apiData
-          }
-
-          dispatch(
-            // @ts-ignore
-            actions[`fetch${capitalize(endpointName)}Succeeded`]({
-              fetchArgs: newFetchArgs,
-              nonNormalizedData
-            }) as FetchSucceededAction
-          )
-
-          endpoint.onQuerySuccess?.(nonNormalizedData, newFetchArgs, {
-            dispatch
-          })
-        } catch (e) {
-          dispatch(
-            // @ts-ignore
-            actions[`fetch${capitalize(endpointName)}Error`]({
-              fetchArgs: newFetchArgs,
-              errorMessage: getErrorMessage(e)
-            }) as FetchErrorAction
-          )
-        }
+        fetchData(newFetchArgs, endpoint, context, dispatch)
       },
       [key, dispatch, context, hookOptions?.disabled]
     )
