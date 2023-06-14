@@ -9,12 +9,11 @@ import TagInput from 'components/data-entry/TagInput'
 import TextArea from 'components/data-entry/TextArea'
 import UploadArtwork from 'components/upload/UploadArtwork'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
+import { moodMap } from 'utils/Moods'
 import { resizeImage } from 'utils/imageProcessingUtil'
-import { moodMap as untypedMoodMap } from 'utils/moods'
 
 import styles from './TrackMetadataFields.module.css'
 
-const moodMap: Record<string, JSX.Element> = untypedMoodMap
 const MOODS = Object.keys(moodMap).map((k) => ({
   text: k,
   el: moodMap[k]
@@ -27,7 +26,6 @@ const messages = {
 type TrackMetadataFieldsProps = {
   /** Whether or not the preview is playing. */
   playing: boolean
-  // type: 'track' | 'album' | 'playlist'
   type: 'track'
 }
 
