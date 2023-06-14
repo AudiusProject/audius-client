@@ -3,8 +3,8 @@ import type { AppState } from '../'
 import type { Drawer, DrawerData } from './slice'
 
 export const getData = <TDrawer extends keyof DrawerData>(
-  drawer: Drawer,
-  state: AppState
+  state: AppState,
+  drawer: Drawer
 ) => state.drawers.data[drawer] as DrawerData[TDrawer]
 
 export const getVisibility = (drawer: Drawer) => (state: AppState) =>
