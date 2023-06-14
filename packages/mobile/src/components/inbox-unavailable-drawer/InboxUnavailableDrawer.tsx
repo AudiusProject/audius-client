@@ -109,12 +109,12 @@ const DrawerContent = () => {
   const dispatch = useDispatch()
   const navigation = useNavigation()
 
+  const { data } = useDrawer('InboxUnavailable')
+  const { userId, shouldOpenChat } = data
   const user = useSelector((state) => getUser(state, { id: userId }))
   const { canCreateChat, callToAction } = useSelector((state) =>
     getCanCreateChat(state, { userId })
   )
-  const { data } = useDrawer('InboxUnavailable')
-  const { userId, shouldOpenChat } = data
 
   const closeDrawer = useCallback(() => {
     dispatch(
