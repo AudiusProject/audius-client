@@ -104,14 +104,16 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
   }
 }))
 
-const useGetDrawerContent = (
-  callToAction: ChatPermissionAction,
-  styles: ReturnType<typeof useStyles>,
-  userId: number,
-  shouldOpenChat: boolean
-) => {
+const DrawerContent = () => {
+  const styles = useStyles()
   const dispatch = useDispatch()
   const navigation = useNavigation()
+  const { userId, shouldOpenChat } = useSelector((state) =>
+    getData<'InboxUnavailable'>(state)
+  )
+  const { callToAction } = useSelector((state) =>
+    getCanCreateChat(state, { userId })
+  )
   const user = useSelector((state) => getUser(state, { id: userId }))
 
   const closeDrawer = useCallback(() => {
@@ -141,7 +143,6 @@ const useGetDrawerContent = (
     navigation.navigate('TipArtist')
     closeDrawer()
   }, [closeDrawer, dispatch, navigation, user])
-  console.log(`REED callToAction: ${callToAction}`)
 
   switch (callToAction) {
     case ChatPermissionAction.NONE:
@@ -234,20 +235,6 @@ export const InboxUnavailableDrawer = () => {
   const styles = useStyles()
   const neutralLight2 = useColor('neutralLight2')
 
-  const { userId, shouldOpenChat } = useSelector((state) =>
-    getData<'InboxUnavailable'>(state)
-  )
-  const { callToAction } = useSelector((state) =>
-    getCanCreateChat(state, { userId })
-  )
-
-  const content = useGetDrawerContent(
-    callToAction,
-    styles,
-    userId,
-    shouldOpenChat
-  )
-
   return (
     <NativeDrawer drawerName={INBOX_UNAVAILABLE_MODAL_NAME}>
       <View style={styles.drawer}>
@@ -256,7 +243,7 @@ export const InboxUnavailableDrawer = () => {
           <Text style={styles.title}>{messages.title}</Text>
         </View>
         <View style={styles.border} />
-        {content}
+        <DrawerContent />
       </View>
     </NativeDrawer>
   )
