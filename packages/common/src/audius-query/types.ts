@@ -7,7 +7,7 @@ import {
   ThunkAction,
   ThunkDispatch
 } from '@reduxjs/toolkit'
-import { AnyAction, Dispatch } from 'redux'
+import { Dispatch } from 'redux'
 
 import { Kind, Status } from 'models'
 
