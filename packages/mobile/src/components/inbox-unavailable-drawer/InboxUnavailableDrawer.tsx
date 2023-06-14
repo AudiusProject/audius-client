@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 
-import type { User } from '@audius/common'
 import {
   chatSelectors,
   chatActions,
