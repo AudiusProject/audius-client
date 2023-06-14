@@ -155,7 +155,7 @@ export const InboxUnavailableDrawer = () => {
     getData<'InboxUnavailable'>(state)
   )
   const user = useSelector((state) => getUser(state, { id: userId }))
-  const { callToAction } = useSelector((state) =>
+  const { canCreateChat, callToAction } = useSelector((state) =>
     getCanCreateChat(state, { userId })
   )
 
@@ -170,11 +170,11 @@ export const InboxUnavailableDrawer = () => {
 
   const handleUnblockPress = useCallback(() => {
     dispatch(unblockUser({ userId }))
-    if (shouldOpenChat) {
+    if (shouldOpenChat && canCreateChat) {
       dispatch(createChat({ userIds: [userId] }))
     }
     closeDrawer()
-  }, [dispatch, userId, shouldOpenChat, closeDrawer])
+  }, [dispatch, userId, shouldOpenChat, canCreateChat, closeDrawer])
 
   const handleLearnMorePress = useCallback(() => {
     // TODO: Link to blog
