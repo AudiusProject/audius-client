@@ -105,59 +105,15 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
   }
 }))
 
-const mapActionToContent = (
+const useGetDrawerContent = (
   callToAction: ChatPermissionAction,
   styles: ReturnType<typeof useStyles>,
-  user: User | null
+  userId: number,
+  shouldOpenChat: boolean
 ) => {
-  switch (callToAction) {
-    case ChatPermissionAction.NONE:
-      return (
-        <>
-          {messages.noAction}
-          {user ? (
-            <UserBadges
-              user={user}
-              nameStyle={styles.callToActionText}
-              as={Text}
-            />
-          ) : null}
-        </>
-      )
-    case ChatPermissionAction.TIP:
-      return (
-        <>
-          {messages.tipGated(
-            user ? (
-              <UserBadges
-                user={user}
-                nameStyle={styles.callToActionText}
-                as={Text}
-              />
-            ) : null
-          )}
-        </>
-      )
-    case ChatPermissionAction.UNBLOCK:
-      return <>{messages.blockee}</>
-    default:
-      return null
-  }
-}
-
-export const InboxUnavailableDrawer = () => {
   const dispatch = useDispatch()
   const navigation = useNavigation()
-  const styles = useStyles()
-  const neutralLight2 = useColor('neutralLight2')
-
-  const { userId, shouldOpenChat } = useSelector((state) =>
-    getData<'InboxUnavailable'>(state)
-  )
   const user = useSelector((state) => getUser(state, { id: userId }))
-  const { callToAction } = useSelector((state) =>
-    getCanCreateChat(state, { userId })
-  )
 
   const closeDrawer = useCallback(() => {
     dispatch(
@@ -186,48 +142,112 @@ export const InboxUnavailableDrawer = () => {
     navigation.navigate('TipArtist')
     closeDrawer()
   }, [closeDrawer, dispatch, navigation, user])
+  console.log(`REED callToAction: ${callToAction}`)
 
-  const actionToButtonsMap = useMemo(() => {
-    return {
-      [ChatPermissionAction.NONE]: [
-        {
-          buttonTitle: messages.learnMore,
-          buttonPress: handleLearnMorePress,
-          buttonVariant: 'common'
-        }
-      ],
-      [ChatPermissionAction.TIP]: [
-        {
-          buttonTitle: messages.sendAudio,
-          buttonPress: handleTipPress,
-          buttonVariant: 'primary',
-          buttonIcon: IconTip,
-          buttonTextStyle: styles.buttonTextWhite
-        }
-      ],
-      [ChatPermissionAction.UNBLOCK]: [
-        {
-          buttonTitle: messages.unblockUser,
-          buttonPress: handleUnblockPress,
-          buttonVariant: 'primary',
-          buttonTextStyle: styles.buttonTextWhite
-        },
-        {
-          buttonTitle: messages.cancel,
-          buttonPress: closeDrawer,
-          buttonVariant: 'common'
-        }
-      ]
-    }
-  }, [
-    handleLearnMorePress,
-    handleTipPress,
-    styles.buttonTextWhite,
-    handleUnblockPress,
-    closeDrawer
-  ])
+  switch (callToAction) {
+    case ChatPermissionAction.NONE:
+      return (
+        <>
+          <Text style={styles.callToActionText}>{messages.noAction}</Text>
+          {user ? (
+            <UserBadges
+              user={user}
+              nameStyle={styles.callToActionText}
+              as={Text}
+            />
+          ) : null}
+          <Button
+            key={messages.learnMore}
+            title={messages.learnMore}
+            onPress={handleLearnMorePress}
+            variant={'common'}
+            styles={{
+              root: styles.button,
+              text: styles.buttonText
+            }}
+            fullWidth
+          />
+        </>
+      )
+    case ChatPermissionAction.TIP:
+      return (
+        <>
+          <Text style={styles.callToActionText}>
+            {messages.tipGated(
+              user ? (
+                <UserBadges
+                  user={user}
+                  nameStyle={styles.callToActionText}
+                  as={Text}
+                />
+              ) : null
+            )}
+          </Text>
+          <Button
+            key={messages.sendAudio}
+            title={messages.sendAudio}
+            onPress={handleTipPress}
+            variant={'primary'}
+            icon={IconTip}
+            iconPosition='left'
+            styles={{
+              root: styles.button,
+              text: [styles.buttonText, styles.buttonTextWhite]
+            }}
+            fullWidth
+          />
+        </>
+      )
+    case ChatPermissionAction.UNBLOCK:
+      return (
+        <>
+          <Text style={styles.callToActionText}>{messages.blockee}</Text>
+          <Button
+            key={messages.unblockUser}
+            title={messages.unblockUser}
+            onPress={handleUnblockPress}
+            variant={'primary'}
+            styles={{
+              root: styles.button,
+              text: [styles.buttonText, styles.buttonTextWhite]
+            }}
+            fullWidth
+          />
+          <Button
+            key={messages.cancel}
+            title={messages.cancel}
+            onPress={closeDrawer}
+            variant={'common'}
+            styles={{
+              root: styles.button,
+              text: styles.buttonText
+            }}
+            fullWidth
+          />
+        </>
+      )
+    default:
+      return null
+  }
+}
 
-  const content = mapActionToContent(callToAction, styles, user)
+export const InboxUnavailableDrawer = () => {
+  const styles = useStyles()
+  const neutralLight2 = useColor('neutralLight2')
+
+  const { userId, shouldOpenChat } = useSelector((state) =>
+    getData<'InboxUnavailable'>(state)
+  )
+  const { callToAction } = useSelector((state) =>
+    getCanCreateChat(state, { userId })
+  )
+
+  const content = useGetDrawerContent(
+    callToAction,
+    styles,
+    userId,
+    shouldOpenChat
+  )
 
   return (
     <NativeDrawer drawerName={INBOX_UNAVAILABLE_MODAL_NAME}>
@@ -237,30 +257,7 @@ export const InboxUnavailableDrawer = () => {
           <Text style={styles.title}>{messages.title}</Text>
         </View>
         <View style={styles.border} />
-        <Text style={styles.callToActionText}>{content}</Text>
-        {actionToButtonsMap[callToAction].map(
-          ({
-            buttonTitle,
-            buttonPress,
-            buttonVariant,
-            buttonIcon,
-            buttonTextStyle
-          }) => (
-            <Button
-              key={buttonTitle}
-              title={buttonTitle}
-              onPress={buttonPress}
-              variant={buttonVariant}
-              icon={buttonIcon}
-              iconPosition='left'
-              styles={{
-                root: styles.button,
-                text: [styles.buttonText, buttonTextStyle]
-              }}
-              fullWidth
-            />
-          )
-        )}
+        {content}
       </View>
     </NativeDrawer>
   )
