@@ -1,6 +1,11 @@
 import { useState } from 'react'
 
-import { GENRES, getCanonicalName, FeatureFlags } from '@audius/common'
+import {
+  GENRES,
+  getCanonicalName,
+  FeatureFlags,
+  getErrorMessage
+} from '@audius/common'
 import { useField } from 'formik'
 
 import DropdownInput from 'components/data-entry/DropdownInput'
@@ -8,7 +13,7 @@ import Input from 'components/data-entry/Input'
 import TagInput from 'components/data-entry/TagInput'
 import TextArea from 'components/data-entry/TextArea'
 import UploadArtwork from 'components/upload/UploadArtwork'
-import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
+import { useFlag } from 'hooks/useRemoteConfig'
 import { moodMap } from 'utils/Moods'
 import { resizeImage } from 'utils/imageProcessingUtil'
 
@@ -30,6 +35,13 @@ type TrackMetadataFieldsProps = {
 }
 
 const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
+  const { isEnabled: isStorageV2SignupEnabled } = useFlag(
+    FeatureFlags.STORAGE_V2_SIGNUP
+  )
+  const { isEnabled: isStorageV2UploadEnabled } = useFlag(
+    FeatureFlags.STORAGE_V2_TRACK_UPLOAD
+  )
+
   const [imageProcessingError, setImageProcessingError] = useState(false)
   const [artworkField, , artworkHelpers] = useField('artwork')
   const [titleField, titleMeta, titleHelpers] = useField('title')
@@ -42,20 +54,15 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
     try {
       let file = selectedFiles[0]
       file = await resizeImage(file)
-      const storageV2SignupEnabled = getFeatureEnabled(
-        FeatureFlags.STORAGE_V2_SIGNUP
-      )
-      const storageV2UploadEnabled = getFeatureEnabled(
-        FeatureFlags.STORAGE_V2_TRACK_UPLOAD
-      )
-      if (storageV2SignupEnabled || storageV2UploadEnabled) {
-        // @ts-ignore
+      if (isStorageV2SignupEnabled || isStorageV2UploadEnabled) {
+        // @ts-ignore writing to read-only property. Maybe bugged?
         file.name = selectedFiles[0].name
       }
       const url = URL.createObjectURL(file)
       artworkHelpers.setValue({ url, file, source })
       setImageProcessingError(false)
     } catch (err) {
+      console.error(getErrorMessage(err))
       setImageProcessingError(true)
     }
   }
