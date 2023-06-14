@@ -694,6 +694,7 @@ export const audiusBackend = ({
       discoveryNodeSelector = await discoveryNodeSelectorService.getInstance()
 
       discoveryNodeSelector.addEventListener('change', (endpoint) => {
+        console.debug('[AudiusBackend] DiscoveryNodeSelector changed', endpoint)
         discoveryProviderSelectionCallback(endpoint, [])
       })
     }
@@ -1047,13 +1048,11 @@ export const audiusBackend = ({
     metadata: TrackMetadata,
     onProgress: (loaded: number, total: number) => void
   ) {
-    const storageV2SignupEnabled = await getFeatureEnabled(
-      FeatureFlags.STORAGE_V2_SIGNUP
-    )
-    const storageV2UploadEnabled = await getFeatureEnabled(
-      FeatureFlags.STORAGE_V2_TRACK_UPLOAD
-    )
-    if (storageV2SignupEnabled || storageV2UploadEnabled) {
+    const storageV2UploadEnabled =
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_TRACK_UPLOAD)) ||
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_SIGNUP)) ||
+      audiusLibs.Account.getCurrentUser()?.is_storage_v2
+    if (storageV2UploadEnabled) {
       try {
         const { trackId, updatedMetadata, txReceipt } =
           await audiusLibs.Track.uploadTrackV2AndWriteToChain(
@@ -1092,9 +1091,10 @@ export const audiusBackend = ({
     metadata: TrackMetadata,
     onProgress: (loaded: number, total: number) => void
   ) {
-    const storageV2UploadEnabled = await getFeatureEnabled(
-      FeatureFlags.STORAGE_V2_TRACK_UPLOAD
-    )
+    const storageV2UploadEnabled =
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_TRACK_UPLOAD)) ||
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_SIGNUP)) ||
+      audiusLibs.Account.getCurrentUser()?.is_storage_v2
     if (storageV2UploadEnabled) {
       const updatedMetadata = await audiusLibs.Track.uploadTrackV2(
         trackFile,
@@ -1139,9 +1139,10 @@ export const audiusBackend = ({
       metadata: TrackMetadata
     }[]
   ) {
-    const storageV2UploadEnabled = await getFeatureEnabled(
-      FeatureFlags.STORAGE_V2_TRACK_UPLOAD
-    )
+    const storageV2UploadEnabled =
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_TRACK_UPLOAD)) ||
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_SIGNUP)) ||
+      audiusLibs.Account.getCurrentUser()?.is_storage_v2
     if (storageV2UploadEnabled) {
       return await audiusLibs.Track.addTracksToChainV2(
         uploadedTracks.map((t) => t.metadata)
@@ -1152,9 +1153,10 @@ export const audiusBackend = ({
   }
 
   async function uploadImage(file: File) {
-    const storageV2UploadEnabled = await getFeatureEnabled(
-      FeatureFlags.STORAGE_V2_TRACK_UPLOAD
-    )
+    const storageV2UploadEnabled =
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_TRACK_UPLOAD)) ||
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_SIGNUP)) ||
+      audiusLibs.Account.getCurrentUser()?.is_storage_v2
     if (storageV2UploadEnabled) {
       return await audiusLibs.creatorNode.uploadTrackCoverArtV2(file, () => {})
     } else {
@@ -1164,14 +1166,16 @@ export const audiusBackend = ({
 
   async function updateTrack(
     _trackId: ID,
-    metadata: TrackMetadata & { artwork: { file: File } }
+    metadata: TrackMetadata & { artwork: { file: File } },
+    isStorageV2Track = false
   ) {
     const cleanedMetadata = schemas.newTrackMetadata(metadata, true)
-    const storageV2UploadEnabled = await getFeatureEnabled(
-      FeatureFlags.STORAGE_V2_TRACK_UPLOAD
-    )
+    const storageV2UploadEnabled =
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_TRACK_UPLOAD)) ||
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_SIGNUP)) ||
+      audiusLibs.Account.getCurrentUser()?.is_storage_v2
 
-    if (storageV2UploadEnabled) {
+    if (storageV2UploadEnabled || isStorageV2Track) {
       if (metadata.artwork) {
         const resp = await audiusLibs.creatorNode.uploadTrackCoverArtV2(
           metadata.artwork.file,
@@ -1293,9 +1297,10 @@ export const audiusBackend = ({
       newMetadata.associated_sol_wallets ||
       associatedWallets?.associated_sol_wallets
 
-    const storageV2UploadEnabled = await getFeatureEnabled(
-      FeatureFlags.STORAGE_V2_TRACK_UPLOAD
-    )
+    const storageV2UploadEnabled =
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_TRACK_UPLOAD)) ||
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_SIGNUP)) ||
+      audiusLibs.Account.getCurrentUser()?.is_storage_v2
     try {
       if (newMetadata.updatedProfilePicture) {
         if (storageV2UploadEnabled) {
@@ -1465,9 +1470,10 @@ export const audiusBackend = ({
         track: trackId,
         metadata_time: currentBlock.timestamp
       }))
-      const storageV2UploadEnabled = await getFeatureEnabled(
-        FeatureFlags.STORAGE_V2_TRACK_UPLOAD
-      )
+      const storageV2UploadEnabled =
+        (await getFeatureEnabled(FeatureFlags.STORAGE_V2_TRACK_UPLOAD)) ||
+        (await getFeatureEnabled(FeatureFlags.STORAGE_V2_SIGNUP)) ||
+        audiusLibs.Account.getCurrentUser()?.is_storage_v2
       const response = await audiusLibs.EntityManager.createPlaylist(
         {
           ...metadata,
@@ -1490,9 +1496,10 @@ export const audiusBackend = ({
   }
 
   async function updatePlaylist(metadata: Collection) {
-    const storageV2UploadEnabled = await getFeatureEnabled(
-      FeatureFlags.STORAGE_V2_TRACK_UPLOAD
-    )
+    const storageV2UploadEnabled =
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_TRACK_UPLOAD)) ||
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_SIGNUP)) ||
+      audiusLibs.Account.getCurrentUser()?.is_storage_v2
     try {
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.updatePlaylist(
@@ -1508,9 +1515,10 @@ export const audiusBackend = ({
   }
 
   async function orderPlaylist(playlist: any) {
-    const storageV2UploadEnabled = await getFeatureEnabled(
-      FeatureFlags.STORAGE_V2_TRACK_UPLOAD
-    )
+    const storageV2UploadEnabled =
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_TRACK_UPLOAD)) ||
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_SIGNUP)) ||
+      audiusLibs.Account.getCurrentUser()?.is_storage_v2
     try {
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.updatePlaylist(
@@ -1525,9 +1533,10 @@ export const audiusBackend = ({
   }
 
   async function publishPlaylist(playlist: Collection) {
-    const storageV2UploadEnabled = await getFeatureEnabled(
-      FeatureFlags.STORAGE_V2_TRACK_UPLOAD
-    )
+    const storageV2UploadEnabled =
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_TRACK_UPLOAD)) ||
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_SIGNUP)) ||
+      audiusLibs.Account.getCurrentUser()?.is_storage_v2
     try {
       playlist.is_private = false
       const { blockHash, blockNumber } =
@@ -1546,9 +1555,10 @@ export const audiusBackend = ({
   }
 
   async function addPlaylistTrack(playlist: Collection) {
-    const storageV2UploadEnabled = await getFeatureEnabled(
-      FeatureFlags.STORAGE_V2_TRACK_UPLOAD
-    )
+    const storageV2UploadEnabled =
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_TRACK_UPLOAD)) ||
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_SIGNUP)) ||
+      audiusLibs.Account.getCurrentUser()?.is_storage_v2
     try {
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.updatePlaylist(
@@ -1563,9 +1573,10 @@ export const audiusBackend = ({
   }
 
   async function deletePlaylistTrack(playlist: Collection) {
-    const storageV2UploadEnabled = await getFeatureEnabled(
-      FeatureFlags.STORAGE_V2_TRACK_UPLOAD
-    )
+    const storageV2UploadEnabled =
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_TRACK_UPLOAD)) ||
+      (await getFeatureEnabled(FeatureFlags.STORAGE_V2_SIGNUP)) ||
+      audiusLibs.Account.getCurrentUser()?.is_storage_v2
     try {
       const { blockHash, blockNumber } =
         await audiusLibs.EntityManager.updatePlaylist(
