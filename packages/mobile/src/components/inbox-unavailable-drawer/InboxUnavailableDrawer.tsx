@@ -15,8 +15,8 @@ import IconMessageLocked from 'app/assets/images/iconMessageLocked.svg'
 import IconTip from 'app/assets/images/iconTip.svg'
 import { Text, Button } from 'app/components/core'
 import { NativeDrawer } from 'app/components/drawer'
+import { useDrawer } from 'app/hooks/useDrawer'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { getData } from 'app/store/drawers/selectors'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles, flexRowCentered } from 'app/styles'
 import { useColor } from 'app/utils/theme'
@@ -108,9 +108,9 @@ const DrawerContent = () => {
   const styles = useStyles()
   const dispatch = useDispatch()
   const navigation = useNavigation()
-  const { userId, shouldOpenChat } = useSelector((state) =>
-    getData<'InboxUnavailable'>(state)
-  )
+
+  const { data } = useDrawer('InboxUnavailable')
+  const { userId, shouldOpenChat } = data
   const { callToAction } = useSelector((state) =>
     getCanCreateChat(state, { userId })
   )
@@ -148,14 +148,16 @@ const DrawerContent = () => {
     case ChatPermissionAction.NONE:
       return (
         <>
-          <Text style={styles.callToActionText}>{messages.noAction}</Text>
-          {user ? (
-            <UserBadges
-              user={user}
-              nameStyle={styles.callToActionText}
-              as={Text}
-            />
-          ) : null}
+          <Text style={styles.callToActionText}>
+            {messages.noAction}
+            {user ? (
+              <UserBadges
+                user={user}
+                nameStyle={styles.callToActionText}
+                as={Text}
+              />
+            ) : null}
+          </Text>
           <Button
             key={messages.learnMore}
             title={messages.learnMore}
