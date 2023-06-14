@@ -10,6 +10,7 @@ import PreviewButton from 'components/upload/PreviewButton'
 import TrackMetadataFields from '../fields/TrackMetadataFields'
 
 import styles from './EditPageNew.module.css'
+import { TrackModalArray } from './TrackModalArray'
 import { TrackForUpload } from './types'
 
 type EditPageProps = {
@@ -73,6 +74,7 @@ export const EditPageNew = (props: EditPageProps) => {
         <>
           <div className={styles.editForm}>
             <TrackMetadataFields playing={false} type='track' />
+            <TrackModalArray />
             <PreviewButton playing={false} onClick={() => {}} />
           </div>
           <div className={styles.continue}>
