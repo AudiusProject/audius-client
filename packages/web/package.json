@@ -174,7 +174,8 @@
     "web3modal": "1.9.3",
     "webgl-context": "2.2.0",
     "webpack-bundle-analyzer": "4.5.0",
-    "yup": "1.2.0"
+    "yup": "1.2.0",
+    "zod-formik-adapter": "^1.2.0"
   },
   "main": "src/electron.js",
   "build": {
