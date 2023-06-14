@@ -7,8 +7,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import IconTrash from 'app/assets/images/iconTrash.svg'
 import { Text, Button } from 'app/components/core'
 import { NativeDrawer } from 'app/components/drawer'
+import { useDrawer } from 'app/hooks/useDrawer'
 import type { AppState } from 'app/store'
-import { getData } from 'app/store/drawers/selectors'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles, flexRowCentered } from 'app/styles'
 import { useColor } from 'app/utils/theme'
@@ -66,9 +66,8 @@ export const DeleteChatDrawer = () => {
   const styles = useStyles()
   const neutralLight2 = useColor('neutralLight2')
   const dispatch = useDispatch()
-  const { chatId } = useSelector((state: AppState) =>
-    getData<'DeleteChat'>(state)
-  )
+  const { data } = useDrawer('DeleteChat')
+  const { chatId } = data
 
   const closeDrawer = useCallback(() => {
     dispatch(
