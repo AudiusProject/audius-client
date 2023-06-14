@@ -253,7 +253,9 @@ const useCacheData = <Args, Data>(
 
 const fetchData = async <Args, Data>(
   fetchArgs: Args,
+  endpointName: string,
   endpoint: EndpointConfig<Args, Data>,
+  actions: CaseReducerActions<any>,
   context: AudiusQueryContextType,
   dispatch: Dispatch
 ) => {
@@ -355,7 +357,7 @@ const buildEndpointHooks = <
           return
         if (hookOptions?.disabled) return
 
-        fetchData(fetchArgs, endpoint, context, dispatch)
+        fetchData(fetchArgs, endpointName, endpoint, actions, context, dispatch)
       }
 
       fetchWrapped()
@@ -414,7 +416,14 @@ const buildEndpointHooks = <
         if (!context) return
         if (hookOptions?.disabled) return
 
-        fetchData(newFetchArgs, endpoint, context, dispatch)
+        fetchData(
+          newFetchArgs,
+          endpointName,
+          endpoint,
+          actions,
+          context,
+          dispatch
+        )
       },
       [key, dispatch, context, hookOptions?.disabled]
     )
