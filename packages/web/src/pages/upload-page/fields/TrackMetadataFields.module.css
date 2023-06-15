@@ -4,8 +4,8 @@
 }
 
 .artwork {
-  margin-right: 24px;
-  padding-bottom: 16px;
+  margin-right: var(--unit-6);
+  padding-bottom: var(--unit-4);
 }
 
 .fields {
@@ -13,13 +13,13 @@
   min-width: 335px;
 }
 .fields > div {
-  margin-bottom: 14px;
+  margin-bottom: var(--unit-4);
 }
 .fields > div.description > .textArea > textarea {
   min-height: 90px;
 }
 .fields > div.description {
-  margin-bottom: 12px;
+  margin-bottom: var(--unit-4);
 }
 
 .categorization {
@@ -30,5 +30,5 @@
   flex: 1 auto;
 }
 .categorization > div:first-child {
-  margin-right: 14px;
+  margin-right: var(--unit-2);
 }

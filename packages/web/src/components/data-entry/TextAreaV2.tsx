@@ -38,13 +38,14 @@ const getMaxHeight = ({
     ? maxVisibleRows * sizeToLineHeight[size] + sizeToVerticalPadding[size]
     : undefined
 
-type TextAreaV2Props = ComponentPropsWithoutRef<'textarea'> & {
+export type TextAreaV2Props = ComponentPropsWithoutRef<'textarea'> & {
   grows?: boolean
   resize?: boolean
   size?: TextAreaSize
   heightBuffer?: number
   maxVisibleRows?: number
   showMaxLength?: boolean
+  error?: boolean
 }
 
 const CHARACTER_LIMIT_WARN_THRESHOLD_PERCENT = 0.875
@@ -64,6 +65,7 @@ export const TextAreaV2 = forwardRef<HTMLTextAreaElement, TextAreaV2Props>(
       children,
       onFocus: onFocusProp,
       onBlur: onBlurProp,
+      error,
       ...other
     } = props
 
@@ -110,42 +112,42 @@ export const TextAreaV2 = forwardRef<HTMLTextAreaElement, TextAreaV2Props>(
 
     return (
       <div
-        ref={rootRef}
         className={cn(
           styles.root,
-          { [styles.focused]: isFocused },
+          { [styles.focused]: isFocused, [styles.error]: error },
           style,
           className
         )}
-        style={{ maxHeight }}
       >
-        <textarea
-          ref={mergeRefs([textareaRef, forwardedRef])}
-          maxLength={maxLength ?? undefined}
-          value={value}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          {...other}
-        />
-        <div className={styles.bottom}>
-          <div className={styles.bottomRight}>
-            <div
-              className={styles.children}
-              style={{ height: `${sizeToLineHeight[size]}px` }}
-            >
-              {children}
-            </div>
-            {showMaxLength ? (
+        <div ref={rootRef} className={styles.scrollArea} style={{ maxHeight }}>
+          <textarea
+            ref={mergeRefs([textareaRef, forwardedRef])}
+            maxLength={maxLength ?? undefined}
+            value={value}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            {...other}
+          />
+          <div className={styles.right}>
+            <div className={styles.bottomRight}>
               <div
-                className={cn(styles.characterCount, {
-                  [styles.nearLimit]: nearCharacterLimit
-                })}
+                className={styles.children}
+                style={{ height: `${sizeToLineHeight[size]}px` }}
               >
-                {characterCount}/{maxLength}
+                {children}
               </div>
-            ) : null}
+            </div>
           </div>
         </div>
+        {showMaxLength ? (
+          <div
+            className={cn(styles.characterCount, {
+              [styles.nearLimit]: nearCharacterLimit
+            })}
+          >
+            {characterCount}/{maxLength}
+          </div>
+        ) : null}
       </div>
     )
   }

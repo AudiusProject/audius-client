@@ -8,16 +8,15 @@ import IconBlockMessages from 'app/assets/images/iconBlockMessages.svg'
 import IconInfo from 'app/assets/images/iconInfo.svg'
 import { Text, Button } from 'app/components/core'
 import { NativeDrawer } from 'app/components/drawer'
-import type { AppState } from 'app/store'
-import { getData } from 'app/store/drawers/selectors'
+import { useDrawer } from 'app/hooks/useDrawer'
 import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles, flexRowCentered } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { useColor } from 'app/utils/theme'
 
 const { getUser } = cacheUsersSelectors
-const { getDoesBlockUser } = chatSelectors
-const { blockUser, unblockUser } = chatActions
+const { getDoesBlockUser, getCanCreateChat } = chatSelectors
+const { blockUser, unblockUser, createChat } = chatActions
 
 const BLOCK_MESSAGES_MODAL_NAME = 'BlockMessages'
 
@@ -106,16 +105,21 @@ export const BlockMessagesDrawer = () => {
   const neutralLight2 = useColor('neutralLight2')
   const neutral = useColor('neutral')
   const dispatch = useDispatch()
-  const { userId } = useSelector((state: AppState) =>
-    getData<'BlockMessages'>(state)
-  )
+  const { data } = useDrawer('BlockMessages')
+  const { userId, shouldOpenChat } = data
   const user = useSelector((state) => getUser(state, { id: userId }))
   // Assuming blockees have already been fetched in ProfileActionsDrawer.
   const doesBlockUser = useSelector((state) => getDoesBlockUser(state, userId))
+  const { canCreateChat } = useSelector((state) =>
+    getCanCreateChat(state, { userId })
+  )
 
   const handleConfirmPress = useCallback(() => {
     if (doesBlockUser) {
       dispatch(unblockUser({ userId }))
+      if (shouldOpenChat && canCreateChat) {
+        dispatch(createChat({ userIds: [userId] }))
+      }
     } else {
       dispatch(blockUser({ userId }))
     }
@@ -125,7 +129,7 @@ export const BlockMessagesDrawer = () => {
         visible: false
       })
     )
-  }, [dispatch, doesBlockUser, userId])
+  }, [canCreateChat, dispatch, doesBlockUser, shouldOpenChat, userId])
 
   const handleCancelPress = useCallback(() => {
     dispatch(

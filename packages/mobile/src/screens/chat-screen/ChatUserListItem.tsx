@@ -5,7 +5,8 @@ import {
   accountSelectors,
   chatSelectors,
   ChatPermissionAction,
-  cacheUsersSelectors
+  cacheUsersSelectors,
+  formatCount
 } from '@audius/common'
 import { useSelector } from 'audius-client/src/common/hooks/useSelector'
 import { Text, View, TouchableOpacity, Keyboard } from 'react-native'
@@ -177,7 +178,7 @@ export const ChatUserListItem = ({ userId }: ChatUserListItemProps) => {
         setVisibility({
           drawer: 'InboxUnavailable',
           visible: true,
-          data: { userId: user.user_id }
+          data: { userId: user.user_id, shouldOpenChat: true }
         })
       )
     }
@@ -234,7 +235,7 @@ export const ChatUserListItem = ({ userId }: ChatUserListItemProps) => {
                       width={styles.iconUser.width}
                     />
                     <Text style={styles.followersCount}>
-                      {user.follower_count}
+                      {formatCount(user.follower_count)}
                     </Text>
                     <Text style={styles.followers}>{messages.followers}</Text>
                   </>

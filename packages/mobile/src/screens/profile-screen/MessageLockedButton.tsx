@@ -15,8 +15,8 @@ const messages = {
 const useStyles = makeStyles(({ palette, spacing }) => ({
   root: {
     paddingHorizontal: 0,
-    height: spacing(8),
-    width: spacing(8),
+    height: spacing(7),
+    width: spacing(7),
     marginRight: spacing(2),
     borderColor: palette.neutralLight4,
     opacity: 0.4
@@ -38,7 +38,7 @@ export const MessageLockedButton = (props: MessageLockedButtonProps) => {
       setVisibility({
         drawer: 'InboxUnavailable',
         visible: true,
-        data: { userId }
+        data: { userId, shouldOpenChat: true }
       })
     )
   }, [dispatch, userId])
