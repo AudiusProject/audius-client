@@ -9,7 +9,7 @@ import {
   IconMessage,
   IconStars,
   IconUpload,
-  IconVolume
+  IconSpeaker
 } from '@audius/stems'
 
 import Drawer from 'components/drawer/Drawer'
@@ -66,7 +66,7 @@ export const DownloadMobileAppDrawer = ({
         <div className={styles.subheader}>{messages.subheader}</div>
         <ul className={styles.features}>
           <li>
-            <IconVolume className={styles.icon} />{' '}
+            <IconSpeaker className={styles.icon} />{' '}
             <span>{messages.audioQuality}</span>
           </li>
           <li>
