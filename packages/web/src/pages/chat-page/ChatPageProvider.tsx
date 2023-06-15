@@ -3,7 +3,7 @@ import { RouteComponentProps } from 'react-router-dom'
 import { useIsMobile } from 'utils/clientUtil'
 
 import { ChatPage as DesktopChatPage } from './ChatPage'
-import { ChatPage as MobileChatPage } from './components/mobile/ChatPage'
+import { SkeletonChatPage as MobileChatPage } from './components/mobile/SkeletonChatPage'
 
 export const ChatPageProvider = ({
   match

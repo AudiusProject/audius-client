@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 
 import { MobileOS } from '@audius/common'
 import {
@@ -11,8 +11,6 @@ import {
   IconUpload,
   IconVolume
 } from '@audius/stems'
-import { goBack } from 'connected-react-router'
-import { useDispatch } from 'react-redux'
 
 import Drawer from 'components/drawer/Drawer'
 import { getMobileOS } from 'utils/clientUtil'
@@ -22,7 +20,7 @@ import {
   IOS_WEBSITE_STORE_LINK
 } from 'utils/route'
 
-import styles from './DownloadTheAppDrawer.module.css'
+import styles from './DownloadMobileAppDrawer.module.css'
 
 const messages = {
   header: 'Download the App',
@@ -35,14 +33,15 @@ const messages = {
   buttonText: 'Download The App'
 }
 
-export const DownloadTheAppDrawer = () => {
-  const dispatch = useDispatch()
-  const [isOpen, setIsOpen] = useState(false)
+type DownloadMobileAppDrawerProps = {
+  isOpen: boolean
+  onClose: () => void
+}
 
-  const handleClose = useCallback(() => {
-    dispatch(goBack())
-  }, [dispatch])
-
+export const DownloadMobileAppDrawer = ({
+  isOpen,
+  onClose
+}: DownloadMobileAppDrawerProps) => {
   const goToAppStore = useCallback(() => {
     switch (getMobileOS()) {
       case MobileOS.IOS:
@@ -57,14 +56,8 @@ export const DownloadTheAppDrawer = () => {
     }
   }, [])
 
-  // Simply hardcoding "true" will never pop up the drawer,
-  // probably due to some inner workings of the animation.
-  // Let it render first as closed, then open it immediately after.
-  useEffect(() => {
-    setTimeout(() => setIsOpen(true), 0)
-  }, [setIsOpen])
   return (
-    <Drawer isOpen={isOpen} onClose={handleClose}>
+    <Drawer isOpen={isOpen} onClose={onClose}>
       <div className={styles.root}>
         <h4 className={styles.header}>
           <AudiusLogoGlyph className={styles.logoIcon} />
