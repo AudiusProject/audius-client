@@ -1,16 +1,11 @@
-export type ReactionTypes = 'heart' | 'fire' | 'party' | 'explode'
+export type ReactionTypes = '❤️' | '🔥' | '🥳' | '🤯'
 
 // The order these reactions appear in the web + mobile UI
-export const reactionOrder: ReactionTypes[] = [
-  'heart',
-  'fire',
-  'party',
-  'explode'
-]
+export const reactionOrder: ReactionTypes[] = ['❤️', '🔥', '🥳', '🤯']
 
 export const reactionsMap: { [k in ReactionTypes]: number } = {
-  heart: 1,
-  fire: 2,
-  party: 3,
-  explode: 4
+  '❤️': 1,
+  '🔥': 2,
+  '🥳': 3,
+  '🤯': 4
 }
