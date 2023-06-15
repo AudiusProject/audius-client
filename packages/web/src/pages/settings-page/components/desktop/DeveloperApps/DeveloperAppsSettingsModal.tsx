@@ -21,10 +21,7 @@ import { CreateAppsPages } from './types'
 
 const messages = {
   title: 'Create Apps',
-  deleteApp: 'Delete App',
-  description: 'Create your own apps using the Audius API.',
-  yourAppsTitle: 'Your Apps',
-  newAppButton: 'New'
+  deleteApp: 'Delete App'
 }
 
 type DeveloperAppsSettingsModalProps = Omit<ModalProps, 'children'>

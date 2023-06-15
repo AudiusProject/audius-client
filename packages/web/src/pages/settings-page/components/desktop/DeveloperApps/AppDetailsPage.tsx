@@ -13,7 +13,7 @@ import { CreateAppPageProps, CreateAppsPages } from './types'
 
 type AppDetailsPageProps = CreateAppPageProps
 
-const audiusSdkLink = 'https://docs.audius.org/developers/sdk/'
+const AUDIUS_SDK_LINK = 'https://docs.audius.org/developers/sdk/'
 
 const messages = {
   secretReminder:
@@ -48,7 +48,7 @@ export const AppDetailsPage = (props: AppDetailsPageProps) => {
           </span>
           <a
             target='_blank'
-            href={audiusSdkLink}
+            href={AUDIUS_SDK_LINK}
             className={styles.readTheDocs}
             rel='noreferrer'
           >
