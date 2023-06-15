@@ -43,9 +43,10 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   },
   popupContainer: {
     position: 'absolute',
-    display: 'flex',
+    // display: 'flex',
     zIndex: zIndex.CHAT_REACTIONS_POPUP_CLOSE_PRESSABLES,
-    overflow: 'hidden'
+    overflow: 'hidden',
+    backgroundColor: palette.accentBlue
   },
   outerPressable: {
     position: 'absolute',
@@ -114,9 +115,9 @@ const addAndroidOffset = (value: number) => value + REACTION_ANDROID_OFFSET
 
 export const ReactionPopup = ({
   chatId,
-  containerTop: containerTopProp,
-  containerBottom: containerBottomProp,
-  messageTop: messageTopProp,
+  containerTop,
+  containerBottom,
+  messageTop,
   messageHeight,
   isAuthor,
   message,
@@ -132,18 +133,18 @@ export const ReactionPopup = ({
   const selectedReaction = message.reactions?.find(
     (r) => r.user_id === userIdEncoded
   )?.reaction
-  const messageTop =
-    Platform.OS === 'android'
-      ? addAndroidOffset(messageTopProp)
-      : messageTopProp
-  const containerBottom =
-    Platform.OS === 'android'
-      ? addAndroidOffset(containerBottomProp)
-      : containerBottomProp
-  const containerTop =
-    Platform.OS === 'android'
-      ? addAndroidOffset(containerTopProp)
-      : containerTopProp
+  // const messageTop =
+  //   Platform.OS === 'android'
+  //     ? addAndroidOffset(messageTopProp)
+  //     : messageTopProp
+  // const containerBottom =
+  //   Platform.OS === 'android'
+  //     ? addAndroidOffset(containerBottomProp)
+  //     : containerBottomProp
+  // const containerTop =
+  //   Platform.OS === 'android'
+  //     ? addAndroidOffset(containerTopProp)
+  //     : containerTopProp
 
   const [
     backgroundOpacityAnim,
@@ -192,6 +193,10 @@ export const ReactionPopup = ({
     return null
   }
 
+  console.log(`REED containerBottom in popup: ${containerBottom}`)
+  const popupHeight = containerBottom - containerTop
+  console.log(`REED popupHeight: ${popupHeight}`)
+
   return (
     <>
       <Animated.View
@@ -204,7 +209,7 @@ export const ReactionPopup = ({
         style={[
           styles.popupContainer,
           {
-            height: containerBottom - containerTop,
+            height: popupHeight,
             top: containerTop
           },
           { opacity: otherOpacityAnim }

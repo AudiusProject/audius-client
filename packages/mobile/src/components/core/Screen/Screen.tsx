@@ -120,7 +120,10 @@ export const Screen = (props: ScreenProps) => {
   ])
 
   return (
-    <RootComponent style={[styles.root, style, { backgroundColor }]}>
+    <RootComponent
+      collapsable={false}
+      style={[styles.root, style, { backgroundColor }]}
+    >
       {children}
     </RootComponent>
   )

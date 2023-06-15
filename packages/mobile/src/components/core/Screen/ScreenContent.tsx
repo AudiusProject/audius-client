@@ -28,7 +28,10 @@ export const ScreenContent = ({
       {isReachable || isOfflineCapable ? (
         children
       ) : (
-        <Animated.View entering={wasReachable ? FadeIn : undefined}>
+        <Animated.View
+          collapsable={false}
+          entering={wasReachable ? FadeIn : undefined}
+        >
           <OfflinePlaceholder {...other} />
         </Animated.View>
       )}

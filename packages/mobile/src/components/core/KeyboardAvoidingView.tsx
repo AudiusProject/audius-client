@@ -95,6 +95,7 @@ export const KeyboardAvoidingView = ({
 
   return (
     <Animated.View
+      collapsable={false}
       style={[
         style,
         styles.rootContainer,

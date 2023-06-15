@@ -43,7 +43,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     alignItems: 'flex-end'
   },
   bubble: {
-    marginTop: spacing(2),
+    // marginTop: spacing(2),
     backgroundColor: palette.white,
     borderRadius: spacing(3)
   },

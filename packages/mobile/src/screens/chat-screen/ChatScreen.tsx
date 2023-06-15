@@ -172,9 +172,18 @@ const measureView = (
   viewRef: RefObject<View>,
   measurementRef: MutableRefObject<number>
 ) => {
-  viewRef.current?.measureInWindow((x, y, width, height) => {
-    measurementRef.current = y
+  viewRef.current?.measure((x, y, width, height, pageX, pageY) => {
+    console.log(
+      `REED MEASURE x ${x} y ${y} width ${width} height ${height} pageX ${pageX} pageY ${pageY}`
+    )
+    measurementRef.current = pageY
   })
+  // viewRef.current?.measureInWindow((x, y, width, height) => {
+  //   console.log(
+  //     `REED MEASUREINWINDOW x ${x} y ${y} width ${width} height ${height}`
+  //   )
+  //   measurementRef.current = y
+  // })
 }
 
 type ContainerLayoutStatus = {
@@ -479,7 +488,18 @@ export const ChatScreen = () => {
     []
   )
 
-  const measureChatContainerBottom = useCallback(() => {
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     console.log(`REED calling in settimeout`)
+  //     measureView(composeRef, chatContainerBottom)
+  //   }, 2000)
+  // }, [])
+
+  const measureChatContainerBottom = useCallback(({ nativeEvent }) => {
+    const { x, y, width, height } = nativeEvent.layout
+    console.log(
+      `REED onLayout event x ${x} y ${y} width ${width} height ${height}`
+    )
     measureView(composeRef, chatContainerBottom)
   }, [])
 
@@ -543,9 +563,11 @@ export const ChatScreen = () => {
           ref={chatContainerRef}
           onLayout={() => {
             chatContainerRef.current?.measureInWindow((x, y, width, height) => {
+              console.log(`REED chatContainerTop x ${x} y ${y}`)
               chatContainerTop.current = y
             })
           }}
+          collapsable={false}
         >
           <KeyboardAvoidingView
             keyboardShowingOffset={
@@ -603,6 +625,7 @@ export const ChatScreen = () => {
                 onLayout={measureChatContainerBottom}
                 ref={composeRef}
                 pointerEvents={'box-none'}
+                collapsable={false}
               >
                 <View style={styles.whiteBackground} />
                 <ChatTextInput chatId={chatId} />
