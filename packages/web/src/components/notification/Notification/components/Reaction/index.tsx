@@ -26,7 +26,7 @@ export const ExplodeReaction = (props: ReactionProps) => (
 export const reactionMap: {
   [k in ReactionTypes]: ComponentType<ReactionProps>
 } = {
-  '❤️': HeartReaction,
+  '😍': HeartReaction,
   '🔥': FireReaction,
   '🥳': PartyReaction,
   '🤯': ExplodeReaction

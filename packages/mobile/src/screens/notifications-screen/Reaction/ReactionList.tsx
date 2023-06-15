@@ -37,7 +37,7 @@ type ReactionListProps = {
 
 const initialPositions = {
   '🔥': { x: 0, width: 0 },
-  '❤️': { x: 0, width: 0 },
+  '😍': { x: 0, width: 0 },
   '🥳': { x: 0, width: 0 },
   '🤯': { x: 0, width: 0 }
 }

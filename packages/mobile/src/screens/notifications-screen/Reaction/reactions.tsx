@@ -16,7 +16,7 @@ export type ReactionProps = SetOptional<
 >
 
 export const HeartReaction = (props: ReactionProps) => (
-  <Reaction {...props} reactionType='❤️' source={heart} />
+  <Reaction {...props} reactionType='😍' source={heart} />
 )
 export const FireReaction = (props: ReactionProps) => (
   <Reaction {...props} reactionType='🔥' source={fire} />
@@ -31,7 +31,7 @@ export const ExplodeReaction = (props: ReactionProps) => (
 export const reactionMap: {
   [k in ReactionTypes]: ComponentType<ReactionProps>
 } = {
-  '❤️': HeartReaction,
+  '😍': HeartReaction,
   '🔥': FireReaction,
   '🥳': PartyReaction,
   '🤯': ExplodeReaction
