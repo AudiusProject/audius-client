@@ -364,7 +364,7 @@ function* updateGatedTrackAccess(
   // filter out those tracks from the ones that need to be passed in to the DN request
   const premiumTrackSignatureMap = yield* select(getPremiumTrackSignatureMap)
   const premiumTrackSignatureIdSet = new Set(
-    Object.keys(premiumTrackSignatureMap).map(Number)
+    Object.keys(premiumTrackSignatureMap).filter(Boolean).map(Number)
   )
 
   // update premium content signatures from tracks' metadata with the signature
