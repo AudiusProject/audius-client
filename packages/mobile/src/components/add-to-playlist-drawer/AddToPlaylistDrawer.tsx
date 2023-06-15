@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 
 import type { Collection } from '@audius/common'
 import {
+  duplicateAddConfirmationModalUIActions,
   SquareSizes,
   CreatePlaylistSource,
   accountSelectors,
@@ -28,6 +29,8 @@ const { addTrackToPlaylist, createPlaylist } = cacheCollectionsActions
 const { getTrackId, getTrackTitle, getTrackIsUnlisted } =
   addToPlaylistUISelectors
 const { getAccountWithOwnPlaylists } = accountSelectors
+const { requestOpen: openDuplicateAddConfirmation } =
+  duplicateAddConfirmationModalUIActions
 
 const messages = {
   title: 'Add To Playlist',
@@ -77,6 +80,12 @@ export const AddToPlaylistDrawer = () => {
 
   const userPlaylists = user?.playlists ?? []
 
+  const playlistTrackIdMap = userPlaylists.reduce((acc, playlist) => {
+    const trackIds = playlist.playlist_contents.track_ids.map((t) => t.track)
+    acc[playlist.playlist_id] = trackIds
+    return acc
+  }, {})
+
   const addToNewPlaylist = useCallback(() => {
     const metadata = { playlist_name: trackTitle ?? 'New Playlist' }
     dispatch(
@@ -112,8 +121,21 @@ export const AddToPlaylistDrawer = () => {
               toast({ content: messages.hiddenAdd })
               return
             }
-            toast({ content: messages.addedToast })
-            dispatch(addTrackToPlaylist(trackId!, item.playlist_id))
+
+            const doesPlaylistContainTrack =
+              playlistTrackIdMap[item.playlist_id]?.includes(trackId)
+
+            if (isPlaylistUpdatesEnabled && doesPlaylistContainTrack) {
+              dispatch(
+                openDuplicateAddConfirmation({
+                  playlistId: item.playlist_id,
+                  trackId: trackId!
+                })
+              )
+            } else {
+              toast({ content: messages.addedToast })
+              dispatch(addTrackToPlaylist(trackId!, item.playlist_id))
+            }
             onClose()
           }}
           renderImage={renderImage(item)}
@@ -124,6 +146,7 @@ export const AddToPlaylistDrawer = () => {
       dispatch,
       isTrackUnlisted,
       onClose,
+      playlistTrackIdMap,
       renderImage,
       toast,
       trackId,
