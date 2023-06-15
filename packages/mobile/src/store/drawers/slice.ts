@@ -23,6 +23,7 @@ export type Drawer =
   | 'LockedContent'
   | 'GatedContentUploadPrompt'
   | 'ChatActions'
+  | 'CreateChatActions'
   | 'ProfileActions'
   | 'BlockMessages'
   | 'DeleteChat'
@@ -53,15 +54,16 @@ export type DrawerData = {
   LockedContent: undefined
   GatedContentUploadPrompt: undefined
   ChatActions: { userId: number; chatId: string }
+  CreateChatActions: { userId: number }
   ProfileActions: undefined
-  BlockMessages: { userId: number }
+  BlockMessages: { userId: number; shouldOpenChat: boolean }
   DeleteChat: { chatId: string }
   SupportersInfo: undefined
-  InboxUnavailable: { userId: number }
+  InboxUnavailable: { userId: number; shouldOpenChat: boolean }
 }
 
 export type DrawersState = { [drawer in Drawer]: boolean | 'closing' } & {
-  data: Nullable<BaseDrawerData>
+  data: { [drawerData in Drawer]?: Nullable<DrawerData[Drawer]> }
 }
 
 const initialState: DrawersState = {
@@ -83,12 +85,13 @@ const initialState: DrawersState = {
   LockedContent: false,
   GatedContentUploadPrompt: false,
   ChatActions: false,
+  CreateChatActions: false,
   ProfileActions: false,
   BlockMessages: false,
   DeleteChat: false,
   SupportersInfo: false,
   InboxUnavailable: false,
-  data: null
+  data: {}
 }
 
 type SetVisibilityAction = PayloadAction<{
@@ -105,9 +108,9 @@ const slice = createSlice({
       const { drawer, visible, data } = action.payload
       state[drawer] = visible
       if (visible && data) {
-        state.data = data
+        state.data[drawer] = data
       } else if (!visible) {
-        state.data = null
+        state.data[drawer] = null
       }
     }
   }

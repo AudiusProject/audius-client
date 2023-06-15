@@ -8,13 +8,11 @@ import IconSend from 'app/assets/images/iconSend.svg'
 import { TextInput } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
+import { convertHexToRGBA } from 'app/utils/convertHexToRGBA'
 import { useThemeColors } from 'app/utils/theme'
 
 const { sendMessage } = chatActions
 const { getHasTrack } = playerSelectors
-
-const ICON_BLUR = 0.5
-const ICON_FOCUS = 1
 
 const messages = {
   startNewMessage: ' Start a New Message'
@@ -80,8 +78,13 @@ export const ChatTextInput = ({
       style={({ pressed }) => [
         styles.iconCircle,
         {
-          backgroundColor: pressed && hasLength ? primaryDark2 : primary,
-          opacity: hasLength ? ICON_FOCUS : ICON_BLUR
+          backgroundColor: hasLength
+            ? pressed
+              ? primaryDark2
+              : primary
+            : // Setting opacity style affects both the background and icon
+              // on Android, this workaround keeps the icon always white.
+              convertHexToRGBA(primary, 50)
         }
       ]}
     >
