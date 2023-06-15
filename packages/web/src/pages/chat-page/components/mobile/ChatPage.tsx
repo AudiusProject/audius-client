@@ -1,4 +1,4 @@
-import { SkeletonChatListItem } from '../desktop/SkeletonChatListItem'
+import { SkeletonChatListItem } from '../SkeletonChatListItem'
 
 import { DownloadTheAppDrawer } from './DownloadTheAppDrawer'
 
