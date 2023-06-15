@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import type { Collection } from '@audius/common'
 import {
@@ -80,11 +80,14 @@ export const AddToPlaylistDrawer = () => {
 
   const userPlaylists = user?.playlists ?? []
 
-  const playlistTrackIdMap = userPlaylists.reduce((acc, playlist) => {
-    const trackIds = playlist.playlist_contents.track_ids.map((t) => t.track)
-    acc[playlist.playlist_id] = trackIds
-    return acc
-  }, {})
+  const playlistTrackIdMap = useMemo(() => {
+    const playlists = user?.playlists ?? []
+    return playlists.reduce((acc, playlist) => {
+      const trackIds = playlist.playlist_contents.track_ids.map((t) => t.track)
+      acc[playlist.playlist_id] = trackIds
+      return acc
+    }, {})
+  }, [user?.playlists])
 
   const addToNewPlaylist = useCallback(() => {
     const metadata = { playlist_name: trackTitle ?? 'New Playlist' }
@@ -116,6 +119,8 @@ export const AddToPlaylistDrawer = () => {
           primaryText={item.playlist_name}
           secondaryText={user?.name}
           onPress={() => {
+            if (!trackId) return
+
             // Don't add if the track is hidden, but playlist is public
             if (isTrackUnlisted && !item.is_private) {
               toast({ content: messages.hiddenAdd })
@@ -129,12 +134,12 @@ export const AddToPlaylistDrawer = () => {
               dispatch(
                 openDuplicateAddConfirmation({
                   playlistId: item.playlist_id,
-                  trackId: trackId!
+                  trackId
                 })
               )
             } else {
               toast({ content: messages.addedToast })
-              dispatch(addTrackToPlaylist(trackId!, item.playlist_id))
+              dispatch(addTrackToPlaylist(trackId, item.playlist_id))
             }
             onClose()
           }}
@@ -144,6 +149,7 @@ export const AddToPlaylistDrawer = () => {
     [
       addToNewPlaylist,
       dispatch,
+      isPlaylistUpdatesEnabled,
       isTrackUnlisted,
       onClose,
       playlistTrackIdMap,

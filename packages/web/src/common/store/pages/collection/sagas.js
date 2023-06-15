@@ -107,8 +107,6 @@ function* watchResetAndFetchCollectionTracks() {
 
       yield take(fetchCollectionSucceeded)
 
-      // TODO: KJ - Need to add update call for the suggested tracks
-
       yield put(tracksActions.fetchLineupMetadatas(0, 200, false, undefined))
     }
   )
