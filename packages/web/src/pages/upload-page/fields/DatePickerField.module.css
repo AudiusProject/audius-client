@@ -1,0 +1,24 @@
+.datePickerField {
+    height: 500px;
+}
+
+/* TODO: figure out how to apply styling to global class names in these rules */
+.datePicker {
+    :global {
+        .singleDatePicker {
+            /* background-color: var(--neutral-light-10);
+                */
+                background-color: red;
+        }
+    }
+}
+
+.datePicker .SingleDatePickerInput {
+    background-color: var(--neutral-light-10);
+
+}
+
+.iconCalendar {
+    height: 20px;
+    width: 20px;
+}
