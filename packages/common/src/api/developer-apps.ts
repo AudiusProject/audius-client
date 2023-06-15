@@ -4,17 +4,17 @@ import { ID } from 'models/Identifiers'
 import { createApi } from 'src/audius-query'
 import { encodeHashId } from 'utils/hashIds'
 
-const descriptionMaxLength = 28
+const descriptionMaxLength = 128
 
 export const developerAppSchema = z.object({
   userId: z.number(),
-  name: z.string().min(5),
-  description: z.string().max(descriptionMaxLength)
+  name: z.string(),
+  description: z.string().max(descriptionMaxLength).optional()
 })
 
 export type DeveloperApp = {
   name: string
-  description: string
+  description?: string
   apiKey: string
   apiSecret?: string
 }
@@ -23,32 +23,50 @@ type NewAppPayload = Omit<DeveloperApp, 'apiKey'> & {
   userId: number
 }
 
-const mockApp1: DeveloperApp = {
-  name: 'New Test App 1',
-  description: 'New Test',
-  apiKey: '021671c830081f1dc6277a739ddf3a72f1ae197dd7ed219e2341c36c73c90ce8c6'
+type DeleteDeveloperAppArgs = {
+  apiKey: string
+  userId: number
 }
 
 const developerAppsApi = createApi({
   reducerPath: 'developerAppsApi',
   endpoints: {
     getDeveloperApps: {
-      async fetch({ id: _id }: { id: ID }) {
-        return { apps: [mockApp1] }
+      async fetch({ id }: { id: ID }, { audiusSdk }) {
+        const encodedUserId = encodeHashId(id) as string
+        const sdk = await audiusSdk()
+        const { data = [] } = await sdk.users.getDeveloperApps({
+          id: encodedUserId
+        })
+
+        return {
+          apps: data.map(
+            ({ address, name, description }): DeveloperApp => ({
+              name,
+              description,
+              apiKey: address
+            })
+          )
+        }
       },
+
       options: { idArgKey: 'id' }
     },
-    addDeveloperAppMutation: {
+    addDeveloperApp: {
       async fetch(newApp: NewAppPayload, { audiusSdk }) {
         const { name, description, userId } = newApp
         const encodedUserId = encodeHashId(userId) as string
         const sdk = await audiusSdk()
-        return await sdk.developerApps.createDeveloperApp({
-          name,
-          description,
-          userId: encodedUserId,
-          isPersonalAccess: false
-        })
+
+        const { apiKey, apiSecret } =
+          await sdk.developerApps.createDeveloperApp({
+            name,
+            description,
+            userId: encodedUserId,
+            isPersonalAccess: false
+          })
+
+        return { name, description, apiKey, apiSecret }
       },
       options: {
         idArgKey: 'name',
@@ -60,12 +78,43 @@ const developerAppsApi = createApi({
         { dispatch }
       ) {
         const { userId } = newAppArgs
+        const { apiSecret: apiSecretIgnored, ...restNewApp } = newApp
         dispatch(
           developerAppsApi.util.updateQueryData(
             'getDeveloperApps',
             { id: userId },
             (state) => {
-              state.apps.push(newApp)
+              state.apps.push(restNewApp)
+            }
+          )
+        )
+      }
+    },
+    deleteDeveloperApp: {
+      async fetch(args: DeleteDeveloperAppArgs, { audiusSdk }) {
+        const { userId, apiKey } = args
+        const encodedUserId = encodeHashId(userId) as string
+        const sdk = await audiusSdk()
+
+        return await sdk.developerApps.deleteDeveloperApp({
+          userId: encodedUserId,
+          appApiKey: apiKey
+        })
+      },
+      options: {
+        type: 'mutation'
+      },
+      async onQuerySuccess(_response, args, { dispatch }) {
+        const { userId, apiKey } = args
+        dispatch(
+          developerAppsApi.util.updateQueryData(
+            'getDeveloperApps',
+            { id: userId },
+            (state) => {
+              const appIndex = state.apps.findIndex(
+                (app) => app.apiKey === apiKey
+              )
+              state.apps.splice(appIndex, 1)
             }
           )
         )
@@ -74,7 +123,10 @@ const developerAppsApi = createApi({
   }
 })
 
-export const { useGetDeveloperApps, useAddDeveloperAppMutation } =
-  developerAppsApi.hooks
+export const {
+  useGetDeveloperApps,
+  useAddDeveloperApp,
+  useDeleteDeveloperApp
+} = developerAppsApi.hooks
 
 export const developerAppsApiReducer = developerAppsApi.reducer

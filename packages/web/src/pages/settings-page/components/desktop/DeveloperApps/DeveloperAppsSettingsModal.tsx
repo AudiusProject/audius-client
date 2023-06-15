@@ -1,22 +1,27 @@
 import { useCallback, useEffect, useState } from 'react'
 
+import { DeveloperApp } from '@audius/common'
 import {
   Modal,
   ModalHeader,
   ModalProps,
   ModalTitle,
-  ModalContentPages
+  ModalContentPages,
+  IconTrash
 } from '@audius/stems'
 
 import { ReactComponent as IconEmbed } from 'assets/img/iconEmbed.svg'
 
 import { AppDetailsPage } from './AppDetailsPage'
 import { CreateNewAppPage } from './CreateNewAppPage'
+import { DeleteAppConfirmationPage } from './DeleteAppConfirmationPage'
+import styles from './DeveloperAppsSettingsModal.module.css'
 import { YourAppsPage } from './YourAppsPage'
 import { CreateAppsPages } from './types'
 
 const messages = {
-  title: 'Your Apps',
+  title: 'Create Apps',
+  deleteApp: 'Delete App',
   description: 'Create your own apps using the Audius API.',
   yourAppsTitle: 'Your Apps',
   newAppButton: 'New'
@@ -32,6 +37,26 @@ const getCurrentPage = (currentPage: CreateAppsPages) => {
       return 1
     case CreateAppsPages.APP_DETAILS:
       return 2
+    case CreateAppsPages.DELETE_APP:
+      return 3
+  }
+}
+
+const getTitle = (currentPage: CreateAppsPages) => {
+  switch (currentPage) {
+    case CreateAppsPages.DELETE_APP:
+      return messages.deleteApp
+    default:
+      return messages.title
+  }
+}
+
+const getTitleIcon = (currentPage: CreateAppsPages) => {
+  switch (currentPage) {
+    case CreateAppsPages.DELETE_APP:
+      return <IconTrash className={styles.titleIcon} />
+    default:
+      return <IconEmbed className={styles.titleIcon} />
   }
 }
 
@@ -40,18 +65,11 @@ export const DeveloperAppsSettingsModal = (
 ) => {
   const { isOpen } = props
   const [currentPage, setCurrentPage] = useState(CreateAppsPages.APP_DETAILS)
-  const [currentPageParams, setCurrentPageParams] = useState<any>({
-    name: 'New App Test 1',
-    description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    apiKey:
-      '021671c830081f1dc6277a739ddf3a72f1ae197dd7ed219e2341c36c73c90ce8c6',
-    apiSecret:
-      '021671c830081f1dc6277a739ddf3a72f1ae197dd7ed219e2341c36c73c90ce8c6'
-  })
+
+  const [currentPageParams, setCurrentPageParams] = useState<DeveloperApp>()
 
   const handleSetPage = useCallback(
-    (page: CreateAppsPages, params?: Record<string, unknown>) => {
+    (page: CreateAppsPages, params?: DeveloperApp) => {
       setCurrentPage(page)
       if (params) {
         setCurrentPageParams(params)
@@ -70,12 +88,19 @@ export const DeveloperAppsSettingsModal = (
     <>
       <Modal {...props} size='small'>
         <ModalHeader>
-          <ModalTitle title={messages.title} icon={<IconEmbed />} />
+          <ModalTitle
+            title={getTitle(currentPage)}
+            icon={getTitleIcon(currentPage)}
+          />
         </ModalHeader>
         <ModalContentPages currentPage={getCurrentPage(currentPage)}>
           <YourAppsPage setPage={handleSetPage} />
           <CreateNewAppPage setPage={handleSetPage} />
           <AppDetailsPage setPage={handleSetPage} params={currentPageParams} />
+          <DeleteAppConfirmationPage
+            setPage={handleSetPage}
+            params={currentPageParams}
+          />
         </ModalContentPages>
       </Modal>
     </>

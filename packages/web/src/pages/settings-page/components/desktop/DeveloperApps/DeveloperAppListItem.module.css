@@ -1,32 +1,3 @@
-.content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--unit-6);
-}
-
-.appsHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.appsHeaderText {
-  font-size: var(--font-m);
-  font-weight: var(--font-bold);
-}
-
-.newAppButton {
-  padding: var(--unit-2) var(--unit-3);
-}
-
-.newAppButtonText {
-  font-size: var(--font-s) !important;
-}
-
-.newAppButtonIcon {
-  margin-right: var(--unit-2) !important;
-}
-
 .listItem {
   display: flex;
   align-items: center;
@@ -65,7 +36,6 @@
   flex-grow: 0;
 }
 
-.createAppFooter {
-  display: flex;
-  gap: var(--unit-2);
+.listItemActionsIcon svg {
+  color: var(--neutral-light-4) !important;
 }

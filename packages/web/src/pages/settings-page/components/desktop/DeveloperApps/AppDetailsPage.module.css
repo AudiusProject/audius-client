@@ -106,5 +106,41 @@
   overflow-wrap: anywhere;
 }
 
-.copyKey {
+.goBack {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.goBackIcon {
+  transform: scaleX(-1);
+  margin-right: var(--unit-2);
+}
+
+.goBackIcon path {
+  fill: var(--neutral-light-4);
+}
+
+.goBack:hover .goBackIcon path {
+  fill: var(--neutral-light-2);
+}
+
+.goBack:active .goBackIcon path {
+  fill: var(--neutral);
+}
+
+.goBackText {
+  font-size: var(--font-l);
+  font-weight: var(--font-bold);
+  color: var(--neutral-light-4);
+}
+
+.goBack:hover .goBackText {
+  color: var(--neutral-light-2);
+}
+
+.goBack:active .goBackText {
+  color: var(--neutral);
 }

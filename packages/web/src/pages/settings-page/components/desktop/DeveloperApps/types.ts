@@ -1,14 +1,13 @@
+import { DeveloperApp } from '@audius/common'
+
 export enum CreateAppsPages {
   YOUR_APPS = 'your_apps',
   NEW_APP = 'new_app',
-  APP_DETAILS = 'app_details'
+  APP_DETAILS = 'app_details',
+  DELETE_APP = 'delete_app'
 }
 
-export type CreateAppPageProps<
-  Params extends Record<string, unknown> | undefined =
-    | Record<string, unknown>
-    | undefined
-> = {
-  setPage: (page: CreateAppsPages, params?: Record<string, unknown>) => void
-  params?: Params
+export type CreateAppPageProps = {
+  setPage: (page: CreateAppsPages, params?: DeveloperApp) => void
+  params?: DeveloperApp
 }

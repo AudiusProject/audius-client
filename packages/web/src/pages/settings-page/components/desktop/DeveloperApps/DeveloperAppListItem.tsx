@@ -1,32 +1,80 @@
-import { IconButton, IconKebabHorizontal } from '@audius/stems'
+import { useCallback, useMemo } from 'react'
 
-import styles from './DeveloperApps.module.css'
+import { DeveloperApp } from '@audius/common'
+import {
+  IconButton,
+  IconKebabHorizontal,
+  IconTrash,
+  IconVisibilityPublic,
+  PopupMenu,
+  PopupMenuItem
+} from '@audius/stems'
+
+import styles from './DeveloperAppListItem.module.css'
+import { CreateAppPageProps, CreateAppsPages } from './types'
 
 const messages = {
-  appActionsLabel: 'developer app actions'
+  appActionsLabel: 'developer app actions',
+  viewDetails: 'View Details',
+  deleteApp: 'Delete App'
 }
 
-type DeveloperAppListItemProps = {
+type DeveloperAppListItemProps = Pick<CreateAppPageProps, 'setPage'> & {
   index: number
-  appName: string
+  app: DeveloperApp
 }
 
 export const DeveloperAppListItem = (props: DeveloperAppListItemProps) => {
-  const { index, appName } = props
+  const { index, app, setPage } = props
+  const { name } = app
+
+  const handleViewDetails = useCallback(() => {
+    setPage(CreateAppsPages.APP_DETAILS, app)
+  }, [setPage, app])
+
+  const handleDeleteApp = useCallback(() => {
+    setPage(CreateAppsPages.DELETE_APP, app)
+  }, [setPage, app])
 
   const divider = <hr className={styles.listItemDivider} />
+
+  const menuItems: PopupMenuItem[] = useMemo(
+    () => [
+      {
+        icon: <IconVisibilityPublic />,
+        text: messages.viewDetails,
+        onClick: handleViewDetails
+      },
+      {
+        icon: <IconTrash />,
+        text: messages.deleteApp,
+        onClick: handleDeleteApp
+      }
+    ],
+    [handleViewDetails, handleDeleteApp]
+  )
 
   return (
     <li className={styles.listItem}>
       <span className={styles.listItemIndex}>{index}</span>
       {divider}
-      <span className={styles.listItemAppName}>{appName}</span>
+      <span className={styles.listItemAppName}>{name}</span>
       {divider}
-      <IconButton
-        className={styles.listItemActions}
-        aria-label={messages.appActionsLabel}
-        icon={<IconKebabHorizontal />}
-        onClick={() => console.log('hello world')}
+      <PopupMenu
+        items={menuItems}
+        renderTrigger={(ref, onClick, triggerProps) => (
+          <IconButton
+            // @ts-ignore
+            ref={ref}
+            {...triggerProps}
+            className={styles.listItemActions}
+            aria-label={messages.appActionsLabel}
+            icon={
+              <IconKebabHorizontal className={styles.listItemActionsIcon} />
+            }
+            onClick={onClick}
+          />
+        )}
       />
     </li>
   )

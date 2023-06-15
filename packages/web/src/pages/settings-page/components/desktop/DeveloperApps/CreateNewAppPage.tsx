@@ -4,7 +4,7 @@ import {
   Status,
   accountSelectors,
   developerAppSchema,
-  useAddDeveloperAppMutation
+  useAddDeveloperApp
 } from '@audius/common'
 import { Button, ButtonType } from '@audius/stems'
 import { Form, Formik } from 'formik'
@@ -14,9 +14,10 @@ import { toFormikValidationSchema } from 'zod-formik-adapter'
 import { InputV2Variant } from 'components/data-entry/InputV2'
 import { TextAreaField } from 'components/form-fields/TextAreaField'
 import { TextField } from 'components/form-fields/TextField'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { useSelector } from 'utils/reducer'
 
-import styles from './DeveloperApps.module.css'
+import styles from './CreateNewAppPage.module.css'
 import { CreateAppPageProps, CreateAppsPages } from './types'
 const { getUserId } = accountSelectors
 
@@ -26,7 +27,8 @@ const messages = {
   appNameLabel: 'App Name',
   descriptionLabel: 'Short Description',
   cancel: 'Cancel',
-  create: 'Create Key'
+  create: 'Create Key',
+  creating: 'Creating Key'
 }
 
 type CreateNewAppPageProps = CreateAppPageProps
@@ -35,7 +37,7 @@ export const CreateNewAppPage = (props: CreateNewAppPageProps) => {
   const { setPage } = props
   const userId = useSelector(getUserId) as number
 
-  const [addDeveloperApp, result] = useAddDeveloperAppMutation()
+  const [addDeveloperApp, result] = useAddDeveloperApp()
 
   const { status, data } = result
 
@@ -58,6 +60,8 @@ export const CreateNewAppPage = (props: CreateNewAppPageProps) => {
     description: ''
   }
 
+  const isSubmitting = status !== Status.IDLE
+
   return (
     <Formik
       initialValues={initialValues}
@@ -75,16 +79,27 @@ export const CreateNewAppPage = (props: CreateNewAppPageProps) => {
             name='description'
             placeholder={messages.descriptionLabel}
             showMaxLength
-            maxLength={developerAppSchema.shape.description.maxLength as number}
+            maxLength={developerAppSchema.shape.description.unwrap().maxLength!}
           />
-          <div className={styles.createAppFooter}>
+          <div className={styles.footer}>
             <Button
               text={messages.cancel}
               fullWidth
               type={ButtonType.COMMON_ALT}
+              disabled={isSubmitting}
               onClick={() => setPage(CreateAppsPages.YOUR_APPS)}
             />
-            <Button buttonType='submit' text={messages.create} fullWidth />
+            <Button
+              buttonType='submit'
+              text={isSubmitting ? messages.creating : messages.create}
+              fullWidth
+              rightIcon={
+                isSubmitting ? (
+                  <LoadingSpinner className={styles.creatingSpinner} />
+                ) : undefined
+              }
+              disabled={isSubmitting}
+            />
           </div>
         </Form>
       )}
