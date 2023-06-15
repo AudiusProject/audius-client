@@ -10,12 +10,12 @@ import Page from 'components/page/Page'
 import { useFlag } from 'hooks/useRemoteConfig'
 import { chatPage } from 'utils/route'
 
-import { ChatComposer } from './ChatComposer'
-import { ChatHeader } from './ChatHeader'
-import { ChatList } from './ChatList'
-import { ChatMessageList } from './ChatMessageList'
 import styles from './ChatPage.module.css'
-import { CreateChatPrompt } from './CreateChatPrompt'
+import { ChatComposer } from './components/ChatComposer'
+import { ChatHeader } from './components/ChatHeader'
+import { ChatList } from './components/ChatList'
+import { ChatMessageList } from './components/ChatMessageList'
+import { CreateChatPrompt } from './components/CreateChatPrompt'
 
 const { fetchPermissions } = chatActions
 
