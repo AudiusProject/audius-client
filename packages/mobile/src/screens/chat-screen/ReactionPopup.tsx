@@ -7,7 +7,7 @@ import type {
 } from '@audius/common'
 import { chatActions, encodeHashId, accountSelectors } from '@audius/common'
 import Clipboard from '@react-native-clipboard/clipboard'
-import { Dimensions, Pressable, Animated, Platform } from 'react-native'
+import { Dimensions, Pressable, Animated } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { usePopupAnimation } from 'app/hooks/usePopupAnimation'
@@ -45,6 +45,8 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     display: 'flex',
     zIndex: zIndex.CHAT_REACTIONS_POPUP_CLOSE_PRESSABLES,
     overflow: 'hidden'
+    // backgroundColor: 'red',
+    // opacity: 0.5
   },
   outerPressable: {
     position: 'absolute',
