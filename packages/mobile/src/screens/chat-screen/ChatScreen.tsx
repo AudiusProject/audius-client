@@ -428,6 +428,7 @@ export const ChatScreen = () => {
       if (!canSendMessage) {
         return
       }
+
       // Measure position of selected message to create a copy of it on top
       // of the dimmed background inside the portal.
       messageRef.measure((x, y, width, height, pageX, pageY) => {
@@ -489,13 +490,13 @@ export const ChatScreen = () => {
     composeRef.current?.measure((x, y, width, height, pageX, pageY) => {
       chatContainerBottom.current = pageY
     })
-  }, [composeRef, chatContainerBottom])
+  }, [])
 
   const measureChatContainerTop = useCallback(() => {
     chatContainerRef.current?.measure((x, y, width, height, pageX, pageY) => {
       chatContainerTop.current = pageY
     })
-  }, [chatContainerRef, chatContainerTop])
+  }, [])
 
   const handleOnContentSizeChanged = useCallback(
     (contentWidth, contentHeight) => {
