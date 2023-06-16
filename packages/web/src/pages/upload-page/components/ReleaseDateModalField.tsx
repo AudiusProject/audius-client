@@ -21,7 +21,7 @@ import styles from './ReleaseDateModalField.module.css'
 const messages = {
   title: 'Release Date',
   description:
-    'Release date affects sorting on your profile and is visible in track details.',
+    'Specify a release date (in the past) for your music. Release date will affect the order of content on your profile and is visible to users.',
   done: 'Done'
 }
 

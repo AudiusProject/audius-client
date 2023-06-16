@@ -24,24 +24,26 @@ export const DatePickerField = (props: DatePickerFieldProps) => {
   const [isFocused, setIsFocused] = useState(false)
 
   return (
-    <div className={styles.datePickerField}>
-      <div className={styles.label}>{label}</div>
-      <div className={cn(styles.datePicker, style)}>
-        <SingleDatePicker
-          id={field.name}
-          placeholder={moment().format('MM/DD/YYYY')}
-          // Restrict date picker to days before today.
-          // @ts-ignore mismatched moment versions; shouldn't be a problem
-          isOutsideRange={(day) => !isInclusivelyBeforeDay(day, moment())}
-          date={field.value}
-          onDateChange={helpers.setValue}
-          focused={isFocused}
-          onFocusChange={({ focused }) => setIsFocused(focused)}
-          numberOfMonths={1}
-          hideKeyboardShortcutsPanel
-          customInputIcon={<IconCalendar className={styles.iconCalendar} />}
-          small
-        />
+    <div className={styles.datePickerField} onClick={() => setIsFocused(true)}>
+      <IconCalendar className={styles.iconCalendar} />
+      <div>
+        <div className={styles.label}>{label}</div>
+        <div className={cn(styles.datePicker, style)}>
+          <SingleDatePicker
+            id={field.name}
+            placeholder={moment().format('MM/DD/YYYY')}
+            // @ts-ignore mismatched moment versions; shouldn't be relevant here
+            isOutsideRange={(day) => !isInclusivelyBeforeDay(day, moment())}
+            date={field.value}
+            onDateChange={helpers.setValue}
+            focused={isFocused}
+            onFocusChange={({ focused }) => setIsFocused(focused)}
+            numberOfMonths={1}
+            hideKeyboardShortcutsPanel
+            small
+            noBorder
+          />
+        </div>
       </div>
     </div>
   )
