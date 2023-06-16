@@ -26,6 +26,7 @@ import {
   selectDraggingId
 } from 'store/dragndrop/slice'
 import { useSelector } from 'utils/reducer'
+import { BASE_URL } from 'utils/route'
 
 import { LeftNavDroppable, LeftNavLink } from '../LeftNavLink'
 
@@ -130,7 +131,9 @@ export const CollectionNavItem = (props: CollectionNavItemProps) => {
   const handleDrop = useCallback(
     (draggingId: PlaylistLibraryID, kind: DragDropKind) => {
       if (kind === 'track') {
-        dispatch(addTrackToPlaylist(draggingId as ID, id))
+        if (typeof id === 'number') {
+          dispatch(addTrackToPlaylist(draggingId as ID, id))
+        }
       } else {
         dispatch(
           reorder({
@@ -171,7 +174,13 @@ export const CollectionNavItem = (props: CollectionNavItemProps) => {
         onDrop={handleDrop}
         disabled={isDisabled}
       >
-        <Draggable id={id} text={name} link={url} kind='library-playlist'>
+        <Draggable
+          id={id}
+          text={name}
+          // Draggables require full URL
+          link={`${BASE_URL}${url}`}
+          kind='library-playlist'
+        >
           <LeftNavLink
             to={url}
             onClick={onClick}

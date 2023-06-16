@@ -124,6 +124,7 @@ export const getHasUnreadMessages = (state: CommonState) => {
   if (getUnreadMessagesCount(state) > 0) {
     return true
   }
+  // This really shouldn't be necessary since the above should be kept in sync
   const chats = getChats(state)
   for (const chat of chats) {
     if (chat.unread_message_count > 0) {
@@ -268,7 +269,7 @@ export const getCanCreateChat = createSelector(
         action = ChatPermissionAction.NONE
       } else if (
         userPermissions.permits === ChatPermission.FOLLOWEES &&
-        !user?.does_current_user_follow
+        !user?.does_follow_current_user
       ) {
         action = ChatPermissionAction.NONE
       } else if (blockees.includes(user.user_id)) {

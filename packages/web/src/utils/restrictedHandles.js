@@ -1,6 +1,6 @@
 import { GENRES } from '@audius/common'
 
-import { moodMap } from 'utils/moods'
+import { moodMap } from 'utils/Moods'
 import { orderedRoutes } from 'utils/route'
 
 const restrictedRoutes = orderedRoutes
@@ -21,7 +21,7 @@ export const restrictedHandles = new Set(
     'collection',
     'curated',
     'podcast',
-    'Library',
+    'library',
     'next',
     'suggested',
     'follow',

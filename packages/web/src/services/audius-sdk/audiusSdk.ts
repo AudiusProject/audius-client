@@ -1,15 +1,15 @@
-import { sdk, AudiusSdk } from '@audius/sdk'
+import { sdk, AudiusSdk, AudiusLibs } from '@audius/sdk'
 import { keccak_256 } from '@noble/hashes/sha3'
 import * as secp from '@noble/secp256k1'
 import { signTypedData } from 'eth-sig-util'
 
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 import { discoveryNodeSelectorService } from 'services/discovery-node-selector'
-import { entityManagerInstance } from 'services/entity-manager'
+import { makeEntityManagerInstance } from 'services/entity-manager'
 
 declare global {
   interface Window {
-    audiusLibs: any
+    audiusLibs: AudiusLibs
     audiusSdk: AudiusSdk
   }
 }
@@ -19,17 +19,26 @@ const SDK_LOADED_EVENT_NAME = 'AUDIUS_SDK_LOADED'
 
 const initSdk = async () => {
   inProgress = true
+  // We wait for libs here because AudiusBackend needs to register a listener that
+  // will let AudiusAPIClient know that libs has loaded, and without it AudiusAPIClient
+  // retries failed requests ad nauseum with no delays or backoffs and won't ever get
+  // the signal that libs is loaded. It sucks. But the easiest thing to do right now...
+  console.debug('[audiusSdk] Waiting for libs init...')
+  await waitForLibsInit()
+  console.debug('[audiusSdk] Libs initted, initializing SDK...')
+  const discoveryNodeSelector = await discoveryNodeSelectorService.getInstance()
   const audiusSdk = sdk({
     appName: 'audius-client',
     services: {
-      discoveryNodeSelector: await discoveryNodeSelectorService.getInstance(),
-      entityManager: entityManagerInstance,
+      discoveryNodeSelector,
+      entityManager: makeEntityManagerInstance(discoveryNodeSelector),
       auth: {
         sign: async (data) => {
           await waitForLibsInit()
           return await secp.sign(
             keccak_256(data),
-            window.audiusLibs.hedgehog.getWallet().privateKey,
+            // @ts-ignore private key is private
+            window.audiusLibs.hedgehog?.getWallet()?.privateKey,
             {
               recovered: true,
               der: false
@@ -40,7 +49,8 @@ const initSdk = async () => {
           await waitForLibsInit()
           return signTypedData(
             Buffer.from(
-              window.audiusLibs.hedgehog.getWallet().privateKey,
+              // @ts-ignore private key is private
+              window.audiusLibs.hedgehog?.getWallet()?.privateKey,
               'hex'
             ),
             {
@@ -51,18 +61,20 @@ const initSdk = async () => {
         getSharedSecret: async (publicKey: string | Uint8Array) => {
           await waitForLibsInit()
           return secp.getSharedSecret(
-            window.audiusLibs.hedgehog.getWallet().privateKey,
+            // @ts-ignore private key is private
+            window.audiusLibs.hedgehog?.getWallet()?.privateKey,
             publicKey,
             true
           )
         },
         getAddress: async () => {
           await waitForLibsInit()
-          return window.audiusLibs?.hedgehog?.wallet.getAddressString() ?? ''
+          return window.audiusLibs?.hedgehog?.wallet?.getAddressString() ?? ''
         }
       }
     }
   })
+  console.debug('[audiusSdk] SDK initted.')
   window.audiusSdk = audiusSdk
   inProgress = false
   window.dispatchEvent(new CustomEvent(SDK_LOADED_EVENT_NAME))

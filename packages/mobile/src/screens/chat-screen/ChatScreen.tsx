@@ -607,6 +607,7 @@ export const ChatScreen = () => {
                   onScroll={handleScroll}
                   onScrollToIndexFailed={handleScrollToIndexFailed}
                   refreshing={chat?.messagesStatus === Status.LOADING}
+                  keyboardShouldPersistTaps='always'
                   maintainVisibleContentPosition={
                     maintainVisibleContentPosition
                   }
@@ -629,6 +630,8 @@ export const ChatScreen = () => {
                     ) : null
                   }
                   scrollEnabled={popupMessageId == null}
+                  removeClippedSubviews
+                  windowSize={5}
                 />
               </View>
             )}
