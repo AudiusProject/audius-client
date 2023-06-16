@@ -45,8 +45,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     display: 'flex',
     zIndex: zIndex.CHAT_REACTIONS_POPUP_CLOSE_PRESSABLES,
     overflow: 'hidden'
-    // backgroundColor: 'red',
-    // opacity: 0.5
   },
   outerPressable: {
     position: 'absolute',
