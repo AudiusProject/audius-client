@@ -1,4 +1,3 @@
-import type { MutableRefObject, RefObject } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import type { ChatMessageWithExtras } from '@audius/common'
@@ -88,7 +87,7 @@ const { getHasTrack } = playerSelectors
 
 const messages = {
   title: 'Messages',
-  endReached: 'End of Message History',
+  beginningReached: 'Beginning of Conversation',
   newMessage: (numMessages: number) =>
     `${numMessages} New Message${numMessages > 1 ? 's' : ''}`,
   newMessageReceived: 'New Message!'
@@ -172,15 +171,6 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     flexGrow: 1
   }
 }))
-
-const measureView = (
-  viewRef: RefObject<View>,
-  measurementRef: MutableRefObject<number>
-) => {
-  viewRef.current?.measureInWindow((x, y, width, height) => {
-    measurementRef.current = y
-  })
-}
 
 type ContainerLayoutStatus = {
   top: number
@@ -437,21 +427,16 @@ export const ChatScreen = () => {
       if (!canSendMessage) {
         return
       }
+
       // Measure position of selected message to create a copy of it on top
       // of the dimmed background inside the portal.
-      const { messageY, messageH } = await new Promise<{
-        messageY: number
-        messageH: number
-      }>((resolve) => {
-        messageRef.measureInWindow((x, y, width, height) => {
-          resolve({ messageY: y, messageH: height })
-        })
+      messageRef.measure((x, y, width, height, pageX, pageY) => {
+        // Need to subtract spacing(2) to account for padding in message View.
+        messageTop.current = pageY - spacing(2)
+        messageHeight.current = height
+        dispatch(setReactionsPopupMessageId({ messageId: id }))
+        light()
       })
-      // Need to subtract spacing(2) to account for padding in message View.
-      messageTop.current = messageY - spacing(2)
-      messageHeight.current = messageH
-      dispatch(setReactionsPopupMessageId({ messageId: id }))
-      light()
     },
     [canSendMessage, dispatch]
   )
@@ -501,7 +486,15 @@ export const ChatScreen = () => {
   )
 
   const measureChatContainerBottom = useCallback(() => {
-    measureView(composeRef, chatContainerBottom)
+    composeRef.current?.measure((x, y, width, height, pageX, pageY) => {
+      chatContainerBottom.current = pageY
+    })
+  }, [])
+
+  const measureChatContainerTop = useCallback(() => {
+    chatContainerRef.current?.measure((x, y, width, height, pageX, pageY) => {
+      chatContainerTop.current = pageY
+    })
   }, [])
 
   const handleOnContentSizeChanged = useCallback(
@@ -567,14 +560,7 @@ export const ChatScreen = () => {
             />
           ) : null}
         </Portal>
-        <View
-          ref={chatContainerRef}
-          onLayout={() => {
-            chatContainerRef.current?.measureInWindow((x, y, width, height) => {
-              chatContainerTop.current = y
-            })
-          }}
-        >
+        <View ref={chatContainerRef} onLayout={measureChatContainerTop}>
           <KeyboardAvoidingView
             keyboardShowingOffset={
               hasCurrentlyPlayingTrack ? PLAY_BAR_HEIGHT : 0
@@ -607,6 +593,7 @@ export const ChatScreen = () => {
                   onScroll={handleScroll}
                   onScrollToIndexFailed={handleScrollToIndexFailed}
                   refreshing={chat?.messagesStatus === Status.LOADING}
+                  keyboardShouldPersistTaps='always'
                   maintainVisibleContentPosition={
                     maintainVisibleContentPosition
                   }
@@ -625,7 +612,9 @@ export const ChatScreen = () => {
                   }
                   ListFooterComponent={
                     shouldShowEndReachedIndicator ? (
-                      <ChatMessageSeparator content={messages.endReached} />
+                      <ChatMessageSeparator
+                        content={messages.beginningReached}
+                      />
                     ) : null
                   }
                   scrollEnabled={popupMessageId == null}
