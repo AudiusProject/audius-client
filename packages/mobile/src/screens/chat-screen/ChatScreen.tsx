@@ -88,7 +88,7 @@ const { getHasTrack } = playerSelectors
 
 const messages = {
   title: 'Messages',
-  beginningReached: 'Beginning of Message History',
+  beginningReached: 'Beginning of Conversation',
   newMessage: (numMessages: number) =>
     `${numMessages} New Message${numMessages > 1 ? 's' : ''}`,
   newMessageReceived: 'New Message!'
