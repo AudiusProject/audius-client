@@ -1,12 +1,9 @@
-import { useState } from 'react'
-
-import { Text, Pressable, View } from 'react-native'
+import { Text, TouchableOpacity } from 'react-native'
 
 import IconCopy from 'app/assets/images/iconCopy2.svg'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { useThemeColors } from 'app/utils/theme'
-import { zIndex } from 'app/utils/zIndex'
 
 const messages = {
   copy: 'Copy Message'
@@ -15,18 +12,9 @@ const messages = {
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   copyPressableContainer: {
     position: 'absolute',
-    dipslay: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing(1.5),
-    zIndex: zIndex.CHAT_REACTIONS_POPUP_CONTENT
-  },
-  copyAnimatedContainer: {
-    dipslay: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing(1.5),
-    zIndex: zIndex.CHAT_REACTIONS_POPUP_CONTENT
+    gap: spacing(1.5)
   },
   copyText: {
     fontSize: typography.fontSize.xs,
@@ -51,14 +39,11 @@ export const CopyMessagesButton = ({
   onPress
 }: CopyMessagesButtonProps) => {
   const styles = useStyles()
-  const { white } = useThemeColors()
-  const [isPressed, setIsPressed] = useState(false)
+  const { staticWhite } = useThemeColors()
 
   return (
-    <Pressable
+    <TouchableOpacity
       onPress={onPress}
-      onPressIn={() => setIsPressed(true)}
-      onPressOut={() => setIsPressed(false)}
       style={[
         styles.copyPressableContainer,
         {
@@ -68,12 +53,8 @@ export const CopyMessagesButton = ({
         }
       ]}
     >
-      <View
-        style={[styles.copyAnimatedContainer, { opacity: isPressed ? 0.5 : 1 }]}
-      >
-        <IconCopy fill={white} height={12} width={12} />
-        <Text style={styles.copyText}>{messages.copy}</Text>
-      </View>
-    </Pressable>
+      <IconCopy fill={staticWhite} height={12} width={12} />
+      <Text style={styles.copyText}>{messages.copy}</Text>
+    </TouchableOpacity>
   )
 }
