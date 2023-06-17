@@ -10,7 +10,7 @@ const messages = {
 }
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
-  copyPressableContainer: {
+  root: {
     position: 'absolute',
     flexDirection: 'row',
     alignItems: 'center',
@@ -45,7 +45,7 @@ export const CopyMessagesButton = ({
     <TouchableOpacity
       onPress={onPress}
       style={[
-        styles.copyPressableContainer,
+        styles.root,
         {
           top: messageTop - containerTop + messageHeight + spacing(5),
           right: isAuthor ? spacing(6) : undefined,
