@@ -319,7 +319,23 @@ export enum Name {
   CONNECT_WALLET_NEW_WALLET_CONNECTED = 'Connect Wallet: New Wallet Connected',
   CONNECT_WALLET_ALREADY_ASSOCIATED = 'Connect Wallet: Already Associated',
   CONNECT_WALLET_ASSOCIATION_ERROR = 'Connect Wallet: Association Error',
-  CONNECT_WALLET_ERROR = 'Connect Wallet: Error'
+  CONNECT_WALLET_ERROR = 'Connect Wallet: Error',
+
+  // Chat
+  CREATE_CHAT_SUCCESS = 'Create Chat: Success',
+  CREATE_CHAT_FAILURE = 'Create Chat: Failure',
+  SEND_MESSAGE_SUCCESS = 'Send Message: Success',
+  SEND_MESSAGE_FAILURE = 'Send Message: Failure',
+  DELETE_CHAT_SUCCESS = 'Delete Chat: Success',
+  DELETE_CHAT_FAILURE = 'Delete Chat: Failure',
+  BLOCK_USER_SUCCESS = 'Block User: Success',
+  BLOCK_USER_FAILURE = 'Block User: Failure',
+  CHANGE_INBOX_SETTINGS_SUCCESS = 'Change Inbox Settings: Success',
+  CHANGE_INBOX_SETTINGS_FAILURE = 'Change Inbox Settings: Failure',
+  SEND_MESSAGE_REACTION_SUCCESS = 'Send Message Reaction: Success',
+  SEND_MESSAGE_REACTION_FAILURE = 'Send Message Reaction: Failure',
+  MESSAGE_UNFURL_TRACK = 'Message Unfurl: Track',
+  MESSAGE_UNFURL_PLAYLIST = 'Message Unfurl: Playlist'
 }
 
 type PageView = {
