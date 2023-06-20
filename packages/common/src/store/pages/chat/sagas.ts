@@ -15,6 +15,7 @@ import {
 } from 'typed-redux-saga'
 import { ulid } from 'ulid'
 
+import { ErrorLevel } from 'models/ErrorReporting'
 import { ID } from 'models/Identifiers'
 import { Status } from 'models/Status'
 import { getAccountUser, getUserId } from 'store/account/selectors'
@@ -169,6 +170,14 @@ function* doFetchMoreMessages(action: ReturnType<typeof fetchMoreMessages>) {
   } catch (e) {
     console.error('fetchNewChatMessagesFailed', e)
     yield* put(fetchMoreMessagesFailed({ chatId }))
+    const reportToSentry = yield* getContext('reportToSentry')
+    reportToSentry({
+      level: ErrorLevel.Error,
+      error: e as Error,
+      additionalInfo: {
+        chatId
+      }
+    })
   }
 }
 
@@ -201,6 +210,17 @@ function* doSetMessageReaction(action: ReturnType<typeof setMessageReaction>) {
   } catch (e) {
     console.error('setMessageReactionFailed', e)
     yield* put(setMessageReactionFailed(action.payload))
+    const reportToSentry = yield* getContext('reportToSentry')
+    reportToSentry({
+      level: ErrorLevel.Error,
+      error: e as Error,
+      additionalInfo: {
+        chatId,
+        messageId,
+        reaction,
+        userId
+      }
+    })
   }
 }
 
@@ -251,6 +271,14 @@ function* doCreateChat(action: ReturnType<typeof createChat>) {
         content: 'Something went wrong. Failed to create chat.'
       })
     )
+    const reportToSentry = yield* getContext('reportToSentry')
+    reportToSentry({
+      level: ErrorLevel.Error,
+      error: e as Error,
+      additionalInfo: {
+        userIds
+      }
+    })
   }
 }
 
@@ -277,6 +305,14 @@ function* doMarkChatAsRead(action: ReturnType<typeof markChatAsRead>) {
   } catch (e) {
     console.error('markChatAsReadFailed', e)
     yield* put(markChatAsReadFailed({ chatId }))
+    const reportToSentry = yield* getContext('reportToSentry')
+    reportToSentry({
+      level: ErrorLevel.Error,
+      error: e as Error,
+      additionalInfo: {
+        chatId
+      }
+    })
   }
 }
 
@@ -333,6 +369,15 @@ function* doSendMessage(action: ReturnType<typeof sendMessage>) {
         })
       )
     }
+    const reportToSentry = yield* getContext('reportToSentry')
+    reportToSentry({
+      level: ErrorLevel.Error,
+      error: e as Error,
+      additionalInfo: {
+        chatId,
+        messageId: messageIdToUse
+      }
+    })
   }
 }
 
@@ -368,6 +413,11 @@ function* doFetchBlockees() {
     )
   } catch (e) {
     console.error('fetchBlockeesFailed', e)
+    const reportToSentry = yield* getContext('reportToSentry')
+    reportToSentry({
+      level: ErrorLevel.Error,
+      error: e as Error
+    })
   }
 }
 
@@ -385,6 +435,11 @@ function* doFetchBlockers() {
     )
   } catch (e) {
     console.error('fetchBlockersFailed', e)
+    const reportToSentry = yield* getContext('reportToSentry')
+    reportToSentry({
+      level: ErrorLevel.Error,
+      error: e as Error
+    })
   }
 }
 
@@ -398,6 +453,11 @@ function* doBlockUser(action: ReturnType<typeof blockUser>) {
     yield* put(fetchBlockees())
   } catch (e) {
     console.error('blockUserFailed', e)
+    const reportToSentry = yield* getContext('reportToSentry')
+    reportToSentry({
+      level: ErrorLevel.Error,
+      error: e as Error
+    })
   }
 }
 
@@ -411,6 +471,11 @@ function* doUnblockUser(action: ReturnType<typeof unblockUser>) {
     yield* put(fetchBlockees())
   } catch (e) {
     console.error('unblockUserFailed', e)
+    const reportToSentry = yield* getContext('reportToSentry')
+    reportToSentry({
+      level: ErrorLevel.Error,
+      error: e as Error
+    })
   }
 }
 
@@ -438,6 +503,11 @@ function* doFetchPermissions(action: ReturnType<typeof fetchPermissions>) {
     )
   } catch (e) {
     console.error('fetchPermissionsFailed', e)
+    const reportToSentry = yield* getContext('reportToSentry')
+    reportToSentry({
+      level: ErrorLevel.Error,
+      error: e as Error
+    })
   }
 }
 
@@ -462,6 +532,16 @@ function* doFetchLinkUnfurlMetadata(
     )
   } catch (e) {
     console.error('fetchPermissionsFailed', e)
+    const reportToSentry = yield* getContext('reportToSentry')
+    reportToSentry({
+      level: ErrorLevel.Error,
+      error: e as Error,
+      additionalInfo: {
+        chatId,
+        messageId,
+        href
+      }
+    })
   }
 }
 
@@ -481,6 +561,14 @@ function* doDeleteChat(action: ReturnType<typeof deleteChat>) {
     yield* put(deleteChatSucceeded({ chatId }))
   } catch (e) {
     console.error('deleteChat failed', e, { chatId })
+    const reportToSentry = yield* getContext('reportToSentry')
+    reportToSentry({
+      level: ErrorLevel.Error,
+      error: e as Error,
+      additionalInfo: {
+        chatId
+      }
+    })
   }
 }
 
