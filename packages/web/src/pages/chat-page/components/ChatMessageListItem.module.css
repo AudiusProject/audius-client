@@ -9,6 +9,10 @@
   align-items: flex-end;
 }
 
+.root.hasReaction {
+  margin-bottom: var(--unit-2);
+}
+
 .bubble {
   --bubble-color: var(--white);
   position: relative;
@@ -46,6 +50,10 @@
 
 .isAuthor .bubble:hover {
   --bubble-color: var(--secondary-light-1);
+}
+
+.unfurl {
+  border-radius: 0;
 }
 
 .bubble .unfurl:not(:last-child) {

@@ -18,7 +18,11 @@ import { ulid } from 'ulid'
 import { ID } from 'models/Identifiers'
 import { Status } from 'models/Status'
 import { getAccountUser, getUserId } from 'store/account/selectors'
+<<<<<<< HEAD
 import { makeChatId, toastActions } from 'store/index'
+=======
+import { toastActions } from 'store/index'
+>>>>>>> origin/main
 
 import { decodeHashId, encodeHashId, removeNullable } from '../../../utils'
 import { cacheUsersActions } from '../../cache'
@@ -216,6 +220,7 @@ function* doCreateChat(action: ReturnType<typeof createChat>) {
     // Try to get existing chat:
     const chatId = makeChatId([currentUserId, ...userIds])
 
+    // Optimistically go to the chat. If we fail to create it, we'll toast
     if (!skipNavigation) {
       yield* put(goToChat({ chatId }))
     }
@@ -225,7 +230,7 @@ function* doCreateChat(action: ReturnType<typeof createChat>) {
     } catch {}
     const existingChat = yield* select((state) => getChat(state, chatId))
     if (!existingChat) {
-      // Create new chat and navigate to it
+      // Create new chat
       yield* call([sdk.chats, sdk.chats.create], {
         userId: encodeHashId(currentUserId),
         invitedUserIds: userIds.map((id) => encodeHashId(id))
