@@ -2,8 +2,8 @@ import { useCallback } from 'react'
 
 import type { SolanaWalletAddress } from '@audius/common'
 import {
+  makeChatId,
   chatActions,
-  encodeHashId,
   formatNumberCommas,
   accountSelectors,
   tippingSelectors
@@ -91,7 +91,7 @@ export const TipSentScreen = () => {
     ) {
       dispatch(
         chatActions.goToChat({
-          userIds: [account.user_id, recipient.user_id]
+          chatId: makeChatId([account.user_id, recipient.user_id])
         })
       )
     } else {
