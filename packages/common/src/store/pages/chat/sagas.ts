@@ -18,11 +18,7 @@ import { ulid } from 'ulid'
 import { ID } from 'models/Identifiers'
 import { Status } from 'models/Status'
 import { getAccountUser, getUserId } from 'store/account/selectors'
-<<<<<<< HEAD
 import { makeChatId, toastActions } from 'store/index'
-=======
-import { toastActions } from 'store/index'
->>>>>>> origin/main
 
 import { decodeHashId, encodeHashId, removeNullable } from '../../../utils'
 import { cacheUsersActions } from '../../cache'
