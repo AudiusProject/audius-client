@@ -139,7 +139,7 @@ const DrawerContent = () => {
   }, [closeDrawer])
 
   const handleTipPress = useCallback(() => {
-    dispatch(beginTip({ user, source: 'profile' }))
+    dispatch(beginTip({ user, source: 'inboxUnavailableModal' }))
     navigation.navigate('TipArtist')
     closeDrawer()
   }, [closeDrawer, dispatch, navigation, user])
