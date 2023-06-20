@@ -83,7 +83,7 @@ export const TipSentScreen = () => {
   const handleClose = useCallback(() => {
     // After success + close, take the user to the chat they were
     // attempting to make if they were unlocking DMs by tipping.
-    // The saga will create the chat once the tip is confrimed
+    // The saga will create the chat once the tip is confirmed
     if (
       source === 'inboxUnavailableModal' &&
       account?.user_id &&

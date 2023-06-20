@@ -109,7 +109,6 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
     if (canCreateChat) {
       closeParentModal()
       dispatch(createChat({ userIds: [user.user_id] }))
-      closeParentModal()
     } else {
       openInboxUnavailableModal(user)
     }

@@ -124,7 +124,7 @@ export const TipAudioModal = () => {
   const onClose = useCallback(() => {
     // After success + close, take the user to the chat they were
     // attempting to make if they were unlocking DMs by tipping.
-    // The saga will create the chat once the tip is confrimed
+    // The saga will create the chat once the tip is confirmed
     if (
       source === 'inboxUnavailableModal' &&
       sendStatus === 'SUCCESS' &&
