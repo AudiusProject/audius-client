@@ -91,12 +91,8 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
     height: spacing(12)
   },
   buttonText: {
-    color: palette.neutral,
     fontSize: typography.fontSize.large,
     fontFamily: typography.fontByWeight.bold
-  },
-  buttonTextWhite: {
-    color: palette.white
   },
   border: {
     borderBottomWidth: 1,
@@ -194,7 +190,7 @@ const DrawerContent = () => {
             iconPosition='left'
             styles={{
               root: styles.button,
-              text: [styles.buttonText, styles.buttonTextWhite]
+              text: styles.buttonText
             }}
             fullWidth
           />
@@ -211,7 +207,7 @@ const DrawerContent = () => {
             variant={'primary'}
             styles={{
               root: styles.button,
-              text: [styles.buttonText, styles.buttonTextWhite]
+              text: styles.buttonText
             }}
             fullWidth
           />
