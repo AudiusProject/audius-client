@@ -153,7 +153,7 @@ export const ChatMessagePlaylist = ({
     if (collection && uid) {
       trackEvent(
         make({
-          eventName: Name.MESSAGE_UNFURL_TRACK
+          eventName: Name.MESSAGE_UNFURL_PLAYLIST
         })
       )
       onSuccess?.()
