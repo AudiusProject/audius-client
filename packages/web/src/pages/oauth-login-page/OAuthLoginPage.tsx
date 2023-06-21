@@ -346,11 +346,7 @@ export const OAuthLoginPage = () => {
   const [queryParamsError, setQueryParamsError] = useState<string | null>(
     initError
   )
-  console.log('apikey', api_key)
-  console.log('registered name', registeredDeveloperAppName)
-  console.log('isLoggedIN', isLoggedIn)
-  console.log('userAlready', userAlreadyWriteAuthorized)
-  console.log('end')
+
   const loading =
     accountIsLoading ||
     (api_key &&
