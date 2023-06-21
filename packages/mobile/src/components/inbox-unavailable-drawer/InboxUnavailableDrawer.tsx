@@ -237,7 +237,7 @@ export const InboxUnavailableDrawer = () => {
   const neutralLight2 = useColor('neutralLight2')
 
   // Select data outside of drawer and use it to conditionally render content,
-  // preventing a race condition with the store clearly before drawer
+  // preventing a race condition with the store clears before drawer
   // is dismissed
   const { data } = useDrawer('InboxUnavailable')
 
