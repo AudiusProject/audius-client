@@ -87,7 +87,7 @@ export const RootScreen = ({
   // where after a crash, the player would persist the previous state. PAY-1412.
   useEffect(() => {
     if (isLoaded) {
-      dispatch(playerActions.reset({ shouldAutoplay: false }))
+      dispatch(reset({ shouldAutoplay: false }))
     }
   }, [isLoaded, dispatch])
 
