@@ -67,9 +67,12 @@ export const RootScreen = ({
       !isLoaded &&
       (accountStatus === Status.SUCCESS || accountStatus === Status.ERROR)
     ) {
+      // Reset the player when the app is loaded for the first time. Fixes an issue
+      // where after a crash, the player would persist the previous state. PAY-1412.
+      dispatch(reset({ shouldAutoplay: false }))
       setIsLoaded(true)
     }
-  }, [accountStatus, setIsLoaded, isLoaded])
+  }, [accountStatus, setIsLoaded, isLoaded, dispatch])
 
   // Connect to chats websockets and prefetch chats
   useEffect(() => {
@@ -82,14 +85,6 @@ export const RootScreen = ({
       dispatch(disconnect())
     }
   }, [dispatch, isLoaded, accountStatus])
-
-  // Reset the player when the app is loaded for the first time. Fixes an issue
-  // where after a crash, the player would persist the previous state. PAY-1412.
-  useEffect(() => {
-    if (isLoaded) {
-      dispatch(reset({ shouldAutoplay: false }))
-    }
-  }, [isLoaded, dispatch])
 
   const handleSplashScreenDismissed = useCallback(() => {
     setIsSplashScreenDismissed(true)
