@@ -5,7 +5,7 @@
   align-items: flex-start;
   padding: var(--unit-4) var(--unit-6);
   gap: var(--unit-4);
-  
+
   border: 1px solid var(--neutral-light-8);
   border-radius: 8px;
 }
