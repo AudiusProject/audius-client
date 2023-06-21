@@ -222,7 +222,8 @@ function* doSetMessageReaction(action: ReturnType<typeof setMessageReaction>) {
     yield* call(
       track,
       make({
-        eventName: Name.SEND_MESSAGE_REACTION_SUCCESS
+        eventName: Name.SEND_MESSAGE_REACTION_SUCCESS,
+        reaction
       })
     )
   } catch (e) {
@@ -242,7 +243,8 @@ function* doSetMessageReaction(action: ReturnType<typeof setMessageReaction>) {
     yield* call(
       track,
       make({
-        eventName: Name.SEND_MESSAGE_REACTION_FAILURE
+        eventName: Name.SEND_MESSAGE_REACTION_FAILURE,
+        reaction
       })
     )
   }
@@ -470,15 +472,19 @@ function* doFetchBlockers() {
 }
 
 function* doBlockUser(action: ReturnType<typeof blockUser>) {
+  const { userId } = action.payload
   const { track, make } = yield* getContext('analytics')
   try {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
     yield* call([sdk.chats, sdk.chats.block], {
-      userId: encodeHashId(action.payload.userId)
+      userId: encodeHashId(userId)
     })
     yield* put(fetchBlockees())
-    yield* call(track, make({ eventName: Name.BLOCK_USER_SUCCESS }))
+    yield* call(
+      track,
+      make({ eventName: Name.BLOCK_USER_SUCCESS, blockedUserId: userId })
+    )
   } catch (e) {
     console.error('blockUserFailed', e)
     const reportToSentry = yield* getContext('reportToSentry')
@@ -486,7 +492,10 @@ function* doBlockUser(action: ReturnType<typeof blockUser>) {
       level: ErrorLevel.Error,
       error: e as Error
     })
-    yield* call(track, make({ eventName: Name.BLOCK_USER_FAILURE }))
+    yield* call(
+      track,
+      make({ eventName: Name.BLOCK_USER_FAILURE, blockedUserId: userId })
+    )
   }
 }
 

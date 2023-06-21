@@ -1556,10 +1556,12 @@ type DeleteChatFailure = {
 
 type BlockUserSuccess = {
   eventName: Name.BLOCK_USER_SUCCESS
+  blockedUserId: ID
 }
 
 type BlockUserFailure = {
   eventName: Name.BLOCK_USER_FAILURE
+  blockedUserId: ID
 }
 
 type ChangeInboxSettingsSuccess = {
@@ -1574,10 +1576,12 @@ type ChangeInboxSettingsFailure = {
 
 type SendMessageReactionSuccess = {
   eventName: Name.SEND_MESSAGE_REACTION_SUCCESS
+  reaction: string | null
 }
 
 type SendMessageReactionFailure = {
   eventName: Name.SEND_MESSAGE_REACTION_FAILURE
+  reaction: string | null
 }
 
 type MessageUnfurlTrack = {
