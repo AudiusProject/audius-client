@@ -15,6 +15,7 @@ import {
 } from 'typed-redux-saga'
 import { ulid } from 'ulid'
 
+import { Name } from 'models/Analytics'
 import { ErrorLevel } from 'models/ErrorReporting'
 import { ID } from 'models/Identifiers'
 import { Status } from 'models/Status'
@@ -193,6 +194,7 @@ function* doFetchMoreMessages(action: ReturnType<typeof fetchMoreMessages>) {
 
 function* doSetMessageReaction(action: ReturnType<typeof setMessageReaction>) {
   const { chatId, messageId, reaction, userId } = action.payload
+  const { track, make } = yield* getContext('analytics')
   try {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
@@ -217,6 +219,12 @@ function* doSetMessageReaction(action: ReturnType<typeof setMessageReaction>) {
         reaction: reactionResponse
       })
     )
+    yield* call(
+      track,
+      make({
+        eventName: Name.SEND_MESSAGE_REACTION_SUCCESS
+      })
+    )
   } catch (e) {
     console.error('setMessageReactionFailed', e)
     yield* put(setMessageReactionFailed(action.payload))
@@ -231,10 +239,17 @@ function* doSetMessageReaction(action: ReturnType<typeof setMessageReaction>) {
         userId
       }
     })
+    yield* call(
+      track,
+      make({
+        eventName: Name.SEND_MESSAGE_REACTION_FAILURE
+      })
+    )
   }
 }
 
 function* doCreateChat(action: ReturnType<typeof createChat>) {
+  const { track, make } = yield* getContext('analytics')
   const { userIds } = action.payload
   try {
     const audiusSdk = yield* getContext('audiusSdk')
@@ -272,6 +287,7 @@ function* doCreateChat(action: ReturnType<typeof createChat>) {
         throw new Error("Chat couldn't be found after creating")
       }
       yield* put(createChatSucceeded({ chat }))
+      yield* call(track, make({ eventName: Name.CREATE_CHAT_SUCCESS }))
     }
   } catch (e) {
     console.error('createChatFailed', e)
@@ -289,6 +305,7 @@ function* doCreateChat(action: ReturnType<typeof createChat>) {
         userIds
       }
     })
+    yield* call(track, make({ eventName: Name.CREATE_CHAT_FAILURE }))
   }
 }
 
@@ -328,6 +345,7 @@ function* doMarkChatAsRead(action: ReturnType<typeof markChatAsRead>) {
 
 function* doSendMessage(action: ReturnType<typeof sendMessage>) {
   const { chatId, message, resendMessageId } = action.payload
+  const { track, make } = yield* getContext('analytics')
   const messageIdToUse = resendMessageId ?? ulid()
   const userId = yield* select(getUserId)
   try {
@@ -359,6 +377,7 @@ function* doSendMessage(action: ReturnType<typeof sendMessage>) {
       messageId: messageIdToUse,
       message
     })
+    yield* call(track, make({ eventName: Name.SEND_MESSAGE_SUCCESS }))
   } catch (e) {
     console.error('sendMessageFailed', e)
     yield* put(sendMessageFailed({ chatId, messageId: messageIdToUse }))
@@ -388,6 +407,7 @@ function* doSendMessage(action: ReturnType<typeof sendMessage>) {
         messageId: messageIdToUse
       }
     })
+    yield* call(track, make({ eventName: Name.SEND_MESSAGE_FAILURE }))
   }
 }
 
@@ -454,6 +474,7 @@ function* doFetchBlockers() {
 }
 
 function* doBlockUser(action: ReturnType<typeof blockUser>) {
+  const { track, make } = yield* getContext('analytics')
   try {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
@@ -461,6 +482,7 @@ function* doBlockUser(action: ReturnType<typeof blockUser>) {
       userId: encodeHashId(action.payload.userId)
     })
     yield* put(fetchBlockees())
+    yield* call(track, make({ eventName: Name.BLOCK_USER_SUCCESS }))
   } catch (e) {
     console.error('blockUserFailed', e)
     const reportToSentry = yield* getContext('reportToSentry')
@@ -468,6 +490,7 @@ function* doBlockUser(action: ReturnType<typeof blockUser>) {
       level: ErrorLevel.Error,
       error: e as Error
     })
+    yield* call(track, make({ eventName: Name.BLOCK_USER_FAILURE }))
   }
 }
 
@@ -541,7 +564,7 @@ function* doFetchLinkUnfurlMetadata(
       fetchLinkUnfurlSucceeded({ chatId, messageId, unfurlMetadata: data[0] })
     )
   } catch (e) {
-    console.error('fetchPermissionsFailed', e)
+    console.error('fetchUnfurlFailed', e)
     const reportToSentry = yield* getContext('reportToSentry')
     reportToSentry({
       level: ErrorLevel.Error,
@@ -557,6 +580,7 @@ function* doFetchLinkUnfurlMetadata(
 
 function* doDeleteChat(action: ReturnType<typeof deleteChat>) {
   const { chatId } = action.payload
+  const { track, make } = yield* getContext('analytics')
   try {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
@@ -569,6 +593,7 @@ function* doDeleteChat(action: ReturnType<typeof deleteChat>) {
     yield* delay(1)
     // NOW delete the chat - otherwise we refetch it right away
     yield* put(deleteChatSucceeded({ chatId }))
+    yield* call(track, make({ eventName: Name.DELETE_CHAT_SUCCESS }))
   } catch (e) {
     console.error('deleteChat failed', e, { chatId })
     const reportToSentry = yield* getContext('reportToSentry')
@@ -579,6 +604,7 @@ function* doDeleteChat(action: ReturnType<typeof deleteChat>) {
         chatId
       }
     })
+    yield* call(track, make({ eventName: Name.DELETE_CHAT_FAILURE }))
   }
 }
 
