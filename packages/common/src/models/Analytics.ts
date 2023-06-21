@@ -337,7 +337,8 @@ export enum Name {
   SEND_MESSAGE_REACTION_SUCCESS = 'Send Message Reaction: Success',
   SEND_MESSAGE_REACTION_FAILURE = 'Send Message Reaction: Failure',
   MESSAGE_UNFURL_TRACK = 'Message Unfurl: Track',
-  MESSAGE_UNFURL_PLAYLIST = 'Message Unfurl: Playlist'
+  MESSAGE_UNFURL_PLAYLIST = 'Message Unfurl: Playlist',
+  TIP_UNLOCKED_CHAT = 'Unlocked Chat: Tip'
 }
 
 type PageView = {
@@ -1592,6 +1593,11 @@ type MessageUnfurlPlaylist = {
   eventName: Name.MESSAGE_UNFURL_PLAYLIST
 }
 
+type TipUnlockedChat = {
+  eventName: Name.TIP_UNLOCKED_CHAT
+  recipientUserId: ID
+}
+
 export type BaseAnalyticsEvent = { type: typeof ANALYTICS_TRACK_EVENT }
 
 export type AllTrackingEvents =
@@ -1809,3 +1815,4 @@ export type AllTrackingEvents =
   | SendMessageReactionFailure
   | MessageUnfurlTrack
   | MessageUnfurlPlaylist
+  | TipUnlockedChat
