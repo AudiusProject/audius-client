@@ -42,7 +42,7 @@ export type CommonStoreContext = {
     make: <T extends AllTrackingEvents>(
       event: T
     ) => {
-      eventName: AllTrackingEvents['eventName']
+      eventName: string
       properties: any
     }
   }
