@@ -20,7 +20,7 @@
 }
 
 .datePickerField :global(.SingleDatePicker_picker) {
-  top: -150px !important;
+  top: -110px !important;
   left: 128px !important;
 }
 
