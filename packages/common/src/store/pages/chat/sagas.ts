@@ -20,7 +20,7 @@ import { ErrorLevel } from 'models/ErrorReporting'
 import { ID } from 'models/Identifiers'
 import { Status } from 'models/Status'
 import { getAccountUser, getUserId } from 'store/account/selectors'
-import { toastActions } from 'store/index'
+import { makeChatId, toastActions } from 'store/index'
 
 import { decodeHashId, encodeHashId, removeNullable } from '../../../utils'
 import { cacheUsersActions } from '../../cache'
@@ -249,8 +249,8 @@ function* doSetMessageReaction(action: ReturnType<typeof setMessageReaction>) {
 }
 
 function* doCreateChat(action: ReturnType<typeof createChat>) {
+  const { userIds, skipNavigation } = action.payload
   const { track, make } = yield* getContext('analytics')
-  const { userIds } = action.payload
   try {
     const audiusSdk = yield* getContext('audiusSdk')
     const sdk = yield* call(audiusSdk)
@@ -259,23 +259,19 @@ function* doCreateChat(action: ReturnType<typeof createChat>) {
       throw new Error('User not found')
     }
     // Try to get existing chat:
-    const chatId = [currentUserId, ...userIds]
-      .map((id) => encodeHashId(id))
-      .sort()
-      .join(':')
+    const chatId = makeChatId([currentUserId, ...userIds])
 
-    // Optimistically navigate - if we fail we'll toast
-    yield* put(goToChat({ chatId }))
+    // Optimistically go to the chat. If we fail to create it, we'll toast
+    if (!skipNavigation) {
+      yield* put(goToChat({ chatId }))
+    }
 
     try {
       yield* call(doFetchChatIfNecessary, { chatId })
     } catch {}
     const existingChat = yield* select((state) => getChat(state, chatId))
-    if (existingChat) {
-      // Simply navigate to the existing chat
-      yield* put(goToChat({ chatId: existingChat.chat_id }))
-    } else {
-      // Create new chat and navigate to it
+    if (!existingChat) {
+      // Create new chat
       yield* call([sdk.chats, sdk.chats.create], {
         userId: encodeHashId(currentUserId),
         invitedUserIds: userIds.map((id) => encodeHashId(id))
