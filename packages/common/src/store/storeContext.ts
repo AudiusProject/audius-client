@@ -1,6 +1,7 @@
 import type { AudiusSdk } from '@audius/sdk'
 
 import {
+  AllTrackingEvents,
   AnalyticsEvent,
   LineupState,
   ReportToSentryArgs,
@@ -38,6 +39,12 @@ export type CommonStoreContext = {
       options?: Record<string, unknown>,
       callback?: () => void
     ) => Promise<void>
+    make: <T extends AllTrackingEvents>(
+      event: T
+    ) => {
+      eventName: AllTrackingEvents['eventName']
+      properties: any
+    }
   }
   remoteConfigInstance: RemoteConfigInstance
   audiusBackendInstance: AudiusBackend
