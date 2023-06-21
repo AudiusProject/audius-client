@@ -1,6 +1,7 @@
 import { IconCalendar } from '@audius/stems'
 import cn from 'classnames'
 import { useField } from 'formik'
+import moment from 'moment'
 
 import { DatePickerField } from '../fields/DatePickerField'
 
@@ -16,17 +17,24 @@ const messages = {
 const FIELD_NAME = 'releaseDate'
 
 export const ReleaseDateModalField = () => {
-  const [{ value }] = useField<moment.Moment>(FIELD_NAME)
+  const [{ value }] = useField<string>(FIELD_NAME)
 
   const preview = (
     <div className={styles.preview}>
       <div className={styles.header}>
-        <div className={styles.title}>{messages.title}</div>
+        <label className={styles.title}>{messages.title}</label>
       </div>
       <div className={styles.description}>{messages.description}</div>
       <div className={styles.valueDisplay}>
         <IconCalendar className={styles.calendarIcon} />
-        {value.calendar().split(' at')[0]}
+        <input
+          className={styles.input}
+          name={FIELD_NAME}
+          value={moment(value).format('L')}
+          aria-readonly
+          readOnly
+        />{' '}
+        <div>{moment(value).calendar().split(' at')[0]}</div>
       </div>
     </div>
   )
