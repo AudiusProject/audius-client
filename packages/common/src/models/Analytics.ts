@@ -1,3 +1,5 @@
+import { ChatPermission } from '@audius/sdk'
+
 import { FeedFilter } from 'models/FeedFilter'
 import { ID, PlayableType } from 'models/Identifiers'
 import { MonitorPayload, ServiceMonitorType } from 'models/Services'
@@ -1528,6 +1530,64 @@ type ConnectWalletError = {
   error: string
 }
 
+type CreateChatSuccess = {
+  eventName: Name.CREATE_CHAT_SUCCESS
+}
+
+type CreateChatFailure = {
+  eventName: Name.CREATE_CHAT_FAILURE
+}
+
+type SendMessageSuccess = {
+  eventName: Name.SEND_MESSAGE_SUCCESS
+}
+
+type SendMessageFailure = {
+  eventName: Name.SEND_MESSAGE_FAILURE
+}
+
+type DeleteChatSuccess = {
+  eventName: Name.DELETE_CHAT_SUCCESS
+}
+
+type DeleteChatFailure = {
+  eventName: Name.DELETE_CHAT_FAILURE
+}
+
+type BlockUserSuccess = {
+  eventName: Name.BLOCK_USER_SUCCESS
+}
+
+type BlockUserFailure = {
+  eventName: Name.BLOCK_USER_FAILURE
+}
+
+type ChangeInboxSettingsSuccess = {
+  eventName: Name.CHANGE_INBOX_SETTINGS_SUCCESS
+  permission: ChatPermission
+}
+
+type ChangeInboxSettingsFailure = {
+  eventName: Name.CHANGE_INBOX_SETTINGS_FAILURE
+  permission: ChatPermission
+}
+
+type SendMessageReactionSuccess = {
+  eventName: Name.SEND_MESSAGE_REACTION_SUCCESS
+}
+
+type SendMessageReactionFailure = {
+  eventName: Name.SEND_MESSAGE_REACTION_FAILURE
+}
+
+type MessageUnfurlTrack = {
+  eventName: Name.MESSAGE_UNFURL_TRACK
+}
+
+type MessageUnfurlPlaylist = {
+  eventName: Name.MESSAGE_UNFURL_PLAYLIST
+}
+
 export type BaseAnalyticsEvent = { type: typeof ANALYTICS_TRACK_EVENT }
 
 export type AllTrackingEvents =
@@ -1730,3 +1790,18 @@ export type AllTrackingEvents =
   | ConnectWalletAlreadyAssociated
   | ConnectWalletAssociationError
   | ConnectWalletError
+  | SendMessageSuccess
+  | CreateChatSuccess
+  | CreateChatFailure
+  | SendMessageSuccess
+  | SendMessageFailure
+  | DeleteChatSuccess
+  | DeleteChatFailure
+  | BlockUserSuccess
+  | BlockUserFailure
+  | ChangeInboxSettingsSuccess
+  | ChangeInboxSettingsFailure
+  | SendMessageReactionSuccess
+  | SendMessageReactionFailure
+  | MessageUnfurlTrack
+  | MessageUnfurlPlaylist
