@@ -58,7 +58,6 @@ import { EmptyChatMessages } from './EmptyChatMessages'
 import { HeaderShadow } from './HeaderShadow'
 import { ReactionPopup } from './ReactionPopup'
 import {
-  BOTTOM_BAR_HEIGHT,
   END_REACHED_MIN_MESSAGES,
   NEW_MESSAGE_TOAST_SCROLL_THRESHOLD,
   SCROLL_TO_BOTTOM_THRESHOLD
