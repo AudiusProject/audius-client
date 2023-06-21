@@ -81,6 +81,9 @@ import {
 import addToPlaylistReducer, {
   AddToPlaylistState
 } from './ui/add-to-playlist/reducer'
+import bottomTabBarReducer, {
+  BottomTabBarState
+} from './ui/bottom-tab-bar/slice'
 import buyAudioReducer from './ui/buy-audio/slice'
 import collectibleDetailsReducer, {
   CollectibleDetailsState
@@ -188,6 +191,7 @@ export const reducers = () => ({
     modals: modalsReducer,
     musicConfetti: musicConfettiReducer,
     nowPlaying: nowPlayingReducer,
+    bottomTabBar: bottomTabBarReducer,
     reactions: reactionsReducer,
     remixSettings: remixSettingsReducer,
     shareSoundToTikTokModal: shareSoundToTikTokModalReducer,
@@ -307,6 +311,7 @@ export type CommonState = {
     modals: ModalsState
     musicConfetti: MusicConfettiState
     nowPlaying: NowPlayingState
+    bottomTabBar: BottomTabBarState
     reactions: ReactionsState
     relatedArtists: RelatedArtistsState
     remixSettings: RemixSettingsState

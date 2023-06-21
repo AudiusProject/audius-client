@@ -12,7 +12,8 @@ import {
   encodeUrlName,
   isEarliestUnread,
   playerSelectors,
-  useCanSendMessage
+  useCanSendMessage,
+  bottomTabBarUISelectors
 } from '@audius/common'
 import { Portal } from '@gorhom/portal'
 import { useFocusEffect } from '@react-navigation/native'
@@ -85,6 +86,7 @@ const {
 } = chatActions
 const { getUserId } = accountSelectors
 const { getHasTrack } = playerSelectors
+const { getBottomTabBarHeight } = bottomTabBarUISelectors
 
 const messages = {
   title: 'Messages',
@@ -239,6 +241,7 @@ export const ChatScreen = () => {
   )
   const { canSendMessage, firstOtherUser: otherUser } =
     useCanSendMessage(chatId)
+  const bottomTabBarHeight = useSelector(getBottomTabBarHeight)
 
   // A ref so that the unread separator doesn't disappear immediately when the chat is marked as read
   // Using a ref instead of state here to prevent unwanted flickers.
@@ -565,8 +568,8 @@ export const ChatScreen = () => {
           <KeyboardAvoidingView
             keyboardShowingOffset={
               hasCurrentlyPlayingTrack
-                ? PLAY_BAR_HEIGHT + BOTTOM_BAR_HEIGHT
-                : BOTTOM_BAR_HEIGHT
+                ? PLAY_BAR_HEIGHT + bottomTabBarHeight
+                : bottomTabBarHeight
             }
             style={[
               styles.keyboardAvoiding,
