@@ -102,6 +102,11 @@ function* doFetchUnreadMessagesCount() {
   } catch (e) {
     console.error('fetchUnreadMessagesCountFailed', e)
     yield* put(fetchUnreadMessagesCountFailed())
+    const reportToSentry = yield* getContext('reportToSentry')
+    reportToSentry({
+      level: ErrorLevel.Error,
+      error: e as Error
+    })
   }
 }
 
@@ -120,6 +125,11 @@ function* doFetchMoreChats() {
   } catch (e) {
     console.error('fetchMoreChatsFailed', e)
     yield* put(fetchMoreChatsFailed())
+    const reportToSentry = yield* getContext('reportToSentry')
+    reportToSentry({
+      level: ErrorLevel.Error,
+      error: e as Error
+    })
   }
 }
 
