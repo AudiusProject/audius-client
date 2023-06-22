@@ -14,7 +14,9 @@ import {
   playerSelectors,
   useCanSendMessage
 } from '@audius/common'
+import { PLAY } from '@audius/common/dist/store/lineup/actions'
 import { Portal } from '@gorhom/portal'
+import { useKeyboard } from '@react-native-community/hooks'
 import { useFocusEffect } from '@react-navigation/native'
 import type { FlatListProps, LayoutChangeEvent } from 'react-native'
 import {
@@ -216,6 +218,7 @@ export const ChatScreen = () => {
   const scrollPosition = useRef(0)
   const latestMessageId = useRef('')
   const flatListInnerHeight = useRef(0)
+  const { keyboardShown } = useKeyboard()
 
   const hasCurrentlyPlayingTrack = useSelector(getHasTrack)
   const userId = useSelector(getUserId)
@@ -517,6 +520,19 @@ export const ChatScreen = () => {
     }, 0)
   }, [flatListRef])
 
+  // For some reason the bottom padding behavior is different between the platforms.
+  const getPlaybarAvoidingBottomPadding = useCallback(() => {
+    if (Platform.OS === 'ios') {
+      return hasCurrentlyPlayingTrack ? PLAY_BAR_HEIGHT : 0
+    } else if (Platform.OS === 'android') {
+      return hasCurrentlyPlayingTrack && !keyboardShown ? PLAY_BAR_HEIGHT : 0
+    }
+  }, [hasCurrentlyPlayingTrack, keyboardShown])
+
+  console.log(
+    `REED keyboardShown: ${keyboardShown} hasCurrentlyPlayingTrack: ${hasCurrentlyPlayingTrack}`
+  )
+
   return (
     <Screen
       url={url}
@@ -570,9 +586,9 @@ export const ChatScreen = () => {
             }
             style={[
               styles.keyboardAvoiding,
-              hasCurrentlyPlayingTrack
-                ? { bottom: PLAY_BAR_HEIGHT, paddingTop: PLAY_BAR_HEIGHT }
-                : null
+              {
+                bottom: getPlaybarAvoidingBottomPadding()
+              }
             ]}
             onKeyboardHide={measureChatContainerBottom}
           >
