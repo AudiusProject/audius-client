@@ -14,7 +14,6 @@ import {
   playerSelectors,
   useCanSendMessage
 } from '@audius/common'
-import { PLAY } from '@audius/common/dist/store/lineup/actions'
 import { Portal } from '@gorhom/portal'
 import { useKeyboard } from '@react-native-community/hooks'
 import { useFocusEffect } from '@react-navigation/native'
@@ -27,10 +26,12 @@ import {
   TouchableOpacity,
   View
 } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
 import IconMessage from 'app/assets/images/iconMessage.svg'
+import { BOTTOM_BAR_HEIGHT } from 'app/components/bottom-tab-bar'
 import {
   KeyboardAvoidingView,
   Screen,
@@ -50,6 +51,7 @@ import { spacing } from 'app/styles/spacing'
 import { useThemePalette } from 'app/utils/theme'
 
 import type { AppTabScreenParamList } from '../app-screen'
+import { InboxSettingsScreen } from '../settings-screen'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
 import { ChatMessageSeparator } from './ChatMessageSeparator'
@@ -59,7 +61,6 @@ import { EmptyChatMessages } from './EmptyChatMessages'
 import { HeaderShadow } from './HeaderShadow'
 import { ReactionPopup } from './ReactionPopup'
 import {
-  BOTTOM_BAR_HEIGHT,
   END_REACHED_MIN_MESSAGES,
   NEW_MESSAGE_TOAST_SCROLL_THRESHOLD,
   SCROLL_TO_BOTTOM_THRESHOLD
@@ -219,6 +220,7 @@ export const ChatScreen = () => {
   const latestMessageId = useRef('')
   const flatListInnerHeight = useRef(0)
   const { keyboardShown } = useKeyboard()
+  const insets = useSafeAreaInsets()
 
   const hasCurrentlyPlayingTrack = useSelector(getHasTrack)
   const userId = useSelector(getUserId)
@@ -577,8 +579,8 @@ export const ChatScreen = () => {
           <KeyboardAvoidingView
             keyboardShowingOffset={
               hasCurrentlyPlayingTrack
-                ? PLAY_BAR_HEIGHT + BOTTOM_BAR_HEIGHT
-                : BOTTOM_BAR_HEIGHT
+                ? PLAY_BAR_HEIGHT + BOTTOM_BAR_HEIGHT + insets.bottom
+                : BOTTOM_BAR_HEIGHT + insets.bottom
             }
             style={[
               styles.keyboardAvoiding,
