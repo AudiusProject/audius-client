@@ -1,10 +1,6 @@
 import { ComponentType, SVGProps, useCallback, useEffect } from 'react'
 
-import {
-  imageBlank as placeholderArt,
-  CoverArtSizes,
-  SquareSizes
-} from '@audius/common'
+import { CoverArtSizes, SquareSizes } from '@audius/common'
 import { Button, ButtonType, IconPencil } from '@audius/stems'
 import { useDispatch } from 'react-redux'
 
@@ -57,13 +53,6 @@ export const Artwork = (props: ArtworkProps) => {
       openEditCollectionModal({ collectionId, initialFocusedField: 'artwork' })
     )
   }, [dispatch, collectionId])
-
-  console.log({
-    gradient,
-    imageOverride,
-    image,
-    placeholderArt
-  })
 
   return (
     <DynamicImage

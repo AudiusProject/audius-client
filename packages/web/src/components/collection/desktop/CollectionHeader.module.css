@@ -4,7 +4,7 @@
 
 .show {
   opacity: 1;
-  transition: opacity ease-in-out 0.5s;
+  transition: opacity var(--calm);
 }
 
 .collectionHeader {
