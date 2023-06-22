@@ -51,7 +51,6 @@ import { spacing } from 'app/styles/spacing'
 import { useThemePalette } from 'app/utils/theme'
 
 import type { AppTabScreenParamList } from '../app-screen'
-import { InboxSettingsScreen } from '../settings-screen'
 
 import { ChatMessageListItem } from './ChatMessageListItem'
 import { ChatMessageSeparator } from './ChatMessageSeparator'
