@@ -529,10 +529,6 @@ export const ChatScreen = () => {
     }
   }, [hasCurrentlyPlayingTrack, keyboardShown])
 
-  console.log(
-    `REED keyboardShown: ${keyboardShown} hasCurrentlyPlayingTrack: ${hasCurrentlyPlayingTrack}`
-  )
-
   return (
     <Screen
       url={url}
