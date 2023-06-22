@@ -530,9 +530,6 @@ export const OAuthLoginPage = () => {
   if (queryParamsError) {
     return (
       <ContentWrapper>
-        <div className={styles.centeredContent}>
-          <img src={HorizontalLogo} className={styles.logo} alt='Audius Logo' />
-        </div>
         <div className={cn(styles.centeredContent, styles.titleContainer)}>
           <span className={styles.errorText}>{queryParamsError}</span>
         </div>
