@@ -376,12 +376,28 @@ function* sendTipAsync() {
         source
       })
     )
-    yield put(refreshTipGatedTracks({ userId: recipient.user_id, trackId }))
-    yield fork(function* () {
+
+    yield* put(refreshTipGatedTracks({ userId: recipient.user_id, trackId }))
+    yield* fork(function* () {
       yield* call(confirmTipIndexed, { sender, recipient })
       yield* put(
         fetchPermissions({ userIds: [sender.user_id, recipient.user_id] })
       )
+      if (source === 'inboxUnavailableModal') {
+        console.debug('Creating chat silently...')
+        // Create the chat but don't navigate
+        yield* put(
+          chatActions.createChat({
+            userIds: [recipient.user_id],
+            skipNavigation: true
+          })
+        )
+        yield* put(
+          make(Name.TIP_UNLOCKED_CHAT, {
+            recipientUserId: recipient.user_id
+          })
+        )
+      }
     })
 
     /**
