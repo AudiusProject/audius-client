@@ -522,12 +522,18 @@ export const ChatScreen = () => {
   }, [flatListRef])
 
   // For some reason the bottom padding behavior is different between the platforms.
-  const getPlaybarAvoidingBottomPadding = useCallback(() => {
-    if (Platform.OS === 'ios') {
-      return hasCurrentlyPlayingTrack ? PLAY_BAR_HEIGHT : 0
-    } else if (Platform.OS === 'android') {
-      return hasCurrentlyPlayingTrack && !keyboardShown ? PLAY_BAR_HEIGHT : 0
+  const getKeyboardAvoidingPlaybarAwareStyle = useCallback(() => {
+    const style = {
+      paddingTop: hasCurrentlyPlayingTrack ? PLAY_BAR_HEIGHT : 0,
+      bottom: 0
     }
+    if (Platform.OS === 'ios') {
+      style.bottom = hasCurrentlyPlayingTrack ? PLAY_BAR_HEIGHT : 0
+    } else if (Platform.OS === 'android') {
+      style.bottom =
+        hasCurrentlyPlayingTrack && !keyboardShown ? PLAY_BAR_HEIGHT : 0
+    }
+    return style
   }, [hasCurrentlyPlayingTrack, keyboardShown])
 
   return (
@@ -583,10 +589,7 @@ export const ChatScreen = () => {
             }
             style={[
               styles.keyboardAvoiding,
-              {
-                bottom: getPlaybarAvoidingBottomPadding(),
-                paddingTop: hasCurrentlyPlayingTrack ? PLAY_BAR_HEIGHT : 0
-              }
+              getKeyboardAvoidingPlaybarAwareStyle()
             ]}
             onKeyboardHide={measureChatContainerBottom}
           >
