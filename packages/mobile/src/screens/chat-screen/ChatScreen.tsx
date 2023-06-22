@@ -584,7 +584,8 @@ export const ChatScreen = () => {
             style={[
               styles.keyboardAvoiding,
               {
-                bottom: getPlaybarAvoidingBottomPadding()
+                bottom: getPlaybarAvoidingBottomPadding(),
+                paddingTop: PLAY_BAR_HEIGHT
               }
             ]}
             onKeyboardHide={measureChatContainerBottom}
