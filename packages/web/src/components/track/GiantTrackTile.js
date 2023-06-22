@@ -114,9 +114,7 @@ class GiantTrackTile extends PureComponent {
     return (
       (isUnlisted || isPublishing) &&
       isOwner && (
-        <Button
-          className={cn(styles.buttonFormatting, styles.makePublicButton)}
-          textClassName={styles.buttonTextFormatting}
+        <EntityActionButton
           type={isPublishing ? ButtonType.DISABLED : ButtonType.COMMON}
           text={isPublishing ? messages.isPublishing : messages.makePublic}
           leftIcon={
@@ -127,7 +125,7 @@ class GiantTrackTile extends PureComponent {
             )
           }
           widthToHideText={BUTTON_COLLAPSE_WIDTHS.second}
-          onClick={isPublishing ? () => {} : () => makePublic(trackId)}
+          onClick={isPublishing ? undefined : () => makePublic(trackId)}
         />
       )
     )
@@ -158,10 +156,8 @@ class GiantTrackTile extends PureComponent {
             text={isReposted ? 'Unrepost' : 'Repost'}
           >
             <div>
-              <Button
+              <EntityActionButton
                 name='repost'
-                className={styles.buttonFormatting}
-                textClassName={styles.buttonTextFormatting}
                 type={
                   isOwner
                     ? ButtonType.DISABLED
@@ -202,10 +198,8 @@ class GiantTrackTile extends PureComponent {
             text={isSaved ? 'Unfavorite' : 'Favorite'}
           >
             <div>
-              <Button
+              <EntityActionButton
                 name='favorite'
-                className={styles.buttonFormatting}
-                textClassName={styles.buttonTextFormatting}
                 type={
                   isOwner
                     ? ButtonType.DISABLED
@@ -216,7 +210,7 @@ class GiantTrackTile extends PureComponent {
                 text={isSaved ? 'FAVORITED' : 'FAVORITE'}
                 widthToHideText={BUTTON_COLLAPSE_WIDTHS.third}
                 leftIcon={<IconHeart />}
-                onClick={isOwner ? () => {} : onSave}
+                onClick={isOwner ? undefined : onSave}
               />
             </div>
           </Tooltip>

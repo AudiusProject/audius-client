@@ -212,17 +212,6 @@
   margin-right: 16px;
 }
 
-.buttonFormatting {
-  padding: 0 16px;
-  text-transform: uppercase;
-}
-
-.buttonFormatting .buttonTextFormatting {
-  font-size: var(--font-s);
-  font-weight: var(--font-bold);
-  letter-spacing: 0.5px;
-}
-
 .menuKebabContainer {
   display: flex;
   align-items: center;
