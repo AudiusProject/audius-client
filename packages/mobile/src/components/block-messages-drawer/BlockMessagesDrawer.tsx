@@ -125,7 +125,10 @@ export const BlockMessagesDrawer = () => {
         dispatch(createChat({ userIds: [userId] }))
       }
     } else {
-      dispatch(isReportAbuse ? reportUser({ userId }) : blockUser({ userId }))
+      dispatch(blockUser({ userId }))
+      if (isReportAbuse) {
+        dispatch(reportUser({ userId }))
+      }
     }
     dispatch(
       setVisibility({

@@ -520,12 +520,7 @@ function* doUnblockUser(action: ReturnType<typeof unblockUser>) {
 
 function* doReportUser(action: ReturnType<typeof reportUser>) {
   try {
-    const audiusSdk = yield* getContext('audiusSdk')
-    const sdk = yield* call(audiusSdk)
-    yield* call([sdk.chats, sdk.chats.block], {
-      userId: encodeHashId(action.payload.userId)
-    })
-    yield* put(fetchBlockees())
+    console.log('reportUser', action.payload)
   } catch (e) {
     console.error('reportUserFailed', e)
     const reportToSentry = yield* getContext('reportToSentry')

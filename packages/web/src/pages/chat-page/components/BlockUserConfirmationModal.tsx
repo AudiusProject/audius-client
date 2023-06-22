@@ -54,11 +54,10 @@ export const BlockUserConfirmationModal = ({
 }: BlockUserConfirmationModalProps) => {
   const dispatch = useDispatch()
   const handleConfirmClicked = useCallback(() => {
-    dispatch(
-      isReportAbuse
-        ? reportUser({ userId: user.user_id })
-        : blockUser({ userId: user.user_id })
-    )
+    dispatch(blockUser({ userId: user.user_id }))
+    if (isReportAbuse) {
+      dispatch(reportUser({ userId: user.user_id }))
+    }
     onClose()
   }, [dispatch, isReportAbuse, onClose, user.user_id])
 
