@@ -1,3 +1,10 @@
+import { encodeHashId, User } from '@audius/common'
+import { CreateGrantRequest } from '@audius/sdk'
+import base64url from 'base64url'
+
+import { audiusBackendInstance } from 'services/audius-backend/audius-backend-instance'
+import { audiusSdk } from 'services/audius-sdk'
+
 export const getIsRedirectValid = ({
   parsedRedirectUri,
   redirectUri
@@ -76,4 +83,109 @@ export const getFormattedAppAddress = ({
     }
   }
   return result.toLowerCase()
+}
+
+export const formOAuthResponse = async ({
+  account,
+  userEmail,
+  onError
+}: {
+  account: User
+  userEmail?: string | null
+  onError: () => void
+}) => {
+  let email: string
+  if (!userEmail) {
+    try {
+      email = await audiusBackendInstance.getUserEmail()
+    } catch {
+      onError()
+      return
+    }
+  } else {
+    email = userEmail
+  }
+
+  const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
+    account.creator_node_endpoint
+  )
+  const cNode = gateways[0]
+  let profilePicture:
+    | { '150x150': string; '480x480': string; '1000x1000': string }
+    | undefined
+  if (account.profile_picture_sizes) {
+    const base = `${cNode}${account.profile_picture_sizes}/`
+    profilePicture = {
+      '150x150': `${base}150x150.jpg`,
+      '480x480': `${base}480x480.jpg`,
+      '1000x1000': `${base}1000x1000.jpg`
+    }
+  } else if (account.profile_picture) {
+    const url = `${cNode}${account.profile_picture}`
+    profilePicture = {
+      '150x150': url,
+      '480x480': url,
+      '1000x1000': url
+    }
+  }
+  const timestamp = Math.round(new Date().getTime() / 1000)
+  const userId = encodeHashId(account?.user_id)
+  const response = {
+    userId,
+    email,
+    name: account?.name,
+    handle: account?.handle,
+    verified: account?.is_verified,
+    profilePicture,
+    sub: userId,
+    iat: timestamp
+  }
+  const header = base64url.encode(
+    JSON.stringify({ typ: 'JWT', alg: 'keccak256' })
+  )
+  const payload = base64url.encode(JSON.stringify(response))
+
+  const message = `${header}.${payload}`
+  let signedData: { data: string; signature: string }
+  try {
+    signedData = await audiusBackendInstance.signDiscoveryNodeRequest(message)
+  } catch {
+    onError()
+    return
+  }
+  const signature = signedData.signature
+  return `${header}.${payload}.${base64url.encode(signature)}`
+}
+
+export const authWrite = async ({ userId, appApiKey }: CreateGrantRequest) => {
+  const sdk = await audiusSdk()
+  await sdk.grants.createGrant({
+    userId,
+    appApiKey
+  })
+}
+
+export const getDeveloperApp = async (address: string) => {
+  const sdk = await audiusSdk()
+  const developerApp = await sdk.developerApps.getDeveloperApp({ address })
+  return developerApp.data
+}
+
+export const getIsAppAuthorized = async ({
+  userId,
+  apiKey
+}: {
+  userId: string
+  apiKey: string
+}) => {
+  const sdk = await audiusSdk()
+  const authorizedApps = await sdk.users.getAuthorizedApps({ id: userId })
+  const prefixedAppAddress = getFormattedAppAddress({
+    apiKey,
+    includePrefix: true
+  })
+  const foundIndex = authorizedApps.data?.findIndex(
+    (a) => a.address.toLowerCase() === prefixedAppAddress
+  )
+  return foundIndex !== undefined && foundIndex > -1
 }
