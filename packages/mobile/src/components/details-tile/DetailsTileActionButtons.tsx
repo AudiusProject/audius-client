@@ -81,7 +81,7 @@ export const DetailsTileActionButtons = ({
   onPressShare
 }: DetailsTileActionButtonsProps) => {
   const styles = useStyles()
-  const { neutralLight2 } = useThemeColors()
+  const { neutralLight4 } = useThemeColors()
   const { isEnabled: isPlaylistUpdatesEnabled } = useFeatureFlag(
     FeatureFlags.PLAYLIST_UPDATES_PRE_QA
   )
@@ -94,7 +94,6 @@ export const DetailsTileActionButtons = ({
 
   const repostButton = (
     <RepostButton
-      variant='dark'
       wrapperStyle={styles.actionButton}
       onPress={onPressRepost}
       isActive={!isOwner && hasReposted}
@@ -104,7 +103,6 @@ export const DetailsTileActionButtons = ({
 
   const favoriteButton = (
     <FavoriteButton
-      variant='dark'
       wrapperStyle={styles.actionButton}
       onPress={onPressSave}
       isActive={!isOwner && hasSaved}
@@ -114,7 +112,7 @@ export const DetailsTileActionButtons = ({
 
   const shareButton = (
     <IconButton
-      fill={neutralLight2}
+      fill={neutralLight4}
       icon={IconShare}
       isDisabled={isCollectionEmpty}
       disabledPressToastContent={messages.shareButtonDisabledContent}
@@ -125,7 +123,7 @@ export const DetailsTileActionButtons = ({
 
   const overflowMenu = (
     <IconButton
-      fill={neutralLight2}
+      fill={neutralLight4}
       icon={IconKebabHorizontal}
       onPress={onPressOverflow}
       styles={{ icon: styles.actionButton }}
@@ -134,7 +132,7 @@ export const DetailsTileActionButtons = ({
 
   const editButton = (
     <IconButton
-      fill={neutralLight2}
+      fill={neutralLight4}
       icon={IconPencil}
       onPress={onPressEdit}
       styles={{ icon: styles.actionButton }}
@@ -143,7 +141,7 @@ export const DetailsTileActionButtons = ({
 
   const publishButton = (
     <IconButton
-      fill={neutralLight2}
+      fill={neutralLight4}
       icon={IconRocket}
       isDisabled={isCollectionEmpty || collectionHasHiddenTracks}
       disabledPressToastContent={
