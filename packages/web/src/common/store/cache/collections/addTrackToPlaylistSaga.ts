@@ -25,7 +25,6 @@ import { make } from 'common/store/analytics/actions'
 import * as confirmerActions from 'common/store/confirmer/actions'
 import { confirmTransaction } from 'common/store/confirmer/sagas'
 import { ensureLoggedIn } from 'common/utils/ensureLoggedIn'
-import FeatureFlag from 'components/feature-flag/FeatureFlag'
 import { waitForWrite } from 'utils/sagaHelpers'
 
 import { retrieveTracks } from '../tracks/utils'
