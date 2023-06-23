@@ -54,7 +54,7 @@ export const IconButton = ({
 }: IconButtonProps) => {
   const styles = useStyles()
   const { scale, handlePressIn, handlePressOut } = usePressScaleAnimation(0.9)
-  const { neutral, neutralLight7 } = useThemeColors()
+  const { neutral } = useThemeColors()
   const { toast } = useToast()
 
   const onDisabledPress = () => {
@@ -77,9 +77,15 @@ export const IconButton = ({
         activeOpacity={0.95}
         hitSlop={{ ...defaultHitSlop, ...hitSlop }}
       >
-        <View style={[styles.icon, stylesProp?.icon]}>
+        <View
+          style={[
+            styles.icon,
+            stylesProp?.icon,
+            isDisabled && { opacity: 0.5 }
+          ]}
+        >
           <Icon
-            fill={isDisabled ? neutralLight7 : fill}
+            fill={fill}
             height='100%'
             {...(fullWidth ? { width: '100%' } : {})}
           />
