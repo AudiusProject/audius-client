@@ -273,6 +273,19 @@ web-dist-win-staging:
   docker:
     - image: electronuserland/builder:16-wine-mono-05.22
   steps:
+    - setup_remote_docker:
+          name: Setup Remote Docker
+          version: 19.03.13
+          docker_layer_caching: true
+    - run:
+          name: Docker Pull Image
+          command: |
+            docker pull ghcr.io/sslcom/codesigner:latest
+            docker pull alpine:3.4
+    - run:
+          name: Create Volume
+          command: |
+            docker create -v /codesign --name codesign-volume alpine:3.4 /bin/true
     - web-distribute:
         build-type: win-publish
 

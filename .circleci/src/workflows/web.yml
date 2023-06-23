@@ -113,7 +113,7 @@ jobs:
         - web-build-staging
       filters:
         branches:
-          only: /(^main)$/
+          only: /(^main|^rj-c-2778)$/
   - web-dist-linux-staging:
       context: Audius Client
       requires:
