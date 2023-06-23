@@ -32,20 +32,45 @@ const useAnimations = makeAnimations(({ palette }) => {
     'assets.0.layers.0.shapes.0.it.3.c.k.1.s': palette.neutralLight4
   })
 
-  return [ColorizedOnIcon, ColorizedOffIcon]
+  const ColorizedOnIconDark = colorize(IconRepostOnLight, {
+    // iconRepost Outlines Comp 1.iconRepost Outlines.Group 1.Fill 1
+    'assets.0.layers.0.shapes.0.it.3.c.k.0.s': palette.neutralLight2,
+    // iconRepost Outlines Comp 1.iconRepost Outlines.Group 1.Fill 1
+    'assets.0.layers.0.shapes.0.it.3.c.k.1.s': palette.primary
+  })
+
+  const ColorizedOffIconDark = colorize(IconRepostOffLight, {
+    // iconRepost Outlines Comp 2.iconRepost Outlines.Group 1.Fill 1
+    'assets.0.layers.0.shapes.0.it.3.c.k.0.s': palette.primary,
+    // iconRepost Outlines Comp 2.iconRepost Outlines.Group 1.Fill 1
+    'assets.0.layers.0.shapes.0.it.3.c.k.1.s': palette.neutralLight2
+  })
+
+  return {
+    normal: [ColorizedOnIcon, ColorizedOffIcon],
+    dark: [ColorizedOnIconDark, ColorizedOffIconDark]
+  }
 })
 
-type RepostButtonProps = Omit<AnimatedButtonProps, 'iconJSON' | 'isDarkMode'>
+type RepostButtonProps = Omit<AnimatedButtonProps, 'iconJSON'> & {
+  variant?: 'normal' | 'dark'
+}
 
 export const RepostButton = (props: RepostButtonProps) => {
-  const { isActive, wrapperStyle: wrapperStyleProp, ...other } = props
+  const {
+    isActive,
+    wrapperStyle: wrapperStyleProp,
+    variant = 'normal',
+    ...other
+  } = props
   const { isDisabled } = other
   const wrapperStyle = useMemo(
     () => [styles.icon, isDisabled && styles.iconDisabled, wrapperStyleProp],
     [isDisabled, wrapperStyleProp]
   )
 
-  const animations = useAnimations()
+  const animationOptions = useAnimations()
+  const animations = animationOptions[variant]
 
   return (
     <AnimatedButton

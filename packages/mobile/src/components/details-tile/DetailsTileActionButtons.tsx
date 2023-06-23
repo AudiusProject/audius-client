@@ -11,7 +11,7 @@ import { IconButton } from 'app/components/core'
 import { FavoriteButton } from 'app/components/favorite-button'
 import { RepostButton } from 'app/components/repost-button'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
-import { flexRowCentered, makeStyles } from 'app/styles'
+import { makeStyles } from 'app/styles'
 import type { GestureResponderHandler } from 'app/types/gesture'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -44,31 +44,18 @@ type DetailsTileActionButtonsProps = {
   onPressOverflow?: GestureResponderHandler
 }
 
-const useStyles = makeStyles(({ palette }) => ({
+const useStyles = makeStyles(({ palette, spacing }) => ({
   root: {
-    ...flexRowCentered(),
-    width: '100%',
     flexDirection: 'row',
     justifyContent: 'center',
+    gap: spacing(8),
     borderBottomWidth: 1,
     borderBottomColor: palette.neutralLight7,
-    height: 60,
-    paddingTop: 12,
-    paddingBottom: 8
+    paddingVertical: spacing(4)
   },
-
   actionButton: {
-    ...flexRowCentered(),
-    width: 30,
-    height: '100%',
-    justifyContent: 'center',
-    position: 'relative',
-    bottom: 1,
-    marginHorizontal: 16
-  },
-
-  editButtonIcon: {
-    width: 27
+    width: 32,
+    height: 32
   }
 }))
 
@@ -107,6 +94,7 @@ export const DetailsTileActionButtons = ({
 
   const repostButton = (
     <RepostButton
+      variant='dark'
       wrapperStyle={styles.actionButton}
       onPress={onPressRepost}
       isActive={!isOwner && hasReposted}
@@ -116,6 +104,7 @@ export const DetailsTileActionButtons = ({
 
   const favoriteButton = (
     <FavoriteButton
+      variant='dark'
       wrapperStyle={styles.actionButton}
       onPress={onPressSave}
       isActive={!isOwner && hasSaved}
@@ -130,7 +119,7 @@ export const DetailsTileActionButtons = ({
       isDisabled={isCollectionEmpty}
       disabledPressToastContent={messages.shareButtonDisabledContent}
       onPress={onPressShare}
-      styles={{ icon: [styles.actionButton, { height: 24, width: 24 }] }}
+      styles={{ icon: [styles.actionButton] }}
     />
   )
 
@@ -148,7 +137,7 @@ export const DetailsTileActionButtons = ({
       fill={neutralLight2}
       icon={IconPencil}
       onPress={onPressEdit}
-      styles={{ icon: [styles.actionButton, styles.editButtonIcon] }}
+      styles={{ icon: styles.actionButton }}
     />
   )
 

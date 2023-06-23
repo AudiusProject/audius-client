@@ -117,7 +117,6 @@ function* confirmEditPlaylist(playlistId, userId, formFields) {
     confirmerActions.requestConfirmation(
       makeKindId(Kind.COLLECTIONS, playlistId),
       function* (confirmedPlaylistId) {
-        console.log('hmmm', formFields)
         const { blockHash, blockNumber, error } = yield call(
           audiusBackendInstance.updatePlaylist,
           {
