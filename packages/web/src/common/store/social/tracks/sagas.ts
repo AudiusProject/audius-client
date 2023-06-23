@@ -77,8 +77,11 @@ export function* repostTrackAsync(
     ? // If we're on the feed, and someone i follow has
       // reposted the content i am reposting,
       // is_repost_of_repost is true
-      { is_repost_of_repost: track.followee_reposts.length !== 0 }
-    : { is_repost_of_repost: false }
+      {
+        is_hidden: track.is_unlisted,
+        is_repost_of_repost: track.followee_reposts.length !== 0
+      }
+    : { is_hidden: track.is_unlisted, is_repost_of_repost: false }
   yield* call(confirmRepostTrack, action.trackId, user, repostMetadata)
 
   const eagerlyUpdatedMetadata: Partial<Track> = {
@@ -152,7 +155,7 @@ export function* repostTrackAsync(
 export function* confirmRepostTrack(
   trackId: ID,
   user: User,
-  metadata?: { is_repost_of_repost: boolean }
+  metadata?: { is_repost_of_repost: boolean; is_hidden: boolean }
 ) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* put(
@@ -356,8 +359,11 @@ export function* saveTrackAsync(
   const saveMetadata = action.isFeed
     ? // If we're on the feed, and the content
       // being saved is a repost
-      { is_save_of_repost: track.followee_reposts.length !== 0 }
-    : { is_save_of_repost: false }
+      {
+        is_hidden: track.is_unlisted,
+        is_save_of_repost: track.followee_reposts.length !== 0
+      }
+    : { is_hidden: track.is_unlisted, is_save_of_repost: false }
   yield* call(confirmSaveTrack, action.trackId, user, saveMetadata)
 
   const eagerlyUpdatedMetadata: Partial<Track> = {
@@ -423,7 +429,7 @@ export function* saveTrackAsync(
 export function* confirmSaveTrack(
   trackId: ID,
   user: User,
-  metadata?: { is_save_of_repost: boolean }
+  metadata?: { is_save_of_repost: boolean; is_hidden: boolean }
 ) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   yield* put(

@@ -994,7 +994,7 @@ export const audiusBackend = ({
 
   async function repostTrack(
     trackId: ID,
-    metadata?: { is_repost_of_repost: boolean }
+    metadata?: { is_repost_of_repost: boolean; is_hidden: boolean }
   ) {
     try {
       return await audiusLibs.EntityManager.repostTrack(
@@ -1018,7 +1018,7 @@ export const audiusBackend = ({
 
   async function repostCollection(
     playlistId: ID,
-    metadata?: { is_repost_of_repost: boolean }
+    metadata?: { is_repost_of_repost: boolean; is_hidden: boolean }
   ) {
     try {
       return audiusLibs.EntityManager.repostPlaylist(
@@ -1684,7 +1684,7 @@ export const audiusBackend = ({
   // Favoriting a track
   async function saveTrack(
     trackId: ID,
-    metadata?: { is_save_of_repost: boolean }
+    metadata?: { is_save_of_repost: boolean; is_hidden: boolean }
   ) {
     try {
       return await audiusLibs.EntityManager.saveTrack(
@@ -1713,7 +1713,7 @@ export const audiusBackend = ({
   // Favorite a playlist
   async function saveCollection(
     playlistId: ID,
-    metadata?: { is_save_of_repost: boolean }
+    metadata?: { is_save_of_repost: boolean; is_hidden: boolean }
   ) {
     try {
       return await audiusLibs.EntityManager.savePlaylist(
