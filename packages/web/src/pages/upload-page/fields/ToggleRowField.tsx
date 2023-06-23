@@ -21,9 +21,15 @@ export const ToggleRowField = (props: ToggleFieldProps) => {
       <div className={styles.content}>
         <h3 className={cn(styles.title, styles.modalHeading)}>{header}</h3>
         <p className={styles.description}>{description}</p>
-        {children}
+        {value ? children : null}
       </div>
-      <Switch isOn={value} handleToggle={() => setValue(!value)} />
+      <Switch
+        // TODO: default value with inner form
+        checked={value}
+        onChange={() => {
+          setValue(!value)
+        }}
+      />
     </div>
   )
 }
