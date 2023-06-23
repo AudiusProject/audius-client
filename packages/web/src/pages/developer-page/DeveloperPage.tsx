@@ -29,14 +29,12 @@ const createGrant = async ({ userId, appApiKey }: CreateGrantRequest) => {
 // TODO: Move to saga, add confirmation (unless we confirm in SDK itself)
 const createDeveloperApp = async ({
   userId,
-  name,
-  isPersonalAccess
+  name
 }: CreateDeveloperAppRequest) => {
   const sdk = await audiusSdk()
   const res = await sdk.developerApps.createDeveloperApp({
     userId,
-    name,
-    isPersonalAccess
+    name
   })
   return { apiKey: res.apiKey, apiSecret: res.apiSecret }
 }
@@ -81,8 +79,7 @@ export const DeveloperPage = () => {
       try {
         res = await createDeveloperApp({
           userId: encodedUserId,
-          name: 'Test app',
-          isPersonalAccess
+          name: 'Test app'
         })
       } catch (e) {
         console.error('There was an error: ', e)
