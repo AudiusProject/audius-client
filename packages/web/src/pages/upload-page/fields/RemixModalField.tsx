@@ -102,6 +102,7 @@ export const RemixModalField = () => {
             size={InputV2Size.LARGE}
             {...linkField}
           />
+          {/* @ts-ignore TDOO: need to populate track with cover art sizes */}
           {track ? <TrackInfo user={track.user} track={track} /> : null}
         </ToggleRowField>
       </div>
