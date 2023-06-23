@@ -24,3 +24,8 @@
   font-weight: var(--font-medium);
   line-height: 130%;
 }
+
+.switch :global(label) {
+  width: 48px;
+  height: 26px;
+}

@@ -5,7 +5,7 @@ import { Divider } from 'components/divider'
 
 import { ModalField } from './ModalField'
 import styles from './RemixModalField.module.css'
-import { ToggleField } from './ToggleField'
+import { ToggleRowField } from './ToggleRowField'
 
 const messages = {
   title: 'Remix Settings',
@@ -45,13 +45,13 @@ export const RemixModalField = () => {
       preview={preview}
     >
       <div className={styles.fields}>
-        <ToggleField
+        <ToggleRowField
           name={HIDE_REMIX_FIELD_NAME}
           header={messages.hideRemix.header}
           description={messages.hideRemix.description}
         />
         <Divider />
-        <ToggleField
+        <ToggleRowField
           name={REMIX_OF_FIELD_NAME}
           header={messages.remixOf.header}
           description={messages.remixOf.description}

@@ -1,11 +1,10 @@
 import { PropsWithChildren } from 'react'
 
+import { Switch } from '@audius/stems'
 import cn from 'classnames'
 import { useField } from 'formik'
 
-import Switch from 'components/switch/Switch'
-
-import styles from './ToggleField.module.css'
+import styles from './ToggleRowField.module.css'
 
 type ToggleFieldProps = PropsWithChildren & {
   name: string
@@ -13,7 +12,7 @@ type ToggleFieldProps = PropsWithChildren & {
   description: string
 }
 
-export const ToggleField = (props: ToggleFieldProps) => {
+export const ToggleRowField = (props: ToggleFieldProps) => {
   const { name, header, description, children } = props
   const [{ value }, , { setValue }] = useField<boolean>(name)
 
