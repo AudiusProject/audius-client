@@ -176,7 +176,8 @@ const makeBuildParams = (isProduction) => {
       win: {
         target: 'nsis',
         icon,
-        publisherName: 'Audius, Inc.'
+        publisherName: 'Audius, Inc.',
+        sign: 'scripts/sign.js'
       },
       linux: {
         target: 'AppImage',

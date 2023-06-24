@@ -271,7 +271,7 @@ web-dist-mac-staging:
 web-dist-win-staging:
   working_directory: ~/audius-client
   docker:
-    - image: electronuserland/builder:16-wine-mono-05.22
+    - image: electronuserland/builder:16-wine-mono-03.23
   steps:
     - setup_remote_docker:
           name: Setup Remote Docker
@@ -299,7 +299,8 @@ web-dist-win-staging:
     - run:
           name: Create Volume
           command: |
-            docker create -v /codesign --name codesign-volume alpine:3.4 /bin/true
+            docker create -v /codesign/packages  --name codesign-in  alpine:3.4 /bin/true
+            docker create -v /codesign/artifacts --name codesign-out alpine:3.4 /bin/true
     - web-distribute:
         build-type: win-publish
 
