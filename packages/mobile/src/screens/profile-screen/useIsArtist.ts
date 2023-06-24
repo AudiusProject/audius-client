@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-import { accountActions, accountSelectors, type ID } from '@audius/common'
+import { accountActions, accountSelectors } from '@audius/common'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useSelectProfile } from './selectors'
