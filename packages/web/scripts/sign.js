@@ -15,7 +15,9 @@ exports.default = async (configuration) => {
   console.log({ inputFilePath, inputFilePathNoSpaces, fileName })
 
   // Move file path to one without space since codesign tool does not support space
-  run(`mv '${inputFilePath}' ${inputFilePathNoSpaces}`)
+  if (inputFilePath !== inputFilePathNoSpaces) {
+    run(`mv '${inputFilePath}' ${inputFilePathNoSpaces}`)
+  }
 
   // Copy in file to input volume
   run(`docker cp '${inputFilePathNoSpaces}' codesign-in:/codesign/packages`)
