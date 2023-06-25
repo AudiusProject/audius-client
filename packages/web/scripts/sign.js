@@ -9,7 +9,7 @@ const run = (cmd) => {
 exports.default = async (configuration) => {
   const { path: inputFilePath } = configuration
 
-  const inputFilePathNoSpaces = inputFilePath.replace(' ', '_')
+  const inputFilePathNoSpaces = inputFilePath.replaceAll(' ', '_')
   const fileName = path.basename(inputFilePathNoSpaces)
 
   console.log({ inputFilePath, inputFilePathNoSpaces, fileName })
