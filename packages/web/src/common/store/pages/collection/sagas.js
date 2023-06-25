@@ -4,6 +4,7 @@ import {
   cacheActions,
   collectionPageActions as collectionActions,
   collectionPageLineupActions as tracksActions,
+  collectionPageSuggestedLineupActions as suggestedTracksActions,
   collectionPageSelectors
 } from '@audius/common'
 import {
@@ -21,6 +22,7 @@ import {
 } from 'common/store/cache/collections/utils'
 
 import tracksSagas from './lineups/sagas'
+import suggestedTrackSagas from './suggestedLineup/sagas'
 const { getCollectionUid, getUserUid } = collectionPageSelectors
 const { fetchCollection, fetchCollectionSucceeded, fetchCollectionFailed } =
   collectionActions
@@ -72,12 +74,14 @@ function* watchFetchCollection() {
 function* watchResetCollection() {
   yield takeEvery(collectionActions.RESET_COLLECTION, function* (action) {
     yield put(tracksActions.reset())
+    yield put(suggestedTracksActions.reset())
     yield put(
       cacheActions.unsubscribe(Kind.COLLECTIONS, [
         { uid: action.collectionUid }
       ])
     )
     yield put(cacheActions.unsubscribe(Kind.USERS, [{ uid: action.userUid }]))
+    // TODO: KJ - May need to add the collection track ids to the prev suggested tracks array here
   })
 }
 
@@ -95,7 +99,11 @@ function* watchResetAndFetchCollectionTracks() {
         // Reset collection so that lineup is not shared between separate instances
         // of the CollectionScreen
         yield put(collectionActions.resetCollection(collectionUid, userUid))
-        yield take(tracksActions.reset().type)
+
+        // TODO: KJ - Figure out a way to listen for both without a race condition
+        // May not need to listen for both
+        // yield take(tracksActions.reset().type)
+        yield take(suggestedTracksActions.reset().type)
       }
 
       // Need to refetch the collection after resetting
@@ -108,6 +116,7 @@ function* watchResetAndFetchCollectionTracks() {
       yield take(fetchCollectionSucceeded)
 
       yield put(tracksActions.fetchLineupMetadatas(0, 200, false, undefined))
+      yield put(suggestedTracksActions.fetchLineupMetadatas())
     }
   )
 }
@@ -115,6 +124,7 @@ function* watchResetAndFetchCollectionTracks() {
 export default function sagas() {
   return [
     ...tracksSagas(),
+    ...suggestedTrackSagas(),
     watchFetchCollection,
     watchResetCollection,
     watchResetAndFetchCollectionTracks

@@ -122,6 +122,8 @@ export {
 
 export { default as collectionPageLineupReducer } from './collection/lineup/reducer'
 export { tracksActions as collectionPageLineupActions } from './collection/lineup/actions'
+export { default as collectionPageSuggestedLineupReducer } from './collection/suggestedLineup/reducer'
+export { tracksActions as collectionPageSuggestedLineupActions } from './collection/suggestedLineup/actions'
 export * as collectionPageSelectors from './collection/selectors'
 export * as collectionPageActions from './collection/actions'
 export * from './collection/types'

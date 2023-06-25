@@ -14,14 +14,19 @@ export type CollectionTrack = LineupTrack & { dateAdded: Moment } & {
   collectible?: Collectible
 }
 
+export type CollectionSuggestedTrack = LineupTrack
+
 export type CollectionsPageState = {
   permalink: string
   collectionId: ID | null
   collectionUid: UID | null
   status: Status | null
   tracks: LineupState<CollectionTrack>
+  suggestedTracks: LineupState<CollectionSuggestedTrack>
   userUid: UID | null
   smartCollectionVariant: SmartCollectionVariant
+  savedTrackIds: ID[] | null
+  prevSuggestedIds: ID[]
 }
 
 export type CollectionsPageType = 'playlist' | 'album'

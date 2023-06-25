@@ -18,6 +18,10 @@ export const getSmartCollectionVariant = (state: CommonState) =>
   state.pages.collection.smartCollectionVariant
 export const getCollectionPermalink = (state: CommonState) =>
   state.pages.collection.permalink
+export const getSavedTrackIds = (state: CommonState) =>
+  state.pages.collection.savedTrackIds
+export const getPrevSuggestedIds = (state: CommonState) =>
+  state.pages.collection.prevSuggestedIds
 export const getCollection = (state: CommonState, params?: { id: ID }) => {
   const smartCollectionVariant = getSmartCollectionVariant(state)
   if (smartCollectionVariant) {
@@ -57,3 +61,5 @@ export const makeGetCollection = () =>
 
 export const getCollectionTracksLineup = (state: CommonState) =>
   state.pages.collection.tracks
+export const getCollectionSuggestedTracksLineup = (state: CommonState) =>
+  state.pages.collection.suggestedTracks

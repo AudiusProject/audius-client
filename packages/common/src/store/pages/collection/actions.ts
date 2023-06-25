@@ -9,6 +9,8 @@ export const RESET_AND_FETCH_COLLECTION_TRACKS =
   'RESET_AND_FETCH_COLLECTION_TRACKS'
 export const SET_SMART_COLLECTION = 'SET_SMART_COLLECTION'
 export const SET_COLLECTION_PERMALINK = 'SET_COLLECTION_PERMALINK'
+export const SET_SAVED_TRACK_IDS = 'SET_SAVED_TRACK_IDS'
+export const ADD_SUGGESTED_IDS = 'ADD_SUGGESTED_IDS'
 
 export const setCollectionPermalink = (permalink: string) => ({
   type: SET_COLLECTION_PERMALINK,
@@ -58,4 +60,14 @@ export const setSmartCollection = (
 ) => ({
   type: SET_SMART_COLLECTION,
   smartCollectionVariant
+})
+
+export const setSavedTrackIds = (trackIds: ID[] | null) => ({
+  type: SET_SAVED_TRACK_IDS,
+  trackIds
+})
+
+export const addSuggestedIds = (trackIds: ID[]) => ({
+  type: ADD_SUGGESTED_IDS,
+  trackIds
 })

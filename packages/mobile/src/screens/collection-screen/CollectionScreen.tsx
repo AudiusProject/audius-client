@@ -9,6 +9,7 @@ import {
   ShareSource,
   FavoriteType,
   collectionPageActions,
+  collectionPageSuggestedLineupActions as suggestedTracksActions,
   formatDate,
   accountSelectors,
   collectionPageSelectors,
@@ -21,25 +22,30 @@ import {
   RepostType,
   repostsUserListActions,
   favoritesUserListActions,
-  createPlaylistModalUIActions
+  createPlaylistModalUIActions,
+  Status
 } from '@audius/common'
 import type {
   Collection,
   Nullable,
   User,
   SearchPlaylist,
-  SearchUser
+  SearchUser,
+  CommonState
 } from '@audius/common'
 import { useFocusEffect } from '@react-navigation/native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import {
+  Text,
   ScreenContent,
   Screen,
-  VirtualizedScrollView
+  VirtualizedScrollView,
+  Button
 } from 'app/components/core'
 import { CollectionImage } from 'app/components/image/CollectionImage'
 import type { ImageProps } from 'app/components/image/FastImage'
+import { TrackList } from 'app/components/track-list'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useRoute } from 'app/hooks/useRoute'
@@ -62,7 +68,8 @@ const {
   unsaveCollection
 } = collectionsSocialActions
 const { fetchCollection } = collectionPageActions
-const { getCollection, getUser } = collectionPageSelectors
+const { getCollection, getUser, getCollectionSuggestedTracksLineup } =
+  collectionPageSelectors
 const getUserId = accountSelectors.getUserId
 const { requestOpen: openPublishConfirmation } =
   publishPlaylistConfirmationModalUIActions
@@ -125,6 +132,13 @@ export const CollectionScreen = () => {
   )
 }
 
+const selectIsLineupLoading = (state: CommonState) => {
+  return getCollectionSuggestedTracksLineup(state).status === Status.LOADING
+}
+
+const selectSuggestedLineupEntries = (state: CommonState) =>
+  getCollectionSuggestedTracksLineup(state).entries
+
 type CollectionScreenComponentProps = {
   collection: Collection | SearchPlaylist
   user: User | SearchUser
@@ -150,6 +164,8 @@ const CollectionScreenComponent = (props: CollectionScreenComponentProps) => {
     updated_at
   } = collection
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
+  const isLineupLoading = useSelector(selectIsLineupLoading)
+  const suggestedLineupEntries = useSelector(selectSuggestedLineupEntries)
 
   const url = useMemo(() => {
     return `/${encodeUrlName(user.handle)}/${
@@ -269,6 +285,10 @@ const CollectionScreenComponent = (props: CollectionScreenComponentProps) => {
     })
   }, [dispatch, playlist_id, navigation])
 
+  const handleRefreshSuggestions = useCallback(() => {
+    dispatch(suggestedTracksActions.fetchLineupMetadatas())
+  }, [dispatch])
+
   return (
     <Screen url={url}>
       <ScreenContent isOfflineCapable={isOfflineModeEnabled}>
@@ -296,6 +316,32 @@ const CollectionScreenComponent = (props: CollectionScreenComponentProps) => {
             trackCount={track_ids.length}
             title={playlist_name}
             user={user}
+          />
+          {/* TODO: KJ - Placeholder. Need to update this to be the new suggested tracks UI */}
+          <TrackList
+            showDivider
+            showSkeleton={isLineupLoading}
+            style={{ marginVertical: 24 }}
+            ListHeaderComponent={
+              <Text
+                style={{ marginBottom: 12 }}
+                fontSize='large'
+                weight='heavy'
+              >
+                Suggested Tracks
+              </Text>
+            }
+            uids={
+              isLineupLoading
+                ? Array(5)
+                : suggestedLineupEntries.map((entry) => entry.uid)
+            }
+            ListEmptyComponent={<Text>No Tracks Dude</Text>}
+          />
+          <Button
+            title='Refresh Suggestions'
+            onPress={handleRefreshSuggestions}
+            style={{ marginBottom: 48 }}
           />
         </VirtualizedScrollView>
       </ScreenContent>

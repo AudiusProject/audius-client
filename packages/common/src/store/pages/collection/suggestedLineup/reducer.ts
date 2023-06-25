@@ -1,5 +1,5 @@
 // @ts-nocheck
-// TODO(nkang) - convert to TS
+// TODO: KJ - Add types for actions
 import { RESET_SUCCEEDED, stripPrefix } from 'store/lineup/actions'
 import { initialLineupState } from 'store/lineup/reducer'
 
@@ -17,11 +17,11 @@ const actionsMap = {
   }
 }
 
-const tracks = (state = initialState, action) => {
+const suggestedTracks = (state = initialState, action) => {
   const baseActionType = stripPrefix(PREFIX, action.type)
   const matchingReduceFunction = actionsMap[baseActionType]
   if (!matchingReduceFunction) return state
   return matchingReduceFunction(state, action)
 }
 
-export default tracks
+export default suggestedTracks
