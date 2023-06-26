@@ -11,7 +11,6 @@ export enum USDCTransactionType {
 export enum USDCTransactionMethod {
   // Transfer methods
   SEND = 'SENT',
-  // TODO: Is this needed? Do we write a transaction for both the sender and recipient?
   RECEIVE = 'RECEIVED',
 
   // Purchase Methods
@@ -63,7 +62,6 @@ export type USDCTransactionDetails =
   | {
       signature: string
       transactionType: USDCTransactionType.PURCHASE_CONTENT
-      // TODO: Both send and receive valid here?
       method: USDCTransactionMethod.SEND | USDCTransactionMethod.RECEIVE
       date: string
       change: StringUSDC
@@ -73,7 +71,6 @@ export type USDCTransactionDetails =
   | {
       signature: string
       transactionType: USDCTransactionType.TRANSFER
-      // TODO: Both send and receive valid here?
       method: USDCTransactionMethod.SEND | USDCTransactionMethod.RECEIVE
       date: string
       change: StringUSDC
