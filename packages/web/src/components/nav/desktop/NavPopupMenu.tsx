@@ -16,6 +16,7 @@ import {
 import cn from 'classnames'
 
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontalAlt.svg'
+import { Icon } from 'components/Icon'
 import { NotificationDot } from 'components/notification-dot'
 import { useNavigateToPage } from 'hooks/useNavigateToPage'
 import { useFlag } from 'hooks/useRemoteConfig'
@@ -102,7 +103,7 @@ const NavPopupMenu = () => {
                 ref={anchorRef}
                 onClick={triggerPopup}
               >
-                <IconKebabHorizontal />
+                <Icon icon={IconKebabHorizontal} />
               </div>
               {hasUnreadMessages ? (
                 <NotificationDot
