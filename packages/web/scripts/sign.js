@@ -6,6 +6,8 @@ const run = (cmd) => {
   execSync(cmd)
 }
 
+// Reference material:
+// https://www.ssl.com/how-to/cloud-code-signing-integration-with-circleci/
 exports.default = async (configuration) => {
   const { path: inputFilePath } = configuration
 
