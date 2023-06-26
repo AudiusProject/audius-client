@@ -4,7 +4,7 @@ type IconProps = {
   icon: React.FC<React.SVGProps<SVGSVGElement>>
 } & React.SVGProps<SVGSVGElement>
 
-/** Renders a stems Icon component with optional decorator
+/** Renders a stems Icon component
  * Ex: `<Icon icon={IconKebabHorizontal}  />`
  */
 export const Icon = ({ icon: IconComponent, ...iconProps }: IconProps) => {
