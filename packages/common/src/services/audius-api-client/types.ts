@@ -26,6 +26,7 @@ export type APIUser = {
   artist_pick_track_id: Nullable<OpaqueID>
   blocknumber: number
   balance: string
+  usdc_balance: string
   associated_wallets_balance: string
   bio: Nullable<string>
   cover_photo: CoverPhotoSizes
