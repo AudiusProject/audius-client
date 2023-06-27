@@ -1,9 +1,9 @@
 import { createContext } from 'react'
 
 import { AudiusSdk } from '@audius/sdk'
-import { ReportToSentryArgs } from '../models'
 import type { AudiusAPIClient } from 'services/audius-api-client'
 import { AudiusBackend } from 'services/index'
+import { ReportToSentryArgs } from '../models'
 
 export type AudiusQueryContextType = {
   apiClient: AudiusAPIClient

@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { useProxySelector } from 'hooks/useProxySelector'
+import { ErrorLevel } from 'models/ErrorReporting'
 import { Kind } from 'models/Kind'
 import { Status } from 'models/Status'
 import { getCollection } from 'store/cache/collections/selectors'
@@ -39,7 +40,7 @@ import {
   QueryHookResults
 } from './types'
 import { capitalize, getKeyFromFetchArgs, selectCommonEntityMap } from './utils'
-import { ErrorLevel } from 'models/ErrorReporting'
+
 const { addEntries } = cacheActions
 
 export const createApi = <
