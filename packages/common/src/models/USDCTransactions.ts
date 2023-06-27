@@ -69,5 +69,5 @@ export type USDCTransactionDetails =
       date: string
       change: StringUSDC
       balance: StringUSDC
-      metadata: USDCTransferMetadata
+      metadata?: Nullable<USDCTransferMetadata>
     }
