@@ -11,7 +11,6 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import { DogEar, DogEarType } from 'app/components/core'
 import type { LineupTileProps } from 'app/components/lineup-tile/types'
-import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { setVisibility } from 'app/store/drawers/slice'
 
 import { LineupTileActionButtons } from './LineupTileActionButtons'
@@ -54,7 +53,6 @@ export const LineupTile = ({
   styles,
   TileProps
 }: LineupTileProps) => {
-  const isGatedContentEnabled = useIsGatedContentEnabled()
   const {
     has_current_user_reposted,
     has_current_user_saved,
@@ -73,27 +71,24 @@ export const LineupTile = ({
   const dispatch = useDispatch()
 
   const showPremiumDogEar =
-    isGatedContentEnabled &&
     premiumConditions &&
     (isOwner || !doesUserHaveAccess) &&
     !(showArtistPick && isArtistPick)
 
   const dogEarType = showPremiumDogEar
-    ? isOwner
-      ? premiumConditions.nft_collection
-        ? DogEarType.COLLECTIBLE_GATED
-        : DogEarType.SPECIAL_ACCESS
-      : DogEarType.LOCKED
+    ? premiumConditions.nft_collection
+      ? DogEarType.COLLECTIBLE_GATED
+      : DogEarType.SPECIAL_ACCESS
     : null
 
   const handlePress = useCallback(() => {
-    if (isGatedContentEnabled && trackId && !doesUserHaveAccess) {
+    if (trackId && !doesUserHaveAccess) {
       dispatch(setLockedContentId({ id: trackId }))
       dispatch(setVisibility({ drawer: 'LockedContent', visible: true }))
     } else {
       onPress?.()
     }
-  }, [isGatedContentEnabled, trackId, doesUserHaveAccess, dispatch, onPress])
+  }, [trackId, doesUserHaveAccess, dispatch, onPress])
 
   const isLongFormContent =
     isTrack &&
@@ -152,6 +147,9 @@ export const LineupTile = ({
           repostCount={repost_count}
           saveCount={save_count}
           showRankIcon={showRankIcon}
+          doesUserHaveAccess={doesUserHaveAccess}
+          premiumConditions={premiumConditions}
+          isOwner={isOwner}
         />
       </View>
       {children}
