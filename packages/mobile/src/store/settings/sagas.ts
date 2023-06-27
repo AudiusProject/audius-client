@@ -32,10 +32,8 @@ export function* deregisterPushNotifications() {
 function* reregisterDeviceToken() {
   const audiusBackend = yield* getContext('audiusBackendInstance')
   const hasPermission = yield* call([PushNotifications, 'hasPermission'])
-  console.log({ hasPermission })
   if (hasPermission) {
     const { token, os } = yield* call([PushNotifications, 'getToken'])
-    console.log({ token, os })
     yield* call(audiusBackend.registerDeviceToken, token, os)
   }
 }
