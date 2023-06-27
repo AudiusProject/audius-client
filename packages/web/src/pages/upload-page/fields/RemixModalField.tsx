@@ -18,7 +18,6 @@ import { Divider } from 'components/divider'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
-import { withNullGuard } from 'utils/withNullGuard'
 
 import { ModalField } from './ModalField'
 import styles from './RemixModalField.module.css'
@@ -52,12 +51,7 @@ const REMIX_LINK_FIELD_NAME = 'remix_of_link'
 
 export const RemixModalField = () => {
   const [linkField] = useField(REMIX_LINK_FIELD_NAME)
-  const debugLink = linkField.value?.replace(
-    'http://localhost:3001',
-    'https://staging.audius.co'
-  )
-  // const permalink = getPathFromTrackUrl(linkField.value)
-  const permalink = getPathFromTrackUrl(debugLink)
+  const permalink = getPathFromTrackUrl(linkField.value)
   const currentUserId = useSelector(getUserId)
 
   const { data: track } = useGetTrackByPermalink(
@@ -115,17 +109,14 @@ type TrackInfoProps = {
   user: UserMetadata | null
 }
 
-const g = withNullGuard(
-  ({ track, user, ...p }: TrackInfoProps) =>
-    track && user && { ...p, track, user }
-)
-
-const TrackInfo = g(({ track, user }) => {
+const TrackInfo = ({ track, user }: TrackInfoProps) => {
   const image = useTrackCoverArt(
-    track.track_id,
-    track._cover_art_sizes,
+    track?.track_id || null,
+    track?._cover_art_sizes || null,
     SquareSizes.SIZE_150_BY_150
   )
+
+  if (!track || !user) return null
   return (
     <div className={styles.track}>
       <DynamicImage wrapperClassName={styles.artwork} image={image} />
@@ -141,4 +132,4 @@ const TrackInfo = g(({ track, user }) => {
       </div>
     </div>
   )
-})
+}
