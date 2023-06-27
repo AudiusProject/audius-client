@@ -71,6 +71,42 @@ const RankAndIndexIndicator = ({
   )
 }
 
+type GetDogEarTypeArgs = Pick<
+  TrackTileProps,
+  | 'doesUserHaveAccess'
+  | 'isArtistPick'
+  | 'isOwner'
+  | 'isUnlisted'
+  | 'premiumConditions'
+>
+const getDogEarType = ({
+  doesUserHaveAccess,
+  isArtistPick,
+  isOwner,
+  isUnlisted,
+  premiumConditions
+}: GetDogEarTypeArgs) => {
+  // Unlisted is mutually exclusive from other dog ear types
+  if (isUnlisted) {
+    return DogEarType.HIDDEN
+  }
+
+  // Show premium variants for track owners or if user does not yet have access
+  if ((isOwner || !doesUserHaveAccess) && premiumConditions) {
+    if (premiumConditions.nft_collection) {
+      return DogEarType.COLLECTIBLE_GATED
+    }
+    return DogEarType.SPECIAL_ACCESS
+  }
+
+  // If no premium variant, optionally show artist pick if applicable
+  if (isArtistPick) {
+    return DogEarType.STAR
+  }
+
+  return undefined
+}
+
 const TrackTile = ({
   size,
   order,
@@ -112,9 +148,6 @@ const TrackTile = ({
   isTrack,
   trackId
 }: TrackTileProps) => {
-  const { isEnabled: isGatedContentEnabled } = useFlag(
-    FeatureFlags.GATED_CONTENT_ENABLED
-  )
   const { isEnabled: isNewPodcastControlsEnabled } = useFlag(
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
@@ -168,20 +201,6 @@ const TrackTile = ({
     ? fieldVisibility.play_count === false
     : false
 
-  const showPremiumDogTag =
-    isGatedContentEnabled &&
-    !isLoading &&
-    premiumConditions &&
-    (isOwner || !doesUserHaveAccess)
-
-  const dogEarType = showPremiumDogTag
-    ? isOwner
-      ? premiumConditions.nft_collection
-        ? DogEarType.COLLECTIBLE_GATED
-        : DogEarType.SPECIAL_ACCESS
-      : DogEarType.LOCKED
-    : null
-
   const onClickTitleWrapper = useCallback(
     (e: MouseEvent) => {
       e.stopPropagation()
@@ -190,6 +209,16 @@ const TrackTile = ({
     },
     [onClickTitle]
   )
+
+  const dogEarType = isLoading
+    ? undefined
+    : getDogEarType({
+        doesUserHaveAccess,
+        isArtistPick,
+        isOwner,
+        isUnlisted,
+        premiumConditions
+      })
 
   return (
     <div
@@ -222,16 +251,7 @@ const TrackTile = ({
       >
         {artwork}
       </div>
-      {showPremiumDogTag && dogEarType ? (
-        <DogEar
-          type={dogEarType}
-          containerClassName={styles.premiumDogEarContainer}
-        />
-      ) : null}
-      {isArtistPick && !showPremiumDogTag ? (
-        <DogEar type={DogEarType.STAR} />
-      ) : null}
-      {isUnlisted && <DogEar type={DogEarType.HIDDEN} />}
+      {dogEarType && <DogEar type={dogEarType} />}
       <div
         className={cn(styles.body, {
           // if track and not playlist/album
