@@ -1,13 +1,15 @@
 import { IconVolume0, IconVolume2 } from '@audius/stems'
-import { h } from 'preact'
 import cn from 'classnames'
+import { h } from 'preact'
 import { useState, useEffect, useRef, useCallback } from 'preact/hooks'
-import styles from './CollectibleDetailsView.module.css'
-import Button from '../button/Button'
-import AudiusLogo from '../../assets/img/audiusLogoHorizontal.svg'
-import { getHash } from './collectibleHelpers'
-import { getCopyableLink } from '../../util/shareUtil'
 
+import AudiusLogo from '../../assets/img/audiusLogoHorizontal.svg'
+import { getScrollParent } from '../../util/scrollParent'
+import { getCopyableLink } from '../../util/shareUtil'
+import Button from '../button/Button'
+
+import styles from './CollectibleDetailsView.module.css'
+import { getHash } from './collectibleHelpers'
 
 const MODEL_VIEWER_SCRIPT_URL =
   'https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js'
@@ -20,7 +22,9 @@ const CollectibleMedia = ({ collectible, isMuted, toggleMute, isMobile }) => {
   const { mediaType, imageUrl, videoUrl, gifUrl, threeDUrl } = collectible
   const [isSvg, setIsSvg] = useState(false)
   const [scriptLoaded, setScriptLoaded] = useState(false)
-  const [isLoading, setIsLoading] = useState(mediaType === 'IMAGE' || mediaType === 'GIF')
+  const [isLoading, setIsLoading] = useState(
+    mediaType === 'IMAGE' || mediaType === 'GIF'
+  )
   const ref3D = useRef(null)
 
   const onLoad = () => setIsLoading(false)
@@ -41,7 +45,7 @@ const CollectibleMedia = ({ collectible, isMuted, toggleMute, isMobile }) => {
   )
 
   useEffect(() => {
-    const handleScript = (e) => setScriptLoaded(e.type === 'load' ? true : false)
+    const handleScript = (e) => setScriptLoaded(e.type === 'load')
 
     const script = document.createElement('script')
     script.src = MODEL_VIEWER_SCRIPT_URL
@@ -75,8 +79,10 @@ const CollectibleMedia = ({ collectible, isMuted, toggleMute, isMobile }) => {
         }
         if (foundDrawerAncestor) {
           const scrollableAncestorElement = scrollableAncestor
-          const mouseEnterListener = () => scrollableAncestorElement.style.overflowY = 'hidden'
-          const mouseLeaveListener = () => scrollableAncestorElement.style.overflowY = 'scroll'
+          const mouseEnterListener = () =>
+            (scrollableAncestorElement.style.overflowY = 'hidden')
+          const mouseLeaveListener = () =>
+            (scrollableAncestorElement.style.overflowY = 'scroll')
           modelViewer.addEventListener('mouseenter', mouseEnterListener)
           modelViewer.addEventListener('mouseleave', mouseLeaveListener)
 
@@ -90,13 +96,27 @@ const CollectibleMedia = ({ collectible, isMuted, toggleMute, isMobile }) => {
   }, [threeDUrl, ref3D, isMobile, scriptLoaded])
 
   return mediaType === 'THREE_D' ? (
-    <div className={cn(styles.detailsMediaWrapper, { [styles.fadeIn]: !isLoading })} ref={ref3D} />
+    <div
+      className={cn(styles.detailsMediaWrapper, {
+        [styles.fadeIn]: !isLoading
+      })}
+      ref={ref3D}
+    />
   ) : mediaType === 'GIF' ? (
-      <div className={cn(styles.detailsMediaWrapper, { [styles.fadeIn]: !isLoading })}>
-        <img src={gifUrl} alt='Collectible' onLoad={onLoad} />
+    <div
+      className={cn(styles.detailsMediaWrapper, {
+        [styles.fadeIn]: !isLoading
+      })}
+    >
+      <img src={gifUrl} alt='Collectible' onLoad={onLoad} />
     </div>
   ) : mediaType === 'VIDEO' ? (
-    <div className={cn(styles.detailsMediaWrapper, { [styles.fadeIn]: !isLoading })} onClick={toggleMute}>
+    <div
+      className={cn(styles.detailsMediaWrapper, {
+        [styles.fadeIn]: !isLoading
+      })}
+      onClick={toggleMute}
+    >
       <div style={{ position: 'relative' }}>
         <video muted={isMuted} autoPlay loop playsInline src={videoUrl}>
           {messages.videoNotSupported}
@@ -110,7 +130,10 @@ const CollectibleMedia = ({ collectible, isMuted, toggleMute, isMobile }) => {
     </div>
   ) : (
     <div
-      className={cn(styles.detailsMediaWrapper, { [styles.svg]: isSvg, [styles.fadeIn]: !isLoading })}
+      className={cn(styles.detailsMediaWrapper, {
+        [styles.svg]: isSvg,
+        [styles.fadeIn]: !isLoading
+      })}
       ref={handleImage}
     >
       <img src={imageUrl} alt='Collectible' onLoad={onLoad} />
@@ -137,23 +160,24 @@ const CollectibleDetailsView = ({ collectible, user }) => {
 
         <div className={styles.nftInfo}>
           {collectible.name && (
-            <h1 className={styles.header}>
-              {collectible.name}
-            </h1>
+            <h1 className={styles.header}>{collectible.name}</h1>
           )}
           {collectible.description && (
-            <div className={styles.desc}>
-              {collectible.description}
-            </div>
+            <div className={styles.desc}>{collectible.description}</div>
           )}
           {collectible.id && (
             <div>
               <Button
                 className={styles.button}
                 onClick={() => {
-                  window.open(getCopyableLink(`${user.handle}/collectibles/${getHash(collectible.id)}`), '_blank')
+                  window.open(
+                    getCopyableLink(
+                      `${user.handle}/collectibles/${getHash(collectible.id)}`
+                    ),
+                    '_blank'
+                  )
                 }}
-                label="View on "
+                label='View on '
                 icon={<AudiusLogo />}
               />
             </div>

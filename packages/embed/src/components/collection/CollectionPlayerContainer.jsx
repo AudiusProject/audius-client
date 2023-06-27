@@ -1,16 +1,18 @@
 import { h } from 'preact'
 import { useState, useContext, useCallback, useEffect } from 'preact/hooks'
+
 import usePlayback from '../../hooks/usePlayback'
-import CollectionPlayerCard from './CollectionPlayerCard'
-import { PauseContext } from '../pausedpopover/PauseProvider'
-import { useSpacebar } from '../../hooks/useSpacebar'
 import { useRecordListens } from '../../hooks/useRecordListens'
-import { PlayingState } from '../playbutton/PlayButton'
+import { useSpacebar } from '../../hooks/useSpacebar'
+import { getTrackStreamEndpoint } from '../../util/BedtimeClient'
+import { formatGateways } from '../../util/gatewayUtil'
 import { isMobile } from '../../util/isMobile'
 import { PlayerFlavor } from '../app'
-import { formatGateways } from '../../util/gatewayUtil'
+import { PauseContext } from '../pausedpopover/PauseProvider'
+import { PlayingState } from '../playbutton/PlayButton'
+
 import CollectionHelmet from './CollectionHelmet'
-import { getTrackStreamEndpoint } from '../../util/BedtimeClient'
+import CollectionPlayerCard from './CollectionPlayerCard'
 
 const LISTEN_INTERVAL_SECONDS = 1
 

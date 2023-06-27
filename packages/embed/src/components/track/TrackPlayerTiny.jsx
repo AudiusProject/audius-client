@@ -1,33 +1,27 @@
-import { h } from 'preact'
 import cn from 'classnames'
+import { h } from 'preact'
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
 
-import PlayButton, { PlayingState } from '../playbutton/PlayButton'
-import BedtimeScrubber from '../scrubber/BedtimeScrubber'
-import styles from './TrackPlayerTiny.module.css'
 import AudiusLogoGlyph from '../../assets/img/audiusLogoGlyph.svg'
 import { getCopyableLink } from '../../util/shareUtil'
-import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
+import PlayButton, { PlayingState } from '../playbutton/PlayButton'
+import BedtimeScrubber from '../scrubber/BedtimeScrubber'
+
+import styles from './TrackPlayerTiny.module.css'
 
 const MARQUEE_SPACING = 40
 const SHOULD_ANIMATE_WIDTH_THRESHOLD = 15
 
-const messages = {
-  deleted: 'Track Deleted By Artist'
-}
-
 const TrackPlayerTiny = ({
   title,
   mediaKey,
-  handle,
   artistName,
   trackURL,
   playingState,
   position,
   duration,
   seekTo,
-  onTogglePlay,
-  albumArtURL,
-  isVerified
+  onTogglePlay
 }) => {
   const info = `${title} • ${artistName}`
 
@@ -57,11 +51,15 @@ const TrackPlayerTiny = ({
   useEffect(() => {
     if (playingState === PlayingState.Playing) {
       if (infoRef.current && containerRef.current) {
-        const computedContainerWidth = containerRef.current.getBoundingClientRect().width
+        const computedContainerWidth =
+          containerRef.current.getBoundingClientRect().width
         const computedInfoWidth = infoRef.current.getBoundingClientRect().width
-        if (computedInfoWidth > computedContainerWidth - SHOULD_ANIMATE_WIDTH_THRESHOLD) {
+        if (
+          computedInfoWidth >
+          computedContainerWidth - SHOULD_ANIMATE_WIDTH_THRESHOLD
+        ) {
           setAnimating(true)
-        } 
+        }
       }
     } else {
       setAnimating(false)
@@ -70,7 +68,7 @@ const TrackPlayerTiny = ({
 
   const infoStyle = {}
   if (infoWidth) {
-    infoStyle["--info-width"] = `${infoWidth + MARQUEE_SPACING}px`
+    infoStyle['--info-width'] = `${infoWidth + MARQUEE_SPACING}px`
   }
 
   return (
@@ -80,13 +78,8 @@ const TrackPlayerTiny = ({
         onTogglePlay={onTogglePlay}
         className={styles.playButton}
       />
-      <div
-        className={styles.container}
-        onClick={onClick}
-        ref={containerRef}
-      >
-        <div className={styles.playContainer}>
-        </div>
+      <div className={styles.container} onClick={onClick} ref={containerRef}>
+        <div className={styles.playContainer} />
         <div className={styles.infoContainer}>
           <h1
             className={cn(styles.info, {
@@ -99,9 +92,7 @@ const TrackPlayerTiny = ({
           </h1>
         </div>
         <div className={styles.logoContainer}>
-          <AudiusLogoGlyph
-            className={styles.logo}
-          />
+          <AudiusLogoGlyph className={styles.logo} />
         </div>
       </div>
       <div className={styles.scrubber}>

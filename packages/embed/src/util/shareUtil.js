@@ -1,4 +1,5 @@
 import copy from 'copy-to-clipboard'
+
 import { getAudiusHostname } from './getEnv'
 
 export const formatShareText = (title, creator) => {

@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
-import { AudioPlayer } from '../audio/AudioPlayer'
-import { PlayingState } from '../components/playbutton/PlayButton'
+
 import { recordPlay, recordPause } from '../analytics/analytics'
 import { sendPostMessage } from '../api/util'
-import { decodeHashId } from '../util/hashids'
+import { AudioPlayer } from '../audio/AudioPlayer'
+import { PlayingState } from '../components/playbutton/PlayButton'
+import { decodeHashId } from '../util/hashIds'
 
 const SEEK_INTERVAL = 200
 
@@ -107,7 +108,7 @@ const usePlayback = (id, onAfterAudioEnd) => {
       const duration = audio.getDuration()
       const newTiming = { position, duration }
       setTiming(newTiming)
-      if (playingStateRef.current == PlayingState.Playing) {
+      if (playingStateRef.current === PlayingState.Playing) {
         sendPostMessage({ event: 'progress', data: newTiming })
       }
       // Handle buffering state

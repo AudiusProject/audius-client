@@ -1,12 +1,12 @@
 import { h } from 'preact'
 
-import PlayButton from '../playbutton/PlayButton'
-
 import Artwork from '../artwork/Artwork'
 import AudiusLogoButton from '../button/AudiusLogoButton'
 import ShareButton from '../button/ShareButton'
+import PlayButton from '../playbutton/PlayButton'
 import BedtimeScrubber from '../scrubber/BedtimeScrubber'
 import Titles from '../titles/Titles'
+
 import styles from './TrackPlayerCompact.module.css'
 
 const TrackPlayerCompact = ({
@@ -22,7 +22,7 @@ const TrackPlayerCompact = ({
   position,
   duration,
   seekTo,
-  backgroundColor,
+  backgroundColor
 }) => {
   return (
     <div
@@ -31,7 +31,7 @@ const TrackPlayerCompact = ({
         backgroundColor
       }}
     >
-      <div className={styles.shareButton}/>
+      <div className={styles.shareButton} />
       <div className={styles.artworkWrapper}>
         <Artwork
           artworkURL={albumArtURL}
@@ -72,11 +72,7 @@ const TrackPlayerCompact = ({
             />
           </div>
           <div className={styles.shareButtonHolder}>
-            <ShareButton
-              url={trackURL}
-              creator={artistName}
-              title={title}
-            />
+            <ShareButton url={trackURL} creator={artistName} title={title} />
           </div>
         </div>
       </div>

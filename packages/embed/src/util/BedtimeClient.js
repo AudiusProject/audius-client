@@ -1,4 +1,3 @@
-import { getIdentityEndpoint, getAPIHostname } from './getEnv'
 import {
   sdk,
   DiscoveryNodeSelector,
@@ -8,7 +7,9 @@ import {
 } from '@audius/sdk'
 
 import { recordListen as recordAnalyticsListen } from '../analytics/analytics'
-import { encodeHashId, decodeHashId } from './hashids'
+
+import { getIdentityEndpoint, getAPIHostname } from './getEnv'
+import { encodeHashId, decodeHashId } from './hashIds'
 import { logError } from './logError'
 
 const HOSTNAME = getAPIHostname()

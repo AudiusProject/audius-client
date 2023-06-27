@@ -2,7 +2,7 @@ import { createContext } from 'preact'
 import { useState } from 'preact/hooks'
 
 export const PauseContext = createContext({
-  setPopoverVisibility: (isVisible) => {},
+  setPopoverVisibility: () => {},
   popoverVisibility: false
 })
 
@@ -16,7 +16,7 @@ export const PauseContextProvider = (props) => {
         setPopoverVisibility
       }}
     >
-      { props.children }
+      {props.children}
     </PauseContext.Provider>
   )
 }

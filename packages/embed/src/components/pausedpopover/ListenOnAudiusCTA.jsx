@@ -1,8 +1,9 @@
 import { h } from 'preact'
+
 import AudiusLogo from '../../assets/img/audiusLogoHorizontal.svg'
+import { getCopyableLink } from '../../util/shareUtil'
 import Button from '../button/Button'
 
-import { getCopyableLink } from '../../util/shareUtil'
 import styles from './ListenOnAudiusCTA.module.css'
 
 const messages = {
@@ -25,4 +26,3 @@ const ListenOnAudiusCTA = ({ audiusURL }) => {
 }
 
 export default ListenOnAudiusCTA
-

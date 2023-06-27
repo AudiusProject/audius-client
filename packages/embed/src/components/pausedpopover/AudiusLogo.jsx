@@ -1,7 +1,8 @@
 import { h } from 'preact'
-import FullColorLogo from '../../assets/img/Horizontal-Logo-Full-Color.png'
 
+import FullColorLogo from '../../assets/img/Horizontal-Logo-Full-Color.png'
 import { getCopyableLink } from '../../util/shareUtil'
+
 import styles from './AudiusLogo.module.css'
 
 const AudiusLogo = () => {
@@ -19,4 +20,3 @@ const AudiusLogo = () => {
 }
 
 export default AudiusLogo
-

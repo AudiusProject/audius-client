@@ -1,15 +1,17 @@
 import { Scrubber } from '@audius/stems'
 import { h } from 'preact'
-
 import { useEffect } from 'preact/hooks'
+
 import { PlayingState } from '../playbutton/PlayButton'
+
 import styles from './BedtimeScrubber.module.css'
 
 const RAIL_LISTENED_COLOR = 'rgba(255, 255, 255, 0.8)'
 const RAIL_UNLISTENED_COLOR = 'rgba(255, 255, 255, 0.1)'
 const RAIL_HOVER_COLOR = 'rgba(255, 255, 255, 1)'
 const HANDLE_COLOR = 'rgba(255, 255, 255, 1)'
-const HANDLE_SHADOW = '0 0 2px 0 rgba(133,129,153,0.5), 0 2px 5px -1px rgba(133,129,153,0.5)'
+const HANDLE_SHADOW =
+  '0 0 2px 0 rgba(133,129,153,0.5), 0 2px 5px -1px rgba(133,129,153,0.5)'
 
 const EmbedScrubber = ({
   mediaKey,
@@ -24,14 +26,17 @@ const EmbedScrubber = ({
   handleColor = HANDLE_COLOR,
   handleShadow = HANDLE_SHADOW
 }) => {
-
   // Gross hack:
   // Stems relies on a :before pseudo selector to style
   // the rail hover color. We manually set that here.
   useEffect(() => {
     const root = document.getElementById('app')
-    if (!root) { return }
+    if (!root) {
+      return
+    }
     root.style.setProperty('--scrubber-hover', railHoverColor)
+    // TODO: Fix these deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

@@ -1,4 +1,5 @@
 import Router from 'preact-router'
+
 import './util/initWeb3'
 import App from './components/app'
 import {

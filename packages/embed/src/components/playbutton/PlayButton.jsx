@@ -1,6 +1,7 @@
-import { h } from 'preact'
 import cn from 'classnames'
+import { h } from 'preact'
 import { useEffect } from 'preact/hooks'
+
 import IconPause from '../../assets/img/iconPause.svg'
 import IconPlay from '../../assets/img/iconPlay.svg'
 import Spinner from '../spinner/Spinner'
@@ -19,20 +20,25 @@ const PlayButton = ({
   onTogglePlay,
   iconColor,
   className,
-  style={}
+  style = {}
 }) => {
-
   const stateIconMap = {
     [PlayingState.Playing]: <IconPause />,
     [PlayingState.Paused]: <IconPlay />,
     [PlayingState.Stopped]: <IconPlay />,
-    [PlayingState.Buffering]: <Spinner className={styles.spinner} svgStyle={{ stroke: iconColor }} />
+    [PlayingState.Buffering]: (
+      <Spinner className={styles.spinner} svgStyle={{ stroke: iconColor }} />
+    )
   }
 
   useEffect(() => {
     const root = document.getElementById('app')
-    if (!root) { return }
+    if (!root) {
+      return
+    }
     root.style.setProperty('--play-button-fill', iconColor)
+    // TODO: Fix these deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

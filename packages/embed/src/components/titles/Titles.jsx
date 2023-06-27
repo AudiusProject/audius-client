@@ -2,15 +2,10 @@ import { h } from 'preact'
 
 import IconVerified from '../../assets/img/iconVerified.svg'
 import { getCopyableLink } from '../../util/shareUtil'
+
 import styles from './Titles.module.css'
 
-const Titles = ({
-  title,
-  handle,
-  artistName,
-  titleUrl,
-  isVerified
-}) => {
+const Titles = ({ title, handle, artistName, titleUrl, isVerified }) => {
   const onClickTitle = () => {
     window.open(getCopyableLink(titleUrl), '_blank')
   }
@@ -21,15 +16,10 @@ const Titles = ({
 
   return (
     <div className={styles.titles}>
-      <h1
-        className={styles.title}
-        onClick={onClickTitle}>
+      <h1 className={styles.title} onClick={onClickTitle}>
         {title}
       </h1>
-      <h2
-        className={styles.artistName}
-        onClick={onClickArtist}
-      >
+      <h2 className={styles.artistName} onClick={onClickArtist}>
         {artistName}
         {isVerified && <IconVerified />}
       </h2>

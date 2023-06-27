@@ -1,18 +1,19 @@
+import cn from 'classnames'
 import { h } from 'preact'
 import { useContext } from 'preact/hooks'
-import cn from 'classnames'
+import { CSSTransition } from 'react-transition-group'
+
 import IconRemove from '../../assets/img/iconRemove.svg'
+import { PlayerFlavor } from '../app'
 import Artwork from '../artwork/Artwork'
+import { CardDimensionsContext } from '../card/Card'
+
 import AudiusLogo from './AudiusLogo'
 import ListenOnAudiusCTA from './ListenOnAudiusCTA'
-import PrimaryLabel from './PrimaryLabel'
-import { CSSTransition } from 'react-transition-group'
-import { PauseContext } from './PauseProvider'
-import { PlayerFlavor } from '../app'
-
 import styles from './PausePopover.module.css'
+import { PauseContext } from './PauseProvider'
 import pauseTransitions from './PauseTransitions.module.css'
-import { CardDimensionsContext } from '../card/Card'
+import PrimaryLabel from './PrimaryLabel'
 
 const DISMISS_BUTTON_CARD_LEFT_MARGIN = 12
 
@@ -37,40 +38,41 @@ const PausedPopoverCard = ({
   }
 
   return (
-      <CSSTransition
-        in={popoverVisibility}
-        timeout={1000}
-        classNames={pauseTransitions}
+    <CSSTransition
+      in={popoverVisibility}
+      timeout={1000}
+      classNames={pauseTransitions}
+    >
+      <div
+        className={cn(styles.container, {
+          [styles.blur]: popoverVisibility
+        })}
+        // Ensure that when the popover
+        // is animating out, it's not clickable.
+        style={popoverVisibility ? {} : { pointerEvents: 'none' }}
       >
-        <div
-          className={cn(styles.container, {
-            [styles.blur]: popoverVisibility
-          })}
-          // Ensure that when the popover
-          // is animating out, it's not clickable.
-          style={popoverVisibility
-            ? {}
-            : { pointerEvents: 'none' }
-          }
-        >
-        { (flavor === PlayerFlavor.CARD) &&
+        {flavor === PlayerFlavor.CARD && (
           <>
             <div className={styles.logo}>
               <AudiusLogo />
             </div>
-            { !isMobileWebTwitter && <Artwork
-              artworkURL={artworkURL}
-              onClickURL={artworkClickURL}
-              className={styles.artworkSizing}
-            /> }
+            {!isMobileWebTwitter && (
+              <Artwork
+                artworkURL={artworkURL}
+                onClickURL={artworkClickURL}
+                className={styles.artworkSizing}
+              />
+            )}
           </>
-        }
+        )}
         <PrimaryLabel
-          className={flavor === PlayerFlavor.COMPACT ? styles.compactLabelFont : undefined}
+          className={
+            flavor === PlayerFlavor.COMPACT
+              ? styles.compactLabelFont
+              : undefined
+          }
         />
-        <ListenOnAudiusCTA
-          audiusURL={listenOnAudiusURL}
-        />
+        <ListenOnAudiusCTA audiusURL={listenOnAudiusURL} />
         <div
           className={styles.dismissIcon}
           onClick={() => setPopoverVisibility(false)}
@@ -78,8 +80,8 @@ const PausedPopoverCard = ({
         >
           <IconRemove />
         </div>
-        </div>
-      </CSSTransition>
+      </div>
+    </CSSTransition>
   )
 }
 

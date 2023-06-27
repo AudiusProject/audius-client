@@ -1,4 +1,3 @@
-/* globals Blob Worker */
 const importWorkerScript = (script) => {
   const basename = process.env.PUBLIC_URL
   // eslint-disable-next-line
@@ -53,7 +52,7 @@ export default class WebWorker {
    * @param {?string} key optional key used to retrieve specifically keyed calls.
    */
   getResult = async (key = '') => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.worker.addEventListener('message', (event) => {
         if (event.data.key) {
           if (event.data.key === key) {

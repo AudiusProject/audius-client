@@ -15,7 +15,7 @@ const IS_CHROME_LIKE =
 
 export let AudioError
 ;(function (AudioError) {
-  AudioError['AUDIO'] = 'AUDIO'
+  AudioError.AUDIO = 'AUDIO'
 })(AudioError || (AudioError = {}))
 
 export class AudioPlayer {
@@ -39,7 +39,7 @@ export class AudioPlayer {
     this.bufferingTimeout = null
     this.buffering = false
     // Callback fired when buffering status changes
-    this.onBufferingChange = (isBuffering) => {}
+    this.onBufferingChange = () => {}
 
     this.concatBufferInterval = null
     this.nextBufferIndex = 0
@@ -56,7 +56,7 @@ export class AudioPlayer {
     this.url = null
 
     // Listen for errors
-    this.onError = (e, data) => {}
+    this.onError = () => {}
   }
 
   load = (duration, onEnd, mp3Url = null) => {
@@ -179,7 +179,7 @@ export class AudioPlayer {
 
     const promise = this.audio.play()
     if (promise) {
-      promise.catch((_) => {
+      promise.catch(() => {
         // Let pauses interrupt plays (as the user could be rapidly skipping through tracks).
       })
     }

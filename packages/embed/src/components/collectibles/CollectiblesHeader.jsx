@@ -1,42 +1,44 @@
-import { h } from 'preact'
 import BN from 'bn.js'
 import cn from 'classnames'
-import AudiusLogoButton from '../button/AudiusLogoButton'
-import styles from './CollectiblesHeader.module.css'
+import { h } from 'preact'
+
+import IconBronzeBadge from '../../assets/img/IconBronzeBadge.svg'
+import IconGoldBadge from '../../assets/img/IconGoldBadge.svg'
+import IconPlatinumBadge from '../../assets/img/IconPlatinumBadge.svg'
+import IconSilverBadge from '../../assets/img/IconSilverBadge.svg'
 import IconArrowGrey from '../../assets/img/iconArrowGrey.svg'
 import IconVerified from '../../assets/img/iconVerified.svg'
-import IconBronzeBadge from '../../assets/img/iconBronzeBadge.svg'
-import IconGoldBadge from '../../assets/img/iconGoldBadge.svg'
-import IconPlatinumBadge from '../../assets/img/iconPlatinumBadge.svg'
-import IconSilverBadge from '../../assets/img/iconSilverBadge.svg'
 import { getCopyableLink } from '../../util/shareUtil'
+import AudiusLogoButton from '../button/AudiusLogoButton'
+
+import styles from './CollectiblesHeader.module.css'
 
 const badgeTiers = [
   {
     tier: 'platinum',
     icon: <IconPlatinumBadge />,
-    amount: new BN('100000000000000000000000'),
+    amount: new BN('100000000000000000000000')
   },
   {
     tier: 'gold',
     icon: <IconGoldBadge />,
-    amount: new BN('10000000000000000000000'),
+    amount: new BN('10000000000000000000000')
   },
   {
     tier: 'silver',
     icon: <IconSilverBadge />,
-    amount: new BN('100000000000000000000'),
+    amount: new BN('100000000000000000000')
   },
   {
     tier: 'bronze',
     icon: <IconBronzeBadge />,
-    amount: new BN('10000000000000000000'),
-  },
+    amount: new BN('10000000000000000000')
+  }
 ]
 
 const getTierIcon = (balance) => {
   const bnBalance = new BN(balance)
-  const index = badgeTiers.findIndex(t => t.amount.lte(bnBalance))
+  const index = badgeTiers.findIndex((t) => t.amount.lte(bnBalance))
   const tier = index === -1 ? null : badgeTiers[index]
   return tier ? tier.icon : null
 }
@@ -47,13 +49,19 @@ const CollectiblesHeader = ({
   onBackButtonClick = () => {}
 }) => {
   const { name, handle, isVerified, total_balance } = user
-  const onClick = () => window.open(getCopyableLink(`${handle}/collectibles`), '_blank')
+  const onClick = () =>
+    window.open(getCopyableLink(`${handle}/collectibles`), '_blank')
 
   return (
-    <div className={cn(styles.header, { [styles.leftPad]: backButtonVisible })} onClick={onClick}>
+    <div
+      className={cn(styles.header, { [styles.leftPad]: backButtonVisible })}
+      onClick={onClick}
+    >
       <div className={styles.headerInfo}>
         <div
-          className={cn(styles.backButton, { [styles.visible]: backButtonVisible })}
+          className={cn(styles.backButton, {
+            [styles.visible]: backButtonVisible
+          })}
           onClick={(e) => {
             e.stopPropagation()
             onBackButtonClick()

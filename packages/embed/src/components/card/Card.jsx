@@ -1,21 +1,21 @@
+import cn from 'classnames'
 import { h, createContext } from 'preact'
 import { useEffect, useState, useContext, useMemo, useRef } from 'preact/hooks'
-import cn from 'classnames'
+
+import { isMobileWebTwitter } from '../../util/isMobileWebTwitter'
+import TwitterFooter from '../twitterfooter/TwitterFooter'
 
 import styles from './Card.module.css'
-import TwitterFooter from '../twitterfooter/TwitterFooter'
-import { isMobileWebTwitter } from '../../util/isMobileWebTwitter'
 
 const ASPECT_RATIOS = {
   standard: 0.833,
   twitter: 0.728
 }
 
-
 export const CardDimensionsContext = createContext({
   height: 0,
   width: 0,
-  setDimensions: (dimension) => { }
+  setDimensions: () => {}
 })
 
 export const CardContextProvider = (props) => {
@@ -48,7 +48,8 @@ const setCardSize = (setCardStyle, cardRef, mobileWebTwitter, isTwitter) => {
   }
 
   const aspectRatio = isTwitter ? ASPECT_RATIOS.twitter : ASPECT_RATIOS.standard
-  const viewportAspectRatio = (window.document.body.clientWidth / window.document.body.clientHeight)
+  const viewportAspectRatio =
+    window.document.body.clientWidth / window.document.body.clientHeight
 
   if (aspectRatio < viewportAspectRatio) {
     // In this case, we have 'extra' width so height is the constraining factor
@@ -76,14 +77,20 @@ const Card = ({
   const [cardStyle, setCardStyle] = useState({})
 
   // Need to make the injected BG color slightly transparent
-  const transparentBg = `${backgroundColor.slice(0, backgroundColor.length - 1)}, 0.5)`
+  const transparentBg = `${backgroundColor.slice(
+    0,
+    backgroundColor.length - 1
+  )}, 0.5)`
   const mobileWebTwitter = isMobileWebTwitter(isTwitter)
   // Don't display dropshadow on mobile web twitter
   // bc we want to display it fullscreen
   const displayTwitterFooter = isTwitter && !mobileWebTwitter
-  const getDropshadow = () => (isTwitter && !mobileWebTwitter ? { boxShadow: `0 3px 34px 0 ${transparentBg}` } : {})
+  const getDropshadow = () =>
+    isTwitter && !mobileWebTwitter
+      ? { boxShadow: `0 3px 34px 0 ${transparentBg}` }
+      : {}
   // No border radius on mobile web twitter
-  const getBorderRadius = () => mobileWebTwitter ? 0 : 12
+  const getBorderRadius = () => (mobileWebTwitter ? 0 : 12)
   const height = cardStyle.height
 
   const cardRef = useRef()
@@ -101,11 +108,13 @@ const Card = ({
       }
 
       resizeEventListener()
-      window.addEventListener('resize', resizeEventListener);
+      window.addEventListener('resize', resizeEventListener)
       return () => {
-        window.removeEventListener('resize', resizeEventListener);
+        window.removeEventListener('resize', resizeEventListener)
       }
     }
+    // TODO: Fix these deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setCardSize, setCardStyle, cardRef, mobileWebTwitter, isTwitter])
 
   useMemo(() => {
@@ -114,10 +123,12 @@ const Card = ({
     }
     // Feed the style into the card dimensions context
     const newStyle = {
-      width: parseInt(cardStyle.width.replace('px', '')),
-      height: parseInt(cardStyle.height.replace('px', ''))
+      width: parseInt(cardStyle.width.replace('px', ''), 10),
+      height: parseInt(cardStyle.height.replace('px', ''), 10)
     }
     setDimensions(newStyle)
+    // TODO: Fix these deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [height])
 
   return (
@@ -132,8 +143,7 @@ const Card = ({
       ref={cardRef}
     >
       {children}
-      {
-        displayTwitterFooter &&
+      {displayTwitterFooter && (
         <div
           className={styles.twitterContainer}
           style={{
@@ -143,7 +153,7 @@ const Card = ({
         >
           <TwitterFooter onClickPath={twitterURL} />
         </div>
-      }
+      )}
     </div>
   )
 }

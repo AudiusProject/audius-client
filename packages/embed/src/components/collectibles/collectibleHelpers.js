@@ -1,6 +1,6 @@
-import { gifPreview } from "../../util/image/gifPreview"
+import { gifPreview } from '../../util/image/gifPreview'
 
-export const getFrameFromGif = async (url, name) => {
+export const getFrameFromGif = async (url) => {
   const preview = await gifPreview(url)
   return URL.createObjectURL(preview)
 }
@@ -11,9 +11,10 @@ export const getFrameFromGif = async (url, name) => {
  * @param {string} str
  * @returns {string} hash
  */
-export const getHash = (str) => (
-  Math.abs(str.split('').reduce((a, b) => {
-    a = ((a << 5) - a) + b.charCodeAt(0)
-    return a & a
-  }, 0)).toString(36)
-)
+export const getHash = (str) =>
+  Math.abs(
+    str.split('').reduce((a, b) => {
+      a = (a << 5) - a + b.charCodeAt(0)
+      return a & a
+    }, 0)
+  ).toString(36)

@@ -1,4 +1,5 @@
 import Hashids from 'hashids'
+
 import { logError } from './logError'
 
 const HASH_SALT = 'azowernasdfoia'

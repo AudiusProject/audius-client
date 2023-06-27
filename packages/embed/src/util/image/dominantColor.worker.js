@@ -12,7 +12,7 @@ export default () => {
   const LUMINANCE_THRESHOLD = 201
 
   const clampedRGBColor = (rgbString /* string of 'r,g,b' */) => {
-    const [r, g, b] = rgbString.split(',').map((x) => parseInt(x))
+    const [r, g, b] = rgbString.split(',').map((x) => parseInt(x, 10))
     // Luminance in [0, 255]
     // https://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
     const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
@@ -55,7 +55,7 @@ export default () => {
         const pixels = imageData.data
         const pixelCount = imageData.width * imageData.height
 
-        let counts = {}
+        const counts = {}
 
         for (let i = 0; i < pixelCount; i += SAMPLE_RATE) {
           const offset = i * 4
@@ -77,6 +77,7 @@ export default () => {
             result = i
             return counts[i]
           }
+          return acc
         }, 0)
 
         result = clampedRGBColor(result)
@@ -89,7 +90,7 @@ export default () => {
     }
 
     const timeouter = () =>
-      new Promise((fulfill, reject) => {
+      new Promise((resolve, reject) => {
         setTimeout(() => {
           reject(new Error('Timeout'))
         }, REQUEST_TIMEOUT)

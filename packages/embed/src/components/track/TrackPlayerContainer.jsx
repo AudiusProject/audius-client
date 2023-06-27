@@ -7,22 +7,23 @@ import {
   useMemo
 } from 'preact/hooks'
 
+import usePlayback from '../../hooks/usePlayback'
+import { useRecordListens } from '../../hooks/useRecordListens'
+import { useSpacebar } from '../../hooks/useSpacebar'
+import { getTrackStreamEndpoint } from '../../util/BedtimeClient'
+import { formatGateways } from '../../util/gatewayUtil'
+import { getArtworkUrl } from '../../util/getArtworkUrl'
+import { isMobile } from '../../util/isMobile'
+import { logError } from '../../util/logError'
+import { stripLeadingSlash } from '../../util/stringUtil'
 import { PlayerFlavor } from '../app'
+import { PauseContext } from '../pausedpopover/PauseProvider'
+import { PlayingState } from '../playbutton/PlayButton'
+
+import TrackHelmet from './TrackHelmet'
+import TrackPlayerCard from './TrackPlayerCard'
 import TrackPlayerCompact from './TrackPlayerCompact'
 import TrackPlayerTiny from './TrackPlayerTiny'
-import usePlayback from '../../hooks/usePlayback'
-import { PauseContext } from '../pausedpopover/PauseProvider'
-import TrackPlayerCard from './TrackPlayerCard'
-import { stripLeadingSlash } from '../../util/stringUtil'
-import TrackHelmet from './TrackHelmet'
-import { useSpacebar } from '../../hooks/useSpacebar'
-import { useRecordListens } from '../../hooks/useRecordListens'
-import { PlayingState } from '../playbutton/PlayButton'
-import { isMobile } from '../../util/isMobile'
-import { formatGateways } from '../../util/gatewayUtil'
-import { logError } from '../../util/logError'
-import { getTrackStreamEndpoint } from '../../util/BedtimeClient'
-import { getArtworkUrl } from '../../util/getArtworkUrl'
 
 const LISTEN_INTERVAL_SECONDS = 1
 
@@ -116,7 +117,7 @@ const TrackPlayerContainer = ({
         try {
           const messageData = JSON.parse(e.data)
           const { from, method, value } = messageData
-          if (from && from == 'audiusapi') {
+          if (from && from === 'audiusapi') {
             if (method === 'togglePlay') didTogglePlay()
             if (method === 'stop') stop()
             if (method === 'seekTo') seekTo(value)

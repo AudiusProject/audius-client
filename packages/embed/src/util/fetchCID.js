@@ -76,13 +76,12 @@ async function raceRequests(urls, callback) {
   return response.blob
 }
 
-export const fetchCID = async (cid, creatorNodeGateways = [], cache = true) => {
-  let allGateways = creatorNodeWhitelist
+export const fetchCID = async (cid) => {
+  const allGateways = creatorNodeWhitelist
 
   try {
     const image = await _fetchCID(cid, allGateways)
     const url = URL.createObjectURL(image.data)
-    if (cache) CIDCache.add(cid, url)
     return url
   } catch (e) {
     logError(e)
@@ -91,7 +90,7 @@ export const fetchCID = async (cid, creatorNodeGateways = [], cache = true) => {
 }
 
 export const fetchJsonFromCID = async (cid) => {
-  let allGateways = creatorNodeWhitelist
+  const allGateways = creatorNodeWhitelist
 
   try {
     const image = await _fetchCID(cid, allGateways)

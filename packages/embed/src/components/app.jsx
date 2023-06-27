@@ -1,40 +1,13 @@
+import cn from 'classnames'
 import { h } from 'preact'
 import { useCallback, useEffect, useState, useRef } from 'preact/hooks'
-import {
-  getCollectible,
-  getCollectibles,
-  getCollection,
-  getCollectionWithHashId,
-  getTrack,
-  getTrackWithHashId
-} from '../util/BedtimeClient'
-import { decodeHashId } from '../util/hashids'
-import CollectiblesPlayerContainer from './collectibles/CollectiblesPlayerContainer'
-import { DEFAULT_DOMINANT_COLOR } from '../util/image/dominantColor.worker'
-import CollectionPlayerContainer from './collection/CollectionPlayerContainer'
-import TrackPlayerContainer from './track/TrackPlayerContainer'
-import Error from './error/Error'
-import DeletedContent from './deleted/DeletedContent'
-import { stripLeadingSlash } from '../util/stringUtil'
-import cn from 'classnames'
-import Loading from './loading/Loading'
-import { ToastContextProvider } from './toast/ToastContext'
-import { PauseContextProvider } from './pausedpopover/PauseProvider'
-import PausePopover from './pausedpopover/PausePopover'
+import { CSSTransition } from 'react-transition-group'
 
-import styles from './App.module.css'
 import {
   initTrackSessionStart,
   recordOpen,
   recordError
 } from '../analytics/analytics'
-import transitions from './AppTransitions.module.css'
-import { CSSTransition } from 'react-transition-group'
-import { getDominantColor } from '../util/image/dominantColor'
-import { shadeColor } from '../util/shadeColor'
-import { isMobileWebTwitter } from '../util/isMobileWebTwitter'
-import { CardContextProvider } from './card/Card'
-import { isBItem } from '../util/bitems'
 import {
   ID_ROUTE,
   HASH_ID_ROUTE,
@@ -45,8 +18,36 @@ import {
   AUDIO_NFT_PLAYLIST_ROUTE,
   AUDIO_NFT_PLAYLIST_DISCORD_ROUTE
 } from '../routes'
+import {
+  getCollectible,
+  getCollectibles,
+  getCollection,
+  getCollectionWithHashId,
+  getTrack,
+  getTrackWithHashId
+} from '../util/BedtimeClient'
+import { isBItem } from '../util/bitems'
 import { getArtworkUrl } from '../util/getArtworkUrl'
+import { decodeHashId } from '../util/hashIds'
+import { getDominantColor } from '../util/image/dominantColor'
+import { DEFAULT_DOMINANT_COLOR } from '../util/image/dominantColor.worker'
+import { isMobileWebTwitter } from '../util/isMobileWebTwitter'
 import { logError } from '../util/logError'
+import { shadeColor } from '../util/shadeColor'
+import { stripLeadingSlash } from '../util/stringUtil'
+
+import styles from './App.module.css'
+import transitions from './AppTransitions.module.css'
+import { CardContextProvider } from './card/Card'
+import CollectiblesPlayerContainer from './collectibles/CollectiblesPlayerContainer'
+import CollectionPlayerContainer from './collection/CollectionPlayerContainer'
+import DeletedContent from './deleted/DeletedContent'
+import Error from './error/Error'
+import Loading from './loading/Loading'
+import PausePopover from './pausedpopover/PausePopover'
+import { PauseContextProvider } from './pausedpopover/PauseProvider'
+import { ToastContextProvider } from './toast/ToastContext'
+import TrackPlayerContainer from './track/TrackPlayerContainer'
 
 if (module.hot) {
   // tslint:disable-next-line:no-var-requires
@@ -103,7 +104,7 @@ const getRequestDataFromURL = ({ path, type, flavor, matches }) => {
         return null
       }
       // Parse them as ints
-      const [intId, intOwnerId] = [parseInt(id), parseInt(ownerId)]
+      const [intId, intOwnerId] = [parseInt(id, 10), parseInt(ownerId, 10)]
       if (isNaN(intId) || isNaN(intOwnerId)) {
         return null
       }
@@ -322,6 +323,8 @@ const App = (props) => {
     }
     setRequestState(request)
     requestMetadata(request)
+    // TODO: Fix these deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Retries
@@ -430,8 +433,8 @@ const App = (props) => {
       return null
     }
 
-    let artworkURL = getArtworkUrl(tracksResponse || collectionsResponse)
-    let artworkClickURL =
+    const artworkURL = getArtworkUrl(tracksResponse || collectionsResponse)
+    const artworkClickURL =
       tracksResponse?.permalink ||
       `${collectionsResponse?.permalink}-${decodeHashId(
         collectionsResponse?.id
@@ -443,8 +446,8 @@ const App = (props) => {
               )}`
           )
         : null
-    let listenOnAudiusURL = artworkClickURL
-    let flavor = requestState.playerFlavor
+    const listenOnAudiusURL = artworkClickURL
+    const flavor = requestState.playerFlavor
     return (
       <PausePopover
         artworkURL={artworkURL}

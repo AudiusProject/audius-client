@@ -1,12 +1,13 @@
+import cn from 'classnames'
 import { h } from 'preact'
 import { useState, useEffect, useRef } from 'preact/hooks'
+
+import audiusLogo from '../../assets/img/logoEmbedPlayer.png'
+import { logError } from '../../util/logError'
 import { getCopyableLink } from '../../util/shareUtil'
-import cn from 'classnames'
 import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 
 import styles from './Artwork.module.css'
-import audiusLogo from '../../assets/img/logoEmbedPlayer.png'
-import { logError } from '../../util/logError'
 
 export const DEFAULT_IMAGE =
   'https://download.audius.co/static-resources/preview-image.jpg'

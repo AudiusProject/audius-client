@@ -1,17 +1,15 @@
 import { h } from 'preact'
-import { useState, useCallback, useContext, useEffect } from 'preact/hooks'
+import { useState, useContext, useEffect } from 'preact/hooks'
+
+import { isMobileWebTwitter } from '../../util/isMobileWebTwitter'
 import Artwork from '../artwork/Artwork'
 import ShareButton from '../button/ShareButton'
+import Card, { CardDimensionsContext } from '../card/Card'
 import PlayButton from '../playbutton/PlayButton'
 import BedtimeScrubber from '../scrubber/BedtimeScrubber'
 import Titles from '../titles/Titles'
-import Card, { CardDimensionsContext } from '../card/Card'
 
 import styles from './TrackPlayerCard.module.css'
-
-import cardStyles from '../collection/CollectionPlayerCard.module.css'
-import { isMobileWebTwitter } from '../../util/isMobileWebTwitter'
-import AudiusLogo from '../pausedpopover/AudiusLogo'
 
 const TrackPlayerCard = ({
   title,
@@ -27,11 +25,11 @@ const TrackPlayerCard = ({
   duration,
   seekTo,
   backgroundColor,
-  isTwitter,
+  isTwitter
 }) => {
-
   const mobileWebTwitter = isMobileWebTwitter(isTwitter)
-  const getBottomWrapperStyle = () => mobileWebTwitter ? { flex: '0 0 84px' } : {}
+  const getBottomWrapperStyle = () =>
+    mobileWebTwitter ? { flex: '0 0 84px' } : {}
   const [artworkWrapperStyle, setArtworkWrapperStyle] = useState({
     // Need to start the wrapper with 0
     // opacity bc it doesn't have valid
@@ -43,7 +41,7 @@ const TrackPlayerCard = ({
   const { height, width } = useContext(CardDimensionsContext)
 
   useEffect(() => {
-    if (width === 0 ) return
+    if (width === 0) return
     // 124px: 84px bottom component, 18 px bottom margin, 24px top margin
     const desiredHeight = height - 124
     // 48 width to account for horizontal margins
@@ -54,7 +52,7 @@ const TrackPlayerCard = ({
       height: `${side}px`,
       marginLeft: 'auto',
       marginRight: 'auto',
-      opacity: 1,
+      opacity: 1
     }
     setArtworkWrapperStyle(newStyle)
   }, [height, width])
@@ -66,10 +64,7 @@ const TrackPlayerCard = ({
       twitterURL={trackURL}
     >
       <div className={styles.paddingContainer}>
-        <div
-          className={styles.artworkWrapper}
-          style={artworkWrapperStyle}
-        >
+        <div className={styles.artworkWrapper} style={artworkWrapperStyle}>
           <Artwork
             onClickURL={trackURL}
             artworkURL={albumArtURL}
@@ -83,10 +78,7 @@ const TrackPlayerCard = ({
             showLogo
           />
         </div>
-        <div
-          className={styles.bottomWrapper}
-          style={getBottomWrapperStyle()}
-        >
+        <div className={styles.bottomWrapper} style={getBottomWrapperStyle()}>
           <div className={styles.scrubber}>
             <BedtimeScrubber
               duration={duration}
@@ -113,11 +105,7 @@ const TrackPlayerCard = ({
               />
             </div>
             <div className={styles.shareWrapper}>
-              <ShareButton
-                url={trackURL}
-                creator={artistName}
-                title={title}
-              />
+              <ShareButton url={trackURL} creator={artistName} title={title} />
             </div>
           </div>
         </div>

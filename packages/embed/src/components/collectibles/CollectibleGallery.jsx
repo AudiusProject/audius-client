@@ -1,12 +1,14 @@
+import cn from 'classnames'
 import { h } from 'preact'
 import { useState, useEffect } from 'preact/hooks'
-import cn from 'classnames'
-import Card from '../card/Card'
-import styles from './CollectibleGallery.module.css'
-import CollectibleDetailsView from './CollectibleDetailsView'
-import CollectiblesHeader from './CollectiblesHeader'
-import CollectibleTile from './CollectibleTile'
+
 import { fetchJsonFromCID } from '../../util/fetchCID'
+import Card from '../card/Card'
+
+import CollectibleDetailsView from './CollectibleDetailsView'
+import styles from './CollectibleGallery.module.css'
+import CollectibleTile from './CollectibleTile'
+import CollectiblesHeader from './CollectiblesHeader'
 
 const CollectibleGallery = ({
   collectibles,
@@ -24,25 +26,33 @@ const CollectibleGallery = ({
     setHasFetched(true)
 
     if (result && result.collectibles) {
-      const collectiblesMetadataKeySet = new Set(Object.keys(result.collectibles))
+      const collectiblesMetadataKeySet = new Set(
+        Object.keys(result.collectibles)
+      )
       const newCollectiblesMap = collectibles
-        .map(c => c.id)
-        .filter(id => !collectiblesMetadataKeySet.has(id))
+        .map((c) => c.id)
+        .filter((id) => !collectiblesMetadataKeySet.has(id))
         .reduce((acc, curr) => ({ ...acc, [curr]: {} }), {})
 
-      setOrder(result.collectibles.order.concat(Object.keys(newCollectiblesMap)))
+      setOrder(
+        result.collectibles.order.concat(Object.keys(newCollectiblesMap))
+      )
     }
   }
 
-  useEffect(() => { fetchCollectiblesOrder() }, [])
+  useEffect(() => {
+    fetchCollectiblesOrder()
+    // TODO: Fix these deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   if (!hasFetched) return null
 
   let collectiblesArray = collectibles
 
   if (order) {
     const orderedArray = order
-      .map(collectibleId => collectibles.find(c => c.id === collectibleId))
-      .filter(c => c !== undefined)
+      .map((collectibleId) => collectibles.find((c) => c.id === collectibleId))
+      .filter((c) => c !== undefined)
 
     if (orderedArray.length) collectiblesArray = orderedArray
   }
@@ -63,7 +73,7 @@ const CollectibleGallery = ({
           }}
         />
         <div className={styles.collectiblesContainer}>
-          {collectiblesArray.map(collectible => (
+          {collectiblesArray.map((collectible) => (
             <CollectibleTile
               key={collectible.id}
               collectible={collectible}
@@ -77,7 +87,9 @@ const CollectibleGallery = ({
       </div>
 
       {/* Detail Modal */}
-      <div className={cn(styles.detailsModal, { [styles.isOpen]: isModalOpen })}>
+      <div
+        className={cn(styles.detailsModal, { [styles.isOpen]: isModalOpen })}
+      >
         <CollectibleDetailsView
           collectible={modalCollectible}
           user={user}

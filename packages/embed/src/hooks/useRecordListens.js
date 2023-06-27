@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks'
+
 import { recordListen } from '../util/BedtimeClient'
 
 export const useRecordListens = (

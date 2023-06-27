@@ -1,21 +1,22 @@
+import cn from 'classnames'
 import { h } from 'preact'
 import SimpleBar from 'simplebar-react'
+
 import 'simplebar/dist/simplebar.min.css'
+import IconVerified from '../../assets/img/iconVerified.svg'
+import { isBItem } from '../../util/bitems'
+import { getArtworkUrl } from '../../util/getArtworkUrl'
+import { decodeHashId } from '../../util/hashIds'
+import { stripLeadingSlash } from '../../util/stringUtil'
 import Artwork from '../artwork/Artwork'
 import AudiusLogoButton from '../button/AudiusLogoButton'
 import ShareButton from '../button/ShareButton'
+import Card from '../card/Card'
 import PlayButton, { PlayingState } from '../playbutton/PlayButton'
 import BedtimeScrubber from '../scrubber/BedtimeScrubber'
 import Titles from '../titles/Titles'
-import cn from 'classnames'
-import Card from '../card/Card'
-import { stripLeadingSlash } from '../../util/stringUtil'
-import IconVerified from '../../assets/img/iconVerified.svg'
 
 import styles from './CollectionPlayerCard.module.css'
-import { isBItem } from '../../util/bitems'
-import { getArtworkUrl } from '../../util/getArtworkUrl'
-import { decodeHashId } from '../../util/hashids'
 
 const CollectionListRow = ({
   playingState,

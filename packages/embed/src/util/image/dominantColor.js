@@ -1,4 +1,5 @@
 import WebWorker from '../WebWorker'
+
 import workerCode from './dominantColor.worker.js'
 
 const worker = new WebWorker(workerCode, false)

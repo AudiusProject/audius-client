@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 (function() {
   var _, a, callbacks, events, proto;
 

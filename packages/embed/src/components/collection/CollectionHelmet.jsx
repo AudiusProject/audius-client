@@ -1,7 +1,8 @@
 import { h } from 'preact'
 import { Helmet } from 'react-helmet'
+
 import { getAudiusHostname } from '../../util/getEnv'
-import { decodeHashId } from '../../util/hashids'
+import { decodeHashId } from '../../util/hashIds'
 
 const CollectionHelmet = ({ collection }) => {
   if (!collection) {
@@ -15,7 +16,7 @@ const CollectionHelmet = ({ collection }) => {
     collection.id
   )}`
   const isAlbum = collection.isAlbum
-  let type = isAlbum ? 'MusicAlbum' : 'MusicPlaylist'
+  const type = isAlbum ? 'MusicAlbum' : 'MusicPlaylist'
   const structuredData = {
     '@context': 'http://schema.googleapis.com/',
     '@type': type,
