@@ -26,6 +26,20 @@ export function* deregisterPushNotifications() {
   yield* call(audiusBackendInstance.deregisterDeviceToken, token)
 }
 
+/*
+ * Runs once at startup and re-registers the device-token in case it changes
+ */
+function* reregisterDeviceToken() {
+  const audiusBackend = yield* getContext('audiusBackendInstance')
+  const hasPermission = yield* call([PushNotifications, 'hasPermission'])
+  console.log({ hasPermission })
+  if (hasPermission) {
+    const { token, os } = yield* call([PushNotifications, 'getToken'])
+    console.log({ token, os })
+    yield* call(audiusBackend.registerDeviceToken, token, os)
+  }
+}
+
 function* enablePushNotifications() {
   yield* call([PushNotifications, 'requestPermission'])
   const { token, os } = yield* call([PushNotifications, 'getToken'])
@@ -71,9 +85,9 @@ function* watchGetPushNotificationSettings() {
   yield* takeEvery(actions.GET_PUSH_NOTIFICATION_SETTINGS, function* () {
     yield* call(waitForRead)
     try {
-      const settings = (yield* call(
+      const settings = yield* call(
         audiusBackendInstance.getPushNotificationSettings
-      )) as TPushNotifications
+      )
       let pushNotificationSettings = mapValues(
         initialState.pushNotifications,
         function (_val: boolean) {
@@ -157,6 +171,7 @@ function* watchRequestPushNotificationPermissions() {
 export default function sagas() {
   return [
     ...commonSettingsSagas(),
+    reregisterDeviceToken,
     watchGetPushNotificationSettings,
     watchUpdatePushNotificationSettings,
     watchRequestPushNotificationPermissions
