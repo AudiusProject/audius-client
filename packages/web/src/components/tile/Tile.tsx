@@ -11,6 +11,7 @@ type TileOwnProps<TileComponentType extends ElementType = 'div'> = {
   size?: 'small' | 'medium' | 'large'
   as?: TileComponentType
   dogEar?: DogEarType
+  elevation?: 'near' | 'mid' | 'far'
 }
 
 export type TileProps<TileComponentType extends ElementType> =
@@ -28,16 +29,18 @@ export const Tile = <
     as: RootComponent = 'div',
     className,
     dogEar,
+    elevation = 'near',
     ...other
   } = props
 
-  const isDynamic = 'onClick' in other || 'href' in other
-
   return (
     <RootComponent
-      className={cn(styles.root, size && styles[size], className, {
-        [styles.dynamic]: isDynamic
-      })}
+      className={cn(
+        styles.root,
+        size && styles[size],
+        styles[elevation],
+        className
+      )}
       {...other}
     >
       {dogEar ? <DogEar type={dogEar} /> : null}

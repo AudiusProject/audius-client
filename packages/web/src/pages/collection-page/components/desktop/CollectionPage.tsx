@@ -245,6 +245,8 @@ const CollectionPage = ({
     >
       <Tile
         className={styles.bodyWrapper}
+        size='large'
+        elevation='mid'
         dogEar={isPrivate ? DogEarType.HIDDEN : undefined}
       >
         <div className={styles.topSectionWrapper}>{topSection}</div>

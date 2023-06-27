@@ -32,6 +32,7 @@ import Menu from 'components/menu/Menu'
 import RepostFavoritesStats from 'components/repost-favorites-stats/RepostFavoritesStats'
 import { SearchTag } from 'components/search/SearchTag'
 import Skeleton from 'components/skeleton/Skeleton'
+import { Tile } from 'components/tile'
 import Toast from 'components/toast/Toast'
 import Tooltip from 'components/tooltip/Tooltip'
 import UserBadges from 'components/user-badges/UserBadges'
@@ -45,7 +46,6 @@ import Badge from './Badge'
 import { CardTitle } from './CardTitle'
 import GiantArtwork from './GiantArtwork'
 import styles from './GiantTrackTile.module.css'
-import { GiantTrackTileDogEar } from './GiantTrackTileDogEar'
 import { GiantTrackTileProgressInfo } from './GiantTrackTileProgressInfo'
 import InfoLabel from './InfoLabel'
 import { PlayPauseButton } from './PlayPauseButton'
@@ -410,6 +410,8 @@ class GiantTrackTile extends PureComponent {
           ? DogEarType.COLLECTIBLE_GATED
           : DogEarType.SPECIAL_ACCESS
         : DogEarType.LOCKED
+      : isUnlisted
+      ? DogEarType.HIDDEN
       : null
 
     const overflowMenuExtraItems = []
@@ -447,11 +449,13 @@ class GiantTrackTile extends PureComponent {
     }
 
     return (
-      <div className={styles.giantTrackTile}>
+      <Tile
+        className={styles.giantTrackTile}
+        dogEar={dogEarType}
+        size='large'
+        elevation='mid'
+      >
         <div className={styles.topSection}>
-          {showPremiumDogEar && dogEarType ? (
-            <GiantTrackTileDogEar type={dogEarType} />
-          ) : null}
           <GiantArtwork
             trackId={trackId}
             coverArtSizes={coverArtSizes}
@@ -611,7 +615,7 @@ class GiantTrackTile extends PureComponent {
           {this.renderTags()}
           {this.renderDownloadButtons()}
         </div>
-      </div>
+      </Tile>
     )
   }
 }
