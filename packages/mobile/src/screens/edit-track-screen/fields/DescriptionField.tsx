@@ -1,43 +1,14 @@
-import { useField } from 'formik'
-
-import { Text } from 'app/components/core'
-import { makeStyles } from 'app/styles'
-
-import { TextField } from './TextField'
+import { TextAreaField } from 'app/components/fields'
 
 const messages = {
-  description: 'Description'
+  label: 'Description'
 }
-
-const maxCharCount = 1000
-
-const useStyles = makeStyles(() => ({
-  input: { height: 128, textAlignVertical: 'top' }
-}))
 
 export const DescriptionField = () => {
   const name = 'description'
-  const styles = useStyles()
-  const [{ value }] = useField(name)
-
-  const charCount = value?.length ?? 0
-  const charCountColor =
-    charCount < 800 ? 'neutralLight4' : charCount < 950 ? 'warning' : 'error'
+  const maxLength = 1000
 
   return (
-    <TextField
-      styles={styles}
-      multiline
-      numberOfLines={5}
-      maxLength={maxCharCount}
-      name={name}
-      label={messages.description}
-      endAdornment={
-        <Text variant='body' color={charCountColor}>
-          {charCount}/{maxCharCount}
-        </Text>
-      }
-      returnKeyType='default'
-    />
+    <TextAreaField name={name} label={messages.label} maxLength={maxLength} />
   )
 }
