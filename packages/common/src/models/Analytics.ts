@@ -85,11 +85,11 @@ export enum Name {
   AUDIUS_OAUTH_ERROR = 'Audius Oauth: Login (authenticate) Failed',
 
   // Developer app
-  DEVELOPER_APP_DELETE_ERROR = 'Developer Apps: Delete app error',
-  DEVELOPER_APP_DELETE_SUCCESS = 'Developer Apps: Delete app success',
   DEVELOPER_APP_CREATE_SUBMIT = 'Developer Apps: Create app submit',
-  DEVELOPER_APP_CREATE_ERROR = 'Developer Apps: Create app error',
   DEVELOPER_APP_CREATE_SUCCESS = 'Developer Apps: Create app success',
+  DEVELOPER_APP_CREATE_ERROR = 'Developer Apps: Create app error',
+  DEVELOPER_APP_DELETE_SUCCESS = 'Developer Apps: Delete app success',
+  DEVELOPER_APP_DELETE_ERROR = 'Developer Apps: Delete app error',
 
   // Visualizer
   VISUALIZER_OPEN = 'Visualizer: Open',
@@ -1451,19 +1451,6 @@ type AudiusOauthError = {
   error: string
 }
 
-type DeveloperAppDeleteSuccess = {
-  eventName: Name.DEVELOPER_APP_DELETE_SUCCESS
-  name?: string
-  apiKey?: string
-}
-
-type DeveloperAppDeleteError = {
-  eventName: Name.DEVELOPER_APP_DELETE_ERROR
-  name?: string
-  apiKey?: string
-  error?: string
-}
-
 type DeveloperAppCreateSubmit = {
   eventName: Name.DEVELOPER_APP_CREATE_SUBMIT
   name?: string
@@ -1478,6 +1465,19 @@ type DeveloperAppCreateSuccess = {
 
 type DeveloperAppCreateError = {
   eventName: Name.DEVELOPER_APP_CREATE_ERROR
+  error?: string
+}
+
+type DeveloperAppDeleteSuccess = {
+  eventName: Name.DEVELOPER_APP_DELETE_SUCCESS
+  name?: string
+  apiKey?: string
+}
+
+type DeveloperAppDeleteError = {
+  eventName: Name.DEVELOPER_APP_DELETE_ERROR
+  name?: string
+  apiKey?: string
   error?: string
 }
 
@@ -1868,8 +1868,8 @@ export type AllTrackingEvents =
   | MessageUnfurlPlaylist
   | TipUnlockedChat
   | ChatReportUser
-  | DeveloperAppDeleteError
-  | DeveloperAppDeleteSuccess
-  | DeveloperAppCreateError
-  | DeveloperAppCreateSuccess
   | DeveloperAppCreateSubmit
+  | DeveloperAppCreateSuccess
+  | DeveloperAppCreateError
+  | DeveloperAppDeleteSuccess
+  | DeveloperAppDeleteError
