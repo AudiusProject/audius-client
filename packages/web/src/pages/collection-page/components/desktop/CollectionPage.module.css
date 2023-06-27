@@ -8,7 +8,6 @@
   flex-direction: column;
   position: relative;
 
-  width: 100%;
   min-width: 774px;
   border-radius: 8px;
   background-color: var(--white);
