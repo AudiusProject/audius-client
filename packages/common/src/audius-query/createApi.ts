@@ -39,6 +39,7 @@ import {
   QueryHookResults
 } from './types'
 import { capitalize, getKeyFromFetchArgs, selectCommonEntityMap } from './utils'
+import { ErrorLevel } from 'models/ErrorReporting'
 const { addEntries } = cacheActions
 
 export const createApi = <
@@ -296,6 +297,14 @@ const fetchData = async <Args, Data>(
 
     endpoint.onQuerySuccess?.(data, fetchArgs, { dispatch })
   } catch (e) {
+    context.reportToSentry({
+      error: e as Error,
+      level: ErrorLevel.Error,
+      additionalInfo: { fetchArgs, endpoint },
+      name: `${
+        endpoint.options?.type === 'mutation' ? 'Mutate' : 'Query'
+      } ${capitalize(endpointName)} error`
+    })
     dispatch(
       // @ts-ignore
       actions[`fetch${capitalize(endpointName)}Error`]({
