@@ -20,7 +20,8 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     gap: spacing(1)
   },
   text: {
-    fontSize: typography.fontSize.xs
+    fontSize: typography.fontSize.xs,
+    fontFamily: typography.fontByWeight.medium
   }
 }))
 
