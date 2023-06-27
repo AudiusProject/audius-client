@@ -1,6 +1,4 @@
-# Bedtime
-
-The Audius Embed Player
+# Audius Embed Player
 
 Like you've seen on [twitter](https://twitter.com/AudiusProject/status/1293624808459010050).
 
