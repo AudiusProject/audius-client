@@ -3,7 +3,7 @@ import { Nullable } from '../utils/typeUtils'
 import { StringUSDC } from './Wallet'
 
 export enum USDCTransactionType {
-  PURCHASE = 'PURCHASE',
+  PURCHASE_USDC = 'PURCHASE_USDC',
   PURCHASE_CONTENT = 'PURCHASE_CONTENT',
   TRANSFER = 'TRANSFER'
 }
@@ -17,14 +17,8 @@ export enum USDCTransactionMethod {
   STRIPE = 'STRIPE'
 }
 
-export enum USDCTransactionMetadataType {
-  PURCHASE_USDC = 'PURCHASE_USDC',
-  PURCHASE_CONTENT = 'PURCHASE_CONTENT',
-  TRANSER = 'TRANSFER'
-}
-
 export type InAppUSDCPurchaseMetadata = {
-  discriminator: USDCTransactionMetadataType.PURCHASE_USDC
+  discriminator: USDCTransactionType.PURCHASE_USDC
   usd: string
   usdc: StringUSDC
   purchaseTransactionId: string
@@ -35,16 +29,16 @@ export enum USDCContentPurchaseType {
 }
 
 export type USDCPurchaseContentMetadata = {
-  discriminator: USDCTransactionMetadataType.PURCHASE_CONTENT
+  discriminator: USDCTransactionType.PURCHASE_CONTENT
   amount: StringUSDC
   senderUserId: string
   receiverUserId: string
   purchaseType: USDCContentPurchaseType
-  contentId: string
+  contentId: number
 }
 
 export type USDCTransferMetadata = {
-  discriminator: USDCTransactionMetadataType.TRANSER
+  discriminator: USDCTransactionType.TRANSFER
   amount: StringUSDC
   destination: string
 }
@@ -52,7 +46,7 @@ export type USDCTransferMetadata = {
 export type USDCTransactionDetails =
   | {
       signature: string
-      transactionType: USDCTransactionType.PURCHASE
+      transactionType: USDCTransactionType.PURCHASE_USDC
       method: USDCTransactionMethod.STRIPE
       date: string
       change: StringUSDC

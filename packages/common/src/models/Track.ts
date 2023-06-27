@@ -10,7 +10,7 @@ import { Repost } from './Repost'
 import { StemCategory } from './Stems'
 import { Timestamped } from './Timestamped'
 import { User, UserMetadata } from './User'
-import { StringWei } from './Wallet'
+import { StringUSDC } from './Wallet'
 
 type EpochTimeStamp = number
 
@@ -76,7 +76,7 @@ export type PremiumConditionsSolNFTCollection = {
 }
 
 export type PremiumConditionsUSDCPurchase = {
-  price: StringWei
+  price: StringUSDC
   slot: number
 }
 
