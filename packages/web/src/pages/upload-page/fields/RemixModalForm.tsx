@@ -1,11 +1,11 @@
-import type { Track, UserMetadata, Nullable, ID } from '@audius/common'
+import type { Track, UserMetadata, Nullable, ID, RemixOf } from '@audius/common'
 import {
   getPathFromTrackUrl,
   useGetTrackByPermalink,
   SquareSizes,
   accountSelectors
 } from '@audius/common'
-import { useField } from 'formik'
+import { Formik, useField } from 'formik'
 import { useSelector } from 'react-redux'
 
 import { ReactComponent as IconRemix } from 'assets/img/iconRemixGray.svg'
@@ -20,7 +20,7 @@ import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 
 import { ModalField } from './ModalField'
-import styles from './RemixModalField.module.css'
+import styles from './RemixModalForm.module.css'
 import { ToggleRowField } from './ToggleRowField'
 
 const { getUserId } = accountSelectors
@@ -45,22 +45,23 @@ const messages = {
 
 export type RemixOfField = Nullable<{ tracks: { parent_track_id: ID }[] }>
 
-const HIDE_REMIX_FIELD_NAME = 'hide_remixes'
-const REMIX_OF_FIELD_NAME = 'remix_of'
-const REMIX_LINK_FIELD_NAME = 'remix_of_link'
+export const HIDE_REMIX_FIELD_NAME = 'hide_remixes'
+export const REMIX_OF_FIELD_NAME = 'remix_of'
+export const REMIX_LINK_FIELD_NAME = 'remix_of_link'
 
-export const RemixModalField = () => {
-  const [linkField] = useField(REMIX_LINK_FIELD_NAME)
-  const permalink = getPathFromTrackUrl(linkField.value)
-  const currentUserId = useSelector(getUserId)
+export type RemixFormValues = {
+  [REMIX_OF_FIELD_NAME]: RemixOf | null
+  [HIDE_REMIX_FIELD_NAME]: boolean
+  [REMIX_LINK_FIELD_NAME]: string
+}
 
-  const { data: track } = useGetTrackByPermalink(
-    {
-      permalink,
-      currentUserId
-    },
-    { disabled: !permalink }
-  )
+type RemixModalFormProps = {
+  initialValues: RemixFormValues
+  onSubmit: (values: RemixFormValues) => void
+}
+
+export const RemixModalForm = (props: RemixModalFormProps) => {
+  const { initialValues, onSubmit } = props
 
   const preview = (
     <div className={styles.preview}>
@@ -72,35 +73,62 @@ export const RemixModalField = () => {
   )
 
   return (
-    <ModalField
-      title={messages.title}
-      icon={<IconRemix className={styles.titleIcon} />}
-      preview={preview}
+    <Formik<RemixFormValues>
+      initialValues={
+        initialValues ?? {
+          remix_of: null,
+          hideRemixes: false
+        }
+      }
+      onSubmit={onSubmit}
     >
-      <div className={styles.fields}>
-        <ToggleRowField
-          name={HIDE_REMIX_FIELD_NAME}
-          header={messages.hideRemix.header}
-          description={messages.hideRemix.description}
+      <ModalField
+        title={messages.title}
+        icon={<IconRemix className={styles.titleIcon} />}
+        preview={preview}
+      >
+        <RemixModalFields />
+      </ModalField>
+    </Formik>
+  )
+}
+
+const RemixModalFields = () => {
+  const [linkField] = useField(REMIX_LINK_FIELD_NAME)
+  const permalink = getPathFromTrackUrl(linkField.value)
+  const currentUserId = useSelector(getUserId)
+  const { data: track } = useGetTrackByPermalink(
+    {
+      permalink,
+      currentUserId
+    },
+    { disabled: !permalink }
+  )
+
+  return (
+    <div className={styles.fields}>
+      <ToggleRowField
+        name={HIDE_REMIX_FIELD_NAME}
+        header={messages.hideRemix.header}
+        description={messages.hideRemix.description}
+      />
+      <Divider />
+      <ToggleRowField
+        name={REMIX_OF_FIELD_NAME}
+        header={messages.remixOf.header}
+        description={messages.remixOf.description}
+      >
+        <InputV2
+          id='remix_of_input'
+          variant={InputV2Variant.ELEVATED_PLACEHOLDER}
+          label={messages.remixOf.linkLabel}
+          size={InputV2Size.LARGE}
+          {...linkField}
         />
-        <Divider />
-        <ToggleRowField
-          name={REMIX_OF_FIELD_NAME}
-          header={messages.remixOf.header}
-          description={messages.remixOf.description}
-        >
-          <InputV2
-            id='remix_of_input'
-            variant={InputV2Variant.ELEVATED_PLACEHOLDER}
-            label={messages.remixOf.linkLabel}
-            size={InputV2Size.LARGE}
-            {...linkField}
-          />
-          {/* @ts-ignore TDOO: need to populate track with cover art sizes */}
-          {track ? <TrackInfo user={track.user} track={track} /> : null}
-        </ToggleRowField>
-      </div>
-    </ModalField>
+        {/* @ts-ignore TDOO: need to populate track with cover art sizes */}
+        {track ? <TrackInfo user={track.user} track={track} /> : null}
+      </ToggleRowField>
+    </div>
   )
 }
 

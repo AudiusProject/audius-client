@@ -8,6 +8,13 @@ import * as Yup from 'yup'
 
 import PreviewButton from 'components/upload/PreviewButton'
 
+import { ReleaseDateFormValues } from '../fields/ReleaseDateModalForm'
+import {
+  HIDE_REMIX_FIELD_NAME,
+  REMIX_LINK_FIELD_NAME,
+  REMIX_OF_FIELD_NAME,
+  RemixFormValues
+} from '../fields/RemixModalForm'
 import TrackMetadataFields from '../fields/TrackMetadataFields'
 
 import styles from './EditPageNew.module.css'
@@ -19,14 +26,15 @@ type EditPageProps = {
   setTracks: (tracks: TrackForUpload[]) => void
   onContinue: () => void
 }
-export type FormValues = ExtendedTrackMetadata & {
+export type EditFormValues = ExtendedTrackMetadata & {
   releaseDate: moment.Moment
   licenseType: {
     allowAttribution: Nullable<boolean>
     commercialUse: Nullable<boolean>
     derivativeWorks: Nullable<boolean>
   }
-}
+} & ReleaseDateFormValues &
+  RemixFormValues
 
 const EditTrackSchema = Yup.object().shape({
   title: Yup.string().required('Required'),
@@ -47,7 +55,7 @@ const EditTrackSchema = Yup.object().shape({
 export const EditPageNew = (props: EditPageProps) => {
   const { tracks, setTracks, onContinue } = props
 
-  const initialValues: FormValues = {
+  const initialValues: EditFormValues = {
     ...tracks[0].metadata,
     artwork: null,
     releaseDate: moment().startOf('day'),
@@ -55,11 +63,14 @@ export const EditPageNew = (props: EditPageProps) => {
       allowAttribution: null,
       commercialUse: null,
       derivativeWorks: null
-    }
+    },
+    [HIDE_REMIX_FIELD_NAME]: false,
+    [REMIX_OF_FIELD_NAME]: null,
+    [REMIX_LINK_FIELD_NAME]: ''
   }
 
   const onSubmit = useCallback(
-    (values: FormValues) => {
+    (values: EditFormValues) => {
       setTracks([{ ...tracks[0], metadata: values }])
       onContinue()
     },
@@ -67,7 +78,7 @@ export const EditPageNew = (props: EditPageProps) => {
   )
 
   return (
-    <Formik<FormValues>
+    <Formik<EditFormValues>
       initialValues={initialValues}
       onSubmit={onSubmit}
       validationSchema={EditTrackSchema}
