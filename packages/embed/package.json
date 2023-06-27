@@ -43,7 +43,7 @@
     "hashids": "2.2.10",
     "hls.js": "0.13.1",
     "node-polyfill-webpack-plugin": "2.0.1",
-    "preact": "10.0.1",
+    "preact": "10.15.1",
     "preact-render-to-string": "5.1.0",
     "preact-router": "3.0.0",
     "react-helmet": "6.1.0",

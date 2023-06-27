@@ -77,7 +77,7 @@ export default () => {
             result = i
             return counts[i]
           }
-          return acc
+          return undefined
         }, 0)
 
         result = clampedRGBColor(result)
