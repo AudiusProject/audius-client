@@ -105,14 +105,6 @@ type Props = {
    */
   showArtistPick?: boolean
   /**
-   * Whether logged in user is owner
-   */
-  isOwner?: boolean
-  /**
-   * Whether logged in user has access
-   */
-  doesUserHaveAccess?: boolean
-  /**
    * Premium conditions to determine what icon and label to show
    */
   premiumConditions?: Nullable<PremiumConditions>
@@ -125,8 +117,6 @@ export const LineupTileTopRight = ({
   isLongFormContent,
   isUnlisted,
   showArtistPick,
-  isOwner,
-  doesUserHaveAccess,
   premiumConditions
 }: Props) => {
   const { isEnabled: isNewPodcastControlsEnabled } = useFeatureFlag(
