@@ -1,10 +1,8 @@
-import { PremiumConditions, FeatureFlags, Nullable } from '@audius/common'
-import { IconCollectible, IconSpecialAccess, IconUnlocked } from '@audius/stems'
+import { PremiumConditions, Nullable } from '@audius/common'
+import { IconCollectible, IconSpecialAccess } from '@audius/stems'
 import cn from 'classnames'
 
-import { useFlag } from 'hooks/useRemoteConfig'
-
-import styles from './desktop/TrackTile.module.css'
+import styles from './PremiumContentLabel.module.css'
 
 const messages = {
   collectibleGated: 'Collectible Gated',
@@ -21,36 +19,20 @@ export const PremiumContentLabel = ({
   doesUserHaveAccess: boolean
   isOwner: boolean
 }) => {
-  const { isEnabled: isGatedContentEnabled } = useFlag(
-    FeatureFlags.GATED_CONTENT_ENABLED
-  )
-
-  if (!isGatedContentEnabled) {
-    return null
-  }
-
-  if (!isOwner && doesUserHaveAccess) {
-    return (
-      <div className={cn(styles.premiumContent, styles.topRightIconLabel)}>
-        <IconUnlocked className={styles.topRightIcon} />
-        {messages.unlocked}
-      </div>
-    )
-  }
+  const showColor = isOwner || !doesUserHaveAccess
+  let message = messages.specialAccess
+  let IconComponent = IconSpecialAccess
+  const colorStyle = styles.gatedContent
 
   if (premiumConditions?.nft_collection) {
-    return (
-      <div className={cn(styles.premiumContent, styles.topRightIconLabel)}>
-        <IconCollectible className={styles.topRightIcon} />
-        {messages.collectibleGated}
-      </div>
-    )
+    message = messages.collectibleGated
+    IconComponent = IconCollectible
   }
 
   return (
-    <div className={cn(styles.premiumContent, styles.topRightIconLabel)}>
-      <IconSpecialAccess className={styles.topRightIcon} />
-      {messages.specialAccess}
+    <div className={cn(styles.labelContainer, { [colorStyle]: showColor })}>
+      <IconComponent className={styles.icon} />
+      {message}
     </div>
   )
 }

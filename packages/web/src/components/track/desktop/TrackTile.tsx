@@ -372,7 +372,7 @@ const TrackTile = ({
               <div className={styles.duration}>{getDurationText()}</div>
             )}
           </div>
-          <div className={styles.bottomRight}>
+          <div className={cn(typeStyles.bodyXSmall, styles.bottomRight)}>
             {!isLoading &&
               renderLockedOrMessageContent({
                 doesUserHaveAccess,

@@ -294,14 +294,6 @@
   line-height: var(--unit-3);
 }
 
-.topRightIconLabel.premiumContent {
-  color: var(--accent-blue);
-}
-
-.topRightIconLabel.premiumContent path {
-  fill: var(--accent-blue);
-}
-
 .progressTextContainer {
   display: flex;
   gap: 12px;
@@ -340,11 +332,6 @@
 }
 
 .plays {
-  font-style: normal;
-  font-weight: var(--font-medium);
-  font-size: var(--font-xs);
-  line-height: 11px;
-
   text-align: right;
   letter-spacing: 0.2px;
   color: var(--neutral-light-4);
