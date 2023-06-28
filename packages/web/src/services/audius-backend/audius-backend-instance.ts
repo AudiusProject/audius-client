@@ -11,6 +11,7 @@ import { discoveryNodeSelectorService } from 'services/discovery-node-selector'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { monitoringCallbacks } from 'services/serviceMonitoring'
+import { getStorageNodeSelector } from 'services/storageNodeSelector'
 import { reportToSentry } from 'store/errors/reportToSentry'
 import { isElectron, isMobile } from 'utils/clientUtil'
 
@@ -39,6 +40,7 @@ export const audiusBackendInstance = audiusBackend({
   getHostUrl: () => window.location.origin,
   getLibs: () => getLibs(remoteConfigInstance),
   discoveryNodeSelectorService,
+  getStorageNodeSelector,
   getWeb3Config: async (
     libs,
     registryAddress,
