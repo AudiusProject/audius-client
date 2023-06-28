@@ -43,13 +43,10 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     borderColor: palette.neutralLight7,
     borderRadius: spacing(2)
   },
-  headerContainer: {
+  titleContainer: {
     ...flexRowCentered(),
     marginBottom: spacing(2),
     justifyContent: 'space-between'
-  },
-  titleContainer: {
-    ...flexRowCentered()
   },
   title: {
     marginLeft: spacing(2),
@@ -77,6 +74,11 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   },
   bottomMargin: {
     marginBottom: spacing(2)
+  },
+  iconLockContainer: {
+    backgroundColor: palette.accentBlue,
+    paddingHorizontal: spacing(2),
+    borderRadius: spacing(10)
   }
 }))
 
@@ -95,16 +97,11 @@ const DetailsTileUnlockedSection = ({
 
   return (
     <View style={[styles.root, style]}>
-      <View style={styles.headerContainer}>
-        <View style={styles.titleContainer}>
-          <IconUnlocked fill={palette.neutral} />
-          <Text style={styles.title}>{messages.unlocked}</Text>
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>{messages.unlocked}</Text>
+        <View style={styles.iconLockContainer}>
+          <IconUnlocked fill={palette.staticWhite} />
         </View>
-        <IconVerified
-          style={styles.checkIcon}
-          fill={palette.accentGreen}
-          fillSecondary={palette.staticWhite}
-        />
       </View>
       {renderDescription()}
     </View>

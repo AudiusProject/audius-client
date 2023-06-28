@@ -135,6 +135,13 @@ export const LineupTileStats = ({
     navigation.push('Reposts', { id, repostType })
   }, [dispatch, id, navigation, repostType])
 
+  if (id === 1647843898) {
+    console.log(`got id: ${id} and index: ${index}`)
+    console.log(
+      `REED doesUserHaveAccess: ${doesUserHaveAccess} premiumConditions: ${premiumConditions} isOwner: ${isOwner} isOwner: ${isOwner}`
+    )
+  }
+
   const downloadStatusIndicator = isCollection ? (
     <CollectionDownloadStatusIndicator size={18} collectionId={id} />
   ) : (
