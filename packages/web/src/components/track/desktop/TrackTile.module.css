@@ -333,17 +333,10 @@
 }
 
 .bottomRight {
+  bottom: 0;
   position: absolute;
   right: 0;
   display: inline-flex;
-}
-
-.large .bottomRight {
-  bottom: 0;
-}
-
-.small .bottomRight {
-  bottom: 8px;
 }
 
 .plays {

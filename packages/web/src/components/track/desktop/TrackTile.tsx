@@ -21,6 +21,7 @@ import Skeleton from 'components/skeleton/Skeleton'
 import typeStyles from 'components/typography/typography.module.css'
 import { useFlag } from 'hooks/useRemoteConfig'
 
+import { LockedStatusBadge } from '../LockedStatusBadge'
 import { PremiumContentLabel } from '../PremiumContentLabel'
 import {
   TrackTileSize,
@@ -69,6 +70,43 @@ const RankAndIndexIndicator = ({
         </div>
       )}
     </>
+  )
+}
+
+const renderLockedOrMessageContent = ({
+  doesUserHaveAccess,
+  fieldVisibility,
+  isOwner,
+  isPremium,
+  listenCount
+}: Pick<
+  TrackTileProps,
+  | 'doesUserHaveAccess'
+  | 'fieldVisibility'
+  | 'isOwner'
+  | 'isPremium'
+  | 'listenCount'
+>) => {
+  if (isPremium && !isOwner) {
+    return <LockedStatusBadge locked={!doesUserHaveAccess} />
+  }
+
+  const hidePlays = fieldVisibility
+    ? fieldVisibility.play_count === false
+    : false
+
+  return (
+    listenCount !== undefined &&
+    listenCount > 0 && (
+      <div
+        className={cn(styles.plays, {
+          [styles.isHidden]: hidePlays
+        })}
+      >
+        {formatCount(listenCount)}
+        {messages.getPlays(listenCount)}
+      </div>
+    )
   )
 }
 
@@ -197,10 +235,6 @@ const TrackTile = ({
       return formatLineupTileDuration(duration, isLongFormContent)
     }
   }
-
-  const hidePlays = fieldVisibility
-    ? fieldVisibility.play_count === false
-    : false
 
   const onClickTitleWrapper = useCallback(
     (e: MouseEvent) => {
@@ -339,16 +373,14 @@ const TrackTile = ({
             )}
           </div>
           <div className={styles.bottomRight}>
-            {!isLoading && listenCount !== undefined && listenCount > 0 && (
-              <div
-                className={cn(styles.plays, {
-                  [styles.isHidden]: hidePlays
-                })}
-              >
-                {formatCount(listenCount)}
-                {messages.getPlays(listenCount)}
-              </div>
-            )}
+            {!isLoading &&
+              renderLockedOrMessageContent({
+                doesUserHaveAccess,
+                fieldVisibility,
+                isOwner,
+                isPremium,
+                listenCount
+              })}
           </div>
         </div>
         <div className={styles.divider} />
