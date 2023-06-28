@@ -36,7 +36,7 @@
 }
 
 .container.large {
-  height: 154px;
+  height: 144px;
 }
 
 .container.small {
@@ -72,12 +72,12 @@
 .large .imageContainer {
   flex: 0 0 128px;
   height: 128px;
-  margin: 12px 0px;
+  margin: var(--unit-2) 0px;
 }
 
 /* If the ordering is not present, add extra space to the left */
 .large .imageContainer.leftSpacing {
-  margin-left: 12px;
+  margin-left: var(--unit-2);
 }
 
 .small .imageContainer {
@@ -104,7 +104,7 @@
   flex-direction: column;
   overflow: hidden;
   flex: 1 1 auto;
-  padding: 10px 12px 8px 18px;
+  padding: 8px 12px 8px 18px;
 }
 
 .topSection {
@@ -113,20 +113,11 @@
   flex-direction: column;
 }
 
-.large .withoutHeader .headerRow {
-  height: 10px;
-}
-
 /* Playlist or Album Header */
 .headerRow {
-  margin-top: 2px;
-  margin-bottom: 4px;
-
-  font-style: normal;
-  font-weight: var(--font-medium);
-  font-size: var(--font-xs);
   letter-spacing: 2.5px;
   text-align: left;
+  height: var(--unit-3);
 
   /* Neutral Light 4 [day] */
   color: var(--neutral-light-4);
@@ -137,7 +128,6 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  line-height: normal;
   user-select: none;
   margin-right: 132px;
   padding-bottom: 2px;
@@ -147,19 +137,12 @@
   height: 20px;
 }
 
-.withPremium {
-  margin-right: 188px;
-}
-
 .container .premiumDogEarContainer {
   box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.25),
     inset 4px 4px 8px rgba(255, 255, 255, 0.2);
 }
 
 .title {
-  font-style: normal;
-  font-weight: var(--font-bold);
-  font-size: var(--font-m);
   color: var(--neutral);
 }
 
@@ -195,7 +178,7 @@
 }
 
 .small .creatorRow {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .large .withoutHeader .creatorRow {
@@ -242,6 +225,11 @@
   visibility: hidden;
 }
 
+.socialsRow {
+  display: flex;
+  gap: var(--unit-4);
+}
+
 .large .socialsRow .skeleton {
   height: 24px;
 }
@@ -271,14 +259,12 @@
   position: absolute;
   top: 0;
   right: 0;
-  display: inline-flex;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .duration {
-  font-style: normal;
-  font-weight: var(--font-medium);
-  font-size: var(--font-xs);
-
   text-align: right;
   letter-spacing: 0.2px;
 
@@ -297,15 +283,15 @@
 }
 
 .topRightIconLabel {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  flex: 1 0 auto;
 
-  font-weight: var(--font-medium);
-  font-size: var(--font-xs);
   color: var(--neutral-light-4);
-
-  margin-top: -3px;
-  margin-right: 12px;
+}
+.large .topRight {
+  /* Matches header row height for large tile variant */
+  line-height: var(--unit-3);
 }
 
 .topRightIconLabel.premiumContent {
@@ -380,16 +366,16 @@
 }
 
 .large .divider {
-  margin: 6px 10px 8px 0px;
+  margin: 8px 10px 8px 0px;
 }
 
 /* If Header (Playlist or Album) is not present, add more spacing up top */
 .large .withoutHeader .divider {
-  margin: 12px 10px 8px 0px;
+  margin: 8px 10px 8px 0px;
 }
 
 .small .divider {
-  margin: 2px 13px 6px 0px;
+  margin: 8px 13px 6px 0px;
 }
 
 /* Bottom Row Track TIle */

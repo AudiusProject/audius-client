@@ -18,6 +18,7 @@ import { ReactComponent as IconStar } from 'assets/img/iconStar.svg'
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
 import { DogEar, DogEarType } from 'components/dog-ear'
 import Skeleton from 'components/skeleton/Skeleton'
+import typeStyles from 'components/typography/typography.module.css'
 import { useFlag } from 'hooks/useRemoteConfig'
 
 import { PremiumContentLabel } from '../PremiumContentLabel'
@@ -259,21 +260,24 @@ const TrackTile = ({
         })}
       >
         <div className={cn(styles.topSection)}>
-          <div className={cn(styles.headerRow)}>
-            {!isLoading && header && <div>{header}</div>}
-          </div>
-          <div
-            className={cn(
-              styles.titleRow,
-              isPremium ? styles.withPremium : null
-            )}
-          >
+          {size === TrackTileSize.LARGE && (
+            <div
+              className={cn(
+                typeStyles.labelXSmall,
+                typeStyles.labelLight,
+                styles.headerRow
+              )}
+            >
+              {!isLoading && header && <div>{header}</div>}
+            </div>
+          )}
+          <div className={styles.titleRow}>
             {isLoading ? (
               <Skeleton width='80%' className={styles.skeleton} />
             ) : (
               <a
                 href={permalink}
-                className={styles.title}
+                className={cn(typeStyles.titleMedium, styles.title)}
                 onClick={onClickTitleWrapper}
               >
                 {title}
@@ -283,7 +287,13 @@ const TrackTile = ({
               </a>
             )}
           </div>
-          <div className={styles.creatorRow}>
+          <div
+            className={cn(
+              typeStyles.titleMedium,
+              typeStyles.titleLight,
+              styles.creatorRow
+            )}
+          >
             {isLoading ? (
               <Skeleton width='50%' className={styles.skeleton} />
             ) : (
@@ -292,29 +302,31 @@ const TrackTile = ({
           </div>
 
           <div
-            className={cn(styles.socialsRow, {
+            className={cn(typeStyles.bodyXSmall, styles.socialsRow, {
               [styles.isHidden]: isUnlisted
             })}
           >
             {isLoading ? (
               <Skeleton width='30%' className={styles.skeleton} />
             ) : (
-              stats
+              <>
+                {!isLoading && isPremium && (
+                  <PremiumContentLabel
+                    premiumConditions={premiumConditions}
+                    doesUserHaveAccess={!!doesUserHaveAccess}
+                    isOwner={isOwner}
+                  />
+                )}
+                {stats}
+              </>
             )}
           </div>
-          <div className={styles.topRight}>
+          <div className={cn(typeStyles.bodyXSmall, styles.topRight)}>
             {isArtistPick && (
               <div className={styles.topRightIconLabel}>
                 <IconStar className={styles.topRightIcon} />
                 {messages.artistPick}
               </div>
-            )}
-            {!isLoading && isPremium && (
-              <PremiumContentLabel
-                premiumConditions={premiumConditions}
-                doesUserHaveAccess={!!doesUserHaveAccess}
-                isOwner={isOwner}
-              />
             )}
             {isUnlisted && (
               <div className={styles.topRightIconLabel}>
