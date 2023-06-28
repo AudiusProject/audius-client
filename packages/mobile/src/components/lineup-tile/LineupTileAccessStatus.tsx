@@ -29,6 +29,10 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     fontFamily: typography.fontByWeight.bold,
     fontSize: typography.fontSize.small,
     color: palette.staticWhite
+  },
+  loadingSpinner: {
+    width: spacing(4),
+    height: spacing(4)
   }
 }))
 
@@ -36,14 +40,14 @@ export const LineupTileAccessStatus = ({ trackId }: { trackId: ID }) => {
   const styles = useStyles()
   const premiumTrackStatusMap = useSelector(getPremiumTrackStatusMap)
   const premiumTrackStatus = premiumTrackStatusMap[trackId]
-  const staticwhite = useColor('staticWhite')
+  const staticWhite = useColor('staticWhite')
 
   return (
     <View style={styles.root}>
       {premiumTrackStatus === 'UNLOCKING' ? (
-        <LoadingSpinner />
+        <LoadingSpinner style={styles.loadingSpinner} fill={staticWhite} />
       ) : (
-        <IconLock fill={staticwhite} width={16} height={16} />
+        <IconLock fill={staticWhite} width={16} height={16} />
       )}
       <Text style={styles.text}>
         {premiumTrackStatus === 'UNLOCKING'
