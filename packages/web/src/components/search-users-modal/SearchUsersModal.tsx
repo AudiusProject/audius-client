@@ -1,11 +1,4 @@
-import {
-  ChangeEvent,
-  ReactNode,
-  RefObject,
-  useCallback,
-  useRef,
-  useState
-} from 'react'
+import { ChangeEvent, ReactNode, useCallback, useRef, useState } from 'react'
 
 import {
   cacheUsersSelectors,
@@ -62,11 +55,7 @@ type SearchUsersModalProps = {
     hasMore: boolean
   }
   renderEmpty?: () => ReactNode
-  renderUser: (
-    user: User,
-    closeParentModal: () => void,
-    listRef: RefObject<HTMLElement>
-  ) => ReactNode
+  renderUser: (user: User, closeParentModal: () => void) => ReactNode
 }
 
 export const SearchUsersModal = (props: SearchUsersModalProps) => {
@@ -164,10 +153,7 @@ export const SearchUsersModal = (props: SearchUsersModalProps) => {
           className={styles.results}
           containerRef={(containerRef) => {
             scrollParentRef.current = containerRef
-            console.log(containerRef.firstChild)
-            scrollContentsRef.current = containerRef?.children.item(
-              0
-            ) as HTMLElement
+            scrollContentsRef.current = containerRef?.firstChild as HTMLElement
           }}
         >
           <InfiniteScroll
@@ -183,9 +169,7 @@ export const SearchUsersModal = (props: SearchUsersModalProps) => {
             !defaultUserList.loading &&
             defaultUserList.userIds.length === 0
               ? renderEmpty()
-              : users.map((user) =>
-                  renderUser(user, handleClose, scrollContentsRef)
-                )}
+              : users.map((user) => renderUser(user, handleClose))}
           </InfiniteScroll>
         </Scrollbar>
       </div>

@@ -1,4 +1,4 @@
-import { RefObject, useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 
 import {
   accountSelectors,
@@ -44,7 +44,6 @@ type UserResultComposeProps = {
   user: User
   closeParentModal: () => void
   openInboxUnavailableModal: (user: User) => void
-  listRef?: RefObject<HTMLElement>
 }
 
 const { getUserId } = accountSelectors
@@ -94,7 +93,7 @@ const renderCustomChip = (callToAction: ChatPermissionAction) => {
 
 export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   const dispatch = useDispatch()
-  const { user, closeParentModal, openInboxUnavailableModal, listRef } = props
+  const { user, closeParentModal, openInboxUnavailableModal } = props
   const currentUserId = useSelector(getUserId)
   const supportingMap = useSelector(getOptimisticSupporting)
   const supportersMap = useSelector(getOptimisticSupporters)
@@ -104,6 +103,8 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   const { canCreateChat, callToAction } = useSelector((state) =>
     getCanCreateChat(state, { userId: user.user_id })
   )
+
+  const ref = useRef<HTMLDivElement | null>(null)
 
   const handleComposeClicked = useCallback(() => {
     if (canCreateChat) {
@@ -174,7 +175,12 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   }
 
   return (
-    <div className={styles.root}>
+    <div
+      className={styles.root}
+      ref={(rootRef) =>
+        (ref.current = (rootRef?.parentElement as HTMLDivElement) ?? null)
+      }
+    >
       <ArtistChip
         className={styles.artistChip}
         user={user}
@@ -189,8 +195,8 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
         zIndex={zIndex.MODAL_OVERFLOW_MENU_POPUP}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        mountRef={listRef}
-        containerRef={listRef}
+        mountRef={ref}
+        containerRef={ref}
       />
     </div>
   )
