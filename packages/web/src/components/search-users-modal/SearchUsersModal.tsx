@@ -77,7 +77,6 @@ export const SearchUsersModal = (props: SearchUsersModalProps) => {
   const [query, setQuery] = useState('')
   const [hasQuery, setHasQuery] = useState(false)
   const scrollParentRef = useRef<HTMLElement | null>(null)
-  const scrollContentsRef = useRef<HTMLElement | null>(null)
 
   const { userIds, hasMore, status } = useSelector(getUserList)
   const users = useProxySelector(
@@ -153,7 +152,6 @@ export const SearchUsersModal = (props: SearchUsersModalProps) => {
           className={styles.results}
           containerRef={(containerRef) => {
             scrollParentRef.current = containerRef
-            scrollContentsRef.current = containerRef?.firstChild as HTMLElement
           }}
         >
           <InfiniteScroll
