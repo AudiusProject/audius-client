@@ -1,4 +1,4 @@
-import { createRef, MutableRefObject } from 'react'
+import { createRef } from 'react'
 
 import { ConnectedRouter } from 'connected-react-router'
 import ReactDOM from 'react-dom'
