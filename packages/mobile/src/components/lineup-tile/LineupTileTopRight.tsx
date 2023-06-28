@@ -16,7 +16,7 @@ import IconStar from 'app/assets/images/iconStar.svg'
 import Text from 'app/components/text'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { flexRowCentered } from 'app/styles'
-import { useColor, useThemeColors } from 'app/utils/theme'
+import { useThemeColors } from 'app/utils/theme'
 
 import { ProgressBar } from '../progress-bar'
 
@@ -134,7 +134,6 @@ export const LineupTileTopRight = ({
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
   )
   const { neutralLight4, secondary } = useThemeColors()
-  const accentBlue = useColor('accentBlue')
   const trackTileStyles = useTrackTileStyles()
   const currentUserId = useSelector(getUserId)
   const playbackPositionInfo = useSelector((state) =>
