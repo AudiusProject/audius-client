@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { IconCalendar } from '@audius/stems'
 import cn from 'classnames'
 import { Formik, useField } from 'formik'
+import { get, set } from 'lodash'
 import moment from 'moment'
 
 import { EditFormValues } from '../components/EditPageNew'
@@ -10,7 +11,6 @@ import { EditFormValues } from '../components/EditPageNew'
 import { DatePickerField } from './DatePickerField'
 import { ModalField } from './ModalField'
 import styles from './ReleaseDateModalForm.module.css'
-
 const messages = {
   title: 'Release Date',
   description:
@@ -28,15 +28,14 @@ export const ReleaseDateModalForm = () => {
   const [{ value }, , { setValue }] =
     useField<EditFormValues[typeof RELEASE_DATE]>(RELEASE_DATE)
 
-  const initialValues = useMemo(
-    () => ({
-      [RELEASE_DATE]: value ?? null
-    }),
-    [value]
-  )
+  const initialValues = useMemo(() => {
+    const initialValues = {}
+    set(initialValues, RELEASE_DATE, value)
+    return initialValues as ReleaseDateFormValues
+  }, [value])
 
   const onSubmit = (values: ReleaseDateFormValues) => {
-    setValue(values[RELEASE_DATE])
+    setValue(get(values, RELEASE_DATE))
   }
 
   const preview = (

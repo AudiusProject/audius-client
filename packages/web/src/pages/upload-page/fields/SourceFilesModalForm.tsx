@@ -1,16 +1,25 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
+import { StemCategory, StemUpload, removeNullable } from '@audius/common'
 import { Formik, useField } from 'formik'
+import { get, set } from 'lodash'
 
 import { ReactComponent as IconSourceFiles } from 'assets/img/iconSourceFiles.svg'
 import { Divider } from 'components/divider'
 
+import { processFiles } from '../store/utils/processFiles'
+
 import { ModalField } from './ModalField'
 import styles from './SourceFilesModalForm.module.css'
+import {
+  SourceFilesView,
+  dropdownRows as stemCategories
+} from './SourceFilesView'
 import { ToggleRowField } from './ToggleRowField'
 
 const ALLOW_DOWNLOAD = 'download.is_downloadable'
 const FOLLOWER_GATED = 'download.requires_follow'
+const STEMS = 'stems'
 
 const messages = {
   title: 'Stems & Source Files',
@@ -33,6 +42,7 @@ const messages = {
 export type SourceFilesFormValues = {
   [ALLOW_DOWNLOAD]: boolean
   [FOLLOWER_GATED]: boolean
+  [STEMS]: StemUpload[]
 }
 
 export const SourceFilesModalForm = () => {
@@ -41,18 +51,21 @@ export const SourceFilesModalForm = () => {
     useField(ALLOW_DOWNLOAD)
   const [{ value: followerGatedValue }, , { setValue: setFollowerGatedValue }] =
     useField(FOLLOWER_GATED)
+  // TODO: Stems goes outside tracks in uploadTracks
+  const [{ value: stemsValue }, , { setValue: setStemsValue }] = useField(STEMS)
 
-  const initialValues = useMemo(
-    () => ({
-      [ALLOW_DOWNLOAD]: allowDownloadValue,
-      [FOLLOWER_GATED]: followerGatedValue
-    }),
-    [allowDownloadValue, followerGatedValue]
-  )
+  const initialValues = useMemo(() => {
+    const initialValues = {}
+    set(initialValues, ALLOW_DOWNLOAD, allowDownloadValue)
+    set(initialValues, FOLLOWER_GATED, followerGatedValue)
+    set(initialValues, STEMS, stemsValue ?? [])
+    return initialValues as SourceFilesFormValues
+  }, [allowDownloadValue, followerGatedValue, stemsValue])
 
   const onSubmit = (values: SourceFilesFormValues) => {
-    setAllowDownloadValue(values[ALLOW_DOWNLOAD])
-    setFollowerGatedValue(values[FOLLOWER_GATED])
+    setAllowDownloadValue(get(values, ALLOW_DOWNLOAD))
+    setFollowerGatedValue(get(values, FOLLOWER_GATED))
+    setStemsValue(values[STEMS])
   }
 
   const preview = (
@@ -75,22 +88,65 @@ export const SourceFilesModalForm = () => {
         icon={<IconSourceFiles className={styles.titleIcon} />}
         preview={preview}
       >
-        <div className={styles.fields}>
-          <div>{messages.description}</div>
-          <Divider />
-          <ToggleRowField
-            name={ALLOW_DOWNLOAD}
-            header={messages[ALLOW_DOWNLOAD].header}
-            description={messages[ALLOW_DOWNLOAD].description}
-          />
-          <Divider />
-          <ToggleRowField
-            name={FOLLOWER_GATED}
-            header={messages[FOLLOWER_GATED].header}
-            description={messages[FOLLOWER_GATED].description}
-          />
-        </div>
+        <SourceFilesModalFiels />
       </ModalField>
     </Formik>
+  )
+}
+
+const SourceFilesModalFiels = () => {
+  const [{ value: stemsValue }, , { setValue: setStems }] =
+    useField<StemUpload[]>(STEMS)
+
+  const invalidAudioFile = (name: string, reason: 'size' | 'type') => {
+    console.error('Invalid Audio File', { name, reason })
+    // TODO: show file error
+  }
+
+  const onAddStemsToTrack = useCallback(
+    async (selectedStems: File[]) => {
+      const processedFiles = processFiles(selectedStems, invalidAudioFile)
+      const newStems = (await Promise.all(processedFiles))
+        .filter(removeNullable)
+        .map((processedFile) => ({
+          ...processedFile,
+          category: stemCategories[0],
+          allowDelete: true,
+          allowCategorySwitch: true
+        }))
+      setStems([...stemsValue, ...newStems])
+    },
+    [setStems, stemsValue]
+  )
+
+  return (
+    <div className={styles.fields}>
+      <div>{messages.description}</div>
+      <Divider />
+      <ToggleRowField
+        name={ALLOW_DOWNLOAD}
+        header={messages[ALLOW_DOWNLOAD].header}
+        description={messages[ALLOW_DOWNLOAD].description}
+      />
+      <Divider />
+      <ToggleRowField
+        name={FOLLOWER_GATED}
+        header={messages[FOLLOWER_GATED].header}
+        description={messages[FOLLOWER_GATED].description}
+      />
+      <Divider />
+      <SourceFilesView
+        onAddStems={onAddStemsToTrack}
+        stems={stemsValue}
+        onSelectCategory={(category: StemCategory, index: number) => {
+          stemsValue[index].category = category
+          setStems(stemsValue)
+        }}
+        onDeleteStem={(index) => {
+          stemsValue.splice(index, 1)
+          setStems(stemsValue)
+        }}
+      />
+    </div>
   )
 }

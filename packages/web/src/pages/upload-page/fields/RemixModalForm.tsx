@@ -12,6 +12,7 @@ import {
   accountSelectors
 } from '@audius/common'
 import { Formik, useField } from 'formik'
+import { get, set } from 'lodash'
 import { useSelector } from 'react-redux'
 
 import { ReactComponent as IconRemix } from 'assets/img/iconRemixGray.svg'
@@ -83,14 +84,17 @@ export const RemixModalForm = () => {
     ? fullTrackPage(initialRemixedTrack?.permalink)
     : null
 
-  const initialValues = useMemo(
-    () => ({
-      [HIDE_REMIXES]: hideRemixesValue,
-      [IS_REMIX]: !!remixOfValue?.tracks.some((track) => !!track),
-      [REMIX_LINK]: remixLink
-    }),
-    [hideRemixesValue, remixLink, remixOfValue?.tracks]
-  )
+  const initialValues = useMemo(() => {
+    const initialValues = {}
+    set(initialValues, HIDE_REMIXES, hideRemixesValue)
+    set(
+      initialValues,
+      IS_REMIX,
+      !!remixOfValue?.tracks.some((track) => !!track)
+    )
+    set(initialValues, REMIX_LINK, remixLink)
+    return initialValues as RemixFormValues
+  }, [hideRemixesValue, remixLink, remixOfValue?.tracks])
 
   const [url, setUrl] = useState<string>()
 
@@ -101,8 +105,8 @@ export const RemixModalForm = () => {
   )
 
   const onSubmit = (values: RemixFormValues) => {
-    setHideRemixesValue(values[HIDE_REMIXES])
-    if (values[IS_REMIX] && values[REMIX_LINK]) {
+    setHideRemixesValue(get(values, HIDE_REMIXES))
+    if (get(values, IS_REMIX) && get(values, REMIX_LINK)) {
       // TODO: handle undefined linkedTrack with form validation
       setRemixOfValue({
         tracks: [
