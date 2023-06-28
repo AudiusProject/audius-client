@@ -65,10 +65,10 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     justifyContent: 'space-between'
   },
   titleContainer: {
-    ...flexRowCentered()
+    ...flexRowCentered(),
+    justifyContent: 'space-between'
   },
   title: {
-    marginLeft: spacing(2),
     fontFamily: typography.fontByWeight.heavy,
     fontSize: typography.fontSize.medium,
     color: palette.neutral
@@ -117,14 +117,24 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     top: -spacing(0.25),
     left: -spacing(1.25)
   },
+  iconLockContainer: {
+    backgroundColor: palette.neutralLight4,
+    paddingHorizontal: spacing(2),
+    borderRadius: spacing(10)
+  },
   icon: {
     color: palette.white
   },
   mainButton: {
-    marginTop: spacing(7)
+    marginTop: spacing(7),
+    backgroundColor: palette.accentBlue
   },
   bottomMargin: {
     marginBottom: spacing(2)
+  },
+  loadingSpinner: {
+    width: spacing(5),
+    height: spacing(5)
   }
 }))
 
@@ -140,17 +150,16 @@ const DetailsTileNoAccessSection = ({
   style
 }: NoAccessProps) => {
   const styles = useStyles()
-  const neutral = useColor('neutral')
+  const staticWhite = useColor('staticWhite')
 
   if (isUnlocking) {
     return (
       <View style={[styles.root, style]}>
         <View style={styles.headerContainer}>
           <View style={styles.titleContainer}>
-            <IconLock fill={neutral} width={16} height={16} />
             <Text style={styles.title}>{messages.unlocking}</Text>
           </View>
-          <LoadingSpinner />
+          <LoadingSpinner style={styles.loadingSpinner} />
         </View>
         {renderDescription()}
       </View>
@@ -160,8 +169,10 @@ const DetailsTileNoAccessSection = ({
   return (
     <View style={[styles.root, style]}>
       <View style={[styles.titleContainer, styles.bottomMargin]}>
-        <IconLock fill={neutral} width={16} height={16} />
         <Text style={styles.title}>{messages.howToUnlock}</Text>
+        <View style={styles.iconLockContainer}>
+          <IconLock fill={staticWhite} width={14} height={14} />
+        </View>
       </View>
       {renderDescription()}
     </View>
