@@ -1,5 +1,11 @@
-import type { Track, UserMetadata, Nullable, ID, RemixOf } from '@audius/common'
+import { useMemo, useState } from 'react'
+
 import {
+  Track,
+  UserMetadata,
+  Nullable,
+  ID,
+  useGetTrackById,
   getPathFromTrackUrl,
   useGetTrackByPermalink,
   SquareSizes,
@@ -18,6 +24,9 @@ import { Divider } from 'components/divider'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
+import { fullTrackPage, stripBaseUrl } from 'utils/route'
+
+import { EditFormValues } from '../components/EditPageNew'
 
 import { ModalField } from './ModalField'
 import styles from './RemixModalForm.module.css'
@@ -45,23 +54,66 @@ const messages = {
 
 export type RemixOfField = Nullable<{ tracks: { parent_track_id: ID }[] }>
 
-export const HIDE_REMIX_FIELD_NAME = 'hide_remixes'
-export const REMIX_OF_FIELD_NAME = 'remix_of'
-export const REMIX_LINK_FIELD_NAME = 'remix_of_link'
+export const REMIX_OF = 'remix_of'
+export const HIDE_REMIXES = 'fieldVisibility.remixes'
+
+const IS_REMIX = 'is_remix'
+const REMIX_LINK = 'remix_of_link'
 
 export type RemixFormValues = {
-  [REMIX_OF_FIELD_NAME]: RemixOf | null
-  [HIDE_REMIX_FIELD_NAME]: boolean
-  [REMIX_LINK_FIELD_NAME]: string
+  [HIDE_REMIXES]: boolean
+  [IS_REMIX]: boolean
+  [REMIX_LINK]: string | null
 }
 
-type RemixModalFormProps = {
-  initialValues: RemixFormValues
-  onSubmit: (values: RemixFormValues) => void
-}
+export const RemixModalForm = () => {
+  // These refer to the field in the outer EditForm
+  const [{ value: hideRemixesValue }, , { setValue: setHideRemixesValue }] =
+    useField(HIDE_REMIXES)
+  const [{ value: remixOfValue }, , { setValue: setRemixOfValue }] =
+    useField<EditFormValues[typeof REMIX_OF]>(REMIX_OF)
 
-export const RemixModalForm = (props: RemixModalFormProps) => {
-  const { initialValues, onSubmit } = props
+  const trackId = remixOfValue?.tracks[0].parent_track_id
+  const { data: initialRemixedTrack } = useGetTrackById(
+    { id: trackId! },
+    { disabled: !trackId }
+  )
+
+  const remixLink = initialRemixedTrack?.permalink
+    ? fullTrackPage(initialRemixedTrack?.permalink)
+    : null
+
+  const initialValues = useMemo(
+    () => ({
+      [HIDE_REMIXES]: hideRemixesValue,
+      [IS_REMIX]: !!remixOfValue?.tracks.some((track) => !!track),
+      [REMIX_LINK]: remixLink
+    }),
+    [hideRemixesValue, remixLink, remixOfValue?.tracks]
+  )
+
+  const [url, setUrl] = useState<string>()
+
+  const currentUserId = useSelector(getUserId)
+  const { data: linkedTrack } = useGetTrackByPermalink(
+    { permalink: url!, currentUserId },
+    { disabled: !url }
+  )
+
+  const onSubmit = (values: RemixFormValues) => {
+    setHideRemixesValue(values[HIDE_REMIXES])
+    if (values[IS_REMIX] && values[REMIX_LINK]) {
+      // TODO: handle undefined linkedTrack with form validation
+      setRemixOfValue({
+        tracks: [
+          {
+            // @ts-ignore only the track_id is required for the form
+            parent_track_id: linkedTrack?.track_id
+          }
+        ]
+      })
+    }
+  }
 
   const preview = (
     <div className={styles.preview}>
@@ -74,27 +126,28 @@ export const RemixModalForm = (props: RemixModalFormProps) => {
 
   return (
     <Formik<RemixFormValues>
-      initialValues={
-        initialValues ?? {
-          remix_of: null,
-          hideRemixes: false
-        }
-      }
+      initialValues={initialValues}
       onSubmit={onSubmit}
+      enableReinitialize
     >
       <ModalField
         title={messages.title}
         icon={<IconRemix className={styles.titleIcon} />}
         preview={preview}
       >
-        <RemixModalFields />
+        <RemixModalFields setUrl={setUrl} />
       </ModalField>
     </Formik>
   )
 }
 
-const RemixModalFields = () => {
-  const [linkField] = useField(REMIX_LINK_FIELD_NAME)
+type RemixModalFieldsProps = {
+  setUrl: (url: string) => void
+}
+
+const RemixModalFields = (props: RemixModalFieldsProps) => {
+  const { setUrl } = props
+  const [{ onChange: onLinkFieldChange, ...linkField }] = useField(REMIX_LINK)
   const permalink = getPathFromTrackUrl(linkField.value)
   const currentUserId = useSelector(getUserId)
   const { data: track } = useGetTrackByPermalink(
@@ -108,13 +161,13 @@ const RemixModalFields = () => {
   return (
     <div className={styles.fields}>
       <ToggleRowField
-        name={HIDE_REMIX_FIELD_NAME}
+        name={HIDE_REMIXES}
         header={messages.hideRemix.header}
         description={messages.hideRemix.description}
       />
       <Divider />
       <ToggleRowField
-        name={REMIX_OF_FIELD_NAME}
+        name={IS_REMIX}
         header={messages.remixOf.header}
         description={messages.remixOf.description}
       >
@@ -123,6 +176,11 @@ const RemixModalFields = () => {
           variant={InputV2Variant.ELEVATED_PLACEHOLDER}
           label={messages.remixOf.linkLabel}
           size={InputV2Size.LARGE}
+          onChange={(e) => {
+            // setUrl(e.target.value)
+            setUrl(stripBaseUrl(e.target.value))
+            onLinkFieldChange(e)
+          }}
           {...linkField}
         />
         {/* @ts-ignore TDOO: need to populate track with cover art sizes */}
