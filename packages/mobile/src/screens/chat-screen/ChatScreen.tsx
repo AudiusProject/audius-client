@@ -151,7 +151,7 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
   },
   userBadgeTitle: {
     fontSize: typography.fontSize.medium,
-    fontWeight: '800',
+    fontFamily: typography.fontByWeight.bold,
     color: palette.neutral
   },
   profilePicture: {
@@ -177,6 +177,11 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 
 type ContainerLayoutStatus = {
   top: number
+  bottom: number
+}
+
+type ReactionContainerStyle = {
+  paddingTop: number
   bottom: number
 }
 
@@ -447,10 +452,9 @@ export const ChatScreen = () => {
   )
 
   const topBarRight = (
-    <IconKebabHorizontal
-      onPress={handleTopRightPress}
-      fill={palette.neutralLight4}
-    />
+    <TouchableOpacity onPress={handleTopRightPress} hitSlop={spacing(2)}>
+      <IconKebabHorizontal fill={palette.neutralLight4} />
+    </TouchableOpacity>
   )
 
   // When reaction popup opens, hide reaction here so it doesn't
@@ -523,14 +527,14 @@ export const ChatScreen = () => {
 
   // For some reason the bottom padding behavior is different between the platforms.
   const getKeyboardAvoidingPlaybarAwareStyle = useCallback(() => {
-    const style = {
-      paddingTop: hasCurrentlyPlayingTrack ? PLAY_BAR_HEIGHT : 0,
-      bottom: 0
-    }
+    const style = {} as ReactionContainerStyle
     if (Platform.OS === 'ios') {
       style.bottom = hasCurrentlyPlayingTrack ? PLAY_BAR_HEIGHT : 0
+      style.paddingTop = hasCurrentlyPlayingTrack ? PLAY_BAR_HEIGHT : 0
     } else if (Platform.OS === 'android') {
       style.bottom =
+        hasCurrentlyPlayingTrack && !keyboardShown ? PLAY_BAR_HEIGHT : 0
+      style.paddingTop =
         hasCurrentlyPlayingTrack && !keyboardShown ? PLAY_BAR_HEIGHT : 0
     }
     return style
