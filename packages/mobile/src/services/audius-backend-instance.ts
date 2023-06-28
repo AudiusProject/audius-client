@@ -20,6 +20,7 @@ import {
 import { monitoringCallbacks } from './monitoringCallbacks'
 import { getFeatureEnabled } from './remote-config'
 import { remoteConfigInstance } from './remote-config/remote-config-instance'
+import { getStorageNodeSelector } from './storageNodeSelector'
 
 /**
  * audiusBackend initialized for a mobile environment
@@ -36,6 +37,7 @@ export const audiusBackendInstance = audiusBackend({
   getHostUrl: () => {
     return `${Config.PUBLIC_PROTOCOL}//${Config.PUBLIC_HOSTNAME}`
   },
+  getStorageNodeSelector,
   getWeb3Config: async (
     libs,
     registryAddress,
