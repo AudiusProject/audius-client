@@ -1,7 +1,9 @@
 import { createContext, memo, useRef, RefObject } from 'react'
 
-export const MainContentContext = createContext({
-  mainContentRef: {} as RefObject<HTMLDivElement>
+export const MainContentContext = createContext<{
+  mainContentRef: RefObject<HTMLDivElement>
+}>({
+  mainContentRef: { current: null }
 })
 
 export const MainContentContextProvider = memo(
