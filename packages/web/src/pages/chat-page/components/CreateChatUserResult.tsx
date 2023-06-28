@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { RefObject, useCallback, useEffect } from 'react'
 
 import {
   accountSelectors,
@@ -44,6 +44,7 @@ type UserResultComposeProps = {
   user: User
   closeParentModal: () => void
   openInboxUnavailableModal: (user: User) => void
+  listRef?: RefObject<HTMLElement>
 }
 
 const { getUserId } = accountSelectors
@@ -93,7 +94,7 @@ const renderCustomChip = (callToAction: ChatPermissionAction) => {
 
 export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   const dispatch = useDispatch()
-  const { user, closeParentModal, openInboxUnavailableModal } = props
+  const { user, closeParentModal, openInboxUnavailableModal, listRef } = props
   const currentUserId = useSelector(getUserId)
   const supportingMap = useSelector(getOptimisticSupporting)
   const supportersMap = useSelector(getOptimisticSupporters)
@@ -188,6 +189,8 @@ export const MessageUserSearchResult = (props: UserResultComposeProps) => {
         zIndex={zIndex.MODAL_OVERFLOW_MENU_POPUP}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        mountRef={listRef}
+        containerRef={listRef}
       />
     </div>
   )

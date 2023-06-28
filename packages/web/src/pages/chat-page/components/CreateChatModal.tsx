@@ -86,12 +86,13 @@ export const CreateChatModal = () => {
           loading,
           hasMore
         }}
-        renderUser={(user, closeParentModal) => (
+        renderUser={(user, closeParentModal, listRef) => (
           <MessageUserSearchResult
             key={user.user_id}
             user={user}
             openInboxUnavailableModal={handleOpenInboxUnavailableModal}
             closeParentModal={closeParentModal}
+            listRef={listRef}
           />
         )}
         renderEmpty={() => <CreateChatEmptyResults />}

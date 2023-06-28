@@ -30,10 +30,7 @@ jest.mock('services/solana-client/SolanaClient', () => ({
 describe('smoke test', () => {
   it('renders without crashing', () => {
     const rootNode = document.createElement('div')
-    const mainContentRef =
-      createRef<HTMLDivElement | null>() as MutableRefObject<
-        HTMLDivElement | undefined
-      >
+    const mainContentRef = createRef<HTMLDivElement>()
     ReactDOM.render(
       <Provider store={store}>
         <ConnectedRouter history={history}>
