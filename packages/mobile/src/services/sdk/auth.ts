@@ -1,7 +1,7 @@
 import { keccak_256 } from '@noble/hashes/sha3'
 import * as secp from '@noble/secp256k1'
 
-import { audiusLibs, waitForLibsInit } from './libs'
+import { audiusLibs, waitForLibsInit } from '../libs'
 
 export const auth = {
   sign: async (data: string) => {

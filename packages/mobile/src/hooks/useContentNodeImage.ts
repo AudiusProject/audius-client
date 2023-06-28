@@ -5,7 +5,7 @@ import { interleave } from '@audius/common'
 import type { User } from '@sentry/react-native'
 import type { ImageSourcePropType, ImageURISource } from 'react-native'
 
-import { storageNodeSelector } from 'app/services/storageNodeSelector'
+import { storageNodeSelector } from 'app/services/sdk/storageNodeSelector'
 
 export type ContentNodeImageSource = {
   source: ImageSourcePropType

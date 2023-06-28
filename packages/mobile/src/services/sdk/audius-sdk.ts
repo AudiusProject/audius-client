@@ -4,7 +4,7 @@ import type { AudiusSdk } from '@audius/sdk'
 import { sdk } from '@audius/sdk'
 
 import { auth } from './auth'
-import { discoveryNodeSelectorService } from './discovery-node-selector'
+import { discoveryNodeSelectorService } from './discoveryNodeSelector'
 import { getStorageNodeSelector } from './storageNodeSelector'
 
 let inProgress = false

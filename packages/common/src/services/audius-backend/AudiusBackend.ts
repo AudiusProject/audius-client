@@ -79,7 +79,7 @@ import {
   Nullable,
   removeNullable
 } from '../../utils'
-import type { DiscoveryNodeSelectorService } from '../discovery-node-selector'
+import type { DiscoveryNodeSelectorService } from '../sdk/discovery-node-selector'
 
 import { MonitoringCallbacks } from './types'
 

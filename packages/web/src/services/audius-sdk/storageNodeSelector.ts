@@ -1,7 +1,7 @@
 import { StorageNodeSelector, StorageNodeSelectorService } from '@audius/sdk'
 
 import { auth } from './auth'
-import { discoveryNodeSelectorService } from './discovery-node-selector'
+import { discoveryNodeSelectorService } from './discoveryNodeSelector'
 
 let storageNodeSelector: StorageNodeSelectorService
 

@@ -1,11 +1,11 @@
 import { sdk, AudiusSdk, AudiusLibs } from '@audius/sdk'
 
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
-import { discoveryNodeSelectorService } from 'services/discovery-node-selector'
+import { discoveryNodeSelectorService } from 'services/audius-sdk/discoveryNodeSelector'
+import { getStorageNodeSelector } from 'services/audius-sdk/storageNodeSelector'
 import { makeEntityManagerInstance } from 'services/entity-manager'
-import { getStorageNodeSelector } from 'services/storageNodeSelector'
 
-import { auth } from '../auth'
+import { auth } from './auth'
 
 declare global {
   interface Window {

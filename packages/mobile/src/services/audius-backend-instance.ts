@@ -8,7 +8,6 @@ import { track } from 'app/services/analytics'
 import { reportToSentry } from 'app/utils/reportToSentry'
 
 import { createPrivateKey } from './createPrivateKey'
-import { discoveryNodeSelectorService } from './discovery-node-selector'
 import { withEagerOption } from './eagerLoadUtils'
 import { env } from './env'
 import {
@@ -20,7 +19,8 @@ import {
 import { monitoringCallbacks } from './monitoringCallbacks'
 import { getFeatureEnabled } from './remote-config'
 import { remoteConfigInstance } from './remote-config/remote-config-instance'
-import { getStorageNodeSelector } from './storageNodeSelector'
+import { discoveryNodeSelectorService } from './sdk/discoveryNodeSelector'
+import { getStorageNodeSelector } from './sdk/storageNodeSelector'
 
 /**
  * audiusBackend initialized for a mobile environment
