@@ -36,7 +36,7 @@ export const SourceFilesView = ({
 }: SourceFilesViewProps) => {
   const renderCurrentStems = () => {
     return (
-      <div className={styles.stemRows}>
+      <ul className={styles.stemRows}>
         {stems.map((stem, i) => (
           <StemRow
             key={`${stem.metadata.title}-${i}`}
@@ -45,7 +45,7 @@ export const SourceFilesView = ({
             onDelete={() => onDeleteStem(i)}
           />
         ))}
-      </div>
+      </ul>
     )
   }
 
@@ -130,7 +130,7 @@ const StemRow = ({
 
   const renderDeleteButton = () => {
     return (
-      <div className={styles.deleteButton}>
+      <span className={styles.deleteButton}>
         {allowDelete ? (
           <IconButton
             aria-label='delete'
@@ -144,12 +144,12 @@ const StemRow = ({
         ) : (
           <LoadingSpinner />
         )}
-      </div>
+      </span>
     )
   }
 
   return (
-    <div className={styles.stemRowContainer}>
+    <li className={styles.stemRowContainer}>
       <div className={styles.dropdownContainer}>
         <Dropdown
           size='medium'
@@ -167,6 +167,6 @@ const StemRow = ({
       </div>
       <div className={styles.title}>{metadata.title}</div>
       {renderDeleteButton()}
-    </div>
+    </li>
   )
 }
