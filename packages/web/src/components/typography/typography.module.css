@@ -1,0 +1,107 @@
+/* These classes map to the Harmony typography styles. They are organized into category+size variants
+ * (ex. Title/Large is titleLarge). Using a variant on its own will apply the 'Default' font weight.
+ * Some categories have additional weight variants ('Light' or 'Strong'). Those
+ * can be applied _in addition_ to the base class when needed.
+ * Example usage:
+ ```
+ import cn from 'classnames'
+ import typeStyles from 'components/typography/typograph.module.css'
+
+ export const Component = () => (
+    <>
+      <div className={typeStyles.titleMedium}>I am the title in a default weight</div>
+      <div className={cn(typeStyles.bodyMedium, typeStyles.bodyStrong)}>
+        I am the body copy and I am bold and important!
+      </div>
+    </>
+ ```
+*/
+
+/* Title Styles */
+.titleLarge {
+  font-size: var(--font-l);
+  font-weight: var(--font-bold);
+  line-height: var(--unit-6);
+}
+.titleMedium {
+  font-size: var(--font-m);
+  font-weight: var(--font-bold);
+  line-height: var(--unit-5);
+}
+.titleSmall {
+  font-size: var(--font-s);
+  font-weight: var(--font-bold);
+  line-height: var(--unit-4);
+}
+.titleXSmall {
+  font-size: var(--font-xs);
+  font-weight: var(--font-bold);
+  line-height: var(--unit-4);
+}
+
+.titleLight {
+  font-weight: var(--font-demi-bold);
+}
+.titleStrong {
+  font-weight: var(--font-heavy);
+}
+
+/* Body Styles */
+.bodyLarge {
+  font-size: var(--font-l);
+  font-weight: var(--font-medium);
+  line-height: var(--unit-6);
+}
+.bodyMedium {
+  font-size: var(--font-m);
+  font-weight: var(--font-medium);
+  line-height: var(--unit-5);
+}
+.bodySmall {
+  font-size: var(--font-s);
+  font-weight: var(--font-medium);
+  line-height: var(--unit-5);
+}
+.bodyXSmall {
+  font-size: var(--font-xs);
+  font-weight: var(--font-medium);
+  line-height: var(--unit-5);
+}
+
+.bodyStrong {
+  font-weight: var(--font-demi-bold);
+}
+
+/* Label Styles */
+
+.labelXLarge {
+  font-size: var(--font-xl);
+  font-weight: var(--font-bold);
+  line-height: var(--unit-6);
+}
+.labelLarge {
+  font-size: var(--font-m);
+  font-weight: var(--font-bold);
+  line-height: var(--unit-4);
+}
+.labelMedium {
+  font-size: var(--font-s);
+  font-weight: var(--font-bold);
+  line-height: var(--unit-4);
+}
+.labelSmall {
+  font-size: var(--font-xs);
+  font-weight: var(--font-bold);
+  line-height: var(--unit-3);
+}
+.labelXSmall {
+  font-size: var(--font-2xs);
+  font-weight: var(--font-bold);
+  line-height: var(--unit-3);
+}
+.labelLight {
+  font-weight: var(--font-medium);
+}
+.labelStrong {
+  font-weight: var(--font-heavy);
+}

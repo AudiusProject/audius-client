@@ -21,7 +21,7 @@ import {
   IconCollectible,
   IconLock,
   IconSpecialAccess,
-  IconUnlocked,
+  IconLockUnlocked,
   LogoEth,
   LogoSol
 } from '@audius/stems'
@@ -442,7 +442,7 @@ const UnlockedPremiumTrackSection = ({
             <IconSpecialAccess className={styles.specialAccessIcon} />
           )
         ) : (
-          <IconUnlocked className={styles.unlockedIcon} />
+          <IconLockUnlocked className={styles.unlockedIcon} />
         )}
         {isOwner
           ? premiumConditions.nft_collection

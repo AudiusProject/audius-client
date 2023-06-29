@@ -18,8 +18,10 @@ import { ReactComponent as IconStar } from 'assets/img/iconStar.svg'
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
 import { DogEar, DogEarType } from 'components/dog-ear'
 import Skeleton from 'components/skeleton/Skeleton'
+import typeStyles from 'components/typography/typography.module.css'
 import { useFlag } from 'hooks/useRemoteConfig'
 
+import { LockedStatusBadge } from '../LockedStatusBadge'
 import { PremiumContentLabel } from '../PremiumContentLabel'
 import {
   TrackTileSize,
@@ -36,10 +38,6 @@ const messages = {
   getPlays: (listenCount: number) => ` ${pluralize('Play', listenCount)}`,
   artistPick: 'Artist Pick',
   hiddenTrack: 'Hidden Track',
-  collectibleGated: 'Collectible Gated',
-  specialAccess: 'Special Access',
-  unlocked: 'Unlocked',
-  locked: 'LOCKED',
   timeLeft: 'left',
   played: 'Played'
 }
@@ -69,6 +67,79 @@ const RankAndIndexIndicator = ({
       )}
     </>
   )
+}
+
+const renderLockedOrMessageContent = ({
+  doesUserHaveAccess,
+  fieldVisibility,
+  isOwner,
+  isPremium,
+  listenCount
+}: Pick<
+  TrackTileProps,
+  | 'doesUserHaveAccess'
+  | 'fieldVisibility'
+  | 'isOwner'
+  | 'isPremium'
+  | 'listenCount'
+>) => {
+  if (isPremium && !isOwner) {
+    return <LockedStatusBadge locked={!doesUserHaveAccess} />
+  }
+
+  const hidePlays = fieldVisibility
+    ? fieldVisibility.play_count === false
+    : false
+
+  return (
+    listenCount !== undefined &&
+    listenCount > 0 && (
+      <div
+        className={cn(styles.plays, {
+          [styles.isHidden]: hidePlays
+        })}
+      >
+        {formatCount(listenCount)}
+        {messages.getPlays(listenCount)}
+      </div>
+    )
+  )
+}
+
+type GetDogEarTypeArgs = Pick<
+  TrackTileProps,
+  | 'doesUserHaveAccess'
+  | 'isArtistPick'
+  | 'isOwner'
+  | 'isUnlisted'
+  | 'premiumConditions'
+>
+const getDogEarType = ({
+  doesUserHaveAccess,
+  isArtistPick,
+  isOwner,
+  isUnlisted,
+  premiumConditions
+}: GetDogEarTypeArgs) => {
+  // Unlisted is mutually exclusive from other dog ear types
+  if (isUnlisted) {
+    return DogEarType.HIDDEN
+  }
+
+  // Show premium variants for track owners or if user does not yet have access
+  if ((isOwner || !doesUserHaveAccess) && premiumConditions) {
+    if (premiumConditions.nft_collection) {
+      return DogEarType.COLLECTIBLE_GATED
+    }
+    return DogEarType.SPECIAL_ACCESS
+  }
+
+  // If no premium variant, optionally show artist pick if applicable
+  if (isArtistPick) {
+    return DogEarType.STAR
+  }
+
+  return undefined
 }
 
 const TrackTile = ({
@@ -112,9 +183,6 @@ const TrackTile = ({
   isTrack,
   trackId
 }: TrackTileProps) => {
-  const { isEnabled: isGatedContentEnabled } = useFlag(
-    FeatureFlags.GATED_CONTENT_ENABLED
-  )
   const { isEnabled: isNewPodcastControlsEnabled } = useFlag(
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
@@ -164,24 +232,6 @@ const TrackTile = ({
     }
   }
 
-  const hidePlays = fieldVisibility
-    ? fieldVisibility.play_count === false
-    : false
-
-  const showPremiumDogTag =
-    isGatedContentEnabled &&
-    !isLoading &&
-    premiumConditions &&
-    (isOwner || !doesUserHaveAccess)
-
-  const dogEarType = showPremiumDogTag
-    ? isOwner
-      ? premiumConditions.nft_collection
-        ? DogEarType.COLLECTIBLE_GATED
-        : DogEarType.SPECIAL_ACCESS
-      : DogEarType.LOCKED
-    : null
-
   const onClickTitleWrapper = useCallback(
     (e: MouseEvent) => {
       e.stopPropagation()
@@ -190,6 +240,16 @@ const TrackTile = ({
     },
     [onClickTitle]
   )
+
+  const dogEarType = isLoading
+    ? undefined
+    : getDogEarType({
+        doesUserHaveAccess,
+        isArtistPick,
+        isOwner,
+        isUnlisted,
+        premiumConditions
+      })
 
   return (
     <div
@@ -222,16 +282,7 @@ const TrackTile = ({
       >
         {artwork}
       </div>
-      {showPremiumDogTag && dogEarType ? (
-        <DogEar
-          type={dogEarType}
-          containerClassName={styles.premiumDogEarContainer}
-        />
-      ) : null}
-      {isArtistPick && !showPremiumDogTag ? (
-        <DogEar type={DogEarType.STAR} />
-      ) : null}
-      {isUnlisted && <DogEar type={DogEarType.HIDDEN} />}
+      {dogEarType ? <DogEar type={dogEarType} /> : null}
       <div
         className={cn(styles.body, {
           // if track and not playlist/album
@@ -239,21 +290,24 @@ const TrackTile = ({
         })}
       >
         <div className={cn(styles.topSection)}>
-          <div className={cn(styles.headerRow)}>
-            {!isLoading && header && <div>{header}</div>}
-          </div>
-          <div
-            className={cn(
-              styles.titleRow,
-              isPremium ? styles.withPremium : null
-            )}
-          >
+          {size === TrackTileSize.LARGE ? (
+            <div
+              className={cn(
+                typeStyles.labelXSmall,
+                typeStyles.labelLight,
+                styles.headerRow
+              )}
+            >
+              {!isLoading && header && <div>{header}</div>}
+            </div>
+          ) : null}
+          <div className={styles.titleRow}>
             {isLoading ? (
               <Skeleton width='80%' className={styles.skeleton} />
             ) : (
               <a
                 href={permalink}
-                className={styles.title}
+                className={cn(typeStyles.titleMedium, styles.title)}
                 onClick={onClickTitleWrapper}
               >
                 {title}
@@ -263,7 +317,13 @@ const TrackTile = ({
               </a>
             )}
           </div>
-          <div className={styles.creatorRow}>
+          <div
+            className={cn(
+              typeStyles.titleMedium,
+              typeStyles.titleLight,
+              styles.creatorRow
+            )}
+          >
             {isLoading ? (
               <Skeleton width='50%' className={styles.skeleton} />
             ) : (
@@ -272,51 +332,52 @@ const TrackTile = ({
           </div>
 
           <div
-            className={cn(styles.socialsRow, {
+            className={cn(typeStyles.bodyXSmall, styles.socialsRow, {
               [styles.isHidden]: isUnlisted
             })}
           >
             {isLoading ? (
               <Skeleton width='30%' className={styles.skeleton} />
             ) : (
-              stats
+              <>
+                {!isLoading && isPremium && (
+                  <PremiumContentLabel
+                    premiumConditions={premiumConditions}
+                    doesUserHaveAccess={!!doesUserHaveAccess}
+                    isOwner={isOwner}
+                  />
+                )}
+                {stats}
+              </>
             )}
           </div>
-          <div className={styles.topRight}>
-            {isArtistPick && (
+          <div className={cn(typeStyles.bodyXSmall, styles.topRight)}>
+            {isArtistPick ? (
               <div className={styles.topRightIconLabel}>
                 <IconStar className={styles.topRightIcon} />
                 {messages.artistPick}
               </div>
-            )}
-            {!isLoading && isPremium && (
-              <PremiumContentLabel
-                premiumConditions={premiumConditions}
-                doesUserHaveAccess={!!doesUserHaveAccess}
-                isOwner={isOwner}
-              />
-            )}
-            {isUnlisted && (
+            ) : null}
+            {isUnlisted ? (
               <div className={styles.topRightIconLabel}>
                 <IconHidden className={styles.topRightIcon} />
                 {messages.hiddenTrack}
               </div>
-            )}
-            {!isLoading && duration && (
+            ) : null}
+            {!isLoading && duration ? (
               <div className={styles.duration}>{getDurationText()}</div>
-            )}
+            ) : null}
           </div>
-          <div className={styles.bottomRight}>
-            {!isLoading && listenCount !== undefined && listenCount > 0 && (
-              <div
-                className={cn(styles.plays, {
-                  [styles.isHidden]: hidePlays
-                })}
-              >
-                {formatCount(listenCount)}
-                {messages.getPlays(listenCount)}
-              </div>
-            )}
+          <div className={cn(typeStyles.bodyXSmall, styles.bottomRight)}>
+            {!isLoading
+              ? renderLockedOrMessageContent({
+                  doesUserHaveAccess,
+                  fieldVisibility,
+                  isOwner,
+                  isPremium,
+                  listenCount
+                })
+              : null}
           </div>
         </div>
         <div className={styles.divider} />
