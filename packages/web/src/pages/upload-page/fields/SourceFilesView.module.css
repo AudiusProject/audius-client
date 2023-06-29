@@ -3,7 +3,8 @@
   display: flex;
   flex-direction: column;
   overflow: auto;
-}.modalContainer {
+}
+.modalContainer {
   max-width: 536px;
   /* Need to account for the dropdown outside modal */
   overflow-y: visible !important;
