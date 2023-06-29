@@ -7,7 +7,8 @@ import {
   PushNotificationSetting,
   settingsPageActions as actions,
   getContext,
-  waitForValue
+  waitForValue,
+  waitForAccount
 } from '@audius/common'
 import { waitForRead } from 'audius-client/src/utils/sagaHelpers'
 import commonSettingsSagas from 'common/store/pages/settings/sagas'
@@ -17,7 +18,7 @@ import { select, call, put, takeEvery } from 'typed-redux-saga'
 import PushNotifications from 'app/notifications'
 
 const { getPushNotificationSettings } = settingsPageSelectors
-const { getAccountUser } = accountSelectors
+const { getAccountUser, getHasAccount } = accountSelectors
 
 export function* deregisterPushNotifications() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
@@ -26,21 +27,24 @@ export function* deregisterPushNotifications() {
   yield* call(audiusBackendInstance.deregisterDeviceToken, token)
 }
 
-/*
- * Runs once at startup and re-registers the device-token in case it changes
- */
-function* reregisterDeviceToken() {
-  const audiusBackend = yield* getContext('audiusBackendInstance')
-  const hasPermission = yield* call([PushNotifications, 'hasPermission'])
-  if (hasPermission) {
-    const { token, os } = yield* call([PushNotifications, 'getToken'])
-    yield* call(audiusBackend.registerDeviceToken, token, os)
+function* registerDeviceToken() {
+  yield* call(waitForAccount)
+  const isSignedIn = yield* select(getHasAccount)
+  if (!isSignedIn) return
+
+  let { token, os } = yield* call([PushNotifications, 'getToken'])
+
+  if (!token) {
+    yield* call([PushNotifications, 'requestPermission'])
+    ;({ token, os } = yield* call([PushNotifications, 'getToken']))
   }
+
+  const audiusBackend = yield* getContext('audiusBackendInstance')
+  yield* call(audiusBackend.registerDeviceToken, token, os)
 }
 
 function* enablePushNotifications() {
-  yield* call([PushNotifications, 'requestPermission'])
-  const { token, os } = yield* call([PushNotifications, 'getToken'])
+  yield* call(registerDeviceToken)
 
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
 
@@ -52,8 +56,6 @@ function* enablePushNotifications() {
   // have one right away when this function is called)
   yield* call(waitForValue, getAccountUser)
   yield* call(audiusBackendInstance.updatePushNotificationSettings, newSettings)
-
-  yield* call(audiusBackendInstance.registerDeviceToken, token, os)
 }
 
 function* disablePushNotifications() {
@@ -152,9 +154,10 @@ function* watchRequestPushNotificationPermissions() {
   yield* takeEvery(
     actions.REQUEST_PUSH_NOTIFICATION_PERMISSIONS,
     function* (_action: actions.RequestPushNotificationPermissions) {
-      yield* call(reregisterDeviceToken)
       const hasPermissions = yield* call([PushNotifications, 'hasPermission'])
-      if (!hasPermissions) {
+      if (hasPermissions) {
+        yield* call(registerDeviceToken)
+      } else {
         // Request permission to send push notifications and enable all if accepted
         yield* put(
           actions.togglePushNotificationSetting(
@@ -170,7 +173,7 @@ function* watchRequestPushNotificationPermissions() {
 export default function sagas() {
   return [
     ...commonSettingsSagas(),
-    reregisterDeviceToken,
+    registerDeviceToken,
     watchGetPushNotificationSettings,
     watchUpdatePushNotificationSettings,
     watchRequestPushNotificationPermissions
