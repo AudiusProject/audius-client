@@ -7,6 +7,7 @@ import IconCart from 'app/assets/images/iconCart.svg'
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
 import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
 import Text from 'app/components/text'
+import { useIsUSDCEnabled } from 'app/hooks/useIsUSDCEnabled'
 import { makeStyles, flexRowCentered } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { useThemeColors } from 'app/utils/theme'
@@ -54,12 +55,14 @@ export const LineupTilePremiumContentTypeTag = ({
   const styles = useStyles()
   const { accentBlue, neutralLight4, staticSpecialLightGreen1 } =
     useThemeColors()
+  const isUSDCEnabled = useIsUSDCEnabled()
 
-  const type = premiumConditions?.usdc_purchase
-    ? PremiumContentType.USDC_PURCHASE
-    : premiumConditions?.nft_collection
-    ? PremiumContentType.COLLECTIBLE_GATED
-    : PremiumContentType.SPECIAL_ACCESS
+  const type =
+    isUSDCEnabled && premiumConditions?.usdc_purchase
+      ? PremiumContentType.USDC_PURCHASE
+      : premiumConditions?.nft_collection
+      ? PremiumContentType.COLLECTIBLE_GATED
+      : PremiumContentType.SPECIAL_ACCESS
 
   const premiumContentTypeMap = useMemo(() => {
     return {

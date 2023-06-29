@@ -11,6 +11,7 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import { DogEar, DogEarType } from 'app/components/core'
 import type { LineupTileProps } from 'app/components/lineup-tile/types'
+import { useIsUSDCEnabled } from 'app/hooks/useIsUSDCEnabled'
 import { setVisibility } from 'app/store/drawers/slice'
 
 import { LineupTileActionButtons } from './LineupTileActionButtons'
@@ -59,6 +60,8 @@ export const LineupTile = ({
     repost_count,
     save_count
   } = item
+  const dispatch = useDispatch()
+  const isUSDCEnabled = useIsUSDCEnabled()
   const { artist_pick_track_id, name, user_id } = user
   const currentUserId = useSelector(getUserId)
   const isOwner = user_id === currentUserId
@@ -68,7 +71,6 @@ export const LineupTile = ({
   const premiumConditions = isTrack ? item.premium_conditions : null
   const isArtistPick = artist_pick_track_id === id
   const { doesUserHaveAccess } = usePremiumContentAccess(isTrack ? item : null)
-  const dispatch = useDispatch()
 
   const showPremiumDogEar =
     premiumConditions &&
@@ -76,7 +78,7 @@ export const LineupTile = ({
     !(showArtistPick && isArtistPick)
 
   const dogEarType = showPremiumDogEar
-    ? premiumConditions.usdc_purchase
+    ? isUSDCEnabled && premiumConditions.usdc_purchase
       ? DogEarType.USDC_PURCHASE
       : premiumConditions.nft_collection
       ? DogEarType.COLLECTIBLE_GATED

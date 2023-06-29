@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux'
 import IconLock from 'app/assets/images/iconLock.svg'
 import { Text } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
+import { useIsUSDCEnabled } from 'app/hooks/useIsUSDCEnabled'
 import { flexRowCentered, makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
 
@@ -47,6 +48,7 @@ export const LineupTileAccessStatus = ({
   premiumConditions: PremiumConditions
 }) => {
   const styles = useStyles()
+  const isUSDCEnabled = useIsUSDCEnabled()
   const premiumTrackStatusMap = useSelector(getPremiumTrackStatusMap)
   const premiumTrackStatus = premiumTrackStatusMap[trackId]
   const staticWhite = useColor('staticWhite')
@@ -55,7 +57,9 @@ export const LineupTileAccessStatus = ({
     <View
       style={[
         styles.root,
-        premiumConditions.usdc_purchase ? styles.usdcPurchase : null
+        isUSDCEnabled && premiumConditions.usdc_purchase
+          ? styles.usdcPurchase
+          : null
       ]}
     >
       {premiumTrackStatus === 'UNLOCKING' ? (
