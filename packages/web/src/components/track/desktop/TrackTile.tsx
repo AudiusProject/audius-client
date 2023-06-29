@@ -282,7 +282,7 @@ const TrackTile = ({
       >
         {artwork}
       </div>
-      {dogEarType && <DogEar type={dogEarType} />}
+      {dogEarType ? <DogEar type={dogEarType} /> : null}
       <div
         className={cn(styles.body, {
           // if track and not playlist/album
@@ -290,7 +290,7 @@ const TrackTile = ({
         })}
       >
         <div className={cn(styles.topSection)}>
-          {size === TrackTileSize.LARGE && (
+          {size === TrackTileSize.LARGE ? (
             <div
               className={cn(
                 typeStyles.labelXSmall,
@@ -300,7 +300,7 @@ const TrackTile = ({
             >
               {!isLoading && header && <div>{header}</div>}
             </div>
-          )}
+          ) : null}
           <div className={styles.titleRow}>
             {isLoading ? (
               <Skeleton width='80%' className={styles.skeleton} />
@@ -352,31 +352,32 @@ const TrackTile = ({
             )}
           </div>
           <div className={cn(typeStyles.bodyXSmall, styles.topRight)}>
-            {isArtistPick && (
+            {isArtistPick ? (
               <div className={styles.topRightIconLabel}>
                 <IconStar className={styles.topRightIcon} />
                 {messages.artistPick}
               </div>
-            )}
-            {isUnlisted && (
+            ) : null}
+            {isUnlisted ? (
               <div className={styles.topRightIconLabel}>
                 <IconHidden className={styles.topRightIcon} />
                 {messages.hiddenTrack}
               </div>
-            )}
-            {!isLoading && duration && (
+            ) : null}
+            {!isLoading && duration ? (
               <div className={styles.duration}>{getDurationText()}</div>
-            )}
+            ) : null}
           </div>
           <div className={cn(typeStyles.bodyXSmall, styles.bottomRight)}>
-            {!isLoading &&
-              renderLockedOrMessageContent({
-                doesUserHaveAccess,
-                fieldVisibility,
-                isOwner,
-                isPremium,
-                listenCount
-              })}
+            {!isLoading
+              ? renderLockedOrMessageContent({
+                  doesUserHaveAccess,
+                  fieldVisibility,
+                  isOwner,
+                  isPremium,
+                  listenCount
+                })
+              : null}
           </div>
         </div>
         <div className={styles.divider} />
