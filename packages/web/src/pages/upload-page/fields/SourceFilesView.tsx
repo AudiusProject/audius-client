@@ -36,9 +36,9 @@ export const SourceFilesView = ({
 }: SourceFilesViewProps) => {
   const renderCurrentStems = () => {
     return (
-      <ul className={styles.stemRows}>
+      <ul className={styles.stemListItems}>
         {stems.map((stem, i) => (
-          <StemRow
+          <StemListItem
             key={`${stem.metadata.title}-${i}`}
             stem={stem}
             didSelectCategory={(category) => onSelectCategory(category, i)}
@@ -106,17 +106,17 @@ export const dropdownRows = [
   StemCategory.OTHER
 ]
 
-type StemRowProps = {
+type StemListItemProps = {
   stem: StemUpload
   didSelectCategory: (category: StemCategory) => void
   onDelete: () => void
 }
 
-const StemRow = ({
+const StemListItem = ({
   stem: { category, metadata, allowCategorySwitch, allowDelete },
   didSelectCategory,
   onDelete
-}: StemRowProps) => {
+}: StemListItemProps) => {
   const onSelectIndex = (index: number) => {
     const cat = dropdownRows[index]
     didSelectCategory(cat)
@@ -149,7 +149,7 @@ const StemRow = ({
   }
 
   return (
-    <li className={styles.stemRowContainer}>
+    <li className={styles.stemListItemContainer}>
       <div className={styles.dropdownContainer}>
         <Dropdown
           size='medium'

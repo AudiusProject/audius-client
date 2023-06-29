@@ -19,7 +19,7 @@
   color: var(--neutral-light-4);
 }
 
-.stemRowContainer {
+.stemListItemContainer {
   display: flex;
   align-items: center;
   height: 32px;
@@ -27,7 +27,7 @@
   padding-left: 12px;
 }
 
-.stemRows {
+.stemListItems {
   display: flex;
   flex-direction: column;
 }
