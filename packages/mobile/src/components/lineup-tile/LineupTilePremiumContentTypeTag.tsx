@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import type { PremiumConditions } from '@audius/common'
 import { View } from 'react-native'
 
+import IconCart from 'app/assets/images/iconCart.svg'
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
 import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
 import Text from 'app/components/text'
@@ -12,7 +13,8 @@ import { useThemeColors } from 'app/utils/theme'
 
 const messages = {
   collectibleGated: 'Collectible Gated',
-  specialAccess: 'Special Access'
+  specialAccess: 'Special Access',
+  premium: 'Premium'
 }
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
@@ -28,7 +30,8 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 
 enum PremiumContentType {
   COLLECTIBLE_GATED = 'collectible gated',
-  SPECIAL_ACCESS = 'special access'
+  SPECIAL_ACCESS = 'special access',
+  USDC_PURCHASE = 'usdc purchase'
 }
 
 type LineupTilePremiumContentTypeTagProps = {
@@ -49,9 +52,12 @@ export const LineupTilePremiumContentTypeTag = ({
   isOwner
 }: LineupTilePremiumContentTypeTagProps) => {
   const styles = useStyles()
-  const { accentBlue, neutralLight4 } = useThemeColors()
+  const { accentBlue, neutralLight4, staticSpecialLightGreen1 } =
+    useThemeColors()
 
-  const type = premiumConditions?.nft_collection
+  const type = premiumConditions?.usdc_purchase
+    ? PremiumContentType.USDC_PURCHASE
+    : premiumConditions?.nft_collection
     ? PremiumContentType.COLLECTIBLE_GATED
     : PremiumContentType.SPECIAL_ACCESS
 
@@ -66,9 +72,23 @@ export const LineupTilePremiumContentTypeTag = ({
         icon: IconSpecialAccess,
         color: doesUserHaveAccess && !isOwner ? neutralLight4 : accentBlue,
         text: messages.specialAccess
+      },
+      [PremiumContentType.USDC_PURCHASE]: {
+        icon: IconCart,
+        color:
+          doesUserHaveAccess && !isOwner
+            ? neutralLight4
+            : staticSpecialLightGreen1,
+        text: messages.premium
       }
     }
-  }, [accentBlue, doesUserHaveAccess, isOwner, neutralLight4])
+  }, [
+    accentBlue,
+    doesUserHaveAccess,
+    isOwner,
+    neutralLight4,
+    staticSpecialLightGreen1
+  ])
 
   const { icon: Icon, color, text } = premiumContentTypeMap[type]
 

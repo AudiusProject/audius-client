@@ -1,4 +1,4 @@
-import type { ID } from '@audius/common'
+import type { ID, PremiumConditions } from '@audius/common'
 import { premiumContentSelectors } from '@audius/common'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
@@ -33,17 +33,31 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   loadingSpinner: {
     width: spacing(4),
     height: spacing(4)
+  },
+  usdcPurchase: {
+    backgroundColor: palette.staticSpecialLightGreen1
   }
 }))
 
-export const LineupTileAccessStatus = ({ trackId }: { trackId: ID }) => {
+export const LineupTileAccessStatus = ({
+  trackId,
+  premiumConditions
+}: {
+  trackId: ID
+  premiumConditions: PremiumConditions
+}) => {
   const styles = useStyles()
   const premiumTrackStatusMap = useSelector(getPremiumTrackStatusMap)
   const premiumTrackStatus = premiumTrackStatusMap[trackId]
   const staticWhite = useColor('staticWhite')
 
   return (
-    <View style={styles.root}>
+    <View
+      style={[
+        styles.root,
+        premiumConditions.usdc_purchase ? styles.usdcPurchase : null
+      ]}
+    >
       {premiumTrackStatus === 'UNLOCKING' ? (
         <LoadingSpinner style={styles.loadingSpinner} fill={staticWhite} />
       ) : (

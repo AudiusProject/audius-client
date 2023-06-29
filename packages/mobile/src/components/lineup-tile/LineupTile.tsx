@@ -76,7 +76,9 @@ export const LineupTile = ({
     !(showArtistPick && isArtistPick)
 
   const dogEarType = showPremiumDogEar
-    ? premiumConditions.nft_collection
+    ? premiumConditions.usdc_purchase
+      ? DogEarType.USDC_PURCHASE
+      : premiumConditions.nft_collection
       ? DogEarType.COLLECTIBLE_GATED
       : DogEarType.SPECIAL_ACCESS
     : null
@@ -159,6 +161,7 @@ export const LineupTile = ({
           isShareHidden={hideShare}
           isUnlisted={isUnlisted}
           trackId={trackId}
+          premiumConditions={premiumConditions}
           doesUserHaveAccess={doesUserHaveAccess}
           onPressOverflow={onPressOverflow}
           onPressRepost={onPressRepost}

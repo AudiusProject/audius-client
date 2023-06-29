@@ -77,6 +77,9 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
   },
   iconUnlocked: {
     backgroundColor: palette.accentBlue
+  },
+  iconUSDC: {
+    backgroundColor: palette.staticSpecialLightGreen1
   }
 }))
 
@@ -203,7 +206,8 @@ export const LineupTileStats = ({
           style={[
             styles.iconLocked,
             styles.listenCount,
-            doesUserHaveAccess ? styles.iconUnlocked : null
+            doesUserHaveAccess ? styles.iconUnlocked : null,
+            premiumConditions.usdc_purchase ? styles.iconUSDC : null
           ]}
         >
           {doesUserHaveAccess ? (
