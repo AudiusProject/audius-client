@@ -104,7 +104,7 @@ export const BottomRow = ({
   if (isTrack && !isLoading && !doesUserHaveAccess) {
     return (
       <div className={cn(typeStyles.titleSmall, styles.bottomRow)}>
-        {premiumTrackStatus !== 'UNLOCKING' ? (
+        {premiumTrackStatus === 'UNLOCKING' ? (
           <div className={styles.premiumContent}>
             <LoadingSpinner className={styles.spinner} />
             {messages.unlocking}
