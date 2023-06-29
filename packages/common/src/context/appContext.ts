@@ -3,7 +3,6 @@ import { createContext, useContext } from 'react'
 import { StorageNodeSelectorService } from '@audius/sdk'
 
 import { AnalyticsEvent, AllTrackingEvents } from 'models/Analytics'
-import { Maybe } from 'utils/typeUtils'
 
 type AppContextType = {
   analytics: {
@@ -15,7 +14,7 @@ type AppContextType = {
       properties: any
     }
   }
-  storageNodeSelector: Maybe<StorageNodeSelectorService>
+  storageNodeSelector?: StorageNodeSelectorService
 }
 
 export const AppContext = createContext<AppContextType | null>(null)
