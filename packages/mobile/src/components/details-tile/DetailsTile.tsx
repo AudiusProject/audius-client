@@ -358,12 +358,12 @@ export const DetailsTile = ({
             <DetailsProgressInfo track={track} />
           ) : null}
           <View style={styles.buttonSection}>
-            {!doesUserHaveAccess && premiumConditions && trackId && (
+            {!doesUserHaveAccess && premiumConditions && trackId ? (
               <DetailsTileNoAccess
                 trackId={trackId}
                 premiumConditions={premiumConditions}
               />
-            )}
+            ) : null}
             {doesUserHaveAccess ? (
               <Button
                 styles={{
