@@ -45,13 +45,17 @@ export type SourceFilesFormValues = {
   [STEMS]: StemUpload[]
 }
 
+/**
+ * This is a subform that expects to exist within a parent TrackEdit form.
+ * The useField calls reference the outer form's fields which much match the name constants.
+ */
 export const SourceFilesModalForm = () => {
   // These refer to the field in the outer EditForm
   const [{ value: allowDownloadValue }, , { setValue: setAllowDownloadValue }] =
     useField(ALLOW_DOWNLOAD)
   const [{ value: followerGatedValue }, , { setValue: setFollowerGatedValue }] =
     useField(FOLLOWER_GATED)
-  // TODO: Stems goes outside tracks in uploadTracks
+  // TODO: Stems value should be submitted outside tracks in uploadTracks
   const [{ value: stemsValue }, , { setValue: setStemsValue }] = useField(STEMS)
 
   const initialValues = useMemo(() => {
@@ -62,11 +66,14 @@ export const SourceFilesModalForm = () => {
     return initialValues as SourceFilesFormValues
   }, [allowDownloadValue, followerGatedValue, stemsValue])
 
-  const onSubmit = (values: SourceFilesFormValues) => {
-    setAllowDownloadValue(get(values, ALLOW_DOWNLOAD))
-    setFollowerGatedValue(get(values, FOLLOWER_GATED))
-    setStemsValue(values[STEMS])
-  }
+  const onSubmit = useCallback(
+    (values: SourceFilesFormValues) => {
+      setAllowDownloadValue(get(values, ALLOW_DOWNLOAD))
+      setFollowerGatedValue(get(values, FOLLOWER_GATED))
+      setStemsValue(get(values, STEMS))
+    },
+    [setAllowDownloadValue, setFollowerGatedValue, setStemsValue]
+  )
 
   const preview = (
     <div className={styles.preview}>
@@ -95,6 +102,16 @@ export const SourceFilesModalForm = () => {
 }
 
 const SourceFilesModalFiels = () => {
+  const [
+    { onChange: allowDownloadOnChange },
+    ,
+    { setValue: allowDownloadSetValue }
+  ] = useField(ALLOW_DOWNLOAD)
+  const [
+    { onChange: followerGatedOnChange },
+    ,
+    { setValue: followerGatedSetValue }
+  ] = useField(FOLLOWER_GATED)
   const [{ value: stemsValue }, , { setValue: setStems }] =
     useField<StemUpload[]>(STEMS)
 
@@ -127,12 +144,24 @@ const SourceFilesModalFiels = () => {
         name={ALLOW_DOWNLOAD}
         header={messages[ALLOW_DOWNLOAD].header}
         description={messages[ALLOW_DOWNLOAD].description}
+        onChange={(e) => {
+          allowDownloadOnChange(e)
+          if (!e.target.checked) {
+            followerGatedSetValue(false)
+          }
+        }}
       />
       <Divider />
       <ToggleRowField
         name={FOLLOWER_GATED}
         header={messages[FOLLOWER_GATED].header}
         description={messages[FOLLOWER_GATED].description}
+        onChange={(e) => {
+          followerGatedOnChange(e)
+          if (e.target.checked) {
+            allowDownloadSetValue(true)
+          }
+        }}
       />
       <Divider />
       <SourceFilesView
