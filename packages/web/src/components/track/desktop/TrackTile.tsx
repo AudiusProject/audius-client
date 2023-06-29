@@ -38,10 +38,6 @@ const messages = {
   getPlays: (listenCount: number) => ` ${pluralize('Play', listenCount)}`,
   artistPick: 'Artist Pick',
   hiddenTrack: 'Hidden Track',
-  collectibleGated: 'Collectible Gated',
-  specialAccess: 'Special Access',
-  unlocked: 'Unlocked',
-  locked: 'LOCKED',
   timeLeft: 'left',
   played: 'Played'
 }
