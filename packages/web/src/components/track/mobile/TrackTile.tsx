@@ -7,7 +7,6 @@ import {
   Nullable,
   premiumContentSelectors,
   premiumContentActions,
-  FeatureFlags,
   formatLineupTileDuration,
   Genre
 } from '@audius/common'
@@ -26,7 +25,6 @@ import Skeleton from 'components/skeleton/Skeleton'
 import { PremiumContentLabel } from 'components/track/PremiumContentLabel'
 import { TrackTileProps } from 'components/track/types'
 import UserBadges from 'components/user-badges/UserBadges'
-import { useFlag } from 'hooks/useRemoteConfig'
 import { profilePage } from 'utils/route'
 
 import BottomButtons from './BottomButtons'
@@ -136,9 +134,6 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
     variant,
     containerClassName
   } = props
-  const { isEnabled: isGatedContentEnabled } = useFlag(
-    FeatureFlags.GATED_CONTENT_ENABLED
-  )
 
   const hideShare: boolean = props.fieldVisibility
     ? props.fieldVisibility.share === false
@@ -156,10 +151,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
     : undefined
 
   const showPremiumDogEar =
-    isGatedContentEnabled &&
-    !isLoading &&
-    premiumConditions &&
-    (isOwner || !doesUserHaveAccess)
+    !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
   const DogEarIconType = showPremiumDogEar
     ? isOwner
       ? premiumConditions.nft_collection

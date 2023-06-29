@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 
 import {
-  FeatureFlags,
   PremiumConditions,
   cacheUsersSelectors,
   User,
@@ -38,7 +37,6 @@ import FollowButton from 'components/follow-button/FollowButton'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { IconTip } from 'components/notification/Notification/components/icons'
 import UserBadges from 'components/user-badges/UserBadges'
-import { useFlag } from 'hooks/useRemoteConfig'
 import { emptyStringGuard } from 'pages/track-page/utils'
 import { AppState } from 'store/types'
 import { profilePage, SIGN_UP_PAGE } from 'utils/route'
@@ -478,9 +476,6 @@ export const PremiumTrackSection = ({
   className,
   buttonClassName
 }: PremiumTrackSectionProps) => {
-  const { isEnabled: isGatedContentEnabled } = useFlag(
-    FeatureFlags.GATED_CONTENT_ENABLED
-  )
   const dispatch = useDispatch()
   const premiumTrackStatusMap = useSelector(getPremiumTrackStatusMap)
   const premiumTrackStatus = premiumTrackStatusMap[trackId] ?? null
@@ -540,7 +535,6 @@ export const PremiumTrackSection = ({
     [dispatch]
   )
 
-  if (!isGatedContentEnabled) return null
   if (!premiumConditions) return null
   if (!shouldDisplay) return null
 

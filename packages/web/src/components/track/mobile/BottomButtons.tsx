@@ -1,6 +1,6 @@
 import { memo } from 'react'
 
-import { FeatureFlags, PremiumTrackStatus } from '@audius/common'
+import { PremiumTrackStatus } from '@audius/common'
 import { IconLock } from '@audius/stems'
 
 import FavoriteButton from 'components/alt-button/FavoriteButton'
@@ -8,7 +8,6 @@ import MoreButton from 'components/alt-button/MoreButton'
 import RepostButton from 'components/alt-button/RepostButton'
 import ShareButton from 'components/alt-button/ShareButton'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
-import { useFlag } from 'hooks/useRemoteConfig'
 
 import styles from './BottomButtons.module.css'
 
@@ -35,10 +34,6 @@ const messages = {
 }
 
 const BottomButtons = (props: BottomButtonsProps) => {
-  const { isEnabled: isGatedContentEnabled } = useFlag(
-    FeatureFlags.GATED_CONTENT_ENABLED
-  )
-
   const repostButton = () => {
     return (
       <RepostButton
@@ -100,7 +95,7 @@ const BottomButtons = (props: BottomButtonsProps) => {
     )
   }
 
-  if (isGatedContentEnabled && props.isTrack && !props.doesUserHaveAccess) {
+  if (props.isTrack && !props.doesUserHaveAccess) {
     return (
       <div className={styles.bottomButtons}>
         {premiumStatus()}
