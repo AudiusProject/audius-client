@@ -28,7 +28,6 @@ import {
 import Text from 'app/components/text'
 import UserBadges from 'app/components/user-badges'
 import { light } from 'app/haptics'
-import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { flexRowCentered, makeStyles } from 'app/styles'
@@ -219,7 +218,6 @@ export const DetailsTile = ({
   user,
   track
 }: DetailsTileProps) => {
-  const isGatedContentEnabled = useIsGatedContentEnabled()
   const { doesUserHaveAccess } = usePremiumContentAccess(
     track ? (track as unknown as Track) : null
   )
@@ -264,9 +262,7 @@ export const DetailsTile = ({
 
   const renderDogEar = () => {
     const showPremiumDogEar =
-      isGatedContentEnabled &&
-      premiumConditions &&
-      (isOwner || !doesUserHaveAccess)
+      premiumConditions && (isOwner || !doesUserHaveAccess)
 
     const dogEarType = showPremiumDogEar
       ? isOwner
@@ -362,16 +358,13 @@ export const DetailsTile = ({
             <DetailsProgressInfo track={track} />
           ) : null}
           <View style={styles.buttonSection}>
-            {isGatedContentEnabled &&
-              !doesUserHaveAccess &&
-              premiumConditions &&
-              trackId && (
-                <DetailsTileNoAccess
-                  trackId={trackId}
-                  premiumConditions={premiumConditions}
-                />
-              )}
-            {!isGatedContentEnabled || doesUserHaveAccess ? (
+            {!doesUserHaveAccess && premiumConditions && trackId ? (
+              <DetailsTileNoAccess
+                trackId={trackId}
+                premiumConditions={premiumConditions}
+              />
+            ) : null}
+            {doesUserHaveAccess ? (
               <Button
                 styles={{
                   text: styles.playButtonText,
@@ -408,7 +401,7 @@ export const DetailsTile = ({
           {isAiGeneratedTracksEnabled && aiAttributionUserId ? (
             <DetailsTileAiAttribution userId={aiAttributionUserId} />
           ) : null}
-          {isGatedContentEnabled && doesUserHaveAccess && premiumConditions && (
+          {doesUserHaveAccess && premiumConditions && (
             <DetailsTileHasAccess
               premiumConditions={premiumConditions}
               isOwner={isOwner}
