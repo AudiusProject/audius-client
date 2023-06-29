@@ -148,11 +148,13 @@ export const LineupTileStats = ({
       {isTrending ? (
         <LineupTileRankIcon showCrown={showRankIcon} index={index} />
       ) : null}
-      <LineupTilePremiumContentTypeTag
-        premiumConditions={premiumConditions}
-        doesUserHaveAccess={doesUserHaveAccess}
-        isOwner={isOwner}
-      />
+      {premiumConditions ? (
+        <LineupTilePremiumContentTypeTag
+          premiumConditions={premiumConditions}
+          doesUserHaveAccess={doesUserHaveAccess}
+          isOwner={isOwner}
+        />
+      ) : null}
       {hasEngagement && !isUnlisted && (
         <View style={styles.leftStats}>
           <TouchableOpacity
