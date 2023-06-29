@@ -1,3 +1,22 @@
+/* These classes map to the Harmony typography styles. They are organized into category+size variants
+ * (ex. Title/Large is titleLarge). Using a variant on its own will apply the 'Default' font weight.
+ * Some categories have additional weight variants ('Light' or 'Strong'). Those
+ * can be applied _in addition_ to the base class when needed.
+ * Example usage:
+ ```
+ import cn from 'classnames'
+ import typeStyles from 'components/typography/typograph.module.css'
+
+ export const Component = () => (
+    <>
+      <div className={typeStyles.titleMedium}>I am the title in a default weight</div>
+      <div className={cn(typeStyles.bodyMedium, typeStyles.bodyStrong)}>
+        I am the body copy and I am bold and important!
+      </div>
+    </>
+ ```
+*/
+
 /* Title Styles */
 .titleLarge {
   font-size: var(--font-l);

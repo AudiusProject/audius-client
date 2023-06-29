@@ -7,6 +7,7 @@ export type LockedStatusBadgeProps = {
   locked: boolean
 }
 
+/** Renders a small badge with locked or unlocked icon */
 export const LockedStatusBadge = ({ locked }: LockedStatusBadgeProps) => {
   const LockComponent = locked ? IconLock : IconLockUnlocked
   return (

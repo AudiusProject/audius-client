@@ -6,10 +6,12 @@ import styles from './PremiumContentLabel.module.css'
 
 const messages = {
   collectibleGated: 'Collectible Gated',
-  specialAccess: 'Special Access',
-  unlocked: 'Unlocked'
+  specialAccess: 'Special Access'
 }
 
+/** Renders a label indicating a premium content type. If the user does
+ * not yet have access or is the owner, the label will be in an accented color.
+ */
 export const PremiumContentLabel = ({
   premiumConditions,
   doesUserHaveAccess,
