@@ -152,6 +152,7 @@ function* watchRequestPushNotificationPermissions() {
   yield* takeEvery(
     actions.REQUEST_PUSH_NOTIFICATION_PERMISSIONS,
     function* (_action: actions.RequestPushNotificationPermissions) {
+      yield* call(reregisterDeviceToken)
       const hasPermissions = yield* call([PushNotifications, 'hasPermission'])
       if (!hasPermissions) {
         // Request permission to send push notifications and enable all if accepted
