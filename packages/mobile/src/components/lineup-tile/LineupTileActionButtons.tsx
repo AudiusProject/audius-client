@@ -6,7 +6,6 @@ import IconShare from 'app/assets/images/iconShare.svg'
 import { IconButton } from 'app/components/core'
 import { FavoriteButton } from 'app/components/favorite-button'
 import { RepostButton } from 'app/components/repost-button'
-import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { flexRowCentered, makeStyles } from 'app/styles'
 import type { GestureResponderHandler } from 'app/types/gesture'
 import { useThemeColors } from 'app/utils/theme'
@@ -32,9 +31,7 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
   bottomButtons: {
     ...flexRowCentered(),
     justifyContent: 'space-between',
-    marginVertical: spacing(0.5),
     marginHorizontal: spacing(3),
-    height: spacing(9),
     borderTopWidth: 1,
     borderTopColor: palette.neutralLight8
   },
@@ -46,7 +43,8 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     marginRight: spacing(8)
   },
   leftButtons: {
-    ...flexRowCentered()
+    ...flexRowCentered(),
+    marginVertical: spacing(2)
   }
 }))
 
@@ -64,7 +62,6 @@ export const LineupTileActionButtons = ({
   onPressSave,
   onPressShare
 }: Props) => {
-  const isGatedContentEnabled = useIsGatedContentEnabled()
   const { neutralLight4 } = useThemeColors()
   const styles = useStyles()
 
@@ -108,8 +105,7 @@ export const LineupTileActionButtons = ({
     />
   )
 
-  const showPremiumAccessStatus =
-    isGatedContentEnabled && trackId && !doesUserHaveAccess
+  const showPremiumAccessStatus = trackId && !doesUserHaveAccess
   const showLeftButtons = !showPremiumAccessStatus && !isUnlisted
 
   return (
