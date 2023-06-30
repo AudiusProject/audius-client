@@ -1,4 +1,4 @@
-import type { ID, PremiumConditions } from '@audius/common'
+import type { ID, Nullable, PremiumConditions } from '@audius/common'
 import { View } from 'react-native'
 
 import IconKebabHorizontal from 'app/assets/images/iconKebabHorizontal.svg'
@@ -20,7 +20,7 @@ type Props = {
   isShareHidden?: boolean
   isUnlisted?: boolean
   trackId?: ID
-  premiumConditions: PremiumConditions
+  premiumConditions?: Nullable<PremiumConditions>
   doesUserHaveAccess?: boolean
   onPressOverflow?: GestureResponderHandler
   onPressRepost?: GestureResponderHandler
@@ -113,12 +113,12 @@ export const LineupTileActionButtons = ({
   return (
     <View style={styles.bottomButtons}>
       <View style={styles.leftButtons}>
-        {showPremiumAccessStatus && (
+        {showPremiumAccessStatus && premiumConditions != null ? (
           <LineupTileAccessStatus
             trackId={trackId}
             premiumConditions={premiumConditions}
           />
-        )}
+        ) : null}
         {showLeftButtons && (
           <>
             {repostButton}
