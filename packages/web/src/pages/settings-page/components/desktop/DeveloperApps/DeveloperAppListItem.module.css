@@ -8,10 +8,6 @@
   padding: var(--unit-4) var(--unit-6);
 }
 
-.listItem:not(:first-child) {
-  margin-top: var(--unit-2);
-}
-
 .listItemIndex {
   flex-grow: 0;
   font-size: var(--font-m);

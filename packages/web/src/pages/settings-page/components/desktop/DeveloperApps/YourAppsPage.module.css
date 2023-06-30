@@ -41,3 +41,9 @@
 .divider {
   margin: var(--unit-2) 0;
 }
+
+.appList {
+  row-gap: 8px;
+  display: flex;
+  flex-direction: column;
+}

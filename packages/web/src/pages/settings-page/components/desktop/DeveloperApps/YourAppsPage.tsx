@@ -75,7 +75,7 @@ export const YourAppsPage = (props: YourAppsPageProps) => {
         ) : data?.apps.length === 0 ? (
           <p className={styles.noApps}>{messages.noApps}</p>
         ) : (
-          <ol>
+          <ol className={styles.appList}>
             {data?.apps.map((app, index) => (
               <DeveloperAppListItem
                 key={app.apiKey}
