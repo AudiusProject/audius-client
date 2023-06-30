@@ -11,7 +11,6 @@ const ALLOWED_AUDIO_FILE_EXTENSIONS = [
   // mp4
   'mp4',
   'm4a',
-  'm4p',
   'm4b',
   'm4r',
   'm4v',
