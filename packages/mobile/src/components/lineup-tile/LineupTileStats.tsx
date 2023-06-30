@@ -80,7 +80,7 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     backgroundColor: palette.accentBlue
   },
   iconUSDC: {
-    backgroundColor: palette.staticSpecialLightGreen1
+    backgroundColor: palette.specialLightGreen1
   }
 }))
 

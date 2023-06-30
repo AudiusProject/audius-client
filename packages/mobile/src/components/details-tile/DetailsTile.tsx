@@ -269,10 +269,10 @@ export const DetailsTile = ({
     const dogEarType = showPremiumDogEar
       ? isOwner
         ? isUSDCEnabled && premiumConditions.usdc_purchase
-          ? premiumConditions.nft_collection
-            ? DogEarType.COLLECTIBLE_GATED
-            : DogEarType.SPECIAL_ACCESS
-          : null
+          ? DogEarType.USDC_PURCHASE
+          : premiumConditions.nft_collection
+          ? DogEarType.COLLECTIBLE_GATED
+          : DogEarType.SPECIAL_ACCESS
         : null
       : null
 

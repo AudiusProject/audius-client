@@ -59,7 +59,7 @@ export const DogEar = (props: DogEarProps) => {
     secondary,
     staticWhite,
     accentBlue,
-    staticSpecialLightGreen1
+    specialLightGreen1
   } = useThemeColors()
 
   const { icon: Icon, colors } = {
@@ -81,7 +81,7 @@ export const DogEar = (props: DogEarProps) => {
     },
     [DogEarType.USDC_PURCHASE]: {
       icon: IconCart,
-      colors: [staticSpecialLightGreen1, staticSpecialLightGreen1]
+      colors: [specialLightGreen1, specialLightGreen1]
     }
   }[type]
 

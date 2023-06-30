@@ -53,8 +53,7 @@ export const LineupTilePremiumContentTypeTag = ({
   isOwner
 }: LineupTilePremiumContentTypeTagProps) => {
   const styles = useStyles()
-  const { accentBlue, neutralLight4, staticSpecialLightGreen1 } =
-    useThemeColors()
+  const { accentBlue, neutralLight4, specialLightGreen1 } = useThemeColors()
   const isUSDCEnabled = useIsUSDCEnabled()
 
   const type =
@@ -79,9 +78,7 @@ export const LineupTilePremiumContentTypeTag = ({
       [PremiumContentType.USDC_PURCHASE]: {
         icon: IconCart,
         color:
-          doesUserHaveAccess && !isOwner
-            ? neutralLight4
-            : staticSpecialLightGreen1,
+          doesUserHaveAccess && !isOwner ? neutralLight4 : specialLightGreen1,
         text: messages.premium
       }
     }
@@ -90,7 +87,7 @@ export const LineupTilePremiumContentTypeTag = ({
     doesUserHaveAccess,
     isOwner,
     neutralLight4,
-    staticSpecialLightGreen1
+    specialLightGreen1
   ])
 
   const { icon: Icon, color, text } = premiumContentTypeMap[type]
