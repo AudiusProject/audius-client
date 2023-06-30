@@ -198,6 +198,13 @@ function* doFetchLatestMessages(
     const chat = yield* select((state) => getChat(state, chatId))
     const after = chat?.messagesSummary?.next_cursor
 
+    // On first fetch of messages, we won't have an after cursor.
+    // Do `fetchMoreMessages` instead for initial fetch of messages and get all up to the first unread
+    if (!after) {
+      yield* call(doFetchMoreMessages, action)
+      return
+    }
+
     let hasMoreUnread = true
     let data: ChatMessage[] = []
     let before: string | undefined
@@ -208,18 +215,12 @@ function* doFetchLatestMessages(
       const response = yield* call([sdk.chats, sdk.chats.getMessages], {
         chatId,
         before,
-        after: chat?.messagesSummary?.next_cursor,
+        after,
         limit: MESSAGES_PAGE_SIZE
       })
       data = data.concat(response.data)
-      hasMoreUnread =
-        // If we have no more messages with our after filter, we're done
-        (!!after && response.data.length > 0) ||
-        // If we don't have an after filter, eg on first messages load, then go until we get all the unreads
-        (!after &&
-          !!chat?.unread_message_count &&
-          chat.unread_message_count >
-            (response.summary?.next_count ?? 0) + data.length)
+      // If we have no more messages with our after filter, we're done
+      hasMoreUnread = response.data.length > 0
       before = response.summary?.prev_cursor
       if (!firstResponse) {
         firstResponse = response
