@@ -2,6 +2,7 @@ import { ReleaseDateModalForm } from '../fields/ReleaseDateModalForm'
 import { RemixModalForm } from '../fields/RemixModalForm'
 import { SourceFilesModalForm } from '../fields/SourceFilesModalForm'
 
+import { TrackAvailabilityModalForm } from './TrackAvailabilityModalForm'
 import styles from './TrackModalArray.module.css'
 
 export const TrackModalArray = () => {
@@ -10,6 +11,7 @@ export const TrackModalArray = () => {
       <ReleaseDateModalForm />
       <RemixModalForm />
       <SourceFilesModalForm />
+      <TrackAvailabilityModalForm />
     </div>
   )
 }
