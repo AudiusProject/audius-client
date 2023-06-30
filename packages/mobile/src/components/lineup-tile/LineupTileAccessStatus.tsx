@@ -36,7 +36,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     height: spacing(4)
   },
   usdcPurchase: {
-    backgroundColor: palette.staticSpecialLightGreen1
+    backgroundColor: palette.specialLightGreen1
   }
 }))
 
