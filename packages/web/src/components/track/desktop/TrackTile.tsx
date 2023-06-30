@@ -294,7 +294,7 @@ const TrackTile = ({
             <div
               className={cn(
                 typeStyles.labelXSmall,
-                typeStyles.labelLight,
+                typeStyles.labelWeak,
                 styles.headerRow
               )}
             >
@@ -320,7 +320,7 @@ const TrackTile = ({
           <div
             className={cn(
               typeStyles.titleMedium,
-              typeStyles.titleLight,
+              typeStyles.titleWeak,
               styles.creatorRow
             )}
           >
