@@ -145,7 +145,7 @@ const ConnectedTrackTile = ({
   )
   const { isUserAccessTBD, doesUserHaveAccess } =
     usePremiumContentAccess(trackWithFallback)
-  const loading = isBuffering || isUserAccessTBD
+  const loading = isLoading || isUserAccessTBD
 
   const toggleSave = (trackId: ID) => {
     if (has_current_user_saved) {

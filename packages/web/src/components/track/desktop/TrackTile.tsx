@@ -16,7 +16,7 @@ import { useSelector } from 'react-redux'
 
 import { ReactComponent as IconStar } from 'assets/img/iconStar.svg'
 import { ReactComponent as IconVolume } from 'assets/img/iconVolume.svg'
-import { DogEar, DogEarType } from 'components/dog-ear'
+import { DogEar } from 'components/dog-ear'
 import Skeleton from 'components/skeleton/Skeleton'
 import typeStyles from 'components/typography/typography.module.css'
 import { useFlag } from 'hooks/useRemoteConfig'
@@ -27,6 +27,7 @@ import {
   TrackTileSize,
   DesktopTrackTileProps as TrackTileProps
 } from '../types'
+import { getDogEarType } from '../utils'
 
 import { BottomRow } from './BottomRow'
 import styles from './TrackTile.module.css'
@@ -104,42 +105,6 @@ const renderLockedOrMessageContent = ({
       </div>
     )
   )
-}
-
-type GetDogEarTypeArgs = Pick<
-  TrackTileProps,
-  | 'doesUserHaveAccess'
-  | 'isArtistPick'
-  | 'isOwner'
-  | 'isUnlisted'
-  | 'premiumConditions'
->
-const getDogEarType = ({
-  doesUserHaveAccess,
-  isArtistPick,
-  isOwner,
-  isUnlisted,
-  premiumConditions
-}: GetDogEarTypeArgs) => {
-  // Unlisted is mutually exclusive from other dog ear types
-  if (isUnlisted) {
-    return DogEarType.HIDDEN
-  }
-
-  // Show premium variants for track owners or if user does not yet have access
-  if ((isOwner || !doesUserHaveAccess) && premiumConditions) {
-    if (premiumConditions.nft_collection) {
-      return DogEarType.COLLECTIBLE_GATED
-    }
-    return DogEarType.SPECIAL_ACCESS
-  }
-
-  // If no premium variant, optionally show artist pick if applicable
-  if (isArtistPick) {
-    return DogEarType.STAR
-  }
-
-  return undefined
 }
 
 const TrackTile = ({

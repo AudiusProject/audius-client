@@ -20,12 +20,15 @@ import { useModalState } from 'common/hooks/useModalState'
 import FavoriteButton from 'components/alt-button/FavoriteButton'
 import RepostButton from 'components/alt-button/RepostButton'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
-import { DogEar, DogEarType } from 'components/dog-ear'
+import { DogEar } from 'components/dog-ear'
 import Skeleton from 'components/skeleton/Skeleton'
 import { PremiumContentLabel } from 'components/track/PremiumContentLabel'
 import { TrackTileProps } from 'components/track/types'
+import typeStyles from 'components/typography/typography.module.css'
 import UserBadges from 'components/user-badges/UserBadges'
 import { profilePage } from 'utils/route'
+
+import { getDogEarType } from '../utils'
 
 import BottomButtons from './BottomButtons'
 import styles from './TrackTile.module.css'
@@ -93,7 +96,7 @@ export const RankIcon = ({
   className?: string
 }) => {
   return isVisible ? (
-    <div className={cn(styles.rankContainer, className)}>
+    <div className={cn(typeStyles.bodyXsmall, styles.rankContainer, className)}>
       {showCrown ? <IconCrown /> : <IconTrending />}
       {index + 1}
     </div>
@@ -117,6 +120,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
     isActive,
     isMatrix,
     userId,
+    isArtistPick,
     isOwner,
     isUnlisted,
     isLoading,
@@ -125,6 +129,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
     doesUserHaveAccess,
     isTrending,
     showRankIcon,
+    showArtistPick,
     permalink,
     artistHandle,
     duration,
@@ -150,15 +155,15 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
     ? premiumTrackStatusMap[trackId]
     : undefined
 
-  const showPremiumDogEar =
-    !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
-  const DogEarIconType = showPremiumDogEar
-    ? isOwner
-      ? premiumConditions.nft_collection
-        ? DogEarType.COLLECTIBLE_GATED
-        : DogEarType.SPECIAL_ACCESS
-      : DogEarType.LOCKED
-    : null
+  const dogEarType = isLoading
+    ? undefined
+    : getDogEarType({
+        doesUserHaveAccess,
+        isArtistPick,
+        isOwner,
+        isUnlisted,
+        premiumConditions
+      })
 
   const onToggleSave = useCallback(() => toggleSave(id), [toggleSave, id])
 
@@ -214,38 +219,22 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
         containerClassName
       )}
     >
-      {showPremiumDogEar && DogEarIconType ? (
-        <DogEar
-          type={DogEarIconType}
-          containerClassName={styles.premiumDogEarContainer}
-        />
-      ) : null}
-      {!showPremiumDogEar && props.showArtistPick && props.isArtistPick ? (
-        <DogEar type={DogEarType.STAR} />
-      ) : null}
-      {props.isUnlisted && <DogEar type={DogEarType.HIDDEN} />}
+      {dogEarType ? <DogEar type={dogEarType} /> : null}
       <div className={styles.mainContent} onClick={handleClick}>
         <div className={cn(styles.topRight, styles.statText)}>
-          {props.showArtistPick && props.isArtistPick && (
-            <div className={styles.topRightIcon}>
+          {showArtistPick && isArtistPick && (
+            <div className={cn(typeStyles.bodyXSmall, styles.topRightIcon)}>
               <IconStar />
               {messages.artistPick}
             </div>
           )}
-          {!isLoading && isPremium ? (
-            <PremiumContentLabel
-              premiumConditions={premiumConditions}
-              doesUserHaveAccess={!!doesUserHaveAccess}
-              isOwner={isOwner}
-            />
-          ) : null}
           {props.isUnlisted && (
-            <div className={styles.topRightIcon}>
+            <div className={cn(typeStyles.bodyXSmall, styles.topRightIcon)}>
               <IconHidden />
               {messages.hiddenTrack}
             </div>
           )}
-          <div className={cn(styles.duration, fadeIn)}>
+          <div className={cn(typeStyles.bodyXSmall, styles.duration, fadeIn)}>
             {duration
               ? formatLineupTileDuration(
                   duration,
@@ -333,57 +322,66 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
             })}
           </div>
         ) : null}
-        <div className={cn(styles.stats, styles.statText)}>
-          <RankIcon
-            showCrown={showRankIcon}
-            index={index}
-            isVisible={isTrending && artworkLoaded && !showSkeleton}
-            className={styles.rankIconContainer}
-          />
-          {!!(props.repostCount || props.saveCount) && (
-            <>
-              <div
-                className={cn(styles.statItem, fadeIn, {
-                  [styles.disabledStatItem]: !props.repostCount,
-                  [styles.isHidden]: props.isUnlisted
-                })}
-                onClick={
-                  props.repostCount && !isReadonly
-                    ? props.makeGoToRepostsPage(id)
-                    : undefined
-                }
-              >
-                {formatCount(props.repostCount)}
-                <RepostButton
-                  iconMode
-                  isMatrixMode={isMatrix}
-                  isDarkMode={darkMode}
-                  className={styles.repostButton}
-                  wrapperClassName={styles.repostButtonWrapper}
-                />
-              </div>
-              <div
-                className={cn(styles.statItem, fadeIn, {
-                  [styles.disabledStatItem]: !props.saveCount,
-                  [styles.isHidden]: props.isUnlisted
-                })}
-                onClick={
-                  props.saveCount && !isReadonly
-                    ? props.makeGoToFavoritesPage(id)
-                    : undefined
-                }
-              >
-                {formatCount(props.saveCount)}
-                <FavoriteButton
-                  iconMode
-                  isDarkMode={darkMode}
-                  isMatrixMode={isMatrix}
-                  className={styles.favoriteButton}
-                  wrapperClassName={styles.favoriteButtonWrapper}
-                />
-              </div>
-            </>
-          )}
+        <div className={cn(typeStyles.bodyXSmall, styles.statsRow)}>
+          <div className={styles.stats}>
+            <RankIcon
+              showCrown={showRankIcon}
+              index={index}
+              isVisible={isTrending && artworkLoaded && !showSkeleton}
+              className={styles.rankIconContainer}
+            />
+            {!isLoading && isPremium ? (
+              <PremiumContentLabel
+                premiumConditions={premiumConditions}
+                doesUserHaveAccess={!!doesUserHaveAccess}
+                isOwner={isOwner}
+              />
+            ) : null}
+            {!!(props.repostCount || props.saveCount) && (
+              <>
+                <div
+                  className={cn(styles.statItem, fadeIn, {
+                    [styles.disabledStatItem]: !props.repostCount,
+                    [styles.isHidden]: props.isUnlisted
+                  })}
+                  onClick={
+                    props.repostCount && !isReadonly
+                      ? props.makeGoToRepostsPage(id)
+                      : undefined
+                  }
+                >
+                  {formatCount(props.repostCount)}
+                  <RepostButton
+                    iconMode
+                    isMatrixMode={isMatrix}
+                    isDarkMode={darkMode}
+                    className={styles.repostButton}
+                    wrapperClassName={styles.repostButtonWrapper}
+                  />
+                </div>
+                <div
+                  className={cn(styles.statItem, fadeIn, {
+                    [styles.disabledStatItem]: !props.saveCount,
+                    [styles.isHidden]: props.isUnlisted
+                  })}
+                  onClick={
+                    props.saveCount && !isReadonly
+                      ? props.makeGoToFavoritesPage(id)
+                      : undefined
+                  }
+                >
+                  {formatCount(props.saveCount)}
+                  <FavoriteButton
+                    iconMode
+                    isDarkMode={darkMode}
+                    isMatrixMode={isMatrix}
+                    className={styles.favoriteButton}
+                    wrapperClassName={styles.favoriteButtonWrapper}
+                  />
+                </div>
+              </>
+            )}
+          </div>
           <div
             className={cn(styles.listenCount, fadeIn, {
               [styles.isHidden]: hidePlays

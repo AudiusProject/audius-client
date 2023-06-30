@@ -1,9 +1,9 @@
 .bottomButtons {
-  margin: 2px 12px;
-  border-top: 1px solid var(--neutral-light-8);
-  height: 36px;
-  display: flex;
   align-items: center;
+  border-top: 1px solid var(--neutral-light-8);
+  display: flex;
+  height: var(--unit-6);
+  padding-top: var(--unit-2);
 }
 
 .bottomButtons > * {

@@ -47,6 +47,11 @@ const theme = {
 
   '--accent-purple': '#8E51CF',
 
+  /* Semantic text */
+  '--text-default': 'var(--neutral)',
+  '--text-subdued': 'var(--neutral-light-4)',
+  '--text-disabled': 'var(--neutral-light-7)',
+
   '--page-header-gradient-color-1': '#5B23E1',
   '--page-header-gradient-color-2': '#A22FEB',
 
