@@ -221,20 +221,26 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
     >
       {dogEarType ? <DogEar type={dogEarType} /> : null}
       <div className={styles.mainContent} onClick={handleClick}>
-        <div className={cn(styles.topRight, styles.statText)}>
-          {showArtistPick && isArtistPick && (
-            <div className={cn(typeStyles.bodyXSmall, styles.topRightIcon)}>
+        <div
+          className={cn(
+            typeStyles.bodyXSmall,
+            styles.topRight,
+            styles.statText
+          )}
+        >
+          {showArtistPick && isArtistPick ? (
+            <div className={styles.topRightIcon}>
               <IconStar />
               {messages.artistPick}
             </div>
-          )}
-          {props.isUnlisted && (
-            <div className={cn(typeStyles.bodyXSmall, styles.topRightIcon)}>
+          ) : null}
+          {props.isUnlisted ? (
+            <div className={styles.topRightIcon}>
               <IconHidden />
               {messages.hiddenTrack}
             </div>
-          )}
-          <div className={cn(typeStyles.bodyXSmall, styles.duration, fadeIn)}>
+          ) : null}
+          <div className={cn(styles.duration, fadeIn)}>
             {duration
               ? formatLineupTileDuration(
                   duration,
@@ -264,7 +270,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
             })}
           >
             <a
-              className={styles.title}
+              className={cn(typeStyles.titleMedium, styles.title)}
               href={permalink}
               onClick={props.goToTrackPage}
             >
@@ -337,7 +343,7 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
                 isOwner={isOwner}
               />
             ) : null}
-            {!!(props.repostCount || props.saveCount) && (
+            {!(props.repostCount || props.saveCount) ? null : (
               <>
                 <div
                   className={cn(styles.statItem, fadeIn, {

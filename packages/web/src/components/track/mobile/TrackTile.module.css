@@ -161,7 +161,7 @@
   /* Text truncation*/
   flex: 0 1 65%;
   overflow: hidden;
-  margin-right: 12px;
+  margin-right: var(--unit-3);
 }
 
 .titles.titleFeatured {
@@ -193,14 +193,7 @@
 
 .title {
   margin-top: auto;
-  font-weight: var(--font-bold);
-  line-height: normal;
   padding-right: 5px;
-  margin-bottom: 2px;
-  display: flex;
-  min-height: 20px;
-  align-items: center;
-  position: relative;
   width: 100%;
   color: inherit;
   text-decoration: none;
@@ -310,8 +303,8 @@
 }
 
 .stats svg {
-  width: 14px;
-  height: 14px;
+  width: var(--unit-4);
+  height: var(--unit-4);
 }
 
 .stats path {
