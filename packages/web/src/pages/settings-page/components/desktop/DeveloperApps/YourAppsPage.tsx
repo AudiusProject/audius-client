@@ -69,7 +69,7 @@ export const YourAppsPage = (props: YourAppsPageProps) => {
           <h4 className={styles.appsHeaderText}>{messages.yourAppsTitle}</h4>
           {createAppButton}
         </div>
-        <Divider />
+        <Divider className={styles.divider} />
         {status !== Status.SUCCESS ? (
           <LoadingSpinner className={styles.spinner} />
         ) : data?.apps.length === 0 ? (
