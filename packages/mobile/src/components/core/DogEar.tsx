@@ -1,3 +1,4 @@
+import { DogEarType } from '@audius/common'
 import type { ViewStyle } from 'react-native'
 import { View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
@@ -35,14 +36,6 @@ const useStyles = makeStyles(({ spacing }) => ({
     marginLeft: spacing(1)
   }
 }))
-
-export enum DogEarType {
-  STAR = 'star',
-  HIDDEN = 'hidden',
-  COLLECTIBLE_GATED = 'collectible gated',
-  SPECIAL_ACCESS = 'special access',
-  USDC_PURCHASE = 'usdc purchase'
-}
 
 type DogEarProps = {
   type: DogEarType

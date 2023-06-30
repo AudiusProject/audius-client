@@ -8,7 +8,8 @@ import {
   Genre,
   FeatureFlags,
   isAudiusUrl,
-  getPathFromAudiusUrl
+  getPathFromAudiusUrl,
+  getDogEarType
 } from '@audius/common'
 import {
   Button,
@@ -38,8 +39,6 @@ import Tooltip from 'components/tooltip/Tooltip'
 import UserBadges from 'components/user-badges/UserBadges'
 import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 import { moodMap } from 'utils/Moods'
-
-import { DogEarType } from '../dog-ear/DogEar'
 
 import { AiTrackSection } from './AiTrackSection'
 import Badge from './Badge'
@@ -402,17 +401,14 @@ class GiantTrackTile extends PureComponent {
     )
 
     const isLoading = loading || artworkLoading
-    const showPremiumDogEar =
-      !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
-    const dogEarType = showPremiumDogEar
-      ? isOwner
-        ? premiumConditions.nft_collection
-          ? DogEarType.COLLECTIBLE_GATED
-          : DogEarType.SPECIAL_ACCESS
-        : DogEarType.LOCKED
-      : isUnlisted
-      ? DogEarType.HIDDEN
-      : null
+    const dogEarType = isLoading
+      ? undefined
+      : getDogEarType({
+          premiumConditions,
+          isUnlisted,
+          isOwner,
+          doesUserHaveAccess
+        })
 
     const overflowMenuExtraItems = []
     if (!isOwner) {
