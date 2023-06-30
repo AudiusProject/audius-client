@@ -12,8 +12,7 @@ import {
   queueActions,
   playerSelectors,
   queueSelectors,
-  getContext,
-  FeatureFlags
+  getContext
 } from '@audius/common'
 import {
   all,
@@ -44,42 +43,14 @@ const flatten = (list) =>
 function* filterDeletes(tracksMetadata, removeDeleted) {
   const tracks = yield select(getTracks)
   const users = yield select(getUsers)
-  const getFeatureEnabled = yield getContext('getFeatureEnabled')
   const remoteConfig = yield getContext('remoteConfigInstance')
   yield call(remoteConfig.waitForRemoteConfig)
-
-  const isGatedContentEnabled = yield getFeatureEnabled(
-    FeatureFlags.GATED_CONTENT_ENABLED
-  )
-  const isCollectibleGatedEnabled = yield getFeatureEnabled(
-    FeatureFlags.COLLECTIBLE_GATED_ENABLED
-  )
-  const isSpecialAccessEnabled = yield getFeatureEnabled(
-    FeatureFlags.SPECIAL_ACCESS_ENABLED
-  )
 
   return tracksMetadata
     .map((metadata) => {
       // If the incoming metadata is null, return null
       // This will be accounted for in `nullCount`
       if (metadata === null) {
-        return null
-      }
-
-      // Treat premium content as deleted when its not enabled
-      // TODO: Remove this when removing the feature flags
-      if (!isGatedContentEnabled && metadata.is_premium) {
-        return null
-      } else if (
-        !isCollectibleGatedEnabled &&
-        metadata.premium_conditions?.nft_collection
-      ) {
-        return null
-      } else if (
-        !isSpecialAccessEnabled &&
-        (metadata.premium_conditions?.follow_user_id ||
-          metadata.premium_conditions?.tip_user_id)
-      ) {
         return null
       }
 

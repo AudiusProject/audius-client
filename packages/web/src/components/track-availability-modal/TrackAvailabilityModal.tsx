@@ -1,7 +1,6 @@
 import { ChangeEvent, useCallback, useMemo, useState } from 'react'
 
 import {
-  FeatureFlags,
   PremiumConditions,
   accountSelectors,
   TrackAvailabilityType,
@@ -29,7 +28,6 @@ import { useSelector } from 'react-redux'
 import { ReactComponent as IconExternalLink } from 'assets/img/iconExternalLink.svg'
 import { HelpCallout } from 'components/help-callout/HelpCallout'
 import { ModalRadioItem } from 'components/modal-radio/ModalRadioItem'
-import { useFlag } from 'hooks/useRemoteConfig'
 
 import { CollectibleGatedAvailability } from './CollectibleGatedAvailability'
 import { HiddenAvailability } from './HiddenAvailability'
@@ -139,12 +137,6 @@ const TrackAvailabilityModal = ({
   didUpdateState,
   onClose
 }: TrackAvailabilityModalProps) => {
-  const { isEnabled: isCollectibleGatedEnabled } = useFlag(
-    FeatureFlags.COLLECTIBLE_GATED_ENABLED
-  )
-  const { isEnabled: isSpecialAccessEnabled } = useFlag(
-    FeatureFlags.SPECIAL_ACCESS_ENABLED
-  )
   const { ethCollectionMap, solCollectionMap } = useSelector(
     getSupportedUserCollections
   )
@@ -314,43 +306,41 @@ const TrackAvailabilityModal = ({
             description={messages.publicSubtitle}
             value={TrackAvailabilityType.PUBLIC}
           />
-          {isSpecialAccessEnabled ? (
-            <ModalRadioItem
-              icon={<IconSpecialAccess />}
-              label={messages.specialAccess}
-              description={messages.specialAccessSubtitle}
-              value={TrackAvailabilityType.SPECIAL_ACCESS}
-              disabled={noSpecialAccess}
-              checkedContent={
-                <SpecialAccessAvailability
-                  state={metadataState}
-                  onStateUpdate={updatePremiumContentFields}
-                  disabled={noSpecialAccessOptions}
-                />
-              }
-            />
-          ) : null}
-          {isCollectibleGatedEnabled ? (
-            <ModalRadioItem
-              icon={<IconCollectible />}
-              label={messages.collectibleGated}
-              value={TrackAvailabilityType.COLLECTIBLE_GATED}
-              disabled={noCollectibleGate}
-              description={
-                <CollectibleGatedDescription
-                  hasCollectibles={hasCollectibles}
-                  isUpload={isUpload}
-                />
-              }
-              checkedContent={
-                <CollectibleGatedAvailability
-                  state={metadataState}
-                  onStateUpdate={updatePremiumContentFields}
-                  disabled={noCollectibleDropdown}
-                />
-              }
-            />
-          ) : null}
+
+          <ModalRadioItem
+            icon={<IconSpecialAccess />}
+            label={messages.specialAccess}
+            description={messages.specialAccessSubtitle}
+            value={TrackAvailabilityType.SPECIAL_ACCESS}
+            disabled={noSpecialAccess}
+            checkedContent={
+              <SpecialAccessAvailability
+                state={metadataState}
+                onStateUpdate={updatePremiumContentFields}
+                disabled={noSpecialAccessOptions}
+              />
+            }
+          />
+
+          <ModalRadioItem
+            icon={<IconCollectible />}
+            label={messages.collectibleGated}
+            value={TrackAvailabilityType.COLLECTIBLE_GATED}
+            disabled={noCollectibleGate}
+            description={
+              <CollectibleGatedDescription
+                hasCollectibles={hasCollectibles}
+                isUpload={isUpload}
+              />
+            }
+            checkedContent={
+              <CollectibleGatedAvailability
+                state={metadataState}
+                onStateUpdate={updatePremiumContentFields}
+                disabled={noCollectibleDropdown}
+              />
+            }
+          />
           <ModalRadioItem
             icon={<IconHidden />}
             label={messages.hidden}

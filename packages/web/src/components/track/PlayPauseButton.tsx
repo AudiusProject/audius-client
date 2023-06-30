@@ -38,9 +38,6 @@ export const PlayPauseButton = ({
   trackId,
   onPlay
 }: PlayPauseButtonProps) => {
-  const { isEnabled: isGatedContentEnabled } = useFlag(
-    FeatureFlags.GATED_CONTENT_ENABLED
-  )
   const { isEnabled: isNewPodcastControlsEnabled } = useFlag(
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
@@ -78,7 +75,7 @@ export const PlayPauseButton = ({
       text={playing ? messages.pause : playText}
       leftIcon={playing ? <IconPause /> : playIcon}
       onClick={onPlay}
-      disabled={isGatedContentEnabled ? !doesUserHaveAccess : false}
+      disabled={!doesUserHaveAccess}
     />
   )
 }

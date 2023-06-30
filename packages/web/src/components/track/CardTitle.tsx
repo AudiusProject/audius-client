@@ -34,15 +34,12 @@ export const CardTitle = ({
   isPodcast,
   premiumConditions
 }: CardTitleProps) => {
-  const { isEnabled: isGatedContentEnabled } = useFlag(
-    FeatureFlags.GATED_CONTENT_ENABLED
-  )
   const { isEnabled: isNewPodcastControlsEnabled } = useFlag(
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
   )
 
-  if (isGatedContentEnabled && isPremium) {
+  if (isPremium) {
     return (
       <div
         className={cn(styles.headerContainer, className, styles.premiumContent)}
