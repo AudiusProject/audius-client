@@ -1,5 +1,3 @@
-import { defaultCoreCipherList } from 'constants'
-
 import {
   ELECTRONIC_SUBGENRES,
   FavoriteSource,
