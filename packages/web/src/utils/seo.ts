@@ -111,13 +111,15 @@ export const getCollectionPageSEOFields = ({
   playlistId,
   userName,
   userHandle,
-  isAlbum
+  isAlbum,
+  permalink
 }: {
   playlistName?: string
   playlistId?: number
   userName?: string
   userHandle?: string
   isAlbum?: boolean
+  permalink?: string
 }) => {
   if (!playlistName || !playlistId || !userName || !userHandle) return {}
 

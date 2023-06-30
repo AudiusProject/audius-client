@@ -134,7 +134,8 @@ const CollectionPage = ({
   const collectionLoading = status === Status.LOADING
   const queuedAndPlaying = playing && isQueued()
   const tracksLoading = tracks.status === Status.LOADING
-
+  console.log('metadata in collection page is ', metadata)
+  console.log('title in collection page is ', title)
   const coverArtSizes =
     metadata && metadata?.variant !== Variant.SMART
       ? metadata._cover_art_sizes

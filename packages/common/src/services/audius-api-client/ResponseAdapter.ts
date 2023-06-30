@@ -298,6 +298,7 @@ export const makeTrackId = (track: { id: string }): ID | undefined => {
 export const makePlaylist = (
   playlist: APIPlaylist | APISearchPlaylist
 ): UserCollectionMetadata | undefined => {
+  console.log('301 playlist is ', playlist)
   const decodedPlaylistId = decodeHashId(playlist.id)
   const decodedOwnerId = decodeHashId(playlist.user_id)
   const user = makeUser(playlist.user)
@@ -328,7 +329,8 @@ export const makePlaylist = (
   const total_play_count =
     'total_play_count' in playlist ? playlist.total_play_count : 0
   const track_count = 'track_count' in playlist ? playlist.track_count : 0
-
+  const permalink = 'permalink' in playlist ? playlist.permalink : ''
+  console.log('332 permalink is : ', permalink)
   const playlistContents = {
     track_ids: playlist.added_timestamps
       .map((ts) => {
@@ -368,7 +370,7 @@ export const makePlaylist = (
     track_count,
     total_play_count,
     playlist_contents: playlistContents,
-    permalink: 'response-adapter-permalink',
+    // permalink,
 
     // Fields to prune
     id: undefined,

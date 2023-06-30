@@ -78,6 +78,7 @@ export const CollectionHeader = (props: CollectionHeaderProps) => {
     [onFilterChange]
   )
 
+  console.log('artwork is loading in collection header ', artworkLoading)
   const handleLoadArtwork = useCallback(() => {
     setIsArtworkLoading(false)
   }, [])

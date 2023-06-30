@@ -30,6 +30,7 @@ function* watchFetchCollection() {
     const { id: collectionId, permalink } = action
     let retrievedCollections
     if (permalink) {
+      console.log('33 permalink issss ', permalink)
       retrievedCollections = yield call(
         retrieveCollectionByPermalink,
         permalink,
@@ -46,9 +47,10 @@ function* watchFetchCollection() {
       yield put(fetchCollectionFailed())
       return
     }
-    const collection = collections[collectionId]
+    const collectionIdentifier = collectionId || permalink
+    const collection = collections[collectionIdentifier]
     const userUid = makeUid(Kind.USERS, collection.playlist_owner_id)
-    const collectionUid = collectionUids[collectionId]
+    const collectionUid = collectionUids[collectionIdentifier]
     if (collection) {
       yield put(
         cacheActions.subscribe(Kind.USERS, [

@@ -126,6 +126,7 @@ type CollectionPageState = {
   reordering: string[] | null
   allowReordering: boolean
   updatingRoute: boolean
+  permalink?: string
 }
 
 type PlaylistTrack = { time: number; track: ID; uid?: UID }
@@ -141,7 +142,7 @@ class CollectionPage extends Component<
     // For drag + drop reordering
     reordering: null,
     allowReordering: true,
-
+    permalink: '',
     // Whether the collection is updating its own route.
     // When a user creates a playlist, we eagerly cache it with a fake uid.
     // When the collection is available, a new cache entry is added with the actual id and
@@ -152,6 +153,7 @@ class CollectionPage extends Component<
   unlisten!: UnregisterCallback
 
   componentDidMount() {
+    console.log('155 pathname isss ', getPathname(this.props.location))
     this.fetchCollection(getPathname(this.props.location))
     this.unlisten = this.props.history.listen((location, action) => {
       if (
@@ -358,7 +360,8 @@ class CollectionPage extends Component<
 
     if (params?.permalink) {
       const { permalink, collectionId } = params
-      if (forceFetch) {
+      if (forceFetch || permalink !== this.state.permalink) {
+        this.setState({ permalink })
         this.props.setCollectionPermalink(permalink)
         this.props.fetchCollection(collectionId, permalink)
         this.props.fetchTracks()
@@ -749,7 +752,8 @@ class CollectionPage extends Component<
       playlistId: metadata?.playlist_id,
       userName: user?.name,
       userHandle: user?.handle,
-      isAlbum: metadata?.is_album
+      isAlbum: metadata?.is_album,
+      permalink: metadata?.permalink
     })
 
     const childProps = {
@@ -795,7 +799,8 @@ class CollectionPage extends Component<
       onUnfollow: this.onUnfollow,
       refresh: this.refreshCollection
     }
-
+    console.log('title issss ', title)
+    console.log('childProps issss ', childProps)
     if ((metadata?.is_delete || metadata?._marked_deleted) && user) {
       return (
         <DeletedPage

@@ -31,7 +31,7 @@ export const getCollection = (state: CommonState, params?: { id: ID }) => {
     const config = params?.id
       ? { id: params.id }
       : { uid: getCollectionUid(state) }
-
+    console.log('cached colection issss ', getCachedCollection(state, config))
     return getCachedCollection(state, config)
   }
 }

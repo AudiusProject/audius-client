@@ -1,7 +1,12 @@
 import { ID, decodeHashId } from '@audius/common'
 import { matchPath } from 'react-router-dom'
 
-import { PLAYLIST_PAGE, ALBUM_PAGE, PLAYLIST_ID_PAGE } from 'utils/route'
+import {
+  PLAYLIST_PAGE,
+  ALBUM_PAGE,
+  PLAYLIST_ID_PAGE,
+  PLAYLIST_BY_PERMALINK_PAGE
+} from 'utils/route'
 
 type CollectionRouteParams =
   | {
@@ -43,25 +48,27 @@ export const parseCollectionRoute = (route: string): CollectionRouteParams => {
     return { collectionId, handle: null, collectionType: null, title: null }
   }
 
-  // const playlistByPermalinkMatch = matchPath<{
-  //   handle: string
-  //   slug: string
-  // }>(route, {
-  //   path: PLAYLIST_BY_PERMALINK_PAGE,
-  //   exact: true
-  // })
-  // if (playlistByPermalinkMatch) {
-  //   const { handle, slug } = playlistByPermalinkMatch.params
-  //   const permalink = `${handle}/playlist/${slug}`
-  //   console.log('matched to permalink route')
-  //   return {
-  //     title: null,
-  //     collectionId: null,
-  //     permalink,
-  //     handle: null,
-  //     collectionType: 'playlist'
-  //   }
-  // }
+  if (true) {
+    const playlistByPermalinkMatch = matchPath<{
+      handle: string
+      slug: string
+    }>(route, {
+      path: PLAYLIST_BY_PERMALINK_PAGE,
+      exact: true
+    })
+    if (playlistByPermalinkMatch) {
+      const { handle, slug } = playlistByPermalinkMatch.params
+      const permalink = `/${handle}/playlist/${slug}`
+      console.log('matched to permalink route')
+      return {
+        title: null,
+        collectionId: null,
+        permalink,
+        handle: null,
+        collectionType: 'playlist'
+      }
+    }
+  }
 
   const playlistPageMatch = matchPath<{
     handle: string
