@@ -3,16 +3,19 @@ import { useMemo } from 'react'
 import type { PremiumConditions } from '@audius/common'
 import { View } from 'react-native'
 
+import IconCart from 'app/assets/images/iconCart.svg'
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
 import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
 import Text from 'app/components/text'
+import { useIsUSDCEnabled } from 'app/hooks/useIsUSDCEnabled'
 import { makeStyles, flexRowCentered } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { useThemeColors } from 'app/utils/theme'
 
 const messages = {
   collectibleGated: 'Collectible Gated',
-  specialAccess: 'Special Access'
+  specialAccess: 'Special Access',
+  premium: 'Premium'
 }
 
 const useStyles = makeStyles(({ spacing, palette, typography }) => ({
@@ -28,7 +31,8 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 
 enum PremiumContentType {
   COLLECTIBLE_GATED = 'collectible gated',
-  SPECIAL_ACCESS = 'special access'
+  SPECIAL_ACCESS = 'special access',
+  USDC_PURCHASE = 'usdc purchase'
 }
 
 type LineupTilePremiumContentTypeTagProps = {
@@ -49,11 +53,15 @@ export const LineupTilePremiumContentTypeTag = ({
   isOwner
 }: LineupTilePremiumContentTypeTagProps) => {
   const styles = useStyles()
-  const { accentBlue, neutralLight4 } = useThemeColors()
+  const { accentBlue, neutralLight4, specialLightGreen1 } = useThemeColors()
+  const isUSDCEnabled = useIsUSDCEnabled()
 
-  const type = premiumConditions?.nft_collection
-    ? PremiumContentType.COLLECTIBLE_GATED
-    : PremiumContentType.SPECIAL_ACCESS
+  const type =
+    isUSDCEnabled && premiumConditions?.usdc_purchase
+      ? PremiumContentType.USDC_PURCHASE
+      : premiumConditions?.nft_collection
+      ? PremiumContentType.COLLECTIBLE_GATED
+      : PremiumContentType.SPECIAL_ACCESS
 
   const premiumContentTypeMap = useMemo(() => {
     return {
@@ -66,9 +74,21 @@ export const LineupTilePremiumContentTypeTag = ({
         icon: IconSpecialAccess,
         color: doesUserHaveAccess && !isOwner ? neutralLight4 : accentBlue,
         text: messages.specialAccess
+      },
+      [PremiumContentType.USDC_PURCHASE]: {
+        icon: IconCart,
+        color:
+          doesUserHaveAccess && !isOwner ? neutralLight4 : specialLightGreen1,
+        text: messages.premium
       }
     }
-  }, [accentBlue, doesUserHaveAccess, isOwner, neutralLight4])
+  }, [
+    accentBlue,
+    doesUserHaveAccess,
+    isOwner,
+    neutralLight4,
+    specialLightGreen1
+  ])
 
   const { icon: Icon, color, text } = premiumContentTypeMap[type]
 

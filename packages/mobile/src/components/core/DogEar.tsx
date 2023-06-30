@@ -2,9 +2,9 @@ import type { ViewStyle } from 'react-native'
 import { View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 
+import IconCart from 'app/assets/images/iconCart.svg'
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
 import IconHidden from 'app/assets/images/iconHidden.svg'
-import IconLock from 'app/assets/images/iconLock.svg'
 import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
 import IconStar from 'app/assets/images/iconStar.svg'
 import { makeStyles } from 'app/styles'
@@ -39,9 +39,9 @@ const useStyles = makeStyles(({ spacing }) => ({
 export enum DogEarType {
   STAR = 'star',
   HIDDEN = 'hidden',
-  LOCKED = 'locked',
   COLLECTIBLE_GATED = 'collectible gated',
-  SPECIAL_ACCESS = 'special access'
+  SPECIAL_ACCESS = 'special access',
+  USDC_PURCHASE = 'usdc purchase'
 }
 
 type DogEarProps = {
@@ -58,7 +58,8 @@ export const DogEar = (props: DogEarProps) => {
     pageHeaderGradientColor2,
     secondary,
     staticWhite,
-    accentBlue
+    accentBlue,
+    specialLightGreen1
   } = useThemeColors()
 
   const { icon: Icon, colors } = {
@@ -70,10 +71,6 @@ export const DogEar = (props: DogEarProps) => {
       icon: IconHidden,
       colors: [neutral, neutralLight3]
     },
-    [DogEarType.LOCKED]: {
-      icon: IconLock,
-      colors: [accentBlue, accentBlue]
-    },
     [DogEarType.COLLECTIBLE_GATED]: {
       icon: IconCollectible,
       colors: [accentBlue, accentBlue]
@@ -81,6 +78,10 @@ export const DogEar = (props: DogEarProps) => {
     [DogEarType.SPECIAL_ACCESS]: {
       icon: IconSpecialAccess,
       colors: [accentBlue, accentBlue]
+    },
+    [DogEarType.USDC_PURCHASE]: {
+      icon: IconCart,
+      colors: [specialLightGreen1, specialLightGreen1]
     }
   }[type]
 

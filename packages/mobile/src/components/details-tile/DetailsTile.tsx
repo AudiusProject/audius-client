@@ -28,6 +28,7 @@ import {
 import Text from 'app/components/text'
 import UserBadges from 'app/components/user-badges'
 import { light } from 'app/haptics'
+import { useIsUSDCEnabled } from 'app/hooks/useIsUSDCEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { flexRowCentered, makeStyles } from 'app/styles'
@@ -228,6 +229,7 @@ export const DetailsTile = ({
   const { isEnabled: isAiGeneratedTracksEnabled } = useFeatureFlag(
     FeatureFlags.AI_ATTRIBUTION
   )
+  const isUSDCEnabled = useIsUSDCEnabled()
   const { track_id: trackId, premium_conditions: premiumConditions } =
     track ?? {}
 
@@ -266,10 +268,12 @@ export const DetailsTile = ({
 
     const dogEarType = showPremiumDogEar
       ? isOwner
-        ? premiumConditions.nft_collection
+        ? isUSDCEnabled && premiumConditions.usdc_purchase
+          ? DogEarType.USDC_PURCHASE
+          : premiumConditions.nft_collection
           ? DogEarType.COLLECTIBLE_GATED
           : DogEarType.SPECIAL_ACCESS
-        : DogEarType.LOCKED
+        : null
       : null
 
     if (showPremiumDogEar && dogEarType) {
