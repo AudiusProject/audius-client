@@ -21,11 +21,7 @@ const getCachedDiscoveryNode = () => {
       const cachedDiscoveryNodeTimestamp = JSON.parse(
         cached
       ) as CachedDiscoveryNodeTimestamp
-      if (
-        cachedDiscoveryNodeTimestamp &&
-        cachedDiscoveryNodeTimestamp.timestamp &&
-        cachedDiscoveryNodeTimestamp.timestamp >
-          new Date().getTime() - CACHE_TTL
+      if (cachedDiscoveryNodeTimestamp?.timestamp > new Date().getTime() - CACHE_TTL
       ) {
         const cachedDiscoveryNode =
           cachedDiscoveryNodeTimestamp.endpoint ?? undefined
