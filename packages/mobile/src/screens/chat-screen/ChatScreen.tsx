@@ -1,4 +1,3 @@
-import type { Dispatch } from 'react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import type { ChatMessageWithExtras } from '@audius/common'
