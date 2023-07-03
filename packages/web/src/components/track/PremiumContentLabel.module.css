@@ -1,7 +1,7 @@
 .labelContainer {
   display: flex;
   align-items: center;
-  flex: 1 0 auto;
+  flex: 0 0 auto;
   gap: var(--unit);
   color: var(--neutral-light-4);
 }

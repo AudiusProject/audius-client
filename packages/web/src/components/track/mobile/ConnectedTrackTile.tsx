@@ -145,7 +145,7 @@ const ConnectedTrackTile = ({
   )
   const { isUserAccessTBD, doesUserHaveAccess } =
     usePremiumContentAccess(trackWithFallback)
-  const loading = isBuffering || isUserAccessTBD
+  const loading = isLoading || isUserAccessTBD
 
   const toggleSave = (trackId: ID) => {
     if (has_current_user_saved) {
@@ -254,8 +254,7 @@ const ConnectedTrackTile = ({
       fieldVisibility={field_visibility}
       coSign={_co_sign}
       // Artist Pick
-      showArtistPick={showArtistPick}
-      isArtistPick={artist_pick_track_id === track_id}
+      isArtistPick={showArtistPick && artist_pick_track_id === track_id}
       // Artist
       artistHandle={handle}
       artistName={name}

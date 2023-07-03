@@ -396,15 +396,12 @@
 }
 
 .bottomRow .iconButtons {
-  display: inline-flex;
+  display: flex;
+  gap: var(--unit-8);
 }
 
 .bottomRow .iconButtonContainer {
   position: relative;
-}
-
-.bottomRow .iconButtonContainer:not(:last-child) {
-  margin-right: var(--unit-8);
 }
 
 .bottomRow .iconButton {
