@@ -9,7 +9,8 @@ import {
   User,
   CollectionTrack,
   CollectionPageTrackRecord,
-  CollectionsPageType
+  CollectionsPageType,
+  DogEarType
 } from '@audius/common'
 
 import {
@@ -17,7 +18,6 @@ import {
   CollectiblesPlaylistTable
 } from 'components/collectibles-playlist-table/CollectiblesPlaylistTable'
 import { CollectionHeader } from 'components/collection/desktop/CollectionHeader'
-import { DogEarType } from 'components/dog-ear'
 import Page from 'components/page/Page'
 import { Tile } from 'components/tile'
 import { TracksTable, TracksTableColumn } from 'components/tracks-table'

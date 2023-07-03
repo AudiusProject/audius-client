@@ -8,7 +8,8 @@ import {
   premiumContentSelectors,
   premiumContentActions,
   formatLineupTileDuration,
-  Genre
+  Genre,
+  getDogEarType
 } from '@audius/common'
 import { IconCrown, IconHidden, IconTrending } from '@audius/stems'
 import cn from 'classnames'
@@ -20,7 +21,7 @@ import { useModalState } from 'common/hooks/useModalState'
 import FavoriteButton from 'components/alt-button/FavoriteButton'
 import RepostButton from 'components/alt-button/RepostButton'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
-import { DogEar, DogEarType } from 'components/dog-ear'
+import { DogEar } from 'components/dog-ear'
 import Skeleton from 'components/skeleton/Skeleton'
 import { PremiumContentLabel } from 'components/track/PremiumContentLabel'
 import { TrackTileProps } from 'components/track/types'
@@ -132,7 +133,9 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
     isPlaying,
     isBuffering,
     variant,
-    containerClassName
+    containerClassName,
+    isArtistPick,
+    showArtistPick
   } = props
 
   const hideShare: boolean = props.fieldVisibility
@@ -150,15 +153,15 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
     ? premiumTrackStatusMap[trackId]
     : undefined
 
-  const showPremiumDogEar =
-    !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
-  const DogEarIconType = showPremiumDogEar
-    ? isOwner
-      ? premiumConditions.nft_collection
-        ? DogEarType.COLLECTIBLE_GATED
-        : DogEarType.SPECIAL_ACCESS
-      : DogEarType.LOCKED
-    : null
+  const DogEarIconType = isLoading
+    ? undefined
+    : getDogEarType({
+        premiumConditions,
+        isOwner,
+        doesUserHaveAccess,
+        isArtistPick: isArtistPick && showArtistPick,
+        isUnlisted
+      })
 
   const onToggleSave = useCallback(() => toggleSave(id), [toggleSave, id])
 
@@ -214,16 +217,12 @@ const TrackTile = (props: TrackTileProps & ExtraProps) => {
         containerClassName
       )}
     >
-      {showPremiumDogEar && DogEarIconType ? (
+      {DogEarIconType ? (
         <DogEar
           type={DogEarIconType}
           containerClassName={styles.premiumDogEarContainer}
         />
       ) : null}
-      {!showPremiumDogEar && props.showArtistPick && props.isArtistPick ? (
-        <DogEar type={DogEarType.STAR} />
-      ) : null}
-      {props.isUnlisted && <DogEar type={DogEarType.HIDDEN} />}
       <div className={styles.mainContent} onClick={handleClick}>
         <div className={cn(styles.topRight, styles.statText)}>
           {props.showArtistPick && props.isArtistPick && (

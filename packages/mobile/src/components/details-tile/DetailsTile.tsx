@@ -8,7 +8,8 @@ import {
   squashNewLines,
   accountSelectors,
   playerSelectors,
-  playbackPositionSelectors
+  playbackPositionSelectors,
+  getDogEarType
 } from '@audius/common'
 import { TouchableOpacity, View } from 'react-native'
 import { useSelector } from 'react-redux'
@@ -18,17 +19,10 @@ import IconPlay from 'app/assets/images/iconPlay.svg'
 import IconRepeat from 'app/assets/images/iconRepeatOff.svg'
 import CoSign from 'app/components/co-sign/CoSign'
 import { Size } from 'app/components/co-sign/types'
-import {
-  Button,
-  Hyperlink,
-  Tile,
-  DogEar,
-  DogEarType
-} from 'app/components/core'
+import { Button, Hyperlink, Tile, DogEar } from 'app/components/core'
 import Text from 'app/components/text'
 import UserBadges from 'app/components/user-badges'
 import { light } from 'app/haptics'
-import { useIsUSDCEnabled } from 'app/hooks/useIsUSDCEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { flexRowCentered, makeStyles } from 'app/styles'
@@ -229,7 +223,6 @@ export const DetailsTile = ({
   const { isEnabled: isAiGeneratedTracksEnabled } = useFeatureFlag(
     FeatureFlags.AI_ATTRIBUTION
   )
-  const isUSDCEnabled = useIsUSDCEnabled()
   const { track_id: trackId, premium_conditions: premiumConditions } =
     track ?? {}
 
@@ -263,23 +256,12 @@ export const DetailsTile = ({
   }, [onPressPlay])
 
   const renderDogEar = () => {
-    const showPremiumDogEar =
-      premiumConditions && (isOwner || !doesUserHaveAccess)
-
-    const dogEarType = showPremiumDogEar
-      ? isOwner
-        ? isUSDCEnabled && premiumConditions.usdc_purchase
-          ? DogEarType.USDC_PURCHASE
-          : premiumConditions.nft_collection
-          ? DogEarType.COLLECTIBLE_GATED
-          : DogEarType.SPECIAL_ACCESS
-        : null
-      : null
-
-    if (showPremiumDogEar && dogEarType) {
-      return <DogEar type={dogEarType} />
-    }
-    return null
+    const dogEarType = getDogEarType({
+      doesUserHaveAccess,
+      isOwner,
+      premiumConditions
+    })
+    return dogEarType ? <DogEar type={dogEarType} /> : null
   }
 
   const renderDetailLabels = () => {

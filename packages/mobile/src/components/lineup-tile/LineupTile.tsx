@@ -4,14 +4,14 @@ import {
   accountSelectors,
   Genre,
   premiumContentActions,
-  usePremiumContentAccess
+  usePremiumContentAccess,
+  getDogEarType
 } from '@audius/common'
 import { View } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 
-import { DogEar, DogEarType } from 'app/components/core'
+import { DogEar } from 'app/components/core'
 import type { LineupTileProps } from 'app/components/lineup-tile/types'
-import { useIsUSDCEnabled } from 'app/hooks/useIsUSDCEnabled'
 import { setVisibility } from 'app/store/drawers/slice'
 
 import { LineupTileActionButtons } from './LineupTileActionButtons'
@@ -61,7 +61,6 @@ export const LineupTile = ({
     save_count
   } = item
   const dispatch = useDispatch()
-  const isUSDCEnabled = useIsUSDCEnabled()
   const { artist_pick_track_id, name, user_id } = user
   const currentUserId = useSelector(getUserId)
   const isOwner = user_id === currentUserId
@@ -72,18 +71,12 @@ export const LineupTile = ({
   const isArtistPick = artist_pick_track_id === id
   const { doesUserHaveAccess } = usePremiumContentAccess(isTrack ? item : null)
 
-  const showPremiumDogEar =
-    premiumConditions &&
-    (isOwner || !doesUserHaveAccess) &&
-    !(showArtistPick && isArtistPick)
-
-  const dogEarType = showPremiumDogEar
-    ? isUSDCEnabled && premiumConditions.usdc_purchase
-      ? DogEarType.USDC_PURCHASE
-      : premiumConditions.nft_collection
-      ? DogEarType.COLLECTIBLE_GATED
-      : DogEarType.SPECIAL_ACCESS
-    : null
+  const dogEarType = getDogEarType({
+    premiumConditions,
+    isOwner,
+    doesUserHaveAccess,
+    isArtistPick: showArtistPick && isArtistPick
+  })
 
   const handlePress = useCallback(() => {
     if (trackId && !doesUserHaveAccess) {
@@ -108,13 +101,9 @@ export const LineupTile = ({
       scaleTo={scale}
       {...TileProps}
     >
-      {showPremiumDogEar && dogEarType ? (
+      {dogEarType ? (
         <DogEar type={dogEarType} style={{ shadowRadius: 1 }} />
       ) : null}
-      {showArtistPick && isArtistPick ? (
-        <DogEar type={DogEarType.STAR} />
-      ) : null}
-      {isUnlisted ? <DogEar type={DogEarType.HIDDEN} /> : null}
       <View>
         <LineupTileTopRight
           duration={duration}
