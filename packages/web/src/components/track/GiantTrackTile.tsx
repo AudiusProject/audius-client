@@ -653,5 +653,3 @@ export const GiantTrackTile = ({
     </Tile>
   )
 }
-
-export default GiantTrackTile

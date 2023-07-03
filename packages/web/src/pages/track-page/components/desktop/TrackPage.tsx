@@ -17,7 +17,7 @@ import NavBanner from 'components/nav-banner/NavBanner'
 import Page from 'components/page/Page'
 import SectionButton from 'components/section-button/SectionButton'
 import { StatBanner } from 'components/stat-banner/StatBanner'
-import GiantTrackTile from 'components/track/GiantTrackTile'
+import { GiantTrackTile } from 'components/track/GiantTrackTile'
 import { TrackTileSize } from 'components/track/types'
 import { getTrackDefaults, emptyStringGuard } from 'pages/track-page/utils'
 
@@ -65,7 +65,7 @@ export type OwnProps = {
   isBuffering: boolean
   play: (uid?: string) => void
   pause: () => void
-  onExternalLinkClick: (url: string) => void
+  onExternalLinkClick: (event: React.MouseEvent<HTMLAnchorElement>) => void
   onInternalLinkClick: (url: string) => void
 }
 
