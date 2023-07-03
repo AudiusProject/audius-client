@@ -14,7 +14,8 @@ import {
   OverflowAction,
   imageBlank as placeholderArt,
   PremiumConditions,
-  Nullable
+  Nullable,
+  getDogEarType
 } from '@audius/common'
 import {
   Button,
@@ -32,7 +33,7 @@ import { make, useRecord } from 'common/store/analytics/actions'
 import CoSign from 'components/co-sign/CoSign'
 import HoverInfo from 'components/co-sign/HoverInfo'
 import { Size } from 'components/co-sign/types'
-import { DogEar, DogEarType } from 'components/dog-ear'
+import { DogEar } from 'components/dog-ear'
 import DownloadButtons from 'components/download-buttons/DownloadButtons'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { SearchTag } from 'components/search/SearchTag'
@@ -306,17 +307,13 @@ const TrackHeader = ({
   )
 
   const renderDogEar = () => {
-    const showPremiumDogEar =
-      !isLoading && premiumConditions && (isOwner || !doesUserHaveAccess)
-    const DogEarIconType = showPremiumDogEar
-      ? isOwner
-        ? premiumConditions.nft_collection
-          ? DogEarType.COLLECTIBLE_GATED
-          : DogEarType.SPECIAL_ACCESS
-        : DogEarType.LOCKED
-      : null
-    if (showPremiumDogEar && DogEarIconType) {
-      return <DogEar type={DogEarIconType} className={styles.DogEar} />
+    const DogEarType = getDogEarType({
+      doesUserHaveAccess,
+      isOwner,
+      premiumConditions
+    })
+    if (!isLoading && DogEarType) {
+      return <DogEar type={DogEarType} className={styles.DogEar} />
     }
     return null
   }

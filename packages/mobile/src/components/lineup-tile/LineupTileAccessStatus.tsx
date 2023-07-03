@@ -1,4 +1,4 @@
-import type { ID } from '@audius/common'
+import type { ID, PremiumConditions } from '@audius/common'
 import { premiumContentSelectors } from '@audius/common'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux'
 import IconLock from 'app/assets/images/iconLock.svg'
 import { Text } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
+import { useIsUSDCEnabled } from 'app/hooks/useIsUSDCEnabled'
 import { flexRowCentered, makeStyles } from 'app/styles'
 import { useColor } from 'app/utils/theme'
 
@@ -33,17 +34,34 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   loadingSpinner: {
     width: spacing(4),
     height: spacing(4)
+  },
+  usdcPurchase: {
+    backgroundColor: palette.specialLightGreen1
   }
 }))
 
-export const LineupTileAccessStatus = ({ trackId }: { trackId: ID }) => {
+export const LineupTileAccessStatus = ({
+  trackId,
+  premiumConditions
+}: {
+  trackId: ID
+  premiumConditions: PremiumConditions
+}) => {
   const styles = useStyles()
+  const isUSDCEnabled = useIsUSDCEnabled()
   const premiumTrackStatusMap = useSelector(getPremiumTrackStatusMap)
   const premiumTrackStatus = premiumTrackStatusMap[trackId]
   const staticWhite = useColor('staticWhite')
 
   return (
-    <View style={styles.root}>
+    <View
+      style={[
+        styles.root,
+        isUSDCEnabled && premiumConditions.usdc_purchase
+          ? styles.usdcPurchase
+          : null
+      ]}
+    >
       {premiumTrackStatus === 'UNLOCKING' ? (
         <LoadingSpinner style={styles.loadingSpinner} fill={staticWhite} />
       ) : (

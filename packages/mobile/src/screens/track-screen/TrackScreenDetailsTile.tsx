@@ -34,6 +34,7 @@ import { Image, View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 import { useDispatch, useSelector } from 'react-redux'
 
+import IconCart from 'app/assets/images/iconCart.svg'
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
 import IconHidden from 'app/assets/images/iconHidden.svg'
 import IconRobot from 'app/assets/images/iconRobot.svg'
@@ -52,6 +53,7 @@ import { make, track as record } from 'app/services/analytics'
 import { getTrackOfflineDownloadStatus } from 'app/store/offline-downloads/selectors'
 import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 import { flexRowCentered, makeStyles } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
 import { moodMap } from 'app/utils/moods'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -209,8 +211,14 @@ export const TrackScreenDetailsTile = ({
   )
   const styles = useStyles()
   const navigation = useNavigation()
-  const { accentOrange, accentBlue, white, aiPrimary, aiSecondary } =
-    useThemeColors()
+  const {
+    accentOrange,
+    accentBlue,
+    white,
+    aiPrimary,
+    aiSecondary,
+    neutralLight4
+  } = useThemeColors()
 
   const isOfflineEnabled = useIsOfflineModeEnabled()
   const isReachable = useSelector(getIsReachable)
@@ -407,7 +415,14 @@ export const TrackScreenDetailsTile = ({
     if (isGatedContentEnabled && isPremium) {
       return (
         <View style={styles.headerView}>
-          {track.premium_conditions?.nft_collection ? (
+          {track.premium_conditions?.usdc_purchase ? (
+            <IconCart
+              style={styles.premiumIcon}
+              fill={neutralLight4}
+              width={spacing(4.5)}
+              height={spacing(4.5)}
+            />
+          ) : track.premium_conditions?.nft_collection ? (
             <IconCollectible style={styles.premiumIcon} fill={accentBlue} />
           ) : (
             <IconSpecialAccess style={styles.premiumIcon} fill={accentBlue} />

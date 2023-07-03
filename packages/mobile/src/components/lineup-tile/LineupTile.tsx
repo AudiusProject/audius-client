@@ -4,12 +4,13 @@ import {
   accountSelectors,
   Genre,
   premiumContentActions,
-  usePremiumContentAccess
+  usePremiumContentAccess,
+  getDogEarType
 } from '@audius/common'
 import { View } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 
-import { DogEar, DogEarType } from 'app/components/core'
+import { DogEar } from 'app/components/core'
 import type { LineupTileProps } from 'app/components/lineup-tile/types'
 import { setVisibility } from 'app/store/drawers/slice'
 
@@ -59,6 +60,7 @@ export const LineupTile = ({
     repost_count,
     save_count
   } = item
+  const dispatch = useDispatch()
   const { artist_pick_track_id, name, user_id } = user
   const currentUserId = useSelector(getUserId)
   const isOwner = user_id === currentUserId
@@ -68,18 +70,13 @@ export const LineupTile = ({
   const premiumConditions = isTrack ? item.premium_conditions : null
   const isArtistPick = artist_pick_track_id === id
   const { doesUserHaveAccess } = usePremiumContentAccess(isTrack ? item : null)
-  const dispatch = useDispatch()
 
-  const showPremiumDogEar =
-    premiumConditions &&
-    (isOwner || !doesUserHaveAccess) &&
-    !(showArtistPick && isArtistPick)
-
-  const dogEarType = showPremiumDogEar
-    ? premiumConditions.nft_collection
-      ? DogEarType.COLLECTIBLE_GATED
-      : DogEarType.SPECIAL_ACCESS
-    : null
+  const dogEarType = getDogEarType({
+    premiumConditions,
+    isOwner,
+    doesUserHaveAccess,
+    isArtistPick: showArtistPick && isArtistPick
+  })
 
   const handlePress = useCallback(() => {
     if (trackId && !doesUserHaveAccess) {
@@ -104,13 +101,9 @@ export const LineupTile = ({
       scaleTo={scale}
       {...TileProps}
     >
-      {showPremiumDogEar && dogEarType ? (
+      {dogEarType ? (
         <DogEar type={dogEarType} style={{ shadowRadius: 1 }} />
       ) : null}
-      {showArtistPick && isArtistPick ? (
-        <DogEar type={DogEarType.STAR} />
-      ) : null}
-      {isUnlisted ? <DogEar type={DogEarType.HIDDEN} /> : null}
       <View>
         <LineupTileTopRight
           duration={duration}
@@ -159,6 +152,7 @@ export const LineupTile = ({
           isShareHidden={hideShare}
           isUnlisted={isUnlisted}
           trackId={trackId}
+          premiumConditions={premiumConditions}
           doesUserHaveAccess={doesUserHaveAccess}
           onPressOverflow={onPressOverflow}
           onPressRepost={onPressRepost}

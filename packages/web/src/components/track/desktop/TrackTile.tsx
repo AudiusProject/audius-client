@@ -7,7 +7,8 @@ import {
   FeatureFlags,
   formatLineupTileDuration,
   Genre,
-  CommonState
+  CommonState,
+  getDogEarType
 } from '@audius/common'
 import { IconCheck, IconCrown, IconHidden, ProgressBar } from '@audius/stems'
 import cn from 'classnames'
@@ -27,7 +28,6 @@ import {
   TrackTileSize,
   DesktopTrackTileProps as TrackTileProps
 } from '../types'
-import { getDogEarType } from '../utils'
 
 import { BottomRow } from './BottomRow'
 import styles from './TrackTile.module.css'

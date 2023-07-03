@@ -254,8 +254,7 @@ const ConnectedTrackTile = ({
       fieldVisibility={field_visibility}
       coSign={_co_sign}
       // Artist Pick
-      showArtistPick={showArtistPick}
-      isArtistPick={artist_pick_track_id === track_id}
+      isArtistPick={showArtistPick && artist_pick_track_id === track_id}
       // Artist
       artistHandle={handle}
       artistName={name}

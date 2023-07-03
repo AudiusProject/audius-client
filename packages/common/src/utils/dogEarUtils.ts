@@ -1,14 +1,16 @@
-import { Nullable, PremiumConditions } from '@audius/common'
+import { DogEarType } from 'models/DogEar'
+import { PremiumConditions } from 'models/Track'
 
-import { DogEarType } from 'components/dog-ear'
+import { Nullable } from './typeUtils'
 
 type GetDogEarTypeArgs = {
   doesUserHaveAccess?: boolean
   isArtistPick?: boolean
-  isOwner: boolean
+  isOwner?: boolean
   isUnlisted?: boolean
   premiumConditions?: Nullable<PremiumConditions>
 }
+
 export const getDogEarType = ({
   doesUserHaveAccess,
   isArtistPick,
@@ -22,11 +24,16 @@ export const getDogEarType = ({
   }
 
   // Show premium variants for track owners or if user does not yet have access
-  if ((isOwner || !doesUserHaveAccess) && premiumConditions) {
-    if (premiumConditions?.nft_collection) {
+  if ((isOwner || !doesUserHaveAccess) && premiumConditions != null) {
+    if (premiumConditions.usdc_purchase) {
+      return DogEarType.USDC_PURCHASE
+    }
+    if (premiumConditions.nft_collection) {
       return DogEarType.COLLECTIBLE_GATED
     }
-    return DogEarType.SPECIAL_ACCESS
+    if (premiumConditions.follow_user_id || premiumConditions.tip_user_id) {
+      return DogEarType.SPECIAL_ACCESS
+    }
   }
 
   // If no premium variant, optionally show artist pick if applicable

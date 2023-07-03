@@ -8,7 +8,8 @@ import {
   squashNewLines,
   accountSelectors,
   playerSelectors,
-  playbackPositionSelectors
+  playbackPositionSelectors,
+  getDogEarType
 } from '@audius/common'
 import { TouchableOpacity, View } from 'react-native'
 import { useSelector } from 'react-redux'
@@ -18,13 +19,7 @@ import IconPlay from 'app/assets/images/iconPlay.svg'
 import IconRepeat from 'app/assets/images/iconRepeatOff.svg'
 import CoSign from 'app/components/co-sign/CoSign'
 import { Size } from 'app/components/co-sign/types'
-import {
-  Button,
-  Hyperlink,
-  Tile,
-  DogEar,
-  DogEarType
-} from 'app/components/core'
+import { Button, Hyperlink, Tile, DogEar } from 'app/components/core'
 import Text from 'app/components/text'
 import UserBadges from 'app/components/user-badges'
 import { light } from 'app/haptics'
@@ -261,21 +256,12 @@ export const DetailsTile = ({
   }, [onPressPlay])
 
   const renderDogEar = () => {
-    const showPremiumDogEar =
-      premiumConditions && (isOwner || !doesUserHaveAccess)
-
-    const dogEarType = showPremiumDogEar
-      ? isOwner
-        ? premiumConditions.nft_collection
-          ? DogEarType.COLLECTIBLE_GATED
-          : DogEarType.SPECIAL_ACCESS
-        : DogEarType.LOCKED
-      : null
-
-    if (showPremiumDogEar && dogEarType) {
-      return <DogEar type={dogEarType} />
-    }
-    return null
+    const dogEarType = getDogEarType({
+      doesUserHaveAccess,
+      isOwner,
+      premiumConditions
+    })
+    return dogEarType ? <DogEar type={dogEarType} /> : null
   }
 
   const renderDetailLabels = () => {

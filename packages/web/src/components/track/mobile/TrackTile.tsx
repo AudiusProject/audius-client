@@ -8,7 +8,8 @@ import {
   premiumContentSelectors,
   premiumContentActions,
   formatLineupTileDuration,
-  Genre
+  Genre,
+  getDogEarType
 } from '@audius/common'
 import { IconCrown, IconHidden, IconTrending } from '@audius/stems'
 import cn from 'classnames'
@@ -30,7 +31,6 @@ import { profilePage } from 'utils/route'
 
 import { LockedStatusBadge } from '../LockedStatusBadge'
 import { messages } from '../trackTileMessages'
-import { getDogEarType } from '../utils'
 
 import BottomButtons from './BottomButtons'
 import styles from './TrackTile.module.css'
@@ -157,7 +157,6 @@ const TrackTile = (props: CombinedProps) => {
     doesUserHaveAccess,
     isTrending,
     showRankIcon,
-    showArtistPick,
     permalink,
     artistHandle,
     duration,
@@ -180,14 +179,14 @@ const TrackTile = (props: CombinedProps) => {
     ? premiumTrackStatusMap[trackId]
     : undefined
 
-  const dogEarType = isLoading
+  const DogEarIconType = isLoading
     ? undefined
     : getDogEarType({
+        premiumConditions,
+        isOwner,
         doesUserHaveAccess,
         isArtistPick,
-        isOwner,
-        isUnlisted,
-        premiumConditions
+        isUnlisted
       })
 
   const onToggleSave = useCallback(() => toggleSave(id), [toggleSave, id])
@@ -244,7 +243,7 @@ const TrackTile = (props: CombinedProps) => {
         containerClassName
       )}
     >
-      {dogEarType ? <DogEar type={dogEarType} /> : null}
+      {DogEarIconType ? <DogEar type={DogEarIconType} /> : null}
       <div className={styles.mainContent} onClick={handleClick}>
         <div
           className={cn(
@@ -253,7 +252,7 @@ const TrackTile = (props: CombinedProps) => {
             styles.statText
           )}
         >
-          {showArtistPick && isArtistPick ? (
+          {isArtistPick ? (
             <div className={styles.topRightIcon}>
               <IconStar />
               {messages.artistPick}

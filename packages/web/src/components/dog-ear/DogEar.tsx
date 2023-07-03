@@ -1,3 +1,4 @@
+import { DogEarType } from '@audius/common'
 import { IconCollectible, IconLock, IconSpecialAccess } from '@audius/stems'
 import cn from 'classnames'
 
@@ -7,14 +8,6 @@ import { isMobile } from 'utils/clientUtil'
 import { isMatrix } from 'utils/theme/theme'
 
 import styles from './DogEar.module.css'
-
-export enum DogEarType {
-  STAR = 'star',
-  HIDDEN = 'hidden',
-  LOCKED = 'locked',
-  COLLECTIBLE_GATED = 'collectible gated',
-  SPECIAL_ACCESS = 'special access'
-}
 
 export type DogEarProps = {
   type: DogEarType

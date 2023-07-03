@@ -22,6 +22,7 @@ import IconUnlocked from 'app/assets/images/iconUnlocked.svg'
 import { CollectionDownloadStatusIndicator } from 'app/components/offline-downloads/CollectionDownloadStatusIndicator'
 import { TrackDownloadStatusIndicator } from 'app/components/offline-downloads/TrackDownloadStatusIndicator'
 import Text from 'app/components/text'
+import { useIsUSDCEnabled } from 'app/hooks/useIsUSDCEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles, flexRowCentered } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
@@ -77,6 +78,9 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
   },
   iconUnlocked: {
     backgroundColor: palette.accentBlue
+  },
+  iconUSDC: {
+    backgroundColor: palette.specialLightGreen1
   }
 }))
 
@@ -122,6 +126,7 @@ export const LineupTileStats = ({
   const { neutralLight4, staticWhite } = useThemeColors()
   const dispatch = useDispatch()
   const navigation = useNavigation()
+  const isUSDCEnabled = useIsUSDCEnabled()
 
   const hasEngagement = Boolean(repostCount || saveCount)
 
@@ -203,7 +208,10 @@ export const LineupTileStats = ({
           style={[
             styles.iconLocked,
             styles.listenCount,
-            doesUserHaveAccess ? styles.iconUnlocked : null
+            doesUserHaveAccess ? styles.iconUnlocked : null,
+            isUSDCEnabled && premiumConditions.usdc_purchase
+              ? styles.iconUSDC
+              : null
           ]}
         >
           {doesUserHaveAccess ? (
