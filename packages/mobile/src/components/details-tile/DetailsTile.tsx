@@ -101,6 +101,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   },
 
   artist: {
+    fontFamily: typography.fontByWeight.medium,
     color: palette.secondary,
     fontSize: 18
   },
