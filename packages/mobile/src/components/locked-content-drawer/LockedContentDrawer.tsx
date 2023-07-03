@@ -90,6 +90,7 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     fontSize: typography.fontSize.medium
   },
   premiumTrackSection: {
+    marginHorizontal: spacing(2),
     marginBottom: 0,
     borderWidth: 0,
     backgroundColor: 'transparent'

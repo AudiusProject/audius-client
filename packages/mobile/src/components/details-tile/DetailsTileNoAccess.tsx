@@ -53,20 +53,17 @@ const messages = {
 
 const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   root: {
-    padding: spacing(4),
+    padding: spacing(2),
     backgroundColor: palette.neutralLight10,
     borderWidth: 1,
     borderColor: palette.neutralLight7,
     borderRadius: spacing(2)
   },
-  headerContainer: {
-    ...flexRowCentered(),
-    marginBottom: spacing(2),
-    justifyContent: 'space-between'
-  },
   titleContainer: {
     ...flexRowCentered(),
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    marginHorizontal: spacing(2),
+    marginVertical: spacing(1)
   },
   title: {
     fontFamily: typography.fontByWeight.heavy,
@@ -75,25 +72,26 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   },
   descriptionContainer: {
     ...flexRowCentered(),
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
+    margin: spacing(2)
   },
   description: {
     flexShrink: 0,
     fontFamily: typography.fontByWeight.demiBold,
     fontSize: typography.fontSize.medium,
     color: palette.neutral,
-    lineHeight: spacing(6)
+    lineHeight: typography.fontSize.medium * 1.3
   },
   name: {
     color: palette.secondary
   },
   collectionContainer: {
     ...flexRowCentered(),
-    marginTop: spacing(2)
+    marginTop: spacing(2),
+    gap: spacing(6)
   },
   collectionImages: {
-    ...flexRowCentered(),
-    marginRight: spacing(6)
+    ...flexRowCentered()
   },
   collectionImage: {
     borderWidth: 1,
@@ -126,11 +124,8 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     color: palette.white
   },
   mainButton: {
-    marginTop: spacing(7),
+    marginTop: spacing(3),
     backgroundColor: palette.accentBlue
-  },
-  bottomMargin: {
-    marginBottom: spacing(2)
   },
   loadingSpinner: {
     width: spacing(5),
@@ -152,27 +147,19 @@ const DetailsTileNoAccessSection = ({
   const styles = useStyles()
   const staticWhite = useColor('staticWhite')
 
-  if (isUnlocking) {
-    return (
-      <View style={[styles.root, style]}>
-        <View style={styles.headerContainer}>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>{messages.unlocking}</Text>
-          </View>
-          <LoadingSpinner style={styles.loadingSpinner} />
-        </View>
-        {renderDescription()}
-      </View>
-    )
-  }
-
   return (
     <View style={[styles.root, style]}>
-      <View style={[styles.titleContainer, styles.bottomMargin]}>
-        <Text style={styles.title}>{messages.howToUnlock}</Text>
-        <View style={styles.iconLockContainer}>
-          <IconLock fill={staticWhite} width={14} height={14} />
-        </View>
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>
+          {isUnlocking ? messages.unlocking : messages.howToUnlock}
+        </Text>
+        {isUnlocking ? (
+          <LoadingSpinner style={styles.loadingSpinner} />
+        ) : (
+          <View style={styles.iconLockContainer}>
+            <IconLock fill={staticWhite} width={14} height={14} />
+          </View>
+        )}
       </View>
       {renderDescription()}
     </View>
@@ -251,27 +238,35 @@ export const DetailsTileNoAccess = ({
   const renderLockedDescription = useCallback(() => {
     if (nftCollection) {
       return (
-        <View style={styles.descriptionContainer}>
-          <Text style={styles.description}>
-            {messages.lockedCollectibleGated}
-          </Text>
-          <View style={styles.collectionContainer}>
-            {nftCollection.imageUrl && (
-              <View style={styles.collectionImages}>
-                <Image
-                  source={{ uri: nftCollection.imageUrl }}
-                  style={styles.collectionImage}
-                />
-                <View style={styles.collectionChainImageContainer}>
-                  {nftCollection.chain === Chain.Eth ? (
-                    <LogoEth style={styles.collectionChainImage} height={16} />
-                  ) : (
-                    <LogoSol style={styles.collectionChainImage} height={16} />
-                  )}
+        <>
+          <View style={styles.descriptionContainer}>
+            <Text style={styles.description}>
+              {messages.lockedCollectibleGated}
+            </Text>
+            <View style={styles.collectionContainer}>
+              {nftCollection.imageUrl && (
+                <View style={styles.collectionImages}>
+                  <Image
+                    source={{ uri: nftCollection.imageUrl }}
+                    style={styles.collectionImage}
+                  />
+                  <View style={styles.collectionChainImageContainer}>
+                    {nftCollection.chain === Chain.Eth ? (
+                      <LogoEth
+                        style={styles.collectionChainImage}
+                        height={16}
+                      />
+                    ) : (
+                      <LogoSol
+                        style={styles.collectionChainImage}
+                        height={16}
+                      />
+                    )}
+                  </View>
                 </View>
-              </View>
-            )}
-            <Text style={styles.description}>{nftCollection.name}</Text>
+              )}
+              <Text style={styles.description}>{nftCollection.name}</Text>
+            </View>
           </View>
           <Button
             style={styles.mainButton}
@@ -283,12 +278,12 @@ export const DetailsTileNoAccess = ({
             onPress={handlePressCollection}
             fullWidth
           />
-        </View>
+        </>
       )
     }
     if (followee) {
       return (
-        <View>
+        <>
           {renderLockedSpecialAccessDescription({
             entity: followee,
             prefix: messages.lockedFollowGatedPrefix
@@ -303,12 +298,12 @@ export const DetailsTileNoAccess = ({
             onPress={handleFollowArtist}
             fullWidth
           />
-        </View>
+        </>
       )
     }
     if (tippedUser) {
       return (
-        <View style={styles.descriptionContainer}>
+        <>
           {renderLockedSpecialAccessDescription({
             entity: tippedUser,
             prefix: messages.lockedTipGatedPrefix,
@@ -324,7 +319,7 @@ export const DetailsTileNoAccess = ({
             onPress={handleSendTip}
             fullWidth
           />
-        </View>
+        </>
       )
     }
 
