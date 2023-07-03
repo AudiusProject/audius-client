@@ -4,7 +4,6 @@ import {
   formatCount,
   accountSelectors,
   playbackPositionSelectors,
-  pluralize,
   FeatureFlags,
   formatLineupTileDuration,
   Genre,
@@ -23,6 +22,7 @@ import { useFlag } from 'hooks/useRemoteConfig'
 
 import { LockedStatusBadge } from '../LockedStatusBadge'
 import { PremiumContentLabel } from '../PremiumContentLabel'
+import { messages } from '../trackTileMessages'
 import {
   TrackTileSize,
   DesktopTrackTileProps as TrackTileProps
@@ -34,14 +34,6 @@ import styles from './TrackTile.module.css'
 
 const { getUserId } = accountSelectors
 const { getTrackPosition } = playbackPositionSelectors
-
-const messages = {
-  getPlays: (listenCount: number) => ` ${pluralize('Play', listenCount)}`,
-  artistPick: 'Artist Pick',
-  hiddenTrack: 'Hidden Track',
-  timeLeft: 'left',
-  played: 'Played'
-}
 
 const RankAndIndexIndicator = ({
   hasOrdering,
@@ -70,7 +62,7 @@ const RankAndIndexIndicator = ({
   )
 }
 
-const renderLockedOrMessageContent = ({
+const renderLockedOrPlaysContent = ({
   doesUserHaveAccess,
   fieldVisibility,
   isOwner,
@@ -335,7 +327,7 @@ const TrackTile = ({
           </div>
           <div className={cn(typeStyles.bodyXSmall, styles.bottomRight)}>
             {!isLoading
-              ? renderLockedOrMessageContent({
+              ? renderLockedOrPlaysContent({
                   doesUserHaveAccess,
                   fieldVisibility,
                   isOwner,
