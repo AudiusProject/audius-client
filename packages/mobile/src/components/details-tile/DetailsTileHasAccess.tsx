@@ -40,15 +40,18 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     backgroundColor: palette.neutralLight10,
     borderWidth: 1,
     borderColor: palette.neutralLight7,
-    borderRadius: spacing(2)
+    borderRadius: spacing(2),
+    gap: spacing(2)
   },
   titleContainer: {
     ...flexRowCentered(),
-    marginBottom: spacing(2),
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    gap: spacing(2)
+  },
+  ownerTitleContainer: {
+    justifyContent: 'flex-start'
   },
   title: {
-    marginLeft: spacing(2),
     fontFamily: typography.fontByWeight.heavy,
     fontSize: typography.fontSize.medium,
     color: palette.neutral
@@ -62,17 +65,10 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     fontFamily: typography.fontByWeight.demiBold,
     fontSize: typography.fontSize.medium,
     color: palette.neutral,
-    lineHeight: spacing(6)
-  },
-  checkIcon: {
-    width: spacing(6),
-    height: spacing(6)
+    lineHeight: typography.fontSize.medium * 1.3
   },
   name: {
     color: palette.secondary
-  },
-  bottomMargin: {
-    marginBottom: spacing(2)
   },
   iconLockContainer: {
     backgroundColor: palette.accentBlue,
@@ -109,15 +105,14 @@ const DetailsTileUnlockedSection = ({
 
 const DetailsTileOwnerSection = ({
   renderDescription,
-  isCollectibleGated,
-  style
+  isCollectibleGated
 }: HasAccessProps) => {
   const styles = useStyles()
   const neutral = useColor('neutral')
 
   return (
-    <View style={[styles.root, style]}>
-      <View style={[styles.titleContainer, styles.bottomMargin]}>
+    <View style={styles.root}>
+      <View style={[styles.titleContainer, styles.ownerTitleContainer]}>
         {isCollectibleGated ? (
           <IconCollectible fill={neutral} width={16} height={16} />
         ) : (
@@ -271,15 +266,11 @@ export const DetailsTileHasAccess = ({
       <DetailsTileOwnerSection
         renderDescription={renderOwnerDescription}
         isCollectibleGated={!!nftCollection}
-        style={style}
       />
     )
   }
 
   return (
-    <DetailsTileUnlockedSection
-      renderDescription={renderUnlockedDescription}
-      style={style}
-    />
+    <DetailsTileUnlockedSection renderDescription={renderUnlockedDescription} />
   )
 }
