@@ -23,8 +23,10 @@
 }
 
 .loading {
-  height: var(--unit-4);
-  width: var(--unit-4);
+  height: var(--unit-10);
+  width: var(--unit-10);
+  width: 100%;
+  margin: var(--unit-8) auto;
 }
 
 .trackDivider {
@@ -44,7 +46,6 @@
   display: flex;
   align-items: center;
   gap: var(--unit-3);
-  /* flex: 1 0 0; */
 }
 
 .trackArtwork {
