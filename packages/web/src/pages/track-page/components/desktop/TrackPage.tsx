@@ -5,8 +5,7 @@ import {
   User,
   trackPageLineupActions,
   QueueItem,
-  usePremiumContentAccess,
-  Genre
+  usePremiumContentAccess
 } from '@audius/common'
 import cn from 'classnames'
 
@@ -144,7 +143,7 @@ const TrackPage = ({
       duration={defaults.duration}
       released={defaults.released}
       credits={defaults.credits}
-      genre={defaults.genre as Genre}
+      genre={defaults.genre}
       mood={defaults.mood}
       repostCount={defaults.repostCount}
       saveCount={defaults.saveCount}
