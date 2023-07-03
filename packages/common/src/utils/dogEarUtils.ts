@@ -11,7 +11,7 @@ type GetDogEarTypeArgs = {
   premiumConditions?: Nullable<PremiumConditions>
 }
 
-export const getTrackDogEarType = ({
+export const getDogEarType = ({
   doesUserHaveAccess,
   isArtistPick,
   isOwner,
