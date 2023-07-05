@@ -209,7 +209,9 @@ export const LineupTileStats = ({
             styles.iconLocked,
             styles.listenCount,
             doesUserHaveAccess ? styles.iconUnlocked : null,
-            isUSDCEnabled && premiumConditions.usdc_purchase
+            isUSDCEnabled &&
+            premiumConditions.usdc_purchase &&
+            doesUserHaveAccess
               ? styles.iconUSDC
               : null
           ]}
