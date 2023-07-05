@@ -1,4 +1,4 @@
-import type { UserTrackMetadata } from '@audius/common'
+import type { ID, UserTrackMetadata } from '@audius/common'
 import { SquareSizes, useGetSuggestedTracks } from '@audius/common'
 import { View } from 'react-native'
 
@@ -57,12 +57,14 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
 }))
 
 type SuggestedTrackProps = {
+  collectionId: ID
   track: UserTrackMetadata
+  onAddTrack: (trackId: ID, collectionId: ID) => void
 }
 
 const SuggestedTrack = (props: SuggestedTrackProps) => {
-  const { track } = props
-  const { title, user } = track
+  const { collectionId, track, onAddTrack } = props
+  const { track_id, title, user } = track
   const styles = useStyles()
 
   return (
@@ -91,15 +93,25 @@ const SuggestedTrack = (props: SuggestedTrackProps) => {
           title={messages.addTrack}
           size='small'
           styles={{ text: styles.buttonText }}
+          onPress={() => onAddTrack(track_id, collectionId)}
         />
       </View>
     </View>
   )
 }
 
-export const SuggestedTracks = () => {
+type SuggestedTracksProps = {
+  collectionId: ID
+}
+
+export const SuggestedTracks = (props: SuggestedTracksProps) => {
+  const { collectionId } = props
   const styles = useStyles()
-  const { data: suggestedTracks } = useGetSuggestedTracks()
+  const {
+    data: suggestedTracks,
+    onRefresh,
+    onAddTrack
+  } = useGetSuggestedTracks()
 
   return (
     <Tile style={styles.root}>
@@ -118,6 +130,8 @@ export const SuggestedTracks = () => {
             <SuggestedTrack
               key={suggestedTrack.track_id}
               track={suggestedTrack}
+              collectionId={collectionId}
+              onAddTrack={onAddTrack}
             />
             <Divider />
           </>
@@ -130,6 +144,7 @@ export const SuggestedTracks = () => {
         title={messages.refresh}
         TextProps={{ weight: 'bold' }}
         style={styles.refreshButton}
+        onPress={onRefresh}
       />
     </Tile>
   )

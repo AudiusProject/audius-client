@@ -32,18 +32,14 @@ const messages = {
 type SuggestedTrackProps = {
   collectionId: ID
   track: UserTrackMetadata
+  onAddTrack: (trackId: ID, collectionId: ID) => void
 }
 
 const SuggestedTrack = (props: SuggestedTrackProps) => {
-  const { track, collectionId } = props
+  const { collectionId, track, onAddTrack } = props
   const { track_id, title, user } = track
 
   const image = useTrackCoverArt2(track_id, SquareSizes.SIZE_150_BY_150)
-  const dispatch = useDispatch()
-
-  const handleAddTrack = useCallback(() => {
-    dispatch(addTrackToPlaylist(track_id, collectionId))
-  }, [dispatch, track_id, collectionId])
 
   return (
     <div className={styles.suggestedTrack}>
@@ -58,7 +54,7 @@ const SuggestedTrack = (props: SuggestedTrackProps) => {
         type={ButtonType.COMMON}
         text={messages.addTrack}
         size={ButtonSize.SMALL}
-        onClick={handleAddTrack}
+        onClick={() => onAddTrack(track_id, collectionId)}
       />
     </div>
   )
@@ -70,7 +66,12 @@ type SuggestedTracksProps = {
 
 export const SuggestedTracks = (props: SuggestedTracksProps) => {
   const { collectionId } = props
-  const { data: suggestedTracks, status, onRefresh } = useGetSuggestedTracks()
+  const {
+    data: suggestedTracks,
+    status,
+    onRefresh,
+    onAddTrack
+  } = useGetSuggestedTracks()
 
   const divider = <Divider className={styles.trackDivider} />
 
@@ -91,6 +92,7 @@ export const SuggestedTracks = (props: SuggestedTracksProps) => {
               <SuggestedTrack
                 track={suggestedTrack}
                 collectionId={collectionId}
+                onAddTrack={onAddTrack}
               />
             </li>
             {divider}

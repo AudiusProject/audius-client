@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { shuffle } from 'lodash'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 
 import { ID } from 'models/Identifiers'
 import { getUserId } from 'store/account/selectors'
+import { addTrackToPlaylist } from 'store/cache/collections/actions'
 
 import { useGetFavoritedTrackList } from './favorites'
 import { useGetTracksByIds } from './track'
@@ -13,6 +14,8 @@ const suggestedTrackCount = 5
 
 export const useGetSuggestedTracks = () => {
   const currentUserId = useSelector(getUserId)
+  const dispatch = useDispatch()
+
   const { data: favoritedTracks } = useGetFavoritedTrackList(
     { currentUserId },
     { disabled: !currentUserId }
@@ -39,9 +42,23 @@ export const useGetSuggestedTracks = () => {
     }
   )
 
+  const handleAddTrack = useCallback(
+    (trackId: ID, collectionId: ID) => {
+      dispatch(addTrackToPlaylist(trackId, collectionId))
+      const trackIndexToRemove = suggestedTrackIds.indexOf(trackId)
+      suggestedTrackIds.splice(trackIndexToRemove, 1)
+      setSuggestedTrackIds(suggestedTrackIds)
+    },
+    [dispatch, suggestedTrackIds]
+  )
+
   const handleRefresh = useCallback(() => {
     setSuggestedTrackIds(suggestedTrackIds.slice(suggestedTrackCount))
   }, [suggestedTrackIds])
 
-  return { ...suggestedTracksState, onRefresh: handleRefresh }
+  return {
+    ...suggestedTracksState,
+    onRefresh: handleRefresh,
+    onAddTrack: handleAddTrack
+  }
 }
