@@ -1,10 +1,15 @@
+import { useCallback } from 'react'
+
 import {
+  ID,
   SquareSizes,
   Status,
   UserTrackMetadata,
+  cacheCollectionsActions,
   useGetSuggestedTracks
 } from '@audius/common'
 import { Button, ButtonSize, ButtonType, IconRefresh } from '@audius/stems'
+import { useDispatch } from 'react-redux'
 
 import { Divider } from 'components/divider'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
@@ -13,6 +18,8 @@ import { UserNameAndBadges } from 'components/user-name-and-badges/UserNameAndBa
 import { useTrackCoverArt2 } from 'hooks/useTrackCoverArt'
 
 import styles from './SuggestedTracks.module.css'
+
+const { addTrackToPlaylist } = cacheCollectionsActions
 
 const messages = {
   title: 'Add some tracks',
@@ -23,14 +30,20 @@ const messages = {
 }
 
 type SuggestedTrackProps = {
+  collectionId: ID
   track: UserTrackMetadata
 }
 
 const SuggestedTrack = (props: SuggestedTrackProps) => {
-  const { track } = props
+  const { track, collectionId } = props
   const { track_id, title, user } = track
 
   const image = useTrackCoverArt2(track_id, SquareSizes.SIZE_150_BY_150)
+  const dispatch = useDispatch()
+
+  const handleAddTrack = useCallback(() => {
+    dispatch(addTrackToPlaylist(track_id, collectionId))
+  }, [dispatch, track_id, collectionId])
 
   return (
     <div className={styles.suggestedTrack}>
@@ -45,13 +58,19 @@ const SuggestedTrack = (props: SuggestedTrackProps) => {
         type={ButtonType.COMMON}
         text={messages.addTrack}
         size={ButtonSize.SMALL}
+        onClick={handleAddTrack}
       />
     </div>
   )
 }
 
-export const SuggestedTracks = () => {
-  const { data: suggestedTracks, status } = useGetSuggestedTracks()
+type SuggestedTracksProps = {
+  collectionId: ID
+}
+
+export const SuggestedTracks = (props: SuggestedTracksProps) => {
+  const { collectionId } = props
+  const { data: suggestedTracks, status, onRefresh } = useGetSuggestedTracks()
 
   const divider = <Divider className={styles.trackDivider} />
 
@@ -69,14 +88,17 @@ export const SuggestedTracks = () => {
         {suggestedTracks?.map((suggestedTrack) => (
           <>
             <li key={suggestedTrack.track_id}>
-              <SuggestedTrack track={suggestedTrack} />
+              <SuggestedTrack
+                track={suggestedTrack}
+                collectionId={collectionId}
+              />
             </li>
             {divider}
           </>
         ))}
         {divider}
       </ul>
-      <button className={styles.refreshButton}>
+      <button className={styles.refreshButton} onClick={onRefresh}>
         <div className={styles.refreshContent}>
           <IconRefresh className={styles.refreshIcon} />
           <span className={styles.refreshText}>{messages.refresh}</span>
