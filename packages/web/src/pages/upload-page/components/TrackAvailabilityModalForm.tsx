@@ -1,8 +1,11 @@
-import { useCallback, useMemo } from 'react'
+import { ChangeEvent, useCallback, useMemo } from 'react'
 
 import {
+  accountSelectors,
   collectiblesSelectors,
   FeatureFlags,
+  Nullable,
+  PremiumConditions,
   TrackAvailabilityType
 } from '@audius/common'
 import {
@@ -24,8 +27,10 @@ import { ModalField } from '../fields/ModalField'
 import { REMIX_OF } from '../fields/RemixModalForm'
 
 import { EditFormValues } from './EditPageNew'
+import { SpecialAccessFields, SpecialAccessType } from './SpecialAccessFields'
 import styles from './TrackAvailabilityModalForm.module.css'
 const { getSupportedUserCollections } = collectiblesSelectors
+const { getUserId } = accountSelectors
 
 const messages = {
   title: 'AVAILABILITY',
@@ -54,13 +59,18 @@ const messages = {
   learnMore: 'Learn More'
 }
 
-type TrackAvailabilityFormValues = {}
-
 const IS_UNLISTED = 'is_unlisted'
 const IS_PREMIUM = 'is_premium'
-const PREMIUM_CONDITIONS = 'premium_conditions'
+export const PREMIUM_CONDITIONS = 'premium_conditions'
 
 const AVAILABILITY_TYPE = 'availability_type'
+const SPECIAL_ACCESS_TYPE = 'special_access_type'
+
+export type TrackAvailabilityFormValues = {
+  [AVAILABILITY_TYPE]: TrackAvailabilityType
+  [PREMIUM_CONDITIONS]: Nullable<PremiumConditions>
+  [SPECIAL_ACCESS_TYPE]: Nullable<SpecialAccessType>
+}
 
 // A modal that allows you to set a track as collectible-gated, special access, or unlisted,
 // as well as toggle individual unlisted metadata field visibility.
@@ -84,6 +94,27 @@ export const TrackAvailabilityModalForm = () => {
     set(initialValues, IS_UNLISTED, isUnlistedValue)
     set(initialValues, IS_PREMIUM, isPremiumValue)
     set(initialValues, PREMIUM_CONDITIONS, premiumConditionsValue)
+
+    let availabilityType = TrackAvailabilityType.PUBLIC
+    if (
+      premiumConditionsValue?.follow_user_id ||
+      premiumConditionsValue?.tip_user_id
+    ) {
+      availabilityType = TrackAvailabilityType.SPECIAL_ACCESS
+    }
+    if (premiumConditionsValue?.nft_collection) {
+      availabilityType = TrackAvailabilityType.COLLECTIBLE_GATED
+    }
+    // TODO: USDC gated type
+    set(initialValues, AVAILABILITY_TYPE, availabilityType)
+
+    set(
+      initialValues,
+      SPECIAL_ACCESS_TYPE,
+      premiumConditionsValue?.tip_user_id
+        ? SpecialAccessType.TIP
+        : SpecialAccessType.FOLLOW
+    )
     return initialValues as TrackAvailabilityFormValues
   }, [isPremiumValue, isUnlistedValue, premiumConditionsValue])
 
@@ -116,28 +147,41 @@ export const TrackAvailabilityModalForm = () => {
         icon={<IconHidden className={styles.titleIcon} />}
         preview={preview}
       >
-        <TrackAvailabilityFields isRemix={isRemix} />
+        <TrackAvailabilityFields
+          isRemix={isRemix}
+          premiumConditions={premiumConditionsValue}
+        />
       </ModalField>
     </Formik>
   )
 }
 
 type TrackAvailabilityFieldsProps = {
+  premiumConditions: EditFormValues[typeof PREMIUM_CONDITIONS]
   isRemix: boolean
 }
 
 const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
   const { isRemix } = props
+  const accountUserId = useSelector(getUserId)
   const { isEnabled: isCollectibleGatedEnabled } = useFlag(
     FeatureFlags.COLLECTIBLE_GATED_ENABLED
   )
   const { isEnabled: isSpecialAccessEnabled } = useFlag(
     FeatureFlags.SPECIAL_ACCESS_ENABLED
   )
+  const [
+    { value: premiumConditionsValue },
+    ,
+    { setValue: setPremiumConditionsValue }
+  ] =
+    useField<TrackAvailabilityFormValues[typeof PREMIUM_CONDITIONS]>(
+      PREMIUM_CONDITIONS
+    )
 
-  const [availabilityField] = useField({
-    name: AVAILABILITY_TYPE,
-    type: 'radio'
+  const [availabilityField, , { setValue: setAvailabilityValue }] = useField({
+    name: AVAILABILITY_TYPE
+    // type: 'radio'
   })
   const { ethCollectionMap, solCollectionMap } = useSelector(
     getSupportedUserCollections
@@ -149,12 +193,49 @@ const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
   const noCollectibleGate = !hasCollectibles
   const noSpecialAccess = isRemix
 
+  const handleChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const type = e.target.value as TrackAvailabilityType
+      switch (type) {
+        case TrackAvailabilityType.PUBLIC: {
+          setPremiumConditionsValue(null)
+          break
+        }
+        case TrackAvailabilityType.SPECIAL_ACCESS: {
+          if (!accountUserId || premiumConditionsValue?.tip_user_id) break
+          setPremiumConditionsValue({ follow_user_id: accountUserId })
+          break
+        }
+        case TrackAvailabilityType.COLLECTIBLE_GATED:
+          if (!accountUserId || premiumConditionsValue?.nft_collection) break
+          setPremiumConditionsValue(null)
+          break
+        case TrackAvailabilityType.HIDDEN:
+          // TODO: set default availability fieilds
+          // setFieldValue(AVAILABILITY_FIELD, defaultAvailabilityFields)
+          break
+      }
+      setAvailabilityValue(type)
+    },
+    [
+      accountUserId,
+      premiumConditionsValue?.nft_collection,
+      premiumConditionsValue?.tip_user_id,
+      setAvailabilityValue,
+      setPremiumConditionsValue
+    ]
+  )
+
   return (
     <>
       {isRemix ? (
         <HelpCallout className={styles.isRemix} content={messages.isRemix} />
       ) : null}
-      <RadioButtonGroup {...availabilityField}>
+      <RadioButtonGroup
+        defaultValue={TrackAvailabilityType.PUBLIC}
+        {...availabilityField}
+        onChange={handleChange}
+      >
         <ModalRadioItem
           icon={<IconVisibilityPublic className={styles.icon} />}
           label={messages.public}
@@ -168,14 +249,7 @@ const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
             description={messages.specialAccessSubtitle}
             value={TrackAvailabilityType.SPECIAL_ACCESS}
             disabled={noSpecialAccess}
-            checkedContent={
-              <>Special Access Options</>
-              // <SpecialAccessAvailability
-              //   state={metadataState}
-              //   onStateUpdate={updatePremiumContentFields}
-              //   disabled={noSpecialAccessOptions}
-              // />
-            }
+            checkedContent={<SpecialAccessFields disabled={noSpecialAccess} />}
           />
         ) : null}
         {isCollectibleGatedEnabled ? (
