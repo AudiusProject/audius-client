@@ -1,4 +1,9 @@
-import { Track, TrackMetadata, AudiusBackend } from '@audius/common'
+import {
+  Track,
+  TrackMetadata,
+  AudiusBackend,
+  PremiumContentType
+} from '@audius/common'
 import { omit } from 'lodash'
 
 /**
@@ -61,6 +66,31 @@ const setDefaultFolloweeSaves = <T extends TrackMetadata>(track: T) => {
   }
 }
 
+const setTypedPremiumConditions = <T extends TrackMetadata>(track: T) => {
+  const premium_conditions = track.premium_conditions as any
+  let type
+  if (premium_conditions?.nft_collection != null) {
+    type = PremiumContentType.COLLECTIBLE_GATED
+  } else if (premium_conditions?.follow_user_id != null) {
+    type = PremiumContentType.FOLLOW_GATED
+  } else if (premium_conditions?.tip_user_id != null) {
+    type = PremiumContentType.TIP_GATED
+  } else if (premium_conditions?.usdc_purchase != null) {
+    type = PremiumContentType.USDC_PURCHASE
+  } else {
+    type = null
+  }
+  return {
+    ...track,
+    premium_conditions: type
+      ? {
+          type,
+          ...premium_conditions
+        }
+      : null
+  }
+}
+
 /**
  * Reformats a track to be used internally within the client
  * This method should *always* be called before a track is cached.
@@ -76,7 +106,9 @@ export const reformat = <T extends TrackMetadata>(
   const withImages = audiusBackendInstance.getTrackImages(withUserIdAsUser)
   const withCosign = setIsCoSigned(withImages)
   const withFieldVisibility = setFieldVisibility(withCosign)
+  const withTypedPremiumConditions =
+    setTypedPremiumConditions(withFieldVisibility)
 
-  const withDefaultSaves = setDefaultFolloweeSaves(withFieldVisibility)
+  const withDefaultSaves = setDefaultFolloweeSaves(withTypedPremiumConditions)
   return withDefaultSaves
 }

@@ -80,14 +80,33 @@ export type PremiumConditionsUSDCPurchase = {
   slot: number
 }
 
-export type PremiumConditions = {
-  nft_collection?:
-    | PremiumConditionsEthNFTCollection
-    | PremiumConditionsSolNFTCollection
-  follow_user_id?: number
-  tip_user_id?: number
-  usdc_purchase?: PremiumConditionsUSDCPurchase
+export enum PremiumContentType {
+  COLLECTIBLE_GATED = 'collectible gated',
+  FOLLOW_GATED = 'follower gated',
+  TIP_GATED = 'tip gated',
+  USDC_PURCHASE = 'usdc purchase'
 }
+
+export type PremiumConditions =
+  | {
+      type: PremiumContentType.COLLECTIBLE_GATED
+      nft_collection:
+        | PremiumConditionsEthNFTCollection
+        | PremiumConditionsSolNFTCollection
+    }
+  | {
+      type: PremiumContentType.FOLLOW_GATED
+      follow_user_id: number
+    }
+  | {
+      type: PremiumContentType.TIP_GATED
+      tip_user_id: number
+    }
+  | {
+      type: PremiumContentType.USDC_PURCHASE
+      usdc_purchase: PremiumConditionsUSDCPurchase
+    }
+  | null
 
 export type PremiumContentSignature = {
   data: string

@@ -1,5 +1,5 @@
 import { DogEarType } from 'models/DogEar'
-import { PremiumConditions } from 'models/Track'
+import { PremiumConditions, PremiumContentType } from 'models/Track'
 
 import { Nullable } from './typeUtils'
 
@@ -25,14 +25,13 @@ export const getDogEarType = ({
 
   // Show premium variants for track owners or if user does not yet have access
   if ((isOwner || !doesUserHaveAccess) && premiumConditions != null) {
-    if (premiumConditions.usdc_purchase) {
-      return DogEarType.USDC_PURCHASE
-    }
-    if (premiumConditions.nft_collection) {
-      return DogEarType.COLLECTIBLE_GATED
-    }
-    if (premiumConditions.follow_user_id || premiumConditions.tip_user_id) {
-      return DogEarType.SPECIAL_ACCESS
+    switch (premiumConditions.type) {
+      case PremiumContentType.COLLECTIBLE_GATED:
+        return DogEarType.COLLECTIBLE_GATED
+      case PremiumContentType.FOLLOW_GATED || PremiumContentType.TIP_GATED:
+        return DogEarType.SPECIAL_ACCESS
+      case PremiumContentType.USDC_PURCHASE:
+        return DogEarType.USDC_PURCHASE
     }
   }
 
