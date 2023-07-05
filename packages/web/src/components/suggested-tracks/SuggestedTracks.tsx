@@ -1,15 +1,21 @@
-import { useCallback } from 'react'
-
 import {
   ID,
   SquareSizes,
   Status,
   UserTrackMetadata,
-  cacheCollectionsActions,
   useGetSuggestedTracks
 } from '@audius/common'
-import { Button, ButtonSize, ButtonType, IconRefresh } from '@audius/stems'
-import { useDispatch } from 'react-redux'
+import {
+  Button,
+  ButtonSize,
+  ButtonType,
+  IconButton,
+  IconCaretDown,
+  IconRefresh
+} from '@audius/stems'
+import { animated, useSpring } from '@react-spring/web'
+import cn from 'classnames'
+import { useToggle } from 'react-use'
 
 import { Divider } from 'components/divider'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
@@ -19,14 +25,14 @@ import { useTrackCoverArt2 } from 'hooks/useTrackCoverArt'
 
 import styles from './SuggestedTracks.module.css'
 
-const { addTrackToPlaylist } = cacheCollectionsActions
+const contentHeight = 423
 
 const messages = {
   title: 'Add some tracks',
-  description:
-    'Placeholder copy: dependent on backend logic and what we decide to do with this new feature.',
   addTrack: 'Add',
-  refresh: 'Refresh'
+  refresh: 'Refresh',
+  expandLabel: 'Expand suggested tracks panel',
+  collapseLabel: 'Collapse suggested tracks panel'
 }
 
 type SuggestedTrackProps = {
@@ -73,39 +79,59 @@ export const SuggestedTracks = (props: SuggestedTracksProps) => {
     onAddTrack
   } = useGetSuggestedTracks()
 
+  const [isExpanded, toggleIsExpanded] = useToggle(false)
+
   const divider = <Divider className={styles.trackDivider} />
+
+  const contentStyles = useSpring({
+    height: isExpanded ? contentHeight : 0
+  })
 
   return (
     <Tile className={styles.root} elevation='mid'>
       <div className={styles.heading}>
-        <h4 className={styles.title}>{messages.title}</h4>
-        <p className={styles.description}>{messages.description}</p>
+        <div className={styles.headingText}>
+          <h4 className={styles.title}>{messages.title}</h4>
+        </div>
+        <IconButton
+          aria-label={
+            isExpanded ? messages.collapseLabel : messages.expandLabel
+          }
+          icon={
+            <IconCaretDown
+              className={cn(styles.caret, {
+                [styles.caretExpanded]: isExpanded
+              })}
+            />
+          }
+          onClick={toggleIsExpanded}
+        />
       </div>
-      <ul>
-        {divider}
-        {!suggestedTracks && status === Status.LOADING ? (
-          <LoadingSpinner className={styles.loading} />
-        ) : null}
-        {suggestedTracks?.map((suggestedTrack) => (
-          <>
+      <animated.div className={styles.content} style={contentStyles}>
+        <ul>
+          {divider}
+          {!suggestedTracks && status === Status.LOADING ? (
+            <LoadingSpinner className={styles.loading} />
+          ) : null}
+          {suggestedTracks?.map((suggestedTrack) => (
             <li key={suggestedTrack.track_id}>
               <SuggestedTrack
                 track={suggestedTrack}
                 collectionId={collectionId}
                 onAddTrack={onAddTrack}
               />
+              {divider}
             </li>
-            {divider}
-          </>
-        ))}
-        {divider}
-      </ul>
-      <button className={styles.refreshButton} onClick={onRefresh}>
-        <div className={styles.refreshContent}>
-          <IconRefresh className={styles.refreshIcon} />
-          <span className={styles.refreshText}>{messages.refresh}</span>
-        </div>
-      </button>
+          ))}
+          {divider}
+        </ul>
+        <button className={styles.refreshButton} onClick={onRefresh}>
+          <div className={styles.refreshContent}>
+            <IconRefresh className={styles.refreshIcon} />
+            <span className={styles.refreshText}>{messages.refresh}</span>
+          </div>
+        </button>
+      </animated.div>
     </Tile>
   )
 }

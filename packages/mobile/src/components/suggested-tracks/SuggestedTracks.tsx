@@ -1,9 +1,20 @@
+import { useCallback, useEffect, useRef } from 'react'
+
 import type { ID, UserTrackMetadata } from '@audius/common'
 import { SquareSizes, useGetSuggestedTracks } from '@audius/common'
-import { View } from 'react-native'
+import { Animated, LayoutAnimation, View } from 'react-native'
+import { useToggle } from 'react-use'
 
+import IconCaretDown from 'app/assets/images/iconCaretDown.svg'
 import IconRefresh from 'app/assets/images/iconRefresh.svg'
-import { Button, Divider, Text, TextButton, Tile } from 'app/components/core'
+import {
+  Button,
+  Divider,
+  IconButton,
+  Text,
+  TextButton,
+  Tile
+} from 'app/components/core'
 import { makeStyles } from 'app/styles'
 
 import { TrackImage } from '../image/TrackImage'
@@ -11,8 +22,6 @@ import { UserBadges } from '../user-badges'
 
 const messages = {
   title: 'Add some tracks',
-  description:
-    'Placeholder copy: dependent on backend logic and what we decide to do with this new feature.',
   addTrack: 'Add',
   refresh: 'Refresh'
 }
@@ -20,8 +29,14 @@ const messages = {
 const useStyles = makeStyles(({ spacing, typography, palette }) => ({
   root: { marginBottom: spacing(12) },
   heading: {
+    flexDirection: 'row',
+    gap: spacing(3),
+    padding: spacing(4),
+    alignItems: 'center'
+  },
+  headingText: {
     gap: spacing(2),
-    padding: spacing(4)
+    flex: 1
   },
   suggestedTrack: {
     flexDirection: 'row',
@@ -113,39 +128,71 @@ export const SuggestedTracks = (props: SuggestedTracksProps) => {
     onAddTrack
   } = useGetSuggestedTracks()
 
+  const [isExpanded, toggleIsExpanded] = useToggle(false)
+
+  const handleExpanded = useCallback(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+    toggleIsExpanded()
+  }, [toggleIsExpanded])
+
+  const expandAnimation = useRef(new Animated.Value(0))
+  const expandIconStyle = {
+    transform: [
+      {
+        rotate: expandAnimation.current.interpolate({
+          inputRange: [0, 1],
+          outputRange: ['0deg', '180deg']
+        })
+      }
+    ]
+  }
+
+  useEffect(() => {
+    Animated.spring(expandAnimation.current, {
+      toValue: isExpanded ? 1 : 0,
+      useNativeDriver: true
+    }).start()
+  }, [isExpanded])
+
   return (
     <Tile style={styles.root}>
       <View style={styles.heading}>
-        <Text fontSize='large' weight='heavy' textTransform='uppercase'>
-          {messages.title}
-        </Text>
-        <Text fontSize='medium' weight='medium'>
-          {messages.description}
-        </Text>
+        <View style={styles.headingText}>
+          <Text fontSize='large' weight='heavy' textTransform='uppercase'>
+            {messages.title}
+          </Text>
+        </View>
+        <Animated.View style={{ backgroundColor: 'red', ...expandIconStyle }}>
+          <IconButton icon={IconCaretDown} onPress={handleExpanded} />
+        </Animated.View>
       </View>
-      <View>
-        <Divider />
-        {suggestedTracks?.map((suggestedTrack) => (
-          <>
-            <SuggestedTrack
-              key={suggestedTrack.track_id}
-              track={suggestedTrack}
-              collectionId={collectionId}
-              onAddTrack={onAddTrack}
-            />
+      {isExpanded ? (
+        <>
+          <View>
             <Divider />
-          </>
-        ))}
-      </View>
-      <TextButton
-        variant='neutralLight4'
-        icon={IconRefresh}
-        iconPosition='left'
-        title={messages.refresh}
-        TextProps={{ weight: 'bold' }}
-        style={styles.refreshButton}
-        onPress={onRefresh}
-      />
+            {suggestedTracks?.map((suggestedTrack) => (
+              <>
+                <SuggestedTrack
+                  key={suggestedTrack.track_id}
+                  track={suggestedTrack}
+                  collectionId={collectionId}
+                  onAddTrack={onAddTrack}
+                />
+                <Divider />
+              </>
+            ))}
+          </View>
+          <TextButton
+            variant='neutralLight4'
+            icon={IconRefresh}
+            iconPosition='left'
+            title={messages.refresh}
+            TextProps={{ weight: 'bold' }}
+            style={styles.refreshButton}
+            onPress={onRefresh}
+          />
+        </>
+      ) : null}
     </Tile>
   )
 }
