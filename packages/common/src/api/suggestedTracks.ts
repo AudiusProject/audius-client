@@ -3,7 +3,10 @@ import { useCallback, useEffect, useState } from 'react'
 import { shuffle } from 'lodash'
 import { useSelector, useDispatch } from 'react-redux'
 
+import { usePaginatedQuery } from 'audius-query'
 import { ID } from 'models/Identifiers'
+import { Status } from 'models/Status'
+import { TimeRange } from 'models/TimeRange'
 import { getUserId } from 'store/account/selectors'
 import { addTrackToPlaylist } from 'store/cache/collections/actions'
 import { getTrack } from 'store/cache/tracks/selectors'
@@ -11,6 +14,7 @@ import { CommonState } from 'store/index'
 
 import { useGetFavoritedTrackList } from './favorites'
 import { useGetTracksByIds } from './track'
+import { useGetTrending } from './trending'
 
 const suggestedTrackCount = 5
 
@@ -25,13 +29,10 @@ const selectSuggestedTracks = (state: CommonState, ids: ID[]) => {
 export const useGetSuggestedTracks = () => {
   const currentUserId = useSelector(getUserId)
   const dispatch = useDispatch()
-
-  const { data: favoritedTracks } = useGetFavoritedTrackList(
-    { currentUserId },
-    { disabled: !currentUserId }
-  )
-
   const [suggestedTrackIds, setSuggestedTrackIds] = useState<ID[]>([])
+
+  const { data: favoritedTracks, status: favoritedStatus } =
+    useGetFavoritedTrackList({ currentUserId }, { disabled: !currentUserId })
 
   useEffect(() => {
     if (favoritedTracks) {
@@ -41,6 +42,40 @@ export const useGetSuggestedTracks = () => {
       setSuggestedTrackIds(suggestedTrackIds)
     }
   }, [favoritedTracks])
+
+  const {
+    data: trendingTracks,
+    status: trendingStatus,
+    loadMore
+  } = usePaginatedQuery(
+    useGetTrending,
+    {
+      timeRange: TimeRange.WEEK,
+      currentUserId,
+      genre: null
+    },
+    {
+      pageSize: 10,
+      disabled: favoritedStatus !== Status.SUCCESS
+    }
+  )
+
+  useEffect(() => {
+    if (trendingStatus === Status.SUCCESS) {
+      setSuggestedTrackIds([
+        ...suggestedTrackIds,
+        ...trendingTracks.map((track) => track.track_id)
+      ])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trendingStatus])
+
+  useEffect(() => {
+    if (suggestedTrackIds.length < 5) {
+      loadMore()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [suggestedTrackIds.length])
 
   const suggestedTracks = useSelector((state: CommonState) =>
     selectSuggestedTracks(

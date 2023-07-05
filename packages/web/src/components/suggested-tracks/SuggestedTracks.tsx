@@ -98,7 +98,7 @@ export const SuggestedTracks = (props: SuggestedTracksProps) => {
   const divider = <Divider className={styles.trackDivider} />
 
   const contentStyles = useSpring({
-    height: isExpanded ? contentHeight : 0
+    maxHeight: isExpanded ? contentHeight : 0
   })
 
   return (
@@ -127,7 +127,7 @@ export const SuggestedTracks = (props: SuggestedTracksProps) => {
           {!suggestedTracks ? (
             <LoadingSpinner className={styles.loading} />
           ) : null}
-          {suggestedTracks?.map((suggestedTrack, i) => (
+          {suggestedTracks?.map((suggestedTrack) => (
             <li key={suggestedTrack.id}>
               {suggestedTrack.track ? (
                 <SuggestedTrack
