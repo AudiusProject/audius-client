@@ -1,4 +1,4 @@
-import { FeatureFlags, PremiumConditions } from '@audius/common'
+import { FeatureFlags, Nullable, PremiumConditions } from '@audius/common'
 import { IconCollectible, IconSpecialAccess } from '@audius/stems'
 import cn from 'classnames'
 
@@ -23,7 +23,7 @@ type CardTitleProps = {
   isRemix: boolean
   isPremium: boolean
   isPodcast: boolean
-  premiumConditions: PremiumConditions
+  premiumConditions: Nullable<PremiumConditions>
 }
 
 export const CardTitle = ({
