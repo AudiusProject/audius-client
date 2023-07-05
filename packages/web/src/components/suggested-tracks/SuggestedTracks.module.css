@@ -117,3 +117,8 @@
   line-height: 16px;
   text-transform: capitalize;
 }
+
+.suggestedTrackSkeleton {
+  composes: suggestedTrack;
+  height: 72px;
+}

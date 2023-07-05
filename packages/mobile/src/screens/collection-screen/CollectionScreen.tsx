@@ -315,7 +315,7 @@ const CollectionScreenComponent = (props: CollectionScreenComponentProps) => {
             {isOwner && !is_album && arePlaylistUpdatesEnabled ? (
               <>
                 <Divider style={styles.divider} color={neutralLight5} />
-                <SuggestedTracks />
+                <SuggestedTracks collectionId={playlist_id} />
               </>
             ) : null}
           </>

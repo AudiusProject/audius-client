@@ -1,8 +1,8 @@
 import {
   ID,
   SquareSizes,
-  Status,
-  UserTrackMetadata,
+  Track,
+  cacheUsersSelectors,
   useGetSuggestedTracks
 } from '@audius/common'
 import {
@@ -19,11 +19,15 @@ import { useToggle } from 'react-use'
 
 import { Divider } from 'components/divider'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
+import Skeleton from 'components/skeleton/Skeleton'
 import { Tile } from 'components/tile'
 import { UserNameAndBadges } from 'components/user-name-and-badges/UserNameAndBadges'
 import { useTrackCoverArt2 } from 'hooks/useTrackCoverArt'
+import { useSelector } from 'utils/reducer'
 
 import styles from './SuggestedTracks.module.css'
+
+const { getUser } = cacheUsersSelectors
 
 const contentHeight = 423
 
@@ -37,13 +41,14 @@ const messages = {
 
 type SuggestedTrackProps = {
   collectionId: ID
-  track: UserTrackMetadata
+  track: Track
   onAddTrack: (trackId: ID, collectionId: ID) => void
 }
 
 const SuggestedTrack = (props: SuggestedTrackProps) => {
   const { collectionId, track, onAddTrack } = props
-  const { track_id, title, user } = track
+  const { track_id, title, owner_id } = track
+  const user = useSelector((state) => getUser(state, { id: owner_id }))
 
   const image = useTrackCoverArt2(track_id, SquareSizes.SIZE_150_BY_150)
 
@@ -53,7 +58,7 @@ const SuggestedTrack = (props: SuggestedTrackProps) => {
         <img src={image} className={styles.trackArtwork} role='presentation' />
         <div className={styles.trackInfo}>
           <p className={styles.trackName}>{title}</p>
-          <UserNameAndBadges user={user} />
+          {user ? <UserNameAndBadges user={user} /> : null}
         </div>
       </div>
       <Button
@@ -66,18 +71,27 @@ const SuggestedTrack = (props: SuggestedTrackProps) => {
   )
 }
 
+const SuggestedTrackSkeleton = () => {
+  return (
+    <div className={styles.suggestedTrackSkeleton}>
+      <div className={styles.trackDetails}>
+        <Skeleton className={styles.trackArtwork} />
+        <div className={styles.trackInfo}>
+          <Skeleton height='12px' width='150px' />
+          <Skeleton height='12px' width='100px' />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 type SuggestedTracksProps = {
   collectionId: ID
 }
 
 export const SuggestedTracks = (props: SuggestedTracksProps) => {
   const { collectionId } = props
-  const {
-    data: suggestedTracks,
-    status,
-    onRefresh,
-    onAddTrack
-  } = useGetSuggestedTracks()
+  const { suggestedTracks, onRefresh, onAddTrack } = useGetSuggestedTracks()
 
   const [isExpanded, toggleIsExpanded] = useToggle(false)
 
@@ -110,16 +124,20 @@ export const SuggestedTracks = (props: SuggestedTracksProps) => {
       <animated.div className={styles.content} style={contentStyles}>
         <ul>
           {divider}
-          {!suggestedTracks && status === Status.LOADING ? (
+          {!suggestedTracks ? (
             <LoadingSpinner className={styles.loading} />
           ) : null}
-          {suggestedTracks?.map((suggestedTrack) => (
-            <li key={suggestedTrack.track_id}>
-              <SuggestedTrack
-                track={suggestedTrack}
-                collectionId={collectionId}
-                onAddTrack={onAddTrack}
-              />
+          {suggestedTracks?.map((suggestedTrack, i) => (
+            <li key={suggestedTrack.id}>
+              {suggestedTrack.track ? (
+                <SuggestedTrack
+                  track={suggestedTrack.track}
+                  collectionId={collectionId}
+                  onAddTrack={onAddTrack}
+                />
+              ) : (
+                <SuggestedTrackSkeleton />
+              )}
               {divider}
             </li>
           ))}

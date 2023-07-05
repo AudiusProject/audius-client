@@ -1,8 +1,13 @@
 import { useCallback, useEffect, useRef } from 'react'
 
-import type { ID, UserTrackMetadata } from '@audius/common'
-import { SquareSizes, useGetSuggestedTracks } from '@audius/common'
+import type { ID, Track } from '@audius/common'
+import {
+  SquareSizes,
+  cacheUsersSelectors,
+  useGetSuggestedTracks
+} from '@audius/common'
 import { Animated, LayoutAnimation, View } from 'react-native'
+import { useSelector } from 'react-redux'
 import { useToggle } from 'react-use'
 
 import IconCaretDown from 'app/assets/images/iconCaretDown.svg'
@@ -18,7 +23,10 @@ import {
 import { makeStyles } from 'app/styles'
 
 import { TrackImage } from '../image/TrackImage'
+import { Skeleton } from '../skeleton'
 import { UserBadges } from '../user-badges'
+
+const { getUser } = cacheUsersSelectors
 
 const messages = {
   title: 'Add some tracks',
@@ -73,13 +81,15 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
 
 type SuggestedTrackProps = {
   collectionId: ID
-  track: UserTrackMetadata
+  track: Track
   onAddTrack: (trackId: ID, collectionId: ID) => void
 }
 
 const SuggestedTrack = (props: SuggestedTrackProps) => {
   const { collectionId, track, onAddTrack } = props
-  const { track_id, title, user } = track
+  const { track_id, title, owner_id } = track
+
+  const user = useSelector((state) => getUser(state, { id: owner_id }))
   const styles = useStyles()
 
   return (
@@ -99,7 +109,9 @@ const SuggestedTrack = (props: SuggestedTrackProps) => {
           >
             {title}
           </Text>
-          <UserBadges user={user} nameStyle={styles.artistName} />
+          {user ? (
+            <UserBadges user={user} nameStyle={styles.artistName} />
+          ) : null}
         </View>
       </View>
       <View>
@@ -115,6 +127,21 @@ const SuggestedTrack = (props: SuggestedTrackProps) => {
   )
 }
 
+const SuggestedTrackSkeleton = () => {
+  const styles = useStyles()
+  return (
+    <View style={styles.suggestedTrack}>
+      <View style={styles.trackDetails}>
+        <Skeleton style={styles.trackImage} />
+        <View style={styles.trackInfo}>
+          <Skeleton height={14} width={150} />
+          <Skeleton height={14} width={100} />
+        </View>
+      </View>
+    </View>
+  )
+}
+
 type SuggestedTracksProps = {
   collectionId: ID
 }
@@ -122,11 +149,7 @@ type SuggestedTracksProps = {
 export const SuggestedTracks = (props: SuggestedTracksProps) => {
   const { collectionId } = props
   const styles = useStyles()
-  const {
-    data: suggestedTracks,
-    onRefresh,
-    onAddTrack
-  } = useGetSuggestedTracks()
+  const { suggestedTracks, onRefresh, onAddTrack } = useGetSuggestedTracks()
 
   const [isExpanded, toggleIsExpanded] = useToggle(false)
 
@@ -162,7 +185,7 @@ export const SuggestedTracks = (props: SuggestedTracksProps) => {
             {messages.title}
           </Text>
         </View>
-        <Animated.View style={{ backgroundColor: 'red', ...expandIconStyle }}>
+        <Animated.View style={expandIconStyle}>
           <IconButton icon={IconCaretDown} onPress={handleExpanded} />
         </Animated.View>
       </View>
@@ -170,14 +193,17 @@ export const SuggestedTracks = (props: SuggestedTracksProps) => {
         <>
           <View>
             <Divider />
-            {suggestedTracks?.map((suggestedTrack) => (
+            {suggestedTracks?.map((suggestedTrack, i) => (
               <>
-                <SuggestedTrack
-                  key={suggestedTrack.track_id}
-                  track={suggestedTrack}
-                  collectionId={collectionId}
-                  onAddTrack={onAddTrack}
-                />
+                {suggestedTrack.track ? (
+                  <SuggestedTrack
+                    track={suggestedTrack.track}
+                    collectionId={collectionId}
+                    onAddTrack={onAddTrack}
+                  />
+                ) : (
+                  <SuggestedTrackSkeleton />
+                )}
                 <Divider />
               </>
             ))}
