@@ -3,8 +3,14 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import EventEmitter from 'events'
 import path from 'path'
 
-import type { Color, Nullable, ShareModalContent } from '@audius/common'
+import type {
+  Color,
+  Nullable,
+  QueryParams,
+  ShareModalContent
+} from '@audius/common'
 import {
+  premiumContentSelectors,
   encodeHashId,
   ErrorLevel,
   modalsActions,
@@ -36,6 +42,7 @@ import { isImageUriSource } from 'app/hooks/useContentNodeImage'
 import { useToast } from 'app/hooks/useToast'
 import { make, track } from 'app/services/analytics'
 import { apiClient } from 'app/services/audius-api-client'
+import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 import { setVisibility } from 'app/store/drawers/slice'
 import {
   getCancel,
@@ -64,6 +71,7 @@ import { NativeDrawer } from '../drawer'
 import { DEFAULT_IMAGE_URL, useTrackImage } from '../image/TrackImage'
 
 import { messages } from './messages'
+const { getPremiumTrackSignatureMap } = premiumContentSelectors
 
 const DEFAULT_DOMINANT_COLORS = ['000000', '434343']
 const stickerLoadedEventEmitter = new EventEmitter()
@@ -141,6 +149,7 @@ export const useShareToStory = ({
     isStickerImageLoadedRef.current = true
     stickerLoadedEventEmitter.emit(STICKER_LOADED_EVENT)
   }
+  const premiumTrackSignatureMap = useSelector(getPremiumTrackSignatureMap)
   const trackImageUri =
     content?.type === 'track' && isImageUriSource(trackImage?.source)
       ? trackImage?.source?.uri
@@ -292,12 +301,40 @@ export const useShareToStory = ({
         dispatch(setCancel(() => cancelStory(platform)))
         toggleProgressDrawer(true, platform)
 
+        const encodedTrackId = encodeHashId(content.track.track_id)
+
+        const premiumContentSignature = content.track.is_premium
+          ? content.track.premium_content_signature ||
+            premiumTrackSignatureMap[content.track.track_id]
+          : null
+        const userData = `Premium content user signature at ${Date.now()}`
+        const trackStreamQueryParams = content.track.is_premium
+          ? ({
+              user_data: userData,
+              user_signature: await audiusBackendInstance.getSignature(
+                userData
+              ),
+              ...(premiumContentSignature
+                ? {
+                    premium_content_signature: JSON.stringify(
+                      premiumContentSignature
+                    )
+                  }
+                : {})
+            } as QueryParams)
+          : null
+        let streamMp3Url: string
+        if (trackStreamQueryParams) {
+          streamMp3Url = apiClient.makeUrl(
+            `/tracks/${encodedTrackId}/stream`,
+            trackStreamQueryParams
+          )
+        } else {
+          streamMp3Url = apiClient.makeUrl(`/tracks/${encodedTrackId}/stream`)
+        }
+
         // Step 1: Render and take a screenshot of the sticker:
         // Note: We have to capture the sticker image first because it doesn't work if you get the dominant colors first (mysterious).
-        const encodedTrackId = encodeHashId(content.track.track_id)
-        const streamMp3Url = apiClient.makeUrl(
-          `/tracks/${encodedTrackId}/stream`
-        )
         const storyVideoPath = path.join(
           RNFS.TemporaryDirectoryPath,
           `storyVideo-${uuid()}.mp4`
@@ -451,7 +488,8 @@ export const useShareToStory = ({
       cleanup,
       dispatch,
       cancelStory,
-      pasteToTikTokApp
+      pasteToTikTokApp,
+      premiumTrackSignatureMap
     ]
   )
 

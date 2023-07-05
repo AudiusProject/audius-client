@@ -159,7 +159,7 @@ export const ShareDrawer = () => {
     !content.track.is_unlisted &&
     !content.track.is_invalid &&
     !content.track.is_delete &&
-    !isPremiumTrack
+    (!isPremiumTrack || isOwner)
 
   const shouldIncludeTikTokSoundAction = Boolean(
     isShareSoundToTikTokEnabled && isOwner && isShareableTrack
