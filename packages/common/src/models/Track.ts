@@ -10,6 +10,7 @@ import { Repost } from './Repost'
 import { StemCategory } from './Stems'
 import { Timestamped } from './Timestamped'
 import { User, UserMetadata } from './User'
+import { StringUSDC } from './Wallet'
 
 type EpochTimeStamp = number
 
@@ -109,7 +110,10 @@ type PremiumConditionsTipGated = {
 
 type PremiumConditionsUSDCPurchase = {
   type: PremiumContentType.USDC_PURCHASE
-  usdc_purchase: PremiumConditionsUSDCPurchase
+  usdc_purchase: {
+    price: StringUSDC
+    slot: number
+  }
 }
 
 export type PremiumConditionsWithType =
