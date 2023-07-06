@@ -67,7 +67,7 @@ const setDefaultFolloweeSaves = <T extends TrackMetadata>(track: T) => {
 }
 
 const setTypedPremiumConditions = <T extends TrackMetadata>(track: T) => {
-  const premium_conditions = track.premium_conditions as any
+  const premium_conditions = track.premium_conditions as unknown as any
   let type
   if (premium_conditions?.nft_collection != null) {
     type = PremiumContentType.COLLECTIBLE_GATED

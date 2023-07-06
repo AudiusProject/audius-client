@@ -94,7 +94,7 @@ type PremiumConditionsBase = {
 // Must include undefined because during upload flow, the user could have selected
 // Collectible-gated option without specifying a collection yet. But afterweards
 // when we read PremiumConditions, nft_collection should always exist.
-type PremiumConditionsCollectibleGated = {
+type PremiumConditionsCollectibleGated = PremiumConditionsBase & {
   type: PremiumContentType.COLLECTIBLE_GATED
   nft_collection:
     | PremiumConditionsEthNFTCollection
@@ -102,17 +102,17 @@ type PremiumConditionsCollectibleGated = {
     | undefined
 }
 
-type PremiumConditionsFollowGated = {
+type PremiumConditionsFollowGated = PremiumConditionsBase & {
   type: PremiumContentType.FOLLOW_GATED
   follow_user_id: number
 }
 
-type PremiumConditionsTipGated = {
+type PremiumConditionsTipGated = PremiumConditionsBase & {
   type: PremiumContentType.TIP_GATED
   tip_user_id: number
 }
 
-type PremiumConditionsUSDCPurchase = {
+type PremiumConditionsUSDCPurchase = PremiumConditionsBase & {
   type: PremiumContentType.USDC_PURCHASE
   usdc_purchase: {
     price: StringUSDC
@@ -120,14 +120,11 @@ type PremiumConditionsUSDCPurchase = {
   }
 }
 
-export type PremiumConditionsWithType =
+export type PremiumConditions =
   | PremiumConditionsCollectibleGated
   | PremiumConditionsFollowGated
   | PremiumConditionsTipGated
   | PremiumConditionsUSDCPurchase
-
-export type PremiumConditions = PremiumConditionsBase &
-  PremiumConditionsWithType
 
 export type PremiumContentSignature = {
   data: string
