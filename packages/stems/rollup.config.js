@@ -40,12 +40,13 @@ export default {
             'src/assets/styles/sizes.css',
             'src/assets/styles/animations.css',
             'src/assets/styles/shadows.css',
-            'src/assets/styles/transforms.css'
+            'src/assets/styles/transforms.css',
+            'src/components/Button/Button.module.css'
           ]
         }),
         postcssCustomProperties({
           // Don't preserve var names so they cannot be overridden
-          preserve: true,
+          preserve: false,
           importFrom: []
         })
       ],
