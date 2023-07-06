@@ -166,7 +166,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     textTransform: 'uppercase',
     fontFamily: typography.fontByWeight.demiBold,
     fontSize: typography.fontSize.small,
-    color: palette.accentBlue
+    color: palette.neutralLight4
   },
   premiumIcon: {
     marginRight: spacing(2.5),
@@ -211,14 +211,8 @@ export const TrackScreenDetailsTile = ({
   )
   const styles = useStyles()
   const navigation = useNavigation()
-  const {
-    accentOrange,
-    accentBlue,
-    white,
-    aiPrimary,
-    aiSecondary,
-    neutralLight4
-  } = useThemeColors()
+  const { accentOrange, white, aiPrimary, aiSecondary, neutralLight4 } =
+    useThemeColors()
 
   const isOfflineEnabled = useIsOfflineModeEnabled()
   const isReachable = useSelector(getIsReachable)
@@ -423,9 +417,12 @@ export const TrackScreenDetailsTile = ({
               height={spacing(4.5)}
             />
           ) : track.premium_conditions?.nft_collection ? (
-            <IconCollectible style={styles.premiumIcon} fill={accentBlue} />
+            <IconCollectible style={styles.premiumIcon} fill={neutralLight4} />
           ) : (
-            <IconSpecialAccess style={styles.premiumIcon} fill={accentBlue} />
+            <IconSpecialAccess
+              style={styles.premiumIcon}
+              fill={neutralLight4}
+            />
           )}
           <Text style={styles.premiumHeaderText}>
             {track.premium_conditions?.nft_collection
