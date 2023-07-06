@@ -33,7 +33,7 @@ import { ReactComponent as IconVerified } from 'assets/img/iconVerified.svg'
 import { useModalState } from 'common/hooks/useModalState'
 import { showRequiresAccountModal } from 'common/store/pages/signon/actions'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
-import FollowButton from 'components/follow-button/FollowButton'
+import { FollowButton } from 'components/follow-button/FollowButton'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { IconTip } from 'components/notification/Notification/components/icons'
 import UserBadges from 'components/user-badges/UserBadges'
@@ -237,6 +237,7 @@ const LockedPremiumTrackSection = ({
     if (premiumConditions.follow_user_id) {
       return (
         <FollowButton
+          color='accentBlue'
           className={styles.followButton}
           messages={{
             follow: messages.followArtist,
