@@ -159,6 +159,7 @@ function* getTokenIdMap({
           )
         )
       }
+      if (nftCollection === undefined) return
 
       if (nftCollection.chain === Chain.Eth) {
         // skip this track entry if user does not own an nft from its nft collection gate
@@ -239,8 +240,8 @@ function* handleSpecialAccessTrackSubscriptions(tracks: Track[]) {
 
     const hasNoSignature = !premiumContentSignature
     const isFollowGated =
-      premiumConditions.type === PremiumContentType.FOLLOW_GATED
-    const isTipGated = premiumConditions.type === PremiumContentType.TIP_GATED
+      premiumConditions?.type === PremiumContentType.FOLLOW_GATED
+    const isTipGated = premiumConditions?.type === PremiumContentType.TIP_GATED
     const shouldHaveSignature =
       (isFollowGated && followeeIds.includes(ownerId)) ||
       (isTipGated && tippedUserIds.includes(ownerId))

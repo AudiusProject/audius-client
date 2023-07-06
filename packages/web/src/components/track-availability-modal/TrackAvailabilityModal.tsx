@@ -239,12 +239,10 @@ const TrackAvailabilityModal = ({
         didUpdateState({
           ...defaultAvailabilityFields,
           is_premium: true,
-          premium_conditions: selectedNFTCollection
-            ? {
-                type: PremiumContentType.COLLECTIBLE_GATED,
-                nft_collection: selectedNFTCollection
-              }
-            : null
+          premium_conditions: {
+            type: PremiumContentType.COLLECTIBLE_GATED,
+            nft_collection: selectedNFTCollection
+          }
         })
       }
     },
