@@ -40,8 +40,7 @@ export default {
             'src/assets/styles/sizes.css',
             'src/assets/styles/animations.css',
             'src/assets/styles/shadows.css',
-            'src/assets/styles/transforms.css',
-            'src/components/Button/Button.module.css'
+            'src/assets/styles/transforms.css'
           ]
         }),
         postcssCustomProperties({
