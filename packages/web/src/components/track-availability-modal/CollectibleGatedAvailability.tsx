@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react'
 import {
   Chain,
   collectiblesSelectors,
+  PremiumContentType,
   TrackAvailabilityType
 } from '@audius/common'
 import { useSelector } from 'react-redux'
@@ -124,6 +125,7 @@ export const CollectibleGatedAvailability = ({
           if (ethCollectionMap[value]) {
             onStateUpdate(
               {
+                type: PremiumContentType.COLLECTIBLE_GATED,
                 nft_collection: {
                   chain: Chain.Eth,
                   standard: ethCollectionMap[value].standard,
@@ -139,6 +141,7 @@ export const CollectibleGatedAvailability = ({
           } else if (solCollectionMap[value]) {
             onStateUpdate(
               {
+                type: PremiumContentType.COLLECTIBLE_GATED,
                 nft_collection: {
                   chain: Chain.Sol,
                   address: value,

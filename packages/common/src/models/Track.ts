@@ -10,7 +10,6 @@ import { Repost } from './Repost'
 import { StemCategory } from './Stems'
 import { Timestamped } from './Timestamped'
 import { User, UserMetadata } from './User'
-import { StringUSDC } from './Wallet'
 
 type EpochTimeStamp = number
 
@@ -75,11 +74,6 @@ export type PremiumConditionsSolNFTCollection = {
   externalLink: Nullable<string>
 }
 
-export type PremiumConditionsUSDCPurchase = {
-  price: StringUSDC
-  slot: number
-}
-
 export enum PremiumContentType {
   COLLECTIBLE_GATED = 'collectible gated',
   FOLLOW_GATED = 'follower gated',
@@ -87,26 +81,45 @@ export enum PremiumContentType {
   USDC_PURCHASE = 'usdc purchase'
 }
 
-export type PremiumConditions =
-  | {
-      type: PremiumContentType.COLLECTIBLE_GATED
-      nft_collection:
-        | PremiumConditionsEthNFTCollection
-        | PremiumConditionsSolNFTCollection
-    }
-  | {
-      type: PremiumContentType.FOLLOW_GATED
-      follow_user_id: number
-    }
-  | {
-      type: PremiumContentType.TIP_GATED
-      tip_user_id: number
-    }
-  | {
-      type: PremiumContentType.USDC_PURCHASE
-      usdc_purchase: PremiumConditionsUSDCPurchase
-    }
-  | null
+type PremiumConditionsBase = {
+  nft_collection?:
+    | PremiumConditionsEthNFTCollection
+    | PremiumConditionsSolNFTCollection
+  follow_user_id?: number
+  tip_user_id?: number
+  usdc_purchase?: PremiumConditionsUSDCPurchase
+}
+
+type PremiumConditionsCollectibleGated = {
+  type: PremiumContentType.COLLECTIBLE_GATED
+  nft_collection:
+    | PremiumConditionsEthNFTCollection
+    | PremiumConditionsSolNFTCollection
+}
+
+type PremiumConditionsFollowGated = {
+  type: PremiumContentType.FOLLOW_GATED
+  follow_user_id: number
+}
+
+type PremiumConditionsTipGated = {
+  type: PremiumContentType.TIP_GATED
+  tip_user_id: number
+}
+
+type PremiumConditionsUSDCPurchase = {
+  type: PremiumContentType.USDC_PURCHASE
+  usdc_purchase: PremiumConditionsUSDCPurchase
+}
+
+export type PremiumConditionsWithType =
+  | PremiumConditionsCollectibleGated
+  | PremiumConditionsFollowGated
+  | PremiumConditionsTipGated
+  | PremiumConditionsUSDCPurchase
+
+export type PremiumConditions = PremiumConditionsBase &
+  PremiumConditionsWithType
 
 export type PremiumContentSignature = {
   data: string

@@ -6,7 +6,8 @@ import {
   TrackAvailabilityType,
   collectiblesSelectors,
   Nullable,
-  Track
+  Track,
+  PremiumContentType
 } from '@audius/common'
 import {
   Modal,
@@ -171,8 +172,14 @@ const TrackAvailabilityModal = ({
   const noHidden = !isUpload && !initialForm.is_unlisted
 
   const accountUserId = useSelector(getUserId)
-  const defaultSpecialAccess = useMemo(
-    () => (accountUserId ? { follow_user_id: accountUserId } : null),
+  const defaultSpecialAccess: Nullable<PremiumConditions> = useMemo(
+    () =>
+      accountUserId
+        ? {
+            type: PremiumContentType.FOLLOW_GATED,
+            follow_user_id: accountUserId
+          }
+        : null,
     [accountUserId]
   )
 
@@ -216,7 +223,7 @@ const TrackAvailabilityModal = ({
 
         // Keep track of previously selected collectible and special access gates
         // in case the user switches back and forth between radio items
-        if (premiumConditions.nft_collection) {
+        if (premiumConditions.type === PremiumContentType.COLLECTIBLE_GATED) {
           setSelectedNFTCollection(premiumConditions.nft_collection)
         } else {
           setSelectedSpecialAccessGate(premiumConditions)
@@ -232,9 +239,12 @@ const TrackAvailabilityModal = ({
         didUpdateState({
           ...defaultAvailabilityFields,
           is_premium: true,
-          premium_conditions: {
-            nft_collection: selectedNFTCollection
-          }
+          premium_conditions: selectedNFTCollection
+            ? {
+                type: PremiumContentType.COLLECTIBLE_GATED,
+                nft_collection: selectedNFTCollection
+              }
+            : null
         })
       }
     },

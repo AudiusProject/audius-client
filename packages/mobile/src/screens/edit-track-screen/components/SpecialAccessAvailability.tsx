@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import type { PremiumConditions, Nullable } from '@audius/common'
-import { accountSelectors } from '@audius/common'
+import { accountSelectors, PremiumContentType } from '@audius/common'
 import { useField } from 'formik'
 import { Dimensions, View } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -114,8 +114,8 @@ export const SpecialAccessAvailability = ({
   const [{ value: premiumConditions }] =
     useField<Nullable<PremiumConditions>>('premium_conditions')
   const currentUserId = useSelector(getUserId)
-  const defaultSpecialAccess = currentUserId
-    ? { follow_user_id: currentUserId }
+  const defaultSpecialAccess: Nullable<PremiumConditions> = currentUserId
+    ? { type: PremiumContentType.FOLLOW_GATED, follow_user_id: currentUserId }
     : null
   const [selectedSpecialAccessGate, setSelectedSpecialAccessGate] = useState(
     !('nft_collection' in (previousPremiumConditions ?? {}))
@@ -141,13 +141,19 @@ export const SpecialAccessAvailability = ({
 
   const handlePressFollowers = useCallback(() => {
     if (currentUserId) {
-      setSelectedSpecialAccessGate({ follow_user_id: currentUserId })
+      setSelectedSpecialAccessGate({
+        type: PremiumContentType.FOLLOW_GATED,
+        follow_user_id: currentUserId
+      })
     }
   }, [currentUserId])
 
   const handlePressSupporters = useCallback(() => {
     if (currentUserId) {
-      setSelectedSpecialAccessGate({ tip_user_id: currentUserId })
+      setSelectedSpecialAccessGate({
+        type: PremiumContentType.TIP_GATED,
+        tip_user_id: currentUserId
+      })
     }
   }, [currentUserId])
 

@@ -1,7 +1,11 @@
 import { useCallback, useMemo } from 'react'
 
 import type { Nullable, PremiumConditions } from '@audius/common'
-import { Chain, collectiblesSelectors } from '@audius/common'
+import {
+  Chain,
+  PremiumContentType,
+  collectiblesSelectors
+} from '@audius/common'
 import { useField } from 'formik'
 import { View, Image } from 'react-native'
 import { useSelector } from 'react-redux'
@@ -118,6 +122,7 @@ export const NFTCollectionsScreen = () => {
     (value: string) => {
       if (ethCollectionMap[value]) {
         setPremiumConditions({
+          type: PremiumContentType.COLLECTIBLE_GATED,
           nft_collection: {
             chain: Chain.Eth,
             standard: ethCollectionMap[value].standard,
@@ -130,6 +135,7 @@ export const NFTCollectionsScreen = () => {
         })
       } else if (solCollectionMap[value]) {
         setPremiumConditions({
+          type: PremiumContentType.COLLECTIBLE_GATED,
           nft_collection: {
             chain: Chain.Sol,
             address: value,

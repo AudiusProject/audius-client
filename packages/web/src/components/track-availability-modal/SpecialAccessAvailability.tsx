@@ -1,6 +1,10 @@
 import { ChangeEvent, useCallback } from 'react'
 
-import { accountSelectors, TrackAvailabilityType } from '@audius/common'
+import {
+  accountSelectors,
+  PremiumContentType,
+  TrackAvailabilityType
+} from '@audius/common'
 import { IconInfo, RadioButton, RadioButtonGroup } from '@audius/stems'
 import cn from 'classnames'
 import { useSelector } from 'react-redux'
@@ -39,12 +43,15 @@ export const SpecialAccessAvailability = ({
       if (accountUserId) {
         if (type === SpecialAccessType.FOLLOW) {
           onStateUpdate(
-            { follow_user_id: accountUserId },
+            {
+              type: PremiumContentType.FOLLOW_GATED,
+              follow_user_id: accountUserId
+            },
             TrackAvailabilityType.SPECIAL_ACCESS
           )
         } else if (type === SpecialAccessType.TIP) {
           onStateUpdate(
-            { tip_user_id: accountUserId },
+            { type: PremiumContentType.TIP_GATED, tip_user_id: accountUserId },
             TrackAvailabilityType.SPECIAL_ACCESS
           )
         }

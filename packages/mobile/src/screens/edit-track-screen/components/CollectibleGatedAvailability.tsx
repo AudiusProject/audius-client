@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import type { Nullable, PremiumConditions } from '@audius/common'
-import { collectiblesSelectors } from '@audius/common'
+import { PremiumContentType, collectiblesSelectors } from '@audius/common'
 import { useField } from 'formik'
 import { View, Image, Dimensions } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -181,7 +181,12 @@ export const CollectibleGatedAvailability = ({
       setTrackAvailabilityFields(
         {
           is_premium: true,
-          premium_conditions: { nft_collection: selectedNFTCollection },
+          premium_conditions: selectedNFTCollection
+            ? {
+                type: PremiumContentType.COLLECTIBLE_GATED,
+                nft_collection: selectedNFTCollection
+              }
+            : null,
           'field_visibility.remixes': false
         },
         true
