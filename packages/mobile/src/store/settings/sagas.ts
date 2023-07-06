@@ -17,6 +17,8 @@ import { select, call, put, takeEvery } from 'typed-redux-saga'
 
 import PushNotifications from 'app/notifications'
 
+import { setVisibility } from '../drawers/slice'
+
 const { getPushNotificationSettings } = settingsPageSelectors
 const { getAccountUser, getHasAccount } = accountSelectors
 
@@ -151,23 +153,19 @@ function* watchUpdatePushNotificationSettings() {
 }
 
 function* watchRequestPushNotificationPermissions() {
-  yield* takeEvery(
-    actions.REQUEST_PUSH_NOTIFICATION_PERMISSIONS,
-    function* (_action: actions.RequestPushNotificationPermissions) {
-      const hasPermissions = yield* call([PushNotifications, 'hasPermission'])
-      if (hasPermissions) {
-        yield* call(registerDeviceToken)
-      } else {
-        // Request permission to send push notifications and enable all if accepted
-        yield* put(
-          actions.togglePushNotificationSetting(
-            PushNotificationSetting.MobilePush,
-            true
-          )
-        )
-      }
+  yield* takeEvery(actions.REQUEST_PUSH_NOTIFICATION_PERMISSIONS, function* () {
+    const hasPermissions = yield* call([PushNotifications, 'hasPermission'])
+    const { [PushNotificationSetting.MobilePush]: isMobilePushEnabled } =
+      yield* select(getPushNotificationSettings)
+
+    if (hasPermissions && isMobilePushEnabled) {
+      yield* call(registerDeviceToken)
+    } else if (hasPermissions) {
+      yield* put(
+        setVisibility({ drawer: 'EnablePushNotifications', visible: true })
+      )
     }
-  )
+  })
 }
 
 export default function sagas() {
