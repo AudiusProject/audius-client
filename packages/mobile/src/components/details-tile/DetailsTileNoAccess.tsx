@@ -8,7 +8,12 @@ import {
   usersSocialActions,
   tippingActions,
   usePremiumConditionsEntity,
-  premiumContentSelectors
+  premiumContentSelectors,
+  formatUSDC,
+  isPremiumContentUSDCPurchaseGated,
+  isPremiumContentCollectibleGated,
+  isPremiumContentFollowGated,
+  isPremiumContentTipGated
 } from '@audius/common'
 import type { ViewStyle } from 'react-native'
 import { View, Text, Image } from 'react-native'
@@ -16,17 +21,15 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import IconExternalLink from 'app/assets/images/iconExternalLink.svg'
 import IconFollow from 'app/assets/images/iconFollow.svg'
-import IconLock from 'app/assets/images/iconLock.svg'
 import IconTip from 'app/assets/images/iconTip.svg'
 import LogoEth from 'app/assets/images/logoEth.svg'
 import LogoSol from 'app/assets/images/logoSol.svg'
-import { Button, useLink } from 'app/components/core'
+import { Button, LockedStatusBadge, useLink } from 'app/components/core'
 import LoadingSpinner from 'app/components/loading-spinner'
 import UserBadges from 'app/components/user-badges'
 import { useDrawer } from 'app/hooks/useDrawer'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { flexRowCentered, makeStyles } from 'app/styles'
-import { useColor } from 'app/utils/theme'
 
 const { getPremiumTrackStatusMap } = premiumContentSelectors
 const { followUser } = usersSocialActions
@@ -38,6 +41,7 @@ const messages = {
   goToCollection: 'Go To Collection',
   followArtist: 'Follow Artist',
   sendTip: 'Send Tip',
+  buy: (price: string) => `Buy $${price}`,
   lockedCollectibleGated:
     'To unlock this track, you must link a wallet containing a collectible from:',
   unlockingCollectibleGatedPrefix: 'A Collectible from ',
@@ -48,7 +52,8 @@ const messages = {
   lockedTipGatedPrefix: 'Send ',
   lockedTipGatedSuffix: ' a tip.',
   unlockingTipGatedPrefix: 'Thank you for supporting ',
-  unlockingTipGatedSuffix: ' by sending them a tip!'
+  unlockingTipGatedSuffix: ' by sending them a tip!',
+  lockedUSDCPurchase: 'Unlock access with a one-time purchase!'
 }
 
 const useStyles = makeStyles(({ palette, spacing, typography }) => ({
@@ -127,6 +132,9 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     marginTop: spacing(3),
     backgroundColor: palette.accentBlue
   },
+  buyButton: {
+    backgroundColor: palette.specialLightGreen1
+  },
   loadingSpinner: {
     width: spacing(5),
     height: spacing(5)
@@ -135,17 +143,18 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
 
 type NoAccessProps = {
   renderDescription: () => ReactNode
+  premiumConditions: PremiumConditions
   isUnlocking: boolean
   style?: ViewStyle
 }
 
 const DetailsTileNoAccessSection = ({
   renderDescription,
+  premiumConditions,
   isUnlocking,
   style
 }: NoAccessProps) => {
   const styles = useStyles()
-  const staticWhite = useColor('staticWhite')
 
   return (
     <View style={[styles.root, style]}>
@@ -156,9 +165,14 @@ const DetailsTileNoAccessSection = ({
         {isUnlocking ? (
           <LoadingSpinner style={styles.loadingSpinner} />
         ) : (
-          <View style={styles.iconLockContainer}>
-            <IconLock fill={staticWhite} width={14} height={14} />
-          </View>
+          <LockedStatusBadge
+            locked={true}
+            variant={
+              isPremiumContentUSDCPurchaseGated(premiumConditions)
+                ? 'premium'
+                : 'gated'
+            }
+          />
         )}
       </View>
       {renderDescription()}
@@ -236,7 +250,8 @@ export const DetailsTileNoAccess = ({
   )
 
   const renderLockedDescription = useCallback(() => {
-    if (nftCollection) {
+    if (isPremiumContentCollectibleGated(premiumConditions)) {
+      if (!nftCollection) return null
       return (
         <>
           <View style={styles.descriptionContainer}>
@@ -281,7 +296,8 @@ export const DetailsTileNoAccess = ({
         </>
       )
     }
-    if (followee) {
+    if (isPremiumContentFollowGated(premiumConditions)) {
+      if (!followee) return null
       return (
         <>
           {renderLockedSpecialAccessDescription({
@@ -301,7 +317,8 @@ export const DetailsTileNoAccess = ({
         </>
       )
     }
-    if (tippedUser) {
+    if (isPremiumContentTipGated(premiumConditions)) {
+      if (!tippedUser) return null
       return (
         <>
           {renderLockedSpecialAccessDescription({
@@ -322,20 +339,53 @@ export const DetailsTileNoAccess = ({
         </>
       )
     }
+    if (isPremiumContentUSDCPurchaseGated(premiumConditions)) {
+      return (
+        <>
+          <View style={styles.descriptionContainer}>
+            <Text style={styles.description}>
+              {messages.lockedUSDCPurchase}
+            </Text>
+          </View>
+          <Button
+            style={[styles.mainButton, styles.buyButton]}
+            styles={{ icon: { width: 16, height: 16 } }}
+            // TODO convert to new fn
+            title={messages.buy(
+              formatUSDC(premiumConditions.usdc_purchase.price)
+            )}
+            size='large'
+            onPress={() => {
+              console.log('Buy button pressed')
+            }}
+            fullWidth
+          />
+        </>
+      )
+    }
 
     console.warn(
       'No entity for premium conditions... should not have reached here.'
     )
     return null
   }, [
+    premiumConditions,
     nftCollection,
-    followee,
-    tippedUser,
+    styles.descriptionContainer,
+    styles.description,
+    styles.collectionContainer,
+    styles.collectionImages,
+    styles.collectionImage,
+    styles.collectionChainImageContainer,
+    styles.collectionChainImage,
+    styles.mainButton,
+    styles.buyButton,
     handlePressCollection,
+    followee,
     renderLockedSpecialAccessDescription,
     handleFollowArtist,
-    handleSendTip,
-    styles
+    tippedUser,
+    handleSendTip
   ])
 
   const renderUnlockingSpecialAccessDescription = useCallback(
@@ -421,6 +471,7 @@ export const DetailsTileNoAccess = ({
       renderDescription={
         isUnlocking ? renderUnlockingDescription : renderLockedDescription
       }
+      premiumConditions={premiumConditions}
       isUnlocking={isUnlocking}
       style={style}
     />

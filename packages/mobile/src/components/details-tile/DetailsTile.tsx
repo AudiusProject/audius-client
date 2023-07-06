@@ -9,7 +9,8 @@ import {
   accountSelectors,
   playerSelectors,
   playbackPositionSelectors,
-  getDogEarType
+  getDogEarType,
+  isPremiumContentUSDCPurchaseGated
 } from '@audius/common'
 import { TouchableOpacity, View } from 'react-native'
 import { useSelector } from 'react-redux'
@@ -41,7 +42,8 @@ const messages = {
   play: 'play',
   pause: 'pause',
   resume: 'resume',
-  replay: 'replay'
+  replay: 'replay',
+  preview: 'preview'
 }
 
 const useStyles = makeStyles(({ palette, spacing, typography }) => ({
@@ -57,12 +59,10 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     width: '100%'
   },
   topContentBody: {
-    paddingHorizontal: spacing(2)
+    paddingHorizontal: spacing(2),
+    gap: spacing(4)
   },
-
   typeLabel: {
-    marginTop: spacing(2),
-    marginBottom: spacing(2),
     height: 18,
     color: palette.neutralLight4,
     fontSize: typography.fontSize.xs,
@@ -70,96 +70,78 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     textAlign: 'center',
     textTransform: 'uppercase'
   },
-
   coverArt: {
     borderWidth: 1,
     borderColor: palette.neutralLight8,
     borderRadius: spacing(2),
     height: 195,
     width: 195,
-    marginBottom: spacing(6),
     alignSelf: 'center'
   },
-
   title: {
-    fontSize: 18,
-    textAlign: 'center',
-    marginBottom: spacing(4)
+    fontSize: typography.fontSize.large,
+    textAlign: 'center'
   },
-
   artistContainer: {
     ...flexRowCentered(),
-    marginBottom: spacing(4),
     alignSelf: 'center'
   },
-
   badge: {
     marginLeft: spacing(1)
   },
-
   descriptionContainer: {
-    width: '100%'
+    width: '100%',
+    borderBottomWidth: 1,
+    borderBottomColor: palette.neutralLight7
   },
-
   description: {
     ...typography.body,
     color: palette.neutralLight2,
     textAlign: 'left',
     width: '100%',
-    marginBottom: spacing(6)
+    marginBottom: spacing(4)
   },
-
   buttonSection: {
     width: '100%',
-    marginBottom: spacing(3)
+    gap: spacing(4)
   },
-
   playButtonText: {
     textTransform: 'uppercase'
   },
-
   playButtonIcon: {
-    height: 20,
-    width: 20
+    height: spacing(5),
+    width: spacing(5)
   },
-
   infoSection: {
     flexWrap: 'wrap',
     flexDirection: 'row',
-    width: '100%',
-    paddingTop: spacing(4)
+    width: '100%'
   },
-
   noStats: {
     borderWidth: 0
   },
-
   infoFact: {
     ...flexRowCentered(),
     flexBasis: '50%',
     marginBottom: spacing(4)
   },
-
   infoLabel: {
     ...flexRowCentered(),
     color: palette.neutralLight5,
-    fontSize: 14,
-    lineHeight: 14,
+    fontSize: typography.fontSize.small,
+    lineHeight: typography.fontSize.small,
     textTransform: 'uppercase',
     marginRight: spacing(2)
   },
-
   infoValue: {
-    lineHeight: 14,
     flexShrink: 1,
     color: palette.neutral,
-    fontSize: 14
+    fontSize: typography.fontSize.small,
+    lineHeight: typography.fontSize.small
   },
-
   infoIcon: {
     marginTop: -spacing(1)
   },
-
   link: {
     color: palette.primary
   }
@@ -232,6 +214,8 @@ export const DetailsTile = ({
   const isLongFormContent =
     track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
   const aiAttributionUserId = track?.ai_attribution_user_id
+  const isUSDCPurchaseGated =
+    isPremiumContentUSDCPurchaseGated(premiumConditions)
 
   const handlePressArtistName = useCallback(() => {
     if (!user) {
@@ -251,7 +235,6 @@ export const DetailsTile = ({
 
   const renderDogEar = () => {
     const dogEarType = getDogEarType({
-      doesUserHaveAccess,
       isOwner,
       premiumConditions
     })
@@ -304,6 +287,25 @@ export const DetailsTile = ({
     !isCurrentTrack
       ? IconRepeat
       : IconPlay
+
+  const PreviewButton = () => (
+    <Button
+      variant='commonAlt'
+      styles={{
+        text: styles.playButtonText,
+        icon: styles.playButtonIcon
+      }}
+      title={isPlaying ? messages.pause : messages.preview}
+      size='large'
+      iconPosition='left'
+      icon={isPlaying ? IconPause : PlayIcon}
+      onPress={() => {
+        console.log('Preview button pressed')
+      }}
+      disabled={!isPlayable}
+      fullWidth
+    />
+  )
 
   return (
     <Tile styles={{ root: styles.root, content: styles.tileContent }}>
@@ -360,6 +362,8 @@ export const DetailsTile = ({
                 disabled={!isPlayable}
                 fullWidth
               />
+            ) : isUSDCPurchaseGated && !doesUserHaveAccess ? (
+              <PreviewButton />
             ) : null}
             <DetailsTileActionButtons
               hasReposted={!!hasReposted}
@@ -387,8 +391,10 @@ export const DetailsTile = ({
             <DetailsTileHasAccess
               premiumConditions={premiumConditions}
               isOwner={isOwner}
+              trackArtist={user}
             />
           )}
+          {isUSDCPurchaseGated && isOwner ? <PreviewButton /> : null}
           {!isPublished ? null : (
             <DetailsTileStats
               favoriteCount={saveCount}

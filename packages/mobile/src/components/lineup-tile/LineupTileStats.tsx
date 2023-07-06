@@ -17,9 +17,7 @@ import { View, TouchableOpacity } from 'react-native'
 import { useDispatch } from 'react-redux'
 
 import IconHeart from 'app/assets/images/iconHeart.svg'
-import IconLock from 'app/assets/images/iconLock.svg'
 import IconRepost from 'app/assets/images/iconRepost.svg'
-import IconUnlocked from 'app/assets/images/iconUnlocked.svg'
 import { CollectionDownloadStatusIndicator } from 'app/components/offline-downloads/CollectionDownloadStatusIndicator'
 import { TrackDownloadStatusIndicator } from 'app/components/offline-downloads/TrackDownloadStatusIndicator'
 import Text from 'app/components/text'
@@ -27,6 +25,8 @@ import { useIsUSDCEnabled } from 'app/hooks/useIsUSDCEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles, flexRowCentered } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
+
+import { LockedStatusBadge } from '../core'
 
 import { LineupTilePremiumContentTypeTag } from './LineupTilePremiumContentTypeTag'
 import { LineupTileRankIcon } from './LineupTileRankIcon'
@@ -71,17 +71,6 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
   repostStat: {
     height: 16,
     width: 16
-  },
-  iconLocked: {
-    paddingHorizontal: spacing(2),
-    borderRadius: spacing(10),
-    backgroundColor: palette.neutralLight4
-  },
-  iconUnlocked: {
-    backgroundColor: palette.accentBlue
-  },
-  iconUSDC: {
-    backgroundColor: palette.specialLightGreen1
   }
 }))
 
@@ -205,24 +194,14 @@ export const LineupTileStats = ({
         </View>
       )}
       {premiumConditions && !isOwner ? (
-        <View
-          style={[
-            styles.iconLocked,
-            styles.listenCount,
-            doesUserHaveAccess ? styles.iconUnlocked : null,
-            isUSDCEnabled &&
-            isPremiumContentUSDCPurchaseGated(premiumConditions) &&
-            doesUserHaveAccess
-              ? styles.iconUSDC
-              : null
-          ]}
-        >
-          {doesUserHaveAccess ? (
-            <IconUnlocked fill={staticWhite} height={14} width={14} />
-          ) : (
-            <IconLock fill={staticWhite} height={14} width={14} />
-          )}
-        </View>
+        <LockedStatusBadge
+          locked={!doesUserHaveAccess ?? true}
+          variant={
+            isPremiumContentUSDCPurchaseGated(premiumConditions)
+              ? 'premium'
+              : 'gated'
+          }
+        />
       ) : !hidePlays ? (
         <Text style={[trackTileStyles.statText, styles.listenCount]}>
           {formatPlayCount(playCount)}
