@@ -269,10 +269,6 @@
   width: 250px;
 }
 
-.premiumContentSectionButton button {
-  width: 100%;
-}
-
 .premiumContentSectionButton .buttonText {
   font-size: var(--font-l);
 }

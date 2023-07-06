@@ -253,10 +253,11 @@ const LockedPremiumTrackSection = ({
     if (premiumConditions.tip_user_id) {
       return (
         <Button
+          color='accentBlue'
           text={messages.sendTip}
           onClick={handleSendTip}
           rightIcon={<IconTip />}
-          type={ButtonType.PRIMARY_ALT}
+          type={ButtonType.PRIMARY}
           iconClassName={styles.buttonIcon}
           textClassName={styles.buttonText}
         />
