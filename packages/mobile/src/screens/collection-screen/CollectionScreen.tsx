@@ -311,6 +311,7 @@ const CollectionScreenComponent = (props: CollectionScreenComponentProps) => {
               trackCount={track_ids.length}
               title={playlist_name}
               user={user}
+              isOwner={isOwner}
             />
             {isOwner && !is_album && arePlaylistUpdatesEnabled ? (
               <>
