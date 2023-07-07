@@ -8,19 +8,32 @@ import {
   settingsPageActions as actions,
   getContext,
   waitForValue,
-  waitForAccount
+  waitForAccount,
+  settingsPageActions
 } from '@audius/common'
 import { waitForRead } from 'audius-client/src/utils/sagaHelpers'
 import commonSettingsSagas from 'common/store/pages/settings/sagas'
 import { mapValues } from 'lodash'
-import { select, call, put, takeEvery } from 'typed-redux-saga'
+import { RESULTS, checkNotifications } from 'react-native-permissions'
+import { select, call, put, takeEvery, take } from 'typed-redux-saga'
 
 import PushNotifications from 'app/notifications'
 
 import { setVisibility } from '../drawers/slice'
 
-const { getPushNotificationSettings } = settingsPageSelectors
+const { getPushNotificationSettings, SET_PUSH_NOTIFICATION_SETTINGS } =
+  settingsPageActions
+const { getPushNotificationSettings: selectPushNotificationSettings } =
+  settingsPageSelectors
 const { getAccountUser, getHasAccount } = accountSelectors
+
+function* getIsMobilePushEnabled() {
+  yield* put(getPushNotificationSettings())
+  yield* take(SET_PUSH_NOTIFICATION_SETTINGS)
+  const { [PushNotificationSetting.MobilePush]: isMobilePushEnabled } =
+    yield* select(selectPushNotificationSettings)
+  return isMobilePushEnabled
+}
 
 export function* deregisterPushNotifications() {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
@@ -30,10 +43,6 @@ export function* deregisterPushNotifications() {
 }
 
 function* registerDeviceToken() {
-  yield* call(waitForAccount)
-  const isSignedIn = yield* select(getHasAccount)
-  if (!isSignedIn) return
-
   let { token, os } = yield* call([PushNotifications, 'getToken'])
 
   if (!token) {
@@ -43,6 +52,22 @@ function* registerDeviceToken() {
 
   const audiusBackend = yield* getContext('audiusBackendInstance')
   yield* call(audiusBackend.registerDeviceToken, token, os)
+}
+
+function* reregisterDeviceTokenOnStartup() {
+  yield* call(waitForAccount)
+  const isSignedIn = yield* select(getHasAccount)
+  if (!isSignedIn) return
+
+  const { status } = yield* call(checkNotifications)
+  const isMobilePushEnabled = yield* call(getIsMobilePushEnabled)
+
+  if (
+    (status === RESULTS.GRANTED || status === RESULTS.LIMITED) &&
+    isMobilePushEnabled
+  ) {
+    yield* call(registerDeviceToken)
+  }
 }
 
 function* enablePushNotifications() {
@@ -132,7 +157,7 @@ function* watchUpdatePushNotificationSettings() {
         } else {
           if (isOn === undefined) {
             const pushNotificationSettings = yield* select(
-              getPushNotificationSettings
+              selectPushNotificationSettings
             )
             isOn = !pushNotificationSettings[action.notificationType]
           }
@@ -154,13 +179,17 @@ function* watchUpdatePushNotificationSettings() {
 
 function* watchRequestPushNotificationPermissions() {
   yield* takeEvery(actions.REQUEST_PUSH_NOTIFICATION_PERMISSIONS, function* () {
-    const hasPermissions = yield* call([PushNotifications, 'hasPermission'])
-    const { [PushNotificationSetting.MobilePush]: isMobilePushEnabled } =
-      yield* select(getPushNotificationSettings)
+    const { status } = yield* call(checkNotifications)
+    const isMobilePushEnabled = yield* call(getIsMobilePushEnabled)
 
-    if (hasPermissions && isMobilePushEnabled) {
+    if (
+      (status === RESULTS.GRANTED || status === RESULTS.LIMITED) &&
+      isMobilePushEnabled
+    ) {
       yield* call(registerDeviceToken)
-    } else if (hasPermissions) {
+    } else if (status === RESULTS.BLOCKED || status === RESULTS.UNAVAILABLE) {
+      // do nothing
+    } else {
       yield* put(
         setVisibility({ drawer: 'EnablePushNotifications', visible: true })
       )
@@ -171,7 +200,7 @@ function* watchRequestPushNotificationPermissions() {
 export default function sagas() {
   return [
     ...commonSettingsSagas(),
-    registerDeviceToken,
+    reregisterDeviceTokenOnStartup,
     watchGetPushNotificationSettings,
     watchUpdatePushNotificationSettings,
     watchRequestPushNotificationPermissions
