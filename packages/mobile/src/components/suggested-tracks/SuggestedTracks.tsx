@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { Fragment, useCallback, useEffect, useRef } from 'react'
 
 import type { ID, Track } from '@audius/common'
 import {
@@ -193,8 +193,8 @@ export const SuggestedTracks = (props: SuggestedTracksProps) => {
         <>
           <View>
             <Divider />
-            {suggestedTracks?.map((suggestedTrack, i) => (
-              <>
+            {suggestedTracks?.map((suggestedTrack) => (
+              <Fragment key={suggestedTrack.id}>
                 {suggestedTrack.track ? (
                   <SuggestedTrack
                     track={suggestedTrack.track}
@@ -205,7 +205,7 @@ export const SuggestedTracks = (props: SuggestedTracksProps) => {
                   <SuggestedTrackSkeleton />
                 )}
                 <Divider />
-              </>
+              </Fragment>
             ))}
           </View>
           <TextButton
