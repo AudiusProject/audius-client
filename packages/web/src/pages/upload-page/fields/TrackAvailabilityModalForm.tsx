@@ -16,7 +16,7 @@ import {
   IconVisibilityPublic,
   RadioButtonGroup
 } from '@audius/stems'
-import { Formik, useField, useFormikContext } from 'formik'
+import { Formik, useField } from 'formik'
 import { get, isEmpty, set, isEqual, omit } from 'lodash'
 import { useSelector } from 'react-redux'
 
@@ -41,7 +41,7 @@ const { getSupportedUserCollections } = collectiblesSelectors
 const { getUserId } = accountSelectors
 
 const messages = {
-  title: 'AVAILABILITY',
+  title: 'Availability',
   description:
     "Customize your music's availability for different audiences, and create personalized gated experiences for your fans.",
   isRemix:
@@ -172,6 +172,7 @@ export const TrackAvailabilityModalForm = () => {
         <label className={styles.title}>{messages.title}</label>
       </div>
       <div className={styles.description}>{messages.description}</div>
+      {/* TODO: Rich preview display */}
     </div>
   )
 
