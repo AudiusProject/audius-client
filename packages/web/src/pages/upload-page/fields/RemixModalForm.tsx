@@ -28,7 +28,6 @@ import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { fullTrackPage, stripBaseUrl } from 'utils/route'
 
 import { EditFormValues } from '../components/EditPageNew'
-import { FIELD_VISIBILITY } from '../components/TrackAvailabilityModalForm'
 
 import { ModalField } from './ModalField'
 import styles from './RemixModalForm.module.css'

@@ -14,9 +14,9 @@ import {
   AVAILABILITY_TYPE,
   PREMIUM_CONDITIONS,
   TrackAvailabilityFormValues
-} from 'pages/upload-page/components/TrackAvailabilityModalForm'
+} from 'pages/upload-page/fields/TrackAvailabilityModalForm'
 
-import styles from './CollectibleGatedAvailability.module.css'
+import styles from './CollectibleGatedFields.module.css'
 
 const { getSupportedUserCollections, getHasUnsupportedCollection } =
   collectiblesSelectors

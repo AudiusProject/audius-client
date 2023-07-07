@@ -16,20 +16,21 @@ import {
   IconVisibilityPublic,
   RadioButtonGroup
 } from '@audius/stems'
-import { Formik, useField } from 'formik'
-import { get, isEmpty, set } from 'lodash'
+import { Formik, useField, useFormikContext } from 'formik'
+import { get, isEmpty, set, isEqual, omit } from 'lodash'
 import { useSelector } from 'react-redux'
 
 import { HelpCallout } from 'components/help-callout/HelpCallout'
 import { ModalRadioItem } from 'components/modal-radio/ModalRadioItem'
-import { CollectibleGatedFields } from 'components/track-availability-modal/CollectibleGatedFields'
 import { useFlag } from 'hooks/useRemoteConfig'
+import { defaultFieldVisibility } from 'pages/track-page/utils'
+import { CollectibleGatedFields } from 'pages/upload-page/fields/CollectibleGatedFields'
 
+import { EditFormValues } from '../components/EditPageNew'
 import { ModalField } from '../fields/ModalField'
 import { REMIX_OF } from '../fields/RemixModalForm'
 
 import { CollectibleGatedDescription } from './CollectibleGatedDescription'
-import { EditFormValues } from './EditPageNew'
 import {
   defaultHiddenFields,
   HiddenAvailabilityFields
@@ -84,7 +85,7 @@ export type TrackAvailabilityFormValues = {
 // A modal that allows you to set a track as collectible-gated, special access, or unlisted,
 // as well as toggle individual unlisted metadata field visibility.
 export const TrackAvailabilityModalForm = () => {
-  // Field from the outer form
+  // Fields from the outer form
   const [{ value: isUnlistedValue }, , { setValue: setIsUnlistedValue }] =
     useField<EditFormValues[typeof IS_UNLISTED]>(IS_UNLISTED)
   const [{ value: isPremiumValue }, , { setValue: setIsPremiumValue }] =
@@ -119,7 +120,10 @@ export const TrackAvailabilityModalForm = () => {
     if (premiumConditionsValue?.nft_collection) {
       availabilityType = TrackAvailabilityType.COLLECTIBLE_GATED
     }
-    if (fieldVisibilityValue) {
+    if (
+      // Remixes has its own toggle field so should not affect the selected availability type
+      !isEqual(omit(fieldVisibilityValue, 'remixes'), defaultHiddenFields)
+    ) {
       availabilityType = TrackAvailabilityType.HIDDEN
     }
     // TODO: USDC gated type
@@ -143,10 +147,16 @@ export const TrackAvailabilityModalForm = () => {
 
   const onSubmit = useCallback(
     (values: TrackAvailabilityFormValues) => {
-      setIsUnlistedValue(get(values, IS_UNLISTED))
-      setIsPremiumValue(get(values, IS_PREMIUM))
       setPremiumConditionsValue(get(values, PREMIUM_CONDITIONS))
+      if (values[PREMIUM_CONDITIONS]) {
+        setIsPremiumValue(true)
+      }
       setFieldVisibilityValue(get(values, FIELD_VISIBILITY) ?? undefined)
+      if (values[AVAILABILITY_TYPE] === TrackAvailabilityType.HIDDEN) {
+        setIsUnlistedValue(true)
+      } else {
+        setFieldVisibilityValue(defaultFieldVisibility)
+      }
     },
     [
       setFieldVisibilityValue,
