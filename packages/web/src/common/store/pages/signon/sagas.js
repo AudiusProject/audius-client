@@ -5,7 +5,6 @@ import {
   Genre,
   MAX_HANDLE_LENGTH,
   Name,
-  PushNotificationSetting,
   accountActions,
   accountSelectors,
   cacheUsersSelectors,
@@ -53,17 +52,12 @@ import { getRouteOnCompletion, getSignOn } from './selectors'
 import { FollowArtistsCategory, Pages } from './types'
 import { checkHandle } from './verifiedChecker'
 
-const { requestPushNotificationPermissions, togglePushNotificationSetting } =
-  settingsPageActions
+const { requestPushNotificationPermissions } = settingsPageActions
 const { getFeePayer } = solanaSelectors
 const { saveCollection } = collectionsSocialActions
 const { getUsers } = cacheUsersSelectors
 const getAccountUser = accountSelectors.getAccountUser
 const { toast } = toastActions
-
-const IS_PRODUCTION_BUILD = process.env.NODE_ENV === 'production'
-const IS_PRODUCTION = process.env.REACT_APP_ENVIRONMENT === 'production'
-const IS_STAGING = process.env.REACT_APP_ENVIRONMENT === 'staging'
 
 const SIGN_UP_TIMEOUT_MILLIS = 20 /* min */ * 60 * 1000
 
@@ -73,14 +67,26 @@ const messages = {
   emailCheckFailed: 'Something has gone wrong, please try again later.'
 }
 
-// Users ID to filter out of the suggested artists to follow list and to follow by default
-let defaultFollowUserIds = new Set([])
-if (IS_PRODUCTION) {
-  // user id 51: official audius account
-  defaultFollowUserIds = new Set([51])
-} else if (IS_STAGING) {
-  // user id 1964: stage testing account
-  defaultFollowUserIds = new Set([1964])
+function* getDefautFollowUserIds() {
+  const { ENVIRONMENT } = yield getContext('env')
+  // Users ID to filter out of the suggested artists to follow list and to follow by default
+
+  let defaultFollowUserIds = new Set([])
+
+  switch (ENVIRONMENT) {
+    case 'production': {
+      // user id 51: official audius account
+      defaultFollowUserIds = new Set([51])
+      break
+    }
+    case 'staging': {
+      // user id 1964: stage testing account
+      defaultFollowUserIds = new Set([1964])
+      break
+    }
+  }
+
+  return defaultFollowUserIds
 }
 
 export function* fetchSuggestedFollowUserIds() {
@@ -128,6 +134,7 @@ function* fetchAllFollowArtist() {
 function* fetchFollowArtistGenre(followArtistCategory) {
   const apiClient = yield getContext('apiClient')
   const genres = followArtistCategoryGenreMappings[followArtistCategory]
+  const defaultFollowUserIds = yield call(getDefautFollowUserIds)
   try {
     const users = yield apiClient.getTopArtistGenres({
       genres,
@@ -186,6 +193,8 @@ function* validateHandle(action) {
   const { handle, isOauthVerified, onValidate } = action
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
   const remoteConfigInstance = yield getContext('remoteConfigInstance')
+  const { ENVIRONMENT } = yield getContext('env')
+
   yield call(waitForWrite)
   try {
     if (handle.length > MAX_HANDLE_LENGTH) {
@@ -216,7 +225,7 @@ function* validateHandle(action) {
     )
     const handleInUse = !isEmpty(user)
 
-    if (IS_PRODUCTION_BUILD || IS_PRODUCTION) {
+    if (ENVIRONMENT === 'production') {
       const [twitterUserQuery, instagramUser, tikTokUser] = yield all([
         call(audiusBackendInstance.twitterHandle, handle),
         call(audiusBackendInstance.instagramHandle, handle),
@@ -428,13 +437,7 @@ function* signUp() {
 
         const isNativeMobile = yield getContext('isNativeMobile')
         if (isNativeMobile) {
-          // Request permission to send push notifications and enable all if accepted
-          yield put(
-            togglePushNotificationSetting(
-              PushNotificationSetting.MobilePush,
-              true
-            )
-          )
+          yield put(requestPushNotificationPermissions())
         } else {
           // Set the has request browser permission to true as the signon provider will open it
           setHasRequestedBrowserPermission()
@@ -534,8 +537,6 @@ function* signIn(action) {
       yield put(signOnActions.resetSignOn())
       const isNativeMobile = yield getContext('isNativeMobile')
       if (isNativeMobile) {
-        // If permissions not already enabled, request permission to send push notifications
-        // and enable all if accepted
         yield put(requestPushNotificationPermissions())
       } else {
         setHasRequestedBrowserPermission()
@@ -606,12 +607,14 @@ function* followCollections(collectionIds, favoriteSource) {
 
 function* followArtists() {
   const audiusBackendInstance = yield getContext('audiusBackendInstance')
+  const { ENVIRONMENT } = yield getContext('env')
+  const defaultFollowUserIds = yield call(getDefautFollowUserIds)
   yield call(waitForWrite)
   try {
     // Auto-follow Hot & New Playlist
-    if (IS_PRODUCTION) {
+    if (ENVIRONMENT === 'production') {
       yield fork(followCollections, [4281], FavoriteSource.SIGN_UP)
-    } else if (IS_STAGING) {
+    } else if (ENVIRONMENT === 'staging') {
       yield fork(followCollections, [555], FavoriteSource.SIGN_UP)
     }
 

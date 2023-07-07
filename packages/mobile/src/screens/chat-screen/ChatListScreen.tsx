@@ -11,6 +11,7 @@ import { Screen, FlatList, ScreenContent } from 'app/components/core'
 import { useNavigation } from 'app/hooks/useNavigation'
 import type { AppTabScreenParamList } from 'app/screens/app-screen'
 import { makeStyles } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
 import { useThemePalette, useColor } from 'app/utils/theme'
 
 import { ChatListItem } from './ChatListItem'
@@ -18,7 +19,7 @@ import { ChatListItemSkeleton } from './ChatListItemSkeleton'
 import { HeaderShadow } from './HeaderShadow'
 
 const { getChats, getChatsStatus, getHasMoreChats } = chatSelectors
-const { fetchMoreMessages, fetchMoreChats } = chatActions
+const { fetchMoreMessages, fetchLatestChats, fetchMoreChats } = chatActions
 
 const CHATS_MESSAGES_PREFETCH_LIMIT = 10
 
@@ -114,10 +115,19 @@ export const ChatListScreen = () => {
     chats.length === 0 && (chatsStatus ?? Status.LOADING) === Status.LOADING
   const navigateToChatUserList = () => navigation.navigate('ChatUserList')
   const iconCompose = (
-    <TouchableOpacity onPress={navigateToChatUserList}>
+    <TouchableOpacity onPress={navigateToChatUserList} hitSlop={spacing(2)}>
       <IconCompose fill={palette.neutralLight4} />
     </TouchableOpacity>
   )
+
+  const handleLoadMore = useCallback(() => {
+    if (chatsStatus === Status.LOADING || !hasMore) return
+    dispatch(fetchMoreChats())
+  }, [hasMore, chatsStatus, dispatch])
+
+  const refresh = useCallback(() => {
+    dispatch(fetchLatestChats())
+  }, [dispatch])
 
   // Prefetch messages for initial loaded chats
   useEffect(() => {
@@ -133,10 +143,9 @@ export const ChatListScreen = () => {
     }
   }, [chats, dispatch])
 
-  const handleLoadMore = useCallback(() => {
-    if (chatsStatus === Status.LOADING || !hasMore) return
-    dispatch(fetchMoreChats())
-  }, [hasMore, chatsStatus, dispatch])
+  useEffect(() => {
+    refresh()
+  }, [refresh])
 
   return (
     <Screen
@@ -161,6 +170,8 @@ export const ChatListScreen = () => {
               ))
           ) : (
             <FlatList
+              refreshing={chatsStatus === 'REFRESHING'}
+              onRefresh={refresh}
               data={nonEmptyChats}
               contentContainerStyle={styles.listContainer}
               renderItem={({ item }) => <ChatListItem chatId={item.chat_id} />}

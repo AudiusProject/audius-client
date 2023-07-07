@@ -1,4 +1,4 @@
-import { AudiusQueryContext, AppContext } from '@audius/common'
+import { AudiusQueryContext } from '@audius/common'
 import { PortalProvider, PortalHost } from '@gorhom/portal'
 import * as Sentry from '@sentry/react-native'
 import { Platform, UIManager } from 'react-native'
@@ -23,11 +23,10 @@ import { useEnterForeground } from 'app/hooks/useAppState'
 import { incrementSessionCount } from 'app/hooks/useSessionCount'
 import { RootScreen } from 'app/screens/root-screen'
 import { WalletConnectProvider } from 'app/screens/wallet-connect'
-import * as analytics from 'app/services/analytics'
 import { apiClient } from 'app/services/audius-api-client'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
-import { audiusSdk } from 'app/services/audius-sdk'
 import { setLibs } from 'app/services/libs'
+import { audiusSdk } from 'app/services/sdk/audius-sdk'
 import { persistor, store } from 'app/store'
 import {
   forceRefreshConnectivity,
@@ -35,6 +34,7 @@ import {
 } from 'app/utils/reachability'
 import { reportToSentry } from 'app/utils/reportToSentry'
 
+import { AppContextProvider } from './AppContextProvider'
 import { Drawers } from './Drawers'
 import ErrorBoundary from './ErrorBoundary'
 import { ThemeProvider } from './ThemeProvider'
@@ -80,7 +80,7 @@ const App = () => {
   })
 
   return (
-    <AppContext.Provider value={{ analytics }}>
+    <AppContextProvider>
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <FlipperAsyncStorage />
         <Provider store={store}>
@@ -121,7 +121,7 @@ const App = () => {
           </AudiusQueryContext.Provider>
         </Provider>
       </SafeAreaProvider>
-    </AppContext.Provider>
+    </AppContextProvider>
   )
 }
 
