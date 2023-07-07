@@ -21,11 +21,13 @@ import { useSelector } from 'react-redux'
 
 import { HelpCallout } from 'components/help-callout/HelpCallout'
 import { ModalRadioItem } from 'components/modal-radio/ModalRadioItem'
+import { CollectibleGatedFields } from 'components/track-availability-modal/CollectibleGatedFields'
 import { useFlag } from 'hooks/useRemoteConfig'
 
 import { ModalField } from '../fields/ModalField'
 import { REMIX_OF } from '../fields/RemixModalForm'
 
+import { CollectibleGatedDescription } from './CollectibleGatedDescription'
 import { EditFormValues } from './EditPageNew'
 import { SpecialAccessFields, SpecialAccessType } from './SpecialAccessFields'
 import styles from './TrackAvailabilityModalForm.module.css'
@@ -63,7 +65,7 @@ const IS_UNLISTED = 'is_unlisted'
 const IS_PREMIUM = 'is_premium'
 export const PREMIUM_CONDITIONS = 'premium_conditions'
 
-const AVAILABILITY_TYPE = 'availability_type'
+export const AVAILABILITY_TYPE = 'availability_type'
 const SPECIAL_ACCESS_TYPE = 'special_access_type'
 
 export type TrackAvailabilityFormValues = {
@@ -181,7 +183,6 @@ const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
 
   const [availabilityField, , { setValue: setAvailabilityValue }] = useField({
     name: AVAILABILITY_TYPE
-    // type: 'radio'
   })
   const { ethCollectionMap, solCollectionMap } = useSelector(
     getSupportedUserCollections
@@ -259,19 +260,13 @@ const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
             value={TrackAvailabilityType.COLLECTIBLE_GATED}
             disabled={noCollectibleGate}
             description={
-              <>Collectible Gated Description</>
-              // <CollectibleGatedDescription
-              //   hasCollectibles={hasCollectibles}
-              //   true={true}
-              // />
+              <CollectibleGatedDescription
+                hasCollectibles={hasCollectibles}
+                isUpload={true}
+              />
             }
             checkedContent={
-              <>Collectible Gated Options</>
-              // <CollectibleGatedAvailability
-              //   state={metadataState}
-              //   onStateUpdate={updatePremiumContentFields}
-              //   disabled={noCollectibleDropdown}
-              // />
+              <CollectibleGatedFields disabled={noCollectibleGate} />
             }
           />
         ) : null}
