@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { shuffle } from 'lodash'
+import { difference, shuffle } from 'lodash'
 import { useSelector, useDispatch } from 'react-redux'
 
 import { usePaginatedQuery } from 'audius-query'
@@ -9,6 +9,7 @@ import { Status } from 'models/Status'
 import { TimeRange } from 'models/TimeRange'
 import { getUserId } from 'store/account/selectors'
 import { addTrackToPlaylist } from 'store/cache/collections/actions'
+import { getCollection } from 'store/cache/collections/selectors'
 import { getTrack } from 'store/cache/tracks/selectors'
 import { CommonState } from 'store/index'
 
@@ -26,21 +27,33 @@ const selectSuggestedTracks = (state: CommonState, ids: ID[]) => {
   })
 }
 
-export const useGetSuggestedTracks = () => {
+const selectCollectionTrackIds = (state: CommonState, collectionId: ID) => {
+  const collection = getCollection(state, { id: collectionId })
+  if (!collection) return []
+  return collection?.playlist_contents.track_ids.map((trackId) => trackId.track)
+}
+
+export const useGetSuggestedTracks = (collectionId: ID) => {
   const currentUserId = useSelector(getUserId)
   const dispatch = useDispatch()
   const [suggestedTrackIds, setSuggestedTrackIds] = useState<ID[]>([])
+
+  const collectionTrackIds = useSelector((state: CommonState) =>
+    selectCollectionTrackIds(state, collectionId)
+  )
 
   const { data: favoritedTracks, status: favoritedStatus } =
     useGetFavoritedTrackList({ currentUserId }, { disabled: !currentUserId })
 
   useEffect(() => {
     if (favoritedTracks) {
-      const suggestedTrackIds = shuffle(favoritedTracks).map(
-        (track) => track.save_item_id
+      const suggestedTrackIds = difference(
+        shuffle(favoritedTracks).map((track) => track.save_item_id),
+        collectionTrackIds
       )
       setSuggestedTrackIds(suggestedTrackIds)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [favoritedTracks])
 
   const {
@@ -62,10 +75,11 @@ export const useGetSuggestedTracks = () => {
 
   useEffect(() => {
     if (trendingStatus === Status.SUCCESS) {
-      setSuggestedTrackIds([
-        ...suggestedTrackIds,
-        ...trendingTracks.map((track) => track.track_id)
-      ])
+      const trendingTrackIds = difference(
+        trendingTracks.map((track) => track.track_id),
+        collectionTrackIds
+      )
+      setSuggestedTrackIds([...suggestedTrackIds, ...trendingTrackIds])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trendingStatus])

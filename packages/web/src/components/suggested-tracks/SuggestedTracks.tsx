@@ -91,7 +91,8 @@ type SuggestedTracksProps = {
 
 export const SuggestedTracks = (props: SuggestedTracksProps) => {
   const { collectionId } = props
-  const { suggestedTracks, onRefresh, onAddTrack } = useGetSuggestedTracks()
+  const { suggestedTracks, onRefresh, onAddTrack } =
+    useGetSuggestedTracks(collectionId)
 
   const [isExpanded, toggleIsExpanded] = useToggle(false)
 
