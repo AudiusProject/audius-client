@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 
 import {
+  isPremiumContentCollectibleGated,
   premiumContentActions,
   SquareSizes,
   Track,
@@ -51,7 +52,7 @@ const TrackDetails = ({ track, owner }: { track: Track; owner: User }) => {
     ''
   )
   const label = `${title} by ${owner.name}`
-  const isCollectibleGated = !!premiumConditions?.nft_collection
+  const isCollectibleGated = isPremiumContentCollectibleGated(premiumConditions)
 
   return (
     <div className={styles.trackDetails}>
