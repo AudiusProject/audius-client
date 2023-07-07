@@ -526,8 +526,6 @@ export const PremiumTrackSection = ({
   const dispatch = useDispatch()
   const premiumTrackStatusMap = useSelector(getPremiumTrackStatusMap)
   const premiumTrackStatus = premiumTrackStatusMap[trackId] ?? null
-  // const premiumTrackStatus = 'UNLOCKING'
-  // const doesUserHaveAccess = false
   const { follow_user_id: followUserId, tip_user_id: tipUserId } =
     premiumConditions ?? {}
   const users = useSelector<AppState, { [id: ID]: User }>((state) =>
