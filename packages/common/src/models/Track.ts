@@ -55,6 +55,7 @@ export type RemixOf = {
   tracks: Remix[]
 }
 
+// Premium content
 export type TokenStandard = 'ERC721' | 'ERC1155'
 
 export type PremiumConditionsEthNFTCollection = {
@@ -75,19 +76,54 @@ export type PremiumConditionsSolNFTCollection = {
   externalLink: Nullable<string>
 }
 
-export type PremiumConditionsUSDCPurchase = {
-  price: StringUSDC
-  slot: number
-}
-
-export type PremiumConditions = {
-  nft_collection?:
+export type PremiumConditionsCollectibleGated = {
+  nft_collection:
     | PremiumConditionsEthNFTCollection
     | PremiumConditionsSolNFTCollection
-  follow_user_id?: number
-  tip_user_id?: number
-  usdc_purchase?: PremiumConditionsUSDCPurchase
+    | undefined
 }
+
+export const isPremiumContentCollectibleGated = (
+  premiumConditions: Nullable<PremiumConditions>
+): premiumConditions is {
+  nft_collection:
+    | PremiumConditionsEthNFTCollection
+    | PremiumConditionsSolNFTCollection
+    | undefined
+} => 'nft_collection' in (premiumConditions ?? {})
+
+export type PremiumConditionsFollowGated = { follow_user_id: number }
+
+export const isPremiumContentFollowGated = (
+  premiumConditions: Nullable<PremiumConditions>
+): premiumConditions is { follow_user_id: number } =>
+  'follow_user_id' in (premiumConditions ?? {})
+
+export type PremiumConditionsTipGated = { tip_user_id: number }
+
+export const isPremiumContentTipGated = (
+  premiumConditions: Nullable<PremiumConditions>
+): premiumConditions is { tip_user_id: number } =>
+  'tip_user_id' in (premiumConditions ?? {})
+
+export type PremiumConditionsUSDCPurchase = {
+  usdc_purchase: {
+    price: StringUSDC
+    slot: number
+  }
+}
+
+export const isPremiumContentUSDCPurchaseGated = (
+  premiumConditions: Nullable<PremiumConditions>
+): premiumConditions is {
+  usdc_purchase: { price: StringUSDC; slot: number }
+} => 'follow_user_id' in (premiumConditions ?? {})
+
+export type PremiumConditions =
+  | PremiumConditionsCollectibleGated
+  | PremiumConditionsFollowGated
+  | PremiumConditionsTipGated
+  | PremiumConditionsUSDCPurchase
 
 export type PremiumContentSignature = {
   data: string
