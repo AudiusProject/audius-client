@@ -28,6 +28,7 @@ import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { fullTrackPage, stripBaseUrl } from 'utils/route'
 
 import { EditFormValues } from '../components/EditPageNew'
+import { FIELD_VISIBILITY } from '../components/TrackAvailabilityModalForm'
 
 import { ModalField } from './ModalField'
 import styles from './RemixModalForm.module.css'
@@ -56,13 +57,13 @@ const messages = {
 export type RemixOfField = Nullable<{ tracks: { parent_track_id: ID }[] }>
 
 export const REMIX_OF = 'remix_of'
-export const HIDE_REMIXES = 'fieldVisibility.remixes'
+export const SHOW_REMIXES = `field_visibility.remixes`
 
 const IS_REMIX = 'is_remix'
 const REMIX_LINK = 'remix_of_link'
 
 export type RemixFormValues = {
-  [HIDE_REMIXES]: boolean
+  [SHOW_REMIXES]: boolean
   [IS_REMIX]: boolean
   [REMIX_LINK]: string | null
 }
@@ -73,8 +74,8 @@ export type RemixFormValues = {
  */
 export const RemixModalForm = () => {
   // These refer to the field in the outer EditForm
-  const [{ value: hideRemixesValue }, , { setValue: setHideRemixesValue }] =
-    useField(HIDE_REMIXES)
+  const [{ value: showRemixesValue }, , { setValue: setshowRemixesValue }] =
+    useField(SHOW_REMIXES)
   const [{ value: remixOfValue }, , { setValue: setRemixOfValue }] =
     useField<EditFormValues[typeof REMIX_OF]>(REMIX_OF)
 
@@ -90,7 +91,7 @@ export const RemixModalForm = () => {
 
   const initialValues = useMemo(() => {
     const initialValues = {}
-    set(initialValues, HIDE_REMIXES, hideRemixesValue)
+    set(initialValues, SHOW_REMIXES, showRemixesValue)
     set(
       initialValues,
       IS_REMIX,
@@ -98,7 +99,7 @@ export const RemixModalForm = () => {
     )
     set(initialValues, REMIX_LINK, remixLink)
     return initialValues as RemixFormValues
-  }, [hideRemixesValue, remixLink, remixOfValue?.tracks])
+  }, [showRemixesValue, remixLink, remixOfValue?.tracks])
 
   const [url, setUrl] = useState<string>()
 
@@ -110,7 +111,7 @@ export const RemixModalForm = () => {
 
   const onSubmit = useCallback(
     (values: RemixFormValues) => {
-      setHideRemixesValue(get(values, HIDE_REMIXES))
+      setshowRemixesValue(get(values, SHOW_REMIXES))
       if (get(values, IS_REMIX) && get(values, REMIX_LINK)) {
         // TODO: handle undefined linkedTrack with form validation
         setRemixOfValue({
@@ -123,7 +124,7 @@ export const RemixModalForm = () => {
         })
       }
     },
-    [linkedTrack?.track_id, setHideRemixesValue, setRemixOfValue]
+    [linkedTrack?.track_id, setshowRemixesValue, setRemixOfValue]
   )
 
   const preview = (
@@ -172,9 +173,10 @@ const RemixModalFields = (props: RemixModalFieldsProps) => {
   return (
     <div className={styles.fields}>
       <ToggleRowField
-        name={HIDE_REMIXES}
+        name={SHOW_REMIXES}
         header={messages.hideRemix.header}
         description={messages.hideRemix.description}
+        inverted
       />
       <Divider />
       <ToggleRowField

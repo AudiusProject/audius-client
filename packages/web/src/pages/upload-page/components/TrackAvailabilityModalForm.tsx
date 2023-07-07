@@ -4,6 +4,7 @@ import {
   accountSelectors,
   collectiblesSelectors,
   FeatureFlags,
+  FieldVisibility,
   Nullable,
   PremiumConditions,
   TrackAvailabilityType
@@ -29,6 +30,10 @@ import { REMIX_OF } from '../fields/RemixModalForm'
 
 import { CollectibleGatedDescription } from './CollectibleGatedDescription'
 import { EditFormValues } from './EditPageNew'
+import {
+  defaultHiddenFields,
+  HiddenAvailabilityFields
+} from './HiddenAvailabilityFields'
 import { SpecialAccessFields, SpecialAccessType } from './SpecialAccessFields'
 import styles from './TrackAvailabilityModalForm.module.css'
 const { getSupportedUserCollections } = collectiblesSelectors
@@ -67,11 +72,13 @@ export const PREMIUM_CONDITIONS = 'premium_conditions'
 
 export const AVAILABILITY_TYPE = 'availability_type'
 const SPECIAL_ACCESS_TYPE = 'special_access_type'
+export const FIELD_VISIBILITY = 'field_visibility'
 
 export type TrackAvailabilityFormValues = {
   [AVAILABILITY_TYPE]: TrackAvailabilityType
   [PREMIUM_CONDITIONS]: Nullable<PremiumConditions>
   [SPECIAL_ACCESS_TYPE]: Nullable<SpecialAccessType>
+  [FIELD_VISIBILITY]: Nullable<FieldVisibility>
 }
 
 // A modal that allows you to set a track as collectible-gated, special access, or unlisted,
@@ -87,6 +94,11 @@ export const TrackAvailabilityModalForm = () => {
     ,
     { setValue: setPremiumConditionsValue }
   ] = useField<EditFormValues[typeof PREMIUM_CONDITIONS]>(PREMIUM_CONDITIONS)
+  const [
+    { value: fieldVisibilityValue },
+    ,
+    { setValue: setFieldVisibilityValue }
+  ] = useField<EditFormValues[typeof FIELD_VISIBILITY]>(FIELD_VISIBILITY)
   const [{ value: remixOfValue }] =
     useField<EditFormValues[typeof REMIX_OF]>(REMIX_OF)
   const isRemix = !isEmpty(remixOfValue?.tracks)
@@ -107,9 +119,13 @@ export const TrackAvailabilityModalForm = () => {
     if (premiumConditionsValue?.nft_collection) {
       availabilityType = TrackAvailabilityType.COLLECTIBLE_GATED
     }
+    if (fieldVisibilityValue) {
+      availabilityType = TrackAvailabilityType.HIDDEN
+    }
     // TODO: USDC gated type
     set(initialValues, AVAILABILITY_TYPE, availabilityType)
 
+    set(initialValues, FIELD_VISIBILITY, fieldVisibilityValue)
     set(
       initialValues,
       SPECIAL_ACCESS_TYPE,
@@ -118,15 +134,26 @@ export const TrackAvailabilityModalForm = () => {
         : SpecialAccessType.FOLLOW
     )
     return initialValues as TrackAvailabilityFormValues
-  }, [isPremiumValue, isUnlistedValue, premiumConditionsValue])
+  }, [
+    fieldVisibilityValue,
+    isPremiumValue,
+    isUnlistedValue,
+    premiumConditionsValue
+  ])
 
   const onSubmit = useCallback(
     (values: TrackAvailabilityFormValues) => {
       setIsUnlistedValue(get(values, IS_UNLISTED))
       setIsPremiumValue(get(values, IS_PREMIUM))
       setPremiumConditionsValue(get(values, PREMIUM_CONDITIONS))
+      setFieldVisibilityValue(get(values, FIELD_VISIBILITY) ?? undefined)
     },
-    [setIsPremiumValue, setIsUnlistedValue, setPremiumConditionsValue]
+    [
+      setFieldVisibilityValue,
+      setIsPremiumValue,
+      setIsUnlistedValue,
+      setPremiumConditionsValue
+    ]
   )
 
   const preview = (
@@ -180,6 +207,14 @@ const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
     useField<TrackAvailabilityFormValues[typeof PREMIUM_CONDITIONS]>(
       PREMIUM_CONDITIONS
     )
+  const [
+    { value: fieldVisibilityValue },
+    ,
+    { setValue: setfieldVisibilityValue }
+  ] =
+    useField<TrackAvailabilityFormValues[typeof FIELD_VISIBILITY]>(
+      FIELD_VISIBILITY
+    )
 
   const [availabilityField, , { setValue: setAvailabilityValue }] = useField({
     name: AVAILABILITY_TYPE
@@ -212,18 +247,22 @@ const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
           setPremiumConditionsValue(null)
           break
         case TrackAvailabilityType.HIDDEN:
-          // TODO: set default availability fieilds
-          // setFieldValue(AVAILABILITY_FIELD, defaultAvailabilityFields)
+          if (!fieldVisibilityValue) break
+          setfieldVisibilityValue({
+            ...fieldVisibilityValue,
+            ...defaultHiddenFields
+          })
           break
       }
       setAvailabilityValue(type)
     },
     [
       accountUserId,
-      premiumConditionsValue?.nft_collection,
-      premiumConditionsValue?.tip_user_id,
+      fieldVisibilityValue,
+      premiumConditionsValue,
       setAvailabilityValue,
-      setPremiumConditionsValue
+      setPremiumConditionsValue,
+      setfieldVisibilityValue
     ]
   )
 
@@ -275,13 +314,7 @@ const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
           label={messages.hidden}
           value={TrackAvailabilityType.HIDDEN}
           description={messages.hiddenSubtitle}
-          checkedContent={
-            <>Hidden Options</>
-            // <HiddenAvailability
-            //   state={metadataState}
-            //   toggleField={toggleHiddenField}
-            // />
-          }
+          checkedContent={<HiddenAvailabilityFields />}
         />
       </RadioButtonGroup>
     </>
