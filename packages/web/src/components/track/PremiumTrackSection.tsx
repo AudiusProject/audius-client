@@ -224,10 +224,11 @@ const LockedPremiumTrackSection = ({
     if (premiumConditions.nft_collection) {
       return (
         <Button
+          color='accentBlue'
           text={messages.goToCollection}
           onClick={goToCollection}
           rightIcon={<IconExternalLink />}
-          type={ButtonType.PRIMARY_ALT}
+          type={ButtonType.PRIMARY}
           iconClassName={styles.buttonIcon}
           textClassName={styles.buttonText}
         />
