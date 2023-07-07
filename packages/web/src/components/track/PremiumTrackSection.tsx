@@ -470,7 +470,8 @@ const UnlockedPremiumTrackSection = ({
         className={cn(
           typeStyles.labelLarge,
           typeStyles.labelStrong,
-          styles.premiumContentSectionTitle
+          styles.premiumContentSectionTitle,
+          { [styles.isOwner]: isOwner }
         )}
       >
         {isOwner ? (
