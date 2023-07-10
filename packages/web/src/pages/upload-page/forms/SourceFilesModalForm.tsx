@@ -12,7 +12,7 @@ import {
   SourceFilesView,
   dropdownRows as stemCategories
 } from '../fields/SourceFilesView'
-import { ToggleRowField } from '../fields/ToggleRowField'
+import { SwitchRowField } from '../fields/SwitchRowField'
 import { processFiles } from '../store/utils/processFiles'
 
 import styles from './SourceFilesModalForm.module.css'
@@ -140,7 +140,7 @@ const SourceFilesModalFiels = () => {
     <div className={styles.fields}>
       <div>{messages.description}</div>
       <Divider />
-      <ToggleRowField
+      <SwitchRowField
         name={ALLOW_DOWNLOAD}
         header={messages[ALLOW_DOWNLOAD].header}
         description={messages[ALLOW_DOWNLOAD].description}
@@ -152,7 +152,7 @@ const SourceFilesModalFiels = () => {
         }}
       />
       <Divider />
-      <ToggleRowField
+      <SwitchRowField
         name={FOLLOWER_GATED}
         header={messages[FOLLOWER_GATED].header}
         description={messages[FOLLOWER_GATED].description}

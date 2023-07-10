@@ -1,11 +1,10 @@
-import { useCallback } from 'react'
-
 import { collectiblesSelectors } from '@audius/common'
 import { Button, ButtonType } from '@audius/stems'
 import { useSelector } from 'react-redux'
 
 import { ReactComponent as IconExternalLink } from 'assets/img/iconExternalLink.svg'
 import { HelpCallout } from 'components/help-callout/HelpCallout'
+import { AUDIUS_GATED_CONTENT_BLOG_LINK } from 'utils/route'
 
 import styles from './CollectibleGatedDescription.module.css'
 
@@ -22,9 +21,6 @@ const messages = {
   learnMore: 'Learn More'
 }
 
-const LEARN_MORE_URL =
-  'https://blog.audius.co/article/introducing-nft-collectible-gated-content'
-
 export const CollectibleGatedDescription = ({
   hasCollectibles,
   isUpload
@@ -34,28 +30,26 @@ export const CollectibleGatedDescription = ({
 }) => {
   const hasUnsupportedCollection = useSelector(getHasUnsupportedCollection)
 
-  const renderContent = useCallback(() => {
-    return hasUnsupportedCollection ? (
-      <div>
-        <div>{messages.compatibilityTitle}</div>
-        <div>{messages.compatibilitySubtitle}</div>
-      </div>
-    ) : (
-      messages.noCollectibles
-    )
-  }, [hasUnsupportedCollection])
+  const helpContent = hasUnsupportedCollection ? (
+    <div>
+      <div>{messages.compatibilityTitle}</div>
+      <div>{messages.compatibilitySubtitle}</div>
+    </div>
+  ) : (
+    messages.noCollectibles
+  )
 
   return (
     <div className={styles.innerDescription}>
       {messages.collectibleGatedSubtitle}
       {!hasCollectibles && isUpload ? (
-        <HelpCallout content={renderContent()} />
+        <HelpCallout content={helpContent} />
       ) : null}
       <Button
         type={ButtonType.TEXT}
         className={styles.learnMoreButton}
         text={messages.learnMore}
-        onClick={() => window.open(LEARN_MORE_URL, '_blank')}
+        onClick={() => window.open(AUDIUS_GATED_CONTENT_BLOG_LINK, '_blank')}
         iconClassName={styles.learnMoreArrow}
         rightIcon={<IconExternalLink />}
       />

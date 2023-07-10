@@ -29,7 +29,7 @@ import { fullTrackPage, stripBaseUrl } from 'utils/route'
 
 import { EditFormValues } from '../components/EditPageNew'
 import { ModalField } from '../fields/ModalField'
-import { ToggleRowField } from '../fields/ToggleRowField'
+import { SwitchRowField } from '../fields/SwitchRowField'
 
 import styles from './RemixModalForm.module.css'
 
@@ -171,14 +171,14 @@ const RemixModalFields = (props: RemixModalFieldsProps) => {
 
   return (
     <div className={styles.fields}>
-      <ToggleRowField
+      <SwitchRowField
         name={SHOW_REMIXES}
         header={messages.hideRemix.header}
         description={messages.hideRemix.description}
         inverted
       />
       <Divider />
-      <ToggleRowField
+      <SwitchRowField
         name={IS_REMIX}
         header={messages.remixOf.header}
         description={messages.remixOf.description}
@@ -197,7 +197,7 @@ const RemixModalFields = (props: RemixModalFieldsProps) => {
         />
         {/* @ts-ignore TDOO: need to populate track with cover art sizes */}
         {track ? <TrackInfo user={track.user} track={track} /> : null}
-      </ToggleRowField>
+      </SwitchRowField>
     </div>
   )
 }

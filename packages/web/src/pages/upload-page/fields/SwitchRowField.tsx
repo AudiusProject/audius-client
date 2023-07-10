@@ -4,7 +4,7 @@ import { Switch } from '@audius/stems'
 import cn from 'classnames'
 import { useField } from 'formik'
 
-import styles from './ToggleRowField.module.css'
+import styles from './SwitchRowField.module.css'
 
 type ToggleFieldProps = PropsWithChildren & {
   name: string
@@ -13,7 +13,7 @@ type ToggleFieldProps = PropsWithChildren & {
   inverted?: boolean
 } & Partial<ComponentProps<'input'>>
 
-export const ToggleRowField = (props: ToggleFieldProps) => {
+export const SwitchRowField = (props: ToggleFieldProps) => {
   const { name, header, description, inverted, children, ...inputOverrides } =
     props
   const [field] = useField({
