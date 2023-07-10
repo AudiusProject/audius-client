@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 
 import {
-  ID,
   Maybe,
   Nullable,
   SquareSizes,
