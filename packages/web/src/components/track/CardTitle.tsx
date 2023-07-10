@@ -3,6 +3,7 @@ import { IconCollectible, IconSpecialAccess } from '@audius/stems'
 import cn from 'classnames'
 
 import Tooltip from 'components/tooltip/Tooltip'
+import typeStyles from 'components/typography/typography.module.css'
 import { useFlag } from 'hooks/useRemoteConfig'
 import HiddenTrackHeader from 'pages/track-page/components/HiddenTrackHeader'
 
@@ -38,43 +39,28 @@ export const CardTitle = ({
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
   )
+  let content
+  const extraStyles = []
 
   if (isPremium) {
-    return (
-      <div
-        className={cn(styles.headerContainer, className, styles.premiumContent)}
-      >
-        {premiumConditions?.nft_collection ? (
-          <div className={styles.typeLabel}>
-            <IconCollectible />
-            {messages.collectibleGated}
-          </div>
-        ) : (
-          <div className={styles.typeLabel}>
-            <IconSpecialAccess />
-            {messages.specialAccess}
-          </div>
-        )}
+    extraStyles.push(styles.premiumContent)
+    let icon
+    let message
+    if (premiumConditions?.nft_collection) {
+      icon = <IconCollectible />
+      message = messages.collectibleGated
+    } else {
+      icon = <IconSpecialAccess />
+      message = messages.specialAccess
+    }
+    content = (
+      <div className={cn(styles.typeLabel, styles.premiumContentLabel)}>
+        {icon}
+        {message}
       </div>
     )
-  }
-
-  if (!isUnlisted) {
-    return (
-      <div className={cn(styles.headerContainer, className)}>
-        <div className={styles.typeLabel}>
-          {isRemix
-            ? messages.remixTitle
-            : isPodcast && isNewPodcastControlsEnabled
-            ? messages.podcastTitle
-            : messages.trackTitle}
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className={cn(styles.headerContainer, className)}>
+  } else {
+    content = isUnlisted ? (
       <Tooltip
         text={messages.hiddenTrackTooltip}
         mouseEnterDelay={0}
@@ -84,6 +70,28 @@ export const CardTitle = ({
           <HiddenTrackHeader />
         </div>
       </Tooltip>
+    ) : (
+      <div className={styles.typeLabel}>
+        {isRemix
+          ? messages.remixTitle
+          : isPodcast && isNewPodcastControlsEnabled
+          ? messages.podcastTitle
+          : messages.trackTitle}
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className={cn(
+        typeStyles.titleSmall,
+        typeStyles.titleWeak,
+        styles.headerContainer,
+        className,
+        ...extraStyles
+      )}
+    >
+      {content}
     </div>
   )
 }
