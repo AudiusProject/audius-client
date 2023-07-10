@@ -25,11 +25,17 @@ export const PremiumConditionsPill = ({
   ) : isPurchase ? null : (
     <IconLock />
   )
-  const message = unlocking
-    ? messages.unlocking
-    : isPurchase
-    ? `$${formatStringUSDC(premiumConditions.usdc_purchase.price)}`
-    : messages.locked
+
+  let message = null
+  if (unlocking) {
+    // Show only spinner when unlocking a purchase
+    message = isPurchase ? null : messages.unlocking
+  } else {
+    message = isPurchase
+      ? `$${formatStringUSDC(premiumConditions.usdc_purchase.price)}`
+      : messages.locked
+  }
+
   const colorStyle = isPurchase ? styles.premiumContent : styles.gatedContent
 
   return (

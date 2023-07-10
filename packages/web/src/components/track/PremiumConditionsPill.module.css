@@ -5,7 +5,9 @@
   color: var(--static-white);
   display: flex;
   gap: var(--unit-1);
+  justify-content: center;
   height: var(--unit-6);
+  min-width: var(--unit-16);
   padding: var(--unit-2) var(--unit-3);
 }
 
