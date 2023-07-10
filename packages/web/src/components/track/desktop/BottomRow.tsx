@@ -5,20 +5,18 @@ import {
   premiumContentSelectors,
   ID,
   PremiumConditions,
-  StringUSDC,
-  Nullable,
-  formatStringUSDC
+  Nullable
 } from '@audius/common'
-import { IconLock } from '@audius/stems'
 import cn from 'classnames'
 import { useSelector } from 'react-redux'
 
 import FavoriteButton from 'components/alt-button/FavoriteButton'
 import RepostButton from 'components/alt-button/RepostButton'
 import ShareButton from 'components/alt-button/ShareButton'
-import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Tooltip from 'components/tooltip/Tooltip'
 import typeStyles from 'components/typography/typography.module.css'
+
+import { PremiumConditionsPill } from '../PremiumConditionsPill'
 
 import styles from './TrackTile.module.css'
 
@@ -30,13 +28,6 @@ const messages = {
   unlocking: 'Unlocking',
   locked: 'Locked'
 }
-
-// TODO: Use version from common once PR is merged
-const isPremiumContentUSDCPurchaseGated = (
-  premiumConditions: Nullable<PremiumConditions>
-): premiumConditions is {
-  usdc_purchase: { price: StringUSDC; slot: number }
-} => 'usdc_purchase' in (premiumConditions ?? {})
 
 type BottomRowProps = {
   doesUserHaveAccess?: boolean
@@ -58,34 +49,6 @@ type BottomRowProps = {
   onClickRepost: (e?: any) => void
   onClickFavorite: (e?: any) => void
   onClickShare: (e?: any) => void
-}
-
-const PremiumConditionsPill = ({
-  premiumConditions,
-  unlocking
-}: {
-  premiumConditions: PremiumConditions
-  unlocking: boolean
-}) => {
-  const isPurchase = isPremiumContentUSDCPurchaseGated(premiumConditions)
-  const icon = unlocking ? (
-    <LoadingSpinner className={styles.spinner} />
-  ) : isPurchase ? null : (
-    <IconLock />
-  )
-  const message = unlocking
-    ? messages.unlocking
-    : isPurchase
-    ? `$${formatStringUSDC(premiumConditions.usdc_purchase.price)}`
-    : messages.locked
-  const colorStyle = isPurchase ? styles.premiumContent : styles.gatedContent
-
-  return (
-    <div className={cn(styles.hasPremiumCondition, colorStyle)}>
-      {icon}
-      {message}
-    </div>
-  )
 }
 
 export const BottomRow = ({
@@ -153,7 +116,7 @@ export const BottomRow = ({
           premiumConditions={premiumConditions}
           unlocking={premiumTrackStatus === 'UNLOCKING'}
         />
-        {!isLoading ? <div>{rightActions}</div> : null}
+        <div>{rightActions}</div>
       </div>
     )
   }

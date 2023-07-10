@@ -439,8 +439,10 @@ const TrackTile = (props: CombinedProps) => {
             onShare={onClickShare}
             onClickOverflow={onClickOverflowMenu}
             isOwner={isOwner}
+            isLoading={isLoading}
             isUnlisted={isUnlisted}
             doesUserHaveAccess={doesUserHaveAccess}
+            premiumConditions={premiumConditions}
             premiumTrackStatus={premiumTrackStatus}
             isShareHidden={hideShare}
             isDarkMode={darkMode}

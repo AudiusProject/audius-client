@@ -1,4 +1,13 @@
-import { Collection, FieldVisibility, Genre, Track, User } from '@audius/common'
+import {
+  Collection,
+  FieldVisibility,
+  Genre,
+  Nullable,
+  PremiumConditions,
+  StringUSDC,
+  Track,
+  User
+} from '@audius/common'
 
 const defaultFieldVisibility: FieldVisibility = {
   genre: true,
@@ -83,3 +92,10 @@ export const getUserWithFallback = (user: User | null) => {
     }
   )
 }
+
+// TODO: Use version from common once PR is merged
+export const isPremiumContentUSDCPurchaseGated = (
+  premiumConditions: Nullable<PremiumConditions>
+): premiumConditions is {
+  usdc_purchase: { price: StringUSDC; slot: number }
+} => 'usdc_purchase' in (premiumConditions ?? {})

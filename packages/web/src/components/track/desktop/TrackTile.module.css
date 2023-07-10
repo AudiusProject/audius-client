@@ -366,43 +366,6 @@
   width: 100%;
 }
 
-.bottomRow .hasPremiumCondition {
-  align-items: center;
-  background-color: var(--accent-blue);
-  border-radius: var(--unit-1);
-  color: var(--static-white);
-  display: flex;
-  gap: var(--unit-1);
-  height: var(--unit-6);
-  padding: var(--unit-2) var(--unit-3);
-}
-
-.bottomRow .hasPremiumCondition svg {
-  width: var(--unit-4);
-  height: var(--unit-4);
-}
-
-.bottomRow .hasPremiumCondition path {
-  fill: var(--static-white);
-}
-
-.bottomRow .gatedContent {
-  background-color: var(--accent-blue);
-}
-
-.bottomRow .premiumContent {
-  background-color: var(--special-light-green);
-}
-
-.spinner {
-  height: var(--unit-4);
-  width: var(--unit-4);
-}
-
-.spinner g path {
-  stroke: var(--static-white);
-}
-
 .bottomRow .iconButtons {
   display: flex;
   gap: var(--unit-8);
