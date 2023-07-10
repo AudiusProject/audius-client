@@ -137,7 +137,7 @@ export const convertWeiToWAudio = (amount: BN) => {
 /** USDC Utils */
 const BN_USDC_WEI = new BN('1000000')
 
-/* Formats a USDC wei string (full precision) to a fixed string suitable for
+/** Formats a USDC wei string (full precision) to a fixed string suitable for
 display as a dollar amount. Note: WILL lose precision by rounding to nearest cent */
 export const formatUSDCWeiToUSDString = (amount: StringUSDC, precision = 2) => {
   // Since we only need two digits of precision, we will multiply up by 100
