@@ -15,7 +15,8 @@ import {
   imageBlank as placeholderArt,
   PremiumConditions,
   Nullable,
-  getDogEarType
+  getDogEarType,
+  isPremiumContentCollectibleGated
 } from '@audius/common'
 import {
   Button,
@@ -322,12 +323,12 @@ const TrackHeader = ({
     if (isPremium) {
       return (
         <div className={cn(styles.typeLabel, styles.premiumContentLabel)}>
-          {premiumConditions?.nft_collection ? (
+          {isPremiumContentCollectibleGated(premiumConditions) ? (
             <IconCollectible />
           ) : (
             <IconSpecialAccess />
           )}
-          {premiumConditions?.nft_collection ? (
+          {isPremiumContentCollectibleGated(premiumConditions) ? (
             <span>{messages.collectibleGated}</span>
           ) : (
             <span>{messages.specialAccess}</span>

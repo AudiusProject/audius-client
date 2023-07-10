@@ -27,7 +27,9 @@ import {
   reachabilitySelectors,
   usePremiumContentAccess,
   playbackPositionSelectors,
-  FeatureFlags
+  FeatureFlags,
+  isPremiumContentUSDCPurchaseGated,
+  isPremiumContentCollectibleGated
 } from '@audius/common'
 import type { UID, User, SearchTrack, SearchUser, Track } from '@audius/common'
 import { Image, View } from 'react-native'
@@ -409,14 +411,14 @@ export const TrackScreenDetailsTile = ({
     if (isGatedContentEnabled && isPremium) {
       return (
         <View style={styles.headerView}>
-          {track.premium_conditions?.usdc_purchase ? (
+          {isPremiumContentUSDCPurchaseGated(track.premium_conditions) ? (
             <IconCart
               style={styles.premiumIcon}
               fill={neutralLight4}
               width={spacing(4.5)}
               height={spacing(4.5)}
             />
-          ) : track.premium_conditions?.nft_collection ? (
+          ) : isPremiumContentCollectibleGated(track.premium_conditions) ? (
             <IconCollectible style={styles.premiumIcon} fill={neutralLight4} />
           ) : (
             <IconSpecialAccess
@@ -425,7 +427,7 @@ export const TrackScreenDetailsTile = ({
             />
           )}
           <Text style={styles.premiumHeaderText}>
-            {track.premium_conditions?.nft_collection
+            {isPremiumContentCollectibleGated(track.premium_conditions)
               ? messages.collectibleGated
               : messages.specialAccess}
           </Text>

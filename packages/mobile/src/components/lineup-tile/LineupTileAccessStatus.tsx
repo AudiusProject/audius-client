@@ -1,5 +1,8 @@
 import type { ID, PremiumConditions } from '@audius/common'
-import { premiumContentSelectors } from '@audius/common'
+import {
+  isPremiumContentUSDCPurchaseGated,
+  premiumContentSelectors
+} from '@audius/common'
 import { View } from 'react-native'
 import { useSelector } from 'react-redux'
 
@@ -57,7 +60,7 @@ export const LineupTileAccessStatus = ({
     <View
       style={[
         styles.root,
-        isUSDCEnabled && premiumConditions.usdc_purchase
+        isUSDCEnabled && isPremiumContentUSDCPurchaseGated(premiumConditions)
           ? styles.usdcPurchase
           : null
       ]}

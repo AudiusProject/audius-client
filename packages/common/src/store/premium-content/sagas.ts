@@ -477,10 +477,13 @@ function* pollPremiumTrack({
         yield* put(showConfetti())
       }
 
+      if (!track.premium_conditions) {
+        return
+      }
       const eventName =
-        'follow_user_id' in (track.premium_conditions ?? {})
+        'follow_user_id' in track.premium_conditions
           ? Name.FOLLOW_GATED_TRACK_UNLOCKED
-          : 'tip_user_id' in (track.premium_conditions ?? {})
+          : 'tip_user_id' in track.premium_conditions
           ? Name.TIP_GATED_TRACK_UNLOCKED
           : null
       if (eventName) {

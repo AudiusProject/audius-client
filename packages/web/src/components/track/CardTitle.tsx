@@ -1,4 +1,9 @@
-import { FeatureFlags, Nullable, PremiumConditions } from '@audius/common'
+import {
+  FeatureFlags,
+  Nullable,
+  PremiumConditions,
+  isPremiumContentCollectibleGated
+} from '@audius/common'
 import { IconCollectible, IconSpecialAccess } from '@audius/stems'
 import cn from 'classnames'
 
@@ -44,7 +49,7 @@ export const CardTitle = ({
       <div
         className={cn(styles.headerContainer, className, styles.premiumContent)}
       >
-        {premiumConditions?.nft_collection ? (
+        {isPremiumContentCollectibleGated(premiumConditions) ? (
           <div className={styles.typeLabel}>
             <IconCollectible />
             {messages.collectibleGated}

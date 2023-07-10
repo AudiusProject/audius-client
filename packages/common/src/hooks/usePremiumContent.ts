@@ -98,6 +98,13 @@ export const usePremiumContentAccessMap = (tracks: Partial<Track>[]) => {
 export const usePremiumConditionsEntity = (
   premiumConditions: Nullable<PremiumConditions>
 ) => {
+  // if (premiumConditions === null || premiumConditions === undefined) {
+  //   return {}
+  // }
+  // const followUserId =
+  //   'follow_user_id' in (premiumConditions ?? {})
+  //     ? premiumConditions?.follow_user_id
+  //     : null
   const followUserId = isPremiumContentFollowGated(premiumConditions)
     ? premiumConditions?.follow_user_id
     : null

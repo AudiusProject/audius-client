@@ -219,7 +219,7 @@ const TrackAvailabilityModal = ({
 
         // Keep track of previously selected collectible and special access gates
         // in case the user switches back and forth between radio items
-        if (premiumConditions.nft_collection) {
+        if (isPremiumContentCollectibleGated(premiumConditions)) {
           setSelectedNFTCollection(premiumConditions.nft_collection)
         } else {
           setSelectedSpecialAccessGate(premiumConditions)

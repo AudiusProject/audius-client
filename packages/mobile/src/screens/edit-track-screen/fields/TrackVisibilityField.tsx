@@ -1,9 +1,11 @@
 import { useMemo } from 'react'
 
-import type {
-  FieldVisibility,
-  Nullable,
-  PremiumConditions
+import {
+  isPremiumContentFollowGated,
+  type FieldVisibility,
+  type Nullable,
+  type PremiumConditions,
+  isPremiumContentTipGated
 } from '@audius/common'
 import { useField } from 'formik'
 
@@ -54,10 +56,10 @@ export const TrackVisibilityField = (props: TrackVisibilityFieldProps) => {
     if ('nft_collection' in (premiumConditions ?? {})) {
       return [messages.collectibleGated]
     }
-    if (premiumConditions?.follow_user_id) {
+    if (isPremiumContentFollowGated(premiumConditions)) {
       return [messages.specialAccess, messages.followersOnly]
     }
-    if (premiumConditions?.tip_user_id) {
+    if (isPremiumContentTipGated(premiumConditions)) {
       return [messages.specialAccess, messages.supportersOnly]
     }
     if (isUnlisted) {

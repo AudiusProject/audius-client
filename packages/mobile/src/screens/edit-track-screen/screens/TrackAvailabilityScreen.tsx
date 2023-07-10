@@ -4,7 +4,10 @@ import type { Nullable, PremiumConditions } from '@audius/common'
 import {
   removeNullable,
   TrackAvailabilityType,
-  collectiblesSelectors
+  collectiblesSelectors,
+  isPremiumContentFollowGated,
+  isPremiumContentTipGated,
+  isPremiumContentCollectibleGated
 } from '@audius/common'
 import { useField, useFormikContext } from 'formik'
 import { useSelector } from 'react-redux'
@@ -110,11 +113,11 @@ export const TrackAvailabilityScreen = () => {
   const isInitiallySpecialAccess =
     !isUpload &&
     !!(
-      initialPremiumConditions?.follow_user_id ||
-      initialPremiumConditions?.tip_user_id
+      isPremiumContentFollowGated(initialPremiumConditions) ||
+      isPremiumContentTipGated(initialPremiumConditions)
     )
   const isInitiallyCollectibleGated =
-    !isUpload && !!initialPremiumConditions?.nft_collection
+    !isUpload && isPremiumContentCollectibleGated(initialPremiumConditions)
   const isInitiallyHidden = !isUpload && initialValues.is_unlisted
 
   const noCollectibleGate =
@@ -137,7 +140,10 @@ export const TrackAvailabilityScreen = () => {
 
   // we only care about what the initial value was here
   // eslint-disable-next-line
-  const previousPremiumConditions = useMemo(() => premiumConditions ?? initialPremiumConditions, [])
+  const previousPremiumConditions = useMemo(
+    () => premiumConditions ?? initialPremiumConditions,
+    []
+  )
 
   const data: ListSelectionData[] = [
     { label: publicAvailability, value: publicAvailability },
