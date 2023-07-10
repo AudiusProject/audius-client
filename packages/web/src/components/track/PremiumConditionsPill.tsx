@@ -1,4 +1,4 @@
-import { PremiumConditions, formatStringUSDC } from '@audius/common'
+import { PremiumConditions, formatUSDCWeiToUSDString } from '@audius/common'
 import { IconLock } from '@audius/stems'
 import cn from 'classnames'
 
@@ -32,7 +32,7 @@ export const PremiumConditionsPill = ({
     message = isPurchase ? null : messages.unlocking
   } else {
     message = isPurchase
-      ? `$${formatStringUSDC(premiumConditions.usdc_purchase.price)}`
+      ? `$${formatUSDCWeiToUSDString(premiumConditions.usdc_purchase.price)}`
       : messages.locked
   }
 

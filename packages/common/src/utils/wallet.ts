@@ -138,9 +138,13 @@ export const convertWeiToWAudio = (amount: BN) => {
 const BN_USDC_WEI = new BN('1000000')
 
 /* Formats a USDC wei string (full precision) to a fixed string suitable for
-display as a dollar amount */
-export const formatStringUSDC = (amount: StringUSDC, precision = 2) => {
-  const converted = new BN(amount).div(BN_USDC_WEI).toNumber()
+display as a dollar amount. Note: WILL lose precision by rounding to nearest cent */
+export const formatUSDCWeiToUSDString = (amount: StringUSDC, precision = 2) => {
+  // Since we only need two digits of precision, we will multiply up by 100
+  // with BN, divide by $1 Wei, and then convert to JS number and divide back down
+  // before formatting to two decimal places.
+  const converted =
+    new BN(amount).muln(100).divRound(BN_USDC_WEI).toNumber() / 100
   return converted.toFixed(precision)
 }
 
