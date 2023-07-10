@@ -59,9 +59,9 @@ const messages = {
   period: '.',
   exclamationMark: '!',
   ownCollectibleGatedPrefix:
-    'Users can unlock access by linking a wallet containing a collectible from',
+    'Users can unlock access by linking a wallet containing a collectible from ',
   unlockCollectibleGatedTrack:
-    'To unlock this track, you must link a wallet containing a collectible from',
+    'To unlock this track, you must link a wallet containing a collectible from ',
   aCollectibleFrom: 'A Collectible from ',
   unlockingCollectibleGatedTrackSuffix: 'was found in a linked wallet.',
   unlockedCollectibleGatedTrackSuffix:
