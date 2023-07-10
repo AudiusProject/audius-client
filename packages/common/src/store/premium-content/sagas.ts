@@ -17,7 +17,10 @@ import {
   PremiumContentSignature,
   PremiumTrackStatus,
   Track,
-  TrackMetadata
+  TrackMetadata,
+  isPremiumContentCollectibleGated,
+  isPremiumContentFollowGated,
+  isPremiumContentTipGated
 } from 'models'
 import { User } from 'models/User'
 import { IntKeys } from 'services/remote-config'
@@ -139,7 +142,7 @@ function* getTokenIdMap({
       if (
         !isPremium ||
         !premiumConditions ||
-        !('nft_collection' in premiumConditions)
+        !isPremiumContentCollectibleGated(premiumConditions)
       )
         return
 
@@ -237,8 +240,8 @@ function* handleSpecialAccessTrackSubscriptions(tracks: Track[]) {
     }
 
     const hasNoSignature = !premiumContentSignature
-    const isFollowGated = 'follow_user_id' in premiumConditions
-    const isTipGated = 'tip_user_id' in premiumConditions
+    const isFollowGated = isPremiumContentFollowGated(premiumConditions)
+    const isTipGated = isPremiumContentTipGated(premiumConditions)
     const shouldHaveSignature =
       (isFollowGated && followeeIds.includes(ownerId)) ||
       (isTipGated && tippedUserIds.includes(ownerId))
@@ -480,12 +483,11 @@ function* pollPremiumTrack({
       if (!track.premium_conditions) {
         return
       }
-      const eventName =
-        'follow_user_id' in track.premium_conditions
-          ? Name.FOLLOW_GATED_TRACK_UNLOCKED
-          : 'tip_user_id' in track.premium_conditions
-          ? Name.TIP_GATED_TRACK_UNLOCKED
-          : null
+      const eventName = isPremiumContentFollowGated(track.premium_conditions)
+        ? Name.FOLLOW_GATED_TRACK_UNLOCKED
+        : isPremiumContentTipGated(track.premium_conditions)
+        ? Name.TIP_GATED_TRACK_UNLOCKED
+        : null
       if (eventName) {
         analytics.track({
           eventName,
@@ -542,8 +544,8 @@ function* updateSpecialAccessTracks(
     } = cachedTracks[id]
     const isGated =
       gate === 'follow'
-        ? 'follow_user_id' in (premiumConditions ?? {})
-        : 'tip_user_id' in (premiumConditions ?? {})
+        ? isPremiumContentFollowGated(premiumConditions)
+        : isPremiumContentTipGated(premiumConditions)
     if (isGated && ownerId === trackOwnerId) {
       statusMap[id] = 'UNLOCKING'
       trackParamsMap[id] = parseTrackRouteFromPermalink(permalink)
@@ -586,7 +588,7 @@ function* handleUnfollowUser(
     const id = parseInt(trackId)
     const { owner_id: ownerId, premium_conditions: premiumConditions } =
       cachedTracks[id]
-    const isFollowGated = 'follow_user_id' in (premiumConditions ?? {})
+    const isFollowGated = isPremiumContentFollowGated(premiumConditions)
     if (isFollowGated && ownerId === action.userId) {
       statusMap[id] = 'LOCKED'
     }

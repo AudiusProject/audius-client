@@ -76,6 +76,9 @@ export type PremiumConditionsSolNFTCollection = {
   externalLink: Nullable<string>
 }
 
+// nft_collection can be undefined during upload flow when user has set track to
+// collectible-gated but hasn't specified collection yet, but should always be defined
+// after user has set the collection.
 export type PremiumConditionsCollectibleGated = {
   nft_collection:
     | PremiumConditionsEthNFTCollection
@@ -83,24 +86,9 @@ export type PremiumConditionsCollectibleGated = {
     | undefined
 }
 
-export const isPremiumContentCollectibleGated = (
-  premiumConditions?: Nullable<PremiumConditions>
-): premiumConditions is PremiumConditionsCollectibleGated =>
-  'nft_collection' in (premiumConditions ?? {})
-
 export type PremiumConditionsFollowGated = { follow_user_id: number }
 
-export const isPremiumContentFollowGated = (
-  premiumConditions?: Nullable<PremiumConditions>
-): premiumConditions is PremiumConditionsFollowGated =>
-  'follow_user_id' in (premiumConditions ?? {})
-
 export type PremiumConditionsTipGated = { tip_user_id: number }
-
-export const isPremiumContentTipGated = (
-  premiumConditions?: Nullable<PremiumConditions>
-): premiumConditions is PremiumConditionsTipGated =>
-  'tip_user_id' in (premiumConditions ?? {})
 
 export type PremiumConditionsUSDCPurchase = {
   usdc_purchase: {
@@ -109,16 +97,31 @@ export type PremiumConditionsUSDCPurchase = {
   }
 }
 
-export const isPremiumContentUSDCPurchaseGated = (
-  premiumConditions?: Nullable<PremiumConditions>
-): premiumConditions is PremiumConditionsUSDCPurchase =>
-  'usdc_purchase' in (premiumConditions ?? {})
-
 export type PremiumConditions =
   | PremiumConditionsCollectibleGated
   | PremiumConditionsFollowGated
   | PremiumConditionsTipGated
   | PremiumConditionsUSDCPurchase
+
+export const isPremiumContentCollectibleGated = (
+  premiumConditions?: Nullable<PremiumConditions>
+): premiumConditions is PremiumConditionsCollectibleGated =>
+  'nft_collection' in (premiumConditions ?? {})
+
+export const isPremiumContentFollowGated = (
+  premiumConditions?: Nullable<PremiumConditions>
+): premiumConditions is PremiumConditionsFollowGated =>
+  'follow_user_id' in (premiumConditions ?? {})
+
+export const isPremiumContentTipGated = (
+  premiumConditions?: Nullable<PremiumConditions>
+): premiumConditions is PremiumConditionsTipGated =>
+  'tip_user_id' in (premiumConditions ?? {})
+
+export const isPremiumContentUSDCPurchaseGated = (
+  premiumConditions?: Nullable<PremiumConditions>
+): premiumConditions is PremiumConditionsUSDCPurchase =>
+  'usdc_purchase' in (premiumConditions ?? {})
 
 export type PremiumContentSignature = {
   data: string
