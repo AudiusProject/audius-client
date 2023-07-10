@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 
 import {
   isPremiumContentCollectibleGated,
+  getDogEarType,
   premiumContentActions,
   SquareSizes,
   Track,
@@ -21,6 +22,7 @@ import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
+import { DogEar } from 'components/dog-ear'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { PremiumTrackSection } from 'components/track/PremiumTrackSection'
 import UserBadges from 'components/user-badges/UserBadges'
@@ -51,6 +53,12 @@ const TrackDetails = ({ track, owner }: { track: Track; owner: User }) => {
     SquareSizes.SIZE_150_BY_150,
     ''
   )
+
+  const dogEarType = getDogEarType({
+    doesUserHaveAccess: false,
+    isOwner: false,
+    premiumConditions
+  })
   const label = `${title} by ${owner.name}`
   const isCollectibleGated = isPremiumContentCollectibleGated(premiumConditions)
 
@@ -62,6 +70,7 @@ const TrackDetails = ({ track, owner }: { track: Track; owner: User }) => {
         image={image}
         aria-label={label}
       />
+      {dogEarType ? <DogEar type={dogEarType} /> : null}
       <div>
         <div className={styles.premiumContentLabel}>
           {isCollectibleGated ? <IconCollectible /> : <IconSpecialAccess />}

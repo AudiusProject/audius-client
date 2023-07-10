@@ -311,6 +311,7 @@ const TrackHeader = ({
     const DogEarType = getDogEarType({
       doesUserHaveAccess,
       isOwner,
+      isUnlisted,
       premiumConditions
     })
     if (!isLoading && DogEarType) {

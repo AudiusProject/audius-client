@@ -21,9 +21,7 @@ import {
   Button,
   ButtonType,
   IconCollectible,
-  IconLock,
   IconSpecialAccess,
-  IconLockUnlocked,
   LogoEth,
   LogoSol
 } from '@audius/stems'
@@ -32,19 +30,20 @@ import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ReactComponent as IconExternalLink } from 'assets/img/iconExternalLink.svg'
-import { ReactComponent as IconVerified } from 'assets/img/iconVerified.svg'
 import { useModalState } from 'common/hooks/useModalState'
 import { showRequiresAccountModal } from 'common/store/pages/signon/actions'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
-import FollowButton from 'components/follow-button/FollowButton'
+import { FollowButton } from 'components/follow-button/FollowButton'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { IconTip } from 'components/notification/Notification/components/icons'
+import typeStyles from 'components/typography/typography.module.css'
 import UserBadges from 'components/user-badges/UserBadges'
 import { emptyStringGuard } from 'pages/track-page/utils'
 import { AppState } from 'store/types'
 import { profilePage, SIGN_UP_PAGE } from 'utils/route'
 
 import styles from './GiantTrackTile.module.css'
+import { LockedStatusBadge } from './LockedStatusBadge'
 
 const { getUsers } = cacheUsersSelectors
 const { beginTip } = tippingActions
@@ -57,7 +56,7 @@ const messages = {
   unlocked: 'UNLOCKED',
   collectibleGated: 'COLLECTIBLE GATED',
   specialAccess: 'SPECIAL ACCESS',
-  goToCollection: 'Go To Collection',
+  goToCollection: 'Open Collection',
   sendTip: 'Send Tip',
   followArtist: 'Follow Artist',
   period: '.',
@@ -65,7 +64,7 @@ const messages = {
   ownCollectibleGatedPrefix:
     'Users can unlock access by linking a wallet containing a collectible from ',
   unlockCollectibleGatedTrack:
-    'To unlock this track, you must link a wallet containing a collectible from:',
+    'To unlock this track, you must link a wallet containing a collectible from ',
   aCollectibleFrom: 'A Collectible from ',
   unlockingCollectibleGatedTrackSuffix: 'was found in a linked wallet.',
   unlockedCollectibleGatedTrackSuffix:
@@ -166,8 +165,16 @@ const LockedPremiumTrackSection = ({
   const renderLockedDescription = useCallback(() => {
     if (isPremiumContentCollectibleGated(premiumConditions)) {
       return (
-        <div className={styles.premiumContentSectionDescription}>
-          <div>{messages.unlockCollectibleGatedTrack}</div>
+        <div
+          className={cn(
+            typeStyles.bodyMedium,
+            typeStyles.bodyStrong,
+            styles.premiumContentSectionDescription
+          )}
+        >
+          <div className={styles.collectibleGatedDescription}>
+            {messages.unlockCollectibleGatedTrack}
+          </div>
           <div
             className={styles.premiumContentSectionCollection}
             onClick={goToCollection}
@@ -193,7 +200,13 @@ const LockedPremiumTrackSection = ({
 
     if (isPremiumContentFollowGated(premiumConditions) && followee) {
       return (
-        <div className={styles.premiumContentSectionDescription}>
+        <div
+          className={cn(
+            typeStyles.bodyMedium,
+            typeStyles.bodyStrong,
+            styles.premiumContentSectionDescription
+          )}
+        >
           <div>
             <span>{messages.unlockFollowGatedTrackPrefix}&nbsp;</span>
             {renderArtist(followee)}
@@ -205,7 +218,13 @@ const LockedPremiumTrackSection = ({
 
     if (isPremiumContentTipGated(premiumConditions) && tippedUser) {
       return (
-        <div className={styles.premiumContentSectionDescription}>
+        <div
+          className={cn(
+            typeStyles.bodyMedium,
+            typeStyles.bodyStrong,
+            styles.premiumContentSectionDescription
+          )}
+        >
           <div>
             <span>{messages.unlockTipGatedTrackPrefix}&nbsp;</span>
             {renderArtist(tippedUser)}
@@ -227,10 +246,11 @@ const LockedPremiumTrackSection = ({
     if (isPremiumContentCollectibleGated(premiumConditions)) {
       return (
         <Button
+          color='accentBlue'
           text={messages.goToCollection}
           onClick={goToCollection}
           rightIcon={<IconExternalLink />}
-          type={ButtonType.PRIMARY_ALT}
+          type={ButtonType.PRIMARY}
           iconClassName={styles.buttonIcon}
           textClassName={styles.buttonText}
         />
@@ -240,6 +260,7 @@ const LockedPremiumTrackSection = ({
     if (isPremiumContentFollowGated(premiumConditions)) {
       return (
         <FollowButton
+          color='accentBlue'
           className={styles.followButton}
           messages={{
             follow: messages.followArtist,
@@ -255,10 +276,11 @@ const LockedPremiumTrackSection = ({
     if (isPremiumContentTipGated(premiumConditions)) {
       return (
         <Button
+          color='accentBlue'
           text={messages.sendTip}
           onClick={handleSendTip}
           rightIcon={<IconTip />}
-          type={ButtonType.PRIMARY_ALT}
+          type={ButtonType.PRIMARY}
           iconClassName={styles.buttonIcon}
           textClassName={styles.buttonText}
         />
@@ -273,9 +295,15 @@ const LockedPremiumTrackSection = ({
 
   return (
     <div className={className}>
-      <div>
-        <div className={styles.premiumContentSectionTitle}>
-          <IconLock className={styles.lockedIcon} />
+      <div className={styles.premiumContentDescriptionContainer}>
+        <div
+          className={cn(
+            typeStyles.labelLarge,
+            typeStyles.labelStrong,
+            styles.premiumContentSectionTitle
+          )}
+        >
+          <LockedStatusBadge locked />
           {messages.howToUnlock}
         </div>
         {renderLockedDescription()}
@@ -299,7 +327,6 @@ const UnlockingPremiumTrackSection = ({
     if (isPremiumContentCollectibleGated(premiumConditions)) {
       return (
         <div>
-          <LoadingSpinner className={styles.spinner} />
           <span>{messages.aCollectibleFrom}</span>
           <span className={styles.collectibleName} onClick={goToCollection}>
             &nbsp;{premiumConditions.nft_collection?.name}&nbsp;
@@ -312,7 +339,6 @@ const UnlockingPremiumTrackSection = ({
     if (isPremiumContentFollowGated(premiumConditions) && followee) {
       return (
         <div>
-          <LoadingSpinner className={styles.spinner} />
           <span>{messages.thankYouForFollowing}&nbsp;</span>
           {renderArtist(followee)}
           <span>{messages.exclamationMark}</span>
@@ -323,7 +349,6 @@ const UnlockingPremiumTrackSection = ({
     if (isPremiumContentTipGated(premiumConditions) && tippedUser) {
       return (
         <div>
-          <LoadingSpinner className={styles.spinner} />
           <span>{messages.thankYouForSupporting}&nbsp;</span>
           {renderArtist(tippedUser)}
           <span className={styles.suffix}>
@@ -340,12 +365,24 @@ const UnlockingPremiumTrackSection = ({
 
   return (
     <div className={className}>
-      <div>
-        <div className={styles.premiumContentSectionTitle}>
-          <IconLock className={styles.lockedIcon} />
+      <div className={styles.premiumContentDescriptionContainer}>
+        <div
+          className={cn(
+            typeStyles.labelLarge,
+            typeStyles.labelStrong,
+            styles.premiumContentSectionTitle
+          )}
+        >
+          <LoadingSpinner className={styles.spinner} />
           {messages.unlocking}
         </div>
-        <div className={styles.premiumContentSectionDescription}>
+        <div
+          className={cn(
+            typeStyles.bodyMedium,
+            typeStyles.bodyStrong,
+            styles.premiumContentSectionDescription
+          )}
+        >
           {renderUnlockingDescription()}
         </div>
       </div>
@@ -375,7 +412,6 @@ const UnlockedPremiumTrackSection = ({
         </div>
       ) : (
         <div>
-          <IconVerified className={styles.verifiedGreenIcon} />
           <span>
             {messages.aCollectibleFrom}
             <span className={styles.collectibleName} onClick={goToCollection}>
@@ -395,7 +431,6 @@ const UnlockedPremiumTrackSection = ({
         </div>
       ) : (
         <div>
-          <IconVerified className={styles.verifiedGreenIcon} />
           <span>{messages.thankYouForFollowing}&nbsp;</span>
           {renderArtist(followee)}
           <span>{messages.unlockedFollowGatedTrackSuffix}</span>
@@ -410,7 +445,6 @@ const UnlockedPremiumTrackSection = ({
         </div>
       ) : (
         <div>
-          <IconVerified className={styles.verifiedGreenIcon} />
           <span>{messages.thankYouForSupporting}&nbsp;</span>
           {renderArtist(tippedUser)}
           <span className={styles.suffix}>
@@ -435,7 +469,14 @@ const UnlockedPremiumTrackSection = ({
 
   return (
     <div className={className}>
-      <div className={styles.premiumContentSectionTitle}>
+      <div
+        className={cn(
+          typeStyles.labelLarge,
+          typeStyles.labelStrong,
+          styles.premiumContentSectionTitle,
+          { [styles.isOwner]: isOwner }
+        )}
+      >
         {isOwner ? (
           isPremiumContentCollectibleGated(premiumConditions) ? (
             <IconCollectible className={styles.collectibleIcon} />
@@ -443,7 +484,7 @@ const UnlockedPremiumTrackSection = ({
             <IconSpecialAccess className={styles.specialAccessIcon} />
           )
         ) : (
-          <IconLockUnlocked className={styles.unlockedIcon} />
+          <LockedStatusBadge locked={false} />
         )}
         {isOwner
           ? isPremiumContentCollectibleGated(premiumConditions)
@@ -451,7 +492,13 @@ const UnlockedPremiumTrackSection = ({
             : messages.specialAccess
           : messages.unlocked}
       </div>
-      <div className={styles.premiumContentSectionDescription}>
+      <div
+        className={cn(
+          typeStyles.bodyMedium,
+          typeStyles.bodyStrong,
+          styles.premiumContentSectionDescription
+        )}
+      >
         {renderUnlockedDescription()}
       </div>
     </div>
@@ -526,7 +573,11 @@ export const PremiumTrackSection = ({
 
   const renderArtist = useCallback(
     (entity: User) => (
-      <ArtistPopover handle={entity.handle} mouseEnterDelay={0.1}>
+      <ArtistPopover
+        handle={entity.handle}
+        mouseEnterDelay={0.1}
+        component='span'
+      >
         <h2
           className={styles.premiumTrackOwner}
           onClick={() =>
