@@ -28,10 +28,10 @@ import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { fullTrackPage, stripBaseUrl } from 'utils/route'
 
 import { EditFormValues } from '../components/EditPageNew'
+import { ModalField } from '../fields/ModalField'
+import { ToggleRowField } from '../fields/ToggleRowField'
 
-import { ModalField } from './ModalField'
 import styles from './RemixModalForm.module.css'
-import { ToggleRowField } from './ToggleRowField'
 
 const { getUserId } = accountSelectors
 
@@ -73,7 +73,7 @@ export type RemixFormValues = {
  */
 export const RemixModalForm = () => {
   // These refer to the field in the outer EditForm
-  const [{ value: showRemixesValue }, , { setValue: setshowRemixesValue }] =
+  const [{ value: showRemixesValue }, , { setValue: setShowRemixesValue }] =
     useField(SHOW_REMIXES)
   const [{ value: remixOfValue }, , { setValue: setRemixOfValue }] =
     useField<EditFormValues[typeof REMIX_OF]>(REMIX_OF)
@@ -110,7 +110,7 @@ export const RemixModalForm = () => {
 
   const onSubmit = useCallback(
     (values: RemixFormValues) => {
-      setshowRemixesValue(get(values, SHOW_REMIXES))
+      setShowRemixesValue(get(values, SHOW_REMIXES))
       if (get(values, IS_REMIX) && get(values, REMIX_LINK)) {
         // TODO: handle undefined linkedTrack with form validation
         setRemixOfValue({
@@ -123,7 +123,7 @@ export const RemixModalForm = () => {
         })
       }
     },
-    [linkedTrack?.track_id, setshowRemixesValue, setRemixOfValue]
+    [linkedTrack?.track_id, setShowRemixesValue, setRemixOfValue]
   )
 
   const preview = (

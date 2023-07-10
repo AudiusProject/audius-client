@@ -1,7 +1,7 @@
-import { ReleaseDateModalForm } from '../fields/ReleaseDateModalForm'
-import { RemixModalForm } from '../fields/RemixModalForm'
-import { SourceFilesModalForm } from '../fields/SourceFilesModalForm'
-import { TrackAvailabilityModalForm } from '../fields/TrackAvailabilityModalForm'
+import { ReleaseDateModalForm } from '../forms/ReleaseDateModalForm'
+import { RemixModalForm } from '../forms/RemixModalForm'
+import { SourceFilesModalForm } from '../forms/SourceFilesModalForm'
+import { TrackAvailabilityModalForm } from '../forms/TrackAvailabilityModalForm'
 
 import styles from './TrackModalArray.module.css'
 

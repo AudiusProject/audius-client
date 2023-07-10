@@ -7,15 +7,15 @@ import { get, set } from 'lodash'
 import { ReactComponent as IconSourceFiles } from 'assets/img/iconSourceFiles.svg'
 import { Divider } from 'components/divider'
 
-import { processFiles } from '../store/utils/processFiles'
-
-import { ModalField } from './ModalField'
-import styles from './SourceFilesModalForm.module.css'
+import { ModalField } from '../fields/ModalField'
 import {
   SourceFilesView,
   dropdownRows as stemCategories
-} from './SourceFilesView'
-import { ToggleRowField } from './ToggleRowField'
+} from '../fields/SourceFilesView'
+import { ToggleRowField } from '../fields/ToggleRowField'
+import { processFiles } from '../store/utils/processFiles'
+
+import styles from './SourceFilesModalForm.module.css'
 
 const ALLOW_DOWNLOAD = 'download.is_downloadable'
 const FOLLOWER_GATED = 'download.requires_follow'

@@ -8,11 +8,12 @@ import { useSelector } from 'react-redux'
 
 import Tooltip from 'components/tooltip/Tooltip'
 
-import styles from './SpecialAccessFields.module.css'
 import {
   PREMIUM_CONDITIONS,
   TrackAvailabilityFormValues
-} from './TrackAvailabilityModalForm'
+} from '../../forms/TrackAvailabilityModalForm'
+
+import styles from './SpecialAccessFields.module.css'
 
 const { getUserId } = accountSelectors
 

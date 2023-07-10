@@ -10,11 +10,12 @@ import { useSelector } from 'react-redux'
 
 import DropdownInput from 'components/data-entry/DropdownInput'
 import { HelpCallout } from 'components/help-callout/HelpCallout'
+
 import {
   AVAILABILITY_TYPE,
   PREMIUM_CONDITIONS,
   TrackAvailabilityFormValues
-} from 'pages/upload-page/fields/TrackAvailabilityModalForm'
+} from '../../../forms/TrackAvailabilityModalForm'
 
 import styles from './CollectibleGatedFields.module.css'
 

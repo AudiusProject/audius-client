@@ -1,8 +1,9 @@
 import { Switch } from '@audius/stems'
 import { useField } from 'formik'
 
+import { FIELD_VISIBILITY } from '../../forms/TrackAvailabilityModalForm'
+
 import styles from './HiddenAvailabilityFields.module.css'
-import { FIELD_VISIBILITY } from './TrackAvailabilityModalForm'
 
 const messages = {
   showGenre: 'Show Genre',
@@ -51,7 +52,7 @@ export const HiddenAvailabilityFields = () => {
   )
 }
 
-const hiddenTrackMetadataMap = {
+const messageByFieldName = {
   [UnlistedTrackMetadataField.UNLISTED]: '',
   [UnlistedTrackMetadataField.GENRE]: messages.showGenre,
   [UnlistedTrackMetadataField.MOOD]: messages.showMood,
@@ -73,7 +74,7 @@ const AvailabilityToggleField = (props: AvailabilityToggleFieldProps) => {
   return (
     <div className={styles.switchRow}>
       <span className={styles.switchLabel}>
-        {hiddenTrackMetadataMap[fieldName]}
+        {messageByFieldName[fieldName]}
       </span>
       <Switch {...field} />
     </div>

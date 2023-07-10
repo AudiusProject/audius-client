@@ -24,18 +24,21 @@ import { HelpCallout } from 'components/help-callout/HelpCallout'
 import { ModalRadioItem } from 'components/modal-radio/ModalRadioItem'
 import { useFlag } from 'hooks/useRemoteConfig'
 import { defaultFieldVisibility } from 'pages/track-page/utils'
-import { CollectibleGatedFields } from 'pages/upload-page/fields/CollectibleGatedFields'
 
 import { EditFormValues } from '../components/EditPageNew'
 import { ModalField } from '../fields/ModalField'
-import { REMIX_OF } from '../fields/RemixModalForm'
-
-import { CollectibleGatedDescription } from './CollectibleGatedDescription'
 import {
   defaultHiddenFields,
   HiddenAvailabilityFields
-} from './HiddenAvailabilityFields'
-import { SpecialAccessFields, SpecialAccessType } from './SpecialAccessFields'
+} from '../fields/availability/HiddenAvailabilityFields'
+import {
+  SpecialAccessFields,
+  SpecialAccessType
+} from '../fields/availability/SpecialAccessFields'
+import { CollectibleGatedDescription } from '../fields/availability/collectible-gated/CollectibleGatedDescription'
+import { CollectibleGatedFields } from '../fields/availability/collectible-gated/CollectibleGatedFields'
+
+import { REMIX_OF } from './RemixModalForm'
 import styles from './TrackAvailabilityModalForm.module.css'
 const { getSupportedUserCollections } = collectiblesSelectors
 const { getUserId } = accountSelectors
@@ -82,8 +85,10 @@ export type TrackAvailabilityFormValues = {
   [FIELD_VISIBILITY]: Nullable<FieldVisibility>
 }
 
-// A modal that allows you to set a track as collectible-gated, special access, or unlisted,
-// as well as toggle individual unlisted metadata field visibility.
+/**
+ * A modal that allows you to set a track as collectible-gated, special access, or unlisted,
+ * as well as toggle individual unlisted metadata field visibility.
+ */
 export const TrackAvailabilityModalForm = () => {
   // Fields from the outer form
   const [{ value: isUnlistedValue }, , { setValue: setIsUnlistedValue }] =
