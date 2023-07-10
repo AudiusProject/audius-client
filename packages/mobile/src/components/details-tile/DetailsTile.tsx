@@ -19,8 +19,7 @@ import IconPlay from 'app/assets/images/iconPlay.svg'
 import IconRepeat from 'app/assets/images/iconRepeatOff.svg'
 import CoSign from 'app/components/co-sign/CoSign'
 import { Size } from 'app/components/co-sign/types'
-import { Button, Hyperlink, Tile, DogEar } from 'app/components/core'
-import Text from 'app/components/text'
+import { Button, Hyperlink, Tile, DogEar, Text } from 'app/components/core'
 import UserBadges from 'app/components/user-badges'
 import { light } from 'app/haptics'
 import { useNavigation } from 'app/hooks/useNavigation'
@@ -92,11 +91,6 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     ...flexRowCentered(),
     marginBottom: spacing(4),
     alignSelf: 'center'
-  },
-
-  artist: {
-    color: palette.secondary,
-    fontSize: 18
   },
 
   badge: {
@@ -330,7 +324,9 @@ export const DetailsTile = ({
           {user ? (
             <TouchableOpacity onPress={handlePressArtistName}>
               <View style={styles.artistContainer}>
-                <Text style={styles.artist}>{user.name}</Text>
+                <Text fontSize='large' color='secondary'>
+                  {user.name}
+                </Text>
                 <UserBadges
                   style={styles.badge}
                   badgeSize={16}
