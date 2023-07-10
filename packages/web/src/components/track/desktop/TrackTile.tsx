@@ -21,8 +21,9 @@ import Skeleton from 'components/skeleton/Skeleton'
 import typeStyles from 'components/typography/typography.module.css'
 import { useFlag } from 'hooks/useRemoteConfig'
 
-import { LockedStatusBadge } from '../LockedStatusBadge'
+import { LockedStatusBadge, LockedStatusBadgeProps } from '../LockedStatusBadge'
 import { PremiumContentLabel } from '../PremiumContentLabel'
+import { isPremiumContentUSDCPurchaseGated } from '../helpers'
 import { messages } from '../trackTileMessages'
 import {
   TrackTileSize,
@@ -67,7 +68,8 @@ const renderLockedOrPlaysContent = ({
   fieldVisibility,
   isOwner,
   isPremium,
-  listenCount
+  listenCount,
+  variant
 }: Pick<
   TrackTileProps,
   | 'doesUserHaveAccess'
@@ -75,9 +77,10 @@ const renderLockedOrPlaysContent = ({
   | 'isOwner'
   | 'isPremium'
   | 'listenCount'
->) => {
+> &
+  Pick<LockedStatusBadgeProps, 'variant'>) => {
   if (isPremium && !isOwner) {
-    return <LockedStatusBadge locked={!doesUserHaveAccess} />
+    return <LockedStatusBadge locked={!doesUserHaveAccess} variant={variant} />
   }
 
   const hidePlays = fieldVisibility
@@ -152,6 +155,9 @@ const TrackTile = ({
   const hasOrdering = order !== undefined
   const isLongFormContent =
     genre === Genre.PODCASTS || genre === Genre.AUDIOBOOKS
+
+  const isPurchase =
+    premiumConditions && isPremiumContentUSDCPurchaseGated(premiumConditions)
 
   const getDurationText = () => {
     if (!duration) {
@@ -332,7 +338,8 @@ const TrackTile = ({
                   fieldVisibility,
                   isOwner,
                   isPremium,
-                  listenCount
+                  listenCount,
+                  variant: isPurchase ? 'premium' : 'gated'
                 })
               : null}
           </div>

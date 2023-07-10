@@ -41,6 +41,7 @@ import { profilePage, SIGN_UP_PAGE } from 'utils/route'
 
 import styles from './GiantTrackTile.module.css'
 import { LockedStatusBadge } from './LockedStatusBadge'
+import { isPremiumContentUSDCPurchaseGated } from './helpers'
 
 const { getUsers } = cacheUsersSelectors
 const { beginTip } = tippingActions
@@ -300,7 +301,14 @@ const LockedPremiumTrackSection = ({
             styles.premiumContentSectionTitle
           )}
         >
-          <LockedStatusBadge locked />
+          <LockedStatusBadge
+            locked
+            variant={
+              isPremiumContentUSDCPurchaseGated(premiumConditions)
+                ? 'premium'
+                : 'gated'
+            }
+          />
           {messages.howToUnlock}
         </div>
         {renderLockedDescription()}
@@ -481,7 +489,14 @@ const UnlockedPremiumTrackSection = ({
             <IconSpecialAccess className={styles.specialAccessIcon} />
           )
         ) : (
-          <LockedStatusBadge locked={false} />
+          <LockedStatusBadge
+            locked={false}
+            variant={
+              isPremiumContentUSDCPurchaseGated(premiumConditions)
+                ? 'premium'
+                : 'gated'
+            }
+          />
         )}
         {isOwner
           ? premiumConditions.nft_collection

@@ -6,8 +6,13 @@
   height: var(--unit-4);
   padding: var(--unit-half) var(--unit-2);
 }
-.unlocked {
+
+.unlocked.gated {
   background-color: var(--accent-blue);
+}
+
+.unlocked.premium {
+  background-color: var(--special-light-green);
 }
 
 .icon {

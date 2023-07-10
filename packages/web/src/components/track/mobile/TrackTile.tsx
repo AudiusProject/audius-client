@@ -29,7 +29,8 @@ import typeStyles from 'components/typography/typography.module.css'
 import UserBadges from 'components/user-badges/UserBadges'
 import { profilePage } from 'utils/route'
 
-import { LockedStatusBadge } from '../LockedStatusBadge'
+import { LockedStatusBadge, LockedStatusBadgeProps } from '../LockedStatusBadge'
+import { isPremiumContentUSDCPurchaseGated } from '../helpers'
 import { messages } from '../trackTileMessages'
 
 import BottomButtons from './BottomButtons'
@@ -52,7 +53,7 @@ type ExtraProps = {
   darkMode: boolean
   isMatrix: boolean
   isPremium: boolean
-  premiumConditions: Nullable<PremiumConditions>
+  premiumConditions?: Nullable<PremiumConditions>
   doesUserHaveAccess: boolean
 }
 
@@ -63,7 +64,8 @@ const renderLockedOrPlaysContent = ({
   fieldVisibility,
   isOwner,
   isPremium,
-  listenCount
+  listenCount,
+  variant
 }: Pick<
   CombinedProps,
   | 'doesUserHaveAccess'
@@ -71,9 +73,10 @@ const renderLockedOrPlaysContent = ({
   | 'isOwner'
   | 'isPremium'
   | 'listenCount'
->) => {
+> &
+  Pick<LockedStatusBadgeProps, 'variant'>) => {
   if (isPremium && !isOwner) {
-    return <LockedStatusBadge locked={!doesUserHaveAccess} />
+    return <LockedStatusBadge locked={!doesUserHaveAccess} variant={variant} />
   }
 
   const hidePlays = fieldVisibility
@@ -178,6 +181,8 @@ const TrackTile = (props: CombinedProps) => {
   const premiumTrackStatus = trackId
     ? premiumTrackStatusMap[trackId]
     : undefined
+  const isPurchase =
+    premiumConditions && isPremiumContentUSDCPurchaseGated(premiumConditions)
 
   const DogEarIconType = isLoading
     ? undefined
@@ -425,7 +430,8 @@ const TrackTile = (props: CombinedProps) => {
                   fieldVisibility,
                   isOwner,
                   isPremium,
-                  listenCount
+                  listenCount,
+                  variant: isPurchase ? 'premium' : 'gated'
                 })
               : null}
           </div>
