@@ -8,6 +8,7 @@ import CollectibleDetailsView from './CollectibleDetailsView'
 import styles from './CollectibleGallery.module.css'
 import CollectibleTile from './CollectibleTile'
 import CollectiblesHeader from './CollectiblesHeader'
+import { getCollectiblesJson } from '../../util/BedtimeClient'
 
 const CollectibleGallery = ({
   collectibles,
@@ -21,23 +22,22 @@ const CollectibleGallery = ({
   const [hasFetched, setHasFetched] = useState(false)
 
   const fetchCollectiblesOrder = async () => {
-    // TODO: We have no way to order the collectibles right now because discovery doesn't index them.
-    //       Do we want to change that so discovery saves collectibles to db in order?
+    const result = await getCollectiblesJson(user.metadata_multihash)
     setHasFetched(true)
 
-    // if (result && result.collectibles) {
-    //   const collectiblesMetadataKeySet = new Set(
-    //     Object.keys(result.collectibles)
-    //   )
-    //   const newCollectiblesMap = collectibles
-    //     .map((c) => c.id)
-    //     .filter((id) => !collectiblesMetadataKeySet.has(id))
-    //     .reduce((acc, curr) => ({ ...acc, [curr]: {} }), {})
+    if (result && result.collectibles) {
+      const collectiblesMetadataKeySet = new Set(
+        Object.keys(result.collectibles)
+      )
+      const newCollectiblesMap = collectibles
+        .map((c) => c.id)
+        .filter((id) => !collectiblesMetadataKeySet.has(id))
+        .reduce((acc, curr) => ({ ...acc, [curr]: {} }), {})
 
-    //   setOrder(
-    //     result.collectibles.order.concat(Object.keys(newCollectiblesMap))
-    //   )
-    // }
+      setOrder(
+        result.collectibles.order.concat(Object.keys(newCollectiblesMap))
+      )
+    }
   }
 
   useEffect(() => {
