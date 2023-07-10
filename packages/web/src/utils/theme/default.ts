@@ -46,6 +46,7 @@ const theme = {
   '--accent-orange-light-1': '#FFA70F',
 
   '--accent-purple': '#8E51CF',
+  '--special-light-green': '#13c65a',
 
   /* Semantic text */
   '--text-default': 'var(--neutral)',

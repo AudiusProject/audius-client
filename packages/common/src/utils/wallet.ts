@@ -1,7 +1,13 @@
 import BN from 'bn.js'
 import JSBI from 'jsbi'
 
-import { BNAudio, BNWei, StringAudio, StringWei } from 'models/Wallet'
+import {
+  BNAudio,
+  BNWei,
+  StringAudio,
+  StringUSDC,
+  StringWei
+} from 'models/Wallet'
 import {
   WEI,
   trimRightZeros,
@@ -12,6 +18,7 @@ import {
 } from 'utils/formatUtil'
 import { Nullable } from 'utils/typeUtils'
 
+/** AUDIO utils */
 const WEI_DECIMALS = 18 // 18 decimals on ETH AUDIO
 const SPL_DECIMALS = 8 // 8 decimals on SPL AUDIO
 
@@ -102,14 +109,6 @@ export const formatWei = (
   return formatNumberCommas(trimmed) as StringAudio
 }
 
-export const shortenSPLAddress = (addr: string) => {
-  return `${addr.substring(0, 4)}...${addr.substr(addr.length - 5)}`
-}
-
-export const shortenEthAddress = (addr: string) => {
-  return `0x${addr.substring(2, 4)}...${addr.substr(addr.length - 5)}`
-}
-
 export const convertJSBIToAmountObject = (amount: JSBI, decimals: number) => {
   const divisor = JSBI.BigInt(10 ** decimals)
   const quotient = JSBI.divide(amount, divisor)
@@ -133,4 +132,23 @@ export const convertWAudioToWei = (amount: BN) => {
 export const convertWeiToWAudio = (amount: BN) => {
   const decimals = WEI_DECIMALS - SPL_DECIMALS
   return amount.div(new BN('1'.padEnd(decimals + 1, '0')))
+}
+
+/** USDC Utils */
+const BN_USDC_WEI = new BN('1000000')
+
+/* Formats a USDC wei string (full precision) to a fixed string suitable for
+display as a dollar amount */
+export const formatStringUSDC = (amount: StringUSDC, precision = 2) => {
+  const converted = new BN(amount).div(BN_USDC_WEI).toNumber()
+  return converted.toFixed(precision)
+}
+
+/** General Wallet Utils */
+export const shortenSPLAddress = (addr: string) => {
+  return `${addr.substring(0, 4)}...${addr.substr(addr.length - 5)}`
+}
+
+export const shortenEthAddress = (addr: string) => {
+  return `0x${addr.substring(2, 4)}...${addr.substr(addr.length - 5)}`
 }

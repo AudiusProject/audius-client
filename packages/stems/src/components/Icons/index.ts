@@ -16,6 +16,7 @@ export { ReactComponent as IconBigSearch } from '../../assets/icons/iconBigSearc
 export { ReactComponent as IconCalendar } from '../../assets/icons/iconCalendar.svg'
 export { ReactComponent as IconCamera } from '../../assets/icons/iconCamera.svg'
 export { ReactComponent as IconCareers } from '../../assets/icons/iconCareers.svg'
+export { ReactComponent as IconCart } from '../../assets/icons/iconCart.svg'
 export { ReactComponent as IconCaretDown } from '../../assets/icons/iconCaretDown.svg'
 export { ReactComponent as IconCaretRight } from '../../assets/icons/iconCaretRight.svg'
 export { ReactComponent as IconCheck } from '../../assets/icons/iconCheck.svg'

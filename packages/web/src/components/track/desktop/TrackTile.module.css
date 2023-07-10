@@ -366,7 +366,7 @@
   width: 100%;
 }
 
-.bottomRow .premiumContent {
+.bottomRow .hasPremiumCondition {
   align-items: center;
   background-color: var(--accent-blue);
   border-radius: var(--unit-1);
@@ -377,13 +377,21 @@
   padding: var(--unit-2) var(--unit-3);
 }
 
-.bottomRow .premiumContent svg {
+.bottomRow .hasPremiumCondition svg {
   width: var(--unit-4);
   height: var(--unit-4);
 }
 
-.bottomRow .premiumContent path {
+.bottomRow .hasPremiumCondition path {
   fill: var(--static-white);
+}
+
+.bottomRow .gatedContent {
+  background-color: var(--accent-blue);
+}
+
+.bottomRow .premiumContent {
+  background-color: var(--special-light-green);
 }
 
 .spinner {

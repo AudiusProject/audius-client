@@ -355,6 +355,7 @@ const TrackTile = ({
           onClickRepost={onClickRepost}
           onClickFavorite={onClickFavorite}
           onClickShare={onClickShare}
+          premiumConditions={premiumConditions}
           isTrack={isTrack}
           trackId={trackId}
         />

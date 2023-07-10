@@ -1,6 +1,14 @@
 import { ReactNode, useCallback } from 'react'
 
-import { FieldVisibility, premiumContentSelectors, ID } from '@audius/common'
+import {
+  FieldVisibility,
+  premiumContentSelectors,
+  ID,
+  PremiumConditions,
+  StringUSDC,
+  Nullable,
+  formatStringUSDC
+} from '@audius/common'
 import { IconLock } from '@audius/stems'
 import cn from 'classnames'
 import { useSelector } from 'react-redux'
@@ -23,6 +31,13 @@ const messages = {
   locked: 'Locked'
 }
 
+// TODO: Use version from common once PR is merged
+const isPremiumContentUSDCPurchaseGated = (
+  premiumConditions: Nullable<PremiumConditions>
+): premiumConditions is {
+  usdc_purchase: { price: StringUSDC; slot: number }
+} => 'usdc_purchase' in (premiumConditions ?? {})
+
 type BottomRowProps = {
   doesUserHaveAccess?: boolean
   isDisabled?: boolean
@@ -39,9 +54,38 @@ type BottomRowProps = {
   showIconButtons?: boolean
   isTrack?: boolean
   trackId?: ID
+  premiumConditions?: Nullable<PremiumConditions>
   onClickRepost: (e?: any) => void
   onClickFavorite: (e?: any) => void
   onClickShare: (e?: any) => void
+}
+
+const PremiumConditionsPill = ({
+  premiumConditions,
+  unlocking
+}: {
+  premiumConditions: PremiumConditions
+  unlocking: boolean
+}) => {
+  const isPurchase = isPremiumContentUSDCPurchaseGated(premiumConditions)
+  const icon = unlocking ? (
+    <LoadingSpinner className={styles.spinner} />
+  ) : isPurchase ? null : (
+    <IconLock />
+  )
+  const message = unlocking
+    ? messages.unlocking
+    : isPurchase
+    ? `$${formatStringUSDC(premiumConditions.usdc_purchase.price)}`
+    : messages.locked
+  const colorStyle = isPurchase ? styles.premiumContent : styles.gatedContent
+
+  return (
+    <div className={cn(styles.hasPremiumCondition, colorStyle)}>
+      {icon}
+      {message}
+    </div>
+  )
 }
 
 export const BottomRow = ({
@@ -60,6 +104,7 @@ export const BottomRow = ({
   showIconButtons,
   isTrack,
   trackId,
+  premiumConditions,
   onClickRepost,
   onClickFavorite,
   onClickShare
@@ -101,20 +146,13 @@ export const BottomRow = ({
     )
   }
 
-  if (isTrack && !isLoading && !doesUserHaveAccess) {
+  if (isTrack && premiumConditions && !isLoading && !doesUserHaveAccess) {
     return (
       <div className={cn(typeStyles.titleSmall, styles.bottomRow)}>
-        {premiumTrackStatus === 'UNLOCKING' ? (
-          <div className={styles.premiumContent}>
-            <LoadingSpinner className={styles.spinner} />
-            {messages.unlocking}
-          </div>
-        ) : (
-          <div className={styles.premiumContent}>
-            <IconLock />
-            {messages.locked}
-          </div>
-        )}
+        <PremiumConditionsPill
+          premiumConditions={premiumConditions}
+          unlocking={premiumTrackStatus === 'UNLOCKING'}
+        />
         {!isLoading ? <div>{rightActions}</div> : null}
       </div>
     )
