@@ -3,7 +3,6 @@ import { ChangeEvent, useCallback } from 'react'
 import {
   accountSelectors,
   isPremiumContentFollowGated,
-  isPremiumContentTipGated,
   TrackAvailabilityType
 } from '@audius/common'
 import { IconInfo, RadioButton, RadioButtonGroup } from '@audius/stems'

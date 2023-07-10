@@ -187,7 +187,7 @@ export const NFTCollectionsScreen = () => {
           fullWidth
           title={messages.done}
           onPress={handleSubmit}
-          disabled={!premiumConditions?.nft_collection}
+          disabled={!isPremiumContentCollectibleGated(premiumConditions)}
         />
       }
       footer={renderFooter()}
