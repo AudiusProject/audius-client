@@ -309,15 +309,13 @@
   color: var(--secondary-dark-2);
 }
 
-.collectibleIcon,
-.specialAccessIcon {
+.gatedContentIcon {
   margin-right: var(--unit-2);
   width: var(--unit-4);
   height: var(--unit-4);
 }
 
-.collectibleIcon path,
-.specialAccessIcon path {
+.gatedContentIcon path {
   fill: var(--neutral);
 }
 

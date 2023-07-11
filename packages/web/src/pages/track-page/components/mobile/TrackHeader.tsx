@@ -16,11 +16,13 @@ import {
   PremiumConditions,
   Nullable,
   getDogEarType,
-  isPremiumContentCollectibleGated
+  isPremiumContentCollectibleGated,
+  isPremiumContentUSDCPurchaseGated
 } from '@audius/common'
 import {
   Button,
   ButtonType,
+  IconCart,
   IconCollectible,
   IconPause,
   IconPlay,
@@ -58,6 +60,7 @@ const messages = {
   play: 'PLAY',
   pause: 'PAUSE',
   collectibleGated: 'COLLECTIBLE GATED',
+  premiumTrack: 'PREMIUM TRACK',
   specialAccess: 'SPECIAL ACCESS',
   generatedWithAi: 'Generated With AI'
 }
@@ -322,18 +325,19 @@ const TrackHeader = ({
 
   const renderHeaderText = () => {
     if (isPremium) {
+      let IconComponent = IconSpecialAccess
+      let titleMessage = messages.specialAccess
+      if (isPremiumContentCollectibleGated(premiumConditions)) {
+        IconComponent = IconCollectible
+        titleMessage = messages.collectibleGated
+      } else if (isPremiumContentUSDCPurchaseGated(premiumConditions)) {
+        IconComponent = IconCart
+        titleMessage = messages.premiumTrack
+      }
       return (
         <div className={cn(styles.typeLabel, styles.premiumContentLabel)}>
-          {isPremiumContentCollectibleGated(premiumConditions) ? (
-            <IconCollectible />
-          ) : (
-            <IconSpecialAccess />
-          )}
-          {isPremiumContentCollectibleGated(premiumConditions) ? (
-            <span>{messages.collectibleGated}</span>
-          ) : (
-            <span>{messages.specialAccess}</span>
-          )}
+          <IconComponent />
+          <span>{titleMessage}</span>
         </div>
       )
     }
@@ -383,6 +387,7 @@ const TrackHeader = ({
             wrapperClassName={styles.premiumTrackSectionWrapper}
             className={styles.premiumTrackSection}
             buttonClassName={styles.premiumTrackSectionButton}
+            ownerId={userId}
           />
         ) : null}
         {doesUserHaveAccess ? (
@@ -417,6 +422,7 @@ const TrackHeader = ({
           )}
           className={styles.premiumTrackSection}
           buttonClassName={styles.premiumTrackSectionButton}
+          ownerId={userId}
         />
       )}
       {coSign && (

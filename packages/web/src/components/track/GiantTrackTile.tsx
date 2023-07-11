@@ -596,6 +596,7 @@ export const GiantTrackTile = ({
           premiumConditions={premiumConditions}
           doesUserHaveAccess={doesUserHaveAccess}
           isOwner={isOwner}
+          ownerId={userId}
         />
       ) : null}
 
