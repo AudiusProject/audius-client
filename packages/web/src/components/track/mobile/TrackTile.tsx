@@ -181,8 +181,7 @@ const TrackTile = (props: CombinedProps) => {
   const premiumTrackStatus = trackId
     ? premiumTrackStatusMap[trackId]
     : undefined
-  const isPurchase =
-    premiumConditions && isPremiumContentUSDCPurchaseGated(premiumConditions)
+  const isPurchase = isPremiumContentUSDCPurchaseGated(premiumConditions)
 
   const DogEarIconType = isLoading
     ? undefined

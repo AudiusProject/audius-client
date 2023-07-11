@@ -95,7 +95,7 @@ export const getUserWithFallback = (user: User | null) => {
 
 // TODO: Use version from common once PR is merged
 export const isPremiumContentUSDCPurchaseGated = (
-  premiumConditions: Nullable<PremiumConditions>
+  premiumConditions?: Nullable<PremiumConditions>
 ): premiumConditions is {
   usdc_purchase: { price: StringUSDC; slot: number }
 } => 'usdc_purchase' in (premiumConditions ?? {})

@@ -156,8 +156,7 @@ const TrackTile = ({
   const isLongFormContent =
     genre === Genre.PODCASTS || genre === Genre.AUDIOBOOKS
 
-  const isPurchase =
-    premiumConditions && isPremiumContentUSDCPurchaseGated(premiumConditions)
+  const isPurchase = isPremiumContentUSDCPurchaseGated(premiumConditions)
 
   const getDurationText = () => {
     if (!duration) {
