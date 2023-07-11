@@ -1,16 +1,22 @@
 import { ReactNode, useCallback } from 'react'
 
-import { FieldVisibility, premiumContentSelectors, ID } from '@audius/common'
-import { IconLock } from '@audius/stems'
+import {
+  FieldVisibility,
+  premiumContentSelectors,
+  ID,
+  PremiumConditions,
+  Nullable
+} from '@audius/common'
 import cn from 'classnames'
 import { useSelector } from 'react-redux'
 
 import FavoriteButton from 'components/alt-button/FavoriteButton'
 import RepostButton from 'components/alt-button/RepostButton'
 import ShareButton from 'components/alt-button/ShareButton'
-import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Tooltip from 'components/tooltip/Tooltip'
 import typeStyles from 'components/typography/typography.module.css'
+
+import { PremiumConditionsPill } from '../PremiumConditionsPill'
 
 import styles from './TrackTile.module.css'
 
@@ -39,6 +45,7 @@ type BottomRowProps = {
   showIconButtons?: boolean
   isTrack?: boolean
   trackId?: ID
+  premiumConditions?: Nullable<PremiumConditions>
   onClickRepost: (e?: any) => void
   onClickFavorite: (e?: any) => void
   onClickShare: (e?: any) => void
@@ -60,6 +67,7 @@ export const BottomRow = ({
   showIconButtons,
   isTrack,
   trackId,
+  premiumConditions,
   onClickRepost,
   onClickFavorite,
   onClickShare
@@ -101,21 +109,14 @@ export const BottomRow = ({
     )
   }
 
-  if (isTrack && !isLoading && !doesUserHaveAccess) {
+  if (isTrack && premiumConditions && !isLoading && !doesUserHaveAccess) {
     return (
       <div className={cn(typeStyles.titleSmall, styles.bottomRow)}>
-        {premiumTrackStatus === 'UNLOCKING' ? (
-          <div className={styles.premiumContent}>
-            <LoadingSpinner className={styles.spinner} />
-            {messages.unlocking}
-          </div>
-        ) : (
-          <div className={styles.premiumContent}>
-            <IconLock />
-            {messages.locked}
-          </div>
-        )}
-        {!isLoading ? <div>{rightActions}</div> : null}
+        <PremiumConditionsPill
+          premiumConditions={premiumConditions}
+          unlocking={premiumTrackStatus === 'UNLOCKING'}
+        />
+        <div>{rightActions}</div>
       </div>
     )
   }
