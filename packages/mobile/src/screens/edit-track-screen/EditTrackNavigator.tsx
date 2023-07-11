@@ -12,7 +12,6 @@ import {
   RemixSettingsScreen,
   SelectGenreScreen,
   SelectMoodScreen,
-  TrackVisibilityScreen,
   TrackAvailabilityScreen
 } from './screens'
 import { NFTCollectionsScreen } from './screens/NFTCollectionsScreen'

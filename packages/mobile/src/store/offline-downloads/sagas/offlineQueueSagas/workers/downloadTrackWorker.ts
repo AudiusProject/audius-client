@@ -1,7 +1,6 @@
 import type { ID, QueryParams, Track, UserTrackMetadata } from '@audius/common'
 import {
   getQueryParams,
-  FeatureFlags,
   premiumContentSelectors,
   removeNullable,
   SquareSizes,
