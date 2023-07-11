@@ -11,7 +11,6 @@ import { useField } from 'formik'
 
 import type { ContextualSubmenuProps } from 'app/components/core'
 import { ContextualSubmenu } from 'app/components/core'
-import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 
 const messages = {
   trackVisibility: 'Track Visibility',
@@ -68,18 +67,10 @@ export const TrackVisibilityField = (props: TrackVisibilityFieldProps) => {
     return [messages.public]
   }, [premiumConditions, isUnlisted, fieldVisibilityLabels])
 
-  const isGatedContentEnabled = useIsGatedContentEnabled()
-  const label = isGatedContentEnabled
-    ? messages.availability
-    : messages.trackVisibility
-  const submenuScreenName = isGatedContentEnabled
-    ? 'Availability'
-    : 'TrackVisibility'
-
   return (
     <ContextualSubmenu
-      label={label}
-      submenuScreenName={submenuScreenName}
+      label={messages.availability}
+      submenuScreenName={messages.availability}
       value={trackAvailabilityLabels}
       {...props}
     />
