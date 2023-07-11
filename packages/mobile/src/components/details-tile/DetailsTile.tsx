@@ -206,7 +206,6 @@ export const DetailsTile = ({
   })
 
   const isOwner = user?.user_id === currentUserId
-  // const isOwner = true
   const isLongFormContent =
     track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
   const aiAttributionUserId = track?.ai_attribution_user_id
