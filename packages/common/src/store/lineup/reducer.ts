@@ -131,8 +131,7 @@ export const actionsMap = {
     const newState = { ...state }
     newState.isMetadataLoading = false
     newState.status = Status.SUCCESS
-    newState.hasMore =
-      action.entries.length + action.deleted >= action.limit - action.offset
+    newState.hasMore = action.entries.length + action.deleted >= action.limit
 
     // If the lineup does not fetch deleted tracks and there are missing tracks
     // in the response (indicated by 'deleted' count), then there is no more content
