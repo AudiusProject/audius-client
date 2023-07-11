@@ -21,7 +21,6 @@ import IconRepost from 'app/assets/images/iconRepost.svg'
 import { CollectionDownloadStatusIndicator } from 'app/components/offline-downloads/CollectionDownloadStatusIndicator'
 import { TrackDownloadStatusIndicator } from 'app/components/offline-downloads/TrackDownloadStatusIndicator'
 import Text from 'app/components/text'
-import { useIsUSDCEnabled } from 'app/hooks/useIsUSDCEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles, flexRowCentered } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
@@ -113,10 +112,9 @@ export const LineupTileStats = ({
 }: Props) => {
   const styles = useStyles()
   const trackTileStyles = useTrackTileStyles()
-  const { neutralLight4, staticWhite } = useThemeColors()
+  const { neutralLight4 } = useThemeColors()
   const dispatch = useDispatch()
   const navigation = useNavigation()
-  const isUSDCEnabled = useIsUSDCEnabled()
 
   const hasEngagement = Boolean(repostCount || saveCount)
 

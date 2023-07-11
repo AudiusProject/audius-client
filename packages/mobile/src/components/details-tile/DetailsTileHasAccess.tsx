@@ -180,7 +180,6 @@ export const DetailsTileHasAccess = ({
 }: DetailsTileHasAccessProps) => {
   const styles = useStyles()
   const navigation = useNavigation()
-  const { staticWhite } = useThemePalette()
 
   const { nftCollection, collectionLink, followee, tippedUser } =
     usePremiumConditionsEntity(premiumConditions)
