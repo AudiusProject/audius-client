@@ -2,7 +2,6 @@ import { useCallback, useMemo, useState } from 'react'
 
 import type { Nullable, PremiumConditions } from '@audius/common'
 import {
-  removeNullable,
   TrackAvailabilityType,
   collectiblesSelectors,
   isPremiumContentFollowGated,
@@ -153,7 +152,7 @@ export const TrackAvailabilityScreen = () => {
       disabled: noCollectibleGate
     },
     { label: hiddenAvailability, value: hiddenAvailability, disabled: noHidden }
-  ].filter(removeNullable)
+  ]
 
   const items = {
     [publicAvailability]: (

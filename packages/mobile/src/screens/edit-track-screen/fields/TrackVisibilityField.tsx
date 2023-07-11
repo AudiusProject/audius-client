@@ -13,7 +13,6 @@ import type { ContextualSubmenuProps } from 'app/components/core'
 import { ContextualSubmenu } from 'app/components/core'
 
 const messages = {
-  trackVisibility: 'Track Visibility',
   availability: 'Availability',
   public: 'Public',
   collectibleGated: 'Collectible Gated',

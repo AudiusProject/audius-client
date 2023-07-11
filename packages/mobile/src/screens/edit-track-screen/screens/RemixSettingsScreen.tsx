@@ -32,19 +32,14 @@ const remixLinkInputDebounceMs = 1000
 
 const messages = {
   screenTitle: 'Remix Settings',
-  isRemixLabel: 'This Track is a Remix',
   markRemix: 'Mark This Track as a Remix',
   isRemixLinkDescription: 'Paste the link to the Audius track you’ve remixed.',
-  hideRemixLabel: 'Hide Remixes on Track Page',
   hideRemixesDescription:
     'Enabling this option will prevent other user’s remixes from appearing on your track page.',
   hideRemixes: 'Hide Remixes of this Track',
-  hideRemixDescription:
-    'Hide remixes of this track to prevent them from showing on your track page.',
   done: 'Done',
   invalidRemixUrl: 'Please paste a valid Audius track URL',
   missingRemixUrl: 'Must include a link to the original track',
-  remixUrlPlaceholder: 'Track URL',
   enterLink: 'Enter an Audius Link',
   changeAvailbilityPrefix: 'Availablity is set to ',
   changeAvailbilitySuffix:
