@@ -17,13 +17,11 @@ import { View, TouchableOpacity } from 'react-native'
 import { useDispatch } from 'react-redux'
 
 import IconHeart from 'app/assets/images/iconHeart.svg'
-import IconLock from 'app/assets/images/iconLock.svg'
 import IconRepost from 'app/assets/images/iconRepost.svg'
-import IconUnlocked from 'app/assets/images/iconUnlocked.svg'
+import { LockedStatusBadge } from 'app/components/core'
 import { CollectionDownloadStatusIndicator } from 'app/components/offline-downloads/CollectionDownloadStatusIndicator'
 import { TrackDownloadStatusIndicator } from 'app/components/offline-downloads/TrackDownloadStatusIndicator'
 import Text from 'app/components/text'
-import { useIsUSDCEnabled } from 'app/hooks/useIsUSDCEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles, flexRowCentered } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
@@ -71,17 +69,6 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
   repostStat: {
     height: 16,
     width: 16
-  },
-  iconLocked: {
-    paddingHorizontal: spacing(2),
-    borderRadius: spacing(10),
-    backgroundColor: palette.neutralLight4
-  },
-  iconUnlocked: {
-    backgroundColor: palette.accentBlue
-  },
-  iconUSDC: {
-    backgroundColor: palette.specialLightGreen1
   }
 }))
 
@@ -124,10 +111,9 @@ export const LineupTileStats = ({
 }: Props) => {
   const styles = useStyles()
   const trackTileStyles = useTrackTileStyles()
-  const { neutralLight4, staticWhite } = useThemeColors()
+  const { neutralLight4 } = useThemeColors()
   const dispatch = useDispatch()
   const navigation = useNavigation()
-  const isUSDCEnabled = useIsUSDCEnabled()
 
   const hasEngagement = Boolean(repostCount || saveCount)
 
@@ -205,24 +191,14 @@ export const LineupTileStats = ({
         </View>
       )}
       {premiumConditions && !isOwner ? (
-        <View
-          style={[
-            styles.iconLocked,
-            styles.listenCount,
-            doesUserHaveAccess ? styles.iconUnlocked : null,
-            isUSDCEnabled &&
-            isPremiumContentUSDCPurchaseGated(premiumConditions) &&
-            doesUserHaveAccess
-              ? styles.iconUSDC
-              : null
-          ]}
-        >
-          {doesUserHaveAccess ? (
-            <IconUnlocked fill={staticWhite} height={14} width={14} />
-          ) : (
-            <IconLock fill={staticWhite} height={14} width={14} />
-          )}
-        </View>
+        <LockedStatusBadge
+          locked={!doesUserHaveAccess}
+          variant={
+            isPremiumContentUSDCPurchaseGated(premiumConditions)
+              ? 'purchase'
+              : 'gated'
+          }
+        />
       ) : !hidePlays ? (
         <Text style={[trackTileStyles.statText, styles.listenCount]}>
           {formatPlayCount(playCount)}

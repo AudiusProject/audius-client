@@ -47,7 +47,6 @@ import type { DetailsTileDetail } from 'app/components/details-tile/types'
 import type { ImageProps } from 'app/components/image/FastImage'
 import { TrackImage } from 'app/components/image/TrackImage'
 import { TrackDownloadStatusIndicator } from 'app/components/offline-downloads/TrackDownloadStatusIndicator'
-import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
@@ -79,7 +78,8 @@ const messages = {
   hiddenTrack: 'hidden track',
   collectibleGated: 'collectible gated',
   specialAccess: 'special access',
-  generatedWithAi: 'Generated with AI'
+  usdcPurchase: 'premium track',
+  generatedWithAi: 'generated with ai'
 }
 
 type TrackScreenDetailsTileProps = {
@@ -202,7 +202,6 @@ export const TrackScreenDetailsTile = ({
   uid,
   isLineupLoading
 }: TrackScreenDetailsTileProps) => {
-  const isGatedContentEnabled = useIsGatedContentEnabled()
   const { doesUserHaveAccess } = usePremiumContentAccess(track as Track) // track is of type Track | SearchTrack but we only care about some of their common fields, maybe worth refactoring later
   const { isEnabled: isNewPodcastControlsEnabled } = useFeatureFlag(
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
@@ -249,12 +248,8 @@ export const TrackScreenDetailsTile = ({
   } = track
 
   const isOwner = owner_id === currentUserId
-  const hideFavorite =
-    is_unlisted || (isGatedContentEnabled && !doesUserHaveAccess)
-  const hideRepost =
-    is_unlisted ||
-    !isReachable ||
-    (isGatedContentEnabled && !doesUserHaveAccess)
+  const hideFavorite = is_unlisted || !doesUserHaveAccess
+  const hideRepost = is_unlisted || !isReachable || !doesUserHaveAccess
 
   const remixParentTrackId = remix_of?.tracks?.[0]?.parent_track_id
   const isRemix = !!remixParentTrackId
@@ -366,10 +361,9 @@ export const TrackScreenDetailsTile = ({
   const handlePressOverflow = () => {
     const isLongFormContent =
       genre === Genre.PODCASTS || genre === Genre.AUDIOBOOKS
-    const addToPlaylistAction =
-      !isGatedContentEnabled || !isPremium
-        ? OverflowAction.ADD_TO_PLAYLIST
-        : null
+    const addToPlaylistAction = !isPremium
+      ? OverflowAction.ADD_TO_PLAYLIST
+      : null
     const overflowActions = [
       addToPlaylistAction,
       isOwner
@@ -408,29 +402,26 @@ export const TrackScreenDetailsTile = ({
   }
 
   const renderHeaderText = () => {
-    if (isGatedContentEnabled && isPremium) {
+    if (isPremium && track.premium_conditions != null) {
+      let IconComponent = IconSpecialAccess
+      let text = messages.specialAccess
+      if (isPremiumContentCollectibleGated(track.premium_conditions)) {
+        IconComponent = IconCollectible
+        text = messages.collectibleGated
+      } else if (isPremiumContentUSDCPurchaseGated(track.premium_conditions)) {
+        IconComponent = IconCart
+        text = messages.usdcPurchase
+      }
+
       return (
         <View style={styles.headerView}>
-          {isPremiumContentUSDCPurchaseGated(track.premium_conditions) ? (
-            <IconCart
-              style={styles.premiumIcon}
-              fill={neutralLight4}
-              width={spacing(4.5)}
-              height={spacing(4.5)}
-            />
-          ) : isPremiumContentCollectibleGated(track.premium_conditions) ? (
-            <IconCollectible style={styles.premiumIcon} fill={neutralLight4} />
-          ) : (
-            <IconSpecialAccess
-              style={styles.premiumIcon}
-              fill={neutralLight4}
-            />
-          )}
-          <Text style={styles.premiumHeaderText}>
-            {isPremiumContentCollectibleGated(track.premium_conditions)
-              ? messages.collectibleGated
-              : messages.specialAccess}
-          </Text>
+          <IconComponent
+            style={styles.premiumIcon}
+            fill={neutralLight4}
+            width={spacing(4.5)}
+            height={spacing(4.5)}
+          />
+          <Text style={styles.premiumHeaderText}>{text}</Text>
         </View>
       )
     }
