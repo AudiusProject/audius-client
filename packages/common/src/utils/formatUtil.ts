@@ -2,7 +2,7 @@ import BN from 'bn.js'
 import dayjs from 'dayjs'
 import numeral from 'numeral'
 
-import { BNWei, StringUSDC } from 'models/Wallet'
+import { BNWei } from 'models/Wallet'
 
 /**
  * The format for counting numbers should be 4 characters if possible (3 numbers and 1 Letter) without trailing 0
@@ -179,12 +179,6 @@ export const parseWeiNumber = (number: string) => {
   } else {
     return null
   }
-}
-
-// TODO convert to new fn
-export const formatUSDC = (number: StringUSDC) => {
-  const num = new BN(number).div(USDC)
-  return num.toString()
 }
 
 type FormatOptions = {

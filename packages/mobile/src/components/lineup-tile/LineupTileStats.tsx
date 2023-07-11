@@ -18,14 +18,13 @@ import { useDispatch } from 'react-redux'
 
 import IconHeart from 'app/assets/images/iconHeart.svg'
 import IconRepost from 'app/assets/images/iconRepost.svg'
+import { LockedStatusBadge } from 'app/components/core'
 import { CollectionDownloadStatusIndicator } from 'app/components/offline-downloads/CollectionDownloadStatusIndicator'
 import { TrackDownloadStatusIndicator } from 'app/components/offline-downloads/TrackDownloadStatusIndicator'
 import Text from 'app/components/text'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles, flexRowCentered } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
-
-import { LockedStatusBadge } from '../core'
 
 import { LineupTilePremiumContentTypeTag } from './LineupTilePremiumContentTypeTag'
 import { LineupTileRankIcon } from './LineupTileRankIcon'
@@ -193,10 +192,10 @@ export const LineupTileStats = ({
       )}
       {premiumConditions && !isOwner ? (
         <LockedStatusBadge
-          locked={!doesUserHaveAccess ?? true}
+          locked={!doesUserHaveAccess}
           variant={
             isPremiumContentUSDCPurchaseGated(premiumConditions)
-              ? 'premium'
+              ? 'purchase'
               : 'gated'
           }
         />

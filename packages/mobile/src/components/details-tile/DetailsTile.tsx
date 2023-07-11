@@ -63,12 +63,8 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     gap: spacing(4)
   },
   typeLabel: {
-    height: 18,
-    color: palette.neutralLight4,
-    fontSize: typography.fontSize.xs,
     letterSpacing: 3,
-    textAlign: 'center',
-    textTransform: 'uppercase'
+    textAlign: 'center'
   },
   coverArt: {
     borderWidth: 1,
@@ -77,6 +73,9 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     height: 195,
     width: 195,
     alignSelf: 'center'
+  },
+  titleContainer: {
+    gap: spacing(1)
   },
   title: {
     fontSize: typography.fontSize.large,
@@ -127,15 +126,11 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   },
   infoLabel: {
     ...flexRowCentered(),
-    color: palette.neutralLight5,
-    fontSize: typography.fontSize.small,
     lineHeight: typography.fontSize.small,
-    textTransform: 'uppercase',
     marginRight: spacing(2)
   },
   infoValue: {
     flexShrink: 1,
-    color: palette.neutral,
     fontSize: typography.fontSize.small,
     lineHeight: typography.fontSize.small
   },
@@ -211,6 +206,7 @@ export const DetailsTile = ({
   })
 
   const isOwner = user?.user_id === currentUserId
+  // const isOwner = true
   const isLongFormContent =
     track?.genre === Genre.PODCASTS || track?.genre === Genre.AUDIOBOOKS
   const aiAttributionUserId = track?.ai_attribution_user_id
@@ -245,7 +241,13 @@ export const DetailsTile = ({
     return detailLabels.map((infoFact) => {
       return (
         <View key={infoFact.label} style={styles.infoFact}>
-          <Text style={styles.infoLabel} weight='bold'>
+          <Text
+            style={styles.infoLabel}
+            weight='bold'
+            color='neutralLight5'
+            fontSize='small'
+            textTransform='uppercase'
+          >
             {infoFact.label}
           </Text>
           <Text
@@ -314,41 +316,49 @@ export const DetailsTile = ({
         {renderHeader ? (
           renderHeader()
         ) : (
-          <Text style={styles.typeLabel} weight='medium'>
+          <Text
+            style={styles.typeLabel}
+            color='neutralLight4'
+            fontSize='xs'
+            weight='medium'
+            textTransform='uppercase'
+          >
             {headerText}
           </Text>
         )}
         <View style={styles.topContentBody}>
           {imageElement}
-          <Text style={styles.title} weight='bold'>
-            {title}
-          </Text>
-          {user ? (
-            <TouchableOpacity onPress={handlePressArtistName}>
-              <View style={styles.artistContainer}>
-                <Text fontSize='large' color='secondary'>
-                  {user.name}
-                </Text>
-                <UserBadges
-                  style={styles.badge}
-                  badgeSize={16}
-                  user={user}
-                  hideName
-                />
-              </View>
-            </TouchableOpacity>
-          ) : null}
+          <View style={styles.titleContainer}>
+            <Text style={styles.title} weight='bold'>
+              {title}
+            </Text>
+            {user ? (
+              <TouchableOpacity onPress={handlePressArtistName}>
+                <View style={styles.artistContainer}>
+                  <Text fontSize='large' color='secondary'>
+                    {user.name}
+                  </Text>
+                  <UserBadges
+                    style={styles.badge}
+                    badgeSize={16}
+                    user={user}
+                    hideName
+                  />
+                </View>
+              </TouchableOpacity>
+            ) : null}
+          </View>
           {isLongFormContent && isNewPodcastControlsEnabled ? (
             <DetailsProgressInfo track={track} />
           ) : null}
           <View style={styles.buttonSection}>
-            {!doesUserHaveAccess && premiumConditions && trackId ? (
+            {!doesUserHaveAccess && !isOwner && premiumConditions && trackId ? (
               <DetailsTileNoAccess
                 trackId={trackId}
                 premiumConditions={premiumConditions}
               />
             ) : null}
-            {doesUserHaveAccess ? (
+            {doesUserHaveAccess || isOwner ? (
               <Button
                 styles={{
                   text: styles.playButtonText,
@@ -362,7 +372,15 @@ export const DetailsTile = ({
                 disabled={!isPlayable}
                 fullWidth
               />
-            ) : isUSDCPurchaseGated && !doesUserHaveAccess ? (
+            ) : null}
+            {(doesUserHaveAccess || isOwner) && premiumConditions ? (
+              <DetailsTileHasAccess
+                premiumConditions={premiumConditions}
+                isOwner={isOwner}
+                trackArtist={user}
+              />
+            ) : null}
+            {isUSDCPurchaseGated && (isOwner || !doesUserHaveAccess) ? (
               <PreviewButton />
             ) : null}
             <DetailsTileActionButtons
@@ -387,14 +405,6 @@ export const DetailsTile = ({
           {isAiGeneratedTracksEnabled && aiAttributionUserId ? (
             <DetailsTileAiAttribution userId={aiAttributionUserId} />
           ) : null}
-          {doesUserHaveAccess && premiumConditions && (
-            <DetailsTileHasAccess
-              premiumConditions={premiumConditions}
-              isOwner={isOwner}
-              trackArtist={user}
-            />
-          )}
-          {isUSDCPurchaseGated && isOwner ? <PreviewButton /> : null}
           {!isPublished ? null : (
             <DetailsTileStats
               favoriteCount={saveCount}

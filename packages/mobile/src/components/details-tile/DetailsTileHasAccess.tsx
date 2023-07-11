@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 
 import type { PremiumConditions, User } from '@audius/common'
 import {
-  formatUSDC,
+  formatUSDCWeiToUSDString,
   isPremiumContentCollectibleGated,
   isPremiumContentFollowGated,
   isPremiumContentTipGated,
@@ -25,7 +25,7 @@ const messages = {
   unlocked: 'UNLOCKED',
   collectibleGated: 'COLLECTIBLE GATED',
   specialAccess: 'SPECIAL ACCESS',
-  USDCPurchaseTitle: 'Pay to Unlock',
+  payToUnlock: 'Pay to Unlock',
   unlockedCollectibleGatedPrefix: 'A Collectible from ',
   unlockedCollectibleGatedSuffix:
     ' was found in a linked wallet. This track is now available.',
@@ -147,14 +147,13 @@ const DetailsTileOwnerSection = ({
       <View style={styles.root}>
         <View style={[styles.titleContainer, styles.ownerTitleContainer]}>
           <IconCart fill={neutral} width={16} height={16} />
-          <Text style={styles.title}>{messages.USDCPurchaseTitle}</Text>
+          <Text style={styles.title}>{messages.payToUnlock}</Text>
         </View>
         <View style={styles.descriptionContainer}>
           <Text>
             <Text style={styles.description}>
-              {/* TODO convert to new fn */}
               {messages.ownerUSDCPurchase(
-                formatUSDC(premiumConditions.usdc_purchase.price)
+                formatUSDCWeiToUSDString(premiumConditions.usdc_purchase.price)
               )}
             </Text>
           </Text>
@@ -301,7 +300,7 @@ export const DetailsTileHasAccess = ({
           locked={false}
           variant={
             isPremiumContentUSDCPurchaseGated(premiumConditions)
-              ? 'premium'
+              ? 'purchase'
               : 'gated'
           }
         />

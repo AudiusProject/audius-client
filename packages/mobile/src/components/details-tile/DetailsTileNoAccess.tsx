@@ -9,11 +9,11 @@ import {
   tippingActions,
   usePremiumConditionsEntity,
   premiumContentSelectors,
-  formatUSDC,
   isPremiumContentUSDCPurchaseGated,
   isPremiumContentCollectibleGated,
   isPremiumContentFollowGated,
-  isPremiumContentTipGated
+  isPremiumContentTipGated,
+  formatUSDCWeiToUSDString
 } from '@audius/common'
 import type { ViewStyle } from 'react-native'
 import { View, Text, Image } from 'react-native'
@@ -30,6 +30,7 @@ import UserBadges from 'app/components/user-badges'
 import { useDrawer } from 'app/hooks/useDrawer'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { flexRowCentered, makeStyles } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
 
 const { getPremiumTrackStatusMap } = premiumContentSelectors
 const { followUser } = usersSocialActions
@@ -114,7 +115,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     height: spacing(6),
     borderWidth: 1,
     borderColor: palette.neutralLight7,
-    borderRadius: 16
+    borderRadius: spacing(4)
   },
   collectionChainImage: {
     top: -spacing(0.25),
@@ -169,7 +170,7 @@ const DetailsTileNoAccessSection = ({
             locked={true}
             variant={
               isPremiumContentUSDCPurchaseGated(premiumConditions)
-                ? 'premium'
+                ? 'purchase'
                 : 'gated'
             }
           />
@@ -237,7 +238,7 @@ export const DetailsTileNoAccess = ({
             {entity.name}
           </Text>
           <UserBadges
-            badgeSize={16}
+            badgeSize={spacing(4)}
             user={entity}
             nameStyle={styles.description}
             hideName
@@ -269,12 +270,12 @@ export const DetailsTileNoAccess = ({
                     {nftCollection.chain === Chain.Eth ? (
                       <LogoEth
                         style={styles.collectionChainImage}
-                        height={16}
+                        height={spacing(4)}
                       />
                     ) : (
                       <LogoSol
                         style={styles.collectionChainImage}
-                        height={16}
+                        height={spacing(4)}
                       />
                     )}
                   </View>
@@ -285,7 +286,7 @@ export const DetailsTileNoAccess = ({
           </View>
           <Button
             style={styles.mainButton}
-            styles={{ icon: { width: 16, height: 16 } }}
+            styles={{ icon: { width: spacing(4), height: spacing(4) } }}
             title={messages.goToCollection}
             size='large'
             iconPosition='right'
@@ -306,7 +307,7 @@ export const DetailsTileNoAccess = ({
           })}
           <Button
             style={styles.mainButton}
-            styles={{ icon: { width: 16, height: 16 } }}
+            styles={{ icon: { width: spacing(4), height: spacing(4) } }}
             title={messages.followArtist}
             size='large'
             iconPosition='left'
@@ -328,7 +329,7 @@ export const DetailsTileNoAccess = ({
           })}
           <Button
             style={styles.mainButton}
-            styles={{ icon: { width: 16, height: 16 } }}
+            styles={{ icon: { width: spacing(4), height: spacing(4) } }}
             title={messages.sendTip}
             size='large'
             iconPosition='right'
@@ -349,10 +350,9 @@ export const DetailsTileNoAccess = ({
           </View>
           <Button
             style={[styles.mainButton, styles.buyButton]}
-            styles={{ icon: { width: 16, height: 16 } }}
-            // TODO convert to new fn
+            styles={{ icon: { width: spacing(4), height: spacing(4) } }}
             title={messages.buy(
-              formatUSDC(premiumConditions.usdc_purchase.price)
+              formatUSDCWeiToUSDString(premiumConditions.usdc_purchase.price)
             )}
             size='large'
             onPress={() => {
@@ -402,7 +402,7 @@ export const DetailsTileNoAccess = ({
               {entity.name}
             </Text>
             <UserBadges
-              badgeSize={16}
+              badgeSize={spacing(4)}
               user={entity}
               nameStyle={styles.description}
               hideName
