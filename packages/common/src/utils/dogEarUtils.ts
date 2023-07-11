@@ -25,13 +25,14 @@ export const getDogEarType = ({
 
   // Show premium variants for track owners or if user does not yet have access
   if ((isOwner || !doesUserHaveAccess) && premiumConditions != null) {
-    if (premiumConditions.usdc_purchase) {
+    if ('usdc_purchase' in premiumConditions) {
       return DogEarType.USDC_PURCHASE
-    }
-    if (premiumConditions.nft_collection) {
+    } else if ('nft_collection' in premiumConditions) {
       return DogEarType.COLLECTIBLE_GATED
-    }
-    if (premiumConditions.follow_user_id || premiumConditions.tip_user_id) {
+    } else if (
+      'follow_user_id' in premiumConditions ||
+      'tip_user_id' in premiumConditions
+    ) {
       return DogEarType.SPECIAL_ACCESS
     }
   }

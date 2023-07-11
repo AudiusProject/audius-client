@@ -1,6 +1,10 @@
 import { useMemo } from 'react'
 
-import type { PremiumConditions } from '@audius/common'
+import {
+  isPremiumContentCollectibleGated,
+  isPremiumContentUSDCPurchaseGated,
+  type PremiumConditions
+} from '@audius/common'
 import { View } from 'react-native'
 
 import IconCart from 'app/assets/images/iconCart.svg'
@@ -57,9 +61,9 @@ export const LineupTilePremiumContentTypeTag = ({
   const isUSDCEnabled = useIsUSDCEnabled()
 
   const type =
-    isUSDCEnabled && premiumConditions?.usdc_purchase
+    isUSDCEnabled && isPremiumContentUSDCPurchaseGated(premiumConditions)
       ? PremiumContentType.USDC_PURCHASE
-      : premiumConditions?.nft_collection
+      : isPremiumContentCollectibleGated(premiumConditions)
       ? PremiumContentType.COLLECTIBLE_GATED
       : PremiumContentType.SPECIAL_ACCESS
 
