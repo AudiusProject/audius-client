@@ -35,6 +35,8 @@ const theme = {
 
   '--accent-red-dark-1': '#C43047',
 
+  '--special-light-green': '#13c65a',
+
   /* Semantic text */
   '--text-default': 'var(--neutral)',
   '--text-subdued': 'var(--neutral-light-4)',

@@ -15,7 +15,8 @@ import {
   removeNullable,
   isPremiumContentFollowGated,
   isPremiumContentCollectibleGated,
-  isPremiumContentTipGated
+  isPremiumContentTipGated,
+  isPremiumContentUSDCPurchaseGated
 } from '@audius/common'
 import {
   Button,
@@ -303,7 +304,14 @@ const LockedPremiumTrackSection = ({
             styles.premiumContentSectionTitle
           )}
         >
-          <LockedStatusBadge locked />
+          <LockedStatusBadge
+            locked
+            variant={
+              isPremiumContentUSDCPurchaseGated(premiumConditions)
+                ? 'premium'
+                : 'gated'
+            }
+          />
           {messages.howToUnlock}
         </div>
         {renderLockedDescription()}
@@ -484,7 +492,14 @@ const UnlockedPremiumTrackSection = ({
             <IconSpecialAccess className={styles.specialAccessIcon} />
           )
         ) : (
-          <LockedStatusBadge locked={false} />
+          <LockedStatusBadge
+            locked={false}
+            variant={
+              isPremiumContentUSDCPurchaseGated(premiumConditions)
+                ? 'premium'
+                : 'gated'
+            }
+          />
         )}
         {isOwner
           ? isPremiumContentCollectibleGated(premiumConditions)

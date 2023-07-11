@@ -1,16 +1,18 @@
 import {
   PremiumConditions,
   Nullable,
-  isPremiumContentCollectibleGated
+  isPremiumContentCollectibleGated,
+  isPremiumContentUSDCPurchaseGated
 } from '@audius/common'
-import { IconCollectible, IconSpecialAccess } from '@audius/stems'
+import { IconCart, IconCollectible, IconSpecialAccess } from '@audius/stems'
 import cn from 'classnames'
 
 import styles from './PremiumContentLabel.module.css'
 
 const messages = {
   collectibleGated: 'Collectible Gated',
-  specialAccess: 'Special Access'
+  specialAccess: 'Special Access',
+  premium: 'Premium'
 }
 
 /** Renders a label indicating a premium content type. If the user does
@@ -28,11 +30,16 @@ export const PremiumContentLabel = ({
   const showColor = isOwner || !doesUserHaveAccess
   let message = messages.specialAccess
   let IconComponent = IconSpecialAccess
-  const colorStyle = styles.gatedContent
+  let colorStyle = styles.gatedContent
 
   if (isPremiumContentCollectibleGated(premiumConditions)) {
     message = messages.collectibleGated
     IconComponent = IconCollectible
+  }
+  if (isPremiumContentUSDCPurchaseGated(premiumConditions)) {
+    message = messages.premium
+    IconComponent = IconCart
+    colorStyle = styles.premiumContent
   }
 
   return (

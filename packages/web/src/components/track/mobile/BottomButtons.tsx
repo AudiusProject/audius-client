@@ -1,15 +1,15 @@
 import { memo } from 'react'
 
-import { PremiumTrackStatus } from '@audius/common'
-import { IconLock } from '@audius/stems'
+import { Nullable, PremiumConditions, PremiumTrackStatus } from '@audius/common'
 import cn from 'classnames'
 
 import FavoriteButton from 'components/alt-button/FavoriteButton'
 import MoreButton from 'components/alt-button/MoreButton'
 import RepostButton from 'components/alt-button/RepostButton'
 import ShareButton from 'components/alt-button/ShareButton'
-import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import typeStyles from 'components/typography/typography.module.css'
+
+import { PremiumConditionsPill } from '../PremiumConditionsPill'
 
 import styles from './BottomButtons.module.css'
 
@@ -20,19 +20,16 @@ type BottomButtonsProps = {
   toggleRepost: () => void
   onClickOverflow: () => void
   onShare: () => void
+  isLoading: boolean
   isOwner: boolean
   isDarkMode: boolean
   isUnlisted?: boolean
   isShareHidden?: boolean
   isTrack?: boolean
   doesUserHaveAccess?: boolean
+  premiumConditions?: Nullable<PremiumConditions>
   premiumTrackStatus?: PremiumTrackStatus
   isMatrixMode: boolean
-}
-
-const messages = {
-  locked: 'LOCKED',
-  unlocking: 'UNLOCKING'
 }
 
 const BottomButtons = (props: BottomButtonsProps) => {
@@ -47,21 +44,19 @@ const BottomButtons = (props: BottomButtonsProps) => {
   )
 
   // Premium condition without access
-  if (props.isTrack && !props.doesUserHaveAccess) {
+  if (
+    props.isTrack &&
+    !props.isLoading &&
+    props.premiumConditions &&
+    !props.doesUserHaveAccess
+  ) {
     return (
       <div className={cn(typeStyles.titleSmall, styles.bottomButtons)}>
         <div className={styles.premiumContentContainer}>
-          {props.premiumTrackStatus === 'UNLOCKING' ? (
-            <div className={styles.premiumContent}>
-              <LoadingSpinner className={styles.spinner} />
-              {messages.unlocking}
-            </div>
-          ) : (
-            <div className={styles.premiumContent}>
-              <IconLock />
-              {messages.locked}
-            </div>
-          )}
+          <PremiumConditionsPill
+            premiumConditions={props.premiumConditions}
+            unlocking={props.premiumTrackStatus === 'UNLOCKING'}
+          />
         </div>
         {moreButton}
       </div>

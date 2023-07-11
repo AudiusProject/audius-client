@@ -21,3 +21,11 @@
 .gatedContent .icon path {
   fill: var(--accent-blue);
 }
+
+.premiumContent {
+  color: var(--special-light-green);
+}
+
+.premiumContent .icon path {
+  fill: var(--special-light-green);
+}
