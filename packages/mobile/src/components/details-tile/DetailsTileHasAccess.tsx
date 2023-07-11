@@ -19,7 +19,7 @@ import { useLink, Text, LockedStatusBadge } from 'app/components/core'
 import UserBadges from 'app/components/user-badges'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { flexRowCentered, makeStyles } from 'app/styles'
-import { useColor, useThemePalette } from 'app/utils/theme'
+import { useColor } from 'app/utils/theme'
 
 const messages = {
   unlocked: 'UNLOCKED',

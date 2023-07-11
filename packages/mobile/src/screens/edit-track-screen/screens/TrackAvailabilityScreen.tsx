@@ -138,10 +138,10 @@ export const TrackAvailabilityScreen = () => {
   const [availability, setAvailability] =
     useState<TrackAvailabilityType>(initialAvailability)
 
-  // we only care about what the initial value was here
-  // eslint-disable-next-line
   const previousPremiumConditions = useMemo(
     () => premiumConditions ?? initialPremiumConditions,
+    // we only care about what the initial value was here
+    // eslint-disable-next-line
     []
   )
 
