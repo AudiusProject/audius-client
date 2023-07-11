@@ -9,7 +9,8 @@ import {
   premiumContentActions,
   formatLineupTileDuration,
   Genre,
-  getDogEarType
+  getDogEarType,
+  isPremiumContentUSDCPurchaseGated
 } from '@audius/common'
 import { IconCrown, IconHidden, IconTrending } from '@audius/stems'
 import cn from 'classnames'
@@ -30,7 +31,6 @@ import UserBadges from 'components/user-badges/UserBadges'
 import { profilePage } from 'utils/route'
 
 import { LockedStatusBadge, LockedStatusBadgeProps } from '../LockedStatusBadge'
-import { isPremiumContentUSDCPurchaseGated } from '../helpers'
 import { messages } from '../trackTileMessages'
 
 import BottomButtons from './BottomButtons'

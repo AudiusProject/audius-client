@@ -10,7 +10,8 @@ import type {
 import {
   formatCount,
   repostsUserListActions,
-  favoritesUserListActions
+  favoritesUserListActions,
+  isPremiumContentUSDCPurchaseGated
 } from '@audius/common'
 import { View, TouchableOpacity } from 'react-native'
 import { useDispatch } from 'react-redux'
@@ -210,7 +211,7 @@ export const LineupTileStats = ({
             styles.listenCount,
             doesUserHaveAccess ? styles.iconUnlocked : null,
             isUSDCEnabled &&
-            premiumConditions.usdc_purchase &&
+            isPremiumContentUSDCPurchaseGated(premiumConditions) &&
             doesUserHaveAccess
               ? styles.iconUSDC
               : null

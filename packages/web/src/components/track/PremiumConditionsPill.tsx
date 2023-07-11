@@ -1,11 +1,14 @@
-import { PremiumConditions, formatUSDCWeiToUSDString } from '@audius/common'
+import {
+  PremiumConditions,
+  formatUSDCWeiToUSDString,
+  isPremiumContentUSDCPurchaseGated
+} from '@audius/common'
 import { IconLock } from '@audius/stems'
 import cn from 'classnames'
 
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 
 import styles from './PremiumConditionsPill.module.css'
-import { isPremiumContentUSDCPurchaseGated } from './helpers'
 
 const messages = {
   unlocking: 'Unlocking',

@@ -1,4 +1,9 @@
-import { PremiumConditions, Nullable } from '@audius/common'
+import {
+  PremiumConditions,
+  Nullable,
+  isPremiumContentCollectibleGated,
+  isPremiumContentUSDCPurchaseGated
+} from '@audius/common'
 import { IconCart, IconCollectible, IconSpecialAccess } from '@audius/stems'
 import cn from 'classnames'
 
@@ -27,11 +32,11 @@ export const PremiumContentLabel = ({
   let IconComponent = IconSpecialAccess
   let colorStyle = styles.gatedContent
 
-  if (premiumConditions?.nft_collection) {
+  if (isPremiumContentCollectibleGated(premiumConditions)) {
     message = messages.collectibleGated
     IconComponent = IconCollectible
   }
-  if (premiumConditions?.usdc_purchase) {
+  if (isPremiumContentUSDCPurchaseGated(premiumConditions)) {
     message = messages.premium
     IconComponent = IconCart
     colorStyle = styles.premiumContent

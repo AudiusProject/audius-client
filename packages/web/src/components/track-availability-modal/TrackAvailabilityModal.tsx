@@ -6,7 +6,8 @@ import {
   TrackAvailabilityType,
   collectiblesSelectors,
   Nullable,
-  Track
+  Track,
+  isPremiumContentCollectibleGated
 } from '@audius/common'
 import {
   Modal,
@@ -151,11 +152,11 @@ const TrackAvailabilityModal = ({
   const isInitiallySpecialAccess =
     !isUpload &&
     !!(
-      initialPremiumConditions?.follow_user_id ||
-      initialPremiumConditions?.tip_user_id
+      'follow_user_id' in (initialPremiumConditions ?? {}) ||
+      'tip_user_id' in (initialPremiumConditions ?? {})
     )
   const isInitiallyCollectibleGated =
-    !isUpload && !!initialPremiumConditions?.nft_collection
+    !isUpload && 'nft_collection' in (initialPremiumConditions ?? {})
   const isInitiallyHidden = !isUpload && initialForm.is_unlisted
 
   const noCollectibleGate =
@@ -177,10 +178,12 @@ const TrackAvailabilityModal = ({
   )
 
   const [selectedNFTCollection, setSelectedNFTCollection] = useState(
-    metadataState.premium_conditions?.nft_collection
+    isPremiumContentCollectibleGated(metadataState.premium_conditions)
+      ? metadataState.premium_conditions.nft_collection
+      : undefined
   )
   const [selectedSpecialAccessGate, setSelectedSpecialAccessGate] = useState(
-    !('nft_collection' in (metadataState.premium_conditions ?? {}))
+    !isPremiumContentCollectibleGated(metadataState.premium_conditions)
       ? metadataState.premium_conditions ?? defaultSpecialAccess
       : defaultSpecialAccess
   )
@@ -216,7 +219,7 @@ const TrackAvailabilityModal = ({
 
         // Keep track of previously selected collectible and special access gates
         // in case the user switches back and forth between radio items
-        if (premiumConditions.nft_collection) {
+        if (isPremiumContentCollectibleGated(premiumConditions)) {
           setSelectedNFTCollection(premiumConditions.nft_collection)
         } else {
           setSelectedSpecialAccessGate(premiumConditions)

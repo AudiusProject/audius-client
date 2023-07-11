@@ -8,7 +8,8 @@ import {
   formatLineupTileDuration,
   Genre,
   CommonState,
-  getDogEarType
+  getDogEarType,
+  isPremiumContentUSDCPurchaseGated
 } from '@audius/common'
 import { IconCheck, IconCrown, IconHidden, ProgressBar } from '@audius/stems'
 import cn from 'classnames'
@@ -23,7 +24,6 @@ import { useFlag } from 'hooks/useRemoteConfig'
 
 import { LockedStatusBadge, LockedStatusBadgeProps } from '../LockedStatusBadge'
 import { PremiumContentLabel } from '../PremiumContentLabel'
-import { isPremiumContentUSDCPurchaseGated } from '../helpers'
 import { messages } from '../trackTileMessages'
 import {
   TrackTileSize,
