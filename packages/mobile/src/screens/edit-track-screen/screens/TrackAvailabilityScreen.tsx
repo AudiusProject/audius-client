@@ -15,8 +15,6 @@ import { useSelector } from 'react-redux'
 import IconHidden from 'app/assets/images/iconHidden.svg'
 import { Button } from 'app/components/core'
 import { HelpCallout } from 'app/components/help-callout/HelpCallout'
-import { useIsCollectibleGatedEnabled } from 'app/hooks/useIsCollectibleGatedEnabled'
-import { useIsSpecialAccessEnabled } from 'app/hooks/useIsSpecialAccessEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles } from 'app/styles'
 
@@ -72,9 +70,6 @@ const MarkedAsRemix = () => {
 }
 
 export const TrackAvailabilityScreen = () => {
-  const isSpecialAccessEnabled = useIsSpecialAccessEnabled()
-  const isCollectibleGatedEnabled = useIsCollectibleGatedEnabled()
-
   const navigation = useNavigation()
   const { initialValues } = useFormikContext<FormValues>()
   const [{ value: isPremium }] = useField<boolean>('is_premium')
@@ -147,20 +142,16 @@ export const TrackAvailabilityScreen = () => {
 
   const data: ListSelectionData[] = [
     { label: publicAvailability, value: publicAvailability },
-    isSpecialAccessEnabled
-      ? {
-          label: specialAccessAvailability,
-          value: specialAccessAvailability,
-          disabled: noSpecialAccess
-        }
-      : null,
-    isCollectibleGatedEnabled
-      ? {
-          label: collectibleGatedAvailability,
-          value: collectibleGatedAvailability,
-          disabled: noCollectibleGate
-        }
-      : null,
+    {
+      label: specialAccessAvailability,
+      value: specialAccessAvailability,
+      disabled: noSpecialAccess
+    },
+    {
+      label: collectibleGatedAvailability,
+      value: collectibleGatedAvailability,
+      disabled: noCollectibleGate
+    },
     { label: hiddenAvailability, value: hiddenAvailability, disabled: noHidden }
   ].filter(removeNullable)
 
@@ -171,26 +162,22 @@ export const TrackAvailabilityScreen = () => {
       />
     )
   }
-  if (isSpecialAccessEnabled) {
-    items[specialAccessAvailability] = (
-      <SpecialAccessAvailability
-        selected={availability === TrackAvailabilityType.SPECIAL_ACCESS}
-        disabled={noSpecialAccess}
-        disabledContent={noSpecialAccessOptions}
-        previousPremiumConditions={previousPremiumConditions}
-      />
-    )
-  }
-  if (isCollectibleGatedEnabled) {
-    items[collectibleGatedAvailability] = (
-      <CollectibleGatedAvailability
-        selected={availability === TrackAvailabilityType.COLLECTIBLE_GATED}
-        disabled={noCollectibleGate}
-        disabledContent={noCollectibleDropdown}
-        previousPremiumConditions={previousPremiumConditions}
-      />
-    )
-  }
+  items[specialAccessAvailability] = (
+    <SpecialAccessAvailability
+      selected={availability === TrackAvailabilityType.SPECIAL_ACCESS}
+      disabled={noSpecialAccess}
+      disabledContent={noSpecialAccessOptions}
+      previousPremiumConditions={previousPremiumConditions}
+    />
+  )
+  items[collectibleGatedAvailability] = (
+    <CollectibleGatedAvailability
+      selected={availability === TrackAvailabilityType.COLLECTIBLE_GATED}
+      disabled={noCollectibleGate}
+      disabledContent={noCollectibleDropdown}
+      previousPremiumConditions={previousPremiumConditions}
+    />
+  )
   items[hiddenAvailability] = (
     <HiddenAvailability
       selected={availability === TrackAvailabilityType.HIDDEN}
