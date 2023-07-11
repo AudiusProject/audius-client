@@ -234,6 +234,10 @@
   margin-bottom: var(--unit-2);
 }
 
+.premiumContentSectionDescription {
+  text-align: left;
+}
+
 .premiumContentSectionDescription > p {
   display: flex;
   align-items: center;
@@ -446,10 +450,6 @@
 
 .spinner path {
   stroke: var(--neutral-light-4);
-}
-
-.premiumContentSectionDescription > div {
-  text-align: left;
 }
 
 .premiumContentSectionDescription > div > span {
