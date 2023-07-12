@@ -6,13 +6,17 @@ import {
   playbackPositionSelectors,
   CommonState
 } from '@audius/common'
-import { Button, ButtonType, IconPause, IconPlay } from '@audius/stems'
+import {
+  Button,
+  ButtonSize,
+  ButtonType,
+  IconPause,
+  IconPlay
+} from '@audius/stems'
 import { useSelector } from 'react-redux'
 
 import { ReactComponent as IconRepeat } from 'assets/img/iconRepeatOff.svg'
 import { useFlag } from 'hooks/useRemoteConfig'
-
-import styles from './GiantTrackTile.module.css'
 
 const { getUserId } = accountSelectors
 const { getTrackId } = playerSelectors
@@ -20,6 +24,7 @@ const { getTrackPosition } = playbackPositionSelectors
 
 type PlayPauseButtonProps = {
   doesUserHaveAccess: boolean
+  isPreview?: boolean
   playing: boolean
   trackId?: ID
   onPlay: () => void
@@ -27,6 +32,7 @@ type PlayPauseButtonProps = {
 
 const messages = {
   play: 'play',
+  preview: 'preview',
   pause: 'pause',
   resume: 'resume',
   replay: 'replay'
@@ -34,6 +40,7 @@ const messages = {
 
 export const PlayPauseButton = ({
   doesUserHaveAccess,
+  isPreview = false,
   playing,
   trackId,
   onPlay
@@ -50,32 +57,36 @@ export const PlayPauseButton = ({
     (state: CommonState) => trackId === getTrackId(state)
   )
 
-  const playText =
-    isNewPodcastControlsEnabled && trackPlaybackInfo
-      ? trackPlaybackInfo.status === 'IN_PROGRESS' || isCurrentTrack
-        ? messages.resume
-        : messages.replay
-      : messages.play
-
-  const playIcon =
-    isNewPodcastControlsEnabled &&
-    trackPlaybackInfo?.status === 'COMPLETED' &&
-    !isCurrentTrack ? (
-      <IconRepeat />
-    ) : (
-      <IconPlay />
-    )
+  let playText
+  let PlayIconComponent
+  if (isPreview) {
+    playText = messages.preview
+    PlayIconComponent = IconPlay
+  } else {
+    playText =
+      isNewPodcastControlsEnabled && trackPlaybackInfo
+        ? trackPlaybackInfo.status === 'IN_PROGRESS' || isCurrentTrack
+          ? messages.resume
+          : messages.replay
+        : messages.play
+    PlayIconComponent =
+      isNewPodcastControlsEnabled &&
+      trackPlaybackInfo?.status === 'COMPLETED' &&
+      !isCurrentTrack
+        ? IconRepeat
+        : IconPlay
+  }
 
   return (
     <Button
-      name='play'
-      className={styles.playButton}
-      textClassName={styles.playButtonText}
-      type={ButtonType.PRIMARY_ALT}
+      name={isPreview ? 'preview' : 'play'}
+      size={ButtonSize.LARGE}
+      type={isPreview ? ButtonType.SECONDARY : ButtonType.PRIMARY_ALT}
       text={playing ? messages.pause : playText}
-      leftIcon={playing ? <IconPause /> : playIcon}
+      leftIcon={playing ? <IconPause /> : <PlayIconComponent />}
       onClick={onPlay}
-      disabled={!doesUserHaveAccess}
+      minWidth={180}
+      disabled={!doesUserHaveAccess && !isPreview}
     />
   )
 }

@@ -113,27 +113,12 @@
   margin-top: 7px;
   display: flex;
   align-items: center;
+  gap: var(--unit-6);
   flex-wrap: wrap;
 }
 
 .playSection > * {
   margin-top: var(--unit-4);
-}
-
-.playButton {
-  width: 180px !important;
-  height: var(--unit-15) !important;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  margin-right: var(--unit-6);
-}
-
-.playButton .playButtonText {
-  font-size: var(--font-xl);
-  font-weight: var(--font-bold);
-  letter-spacing: 0.71px;
-  text-transform: uppercase;
 }
 
 .infoSection .numberOfListens {
