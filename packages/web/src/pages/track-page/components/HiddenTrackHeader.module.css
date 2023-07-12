@@ -2,7 +2,6 @@
   display: flex;
   align-items: center;
   column-gap: var(--unit-2);
-  margin-bottom: var(--unit-4);
 }
 
 .label {

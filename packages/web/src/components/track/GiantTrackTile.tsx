@@ -189,7 +189,7 @@ export const GiantTrackTile = ({
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
   )
   const isPurchaseGated = isPremiumContentUSDCPurchaseGated(premiumConditions)
-  const isPreview = !isOwner && isPurchaseGated && !doesUserHaveAccess
+  const showPreview = isOwner || (isPurchaseGated && !doesUserHaveAccess)
   const onPreview = useCallback(() => {
     console.log('Preview Clicked')
   }, [])
@@ -535,15 +535,15 @@ export const GiantTrackTile = ({
           </div>
 
           <div className={cn(styles.playSection, fadeIn)}>
-            <PlayPauseButton
-              doesUserHaveAccess={doesUserHaveAccess}
-              isPreview={isPreview}
-              playing={playing}
-              onPlay={isPreview ? onPreview : onPlay}
-              trackId={trackId}
-            />
-            {/* Always render preview button for owner */}
-            {isOwner ? (
+            {doesUserHaveAccess ? (
+              <PlayPauseButton
+                doesUserHaveAccess={doesUserHaveAccess}
+                playing={playing}
+                onPlay={onPlay}
+                trackId={trackId}
+              />
+            ) : null}
+            {showPreview ? (
               <PlayPauseButton
                 playing={playing}
                 onPlay={onPreview}
