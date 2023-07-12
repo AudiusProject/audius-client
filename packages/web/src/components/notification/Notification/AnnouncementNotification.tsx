@@ -5,6 +5,7 @@ import {
   AnnouncementNotification as AnnouncementNotificationType
 } from '@audius/common'
 import { MarkdownViewer } from '@audius/stems'
+import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
 import { make, useRecord } from 'common/store/analytics/actions'
@@ -12,6 +13,7 @@ import { openNotificationModal } from 'store/application/ui/notifications/notifi
 
 import styles from './AnnouncementNotification.module.css'
 import { NotificationBody } from './components/NotificationBody'
+import notificationBodyStyles from './components/NotificationBody.module.css'
 import { NotificationFooter } from './components/NotificationFooter'
 import { NotificationHeader } from './components/NotificationHeader'
 import { NotificationTile } from './components/NotificationTile'
@@ -50,6 +52,7 @@ export const AnnouncementNotification = (
     <NotificationTile
       notification={notification}
       onClick={longDescription ? handleClick : undefined}
+      disabled={!longDescription}
       disableClosePanel
     >
       <NotificationHeader icon={<IconAnnouncement />}>
@@ -58,7 +61,10 @@ export const AnnouncementNotification = (
         </NotificationTitle>
       </NotificationHeader>
       <NotificationBody className={styles.body}>
-        <MarkdownViewer markdown={shortDescription} />
+        <MarkdownViewer
+          markdown={shortDescription}
+          className={cn(styles.description, notificationBodyStyles.root)}
+        />
         {longDescription ? (
           <button
             className={styles.readMore}
