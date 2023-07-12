@@ -109,9 +109,9 @@ function* addTrackToPlaylistAsync(action: AddTrackToPlaylistAction) {
         audiusBackendInstance
       )
 
-      const { createPlaylistArtwork } = yield* getContext('imageUtils')
+      const { generatePlaylistArtwork } = yield* getContext('imageUtils')
 
-      const artwork = yield* call(createPlaylistArtwork, trackArtworks)
+      const artwork = yield* call(generatePlaylistArtwork, trackArtworks)
       const { url } = artwork
 
       playlist.artwork = artwork

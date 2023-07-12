@@ -8,7 +8,7 @@ export default () => {
   /**
    * Given 4 images, return a new image with each image taking up the four corners
    */
-  const createPlaylistArtwork = ({ imageUrls }) => {
+  const generatePlaylistArtwork = ({ imageUrls }) => {
     const canvasWidth = 1000 // Adjust the width and height as per your requirements
     const canvasHeight = 1000
     const imageWidth = canvasWidth / 2
@@ -20,25 +20,20 @@ export default () => {
     images.unshift(newImage)
 
     Promise.all(images).then((images) => {
-      let newImage
+      const newImage = images.shift()
 
-      if (images.length === 2) {
-        newImage = images[1]
-      } else {
-        newImage = images.shift()
-        // Resize and position the images
-        for (let i = 0; i < 4; i++) {
-          const image = images[i]
-          if (image) {
-            image.resize(imageWidth, imageHeight)
+      // Resize and position the images
+      for (let i = 0; i < 4; i++) {
+        const image = images[i]
+        if (image) {
+          image.resize(imageWidth, imageHeight)
 
-            // Calculate the x and y position based on the quadrant
-            const x = i % 2 === 0 ? 0 : imageWidth
-            const y = i < 2 ? 0 : imageHeight
+          // Calculate the x and y position based on the quadrant
+          const x = i % 2 === 0 ? 0 : imageWidth
+          const y = i < 2 ? 0 : imageHeight
 
-            // Composite the image onto the canvas
-            newImage.composite(image, x, y)
-          }
+          // Composite the image onto the canvas
+          newImage.composite(image, x, y)
         }
       }
 
@@ -55,6 +50,6 @@ export default () => {
   // eslint-disable-next-line
   self.addEventListener('message', (e) => {
     if (!e) return
-    createPlaylistArtwork(JSON.parse(e.data))
+    generatePlaylistArtwork(JSON.parse(e.data))
   })
 }
