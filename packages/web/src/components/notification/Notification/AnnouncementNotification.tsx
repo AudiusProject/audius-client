@@ -67,7 +67,7 @@ export const AnnouncementNotification = (
         />
         {longDescription ? (
           <button
-            className={styles.readMore}
+            className={cn(notificationBodyStyles.root, styles.readMore)}
             onClick={handleOpenNotificationModal}
           >
             {messages.readMore}

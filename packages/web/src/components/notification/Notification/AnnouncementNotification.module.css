@@ -6,8 +6,6 @@
 .readMore {
   all: unset;
   color: var(--secondary);
-  font-size: var(--font-m);
-  font-weight: var(--font-medium);
 }
 
 .readMore:hover {
