@@ -122,7 +122,7 @@ export const PickArtworkField = (props: PickArtworkFieldProps) => {
         noSkeleton
       >
         <View style={styles.iconPicture}>
-          {status.imageLoading ? (
+          {status.imageLoading || status.imageGenerating ? (
             <LoadingSpinner style={styles.loading} />
           ) : trackArtworkUrl ? null : (
             <IconImage height={128} width={128} fill={neutralLight8} />
