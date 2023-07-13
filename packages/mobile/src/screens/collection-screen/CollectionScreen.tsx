@@ -111,7 +111,7 @@ export const CollectionScreen = () => {
   }, [collectionName, idParam])
 
   const handleFetchCollection = useCallback(() => {
-    dispatch(fetchCollection(id))
+    dispatch(fetchCollection(id, undefined, true))
   }, [dispatch, id])
 
   useFocusEffect(handleFetchCollection)
@@ -311,11 +311,12 @@ const CollectionScreenComponent = (props: CollectionScreenComponentProps) => {
               trackCount={track_ids.length}
               title={playlist_name}
               user={user}
+              isOwner={isOwner}
             />
             {isOwner && !is_album && arePlaylistUpdatesEnabled ? (
               <>
                 <Divider style={styles.divider} color={neutralLight5} />
-                <SuggestedTracks />
+                <SuggestedTracks collectionId={playlist_id} />
               </>
             ) : null}
           </>

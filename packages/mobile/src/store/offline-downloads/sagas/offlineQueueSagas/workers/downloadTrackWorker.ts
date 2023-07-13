@@ -1,4 +1,10 @@
-import type { ID, QueryParams, Track, UserTrackMetadata } from '@audius/common'
+import type {
+  ID,
+  QueryParams,
+  Track,
+  TrackMetadata,
+  UserTrackMetadata
+} from '@audius/common'
 import {
   getQueryParams,
   premiumContentSelectors,
@@ -184,8 +190,8 @@ function* downloadTrackAudio(track: UserTrackMetadata) {
   throw new Error('Unable to download track audio')
 }
 
-function* downloadTrackCoverArt(track: UserTrackMetadata) {
-  const { cover_art_sizes, cover_art, user, track_id } = track
+function* downloadTrackCoverArt(track: TrackMetadata) {
+  const { cover_art_sizes, cover_art, track_id } = track
   const cid = cover_art_sizes ?? cover_art
 
   const storageNodeSelector = yield* call(getStorageNodeSelector)
@@ -193,7 +199,6 @@ function* downloadTrackCoverArt(track: UserTrackMetadata) {
   const imageSources = createAllImageSources({
     cid,
     endpoints: cid ? storageNodeSelector.getNodes(cid) : [],
-    user,
     size: SquareSizes.SIZE_1000_BY_1000
   })
 
