@@ -16,11 +16,14 @@ import {
   PremiumConditions,
   Nullable,
   getDogEarType,
-  isPremiumContentCollectibleGated
+  isPremiumContentCollectibleGated,
+  isPremiumContentUSDCPurchaseGated
 } from '@audius/common'
 import {
   Button,
+  ButtonSize,
   ButtonType,
+  IconCart,
   IconCollectible,
   IconPause,
   IconPlay,
@@ -41,6 +44,7 @@ import { SearchTag } from 'components/search/SearchTag'
 import { AiTrackSection } from 'components/track/AiTrackSection'
 import Badge from 'components/track/Badge'
 import { PremiumTrackSection } from 'components/track/PremiumTrackSection'
+import typeStyles from 'components/typography/typography.module.css'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { moodMap } from 'utils/Moods'
@@ -56,30 +60,42 @@ const messages = {
   track: 'TRACK',
   remix: 'REMIX',
   play: 'PLAY',
+  preview: 'PREVIEW',
   pause: 'PAUSE',
   collectibleGated: 'COLLECTIBLE GATED',
+  premiumTrack: 'PREMIUM TRACK',
   specialAccess: 'SPECIAL ACCESS',
   generatedWithAi: 'Generated With AI'
 }
 
-const PlayButton = (props: { playing: boolean; onPlay: () => void }) => {
-  return props.playing ? (
+type PlayButtonProps = {
+  disabled?: boolean
+  playing: boolean
+  onPlay: () => void
+}
+
+const PlayButton = ({ disabled, playing, onPlay }: PlayButtonProps) => {
+  return (
     <Button
-      className={cn(styles.playAllButton, styles.buttonFormatting)}
-      textClassName={styles.playAllButtonText}
+      disabled={disabled}
       type={ButtonType.PRIMARY_ALT}
-      text={messages.pause}
-      leftIcon={<IconPause />}
-      onClick={props.onPlay}
+      text={playing ? messages.pause : messages.play}
+      leftIcon={playing ? <IconPause /> : <IconPlay />}
+      onClick={onPlay}
+      size={ButtonSize.LARGE}
+      fullWidth
     />
-  ) : (
+  )
+}
+
+const PreviewButton = ({ playing, onPlay }: PlayButtonProps) => {
+  return (
     <Button
-      className={cn(styles.playAllButton, styles.buttonFormatting)}
-      textClassName={styles.playAllButtonText}
-      type={ButtonType.PRIMARY_ALT}
-      text={messages.play}
-      leftIcon={<IconPlay />}
-      onClick={props.onPlay}
+      type={ButtonType.SECONDARY}
+      text={playing ? messages.pause : messages.preview}
+      leftIcon={playing ? <IconPause /> : <IconPlay />}
+      onClick={onPlay}
+      fullWidth
     />
   )
 }
@@ -171,6 +187,18 @@ const TrackHeader = ({
   goToRepostsPage
 }: TrackHeaderProps) => {
   const showSocials = !isUnlisted && doesUserHaveAccess
+  const isUSDCPurchaseGated =
+    isPremiumContentUSDCPurchaseGated(premiumConditions)
+  // Preview button is shown for USDC-gated tracks if user does not have access
+  // or is the owner
+  const showPreview = isUSDCPurchaseGated && (isOwner || !doesUserHaveAccess)
+  // Play button is conditionally hidden for USDC-gated tracks when the user does not have access
+  const showPlay = isUSDCPurchaseGated ? doesUserHaveAccess : true
+  const showListenCount =
+    isOwner || (!isPremium && (isUnlisted || fieldVisibility.play_count))
+
+  // TODO: https://linear.app/audius/issue/PAY-1590/[webmobileweb]-add-support-for-playing-previews
+  const onPreview = useCallback(() => console.log('Preview Clicked'), [])
 
   const image = useTrackCoverArt(
     trackId,
@@ -242,7 +270,7 @@ const TrackHeader = ({
     return (
       <>
         {filteredTags.length > 0 ? (
-          <div className={styles.tags}>
+          <div className={cn(styles.tags, styles.withSectionDivider)}>
             {filteredTags.map((tag) => (
               <SearchTag
                 key={tag}
@@ -260,7 +288,10 @@ const TrackHeader = ({
   const renderDownloadButtons = () => {
     return (
       <DownloadButtons
-        className={styles.downloadButtonsContainer}
+        className={cn(
+          styles.downloadButtonsContainer,
+          styles.withSectionDivider
+        )}
         trackId={trackId}
         isOwner={isOwner}
         following={isFollowing}
@@ -322,18 +353,19 @@ const TrackHeader = ({
 
   const renderHeaderText = () => {
     if (isPremium) {
+      let IconComponent = IconSpecialAccess
+      let titleMessage = messages.specialAccess
+      if (isPremiumContentCollectibleGated(premiumConditions)) {
+        IconComponent = IconCollectible
+        titleMessage = messages.collectibleGated
+      } else if (isPremiumContentUSDCPurchaseGated(premiumConditions)) {
+        IconComponent = IconCart
+        titleMessage = messages.premiumTrack
+      }
       return (
         <div className={cn(styles.typeLabel, styles.premiumContentLabel)}>
-          {isPremiumContentCollectibleGated(premiumConditions) ? (
-            <IconCollectible />
-          ) : (
-            <IconSpecialAccess />
-          )}
-          {isPremiumContentCollectibleGated(premiumConditions) ? (
-            <span>{messages.collectibleGated}</span>
-          ) : (
-            <span>{messages.specialAccess}</span>
-          )}
+          <IconComponent />
+          <span>{titleMessage}</span>
         </div>
       )
     }
@@ -363,64 +395,57 @@ const TrackHeader = ({
         />
       ) : null}
       {imageElement}
-      <h1 className={styles.title}>{title}</h1>
-      <div className={styles.artist} onClick={onClickArtistName}>
-        <h2>{artistName}</h2>
-        <UserBadges
-          className={styles.verified}
-          badgeSize={16}
-          userId={userId}
-        />
-      </div>
-      <div className={styles.buttonSection}>
-        {!doesUserHaveAccess && premiumConditions && trackId ? (
-          <PremiumTrackSection
-            isLoading={false}
-            trackId={trackId}
-            premiumConditions={premiumConditions}
-            doesUserHaveAccess={doesUserHaveAccess}
-            isOwner={false}
-            wrapperClassName={styles.premiumTrackSectionWrapper}
-            className={styles.premiumTrackSection}
-            buttonClassName={styles.premiumTrackSectionButton}
+      <div className={styles.titleArtistSection}>
+        <h1 className={styles.title}>{title}</h1>
+        <div className={styles.artist} onClick={onClickArtistName}>
+          <h2>{artistName}</h2>
+          <UserBadges
+            className={styles.verified}
+            badgeSize={16}
+            userId={userId}
           />
-        ) : null}
-        {doesUserHaveAccess ? (
-          <PlayButton playing={isPlaying} onPlay={onPlay} />
-        ) : null}
-        <ActionButtonRow
-          showRepost={showSocials}
-          showFavorite={showSocials}
-          showShare={!isUnlisted || fieldVisibility.share}
-          showOverflow
-          shareToastDisabled
-          isOwner={isOwner}
-          isReposted={isReposted}
-          isSaved={isSaved}
-          onClickOverflow={onClickOverflow}
-          onRepost={onRepost}
-          onFavorite={onSaveHeroTrack}
-          onShare={onShare}
-          darkMode={isDarkMode()}
-        />
+        </div>
       </div>
-      {doesUserHaveAccess && premiumConditions && trackId && (
+      {showPlay ? (
+        <PlayButton
+          disabled={doesUserHaveAccess}
+          playing={isPlaying}
+          onPlay={onPlay}
+        />
+      ) : null}
+      {premiumConditions && trackId ? (
         <PremiumTrackSection
-          isLoading={false}
+          isLoading={isLoading}
           trackId={trackId}
           premiumConditions={premiumConditions}
           doesUserHaveAccess={doesUserHaveAccess}
           isOwner={isOwner}
-          wrapperClassName={cn(
-            styles.premiumTrackSectionWrapper,
-            styles.unlockedSection
-          )}
+          wrapperClassName={styles.premiumTrackSectionWrapper}
           className={styles.premiumTrackSection}
           buttonClassName={styles.premiumTrackSectionButton}
+          ownerId={userId}
         />
-      )}
-      {coSign && (
-        <div className={styles.coSignInfo}>
+      ) : null}
+      {showPreview ? (
+        <PreviewButton playing={isPlaying} onPlay={onPreview} />
+      ) : null}
+      <ActionButtonRow
+        showRepost={showSocials}
+        showFavorite={showSocials}
+        showShare={!isUnlisted || fieldVisibility.share}
+        showOverflow
+        shareToastDisabled
+        isOwner={isOwner}
+        isReposted={isReposted}
+        isSaved={isSaved}
+        onClickOverflow={onClickOverflow}
+        onRepost={onRepost}
+        onFavorite={onSaveHeroTrack}
+        onShare={onShare}
+        darkMode={isDarkMode()}
+      />
+      {coSign ? (
+        <div className={cn(styles.coSignInfo, styles.withSectionDivider)}>
           <HoverInfo
             coSignName={coSign.user.name}
             hasFavorited={coSign.has_remix_author_saved}
@@ -428,9 +453,10 @@ const TrackHeader = ({
             userId={coSign.user.user_id}
           />
         </div>
-      )}
+      ) : null}
       <StatsButtonRow
-        showListenCount={!isUnlisted || fieldVisibility.play_count}
+        className={styles.withSectionDivider}
+        showListenCount={showListenCount}
         showFavoriteCount={!isUnlisted}
         showRepostCount={!isUnlisted}
         listenCount={listenCount}
@@ -442,20 +468,24 @@ const TrackHeader = ({
       {aiAttributedUserId ? (
         <AiTrackSection
           attributedUserId={aiAttributedUserId}
-          className={styles.aiSection}
+          className={cn(styles.aiSection, styles.withSectionDivider)}
           descriptionClassName={styles.aiSectionDescription}
         />
       ) : null}
       {description ? (
         <Linkify options={{ attributes: { onClick: onExternalLinkClick } }}>
-          <h3 className={styles.description}>{squashNewLines(description)}</h3>
+          <h3
+            className={cn(
+              typeStyles.bodyMedium,
+              styles.description,
+              styles.withSectionDivider
+            )}
+          >
+            {squashNewLines(description)}
+          </h3>
         </Linkify>
       ) : null}
-      <div
-        className={cn(styles.infoSection, {
-          [styles.noStats]: isUnlisted && !fieldVisibility.play_count
-        })}
-      >
+      <div className={cn(styles.infoSection, styles.withSectionDivider)}>
         {renderTrackLabels()}
       </div>
       {renderDownloadButtons()}

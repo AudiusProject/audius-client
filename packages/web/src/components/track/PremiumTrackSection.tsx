@@ -16,11 +16,13 @@ import {
   isPremiumContentFollowGated,
   isPremiumContentCollectibleGated,
   isPremiumContentTipGated,
-  isPremiumContentUSDCPurchaseGated
+  isPremiumContentUSDCPurchaseGated,
+  formatUSDCWeiToUSDString
 } from '@audius/common'
 import {
   Button,
   ButtonType,
+  IconCart,
   IconCollectible,
   IconSpecialAccess,
   LogoEth,
@@ -53,6 +55,8 @@ const { getAccountUser } = accountSelectors
 
 const messages = {
   howToUnlock: 'HOW TO UNLOCK',
+  payToUnlock: 'PAY TO UNLOCK',
+  purchasing: 'PURCHASING',
   unlocking: 'UNLOCKING',
   unlocked: 'UNLOCKED',
   collectibleGated: 'COLLECTIBLE GATED',
@@ -80,11 +84,17 @@ const messages = {
   thankYouForSupporting: 'Thank you for supporting',
   unlockingTipGatedTrackSuffix: 'by sending them a tip!',
   unlockedTipGatedTrackSuffix:
-    'by sending them a tip! This track is now available.'
+    'by sending them a tip! This track is now available.',
+  unlockWithPurchase: 'Unlock this track with a one-time purchase!',
+  purchased: "You've purchased this track.",
+  buy: (price: string) => `Buy $${price}`,
+  usersCanPurchase: (price: string) =>
+    `Users can unlock access to this track for a one time purchase of $${price}`
 }
 
 type PremiumTrackAccessSectionProps = {
   trackId: ID
+  trackOwner: Nullable<User>
   premiumConditions: PremiumConditions
   followee: Nullable<User>
   tippedUser: Nullable<User>
@@ -112,6 +122,13 @@ const LockedPremiumTrackSection = ({
     ? FollowSource.HOW_TO_UNLOCK_MODAL
     : FollowSource.HOW_TO_UNLOCK_TRACK_PAGE
   const account = useSelector(getAccountUser)
+  const isUSDCPurchaseGated =
+    isPremiumContentUSDCPurchaseGated(premiumConditions)
+
+  // TODO: https://linear.app/audius/issue/PAY-1531/[webmobileweb]-wire-up-purchase-usdc-flow
+  const handlePurchase = useCallback(() => {
+    console.log('Purchase clicked')
+  }, [])
 
   const handleSendTip = useCallback(() => {
     if (account) {
@@ -237,6 +254,20 @@ const LockedPremiumTrackSection = ({
       )
     }
 
+    if (isPremiumContentUSDCPurchaseGated(premiumConditions)) {
+      return (
+        <div
+          className={cn(
+            typeStyles.bodyMedium,
+            typeStyles.bodyStrong,
+            styles.premiumContentSectionDescription
+          )}
+        >
+          {messages.unlockWithPurchase}
+        </div>
+      )
+    }
+
     console.warn(
       'No entity for premium conditions... should not have reached here.'
     )
@@ -288,11 +319,31 @@ const LockedPremiumTrackSection = ({
       )
     }
 
+    if (isPremiumContentUSDCPurchaseGated(premiumConditions)) {
+      return (
+        <Button
+          color='specialLightGreen'
+          text={messages.buy(
+            formatUSDCWeiToUSDString(premiumConditions.usdc_purchase.price)
+          )}
+          onClick={handlePurchase}
+          type={ButtonType.PRIMARY}
+          textClassName={styles.buttonText}
+        />
+      )
+    }
+
     console.warn(
       'No entity for premium conditions... should not have reached here.'
     )
     return null
-  }, [premiumConditions, goToCollection, handleFollow, handleSendTip])
+  }, [
+    premiumConditions,
+    goToCollection,
+    handleFollow,
+    handleSendTip,
+    handlePurchase
+  ])
 
   return (
     <div className={className}>
@@ -306,13 +357,9 @@ const LockedPremiumTrackSection = ({
         >
           <LockedStatusBadge
             locked
-            variant={
-              isPremiumContentUSDCPurchaseGated(premiumConditions)
-                ? 'premium'
-                : 'gated'
-            }
+            variant={isUSDCPurchaseGated ? 'premium' : 'gated'}
           />
-          {messages.howToUnlock}
+          {isUSDCPurchaseGated ? messages.payToUnlock : messages.howToUnlock}
         </div>
         {renderLockedDescription()}
       </div>
@@ -365,6 +412,21 @@ const UnlockingPremiumTrackSection = ({
         </div>
       )
     }
+
+    if (isPremiumContentUSDCPurchaseGated(premiumConditions)) {
+      return (
+        <div
+          className={cn(
+            typeStyles.bodyMedium,
+            typeStyles.bodyStrong,
+            styles.premiumContentSectionDescription
+          )}
+        >
+          {messages.unlockWithPurchase}
+        </div>
+      )
+    }
+
     console.warn(
       'No entity for premium conditions... should not have reached here.'
     )
@@ -382,7 +444,9 @@ const UnlockingPremiumTrackSection = ({
           )}
         >
           <LoadingSpinner className={styles.spinner} />
-          {messages.unlocking}
+          {isPremiumContentUSDCPurchaseGated(premiumConditions)
+            ? messages.purchasing
+            : messages.unlocking}
         </div>
         <div
           className={cn(
@@ -405,6 +469,7 @@ const UnlockedPremiumTrackSection = ({
   goToCollection,
   renderArtist,
   isOwner,
+  trackOwner,
   className
 }: PremiumTrackAccessSectionProps) => {
   const renderUnlockedDescription = useCallback(() => {
@@ -462,6 +527,31 @@ const UnlockedPremiumTrackSection = ({
       )
     }
 
+    if (isPremiumContentUSDCPurchaseGated(premiumConditions)) {
+      return isOwner ? (
+        <div>
+          <span>
+            {messages.usersCanPurchase(
+              formatUSDCWeiToUSDString(premiumConditions.usdc_purchase.price)
+            )}
+          </span>
+        </div>
+      ) : (
+        <div>
+          <span>{messages.purchased}&nbsp;</span>
+          {trackOwner ? (
+            <>
+              <span>
+                {messages.thankYouForSupporting}&nbsp;
+                {renderArtist(trackOwner)}
+                {messages.period}
+              </span>
+            </>
+          ) : null}
+        </div>
+      )
+    }
+
     console.warn(
       'No entity for premium conditions... should not have reached here.'
     )
@@ -469,11 +559,23 @@ const UnlockedPremiumTrackSection = ({
   }, [
     premiumConditions,
     isOwner,
+    trackOwner,
     followee,
     tippedUser,
     goToCollection,
     renderArtist
   ])
+
+  let IconComponent = IconSpecialAccess
+  let gatedConditionTitle = messages.specialAccess
+
+  if (isPremiumContentCollectibleGated(premiumConditions)) {
+    IconComponent = IconCollectible
+    gatedConditionTitle = messages.collectibleGated
+  } else if (isPremiumContentUSDCPurchaseGated(premiumConditions)) {
+    IconComponent = IconCart
+    gatedConditionTitle = messages.payToUnlock
+  }
 
   return (
     <div className={className}>
@@ -486,11 +588,7 @@ const UnlockedPremiumTrackSection = ({
         )}
       >
         {isOwner ? (
-          isPremiumContentCollectibleGated(premiumConditions) ? (
-            <IconCollectible className={styles.collectibleIcon} />
-          ) : (
-            <IconSpecialAccess className={styles.specialAccessIcon} />
-          )
+          <IconComponent className={styles.gatedContentIcon} />
         ) : (
           <LockedStatusBadge
             locked={false}
@@ -501,11 +599,7 @@ const UnlockedPremiumTrackSection = ({
             }
           />
         )}
-        {isOwner
-          ? isPremiumContentCollectibleGated(premiumConditions)
-            ? messages.collectibleGated
-            : messages.specialAccess
-          : messages.unlocked}
+        {isOwner ? gatedConditionTitle : messages.unlocked}
       </div>
       <div
         className={cn(
@@ -529,6 +623,7 @@ type PremiumTrackSectionProps = {
   wrapperClassName?: string
   className?: string
   buttonClassName?: string
+  ownerId: ID
 }
 
 export const PremiumTrackSection = ({
@@ -539,28 +634,34 @@ export const PremiumTrackSection = ({
   isOwner,
   wrapperClassName,
   className,
-  buttonClassName
+  buttonClassName,
+  ownerId
 }: PremiumTrackSectionProps) => {
   const dispatch = useDispatch()
   const premiumTrackStatusMap = useSelector(getPremiumTrackStatusMap)
   const premiumTrackStatus = premiumTrackStatusMap[trackId] ?? null
   const isFollowGated = isPremiumContentFollowGated(premiumConditions)
   const isTipGated = isPremiumContentTipGated(premiumConditions)
+  const isUSDCPurchaseGated =
+    isPremiumContentUSDCPurchaseGated(premiumConditions)
   const shouldDisplay =
     isFollowGated ||
     isTipGated ||
-    isPremiumContentCollectibleGated(premiumConditions)
+    isPremiumContentCollectibleGated(premiumConditions) ||
+    isUSDCPurchaseGated
   const users = useSelector<AppState, { [id: ID]: User }>((state) =>
     getUsers(state, {
       ids: [
         isFollowGated ? premiumConditions.follow_user_id : null,
-        isTipGated ? premiumConditions.tip_user_id : null
+        isTipGated ? premiumConditions.tip_user_id : null,
+        isUSDCPurchaseGated ? ownerId : null
       ].filter(removeNullable)
     })
   )
   const followee = isFollowGated
     ? users[premiumConditions.follow_user_id]
     : null
+  const trackOwner = isUSDCPurchaseGated ? users[ownerId] : null
   const tippedUser = isTipGated ? users[premiumConditions.tip_user_id] : null
 
   const fadeIn = {
@@ -622,6 +723,7 @@ export const PremiumTrackSection = ({
       >
         <UnlockedPremiumTrackSection
           trackId={trackId}
+          trackOwner={trackOwner}
           premiumConditions={premiumConditions}
           followee={followee}
           tippedUser={tippedUser}
@@ -641,6 +743,7 @@ export const PremiumTrackSection = ({
       >
         <UnlockingPremiumTrackSection
           trackId={trackId}
+          trackOwner={trackOwner}
           premiumConditions={premiumConditions}
           followee={followee}
           tippedUser={tippedUser}
@@ -657,6 +760,7 @@ export const PremiumTrackSection = ({
     <div className={cn(styles.premiumContentSection, fadeIn, wrapperClassName)}>
       <LockedPremiumTrackSection
         trackId={trackId}
+        trackOwner={trackOwner}
         premiumConditions={premiumConditions}
         followee={followee}
         tippedUser={tippedUser}

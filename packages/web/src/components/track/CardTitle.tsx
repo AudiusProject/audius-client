@@ -2,9 +2,10 @@ import {
   FeatureFlags,
   Nullable,
   PremiumConditions,
-  isPremiumContentCollectibleGated
+  isPremiumContentCollectibleGated,
+  isPremiumContentUSDCPurchaseGated
 } from '@audius/common'
-import { IconCollectible, IconSpecialAccess } from '@audius/stems'
+import { IconCart, IconCollectible, IconSpecialAccess } from '@audius/stems'
 import cn from 'classnames'
 
 import Tooltip from 'components/tooltip/Tooltip'
@@ -20,7 +21,8 @@ const messages = {
   remixTitle: 'REMIX',
   hiddenTrackTooltip: 'Anyone with a link to this page will be able to see it',
   collectibleGated: 'COLLECTIBLE GATED',
-  specialAccess: 'SPECIAL ACCESS'
+  specialAccess: 'SPECIAL ACCESS',
+  premiumContent: 'PREMIUM TRACK'
 }
 
 type CardTitleProps = {
@@ -54,6 +56,9 @@ export const CardTitle = ({
     if (isPremiumContentCollectibleGated(premiumConditions)) {
       icon = <IconCollectible />
       message = messages.collectibleGated
+    } else if (isPremiumContentUSDCPurchaseGated(premiumConditions)) {
+      icon = <IconCart />
+      message = messages.premiumContent
     } else {
       icon = <IconSpecialAccess />
       message = messages.specialAccess

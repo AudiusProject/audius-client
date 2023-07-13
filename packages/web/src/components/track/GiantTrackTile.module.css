@@ -113,27 +113,12 @@
   margin-top: 7px;
   display: flex;
   align-items: center;
+  gap: var(--unit-6);
   flex-wrap: wrap;
 }
 
 .playSection > * {
   margin-top: var(--unit-4);
-}
-
-.playButton {
-  width: 180px !important;
-  height: var(--unit-15) !important;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  margin-right: var(--unit-6);
-}
-
-.playButton .playButtonText {
-  font-size: var(--font-xl);
-  font-weight: var(--font-bold);
-  letter-spacing: 0.71px;
-  text-transform: uppercase;
 }
 
 .infoSection .numberOfListens {
@@ -234,6 +219,10 @@
   margin-bottom: var(--unit-2);
 }
 
+.premiumContentSectionDescription {
+  text-align: left;
+}
+
 .premiumContentSectionDescription > p {
   display: flex;
   align-items: center;
@@ -305,15 +294,13 @@
   color: var(--secondary-dark-2);
 }
 
-.collectibleIcon,
-.specialAccessIcon {
+.gatedContentIcon {
   margin-right: var(--unit-2);
   width: var(--unit-4);
   height: var(--unit-4);
 }
 
-.collectibleIcon path,
-.specialAccessIcon path {
+.gatedContentIcon path {
   fill: var(--neutral);
 }
 
@@ -446,10 +433,6 @@
 
 .spinner path {
   stroke: var(--neutral-light-4);
-}
-
-.premiumContentSectionDescription > div {
-  text-align: left;
 }
 
 .premiumContentSectionDescription > div > span {

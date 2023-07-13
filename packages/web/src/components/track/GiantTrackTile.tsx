@@ -15,7 +15,8 @@ import {
   ID,
   PremiumConditions,
   FieldVisibility,
-  getDogEarType
+  getDogEarType,
+  isPremiumContentUSDCPurchaseGated
 } from '@audius/common'
 import {
   Button,
@@ -187,6 +188,18 @@ export const GiantTrackTile = ({
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
   )
+  const isUSDCPurchaseGated =
+    isPremiumContentUSDCPurchaseGated(premiumConditions)
+  // Preview button is shown for USDC-gated tracks if user does not have access
+  // or is the owner
+  const showPreview = isUSDCPurchaseGated && (isOwner || !doesUserHaveAccess)
+  // Play button is conditionally hidden for USDC-gated tracks when the user does not have access
+  const showPlay = isUSDCPurchaseGated ? doesUserHaveAccess : true
+
+  // TODO: https://linear.app/audius/issue/PAY-1590/[webmobileweb]-add-support-for-playing-previews
+  const onPreview = useCallback(() => {
+    console.log('Preview Clicked')
+  }, [])
 
   const renderCardTitle = (className: string) => {
     return (
@@ -345,26 +358,29 @@ export const GiantTrackTile = ({
   }
 
   const renderListenCount = () => {
-    const shouldShow = !isUnlisted || fieldVisibility.play_count
+    const shouldShow =
+      isOwner || (!isPremium && (isUnlisted || fieldVisibility.play_count))
+
+    if (!shouldShow) {
+      return null
+    }
     return (
-      shouldShow && (
-        <div className={styles.listens}>
-          {listenCount === 0 ? (
-            <span className={styles.firstListen}>
-              Be the first to listen to this track!
+      <div className={styles.listens}>
+        {!isOwner && listenCount === 0 ? (
+          <span className={styles.firstListen}>
+            Be the first to listen to this track!
+          </span>
+        ) : (
+          <>
+            <span className={styles.numberOfListens}>
+              {listenCount.toLocaleString()}
             </span>
-          ) : (
-            <>
-              <span className={styles.numberOfListens}>
-                {listenCount.toLocaleString()}
-              </span>
-              <span className={styles.listenText}>
-                {listenCount === 1 ? 'Play' : 'Plays'}
-              </span>
-            </>
-          )}
-        </div>
-      )
+            <span className={styles.listenText}>
+              {listenCount === 1 ? 'Play' : 'Plays'}
+            </span>
+          </>
+        )}
+      </div>
     )
   }
 
@@ -526,12 +542,22 @@ export const GiantTrackTile = ({
           </div>
 
           <div className={cn(styles.playSection, fadeIn)}>
-            <PlayPauseButton
-              doesUserHaveAccess={doesUserHaveAccess}
-              playing={playing}
-              onPlay={onPlay}
-              trackId={trackId}
-            />
+            {showPlay ? (
+              <PlayPauseButton
+                disabled={!doesUserHaveAccess}
+                playing={playing}
+                onPlay={onPlay}
+                trackId={trackId}
+              />
+            ) : null}
+            {showPreview ? (
+              <PlayPauseButton
+                playing={playing}
+                onPlay={onPreview}
+                trackId={trackId}
+                isPreview
+              />
+            ) : null}
             {isLongFormContent && isNewPodcastControlsEnabled ? (
               <GiantTrackTileProgressInfo
                 duration={duration}
@@ -596,6 +622,7 @@ export const GiantTrackTile = ({
           premiumConditions={premiumConditions}
           doesUserHaveAccess={doesUserHaveAccess}
           isOwner={isOwner}
+          ownerId={userId}
         />
       ) : null}
 
