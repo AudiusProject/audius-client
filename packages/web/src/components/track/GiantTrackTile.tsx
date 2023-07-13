@@ -190,6 +190,8 @@ export const GiantTrackTile = ({
   )
   const isPurchaseGated = isPremiumContentUSDCPurchaseGated(premiumConditions)
   const showPreview = isOwner || (isPurchaseGated && !doesUserHaveAccess)
+
+  // TODO: https://linear.app/audius/issue/PAY-1590/[webmobileweb]-add-support-for-playing-previews
   const onPreview = useCallback(() => {
     console.log('Preview Clicked')
   }, [])

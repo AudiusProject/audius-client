@@ -124,6 +124,7 @@ const LockedPremiumTrackSection = ({
   const account = useSelector(getAccountUser)
   const isUSDCGated = isPremiumContentUSDCPurchaseGated(premiumConditions)
 
+  // TODO: https://linear.app/audius/issue/PAY-1531/[webmobileweb]-wire-up-purchase-usdc-flow
   const handlePurchase = useCallback(() => {
     console.log('Purchase clicked')
   }, [])
