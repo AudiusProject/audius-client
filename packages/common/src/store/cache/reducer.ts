@@ -167,6 +167,8 @@ const updateImageCache = (existing: Metadata, next: Metadata, merged: any) => {
   ) {
     merged._cover_photo_sizes = {}
   }
+
+  return merged
 }
 
 const addEntries = (state: CacheState, entries: any[], replace?: boolean) => {
@@ -198,13 +200,13 @@ const addEntries = (state: CacheState, entries: any[], replace?: boolean) => {
     ) {
       // do nothing
     } else if (existing) {
-      const newMetadata = mergeWith(
+      let newMetadata = mergeWith(
         {},
         existing,
         entity.metadata,
         mergeCustomizer
       )
-      updateImageCache(existing, entity.metadata, newMetadata)
+      newMetadata = updateImageCache(existing, entity.metadata, newMetadata)
       if (cacheType === 'safe-fast' && isEqual(existing, newMetadata)) {
         // do nothing
       } else {
@@ -267,8 +269,8 @@ const actionsMap = {
 
     action.entries.forEach((e: { id: string | number; metadata: any }) => {
       const existing = { ...unwrapEntry(state.entries[e.id]) }
-      const newEntry = mergeWith({}, existing, e.metadata, mergeCustomizer)
-      updateImageCache(existing, e.metadata, newEntry)
+      let newEntry = mergeWith({}, existing, e.metadata, mergeCustomizer)
+      newEntry = updateImageCache(existing, e.metadata, newEntry)
       newEntries[e.id] = wrapEntry(newEntry)
     })
 
