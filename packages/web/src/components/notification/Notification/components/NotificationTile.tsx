@@ -42,8 +42,7 @@ export const NotificationTile = (props: NotificationTileProps) => {
     <div
       className={cn(styles.root, {
         [styles.read]: isViewed,
-        [styles.active]: !disabled,
-        [styles.clickable]: !!onClick
+        [styles.active]: !disabled
       })}
       tabIndex={0}
       role='button'
