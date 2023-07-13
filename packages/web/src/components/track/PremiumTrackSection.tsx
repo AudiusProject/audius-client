@@ -122,7 +122,8 @@ const LockedPremiumTrackSection = ({
     ? FollowSource.HOW_TO_UNLOCK_MODAL
     : FollowSource.HOW_TO_UNLOCK_TRACK_PAGE
   const account = useSelector(getAccountUser)
-  const isUSDCGated = isPremiumContentUSDCPurchaseGated(premiumConditions)
+  const isUSDCPurchaseGated =
+    isPremiumContentUSDCPurchaseGated(premiumConditions)
 
   // TODO: https://linear.app/audius/issue/PAY-1531/[webmobileweb]-wire-up-purchase-usdc-flow
   const handlePurchase = useCallback(() => {
@@ -356,9 +357,9 @@ const LockedPremiumTrackSection = ({
         >
           <LockedStatusBadge
             locked
-            variant={isUSDCGated ? 'premium' : 'gated'}
+            variant={isUSDCPurchaseGated ? 'premium' : 'gated'}
           />
-          {isUSDCGated ? messages.payToUnlock : messages.howToUnlock}
+          {isUSDCPurchaseGated ? messages.payToUnlock : messages.howToUnlock}
         </div>
         {renderLockedDescription()}
       </div>
