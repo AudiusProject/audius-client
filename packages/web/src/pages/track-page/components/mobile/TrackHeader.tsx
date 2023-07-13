@@ -69,13 +69,15 @@ const messages = {
 }
 
 type PlayButtonProps = {
+  disabled?: boolean
   playing: boolean
   onPlay: () => void
 }
 
-const PlayButton = ({ playing, onPlay }: PlayButtonProps) => {
+const PlayButton = ({ disabled, playing, onPlay }: PlayButtonProps) => {
   return (
     <Button
+      disabled={disabled}
       type={ButtonType.PRIMARY_ALT}
       text={playing ? messages.pause : messages.play}
       leftIcon={playing ? <IconPause /> : <IconPlay />}
@@ -185,8 +187,13 @@ const TrackHeader = ({
   goToRepostsPage
 }: TrackHeaderProps) => {
   const showSocials = !isUnlisted && doesUserHaveAccess
-  const isPurchaseGated = isPremiumContentUSDCPurchaseGated(premiumConditions)
-  const showPreview = isOwner || (isPurchaseGated && !doesUserHaveAccess)
+  const isUSDCPurchaseGated =
+    isPremiumContentUSDCPurchaseGated(premiumConditions)
+  // Preview button is shown for USDC-gated tracks if user does not have access
+  // or is the owner
+  const showPreview = isUSDCPurchaseGated && (isOwner || !doesUserHaveAccess)
+  // Play button is conditionally hidden for USDC-gated tracks when the user does not have access
+  const showPlay = isUSDCPurchaseGated ? doesUserHaveAccess : true
   const showListenCount =
     isOwner || (!isPremium && (isUnlisted || fieldVisibility.play_count))
 
@@ -399,8 +406,12 @@ const TrackHeader = ({
           />
         </div>
       </div>
-      {doesUserHaveAccess ? (
-        <PlayButton playing={isPlaying} onPlay={onPlay} />
+      {showPlay ? (
+        <PlayButton
+          disabled={doesUserHaveAccess}
+          playing={isPlaying}
+          onPlay={onPlay}
+        />
       ) : null}
       {premiumConditions && trackId ? (
         <PremiumTrackSection

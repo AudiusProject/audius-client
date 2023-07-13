@@ -23,7 +23,7 @@ const { getTrackId } = playerSelectors
 const { getTrackPosition } = playbackPositionSelectors
 
 type PlayPauseButtonProps = {
-  doesUserHaveAccess: boolean
+  disabled?: boolean
   isPreview?: boolean
   playing: boolean
   trackId?: ID
@@ -39,7 +39,7 @@ const messages = {
 }
 
 export const PlayPauseButton = ({
-  doesUserHaveAccess,
+  disabled,
   isPreview = false,
   playing,
   trackId,
@@ -86,7 +86,7 @@ export const PlayPauseButton = ({
       leftIcon={playing ? <IconPause /> : <PlayIconComponent />}
       onClick={onPlay}
       minWidth={180}
-      disabled={!doesUserHaveAccess && !isPreview}
+      disabled={disabled}
     />
   )
 }

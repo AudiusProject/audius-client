@@ -64,7 +64,8 @@ const TrackDetails = ({ track, owner }: { track: Track; owner: User }) => {
   })
   const label = `${title} by ${owner.name}`
   const isCollectibleGated = isPremiumContentCollectibleGated(premiumConditions)
-  const isPurchaseGated = isPremiumContentUSDCPurchaseGated(premiumConditions)
+  const isUSDCPurchaseGated =
+    isPremiumContentUSDCPurchaseGated(premiumConditions)
 
   let IconComponent = IconSpecialAccess
   let message = messages.specialAccess
@@ -72,7 +73,7 @@ const TrackDetails = ({ track, owner }: { track: Track; owner: User }) => {
   if (isCollectibleGated) {
     IconComponent = IconCollectible
     message = messages.collectibleGated
-  } else if (isPurchaseGated) {
+  } else if (isUSDCPurchaseGated) {
     IconComponent = IconCart
     message = messages.premiumContent
   }

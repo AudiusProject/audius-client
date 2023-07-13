@@ -188,8 +188,13 @@ export const GiantTrackTile = ({
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED_FALLBACK
   )
-  const isPurchaseGated = isPremiumContentUSDCPurchaseGated(premiumConditions)
-  const showPreview = isOwner || (isPurchaseGated && !doesUserHaveAccess)
+  const isUSDCPurchaseGated =
+    isPremiumContentUSDCPurchaseGated(premiumConditions)
+  // Preview button is shown for USDC-gated tracks if user does not have access
+  // or is the owner
+  const showPreview = isUSDCPurchaseGated && (isOwner || !doesUserHaveAccess)
+  // Play button is conditionally hidden for USDC-gated tracks when the user does not have access
+  const showPlay = isUSDCPurchaseGated ? doesUserHaveAccess : true
 
   // TODO: https://linear.app/audius/issue/PAY-1590/[webmobileweb]-add-support-for-playing-previews
   const onPreview = useCallback(() => {
@@ -537,9 +542,9 @@ export const GiantTrackTile = ({
           </div>
 
           <div className={cn(styles.playSection, fadeIn)}>
-            {doesUserHaveAccess ? (
+            {showPlay ? (
               <PlayPauseButton
-                doesUserHaveAccess={doesUserHaveAccess}
+                disabled={!doesUserHaveAccess}
                 playing={playing}
                 onPlay={onPlay}
                 trackId={trackId}
@@ -551,7 +556,6 @@ export const GiantTrackTile = ({
                 onPlay={onPreview}
                 trackId={trackId}
                 isPreview
-                doesUserHaveAccess
               />
             ) : null}
             {isLongFormContent && isNewPodcastControlsEnabled ? (

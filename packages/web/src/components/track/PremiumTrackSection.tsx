@@ -641,25 +641,26 @@ export const PremiumTrackSection = ({
   const premiumTrackStatus = premiumTrackStatusMap[trackId] ?? null
   const isFollowGated = isPremiumContentFollowGated(premiumConditions)
   const isTipGated = isPremiumContentTipGated(premiumConditions)
-  const isPurchaseGated = isPremiumContentUSDCPurchaseGated(premiumConditions)
+  const isUSDCPurchaseGated =
+    isPremiumContentUSDCPurchaseGated(premiumConditions)
   const shouldDisplay =
     isFollowGated ||
     isTipGated ||
     isPremiumContentCollectibleGated(premiumConditions) ||
-    isPurchaseGated
+    isUSDCPurchaseGated
   const users = useSelector<AppState, { [id: ID]: User }>((state) =>
     getUsers(state, {
       ids: [
         isFollowGated ? premiumConditions.follow_user_id : null,
         isTipGated ? premiumConditions.tip_user_id : null,
-        isPurchaseGated ? ownerId : null
+        isUSDCPurchaseGated ? ownerId : null
       ].filter(removeNullable)
     })
   )
   const followee = isFollowGated
     ? users[premiumConditions.follow_user_id]
     : null
-  const trackOwner = isPurchaseGated ? users[ownerId] : null
+  const trackOwner = isUSDCPurchaseGated ? users[ownerId] : null
   const tippedUser = isTipGated ? users[premiumConditions.tip_user_id] : null
 
   const fadeIn = {
