@@ -188,3 +188,10 @@ mobile-release-android:
         command: |
           cd packages/mobile/android
           bundle exec fastlane <<parameters.upload-type>> track:<<parameters.track>>
+
+
+# Deploy Solana saga dApp store
+mobile-release-saga-dapp-store:
+  steps:
+    - run:
+        name: 
