@@ -51,7 +51,7 @@ const Row = ({
         [styles.hasBody]: !!children,
         [styles.includeSpacing]: includeSpacing
       })}
-      to={{ pathname: to }}
+      to={to}
       href={href}
       onClick={onClick}
       {...rootProps}
