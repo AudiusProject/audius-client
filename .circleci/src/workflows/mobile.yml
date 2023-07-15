@@ -138,7 +138,7 @@ jobs:
           only: /(^release.*)$/
 
   - mobile-hold-deploy-saga-dapp-store:
-      context: Audius Mobile Client
+      type: approval
       requires:
         - mobile-init
       filters:
