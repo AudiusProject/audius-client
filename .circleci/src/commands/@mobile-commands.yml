@@ -228,3 +228,10 @@ mobile-release-saga-dapp-store:
         name: Issue update to dapp store
         command: |
           npx dapp-store publish update -k app-keypair.json -u https://audius-fe.rpcpool.com --requestor-is-authorized --complies-with-solana-dapp-store-policies
+    - run:
+        name: Commit changes
+        command: |
+          git checkout main -f
+          git pull
+          git commit -am 'Update dapp-store build artifacts'
+          git push origin main
