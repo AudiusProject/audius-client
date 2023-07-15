@@ -112,6 +112,7 @@ type OwnProps = {
 
   // Smart collection props
   smartCollection?: SmartCollection
+  playlistByPermalinkEnabled?: boolean
 }
 
 type CollectionPageProps = OwnProps &
@@ -182,7 +183,8 @@ class CollectionPage extends Component<
       fetchCollectionSucceeded,
       type,
       playlistUpdates,
-      updatePlaylistLastViewedAt
+      updatePlaylistLastViewedAt,
+      playlistByPermalinkEnabled
     } = this.props
 
     if (
@@ -218,7 +220,7 @@ class CollectionPage extends Component<
       })
     }
 
-    const params = parseCollectionRoute(pathname)
+    const params = parseCollectionRoute(pathname, playlistByPermalinkEnabled)
 
     if (!params) return
     if (status === Status.ERROR) {
@@ -268,7 +270,7 @@ class CollectionPage extends Component<
 
     const { collection: prevMetadata } = prevProps
     if (metadata) {
-      const params = parseCollectionRoute(pathname)
+      const params = parseCollectionRoute(pathname, playlistByPermalinkEnabled)
       if (params) {
         const { collectionId, title, collectionType, handle, permalink } =
           params
@@ -354,22 +356,23 @@ class CollectionPage extends Component<
   }
 
   fetchCollection = (pathname: string, forceFetch = false) => {
-    const params = parseCollectionRoute(pathname)
+    const { playlistByPermalinkEnabled } = this.props
+    const params = parseCollectionRoute(pathname, playlistByPermalinkEnabled)
+
+    if (params?.permalink) {
+      const { permalink, collectionId } = params
+      if (forceFetch || params.permalink) {
+        this.props.setCollectionPermalink(permalink)
+        this.props.fetchCollection(collectionId, permalink)
+        this.props.fetchTracks()
+      }
+    }
 
     if (params?.collectionId) {
       const { collectionId } = params
       if (forceFetch || collectionId !== this.state.playlistId) {
         this.setState({ playlistId: collectionId as number })
         this.props.fetchCollection(collectionId as number)
-        this.props.fetchTracks()
-      }
-    }
-
-    if (params?.permalink) {
-      const { permalink, collectionId } = params
-      if (forceFetch) {
-        this.props.setCollectionPermalink(permalink)
-        this.props.fetchCollection(collectionId, permalink)
         this.props.fetchTracks()
       }
     }
