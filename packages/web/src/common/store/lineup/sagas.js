@@ -12,7 +12,9 @@ import {
   queueActions,
   playerSelectors,
   queueSelectors,
-  getContext
+  getContext,
+  FeatureFlags,
+  isPremiumContentUSDCPurchaseGated
 } from '@audius/common'
 import {
   all,
@@ -29,6 +31,7 @@ import {
 
 import { getToQueue } from 'common/store/queue/sagas'
 import { isMobileWeb } from 'common/utils/isMobileWeb'
+import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
 
 const { getSource, getUid, getPositions } = queueSelectors
 const { getUid: getCurrentPlayerTrackUid, getPlaying } = playerSelectors
@@ -46,11 +49,26 @@ function* filterDeletes(tracksMetadata, removeDeleted) {
   const remoteConfig = yield getContext('remoteConfigInstance')
   yield call(remoteConfig.waitForRemoteConfig)
 
+  const isUSDCGatedContentEnabled = yield getFeatureEnabled(
+    FeatureFlags.USDC_PURCHASES
+  )
+
   return tracksMetadata
     .map((metadata) => {
       // If the incoming metadata is null, return null
       // This will be accounted for in `nullCount`
       if (metadata === null) {
+        return null
+      }
+
+      // Treat usdc content as deleted if feature is not enabled
+      // TODO: https://linear.app/audius/issue/PAY-1533/remove-usdc-feature-flag
+      // Remove this when removing the feature flags
+      if (
+        !isUSDCGatedContentEnabled &&
+        metadata.is_premium &&
+        isPremiumContentUSDCPurchaseGated(metadata.premium_conditions)
+      ) {
         return null
       }
 
