@@ -56,10 +56,7 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
 
 const messages = {
   addArtwork: 'Add Artwork',
-  changeArtwork: 'Change Artwork',
-  removeArtwork: 'Remove Artwork',
-  removingArtwork: 'Removing Artwork',
-  updatingArtwork: 'Updating Artwork'
+  changeArtwork: 'Change Artwork'
 }
 
 type PickArtworkFieldProps = {
