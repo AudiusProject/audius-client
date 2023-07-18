@@ -37,31 +37,25 @@ export const ModalField = (props: ModalFieldProps) => {
   }
 
   const modal = (
-    <div className={styles.modal}>
-      <Modal onClose={cancel} isOpen={isModalOpen}>
-        <ModalHeader>
-          <div className={styles.modalHeader}>
-            <ModalTitle
-              className={styles.modalTitle}
-              title={title}
-              icon={icon}
-            />
-          </div>
-        </ModalHeader>
-        <ModalContent>{children}</ModalContent>
-        <ModalFooter>
-          <Button
-            type={ButtonType.PRIMARY}
-            text={messages.done}
-            onClick={() => {
-              submitForm()
-              close()
-            }}
-            buttonType='submit'
-          />
-        </ModalFooter>
-      </Modal>
-    </div>
+    <Modal onClose={cancel} isOpen={isModalOpen} bodyClassName={styles.root}>
+      <ModalHeader>
+        <div className={styles.modalHeader}>
+          <ModalTitle className={styles.modalTitle} title={title} icon={icon} />
+        </div>
+      </ModalHeader>
+      <ModalContent>{children}</ModalContent>
+      <ModalFooter>
+        <Button
+          type={ButtonType.PRIMARY}
+          text={messages.done}
+          onClick={() => {
+            submitForm()
+            close()
+          }}
+          buttonType='submit'
+        />
+      </ModalFooter>
+    </Modal>
   )
 
   return (

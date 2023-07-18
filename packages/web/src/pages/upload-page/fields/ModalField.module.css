@@ -12,6 +12,10 @@
 }
 
 /* Modal styles */
+.root {
+  width: 720px;
+}
+
 .modalHeader {
   display: flex;
   flex-direction: row;
