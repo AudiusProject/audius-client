@@ -319,7 +319,7 @@ mobile-deploy-codepush-production-android-if-ota-release:
 
 mobile-deploy-saga-dapp-store:
   working_directory: ~/audius-client
-  resource_class: large
+  resource_class: xlarge
   docker:
     - image: circleci/android:api-30-node
   steps:
