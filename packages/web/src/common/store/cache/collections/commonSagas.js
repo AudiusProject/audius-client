@@ -12,7 +12,9 @@ import {
   cacheUsersSelectors,
   cacheActions,
   getContext,
-  toastActions
+  toastActions,
+  updatePlaylistArtwork,
+  cacheTracksSelectors
 } from '@audius/common'
 import {
   all,
@@ -34,6 +36,7 @@ import {
   addPlaylistsNotInLibrary,
   removePlaylistFromLibrary
 } from 'common/store/playlist-library/sagas'
+import { ensureLoggedIn } from 'common/utils/ensureLoggedIn'
 import { waitForWrite } from 'utils/sagaHelpers'
 
 import { watchAddTrackToPlaylist } from './addTrackToPlaylistSaga'
@@ -45,7 +48,8 @@ import { retrieveCollection } from './utils/retrieveCollections'
 
 const { manualClearToast, toast } = toastActions
 const { getUser } = cacheUsersSelectors
-const { getCollection } = cacheCollectionsSelectors
+const { getCollection, getCollectionTracks } = cacheCollectionsSelectors
+const { getTrack } = cacheTracksSelectors
 const { getAccountUser, getUserId } = accountSelectors
 
 const messages = {
@@ -171,20 +175,31 @@ function* watchRemoveTrackFromPlaylist() {
 }
 
 function* removeTrackFromPlaylistAsync(action) {
+  const { playlistId, trackId, timestamp } = action
   yield waitForWrite()
-  const userId = yield select(getUserId)
-  if (!userId) {
-    yield put(signOnActions.openSignOn(false))
-    return
-  }
+  const userId = yield call(ensureLoggedIn)
+  const audiusBackend = yield getContext('audiusBackendInstance')
+  const { generatePlaylistArtwork } = yield getContext('imageUtils')
 
-  const playlist = yield select(getCollection, { id: action.playlistId })
+  let playlist = yield select(getCollection, { id: playlistId })
+  const playlistTracks = yield select(getCollectionTracks, { id: playlistId })
+  const removedTrack = yield select(getTrack, { id: trackId })
+
+  playlist = yield call(
+    updatePlaylistArtwork,
+    playlist,
+    playlistTracks,
+    {
+      removed: removedTrack
+    },
+    { audiusBackend, generateImage: generatePlaylistArtwork }
+  )
 
   // Find the index of the track based on the track's id and timestamp
   const index = playlist.playlist_contents.track_ids.findIndex((t) => {
-    if (t.track !== action.trackId) return false
+    if (t.track !== trackId) return false
 
-    return t.metadata_time === action.timestamp || t.time === action.timestamp
+    return t.metadata_time === timestamp || t.time === timestamp
   })
   if (index === -1) {
     console.error('Could not find the index of to-be-deleted track')
@@ -193,7 +208,7 @@ function* removeTrackFromPlaylistAsync(action) {
 
   const track = playlist.playlist_contents.track_ids[index]
   playlist.playlist_contents.track_ids.splice(index, 1)
-  const count = countTrackIds(playlist.playlist_contents, action.trackId)
+  const count = countTrackIds(playlist.playlist_contents, trackId)
 
   yield call(
     confirmRemoveTrackFromPlaylist,
