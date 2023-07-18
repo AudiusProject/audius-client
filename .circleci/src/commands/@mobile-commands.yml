@@ -193,9 +193,19 @@ mobile-release-android:
 # Deploy Solana saga dApp store
 mobile-release-saga-dapp-store:
   steps:
+    - checkout
+    - attach_workspace:
+        at: ./
     - run:
         name: Install pnpm
         command: |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+          echo 'export NVM_DIR="$HOME/.nvm"' >> $BASH_ENV
+          echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --install' >> $BASH_ENV
+          source $BASH_ENV
+          cd packages/mobile/dapp-store
+          nvm install
+          nvm use
           corepack enable
           corepack prepare pnpm@`npm info pnpm --json | jq -r .version` --activate
     - run:
@@ -210,7 +220,7 @@ mobile-release-saga-dapp-store:
     - run:
         name: Recover key
         command: |
-          solana-keygen recover "prompt://?key=$SOLANA_DAPP_STORE_PRIVATE_KEY/0" -o app-keypair.json
+          echo $SOLANA_DAPP_STORE_PRIVATE_KEY > app-keypair.json
     - run: 
         name: Build Android
         command: |
@@ -219,11 +229,11 @@ mobile-release-saga-dapp-store:
     - run:
         name: Validate release
         command: |
-          npx dapp-store validate release -k app-keypair.json -b $ANDROID_HOME/build-tools/33.0.0
+          npx dapp-store validate release -k app-keypair.json -b $ANDROID_HOME/build-tools/30.0.3
     - run:
         name: Publish APK
         command: |
-          npx dapp-store create release -k app-keypair.json -b $ANDROID_HOME/build-tools/33.0.0 -u https://audius-fe.rpcpool.com
+          npx dapp-store create release -k app-keypair.json -b $ANDROID_HOME/build-tools/30.0.3 -u https://audius-fe.rpcpool.com
     - run:
         name: Issue update to dapp store
         command: |
