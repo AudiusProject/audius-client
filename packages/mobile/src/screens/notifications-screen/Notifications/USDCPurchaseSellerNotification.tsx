@@ -7,13 +7,12 @@ import type {
   StringUSDC
 } from '@audius/common'
 import {
-  formatNumberCommas,
   notificationsSelectors,
   formatUSDCWeiToUSDString
 } from '@audius/common'
 import { useSelector } from 'react-redux'
 
-import IconTastemaker from 'app/assets/images/iconTastemaker.svg'
+import IconCart from 'app/assets/images/iconCart.svg'
 import { useNotificationNavigation } from 'app/hooks/useNotificationNavigation'
 
 import {
@@ -62,7 +61,7 @@ export const USDCPurchaseSellerNotification = (
   if (!track || !buyerUser) return null
   return (
     <NotificationTile notification={notification} onPress={handlePress}>
-      <NotificationHeader icon={IconTastemaker}>
+      <NotificationHeader icon={IconCart}>
         <NotificationTitle>{messages.title}</NotificationTitle>
       </NotificationHeader>
       <NotificationText>

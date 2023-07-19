@@ -9,7 +9,7 @@ import { notificationsSelectors, Name } from '@audius/common'
 import { make } from 'audius-client/src/common/store/analytics/actions'
 import { useSelector } from 'react-redux'
 
-import IconUSDCPurchase from 'app/assets/images/iconCart.svg'
+import IconCart from 'app/assets/images/iconCart.svg'
 import { useNotificationNavigation } from 'app/hooks/useNotificationNavigation'
 
 import {
@@ -62,7 +62,7 @@ export const USDCPurchaseBuyerNotification = (
         track?.permalink || ''
       )
       const analytics = make(
-        Name.NOTIFICATIONS_CLICK_TASTEMAKER_TWITTER_SHARE,
+        Name.NOTIFICATIONS_CLICK_USDC_PURCHASE_TWITTER_SHARE,
         { text: shareText }
       )
       return { shareText: track ? shareText : '', analytics }
@@ -79,7 +79,7 @@ export const USDCPurchaseBuyerNotification = (
   if (!track || !sellerUser) return null
   return (
     <NotificationTile notification={notification} onPress={handlePress}>
-      <NotificationHeader icon={IconUSDCPurchase}>
+      <NotificationHeader icon={IconCart}>
         <NotificationTitle>{messages.title}</NotificationTitle>
       </NotificationHeader>
       <NotificationText>

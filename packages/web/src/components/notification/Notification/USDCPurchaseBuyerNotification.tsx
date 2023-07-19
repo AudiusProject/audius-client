@@ -71,7 +71,7 @@ export const USDCPurchaseBuyerNotification = (
         track?.permalink || ''
       )
       const analytics = make(
-        Name.NOTIFICATIONS_CLICK_TASTEMAKER_TWITTER_SHARE,
+        Name.NOTIFICATIONS_CLICK_USDC_PURCHASE_TWITTER_SHARE,
         { text: shareText }
       )
       return { shareText: track ? shareText : '', analytics }
