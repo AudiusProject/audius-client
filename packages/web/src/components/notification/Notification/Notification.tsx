@@ -24,6 +24,7 @@ import { TopSupportingNotification } from './TopSupportingNotification'
 import { TrendingPlaylistNotification } from './TrendingPlaylistNotification'
 import { TrendingTrackNotification } from './TrendingTrackNotification'
 import { TrendingUndergroundNotification } from './TrendingUndergroundNotification'
+import { USDCPurchaseBuyerNotification } from './USDCPurchaseBuyerNotification'
 import { USDCPurchaseSellerNotification } from './USDCPurchaseSellerNotification'
 import { UserSubscriptionNotification } from './UserSubscriptionNotification'
 
@@ -100,8 +101,10 @@ export const Notification = (props: NotificationProps) => {
         return <UserSubscriptionNotification notification={notification} />
       }
       case NotificationType.USDCPurchaseSeller: {
-        console.log('heyoooo')
         return <USDCPurchaseSellerNotification notification={notification} />
+      }
+      case NotificationType.USDCPurchaseBuyer: {
+        return <USDCPurchaseBuyerNotification notification={notification} />
       }
       case NotificationType.AddTrackToPlaylist: {
         return <AddTrackToPlaylistNotification notification={notification} />

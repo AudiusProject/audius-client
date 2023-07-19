@@ -67,6 +67,15 @@
   margin-right: var(--unit-2);
 }
 
+.iconCart {
+  composes: icon;
+  height: 24px;
+}
+
+.iconCart path {
+  fill: var(--secondary);
+}
+
 .iconTier img {
   height: 32px;
   width: 32px;

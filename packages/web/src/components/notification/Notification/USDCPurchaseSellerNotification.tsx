@@ -1,13 +1,12 @@
 import { useCallback } from 'react'
 
-import type {
+import {
   Nullable,
   USDCPurchaseSellerNotification as USDCPurchaseSellerNotificationType,
-  TrackEntity
-} from '@audius/common'
-import {
+  TrackEntity,
+  formatUSDCWeiToUSDString,
+  StringUSDC,
   Entity,
-  formatNumberCommas,
   notificationsSelectors
 } from '@audius/common'
 import { push } from 'connected-react-router'
@@ -20,10 +19,11 @@ import { NotificationBody } from './components/NotificationBody'
 import { NotificationHeader } from './components/NotificationHeader'
 import { NotificationTile } from './components/NotificationTile'
 import { NotificationTitle } from './components/NotificationTitle'
-import { IconTastemaker } from './components/icons'
+import { UserNameLink } from './components/UserNameLink'
+import { IconCart } from './components/icons'
 import { getEntityLink } from './utils'
 
-const { getNotificationUser, getNotificationEntity } = notificationsSelectors
+const { getNotificationEntity, getNotificationUsers } = notificationsSelectors
 
 const messages = {
   title: 'Track Sold',
@@ -41,36 +41,33 @@ export const USDCPurchaseSellerNotification = (
   props: USDCPurchaseSellerNotificationProps
 ) => {
   const { notification } = props
-  console.log(notification)
   const dispatch = useDispatch()
   const track = useSelector((state) =>
     getNotificationEntity(state, notification)
   ) as Nullable<TrackEntity>
-  console.log('im checking trackkkk')
-  console.log('track is???? ', track)
-  const buyerUser = useSelector((state) =>
-    getNotificationUser(state, notification)
+  const notificationUsers = useSelector((state) =>
+    getNotificationUsers(state, notification, 1)
   )
+  const buyerUser = notificationUsers ? notificationUsers[0] : null
   const { amount } = notification
   const handleClick = useCallback(() => {
     if (track) {
       dispatch(push(getEntityLink(track)))
     }
   }, [dispatch, track])
-  console.log(track)
-  console.log(buyerUser)
-  console.log('hiiii')
   if (!track || !buyerUser) return null
   return (
     <NotificationTile notification={notification} onClick={handleClick}>
-      <NotificationHeader icon={<IconTastemaker />}>
+      <NotificationHeader icon={<IconCart />}>
         <NotificationTitle>{messages.title}</NotificationTitle>
       </NotificationHeader>
       <NotificationBody>
         {messages.congrats}{' '}
-        <EntityLink entity={buyerUser} entityType={Entity.User} />{' '}
-        {messages.justBoughtYourTrack} ${track.title} for $
-        {formatUSDCWeiToUSDString(amount)} {messages.exclamation}
+        <UserNameLink user={buyerUser} notification={notification} />{' '}
+        {messages.justBoughtYourTrack}{' '}
+        <EntityLink entity={track} entityType={Entity.Track} /> for $
+        {formatUSDCWeiToUSDString(amount.toString() as StringUSDC)}
+        {messages.exclamation}
       </NotificationBody>
     </NotificationTile>
   )
