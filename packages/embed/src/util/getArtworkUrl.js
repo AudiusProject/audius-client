@@ -4,7 +4,6 @@ export const getArtworkUrl = (
   collectionOrTrack,
   useDefaultArtworkIfMissing
 ) => {
-  console.log(collectionOrTrack)
   let artworkUrl
   if (collectionOrTrack?.artwork) {
     artworkUrl = collectionOrTrack?.artwork._480x480
