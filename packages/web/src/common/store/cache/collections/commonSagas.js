@@ -14,7 +14,8 @@ import {
   getContext,
   toastActions,
   updatePlaylistArtwork,
-  cacheTracksSelectors
+  cacheTracksSelectors,
+  removeNullable
 } from '@audius/common'
 import {
   all,
@@ -44,6 +45,7 @@ import { confirmOrderPlaylist } from './confirmOrderPlaylist'
 import { createPlaylistSaga } from './createPlaylistSaga'
 import { fixInvalidTracksInPlaylist } from './fixInvalidTracksInPlaylist'
 import { reformat } from './utils'
+import { optimisticUpdateCollection } from './utils/optimisticUpdateCollection'
 import { retrieveCollection } from './utils/retrieveCollections'
 
 const { manualClearToast, toast } = toastActions
@@ -73,42 +75,42 @@ function* watchEditPlaylist() {
 }
 
 function* editPlaylistAsync(action) {
+  const { playlistId, formFields } = action
+  const userId = yield call(ensureLoggedIn)
   yield waitForWrite()
-  action.formFields.description = squashNewLines(action.formFields.description)
 
-  const userId = yield select(getUserId)
-  if (!userId) {
-    yield put(signOnActions.openSignOn(false))
-    return
-  }
+  const audiusBackend = yield getContext('audiusBackendInstance')
+  const { generatePlaylistArtwork } = yield getContext('imageUtils')
+
+  formFields.description = squashNewLines(formFields.description)
 
   // Updated the stored account playlist shortcut
   yield put(
     accountActions.renameAccountPlaylist({
-      collectionId: action.playlistId,
-      name: action.formFields.playlist_name
+      collectionId: playlistId,
+      name: formFields.playlist_name
     })
   )
 
-  const playlist = { ...action.formFields }
+  let playlist = { ...formFields }
+  const playlistTracks = yield select(getCollectionTracks, { id: playlistId })
+  const updatedTracks = yield select((state) => {
+    return formFields.playlist_contents.track_ids
+      .map(({ track }) => getTrack(state, { id: track }))
+      .filter(removeNullable)
+  })
 
-  yield call(confirmEditPlaylist, action.playlistId, userId, playlist)
-
-  playlist.playlist_id = action.playlistId
-  if (playlist.artwork?.file) {
-    playlist.cover_art_sizes = playlist.artwork.url
-    playlist._cover_art_sizes = {
-      [DefaultSizes.OVERRIDE]: playlist.artwork.url
-    }
-  }
-  yield put(
-    cacheActions.update(Kind.COLLECTIONS, [
-      {
-        id: playlist.playlist_id,
-        metadata: playlist
-      }
-    ])
+  playlist = yield call(
+    updatePlaylistArtwork,
+    playlist,
+    playlistTracks,
+    { updated: updatedTracks },
+    { audiusBackend, generateImage: generatePlaylistArtwork }
   )
+
+  yield call(confirmEditPlaylist, playlistId, userId, playlist)
+
+  yield call(optimisticUpdateCollection, playlist)
   yield put(collectionActions.editPlaylistSucceeded())
   yield put(toast({ content: messages.editToast }))
 }
@@ -219,17 +221,10 @@ function* removeTrackFromPlaylistAsync(action) {
     count,
     playlist
   )
-  yield put(
-    cacheActions.update(Kind.COLLECTIONS, [
-      {
-        id: playlist.playlist_id,
-        metadata: {
-          playlist_contents: playlist.playlist_contents,
-          track_count: count
-        }
-      }
-    ])
-  )
+  yield call(optimisticUpdateCollection, {
+    ...playlist,
+    track_count: count
+  })
 }
 
 function* confirmRemoveTrackFromPlaylist(
@@ -334,42 +329,42 @@ function* watchOrderPlaylist() {
 }
 
 function* orderPlaylistAsync(action) {
+  const { playlistId, trackIdsAndTimes } = action
   yield waitForWrite()
-  const userId = yield select(getUserId)
-  if (!userId) {
-    yield put(signOnActions.openSignOn(false))
-    return
-  }
+  const userId = yield call(ensureLoggedIn)
+  const audiusBackend = yield getContext('audiusBackendInstance')
+  const { generatePlaylistArtwork } = yield getContext('imageUtils')
 
-  const playlist = yield select(getCollection, { id: action.playlistId })
+  const playlist = yield select(getCollection, { id: playlistId })
+  const tracks = yield select(getCollectionTracks, { id: playlistId })
 
-  const trackIds = []
-  const updatedPlaylist = {
-    ...playlist,
-    playlist_contents: {
-      ...playlist.playlist_contents,
-      track_ids: action.trackIdsAndTimes.map(({ id, time }) => {
-        trackIds.push(id)
-        return { track: id, time }
-      })
-    }
-  }
+  const trackIds = trackIdsAndTimes.map(({ id }) => id)
+
+  const orderedTracks = trackIds.map((trackId) =>
+    tracks.find((track) => track.track_id === trackId)
+  )
+
+  const updatedPlaylist = yield call(
+    updatePlaylistArtwork,
+    playlist,
+    tracks,
+    { reordered: orderedTracks },
+    { audiusBackend, generateImage: generatePlaylistArtwork }
+  )
+
+  updatedPlaylist.playlist_contents.track_ids = trackIdsAndTimes.map(
+    ({ id, time }) => ({ track: id, time })
+  )
 
   yield call(
     confirmOrderPlaylist,
     userId,
-    action.playlistId,
+    playlistId,
     trackIds,
     updatedPlaylist
   )
-  yield put(
-    cacheActions.update(Kind.COLLECTIONS, [
-      {
-        id: updatedPlaylist.playlist_id,
-        metadata: updatedPlaylist
-      }
-    ])
-  )
+
+  yield call(optimisticUpdateCollection, updatedPlaylist)
 }
 
 /** PUBLISH PLAYLIST */

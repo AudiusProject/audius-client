@@ -142,7 +142,6 @@ const PlaylistForm = ({
 
   const handleRemoveArtwork = useCallback(async () => {
     const artwork = await onGeneratePlaylistArtwork()
-    console.log('the artwork?', artwork)
     if (!artwork) return
 
     setFormFields((formFields: EditPlaylistValues) => ({

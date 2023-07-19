@@ -26,6 +26,7 @@ import { ensureLoggedIn } from 'common/utils/ensureLoggedIn'
 import { waitForWrite } from 'utils/sagaHelpers'
 
 import { confirmOrderPlaylist } from './confirmOrderPlaylist'
+import { optimisticUpdateCollection } from './utils/optimisticUpdateCollection'
 import {
   retrieveCollection,
   retrieveCollections
@@ -126,21 +127,8 @@ function* addTrackToPlaylistAsync(action: AddTrackToPlaylistAction) {
     count,
     playlist
   )
-  yield* put(
-    cacheActions.update(Kind.COLLECTIONS, [
-      {
-        id: playlist.playlist_id,
-        metadata: {
-          playlist_contents: playlist.playlist_contents,
-          track_count: count,
-          cover_art_sizes: playlist.artwork?.url ?? playlist.cover_art_sizes,
-          _cover_art_sizes: playlist.artwork?.url
-            ? { OVERRIDE: playlist.artwork.url }
-            : playlist._cover_art_sizes
-        }
-      }
-    ])
-  )
+
+  yield* call(optimisticUpdateCollection, { ...playlist, track_count: count })
   yield* put(
     cacheActions.subscribe(Kind.TRACKS, [{ uid: trackUid, id: action.trackId }])
   )

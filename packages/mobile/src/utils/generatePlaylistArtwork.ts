@@ -1,3 +1,4 @@
+import { uuid } from '@audius/common'
 import Jimp from 'jimp'
 import RNFetchBlob from 'rn-fetch-blob'
 
@@ -39,8 +40,8 @@ export async function generatePlaylistArtwork(imageUrls: string[]) {
     }
   }
 
-  const fileName = 'playlist-artwork'
-  const url = `${dirs.DocumentDir}/${fileName}.jpg`
+  const fileName = uuid()
+  const url = `${dirs.CacheDir}/${fileName}.jpg`
   const imageContents = await newImage.getBase64Async(mimeType)
   const [, base64Contents] = imageContents.split(',')
   await writeFile(url, base64Contents, 'base64')
