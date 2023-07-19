@@ -1,61 +1,50 @@
-.artistPick {
+.container {
   position: absolute;
   top: 0;
   left: 0;
   z-index: 10;
-  width: 80px;
+  border-radius: var(--unit-2) 0px 0px 0px;
+  width: var(--unit-12);
+  height: var(--unit-12);
   pointer-events: none;
-}
-
-.container {
-  position: absolute;
-  transform: rotate(45deg) translateX(-64px);
-  box-shadow: 1px 1px 7px -2px rgba(0, 0, 0, 0.5);
-  width: 80px;
-  height: 80px;
   overflow: hidden;
 }
 
-.gated {
-  background: var(--accent-blue);
-}
-
-.purchase {
-  background: var(--special-light-green);
-}
-
-.star {
-  background: linear-gradient(314.61deg, #7e1bcc 0%, #a22feb 100%);
-}
-
-.hidden {
-  background: linear-gradient(314.61deg, #858199 0%, #c2c0cc 100%);
-}
-
-.matrix .container {
-  background: var(--page-header-gradient);
-}
-
-.isMobile .container {
-  transform: rotate(45deg) translateX(-68px);
-}
-
-.artistPick svg {
+.rectangle {
   position: absolute;
-  left: 0;
   top: 0;
-  margin-left: 5px;
-  margin-top: 2px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-shadow: var(--unit-1) var(--unit-1) var(--unit-2) 0px
+    rgba(255, 255, 255, 0.2) inset;
+  filter: drop-shadow(0px 0px var(--unit-2) rgba(0, 0, 0, 0.25));
+}
+
+.gated path {
+  fill: var(--accent-blue);
+}
+
+.purchase path {
+  fill: var(--special-light-green);
+}
+
+.artistPick path {
+  fill: var(--secondary);
+}
+
+.hidden path {
+  fill: var(--neutral);
+}
+
+.icon {
+  position: absolute;
+  top: var(--unit-1);
+  left: var(--unit-1);
   width: var(--unit-4);
-  height: var(--unit-6);
+  height: var(--unit-4);
 }
 
-.isMobile svg {
-  margin: 4px 0px 0px 4px;
-  width: 16px;
-  height: 16px;
-}
-
-.artistPick svg path {
+.icon path {
   fill: var(--static-white);
 }
