@@ -1,8 +1,11 @@
+import { useCallback } from 'react'
+
 import {
   ID,
   SquareSizes,
   Track,
   cacheUsersSelectors,
+  toastActions,
   useGetSuggestedTracks
 } from '@audius/common'
 import {
@@ -10,13 +13,14 @@ import {
   ButtonSize,
   ButtonType,
   IconButton,
-  IconCaretDown,
   IconRefresh
 } from '@audius/stems'
 import { animated, useSpring } from '@react-spring/web'
 import cn from 'classnames'
+import { useDispatch } from 'react-redux'
 import { useToggle } from 'react-use'
 
+import { ReactComponent as IconCaretDown } from 'assets/img/iconCaretDownLine.svg'
 import { Divider } from 'components/divider'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
@@ -29,6 +33,7 @@ import { useSelector } from 'utils/reducer'
 import styles from './SuggestedTracks.module.css'
 
 const { getUser } = cacheUsersSelectors
+const { toast } = toastActions
 
 const contentHeight = 423
 
@@ -37,7 +42,8 @@ const messages = {
   addTrack: 'Add',
   refresh: 'Refresh',
   expandLabel: 'Expand suggested tracks panel',
-  collapseLabel: 'Collapse suggested tracks panel'
+  collapseLabel: 'Collapse suggested tracks panel',
+  trackAdded: 'Added to Playlist'
 }
 
 type SuggestedTrackProps = {
@@ -50,24 +56,34 @@ const SuggestedTrack = (props: SuggestedTrackProps) => {
   const { collectionId, track, onAddTrack } = props
   const { track_id, title, owner_id } = track
   const user = useSelector((state) => getUser(state, { id: owner_id }))
+  const dispatch = useDispatch()
 
   const image = useTrackCoverArt2(track_id, SquareSizes.SIZE_150_BY_150)
+
+  const handleAddTrack = useCallback(() => {
+    onAddTrack(track_id, collectionId)
+    dispatch(toast({ content: messages.trackAdded }))
+  }, [onAddTrack, track_id, collectionId, dispatch])
 
   return (
     <div className={styles.suggestedTrack}>
       <div className={styles.trackDetails}>
         <DynamicImage wrapperClassName={styles.trackArtwork} image={image} />
-        {/* <img src={image} className={styles.trackArtwork} role='presentation' /> */}
         <div className={styles.trackInfo}>
           <p className={styles.trackName}>{title}</p>
-          {user ? <UserNameAndBadges user={user} /> : null}
+          {user ? (
+            <UserNameAndBadges
+              classes={{ name: styles.artistName }}
+              user={user}
+            />
+          ) : null}
         </div>
       </div>
       <Button
         type={ButtonType.COMMON}
         text={messages.addTrack}
         size={ButtonSize.SMALL}
-        onClick={() => onAddTrack(track_id, collectionId)}
+        onClick={handleAddTrack}
       />
     </div>
   )
@@ -95,8 +111,6 @@ export const SuggestedTracks = (props: SuggestedTracksProps) => {
   const { collectionId } = props
   const { suggestedTracks, onRefresh, onAddTrack, isRefreshing } =
     useGetSuggestedTracks(collectionId)
-
-  console.log({ isRefreshing })
 
   const [isExpanded, toggleIsExpanded] = useToggle(false)
 
@@ -146,7 +160,6 @@ export const SuggestedTracks = (props: SuggestedTracksProps) => {
               {divider}
             </li>
           ))}
-          {divider}
         </ul>
         <button className={styles.refreshButton} onClick={onRefresh}>
           <div className={styles.refreshContent}>
