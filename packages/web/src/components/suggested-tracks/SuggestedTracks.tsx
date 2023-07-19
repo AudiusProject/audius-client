@@ -18,6 +18,7 @@ import cn from 'classnames'
 import { useToggle } from 'react-use'
 
 import { Divider } from 'components/divider'
+import DynamicImage from 'components/dynamic-image/DynamicImage'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Skeleton from 'components/skeleton/Skeleton'
 import { Tile } from 'components/tile'
@@ -55,7 +56,8 @@ const SuggestedTrack = (props: SuggestedTrackProps) => {
   return (
     <div className={styles.suggestedTrack}>
       <div className={styles.trackDetails}>
-        <img src={image} className={styles.trackArtwork} role='presentation' />
+        <DynamicImage wrapperClassName={styles.trackArtwork} image={image} />
+        {/* <img src={image} className={styles.trackArtwork} role='presentation' /> */}
         <div className={styles.trackInfo}>
           <p className={styles.trackName}>{title}</p>
           {user ? <UserNameAndBadges user={user} /> : null}
@@ -91,8 +93,10 @@ type SuggestedTracksProps = {
 
 export const SuggestedTracks = (props: SuggestedTracksProps) => {
   const { collectionId } = props
-  const { suggestedTracks, onRefresh, onAddTrack } =
+  const { suggestedTracks, onRefresh, onAddTrack, isRefreshing } =
     useGetSuggestedTracks(collectionId)
+
+  console.log({ isRefreshing })
 
   const [isExpanded, toggleIsExpanded] = useToggle(false)
 
@@ -129,8 +133,8 @@ export const SuggestedTracks = (props: SuggestedTracksProps) => {
             <LoadingSpinner className={styles.loading} />
           ) : null}
           {suggestedTracks?.map((suggestedTrack) => (
-            <li key={suggestedTrack.id}>
-              {suggestedTrack.track ? (
+            <li key={suggestedTrack.key}>
+              {!isRefreshing && 'track' in suggestedTrack ? (
                 <SuggestedTrack
                   track={suggestedTrack.track}
                   collectionId={collectionId}
