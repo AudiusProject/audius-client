@@ -1,16 +1,17 @@
 import { useCallback, useEffect } from 'react'
 
 import { chatActions, chatSelectors, Status } from '@audius/common'
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, TouchableOpacity } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconCompose from 'app/assets/images/iconCompose.svg'
 import IconMessage from 'app/assets/images/iconMessage.svg'
 import Button, { ButtonType } from 'app/components/button'
-import { Screen, FlatList, ScreenContent } from 'app/components/core'
+import { Text, Screen, FlatList, ScreenContent } from 'app/components/core'
 import { useNavigation } from 'app/hooks/useNavigation'
 import type { AppTabScreenParamList } from 'app/screens/app-screen'
 import { makeStyles } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
 import { useThemePalette, useColor } from 'app/utils/theme'
 
 import { ChatListItem } from './ChatListItem'
@@ -18,7 +19,7 @@ import { ChatListItemSkeleton } from './ChatListItemSkeleton'
 import { HeaderShadow } from './HeaderShadow'
 
 const { getChats, getChatsStatus, getHasMoreChats } = chatSelectors
-const { fetchMoreMessages, fetchMoreChats } = chatActions
+const { fetchMoreMessages, fetchLatestChats, fetchMoreChats } = chatActions
 
 const CHATS_MESSAGES_PREFETCH_LIMIT = 10
 
@@ -59,17 +60,12 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
     padding: spacing(6)
   },
   startConversationTitle: {
-    fontSize: typography.fontSize.xxl,
-    fontFamily: typography.fontByWeight.bold,
     textAlign: 'center',
-    lineHeight: typography.fontSize.xxl * 1.3,
-    color: palette.neutral
+    lineHeight: typography.fontSize.xxl * 1.3
   },
   connect: {
-    fontSize: typography.fontSize.medium,
     textAlign: 'center',
     lineHeight: typography.fontSize.medium * 1.3,
-    color: palette.neutral,
     marginTop: spacing(2)
   },
   writeMessageButton: {
@@ -82,10 +78,12 @@ const ChatsEmpty = ({ onPress }: { onPress: () => void }) => {
   const styles = useStyles()
   return (
     <View style={styles.startConversationContainer}>
-      <Text style={styles.startConversationTitle}>
+      <Text style={styles.startConversationTitle} fontSize='xxl' weight='bold'>
         {messages.startConversation}
       </Text>
-      <Text style={styles.connect}>{messages.connect}</Text>
+      <Text style={styles.connect} fontSize='medium'>
+        {messages.connect}
+      </Text>
       <Button
         title={messages.writeMessage}
         renderIcon={() => <IconCompose fill={white} />}
@@ -114,10 +112,19 @@ export const ChatListScreen = () => {
     chats.length === 0 && (chatsStatus ?? Status.LOADING) === Status.LOADING
   const navigateToChatUserList = () => navigation.navigate('ChatUserList')
   const iconCompose = (
-    <TouchableOpacity onPress={navigateToChatUserList}>
+    <TouchableOpacity onPress={navigateToChatUserList} hitSlop={spacing(2)}>
       <IconCompose fill={palette.neutralLight4} />
     </TouchableOpacity>
   )
+
+  const handleLoadMore = useCallback(() => {
+    if (chatsStatus === Status.LOADING || !hasMore) return
+    dispatch(fetchMoreChats())
+  }, [hasMore, chatsStatus, dispatch])
+
+  const refresh = useCallback(() => {
+    dispatch(fetchLatestChats())
+  }, [dispatch])
 
   // Prefetch messages for initial loaded chats
   useEffect(() => {
@@ -133,10 +140,9 @@ export const ChatListScreen = () => {
     }
   }, [chats, dispatch])
 
-  const handleLoadMore = useCallback(() => {
-    if (chatsStatus === Status.LOADING || !hasMore) return
-    dispatch(fetchMoreChats())
-  }, [hasMore, chatsStatus, dispatch])
+  useEffect(() => {
+    refresh()
+  }, [refresh])
 
   return (
     <Screen
@@ -161,6 +167,8 @@ export const ChatListScreen = () => {
               ))
           ) : (
             <FlatList
+              refreshing={chatsStatus === 'REFRESHING'}
+              onRefresh={refresh}
               data={nonEmptyChats}
               contentContainerStyle={styles.listContainer}
               renderItem={({ item }) => <ChatListItem chatId={item.chat_id} />}

@@ -1,4 +1,4 @@
-import type { UserCollectionMetadata } from '@audius/common'
+import type { CollectionMetadata, UserCollectionMetadata } from '@audius/common'
 import {
   removeNullable,
   SquareSizes,
@@ -16,6 +16,7 @@ import {
   getLocalCollectionJsonPath,
   mkdirSafe
 } from 'app/services/offline-downloader'
+import { getStorageNodeSelector } from 'app/services/sdk/storageNodeSelector'
 import { DOWNLOAD_REASON_FAVORITES } from 'app/store/offline-downloads/constants'
 import { EventNames } from 'app/types/analytics'
 
@@ -147,12 +148,14 @@ function* downloadCollectionAsync(
   return OfflineDownloadStatus.SUCCESS
 }
 
-function* downloadCollectionCoverArt(collection: UserCollectionMetadata) {
-  const { cover_art_sizes, cover_art, user, playlist_id } = collection
+function* downloadCollectionCoverArt(collection: CollectionMetadata) {
+  const { cover_art_sizes, cover_art, playlist_id } = collection
   const cid = cover_art_sizes ?? cover_art
+  const storageNodeSelector = yield* call(getStorageNodeSelector)
+
   const imageSources = createAllImageSources({
     cid,
-    user,
+    endpoints: cid ? storageNodeSelector.getNodes(cid) : [],
     size: SquareSizes.SIZE_1000_BY_1000
   })
 

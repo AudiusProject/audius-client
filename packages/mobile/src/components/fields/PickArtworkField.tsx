@@ -61,24 +61,28 @@ const messages = {
 
 type PickArtworkFieldProps = {
   name: string
+  onChange?: (image: Asset) => void
+  buttonTitle?: string
+  onPress?: () => void
+  onImageLoad?: () => void
+  isLoading?: boolean
 }
 
 export const PickArtworkField = (props: PickArtworkFieldProps) => {
-  const { name } = props
+  const { name, onChange, buttonTitle, onPress, onImageLoad, isLoading } = props
   const styles = useStyles()
   const { neutralLight8 } = useThemeColors()
-  // const name = 'artwork'
-  const [{ value }, { error, touched }, { setValue }] = useField(name)
+  const [{ value }, { error, touched }, { setValue: setArtwork }] =
+    useField(name)
   const [{ value: existingTrackArtwork }] = useField('trackArtwork')
   const trackArtworkUrl = value?.url ?? existingTrackArtwork
+  const [isImageLoading, setIsImageLoading] = useState(false)
 
   const { secondary } = useThemeColors()
 
-  const [isLoading, setIsLoading] = useState(false)
-
-  const handlePress = useCallback(() => {
+  const handleChangeArtwork = useCallback(() => {
     const handleImageSelected = (_image: Image, rawResponse: Asset) => {
-      setValue({
+      setArtwork({
         url: rawResponse.uri,
         file: {
           uri: rawResponse.uri,
@@ -87,10 +91,16 @@ export const PickArtworkField = (props: PickArtworkFieldProps) => {
         },
         source: 'original'
       })
-      setIsLoading(true)
+      onChange?.(rawResponse)
+      setIsImageLoading(true)
     }
     launchSelectImageActionSheet(handleImageSelected, secondary)
-  }, [secondary, setValue])
+  }, [secondary, setArtwork, onChange])
+
+  const handleImageLoad = useCallback(() => {
+    onImageLoad?.()
+    setIsImageLoading(false)
+  }, [onImageLoad])
 
   const source = useMemo(() => ({ uri: trackArtworkUrl }), [trackArtworkUrl])
 
@@ -98,12 +108,12 @@ export const PickArtworkField = (props: PickArtworkFieldProps) => {
     <View style={styles.root}>
       <DynamicImage
         source={source}
-        onLoad={() => setIsLoading(false)}
+        onLoad={handleImageLoad}
         style={styles.image}
         noSkeleton
       >
         <View style={styles.iconPicture}>
-          {isLoading ? (
+          {isLoading || isImageLoading ? (
             <LoadingSpinner style={styles.loading} />
           ) : trackArtworkUrl ? null : (
             <IconImage height={128} width={128} fill={neutralLight8} />
@@ -114,11 +124,12 @@ export const PickArtworkField = (props: PickArtworkFieldProps) => {
             variant='secondaryAlt'
             size='large'
             title={
-              trackArtworkUrl ? messages.changeArtwork : messages.addArtwork
+              buttonTitle ||
+              (trackArtworkUrl ? messages.changeArtwork : messages.addArtwork)
             }
             icon={IconPencil}
             iconPosition='left'
-            onPress={handlePress}
+            onPress={onPress ?? handleChangeArtwork}
           />
         </View>
       </DynamicImage>

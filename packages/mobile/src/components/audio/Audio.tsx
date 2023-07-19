@@ -29,7 +29,8 @@ import {
   tracksSocialActions,
   SquareSizes,
   shallowCompare,
-  savedPageTracksLineupActions
+  savedPageTracksLineupActions,
+  useAppContext
 } from '@audius/common'
 import { isEqual } from 'lodash'
 import TrackPlayer, {
@@ -47,7 +48,6 @@ import { useAsync, usePrevious } from 'react-use'
 
 import { DEFAULT_IMAGE_URL } from 'app/components/image/TrackImage'
 import { getImageSourceOptimistic } from 'app/hooks/useContentNodeImage'
-import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { apiClient } from 'app/services/audius-api-client'
@@ -169,8 +169,8 @@ export const Audio = () => {
   const isReachable = useSelector(getIsReachable)
   const isNotReachable = isReachable === false
   const isOfflineModeEnabled = useIsOfflineModeEnabled()
-  const isGatedContentEnabled = useIsGatedContentEnabled()
   const premiumTrackSignatureMap = useSelector(getPremiumTrackSignatureMap)
+  const { storageNodeSelector } = useAppContext()
 
   // Queue Things
   const queueIndex = useSelector(getIndex)
@@ -289,7 +289,7 @@ export const Audio = () => {
 
         if (gatedQueryParamsMap[trackId]) {
           queryParamsMap[trackId] = gatedQueryParamsMap[trackId]
-        } else if (isGatedContentEnabled) {
+        } else {
           const premiumContentSignature =
             premium_content_signature || premiumTrackSignatureMap[trackId]
           queryParamsMap[trackId] = await getQueryParams({
@@ -302,12 +302,7 @@ export const Audio = () => {
       setGatedQueryParamsMap(queryParamsMap)
       return queryParamsMap
     },
-    [
-      isGatedContentEnabled,
-      premiumTrackSignatureMap,
-      gatedQueryParamsMap,
-      setGatedQueryParamsMap
-    ]
+    [premiumTrackSignatureMap, gatedQueryParamsMap, setGatedQueryParamsMap]
   )
 
   useTrackPlayerEvents(playerEvents, async (event) => {
@@ -364,10 +359,6 @@ export const Audio = () => {
 
           // Skip track if user does not have access i.e. for an unlocked premium track
           const doesUserHaveAccess = (() => {
-            if (!isGatedContentEnabled) {
-              return true
-            }
-
             if (!track) return false
 
             const {
@@ -616,13 +607,17 @@ export const Audio = () => {
           ? { uri: `file://${getLocalTrackCoverArtPath(trackId.toString())}` }
           : undefined
 
+      const cid = track ? track.cover_art_sizes || track.cover_art : null
+
       const imageUrl =
-        getImageSourceOptimistic({
-          cid: track ? track.cover_art_sizes || track.cover_art : null,
-          user: trackOwner,
-          size: SquareSizes.SIZE_1000_BY_1000,
-          localSource: localTrackImageSource
-        })?.uri ?? DEFAULT_IMAGE_URL
+        cid && storageNodeSelector
+          ? getImageSourceOptimistic({
+              cid,
+              endpoints: storageNodeSelector.getNodes(cid),
+              size: SquareSizes.SIZE_1000_BY_1000,
+              localSource: localTrackImageSource
+            })?.uri ?? DEFAULT_IMAGE_URL
+          : DEFAULT_IMAGE_URL
 
       return {
         url,
@@ -661,7 +656,9 @@ export const Audio = () => {
     queueTracks,
     didOfflineToggleChange,
     isCollectionMarkedForDownload,
-    handleGatedQueryParams
+    handleGatedQueryParams,
+    isReachable,
+    storageNodeSelector
   ])
 
   const handleQueueIdxChange = useCallback(async () => {

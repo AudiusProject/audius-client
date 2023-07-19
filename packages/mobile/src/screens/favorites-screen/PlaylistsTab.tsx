@@ -14,6 +14,7 @@ import { Button, VirtualizedScrollView } from 'app/components/core'
 import { EmptyTileCTA } from 'app/components/empty-tile-cta'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+import { spacing } from 'app/styles/spacing'
 
 import type { FavoritesTabScreenParamList } from '../app-screen/FavoritesTabScreen'
 
@@ -36,7 +37,7 @@ export const PlaylistsTab = () => {
     navigation.push('CreatePlaylist')
   }, [navigation])
   const { isEnabled: isPlaylistUpdatesEnabled } = useFeatureFlag(
-    FeatureFlags.PLAYLIST_UPDATES_PRE_QA
+    FeatureFlags.PLAYLIST_UPDATES_POST_QA
   )
 
   const [filterValue, setFilterValue] = useState('')
@@ -83,6 +84,7 @@ export const PlaylistsTab = () => {
                 title='Create a New Playlist'
                 variant='commonAlt'
                 onPress={handleNavigateToNewPlaylist}
+                style={{ marginBottom: spacing(4) }}
               />
             </Animated.View>
           )}

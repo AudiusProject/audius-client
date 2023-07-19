@@ -1,8 +1,10 @@
-import { forwardRef } from 'react'
+import { CSSProperties, forwardRef } from 'react'
 
 import cn from 'classnames'
 
 import { useMediaQueryListener } from 'hooks/useMediaQueryListener'
+import { CSSCustomProperties } from 'styles/types'
+import { toCSSVariableName } from 'utils/styles'
 
 import styles from './Button.module.css'
 import { ButtonProps, Type, Size } from './types'
@@ -10,7 +12,8 @@ import { ButtonProps, Type, Size } from './types'
 const SIZE_STYLE_MAP = {
   [Size.TINY]: styles.tiny,
   [Size.SMALL]: styles.small,
-  [Size.MEDIUM]: styles.medium
+  [Size.MEDIUM]: styles.medium,
+  [Size.LARGE]: styles.large
 }
 
 const TYPE_STYLE_MAP = {
@@ -34,6 +37,7 @@ const TYPE_STYLE_MAP = {
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   function Button(
     {
+      color,
       text,
       type = Type.PRIMARY,
       buttonType,
@@ -95,6 +99,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         <span className={cn(styles.textLabel, textClassName)}>{text}</span>
       )
 
+    const style: CSSCustomProperties = {
+      minWidth: minWidth && isTextVisible ? `${minWidth}px` : 'unset',
+      '--button-color': color ? `var(${toCSSVariableName(color)})` : undefined
+    }
+
     return (
       <button
         aria-label={getAriaLabel()}
@@ -113,11 +122,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled}
         type={buttonType}
         ref={ref}
-        style={{
-          minWidth: minWidth && isTextVisible ? `${minWidth}px` : 'unset'
-        }}
+        style={style as CSSProperties}
         {...other}
       >
+        {color ? <span className={styles.overlay} /> : null}
         {renderLeftIcon()}
         {renderText()}
         {renderRightIcon()}

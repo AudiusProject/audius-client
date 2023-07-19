@@ -91,7 +91,7 @@ function* editPlaylistAsync(action) {
   yield call(confirmEditPlaylist, action.playlistId, userId, playlist)
 
   playlist.playlist_id = action.playlistId
-  if (playlist.artwork?.url) {
+  if (playlist.artwork?.file) {
     playlist.cover_art_sizes = playlist.artwork.url
     playlist._cover_art_sizes = {
       [DefaultSizes.OVERRIDE]: playlist.artwork.url
@@ -117,9 +117,7 @@ function* confirmEditPlaylist(playlistId, userId, formFields) {
       function* (confirmedPlaylistId) {
         const { blockHash, blockNumber, error } = yield call(
           audiusBackendInstance.updatePlaylist,
-          {
-            ...formFields
-          }
+          formFields
         )
 
         if (error) throw error
@@ -753,25 +751,19 @@ function* watchFetchCoverArt() {
 
       try {
         const collection = yield select(getCollection, { id: collectionId })
-        const user = yield select(getUser, { id: collection.playlist_owner_id })
         if (
           !collection ||
-          !user ||
           (!collection.cover_art_sizes && !collection.cover_art)
         )
           return
 
-        const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
-          user.creator_node_endpoint
-        )
         const multihash = collection.cover_art_sizes || collection.cover_art
         const coverArtSize =
           multihash === collection.cover_art_sizes ? size : null
         const url = yield call(
           audiusBackendInstance.getImageUrl,
           multihash,
-          coverArtSize,
-          gateways
+          coverArtSize
         )
         collection._cover_art_sizes = {
           ...collection._cover_art_sizes,

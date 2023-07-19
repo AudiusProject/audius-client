@@ -124,9 +124,9 @@ function* editTrackAsync(action) {
 
   const track = { ...action.formFields }
   track.track_id = action.trackId
-  if (track.artwork) {
+  if (track.artwork?.file) {
+    track.cover_art_sizes = track.artwork.url
     track._cover_art_sizes = {
-      ...track._cover_art_sizes,
       [DefaultSizes.OVERRIDE]: track.artwork.url
     }
   }
@@ -166,12 +166,7 @@ function* confirmEditTrack(
         const { blockHash, blockNumber } = yield call(
           audiusBackendInstance.updateTrack,
           trackId,
-          { ...formFields },
-          currentTrack?.track_cid &&
-            !(
-              currentTrack.track_cid?.trim().length === 46 &&
-              currentTrack.track_cid.trim().startsWith('Qm')
-            )
+          { ...formFields }
         )
 
         const confirmed = yield call(confirmTransaction, blockHash, blockNumber)
@@ -368,16 +363,12 @@ function* watchFetchCoverArt() {
       const user = yield call(waitForValue, getUser, { id: track.owner_id })
       if (!track || !user || (!track.cover_art_sizes && !track.cover_art))
         return
-      const gateways = audiusBackendInstance.getCreatorNodeIPFSGateways(
-        user.creator_node_endpoint
-      )
       const multihash = track.cover_art_sizes || track.cover_art
       const coverArtSize = multihash === track.cover_art_sizes ? size : null
       const url = yield call(
         audiusBackendInstance.getImageUrl,
         multihash,
-        coverArtSize,
-        gateways
+        coverArtSize
       )
       track = yield select(getTrack, { id: trackId })
       track._cover_art_sizes = {
@@ -393,8 +384,7 @@ function* watchFetchCoverArt() {
         smallImageUrl = yield call(
           audiusBackendInstance.getImageUrl,
           multihash,
-          SquareSizes.SIZE_150_BY_150,
-          gateways
+          SquareSizes.SIZE_150_BY_150
         )
       }
 

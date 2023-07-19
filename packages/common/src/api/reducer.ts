@@ -1,9 +1,11 @@
 import { combineReducers } from 'redux'
 
 import { collectionApiReducer } from './collection'
-import { developerAppsApiReducer } from './developer-apps'
+import { developerAppsApiReducer } from './developerApps'
+import { favoritesApiReducer } from './favorites'
 import { relatedArtistsApiReducer } from './relatedArtists'
 import { trackApiReducer } from './track'
+import { trendingApiReducer } from './trending'
 import { userApiReducer } from './user'
 
 export default combineReducers({
@@ -11,5 +13,7 @@ export default combineReducers({
   relatedArtistsApi: relatedArtistsApiReducer,
   trackApi: trackApiReducer,
   userApi: userApiReducer,
-  developerAppsApi: developerAppsApiReducer
+  developerAppsApi: developerAppsApiReducer,
+  favoritesApi: favoritesApiReducer,
+  trendingApi: trendingApiReducer
 })

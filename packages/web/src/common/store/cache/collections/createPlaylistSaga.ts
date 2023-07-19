@@ -2,6 +2,7 @@ import {
   Collection,
   CollectionMetadata,
   DefaultSizes,
+  EditPlaylistValues,
   ID,
   Kind,
   Name,
@@ -25,7 +26,6 @@ import { confirmTransaction } from 'common/store/confirmer/sagas'
 import { RequestConfirmationError } from 'common/store/confirmer/types'
 import { addPlaylistsNotInLibrary } from 'common/store/playlist-library/sagas'
 import { ensureLoggedIn } from 'common/utils/ensureLoggedIn'
-import { PlaylistFormFields } from 'components/create-playlist/PlaylistForm'
 import { playlistPage } from 'utils/route'
 import { waitForWrite } from 'utils/sagaHelpers'
 
@@ -60,7 +60,7 @@ function* createPlaylistWorker(
     playlist.cover_art_sizes = initTrack.cover_art_sizes
   }
 
-  yield* call(optimisticalySavePlaylist, playlistId, playlist, initTrack)
+  yield* call(optimisticallySavePlaylist, playlistId, playlist, initTrack)
   yield* put(
     cacheCollectionsActions.createPlaylistRequested(playlistId, noticeType)
   )
@@ -68,13 +68,13 @@ function* createPlaylistWorker(
     createAndConfirmPlaylist,
     playlistId,
     userId,
-    playlist as PlaylistFormFields,
+    playlist,
     initTrack,
     source
   )
 }
 
-function* optimisticalySavePlaylist(
+function* optimisticallySavePlaylist(
   playlistId: ID,
   formFields: Partial<CollectionMetadata>,
   initTrack: Nullable<Track>
@@ -137,7 +137,7 @@ function* optimisticalySavePlaylist(
 function* createAndConfirmPlaylist(
   playlistId: ID,
   userId: ID,
-  formFields: PlaylistFormFields,
+  formFields: EditPlaylistValues,
   initTrack: Nullable<Track>,
   source: string
 ) {

@@ -51,11 +51,11 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
     gap: spacing(8),
     borderBottomWidth: 1,
     borderBottomColor: palette.neutralLight7,
-    paddingVertical: spacing(4)
+    paddingBottom: spacing(4)
   },
   actionButton: {
-    width: 32,
-    height: 32
+    width: spacing(8),
+    height: spacing(8)
   }
 }))
 
@@ -83,7 +83,7 @@ export const DetailsTileActionButtons = ({
   const styles = useStyles()
   const { neutralLight4 } = useThemeColors()
   const { isEnabled: isPlaylistUpdatesEnabled } = useFeatureFlag(
-    FeatureFlags.PLAYLIST_UPDATES_PRE_QA
+    FeatureFlags.PLAYLIST_UPDATES_POST_QA
   )
   const isCollectionEmpty = useSelector((state: CommonState) =>
     getIsCollectionEmpty(state, { id: collectionId })

@@ -1,11 +1,8 @@
 import { useState, useMemo, useCallback } from 'react'
 
 import type { Nullable, CID, WidthSizes, SquareSizes } from '@audius/common'
-import { interleave } from '@audius/common'
-import type { User } from '@sentry/react-native'
+import { interleave, useAppContext } from '@audius/common'
 import type { ImageSourcePropType, ImageURISource } from 'react-native'
-
-import { audiusBackendInstance } from 'app/services/audius-backend-instance'
 
 export type ContentNodeImageSource = {
   source: ImageSourcePropType
@@ -47,18 +44,16 @@ const createImageSourcesForEndpoints = ({
  */
 export const createAllImageSources = ({
   cid,
-  user,
-  endpoints: providedEndpoints,
+  endpoints,
   size,
   localSource
 }: {
   cid: Nullable<CID>
-  user?: Nullable<{ creator_node_endpoint: Nullable<string> }>
-  endpoints?: string[]
+  endpoints: string[]
   size: SquareSizes | WidthSizes
   localSource?: ImageURISource | null
 }) => {
-  if (!cid || (!user && !providedEndpoints)) {
+  if (!cid || !endpoints) {
     return []
   }
 
@@ -66,17 +61,9 @@ export const createAllImageSources = ({
     return [...(localSource ? [localSource] : []), { uri: cid }]
   }
 
-  const endpoints =
-    providedEndpoints ??
-    (user?.creator_node_endpoint
-      ? audiusBackendInstance.getCreatorNodeIPFSGateways(
-          user.creator_node_endpoint
-        )
-      : [])
-
   const newImageSources = createImageSourcesForEndpoints({
     endpoints,
-    createUri: (endpoint) => `${endpoint}${cid}/${size}.jpg`
+    createUri: (endpoint) => `${endpoint}/content/${cid}/${size}.jpg`
   })
 
   // These can be removed when all the data on Content Node has
@@ -96,7 +83,7 @@ export const createAllImageSources = ({
 }
 
 /**
- * Return the first image source, usually the user's primary
+ * Return the first image source, usually the best content node
  * or a local source. This is useful for cases where there is no error
  * callback if the image fails to load - like the MusicControls on the lockscreen
  */
@@ -109,7 +96,6 @@ export const getImageSourceOptimistic = (
 
 type UseContentNodeImageOptions = {
   cid: Nullable<CID>
-  user: Nullable<Pick<User, 'creator_node_endpoint'>>
   // The size of the image to fetch
   size: SquareSizes | WidthSizes
   fallbackImageSource: ImageSourcePropType
@@ -117,9 +103,9 @@ type UseContentNodeImageOptions = {
 }
 
 /**
- * Load an image from a user's replica set
+ * Load an image from best content node
  *
- * If the image fails to load, try the next node in the replica set
+ * If the image fails to load, try the next best node
  *
  * Returns props for the DynamicImage component
  * @returns {
@@ -128,25 +114,18 @@ type UseContentNodeImageOptions = {
  *  isFallbackImage: boolean
  * }
  */
-export const useContentNodeImage = ({
-  cid,
-  user,
-  size,
-  fallbackImageSource,
-  localSource
-}: UseContentNodeImageOptions): ContentNodeImageSource => {
+export const useContentNodeImage = (
+  options: UseContentNodeImageOptions
+): ContentNodeImageSource => {
+  const { cid, size, fallbackImageSource, localSource } = options
   const [imageSourceIndex, setImageSourceIndex] = useState(0)
   const [failedToLoad, setFailedToLoad] = useState(false)
+  const { storageNodeSelector } = useAppContext()
 
-  const endpoints = useMemo(
-    () =>
-      user?.creator_node_endpoint
-        ? audiusBackendInstance.getCreatorNodeIPFSGateways(
-            user.creator_node_endpoint
-          )
-        : [],
-    [user?.creator_node_endpoint]
-  )
+  const endpoints = useMemo(() => {
+    if (!cid || !storageNodeSelector) return []
+    return storageNodeSelector.getNodes(cid)
+  }, [cid, storageNodeSelector])
 
   // Create an array of ImageSources
   // based on the content node endpoints
@@ -170,8 +149,8 @@ export const useContentNodeImage = ({
   }, [imageSourceIndex, imageSources])
 
   const showFallbackImage = useMemo(() => {
-    return !user || !cid || failedToLoad
-  }, [failedToLoad, user, cid])
+    return !cid || failedToLoad
+  }, [failedToLoad, cid])
 
   const source = useMemo(() => {
     if (showFallbackImage) {

@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { CollectionList } from 'app/components/collection-list'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
+import { spacing } from 'app/styles/spacing'
 
 import { EmptyProfileTile } from './EmptyProfileTile'
 import { getIsOwner, useSelectProfile } from './selectors'
@@ -33,20 +34,27 @@ export const PlaylistsTab = () => {
   const isFocused = useIsFocused()
   const dispatch = useDispatch()
   const { isEnabled: isPlaylistUpdatesEnabled } = useFeatureFlag(
-    FeatureFlags.PLAYLIST_UPDATES_PRE_QA
+    FeatureFlags.PLAYLIST_UPDATES_POST_QA
   )
 
+  const shouldFetchPlaylists =
+    isFocused &&
+    (playlist_count > 0 || isOwner) &&
+    collectionsStatus === Status.IDLE
+
   useEffect(() => {
-    if (isFocused && playlist_count > 0 && collectionsStatus === Status.IDLE) {
+    if (shouldFetchPlaylists) {
       dispatch(fetchCollections(handle))
     }
-  }, [isFocused, playlist_count, collectionsStatus, dispatch, handle])
+  }, [shouldFetchPlaylists, dispatch, handle])
 
   return (
     <CollectionList
-      collection={playlist_count > 0 ? playlists : emptyPlaylists}
-      style={{ paddingTop: playlist_count > 0 ? 12 : 0 }}
-      ListEmptyComponent={<EmptyProfileTile tab='playlists' />}
+      collection={playlist_count > 0 || isOwner ? playlists : emptyPlaylists}
+      style={{ paddingTop: spacing(3) }}
+      ListEmptyComponent={
+        <EmptyProfileTile tab='playlists' style={{ marginTop: 0 }} />
+      }
       disableTopTabScroll
       showsVerticalScrollIndicator={false}
       totalCount={playlist_count}

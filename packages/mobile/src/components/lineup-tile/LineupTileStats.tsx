@@ -1,23 +1,33 @@
 import { useCallback } from 'react'
 
-import type { ID, FavoriteType, RepostType } from '@audius/common'
+import type {
+  ID,
+  FavoriteType,
+  RepostType,
+  PremiumConditions,
+  Nullable
+} from '@audius/common'
 import {
   formatCount,
   repostsUserListActions,
-  favoritesUserListActions
+  favoritesUserListActions,
+  isPremiumContentUSDCPurchaseGated
 } from '@audius/common'
 import { View, TouchableOpacity } from 'react-native'
 import { useDispatch } from 'react-redux'
 
 import IconHeart from 'app/assets/images/iconHeart.svg'
 import IconRepost from 'app/assets/images/iconRepost.svg'
+import { LockedStatusBadge } from 'app/components/core'
 import { CollectionDownloadStatusIndicator } from 'app/components/offline-downloads/CollectionDownloadStatusIndicator'
 import { TrackDownloadStatusIndicator } from 'app/components/offline-downloads/TrackDownloadStatusIndicator'
 import Text from 'app/components/text'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { makeStyles, flexRowCentered } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
 import { useThemeColors } from 'app/utils/theme'
 
+import { LineupTilePremiumContentTypeTag } from './LineupTilePremiumContentTypeTag'
 import { LineupTileRankIcon } from './LineupTileRankIcon'
 import { useStyles as useTrackTileStyles } from './styles'
 import type { LineupItemVariant } from './types'
@@ -32,36 +42,39 @@ const formatPlayCount = (playCount?: number) => {
   return `${formatCount(playCount)} ${suffix}`
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(({ spacing, palette }) => ({
+  root: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    paddingVertical: spacing(2),
+    marginHorizontal: spacing(2.5),
+    justifyContent: 'space-between'
+  },
   stats: {
     flexDirection: 'row',
-    flex: 0,
-    alignItems: 'stretch',
-    paddingVertical: 2,
-    marginRight: 10,
-    height: 26
+    gap: spacing(4)
   },
   listenCount: {
     ...flexRowCentered(),
-    justifyContent: 'center',
-    marginLeft: 'auto'
+    justifyContent: 'center'
   },
   leftStats: {
-    ...flexRowCentered()
+    ...flexRowCentered(),
+    gap: spacing(4)
+  },
+  statItem: {
+    gap: spacing(1)
   },
   disabledStatItem: {
     opacity: 0.5
   },
-  statIcon: {
-    marginLeft: 4
-  },
   favoriteStat: {
-    height: 14,
-    width: 14
+    height: spacing(3.5),
+    width: spacing(3.5)
   },
   repostStat: {
-    height: 16,
-    width: 16
+    height: spacing(4),
+    width: spacing(4)
   }
 }))
 
@@ -79,6 +92,9 @@ type Props = {
   repostCount: number
   saveCount: number
   showRankIcon?: boolean
+  doesUserHaveAccess?: boolean
+  premiumConditions: Nullable<PremiumConditions>
+  isOwner: boolean
 }
 
 export const LineupTileStats = ({
@@ -94,7 +110,10 @@ export const LineupTileStats = ({
   playCount,
   repostCount,
   saveCount,
-  showRankIcon
+  showRankIcon,
+  doesUserHaveAccess,
+  premiumConditions,
+  isOwner
 }: Props) => {
   const styles = useStyles()
   const trackTileStyles = useTrackTileStyles()
@@ -115,62 +134,82 @@ export const LineupTileStats = ({
   }, [dispatch, id, navigation, repostType])
 
   const downloadStatusIndicator = isCollection ? (
-    <CollectionDownloadStatusIndicator size={18} collectionId={id} />
+    <CollectionDownloadStatusIndicator size={spacing(4)} collectionId={id} />
   ) : (
-    <TrackDownloadStatusIndicator size={18} trackId={id} />
+    <TrackDownloadStatusIndicator size={spacing(4)} trackId={id} />
   )
 
   const isReadonly = variant === 'readonly'
 
   return (
-    <View style={styles.stats}>
-      {isTrending ? (
-        <LineupTileRankIcon showCrown={showRankIcon} index={index} />
-      ) : null}
-      {hasEngagement && !isUnlisted && (
-        <View style={styles.leftStats}>
-          <TouchableOpacity
-            style={[
-              trackTileStyles.statItem,
-              !repostCount ? styles.disabledStatItem : null
-            ]}
-            disabled={!repostCount || isReadonly}
-            onPress={handlePressReposts}
-          >
-            <Text style={trackTileStyles.statText}>
-              {formatCount(repostCount)}
-            </Text>
-            <IconRepost
-              height={16}
-              width={16}
-              fill={neutralLight4}
-              style={[styles.statIcon, styles.repostStat]}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              trackTileStyles.statItem,
-              !saveCount ? styles.disabledStatItem : null
-            ]}
-            disabled={!saveCount || isReadonly}
-            onPress={handlePressFavorites}
-          >
-            <Text style={trackTileStyles.statText}>
-              {formatCount(saveCount)}
-            </Text>
-            <IconHeart
-              style={[styles.statIcon, styles.favoriteStat]}
-              height={14}
-              width={14}
-              fill={neutralLight4}
-            />
-          </TouchableOpacity>
-          <View style={[trackTileStyles.statItem]}>
-            {downloadStatusIndicator}
+    <View style={styles.root}>
+      <View style={styles.stats}>
+        {isTrending ? (
+          <LineupTileRankIcon showCrown={showRankIcon} index={index} />
+        ) : null}
+        {premiumConditions ? (
+          <LineupTilePremiumContentTypeTag
+            premiumConditions={premiumConditions}
+            doesUserHaveAccess={doesUserHaveAccess}
+            isOwner={isOwner}
+          />
+        ) : null}
+        {hasEngagement && !isUnlisted && (
+          <View style={styles.leftStats}>
+            <TouchableOpacity
+              style={[
+                trackTileStyles.statItem,
+                styles.statItem,
+                !repostCount ? styles.disabledStatItem : null
+              ]}
+              disabled={!repostCount || isReadonly}
+              onPress={handlePressReposts}
+            >
+              <IconRepost
+                height={spacing(4)}
+                width={spacing(4)}
+                fill={neutralLight4}
+                style={styles.repostStat}
+              />
+              <Text style={trackTileStyles.statText}>
+                {formatCount(repostCount)}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                trackTileStyles.statItem,
+                styles.statItem,
+                !saveCount ? styles.disabledStatItem : null
+              ]}
+              disabled={!saveCount || isReadonly}
+              onPress={handlePressFavorites}
+            >
+              <IconHeart
+                style={styles.favoriteStat}
+                height={spacing(3.5)}
+                width={spacing(3.5)}
+                fill={neutralLight4}
+              />
+              <Text style={trackTileStyles.statText}>
+                {formatCount(saveCount)}
+              </Text>
+            </TouchableOpacity>
+            <View style={[trackTileStyles.statItem]}>
+              {downloadStatusIndicator}
+            </View>
           </View>
-        </View>
-      )}
-      {!hidePlays ? (
+        )}
+      </View>
+      {premiumConditions && !isOwner ? (
+        <LockedStatusBadge
+          locked={!doesUserHaveAccess}
+          variant={
+            isPremiumContentUSDCPurchaseGated(premiumConditions)
+              ? 'purchase'
+              : 'gated'
+          }
+        />
+      ) : !hidePlays ? (
         <Text style={[trackTileStyles.statText, styles.listenCount]}>
           {formatPlayCount(playCount)}
         </Text>

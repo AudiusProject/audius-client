@@ -1,6 +1,7 @@
 import { Story } from '@storybook/react'
 
 import * as Icons from 'components/Icons'
+import { ButtonSize } from 'index'
 
 import { Button } from './Button'
 import { ButtonProps, Type } from './types'
@@ -17,7 +18,12 @@ const baseProps: ButtonProps = {
 }
 
 const Template: Story<ButtonProps> = (args) => (
-  <Button {...baseProps} {...args} />
+  <div style={{ alignItems: 'center', display: 'flex', gap: '16px' }}>
+    <Button {...baseProps} size={ButtonSize.TINY} {...args} />
+    <Button {...baseProps} size={ButtonSize.SMALL} {...args} />
+    <Button {...baseProps} size={ButtonSize.MEDIUM} {...args} />
+    <Button {...baseProps} size={ButtonSize.LARGE} {...args} />
+  </div>
 )
 
 const BackgroundTemplate: Story<ButtonProps> = (args) => (
@@ -36,6 +42,10 @@ Disabled.args = { disabled: true }
 // Primary Alt
 export const PrimaryAlt = Template.bind({})
 PrimaryAlt.args = { type: Type.PRIMARY_ALT }
+
+// Primary w/ color
+export const PrimaryWithColor = Template.bind({})
+PrimaryWithColor.args = { color: 'accentBlue' }
 
 // Secondary
 export const Secondary = Template.bind({})

@@ -27,17 +27,20 @@ const { fetchCollection, fetchCollectionSucceeded, fetchCollectionFailed } =
 
 function* watchFetchCollection() {
   yield takeLatest(collectionActions.FETCH_COLLECTION, function* (action) {
-    const { id: collectionId, permalink } = action
+    const { id: collectionId, permalink, fetchLineup } = action
     let retrievedCollections
     if (permalink) {
       retrievedCollections = yield call(
         retrieveCollectionByPermalink,
         permalink,
-        /* fetchTracks */ false,
-        /* requiresAllTracks */ true
+        {
+          requiresAllTracks: true
+        }
       )
     } else {
-      retrievedCollections = yield call(retrieveCollections, [collectionId])
+      retrievedCollections = yield call(retrieveCollections, [collectionId], {
+        requiresAllTracks: true
+      })
     }
 
     const { collections, uids: collectionUids } = retrievedCollections
@@ -63,6 +66,9 @@ function* watchFetchCollection() {
           collection.playlist_contents.track_ids.length
         )
       )
+      if (fetchLineup) {
+        yield put(tracksActions.fetchLineupMetadatas(0, 200, false, undefined))
+      }
     } else {
       yield put(collectionActions.fetchCollectionFailed(userUid))
     }

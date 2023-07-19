@@ -1,7 +1,12 @@
-import type { ID, QueryParams, Track, UserTrackMetadata } from '@audius/common'
+import type {
+  ID,
+  QueryParams,
+  Track,
+  TrackMetadata,
+  UserTrackMetadata
+} from '@audius/common'
 import {
   getQueryParams,
-  FeatureFlags,
   premiumContentSelectors,
   removeNullable,
   SquareSizes,
@@ -20,6 +25,7 @@ import {
   getLocalTrackDir,
   getLocalTrackJsonPath
 } from 'app/services/offline-downloader'
+import { getStorageNodeSelector } from 'app/services/sdk/storageNodeSelector'
 import { EventNames } from 'app/types/analytics'
 
 import { getTrackOfflineDownloadStatus } from '../../../selectors'
@@ -163,21 +169,14 @@ function* downloadTrackAudio(track: UserTrackMetadata) {
 
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const apiClient = yield* getContext('apiClient')
-  const getFeatureEnabled = yield* getContext('getFeatureEnabled')
-  const isGatedContentEnabled = yield* call(
-    getFeatureEnabled,
-    FeatureFlags.GATED_CONTENT_ENABLED
-  )
   let queryParams: QueryParams = {}
-  if (isGatedContentEnabled) {
-    const premiumTrackSignatureMap = yield* select(getPremiumTrackSignatureMap)
-    const premiumContentSignature =
-      premium_content_signature || premiumTrackSignatureMap[track_id]
-    queryParams = yield* call(getQueryParams, {
-      audiusBackendInstance,
-      premiumContentSignature
-    })
-  }
+  const premiumTrackSignatureMap = yield* select(getPremiumTrackSignatureMap)
+  const premiumContentSignature =
+    premium_content_signature || premiumTrackSignatureMap[track_id]
+  queryParams = yield* call(getQueryParams, {
+    audiusBackendInstance,
+    premiumContentSignature
+  })
   queryParams.filename = `${track_id}.mp3`
 
   const trackAudioUri = apiClient.makeUrl(
@@ -191,12 +190,15 @@ function* downloadTrackAudio(track: UserTrackMetadata) {
   throw new Error('Unable to download track audio')
 }
 
-function* downloadTrackCoverArt(track: UserTrackMetadata) {
-  const { cover_art_sizes, cover_art, user, track_id } = track
+function* downloadTrackCoverArt(track: TrackMetadata) {
+  const { cover_art_sizes, cover_art, track_id } = track
   const cid = cover_art_sizes ?? cover_art
+
+  const storageNodeSelector = yield* call(getStorageNodeSelector)
+
   const imageSources = createAllImageSources({
     cid,
-    user,
+    endpoints: cid ? storageNodeSelector.getNodes(cid) : [],
     size: SquareSizes.SIZE_1000_BY_1000
   })
 

@@ -8,7 +8,6 @@ import * as analytics from 'app/services/analytics'
 import { audioPlayer } from 'app/services/audio-player'
 import { apiClient } from 'app/services/audius-api-client'
 import { audiusBackendInstance } from 'app/services/audius-backend-instance'
-import { audiusSdk } from 'app/services/audius-sdk'
 import { env } from 'app/services/env'
 import { explore } from 'app/services/explore'
 import { fingerprintClient } from 'app/services/fingerprint'
@@ -17,9 +16,10 @@ import {
   getFeatureEnabled,
   remoteConfigInstance
 } from 'app/services/remote-config'
+import { audiusSdk } from 'app/services/sdk/audius-sdk'
 import { trackDownload } from 'app/services/track-download'
 import { walletClient } from 'app/services/wallet-client'
-import { createPlaylistArtwork } from 'app/utils/createPlaylistArtwork'
+import { generatePlaylistArtwork } from 'app/utils/generatePlaylistArtwork'
 import { reportToSentry } from 'app/utils/reportToSentry'
 import share from 'app/utils/share'
 
@@ -54,6 +54,6 @@ export const storeContext: CommonStoreContext = {
   openSeaClient: new OpenSeaClient(Config.OPENSEA_API_URL),
   audiusSdk,
   imageUtils: {
-    createPlaylistArtwork
+    generatePlaylistArtwork
   }
 }
