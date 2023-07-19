@@ -105,8 +105,8 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   iconContainer: {
     marginLeft: spacing(2)
   },
-  icon: { height: spacing(6), width: spacing(6) },
-  removeIcon: { height: spacing(6), width: spacing(6) },
+  icon: { height: 24, width: 24 },
+  removeIcon: { height: 24, width: 24 },
 
   playButtonContainer: {
     marginRight: spacing(4)

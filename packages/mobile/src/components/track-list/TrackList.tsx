@@ -148,8 +148,6 @@ export const TrackList = ({
       <FlatList {...otherProps} data={data} renderItem={renderSkeletonTrack} />
     )
 
-  console.log({ scrollEnable })
-
   return isReorderable ? (
     <DraggableFlatList
       {...otherProps}
