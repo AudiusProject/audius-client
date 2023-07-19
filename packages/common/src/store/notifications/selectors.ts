@@ -100,14 +100,20 @@ export const getNotificationEntity = (
     const getEntity =
       notification.entityType === Entity.Track ? getTrack : getCollection
     const entity = getEntity(state, { id: notification.entityId })
+    if (notification.entityId === 683240951) {
+      console.log('im in hereee')
+      console.log(entity)
+    }
     if (entity) {
       const userId =
         'owner_id' in entity ? entity.owner_id : entity.playlist_owner_id
+      console.log('returning 108')
       return {
         ...entity,
         user: getUser(state, { id: userId })
       }
     }
+    console.log('returning 113')
     return entity
   }
   return null

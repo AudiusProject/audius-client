@@ -36,7 +36,9 @@ export enum NotificationType {
   SupporterRankUp = 'SupporterRankUp',
   SupportingRankUp = 'SupportingRankUp',
   AddTrackToPlaylist = 'AddTrackToPlaylist',
-  SupporterDethroned = 'SupporterDethroned'
+  SupporterDethroned = 'SupporterDethroned',
+  USDCPurchaseSeller = 'USDCPurchaseSeller',
+  USDCPurchaseBuyer = 'USDCPurchaseBuyer'
 }
 
 export enum PushNotificationType {
@@ -243,6 +245,13 @@ export type DiscoveryCreatePlaylistNotificationAction = {
   is_album: boolean
   playlist_id: string[]
 }
+export type DiscoveryUSDCPurchaseNotificationAction = {
+  content_type: string
+  content_id: string
+  seller_user_id: string
+  buyer_user_id: string
+  amount: number
+}
 
 export type TrendingRange = 'week' | 'month' | 'year'
 
@@ -323,6 +332,14 @@ export type DiscoveryCreateNotification = DiscoveryBaseNotification<
   | DiscoveryCreateTrackNotificationAction
   | DiscoveryCreatePlaylistNotificationAction
 >
+export type DiscoveryUSDCPurchaseBuyerNotification = DiscoveryBaseNotification<
+  'usdc_purchase_buyer',
+  DiscoveryUSDCPurchaseNotificationAction
+>
+export type DiscoveryUSDCPurchaseSellerNotification = DiscoveryBaseNotification<
+  'usdc_purchase_seller',
+  DiscoveryUSDCPurchaseNotificationAction
+>
 export type DiscoveryTrendingPlaylistNotification = DiscoveryBaseNotification<
   'trending_playlist',
   {
@@ -382,6 +399,8 @@ export type DiscoveryNotification =
   | DiscoverySaveOfRepostNotification
   | DiscoveryAddTrackToPlaylistNotification
   | DiscoveryTastemakerNotification
+  | DiscoveryUSDCPurchaseBuyerNotification
+  | DiscoveryUSDCPurchaseSellerNotification
 
 export type AnnouncementNotification = BaseNotification & {
   type: NotificationType.Announcement
@@ -725,6 +744,7 @@ export type TastemakerNotification = BaseNotification & {
 export type ChallengeRewardNotification = BaseNotification & {
   type: NotificationType.ChallengeReward
   challengeId: ChallengeRewardID
+  entityType: string
 }
 
 export type TierChangeNotification = BaseNotification & {
@@ -869,6 +889,21 @@ export type AddTrackToPlaylistPushNotification = {
   }
 }
 
+export type USDCPurchaseSellerNotification = BaseNotification & {
+  type: NotificationType.USDCPurchaseSeller
+  entityId: ID
+  userIds: ID[]
+  entityType: string
+  amount: number
+}
+
+export type USDCPurchaseBuyerNotification = BaseNotification & {
+  type: NotificationType.USDCPurchaseBuyer
+  entityId: ID
+  userIds: ID[]
+  entityType: string
+}
+
 export type Notification =
   | AnnouncementNotification
   | UserSubscriptionNotification
@@ -893,6 +928,8 @@ export type Notification =
   | SupportingRankUpNotification
   | SupporterDethronedNotification
   | AddTrackToPlaylistNotification
+  | USDCPurchaseSellerNotification
+  | USDCPurchaseBuyerNotification
 
 export type IdentityNotification = Omit<Notification, 'timestamp'> & {
   timestamp: string

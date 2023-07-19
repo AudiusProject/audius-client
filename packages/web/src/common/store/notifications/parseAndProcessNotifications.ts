@@ -144,6 +144,13 @@ export function* parseAndProcessNotifications(
       userIdsToFetch.push(notification.userId)
       trackIdsToFetch.push(notification.entityId)
     }
+    if (
+      type === NotificationType.USDCPurchaseBuyer ||
+      type === NotificationType.USDCPurchaseSeller
+    ) {
+      userIdsToFetch.push(...[...new Set(notification.userIds)])
+      trackIdsToFetch.push(notification.entityId)
+    }
   })
 
   const [tracks] = yield* all([
