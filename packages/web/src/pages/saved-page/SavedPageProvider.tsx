@@ -48,7 +48,7 @@ const { selectAllPlaylistUpdateIds } = playlistUpdatesSelectors
 const { getAccountWithNameSortedPlaylistsAndAlbums } = accountSelectors
 
 const messages = {
-  title: 'Favorites',
+  title: 'Library',
   description: "View tracks that you've favorited"
 }
 
@@ -257,7 +257,7 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
       record(
         make(Name.PLAYBACK_PAUSE, {
           id: `${trackRecord.track_id}`,
-          source: PlaybackSource.FAVORITES_PAGE
+          source: PlaybackSource.LIBRARY_PAGE
         })
       )
     } else if (playingUid !== trackRecord.uid) {
@@ -265,7 +265,7 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
       record(
         make(Name.PLAYBACK_PLAY, {
           id: `${trackRecord.track_id}`,
-          source: PlaybackSource.FAVORITES_PAGE
+          source: PlaybackSource.LIBRARY_PAGE
         })
       )
     } else {
@@ -273,7 +273,7 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
       record(
         make(Name.PLAYBACK_PLAY, {
           id: `${trackRecord.track_id}`,
-          source: PlaybackSource.FAVORITES_PAGE
+          source: PlaybackSource.LIBRARY_PAGE
         })
       )
     }
@@ -287,7 +287,7 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
       record(
         make(Name.PLAYBACK_PAUSE, {
           id: `${trackId}`,
-          source: PlaybackSource.FAVORITES_PAGE
+          source: PlaybackSource.LIBRARY_PAGE
         })
       )
     } else if (playingUid !== uid) {
@@ -295,7 +295,7 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
       record(
         make(Name.PLAYBACK_PLAY, {
           id: `${trackId}`,
-          source: PlaybackSource.FAVORITES_PAGE
+          source: PlaybackSource.LIBRARY_PAGE
         })
       )
     } else {
@@ -303,7 +303,7 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
       record(
         make(Name.PLAYBACK_PLAY, {
           id: `${trackId}`,
-          source: PlaybackSource.FAVORITES_PAGE
+          source: PlaybackSource.LIBRARY_PAGE
         })
       )
     }
@@ -356,7 +356,7 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
       record(
         make(Name.PLAYBACK_PAUSE, {
           id: `${playingId}`,
-          source: PlaybackSource.FAVORITES_PAGE
+          source: PlaybackSource.LIBRARY_PAGE
         })
       )
     } else if (!playing && isQueued) {
@@ -364,7 +364,7 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
       record(
         make(Name.PLAYBACK_PLAY, {
           id: `${playingId}`,
-          source: PlaybackSource.FAVORITES_PAGE
+          source: PlaybackSource.LIBRARY_PAGE
         })
       )
     } else if (entries.length > 0) {
@@ -372,7 +372,7 @@ class SavedPage extends PureComponent<SavedPageProps, SavedPageState> {
       record(
         make(Name.PLAYBACK_PLAY, {
           id: `${playingId}`,
-          source: PlaybackSource.FAVORITES_PAGE
+          source: PlaybackSource.LIBRARY_PAGE
         })
       )
     }
@@ -565,17 +565,15 @@ function mapDispatchToProps(dispatch: Dispatch) {
     play: (uid?: UID) => dispatch(tracksActions.play(uid)),
     pause: () => dispatch(tracksActions.pause()),
     repostTrack: (trackId: ID) =>
-      dispatch(socialActions.repostTrack(trackId, RepostSource.FAVORITES_PAGE)),
+      dispatch(socialActions.repostTrack(trackId, RepostSource.LIBRARY_PAGE)),
     undoRepostTrack: (trackId: ID) =>
       dispatch(
-        socialActions.undoRepostTrack(trackId, RepostSource.FAVORITES_PAGE)
+        socialActions.undoRepostTrack(trackId, RepostSource.LIBRARY_PAGE)
       ),
     saveTrack: (trackId: ID) =>
-      dispatch(socialActions.saveTrack(trackId, FavoriteSource.FAVORITES_PAGE)),
+      dispatch(socialActions.saveTrack(trackId, FavoriteSource.LIBRARY_PAGE)),
     unsaveTrack: (trackId: ID) =>
-      dispatch(
-        socialActions.unsaveTrack(trackId, FavoriteSource.FAVORITES_PAGE)
-      ),
+      dispatch(socialActions.unsaveTrack(trackId, FavoriteSource.LIBRARY_PAGE)),
     record: (event: TrackEvent) => dispatch(event)
   }
 }

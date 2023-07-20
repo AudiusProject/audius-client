@@ -35,6 +35,7 @@ import styles from './SavedPage.module.css'
 const { getInitialFetchStatus } = savedPageSelectors
 
 const messages = {
+  libraryHeader: 'Library',
   filterPlaceholder: 'Filter Tracks',
   emptyTracksHeader: 'You haven’t favorited any tracks yet.',
   emptyTracksBody: 'Once you have, this is where you’ll find them!',
@@ -236,7 +237,7 @@ const SavedPage = ({
 
   const header = (
     <Header
-      primary='Favorites'
+      primary={messages.libraryHeader}
       secondary={isEmpty ? null : playAllButton}
       rightDecorator={filter}
       containerStyles={styles.savedPageHeader}
