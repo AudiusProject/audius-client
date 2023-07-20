@@ -8,7 +8,7 @@ import { AudiusBackend } from 'services/audius-backend'
 import { Nullable } from './typeUtils'
 
 const filterTrack = (track1: Track) => (track2: Track) =>
-  track1.track_id === track2.track_id
+  track1.track_id !== track2.track_id
 
 type ArtworkActions = {
   added?: Track
@@ -49,7 +49,7 @@ export const updatePlaylistArtwork = async (
     )
     if (removedIndex === -1) {
       // continue
-    } else if (tracks.length >= 4 && removedIndex < 4) {
+    } else if (tracks.length > 4 && removedIndex < 4) {
       tracksForImage = tracks.filter(filterTrack(removed)).slice(0, 4)
     } else if (tracks.length === 4) {
       tracksForImage = tracks.filter(filterTrack(removed)).slice(0, 1)
