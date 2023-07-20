@@ -2277,7 +2277,6 @@ export const audiusBackend = ({
       }
 
     const { unread_count, notifications } = response
-    console.log(notifications)
     return {
       totalUnviewed: unread_count,
       notifications: notifications.map(
