@@ -10,7 +10,6 @@ export const getArtworkUrl = (
   } else {
     artworkUrl = `${fallback}/${collectionOrTrack?.coverArtSizes}/480x480.jpg`
   }
-  console.log({ artworkUrl })
   if (!artworkUrl) {
     if (useDefaultArtworkIfMissing) {
       return 'https://download.audius.co/static-resources/preview-image.jpg'
