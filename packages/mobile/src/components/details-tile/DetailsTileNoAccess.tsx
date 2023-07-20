@@ -29,6 +29,7 @@ import LoadingSpinner from 'app/components/loading-spinner'
 import UserBadges from 'app/components/user-badges'
 import { useDrawer } from 'app/hooks/useDrawer'
 import { useNavigation } from 'app/hooks/useNavigation'
+import { setVisibility } from 'app/store/drawers/slice'
 import { flexRowCentered, makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 
@@ -63,13 +64,12 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     backgroundColor: palette.neutralLight10,
     borderWidth: 1,
     borderColor: palette.neutralLight7,
-    borderRadius: spacing(2)
+    borderRadius: spacing(2),
+    gap: spacing(2)
   },
   titleContainer: {
     ...flexRowCentered(),
-    justifyContent: 'space-between',
-    marginHorizontal: spacing(2),
-    marginVertical: spacing(1)
+    justifyContent: 'space-between'
   },
   title: {
     fontFamily: typography.fontByWeight.heavy,
@@ -78,8 +78,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   },
   descriptionContainer: {
     ...flexRowCentered(),
-    flexWrap: 'wrap',
-    margin: spacing(2)
+    flexWrap: 'wrap'
   },
   description: {
     flexShrink: 0,
@@ -209,6 +208,16 @@ export const DetailsTileNoAccess = ({
     dispatch(beginTip({ user: tippedUser, source, trackId }))
     navigation.navigate('TipArtist')
   }, [tippedUser, navigation, dispatch, source, trackId])
+
+  const handlePurchasePress = useCallback(() => {
+    dispatch(
+      setVisibility({
+        drawer: 'PremiumTrackPurchase',
+        visible: true,
+        data: { trackId }
+      })
+    )
+  }, [dispatch, trackId])
 
   const handlePressArtistName = useCallback(
     (handle: string) => () => {
@@ -347,9 +356,7 @@ export const DetailsTileNoAccess = ({
               formatUSDCWeiToUSDString(premiumConditions.usdc_purchase.price)
             )}
             size='large'
-            onPress={() => {
-              console.log('Buy button pressed')
-            }}
+            onPress={handlePurchasePress}
             fullWidth
           />
         </>
@@ -377,7 +384,8 @@ export const DetailsTileNoAccess = ({
     renderLockedSpecialAccessDescription,
     handleFollowArtist,
     tippedUser,
-    handleSendTip
+    handleSendTip,
+    handlePurchasePress
   ])
 
   const renderUnlockingSpecialAccessDescription = useCallback(
