@@ -15,7 +15,7 @@ import { useFormikContext } from 'formik'
 import styles from './ModalField.module.css'
 
 const messages = {
-  done: 'Done'
+  save: 'Save'
 }
 
 type ModalFieldProps = PropsWithChildren & {
@@ -47,7 +47,7 @@ export const ModalField = (props: ModalFieldProps) => {
       <ModalFooter>
         <Button
           type={ButtonType.PRIMARY}
-          text={messages.done}
+          text={messages.save}
           onClick={() => {
             submitForm()
             close()

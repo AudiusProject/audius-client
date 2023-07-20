@@ -1,6 +1,6 @@
-import React, { useCallback, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
-import { Nullable } from '@audius/common'
+import { Nullable, creativeCommons } from '@audius/common'
 import { SegmentedControl } from '@audius/stems'
 import cn from 'classnames'
 import { Formik, useField } from 'formik'
@@ -12,8 +12,10 @@ import typeStyles from 'components/typography/typography.module.css'
 
 import { ModalField } from '../fields/ModalField'
 import { SwitchRowField } from '../fields/SwitchRowField'
+import { computeLicenseIcons } from '../utils/computeLicenseIcons'
 
 import styles from './AttributionModalForm.module.css'
+const { computeLicense } = creativeCommons
 
 const messages = {
   title: 'Attribution',
@@ -37,23 +39,23 @@ const messages = {
   allowAttribution: {
     header: 'Allow Attribution?',
     options: {
-      true: 'Allow Attribution',
-      false: 'No Attribution'
+      false: 'No Attribution',
+      true: 'Allow Attribution'
     }
   },
   commercialUse: {
     header: 'Commercial Use?',
     options: {
-      true: 'Commercial Use',
-      false: 'Non-Commercial Use'
+      false: 'Non-Commercial Use',
+      true: 'Commercial Use'
     }
   },
   derivativeWorks: {
     header: 'Derivative Works?',
     options: {
-      null: 'Allowed',
+      false: 'Not-Allowed',
       true: 'Share-Alike',
-      false: 'Not-Allowed'
+      null: 'Allowed'
     }
   }
 }
@@ -64,19 +66,19 @@ const ISRC = 'isrc'
 const ISWC = 'iswc'
 
 const allowAttributionValues = [
-  { key: true, text: messages.allowAttribution.options.true },
-  { key: false, text: messages.allowAttribution.options.true }
+  { key: false, text: messages.allowAttribution.options.false },
+  { key: true, text: messages.allowAttribution.options.true }
 ]
 
 const commercialUseValues = [
-  { key: true, text: messages.commercialUse.options.true },
-  { key: false, text: messages.commercialUse.options.false }
+  { key: false, text: messages.commercialUse.options.false },
+  { key: true, text: messages.commercialUse.options.true }
 ]
 
 const derivativeWorksValues = [
-  { key: null, text: messages.derivativeWorks.options.null },
+  { key: false, text: messages.derivativeWorks.options.false },
   { key: true, text: messages.derivativeWorks.options.true },
-  { key: false, text: messages.derivativeWorks.options.false }
+  { key: null, text: messages.derivativeWorks.options.null }
 ]
 
 type AttributionFormValues = {
@@ -97,7 +99,7 @@ export const AttributionModalForm = () => {
 
   const preview = (
     <div className={styles.preview}>
-      <div className={styles.header}>
+      <div className={typeStyles.titleLarge}>
         <label className={styles.title}>{messages.title}</label>
       </div>
       <div className={styles.description}>{messages.description}</div>
@@ -133,6 +135,18 @@ const AttributionModalFields = () => {
   const [{ value: derivativeWorks }, , { setValue: setDerivateWorks }] =
     useField<Nullable<boolean>>('licenseType.derivativeWorks')
 
+  const { licenseType, licenseDescription } = computeLicense(
+    allowAttribution,
+    commercialUse,
+    derivativeWorks
+  )
+
+  const licenseIcons = computeLicenseIcons(
+    allowAttribution,
+    commercialUse,
+    derivativeWorks
+  )
+
   return (
     <div>
       <SwitchRowField
@@ -154,6 +168,7 @@ const AttributionModalFields = () => {
         <span className={cn(styles.row, styles.gap6)}>
           <InputV2
             {...isrcField}
+            variant={InputV2Variant.ELEVATED_PLACEHOLDER}
             label={messages.isrc.header}
             placeholder={messages.isrc.placeholder}
           />
@@ -165,6 +180,7 @@ const AttributionModalFields = () => {
           />
         </span>
       </div>
+      <Divider />
       <div className={cn(styles.col, styles.gap6)}>
         <div className={typeStyles.titleLarge}>{messages.licenseType}</div>
         <div className={styles.attributionCommercialRow}>
@@ -188,6 +204,7 @@ const AttributionModalFields = () => {
               defaultSelected={commercialUse}
               options={commercialUseValues}
               onSelectOption={setCommercialUse}
+              disabled={!allowAttribution}
             />
           </div>
         </div>
@@ -200,8 +217,22 @@ const AttributionModalFields = () => {
             defaultSelected={derivativeWorks}
             options={derivativeWorksValues}
             onSelectOption={setDerivateWorks}
+            disabled={!allowAttribution}
           />
         </div>
+      </div>
+      <div>
+        {/* {licenseIcons ? (
+          <div>
+            {licenseIcons.map(
+              ([Icon, key]: [ComponentType<SvgProperties>, string]) => (
+                <Icon key={key} />
+              )
+            )}
+          </div>
+        ) : null} */}
+        <div>{licenseType}</div>
+        {licenseDescription ? <div>{licenseDescription}</div> : null}
       </div>
     </div>
   )

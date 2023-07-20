@@ -68,3 +68,7 @@
   flex: 1;
   text-align: center;
 }
+
+.disabled .tab {
+  color: var(--text-default)
+}
