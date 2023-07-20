@@ -395,7 +395,7 @@ export const audiusBackend = ({
     try {
       const response = await Promise.race([
         fetch(url),
-        new Promise<Response>((_, reject) => {
+        new Promise<Response>((_resolve, reject) => {
           timeoutId = setTimeout(() => reject(new Error('Timeout')), timeoutMs)
         })
       ])
