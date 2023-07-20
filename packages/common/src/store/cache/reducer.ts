@@ -17,10 +17,10 @@ import {
   INCREMENT,
   AddSuccededAction,
   CacheType,
-  SET_CACHE_TYPE,
-  SetCacheTypeAction,
   ADD_ENTRIES,
-  AddEntriesAction
+  AddEntriesAction,
+  SetCacheConfigAction,
+  SET_CACHE_CONFIG
 } from './actions'
 import { Metadata } from './types'
 
@@ -34,6 +34,8 @@ type CacheState = {
   subscriptions: Record<ID, Set<UID>>
   idsToPrune: Set<ID>
   cacheType: CacheType
+  entryTTL: number
+  simple: boolean
 }
 
 /**
@@ -62,7 +64,9 @@ export const initialCacheState: CacheState = {
   subscriptions: {}, // things this id is subscribing to,
   // Set { id }
   idsToPrune: new Set(),
-  cacheType: 'normal'
+  cacheType: 'normal',
+  entryTTL: DEFAULT_ENTRY_TTL,
+  simple: false
 }
 
 // Wraps a metadata into a cache entry
@@ -172,11 +176,11 @@ const updateImageCache = (existing: Metadata, next: Metadata, merged: any) => {
 }
 
 const addEntries = (state: CacheState, entries: any[], replace?: boolean) => {
-  const { cacheType } = state
+  const { cacheType, simple } = state
   const newEntries = { ...state.entries }
   const newUids = { ...state.uids }
-  const newSubscribers = { ...state.subscribers }
-  const newIdsToPrune = new Set([...state.idsToPrune])
+  const newSubscribers = simple ? {} : { ...state.subscribers }
+  const newIdsToPrune = simple ? new Set() : new Set([...state.idsToPrune])
   const now = Date.now()
 
   for (let i = 0; i < entries.length; i++) {
@@ -192,6 +196,7 @@ const addEntries = (state: CacheState, entries: any[], replace?: boolean) => {
     ) {
       // do nothing
     } else if (replace) {
+      console.log('calling replace')
       newEntries[entity.id] = wrapEntry(entity.metadata)
     } else if (
       existing &&
@@ -200,13 +205,12 @@ const addEntries = (state: CacheState, entries: any[], replace?: boolean) => {
     ) {
       // do nothing
     } else if (existing) {
-      let newMetadata = mergeWith(
+      const newMetadata = mergeWith(
         {},
         existing,
         entity.metadata,
         mergeCustomizer
       )
-      newMetadata = updateImageCache(existing, entity.metadata, newMetadata)
       if (cacheType === 'safe-fast' && isEqual(existing, newMetadata)) {
         // do nothing
       } else {
@@ -219,14 +223,24 @@ const addEntries = (state: CacheState, entries: any[], replace?: boolean) => {
       }
     }
 
-    newUids[entity.uid] = entity.id
-    if (entity.id in newSubscribers) {
-      newSubscribers[entity.id].add(entity.uid)
-    } else {
-      newSubscribers[entity.id] = new Set([entity.uid])
-    }
+    if (!simple) {
+      newUids[entity.uid] = entity.id
+      if (entity.id in newSubscribers) {
+        newSubscribers[entity.id].add(entity.uid)
+      } else {
+        newSubscribers[entity.id] = new Set([entity.uid])
+      }
 
-    newIdsToPrune.delete(entity.id)
+      newIdsToPrune.delete(entity.id)
+    }
+  }
+
+  if (simple) {
+    return {
+      ...state,
+      entries: newEntries,
+      uids: newUids
+    }
   }
 
   return {
@@ -236,13 +250,80 @@ const addEntries = (state: CacheState, entries: any[], replace?: boolean) => {
     subscribers: newSubscribers,
     idsToPrune: newIdsToPrune
   }
+  // const { cacheType } = state
+  // const newEntries = { ...state.entries }
+  // const newUids = { ...state.uids }
+  // const newSubscribers = { ...state.subscribers }
+  // const newIdsToPrune = new Set([...state.idsToPrune])
+  // const now = Date.now()
+
+  // for (let i = 0; i < entries.length; i++) {
+  //   const entity = entries[i]
+  //   const { metadata: existing, _timestamp } = newEntries[entity.id] ?? {}
+
+  //   // Don't add if block number is < existing
+  //   if (
+  //     existing &&
+  //     existing.blocknumber &&
+  //     entity.metadata.blocknumber &&
+  //     existing.blocknumber > entity.metadata.blocknumber
+  //   ) {
+  //     // do nothing
+  //   } else if (replace) {
+  //     newEntries[entity.id] = wrapEntry(entity.metadata)
+  //   } else if (
+  //     existing &&
+  //     _timestamp + DEFAULT_ENTRY_TTL > now &&
+  //     cacheType === 'fast'
+  //   ) {
+  //     // do nothing
+  //   } else if (existing) {
+  //     let newMetadata = mergeWith(
+  //       {},
+  //       existing,
+  //       entity.metadata,
+  //       mergeCustomizer
+  //     )
+  //     newMetadata = updateImageCache(existing, entity.metadata, newMetadata)
+  //     if (cacheType === 'safe-fast' && isEqual(existing, newMetadata)) {
+  //       // do nothing
+  //     } else {
+  //       newEntries[entity.id] = wrapEntry(newMetadata, now)
+  //     }
+  //   } else {
+  //     newEntries[entity.id] = {
+  //       _timestamp: entity.timestamp ?? now,
+  //       metadata: entity.metadata
+  //     }
+  //   }
+
+  //   newUids[entity.uid] = entity.id
+  //   if (entity.id in newSubscribers) {
+  //     newSubscribers[entity.id].add(entity.uid)
+  //   } else {
+  //     newSubscribers[entity.id] = new Set([entity.uid])
+  //   }
+
+  //   newIdsToPrune.delete(entity.id)
+  // }
+
+  // return {
+  //   ...state,
+  //   entries: newEntries,
+  //   uids: newUids,
+  //   subscribers: newSubscribers,
+  //   idsToPrune: newIdsToPrune
+  // }
 }
 
 const actionsMap = {
-  [SET_CACHE_TYPE](state: CacheState, action: SetCacheTypeAction) {
+  [SET_CACHE_CONFIG](state: CacheState, action: SetCacheConfigAction) {
+    const { cacheType, entryTTL, simple } = action
     return {
       ...state,
-      cacheType: action.cacheType
+      cacheType,
+      entryTTL,
+      simple
     }
   },
   [ADD_SUCCEEDED](state: CacheState, action: AddSuccededAction) {
@@ -261,11 +342,12 @@ const actionsMap = {
     return addEntries(state, cacheableEntries, replace)
   },
   [UPDATE](
-    state: { entries: { [x: string]: any }; subscriptions: any },
+    state: CacheState,
     action: { entries: any[]; subscriptions: any[] }
   ) {
+    const { simple } = state
     const newEntries = { ...state.entries }
-    const newSubscriptions = { ...state.subscriptions }
+    const newSubscriptions = simple ? ({} as any) : { ...state.subscriptions }
 
     action.entries.forEach((e: { id: string | number; metadata: any }) => {
       const existing = { ...unwrapEntry(state.entries[e.id]) }
@@ -274,21 +356,30 @@ const actionsMap = {
       newEntries[e.id] = wrapEntry(newEntry)
     })
 
-    action.subscriptions.forEach((s: { id: any; kind: any; uids: any }) => {
-      const { id, kind, uids } = s
-      if (id in newSubscriptions) {
-        uids.forEach((uid: any) => {
-          newSubscriptions[id].add({ kind, uid })
-        })
-      } else {
-        newSubscriptions[id] = new Set(uids.map((uid: any) => ({ kind, uid })))
+    if (!simple) {
+      action.subscriptions.forEach((s: { id: any; kind: any; uids: any }) => {
+        const { id, kind, uids } = s
+        if (id in newSubscriptions) {
+          uids.forEach((uid: any) => {
+            newSubscriptions[id].add({ kind, uid })
+          })
+        } else {
+          newSubscriptions[id] = new Set(
+            uids.map((uid: any) => ({ kind, uid }))
+          )
+        }
+      })
+
+      return {
+        ...state,
+        entries: newEntries,
+        subscriptions: newSubscriptions
       }
-    })
+    }
 
     return {
       ...state,
-      entries: newEntries,
-      subscriptions: newSubscriptions
+      entries: newEntries
     }
   },
   [INCREMENT](state: any[], action: { entries: any[] }) {
@@ -317,14 +408,8 @@ const actionsMap = {
       statuses: newStatuses
     }
   },
-  [SUBSCRIBE](
-    state: {
-      idsToPrune: any
-      subscribers: { [x: string]: { add: (arg0: any) => any } }
-      uids: any
-    },
-    action: { id: any; subscribers: any[] }
-  ) {
+  [SUBSCRIBE](state: CacheState, action: { id: any; subscribers: any[] }) {
+    if (state.simple) return state
     const newIdsToPrune = new Set([...state.idsToPrune])
     newIdsToPrune.delete(action.id)
 
@@ -346,10 +431,8 @@ const actionsMap = {
       idsToPrune: newIdsToPrune
     }
   },
-  [UNSUBSCRIBE_SUCCEEDED](
-    state: { subscribers: any; uids: any },
-    action: { unsubscribers: any[] }
-  ) {
+  [UNSUBSCRIBE_SUCCEEDED](state: CacheState, action: { unsubscribers: any[] }) {
+    if (state.simple) return state
     const newSubscribers = { ...state.subscribers }
     const newUids = { ...state.uids }
 
@@ -367,7 +450,8 @@ const actionsMap = {
       subscribers: newSubscribers
     }
   },
-  [REMOVE](state: { idsToPrune: any }, action: { ids: any[] }) {
+  [REMOVE](state: CacheState, action: { ids: any[] }) {
+    if (state.simple) return state
     const newIdsToPrune = new Set([...state.idsToPrune])
     action.ids.forEach((id: any) => {
       newIdsToPrune.add(id)
@@ -378,17 +462,8 @@ const actionsMap = {
       idsToPrune: newIdsToPrune
     }
   },
-  [REMOVE_SUCCEEDED](
-    state: {
-      entries: any
-      statuses: any
-      uids: any
-      subscribers: any
-      subscriptions: any
-      idsToPrune: any
-    },
-    action: { ids: any[] }
-  ) {
+  [REMOVE_SUCCEEDED](state: CacheState, action: { ids: any[] }) {
+    if (state.simple) return state
     const newEntries = { ...state.entries }
     const newStatuses = { ...state.statuses }
     const newUids = { ...state.uids }
@@ -409,7 +484,7 @@ const actionsMap = {
         delete newStatuses[actionId]
         delete newSubscribers[actionId]
         delete newSubscriptions[actionId]
-        newIdsToPrune.delete(actionId)
+        newIdsToPrune.delete(actionId as number)
       })
     }
 
@@ -423,7 +498,8 @@ const actionsMap = {
       idsToPrune: newIdsToPrune
     }
   },
-  [SET_EXPIRED](state: any[], action: { id: string | number }) {
+  [SET_EXPIRED](state: CacheState, action: { id: string | number }) {
+    if (state.simple) return state
     const newEntries = { ...state.entries }
     if (newEntries[action.id]) {
       newEntries[action.id] = {

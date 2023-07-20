@@ -5,7 +5,8 @@ import {
   cacheActions,
   cacheSelectors,
   cacheConfig,
-  FeatureFlags
+  FeatureFlags,
+  IntKeys
 } from '@audius/common'
 import { pick } from 'lodash'
 import {
@@ -326,21 +327,42 @@ function* watchRemove() {
 
 function* initializeCacheType() {
   const remoteConfig = yield getContext('remoteConfigInstance')
+  const getFeatureEnabled = yield getContext('getFeatureEnabled')
+  const isNativeMobile = yield getContext('isNativeMobile')
   yield call(remoteConfig.waitForRemoteConfig)
-  const fastCache = yield call(
-    remoteConfig.getFeatureEnabled,
-    FeatureFlags.FAST_CACHE
+
+  const fastCache = yield call(getFeatureEnabled, FeatureFlags.FAST_CACHE)
+  const fastMobileCache = yield call(
+    getFeatureEnabled,
+    FeatureFlags.FAST_MOBILE_CACHE
   )
   const safeFastCache = yield call(
-    remoteConfig.getFeatureEnabled,
+    getFeatureEnabled,
     FeatureFlags.SAFE_FAST_CACHE
   )
 
-  if (fastCache) {
-    yield put(cacheActions.setCacheType({ cacheType: 'fast' }))
+  let cacheType = 'normal'
+
+  if (fastCache || (isNativeMobile && fastMobileCache)) {
+    cacheType = 'fast'
   } else if (safeFastCache) {
-    yield put(cacheActions.setCacheType({ cacheType: 'safe-fast' }))
+    cacheType = 'safe-fast'
   }
+
+  const cacheEntryTTL =
+    remoteConfig.getRemoteVar(IntKeys.CACHE_ENTRY_TTL) || DEFAULT_ENTRY_TTL
+
+  const simpleCache = yield call(getFeatureEnabled, FeatureFlags.SIMPLE_CACHE)
+
+  console.log('simple cache?', simpleCache)
+
+  yield put(
+    cacheActions.setCacheConfig({
+      cacheType,
+      entryTTL: cacheEntryTTL,
+      simple: simpleCache
+    })
+  )
 }
 
 const sagas = () => {

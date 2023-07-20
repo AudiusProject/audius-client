@@ -17,7 +17,14 @@ export const UNSUBSCRIBE_SUCCEEDED = 'CACHE/UNSUBSCRIBE_SUCCEEDED'
 export const REMOVE = 'CACHE/REMOVE'
 export const REMOVE_SUCCEEDED = 'CACHE/REMOVE_SUCCEEDED'
 export const SET_EXPIRED = 'CACHE/SET_EXPIRED'
-export const SET_CACHE_TYPE = 'CACHE/SET_CACHE_TYPE'
+export const SET_CACHE_CONFIG = 'CACHE/SET_CONFIG'
+
+type Entry<EntryT extends Metadata = Metadata> = {
+  id: ID
+  uid: UID
+  metadata: EntryT
+  timestamp?: number
+}
 
 /**
  * Signals to add an entry to the cache.
@@ -47,13 +54,6 @@ export type AddSuccededAction<EntryT extends Metadata = Metadata> = {
   replace?: boolean
   // persist optionally persists the cache entry to indexdb
   persist?: boolean
-}
-
-type Entry<EntryT extends Metadata = Metadata> = {
-  id: ID
-  uid: UID
-  metadata: EntryT
-  timestamp: number
 }
 
 type EntriesByKind<EntryT extends Metadata = Metadata> = {
@@ -215,9 +215,13 @@ export const setExpired = (kind, id) => ({
 
 export type CacheType = 'normal' | 'fast' | 'safe-fast'
 
-export type SetCacheTypeAction = { cacheType: CacheType }
+export type SetCacheConfigAction = {
+  cacheType: CacheType
+  entryTTL: number
+  simple: boolean
+}
 
-export const setCacheType = (action: SetCacheTypeAction) => ({
-  type: SET_CACHE_TYPE,
-  ...action
+export const setCacheConfig = (config: SetCacheConfigAction) => ({
+  type: SET_CACHE_CONFIG,
+  ...config
 })
