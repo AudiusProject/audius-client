@@ -9,6 +9,7 @@ import IconHidden from 'app/assets/images/iconHidden.svg'
 import IconSpecialAccess from 'app/assets/images/iconSpecialAccess.svg'
 import IconStar from 'app/assets/images/iconStar.svg'
 import { makeStyles } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
 import { useThemeColors } from 'app/utils/theme'
 
 const useStyles = makeStyles(({ spacing }) => ({
@@ -96,7 +97,12 @@ export const DogEar = (props: DogEarProps) => {
   return (
     <View style={[styles.container, borderOffsetStyle, style]}>
       <DogEarRectangle fill={colors[0]} style={styles.rectangle} />
-      <Icon width={16} height={16} fill={staticWhite} style={styles.icon} />
+      <Icon
+        width={spacing(4)}
+        height={spacing(4)}
+        fill={staticWhite}
+        style={styles.icon}
+      />
     </View>
   )
 }
