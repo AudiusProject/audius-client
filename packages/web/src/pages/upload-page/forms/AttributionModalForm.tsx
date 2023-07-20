@@ -148,7 +148,7 @@ const AttributionModalFields = () => {
   )
 
   return (
-    <div>
+    <div className={cn(styles.col, styles.gap4)}>
       <SwitchRowField
         name={IS_AI_ATTRIBUTED}
         header={messages.aiGenerated.header}
@@ -184,7 +184,9 @@ const AttributionModalFields = () => {
       <div className={cn(styles.col, styles.gap6)}>
         <div className={typeStyles.titleLarge}>{messages.licenseType}</div>
         <div className={styles.attributionCommercialRow}>
-          <div className={cn(styles.col, styles.gap2)}>
+          <div
+            className={cn(styles.col, styles.gap2, styles.attributionRowItem)}
+          >
             <div className={typeStyles.titleMedium}>
               {messages.allowAttribution.header}
             </div>
@@ -194,8 +196,12 @@ const AttributionModalFields = () => {
               onSelectOption={setAllowAttribution}
             />
           </div>
-          <Divider type='vertical' />
-          <div className={cn(styles.col, styles.gap2)}>
+          <Divider className={styles.verticalDivider} type='vertical' />
+          <div
+            className={cn(styles.col, styles.gap2, styles.attributionRowItem, {
+              [styles.disabled]: !allowAttribution
+            })}
+          >
             <div className={typeStyles.titleMedium}>
               {messages.commercialUse.header}
             </div>
@@ -208,8 +214,12 @@ const AttributionModalFields = () => {
             />
           </div>
         </div>
-        <div>
-          <div className={typeStyles.titleMedium}>
+        <div className={cn(styles.col, styles.gap2)}>
+          <div
+            className={cn(typeStyles.titleMedium, {
+              [styles.disabled]: !allowAttribution
+            })}
+          >
             {messages.derivativeWorks.header}
           </div>
           <SegmentedControl

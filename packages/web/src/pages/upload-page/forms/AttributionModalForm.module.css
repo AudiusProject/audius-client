@@ -28,4 +28,17 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  gap: var(--unit-3);
+}
+
+.attributionRowItem {
+  flex-grow: 1;
+}
+
+.verticalDivider {
+  height: auto;
+}
+
+.disabled {
+  opacity: 0.5;
 }
