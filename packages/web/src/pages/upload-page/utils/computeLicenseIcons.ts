@@ -1,13 +1,12 @@
-import type { ComponentType } from 'react'
+import type { ComponentType, SVGProps } from 'react'
 
 import type { Nullable } from '@audius/common'
-import { SvgProperties } from 'csstype'
 
-import IconAllowAttribution from 'assets/img/creativeCommons/by.svg'
-import IconCreativeCommons from 'assets/img/creativeCommons/cc.svg'
-import IconNonCommercialUse from 'assets/img/creativeCommons/nc.svg'
-import IconNoDerivatives from 'assets/img/creativeCommons/nd.svg'
-import IconShareAlike from 'assets/img/creativeCommons/sa.svg'
+import { ReactComponent as IconAllowAttribution } from 'assets/img/creativeCommons/by.svg'
+import { ReactComponent as IconCreativeCommons } from 'assets/img/creativeCommons/cc.svg'
+import { ReactComponent as IconNonCommercialUse } from 'assets/img/creativeCommons/nc.svg'
+import { ReactComponent as IconNoDerivatives } from 'assets/img/creativeCommons/nd.svg'
+import { ReactComponent as IconShareAlike } from 'assets/img/creativeCommons/sa.svg'
 
 export const computeLicenseIcons = (
   allowAttribution: boolean,
@@ -15,7 +14,7 @@ export const computeLicenseIcons = (
   derivativeWorks: Nullable<boolean>
 ) => {
   if (!allowAttribution) return null
-  const icons: [Icon: ComponentType<SvgProperties>, key: string][] = [
+  const icons: [Icon: ComponentType<SVGProps<SVGSVGElement>>, key: string][] = [
     [IconCreativeCommons, 'cc'],
     [IconAllowAttribution, 'by']
   ]

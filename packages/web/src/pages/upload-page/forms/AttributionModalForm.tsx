@@ -161,7 +161,7 @@ const AttributionModalFields = () => {
         />
       </SwitchRowField>
       <Divider />
-      <div className={styles.isCode}>
+      <div className={cn(styles.col, styles.gap4)}>
         <div
           className={typeStyles.titleLarge}
         >{`${messages.isrc.header} / ${messages.iswc.header}`}</div>
@@ -185,7 +185,7 @@ const AttributionModalFields = () => {
         <div className={typeStyles.titleLarge}>{messages.licenseType}</div>
         <div className={styles.attributionCommercialRow}>
           <div
-            className={cn(styles.col, styles.gap2, styles.attributionRowItem)}
+            className={cn(styles.attributionRowItem, styles.col, styles.gap2)}
           >
             <div className={typeStyles.titleMedium}>
               {messages.allowAttribution.header}
@@ -198,7 +198,7 @@ const AttributionModalFields = () => {
           </div>
           <Divider className={styles.verticalDivider} type='vertical' />
           <div
-            className={cn(styles.col, styles.gap2, styles.attributionRowItem, {
+            className={cn(styles.attributionRowItem, styles.col, styles.gap2, {
               [styles.disabled]: !allowAttribution
             })}
           >
@@ -231,18 +231,20 @@ const AttributionModalFields = () => {
           />
         </div>
       </div>
-      <div>
-        {/* {licenseIcons ? (
-          <div>
-            {licenseIcons.map(
-              ([Icon, key]: [ComponentType<SvgProperties>, string]) => (
+      <div className={styles.license}>
+        <div className={cn(styles.row, styles.gap2)}>
+          {licenseIcons ? (
+            <div className={cn(styles.row, styles.gap1)}>
+              {licenseIcons.map(([Icon, key]) => (
                 <Icon key={key} />
-              )
-            )}
-          </div>
-        ) : null} */}
-        <div>{licenseType}</div>
-        {licenseDescription ? <div>{licenseDescription}</div> : null}
+              ))}
+            </div>
+          ) : null}
+          <div className={typeStyles.titleMedium}>{licenseType}</div>
+        </div>
+        {licenseDescription ? (
+          <div className={typeStyles.bodySmall}>{licenseDescription}</div>
+        ) : null}
       </div>
     </div>
   )
