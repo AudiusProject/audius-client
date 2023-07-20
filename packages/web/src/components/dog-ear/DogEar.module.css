@@ -18,20 +18,22 @@
   height: 100%;
 }
 
-.gated path {
-  fill: var(--accent-blue);
+/* Note: dogEarRectangle has multiple `path` elements, but we only want to fill one of them.
+That path uses `fill='currentColor'`, allowing us to set `color` here instead of `fill` */
+.gated {
+  color: var(--accent-blue);
 }
 
-.purchase path {
-  fill: var(--special-light-green);
+.purchase {
+  color: var(--special-light-green);
 }
 
-.artistPick path {
-  fill: var(--secondary);
+.artistPick {
+  color: var(--secondary);
 }
 
-.hidden path {
-  fill: var(--neutral);
+.hidden {
+  color: var(--neutral);
 }
 
 .icon {
