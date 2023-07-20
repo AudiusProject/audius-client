@@ -233,7 +233,7 @@ export const DetailsTile = ({
       isOwner,
       premiumConditions
     })
-    return dogEarType ? <DogEar type={dogEarType} /> : null
+    return dogEarType ? <DogEar type={dogEarType} borderOffset={1} /> : null
   }
 
   const renderDetailLabels = () => {
