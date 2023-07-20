@@ -35,8 +35,7 @@ const useStyles = makeStyles(({ spacing }) => ({
       height: 0
     },
     shadowOpacity: 0.25,
-    shadowRadius: spacing(2),
-    elevation: 5
+    shadowRadius: spacing(2)
   },
 
   icon: {
