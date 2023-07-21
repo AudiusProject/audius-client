@@ -1,10 +1,10 @@
 .container {
+  --border-width: 1px;
   position: relative;
   background: var(--white);
-  border: 1px solid var(--neutral-light-8);
+  border: var(--border-width) solid var(--neutral-light-8);
   border-radius: var(--unit-2) var(--unit-2) 0px 0px;
   display: inline-flex;
-  overflow: hidden;
   width: 100%;
   cursor: pointer;
   transition: all 0.18s ease-in-out;
@@ -41,6 +41,12 @@
 
 .container.small {
   height: 124px;
+}
+
+.borderOffset {
+  position: absolute;
+  top: calc(-1 * var(--border-width));
+  left: calc(-1 * var(--border-width));
 }
 
 .order {
@@ -252,6 +258,22 @@
   display: inline-flex;
   width: 100%;
   justify-content: flex-start;
+}
+
+.artistPickLabelContainer {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: var(--unit-1);
+  color: var(--neutral-light-4);
+}
+
+.artistPickIcon {
+  height: var(--unit-4);
+  width: var(--unit-4);
+}
+.artistPickIcon path {
+  fill: var(--neutral-light-4);
 }
 
 /* Right side of the track tile */
