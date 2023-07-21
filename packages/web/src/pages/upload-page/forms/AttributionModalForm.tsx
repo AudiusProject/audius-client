@@ -7,6 +7,7 @@ import { Formik, useField } from 'formik'
 import { get, set } from 'lodash'
 
 import { ReactComponent as IconCreativeCommons } from 'assets/img/iconCreativeCommons.svg'
+import { AiAttributionDropdown } from 'components/ai-attribution-modal/AiAttributionDropdown'
 import { InputV2, InputV2Variant } from 'components/data-entry/InputV2'
 import { Divider } from 'components/divider'
 import typeStyles from 'components/typography/typography.module.css'
@@ -179,7 +180,10 @@ export const AttributionModalForm = () => {
 }
 
 const AttributionModalFields = () => {
-  const [aiUserIdField] = useField(AI_USER_ID)
+  const [aiUserIdField, , { setValue: setAiUserId }] = useField({
+    name: AI_USER_ID,
+    type: 'select'
+  })
   const [isrcField] = useField(ISRC)
   const [iswcField] = useField(ISWC)
 
@@ -209,10 +213,11 @@ const AttributionModalFields = () => {
         header={messages.aiGenerated.header}
         description={messages.aiGenerated.description}
       >
-        {/* TODO: should be a user search autofill field */}
-        <InputV2
+        <AiAttributionDropdown
           {...aiUserIdField}
-          placeholder={messages.aiGenerated.placeholder}
+          onSelect={(value: AttributionFormValues[typeof AI_USER_ID]) =>
+            setAiUserId(value)
+          }
         />
       </SwitchRowField>
       <Divider />
