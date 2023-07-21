@@ -339,14 +339,17 @@ const TrackHeader = ({
   )
 
   const renderDogEar = () => {
+    // Omitting isOwner and doesUserHaveAccess to ensure we always show premium DogEars
     const DogEarType = getDogEarType({
-      doesUserHaveAccess,
-      isOwner,
       isUnlisted,
       premiumConditions
     })
     if (!isLoading && DogEarType) {
-      return <DogEar type={DogEarType} className={styles.DogEar} />
+      return (
+        <div className={styles.borderOffset}>
+          <DogEar type={DogEarType} className={styles.DogEar} />
+        </div>
+      )
     }
     return null
   }
@@ -408,7 +411,7 @@ const TrackHeader = ({
       </div>
       {showPlay ? (
         <PlayButton
-          disabled={doesUserHaveAccess}
+          disabled={!doesUserHaveAccess}
           playing={isPlaying}
           onPlay={onPlay}
         />
@@ -432,7 +435,7 @@ const TrackHeader = ({
       <ActionButtonRow
         showRepost={showSocials}
         showFavorite={showSocials}
-        showShare={!isUnlisted || fieldVisibility.share}
+        showShare={!isUnlisted || fieldVisibility.share || isOwner}
         showOverflow
         shareToastDisabled
         isOwner={isOwner}

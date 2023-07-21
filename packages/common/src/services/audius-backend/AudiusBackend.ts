@@ -197,6 +197,7 @@ type AudiusBackendSolanaConfig = Partial<{
   solanaFeePayerAddress: string
   solanaTokenAddress: string
   waudioMintAddress: string
+  usdcMintAddress: string
   wormholeAddress: string
 }>
 
@@ -317,6 +318,7 @@ export const audiusBackend = ({
     solanaFeePayerAddress,
     solanaTokenAddress,
     waudioMintAddress,
+    usdcMintAddress,
     wormholeAddress
   },
   userNodeUrl,
@@ -363,7 +365,7 @@ export const audiusBackend = ({
     }
   }
 
-  async function preloadImage(url: string) {
+  async function preloadImage(url: string): Promise<boolean> {
     if (!preloadImageTimer) {
       const batchSize =
         getRemoteVar(IntKeys.IMAGE_QUICK_FETCH_PERFORMANCE_BATCH_SIZE) ??
@@ -387,35 +389,50 @@ export const audiusBackend = ({
         }
       )
     }
+    const start = preloadImageTimer.start()
+    const timeoutMs =
+      getRemoteVar(IntKeys.IMAGE_QUICK_FETCH_TIMEOUT_MS) ?? undefined
+    let timeoutId: Nullable<NodeJS.Timeout> = null
 
-    return new Promise<string | false>((resolve) => {
-      const start = preloadImageTimer.start()
+    try {
+      const response = await Promise.race([
+        fetch(url),
+        new Promise<Response>((_resolve, reject) => {
+          timeoutId = setTimeout(() => reject(new Error('Timeout')), timeoutMs)
+        })
+      ])
 
-      const timeoutMs =
-        getRemoteVar(IntKeys.IMAGE_QUICK_FETCH_TIMEOUT_MS) ?? undefined
-      const timeout = setTimeout(() => {
-        preloadImageTimer.end(start)
-        resolve(false)
-      }, timeoutMs)
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
 
-      // Avoid garbage collection by keeping a few images in an in-mem array
+      if (!response.ok) {
+        return false
+      }
+
+      const blob = await response.blob()
+      const objectUrl = URL.createObjectURL(blob)
       const image = new Image()
       avoidGC.push(image)
       if (avoidGC.length > IMAGE_CACHE_MAX_SIZE) avoidGC.shift()
 
-      image.onload = () => {
-        preloadImageTimer.end(start)
-        clearTimeout(timeout)
-        resolve(url)
-      }
+      await new Promise<void>((resolve, reject) => {
+        image.onload = () => {
+          preloadImageTimer.end(start)
+          resolve()
+        }
+        image.onerror = () => {
+          preloadImageTimer.end(start)
+          reject(new Error('Image loading error'))
+        }
+        image.src = objectUrl
+      })
 
-      image.onerror = () => {
-        preloadImageTimer.end(start)
-        clearTimeout(timeout)
-        resolve(false)
-      }
-      image.src = url
-    })
+      return true
+    } catch (error) {
+      preloadImageTimer.end(start)
+      return false
+    }
   }
 
   async function fetchCID(cid: CID, cache = true, asUrl = true) {
@@ -452,26 +469,25 @@ export const audiusBackend = ({
     }
 
     const storageNodeSelector = await getStorageNodeSelector()
-    const storageNode = storageNodeSelector.getNodes(cid)[0]
-    const imageUrl = `${storageNode}/content/${cidFileName}`
+    const storageNodes = storageNodeSelector.getNodes(cid)
+    for (const storageNode of storageNodes) {
+      const imageUrl = `${storageNode}/content/${cidFileName}`
 
-    if (imagePreloader) {
-      try {
-        const preloaded = await imagePreloader(imageUrl)
-        if (preloaded) {
+      if (imagePreloader) {
+        try {
+          const preloaded = await imagePreloader(imageUrl)
+          if (preloaded) {
+            return imageUrl
+          }
+        } catch (e) {
+          // swallow error and continue
+        }
+      } else {
+        const isSuccessful = await preloadImage(imageUrl)
+        if (isSuccessful) {
+          CIDCache.add(cidFileName, imageUrl)
           return imageUrl
         }
-      } catch (e) {
-        // swallow error and continue
-      }
-    } else {
-      // Attempt to fetch/load the image using the first creator node gateway
-      const preloadedImageUrl = await preloadImage(imageUrl)
-
-      // If the image is loaded, add to cache and return
-      if (preloadedImageUrl) {
-        CIDCache.add(cidFileName, preloadedImageUrl)
-        return preloadedImageUrl
       }
     }
     return ''
@@ -569,31 +585,6 @@ export const audiusBackend = ({
     didSelectDiscoveryProviderListeners.forEach((listener) =>
       listener(endpoint)
     )
-  }
-
-  function creatorNodeSelectionCallback(
-    primary: string,
-    secondaries: string[],
-    reason: string
-  ) {
-    recordAnalytics({
-      eventName: Name.CREATOR_NODE_SELECTION,
-      properties: {
-        endpoint: primary,
-        selectedAs: 'primary',
-        reason
-      }
-    })
-    secondaries.forEach((secondary) => {
-      recordAnalytics({
-        eventName: Name.CREATOR_NODE_SELECTION,
-        properties: {
-          endpoint: secondary,
-          selectedAs: 'secondary',
-          reason
-        }
-      })
-    })
   }
 
   async function sanityChecks(audiusLibs: any) {
@@ -768,6 +759,7 @@ export const audiusBackend = ({
       solanaWeb3Config: AudiusLibs.configSolanaWeb3({
         solanaClusterEndpoint,
         mintAddress: waudioMintAddress,
+        usdcMintAddress,
         solanaTokenAddress,
         claimableTokenPDA: claimableTokenPda,
         feePayerAddress: solanaFeePayerAddress,
@@ -811,20 +803,6 @@ export const audiusBackend = ({
 
   async function listCreatorNodes() {
     return audiusLibs.ServiceProvider.listCreatorNodes()
-  }
-
-  async function autoSelectCreatorNodes() {
-    return audiusLibs.ServiceProvider.autoSelectCreatorNodes({})
-  }
-
-  async function getSelectableCreatorNodes() {
-    const contentNodeBlockList = getBlockList(
-      StringKeys.CONTENT_NODE_BLOCK_LIST
-    )
-    return audiusLibs.ServiceProvider.getSelectableCreatorNodes(
-      /* whitelist */ null,
-      /* blacklist */ contentNodeBlockList
-    )
   }
 
   async function getAccount() {
@@ -3204,12 +3182,10 @@ export const audiusBackend = ({
     associateInstagramAccount,
     associateTwitterAccount,
     associateTikTokAccount,
-    autoSelectCreatorNodes,
     changePassword,
     clearNotificationBadges,
     confirmCredentials,
     createPlaylist,
-    creatorNodeSelectionCallback,
     currentDiscoveryProvider,
     dangerouslySetPlaylistOrder,
     deleteAlbum,
@@ -3252,7 +3228,6 @@ export const audiusBackend = ({
     getRandomFeePayer,
     getSafariBrowserPushEnabled,
     getSavedTracks,
-    getSelectableCreatorNodes,
     getSignature,
     getTrackImages,
     getUserEmail,

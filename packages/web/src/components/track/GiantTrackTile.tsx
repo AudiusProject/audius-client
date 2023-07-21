@@ -215,7 +215,8 @@ export const GiantTrackTile = ({
   }
 
   const renderShareButton = () => {
-    const shouldShow = (!isUnlisted && !isPublishing) || fieldVisibility.share
+    const shouldShow =
+      (!isUnlisted && !isPublishing) || fieldVisibility.share || isOwner
     return (
       shouldShow && (
         <EntityActionButton
@@ -457,13 +458,12 @@ export const GiantTrackTile = ({
   }
 
   const isLoading = loading || artworkLoading
+  // Omitting isOwner and doesUserHaveAccess so that we always show premium DogEars
   const dogEarType = isLoading
     ? undefined
     : getDogEarType({
         premiumConditions,
-        isUnlisted,
-        isOwner,
-        doesUserHaveAccess
+        isUnlisted
       })
 
   const overflowMenuExtraItems = []
