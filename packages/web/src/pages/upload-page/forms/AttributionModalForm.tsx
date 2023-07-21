@@ -10,6 +10,7 @@ import { ReactComponent as IconCreativeCommons } from 'assets/img/iconCreativeCo
 import { AiAttributionDropdown } from 'components/ai-attribution-modal/AiAttributionDropdown'
 import { InputV2, InputV2Variant } from 'components/data-entry/InputV2'
 import { Divider } from 'components/divider'
+import layoutStyles from 'components/layout/layout.module.css'
 import typeStyles from 'components/typography/typography.module.css'
 
 import { EditFormValues } from '../components/EditPageNew'
@@ -156,7 +157,7 @@ export const AttributionModalForm = () => {
   )
 
   const preview = (
-    <div className={cn(styles.col, styles.gap2)}>
+    <div className={cn(layoutStyles.col, layoutStyles.gap2)}>
       <label className={typeStyles.titleLarge}>{messages.title}</label>
       <div className={typeStyles.bodyMedium}>{messages.description}</div>
     </div>
@@ -207,7 +208,7 @@ const AttributionModalFields = () => {
   )
 
   return (
-    <div className={cn(styles.col, styles.gap4)}>
+    <div className={cn(layoutStyles.col, layoutStyles.gap4)}>
       <SwitchRowField
         name={IS_AI_ATTRIBUTED}
         header={messages.aiGenerated.header}
@@ -221,11 +222,11 @@ const AttributionModalFields = () => {
         />
       </SwitchRowField>
       <Divider />
-      <div className={cn(styles.col, styles.gap4)}>
+      <div className={cn(layoutStyles.col, layoutStyles.gap4)}>
         <div
           className={typeStyles.titleLarge}
         >{`${messages.isrc.header} / ${messages.iswc.header}`}</div>
-        <span className={cn(styles.row, styles.gap6)}>
+        <span className={cn(layoutStyles.row, layoutStyles.gap6)}>
           <InputV2
             {...isrcField}
             variant={InputV2Variant.ELEVATED_PLACEHOLDER}
@@ -241,11 +242,15 @@ const AttributionModalFields = () => {
         </span>
       </div>
       <Divider />
-      <div className={cn(styles.col, styles.gap6)}>
+      <div className={cn(layoutStyles.col, layoutStyles.gap6)}>
         <div className={typeStyles.titleLarge}>{messages.licenseType}</div>
         <div className={styles.attributionCommercialRow}>
           <div
-            className={cn(styles.attributionRowItem, styles.col, styles.gap2)}
+            className={cn(
+              styles.attributionRowItem,
+              layoutStyles.col,
+              layoutStyles.gap2
+            )}
           >
             <div className={typeStyles.titleMedium}>
               {messages.allowAttribution.header}
@@ -260,9 +265,14 @@ const AttributionModalFields = () => {
           </div>
           <Divider className={styles.verticalDivider} type='vertical' />
           <div
-            className={cn(styles.attributionRowItem, styles.col, styles.gap2, {
-              [styles.disabled]: !allowAttribution
-            })}
+            className={cn(
+              styles.attributionRowItem,
+              layoutStyles.col,
+              layoutStyles.gap2,
+              {
+                [styles.disabled]: !allowAttribution
+              }
+            )}
           >
             <div className={typeStyles.titleMedium}>
               {messages.commercialUse.header}
@@ -278,7 +288,7 @@ const AttributionModalFields = () => {
             />
           </div>
         </div>
-        <div className={cn(styles.col, styles.gap2)}>
+        <div className={cn(layoutStyles.col, layoutStyles.gap2)}>
           <div
             className={cn(typeStyles.titleMedium, {
               [styles.disabled]: !allowAttribution
@@ -298,9 +308,9 @@ const AttributionModalFields = () => {
         </div>
       </div>
       <div className={styles.license}>
-        <div className={cn(styles.row, styles.gap2)}>
+        <div className={cn(layoutStyles.row, layoutStyles.gap2)}>
           {licenseIcons ? (
-            <div className={cn(styles.row, styles.gap1)}>
+            <div className={cn(layoutStyles.row, layoutStyles.gap1)}>
               {licenseIcons.map(([Icon, key]) => (
                 <Icon key={key} />
               ))}
