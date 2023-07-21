@@ -62,7 +62,7 @@ export const CreatePlaylistScreen = () => {
   const dispatch = useDispatch()
   const handleSubmit = useCallback(
     (values: CreatePlaylistValues) => {
-      dispatch(createPlaylist(values, CreatePlaylistSource.FAVORITES_PAGE))
+      dispatch(createPlaylist(values, CreatePlaylistSource.LIBRARY_PAGE))
       toast({ content: messages.playlistCreatedToast })
       navigation.goBack()
     },

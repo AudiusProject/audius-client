@@ -159,14 +159,14 @@ export const TracksTab = () => {
     (isSaved: boolean, trackId: ID) => {
       if (trackId === undefined) return
       const action = isSaved ? unsaveTrack : saveTrack
-      dispatch(action(trackId, FavoriteSource.FAVORITES_PAGE))
+      dispatch(action(trackId, FavoriteSource.LIBRARY_PAGE))
     },
     [dispatch]
   )
 
   const togglePlay = useCallback(
     (uid: UID, id: ID) => {
-      dispatch(tracksActions.togglePlay(uid, id, PlaybackSource.FAVORITES_PAGE))
+      dispatch(tracksActions.togglePlay(uid, id, PlaybackSource.LIBRARY_PAGE))
     },
     [dispatch]
   )

@@ -55,7 +55,7 @@ export const PlaylistsTabPage = () => {
     dispatch(
       createPlaylist(
         { playlist_name: messages.newPlaylist },
-        CreatePlaylistSource.FAVORITES_PAGE
+        CreatePlaylistSource.LIBRARY_PAGE
       )
     )
   }, [dispatch])

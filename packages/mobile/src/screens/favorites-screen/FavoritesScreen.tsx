@@ -1,5 +1,5 @@
 import IconAlbum from 'app/assets/images/iconAlbum.svg'
-import IconFavorite from 'app/assets/images/iconFavorite.svg'
+import IconLibrary from 'app/assets/images/iconLibrary.svg'
 import IconNote from 'app/assets/images/iconNote.svg'
 import IconPlaylists from 'app/assets/images/iconPlaylists.svg'
 import { Screen, ScreenContent, ScreenHeader } from 'app/components/core'
@@ -12,7 +12,7 @@ import { PlaylistsTab } from './PlaylistsTab'
 import { TracksTab } from './TracksTab'
 
 const messages = {
-  header: 'Favorites'
+  header: 'Library'
 }
 
 const favoritesScreens = [
@@ -40,7 +40,7 @@ export const FavoritesScreen = () => {
     <Screen>
       <ScreenHeader
         text={messages.header}
-        icon={IconFavorite}
+        icon={IconLibrary}
         styles={{ icon: { marginLeft: 3 } }}
       >
         <FavoritesDownloadSection />
