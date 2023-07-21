@@ -23,13 +23,13 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
 
 export type LockedStatusBadgeProps = {
   locked: boolean
-  variant: 'purchase' | 'gated'
+  variant?: 'purchase' | 'gated'
 }
 
 /** Renders a small badge with locked or unlocked icon */
 export const LockedStatusBadge = ({
   locked,
-  variant
+  variant = 'gated'
 }: LockedStatusBadgeProps) => {
   const styles = useStyles()
   const staticWhite = useColor('staticWhite')
