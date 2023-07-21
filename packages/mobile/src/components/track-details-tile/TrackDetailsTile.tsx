@@ -47,7 +47,8 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
     borderColor: palette.neutralLight8
   },
   metadataContainer: {
-    gap: spacing(1)
+    gap: spacing(1),
+    flexShrink: 1
   },
   premiumContentLabelContainer: {
     ...flexRowCentered(),
@@ -55,9 +56,6 @@ const useStyles = makeStyles(({ spacing, palette }) => ({
   },
   premiumContentLabel: {
     letterSpacing: spacing(0.5)
-  },
-  title: {
-    marginRight: spacing(25)
   },
   trackOwnerContainer: {
     ...flexRowCentered(),
@@ -132,7 +130,6 @@ export const TrackDetailsTile = ({ trackId }: TrackDetailsTileProps) => {
             weight='bold'
             textTransform='capitalize'
             numberOfLines={1}
-            style={styles.title}
           >
             {track.title}
           </Text>
