@@ -76,7 +76,7 @@ export const PlaylistsTab = () => {
                   : null
               }
               showCreatePlaylistTile={!!isReachable}
-              createPlaylistSource={CreatePlaylistSource.FAVORITES_PAGE}
+              createPlaylistSource={CreatePlaylistSource.LIBRARY_PAGE}
             />
           </Animated.View>
         </>

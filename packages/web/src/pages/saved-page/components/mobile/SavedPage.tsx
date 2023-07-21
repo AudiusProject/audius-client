@@ -550,7 +550,7 @@ const SavedPage = ({
   useEffect(() => {
     setHeader(
       <>
-        <Header className={styles.header} title={title} />
+        <Header className={styles.header} title={<span>{title}</span>} />
         <div className={styles.tabBar}>{tabs}</div>
       </>
     )
