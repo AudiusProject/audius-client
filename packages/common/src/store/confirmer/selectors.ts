@@ -70,6 +70,7 @@ export const getShouldCancelCurrentCall = (
   ) {
     return true
   }
+  return false
 }
 
 export const getIndexEquals = (
