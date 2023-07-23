@@ -40,10 +40,9 @@ type USDCPurchaseBuyerNotificationProps = {
   notification: USDCPurchaseBuyerNotificationType
 }
 
-export const USDCPurchaseBuyerNotification = (
-  props: USDCPurchaseBuyerNotificationProps
-) => {
-  const { notification } = props
+export const USDCPurchaseBuyerNotification = ({
+  notification
+}: USDCPurchaseBuyerNotificationProps) => {
   const navigation = useNotificationNavigation()
   const track = useSelector((state) =>
     getNotificationEntity(state, notification)

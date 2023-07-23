@@ -56,7 +56,6 @@
 
 .iconTrending {
   composes: icon;
-  height: 24px;
 }
 
 .iconTrending g path {
@@ -69,7 +68,7 @@
 
 .iconCart {
   composes: icon;
-  height: 24px;
+  height: var(--unit-6);
 }
 
 .iconCart path {
