@@ -15,13 +15,15 @@ import LoadingSpinner from 'app/components/loading-spinner'
 import { useIsUSDCEnabled } from 'app/hooks/useIsUSDCEnabled'
 import { setVisibility } from 'app/store/drawers/slice'
 import { flexRowCentered, makeStyles } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
 import { useColor } from 'app/utils/theme'
 
 const { getPremiumTrackStatusMap } = premiumContentSelectors
 
 const messages = {
   unlocking: 'Unlocking',
-  locked: 'Locked'
+  locked: 'Locked',
+  price: (price: string) => `$${price}`
 }
 
 const useStyles = makeStyles(({ palette, spacing, typography }) => ({
@@ -81,13 +83,17 @@ export const LineupTileAccessStatus = ({
         {premiumTrackStatus === 'UNLOCKING' ? (
           <LoadingSpinner style={styles.loadingSpinner} fill={staticWhite} />
         ) : (
-          <IconLock fill={staticWhite} width={16} height={16} />
+          <IconLock fill={staticWhite} width={spacing(4)} height={spacing(4)} />
         )}
         <Text style={styles.text}>
           {isUSDCPurchase
             ? premiumTrackStatus === 'UNLOCKING'
               ? null
-              : formatUSDCWeiToUSDString(premiumConditions.usdc_purchase.price)
+              : messages.price(
+                  formatUSDCWeiToUSDString(
+                    premiumConditions.usdc_purchase.price
+                  )
+                )
             : premiumTrackStatus === 'UNLOCKING'
             ? messages.unlocking
             : messages.locked}

@@ -2,7 +2,6 @@ import { useCallback } from 'react'
 
 import {
   cacheTracksSelectors,
-  cacheUsersSelectors,
   formatUSDCWeiToUSDString,
   isPremiumContentUSDCPurchaseGated
 } from '@audius/common'
@@ -18,7 +17,6 @@ import { useThemeColors } from 'app/utils/theme'
 
 import { TrackDetailsTile } from '../track-details-tile'
 
-const { getUser } = cacheUsersSelectors
 const { getTrack } = cacheTracksSelectors
 
 const PREMIUM_TRACK_PURCHASE_MODAL_NAME = 'PremiumTrackPurchase'
@@ -28,7 +26,7 @@ const messages = {
   summary: 'Summary',
   artistCut: 'Artist Cut',
   audiusCut: 'Audius Cut',
-  always0: 'Always $0',
+  alwaysZero: 'Always $0',
   youPay: 'You Pay',
   price: (price: string) => `$${price}`,
   payToUnlock: 'Pay-To-Unlock',
@@ -64,7 +62,6 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
     borderRadius: spacing(2),
     backgroundColor: palette.neutralLight10
   },
-  trackDetailsContainer: {},
   summaryContainer: {
     borderColor: palette.neutralLight8,
     borderWidth: 1,
@@ -93,14 +90,6 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
     justifyContent: 'space-between',
     gap: spacing(2),
     marginBottom: spacing(2)
-  },
-  buy: {
-    fontSize: typography.fontSize.large,
-    lineHeight: typography.fontSize.large * 1.5
-  },
-  button: {
-    padding: spacing(4),
-    height: spacing(12)
   }
 }))
 
@@ -110,7 +99,6 @@ export const PremiumTrackPurchaseDrawer = () => {
   const { data } = useDrawer('PremiumTrackPurchase')
   const { trackId } = data
   const track = useSelector((state) => getTrack(state, { id: trackId }))
-  const user = useSelector((state) => getUser(state, { id: track?.owner_id }))
 
   const handleConfirmPress = useCallback(() => {
     console.log('buy button pressed')
@@ -118,7 +106,7 @@ export const PremiumTrackPurchaseDrawer = () => {
 
   const { premium_conditions: premiumConditions } = track ?? {}
 
-  if (!track || !isPremiumContentUSDCPurchaseGated(premiumConditions) || !user)
+  if (!track || !isPremiumContentUSDCPurchaseGated(premiumConditions))
     return null
 
   const price = formatUSDCWeiToUSDString(premiumConditions.usdc_purchase.price)
@@ -147,7 +135,7 @@ export const PremiumTrackPurchaseDrawer = () => {
           </View>
           <View style={styles.summaryRow}>
             <Text>{messages.audiusCut}</Text>
-            <Text>{messages.always0}</Text>
+            <Text>{messages.alwaysZero}</Text>
           </View>
           <View style={[styles.summaryRow, styles.lastRow, styles.greyRow]}>
             <Text weight='bold'>{messages.youPay}</Text>
@@ -161,7 +149,7 @@ export const PremiumTrackPurchaseDrawer = () => {
             <Text weight='heavy' textTransform='uppercase' fontSize='small'>
               {messages.payToUnlock}
             </Text>
-            <LockedStatusBadge locked={true} />
+            <LockedStatusBadge locked />
           </View>
           <Text>{messages.disclaimer}</Text>
         </View>
@@ -169,10 +157,7 @@ export const PremiumTrackPurchaseDrawer = () => {
           title={messages.buy(price)}
           onPress={handleConfirmPress}
           variant={'primary'}
-          styles={{
-            root: styles.button,
-            text: styles.buy
-          }}
+          size='large'
           color={specialLightGreen1}
           fullWidth
         />
