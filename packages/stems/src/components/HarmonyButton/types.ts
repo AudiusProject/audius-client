@@ -3,7 +3,7 @@ import { ComponentPropsWithoutRef, ReactNode } from 'react'
 import { ColorValue } from 'styles/colors'
 
 export enum HarmonyButtonType {
-  DEFAULT = 'default',
+  PRIMARY = 'primary',
   SECONDARY = 'secondary',
   TERTIARY = 'tertiary',
   DESTRUCTIVE = 'destructive',

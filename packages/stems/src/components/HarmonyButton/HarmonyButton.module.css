@@ -2,6 +2,8 @@
 .button {
   --button-color: var(--primary);
   --text-color: var(--static-white);
+  --overlay-color: transparent;
+  --overlay-opacity: 0;
   align-items: center;
   border: 1px solid var(--button-color);
   border-radius: var(--unit-1);
@@ -31,6 +33,24 @@
 .button:active {
   transition: all var(--press);
   transform: scale(0.98);
+}
+
+.button.disabled {
+  opacity: .45;
+}
+
+/* Overlay used for hover/press styling */
+.overlay::before {
+  content: '';
+  position: absolute;
+  display: block;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--overlay-color, transparent);
+  opacity: var(--overlay-opacity, 0);
+  pointer-events: none;
 }
 
 .icon path {
@@ -103,36 +123,20 @@
 
 /* === Color Variants === */
 
-/* Default */
-.button.default {
-  --overlay-color: transparent;
-  --overlay-opacity: 0;
+/* Primary */
+.button.primary {
   --text-color: var(--static-white);
   --button-color: var(--primary);
   box-shadow: var(--shadow-near);
 }
 
-/* Overlay used for hover/press styling */
-.button.default::before {
-  content: '';
-  position: absolute;
-  display: block;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--overlay-color, transparent);
-  opacity: var(--overlay-opacity, 0);
-  pointer-events: none;
-}
-
-.button.default:hover {
+.button.primary:hover {
   --overlay-color: var(--static-white);
   --overlay-opacity: 0.1;
   box-shadow: var(--shadow-mid);
 }
 
-.button.default:active {
+.button.primary:active {
   --overlay-color: var(--static-black);
   --overlay-opacity: 0.2;
   box-shadow: none;
@@ -165,27 +169,34 @@
   box-shadow: var(--shadow-mid);
 }
 .button.tertiary:active {
-  /* linear-gradient background? */
-  background: linear-gradient(
-      0deg,
-      rgba(0, 0, 0, 0.02) 0%,
-      rgba(0, 0, 0, 0.02) 100%
-    ),
-    var(--static-white);
+  --overlay-color: var(--static-black);
+  --overlay-opacity: .2;
 }
 
 /* Destructive */
 .button.destructive {
+  --button-color: var(--accent-red);
+  --text-color: var(--accent-red);
 }
 .button.destructive:hover {
+  background: var(--button-color);
+  --text-color: var(--static-white);
 }
 .button.destructive:active {
+  --button-color: var(--accent-red-dark-1);
+  background: var(--button-color);
+  --text-color: var(--static-white);
 }
 
 /* Ghost */
 .button.ghost {
+  --button-color: var(--neutral-light-5);
+  --text-color: var(--text-default);
 }
 .button.ghost:hover {
+  --button-color: var(--neutral);
 }
 .button.ghost:active {
+  --button-color: var(--neutral-light-5);
+  background: var(--background-surface-2);
 }

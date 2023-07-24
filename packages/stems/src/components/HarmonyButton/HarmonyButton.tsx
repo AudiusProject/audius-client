@@ -20,7 +20,7 @@ const SIZE_STYLE_MAP: { [k in HarmonyButtonSize]: string } = {
 }
 
 const TYPE_STYLE_MAP: { [k in HarmonyButtonType]: string } = {
-  [HarmonyButtonType.DEFAULT]: styles.default,
+  [HarmonyButtonType.PRIMARY]: styles.primary,
   [HarmonyButtonType.SECONDARY]: styles.secondary,
   [HarmonyButtonType.TERTIARY]: styles.tertiary,
   [HarmonyButtonType.DESTRUCTIVE]: styles.destructive,
@@ -36,7 +36,7 @@ export const HarmonyButton = forwardRef<HTMLButtonElement, HarmonyButtonProps>(
     {
       color,
       text,
-      variant = HarmonyButtonType.DEFAULT,
+      variant = HarmonyButtonType.PRIMARY,
       size = HarmonyButtonSize.DEFAULT,
       leftIcon,
       rightIcon,
