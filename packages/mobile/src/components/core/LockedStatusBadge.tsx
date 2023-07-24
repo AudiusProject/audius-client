@@ -10,6 +10,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   root: {
     backgroundColor: palette.accentBlue,
     paddingHorizontal: spacing(2),
+    paddingVertical: 1,
     borderRadius: spacing(10),
     justifyContent: 'center'
   },
