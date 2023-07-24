@@ -5,6 +5,7 @@ import {
   cacheSelectors,
   cacheConfig,
   FeatureFlags,
+  confirmerSelectors,
   IntKeys
 } from '@audius/common'
 import {
@@ -18,6 +19,7 @@ import {
 
 const { CACHE_PRUNE_MIN } = cacheConfig
 const { getCache } = cacheSelectors
+const { getConfirmCalls } = confirmerSelectors
 
 const DEFAULT_ENTRY_TTL = 1 /* min */ * 30 /* seconds */ * 1000 /* ms */
 
