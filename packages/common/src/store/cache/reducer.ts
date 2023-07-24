@@ -180,7 +180,7 @@ const updateImageCache = (existing: Metadata, next: Metadata, merged: any) => {
 }
 
 const addEntries = (state: CacheState, entries: any[], replace?: boolean) => {
-  const { cacheType, simple } = state
+  const { cacheType, simple, entryTTL } = state
   const newEntries = { ...state.entries }
   const newUids = { ...state.uids }
   const newSubscribers = simple ? {} : { ...state.subscribers }
@@ -200,11 +200,10 @@ const addEntries = (state: CacheState, entries: any[], replace?: boolean) => {
     ) {
       // do nothing
     } else if (replace) {
-      console.log('calling replace')
       newEntries[entity.id] = wrapEntry(entity.metadata)
     } else if (
       existing &&
-      _timestamp + DEFAULT_ENTRY_TTL > now &&
+      _timestamp + entryTTL > now &&
       cacheType === 'fast'
     ) {
       // do nothing
@@ -254,70 +253,6 @@ const addEntries = (state: CacheState, entries: any[], replace?: boolean) => {
     subscribers: newSubscribers,
     idsToPrune: newIdsToPrune
   }
-  // const { cacheType } = state
-  // const newEntries = { ...state.entries }
-  // const newUids = { ...state.uids }
-  // const newSubscribers = { ...state.subscribers }
-  // const newIdsToPrune = new Set([...state.idsToPrune])
-  // const now = Date.now()
-
-  // for (let i = 0; i < entries.length; i++) {
-  //   const entity = entries[i]
-  //   const { metadata: existing, _timestamp } = newEntries[entity.id] ?? {}
-
-  //   // Don't add if block number is < existing
-  //   if (
-  //     existing &&
-  //     existing.blocknumber &&
-  //     entity.metadata.blocknumber &&
-  //     existing.blocknumber > entity.metadata.blocknumber
-  //   ) {
-  //     // do nothing
-  //   } else if (replace) {
-  //     newEntries[entity.id] = wrapEntry(entity.metadata)
-  //   } else if (
-  //     existing &&
-  //     _timestamp + DEFAULT_ENTRY_TTL > now &&
-  //     cacheType === 'fast'
-  //   ) {
-  //     // do nothing
-  //   } else if (existing) {
-  //     let newMetadata = mergeWith(
-  //       {},
-  //       existing,
-  //       entity.metadata,
-  //       mergeCustomizer
-  //     )
-  //     newMetadata = updateImageCache(existing, entity.metadata, newMetadata)
-  //     if (cacheType === 'safe-fast' && isEqual(existing, newMetadata)) {
-  //       // do nothing
-  //     } else {
-  //       newEntries[entity.id] = wrapEntry(newMetadata, now)
-  //     }
-  //   } else {
-  //     newEntries[entity.id] = {
-  //       _timestamp: entity.timestamp ?? now,
-  //       metadata: entity.metadata
-  //     }
-  //   }
-
-  //   newUids[entity.uid] = entity.id
-  //   if (entity.id in newSubscribers) {
-  //     newSubscribers[entity.id].add(entity.uid)
-  //   } else {
-  //     newSubscribers[entity.id] = new Set([entity.uid])
-  //   }
-
-  //   newIdsToPrune.delete(entity.id)
-  // }
-
-  // return {
-  //   ...state,
-  //   entries: newEntries,
-  //   uids: newUids,
-  //   subscribers: newSubscribers,
-  //   idsToPrune: newIdsToPrune
-  // }
 }
 
 const actionsMap = {

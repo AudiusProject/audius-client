@@ -6,7 +6,7 @@ import type {
   UserMetadata
 } from '@audius/common'
 import { cacheActions, Kind, makeUid } from '@audius/common'
-import { call, select, put } from 'typed-redux-saga'
+import { call, put, select } from 'typed-redux-saga'
 
 import {
   getCollectionJson,

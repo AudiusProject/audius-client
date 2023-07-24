@@ -106,7 +106,8 @@ export const useFetchCollectionLineup = (
         metadata: track
       }))
 
-      dispatch(cacheActions.add(Kind.TRACKS, cacheTracks, false, true))
+      // // @ts-expect-error
+      // dispatch(cacheActions.add(Kind.TRACKS, cacheTracks, false, true))
 
       dispatch(
         collectionPageLineupActions.fetchLineupMetadatasSucceeded(

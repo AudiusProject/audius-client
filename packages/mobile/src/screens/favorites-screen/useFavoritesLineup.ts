@@ -55,7 +55,8 @@ export const useFavoritesLineup = (fetchLineup: () => void) => {
         metadata: track
       }))
 
-      dispatch(cacheActions.add(Kind.TRACKS, cacheTracks, false, true))
+      // // @ts-expect-error
+      // dispatch(cacheActions.add(Kind.TRACKS, cacheTracks, false, true))
 
       // Reorder lineup tracks according to favorite time
       const sortedTracks = orderBy(lineupTracks, (track) => track.dateSaved, [

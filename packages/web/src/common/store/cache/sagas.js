@@ -1,15 +1,12 @@
 import {
   Status,
   makeUids,
-  getIdFromKindId,
   cacheActions,
   cacheSelectors,
   cacheConfig,
   FeatureFlags,
-  IntKeys,
-  confirmerSelectors
+  IntKeys
 } from '@audius/common'
-import { pick } from 'lodash'
 import {
   all,
   call,
@@ -21,9 +18,8 @@ import {
 
 const { CACHE_PRUNE_MIN } = cacheConfig
 const { getCache } = cacheSelectors
-const { getConfirmCalls } = confirmerSelectors
 
-const DEFAULT_ENTRY_TTL = 5 /* min */ * 60 /* seconds */ * 1000 /* ms */
+const DEFAULT_ENTRY_TTL = 1 /* min */ * 30 /* seconds */ * 1000 /* ms */
 
 const isMissingFields = (cacheEntry, requiredFields) => {
   if (!requiredFields) return false
@@ -179,14 +175,15 @@ function* retrieveFromSourceThenCache({
       metadata: m
     }))
 
-    yield call(
-      add,
-      kind,
-      cacheMetadata,
-      // Rewrite the cache entry if we forced retrieving it from source
-      deleteExistingEntry,
-      // Always cache it persistently
-      true
+    yield put(
+      cacheActions.add(
+        kind,
+        cacheMetadata,
+        // Rewrite the cache entry if we forced retrieving it from source
+        deleteExistingEntry,
+        // Always cache it persistently
+        true
+      )
     )
 
     // Perform any side effects
@@ -206,51 +203,6 @@ function* retrieveFromSourceThenCache({
       )
     )
   }
-}
-
-export function* add(kind, entries, replace, persist) {
-  // Get cached things that are confirming
-  const confirmCalls = yield select(getConfirmCalls)
-  const cache = yield select(getCache, { kind })
-  const confirmCallsInCache = pick(
-    cache.entries,
-    Object.keys(confirmCalls).map((kindId) => getIdFromKindId(kindId))
-  )
-
-  const entriesToAdd = []
-  const entriesToSubscribe = []
-  entries.forEach((entry) => {
-    // If something is confirming and in the cache, we probably don't
-    // want to replace it (unless explicit) because we would lose client
-    // state, e.g. "has_current_user_reposted"
-    if (!replace && entry.id in confirmCallsInCache) {
-      entriesToSubscribe.push({ uid: entry.uid, id: entry.id })
-    } else {
-      entriesToAdd.push(entry)
-    }
-  })
-  if (entriesToAdd.length > 0) {
-    yield put(
-      cacheActions.addSucceeded({
-        kind,
-        entries: entriesToAdd,
-        replace,
-        persist
-      })
-    )
-  }
-  if (entriesToSubscribe.length > 0) {
-    yield put(cacheActions.subscribe(kind, entriesToSubscribe))
-  }
-}
-
-// Adds entries but first checks if they are confirming.
-// If they are, don't add or else we could be in an inconsistent state.
-function* watchAdd() {
-  yield takeEvery(cacheActions.ADD, function* (action) {
-    const { kind, entries, replace, persist } = action
-    yield call(add, kind, entries, replace, persist)
-  })
 }
 
 // Prune cache entries if there are no more subscribers.
@@ -355,8 +307,6 @@ function* initializeCacheType() {
 
   const simpleCache = yield call(getFeatureEnabled, FeatureFlags.SIMPLE_CACHE)
 
-  console.log('simple cache?', simpleCache)
-
   yield put(
     cacheActions.setCacheConfig({
       cacheType,
@@ -369,7 +319,6 @@ function* initializeCacheType() {
 const sagas = () => {
   return [
     initializeCacheType,
-    watchAdd,
     watchUnsubscribe,
     watchUnsubscribeSucceeded,
     watchRemove
