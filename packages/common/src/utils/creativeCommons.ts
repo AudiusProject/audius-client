@@ -1,6 +1,6 @@
 import { Nullable } from './typeUtils'
 
-export const ALL_RIGHTS_RESERVED_TYPE = 'All Rights Reserved - test123'
+export const ALL_RIGHTS_RESERVED_TYPE = 'All Rights Reserved'
 const ALL_RIGHTS_RESERVED_DESC = ''
 const ALL_RIGHTS_RESERVED = {
   licenseType: ALL_RIGHTS_RESERVED_TYPE,
