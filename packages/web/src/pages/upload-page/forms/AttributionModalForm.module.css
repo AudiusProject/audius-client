@@ -25,6 +25,7 @@
   border-radius: 8px;
   border: 1px solid var(--neutral-light-8);
   background: var(--neutral-light-10);
+  text-transform: capitalize;
 }
 
 .licenseIcons {
