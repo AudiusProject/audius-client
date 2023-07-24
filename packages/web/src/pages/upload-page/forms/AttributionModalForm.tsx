@@ -13,12 +13,12 @@ import { Divider } from 'components/divider'
 import layoutStyles from 'components/layout/layout.module.css'
 import typeStyles from 'components/typography/typography.module.css'
 
-import { EditFormValues } from '../components/EditPageNew'
 import { ModalField } from '../fields/ModalField'
 import { SwitchRowField } from '../fields/SwitchRowField'
 import { computeLicenseIcons } from '../utils/computeLicenseIcons'
 
 import styles from './AttributionModalForm.module.css'
+import { getTrackFieldName } from './utils'
 const { computeLicense } = creativeCommons
 
 const messages = {
@@ -96,19 +96,28 @@ type AttributionFormValues = {
   [DERIVATIVE_WORKS]: Nullable<boolean>
 }
 
-export const AttributionModalForm = () => {
-  const [{ value: aiUserId }, , { setValue: setAiUserId }] =
-    useField<EditFormValues[typeof AI_USER_ID]>(AI_USER_ID)
-  const [{ value: isrcValue }, , { setValue: setIsrc }] =
-    useField<EditFormValues[typeof ISRC]>(ISRC)
-  const [{ value: iswcValue }, , { setValue: setIswc }] =
-    useField<EditFormValues[typeof ISWC]>(ISWC)
+type AttributionModalFormProps = {
+  index: number
+}
+
+export const AttributionModalForm = (props: AttributionModalFormProps) => {
+  const { index } = props
+  const [{ value: aiUserId }, , { setValue: setAiUserId }] = useField(
+    getTrackFieldName(index, AI_USER_ID)
+  )
+  const [{ value: isrcValue }, , { setValue: setIsrc }] = useField(
+    getTrackFieldName(index, ISRC)
+  )
+  const [{ value: iswcValue }, , { setValue: setIswc }] = useField(
+    getTrackFieldName(index, ISWC)
+  )
   const [{ value: allowAttribution }, , { setValue: setAllowAttribution }] =
-    useField<boolean>(ALLOW_ATTRIBUTION)
-  const [{ value: commercialUse }, , { setValue: setCommercialUse }] =
-    useField<boolean>(COMMERCIAL_USE)
+    useField(getTrackFieldName(index, ALLOW_ATTRIBUTION))
+  const [{ value: commercialUse }, , { setValue: setCommercialUse }] = useField(
+    getTrackFieldName(index, COMMERCIAL_USE)
+  )
   const [{ value: derivativeWorks }, , { setValue: setDerivateWorks }] =
-    useField<Nullable<boolean>>(DERIVATIVE_WORKS)
+    useField(getTrackFieldName(index, DERIVATIVE_WORKS))
 
   const initialValues = useMemo(() => {
     const initialValues = {}

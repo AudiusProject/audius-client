@@ -6,14 +6,19 @@ import { TrackAvailabilityModalForm } from '../forms/TrackAvailabilityModalForm'
 
 import styles from './TrackModalArray.module.css'
 
-export const TrackModalArray = () => {
+type TrackModalArrayProps = {
+  index: number
+}
+
+export const TrackModalArray = (props: TrackModalArrayProps) => {
+  const { index } = props
   return (
     <div className={styles.root}>
-      <ReleaseDateModalForm />
-      <RemixModalForm />
-      <SourceFilesModalForm />
-      <TrackAvailabilityModalForm />
-      <AttributionModalForm />
+      <ReleaseDateModalForm index={index} />
+      <RemixModalForm index={index} />
+      <SourceFilesModalForm index={index} />
+      <TrackAvailabilityModalForm index={index} />
+      <AttributionModalForm index={index} />
     </div>
   )
 }

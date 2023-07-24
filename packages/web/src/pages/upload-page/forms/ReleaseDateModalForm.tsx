@@ -11,6 +11,7 @@ import { DatePickerField } from '../fields/DatePickerField'
 import { ModalField } from '../fields/ModalField'
 
 import styles from './ReleaseDateModalForm.module.css'
+import { getTrackFieldName } from './utils'
 const messages = {
   title: 'Release Date',
   description:
@@ -23,14 +24,20 @@ export type ReleaseDateFormValues = {
   [RELEASE_DATE]: moment.Moment
 }
 
+type ReleaseDateModalFormProps = {
+  index: number
+}
+
 /**
  * This is a subform that expects to exist within a parent TrackEdit form.
  * The useField calls reference the outer form's fields which much match the name constants.
  */
-export const ReleaseDateModalForm = () => {
+export const ReleaseDateModalForm = (props: ReleaseDateModalFormProps) => {
+  const { index } = props
   // Field from the outer form
-  const [{ value }, , { setValue }] =
-    useField<EditFormValues[typeof RELEASE_DATE]>(RELEASE_DATE)
+  const [{ value }, , { setValue }] = useField<
+    EditFormValues[typeof RELEASE_DATE]
+  >(getTrackFieldName(index, RELEASE_DATE))
 
   const initialValues = useMemo(() => {
     const initialValues = {}

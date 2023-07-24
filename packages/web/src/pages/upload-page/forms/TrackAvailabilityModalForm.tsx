@@ -28,7 +28,6 @@ import { ModalRadioItem } from 'components/modal-radio/ModalRadioItem'
 import { useFlag } from 'hooks/useRemoteConfig'
 import { defaultFieldVisibility } from 'pages/track-page/utils'
 
-import { EditFormValues } from '../components/EditPageNew'
 import { ModalField } from '../fields/ModalField'
 import {
   defaultHiddenFields,
@@ -43,6 +42,8 @@ import { CollectibleGatedFields } from '../fields/availability/collectible-gated
 
 import { REMIX_OF } from './RemixModalForm'
 import styles from './TrackAvailabilityModalForm.module.css'
+import { SingleTrackEditValues } from './types'
+import { getTrackFieldName } from './utils'
 const { getSupportedUserCollections } = collectiblesSelectors
 const { getUserId } = accountSelectors
 
@@ -88,28 +89,34 @@ export type TrackAvailabilityFormValues = {
   [FIELD_VISIBILITY]: Nullable<FieldVisibility>
 }
 
+type TrackAvailabilityModalFormProps = {
+  index: number
+}
+
 /**
  * A modal that allows you to set a track as collectible-gated, special access, or unlisted,
  * as well as toggle individual unlisted metadata field visibility.
  */
-export const TrackAvailabilityModalForm = () => {
+export const TrackAvailabilityModalForm = (
+  props: TrackAvailabilityModalFormProps
+) => {
+  const { index } = props
   // Fields from the outer form
   const [{ value: isUnlistedValue }, , { setValue: setIsUnlistedValue }] =
-    useField<EditFormValues[typeof IS_UNLISTED]>(IS_UNLISTED)
+    useField(getTrackFieldName(index, IS_UNLISTED))
   const [{ value: isPremiumValue }, , { setValue: setIsPremiumValue }] =
-    useField<EditFormValues[typeof IS_PREMIUM]>(IS_PREMIUM)
+    useField(getTrackFieldName(index, IS_PREMIUM))
   const [
     { value: premiumConditionsValue },
     ,
     { setValue: setPremiumConditionsValue }
-  ] = useField<EditFormValues[typeof PREMIUM_CONDITIONS]>(PREMIUM_CONDITIONS)
+  ] = useField(getTrackFieldName(index, PREMIUM_CONDITIONS))
   const [
     { value: fieldVisibilityValue },
     ,
     { setValue: setFieldVisibilityValue }
-  ] = useField<EditFormValues[typeof FIELD_VISIBILITY]>(FIELD_VISIBILITY)
-  const [{ value: remixOfValue }] =
-    useField<EditFormValues[typeof REMIX_OF]>(REMIX_OF)
+  ] = useField(getTrackFieldName(index, FIELD_VISIBILITY))
+  const [{ value: remixOfValue }] = useField(getTrackFieldName(index, REMIX_OF))
   const isRemix = !isEmpty(remixOfValue?.tracks)
 
   const initialValues = useMemo(() => {
@@ -205,7 +212,7 @@ export const TrackAvailabilityModalForm = () => {
 }
 
 type TrackAvailabilityFieldsProps = {
-  premiumConditions: EditFormValues[typeof PREMIUM_CONDITIONS]
+  premiumConditions: SingleTrackEditValues[typeof PREMIUM_CONDITIONS]
   isRemix: boolean
 }
 

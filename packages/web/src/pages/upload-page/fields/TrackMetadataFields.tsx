@@ -11,6 +11,8 @@ import UploadArtwork from 'components/upload/UploadArtwork'
 import { moodMap } from 'utils/Moods'
 import { resizeImage } from 'utils/imageProcessingUtil'
 
+import { getTrackFieldName } from '../forms/utils'
+
 import styles from './TrackMetadataFields.module.css'
 
 const MOODS = Object.keys(moodMap).map((k) => ({
@@ -26,16 +28,26 @@ type TrackMetadataFieldsProps = {
   /** Whether or not the preview is playing. */
   playing: boolean
   type: 'track'
+  index: number
 }
 
 const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
+  const { index } = props
   const [imageProcessingError, setImageProcessingError] = useState(false)
-  const [artworkField, , artworkHelpers] = useField('artwork')
-  const [titleField, titleMeta, titleHelpers] = useField('title')
-  const [genreField, genreMeta, genreHelpers] = useField('genre')
-  const [, moodMeta, moodHelpers] = useField('mood')
-  const [, tagsMeta, tagsHelpers] = useField('tags')
-  const [, descriptionMeta, descriptionHelpers] = useField('description')
+  const [artworkField, , artworkHelpers] = useField(
+    getTrackFieldName(index, 'artwork')
+  )
+  const [titleField, titleMeta, titleHelpers] = useField(
+    getTrackFieldName(index, 'title')
+  )
+  const [genreField, genreMeta, genreHelpers] = useField(
+    getTrackFieldName(index, 'genre')
+  )
+  const [, moodMeta, moodHelpers] = useField(getTrackFieldName(index, 'mood'))
+  const [, tagsMeta, tagsHelpers] = useField(getTrackFieldName(index, 'tags'))
+  const [, descriptionMeta, descriptionHelpers] = useField(
+    getTrackFieldName(index, 'description')
+  )
 
   const onDropArtwork = async (selectedFiles: File[], source: string) => {
     try {
@@ -64,7 +76,7 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
       <div className={styles.fields}>
         <div className={styles.trackName}>
           <Input
-            name='name'
+            name={getTrackFieldName(index, 'name')}
             id='track-name-input'
             placeholder={`${
               props.type.charAt(0).toUpperCase() + props.type.slice(1)

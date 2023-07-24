@@ -27,11 +27,11 @@ import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { fullTrackPage, stripBaseUrl } from 'utils/route'
 
-import { EditFormValues } from '../components/EditPageNew'
 import { ModalField } from '../fields/ModalField'
 import { SwitchRowField } from '../fields/SwitchRowField'
 
 import styles from './RemixModalForm.module.css'
+import { getTrackFieldName } from './utils'
 
 const { getUserId } = accountSelectors
 
@@ -67,16 +67,22 @@ export type RemixFormValues = {
   [REMIX_LINK]: string | null
 }
 
+type RemixModalFormProps = {
+  index: number
+}
+
 /**
  * This is a subform that expects to exist within a parent TrackEdit form.
  * The useField calls reference the outer form's fields which much match the name constants.
  */
-export const RemixModalForm = () => {
+export const RemixModalForm = (props: RemixModalFormProps) => {
+  const { index } = props
   // These refer to the field in the outer EditForm
   const [{ value: showRemixesValue }, , { setValue: setShowRemixesValue }] =
-    useField(SHOW_REMIXES)
-  const [{ value: remixOfValue }, , { setValue: setRemixOfValue }] =
-    useField<EditFormValues[typeof REMIX_OF]>(REMIX_OF)
+    useField(getTrackFieldName(index, SHOW_REMIXES))
+  const [{ value: remixOfValue }, , { setValue: setRemixOfValue }] = useField(
+    getTrackFieldName(index, REMIX_OF)
+  )
 
   const trackId = remixOfValue?.tracks[0].parent_track_id
   const { data: initialRemixedTrack } = useGetTrackById(
@@ -94,11 +100,11 @@ export const RemixModalForm = () => {
     set(
       initialValues,
       IS_REMIX,
-      !!remixOfValue?.tracks.some((track) => !!track)
+      !!remixOfValue?.tracks.some((track: number) => !!track)
     )
     set(initialValues, REMIX_LINK, remixLink)
     return initialValues as RemixFormValues
-  }, [showRemixesValue, remixLink, remixOfValue?.tracks])
+  }, [showRemixesValue, remixOfValue?.tracks, remixLink])
 
   const [url, setUrl] = useState<string>()
 
@@ -123,7 +129,7 @@ export const RemixModalForm = () => {
         })
       }
     },
-    [linkedTrack?.track_id, setShowRemixesValue, setRemixOfValue]
+    [setShowRemixesValue, setRemixOfValue, linkedTrack?.track_id]
   )
 
   const preview = (
