@@ -96,7 +96,11 @@ export const MultiTrackEditForm = (props: MultiTrackEditFormProps) => {
                   />
                 </div>
                 {isMultiTrack ? (
-                  <MultiTrackSidebar index={index} setIndex={setIndex} />
+                  <MultiTrackSidebar
+                    index={index}
+                    setIndex={setIndex}
+                    limit={tracks.length}
+                  />
                 ) : null}
               </div>
               <div className={styles.continue}>
