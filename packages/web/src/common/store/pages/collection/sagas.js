@@ -27,9 +27,11 @@ const { fetchCollection, fetchCollectionSucceeded, fetchCollectionFailed } =
 
 function* watchFetchCollection() {
   yield takeLatest(collectionActions.FETCH_COLLECTION, function* (action) {
+    console.log('in line 30 ')
     const { id: collectionId, permalink, fetchLineup } = action
     let retrievedCollections
     if (permalink) {
+      console.log('in hereee')
       retrievedCollections = yield call(
         retrieveCollectionByPermalink,
         permalink,
@@ -49,9 +51,12 @@ function* watchFetchCollection() {
       yield put(fetchCollectionFailed())
       return
     }
-    const collection = collections[collectionId]
+    console.log('heyooooo')
+    console.log(collections)
+    const identifier = collectionId || permalink
+    const collection = collections[identifier]
     const userUid = makeUid(Kind.USERS, collection.playlist_owner_id)
-    const collectionUid = collectionUids[collectionId]
+    const collectionUid = collectionUids[identifier]
     if (collection) {
       yield put(
         cacheActions.subscribe(Kind.USERS, [

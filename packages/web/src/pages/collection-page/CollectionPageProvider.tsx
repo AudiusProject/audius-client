@@ -853,7 +853,9 @@ function makeMapStateToProps() {
       status: getCollectionStatus(state) || '',
       order: getLineupOrder(state),
       userId: getUserId(state),
-      userPlaylists: getAccountCollections(state),
+      userPlaylists: getAccountCollections(state, {
+        permalinks: [getCollectionPermalink(state)]
+      }),
       currentQueueItem: getCurrentQueueItem(state),
       playing: getPlaying(state),
       buffering: getBuffering(state),
