@@ -24,9 +24,12 @@
   outline: none !important;
 }
 
-.button:not(.disabled):hover {
-  transition: all var(--hover);
-  transform: scale(1.04);
+/* Only add hover styles on devices which support it */
+@media (hover: hover) {
+  .button:not(.disabled):hover {
+    transition: all var(--hover);
+    transform: scale(1.04);
+  }
 }
 
 .button:not(.disabled):active {
@@ -170,7 +173,7 @@
 }
 .tertiary:active {
   --overlay-color: var(--static-black);
-  --overlay-opacity: .2;
+  --overlay-opacity: 0.2;
 }
 
 /* Destructive */
@@ -203,7 +206,6 @@
   background: var(--background-surface-2);
 }
 
-
 /* Disabled states */
 .primary.disabled {
   --button-color: var(--neutral-light-7);
@@ -214,5 +216,5 @@
 .tertiary.disabled,
 .destructive.disabled,
 .ghost.disabled {
-  opacity: .45;
+  opacity: 0.45;
 }
