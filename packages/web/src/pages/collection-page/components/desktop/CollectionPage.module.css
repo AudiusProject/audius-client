@@ -3,7 +3,7 @@
 }
 
 .pageContent {
-  max-width: calc(1080px + 16px) !important;
+  max-width: calc(1080px + var(--unit-4)) !important;
 }
 
 /* Body Content Wrapper */
