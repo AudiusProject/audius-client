@@ -105,15 +105,14 @@ export const TrackDetailsTile = ({ trackId }: TrackDetailsTileProps) => {
     ? PremiumContentType.COLLECTIBLE_GATED
     : PremiumContentType.SPECIAL_ACCESS
 
-  const headerAttributes: Record<
-    PremiumContentType,
-    {
+  const headerAttributes: {
+    [k in PremiumContentType]: {
       message: string
       icon: ComponentType<SvgProps>
       color: string
       colorString: keyof ThemeColors
     }
-  > = useMemo(() => {
+  } = useMemo(() => {
     return {
       [PremiumContentType.COLLECTIBLE_GATED]: {
         message: messages.collectibleGated,
