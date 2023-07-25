@@ -62,14 +62,12 @@ const Template: Story<HarmonyButtonProps> = (args) => (
   </div>
 )
 
-// TODO: disabled state for all variants
+// Primary
+export const Primary = Template.bind({})
 
-// Default
-export const Default = Template.bind({})
-
-// Default w/ color
-export const DefaultWithColor = Template.bind({})
-DefaultWithColor.args = { color: 'accentBlue' }
+// Primary w/ color
+export const PrimaryWithColor = Template.bind({})
+PrimaryWithColor.args = { color: 'accentBlue' }
 
 // Secondary
 export const Secondary = Template.bind({})
