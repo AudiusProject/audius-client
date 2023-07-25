@@ -94,14 +94,14 @@ export function* retrieve({
     call(getEntriesTimestamp, uniqueIds)
   ])
 
-  const cacheEntryTTL = yield select(getEntryTTL)
+  const entryTTL = yield select(getEntryTTL)
 
   const idsToFetch = []
   uniqueIds.forEach((id) => {
     const shouldFetch =
       !(id in cachedEntries) ||
       isMissingFields(cachedEntries[id], requiredFields) ||
-      isExpired(timestamps[id], cacheEntryTTL) ||
+      isExpired(timestamps[id], entryTTL) ||
       forceRetrieveFromSource
     if (shouldFetch) {
       idsToFetch.push(id)
