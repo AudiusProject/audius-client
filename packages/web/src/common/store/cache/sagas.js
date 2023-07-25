@@ -17,7 +17,7 @@ import {
 } from 'redux-saga/effects'
 
 const { CACHE_PRUNE_MIN } = cacheConfig
-const { getCache } = cacheSelectors
+const { getCache, getEntryTTL } = cacheSelectors
 
 const isMissingFields = (cacheEntry, requiredFields) => {
   if (!requiredFields) return false
@@ -94,9 +94,7 @@ export function* retrieve({
     call(getEntriesTimestamp, uniqueIds)
   ])
 
-  const entryTTL = yield select((state) => selectFromCache(state).entryTTL)
-
-  console.log({ entryTTL })
+  const entryTTL = yield select(getEntryTTL)
 
   const idsToFetch = []
   uniqueIds.forEach((id) => {
