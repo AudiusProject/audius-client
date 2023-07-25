@@ -16,8 +16,8 @@ export default {
 }
 
 const baseProps: HarmonyButtonProps = {
-  leftIcon: Icons.IconCampfire,
-  rightIcon: Icons.IconCampfire,
+  iconLeft: Icons.IconCampfire,
+  iconRight: Icons.IconCampfire,
   text: 'Click Me'
 }
 

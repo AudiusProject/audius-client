@@ -13,10 +13,22 @@ import {
   HarmonyButtonSize
 } from './types'
 
-const SIZE_STYLE_MAP: { [k in HarmonyButtonSize]: string } = {
-  [HarmonyButtonSize.SMALL]: styles.small,
-  [HarmonyButtonSize.DEFAULT]: styles.default,
-  [HarmonyButtonSize.LARGE]: styles.large
+const SIZE_STYLE_MAP: { [k in HarmonyButtonSize]: [string, string, string] } = {
+  [HarmonyButtonSize.SMALL]: [
+    styles.buttonSmall,
+    styles.iconSmall,
+    styles.textSmall
+  ],
+  [HarmonyButtonSize.DEFAULT]: [
+    styles.buttonDefault,
+    styles.iconDefault,
+    styles.textDefault
+  ],
+  [HarmonyButtonSize.LARGE]: [
+    styles.buttonLarge,
+    styles.iconLarge,
+    styles.textLarge
+  ]
 }
 
 const TYPE_STYLE_MAP: { [k in HarmonyButtonType]: string } = {
@@ -32,26 +44,22 @@ const TYPE_STYLE_MAP: { [k in HarmonyButtonType]: string } = {
  * include and position icons.
  */
 export const HarmonyButton = forwardRef<HTMLButtonElement, HarmonyButtonProps>(
-  function Button(
-    {
+  function HarmonyButton(props, ref) {
+    const {
       color,
       text,
       variant = HarmonyButtonType.PRIMARY,
       size = HarmonyButtonSize.DEFAULT,
-      leftIcon: LeftIconComponent,
-      rightIcon: RightIconComponent,
+      iconLeft: LeftIconComponent,
+      iconRight: RightIconComponent,
       disabled,
       widthToHideText,
       minWidth,
       className,
-      iconClassName,
-      textClassName,
       'aria-label': ariaLabelProp,
       fullWidth,
       ...other
-    },
-    ref
-  ) {
+    } = props
     const { isMatch: textIsHidden } = useMediaQueryListener(
       `(max-width: ${widthToHideText}px)`
     )
@@ -72,12 +80,14 @@ export const HarmonyButton = forwardRef<HTMLButtonElement, HarmonyButtonProps>(
         !disabled && color ? `var(${toCSSVariableName(color)})` : undefined
     }
 
+    const [buttonSizeClass, iconSizeClass, textSizeClass] = SIZE_STYLE_MAP[size]
+
     return (
       <button
         aria-label={getAriaLabel()}
         className={cn(
           styles.button,
-          SIZE_STYLE_MAP[size],
+          buttonSizeClass,
           TYPE_STYLE_MAP[variant],
           {
             [styles.disabled]: disabled,
@@ -91,13 +101,13 @@ export const HarmonyButton = forwardRef<HTMLButtonElement, HarmonyButtonProps>(
         {...other}
       >
         {LeftIconComponent ? (
-          <LeftIconComponent className={cn(iconClassName, styles.icon)} />
+          <LeftIconComponent className={cn(styles.icon, iconSizeClass)} />
         ) : null}
         {isTextVisible ? (
-          <span className={cn(styles.text, textClassName)}>{text}</span>
+          <span className={cn(styles.text, textSizeClass)}>{text}</span>
         ) : null}
         {RightIconComponent ? (
-          <RightIconComponent className={cn(iconClassName, styles.icon)} />
+          <RightIconComponent className={cn(styles.icon, iconSizeClass)} />
         ) : null}
       </button>
     )

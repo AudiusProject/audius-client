@@ -20,6 +20,9 @@ export enum HarmonyButtonSize {
 type BaseButtonProps = Omit<ComponentPropsWithoutRef<'button'>, 'children'>
 
 export type HarmonyButtonProps = {
+  /**
+   * Override the color of the button, only valid for the `PRIMARY` variant
+   */
   color?: ColorValue
   /**
    * The text of the button
@@ -39,12 +42,12 @@ export type HarmonyButtonProps = {
   /**
    * Optional icon element to include on the left side of the button
    */
-  leftIcon?: IconComponent
+  iconLeft?: IconComponent
 
   /**
    * Optional icon element to include on the right side of the button
    */
-  rightIcon?: IconComponent
+  iconRight?: IconComponent
 
   /**
    * The max width at which text will still be shown
@@ -62,14 +65,4 @@ export type HarmonyButtonProps = {
    * If provided, allow button to take up full width of container
    */
   fullWidth?: boolean
-
-  /**
-   * Class name to apply to the icon
-   */
-  iconClassName?: string
-
-  /**
-   * Class name to apply to the text label
-   */
-  textClassName?: string
 } & BaseButtonProps
