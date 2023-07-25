@@ -189,10 +189,10 @@ class CollectionPage extends Component<
 
     if (
       type === 'playlist' &&
-      this.state.playlistId &&
-      playlistUpdates.includes(this.state.playlistId)
+      this.props.playlistId &&
+      playlistUpdates.includes(this.props.playlistId)
     ) {
-      updatePlaylistLastViewedAt(this.state.playlistId)
+      updatePlaylistLastViewedAt(this.props.playlistId)
     }
 
     if (!prevProps.smartCollection && smartCollection) {
@@ -226,7 +226,7 @@ class CollectionPage extends Component<
     if (status === Status.ERROR) {
       if (
         params &&
-        params.collectionId === this.state.playlistId &&
+        params.collectionId === this.props.playlistId &&
         metadata?.playlist_owner_id !== this.props.userId
       ) {
         // Only route to not found page if still on the collection page and
@@ -520,7 +520,7 @@ class CollectionPage extends Component<
     uid: string,
     timestamp: number
   ) => {
-    const { playlistId } = this.state
+    const { playlistId } = this.props
     this.props.removeTrackFromPlaylist(
       trackId,
       playlistId as number,
@@ -613,11 +613,11 @@ class CollectionPage extends Component<
 
     this.props.updateLineupOrder(newOrder)
     this.setState({ initialOrder: newOrder })
-    this.props.orderPlaylist(this.state.playlistId!, trackIdAndTimes, newOrder)
+    this.props.orderPlaylist(this.props.playlistId!, trackIdAndTimes, newOrder)
   }
 
   onPublish = () => {
-    this.props.publishPlaylist(this.state.playlistId!)
+    this.props.publishPlaylist(this.props.playlistId!)
   }
 
   onSavePlaylist = (isSaved: boolean, playlistId: number) => {
@@ -655,18 +655,18 @@ class CollectionPage extends Component<
   }
 
   onHeroTrackEdit = () => {
-    if (this.state.playlistId)
-      this.props.onEditCollection(this.state.playlistId)
+    if (this.props.playlistId)
+      this.props.onEditCollection(this.props.playlistId)
   }
 
   onHeroTrackShare = () => {
-    const { playlistId } = this.state
+    const { playlistId } = this.props
     this.onSharePlaylist(playlistId!)
   }
 
   onHeroTrackSave = () => {
     const { userPlaylists, collection: metadata, smartCollection } = this.props
-    const { playlistId } = this.state
+    const { playlistId } = this.props
     const isSaved =
       (metadata && playlistId
         ? metadata.has_current_user_saved || playlistId in userPlaylists
@@ -682,7 +682,7 @@ class CollectionPage extends Component<
 
   onHeroTrackRepost = () => {
     const { collection: metadata } = this.props
-    const { playlistId } = this.state
+    const { playlistId } = this.props
     const isReposted = metadata ? metadata.has_current_user_reposted : false
     this.onRepostPlaylist(isReposted, playlistId!)
   }
@@ -749,7 +749,8 @@ class CollectionPage extends Component<
       onClickDescriptionInternalLink
     } = this.props
 
-    const { playlistId, allowReordering } = this.state
+    const { allowReordering } = this.state
+    const { playlistId } = this.props
 
     const {
       title = '',
@@ -853,9 +854,8 @@ function makeMapStateToProps() {
       status: getCollectionStatus(state) || '',
       order: getLineupOrder(state),
       userId: getUserId(state),
-      userPlaylists: getAccountCollections(state, {
-        permalinks: [getCollectionPermalink(state)]
-      }),
+      playlistId: getCollection(state)?.playlist_id,
+      userPlaylists: getAccountCollections(state),
       currentQueueItem: getCurrentQueueItem(state),
       playing: getPlaying(state),
       buffering: getBuffering(state),
