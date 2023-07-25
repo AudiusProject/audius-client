@@ -18,29 +18,28 @@
   text-align: center;
   user-select: none;
   white-space: nowrap;
-  background: var();
 }
 
 .button:focus {
   outline: none !important;
 }
 
-.button:hover {
+.button:not(.disabled):hover {
   transition: all var(--hover);
   transform: scale(1.04);
 }
 
-.button:active {
+.button:not(.disabled):active {
   transition: all var(--press);
   transform: scale(0.98);
 }
 
 .button.disabled {
-  opacity: .45;
+  pointer-events: none;
 }
 
 /* Overlay used for hover/press styling */
-.overlay::before {
+.button::before {
   content: '';
   position: absolute;
   display: block;
@@ -64,18 +63,18 @@
 /* === Sizes === */
 
 /* Small */
-.button.small {
+.small {
   gap: var(--unit-1);
   height: var(--unit-8);
   padding: var(--unit-2) var(--unit-3);
 }
 
-.icon.small {
+.small .icon {
   width: var(--unit-4);
-  height: var(--unit4);
+  height: var(--unit-4);
 }
 
-.text.small {
+.small .text {
   font-size: var(--font-s);
   font-weight: var(--font-bold);
   line-height: var(--unit-4);
@@ -83,18 +82,18 @@
 }
 
 /* Default */
-.button.default {
+.default {
   gap: var(--unit-2);
   height: var(--unit-12);
   padding: var(--unit-3) var(--unit-6);
 }
 
-.icon.default {
+.default .icon {
   width: var(--unit-5);
   height: var(--unit-5);
 }
 
-.text.default {
+.default .text {
   font-size: var(--font-l);
   font-weight: var(--font-bold);
   line-height: calc(4.5 * var(--unit));
@@ -102,18 +101,18 @@
 }
 
 /* Large */
-.button.large {
+.large {
   gap: var(--unit-2);
   height: var(--unit-15);
   padding: var(--unit-5) var(--unit-6);
 }
 
-.icon.large {
+.large .icon {
   width: var(--unit-6);
   height: var(--unit-6);
 }
 
-.text.large {
+.large .text {
   font-size: var(--font-xl);
   font-weight: var(--font-bold);
   line-height: var(--unit-5);
@@ -124,79 +123,96 @@
 /* === Color Variants === */
 
 /* Primary */
-.button.primary {
+.primary {
   --text-color: var(--static-white);
   --button-color: var(--primary);
+  background: var(--button-color);
   box-shadow: var(--shadow-near);
 }
 
-.button.primary:hover {
+.primary:hover {
   --overlay-color: var(--static-white);
   --overlay-opacity: 0.1;
   box-shadow: var(--shadow-mid);
 }
 
-.button.primary:active {
+.primary:active {
   --overlay-color: var(--static-black);
   --overlay-opacity: 0.2;
   box-shadow: none;
 }
 
 /* Secondary */
-.button.secondary {
+.secondary {
   --button-color: var(--neutral-light-5);
   --text-color: var(--text-default);
   background: transparent;
 }
 
-.button.secondary:hover {
+.secondary:hover {
   --button-color: var(--primary);
   --text-color: var(--primary);
 }
-.button.secondary:active {
+.secondary:active {
   --button-color: var(--primary-dark-2);
   --text-color: var(--primary-dark-2);
 }
 
 /* Tertiary */
-.button.tertiary {
-  background: var(--static-white);
+.tertiary {
   --button-color: var(--border-strong);
   --text-color: var(--secondary);
+  background: var(--static-white);
 }
-.button.tertiary:hover {
+.tertiary:hover {
   --text-color: var(--secondary-light-1);
   box-shadow: var(--shadow-mid);
 }
-.button.tertiary:active {
+.tertiary:active {
   --overlay-color: var(--static-black);
   --overlay-opacity: .2;
 }
 
 /* Destructive */
-.button.destructive {
+.destructive {
   --button-color: var(--accent-red);
   --text-color: var(--accent-red);
+  background: transparent;
 }
-.button.destructive:hover {
-  background: var(--button-color);
+.destructive:hover {
   --text-color: var(--static-white);
+  background: var(--button-color);
 }
-.button.destructive:active {
+.destructive:active {
   --button-color: var(--accent-red-dark-1);
-  background: var(--button-color);
   --text-color: var(--static-white);
+  background: var(--button-color);
 }
 
 /* Ghost */
-.button.ghost {
+.ghost {
   --button-color: var(--neutral-light-5);
   --text-color: var(--text-default);
+  background: transparent;
 }
-.button.ghost:hover {
+.ghost:hover {
   --button-color: var(--neutral);
 }
-.button.ghost:active {
+.ghost:active {
   --button-color: var(--neutral-light-5);
   background: var(--background-surface-2);
+}
+
+
+/* Disabled states */
+.primary.disabled {
+  --button-color: var(--neutral-light-7);
+  --text-color: var(--background-white);
+}
+
+.secondary.disabled,
+.tertiary.disabled,
+.destructive.disabled,
+.ghost.disabled {
+  opacity: .45;
 }

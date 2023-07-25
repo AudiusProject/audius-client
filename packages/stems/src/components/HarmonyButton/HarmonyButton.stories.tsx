@@ -16,15 +16,49 @@ export default {
 }
 
 const baseProps: HarmonyButtonProps = {
-  leftIcon: <Icons.IconPlay />,
+  leftIcon: Icons.IconCampfire,
+  rightIcon: Icons.IconCampfire,
   text: 'Click Me'
 }
 
 const Template: Story<HarmonyButtonProps> = (args) => (
-  <div style={{ alignItems: 'center', display: 'flex', gap: '16px' }}>
-    <HarmonyButton {...baseProps} size={HarmonyButtonSize.SMALL} {...args} />
-    <HarmonyButton {...baseProps} size={HarmonyButtonSize.DEFAULT} {...args} />
-    <HarmonyButton {...baseProps} size={HarmonyButtonSize.LARGE} {...args} />
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '16px',
+      alignItems: 'flex-start'
+    }}
+  >
+    <div style={{ alignItems: 'center', display: 'flex', gap: '16px' }}>
+      <HarmonyButton {...baseProps} size={HarmonyButtonSize.SMALL} {...args} />
+      <HarmonyButton
+        {...baseProps}
+        size={HarmonyButtonSize.DEFAULT}
+        {...args}
+      />
+      <HarmonyButton {...baseProps} size={HarmonyButtonSize.LARGE} {...args} />
+    </div>
+    <div style={{ alignItems: 'center', display: 'flex', gap: '16px' }}>
+      <HarmonyButton
+        {...baseProps}
+        size={HarmonyButtonSize.SMALL}
+        {...args}
+        disabled
+      />
+      <HarmonyButton
+        {...baseProps}
+        size={HarmonyButtonSize.DEFAULT}
+        {...args}
+        disabled
+      />
+      <HarmonyButton
+        {...baseProps}
+        size={HarmonyButtonSize.LARGE}
+        {...args}
+        disabled
+      />
+    </div>
   </div>
 )
 

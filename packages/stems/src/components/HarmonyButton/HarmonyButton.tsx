@@ -38,8 +38,8 @@ export const HarmonyButton = forwardRef<HTMLButtonElement, HarmonyButtonProps>(
       text,
       variant = HarmonyButtonType.PRIMARY,
       size = HarmonyButtonSize.DEFAULT,
-      leftIcon,
-      rightIcon,
+      leftIcon: LeftIconComponent,
+      rightIcon: RightIconComponent,
       disabled,
       includeHoverAnimations = true,
       widthToHideText,
@@ -59,28 +59,6 @@ export const HarmonyButton = forwardRef<HTMLButtonElement, HarmonyButtonProps>(
 
     const isTextVisible = !!text && !textIsHidden
 
-    const renderLeftIcon = () =>
-      leftIcon && (
-        <span
-          className={cn(iconClassName, styles.icon, styles.left, {
-            [styles.noText]: !isTextVisible
-          })}
-        >
-          {leftIcon}
-        </span>
-      )
-
-    const renderRightIcon = () =>
-      rightIcon && (
-        <span
-          className={cn(iconClassName, styles.icon, styles.right, {
-            [styles.noText]: !isTextVisible
-          })}
-        >
-          {rightIcon}
-        </span>
-      )
-
     const getAriaLabel = () => {
       if (ariaLabelProp) return ariaLabelProp
       // Use the text prop as the aria-label if the text becomes hidden
@@ -89,14 +67,10 @@ export const HarmonyButton = forwardRef<HTMLButtonElement, HarmonyButtonProps>(
       return undefined
     }
 
-    const renderText = () =>
-      isTextVisible && (
-        <span className={cn(styles.textLabel, textClassName)}>{text}</span>
-      )
-
     const style: CSSCustomProperties = {
       minWidth: minWidth && isTextVisible ? `${minWidth}px` : 'unset',
-      '--button-color': color ? `var(${toCSSVariableName(color)})` : undefined
+      '--button-color':
+        !disabled && color ? `var(${toCSSVariableName(color)})` : undefined
     }
 
     return (
@@ -107,9 +81,7 @@ export const HarmonyButton = forwardRef<HTMLButtonElement, HarmonyButtonProps>(
           SIZE_STYLE_MAP[size],
           TYPE_STYLE_MAP[variant],
           {
-            [styles.noIcon]: !leftIcon && !rightIcon,
             [styles.disabled]: disabled,
-            [styles.includeHoverAnimations]: includeHoverAnimations,
             [styles.fullWidth]: fullWidth
           },
           className
@@ -119,10 +91,15 @@ export const HarmonyButton = forwardRef<HTMLButtonElement, HarmonyButtonProps>(
         style={style as CSSProperties}
         {...other}
       >
-        {color ? <span className={styles.overlay} /> : null}
-        {renderLeftIcon()}
-        {renderText()}
-        {renderRightIcon()}
+        {LeftIconComponent ? (
+          <LeftIconComponent className={cn(iconClassName, styles.icon)} />
+        ) : null}
+        {isTextVisible ? (
+          <span className={cn(styles.text, textClassName)}>{text}</span>
+        ) : null}
+        {RightIconComponent ? (
+          <RightIconComponent className={cn(iconClassName, styles.icon)} />
+        ) : null}
       </button>
     )
   }

@@ -1,5 +1,6 @@
 import { ComponentPropsWithoutRef, ReactNode } from 'react'
 
+import { IconComponent } from 'components/Icons/types'
 import { ColorValue } from 'styles/colors'
 
 export enum HarmonyButtonType {
@@ -38,12 +39,12 @@ export type HarmonyButtonProps = {
   /**
    * Optional icon element to include on the left side of the button
    */
-  leftIcon?: ReactNode | JSX.Element
+  leftIcon?: IconComponent
 
   /**
    * Optional icon element to include on the right side of the button
    */
-  rightIcon?: ReactNode | JSX.Element
+  rightIcon?: IconComponent
 
   /**
    * Whether or not to include animations on hover
