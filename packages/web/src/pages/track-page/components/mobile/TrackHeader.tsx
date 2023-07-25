@@ -20,9 +20,9 @@ import {
   isPremiumContentUSDCPurchaseGated
 } from '@audius/common'
 import {
-  Button,
-  ButtonSize,
-  ButtonType,
+  HarmonyButton,
+  HarmonyButtonSize,
+  HarmonyButtonType,
   IconCart,
   IconCollectible,
   IconPause,
@@ -76,13 +76,13 @@ type PlayButtonProps = {
 
 const PlayButton = ({ disabled, playing, onPlay }: PlayButtonProps) => {
   return (
-    <Button
+    <HarmonyButton
       disabled={disabled}
-      type={ButtonType.PRIMARY_ALT}
+      variant={HarmonyButtonType.PRIMARY}
       text={playing ? messages.pause : messages.play}
-      leftIcon={playing ? <IconPause /> : <IconPlay />}
+      leftIcon={playing ? IconPause : IconPlay}
       onClick={onPlay}
-      size={ButtonSize.LARGE}
+      size={HarmonyButtonSize.LARGE}
       fullWidth
     />
   )
@@ -90,10 +90,10 @@ const PlayButton = ({ disabled, playing, onPlay }: PlayButtonProps) => {
 
 const PreviewButton = ({ playing, onPlay }: PlayButtonProps) => {
   return (
-    <Button
-      type={ButtonType.SECONDARY}
+    <HarmonyButton
+      variant={HarmonyButtonType.SECONDARY}
       text={playing ? messages.pause : messages.preview}
-      leftIcon={playing ? <IconPause /> : <IconPlay />}
+      leftIcon={playing ? IconPause : IconPlay}
       onClick={onPlay}
       fullWidth
     />
@@ -191,7 +191,7 @@ const TrackHeader = ({
     isPremiumContentUSDCPurchaseGated(premiumConditions)
   // Preview button is shown for USDC-gated tracks if user does not have access
   // or is the owner
-  const showPreview = isUSDCPurchaseGated && (isOwner || !doesUserHaveAccess)
+  const showPreview = !isUSDCPurchaseGated && (isOwner || !doesUserHaveAccess)
   // Play button is conditionally hidden for USDC-gated tracks when the user does not have access
   const showPlay = isUSDCPurchaseGated ? doesUserHaveAccess : true
   const showListenCount =
