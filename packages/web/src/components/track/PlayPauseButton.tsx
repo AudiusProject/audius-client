@@ -85,7 +85,7 @@ export const PlayPauseButton = ({
         isPreview ? HarmonyButtonType.SECONDARY : HarmonyButtonType.PRIMARY
       }
       text={playing ? messages.pause : playText}
-      leftIcon={playing ? IconPause : PlayIconComponent}
+      iconLeft={playing ? IconPause : PlayIconComponent}
       onClick={onPlay}
       minWidth={180}
       disabled={disabled}
