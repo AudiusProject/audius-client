@@ -41,7 +41,6 @@ export const HarmonyButton = forwardRef<HTMLButtonElement, HarmonyButtonProps>(
       leftIcon: LeftIconComponent,
       rightIcon: RightIconComponent,
       disabled,
-      includeHoverAnimations = true,
       widthToHideText,
       minWidth,
       className,

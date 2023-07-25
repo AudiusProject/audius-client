@@ -47,12 +47,6 @@ export type HarmonyButtonProps = {
   rightIcon?: IconComponent
 
   /**
-   * Whether or not to include animations on hover
-   * Consider turning off animations in mobile-first experiences
-   */
-  includeHoverAnimations?: boolean
-
-  /**
    * The max width at which text will still be shown
    */
   widthToHideText?: number
