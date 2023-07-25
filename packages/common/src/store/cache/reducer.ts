@@ -24,8 +24,6 @@ import {
 } from './actions'
 import { Metadata } from './types'
 
-const DEFAULT_ENTRY_TTL = 5 /* min */ * 60 /* seconds */ * 1000 /* ms */
-
 type CacheState = {
   entries: Record<ID, { _timestamp: number; metadata: Metadata }>
   statuses: Record<ID, Status>
@@ -65,7 +63,7 @@ export const initialCacheState: CacheState = {
   // Set { id }
   idsToPrune: new Set(),
   cacheType: 'normal',
-  entryTTL: DEFAULT_ENTRY_TTL,
+  entryTTL: Infinity,
   simple: false
 }
 
@@ -208,12 +206,13 @@ const addEntries = (state: CacheState, entries: any[], replace?: boolean) => {
     ) {
       // do nothing
     } else if (existing) {
-      const newMetadata = mergeWith(
+      let newMetadata = mergeWith(
         {},
         existing,
         entity.metadata,
         mergeCustomizer
       )
+      newMetadata = updateImageCache(existing, entity.metadata, newMetadata)
       if (cacheType === 'safe-fast' && isEqual(existing, newMetadata)) {
         // do nothing
       } else {

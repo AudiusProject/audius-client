@@ -5,7 +5,6 @@ import {
   cacheSelectors,
   cacheConfig,
   FeatureFlags,
-  confirmerSelectors,
   IntKeys
 } from '@audius/common'
 import {
@@ -19,9 +18,6 @@ import {
 
 const { CACHE_PRUNE_MIN } = cacheConfig
 const { getCache } = cacheSelectors
-const { getConfirmCalls } = confirmerSelectors
-
-const DEFAULT_ENTRY_TTL = 1 /* min */ * 30 /* seconds */ * 1000 /* ms */
 
 const isMissingFields = (cacheEntry, requiredFields) => {
   if (!requiredFields) return false
@@ -34,8 +30,8 @@ const isMissingFields = (cacheEntry, requiredFields) => {
 }
 
 // If timestamp provided, check if expired
-const isExpired = (timestamp) => {
-  if (timestamp) return timestamp + DEFAULT_ENTRY_TTL < Date.now()
+const isExpired = (timestamp, entryTTL) => {
+  if (timestamp) return timestamp + entryTTL < Date.now()
   return false
 }
 
@@ -98,12 +94,16 @@ export function* retrieve({
     call(getEntriesTimestamp, uniqueIds)
   ])
 
+  const entryTTL = yield select((state) => selectFromCache(state).entryTTL)
+
+  console.log({ entryTTL })
+
   const idsToFetch = []
   uniqueIds.forEach((id) => {
     const shouldFetch =
       !(id in cachedEntries) ||
       isMissingFields(cachedEntries[id], requiredFields) ||
-      isExpired(timestamps[id]) ||
+      isExpired(timestamps[id], entryTTL) ||
       forceRetrieveFromSource
     if (shouldFetch) {
       idsToFetch.push(id)
@@ -283,14 +283,9 @@ function* watchRemove() {
 function* initializeCacheType() {
   const remoteConfig = yield getContext('remoteConfigInstance')
   const getFeatureEnabled = yield getContext('getFeatureEnabled')
-  const isNativeMobile = yield getContext('isNativeMobile')
   yield call(remoteConfig.waitForRemoteConfig)
 
   const fastCache = yield call(getFeatureEnabled, FeatureFlags.FAST_CACHE)
-  const fastMobileCache = yield call(
-    getFeatureEnabled,
-    FeatureFlags.FAST_MOBILE_CACHE
-  )
   const safeFastCache = yield call(
     getFeatureEnabled,
     FeatureFlags.SAFE_FAST_CACHE
@@ -298,14 +293,13 @@ function* initializeCacheType() {
 
   let cacheType = 'normal'
 
-  if (fastCache || (isNativeMobile && fastMobileCache)) {
+  if (fastCache) {
     cacheType = 'fast'
   } else if (safeFastCache) {
     cacheType = 'safe-fast'
   }
 
-  const cacheEntryTTL =
-    remoteConfig.getRemoteVar(IntKeys.CACHE_ENTRY_TTL) || DEFAULT_ENTRY_TTL
+  const cacheEntryTTL = remoteConfig.getRemoteVar(IntKeys.CACHE_ENTRY_TTL)
 
   const simpleCache = yield call(getFeatureEnabled, FeatureFlags.SIMPLE_CACHE)
 
