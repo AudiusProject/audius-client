@@ -1,13 +1,12 @@
 import {
   Status,
   makeUids,
-  getIdFromKindId,
   cacheActions,
   cacheSelectors,
   cacheConfig,
-  FeatureFlags
+  FeatureFlags,
+  IntKeys
 } from '@audius/common'
-import { pick } from 'lodash'
 import {
   all,
   call,
@@ -17,11 +16,8 @@ import {
   getContext
 } from 'redux-saga/effects'
 
-import { getConfirmCalls } from 'common/store/confirmer/selectors'
 const { CACHE_PRUNE_MIN } = cacheConfig
-const { getCache } = cacheSelectors
-
-const DEFAULT_ENTRY_TTL = 5 /* min */ * 60 /* seconds */ * 1000 /* ms */
+const { getCache, getEntryTTL } = cacheSelectors
 
 const isMissingFields = (cacheEntry, requiredFields) => {
   if (!requiredFields) return false
@@ -34,8 +30,8 @@ const isMissingFields = (cacheEntry, requiredFields) => {
 }
 
 // If timestamp provided, check if expired
-const isExpired = (timestamp) => {
-  if (timestamp) return timestamp + DEFAULT_ENTRY_TTL < Date.now()
+const isExpired = (timestamp, entryTTL) => {
+  if (timestamp) return timestamp + entryTTL < Date.now()
   return false
 }
 
@@ -98,12 +94,14 @@ export function* retrieve({
     call(getEntriesTimestamp, uniqueIds)
   ])
 
+  const entryTTL = yield select(getEntryTTL)
+
   const idsToFetch = []
   uniqueIds.forEach((id) => {
     const shouldFetch =
       !(id in cachedEntries) ||
       isMissingFields(cachedEntries[id], requiredFields) ||
-      isExpired(timestamps[id]) ||
+      isExpired(timestamps[id], entryTTL) ||
       forceRetrieveFromSource
     if (shouldFetch) {
       idsToFetch.push(id)
@@ -177,14 +175,15 @@ function* retrieveFromSourceThenCache({
       metadata: m
     }))
 
-    yield call(
-      add,
-      kind,
-      cacheMetadata,
-      // Rewrite the cache entry if we forced retrieving it from source
-      deleteExistingEntry,
-      // Always cache it persistently
-      true
+    yield put(
+      cacheActions.add(
+        kind,
+        cacheMetadata,
+        // Rewrite the cache entry if we forced retrieving it from source
+        deleteExistingEntry,
+        // Always cache it persistently
+        true
+      )
     )
 
     // Perform any side effects
@@ -204,51 +203,6 @@ function* retrieveFromSourceThenCache({
       )
     )
   }
-}
-
-export function* add(kind, entries, replace, persist) {
-  // Get cached things that are confirming
-  const confirmCalls = yield select(getConfirmCalls)
-  const cache = yield select(getCache, { kind })
-  const confirmCallsInCache = pick(
-    cache.entries,
-    Object.keys(confirmCalls).map((kindId) => getIdFromKindId(kindId))
-  )
-
-  const entriesToAdd = []
-  const entriesToSubscribe = []
-  entries.forEach((entry) => {
-    // If something is confirming and in the cache, we probably don't
-    // want to replace it (unless explicit) because we would lose client
-    // state, e.g. "has_current_user_reposted"
-    if (!replace && entry.id in confirmCallsInCache) {
-      entriesToSubscribe.push({ uid: entry.uid, id: entry.id })
-    } else {
-      entriesToAdd.push(entry)
-    }
-  })
-  if (entriesToAdd.length > 0) {
-    yield put(
-      cacheActions.addSucceeded({
-        kind,
-        entries: entriesToAdd,
-        replace,
-        persist
-      })
-    )
-  }
-  if (entriesToSubscribe.length > 0) {
-    yield put(cacheActions.subscribe(kind, entriesToSubscribe))
-  }
-}
-
-// Adds entries but first checks if they are confirming.
-// If they are, don't add or else we could be in an inconsistent state.
-function* watchAdd() {
-  yield takeEvery(cacheActions.ADD, function* (action) {
-    const { kind, entries, replace, persist } = action
-    yield call(add, kind, entries, replace, persist)
-  })
 }
 
 // Prune cache entries if there are no more subscribers.
@@ -326,27 +280,39 @@ function* watchRemove() {
 
 function* initializeCacheType() {
   const remoteConfig = yield getContext('remoteConfigInstance')
+  const getFeatureEnabled = yield getContext('getFeatureEnabled')
   yield call(remoteConfig.waitForRemoteConfig)
-  const fastCache = yield call(
-    remoteConfig.getFeatureEnabled,
-    FeatureFlags.FAST_CACHE
-  )
+
+  const fastCache = yield call(getFeatureEnabled, FeatureFlags.FAST_CACHE)
   const safeFastCache = yield call(
-    remoteConfig.getFeatureEnabled,
+    getFeatureEnabled,
     FeatureFlags.SAFE_FAST_CACHE
   )
 
+  let cacheType = 'normal'
+
   if (fastCache) {
-    yield put(cacheActions.setCacheType({ cacheType: 'fast' }))
+    cacheType = 'fast'
   } else if (safeFastCache) {
-    yield put(cacheActions.setCacheType({ cacheType: 'safe-fast' }))
+    cacheType = 'safe-fast'
   }
+
+  const cacheEntryTTL = remoteConfig.getRemoteVar(IntKeys.CACHE_ENTRY_TTL)
+
+  const simpleCache = yield call(getFeatureEnabled, FeatureFlags.SIMPLE_CACHE)
+
+  yield put(
+    cacheActions.setCacheConfig({
+      cacheType,
+      entryTTL: cacheEntryTTL,
+      simple: simpleCache
+    })
+  )
 }
 
 const sagas = () => {
   return [
     initializeCacheType,
-    watchAdd,
     watchUnsubscribe,
     watchUnsubscribeSucceeded,
     watchRemove
