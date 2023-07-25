@@ -17,12 +17,14 @@ import {
   INCREMENT,
   AddSuccededAction,
   CacheType,
+  SET_CACHE_TYPE,
+  SetCacheTypeAction,
   ADD_ENTRIES,
-  AddEntriesAction,
-  SetCacheConfigAction,
-  SET_CACHE_CONFIG
+  AddEntriesAction
 } from './actions'
 import { Metadata } from './types'
+
+const DEFAULT_ENTRY_TTL = 5 /* min */ * 60 /* seconds */ * 1000 /* ms */
 
 type CacheState = {
   entries: Record<ID, { _timestamp: number; metadata: Metadata }>
@@ -32,8 +34,6 @@ type CacheState = {
   subscriptions: Record<ID, Set<UID>>
   idsToPrune: Set<ID>
   cacheType: CacheType
-  entryTTL: number
-  simple: boolean
 }
 
 /**
@@ -62,9 +62,7 @@ export const initialCacheState: CacheState = {
   subscriptions: {}, // things this id is subscribing to,
   // Set { id }
   idsToPrune: new Set(),
-  cacheType: 'normal',
-  entryTTL: Infinity,
-  simple: false
+  cacheType: 'normal'
 }
 
 // Wraps a metadata into a cache entry
@@ -178,11 +176,11 @@ const updateImageCache = (existing: Metadata, next: Metadata, merged: any) => {
 }
 
 const addEntries = (state: CacheState, entries: any[], replace?: boolean) => {
-  const { cacheType, simple, entryTTL } = state
+  const { cacheType } = state
   const newEntries = { ...state.entries }
   const newUids = { ...state.uids }
-  const newSubscribers = simple ? {} : { ...state.subscribers }
-  const newIdsToPrune = simple ? new Set() : new Set([...state.idsToPrune])
+  const newSubscribers = { ...state.subscribers }
+  const newIdsToPrune = new Set([...state.idsToPrune])
   const now = Date.now()
 
   for (let i = 0; i < entries.length; i++) {
@@ -201,7 +199,7 @@ const addEntries = (state: CacheState, entries: any[], replace?: boolean) => {
       newEntries[entity.id] = wrapEntry(entity.metadata)
     } else if (
       existing &&
-      _timestamp + entryTTL > now &&
+      _timestamp + DEFAULT_ENTRY_TTL > now &&
       cacheType === 'fast'
     ) {
       // do nothing
@@ -225,24 +223,14 @@ const addEntries = (state: CacheState, entries: any[], replace?: boolean) => {
       }
     }
 
-    if (!simple) {
-      newUids[entity.uid] = entity.id
-      if (entity.id in newSubscribers) {
-        newSubscribers[entity.id].add(entity.uid)
-      } else {
-        newSubscribers[entity.id] = new Set([entity.uid])
-      }
-
-      newIdsToPrune.delete(entity.id)
+    newUids[entity.uid] = entity.id
+    if (entity.id in newSubscribers) {
+      newSubscribers[entity.id].add(entity.uid)
+    } else {
+      newSubscribers[entity.id] = new Set([entity.uid])
     }
-  }
 
-  if (simple) {
-    return {
-      ...state,
-      entries: newEntries,
-      uids: newUids
-    }
+    newIdsToPrune.delete(entity.id)
   }
 
   return {
@@ -255,13 +243,10 @@ const addEntries = (state: CacheState, entries: any[], replace?: boolean) => {
 }
 
 const actionsMap = {
-  [SET_CACHE_CONFIG](state: CacheState, action: SetCacheConfigAction) {
-    const { cacheType, entryTTL, simple } = action
+  [SET_CACHE_TYPE](state: CacheState, action: SetCacheTypeAction) {
     return {
       ...state,
-      cacheType,
-      entryTTL,
-      simple
+      cacheType: action.cacheType
     }
   },
   [ADD_SUCCEEDED](state: CacheState, action: AddSuccededAction) {
@@ -280,12 +265,11 @@ const actionsMap = {
     return addEntries(state, cacheableEntries, replace)
   },
   [UPDATE](
-    state: CacheState,
+    state: { entries: { [x: string]: any }; subscriptions: any },
     action: { entries: any[]; subscriptions: any[] }
   ) {
-    const { simple } = state
     const newEntries = { ...state.entries }
-    const newSubscriptions = simple ? ({} as any) : { ...state.subscriptions }
+    const newSubscriptions = { ...state.subscriptions }
 
     action.entries.forEach((e: { id: string | number; metadata: any }) => {
       const existing = { ...unwrapEntry(state.entries[e.id]) }
@@ -294,30 +278,21 @@ const actionsMap = {
       newEntries[e.id] = wrapEntry(newEntry)
     })
 
-    if (!simple) {
-      action.subscriptions.forEach((s: { id: any; kind: any; uids: any }) => {
-        const { id, kind, uids } = s
-        if (id in newSubscriptions) {
-          uids.forEach((uid: any) => {
-            newSubscriptions[id].add({ kind, uid })
-          })
-        } else {
-          newSubscriptions[id] = new Set(
-            uids.map((uid: any) => ({ kind, uid }))
-          )
-        }
-      })
-
-      return {
-        ...state,
-        entries: newEntries,
-        subscriptions: newSubscriptions
+    action.subscriptions.forEach((s: { id: any; kind: any; uids: any }) => {
+      const { id, kind, uids } = s
+      if (id in newSubscriptions) {
+        uids.forEach((uid: any) => {
+          newSubscriptions[id].add({ kind, uid })
+        })
+      } else {
+        newSubscriptions[id] = new Set(uids.map((uid: any) => ({ kind, uid })))
       }
-    }
+    })
 
     return {
       ...state,
-      entries: newEntries
+      entries: newEntries,
+      subscriptions: newSubscriptions
     }
   },
   [INCREMENT](state: any[], action: { entries: any[] }) {
@@ -346,8 +321,14 @@ const actionsMap = {
       statuses: newStatuses
     }
   },
-  [SUBSCRIBE](state: CacheState, action: { id: any; subscribers: any[] }) {
-    if (state.simple) return state
+  [SUBSCRIBE](
+    state: {
+      idsToPrune: any
+      subscribers: { [x: string]: { add: (arg0: any) => any } }
+      uids: any
+    },
+    action: { id: any; subscribers: any[] }
+  ) {
     const newIdsToPrune = new Set([...state.idsToPrune])
     newIdsToPrune.delete(action.id)
 
@@ -369,8 +350,10 @@ const actionsMap = {
       idsToPrune: newIdsToPrune
     }
   },
-  [UNSUBSCRIBE_SUCCEEDED](state: CacheState, action: { unsubscribers: any[] }) {
-    if (state.simple) return state
+  [UNSUBSCRIBE_SUCCEEDED](
+    state: { subscribers: any; uids: any },
+    action: { unsubscribers: any[] }
+  ) {
     const newSubscribers = { ...state.subscribers }
     const newUids = { ...state.uids }
 
@@ -388,8 +371,7 @@ const actionsMap = {
       subscribers: newSubscribers
     }
   },
-  [REMOVE](state: CacheState, action: { ids: any[] }) {
-    if (state.simple) return state
+  [REMOVE](state: { idsToPrune: any }, action: { ids: any[] }) {
     const newIdsToPrune = new Set([...state.idsToPrune])
     action.ids.forEach((id: any) => {
       newIdsToPrune.add(id)
@@ -400,8 +382,17 @@ const actionsMap = {
       idsToPrune: newIdsToPrune
     }
   },
-  [REMOVE_SUCCEEDED](state: CacheState, action: { ids: any[] }) {
-    if (state.simple) return state
+  [REMOVE_SUCCEEDED](
+    state: {
+      entries: any
+      statuses: any
+      uids: any
+      subscribers: any
+      subscriptions: any
+      idsToPrune: any
+    },
+    action: { ids: any[] }
+  ) {
     const newEntries = { ...state.entries }
     const newStatuses = { ...state.statuses }
     const newUids = { ...state.uids }
@@ -422,7 +413,7 @@ const actionsMap = {
         delete newStatuses[actionId]
         delete newSubscribers[actionId]
         delete newSubscriptions[actionId]
-        newIdsToPrune.delete(actionId as number)
+        newIdsToPrune.delete(actionId)
       })
     }
 
@@ -436,8 +427,7 @@ const actionsMap = {
       idsToPrune: newIdsToPrune
     }
   },
-  [SET_EXPIRED](state: CacheState, action: { id: string | number }) {
-    if (state.simple) return state
+  [SET_EXPIRED](state: any[], action: { id: string | number }) {
     const newEntries = { ...state.entries }
     if (newEntries[action.id]) {
       newEntries[action.id] = {

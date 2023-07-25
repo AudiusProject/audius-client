@@ -14,5 +14,4 @@ export type Cache<T> = {
   subscribers: { [id: number]: Set<UID> }
   subscriptions: { [id: number]: Set<{ uid: UID; kind: Kind }> }
   idsToPrune: Set<ID>
-  entryTTL: number
 }
