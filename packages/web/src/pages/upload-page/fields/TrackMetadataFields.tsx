@@ -5,6 +5,11 @@ import { useField } from 'formik'
 
 import DropdownInput from 'components/data-entry/DropdownInput'
 import Input from 'components/data-entry/Input'
+import {
+  InputV2,
+  InputV2Size,
+  InputV2Variant
+} from 'components/data-entry/InputV2'
 import TagInput from 'components/data-entry/TagInput'
 import TextArea from 'components/data-entry/TextArea'
 import UploadArtwork from 'components/upload/UploadArtwork'
@@ -75,18 +80,16 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
       </div>
       <div className={styles.fields}>
         <div className={styles.trackName}>
-          <Input
-            name={getTrackFieldName(index, 'name')}
+          <InputV2
             id='track-name-input'
-            placeholder={`${
+            variant={InputV2Variant.ELEVATED_PLACEHOLDER}
+            label={`${
               props.type.charAt(0).toUpperCase() + props.type.slice(1)
             } Name`}
-            defaultValue={titleMeta.initialValue}
-            characterLimit={64}
-            error={!!titleMeta.error}
-            variant={'elevatedPlaceholder'}
-            onChange={titleHelpers.setValue}
-            onBlur={titleField.onBlur}
+            size={InputV2Size.LARGE}
+            // TODO: character limit in validation
+            // characterLimit={64}
+            {...titleField}
           />
         </div>
         <div className={styles.categorization}>
