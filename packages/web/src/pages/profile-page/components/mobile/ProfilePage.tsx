@@ -37,7 +37,7 @@ import NavContext, {
 import TierExplainerDrawer from 'components/user-badges/TierExplainerDrawer'
 import useTabs from 'hooks/useTabs/useTabs'
 import { MIN_COLLECTIBLES_TIER } from 'pages/profile-page/ProfilePageProvider'
-import { albumPage, playlistPage } from 'utils/route'
+import { playlistPage } from 'utils/route'
 import { getUserPageSEOFields } from 'utils/seo'
 import { withNullGuard } from 'utils/withNullGuard'
 
@@ -389,7 +389,9 @@ const ProfilePage = g(
           href={playlistPage(
             profile.handle,
             playlist.playlist_name,
-            playlist.playlist_id
+            playlist.playlist_id,
+            playlist.permalink,
+            playlist.is_album
           )}
           onClick={(e: MouseEvent) => {
             e.preventDefault()
@@ -397,7 +399,9 @@ const ProfilePage = g(
               playlistPage(
                 profile.handle,
                 playlist.playlist_name,
-                playlist.playlist_id
+                playlist.playlist_id,
+                playlist.permalink,
+                playlist.is_album
               )
             )
           }}
@@ -415,18 +419,22 @@ const ProfilePage = g(
               album.save_count,
               album.playlist_contents.track_ids.length
             )}
-            href={albumPage(
+            href={playlistPage(
               profile.handle,
               album.playlist_name,
-              album.playlist_id
+              album.playlist_id,
+              album.permalink,
+              true
             )}
             onClick={(e: MouseEvent) => {
               e.preventDefault()
               goToRoute(
-                albumPage(
+                playlistPage(
                   profile.handle,
                   album.playlist_name,
-                  album.playlist_id
+                  album.playlist_id,
+                  album.permalink,
+                  true
                 )
               )
             }}

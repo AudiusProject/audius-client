@@ -42,7 +42,6 @@ import { UnblockUserConfirmationModal } from 'pages/chat-page/components/Unblock
 import { MIN_COLLECTIBLES_TIER } from 'pages/profile-page/ProfilePageProvider'
 import EmptyTab from 'pages/profile-page/components/EmptyTab'
 import {
-  albumPage,
   playlistPage,
   UPLOAD_PAGE,
   UPLOAD_ALBUM_PAGE,
@@ -313,11 +312,23 @@ const ProfilePage = ({
         cardCoverImageSizes={album._cover_art_sizes}
         isReposted={album.has_current_user_reposted}
         isSaved={album.has_current_user_saved}
-        href={albumPage(profile.handle, album.playlist_name, album.playlist_id)}
+        href={playlistPage(
+          profile.handle,
+          album.playlist_name,
+          album.playlist_id,
+          album.permalink,
+          true
+        )}
         onClick={(e: MouseEvent) => {
           e.preventDefault()
           goToRoute(
-            albumPage(profile.handle, album.playlist_name, album.playlist_id)
+            playlistPage(
+              profile.handle,
+              album.playlist_name,
+              album.playlist_id,
+              album.permalink,
+              true
+            )
           )
         }}
       />
@@ -358,7 +369,9 @@ const ProfilePage = ({
         href={playlistPage(
           profile.handle,
           playlist.playlist_name,
-          playlist.playlist_id
+          playlist.playlist_id,
+          playlist.permalink,
+          playlist.is_album
         )}
         onClick={(e: MouseEvent) => {
           e.preventDefault()
@@ -366,7 +379,9 @@ const ProfilePage = ({
             playlistPage(
               profile.handle,
               playlist.playlist_name,
-              playlist.playlist_id
+              playlist.playlist_id,
+              playlist.permalink,
+              playlist.is_album
             )
           )
         }}
@@ -556,7 +571,9 @@ const ProfilePage = ({
         href={playlistPage(
           profile.handle,
           playlist.playlist_name,
-          playlist.playlist_id
+          playlist.playlist_id,
+          playlist.permalink,
+          playlist.is_album
         )}
         onClick={(e: MouseEvent) => {
           e.preventDefault()
@@ -564,7 +581,9 @@ const ProfilePage = ({
             playlistPage(
               profile.handle,
               playlist.playlist_name,
-              playlist.playlist_id
+              playlist.playlist_id,
+              playlist.permalink,
+              playlist.is_album
             )
           )
         }}

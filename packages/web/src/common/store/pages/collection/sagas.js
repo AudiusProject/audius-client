@@ -53,6 +53,7 @@ function* watchFetchCollection() {
     }
     console.log('heyooooo')
     console.log(collections)
+    console.log(permalink)
     const identifier = collectionId || permalink
     const collection = collections[identifier]
     const userUid = makeUid(Kind.USERS, collection.playlist_owner_id)

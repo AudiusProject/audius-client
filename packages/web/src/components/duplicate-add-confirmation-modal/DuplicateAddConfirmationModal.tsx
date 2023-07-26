@@ -67,7 +67,9 @@ export const DuplicateAddConfirmationModal = () => {
             link={playlistPage(
               account.handle,
               playlist?.playlist_name,
-              playlistId
+              playlistId,
+              playlist?.permalink,
+              playlist?.is_album
             )}
           />
         )

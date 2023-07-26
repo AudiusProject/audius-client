@@ -5,7 +5,8 @@ import {
   PLAYLIST_PAGE,
   ALBUM_PAGE,
   PLAYLIST_ID_PAGE,
-  PLAYLIST_BY_PERMALINK_PAGE
+  PLAYLIST_BY_PERMALINK_PAGE,
+  ALBUM_BY_PERMALINK_PAGE
 } from 'utils/route'
 
 type CollectionRouteParams =

@@ -52,8 +52,6 @@ import {
 import { AppState } from 'store/types'
 import { isDescendantElementOf } from 'utils/domUtils'
 import {
-  albumPage,
-  fullAlbumPage,
   fullPlaylistPage,
   fullTrackPage,
   playlistPage,
@@ -149,7 +147,8 @@ const ConnectedPlaylistTile = ({
     followee_saves: followeeSaves,
     has_current_user_reposted: isReposted,
     has_current_user_saved: isFavorited,
-    track_count: trackCount
+    track_count: trackCount,
+    permalink
   } = getCollectionWithFallback(collection)
 
   const {
@@ -230,15 +229,11 @@ const ConnectedPlaylistTile = ({
   )
   const href = isLoading
     ? ''
-    : isAlbum
-    ? albumPage(handle, title, id)
-    : playlistPage(handle, title, id)
+    : playlistPage(handle, title, id, permalink, isAlbum)
 
   const fullHref = isLoading
     ? ''
-    : isAlbum
-    ? fullAlbumPage(handle, title, id)
-    : fullPlaylistPage(handle, title, id)
+    : fullPlaylistPage(handle, title, id, permalink, isAlbum)
 
   const onClickTitle = useCallback(
     (e: MouseEvent) => {

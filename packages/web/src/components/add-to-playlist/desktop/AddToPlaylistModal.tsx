@@ -108,7 +108,9 @@ const AddToPlaylistModal = () => {
             link={playlistPage(
               account.handle,
               trackTitle,
-              playlist.playlist_id
+              playlist.playlist_id,
+              playlist.permalink,
+              playlist.is_album
             )}
           />
         )

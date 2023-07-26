@@ -36,7 +36,6 @@ import { getCategory } from 'pages/search-page/helpers'
 import { getLocationPathname } from 'store/routing/selectors'
 import { useSelector } from 'utils/reducer'
 import {
-  albumPage,
   playlistPage,
   profilePage,
   fullSearchResultsPage,
@@ -244,16 +243,16 @@ const CardSearchPage = ({
           }
           case CardType.ALBUM:
           case CardType.PLAYLIST: {
-            const routeFunc =
-              cardType === CardType.ALBUM ? albumPage : playlistPage
             const collection = e as UserCollection
             return {
               userId: collection.playlist_owner_id,
               id: collection.playlist_id,
-              route: routeFunc(
+              route: playlistPage(
                 collection.user.handle,
                 collection.playlist_name,
-                collection.playlist_id
+                collection.playlist_id,
+                collection.permalink,
+                cardType === CardType.ALBUM
               ),
               primaryText: collection.playlist_name,
               secondaryText: collection.user.handle,

@@ -30,7 +30,7 @@ import {
   addPlaylistsNotInLibrary,
   removePlaylistFromLibrary
 } from 'common/store/playlist-library/sagas'
-import { albumPage, audioNftPlaylistPage, playlistPage } from 'utils/route'
+import { audioNftPlaylistPage, playlistPage } from 'utils/route'
 import { waitForWrite } from 'utils/sagaHelpers'
 
 import watchCollectionErrors from './errorSagas'
@@ -570,17 +570,13 @@ export function* watchShareCollection() {
       const user = yield* select(getUser, { id: collection.playlist_owner_id })
       if (!user) return
 
-      const link = collection.is_album
-        ? albumPage(
-            user.handle,
-            collection.playlist_name,
-            collection.playlist_id
-          )
-        : playlistPage(
-            user.handle,
-            collection.playlist_name,
-            collection.playlist_id
-          )
+      const link = playlistPage(
+        user.handle,
+        collection.playlist_name,
+        collection.playlist_id,
+        collection.permalink,
+        collection.is_album
+      )
 
       const share = yield* getContext('share')
       share(link, formatShareText(collection.playlist_name, user.name))

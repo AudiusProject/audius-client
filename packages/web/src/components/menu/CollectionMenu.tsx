@@ -40,6 +40,7 @@ export type OwnProps = {
   playlistId: PlaylistId
   playlistName: string
   type: 'album' | 'playlist'
+  permalink: string
 }
 
 export type CollectionMenuProps = OwnProps &

@@ -34,9 +34,9 @@ export const PlaylistNavItem = (props: PlaylistNavItemProps) => {
   const playlistUrl = useSelector((state) => {
     const playlist = state.account.collections[playlistId]
     if (!playlist) return null
-    const { name, user } = playlist
+    const { name, user, permalink } = playlist
     const { handle } = user
-    return playlistPage(handle, name, playlistId)
+    return playlistPage(handle, name, playlistId, permalink)
   })
 
   const hasPlaylistUpdate = useSelector(

@@ -31,7 +31,7 @@ import {
   UserListEntityType
 } from 'store/application/ui/userListModal/types'
 import { AppState } from 'store/types'
-import { playlistPage, albumPage, profilePage } from 'utils/route'
+import { playlistPage, profilePage } from 'utils/route'
 import { withNullGuard } from 'utils/withNullGuard'
 
 import styles from './CollectionArtCard.module.css'
@@ -84,7 +84,8 @@ const CollectionArtCard = g(
       has_current_user_reposted,
       has_current_user_saved,
       repost_count,
-      save_count
+      save_count,
+      permalink
     } = collection
     const { user_id, name, handle } = user
 
@@ -92,9 +93,13 @@ const CollectionArtCard = g(
 
     const goToCollection = useCallback(() => {
       if (isPerspectiveDisabled) return
-      const link = is_album
-        ? albumPage(handle, playlist_name, playlist_id)
-        : playlistPage(handle, playlist_name, playlist_id)
+      const link = playlistPage(
+        handle,
+        playlist_name,
+        playlist_id,
+        permalink,
+        is_album
+      )
       goToRoute(link)
     }, [
       is_album,

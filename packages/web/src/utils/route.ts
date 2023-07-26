@@ -282,13 +282,17 @@ export const playlistPage = (
   handle: string,
   playlistName?: string | null,
   playlistId?: ID | null,
-  permalink?: string | null
+  permalink?: string | null,
+  isAlbum?: boolean
 ) => {
   // Prioritize permalink if available. If not, default to legacy routing
+  console.log('permalink in routing isss ', permalink)
+  console.log('is album iss ', isAlbum)
   if (permalink) {
     return permalink
   } else if (playlistName && playlistId) {
-    return `/${encodeUrlName(handle)}/playlist/${encodeUrlName(
+    const collectionType = isAlbum ? 'album' : 'playlist'
+    return `/${encodeUrlName(handle)}/${collectionType}/${encodeUrlName(
       playlistName
     )}-${playlistId}`
   } else {
@@ -300,13 +304,15 @@ export const fullPlaylistPage = (
   handle: string,
   playlistName?: string | null,
   playlistId?: ID | null,
-  permalink?: string | null
+  permalink?: string | null,
+  isAlbum?: boolean
 ) => {
   return `${BASE_URL}${playlistPage(
     handle,
     playlistName,
     playlistId,
-    permalink
+    permalink,
+    isAlbum
   )}`
 }
 
