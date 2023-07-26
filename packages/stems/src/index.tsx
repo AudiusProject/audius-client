@@ -102,3 +102,7 @@ export {
   MarkdownViewer,
   MarkdownViewerProps
 } from './components/MarkdownViewer'
+export {
+  SelectablePill,
+  SelectablePillProps
+} from './components/SelectablePill'
