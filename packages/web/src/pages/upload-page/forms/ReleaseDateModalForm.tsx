@@ -6,7 +6,6 @@ import { Formik, useField } from 'formik'
 import { get, set } from 'lodash'
 import moment from 'moment'
 
-import { EditFormValues } from '../components/EditPageNew'
 import { DatePickerField } from '../fields/DatePickerField'
 import { ModalField } from '../fields/ModalField'
 
@@ -35,9 +34,9 @@ type ReleaseDateModalFormProps = {
 export const ReleaseDateModalForm = (props: ReleaseDateModalFormProps) => {
   const { index } = props
   // Field from the outer form
-  const [{ value }, , { setValue }] = useField<
-    EditFormValues[typeof RELEASE_DATE]
-  >(getTrackFieldName(index, RELEASE_DATE))
+  const [{ value }, , { setValue }] = useField(
+    getTrackFieldName(index, RELEASE_DATE)
+  )
 
   const initialValues = useMemo(() => {
     const initialValues = {}
