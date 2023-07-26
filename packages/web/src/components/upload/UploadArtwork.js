@@ -83,7 +83,7 @@ const UploadArtwork = (props) => {
 }
 
 UploadArtwork.propTypes = {
-  artworkurl: PropTypes.string,
+  artworkUrl: PropTypes.string,
   onDropArtwork: PropTypes.func,
   onRemoveArtwork: PropTypes.func,
   // Whether or not there is an error with the entire image upload (red border)
