@@ -748,7 +748,7 @@ class CollectionPage extends Component<
       smartCollection,
       onClickDescriptionInternalLink
     } = this.props
-
+    console.log('metadataaa is ', metadata)
     const { allowReordering } = this.state
     const { playlistId } = this.props
 

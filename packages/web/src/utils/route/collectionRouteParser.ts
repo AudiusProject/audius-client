@@ -61,6 +61,25 @@ export const parseCollectionRoute = (
         collectionType: 'playlist'
       }
     }
+    const albumByPermalinkMatch = matchPath<{
+      handle: string
+      slug: string
+    }>(route, {
+      path: ALBUM_BY_PERMALINK_PAGE,
+      exact: true
+    })
+
+    if (albumByPermalinkMatch) {
+      const { handle, slug } = albumByPermalinkMatch.params
+      const permalink = `/${handle}/album/${slug}`
+      return {
+        title: null,
+        collectionId: null,
+        permalink,
+        handle: null,
+        collectionType: 'album'
+      }
+    }
   }
 
   const collectionIdPageMatch = matchPath<{ id: string }>(route, {

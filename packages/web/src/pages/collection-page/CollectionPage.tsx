@@ -21,14 +21,14 @@ const isMobileClient = isMobile()
 const CollectionPage = (props: CollectionPageProps) => {
   const { type, smartCollection } = props
   const content = isMobileClient ? MobileCollectionPage : DesktopCollectionPage
-  const { isEnabled } = useFlag(FeatureFlags.NEW_PLAYLIST_ROUTES)
 
   return (
     <CollectionPageProvider
       isMobile={isMobileClient}
       smartCollection={smartCollection}
       type={type}
-      playlistByPermalinkEnabled={isEnabled}
+      // todo: remove later, we are removing the ff for this
+      playlistByPermalinkEnabled={true}
     >
       {content}
     </CollectionPageProvider>
