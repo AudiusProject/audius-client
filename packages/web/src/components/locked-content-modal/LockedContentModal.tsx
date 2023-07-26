@@ -26,7 +26,7 @@ const messages = {
 export const LockedContentModal = () => {
   const [isOpen, setIsOpen] = useModalState('LockedContent')
   const dispatch = useDispatch()
-  const { id, track, owner } = useLockedContent()
+  const { track, owner } = useLockedContent()
   const { doesUserHaveAccess } = usePremiumContentAccess(track)
 
   const handleClose = useCallback(() => {
@@ -57,9 +57,9 @@ export const LockedContentModal = () => {
         />
       </ModalHeader>
       <ModalContent>
-        {id && track && track.premium_conditions && owner && (
-          <div>
-            <LockedTrackDetailsTile trackId={id} />
+        {track && track.premium_conditions && owner && (
+          <div className={styles.modalContent}>
+            <LockedTrackDetailsTile track={track} owner={owner} />
             <PremiumTrackSection
               isLoading={false}
               trackId={track.track_id}

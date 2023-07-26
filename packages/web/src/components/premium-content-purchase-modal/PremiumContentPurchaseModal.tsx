@@ -1,7 +1,9 @@
 import { useCallback } from 'react'
 
+import { premiumContentSelectors, useGetTrackById } from '@audius/common'
 import { IconCart, Modal, ModalContentPages, ModalHeader } from '@audius/stems'
 import cn from 'classnames'
+import { useSelector } from 'react-redux'
 
 // import { buyAudioSelectors, BuyAudioStage } from '@audius/common'
 // import { useSelector } from 'react-redux'
@@ -11,20 +13,22 @@ import { Icon } from 'components/Icon'
 import typeStyles from 'components/typography/typography.module.css'
 
 import styles from './PremiumContentPurchaseModal.module.css'
+import { LoadingPage } from './components/LoadingPage'
 import { PurchaseDetailsPage } from './components/PurchaseDetailsPage'
 
 // import { AmountInputPage } from './components/AmountInputPage'
 // import { InProgressPage } from './components/InProgressPage'
 // import { SuccessPage } from './components/SuccessPage'
 
-// const { getBuyAudioFlowStage, getBuyAudioFlowError } = buyAudioSelectors
+const { getPurchaseContentId } = premiumContentSelectors
 
 const messages = {
   completePurchase: 'Complete Purchase'
 }
 
 enum PurchaseSteps {
-  DETAILS = 0
+  LOADING = 0,
+  DETAILS = 1
 }
 
 // const stageToPage = (stage: BuyAudioStage) => {
@@ -44,6 +48,11 @@ enum PurchaseSteps {
 
 export const PremiumContentPurchaseModal = () => {
   const [isOpen, setIsOpen] = useModalState('PremiumContentPurchase')
+  const trackId = useSelector(getPurchaseContentId)
+  const { data: track } = useGetTrackById(
+    { id: trackId! },
+    { disabled: !trackId }
+  )
   //   const stage = useSelector(getBuyAudioFlowStage)
   //   const error = useSelector(getBuyAudioFlowError)
   //   const currentPage = stageToPage(stage)
@@ -52,6 +61,8 @@ export const PremiumContentPurchaseModal = () => {
   const handleClose = useCallback(() => {
     setIsOpen(false)
   }, [setIsOpen])
+
+  const currentStep = !track ? PurchaseSteps.LOADING : PurchaseSteps.DETAILS
 
   return (
     <Modal
@@ -75,12 +86,15 @@ export const PremiumContentPurchaseModal = () => {
           {messages.completePurchase}
         </div>
       </ModalHeader>
-      <ModalContentPages
-        // contentClassName={styles.modalContent}
-        currentPage={PurchaseSteps.DETAILS}
-      >
-        <PurchaseDetailsPage />
-      </ModalContentPages>
+      {track ? (
+        <ModalContentPages
+          // contentClassName={styles.modalContent}
+          currentPage={currentStep}
+        >
+          <LoadingPage />
+          <PurchaseDetailsPage track={track} />
+        </ModalContentPages>
+      ) : null}
     </Modal>
   )
 }

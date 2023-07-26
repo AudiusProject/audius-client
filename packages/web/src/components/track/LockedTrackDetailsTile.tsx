@@ -1,18 +1,14 @@
 import {
-  cacheTracksSelectors,
-  cacheUsersSelectors,
-  CommonState,
   getDogEarType,
   ID,
   isPremiumContentCollectibleGated,
   isPremiumContentUSDCPurchaseGated,
   SquareSizes,
   Track,
-  User
+  UserMetadata
 } from '@audius/common'
 import { IconCart, IconCollectible, IconSpecialAccess } from '@audius/stems'
 import cn from 'classnames'
-import { useSelector } from 'react-redux'
 
 import { Icon } from 'components/Icon'
 import { DogEar } from 'components/dog-ear'
@@ -22,9 +18,6 @@ import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { profilePage } from 'utils/route'
 
 import styles from './LockedTrackDetailsTile.module.css'
-
-const { getTrack } = cacheTracksSelectors
-const { getUser } = cacheUsersSelectors
 
 const messages = {
   collectibleGated: 'COLLECTIBLE GATED',
@@ -36,12 +29,12 @@ export type LockedTrackDetailsTileProps = {
   trackId: ID
 }
 
-export const LockedTrackDetailsTileContent = ({
+export const LockedTrackDetailsTile = ({
   track,
   owner
 }: {
   track: Track
-  owner: User
+  owner: UserMetadata
 }) => {
   const {
     track_id: trackId,
@@ -111,19 +104,4 @@ export const LockedTrackDetailsTileContent = ({
       </div>
     </div>
   )
-}
-
-export const LockedTrackDetailsTile = ({
-  trackId
-}: LockedTrackDetailsTileProps) => {
-  const track = useSelector((state: CommonState) =>
-    getTrack(state, { id: trackId })
-  )
-  const owner = useSelector((state: CommonState) => {
-    return track?.owner_id ? getUser(state, { id: track.owner_id }) : null
-  })
-
-  return track && owner ? (
-    <LockedTrackDetailsTileContent track={track} owner={owner} />
-  ) : null
 }
