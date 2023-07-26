@@ -24,7 +24,7 @@ const messages = {
 }
 
 enum PurchaseSteps {
-  DETAILS = 1
+  DETAILS = 0
 }
 
 // const stageToPage = (stage: BuyAudioStage) => {
@@ -67,8 +67,8 @@ export const PremiumContentPurchaseModal = () => {
         <div
           className={cn(
             styles.title,
-            typeStyles.labelXLarge,
-            typeStyles.labelStrong
+            typeStyles.headingSmall,
+            typeStyles.headingStrong
           )}
         >
           <Icon size='large' icon={IconCart} />

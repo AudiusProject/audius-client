@@ -10,6 +10,7 @@ import {
   usersSocialActions as socialActions,
   FollowSource,
   tippingActions,
+  premiumContentActions,
   premiumContentSelectors,
   accountSelectors,
   removeNullable,
@@ -50,6 +51,7 @@ import { LockedStatusBadge } from './LockedStatusBadge'
 
 const { getUsers } = cacheUsersSelectors
 const { beginTip } = tippingActions
+const { setPurchaseContentId } = premiumContentActions
 const { getPremiumTrackStatusMap } = premiumContentSelectors
 const { getAccountUser } = accountSelectors
 
@@ -132,8 +134,9 @@ const LockedPremiumTrackSection = ({
     isPremiumContentUSDCPurchaseGated(premiumConditions)
 
   const handlePurchase = useCallback(() => {
+    dispatch(setPurchaseContentId({ id: trackId }))
     setPurchaseModalVisibility(true)
-  }, [setPurchaseModalVisibility])
+  }, [trackId, setPurchaseModalVisibility, dispatch])
 
   const handleSendTip = useCallback(() => {
     if (account) {
