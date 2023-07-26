@@ -18,8 +18,8 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Page from 'components/page/Page'
 import Toast from 'components/toast/Toast'
 import {
-  playlistPage,
-  fullPlaylistPage,
+  collectionPage,
+  fullCollectionPage,
   profilePage,
   fullSearchResultsPage,
   NOT_FOUND_PAGE
@@ -172,7 +172,7 @@ class SearchPageContent extends Component {
       const toastId = `playlist-${playlist.playlist_id}`
       const onClick = () => {
         goToRoute(
-          playlistPage(
+          collectionPage(
             playlist.user.handle,
             playlist.playlist_name,
             playlist.playlist_id,
@@ -200,7 +200,7 @@ class SearchPageContent extends Component {
           fillParent={false}
           playlistId={playlist.playlist_id}
           isAlbum={playlist.is_album}
-          link={fullPlaylistPage(
+          link={fullCollectionPage(
             playlist.user.handle,
             playlist.playlist_name,
             playlist.playlist_id,
@@ -243,7 +243,7 @@ class SearchPageContent extends Component {
       const toastId = `album-${album.playlist_id}`
       const onClick = () => {
         goToRoute(
-          playlistPage(
+          collectionPage(
             album.user.handle,
             album.playlist_name,
             album.playlist_id,
@@ -271,7 +271,7 @@ class SearchPageContent extends Component {
           fillParent={false}
           playlistId={album.playlist_id}
           isAlbum={album.is_album}
-          link={fullPlaylistPage(
+          link={fullCollectionPage(
             album.user.handle,
             album.playlist_name,
             album.playlist_id,

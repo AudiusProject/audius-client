@@ -10,7 +10,7 @@ import { useSelector } from 'react-redux'
 
 import Card, { CardProps } from 'components/card/desktop/Card'
 import { useGoToRoute } from 'hooks/useGoToRoute'
-import { playlistPage } from 'utils/route'
+import { collectionPage } from 'utils/route'
 
 import { formatCardSecondaryText } from '../utils'
 
@@ -41,7 +41,7 @@ export const CollectionCard = (props: CollectionCardProps) => {
   const handleClick = useCallback(() => {
     if (ownerHandle && collection) {
       goToRoute(
-        playlistPage(
+        collectionPage(
           ownerHandle,
           collection.playlist_name,
           collection.playlist_id,

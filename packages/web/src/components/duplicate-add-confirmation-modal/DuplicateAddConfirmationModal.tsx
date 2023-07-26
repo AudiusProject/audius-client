@@ -23,7 +23,7 @@ import { useModalState } from 'common/hooks/useModalState'
 import { useSelector } from 'common/hooks/useSelector'
 import { ToastContext } from 'components/toast/ToastContext'
 import ToastLinkContent from 'components/toast/mobile/ToastLinkContent'
-import { playlistPage } from 'utils/route'
+import { collectionPage } from 'utils/route'
 
 import styles from './DuplicateAddConfirmationModal.module.css'
 
@@ -64,7 +64,7 @@ export const DuplicateAddConfirmationModal = () => {
           <ToastLinkContent
             text={messages.addedToast}
             linkText={messages.view}
-            link={playlistPage(
+            link={collectionPage(
               account.handle,
               playlist?.playlist_name,
               playlistId,

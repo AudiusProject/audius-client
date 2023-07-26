@@ -26,7 +26,7 @@ import { confirmTransaction } from 'common/store/confirmer/sagas'
 import { RequestConfirmationError } from 'common/store/confirmer/types'
 import { addPlaylistsNotInLibrary } from 'common/store/playlist-library/sagas'
 import { ensureLoggedIn } from 'common/utils/ensureLoggedIn'
-import { playlistPage } from 'utils/route'
+import { collectionPage } from 'utils/route'
 import { waitForWrite } from 'utils/sagaHelpers'
 
 import { reformat } from './utils'
@@ -96,7 +96,11 @@ function* optimisticallySavePlaylist(
       : []
   }
   playlist.track_count = initTrack ? 1 : 0
-  playlist.permalink = playlistPage(handle, playlist.playlist_name, playlistId)
+  playlist.permalink = collectionPage(
+    handle,
+    playlist.playlist_name,
+    playlistId
+  )
   if (playlist.artwork) {
     playlist._cover_art_sizes = {
       ...playlist._cover_art_sizes,

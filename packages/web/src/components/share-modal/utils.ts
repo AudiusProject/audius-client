@@ -2,7 +2,7 @@ import { ShareToTwitter, ShareModalContent } from '@audius/common'
 
 import { getTwitterHandleByUserHandle } from 'components/notification/Notification/utils'
 import {
-  fullPlaylistPage,
+  fullCollectionPage,
   fullProfilePage,
   fullTrackPage,
   fullAudioNftPlaylistPage
@@ -53,7 +53,7 @@ export const getTwitterShareText = async (
         playlist_name,
         await getShareHandle(handle)
       )
-      link = fullPlaylistPage(
+      link = fullCollectionPage(
         handle,
         playlist_name,
         playlist_id,
@@ -72,7 +72,7 @@ export const getTwitterShareText = async (
         playlist_name,
         await getShareHandle(handle)
       )
-      link = fullPlaylistPage(
+      link = fullCollectionPage(
         handle,
         playlist_name,
         playlist_id,

@@ -42,7 +42,7 @@ import { UnblockUserConfirmationModal } from 'pages/chat-page/components/Unblock
 import { MIN_COLLECTIBLES_TIER } from 'pages/profile-page/ProfilePageProvider'
 import EmptyTab from 'pages/profile-page/components/EmptyTab'
 import {
-  playlistPage,
+  collectionPage,
   UPLOAD_PAGE,
   UPLOAD_ALBUM_PAGE,
   UPLOAD_PLAYLIST_PAGE
@@ -312,7 +312,7 @@ const ProfilePage = ({
         cardCoverImageSizes={album._cover_art_sizes}
         isReposted={album.has_current_user_reposted}
         isSaved={album.has_current_user_saved}
-        href={playlistPage(
+        href={collectionPage(
           profile.handle,
           album.playlist_name,
           album.playlist_id,
@@ -322,7 +322,7 @@ const ProfilePage = ({
         onClick={(e: MouseEvent) => {
           e.preventDefault()
           goToRoute(
-            playlistPage(
+            collectionPage(
               profile.handle,
               album.playlist_name,
               album.playlist_id,
@@ -366,7 +366,7 @@ const ProfilePage = ({
         cardCoverImageSizes={playlist._cover_art_sizes}
         isReposted={playlist.has_current_user_reposted}
         isSaved={playlist.has_current_user_saved}
-        href={playlistPage(
+        href={collectionPage(
           profile.handle,
           playlist.playlist_name,
           playlist.playlist_id,
@@ -376,7 +376,7 @@ const ProfilePage = ({
         onClick={(e: MouseEvent) => {
           e.preventDefault()
           goToRoute(
-            playlistPage(
+            collectionPage(
               profile.handle,
               playlist.playlist_name,
               playlist.playlist_id,
@@ -568,7 +568,7 @@ const ProfilePage = ({
         isReposted={playlist.has_current_user_reposted}
         isSaved={playlist.has_current_user_saved}
         cardCoverImageSizes={playlist._cover_art_sizes}
-        href={playlistPage(
+        href={collectionPage(
           profile.handle,
           playlist.playlist_name,
           playlist.playlist_id,
@@ -578,7 +578,7 @@ const ProfilePage = ({
         onClick={(e: MouseEvent) => {
           e.preventDefault()
           goToRoute(
-            playlistPage(
+            collectionPage(
               profile.handle,
               playlist.playlist_name,
               playlist.playlist_id,

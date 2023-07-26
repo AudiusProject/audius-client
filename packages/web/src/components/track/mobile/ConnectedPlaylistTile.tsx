@@ -31,7 +31,7 @@ import { useRecord, make } from 'common/store/analytics/actions'
 import { PlaylistTileProps } from 'components/track/types'
 import { AppState } from 'store/types'
 import {
-  playlistPage,
+  collectionPage,
   profilePage,
   REPOSTING_USERS_ROUTE,
   FAVORITING_USERS_ROUTE
@@ -149,7 +149,7 @@ const ConnectedPlaylistTile = ({
   }, [collection, unrepostCollection, repostCollection, isFeed])
 
   const getRoute = useCallback(() => {
-    return playlistPage(
+    return collectionPage(
       user.handle,
       collection.playlist_name,
       collection.playlist_id,

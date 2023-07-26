@@ -42,7 +42,12 @@ import {
   ExploreCollection,
   ExploreMoodCollection
 } from 'pages/explore-page/collections'
-import { playlistPage, profilePage, BASE_URL, EXPLORE_PAGE } from 'utils/route'
+import {
+  collectionPage,
+  profilePage,
+  BASE_URL,
+  EXPLORE_PAGE
+} from 'utils/route'
 
 import { justForYou } from '../desktop/ExplorePage'
 
@@ -191,7 +196,7 @@ const ExplorePage = ({
     profileCards = []
   } else {
     playlistCards = playlists.map((playlist: UserCollection) => {
-      const href = playlistPage(
+      const href = collectionPage(
         playlist.user.handle,
         playlist.playlist_name,
         playlist.playlist_id,

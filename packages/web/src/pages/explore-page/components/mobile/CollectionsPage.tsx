@@ -9,7 +9,7 @@ import CardLineup from 'components/lineup/CardLineup'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import MobilePageContainer from 'components/mobile-page-container/MobilePageContainer'
 import { useSubPageHeader } from 'components/nav/store/context'
-import { playlistPage, BASE_URL, EXPLORE_PAGE } from 'utils/route'
+import { collectionPage, BASE_URL, EXPLORE_PAGE } from 'utils/route'
 
 import styles from './CollectionsPage.module.css'
 
@@ -52,7 +52,7 @@ const ExplorePage = ({
         onClick={(e) => {
           e.preventDefault()
           goToRoute(
-            playlistPage(
+            collectionPage(
               playlist.user.handle,
               playlist.playlist_name,
               playlist.playlist_id,

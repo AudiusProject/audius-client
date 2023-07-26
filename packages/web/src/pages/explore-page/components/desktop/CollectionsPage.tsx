@@ -10,8 +10,8 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import Page from 'components/page/Page'
 import { useOrderedLoad } from 'hooks/useOrderedLoad'
 import {
-  playlistPage,
-  fullPlaylistPage,
+  collectionPage,
+  fullCollectionPage,
   BASE_URL,
   EXPLORE_PAGE,
   profilePage
@@ -90,7 +90,7 @@ const CollectionsPage = ({
         isReposted={playlist.has_current_user_reposted}
         isSaved={playlist.has_current_user_saved}
         cardCoverImageSizes={playlist._cover_art_sizes}
-        href={fullPlaylistPage(
+        href={fullCollectionPage(
           playlist.user.handle,
           playlist.playlist_name,
           playlist.playlist_id,
@@ -105,7 +105,7 @@ const CollectionsPage = ({
         onClick={(e) => {
           e.preventDefault()
           goToRoute(
-            playlistPage(
+            collectionPage(
               playlist.user.handle,
               playlist.playlist_name,
               playlist.playlist_id,

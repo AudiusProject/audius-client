@@ -36,7 +36,7 @@ import { getCategory } from 'pages/search-page/helpers'
 import { getLocationPathname } from 'store/routing/selectors'
 import { useSelector } from 'utils/reducer'
 import {
-  playlistPage,
+  collectionPage,
   profilePage,
   fullSearchResultsPage,
   SEARCH_PAGE
@@ -247,7 +247,7 @@ const CardSearchPage = ({
             return {
               userId: collection.playlist_owner_id,
               id: collection.playlist_id,
-              route: playlistPage(
+              route: collectionPage(
                 collection.user.handle,
                 collection.playlist_name,
                 collection.playlist_id,

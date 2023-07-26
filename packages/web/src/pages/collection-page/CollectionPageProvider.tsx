@@ -66,7 +66,7 @@ import {
   NOT_FOUND_PAGE,
   REPOSTING_USERS_ROUTE,
   FAVORITING_USERS_ROUTE,
-  playlistPage,
+  collectionPage,
   getPathname
 } from 'utils/route'
 import { parseCollectionRoute } from 'utils/route/collectionRouteParser'
@@ -281,7 +281,7 @@ class CollectionPage extends Component<
           user
         if (routeLacksCollectionInfo) {
           // Check if we are coming from a non-canonical route and replace route if necessary.
-          const newPath = playlistPage(
+          const newPath = collectionPage(
             user!.handle,
             metadata.playlist_name,
             collectionId,

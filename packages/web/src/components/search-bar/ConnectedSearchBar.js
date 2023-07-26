@@ -21,7 +21,12 @@ import {
 } from 'common/store/search-bar/actions'
 import { getSearch } from 'common/store/search-bar/selectors'
 import Bar from 'components/search/SearchBar'
-import { albumPage, playlistPage, profilePage, getPathname } from 'utils/route'
+import {
+  albumPage,
+  collectionPage,
+  profilePage,
+  getPathname
+} from 'utils/route'
 
 import styles from './ConnectedSearchBar.module.css'
 
@@ -102,7 +107,7 @@ class ConnectedSearchBar extends Component {
         (p) =>
           value ===
           (p.user
-            ? playlistPage(
+            ? collectionPage(
                 p.user.handle,
                 p.playlist_name,
                 p.playlist_id,
@@ -117,7 +122,7 @@ class ConnectedSearchBar extends Component {
         (a) =>
           value ===
           (a.user
-            ? playlistPage(
+            ? collectionPage(
                 a.user.handle,
                 a.playlist_name,
                 a.playlist_id,
@@ -190,7 +195,7 @@ class ConnectedSearchBar extends Component {
               primary: playlist.playlist_name,
               secondary: playlist.user ? playlist.user.name : '',
               key: playlist.user
-                ? playlistPage(
+                ? collectionPage(
                     playlist.user.handle,
                     playlist.playlist_name,
                     playlist.playlist_id,
@@ -218,7 +223,7 @@ class ConnectedSearchBar extends Component {
           children: this.props.search.albums.map((album) => {
             return {
               key: album.user
-                ? playlistPage(
+                ? collectionPage(
                     album.user.handle,
                     album.playlist_name,
                     album.playlist_id,

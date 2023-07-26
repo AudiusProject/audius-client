@@ -25,7 +25,7 @@ import { Tooltip } from 'components/tooltip'
 import { useCollectionCoverArt } from 'hooks/useCollectionCoverArt'
 import { useFlag } from 'hooks/useRemoteConfig'
 import { AppState } from 'store/types'
-import { playlistPage } from 'utils/route'
+import { collectionPage } from 'utils/route'
 
 import styles from './AddToPlaylistModal.module.css'
 const { getTrackId, getTrackTitle, getTrackIsUnlisted } =
@@ -105,7 +105,7 @@ const AddToPlaylistModal = () => {
           <ToastLinkContent
             text={messages.addedToast}
             linkText={messages.view}
-            link={playlistPage(
+            link={collectionPage(
               account.handle,
               trackTitle,
               playlist.playlist_id,

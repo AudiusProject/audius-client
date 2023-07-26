@@ -30,7 +30,7 @@ import {
   addPlaylistsNotInLibrary,
   removePlaylistFromLibrary
 } from 'common/store/playlist-library/sagas'
-import { audioNftPlaylistPage, playlistPage } from 'utils/route'
+import { audioNftPlaylistPage, collectionPage } from 'utils/route'
 import { waitForWrite } from 'utils/sagaHelpers'
 
 import watchCollectionErrors from './errorSagas'
@@ -570,7 +570,7 @@ export function* watchShareCollection() {
       const user = yield* select(getUser, { id: collection.playlist_owner_id })
       if (!user) return
 
-      const link = playlistPage(
+      const link = collectionPage(
         user.handle,
         collection.playlist_name,
         collection.playlist_id,

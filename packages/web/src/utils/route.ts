@@ -278,7 +278,7 @@ export const fullAlbumPage = (handle: string, title: string, id: ID) => {
   return `${BASE_URL}${albumPage(handle, title, id)}`
 }
 
-export const playlistPage = (
+export const collectionPage = (
   handle: string,
   playlistName?: string | null,
   playlistId?: ID | null,
@@ -300,14 +300,14 @@ export const playlistPage = (
     return ''
   }
 }
-export const fullPlaylistPage = (
+export const fullCollectionPage = (
   handle: string,
   playlistName?: string | null,
   playlistId?: ID | null,
   permalink?: string | null,
   isAlbum?: boolean
 ) => {
-  return `${BASE_URL}${playlistPage(
+  return `${BASE_URL}${collectionPage(
     handle,
     playlistName,
     playlistId,

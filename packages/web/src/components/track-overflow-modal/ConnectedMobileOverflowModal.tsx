@@ -27,7 +27,11 @@ import { connect } from 'react-redux'
 import { Dispatch } from 'redux'
 
 import { AppState } from 'store/types'
-import { collectibleDetailsPage, playlistPage, profilePage } from 'utils/route'
+import {
+  collectibleDetailsPage,
+  collectionPage,
+  profilePage
+} from 'utils/route'
 
 import MobileOverflowModal from './components/MobileOverflowModal'
 
@@ -368,7 +372,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
     ) =>
       dispatch(
         pushRoute(
-          playlistPage(handle, playlistTitle, playlistId, permalink, isAlbum)
+          collectionPage(handle, playlistTitle, playlistId, permalink, isAlbum)
         )
       )
   }

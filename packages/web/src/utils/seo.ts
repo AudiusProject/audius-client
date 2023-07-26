@@ -2,7 +2,7 @@
  * SEO Utlity functions to generate titles and descriptions
  */
 
-import { fullPlaylistPage, fullProfilePage, fullTrackPage } from './route'
+import { fullCollectionPage, fullProfilePage, fullTrackPage } from './route'
 
 export const createSeoDescription = (msg: string) => {
   return `${msg} | Stream tracks, albums, playlists on desktop and mobile`
@@ -122,7 +122,7 @@ export const getCollectionPageSEOFields = ({
   const pageDescription = createSeoDescription(
     `Listen to ${playlistName} by ${userName} on Audius`
   )
-  const canonicalUrl = fullPlaylistPage(
+  const canonicalUrl = fullCollectionPage(
     userHandle,
     playlistName,
     playlistId,
