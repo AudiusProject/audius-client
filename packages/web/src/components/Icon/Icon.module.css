@@ -1,0 +1,29 @@
+.icon {
+  --icon-color: currentColor;
+  --icon-size: var(--unit-4);
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+.icon path {
+  fill: var(--icon-color);
+}
+
+.small {
+  --icon-size: calc(3.5 * var(--unit));
+}
+.medium {
+  --icon-size: var(--unit-4);
+}
+.large {
+  --icon-size: var(--unit-5);
+}
+.xLarge {
+  --icon-size: var(--unit-6);
+}
+.xxLarge {
+  --icon-size: calc(7.5 * var(--unit));
+}
+.xxxLarge {
+  --icon-size: var(--unit-8);
+}

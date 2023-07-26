@@ -1,20 +1,18 @@
 import { useCallback } from 'react'
 
+import { IconCart, Modal, ModalContentPages, ModalHeader } from '@audius/stems'
+import cn from 'classnames'
+
 // import { buyAudioSelectors, BuyAudioStage } from '@audius/common'
-import {
-  IconCart,
-  Modal,
-  ModalContentPages,
-  ModalHeader,
-  ModalTitle
-} from '@audius/stems'
 // import { useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
+import { Icon } from 'components/Icon'
+import typeStyles from 'components/typography/typography.module.css'
 
+import styles from './PremiumContentPurchaseModal.module.css'
 import { PurchaseDetailsPage } from './components/PurchaseDetailsPage'
 
-// import styles from './BuyAudioModal.module.css'
 // import { AmountInputPage } from './components/AmountInputPage'
 // import { InProgressPage } from './components/InProgressPage'
 // import { SuccessPage } from './components/SuccessPage'
@@ -59,14 +57,23 @@ export const PremiumContentPurchaseModal = () => {
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      //   bodyClassName={styles.modal}
+      bodyClassName={styles.modal}
       //   dismissOnClickOutside={!inProgress || error}
     >
       <ModalHeader
         onClose={handleClose}
         // showDismissButton={!inProgress || error}
       >
-        <ModalTitle title={messages.completePurchase} icon={<IconCart />} />
+        <div
+          className={cn(
+            styles.title,
+            typeStyles.labelXLarge,
+            typeStyles.labelStrong
+          )}
+        >
+          <Icon size='large' icon={IconCart} />
+          {messages.completePurchase}
+        </div>
       </ModalHeader>
       <ModalContentPages
         // contentClassName={styles.modalContent}
