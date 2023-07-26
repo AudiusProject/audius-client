@@ -67,8 +67,8 @@ export const PremiumContentPurchaseModal = () => {
         <div
           className={cn(
             styles.title,
-            typeStyles.headingSmall,
-            typeStyles.headingStrong
+            typeStyles.labelXLarge,
+            typeStyles.labelStrong
           )}
         >
           <Icon size='large' icon={IconCart} />
