@@ -36,7 +36,8 @@ export const OverflowMenuButton = (props: OverflowMenuButtonProps) => {
     playlist_name,
     is_private,
     playlist_owner_id,
-    has_current_user_saved
+    has_current_user_saved,
+    permalink
   } =
     (useSelector((state: CommonState) =>
       getCollection(state, { id: collectionId })
@@ -74,7 +75,8 @@ export const OverflowMenuButton = (props: OverflowMenuButtonProps) => {
     includeSave: false,
     includeVisitPage: false,
     isPublic: !is_private,
-    extraMenuItems
+    extraMenuItems,
+    permalink
   }
 
   return (

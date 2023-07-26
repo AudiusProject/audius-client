@@ -107,7 +107,8 @@ const CollectionArtCard = g(
       playlist_name,
       playlist_id,
       goToRoute,
-      isPerspectiveDisabled
+      isPerspectiveDisabled,
+      permalink
     ])
 
     const goToProfile = useCallback(() => {
@@ -149,7 +150,8 @@ const CollectionArtCard = g(
       isFavorited: has_current_user_saved,
       isReposted: has_current_user_reposted,
       metadata: collection,
-      name: playlist_name
+      name: playlist_name,
+      permalink
     }
 
     return (

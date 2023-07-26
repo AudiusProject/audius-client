@@ -315,7 +315,13 @@ class Upload extends Component {
         }
         case UploadType.ALBUM: {
           const albumName = upload.metadata.playlist_name
-          route = albumPage(account.handle, albumName, upload.completionId)
+          route = playlistPage(
+            account.handle,
+            albumName,
+            upload.completionId,
+            null,
+            true
+          )
           uploadType = 'album'
           break
         }

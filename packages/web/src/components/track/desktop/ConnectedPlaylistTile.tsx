@@ -290,7 +290,8 @@ const ConnectedPlaylistTile = ({
       includeRepost: false,
       includeFavorite: false,
       includeVisitPage: true,
-      extraMenuItems: []
+      extraMenuItems: [],
+      permalink: permalink || ''
     }
 
     return (
