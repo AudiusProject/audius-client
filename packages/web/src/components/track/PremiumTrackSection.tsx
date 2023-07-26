@@ -116,19 +116,24 @@ const LockedPremiumTrackSection = ({
   buttonClassName
 }: PremiumTrackAccessSectionProps) => {
   const dispatch = useDispatch()
-  const [modalVisibility, setModalVisibility] = useModalState('LockedContent')
-  const source = modalVisibility ? 'howToUnlockModal' : 'howToUnlockTrackPage'
-  const followSource = modalVisibility
+  const [lockedContentModalVisibility, setLockedContentModalVisibility] =
+    useModalState('LockedContent')
+  const [_ignored, setPurchaseModalVisibility] = useModalState(
+    'PremiumContentPurchase'
+  )
+  const source = lockedContentModalVisibility
+    ? 'howToUnlockModal'
+    : 'howToUnlockTrackPage'
+  const followSource = lockedContentModalVisibility
     ? FollowSource.HOW_TO_UNLOCK_MODAL
     : FollowSource.HOW_TO_UNLOCK_TRACK_PAGE
   const account = useSelector(getAccountUser)
   const isUSDCPurchaseGated =
     isPremiumContentUSDCPurchaseGated(premiumConditions)
 
-  // TODO: https://linear.app/audius/issue/PAY-1531/[webmobileweb]-wire-up-purchase-usdc-flow
   const handlePurchase = useCallback(() => {
-    console.log('Purchase clicked')
-  }, [])
+    setPurchaseModalVisibility(true)
+  }, [setPurchaseModalVisibility])
 
   const handleSendTip = useCallback(() => {
     if (account) {
@@ -138,8 +143,8 @@ const LockedPremiumTrackSection = ({
       dispatch(showRequiresAccountModal())
     }
 
-    if (modalVisibility) {
-      setModalVisibility(false)
+    if (lockedContentModalVisibility) {
+      setLockedContentModalVisibility(false)
     }
   }, [
     dispatch,
@@ -147,8 +152,8 @@ const LockedPremiumTrackSection = ({
     tippedUser,
     source,
     trackId,
-    modalVisibility,
-    setModalVisibility
+    lockedContentModalVisibility,
+    setLockedContentModalVisibility
   ])
 
   const handleFollow = useCallback(() => {
@@ -166,8 +171,8 @@ const LockedPremiumTrackSection = ({
       dispatch(pushRoute(SIGN_UP_PAGE))
       dispatch(showRequiresAccountModal())
 
-      if (modalVisibility) {
-        setModalVisibility(false)
+      if (lockedContentModalVisibility) {
+        setLockedContentModalVisibility(false)
       }
     }
   }, [
@@ -176,8 +181,8 @@ const LockedPremiumTrackSection = ({
     premiumConditions,
     followSource,
     trackId,
-    modalVisibility,
-    setModalVisibility
+    lockedContentModalVisibility,
+    setLockedContentModalVisibility
   ])
 
   const renderLockedDescription = useCallback(() => {
