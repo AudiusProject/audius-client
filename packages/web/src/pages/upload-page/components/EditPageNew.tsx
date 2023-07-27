@@ -38,9 +38,7 @@ const EditTrackSchema = Yup.object().shape({
   title: Yup.string().required(messages.titleError),
   artwork: Yup.object({
     url: Yup.string()
-  })
-    .required(messages.artworkError)
-    .nullable(),
+  }).required(messages.artworkError),
   trackArtwork: Yup.string().nullable(),
   genre: Yup.string().required(messages.genreError),
   description: Yup.string().max(1000).nullable()
@@ -84,7 +82,7 @@ export const EditPageNew = (props: EditPageProps) => {
       {() => (
         <Form>
           <div className={styles.editForm}>
-            <TrackMetadataFields playing={false} type='track' />
+            <TrackMetadataFields />
             <TrackModalArray />
             <PreviewButton playing={false} onClick={() => {}} />
           </div>

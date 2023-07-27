@@ -19,8 +19,6 @@ export const ArtworkField = (props: ArtworkFieldProps) => {
   const { value, ...otherField } = field
   const [imageProcessingError, setImageProcessingError] = useState(false)
 
-  console.log({ value })
-
   const handleDropArtwork = async (selectedFiles: File[], source: string) => {
     try {
       let file = selectedFiles[0]
@@ -37,8 +35,6 @@ export const ArtworkField = (props: ArtworkFieldProps) => {
   }
 
   const hasError = Boolean(touched && error)
-
-  console.log({ touched, error })
 
   return (
     <>

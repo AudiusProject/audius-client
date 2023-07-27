@@ -1,4 +1,4 @@
-import { GENRES, formatCapitalizeString } from '@audius/common'
+import { GENRES } from '@audius/common'
 
 import { InputV2Variant } from 'components/data-entry/InputV2'
 import {
@@ -18,18 +18,13 @@ const MOODS = Object.keys(moodMap).map((k) => ({
 }))
 
 const messages = {
-  genre: 'Pick a Genre'
+  trackName: 'Track Name',
+  genre: 'Pick a Genre',
+  mood: 'Pick a Mood',
+  description: 'Description'
 }
 
-type TrackMetadataFieldsProps = {
-  /** Whether or not the preview is playing. */
-  playing: boolean
-  type: 'track'
-}
-
-export const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
-  const { type } = props
-
+export const TrackMetadataFields = () => {
   return (
     <div className={styles.basic}>
       <div className={styles.artwork}>
@@ -40,7 +35,7 @@ export const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
           <TextField
             name='title'
             variant={InputV2Variant.ELEVATED_PLACEHOLDER}
-            label={`${formatCapitalizeString(type)} Name`}
+            label={messages.trackName}
             maxLength={64}
             required
           />
@@ -56,7 +51,7 @@ export const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
           />
           <DropdownField
             name='mood'
-            placeholder='Pick a Mood'
+            placeholder={messages.mood}
             mount='parent'
             menu={{ items: MOODS }}
             size='large'
@@ -69,7 +64,7 @@ export const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
           <TextAreaField
             name='description'
             className={styles.textArea}
-            placeholder='Description'
+            placeholder={messages.description}
             maxLength={1000}
             showMaxLength
           />

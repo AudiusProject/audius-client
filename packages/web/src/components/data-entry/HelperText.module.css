@@ -1,11 +1,3 @@
 .root {
-  font-size: var(--font-xs);
-  font-weight: var(--font-medium);
-  line-height: 20px;
-  color: var(--neutral-light-4);
   margin-top: var(--unit-1);
-}
-
-.error {
-  color: var(--accent-red);
 }
