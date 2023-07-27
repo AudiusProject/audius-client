@@ -941,7 +941,7 @@ export class AudiusAPIClient {
     if (!trackResponse) {
       return null
     }
-    return adapter.makeTrack(trackResponse.data)
+    return adapter.makeTrack(trackResponse.data[0])
   }
 
   async getStems({ trackId }: GetStemsArgs): Promise<StemTrackMetadata[]> {
