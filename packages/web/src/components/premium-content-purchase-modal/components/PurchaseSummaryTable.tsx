@@ -1,7 +1,6 @@
 import { formatUSDCWeiToUSDString, StringUSDC } from '@audius/common'
-import cn from 'classnames'
 
-import typeStyles from 'components/typography/typography.module.css'
+import { Text } from 'components/typography'
 
 import styles from './PurchaseSummaryTable.module.css'
 
@@ -30,10 +29,10 @@ export const PurchaseSummaryTable = ({
   existingBalance
 }: PurchaseSummaryTableProps) => {
   return (
-    <div className={cn(styles.container, typeStyles.bodyMedium)}>
-      <div className={cn(styles.row, typeStyles.labelLarge)}>
+    <Text className={styles.container} variant='body'>
+      <Text className={styles.row} variant='label' size='Large'>
         {messages.summary}
-      </div>
+      </Text>
       <div className={styles.row}>
         <span>{messages.artistCut}</span>
         <span>{messages.price(formatUSDCWeiToUSDString(artistCut))}</span>
@@ -50,7 +49,7 @@ export const PurchaseSummaryTable = ({
           )}`}</span>
         </div>
       ) : null}
-      <div className={cn(styles.row, typeStyles.titleMedium)}>
+      <Text className={styles.row} variant='title'>
         <span>{messages.youPay}</span>
         <span className={styles.finalPrice}>
           {existingBalance ? (
@@ -62,7 +61,7 @@ export const PurchaseSummaryTable = ({
             messages.price(formatUSDCWeiToUSDString(amountDue))
           )}
         </span>
-      </div>
-    </div>
+      </Text>
+    </Text>
   )
 }

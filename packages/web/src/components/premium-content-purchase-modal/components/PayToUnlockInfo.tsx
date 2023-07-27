@@ -1,7 +1,7 @@
-import cn from 'classnames'
 import { Link } from 'react-router-dom'
 
 import { LockedStatusBadge } from 'components/track/LockedStatusBadge'
+import { Text } from 'components/typography'
 import typeStyles from 'components/typography/typography.module.css'
 import { TERMS_OF_SERVICE } from 'utils/route'
 
@@ -18,17 +18,16 @@ const messages = {
 export const PayToUnlockInfo = () => {
   return (
     <div className={styles.container}>
-      <div
-        className={cn(
-          styles.header,
-          typeStyles.labelLarge,
-          typeStyles.labelStrong
-        )}
+      <Text
+        variant='label'
+        size='Large'
+        strength='Strong'
+        className={styles.header}
       >
         <span>{messages.payToUnlock}</span>
         <LockedStatusBadge locked />
-      </div>
-      <div className={cn(styles.copy, typeStyles.bodyMedium)}>
+      </Text>
+      <Text className={styles.copy} variant='body'>
         <span>{messages.copyPart1}</span>
         <Link
           className={typeStyles.link}
@@ -39,7 +38,7 @@ export const PayToUnlockInfo = () => {
           {messages.termsOfUse}
         </Link>
         <span>{messages.copyPart2}</span>
-      </div>
+      </Text>
     </div>
   )
 }

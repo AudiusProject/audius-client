@@ -23,7 +23,7 @@ import styles from './LockedTrackDetailsTile.module.css'
 const messages = {
   collectibleGated: 'COLLECTIBLE GATED',
   specialAccess: 'SPECIAL ACCESS',
-  premiumContent: 'PREMIUM CONTENT'
+  premiumTrack: 'PREMIUM TRACK'
 }
 
 export type LockedTrackDetailsTileProps = {
@@ -67,7 +67,7 @@ export const LockedTrackDetailsTile = ({
     message = messages.collectibleGated
   } else if (isUSDCPurchaseGated) {
     IconComponent = IconCart
-    message = messages.premiumContent
+    message = messages.premiumTrack
   }
 
   return (

@@ -2,15 +2,11 @@ import { useCallback } from 'react'
 
 import { premiumContentSelectors, useGetTrackById } from '@audius/common'
 import { IconCart, Modal, ModalContentPages, ModalHeader } from '@audius/stems'
-import cn from 'classnames'
 import { useSelector } from 'react-redux'
-
-// import { buyAudioSelectors, BuyAudioStage } from '@audius/common'
-// import { useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { Icon } from 'components/Icon'
-import typeStyles from 'components/typography/typography.module.css'
+import { Text } from 'components/typography'
 
 import styles from './PremiumContentPurchaseModal.module.css'
 import { LoadingPage } from './components/LoadingPage'
@@ -49,16 +45,16 @@ export const PremiumContentPurchaseModal = () => {
       dismissOnClickOutside
     >
       <ModalHeader onClose={handleClose} showDismissButton>
-        <div
-          className={cn(
-            styles.title,
-            typeStyles.labelXLarge,
-            typeStyles.labelStrong
-          )}
+        <Text
+          variant='label'
+          color='--neutral-light-2'
+          size='XLarge'
+          strength='Strong'
+          className={styles.title}
         >
           <Icon size='large' icon={IconCart} />
           {messages.completePurchase}
-        </div>
+        </Text>
       </ModalHeader>
       {track ? (
         <ModalContentPages currentPage={currentStep}>
