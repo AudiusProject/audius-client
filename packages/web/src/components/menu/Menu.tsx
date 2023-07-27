@@ -24,7 +24,6 @@ export type MenuType = MenuOptionType['type']
 
 export type MenuProps = {
   children: PopupMenuProps['renderTrigger']
-  // menu: Omit<MenuOptionType, 'children'>
   menu: MenuOptionType
   onClose?: () => void
   zIndex?: number
@@ -61,12 +60,5 @@ const Menu = forwardRef<HTMLDivElement, MenuProps>((props, ref) => {
   }
   return null
 })
-
-Menu.defaultProps = {
-  menu: {
-    type: 'track',
-    handle: ''
-  }
-}
 
 export default Menu

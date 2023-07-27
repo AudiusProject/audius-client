@@ -16,8 +16,7 @@ import { Dispatch } from 'redux'
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
-import { CollectionMenuProps } from 'components/menu/CollectionMenu'
-import Menu, { MenuType } from 'components/menu/Menu'
+import Menu from 'components/menu/Menu'
 import PerspectiveCard from 'components/perspective-card/PerspectiveCard'
 import RepostFavoritesStats, {
   Size
@@ -139,7 +138,7 @@ const CollectionArtCard = g(
     }, [image, setDidLoad, index])
 
     const menu = {
-      type: (is_album ? 'album' : 'playlist') as MenuType,
+      type: is_album ? ('album' as const) : ('playlist' as const),
       handle,
       playlistId: playlist_id,
       playlistName: playlist_name,
@@ -153,7 +152,7 @@ const CollectionArtCard = g(
       metadata: collection,
       name: playlist_name,
       permalink
-    } as unknown as CollectionMenuProps
+    }
 
     return (
       <div className={cn(styles.card, className)}>
