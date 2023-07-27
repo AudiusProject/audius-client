@@ -11,7 +11,7 @@ import { AiAttributionDropdown } from 'components/ai-attribution-modal/AiAttribu
 import { InputV2, InputV2Variant } from 'components/data-entry/InputV2'
 import { Divider } from 'components/divider'
 import layoutStyles from 'components/layout/layout.module.css'
-import typeStyles from 'components/typography/typography.module.css'
+import { Text } from 'components/typography'
 
 import { EditFormValues } from '../components/EditPageNew'
 import { ModalField } from '../fields/ModalField'
@@ -158,8 +158,10 @@ export const AttributionModalForm = () => {
 
   const preview = (
     <div className={cn(layoutStyles.col, layoutStyles.gap2)}>
-      <label className={typeStyles.titleLarge}>{messages.title}</label>
-      <div className={typeStyles.bodyMedium}>{messages.description}</div>
+      <Text variant='title' size='large'>
+        {messages.title}
+      </Text>
+      <Text>{messages.description}</Text>
     </div>
   )
 
@@ -223,9 +225,9 @@ const AttributionModalFields = () => {
       </SwitchRowField>
       <Divider />
       <div className={cn(layoutStyles.col, layoutStyles.gap4)}>
-        <div
-          className={typeStyles.titleLarge}
-        >{`${messages.isrc.header} / ${messages.iswc.header}`}</div>
+        <Text variant='title' size='large'>
+          {`${messages.isrc.header} / ${messages.iswc.header}`}
+        </Text>
         <span className={cn(layoutStyles.row, layoutStyles.gap6)}>
           <InputV2
             {...isrcField}
@@ -243,7 +245,9 @@ const AttributionModalFields = () => {
       </div>
       <Divider />
       <div className={cn(layoutStyles.col, layoutStyles.gap6)}>
-        <div className={typeStyles.titleLarge}>{messages.licenseType}</div>
+        <Text variant='title' size='large'>
+          {messages.licenseType}
+        </Text>
         <div className={styles.attributionCommercialRow}>
           <div
             className={cn(
@@ -252,9 +256,9 @@ const AttributionModalFields = () => {
               layoutStyles.gap2
             )}
           >
-            <div className={typeStyles.titleMedium}>
+            <Text variant='title' size='medium'>
               {messages.allowAttribution.header}
-            </div>
+            </Text>
             <SegmentedControl
               defaultSelected={allowAttribution}
               // @ts-ignore boolean support works
@@ -274,9 +278,9 @@ const AttributionModalFields = () => {
               }
             )}
           >
-            <div className={typeStyles.titleMedium}>
+            <Text variant='title' size='medium'>
               {messages.commercialUse.header}
-            </div>
+            </Text>
             <SegmentedControl
               fullWidth
               defaultSelected={commercialUse}
@@ -289,13 +293,15 @@ const AttributionModalFields = () => {
           </div>
         </div>
         <div className={cn(layoutStyles.col, layoutStyles.gap2)}>
-          <div
-            className={cn(typeStyles.titleMedium, {
+          <Text
+            className={cn({
               [styles.disabled]: !allowAttribution
             })}
+            variant='title'
+            size='medium'
           >
             {messages.derivativeWorks.header}
-          </div>
+          </Text>
           <SegmentedControl
             fullWidth
             defaultSelected={derivativeWorks}
@@ -316,10 +322,12 @@ const AttributionModalFields = () => {
               ))}
             </div>
           ) : null}
-          <div className={typeStyles.titleMedium}>{licenseType}</div>
+          <Text variant='title' size='medium'>
+            {licenseType}
+          </Text>
         </div>
         {licenseDescription ? (
-          <div className={typeStyles.bodySmall}>{licenseDescription}</div>
+          <Text size='small'>{licenseDescription}</Text>
         ) : null}
       </div>
     </div>
