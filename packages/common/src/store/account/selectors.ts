@@ -114,7 +114,6 @@ export const getAccountNavigationPlaylists = (state: CommonState) => {
 export const getUserPlaylists = createSelector(
   [internalGetUserPlaylists, getCollections],
   (playlists, collections) => {
-    console.log('im in getuserplaylistssss')
     // Strange filter:
     // If we haven't cached the collection (e.g. on first load), always return it.
     // If we have cached it and it's marked delete, don't return it bc we know better now.
@@ -127,8 +126,6 @@ export const getUserPlaylists = createSelector(
 export const getAccountCollections = createSelector(
   [internalGetAccountCollections, getCollections],
   (accountCollections, collections) => {
-    console.log('im in getaccountcollectionsss')
-    console.log(accountCollections)
     return Object.keys(accountCollections).reduce((acc, cur) => {
       const track = accountCollections[cur as unknown as number]
       if (!collections[track.id] || collections[track.id]._marked_deleted)

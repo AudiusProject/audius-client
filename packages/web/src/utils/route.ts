@@ -286,8 +286,6 @@ export const collectionPage = (
   isAlbum?: boolean
 ) => {
   // Prioritize permalink if available. If not, default to legacy routing
-  console.log('permalink in routing isss ', permalink)
-  console.log('is album iss ', isAlbum)
   if (permalink) {
     return permalink
   } else if (playlistName && playlistId) {

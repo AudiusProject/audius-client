@@ -33,10 +33,6 @@ export const getCollections = (
     permalinks?: string[] | null
   }
 ) => {
-  console.log('in cacheee')
-  console.log('props, ', props)
-  // for some reason we are receiving prop ids here, should be
-  // receiving props. check where this action is being dispatched
   if (props && props.ids) {
     const collections: { [id: number]: Collection } = {}
     props.ids.forEach((id) => {
