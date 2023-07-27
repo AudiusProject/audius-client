@@ -4,14 +4,13 @@ import { GENRES, getCanonicalName, getErrorMessage } from '@audius/common'
 import { useField } from 'formik'
 
 import DropdownInput from 'components/data-entry/DropdownInput'
-import Input from 'components/data-entry/Input'
 import {
   InputV2,
   InputV2Size,
   InputV2Variant
 } from 'components/data-entry/InputV2'
 import TagInput from 'components/data-entry/TagInput'
-import TextArea from 'components/data-entry/TextArea'
+import { TextAreaV2 } from 'components/data-entry/TextAreaV2'
 import UploadArtwork from 'components/upload/UploadArtwork'
 import { moodMap } from 'utils/Moods'
 import { resizeImage } from 'utils/imageProcessingUtil'
@@ -42,17 +41,14 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
   const [artworkField, , artworkHelpers] = useField(
     getTrackFieldName(index, 'artwork')
   )
-  const [titleField, titleMeta, titleHelpers] = useField(
-    getTrackFieldName(index, 'title')
-  )
-  const [genreField, genreMeta, genreHelpers] = useField(
-    getTrackFieldName(index, 'genre')
-  )
+  const [titleField] = useField(getTrackFieldName(index, 'title'))
+  const [genreField, , genreHelpers] = useField({
+    name: getTrackFieldName(index, 'genre'),
+    type: 'select'
+  })
   const [, moodMeta, moodHelpers] = useField(getTrackFieldName(index, 'mood'))
   const [, tagsMeta, tagsHelpers] = useField(getTrackFieldName(index, 'tags'))
-  const [, descriptionMeta, descriptionHelpers] = useField(
-    getTrackFieldName(index, 'description')
-  )
+  const [descriptionField] = useField(getTrackFieldName(index, 'description'))
 
   const onDropArtwork = async (selectedFiles: File[], source: string) => {
     try {
@@ -99,9 +95,9 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
             mount='parent'
             menu={{ items: GENRES }}
             defaultValue={getCanonicalName(genreField.value) || ''}
-            error={!!genreMeta.error}
-            onSelect={genreHelpers.setValue}
             size='large'
+            {...genreField}
+            onSelect={genreHelpers.setValue}
           />
           <DropdownInput
             placeholder='Pick a Mood'
@@ -124,12 +120,11 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
           />
         </div>
         <div className={styles.description}>
-          <TextArea
+          <TextAreaV2
             className={styles.textArea}
             placeholder='Description'
-            defaultValue={descriptionMeta.initialValue || ''}
-            onChange={descriptionHelpers.setValue}
-            characterLimit={1000}
+            // defaultValue={descriptionMeta.initialValue || ''}
+            {...descriptionField}
           />
         </div>
       </div>
