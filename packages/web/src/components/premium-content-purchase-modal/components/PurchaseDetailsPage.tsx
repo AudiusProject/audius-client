@@ -1,8 +1,12 @@
+import { useCallback } from 'react'
+
 import {
+  formatUSDCWeiToUSDString,
   isPremiumContentUSDCPurchaseGated,
   Track,
   UserTrackMetadata
 } from '@audius/common'
+import { HarmonyButton } from '@audius/stems'
 
 import { LockedTrackDetailsTile } from 'components/track/LockedTrackDetailsTile'
 
@@ -10,19 +14,25 @@ import { PayToUnlockInfo } from './PayToUnlockInfo'
 import styles from './PurchaseDetailsPage.module.css'
 import { PurchaseSummaryTable } from './PurchaseSummaryTable'
 
+const messages = {
+  buy: (price: string) => `Buy $${price}`
+}
+
 export const PurchaseDetailsPage = ({
   track
 }: {
   track: UserTrackMetadata
 }) => {
+  const onClickBuy = useCallback(() => {
+    console.log('buy!')
+  }, [])
+
   if (!isPremiumContentUSDCPurchaseGated(track.premium_conditions)) {
     console.error(
       `Loaded Purchase modal with a non-USDC-gated track: ${track.track_id}`
     )
     return null
   }
-
-  // TODO: Add copy row and buy button
 
   const { price } = track.premium_conditions.usdc_purchase
   return (
@@ -39,6 +49,12 @@ export const PurchaseDetailsPage = ({
         basePrice={price}
       />
       <PayToUnlockInfo />
+      <HarmonyButton
+        color='specialLightGreen'
+        onClick={onClickBuy}
+        text={messages.buy(formatUSDCWeiToUSDString(price))}
+        fullWidth
+      />
     </div>
   )
 }

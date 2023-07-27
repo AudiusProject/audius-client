@@ -78,7 +78,11 @@ export const LockedTrackDetailsTile = ({
         image={image}
         aria-label={label}
       />
-      {dogEarType ? <DogEar type={dogEarType} /> : null}
+      {dogEarType ? (
+        <div className={styles.dogEar}>
+          <DogEar type={dogEarType} />
+        </div>
+      ) : null}
       <div>
         <div
           className={cn(styles.premiumContentLabel, {
