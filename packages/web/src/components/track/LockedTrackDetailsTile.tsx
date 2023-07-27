@@ -50,8 +50,6 @@ export const LockedTrackDetailsTile = ({
   )
 
   const dogEarType = getDogEarType({
-    doesUserHaveAccess: false,
-    isOwner: false,
     premiumConditions
   })
   const label = `${title} by ${owner.name}`
