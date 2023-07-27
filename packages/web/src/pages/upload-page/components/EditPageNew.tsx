@@ -1,15 +1,20 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useState } from 'react'
 
-import { ExtendedTrackMetadata, Nullable } from '@audius/common'
-import { Button, ButtonType, IconArrow } from '@audius/stems'
+import { HarmonyButton, HarmonyButtonType, IconArrow } from '@audius/stems'
+import cn from 'classnames'
 import { Form, Formik } from 'formik'
 import moment from 'moment'
 import * as Yup from 'yup'
 
+import layoutStyles from 'components/layout/layout.module.css'
 import PreviewButton from 'components/upload/PreviewButton'
 
+import { MultiTrackSidebar } from '../fields/MultiTrackSidebar'
 import { TrackMetadataFields } from '../fields/TrackMetadataFields'
+import { TrackEditFormValues } from '../forms/types'
 
+import styles from './EditPageNew.module.css'
+import { TrackModalArray } from './TrackModalArray'
 import { TrackForUpload } from './types'
 
 const messages = {
@@ -22,14 +27,6 @@ type EditPageProps = {
   tracks: TrackForUpload[]
   setTracks: (tracks: TrackForUpload[]) => void
   onContinue: () => void
-}
-export type EditFormValues = ExtendedTrackMetadata & {
-  releaseDate: moment.Moment
-  licenseType: {
-    allowAttribution: Nullable<boolean>
-    commercialUse: Nullable<boolean>
-    derivativeWorks: Nullable<boolean>
-  }
 }
 
 const EditTrackSchema = Yup.object().shape({
@@ -47,53 +44,62 @@ const EditTrackSchema = Yup.object().shape({
 export const EditPageNew = (props: EditPageProps) => {
   const { tracks, setTracks, onContinue } = props
 
-  const [{ metadata: trackMetadata }] = tracks
-
-  const initialValues: EditFormValues = useMemo(
-    () => ({
-      ...trackMetadata,
+  const initialValues: TrackEditFormValues = {
+    trackMetadatas: tracks.map((track) => ({
+      ...track.metadata,
       artwork: null,
-      description: '',
       releaseDate: moment().startOf('day'),
-      tags: '',
       licenseType: {
         allowAttribution: null,
         commercialUse: null,
         derivativeWorks: null
       }
-    }),
-    [trackMetadata]
-  )
+    }))
+  }
 
   const onSubmit = useCallback(
-    (values: EditFormValues) => {
-      setTracks([{ ...tracks[0], metadata: values }])
+    (values: TrackEditFormValues) => {
+      const tracksForUpload: TrackForUpload[] = tracks.map((track, i) => ({
+        ...track,
+        metadata: values.trackMetadatas[i]
+      }))
+      setTracks(tracksForUpload)
       onContinue()
     },
     [onContinue, setTracks, tracks]
   )
 
+  const [index, setIndex] = useState(0)
+  const isMultiTrack = tracks.length > 1
+
   return (
-    <Formik<EditFormValues>
+    <Formik<TrackEditFormValues>
       initialValues={initialValues}
       onSubmit={onSubmit}
-      validationSchema={EditTrackSchema}
+      // validationSchema={EditTrackSchema}
     >
       {() => (
         <Form>
-          <div className={styles.editForm}>
-            <TrackMetadataFields playing={false} type='track' />
-            <TrackModalArray />
-            <PreviewButton playing={false} onClick={() => {}} />
+          <div className={cn(layoutStyles.row, layoutStyles.gap2)}>
+            <div className={styles.editForm}>
+              <TrackMetadataFields playing={false} index={index} />
+              <TrackModalArray index={index} />
+              <PreviewButton playing={false} onClick={() => {}} index={index} />
+            </div>
+            {isMultiTrack ? (
+              <MultiTrackSidebar
+                index={index}
+                setIndex={setIndex}
+                limit={tracks.length}
+              />
+            ) : null}
           </div>
           <div className={styles.continue}>
-            <Button
-              type={ButtonType.PRIMARY_ALT}
-              buttonType='submit'
+            <HarmonyButton
+              variant={HarmonyButtonType.PRIMARY}
               text='Continue'
               name='continue'
-              rightIcon={<IconArrow />}
-              textClassName={styles.continueButtonText}
+              iconRight={IconArrow}
               className={styles.continueButton}
             />
           </div>

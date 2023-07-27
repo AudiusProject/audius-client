@@ -1,4 +1,4 @@
-import { GENRES, formatCapitalizeString } from '@audius/common'
+import { GENRES } from '@audius/common'
 
 import { InputV2Variant } from 'components/data-entry/InputV2'
 import {
@@ -26,41 +26,38 @@ const messages = {
 type TrackMetadataFieldsProps = {
   /** Whether or not the preview is playing. */
   playing: boolean
-  type: 'track'
   index: number
 }
 
 export const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
-  const { type } = props
+  const { index } = props
 
   return (
     <div className={styles.basic}>
       <div className={styles.artwork}>
-        <ArtworkField name='artwork' />
+        <ArtworkField name={getTrackFieldName(index, 'artwork')} />
       </div>
       <div className={styles.fields}>
         <div className={styles.trackName}>
           <TextField
-            name='title'
+            name={getTrackFieldName(index, 'title')}
             variant={InputV2Variant.ELEVATED_PLACEHOLDER}
-            label={`${formatCapitalizeString(type)} Name`}
+            label={`Track Name`}
             maxLength={64}
             required
           />
         </div>
         <div className={styles.categorization}>
           <DropdownField
-            name='genre'
+            name={getTrackFieldName(index, 'genre')}
             aria-label={messages.genre}
             placeholder={messages.genre}
             mount='parent'
             menu={{ items: GENRES }}
             size='large'
-            {...genreField}
-            onSelect={genreHelpers.setValue}
           />
           <DropdownField
-            name='mood'
+            name={getTrackFieldName(index, 'mood')}
             placeholder='Pick a Mood'
             mount='parent'
             menu={{ items: MOODS }}
@@ -68,11 +65,11 @@ export const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
           />
         </div>
         <div className={styles.tags}>
-          <TagField name='tags' />
+          <TagField name={getTrackFieldName(index, 'tags')} />
         </div>
         <div className={styles.description}>
           <TextAreaField
-            name='description'
+            name={getTrackFieldName(index, 'description')}
             className={styles.textArea}
             placeholder='Description'
             maxLength={1000}

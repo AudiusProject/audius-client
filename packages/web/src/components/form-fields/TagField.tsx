@@ -13,7 +13,7 @@ export const TagField = (props: TagFieldProps) => {
   const [field, , { setValue }] = useField(name)
   const { value, ...otherField } = field
 
-  const tags = value.split(',').filter(removeNullable)
+  const tags = (value ?? '').split(',').filter(removeNullable)
 
   const handleChangeTags = useCallback(
     (value: Set<string>) => setValue([...value].join(',')),

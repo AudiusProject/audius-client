@@ -1,4 +1,4 @@
-import { Button } from '@audius/stems'
+import { HarmonyButton } from '@audius/stems'
 import cn from 'classnames'
 
 import layoutStyles from 'components/layout/layout.module.css'
@@ -15,13 +15,15 @@ export const MultiTrackSidebar = (props: MultiTrackSidebarProps) => {
     <div className={cn(layoutStyles.col, layoutStyles.gap2)}>
       Track {index + 1} of {limit}
       <div className={cn(layoutStyles.row, layoutStyles.gap2)}>
-        <Button
+        <HarmonyButton
           text={'Prev'}
           onClick={() => setIndex(Math.max(index - 1, 0))}
+          type='button'
         />
-        <Button
+        <HarmonyButton
           text={'Next'}
           onClick={() => setIndex(Math.min(index + 1, limit - 1))}
+          type='button'
         />
       </div>
     </div>
