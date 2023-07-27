@@ -6,6 +6,7 @@ import {
 
 import { LockedTrackDetailsTile } from 'components/track/LockedTrackDetailsTile'
 
+import { PayToUnlockInfo } from './PayToUnlockInfo'
 import styles from './PurchaseDetailsPage.module.css'
 import { PurchaseSummaryTable } from './PurchaseSummaryTable'
 
@@ -20,6 +21,9 @@ export const PurchaseDetailsPage = ({
     )
     return null
   }
+
+  // TODO: Add copy row and buy button
+
   const { price } = track.premium_conditions.usdc_purchase
   return (
     <div className={styles.container}>
@@ -34,6 +38,7 @@ export const PurchaseDetailsPage = ({
         amountDue={price}
         basePrice={price}
       />
+      <PayToUnlockInfo />
     </div>
   )
 }

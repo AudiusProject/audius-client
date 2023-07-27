@@ -13,6 +13,7 @@ import cn from 'classnames'
 import { Icon } from 'components/Icon'
 import { DogEar } from 'components/dog-ear'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
+import typeStyles from 'components/typography/typography.module.css'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { profilePage } from 'utils/route'
@@ -90,7 +91,10 @@ export const LockedTrackDetailsTile = ({
         <p className={styles.trackTitle}>{title}</p>
         <div className={styles.trackOwner}>
           <span className={styles.by}>By</span>
-          <a className={styles.trackOwnerName} href={profilePage(owner.handle)}>
+          <a
+            className={cn(typeStyles.link, styles.trackOwnerName)}
+            href={profilePage(owner.handle)}
+          >
             {owner.name}
           </a>
           <UserBadges

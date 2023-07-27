@@ -118,6 +118,7 @@
   font-weight: var(--font-bold);
   letter-spacing: 0.5px;
   line-height: var(--unit-6);
+  text-transform: uppercase;
 }
 /* 16 / 16 */
 .labelLarge {
@@ -125,6 +126,7 @@
   font-weight: var(--font-bold);
   letter-spacing: 0.5px;
   line-height: var(--unit-4);
+  text-transform: uppercase;
 }
 /* 14 / 16 */
 .labelMedium {
@@ -132,6 +134,7 @@
   font-weight: var(--font-bold);
   letter-spacing: 0.5px;
   line-height: var(--unit-4);
+  text-transform: uppercase;
 }
 /* 12 /12 */
 .labelSmall {
@@ -139,6 +142,7 @@
   font-weight: var(--font-bold);
   letter-spacing: 0.5px;
   line-height: var(--unit-3);
+  text-transform: uppercase;
 }
 /* 10 / 12 */
 .labelXSmall {
@@ -146,6 +150,7 @@
   font-weight: var(--font-bold);
   letter-spacing: 0.5px;
   line-height: var(--unit-3);
+  text-transform: uppercase;
 }
 .labelWeak {
   font-weight: var(--font-medium);
@@ -182,4 +187,15 @@
 }
 .bodyStrong {
   font-weight: var(--font-demi-bold);
+}
+
+/* Special Styles */
+
+.link {
+  color: var(--focus);
+}
+
+.link:hover {
+  color: var(--focus);
+  text-decoration: underline !important;
 }

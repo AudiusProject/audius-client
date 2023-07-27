@@ -55,11 +55,6 @@
 .trackOwnerName {
   margin: 0 var(--unit-1);
   font-weight: var(--font-medium);
-  color: var(--secondary);
-}
-
-.trackOwnerName:hover {
-  color: var(--secondary);
 }
 
 .badgeIcon {
