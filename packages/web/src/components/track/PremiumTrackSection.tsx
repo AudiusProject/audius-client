@@ -120,9 +120,7 @@ const LockedPremiumTrackSection = ({
   const dispatch = useDispatch()
   const [lockedContentModalVisibility, setLockedContentModalVisibility] =
     useModalState('LockedContent')
-  const [_ignored, setPurchaseModalVisibility] = useModalState(
-    'PremiumContentPurchase'
-  )
+  const [, setPurchaseModalVisibility] = useModalState('PremiumContentPurchase')
   const source = lockedContentModalVisibility
     ? 'howToUnlockModal'
     : 'howToUnlockTrackPage'
