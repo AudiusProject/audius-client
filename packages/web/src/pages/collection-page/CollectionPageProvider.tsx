@@ -856,7 +856,7 @@ function makeMapStateToProps() {
       status: getCollectionStatus(state) || '',
       order: getLineupOrder(state),
       userId: getUserId(state),
-      playlistId: getCollection(state)?.playlist_id,
+      playlistId: (getCollection(state) as Collection)?.playlist_id,
       userPlaylists: getAccountCollections(state),
       currentQueueItem: getCurrentQueueItem(state),
       playing: getPlaying(state),

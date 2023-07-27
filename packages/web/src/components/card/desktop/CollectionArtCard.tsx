@@ -16,6 +16,7 @@ import { Dispatch } from 'redux'
 import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHorizontal.svg'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
+import { CollectionMenuProps } from 'components/menu/CollectionMenu'
 import Menu from 'components/menu/Menu'
 import PerspectiveCard from 'components/perspective-card/PerspectiveCard'
 import RepostFavoritesStats, {
@@ -151,8 +152,8 @@ const CollectionArtCard = g(
       isReposted: has_current_user_reposted,
       metadata: collection,
       name: playlist_name,
-      permalink
-    }
+      permalink: permalink || null
+    } as unknown as CollectionMenuProps
 
     return (
       <div className={cn(styles.card, className)}>
