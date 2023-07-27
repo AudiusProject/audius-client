@@ -91,6 +91,8 @@ const derivativeWorksValues = [
 type AttributionFormValues = {
   [IS_AI_ATTRIBUTED]: boolean
   [AI_USER_ID]?: number
+  [ISRC]: string
+  [ISWC]: string
   [ALLOW_ATTRIBUTION]: boolean
   [COMMERCIAL_USE]: boolean
   [DERIVATIVE_WORKS]: Nullable<boolean>
@@ -122,6 +124,9 @@ export const AttributionModalForm = (props: AttributionModalFormProps) => {
   const initialValues = useMemo(() => {
     const initialValues = {}
     set(initialValues, AI_USER_ID, aiUserId)
+    if (aiUserId) {
+      set(initialValues, IS_AI_ATTRIBUTED, true)
+    }
     set(initialValues, ISRC, isrcValue)
     set(initialValues, ISWC, iswcValue)
     set(initialValues, ALLOW_ATTRIBUTION, allowAttribution)
@@ -267,6 +272,8 @@ const AttributionModalFields = () => {
             <SegmentedControl
               defaultSelected={allowAttribution}
               // @ts-ignore boolean support works
+              selected={allowAttribution}
+              // @ts-ignore boolean support works
               options={allowAttributionValues}
               // @ts-ignore
               onSelectOption={setAllowAttribution}
@@ -290,6 +297,8 @@ const AttributionModalFields = () => {
               fullWidth
               defaultSelected={commercialUse}
               // @ts-ignore boolean support works
+              selected={commercialUse}
+              // @ts-ignore boolean support works
               options={commercialUseValues}
               // @ts-ignore
               onSelectOption={setCommercialUse}
@@ -308,6 +317,8 @@ const AttributionModalFields = () => {
           <SegmentedControl
             fullWidth
             defaultSelected={derivativeWorks}
+            // @ts-ignore boolean support works
+            selected={derivativeWorks}
             // @ts-ignore boolean support works
             options={derivativeWorksValues}
             // @ts-ignore
