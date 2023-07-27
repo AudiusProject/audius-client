@@ -115,7 +115,7 @@ export const formOAuthResponse = async ({
     const storageNode = storageNodeSelector.getNodes(
       account.profile_picture_sizes
     )[0]
-    const base = `${storageNode}${account.profile_picture_sizes}/`
+    const base = `${storageNode}/content/${account.profile_picture_sizes}/`
     profilePicture = {
       '150x150': `${base}150x150.jpg`,
       '480x480': `${base}480x480.jpg`,
