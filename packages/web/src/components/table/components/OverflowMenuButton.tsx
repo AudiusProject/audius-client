@@ -3,6 +3,7 @@ import cn from 'classnames'
 import { ReactComponent as IconOptions } from 'assets/img/iconKebabHorizontal.svg'
 import tabStyles from 'components/actions-tab/ActionsTab.module.css'
 import Menu, { MenuProps } from 'components/menu/Menu'
+import { TrackMenuProps } from 'components/menu/TrackMenu'
 
 import styles from './OverflowMenuButton.module.css'
 
@@ -64,7 +65,7 @@ export const OverflowMenuButton = (props: OverflowMenuButtonProps) => {
       includeShare: true,
       ...props,
       extraMenuItems: onRemove ? [removeMenuItem] : []
-    }
+    } as unknown as TrackMenuProps
   }
 
   if (isOwnerDeactivated && !onRemove && !isFavorited) {
