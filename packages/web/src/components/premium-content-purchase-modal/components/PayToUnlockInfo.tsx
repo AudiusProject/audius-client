@@ -1,7 +1,9 @@
 import cn from 'classnames'
+import { Link } from 'react-router-dom'
 
 import { LockedStatusBadge } from 'components/track/LockedStatusBadge'
 import typeStyles from 'components/typography/typography.module.css'
+import { TERMS_OF_SERVICE } from 'utils/route'
 
 import styles from './PayToUnlockInfo.module.css'
 
@@ -28,14 +30,14 @@ export const PayToUnlockInfo = () => {
       </div>
       <div className={cn(styles.copy, typeStyles.bodyMedium)}>
         <span>{messages.copyPart1}</span>
-        <a
-          href='/terms-of-use'
+        <Link
           className={typeStyles.link}
+          to={TERMS_OF_SERVICE}
           target='_blank'
-          rel='noopener noreferrer'
+          rel='noreferrer'
         >
           {messages.termsOfUse}
-        </a>
+        </Link>
         <span>{messages.copyPart2}</span>
       </div>
     </div>
