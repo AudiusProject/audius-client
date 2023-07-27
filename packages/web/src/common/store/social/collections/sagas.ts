@@ -378,7 +378,8 @@ export function* saveCollectionAsync(
       id: collection.playlist_id,
       name: collection.playlist_name,
       is_album: collection.is_album,
-      user: { id: user.user_id, handle: user.handle }
+      user: { id: user.user_id, handle: user.handle },
+      permalink: collection.permalink || ''
     })
   )
 

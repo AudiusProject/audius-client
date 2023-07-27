@@ -11,6 +11,7 @@ import {
 import { Button, ButtonType, IconKebabHorizontal } from '@audius/stems'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { CollectionMenuProps } from 'components/menu/CollectionMenu'
 import Menu from 'components/menu/Menu'
 
 import styles from './CollectionHeader.module.css'
@@ -77,7 +78,7 @@ export const OverflowMenuButton = (props: OverflowMenuButtonProps) => {
     isPublic: !is_private,
     extraMenuItems,
     permalink
-  }
+  } as unknown as CollectionMenuProps
 
   return (
     <Menu menu={overflowMenu}>

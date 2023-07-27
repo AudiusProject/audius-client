@@ -21,12 +21,7 @@ import {
 } from 'common/store/search-bar/actions'
 import { getSearch } from 'common/store/search-bar/selectors'
 import Bar from 'components/search/SearchBar'
-import {
-  albumPage,
-  collectionPage,
-  profilePage,
-  getPathname
-} from 'utils/route'
+import { collectionPage, profilePage, getPathname } from 'utils/route'
 
 import styles from './ConnectedSearchBar.module.css'
 

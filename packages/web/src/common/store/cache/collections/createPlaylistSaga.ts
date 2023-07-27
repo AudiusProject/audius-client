@@ -131,7 +131,8 @@ function* optimisticallySavePlaylist(
       id: playlistId,
       name: playlist.playlist_name as string,
       is_album: false,
-      user: { id: user_id, handle }
+      user: { id: user_id, handle },
+      permalink: playlist?.permalink
     })
   )
 

@@ -1,10 +1,5 @@
-import {
-  SmartCollection,
-  CollectionsPageType,
-  FeatureFlags
-} from '@audius/common'
+import { SmartCollection, CollectionsPageType } from '@audius/common'
 
-import { useFlag } from 'hooks/useRemoteConfig'
 import { isMobile } from 'utils/clientUtil'
 
 import CollectionPageProvider from './CollectionPageProvider'
@@ -27,7 +22,6 @@ const CollectionPage = (props: CollectionPageProps) => {
       isMobile={isMobileClient}
       smartCollection={smartCollection}
       type={type}
-      // todo: remove later, we are removing the ff for this
       playlistByPermalinkEnabled={true}
     >
       {content}

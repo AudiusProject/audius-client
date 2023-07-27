@@ -85,7 +85,9 @@ export const DuplicateAddConfirmationModal = () => {
     dispatch,
     account,
     toast,
-    playlist?.playlist_name
+    playlist?.playlist_name,
+    playlist?.permalink,
+    playlist?.is_album
   ])
 
   return (

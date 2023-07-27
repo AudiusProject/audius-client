@@ -20,7 +20,7 @@ import Header from 'components/header/desktop/Header'
 import Page from 'components/page/Page'
 import { dropdownRows as stemRows } from 'components/source-files-modal/SourceFilesModal'
 import { processFiles } from 'pages/upload-page/store/utils/processFiles'
-import { collectionPage, albumPage, profilePage } from 'utils/route'
+import { collectionPage, profilePage } from 'utils/route'
 
 import styles from './UploadPage.module.css'
 import EditPage from './components/EditPage'
