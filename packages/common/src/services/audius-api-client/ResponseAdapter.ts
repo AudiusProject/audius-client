@@ -27,7 +27,8 @@ import {
   APISearch,
   APISearchTrack,
   APISearchAutocomplete,
-  APISearchPlaylist
+  APISearchPlaylist,
+  APIActivityV2
 } from './types'
 
 export const makeUser = (
@@ -390,13 +391,17 @@ export const makePlaylist = (
 }
 
 export const makeActivity = (
-  activity: APIActivity
+  activity: APIActivity | APIActivityV2
 ): UserTrackMetadata | UserCollectionMetadata | undefined => {
-  switch (activity.item_type) {
+  const itemType =
+    'item_type' in activity ? activity.item_type : activity.itemType
+  switch (itemType) {
     case 'track':
-      return makeTrack(activity.item)
+      // Cast to APITrack because TS is not correctly inferring the type
+      return makeTrack(activity.item as APITrack)
     case 'playlist':
-      return makePlaylist(activity.item)
+      // Cast to APIPlaylist because TS is not correctly inferring the type
+      return makePlaylist(activity.item as APIPlaylist)
   }
 }
 

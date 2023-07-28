@@ -210,6 +210,11 @@ export type APIActivity = { timestamp: string } & (
   | { item_type: 'playlist'; item: APIPlaylist }
 )
 
+export type APIActivityV2 = { timestamp: string } & (
+  | { itemType: 'track'; item: APITrack }
+  | { itemType: 'playlist'; item: APIPlaylist }
+)
+
 export type APISearch = {
   users?: APIUser[]
   followed_users?: APIUser[]
