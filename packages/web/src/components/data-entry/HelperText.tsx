@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 
-import cn from 'classnames'
+import { Text } from 'components/typography'
 
 import styles from './HelperText.module.css'
 
@@ -13,9 +13,15 @@ export const HelperText = (props: HelperTextProps) => {
   const { children, error } = props
   return (
     <div className={styles.root}>
-      <span className={cn(styles.text, { [styles.error]: error })}>
+      <Text
+        variant='body'
+        size='xSmall'
+        strength='default'
+        // @ts-expect-error
+        color={error ? '--accent-red' : '--neutral-light-4'}
+      >
         {children}
-      </span>
+      </Text>
     </div>
   )
 }

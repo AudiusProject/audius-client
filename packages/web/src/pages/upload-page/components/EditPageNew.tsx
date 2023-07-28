@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useMemo } from 'react'
 
 import { HarmonyButton, HarmonyButtonType, IconArrow } from '@audius/stems'
 import cn from 'classnames'
@@ -33,9 +33,7 @@ const EditTrackSchema = Yup.object().shape({
   title: Yup.string().required(messages.titleError),
   artwork: Yup.object({
     url: Yup.string()
-  })
-    .required(messages.artworkError)
-    .nullable(),
+  }).required(messages.artworkError),
   trackArtwork: Yup.string().nullable(),
   genre: Yup.string().required(messages.genreError),
   description: Yup.string().max(1000).nullable()
@@ -48,7 +46,9 @@ export const EditPageNew = (props: EditPageProps) => {
     trackMetadatas: tracks.map((track) => ({
       ...track.metadata,
       artwork: null,
+      description: '',
       releaseDate: moment().startOf('day'),
+      tags: '',
       licenseType: {
         allowAttribution: null,
         commercialUse: null,

@@ -20,7 +20,6 @@ export const TagField = (props: TagFieldProps) => {
     [setValue]
   )
 
-  // TODO: allow controlled input
   return (
     <TagInput
       defaultTags={tags}

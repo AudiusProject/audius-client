@@ -20,7 +20,10 @@ const MOODS = Object.keys(moodMap).map((k) => ({
 }))
 
 const messages = {
-  genre: 'Pick a Genre'
+  trackName: 'Track Name',
+  genre: 'Pick a Genre',
+  mood: 'Pick a Mood',
+  description: 'Description'
 }
 
 type TrackMetadataFieldsProps = {
@@ -42,7 +45,7 @@ export const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
           <TextField
             name={getTrackFieldName(index, 'title')}
             variant={InputV2Variant.ELEVATED_PLACEHOLDER}
-            label={`Track Name`}
+            label={messages.trackName}
             maxLength={64}
             required
           />
@@ -56,9 +59,8 @@ export const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
             menu={{ items: GENRES }}
             size='large'
           />
-          <DropdownField
-            name={getTrackFieldName(index, 'mood')}
-            placeholder='Pick a Mood'
+          <DropdownInput
+            placeholder={messages.mood}
             mount='parent'
             menu={{ items: MOODS }}
             size='large'
@@ -71,7 +73,7 @@ export const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
           <TextAreaField
             name={getTrackFieldName(index, 'description')}
             className={styles.textArea}
-            placeholder='Description'
+            placeholder={messages.description}
             maxLength={1000}
             showMaxLength
           />
