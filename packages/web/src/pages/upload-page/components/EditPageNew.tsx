@@ -79,7 +79,7 @@ export const EditPageNew = (props: EditPageProps) => {
     <Formik<TrackEditFormValues>
       initialValues={initialValues}
       onSubmit={onSubmit}
-      // validationSchema={EditTrackSchema}
+      validationSchema={EditTrackSchema}
     >
       {() => (
         <Form>

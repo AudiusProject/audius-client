@@ -1,6 +1,5 @@
 import { GENRES } from '@audius/common'
 
-import DropdownInput from 'components/ai-attribution-modal/DropdownInput'
 import { InputV2Variant } from 'components/data-entry/InputV2'
 import {
   ArtworkField,
