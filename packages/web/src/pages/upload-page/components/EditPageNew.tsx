@@ -42,20 +42,23 @@ const EditTrackSchema = Yup.object().shape({
 export const EditPageNew = (props: EditPageProps) => {
   const { tracks, setTracks, onContinue } = props
 
-  const initialValues: TrackEditFormValues = {
-    trackMetadatas: tracks.map((track) => ({
-      ...track.metadata,
-      artwork: null,
-      description: '',
-      releaseDate: moment().startOf('day'),
-      tags: '',
-      licenseType: {
-        allowAttribution: null,
-        commercialUse: null,
-        derivativeWorks: null
-      }
-    }))
-  }
+  const initialValues: TrackEditFormValues = useMemo(
+    () => ({
+      trackMetadatas: tracks.map((track) => ({
+        ...track.metadata,
+        artwork: null,
+        description: '',
+        releaseDate: moment().startOf('day'),
+        tags: '',
+        licenseType: {
+          allowAttribution: null,
+          commercialUse: null,
+          derivativeWorks: null
+        }
+      }))
+    }),
+    [tracks]
+  )
 
   const onSubmit = useCallback(
     (values: TrackEditFormValues) => {

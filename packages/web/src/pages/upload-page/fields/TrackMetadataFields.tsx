@@ -1,5 +1,6 @@
 import { GENRES } from '@audius/common'
 
+import DropdownInput from 'components/ai-attribution-modal/DropdownInput'
 import { InputV2Variant } from 'components/data-entry/InputV2'
 import {
   ArtworkField,
@@ -59,7 +60,9 @@ export const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
             menu={{ items: GENRES }}
             size='large'
           />
-          <DropdownInput
+          <DropdownField
+            name={getTrackFieldName(index, 'mood')}
+            aria-label={messages.mood}
             placeholder={messages.mood}
             mount='parent'
             menu={{ items: MOODS }}
