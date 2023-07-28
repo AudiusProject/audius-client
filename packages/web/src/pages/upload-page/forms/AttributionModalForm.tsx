@@ -144,7 +144,7 @@ export const AttributionModalForm = (props: AttributionModalFormProps) => {
 
   const onSubmit = useCallback(
     (values: AttributionFormValues) => {
-      if (values[IS_AI_ATTRIBUTED]) {
+      if (get(values, IS_AI_ATTRIBUTED)) {
         setAiUserId(get(values, AI_USER_ID))
       } else {
         setAiUserId(undefined)
@@ -152,7 +152,7 @@ export const AttributionModalForm = (props: AttributionModalFormProps) => {
       setIsrc(get(values, ISRC))
       setIswc(get(values, ISWC))
       setAllowAttribution(get(values, ALLOW_ATTRIBUTION))
-      if (values[ALLOW_ATTRIBUTION]) {
+      if (get(values, ALLOW_ATTRIBUTION)) {
         setCommercialUse(get(values, COMMERCIAL_USE))
         setDerivateWorks(get(values, DERIVATIVE_WORKS))
       } else {
@@ -205,11 +205,11 @@ const AttributionModalFields = () => {
   const [iswcField] = useField(ISWC)
 
   const [{ value: allowAttribution }, , { setValue: setAllowAttribution }] =
-    useField<boolean>('allowAttribution')
+    useField<boolean>(ALLOW_ATTRIBUTION)
   const [{ value: commercialUse }, , { setValue: setCommercialUse }] =
-    useField<boolean>('commercialUse')
+    useField<boolean>(COMMERCIAL_USE)
   const [{ value: derivativeWorks }, , { setValue: setDerivateWorks }] =
-    useField<Nullable<boolean>>('derivativeWorks')
+    useField<Nullable<boolean>>(DERIVATIVE_WORKS)
 
   const { licenseType, licenseDescription } = computeLicense(
     allowAttribution,
