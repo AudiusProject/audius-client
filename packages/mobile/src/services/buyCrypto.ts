@@ -1,5 +1,9 @@
 import { audiusLibs, waitForLibsInit } from './libs'
 
+export const getUSDCUserBank = async (ethWallet: string) => {
+  return await audiusLibs?.solanaWeb3Manager?.deriveUserBank(ethWallet, 'usdc')
+}
+
 export const createStripeSession = async ({
   destinationWallet,
   amount
