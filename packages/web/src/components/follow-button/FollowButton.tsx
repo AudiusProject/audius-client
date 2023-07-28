@@ -57,15 +57,13 @@ export const FollowButton = forwardRef<HTMLButtonElement, FollowButtonProps>(
     const [isHovering, setIsHovering] = useState(false)
     const [isHoveringClicked, setIsHoveringClicked] = useState(false)
 
-    const onMouseEnter = useCallback(() => {
+    const handleMouseEnter = useCallback(() => {
       setIsHovering(true)
     }, [setIsHovering])
 
-    const onMouseLeave = useCallback(() => {
+    const handleMouseLeave = useCallback(() => {
       setIsHovering(false)
     }, [setIsHovering])
-
-    console.log({ isHovering })
 
     const style = {
       [styles.noIcon]: !showIcon,
@@ -133,8 +131,8 @@ export const FollowButton = forwardRef<HTMLButtonElement, FollowButtonProps>(
         type={buttonType}
         onClick={handleClick}
         disabled={isDisabled}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         leftIcon={icon}
         size={ButtonSize.SMALL}
         text={text}
