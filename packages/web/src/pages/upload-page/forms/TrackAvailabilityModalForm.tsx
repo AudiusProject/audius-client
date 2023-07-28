@@ -27,7 +27,6 @@ import { HelpCallout } from 'components/help-callout/HelpCallout'
 import { ModalRadioItem } from 'components/modal-radio/ModalRadioItem'
 import { Text } from 'components/typography'
 import { useFlag } from 'hooks/useRemoteConfig'
-import { defaultFieldVisibility } from 'pages/track-page/utils'
 
 import { ModalField } from '../fields/ModalField'
 import {
@@ -164,17 +163,24 @@ export const TrackAvailabilityModalForm = (
   const onSubmit = useCallback(
     (values: TrackAvailabilityFormValues) => {
       setPremiumConditionsValue(get(values, PREMIUM_CONDITIONS))
-      if (values[PREMIUM_CONDITIONS]) {
+      if (get(values, PREMIUM_CONDITIONS)) {
         setIsPremiumValue(true)
       }
-      setFieldVisibilityValue(get(values, FIELD_VISIBILITY) ?? undefined)
-      if (values[AVAILABILITY_TYPE] === TrackAvailabilityType.HIDDEN) {
+      if (get(values, AVAILABILITY_TYPE) === TrackAvailabilityType.HIDDEN) {
+        setFieldVisibilityValue({
+          ...(get(values, FIELD_VISIBILITY) ?? undefined),
+          remixes: fieldVisibilityValue.remixes
+        })
         setIsUnlistedValue(true)
       } else {
-        setFieldVisibilityValue(defaultFieldVisibility)
+        setFieldVisibilityValue({
+          ...defaultHiddenFields,
+          remixes: fieldVisibilityValue.remixes
+        })
       }
     },
     [
+      fieldVisibilityValue.remixes,
       setFieldVisibilityValue,
       setIsPremiumValue,
       setIsUnlistedValue,

@@ -11,6 +11,7 @@ import PreviewButton from 'components/upload/PreviewButton'
 
 import { MultiTrackSidebar } from '../fields/MultiTrackSidebar'
 import { TrackMetadataFields } from '../fields/TrackMetadataFields'
+import { defaultHiddenFields } from '../fields/availability/HiddenAvailabilityFields'
 import { TrackEditFormValues } from '../forms/types'
 
 import styles from './EditPageNew.module.css'
@@ -50,6 +51,10 @@ export const EditPageNew = (props: EditPageProps) => {
         description: '',
         releaseDate: moment().startOf('day'),
         tags: '',
+        field_visibility: {
+          ...defaultHiddenFields,
+          remixes: true
+        },
         licenseType: {
           allowAttribution: null,
           commercialUse: null,
