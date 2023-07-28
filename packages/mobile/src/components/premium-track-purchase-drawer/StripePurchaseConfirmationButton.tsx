@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 
 import { Button } from 'app/components/core'
 import { useNavigation } from 'app/hooks/useNavigation'
-import { createStripeSession } from 'app/services/buyAudio'
+import { createStripeSession } from 'app/services/buyCrypto'
 import { useThemeColors } from 'app/utils/theme'
 
 const messages = {
@@ -31,7 +31,7 @@ export const StripePurchaseConfirmationButton = ({
         })
       }
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
   }, [navigation, price])
 

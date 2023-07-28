@@ -1,5 +1,3 @@
-import { useCallback } from 'react'
-
 import {
   cacheTracksSelectors,
   formatUSDCWeiToUSDString,
@@ -12,10 +10,6 @@ import IconCart from 'app/assets/images/iconCart.svg'
 import { LockedStatusBadge, Text } from 'app/components/core'
 import { NativeDrawer } from 'app/components/drawer'
 import { useDrawer } from 'app/hooks/useDrawer'
-import {
-  createStripeSession,
-  getRootSolanaAccount
-} from 'app/services/buyAudio'
 import { makeStyles, flexRowCentered } from 'app/styles'
 import { useColor } from 'app/utils/theme'
 
