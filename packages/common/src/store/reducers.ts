@@ -361,6 +361,9 @@ export type CommonState = {
 
   stemsUpload: ReturnType<typeof stemsUpload>
 
+  // USDC
+  buyUSDC: ReturnType<typeof buyUSDCReducer>
+
   // Tipping
   tipping: ReturnType<typeof tippingReducer>
 
