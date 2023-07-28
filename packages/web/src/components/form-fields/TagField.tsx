@@ -10,10 +10,11 @@ type TagFieldProps = Partial<TagInputProps> & {
 }
 export const TagField = (props: TagFieldProps) => {
   const { name, ...other } = props
-  const [field, , { setValue }] = useField(name)
+  const [field, , { setValue }] = useField<string>(name)
   const { value, ...otherField } = field
 
-  const tags = (value ?? '').split(',').filter(removeNullable)
+  const tagList = (value ?? '').split(',').filter(removeNullable)
+  const tagSet = new Set(value ? tagList : [])
 
   const handleChangeTags = useCallback(
     (value: Set<string>) => setValue([...value].join(',')),
@@ -22,7 +23,8 @@ export const TagField = (props: TagFieldProps) => {
 
   return (
     <TagInput
-      defaultTags={tags}
+      defaultTags={tagList}
+      tags={tagSet}
       {...otherField}
       onChangeTags={handleChangeTags}
       {...other}
