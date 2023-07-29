@@ -100,13 +100,10 @@ web-test-staging:
     - checkout
     - attach_workspace:
         at: ./
-    - run:
-        name: Run server
-        command: |
-          cd packages/probers
-          npx serve -l 3001 -s packages/web/build-staging
     - cypress/run:
         install-browsers: true
+        start-command: |
+          npx serve -l 3001 -s packages/web/build-staging
         cypress-command: |
           cd packages/probers
           npx cypress run --browser chrome
