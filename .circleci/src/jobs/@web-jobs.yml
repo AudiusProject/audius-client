@@ -102,11 +102,8 @@ web-test-staging:
         at: ./
     - cypress/run:
         install-browsers: true
-        start-command: |
-          npx serve -l 3001 -s packages/web/build-staging
-        cypress-command: |
-          cd packages/probers
-          npx cypress run --browser chrome
+        start-command: 'npx serve -l 3001 -s packages/web/build-staging'
+        cypress-command: 'cd packages/probers && npx cypress run --browser chrome'
     - store_artifacts:
         path: /home/circleci/audius-client/packages/probers/cypress/videos
     - store_artifacts:
