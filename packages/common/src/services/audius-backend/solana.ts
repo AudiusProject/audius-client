@@ -13,7 +13,7 @@ type MintName = 'audio' | 'usdc'
 const DEFAULT_MINT: MintName = 'audio'
 
 type UserBankConfig = {
-  sourceEthAddress?: string
+  ethAddress?: string
   mint?: MintName
 }
 
@@ -62,21 +62,21 @@ export const getTokenAccountInfo = async (
 
 export const deriveUserBankPubkey = async (
   audiusBackendInstance: AudiusBackend,
-  { sourceEthAddress, mint = DEFAULT_MINT }: UserBankConfig = {}
+  { ethAddress, mint = DEFAULT_MINT }: UserBankConfig = {}
 ) => {
   const audiusLibs: AudiusLibs = await audiusBackendInstance.getAudiusLibs()
   return await audiusLibs.solanaWeb3Manager!.deriveUserBank({
-    sourceEthAddress,
+    ethAddress,
     mint
   })
 }
 
 export const deriveUserBankAddress = async (
   audiusBackendInstance: AudiusBackend,
-  { sourceEthAddress, mint = DEFAULT_MINT }: UserBankConfig = {}
+  { ethAddress, mint = DEFAULT_MINT }: UserBankConfig = {}
 ) => {
   const pubkey = await deriveUserBankPubkey(audiusBackendInstance, {
-    sourceEthAddress,
+    ethAddress,
     mint
   })
   return pubkey.toString() as SolanaWalletAddress
@@ -97,13 +97,13 @@ export const createUserBankIfNeeded = async (
     recordAnalytics,
     feePayerOverride,
     mint = DEFAULT_MINT,
-    sourceEthAddress
+    ethAddress
   }: CreateUserBankIfNeededConfig
 ) => {
   const audiusLibs: AudiusLibs = await audiusBackendInstance.getAudiusLibs()
 
   const recipientEthAddress =
-    sourceEthAddress ?? audiusLibs.Account!.getCurrentUser()?.wallet
+    ethAddress ?? audiusLibs.Account!.getCurrentUser()?.wallet
 
   if (!recipientEthAddress) {
     console.error(
@@ -115,7 +115,7 @@ export const createUserBankIfNeeded = async (
   try {
     const res = await audiusLibs.solanaWeb3Manager!.createUserBankIfNeeded({
       feePayerOverride,
-      sourceEthAddress: recipientEthAddress,
+      ethAddress: recipientEthAddress,
       mint
     })
 
