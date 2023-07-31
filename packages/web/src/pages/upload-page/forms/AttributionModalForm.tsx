@@ -18,7 +18,7 @@ import { SwitchRowField } from '../fields/SwitchRowField'
 import { computeLicenseIcons } from '../utils/computeLicenseIcons'
 
 import styles from './AttributionModalForm.module.css'
-import { getTrackFieldName } from './utils'
+import { useTrackField } from './utils'
 const { computeLicense } = creativeCommons
 
 const messages = {
@@ -104,22 +104,24 @@ type AttributionModalFormProps = {
 
 export const AttributionModalForm = (props: AttributionModalFormProps) => {
   const { index } = props
-  const [{ value: aiUserId }, , { setValue: setAiUserId }] = useField(
-    getTrackFieldName(index, AI_USER_ID)
+  const [{ value: aiUserId }, , { setValue: setAiUserId }] = useTrackField(
+    index,
+    AI_USER_ID
   )
-  const [{ value: isrcValue }, , { setValue: setIsrc }] = useField(
-    getTrackFieldName(index, ISRC)
+  const [{ value: isrcValue }, , { setValue: setIsrc }] = useTrackField(
+    index,
+    ISRC
   )
-  const [{ value: iswcValue }, , { setValue: setIswc }] = useField(
-    getTrackFieldName(index, ISWC)
+  const [{ value: iswcValue }, , { setValue: setIswc }] = useTrackField(
+    index,
+    ISWC
   )
   const [{ value: allowAttribution }, , { setValue: setAllowAttribution }] =
-    useField(getTrackFieldName(index, ALLOW_ATTRIBUTION))
-  const [{ value: commercialUse }, , { setValue: setCommercialUse }] = useField(
-    getTrackFieldName(index, COMMERCIAL_USE)
-  )
+    useTrackField(index, ALLOW_ATTRIBUTION)
+  const [{ value: commercialUse }, , { setValue: setCommercialUse }] =
+    useTrackField(index, COMMERCIAL_USE)
   const [{ value: derivativeWorks }, , { setValue: setDerivateWorks }] =
-    useField(getTrackFieldName(index, DERIVATIVE_WORKS))
+    useTrackField(index, DERIVATIVE_WORKS)
 
   const initialValues = useMemo(() => {
     const initialValues = {}

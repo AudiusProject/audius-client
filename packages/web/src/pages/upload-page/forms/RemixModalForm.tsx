@@ -32,7 +32,7 @@ import { ModalField } from '../fields/ModalField'
 import { SwitchRowField } from '../fields/SwitchRowField'
 
 import styles from './RemixModalForm.module.css'
-import { getTrackFieldName } from './utils'
+import { useTrackField } from './utils'
 
 const { getUserId } = accountSelectors
 
@@ -80,10 +80,9 @@ export const RemixModalForm = (props: RemixModalFormProps) => {
   const { index } = props
   // These refer to the field in the outer EditForm
   const [{ value: showRemixesValue }, , { setValue: setShowRemixesValue }] =
-    useField(getTrackFieldName(index, SHOW_REMIXES))
-  const [{ value: remixOfValue }, , { setValue: setRemixOfValue }] = useField(
-    getTrackFieldName(index, REMIX_OF)
-  )
+    useTrackField(index, SHOW_REMIXES)
+  const [{ value: remixOfValue }, , { setValue: setRemixOfValue }] =
+    useTrackField(index, REMIX_OF)
 
   const trackId = remixOfValue?.tracks[0].parent_track_id
   const { data: initialRemixedTrack } = useGetTrackById(

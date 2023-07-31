@@ -43,7 +43,7 @@ import { CollectibleGatedFields } from '../fields/availability/collectible-gated
 import { REMIX_OF } from './RemixModalForm'
 import styles from './TrackAvailabilityModalForm.module.css'
 import { SingleTrackEditValues } from './types'
-import { getTrackFieldName } from './utils'
+import { useTrackField } from './utils'
 const { getSupportedUserCollections } = collectiblesSelectors
 const { getUserId } = accountSelectors
 
@@ -103,20 +103,20 @@ export const TrackAvailabilityModalForm = (
   const { index } = props
   // Fields from the outer form
   const [{ value: isUnlistedValue }, , { setValue: setIsUnlistedValue }] =
-    useField(getTrackFieldName(index, IS_UNLISTED))
+    useTrackField(index, IS_UNLISTED)
   const [{ value: isPremiumValue }, , { setValue: setIsPremiumValue }] =
-    useField(getTrackFieldName(index, IS_PREMIUM))
+    useTrackField(index, IS_PREMIUM)
   const [
     { value: premiumConditionsValue },
     ,
     { setValue: setPremiumConditionsValue }
-  ] = useField(getTrackFieldName(index, PREMIUM_CONDITIONS))
+  ] = useTrackField(index, PREMIUM_CONDITIONS)
   const [
     { value: fieldVisibilityValue },
     ,
     { setValue: setFieldVisibilityValue }
-  ] = useField(getTrackFieldName(index, FIELD_VISIBILITY))
-  const [{ value: remixOfValue }] = useField(getTrackFieldName(index, REMIX_OF))
+  ] = useTrackField(index, FIELD_VISIBILITY)
+  const [{ value: remixOfValue }] = useTrackField(index, REMIX_OF)
   const isRemix = !isEmpty(remixOfValue?.tracks)
 
   const initialValues = useMemo(() => {

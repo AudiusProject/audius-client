@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react'
 
 import { IconCalendar } from '@audius/stems'
 import cn from 'classnames'
-import { Formik, useField } from 'formik'
+import { Formik } from 'formik'
 import { get, set } from 'lodash'
 import moment from 'moment'
 
@@ -12,7 +12,7 @@ import { DatePickerField } from '../fields/DatePickerField'
 import { ModalField } from '../fields/ModalField'
 
 import styles from './ReleaseDateModalForm.module.css'
-import { getTrackFieldName } from './utils'
+import { useTrackField } from './utils'
 const messages = {
   title: 'Release Date',
   description:
@@ -36,9 +36,7 @@ type ReleaseDateModalFormProps = {
 export const ReleaseDateModalForm = (props: ReleaseDateModalFormProps) => {
   const { index } = props
   // Field from the outer form
-  const [{ value }, , { setValue }] = useField(
-    getTrackFieldName(index, RELEASE_DATE)
-  )
+  const [{ value }, , { setValue }] = useTrackField(index, RELEASE_DATE)
 
   const initialValues = useMemo(() => {
     const initialValues = {}
