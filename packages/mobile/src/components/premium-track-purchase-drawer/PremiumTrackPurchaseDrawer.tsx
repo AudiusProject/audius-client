@@ -94,7 +94,10 @@ export const PremiumTrackPurchaseDrawer = () => {
   const neutralLight2 = useColor('neutralLight2')
   const { data } = useDrawer('PremiumTrackPurchase')
   const { trackId } = data
-  const { data: track } = useGetTrackById({ id: trackId })
+  const { data: track } = useGetTrackById(
+    { id: trackId },
+    { disabled: !trackId }
+  )
   const { premium_conditions: premiumConditions } = track ?? {}
   if (!track || !isPremiumContentUSDCPurchaseGated(premiumConditions))
     return null
