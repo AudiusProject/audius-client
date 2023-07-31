@@ -1,5 +1,5 @@
 import type { Auth, StorageNodeSelectorService } from '@audius/sdk'
-import { StorageNodeSelector, Logger } from '@audius/sdk'
+import { StorageNodeSelector } from '@audius/sdk'
 
 import { Maybe } from 'utils/typeUtils'
 
@@ -7,8 +7,6 @@ import { Env } from '../env'
 
 import { getBootstrapNodes } from './bootstrapNodes'
 import { DiscoveryNodeSelectorService } from './discovery-node-selector'
-
-const logger = new Logger()
 
 let storageNodeSelectorPromise: Maybe<Promise<StorageNodeSelectorService>>
 
@@ -24,8 +22,7 @@ const makeStorageNodeSelector = async (config: StorageNodeSelectorConfig) => {
   return new StorageNodeSelector({
     auth,
     discoveryNodeSelector,
-    bootstrapNodes: getBootstrapNodes(env),
-    logger
+    bootstrapNodes: getBootstrapNodes(env)
   })
 }
 

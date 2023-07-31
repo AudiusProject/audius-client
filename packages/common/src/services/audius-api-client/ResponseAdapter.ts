@@ -390,18 +390,23 @@ export const makePlaylist = (
   return marshalled as UserCollectionMetadata
 }
 
+const isApiActivityV2 = (
+  activity: APIActivity | APIActivityV2
+): activity is APIActivityV2 => {
+  return (activity as APIActivityV2).itemType !== undefined
+}
+
 export const makeActivity = (
   activity: APIActivity | APIActivityV2
 ): UserTrackMetadata | UserCollectionMetadata | undefined => {
-  const itemType =
-    'item_type' in activity ? activity.item_type : activity.itemType
-  switch (itemType) {
-    case 'track':
-      // Cast to APITrack because TS is not correctly inferring the type
-      return makeTrack(activity.item as APITrack)
-    case 'playlist':
-      // Cast to APIPlaylist because TS is not correctly inferring the type
-      return makePlaylist(activity.item as APIPlaylist)
+  if (isApiActivityV2(activity)) {
+    return activity.itemType === 'track'
+      ? makeTrack(activity.item)
+      : makePlaylist(activity.item)
+  } else {
+    return activity.item_type === 'track'
+      ? makeTrack(activity.item)
+      : makePlaylist(activity.item)
   }
 }
 
