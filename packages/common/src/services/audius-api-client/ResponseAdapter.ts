@@ -28,7 +28,8 @@ import {
   APISearchTrack,
   APISearchAutocomplete,
   APISearchPlaylist,
-  APIActivityV2
+  APIActivityV2,
+  isApiActivityV2
 } from './types'
 
 export const makeUser = (
@@ -388,12 +389,6 @@ export const makePlaylist = (
   delete marshalled.added_timestamps
 
   return marshalled as UserCollectionMetadata
-}
-
-const isApiActivityV2 = (
-  activity: APIActivity | APIActivityV2
-): activity is APIActivityV2 => {
-  return (activity as APIActivityV2).itemType !== undefined
 }
 
 export const makeActivity = (
