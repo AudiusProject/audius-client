@@ -1,2 +1,2 @@
-export { SelectablePill } from './SelectablePill'
-export { SelectablePillProps } from './types'
+export { HarmonySelectablePill } from './HarmonySelectablePill'
+export { HarmonySelectablePillProps } from './types'

@@ -103,6 +103,6 @@ export {
   MarkdownViewerProps
 } from './components/MarkdownViewer'
 export {
-  SelectablePill,
-  SelectablePillProps
+  HarmonySelectablePill,
+  HarmonySelectablePillProps
 } from './components/SelectablePill'

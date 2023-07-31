@@ -4,18 +4,18 @@ import { Story } from '@storybook/react'
 
 import { IconHeart } from 'components/Icons'
 
-import { SelectablePill } from './SelectablePill'
-import { SelectablePillProps } from './types'
+import { HarmonySelectablePill } from './HarmonySelectablePill'
+import { HarmonySelectablePillProps } from './types'
 
 export default {
-  component: SelectablePill,
-  title: 'Components/SelectablePill'
+  component: HarmonySelectablePill,
+  title: 'Components/HarmonySelectablePill'
 }
 
-const Template: Story<SelectablePillProps> = ({ ...args }) => {
+const Template: Story<HarmonySelectablePillProps> = ({ ...args }) => {
   const [isSelected, setIsSelected] = useState(false)
   return (
-    <SelectablePill
+    <HarmonySelectablePill
       onClick={() => setIsSelected(!isSelected)}
       {...args}
       isSelected={args.isSelected === undefined ? isSelected : args.isSelected}
@@ -23,7 +23,7 @@ const Template: Story<SelectablePillProps> = ({ ...args }) => {
   )
 }
 
-const baseProps: Partial<SelectablePillProps> = {
+const baseProps: Partial<HarmonySelectablePillProps> = {
   size: 'default',
   label: 'Label'
 }

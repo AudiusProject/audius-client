@@ -2,12 +2,12 @@ import { forwardRef } from 'react'
 
 import cn from 'classnames'
 
-import styles from './SelectablePill.module.css'
-import { SelectablePillProps } from './types'
+import styles from './HarmonySelectablePill.module.css'
+import { HarmonySelectablePillProps } from './types'
 
-export const SelectablePill = forwardRef<
+export const HarmonySelectablePill = forwardRef<
   HTMLButtonElement,
-  SelectablePillProps
+  HarmonySelectablePillProps
 >((props, ref) => {
   const {
     size,

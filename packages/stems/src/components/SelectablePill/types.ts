@@ -1,7 +1,7 @@
 import { IconComponent } from 'components/Icons/types'
 import { BaseButtonProps } from 'utils/types'
 
-export type SelectablePillProps = {
+export type HarmonySelectablePillProps = {
   size?: 'default' | 'large'
   isSelected: boolean
   label: string
