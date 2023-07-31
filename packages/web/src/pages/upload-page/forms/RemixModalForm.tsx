@@ -68,21 +68,16 @@ export type RemixFormValues = {
   [REMIX_LINK]: string | null
 }
 
-type RemixModalFormProps = {
-  index: number
-}
-
 /**
  * This is a subform that expects to exist within a parent TrackEdit form.
  * The useField calls reference the outer form's fields which much match the name constants.
  */
-export const RemixModalForm = (props: RemixModalFormProps) => {
-  const { index } = props
+export const RemixModalForm = () => {
   // These refer to the field in the outer EditForm
   const [{ value: showRemixesValue }, , { setValue: setShowRemixesValue }] =
-    useTrackField(index, SHOW_REMIXES)
+    useTrackField(SHOW_REMIXES)
   const [{ value: remixOfValue }, , { setValue: setRemixOfValue }] =
-    useTrackField(index, REMIX_OF)
+    useTrackField(REMIX_OF)
 
   const trackId = remixOfValue?.tracks[0].parent_track_id
   const { data: initialRemixedTrack } = useGetTrackById(

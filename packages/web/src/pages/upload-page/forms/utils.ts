@@ -11,6 +11,7 @@ export const getTrackFieldName = (index: number, path: string) => {
   return getFieldName('trackMetadatas', index, path)
 }
 
-export const useTrackField = (index: number, path: string) => {
+export const useTrackField = (path: string) => {
+  const [{ value: index }] = useField('trackMetadatasIndex')
   return useIndexedField('trackMetadatas', index, path)
 }

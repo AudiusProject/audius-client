@@ -1,4 +1,5 @@
 import { GENRES } from '@audius/common'
+import { useField } from 'formik'
 
 import { InputV2Variant } from 'components/data-entry/InputV2'
 import {
@@ -29,11 +30,10 @@ const messages = {
 type TrackMetadataFieldsProps = {
   /** Whether or not the preview is playing. */
   playing: boolean
-  index: number
 }
 
 export const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
-  const { index } = props
+  const [{ value: index }] = useField('trackMetadatasIndex')
 
   return (
     <div className={styles.basic}>

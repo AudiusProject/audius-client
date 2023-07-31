@@ -1,16 +1,22 @@
 import { HarmonyButton } from '@audius/stems'
 import cn from 'classnames'
+import { useField } from 'formik'
 
 import layoutStyles from 'components/layout/layout.module.css'
 
+import { TrackForUpload } from '../components/types'
+
 type MultiTrackSidebarProps = {
-  index: number
-  limit: number
-  setIndex: (index: number) => void
+  tracks: TrackForUpload[]
 }
 
 export const MultiTrackSidebar = (props: MultiTrackSidebarProps) => {
-  const { index, setIndex, limit } = props
+  const { tracks } = props
+  const limit = tracks.length
+  const [{ value: index }, , { setValue: setIndex }] = useField(
+    'trackMetadatasIndex'
+  )
+
   return (
     <div className={cn(layoutStyles.col, layoutStyles.gap2)}>
       Track {index + 1} of {limit}

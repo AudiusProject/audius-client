@@ -89,34 +89,27 @@ export type TrackAvailabilityFormValues = {
   [FIELD_VISIBILITY]: Nullable<FieldVisibility>
 }
 
-type TrackAvailabilityModalFormProps = {
-  index: number
-}
-
 /**
  * A modal that allows you to set a track as collectible-gated, special access, or unlisted,
  * as well as toggle individual unlisted metadata field visibility.
  */
-export const TrackAvailabilityModalForm = (
-  props: TrackAvailabilityModalFormProps
-) => {
-  const { index } = props
+export const TrackAvailabilityModalForm = () => {
   // Fields from the outer form
   const [{ value: isUnlistedValue }, , { setValue: setIsUnlistedValue }] =
-    useTrackField(index, IS_UNLISTED)
+    useTrackField(IS_UNLISTED)
   const [{ value: isPremiumValue }, , { setValue: setIsPremiumValue }] =
-    useTrackField(index, IS_PREMIUM)
+    useTrackField(IS_PREMIUM)
   const [
     { value: premiumConditionsValue },
     ,
     { setValue: setPremiumConditionsValue }
-  ] = useTrackField(index, PREMIUM_CONDITIONS)
+  ] = useTrackField(PREMIUM_CONDITIONS)
   const [
     { value: fieldVisibilityValue },
     ,
     { setValue: setFieldVisibilityValue }
-  ] = useTrackField(index, FIELD_VISIBILITY)
-  const [{ value: remixOfValue }] = useTrackField(index, REMIX_OF)
+  ] = useTrackField(FIELD_VISIBILITY)
+  const [{ value: remixOfValue }] = useTrackField(REMIX_OF)
   const isRemix = !isEmpty(remixOfValue?.tracks)
 
   const initialValues = useMemo(() => {

@@ -25,18 +25,13 @@ export type ReleaseDateFormValues = {
   [RELEASE_DATE]: moment.Moment
 }
 
-type ReleaseDateModalFormProps = {
-  index: number
-}
-
 /**
  * This is a subform that expects to exist within a parent TrackEdit form.
  * The useField calls reference the outer form's fields which much match the name constants.
  */
-export const ReleaseDateModalForm = (props: ReleaseDateModalFormProps) => {
-  const { index } = props
+export const ReleaseDateModalForm = () => {
   // Field from the outer form
-  const [{ value }, , { setValue }] = useTrackField(index, RELEASE_DATE)
+  const [{ value }, , { setValue }] = useTrackField(RELEASE_DATE)
 
   const initialValues = useMemo(() => {
     const initialValues = {}

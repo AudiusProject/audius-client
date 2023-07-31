@@ -1,4 +1,4 @@
-import { useCallback, useState, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { HarmonyButton, HarmonyButtonType, IconArrow } from '@audius/stems'
 import cn from 'classnames'
@@ -45,6 +45,7 @@ export const EditPageNew = (props: EditPageProps) => {
 
   const initialValues: TrackEditFormValues = useMemo(
     () => ({
+      trackMetadatasIndex: 0,
       trackMetadatas: tracks.map((track) => ({
         ...track.metadata,
         artwork: null,
@@ -77,7 +78,6 @@ export const EditPageNew = (props: EditPageProps) => {
     [onContinue, setTracks, tracks]
   )
 
-  const [index, setIndex] = useState(0)
   const isMultiTrack = tracks.length > 1
 
   return (
@@ -90,17 +90,11 @@ export const EditPageNew = (props: EditPageProps) => {
         <Form>
           <div className={cn(layoutStyles.row, layoutStyles.gap2)}>
             <div className={styles.editForm}>
-              <TrackMetadataFields playing={false} index={index} />
-              <TrackModalArray index={index} />
-              <PreviewButton playing={false} onClick={() => {}} index={index} />
+              <TrackMetadataFields playing={false} />
+              <TrackModalArray />
+              <PreviewButton playing={false} onClick={() => {}} />
             </div>
-            {isMultiTrack ? (
-              <MultiTrackSidebar
-                index={index}
-                setIndex={setIndex}
-                limit={tracks.length}
-              />
-            ) : null}
+            {isMultiTrack ? <MultiTrackSidebar tracks={tracks} /> : null}
           </div>
           <div className={styles.continue}>
             <HarmonyButton

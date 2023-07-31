@@ -98,30 +98,17 @@ type AttributionFormValues = {
   [DERIVATIVE_WORKS]: Nullable<boolean>
 }
 
-type AttributionModalFormProps = {
-  index: number
-}
-
-export const AttributionModalForm = (props: AttributionModalFormProps) => {
-  const { index } = props
-  const [{ value: aiUserId }, , { setValue: setAiUserId }] = useTrackField(
-    index,
-    AI_USER_ID
-  )
-  const [{ value: isrcValue }, , { setValue: setIsrc }] = useTrackField(
-    index,
-    ISRC
-  )
-  const [{ value: iswcValue }, , { setValue: setIswc }] = useTrackField(
-    index,
-    ISWC
-  )
+export const AttributionModalForm = () => {
+  const [{ value: aiUserId }, , { setValue: setAiUserId }] =
+    useTrackField(AI_USER_ID)
+  const [{ value: isrcValue }, , { setValue: setIsrc }] = useTrackField(ISRC)
+  const [{ value: iswcValue }, , { setValue: setIswc }] = useTrackField(ISWC)
   const [{ value: allowAttribution }, , { setValue: setAllowAttribution }] =
-    useTrackField(index, ALLOW_ATTRIBUTION)
+    useTrackField(ALLOW_ATTRIBUTION)
   const [{ value: commercialUse }, , { setValue: setCommercialUse }] =
-    useTrackField(index, COMMERCIAL_USE)
+    useTrackField(COMMERCIAL_USE)
   const [{ value: derivativeWorks }, , { setValue: setDerivateWorks }] =
-    useTrackField(index, DERIVATIVE_WORKS)
+    useTrackField(DERIVATIVE_WORKS)
 
   const initialValues = useMemo(() => {
     const initialValues = {}

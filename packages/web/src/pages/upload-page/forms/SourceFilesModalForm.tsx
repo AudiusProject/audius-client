@@ -47,26 +47,19 @@ export type SourceFilesFormValues = {
   [STEMS]: StemUpload[]
 }
 
-type SourceFilesModalFormProps = {
-  index: number
-}
-
 /**
  * This is a subform that expects to exist within a parent TrackEdit form.
  * The useField calls reference the outer form's fields which much match the name constants.
  */
-export const SourceFilesModalForm = (props: SourceFilesModalFormProps) => {
-  const { index } = props
+export const SourceFilesModalForm = () => {
   // These refer to the field in the outer EditForm
   const [{ value: allowDownloadValue }, , { setValue: setAllowDownloadValue }] =
-    useTrackField(index, ALLOW_DOWNLOAD)
+    useTrackField(ALLOW_DOWNLOAD)
   const [{ value: followerGatedValue }, , { setValue: setFollowerGatedValue }] =
-    useTrackField(index, FOLLOWER_GATED)
+    useTrackField(FOLLOWER_GATED)
   // TODO: Stems value should be submitted outside tracks in uploadTracks
-  const [{ value: stemsValue }, , { setValue: setStemsValue }] = useTrackField(
-    index,
-    STEMS
-  )
+  const [{ value: stemsValue }, , { setValue: setStemsValue }] =
+    useTrackField(STEMS)
 
   const initialValues = useMemo(() => {
     const initialValues = {}
