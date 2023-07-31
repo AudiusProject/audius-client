@@ -9,7 +9,7 @@ export const deriveUserBankPubkey = async (
   sourceEthAddress?: string
 ) => {
   const audiusLibs: AudiusLibs = await audiusBackendInstance.getAudiusLibs()
-  return await audiusLibs.solanaWeb3Manager!.deriveUserBank(sourceEthAddress)
+  return await audiusLibs.solanaWeb3Manager!.deriveUserBank({sourceEthAddress})
 }
 
 export const deriveUserBankAddress = async (
@@ -46,10 +46,10 @@ export const createUserBankIfNeeded = async (
   }
 
   try {
-    const res = await audiusLibs.solanaWeb3Manager!.createUserBankIfNeeded(
+    const res = await audiusLibs.solanaWeb3Manager!.createUserBankIfNeeded({
       feePayerOverride,
       sourceEthAddress
-    )
+  })
 
     // If it already existed, return early
     if ('didExist' in res && res.didExist) {
