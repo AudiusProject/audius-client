@@ -31,7 +31,7 @@ export type ReleaseDateFormValues = {
  */
 export const ReleaseDateModalForm = () => {
   // Field from the outer form
-  const [{ value }, , { setValue }] = useTrackField(RELEASE_DATE)
+  const [{ value }, , { setValue }] = useTrackField<moment.Moment>(RELEASE_DATE)
 
   const initialValues = useMemo(() => {
     const initialValues = {}

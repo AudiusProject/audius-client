@@ -1,6 +1,6 @@
 {
   "name": "audius-mobile-client",
-  "version": "1.5.34",
+  "version": "1.5.35",
   "private": true,
   "scripts": {
     "jetifier": "jetifier",
@@ -44,8 +44,8 @@
   },
   "dependencies": {
     "@amplitude/react-native": "2.6.0",
-    "@audius/common": "1.5.34",
-    "@audius/sdk": "3.0.3-beta.84",
+    "@audius/common": "1.5.35",
+    "@audius/sdk": "3.0.3-beta.97",
     "@fingerprintjs/fingerprintjs-pro-react-native": "2.0.0-test.2",
     "@gorhom/portal": "1.0.9",
     "@hcaptcha/react-native-hcaptcha": "1.3.4",
@@ -75,10 +75,12 @@
     "@snapchat/snap-kit-react-native": "0.4.0",
     "@solana-mobile/mobile-wallet-adapter-protocol": "0.9.9",
     "@solana-mobile/mobile-wallet-adapter-protocol-web3js": "0.9.9",
+    "@stripe/crypto": "0.0.4",
+    "@stripe/stripe-js": "1.54.1",
     "@svgr/core": "5.5.0",
     "@walletconnect/react-native-dapp": "1.8.0",
     "array.prototype.flat": "1.2.5",
-    "audius-client": "1.5.34",
+    "audius-client": "1.5.35",
     "big-integer": "1.6.51",
     "bn.js": "5.2.0",
     "bs58": "5.0.0",
