@@ -20,13 +20,14 @@ import {
   RadioButtonGroup
 } from '@audius/stems'
 import { Formik, useField } from 'formik'
-import { get, isEmpty, set, isEqual, omit } from 'lodash'
+import { get, isEmpty, set } from 'lodash'
 import { useSelector } from 'react-redux'
 
 import { HelpCallout } from 'components/help-callout/HelpCallout'
 import { ModalRadioItem } from 'components/modal-radio/ModalRadioItem'
 import { Text } from 'components/typography'
 import { useFlag } from 'hooks/useRemoteConfig'
+import { defaultFieldVisibility } from 'pages/track-page/utils'
 
 import { ModalField } from '../fields/ModalField'
 import {
@@ -130,15 +131,11 @@ export const TrackAvailabilityModalForm = () => {
     if (isCollectibleGated) {
       availabilityType = TrackAvailabilityType.COLLECTIBLE_GATED
     }
-    if (
-      // Remixes has its own toggle field so should not affect the selected availability type
-      !isEqual(omit(fieldVisibilityValue, 'remixes'), defaultHiddenFields)
-    ) {
+    if (isUnlistedValue) {
       availabilityType = TrackAvailabilityType.HIDDEN
     }
     // TODO: USDC gated type
     set(initialValues, AVAILABILITY_TYPE, availabilityType)
-
     set(initialValues, FIELD_VISIBILITY, fieldVisibilityValue)
     set(
       initialValues,
@@ -167,9 +164,10 @@ export const TrackAvailabilityModalForm = () => {
         setIsUnlistedValue(true)
       } else {
         setFieldVisibilityValue({
-          ...defaultHiddenFields,
+          ...defaultFieldVisibility,
           remixes: fieldVisibilityValue.remixes
         })
+        setIsUnlistedValue(false)
       }
     },
     [
@@ -307,11 +305,7 @@ const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
       {isRemix ? (
         <HelpCallout className={styles.isRemix} content={messages.isRemix} />
       ) : null}
-      <RadioButtonGroup
-        defaultValue={TrackAvailabilityType.PUBLIC}
-        {...availabilityField}
-        onChange={handleChange}
-      >
+      <RadioButtonGroup {...availabilityField} onChange={handleChange}>
         <ModalRadioItem
           icon={<IconVisibilityPublic className={styles.icon} />}
           label={messages.public}

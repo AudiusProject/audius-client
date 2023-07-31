@@ -263,7 +263,6 @@ const AttributionModalFields = () => {
               {messages.allowAttribution.header}
             </Text>
             <SegmentedControl
-              defaultSelected={allowAttribution}
               // @ts-ignore boolean support works
               selected={allowAttribution}
               // @ts-ignore boolean support works
@@ -288,7 +287,6 @@ const AttributionModalFields = () => {
             </Text>
             <SegmentedControl
               fullWidth
-              defaultSelected={commercialUse}
               // @ts-ignore boolean support works
               selected={commercialUse}
               // @ts-ignore boolean support works
@@ -311,7 +309,6 @@ const AttributionModalFields = () => {
           </Text>
           <SegmentedControl
             fullWidth
-            defaultSelected={derivativeWorks}
             // @ts-ignore boolean support works
             selected={derivativeWorks}
             // @ts-ignore boolean support works
