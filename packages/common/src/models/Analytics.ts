@@ -318,6 +318,13 @@ export enum Name {
   BUY_AUDIO_RECOVERY_SUCCESS = 'Buy Audio Recovery: Success',
   BUY_AUDIO_RECOVERY_FAILURE = 'Buy Audio Recovery: Failure',
 
+  // Buy USDC
+  BUY_USDC_ON_RAMP_OPENED = 'Buy USDC: On Ramp Opened',
+  BUY_USDC_ON_RAMP_CANCELED = 'Buy USDC: On Ramp Canceled',
+  BUY_USDC_ON_RAMP_SUCCESS = 'Buy USDC: On Ramp Success',
+  BUY_USDC_SUCCESS = 'Buy USDC: Success',
+  BUY_USDC_FAILURE = 'Buy USDC: Failure',
+
   // Rate & Review CTA
   RATE_CTA_DISPLAYED = 'Rate CTA: Displayed',
   RATE_CTA_RESPONSE_YES = 'Rate CTA: User Responded Yes',
@@ -1530,6 +1537,37 @@ type BuyAudioRecoveryFailure = {
   error: string
 }
 
+type BuyUSDCOnRampOpened = {
+  eventName: Name.BUY_USDC_ON_RAMP_OPENED
+  provider: string
+}
+
+type BuyUSDCOnRampCanceled = {
+  eventName: Name.BUY_USDC_ON_RAMP_CANCELED
+  provider: string
+}
+
+type BuyUSDCOnRampSuccess = {
+  eventName: Name.BUY_USDC_ON_RAMP_SUCCESS
+  provider: string
+}
+
+type BuyUSDCSuccess = {
+  eventName: Name.BUY_USDC_SUCCESS
+  provider: string
+  requestedAmount: number
+  // actualAmount: number
+  // surplusAmount: number
+}
+
+type BuyUSDCFailure = {
+  eventName: Name.BUY_USDC_FAILURE
+  provider: string
+  requestedAmount: number
+  stage: string
+  error: string
+}
+
 type RateCtaDisplayed = {
   eventName: Name.RATE_CTA_DISPLAYED
 }
@@ -1840,6 +1878,11 @@ export type AllTrackingEvents =
   | BuyAudioRecoveryOpened
   | BuyAudioRecoverySuccess
   | BuyAudioRecoveryFailure
+  | BuyUSDCOnRampOpened
+  | BuyUSDCOnRampSuccess
+  | BuyUSDCOnRampCanceled
+  | BuyUSDCSuccess
+  | BuyUSDCFailure
   | RateCtaDisplayed
   | RateCtaResponseNo
   | RateCtaResponseYes

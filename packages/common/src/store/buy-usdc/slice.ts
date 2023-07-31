@@ -4,9 +4,7 @@ import { AmountObject, BuyUSDCStage, OnRampProvider } from './types'
 
 type PurchaseInfo = {
   isError: false
-  estimatedSOL: AmountObject
-  estimatedUSD: AmountObject
-  desiredUSDCAmount: AmountObject
+  desiredAmount: AmountObject
 }
 
 type StripeSessionStatus =
