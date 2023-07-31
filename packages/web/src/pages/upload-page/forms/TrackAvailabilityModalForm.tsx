@@ -87,7 +87,7 @@ export type TrackAvailabilityFormValues = {
   [AVAILABILITY_TYPE]: TrackAvailabilityType
   [PREMIUM_CONDITIONS]: Nullable<PremiumConditions>
   [SPECIAL_ACCESS_TYPE]: Nullable<SpecialAccessType>
-  [FIELD_VISIBILITY]: Nullable<FieldVisibility>
+  [FIELD_VISIBILITY]: FieldVisibility
 }
 
 /**
@@ -97,20 +97,27 @@ export type TrackAvailabilityFormValues = {
 export const TrackAvailabilityModalForm = () => {
   // Fields from the outer form
   const [{ value: isUnlistedValue }, , { setValue: setIsUnlistedValue }] =
-    useTrackField(IS_UNLISTED)
+    useTrackField<SingleTrackEditValues[typeof IS_UNLISTED]>(IS_UNLISTED)
   const [{ value: isPremiumValue }, , { setValue: setIsPremiumValue }] =
-    useTrackField(IS_PREMIUM)
+    useTrackField<SingleTrackEditValues[typeof IS_PREMIUM]>(IS_PREMIUM)
   const [
     { value: premiumConditionsValue },
     ,
     { setValue: setPremiumConditionsValue }
-  ] = useTrackField(PREMIUM_CONDITIONS)
+  ] =
+    useTrackField<SingleTrackEditValues[typeof PREMIUM_CONDITIONS]>(
+      PREMIUM_CONDITIONS
+    )
   const [
     { value: fieldVisibilityValue },
     ,
     { setValue: setFieldVisibilityValue }
-  ] = useTrackField(FIELD_VISIBILITY)
-  const [{ value: remixOfValue }] = useTrackField(REMIX_OF)
+  ] =
+    useTrackField<SingleTrackEditValues[typeof FIELD_VISIBILITY]>(
+      FIELD_VISIBILITY
+    )
+  const [{ value: remixOfValue }] =
+    useTrackField<SingleTrackEditValues[typeof REMIX_OF]>(REMIX_OF)
   const isRemix = !isEmpty(remixOfValue?.tracks)
 
   const initialValues = useMemo(() => {
@@ -159,19 +166,21 @@ export const TrackAvailabilityModalForm = () => {
       if (get(values, AVAILABILITY_TYPE) === TrackAvailabilityType.HIDDEN) {
         setFieldVisibilityValue({
           ...(get(values, FIELD_VISIBILITY) ?? undefined),
-          remixes: fieldVisibilityValue.remixes
+          remixes:
+            fieldVisibilityValue?.remixes ?? defaultFieldVisibility.remixes
         })
         setIsUnlistedValue(true)
       } else {
         setFieldVisibilityValue({
           ...defaultFieldVisibility,
-          remixes: fieldVisibilityValue.remixes
+          remixes:
+            fieldVisibilityValue?.remixes ?? defaultFieldVisibility.remixes
         })
         setIsUnlistedValue(false)
       }
     },
     [
-      fieldVisibilityValue.remixes,
+      fieldVisibilityValue?.remixes,
       setFieldVisibilityValue,
       setIsPremiumValue,
       setIsUnlistedValue,

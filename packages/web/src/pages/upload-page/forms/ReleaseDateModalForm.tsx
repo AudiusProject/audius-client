@@ -12,6 +12,7 @@ import { DatePickerField } from '../fields/DatePickerField'
 import { ModalField } from '../fields/ModalField'
 
 import styles from './ReleaseDateModalForm.module.css'
+import { SingleTrackEditValues } from './types'
 import { useTrackField } from './utils'
 const messages = {
   title: 'Release Date',
@@ -31,7 +32,8 @@ export type ReleaseDateFormValues = {
  */
 export const ReleaseDateModalForm = () => {
   // Field from the outer form
-  const [{ value }, , { setValue }] = useTrackField<moment.Moment>(RELEASE_DATE)
+  const [{ value }, , { setValue }] =
+    useTrackField<SingleTrackEditValues[typeof RELEASE_DATE]>(RELEASE_DATE)
 
   const initialValues = useMemo(() => {
     const initialValues = {}

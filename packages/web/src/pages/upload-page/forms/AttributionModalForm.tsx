@@ -18,6 +18,7 @@ import { SwitchRowField } from '../fields/SwitchRowField'
 import { computeLicenseIcons } from '../utils/computeLicenseIcons'
 
 import styles from './AttributionModalForm.module.css'
+import { SingleTrackEditValues } from './types'
 import { useTrackField } from './utils'
 const { computeLicense } = creativeCommons
 
@@ -68,8 +69,12 @@ const IS_AI_ATTRIBUTED = 'isAiAttribution'
 const AI_USER_ID = 'ai_attribution_user_id'
 const ISRC = 'isrc'
 const ISWC = 'iswc'
+const LICENSE_TYPE = 'licenseType'
+const ALLOW_ATTRIBUTION_BASE = 'allowAttribution'
 const ALLOW_ATTRIBUTION = 'licenseType.allowAttribution'
+const COMMERCIAL_USE_BASE = 'commercialUse'
 const COMMERCIAL_USE = 'licenseType.commercialUse'
+const DERIVATIVE_WORKS_BASE = 'derivativeWorks'
 const DERIVATIVE_WORKS = 'licenseType.derivativeWorks'
 
 const allowAttributionValues = [
@@ -100,15 +105,23 @@ type AttributionFormValues = {
 
 export const AttributionModalForm = () => {
   const [{ value: aiUserId }, , { setValue: setAiUserId }] =
-    useTrackField(AI_USER_ID)
-  const [{ value: isrcValue }, , { setValue: setIsrc }] = useTrackField(ISRC)
-  const [{ value: iswcValue }, , { setValue: setIswc }] = useTrackField(ISWC)
+    useTrackField<SingleTrackEditValues[typeof AI_USER_ID]>(AI_USER_ID)
+  const [{ value: isrcValue }, , { setValue: setIsrc }] =
+    useTrackField<SingleTrackEditValues[typeof ISRC]>(ISRC)
+  const [{ value: iswcValue }, , { setValue: setIswc }] =
+    useTrackField<SingleTrackEditValues[typeof ISWC]>(ISWC)
   const [{ value: allowAttribution }, , { setValue: setAllowAttribution }] =
-    useTrackField(ALLOW_ATTRIBUTION)
+    useTrackField<
+      SingleTrackEditValues[typeof LICENSE_TYPE][typeof ALLOW_ATTRIBUTION_BASE]
+    >(ALLOW_ATTRIBUTION)
   const [{ value: commercialUse }, , { setValue: setCommercialUse }] =
-    useTrackField(COMMERCIAL_USE)
+    useTrackField<
+      SingleTrackEditValues[typeof LICENSE_TYPE][typeof COMMERCIAL_USE_BASE]
+    >(COMMERCIAL_USE)
   const [{ value: derivativeWorks }, , { setValue: setDerivateWorks }] =
-    useTrackField(DERIVATIVE_WORKS)
+    useTrackField<
+      SingleTrackEditValues[typeof LICENSE_TYPE][typeof DERIVATIVE_WORKS_BASE]
+    >(DERIVATIVE_WORKS)
 
   const initialValues = useMemo(() => {
     const initialValues = {}
