@@ -9,7 +9,8 @@ import {
   getPathFromTrackUrl,
   useGetTrackByPermalink,
   SquareSizes,
-  accountSelectors
+  accountSelectors,
+  RemixOf
 } from '@audius/common'
 import { Formik, useField } from 'formik'
 import { get, set } from 'lodash'
@@ -77,7 +78,7 @@ export const RemixModalForm = () => {
   const [{ value: showRemixesValue }, , { setValue: setShowRemixesValue }] =
     useTrackField(SHOW_REMIXES)
   const [{ value: remixOfValue }, , { setValue: setRemixOfValue }] =
-    useTrackField(REMIX_OF)
+    useTrackField<RemixOf>(REMIX_OF)
 
   const trackId = remixOfValue?.tracks[0].parent_track_id
   const { data: initialRemixedTrack } = useGetTrackById(
@@ -95,7 +96,7 @@ export const RemixModalForm = () => {
     set(
       initialValues,
       IS_REMIX,
-      !!remixOfValue?.tracks.some((track: number) => !!track)
+      !!remixOfValue?.tracks.some((track) => !!track)
     )
     set(initialValues, REMIX_LINK, remixLink)
     return initialValues as RemixFormValues
