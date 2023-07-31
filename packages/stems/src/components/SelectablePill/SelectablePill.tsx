@@ -8,37 +8,30 @@ import { SelectablePillProps } from './types'
 export const SelectablePill = forwardRef<
   HTMLButtonElement,
   SelectablePillProps
->(
-  ({
+>((props, ref) => {
+  const {
     size,
     isSelected,
     label,
     icon: IconComponent,
-    onClick
-  }: SelectablePillProps) => {
-    const handleClick = () => {
-      if (!isSelected && onClick) {
-        onClick()
-      }
-    }
-
-    return (
-      <button
-        onClick={handleClick}
-        className={cn(styles.pill, {
+    className,
+    ...restProps
+  } = props
+  return (
+    <button
+      className={cn(
+        styles.pill,
+        {
           [styles.large]: size === 'large',
           [styles.selected]: isSelected
-        })}
-      >
-        {IconComponent == null ? null : (
-          <IconComponent
-            className={cn(styles.icon, {
-              [styles.iconLarge]: size === 'large'
-            })}
-          />
-        )}
-        {label}
-      </button>
-    )
-  }
-)
+        },
+        className
+      )}
+      ref={ref}
+      {...restProps}
+    >
+      {IconComponent == null ? null : <IconComponent className={styles.icon} />}
+      <span>{label}</span>
+    </button>
+  )
+})
