@@ -6,19 +6,19 @@ import { AudiusBackend } from './AudiusBackend'
 
 export const deriveUserBankPubkey = async (
   audiusBackendInstance: AudiusBackend,
-  sourceEthAddress?: string
+  ethAddress?: string
 ) => {
   const audiusLibs: AudiusLibs = await audiusBackendInstance.getAudiusLibs()
-  return await audiusLibs.solanaWeb3Manager!.deriveUserBank({sourceEthAddress})
+  return await audiusLibs.solanaWeb3Manager!.deriveUserBank({ethAddress})
 }
 
 export const deriveUserBankAddress = async (
   audiusBackendInstance: AudiusBackend,
-  sourceEthAddress?: string
+  ethAddress?: string
 ) => {
   const pubkey = await deriveUserBankPubkey(
     audiusBackendInstance,
-    sourceEthAddress
+    ethAddress
   )
   return pubkey.toString() as SolanaWalletAddress
 }
@@ -31,12 +31,12 @@ export const createUserBankIfNeeded = async (
   recordAnalytics: (event: AnalyticsEvent, callback?: () => void) => void,
   audiusBackendInstance: AudiusBackend,
   feePayerOverride: string,
-  sourceEthAddress?: string
+  ethAddress?: string
 ) => {
   const audiusLibs: AudiusLibs = await audiusBackendInstance.getAudiusLibs()
 
   const recipientEthAddress =
-    sourceEthAddress ?? audiusLibs.Account!.getCurrentUser()?.wallet
+    ethAddress ?? audiusLibs.Account!.getCurrentUser()?.wallet
 
   if (!recipientEthAddress) {
     console.error(
@@ -48,7 +48,7 @@ export const createUserBankIfNeeded = async (
   try {
     const res = await audiusLibs.solanaWeb3Manager!.createUserBankIfNeeded({
       feePayerOverride,
-      sourceEthAddress
+      ethAddress
   })
 
     // If it already existed, return early
