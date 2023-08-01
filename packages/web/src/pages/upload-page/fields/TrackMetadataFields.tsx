@@ -58,7 +58,7 @@ export const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
             mount='parent'
             menu={{
               items: GENRES.map((g) => ({
-                el: <>{g}</>,
+                el: g,
                 text: g,
                 value: convertGenreLabelToValue(g)
               }))

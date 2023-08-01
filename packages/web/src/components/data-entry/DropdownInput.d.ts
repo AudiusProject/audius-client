@@ -4,7 +4,7 @@ type Value =
   | string
   | {
       text: string
-      el: JSX.Element
+      el: ReactNode
       value?: string
     }
 
