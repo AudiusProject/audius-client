@@ -5,7 +5,7 @@ export type ShareProps = {
   onShareToTwitter: () => void
   onShareToTikTok: () => void
   onCopyLink: () => void
-  onEmbed: () => void
+  onEmbed?: () => void
   isOpen: boolean
   onClose: () => void
   onClosed: () => void

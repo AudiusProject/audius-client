@@ -108,13 +108,15 @@ export const ShareDialog = ({
               textClassName={styles.shareActionLabel}
               onClick={onCopyLink}
             />
-            <ShareActionListItem
-              leftIcon={<IconEmbed {...iconProps} />}
-              iconClassName={styles.shareIcon}
-              text={messages.embed}
-              textClassName={styles.shareActionLabel}
-              onClick={onEmbed}
-            />
+            {onEmbed ? (
+              <ShareActionListItem
+                leftIcon={<IconEmbed {...iconProps} />}
+                iconClassName={styles.shareIcon}
+                text={messages.embed}
+                textClassName={styles.shareActionLabel}
+                onClick={onEmbed}
+              />
+            ) : null}
           </ul>
         </div>
       </ModalContent>

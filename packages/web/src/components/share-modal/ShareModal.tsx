@@ -10,11 +10,13 @@ import {
   shareModalUISelectors,
   shareSoundToTiktokModalActions,
   createChatModalActions,
-  modalsActions
+  modalsActions,
+  PlayableType
 } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
 import { make, useRecord } from 'common/store/analytics/actions'
+import * as embedModalActions from 'components/embed-modal/store/actions'
 import { ToastContext } from 'components/toast/ToastContext'
 import { useFlag } from 'hooks/useRemoteConfig'
 import { useModalState } from 'pages/modals/useModalState'
@@ -111,6 +113,28 @@ export const ShareModal = () => {
     onClose()
   }, [dispatch, toast, content, source, onClose])
 
+  const handleEmbed = useCallback(() => {
+    if (content?.type === 'track') {
+      dispatch(
+        embedModalActions.open(content.track.track_id, PlayableType.TRACK)
+      )
+      onClose()
+    } else if (content?.type === 'playlist') {
+      dispatch(
+        embedModalActions.open(
+          content.playlist.playlist_id,
+          PlayableType.PLAYLIST
+        )
+      )
+      onClose()
+    } else if (content?.type === 'album') {
+      dispatch(
+        embedModalActions.open(content.album.playlist_id, PlayableType.ALBUM)
+      )
+      onClose()
+    }
+  }, [content, dispatch, onClose])
+
   const shareProps = {
     isOpen,
     isOwner,
@@ -118,7 +142,9 @@ export const ShareModal = () => {
     onShareToTwitter: handleShareToTwitter,
     onShareToTikTok: handleShareToTikTok,
     onCopyLink: handleCopyLink,
-    onEmbed: () => {},
+    onEmbed: ['playlist', 'album', 'track'].includes(content?.type ?? '')
+      ? handleEmbed
+      : undefined,
     onClose,
     onClosed,
     showTikTokShareAction: Boolean(
