@@ -5,7 +5,10 @@ import cn from 'classnames'
 import { useField } from 'formik'
 import moment from 'moment'
 
-import { ContextualMenu, SelectedValue } from 'components/form-fields'
+import {
+  ContextualMenu,
+  SelectedValue
+} from 'components/data-entry/ContextualMenu'
 import { Text } from 'components/typography'
 
 import { EditFormValues } from '../components/EditPageNew'
