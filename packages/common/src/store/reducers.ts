@@ -5,6 +5,7 @@ import { Kind } from '../models'
 
 import account from './account/slice'
 import averageColorReducer from './average-color/slice'
+import { buyUSDCReducer } from './buy-usdc'
 import collectionsReducer from './cache/collections/reducer'
 import { CollectionsCacheState } from './cache/collections/types'
 import { asCache } from './cache/reducer'
@@ -63,6 +64,7 @@ import {
 } from './playlist-library'
 import { playlistUpdatesReducer, PlaylistUpdateState } from './playlist-updates'
 import premiumContent from './premium-content/slice'
+import { purchaseContentReducer } from './purchase-content'
 import queue from './queue/slice'
 import reachability from './reachability/reducer'
 import { ReachabilityState } from './reachability/types'
@@ -368,6 +370,7 @@ export type CommonState = {
   tipping: ReturnType<typeof tippingReducer>
 
   // Premium content
+  purchaseContent: ReturnType<typeof purchaseContentReducer>
   premiumContent: ReturnType<typeof premiumContent>
 
   // Collectibles

@@ -1,7 +1,5 @@
-/* eslint-disable new-cap */
 import { PublicKey } from '@solana/web3.js'
 import BN from 'bn.js'
-// import { isMobileWeb } from 'common/utils/isMobileWeb'
 import { takeLatest } from 'redux-saga/effects'
 import { call, put, race, select, take } from 'typed-redux-saga'
 
