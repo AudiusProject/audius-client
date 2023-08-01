@@ -54,7 +54,7 @@ export const ViewAllSupportingTile = () => {
     'supporting_count'
   ])
 
-  const rankedSupportingList = useRankedSupportingForUser(user_id)
+  const rankedSupportingList = useRankedSupportingForUser({ userId: user_id })
 
   const rankedSupportingUsers = useProxySelector(
     (state) => {

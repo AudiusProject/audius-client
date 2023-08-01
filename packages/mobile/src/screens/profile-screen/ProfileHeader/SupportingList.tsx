@@ -54,7 +54,7 @@ export const SupportingList = () => {
     }
   }, [supporting_count, shouldFetchSupporting, dispatch, user_id])
 
-  const supportingSorted = useRankedSupportingForUser(user_id)
+  const supportingSorted = useRankedSupportingForUser({ userId: user_id })
 
   const supportingListData = useMemo(() => {
     if (supportingSorted.length === 0) {

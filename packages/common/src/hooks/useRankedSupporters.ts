@@ -1,8 +1,11 @@
 import { ID } from '../models/Identifiers'
+import { Supporting } from '../models/Tipping'
+import { cacheUsersSelectors } from '../store/cache'
 import { tippingSelectors } from '../store/tipping'
 import { stringWeiToBN } from '../utils'
 
 import { useProxySelector } from './useProxySelector'
+const { getUsers } = cacheUsersSelectors
 
 const { getOptimisticSupportingForUser } = tippingSelectors
 
@@ -12,7 +15,13 @@ const { getOptimisticSupportingForUser } = tippingSelectors
  * endpoint calls and will only return the top N results. `User.supporting_count`
  * will contain the full count.
  */
-export const useRankedSupportingForUser = (userId: number) => {
+export const useRankedSupportingForUser = ({
+  userId,
+  excludeDeactivated = false
+}: {
+  userId: number
+  excludeDeactivated?: boolean
+}) => {
   return useProxySelector(
     (state) => {
       const supportingForUser = getOptimisticSupportingForUser(state, userId)
@@ -27,9 +36,21 @@ export const useRankedSupportingForUser = (userId: number) => {
         return amount1BN.gte(amount2BN) ? -1 : 1
       })
 
-      return supportingIdsSorted
+      const rankedSupportingForUser = supportingIdsSorted
         .map((supporterId) => supportingForUser[supporterId])
         .filter(Boolean)
+
+      // Can remove once supporters endpoint excludes deactivated users from response:
+      if (excludeDeactivated) {
+        const usersMap = getUsers(state, {
+          ids
+        })
+        return rankedSupportingForUser.filter(
+          (s: Supporting) => !usersMap[s.receiver_id].is_deactivated
+        )
+      } else {
+        return rankedSupportingForUser
+      }
     },
     [userId]
   )

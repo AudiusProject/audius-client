@@ -37,7 +37,10 @@ const formatViewAllMessage = (count: number) => {
 
 const SupportingListForProfile = ({ profile }: { profile: User }) => {
   const dispatch = useDispatch()
-  const rankedSupportingList = useRankedSupportingForUser(profile.user_id)
+  const rankedSupportingList = useRankedSupportingForUser({
+    userId: profile.user_id,
+    excludeDeactivated: true
+  })
 
   const handleClick = useCallback(() => {
     if (profile) {
