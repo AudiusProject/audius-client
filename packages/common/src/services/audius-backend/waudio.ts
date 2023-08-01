@@ -9,17 +9,14 @@ export const deriveUserBankPubkey = async (
   ethAddress?: string
 ) => {
   const audiusLibs: AudiusLibs = await audiusBackendInstance.getAudiusLibs()
-  return await audiusLibs.solanaWeb3Manager!.deriveUserBank({ethAddress})
+  return await audiusLibs.solanaWeb3Manager!.deriveUserBank({ ethAddress })
 }
 
 export const deriveUserBankAddress = async (
   audiusBackendInstance: AudiusBackend,
   ethAddress?: string
 ) => {
-  const pubkey = await deriveUserBankPubkey(
-    audiusBackendInstance,
-    ethAddress
-  )
+  const pubkey = await deriveUserBankPubkey(audiusBackendInstance, ethAddress)
   return pubkey.toString() as SolanaWalletAddress
 }
 
@@ -49,7 +46,7 @@ export const createUserBankIfNeeded = async (
     const res = await audiusLibs.solanaWeb3Manager!.createUserBankIfNeeded({
       feePayerOverride,
       ethAddress
-  })
+    })
 
     // If it already existed, return early
     if ('didExist' in res && res.didExist) {
