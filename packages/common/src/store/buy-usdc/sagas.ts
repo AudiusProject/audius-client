@@ -18,6 +18,7 @@ import { getContext } from 'store/effects'
 import { getBuyUSDCFlowStage, getBuyUSDCProvider } from './selectors'
 import {
   buyUSDCFlowFailed,
+  buyUSDCFlowSucceeded,
   onRampCanceled,
   onRampOpened,
   onRampSucceeded,
@@ -25,6 +26,7 @@ import {
 } from './slice'
 import { AmountObject, OnRampProvider } from './types'
 import { getFeePayer } from 'store/solana/selectors'
+import { setVisibility } from 'store/ui/modals/slice'
 
 // TODO: Configurable min/max usdc purchase amounts?
 function* getBuyUSDCRemoteConfig() {
@@ -53,6 +55,30 @@ function* getBuyUSDCRemoteConfig() {
   }
 }
 
+/** Derives a USDC user bank for a given eth address, creating it if necessary.
+ * Defaults to the wallet of the current user.
+ */
+export function* getUSDCUserBank(ethAddress?: string) {
+  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+  const { track } = yield* getContext('analytics')
+  const feePayerOverride = yield* select(getFeePayer)
+  if (!feePayerOverride) {
+    throw new Error('getUSDCUserBank: unexpectedly no fee payer override')
+  }
+  yield* call(createUserBankIfNeeded, audiusBackendInstance, {
+    ethAddress,
+    feePayerOverride,
+    mint: 'usdc',
+    recordAnalytics: track
+  })
+
+  // TODO: Any errors to handle here?
+  return yield* call(deriveUserBankPubkey, audiusBackendInstance, {
+    ethAddress,
+    mint: 'usdc'
+  })
+}
+
 type PurchaseStepParams = {
   desiredAmount: AmountObject
   tokenAccount: PublicKey
@@ -60,12 +86,7 @@ type PurchaseStepParams = {
   retryDelayMs?: number
   maxRetryCount?: number
 }
-/**
- * Executes the purchase step of the on-ramp
- *
- * @throws if cannot confirm the purchase
- * @returns the new USDC balance for the user bank after the purchase succeeds
- */
+
 function* purchaseStep({
   desiredAmount,
   tokenAccount,
@@ -127,9 +148,6 @@ function* purchaseStep({
   return { newBalance }
 }
 
-/**
- * Exchanges all but the minimum balance required for a swap from a wallet once a balance change is seen
- */
 function* doBuyUSDC({
   payload: { desiredAmount }
 }: ReturnType<typeof onRampOpened>) {
@@ -142,6 +160,12 @@ function* doBuyUSDC({
   const { track, make } = yield* getContext('analytics')
   const provider = yield* select(getBuyUSDCProvider)
   try {
+    if (provider !== OnRampProvider.STRIPE) {
+      throw new Error('USDC Purchase is only supported via Stripe')
+    }
+
+    yield* put(setVisibility({ modal: 'StripeOnRamp', visible: true }))
+
     // Record start
     yield* call(
       track,
@@ -150,26 +174,10 @@ function* doBuyUSDC({
 
     // Setup
 
-    // TODO: Do we need these to be configurable?
     // Get config
     const { retryDelayMs, maxRetryCount } = yield* call(getBuyUSDCRemoteConfig)
 
-    // Ensure userbank is created
-    const feePayerOverride = yield* select(getFeePayer)
-    if (!feePayerOverride) {
-      console.error('doBuyUSDC: unexpectedly no fee payer override')
-      return
-    }
-    yield* call(createUserBankIfNeeded, audiusBackendInstance, {
-      feePayerOverride,
-      mint: 'usdc',
-      recordAnalytics: track
-    })
-
-    // TODO: Handle errors here
-    const userBank = yield* call(deriveUserBankPubkey, audiusBackendInstance, {
-      mint: 'usdc'
-    })
+    const userBank = yield* getUSDCUserBank()
 
     // STEP ONE: Wait for purchase
     // Have to do some typescript finangling here due to the "race" effect in purchaseStep
@@ -186,6 +194,8 @@ function* doBuyUSDC({
     if (newBalance === undefined) {
       return
     }
+
+    yield* put(buyUSDCFlowSucceeded())
 
     // Record success
     yield* call(

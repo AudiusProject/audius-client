@@ -5,6 +5,9 @@ import { u64 } from '@solana/spl-token'
 import { AnalyticsEvent, Name, SolanaWalletAddress } from '../../models'
 
 import { AudiusBackend } from './AudiusBackend'
+import BN from 'bn.js'
+
+type SolanaWeb3Manager = NonNullable<AudiusLibs['solanaWeb3Manager']>
 
 const DEFAULT_RETRY_DELAY = 1000
 const DEFAULT_MAX_RETRY_COUNT = 120
@@ -229,4 +232,19 @@ export const pollForBalanceChange = async (
     return tokenAccountInfo.amount
   }
   throw new Error(`${debugTokenName} balance polling exceeded maximum retries`)
+}
+
+export type PurchaseContentArgs = {
+  id: number
+  blocknumber: number
+  type: 'track'
+  splits: Record<string, number | BN>
+}
+export const purchaseContent = async (
+  audiusBackendInstance: AudiusBackend,
+  config: PurchaseContentArgs
+) => {
+  return (
+    await audiusBackendInstance.getAudiusLibs()
+  ).solanaWeb3Manager!.purchaseContent(config)
 }

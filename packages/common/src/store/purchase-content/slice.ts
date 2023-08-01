@@ -31,30 +31,36 @@ const slice = createSlice({
       state,
       action: PayloadAction<{
         contentId: ID
+        contentType?: ContentType
         onSuccess?: OnSuccess
       }>
     ) => {
       state.stage = PurchaseContentStage.START
       state.error = undefined
       state.contentId = action.payload.contentId
+      state.contentType = action.payload.contentType || ContentType.TRACK
       state.onSuccess = action.payload.onSuccess
     },
     onBuyUSDC: (state) => {
       state.stage = PurchaseContentStage.BUY_USDC
     },
     onBuyUSDCSucceeded: (state) => {
-      state.stage = PurchaseContentStage.TRANSFER_USDC
+      state.stage = PurchaseContentStage.PURCHASING
     },
-    onTransferSucceeded: (state) => {
+    onPurchaseCanceled: (state) => {
+      state.error = new Error('Content purchase canceled')
+      state.stage = PurchaseContentStage.CANCELED
+    },
+    onPurchaseSucceeded: (state) => {
       state.stage = PurchaseContentStage.CONFIRMING_PURCHASE
     },
-    onConfirmingPurchaseSucceeded: (state) => {
+    onPurchaseConfirmed: (state) => {
       state.stage = PurchaseContentStage.FINISH
     },
 
     purchaseContentFlowFailed: (state) => {
       // TODO: Probably want to pass error in action payload
-      state.error = new Error('Purchase failed')
+      state.error = new Error('Content purchase failed')
     }
   }
 })
@@ -63,8 +69,9 @@ export const {
   startPurchaseContentFlow,
   onBuyUSDC,
   onBuyUSDCSucceeded,
-  onTransferSucceeded,
-  onConfirmingPurchaseSucceeded,
+  onPurchaseSucceeded,
+  onPurchaseConfirmed,
+  onPurchaseCanceled,
   purchaseContentFlowFailed
 } = slice.actions
 

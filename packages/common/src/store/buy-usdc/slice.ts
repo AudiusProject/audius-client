@@ -1,11 +1,6 @@
 import { Action, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { AmountObject, BuyUSDCStage, OnRampProvider } from './types'
-
-type PurchaseInfo = {
-  isError: false
-  desiredAmount: AmountObject
-}
+import { BuyUSDCStage, OnRampProvider, PurchaseInfo } from './types'
 
 type StripeSessionStatus =
   | 'initialized'
@@ -54,7 +49,8 @@ const slice = createSlice({
     },
     onRampCanceled: (state) => {
       if (state.stage === BuyUSDCStage.PURCHASING) {
-        state.error = new Error('Purchase canceled')
+        state.error = new Error('USDC purchase canceled')
+        state.stage = BuyUSDCStage.CANCELED
       }
     },
     onRampSucceeded: (state) => {
@@ -62,9 +58,11 @@ const slice = createSlice({
     },
     buyUSDCFlowFailed: (state) => {
       // TODO: Probably want to pass error in action payload
-      state.error = new Error('Purchase failed')
+      state.error = new Error('USDC purchase failed')
     },
-
+    buyUSDCFlowSucceeded: (state) => {
+      state.stage = BuyUSDCStage.FINISH
+    },
     stripeSessionStatusChanged: (
       state,
       action: PayloadAction<{ status: StripeSessionStatus }>
@@ -76,6 +74,7 @@ const slice = createSlice({
 
 export const {
   buyUSDCFlowFailed,
+  buyUSDCFlowSucceeded,
   startBuyUSDCFlow,
   onRampOpened,
   onRampSucceeded,

@@ -378,12 +378,10 @@ function* getAudioPurchaseInfo({
     }
 
     yield* fork(function* () {
-      yield* call(
-        createUserBankIfNeeded,
-        track,
-        audiusBackendInstance,
+      yield* call(createUserBankIfNeeded, audiusBackendInstance, {
+        recordAnalytics: track,
         feePayerOverride
-      )
+      })
     })
 
     // Setup
@@ -873,12 +871,10 @@ function* doBuyAudio({
       return
     }
     yield* fork(function* () {
-      yield* call(
-        createUserBankIfNeeded,
-        track,
-        audiusBackendInstance,
+      yield* call(createUserBankIfNeeded, audiusBackendInstance, {
+        recordAnalytics: track,
         feePayerOverride
-      )
+      })
     })
 
     // STEP ONE: Wait for purchase
