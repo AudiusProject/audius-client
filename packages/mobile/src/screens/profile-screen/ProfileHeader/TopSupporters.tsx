@@ -85,6 +85,7 @@ const useSelectTopSupporters = (userId: number) =>
       const topSupporters = topSupporterIds
         .map((id) => supporterUsers[id])
         .filter(removeNullable)
+        .filter((user) => !user.is_deactivated)
       return topSupporters
     },
     [userId]

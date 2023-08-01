@@ -52,6 +52,7 @@ export const TopSupporters = () => {
       })
       .map((k) => usersMap[k as unknown as ID])
       .filter(Boolean)
+      .filter((u: User) => !u.is_deactivated)
   })
 
   const handleClick = useCallback(() => {
