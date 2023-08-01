@@ -38,9 +38,6 @@ class TagInput extends Component {
     if (this.state.typingMode && this.newTagInputRef.current) {
       this.newTagInputRef.current.focus()
     }
-    if (this.state.tags !== this.props.tags) {
-      this.setState({ tags: this.props.tags })
-    }
   }
 
   setTypingMode = () => {
