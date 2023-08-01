@@ -126,18 +126,14 @@ export const ContextualMenu = <
   const [isMenuOpen, toggleMenu] = useToggle(false)
 
   const defaultRenderValue = useCallback((value: Value) => {
-    const hasValue = !value
-      ? false
-      : typeof value === 'string'
-      ? value
-      : Array.isArray(value)
-      ? value.length !== 0
-      : false
-
     const values =
-      typeof value === 'string' ? [value] : Array.isArray(value) ? value : null
+      typeof value === 'string' && value
+        ? [value]
+        : Array.isArray(value) && value.length !== 0
+        ? value
+        : false
 
-    if (!hasValue || !values) return null
+    if (!values) return null
 
     return (
       <div className={styles.value}>
