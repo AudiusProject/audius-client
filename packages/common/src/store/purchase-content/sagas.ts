@@ -1,7 +1,9 @@
 import BN from 'bn.js'
+import { takeLatest } from 'redux-saga/effects'
+import { call, put, race, select, take } from 'typed-redux-saga'
+
 import { ID } from 'models/Identifiers'
 import { isPremiumContentUSDCPurchaseGated } from 'models/Track'
-import { takeLatest } from 'redux-saga/effects'
 import { purchaseContent } from 'services/audius-backend/solana'
 import { getUSDCUserBank } from 'store/buy-usdc/sagas'
 import {
@@ -14,7 +16,6 @@ import { OnRampProvider } from 'store/buy-usdc/types'
 import { getTrack } from 'store/cache/tracks/selectors'
 import { getUser } from 'store/cache/users/selectors'
 import { getContext } from 'store/effects'
-import { call, put, race, select, take } from 'typed-redux-saga'
 
 import { startPurchaseContentFlow } from './slice'
 import { ContentType } from './types'

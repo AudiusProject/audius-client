@@ -3,6 +3,8 @@ import BN from 'bn.js'
 import { takeLatest } from 'redux-saga/effects'
 import { call, put, race, select, take } from 'typed-redux-saga'
 
+import { Name } from 'models/Analytics'
+import { ErrorLevel } from 'models/ErrorReporting'
 import {
   createUserBankIfNeeded,
   deriveUserBankPubkey,
@@ -10,11 +12,11 @@ import {
   getTokenAccountInfo,
   pollForBalanceChange
 } from 'services/audius-backend/solana'
-
-import { Name } from 'models/Analytics'
-import { ErrorLevel } from 'models/ErrorReporting'
 import { IntKeys } from 'services/remote-config'
 import { getContext } from 'store/effects'
+import { getFeePayer } from 'store/solana/selectors'
+import { setVisibility } from 'store/ui/modals/slice'
+
 import { getBuyUSDCFlowStage, getBuyUSDCProvider } from './selectors'
 import {
   buyUSDCFlowFailed,
@@ -25,8 +27,6 @@ import {
   startBuyUSDCFlow
 } from './slice'
 import { AmountObject, OnRampProvider } from './types'
-import { getFeePayer } from 'store/solana/selectors'
-import { setVisibility } from 'store/ui/modals/slice'
 
 // TODO: Configurable min/max usdc purchase amounts?
 function* getBuyUSDCRemoteConfig() {

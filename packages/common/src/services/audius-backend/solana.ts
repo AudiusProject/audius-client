@@ -1,13 +1,11 @@
 import { AudiusLibs } from '@audius/sdk'
-import { PublicKey } from '@solana/web3.js'
 import { u64 } from '@solana/spl-token'
+import { PublicKey } from '@solana/web3.js'
+import BN from 'bn.js'
 
 import { AnalyticsEvent, Name, SolanaWalletAddress } from '../../models'
 
 import { AudiusBackend } from './AudiusBackend'
-import BN from 'bn.js'
-
-type SolanaWeb3Manager = NonNullable<AudiusLibs['solanaWeb3Manager']>
 
 const DEFAULT_RETRY_DELAY = 1000
 const DEFAULT_MAX_RETRY_COUNT = 120
@@ -190,7 +188,7 @@ export const pollForBalanceChange = async (
     maxRetryCount?: number
   }
 ) => {
-  let debugTokenName = mint.toUpperCase()
+  const debugTokenName = mint.toUpperCase()
   let retries = 0
   let tokenAccountInfo = await getTokenAccountInfo(audiusBackendInstance, {
     mint,

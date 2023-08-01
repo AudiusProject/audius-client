@@ -1,4 +1,5 @@
 import { Action, createSlice, PayloadAction } from '@reduxjs/toolkit'
+
 import { ID } from 'models/Identifiers'
 
 import { ContentType, PurchaseContentStage } from './types'
