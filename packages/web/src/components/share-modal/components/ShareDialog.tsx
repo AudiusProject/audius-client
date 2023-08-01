@@ -14,8 +14,6 @@ import {
 } from '@audius/stems'
 import cn from 'classnames'
 
-import { isDarkMode, isMatrix } from 'utils/theme/theme'
-
 import { messages } from '../messages'
 import { ShareProps } from '../types'
 
@@ -57,7 +55,6 @@ export const ShareDialog = ({
   shareType,
   isPrivate
 }: ShareDialogProps) => {
-  const isLightMode = !(isDarkMode() || isMatrix())
   return (
     <Modal
       allowScroll={false}
@@ -92,21 +89,15 @@ export const ShareDialog = ({
               leftIcon={<IconTwitterBird {...iconProps} />}
               text={messages.twitter}
               onClick={onShareToTwitter}
-              iconClassName={styles.twitterIcon}
-              textClassName={styles.twitterActionLabel}
+              iconClassName={styles.shareIcon}
+              textClassName={styles.shareActionLabel}
             />
             {showTikTokShareAction ? (
               <ShareActionListItem
                 leftIcon={<IconTikTok {...iconProps} />}
                 text={messages.tikTok}
-                iconClassName={
-                  isLightMode ? styles.tikTokIcon : styles.tikTokIconDark
-                }
-                textClassName={
-                  isLightMode
-                    ? styles.tikTokActionLabel
-                    : styles.tikTokActionLabelDark
-                }
+                iconClassName={styles.shareIcon}
+                textClassName={styles.shareActionLabel}
                 onClick={onShareToTikTok}
               />
             ) : null}
