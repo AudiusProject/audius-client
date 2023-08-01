@@ -78,15 +78,13 @@ export const EditPageNew = (props: EditPageProps) => {
     [onContinue, setTracks, tracks]
   )
 
-  const isMultiTrack = tracks.length > 1
-
   return (
     <Formik<TrackEditFormValues>
       initialValues={initialValues}
       onSubmit={onSubmit}
       validationSchema={EditTrackSchema}
     >
-      {() => (
+      {({ values }) => (
         <Form>
           <div className={cn(layoutStyles.row, layoutStyles.gap2)}>
             <div className={styles.editForm}>
@@ -94,7 +92,7 @@ export const EditPageNew = (props: EditPageProps) => {
               <TrackModalArray />
               <PreviewButton playing={false} onClick={() => {}} />
             </div>
-            {isMultiTrack ? <MultiTrackSidebar tracks={tracks} /> : null}
+            {values.trackMetadatas.length > 1 ? <MultiTrackSidebar /> : null}
           </div>
           <div className={styles.continue}>
             <HarmonyButton

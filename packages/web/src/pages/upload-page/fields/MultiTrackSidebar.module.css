@@ -24,11 +24,38 @@
   background: var(--white);
 }
 
+/* Track */
 .track {
+  justify-content: space-between;
+}
+
+.trackRoot {
+  cursor: pointer;
+}
+.trackRoot:hover {
+  background: var(--neutral-light-9);
+  border-top: 1px solid var(--neutral-light-7);
+  border-bottom: 1px solid var(--neutral-light-7);
+}
+.trackRoot:not(:hover) {
+  margin: 1px 0;
+}
+
+.trackInfo {
   padding: var(--unit-2) var(--unit-4);
 }
-.track.selected {
-  background: var(--neutral-light-9);
+.trackInfo.selected {
+  color: var(--secondary);
+}
+
+.selectedIndicator {
+  width: 4px;
+  height: 42px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 0px 8px 8px 0px;
+  background: var(--secondary);
 }
 
 .trackIndex {
@@ -43,6 +70,10 @@
   background: lightgray 50% / cover no-repeat;
   border: 1px solid var(--neutral-light-8);
   transition: border ease-in-out 0.1s;
+}
+
+.iconRemove {
+  padding: 0 8px;
 }
 
 .completeButton {
