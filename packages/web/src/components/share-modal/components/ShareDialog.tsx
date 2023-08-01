@@ -2,7 +2,9 @@ import {
   Button,
   ButtonProps,
   ButtonType,
+  IconEmbed,
   IconLink,
+  IconMessage,
   IconShare,
   IconTwitterBird,
   Modal,
@@ -43,9 +45,11 @@ const ShareActionListItem = ({
 type ShareDialogProps = ShareProps
 
 export const ShareDialog = ({
+  onShareToDirectMessage,
   onShareToTwitter,
   onShareToTikTok,
   onCopyLink,
+  onEmbed,
   isOpen,
   onClose,
   onClosed,
@@ -78,6 +82,13 @@ export const ShareDialog = ({
           </p>
           <ul className={styles.actionList}>
             <ShareActionListItem
+              leftIcon={<IconMessage {...iconProps} />}
+              text={messages.directMessage}
+              onClick={onShareToDirectMessage}
+              iconClassName={styles.shareIcon}
+              textClassName={styles.shareActionLabel}
+            />
+            <ShareActionListItem
               leftIcon={<IconTwitterBird {...iconProps} />}
               text={messages.twitter}
               onClick={onShareToTwitter}
@@ -102,9 +113,16 @@ export const ShareDialog = ({
             <ShareActionListItem
               leftIcon={<IconLink {...iconProps} />}
               iconClassName={styles.shareIcon}
-              text={messages.copyLink(shareType)}
+              text={messages.copyLink}
               textClassName={styles.shareActionLabel}
               onClick={onCopyLink}
+            />
+            <ShareActionListItem
+              leftIcon={<IconEmbed {...iconProps} />}
+              iconClassName={styles.shareIcon}
+              text={messages.embed}
+              textClassName={styles.shareActionLabel}
+              onClick={onEmbed}
             />
           </ul>
         </div>

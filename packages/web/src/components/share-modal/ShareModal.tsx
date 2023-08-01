@@ -97,9 +97,11 @@ export const ShareModal = () => {
   const shareProps = {
     isOpen,
     isOwner,
+    onShareToDirectMessage: () => {},
     onShareToTwitter: handleShareToTwitter,
     onShareToTikTok: handleShareToTikTok,
     onCopyLink: handleCopyLink,
+    onEmbed: () => {},
     onClose,
     onClosed,
     showTikTokShareAction: Boolean(
