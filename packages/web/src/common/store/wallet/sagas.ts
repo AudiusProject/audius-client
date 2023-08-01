@@ -114,7 +114,10 @@ function* sendAsync({
       console.error(`sendAsync: unexpectedly no fee payer`)
       return
     }
-    yield* call(createUserBankIfNeeded, track, audiusBackend, feePayer)
+    yield* call(createUserBankIfNeeded, audiusBackend, {
+      recordAnalytics: track,
+      feePayer
+    })
 
     // If transferring spl wrapped audio and there are insufficent funds with only the
     // user bank balance, transfer all eth AUDIO to spl wrapped audio
