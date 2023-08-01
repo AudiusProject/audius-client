@@ -1,97 +1,111 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
-import { ExtendedTrackMetadata, Nullable } from '@audius/common'
-import { Button, ButtonType, IconArrow } from '@audius/stems'
-import { Formik } from 'formik'
+import { HarmonyButton, HarmonyButtonType, IconArrow } from '@audius/stems'
+import cn from 'classnames'
+import { Form, Formik } from 'formik'
 import moment from 'moment'
 import * as Yup from 'yup'
 
+import layoutStyles from 'components/layout/layout.module.css'
 import PreviewButton from 'components/upload/PreviewButton'
 
-import TrackMetadataFields from '../fields/TrackMetadataFields'
+import { MultiTrackSidebar } from '../fields/MultiTrackSidebar'
+import { TrackMetadataFields } from '../fields/TrackMetadataFields'
+import { defaultHiddenFields } from '../fields/availability/HiddenAvailabilityFields'
+import { TrackEditFormValues } from '../forms/types'
 
 import styles from './EditPageNew.module.css'
 import { TrackModalArray } from './TrackModalArray'
 import { TrackForUpload } from './types'
+
+const messages = {
+  titleError: 'Your track must have a name',
+  artworkError: 'Artwork is required',
+  genreError: 'Genre is required'
+}
 
 type EditPageProps = {
   tracks: TrackForUpload[]
   setTracks: (tracks: TrackForUpload[]) => void
   onContinue: () => void
 }
-export type EditFormValues = ExtendedTrackMetadata & {
-  releaseDate: moment.Moment
-  licenseType: {
-    allowAttribution: Nullable<boolean>
-    commercialUse: Nullable<boolean>
-    derivativeWorks: Nullable<boolean>
-  }
-}
 
 const EditTrackSchema = Yup.object().shape({
-  title: Yup.string().required('Required'),
+  title: Yup.string().required(messages.titleError),
   artwork: Yup.object({
     url: Yup.string()
-  })
-    // .when('trackArtwork', {
-    //   is: undefined,
-    //   then: Yup.object().required('Required').nullable()
-    // })
-    .nullable(),
+  }).required(messages.artworkError),
   trackArtwork: Yup.string().nullable(),
-  //   genre: Yup.string().required('Required'),
-  genre: Yup.string(),
+  genre: Yup.string().required(messages.genreError),
   description: Yup.string().max(1000).nullable()
 })
 
 export const EditPageNew = (props: EditPageProps) => {
   const { tracks, setTracks, onContinue } = props
 
-  const initialValues: EditFormValues = {
-    ...tracks[0].metadata,
-    artwork: null,
-    releaseDate: moment().startOf('day'),
-    licenseType: {
-      allowAttribution: null,
-      commercialUse: null,
-      derivativeWorks: null
-    }
-  }
+  const initialValues: TrackEditFormValues = useMemo(
+    () => ({
+      trackMetadatasIndex: 0,
+      trackMetadatas: tracks.map((track) => ({
+        ...track.metadata,
+        artwork: null,
+        description: '',
+        releaseDate: moment().startOf('day'),
+        tags: '',
+        field_visibility: {
+          ...defaultHiddenFields,
+          remixes: true
+        },
+        licenseType: {
+          allowAttribution: null,
+          commercialUse: null,
+          derivativeWorks: null
+        }
+      }))
+    }),
+    [tracks]
+  )
 
   const onSubmit = useCallback(
-    (values: EditFormValues) => {
-      setTracks([{ ...tracks[0], metadata: values }])
+    (values: TrackEditFormValues) => {
+      const tracksForUpload: TrackForUpload[] = tracks.map((track, i) => ({
+        ...track,
+        metadata: values.trackMetadatas[i]
+      }))
+      setTracks(tracksForUpload)
       onContinue()
     },
     [onContinue, setTracks, tracks]
   )
 
+  const isMultiTrack = tracks.length > 1
+
   return (
-    <Formik<EditFormValues>
+    <Formik<TrackEditFormValues>
       initialValues={initialValues}
       onSubmit={onSubmit}
       validationSchema={EditTrackSchema}
     >
-      {(formikProps) => (
-        <>
-          <div className={styles.editForm}>
-            <TrackMetadataFields playing={false} type='track' />
-            <TrackModalArray />
-            <PreviewButton playing={false} onClick={() => {}} />
+      {() => (
+        <Form>
+          <div className={cn(layoutStyles.row, layoutStyles.gap2)}>
+            <div className={styles.editForm}>
+              <TrackMetadataFields playing={false} />
+              <TrackModalArray />
+              <PreviewButton playing={false} onClick={() => {}} />
+            </div>
+            {isMultiTrack ? <MultiTrackSidebar tracks={tracks} /> : null}
           </div>
           <div className={styles.continue}>
-            <Button
-              type={ButtonType.PRIMARY_ALT}
-              buttonType='submit'
+            <HarmonyButton
+              variant={HarmonyButtonType.PRIMARY}
               text='Continue'
               name='continue'
-              rightIcon={<IconArrow />}
-              onClick={() => formikProps.handleSubmit()}
-              textClassName={styles.continueButtonText}
+              iconRight={IconArrow}
               className={styles.continueButton}
             />
           </div>
-        </>
+        </Form>
       )}
     </Formik>
   )

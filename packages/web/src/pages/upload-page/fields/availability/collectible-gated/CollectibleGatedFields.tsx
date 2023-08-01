@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react'
 import {
   Chain,
   collectiblesSelectors,
+  isPremiumContentCollectibleGated,
   TrackAvailabilityType
 } from '@audius/common'
 import { useField } from 'formik'
@@ -106,8 +107,11 @@ export const CollectibleGatedFields = ({
   // which makes the dropdown show the placeholder.
   // Otherwise, the default value is the nft collection which was previously selected,
   // which also includes the collection image.
-  const defaultCollectionName =
-    premiumConditionsValue?.nft_collection?.name ?? ''
+  const defaultCollectionName = isPremiumContentCollectibleGated(
+    premiumConditionsValue
+  )
+    ? premiumConditionsValue.nft_collection?.name ?? ''
+    : ''
   const defaultCollection = menuItems.find(
     (item) => item.text === defaultCollectionName
   )
@@ -132,7 +136,6 @@ export const CollectibleGatedFields = ({
       <DropdownInput
         aria-label={messages.pickACollection}
         placeholder={messages.pickACollection}
-        mount={null}
         popupContainer={(triggerNode: HTMLElement) =>
           // hack to escape the collapsible container which has overflow: hidden
           // maintains scrollability, unlike `mount={'page'}

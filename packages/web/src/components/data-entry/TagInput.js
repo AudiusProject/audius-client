@@ -3,7 +3,6 @@ import { createRef, Component } from 'react'
 import { trimToAlphaNumeric } from '@audius/common'
 import Tag from 'antd/lib/tag'
 import cn from 'classnames'
-import PropTypes from 'prop-types'
 
 import { ReactComponent as IconRemove } from 'assets/img/iconRemove.svg'
 import { ReactComponent as IconSave } from 'assets/img/iconSave.svg'
@@ -38,6 +37,9 @@ class TagInput extends Component {
   componentDidUpdate = () => {
     if (this.state.typingMode && this.newTagInputRef.current) {
       this.newTagInputRef.current.focus()
+    }
+    if (this.state.tags !== this.props.tags) {
+      this.setState({ tags: this.props.tags })
     }
   }
 
@@ -210,19 +212,6 @@ class TagInput extends Component {
       </div>
     )
   }
-}
-
-TagInput.propTypes = {
-  placeholder: PropTypes.string,
-  defaultTags: PropTypes.array,
-  maxTags: PropTypes.number,
-  maxCharacters: PropTypes.number,
-  minCharacters: PropTypes.number,
-  label: PropTypes.string,
-  labelStyle: PropTypes.string,
-  size: PropTypes.oneOf(['normal', 'small']),
-  layout: PropTypes.oneOf(['horizontal', 'vertical']),
-  onChangeTags: PropTypes.func
 }
 
 TagInput.defaultProps = {

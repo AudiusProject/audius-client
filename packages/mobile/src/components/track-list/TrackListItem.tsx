@@ -1,3 +1,4 @@
+import type { ComponentType } from 'react'
 import { memo, useCallback, useMemo, useState } from 'react'
 
 import type { Collection, ID, Track, UID, User } from '@audius/common'
@@ -16,7 +17,11 @@ import {
   cacheTracksSelectors,
   playerSelectors
 } from '@audius/common'
-import type { NativeSyntheticEvent, NativeTouchEvent } from 'react-native'
+import type {
+  NativeSyntheticEvent,
+  NativeTouchEvent,
+  TouchableOpacityProps
+} from 'react-native'
 import { Text, TouchableOpacity, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -27,7 +32,6 @@ import IconLock from 'app/assets/images/iconLock.svg'
 import IconRemoveTrack from 'app/assets/images/iconRemoveTrack.svg'
 import { IconButton } from 'app/components/core'
 import UserBadges from 'app/components/user-badges'
-import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { flexRowCentered, font, makeStyles } from 'app/styles'
 import { useColor, useThemeColors } from 'app/utils/theme'
@@ -66,7 +70,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     justifyContent: 'flex-start',
     alignItems: 'center',
     paddingVertical: spacing(3),
-    paddingHorizontal: spacing(6)
+    paddingHorizontal: spacing(4)
   },
   nameArtistContainer: {
     flexShrink: 1,
@@ -101,7 +105,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   iconContainer: {
     marginLeft: spacing(2)
   },
-  icon: { height: 20, width: 20 },
+  icon: { height: 24, width: 24 },
   removeIcon: { height: 24, width: 24 },
 
   playButtonContainer: {
@@ -150,7 +154,7 @@ const getMessages = ({ isDeleted = false }: { isDeleted?: boolean } = {}) => ({
 })
 
 export type TrackListItemProps = {
-  drag?: () => void
+  onDrag?: () => void
   hideArt?: boolean
   id?: ID
   contextPlaylistId?: ID
@@ -200,11 +204,10 @@ type TrackListItemComponentProps = TrackListItemProps & {
 }
 
 const TrackListItemComponent = (props: TrackListItemComponentProps) => {
-  const isGatedContentEnabled = useIsGatedContentEnabled()
   const {
     contextPlaylistId,
     contextPlaylist,
-    drag,
+    onDrag,
     hideArt,
     index,
     isReorderable = false,
@@ -305,9 +308,7 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
           ? OverflowAction.UNREPOST
           : OverflowAction.REPOST
         : null,
-      !isGatedContentEnabled || !isPremium
-        ? OverflowAction.ADD_TO_PLAYLIST
-        : null,
+      !isPremium ? OverflowAction.ADD_TO_PLAYLIST : null,
       isNewPodcastControlsEnabled && isLongFormContent
         ? OverflowAction.VIEW_EPISODE_PAGE
         : OverflowAction.VIEW_TRACK_PAGE,
@@ -335,7 +336,6 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
     isTrackOwner,
     has_current_user_reposted,
     has_current_user_saved,
-    isGatedContentEnabled,
     isPremium,
     isNewPodcastControlsEnabled,
     isLongFormContent,
@@ -364,6 +364,10 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
   // The dividers above and belove the active track should be hidden
   const hideDivider = isActive || isPrevItemActive
 
+  const ListItemView = (
+    isReorderable ? View : TouchableOpacity
+  ) as ComponentType<TouchableOpacityProps>
+
   return (
     <View>
       {showDivider && (showTopDivider || index > 0) ? (
@@ -382,11 +386,9 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
           isDeleted && styles.trackContainerDisabled
         ]}
       >
-        <TouchableOpacity
+        <ListItemView
           style={styles.trackInnerContainer}
-          onPress={onPressTrack}
-          onLongPress={drag}
-          delayLongPress={100}
+          onPress={isReorderable ? undefined : onPressTrack}
           disabled={isDeleted || isLocked}
         >
           {!hideArt ? (
@@ -407,11 +409,12 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
             </View>
           ) : null}
           {isReorderable ? (
-            <IconDrag
+            <IconButton
+              icon={IconDrag}
               fill={themeColors.neutralLight4}
-              height={20}
-              width={20}
               style={styles.dragIcon}
+              onLongPress={onDrag}
+              delayLongPress={100}
             />
           ) : null}
           <View
@@ -489,7 +492,7 @@ const TrackListItemComponent = (props: TrackListItemComponentProps) => {
               onPress={handlePressRemove}
             />
           ) : null}
-        </TouchableOpacity>
+        </ListItemView>
       </View>
     </View>
   )

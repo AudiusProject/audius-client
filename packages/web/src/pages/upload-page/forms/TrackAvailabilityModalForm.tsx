@@ -5,6 +5,9 @@ import {
   collectiblesSelectors,
   FeatureFlags,
   FieldVisibility,
+  isPremiumContentCollectibleGated,
+  isPremiumContentFollowGated,
+  isPremiumContentTipGated,
   Nullable,
   PremiumConditions,
   TrackAvailabilityType
@@ -17,15 +20,15 @@ import {
   RadioButtonGroup
 } from '@audius/stems'
 import { Formik, useField } from 'formik'
-import { get, isEmpty, set, isEqual, omit } from 'lodash'
+import { get, isEmpty, set } from 'lodash'
 import { useSelector } from 'react-redux'
 
 import { HelpCallout } from 'components/help-callout/HelpCallout'
 import { ModalRadioItem } from 'components/modal-radio/ModalRadioItem'
+import { Text } from 'components/typography'
 import { useFlag } from 'hooks/useRemoteConfig'
 import { defaultFieldVisibility } from 'pages/track-page/utils'
 
-import { EditFormValues } from '../components/EditPageNew'
 import { ModalField } from '../fields/ModalField'
 import {
   defaultHiddenFields,
@@ -40,6 +43,8 @@ import { CollectibleGatedFields } from '../fields/availability/collectible-gated
 
 import { REMIX_OF } from './RemixModalForm'
 import styles from './TrackAvailabilityModalForm.module.css'
+import { SingleTrackEditValues } from './types'
+import { useTrackField } from './utils'
 const { getSupportedUserCollections } = collectiblesSelectors
 const { getUserId } = accountSelectors
 
@@ -82,7 +87,7 @@ export type TrackAvailabilityFormValues = {
   [AVAILABILITY_TYPE]: TrackAvailabilityType
   [PREMIUM_CONDITIONS]: Nullable<PremiumConditions>
   [SPECIAL_ACCESS_TYPE]: Nullable<SpecialAccessType>
-  [FIELD_VISIBILITY]: Nullable<FieldVisibility>
+  [FIELD_VISIBILITY]: FieldVisibility
 }
 
 /**
@@ -92,55 +97,57 @@ export type TrackAvailabilityFormValues = {
 export const TrackAvailabilityModalForm = () => {
   // Fields from the outer form
   const [{ value: isUnlistedValue }, , { setValue: setIsUnlistedValue }] =
-    useField<EditFormValues[typeof IS_UNLISTED]>(IS_UNLISTED)
+    useTrackField<SingleTrackEditValues[typeof IS_UNLISTED]>(IS_UNLISTED)
   const [{ value: isPremiumValue }, , { setValue: setIsPremiumValue }] =
-    useField<EditFormValues[typeof IS_PREMIUM]>(IS_PREMIUM)
+    useTrackField<SingleTrackEditValues[typeof IS_PREMIUM]>(IS_PREMIUM)
   const [
     { value: premiumConditionsValue },
     ,
     { setValue: setPremiumConditionsValue }
-  ] = useField<EditFormValues[typeof PREMIUM_CONDITIONS]>(PREMIUM_CONDITIONS)
+  ] =
+    useTrackField<SingleTrackEditValues[typeof PREMIUM_CONDITIONS]>(
+      PREMIUM_CONDITIONS
+    )
   const [
     { value: fieldVisibilityValue },
     ,
     { setValue: setFieldVisibilityValue }
-  ] = useField<EditFormValues[typeof FIELD_VISIBILITY]>(FIELD_VISIBILITY)
+  ] =
+    useTrackField<SingleTrackEditValues[typeof FIELD_VISIBILITY]>(
+      FIELD_VISIBILITY
+    )
   const [{ value: remixOfValue }] =
-    useField<EditFormValues[typeof REMIX_OF]>(REMIX_OF)
+    useTrackField<SingleTrackEditValues[typeof REMIX_OF]>(REMIX_OF)
   const isRemix = !isEmpty(remixOfValue?.tracks)
 
   const initialValues = useMemo(() => {
+    const isTipGated = isPremiumContentTipGated(premiumConditionsValue)
+    const isFollowGated = isPremiumContentFollowGated(premiumConditionsValue)
+    const isCollectibleGated = isPremiumContentCollectibleGated(
+      premiumConditionsValue
+    )
     const initialValues = {}
     set(initialValues, IS_UNLISTED, isUnlistedValue)
     set(initialValues, IS_PREMIUM, isPremiumValue)
     set(initialValues, PREMIUM_CONDITIONS, premiumConditionsValue)
 
     let availabilityType = TrackAvailabilityType.PUBLIC
-    if (
-      premiumConditionsValue?.follow_user_id ||
-      premiumConditionsValue?.tip_user_id
-    ) {
+    if (isFollowGated || isTipGated) {
       availabilityType = TrackAvailabilityType.SPECIAL_ACCESS
     }
-    if (premiumConditionsValue?.nft_collection) {
+    if (isCollectibleGated) {
       availabilityType = TrackAvailabilityType.COLLECTIBLE_GATED
     }
-    if (
-      // Remixes has its own toggle field so should not affect the selected availability type
-      !isEqual(omit(fieldVisibilityValue, 'remixes'), defaultHiddenFields)
-    ) {
+    if (isUnlistedValue) {
       availabilityType = TrackAvailabilityType.HIDDEN
     }
     // TODO: USDC gated type
     set(initialValues, AVAILABILITY_TYPE, availabilityType)
-
     set(initialValues, FIELD_VISIBILITY, fieldVisibilityValue)
     set(
       initialValues,
       SPECIAL_ACCESS_TYPE,
-      premiumConditionsValue?.tip_user_id
-        ? SpecialAccessType.TIP
-        : SpecialAccessType.FOLLOW
+      isTipGated ? SpecialAccessType.TIP : SpecialAccessType.FOLLOW
     )
     return initialValues as TrackAvailabilityFormValues
   }, [
@@ -153,17 +160,27 @@ export const TrackAvailabilityModalForm = () => {
   const onSubmit = useCallback(
     (values: TrackAvailabilityFormValues) => {
       setPremiumConditionsValue(get(values, PREMIUM_CONDITIONS))
-      if (values[PREMIUM_CONDITIONS]) {
+      if (get(values, PREMIUM_CONDITIONS)) {
         setIsPremiumValue(true)
       }
-      setFieldVisibilityValue(get(values, FIELD_VISIBILITY) ?? undefined)
-      if (values[AVAILABILITY_TYPE] === TrackAvailabilityType.HIDDEN) {
+      if (get(values, AVAILABILITY_TYPE) === TrackAvailabilityType.HIDDEN) {
+        setFieldVisibilityValue({
+          ...(get(values, FIELD_VISIBILITY) ?? undefined),
+          remixes:
+            fieldVisibilityValue?.remixes ?? defaultFieldVisibility.remixes
+        })
         setIsUnlistedValue(true)
       } else {
-        setFieldVisibilityValue(defaultFieldVisibility)
+        setFieldVisibilityValue({
+          ...defaultFieldVisibility,
+          remixes:
+            fieldVisibilityValue?.remixes ?? defaultFieldVisibility.remixes
+        })
+        setIsUnlistedValue(false)
       }
     },
     [
+      fieldVisibilityValue?.remixes,
       setFieldVisibilityValue,
       setIsPremiumValue,
       setIsUnlistedValue,
@@ -174,9 +191,11 @@ export const TrackAvailabilityModalForm = () => {
   const preview = (
     <div className={styles.preview}>
       <div className={styles.header}>
-        <label className={styles.title}>{messages.title}</label>
+        <Text className={styles.title} variant='title' size='large'>
+          {messages.title}
+        </Text>
       </div>
-      <div className={styles.description}>{messages.description}</div>
+      <Text>{messages.description}</Text>
       {/* TODO: Rich preview display */}
     </div>
   )
@@ -202,7 +221,7 @@ export const TrackAvailabilityModalForm = () => {
 }
 
 type TrackAvailabilityFieldsProps = {
-  premiumConditions: EditFormValues[typeof PREMIUM_CONDITIONS]
+  premiumConditions: SingleTrackEditValues[typeof PREMIUM_CONDITIONS]
   isRemix: boolean
 }
 
@@ -254,12 +273,20 @@ const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
           break
         }
         case TrackAvailabilityType.SPECIAL_ACCESS: {
-          if (!accountUserId || premiumConditionsValue?.tip_user_id) break
+          if (
+            !accountUserId ||
+            isPremiumContentTipGated(premiumConditionsValue)
+          )
+            break
           setPremiumConditionsValue({ follow_user_id: accountUserId })
           break
         }
         case TrackAvailabilityType.COLLECTIBLE_GATED:
-          if (!accountUserId || premiumConditionsValue?.nft_collection) break
+          if (
+            !accountUserId ||
+            isPremiumContentCollectibleGated(premiumConditionsValue)
+          )
+            break
           setPremiumConditionsValue(null)
           break
         case TrackAvailabilityType.HIDDEN:
@@ -287,11 +314,7 @@ const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
       {isRemix ? (
         <HelpCallout className={styles.isRemix} content={messages.isRemix} />
       ) : null}
-      <RadioButtonGroup
-        defaultValue={TrackAvailabilityType.PUBLIC}
-        {...availabilityField}
-        onChange={handleChange}
-      >
+      <RadioButtonGroup {...availabilityField} onChange={handleChange}>
         <ModalRadioItem
           icon={<IconVisibilityPublic className={styles.icon} />}
           label={messages.public}

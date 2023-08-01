@@ -14,18 +14,17 @@ import {
   tracksSocialActions as socialActions,
   waitForValue,
   QueryParams,
-  FeatureFlags,
   premiumContentSelectors,
   encodeHashId,
-  getQueryParams
+  getQueryParams,
+  confirmerActions,
+  confirmTransaction
 } from '@audius/common'
 import { fork } from 'redux-saga/effects'
 import { call, select, takeEvery, put } from 'typed-redux-saga'
 
 import { make } from 'common/store/analytics/actions'
 import { adjustUserField } from 'common/store/cache/users/sagas'
-import * as confirmerActions from 'common/store/confirmer/actions'
-import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import { updateProfileAsync } from 'common/store/profile/sagas'
 import { waitForRead, waitForWrite } from 'utils/sagaHelpers'
@@ -650,24 +649,17 @@ function* downloadTrack({
     const audiusBackendInstance = yield* getContext('audiusBackendInstance')
     const apiClient = yield* getContext('apiClient')
     const trackDownload = yield* getContext('trackDownload')
-    const getFeatureEnabled = yield* getContext('getFeatureEnabled')
-    const isGatedContentEnabled = yield* call(
-      getFeatureEnabled,
-      FeatureFlags.GATED_CONTENT_ENABLED
-    )
     let queryParams: QueryParams = {}
-    if (isGatedContentEnabled) {
-      const premiumTrackSignatureMap = yield* select(
-        getPremiumTrackSignatureMap
-      )
-      const premiumContentSignature =
-        track.premium_content_signature ||
-        premiumTrackSignatureMap[track.track_id]
-      queryParams = yield* call(getQueryParams, {
-        audiusBackendInstance,
-        premiumContentSignature
-      })
-    }
+
+    const premiumTrackSignatureMap = yield* select(getPremiumTrackSignatureMap)
+    const premiumContentSignature =
+      track.premium_content_signature ||
+      premiumTrackSignatureMap[track.track_id]
+    queryParams = yield* call(getQueryParams, {
+      audiusBackendInstance,
+      premiumContentSignature
+    })
+
     queryParams.filename = filename
 
     const encodedTrackId = encodeHashId(track.track_id)

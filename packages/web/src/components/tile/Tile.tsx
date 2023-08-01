@@ -1,8 +1,9 @@
 import { ReactNode, ComponentType, ComponentProps, ElementType } from 'react'
 
+import { DogEarType } from '@audius/common'
 import cn from 'classnames'
 
-import { DogEar, DogEarType } from 'components/dog-ear'
+import { DogEar } from 'components/dog-ear'
 
 import styles from './Tile.module.css'
 
@@ -43,7 +44,11 @@ export const Tile = <
       )}
       {...other}
     >
-      {dogEar ? <DogEar type={dogEar} /> : null}
+      {dogEar ? (
+        <div className={styles.borderOffset}>
+          <DogEar type={dogEar} />
+        </div>
+      ) : null}
       {children}
     </RootComponent>
   )

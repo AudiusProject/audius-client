@@ -1,0 +1,21 @@
+import { Collection, Kind, cacheActions } from '@audius/common'
+import { put } from 'typed-redux-saga'
+
+export function* optimisticUpdateCollection(collection: Collection) {
+  const optimisticCollection = { ...collection }
+  if (optimisticCollection.artwork?.url) {
+    const { artwork } = optimisticCollection
+    const { url } = artwork
+    optimisticCollection.artwork = artwork
+    optimisticCollection.cover_art_sizes = url!
+    const coverArtSizes = optimisticCollection._cover_art_sizes ?? {}
+    coverArtSizes.OVERRIDE = url
+    optimisticCollection._cover_art_sizes = coverArtSizes
+  }
+
+  yield* put(
+    cacheActions.update(Kind.COLLECTIONS, [
+      { id: optimisticCollection.playlist_id, metadata: optimisticCollection }
+    ])
+  )
+}

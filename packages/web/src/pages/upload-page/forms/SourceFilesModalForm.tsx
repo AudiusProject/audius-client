@@ -1,11 +1,17 @@
 import { useCallback, useMemo } from 'react'
 
-import { StemCategory, StemUpload, removeNullable } from '@audius/common'
+import {
+  Download,
+  StemCategory,
+  StemUpload,
+  removeNullable
+} from '@audius/common'
 import { Formik, useField } from 'formik'
 import { get, set } from 'lodash'
 
 import { ReactComponent as IconSourceFiles } from 'assets/img/iconSourceFiles.svg'
 import { Divider } from 'components/divider'
+import { Text } from 'components/typography'
 
 import { ModalField } from '../fields/ModalField'
 import {
@@ -16,8 +22,11 @@ import { SwitchRowField } from '../fields/SwitchRowField'
 import { processFiles } from '../store/utils/processFiles'
 
 import styles from './SourceFilesModalForm.module.css'
+import { useTrackField } from './utils'
 
+const ALLOW_DOWNLOAD_BASE = 'is_downloadable'
 const ALLOW_DOWNLOAD = 'download.is_downloadable'
+const FOLLOWER_GATED_BASE = 'requires_follow'
 const FOLLOWER_GATED = 'download.requires_follow'
 const STEMS = 'stems'
 
@@ -52,11 +61,12 @@ export type SourceFilesFormValues = {
 export const SourceFilesModalForm = () => {
   // These refer to the field in the outer EditForm
   const [{ value: allowDownloadValue }, , { setValue: setAllowDownloadValue }] =
-    useField(ALLOW_DOWNLOAD)
+    useTrackField<Download[typeof ALLOW_DOWNLOAD_BASE]>(ALLOW_DOWNLOAD)
   const [{ value: followerGatedValue }, , { setValue: setFollowerGatedValue }] =
-    useField(FOLLOWER_GATED)
+    useTrackField<Download[typeof FOLLOWER_GATED_BASE]>(FOLLOWER_GATED)
   // TODO: Stems value should be submitted outside tracks in uploadTracks
-  const [{ value: stemsValue }, , { setValue: setStemsValue }] = useField(STEMS)
+  const [{ value: stemsValue }, , { setValue: setStemsValue }] =
+    useTrackField(STEMS)
 
   const initialValues = useMemo(() => {
     const initialValues = {}
@@ -78,9 +88,11 @@ export const SourceFilesModalForm = () => {
   const preview = (
     <div className={styles.preview}>
       <div className={styles.header}>
-        <label className={styles.title}>{messages.title}</label>
+        <Text className={styles.title} variant='title' size='large'>
+          {messages.title}
+        </Text>
       </div>
-      <div className={styles.description}>{messages.description}</div>
+      <Text>{messages.description}</Text>
     </div>
   )
 

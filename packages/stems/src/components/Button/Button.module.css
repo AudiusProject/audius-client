@@ -32,6 +32,25 @@
   height: var(--unit-8);
 }
 
+.button.large {
+  padding: var(--unit-5) var(--unit-6);
+  height: var(--unit-15);
+  gap: var(--unit-2);
+}
+
+.button.large .textLabel {
+  font-size: var(--font-xl);
+  font-weight: var(--font-bold);
+  letter-spacing: 0.25px;
+  line-height: var(--unit-5);
+  text-transform: uppercase;
+}
+
+.button.large .icon,
+.button.large .icon.left {
+  margin-right: 0;
+}
+
 .button.tiny {
   height: var(--unit-7);
   padding-left: var(--unit-4);
@@ -43,6 +62,10 @@
 }
 
 .button.small .icon svg {
+  width: var(--unit-4);
+}
+
+.button.tiny .icon svg {
   width: var(--unit-4);
 }
 

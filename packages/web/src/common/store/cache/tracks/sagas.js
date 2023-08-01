@@ -13,7 +13,9 @@ import {
   cacheUsersSelectors,
   cacheActions,
   waitForAccount,
-  waitForValue
+  waitForValue,
+  confirmerActions,
+  confirmTransaction
 } from '@audius/common'
 import {
   call,
@@ -26,8 +28,6 @@ import {
 
 import { make } from 'common/store/analytics/actions'
 import { fetchUsers } from 'common/store/cache/users/sagas'
-import * as confirmerActions from 'common/store/confirmer/actions'
-import { confirmTransaction } from 'common/store/confirmer/sagas'
 import * as signOnActions from 'common/store/pages/signon/actions'
 import { updateProfileAsync } from 'common/store/profile/sagas'
 import { dominantColor } from 'utils/imageProcessingUtil'
@@ -124,9 +124,9 @@ function* editTrackAsync(action) {
 
   const track = { ...action.formFields }
   track.track_id = action.trackId
-  if (track.artwork) {
+  if (track.artwork?.file) {
+    track.cover_art_sizes = track.artwork.url
     track._cover_art_sizes = {
-      ...track._cover_art_sizes,
       [DefaultSizes.OVERRIDE]: track.artwork.url
     }
   }

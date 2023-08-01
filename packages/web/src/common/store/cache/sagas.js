@@ -5,7 +5,9 @@ import {
   cacheActions,
   cacheSelectors,
   cacheConfig,
-  FeatureFlags
+  FeatureFlags,
+  confirmerSelectors,
+  IntKeys
 } from '@audius/common'
 import { pick } from 'lodash'
 import {
@@ -17,11 +19,9 @@ import {
   getContext
 } from 'redux-saga/effects'
 
-import { getConfirmCalls } from 'common/store/confirmer/selectors'
 const { CACHE_PRUNE_MIN } = cacheConfig
-const { getCache } = cacheSelectors
-
-const DEFAULT_ENTRY_TTL = 5 /* min */ * 60 /* seconds */ * 1000 /* ms */
+const { getConfirmCalls } = confirmerSelectors
+const { getCache, getEntryTTL } = cacheSelectors
 
 const isMissingFields = (cacheEntry, requiredFields) => {
   if (!requiredFields) return false
@@ -34,8 +34,8 @@ const isMissingFields = (cacheEntry, requiredFields) => {
 }
 
 // If timestamp provided, check if expired
-const isExpired = (timestamp) => {
-  if (timestamp) return timestamp + DEFAULT_ENTRY_TTL < Date.now()
+const isExpired = (timestamp, entryTTL) => {
+  if (timestamp) return timestamp + entryTTL < Date.now()
   return false
 }
 
@@ -98,12 +98,14 @@ export function* retrieve({
     call(getEntriesTimestamp, uniqueIds)
   ])
 
+  const entryTTL = yield select(getEntryTTL)
+
   const idsToFetch = []
   uniqueIds.forEach((id) => {
     const shouldFetch =
       !(id in cachedEntries) ||
       isMissingFields(cachedEntries[id], requiredFields) ||
-      isExpired(timestamps[id]) ||
+      isExpired(timestamps[id], entryTTL) ||
       forceRetrieveFromSource
     if (shouldFetch) {
       idsToFetch.push(id)
@@ -177,14 +179,15 @@ function* retrieveFromSourceThenCache({
       metadata: m
     }))
 
-    yield call(
-      add,
-      kind,
-      cacheMetadata,
-      // Rewrite the cache entry if we forced retrieving it from source
-      deleteExistingEntry,
-      // Always cache it persistently
-      true
+    yield put(
+      cacheActions.add(
+        kind,
+        cacheMetadata,
+        // Rewrite the cache entry if we forced retrieving it from source
+        deleteExistingEntry,
+        // Always cache it persistently
+        true
+      )
     )
 
     // Perform any side effects
@@ -326,21 +329,34 @@ function* watchRemove() {
 
 function* initializeCacheType() {
   const remoteConfig = yield getContext('remoteConfigInstance')
+  const getFeatureEnabled = yield getContext('getFeatureEnabled')
   yield call(remoteConfig.waitForRemoteConfig)
-  const fastCache = yield call(
-    remoteConfig.getFeatureEnabled,
-    FeatureFlags.FAST_CACHE
-  )
+
+  const fastCache = yield call(getFeatureEnabled, FeatureFlags.FAST_CACHE)
   const safeFastCache = yield call(
-    remoteConfig.getFeatureEnabled,
+    getFeatureEnabled,
     FeatureFlags.SAFE_FAST_CACHE
   )
 
+  let cacheType = 'normal'
+
   if (fastCache) {
-    yield put(cacheActions.setCacheType({ cacheType: 'fast' }))
+    cacheType = 'fast'
   } else if (safeFastCache) {
-    yield put(cacheActions.setCacheType({ cacheType: 'safe-fast' }))
+    cacheType = 'safe-fast'
   }
+
+  const cacheEntryTTL = remoteConfig.getRemoteVar(IntKeys.CACHE_ENTRY_TTL)
+
+  const simpleCache = yield call(getFeatureEnabled, FeatureFlags.SIMPLE_CACHE)
+
+  yield put(
+    cacheActions.setCacheConfig({
+      cacheType,
+      entryTTL: cacheEntryTTL,
+      simple: simpleCache
+    })
+  )
 }
 
 const sagas = () => {

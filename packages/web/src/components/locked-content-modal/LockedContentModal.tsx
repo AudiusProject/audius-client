@@ -2,91 +2,25 @@ import { useCallback } from 'react'
 
 import {
   premiumContentActions,
-  SquareSizes,
-  Track,
   useLockedContent,
-  usePremiumContentAccess,
-  User
+  usePremiumContentAccess
 } from '@audius/common'
-import {
-  IconLock,
-  ModalContent,
-  ModalHeader,
-  ModalTitle,
-  IconCollectible,
-  IconSpecialAccess
-} from '@audius/stems'
+import { IconLock, ModalContent, ModalHeader, ModalTitle } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
-import DynamicImage from 'components/dynamic-image/DynamicImage'
+import { LockedTrackDetailsTile } from 'components/track/LockedTrackDetailsTile'
 import { PremiumTrackSection } from 'components/track/PremiumTrackSection'
-import UserBadges from 'components/user-badges/UserBadges'
-import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import ModalDrawer from 'pages/audio-rewards-page/components/modals/ModalDrawer'
 import { isMobile } from 'utils/clientUtil'
-import { profilePage } from 'utils/route'
 
 import styles from './LockedContentModal.module.css'
 
 const { resetLockedContentId } = premiumContentActions
 
 const messages = {
-  howToUnlock: 'HOW TO UNLOCK',
-  collectibleGated: 'COLLECTIBLE GATED',
-  specialAccess: 'SPECIAL ACCESS'
-}
-
-const TrackDetails = ({ track, owner }: { track: Track; owner: User }) => {
-  const {
-    track_id: trackId,
-    title,
-    premium_conditions: premiumConditions
-  } = track
-  const image = useTrackCoverArt(
-    trackId,
-    track._cover_art_sizes ?? null,
-    SquareSizes.SIZE_150_BY_150,
-    ''
-  )
-  const label = `${title} by ${owner.name}`
-  const isCollectibleGated = !!premiumConditions?.nft_collection
-
-  return (
-    <div className={styles.trackDetails}>
-      <DynamicImage
-        wrapperClassName={styles.trackImageWrapper}
-        className={styles.trackImage}
-        image={image}
-        aria-label={label}
-      />
-      <div>
-        <div className={styles.premiumContentLabel}>
-          {isCollectibleGated ? <IconCollectible /> : <IconSpecialAccess />}
-          <span>
-            {isCollectibleGated
-              ? messages.collectibleGated
-              : messages.specialAccess}
-          </span>
-        </div>
-        <p className={styles.trackTitle}>{title}</p>
-        <div className={styles.trackOwner}>
-          <span className={styles.by}>By</span>
-          <a className={styles.trackOwnerName} href={profilePage(owner.handle)}>
-            {owner.name}
-          </a>
-          <UserBadges
-            userId={owner.user_id}
-            className={styles.badgeIcon}
-            badgeSize={14}
-            useSVGTiers
-            inline
-          />
-        </div>
-      </div>
-    </div>
-  )
+  howToUnlock: 'HOW TO UNLOCK'
 }
 
 export const LockedContentModal = () => {
@@ -124,8 +58,8 @@ export const LockedContentModal = () => {
       </ModalHeader>
       <ModalContent>
         {track && track.premium_conditions && owner && (
-          <div>
-            <TrackDetails track={track} owner={owner} />
+          <div className={styles.modalContent}>
+            <LockedTrackDetailsTile track={track} owner={owner} />
             <PremiumTrackSection
               isLoading={false}
               trackId={track.track_id}
@@ -135,6 +69,7 @@ export const LockedContentModal = () => {
               wrapperClassName={styles.premiumTrackSectionWrapper}
               className={styles.premiumTrackSection}
               buttonClassName={styles.premiumTrackSectionButton}
+              ownerId={owner.user_id}
             />
           </div>
         )}

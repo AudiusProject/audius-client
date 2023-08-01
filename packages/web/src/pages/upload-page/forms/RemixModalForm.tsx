@@ -9,7 +9,8 @@ import {
   getPathFromTrackUrl,
   useGetTrackByPermalink,
   SquareSizes,
-  accountSelectors
+  accountSelectors,
+  FieldVisibility
 } from '@audius/common'
 import { Formik, useField } from 'formik'
 import { get, set } from 'lodash'
@@ -23,15 +24,17 @@ import {
 } from 'components/data-entry/InputV2'
 import { Divider } from 'components/divider'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
+import { Text } from 'components/typography'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
 import { fullTrackPage, stripBaseUrl } from 'utils/route'
 
-import { EditFormValues } from '../components/EditPageNew'
 import { ModalField } from '../fields/ModalField'
 import { SwitchRowField } from '../fields/SwitchRowField'
 
 import styles from './RemixModalForm.module.css'
+import { SingleTrackEditValues } from './types'
+import { useTrackField } from './utils'
 
 const { getUserId } = accountSelectors
 
@@ -56,6 +59,7 @@ const messages = {
 export type RemixOfField = Nullable<{ tracks: { parent_track_id: ID }[] }>
 
 export const REMIX_OF = 'remix_of'
+export const SHOW_REMIXES_BASE = `remixes`
 export const SHOW_REMIXES = `field_visibility.remixes`
 
 const IS_REMIX = 'is_remix'
@@ -74,9 +78,9 @@ export type RemixFormValues = {
 export const RemixModalForm = () => {
   // These refer to the field in the outer EditForm
   const [{ value: showRemixesValue }, , { setValue: setShowRemixesValue }] =
-    useField(SHOW_REMIXES)
+    useTrackField<FieldVisibility[typeof SHOW_REMIXES_BASE]>(SHOW_REMIXES)
   const [{ value: remixOfValue }, , { setValue: setRemixOfValue }] =
-    useField<EditFormValues[typeof REMIX_OF]>(REMIX_OF)
+    useTrackField<SingleTrackEditValues[typeof REMIX_OF]>(REMIX_OF)
 
   const trackId = remixOfValue?.tracks[0].parent_track_id
   const { data: initialRemixedTrack } = useGetTrackById(
@@ -98,7 +102,7 @@ export const RemixModalForm = () => {
     )
     set(initialValues, REMIX_LINK, remixLink)
     return initialValues as RemixFormValues
-  }, [showRemixesValue, remixLink, remixOfValue?.tracks])
+  }, [showRemixesValue, remixOfValue?.tracks, remixLink])
 
   const [url, setUrl] = useState<string>()
 
@@ -123,15 +127,17 @@ export const RemixModalForm = () => {
         })
       }
     },
-    [linkedTrack?.track_id, setShowRemixesValue, setRemixOfValue]
+    [setShowRemixesValue, setRemixOfValue, linkedTrack?.track_id]
   )
 
   const preview = (
     <div className={styles.preview}>
       <div className={styles.header}>
-        <label className={styles.title}>{messages.title}</label>
+        <Text className={styles.title} variant='title' size='large'>
+          {messages.title}
+        </Text>
       </div>
-      <div className={styles.description}>{messages.description}</div>
+      <Text>{messages.description}</Text>
     </div>
   )
 

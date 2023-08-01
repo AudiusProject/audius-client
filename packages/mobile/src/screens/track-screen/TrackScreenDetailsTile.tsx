@@ -27,13 +27,16 @@ import {
   reachabilitySelectors,
   usePremiumContentAccess,
   playbackPositionSelectors,
-  FeatureFlags
+  FeatureFlags,
+  isPremiumContentUSDCPurchaseGated,
+  isPremiumContentCollectibleGated
 } from '@audius/common'
 import type { UID, User, SearchTrack, SearchUser, Track } from '@audius/common'
 import { Image, View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 import { useDispatch, useSelector } from 'react-redux'
 
+import IconCart from 'app/assets/images/iconCart.svg'
 import IconCollectible from 'app/assets/images/iconCollectible.svg'
 import IconHidden from 'app/assets/images/iconHidden.svg'
 import IconRobot from 'app/assets/images/iconRobot.svg'
@@ -44,7 +47,6 @@ import type { DetailsTileDetail } from 'app/components/details-tile/types'
 import type { ImageProps } from 'app/components/image/FastImage'
 import { TrackImage } from 'app/components/image/TrackImage'
 import { TrackDownloadStatusIndicator } from 'app/components/offline-downloads/TrackDownloadStatusIndicator'
-import { useIsGatedContentEnabled } from 'app/hooks/useIsGatedContentEnabled'
 import { useIsOfflineModeEnabled } from 'app/hooks/useIsOfflineModeEnabled'
 import { useNavigation } from 'app/hooks/useNavigation'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
@@ -52,6 +54,7 @@ import { make, track as record } from 'app/services/analytics'
 import { getTrackOfflineDownloadStatus } from 'app/store/offline-downloads/selectors'
 import { OfflineDownloadStatus } from 'app/store/offline-downloads/slice'
 import { flexRowCentered, makeStyles } from 'app/styles'
+import { spacing } from 'app/styles/spacing'
 import { moodMap } from 'app/utils/moods'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -75,7 +78,8 @@ const messages = {
   hiddenTrack: 'hidden track',
   collectibleGated: 'collectible gated',
   specialAccess: 'special access',
-  generatedWithAi: 'Generated with AI'
+  usdcPurchase: 'premium track',
+  generatedWithAi: 'generated with ai'
 }
 
 type TrackScreenDetailsTileProps = {
@@ -121,11 +125,11 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
   hiddenTrackLabel: {
     marginTop: spacing(1),
     marginLeft: spacing(2),
-    color: palette.accentOrange,
     fontFamily: typography.fontByWeight.demiBold,
     fontSize: 14,
     letterSpacing: 2,
-    textTransform: 'uppercase'
+    textTransform: 'uppercase',
+    color: palette.neutralLight4
   },
 
   bottomContent: {
@@ -164,7 +168,7 @@ const useStyles = makeStyles(({ palette, spacing, typography }) => ({
     textTransform: 'uppercase',
     fontFamily: typography.fontByWeight.demiBold,
     fontSize: typography.fontSize.small,
-    color: palette.accentBlue
+    color: palette.neutralLight4
   },
   premiumIcon: {
     marginRight: spacing(2.5),
@@ -198,7 +202,6 @@ export const TrackScreenDetailsTile = ({
   uid,
   isLineupLoading
 }: TrackScreenDetailsTileProps) => {
-  const isGatedContentEnabled = useIsGatedContentEnabled()
   const { doesUserHaveAccess } = usePremiumContentAccess(track as Track) // track is of type Track | SearchTrack but we only care about some of their common fields, maybe worth refactoring later
   const { isEnabled: isNewPodcastControlsEnabled } = useFeatureFlag(
     FeatureFlags.PODCAST_CONTROL_UPDATES_ENABLED,
@@ -209,8 +212,7 @@ export const TrackScreenDetailsTile = ({
   )
   const styles = useStyles()
   const navigation = useNavigation()
-  const { accentOrange, accentBlue, white, aiPrimary, aiSecondary } =
-    useThemeColors()
+  const { white, aiPrimary, aiSecondary, neutralLight4 } = useThemeColors()
 
   const isOfflineEnabled = useIsOfflineModeEnabled()
   const isReachable = useSelector(getIsReachable)
@@ -245,12 +247,8 @@ export const TrackScreenDetailsTile = ({
   } = track
 
   const isOwner = owner_id === currentUserId
-  const hideFavorite =
-    is_unlisted || (isGatedContentEnabled && !doesUserHaveAccess)
-  const hideRepost =
-    is_unlisted ||
-    !isReachable ||
-    (isGatedContentEnabled && !doesUserHaveAccess)
+  const hideFavorite = is_unlisted || !doesUserHaveAccess
+  const hideRepost = is_unlisted || !isReachable || !doesUserHaveAccess
 
   const remixParentTrackId = remix_of?.tracks?.[0]?.parent_track_id
   const isRemix = !!remixParentTrackId
@@ -362,10 +360,9 @@ export const TrackScreenDetailsTile = ({
   const handlePressOverflow = () => {
     const isLongFormContent =
       genre === Genre.PODCASTS || genre === Genre.AUDIOBOOKS
-    const addToPlaylistAction =
-      !isGatedContentEnabled || !isPremium
-        ? OverflowAction.ADD_TO_PLAYLIST
-        : null
+    const addToPlaylistAction = !isPremium
+      ? OverflowAction.ADD_TO_PLAYLIST
+      : null
     const overflowActions = [
       addToPlaylistAction,
       isOwner
@@ -404,19 +401,26 @@ export const TrackScreenDetailsTile = ({
   }
 
   const renderHeaderText = () => {
-    if (isGatedContentEnabled && isPremium) {
+    if (isPremium && track.premium_conditions != null) {
+      let IconComponent = IconSpecialAccess
+      let text = messages.specialAccess
+      if (isPremiumContentCollectibleGated(track.premium_conditions)) {
+        IconComponent = IconCollectible
+        text = messages.collectibleGated
+      } else if (isPremiumContentUSDCPurchaseGated(track.premium_conditions)) {
+        IconComponent = IconCart
+        text = messages.usdcPurchase
+      }
+
       return (
         <View style={styles.headerView}>
-          {track.premium_conditions?.nft_collection ? (
-            <IconCollectible style={styles.premiumIcon} fill={accentBlue} />
-          ) : (
-            <IconSpecialAccess style={styles.premiumIcon} fill={accentBlue} />
-          )}
-          <Text style={styles.premiumHeaderText}>
-            {track.premium_conditions?.nft_collection
-              ? messages.collectibleGated
-              : messages.specialAccess}
-          </Text>
+          <IconComponent
+            style={styles.premiumIcon}
+            fill={neutralLight4}
+            width={spacing(4.5)}
+            height={spacing(4.5)}
+          />
+          <Text style={styles.premiumHeaderText}>{text}</Text>
         </View>
       )
     }
@@ -460,7 +464,7 @@ export const TrackScreenDetailsTile = ({
   const renderHeader = () => {
     return is_unlisted ? (
       <View style={styles.hiddenDetailsTileWrapper}>
-        <IconHidden fill={accentOrange} />
+        <IconHidden fill={neutralLight4} />
         <Text style={styles.hiddenTrackLabel}>{messages.hiddenTrack}</Text>
       </View>
     ) : (
@@ -528,12 +532,13 @@ export const TrackScreenDetailsTile = ({
       headerText={isRemix ? messages.remix : messages.track}
       hideFavorite={hideFavorite}
       hideRepost={hideRepost}
-      hideShare={is_unlisted && !field_visibility?.share}
+      hideShare={(is_unlisted && !isOwner) || !field_visibility?.share}
       hideOverflow={!isReachable}
       hideFavoriteCount={is_unlisted}
       hideListenCount={is_unlisted && !field_visibility?.play_count}
       hideRepostCount={is_unlisted}
       isPlaying={isPlaying && isPlayingId}
+      isUnlisted={is_unlisted}
       onPressFavorites={handlePressFavorites}
       onPressOverflow={handlePressOverflow}
       onPressPlay={handlePressPlay}

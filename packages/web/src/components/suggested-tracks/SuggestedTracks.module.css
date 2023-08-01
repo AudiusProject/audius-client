@@ -35,6 +35,7 @@
 .content {
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .loading {
@@ -83,6 +84,12 @@
   font-size: var(--font-s);
   font-weight: var(--font-bold);
   line-height: normal;
+}
+
+.artistName {
+  color: var(--neutral-light-4);
+  font-size: var(--font-s);
+  font-weight: var(--font-medium);
 }
 
 .refreshButton {

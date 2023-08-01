@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import {
   CreatePlaylistSource,
@@ -9,7 +9,8 @@ import {
   collectionPageSelectors,
   addToPlaylistUISelectors,
   duplicateAddConfirmationModalUIActions,
-  FeatureFlags
+  FeatureFlags,
+  toastActions
 } from '@audius/common'
 import { Modal, Scrollbar } from '@audius/stems'
 import cn from 'classnames'
@@ -19,8 +20,6 @@ import { ReactComponent as IconMultiselectAdd } from 'assets/img/iconMultiselect
 import { useModalState } from 'common/hooks/useModalState'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import SearchBar from 'components/search-bar/SearchBar'
-import { ToastContext } from 'components/toast/ToastContext'
-import ToastLinkContent from 'components/toast/mobile/ToastLinkContent'
 import { Tooltip } from 'components/tooltip'
 import { useCollectionCoverArt } from 'hooks/useCollectionCoverArt'
 import { useFlag } from 'hooks/useRemoteConfig'
@@ -35,6 +34,7 @@ const { addTrackToPlaylist, createPlaylist } = cacheCollectionsActions
 const getAccountWithOwnPlaylists = accountSelectors.getAccountWithOwnPlaylists
 const { requestOpen: openDuplicateAddConfirmation } =
   duplicateAddConfirmationModalUIActions
+const { toast } = toastActions
 
 const messages = {
   title: 'Add to Playlist',
@@ -48,7 +48,6 @@ const messages = {
 
 const AddToPlaylistModal = () => {
   const dispatch = useDispatch()
-  const { toast } = useContext(ToastContext)
 
   const [isOpen, setIsOpen] = useModalState('AddToPlaylist')
   const trackId = useSelector(getTrackId)
@@ -101,19 +100,17 @@ const AddToPlaylistModal = () => {
     } else {
       dispatch(addTrackToPlaylist(trackId, playlist.playlist_id))
       if (account && trackTitle) {
-        toast(
-          <ToastLinkContent
-            text={messages.addedToast}
-            linkText={messages.view}
-            link={collectionPage(
-              account.handle,
-              trackTitle,
-              playlist.playlist_id,
-              playlist.permalink,
-              playlist.is_album
-            )}
-          />
-        )
+        toast({
+          content: messages.addedToast,
+          link: collectionPage(
+            account.handle,
+            trackTitle,
+            playlist.playlist_id,
+            playlist.permalink,
+            playlist.is_album
+          ),
+          linkText: messages.view
+        })
       }
     }
 
@@ -121,7 +118,7 @@ const AddToPlaylistModal = () => {
   }
 
   const handleDisabledPlaylistClick = () => {
-    toast(messages.hiddenAdd)
+    toast({ content: messages.hiddenAdd })
   }
 
   const handleCreatePlaylist = () => {
