@@ -8,7 +8,9 @@ import {
   tracksSocialActions,
   usersSocialActions,
   shareModalUISelectors,
-  shareSoundToTiktokModalActions
+  shareSoundToTiktokModalActions,
+  createChatModalActions,
+  modalsActions
 } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
@@ -31,6 +33,8 @@ const { shareUser } = usersSocialActions
 const { shareTrack } = tracksSocialActions
 const { shareAudioNftPlaylist, shareCollection } = collectionsSocialActions
 const getAccountUser = accountSelectors.getAccountUser
+const { setVisibility } = modalsActions
+const { setState: setCreateChatModalState } = createChatModalActions
 
 export const ShareModal = () => {
   const { isOpen, onClose, onClosed } = useModalState('Share')
@@ -47,6 +51,19 @@ export const ShareModal = () => {
 
   const isOwner =
     content?.type === 'track' && account?.user_id === content.artist.user_id
+
+  const handleShareToDirectMessage = useCallback(async () => {
+    if (!content) return
+    dispatch(setVisibility({ modal: 'CreateChat', visible: true }))
+    dispatch(
+      setCreateChatModalState({
+        // Just care about the link
+        presetMessage: (await getTwitterShareText(content, false)).link,
+        onCancelAction: setVisibility({ modal: 'Share', visible: true })
+      })
+    )
+    onClose()
+  }, [dispatch, onClose, content])
 
   const handleShareToTwitter = useCallback(async () => {
     if (!source || !content) return
@@ -97,7 +114,7 @@ export const ShareModal = () => {
   const shareProps = {
     isOpen,
     isOwner,
-    onShareToDirectMessage: () => {},
+    onShareToDirectMessage: handleShareToDirectMessage,
     onShareToTwitter: handleShareToTwitter,
     onShareToTikTok: handleShareToTikTok,
     onCopyLink: handleCopyLink,
