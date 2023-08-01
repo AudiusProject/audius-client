@@ -123,7 +123,7 @@ export const ContextualMenu = <
     errorMessage,
     ...formikProps
   } = props
-  const [isSubMenuOpen, toggleSubMenu] = useToggle(false)
+  const [isMenuOpen, toggleMenu] = useToggle(false)
 
   const defaultRenderValue = useCallback((value: Value) => {
     const hasValue = !value
@@ -151,7 +151,7 @@ export const ContextualMenu = <
   const renderValue = renderValueProp ?? defaultRenderValue
 
   const preview = (
-    <Tile onClick={toggleSubMenu} className={styles.root} elevation='flat'>
+    <Tile onClick={toggleMenu} className={styles.root} elevation='flat'>
       <div className={styles.header}>
         <div className={styles.title}>
           <div>
@@ -173,9 +173,9 @@ export const ContextualMenu = <
   const handleSubmit = useCallback(
     (values: FormValues, helpers: FormikHelpers<FormValues>) => {
       onSubmit(values, helpers)
-      toggleSubMenu()
+      toggleMenu()
     },
-    [onSubmit, toggleSubMenu]
+    [onSubmit, toggleMenu]
   )
 
   return (
@@ -186,8 +186,8 @@ export const ContextualMenu = <
           label={label}
           icon={icon}
           description={description}
-          isOpen={isSubMenuOpen}
-          onClose={toggleSubMenu}
+          isOpen={isMenuOpen}
+          onClose={toggleMenu}
           menuForm={menuForm}
         />
       </Formik>
