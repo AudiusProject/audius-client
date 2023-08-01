@@ -1,4 +1,4 @@
-import { convertGenreLabelToValue, GENRES } from '@audius/common'
+import { GENRES } from '@audius/common'
 import { useField } from 'formik'
 
 import { InputV2Variant } from 'components/data-entry/InputV2'
@@ -56,13 +56,8 @@ export const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
             aria-label={messages.genre}
             placeholder={messages.genre}
             mount='parent'
-            menu={{
-              items: GENRES.map((g) => ({
-                el: g,
-                text: g,
-                value: convertGenreLabelToValue(g)
-              }))
-            }}
+            // TODO: Use correct value for Genres based on label (see `convertGenreLabelToValue`)
+            menu={{ items: GENRES }}
             size='large'
           />
           <DropdownField
