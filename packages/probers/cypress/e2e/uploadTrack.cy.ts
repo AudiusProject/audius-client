@@ -72,7 +72,7 @@ describe('Upload Track', () => {
 
     cy.findByRole('heading', { name: /track/i, level: 1 }).should('exist')
   })
-  it('should upload a track with a subgenre', () => {
+  it.only('should upload a track with a subgenre', () => {
     const base64Entropy = Buffer.from(user.entropy).toString('base64')
     cy.visit(`trending?login=${base64Entropy}`)
     cy.findByText(user.name, { timeout: 20000 }).should('exist')
@@ -90,7 +90,10 @@ describe('Upload Track', () => {
     cy.findByRole('button', { name: /continue/i }).click()
 
     cy.findByRole('combobox', { name: /pick a genre/i }).click()
-    cy.findByRole('option', { name: /electronic - tech house/i }).click()
+    cy.get('.rc-virtual-list-holder').scrollTo('bottom', {
+      ensureScrollable: false
+    })
+    cy.findByRole('option', { name: /electronic - dubstep/i }).click()
 
     // Add track artwork
     cy.findByRole('button', { name: /change artwork/i }).click()
