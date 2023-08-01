@@ -82,6 +82,7 @@ const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
             aria-label={messages.genre}
             placeholder={messages.genre}
             mount='parent'
+            // TODO: Use correct value for Genres based on label (see `convertGenreLabelToValue`)
             menu={{ items: GENRES }}
             defaultValue={getCanonicalName(genreField.value) || ''}
             error={!!genreMeta.error}
