@@ -33,6 +33,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: var(--unit-6);
   text-align: center;
   height: 100%;
   justify-content: space-around;
@@ -40,7 +41,6 @@
 }
 
 .description {
-  margin-bottom: var(--unit-6);
   font-weight: var(--font-medium);
   font-size: var(--font-l);
   line-height: 1.5;
@@ -48,10 +48,9 @@
 
 .actionList {
   width: 100%;
-}
-
-.actionListItem {
-  margin: var(--unit-3) 0px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit-3);
 }
 
 .actionItemIcon {
