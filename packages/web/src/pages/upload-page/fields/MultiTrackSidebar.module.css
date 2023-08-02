@@ -20,12 +20,21 @@
 }
 
 .body {
-  padding: var(--unit-4) 0;
+  padding: var(--unit-4);
   border-radius: 0px 0px 8px 8px;
   background: var(--white);
 }
 
+.iconError {
+  height: 12px;
+  width: 12px;
+}
+
 /* Track */
+.tracks {
+  margin: 0 calc(-1 * var(--unit-4));
+}
+
 .track {
   justify-content: space-between;
 }
@@ -75,7 +84,7 @@
   transition: border ease-in-out 0.1s;
 }
 
-.iconError {
+.trackInfo .iconError {
   height: 16px;
   width: 16px;
   margin: var(--unit-1);
@@ -87,8 +96,4 @@
 }
 .trackRoot:hover .iconRemove {
   display: flex;
-}
-
-.completeButton {
-  margin: 0 var(--unit-4);
 }

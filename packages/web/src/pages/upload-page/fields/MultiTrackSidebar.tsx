@@ -24,10 +24,12 @@ import styles from './MultiTrackSidebar.module.css'
 const messages = {
   title: 'UPLOADED TRACKS',
   complete: 'Complete Upload',
+  fixErrors: 'Fix errors to complete your upload.',
   titleRequired: 'Track name required'
 }
 
 export const MultiTrackSidebar = () => {
+  const { errors } = useFormikContext<TrackEditFormValues>()
   return (
     <div className={styles.root}>
       <div className={cn(layoutStyles.col)}>
@@ -46,6 +48,20 @@ export const MultiTrackSidebar = () => {
               fullWidth
             />
           </div>
+          {!isEmpty(errors) ? (
+            <div className={cn(layoutStyles.row, layoutStyles.gap1)}>
+              <Icon
+                className={styles.iconError}
+                icon={IconError}
+                size='xSmall'
+                fill='accentRed'
+              />
+              {/* @ts-ignore todo: fix accent red color */}
+              <Text size='xSmall' color='--accent-red'>
+                {messages.fixErrors}
+              </Text>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
@@ -101,8 +117,7 @@ const TrackRow = (props: TrackRowProps) => {
   )
 
   const isTitleMissing = isEmpty(title)
-  // const hasError = !isEmpty(errors.trackMetadatas?.[index])
-  const hasError = index === 1
+  const hasError = !isEmpty(errors.trackMetadatas?.[index])
 
   return (
     <div className={styles.trackRoot} onClick={() => setIndex(index)}>
@@ -139,8 +154,7 @@ const TrackRow = (props: TrackRowProps) => {
           </div>
           <Text
             size='small'
-            // TODO: support for accent-red in other themes
-            // @ts-ignore
+            // @ts-ignore TODO: support for accent-red in other themes
             color={
               hasError
                 ? '--accent-red'
