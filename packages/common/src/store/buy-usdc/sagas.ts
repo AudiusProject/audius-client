@@ -55,7 +55,8 @@ function* getBuyUSDCRemoteConfig() {
   }
 }
 
-/** Derives a USDC user bank for a given eth address, creating it if necessary.
+/**
+ * Derives a USDC user bank for a given eth address, creating it if necessary.
  * Defaults to the wallet of the current user.
  */
 export function* getUSDCUserBank(ethAddress?: string) {
@@ -125,7 +126,7 @@ function* purchaseStep({
     make({ eventName: Name.BUY_USDC_ON_RAMP_SUCCESS, provider })
   )
 
-  // Wait for the SOL funds to come through
+  // Wait for the funds to come through
   const newBalance = yield* call(pollForBalanceChange, audiusBackendInstance, {
     tokenAccount,
     initialBalance,
@@ -133,7 +134,7 @@ function* purchaseStep({
     maxRetryCount
   })
 
-  // Check that we got the requested SOL
+  // Check that we got the requested amount
   const purchasedAmount = new BN(newBalance).sub(new BN(initialBalance))
   if (purchasedAmount !== new BN(desiredAmount.amount)) {
     console.warn(
@@ -151,14 +152,11 @@ function* purchaseStep({
 function* doBuyUSDC({
   payload: { desiredAmount }
 }: ReturnType<typeof onRampOpened>) {
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   const reportToSentry = yield* getContext('reportToSentry')
-  const userRootWallet = yield* call(
-    getCurrentUserWallet,
-    audiusBackendInstance
-  )
+  const userBank = yield* getUSDCUserBank()
   const { track, make } = yield* getContext('analytics')
   const provider = yield* select(getBuyUSDCProvider)
+
   try {
     if (provider !== OnRampProvider.STRIPE) {
       throw new Error('USDC Purchase is only supported via Stripe')
@@ -177,9 +175,7 @@ function* doBuyUSDC({
     // Get config
     const { retryDelayMs, maxRetryCount } = yield* call(getBuyUSDCRemoteConfig)
 
-    const userBank = yield* getUSDCUserBank()
-
-    // STEP ONE: Wait for purchase
+    // Wait for purchase
     // Have to do some typescript finangling here due to the "race" effect in purchaseStep
     // See https://github.com/agiledigital/typed-redux-saga/issues/43
     const { newBalance } = (yield* call(purchaseStep, {
@@ -208,11 +204,10 @@ function* doBuyUSDC({
       })
     )
   } catch (e) {
-    const stage = yield* select(getBuyUSDCFlowStage)
     yield* call(reportToSentry, {
       level: ErrorLevel.Error,
       error: e as Error,
-      additionalInfo: { stage, userRootWallet }
+      additionalInfo: { userBank }
     })
     yield* put(buyUSDCFlowFailed())
     yield* call(
@@ -220,9 +215,7 @@ function* doBuyUSDC({
       make({
         eventName: Name.BUY_USDC_FAILURE,
         provider,
-        stage,
         requestedAmount: desiredAmount.uiAmount,
-        name: 'BuyUSDC failed',
         error: (e as Error).message
       })
     )

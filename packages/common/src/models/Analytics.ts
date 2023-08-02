@@ -325,6 +325,11 @@ export enum Name {
   BUY_USDC_SUCCESS = 'Buy USDC: Success',
   BUY_USDC_FAILURE = 'Buy USDC: Failure',
 
+  // Purchase Content
+  PURCHASE_CONTENT_STARTED = 'Purchase Content: Started',
+  PURCHASE_CONTENT_SUCCESS = 'Purchase Content: Success',
+  PURCHASE_CONTENT_FAILURE = 'Purchase Content: Failure',
+
   // Rate & Review CTA
   RATE_CTA_DISPLAYED = 'Rate CTA: Displayed',
   RATE_CTA_RESPONSE_YES = 'Rate CTA: User Responded Yes',
@@ -1564,7 +1569,23 @@ type BuyUSDCFailure = {
   eventName: Name.BUY_USDC_FAILURE
   provider: string
   requestedAmount: number
-  stage: string
+  error: string
+}
+
+type PurchaseContentStarted = {
+  eventName: Name.PURCHASE_CONTENT_STARTED
+  contentId: number
+  contentType: string
+}
+type PurchaseContentSuccess = {
+  eventName: Name.PURCHASE_CONTENT_SUCCESS
+  contentId: number
+  contentType: string
+}
+type PurchaseContentFailure = {
+  eventName: Name.PURCHASE_CONTENT_FAILURE
+  contentId: number
+  contentType: string
   error: string
 }
 
@@ -1883,6 +1904,9 @@ export type AllTrackingEvents =
   | BuyUSDCOnRampCanceled
   | BuyUSDCSuccess
   | BuyUSDCFailure
+  | PurchaseContentStarted
+  | PurchaseContentSuccess
+  | PurchaseContentFailure
   | RateCtaDisplayed
   | RateCtaResponseNo
   | RateCtaResponseYes

@@ -2,6 +2,8 @@ import BN from 'bn.js'
 import { takeLatest } from 'redux-saga/effects'
 import { call, put, race, select, take } from 'typed-redux-saga'
 
+import { Name } from 'models/Analytics'
+import { ErrorLevel } from 'models/ErrorReporting'
 import { ID } from 'models/Identifiers'
 import { isPremiumContentUSDCPurchaseGated } from 'models/Track'
 import { purchaseContent } from 'services/audius-backend/solana'
@@ -17,7 +19,7 @@ import { getTrack } from 'store/cache/tracks/selectors'
 import { getUser } from 'store/cache/users/selectors'
 import { getContext } from 'store/effects'
 
-import { startPurchaseContentFlow } from './slice'
+import { purchaseContentFlowFailed, startPurchaseContentFlow } from './slice'
 import { ContentType } from './types'
 
 type GetPurchaseConfigArgs = {
@@ -35,7 +37,7 @@ function* getPurchaseConfig({ contentId, contentType }: GetPurchaseConfigArgs) {
     !trackInfo ||
     !isPremiumContentUSDCPurchaseGated(trackInfo?.premium_conditions)
   ) {
-    throw new Error('Content is missing purchase conditions')
+    throw new Error('Content is missing premium conditions')
   }
 
   const user = yield* select(getUser, { id: trackInfo.owner_id })
@@ -68,6 +70,14 @@ function* doStartPurchaseContentFlow({
   payload: { contentId, contentType = ContentType.TRACK }
 }: ReturnType<typeof startPurchaseContentFlow>) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
+  const reportToSentry = yield* getContext('reportToSentry')
+  const { track, make } = yield* getContext('analytics')
+
+  // Record start
+  yield* call(
+    track,
+    make({ eventName: Name.PURCHASE_CONTENT_STARTED, contentId, contentType })
+  )
 
   // Fetch content info
 
@@ -97,22 +107,46 @@ function* doStartPurchaseContentFlow({
     return
   }
 
-  const { blocknumber, splits } = yield* getPurchaseConfig({
-    contentId,
-    contentType
-  })
+  try {
+    const { blocknumber, splits } = yield* getPurchaseConfig({
+      contentId,
+      contentType
+    })
 
-  // purchase content
-  yield* call(purchaseContent, audiusBackendInstance, {
-    id: contentId,
-    blocknumber,
-    splits,
-    type: 'track'
-  })
+    // purchase content
+    yield* call(purchaseContent, audiusBackendInstance, {
+      id: contentId,
+      blocknumber,
+      splits,
+      type: 'track'
+    })
 
-  // confirm purchase
+    // confirm purchase
 
-  // finish
+    // finish
+
+    // Record start
+    yield* call(
+      track,
+      make({ eventName: Name.PURCHASE_CONTENT_SUCCESS, contentId, contentType })
+    )
+  } catch (e: unknown) {
+    yield* call(reportToSentry, {
+      level: ErrorLevel.Error,
+      error: e as Error,
+      additionalInfo: { contentId, contentType }
+    })
+    yield* put(purchaseContentFlowFailed())
+    yield* call(
+      track,
+      make({
+        eventName: Name.PURCHASE_CONTENT_FAILURE,
+        contentId,
+        contentType,
+        error: (e as Error).message
+      })
+    )
+  }
 }
 
 function* watchStartPurchastContentFlow() {
