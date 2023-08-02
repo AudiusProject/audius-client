@@ -40,6 +40,24 @@ type GetPurchaseConfigArgs = {
   contentType: ContentType
 }
 
+function* getUSDCPremiumConditions({
+  contentId,
+  contentType
+}: GetPurchaseConfigArgs) {
+  if (contentType !== ContentType.TRACK) {
+    throw new Error('Only tracks are supported')
+  }
+
+  const trackInfo = yield* select(getTrack, { id: contentId })
+  if (
+    !trackInfo ||
+    !isPremiumContentUSDCPurchaseGated(trackInfo?.premium_conditions)
+  ) {
+    throw new Error('Content is missing premium conditions')
+  }
+  return trackInfo.premium_conditions.usdc_purchase
+}
+
 function* getPurchaseConfig({ contentId, contentType }: GetPurchaseConfigArgs) {
   if (contentType !== ContentType.TRACK) {
     throw new Error('Only tracks are supported')
@@ -120,36 +138,39 @@ function* doStartPurchaseContentFlow({
     make({ eventName: Name.PURCHASE_CONTENT_STARTED, contentId, contentType })
   )
 
-  // buy USDC if necessary
-  yield* put(onBuyUSDC())
-  yield* put(
-    startBuyUSDCFlow({
-      provider: OnRampProvider.STRIPE,
-      purchaseInfo: {
-        desiredAmount: {
-          amount: 100,
-          amountString: '100',
-          uiAmount: 100,
-          uiAmountString: '100'
-        }
-      }
-    })
-  )
-
-  const result = yield* race({
-    success: take(buyUSDCFlowSucceeded),
-    canceled: take(onRampCanceled),
-    failed: take(buyUSDCFlowFailed)
-  })
-
-  if (result.canceled || result.failed) {
-    // Return early for failure or cancellation
-    return
-  }
-
-  yield* put(onUSDCBalanceSufficient())
-
   try {
+    /* const { price } = */ yield* call(getUSDCPremiumConditions, {
+      contentId,
+      contentType
+    })
+
+    // TODO: check balance first
+
+    // buy USDC if necessary
+    yield* put(onBuyUSDC())
+    yield* put(
+      startBuyUSDCFlow({
+        provider: OnRampProvider.STRIPE,
+        purchaseInfo: {
+          // TODO: Use actual price once type is correct
+          desiredAmount: 100
+        }
+      })
+    )
+
+    const result = yield* race({
+      success: take(buyUSDCFlowSucceeded),
+      canceled: take(onRampCanceled),
+      failed: take(buyUSDCFlowFailed)
+    })
+
+    if (result.canceled || result.failed) {
+      // Return early for failure or cancellation
+      return
+    }
+
+    yield* put(onUSDCBalanceSufficient())
+
     const { blocknumber, splits } = yield* getPurchaseConfig({
       contentId,
       contentType

@@ -25,7 +25,7 @@ import {
   onRampSucceeded,
   startBuyUSDCFlow
 } from './slice'
-import { AmountObject, OnRampProvider } from './types'
+import { OnRampProvider } from './types'
 
 // TODO: Configurable min/max usdc purchase amounts?
 function* getBuyUSDCRemoteConfig() {
@@ -80,7 +80,7 @@ export function* getUSDCUserBank(ethAddress?: string) {
 }
 
 type PurchaseStepParams = {
-  desiredAmount: AmountObject
+  desiredAmount: number
   tokenAccount: PublicKey
   provider: OnRampProvider
   retryDelayMs?: number
@@ -135,13 +135,13 @@ function* purchaseStep({
 
   // Check that we got the requested amount
   const purchasedAmount = new BN(newBalance).sub(new BN(initialBalance))
-  if (purchasedAmount !== new BN(desiredAmount.amount)) {
+  if (purchasedAmount !== new BN(desiredAmount)) {
     console.warn(
       `Warning: Purchase USDC amount differs from expected. Actual: ${new BN(
         newBalance
       )
         .sub(new BN(initialBalance))
-        .toNumber()} Wei. Expected: ${desiredAmount.uiAmountString} USDC.`
+        .toNumber()} Wei. Expected: ${desiredAmount / 100} USDC.`
     )
   }
 
@@ -198,7 +198,7 @@ function* doBuyUSDC({
       make({
         eventName: Name.BUY_USDC_SUCCESS,
         provider,
-        requestedAmount: desiredAmount.uiAmount
+        requestedAmount: desiredAmount
         // TODO: actualAmount
       })
     )
@@ -214,7 +214,7 @@ function* doBuyUSDC({
       make({
         eventName: Name.BUY_USDC_FAILURE,
         provider,
-        requestedAmount: desiredAmount.uiAmount,
+        requestedAmount: desiredAmount,
         error: (e as Error).message
       })
     )

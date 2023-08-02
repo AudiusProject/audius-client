@@ -5,7 +5,10 @@ export enum OnRampProvider {
 }
 
 export type PurchaseInfo = {
-  desiredAmount: AmountObject
+  /**
+   * Desired amount of USDC in *cents*
+   */
+  desiredAmount: number
 }
 
 export enum BuyUSDCStage {
@@ -14,11 +17,4 @@ export enum BuyUSDCStage {
   CONFIRMING_PURCHASE = 'CONFIRMING_PURCHASE',
   CANCELED = 'CANCELED',
   FINISH = 'FINISH'
-}
-
-export type AmountObject = {
-  amount: number
-  amountString: string
-  uiAmount: number
-  uiAmountString: string
 }
