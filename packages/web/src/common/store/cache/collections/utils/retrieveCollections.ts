@@ -252,6 +252,7 @@ export function* retrieveCollections(
   const { entries, uids } = yield* call(retrieve, {
     ids: collectionIds,
     selectFromCache: function* (ids: ID[]) {
+      debugger
       const res: {
         [id: number]: Collection
       } = yield* select(getCollections, { ids })
@@ -270,6 +271,7 @@ export function* retrieveCollections(
     },
     getEntriesTimestamp: selectEntriesTimestamp,
     retrieveFromSource: function* (ids: ID[]) {
+      debugger
       const audiusBackendInstance = yield* getContext('audiusBackendInstance')
       let metadatas: CollectionMetadata[]
 
