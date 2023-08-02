@@ -90,8 +90,10 @@ export const ChatComposer = (props: ChatComposerProps) => {
 
   // Set focus and clear on new chat selected
   useEffect(() => {
-    if (chatId !== chatIdRef.current) {
+    if (chatId) {
       ref.current?.focus()
+    }
+    if (chatId !== chatIdRef.current) {
       setValue('')
       chatIdRef.current = chatId
     }
