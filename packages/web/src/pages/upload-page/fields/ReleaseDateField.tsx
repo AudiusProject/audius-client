@@ -2,7 +2,6 @@ import { useCallback, useMemo } from 'react'
 
 import { IconCalendar } from '@audius/stems'
 import cn from 'classnames'
-import { useField } from 'formik'
 import moment from 'moment'
 
 import {
@@ -11,7 +10,8 @@ import {
 } from 'components/data-entry/ContextualMenu'
 import { Text } from 'components/typography'
 
-import { EditFormValues } from '../components/EditPageNew'
+import { SingleTrackEditValues } from '../forms/types'
+import { useTrackField } from '../forms/utils'
 
 import { DatePickerField } from './DatePickerField'
 import styles from './ReleaseDateField.module.css'
@@ -27,10 +27,11 @@ export type ReleaseDateFormValues = {
   [RELEASE_DATE]: moment.Moment
 }
 
-type ReleaseDateValue = EditFormValues[typeof RELEASE_DATE]
+type ReleaseDateValue = SingleTrackEditValues[typeof RELEASE_DATE]
 
 export const ReleaseDateField = () => {
-  const [{ value }, , { setValue }] = useField<ReleaseDateValue>(RELEASE_DATE)
+  const [{ value }, , { setValue }] =
+    useTrackField<ReleaseDateValue>(RELEASE_DATE)
 
   const initialValues = useMemo(() => ({ [RELEASE_DATE]: value }), [value])
 

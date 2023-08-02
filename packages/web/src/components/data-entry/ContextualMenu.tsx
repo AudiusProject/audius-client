@@ -7,7 +7,6 @@ import {
   IconComponent,
   Modal,
   ModalContent,
-  ModalContentText,
   ModalFooter,
   ModalHeader,
   ModalTitle
@@ -38,12 +37,11 @@ type MenuFormProps = {
   onClose: () => void
   label: string
   icon: ReactNode
-  description: string
   menuFields: ReactNode
 }
 
 const MenuForm = (props: MenuFormProps) => {
-  const { isOpen, onClose, label, icon, description, menuFields } = props
+  const { isOpen, onClose, label, icon, menuFields } = props
   const { resetForm } = useFormikContext()
 
   const handleCancel = useCallback(() => {
@@ -57,10 +55,7 @@ const MenuForm = (props: MenuFormProps) => {
         <ModalTitle title={label} icon={icon} />
       </ModalHeader>
       <Form>
-        <ModalContent>
-          <ModalContentText>{description}</ModalContentText>
-          {menuFields}
-        </ModalContent>
+        <ModalContent>{menuFields}</ModalContent>
         <ModalFooter>
           <Button
             type={ButtonType.PRIMARY}
@@ -85,7 +80,7 @@ export const SelectedValue = (props: SelectedValueProps) => {
     <span className={styles.selectedValue}>
       {icon ? <Icon icon={icon} size='small' /> : null}
       {label ? (
-        <Text variant='label' size='large'>
+        <Text variant='body' strength='strong'>
           {label}
         </Text>
       ) : null}
@@ -181,7 +176,6 @@ export const ContextualMenu = <
         <MenuForm
           label={label}
           icon={icon}
-          description={description}
           isOpen={isMenuOpen}
           onClose={toggleMenu}
           menuFields={menuFields}
