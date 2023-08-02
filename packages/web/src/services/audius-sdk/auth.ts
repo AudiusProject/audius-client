@@ -1,11 +1,10 @@
-import { AuthService } from '@audius/sdk'
 import { keccak_256 } from '@noble/hashes/sha3'
 import * as secp from '@noble/secp256k1'
 import { signTypedData } from 'eth-sig-util'
 
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 
-export const auth: AuthService = {
+export const auth = {
   sign: async (data: string) => {
     await waitForLibsInit()
     return await secp.sign(
@@ -43,8 +42,5 @@ export const auth: AuthService = {
   getAddress: async () => {
     await waitForLibsInit()
     return window.audiusLibs?.hedgehog?.wallet?.getAddressString() ?? ''
-  },
-  hashAndSign: async (data) => {
-    return 'Not implemented'
   }
 }
