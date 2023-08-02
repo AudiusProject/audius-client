@@ -8,7 +8,6 @@ import { ErrorLevel } from 'models/ErrorReporting'
 import {
   createUserBankIfNeeded,
   deriveUserBankPubkey,
-  getCurrentUserWallet,
   getTokenAccountInfo,
   pollForBalanceChange
 } from 'services/audius-backend/solana'
@@ -17,7 +16,7 @@ import { getContext } from 'store/effects'
 import { getFeePayer } from 'store/solana/selectors'
 import { setVisibility } from 'store/ui/modals/slice'
 
-import { getBuyUSDCFlowStage, getBuyUSDCProvider } from './selectors'
+import { getBuyUSDCProvider } from './selectors'
 import {
   buyUSDCFlowFailed,
   buyUSDCFlowSucceeded,

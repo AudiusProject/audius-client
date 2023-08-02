@@ -89,8 +89,8 @@ type CreateUserBankIfNeededConfig = UserBankConfig & {
 }
 
 /**
- * Attempts to create a userbank.
- * Returns the userbank pubkey if it created or already existed; otherwise returns null if error.
+ * Attempts to create a userbank if one does not exist.
+ * Defaults to AUDIO mint and the current user's wallet.
  */
 export const createUserBankIfNeeded = async (
   audiusBackendInstance: AudiusBackend,
@@ -110,7 +110,7 @@ export const createUserBankIfNeeded = async (
     console.error(
       "createUserBankIfNeeded: Unexpectedly couldn't get recipient eth address"
     )
-    return null
+    return
   }
 
   try {
@@ -123,7 +123,7 @@ export const createUserBankIfNeeded = async (
     // If it already existed, return early
     if ('didExist' in res && res.didExist) {
       console.log('Userbank already exists')
-      return res.userbank.toString() as SolanaWalletAddress
+      return
     }
 
     // Otherwise we must have tried to create one
@@ -148,7 +148,7 @@ export const createUserBankIfNeeded = async (
           error: (res.error as any).toString()
         }
       })
-      return null
+      return
     }
 
     // Handle success case
@@ -157,7 +157,6 @@ export const createUserBankIfNeeded = async (
       eventName: Name.CREATE_USER_BANK_SUCCESS,
       properties: { mint, recipientEthAddress }
     })
-    return res.userbank.toString() as SolanaWalletAddress
   } catch (err) {
     recordAnalytics({
       eventName: Name.CREATE_USER_BANK_FAILURE,
@@ -168,7 +167,6 @@ export const createUserBankIfNeeded = async (
       }
     })
     console.error(`Failed to create userbank, with err: ${err}`)
-    return null
   }
 }
 
