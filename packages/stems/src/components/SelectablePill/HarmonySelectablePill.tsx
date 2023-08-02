@@ -30,7 +30,7 @@ export const HarmonySelectablePill = forwardRef<
       ref={ref}
       {...restProps}
     >
-      {IconComponent == null ? null : <IconComponent className={styles.icon} />}
+      {IconComponent ? <IconComponent className={styles.icon} /> : null}
       <span>{label}</span>
     </button>
   )
