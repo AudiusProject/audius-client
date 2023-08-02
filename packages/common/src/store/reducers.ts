@@ -249,7 +249,9 @@ export const reducers = () => ({
   tipping: tippingReducer,
 
   // Premium content
+  buyUSDC: buyUSDCReducer,
   premiumContent,
+  purchaseContent: purchaseContentReducer,
 
   // Collectibles
   collectibles,
