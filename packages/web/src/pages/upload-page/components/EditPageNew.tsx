@@ -1,12 +1,19 @@
 import { useCallback, useMemo } from 'react'
 
-import { HarmonyButton, HarmonyButtonType, IconArrow } from '@audius/stems'
+import {
+  HarmonyButton,
+  HarmonyButtonType,
+  IconArrow,
+  IconCaretRight
+} from '@audius/stems'
 import cn from 'classnames'
-import { Form, Formik } from 'formik'
+import { Form, Formik, FormikProps, useField } from 'formik'
 import moment from 'moment'
 import * as Yup from 'yup'
 
+import { ReactComponent as IconCaretLeft } from 'assets/img/iconCaretLeft.svg'
 import layoutStyles from 'components/layout/layout.module.css'
+import { Text } from 'components/typography'
 import PreviewButton from 'components/upload/PreviewButton'
 
 import { MultiTrackSidebar } from '../fields/MultiTrackSidebar'
@@ -21,7 +28,11 @@ import { TrackForUpload } from './types'
 const messages = {
   titleError: 'Your track must have a name',
   artworkError: 'Artwork is required',
-  genreError: 'Genre is required'
+  genreError: 'Genre is required',
+  multiTrackCount: (index: number, total: number) =>
+    `TRACK ${index} of ${total}`,
+  prev: 'Prev',
+  next: 'Next Track'
 }
 
 type EditPageProps = {
@@ -84,27 +95,82 @@ export const EditPageNew = (props: EditPageProps) => {
       onSubmit={onSubmit}
       validationSchema={EditTrackSchema}
     >
-      {({ values }) => (
-        <Form>
-          <div className={cn(layoutStyles.row, layoutStyles.gap2)}>
-            <div className={styles.editForm}>
-              <TrackMetadataFields playing={false} />
-              <TrackModalArray />
-              <PreviewButton playing={false} onClick={() => {}} />
-            </div>
-            {values.trackMetadatas.length > 1 ? <MultiTrackSidebar /> : null}
-          </div>
-          <div className={styles.continue}>
-            <HarmonyButton
-              variant={HarmonyButtonType.PRIMARY}
-              text='Continue'
-              name='continue'
-              iconRight={IconArrow}
-              className={styles.continueButton}
-            />
-          </div>
-        </Form>
-      )}
+      {TrackEditForm}
     </Formik>
+  )
+}
+
+const TrackEditForm = (props: FormikProps<TrackEditFormValues>) => {
+  const { values } = props
+  const isMultiTrack = values.trackMetadatas.length > 1
+
+  return (
+    <Form>
+      <div className={cn(layoutStyles.row, layoutStyles.gap2)}>
+        <div className={styles.formContainer}>
+          {isMultiTrack ? <MultiTrackHeader /> : null}
+          <div className={styles.trackEditForm}>
+            <TrackMetadataFields playing={false} />
+            <TrackModalArray />
+            <PreviewButton playing={false} onClick={() => {}} />
+          </div>
+          {isMultiTrack ? <MultiTrackFooter /> : null}
+        </div>
+        {isMultiTrack ? <MultiTrackSidebar /> : null}
+      </div>
+      <div className={styles.continue}>
+        <HarmonyButton
+          variant={HarmonyButtonType.PRIMARY}
+          text='Continue'
+          name='continue'
+          iconRight={IconArrow}
+          className={styles.continueButton}
+        />
+      </div>
+    </Form>
+  )
+}
+
+const MultiTrackHeader = () => {
+  const [{ value: index }] = useField('trackMetadatasIndex')
+  const [{ value: trackMetadatas }] = useField('trackMetadatas')
+
+  return (
+    <div className={styles.multiTrackHeader}>
+      <Text variant='title' size='xSmall'>
+        {messages.multiTrackCount(index + 1, trackMetadatas.length)}
+      </Text>
+    </div>
+  )
+}
+
+const MultiTrackFooter = () => {
+  const [{ value: index }, , { setValue: setIndex }] = useField(
+    'trackMetadatasIndex'
+  )
+  const [{ value: trackMetadatas }] = useField('trackMetadatas')
+
+  const goPrev = useCallback(() => {
+    setIndex(Math.max(index - 1, 0))
+  }, [index, setIndex])
+  const goNext = useCallback(() => {
+    setIndex(Math.min(index + 1, trackMetadatas.length - 1))
+  }, [index, setIndex, trackMetadatas.length])
+
+  return (
+    <div className={cn(styles.multiTrackFooter, layoutStyles.row)}>
+      <HarmonyButton
+        variant={HarmonyButtonType.PLAIN}
+        text={messages.prev}
+        iconLeft={IconCaretLeft}
+        onClick={goPrev}
+      />
+      <HarmonyButton
+        variant={HarmonyButtonType.PLAIN}
+        text={messages.next}
+        iconRight={IconCaretRight}
+        onClick={goNext}
+      />
+    </div>
   )
 }
