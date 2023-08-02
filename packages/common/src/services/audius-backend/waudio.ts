@@ -6,10 +6,10 @@ import { AudiusBackend } from './AudiusBackend'
 
 export const deriveUserBankPubkey = async (
   audiusBackendInstance: AudiusBackend,
-  ethAddress?: string
+  sourceEthAddress?: string
 ) => {
   const audiusLibs: AudiusLibs = await audiusBackendInstance.getAudiusLibs()
-  return await audiusLibs.solanaWeb3Manager!.deriveUserBank({ ethAddress })
+  return await audiusLibs.solanaWeb3Manager!.deriveUserBank(sourceEthAddress)
 }
 
 export const deriveUserBankAddress = async (
@@ -31,12 +31,12 @@ export const createUserBankIfNeeded = async (
   recordAnalytics: (event: AnalyticsEvent, callback?: () => void) => void,
   audiusBackendInstance: AudiusBackend,
   feePayerOverride: string,
-  ethAddress?: string
+  sourceEthAddress?: string
 ) => {
   const audiusLibs: AudiusLibs = await audiusBackendInstance.getAudiusLibs()
 
   const recipientEthAddress =
-    ethAddress ?? audiusLibs.Account!.getCurrentUser()?.wallet
+    sourceEthAddress ?? audiusLibs.Account!.getCurrentUser()?.wallet
 
   if (!recipientEthAddress) {
     console.error(
@@ -46,10 +46,10 @@ export const createUserBankIfNeeded = async (
   }
 
   try {
-    const res = await audiusLibs.solanaWeb3Manager!.createUserBankIfNeeded({
+    const res = await audiusLibs.solanaWeb3Manager!.createUserBankIfNeeded(
       feePayerOverride,
-      ethAddress
-    })
+      sourceEthAddress
+    )
 
     // If it already existed, return early
     if ('didExist' in res && res.didExist) {
