@@ -113,11 +113,11 @@ export const RemixSettingsField = () => {
 
   const renderValue = useCallback((value: RemixSettingsFieldValue) => {
     const { [SHOW_REMIXES]: showRemixes, parentTrackId } = value
+    if (showRemixes && !parentTrackId) return null
+
     return (
       <div className={styles.selectedValue}>
-        {showRemixes === false ? (
-          <SelectedValue label={messages.remixesHidden} />
-        ) : null}
+        {!showRemixes ? <SelectedValue label={messages.remixesHidden} /> : null}
         {parentTrackId ? (
           <div className={styles.remixOfValue}>
             <Text variant='label' size='small'>

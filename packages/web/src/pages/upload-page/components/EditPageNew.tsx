@@ -60,7 +60,8 @@ export const EditPageNew = (props: EditPageProps) => {
           allowAttribution: null,
           commercialUse: null,
           derivativeWorks: null
-        }
+        },
+        stems: []
       }))
     }),
     [tracks]
