@@ -1,7 +1,6 @@
 import { GENRES } from '@audius/common'
 import { useField } from 'formik'
 
-import { InputV2Variant } from 'components/data-entry/InputV2'
 import {
   ArtworkField,
   DropdownField,
@@ -27,12 +26,7 @@ const messages = {
   description: 'Description'
 }
 
-type TrackMetadataFieldsProps = {
-  /** Whether or not the preview is playing. */
-  playing: boolean
-}
-
-export const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
+export const TrackMetadataFields = () => {
   const [{ value: index }] = useField('trackMetadatasIndex')
 
   return (
@@ -44,7 +38,6 @@ export const TrackMetadataFields = (props: TrackMetadataFieldsProps) => {
         <div className={styles.trackName}>
           <TextField
             name={getTrackFieldName(index, 'title')}
-            variant={InputV2Variant.ELEVATED_PLACEHOLDER}
             label={messages.trackName}
             maxLength={64}
             required

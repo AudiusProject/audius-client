@@ -90,7 +90,7 @@ export const EditPageNew = (props: EditPageProps) => {
         <Form>
           <div className={cn(layoutStyles.row, layoutStyles.gap2)}>
             <div className={styles.editForm}>
-              <TrackMetadataFields playing={false} />
+              <TrackMetadataFields />
               <TrackModalArray />
               <PreviewButton playing={false} onClick={() => {}} />
             </div>

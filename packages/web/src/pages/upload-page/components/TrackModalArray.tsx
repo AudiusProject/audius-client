@@ -1,6 +1,6 @@
 import { ReleaseDateField } from '../fields/ReleaseDateField'
+import { RemixSettingsField } from '../fields/RemixSettingsField'
 import { AttributionModalForm } from '../forms/AttributionModalForm'
-import { RemixModalForm } from '../forms/RemixModalForm'
 import { SourceFilesModalForm } from '../forms/SourceFilesModalForm'
 import { TrackAvailabilityModalForm } from '../forms/TrackAvailabilityModalForm'
 
@@ -10,7 +10,8 @@ export const TrackModalArray = () => {
   return (
     <div className={styles.root}>
       <ReleaseDateField />
-      <RemixModalForm />
+      <RemixSettingsField />
+
       <SourceFilesModalForm />
       <TrackAvailabilityModalForm />
       <AttributionModalForm />

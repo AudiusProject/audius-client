@@ -30,6 +30,7 @@ import { useFlag } from 'hooks/useRemoteConfig'
 import { defaultFieldVisibility } from 'pages/track-page/utils'
 
 import { ModalField } from '../fields/ModalField'
+import { REMIX_OF } from '../fields/RemixSettingsField'
 import {
   defaultHiddenFields,
   HiddenAvailabilityFields
@@ -41,7 +42,6 @@ import {
 import { CollectibleGatedDescription } from '../fields/availability/collectible-gated/CollectibleGatedDescription'
 import { CollectibleGatedFields } from '../fields/availability/collectible-gated/CollectibleGatedFields'
 
-import { REMIX_OF } from './RemixModalForm'
 import styles from './TrackAvailabilityModalForm.module.css'
 import { SingleTrackEditValues } from './types'
 import { useTrackField } from './utils'

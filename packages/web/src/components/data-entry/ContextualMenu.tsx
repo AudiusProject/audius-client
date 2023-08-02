@@ -151,7 +151,7 @@ export const ContextualMenu = <
             </Text>
           </div>
           <div>
-            <Icon icon={IconCaretRight} />
+            <Icon icon={IconCaretRight} color='neutralLight4' />
           </div>
         </div>
         <Text>{description}</Text>
