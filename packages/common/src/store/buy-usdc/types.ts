@@ -1,4 +1,4 @@
-export enum OnRampProvider {
+export enum USDCOnRampProvider {
   COINBASE = 'coinbase',
   STRIPE = 'stripe',
   UNKNOWN = 'unknown'

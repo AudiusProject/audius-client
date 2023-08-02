@@ -15,7 +15,7 @@ import {
   onRampCanceled,
   startBuyUSDCFlow
 } from 'store/buy-usdc/slice'
-import { OnRampProvider } from 'store/buy-usdc/types'
+import { USDCOnRampProvider } from 'store/buy-usdc/types'
 import { getTrack } from 'store/cache/tracks/selectors'
 import { getUser } from 'store/cache/users/selectors'
 import { getContext } from 'store/effects'
@@ -150,7 +150,7 @@ function* doStartPurchaseContentFlow({
     yield* put(onBuyUSDC())
     yield* put(
       startBuyUSDCFlow({
-        provider: OnRampProvider.STRIPE,
+        provider: USDCOnRampProvider.STRIPE,
         purchaseInfo: {
           // TODO: Use actual price once type is correct
           desiredAmount: 100

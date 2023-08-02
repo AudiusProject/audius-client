@@ -4,15 +4,20 @@ import {
   formatUSDCWeiToUSDString,
   isPremiumContentUSDCPurchaseGated,
   Track,
-  UserTrackMetadata
+  UserTrackMetadata,
+  purchaseContentActions,
+  ContentType
 } from '@audius/common'
 import { HarmonyButton } from '@audius/stems'
+import { useDispatch } from 'react-redux'
 
 import { LockedTrackDetailsTile } from 'components/track/LockedTrackDetailsTile'
 
 import { PayToUnlockInfo } from './PayToUnlockInfo'
 import styles from './PurchaseDetailsPage.module.css'
 import { PurchaseSummaryTable } from './PurchaseSummaryTable'
+
+const { startPurchaseContentFlow } = purchaseContentActions
 
 const messages = {
   buy: (price: string) => `Buy $${price}`
@@ -23,9 +28,15 @@ export const PurchaseDetailsPage = ({
 }: {
   track: UserTrackMetadata
 }) => {
+  const dispatch = useDispatch()
   const onClickBuy = useCallback(() => {
-    console.log('buy!')
-  }, [])
+    dispatch(
+      startPurchaseContentFlow({
+        contentId: track.track_id,
+        contentType: ContentType.TRACK
+      })
+    )
+  }, [dispatch, track.track_id])
 
   if (!isPremiumContentUSDCPurchaseGated(track.premium_conditions)) {
     console.error(

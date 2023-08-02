@@ -1,9 +1,11 @@
 import {
+  buyUSDCSagas,
   castSagas,
   playerSagas as commonPlayerSagas,
   playbackPositionSagas,
   chatSagas,
   premiumContentSagas,
+  purchaseContentSagas,
   remoteConfigSagas,
   deletePlaylistConfirmationModalUISagas as deletePlaylistConfirmationModalSagas,
   duplicateAddConfirmationModalUISagas as duplicateAddConfirmationModalSagas,
@@ -210,6 +212,8 @@ export default function* rootSaga() {
 
     // Premium content
     premiumContentSagas(),
+    buyUSDCSagas(),
+    purchaseContentSagas(),
 
     // Error
     errorSagas()

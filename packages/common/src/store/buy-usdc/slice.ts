@@ -1,6 +1,6 @@
 import { Action, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-import { BuyUSDCStage, OnRampProvider, PurchaseInfo } from './types'
+import { BuyUSDCStage, USDCOnRampProvider, PurchaseInfo } from './types'
 
 type StripeSessionStatus =
   | 'initialized'
@@ -17,13 +17,13 @@ type OnSuccess = {
 type BuyUSDCState = {
   stage: BuyUSDCStage
   error?: Error
-  provider: OnRampProvider
+  provider: USDCOnRampProvider
   onSuccess?: OnSuccess
   stripeSessionStatus?: StripeSessionStatus
 }
 
 const initialState: BuyUSDCState = {
-  provider: OnRampProvider.UNKNOWN,
+  provider: USDCOnRampProvider.UNKNOWN,
   stage: BuyUSDCStage.START
 }
 
@@ -35,7 +35,7 @@ const slice = createSlice({
       state,
       action: PayloadAction<{
         purchaseInfo: PurchaseInfo
-        provider: OnRampProvider
+        provider: USDCOnRampProvider
         onSuccess?: OnSuccess
       }>
     ) => {

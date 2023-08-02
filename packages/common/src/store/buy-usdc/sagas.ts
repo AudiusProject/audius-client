@@ -25,7 +25,7 @@ import {
   onRampSucceeded,
   startBuyUSDCFlow
 } from './slice'
-import { OnRampProvider } from './types'
+import { USDCOnRampProvider } from './types'
 
 // TODO: Configurable min/max usdc purchase amounts?
 function* getBuyUSDCRemoteConfig() {
@@ -82,7 +82,7 @@ export function* getUSDCUserBank(ethAddress?: string) {
 type PurchaseStepParams = {
   desiredAmount: number
   tokenAccount: PublicKey
-  provider: OnRampProvider
+  provider: USDCOnRampProvider
   retryDelayMs?: number
   maxRetryCount?: number
 }
@@ -157,7 +157,7 @@ function* doBuyUSDC({
   const provider = yield* select(getBuyUSDCProvider)
 
   try {
-    if (provider !== OnRampProvider.STRIPE) {
+    if (provider !== USDCOnRampProvider.STRIPE) {
       throw new Error('USDC Purchase is only supported via Stripe')
     }
 
