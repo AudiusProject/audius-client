@@ -192,6 +192,13 @@ mobile-release-android:
 
 # Deploy Solana saga dApp store
 mobile-release-saga-dapp-store:
+  parameters:
+    bundle-id:
+      default: 'co.audius.app'
+      type: string
+    track:
+      default: 'alpha'
+      type: string
   steps:
     - checkout
     - attach_workspace:
@@ -226,6 +233,11 @@ mobile-release-saga-dapp-store:
         command: |
           cd packages/mobile/dapp-store
           echo $SOLANA_DAPP_STORE_PRIVATE_KEY > app-keypair.json
+    - run:
+        name: Increment version code
+        command: |
+          cd packages/mobile/android
+          bundle exec fastlane incrementVersionCode package_name:<<parameters.bundle-id>> track:<<parameters.track>>
     - run: 
         name: Build Android
         command: |
