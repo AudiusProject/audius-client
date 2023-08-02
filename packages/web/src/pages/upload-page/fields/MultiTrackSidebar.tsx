@@ -1,11 +1,18 @@
 import { useCallback } from 'react'
 
 import { imageBlank as placeholderArt } from '@audius/common'
-import { HarmonyButton, HarmonyButtonType, IconUpload } from '@audius/stems'
+import {
+  HarmonyButton,
+  HarmonyButtonType,
+  IconError,
+  IconUpload
+} from '@audius/stems'
 import cn from 'classnames'
 import { useField, useFormikContext } from 'formik'
+import { isEmpty } from 'lodash'
 
 import { ReactComponent as IconTrash } from 'assets/img/iconTrash.svg'
+import { Icon } from 'components/Icon'
 import layoutStyles from 'components/layout/layout.module.css'
 import { Text } from 'components/typography'
 
@@ -16,7 +23,8 @@ import styles from './MultiTrackSidebar.module.css'
 
 const messages = {
   title: 'UPLOADED TRACKS',
-  complete: 'Complete Upload'
+  complete: 'Complete Upload',
+  titleRequired: 'Track name required'
 }
 
 export const MultiTrackSidebar = () => {
@@ -62,7 +70,7 @@ type TrackRowProps = {
 
 const TrackRow = (props: TrackRowProps) => {
   const { index } = props
-  const { values, setValues } = useFormikContext<TrackEditFormValues>()
+  const { values, setValues, errors } = useFormikContext<TrackEditFormValues>()
   const [{ value: title }] = useIndexedField<SingleTrackEditValues['title']>(
     'trackMetadatas',
     index,
@@ -92,22 +100,36 @@ const TrackRow = (props: TrackRowProps) => {
     [selectedIndex, setValues, values]
   )
 
+  const isTitleMissing = isEmpty(title)
+  // const hasError = !isEmpty(errors.trackMetadatas?.[index])
+  const hasError = index === 1
+
   return (
     <div className={styles.trackRoot} onClick={() => setIndex(index)}>
       {isSelected ? <div className={styles.selectedIndicator} /> : null}
       <div className={cn(styles.track, layoutStyles.row)}>
         <div
           className={cn(styles.trackInfo, layoutStyles.row, layoutStyles.gap3, {
-            [styles.selected]: isSelected
+            [styles.selected]: isSelected,
+            [styles.error]: hasError
           })}
         >
           <div className={layoutStyles.row}>
-            <Text
-              className={styles.trackIndex}
-              color={isSelected ? '--secondary' : '--neutral'}
-            >
-              {index + 1}
-            </Text>
+            {hasError ? (
+              <Icon
+                className={styles.iconError}
+                icon={IconError}
+                size='xSmall'
+                color='accentRed'
+              />
+            ) : (
+              <Text
+                className={styles.trackIndex}
+                color={isSelected ? '--secondary' : '--neutral'}
+              >
+                {index + 1}
+              </Text>
+            )}
             <div
               className={styles.artwork}
               style={{
@@ -115,8 +137,19 @@ const TrackRow = (props: TrackRowProps) => {
               }}
             />
           </div>
-          <Text size='small' color={isSelected ? '--secondary' : '--neutral'}>
-            {title}
+          <Text
+            size='small'
+            // TODO: support for accent-red in other themes
+            // @ts-ignore
+            color={
+              hasError
+                ? '--accent-red'
+                : isSelected
+                ? '--secondary'
+                : '--neutral'
+            }
+          >
+            {isTitleMissing ? messages.titleRequired : title}
           </Text>
         </div>
         {values.trackMetadatas.length > 1 ? (

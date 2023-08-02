@@ -48,6 +48,9 @@
 .trackInfo.selected {
   color: var(--secondary);
 }
+.trackInfo.error {
+  color: var(--accent-red);
+}
 
 .selectedIndicator {
   width: 4px;
@@ -72,8 +75,18 @@
   transition: border ease-in-out 0.1s;
 }
 
+.iconError {
+  height: 16px;
+  width: 16px;
+  margin: var(--unit-1);
+}
+
 .iconRemove {
   padding: 0 8px;
+  display: none;
+}
+.trackRoot:hover .iconRemove {
+  display: flex;
 }
 
 .completeButton {
