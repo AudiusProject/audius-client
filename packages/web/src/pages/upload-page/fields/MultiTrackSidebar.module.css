@@ -2,6 +2,7 @@
   /* Required for Safari */
   position: -webkit-sticky;
   position: sticky;
+  top: 152px;
   align-self: flex-start;
   border-radius: 8px;
 
@@ -31,14 +32,14 @@
 
 .trackRoot {
   cursor: pointer;
+  position: relative;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
 }
 .trackRoot:hover {
   background: var(--neutral-light-9);
   border-top: 1px solid var(--neutral-light-7);
   border-bottom: 1px solid var(--neutral-light-7);
-}
-.trackRoot:not(:hover) {
-  margin: 1px 0;
 }
 
 .trackInfo {
@@ -52,8 +53,7 @@
   width: 4px;
   height: 42px;
   position: absolute;
-  left: 0;
-  top: 0;
+  top: 6px;
   border-radius: 0px 8px 8px 0px;
   background: var(--secondary);
 }

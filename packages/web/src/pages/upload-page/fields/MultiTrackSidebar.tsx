@@ -94,8 +94,7 @@ const TrackRow = (props: TrackRowProps) => {
 
   return (
     <div className={styles.trackRoot} onClick={() => setIndex(index)}>
-      {/* TODO: fix absolute positioning anchor */}
-      {/* {isSelected ? <div className={styles.selectedIndicator} /> : null} */}
+      {isSelected ? <div className={styles.selectedIndicator} /> : null}
       <div className={cn(styles.track, layoutStyles.row)}>
         <div
           className={cn(styles.trackInfo, layoutStyles.row, layoutStyles.gap3, {
