@@ -7,6 +7,7 @@ import { ErrorLevel } from 'models/ErrorReporting'
 import { ID } from 'models/Identifiers'
 import { isPremiumContentUSDCPurchaseGated } from 'models/Track'
 import { purchaseContent } from 'services/audius-backend/solana'
+import { accountSelectors } from 'store/account'
 import { getUSDCUserBank } from 'store/buy-usdc/sagas'
 import {
   buyUSDCFlowFailed,
@@ -19,8 +20,20 @@ import { getTrack } from 'store/cache/tracks/selectors'
 import { getUser } from 'store/cache/users/selectors'
 import { getContext } from 'store/effects'
 
-import { purchaseContentFlowFailed, startPurchaseContentFlow } from './slice'
+import { pollPremiumTrack } from '../premium-content/sagas'
+import { updatePremiumTrackStatus } from '../premium-content/slice'
+
+import {
+  onBuyUSDC,
+  onPurchaseConfirmed,
+  onPurchaseSucceeded,
+  onUSDCBalanceSufficient,
+  purchaseContentFlowFailed,
+  startPurchaseContentFlow
+} from './slice'
 import { ContentType } from './types'
+
+const { getUserId } = accountSelectors
 
 type GetPurchaseConfigArgs = {
   contentId: ID
@@ -66,6 +79,34 @@ function* getPurchaseConfig({ contentId, contentType }: GetPurchaseConfigArgs) {
   }
 }
 
+function* pollForPurchaseConfirmation({
+  contentId,
+  contentType
+}: {
+  contentId: ID
+  contentType: ContentType
+}) {
+  if (contentType !== ContentType.TRACK) {
+    throw new Error('Only tracks are supported')
+  }
+
+  const currentUserId = yield* select(getUserId)
+  if (!currentUserId) {
+    throw new Error(
+      'Failed to fetch current user id while polling for purchase confirmation'
+    )
+  }
+  yield* put(
+    updatePremiumTrackStatus({ trackId: contentId, status: 'UNLOCKING' })
+  )
+
+  yield* pollPremiumTrack({
+    trackId: contentId,
+    currentUserId,
+    isSourceTrack: true
+  })
+}
+
 function* doStartPurchaseContentFlow({
   payload: { contentId, contentType = ContentType.TRACK }
 }: ReturnType<typeof startPurchaseContentFlow>) {
@@ -79,9 +120,8 @@ function* doStartPurchaseContentFlow({
     make({ eventName: Name.PURCHASE_CONTENT_STARTED, contentId, contentType })
   )
 
-  // Fetch content info
-
   // buy USDC if necessary
+  yield* put(onBuyUSDC())
   yield* put(
     startBuyUSDCFlow({
       provider: OnRampProvider.STRIPE,
@@ -107,6 +147,8 @@ function* doStartPurchaseContentFlow({
     return
   }
 
+  yield* put(onUSDCBalanceSufficient())
+
   try {
     const { blocknumber, splits } = yield* getPurchaseConfig({
       contentId,
@@ -120,12 +162,14 @@ function* doStartPurchaseContentFlow({
       splits,
       type: 'track'
     })
+    yield* put(onPurchaseSucceeded())
 
     // confirm purchase
+    yield* pollForPurchaseConfirmation({ contentId, contentType })
 
     // finish
+    yield* put(onPurchaseConfirmed())
 
-    // Record start
     yield* call(
       track,
       make({ eventName: Name.PURCHASE_CONTENT_SUCCESS, contentId, contentType })
@@ -149,10 +193,10 @@ function* doStartPurchaseContentFlow({
   }
 }
 
-function* watchStartPurchastContentFlow() {
+function* watchStartPurchaseContentFlow() {
   yield takeLatest(startPurchaseContentFlow, doStartPurchaseContentFlow)
 }
 
 export default function sagas() {
-  return [watchStartPurchastContentFlow]
+  return [watchStartPurchaseContentFlow]
 }

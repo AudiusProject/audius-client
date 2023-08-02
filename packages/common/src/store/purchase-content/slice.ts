@@ -45,7 +45,7 @@ const slice = createSlice({
     onBuyUSDC: (state) => {
       state.stage = PurchaseContentStage.BUY_USDC
     },
-    onBuyUSDCSucceeded: (state) => {
+    onUSDCBalanceSufficient: (state) => {
       state.stage = PurchaseContentStage.PURCHASING
     },
     onPurchaseCanceled: (state) => {
@@ -69,7 +69,7 @@ const slice = createSlice({
 export const {
   startPurchaseContentFlow,
   onBuyUSDC,
-  onBuyUSDCSucceeded,
+  onUSDCBalanceSufficient,
   onPurchaseSucceeded,
   onPurchaseConfirmed,
   onPurchaseCanceled,
