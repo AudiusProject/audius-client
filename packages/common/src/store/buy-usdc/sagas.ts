@@ -15,6 +15,7 @@ import { IntKeys } from 'services/remote-config'
 import { getContext } from 'store/effects'
 import { getFeePayer } from 'store/solana/selectors'
 import { setVisibility } from 'store/ui/modals/slice'
+import { initializeStripeModal } from 'store/ui/stripe-modal/slice'
 
 import { getBuyUSDCProvider } from './selectors'
 import {
@@ -160,6 +161,16 @@ function* doBuyUSDC({
     if (provider !== USDCOnRampProvider.STRIPE) {
       throw new Error('USDC Purchase is only supported via Stripe')
     }
+
+    yield* put(
+      initializeStripeModal({
+        amount: desiredAmount.toString(),
+        destinationCurrency: 'usdc',
+        destinationWallet: userBank.toString(),
+        onRampCanceled,
+        onRampSucceeded
+      })
+    )
 
     yield* put(setVisibility({ modal: 'StripeOnRamp', visible: true }))
 

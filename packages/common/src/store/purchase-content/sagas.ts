@@ -153,7 +153,7 @@ function* doStartPurchaseContentFlow({
         provider: USDCOnRampProvider.STRIPE,
         purchaseInfo: {
           // TODO: Use actual price once type is correct
-          desiredAmount: 100
+          desiredAmount: 1
         }
       })
     )

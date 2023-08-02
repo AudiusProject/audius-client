@@ -1,11 +1,14 @@
 import { useCallback } from 'react'
 
+import { purchaseContentSelectors } from '@audius/common'
 import { StyleSheet, View } from 'react-native'
 import { WebView } from 'react-native-webview'
+import { useSelector } from 'react-redux'
 
 import { useIsUSDCEnabled } from 'app/hooks/useIsUSDCEnabled'
-import { useRoute } from 'app/hooks/useRoute'
 import { env } from 'app/services/env'
+
+const { getStripeClientSecret } = purchaseContentSelectors
 
 const STRIPE_PUBLISHABLE_KEY = env.REACT_APP_STRIPE_CLIENT_PUBLISHABLE_KEY
 
@@ -17,9 +20,8 @@ const styles = StyleSheet.create({
 })
 
 export const StripeOnrampEmbed = () => {
-  const { params } = useRoute<'StripeOnrampEmbed'>()
-  const { clientSecret } = params
   const isUSDCEnabled = useIsUSDCEnabled()
+  const clientSecret = useSelector(getStripeClientSecret)
 
   const handleSessionUpdate = useCallback((event) => {
     if (event?.payload?.session?.status) {

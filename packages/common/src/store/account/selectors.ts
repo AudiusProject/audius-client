@@ -63,7 +63,7 @@ export const getAccountProfilePictureSizes = (state: CommonState) => {
 export const getPlaylistLibrary = (state: CommonState) => {
   return getAccountUser(state)?.playlist_library ?? null
 }
-export const getAccountERCWallet = createSelector(
+export const getAccountWallet = createSelector(
   [internalGetAccountUser],
   (user) => user?.erc_wallet ?? null
 )
