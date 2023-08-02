@@ -39,11 +39,11 @@ type MenuFormProps = {
   label: string
   icon: ReactNode
   description: string
-  menuForm: ReactNode
+  menuFields: ReactNode
 }
 
 const MenuForm = (props: MenuFormProps) => {
-  const { isOpen, onClose, label, icon, description, menuForm } = props
+  const { isOpen, onClose, label, icon, description, menuFields } = props
   const { resetForm } = useFormikContext()
 
   const handleCancel = useCallback(() => {
@@ -59,7 +59,7 @@ const MenuForm = (props: MenuFormProps) => {
       <Form>
         <ModalContent>
           <ModalContentText>{description}</ModalContentText>
-          {menuForm}
+          {menuFields}
         </ModalContent>
         <ModalFooter>
           <Button
@@ -99,7 +99,7 @@ type ContextualMenuProps<Value, FormValues extends FormikValues> = {
   description: string
   icon: ReactElement
   renderValue?: (value: Value) => JSX.Element | null
-  menuForm: ReactNode
+  menuFields: ReactNode
   value: Value
   error?: boolean
   errorMessage?: string
@@ -115,7 +115,7 @@ export const ContextualMenu = <
     label,
     description,
     icon,
-    menuForm,
+    menuFields,
     renderValue: renderValueProp,
     onSubmit,
     value,
@@ -184,7 +184,7 @@ export const ContextualMenu = <
           description={description}
           isOpen={isMenuOpen}
           onClose={toggleMenu}
-          menuForm={menuForm}
+          menuFields={menuFields}
         />
       </Formik>
     </>

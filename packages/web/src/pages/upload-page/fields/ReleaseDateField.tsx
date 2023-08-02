@@ -66,7 +66,7 @@ export const ReleaseDateField = () => {
       icon={<IconCalendar className={styles.titleIcon} />}
       initialValues={initialValues}
       onSubmit={onSubmit}
-      menuForm={
+      menuFields={
         <>
           <Text
             className={cn(styles.title, styles.modalHeading)}

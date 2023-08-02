@@ -22,8 +22,8 @@
 
 .flat:active {
   border-radius: 8px;
-  border: 1px solid var(--border-strong, #e7e6eb);
-  background: var(--neutral-light-8, #f2f2f4);
+  border: 1px solid var(--border-strong);
+  background: var(--neutral-light-8);
 }
 
 .near {
