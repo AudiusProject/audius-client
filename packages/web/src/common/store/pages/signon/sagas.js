@@ -591,7 +591,6 @@ function* signIn(action) {
 
 function* followCollections(collectionIds, favoriteSource) {
   yield call(waitForWrite)
-  debugger
   try {
     const result = yield call(retrieveCollections, collectionIds)
 
