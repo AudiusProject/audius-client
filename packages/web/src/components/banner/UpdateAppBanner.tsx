@@ -2,7 +2,6 @@ import {
   CallToActionBanner,
   CallToActionBannerProps
 } from './CallToActionBanner'
-import styles from './UpdateAppBanner.module.css'
 
 const messages = {
   text: 'A New Version Is Available',
@@ -20,7 +19,7 @@ export const UpdateAppBanner = ({
 }: UpdateAppBannerProps) => {
   return (
     <CallToActionBanner
-      text={<span className={styles.text}>{messages.text}</span>}
+      text={messages.text}
       pill={messages.pill}
       pillPosition={'right'}
       emoji='sparkles'
