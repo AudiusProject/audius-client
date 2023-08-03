@@ -389,6 +389,7 @@ class CollectionPage extends Component<
 
   resetCollection = () => {
     const { collectionUid, userUid } = this.props
+    this.props.setCollectionPermalink('')
     this.props.resetCollection(collectionUid, userUid)
   }
 
