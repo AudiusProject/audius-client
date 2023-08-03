@@ -16,7 +16,7 @@ type FanburstBannerProps = {
   isMobile: boolean
 }
 
-const FanburstBanner = ({ onClose, isMobile }: FanburstBannerProps) => {
+export const FanburstBanner = ({ onClose, isMobile }: FanburstBannerProps) => {
   return (
     <Banner
       isMobile={isMobile}
@@ -35,5 +35,3 @@ const FanburstBanner = ({ onClose, isMobile }: FanburstBannerProps) => {
     </Banner>
   )
 }
-
-export default FanburstBanner
