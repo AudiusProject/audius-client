@@ -1,5 +1,4 @@
 import cn from 'classnames'
-import PropTypes from 'prop-types'
 
 import { Banner } from 'components/banner/Banner'
 
@@ -12,27 +11,28 @@ const messages = {
   mobileStream: `HQ Audio at 320kbps for FREE!`
 }
 
-const FanburstBanner = (props) => {
+type FanburstBannerProps = {
+  onClose: () => void
+  isMobile: boolean
+}
+
+const FanburstBanner = ({ onClose, isMobile }: FanburstBannerProps) => {
   return (
     <Banner
-      {...props}
-      className={cn(styles.banner, { [styles.isMobile]: props.isMobile })}
+      onClose={onClose}
+      className={cn(styles.banner, { [styles.isMobile]: isMobile })}
     >
       <div className={styles.text}>
         <span>
-          {props.isMboile ? messages.mobileHome : messages.home}
+          {isMobile ? messages.mobileHome : messages.home}
           <span className={styles.starEyes}>
             <i className='emoji grinning-face-with-star-eyes' />
           </span>
         </span>
-        <span>{props.isMobile ? messages.mobileStream : messages.stream}</span>
+        <span>{isMobile ? messages.mobileStream : messages.stream}</span>
       </div>
     </Banner>
   )
-}
-FanburstBanner.propTypes = {
-  isMobile: PropTypes.bool,
-  onClose: PropTypes.func
 }
 
 export default FanburstBanner
