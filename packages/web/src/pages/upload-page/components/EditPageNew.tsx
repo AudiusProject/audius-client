@@ -9,13 +9,17 @@ import * as Yup from 'yup'
 import layoutStyles from 'components/layout/layout.module.css'
 import PreviewButton from 'components/upload/PreviewButton'
 
+import { AccessAndSaleField } from '../fields/AccessAndSaleField'
+import { AttributionField } from '../fields/AttributionField'
 import { MultiTrackSidebar } from '../fields/MultiTrackSidebar'
+import { ReleaseDateField } from '../fields/ReleaseDateField'
+import { RemixSettingsField } from '../fields/RemixSettingsField'
+import { SourceFilesField } from '../fields/SourceFilesField'
 import { TrackMetadataFields } from '../fields/TrackMetadataFields'
 import { defaultHiddenFields } from '../fields/availability/HiddenAvailabilityFields'
-import { TrackEditFormValues } from '../forms/types'
+import { TrackEditFormValues } from '../types'
 
 import styles from './EditPageNew.module.css'
-import { TrackModalArray } from './TrackModalArray'
 import { TrackForUpload } from './types'
 
 const messages = {
@@ -92,7 +96,13 @@ export const EditPageNew = (props: EditPageProps) => {
           <div className={cn(layoutStyles.row, layoutStyles.gap2)}>
             <div className={styles.editForm}>
               <TrackMetadataFields />
-              <TrackModalArray />
+              <div className={styles.advancedOptions}>
+                <ReleaseDateField />
+                <RemixSettingsField />
+                <SourceFilesField />
+                <AccessAndSaleField />
+                <AttributionField />
+              </div>
               <PreviewButton playing={false} onClick={() => {}} />
             </div>
             {isMultiTrack ? <MultiTrackSidebar tracks={tracks} /> : null}

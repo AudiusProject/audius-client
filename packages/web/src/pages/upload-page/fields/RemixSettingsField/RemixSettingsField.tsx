@@ -16,8 +16,8 @@ import {
 import { Text } from 'components/typography'
 import { fullTrackPage } from 'utils/route'
 
-import { SingleTrackEditValues } from '../../forms/types'
-import { useTrackField } from '../../forms/utils'
+import { useTrackField } from '../../hooks'
+import { SingleTrackEditValues } from '../../types'
 
 import styles from './RemixSettingsField.module.css'
 import { RemixSettingsMenuFields } from './RemixSettingsMenuFields'

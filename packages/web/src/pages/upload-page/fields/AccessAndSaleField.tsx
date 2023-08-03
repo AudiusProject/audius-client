@@ -44,8 +44,8 @@ import {
 } from '../fields/availability/SpecialAccessFields'
 import { CollectibleGatedDescription } from '../fields/availability/collectible-gated/CollectibleGatedDescription'
 import { CollectibleGatedFields } from '../fields/availability/collectible-gated/CollectibleGatedFields'
-import { SingleTrackEditValues } from '../forms/types'
-import { useTrackField } from '../forms/utils'
+import { useTrackField } from '../hooks'
+import { SingleTrackEditValues } from '../types'
 
 import styles from './AccessAndSaleField.module.css'
 import { REMIX_OF } from './RemixSettingsField'

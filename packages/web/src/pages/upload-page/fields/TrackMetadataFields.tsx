@@ -10,7 +10,7 @@ import {
 } from 'components/form-fields'
 import { moodMap } from 'utils/Moods'
 
-import { getTrackFieldName } from '../forms/utils'
+import { getTrackFieldName } from '../hooks'
 
 import styles from './TrackMetadataFields.module.css'
 

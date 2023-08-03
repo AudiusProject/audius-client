@@ -19,7 +19,7 @@ import {
   dropdownRows as stemCategories
 } from '../fields/SourceFilesView'
 import { SwitchRowField } from '../fields/SwitchRowField'
-import { useTrackField } from '../forms/utils'
+import { useTrackField } from '../hooks'
 import { processFiles } from '../store/utils/processFiles'
 
 import styles from './SourceFilesField.module.css'

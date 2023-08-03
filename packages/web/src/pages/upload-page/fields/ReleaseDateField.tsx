@@ -10,8 +10,8 @@ import {
 } from 'components/data-entry/ContextualMenu'
 import { Text } from 'components/typography'
 
-import { SingleTrackEditValues } from '../forms/types'
-import { useTrackField } from '../forms/utils'
+import { useTrackField } from '../hooks'
+import { SingleTrackEditValues } from '../types'
 
 import { DatePickerField } from './DatePickerField'
 import styles from './ReleaseDateField.module.css'

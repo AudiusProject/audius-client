@@ -1,31 +1,37 @@
 import { useCallback, useMemo } from 'react'
 
 import { Nullable, creativeCommons } from '@audius/common'
-import { SegmentedControl } from '@audius/stems'
+import { IconRobot, SegmentedControl } from '@audius/stems'
 import cn from 'classnames'
-import { Formik, useField } from 'formik'
+import { useField } from 'formik'
 import { get, set } from 'lodash'
 
 import { ReactComponent as IconCreativeCommons } from 'assets/img/iconCreativeCommons.svg'
+import { Icon } from 'components/Icon'
 import { AiAttributionDropdown } from 'components/ai-attribution-modal/AiAttributionDropdown'
+import {
+  ContextualMenu,
+  SelectedValue,
+  SelectedValues
+} from 'components/data-entry/ContextualMenu'
 import { InputV2, InputV2Variant } from 'components/data-entry/InputV2'
 import { Divider } from 'components/divider'
 import layoutStyles from 'components/layout/layout.module.css'
 import { Text } from 'components/typography'
+import { useTrackField } from 'pages/upload-page/hooks'
+import { SingleTrackEditValues } from 'pages/upload-page/types'
+import { computeLicenseIcons } from 'pages/upload-page/utils/computeLicenseIcons'
 
-import { ModalField } from '../fields/ModalField'
-import { SwitchRowField } from '../fields/SwitchRowField'
-import { computeLicenseIcons } from '../utils/computeLicenseIcons'
+import styles from './AttributionField.module.css'
+import { SwitchRowField } from './SwitchRowField'
 
-import styles from './AttributionModalForm.module.css'
-import { SingleTrackEditValues } from './types'
-import { useTrackField } from './utils'
-const { computeLicense } = creativeCommons
+const { computeLicense, ALL_RIGHTS_RESERVED_TYPE } = creativeCommons
 
 const messages = {
   title: 'Attribution',
   description:
     'Customize attribution settings for licenses, collaborators, and AI-inspired sources.',
+  isAiGenerated: 'AI-Generated',
   aiGenerated: {
     header: 'Mark this track as AI generated',
     description:
@@ -62,7 +68,8 @@ const messages = {
       true: 'Share-Alike',
       null: 'Allowed'
     }
-  }
+  },
+  noLicense: 'All Rights Reserved'
 }
 
 const IS_AI_ATTRIBUTED = 'isAiAttribution'
@@ -103,7 +110,7 @@ type AttributionFormValues = {
   [DERIVATIVE_WORKS]: Nullable<boolean>
 }
 
-export const AttributionModalForm = () => {
+export const AttributionField = () => {
   const [{ value: aiUserId }, , { setValue: setAiUserId }] =
     useTrackField<SingleTrackEditValues[typeof AI_USER_ID]>(AI_USER_ID)
   const [{ value: isrcValue }, , { setValue: setIsrc }] =
@@ -172,29 +179,67 @@ export const AttributionModalForm = () => {
     ]
   )
 
-  const preview = (
-    <div className={cn(layoutStyles.col, layoutStyles.gap2)}>
-      <Text variant='title' size='large'>
-        {messages.title}
-      </Text>
-      <Text>{messages.description}</Text>
-    </div>
-  )
+  const renderValue = useCallback(() => {
+    const value = []
+
+    const { licenseType } = computeLicense(
+      !!allowAttribution,
+      !!commercialUse,
+      derivativeWorks
+    )
+
+    if (!licenseType || licenseType === ALL_RIGHTS_RESERVED_TYPE) {
+      value.push(<SelectedValue label={messages.noLicense} />)
+    }
+
+    const licenseIcons = computeLicenseIcons(
+      !!allowAttribution,
+      !!commercialUse,
+      derivativeWorks
+    )
+
+    if (licenseIcons) {
+      value.push(
+        <SelectedValue>
+          {licenseIcons.map(([icon, key]) => (
+            <Icon key={key} icon={icon} />
+          ))}
+        </SelectedValue>
+      )
+    }
+    if (isrcValue) {
+      value.push(<SelectedValue label={isrcValue} />)
+    }
+
+    if (iswcValue) {
+      value.push(<SelectedValue label={iswcValue} />)
+    }
+    if (aiUserId) {
+      value.push(
+        <SelectedValue label={messages.isAiGenerated} icon={IconRobot} />
+      )
+    }
+    return <SelectedValues>{value}</SelectedValues>
+  }, [
+    aiUserId,
+    allowAttribution,
+    commercialUse,
+    derivativeWorks,
+    isrcValue,
+    iswcValue
+  ])
 
   return (
-    <Formik<AttributionFormValues>
+    <ContextualMenu
+      label={messages.title}
+      description={messages.description}
+      icon={<IconCreativeCommons />}
       initialValues={initialValues}
       onSubmit={onSubmit}
-      enableReinitialize
-    >
-      <ModalField
-        title={messages.title}
-        icon={<IconCreativeCommons className={styles.titleIcon} />}
-        preview={preview}
-      >
-        <AttributionModalFields />
-      </ModalField>
-    </Formik>
+      menuFields={<AttributionModalFields />}
+      value={initialValues}
+      renderValue={renderValue}
+    />
   )
 }
 

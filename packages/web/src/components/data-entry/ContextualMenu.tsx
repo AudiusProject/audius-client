@@ -91,6 +91,15 @@ export const SelectedValue = (props: SelectedValueProps) => {
   )
 }
 
+type SelectedValuesProps = {
+  children: ReactNode
+}
+
+export const SelectedValues = (props: SelectedValuesProps) => {
+  const { children } = props
+  return <span className={styles.value}>{children}</span>
+}
+
 type ContextualMenuProps<Value, FormValues extends FormikValues> = {
   label: string
   description: string
@@ -133,11 +142,11 @@ export const ContextualMenu = <
     if (!values) return null
 
     return (
-      <div className={styles.value}>
+      <SelectedValues>
         {values?.map((value) => (
           <SelectedValue key={value} label={value} />
         ))}
-      </div>
+      </SelectedValues>
     )
   }, [])
 
