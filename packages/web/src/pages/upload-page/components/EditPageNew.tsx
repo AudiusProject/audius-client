@@ -118,15 +118,17 @@ const TrackEditForm = (props: FormikProps<TrackEditFormValues>) => {
         </div>
         {isMultiTrack ? <MultiTrackSidebar /> : null}
       </div>
-      <div className={styles.continue}>
-        <HarmonyButton
-          variant={HarmonyButtonType.PRIMARY}
-          text='Continue'
-          name='continue'
-          iconRight={IconArrow}
-          className={styles.continueButton}
-        />
-      </div>
+      {!isMultiTrack ? (
+        <div className={styles.continue}>
+          <HarmonyButton
+            variant={HarmonyButtonType.PRIMARY}
+            text='Continue'
+            name='continue'
+            iconRight={IconArrow}
+            className={styles.continueButton}
+          />
+        </div>
+      ) : null}
     </Form>
   )
 }
@@ -157,19 +159,25 @@ const MultiTrackFooter = () => {
     setIndex(Math.min(index + 1, trackMetadatas.length - 1))
   }, [index, setIndex, trackMetadatas.length])
 
+  const prevDisabled = index === 0
+  const nextDisabled = index === trackMetadatas.length - 1
   return (
     <div className={cn(styles.multiTrackFooter, layoutStyles.row)}>
       <HarmonyButton
+        className={cn({ [styles.disabled]: prevDisabled })}
         variant={HarmonyButtonType.PLAIN}
         text={messages.prev}
         iconLeft={IconCaretLeft}
         onClick={goPrev}
+        disabled={prevDisabled}
       />
       <HarmonyButton
+        className={cn({ [styles.disabled]: nextDisabled })}
         variant={HarmonyButtonType.PLAIN}
         text={messages.next}
         iconRight={IconCaretRight}
         onClick={goNext}
+        disabled={nextDisabled}
       />
     </div>
   )

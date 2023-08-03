@@ -1,6 +1,4 @@
 .root {
-  /* Required for Safari */
-  position: -webkit-sticky;
   position: sticky;
   top: 152px;
   align-self: flex-start;
@@ -8,15 +6,14 @@
 
   flex-shrink: 0;
   width: 320px;
-  background: var(--neutral-light-10);
-  box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.06),
-    0px 0px 4px 0px rgba(0, 0, 0, 0.04);
+  background: var(--background-surface-1);
+  box-shadow: var(--shadow-far);
 }
 
 .title {
   padding: var(--unit-4);
   border-radius: 8px 8px 0px 0px;
-  border-bottom: 1px solid var(--neutral-light-7);
+  border-bottom: 1px solid var(--border-strong);
 }
 
 .body {
@@ -47,8 +44,8 @@
 }
 .trackRoot:hover {
   background: var(--neutral-light-9);
-  border-top: 1px solid var(--neutral-light-7);
-  border-bottom: 1px solid var(--neutral-light-7);
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
 }
 
 .trackInfo {
@@ -78,9 +75,9 @@
   width: 40px;
   height: 40px;
   border-radius: 4px;
-  border: 1px solid var(--neutral-light-7);
+  border: 1px solid var(--border-strong);
   background: lightgray 50% / cover no-repeat;
-  border: 1px solid var(--neutral-light-8);
+  background: var(--border-strong);
   transition: border ease-in-out 0.1s;
 }
 

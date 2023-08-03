@@ -13,6 +13,7 @@ import { isEmpty } from 'lodash'
 
 import { ReactComponent as IconTrash } from 'assets/img/iconTrash.svg'
 import { Icon } from 'components/Icon'
+import DynamicImage from 'components/dynamic-image/DynamicImage'
 import layoutStyles from 'components/layout/layout.module.css'
 import { Text } from 'components/typography'
 
@@ -34,7 +35,7 @@ export const MultiTrackSidebar = () => {
     <div className={styles.root}>
       <div className={cn(layoutStyles.col)}>
         <div className={styles.title}>
-          <Text variant='title' size='xSmall'>
+          <Text variant='label' size='small'>
             {messages.title}
           </Text>
         </div>
@@ -56,7 +57,7 @@ export const MultiTrackSidebar = () => {
                 size='xSmall'
                 fill='accentRed'
               />
-              {/* @ts-ignore todo: fix accent red color */}
+              {/* @ts-expect-error */}
               <Text size='xSmall' color='--accent-red'>
                 {messages.fixErrors}
               </Text>
@@ -145,11 +146,10 @@ const TrackRow = (props: TrackRowProps) => {
                 {index + 1}
               </Text>
             )}
-            <div
-              className={styles.artwork}
-              style={{
-                backgroundImage: `url(${artworkUrl || placeholderArt})`
-              }}
+            <DynamicImage
+              wrapperClassName={styles.artwork}
+              image={artworkUrl || placeholderArt}
+              isUrl
             />
           </div>
           <Text
