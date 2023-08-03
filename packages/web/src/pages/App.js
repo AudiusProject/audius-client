@@ -443,11 +443,13 @@ class App extends Component {
     const noScroll = matchPath(this.state.currentRoute, CHAT_PAGE)
 
     return (
-      <AppBannerWrapper>
-        <DownloadAppBanner />
-        <DirectMessagesBanner />
-        <Web3ErrorBanner />
-        {showWebUpdateBanner ? <UpdateAppBanner /> : null}
+      <div className={styles.root}>
+        <AppBannerWrapper>
+          <DownloadAppBanner />
+          <DirectMessagesBanner />
+          <Web3ErrorBanner />
+          {showWebUpdateBanner ? <UpdateAppBanner /> : null}
+        </AppBannerWrapper>
         {this.props.isChatEnabled ? <ChatListener /> : null}
         <div className={cn(styles.app, { [styles.mobileApp]: isMobileClient })}>
           {this.props.showCookieBanner ? <CookieBanner /> : null}
@@ -928,7 +930,7 @@ class App extends Component {
             />
           ) : null}
         </div>
-      </AppBannerWrapper>
+      </div>
     )
   }
 }

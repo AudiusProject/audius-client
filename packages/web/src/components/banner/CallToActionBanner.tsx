@@ -1,14 +1,19 @@
 import { ReactNode } from 'react'
 
+import { Client } from '@audius/common'
 import { IconArrowWhite } from '@audius/stems'
 import cn from 'classnames'
 
 import { Banner, BannerProps } from 'components/banner/Banner'
 import Pill from 'components/pill/Pill'
+import { getClient } from 'utils/clientUtil'
 
 import styles from './CallToActionBanner.module.css'
 
-export type CallToActionBannerProps = Omit<BannerProps, 'children'> & {
+export type CallToActionBannerProps = Pick<
+  BannerProps,
+  'onClose' | 'className'
+> & {
   onAccept: () => void
   emoji?: string
   pill?: string
@@ -26,8 +31,14 @@ export const CallToActionBanner = (props: CallToActionBannerProps) => {
     ...bannerProps
   } = props
 
+  const client = getClient()
+
   return (
-    <Banner {...bannerProps}>
+    <Banner
+      isElectron={client === Client.ELECTRON}
+      isMobile={client === Client.MOBILE}
+      {...bannerProps}
+    >
       <div className={styles.ctaBanner} onClick={onAccept}>
         <div className={styles.content}>
           {pill && pillPosition === 'left' ? (

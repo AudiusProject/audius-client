@@ -1,4 +1,7 @@
 .banner {
+  position: fixed;
+  top: 0;
+  height: 57px;
   width: 100%;
   background: var(--page-header-gradient);
   display: flex;

@@ -19,7 +19,6 @@ export const UpdateAppBanner = ({
       pill={messages.pill}
       pillPosition={'right'}
       emoji='sparkles'
-      isElectron
       onClose={onClose}
       onAccept={onAccept}
     />
