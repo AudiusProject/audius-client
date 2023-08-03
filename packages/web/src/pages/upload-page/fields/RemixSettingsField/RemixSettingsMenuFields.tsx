@@ -15,7 +15,7 @@ import { SwitchRowField } from '../SwitchRowField'
 
 import styles from './RemixSettingsField.module.css'
 import { TrackInfo } from './TrackInfo'
-import { IS_REMIX, REMIX_LINK, SHOW_REMIXES_BASE } from './types'
+import { IS_REMIX, REMIX_LINK, SHOW_REMIXES } from './types'
 const { getUserId } = accountSelectors
 
 const messages = {
@@ -51,7 +51,7 @@ export const RemixSettingsMenuFields = () => {
   return (
     <div className={styles.fields}>
       <SwitchRowField
-        name={SHOW_REMIXES_BASE}
+        name={SHOW_REMIXES}
         header={messages.hideRemix.header}
         description={messages.hideRemix.description}
         inverted

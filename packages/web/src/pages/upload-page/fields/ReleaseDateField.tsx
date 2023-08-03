@@ -42,7 +42,7 @@ export const ReleaseDateField = () => {
     [setValue]
   )
 
-  const renderValue = useCallback((value: ReleaseDateValue) => {
+  const renderValue = useCallback(() => {
     return (
       <SelectedValue
         label={moment(value).calendar().split(' at')[0]}
@@ -57,11 +57,10 @@ export const ReleaseDateField = () => {
         />
       </SelectedValue>
     )
-  }, [])
+  }, [value])
 
   return (
     <ContextualMenu
-      value={value}
       label={messages.title}
       description={messages.description}
       icon={<IconCalendar className={styles.titleIcon} />}

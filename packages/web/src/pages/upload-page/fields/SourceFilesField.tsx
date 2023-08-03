@@ -10,7 +10,11 @@ import { useField } from 'formik'
 import { get, set } from 'lodash'
 
 import { ReactComponent as IconSourceFiles } from 'assets/img/iconSourceFiles.svg'
-import { ContextualMenu } from 'components/data-entry/ContextualMenu'
+import {
+  ContextualMenu,
+  SelectedValue,
+  SelectedValues
+} from 'components/data-entry/ContextualMenu'
 import { Divider } from 'components/divider'
 import { Text } from 'components/typography'
 
@@ -84,8 +88,8 @@ export const SourceFilesField = () => {
     [setAllowDownloadValue, setFollowerGatedValue, setStemsValue]
   )
 
-  const getValue = () => {
-    const values = []
+  const renderValue = () => {
+    let values = []
     if (allowDownloadValue) {
       values.push(messages.values.allowDownload)
     }
@@ -93,7 +97,14 @@ export const SourceFilesField = () => {
       values.push(messages.values.followerGated)
     }
     const stemsCategories = stemsValue.map((stem) => stem.category)
-    return [...values, ...stemsCategories]
+    values = [...values, ...stemsCategories]
+    return (
+      <SelectedValues>
+        {values.map((value) => (
+          <SelectedValue key={value} label={value} />
+        ))}
+      </SelectedValues>
+    )
   }
 
   return (
@@ -102,8 +113,8 @@ export const SourceFilesField = () => {
       description={messages.description}
       icon={<IconSourceFiles />}
       initialValues={initialValues}
-      value={getValue()}
       onSubmit={handleSubmit}
+      renderValue={renderValue}
       menuFields={<SourceFilesMenuFields />}
     />
   )

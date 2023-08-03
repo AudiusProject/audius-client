@@ -109,23 +109,19 @@ export type AccessAndSaleFormValues = {
 
 export const AccessAndSaleField = () => {
   // Fields from the outer form
-  const [{ value: isUnlistedValue }, , { setValue: setIsUnlistedValue }] =
+  const [{ value: isUnlisted }, , { setValue: setIsUnlistedValue }] =
     useTrackField<SingleTrackEditValues[typeof IS_UNLISTED]>(IS_UNLISTED)
-  const [{ value: isPremiumValue }, , { setValue: setIsPremiumValue }] =
+  const [{ value: isPremium }, , { setValue: setIsPremiumValue }] =
     useTrackField<SingleTrackEditValues[typeof IS_PREMIUM]>(IS_PREMIUM)
   const [
-    { value: premiumConditionsValue },
+    { value: premiumConditions },
     ,
     { setValue: setPremiumConditionsValue }
   ] =
     useTrackField<SingleTrackEditValues[typeof PREMIUM_CONDITIONS]>(
       PREMIUM_CONDITIONS
     )
-  const [
-    { value: fieldVisibilityValue },
-    ,
-    { setValue: setFieldVisibilityValue }
-  ] =
+  const [{ value: fieldVisibility }, , { setValue: setFieldVisibilityValue }] =
     useTrackField<SingleTrackEditValues[typeof FIELD_VISIBILITY]>(
       FIELD_VISIBILITY
     )
@@ -134,15 +130,14 @@ export const AccessAndSaleField = () => {
   const isRemix = !isEmpty(remixOfValue?.tracks)
 
   const initialValues = useMemo(() => {
-    const isTipGated = isPremiumContentTipGated(premiumConditionsValue)
-    const isFollowGated = isPremiumContentFollowGated(premiumConditionsValue)
-    const isCollectibleGated = isPremiumContentCollectibleGated(
-      premiumConditionsValue
-    )
+    const isTipGated = isPremiumContentTipGated(premiumConditions)
+    const isFollowGated = isPremiumContentFollowGated(premiumConditions)
+    const isCollectibleGated =
+      isPremiumContentCollectibleGated(premiumConditions)
     const initialValues = {}
-    set(initialValues, IS_UNLISTED, isUnlistedValue)
-    set(initialValues, IS_PREMIUM, isPremiumValue)
-    set(initialValues, PREMIUM_CONDITIONS, premiumConditionsValue)
+    set(initialValues, IS_UNLISTED, isUnlisted)
+    set(initialValues, IS_PREMIUM, isPremium)
+    set(initialValues, PREMIUM_CONDITIONS, premiumConditions)
 
     let availabilityType = TrackAvailabilityType.PUBLIC
     if (isFollowGated || isTipGated) {
@@ -151,24 +146,19 @@ export const AccessAndSaleField = () => {
     if (isCollectibleGated) {
       availabilityType = TrackAvailabilityType.COLLECTIBLE_GATED
     }
-    if (isUnlistedValue) {
+    if (isUnlisted) {
       availabilityType = TrackAvailabilityType.HIDDEN
     }
     // TODO: USDC gated type
     set(initialValues, AVAILABILITY_TYPE, availabilityType)
-    set(initialValues, FIELD_VISIBILITY, fieldVisibilityValue)
+    set(initialValues, FIELD_VISIBILITY, fieldVisibility)
     set(
       initialValues,
       SPECIAL_ACCESS_TYPE,
       isTipGated ? SpecialAccessType.TIP : SpecialAccessType.FOLLOW
     )
     return initialValues as AccessAndSaleFormValues
-  }, [
-    fieldVisibilityValue,
-    isPremiumValue,
-    isUnlistedValue,
-    premiumConditionsValue
-  ])
+  }, [fieldVisibility, isPremium, isUnlisted, premiumConditions])
 
   const onSubmit = useCallback(
     (values: AccessAndSaleFormValues) => {
@@ -179,21 +169,19 @@ export const AccessAndSaleField = () => {
       if (get(values, AVAILABILITY_TYPE) === TrackAvailabilityType.HIDDEN) {
         setFieldVisibilityValue({
           ...(get(values, FIELD_VISIBILITY) ?? undefined),
-          remixes:
-            fieldVisibilityValue?.remixes ?? defaultFieldVisibility.remixes
+          remixes: fieldVisibility?.remixes ?? defaultFieldVisibility.remixes
         })
         setIsUnlistedValue(true)
       } else {
         setFieldVisibilityValue({
           ...defaultFieldVisibility,
-          remixes:
-            fieldVisibilityValue?.remixes ?? defaultFieldVisibility.remixes
+          remixes: fieldVisibility?.remixes ?? defaultFieldVisibility.remixes
         })
         setIsUnlistedValue(false)
       }
     },
     [
-      fieldVisibilityValue?.remixes,
+      fieldVisibility?.remixes,
       setFieldVisibilityValue,
       setIsPremiumValue,
       setIsUnlistedValue,
@@ -201,13 +189,7 @@ export const AccessAndSaleField = () => {
     ]
   )
 
-  const renderValue = useCallback((value: AccessAndSaleFormValues) => {
-    const {
-      [PREMIUM_CONDITIONS]: premiumConditions,
-      [IS_UNLISTED]: isUnlisted,
-      [FIELD_VISIBILITY]: fieldVisibility
-    } = value
-
+  const renderValue = useCallback(() => {
     if (premiumConditions && 'nft_collection' in premiumConditions) {
       const { nft_collection } = premiumConditions
       if (!nft_collection) return null
@@ -250,7 +232,7 @@ export const AccessAndSaleField = () => {
       selectedValues = [specialAccessValue, messages.followersOnly]
     } else if (isPremiumContentTipGated(premiumConditions)) {
       selectedValues = [specialAccessValue, messages.supportersOnly]
-    } else if (isUnlisted) {
+    } else if (isUnlisted && fieldVisibility) {
       const fieldVisibilityKeys = Object.keys(
         messages.fieldVisibility
       ) as Array<keyof FieldVisibility>
@@ -275,7 +257,7 @@ export const AccessAndSaleField = () => {
         })}
       </div>
     )
-  }, [])
+  }, [fieldVisibility, isUnlisted, premiumConditions])
 
   return (
     <ContextualMenu
@@ -285,11 +267,10 @@ export const AccessAndSaleField = () => {
       initialValues={initialValues}
       onSubmit={onSubmit}
       renderValue={renderValue}
-      value={initialValues}
       menuFields={
         <AccessAndSaleMenuFields
           isRemix={isRemix}
-          premiumConditions={premiumConditionsValue}
+          premiumConditions={premiumConditions}
         />
       }
     />

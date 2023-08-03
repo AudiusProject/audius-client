@@ -7,6 +7,7 @@ import {
   FieldVisibility,
   Remix
 } from '@audius/common'
+import { get, set } from 'lodash'
 
 import { ReactComponent as IconRemix } from 'assets/img/iconRemixGray.svg'
 import {
@@ -40,13 +41,8 @@ const messages = {
 
 export type RemixOfField = Nullable<{ tracks: { parent_track_id: ID }[] }>
 
-type RemixSettingsFieldValue = {
-  [SHOW_REMIXES]: boolean
-  parentTrackId?: ID
-}
-
 export type MenuFormValues = {
-  [SHOW_REMIXES_BASE]: boolean
+  [SHOW_REMIXES]: boolean
   [IS_REMIX]: boolean
   [REMIX_LINK]: string
   parentTrackId?: ID
@@ -73,32 +69,21 @@ export const RemixSettingsField = () => {
     ? fullTrackPage(remixOfTrack?.permalink)
     : ''
 
-  const value = useMemo(
-    () => ({
-      [SHOW_REMIXES]: showRemixes,
-      parentTrackId
-    }),
-    [showRemixes, parentTrackId]
-  )
-
   const isRemix = Boolean(remixOf && remixOf?.tracks.length > 0)
 
   const initialValues = useMemo(() => {
-    return {
-      [SHOW_REMIXES_BASE]: showRemixes,
-      [IS_REMIX]: isRemix,
-      [REMIX_LINK]: remixLink,
-      parentTrackId
-    }
+    const initialValues = { parentTrackId }
+    set(initialValues, SHOW_REMIXES, showRemixes)
+    set(initialValues, IS_REMIX, isRemix)
+    set(initialValues, REMIX_LINK, remixLink)
+    return initialValues as MenuFormValues
   }, [showRemixes, isRemix, remixLink, parentTrackId])
 
   const handleSubmit = useCallback(
     (values: MenuFormValues) => {
-      const {
-        [SHOW_REMIXES_BASE]: showRemixes,
-        [IS_REMIX]: isRemix,
-        parentTrackId
-      } = values
+      const showRemixes = get(values, SHOW_REMIXES)
+      const isRemix = get(values, IS_REMIX)
+      const { parentTrackId } = values
 
       setShowRemixes(showRemixes)
 
@@ -111,8 +96,7 @@ export const RemixSettingsField = () => {
     [setShowRemixes, setRemixOf]
   )
 
-  const renderValue = useCallback((value: RemixSettingsFieldValue) => {
-    const { [SHOW_REMIXES]: showRemixes, parentTrackId } = value
+  const renderValue = useCallback(() => {
     if (showRemixes && !parentTrackId) return null
 
     return (
@@ -128,13 +112,12 @@ export const RemixSettingsField = () => {
         ) : null}
       </div>
     )
-  }, [])
+  }, [parentTrackId, showRemixes])
 
   return (
     <ContextualMenu
       label={messages.title}
       description={messages.description}
-      value={value}
       renderValue={renderValue}
       menuFields={<RemixSettingsMenuFields />}
       icon={<IconRemix />}

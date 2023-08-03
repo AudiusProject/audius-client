@@ -237,7 +237,6 @@ export const AttributionField = () => {
       initialValues={initialValues}
       onSubmit={onSubmit}
       menuFields={<AttributionModalFields />}
-      value={initialValues}
       renderValue={renderValue}
     />
   )

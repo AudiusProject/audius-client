@@ -100,57 +100,31 @@ export const SelectedValues = (props: SelectedValuesProps) => {
   return <span className={styles.value}>{children}</span>
 }
 
-type ContextualMenuProps<Value, FormValues extends FormikValues> = {
+type ContextualMenuProps<FormValues extends FormikValues> = {
   label: string
   description: string
   icon: ReactElement
-  renderValue?: (value: Value) => JSX.Element | null
+  renderValue: () => JSX.Element | null
   menuFields: ReactNode
-  value: Value
   error?: boolean
   errorMessage?: string
 } & FormikConfig<FormValues>
 
-export const ContextualMenu = <
-  Value,
-  FormValues extends FormikValues = FormikValues
->(
-  props: ContextualMenuProps<Value, FormValues>
+export const ContextualMenu = <FormValues extends FormikValues = FormikValues>(
+  props: ContextualMenuProps<FormValues>
 ) => {
   const {
     label,
     description,
     icon,
     menuFields,
-    renderValue: renderValueProp,
+    renderValue,
     onSubmit,
-    value,
     error,
     errorMessage,
     ...formikProps
   } = props
   const [isMenuOpen, toggleMenu] = useToggle(false)
-
-  const defaultRenderValue = useCallback((value: Value) => {
-    const values =
-      typeof value === 'string' && value
-        ? [value]
-        : Array.isArray(value) && value.length !== 0
-        ? value
-        : false
-
-    if (!values) return null
-
-    return (
-      <SelectedValues>
-        {values?.map((value) => (
-          <SelectedValue key={value} label={value} />
-        ))}
-      </SelectedValues>
-    )
-  }, [])
-
-  const renderValue = renderValueProp ?? defaultRenderValue
 
   const preview = (
     <Tile onClick={toggleMenu} className={styles.root} elevation='flat'>
@@ -167,7 +141,7 @@ export const ContextualMenu = <
         </div>
         <Text>{description}</Text>
       </div>
-      {renderValue(value)}
+      {renderValue()}
       {error ? <HelperText error>{errorMessage}</HelperText> : null}
     </Tile>
   )
