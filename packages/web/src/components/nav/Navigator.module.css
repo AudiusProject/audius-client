@@ -1,5 +1,5 @@
 .navWrapper {
-  position: fixed;
+  position: absolute;
   top: 0px;
   z-index: 14;
   width: 100%;

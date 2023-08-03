@@ -1,19 +1,9 @@
 .banner {
-  height: var(--banner-margin);
+  width: 100%;
   background: var(--page-header-gradient);
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
-
-  z-index: 14;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.banner.alert {
-  background: var(--accent-red-gradient);
 }
 
 .banner.isElectron {
@@ -25,10 +15,10 @@
 }
 
 .iconRemove {
-  height: 24px;
-  width: 24px;
+  height: var(--unit-6);
+  width: var(--unit-6);
   position: absolute;
-  left: 8px;
+  left: var(--unit-4);
   cursor: pointer;
 }
 .iconRemove:hover {
