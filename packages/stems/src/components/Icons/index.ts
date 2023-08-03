@@ -1,3 +1,4 @@
+export * from './types'
 export { ReactComponent as AudiusLogoGlyph } from '../../assets/icons/audiusLogoGlyph.svg'
 export { ReactComponent as AudiusLogoHorizontal } from '../../assets/icons/audiusLogoHorizontal.svg'
 export { ReactComponent as BadgeArtist } from '../../assets/icons/badgeArtist.svg'
@@ -148,3 +149,4 @@ export { ReactComponent as IconTipping } from '../../assets/icons/iconTipping.sv
 export { ReactComponent as IconError } from '../../assets/icons/iconError.svg'
 export { ReactComponent as IconStars } from '../../assets/icons/iconStars.svg'
 export { ReactComponent as IconSpeaker } from '../../assets/icons/iconSpeaker.svg'
+export { ReactComponent as IconEmbed } from '../../assets/icons/iconEmbed.svg'

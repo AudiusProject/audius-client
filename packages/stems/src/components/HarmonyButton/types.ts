@@ -1,7 +1,8 @@
-import { ComponentPropsWithoutRef, ReactNode } from 'react'
+import { ReactNode } from 'react'
 
 import { IconComponent } from 'components/Icons/types'
 import { ColorValue } from 'styles/colors'
+import { BaseButtonProps } from 'utils/types'
 
 export enum HarmonyButtonType {
   PRIMARY = 'primary',
@@ -17,8 +18,6 @@ export enum HarmonyButtonSize {
   DEFAULT = 'default',
   LARGE = 'large'
 }
-
-type BaseButtonProps = Omit<ComponentPropsWithoutRef<'button'>, 'children'>
 
 export type HarmonyButtonProps = {
   /**
