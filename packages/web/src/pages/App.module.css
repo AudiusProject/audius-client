@@ -32,6 +32,7 @@ body {
 
 .mobileApp {
   min-width: var(--mobile-min-width);
+  overflow: auto;
 }
 
 .notificationWrapper {

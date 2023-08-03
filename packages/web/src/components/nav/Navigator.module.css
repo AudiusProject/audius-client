@@ -1,11 +1,11 @@
 .navWrapper {
-  position: absolute;
-  top: 0px;
+  position: fixed;
   z-index: 14;
   width: 100%;
 }
 
 .leftNavWrapper {
+  position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
