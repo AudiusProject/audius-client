@@ -9,10 +9,15 @@ const messages = {
   pill: 'Close and update'
 }
 
+type UpdateAppBannerProps = Pick<
+  CallToActionBannerProps,
+  'onAccept' | 'onClose'
+>
+
 export const UpdateAppBanner = ({
   onAccept,
   onClose
-}: Pick<CallToActionBannerProps, 'onAccept' | 'onClose'>) => {
+}: UpdateAppBannerProps) => {
   return (
     <CallToActionBanner
       text={<span className={styles.text}>{messages.text}</span>}

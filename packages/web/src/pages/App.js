@@ -203,7 +203,7 @@ class App extends Component {
     mainContent: null,
 
     // A patch version update of the web app is available
-    showWebUpdateBanner: false,
+    showWebUpdateBanner: true,
     // A version update of the web app is required
     showRequiresWebUpdate: false,
     // A minor version update of the entire electron app is required
@@ -448,7 +448,12 @@ class App extends Component {
           <DownloadAppBanner />
           <DirectMessagesBanner />
           <Web3ErrorBanner />
-          {showWebUpdateBanner ? <UpdateAppBanner /> : null}
+          {showWebUpdateBanner ? (
+            <UpdateAppBanner
+              onAccept={this.acceptWebUpdate}
+              onClose={this.dismissUpdateWebAppBanner}
+            />
+          ) : null}
         </AppBannerWrapper>
         {this.props.isChatEnabled ? <ChatListener /> : null}
         <div className={cn(styles.app, { [styles.mobileApp]: isMobileClient })}>

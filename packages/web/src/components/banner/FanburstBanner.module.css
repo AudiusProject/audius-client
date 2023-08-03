@@ -3,8 +3,6 @@
   display: flex;
   z-index: 300;
   background: linear-gradient(135deg, #cc0fe0 0%, #ff00e1 100%);
-  position: fixed;
-  height: 40px;
 }
 
 .text {

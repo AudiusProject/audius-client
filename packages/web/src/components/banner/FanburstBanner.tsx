@@ -19,6 +19,7 @@ type FanburstBannerProps = {
 const FanburstBanner = ({ onClose, isMobile }: FanburstBannerProps) => {
   return (
     <Banner
+      isMobile={isMobile}
       onClose={onClose}
       className={cn(styles.banner, { [styles.isMobile]: isMobile })}
     >
