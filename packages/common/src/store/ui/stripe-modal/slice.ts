@@ -28,6 +28,12 @@ const slice = createSlice({
       state.onRampSucceeded = action.payload.onRampSucceeded
       state.onRampCanceled = action.payload.onRampCanceled
     },
+    stripeSessionCreated: (
+      state,
+      action: PayloadAction<{ clientSecret: string }>
+    ) => {
+      state.stripeClientSecret = action.payload.clientSecret
+    },
     // Handled by saga
     cancelStripeOnramp: () => {},
     stripeSessionStatusChanged: (
@@ -41,6 +47,7 @@ const slice = createSlice({
 
 export const {
   initializeStripeModal,
+  stripeSessionCreated,
   cancelStripeOnramp,
   stripeSessionStatusChanged
 } = slice.actions

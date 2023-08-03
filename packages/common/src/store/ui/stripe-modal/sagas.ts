@@ -9,6 +9,7 @@ import { getStripeModalState } from './selectors'
 import {
   cancelStripeOnramp,
   initializeStripeModal,
+  stripeSessionCreated,
   stripeSessionStatusChanged
 } from './slice'
 
@@ -16,12 +17,13 @@ function* handleInitializeStripeModal({
   payload: { amount, destinationCurrency, destinationWallet }
 }: ReturnType<typeof initializeStripeModal>) {
   const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  yield* call(createStripeSession, audiusBackendInstance, {
+  const res = yield* call(createStripeSession, audiusBackendInstance, {
     amount,
     destinationCurrency,
     destinationWallet
   })
-  // TODO: Add state transition and set client secret
+  // TODO: Need to handle errors here?
+  yield* put(stripeSessionCreated({ clientSecret: res.client_secret }))
 }
 
 function* handleStripeSessionChanged({
