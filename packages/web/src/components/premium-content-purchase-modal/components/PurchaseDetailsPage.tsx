@@ -1,12 +1,12 @@
 import { useCallback } from 'react'
 
 import {
-  formatUSDCWeiToUSDString,
+  ContentType,
+  formatPrice,
   isPremiumContentUSDCPurchaseGated,
-  Track,
-  UserTrackMetadata,
   purchaseContentActions,
-  ContentType
+  Track,
+  UserTrackMetadata
 } from '@audius/common'
 import { HarmonyButton } from '@audius/stems'
 import { useDispatch } from 'react-redux'
@@ -63,7 +63,7 @@ export const PurchaseDetailsPage = ({
       <HarmonyButton
         color='specialLightGreen'
         onClick={onClickBuy}
-        text={messages.buy(formatUSDCWeiToUSDString(price))}
+        text={messages.buy(formatPrice(price))}
         fullWidth
       />
     </div>

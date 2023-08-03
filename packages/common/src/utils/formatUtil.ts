@@ -132,6 +132,11 @@ export const formatNumberCommas = (num: number | string) => {
   )
 }
 
+export const formatPrice = (num: number) => {
+  // TODO: Be better
+  return formatNumberCommas((num / 100).toFixed(2))
+}
+
 export const trimRightZeros = (number: string) => {
   return number.replace(/(\d)0+$/gm, '$1')
 }

@@ -1,4 +1,3 @@
-import BN from 'bn.js'
 import { takeLatest } from 'redux-saga/effects'
 import { call, put, race, select, take } from 'typed-redux-saga'
 
@@ -6,9 +5,11 @@ import { Name } from 'models/Analytics'
 import { ErrorLevel } from 'models/ErrorReporting'
 import { ID } from 'models/Identifiers'
 import { isPremiumContentUSDCPurchaseGated } from 'models/Track'
-import { purchaseContent } from 'services/audius-backend/solana'
+import {
+  getTokenAccountInfo,
+  purchaseContent
+} from 'services/audius-backend/solana'
 import { accountSelectors } from 'store/account'
-import { getUSDCUserBank } from 'store/buy-usdc/sagas'
 import {
   buyUSDCFlowFailed,
   buyUSDCFlowSucceeded,
@@ -16,6 +17,7 @@ import {
   startBuyUSDCFlow
 } from 'store/buy-usdc/slice'
 import { USDCOnRampProvider } from 'store/buy-usdc/types'
+import { getUSDCUserBank } from 'store/buy-usdc/utils'
 import { getTrack } from 'store/cache/tracks/selectors'
 import { getUser } from 'store/cache/users/selectors'
 import { getContext } from 'store/effects'
@@ -80,20 +82,16 @@ function* getPurchaseConfig({ contentId, contentType }: GetPurchaseConfigArgs) {
     throw new Error('Unable to resolve destination wallet')
   }
 
-  const userBank = yield* getUSDCUserBank(recipientERCWallet)
-
   const {
     blocknumber,
     premium_conditions: {
-      usdc_purchase: { price }
+      usdc_purchase: { splits }
     }
   } = trackInfo
 
   return {
     blocknumber,
-    splits: {
-      [userBank.toString()]: new BN(price)
-    }
+    splits
   }
 }
 
@@ -139,34 +137,45 @@ function* doStartPurchaseContentFlow({
   )
 
   try {
-    /* const { price } = */ yield* call(getUSDCPremiumConditions, {
+    const { price } = yield* call(getUSDCPremiumConditions, {
       contentId,
       contentType
     })
 
-    // TODO: check balance first
+    // get user bank
+    const userBank = yield* call(getUSDCUserBank)
 
-    // buy USDC if necessary
-    yield* put(onBuyUSDC())
-    yield* put(
-      startBuyUSDCFlow({
-        provider: USDCOnRampProvider.STRIPE,
-        purchaseInfo: {
-          // TODO: Use actual price once type is correct
-          desiredAmount: 1
-        }
-      })
+    const { amount: initialBalance } = yield* call(
+      getTokenAccountInfo,
+      audiusBackendInstance,
+      {
+        mint: 'usdc',
+        tokenAccount: userBank
+      }
     )
 
-    const result = yield* race({
-      success: take(buyUSDCFlowSucceeded),
-      canceled: take(onRampCanceled),
-      failed: take(buyUSDCFlowFailed)
-    })
+    // buy USDC if necessary
+    if (initialBalance.lt(price)) {
+      yield* put(onBuyUSDC())
+      yield* put(
+        startBuyUSDCFlow({
+          provider: USDCOnRampProvider.STRIPE,
+          purchaseInfo: {
+            desiredAmount: price
+          }
+        })
+      )
 
-    if (result.canceled || result.failed) {
-      // Return early for failure or cancellation
-      return
+      const result = yield* race({
+        success: take(buyUSDCFlowSucceeded),
+        canceled: take(onRampCanceled),
+        failed: take(buyUSDCFlowFailed)
+      })
+
+      if (result.canceled || result.failed) {
+        // Return early for failure or cancellation
+        return
+      }
     }
 
     yield* put(onUSDCBalanceSufficient())

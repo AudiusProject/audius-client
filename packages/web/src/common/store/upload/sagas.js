@@ -14,7 +14,8 @@ import {
   ProgressStatus,
   uploadSelectors,
   confirmerActions,
-  confirmTransaction
+  confirmTransaction,
+  getUSDCUserBank
 } from '@audius/common'
 import { push as pushRoute } from 'connected-react-router'
 import { range } from 'lodash'
@@ -913,6 +914,24 @@ function* uploadSingleTrack(track) {
         : 'no'
   })
   yield put(recordEvent)
+
+  // TODO: REMOVE THIS
+  // const ownerAccount = yield select(getAccountUser)
+  // const wallet = ownerAccount.erc_wallet ?? ownerAccount.wallet
+
+  // const ownerUserbank = yield getUSDCUserBank(wallet)
+  // const USDC_PER_USD_CENT = 10000
+  // const price = 100
+
+  // track.metadata.is_premium = true
+  // track.metadata.premium_conditions = {
+  //   usdc_purchase: {
+  //     price,
+  //     splits: {
+  //       [ownerUserbank]: price * USDC_PER_USD_CENT
+  //     }
+  //   }
+  // }
 
   yield put(
     confirmerActions.requestConfirmation(

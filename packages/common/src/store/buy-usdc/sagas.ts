@@ -6,14 +6,11 @@ import { call, put, race, select, take } from 'typed-redux-saga'
 import { Name } from 'models/Analytics'
 import { ErrorLevel } from 'models/ErrorReporting'
 import {
-  createUserBankIfNeeded,
-  deriveUserBankPubkey,
   getTokenAccountInfo,
   pollForBalanceChange
 } from 'services/audius-backend/solana'
 import { IntKeys } from 'services/remote-config'
 import { getContext } from 'store/effects'
-import { getFeePayer } from 'store/solana/selectors'
 import { setVisibility } from 'store/ui/modals/slice'
 import { initializeStripeModal } from 'store/ui/stripe-modal/slice'
 
@@ -27,6 +24,7 @@ import {
   startBuyUSDCFlow
 } from './slice'
 import { USDCOnRampProvider } from './types'
+import { getUSDCUserBank } from './utils'
 
 // TODO: Configurable min/max usdc purchase amounts?
 function* getBuyUSDCRemoteConfig() {
@@ -53,31 +51,6 @@ function* getBuyUSDCRemoteConfig() {
     maxRetryCount,
     retryDelayMs
   }
-}
-
-/**
- * Derives a USDC user bank for a given eth address, creating it if necessary.
- * Defaults to the wallet of the current user.
- */
-export function* getUSDCUserBank(ethAddress?: string) {
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
-  const { track } = yield* getContext('analytics')
-  const feePayerOverride = yield* select(getFeePayer)
-  if (!feePayerOverride) {
-    throw new Error('getUSDCUserBank: unexpectedly no fee payer override')
-  }
-  yield* call(createUserBankIfNeeded, audiusBackendInstance, {
-    ethAddress,
-    feePayerOverride,
-    mint: 'usdc',
-    recordAnalytics: track
-  })
-
-  // TODO: Any errors to handle here?
-  return yield* call(deriveUserBankPubkey, audiusBackendInstance, {
-    ethAddress,
-    mint: 'usdc'
-  })
 }
 
 type PurchaseStepParams = {
@@ -128,6 +101,7 @@ function* purchaseStep({
 
   // Wait for the funds to come through
   const newBalance = yield* call(pollForBalanceChange, audiusBackendInstance, {
+    mint: 'usdc',
     tokenAccount,
     initialBalance,
     retryDelayMs,
@@ -164,7 +138,8 @@ function* doBuyUSDC({
 
     yield* put(
       initializeStripeModal({
-        amount: desiredAmount.toString(),
+        // stripe expects amount in dollars, not cents
+        amount: (desiredAmount / 100).toString(),
         destinationCurrency: 'usdc',
         destinationWallet: userBank.toString(),
         onRampCanceled,
