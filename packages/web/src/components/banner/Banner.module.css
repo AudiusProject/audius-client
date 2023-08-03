@@ -17,10 +17,6 @@
   left: calc(240px + var(--unit-4));
 }
 
-.banner.isMobile {
-  /* height: 72px; */
-}
-
 .iconRemove {
   height: var(--unit-6);
   width: var(--unit-6);
