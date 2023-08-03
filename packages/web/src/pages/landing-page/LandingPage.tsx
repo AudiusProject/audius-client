@@ -51,7 +51,7 @@ const LandingPage = (props: LandingPageProps) => {
   }, [])
 
   // Show fanburst banner if url utm source is present
-  const [showFanburstBanner, setShowFanburstBanner] = useState(true)
+  const [showFanburstBanner, setShowFanburstBanner] = useState(false)
   useEffect(() => {
     if (
       window.location.search &&
