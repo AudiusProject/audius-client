@@ -39,7 +39,12 @@ export const CallToActionBanner = (props: CallToActionBannerProps) => {
       isMobile={client === Client.MOBILE}
       {...bannerProps}
     >
-      <div className={styles.ctaBanner} onClick={onAccept}>
+      <div
+        className={cn(styles.ctaBanner, {
+          [styles.isMobile]: client === Client.MOBILE
+        })}
+        onClick={onAccept}
+      >
         <div className={styles.content}>
           {pill && pillPosition === 'left' ? (
             <Pill

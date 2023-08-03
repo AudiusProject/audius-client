@@ -1,12 +1,12 @@
 .banner {
   position: fixed;
   top: 0;
-  height: 57px;
   width: 100%;
   background: var(--page-header-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0 var(--unit-10);
 }
 
 .banner.isElectron {
@@ -14,13 +14,14 @@
 }
 
 .banner.isMobile {
-  height: 72px;
+  /* height: 72px; */
 }
 
 .iconRemove {
   height: var(--unit-6);
   width: var(--unit-6);
   position: absolute;
+  top: var(--unit-4);
   left: var(--unit-4);
   cursor: pointer;
 }
@@ -36,6 +37,6 @@
 }
 
 .isMobile .iconRemove {
-  align-self: flex-start;
-  margin-top: 8px;
+  top: var(--unit-2);
+  left: var(--unit-2);
 }
