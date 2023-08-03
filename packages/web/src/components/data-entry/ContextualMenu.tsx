@@ -54,16 +54,18 @@ const MenuForm = (props: MenuFormProps) => {
       <ModalHeader>
         <ModalTitle title={label} icon={icon} />
       </ModalHeader>
-      <Form>
-        <ModalContent>{menuFields}</ModalContent>
-        <ModalFooter>
-          <Button
-            type={ButtonType.PRIMARY}
-            text={messages.save}
-            buttonType='submit'
-          />
-        </ModalFooter>
-      </Form>
+      <ModalContent>
+        <Form>
+          {menuFields}
+          <ModalFooter>
+            <Button
+              type={ButtonType.PRIMARY}
+              text={messages.save}
+              buttonType='submit'
+            />
+          </ModalFooter>
+        </Form>
+      </ModalContent>
     </Modal>
   )
 }

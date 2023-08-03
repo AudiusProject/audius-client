@@ -19,18 +19,21 @@ import {
   IconVisibilityPublic,
   RadioButtonGroup
 } from '@audius/stems'
-import { Formik, useField } from 'formik'
+import { useField } from 'formik'
 import { get, isEmpty, set } from 'lodash'
 import { useSelector } from 'react-redux'
 
+import {
+  ContextualMenu,
+  SelectedValue
+} from 'components/data-entry/ContextualMenu'
+import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { HelpCallout } from 'components/help-callout/HelpCallout'
 import { ModalRadioItem } from 'components/modal-radio/ModalRadioItem'
 import { Text } from 'components/typography'
 import { useFlag } from 'hooks/useRemoteConfig'
 import { defaultFieldVisibility } from 'pages/track-page/utils'
 
-import { ModalField } from '../fields/ModalField'
-import { REMIX_OF } from '../fields/RemixSettingsField'
 import {
   defaultHiddenFields,
   HiddenAvailabilityFields
@@ -41,15 +44,16 @@ import {
 } from '../fields/availability/SpecialAccessFields'
 import { CollectibleGatedDescription } from '../fields/availability/collectible-gated/CollectibleGatedDescription'
 import { CollectibleGatedFields } from '../fields/availability/collectible-gated/CollectibleGatedFields'
+import { SingleTrackEditValues } from '../forms/types'
+import { useTrackField } from '../forms/utils'
 
-import styles from './TrackAvailabilityModalForm.module.css'
-import { SingleTrackEditValues } from './types'
-import { useTrackField } from './utils'
+import styles from './AccessAndSaleField.module.css'
+import { REMIX_OF } from './RemixSettingsField'
 const { getSupportedUserCollections } = collectiblesSelectors
 const { getUserId } = accountSelectors
 
 const messages = {
-  title: 'Availability',
+  title: 'Access & Sale',
   description:
     "Customize your music's availability for different audiences, and create personalized gated experiences for your fans.",
   isRemix:
@@ -72,7 +76,19 @@ const messages = {
   hidden: 'Hidden',
   hiddenSubtitle:
     "Hidden tracks won't be visible to your followers. Only you will see them on your profile. Anyone who has the link will be able to listen.",
-  learnMore: 'Learn More'
+  learnMore: 'Learn More',
+  fieldVisibility: {
+    genre: 'Show Genre',
+    mood: 'Show Mood',
+    tags: 'Show Tags',
+    share: 'Show Share Button',
+    play_count: 'Show Play Count',
+    remixes: 'Show Remixes'
+  },
+
+  followersOnly: 'Followers Only',
+  supportersOnly: 'Supporters Only',
+  ownersOf: 'Owners Of'
 }
 
 const IS_UNLISTED = 'is_unlisted'
@@ -83,18 +99,15 @@ export const AVAILABILITY_TYPE = 'availability_type'
 const SPECIAL_ACCESS_TYPE = 'special_access_type'
 export const FIELD_VISIBILITY = 'field_visibility'
 
-export type TrackAvailabilityFormValues = {
+export type AccessAndSaleFormValues = {
+  [IS_UNLISTED]: boolean
   [AVAILABILITY_TYPE]: TrackAvailabilityType
   [PREMIUM_CONDITIONS]: Nullable<PremiumConditions>
   [SPECIAL_ACCESS_TYPE]: Nullable<SpecialAccessType>
   [FIELD_VISIBILITY]: FieldVisibility
 }
 
-/**
- * A modal that allows you to set a track as collectible-gated, special access, or unlisted,
- * as well as toggle individual unlisted metadata field visibility.
- */
-export const TrackAvailabilityModalForm = () => {
+export const AccessAndSaleField = () => {
   // Fields from the outer form
   const [{ value: isUnlistedValue }, , { setValue: setIsUnlistedValue }] =
     useTrackField<SingleTrackEditValues[typeof IS_UNLISTED]>(IS_UNLISTED)
@@ -149,7 +162,7 @@ export const TrackAvailabilityModalForm = () => {
       SPECIAL_ACCESS_TYPE,
       isTipGated ? SpecialAccessType.TIP : SpecialAccessType.FOLLOW
     )
-    return initialValues as TrackAvailabilityFormValues
+    return initialValues as AccessAndSaleFormValues
   }, [
     fieldVisibilityValue,
     isPremiumValue,
@@ -158,7 +171,7 @@ export const TrackAvailabilityModalForm = () => {
   ])
 
   const onSubmit = useCallback(
-    (values: TrackAvailabilityFormValues) => {
+    (values: AccessAndSaleFormValues) => {
       setPremiumConditionsValue(get(values, PREMIUM_CONDITIONS))
       if (get(values, PREMIUM_CONDITIONS)) {
         setIsPremiumValue(true)
@@ -188,44 +201,107 @@ export const TrackAvailabilityModalForm = () => {
     ]
   )
 
-  const preview = (
-    <div className={styles.preview}>
-      <div className={styles.header}>
-        <Text className={styles.title} variant='title' size='large'>
-          {messages.title}
-        </Text>
+  const renderValue = useCallback((value: AccessAndSaleFormValues) => {
+    const {
+      [PREMIUM_CONDITIONS]: premiumConditions,
+      [IS_UNLISTED]: isUnlisted,
+      [FIELD_VISIBILITY]: fieldVisibility
+    } = value
+
+    if (premiumConditions && 'nft_collection' in premiumConditions) {
+      const { nft_collection } = premiumConditions
+      if (!nft_collection) return null
+      const { imageUrl, name } = nft_collection
+
+      return (
+        <>
+          <SelectedValue
+            label={messages.specialAccess}
+            icon={IconSpecialAccess}
+          />
+          <div className={styles.nftOwner}>
+            <Text variant='label' size='small'>
+              {messages.ownersOf}:
+            </Text>
+            <SelectedValue>
+              {imageUrl ? (
+                <DynamicImage
+                  wrapperClassName={styles.nftArtwork}
+                  image={imageUrl}
+                />
+              ) : null}
+              <Text variant='body' strength='strong'>
+                {name}
+              </Text>
+            </SelectedValue>
+          </div>
+        </>
+      )
+    }
+
+    let selectedValues = []
+
+    const specialAccessValue = {
+      label: messages.specialAccess,
+      icon: IconSpecialAccess
+    }
+
+    if (isPremiumContentFollowGated(premiumConditions)) {
+      selectedValues = [specialAccessValue, messages.followersOnly]
+    } else if (isPremiumContentTipGated(premiumConditions)) {
+      selectedValues = [specialAccessValue, messages.supportersOnly]
+    } else if (isUnlisted) {
+      const fieldVisibilityKeys = Object.keys(
+        messages.fieldVisibility
+      ) as Array<keyof FieldVisibility>
+
+      const fieldVisibilityLabels = fieldVisibilityKeys
+        .filter((visibilityKey) => fieldVisibility[visibilityKey])
+        .map((visibilityKey) => messages.fieldVisibility[visibilityKey])
+      selectedValues = [
+        { label: messages.hidden, icon: IconHidden },
+        ...fieldVisibilityLabels
+      ]
+    } else {
+      selectedValues = [{ label: messages.public, icon: IconVisibilityPublic }]
+    }
+
+    return (
+      <div className={styles.value}>
+        {selectedValues.map((value) => {
+          const valueProps =
+            typeof value === 'string' ? { label: value } : value
+          return <SelectedValue key={valueProps.label} {...valueProps} />
+        })}
       </div>
-      <Text>{messages.description}</Text>
-      {/* TODO: Rich preview display */}
-    </div>
-  )
+    )
+  }, [])
 
   return (
-    <Formik<TrackAvailabilityFormValues>
+    <ContextualMenu
+      label={messages.title}
+      description={messages.description}
+      icon={<IconHidden />}
       initialValues={initialValues}
       onSubmit={onSubmit}
-      enableReinitialize
-    >
-      <ModalField
-        title={messages.title}
-        icon={<IconHidden className={styles.titleIcon} />}
-        preview={preview}
-      >
-        <TrackAvailabilityFields
+      renderValue={renderValue}
+      value={initialValues}
+      menuFields={
+        <AccessAndSaleMenuFields
           isRemix={isRemix}
           premiumConditions={premiumConditionsValue}
         />
-      </ModalField>
-    </Formik>
+      }
+    />
   )
 }
 
-type TrackAvailabilityFieldsProps = {
+type AccesAndSaleMenuFieldsProps = {
   premiumConditions: SingleTrackEditValues[typeof PREMIUM_CONDITIONS]
   isRemix: boolean
 }
 
-const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
+const AccessAndSaleMenuFields = (props: AccesAndSaleMenuFieldsProps) => {
   const { isRemix } = props
   const accountUserId = useSelector(getUserId)
   const { isEnabled: isCollectibleGatedEnabled } = useFlag(
@@ -239,7 +315,7 @@ const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
     ,
     { setValue: setPremiumConditionsValue }
   ] =
-    useField<TrackAvailabilityFormValues[typeof PREMIUM_CONDITIONS]>(
+    useField<AccessAndSaleFormValues[typeof PREMIUM_CONDITIONS]>(
       PREMIUM_CONDITIONS
     )
   const [
@@ -247,9 +323,7 @@ const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
     ,
     { setValue: setfieldVisibilityValue }
   ] =
-    useField<TrackAvailabilityFormValues[typeof FIELD_VISIBILITY]>(
-      FIELD_VISIBILITY
-    )
+    useField<AccessAndSaleFormValues[typeof FIELD_VISIBILITY]>(FIELD_VISIBILITY)
 
   const [availabilityField, , { setValue: setAvailabilityValue }] = useField({
     name: AVAILABILITY_TYPE
