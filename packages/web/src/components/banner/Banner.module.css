@@ -13,6 +13,10 @@
   padding-left: 240px;
 }
 
+.banner.isElectron .iconRemove {
+  left: calc(240px + var(--unit-4));
+}
+
 .banner.isMobile {
   /* height: 72px; */
 }

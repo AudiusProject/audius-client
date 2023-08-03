@@ -14,3 +14,8 @@
   /* Keep bottom of album art shadow from getting cut off */
   overflow: visible;
 }
+
+/* Position the navbar over any banners on electron/desktop app */
+.isElectron {
+  position: fixed;
+}
