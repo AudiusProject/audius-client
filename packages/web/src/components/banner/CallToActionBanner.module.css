@@ -62,8 +62,8 @@
 }
 
 .isMobile .arrow {
-  height: var(--unit-3);
-  width: var(--unit-3);
+  height: var(--unit-4);
+  width: var(--unit-4);
 }
 
 .arrow g path {
