@@ -203,7 +203,7 @@ class App extends Component {
     mainContent: null,
 
     // A patch version update of the web app is available
-    showWebUpdateBanner: true,
+    showWebUpdateBanner: false,
     // A version update of the web app is required
     showRequiresWebUpdate: false,
     // A minor version update of the entire electron app is required
@@ -448,6 +448,9 @@ class App extends Component {
           <DownloadAppBanner />
           <DirectMessagesBanner />
           <Web3ErrorBanner />
+          {/* Other banners' logic is self-contained, but since this one uses the IPC 
+            and can result in either required or optional updates, keeping the visibility 
+            controlled from this parent for now */}
           {showWebUpdateBanner ? (
             <UpdateAppBanner
               onAccept={this.acceptWebUpdate}
