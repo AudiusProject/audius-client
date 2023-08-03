@@ -11,7 +11,7 @@ import { CHATS_PAGE } from 'utils/route'
 import { CallToActionBanner } from './CallToActionBanner'
 
 const messages = {
-  text: 'Direct Messaging Out Now! Message Other Artists And Fans Today',
+  text: 'Direct Messaging Now Available!',
   pill: 'New'
 }
 
