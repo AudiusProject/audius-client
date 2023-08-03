@@ -22,7 +22,8 @@ import {
   duplicateAddConfirmationModalUISagas,
   publishPlaylistConfirmationModalUISagas,
   mobileOverflowMenuUISagas,
-  shareModalUISagas
+  shareModalUISagas,
+  stripeModalUISagas
 } from 'store/ui'
 
 import { playlistUpdatesSagas } from './playlist-updates'
@@ -51,6 +52,7 @@ export const sagas = (_ctx: CommonStoreContext) => ({
   searchUsers: searchUsersModalSagas,
   toast: toastSagas,
   shareModalUI: shareModalUISagas,
+  stripeModalUI: stripeModalUISagas,
   mobileOverflowMenuUI: mobileOverflowMenuUISagas,
   deletePlaylistConfirmationModalUI: deletePlaylistConfirmationModalUISagas,
   duplidateAddConfirmationModalUI: duplicateAddConfirmationModalUISagas,

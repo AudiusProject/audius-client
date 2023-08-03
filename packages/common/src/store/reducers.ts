@@ -109,6 +109,8 @@ import shareModalReducer from './ui/share-modal/slice'
 import { ShareModalState } from './ui/share-modal/types'
 import shareSoundToTikTokModalReducer from './ui/share-sound-to-tiktok-modal/slice'
 import { ShareSoundToTikTokModalState } from './ui/share-sound-to-tiktok-modal/types'
+import stripeModalReducer from './ui/stripe-modal/slice'
+import { StripeModalState } from './ui/stripe-modal/types'
 import theme, { ThemeState } from './ui/theme/slice'
 import toastReducer from './ui/toast/slice'
 import transactionDetailsReducer from './ui/transaction-details/slice'
@@ -196,6 +198,7 @@ export const reducers = () => ({
     remixSettings: remixSettingsReducer,
     shareSoundToTikTokModal: shareSoundToTikTokModalReducer,
     shareModal: shareModalReducer,
+    stripeModal: stripeModalReducer,
     searchUsersModal: searchUsersModalReducer,
     toast: toastReducer,
     transactionDetails: transactionDetailsReducer,
@@ -320,6 +323,7 @@ export type CommonState = {
     shareSoundToTikTokModal: ShareSoundToTikTokModalState
     searchUsersModal: SearchUsersModalState
     shareModal: ShareModalState
+    stripeModal: StripeModalState
     toast: ToastState
     transactionDetails: TransactionDetailsState
     userList: {
