@@ -409,8 +409,7 @@ class App extends Component {
   }
 
   render() {
-    const { theme, incrementScroll, decrementScroll, userHandle, hasAccount } =
-      this.props
+    const { theme, incrementScroll, decrementScroll, userHandle } = this.props
 
     const {
       showWebUpdateBanner,
@@ -421,7 +420,6 @@ class App extends Component {
     } = this.state
     const client = getClient()
     const isMobileClient = client === Client.MOBILE
-    const isDesktopClient = client === Client.DESKTOP
 
     if (showRequiresUpdate)
       return (
@@ -446,13 +444,8 @@ class App extends Component {
 
     return (
       <AppBannerWrapper>
-        {isDesktopClient ? (
-          !hasAccount ? (
-            <DownloadAppBanner />
-          ) : (
-            <DirectMessagesBanner />
-          )
-        ) : null}
+        <DownloadAppBanner />
+        <DirectMessagesBanner />
         <Web3ErrorBanner />
         {showWebUpdateBanner ? <UpdateAppBanner /> : null}
         {this.props.isChatEnabled ? <ChatListener /> : null}
