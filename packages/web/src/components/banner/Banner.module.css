@@ -1,5 +1,6 @@
 .banner {
   position: fixed;
+  min-height: 56px;
   top: 0;
   width: 100%;
   background: var(--page-header-gradient);
