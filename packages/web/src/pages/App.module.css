@@ -30,9 +30,9 @@ body {
   overflow: hidden;
 }
 
-.mobileApp {
+.app.mobileApp {
   min-width: var(--mobile-min-width);
-  overflow: auto;
+  overflow: visible;
 }
 
 .notificationWrapper {
