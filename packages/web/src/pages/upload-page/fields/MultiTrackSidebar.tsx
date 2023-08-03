@@ -152,28 +152,30 @@ const TrackRow = (props: TrackRowProps) => {
               isUrl
             />
           </div>
-          <Text
-            size='small'
-            // @ts-ignore TODO: support for accent-red in other themes
-            color={
-              hasError
-                ? '--accent-red'
-                : isSelected
-                ? '--secondary'
-                : '--neutral'
-            }
-          >
-            {isTitleMissing ? messages.titleRequired : title}
-          </Text>
-        </div>
-        {values.trackMetadatas.length > 1 ? (
-          <div className={styles.iconRemove}>
-            <IconTrash
-              fill='--default'
-              onClick={() => handleRemoveTrack(index)}
-            />
+          <div className={styles.trackTitleContainer}>
+            <Text
+              size='small'
+              // @ts-ignore TODO: support for accent-red in other themes
+              color={
+                hasError
+                  ? '--accent-red'
+                  : isSelected
+                  ? '--secondary'
+                  : '--neutral'
+              }
+            >
+              {isTitleMissing ? messages.titleRequired : title}
+            </Text>
           </div>
-        ) : null}
+          {values.trackMetadatas.length > 1 ? (
+            <div className={styles.iconRemove}>
+              <IconTrash
+                fill='--default'
+                onClick={() => handleRemoveTrack(index)}
+              />
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   )

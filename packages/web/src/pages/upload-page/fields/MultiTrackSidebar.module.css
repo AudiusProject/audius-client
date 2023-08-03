@@ -49,6 +49,7 @@
 }
 
 .trackInfo {
+  width: 100%;
   padding: var(--unit-2) var(--unit-4);
 }
 .trackInfo.selected {
@@ -56,6 +57,16 @@
 }
 .trackInfo.error {
   color: var(--accent-red);
+}
+
+.trackTitleContainer {
+  min-width: 0;
+  flex-grow: 1;
+}
+.trackTitleContainer > * {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .selectedIndicator {
@@ -88,7 +99,7 @@
 }
 
 .iconRemove {
-  padding: 0 8px;
+  padding-right: 8px;
   display: none;
 }
 .trackRoot:hover .iconRemove {
