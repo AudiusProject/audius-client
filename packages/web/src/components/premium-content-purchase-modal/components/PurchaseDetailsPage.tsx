@@ -29,6 +29,7 @@ export const PurchaseDetailsPage = ({
   track: UserTrackMetadata
 }) => {
   const dispatch = useDispatch()
+
   const onClickBuy = useCallback(() => {
     dispatch(
       startPurchaseContentFlow({

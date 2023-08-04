@@ -1,3 +1,4 @@
+import BN from 'bn.js'
 import { takeLatest } from 'redux-saga/effects'
 import { call, put, race, select, take } from 'typed-redux-saga'
 
@@ -21,6 +22,7 @@ import { getUSDCUserBank } from 'store/buy-usdc/utils'
 import { getTrack } from 'store/cache/tracks/selectors'
 import { getUser } from 'store/cache/users/selectors'
 import { getContext } from 'store/effects'
+import { setVisibility } from 'store/ui/modals/slice'
 
 import { pollPremiumTrack } from '../premium-content/sagas'
 import { updatePremiumTrackStatus } from '../premium-content/slice'
@@ -155,7 +157,7 @@ function* doStartPurchaseContentFlow({
     )
 
     // buy USDC if necessary
-    if (initialBalance.lt(price)) {
+    if (initialBalance.lt(new BN(price))) {
       yield* put(onBuyUSDC())
       yield* put(
         startBuyUSDCFlow({
@@ -199,6 +201,13 @@ function* doStartPurchaseContentFlow({
 
     // finish
     yield* put(onPurchaseConfirmed())
+
+    yield* put(
+      setVisibility({
+        modal: 'PremiumContentPurchase',
+        visible: false
+      })
+    )
 
     yield* call(
       track,
