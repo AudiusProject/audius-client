@@ -54,18 +54,19 @@ const useStyles = makeStyles(({ spacing, palette, typography }) => ({
 
 type ChatTextInputProps = {
   chatId: string
+  presetMessage?: string
   onMessageSent: () => void
 }
 
 export const ChatTextInput = ({
   chatId,
+  presetMessage,
   onMessageSent
 }: ChatTextInputProps) => {
   const styles = useStyles()
   const dispatch = useDispatch()
   const { primary, primaryDark2 } = useThemeColors()
 
-  const presetMessage = useSelector(getPresetMessage)
   const [inputMessage, setInputMessage] = useState(presetMessage ?? '')
   const hasLength = inputMessage.length > 0
   const hasCurrentlyPlayingTrack = useSelector(getHasTrack)

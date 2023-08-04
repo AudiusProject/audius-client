@@ -8,15 +8,16 @@ const { goToChat } = chatActions
 function* watchGoToChat() {
   yield takeLatest(goToChat, function* (action: ReturnType<typeof goToChat>) {
     const {
-      payload: { chatId }
+      payload: { chatId, presetMessage }
     } = action
     if (navigationRef.isReady()) {
       if (!chatId) {
         // @ts-ignore navigationRef is not parametrized correctly (PAY-1141)
         navigationRef.navigate('ChatList')
       } else {
+        console.log('saga', { presetMessage })
         // @ts-ignore navigationRef is not parametrized correctly (PAY-1141)
-        navigationRef.navigate('Chat', { chatId })
+        navigationRef.navigate('Chat', { chatId, presetMessage })
       }
     }
   })

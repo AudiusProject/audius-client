@@ -108,14 +108,10 @@ export const ShareDrawer = () => {
 
   const handleShareToDirectMessage = useCallback(async () => {
     if (!content) return
-    navigation.navigate('ChatUserList')
-    dispatch(
-      setCreateChatModalState({
-        // Just care about the link
-        presetMessage: getContentUrl(content)
-      })
-    )
-  }, [content, dispatch, navigation])
+    navigation.navigate('ChatUserList', {
+      presetMessage: getContentUrl(content)
+    })
+  }, [content, navigation])
 
   const handleShareToTwitter = useCallback(async () => {
     if (!content) return
