@@ -245,7 +245,6 @@ export const ChatScreen = () => {
 
   const { params } = useRoute<'Chat'>()
   const { chatId, presetMessage } = params
-  console.log({ presetMessage })
   const url = `/chat/${encodeUrlName(chatId ?? '')}`
 
   const hasScrolledToUnreadTag = useRef(false)
