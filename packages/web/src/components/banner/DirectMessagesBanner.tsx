@@ -34,10 +34,6 @@ export const DirectMessagesBanner = () => {
     !hasDismissed && !isMobile && signedIn
   )
 
-  const handleAccept = useCallback(() => {
-    dispatch(pushRoute(CHATS_PAGE))
-  }, [dispatch])
-
   const handleClose = useCallback(() => {
     setIsVisible(false)
     window.localStorage.setItem(
@@ -45,6 +41,12 @@ export const DirectMessagesBanner = () => {
       'true'
     )
   }, [])
+
+  const handleAccept = useCallback(() => {
+    dispatch(pushRoute(CHATS_PAGE))
+    handleClose()
+  }, [dispatch, handleClose])
+
   return isVisible ? (
     <CallToActionBanner
       text={messages.text}

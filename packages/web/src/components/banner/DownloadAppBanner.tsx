@@ -33,14 +33,15 @@ export const DownloadAppBanner = () => {
     !hasDismissed && isDesktopWeb && !signedIn
   )
 
-  const handleAccept = useCallback(() => {
-    dispatch(setAppModalCTAVisibility({ isOpen: true }))
-  }, [dispatch])
-
   const handleClose = useCallback(() => {
     setIsVisible(false)
     window.localStorage.setItem(MOBILE_BANNER_LOCAL_STORAGE_KEY, 'true')
   }, [])
+
+  const handleAccept = useCallback(() => {
+    dispatch(setAppModalCTAVisibility({ isOpen: true }))
+    handleClose()
+  }, [dispatch, handleClose])
 
   return isVisible ? (
     <CallToActionBanner
