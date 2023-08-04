@@ -17,13 +17,20 @@ const messages = {
   text: 'Download the Audius App',
   pill: 'New'
 }
+
+/**
+ * Displays a CTA Banner encouraging the user to downlaod web and mobile apps
+ * if the user is not logged in on desktop web (as logged in users see the Direct Messaging banner)
+ */
 export const DownloadAppBanner = () => {
   const dispatch = useDispatch()
-  const hasAccount = useSelector(getHasAccount)
+  const signedIn = useSelector(getHasAccount)
+  const hasDismissed = window.localStorage.getItem(
+    MOBILE_BANNER_LOCAL_STORAGE_KEY
+  )
+  const isDesktopWeb = getClient() === Client.DESKTOP
   const [isVisible, setIsVisible] = useState(
-    !window.localStorage.getItem(MOBILE_BANNER_LOCAL_STORAGE_KEY) &&
-      getClient() === Client.DESKTOP &&
-      !hasAccount
+    !hasDismissed && isDesktopWeb && !signedIn
   )
 
   const handleAccept = useCallback(() => {

@@ -17,6 +17,9 @@ const messages = {
 const META_MASK_SETUP_URL =
   'https://medium.com/@audius/configuring-metamask-for-use-with-audius-91e24bf6840'
 
+/**
+ * Displays an error banner if the user is trying to use Metamask but it's configured incorrectly
+ */
 export const Web3ErrorBanner = () => {
   const web3Error = useSelector(getWeb3Error)
   const [isVisible, setIsVisible] = useState(web3Error)

@@ -19,13 +19,19 @@ const { getHasAccount } = accountSelectors
 
 const DIRECT_MESSAGES_BANNER_LOCAL_STORAGE_KEY = 'dismissDirectMessagesBanner'
 
+/**
+ * Displays a CTA Banner announcing the launch of Direct Messaging
+ * for logged in users on desktop web and desktop app (since logged out users can't use Direct Messages)
+ */
 export const DirectMessagesBanner = () => {
   const dispatch = useDispatch()
-  const hasAccount = useSelector(getHasAccount)
+  const signedIn = useSelector(getHasAccount)
+  const isMobile = getClient() === Client.MOBILE
+  const hasDismissed = window.localStorage.getItem(
+    DIRECT_MESSAGES_BANNER_LOCAL_STORAGE_KEY
+  )
   const [isVisible, setIsVisible] = useState(
-    !window.localStorage.getItem(DIRECT_MESSAGES_BANNER_LOCAL_STORAGE_KEY) &&
-      (getClient() === Client.DESKTOP || getClient() === Client.ELECTRON) &&
-      hasAccount
+    !hasDismissed && !isMobile && signedIn
   )
 
   const handleAccept = useCallback(() => {

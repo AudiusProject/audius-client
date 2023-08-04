@@ -15,7 +15,9 @@ type FanburstBannerProps = {
   onClose: () => void
   isMobile: boolean
 }
-
+/**
+ * Displays a welcome banner on the landing page when users are coming to Audius from a Fanburst redirect
+ */
 export const FanburstBanner = ({ onClose, isMobile }: FanburstBannerProps) => {
   return (
     <Banner
