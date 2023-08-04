@@ -145,10 +145,7 @@ export const PremiumTrackPurchaseDrawer = () => {
           </View>
           <Text>{messages.disclaimer}</Text>
         </View>
-        <StripePurchaseConfirmationButton
-          trackId={track.track_id}
-          price={price}
-        />
+        <StripePurchaseConfirmationButton price={price} />
       </View>
     </NativeDrawer>
   )

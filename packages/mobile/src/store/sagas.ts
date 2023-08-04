@@ -16,9 +16,7 @@ import {
   searchUsersModalSagas,
   solanaSagas,
   toastSagas,
-  confirmerSagas,
-  purchaseContentSagas,
-  buyUSDCSagas
+  confirmerSagas
 } from '@audius/common'
 import addToPlaylistSagas from 'common/store/add-to-playlist/sagas'
 import analyticsSagas from 'common/store/analytics/sagas'
@@ -125,8 +123,6 @@ export default function* rootSaga() {
 
     // Premium content
     ...premiumContentSagas(),
-    ...purchaseContentSagas(),
-    ...buyUSDCSagas(),
 
     // Search Users
     ...searchUsersModalSagas(),
