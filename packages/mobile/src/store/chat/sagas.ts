@@ -15,7 +15,6 @@ function* watchGoToChat() {
         // @ts-ignore navigationRef is not parametrized correctly (PAY-1141)
         navigationRef.navigate('ChatList')
       } else {
-        console.log('saga', { presetMessage })
         // @ts-ignore navigationRef is not parametrized correctly (PAY-1141)
         navigationRef.navigate('Chat', { chatId, presetMessage })
       }
