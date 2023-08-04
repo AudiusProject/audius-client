@@ -24,8 +24,8 @@ export const DirectMessagesBanner = () => {
   const hasAccount = useSelector(getHasAccount)
   const [isVisible, setIsVisible] = useState(
     !window.localStorage.getItem(DIRECT_MESSAGES_BANNER_LOCAL_STORAGE_KEY) &&
-      ((getClient() === Client.DESKTOP && hasAccount) ||
-        getClient() === Client.ELECTRON)
+      (getClient() === Client.DESKTOP || getClient() === Client.ELECTRON) &&
+      hasAccount
   )
 
   const handleAccept = useCallback(() => {
