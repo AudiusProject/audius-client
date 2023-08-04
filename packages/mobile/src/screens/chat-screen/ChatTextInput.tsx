@@ -1,10 +1,6 @@
 import { useCallback, useState } from 'react'
 
-import {
-  chatActions,
-  createChatModalSelectors,
-  playerSelectors
-} from '@audius/common'
+import { chatActions, playerSelectors } from '@audius/common'
 import { Platform, Pressable } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -17,7 +13,6 @@ import { useThemeColors } from 'app/utils/theme'
 
 const { sendMessage } = chatActions
 const { getHasTrack } = playerSelectors
-const { getPresetMessage } = createChatModalSelectors
 
 const messages = {
   startNewMessage: ' Start a New Message'

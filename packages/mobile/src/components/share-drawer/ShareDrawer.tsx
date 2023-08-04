@@ -3,7 +3,6 @@ import React, { useCallback, useRef } from 'react'
 import {
   accountSelectors,
   collectionsSocialActions,
-  createChatModalActions,
   FeatureFlags,
   shareModalUISelectors,
   shareSoundToTiktokModalActions,
@@ -43,7 +42,6 @@ const { shareUser } = usersSocialActions
 const { shareTrack } = tracksSocialActions
 const { shareCollection } = collectionsSocialActions
 const { getAccountUser } = accountSelectors
-const { setState: setCreateChatModalState } = createChatModalActions
 
 export const shareToastTimeout = 1500
 
