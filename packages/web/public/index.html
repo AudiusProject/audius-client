@@ -86,10 +86,14 @@
     <!-- start Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=%REACT_APP_GA_MEASUREMENT_ID%"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', '%REACT_APP_GA_MEASUREMENT_ID%');
+      const nodeEnv = '%NODE_ENV%'
+      const reactEnv = '%REACT_APP_ENVIRONMENT%'
+      if (nodeEnv === 'production' && reactEnv === 'production') {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '%REACT_APP_GA_MEASUREMENT_ID%');
+      }
     </script>
     <!-- end Google Analytics -->
 
