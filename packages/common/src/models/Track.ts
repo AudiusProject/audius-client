@@ -92,8 +92,8 @@ export type PremiumConditionsTipGated = { tip_user_id: number }
 
 export type PremiumConditionsUSDCPurchase = {
   usdc_purchase: {
-    price: StringUSDC
-    slot: number
+    // TODO: this might change
+    price: number
   }
 }
 
