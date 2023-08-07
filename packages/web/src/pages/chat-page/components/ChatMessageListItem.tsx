@@ -24,6 +24,7 @@ import Linkify from 'linkify-react'
 import { find } from 'linkifyjs'
 import { useDispatch } from 'react-redux'
 
+import { useModalState } from 'common/hooks/useModalState'
 import { useSelector } from 'common/hooks/useSelector'
 import { reactionMap } from 'components/notification/Notification/components/Reaction'
 
@@ -58,6 +59,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   // State
   const [isReactionPopupVisible, setReactionPopupVisible] = useState(false)
   const [emptyUnfurl, setEmptyUnfurl] = useState(false)
+  const [, setLeavingAudiusModalVisibility] = useModalState('LeavingAudius')
 
   // Selectors
   const userId = useSelector(getUserId)
@@ -113,6 +115,12 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
       dispatch(pushRoute(url))
     },
     [dispatch]
+  )
+  const onClickExternalLink = useCallback(
+    (url: string) => {
+      setLeavingAudiusModalVisibility(true)
+    },
+    [setLeavingAudiusModalVisibility]
   )
 
   const handleResendClicked = useCallback(() => {
@@ -223,11 +231,12 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
                   attributes: {
                     onClick: (event: React.MouseEvent<HTMLAnchorElement>) => {
                       const url = event.currentTarget.href
-
+                      event.nativeEvent.preventDefault()
                       if (isAudiusUrl(url)) {
                         const path = getPathFromAudiusUrl(url)
-                        event.nativeEvent.preventDefault()
                         onClickInternalLink(path ?? '/')
+                      } else {
+                        onClickExternalLink(url)
                       }
                     }
                   },

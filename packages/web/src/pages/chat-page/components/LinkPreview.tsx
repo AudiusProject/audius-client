@@ -1,7 +1,9 @@
-import { useEffect } from 'react'
+import { MouseEventHandler, useCallback, useEffect } from 'react'
 
-import { useLinkUnfurlMetadata } from '@audius/common'
+import { isAudiusUrl, useLinkUnfurlMetadata } from '@audius/common'
 import cn from 'classnames'
+
+import { useModalState } from 'common/hooks/useModalState'
 
 import styles from './LinkPreview.module.css'
 
@@ -19,6 +21,17 @@ export const LinkPreview = (props: LinkPreviewProps) => {
   const { description, title, site_name: siteName, image } = metadata
   const willRender = !!(description || title || image)
   const domain = metadata?.url ? new URL(metadata?.url).hostname : ''
+  const [, setLeavingAudiusModalVisibility] = useModalState('LeavingAudius')
+
+  const handleClick: MouseEventHandler<HTMLAnchorElement> = useCallback(
+    (e) => {
+      if (!isAudiusUrl(e.currentTarget.href)) {
+        e.nativeEvent.preventDefault()
+        setLeavingAudiusModalVisibility(true)
+      }
+    },
+    [setLeavingAudiusModalVisibility]
+  )
 
   useEffect(() => {
     if (willRender) {
@@ -35,6 +48,7 @@ export const LinkPreview = (props: LinkPreviewProps) => {
       title={title || siteName || description || 'View Image'}
       target={'_blank'}
       rel='noreferrer noopener'
+      onClick={handleClick}
     >
       {description || title ? (
         <>
