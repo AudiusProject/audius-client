@@ -8,11 +8,13 @@ import {
   isPremiumContentCollectibleGated,
   isPremiumContentFollowGated,
   isPremiumContentTipGated,
+  isPremiumContentUSDCPurchaseGated,
   Nullable,
   PremiumConditions,
   TrackAvailabilityType
 } from '@audius/common'
 import {
+  IconCart,
   IconCollectible,
   IconHidden,
   IconSpecialAccess,
@@ -38,6 +40,7 @@ import {
   SpecialAccessFields,
   SpecialAccessType
 } from '../fields/availability/SpecialAccessFields'
+import { UsdcPurchaseFields } from '../fields/availability/UsdcPurchaseFields'
 import { CollectibleGatedDescription } from '../fields/availability/collectible-gated/CollectibleGatedDescription'
 import { CollectibleGatedFields } from '../fields/availability/collectible-gated/CollectibleGatedFields'
 
@@ -58,6 +61,9 @@ const messages = {
   public: 'Public (Default)',
   publicSubtitle:
     'Public tracks are visible to all users and appear throughout Audius.',
+  usdcPurchase: 'Premium (Pay-to-Unlock)',
+  usdcPurchaseSubtitle:
+    'Unlockable by purchase, these tracks are visible to everyone but only playable by users who have paid for access.',
   specialAccess: 'Special Access',
   specialAccessSubtitle:
     'Special Access tracks are only available to users who meet certain criteria, such as following the artist.',
@@ -82,12 +88,14 @@ export const PREMIUM_CONDITIONS = 'premium_conditions'
 export const AVAILABILITY_TYPE = 'availability_type'
 const SPECIAL_ACCESS_TYPE = 'special_access_type'
 export const FIELD_VISIBILITY = 'field_visibility'
+export const PREVIEW = 'PREVIEW'
 
 export type TrackAvailabilityFormValues = {
   [AVAILABILITY_TYPE]: TrackAvailabilityType
   [PREMIUM_CONDITIONS]: Nullable<PremiumConditions>
   [SPECIAL_ACCESS_TYPE]: Nullable<SpecialAccessType>
   [FIELD_VISIBILITY]: FieldVisibility
+  [PREVIEW]?: number
 }
 
 /**
@@ -118,6 +126,10 @@ export const TrackAvailabilityModalForm = () => {
     )
   const [{ value: remixOfValue }] =
     useTrackField<SingleTrackEditValues[typeof REMIX_OF]>(REMIX_OF)
+
+  const [{ value: previewValue }, , { setValue: setPreviewValue }] =
+    useField<TrackAvailabilityFormValues[typeof PREVIEW]>(PREVIEW)
+
   const isRemix = !isEmpty(remixOfValue?.tracks)
 
   const initialValues = useMemo(() => {
@@ -130,6 +142,7 @@ export const TrackAvailabilityModalForm = () => {
     set(initialValues, IS_UNLISTED, isUnlistedValue)
     set(initialValues, IS_PREMIUM, isPremiumValue)
     set(initialValues, PREMIUM_CONDITIONS, premiumConditionsValue)
+    set(initialValues, PREVIEW, previewValue)
 
     let availabilityType = TrackAvailabilityType.PUBLIC
     if (isFollowGated || isTipGated) {
@@ -144,6 +157,7 @@ export const TrackAvailabilityModalForm = () => {
     // TODO: USDC gated type
     set(initialValues, AVAILABILITY_TYPE, availabilityType)
     set(initialValues, FIELD_VISIBILITY, fieldVisibilityValue)
+    set(initialValues, PREVIEW, previewValue)
     set(
       initialValues,
       SPECIAL_ACCESS_TYPE,
@@ -154,7 +168,8 @@ export const TrackAvailabilityModalForm = () => {
     fieldVisibilityValue,
     isPremiumValue,
     isUnlistedValue,
-    premiumConditionsValue
+    premiumConditionsValue,
+    previewValue
   ])
 
   const onSubmit = useCallback(
@@ -162,6 +177,11 @@ export const TrackAvailabilityModalForm = () => {
       setPremiumConditionsValue(get(values, PREMIUM_CONDITIONS))
       if (get(values, PREMIUM_CONDITIONS)) {
         setIsPremiumValue(true)
+      }
+      if (
+        get(values, AVAILABILITY_TYPE) === TrackAvailabilityType.USDC_PURCHASE
+      ) {
+        setPreviewValue(get(values, PREVIEW))
       }
       if (get(values, AVAILABILITY_TYPE) === TrackAvailabilityType.HIDDEN) {
         setFieldVisibilityValue({
@@ -184,7 +204,8 @@ export const TrackAvailabilityModalForm = () => {
       setFieldVisibilityValue,
       setIsPremiumValue,
       setIsUnlistedValue,
-      setPremiumConditionsValue
+      setPremiumConditionsValue,
+      setPreviewValue
     ]
   )
 
@@ -228,6 +249,7 @@ type TrackAvailabilityFieldsProps = {
 const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
   const { isRemix } = props
   const accountUserId = useSelector(getUserId)
+  const { isEnabled: isUsdcEnabled } = useFlag(FeatureFlags.USDC_PURCHASES)
   const { isEnabled: isCollectibleGatedEnabled } = useFlag(
     FeatureFlags.COLLECTIBLE_GATED_ENABLED
   )
@@ -250,6 +272,8 @@ const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
     useField<TrackAvailabilityFormValues[typeof FIELD_VISIBILITY]>(
       FIELD_VISIBILITY
     )
+  const [{ value: previewValue }, , { setValue: setPreviewValue }] =
+    useField<TrackAvailabilityFormValues[typeof PREVIEW]>(PREVIEW)
 
   const [availabilityField, , { setValue: setAvailabilityValue }] = useField({
     name: AVAILABILITY_TYPE
@@ -263,6 +287,7 @@ const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
 
   const noCollectibleGate = !hasCollectibles
   const noSpecialAccess = isRemix
+  const noUsdcPurchase = isRemix // TODO: support edit
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -270,6 +295,15 @@ const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
       switch (type) {
         case TrackAvailabilityType.PUBLIC: {
           setPremiumConditionsValue(null)
+          break
+        }
+        case TrackAvailabilityType.USDC_PURCHASE: {
+          if (!isPremiumContentUSDCPurchaseGated(premiumConditionsValue)) {
+            setPremiumConditionsValue(null)
+          }
+          if (!previewValue) {
+            setPreviewValue(0)
+          }
           break
         }
         case TrackAvailabilityType.SPECIAL_ACCESS: {
@@ -303,8 +337,10 @@ const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
       accountUserId,
       fieldVisibilityValue,
       premiumConditionsValue,
+      previewValue,
       setAvailabilityValue,
       setPremiumConditionsValue,
+      setPreviewValue,
       setfieldVisibilityValue
     ]
   )
@@ -321,6 +357,17 @@ const TrackAvailabilityFields = (props: TrackAvailabilityFieldsProps) => {
           description={messages.publicSubtitle}
           value={TrackAvailabilityType.PUBLIC}
         />
+        {isUsdcEnabled ? (
+          <ModalRadioItem
+            icon={<IconCart />}
+            label={messages.usdcPurchase}
+            description={messages.usdcPurchaseSubtitle}
+            value={TrackAvailabilityType.USDC_PURCHASE}
+            disabled={noUsdcPurchase}
+            checkedContent={<UsdcPurchaseFields disabled={noSpecialAccess} />}
+          />
+        ) : null}
+
         {isSpecialAccessEnabled ? (
           <ModalRadioItem
             icon={<IconSpecialAccess />}
