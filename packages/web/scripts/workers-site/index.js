@@ -137,7 +137,7 @@ class HeadElementHandler {
     const { metadata, name } = await getMetadata(self.pathname)
 
     if (!metadata || !name) {
-      // We did parse this to anything we have custom tags for, so just return the default tags
+      // We didn't parse this to anything we have custom tags for, so just return the default tags
       const tags = `<meta property="og:title" content="Audius - Empowering Creators">
       <meta name="description" content="Audius is a music streaming and sharing platform that puts power back into the hands of content creators." data-react-helmet="true">
       <meta property="og:description" content="Audius is a music streaming and sharing platform that puts power back into the hands of content creators.">
