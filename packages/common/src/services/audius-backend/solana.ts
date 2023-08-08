@@ -88,6 +88,24 @@ type CreateUserBankIfNeededConfig = UserBankConfig & {
   feePayerOverride: string
 }
 
+type CreateUserBankIfNeededErrorResult = {
+  error: string
+  errorCode: string | number | null
+}
+type CreateUserBankIfNeededSuccessResult = {
+  didExist: boolean
+  userbank: PublicKey
+}
+type CreateUserBankIfNeededResult =
+  | CreateUserBankIfNeededSuccessResult
+  | CreateUserBankIfNeededErrorResult
+
+function isCreateUserBankIfNeededError(
+  res: CreateUserBankIfNeededResult
+): res is CreateUserBankIfNeededErrorResult {
+  return 'error' in res
+}
+
 /**
  * Attempts to create a userbank if one does not exist.
  * Defaults to AUDIO mint and the current user's wallet.
@@ -107,66 +125,56 @@ export const createUserBankIfNeeded = async (
     ethAddress ?? audiusLibs.Account!.getCurrentUser()?.wallet
 
   if (!recipientEthAddress) {
-    console.error(
-      "createUserBankIfNeeded: Unexpectedly couldn't get recipient eth address"
+    throw new Error(
+      `createUserBankIfNeeded: Unexpectedly couldn't get recipient eth address`
     )
-    return
   }
 
   try {
-    const res = await audiusLibs.solanaWeb3Manager!.createUserBankIfNeeded({
-      feePayerOverride,
-      ethAddress: recipientEthAddress,
-      mint
-    })
+    const res: CreateUserBankIfNeededResult =
+      await audiusLibs.solanaWeb3Manager!.createUserBankIfNeeded({
+        feePayerOverride,
+        ethAddress: recipientEthAddress,
+        mint
+      })
+
+    if (isCreateUserBankIfNeededError(res)) {
+      // Will catch and log below
+      throw res
+    }
 
     // If it already existed, return early
-    if ('didExist' in res && res.didExist) {
+    if (res.didExist) {
       console.log('Userbank already exists')
-      return
-    }
+    } else {
+      // Otherwise we must have tried to create one
+      console.info(`Userbank doesn't exist, attempted to create...`)
 
-    // Otherwise we must have tried to create one
-    console.info(`Userbank doesn't exist, attempted to create...`)
-
-    recordAnalytics({
-      eventName: Name.CREATE_USER_BANK_REQUEST,
-      properties: { mint, recipientEthAddress }
-    })
-
-    // Handle error case
-    if ('error' in res) {
-      console.error(
-        `Failed to create userbank, with err: ${res.error}, ${res.errorCode}`
-      )
       recordAnalytics({
-        eventName: Name.CREATE_USER_BANK_FAILURE,
-        properties: {
-          mint,
-          recipientEthAddress,
-          errorCode: res.errorCode,
-          error: (res.error as any).toString()
-        }
+        eventName: Name.CREATE_USER_BANK_REQUEST,
+        properties: { mint, recipientEthAddress }
       })
-      return
     }
 
-    // Handle success case
-    console.log(`Successfully created userbank!`)
     recordAnalytics({
       eventName: Name.CREATE_USER_BANK_SUCCESS,
       properties: { mint, recipientEthAddress }
     })
-  } catch (err) {
+    return res.userbank
+  } catch (err: any) {
+    // Catching error here for analytics purposes
+    const errorMessage = 'error' in err ? err.error : (err as any).toString()
+    const errorCode = 'errorCode' in err ? err.errorCode : undefined
     recordAnalytics({
       eventName: Name.CREATE_USER_BANK_FAILURE,
       properties: {
         mint,
         recipientEthAddress,
-        errorMessage: (err as any).toString()
+        errorCode,
+        errorMessage
       }
     })
-    console.error(`Failed to create userbank, with err: ${err}`)
+    throw new Error(`Failed to create user bank: ${errorMessage}`)
   }
 }
 

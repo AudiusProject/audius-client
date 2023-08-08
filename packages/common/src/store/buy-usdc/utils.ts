@@ -1,9 +1,6 @@
 import { call, select } from 'typed-redux-saga'
 
-import {
-  createUserBankIfNeeded,
-  deriveUserBankPubkey
-} from 'services/audius-backend/solana'
+import { createUserBankIfNeeded } from 'services/audius-backend/solana'
 import { getContext } from 'store/effects'
 import { getFeePayer } from 'store/solana/selectors'
 
@@ -18,16 +15,10 @@ export function* getUSDCUserBank(ethAddress?: string) {
   if (!feePayerOverride) {
     throw new Error('getUSDCUserBank: unexpectedly no fee payer override')
   }
-  yield* call(createUserBankIfNeeded, audiusBackendInstance, {
+  return yield* call(createUserBankIfNeeded, audiusBackendInstance, {
     ethAddress,
     feePayerOverride,
     mint: 'usdc',
     recordAnalytics: track
-  })
-
-  // TODO: Any errors to handle here?
-  return yield* call(deriveUserBankPubkey, audiusBackendInstance, {
-    ethAddress,
-    mint: 'usdc'
   })
 }
