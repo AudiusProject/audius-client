@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 
+import { useLeavingAudiusModal } from '@audius/common'
 import {
   HarmonyButton,
   HarmonyButtonType,
@@ -11,8 +12,6 @@ import {
   ModalHeader,
   ModalTitle
 } from '@audius/stems'
-
-import { useModalState } from 'common/hooks/useModalState'
 
 import { HelpCallout } from '../help-callout/HelpCallout'
 
@@ -26,15 +25,13 @@ const messages = {
 }
 
 export const LeavingAudiusModal = () => {
-  const [isOpen, setIsOpen] = useModalState('LeavingAudius')
-  const link =
-    'https://blog.audius.co/article/easy-goin-and-free-flowin-hot-new-7-24-23'
+  const [{ isOpen, link }, , close] = useLeavingAudiusModal()
   const handleOpen = useCallback(() => {
     window.open(link, '_blank', 'noreferrer,noopener')
-  }, [])
+  }, [link])
   const handleClose = useCallback(() => {
-    setIsOpen(false)
-  }, [setIsOpen])
+    close()
+  }, [close])
   return (
     <Modal
       bodyClassName={styles.modalBody}

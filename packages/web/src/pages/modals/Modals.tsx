@@ -72,8 +72,7 @@ const commonModalsMap: { [Modal in ModalTypes]?: ComponentType } = {
   BrowserPushPermissionConfirmation: BrowserPushConfirmationModal,
   ShareSoundToTikTok: ShareSoundToTikTokModal,
   AiAttributionSettings: AiAttributionSettingsModal,
-  PremiumContentPurchase: PremiumContentPurchaseModal,
-  LeavingAudius: LeavingAudiusModal
+  PremiumContentPurchase: PremiumContentPurchaseModal
 }
 
 const commonModals = Object.entries(commonModalsMap) as [
@@ -104,6 +103,7 @@ const Modals = () => {
           <EditPlaylistModal />
           <ConnectedUserListModal />
           <AppCTAModal />
+          <LeavingAudiusModal />
 
           {/* dev-mode hot-key modals */}
           <ConfirmerPreview />

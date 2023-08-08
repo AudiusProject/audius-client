@@ -15,7 +15,8 @@ import {
   isCollectionUrl,
   ChatMessageWithExtras,
   Status,
-  useCanSendMessage
+  useCanSendMessage,
+  useLeavingAudiusModal
 } from '@audius/common'
 import { IconError, IconPlus, PopupPosition } from '@audius/stems'
 import cn from 'classnames'
@@ -24,7 +25,6 @@ import Linkify from 'linkify-react'
 import { find } from 'linkifyjs'
 import { useDispatch } from 'react-redux'
 
-import { useModalState } from 'common/hooks/useModalState'
 import { useSelector } from 'common/hooks/useSelector'
 import { reactionMap } from 'components/notification/Notification/components/Reaction'
 
@@ -59,7 +59,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   // State
   const [isReactionPopupVisible, setReactionPopupVisible] = useState(false)
   const [emptyUnfurl, setEmptyUnfurl] = useState(false)
-  const [, setLeavingAudiusModalVisibility] = useModalState('LeavingAudius')
+  const [, openLeavingAudiusModal] = useLeavingAudiusModal()
 
   // Selectors
   const userId = useSelector(getUserId)
@@ -118,9 +118,9 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   )
   const onClickExternalLink = useCallback(
     (url: string) => {
-      setLeavingAudiusModalVisibility(true)
+      openLeavingAudiusModal({ link: url })
     },
-    [setLeavingAudiusModalVisibility]
+    [openLeavingAudiusModal]
   )
 
   const handleResendClicked = useCallback(() => {
