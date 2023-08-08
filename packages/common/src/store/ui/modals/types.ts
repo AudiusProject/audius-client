@@ -37,6 +37,5 @@ export type Modals =
   | 'AiAttributionSettings'
   | 'DuplicateAddConfirmation'
   | 'PremiumContentPurchase'
-  | 'LeavingAudius'
 
 export type ModalsState = { [modal in Modals]: boolean | 'closing' }
