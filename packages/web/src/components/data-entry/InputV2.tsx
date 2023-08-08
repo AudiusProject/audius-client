@@ -2,10 +2,12 @@ import { ComponentPropsWithoutRef, MutableRefObject, RefCallback } from 'react'
 
 import cn from 'classnames'
 
+import layoutStyles from 'components/layout/layout.module.css'
+import { Text } from 'components/typography'
+
 import { HelperText } from './HelperText'
 import styles from './InputV2.module.css'
 import { useFocusState } from './useFocusState'
-
 export enum InputV2Size {
   SMALL,
   MEDIUM,
@@ -29,6 +31,8 @@ export type InputV2Props = Omit<ComponentPropsWithoutRef<'input'>, 'size'> & {
   inputClassName?: string
   label?: string
   helperText?: string
+  prefix?: string
+  suffix?: string
 }
 
 export const InputV2 = (props: InputV2Props) => {
@@ -51,6 +55,8 @@ export const InputV2 = (props: InputV2Props) => {
     onBlur: onBlurProp,
     placeholder,
     helperText,
+    prefix,
+    suffix,
     ...other
   } = props
 
@@ -80,23 +86,32 @@ export const InputV2 = (props: InputV2Props) => {
   }
 
   const input = (
-    <input
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      ref={inputRef}
-      required={required}
-      className={cn(styles.textInput, inputClassName)}
-      value={value}
-      maxLength={maxLength}
-      disabled={disabled}
-      placeholder={isFocused ? placeholder : undefined}
-      {...other}
-    />
+    <div className={cn(styles.inputRow, layoutStyles.row)}>
+      <div className={layoutStyles.row}>
+        <input
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          ref={inputRef}
+          required={required}
+          className={cn(styles.textInput, inputClassName)}
+          value={value}
+          maxLength={maxLength}
+          disabled={disabled}
+          placeholder={isFocused ? placeholder : undefined}
+          {...other}
+        />
+      </div>
+    </div>
   )
 
   return (
     <>
       <div className={cn(styles.root, style, className)}>
+        {prefix ? (
+          <Text variant='label' size='large' color='--neutral-light-2'>
+            {prefix}
+          </Text>
+        ) : null}
         {elevatePlaceholder ? (
           <label className={styles.elevatedLabel}>
             <span
@@ -120,6 +135,11 @@ export const InputV2 = (props: InputV2Props) => {
           </div>
         )}
         {children}
+        {suffix ? (
+          <Text variant='label' size='large' color='--neutral-light-2'>
+            {suffix}
+          </Text>
+        ) : null}
       </div>
       {helperText ? <HelperText error={error}>{helperText}</HelperText> : null}
     </>

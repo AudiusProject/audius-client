@@ -94,6 +94,8 @@ export type PremiumConditionsUSDCPurchase = {
   usdc_purchase: {
     // TODO: this might change
     price: number
+    // splits: { [usdc_user_bank: string]: portion of price (in wei) }
+    splits: { [usdc_user_bank: string]: number }
   }
 }
 
