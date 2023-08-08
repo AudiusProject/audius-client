@@ -1,15 +1,14 @@
+import { BooleanKeys, FeatureFlags } from '@audius/common'
 import { sdk, AudiusSdk, AudiusLibs } from '@audius/sdk'
 
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 import { discoveryNodeSelectorService } from 'services/audius-sdk/discoveryNodeSelector'
 import { getStorageNodeSelector } from 'services/audius-sdk/storageNodeSelector'
 import { makeEntityManagerInstance } from 'services/entity-manager'
+import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
+import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 
 import { auth } from './auth'
-import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
-import { BooleanKeys } from '@audius/common'
-import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
-import { FeatureFlags } from '@audius/common'
 
 declare global {
   interface Window {
@@ -33,17 +32,21 @@ const initSdk = async () => {
   const discoveryNodeSelector = await discoveryNodeSelectorService.getInstance()
   console.info('[audiusSdk] Waiting for remoteConfig init...')
   await remoteConfigInstance.waitForRemoteConfig()
-  const networkUseDiscoveryRelay = remoteConfigInstance.getRemoteVar(
-    BooleanKeys.USE_DISCOVERY_RELAY
-  ) ?? false
+  const networkUseDiscoveryRelay =
+    remoteConfigInstance.getRemoteVar(BooleanKeys.USE_DISCOVERY_RELAY) ?? false
   const userUseDiscoveryRelay = getFeatureEnabled(FeatureFlags.DISCOVERY_RELAY)
-  console.info(`[audiusSdk] Discovery relay for network ${networkUseDiscoveryRelay} and user ${userUseDiscoveryRelay}`)
+  console.info(
+    `[audiusSdk] Discovery relay for network ${networkUseDiscoveryRelay} and user ${userUseDiscoveryRelay}`
+  )
   const useDiscoveryRelay = networkUseDiscoveryRelay || userUseDiscoveryRelay
   const audiusSdk = sdk({
     appName: 'audius-client',
     services: {
       discoveryNodeSelector,
-      entityManager: makeEntityManagerInstance(discoveryNodeSelector, useDiscoveryRelay),
+      entityManager: makeEntityManagerInstance(
+        discoveryNodeSelector,
+        useDiscoveryRelay
+      ),
       auth,
       storageNodeSelector: await getStorageNodeSelector()
     }

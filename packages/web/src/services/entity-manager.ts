@@ -17,7 +17,7 @@ const servicesConfig =
 
 export const makeEntityManagerInstance = (
   discoveryNodeSelector: DiscoveryNodeSelectorService,
-  useDiscoveryRelay = false,
+  useDiscoveryRelay = false
 ) => {
   return new EntityManager({
     contractAddress: servicesConfig.entityManagerContractAddress,
