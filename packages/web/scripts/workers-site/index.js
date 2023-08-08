@@ -1,8 +1,12 @@
 import { getAssetFromKV, mapRequestToAsset } from '@cloudflare/kv-asset-handler'
 
-/* globals GA, GA_ACCESS_TOKEN, SITEMAP */
+/* globals GA, GA_ACCESS_TOKEN, SITEMAP, DISCOVERY_NODES, HTMLRewriter */
 
 const DEBUG = false
+
+const discoveryNodes = DISCOVERY_NODES.split(',')
+const discoveryNode =
+  discoveryNodes[Math.floor(Math.random() * discoveryNodes.length)]
 
 const routes = [
   { pattern: /^\/([^/]+)$/, name: 'user', keys: ['handle'] },
@@ -62,69 +66,149 @@ function checkIsBot(val) {
 }
 
 async function getMetadata(pathname) {
-  const discoveryNode = 'https://discoveryprovider.audius.co'
-  let discoveryRequestPath
+  if (pathname.startsWith('/scripts')) {
+    return { metadata: null, name: null }
+  }
+
   const route = matchRoute(pathname)
+  if (!route) {
+    return { metadata: null, name: null }
+  }
+
+  let discoveryRequestPath
   switch (route.name) {
     case 'user': {
       const { handle } = route.params
+      if (!handle) return { metadata: null, name: null }
       discoveryRequestPath = `v1/users/handle/${handle}`
       break
     }
     case 'track': {
       const { handle, title } = route.params
+      if (!handle || !title) return { metadata: null, name: null }
       discoveryRequestPath = `v1/tracks?handle=${handle}&slug=${title}`
       break
     }
     case 'playlist': {
       const { handle, title } = route.params
-      discoveryRequestPath = `v1/full/playlists/by_permalink/${handle}/${title}`
+      if (!handle || !title) return { metadata: null, name: null }
+      discoveryRequestPath = `v1/resolve?url=${pathname}`
+      // TODO: Uncomment when by_permalink routes are working properly
+      // discoveryRequestPath = `v1/full/playlists/by_permalink/${handle}/${title}`
       break
     }
     case 'album': {
       const { handle, title } = route.params
-      discoveryRequestPath = `v1/full/playlists/by_permalink/${handle}/${title}`
+      if (!handle || !title) return { metadata: null, name: null }
+      discoveryRequestPath = `v1/resolve?url=${pathname}`
+      // TODO: Uncomment when by_permalink routes are working properly
+      // discoveryRequestPath = `v1/full/playlists/by_permalink/${handle}/${title}`
       break
     }
     default:
-      return null
+      return { metadata: null, name: null }
   }
   try {
     const res = await fetch(`${discoveryNode}/${discoveryRequestPath}`)
     if (res.status !== 200) {
       throw new Error(res.status)
     }
-    const json = res.json()
+    const json = await res.json()
     return { metadata: json, name: route.name }
   } catch (e) {
-    return null
+    return { metadata: null, name: null }
   }
 }
 
-async function injectHead(asset, { title, description, image, permalink }) {
-  const canonicalUrl = `https://audius.co/${permalink}`
-  const tags = `
-    <title>${title}</title>
-    <meta name="description" content="${description}">
+function clean(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
 
-    <link rel="canonical" href="${canonicalUrl}">
-
-    <meta property="og:title" content="${title}">
-    <meta property="og:description" content="${description}">
-    <meta property="og:image" content="${image}">
-    <meta property="og:url" content="${canonicalUrl}">
-
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="${title}">
-    <meta name="twitter:description" content="${description}">
-    <meta name="twitter:image" content="${canonicalUrl}">
-`
-
-  if (typeof asset === 'string' && asset.includes('</head>')) {
-    asset = asset.replace('</head>', tags + '</head>')
+class HeadElementHandler {
+  constructor(pathname) {
+    self.pathname = pathname
   }
 
-  return asset
+  async element(element) {
+    const { metadata, name } = await getMetadata(self.pathname)
+
+    if (!metadata || !name) {
+      // We did parse this to anything we have custom tags for, so just return the default tags
+      const tags = `<meta property="og:title" content="Audius - Empowering Creators">
+      <meta name="description" content="Audius is a music streaming and sharing platform that puts power back into the hands of content creators." data-react-helmet="true">
+      <meta property="og:description" content="Audius is a music streaming and sharing platform that puts power back into the hands of content creators.">
+      <meta property="og:image" content="https://audius.co/ogImage.jpg">
+      <meta name="twitter:title" content="Audius - Empowering Creators">
+      <meta name="twitter:description" content="Audius is a music streaming and sharing platform that puts power back into the hands of content creators.">
+      <meta name="twitter:image" content="https://audius.co/ogImage.jpg">
+      <meta name="twitter:image:alt" content="The Audius Platform">`
+      element.append(tags, { html: true })
+      return
+    }
+
+    let title, description, ogDescription, image, permalink
+    switch (name) {
+      case 'user': {
+        title = `Stream ${metadata.data.name} on Audius`
+        description = `Play ${metadata.data.name} on Audius | Listen to tracks, albums, playlists on desktop and mobile on Audius.`
+        ogDescription = metadata.data.bio || description
+        image = metadata.data.profile_picture
+          ? metadata.data.profile_picture['1000x1000']
+          : ''
+        permalink = `/${metadata.data.handle}`
+        break
+      }
+      case 'track': {
+        description = `Stream ${metadata.data.title} by ${metadata.data.user.name} on Audius. Listen on desktop and mobile.`
+        title = `${metadata.data.title} | Stream ${metadata.data.user.name}`
+        ogDescription = metadata.data.description || description
+        image = metadata.data.artwork ? metadata.data.artwork['1000x1000'] : ''
+        permalink = metadata.data.permalink
+        break
+      }
+      case 'playlist': {
+        description = `Listen to ${metadata.data[0].playlist_name}, a playlist curated by ${metadata.data[0].user.name} on desktop and mobile.`
+        title = `${metadata.data[0].playlist_name} | Playlist by ${metadata.data[0].user.name}`
+        ogDescription = metadata.data[0].description || ''
+        image = metadata.data[0].artwork
+          ? metadata.data[0].artwork['1000x1000']
+          : ''
+        permalink = metadata.data[0].permalink
+        break
+      }
+      case 'album': {
+        description = `Listen to ${metadata.data[0].playlist_name}, a playlist curated by ${metadata.data[0].user.name} on desktop and mobile.`
+        title = `${metadata.data[0].playlist_name} | Playlist by ${metadata.data[0].user.name}`
+        ogDescription = metadata.data[0].description || ''
+        image = metadata.data[0].artwork
+          ? metadata.data[0].artwork['1000x1000']
+          : ''
+        permalink = metadata.data[0].permalink
+        break
+      }
+      default:
+        return
+    }
+    const tags = `<title>${clean(title)}</title>
+    <meta name="description" content="${clean(description)}">
+
+    <link rel="canonical" href="https://audius.co${permalink}">
+
+    <meta property="og:title" content="${clean(title)}">
+    <meta property="og:description" content="${clean(ogDescription)}">
+    <meta property="og:image" content="${image}">
+    <meta property="og:url" content="https://audius.co${permalink}">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="${clean(title)}">
+    <meta name="twitter:description" content="${clean(ogDescription)}">
+    <meta name="twitter:image" content=https://audius.co${permalink}">`
+    element.append(tags, { html: true })
+  }
 }
 
 async function handleEvent(event) {
@@ -182,49 +266,11 @@ async function handleEvent(event) {
     }
 
     const asset = await getAssetFromKV(event, options)
-    let modifiedAsset
-    const { metadata, name } = await getMetadata(pathname)
-    switch (name) {
-      case 'user': {
-        modifiedAsset = injectHead(asset, {
-          title: `${metadata.data.name} (@${metadata.data.name})`,
-          description: metadata.data.bio || '',
-          image: metadata.data.profile_picture['1000x1000'] || '',
-          permalink: metadata.data.handle
-        })
-        break
-      }
-      case 'track': {
-        modifiedAsset = injectHead(asset, {
-          title: `${metadata.data.title} by ${metadata.user.name}`,
-          description: metadata.data.description || '',
-          image: metadata.data.artwork['1000x1000'] || '',
-          permalink: metadata.data.permalink
-        })
-        break
-      }
-      case 'playlist': {
-        modifiedAsset = injectHead(asset, {
-          title: `${metadata.data.playlist_name} by ${metadata.user.name}`,
-          description: metadata.data.description || '',
-          image: metadata.data.artwork['1000x1000'] || '',
-          permalink: metadata.data.permalink
-        })
-        break
-      }
-      case 'album': {
-        modifiedAsset = injectHead(asset, {
-          title: `${metadata.data.playlist_name} by ${metadata.user.name}`,
-          description: metadata.data.description || '',
-          image: metadata.data.artwork['1000x1000'] || '',
-          permalink: metadata.data.permalink
-        })
-        break
-      }
-      default:
-        return null
-    }
-    return modifiedAsset
+
+    const rewritten = new HTMLRewriter()
+      .on('head', new HeadElementHandler(pathname))
+      .transform(asset)
+    return rewritten
   } catch (e) {
     return new Response(e.message || e.toString(), { status: 500 })
   }
