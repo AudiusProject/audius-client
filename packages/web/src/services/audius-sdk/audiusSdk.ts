@@ -8,6 +8,8 @@ import { makeEntityManagerInstance } from 'services/entity-manager'
 import { auth } from './auth'
 import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
 import { BooleanKeys } from '@audius/common/dist/services/remote-config/types'
+import { getFeatureEnabled } from 'services/remote-config/featureFlagHelpers'
+import { FeatureFlags } from '@audius/common'
 
 declare global {
   interface Window {
@@ -31,9 +33,12 @@ const initSdk = async () => {
   const discoveryNodeSelector = await discoveryNodeSelectorService.getInstance()
   console.debug('[audiusSdk] Waiting for remoteConfig init...')
   await remoteConfigInstance.waitForRemoteConfig()
-  const useDiscoveryRelay = remoteConfigInstance.getRemoteVar(
+  const networkUseDiscoveryRelay = remoteConfigInstance.getRemoteVar(
     BooleanKeys.USE_DISCOVERY_RELAY
   ) ?? false
+  const userUseDiscoveryRelay = getFeatureEnabled(FeatureFlags.DISCOVERY_RELAY)
+  console.debug(`[audiusSdk] Discovery relay for network ${networkUseDiscoveryRelay} and user ${userUseDiscoveryRelay}`)
+  const useDiscoveryRelay = networkUseDiscoveryRelay || userUseDiscoveryRelay
   const audiusSdk = sdk({
     appName: 'audius-client',
     services: {
