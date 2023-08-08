@@ -16,12 +16,14 @@ const servicesConfig =
     : productionConfig
 
 export const makeEntityManagerInstance = (
-  discoveryNodeSelector: DiscoveryNodeSelectorService
+  discoveryNodeSelector: DiscoveryNodeSelectorService,
+  useDiscoveryRelay = false,
 ) => {
   return new EntityManager({
     contractAddress: servicesConfig.entityManagerContractAddress,
     web3ProviderUrl: servicesConfig.web3ProviderUrl,
     identityServiceUrl: servicesConfig.identityServiceUrl,
-    discoveryNodeSelector
+    discoveryNodeSelector,
+    useDiscoveryRelay
   })
 }

@@ -6,6 +6,8 @@ import { getStorageNodeSelector } from 'services/audius-sdk/storageNodeSelector'
 import { makeEntityManagerInstance } from 'services/entity-manager'
 
 import { auth } from './auth'
+import { remoteConfigInstance } from 'services/remote-config/remote-config-instance'
+import { BooleanKeys } from '@audius/common/dist/services/remote-config/types'
 
 declare global {
   interface Window {
@@ -27,11 +29,16 @@ const initSdk = async () => {
   await waitForLibsInit()
   console.debug('[audiusSdk] Libs initted, initializing SDK...')
   const discoveryNodeSelector = await discoveryNodeSelectorService.getInstance()
+  console.debug('[audiusSdk] Waiting for remoteConfig init...')
+  await remoteConfigInstance.waitForRemoteConfig()
+  const useDiscoveryRelay = remoteConfigInstance.getRemoteVar(
+    BooleanKeys.USE_DISCOVERY_RELAY
+  ) ?? false
   const audiusSdk = sdk({
     appName: 'audius-client',
     services: {
       discoveryNodeSelector,
-      entityManager: makeEntityManagerInstance(discoveryNodeSelector),
+      entityManager: makeEntityManagerInstance(discoveryNodeSelector, useDiscoveryRelay),
       auth,
       storageNodeSelector: await getStorageNodeSelector()
     }

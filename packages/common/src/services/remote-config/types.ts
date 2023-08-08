@@ -213,6 +213,11 @@ export enum BooleanKeys {
   USE_AMPLITUDE = 'USE_AMPLITUDE',
 
   /**
+   * Boolean to use relay on selected discovery node instead of identity.
+   */
+  USE_DISCOVERY_RELAY = 'USE_DISCOVERY_RELAY',
+
+  /**
    * Boolean to enable "Transactions" button on Audio page.
    */
   AUDIO_TRANSACTIONS_ENABLED = 'AUDIO_TRANSACTIONS_ENABLED',
