@@ -8,7 +8,7 @@ import {
 import type { GestureResponderEvent, ViewStyle } from 'react-native'
 import { View, Image, Pressable } from 'react-native'
 
-import { Text, Link, useLink } from 'app/components/core'
+import { Text, useLink } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 
 import { REACTION_LONGPRESS_DELAY } from './constants'
