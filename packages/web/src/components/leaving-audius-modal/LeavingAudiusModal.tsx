@@ -25,8 +25,8 @@ const messages = {
 }
 
 export const LeavingAudiusModal = () => {
-  const { data, onClose, onClosed } = useLeavingAudiusModal()
-  const { isOpen, link } = data
+  const { isOpen, data, onClose, onClosed } = useLeavingAudiusModal()
+  const { link } = data
   const handleOpen = useCallback(() => {
     window.open(link, '_blank', 'noreferrer,noopener')
   }, [link])
