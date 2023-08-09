@@ -13,6 +13,9 @@ import {
   ModalTitle
 } from '@audius/stems'
 
+import { Icon } from 'components/Icon'
+import { Text } from 'components/typography'
+
 import { HelpCallout } from '../help-callout/HelpCallout'
 
 import styles from './LeavingAudiusModal.module.css'
@@ -40,12 +43,12 @@ export const LeavingAudiusModal = () => {
       <ModalHeader>
         <ModalTitle
           iconClassName={styles.icon}
-          icon={<IconInfo />}
+          icon={<Icon icon={IconInfo} />}
           title={messages.title}
         />
       </ModalHeader>
       <ModalContent className={styles.content}>
-        <p className={styles.text}>{messages.body}</p>
+        <Text>{messages.body}</Text>
         <HelpCallout icon={<IconExternalLink />} content={link} />
       </ModalContent>
       <ModalFooter className={styles.footer}>

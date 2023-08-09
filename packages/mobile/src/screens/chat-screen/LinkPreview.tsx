@@ -98,7 +98,7 @@ export const LinkPreview = ({
   const willRender = !!(description || title || image)
   const domain = metadata?.url ? new URL(metadata.url).hostname : ''
   const { onPress: goToURL } = useLink(href)
-  const [, openLeavingAudiusModal] = useLeavingAudiusModal()
+  const { onOpen: openLeavingAudiusModal } = useLeavingAudiusModal()
 
   const handlePress = useCallback(() => {
     if (isAudiusUrl(href)) {

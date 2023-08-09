@@ -23,7 +23,7 @@ export const LinkPreview = (props: LinkPreviewProps) => {
   const { description, title, site_name: siteName, image } = metadata
   const willRender = !!(description || title || image)
   const domain = metadata?.url ? new URL(metadata?.url).hostname : ''
-  const [, setLeavingAudiusModalOpen] = useLeavingAudiusModal()
+  const { onOpen: setLeavingAudiusModalOpen } = useLeavingAudiusModal()
 
   const handleClick: MouseEventHandler<HTMLAnchorElement> = useCallback(
     (e) => {

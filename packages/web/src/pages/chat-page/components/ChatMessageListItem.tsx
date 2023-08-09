@@ -59,7 +59,7 @@ export const ChatMessageListItem = (props: ChatMessageListItemProps) => {
   // State
   const [isReactionPopupVisible, setReactionPopupVisible] = useState(false)
   const [emptyUnfurl, setEmptyUnfurl] = useState(false)
-  const [, openLeavingAudiusModal] = useLeavingAudiusModal()
+  const { onOpen: openLeavingAudiusModal } = useLeavingAudiusModal()
 
   // Selectors
   const userId = useSelector(getUserId)

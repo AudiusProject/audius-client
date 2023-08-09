@@ -13,5 +13,7 @@ const leavingAudiusModal = createModal<LeavingAudiusModalState>({
   sliceSelector: (state) => state.ui.modalsWithState
 })
 
-export const useLeavingAudiusModal = leavingAudiusModal.hook
-export const leavingAudiusModalReducer = leavingAudiusModal.reducer
+export const {
+  hook: useLeavingAudiusModal,
+  reducer: leavingAudiusModalReducer
+} = leavingAudiusModal

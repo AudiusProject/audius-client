@@ -31,12 +31,14 @@ const useStyles = makeStyles(({ spacing }) => ({
 
 export const LeavingAudiusDrawer = () => {
   const styles = useStyles()
-  const [{ isOpen, link }, , close] = useLeavingAudiusModal()
+  const { isOpen, data, onClose, onClosed } = useLeavingAudiusModal()
+  const { link } = data
   const { onPress: onLinkPress } = useLink(link)
   return (
     <Drawer
       isOpen={isOpen}
-      onClose={close}
+      onClose={onClose}
+      onClosed={onClosed}
       title={messages.title}
       titleIcon={IconInfo}
     >
@@ -52,7 +54,7 @@ export const LeavingAudiusDrawer = () => {
           style={styles.button}
           variant={'common'}
           title={messages.back}
-          onPress={close}
+          onPress={onClose}
         />
       </View>
     </Drawer>

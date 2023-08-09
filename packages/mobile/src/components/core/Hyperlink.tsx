@@ -95,7 +95,7 @@ export const Hyperlink = (props: HyperlinkProps) => {
   }, [links, linkRefs, linkContainerRef])
 
   const openLink = useOnOpenLink(source)
-  const [, openLeavingAudiusModal] = useLeavingAudiusModal()
+  const { onOpen: openLeavingAudiusModal } = useLeavingAudiusModal()
 
   const handlePress = useCallback(
     (url) => {
