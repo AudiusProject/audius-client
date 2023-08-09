@@ -1,3 +1,5 @@
+import { full } from '@audius/sdk'
+
 import {
   ID,
   UserCollectionMetadata,
@@ -11,7 +13,8 @@ import {
   UserMetadata,
   StringWei
 } from '../../models'
-import { removeNullable, decodeHashId } from '../../utils'
+import { decodeHashId } from '../../utils/hashIds'
+import { removeNullable } from '../../utils/typeUtils'
 
 import {
   APIActivity,
@@ -395,9 +398,15 @@ export const makeActivity = (
   activity: APIActivity | APIActivityV2
 ): UserTrackMetadata | UserCollectionMetadata | undefined => {
   if (isApiActivityV2(activity)) {
-    return activity.itemType === 'track'
-      ? makeTrack(activity.item)
-      : makePlaylist(activity.item)
+    if (!activity.item) {
+      return undefined
+    }
+    if (activity.itemType === 'track') {
+      return makeTrack(full.TrackFullToJSON(activity.item))
+    } else if (activity.itemType === 'playlist') {
+      return makePlaylist(full.PlaylistFullToJSON(activity.item))
+    }
+    return undefined
   } else {
     return activity.item_type === 'track'
       ? makeTrack(activity.item)
