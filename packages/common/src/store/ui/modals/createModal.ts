@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { useCallback } from 'react'
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { useDispatch, useSelector } from 'react-redux'
@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { CommonState } from 'store/index'
 
 export type BaseModalState = {
-  isOpen: boolean
+  isOpen: boolean | 'closing'
 }
 
 /**
@@ -27,8 +27,14 @@ export const createModal = <T>({
     name: `modals/${reducerPath}`,
     initialState,
     reducers: {
-      setState: (_, action: PayloadAction<T & BaseModalState>) => {
+      open: (_, action: PayloadAction<T & BaseModalState>) => {
         return action.payload
+      },
+      close: (state) => {
+        state.isOpen = 'closing'
+      },
+      closed: () => {
+        return { ...initialState, isOpen: false }
       }
     }
   })
@@ -49,49 +55,50 @@ export const createModal = <T>({
   }
 
   // Need to explicitly retype this because TS got confused
-  const setState = slice.actions.setState as (
+  const open = slice.actions.open as (
     state: T & BaseModalState
   ) => PayloadAction<T & BaseModalState>
 
+  const { close, closed } = slice.actions
   /**
    * A hook that returns the state of the modal,
-   * a setter callback that opens the modal,
-   * and a close callback that clears the state and closes it.
-   * @returns [state, open, close] state of the modal, callback to open the modal, callback to close the modal
+   * an open callback that opens the modal,
+   * a close callback that closes it,
+   * and a closed callback that clears the state
+   * @returns an object with the state and all three callbacks
    */
   const useModal = () => {
-    // Use a ref to prevent flickers on close when state is cleared.
-    // Only reflect state changes on modal open.
-    const lastOpenedState = useRef<T & BaseModalState>(initialState)
-    const currentState = useSelector(selector)
-    if (currentState.isOpen) {
-      lastOpenedState.current = currentState
-    } else {
-      // Keep existing state, except now set visible to false
-      lastOpenedState.current = {
-        ...lastOpenedState.current,
-        isOpen: false
-      }
-    }
+    const { isOpen, ...data } = useSelector(selector)
     const dispatch = useDispatch()
-    const open = useCallback(
+    const onOpen = useCallback(
       (state?: T) => {
         if (!state) {
-          dispatch(setState({ ...initialState, isOpen: true }))
+          dispatch(open({ ...initialState, isOpen: true }))
         } else {
-          dispatch(setState({ ...state, isOpen: true }))
+          dispatch(open({ ...state, isOpen: true }))
         }
       },
       [dispatch]
     )
-    const close = useCallback(() => {
-      dispatch(setState({ ...initialState, isOpen: false }))
+    const onClose = useCallback(() => {
+      dispatch(close())
     }, [dispatch])
-    return [lastOpenedState.current, open, close] as const
+
+    const onClosed = useCallback(() => {
+      dispatch(closed())
+    }, [dispatch])
+
+    return {
+      isOpen: isOpen === true,
+      data,
+      onOpen,
+      onClose,
+      onClosed
+    }
   }
 
   return {
     hook: useModal,
     reducer: slice.reducer
-  } as const
+  }
 }

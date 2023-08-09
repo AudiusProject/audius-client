@@ -25,18 +25,17 @@ const messages = {
 }
 
 export const LeavingAudiusModal = () => {
-  const [{ isOpen, link }, , close] = useLeavingAudiusModal()
+  const { data, onClose, onClosed } = useLeavingAudiusModal()
+  const { isOpen, link } = data
   const handleOpen = useCallback(() => {
     window.open(link, '_blank', 'noreferrer,noopener')
   }, [link])
-  const handleClose = useCallback(() => {
-    close()
-  }, [close])
   return (
     <Modal
       bodyClassName={styles.modalBody}
       isOpen={isOpen}
-      onClose={handleClose}
+      onClose={onClose}
+      onClosed={onClosed}
     >
       <ModalHeader>
         <ModalTitle
@@ -54,7 +53,7 @@ export const LeavingAudiusModal = () => {
           className={styles.button}
           variant={HarmonyButtonType.GHOST}
           text={messages.goBack}
-          onClick={handleClose}
+          onClick={onClose}
         />
         <HarmonyButton
           className={styles.button}
