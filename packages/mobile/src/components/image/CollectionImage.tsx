@@ -3,6 +3,7 @@ import type {
   ID,
   Maybe,
   Nullable,
+  SearchPlaylist,
   SquareSizes
 } from '@audius/common'
 import { reachabilitySelectors } from '@audius/common'
@@ -23,7 +24,7 @@ const { getIsReachable } = reachabilitySelectors
 type UseCollectionImageOptions = {
   collection: Nullable<
     Pick<
-      Collection,
+      Collection | SearchPlaylist,
       | 'playlist_id'
       | 'cover_art_sizes'
       | 'cover_art'
@@ -58,7 +59,7 @@ const useLocalCollectionImageUri = (collectionId: Maybe<ID>) => {
 
 export const useCollectionImage = (options: UseCollectionImageOptions) => {
   const { collection, size } = options
-  const optimisticCoverArt = collection?._cover_art_sizes.OVERRIDE
+  const optimisticCoverArt = collection?._cover_art_sizes?.OVERRIDE
   const cid = collection
     ? collection.cover_art_sizes || collection.cover_art
     : null
