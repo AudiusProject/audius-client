@@ -86,7 +86,7 @@ function* sendLibraryRequest({
     .filter((save) => Boolean(save.timestamp && save.item))
     .map((save) => ({
       created_at: save.timestamp,
-      save_item_id: decodeHashId(save.item.id!)
+      save_item_id: decodeHashId(save.item!.id!)
     }))
 
   return {
