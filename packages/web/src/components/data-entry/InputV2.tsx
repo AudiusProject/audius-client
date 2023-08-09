@@ -1,6 +1,7 @@
 import { ComponentPropsWithoutRef, MutableRefObject, RefCallback } from 'react'
 
 import cn from 'classnames'
+import { isEmpty, isNull } from 'lodash'
 
 import layoutStyles from 'components/layout/layout.module.css'
 import { Text } from 'components/typography'
@@ -60,7 +61,7 @@ export const InputV2 = (props: InputV2Props) => {
     ...other
   } = props
 
-  const characterCount = value ? `${value}`.length : 0
+  const characterCount = value !== undefined ? `${value}`.length : 0
   const nearCharacterLimit = maxLength && characterCount >= 0.9 * maxLength
   const elevatePlaceholder = variant === InputV2Variant.ELEVATED_PLACEHOLDER
   const label = required ? `${labelProp} *` : labelProp

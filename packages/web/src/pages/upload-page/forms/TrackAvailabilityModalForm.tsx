@@ -88,7 +88,8 @@ export const PREMIUM_CONDITIONS = 'premium_conditions'
 export const AVAILABILITY_TYPE = 'availability_type'
 const SPECIAL_ACCESS_TYPE = 'special_access_type'
 export const FIELD_VISIBILITY = 'field_visibility'
-export const PREVIEW = 'PREVIEW'
+export const PRICE = 'premium_conditions.usdc_purchase.price'
+export const PREVIEW = 'preview_start_seconds'
 
 export type TrackAvailabilityFormValues = {
   [AVAILABILITY_TYPE]: TrackAvailabilityType
@@ -128,7 +129,7 @@ export const TrackAvailabilityModalForm = () => {
     useTrackField<SingleTrackEditValues[typeof REMIX_OF]>(REMIX_OF)
 
   const [{ value: previewValue }, , { setValue: setPreviewValue }] =
-    useField<TrackAvailabilityFormValues[typeof PREVIEW]>(PREVIEW)
+    useTrackField<TrackAvailabilityFormValues[typeof PREVIEW]>(PREVIEW)
 
   const isRemix = !isEmpty(remixOfValue?.tracks)
 
@@ -182,6 +183,16 @@ export const TrackAvailabilityModalForm = () => {
         get(values, AVAILABILITY_TYPE) === TrackAvailabilityType.USDC_PURCHASE
       ) {
         setPreviewValue(get(values, PREVIEW))
+        const priceStr = get(values, PRICE)
+        const price = priceStr ? parseFloat(priceStr) : 0
+        setPremiumConditionsValue({
+          // @ts-ignore
+          usdc_purchase: {
+            price
+            // TODO: splits value
+            // splits: price * 1000
+          }
+        })
       }
       if (get(values, AVAILABILITY_TYPE) === TrackAvailabilityType.HIDDEN) {
         setFieldVisibilityValue({

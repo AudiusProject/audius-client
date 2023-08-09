@@ -7,8 +7,10 @@ import { InputV2Variant } from 'components/data-entry/InputV2'
 import { TextField } from 'components/form-fields'
 import layoutStyles from 'components/layout/layout.module.css'
 import { Text } from 'components/typography'
-
-import { PREMIUM_CONDITIONS } from '../../forms/TrackAvailabilityModalForm'
+import {
+  PREVIEW,
+  PRICE
+} from 'pages/upload-page/forms/TrackAvailabilityModalForm'
 
 import styles from './UsdcPurchaseFields.module.css'
 
@@ -39,9 +41,6 @@ export enum UsdcPurchaseType {
 type TrackAvailabilityFieldsProps = {
   disabled?: boolean
 }
-
-const PRICE = `${PREMIUM_CONDITIONS}.usdc_purchase.price`
-const PREVIEW = `${PREMIUM_CONDITIONS}.usdc_purchase.slot`
 
 export const UsdcPurchaseFields = (props: TrackAvailabilityFieldsProps) => {
   const { disabled } = props

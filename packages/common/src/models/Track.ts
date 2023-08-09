@@ -10,7 +10,6 @@ import { Repost } from './Repost'
 import { StemCategory } from './Stems'
 import { Timestamped } from './Timestamped'
 import { User, UserMetadata } from './User'
-import { StringUSDC } from './Wallet'
 
 type EpochTimeStamp = number
 
