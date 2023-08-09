@@ -33,6 +33,9 @@ type HelpCalloutProps = {
   icon?: ComponentType<SvgProps>
 }
 
+/**
+ * @todo Rename to Hint
+ */
 export const HelpCallout = (props: HelpCalloutProps) => {
   const { style, content, icon: Icon = IconQuestionCircle } = props
   const styles = useStyles()

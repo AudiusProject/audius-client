@@ -49,7 +49,11 @@ export const LeavingAudiusModal = () => {
       </ModalHeader>
       <ModalContent className={styles.content}>
         <Text>{messages.body}</Text>
-        <HelpCallout icon={<IconExternalLink />} content={link} />
+        <HelpCallout
+          contentClassName={styles.hintContent}
+          icon={<IconExternalLink />}
+          content={link}
+        />
       </ModalContent>
       <ModalFooter className={styles.footer}>
         <HarmonyButton
