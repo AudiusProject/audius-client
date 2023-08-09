@@ -67,8 +67,8 @@ const NavPopupMenu = () => {
       ? {
           text: messagesItemText,
           onClick: () => {
-            dispatch(make(Name.CHAT_ENTRY_POINT, { source: 'navmenu' }))
             navigate(CHATS_PAGE)
+            dispatch(make(Name.CHAT_ENTRY_POINT, { source: 'navmenu' }))
           },
           icon: <IconMessage />,
           iconClassName: styles.menuItemIcon
