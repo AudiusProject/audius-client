@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@audius/sdk": "3.0.3",
-    "@audius/stems": "1.5.35",
+    "@audius/stems": "1.5.36",
     "amplitude-js": "8.11.1",
     "axios": "0.19.2",
     "classnames": "2.2.6",

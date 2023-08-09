@@ -28,16 +28,8 @@ import { getUSDCUserBank } from './utils'
 
 // TODO: Configurable min/max usdc purchase amounts?
 function* getBuyUSDCRemoteConfig() {
-  // const DEFAULT_MIN_AUDIO_PURCHASE_AMOUNT = 5
-  // const DEFAULT_MAX_AUDIO_PURCHASE_AMOUNT = 999
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
   yield* call([remoteConfigInstance, remoteConfigInstance.waitForRemoteConfig])
-  // const minAudioAmount =
-  //   remoteConfigInstance.getRemoteVar(IntKeys.MIN_AUDIO_PURCHASE_AMOUNT) ??
-  //   DEFAULT_MIN_AUDIO_PURCHASE_AMOUNT
-  // const maxAudioAmount =
-  //   remoteConfigInstance.getRemoteVar(IntKeys.MAX_AUDIO_PURCHASE_AMOUNT) ??
-  //   DEFAULT_MAX_AUDIO_PURCHASE_AMOUNT
   const retryDelayMs =
     remoteConfigInstance.getRemoteVar(IntKeys.BUY_AUDIO_WALLET_POLL_DELAY_MS) ??
     undefined
@@ -46,8 +38,6 @@ function* getBuyUSDCRemoteConfig() {
       IntKeys.BUY_AUDIO_WALLET_POLL_MAX_RETRIES
     ) ?? undefined
   return {
-    // minAudioAmount,
-    // maxAudioAmount,
     maxRetryCount,
     retryDelayMs
   }
@@ -185,7 +175,6 @@ function* doBuyUSDC({
         eventName: Name.BUY_USDC_SUCCESS,
         provider,
         requestedAmount: desiredAmount
-        // TODO: actualAmount
       })
     )
   } catch (e) {

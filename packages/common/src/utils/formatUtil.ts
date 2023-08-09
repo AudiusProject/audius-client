@@ -133,7 +133,6 @@ export const formatNumberCommas = (num: number | string) => {
 }
 
 export const formatPrice = (num: number) => {
-  // TODO: Be better
   return formatNumberCommas((num / 100).toFixed(2))
 }
 

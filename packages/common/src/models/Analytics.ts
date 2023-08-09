@@ -1561,8 +1561,6 @@ type BuyUSDCSuccess = {
   eventName: Name.BUY_USDC_SUCCESS
   provider: string
   requestedAmount: number
-  // actualAmount: number
-  // surplusAmount: number
 }
 
 type BuyUSDCFailure = {

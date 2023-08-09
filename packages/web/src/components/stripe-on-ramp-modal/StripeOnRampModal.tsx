@@ -55,10 +55,6 @@ export const StripeOnRampModal = () => {
       if (stripeSessionStatus !== 'fulfillment_processing') {
         dispatch(cancelStripeOnramp())
         e.stopPropagation()
-        // TODO: Move to saga
-        // if (sessionStatus !== 'fulfillment_complete') {
-        //   dispatch(onRampCanceled())
-        // }
       }
     },
     [stripeSessionStatus, dispatch]
