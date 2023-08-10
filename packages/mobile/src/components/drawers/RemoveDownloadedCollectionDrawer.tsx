@@ -22,7 +22,7 @@ const drawerName = 'RemoveDownloadedCollection'
 
 export const RemoveDownloadedCollectionDrawer = () => {
   const { data } = useDrawer(drawerName)
-  const { collectionId } = data ?? {}
+  const { collectionId } = data
   const dispatch = useDispatch()
 
   const isAlbum = useSelector(

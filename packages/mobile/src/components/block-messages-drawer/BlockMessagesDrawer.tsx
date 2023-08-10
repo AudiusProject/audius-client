@@ -112,7 +112,7 @@ export const BlockMessagesDrawer = () => {
   const neutral = useColor('neutral')
   const dispatch = useDispatch()
   const { data } = useDrawer('BlockMessages')
-  const { userId, shouldOpenChat, isReportAbuse } = data ?? {}
+  const { userId, shouldOpenChat, isReportAbuse } = data
   const user = useSelector((state) => getUser(state, { id: userId }))
   // Assuming blockees have already been fetched in ProfileActionsDrawer.
   const doesBlockUser = useSelector((state) => getDoesBlockUser(state, userId))
