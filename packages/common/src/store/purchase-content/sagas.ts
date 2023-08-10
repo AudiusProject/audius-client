@@ -23,6 +23,7 @@ import { getTrack } from 'store/cache/tracks/selectors'
 import { getUser } from 'store/cache/users/selectors'
 import { getContext } from 'store/effects'
 import { setVisibility } from 'store/ui/modals/slice'
+import { BN_USDC_CENT_WEI } from 'utils/wallet'
 
 import { pollPremiumTrack } from '../premium-content/sagas'
 import { updatePremiumTrackStatus } from '../premium-content/slice'
@@ -157,7 +158,7 @@ function* doStartPurchaseContentFlow({
     )
 
     // buy USDC if necessary
-    if (initialBalance.lt(new BN(price))) {
+    if (initialBalance.lt(new BN(price).mul(BN_USDC_CENT_WEI))) {
       yield* put(onBuyUSDC())
       yield* put(
         onRampOpened({
