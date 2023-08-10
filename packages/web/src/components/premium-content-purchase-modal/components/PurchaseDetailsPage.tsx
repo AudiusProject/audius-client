@@ -85,6 +85,7 @@ export const PurchaseDetailsPage = ({
       />
       <PayToUnlockInfo />
       <HarmonyButton
+        disabled={isUnlocking}
         color='specialLightGreen'
         onClick={onClickBuy}
         text={textContent}
