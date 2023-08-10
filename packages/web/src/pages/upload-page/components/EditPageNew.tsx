@@ -218,7 +218,13 @@ const TrackEditForm = (props: FormikProps<TrackEditFormValues>) => {
           {isMultiTrack ? <MultiTrackHeader /> : null}
           <div className={styles.trackEditForm}>
             <TrackMetadataFields />
-            <div className={styles.additionalFields}>
+            <div
+              className={cn(
+                styles.additionalFields,
+                layoutStyles.col,
+                layoutStyles.gap4
+              )}
+            >
               <ReleaseDateField />
               <RemixSettingsField />
               <SourceFilesField />

@@ -5,6 +5,7 @@ import {
   collectiblesSelectors,
   FeatureFlags,
   FieldVisibility,
+  formatSeconds,
   isPremiumContentCollectibleGated,
   isPremiumContentFollowGated,
   isPremiumContentTipGated,
@@ -17,6 +18,7 @@ import {
   IconCart,
   IconCollectible,
   IconHidden,
+  IconNote,
   IconSpecialAccess,
   IconVisibilityPublic,
   RadioButtonGroup
@@ -94,7 +96,12 @@ const messages = {
 
   followersOnly: 'Followers Only',
   supportersOnly: 'Supporters Only',
-  ownersOf: 'Owners Of'
+  ownersOf: 'Owners Of',
+  price: (price: number) =>
+    price.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
+  preview: (seconds: number) => {
+    return `${seconds.toString()} seconds`
+  }
 }
 
 const IS_UNLISTED = 'is_unlisted'
@@ -143,6 +150,7 @@ export const AccessAndSaleField = () => {
   const isRemix = !isEmpty(remixOfValue?.tracks)
 
   const initialValues = useMemo(() => {
+    const isUsdcGated = isPremiumContentUSDCPurchaseGated(premiumConditions)
     const isTipGated = isPremiumContentTipGated(premiumConditions)
     const isFollowGated = isPremiumContentFollowGated(premiumConditions)
     const isCollectibleGated =
@@ -151,9 +159,11 @@ export const AccessAndSaleField = () => {
     set(initialValues, IS_UNLISTED, isUnlisted)
     set(initialValues, IS_PREMIUM, isPremium)
     set(initialValues, PREMIUM_CONDITIONS, premiumConditions)
-    set(initialValues, PREVIEW, preview)
 
     let availabilityType = TrackAvailabilityType.PUBLIC
+    if (isUsdcGated) {
+      availabilityType = TrackAvailabilityType.USDC_PURCHASE
+    }
     if (isFollowGated || isTipGated) {
       availabilityType = TrackAvailabilityType.SPECIAL_ACCESS
     }
@@ -163,7 +173,6 @@ export const AccessAndSaleField = () => {
     if (isUnlisted) {
       availabilityType = TrackAvailabilityType.HIDDEN
     }
-    // TODO: USDC gated type
     set(initialValues, AVAILABILITY_TYPE, availabilityType)
     set(initialValues, FIELD_VISIBILITY, fieldVisibility)
     set(initialValues, PREVIEW, preview)
@@ -259,7 +268,20 @@ export const AccessAndSaleField = () => {
       icon: IconSpecialAccess
     }
 
-    if (isPremiumContentFollowGated(premiumConditions)) {
+    if (isPremiumContentUSDCPurchaseGated(premiumConditions)) {
+      selectedValues = [
+        {
+          label: messages.price(premiumConditions.usdc_purchase.price),
+          icon: IconCart
+        }
+      ]
+      if (preview) {
+        selectedValues.push({
+          label: messages.preview(preview),
+          icon: IconNote
+        })
+      }
+    } else if (isPremiumContentFollowGated(premiumConditions)) {
       selectedValues = [specialAccessValue, messages.followersOnly]
     } else if (isPremiumContentTipGated(premiumConditions)) {
       selectedValues = [specialAccessValue, messages.supportersOnly]
@@ -288,7 +310,7 @@ export const AccessAndSaleField = () => {
         })}
       </div>
     )
-  }, [fieldVisibility, isUnlisted, premiumConditions])
+  }, [fieldVisibility, isUnlisted, premiumConditions, preview])
 
   return (
     <ContextualMenu

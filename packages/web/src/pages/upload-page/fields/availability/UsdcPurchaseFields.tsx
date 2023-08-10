@@ -7,10 +7,8 @@ import { InputV2Variant } from 'components/data-entry/InputV2'
 import { TextField } from 'components/form-fields'
 import layoutStyles from 'components/layout/layout.module.css'
 import { Text } from 'components/typography'
-import {
-  PREVIEW,
-  PRICE
-} from 'pages/upload-page/forms/TrackAvailabilityModalForm'
+
+import { PREVIEW, PRICE } from '../AccessAndSaleField'
 
 import styles from './UsdcPurchaseFields.module.css'
 
