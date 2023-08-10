@@ -5,6 +5,7 @@ import { Kind } from '../models'
 
 import account from './account/slice'
 import averageColorReducer from './average-color/slice'
+import { buyUSDCReducer } from './buy-usdc'
 import collectionsReducer from './cache/collections/reducer'
 import { CollectionsCacheState } from './cache/collections/types'
 import { asCache } from './cache/reducer'
@@ -63,6 +64,7 @@ import {
 } from './playlist-library'
 import { playlistUpdatesReducer, PlaylistUpdateState } from './playlist-updates'
 import premiumContent from './premium-content/slice'
+import { purchaseContentReducer } from './purchase-content'
 import queue from './queue/slice'
 import reachability from './reachability/reducer'
 import { ReachabilityState } from './reachability/types'
@@ -95,6 +97,10 @@ import deletePlaylistConfirmationReducer from './ui/delete-playlist-confirmation
 import { DeletePlaylistConfirmationModalState } from './ui/delete-playlist-confirmation-modal/types'
 import duplicateAddConfirmationReducer from './ui/duplicate-add-confirmation-modal/slice'
 import { DuplicateAddConfirmationModalState } from './ui/duplicate-add-confirmation-modal/types'
+import {
+  LeavingAudiusModalState,
+  leavingAudiusModalReducer
+} from './ui/leaving-audius-modal'
 import mobileOverflowModalReducer from './ui/mobile-overflow-menu/slice'
 import { MobileOverflowModalState } from './ui/mobile-overflow-menu/types'
 import modalsReducer from './ui/modals/slice'
@@ -109,6 +115,8 @@ import shareModalReducer from './ui/share-modal/slice'
 import { ShareModalState } from './ui/share-modal/types'
 import shareSoundToTikTokModalReducer from './ui/share-sound-to-tiktok-modal/slice'
 import { ShareSoundToTikTokModalState } from './ui/share-sound-to-tiktok-modal/types'
+import stripeModalReducer from './ui/stripe-modal/slice'
+import { StripeModalState } from './ui/stripe-modal/types'
 import theme, { ThemeState } from './ui/theme/slice'
 import toastReducer from './ui/toast/slice'
 import transactionDetailsReducer from './ui/transaction-details/slice'
@@ -191,12 +199,16 @@ export const reducers = () => ({
     publishPlaylistConfirmationModal: publishPlaylistConfirmationReducer,
     mobileOverflowModal: mobileOverflowModalReducer,
     modals: modalsReducer,
+    modalsWithState: combineReducers({
+      leavingAudiusModal: leavingAudiusModalReducer
+    }),
     musicConfetti: musicConfettiReducer,
     nowPlaying: nowPlayingReducer,
     reactions: reactionsReducer,
     remixSettings: remixSettingsReducer,
     shareSoundToTikTokModal: shareSoundToTikTokModalReducer,
     shareModal: shareModalReducer,
+    stripeModal: stripeModalReducer,
     searchUsersModal: searchUsersModalReducer,
     toast: toastReducer,
     transactionDetails: transactionDetailsReducer,
@@ -250,7 +262,9 @@ export const reducers = () => ({
   tipping: tippingReducer,
 
   // Premium content
+  buyUSDC: buyUSDCReducer,
   premiumContent,
+  purchaseContent: purchaseContentReducer,
 
   // Collectibles
   collectibles,
@@ -312,6 +326,9 @@ export type CommonState = {
     publishPlaylistConfirmationModal: PublishPlaylistConfirmationModalState
     mobileOverflowModal: MobileOverflowModalState
     modals: ModalsState
+    modalsWithState: {
+      leavingAudiusModal: LeavingAudiusModalState
+    }
     musicConfetti: MusicConfettiState
     nowPlaying: NowPlayingState
     reactions: ReactionsState
@@ -320,6 +337,7 @@ export type CommonState = {
     shareSoundToTikTokModal: ShareSoundToTikTokModalState
     searchUsersModal: SearchUsersModalState
     shareModal: ShareModalState
+    stripeModal: StripeModalState
     toast: ToastState
     transactionDetails: TransactionDetailsState
     userList: {
@@ -365,10 +383,14 @@ export type CommonState = {
 
   stemsUpload: ReturnType<typeof stemsUpload>
 
+  // USDC
+  buyUSDC: ReturnType<typeof buyUSDCReducer>
+
   // Tipping
   tipping: ReturnType<typeof tippingReducer>
 
   // Premium content
+  purchaseContent: ReturnType<typeof purchaseContentReducer>
   premiumContent: ReturnType<typeof premiumContent>
 
   // Collectibles

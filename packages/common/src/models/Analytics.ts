@@ -318,6 +318,18 @@ export enum Name {
   BUY_AUDIO_RECOVERY_SUCCESS = 'Buy Audio Recovery: Success',
   BUY_AUDIO_RECOVERY_FAILURE = 'Buy Audio Recovery: Failure',
 
+  // Buy USDC
+  BUY_USDC_ON_RAMP_OPENED = 'Buy USDC: On Ramp Opened',
+  BUY_USDC_ON_RAMP_CANCELED = 'Buy USDC: On Ramp Canceled',
+  BUY_USDC_ON_RAMP_SUCCESS = 'Buy USDC: On Ramp Success',
+  BUY_USDC_SUCCESS = 'Buy USDC: Success',
+  BUY_USDC_FAILURE = 'Buy USDC: Failure',
+
+  // Purchase Content
+  PURCHASE_CONTENT_STARTED = 'Purchase Content: Started',
+  PURCHASE_CONTENT_SUCCESS = 'Purchase Content: Success',
+  PURCHASE_CONTENT_FAILURE = 'Purchase Content: Failure',
+
   // Rate & Review CTA
   RATE_CTA_DISPLAYED = 'Rate CTA: Displayed',
   RATE_CTA_RESPONSE_YES = 'Rate CTA: User Responded Yes',
@@ -347,7 +359,8 @@ export enum Name {
   MESSAGE_UNFURL_TRACK = 'Message Unfurl: Track',
   MESSAGE_UNFURL_PLAYLIST = 'Message Unfurl: Playlist',
   TIP_UNLOCKED_CHAT = 'Unlocked Chat: Tip',
-  CHAT_REPORT_USER = 'Report User: Chat'
+  CHAT_REPORT_USER = 'Report User: Chat',
+  CHAT_ENTRY_POINT = 'Chat Entry Point'
 }
 
 type PageView = {
@@ -1530,6 +1543,51 @@ type BuyAudioRecoveryFailure = {
   error: string
 }
 
+type BuyUSDCOnRampOpened = {
+  eventName: Name.BUY_USDC_ON_RAMP_OPENED
+  provider: string
+}
+
+type BuyUSDCOnRampCanceled = {
+  eventName: Name.BUY_USDC_ON_RAMP_CANCELED
+  provider: string
+}
+
+type BuyUSDCOnRampSuccess = {
+  eventName: Name.BUY_USDC_ON_RAMP_SUCCESS
+  provider: string
+}
+
+type BuyUSDCSuccess = {
+  eventName: Name.BUY_USDC_SUCCESS
+  provider: string
+  requestedAmount: number
+}
+
+type BuyUSDCFailure = {
+  eventName: Name.BUY_USDC_FAILURE
+  provider: string
+  requestedAmount: number
+  error: string
+}
+
+type PurchaseContentStarted = {
+  eventName: Name.PURCHASE_CONTENT_STARTED
+  contentId: number
+  contentType: string
+}
+type PurchaseContentSuccess = {
+  eventName: Name.PURCHASE_CONTENT_SUCCESS
+  contentId: number
+  contentType: string
+}
+type PurchaseContentFailure = {
+  eventName: Name.PURCHASE_CONTENT_FAILURE
+  contentId: number
+  contentType: string
+  error: string
+}
+
 type RateCtaDisplayed = {
   eventName: Name.RATE_CTA_DISPLAYED
 }
@@ -1645,6 +1703,11 @@ type TipUnlockedChat = {
 type ChatReportUser = {
   eventName: Name.CHAT_REPORT_USER
   reportedUserId: ID
+}
+
+type ChatEntryPoint = {
+  eventName: Name.CHAT_ENTRY_POINT
+  source: 'banner' | 'navmenu' | 'share' | 'profile'
 }
 
 export type BaseAnalyticsEvent = { type: typeof ANALYTICS_TRACK_EVENT }
@@ -1840,6 +1903,14 @@ export type AllTrackingEvents =
   | BuyAudioRecoveryOpened
   | BuyAudioRecoverySuccess
   | BuyAudioRecoveryFailure
+  | BuyUSDCOnRampOpened
+  | BuyUSDCOnRampSuccess
+  | BuyUSDCOnRampCanceled
+  | BuyUSDCSuccess
+  | BuyUSDCFailure
+  | PurchaseContentStarted
+  | PurchaseContentSuccess
+  | PurchaseContentFailure
   | RateCtaDisplayed
   | RateCtaResponseNo
   | RateCtaResponseYes
@@ -1871,3 +1942,4 @@ export type AllTrackingEvents =
   | DeveloperAppCreateError
   | DeveloperAppDeleteSuccess
   | DeveloperAppDeleteError
+  | ChatEntryPoint

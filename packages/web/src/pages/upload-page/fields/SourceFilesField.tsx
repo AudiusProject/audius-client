@@ -6,28 +6,35 @@ import {
   StemUpload,
   removeNullable
 } from '@audius/common'
-import { Formik, useField } from 'formik'
+import { useField } from 'formik'
 import { get, set } from 'lodash'
 
 import { ReactComponent as IconSourceFiles } from 'assets/img/iconSourceFiles.svg'
+import {
+  ContextualMenu,
+  SelectedValue,
+  SelectedValues
+} from 'components/data-entry/ContextualMenu'
 import { Divider } from 'components/divider'
 import { Text } from 'components/typography'
 
-import { ModalField } from '../fields/ModalField'
 import {
   SourceFilesView,
   dropdownRows as stemCategories
 } from '../fields/SourceFilesView'
 import { SwitchRowField } from '../fields/SwitchRowField'
+import { useTrackField } from '../hooks'
 import { processFiles } from '../store/utils/processFiles'
 
-import styles from './SourceFilesModalForm.module.css'
-import { useTrackField } from './utils'
+import styles from './SourceFilesField.module.css'
 
+// NOTE: SDK uses camel casing for the fields within download
 const ALLOW_DOWNLOAD_BASE = 'is_downloadable'
-const ALLOW_DOWNLOAD = 'download.is_downloadable'
+// const ALLOW_DOWNLOAD = 'download.is_downloadable'
+const ALLOW_DOWNLOAD = 'download.isDownloadable'
 const FOLLOWER_GATED_BASE = 'requires_follow'
-const FOLLOWER_GATED = 'download.requires_follow'
+// const FOLLOWER_GATED = 'download.requires_follow'
+const FOLLOWER_GATED = 'download.requiresFollow'
 const STEMS = 'stems'
 
 const messages = {
@@ -45,6 +52,10 @@ const messages = {
     header: 'Available Only to Followers',
     description:
       'Make your stems and source files available only to your followers'
+  },
+  values: {
+    allowDownload: 'MP3 Available',
+    followerGated: 'Followers Only'
   }
 }
 
@@ -54,19 +65,14 @@ export type SourceFilesFormValues = {
   [STEMS]: StemUpload[]
 }
 
-/**
- * This is a subform that expects to exist within a parent TrackEdit form.
- * The useField calls reference the outer form's fields which much match the name constants.
- */
-export const SourceFilesModalForm = () => {
-  // These refer to the field in the outer EditForm
+export const SourceFilesField = () => {
   const [{ value: allowDownloadValue }, , { setValue: setAllowDownloadValue }] =
     useTrackField<Download[typeof ALLOW_DOWNLOAD_BASE]>(ALLOW_DOWNLOAD)
   const [{ value: followerGatedValue }, , { setValue: setFollowerGatedValue }] =
     useTrackField<Download[typeof FOLLOWER_GATED_BASE]>(FOLLOWER_GATED)
   // TODO: Stems value should be submitted outside tracks in uploadTracks
   const [{ value: stemsValue }, , { setValue: setStemsValue }] =
-    useTrackField(STEMS)
+    useTrackField<StemUpload[]>(STEMS)
 
   const initialValues = useMemo(() => {
     const initialValues = {}
@@ -76,44 +82,58 @@ export const SourceFilesModalForm = () => {
     return initialValues as SourceFilesFormValues
   }, [allowDownloadValue, followerGatedValue, stemsValue])
 
-  const onSubmit = useCallback(
+  const handleSubmit = useCallback(
     (values: SourceFilesFormValues) => {
-      setAllowDownloadValue(get(values, ALLOW_DOWNLOAD))
-      setFollowerGatedValue(get(values, FOLLOWER_GATED))
+      setAllowDownloadValue(
+        get(values, ALLOW_DOWNLOAD) ?? allowDownloadValue ?? false
+      )
+      setFollowerGatedValue(
+        get(values, FOLLOWER_GATED) ?? followerGatedValue ?? false
+      )
       setStemsValue(get(values, STEMS))
     },
-    [setAllowDownloadValue, setFollowerGatedValue, setStemsValue]
+    [
+      allowDownloadValue,
+      followerGatedValue,
+      setAllowDownloadValue,
+      setFollowerGatedValue,
+      setStemsValue
+    ]
   )
 
-  const preview = (
-    <div className={styles.preview}>
-      <div className={styles.header}>
-        <Text className={styles.title} variant='title' size='large'>
-          {messages.title}
-        </Text>
-      </div>
-      <Text>{messages.description}</Text>
-    </div>
-  )
+  const renderValue = () => {
+    let values = []
+    if (allowDownloadValue) {
+      values.push(messages.values.allowDownload)
+    }
+    if (followerGatedValue) {
+      values.push(messages.values.followerGated)
+    }
+    const stemsCategories = stemsValue.map((stem) => stem.category)
+    values = [...values, ...stemsCategories]
+    return (
+      <SelectedValues>
+        {values.map((value) => (
+          <SelectedValue key={value} label={value} />
+        ))}
+      </SelectedValues>
+    )
+  }
 
   return (
-    <Formik<SourceFilesFormValues>
+    <ContextualMenu
+      label={messages.title}
+      description={messages.description}
+      icon={<IconSourceFiles />}
       initialValues={initialValues}
-      onSubmit={onSubmit}
-      enableReinitialize
-    >
-      <ModalField
-        title={messages.title}
-        icon={<IconSourceFiles className={styles.titleIcon} />}
-        preview={preview}
-      >
-        <SourceFilesModalFiels />
-      </ModalField>
-    </Formik>
+      onSubmit={handleSubmit}
+      renderValue={renderValue}
+      menuFields={<SourceFilesMenuFields />}
+    />
   )
 }
 
-const SourceFilesModalFiels = () => {
+const SourceFilesMenuFields = () => {
   const [
     { onChange: allowDownloadOnChange },
     ,
@@ -150,7 +170,7 @@ const SourceFilesModalFiels = () => {
 
   return (
     <div className={styles.fields}>
-      <div>{messages.description}</div>
+      <Text>{messages.description}</Text>
       <Divider />
       <SwitchRowField
         name={ALLOW_DOWNLOAD}
