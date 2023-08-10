@@ -53,7 +53,7 @@ export const PurchaseSummaryTable = ({
           {existingBalance ? (
             <>
               <del>{messages.price(formatPrice(basePrice))}</del>
-              {messages.price(formatPrice(amountDue))}
+              <ins>{messages.price(formatPrice(amountDue))}</ins>
             </>
           ) : (
             messages.price(formatPrice(amountDue))
