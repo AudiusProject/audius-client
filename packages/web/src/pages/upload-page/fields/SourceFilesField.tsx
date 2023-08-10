@@ -28,10 +28,13 @@ import { processFiles } from '../store/utils/processFiles'
 
 import styles from './SourceFilesField.module.css'
 
+// NOTE: SDK uses camel casing for the fields within download
 const ALLOW_DOWNLOAD_BASE = 'is_downloadable'
-const ALLOW_DOWNLOAD = 'download.is_downloadable'
+// const ALLOW_DOWNLOAD = 'download.is_downloadable'
+const ALLOW_DOWNLOAD = 'download.isDownloadable'
 const FOLLOWER_GATED_BASE = 'requires_follow'
-const FOLLOWER_GATED = 'download.requires_follow'
+// const FOLLOWER_GATED = 'download.requires_follow'
+const FOLLOWER_GATED = 'download.requiresFollow'
 const STEMS = 'stems'
 
 const messages = {
@@ -81,11 +84,21 @@ export const SourceFilesField = () => {
 
   const handleSubmit = useCallback(
     (values: SourceFilesFormValues) => {
-      setAllowDownloadValue(get(values, ALLOW_DOWNLOAD))
-      setFollowerGatedValue(get(values, FOLLOWER_GATED))
+      setAllowDownloadValue(
+        get(values, ALLOW_DOWNLOAD) ?? allowDownloadValue ?? false
+      )
+      setFollowerGatedValue(
+        get(values, FOLLOWER_GATED) ?? followerGatedValue ?? false
+      )
       setStemsValue(get(values, STEMS))
     },
-    [setAllowDownloadValue, setFollowerGatedValue, setStemsValue]
+    [
+      allowDownloadValue,
+      followerGatedValue,
+      setAllowDownloadValue,
+      setFollowerGatedValue,
+      setStemsValue
+    ]
   )
 
   const renderValue = () => {

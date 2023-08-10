@@ -5,9 +5,11 @@ import {
   ID,
   useGetTrackById,
   FieldVisibility,
-  Remix
+  Remix,
+  encodeHashId
 } from '@audius/common'
 import { get, set } from 'lodash'
+import { toFormikValidationSchema } from 'zod-formik-adapter'
 
 import { ReactComponent as IconRemix } from 'assets/img/iconRemixGray.svg'
 import {
@@ -27,6 +29,8 @@ import {
   IS_REMIX,
   REMIX_LINK,
   REMIX_OF,
+  RemixSettingsFieldSchema,
+  RemixSettingsFormValues,
   SHOW_REMIXES,
   SHOW_REMIXES_BASE
 } from './types'
@@ -41,17 +45,6 @@ const messages = {
 
 export type RemixOfField = Nullable<{ tracks: { parent_track_id: ID }[] }>
 
-export type MenuFormValues = {
-  [SHOW_REMIXES]: boolean
-  [IS_REMIX]: boolean
-  [REMIX_LINK]: string
-  parentTrackId?: ID
-}
-
-/**
- * This is a subform that expects to exist within a parent TrackEdit form.
- * The useField calls reference the outer form's fields which much match the name constants.
- */
 export const RemixSettingsField = () => {
   // These refer to the field in the outer EditForm
   const [{ value: showRemixes }, , { setValue: setShowRemixes }] =
@@ -76,20 +69,25 @@ export const RemixSettingsField = () => {
     set(initialValues, SHOW_REMIXES, showRemixes)
     set(initialValues, IS_REMIX, isRemix)
     set(initialValues, REMIX_LINK, remixLink)
-    return initialValues as MenuFormValues
+    return initialValues as unknown as RemixSettingsFormValues
   }, [showRemixes, isRemix, remixLink, parentTrackId])
 
   const handleSubmit = useCallback(
-    (values: MenuFormValues) => {
+    (values: RemixSettingsFormValues) => {
       const showRemixes = get(values, SHOW_REMIXES)
       const isRemix = get(values, IS_REMIX)
       const { parentTrackId } = values
 
-      setShowRemixes(showRemixes)
+      setShowRemixes(!!showRemixes)
 
       setRemixOf(
         isRemix && parentTrackId
-          ? { tracks: [{ parent_track_id: parentTrackId } as Remix] }
+          ? {
+              tracks: [
+                // @ts-expect-error
+                { parent_track_id: encodeHashId(parentTrackId) } as Remix
+              ]
+            }
           : null
       )
     },
@@ -123,6 +121,7 @@ export const RemixSettingsField = () => {
       icon={<IconRemix />}
       initialValues={initialValues}
       onSubmit={handleSubmit}
+      validationSchema={toFormikValidationSchema(RemixSettingsFieldSchema)}
     />
   )
 }

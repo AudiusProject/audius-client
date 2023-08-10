@@ -3,8 +3,8 @@ import React, { useCallback, useRef } from 'react'
 import {
   accountSelectors,
   collectionsSocialActions,
-  createChatModalActions,
   FeatureFlags,
+  Name,
   shareModalUISelectors,
   shareSoundToTiktokModalActions,
   tracksSocialActions,
@@ -26,6 +26,7 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { useToast } from 'app/hooks/useToast'
 import type { AppTabScreenParamList } from 'app/screens/app-screen'
+import { make, track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -43,7 +44,6 @@ const { shareUser } = usersSocialActions
 const { shareTrack } = tracksSocialActions
 const { shareCollection } = collectionsSocialActions
 const { getAccountUser } = accountSelectors
-const { setState: setCreateChatModalState } = createChatModalActions
 
 export const shareToastTimeout = 1500
 
@@ -108,14 +108,11 @@ export const ShareDrawer = () => {
 
   const handleShareToDirectMessage = useCallback(async () => {
     if (!content) return
-    navigation.navigate('ChatUserList')
-    dispatch(
-      setCreateChatModalState({
-        // Just care about the link
-        presetMessage: getContentUrl(content)
-      })
-    )
-  }, [content, dispatch, navigation])
+    navigation.navigate('ChatUserList', {
+      presetMessage: getContentUrl(content)
+    })
+    track(make({ eventName: Name.CHAT_ENTRY_POINT, source: 'share' }))
+  }, [content, navigation])
 
   const handleShareToTwitter = useCallback(async () => {
     if (!content) return

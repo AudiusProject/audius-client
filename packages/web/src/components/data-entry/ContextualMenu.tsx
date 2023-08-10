@@ -149,9 +149,9 @@ export const ContextualMenu = <FormValues extends FormikValues = FormikValues>(
   const handleSubmit = useCallback(
     (values: FormValues, helpers: FormikHelpers<FormValues>) => {
       onSubmit(values, helpers)
-      toggleMenu()
+      if (!error) toggleMenu()
     },
-    [onSubmit, toggleMenu]
+    [error, onSubmit, toggleMenu]
   )
 
   return (
