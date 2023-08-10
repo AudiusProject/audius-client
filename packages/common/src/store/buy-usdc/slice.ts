@@ -31,7 +31,7 @@ const slice = createSlice({
   name: 'buy-usdc',
   initialState,
   reducers: {
-    startBuyUSDCFlow: (
+    onRampOpened: (
       state,
       action: PayloadAction<{
         purchaseInfo: PurchaseInfo
@@ -44,12 +44,11 @@ const slice = createSlice({
       state.provider = action.payload.provider
       state.onSuccess = action.payload.onSuccess
     },
-    onRampOpened: (state, _action: PayloadAction<PurchaseInfo>) => {
+    onPurchaseStarted: (state) => {
       state.stage = BuyUSDCStage.PURCHASING
     },
     onRampCanceled: (state) => {
       if (state.stage === BuyUSDCStage.PURCHASING) {
-        state.error = new Error('USDC purchase canceled')
         state.stage = BuyUSDCStage.CANCELED
       }
     },
@@ -59,6 +58,7 @@ const slice = createSlice({
     buyUSDCFlowFailed: (state) => {
       // TODO: Probably want to pass error in action payload
       state.error = new Error('USDC purchase failed')
+      state.stage = BuyUSDCStage.ERROR
     },
     buyUSDCFlowSucceeded: (state) => {
       state.stage = BuyUSDCStage.FINISH
@@ -75,8 +75,8 @@ const slice = createSlice({
 export const {
   buyUSDCFlowFailed,
   buyUSDCFlowSucceeded,
-  startBuyUSDCFlow,
   onRampOpened,
+  onPurchaseStarted,
   onRampSucceeded,
   onRampCanceled,
   stripeSessionStatusChanged

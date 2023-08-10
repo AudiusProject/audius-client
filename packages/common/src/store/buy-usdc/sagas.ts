@@ -1,7 +1,7 @@
 import { PublicKey } from '@solana/web3.js'
 import BN from 'bn.js'
 import { takeLatest } from 'redux-saga/effects'
-import { call, put, race, select, take } from 'typed-redux-saga'
+import { call, put, race, take } from 'typed-redux-saga'
 
 import { Name } from 'models/Analytics'
 import { ErrorLevel } from 'models/ErrorReporting'
@@ -14,14 +14,13 @@ import { getContext } from 'store/effects'
 import { setVisibility } from 'store/ui/modals/slice'
 import { initializeStripeModal } from 'store/ui/stripe-modal/slice'
 
-import { getBuyUSDCProvider } from './selectors'
 import {
   buyUSDCFlowFailed,
   buyUSDCFlowSucceeded,
   onRampCanceled,
   onRampOpened,
-  onRampSucceeded,
-  startBuyUSDCFlow
+  onPurchaseStarted,
+  onRampSucceeded
 } from './slice'
 import { USDCOnRampProvider } from './types'
 import { getUSDCUserBank } from './utils'
@@ -31,11 +30,11 @@ function* getBuyUSDCRemoteConfig() {
   const remoteConfigInstance = yield* getContext('remoteConfigInstance')
   yield* call([remoteConfigInstance, remoteConfigInstance.waitForRemoteConfig])
   const retryDelayMs =
-    remoteConfigInstance.getRemoteVar(IntKeys.BUY_AUDIO_WALLET_POLL_DELAY_MS) ??
+    remoteConfigInstance.getRemoteVar(IntKeys.BUY_TOKEN_WALLET_POLL_DELAY_MS) ??
     undefined
   const maxRetryCount =
     remoteConfigInstance.getRemoteVar(
-      IntKeys.BUY_AUDIO_WALLET_POLL_MAX_RETRIES
+      IntKeys.BUY_TOKEN_WALLET_POLL_MAX_RETRIES
     ) ?? undefined
   return {
     maxRetryCount,
@@ -69,6 +68,8 @@ function* purchaseStep({
     }
   )
   const initialBalance = initialAccountInfo.amount
+
+  yield* put(onPurchaseStarted())
 
   // Wait for on ramp finish
   const result = yield* race({
@@ -114,12 +115,15 @@ function* purchaseStep({
 }
 
 function* doBuyUSDC({
-  payload: { desiredAmount }
+  payload: {
+    provider,
+    purchaseInfo: { desiredAmount }
+  }
 }: ReturnType<typeof onRampOpened>) {
   const reportToSentry = yield* getContext('reportToSentry')
-  const userBank = yield* getUSDCUserBank()
   const { track, make } = yield* getContext('analytics')
-  const provider = yield* select(getBuyUSDCProvider)
+
+  const userBank = yield* getUSDCUserBank()
 
   try {
     if (provider !== USDCOnRampProvider.STRIPE) {
@@ -196,20 +200,10 @@ function* doBuyUSDC({
   }
 }
 
-function* doStartBuyUSDCFlow(action: ReturnType<typeof startBuyUSDCFlow>) {
-  // This is a placeholder action to handle a general buy usdc flow.
-  // For now, it will just open the onramp using the provided values
-  yield* put(onRampOpened(action.payload.purchaseInfo))
-}
-
 function* watchOnRampOpened() {
   yield takeLatest(onRampOpened, doBuyUSDC)
 }
 
-function* watchStartBuyUSDCFlow() {
-  yield takeLatest(startBuyUSDCFlow, doStartBuyUSDCFlow)
-}
-
 export default function sagas() {
-  return [watchOnRampOpened, watchStartBuyUSDCFlow]
+  return [watchOnRampOpened]
 }

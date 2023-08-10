@@ -14,8 +14,8 @@ import { accountSelectors } from 'store/account'
 import {
   buyUSDCFlowFailed,
   buyUSDCFlowSucceeded,
-  onRampCanceled,
-  startBuyUSDCFlow
+  onRampOpened,
+  onRampCanceled
 } from 'store/buy-usdc/slice'
 import { USDCOnRampProvider } from 'store/buy-usdc/types'
 import { getUSDCUserBank } from 'store/buy-usdc/utils'
@@ -160,7 +160,7 @@ function* doStartPurchaseContentFlow({
     if (initialBalance.lt(new BN(price))) {
       yield* put(onBuyUSDC())
       yield* put(
-        startBuyUSDCFlow({
+        onRampOpened({
           provider: USDCOnRampProvider.STRIPE,
           purchaseInfo: {
             desiredAmount: price

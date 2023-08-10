@@ -329,11 +329,11 @@ function* getBuyAudioRemoteConfig() {
     remoteConfigInstance.getRemoteVar(IntKeys.BUY_AUDIO_SLIPPAGE) ??
     DEFAULT_SLIPPAGE
   const retryDelayMs =
-    remoteConfigInstance.getRemoteVar(IntKeys.BUY_AUDIO_WALLET_POLL_DELAY_MS) ??
+    remoteConfigInstance.getRemoteVar(IntKeys.BUY_TOKEN_WALLET_POLL_DELAY_MS) ??
     undefined
   const maxRetryCount =
     remoteConfigInstance.getRemoteVar(
-      IntKeys.BUY_AUDIO_WALLET_POLL_MAX_RETRIES
+      IntKeys.BUY_TOKEN_WALLET_POLL_MAX_RETRIES
     ) ?? undefined
   return {
     minAudioAmount,

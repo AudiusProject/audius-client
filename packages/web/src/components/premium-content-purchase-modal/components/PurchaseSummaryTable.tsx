@@ -52,7 +52,7 @@ export const PurchaseSummaryTable = ({
         <span className={styles.finalPrice}>
           {existingBalance ? (
             <>
-              <s>{messages.price(formatPrice(basePrice))}</s>
+              <del>{messages.price(formatPrice(basePrice))}</del>
               {messages.price(formatPrice(amountDue))}
             </>
           ) : (
