@@ -51,7 +51,7 @@ export const CreateChatActionsDrawer = () => {
   const dispatch = useDispatch()
   const navigation = useNavigation()
   const { data } = useDrawer('CreateChatActions')
-  const { userId } = data
+  const { userId } = data ?? {}
   const doesBlockUser = useSelector((state: AppState) =>
     getDoesBlockUser(state, userId)
   )

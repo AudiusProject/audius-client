@@ -23,7 +23,7 @@ const { unsaveCollection } = collectionsSocialActions
 export const UnfavoriteDownloadedCollectionDrawer = () => {
   const { data } = useDrawer(drawerName)
   const dispatch = useDispatch()
-  const { collectionId } = data
+  const { collectionId } = data ?? {}
 
   const isAlbum = useSelector(
     (state: CommonState) =>

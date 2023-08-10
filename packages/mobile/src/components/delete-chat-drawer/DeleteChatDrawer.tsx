@@ -66,7 +66,7 @@ export const DeleteChatDrawer = () => {
   const neutralLight2 = useColor('neutralLight2')
   const dispatch = useDispatch()
   const { data } = useDrawer('DeleteChat')
-  const { chatId } = data
+  const { chatId } = data ?? {}
 
   const closeDrawer = useCallback(() => {
     dispatch(
