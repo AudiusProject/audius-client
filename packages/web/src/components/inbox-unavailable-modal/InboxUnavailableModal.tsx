@@ -150,10 +150,10 @@ export const InboxUnavailableModal = () => {
     <Modal
       bodyClassName={styles.modalBody}
       isOpen={isOpen}
-      onClose={handleCancel}
+      onClose={onClose}
       onClosed={onClosed}
     >
-      <ModalHeader>
+      <ModalHeader onClose={handleCancel}>
         <ModalTitle
           icon={<IconMessageLocked className={styles.icon} />}
           title={messages.title}
