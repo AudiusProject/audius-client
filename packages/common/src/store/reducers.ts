@@ -98,6 +98,10 @@ import { DeletePlaylistConfirmationModalState } from './ui/delete-playlist-confi
 import duplicateAddConfirmationReducer from './ui/duplicate-add-confirmation-modal/slice'
 import { DuplicateAddConfirmationModalState } from './ui/duplicate-add-confirmation-modal/types'
 import {
+  InboxUnavailableModalState,
+  inboxUnavailableModalReducer
+} from './ui/inbox-unavailable-modal'
+import {
   LeavingAudiusModalState,
   leavingAudiusModalReducer
 } from './ui/leaving-audius-modal'
@@ -200,8 +204,9 @@ export const reducers = () => ({
     mobileOverflowModal: mobileOverflowModalReducer,
     modals: modalsReducer,
     modalsWithState: combineReducers({
-      leavingAudiusModal: leavingAudiusModalReducer,
-      createChatModal: createChatModalReducer
+      createChatModal: createChatModalReducer,
+      inboxUnavailableModal: inboxUnavailableModalReducer,
+      leavingAudiusModal: leavingAudiusModalReducer
     }),
     musicConfetti: musicConfettiReducer,
     nowPlaying: nowPlayingReducer,
@@ -328,6 +333,7 @@ export type CommonState = {
     modals: ModalsState
     modalsWithState: {
       createChatModal: CreateChatModalState
+      inboxUnavailableModal: InboxUnavailableModalState
       leavingAudiusModal: LeavingAudiusModalState
     }
     musicConfetti: MusicConfettiState

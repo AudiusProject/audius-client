@@ -15,5 +15,8 @@ const createChatModal = createModal<CreateChatModalState>({
   sliceSelector: (state) => state.ui.modalsWithState
 })
 
-export const { hook: useCreateChatModal, reducer: createChatModalReducer } =
-  createChatModal
+export const {
+  hook: useCreateChatModal,
+  actions: createChatModalActions,
+  reducer: createChatModalReducer
+} = createChatModal
