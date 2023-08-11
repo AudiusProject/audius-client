@@ -248,6 +248,7 @@ export const purchaseContent = async (
   audiusBackendInstance: AudiusBackend,
   config: PurchaseContentArgs
 ) => {
+  z
   return (
     await audiusBackendInstance.getAudiusLibs()
   ).solanaWeb3Manager!.purchaseContent(config)

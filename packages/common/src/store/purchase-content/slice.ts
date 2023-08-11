@@ -58,7 +58,6 @@ const slice = createSlice({
       state.stage = PurchaseContentStage.FINISH
     },
     purchaseContentFlowFailed: (state) => {
-      // TODO: Probably want to pass error in action payload
       state.error = new Error('Content purchase failed')
     },
     cleanup: () => initialState
