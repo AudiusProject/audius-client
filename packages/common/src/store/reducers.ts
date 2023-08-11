@@ -200,7 +200,8 @@ export const reducers = () => ({
     mobileOverflowModal: mobileOverflowModalReducer,
     modals: modalsReducer,
     modalsWithState: combineReducers({
-      leavingAudiusModal: leavingAudiusModalReducer
+      leavingAudiusModal: leavingAudiusModalReducer,
+      createChatModal: createChatModalReducer
     }),
     musicConfetti: musicConfettiReducer,
     nowPlaying: nowPlayingReducer,
@@ -318,7 +319,6 @@ export type CommonState = {
     buyAudio: ReturnType<typeof buyAudioReducer>
     addToPlaylist: AddToPlaylistState
     changePassword: ChangePasswordState
-    createChatModal: CreateChatModalState
     createPlaylistModal: CreatePlaylistModalState
     collectibleDetails: CollectibleDetailsState
     deletePlaylistConfirmationModal: DeletePlaylistConfirmationModalState
@@ -327,6 +327,7 @@ export type CommonState = {
     mobileOverflowModal: MobileOverflowModalState
     modals: ModalsState
     modalsWithState: {
+      createChatModal: CreateChatModalState
       leavingAudiusModal: LeavingAudiusModalState
     }
     musicConfetti: MusicConfettiState

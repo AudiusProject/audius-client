@@ -58,6 +58,7 @@ type SearchUsersModalProps = {
   renderUser: (user: User, closeParentModal: () => void) => ReactNode
   onCancel?: () => void
   onClose?: () => void
+  onClosed?: () => void
 }
 
 export const SearchUsersModal = (props: SearchUsersModalProps) => {
@@ -74,6 +75,7 @@ export const SearchUsersModal = (props: SearchUsersModalProps) => {
     renderUser,
     renderEmpty = () => null,
     onClose,
+    onClosed,
     onCancel
   } = props
   const dispatch = useDispatch()
@@ -131,7 +133,7 @@ export const SearchUsersModal = (props: SearchUsersModalProps) => {
   }, [hasQuery, query, status, defaultUserList, dispatch])
 
   return (
-    <Modal isOpen={isVisible} onClose={handleClose}>
+    <Modal isOpen={isVisible} onClose={handleClose} onClosed={onClosed}>
       <ModalHeader onClose={handleCancel}>
         <ModalTitle iconClassName={styles.icon} {...titleProps}></ModalTitle>
       </ModalHeader>

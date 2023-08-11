@@ -141,11 +141,10 @@ export * as searchUsersModalSelectors from './search-users-modal/selectors'
 export { default as searchUsersModalSagas } from './search-users-modal/sagas'
 
 export {
-  default as createChatModalReducer,
-  actions as createChatModalActions,
+  createChatModalReducer,
+  useCreateChatModal,
   CreateChatModalState
-} from './create-chat-modal/slice'
-export * as createChatModalSelectors from './create-chat-modal/selectors'
+} from './create-chat-modal'
 
 export {
   leavingAudiusModalReducer,
