@@ -20,6 +20,8 @@ import { matchPath } from 'react-router'
 import { Switch, Route, Redirect, withRouter } from 'react-router-dom'
 import semver from 'semver'
 
+import { TestSdk } from './TestSdk'
+
 import { make } from 'common/store/analytics/actions'
 import {
   openSignOn,
@@ -680,6 +682,7 @@ class App extends Component {
                   isMobile={isMobileClient}
                   render={() => <UploadPage uploadType={UploadType.ALBUM} />}
                 />
+
                 <DesktopRoute
                   path={UPLOAD_PLAYLIST_PAGE}
                   isMobile={isMobileClient}
@@ -692,6 +695,7 @@ class App extends Component {
                 />
 
                 <Route exact path={SAVED_PAGE} component={SavedPage} />
+                <Route exact path={'/test'} component={TestSdk} />
                 <Route exact path={HISTORY_PAGE} component={HistoryPage} />
                 <DesktopRoute
                   exact
