@@ -4,8 +4,10 @@ import {
   CHAT_BLOG_POST_URL,
   ChatPermissionAction,
   User,
+  accountSelectors,
   chatActions,
   chatSelectors,
+  makeChatId,
   tippingActions,
   useInboxUnavailableModal
 } from '@audius/common'
@@ -96,6 +98,7 @@ export const InboxUnavailableModal = () => {
   const { isOpen, onClose, onClosed, data } = useInboxUnavailableModal()
   const { user, presetMessage, onCancelAction } = data
   const dispatch = useDispatch()
+  const currentUserId = useSelector(accountSelectors.getUserId)
   const { callToAction } = useSelector((state) =>
     getCanCreateChat(state, { userId: user?.user_id })
   )
@@ -105,9 +108,22 @@ export const InboxUnavailableModal = () => {
 
   const handleClick = useCallback(() => {
     if (!user) return
-    if (callToAction === ChatPermissionAction.TIP) {
-      dispatch(beginTip({ user, source: 'inboxUnavailableModal' }))
-      onClose()
+    if (callToAction === ChatPermissionAction.TIP && currentUserId) {
+      const chatId = makeChatId([currentUserId, user.user_id])
+      dispatch(
+        beginTip({
+          user,
+          source: 'inboxUnavailableModal',
+          onSuccessAction: chatActions.goToChat({
+            chatId,
+            presetMessage
+          }),
+          onSuccessConfirmedAction: chatActions.createChat({
+            userIds: [user.user_id],
+            skipNavigation: true
+          })
+        })
+      )
     } else if (callToAction === ChatPermissionAction.UNBLOCK) {
       dispatch(unblockUser({ userId: user.user_id }))
       dispatch(createChat({ userIds: [user.user_id], presetMessage }))
@@ -115,7 +131,7 @@ export const InboxUnavailableModal = () => {
       window.open(CHAT_BLOG_POST_URL, '_blank')
     }
     onClose()
-  }, [callToAction, user, dispatch, presetMessage, onClose])
+  }, [callToAction, currentUserId, user, dispatch, presetMessage, onClose])
 
   const handleCancel = useCallback(() => {
     if (onCancelAction) {
