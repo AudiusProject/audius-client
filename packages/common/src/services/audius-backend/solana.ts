@@ -106,6 +106,35 @@ function isCreateUserBankIfNeededError(
   return 'error' in res
 }
 
+export const getUserbankAccountInfo = async (
+  audiusBackendInstance: AudiusBackend,
+  { ethAddress: sourceEthAddress, mint = DEFAULT_MINT }: UserBankConfig = {}
+) => {
+  const audiusLibs: AudiusLibs = await audiusBackendInstance.getAudiusLibs()
+  const ethAddress =
+    sourceEthAddress ?? audiusLibs.Account!.getCurrentUser()?.wallet
+
+  if (!ethAddress) {
+    throw new Error(
+      `getUserbankAccountInfo: unexpected error getting eth address`
+    )
+  }
+
+  if (!audiusLibs.solanaWeb3Manager!.doesUserbankExist({ ethAddress, mint })) {
+    return null
+  }
+
+  const tokenAccount = await deriveUserBankPubkey(audiusBackendInstance, {
+    ethAddress,
+    mint
+  })
+
+  return getTokenAccountInfo(audiusBackendInstance, {
+    tokenAccount,
+    mint
+  })
+}
+
 /**
  * Attempts to create a userbank if one does not exist.
  * Defaults to AUDIO mint and the current user's wallet.
