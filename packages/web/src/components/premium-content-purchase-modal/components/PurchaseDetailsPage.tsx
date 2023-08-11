@@ -21,7 +21,8 @@ import styles from './PurchaseDetailsPage.module.css'
 import { PurchaseSummaryTable } from './PurchaseSummaryTable'
 
 const { startPurchaseContentFlow } = purchaseContentActions
-const { getPurchaseContentFlowStage } = purchaseContentSelectors
+const { getPurchaseContentFlowStage, getPurchaseContentError } =
+  purchaseContentSelectors
 
 const messages = {
   buy: (price: string) => `Buy $${price}`,
@@ -35,11 +36,14 @@ export const PurchaseDetailsPage = ({
 }) => {
   const dispatch = useDispatch()
   const stage = useSelector(getPurchaseContentFlowStage)
-  const isUnlocking = [
-    PurchaseContentStage.BUY_USDC,
-    PurchaseContentStage.PURCHASING,
-    PurchaseContentStage.CONFIRMING_PURCHASE
-  ].includes(stage)
+  const error = useSelector(getPurchaseContentError)
+  const isUnlocking =
+    !error &&
+    [
+      PurchaseContentStage.BUY_USDC,
+      PurchaseContentStage.PURCHASING,
+      PurchaseContentStage.CONFIRMING_PURCHASE
+    ].includes(stage)
 
   const onClickBuy = useCallback(() => {
     if (isUnlocking) return

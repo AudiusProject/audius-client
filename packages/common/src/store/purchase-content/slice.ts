@@ -49,7 +49,6 @@ const slice = createSlice({
       state.stage = PurchaseContentStage.PURCHASING
     },
     purchaseCanceled: (state) => {
-      state.error = new Error('Content purchase canceled')
       state.stage = PurchaseContentStage.CANCELED
     },
     purchaseSucceeded: (state) => {

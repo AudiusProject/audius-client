@@ -181,6 +181,7 @@ function* doStartPurchaseContentFlow({
         yield* put(purchaseCanceled())
         return
       } else if (result.failed) {
+        yield* put(purchaseContentFlowFailed())
         return
       }
     }
