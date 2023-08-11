@@ -1,7 +1,6 @@
 import { ComponentPropsWithoutRef, MutableRefObject, RefCallback } from 'react'
 
 import cn from 'classnames'
-import { isEmpty, isNull } from 'lodash'
 
 import layoutStyles from 'components/layout/layout.module.css'
 import { Text } from 'components/typography'

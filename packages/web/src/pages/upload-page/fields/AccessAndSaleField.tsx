@@ -5,7 +5,6 @@ import {
   collectiblesSelectors,
   FeatureFlags,
   FieldVisibility,
-  formatSeconds,
   isPremiumContentCollectibleGated,
   isPremiumContentFollowGated,
   isPremiumContentTipGated,
