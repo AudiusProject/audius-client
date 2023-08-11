@@ -1,3 +1,5 @@
+import type { Action } from '@reduxjs/toolkit'
+
 import { TipSource } from '../../models/Analytics'
 import { ID } from '../../models/Identifiers'
 import { Supporter, Supporting, UserTip } from '../../models/Tipping'
@@ -49,6 +51,8 @@ export type TippingState = {
     error: Nullable<string>
     source: TipSource
     trackId: Nullable<number> // in case the user is sending a tip from a gated track page / modal
+    onSuccessAction?: Action
+    onSuccessConfirmedAction?: Action
   }
   tipToDisplay: Nullable<UserTip>
   showTip: boolean
