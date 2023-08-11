@@ -56,7 +56,6 @@ const slice = createSlice({
       state.stage = BuyUSDCStage.CONFIRMING_PURCHASE
     },
     buyUSDCFlowFailed: (state) => {
-      // TODO: Probably want to pass error in action payload
       state.error = new Error('USDC purchase failed')
     },
     buyUSDCFlowSucceeded: (state) => {

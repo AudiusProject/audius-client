@@ -1,6 +1,6 @@
 import BN from 'bn.js'
 import { takeLatest } from 'redux-saga/effects'
-import { call, delay, put, race, select, take } from 'typed-redux-saga'
+import { call, put, race, select, take } from 'typed-redux-saga'
 
 import { Name } from 'models/Analytics'
 import { ErrorLevel } from 'models/ErrorReporting'
@@ -193,8 +193,6 @@ function* doStartPurchaseContentFlow({
       contentId,
       contentType
     })
-
-    yield* delay(2000)
 
     // purchase content
     yield* call(purchaseContent, audiusBackendInstance, {
