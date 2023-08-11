@@ -27,8 +27,6 @@ const messages = {
 const { getAccountUser } = accountSelectors
 const { fetchBlockers } = chatActions
 
-const CREATE_CHAT_MODAL = 'CreateChat'
-
 export const CreateChatModal = () => {
   const dispatch = useDispatch()
   const currentUser = useSelector(getAccountUser)
@@ -85,7 +83,6 @@ export const CreateChatModal = () => {
   return (
     <>
       <SearchUsersModal
-        modalName={CREATE_CHAT_MODAL}
         titleProps={{ title: messages.title, icon: <IconCompose /> }}
         defaultUserList={{
           userIds,
@@ -103,6 +100,7 @@ export const CreateChatModal = () => {
           />
         )}
         renderEmpty={() => <CreateChatEmptyResults />}
+        isOpen={isOpen}
         onClose={onClose}
         onClosed={onClosed}
         onCancel={handleCancel}

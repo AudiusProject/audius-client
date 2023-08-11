@@ -2,7 +2,6 @@ import { ChangeEvent, ReactNode, useCallback, useRef, useState } from 'react'
 
 import {
   cacheUsersSelectors,
-  Modals,
   searchUsersModalSelectors,
   searchUsersModalActions,
   useProxySelector,
@@ -16,6 +15,7 @@ import {
   IconSearch,
   Modal,
   ModalHeader,
+  ModalProps,
   ModalTitle,
   ModalTitleProps,
   Scrollbar
@@ -24,7 +24,6 @@ import InfiniteScroll from 'react-infinite-scroller'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDebounce } from 'react-use'
 
-import { useModalState } from 'common/hooks/useModalState'
 import {
   InputV2,
   InputV2Size,
@@ -45,7 +44,6 @@ const { getUserList } = searchUsersModalSelectors
 const { getUsers } = cacheUsersSelectors
 
 type SearchUsersModalProps = {
-  modalName: Modals
   titleProps: ModalTitleProps
   debounceMs?: number
   defaultUserList?: {
@@ -57,13 +55,10 @@ type SearchUsersModalProps = {
   renderEmpty?: () => ReactNode
   renderUser: (user: User, closeParentModal: () => void) => ReactNode
   onCancel?: () => void
-  onClose?: () => void
-  onClosed?: () => void
-}
+} & Omit<ModalProps, 'children'>
 
 export const SearchUsersModal = (props: SearchUsersModalProps) => {
   const {
-    modalName,
     titleProps,
     debounceMs = DEBOUNCE_MS,
     defaultUserList = {
@@ -74,12 +69,12 @@ export const SearchUsersModal = (props: SearchUsersModalProps) => {
     },
     renderUser,
     renderEmpty = () => null,
+    isOpen,
     onClose,
     onClosed,
     onCancel
   } = props
   const dispatch = useDispatch()
-  const [isVisible, setIsVisible] = useModalState(modalName)
   const [query, setQuery] = useState('')
   const [hasQuery, setHasQuery] = useState(false)
   const scrollParentRef = useRef<HTMLElement | null>(null)
@@ -91,7 +86,7 @@ export const SearchUsersModal = (props: SearchUsersModalProps) => {
       const users = getUsers(state, { ids })
       return ids.map((id) => users[id])
     },
-    [hasQuery, userIds, isVisible]
+    [hasQuery, userIds, isOpen]
   )
 
   useDebounce(
@@ -104,10 +99,9 @@ export const SearchUsersModal = (props: SearchUsersModalProps) => {
   )
 
   const handleClose = useCallback(() => {
-    setIsVisible(false)
     setQuery('')
-    onClose?.()
-  }, [setIsVisible, onClose])
+    onClose()
+  }, [onClose])
 
   const handleCancel = useCallback(() => {
     handleClose()
@@ -133,7 +127,7 @@ export const SearchUsersModal = (props: SearchUsersModalProps) => {
   }, [hasQuery, query, status, defaultUserList, dispatch])
 
   return (
-    <Modal isOpen={isVisible} onClose={handleClose} onClosed={onClosed}>
+    <Modal isOpen={isOpen} onClose={handleClose} onClosed={onClosed}>
       <ModalHeader onClose={handleCancel}>
         <ModalTitle iconClassName={styles.icon} {...titleProps}></ModalTitle>
       </ModalHeader>
