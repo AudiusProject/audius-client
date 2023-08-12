@@ -46,7 +46,8 @@ const messages = {
   ),
   tipButton: 'Send $AUDIO',
   unblockContent: 'You cannot send messages to users you have blocked.',
-  unblockButton: 'Unblock'
+  unblockButton: 'Unblock',
+  defaultUsername: 'this user'
 }
 
 const actionToContent = ({
@@ -71,7 +72,7 @@ const actionToContent = ({
           user ? (
             <UserNameAndBadges user={user} onNavigateAway={onClose} />
           ) : (
-            'this user'
+            messages.defaultUsername
           )
         ),
         buttonText: messages.tipButton,
@@ -108,7 +109,12 @@ export const InboxUnavailableModal = () => {
     callToAction === ChatPermissionAction.UNBLOCK
 
   const handleClick = useCallback(() => {
-    if (!user) return
+    if (!user) {
+      console.error(
+        'Unexpected undefined user for InboxUnavailableModal click handler'
+      )
+      return
+    }
     if (callToAction === ChatPermissionAction.TIP && currentUserId) {
       const chatId = makeChatId([currentUserId, user.user_id])
       const tipSuccessActions: Action[] = [
