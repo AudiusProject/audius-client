@@ -7,8 +7,11 @@ import {
   tippingActions,
   cacheUsersSelectors,
   ChatPermissionAction,
-  CHAT_BLOG_POST_URL
+  CHAT_BLOG_POST_URL,
+  accountSelectors,
+  makeChatId
 } from '@audius/common'
+import { fetchPlaylistsSucceded } from '@audius/common/dist/store/pages/explore/slice'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -115,6 +118,7 @@ const DrawerContent = ({ data }: DrawerContentProps) => {
   const { canCreateChat, callToAction } = useSelector((state) =>
     getCanCreateChat(state, { userId })
   )
+  const currentUserId = useSelector(accountSelectors.getUserId)
 
   const closeDrawer = useCallback(() => {
     dispatch(
@@ -140,10 +144,31 @@ const DrawerContent = ({ data }: DrawerContentProps) => {
   }, [closeDrawer, onPressLearnMore])
 
   const handleTipPress = useCallback(() => {
-    dispatch(beginTip({ user, source: 'inboxUnavailableModal' }))
+    if (!currentUserId || !user) {
+      console.error(
+        'Unexpected undefined currentUserId or user when starting tip'
+      )
+      return
+    }
+    const chatId = makeChatId([currentUserId, user.user_id])
+    dispatch(
+      beginTip({
+        user,
+        source: 'inboxUnavailableModal',
+        onSuccessActions: [
+          chatActions.goToChat({
+            chatId
+          })
+        ],
+        onSuccessConfirmedAction: chatActions.createChat({
+          userIds: [user.user_id],
+          skipNavigation: true
+        })
+      })
+    )
     navigation.navigate('TipArtist')
     closeDrawer()
-  }, [closeDrawer, dispatch, navigation, user])
+  }, [closeDrawer, currentUserId, dispatch, navigation, user])
 
   switch (callToAction) {
     case ChatPermissionAction.NONE:
