@@ -128,7 +128,6 @@ const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
   BlockMessages: BlockMessagesDrawer,
   DeleteChat: DeleteChatDrawer,
   SupportersInfo: SupportersInfoDrawer,
-  InboxUnavailable: InboxUnavailableDrawer,
   PremiumTrackPurchase: PremiumTrackPurchaseDrawer
 }
 
@@ -158,6 +157,7 @@ export const Drawers = () => {
         />
       ))}
       <LeavingAudiusDrawer />
+      <InboxUnavailableDrawer />
     </>
   )
 }

@@ -28,7 +28,6 @@ export type Drawer =
   | 'BlockMessages'
   | 'DeleteChat'
   | 'SupportersInfo'
-  | 'InboxUnavailable'
   | 'PremiumTrackPurchase'
 
 export type DrawerData = {
@@ -96,7 +95,6 @@ const initialState: DrawersState = {
   BlockMessages: false,
   DeleteChat: false,
   SupportersInfo: false,
-  InboxUnavailable: false,
   PremiumTrackPurchase: false,
   data: {}
 }

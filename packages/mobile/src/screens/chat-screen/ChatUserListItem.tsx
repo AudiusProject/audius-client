@@ -6,7 +6,8 @@ import {
   chatSelectors,
   ChatPermissionAction,
   cacheUsersSelectors,
-  formatCount
+  formatCount,
+  useInboxUnavailableModal
 } from '@audius/common'
 import { useSelector } from 'audius-client/src/common/hooks/useSelector'
 import { View, TouchableOpacity, Keyboard } from 'react-native'
@@ -158,6 +159,7 @@ export const ChatUserListItem = ({
   const { callToAction, canCreateChat } = useSelector((state) =>
     getCanCreateChat(state, { userId: user?.user_id })
   )
+  const { onOpen: openInboxUnavailableDrawer } = useInboxUnavailableModal()
 
   const handlePress = useCallback(() => {
     if (user?.user_id) {
@@ -169,15 +171,9 @@ export const ChatUserListItem = ({
   const handleNotPermittedPress = useCallback(() => {
     if (user?.user_id) {
       Keyboard.dismiss()
-      dispatch(
-        setVisibility({
-          drawer: 'InboxUnavailable',
-          visible: true,
-          data: { userId: user.user_id, shouldOpenChat: true }
-        })
-      )
+      openInboxUnavailableDrawer({ user, presetMessage })
     }
-  }, [dispatch, user?.user_id])
+  }, [openInboxUnavailableDrawer, user, presetMessage])
 
   const handleKebabPress = useCallback(() => {
     if (user?.user_id) {
