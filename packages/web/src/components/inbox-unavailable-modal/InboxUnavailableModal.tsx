@@ -135,10 +135,12 @@ export const InboxUnavailableModal = () => {
           user,
           source: 'inboxUnavailableModal',
           onSuccessActions: tipSuccessActions,
-          onSuccessConfirmedAction: chatActions.createChat({
-            userIds: [userId],
-            skipNavigation: true
-          })
+          onSuccessConfirmedActions: [
+            chatActions.createChat({
+              userIds: [userId],
+              skipNavigation: true
+            })
+          ]
         })
       )
     } else if (callToAction === ChatPermissionAction.UNBLOCK) {
