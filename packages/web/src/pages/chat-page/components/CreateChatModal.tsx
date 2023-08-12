@@ -12,10 +12,7 @@ import {
   useInboxUnavailableModal,
   createChatModalActions,
   searchUsersModalActions,
-  chatSelectors,
-  decodeHashId,
-  removeNullable,
-  Status
+  useChatsUserList
 } from '@audius/common'
 import { IconCompose } from '@audius/stems'
 import { useDispatch } from 'react-redux'
@@ -30,29 +27,8 @@ const messages = {
   title: 'New Message'
 }
 
-const { getAccountUser, getUserId } = accountSelectors
+const { getAccountUser } = accountSelectors
 const { fetchBlockers, fetchMoreChats } = chatActions
-const { getChats, getHasMoreChats, getChatsStatus } = chatSelectors
-
-const useChatsUserList = () => {
-  const currentUserId = useSelector(getUserId)
-  const chats = useSelector(getChats)
-  const hasMoreChats = useSelector(getHasMoreChats)
-  const chatsStatus = useSelector(getChatsStatus)
-  const chatUserListIds = chats
-    .map(
-      (c) =>
-        c.chat_members
-          .filter((u) => decodeHashId(u.user_id) !== currentUserId)
-          .map((u) => decodeHashId(u.user_id))[0]
-    )
-    .filter(removeNullable)
-  return {
-    userIds: chatUserListIds,
-    hasMore: hasMoreChats,
-    loading: chatsStatus === Status.LOADING
-  }
-}
 
 export const CreateChatModal = () => {
   const dispatch = useDispatch()
