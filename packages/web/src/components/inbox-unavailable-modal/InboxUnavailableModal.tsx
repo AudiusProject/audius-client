@@ -5,6 +5,7 @@ import {
   ChatPermissionAction,
   User,
   accountSelectors,
+  cacheUsersSelectors,
   chatActions,
   chatSelectors,
   makeChatId,
@@ -56,7 +57,7 @@ const actionToContent = ({
   onClose
 }: {
   action: ChatPermissionAction
-  user?: User
+  user?: User | null
   onClose: () => void
 }) => {
   switch (action) {
@@ -98,25 +99,28 @@ const { getCanCreateChat } = chatSelectors
 
 export const InboxUnavailableModal = () => {
   const { isOpen, onClose, onClosed, data } = useInboxUnavailableModal()
-  const { user, presetMessage, onSuccessAction, onCancelAction } = data
+  const { userId, presetMessage, onSuccessAction, onCancelAction } = data
+  const user = useSelector((state) =>
+    cacheUsersSelectors.getUser(state, { id: userId })
+  )
   const dispatch = useDispatch()
   const currentUserId = useSelector(accountSelectors.getUserId)
   const { callToAction } = useSelector((state) =>
-    getCanCreateChat(state, { userId: user?.user_id })
+    getCanCreateChat(state, { userId })
   )
   const hasAction =
     callToAction === ChatPermissionAction.TIP ||
     callToAction === ChatPermissionAction.UNBLOCK
 
   const handleClick = useCallback(() => {
-    if (!user) {
+    if (!userId) {
       console.error(
         'Unexpected undefined user for InboxUnavailableModal click handler'
       )
       return
     }
     if (callToAction === ChatPermissionAction.TIP && currentUserId) {
-      const chatId = makeChatId([currentUserId, user.user_id])
+      const chatId = makeChatId([currentUserId, userId])
       const tipSuccessActions: Action[] = [
         chatActions.goToChat({
           chatId,
@@ -132,14 +136,14 @@ export const InboxUnavailableModal = () => {
           source: 'inboxUnavailableModal',
           onSuccessActions: tipSuccessActions,
           onSuccessConfirmedAction: chatActions.createChat({
-            userIds: [user.user_id],
+            userIds: [userId],
             skipNavigation: true
           })
         })
       )
     } else if (callToAction === ChatPermissionAction.UNBLOCK) {
-      dispatch(unblockUser({ userId: user.user_id }))
-      dispatch(createChat({ userIds: [user.user_id], presetMessage }))
+      dispatch(unblockUser({ userId }))
+      dispatch(createChat({ userIds: [userId], presetMessage }))
       if (onSuccessAction) {
         dispatch(onSuccessAction)
       }
@@ -149,6 +153,7 @@ export const InboxUnavailableModal = () => {
     onClose()
   }, [
     user,
+    userId,
     callToAction,
     currentUserId,
     onClose,

@@ -56,7 +56,7 @@ export const CreateChatModal = () => {
   const handleOpenInboxUnavailableModal = useCallback(
     (user: User) => {
       openInboxUnavailableModal({
-        user,
+        userId: user.user_id,
         presetMessage,
         onSuccessAction: searchUsersModalActions.searchUsers({ query: '' }),
         onCancelAction: createChatModalActions.open(data)

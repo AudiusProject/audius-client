@@ -1,11 +1,11 @@
 import { Action } from '@reduxjs/toolkit'
 
-import { User } from 'models/User'
+import { ID } from 'models/Identifiers'
 
 import { createModal } from '../modals/createModal'
 
 export type InboxUnavailableModalState = {
-  user?: User
+  userId?: ID
   presetMessage?: string
   onCancelAction?: Action
   onSuccessAction?: Action

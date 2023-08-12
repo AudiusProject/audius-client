@@ -740,7 +740,7 @@ class ProfilePage extends PureComponent<ProfilePageProps, ProfilePageState> {
     if (this.props.chatPermissions?.canCreateChat) {
       return this.props.onMessage(profile!.user_id)
     } else if (profile) {
-      this.props.onShowInboxUnavailableModal(profile)
+      this.props.onShowInboxUnavailableModal(profile.user_id)
     }
   }
 
@@ -1216,8 +1216,8 @@ function mapDispatchToProps(dispatch: Dispatch, props: RouteComponentProps) {
       dispatch(openSignOn())
       dispatch(showRequiresAccountModal())
     },
-    onShowInboxUnavailableModal: (user: User) => {
-      dispatch(inboxUnavailableModalActions.open({ user }))
+    onShowInboxUnavailableModal: (userId: ID) => {
+      dispatch(inboxUnavailableModalActions.open({ userId }))
     }
   }
 }
