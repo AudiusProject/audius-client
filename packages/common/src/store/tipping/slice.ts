@@ -104,7 +104,7 @@ const slice = createSlice({
         user: User | null
         source: TipSource
         trackId?: ID
-        onSuccessAction?: Action
+        onSuccessActions?: Action[]
         onSuccessConfirmedAction?: Action
       }>
     ) => {
@@ -115,7 +115,7 @@ const slice = createSlice({
       state.send.source = action.payload.source
       state.send.user = action.payload.user
       state.send.trackId = action.payload.trackId ?? null
-      state.send.onSuccessAction = action.payload.onSuccessAction
+      state.send.onSuccessActions = action.payload.onSuccessActions
       state.send.onSuccessConfirmedAction =
         action.payload.onSuccessConfirmedAction
     },

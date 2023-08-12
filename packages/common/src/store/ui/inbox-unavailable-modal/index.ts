@@ -8,6 +8,7 @@ export type InboxUnavailableModalState = {
   user?: User
   presetMessage?: string
   onCancelAction?: Action
+  onSuccessAction?: Action
 }
 
 const inboxUnavailableModal = createModal<InboxUnavailableModalState>({

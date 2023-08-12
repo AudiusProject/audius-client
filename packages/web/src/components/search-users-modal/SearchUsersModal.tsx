@@ -1,4 +1,11 @@
-import { ChangeEvent, ReactNode, useCallback, useRef, useState } from 'react'
+import {
+  ChangeEvent,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from 'react'
 
 import {
   cacheUsersSelectors,
@@ -40,7 +47,7 @@ const messages = {
 const DEBOUNCE_MS = 100
 
 const { searchUsers } = searchUsersModalActions
-const { getUserList } = searchUsersModalSelectors
+const { getUserList, getLastSearchQuery } = searchUsersModalSelectors
 const { getUsers } = cacheUsersSelectors
 
 type SearchUsersModalProps = {
@@ -80,6 +87,7 @@ export const SearchUsersModal = (props: SearchUsersModalProps) => {
   const scrollParentRef = useRef<HTMLElement | null>(null)
 
   const { userIds, hasMore, status } = useSelector(getUserList)
+  const lastSearchQuery = useSelector(getLastSearchQuery)
   const users = useProxySelector(
     (state) => {
       const ids = hasQuery ? userIds : defaultUserList.userIds
@@ -125,6 +133,13 @@ export const SearchUsersModal = (props: SearchUsersModalProps) => {
       defaultUserList.loadMore()
     }
   }, [hasQuery, query, status, defaultUserList, dispatch])
+
+  // Clear the query if something else resets our search state
+  useEffect(() => {
+    if (!lastSearchQuery) {
+      setQuery('')
+    }
+  }, [lastSearchQuery, setQuery])
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} onClosed={onClosed}>

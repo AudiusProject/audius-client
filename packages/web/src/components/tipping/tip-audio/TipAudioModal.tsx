@@ -112,7 +112,7 @@ export const TipAudioModal = () => {
   const dispatch = useDispatch()
   const sendStatus = useSelector(getSendStatus)
   const previousSendStatus = usePrevious(sendStatus)
-  const { user: recipient, onSuccessAction } = useSelector(getSendTipData)
+  const { user: recipient, onSuccessActions } = useSelector(getSendTipData)
   const currentUserId = useSelector(accountSelectors.getUserId)
 
   const audioFeaturesDegradedText = useRemoteVar(
@@ -124,15 +124,23 @@ export const TipAudioModal = () => {
     // attempting to make if they were unlocking DMs by tipping.
     // The saga will create the chat once the tip is confirmed
     if (
-      onSuccessAction &&
+      onSuccessActions &&
       sendStatus === 'SUCCESS' &&
       recipient?.user_id &&
       currentUserId
     ) {
-      dispatch(onSuccessAction)
+      for (const action of onSuccessActions) {
+        dispatch(action)
+      }
     }
     dispatch(resetSend())
-  }, [currentUserId, dispatch, onSuccessAction, recipient?.user_id, sendStatus])
+  }, [
+    currentUserId,
+    dispatch,
+    onSuccessActions,
+    recipient?.user_id,
+    sendStatus
+  ])
 
   useEffect(() => {
     if (sendStatus !== null) {

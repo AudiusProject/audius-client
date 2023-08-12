@@ -10,7 +10,8 @@ import {
   User,
   useCreateChatModal,
   useInboxUnavailableModal,
-  createChatModalActions
+  createChatModalActions,
+  searchUsersModalActions
 } from '@audius/common'
 import { IconCompose } from '@audius/stems'
 import { useDispatch } from 'react-redux'
@@ -57,6 +58,7 @@ export const CreateChatModal = () => {
       openInboxUnavailableModal({
         user,
         presetMessage,
+        onSuccessAction: searchUsersModalActions.searchUsers({ query: '' }),
         onCancelAction: createChatModalActions.open(data)
       })
       onClose()

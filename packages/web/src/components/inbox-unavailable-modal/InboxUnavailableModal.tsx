@@ -23,6 +23,7 @@ import {
   ButtonType,
   IconUnblockMessages
 } from '@audius/stems'
+import { Action } from '@reduxjs/toolkit'
 import { useDispatch } from 'react-redux'
 
 import { UserNameAndBadges } from 'components/user-name-and-badges/UserNameAndBadges'
@@ -96,7 +97,7 @@ const { getCanCreateChat } = chatSelectors
 
 export const InboxUnavailableModal = () => {
   const { isOpen, onClose, onClosed, data } = useInboxUnavailableModal()
-  const { user, presetMessage, onCancelAction } = data
+  const { user, presetMessage, onSuccessAction, onCancelAction } = data
   const dispatch = useDispatch()
   const currentUserId = useSelector(accountSelectors.getUserId)
   const { callToAction } = useSelector((state) =>
@@ -110,14 +111,20 @@ export const InboxUnavailableModal = () => {
     if (!user) return
     if (callToAction === ChatPermissionAction.TIP && currentUserId) {
       const chatId = makeChatId([currentUserId, user.user_id])
+      const tipSuccessActions: Action[] = [
+        chatActions.goToChat({
+          chatId,
+          presetMessage
+        })
+      ]
+      if (onSuccessAction) {
+        tipSuccessActions.push(onSuccessAction)
+      }
       dispatch(
         beginTip({
           user,
           source: 'inboxUnavailableModal',
-          onSuccessAction: chatActions.goToChat({
-            chatId,
-            presetMessage
-          }),
+          onSuccessActions: tipSuccessActions,
           onSuccessConfirmedAction: chatActions.createChat({
             userIds: [user.user_id],
             skipNavigation: true
@@ -127,11 +134,22 @@ export const InboxUnavailableModal = () => {
     } else if (callToAction === ChatPermissionAction.UNBLOCK) {
       dispatch(unblockUser({ userId: user.user_id }))
       dispatch(createChat({ userIds: [user.user_id], presetMessage }))
+      if (onSuccessAction) {
+        dispatch(onSuccessAction)
+      }
     } else {
       window.open(CHAT_BLOG_POST_URL, '_blank')
     }
     onClose()
-  }, [callToAction, currentUserId, user, dispatch, presetMessage, onClose])
+  }, [
+    user,
+    callToAction,
+    currentUserId,
+    onClose,
+    presetMessage,
+    onSuccessAction,
+    dispatch
+  ])
 
   const handleCancel = useCallback(() => {
     if (onCancelAction) {
