@@ -277,7 +277,7 @@ function* sendTipAsync() {
     amount,
     source,
     trackId,
-    onSuccessConfirmedAction
+    onSuccessConfirmedActions
   } = sendTipData
   if (!recipient) {
     return
@@ -391,10 +391,12 @@ function* sendTipAsync() {
       yield* put(
         fetchPermissions({ userIds: [sender.user_id, recipient.user_id] })
       )
-      if (onSuccessConfirmedAction) {
+      if (onSuccessConfirmedActions) {
         // Spread here to unfreeze the action
         // Redux sagas can't "put" frozen actions
-        yield* put({ ...onSuccessConfirmedAction })
+        for (const action of onSuccessConfirmedActions) {
+          yield* put({ ...action })
+        }
       }
       if (source === 'inboxUnavailableModal') {
         yield* put(

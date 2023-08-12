@@ -105,7 +105,7 @@ const slice = createSlice({
         source: TipSource
         trackId?: ID
         onSuccessActions?: Action[]
-        onSuccessConfirmedAction?: Action
+        onSuccessConfirmedActions?: Action[]
       }>
     ) => {
       if (!action.payload.user) {
@@ -116,8 +116,8 @@ const slice = createSlice({
       state.send.user = action.payload.user
       state.send.trackId = action.payload.trackId ?? null
       state.send.onSuccessActions = action.payload.onSuccessActions
-      state.send.onSuccessConfirmedAction =
-        action.payload.onSuccessConfirmedAction
+      state.send.onSuccessConfirmedActions =
+        action.payload.onSuccessConfirmedActions
     },
     sendTip: (state, action: PayloadAction<{ amount: string }>) => {
       if (state.send.status !== 'SEND') {
