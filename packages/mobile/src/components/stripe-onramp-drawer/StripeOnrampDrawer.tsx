@@ -18,7 +18,7 @@ const { setVisibility } = modalsActions
 
 export const MODAL_NAME = 'StripeOnRamp'
 
-const useStyles = makeStyles(({ spacing, typography, palette }) => ({
+const useStyles = makeStyles(({ spacing }) => ({
   root: {
     paddingTop: spacing(4)
   },
@@ -36,7 +36,6 @@ export const StripeOnrampDrawer = () => {
 
   const handleClose = useCallback(() => {
     dispatch(setVisibility({ modal: MODAL_NAME, visible: 'closing' }))
-    dispatch(purchaseContentActions.cleanup())
   }, [dispatch])
 
   return (

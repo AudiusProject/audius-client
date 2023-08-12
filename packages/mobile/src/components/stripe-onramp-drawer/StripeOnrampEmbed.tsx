@@ -1,9 +1,9 @@
 import { useCallback } from 'react'
 
-import { stripeModalUISelectors } from '@audius/common'
+import { stripeModalUISelectors, stripeModalUIActions } from '@audius/common'
 import { View } from 'react-native'
 import { WebView } from 'react-native-webview'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { useIsUSDCEnabled } from 'app/hooks/useIsUSDCEnabled'
 import { env } from 'app/services/env'
@@ -12,10 +12,11 @@ import { makeStyles } from 'app/styles'
 import LoadingSpinner from '../loading-spinner/LoadingSpinner'
 
 const { getStripeClientSecret } = stripeModalUISelectors
+const { stripeSessionStatusChanged, cancelStripeOnramp } = stripeModalUIActions
 
 const STRIPE_PUBLISHABLE_KEY = env.REACT_APP_STRIPE_CLIENT_PUBLISHABLE_KEY
 
-const useStyles = makeStyles(({ spacing, typography, palette }) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: 'flex',
     height: '85%'
@@ -29,14 +30,26 @@ const useStyles = makeStyles(({ spacing, typography, palette }) => ({
 
 export const StripeOnrampEmbed = () => {
   const styles = useStyles()
+  const dispatch = useDispatch()
   const isUSDCEnabled = useIsUSDCEnabled()
   const clientSecret = useSelector(getStripeClientSecret)
 
   const handleSessionUpdate = useCallback((event) => {
     if (event?.payload?.session?.status) {
-      console.log(`Stripe Session Update ${event.payload.session.status}`)
+      dispatch(
+        stripeSessionStatusChanged({ status: event.payload.session.status })
+      )
     }
   }, [])
+
+  const handleError = useCallback(
+    (event) => {
+      const { nativeEvent } = event
+      console.error('Stripe WebView onError: ', nativeEvent)
+      dispatch(cancelStripeOnramp())
+    },
+    [dispatch]
+  )
 
   const html = `
   <!DOCTYPE html>
@@ -81,10 +94,7 @@ export const StripeOnrampEmbed = () => {
         <WebView
           source={{ html }}
           scrollEnabled={false}
-          onError={(syntheticEvent) => {
-            const { nativeEvent } = syntheticEvent
-            console.error('Stripe WebView onError: ', nativeEvent)
-          }}
+          onError={handleError}
           onMessage={handleSessionUpdate}
         />
       ) : (
