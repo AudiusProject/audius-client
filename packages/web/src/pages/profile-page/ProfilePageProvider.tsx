@@ -37,7 +37,6 @@ import {
   chatActions,
   chatSelectors,
   ChatPermissionAction,
-  User,
   inboxUnavailableModalActions
 } from '@audius/common'
 import { push as pushRoute, replace } from 'connected-react-router'
