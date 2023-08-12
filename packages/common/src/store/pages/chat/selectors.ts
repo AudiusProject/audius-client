@@ -257,6 +257,7 @@ export const getCanCreateChat = createSelector(
     }
 
     // Check for existing chat and short circuit if exists
+    // Note: this only works if the respective chat has been fetched already
     const encodedUserId = encodeHashId(user.user_id)
     if (
       chats.find((c) => c.chat_members.find((u) => u.user_id === encodedUserId))
