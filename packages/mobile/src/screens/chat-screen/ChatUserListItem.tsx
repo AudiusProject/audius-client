@@ -171,7 +171,7 @@ export const ChatUserListItem = ({
   const handleNotPermittedPress = useCallback(() => {
     if (user?.user_id) {
       Keyboard.dismiss()
-      openInboxUnavailableDrawer({ user, presetMessage })
+      openInboxUnavailableDrawer({ userId: user.user_id, presetMessage })
     }
   }, [openInboxUnavailableDrawer, user, presetMessage])
 

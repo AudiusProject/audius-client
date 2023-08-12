@@ -1,11 +1,10 @@
 import { useCallback } from 'react'
 
-import { useInboxUnavailableModal, type User } from '@audius/common'
-import { useDispatch } from 'react-redux'
+import type { ID } from '@audius/common'
+import { useInboxUnavailableModal } from '@audius/common'
 
 import IconMessageLocked from 'app/assets/images/iconMessageLocked.svg'
 import { Button } from 'app/components/core'
-import { setVisibility } from 'app/store/drawers/slice'
 import { makeStyles } from 'app/styles'
 
 const messages = {
@@ -24,17 +23,17 @@ const useStyles = makeStyles(({ palette, spacing }) => ({
 }))
 
 type MessageLockedButtonProps = {
-  user: User
+  userId: ID
 }
 
 export const MessageLockedButton = (props: MessageLockedButtonProps) => {
   const styles = useStyles()
-  const { user } = props
+  const { userId } = props
   const { onOpen: openInboxUnavailableDrawer } = useInboxUnavailableModal()
 
   const handlePress = useCallback(() => {
-    openInboxUnavailableDrawer({ user })
-  }, [user, openInboxUnavailableDrawer])
+    openInboxUnavailableDrawer({ userId })
+  }, [userId, openInboxUnavailableDrawer])
 
   return (
     <Button

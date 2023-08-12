@@ -9,7 +9,8 @@ import {
   CHAT_BLOG_POST_URL,
   accountSelectors,
   makeChatId,
-  useInboxUnavailableModal
+  useInboxUnavailableModal,
+  cacheUsersSelectors
 } from '@audius/common'
 import { View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
@@ -108,8 +109,10 @@ const DrawerContent = ({ data, onClose }: DrawerContentProps) => {
   const dispatch = useDispatch()
   const navigation = useNavigation()
 
-  const { user, presetMessage } = data
-  const userId = user?.user_id
+  const { userId, presetMessage } = data
+  const user = useSelector((state) =>
+    cacheUsersSelectors.getUser(state, { id: userId })
+  )
   const { callToAction } = useSelector((state) =>
     getCanCreateChat(state, { userId })
   )
@@ -151,10 +154,12 @@ const DrawerContent = ({ data, onClose }: DrawerContentProps) => {
             presetMessage
           })
         ],
-        onSuccessConfirmedAction: chatActions.createChat({
-          userIds: [user.user_id],
-          skipNavigation: true
-        })
+        onSuccessConfirmedActions: [
+          chatActions.createChat({
+            userIds: [user.user_id],
+            skipNavigation: true
+          })
+        ]
       })
     )
     navigation.navigate('TipArtist')
