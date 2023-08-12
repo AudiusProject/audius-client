@@ -8,6 +8,7 @@ import IconRemove from 'app/assets/images/iconRemove.svg'
 import { makeStyles } from 'app/styles'
 import { spacing } from 'app/styles/spacing'
 import { useColor } from 'app/utils/theme'
+import { zIndex } from 'app/utils/zIndex'
 
 import { AppDrawer } from '../drawer/AppDrawer'
 
@@ -39,7 +40,11 @@ export const StripeOnrampDrawer = () => {
   }, [dispatch])
 
   return (
-    <AppDrawer zIndex={10} modalName={MODAL_NAME} drawerStyle={styles.root}>
+    <AppDrawer
+      zIndex={zIndex.STRIPE_ONRAMP_DRAWER}
+      modalName={MODAL_NAME}
+      drawerStyle={styles.root}
+    >
       <View style={styles.exitContainer}>
         <IconRemove
           fill={neutralLight4}

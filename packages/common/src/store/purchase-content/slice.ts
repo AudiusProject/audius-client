@@ -15,7 +15,6 @@ type PurchaseContentState = {
   contentId: ID
   error?: Error
   onSuccess?: OnSuccess
-  stripeClientSecret?: string
 }
 
 const initialState: PurchaseContentState = {
@@ -35,7 +34,6 @@ const slice = createSlice({
         contentId: ID
         contentType?: ContentType
         onSuccess?: OnSuccess
-        stripeClientSecret?: string
       }>
     ) => {
       state.stage = PurchaseContentStage.START
@@ -46,7 +44,6 @@ const slice = createSlice({
     },
     onBuyUSDC: (state) => {
       state.stage = PurchaseContentStage.BUY_USDC
-      state.stripeClientSecret = undefined
     },
     onUSDCBalanceSufficient: (state) => {
       state.stage = PurchaseContentStage.PURCHASING
