@@ -253,10 +253,6 @@ const DrawerContent = ({ data, onClose }: DrawerContentProps) => {
 export const InboxUnavailableDrawer = () => {
   const styles = useStyles()
   const neutralLight2 = useColor('neutralLight2')
-
-  // Select data outside of drawer and use it to conditionally render content,
-  // preventing a race condition with the store clears before drawer
-  // is dismissed
   const { isOpen, onClose, onClosed, data } = useInboxUnavailableModal()
 
   return (
@@ -267,7 +263,7 @@ export const InboxUnavailableDrawer = () => {
           <Text style={styles.title}>{messages.title}</Text>
         </View>
         <View style={styles.border} />
-        {data ? <DrawerContent data={data} onClose={onClose} /> : null}
+        <DrawerContent data={data} onClose={onClose} />
       </View>
     </Drawer>
   )
