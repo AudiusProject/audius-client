@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import type { User } from '@audius/common'
+import type { CreateChatModalState, User } from '@audius/common'
 import {
   FOLLOWERS_USER_LIST_TAG,
   Status,
@@ -12,6 +12,7 @@ import {
   searchUsersModalActions,
   searchUsersModalSelectors,
   statusIsNotFinalized,
+  useChatsUserList,
   useProxySelector,
   userListActions
 } from '@audius/common'
@@ -141,12 +142,17 @@ const ListEmpty = () => {
   )
 }
 
-const useDefaultUserList = () => {
+const useDefaultUserList = (
+  defaultUserList: CreateChatModalState['defaultUserList']
+) => {
   const dispatch = useDispatch()
   const currentUser = useSelector(getAccountUser)
-  const { hasMore, loading, userIds } = useSelector(
-    followersUserListSelectors.getUserList
-  )
+  const followersUserList = useSelector(followersUserListSelectors.getUserList)
+  const chatsUserList = useChatsUserList()
+
+  const { hasMore, loading, userIds } =
+    defaultUserList === 'chats' ? chatsUserList : followersUserList
+
   const loadMore = useCallback(() => {
     if (currentUser) {
       dispatch(followersUserListActions.setFollowers(currentUser?.user_id))
@@ -190,7 +196,8 @@ export const ChatUserListScreen = () => {
   const dispatch = useDispatch()
   const { params } = useRoute<'ChatUserList'>()
   const presetMessage = params?.presetMessage
-  const defaultUserList = useDefaultUserList()
+  const defaultUserListType = params?.defaultUserList
+  const defaultUserList = useDefaultUserList(defaultUserListType)
   const queryUserList = useQueryUserList(query)
 
   const hasQuery = query.length > 0
