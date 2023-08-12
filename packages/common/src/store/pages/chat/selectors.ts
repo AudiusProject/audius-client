@@ -7,7 +7,7 @@ import { User } from 'models/User'
 import { accountSelectors } from 'store/account'
 import { cacheUsersSelectors } from 'store/cache'
 import { CommonState } from 'store/reducers'
-import { decodeHashId } from 'utils/hashIds'
+import { decodeHashId, encodeHashId } from 'utils/hashIds'
 import { Maybe } from 'utils/typeUtils'
 
 import { chatMessagesAdapter, chatsAdapter } from './slice'
@@ -228,6 +228,7 @@ export const getCanCreateChat = createSelector(
     getBlockees,
     getBlockers,
     getChatPermissions,
+    getChats,
     (state: CommonState, { userId }: { userId: Maybe<ID> }) => {
       if (!userId) return null
       const usersMap = getUsers(state, { ids: [userId] })
@@ -239,6 +240,7 @@ export const getCanCreateChat = createSelector(
     blockees,
     blockers,
     chatPermissions,
+    chats,
     user
   ): { canCreateChat: boolean; callToAction: ChatPermissionAction } => {
     if (!currentUserId) {
@@ -248,6 +250,17 @@ export const getCanCreateChat = createSelector(
       }
     }
     if (!user) {
+      return {
+        canCreateChat: true,
+        callToAction: ChatPermissionAction.NOT_APPLICABLE
+      }
+    }
+
+    // Check for existing chat and short circuit if exists
+    const encodedUserId = encodeHashId(user.user_id)
+    if (
+      chats.find((c) => c.chat_members.find((u) => u.user_id === encodedUserId))
+    ) {
       return {
         canCreateChat: true,
         callToAction: ChatPermissionAction.NOT_APPLICABLE

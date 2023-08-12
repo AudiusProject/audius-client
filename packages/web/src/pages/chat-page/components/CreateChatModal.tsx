@@ -11,7 +11,11 @@ import {
   useCreateChatModal,
   useInboxUnavailableModal,
   createChatModalActions,
-  searchUsersModalActions
+  searchUsersModalActions,
+  chatSelectors,
+  decodeHashId,
+  removeNullable,
+  Status
 } from '@audius/common'
 import { IconCompose } from '@audius/stems'
 import { useDispatch } from 'react-redux'
@@ -26,19 +30,41 @@ const messages = {
   title: 'New Message'
 }
 
-const { getAccountUser } = accountSelectors
-const { fetchBlockers } = chatActions
+const { getAccountUser, getUserId } = accountSelectors
+const { fetchBlockers, fetchMoreChats } = chatActions
+const { getChats, getHasMoreChats, getChatsStatus } = chatSelectors
+
+const useChatsUserList = () => {
+  const currentUserId = useSelector(getUserId)
+  const chats = useSelector(getChats)
+  const hasMoreChats = useSelector(getHasMoreChats)
+  const chatsStatus = useSelector(getChatsStatus)
+  const chatUserListIds = chats
+    .map(
+      (c) =>
+        c.chat_members
+          .filter((u) => decodeHashId(u.user_id) !== currentUserId)
+          .map((u) => decodeHashId(u.user_id))[0]
+    )
+    .filter(removeNullable)
+  return {
+    userIds: chatUserListIds,
+    hasMore: hasMoreChats,
+    loading: chatsStatus === Status.LOADING
+  }
+}
 
 export const CreateChatModal = () => {
   const dispatch = useDispatch()
   const currentUser = useSelector(getAccountUser)
   const { isOpen, onClose, onClosed, data } = useCreateChatModal()
   const { onOpen: openInboxUnavailableModal } = useInboxUnavailableModal()
-  const { onCancelAction, presetMessage } = data
+  const { onCancelAction, presetMessage, defaultUserList } = data
 
-  const { userIds, loading, hasMore } = useSelector(
-    followersUserListSelectors.getUserList
-  )
+  const followersUserList = useSelector(followersUserListSelectors.getUserList)
+  const chatsUserList = useChatsUserList()
+  const { userIds, hasMore, loading } =
+    defaultUserList === 'chats' ? chatsUserList : followersUserList
 
   const handleCancel = useCallback(() => {
     if (onCancelAction) {
@@ -48,10 +74,14 @@ export const CreateChatModal = () => {
 
   const loadMore = useCallback(() => {
     if (currentUser) {
-      dispatch(followersUserListActions.setFollowers(currentUser?.user_id))
-      dispatch(userListActions.loadMore(FOLLOWERS_USER_LIST_TAG))
+      if (defaultUserList === 'chats') {
+        dispatch(fetchMoreChats())
+      } else {
+        dispatch(followersUserListActions.setFollowers(currentUser?.user_id))
+        dispatch(userListActions.loadMore(FOLLOWERS_USER_LIST_TAG))
+      }
     }
-  }, [dispatch, currentUser])
+  }, [dispatch, defaultUserList, currentUser])
 
   const handleOpenInboxUnavailableModal = useCallback(
     (user: User) => {
