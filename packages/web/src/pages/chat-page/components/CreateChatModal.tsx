@@ -17,7 +17,7 @@ import { useDispatch } from 'react-redux'
 
 import { useSelector } from 'common/hooks/useSelector'
 import { SearchUsersModal } from 'components/search-users-modal/SearchUsersModal'
-import { MessageUserSearchResult } from 'pages/chat-page/components/CreateChatUserResult'
+import { CreateChatUserResult } from 'pages/chat-page/components/CreateChatUserResult'
 
 import { CreateChatEmptyResults } from './CreateChatEmptyResults'
 
@@ -85,7 +85,7 @@ export const CreateChatModal = () => {
           hasMore
         }}
         renderUser={(user, closeParentModal) => (
-          <MessageUserSearchResult
+          <CreateChatUserResult
             key={user.user_id}
             user={user}
             openInboxUnavailableModal={handleOpenInboxUnavailableModal}
