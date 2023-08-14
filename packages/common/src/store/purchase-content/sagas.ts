@@ -149,7 +149,7 @@ function* doStartPurchaseContentFlow({
     // get user bank
     const userBank = yield* call(getUSDCUserBank)
 
-    const { amount: initialBalance } = yield* call(
+    const tokenAccountInfo = yield* call(
       getTokenAccountInfo,
       audiusBackendInstance,
       {
@@ -157,15 +157,24 @@ function* doStartPurchaseContentFlow({
         tokenAccount: userBank
       }
     )
+    if (!tokenAccountInfo) {
+      throw new Error('Failed to fetch USDC token account info')
+    }
+
+    const { amount: initialBalance } = tokenAccountInfo
+
+    const balanceNeeded = new BN(price)
+      .mul(BN_USDC_CENT_WEI)
+      .sub(initialBalance)
 
     // buy USDC if necessary
-    if (initialBalance.lt(new BN(price).mul(BN_USDC_CENT_WEI))) {
+    if (balanceNeeded.gtn(0)) {
       yield* put(buyUSDC())
       yield* put(
         onrampOpened({
           provider: USDCOnRampProvider.STRIPE,
           purchaseInfo: {
-            desiredAmount: price
+            desiredAmount: balanceNeeded.mul(BN_USDC_CENT_WEI).toNumber()
           }
         })
       )
