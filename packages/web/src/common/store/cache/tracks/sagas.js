@@ -363,12 +363,19 @@ function* watchFetchCoverArt() {
       const user = yield call(waitForValue, getUser, { id: track.owner_id })
       if (!track || !user || (!track.cover_art_sizes && !track.cover_art))
         return
-      const multihash = track.cover_art_sizes || track.cover_art
-      const coverArtSize = multihash === track.cover_art_sizes ? size : null
+      let multihash = track.cover_art_sizes || track.cover_art
+      let coverArtSize = multihash === track.cover_art_sizes ? size : null
+      // Query the desired image variant's cid directly, provided in the
+      // track.cover_art_cids object. This reduces redirects and latency.
+      if (track.cover_art_cids) {
+        multihash = track.cover_art_cids[size]
+        coverArtSize = size
+      }
       const url = yield call(
         audiusBackendInstance.getImageUrl,
         multihash,
-        coverArtSize
+        coverArtSize,
+        !!track.cover_art_cids
       )
       track = yield select(getTrack, { id: trackId })
       track._cover_art_sizes = {

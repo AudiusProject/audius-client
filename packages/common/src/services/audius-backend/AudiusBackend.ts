@@ -462,8 +462,15 @@ export const audiusBackend = ({
     }
   }
 
-  async function fetchImageCID(cid: CID, size?: SquareSizes | WidthSizes) {
-    const cidFileName = size ? `${cid}/${size}.jpg` : `${cid}.jpg`
+  async function fetchImageCID(
+    cid: CID,
+    size?: SquareSizes | WidthSizes,
+    directLink = false
+  ) {
+    let cidFileName = size ? `${cid}/${size}.jpg` : `${cid}.jpg`
+    if (directLink) {
+      cidFileName = cid
+    }
     if (CIDCache.has(cidFileName)) {
       return CIDCache.get(cidFileName) as string
     }
@@ -495,11 +502,12 @@ export const audiusBackend = ({
 
   async function getImageUrl(
     cid: Nullable<CID>,
-    size?: SquareSizes | WidthSizes
+    size?: SquareSizes | WidthSizes,
+    directLink = false
   ) {
     if (!cid) return ''
     try {
-      return await fetchImageCID(cid, size)
+      return await fetchImageCID(cid, size, directLink)
     } catch (e) {
       console.error(e)
       return ''

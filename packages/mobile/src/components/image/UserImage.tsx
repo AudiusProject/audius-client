@@ -10,19 +10,28 @@ type UseUserImageOptions = {
   user: Nullable<
     Pick<
       User,
-      'profile_picture_sizes' | 'profile_picture' | 'updatedProfilePicture'
+      'profile_picture_sizes'
+      | 'profile_picture_cids'
+      | 'profile_picture'
+      | 'updatedProfilePicture'
     >
   >
   size: SquareSizes
 }
 
 export const useUserImage = ({ user, size }: UseUserImageOptions) => {
-  const cid = user ? user.profile_picture_sizes || user.profile_picture : null
+  let cid = null
+  if (user) {
+    cid = user.profile_picture_cids
+      ? user.profile_picture_cids[size]
+      : user.profile_picture_sizes || user.profile_picture
+  }
 
   const contentNodeImage = useContentNodeImage({
     cid,
     size,
-    fallbackImageSource: profilePicEmpty
+    fallbackImageSource: profilePicEmpty,
+    directLink: !!user?.profile_picture_cids
   })
 
   if (user?.updatedProfilePicture) {

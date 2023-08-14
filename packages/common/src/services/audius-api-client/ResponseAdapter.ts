@@ -441,6 +441,7 @@ export const makeStemTrack = (stem: APIStem): StemTrackMetadata | undefined => {
     track_segments: [],
     cover_art: null,
     cover_art_sizes: null,
+    cover_art_cids: null,
     is_unlisted: false,
     stem_of: {
       parent_track_id: parentId,
