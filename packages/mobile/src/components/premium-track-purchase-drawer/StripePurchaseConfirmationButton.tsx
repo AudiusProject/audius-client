@@ -5,7 +5,8 @@ import {
   purchaseContentActions,
   ContentType,
   purchaseContentSelectors,
-  PurchaseContentStage
+  PurchaseContentStage,
+  isContentPurchaseInProgress
 } from '@audius/common'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -34,11 +35,7 @@ export const StripePurchaseConfirmationButton = ({
   const dispatch = useDispatch()
   const { specialLightGreen1 } = useThemeColors()
   const stage = useSelector(getPurchaseContentFlowStage)
-  const isLoading =
-    stage &&
-    stage !== PurchaseContentStage.START &&
-    stage !== PurchaseContentStage.CANCELED &&
-    stage !== PurchaseContentStage.FINISH
+  const isLoading = isContentPurchaseInProgress(stage)
 
   const handleBuyPress = useCallback(() => {
     dispatch(

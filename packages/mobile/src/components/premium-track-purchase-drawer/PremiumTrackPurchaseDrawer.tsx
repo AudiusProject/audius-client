@@ -8,7 +8,7 @@ import {
   purchaseContentActions,
   PurchaseContentStage
 } from '@audius/common'
-import { View } from 'react-native'
+import { Linking, View } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 
 import IconCart from 'app/assets/images/iconCart.svg'
@@ -116,6 +116,10 @@ export const PremiumTrackPurchaseDrawer = () => {
     dispatch(purchaseContentActions.cleanup())
   }, [dispatch])
 
+  const handleTermsPress = useCallback(() => {
+    Linking.openURL('https://audius.co/legal/terms-of-use')
+  }, [])
+
   if (
     !track ||
     !isPremiumContentUSDCPurchaseGated(premiumConditions) ||
@@ -152,10 +156,7 @@ export const PremiumTrackPurchaseDrawer = () => {
               </View>
               <Text>
                 {messages.disclaimer(
-                  <Text
-                    onPress={() => console.log('terms of use pressed')}
-                    colorValue={secondary}
-                  >
+                  <Text colorValue={secondary} onPress={handleTermsPress}>
                     {messages.termsOfUse}
                   </Text>
                 )}
