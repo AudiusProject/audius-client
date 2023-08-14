@@ -5,7 +5,6 @@ import {
   purchaseContentActions,
   ContentType,
   purchaseContentSelectors,
-  PurchaseContentStage,
   isContentPurchaseInProgress
 } from '@audius/common'
 import { useSelector, useDispatch } from 'react-redux'

@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { modalsActions, purchaseContentActions } from '@audius/common'
+import { modalsActions } from '@audius/common'
 import { View } from 'react-native'
 import { useDispatch } from 'react-redux'
 

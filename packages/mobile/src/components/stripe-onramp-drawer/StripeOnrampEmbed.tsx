@@ -34,13 +34,16 @@ export const StripeOnrampEmbed = () => {
   const isUSDCEnabled = useIsUSDCEnabled()
   const clientSecret = useSelector(getStripeClientSecret)
 
-  const handleSessionUpdate = useCallback((event) => {
-    if (event?.payload?.session?.status) {
-      dispatch(
-        stripeSessionStatusChanged({ status: event.payload.session.status })
-      )
-    }
-  }, [])
+  const handleSessionUpdate = useCallback(
+    (event) => {
+      if (event?.payload?.session?.status) {
+        dispatch(
+          stripeSessionStatusChanged({ status: event.payload.session.status })
+        )
+      }
+    },
+    [dispatch]
+  )
 
   const handleError = useCallback(
     (event) => {
