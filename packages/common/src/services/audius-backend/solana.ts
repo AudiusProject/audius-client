@@ -55,7 +55,7 @@ export const getTokenAccountInfo = async (
     mint?: MintName
     tokenAccount: PublicKey
   }
-): Promise<AccountInfo> => {
+): Promise<AccountInfo | null> => {
   return (
     await audiusBackendInstance.getAudiusLibs()
   ).solanaWeb3Manager!.getTokenAccountInfo(tokenAccount.toString(), mint)
@@ -122,10 +122,6 @@ export const getUserbankAccountInfo = async (
     throw new Error(
       `getUserbankAccountInfo: unexpected error getting eth address`
     )
-  }
-
-  if (!audiusLibs.solanaWeb3Manager!.doesUserbankExist({ ethAddress, mint })) {
-    return null
   }
 
   const tokenAccount = await deriveUserBankPubkey(audiusBackendInstance, {
