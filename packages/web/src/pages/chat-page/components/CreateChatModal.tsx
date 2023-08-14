@@ -12,7 +12,7 @@ import {
   useInboxUnavailableModal,
   createChatModalActions,
   searchUsersModalActions,
-  useChatsUserList
+  chatSelectors
 } from '@audius/common'
 import { IconCompose } from '@audius/stems'
 import { useDispatch } from 'react-redux'
@@ -28,6 +28,8 @@ const messages = {
 }
 
 const { getAccountUser } = accountSelectors
+const { getUserList: getFollowersUserList } = followersUserListSelectors
+const { getUserList: getChatsUserList } = chatSelectors
 const { fetchBlockers, fetchMoreChats } = chatActions
 
 export const CreateChatModal = () => {
@@ -37,8 +39,8 @@ export const CreateChatModal = () => {
   const { onOpen: openInboxUnavailableModal } = useInboxUnavailableModal()
   const { onCancelAction, presetMessage, defaultUserList } = data
 
-  const followersUserList = useSelector(followersUserListSelectors.getUserList)
-  const chatsUserList = useChatsUserList()
+  const followersUserList = useSelector(getFollowersUserList)
+  const chatsUserList = useSelector(getChatsUserList)
   const { userIds, hasMore, loading } =
     defaultUserList === 'chats' ? chatsUserList : followersUserList
 

@@ -8,7 +8,7 @@ import { accountSelectors } from 'store/account'
 import { cacheUsersSelectors } from 'store/cache'
 import { CommonState } from 'store/reducers'
 import { decodeHashId, encodeHashId } from 'utils/hashIds'
-import { Maybe } from 'utils/typeUtils'
+import { Maybe, removeNullable } from 'utils/typeUtils'
 
 import { chatMessagesAdapter, chatsAdapter } from './slice'
 import { ChatPermissionAction } from './types'
@@ -167,6 +167,30 @@ export const getSingleOtherChatUser = (
 ): User | undefined => {
   return getOtherChatUsers(state, chatId)[0]
 }
+
+/**
+ * Gets a list of the users the current user has chats with.
+ * Note that this only takes the first user of each chat that doesn't match the current one,
+ * so this will need to be adjusted when we do group chats.
+ */
+export const getUserList = createSelector(
+  [getUserId, getChats, getHasMoreChats, getChatsStatus],
+  (currentUserId, chats, hasMore, chatsStatus) => {
+    const chatUserListIds = chats
+      .map(
+        (c) =>
+          c.chat_members
+            .filter((u) => decodeHashId(u.user_id) !== currentUserId)
+            .map((u) => decodeHashId(u.user_id))[0]
+      )
+      .filter(removeNullable)
+    return {
+      userIds: chatUserListIds,
+      hasMore,
+      loading: chatsStatus === Status.LOADING
+    }
+  }
+)
 
 export const getChatMessageByIndex = (
   state: CommonState,

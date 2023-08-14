@@ -12,7 +12,7 @@ import {
   searchUsersModalActions,
   searchUsersModalSelectors,
   statusIsNotFinalized,
-  useChatsUserList,
+  chatSelectors,
   useProxySelector,
   userListActions
 } from '@audius/common'
@@ -37,6 +37,8 @@ const { searchUsers } = searchUsersModalActions
 const { getUserList } = searchUsersModalSelectors
 const { getUsers } = cacheUsersSelectors
 const { fetchBlockees, fetchBlockers, fetchPermissions } = chatActions
+const { getUserList: getChatsUserList } = chatSelectors
+const { getUserList: getFollowersUserList } = followersUserListSelectors
 
 const DEBOUNCE_MS = 150
 
@@ -147,8 +149,8 @@ const useDefaultUserList = (
 ) => {
   const dispatch = useDispatch()
   const currentUser = useSelector(getAccountUser)
-  const followersUserList = useSelector(followersUserListSelectors.getUserList)
-  const chatsUserList = useChatsUserList()
+  const followersUserList = useSelector(getFollowersUserList)
+  const chatsUserList = useSelector(getChatsUserList)
 
   const { hasMore, loading, userIds } =
     defaultUserList === 'chats' ? chatsUserList : followersUserList
