@@ -256,17 +256,15 @@ export const getCanCreateChat = createSelector(
       }
     }
 
-    // Check for existing chat and short circuit if exists
-    // Note: this only works if the respective chat has been fetched already
+    // Check for existing chat, since unblocked users with existing chats
+    // don't need permission to continue chatting.
+    // Use a callback fn to prevent iteration until necessary to improve perf
+    // Note: this only works if the respective chat has been fetched already, like in chatsUserList
     const encodedUserId = encodeHashId(user.user_id)
-    if (
-      chats.find((c) => c.chat_members.find((u) => u.user_id === encodedUserId))
-    ) {
-      return {
-        canCreateChat: true,
-        callToAction: ChatPermissionAction.NOT_APPLICABLE
-      }
-    }
+    const hasExistingChat = () =>
+      !!chats.find((c) =>
+        c.chat_members.find((u) => u.user_id === encodedUserId)
+      )
 
     const userPermissions = chatPermissions[user.user_id]
     const isBlockee = blockees.includes(user.user_id)
@@ -274,7 +272,8 @@ export const getCanCreateChat = createSelector(
     const canCreateChat =
       !isBlockee &&
       !isBlocker &&
-      (userPermissions?.current_user_has_permission ?? true)
+      ((userPermissions?.current_user_has_permission ?? true) ||
+        hasExistingChat())
 
     let action = ChatPermissionAction.NOT_APPLICABLE
     if (!canCreateChat) {
