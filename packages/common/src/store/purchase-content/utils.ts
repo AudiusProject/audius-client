@@ -15,15 +15,17 @@ export const isContentPurchaseInProgress = (stage: PurchaseContentStage) => {
   ].includes(stage)
 }
 
-export const getPurchaseSummaryValues = (
-  price: number,
-  currentBalance: BNUSDC = zeroBalance()
-): {
+type PurchaseSummaryValues = {
   amountDue: number
   existingBalance: number | undefined
   basePrice: number
   artistCut: number
-} => {
+}
+
+export const getPurchaseSummaryValues = (
+  price: number,
+  currentBalance: BNUSDC = zeroBalance()
+): PurchaseSummaryValues => {
   let amountDue = price
   let existingBalance
   const priceBN = new BN(price).mul(BN_USDC_CENT_WEI)
