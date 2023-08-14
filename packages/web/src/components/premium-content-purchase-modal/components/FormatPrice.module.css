@@ -1,9 +1,9 @@
 .container {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--unit-2);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--unit-2);
 }
 
 .existingBalance {
-    text-decoration: none;
+  text-decoration: none;
 }
