@@ -3,10 +3,10 @@ import { useCallback } from 'react'
 import {
   ContentType,
   formatPrice,
+  isContentPurchaseInProgress,
   isPremiumContentUSDCPurchaseGated,
   purchaseContentActions,
   purchaseContentSelectors,
-  PurchaseContentStage,
   Track,
   UserTrackMetadata
 } from '@audius/common'
@@ -49,13 +49,7 @@ export const PurchaseDetailsPage = ({
   const dispatch = useDispatch()
   const stage = useSelector(getPurchaseContentFlowStage)
   const error = useSelector(getPurchaseContentError)
-  const isUnlocking =
-    !error &&
-    [
-      PurchaseContentStage.BUY_USDC,
-      PurchaseContentStage.PURCHASING,
-      PurchaseContentStage.CONFIRMING_PURCHASE
-    ].includes(stage)
+  const isUnlocking = !error && isContentPurchaseInProgress(stage)
 
   const onClickBuy = useCallback(() => {
     if (isUnlocking) return
