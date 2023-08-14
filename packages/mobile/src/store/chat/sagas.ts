@@ -16,7 +16,6 @@ function* watchGoToChat() {
         // @ts-ignore navigationRef is not parametrized correctly (PAY-1141)
         navigationRef.navigate('ChatList')
       } else {
-        console.log('goToChat', { replaceNavigation })
         if (replaceNavigation) {
           navigationRef.current?.dispatch(
             StackActions.replace('Chat', { chatId, presetMessage })
