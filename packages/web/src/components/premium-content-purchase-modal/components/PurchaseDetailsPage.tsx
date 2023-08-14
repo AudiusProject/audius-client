@@ -52,7 +52,9 @@ const getPurchaseSummaryValues = (
   if (currentBalance.gte(priceBN)) {
     amountDue = 0
     existingBalance = price
-  } else if (currentBalance.gtn(0)) {
+  }
+  // Only count the balance if it's greater than 1 cent
+  else if (currentBalance.gt(BN_USDC_CENT_WEI)) {
     // Note: Rounding amount due *up* to nearest cent for cases where the balance
     // is between cents so that we aren't advertising *lower* than what the user
     // will have to pay.

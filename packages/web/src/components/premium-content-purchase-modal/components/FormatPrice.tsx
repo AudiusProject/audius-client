@@ -5,7 +5,7 @@ import styles from './FormatPrice.module.css'
 
 type FormatPriceProps = {
   amountDue: number
-  basePrice?: number
+  basePrice: number
   className?: string
 }
 
@@ -14,7 +14,12 @@ export const FormatPrice = ({
   basePrice,
   className
 }: FormatPriceProps) => {
-  if (!basePrice) return <span>`$${formatPrice(amountDue)}`</span>
+  if (basePrice === amountDue)
+    return (
+      <span className={cn(styles.container, className)}>{`$${formatPrice(
+        amountDue
+      )}`}</span>
+    )
   return (
     <span className={cn(styles.container, className)}>
       <del>{`$${formatPrice(basePrice)}`}</del>
