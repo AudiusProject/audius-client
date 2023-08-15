@@ -42,7 +42,7 @@
 .trackField {
   display: flex;
   padding: var(--unit-4);
-  margin: 0 0 var(--unit-2) 0;
+  margin-bottom: var(--unit-2);
   flex-direction: column;
   gap: var(--unit-4);
 }
@@ -65,7 +65,7 @@
 
 .overrideRow {
   display: flex;
-  padding: var(--unit-2) 0px var(--unit-2) 72px;
+  padding: var(--unit-2) 0px var(--unit-2) var(--unit-18);
   justify-content: space-between;
   align-items: center;
 }

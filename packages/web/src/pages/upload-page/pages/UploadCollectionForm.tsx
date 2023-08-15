@@ -70,7 +70,6 @@ export const UploadCollectionForm = (props: UploadCollectionFormProps) => {
 
   const handleSubmit = useCallback(
     (values: CollectionValues) => {
-      console.log('submitting', values)
       onSubmit()
     },
     [onSubmit]
