@@ -22,6 +22,7 @@ import {
   IconVisibilityPublic,
   RadioButtonGroup
 } from '@audius/stems'
+import cn from 'classnames'
 import { useField } from 'formik'
 import { get, isEmpty, set } from 'lodash'
 import { useSelector } from 'react-redux'
@@ -32,6 +33,7 @@ import {
 } from 'components/data-entry/ContextualMenu'
 import DynamicImage from 'components/dynamic-image/DynamicImage'
 import { HelpCallout } from 'components/help-callout/HelpCallout'
+import layoutStyles from 'components/layout/layout.module.css'
 import { ModalRadioItem } from 'components/modal-radio/ModalRadioItem'
 import { Text } from 'components/typography'
 import { useFlag } from 'hooks/useRemoteConfig'
@@ -60,6 +62,8 @@ const messages = {
   title: 'Access & Sale',
   description:
     "Customize your music's availability for different audiences, and create personalized gated experiences for your fans.",
+  modalDescription:
+    'Control who has access to listen. Create gated experiences or require users pay to unlock your music.',
   isRemix:
     'This track is marked as a remix. To enable additional availability options, unmark within Remix Settings.',
   done: 'Done',
@@ -432,10 +436,11 @@ const AccessAndSaleMenuFields = (props: AccesAndSaleMenuFieldsProps) => {
   )
 
   return (
-    <>
+    <div className={cn(layoutStyles.col, layoutStyles.gap4)}>
       {isRemix ? (
         <HelpCallout className={styles.isRemix} content={messages.isRemix} />
       ) : null}
+      <Text>{messages.modalDescription}</Text>
       <RadioButtonGroup {...availabilityField} onChange={handleChange}>
         <ModalRadioItem
           icon={<IconVisibilityPublic className={styles.icon} />}
@@ -489,6 +494,6 @@ const AccessAndSaleMenuFields = (props: AccesAndSaleMenuFieldsProps) => {
           checkedContent={<HiddenAvailabilityFields />}
         />
       </RadioButtonGroup>
-    </>
+    </div>
   )
 }
