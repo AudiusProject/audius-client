@@ -1,4 +1,4 @@
-import { encodeHashId, User } from '@audius/common'
+import { encodeHashId, User, SquareSizes } from '@audius/common'
 import { CreateGrantRequest } from '@audius/sdk'
 import base64url from 'base64url'
 
