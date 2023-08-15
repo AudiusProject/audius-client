@@ -107,12 +107,12 @@ const messages = {
   }
 }
 
-const IS_UNLISTED = 'is_unlisted'
-const IS_PREMIUM = 'is_premium'
+export const IS_UNLISTED = 'is_unlisted'
+export const IS_PREMIUM = 'is_premium'
 export const PREMIUM_CONDITIONS = 'premium_conditions'
 
 export const AVAILABILITY_TYPE = 'availability_type'
-const SPECIAL_ACCESS_TYPE = 'special_access_type'
+export const SPECIAL_ACCESS_TYPE = 'special_access_type'
 export const FIELD_VISIBILITY = 'field_visibility'
 export const PRICE = 'premium_conditions.usdc_purchase.price'
 export const PREVIEW = 'preview_start_seconds'
@@ -338,7 +338,7 @@ type AccesAndSaleMenuFieldsProps = {
   isRemix: boolean
 }
 
-const AccessAndSaleMenuFields = (props: AccesAndSaleMenuFieldsProps) => {
+export const AccessAndSaleMenuFields = (props: AccesAndSaleMenuFieldsProps) => {
   const { isRemix } = props
   const accountUserId = useSelector(getUserId)
   const { isEnabled: isUsdcEnabled } = useFlag(FeatureFlags.USDC_PURCHASES)
