@@ -1,18 +1,12 @@
 import { useEffect, useState } from 'react'
 
-import { UploadType } from '@audius/common'
-
 import Header from 'components/header/desktop/Header'
 import Page from 'components/page/Page'
 
 import styles from './UploadPage.module.css'
-import { EditPageNew } from './components/EditPageNew'
 import SelectPageNew from './components/SelectPageNew'
-import { TrackForUpload } from './components/types'
-
-type UploadPageProps = {
-  uploadType: UploadType
-}
+import { EditPage } from './pages/EditPage'
+import { UploadFormState } from './types'
 
 enum Phase {
   SELECT,
@@ -20,9 +14,13 @@ enum Phase {
   FINISH
 }
 
-export const UploadPageNew = (props: UploadPageProps) => {
+export const UploadPageNew = () => {
   const [phase, setPhase] = useState(Phase.SELECT)
-  const [tracks, setTracks] = useState<TrackForUpload[]>([])
+  const [formState, setFormState] = useState<UploadFormState>({
+    uploadType: undefined,
+    metadata: undefined,
+    tracks: undefined
+  })
 
   // Pretty print json just for testing
   useEffect(() => {
@@ -53,24 +51,30 @@ export const UploadPageNew = (props: UploadPageProps) => {
     case Phase.SELECT:
       page = (
         <SelectPageNew
-          tracks={tracks}
-          setTracks={setTracks}
-          onContinue={() => setPhase(Phase.EDIT)}
+          formState={formState}
+          onContinue={(formState: UploadFormState) => {
+            setFormState(formState)
+            setPhase(Phase.EDIT)
+          }}
         />
       )
       break
     case Phase.EDIT:
       page = (
-        <EditPageNew
-          tracks={tracks}
-          setTracks={setTracks}
-          onContinue={() => setPhase(Phase.FINISH)}
+        <EditPage
+          formState={formState}
+          onContinue={(formState: UploadFormState) => {
+            setFormState(formState)
+            setPhase(Phase.FINISH)
+          }}
         />
       )
       break
     case Phase.FINISH:
-      console.log(tracks[0])
-      page = <pre>{JSON.stringify(tracks, null, 2)}</pre>
+      console.log(formState.tracks?.[0])
+      page = formState.tracks ? (
+        <pre>{JSON.stringify(formState.tracks, null, 2)}</pre>
+      ) : null
   }
   return (
     <Page
