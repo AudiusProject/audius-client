@@ -17,9 +17,10 @@ import {
   IconSpecialAccess,
   IconVisibilityPublic
 } from '@audius/stems'
-import { set } from 'lodash'
+import { set, isEmpty, get } from 'lodash'
 
 import { TrackMetadataState } from 'components/track-availability-modal/types'
+import { defaultFieldVisibility } from 'pages/track-page/utils'
 import {
   AVAILABILITY_TYPE,
   AccessAndSaleFormValues,
@@ -102,11 +103,29 @@ export const AccessAndSaleModalLegacy = (
   }, [fieldVisibility, isPremium, isUnlisted, premiumConditions])
 
   const onSubmit = (values: AccessAndSaleFormValues) => {
-    didUpdateState({
+    let newState = {
       ...metadataState,
+      is_premium: !isEmpty(premiumConditions),
       premium_conditions: values[PREMIUM_CONDITIONS],
       unlisted: values.is_unlisted
-    })
+    }
+
+    // TODO: usdc support
+    if (get(values, AVAILABILITY_TYPE) === TrackAvailabilityType.HIDDEN) {
+      newState = {
+        ...newState,
+        ...(get(values, FIELD_VISIBILITY) ?? undefined),
+        unlisted: true
+      }
+    } else {
+      newState = {
+        ...newState,
+        ...defaultFieldVisibility,
+        unlisted: false
+      }
+    }
+
+    didUpdateState(newState)
   }
 
   let availabilityButtonTitle = messages.public
