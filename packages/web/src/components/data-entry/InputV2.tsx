@@ -88,6 +88,11 @@ export const InputV2 = (props: InputV2Props) => {
   const input = (
     <div className={cn(styles.inputRow, layoutStyles.row)}>
       <div className={layoutStyles.row}>
+        {prefix ? (
+          <Text variant='label' size='large' color='--neutral-light-2'>
+            {prefix}
+          </Text>
+        ) : null}
         <input
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -97,26 +102,26 @@ export const InputV2 = (props: InputV2Props) => {
           value={value}
           maxLength={maxLength}
           disabled={disabled}
-          placeholder={isFocused ? placeholder : undefined}
+          placeholder={isFocused || prefix || suffix ? placeholder : undefined}
           {...other}
         />
       </div>
+      {suffix ? (
+        <Text variant='label' size='large' color='--neutral-light-2'>
+          {suffix}
+        </Text>
+      ) : null}
     </div>
   )
 
   return (
     <>
       <div className={cn(styles.root, style, className)}>
-        {prefix ? (
-          <Text variant='label' size='large' color='--neutral-light-2'>
-            {prefix}
-          </Text>
-        ) : null}
         {elevatePlaceholder ? (
           <label className={styles.elevatedLabel}>
             <span
               className={cn(styles.label, {
-                [styles.hasValue]: characterCount > 0
+                [styles.hasValue]: characterCount > 0 || prefix || suffix
               })}
             >
               {label}
@@ -135,11 +140,6 @@ export const InputV2 = (props: InputV2Props) => {
           </div>
         )}
         {children}
-        {suffix ? (
-          <Text variant='label' size='large' color='--neutral-light-2'>
-            {suffix}
-          </Text>
-        ) : null}
       </div>
       {helperText ? <HelperText error={error}>{helperText}</HelperText> : null}
     </>

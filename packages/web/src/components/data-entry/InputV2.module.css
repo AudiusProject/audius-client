@@ -73,6 +73,7 @@
 }
 
 .inputRow {
+  width: 100%;
   justify-content: space-between;
 }
 
@@ -95,7 +96,7 @@
 }
 
 /** Push the input down a bit to make room for the elevated placeholder **/
-.elevatedLabel .textInput {
+.elevatedLabel .inputRow {
   padding-top: calc(var(--font-xs));
 }
 
