@@ -42,7 +42,7 @@ export const HelpCallout = (props: HelpCalloutProps) => {
     style,
     content,
     icon: Icon = IconQuestionCircle,
-    numberOfLines = 10
+    numberOfLines
   } = props
   const styles = useStyles()
   const neutral = useColor('neutral')
