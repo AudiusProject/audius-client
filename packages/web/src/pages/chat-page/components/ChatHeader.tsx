@@ -1,11 +1,6 @@
 import { forwardRef, useCallback, useState } from 'react'
 
-import {
-  useProxySelector,
-  chatSelectors,
-  User,
-  useCreateChatModal
-} from '@audius/common'
+import { useProxySelector, chatSelectors, User } from '@audius/common'
 import {
   IconButton,
   IconCompose,
@@ -58,7 +53,7 @@ export const ChatHeader = forwardRef<HTMLDivElement, ChatHeaderProps>(
     ref
   ) => {
     const dispatch = useDispatch()
-    const { onOpen: openCreateChatModal } = useCreateChatModal()
+    const [, setCreateChatVisible] = useModalState('CreateChat')
     const [, setInboxSettingsVisible] = useModalState('InboxSettings')
     const [isUnblockUserModalVisible, setIsUnblockUserModalVisible] =
       useState(false)
@@ -76,8 +71,8 @@ export const ChatHeader = forwardRef<HTMLDivElement, ChatHeaderProps>(
     const isBlocked = user && blockeeList.includes(user.user_id)
 
     const handleComposeClicked = useCallback(() => {
-      openCreateChatModal()
-    }, [openCreateChatModal])
+      setCreateChatVisible(true)
+    }, [setCreateChatVisible])
 
     const handleSettingsClicked = useCallback(() => {
       setInboxSettingsVisible(true)

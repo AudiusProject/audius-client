@@ -92,7 +92,7 @@ const renderCustomChip = (callToAction: ChatPermissionAction) => {
   }
 }
 
-export const CreateChatUserResult = (props: UserResultComposeProps) => {
+export const MessageUserSearchResult = (props: UserResultComposeProps) => {
   const dispatch = useDispatch()
   const { user, closeParentModal, openInboxUnavailableModal, presetMessage } =
     props

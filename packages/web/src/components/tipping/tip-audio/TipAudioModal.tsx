@@ -7,7 +7,9 @@ import {
   TippingSendStatus,
   walletActions,
   StringKeys,
-  accountSelectors
+  chatActions,
+  accountSelectors,
+  makeChatId
 } from '@audius/common'
 import { Modal, ModalHeader, ModalTitle } from '@audius/stems'
 import cn from 'classnames'
@@ -112,7 +114,7 @@ export const TipAudioModal = () => {
   const dispatch = useDispatch()
   const sendStatus = useSelector(getSendStatus)
   const previousSendStatus = usePrevious(sendStatus)
-  const { user: recipient, onSuccessActions } = useSelector(getSendTipData)
+  const { user: recipient, source } = useSelector(getSendTipData)
   const currentUserId = useSelector(accountSelectors.getUserId)
 
   const audioFeaturesDegradedText = useRemoteVar(
@@ -124,23 +126,19 @@ export const TipAudioModal = () => {
     // attempting to make if they were unlocking DMs by tipping.
     // The saga will create the chat once the tip is confirmed
     if (
-      onSuccessActions &&
+      source === 'inboxUnavailableModal' &&
       sendStatus === 'SUCCESS' &&
       recipient?.user_id &&
       currentUserId
     ) {
-      for (const action of onSuccessActions) {
-        dispatch(action)
-      }
+      dispatch(
+        chatActions.goToChat({
+          chatId: makeChatId([currentUserId, recipient.user_id])
+        })
+      )
     }
     dispatch(resetSend())
-  }, [
-    currentUserId,
-    dispatch,
-    onSuccessActions,
-    recipient?.user_id,
-    sendStatus
-  ])
+  }, [currentUserId, dispatch, recipient?.user_id, sendStatus, source])
 
   useEffect(() => {
     if (sendStatus !== null) {

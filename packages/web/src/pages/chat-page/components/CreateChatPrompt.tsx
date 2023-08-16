@@ -1,13 +1,15 @@
 import { useCallback } from 'react'
 
-import { chatSelectors, useCreateChatModal } from '@audius/common'
+import { chatSelectors, modalsActions } from '@audius/common'
 import { Button, ButtonType, IconCompose } from '@audius/stems'
+import { useDispatch } from 'react-redux'
 
 import { useSelector } from 'common/hooks/useSelector'
 
 import styles from './CreateChatPrompt.module.css'
 
 const { getChats } = chatSelectors
+const { setVisibility } = modalsActions
 
 const messages = {
   selectTitle: 'Select a Message',
@@ -19,13 +21,13 @@ const messages = {
 }
 
 export const CreateChatPrompt = () => {
-  const { onOpen: openCreateChatModal } = useCreateChatModal()
+  const dispatch = useDispatch()
   const chats = useSelector(getChats)
   const hasChats = chats?.length > 0
 
   const handleClick = useCallback(() => {
-    openCreateChatModal()
-  }, [openCreateChatModal])
+    dispatch(setVisibility({ modal: 'CreateChat', visible: true }))
+  }, [dispatch])
 
   return (
     <div className={styles.root}>

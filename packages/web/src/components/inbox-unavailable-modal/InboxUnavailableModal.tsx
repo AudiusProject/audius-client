@@ -4,13 +4,9 @@ import {
   CHAT_BLOG_POST_URL,
   ChatPermissionAction,
   User,
-  accountSelectors,
-  cacheUsersSelectors,
   chatActions,
   chatSelectors,
-  makeChatId,
-  tippingActions,
-  useInboxUnavailableModal
+  tippingActions
 } from '@audius/common'
 import {
   IconMessageLocked,
@@ -24,7 +20,6 @@ import {
   ButtonType,
   IconUnblockMessages
 } from '@audius/stems'
-import { Action } from '@reduxjs/toolkit'
 import { useDispatch } from 'react-redux'
 
 import { UserNameAndBadges } from 'components/user-name-and-badges/UserNameAndBadges'
@@ -47,19 +42,14 @@ const messages = {
   ),
   tipButton: 'Send $AUDIO',
   unblockContent: 'You cannot send messages to users you have blocked.',
-  unblockButton: 'Unblock',
-  defaultUsername: 'this user'
+  unblockButton: 'Unblock'
 }
 
-const actionToContent = ({
-  action,
-  user,
-  onClose
-}: {
-  action: ChatPermissionAction
-  user?: User | null
+const actionToContent = (
+  action: ChatPermissionAction,
+  user: User,
   onClose: () => void
-}) => {
+) => {
   switch (action) {
     case ChatPermissionAction.NONE:
       return {
@@ -70,11 +60,7 @@ const actionToContent = ({
     case ChatPermissionAction.TIP:
       return {
         content: messages.tipContent(
-          user ? (
-            <UserNameAndBadges user={user} onNavigateAway={onClose} />
-          ) : (
-            messages.defaultUsername
-          )
+          <UserNameAndBadges user={user} onNavigateAway={onClose} />
         ),
         buttonText: messages.tipButton,
         buttonIcon: <IconTipping />
@@ -97,94 +83,57 @@ const actionToContent = ({
 const { beginTip } = tippingActions
 const { getCanCreateChat } = chatSelectors
 
-export const InboxUnavailableModal = () => {
-  const { isOpen, onClose, onClosed, data } = useInboxUnavailableModal()
-  const { userId, presetMessage, onSuccessAction, onCancelAction } = data
-  const user = useSelector((state) =>
-    cacheUsersSelectors.getUser(state, { id: userId })
-  )
+export const InboxUnavailableModal = ({
+  isVisible,
+  onDismiss,
+  onClose,
+  user
+}: {
+  isVisible: boolean
+  onDismiss?: () => void
+  onClose: () => void
+  user: User
+}) => {
   const dispatch = useDispatch()
-  const currentUserId = useSelector(accountSelectors.getUserId)
   const { callToAction } = useSelector((state) =>
-    getCanCreateChat(state, { userId })
+    getCanCreateChat(state, { userId: user.user_id })
   )
   const hasAction =
     callToAction === ChatPermissionAction.TIP ||
     callToAction === ChatPermissionAction.UNBLOCK
 
   const handleClick = useCallback(() => {
-    if (!userId) {
-      console.error(
-        'Unexpected undefined user for InboxUnavailableModal click handler'
-      )
-      return
-    }
-    if (callToAction === ChatPermissionAction.TIP && currentUserId) {
-      const chatId = makeChatId([currentUserId, userId])
-      const tipSuccessActions: Action[] = [
-        chatActions.goToChat({
-          chatId,
-          presetMessage
-        })
-      ]
-      if (onSuccessAction) {
-        tipSuccessActions.push(onSuccessAction)
-      }
-      dispatch(
-        beginTip({
-          user,
-          source: 'inboxUnavailableModal',
-          onSuccessActions: tipSuccessActions,
-          onSuccessConfirmedActions: [
-            chatActions.createChat({
-              userIds: [userId],
-              skipNavigation: true
-            })
-          ]
-        })
-      )
+    if (callToAction === ChatPermissionAction.TIP) {
+      dispatch(beginTip({ user, source: 'inboxUnavailableModal' }))
+      onClose()
     } else if (callToAction === ChatPermissionAction.UNBLOCK) {
-      dispatch(unblockUser({ userId }))
-      dispatch(createChat({ userIds: [userId], presetMessage }))
-      if (onSuccessAction) {
-        dispatch(onSuccessAction)
-      }
+      dispatch(unblockUser({ userId: user.user_id }))
+      dispatch(createChat({ userIds: [user.user_id] }))
+      onClose()
     } else {
       window.open(CHAT_BLOG_POST_URL, '_blank')
+      onClose()
     }
+  }, [dispatch, onClose, user, callToAction])
+
+  const handleDismiss = useCallback(() => {
+    onDismiss?.()
     onClose()
-  }, [
-    user,
-    userId,
+  }, [onDismiss, onClose])
+
+  const { content, buttonText, buttonIcon } = actionToContent(
     callToAction,
-    currentUserId,
-    onClose,
-    presetMessage,
-    onSuccessAction,
-    dispatch
-  ])
-
-  const handleCancel = useCallback(() => {
-    if (onCancelAction) {
-      dispatch(onCancelAction)
-    }
-    onClose()
-  }, [dispatch, onCancelAction, onClose])
-
-  const { content, buttonText, buttonIcon } = actionToContent({
-    action: callToAction,
     user,
     onClose
-  })
+  )
 
   return (
     <Modal
       bodyClassName={styles.modalBody}
-      isOpen={isOpen}
-      onClose={onClose}
-      onClosed={onClosed}
+      isOpen={isVisible}
+      onClose={handleDismiss}
     >
-      <ModalHeader onClose={handleCancel}>
+      <ModalHeader>
         <ModalTitle
           icon={<IconMessageLocked className={styles.icon} />}
           title={messages.title}

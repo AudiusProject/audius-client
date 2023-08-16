@@ -27,8 +27,8 @@ export const createModal = <T>({
     name: `modals/${reducerPath}`,
     initialState,
     reducers: {
-      open: (_, action: PayloadAction<T>) => {
-        return { ...action.payload, isOpen: true }
+      open: (_, action: PayloadAction<T & BaseModalState>) => {
+        return action.payload
       },
       close: (state) => {
         state.isOpen = 'closing'
@@ -99,7 +99,6 @@ export const createModal = <T>({
 
   return {
     hook: useModal,
-    actions: slice.actions,
     reducer: slice.reducer
   }
 }
