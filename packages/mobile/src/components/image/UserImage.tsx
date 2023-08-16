@@ -10,7 +10,7 @@ type UseUserImageOptions = {
   user: Nullable<
     Pick<
       User,
-      'profile_picture_sizes'
+      | 'profile_picture_sizes'
       | 'profile_picture_cids'
       | 'profile_picture'
       | 'updatedProfilePicture'
