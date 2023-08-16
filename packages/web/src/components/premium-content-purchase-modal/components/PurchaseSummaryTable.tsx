@@ -1,7 +1,8 @@
-import { formatUSDCWeiToUSDString, StringUSDC } from '@audius/common'
+import { formatPrice } from '@audius/common'
 
 import { Text } from 'components/typography'
 
+import { FormatPrice } from './FormatPrice'
 import styles from './PurchaseSummaryTable.module.css'
 
 const messages = {
@@ -15,11 +16,11 @@ const messages = {
   price: (val: string) => `$${val}`
 }
 
-export type PurchaseSummaryTableProps = {
-  amountDue: StringUSDC
-  artistCut: StringUSDC
-  basePrice: StringUSDC
-  existingBalance?: StringUSDC
+type PurchaseSummaryTableProps = {
+  amountDue: number
+  artistCut: number
+  basePrice: number
+  existingBalance?: number
 }
 
 export const PurchaseSummaryTable = ({
@@ -35,7 +36,7 @@ export const PurchaseSummaryTable = ({
       </Text>
       <div className={styles.row}>
         <span>{messages.artistCut}</span>
-        <span>{messages.price(formatUSDCWeiToUSDString(artistCut))}</span>
+        <span>{messages.price(formatPrice(artistCut))}</span>
       </div>
       <div className={styles.row}>
         <span>{messages.audiusCut}</span>
@@ -44,23 +45,16 @@ export const PurchaseSummaryTable = ({
       {existingBalance ? (
         <div className={styles.row}>
           <span>{messages.existingBalance}</span>
-          <span>{`-${messages.price(
-            formatUSDCWeiToUSDString(existingBalance)
-          )}`}</span>
+          <span>{`-${messages.price(formatPrice(existingBalance))}`}</span>
         </div>
       ) : null}
       <Text className={styles.row} variant='title'>
         <span>{messages.youPay}</span>
-        <span className={styles.finalPrice}>
-          {existingBalance ? (
-            <>
-              <s>{messages.price(formatUSDCWeiToUSDString(basePrice))}</s>
-              {messages.price(formatUSDCWeiToUSDString(amountDue))}
-            </>
-          ) : (
-            messages.price(formatUSDCWeiToUSDString(amountDue))
-          )}
-        </span>
+        <FormatPrice
+          className={styles.finalPrice}
+          basePrice={basePrice}
+          amountDue={amountDue}
+        />
       </Text>
     </Text>
   )

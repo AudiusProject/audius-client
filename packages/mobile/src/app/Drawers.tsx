@@ -22,6 +22,7 @@ import { FeedFilterDrawer } from 'app/components/feed-filter-drawer'
 import { ForgotPasswordDrawer } from 'app/components/forgot-password-drawer'
 import { GatedContentUploadPromptDrawer } from 'app/components/gated-content-upload-prompt-drawer/GatedContentUploadPromptDrawer'
 import { InboxUnavailableDrawer } from 'app/components/inbox-unavailable-drawer/InboxUnavailableDrawer'
+import { LeavingAudiusDrawer } from 'app/components/leaving-audius-drawer'
 import { LockedContentDrawer } from 'app/components/locked-content-drawer'
 import { OverflowMenuDrawer } from 'app/components/overflow-menu-drawer'
 import { PlaybackRateDrawer } from 'app/components/playback-rate-drawer'
@@ -32,6 +33,7 @@ import { RateCtaDrawer } from 'app/components/rate-cta-drawer'
 import { ShareDrawer } from 'app/components/share-drawer'
 import { ShareToTikTokDrawer } from 'app/components/share-to-tiktok-drawer'
 import { SignOutConfirmationDrawer } from 'app/components/sign-out-confirmation-drawer'
+import { StripeOnrampDrawer } from 'app/components/stripe-onramp-drawer'
 import { SupportersInfoDrawer } from 'app/components/supporters-info-drawer'
 import { TransferAudioMobileDrawer } from 'app/components/transfer-audio-mobile-drawer'
 import { TrendingRewardsDrawer } from 'app/components/trending-rewards-drawer'
@@ -106,7 +108,8 @@ const commonDrawersMap: { [Modal in Modals]?: ComponentType } = {
   VipDiscord: VipDiscordDrawer,
   ProfileActions: ProfileActionsDrawer,
   PlaybackRate: PlaybackRateDrawer,
-  PublishPlaylistConfirmation: PublishPlaylistDrawer
+  PublishPlaylistConfirmation: PublishPlaylistDrawer,
+  StripeOnRamp: StripeOnrampDrawer
 }
 
 const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
@@ -127,7 +130,6 @@ const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
   BlockMessages: BlockMessagesDrawer,
   DeleteChat: DeleteChatDrawer,
   SupportersInfo: SupportersInfoDrawer,
-  InboxUnavailable: InboxUnavailableDrawer,
   PremiumTrackPurchase: PremiumTrackPurchaseDrawer
 }
 
@@ -156,6 +158,8 @@ export const Drawers = () => {
           drawer={Drawer}
         />
       ))}
+      <LeavingAudiusDrawer />
+      <InboxUnavailableDrawer />
     </>
   )
 }

@@ -1,8 +1,15 @@
 import { useCallback } from 'react'
 
-import { premiumContentSelectors, useGetTrackById } from '@audius/common'
+import {
+  combineStatuses,
+  premiumContentSelectors,
+  purchaseContentActions,
+  statusIsNotFinalized,
+  useGetTrackById,
+  useUSDCBalance
+} from '@audius/common'
 import { IconCart, Modal, ModalContentPages, ModalHeader } from '@audius/stems'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { useModalState } from 'common/hooks/useModalState'
 import { Icon } from 'components/Icon'
@@ -23,19 +30,33 @@ enum PurchaseSteps {
   DETAILS = 1
 }
 
-export const PremiumContentPurchaseModal = () => {
-  const [isOpen, setIsOpen] = useModalState('PremiumContentPurchase')
+const usePremiumContentPurchaseModalState = () => {
   const trackId = useSelector(getPurchaseContentId)
-  const { data: track } = useGetTrackById(
+  const dispatch = useDispatch()
+  const [isOpen, setIsOpen] = useModalState('PremiumContentPurchase')
+  const { data: balance, status: balanceStatus } = useUSDCBalance()
+  const { data: track, status: trackStatus } = useGetTrackById(
     { id: trackId! },
     { disabled: !trackId }
   )
 
+  const status = combineStatuses([balanceStatus, trackStatus])
+
   const handleClose = useCallback(() => {
     setIsOpen(false)
-  }, [setIsOpen])
+    dispatch(purchaseContentActions.cleanup())
+  }, [setIsOpen, dispatch])
 
-  const currentStep = !track ? PurchaseSteps.LOADING : PurchaseSteps.DETAILS
+  const currentStep = statusIsNotFinalized(status)
+    ? PurchaseSteps.LOADING
+    : PurchaseSteps.DETAILS
+
+  return { isOpen, handleClose, currentStep, track, balance, status }
+}
+
+export const PremiumContentPurchaseModal = () => {
+  const { balance, isOpen, handleClose, currentStep, track } =
+    usePremiumContentPurchaseModalState()
 
   return (
     <Modal
@@ -59,7 +80,7 @@ export const PremiumContentPurchaseModal = () => {
       {track ? (
         <ModalContentPages currentPage={currentStep}>
           <LoadingPage />
-          <PurchaseDetailsPage track={track} />
+          <PurchaseDetailsPage track={track} currentBalance={balance} />
         </ModalContentPages>
       ) : null}
     </Modal>

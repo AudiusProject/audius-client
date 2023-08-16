@@ -32,6 +32,7 @@ type IconProps = {
  */
 export const Icon = (props: IconProps) => {
   const {
+    className,
     color,
     icon: IconComponent,
     size = 'small',
@@ -42,13 +43,13 @@ export const Icon = (props: IconProps) => {
   const style = color
     ? {
         ...styleProp,
-        '--icon-color': toCSSVariableName(color)
+        '--icon-color': `var(${toCSSVariableName(color)})`
       }
     : styleProp
 
   return (
     <IconComponent
-      className={cn(styles.icon, styles[size])}
+      className={cn(styles.icon, styles[size], className)}
       style={style}
       {...iconProps}
     />

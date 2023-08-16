@@ -26,7 +26,6 @@ import { make, useRecord } from 'common/store/analytics/actions'
 import Card from 'components/card/desktop/Card'
 import CollectiblesPage from 'components/collectibles/components/CollectiblesPage'
 import CoverPhoto from 'components/cover-photo/CoverPhoto'
-import { InboxUnavailableModal } from 'components/inbox-unavailable-modal/InboxUnavailableModal'
 import CardLineup from 'components/lineup/CardLineup'
 import Lineup from 'components/lineup/Lineup'
 import Mask from 'components/mask/Mask'
@@ -42,8 +41,7 @@ import { UnblockUserConfirmationModal } from 'pages/chat-page/components/Unblock
 import { MIN_COLLECTIBLES_TIER } from 'pages/profile-page/ProfilePageProvider'
 import EmptyTab from 'pages/profile-page/components/EmptyTab'
 import {
-  albumPage,
-  playlistPage,
+  collectionPage,
   UPLOAD_PAGE,
   UPLOAD_ALBUM_PAGE,
   UPLOAD_PLAYLIST_PAGE
@@ -93,7 +91,6 @@ export type ProfilePageProps = {
   stats: StatProps[]
   isBlocked: boolean
   canCreateChat: boolean
-  showInboxUnavailableModal: boolean
   showBlockUserConfirmationModal: boolean
   showUnblockUserConfirmationModal: boolean
 
@@ -156,7 +153,6 @@ export type ProfilePageProps = {
   onMessage: () => void
   onBlock: () => void
   onUnblock: () => void
-  onCloseInboxUnavailableModal: () => void
   onCloseBlockUserConfirmationModal: () => void
   onCloseUnblockUserConfirmationModal: () => void
 }
@@ -218,8 +214,6 @@ const ProfilePage = ({
   isBlocked,
 
   // Chat modals
-  showInboxUnavailableModal,
-  onCloseInboxUnavailableModal,
   showBlockUserConfirmationModal,
   onCloseBlockUserConfirmationModal,
   showUnblockUserConfirmationModal,
@@ -313,11 +307,23 @@ const ProfilePage = ({
         cardCoverImageSizes={album._cover_art_sizes}
         isReposted={album.has_current_user_reposted}
         isSaved={album.has_current_user_saved}
-        href={albumPage(profile.handle, album.playlist_name, album.playlist_id)}
+        href={collectionPage(
+          profile.handle,
+          album.playlist_name,
+          album.playlist_id,
+          album.permalink,
+          true
+        )}
         onClick={(e: MouseEvent) => {
           e.preventDefault()
           goToRoute(
-            albumPage(profile.handle, album.playlist_name, album.playlist_id)
+            collectionPage(
+              profile.handle,
+              album.playlist_name,
+              album.playlist_id,
+              album.permalink,
+              true
+            )
           )
         }}
       />
@@ -355,18 +361,22 @@ const ProfilePage = ({
         cardCoverImageSizes={playlist._cover_art_sizes}
         isReposted={playlist.has_current_user_reposted}
         isSaved={playlist.has_current_user_saved}
-        href={playlistPage(
+        href={collectionPage(
           profile.handle,
           playlist.playlist_name,
-          playlist.playlist_id
+          playlist.playlist_id,
+          playlist.permalink,
+          playlist.is_album
         )}
         onClick={(e: MouseEvent) => {
           e.preventDefault()
           goToRoute(
-            playlistPage(
+            collectionPage(
               profile.handle,
               playlist.playlist_name,
-              playlist.playlist_id
+              playlist.playlist_id,
+              playlist.permalink,
+              playlist.is_album
             )
           )
         }}
@@ -553,18 +563,22 @@ const ProfilePage = ({
         isReposted={playlist.has_current_user_reposted}
         isSaved={playlist.has_current_user_saved}
         cardCoverImageSizes={playlist._cover_art_sizes}
-        href={playlistPage(
+        href={collectionPage(
           profile.handle,
           playlist.playlist_name,
-          playlist.playlist_id
+          playlist.playlist_id,
+          playlist.permalink,
+          playlist.is_album
         )}
         onClick={(e: MouseEvent) => {
           e.preventDefault()
           goToRoute(
-            playlistPage(
+            collectionPage(
               profile.handle,
               playlist.playlist_name,
-              playlist.playlist_id
+              playlist.playlist_id,
+              playlist.permalink,
+              playlist.is_album
             )
           )
         }}
@@ -792,11 +806,6 @@ const ProfilePage = ({
       </div>
       {profile ? (
         <>
-          <InboxUnavailableModal
-            user={profile}
-            isVisible={showInboxUnavailableModal}
-            onClose={onCloseInboxUnavailableModal}
-          />
           <BlockUserConfirmationModal
             user={profile}
             isVisible={showBlockUserConfirmationModal}

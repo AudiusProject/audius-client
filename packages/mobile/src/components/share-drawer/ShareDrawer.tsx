@@ -4,6 +4,7 @@ import {
   accountSelectors,
   collectionsSocialActions,
   FeatureFlags,
+  Name,
   shareModalUISelectors,
   shareSoundToTiktokModalActions,
   tracksSocialActions,
@@ -25,6 +26,7 @@ import { useNavigation } from 'app/hooks/useNavigation'
 import { useFeatureFlag } from 'app/hooks/useRemoteConfig'
 import { useToast } from 'app/hooks/useToast'
 import type { AppTabScreenParamList } from 'app/screens/app-screen'
+import { make, track } from 'app/services/analytics'
 import { makeStyles } from 'app/styles'
 import { useThemeColors } from 'app/utils/theme'
 
@@ -107,8 +109,10 @@ export const ShareDrawer = () => {
   const handleShareToDirectMessage = useCallback(async () => {
     if (!content) return
     navigation.navigate('ChatUserList', {
-      presetMessage: getContentUrl(content)
+      presetMessage: getContentUrl(content),
+      defaultUserList: 'chats'
     })
+    track(make({ eventName: Name.CHAT_ENTRY_POINT, source: 'share' }))
   }, [content, navigation])
 
   const handleShareToTwitter = useCallback(async () => {

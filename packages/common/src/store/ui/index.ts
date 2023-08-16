@@ -82,6 +82,14 @@ export * as shareModalUISelectors from './share-modal/selectors'
 export { default as shareModalUISagas } from './share-modal/sagas'
 
 export {
+  default as stripeModalUIReducer,
+  actions as stripeModalUIActions
+} from './stripe-modal/slice'
+export * from './stripe-modal/types'
+export * as stripeModalUISelectors from './stripe-modal/selectors'
+export { default as stripeModalUISagas } from './stripe-modal/sagas'
+
+export {
   default as vipDiscordModalReducer,
   actions as vipDiscordModalActions
 } from './vip-discord-modal/slice'
@@ -132,9 +140,6 @@ export {
 export * as searchUsersModalSelectors from './search-users-modal/selectors'
 export { default as searchUsersModalSagas } from './search-users-modal/sagas'
 
-export {
-  default as createChatModalReducer,
-  actions as createChatModalActions,
-  CreateChatModalState
-} from './create-chat-modal/slice'
-export * as createChatModalSelectors from './create-chat-modal/selectors'
+export * from './create-chat-modal'
+export * from './leaving-audius-modal'
+export * from './inbox-unavailable-modal'

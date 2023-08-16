@@ -51,9 +51,10 @@ function* watchFetchCollection() {
       yield put(fetchCollectionFailed())
       return
     }
-    const collection = collections[collectionId]
+    const identifier = collectionId || permalink
+    const collection = collections[identifier]
     const userUid = makeUid(Kind.USERS, collection.playlist_owner_id)
-    const collectionUid = collectionUids[collectionId]
+    const collectionUid = collectionUids[identifier]
     if (collection) {
       yield put(
         cacheActions.subscribe(Kind.USERS, [
@@ -64,6 +65,7 @@ function* watchFetchCollection() {
         fetchCollectionSucceeded(
           collection.playlist_id,
           collectionUid,
+          collection.permalink,
           userUid,
           collection.playlist_contents.track_ids.length
         )
