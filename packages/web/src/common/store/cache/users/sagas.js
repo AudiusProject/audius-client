@@ -197,11 +197,9 @@ function* watchFetchProfilePicture() {
         if (user.profile_picture_sizes) {
           const url = yield call(
             audiusBackendInstance.getImageUrl,
-            user.profile_picture_cids
-              ? user.profile_picture_cids[size]
-              : user.profile_picture_sizes,
+            user.profile_picture_sizes,
             size,
-            !!user.profile_picture_cids
+            user.profile_picture_cids
           )
 
           if (url) {
@@ -267,11 +265,9 @@ function* watchFetchCoverPhoto() {
       if (user.cover_photo_sizes) {
         const url = yield call(
           audiusBackendInstance.getImageUrl,
-          user.cover_photo_cids
-            ? user.cover_photo_cids[size]
-            : user.cover_photo_sizes,
+          user.cover_photo_sizes,
           size,
-          !!user.cover_photo_cids
+          user.cover_photo_cids
         )
 
         if (url) {

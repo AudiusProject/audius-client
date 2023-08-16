@@ -47,23 +47,27 @@ export const createAllImageSources = ({
   endpoints,
   size,
   localSource,
-  directLink = false
+  cidMap = {}
 }: {
   cid: Nullable<CID>
   endpoints: string[]
   size: SquareSizes | WidthSizes
   localSource?: ImageURISource | null
-  directLink?: boolean
+  cidMap?: Nullable<{ [key: string]: string }>
 }) => {
   if (!cid || !endpoints) {
     return []
+  }
+  let cidForSize: Nullable<string> = null
+  if (cidMap && Object.keys(cidMap).length !== 0 && cidMap[size]) {
+    cidForSize = cidMap[size]
   }
 
   const newImageSources = createImageSourcesForEndpoints({
     endpoints,
     createUri: (endpoint) =>
-      directLink
-        ? `${endpoint}/content/${cid}`
+      cidForSize
+        ? `${endpoint}/content/${cidForSize}`
         : `${endpoint}/content/${cid}/${size}.jpg`
   })
 
@@ -101,7 +105,7 @@ type UseContentNodeImageOptions = {
   size: SquareSizes | WidthSizes
   fallbackImageSource: ImageSourcePropType
   localSource?: ImageURISource | null
-  directLink?: boolean
+  cidMap?: Nullable<{ [key: string]: string }>
 }
 
 /**
@@ -119,7 +123,7 @@ type UseContentNodeImageOptions = {
 export const useContentNodeImage = (
   options: UseContentNodeImageOptions
 ): ContentNodeImageSource => {
-  const { cid, size, fallbackImageSource, localSource, directLink } = options
+  const { cid, size, fallbackImageSource, localSource, cidMap } = options
   const [imageSourceIndex, setImageSourceIndex] = useState(0)
   const [failedToLoad, setFailedToLoad] = useState(false)
   const { storageNodeSelector } = useAppContext()
@@ -137,9 +141,9 @@ export const useContentNodeImage = (
       endpoints,
       localSource,
       size,
-      directLink
+      cidMap
     })
-  }, [cid, endpoints, localSource, size, directLink])
+  }, [cid, endpoints, localSource, size, cidMap])
 
   const handleError = useCallback(() => {
     if (imageSourceIndex < imageSources.length - 1) {

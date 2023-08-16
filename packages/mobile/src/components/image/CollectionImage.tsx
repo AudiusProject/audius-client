@@ -61,12 +61,9 @@ const useLocalCollectionImageUri = (collectionId: Maybe<ID>) => {
 export const useCollectionImage = (options: UseCollectionImageOptions) => {
   const { collection, size } = options
   const optimisticCoverArt = collection?._cover_art_sizes?.OVERRIDE
-  let cid = null
-  if (collection) {
-    cid = collection.cover_art_cids
-      ? collection.cover_art_cids[size]
-      : collection.cover_art_sizes || collection.cover_art
-  }
+  const cid = collection
+    ? collection.cover_art_sizes || collection.cover_art
+    : null
 
   const localCollectionImageUri = useLocalCollectionImageUri(
     collection?.playlist_id
@@ -79,7 +76,7 @@ export const useCollectionImage = (options: UseCollectionImageOptions) => {
     size,
     fallbackImageSource: imageEmpty,
     localSource: localSourceUri ? { uri: localSourceUri } : null,
-    directLink: !!collection?.cover_art_cids
+    cidMap: collection?.cover_art_cids
   })
 
   return contentNodeSource

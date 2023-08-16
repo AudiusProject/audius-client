@@ -56,12 +56,8 @@ const useLocalTrackImageUri = (trackId: Maybe<ID>) => {
 }
 
 export const useTrackImage = ({ track, size }: UseTrackImageOptions) => {
-  let cid = null
-  if (track) {
-    cid = track.cover_art_cids
-      ? track.cover_art_cids[size]
-      : track.cover_art_sizes || track.cover_art
-  }
+  const cid = track ? track.cover_art_sizes || track.cover_art : null
+
   const optimisticCoverArt = track?._cover_art_sizes?.OVERRIDE
 
   const localTrackImageUri = useLocalTrackImageUri(track?.track_id)
@@ -72,7 +68,7 @@ export const useTrackImage = ({ track, size }: UseTrackImageOptions) => {
     size,
     fallbackImageSource: imageEmpty,
     localSource: localSourceUri ? { uri: localSourceUri } : null,
-    directLink: !!track?.cover_art_cids
+    cidMap: track?.cover_art_cids
   })
 
   return contentNodeSource

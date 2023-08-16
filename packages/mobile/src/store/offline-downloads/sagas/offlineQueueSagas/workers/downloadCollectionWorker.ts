@@ -150,16 +150,14 @@ function* downloadCollectionAsync(
 
 function* downloadCollectionCoverArt(collection: CollectionMetadata) {
   const { cover_art_cids, cover_art_sizes, cover_art, playlist_id } = collection
-  const cid = cover_art_cids
-    ? cover_art_cids[SquareSizes.SIZE_1000_BY_1000]
-    : cover_art_sizes ?? cover_art
+  const cid = cover_art_sizes ?? cover_art
   const storageNodeSelector = yield* call(getStorageNodeSelector)
 
   const imageSources = createAllImageSources({
     cid,
     endpoints: cid ? storageNodeSelector.getNodes(cid) : [],
     size: SquareSizes.SIZE_1000_BY_1000,
-    directLink: !!cover_art_cids
+    cidMap: cover_art_cids
   })
 
   const coverArtUris = imageSources.map(({ uri }) => uri).filter(removeNullable)

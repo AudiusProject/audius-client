@@ -35,18 +35,13 @@ type CoverImageUser = Nullable<
 >
 
 export const useUserCoverImage = (user: CoverImageUser) => {
-  let cid = null
-  if (user) {
-    cid = user.cover_photo_cids
-      ? user.cover_photo_cids[WidthSizes.SIZE_640]
-      : user.cover_photo_sizes || user.cover_photo
-  }
+  const cid = user ? user.cover_photo_sizes || user.cover_photo : null
 
   const contentNodeImage = useContentNodeImage({
     cid,
     size: WidthSizes.SIZE_640,
     fallbackImageSource: imageCoverPhotoBlank,
-    directLink: !!user?.cover_photo_cids
+    cidMap: user?.cover_photo_cids
   })
 
   if (user?.updatedCoverPhoto) {

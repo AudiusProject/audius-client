@@ -138,12 +138,12 @@ const getImageUrl = (
   cid: Nullable<string>,
   size: SquareSizes,
   storageNodeSelector: Maybe<StorageNodeSelectorService>,
-  directLink: boolean
+  cidMap: Nullable<{ [key: string]: string }> = null
 ) => {
   if (!storageNodeSelector || !cid) return null
   const node = storageNodeSelector.getNodes(cid)[0]
-  return directLink
-    ? `${node}/content/${cid}`
+  return cidMap && cidMap[size]
+    ? `${node}/content/${cidMap[size]}`
     : `${node}/content/${cid}/${size}.jpg`
 }
 
@@ -195,12 +195,10 @@ const FeaturedContent = (props: FeaturedContentProps) => {
                     title={p.playlist_name}
                     artist={p.user.name}
                     imageUrl={getImageUrl(
-                      p.cover_art_cids
-                        ? p.cover_art_cids[SquareSizes.SIZE_150_BY_150]
-                        : p.cover_art_sizes,
+                      p.cover_art_sizes,
                       SquareSizes.SIZE_150_BY_150,
                       storageNodeSelector,
-                      !!p.cover_art_cids
+                      p.cover_art_cids
                     )}
                     onClick={handleClickRoute(
                       collectionPage(
@@ -254,12 +252,10 @@ const FeaturedContent = (props: FeaturedContentProps) => {
                     title={p.playlist_name}
                     artist={p.user.name}
                     imageUrl={getImageUrl(
-                      p.cover_art_cids
-                        ? p.cover_art_cids[SquareSizes.SIZE_1000_BY_1000]
-                        : p.cover_art_sizes,
+                      p.cover_art_sizes,
                       SquareSizes.SIZE_1000_BY_1000,
                       storageNodeSelector,
-                      !!p.cover_art_cids
+                      p.cover_art_cids
                     )}
                     onClick={handleClickRoute(
                       collectionPage(

@@ -465,11 +465,15 @@ export const audiusBackend = ({
   async function fetchImageCID(
     cid: CID,
     size?: SquareSizes | WidthSizes,
-    directLink = false
+    cidMap: Nullable<{ [key: string]: string }> = null
   ) {
     let cidFileName = size ? `${cid}/${size}.jpg` : `${cid}.jpg`
-    if (directLink) {
-      cidFileName = cid
+    // For v2 CIDs (aka job IDs), cidMap contains cids for each
+    // image variant. Use the CID for the desired image
+    // size from this map to accurately select the preferred
+    // rendezvous node to query.
+    if (size && cidMap && cidMap[size]) {
+      cidFileName = cidMap[size]
     }
     if (CIDCache.has(cidFileName)) {
       return CIDCache.get(cidFileName) as string
@@ -503,11 +507,11 @@ export const audiusBackend = ({
   async function getImageUrl(
     cid: Nullable<CID>,
     size?: SquareSizes | WidthSizes,
-    directLink = false
+    cidMap: Nullable<{ [key: string]: string }> = null
   ) {
     if (!cid) return ''
     try {
-      return await fetchImageCID(cid, size, directLink)
+      return await fetchImageCID(cid, size, cidMap)
     } catch (e) {
       console.error(e)
       return ''
