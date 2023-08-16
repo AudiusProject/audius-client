@@ -1,14 +1,10 @@
-import { useCallback, useEffect } from 'react'
+import { useEffect } from 'react'
 
-import {
-  isAudiusUrl,
-  useLeavingAudiusModal,
-  useLinkUnfurlMetadata
-} from '@audius/common'
+import { useLinkUnfurlMetadata } from '@audius/common'
 import type { GestureResponderEvent, ViewStyle } from 'react-native'
-import { View, Image, Pressable } from 'react-native'
+import { View, Image } from 'react-native'
 
-import { Text, useLink } from 'app/components/core'
+import { Text, Link } from 'app/components/core'
 import { makeStyles } from 'app/styles'
 
 import { REACTION_LONGPRESS_DELAY } from './constants'
@@ -97,16 +93,6 @@ export const LinkPreview = ({
   const { description, title, site_name: siteName, image } = metadata || {}
   const willRender = !!(description || title || image)
   const domain = metadata?.url ? new URL(metadata.url).hostname : ''
-  const { onPress: goToURL } = useLink(href)
-  const { onOpen: openLeavingAudiusModal } = useLeavingAudiusModal()
-
-  const handlePress = useCallback(() => {
-    if (isAudiusUrl(href)) {
-      goToURL()
-    } else {
-      openLeavingAudiusModal({ link: href })
-    }
-  }, [href, goToURL, openLeavingAudiusModal])
 
   useEffect(() => {
     if (willRender) {
@@ -117,8 +103,8 @@ export const LinkPreview = ({
   }, [willRender, onSuccess, onEmpty])
 
   return willRender ? (
-    <Pressable
-      onPress={handlePress}
+    <Link
+      url={href}
       delayLongPress={REACTION_LONGPRESS_DELAY}
       onLongPress={onLongPress}
       onPressIn={onPressIn}
@@ -167,6 +153,6 @@ export const LinkPreview = ({
           </View>
         ) : null}
       </View>
-    </Pressable>
+    </Link>
   ) : null
 }

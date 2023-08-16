@@ -1,18 +1,14 @@
-import type { ComponentType } from 'react'
-
-import type { ImageSourcePropType } from 'react-native'
+import type { ImageSourcePropType, ImageStyle } from 'react-native'
 import { TouchableOpacity, View, Image, Text } from 'react-native'
 
 import IconRemove from 'app/assets/images/iconRemove.svg'
 import { makeStyles } from 'app/styles'
-import type { SvgProps } from 'app/types/svg'
 import { useColor } from 'app/utils/theme'
 
 type DrawerHeaderProps = {
   onClose: () => void
   title?: string
-  titleIcon?: ComponentType<SvgProps>
-  titleImage?: ImageSourcePropType
+  titleIcon?: ImageSourcePropType
   isFullscreen?: boolean
 }
 
@@ -51,16 +47,9 @@ export const useStyles = makeStyles(({ palette, typography, spacing }) => ({
 }))
 
 export const DrawerHeader = (props: DrawerHeaderProps) => {
-  const {
-    onClose,
-    title,
-    titleIcon: TitleIcon,
-    titleImage,
-    isFullscreen
-  } = props
+  const { onClose, title, titleIcon, isFullscreen } = props
   const styles = useStyles()
-  const iconRemoveColor = useColor('neutralLight4')
-  const titleIconColor = useColor('neutral')
+  const closeColor = useColor('neutralLight4')
 
   return title || isFullscreen ? (
     <View style={styles.titleBarContainer}>
@@ -70,17 +59,14 @@ export const DrawerHeader = (props: DrawerHeaderProps) => {
           onPress={onClose}
           style={styles.dismissContainer}
         >
-          <IconRemove width={30} height={30} fill={iconRemoveColor} />
+          <IconRemove width={30} height={30} fill={closeColor} />
         </TouchableOpacity>
       )}
       {title && (
         <View style={styles.titleContainer}>
-          {TitleIcon ? (
-            <TitleIcon style={styles.titleIcon} fill={titleIconColor} />
-          ) : null}
-          {titleImage ? (
-            <Image style={styles.titleIcon} source={titleImage} />
-          ) : null}
+          {titleIcon && (
+            <Image style={styles.titleIcon as ImageStyle} source={titleIcon} />
+          )}
           <Text style={styles.titleLabel}>{title}</Text>
         </View>
       )}

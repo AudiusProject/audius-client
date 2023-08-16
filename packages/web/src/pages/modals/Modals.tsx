@@ -21,7 +21,6 @@ import EmbedModal from 'components/embed-modal/EmbedModal'
 import { FeatureFlagOverrideModal } from 'components/feature-flag-override-modal'
 import FirstUploadModal from 'components/first-upload-modal/FirstUploadModal'
 import { InboxSettingsModal } from 'components/inbox-settings-modal/InboxSettingsModal'
-import { LeavingAudiusModal } from 'components/leaving-audius-modal/LeavingAudiusModal'
 import { LockedContentModal } from 'components/locked-content-modal/LockedContentModal'
 import PasswordResetModal from 'components/password-reset/PasswordResetModal'
 import { PremiumContentPurchaseModal } from 'components/premium-content-purchase-modal/PremiumContentPurchaseModal'
@@ -103,7 +102,6 @@ const Modals = () => {
           <EditPlaylistModal />
           <ConnectedUserListModal />
           <AppCTAModal />
-          <LeavingAudiusModal />
 
           {/* dev-mode hot-key modals */}
           <ConfirmerPreview />
