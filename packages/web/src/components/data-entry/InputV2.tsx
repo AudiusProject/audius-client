@@ -31,8 +31,8 @@ export type InputV2Props = Omit<ComponentPropsWithoutRef<'input'>, 'size'> & {
   inputClassName?: string
   label?: string
   helperText?: string
-  prefix?: string
-  suffix?: string
+  startAdornment?: string
+  endAdornment?: string
 }
 
 export const InputV2 = (props: InputV2Props) => {
@@ -55,8 +55,8 @@ export const InputV2 = (props: InputV2Props) => {
     onBlur: onBlurProp,
     placeholder,
     helperText,
-    prefix,
-    suffix,
+    startAdornment,
+    endAdornment,
     ...other
   } = props
 
@@ -88,9 +88,9 @@ export const InputV2 = (props: InputV2Props) => {
   const input = (
     <div className={cn(styles.inputRow, layoutStyles.row)}>
       <div className={layoutStyles.row}>
-        {prefix ? (
+        {startAdornment ? (
           <Text variant='label' size='large' color='--neutral-light-2'>
-            {prefix}
+            {startAdornment}
           </Text>
         ) : null}
         <input
@@ -102,13 +102,17 @@ export const InputV2 = (props: InputV2Props) => {
           value={value}
           maxLength={maxLength}
           disabled={disabled}
-          placeholder={isFocused || prefix || suffix ? placeholder : undefined}
+          placeholder={
+            isFocused || startAdornment || endAdornment
+              ? placeholder
+              : undefined
+          }
           {...other}
         />
       </div>
-      {suffix ? (
+      {endAdornment ? (
         <Text variant='label' size='large' color='--neutral-light-2'>
-          {suffix}
+          {endAdornment}
         </Text>
       ) : null}
     </div>
@@ -121,7 +125,8 @@ export const InputV2 = (props: InputV2Props) => {
           <label className={styles.elevatedLabel}>
             <span
               className={cn(styles.label, {
-                [styles.hasValue]: characterCount > 0 || prefix || suffix
+                [styles.hasValue]:
+                  characterCount > 0 || startAdornment || endAdornment
               })}
             >
               {label}

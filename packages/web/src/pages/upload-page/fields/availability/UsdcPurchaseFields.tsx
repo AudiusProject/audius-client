@@ -1,10 +1,9 @@
-import { ChangeEventHandler, PropsWithChildren, useCallback } from 'react'
+import { ChangeEventHandler, useCallback } from 'react'
 
 import cn from 'classnames'
 import { useField } from 'formik'
 
-import { InputV2Variant } from 'components/data-entry/InputV2'
-import { TextField } from 'components/form-fields'
+import { TextField, TextFieldProps } from 'components/form-fields'
 import layoutStyles from 'components/layout/layout.module.css'
 import { Text } from 'components/typography'
 
@@ -63,39 +62,35 @@ export const UsdcPurchaseFields = (props: TrackAvailabilityFieldsProps) => {
 
   return (
     <div className={cn(layoutStyles.col, layoutStyles.gap4)}>
-      <BoxedInput {...messages.price}>
-        <TextField
-          variant={InputV2Variant.ELEVATED_PLACEHOLDER}
-          name={PRICE}
-          label={messages.price.label}
-          placeholder={messages.price.placeholder}
-          prefix={messages.dollars}
-          suffix={messages.usdc}
-          onChange={handleChange}
-          disabled={disabled}
-        />
-      </BoxedInput>
-      <BoxedInput {...messages.preview}>
-        <TextField
-          variant={InputV2Variant.ELEVATED_PLACEHOLDER}
-          name={PREVIEW}
-          label={messages.preview.placeholder}
-          placeholder={messages.preview.placeholder}
-          suffix={messages.seconds}
-          disabled={disabled}
-        />
-      </BoxedInput>
+      <BoxedTextField
+        {...messages.price}
+        name={PRICE}
+        label={messages.price.label}
+        placeholder={messages.price.placeholder}
+        startAdornment={messages.dollars}
+        endAdornment={messages.usdc}
+        onChange={handleChange}
+        disabled={disabled}
+      />
+      <BoxedTextField
+        {...messages.preview}
+        name={PREVIEW}
+        label={messages.preview.placeholder}
+        placeholder={messages.preview.placeholder}
+        endAdornment={messages.seconds}
+        disabled={disabled}
+      />
     </div>
   )
 }
 
-type BoxedInputProps = PropsWithChildren<{
+type BoxedTextFieldProps = {
   title: string
   description: string
-}>
+} & TextFieldProps
 
-const BoxedInput = (props: BoxedInputProps) => {
-  const { title, description, children } = props
+const BoxedTextField = (props: BoxedTextFieldProps) => {
+  const { title, description, ...inputProps } = props
   return (
     <div
       className={cn(styles.inputContainer, layoutStyles.col, layoutStyles.gap4)}
@@ -104,7 +99,7 @@ const BoxedInput = (props: BoxedInputProps) => {
         <Text variant='title'>{title}</Text>
         <Text variant='body'>{description}</Text>
       </div>
-      {children}
+      <TextField {...inputProps} />
     </div>
   )
 }

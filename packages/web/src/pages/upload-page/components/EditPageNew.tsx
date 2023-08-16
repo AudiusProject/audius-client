@@ -66,7 +66,7 @@ const createUploadTrackMetadataSchema = () =>
     download: z.optional(
       z
         .object({
-          cid: z.string(),
+          cid: z.optional(z.string()),
           isDownloadable: z.boolean(),
           requiresFollow: z.boolean()
         })
@@ -283,6 +283,7 @@ const MultiTrackFooter = () => {
         iconLeft={IconCaretLeft}
         onClick={goPrev}
         disabled={prevDisabled}
+        type='button'
       />
       <HarmonyButton
         className={cn({ [styles.disabled]: nextDisabled })}
@@ -291,6 +292,7 @@ const MultiTrackFooter = () => {
         iconRight={IconCaretRight}
         onClick={goNext}
         disabled={nextDisabled}
+        type='button'
       />
     </div>
   )
