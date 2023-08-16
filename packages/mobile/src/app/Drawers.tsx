@@ -33,6 +33,7 @@ import { RateCtaDrawer } from 'app/components/rate-cta-drawer'
 import { ShareDrawer } from 'app/components/share-drawer'
 import { ShareToTikTokDrawer } from 'app/components/share-to-tiktok-drawer'
 import { SignOutConfirmationDrawer } from 'app/components/sign-out-confirmation-drawer'
+import { StripeOnrampDrawer } from 'app/components/stripe-onramp-drawer'
 import { SupportersInfoDrawer } from 'app/components/supporters-info-drawer'
 import { TransferAudioMobileDrawer } from 'app/components/transfer-audio-mobile-drawer'
 import { TrendingRewardsDrawer } from 'app/components/trending-rewards-drawer'
@@ -107,7 +108,8 @@ const commonDrawersMap: { [Modal in Modals]?: ComponentType } = {
   VipDiscord: VipDiscordDrawer,
   ProfileActions: ProfileActionsDrawer,
   PlaybackRate: PlaybackRateDrawer,
-  PublishPlaylistConfirmation: PublishPlaylistDrawer
+  PublishPlaylistConfirmation: PublishPlaylistDrawer,
+  StripeOnRamp: StripeOnrampDrawer
 }
 
 const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
@@ -128,7 +130,6 @@ const nativeDrawersMap: { [DrawerName in Drawer]?: ComponentType } = {
   BlockMessages: BlockMessagesDrawer,
   DeleteChat: DeleteChatDrawer,
   SupportersInfo: SupportersInfoDrawer,
-  InboxUnavailable: InboxUnavailableDrawer,
   PremiumTrackPurchase: PremiumTrackPurchaseDrawer
 }
 
@@ -158,6 +159,7 @@ export const Drawers = () => {
         />
       ))}
       <LeavingAudiusDrawer />
+      <InboxUnavailableDrawer />
     </>
   )
 }

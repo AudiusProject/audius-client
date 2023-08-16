@@ -28,8 +28,8 @@ export type Drawer =
   | 'BlockMessages'
   | 'DeleteChat'
   | 'SupportersInfo'
-  | 'InboxUnavailable'
   | 'PremiumTrackPurchase'
+  | 'StripeOnramp'
 
 export type DrawerData = {
   EnablePushNotifications: undefined
@@ -66,6 +66,7 @@ export type DrawerData = {
   SupportersInfo: undefined
   InboxUnavailable: { userId: number; shouldOpenChat: boolean }
   PremiumTrackPurchase: { trackId: ID }
+  StripeOnramp: { clientSecret: string }
 }
 
 export type DrawersState = { [drawer in Drawer]: boolean | 'closing' } & {
@@ -96,8 +97,8 @@ const initialState: DrawersState = {
   BlockMessages: false,
   DeleteChat: false,
   SupportersInfo: false,
-  InboxUnavailable: false,
   PremiumTrackPurchase: false,
+  StripeOnramp: false,
   data: {}
 }
 

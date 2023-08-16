@@ -6,6 +6,7 @@ import { Name } from 'models/Analytics'
 import { ErrorLevel } from 'models/ErrorReporting'
 import { ID } from 'models/Identifiers'
 import { isPremiumContentUSDCPurchaseGated } from 'models/Track'
+import { BNUSDC } from 'models/Wallet'
 import {
   getTokenAccountInfo,
   purchaseContent
@@ -14,8 +15,8 @@ import { accountSelectors } from 'store/account'
 import {
   buyUSDCFlowFailed,
   buyUSDCFlowSucceeded,
-  onRampOpened,
-  onRampCanceled
+  onrampOpened,
+  onrampCanceled
 } from 'store/buy-usdc/slice'
 import { USDCOnRampProvider } from 'store/buy-usdc/types'
 import { getUSDCUserBank } from 'store/buy-usdc/utils'
@@ -23,16 +24,17 @@ import { getTrack } from 'store/cache/tracks/selectors'
 import { getUser } from 'store/cache/users/selectors'
 import { getContext } from 'store/effects'
 import { setVisibility } from 'store/ui/modals/slice'
-import { BN_USDC_CENT_WEI } from 'utils/wallet'
+import { BN_USDC_CENT_WEI, ceilingBNUSDCToNearestCent } from 'utils/wallet'
 
 import { pollPremiumTrack } from '../premium-content/sagas'
 import { updatePremiumTrackStatus } from '../premium-content/slice'
 
 import {
-  onBuyUSDC,
-  onPurchaseConfirmed,
-  onPurchaseSucceeded,
-  onUSDCBalanceSufficient,
+  buyUSDC,
+  purchaseCanceled,
+  purchaseConfirmed,
+  purchaseSucceeded,
+  usdcBalanceSufficient,
   purchaseContentFlowFailed,
   startPurchaseContentFlow
 } from './slice'
@@ -148,7 +150,7 @@ function* doStartPurchaseContentFlow({
     // get user bank
     const userBank = yield* call(getUSDCUserBank)
 
-    const { amount: initialBalance } = yield* call(
+    const tokenAccountInfo = yield* call(
       getTokenAccountInfo,
       audiusBackendInstance,
       {
@@ -156,32 +158,48 @@ function* doStartPurchaseContentFlow({
         tokenAccount: userBank
       }
     )
+    if (!tokenAccountInfo) {
+      throw new Error('Failed to fetch USDC token account info')
+    }
+
+    const { amount: initialBalance } = tokenAccountInfo
+
+    const priceBN = new BN(price).mul(BN_USDC_CENT_WEI)
+    const balanceNeeded: BNUSDC = priceBN.sub(initialBalance) as BNUSDC
 
     // buy USDC if necessary
-    if (initialBalance.lt(new BN(price).mul(BN_USDC_CENT_WEI))) {
-      yield* put(onBuyUSDC())
+    if (balanceNeeded.gtn(0)) {
+      const balanceNeededCents = ceilingBNUSDCToNearestCent(balanceNeeded)
+        .div(BN_USDC_CENT_WEI)
+        .toNumber()
+      yield* put(buyUSDC())
       yield* put(
-        onRampOpened({
+        onrampOpened({
           provider: USDCOnRampProvider.STRIPE,
           purchaseInfo: {
-            desiredAmount: price
+            desiredAmount: balanceNeededCents
           }
         })
       )
 
       const result = yield* race({
         success: take(buyUSDCFlowSucceeded),
-        canceled: take(onRampCanceled),
+        canceled: take(onrampCanceled),
         failed: take(buyUSDCFlowFailed)
       })
 
-      if (result.canceled || result.failed) {
-        // Return early for failure or cancellation
+      // Return early for failure or cancellation
+      if (result.canceled) {
+        yield* put(purchaseCanceled())
+        return
+      }
+      if (result.failed) {
+        yield* put(purchaseContentFlowFailed())
         return
       }
     }
 
-    yield* put(onUSDCBalanceSufficient())
+    yield* put(usdcBalanceSufficient())
 
     const { blocknumber, splits } = yield* getPurchaseConfig({
       contentId,
@@ -195,13 +213,13 @@ function* doStartPurchaseContentFlow({
       splits,
       type: 'track'
     })
-    yield* put(onPurchaseSucceeded())
+    yield* put(purchaseSucceeded())
 
     // confirm purchase
     yield* pollForPurchaseConfirmation({ contentId, contentType })
 
     // finish
-    yield* put(onPurchaseConfirmed())
+    yield* put(purchaseConfirmed())
 
     yield* put(
       setVisibility({
