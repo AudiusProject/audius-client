@@ -1,9 +1,8 @@
-import { ChangeEventHandler, PropsWithChildren, useCallback } from 'react'
+import { ChangeEventHandler, useCallback } from 'react'
 
 import cn from 'classnames'
 import { useField } from 'formik'
 
-import { InputV2Variant } from 'components/data-entry/InputV2'
 import { TextField, TextFieldProps } from 'components/form-fields'
 import layoutStyles from 'components/layout/layout.module.css'
 import { Text } from 'components/typography'
