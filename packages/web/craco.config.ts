@@ -151,5 +151,8 @@ export default {
   },
   typescript: {
     enableTypeChecking: false
+  },
+  devServer: {
+    client: { overlay: { errors: true, warnings: false, runtimeErrors: false } }
   }
 }
