@@ -3,6 +3,7 @@
 }
 
 .wrapper {
+  margin: 0 auto;
   justify-content: center;
 }
 
@@ -51,9 +52,9 @@
 }
 
 .container {
-  width: 375px;
+  max-width: 375px;
   flex-direction: column;
-  margin: 64px 24px 0px 24px;
+  padding: 64px 24px 0px 24px;
 }
 
 @media (max-width: 375px) {
