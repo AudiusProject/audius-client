@@ -189,7 +189,7 @@ const PlaylistForm = ({
       <div className={styles.playlistForm}>
         <UploadArtwork
           defaultPopupOpen={initialFocusedField === 'artwork'}
-          artworkUrl={formFields?.artwork?.url || coverArt}
+          artworkUrl={formFields.artwork?.url || coverArt}
           onDropArtwork={onDropArtwork}
           error={errors.artwork}
           imageProcessingError={Boolean(formFields.artwork?.error)}
