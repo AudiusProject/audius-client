@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import {
   BNUSDC,
@@ -21,6 +21,7 @@ import {
   IconCheck,
   IconError
 } from '@audius/stems'
+import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Icon } from 'components/Icon'
@@ -46,6 +47,18 @@ const messages = {
   // TODO: PAY-1723
   shareButtonContent: 'I just purchased a track on Audius!',
   viewTrack: 'View Track'
+}
+
+const useNavigateOnSuccess = (
+  track: UserTrackMetadata,
+  stage: PurchaseContentStage
+) => {
+  const dispatch = useDispatch()
+  useEffect(() => {
+    if (stage === PurchaseContentStage.FINISH) {
+      dispatch(pushRoute(track.permalink))
+    }
+  }, [stage, track, dispatch])
 }
 
 const ContentPurchaseError = () => {
@@ -84,6 +97,8 @@ export const PurchaseDetailsPage = ({
       })
     )
   }, [isUnlocking, dispatch, track.track_id])
+
+  useNavigateOnSuccess(track, stage)
 
   if (!isPremiumContentUSDCPurchaseGated(track.premium_conditions)) {
     console.error(
