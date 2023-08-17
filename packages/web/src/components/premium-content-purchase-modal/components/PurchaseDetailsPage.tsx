@@ -13,7 +13,13 @@ import {
   Track,
   UserTrackMetadata
 } from '@audius/common'
-import { HarmonyButton, IconCheck, IconError } from '@audius/stems'
+import {
+  HarmonyButton,
+  HarmonyButtonType,
+  IconCaretRight,
+  IconCheck,
+  IconError
+} from '@audius/stems'
 import BN from 'bn.js'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -40,7 +46,8 @@ const messages = {
   purchasing: 'Purchasing',
   purchaseSuccessful: 'Your Purchase Was Successful!',
   error: 'Your purchase was unsuccessful.',
-  shareButtonContent: 'I just purchased a track on Audius!'
+  shareButtonContent: 'I just purchased a track on Audius!',
+  viewTrack: 'View Track'
 }
 
 const zeroBalance = () => new BN(0) as BNUSDC
@@ -84,11 +91,13 @@ const ContentPurchaseError = () => {
 export type PurchaseDetailsPageProps = {
   currentBalance?: BNUSDC
   track: UserTrackMetadata
+  onViewTrackClicked: () => void
 }
 
 export const PurchaseDetailsPage = ({
   currentBalance = zeroBalance(),
-  track
+  track,
+  onViewTrackClicked
 }: PurchaseDetailsPageProps) => {
   const dispatch = useDispatch()
   const stage = useSelector(getPurchaseContentFlowStage)
@@ -155,10 +164,17 @@ export const PurchaseDetailsPage = ({
               {messages.purchaseSuccessful}
             </Text>
           </div>
+          {/* TODO: Add View Track plain button and add TODO for moving notifications to use common button */}
           <TwitterShareButton
             fullWidth
             type='static'
             shareText={messages.shareButtonContent}
+          />
+          <HarmonyButton
+            onClick={onViewTrackClicked}
+            iconRight={IconCaretRight}
+            variant={HarmonyButtonType.PLAIN}
+            text={messages.viewTrack}
           />
         </>
       ) : (
