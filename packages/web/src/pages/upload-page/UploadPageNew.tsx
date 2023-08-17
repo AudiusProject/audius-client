@@ -93,15 +93,17 @@ export const UploadPageNew = () => {
       )
       break
     case Phase.EDIT:
-      page = (
-        <EditPage
-          formState={formState}
-          onContinue={(formState: UploadFormState) => {
-            setFormState(formState)
-            setPhase(Phase.FINISH)
-          }}
-        />
-      )
+      if (formState.uploadType) {
+        page = (
+          <EditPage
+            formState={formState}
+            onContinue={(formState: UploadFormState) => {
+              setFormState(formState)
+              setPhase(Phase.FINISH)
+            }}
+          />
+        )
+      }
       break
     case Phase.FINISH:
       if (formState.uploadType) {

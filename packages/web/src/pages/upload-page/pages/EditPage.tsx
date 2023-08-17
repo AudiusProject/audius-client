@@ -2,16 +2,15 @@ import { UploadType } from '@audius/common'
 
 import { EditCollectionForm } from '../forms/EditCollectionForm'
 import { EditTrackForm } from '../forms/EditTrackForm'
-import { UploadFormState } from '../types'
+import { CollectionFormState, TrackFormState, UploadFormState } from '../types'
 
 type EditPageProps = {
-  formState: UploadFormState
+  formState: TrackFormState | CollectionFormState
   onContinue: (formState: UploadFormState) => void
 }
 
 export const EditPage = (props: EditPageProps) => {
   const { formState, onContinue } = props
-
   switch (formState.uploadType) {
     case UploadType.INDIVIDUAL_TRACK:
     case UploadType.INDIVIDUAL_TRACKS:
@@ -22,5 +21,4 @@ export const EditPage = (props: EditPageProps) => {
         <EditCollectionForm formState={formState} onContinue={onContinue} />
       )
   }
-  return null
 }
