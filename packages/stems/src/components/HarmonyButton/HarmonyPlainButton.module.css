@@ -57,7 +57,7 @@
   --text-color: var(--secondary-dark-2)
 }
 
-/* Secondary */
+/* Subdued */
 .subdued {
   --text-color: var(--text-subdued);
 }

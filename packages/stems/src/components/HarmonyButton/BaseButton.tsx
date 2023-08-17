@@ -8,8 +8,8 @@ import baseStyles from './BaseButton.module.css'
 import { BaseButtonProps } from './types'
 
 /**
- * A common Button component. Includes a few variants and options to
- * include and position icons.
+ * Base component for Harmony buttons. Not intended to be used directly. Use
+ * `HarmonyButton` or `HarmonyPlainButton`.
  */
 export const BaseButton = forwardRef<HTMLButtonElement, BaseButtonProps>(
   function BaseButton(props, ref) {
