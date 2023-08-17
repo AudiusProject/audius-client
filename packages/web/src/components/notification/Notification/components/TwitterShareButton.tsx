@@ -45,6 +45,8 @@ type TwitterShareButtonProps = {
   hideText?: boolean
 } & (StaticTwitterProps | DynamicTwitterProps)
 
+// TODO: Migrate this to deriving from components/TwitterShareButton, similar to mobile
+// https://linear.app/audius/issue/PAY-1722/consolidate-twittersharebuttons-on-web
 export const TwitterShareButton = (props: TwitterShareButtonProps) => {
   const { url = null, className, hideText, ...other } = props
   const record = useRecord()

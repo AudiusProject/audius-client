@@ -14,7 +14,9 @@ import {
 } from '@audius/common'
 import {
   HarmonyButton,
-  HarmonyButtonType,
+  HarmonyPlainButton,
+  HarmonyPlainButtonSize,
+  HarmonyPlainButtonType,
   IconCaretRight,
   IconCheck,
   IconError
@@ -41,6 +43,7 @@ const messages = {
   purchasing: 'Purchasing',
   purchaseSuccessful: 'Your Purchase Was Successful!',
   error: 'Your purchase was unsuccessful.',
+  // TODO: PAY-1723
   shareButtonContent: 'I just purchased a track on Audius!',
   viewTrack: 'View Track'
 }
@@ -69,7 +72,7 @@ export const PurchaseDetailsPage = ({
   const stage = useSelector(getPurchaseContentFlowStage)
   const error = useSelector(getPurchaseContentError)
   const isUnlocking = !error && isContentPurchaseInProgress(stage)
-  const isPurchased = stage !== PurchaseContentStage.FINISH
+  const isPurchased = stage === PurchaseContentStage.FINISH
 
   const onClickBuy = useCallback(() => {
     if (isUnlocking) return
@@ -130,16 +133,16 @@ export const PurchaseDetailsPage = ({
               {messages.purchaseSuccessful}
             </Text>
           </div>
-          {/* TODO: Add View Track plain button and add TODO for moving notifications to use common button */}
           <TwitterShareButton
             fullWidth
             type='static'
             shareText={messages.shareButtonContent}
           />
-          <HarmonyButton
+          <HarmonyPlainButton
             onClick={onViewTrackClicked}
             iconRight={IconCaretRight}
-            variant={HarmonyButtonType.PLAIN}
+            variant={HarmonyPlainButtonType.SUBDUED}
+            size={HarmonyPlainButtonSize.LARGE}
             text={messages.viewTrack}
           />
         </>
