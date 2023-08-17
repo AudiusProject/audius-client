@@ -18,6 +18,7 @@ type ModuleScopePlugin = ResolvePluginInstance & {
 }
 
 function resolveModule(moduleName: string) {
+  // TODO: Fix this path
   return path.resolve(`./node_modules/${moduleName}`)
 }
 
@@ -49,10 +50,10 @@ function injectModulesToModuleScopePlugin(plugin: ModuleScopePlugin) {
 export default {
   webpack: {
     configure: (config: Configuration) => {
-      if (config.resolve?.plugins) {
-        const [moduleScopePlugin] = config.resolve?.plugins
-        injectModulesToModuleScopePlugin(moduleScopePlugin as ModuleScopePlugin)
-      }
+      // if (config.resolve?.plugins) {
+      //   const [moduleScopePlugin] = config.resolve?.plugins
+      //   injectModulesToModuleScopePlugin(moduleScopePlugin as ModuleScopePlugin)
+      // }
 
       return {
         ...config,
@@ -123,14 +124,14 @@ export default {
             zlib: require.resolve('browserify-zlib')
           },
           alias: {
-            ...config.resolve?.alias,
-            ...moduleResolutions.reduce(
-              (aliases, moduleName) => ({
-                ...aliases,
-                [moduleName]: resolveModule(moduleName)
-              }),
-              {}
-            )
+            ...config.resolve?.alias
+            // ...moduleResolutions.reduce(
+            //   (aliases, moduleName) => ({
+            //     ...aliases,
+            //     [moduleName]: resolveModule(moduleName)
+            //   }),
+            //   {}
+            // )
           }
         },
         ignoreWarnings: [

@@ -28,7 +28,6 @@
     "electron:prod": "electron . production",
     "electron:localhost": "electron . localhost",
     "pack": "electron-builder --dir",
-    "preinstall": "npm-force-resolutions",
     "postinstall": "patch-package",
     "dist": "node ./scripts/dist.js --mac --win --linux",
     "dist:mac": "node ./scripts/dist.js --mac",
@@ -76,6 +75,7 @@
     "@opentelemetry/sdk-trace-web": "1.6.0",
     "@opentelemetry/semantic-conventions": "1.6.0",
     "@optimizely/optimizely-sdk": "4.9.2",
+    "@project-serum/anchor": "0.24.2",
     "@project-serum/sol-wallet-adapter": "0.2.5",
     "@react-spring/web": "9.7.2",
     "@reduxjs/toolkit": "1.6.1",
@@ -87,7 +87,9 @@
     "@stripe/stripe-js": "1.54.1",
     "@types/react-dates": "21.8.3",
     "@types/react-twitter-auth": "0.0.4",
+    "@types/webpack": "5.28.1",
     "@walletconnect/web3-provider": "1.4.1",
+    "ajv": "7.2.4",
     "amplitude-js": "8.10.0",
     "antd": "4.20.6",
     "array-pack-2d": "0.1.1",
@@ -177,7 +179,7 @@
     "web-vitals": "0.2.2",
     "web3modal": "1.9.3",
     "webgl-context": "2.2.0",
-    "webpack-bundle-analyzer": "4.5.0",
+    "webpack-bundle-analyzer": "4.9.0",
     "yup": "1.2.0",
     "zod-formik-adapter": "1.2.0"
   },
@@ -232,7 +234,7 @@
     "@types/react-virtualized": "9.21.21",
     "@types/redux-sentry-middleware": "0.2.1",
     "@types/resize-observer-browser": "0.1.7",
-    "@types/webpack-bundle-analyzer": "4.4.1",
+    "@types/webpack-bundle-analyzer": "4.6.0",
     "@types/webpack-env": "1.17.0",
     "abort-controller": "3.0.0",
     "assert": "^2.0.0",
@@ -240,7 +242,7 @@
     "babel-plugin-macros": "3.1.0",
     "base64url": "3.0.1",
     "browserify-zlib": "0.2.0",
-    "buffer": "6.0.3",
+    "buffer": "^6.0.3",
     "commander": "2.20.3",
     "constants-browserify": "^1.0.0",
     "crypto-browserify": "^3.12.0",
@@ -276,8 +278,7 @@
     "typescript": "4.9.4",
     "typescript-plugin-css-modules": "^3.4.0",
     "url": "^0.11.0",
-    "util": "^0.12.4",
-    "webpack": "5.73.0"
+    "util": "^0.12.4"
   },
   "resolutions": {
     "@types/react": "18.0.26"

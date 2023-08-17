@@ -1,14 +1,16 @@
 {
   "name": "root",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "link": "lerna link",
     "preinstall": "./scripts/preinstall.sh",
     "postinstall": "./scripts/postinstall.sh",
-    "build": "lerna run build --scope=@audius/stems --scope=@audius/common",
+    "build": "npm run build --workspace=@audius/stems --workspace=@audius/common",
     "install-hooks": "mookme init --only-hook --skip-types-selection",
-    "lint": "lerna run lint",
-    "lint:fix": "lerna run lint:fix",
+    "lint": "npm run lint --workspaces",
+    "lint:fix": "npm run lint:fix --workspaces",
     "clean": "rm -rf packages/web/build* && cd packages/mobile && npm run clean:auto && cd ../..",
     "clean:modules": "rm -rf node_modules && rm -rf packages/*/node_modules",
     "WEB========================================": "",
@@ -32,10 +34,10 @@
     "STEMS======================================": "",
     "stems": "cd packages/stems && npm run start",
     "SDK========================================": "",
-    "sdk:update": "lerna exec -- npm-check-updates @audius/sdk -u --target @beta && rm -rf packages/*/node_modules/@audius/sdk && npm i",
-    "sdk:update-hotfix": "lerna exec -- npm-check-updates @audius/sdk -u --target @hotfix && rm -rf packages/*/node_modules/@audius/sdk && npm i",
+    "sdk:update": "npm exec -- npm-check-updates @audius/sdk -u --target @beta && rm -rf packages/*/node_modules/@audius/sdk && npm i",
+    "sdk:update-hotfix": "npm exec -- npm-check-updates @audius/sdk -u --target @hotfix && rm -rf packages/*/node_modules/@audius/sdk && npm i",
     "sdk:link": "./scripts/link-sdk.sh",
-    "verify": "lerna run --scope=audius-client --scope audius-mobile-client verify"
+    "verify": "npm run --workspace=audius-client --workspace=audius-mobile-client verify"
   },
   "devDependencies": {
     "@types/keyv": "4.2.0",
@@ -57,7 +59,6 @@
     "eslint-plugin-react": "7.31.10",
     "eslint-plugin-react-hooks": "4.6.0",
     "eslint-plugin-standard": "4.1.0",
-    "lerna": "6.0.1",
     "npm-check-updates": "16.4.1",
     "npm-force-resolutions": "0.0.10",
     "prettier": "2.7.1",

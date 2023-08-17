@@ -39,7 +39,6 @@
     "typecheck:trace": "tsc --generateTrace tsc_trace",
     "clean": "react-native-clean-project",
     "clean:auto": "react-native clean-project-auto",
-    "preinstall": "npm-force-resolutions",
     "postinstall": "patch-package",
     "verify": "concurrently \"npm:typecheck\" \"npm:lint:fix\""
   },
