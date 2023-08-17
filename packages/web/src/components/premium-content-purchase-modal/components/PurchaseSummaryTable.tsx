@@ -17,7 +17,7 @@ const messages = {
   price: (val: string) => `$${val}`
 }
 
-export type PurchaseSummaryTableProps = {
+type PurchaseSummaryTableProps = {
   amountDue: number
   artistCut: number
   basePrice: number
