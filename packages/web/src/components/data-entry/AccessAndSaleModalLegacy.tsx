@@ -60,8 +60,6 @@ export const AccessAndSaleModalLegacy = (
   props: AccessAndSaleModalLegacyProps
 ) => {
   const { isRemix, metadataState, didUpdateState } = props
-  // TODO: intialForm values should inform enabled fields for edit
-  // Alternately, only use the new form for upload but not edit?
   const {
     premium_conditions: premiumConditions,
     unlisted: isUnlisted,

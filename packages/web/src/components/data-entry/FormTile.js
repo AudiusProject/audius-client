@@ -385,8 +385,6 @@ const AdvancedForm = (props) => {
     })
     props.onChangeField('is_premium', newState.is_premium)
 
-    // TODO: usdc support
-
     // Check whether the field is invalid if premium track is collectible-gated
     // so that the user cannot proceed until they pick an nft collection.
     const isInvalidNFTCollection =
@@ -510,7 +508,6 @@ const AdvancedForm = (props) => {
               isRemix={!!props.defaultFields.remix_of?.tracks?.length}
               isUpload={props.isUpload}
               initialForm={props.initialForm}
-              // onChangeField={props.onChangeField}
             />
           )}
           {props.type === 'track' && (
