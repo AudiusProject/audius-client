@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 
 import {
+  PremiumConditionsUSDCPurchase,
   Track,
   TrackAvailabilityType,
   isPremiumContentCollectibleGated,
@@ -29,6 +30,7 @@ import {
   IS_PREMIUM,
   IS_UNLISTED,
   PREMIUM_CONDITIONS,
+  PREVIEW,
   SPECIAL_ACCESS_TYPE
 } from 'pages/upload-page/fields/AccessAndSaleField'
 import { SpecialAccessType } from 'pages/upload-page/fields/availability/SpecialAccessFields'
@@ -64,6 +66,7 @@ export const AccessAndSaleModalLegacy = (
     premium_conditions: premiumConditions,
     unlisted: isUnlisted,
     is_premium: isPremium,
+    preview_start_seconds: preview,
     ...fieldVisibility
   } = metadataState
 
@@ -93,24 +96,40 @@ export const AccessAndSaleModalLegacy = (
     }
     set(initialValues, AVAILABILITY_TYPE, availabilityType)
     set(initialValues, FIELD_VISIBILITY, fieldVisibility)
-    // set(initialValues, PREVIEW, preview)
+    set(initialValues, PREVIEW, preview)
     set(
       initialValues,
       SPECIAL_ACCESS_TYPE,
       isTipGated ? SpecialAccessType.TIP : SpecialAccessType.FOLLOW
     )
     return initialValues as AccessAndSaleFormValues
-  }, [fieldVisibility, isPremium, isUnlisted, premiumConditions])
+  }, [fieldVisibility, isPremium, isUnlisted, premiumConditions, preview])
 
   const onSubmit = (values: AccessAndSaleFormValues) => {
     let newState = {
       ...metadataState,
       is_premium: !isEmpty(premiumConditions),
       premium_conditions: values[PREMIUM_CONDITIONS],
-      unlisted: values.is_unlisted
+      unlisted: values.is_unlisted,
+      preview_start_seconds: values[PREVIEW] ?? 0
     }
 
-    // TODO: usdc support
+    if (
+      get(values, AVAILABILITY_TYPE) === TrackAvailabilityType.USDC_PURCHASE
+    ) {
+      // @ts-ignore the field has a string in it
+      const priceStr: string = (
+        values[PREMIUM_CONDITIONS] as PremiumConditionsUSDCPurchase
+      ).usdc_purchase.price
+      const price = priceStr ? parseFloat(priceStr) * 100 : 0 // TODO: better default?
+      newState.premium_conditions = {
+        // @ts-ignore splits get added in saga
+        usdc_purchase: {
+          price
+        }
+      }
+    }
+
     if (get(values, AVAILABILITY_TYPE) === TrackAvailabilityType.HIDDEN) {
       newState = {
         ...newState,

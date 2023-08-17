@@ -351,7 +351,8 @@ const AdvancedForm = (props) => {
 
   let availabilityState = {
     is_premium: props.defaultFields.is_premium,
-    premium_conditions: props.defaultFields.premium_conditions
+    premium_conditions: props.defaultFields.premium_conditions,
+    preview_start_seconds: props.defaultFields.preview_start_seconds
   }
   const showAvailability = props.type === 'track' && props.showUnlistedToggle
   if (showAvailability) {
@@ -396,6 +397,7 @@ const AdvancedForm = (props) => {
       newState.premium_conditions,
       isInvalidNFTCollection
     )
+    props.onChangeField('preview_start_seconds', newState.preview_start_seconds)
   }
 
   const didToggleHideRemixesState = () => {

@@ -6,16 +6,21 @@ import {
   accountSelectors,
   accountActions,
   cacheUsersSelectors,
+  FeatureFlags,
+  getUSDCUserBank,
+  BN_USDC_CENT_WEI,
   cacheActions,
   waitForAccount,
   actionChannelDispatcher,
   uploadActions,
+  isPremiumContentUSDCPurchaseGated,
   UploadType,
   ProgressStatus,
   uploadSelectors,
   confirmerActions,
   confirmTransaction
 } from '@audius/common'
+import { BN } from 'bn.js'
 import { push as pushRoute } from 'connected-react-router'
 import { range } from 'lodash'
 import { channel, buffers } from 'redux-saga'
@@ -1156,6 +1161,35 @@ function* uploadMultipleTracks(tracks) {
   yield put(cacheActions.setExpired(Kind.USERS, account.user_id))
 }
 
+function* processTracksForUpload(tracks) {
+  const getFeatureEnabled = yield getContext('getFeatureEnabled')
+  const isUsdcPurchaseEnabled = yield call(
+    getFeatureEnabled,
+    FeatureFlags.USDC_PURCHASES
+  )
+  if (!isUsdcPurchaseEnabled) return
+
+  const ownerAccount = yield select(getAccountUser)
+  const wallet = ownerAccount.erc_wallet ?? ownerAccount.wallet
+  const ownerUserbank = yield getUSDCUserBank(wallet)
+
+  tracks.forEach((track) => {
+    const premium_conditions = track.metadata.premium_conditions
+    if (isPremiumContentUSDCPurchaseGated(premium_conditions)) {
+      const priceCents = premium_conditions.usdc_purchase.price
+      const priceWei = new BN(priceCents).mul(BN_USDC_CENT_WEI).toNumber()
+      premium_conditions.usdc_purchase = {
+        price: priceCents,
+        splits: {
+          [ownerUserbank]: priceWei
+        }
+      }
+    }
+  })
+
+  return tracks
+}
+
 function* uploadTracksAsync(action) {
   yield waitForWrite()
   const user = yield select(getAccountUser)
@@ -1187,22 +1221,18 @@ function* uploadTracksAsync(action) {
   })
   yield put(recordEvent)
 
+  const tracks = yield call(processTracksForUpload, action.tracks)
+
   // Upload content.
   const isPlaylist = action.uploadType === UploadType.PLAYLIST
   const isAlbum = action.uploadType === UploadType.ALBUM
-  const isSingleTrack = action.tracks.length === 1
+  const isSingleTrack = tracks.length === 1
   if (isPlaylist || isAlbum) {
-    yield call(
-      uploadCollection,
-      action.tracks,
-      user.user_id,
-      action.metadata,
-      isAlbum
-    )
+    yield call(uploadCollection, tracks, user.user_id, action.metadata, isAlbum)
   } else if (isSingleTrack) {
-    yield call(uploadSingleTrack, action.tracks[0])
+    yield call(uploadSingleTrack, tracks[0])
   } else {
-    yield call(uploadMultipleTracks, action.tracks)
+    yield call(uploadMultipleTracks, tracks)
   }
 }
 

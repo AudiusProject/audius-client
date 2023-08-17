@@ -198,13 +198,11 @@ export const AccessAndSaleField = () => {
       ) {
         setPreviewValue(get(values, PREVIEW))
         const priceStr = get(values, PRICE)
-        const price = priceStr ? parseFloat(priceStr) : 0
+        const price = priceStr ? parseFloat(priceStr) * 100 : 0 // TODO: better default?
         setPremiumConditionsValue({
-          // @ts-ignore
+          // @ts-ignore splits get added in saga
           usdc_purchase: {
             price
-            // TODO: splits value
-            // splits: price * 1000
           }
         })
       }
