@@ -6,7 +6,6 @@ import {
   playerSelectors,
   UploadType,
   removeNullable,
-  Maybe,
   newCollectionMetadata
 } from '@audius/common'
 import { Button, ButtonType, IconArrow } from '@audius/stems'

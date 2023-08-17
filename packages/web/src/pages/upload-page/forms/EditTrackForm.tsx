@@ -45,82 +45,9 @@ type EditTrackFormProps = {
   onContinue: (formState: TrackFormState) => void
 }
 
-<<<<<<< HEAD:packages/web/src/pages/upload-page/forms/EditTrackForm.tsx
 const EditFormValidationSchema = z.object({
   trackMetadatas: z.array(TrackMetadataSchema)
 })
-=======
-// TODO: KJ - Need to update the schema in sdk and then import here
-const createUploadTrackMetadataSchema = () =>
-  z.object({
-    aiAttributionUserId: z.optional(HashId),
-    description: z.optional(z.string().max(1000)),
-    download: z.optional(
-      z
-        .object({
-          cid: z.optional(z.string()),
-          isDownloadable: z.boolean(),
-          requiresFollow: z.boolean()
-        })
-        .strict()
-        .nullable()
-    ),
-    fieldVisibility: z.optional(
-      z.object({
-        mood: z.optional(z.boolean()),
-        tags: z.optional(z.boolean()),
-        genre: z.optional(z.boolean()),
-        share: z.optional(z.boolean()),
-        playCount: z.optional(z.boolean()),
-        remixes: z.optional(z.boolean())
-      })
-    ),
-    genre: z
-      .enum(Object.values(Genre) as [Genre, ...Genre[]])
-      .nullable()
-      .refine((val) => val !== null, {
-        message: messages.genreRequiredError
-      }),
-    isPremium: z.optional(z.boolean()),
-    isrc: z.optional(z.string().nullable()),
-    isUnlisted: z.optional(z.boolean()),
-    iswc: z.optional(z.string().nullable()),
-    license: z.optional(z.string().nullable()),
-    mood: z
-      .optional(z.enum(Object.values(Mood) as [Mood, ...Mood[]]))
-      .nullable(),
-    premiumConditions: z.optional(
-      z.union([
-        PremiumConditionsNFTCollection,
-        PremiumConditionsFollowUserId,
-        PremiumConditionsTipUserId
-      ])
-    ),
-    releaseDate: z.optional(
-      z.date().max(new Date(), { message: messages.invalidReleaseDateError })
-    ),
-    remixOf: z.optional(
-      z
-        .object({
-          tracks: z
-            .array(
-              z.object({
-                parentTrackId: HashId
-              })
-            )
-            .min(1)
-        })
-        .strict()
-    ),
-    tags: z.optional(z.string()),
-    title: z.string({
-      required_error: messages.titleRequiredError
-    }),
-    previewStartSeconds: z.optional(z.number()),
-    audioUploadId: z.optional(z.string()),
-    previewCid: z.optional(z.string())
-  })
->>>>>>> main:packages/web/src/pages/upload-page/components/EditPageNew.tsx
 
 export const EditTrackForm = (props: EditTrackFormProps) => {
   const { formState, onContinue } = props

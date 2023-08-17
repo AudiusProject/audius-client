@@ -41,7 +41,7 @@ const SdkTrackMetadataSchema = z.object({
   download: z.optional(
     z
       .object({
-        cid: z.string(),
+        cid: z.optional(z.string()),
         isDownloadable: z.boolean(),
         requiresFollow: z.boolean()
       })

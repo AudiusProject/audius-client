@@ -28,11 +28,10 @@ import { Tile } from 'components/tile'
 import { Text } from 'components/typography'
 import { profilePage } from 'utils/route'
 
-import { CollectionFormState, TrackFormState } from '../types'
+import { CollectionFormState, TrackFormState, TrackForUpload } from '../types'
 
 import styles from './FinishPage.module.css'
 import { ShareBannerNew } from './ShareBannerNew'
-import { TrackForUpload } from './types'
 
 const { getAccountUser } = accountSelectors
 const { getUploadPercentage } = uploadSelectors

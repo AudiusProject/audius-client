@@ -37,6 +37,8 @@ export const UploadPageNew = () => {
     tracks: undefined
   })
 
+  const { tracks } = formState
+
   // Pretty print json just for testing
   useEffect(() => {
     if (phase !== Phase.FINISH) return
@@ -64,11 +66,11 @@ export const UploadPageNew = () => {
   const pageTitle = useMemo(() => {
     switch (phase) {
       case Phase.EDIT:
-        return tracks.length > 1
+        return tracks && tracks.length > 1
           ? messages.editMultiTrackPageTitle
           : messages.editSingleTrackPageTitle
       case Phase.FINISH:
-        return tracks.length > 1
+        return tracks && tracks.length > 1
           ? messages.finishMultiTrackPageTitle
           : messages.finishSingleTrackPageTitle
       case Phase.SELECT:
