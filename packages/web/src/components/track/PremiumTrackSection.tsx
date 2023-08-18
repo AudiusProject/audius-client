@@ -134,7 +134,7 @@ const LockedPremiumTrackSection = ({
   const handlePurchase = useCallback(() => {
     dispatch(setPurchaseContentId({ id: trackId }))
     if (lockedContentModalVisibility) {
-      setLockedContentModalVisibility('closing')
+      setLockedContentModalVisibility(false)
     }
     setPurchaseModalVisibility(true)
   }, [
@@ -154,7 +154,7 @@ const LockedPremiumTrackSection = ({
     }
 
     if (lockedContentModalVisibility) {
-      setLockedContentModalVisibility('closing')
+      setLockedContentModalVisibility(false)
     }
   }, [
     dispatch,
@@ -182,7 +182,7 @@ const LockedPremiumTrackSection = ({
       dispatch(showRequiresAccountModal())
 
       if (lockedContentModalVisibility) {
-        setLockedContentModalVisibility('closing')
+        setLockedContentModalVisibility(false)
       }
     }
   }, [

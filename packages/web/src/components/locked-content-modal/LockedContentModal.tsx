@@ -30,7 +30,7 @@ export const LockedContentModal = () => {
   const { doesUserHaveAccess } = usePremiumContentAccess(track)
 
   const handleClose = useCallback(() => {
-    setIsOpen('closing')
+    setIsOpen(false)
     dispatch(resetLockedContentId())
   }, [setIsOpen, dispatch])
 
