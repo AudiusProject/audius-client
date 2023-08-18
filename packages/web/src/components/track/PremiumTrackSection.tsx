@@ -105,6 +105,7 @@ type PremiumTrackAccessSectionProps = {
   isOwner: boolean
   className?: string
   buttonClassName?: string
+  onPurchaseClicked?: () => void
 }
 
 const LockedPremiumTrackSection = ({
@@ -115,7 +116,8 @@ const LockedPremiumTrackSection = ({
   goToCollection,
   renderArtist,
   className,
-  buttonClassName
+  buttonClassName,
+  onPurchaseClicked
 }: PremiumTrackAccessSectionProps) => {
   const dispatch = useDispatch()
   const [lockedContentModalVisibility, setLockedContentModalVisibility] =
@@ -133,8 +135,9 @@ const LockedPremiumTrackSection = ({
 
   const handlePurchase = useCallback(() => {
     dispatch(setPurchaseContentId({ id: trackId }))
+    onPurchaseClicked?.()
     setPurchaseModalVisibility(true)
-  }, [trackId, setPurchaseModalVisibility, dispatch])
+  }, [trackId, setPurchaseModalVisibility, onPurchaseClicked, dispatch])
 
   const handleSendTip = useCallback(() => {
     if (account) {
@@ -630,6 +633,7 @@ type PremiumTrackSectionProps = {
   className?: string
   buttonClassName?: string
   ownerId: ID
+  onPurchaseClicked?: () => void
 }
 
 export const PremiumTrackSection = ({
@@ -641,7 +645,8 @@ export const PremiumTrackSection = ({
   wrapperClassName,
   className,
   buttonClassName,
-  ownerId
+  ownerId,
+  onPurchaseClicked
 }: PremiumTrackSectionProps) => {
   const dispatch = useDispatch()
   const premiumTrackStatusMap = useSelector(getPremiumTrackStatusMap)
@@ -776,6 +781,7 @@ export const PremiumTrackSection = ({
         isOwner={isOwner}
         className={cn(styles.premiumContentSectionLocked, className)}
         buttonClassName={buttonClassName}
+        onPurchaseClicked={onPurchaseClicked}
       />
     </div>
   )

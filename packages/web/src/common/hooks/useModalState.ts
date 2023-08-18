@@ -25,7 +25,7 @@ const { getModalVisibility } = modalsSelectors
 export const useSetVisibility = () => {
   const dispatch = useDispatch()
   const setVisibilityFunc = useCallback(
-    (modalName: Modals) => (isOpen: boolean) => {
+    (modalName: Modals) => (isOpen: boolean | 'closing') => {
       dispatch(setVisibility({ modal: modalName, visible: isOpen }))
     },
     [dispatch]
@@ -49,7 +49,7 @@ export const useGetVisibility = (modalName: Modals) => {
  */
 export const useModalState = (
   modalName: Modals
-): [boolean, (isOpen: boolean) => void] => {
+): [boolean, (isOpen: boolean | 'closing') => void] => {
   const isOpen = useGetVisibility(modalName)
   const setVisibility = useSetVisibility()
   const setter = useMemo(
