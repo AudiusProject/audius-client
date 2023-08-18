@@ -21,7 +21,6 @@ import {
   IconCheck,
   IconError
 } from '@audius/stems'
-import { push as pushRoute } from 'connected-react-router'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { Icon } from 'components/Icon'
@@ -29,6 +28,7 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { LockedTrackDetailsTile } from 'components/track/LockedTrackDetailsTile'
 import { TwitterShareButton } from 'components/twitter-share-button/TwitterShareButton'
 import { Text } from 'components/typography'
+import { pushUniqueRoute } from 'utils/route'
 
 import { FormatPrice } from './FormatPrice'
 import { PayToUnlockInfo } from './PayToUnlockInfo'
@@ -56,7 +56,7 @@ const useNavigateOnSuccess = (
   const dispatch = useDispatch()
   useEffect(() => {
     if (stage === PurchaseContentStage.FINISH) {
-      dispatch(pushRoute(track.permalink))
+      dispatch(pushUniqueRoute(track.permalink))
     }
   }, [stage, track, dispatch])
 }
