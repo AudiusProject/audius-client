@@ -7,7 +7,7 @@ const commonPath = path.resolve(__dirname, '../common')
 const emptyPolyfill = path.resolve(__dirname, 'src/mocks/empty.ts')
 
 const resolveModule = (module) =>
-  path.resolve(__dirname, 'node_modules', module)
+  path.resolve(__dirname, '../../node_modules', module)
 
 const getClientAliases = () => {
   const clientAbsolutePaths = [

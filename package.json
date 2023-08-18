@@ -7,6 +7,7 @@
   "scripts": {
     "preinstall": "./scripts/preinstall.sh",
     "postinstall": "./scripts/postinstall.sh",
+    "patch-package": "patch-package --patch-dir=packages/mobile/patches && patch-package --patch-dir=packages/web/patches",
     "build": "npm run build --workspace=@audius/stems --workspace=@audius/common",
     "install-hooks": "mookme init --only-hook --skip-types-selection",
     "lint": "npm run lint --workspaces",
