@@ -279,7 +279,8 @@ const fetchData = async <Args, Data>(
       data = result
 
       // Format entities before adding to cache
-      entities[Kind.USERS] = (entities[Kind.USERS] ?? []).map(
+      entities[Kind.USERS] = mapValues(
+        entities[Kind.USERS] ?? [],
         (user: UserMetadata) => reformatUser(user, audiusBackend)
       )
       dispatch(addEntries(Object.keys(entities), entities))
