@@ -30,13 +30,9 @@ export const LockedContentModal = () => {
   const { doesUserHaveAccess } = usePremiumContentAccess(track)
 
   const handleClose = useCallback(() => {
-    setIsOpen(false)
+    setIsOpen('closing')
     dispatch(resetLockedContentId())
   }, [setIsOpen, dispatch])
-
-  const handlePurchaseClicked = useCallback(() => {
-    setIsOpen('closing')
-  }, [setIsOpen])
 
   const mobile = isMobile()
 
@@ -74,7 +70,6 @@ export const LockedContentModal = () => {
               className={styles.premiumTrackSection}
               buttonClassName={styles.premiumTrackSectionButton}
               ownerId={owner.user_id}
-              onPurchaseClicked={handlePurchaseClicked}
             />
           </div>
         )}
