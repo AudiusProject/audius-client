@@ -23,7 +23,7 @@ export enum Size {
   LARGE = 'large'
 }
 
-export type ButtonOwnProps<Component extends ElementType = 'button'> = {
+type ButtonOwnProps<Component extends ElementType = 'button'> = {
   as?: Component
   color?: ColorValue
   /**

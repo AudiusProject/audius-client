@@ -35,10 +35,9 @@ const TYPE_STYLE_MAP = {
  * A common Button component. Includes a few variants and options to
  * include and position icons.
  */
-export const Button = forwardRef(function Button<Component extends ElementType>(
-  props: ButtonProps<Component>,
-  ref: ForwardedRef<HTMLButtonElement>
-) {
+export const Button = forwardRef(function Button<
+  Component extends ElementType = 'button'
+>(props: ButtonProps<Component>, ref: ForwardedRef<HTMLButtonElement>) {
   const {
     color,
     text,
@@ -118,6 +117,7 @@ export const Button = forwardRef(function Button<Component extends ElementType>(
         {
           [styles.noIcon]: !leftIcon && !rightIcon,
           [styles.disabled]: disabled,
+          [styles.enabled]: !disabled,
           [styles.includeHoverAnimations]: includeHoverAnimations,
           [styles.fullWidth]: fullWidth
         },
