@@ -36,7 +36,7 @@ const messages = {
 
 const ContentPurchaseError = () => {
   return (
-    <Text className={styles.errorContainer} color='--accent-red'>
+    <Text className={styles.errorContainer} color='accentRed'>
       <Icon icon={IconError} size='medium' />
       {messages.error}
     </Text>
