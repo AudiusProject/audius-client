@@ -13,6 +13,9 @@ import { useSelector } from 'utils/reducer'
 const { fetchProfilePicture } = cacheUsersActions
 const { getUser } = cacheUsersSelectors
 
+/**
+ * @deprecated Use useProfilePicture instead
+ */
 export const useUserProfilePicture = (
   userId: number | null,
   profilePictureSizes: ProfilePictureSizes | null,
@@ -32,7 +35,7 @@ export const useUserProfilePicture = (
   })
 }
 
-export const useUserProfilePicture2 = (
+export const useProfilePicture = (
   userId: number | null,
   size: SquareSizes,
   defaultImage: string = profilePicEmpty as string,
@@ -45,6 +48,7 @@ export const useUserProfilePicture2 = (
   return useImageSize({
     dispatch,
     id: userId,
+    sizes: profilePictureSizes ?? null
     sizes: profilePictureSizes ?? null,
     size,
     action: fetchProfilePicture,

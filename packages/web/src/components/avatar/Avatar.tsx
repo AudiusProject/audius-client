@@ -8,7 +8,7 @@ import {
 import { Link } from 'react-router-dom'
 
 import DynamicImage from 'components/dynamic-image/DynamicImage'
-import { useUserProfilePicture2 } from 'hooks/useUserProfilePicture'
+import { useProfilePicture } from 'hooks/useUserProfilePicture'
 import { useSelector } from 'utils/reducer'
 import { SIGN_IN_PAGE, profilePage } from 'utils/route'
 
@@ -30,7 +30,7 @@ type AvatarProps = {
 
 export const Avatar = (props: AvatarProps) => {
   const { userId } = props
-  const profileImage = useUserProfilePicture2(
+  const profileImage = useProfilePicture(
     userId ?? null,
     SquareSizes.SIZE_150_BY_150
   )
