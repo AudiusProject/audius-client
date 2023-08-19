@@ -30,11 +30,7 @@ import { Dispatch } from 'redux'
 import { TrackTileProps } from 'components/track/types'
 import { useFlag } from 'hooks/useRemoteConfig'
 import { AppState } from 'store/types'
-import {
-  profilePage,
-  REPOSTING_USERS_ROUTE,
-  FAVORITING_USERS_ROUTE
-} from 'utils/route'
+import { REPOSTING_USERS_ROUTE, FAVORITING_USERS_ROUTE } from 'utils/route'
 import { isMatrix, shouldShowDark } from 'utils/theme/theme'
 
 import { getTrackWithFallback, getUserWithFallback } from '../helpers'

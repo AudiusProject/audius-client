@@ -6,8 +6,7 @@ import {
   useEffect,
   useCallback,
   ReactChildren,
-  useRef,
-  MouseEventHandler
+  useRef
 } from 'react'
 
 import {
@@ -320,13 +319,7 @@ const ConnectedPlaylistTile = ({
       <div className={styles.userName}>
         <span className={styles.createdBy}>{messages.createdBy}</span>
         <ArtistPopover handle={handle}>
-          <Link
-            to={profilePage(handle)}
-            className={styles.name}
-            onClick={(e) => {
-              e.stopPropagation()
-            }}
-          >
+          <Link to={profilePage(handle)} className={styles.name}>
             {name}
           </Link>
         </ArtistPopover>

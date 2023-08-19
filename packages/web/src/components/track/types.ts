@@ -204,7 +204,7 @@ export type DesktopTrackTileProps = {
   showIconButtons?: boolean
 
   /** on click title */
-  onClickTitle: (e: MouseEvent) => void
+  onClickTitle?: (e: MouseEvent) => void
 
   /** on click repost icon */
   onClickRepost: (e?: MouseEvent) => void

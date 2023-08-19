@@ -1,4 +1,4 @@
-import { memo, MouseEvent, useCallback } from 'react'
+import { memo } from 'react'
 
 import {
   formatCount,

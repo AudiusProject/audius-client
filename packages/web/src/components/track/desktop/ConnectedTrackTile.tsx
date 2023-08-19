@@ -4,8 +4,7 @@ import {
   useCallback,
   useEffect,
   MouseEvent,
-  useRef,
-  MouseEventHandler
+  useRef
 } from 'react'
 
 import {
@@ -240,20 +239,10 @@ const ConnectedTrackTile = ({
     )
   }
 
-  const onClickTitle: MouseEventHandler = useCallback((e) => {
-    e.stopPropagation()
-  }, [])
-
   const renderUserName = () => {
     return (
       <ArtistPopover handle={handle}>
-        <Link
-          to={profilePage(handle)}
-          className={styles.name}
-          onClick={(e) => {
-            e.stopPropagation()
-          }}
-        >
+        <Link to={profilePage(handle)} className={styles.name}>
           {name}
 
           <UserBadges
@@ -389,7 +378,6 @@ const ConnectedTrackTile = ({
         [styles.loading]: loading,
         [styles.active]: isActive
       })}
-      onClickTitle={onClickTitle}
       onClickRepost={onClickRepost}
       onClickFavorite={onClickFavorite}
       onClickShare={onClickShare}
