@@ -84,6 +84,7 @@ export type PlaylistTileProps = TileProps & {
   isPublic: boolean
   contentTitle: string
   playlistTitle: string
+  permalink?: string
   artistName: string
   artistHandle: string
   artistIsVerified: boolean

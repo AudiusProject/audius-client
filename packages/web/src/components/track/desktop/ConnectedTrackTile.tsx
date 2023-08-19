@@ -25,7 +25,6 @@ import {
   Genre
 } from '@audius/common'
 import cn from 'classnames'
-import { push as pushRoute } from 'connected-react-router'
 import { connect, useDispatch } from 'react-redux'
 import { Dispatch } from 'redux'
 
@@ -33,6 +32,7 @@ import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHoriz
 import { useModalState } from 'common/hooks/useModalState'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import { Draggable } from 'components/dragndrop'
+import { Link } from 'components/link'
 import Menu from 'components/menu/Menu'
 import { OwnProps as TrackMenuProps } from 'components/menu/TrackMenu'
 import { TrackArtwork } from 'components/track/Artwork'
@@ -94,7 +94,6 @@ const ConnectedTrackTile = ({
   user,
   ordered,
   showArtistPick,
-  goToRoute,
   togglePlay,
   isBuffering,
   isPlaying,
@@ -241,44 +240,29 @@ const ConnectedTrackTile = ({
     )
   }
 
-  const onClickArtistName: MouseEventHandler = useCallback(
-    (e) => {
-      e.preventDefault()
-      e.stopPropagation()
-      if (goToRoute) goToRoute(profilePage(handle))
-    },
-    [handle, goToRoute]
-  )
-
-  const onClickTitle: MouseEventHandler = useCallback(
-    (e) => {
-      e.preventDefault()
-      e.stopPropagation()
-      if (goToRoute) goToRoute(permalink)
-    },
-    [goToRoute, permalink]
-  )
+  const onClickTitle: MouseEventHandler = useCallback((e) => {
+    e.stopPropagation()
+  }, [])
 
   const renderUserName = () => {
     return (
-      <div className={styles.userName}>
-        <ArtistPopover handle={handle}>
-          <a
-            className={cn(styles.name, {
-              [styles.artistNameLink]: onClickArtistName
-            })}
-            onClick={onClickArtistName}
-            href={profilePage(handle)}
-          >
-            {name}
-          </a>
-        </ArtistPopover>
-        <UserBadges
-          userId={user?.user_id ?? 0}
-          badgeSize={14}
-          className={styles.badgeWrapper}
-        />
-      </div>
+      <ArtistPopover handle={handle}>
+        <Link
+          to={profilePage(handle)}
+          className={styles.name}
+          onClick={(e) => {
+            e.stopPropagation()
+          }}
+        >
+          {name}
+
+          <UserBadges
+            userId={user?.user_id ?? 0}
+            badgeSize={14}
+            className={styles.badgeWrapper}
+          />
+        </Link>
+      </ArtistPopover>
     )
   }
 
@@ -449,7 +433,6 @@ function mapStateToProps(state: AppState, ownProps: OwnProps) {
 
 function mapDispatchToProps(dispatch: Dispatch) {
   return {
-    goToRoute: (route: string) => dispatch(pushRoute(route)),
     shareTrack: (trackId: ID) =>
       dispatch(
         requestOpenShareModal({

@@ -36,6 +36,7 @@ import { ReactComponent as IconKebabHorizontal } from 'assets/img/iconKebabHoriz
 import { TrackEvent, make } from 'common/store/analytics/actions'
 import { ArtistPopover } from 'components/artist/ArtistPopover'
 import { Draggable } from 'components/dragndrop'
+import { Link } from 'components/link'
 import { OwnProps as CollectionkMenuProps } from 'components/menu/CollectionMenu'
 import Menu from 'components/menu/Menu'
 import { CollectionArtwork } from 'components/track/Artwork'
@@ -77,6 +78,10 @@ const {
 } = collectionsSocialActions
 const { getCollection, getTracksFromCollection } = cacheCollectionsSelectors
 const getUserHandle = accountSelectors.getUserHandle
+
+const messages = {
+  createdBy: 'Created by'
+}
 
 type OwnProps = {
   uid: UID
@@ -309,27 +314,21 @@ const ConnectedPlaylistTile = ({
       </Menu>
     )
   }
-  const onClickArtistName: MouseEventHandler = useCallback(
-    (e) => {
-      e.stopPropagation()
-      if (goToRoute) goToRoute(profilePage(handle))
-    },
-    [handle, goToRoute]
-  )
 
   const renderUserName = () => {
     return (
       <div className={styles.userName}>
-        <span className={styles.createdBy}>{'Created by'}</span>
+        <span className={styles.createdBy}>{messages.createdBy}</span>
         <ArtistPopover handle={handle}>
-          <span
-            className={cn(styles.name, {
-              [styles.artistNameLink]: onClickArtistName
-            })}
-            onClick={onClickArtistName}
+          <Link
+            to={profilePage(handle)}
+            className={styles.name}
+            onClick={(e) => {
+              e.stopPropagation()
+            }}
           >
             {name}
-          </span>
+          </Link>
         </ArtistPopover>
         <UserBadges
           userId={user?.user_id ?? 0}
