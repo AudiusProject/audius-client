@@ -25,7 +25,7 @@ export const getCollectionRoute = (
 ) => {
   const { permalink } = collection
 
-  return fullUrl ? `${AUDIUS_URL}${permalink}` : permalink
+  return fullUrl ? `${AUDIUS_URL}${permalink}` : permalink || ''
 }
 
 export const getSearchRoute = (query: string, fullUrl = false) => {
