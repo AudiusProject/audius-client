@@ -182,7 +182,7 @@ export type TrackMetadata = {
   track_segments: TrackSegment[]
   cover_art: Nullable<CID>
   cover_art_sizes: Nullable<CID>
-  cover_art_cids?: Nullable<{ [key: string]: string }>
+  cover_art_cids?: Nullable<CoverArtSizes>
   is_unlisted: boolean
   is_available: boolean
   is_premium: boolean

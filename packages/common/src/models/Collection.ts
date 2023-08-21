@@ -45,7 +45,7 @@ export type CollectionMetadata = {
   playlist_id: ID
   cover_art: CID | null
   cover_art_sizes: Nullable<CID>
-  cover_art_cids?: Nullable<{ [key: string]: string }>
+  cover_art_cids?: Nullable<CoverArtSizes>
   permalink?: string
   playlist_name: string
   playlist_owner_id: ID
@@ -106,5 +106,5 @@ export type SmartCollection = {
 export type CollectionImage = {
   cover_art: Nullable<CID>
   cover_art_sizes: Nullable<CID>
-  cover_art_cids?: Nullable<{ string: string }>
+  cover_art_cids?: Nullable<CoverArtSizes>
 }

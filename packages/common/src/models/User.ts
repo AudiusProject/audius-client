@@ -33,9 +33,9 @@ export type UserMetadata = {
   repost_count: number
   track_count: number
   cover_photo_sizes: Nullable<CID>
-  cover_photo_cids?: Nullable<{ [key: string]: string }>
+  cover_photo_cids?: Nullable<CoverPhotoSizes>
   profile_picture_sizes: Nullable<CID>
-  profile_picture_cids?: Nullable<{ [key: string]: string }>
+  profile_picture_cids?: Nullable<ProfilePictureSizes>
   metadata_multihash: Nullable<CID>
   erc_wallet: WalletAddress
   spl_wallet: Nullable<SolanaWalletAddress>
