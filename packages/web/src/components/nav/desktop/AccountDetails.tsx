@@ -35,6 +35,7 @@ export const AccountDetails = () => {
                   variant='title'
                   size='small'
                   strength='weak'
+                  className={styles.nameLink}
                 >
                   {account.name}
                 </Link>

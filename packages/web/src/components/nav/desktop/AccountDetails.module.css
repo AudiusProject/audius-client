@@ -33,6 +33,12 @@
   align-items: center;
 }
 
+.nameLink {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .badge {
   flex-shrink: 0;
