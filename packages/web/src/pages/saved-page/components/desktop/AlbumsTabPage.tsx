@@ -2,7 +2,7 @@ import {
   accountSelectors,
   statusIsNotFinalized,
   useGetLibraryAlbums,
-  usePaginatedQuery
+  useAllPaginatedQuery
 } from '@audius/common'
 import { useSelector } from 'react-redux'
 
@@ -30,7 +30,7 @@ export const AlbumsTabPage = () => {
     status,
     hasMore,
     loadMore: fetchMore
-  } = usePaginatedQuery(
+  } = useAllPaginatedQuery(
     useGetLibraryAlbums,
     {
       userId: currentUserId!
