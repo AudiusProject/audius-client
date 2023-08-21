@@ -269,7 +269,7 @@ const ProfileHeader = ({
   const onGoToWebsite = () => {
     let link = website
     if (!/^https?/.test(link)) {
-      link = `http://${link}`
+      link = `https://${link}`
     }
     const win = window.open(link, '_blank')
     if (win) win.focus()

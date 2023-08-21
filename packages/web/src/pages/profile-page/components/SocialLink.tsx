@@ -118,7 +118,7 @@ const SocialLink = (props: SocialLinkProps) => {
     href = `${SITE_URL_MAP[type]}${link}`
   } else if (isSingleLink) {
     if (!/^https?/.test(link)) {
-      href = `http://${link}`
+      href = `https://${link}`
     } else {
       href = link
     }
