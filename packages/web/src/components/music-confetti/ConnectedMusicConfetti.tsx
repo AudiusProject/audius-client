@@ -3,12 +3,13 @@ import { useCallback } from 'react'
 import { musicConfettiActions, musicConfettiSelectors } from '@audius/common'
 import { useDispatch } from 'react-redux'
 
-import MusicConfetti from 'components/background-animations/MusicConfetti'
+import { MusicConfetti } from 'components/background-animations/MusicConfetti'
+import useHotkeys from 'hooks/useHotkey'
 import { useIsMobile } from 'utils/clientUtil'
 import { useSelector } from 'utils/reducer'
 import { isMatrix } from 'utils/theme/theme'
 
-const { hide } = musicConfettiActions
+const { hide, show } = musicConfettiActions
 const { getIsVisible } = musicConfettiSelectors
 
 const ConnectedMusicConfetti = () => {
@@ -17,6 +18,9 @@ const ConnectedMusicConfetti = () => {
     dispatch(hide())
   }, [dispatch])
 
+  useHotkeys({
+    88: () => dispatch(show())
+  })
   const isVisible = useSelector(getIsVisible)
   const isMatrixMode = isMatrix()
   const isMobile = useIsMobile()
