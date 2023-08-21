@@ -14,3 +14,9 @@ npm run start:stage
 # Run against production Audius services
 npm run start:prod
 ```
+
+## Deploying
+```
+# Deploy changes
+npm run deploy:<env>
+```
