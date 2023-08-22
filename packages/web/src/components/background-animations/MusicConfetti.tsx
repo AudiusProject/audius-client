@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 
 import Confetti from 'utils/animations/music-confetti'
-import { useOnResizeEffect } from 'utils/effects'
 
 const PATHS = [
   // Heart
@@ -23,36 +22,6 @@ const PATHS = [
 ]
 
 const COLORS = ['#cc0fe0', '#7e1bcc']
-
-// const startConfettiAnimation = async (
-//   canvasRef: HTMLCanvasElement,
-//   recycle: boolean,
-//   limit: number,
-//   friction: number,
-//   gravity: number,
-//   rotate: number,
-//   swing: number,
-//   particleRate: number,
-//   onCompletion?: () => void
-// ) => {
-//   if (!canvasRef) return
-
-//   const confetti = new Confetti(
-//     canvasRef,
-//     PATHS,
-//     COLORS,
-//     recycle,
-//     limit,
-//     friction,
-//     gravity,
-//     rotate,
-//     swing,
-//     particleRate,
-//     onCompletion
-//   )
-//   confetti.run()
-//   return confetti
-// }
 
 type MusicConfettiProps = {
   withBackground?: boolean
@@ -117,26 +86,11 @@ export const MusicConfetti = ({
     ]
   )
 
-  const [sizing, setSize] = useState({})
-
-  useEffect(() => {
-    setSize({
-      width: window.innerWidth,
-      height: window.innerHeight
-    })
-  }, [])
-
-  useOnResizeEffect(() => {
-    setSize({
-      width: window.innerWidth,
-      height: window.innerHeight
-    })
-  })
-
   return (
     <canvas
       ref={setCanvasRef}
-      {...sizing}
+      width={window.innerWidth}
+      height={window.innerHeight}
       style={{
         pointerEvents: 'none',
         position: 'absolute',

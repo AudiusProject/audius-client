@@ -127,13 +127,18 @@ export default class Confetti {
   ) {
     const { clientWidth: width, clientHeight: height } = canvas
     this.width = width
+    this.height = height
+    window.addEventListener('resize', () => {
+      this.width = window.innerWidth
+      this.height = window.innerHeight
+    })
+    console.log(this.width, this.height)
     this.particleRate = particleRate
     this.paths = paths
     this.colors = colors
     this.runAnimation = false
     this.friction = friction
     this.gravity = gravity
-    this.height = height
     this.limit = limit
     this.rotate = rotate
     this.swing = swing
