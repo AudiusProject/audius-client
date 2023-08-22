@@ -204,7 +204,7 @@ export const AccessAndSaleField = (props: AccessAndSaleFieldProps) => {
       ) {
         setPreviewValue(get(values, PREVIEW))
         const priceStr = get(values, PRICE)
-        const price = priceStr ? parseFloat(priceStr) * 100 : 0 // TODO: better default?
+        const price = priceStr ? parseFloat(priceStr) : 0 // TODO: better default?
         setPremiumConditionsValue({
           // @ts-ignore splits get added in saga
           usdc_purchase: {
@@ -343,10 +343,12 @@ type AccesAndSaleMenuFieldsProps = {
   isRemix: boolean
   isUpload?: boolean
   isInitiallyUnlisted?: boolean
+  initialPremiumConditions?: PremiumConditions
 }
 
 export const AccessAndSaleMenuFields = (props: AccesAndSaleMenuFieldsProps) => {
-  const { isRemix, isUpload, isInitiallyUnlisted } = props
+  const { isRemix, isUpload, isInitiallyUnlisted, initialPremiumConditions } =
+    props
 
   const accountUserId = useSelector(getUserId)
   const { isEnabled: isUsdcEnabled } = useFlag(FeatureFlags.USDC_PURCHASES)
@@ -358,7 +360,7 @@ export const AccessAndSaleMenuFields = (props: AccesAndSaleMenuFieldsProps) => {
   )
   const [
     { value: premiumConditionsValue },
-    { initialValue: initialPremiumConditions },
+    ,
     { setValue: setPremiumConditionsValue }
   ] =
     useField<AccessAndSaleFormValues[typeof PREMIUM_CONDITIONS]>(

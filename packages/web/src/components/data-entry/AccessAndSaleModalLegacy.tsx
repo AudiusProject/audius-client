@@ -13,6 +13,7 @@ import {
   Button,
   ButtonSize,
   ButtonType,
+  IconCart,
   IconCollectible,
   IconHidden,
   IconSpecialAccess,
@@ -43,6 +44,7 @@ const messages = {
   description:
     "Customize your music's availability for different audiences, and create personalized gated experiences for your fans.",
   public: 'Public (Default)',
+  premium: 'Premium',
   specialAccess: 'Special Access',
   collectibleGated: 'Collectible Gated',
   hidden: 'Hidden'
@@ -120,7 +122,7 @@ export const AccessAndSaleModalLegacy = (
       const priceStr: string = (
         values[PREMIUM_CONDITIONS] as PremiumConditionsUSDCPurchase
       ).usdc_purchase.price
-      const price = priceStr ? parseFloat(priceStr) * 100 : 0 // TODO: better default?
+      const price = priceStr ? parseFloat(priceStr) : 0 // TODO: better default?
       newState.premium_conditions = {
         // @ts-ignore splits get added in saga
         usdc_purchase: {
@@ -152,7 +154,10 @@ export const AccessAndSaleModalLegacy = (
     availabilityButtonTitle = messages.hidden
     AvailabilityIcon = IconHidden
   } else if (isPremium) {
-    if (premiumConditions && 'nft_collection' in premiumConditions) {
+    if (isPremiumContentUSDCPurchaseGated(premiumConditions)) {
+      availabilityButtonTitle = messages.premium
+      AvailabilityIcon = IconCart
+    } else if (isPremiumContentCollectibleGated(premiumConditions)) {
       availabilityButtonTitle = messages.collectibleGated
       AvailabilityIcon = IconCollectible
     } else {
@@ -173,6 +178,7 @@ export const AccessAndSaleModalLegacy = (
           isRemix={isRemix}
           isUpload={isUpload}
           isInitiallyUnlisted={initialForm[IS_UNLISTED]}
+          initialPremiumConditions={initialForm[PREMIUM_CONDITIONS]}
           premiumConditions={metadataState.premium_conditions}
         />
       }

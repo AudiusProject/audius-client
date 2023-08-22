@@ -1176,7 +1176,7 @@ function* processTracksForUpload(tracks) {
   tracks.forEach((track) => {
     const premium_conditions = track.metadata.premium_conditions
     if (isPremiumContentUSDCPurchaseGated(premium_conditions)) {
-      const priceCents = premium_conditions.usdc_purchase.price
+      const priceCents = premium_conditions.usdc_purchase.price * 100
       const priceWei = new BN(priceCents).mul(BN_USDC_CENT_WEI).toNumber()
       premium_conditions.usdc_purchase = {
         price: priceCents,
