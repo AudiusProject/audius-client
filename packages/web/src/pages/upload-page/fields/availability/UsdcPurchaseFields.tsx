@@ -1,4 +1,4 @@
-import { ChangeEventHandler, useCallback } from 'react'
+import { ChangeEventHandler, FocusEventHandler, useCallback } from 'react'
 
 import cn from 'classnames'
 import { useField } from 'formik'
@@ -35,43 +35,18 @@ export enum UsdcPurchaseType {
   FOLLOW = 'follow'
 }
 
+const PRECISION = 2
+
 type TrackAvailabilityFieldsProps = {
   disabled?: boolean
 }
 
 export const UsdcPurchaseFields = (props: TrackAvailabilityFieldsProps) => {
   const { disabled } = props
-  const [, , { setValue: setPrice }] = useField(PRICE_HUMANIZED)
-
-  const handleChange: ChangeEventHandler<HTMLInputElement> = useCallback(
-    (e) => {
-      const precision = 2
-      const input = e.target.value.replace(/[^0-9.]+/g, '')
-      // Regex to grab the whole and decimal parts of the number, stripping duplicate '.' characters
-      const match = input.match(/^(?<whole>\d*)(?<dot>.)?(?<decimal>\d*)/)
-      const { whole, decimal, dot } = match?.groups || {}
-
-      // Conditionally render the decimal part, and only for the number of decimals specified
-      const stringAmount = dot
-        ? `${whole}.${decimal.substring(0, precision)}`
-        : whole
-      setPrice(stringAmount)
-    },
-    [setPrice]
-  )
 
   return (
     <div className={cn(layoutStyles.col, layoutStyles.gap4)}>
-      <BoxedTextField
-        {...messages.price}
-        name={PRICE_HUMANIZED}
-        label={messages.price.label}
-        placeholder={messages.price.placeholder}
-        startAdornment={messages.dollars}
-        endAdornment={messages.usdc}
-        onChange={handleChange}
-        disabled={disabled}
-      />
+      <PriceField disabled={disabled} />
       <BoxedTextField
         {...messages.preview}
         name={PREVIEW}
@@ -81,6 +56,54 @@ export const UsdcPurchaseFields = (props: TrackAvailabilityFieldsProps) => {
         disabled={disabled}
       />
     </div>
+  )
+}
+
+const PriceField = (props: TrackAvailabilityFieldsProps) => {
+  const { disabled } = props
+  const [, , { setValue: setPrice }] = useField(PRICE_HUMANIZED)
+
+  const handlePriceChange: ChangeEventHandler<HTMLInputElement> = useCallback(
+    (e) => {
+      const input = e.target.value.replace(/[^0-9.]+/g, '')
+      // Regex to grab the whole and decimal parts of the number, stripping duplicate '.' characters
+      const match = input.match(/^(?<whole>\d*)(?<dot>.)?(?<decimal>\d*)/)
+      const { whole, decimal, dot } = match?.groups || {}
+
+      // Conditionally render the decimal part, and only for the number of decimals specified
+      const stringAmount = dot
+        ? `${whole}.${decimal.substring(0, PRECISION)}`
+        : whole
+      setPrice(stringAmount)
+    },
+    [setPrice]
+  )
+
+  const handlePriceBlur: FocusEventHandler<HTMLInputElement> = useCallback(
+    (e) => {
+      const precision = 2
+      const [whole, decimal] = e.target.value.split('.')
+
+      const paddedDecimal = decimal
+        .substring(0, precision)
+        .padEnd(precision, '0')
+      setPrice(`${whole}.${paddedDecimal}`)
+    },
+    [setPrice]
+  )
+
+  return (
+    <BoxedTextField
+      {...messages.price}
+      name={PRICE_HUMANIZED}
+      label={messages.price.label}
+      placeholder={messages.price.placeholder}
+      startAdornment={messages.dollars}
+      endAdornment={messages.usdc}
+      onChange={handlePriceChange}
+      onBlur={handlePriceBlur}
+      disabled={disabled}
+    />
   )
 }
 

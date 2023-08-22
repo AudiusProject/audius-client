@@ -88,7 +88,7 @@ export const AccessAndSaleModalLegacy = (
       set(
         initialValues,
         PRICE_HUMANIZED,
-        (premiumConditions.usdc_purchase.price ?? 0) / 100
+        (Number(premiumConditions.usdc_purchase.price || 0) / 100).toFixed(2)
       )
     }
     if (isFollowGated || isTipGated) {
@@ -123,8 +123,9 @@ export const AccessAndSaleModalLegacy = (
     if (
       get(values, AVAILABILITY_TYPE) === TrackAvailabilityType.USDC_PURCHASE
     ) {
+      newState.is_premium = true
       const priceStr = get(values, PRICE_HUMANIZED)
-      const price = priceStr ? parseFloat(priceStr) * 100 : 0 // TODO: better default?
+      const price = priceStr ? Math.round(parseFloat(priceStr) * 100) : 0 // TODO: better default?
       newState.premium_conditions = {
         // @ts-ignore splits get added in saga
         usdc_purchase: {
