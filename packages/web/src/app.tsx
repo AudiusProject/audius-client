@@ -23,6 +23,11 @@ import { reportToSentry } from './store/errors/reportToSentry'
 
 import './services/webVitals'
 import './index.css'
+import process from 'process/browser'
+
+// Webpack ProvidePlugin is not working for `process`, so setting on
+// window as a workaround
+window.process = process
 
 const AudiusApp = () => {
   return (
