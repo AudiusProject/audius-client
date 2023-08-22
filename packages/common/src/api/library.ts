@@ -5,7 +5,6 @@ import { UserCollectionMetadata } from 'models/Collection'
 import { Kind } from 'models/Kind'
 import { makeActivity } from 'services/audius-api-client/ResponseAdapter'
 import { APIActivityV2 } from 'services/audius-api-client/types'
-import { reformatCollection } from 'store/cache/collections/utils/reformatCollection'
 import { encodeHashId } from 'utils/hashIds'
 import { removeNullable } from 'utils/typeUtils'
 
@@ -59,16 +58,9 @@ const fetchLibraryCollections = async ({
     collectionType === 'album'
       ? await sdk.full.users.getUserLibraryAlbums(getCollectionsParams)
       : await sdk.full.users.getUserLibraryPlaylists(getCollectionsParams)
-  const collectionsMetadata = rawCollections
+  const collections = rawCollections
     .map((r: APIActivityV2) => makeActivity(r))
     .filter(removeNullable) as UserCollectionMetadata[]
-  const collections = collectionsMetadata.map((am) =>
-    reformatCollection({
-      collection: am,
-      audiusBackendInstance: audiusBackend,
-      omitUser: false
-    })
-  )
   return collections
 }
 

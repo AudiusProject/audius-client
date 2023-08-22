@@ -14,6 +14,7 @@ import { UserMetadata } from 'models/User'
 import { getCollection } from 'store/cache/collections/selectors'
 import { getTrack } from 'store/cache/tracks/selectors'
 import { reformatUser } from 'store/cache/users/utils'
+import { reformatCollection } from 'store/cache/collections/utils/reformatCollection'
 import { CommonState } from 'store/reducers'
 import { getErrorMessage } from 'utils/error'
 import { Nullable, removeNullable } from 'utils/typeUtils'
@@ -41,6 +42,7 @@ import {
   QueryHookResults
 } from './types'
 import { capitalize, getKeyFromFetchArgs, selectCommonEntityMap } from './utils'
+import { CollectionMetadata, UserCollectionMetadata } from 'models/Collection'
 
 const { addEntries } = cacheActions
 
@@ -282,6 +284,15 @@ const fetchData = async <Args, Data>(
       entities[Kind.USERS] = mapValues(
         entities[Kind.USERS] ?? [],
         (user: UserMetadata) => reformatUser(user, audiusBackend)
+      )
+      entities[Kind.COLLECTIONS] = mapValues(
+        entities[Kind.COLLECTIONS] ?? [],
+        (collection: CollectionMetadata | UserCollectionMetadata) =>
+          reformatCollection({
+            collection,
+            audiusBackendInstance: audiusBackend,
+            omitUser: false
+          })
       )
       dispatch(addEntries(Object.keys(entities), entities))
     } else {
