@@ -1,24 +1,25 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 
 import {
-  useFetchedSavedCollections,
-  useAccountPlaylists,
+  accountSelectors,
   cacheCollectionsActions,
   CreatePlaylistSource,
-  Status,
-  statusIsNotFinalized
+  statusIsNotFinalized,
+  useGetLibraryPlaylists,
+  useAllPaginatedQuery
 } from '@audius/common'
 import { IconPlus } from '@audius/stems'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { InfiniteCardLineup } from 'components/lineup/InfiniteCardLineup'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import EmptyTable from 'components/tracks-table/EmptyTable'
 import UploadChip from 'components/upload/UploadChip'
-import { useOrderedLoad } from 'hooks/useOrderedLoad'
 
 import { CollectionCard } from './CollectionCard'
 import styles from './SavedPage.module.css'
 const { createPlaylist } = cacheCollectionsActions
+const { getUserId } = accountSelectors
 
 const messages = {
   emptyPlaylistsHeader: 'You haven’t created or favorited any playlists yet.',
@@ -29,35 +30,28 @@ const messages = {
 
 export const PlaylistsTabPage = () => {
   const dispatch = useDispatch()
-
-  const { data: savedAlbums, status: accountPlaylistsStatus } =
-    useAccountPlaylists()
-  const savedAlbumIds = useMemo(
-    () => savedAlbums.map((a) => a.id),
-    [savedAlbums]
-  )
+  const currentUserId = useSelector(getUserId)
 
   const {
-    data: fetchedAlbumIds,
+    data: fetchedPlaylists,
     status,
     hasMore,
-    fetchMore
-  } = useFetchedSavedCollections({
-    collectionIds: savedAlbumIds,
-    type: 'albums',
-    pageSize: 20
-  })
-  const { isLoading, setDidLoad } = useOrderedLoad(fetchedAlbumIds.length)
-  const cards = fetchedAlbumIds.map((id, i) => {
-    return (
-      <CollectionCard
-        index={i}
-        isLoading={isLoading(i)}
-        setDidLoad={setDidLoad}
-        key={id}
-        albumId={id}
-      />
-    )
+    loadMore: fetchMore
+  } = useAllPaginatedQuery(
+    useGetLibraryPlaylists,
+    {
+      userId: currentUserId!
+    },
+    {
+      pageSize: 20,
+      disabled: currentUserId == null
+    }
+  )
+
+  const noFetchedResults =
+    !statusIsNotFinalized(status) && fetchedPlaylists?.length === 0
+  const cards = fetchedPlaylists?.map(({ playlist_id: id }, i) => {
+    return <CollectionCard index={i} key={id} albumId={id} />
   })
 
   const handleCreatePlaylist = useCallback(() => {
@@ -69,11 +63,13 @@ export const PlaylistsTabPage = () => {
     )
   }, [dispatch])
 
-  const noSavedPlaylists =
-    accountPlaylistsStatus === Status.SUCCESS && savedAlbumIds.length === 0
-  const noFetchedResults = !statusIsNotFinalized(status) && cards.length === 0
+  if (statusIsNotFinalized(status)) {
+    // TODO(nkang) - Confirm loading state UI
+    return <LoadingSpinner className={styles.spinner} />
+  }
 
-  if (noSavedPlaylists || noFetchedResults) {
+  // TODO(nkang) - Add separate error state
+  if (noFetchedResults || !fetchedPlaylists) {
     return (
       <EmptyTable
         primaryText={messages.emptyPlaylistsHeader}
