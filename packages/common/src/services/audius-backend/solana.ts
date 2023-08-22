@@ -43,7 +43,7 @@ export const isValidSolDestinationAddress = async (
   }
 }
 
-export const isSolAddress = async (
+export const isSolWallet = async (
   audiusBackendInstance: AudiusBackend,
   destinationWallet: SolanaWalletAddress
 ) => {

@@ -4,7 +4,7 @@ import {
   ErrorLevel,
   SolanaWalletAddress,
   getTokenAccountInfo,
-  isSolAddress,
+  isSolWallet,
   isValidSolDestinationAddress,
   getUSDCUserBank,
   getContext
@@ -99,7 +99,7 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
     }
     // const amount = yield* select(getWithdrawAmount)
     const isDestinationSolAddress = yield* call(
-      isSolAddress,
+      isSolWallet,
       audiusBackendInstance,
       destinationAddress as SolanaWalletAddress
     )
