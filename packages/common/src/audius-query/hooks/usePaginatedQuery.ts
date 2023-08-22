@@ -87,11 +87,13 @@ export const useAllPaginatedQuery = <
     isEqual
   )
 
+  const notError = result.status !== Status.ERROR
+  const notStarted = result.status === Status.IDLE && allData.length === 0
+  const hasNotFetched = !result.data && result.status !== Status.SUCCESS
+  const fetchedFullPreviousPage = result.data?.length === pageSize
+
   const hasMore =
-    result.status !== Status.ERROR &&
-    ((result.status === Status.IDLE && allData.length === 0) ||
-      (!result.data && result.status !== Status.SUCCESS) ||
-      result.data?.length === pageSize)
+    notError && (notStarted || hasNotFetched || fetchedFullPreviousPage)
 
   const loadMore = useCallback(() => {
     if (loadingMore) {
