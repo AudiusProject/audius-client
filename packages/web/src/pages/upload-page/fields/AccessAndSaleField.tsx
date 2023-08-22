@@ -126,7 +126,13 @@ export type AccessAndSaleFormValues = {
   [PREVIEW]?: number
 }
 
-export const AccessAndSaleField = () => {
+type AccessAndSaleFieldProps = {
+  isUpload?: boolean
+}
+
+export const AccessAndSaleField = (props: AccessAndSaleFieldProps) => {
+  const { isUpload } = props
+
   // Fields from the outer form
   const [{ value: isUnlisted }, , { setValue: setIsUnlistedValue }] =
     useTrackField<SingleTrackEditValues[typeof IS_UNLISTED]>(IS_UNLISTED)
@@ -324,6 +330,7 @@ export const AccessAndSaleField = () => {
       menuFields={
         <AccessAndSaleMenuFields
           isRemix={isRemix}
+          isUpload={isUpload}
           premiumConditions={premiumConditions}
         />
       }
@@ -334,10 +341,13 @@ export const AccessAndSaleField = () => {
 type AccesAndSaleMenuFieldsProps = {
   premiumConditions: SingleTrackEditValues[typeof PREMIUM_CONDITIONS]
   isRemix: boolean
+  isUpload?: boolean
+  isInitiallyUnlisted?: boolean
 }
 
 export const AccessAndSaleMenuFields = (props: AccesAndSaleMenuFieldsProps) => {
-  const { isRemix } = props
+  const { isRemix, isUpload, isInitiallyUnlisted } = props
+
   const accountUserId = useSelector(getUserId)
   const { isEnabled: isUsdcEnabled } = useFlag(FeatureFlags.USDC_PURCHASES)
   const { isEnabled: isCollectibleGatedEnabled } = useFlag(
@@ -348,7 +358,7 @@ export const AccessAndSaleMenuFields = (props: AccesAndSaleMenuFieldsProps) => {
   )
   const [
     { value: premiumConditionsValue },
-    ,
+    { initialValue: initialPremiumConditions },
     { setValue: setPremiumConditionsValue }
   ] =
     useField<AccessAndSaleFormValues[typeof PREMIUM_CONDITIONS]>(
@@ -366,6 +376,7 @@ export const AccessAndSaleMenuFields = (props: AccesAndSaleMenuFieldsProps) => {
   const [availabilityField, , { setValue: setAvailabilityValue }] = useField({
     name: AVAILABILITY_TYPE
   })
+
   const { ethCollectionMap, solCollectionMap } = useSelector(
     getSupportedUserCollections
   )
@@ -373,9 +384,29 @@ export const AccessAndSaleMenuFields = (props: AccesAndSaleMenuFieldsProps) => {
   const numSolCollectibles = Object.keys(solCollectionMap).length
   const hasCollectibles = numEthCollectibles + numSolCollectibles > 0
 
-  const noCollectibleGate = !hasCollectibles
-  const noSpecialAccess = isRemix
-  const noUsdcPurchase = isRemix // TODO: support edit
+  const noUsdcPurchase =
+    !isUpload &&
+    !isPremiumContentUSDCPurchaseGated(initialPremiumConditions) &&
+    !isInitiallyUnlisted
+
+  const noCollectibleGate =
+    isRemix ||
+    !hasCollectibles ||
+    (!isUpload &&
+      !isPremiumContentCollectibleGated(initialPremiumConditions) &&
+      !isInitiallyUnlisted)
+  const noCollectibleDropdown =
+    noCollectibleGate || (!isUpload && !isInitiallyUnlisted)
+
+  const noSpecialAccess =
+    !isUpload &&
+    !isPremiumContentFollowGated(initialPremiumConditions) &&
+    !isPremiumContentTipGated(initialPremiumConditions) &&
+    !isInitiallyUnlisted
+  const noSpecialAccessOptions =
+    noSpecialAccess || (!isUpload && !isInitiallyUnlisted)
+
+  const noHidden = !isUpload && !isInitiallyUnlisted
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -464,7 +495,9 @@ export const AccessAndSaleMenuFields = (props: AccesAndSaleMenuFieldsProps) => {
             description={messages.specialAccessSubtitle}
             value={TrackAvailabilityType.SPECIAL_ACCESS}
             disabled={noSpecialAccess}
-            checkedContent={<SpecialAccessFields disabled={noSpecialAccess} />}
+            checkedContent={
+              <SpecialAccessFields disabled={noSpecialAccessOptions} />
+            }
           />
         ) : null}
         {isCollectibleGatedEnabled ? (
@@ -480,7 +513,7 @@ export const AccessAndSaleMenuFields = (props: AccesAndSaleMenuFieldsProps) => {
               />
             }
             checkedContent={
-              <CollectibleGatedFields disabled={noCollectibleGate} />
+              <CollectibleGatedFields disabled={noCollectibleDropdown} />
             }
           />
         ) : null}
@@ -489,6 +522,7 @@ export const AccessAndSaleMenuFields = (props: AccesAndSaleMenuFieldsProps) => {
           label={messages.hidden}
           value={TrackAvailabilityType.HIDDEN}
           description={messages.hiddenSubtitle}
+          disabled={noHidden}
           checkedContent={<HiddenAvailabilityFields />}
         />
       </RadioButtonGroup>

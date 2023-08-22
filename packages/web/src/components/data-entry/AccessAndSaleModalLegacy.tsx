@@ -59,7 +59,8 @@ type AccessAndSaleModalLegacyProps = {
 export const AccessAndSaleModalLegacy = (
   props: AccessAndSaleModalLegacyProps
 ) => {
-  const { isRemix, metadataState, didUpdateState } = props
+  const { isUpload, isRemix, initialForm, metadataState, didUpdateState } =
+    props
   const {
     premium_conditions: premiumConditions,
     unlisted: isUnlisted,
@@ -170,6 +171,8 @@ export const AccessAndSaleModalLegacy = (
       menuFields={
         <AccessAndSaleMenuFields
           isRemix={isRemix}
+          isUpload={isUpload}
+          isInitiallyUnlisted={initialForm[IS_UNLISTED]}
           premiumConditions={metadataState.premium_conditions}
         />
       }

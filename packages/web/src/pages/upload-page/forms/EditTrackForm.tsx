@@ -120,7 +120,7 @@ const TrackEditForm = (props: FormikProps<TrackEditFormValues>) => {
               <ReleaseDateField />
               <RemixSettingsField />
               <SourceFilesField />
-              <AccessAndSaleField />
+              <AccessAndSaleField isUpload />
               <AttributionField />
             </div>
             <PreviewButton playing={false} onClick={() => {}} />
