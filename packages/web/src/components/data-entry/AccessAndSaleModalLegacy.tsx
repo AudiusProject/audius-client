@@ -109,7 +109,7 @@ export const AccessAndSaleModalLegacy = (
   const onSubmit = (values: AccessAndSaleFormValues) => {
     let newState = {
       ...metadataState,
-      is_premium: !isEmpty(premiumConditions),
+      is_premium: !isEmpty(values[PREMIUM_CONDITIONS]),
       premium_conditions: values[PREMIUM_CONDITIONS],
       unlisted: values.is_unlisted,
       preview_start_seconds: values[PREVIEW] ?? 0
@@ -178,7 +178,9 @@ export const AccessAndSaleModalLegacy = (
           isRemix={isRemix}
           isUpload={isUpload}
           isInitiallyUnlisted={initialForm[IS_UNLISTED]}
-          initialPremiumConditions={initialForm[PREMIUM_CONDITIONS]}
+          initialPremiumConditions={
+            initialForm[PREMIUM_CONDITIONS] ?? undefined
+          }
           premiumConditions={metadataState.premium_conditions}
         />
       }
