@@ -72,9 +72,7 @@ export const useAllPaginatedQuery = <
       setLoadingMore(false)
     },
     [baseArgs],
-    (prevDeps, nextDeps) => {
-      return isEqual(prevDeps, nextDeps)
-    }
+    isEqual
   )
 
   useCustomCompareEffect(
@@ -86,9 +84,7 @@ export const useAllPaginatedQuery = <
       setAllData((allData) => [...allData, ...result.data])
     },
     [result.status, args],
-    (prevDeps, nextDeps) => {
-      return isEqual(prevDeps, nextDeps)
-    }
+    isEqual
   )
 
   const hasMore =
