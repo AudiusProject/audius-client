@@ -17,6 +17,10 @@
  ```
 */
 
+.root {
+  color: var(--text-color);
+}
+
 /* Display Styles */
 .display {
   font-weight: var(--font-bold);
@@ -203,6 +207,10 @@
   font-weight: var(--font-demi-bold);
 }
 
+.bodyWeak {
+  font-weight: var(--font-regular);
+}
+
 /* Special Styles */
 
 .link {
@@ -212,4 +220,12 @@
 .link:hover {
   color: var(--focus);
   text-decoration: underline !important;
+}
+
+.inherit {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  text-decoration: inherit;
 }

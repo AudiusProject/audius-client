@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import {
   BNUSDC,
@@ -28,6 +28,7 @@ import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { LockedTrackDetailsTile } from 'components/track/LockedTrackDetailsTile'
 import { TwitterShareButton } from 'components/twitter-share-button/TwitterShareButton'
 import { Text } from 'components/typography'
+import { pushUniqueRoute } from 'utils/route'
 
 import { FormatPrice } from './FormatPrice'
 import { PayToUnlockInfo } from './PayToUnlockInfo'
@@ -48,9 +49,21 @@ const messages = {
   viewTrack: 'View Track'
 }
 
+const useNavigateOnSuccess = (
+  track: UserTrackMetadata,
+  stage: PurchaseContentStage
+) => {
+  const dispatch = useDispatch()
+  useEffect(() => {
+    if (stage === PurchaseContentStage.FINISH) {
+      dispatch(pushUniqueRoute(track.permalink))
+    }
+  }, [stage, track, dispatch])
+}
+
 const ContentPurchaseError = () => {
   return (
-    <Text className={styles.errorContainer} color='--accent-red'>
+    <Text className={styles.errorContainer} color='accentRed'>
       <Icon icon={IconError} size='medium' />
       {messages.error}
     </Text>
@@ -84,6 +97,8 @@ export const PurchaseDetailsPage = ({
       })
     )
   }, [isUnlocking, dispatch, track.track_id])
+
+  useNavigateOnSuccess(track, stage)
 
   if (!isPremiumContentUSDCPurchaseGated(track.premium_conditions)) {
     console.error(
