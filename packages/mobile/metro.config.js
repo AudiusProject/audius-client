@@ -46,7 +46,11 @@ module.exports = (async () => {
       }),
       babelTransformerPath: require.resolve('react-native-svg-transformer')
     },
-    watchFolders: [clientPath, commonPath],
+    watchFolders: [
+      path.resolve(__dirname, '../../node_modules'),
+      clientPath,
+      commonPath
+    ],
     resolver: {
       assetExts: assetExts.filter((ext) => ext !== 'svg'),
       sourceExts: [...sourceExts, 'svg', 'cjs'],

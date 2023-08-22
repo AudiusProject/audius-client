@@ -61,7 +61,6 @@
     "eslint-plugin-react-hooks": "4.6.0",
     "eslint-plugin-standard": "4.1.0",
     "npm-check-updates": "16.4.1",
-    "npm-force-resolutions": "0.0.10",
     "prettier": "2.7.1",
     "prettier-config-standard": "5.0.0",
     "standard": "17.0.0",
@@ -70,5 +69,9 @@
   },
   "dependencies": {
     "@escape.tech/mookme": "2.2.0"
+  },
+  "overrides": {
+    "@types/react": "18.0.26",
+    "react-native-svg": "12.3.0"
   }
 }

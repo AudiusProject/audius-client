@@ -253,7 +253,6 @@
     "eslint": "8.19.0",
     "eslint-config-audius": "1.5.26",
     "fetch-mock": "9.9.1",
-    "fs": "0.0.1-security",
     "fs-extra": "8.1.0",
     "https-browserify": "^1.0.0",
     "net-browserify": "^0.2.4",
@@ -277,9 +276,6 @@
     "typescript-plugin-css-modules": "^3.4.0",
     "url": "^0.11.0",
     "util": "^0.12.4"
-  },
-  "resolutions": {
-    "@types/react": "18.0.26"
   },
   "jest": {
     "coverageReporters": [
