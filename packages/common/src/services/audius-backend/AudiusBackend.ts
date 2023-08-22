@@ -480,7 +480,10 @@ export const audiusBackend = ({
     }
 
     const storageNodeSelector = await getStorageNodeSelector()
-    const storageNodes = storageNodeSelector.getNodes(cidFileName)
+    // Only rendezvous hash the cid for extremely old legacy
+    // images that do not have size variants
+    const cidToHash = size ? cidFileName : cid
+    const storageNodes = storageNodeSelector.getNodes(cidToHash)
     for (const storageNode of storageNodes) {
       const imageUrl = `${storageNode}/content/${cidFileName}`
 
