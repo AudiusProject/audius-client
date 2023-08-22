@@ -2,6 +2,7 @@ import BN from 'bn.js'
 import { takeLatest } from 'redux-saga/effects'
 import { call, put } from 'typed-redux-saga'
 
+import { ErrorLevel } from 'models/ErrorReporting'
 import { SolanaWalletAddress } from 'models/Wallet'
 import {
   getTokenAccountInfo,
@@ -46,6 +47,11 @@ function* doSetAmount({ payload: { amount } }: ReturnType<typeof setAmount>) {
     }
     yield* put(setAmountSucceeded({ amount }))
   } catch (e: unknown) {
+    const reportToSentry = yield* getContext('reportToSentry')
+    reportToSentry({
+      level: ErrorLevel.Error,
+      error: e as Error
+    })
     yield* put(setAmountFailed({ error: e as Error }))
   }
 }
@@ -68,6 +74,11 @@ function* doSetDestinationAddress({
     }
     yield* put(setDestinationAddressSucceeded({ destinationAddress }))
   } catch (e: unknown) {
+    const reportToSentry = yield* getContext('reportToSentry')
+    reportToSentry({
+      level: ErrorLevel.Error,
+      error: e as Error
+    })
     yield* put(setDestinationAddressFailed({ error: e as Error }))
   }
 }
