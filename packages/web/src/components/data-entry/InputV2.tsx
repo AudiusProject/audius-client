@@ -2,10 +2,12 @@ import { ComponentPropsWithoutRef, MutableRefObject, RefCallback } from 'react'
 
 import cn from 'classnames'
 
+import layoutStyles from 'components/layout/layout.module.css'
+import { Text } from 'components/typography'
+
 import { HelperText } from './HelperText'
 import styles from './InputV2.module.css'
 import { useFocusState } from './useFocusState'
-
 export enum InputV2Size {
   SMALL,
   MEDIUM,
@@ -29,6 +31,8 @@ export type InputV2Props = Omit<ComponentPropsWithoutRef<'input'>, 'size'> & {
   inputClassName?: string
   label?: string
   helperText?: string
+  startAdornment?: string
+  endAdornment?: string
 }
 
 export const InputV2 = (props: InputV2Props) => {
@@ -51,10 +55,12 @@ export const InputV2 = (props: InputV2Props) => {
     onBlur: onBlurProp,
     placeholder,
     helperText,
+    startAdornment,
+    endAdornment,
     ...other
   } = props
 
-  const characterCount = value ? `${value}`.length : 0
+  const characterCount = value !== undefined ? `${value}`.length : 0
   const nearCharacterLimit = maxLength && characterCount >= 0.9 * maxLength
   const elevatePlaceholder = variant === InputV2Variant.ELEVATED_PLACEHOLDER
   const label = required ? `${labelProp} *` : labelProp
@@ -80,28 +86,46 @@ export const InputV2 = (props: InputV2Props) => {
   }
 
   const input = (
-    <input
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      ref={inputRef}
-      required={required}
-      className={cn(styles.textInput, inputClassName)}
-      value={value}
-      maxLength={maxLength}
-      disabled={disabled}
-      placeholder={isFocused ? placeholder : undefined}
-      {...other}
-    />
+    <div className={cn(styles.inputRow, layoutStyles.row)}>
+      <div className={layoutStyles.row}>
+        {startAdornment ? (
+          <Text variant='label' size='large' color='neutralLight2'>
+            {startAdornment}
+          </Text>
+        ) : null}
+        <input
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          ref={inputRef}
+          className={cn(styles.textInput, inputClassName)}
+          value={value}
+          maxLength={maxLength}
+          disabled={disabled}
+          placeholder={
+            isFocused || startAdornment || endAdornment
+              ? placeholder
+              : undefined
+          }
+          {...other}
+        />
+      </div>
+      {endAdornment ? (
+        <Text variant='label' size='large' color='neutralLight2'>
+          {endAdornment}
+        </Text>
+      ) : null}
+    </div>
   )
 
   return (
-    <>
-      <div className={cn(styles.root, style, className)}>
+    <div className={cn(styles.root, className)}>
+      <div className={cn(styles.inputRoot, style)}>
         {elevatePlaceholder ? (
           <label className={styles.elevatedLabel}>
             <span
               className={cn(styles.label, {
-                [styles.hasValue]: characterCount > 0
+                [styles.hasValue]:
+                  characterCount > 0 || startAdornment || endAdornment
               })}
             >
               {label}
@@ -122,6 +146,6 @@ export const InputV2 = (props: InputV2Props) => {
         {children}
       </div>
       {helperText ? <HelperText error={error}>{helperText}</HelperText> : null}
-    </>
+    </div>
   )
 }
