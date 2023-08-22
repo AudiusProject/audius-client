@@ -507,10 +507,6 @@ class CollectionPage extends Component<
     this.props.goToRoute(record.permalink)
   }
 
-  onClickArtistName = (record: CollectionPageTrackRecord) => {
-    this.props.goToRoute(profilePage(record.handle))
-  }
-
   onClickRepostTrack = (record: CollectionPageTrackRecord) => {
     if (!record.has_current_user_reposted) {
       this.props.repostTrack(record.track_id)
@@ -653,12 +649,6 @@ class CollectionPage extends Component<
     this.props.shareCollection(playlistId)
   }
 
-  onHeroTrackClickArtistName = () => {
-    const { goToRoute, user } = this.props
-    const playlistOwnerHandle = user ? user.handle : ''
-    goToRoute(profilePage(playlistOwnerHandle))
-  }
-
   onHeroTrackEdit = () => {
     if (this.props.playlistId)
       this.props.onEditCollection(this.props.playlistId)
@@ -788,7 +778,6 @@ class CollectionPage extends Component<
       getPlayingUid: this.getPlayingUid,
       getFilteredData: this.getFilteredData,
       isQueued: this.isQueued,
-      onHeroTrackClickArtistName: this.onHeroTrackClickArtistName,
       onFilterChange: this.onFilterChange,
       onPlay: this.onPlay,
       onHeroTrackEdit: this.onHeroTrackEdit,
@@ -799,7 +788,6 @@ class CollectionPage extends Component<
       onClickRow: this.onClickRow,
       onClickSave: this.onClickSave,
       onClickTrackName: this.onClickTrackName,
-      onClickArtistName: this.onClickArtistName,
       onClickRepostTrack: this.onClickRepostTrack,
       onClickDescriptionExternalLink: this.onClickDescriptionExternalLink,
       onClickDescriptionInternalLink,

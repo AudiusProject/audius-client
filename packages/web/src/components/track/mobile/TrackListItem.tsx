@@ -11,9 +11,11 @@ import { ReactComponent as IconHeart } from 'assets/img/iconHeart.svg'
 import { ReactComponent as IconRemoveTrack } from 'assets/img/iconRemoveTrack.svg'
 import { ReactComponent as IconPause } from 'assets/img/pbIconPause.svg'
 import { ReactComponent as IconPlay } from 'assets/img/pbIconPlay.svg'
+import { SeoLink, UserLink } from 'components/link'
 import { TablePlayButton } from 'components/table/components/TablePlayButton'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
+import { profilePage } from 'utils/route'
 
 import styles from './TrackListItem.module.css'
 
@@ -112,6 +114,7 @@ export type TrackListItemProps = {
   trackTitle: string
   trackId: ID
   userId: ID
+  permalink: string
   uid?: string
   isReorderable?: boolean
   isDragging?: boolean
@@ -131,7 +134,9 @@ const TrackListItem = ({
   isPlaying = false,
   isRemoveActive = false,
   artistName,
+  artistHandle,
   trackTitle,
+  permalink,
   trackId,
   userId,
   uid,
@@ -195,15 +200,25 @@ const TrackListItem = ({
       {isReorderable && <IconDrag className={styles.dragIcon} />}
 
       <div className={styles.nameArtistContainer}>
-        <div
+        <SeoLink
+          to={permalink}
           className={cn(styles.trackTitle, {
             [styles.lockedTrackTitle]: !isDeleted && isLocked
           })}
         >
           {trackTitle}
           {messages.deleted}
-        </div>
-        <div className={styles.artistName}>
+        </SeoLink>
+        {/* <UserLink
+          userId={userId}
+          size='small'
+          color='neutralLight2'
+          badgeSize={12}
+          stopPropagation={false}
+          // @ts-ignore
+          as={SeoLink}
+        /> */}
+        <SeoLink to={profilePage(artistHandle)} className={styles.artistName}>
           {artistName}
           <UserBadges
             userId={userId}
@@ -212,7 +227,17 @@ const TrackListItem = ({
               [styles.lockedBadges]: !isDeleted && isLocked
             })}
           />
-        </div>
+        </SeoLink>
+        {/* <div className={styles.artistName}>
+          {artistName}
+          <UserBadges
+            userId={userId}
+            badgeSize={12}
+            className={cn(styles.badges, {
+              [styles.lockedBadges]: !isDeleted && isLocked
+            })}
+          />
+        </div> */}
       </div>
       {!isDeleted && isLocked ? (
         <div className={styles.locked}>

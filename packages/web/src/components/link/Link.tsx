@@ -8,17 +8,22 @@ import { TextProps } from 'components/typography/Text'
 
 import styles from './Link.module.css'
 
-type LinkProps = LinkBaseProps<'a'> & TextProps<'a'>
+export type LinkProps = LinkBaseProps<'a'> &
+  TextProps<'a'> & {
+    stopPropagation?: boolean
+  }
 
 export const Link = (props: LinkProps) => {
-  const { className, onClick, ...other } = props
+  const { className, onClick, stopPropagation = true, ...other } = props
 
   const handleClick = useCallback(
     (e: MouseEvent<HTMLAnchorElement>) => {
       onClick?.(e)
-      e.stopPropagation()
+      if (stopPropagation) {
+        e.stopPropagation()
+      }
     },
-    [onClick]
+    [onClick, stopPropagation]
   )
 
   return (
