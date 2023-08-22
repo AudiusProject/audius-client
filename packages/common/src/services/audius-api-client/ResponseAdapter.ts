@@ -401,9 +401,13 @@ export const makeActivity = (
       return undefined
     }
     if (activity.itemType === 'track') {
-      return makeTrack(full.TrackFullToJSON(activity.item))
+      return makeTrack(full.TrackFullToJSON(activity.item as full.TrackFull))
     } else if (activity.itemType === 'playlist') {
-      return makePlaylist(full.PlaylistFullToJSON(activity.item))
+      return makePlaylist(
+        full.PlaylistFullWithoutTracksToJSON(
+          activity.item as full.PlaylistFullWithoutTracks
+        )
+      )
     }
     return undefined
   } else {
