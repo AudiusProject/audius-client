@@ -1,6 +1,18 @@
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, useEffect, useState } from 'react'
+
+import { Theme } from '@audius/common'
 
 import Confetti from 'utils/animations/music-confetti'
+import { getCurrentThemeColors } from 'utils/theme/theme'
+
+const DEFAULTS = {
+  limit: 200,
+  friction: 0.99,
+  gravity: 0.2,
+  rotate: 0.1,
+  swing: 0.01,
+  particleRate: 0.1
+}
 
 const PATHS = [
   // Heart
@@ -21,36 +33,34 @@ const PATHS = [
   )
 ]
 
-const COLORS = ['#cc0fe0', '#7e1bcc']
-
 type MusicConfettiProps = {
   withBackground?: boolean
-  recycle?: boolean
-  friction?: number
-  gravity?: number
-  limit?: number
-  rotate?: number
-  swing?: number
-  particleRate?: number
   zIndex?: number
   onCompletion?: () => void
-  isMatrix?: boolean
+  theme?: Theme
+  isMobile?: boolean
 }
 
 export const MusicConfetti = ({
-  recycle,
-  limit,
-  friction,
-  gravity,
-  rotate,
-  swing,
-  particleRate,
   zIndex,
   withBackground,
   onCompletion,
-  isMatrix
+  theme,
+  isMobile
 }: MusicConfettiProps) => {
   const confettiRef = useRef<Confetti | null>(null)
+  const [colors, setColors] = useState<string[]>([
+    getCurrentThemeColors()['--primary'],
+    getCurrentThemeColors()['--secondary']
+  ])
+  const isMatrix = theme === Theme.MATRIX
+
+  useEffect(() => {
+    setColors([
+      getCurrentThemeColors()['--primary'],
+      getCurrentThemeColors()['--secondary']
+    ])
+  }, [theme])
 
   // When we mount canvas, start confetti and set the confettiRef
   const setCanvasRef = useCallback(
@@ -60,30 +70,20 @@ export const MusicConfetti = ({
       const confetti = new Confetti(
         node,
         isMatrix ? undefined : PATHS,
-        isMatrix ? undefined : COLORS,
-        recycle || false,
-        limit || 200,
-        friction || 0.99,
-        gravity || 0.2,
-        isMatrix ? 0 : rotate || 0.1,
-        isMatrix ? 0 : swing || 0.01,
-        particleRate || 0.1,
+        isMatrix ? undefined : colors,
+        false,
+        isMatrix ? (isMobile ? 200 : 500) : DEFAULTS.limit,
+        DEFAULTS.friction,
+        isMatrix ? 0.25 : DEFAULTS.gravity,
+        isMatrix ? 0 : DEFAULTS.rotate,
+        isMatrix ? 0 : DEFAULTS.swing,
+        DEFAULTS.particleRate,
         onCompletion
       )
       confetti.run()
       confettiRef.current = confetti
     },
-    [
-      recycle,
-      limit,
-      friction,
-      gravity,
-      rotate,
-      swing,
-      particleRate,
-      onCompletion,
-      isMatrix
-    ]
+    [onCompletion, isMatrix, isMobile, colors]
   )
 
   return (
@@ -96,7 +96,7 @@ export const MusicConfetti = ({
         position: 'absolute',
         top: 0,
         left: 0,
-        zIndex: zIndex || 16,
+        zIndex,
         width: '100vw',
         height: '100vh',
         ...(withBackground

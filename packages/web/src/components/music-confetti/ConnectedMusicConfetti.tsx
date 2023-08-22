@@ -1,15 +1,24 @@
 import { useCallback } from 'react'
 
-import { musicConfettiActions, musicConfettiSelectors } from '@audius/common'
+import {
+  musicConfettiActions,
+  musicConfettiSelectors,
+  themeSelectors,
+  Theme
+} from '@audius/common'
 import { useDispatch } from 'react-redux'
 
 import { MusicConfetti } from 'components/background-animations/MusicConfetti'
-import useHotkeys from 'hooks/useHotkey'
 import { useIsMobile } from 'utils/clientUtil'
 import { useSelector } from 'utils/reducer'
-import { isMatrix } from 'utils/theme/theme'
+import zIndex from 'utils/zIndex'
 
-const { hide, show } = musicConfettiActions
+// Re-enable for easy debugging
+// import useHotkeys from 'hooks/useHotkey'
+// const { show } = musicConfettiActions
+
+const { getTheme } = themeSelectors
+const { hide } = musicConfettiActions
 const { getIsVisible } = musicConfettiSelectors
 
 const ConnectedMusicConfetti = () => {
@@ -18,24 +27,23 @@ const ConnectedMusicConfetti = () => {
     dispatch(hide())
   }, [dispatch])
 
-  useHotkeys({
-    88: () => dispatch(show())
-  })
+  // Re-enable for easy debugging
+  // useHotkeys({
+  //   88: () => dispatch(show())
+  // })
+
   const isVisible = useSelector(getIsVisible)
-  const isMatrixMode = isMatrix()
   const isMobile = useIsMobile()
+  const theme = useSelector(getTheme)
 
   return isVisible ? (
     <MusicConfetti
-      zIndex={10000}
+      zIndex={zIndex.MUSIC_CONFETTI}
       onCompletion={onConfettiFinished}
-      isMatrix={isMatrixMode}
-      limit={isMatrixMode ? (isMobile ? 200 : 500) : undefined}
-      gravity={isMatrixMode ? 0.25 : undefined}
+      theme={theme || Theme.DEFAULT}
+      isMobile={isMobile}
     />
-  ) : (
-    <></>
-  )
+  ) : null
 }
 
 export default ConnectedMusicConfetti
