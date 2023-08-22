@@ -480,7 +480,7 @@ export const audiusBackend = ({
     }
 
     const storageNodeSelector = await getStorageNodeSelector()
-    const storageNodes = storageNodeSelector.getNodes(cid)
+    const storageNodes = storageNodeSelector.getNodes(cidFileName)
     for (const storageNode of storageNodes) {
       const imageUrl = `${storageNode}/content/${cidFileName}`
 
