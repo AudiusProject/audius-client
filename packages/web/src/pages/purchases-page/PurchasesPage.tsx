@@ -11,7 +11,6 @@ import {
 
 import Header from 'components/header/desktop/Header'
 import Page from 'components/page/Page'
-import EmptyTable from 'components/tracks-table/EmptyTable'
 import { MainContentContext } from 'pages/MainContentContext'
 import { useSelector } from 'utils/reducer'
 
@@ -31,26 +30,11 @@ const messages = {
 // TODO: Use higher value after testing
 const TRANSACTIONS_BATCH_SIZE = 5
 
-// const Disclaimer = () => {
-//   const setVisibility = useSetVisibility()
-//   return (
-//     <div className={styles.container}>
-//       <span className={styles.disclaimerMessage}>{messages.disclaimer}</span>
-//       <div
-//         className={styles.moreInfoContainer}
-//         onClick={() => setVisibility('AudioBreakdown')(true)}
-//       >
-//         <span className={styles.moreInfo}>{messages.moreInfo}</span>
-//         <IconCaretRight className={styles.iconCaretRight} />
-//       </div>
-//     </div>
-//   )
-// }
+// TODO: Match mock, button goes to Feed
+const NoPurchases = () => <div className={styles.emptyTableContainer}></div>
 
 export const PurchasesPage = () => {
   const userId = useSelector(getUserId)
-  // const [offset, setOffset] = useState(0)
-  // const [limit, setLimit] = useState(AUDIO_TRANSACTIONS_BATCH_SIZE)
   // const [sortMethod, setSortMethod] =
   //   useState<full.GetAudioTransactionHistorySortMethodEnum>(
   //     full.GetAudioTransactionHistorySortMethodEnum.Date
@@ -61,7 +45,6 @@ export const PurchasesPage = () => {
   //   )
   const { mainContentRef } = useContext(MainContentContext)
 
-  // TODO: useAllPaginatedQuery?
   const {
     status,
     data: transactions,
@@ -75,23 +58,11 @@ export const PurchasesPage = () => {
   // const dispatch = useDispatch()
   // const setVisibility = useSetVisibility()
 
-  // const transactions: (TransactionDetails | {})[] =
-  //   useSelector(getAudioTransactions)
-  // const audioTransactionsStatus = useSelector(getAudioTransactionsStatus)
-  // const audioTransactionsCount: number = useSelector(getAudioTransactionsCount)
-  // const audioTransactionsCountStatus = useSelector(
-  //   getAudioTransactionsCountStatus
-  // )
+  // TODO: Fetch total count?
 
   // useEffect(() => {
   //   dispatch(fetchAudioTransactionsCount())
   // }, [dispatch])
-
-  // useLayoutEffect(() => {
-  //   dispatch(
-  //     fetchAudioTransactions({ offset, limit, sortMethod, sortDirection })
-  //   )
-  // }, [dispatch, offset, limit, sortMethod, sortDirection])
 
   // Defaults: sort method = date, sort direction = desc
   const onSort = useCallback(
@@ -145,10 +116,7 @@ export const PurchasesPage = () => {
     >
       <div className={styles.container}>
         {isEmpty && !isLoading ? (
-          <EmptyTable
-            primaryText={messages.emptyTableText}
-            secondaryText={messages.emptyTableSecondaryText}
-          />
+          <NoPurchases />
         ) : (
           <PurchasesTable
             key='purchases'
