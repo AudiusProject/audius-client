@@ -30,7 +30,7 @@ const messages = {
 // TODO: Use higher value after testing
 const TRANSACTIONS_BATCH_SIZE = 5
 
-// TODO: Match mock, button goes to Feed
+// TODO: Match mock, button goes to
 const NoPurchases = () => <div className={styles.emptyTableContainer}></div>
 
 export const PurchasesPage = () => {

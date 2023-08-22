@@ -12,7 +12,13 @@ import { Table } from 'components/table'
 type PurchaseCell = Cell<USDCPurchaseDetails>
 type PurchaseRow = Row<USDCPurchaseDetails>
 
-export type PurchasesTableColumn = 'contentName' | 'artist' | 'date' | 'value'
+export type PurchasesTableColumn =
+  | 'contentName'
+  | 'artist'
+  | 'date'
+  | 'value'
+  | 'spacerLeft'
+  | 'spacerRight'
 
 type PurchasesTableProps = {
   columns?: PurchasesTableColumn[]
@@ -28,10 +34,12 @@ type PurchasesTableProps = {
 }
 
 const defaultColumns: PurchasesTableColumn[] = [
+  'spacerLeft',
   'contentName',
   'artist',
   'date',
-  'value'
+  'value',
+  'spacerRight'
 ]
 
 // Cell Render Functions
@@ -62,15 +70,16 @@ const tableColumnMap = {
     Header: 'Sales',
     accessor: 'contentId',
     Cell: renderContentNameCell,
+    width: 480,
     disableSortBy: false,
     align: 'left'
   },
   artist: {
     id: 'artist',
-    header: 'Artist',
+    Header: 'Artist',
     accessor: 'sellerUserId',
     Cell: renderArtistCell,
-    width: 200,
+    maxWidth: 200,
     disableSortBy: false,
     align: 'left'
   },
@@ -79,7 +88,7 @@ const tableColumnMap = {
     Header: 'Date',
     accessor: 'createdAt',
     Cell: renderDateCell,
-    width: 150,
+    maxWidth: 150,
     disableSortBy: false,
     align: 'right'
   },
@@ -88,9 +97,23 @@ const tableColumnMap = {
     Header: 'Value',
     accessor: 'amount',
     Cell: renderValueCell,
-    width: 200,
+    maxWidth: 200,
     disableSortBy: true,
     align: 'right'
+  },
+  spacerLeft: {
+    id: 'spacerLeft',
+    maxWidth: 24,
+    minWidth: 24,
+    disableSortBy: true,
+    disableResizing: true
+  },
+  spacerRight: {
+    id: 'spacerRight',
+    maxWidth: 24,
+    minWidth: 24,
+    disableSortBy: true,
+    disableResizing: true
   }
 }
 
@@ -121,6 +144,8 @@ export const PurchasesTable = ({
     },
     [onClickRow]
   )
+
+  // TODO: Show loading spinner only for loading case
 
   return (
     <Table
