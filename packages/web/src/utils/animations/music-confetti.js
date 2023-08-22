@@ -132,7 +132,6 @@ export default class Confetti {
       this.width = window.innerWidth
       this.height = window.innerHeight
     })
-    console.log(this.width, this.height)
     this.particleRate = particleRate
     this.paths = paths
     this.colors = colors

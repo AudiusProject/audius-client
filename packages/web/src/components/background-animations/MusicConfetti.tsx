@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback } from 'react'
+import { useRef, useCallback } from 'react'
 
 import Confetti from 'utils/animations/music-confetti'
 
