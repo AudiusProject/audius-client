@@ -72,6 +72,7 @@
   },
   "overrides": {
     "@types/react": "18.0.26",
-    "react-native-svg": "12.3.0"
+    "react-native-svg": "12.3.0",
+    "redux": "4.1.1"
   }
 }
