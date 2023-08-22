@@ -6,21 +6,16 @@ import {
   accountSelectors,
   accountActions,
   cacheUsersSelectors,
-  FeatureFlags,
-  getUSDCUserBank,
-  BN_USDC_CENT_WEI,
   cacheActions,
   waitForAccount,
   actionChannelDispatcher,
   uploadActions,
-  isPremiumContentUSDCPurchaseGated,
   UploadType,
   ProgressStatus,
   uploadSelectors,
   confirmerActions,
   confirmTransaction
 } from '@audius/common'
-import { BN } from 'bn.js'
 import { push as pushRoute } from 'connected-react-router'
 import { range } from 'lodash'
 import { channel, buffers } from 'redux-saga'
@@ -43,6 +38,10 @@ import {
 } from 'common/store/cache/collections/utils'
 import { trackNewRemixEvent } from 'common/store/cache/tracks/sagas'
 import { addPlaylistsNotInLibrary } from 'common/store/playlist-library/sagas'
+import {
+  processTracksForUpload,
+  reportResultEvents
+} from 'common/store/upload/sagaHelpers'
 import { updateAndFlattenStems } from 'pages/upload-page/store/utils/stems'
 import { ERROR_PAGE } from 'utils/route'
 import { waitForWrite } from 'utils/sagaHelpers'
@@ -51,7 +50,6 @@ import { processAndCacheTracks } from '../cache/tracks/utils'
 import { adjustUserField } from '../cache/users/sagas'
 
 import { watchUploadErrors } from './errorSagas'
-import { reportResultEvents } from './sagaHelpers'
 
 const { getUser } = cacheUsersSelectors
 const { getAccountUser, getUserHandle, getUserId } = accountSelectors
@@ -1159,35 +1157,6 @@ function* uploadMultipleTracks(tracks) {
   }
 
   yield put(cacheActions.setExpired(Kind.USERS, account.user_id))
-}
-
-function* processTracksForUpload(tracks) {
-  const getFeatureEnabled = yield getContext('getFeatureEnabled')
-  const isUsdcPurchaseEnabled = yield call(
-    getFeatureEnabled,
-    FeatureFlags.USDC_PURCHASES
-  )
-  if (!isUsdcPurchaseEnabled) return
-
-  const ownerAccount = yield select(getAccountUser)
-  const wallet = ownerAccount.erc_wallet ?? ownerAccount.wallet
-  const ownerUserbank = yield getUSDCUserBank(wallet)
-
-  tracks.forEach((track) => {
-    const premium_conditions = track.metadata.premium_conditions
-    if (isPremiumContentUSDCPurchaseGated(premium_conditions)) {
-      const priceCents = premium_conditions.usdc_purchase.price * 100
-      const priceWei = new BN(priceCents).mul(BN_USDC_CENT_WEI).toNumber()
-      premium_conditions.usdc_purchase = {
-        price: priceCents,
-        splits: {
-          [ownerUserbank]: priceWei
-        }
-      }
-    }
-  })
-
-  return tracks
 }
 
 function* uploadTracksAsync(action) {

@@ -7,7 +7,7 @@ import { TextField, TextFieldProps } from 'components/form-fields'
 import layoutStyles from 'components/layout/layout.module.css'
 import { Text } from 'components/typography'
 
-import { PREVIEW, PRICE } from '../AccessAndSaleField'
+import { PREVIEW, PRICE_HUMANIZED } from '../AccessAndSaleField'
 
 import styles from './UsdcPurchaseFields.module.css'
 
@@ -41,7 +41,7 @@ type TrackAvailabilityFieldsProps = {
 
 export const UsdcPurchaseFields = (props: TrackAvailabilityFieldsProps) => {
   const { disabled } = props
-  const [, , { setValue: setPrice }] = useField(PRICE)
+  const [, , { setValue: setPrice }] = useField(PRICE_HUMANIZED)
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = useCallback(
     (e) => {
@@ -64,7 +64,7 @@ export const UsdcPurchaseFields = (props: TrackAvailabilityFieldsProps) => {
     <div className={cn(layoutStyles.col, layoutStyles.gap4)}>
       <BoxedTextField
         {...messages.price}
-        name={PRICE}
+        name={PRICE_HUMANIZED}
         label={messages.price.label}
         placeholder={messages.price.placeholder}
         startAdornment={messages.dollars}

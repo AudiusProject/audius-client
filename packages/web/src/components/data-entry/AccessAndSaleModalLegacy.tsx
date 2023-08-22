@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 
 import {
-  PremiumConditionsUSDCPurchase,
   Track,
   TrackAvailabilityType,
   isPremiumContentCollectibleGated,
@@ -32,6 +31,7 @@ import {
   IS_UNLISTED,
   PREMIUM_CONDITIONS,
   PREVIEW,
+  PRICE_HUMANIZED,
   SPECIAL_ACCESS_TYPE
 } from 'pages/upload-page/fields/AccessAndSaleField'
 import { SpecialAccessType } from 'pages/upload-page/fields/availability/SpecialAccessFields'
@@ -85,6 +85,11 @@ export const AccessAndSaleModalLegacy = (
     let availabilityType = TrackAvailabilityType.PUBLIC
     if (isUsdcGated) {
       availabilityType = TrackAvailabilityType.USDC_PURCHASE
+      set(
+        initialValues,
+        PRICE_HUMANIZED,
+        (premiumConditions.usdc_purchase.price ?? 0) / 100
+      )
     }
     if (isFollowGated || isTipGated) {
       availabilityType = TrackAvailabilityType.SPECIAL_ACCESS
@@ -118,11 +123,8 @@ export const AccessAndSaleModalLegacy = (
     if (
       get(values, AVAILABILITY_TYPE) === TrackAvailabilityType.USDC_PURCHASE
     ) {
-      // @ts-ignore the field has a string in it
-      const priceStr: string = (
-        values[PREMIUM_CONDITIONS] as PremiumConditionsUSDCPurchase
-      ).usdc_purchase.price
-      const price = priceStr ? parseFloat(priceStr) : 0 // TODO: better default?
+      const priceStr = get(values, PRICE_HUMANIZED)
+      const price = priceStr ? parseFloat(priceStr) * 100 : 0 // TODO: better default?
       newState.premium_conditions = {
         // @ts-ignore splits get added in saga
         usdc_purchase: {

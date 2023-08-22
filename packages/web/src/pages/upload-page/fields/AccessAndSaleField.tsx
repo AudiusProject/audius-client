@@ -115,6 +115,7 @@ export const AVAILABILITY_TYPE = 'availability_type'
 export const SPECIAL_ACCESS_TYPE = 'special_access_type'
 export const FIELD_VISIBILITY = 'field_visibility'
 export const PRICE = 'premium_conditions.usdc_purchase.price'
+export const PRICE_HUMANIZED = 'price_humanized'
 export const PREVIEW = 'preview_start_seconds'
 
 export type AccessAndSaleFormValues = {
@@ -123,6 +124,7 @@ export type AccessAndSaleFormValues = {
   [PREMIUM_CONDITIONS]: Nullable<PremiumConditions>
   [SPECIAL_ACCESS_TYPE]: Nullable<SpecialAccessType>
   [FIELD_VISIBILITY]: FieldVisibility
+  [PRICE_HUMANIZED]: string
   [PREVIEW]?: number
 }
 
@@ -172,6 +174,11 @@ export const AccessAndSaleField = (props: AccessAndSaleFieldProps) => {
     let availabilityType = TrackAvailabilityType.PUBLIC
     if (isUsdcGated) {
       availabilityType = TrackAvailabilityType.USDC_PURCHASE
+      set(
+        initialValues,
+        PRICE_HUMANIZED,
+        (premiumConditions.usdc_purchase.price ?? 0) / 100
+      )
     }
     if (isFollowGated || isTipGated) {
       availabilityType = TrackAvailabilityType.SPECIAL_ACCESS
@@ -203,8 +210,8 @@ export const AccessAndSaleField = (props: AccessAndSaleFieldProps) => {
         get(values, AVAILABILITY_TYPE) === TrackAvailabilityType.USDC_PURCHASE
       ) {
         setPreviewValue(get(values, PREVIEW))
-        const priceStr = get(values, PRICE)
-        const price = priceStr ? parseFloat(priceStr) : 0 // TODO: better default?
+        const priceStr = get(values, PRICE_HUMANIZED)
+        const price = priceStr ? parseFloat(priceStr) * 100 : 0 // TODO: better default?
         setPremiumConditionsValue({
           // @ts-ignore splits get added in saga
           usdc_purchase: {
@@ -486,7 +493,7 @@ export const AccessAndSaleMenuFields = (props: AccesAndSaleMenuFieldsProps) => {
             description={messages.usdcPurchaseSubtitle}
             value={TrackAvailabilityType.USDC_PURCHASE}
             disabled={noUsdcPurchase}
-            checkedContent={<UsdcPurchaseFields disabled={noSpecialAccess} />}
+            checkedContent={<UsdcPurchaseFields disabled={noUsdcPurchase} />}
           />
         ) : null}
 
