@@ -1,20 +1,22 @@
 import { useMemo } from 'react'
 
 import {
-  Status,
+  accountSelectors,
   statusIsNotFinalized,
-  useFetchedSavedCollections,
-  useAccountAlbums
+  useGetLibraryAlbums,
+  useAllPaginatedQuery
 } from '@audius/common'
+import { useSelector } from 'react-redux'
 
 import { InfiniteCardLineup } from 'components/lineup/InfiniteCardLineup'
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import EmptyTable from 'components/tracks-table/EmptyTable'
 import { useGoToRoute } from 'hooks/useGoToRoute'
-import { useOrderedLoad } from 'hooks/useOrderedLoad'
 
 import { CollectionCard } from './CollectionCard'
 import styles from './SavedPage.module.css'
 
+const { getUserId } = accountSelectors
 const messages = {
   emptyAlbumsHeader: 'You haven’t favorited any albums yet.',
   emptyAlbumsBody: 'Once you have, this is where you’ll find them!',
@@ -23,43 +25,42 @@ const messages = {
 
 export const AlbumsTabPage = () => {
   const goToRoute = useGoToRoute()
-
-  const { data: savedAlbums, status: accountAlbumsStatus } = useAccountAlbums()
-  const savedAlbumIds = useMemo(
-    () => savedAlbums.map((a) => a.id),
-    [savedAlbums]
-  )
+  const currentUserId = useSelector(getUserId)
 
   const {
-    data: fetchedAlbumIds,
+    data: fetchedAlbums,
     status,
     hasMore,
-    fetchMore
-  } = useFetchedSavedCollections({
-    collectionIds: savedAlbumIds,
-    type: 'albums',
-    pageSize: 20
-  })
-  const { isLoading: isAlbumLoading, setDidLoad } = useOrderedLoad(
-    fetchedAlbumIds.length
+    loadMore: fetchMore
+  } = useAllPaginatedQuery(
+    useGetLibraryAlbums,
+    {
+      userId: currentUserId!
+    },
+    {
+      pageSize: 20,
+      disabled: currentUserId == null
+    }
   )
-  const cards = fetchedAlbumIds.map((id, i) => {
-    return (
-      <CollectionCard
-        index={i}
-        isLoading={isAlbumLoading(i)}
-        setDidLoad={setDidLoad}
-        key={id}
-        albumId={id}
-      />
-    )
-  })
 
-  const noSavedAlbums =
-    accountAlbumsStatus === Status.SUCCESS && savedAlbumIds.length === 0
-  const noFetchedResults = !statusIsNotFinalized(status) && cards.length === 0
+  const noFetchedResults =
+    !statusIsNotFinalized(status) && fetchedAlbums?.length === 0
 
-  if (noSavedAlbums || noFetchedResults) {
+  const cards = useMemo(() => {
+    return fetchedAlbums?.map(({ playlist_id }, i) => {
+      return (
+        <CollectionCard index={i} key={playlist_id} albumId={playlist_id} />
+      )
+    })
+  }, [fetchedAlbums])
+
+  if (statusIsNotFinalized(status)) {
+    // TODO(nkang) - Confirm loading state UI
+    return <LoadingSpinner className={styles.spinner} />
+  }
+
+  // TODO(nkang) - Add separate error state
+  if (noFetchedResults || !fetchedAlbums) {
     return (
       <EmptyTable
         primaryText={messages.emptyAlbumsHeader}
