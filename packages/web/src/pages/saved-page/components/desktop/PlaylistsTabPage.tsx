@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import {
   accountSelectors,
@@ -50,9 +50,6 @@ export const PlaylistsTabPage = () => {
 
   const noFetchedResults =
     !statusIsNotFinalized(status) && fetchedPlaylists?.length === 0
-  const cards = fetchedPlaylists?.map(({ playlist_id: id }, i) => {
-    return <CollectionCard index={i} key={id} albumId={id} />
-  })
 
   const handleCreatePlaylist = useCallback(() => {
     dispatch(
@@ -62,6 +59,22 @@ export const PlaylistsTabPage = () => {
       )
     )
   }, [dispatch])
+
+  const cards = useMemo(() => {
+    const createPlaylistCard = (
+      <UploadChip
+        type='playlist'
+        variant='card'
+        onClick={handleCreatePlaylist}
+      />
+    )
+    return [
+      createPlaylistCard,
+      ...fetchedPlaylists?.map(({ playlist_id: id }, i) => {
+        return <CollectionCard index={i} key={id} albumId={id} />
+      })
+    ]
+  }, [fetchedPlaylists, handleCreatePlaylist])
 
   if (statusIsNotFinalized(status)) {
     // TODO(nkang) - Confirm loading state UI
@@ -80,12 +93,6 @@ export const PlaylistsTabPage = () => {
       />
     )
   }
-
-  const createPlaylistCard = (
-    <UploadChip type='playlist' variant='card' onClick={handleCreatePlaylist} />
-  )
-
-  cards.unshift(createPlaylistCard)
 
   return (
     <InfiniteCardLineup

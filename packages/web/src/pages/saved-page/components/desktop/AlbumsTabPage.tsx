@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import {
   accountSelectors,
   statusIsNotFinalized,
@@ -44,9 +46,13 @@ export const AlbumsTabPage = () => {
   const noFetchedResults =
     !statusIsNotFinalized(status) && fetchedAlbums?.length === 0
 
-  const cards = fetchedAlbums?.map(({ playlist_id }, i) => {
-    return <CollectionCard index={i} key={playlist_id} albumId={playlist_id} />
-  })
+  const cards = useMemo(() => {
+    return fetchedAlbums?.map(({ playlist_id }, i) => {
+      return (
+        <CollectionCard index={i} key={playlist_id} albumId={playlist_id} />
+      )
+    })
+  }, [fetchedAlbums])
 
   if (statusIsNotFinalized(status)) {
     // TODO(nkang) - Confirm loading state UI
