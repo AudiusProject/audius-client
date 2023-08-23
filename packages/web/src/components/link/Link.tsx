@@ -1,4 +1,4 @@
-import { useCallback, MouseEvent } from 'react'
+import { useCallback, MouseEvent, ElementType } from 'react'
 
 import cn from 'classnames'
 import { Link as LinkBase, LinkProps as LinkBaseProps } from 'react-router-dom'
@@ -8,13 +8,16 @@ import { TextProps } from 'components/typography/Text'
 
 import styles from './Link.module.css'
 
-export type LinkProps = LinkBaseProps<'a'> &
-  TextProps<'a'> & {
-    stopPropagation?: boolean
-  }
+export type LinkProps<Element extends ElementType = LinkBase> =
+  LinkBaseProps<Element> &
+    TextProps<Element> & {
+      stopPropagation?: boolean
+    }
 
-export const Link = (props: LinkProps) => {
-  const { className, onClick, stopPropagation = true, ...other } = props
+export const Link = <Element extends ElementType = 'a'>(
+  props: LinkProps<Element>
+) => {
+  const { className, onClick, stopPropagation = true, as, ...other } = props
 
   const handleClick = useCallback(
     (e: MouseEvent<HTMLAnchorElement>) => {
@@ -27,8 +30,9 @@ export const Link = (props: LinkProps) => {
   )
 
   return (
+    // @ts-expect-error
     <Text
-      as={LinkBase}
+      as={as ?? LinkBase}
       className={cn(styles.root, className)}
       onClick={handleClick}
       {...other}

@@ -3,7 +3,6 @@ import { accountSelectors } from '@audius/common'
 import { Avatar } from 'components/avatar'
 import { Link, UserLink } from 'components/link'
 import { Text } from 'components/typography'
-import UserBadges from 'components/user-badges/UserBadges'
 import { useSelector } from 'utils/reducer'
 import { SIGN_IN_PAGE, profilePage } from 'utils/route'
 

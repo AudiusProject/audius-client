@@ -11,7 +11,7 @@ import { ReactComponent as IconHeart } from 'assets/img/iconHeart.svg'
 import { ReactComponent as IconRemoveTrack } from 'assets/img/iconRemoveTrack.svg'
 import { ReactComponent as IconPause } from 'assets/img/pbIconPause.svg'
 import { ReactComponent as IconPlay } from 'assets/img/pbIconPlay.svg'
-import { SeoLink, UserLink } from 'components/link'
+import { SeoLink } from 'components/link'
 import { TablePlayButton } from 'components/table/components/TablePlayButton'
 import UserBadges from 'components/user-badges/UserBadges'
 import { useTrackCoverArt } from 'hooks/useTrackCoverArt'
@@ -209,15 +209,6 @@ const TrackListItem = ({
           {trackTitle}
           {messages.deleted}
         </SeoLink>
-        {/* <UserLink
-          userId={userId}
-          size='small'
-          color='neutralLight2'
-          badgeSize={12}
-          stopPropagation={false}
-          // @ts-ignore
-          as={SeoLink}
-        /> */}
         <SeoLink to={profilePage(artistHandle)} className={styles.artistName}>
           {artistName}
           <UserBadges
@@ -228,16 +219,6 @@ const TrackListItem = ({
             })}
           />
         </SeoLink>
-        {/* <div className={styles.artistName}>
-          {artistName}
-          <UserBadges
-            userId={userId}
-            badgeSize={12}
-            className={cn(styles.badges, {
-              [styles.lockedBadges]: !isDeleted && isLocked
-            })}
-          />
-        </div> */}
       </div>
       {!isDeleted && isLocked ? (
         <div className={styles.locked}>

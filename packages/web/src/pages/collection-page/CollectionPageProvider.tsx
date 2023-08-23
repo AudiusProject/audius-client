@@ -503,10 +503,6 @@ class CollectionPage extends Component<
     }
   }
 
-  onClickTrackName = (record: CollectionPageTrackRecord) => {
-    this.props.goToRoute(record.permalink)
-  }
-
   onClickRepostTrack = (record: CollectionPageTrackRecord) => {
     if (!record.has_current_user_reposted) {
       this.props.repostTrack(record.track_id)
@@ -787,7 +783,6 @@ class CollectionPage extends Component<
       onHeroTrackRepost: this.onHeroTrackRepost,
       onClickRow: this.onClickRow,
       onClickSave: this.onClickSave,
-      onClickTrackName: this.onClickTrackName,
       onClickRepostTrack: this.onClickRepostTrack,
       onClickDescriptionExternalLink: this.onClickDescriptionExternalLink,
       onClickDescriptionInternalLink,
