@@ -106,9 +106,7 @@ export const PlaylistsTab = () => {
               scrollEnabled={false}
               collectionIds={playlistIds}
               ListFooterComponent={
-                (statusIsNotFinalized(status) || hasMore) && isReachable
-                  ? loadingSpinner
-                  : null
+                hasMore && isReachable ? loadingSpinner : null
               }
               showCreatePlaylistTile={isPlaylistUpdatesEnabled && !!isReachable}
               createPlaylistSource={CreatePlaylistSource.LIBRARY_PAGE}

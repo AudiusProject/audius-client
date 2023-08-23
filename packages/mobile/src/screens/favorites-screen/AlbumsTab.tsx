@@ -81,9 +81,7 @@ export const AlbumsTab = () => {
           onEndReachedThreshold={0.5}
           scrollEnabled={false}
           collectionIds={albumsIds}
-          ListFooterComponent={
-            statusIsNotFinalized(status) && isReachable ? loadingSpinner : null
-          }
+          ListFooterComponent={hasMore && isReachable ? loadingSpinner : null}
         />
       </>
     )
