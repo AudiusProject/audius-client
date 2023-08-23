@@ -1,7 +1,7 @@
 web-init:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/node:14.18
+    - image: circleci/node:18.17
   steps:
     - checkout
     - attach_workspace:
@@ -57,7 +57,7 @@ web-init:
 web-build-demo:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/node:14.18
+    - image: circleci/node:18.17
   resource_class: xlarge
   steps:
     - checkout
@@ -81,7 +81,7 @@ web-build-demo:
 web-build-staging:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/node:14.18
+    - image: circleci/node:18.17
   resource_class: xlarge
   steps:
     - web-build:
@@ -111,7 +111,7 @@ web-test-staging:
 web-build-production:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/node:14.18
+    - image: circleci/node:18.17
   resource_class: xlarge
   steps:
     - web-build:
@@ -226,7 +226,7 @@ web-deploy-production-cloudflare:
 web-deploy-sentry-sourcemaps:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/node:14.18
+    - image: circleci/node:18.17
   steps:
     - checkout
     - attach_workspace:

@@ -1,7 +1,7 @@
 stems-init:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/node:14.18
+    - image: circleci/node:18.17
   steps:
     - checkout
 
@@ -33,7 +33,7 @@ stems-init:
 stems-build-storybook:
   working_directory: ~/stems
   docker:
-    - image: circleci/node:14.18
+    - image: circleci/node:18.17
   steps:
     - checkout
     - attach_workspace:
@@ -51,7 +51,7 @@ stems-build-storybook:
 stems-deploy-storybook:
   working_directory: ~/stems
   docker:
-    - image: circleci/node:14.18
+    - image: circleci/node:18.17
   steps:
     - checkout
     - attach_workspace:
