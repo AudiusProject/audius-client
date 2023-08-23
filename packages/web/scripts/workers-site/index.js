@@ -95,16 +95,12 @@ async function getMetadata(pathname) {
     case 'playlist': {
       const { handle, title } = route.params
       if (!handle || !title) return { metadata: null, name: null }
-      // discoveryRequestPath = `v1/resolve?url=${pathname}`
-      // TODO: Uncomment when by_permalink routes are working properly
       discoveryRequestPath = `v1/full/playlists/by_permalink/${handle}/${title}`
       break
     }
     case 'album': {
       const { handle, title } = route.params
       if (!handle || !title) return { metadata: null, name: null }
-      // discoveryRequestPath = `v1/resolve?url=${pathname}`
-      // TODO: Uncomment when by_permalink routes are working properly
       discoveryRequestPath = `v1/full/playlists/by_permalink/${handle}/${title}`
       break
     }
