@@ -4,10 +4,7 @@ import {
   CreatePlaylistSource,
   FeatureFlags,
   reachabilitySelectors,
-  statusIsNotFinalized,
-  useAllPaginatedQuery,
-  accountSelectors,
-  useGetLibraryPlaylists
+  statusIsNotFinalized
 } from '@audius/common'
 import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated'
 import { useSelector } from 'react-redux'
@@ -25,8 +22,8 @@ import { FilterInput } from './FilterInput'
 import { LoadingMoreSpinner } from './LoadingMoreSpinner'
 import { NoTracksPlaceholder } from './NoTracksPlaceholder'
 import { OfflineContentBanner } from './OfflineContentBanner'
+import { useCollectionsScreenData } from './useCollectionsScreenData'
 
-const { getUserId } = accountSelectors
 const { getIsReachable } = reachabilitySelectors
 
 const messages = {
@@ -36,7 +33,6 @@ const messages = {
 
 export const PlaylistsTab = () => {
   const navigation = useNavigation<FavoritesTabScreenParamList>()
-  const currentUserId = useSelector(getUserId)
   const handleNavigateToNewPlaylist = useCallback(() => {
     navigation.push('CreatePlaylist')
   }, [navigation])
@@ -44,24 +40,17 @@ export const PlaylistsTab = () => {
     FeatureFlags.PLAYLIST_UPDATES_POST_QA
   )
 
-  const isReachable = useSelector(getIsReachable)
   const [filterValue, setFilterValue] = useState('')
   const {
-    data: fetchedPlaylists,
-    status,
+    collectionIds: userPlaylists,
     hasMore,
-    loadMore: fetchMore
-  } = useAllPaginatedQuery(
-    useGetLibraryPlaylists,
-    {
-      userId: currentUserId!
-    },
-    {
-      pageSize: 20,
-      disabled: currentUserId == null || !isReachable
-    }
-  )
-  const playlistIds = fetchedPlaylists?.map((p) => p.playlist_id)
+    fetchMore,
+    status
+  } = useCollectionsScreenData({
+    filterValue,
+    collectionType: 'playlists'
+  })
+  const isReachable = useSelector(getIsReachable)
 
   const handleEndReached = useCallback(() => {
     if (isReachable && hasMore) {
@@ -71,7 +60,7 @@ export const PlaylistsTab = () => {
 
   const loadingSpinner = <LoadingMoreSpinner />
   const noItemsLoaded =
-    !statusIsNotFinalized(status) && !fetchedPlaylists.length && !filterValue
+    !statusIsNotFinalized(status) && !userPlaylists?.length && !filterValue
 
   return (
     <VirtualizedScrollView>
@@ -104,12 +93,14 @@ export const PlaylistsTab = () => {
               onEndReached={handleEndReached}
               onEndReachedThreshold={0.5}
               scrollEnabled={false}
-              collectionIds={playlistIds}
+              collectionIds={userPlaylists}
               ListFooterComponent={
-                hasMore && isReachable ? loadingSpinner : null
+                statusIsNotFinalized(status) && isReachable
+                  ? loadingSpinner
+                  : null
               }
               showCreatePlaylistTile={isPlaylistUpdatesEnabled && !!isReachable}
-              createPlaylistSource={CreatePlaylistSource.LIBRARY_PAGE}
+              createPlaylistSource={CreatePlaylistSource.FAVORITES_PAGE}
             />
           </Animated.View>
         </>
