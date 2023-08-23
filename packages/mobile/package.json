@@ -44,7 +44,6 @@
   },
   "dependencies": {
     "@amplitude/react-native": "2.6.0",
-    "@audius/common": "1.5.38",
     "@audius/sdk": "3.0.7-beta.0",
     "@fingerprintjs/fingerprintjs-pro-react-native": "2.0.0-test.2",
     "@gorhom/portal": "1.0.9",
@@ -191,7 +190,6 @@
     "babel-plugin-macros": "3.1.0",
     "babel-plugin-transform-remove-console": "6.9.4",
     "eslint": "8.19.0",
-    "eslint-config-audius": "1.5.26",
     "jest": "24.9.0",
     "jetifier": "1.6.8",
     "metro-react-native-babel-preset": "0.73.9",

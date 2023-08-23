@@ -51,9 +51,7 @@
     "verify": "concurrently \"npm:typecheck\" \"npm:lint:fix\""
   },
   "dependencies": {
-    "@audius/common": "1.5.38",
     "@audius/sdk": "3.0.7-beta.0",
-    "@audius/stems": "1.5.38",
     "@coinbase/cbpay-js": "1.2.0",
     "@craco/craco": "7.0.0-alpha.3",
     "@fingerprintjs/fingerprintjs-pro": "3.5.6",
@@ -252,7 +250,6 @@
     "electron-notarize": "0.1.1",
     "env-cmd": "8.0.2",
     "eslint": "8.19.0",
-    "eslint-config-audius": "1.5.26",
     "fetch-mock": "9.9.1",
     "fs-extra": "8.1.0",
     "https-browserify": "^1.0.0",
