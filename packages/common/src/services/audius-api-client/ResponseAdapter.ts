@@ -1,3 +1,5 @@
+import { full } from '@audius/sdk'
+
 import {
   ID,
   UserCollectionMetadata,
@@ -11,7 +13,8 @@ import {
   UserMetadata,
   StringWei
 } from '../../models'
-import { removeNullable, decodeHashId } from '../../utils'
+import { decodeHashId } from '../../utils/hashIds'
+import { removeNullable } from '../../utils/typeUtils'
 
 import {
   APIActivity,
@@ -75,8 +78,8 @@ export const makeUser = (
     current_user_followee_follow_count,
     does_current_user_follow,
     user_id: decodedUserId,
-    cover_photo: user.cover_photo_sizes || user.cover_photo_legacy,
-    profile_picture: user.profile_picture_sizes || user.profile_picture_legacy,
+    cover_photo: user.cover_photo_legacy,
+    profile_picture: user.profile_picture_legacy,
     metadata_multihash: user.metadata_multihash || null,
     supporter_count,
     supporting_count,
@@ -394,9 +397,19 @@ export const makeActivity = (
   activity: APIActivity | APIActivityV2
 ): UserTrackMetadata | UserCollectionMetadata | undefined => {
   if (isApiActivityV2(activity)) {
-    return activity.itemType === 'track'
-      ? makeTrack(activity.item)
-      : makePlaylist(activity.item)
+    if (!activity.item) {
+      return undefined
+    }
+    if (activity.itemType === 'track') {
+      return makeTrack(full.TrackFullToJSON(activity.item as full.TrackFull))
+    } else if (activity.itemType === 'playlist') {
+      return makePlaylist(
+        full.PlaylistFullWithoutTracksToJSON(
+          activity.item as full.PlaylistFullWithoutTracks
+        )
+      )
+    }
+    return undefined
   } else {
     return activity.item_type === 'track'
       ? makeTrack(activity.item)
@@ -441,6 +454,7 @@ export const makeStemTrack = (stem: APIStem): StemTrackMetadata | undefined => {
     track_segments: [],
     cover_art: null,
     cover_art_sizes: null,
+    cover_art_cids: null,
     is_unlisted: false,
     stem_of: {
       parent_track_id: parentId,
