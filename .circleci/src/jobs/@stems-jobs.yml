@@ -12,11 +12,6 @@ stems-init:
         keys:
           - cache-{{ checksum "package-lock.json" }}-{{ checksum "combined-patch-file.txt" }}
 
-    - run:
-        name: Link packages
-        command: |
-          npm run link
-
     # Lint
     - run:
         name: lint

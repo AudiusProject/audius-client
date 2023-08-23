@@ -28,11 +28,6 @@ mobile-init:
         keys:
           - cache-{{ .Revision }}
 
-    - run:
-        name: Link packages
-        command: |
-          npm run link
-
     - common-lint
 
     - run:
