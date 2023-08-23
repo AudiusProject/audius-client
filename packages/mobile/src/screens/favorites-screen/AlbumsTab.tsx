@@ -1,6 +1,13 @@
+import type { ReactNode } from 'react'
 import { useCallback, useState } from 'react'
 
-import { reachabilitySelectors, statusIsNotFinalized } from '@audius/common'
+import {
+  reachabilitySelectors,
+  statusIsNotFinalized,
+  useAllPaginatedQuery,
+  accountSelectors,
+  useGetLibraryAlbums
+} from '@audius/common'
 import { useSelector } from 'react-redux'
 
 import { CollectionList } from 'app/components/collection-list'
@@ -11,8 +18,8 @@ import { FilterInput } from './FilterInput'
 import { LoadingMoreSpinner } from './LoadingMoreSpinner'
 import { NoTracksPlaceholder } from './NoTracksPlaceholder'
 import { OfflineContentBanner } from './OfflineContentBanner'
-import { useCollectionsScreenData } from './useCollectionsScreenData'
 
+const { getUserId } = accountSelectors
 const { getIsReachable } = reachabilitySelectors
 
 const messages = {
@@ -22,16 +29,28 @@ const messages = {
 
 export const AlbumsTab = () => {
   const [filterValue, setFilterValue] = useState('')
-  const {
-    collectionIds: userAlbums,
-    hasMore,
-    fetchMore,
-    status
-  } = useCollectionsScreenData({
-    filterValue,
-    collectionType: 'albums'
-  })
+  const currentUserId = useSelector(getUserId)
   const isReachable = useSelector(getIsReachable)
+
+  const {
+    data: fetchedAlbums,
+    status,
+    hasMore,
+    loadMore: fetchMore
+  } = useAllPaginatedQuery(
+    useGetLibraryAlbums,
+    {
+      userId: currentUserId!
+    },
+    {
+      pageSize: 20,
+      disabled: currentUserId == null || !isReachable
+    }
+  )
+
+  const albumsIds = fetchedAlbums?.map((a) => {
+    return a.playlist_id
+  })
 
   const handleEndReached = useCallback(() => {
     if (isReachable && hasMore) {
@@ -41,35 +60,34 @@ export const AlbumsTab = () => {
 
   const loadingSpinner = <LoadingMoreSpinner />
 
-  return (
-    <VirtualizedScrollView>
-      {!statusIsNotFinalized(status) && !userAlbums?.length && !filterValue ? (
-        !isReachable ? (
-          <NoTracksPlaceholder />
-        ) : (
-          <EmptyTileCTA message={messages.emptyTabText} />
-        )
-      ) : (
-        <>
-          <OfflineContentBanner />
-          <FilterInput
-            value={filterValue}
-            placeholder={messages.inputPlaceholder}
-            onChangeText={setFilterValue}
-          />
-          <CollectionList
-            onEndReached={handleEndReached}
-            onEndReachedThreshold={0.5}
-            scrollEnabled={false}
-            collectionIds={userAlbums}
-            ListFooterComponent={
-              statusIsNotFinalized(status) && isReachable
-                ? loadingSpinner
-                : null
-            }
-          />
-        </>
-      )}
-    </VirtualizedScrollView>
-  )
+  let content: ReactNode
+  if (!statusIsNotFinalized(status) && !fetchedAlbums.length && !filterValue) {
+    if (isReachable) {
+      content = <EmptyTileCTA message={messages.emptyTabText} />
+    } else {
+      content = <NoTracksPlaceholder />
+    }
+  } else {
+    content = (
+      <>
+        <OfflineContentBanner />
+        <FilterInput
+          value={filterValue}
+          placeholder={messages.inputPlaceholder}
+          onChangeText={setFilterValue}
+        />
+        <CollectionList
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.5}
+          scrollEnabled={false}
+          collectionIds={albumsIds}
+          ListFooterComponent={
+            statusIsNotFinalized(status) && isReachable ? loadingSpinner : null
+          }
+        />
+      </>
+    )
+  }
+
+  return <VirtualizedScrollView>{content}</VirtualizedScrollView>
 }
