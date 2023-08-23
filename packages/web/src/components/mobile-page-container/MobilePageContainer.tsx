@@ -115,7 +115,10 @@ const MobilePageContainer = ({
           <title>{messages.audius}</title>
         )}
         {description && <meta name='description' content={description} />}
-        {canonicalUrl && <link rel='canonical' href={canonicalUrl} />}
+        {/* TODO: re-enable once we fix redirects and casing of canonicalUrls */}
+        {/* {props.canonicalUrl && (
+              <link rel='canonical' href={props.canonicalUrl} />
+            )} */}
         {structuredData && (
           <script type='application/ld+json'>
             {JSON.stringify(structuredData)}
