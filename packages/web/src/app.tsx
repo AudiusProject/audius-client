@@ -2,7 +2,6 @@ import '@audius/stems/dist/stems.css'
 
 import { AudiusQueryContext } from '@audius/common'
 import { ConnectedRouter } from 'connected-react-router'
-import process from 'process/browser'
 import { Provider } from 'react-redux'
 import { Route, Switch } from 'react-router-dom'
 import { LastLocationProvider } from 'react-router-last-location'
@@ -24,10 +23,6 @@ import { reportToSentry } from './store/errors/reportToSentry'
 
 import './services/webVitals'
 import './index.css'
-
-// Webpack ProvidePlugin is not working for `process`, so setting on
-// window as a workaround
-window.process = process
 
 const AudiusApp = () => {
   return (
