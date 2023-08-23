@@ -12,7 +12,6 @@
     "install-hooks": "mookme init --only-hook --skip-types-selection",
     "lint": "npm run lint -ws --if-present",
     "lint:fix": "npm run lint:fix -ws --if-present",
-    "clean": "rm -rf packages/web/build* && cd packages/mobile && npm run clean:auto && cd ../..",
     "clean:modules": "rm -rf node_modules && rm -rf packages/*/node_modules",
     "WEB========================================": "",
     "web:dev": "npm run start:dev -w audius-client",
