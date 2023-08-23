@@ -1,15 +1,29 @@
 import { MouseEvent, useCallback, useMemo } from 'react'
 
-import { formatUSDCWeiToUSDString, USDCPurchaseDetails } from '@audius/common'
-// import cn from 'classnames'
+import {
+  accountSelectors,
+  formatUSDCWeiToUSDString,
+  SquareSizes,
+  statusIsNotFinalized,
+  USDCContentPurchaseType,
+  USDCPurchaseDetails,
+  useGetTrackById,
+  useGetUserById
+} from '@audius/common'
 import moment from 'moment'
 import { Cell, Row } from 'react-table'
 
+import DynamicImage from 'components/dynamic-image/DynamicImage'
 import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { Table } from 'components/table'
 import { Tile } from 'components/tile'
+import { Text } from 'components/typography'
+import { useTrackCoverArt2 } from 'hooks/useTrackCoverArt'
+import { useSelector } from 'utils/reducer'
 
 import styles from './PurchasesTable.module.css'
+
+const { getUserId } = accountSelectors
 
 type PurchaseCell = Cell<USDCPurchaseDetails>
 type PurchaseRow = Row<USDCPurchaseDetails>
@@ -44,15 +58,49 @@ const defaultColumns: PurchasesTableColumn[] = [
   'spacerRight'
 ]
 
+// TODO: When we support collection purchases
+const CollectionNameCell = ({ id }: { id: number }) => {
+  return <div />
+}
+
+const TrackNameCell = ({ id }: { id: number }) => {
+  const { status, data: track } = useGetTrackById({ id })
+  const image = useTrackCoverArt2(id, SquareSizes.SIZE_150_BY_150)
+  const loading = statusIsNotFinalized(status) || !track
+  return loading ? null : (
+    <div className={styles.contentName}>
+      <DynamicImage wrapperClassName={styles.artwork} image={image} />
+      <Text variant='body' size='small'>
+        {track.title}
+      </Text>
+    </div>
+  )
+}
+
+const UserNameAndBadge = ({ userId }: { userId: number }) => {
+  const currentUserId: number = useSelector(getUserId)!
+  const { status, data: user } = useGetUserById({ id: userId, currentUserId })
+  const loading = statusIsNotFinalized(status) || !user
+  return loading ? null : (
+    <div className={styles.artistName}>
+      <Text variant='body' size='small' strength='strong'></Text>
+    </div>
+  )
+}
+
 // Cell Render Functions
 const renderContentNameCell = (cellInfo: PurchaseCell) => {
-  const { contentId /* , contentType */ } = cellInfo.row.original
-  return <div>{contentId}</div>
+  const { contentId, contentType } = cellInfo.row.original
+  return contentType === USDCContentPurchaseType.TRACK ? (
+    <TrackNameCell id={contentId} />
+  ) : (
+    <CollectionNameCell id={contentId} />
+  )
 }
 
 const renderArtistCell = (cellInfo: PurchaseCell) => {
   const { sellerUserId } = cellInfo.row.original
-  return <div>{sellerUserId}</div>
+  return <UserNameAndBadge userId={sellerUserId} />
 }
 
 const renderDateCell = (cellInfo: PurchaseCell) => {
@@ -62,7 +110,7 @@ const renderDateCell = (cellInfo: PurchaseCell) => {
 
 const renderValueCell = (cellInfo: PurchaseCell) => {
   const transaction = cellInfo.row.original
-  return formatUSDCWeiToUSDString(transaction.amount)
+  return `$${formatUSDCWeiToUSDString(transaction.amount)}`
 }
 
 // Columns
@@ -152,8 +200,6 @@ export const PurchasesTable = ({
     },
     [onClickRow]
   )
-
-  // TODO: Show loading spinner only for loading case
 
   return loading ? (
     <LoadingTile />
