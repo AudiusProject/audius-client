@@ -1,4 +1,9 @@
-import { ChangeEventHandler, FocusEventHandler, useCallback } from 'react'
+import {
+  ChangeEventHandler,
+  FocusEventHandler,
+  useCallback,
+  useState
+} from 'react'
 
 import cn from 'classnames'
 import { useField } from 'formik'
@@ -7,7 +12,7 @@ import { TextField, TextFieldProps } from 'components/form-fields'
 import layoutStyles from 'components/layout/layout.module.css'
 import { Text } from 'components/typography'
 
-import { PREVIEW, PRICE_HUMANIZED } from '../AccessAndSaleField'
+import { PREVIEW, PRICE } from '../AccessAndSaleField'
 
 import styles from './UsdcPurchaseFields.module.css'
 
@@ -61,7 +66,10 @@ export const UsdcPurchaseFields = (props: TrackAvailabilityFieldsProps) => {
 
 const PriceField = (props: TrackAvailabilityFieldsProps) => {
   const { disabled } = props
-  const [, , { setValue: setPrice }] = useField(PRICE_HUMANIZED)
+  const [{ value }, , { setValue: setPrice }] = useField<number>(PRICE)
+  const [humanizedValue, setHumanizedValue] = useState(
+    (value / 100).toFixed(PRECISION)
+  )
 
   const handlePriceChange: ChangeEventHandler<HTMLInputElement> = useCallback(
     (e) => {
@@ -74,7 +82,8 @@ const PriceField = (props: TrackAvailabilityFieldsProps) => {
       const stringAmount = dot
         ? `${whole}.${decimal.substring(0, PRECISION)}`
         : whole
-      setPrice(stringAmount)
+      setHumanizedValue(stringAmount)
+      setPrice(Number(e.target.value) * 100)
     },
     [setPrice]
   )
@@ -87,20 +96,21 @@ const PriceField = (props: TrackAvailabilityFieldsProps) => {
       const paddedDecimal = decimal
         .substring(0, precision)
         .padEnd(precision, '0')
-      setPrice(`${whole}.${paddedDecimal}`)
+      setHumanizedValue(`${whole}.${paddedDecimal}`)
     },
-    [setPrice]
+    []
   )
 
   return (
     <BoxedTextField
       {...messages.price}
-      name={PRICE_HUMANIZED}
+      name={PRICE}
       label={messages.price.label}
       placeholder={messages.price.placeholder}
       startAdornment={messages.dollars}
       endAdornment={messages.usdc}
       onChange={handlePriceChange}
+      value={humanizedValue}
       onBlur={handlePriceBlur}
       disabled={disabled}
     />
