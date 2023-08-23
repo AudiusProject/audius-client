@@ -46,7 +46,7 @@ jobs:
   init:
     working_directory: ~/audius-client
     docker:
-      - image: circleci/node:18.17
+      - image: cimg/node:18.17
     steps:
       - checkout
 
@@ -82,7 +82,7 @@ jobs:
   generate-release:
     working_directory: ~/audius-client
     docker:
-      - image: circleci/node:18.17
+      - image: cimg/node:18.17
     steps:
       - checkout
       - add_ssh_keys:

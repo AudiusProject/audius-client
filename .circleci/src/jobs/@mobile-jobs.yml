@@ -1,7 +1,7 @@
 mobile-init:
   working_directory: ~/audius-client
   docker:
-    - image: circleci/node:18.17
+    - image: cimg/node:18.17
   steps:
     - checkout
     - run:
