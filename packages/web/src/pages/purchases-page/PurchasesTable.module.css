@@ -1,0 +1,15 @@
+.loadingTile {
+    align-items: center;
+    justify-content: center;
+    padding: var(--unit-10);
+    width: 100%;
+}
+
+.spinner {
+    width: var(--unit-6);
+    height: var(--unit-6);
+}
+
+.spinner path {
+    fill: var(--neutral-light-4);
+}

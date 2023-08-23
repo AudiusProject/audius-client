@@ -4,4 +4,18 @@
   position: relative;
 }
 
-/* TODO: Any way to make sorting carets appear on proper side of column? */
+.noPurchasesTile {
+  align-items: center;
+  gap: var(--unit-8);
+  justify-content: center;
+  padding: var(--unit-10);
+  width: 100%;
+}
+
+.noPurchasesContent {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--unit-2);
+  justify-content: center;
+}

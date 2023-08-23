@@ -5,9 +5,11 @@ import { formatUSDCWeiToUSDString, USDCPurchaseDetails } from '@audius/common'
 import moment from 'moment'
 import { Cell, Row } from 'react-table'
 
+import LoadingSpinner from 'components/loading-spinner/LoadingSpinner'
 import { Table } from 'components/table'
+import { Tile } from 'components/tile'
 
-// import styles from './PurchasesTable.module.css'
+import styles from './PurchasesTable.module.css'
 
 type PurchaseCell = Cell<USDCPurchaseDetails>
 type PurchaseRow = Row<USDCPurchaseDetails>
@@ -117,6 +119,12 @@ const tableColumnMap = {
   }
 }
 
+const LoadingTile = () => (
+  <Tile elevation='mid' size='large' className={styles.loadingTile}>
+    <LoadingSpinner className={styles.spinner} />
+  </Tile>
+)
+
 export const PurchasesTable = ({
   columns = defaultColumns,
   data,
@@ -147,11 +155,12 @@ export const PurchasesTable = ({
 
   // TODO: Show loading spinner only for loading case
 
-  return (
+  return loading ? (
+    <LoadingTile />
+  ) : (
     <Table
       columns={tableColumns}
       data={data}
-      loading={loading}
       onClickRow={handleClickRow}
       onSort={onSort}
       fetchMore={fetchMore}

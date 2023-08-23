@@ -8,11 +8,23 @@ import {
   useAllPaginatedQuery,
   useGetPurchases
 } from '@audius/common'
+import {
+  HarmonyButton,
+  HarmonyButtonSize,
+  HarmonyButtonType,
+  IconCart
+} from '@audius/stems'
+import { push as pushRoute } from 'connected-react-router'
+import { useDispatch } from 'react-redux'
 
+import { Icon } from 'components/Icon'
 import Header from 'components/header/desktop/Header'
 import Page from 'components/page/Page'
+import { Tile } from 'components/tile'
+import { Text } from 'components/typography'
 import { MainContentContext } from 'pages/MainContentContext'
 import { useSelector } from 'utils/reducer'
+import { FEED_PAGE } from 'utils/route'
 
 import styles from './PurchasesPage.module.css'
 import { PurchasesTable } from './PurchasesTable'
@@ -22,8 +34,9 @@ const { getUserId } = accountSelectors
 const messages = {
   pageTitle: 'Purchase History',
   pageDescription: 'View your purchase history',
-  emptyTableText: `You haven't bought anything yet.`,
-  emptyTableSecondaryText: 'Once you make a purchase, it will show up here.',
+  noPurchasesHeader: `You haven't bought anything yet.`,
+  noPurchasesBody: 'Once you make a purchase, it will show up here.',
+  findSongs: 'Find Songs',
   headerText: 'Your Purchases'
 }
 
@@ -31,7 +44,32 @@ const messages = {
 const TRANSACTIONS_BATCH_SIZE = 5
 
 // TODO: Match mock, button goes to
-const NoPurchases = () => <div className={styles.emptyTableContainer}></div>
+const NoPurchases = () => {
+  const dispatch = useDispatch()
+  const handleClickFindSongs = useCallback(() => {
+    dispatch(pushRoute(FEED_PAGE))
+  }, [dispatch])
+
+  return (
+    <Tile elevation='far' size='large' className={styles.noPurchasesTile}>
+      <div className={styles.noPurchasesContent}>
+        <Icon icon={IconCart} color='neutralLight4' size='xxxLarge' />
+        <Text variant='heading' size='small'>
+          {messages.noPurchasesHeader}
+        </Text>
+        <Text variant='body' size='large'>
+          {messages.noPurchasesBody}
+        </Text>
+      </div>
+      <HarmonyButton
+        variant={HarmonyButtonType.SECONDARY}
+        size={HarmonyButtonSize.SMALL}
+        text={messages.findSongs}
+        onClick={handleClickFindSongs}
+      />
+    </Tile>
+  )
+}
 
 export const PurchasesPage = () => {
   const userId = useSelector(getUserId)
