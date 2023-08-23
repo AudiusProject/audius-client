@@ -13,7 +13,8 @@ import BN from 'bn.js'
 import { takeLatest } from 'redux-saga/effects'
 import { call, put, select } from 'typed-redux-saga'
 
-import { getOrCreateDestinationATA } from 'services/audius-backend/WithdrawUSDC'
+import { getOrCreateDestinationAssociatedTokenAccount } from 'services/audius-backend/WithdrawUSDC'
+import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
 
 const {
   beginWithdrawUSDC,
@@ -93,6 +94,7 @@ function* doSetDestinationAddress({
 }
 
 function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
+  yield* call(waitForLibsInit)
   try {
     // Assume destinationAddress and amount have already been validated
     const destinationAddress = yield* select(getWithdrawDestinationAddress)
@@ -105,10 +107,12 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
       throw new Error('Fee payer not set')
     }
     const destinationATA = yield* call(
-      getOrCreateDestinationATA,
+      getOrCreateDestinationAssociatedTokenAccount,
       destinationAddress,
       feePayer
     )
+    // To get around unused variable error
+    console.log(`amount to swap: ${amount}, destinationATA: ${destinationATA}`)
   } catch (e: unknown) {
     const reportToSentry = yield* getContext('reportToSentry')
     reportToSentry({
