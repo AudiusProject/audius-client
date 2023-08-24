@@ -38,7 +38,7 @@ export const isValidSolDestinationAddress = async (
     const ignored = new solanaweb3.PublicKey(destinationWallet)
     return true
   } catch (err) {
-    console.log(err)
+    console.debug(err)
     return false
   }
 }
@@ -194,7 +194,7 @@ export const createUserBankIfNeeded = async (
 
     // If it already existed, return early
     if (res.didExist) {
-      console.log('Userbank already exists')
+      console.debug('Userbank already exists')
     } else {
       // Otherwise we must have tried to create one
       console.info(`Userbank doesn't exist, attempted to create...`)

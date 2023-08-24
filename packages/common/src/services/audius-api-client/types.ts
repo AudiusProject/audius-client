@@ -1,3 +1,5 @@
+import type { full } from '@audius/sdk'
+
 import {
   CID,
   FavoriteType,
@@ -48,8 +50,10 @@ export type APIUser = {
   handle_lc: string
   updated_at: string
   cover_photo_sizes: Nullable<CID>
+  cover_photo_cids: Nullable<CoverPhotoSizes>
   cover_photo_legacy: Nullable<CID>
   profile_picture_sizes: Nullable<CID>
+  profile_picture_cids: Nullable<ProfilePictureSizes>
   profile_picture_legacy: Nullable<CID>
   metadata_multihash: Nullable<CID>
   erc_wallet: WalletAddress
@@ -113,6 +117,7 @@ export type APITrack = {
   created_at: string
   credits_splits: Nullable<string>
   cover_art_sizes: string
+  cover_art_cids: Nullable<CoverArtSizes>
   download: Download
   isrc: Nullable<string>
   license: Nullable<License>
@@ -189,6 +194,7 @@ export type APIPlaylist = {
   track_count: number
   cover_art: Nullable<string>
   cover_art_sizes: Nullable<string>
+  cover_art_cids: Nullable<CoverArtSizes>
 }
 
 export type APISearchPlaylist = Omit<
@@ -210,15 +216,18 @@ export type APIActivity = { timestamp: string } & (
   | { item_type: 'playlist'; item: APIPlaylist }
 )
 
-export type APIActivityV2 = { timestamp: string } & (
-  | { itemType: 'track'; item: APITrack }
-  | { itemType: 'playlist'; item: APIPlaylist }
-)
+export type APIActivityV2 = full.TrackActivityFull | full.CollectionActivityFull
 
 export const isApiActivityV2 = (
   activity: APIActivity | APIActivityV2
 ): activity is APIActivityV2 => {
   return (activity as APIActivityV2).itemType !== undefined
+}
+
+export const isApiActivityV1 = (
+  activity: APIActivity | APIActivityV2
+): activity is APIActivity => {
+  return (activity as APIActivity).item_type !== undefined
 }
 
 export type APISearch = {
