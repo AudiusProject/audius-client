@@ -1,15 +1,16 @@
-// import { full } from '@audius/sdk'
+import { full } from '@audius/sdk'
+
 import { createApi } from 'audius-query'
 import { ID } from 'models/Identifiers'
 import { USDCPurchaseDetails } from 'models/USDCTransactions'
-import { Nullable } from 'utils/typeUtils'
+import { encodeHashId } from 'utils/hashIds'
 
 type GetTransactionsArgs = {
-  userId: Nullable<ID>
+  userId: ID
   offset: number
   limit: number
-  // sortMethod?: full.GetUserLibraryAlbumsSortMethodEnum
-  // sortDirection?: full.GetUserLibraryAlbumsSortDirectionEnum
+  sortMethod?: full.GetPurchasesSortMethodEnum
+  sortDirection?: full.GetPurchasesSortDirectionEnum
 }
 
 const transactionsApi = createApi({
@@ -21,7 +22,14 @@ const transactionsApi = createApi({
         { audiusSdk }
       ) => {
         console.log('TODO: fetch purchases for:', userId, offset, limit)
-        await audiusSdk()
+        const sdk = await audiusSdk()
+        const purchases = await sdk.full.users.getPurchases({
+          limit,
+          offset,
+          id: encodeHashId(userId),
+          userId: encodeHashId(userId)
+        })
+        console.log(purchases)
         return [] as USDCPurchaseDetails[]
       },
       options: {}
