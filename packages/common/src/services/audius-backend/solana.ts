@@ -38,7 +38,26 @@ export const isValidSolDestinationAddress = async (
     const ignored = new solanaweb3.PublicKey(destinationWallet)
     return true
   } catch (err) {
-    console.log(err)
+    console.debug(err)
+    return false
+  }
+}
+
+export const isSolWallet = async (
+  audiusBackendInstance: AudiusBackend,
+  destinationWallet: SolanaWalletAddress
+) => {
+  const audiusLibs: AudiusLibs = await audiusBackendInstance.getAudiusLibs()
+  const solanaweb3 = audiusLibs.solanaWeb3Manager?.solanaWeb3
+  if (!solanaweb3) {
+    console.error('No solana web3 found')
+    return false
+  }
+  try {
+    const destination = new solanaweb3.PublicKey(destinationWallet)
+    return solanaweb3.PublicKey.isOnCurve(destination.toBytes())
+  } catch (err) {
+    console.debug(err)
     return false
   }
 }
@@ -194,7 +213,7 @@ export const createUserBankIfNeeded = async (
 
     // If it already existed, return early
     if (res.didExist) {
-      console.log('Userbank already exists')
+      console.debug('Userbank already exists')
     } else {
       // Otherwise we must have tried to create one
       console.info(`Userbank doesn't exist, attempted to create...`)

@@ -80,7 +80,8 @@ import {
   searchUsersModalReducer,
   SearchUsersModalState,
   ToastState,
-  TransactionDetailsState
+  TransactionDetailsState,
+  withdrawUSDCReducer
 } from './ui'
 import addToPlaylistReducer, {
   AddToPlaylistState
@@ -113,6 +114,8 @@ import { StripeModalState } from './ui/stripe-modal/types'
 import theme, { ThemeState } from './ui/theme/slice'
 import toastReducer from './ui/toast/slice'
 import transactionDetailsReducer from './ui/transaction-details/slice'
+import uploadConfirmationReducer from './ui/upload-confirmation-modal/slice'
+import { UploadConfirmationModalState } from './ui/upload-confirmation-modal/types'
 import vipDiscordModalReducer from './ui/vip-discord-modal/slice'
 import { VipDiscordModalState } from './ui/vip-discord-modal/types'
 import upload from './upload/reducer'
@@ -127,7 +130,6 @@ import repostsUserListReducer from './user-list/reposts/reducers'
 import supportingUserListReducer from './user-list/supporting/reducers'
 import topSupportersUserListReducer from './user-list/top-supporters/reducers'
 import wallet from './wallet/slice'
-import { withdrawUSDCReducer } from './withdraw-usdc'
 
 /**
  * A function that creates common reducers. The function takes
@@ -202,6 +204,7 @@ export const reducers = () => ({
     searchUsersModal: searchUsersModalReducer,
     toast: toastReducer,
     transactionDetails: transactionDetailsReducer,
+    uploadConfirmationModal: uploadConfirmationReducer,
     userList: combineReducers({
       followers: followersUserListReducer,
       following: followingUserListReducer,
@@ -255,8 +258,6 @@ export const reducers = () => ({
   buyUSDC: buyUSDCReducer,
   premiumContent,
   purchaseContent: purchaseContentReducer,
-
-  // USDC withdrawals
   withdrawUSDC: withdrawUSDCReducer,
 
   // Collectibles
@@ -329,6 +330,7 @@ export type CommonState = {
     stripeModal: StripeModalState
     toast: ToastState
     transactionDetails: TransactionDetailsState
+    uploadConfirmationModal: UploadConfirmationModalState
     userList: {
       mutuals: ReturnType<typeof mutualsUserListReducer>
       notifications: ReturnType<typeof notificationsUserListReducer>

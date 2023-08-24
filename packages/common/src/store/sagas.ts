@@ -23,9 +23,9 @@ import {
   publishPlaylistConfirmationModalUISagas,
   mobileOverflowMenuUISagas,
   shareModalUISagas,
-  stripeModalUISagas
+  stripeModalUISagas,
+  uploadConfirmationModalUISagas
 } from 'store/ui'
-import { withdrawUSDCSagas } from 'store/withdraw-usdc'
 
 import { playlistUpdatesSagas } from './playlist-updates'
 import { CommonStoreContext } from './storeContext'
@@ -45,7 +45,6 @@ export const sagas = (_ctx: CommonStoreContext) => ({
   // users: usersSagas,
   account: accountSagas,
   buyUSDC: buyUSDCSagas,
-  withdrawUSDC: withdrawUSDCSagas,
   remoteConfig: remoteConfigSagas,
   cast: castSagas,
   premiumContent: premiumContentSagas,
@@ -58,6 +57,7 @@ export const sagas = (_ctx: CommonStoreContext) => ({
   mobileOverflowMenuUI: mobileOverflowMenuUISagas,
   deletePlaylistConfirmationModalUI: deletePlaylistConfirmationModalUISagas,
   duplidateAddConfirmationModalUI: duplicateAddConfirmationModalUISagas,
+  uploadConfirmationModalUI: uploadConfirmationModalUISagas,
   publishPlaylistConfirmationModalUI: publishPlaylistConfirmationModalUISagas,
   player: playerSagas,
   playbackPosition: playbackPositionSagas,

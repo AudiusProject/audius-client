@@ -120,6 +120,20 @@ export * from './buy-audio/types'
 export * from './buy-audio/constants'
 export * as buyAudioSelectors from './buy-audio/selectors'
 
+export * as uploadConfirmationModalUISelectors from './upload-confirmation-modal/selectors'
+export {
+  default as uploadConfirmationModalUIReducer,
+  actions as uploadConfirmationModalUIActions
+} from './upload-confirmation-modal/slice'
+export { default as uploadConfirmationModalUISagas } from './upload-confirmation-modal/sagas'
+export * from './upload-confirmation-modal/types'
+
+export {
+  default as withdrawUSDCReducer,
+  actions as withdrawUSDCActions
+} from './withdraw-usdc/slice'
+export * as withdrawUSDCSelectors from './withdraw-usdc/selectors'
+
 export {
   default as transactionDetailsReducer,
   actions as transactionDetailsActions

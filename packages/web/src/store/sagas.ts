@@ -6,10 +6,10 @@ import {
   chatSagas,
   premiumContentSagas,
   purchaseContentSagas,
-  withdrawUSDCSagas,
   remoteConfigSagas,
   deletePlaylistConfirmationModalUISagas as deletePlaylistConfirmationModalSagas,
   duplicateAddConfirmationModalUISagas as duplicateAddConfirmationModalSagas,
+  uploadConfirmationModalUISagas as uploadConfirmationModalSagas,
   publishPlaylistConfirmationModalUISagas as publishPlaylistConfirmationModalSagas,
   mobileOverflowMenuUISagas as overflowMenuSagas,
   shareModalUISagas as shareModalSagas,
@@ -90,6 +90,7 @@ import scrollLockSagas from 'store/application/ui/scrollLock/sagas'
 import stemUploadSagas from 'store/application/ui/stemsUpload/sagas'
 import themeSagas from 'store/application/ui/theme/sagas'
 import userListModalSagas from 'store/application/ui/userListModal/sagas'
+import withdrawUSDCSagas from 'store/application/ui/withdraw-usdc/sagas'
 import errorSagas from 'store/errors/sagas'
 import reachabilitySagas from 'store/reachability/sagas'
 import routingSagas from 'store/routing/sagas'
@@ -198,6 +199,7 @@ export default function* rootSaga() {
     stemUploadSagas(),
     themeSagas(),
     tokenDashboardSagas(),
+    uploadConfirmationModalSagas(),
     userListModalSagas(),
     vipDiscordModalSagas(),
     commonReachabilitySagas(),
