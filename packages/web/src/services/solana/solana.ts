@@ -25,7 +25,7 @@ export const isSolWallet = async (destinationWallet: SolanaWalletAddress) => {
     const destination = new PublicKey(destinationWallet)
     return PublicKey.isOnCurve(destination.toBytes())
   } catch (err) {
-    console.log(err)
+    console.error(err)
     return false
   }
 }
