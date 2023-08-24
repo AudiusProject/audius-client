@@ -8,7 +8,6 @@ import {
   WidthSizes,
   SquareSizes,
   formatCount,
-  squashNewLines,
   imageCoverPhotoBlank
 } from '@audius/common'
 import {
@@ -436,7 +435,7 @@ const ProfileHeader = ({
                 [styles.bioExpanded]: hasEllipsis && !isDescriptionMinimized
               })}
             >
-              {squashNewLines(bio)}
+              {bio}
             </UserGeneratedText>
           ) : null}
           {hasEllipsis && !isDescriptionMinimized && (website || donation) && (

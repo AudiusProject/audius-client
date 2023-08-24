@@ -1,6 +1,6 @@
 import { ChangeEvent, useCallback, useState } from 'react'
 
-import { squashNewLines, formatSecondsAsText, formatDate } from '@audius/common'
+import { formatSecondsAsText, formatDate } from '@audius/common'
 import { IconHidden, IconPencil } from '@audius/stems'
 import cn from 'classnames'
 import { useDispatch } from 'react-redux'
@@ -169,7 +169,7 @@ export const CollectionHeader = (props: CollectionHeaderProps) => {
             className={cn(styles.description, fadeIn)}
             linkSource='collection page'
           >
-            {squashNewLines(description)}
+            {description}
           </UserGeneratedText>
           <div className={cn(styles.statsRow, fadeIn)}>
             {renderStatsRow(isLoading)}

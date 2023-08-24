@@ -1,6 +1,10 @@
 import { forwardRef, useMemo, MouseEvent } from 'react'
 
-import { getPathFromAudiusUrl, isAudiusUrl } from '@audius/common'
+import {
+  getPathFromAudiusUrl,
+  isAudiusUrl,
+  squashNewLines
+} from '@audius/common'
 import cn from 'classnames'
 import Linkify from 'linkify-react'
 import { IntermediateRepresentation, Opts } from 'linkifyjs'
@@ -45,7 +49,7 @@ export const UserGeneratedText = forwardRef(function (
   ref
 ) {
   const {
-    children,
+    children: childrenProp,
     variant,
     color,
     size,
@@ -64,6 +68,11 @@ export const UserGeneratedText = forwardRef(function (
     }),
     [linkSource, onClickLink]
   )
+
+  const children =
+    typeof childrenProp === 'string'
+      ? squashNewLines(childrenProp)
+      : childrenProp
 
   return (
     <Linkify

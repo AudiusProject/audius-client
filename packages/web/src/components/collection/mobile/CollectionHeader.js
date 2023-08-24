@@ -4,7 +4,6 @@ import {
   Variant,
   SquareSizes,
   formatCount,
-  squashNewLines,
   formatSecondsAsText,
   formatDate,
   OverflowAction
@@ -258,7 +257,7 @@ const CollectionHeader = ({
               className={styles.description}
               linkSource='collection page'
             >
-              {squashNewLines(description)}
+              {description}
             </UserGeneratedText>
           ) : null}
         </>

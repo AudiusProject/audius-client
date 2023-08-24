@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react'
 
 import {
-  squashNewLines,
   getCanonicalName,
   formatDate,
   formatSeconds,
@@ -641,7 +640,7 @@ export const GiantTrackTile = ({
             size='small'
             className={styles.description}
           >
-            {squashNewLines(description)}
+            {description}
           </UserGeneratedText>
         ) : null}
         {renderTags()}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { Name, squashNewLines } from '@audius/common'
+import { Name } from '@audius/common'
 import { ResizeObserver } from '@juggle/resize-observer'
 import cn from 'classnames'
 // eslint-disable-next-line no-restricted-imports -- TODO: migrate to @react-spring/web
@@ -228,7 +228,7 @@ export const ProfileBio = ({
         })}
         linkSource='profile page'
       >
-        {squashNewLines(bio)}
+        {bio}
       </UserGeneratedText>
       {isCollapsed ? (
         <div>

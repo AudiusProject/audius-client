@@ -6,7 +6,6 @@ import {
   CoverArtSizes,
   FieldVisibility,
   Remix,
-  squashNewLines,
   getCanonicalName,
   formatSeconds,
   formatDate,
@@ -458,7 +457,7 @@ const TrackHeader = ({
           className={styles.description}
           linkSource='track page'
         >
-          {squashNewLines(description)}
+          {description}
         </UserGeneratedText>
       ) : null}
       <div className={cn(styles.infoSection, styles.withSectionDivider)}>
