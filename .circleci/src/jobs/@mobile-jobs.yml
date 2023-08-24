@@ -41,7 +41,7 @@ mobile-init:
     - persist_to_workspace:
         root: ./
         paths:
-          - packages/node_modules
+          - node_modules
           - packages/web/node_modules
           - packages/mobile/node_modules
           - packages/stems/node_modules
