@@ -108,8 +108,10 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
     }
     const destinationATA = yield* call(
       getOrCreateDestinationAssociatedTokenAccount,
-      destinationAddress,
-      feePayer
+      {
+        destinationAddress,
+        feePayer
+      }
     )
     // To get around unused variable error
     console.log(`amount to swap: ${amount}, destinationATA: ${destinationATA}`)

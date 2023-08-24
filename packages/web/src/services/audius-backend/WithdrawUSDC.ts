@@ -24,14 +24,9 @@ const USDC_SLIPPAGE = 3
  * @returns True if the address is a solana address, false otherwise.
  */
 export const isSolWallet = async (destinationWallet: SolanaWalletAddress) => {
-  const solanaweb3 = await libs().solanaWeb3Manager!.solanaWeb3
-  if (!solanaweb3) {
-    console.error('No solana web3 found')
-    return false
-  }
   try {
-    const destination = new solanaweb3.PublicKey(destinationWallet)
-    return solanaweb3.PublicKey.isOnCurve(destination.toBytes())
+    const destination = new PublicKey(destinationWallet)
+    return PublicKey.isOnCurve(destination.toBytes())
   } catch (err) {
     console.log(err)
     return false
@@ -53,64 +48,13 @@ const getTransferTransactionFee = async (destinationPubkey: PublicKey) => {
 }
 
 /**
- * Calculates the rent for an associated token account + the fee for a transfer transaction.
- * @param destinationPubkey Any public key, used for creating the temp transaction to
- * estimate the fee.
- * @returns The rent for an associated token account + the fee for a transfer transaction.
+ * Calculates the rent for an associated token account.
+ * @returns The rent for an associated token account.
  */
-const getRentAndTransferTransactionFee = async (
-  destinationPubkey: PublicKey
-) => {
+const getAssociatedTokenAccountRent = async () => {
   const connection = await getSolanaConnection()
   const rent = await Token.getMinBalanceRentForExemptAccount(connection)
-  const transferFee = await getTransferTransactionFee(destinationPubkey)
-  return rent + transferFee
-}
-
-/**
- * Creates an associated token account for the given solana account.
- * @param solanaUSDCAssociatedTokenAccount Associated token account to create.
- * @param solanaRootAccount Root account that will own the associated token account.
- * @param feePayer Address that pays fees for the create instruction.
- * @returns Create instruction.
- */
-const createUSDCAssociatedTokenAccountInstruction = async (
-  solanaUSDCAssociatedTokenAccount: PublicKey,
-  solanaRootAccount: PublicKey,
-  feePayer: PublicKey
-) => {
-  const createSolanaUSDCAccountInstr =
-    Token.createAssociatedTokenAccountInstruction(
-      ASSOCIATED_TOKEN_PROGRAM_ID, // associatedProgramId
-      TOKEN_PROGRAM_ID, // programId
-      libs().solanaWeb3Manager!.mints.usdc, // mint
-      solanaUSDCAssociatedTokenAccount, // associatedAccount
-      solanaRootAccount, // owner
-      feePayer // payer
-    )
-  return createSolanaUSDCAccountInstr
-}
-
-/**
- * Closes the given associated token account.
- * @param solanaUSDCAssociatedTokenAccount Associated token account to close.
- * @param solanaRootAccount Root account that owns the associated token account.
- * @param feePayer Address that pays fees for the close instruction.
- * @returns Close instruction.
- */
-const closeUSDCAssociatedTokenAccountInstruction = async (
-  solanaUSDCAssociatedTokenAccount: PublicKey,
-  solanaRootAccount: PublicKey,
-  feePayer: PublicKey
-) => {
-  const closeSolanaUSDCAccountInstr = Token.createCloseAccountInstruction(
-    TOKEN_PROGRAM_ID, //    programId
-    solanaUSDCAssociatedTokenAccount, //  account to close
-    feePayer, // fee destination
-    solanaRootAccount, //  owner
-    [] //  multiSigners
-  )
-  return closeSolanaUSDCAccountInstr
+  return rent
 }
 
 /**
@@ -174,16 +118,21 @@ const swapUSDCForSol = async (
     })
 
   const createAssociatedTokenAccountInstruction =
-    await createUSDCAssociatedTokenAccountInstruction(
-      solanaUSDCAssociatedTokenAccount,
-      solanaRootAccountPubkey,
-      feePayerPubkey
+    Token.createAssociatedTokenAccountInstruction(
+      ASSOCIATED_TOKEN_PROGRAM_ID, // associatedProgramId
+      TOKEN_PROGRAM_ID, // programId
+      libs().solanaWeb3Manager!.mints.usdc, // mint
+      solanaUSDCAssociatedTokenAccount, // associatedAccount
+      solanaRootAccountPubkey, // owner
+      feePayerPubkey // payer
     )
   const closeAssociatedTokenAccountInstruction =
-    await closeUSDCAssociatedTokenAccountInstruction(
-      solanaUSDCAssociatedTokenAccount,
-      solanaRootAccountPubkey,
-      feePayerPubkey
+    Token.createCloseAccountInstruction(
+      TOKEN_PROGRAM_ID, //    programId
+      solanaUSDCAssociatedTokenAccount, //  account to close
+      feePayerPubkey, // fee destination
+      solanaRootAccountPubkey, //  owner
+      [] //  multiSigners
     )
 
   const instructions = [
@@ -226,9 +175,9 @@ const createAndFundDestinationAssociatedTokenAccount = async (
 ) => {
   // TODO: factor in existing sol balance
   // TODO: might have to pay rent for root sol account, see BuyAudio.ts
-  const desiredSolAmount =
-    (await getRentAndTransferTransactionFee(destinationPubkey)) /
-    LAMPORTS_PER_SOL
+  const rent = await getAssociatedTokenAccountRent()
+  const fee = await getTransferTransactionFee(destinationPubkey)
+  const desiredSolAmount = (rent + fee) / LAMPORTS_PER_SOL
 
   const solanaRootAccount = await getRootSolanaAccount()
   const usdcUserBank = await libs().solanaWeb3Manager!.deriveUserBank({
@@ -252,10 +201,13 @@ const createAndFundDestinationAssociatedTokenAccount = async (
  * Can be either a solana address or a USDC associated token account address.
  * @param feePayer Address to pay fees for creating the associated token account.
  */
-export const getOrCreateDestinationAssociatedTokenAccount = async (
-  destinationAddress: string,
+export const getOrCreateDestinationAssociatedTokenAccount = async ({
+  destinationAddress,
+  feePayer
+}: {
+  destinationAddress: string
   feePayer: string
-) => {
+}) => {
   const destinationPubkey = new PublicKey(destinationAddress)
   const feePayerPubkey = new PublicKey(feePayer)
 
