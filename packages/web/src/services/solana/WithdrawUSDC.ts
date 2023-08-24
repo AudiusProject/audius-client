@@ -5,57 +5,22 @@ import {
   Token,
   TOKEN_PROGRAM_ID
 } from '@solana/spl-token'
-import { LAMPORTS_PER_SOL, PublicKey, Transaction } from '@solana/web3.js'
+import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js'
+import BN from 'bn.js'
 
 import { JupiterSingleton } from 'services/audius-backend/Jupiter'
-
-import { getRootSolanaAccount, getSolanaConnection } from './BuyAudio'
-
-// @ts-ignore
-const libs = (): AudiusLibs => window.audiusLibs
+import { getLibs } from 'services/audius-libs'
+import {
+  getRootSolanaAccount,
+  getAssociatedTokenAccountRent,
+  getTransferTransactionFee,
+  getUSDCAssociatedTokenAccount,
+  isSolWallet
+} from 'services/solana/solana'
 
 // TODO: Grab from remote config
 // Allowable slippage amount for USDC jupiter swaps in %.
 const USDC_SLIPPAGE = 3
-
-/**
- * Checks if the given address is a solana address vs an associated token account.
- * @param destinationWallet Address to check.
- * @returns True if the address is a solana address, false otherwise.
- */
-export const isSolWallet = async (destinationWallet: SolanaWalletAddress) => {
-  try {
-    const destination = new PublicKey(destinationWallet)
-    return PublicKey.isOnCurve(destination.toBytes())
-  } catch (err) {
-    console.log(err)
-    return false
-  }
-}
-
-/**
- * Gets the fee for a transfer transaction.
- * @param destinationPubkey Any public key, used for creating the temp transaction to
- * estimate the fee.
- * @returns The fee for a transfer transaction.
- */
-const getTransferTransactionFee = async (destinationPubkey: PublicKey) => {
-  const connection = await getSolanaConnection()
-  const recentBlockhash = (await connection.getLatestBlockhash()).blockhash
-  const tx = new Transaction({ recentBlockhash })
-  tx.feePayer = destinationPubkey
-  return await tx.getEstimatedFee(connection)
-}
-
-/**
- * Calculates the rent for an associated token account.
- * @returns The rent for an associated token account.
- */
-const getAssociatedTokenAccountRent = async () => {
-  const connection = await getSolanaConnection()
-  const rent = await Token.getMinBalanceRentForExemptAccount(connection)
-  return rent
-}
 
 /**
  * Swaps USDC for SOL, taking USDC from the user's USDC user bank and
@@ -74,9 +39,6 @@ const swapUSDCForSol = async (
   solanaUSDCAssociatedTokenAccount: PublicKey,
   feePayerPubkey: PublicKey
 ) => {
-  const connection = await getSolanaConnection()
-
-  // TODO: double check slippage
   const quoteRoute = await JupiterSingleton.getQuote({
     inputTokenSymbol: 'USDC',
     outputTokenSymbol: 'SOL',
@@ -102,18 +64,14 @@ const swapUSDCForSol = async (
   const swapInstructions =
     exchangeInfo.transactions.swapTransaction.instructions
 
+  const libs = await getLibs()
   const transferInstructions =
-    await libs().solanaWeb3Manager!.createTransferInstructionsFromCurrentUser({
-      amount: usdcNeededAmount.uiAmount,
+    await libs.solanaWeb3Manager!.createTransferInstructionsFromCurrentUser({
+      amount: new BN(usdcNeededAmount.uiAmount),
       feePayerKey: feePayerPubkey,
       senderSolanaAddress: usdcUserBank,
-      recipientSolanaAddress: solanaUSDCAssociatedTokenAccount,
+      recipientSolanaAddress: solanaUSDCAssociatedTokenAccount.toString(),
       instructionIndex: 1,
-      claimableTokenPDA: libs().solanaWeb3Manager!.claimableTokenPDAs.usdc,
-      solanaTokenProgramKey: TOKEN_PROGRAM_ID,
-      claimableTokenProgramKey:
-        libs().solanaWeb3Manager!.claimableTokenProgramKey,
-      connection,
       mint: 'usdc'
     })
 
@@ -121,7 +79,7 @@ const swapUSDCForSol = async (
     Token.createAssociatedTokenAccountInstruction(
       ASSOCIATED_TOKEN_PROGRAM_ID, // associatedProgramId
       TOKEN_PROGRAM_ID, // programId
-      libs().solanaWeb3Manager!.mints.usdc, // mint
+      libs.solanaWeb3Manager!.mints.usdc, // mint
       solanaUSDCAssociatedTokenAccount, // associatedAccount
       solanaRootAccountPubkey, // owner
       feePayerPubkey // payer
@@ -141,27 +99,11 @@ const swapUSDCForSol = async (
     ...swapInstructions,
     closeAssociatedTokenAccountInstruction
   ]
-  return await libs().solanaWeb3Manager!.transactionHandler.handleTransaction({
+  return await libs.solanaWeb3Manager!.transactionHandler.handleTransaction({
     instructions,
     skipPreflight: true,
     feePayerOverride: feePayerPubkey
   })
-}
-
-/**
- * Returns the associated USDC token account for the given solana account.
- * @param solanaRootAccountPubkey Solana account to get the associated USDC token account for.
- * @returns The associated USDC token account.
- */
-const getUSDCAssociatedTokenAccount = async (
-  solanaRootAccountPubkey: PublicKey
-) => {
-  return await Token.getAssociatedTokenAddress(
-    ASSOCIATED_TOKEN_PROGRAM_ID,
-    TOKEN_PROGRAM_ID,
-    libs().solanaWeb3Manager!.mints.usdc,
-    solanaRootAccountPubkey
-  )
 }
 
 /**
@@ -173,14 +115,15 @@ const createAndFundDestinationAssociatedTokenAccount = async (
   destinationPubkey: PublicKey,
   feePayerPubkey: PublicKey
 ) => {
+  const libs = await getLibs()
+
   // TODO: factor in existing sol balance
   // TODO: might have to pay rent for root sol account, see BuyAudio.ts
   const rent = await getAssociatedTokenAccountRent()
   const fee = await getTransferTransactionFee(destinationPubkey)
   const desiredSolAmount = (rent + fee) / LAMPORTS_PER_SOL
-
   const solanaRootAccount = await getRootSolanaAccount()
-  const usdcUserBank = await libs().solanaWeb3Manager!.deriveUserBank({
+  const usdcUserBank = await libs.solanaWeb3Manager!.deriveUserBank({
     mint: 'usdc'
   })
   const solanaUSDCAssociatedTokenAccount = await getUSDCAssociatedTokenAccount(
@@ -208,6 +151,7 @@ export const getOrCreateDestinationAssociatedTokenAccount = async ({
   destinationAddress: string
   feePayer: string
 }) => {
+  const libs = await getLibs()
   const destinationPubkey = new PublicKey(destinationAddress)
   const feePayerPubkey = new PublicKey(feePayer)
 
@@ -221,14 +165,14 @@ export const getOrCreateDestinationAssociatedTokenAccount = async ({
       await Token.getAssociatedTokenAddress(
         ASSOCIATED_TOKEN_PROGRAM_ID,
         TOKEN_PROGRAM_ID,
-        libs().solanaWeb3Manager.mints.usdc,
+        libs.solanaWeb3Manager!.mints.usdc,
         destinationPubkey
       )
     const destinationAccountInfo =
-      await libs().solanaWeb3Manager!.getTokenAccountInfo({
-        mint: 'usdc',
-        tokenAccount: destinationAssociatedTokenAccount
-      })
+      await libs.solanaWeb3Manager!.getTokenAccountInfo(
+        destinationAssociatedTokenAccount.toString(),
+        'usdc'
+      )
     // Destination associated token account does not exist - create and fund it
     if (destinationAccountInfo === null) {
       await createAndFundDestinationAssociatedTokenAccount(
@@ -237,4 +181,5 @@ export const getOrCreateDestinationAssociatedTokenAccount = async ({
       )
     }
   }
+  // TODO: handle case where destination is a USDC associated token account
 }

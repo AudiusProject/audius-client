@@ -13,8 +13,8 @@ import BN from 'bn.js'
 import { takeLatest } from 'redux-saga/effects'
 import { call, put, select } from 'typed-redux-saga'
 
-import { getOrCreateDestinationAssociatedTokenAccount } from 'services/audius-backend/WithdrawUSDC'
 import { waitForLibsInit } from 'services/audius-backend/eagerLoadUtils'
+import { getOrCreateDestinationAssociatedTokenAccount } from 'services/solana/WithdrawUSDC'
 
 const {
   beginWithdrawUSDC,
@@ -97,7 +97,8 @@ function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
   yield* call(waitForLibsInit)
   try {
     // Assume destinationAddress and amount have already been validated
-    const destinationAddress = yield* select(getWithdrawDestinationAddress)
+    // const destinationAddress = yield* select(getWithdrawDestinationAddress)
+    const destinationAddress = '4d5U11uroz3ZFHjxjYKyJReGPJ3yE5kGTf2NSTXb2QWF'
     if (!destinationAddress) {
       throw new Error('Please enter a destination address')
     }
