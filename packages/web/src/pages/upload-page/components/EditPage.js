@@ -212,7 +212,7 @@ class EditPage extends Component {
                 defaultFields={track.metadata}
                 invalidFields={invalidTracksFields[i]}
                 requiredFields={requiredTracksFields[i]}
-                trackLength={track.file.preview.length}
+                trackLength={track.preview.duration}
                 playing={i === previewIndex}
                 onPlayPreview={() => onPlayPreview(i)}
                 onStopPreview={() => onStopPreview()}
@@ -238,7 +238,7 @@ class EditPage extends Component {
               this.props.onSelectStemCategory(category, i, stemIndex)
             }
             onDeleteStem={(stemIndex) => this.props.onDeleteStem(i, stemIndex)}
-            trackLength={track.file.preview.length}
+            trackLength={track.preview.duration}
             stems={this.props.stems[i]}
             onPlayPreview={() => onPlayPreview(i)}
             onStopPreview={() => onStopPreview()}

@@ -52,65 +52,89 @@ export const UsdcPurchaseFields = (props: TrackAvailabilityFieldsProps) => {
   return (
     <div className={cn(layoutStyles.col, layoutStyles.gap4)}>
       <PriceField disabled={disabled} />
-      <BoxedTextField
-        {...messages.preview}
-        name={PREVIEW}
-        label={messages.preview.placeholder}
-        placeholder={messages.preview.placeholder}
-        endAdornment={messages.seconds}
-        disabled={disabled}
-      />
+      <PreviewField disabled={disabled} />
     </div>
+  )
+}
+
+const PreviewField = (props: TrackAvailabilityFieldsProps) => {
+  const { disabled } = props
+  const [{ value }, , { setValue: setPreview }] = useField<number>(PREVIEW)
+  const [humanizedValue, setHumanizedValue] = useState<string | undefined>(
+    value?.toString()
+  )
+
+  const handlePreviewChange: ChangeEventHandler<HTMLInputElement> = useCallback(
+    (e) => {
+      const input = e.target.value.replace(/[^0-9]+/g, '')
+      setHumanizedValue(input)
+      setPreview(Number(input))
+    },
+    [setPreview]
+  )
+
+  return (
+    <BoxedTextField
+      {...messages.preview}
+      name={PREVIEW}
+      label={messages.preview.placeholder}
+      value={humanizedValue}
+      placeholder={messages.preview.placeholder}
+      endAdornment={messages.seconds}
+      onChange={handlePreviewChange}
+      disabled={disabled}
+    />
   )
 }
 
 const PriceField = (props: TrackAvailabilityFieldsProps) => {
   const { disabled } = props
-  // const [{ value }, , { setValue: setPrice }] = useField<number>(PRICE)
-  // const [humanizedValue, setHumanizedValue] = useState(
-  //   (value / 100).toFixed(PRECISION)
-  // )
+  const [{ value }, , { setValue: setPrice }] = useField<number>(PRICE)
+  const [humanizedValue, setHumanizedValue] = useState(
+    value ? (value / 100).toFixed(PRECISION) : null
+  )
 
-  // const handlePriceChange: ChangeEventHandler<HTMLInputElement> = useCallback(
-  //   (e) => {
-  //     const input = e.target.value.replace(/[^0-9.]+/g, '')
-  //     // Regex to grab the whole and decimal parts of the number, stripping duplicate '.' characters
-  //     const match = input.match(/^(?<whole>\d*)(?<dot>.)?(?<decimal>\d*)/)
-  //     const { whole, decimal, dot } = match?.groups || {}
+  const handlePriceChange: ChangeEventHandler<HTMLInputElement> = useCallback(
+    (e) => {
+      const input = e.target.value.replace(/[^0-9.]+/g, '')
+      // Regex to grab the whole and decimal parts of the number, stripping duplicate '.' characters
+      const match = input.match(/^(?<whole>\d*)(?<dot>.)?(?<decimal>\d*)/)
+      const { whole, decimal, dot } = match?.groups || {}
 
-  //     // Conditionally render the decimal part, and only for the number of decimals specified
-  //     const stringAmount = dot
-  //       ? `${whole}.${decimal.substring(0, PRECISION)}`
-  //       : whole
-  //     setHumanizedValue(stringAmount)
-  //     setPrice(Number(e.target.value) * 100)
-  //   },
-  //   [setPrice]
-  // )
+      // Conditionally render the decimal part, and only for the number of decimals specified
+      const stringAmount = dot
+        ? `${whole}.${decimal.substring(0, PRECISION)}`
+        : whole
+      setHumanizedValue(stringAmount)
+      setPrice(Number(stringAmount) * 100)
+    },
+    [setPrice]
+  )
 
-  // const handlePriceBlur: FocusEventHandler<HTMLInputElement> = useCallback(
-  //   (e) => {
-  //     const precision = 2
-  //     const [whole, decimal] = e.target.value.split('.')
+  const handlePriceBlur: FocusEventHandler<HTMLInputElement> = useCallback(
+    (e) => {
+      const precision = 2
+      const [whole, decimal] = e.target.value.split('.')
 
-  //     const paddedDecimal = decimal
-  //       .substring(0, precision)
-  //       .padEnd(precision, '0')
-  //     setHumanizedValue(`${whole}.${paddedDecimal}`)
-  //   },
-  //   []
-  // )
+      const paddedDecimal = decimal
+        .substring(0, precision)
+        .padEnd(precision, '0')
+      setHumanizedValue(`${whole}.${paddedDecimal}`)
+    },
+    []
+  )
 
   return (
     <BoxedTextField
       {...messages.price}
       name={PRICE}
-      type='number'
-      step='0.01'
       label={messages.price.label}
+      value={humanizedValue ?? undefined}
       placeholder={messages.price.placeholder}
       startAdornment={messages.dollars}
       endAdornment={messages.usdc}
+      onChange={handlePriceChange}
+      onBlur={handlePriceBlur}
       disabled={disabled}
     />
   )

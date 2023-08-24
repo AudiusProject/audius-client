@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 
 import {
-  PremiumConditionsUSDCPurchase,
   Track,
   TrackAvailabilityType,
   isPremiumContentCollectibleGated,
@@ -9,11 +8,6 @@ import {
   isPremiumContentTipGated,
   isPremiumContentUSDCPurchaseGated
 } from '@audius/common'
-import {
-  PremiumConditionsFollowUserId,
-  PremiumConditionsNFTCollection,
-  PremiumConditionsTipUserId
-} from '@audius/sdk'
 import {
   Button,
   ButtonSize,
@@ -71,7 +65,7 @@ const messages = {
 
 const AccessAndSaleFormSchema = (trackLength: number) =>
   z.object({
-    [PREMIUM_CONDITIONS]: z.optional(
+    [PREMIUM_CONDITIONS]: z.nullable(
       z.object({
         // TODO: there are other types
         usdc_purchase: z.object({
