@@ -81,6 +81,7 @@ export const useAllPaginatedQuery = <
         setLoadingMore(false)
       }
       if (result.status !== Status.SUCCESS) return
+
       setAllData((allData) => [...allData, ...result.data])
     },
     [result.status, args],
