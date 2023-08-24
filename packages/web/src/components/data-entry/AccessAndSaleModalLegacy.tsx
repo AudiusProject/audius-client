@@ -33,6 +33,7 @@ import {
   IS_UNLISTED,
   PREMIUM_CONDITIONS,
   PREVIEW,
+  PRICE,
   PRICE_HUMANIZED,
   SPECIAL_ACCESS_TYPE
 } from 'pages/upload-page/fields/AccessAndSaleField'
@@ -165,8 +166,7 @@ export const AccessAndSaleModalLegacy = (
       get(values, AVAILABILITY_TYPE) === TrackAvailabilityType.USDC_PURCHASE
     ) {
       newState.is_premium = true
-      const priceStr = get(values, PRICE_HUMANIZED)
-      const price = priceStr ? Math.round(parseFloat(priceStr) * 100) : 0 // TODO: better default?
+      const price = Math.round(get(values, PRICE))
       newState.premium_conditions = {
         // @ts-ignore splits get added in saga
         usdc_purchase: {

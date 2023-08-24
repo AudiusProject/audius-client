@@ -23,9 +23,11 @@ import {
   RadioButtonGroup
 } from '@audius/stems'
 import cn from 'classnames'
-import { useField, useFormikContext } from 'formik'
+import { useField } from 'formik'
 import { get, isEmpty, set } from 'lodash'
 import { useSelector } from 'react-redux'
+import { z } from 'zod'
+import { toFormikValidationSchema } from 'zod-formik-adapter'
 
 import {
   ContextualMenu,
@@ -50,7 +52,7 @@ import {
 import { UsdcPurchaseFields } from '../fields/availability/UsdcPurchaseFields'
 import { CollectibleGatedDescription } from '../fields/availability/collectible-gated/CollectibleGatedDescription'
 import { CollectibleGatedFields } from '../fields/availability/collectible-gated/CollectibleGatedFields'
-import { useTrackField } from '../hooks'
+import { useIndexedField, useTrackField } from '../hooks'
 import { SingleTrackEditValues } from '../types'
 
 import styles from './AccessAndSaleField.module.css'
@@ -96,7 +98,6 @@ const messages = {
     play_count: 'Show Play Count',
     remixes: 'Show Remixes'
   },
-
   followersOnly: 'Followers Only',
   supportersOnly: 'Supporters Only',
   ownersOf: 'Owners Of',
@@ -104,6 +105,17 @@ const messages = {
     price.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
   preview: (seconds: number) => {
     return `${seconds.toString()} seconds`
+  },
+  errors: {
+    price: {
+      tooLow: 'Price must be at least $0.99',
+      tooHigh: 'Price must be less than $9.99'
+    },
+    preview: {
+      tooEarly: 'Preview must start during the track',
+      tooLate:
+        'Preview must start at lest 15 seconds before the end of the track'
+    }
   }
 }
 
@@ -128,12 +140,41 @@ export type AccessAndSaleFormValues = {
   [PREVIEW]?: number
 }
 
+const AccessAndSaleFormSchema = (trackLength: number) =>
+  z.object({
+    [PREMIUM_CONDITIONS]: z.nullable(
+      z.object({
+        // TODO: there are other types
+        usdc_purchase: z.object({
+          price: z
+            .number()
+            .lte(999, messages.errors.price.tooHigh)
+            .gte(99, messages.errors.price.tooLow)
+        })
+      })
+    ),
+    [PREVIEW]: z.optional(
+      z
+        .number()
+        .gte(0, messages.errors.preview.tooEarly)
+        .lte(trackLength - 15, messages.errors.preview.tooLate)
+    )
+  })
+
 type AccessAndSaleFieldProps = {
   isUpload?: boolean
+  trackLength?: number
 }
 
 export const AccessAndSaleField = (props: AccessAndSaleFieldProps) => {
   const { isUpload } = props
+
+  const [{ value: index }] = useField('trackMetadatasIndex')
+  const [{ value: trackLength }] = useIndexedField<number>(
+    'tracks',
+    index,
+    'preview.duration'
+  )
 
   // Fields from the outer form
   const [{ value: isUnlisted }, , { setValue: setIsUnlistedValue }] =
@@ -211,12 +252,10 @@ export const AccessAndSaleField = (props: AccessAndSaleFieldProps) => {
       ) {
         setPreviewValue(get(values, PREVIEW))
         setIsPremiumValue(true)
-        const priceStr = get(values, PRICE_HUMANIZED)
-        const price = priceStr ? Math.round(parseFloat(priceStr) * 100) : 0 // TODO: better default?
         setPremiumConditionsValue({
           // @ts-ignore splits get added in saga
           usdc_purchase: {
-            price
+            price: Math.round(get(values, PRICE))
           }
         })
       }
@@ -286,7 +325,7 @@ export const AccessAndSaleField = (props: AccessAndSaleFieldProps) => {
     if (isPremiumContentUSDCPurchaseGated(premiumConditions)) {
       selectedValues = [
         {
-          label: messages.price(premiumConditions.usdc_purchase.price),
+          label: messages.price(premiumConditions.usdc_purchase.price / 100),
           icon: IconCart
         }
       ]
@@ -335,6 +374,9 @@ export const AccessAndSaleField = (props: AccessAndSaleFieldProps) => {
       initialValues={initialValues}
       onSubmit={onSubmit}
       renderValue={renderValue}
+      validationSchema={toFormikValidationSchema(
+        AccessAndSaleFormSchema(trackLength)
+      )}
       menuFields={
         <AccessAndSaleMenuFields
           isRemix={isRemix}
@@ -357,10 +399,6 @@ type AccesAndSaleMenuFieldsProps = {
 export const AccessAndSaleMenuFields = (props: AccesAndSaleMenuFieldsProps) => {
   const { isRemix, isUpload, isInitiallyUnlisted, initialPremiumConditions } =
     props
-
-  // DEBUGGING
-  const { errors } = useFormikContext()
-  console.log({ errors })
 
   const accountUserId = useSelector(getUserId)
   const { isEnabled: isUsdcEnabled } = useFlag(FeatureFlags.USDC_PURCHASES)

@@ -57,6 +57,7 @@ export const EditTrackForm = (props: EditTrackFormProps) => {
   const initialValues: TrackEditFormValues = useMemo(
     () => ({
       trackMetadatasIndex: 0,
+      tracks,
       trackMetadatas: tracks.map((track) => ({
         ...track.metadata,
         artwork: null,

@@ -113,21 +113,21 @@ function* editTrackAsync(action) {
   }
 
   const [{ metadata: trackForEdit }] = yield processTracksForUpload([
-    { metadata: currentTrack }
+    { metadata: action.formFields }
   ])
 
   yield call(
     confirmEditTrack,
     action.trackId,
-    action.formFields,
+    trackForEdit,
     wasDownloadable,
     isNowDownloadable,
     wasUnlisted,
     isNowListed,
-    trackForEdit
+    currentTrack
   )
 
-  const track = { ...action.formFields }
+  const track = { ...trackForEdit }
   track.track_id = action.trackId
   if (track.artwork?.file) {
     track._cover_art_sizes = {
