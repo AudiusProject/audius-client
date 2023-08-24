@@ -17,6 +17,9 @@ npm run start:prod
 
 ## Deploying
 ```
-# Deploy changes
+# First have to create the build
+npm run build:<env> 
+
+# Then deploy changes
 npm run deploy:<env>
 ```
