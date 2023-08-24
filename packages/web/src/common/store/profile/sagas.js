@@ -128,7 +128,7 @@ export function* fetchOpenSeaAssets(user) {
 
     const collectibleList = Object.values(collectiblesMap).flat()
     if (!collectibleList.length) {
-      console.log('profile has no assets in OpenSea')
+      console.info('profile has no assets in OpenSea')
     }
 
     yield put(
@@ -172,7 +172,7 @@ export function* fetchSolanaCollectibles(user) {
 
   const solanaCollectibleList = Object.values(collectiblesMap).flat()
   if (!solanaCollectibleList.length) {
-    console.log('profile has no Solana NFTs')
+    console.info('profile has no Solana NFTs')
   }
 
   yield put(
@@ -530,10 +530,12 @@ function* confirmUpdateProfile(userId, metadata) {
         }
         if (metadata.updatedCoverPhoto) {
           newMetadata.cover_photo_sizes = confirmedUser.cover_photo_sizes
+          newMetadata.cover_photo_cids = confirmedUser.cover_photo_cids
         }
         if (metadata.updatedProfilePicture) {
           newMetadata.profile_picture_sizes =
             confirmedUser.profile_picture_sizes
+          newMetadata.profile_picture_cids = confirmedUser.profile_picture_cids
         }
         yield put(
           cacheActions.update(Kind.USERS, [

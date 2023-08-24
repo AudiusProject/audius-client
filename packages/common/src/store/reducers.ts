@@ -80,7 +80,8 @@ import {
   searchUsersModalReducer,
   SearchUsersModalState,
   ToastState,
-  TransactionDetailsState
+  TransactionDetailsState,
+  withdrawUSDCReducer
 } from './ui'
 import addToPlaylistReducer, {
   AddToPlaylistState
@@ -113,6 +114,8 @@ import { StripeModalState } from './ui/stripe-modal/types'
 import theme, { ThemeState } from './ui/theme/slice'
 import toastReducer from './ui/toast/slice'
 import transactionDetailsReducer from './ui/transaction-details/slice'
+import uploadConfirmationReducer from './ui/upload-confirmation-modal/slice'
+import { UploadConfirmationModalState } from './ui/upload-confirmation-modal/types'
 import vipDiscordModalReducer from './ui/vip-discord-modal/slice'
 import { VipDiscordModalState } from './ui/vip-discord-modal/types'
 import upload from './upload/reducer'
@@ -201,6 +204,7 @@ export const reducers = () => ({
     searchUsersModal: searchUsersModalReducer,
     toast: toastReducer,
     transactionDetails: transactionDetailsReducer,
+    uploadConfirmationModal: uploadConfirmationReducer,
     userList: combineReducers({
       followers: followersUserListReducer,
       following: followingUserListReducer,
@@ -254,6 +258,7 @@ export const reducers = () => ({
   buyUSDC: buyUSDCReducer,
   premiumContent,
   purchaseContent: purchaseContentReducer,
+  withdrawUSDC: withdrawUSDCReducer,
 
   // Collectibles
   collectibles,
@@ -325,6 +330,7 @@ export type CommonState = {
     stripeModal: StripeModalState
     toast: ToastState
     transactionDetails: TransactionDetailsState
+    uploadConfirmationModal: UploadConfirmationModalState
     userList: {
       mutuals: ReturnType<typeof mutualsUserListReducer>
       notifications: ReturnType<typeof notificationsUserListReducer>
@@ -377,6 +383,7 @@ export type CommonState = {
   // Premium content
   purchaseContent: ReturnType<typeof purchaseContentReducer>
   premiumContent: ReturnType<typeof premiumContent>
+  withdrawUSDC: ReturnType<typeof withdrawUSDCReducer>
 
   // Collectibles
   collectibles: ReturnType<typeof collectibles>
