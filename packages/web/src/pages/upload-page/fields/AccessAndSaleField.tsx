@@ -23,7 +23,7 @@ import {
   RadioButtonGroup
 } from '@audius/stems'
 import cn from 'classnames'
-import { useField } from 'formik'
+import { useField, useFormikContext } from 'formik'
 import { get, isEmpty, set } from 'lodash'
 import { useSelector } from 'react-redux'
 
@@ -357,6 +357,10 @@ type AccesAndSaleMenuFieldsProps = {
 export const AccessAndSaleMenuFields = (props: AccesAndSaleMenuFieldsProps) => {
   const { isRemix, isUpload, isInitiallyUnlisted, initialPremiumConditions } =
     props
+
+  // DEBUGGING
+  const { errors } = useFormikContext()
+  console.log({ errors })
 
   const accountUserId = useSelector(getUserId)
   const { isEnabled: isUsdcEnabled } = useFlag(FeatureFlags.USDC_PURCHASES)

@@ -505,6 +505,7 @@ const AdvancedForm = (props) => {
             <AccessAndSaleModalLegacy
               didUpdateState={didUpdateAvailabilityState}
               metadataState={availabilityState}
+              trackLength={props.trackLength}
               isRemix={!!props.defaultFields.remix_of?.tracks?.length}
               isUpload={props.isUpload}
               initialForm={props.initialForm}
@@ -892,6 +893,11 @@ FormTile.propTypes = {
    * in the download selection modal.
    */
   stems: PropTypes.array,
+
+  /**
+   * Track length in seconds
+   */
+  trackLength: PropTypes.number,
 
   /**
    * Optional callback for selecting a stem category.

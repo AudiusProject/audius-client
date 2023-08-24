@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 
 import {
+  PremiumConditionsUSDCPurchase,
   Track,
   TrackAvailabilityType,
   isPremiumContentCollectibleGated,
@@ -8,6 +9,11 @@ import {
   isPremiumContentTipGated,
   isPremiumContentUSDCPurchaseGated
 } from '@audius/common'
+import {
+  PremiumConditionsFollowUserId,
+  PremiumConditionsNFTCollection,
+  PremiumConditionsTipUserId
+} from '@audius/sdk'
 import {
   Button,
   ButtonSize,
@@ -19,6 +25,8 @@ import {
   IconVisibilityPublic
 } from '@audius/stems'
 import { set, isEmpty, get } from 'lodash'
+import { z } from 'zod'
+import { toFormikValidationSchema } from 'zod-formik-adapter'
 
 import { TrackMetadataState } from 'components/track-availability-modal/types'
 import { defaultFieldVisibility } from 'pages/track-page/utils'
@@ -47,22 +55,61 @@ const messages = {
   premium: 'Premium',
   specialAccess: 'Special Access',
   collectibleGated: 'Collectible Gated',
-  hidden: 'Hidden'
+  hidden: 'Hidden',
+  errors: {
+    price: {
+      tooLow: 'Price must be at least $0.99',
+      tooHigh: 'Price must be less than $9.99'
+    },
+    preview: {
+      tooEarly: 'Preview must start during the track',
+      tooLate:
+        'Preview must start at lest 15 seconds before the end of the track'
+    }
+  }
 }
+
+const AccessAndSaleFormSchema = (trackLength: number) =>
+  z.object({
+    [PREMIUM_CONDITIONS]: z.optional(
+      z.object({
+        // TODO: there are other types
+        usdc_purchase: z.object({
+          price: z
+            .number()
+            .lte(999, messages.errors.price.tooHigh)
+            .gte(99, messages.errors.price.tooLow)
+        })
+      })
+    ),
+    [PREVIEW]: z.optional(
+      z
+        .number()
+        .gte(0, messages.errors.preview.tooEarly)
+        .lte(trackLength - 15, messages.errors.preview.tooLate)
+    )
+  })
 
 type AccessAndSaleModalLegacyProps = {
   isRemix: boolean
   isUpload: boolean
   initialForm: Track
   metadataState: TrackMetadataState
+  trackLength: number
   didUpdateState: (newState: TrackMetadataState) => void
 }
 
 export const AccessAndSaleModalLegacy = (
   props: AccessAndSaleModalLegacyProps
 ) => {
-  const { isUpload, isRemix, initialForm, metadataState, didUpdateState } =
-    props
+  const {
+    isUpload,
+    isRemix,
+    initialForm,
+    metadataState,
+    trackLength,
+    didUpdateState
+  } = props
   const {
     premium_conditions: premiumConditions,
     unlisted: isUnlisted,
@@ -176,6 +223,10 @@ export const AccessAndSaleModalLegacy = (
       icon={<IconHidden />}
       initialValues={initialValues}
       onSubmit={onSubmit}
+      validationSchema={toFormikValidationSchema(
+        // @ts-ignore
+        AccessAndSaleFormSchema(trackLength)
+      )}
       menuFields={
         <AccessAndSaleMenuFields
           isRemix={isRemix}
