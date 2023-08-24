@@ -1,4 +1,3 @@
-import { SolanaWalletAddress } from '@audius/common'
 import { SwapMode } from '@jup-ag/core'
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -18,8 +17,7 @@ import {
   getRootSolanaAccount,
   getAssociatedTokenAccountRent,
   getTransferTransactionFee,
-  getUSDCAssociatedTokenAccount,
-  isSolWallet
+  getUSDCAssociatedTokenAccount
 } from 'services/solana/solana'
 
 // TODO: Grab from remote config
@@ -37,46 +35,15 @@ const getWithdrawUSDCFees = async (account: PublicKey) => {
 /**
  * Creates instructions to swap USDC from a user bank into
  * SOL, which is deposited into the user's root solana account.
- * @param {string} destinationAddress Address to create an associated token account for.
- * Can be either a solana address or a USDC associated token account address.
- * @param {string} feePayer Fee payer address
- * @returns {Promise<TransactionInstruction[]>} Instructions to swap USDC for SOL.
  */
 export const getSwapUSDCUserBankInstructions = async (
   destinationAddress: string,
-  feePayer: string
+  feePayer: PublicKey
 ): Promise<TransactionInstruction[]> => {
   const libs = await getLibs()
-  const destinationPubkey = new PublicKey(destinationAddress)
-  const feePayerPubkey = new PublicKey(feePayer)
-
-  const isDestinationSolAddress = await isSolWallet(
-    destinationAddress as SolanaWalletAddress
-  )
-
-  if (!isDestinationSolAddress) {
-    return []
-  }
-
-  // Destination is a sol address - check for associated token account
-  const destinationAssociatedTokenAccount =
-    await Token.getAssociatedTokenAddress(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
-      libs.solanaWeb3Manager!.mints.usdc,
-      destinationPubkey
-    )
-  const destinationAccountInfo =
-    await libs.solanaWeb3Manager!.getTokenAccountInfo(
-      destinationAssociatedTokenAccount.toString(),
-      'usdc'
-    )
-  if (destinationAccountInfo !== null) {
-    return []
-  }
 
   // Destination associated token account does not exist - create and fund it
-  const feeAmount = await getWithdrawUSDCFees(destinationPubkey)
+  const feeAmount = await getWithdrawUSDCFees(new PublicKey(destinationAddress))
   const solanaRootAccount = await getRootSolanaAccount()
   const usdcUserBank = await libs.solanaWeb3Manager!.deriveUserBank({
     mint: 'usdc'
@@ -103,7 +70,7 @@ export const getSwapUSDCUserBankInstructions = async (
   const exchangeInfo = await JupiterSingleton.exchange({
     routeInfo: swapRoute.route,
     userPublicKey: solanaRootAccount.publicKey,
-    feeAccount: feePayerPubkey
+    feeAccount: feePayer
   })
   const swapInstructions = [
     ...(exchangeInfo.transactions.setupTransaction?.instructions ?? []),
@@ -114,7 +81,7 @@ export const getSwapUSDCUserBankInstructions = async (
   const transferInstructions =
     await libs.solanaWeb3Manager!.createTransferInstructionsFromCurrentUser({
       amount: new BN(usdcNeededAmount.uiAmount),
-      feePayerKey: feePayerPubkey,
+      feePayerKey: feePayer,
       senderSolanaAddress: usdcUserBank,
       recipientSolanaAddress: solanaUSDCAssociatedTokenAccount.toString(),
       instructionIndex: 1,
@@ -128,13 +95,13 @@ export const getSwapUSDCUserBankInstructions = async (
       libs.solanaWeb3Manager!.mints.usdc, // mint
       solanaUSDCAssociatedTokenAccount, // associatedAccount
       solanaRootAccount.publicKey, // owner
-      feePayerPubkey // payer
+      feePayer // payer
     )
   const closeAssociatedTokenAccountInstruction =
     Token.createCloseAccountInstruction(
       TOKEN_PROGRAM_ID, //    programId
       solanaUSDCAssociatedTokenAccount, //  account to close
-      feePayerPubkey, // fee destination
+      feePayer, // fee destination
       solanaRootAccount.publicKey, //  owner
       [] //  multiSigners
     )

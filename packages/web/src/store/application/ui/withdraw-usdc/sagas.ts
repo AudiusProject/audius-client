@@ -4,8 +4,6 @@ import {
   solanaSelectors,
   ErrorLevel,
   SolanaWalletAddress,
-  getTokenAccountInfo,
-  isValidSolDestinationAddress,
   getUSDCUserBank,
   getContext
 } from '@audius/common'
@@ -21,7 +19,11 @@ import { call, put, select } from 'typed-redux-saga'
 
 import { getLibs } from 'services/audius-libs'
 import { getSwapUSDCUserBankInstructions } from 'services/solana/WithdrawUSDC'
-import { isSolWallet } from 'services/solana/solana'
+import {
+  isSolWallet,
+  getTokenAccountInfo,
+  isValidSolAddress
+} from 'services/solana/solana'
 
 const {
   beginWithdrawUSDC,
@@ -33,12 +35,10 @@ const {
   setDestinationAddressSucceeded,
   withdrawUSDCFailed
 } = withdrawUSDCActions
-const { getWithdrawDestinationAddress, getWithdrawAmount } =
-  withdrawUSDCSelectors
+const { getWithdrawDestinationAddress } = withdrawUSDCSelectors
 const { getFeePayer } = solanaSelectors
 
 function* doSetAmount({ payload: { amount } }: ReturnType<typeof setAmount>) {
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   try {
     const amountBN = new BN(amount)
     if (amountBN.lte(new BN(0))) {
@@ -46,14 +46,10 @@ function* doSetAmount({ payload: { amount } }: ReturnType<typeof setAmount>) {
     }
     // get user bank
     const userBank = yield* call(getUSDCUserBank)
-    const tokenAccountInfo = yield* call(
-      getTokenAccountInfo,
-      audiusBackendInstance,
-      {
-        mint: 'usdc',
-        tokenAccount: userBank
-      }
-    )
+    const tokenAccountInfo = yield* call(getTokenAccountInfo, {
+      tokenAccount: userBank,
+      mint: 'usdc'
+    })
     if (!tokenAccountInfo) {
       throw new Error('Failed to fetch USDC token account info')
     }
@@ -76,14 +72,12 @@ function* doSetAmount({ payload: { amount } }: ReturnType<typeof setAmount>) {
 function* doSetDestinationAddress({
   payload: { destinationAddress }
 }: ReturnType<typeof setDestinationAddress>) {
-  const audiusBackendInstance = yield* getContext('audiusBackendInstance')
   try {
     if (!destinationAddress) {
       throw new Error('Please enter a destination address')
     }
     const isValidAddress = yield* call(
-      isValidSolDestinationAddress,
-      audiusBackendInstance,
+      isValidSolAddress,
       destinationAddress as SolanaWalletAddress
     )
     if (!isValidAddress) {
@@ -100,15 +94,11 @@ function* doSetDestinationAddress({
   }
 }
 
-async function* doWithdrawUSDC({
-  payload
-}: ReturnType<typeof beginWithdrawUSDC>) {
+function* doWithdrawUSDC({ payload }: ReturnType<typeof beginWithdrawUSDC>) {
   try {
     const libs = yield* call(getLibs)
     // Assume destinationAddress and amount have already been validated
-    const amount = yield* select(getWithdrawAmount)
-    // const destinationAddress = yield* select(getWithdrawDestinationAddress)
-    const destinationAddress = '4d5U11uroz3ZFHjxjYKyJReGPJ3yE5kGTf2NSTXb2QWF'
+    const destinationAddress = yield* select(getWithdrawDestinationAddress)
     if (!destinationAddress) {
       throw new Error('Please enter a destination address')
     }
@@ -133,22 +123,17 @@ async function* doWithdrawUSDC({
         libs.solanaWeb3Manager!.mints.usdc,
         destinationPubkey
       )
-      const destinationAccountInfo = yield* call(
-        [
-          libs,
-          libs.solanaWeb3Manager,
-          libs.solanaWeb3Manager.getTokenAccountInfo
-        ],
-        destinationAssociatedTokenAccount.toString(),
-        'usdc'
-      )
+      const destinationAccountInfo = yield* call(getTokenAccountInfo, {
+        tokenAccount: destinationAssociatedTokenAccount,
+        mint: 'usdc'
+      })
 
       // Destination associated token account does not exist - create and fund it
       if (destinationAccountInfo === null) {
         const swapInstructions = yield* call(
           getSwapUSDCUserBankInstructions,
           destinationAddress,
-          feePayer
+          feePayerPubkey
         )
 
         const transactionHandler = libs.solanaWeb3Manager?.transactionHandler
@@ -164,9 +149,6 @@ async function* doWithdrawUSDC({
           }
         )
         if (swapError) {
-          console.debug(
-            `Swap transaction stringified: ${JSON.stringify(swapInstructions)}`
-          )
           throw new Error(`Swap transaction failed: ${swapError}`)
         }
       }
