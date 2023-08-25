@@ -1,4 +1,7 @@
+import { full } from '@audius/sdk'
 import { Moment } from 'moment'
+
+import { ValueOf } from 'utils/typeUtils'
 
 import {
   UID,
@@ -9,6 +12,14 @@ import {
   LineupTrack
 } from '../../../models'
 
+export const LIBRARY_SELECTED_CATEGORY_LS_KEY = 'librarySelectedCategory'
+
+export const LibraryCategory = full.GetUserLibraryTracksTypeEnum
+export type LibraryCategoryType = ValueOf<typeof LibraryCategory>
+
+export function isLibraryCategory(value: string): value is LibraryCategoryType {
+  return Object.values(LibraryCategory).includes(value as LibraryCategoryType)
+}
 export interface SavedPageState {
   localSaves: { [id: number]: UID }
   tracks: LineupState<LineupTrack & { id: ID; dateSaved: string }>
@@ -16,6 +27,7 @@ export interface SavedPageState {
   hasReachedEnd: boolean
   initialFetch: boolean
   fetchingMore: boolean
+  selectedCategory: LibraryCategoryType
 }
 
 export enum SavedPageTabs {

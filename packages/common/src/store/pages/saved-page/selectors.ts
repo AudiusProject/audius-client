@@ -14,6 +14,8 @@ export const getIsFetchingMore = (state: CommonState) =>
   state.pages.savedPage.fetchingMore
 export const hasReachedEnd = (state: CommonState) =>
   state.pages.savedPage.hasReachedEnd
+export const getSelectedCategory = (state: CommonState) =>
+  state.pages.savedPage.selectedCategory
 
 export const getSavedTracksStatus = (state: CommonState) =>
   state.pages.savedPage.tracks.status
