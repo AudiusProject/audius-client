@@ -29,6 +29,7 @@ import { LoadingMoreSpinner } from './LoadingMoreSpinner'
 import { NoTracksPlaceholder } from './NoTracksPlaceholder'
 import { OfflineContentBanner } from './OfflineContentBanner'
 import { useFavoritesLineup } from './useFavoritesLineup'
+
 const { saveTrack, unsaveTrack } = tracksSocialActions
 const { fetchSaves: fetchSavesAction, fetchMoreSaves } = savedPageActions
 const {
@@ -36,7 +37,8 @@ const {
   getLocalSaves,
   getSavedTracksStatus,
   getInitialFetchStatus,
-  getIsFetchingMore
+  getIsFetchingMore,
+  getSelectedCategory
 } = savedPageSelectors
 const { getIsReachable } = reachabilitySelectors
 const { getTrack } = cacheTracksSelectors
@@ -72,6 +74,7 @@ export const TracksTab = () => {
 
   const [filterValue, setFilterValue] = useState('')
   const [fetchPage, setFetchPage] = useState(0)
+  const selectedCategory = useSelector(getSelectedCategory)
   const savedTracksStatus = useSelector(getSavedTracksStatus)
   const initialFetch = useSelector(getInitialFetchStatus)
   const isFetchingMore = useSelector(getIsFetchingMore)
@@ -86,11 +89,13 @@ export const TracksTab = () => {
   const isLoading = savedTracksStatus !== Status.SUCCESS
 
   const fetchSaves = useCallback(() => {
-    dispatch(fetchSavesAction(filterValue, '', '', 0, FETCH_LIMIT))
-  }, [dispatch, filterValue])
+    dispatch(
+      fetchSavesAction(filterValue, selectedCategory, '', '', 0, FETCH_LIMIT)
+    )
+  }, [dispatch, filterValue, selectedCategory])
 
   useEffect(() => {
-    // Need to fetch saves when the filterValue (by way of fetchSaves) changes
+    // Need to fetch saves when the filterValue or selectedCategory (by way of fetchSaves) changes
     if (isReachable) {
       fetchSaves()
     }
@@ -134,11 +139,19 @@ export const TracksTab = () => {
 
     const nextPage = fetchPage + 1
     dispatch(
-      fetchMoreSaves(filterValue, '', '', nextPage * FETCH_LIMIT, FETCH_LIMIT)
+      fetchMoreSaves(
+        filterValue,
+        selectedCategory,
+        '',
+        '',
+        nextPage * FETCH_LIMIT,
+        FETCH_LIMIT
+      )
     )
     setFetchPage(nextPage)
   }, [
     allTracksFetched,
+    selectedCategory,
     dispatch,
     fetchPage,
     filterValue,
