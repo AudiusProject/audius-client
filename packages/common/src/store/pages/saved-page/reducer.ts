@@ -21,7 +21,7 @@ import { signOut } from 'store/sign-out/slice'
 import { ActionsMap } from 'utils/reducer'
 
 import { PREFIX as tracksPrefix } from './lineups/tracks/actions'
-import { SavedPageState } from './types'
+import { LibraryCategory, SavedPageState } from './types'
 
 const initialState = {
   // id => uid
@@ -31,7 +31,7 @@ const initialState = {
   hasReachedEnd: false,
   fetchingMore: false,
   tracks: initialLineupState,
-  selectedCategory: 'favorite'
+  selectedCategory: LibraryCategory.Favorite
 } as SavedPageState
 
 const actionsMap: ActionsMap<SavedPageState> = {
