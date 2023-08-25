@@ -204,3 +204,6 @@ export const JupiterSingleton = {
   exchange,
   executeExchange
 }
+
+window.jupiter = getInstance()
+window.jsbi = JSBI

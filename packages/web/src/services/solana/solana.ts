@@ -127,3 +127,40 @@ export const getUSDCAssociatedTokenAccount = async (
     solanaRootAccountPubkey
   )
 }
+
+export const getNewTransaction = async () => {
+  const connection = await getSolanaConnection()
+  const recentBlockhash = (await connection.getLatestBlockhash()).blockhash
+  return new Transaction({ recentBlockhash })
+}
+
+export const addTransferInstructionToTransaction = async ({
+  transaction,
+  amount,
+  mint,
+  from,
+  to,
+  owner,
+  decimals
+}: {
+  transaction: Transaction
+  amount: number
+  mint: MintName
+  from: PublicKey
+  to: PublicKey
+  owner: PublicKey
+  decimals: number
+}) => {
+  const libs = await getLibs()
+  const instruction = Token.createTransferCheckedInstruction(
+    TOKEN_PROGRAM_ID,
+    from, // from
+    libs.solanaWeb3Manager!.mints[mint], // mint
+    to, // to
+    owner, // owner
+    [], // multisigners
+    amount, // amount
+    decimals // decimals
+  )
+  transaction.add(instruction)
+}
