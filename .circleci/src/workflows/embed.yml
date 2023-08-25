@@ -4,16 +4,16 @@ jobs:
   - embed-build-staging:
       requires:
         - embed-init
-      # filters:
-      #   branches:
-      #     only: /^main$/
+      filters:
+        branches:
+          only: /^main$/
   - embed-deploy-staging-cloudflare:
       context: Audius Client
       requires:
         - embed-build-staging
-      # filters:
-      #   branches:
-      #     only: /^main$/
+      filters:
+        branches:
+          only: /^main$/
   - embed-build-production:
       requires:
         - embed-init
