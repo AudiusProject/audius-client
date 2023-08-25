@@ -11,14 +11,17 @@ import {
   FETCH_MORE_SAVES_FAILED,
   ADD_LOCAL_SAVE,
   REMOVE_LOCAL_SAVE,
-  END_FETCHING
+  END_FETCHING,
+  SET_SELECTED_CATEGORY
 } from 'store/pages/saved-page/actions'
 import tracksReducer, {
   initialState as initialLineupState
 } from 'store/pages/saved-page/lineups/tracks/reducer'
 import { signOut } from 'store/sign-out/slice'
+import { ActionsMap } from 'utils/reducer'
 
 import { PREFIX as tracksPrefix } from './lineups/tracks/actions'
+import { LibraryCategory, SavedPageState } from './types'
 
 const initialState = {
   // id => uid
@@ -27,16 +30,17 @@ const initialState = {
   initialFetch: false,
   hasReachedEnd: false,
   fetchingMore: false,
-  tracks: initialLineupState
-}
+  tracks: initialLineupState,
+  selectedCategory: LibraryCategory.Favorite
+} as SavedPageState
 
-const actionsMap = {
-  [FETCH_SAVES](state, action) {
+const actionsMap: ActionsMap<SavedPageState> = {
+  [FETCH_SAVES](state) {
     return {
       ...state
     }
   },
-  [FETCH_SAVES_REQUESTED](state, action) {
+  [FETCH_SAVES_REQUESTED](state) {
     return {
       ...state,
       initialFetch: true,
@@ -50,13 +54,13 @@ const actionsMap = {
       initialFetch: false
     }
   },
-  [FETCH_MORE_SAVES](state, action) {
+  [FETCH_MORE_SAVES](state) {
     return {
       ...state,
       fetchingMore: true
     }
   },
-  [FETCH_SAVES_FAILED](state, action) {
+  [FETCH_SAVES_FAILED](state) {
     return {
       ...state,
       fetchingMore: false,
@@ -73,7 +77,7 @@ const actionsMap = {
       saves: savesCopy
     }
   },
-  [FETCH_MORE_SAVES_FAILED](state, action) {
+  [FETCH_MORE_SAVES_FAILED](state) {
     return { ...state }
   },
   [END_FETCHING](state, action) {
@@ -101,7 +105,13 @@ const actionsMap = {
     )
     return newState
   },
-  [signOut.type](state) {
+  [SET_SELECTED_CATEGORY](state, action) {
+    return {
+      ...state,
+      selectedCategory: action.category
+    }
+  },
+  [signOut.type]() {
     return initialState
   }
 }
