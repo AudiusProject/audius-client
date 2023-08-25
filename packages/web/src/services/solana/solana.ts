@@ -75,7 +75,7 @@ export const getRootAccountRentExemptionMinimum = async () => {
 }
 
 /**
- *
+ * Gets the token account info for a given token account.
  */
 export const getTokenAccountInfo = async ({
   tokenAccount,
